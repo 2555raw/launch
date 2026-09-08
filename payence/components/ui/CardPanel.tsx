@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { NETWORKS, type Network } from "./CardNetworks";
 
 const START = ["OpenAI", "AWS", "Vercel", "Datadog"];
+/** Everything the allowlist can hold: the starting four plus a few to try. */
+const POOL = [...START, "Stripe", "GitHub", "Linear"];
 
 /**
  * The colours the card face can take. Each is a token already on the page, so
@@ -21,18 +23,32 @@ export const CARD_THEMES = [
 
 export function CardPanel() {
   const [merchants, setMerchants] = useState<string[]>([...START]);
+  const [pool, setPool] = useState<string[]>([...POOL]);
   const [draft, setDraft] = useState("");
   const [frozen, setFrozen] = useState(false);
   const [holder, setHolder] = useState("procurement-agent");
   const [theme, setTheme] = useState<(typeof CARD_THEMES)[number]>(CARD_THEMES[0]);
   const [network, setNetwork] = useState<Network>(NETWORKS[0]);
 
-  const add = () => {
-    const name = draft.trim();
-    if (!name || merchants.some((m) => m.toLowerCase() === name.toLowerCase())) return;
+  const has = (list: string[], name: string) =>
+    list.some((m) => m.toLowerCase() === name.toLowerCase());
+
+  const allow = (name: string) => {
+    if (!name || has(merchants, name)) return;
     setMerchants((m) => [...m, name]);
+    setPool((p) => (has(p, name) ? p : [...p, name]));
+  };
+
+  const deny = (name: string) => setMerchants((list) => list.filter((x) => x !== name));
+
+  const add = () => {
+    allow(draft.trim());
     setDraft("");
   };
+
+  // What has been taken off the list, and what was never on it, in one row you
+  // can put back with a click.
+  const suggestions = pool.filter((m) => !has(merchants, m));
 
   return (
     <div
@@ -46,12 +62,12 @@ export function CardPanel() {
         <span
           data-card-state
           className={`inline-flex items-center gap-2 rounded-pill border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] ${
-            frozen ? "border-hairDark text-canvas/50" : "border-positive/40 text-positive"
+            frozen ? "border-danger/50 text-danger" : "border-positive/40 text-positive"
           }`}
         >
           <i
             className={`h-1.5 w-1.5 rounded-full ${
-              frozen ? "bg-canvas/40" : "bg-positive animate-pulseDot"
+              frozen ? "bg-danger animate-pulseDot" : "bg-positive animate-pulseDot"
             }`}
           />
           {frozen ? "Frozen" : "Active"}
@@ -180,7 +196,7 @@ export function CardPanel() {
                 {m}
                 <button
                   type="button"
-                  onClick={() => setMerchants((list) => list.filter((x) => x !== m))}
+                  onClick={() => deny(m)}
                   aria-label={`Remove ${m}`}
                   className="flex h-4 w-4 items-center justify-center rounded-full border border-canvas/25 text-[10px] leading-none text-canvas/60 transition-colors duration-200 hover:border-coral hover:text-coral"
                 >
@@ -190,6 +206,26 @@ export function CardPanel() {
             </li>
           ))}
         </ul>
+
+        {suggestions.length > 0 && (
+          <div data-allow-suggest className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-canvas/35">
+              Add back
+            </span>
+            {suggestions.map((m) => (
+              <button
+                key={m}
+                type="button"
+                data-suggest={m}
+                onClick={() => allow(m)}
+                className="inline-flex items-center gap-1.5 rounded-pill border border-dashed border-canvas/25 py-1.5 pl-3 pr-3 font-mono text-[12px] text-canvas/55 transition-colors duration-200 hover:border-positive hover:text-positive"
+              >
+                <span aria-hidden>+</span>
+                {m}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-card border border-hairDark p-2">
           <span className="flex overflow-hidden rounded-pill border border-hairDark" aria-hidden>
@@ -229,7 +265,10 @@ export function CardPanel() {
         <div>
           <p className="flex items-center gap-2 text-[13.5px] font-medium">
             <i
-              className={`h-1.5 w-1.5 rounded-full ${frozen ? "bg-coral" : "bg-positive"}`}
+              data-freeze-light
+              className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+                frozen ? "bg-danger shadow-[0_0_10px_rgba(229,72,77,0.8)]" : "bg-positive shadow-[0_0_10px_rgba(40,169,107,0.7)]"
+              }`}
               aria-hidden
             />
             Card protection
@@ -246,7 +285,7 @@ export function CardPanel() {
           aria-pressed={frozen}
           onClick={() => setFrozen((v) => !v)}
           className={`h-9 shrink-0 rounded-pill px-4 text-[13px] font-medium transition-colors duration-200 ${
-            frozen ? "bg-coral text-canvas" : "bg-canvas text-ink hover:bg-coral hover:text-canvas"
+            frozen ? "bg-danger text-canvas" : "bg-canvas text-ink hover:bg-coral hover:text-canvas"
           }`}
         >
           {frozen ? "Unfreeze card" : "Freeze card"}

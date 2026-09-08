@@ -74,42 +74,87 @@ VANILLA = r"""
     io.observe(term);
   }
 
-  /* the card panel: allowlist, and the freeze switch */
+  /* the card panel: the allowlist, what you took off it, and the freeze switch */
   const panel = $('[data-card-panel]');
   if (panel) {
     const list = $('[data-allow-list]', panel);
+    const suggest = $('[data-allow-suggest]', panel);
     const count = $('[data-allow-count]', panel);
     const input = $('[data-allow-input]', panel);
     const addBtn = $('[data-allow-add]', panel);
     const freeze = $('[data-freeze]', panel);
     const state = $('[data-card-state]', panel);
+    const light = $('[data-freeze-light]', panel);
     const copy = $('[data-freeze-copy]', panel);
 
-    const sync = () => { if (count) count.textContent = $$('li', list).length + ' allowed'; };
+    const clean = (v) => v.replace(/[<>&"]/g, '');
+    const named = (el) => (el.dataset.suggest || el.textContent || '').replace(/^\+\s*/, '').replace(/\s*×$/, '').trim();
+    const listed = (name) =>
+      $$('li', list).some((li) => named(li).toLowerCase() === name.toLowerCase());
 
-    const wireChip = (li) => {
-      const btn = $('button', li);
-      if (btn) btn.addEventListener('click', () => { li.remove(); sync(); });
+    const sync = () => {
+      if (count) count.textContent = $$('li', list).length + ' allowed';
+      if (suggest) suggest.hidden = $$('[data-suggest]', suggest).length === 0;
     };
-    if (list) $$('li', list).forEach(wireChip);
 
-    const add = () => {
-      const name = (input?.value || '').trim();
-      if (!name || !list) return;
-      const taken = $$('li', list).some((li) => li.textContent.trim().replace(/\s*×$/, '').toLowerCase() === name.toLowerCase());
-      if (taken) return;
+    const addSuggestion = (name) => {
+      if (!suggest || $(`[data-suggest="${name}"]`, suggest)) return;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.suggest = name;
+      b.className =
+        'inline-flex items-center gap-1.5 rounded-pill border border-dashed border-canvas/25 py-1.5 pl-3 pr-3 font-mono text-[12px] text-canvas/55 transition-colors duration-200 hover:border-positive hover:text-positive';
+      b.innerHTML = '<span aria-hidden>+</span>' + clean(name);
+      suggest.appendChild(b);
+      wireSuggestion(b);
+      sync();
+    };
+
+    const addChip = (name) => {
+      if (!list || !name || listed(name)) return;
       const li = document.createElement('li');
       li.innerHTML =
         '<span class="inline-flex items-center gap-2 rounded-pill border border-hairDark bg-canvas/[0.04] py-1.5 pl-3.5 pr-2 font-mono text-[12px]">' +
-        name.replace(/[<>&]/g, '') +
-        '<button type="button" aria-label="Remove ' + name.replace(/["<>&]/g, '') + '" class="flex h-4 w-4 items-center justify-center rounded-full border border-canvas/25 text-[10px] leading-none text-canvas/60 transition-colors duration-200 hover:border-coral hover:text-coral">×</button></span>';
+        clean(name) +
+        '<button type="button" aria-label="Remove ' + clean(name) + '" class="flex h-4 w-4 items-center justify-center rounded-full border border-canvas/25 text-[10px] leading-none text-canvas/60 transition-colors duration-200 hover:border-coral hover:text-coral">×</button></span>';
       list.appendChild(li);
       wireChip(li);
-      input.value = '';
       sync();
     };
-    addBtn?.addEventListener('click', add);
-    input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+
+    function wireChip(li) {
+      const btn = $('button', li);
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const name = named(li);
+        li.remove();
+        addSuggestion(name);
+        sync();
+      });
+    }
+
+    function wireSuggestion(b) {
+      b.addEventListener('click', () => {
+        const name = named(b);
+        b.remove();
+        addChip(name);
+        sync();
+      });
+    }
+
+    if (list) $$('li', list).forEach(wireChip);
+    if (suggest) $$('[data-suggest]', suggest).forEach(wireSuggestion);
+
+    const submit = () => {
+      const name = (input?.value || '').trim();
+      if (!name) return;
+      const pending = suggest && $(`[data-suggest="${name}"]`, suggest);
+      if (pending) pending.remove();
+      addChip(name);
+      input.value = '';
+    };
+    addBtn?.addEventListener('click', submit);
+    input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
 
     freeze?.addEventListener('click', () => {
       const frozen = freeze.getAttribute('aria-pressed') !== 'true';
@@ -117,150 +162,27 @@ VANILLA = r"""
       freeze.textContent = frozen ? 'Unfreeze card' : 'Freeze card';
       freeze.className =
         'h-9 shrink-0 rounded-pill px-4 text-[13px] font-medium transition-colors duration-200 ' +
-        (frozen ? 'bg-coral text-canvas' : 'bg-canvas text-ink hover:bg-coral hover:text-canvas');
+        (frozen ? 'bg-danger text-canvas' : 'bg-canvas text-ink hover:bg-coral hover:text-canvas');
+      if (light) {
+        light.className =
+          'h-2 w-2 rounded-full transition-colors duration-300 ' +
+          (frozen
+            ? 'bg-danger shadow-[0_0_10px_rgba(229,72,77,0.8)]'
+            : 'bg-positive shadow-[0_0_10px_rgba(40,169,107,0.7)]');
+      }
       if (state) {
         state.className =
           'inline-flex items-center gap-2 rounded-pill border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] ' +
-          (frozen ? 'border-hairDark text-canvas/50' : 'border-positive/40 text-positive');
+          (frozen ? 'border-danger/50 text-danger' : 'border-positive/40 text-positive');
         state.innerHTML =
-          '<i class="h-1.5 w-1.5 rounded-full ' +
-          (frozen ? 'bg-canvas/40' : 'bg-positive animate-pulseDot') + '"></i>' +
+          '<i class="h-1.5 w-1.5 rounded-full animate-pulseDot ' +
+          (frozen ? 'bg-danger' : 'bg-positive') + '"></i>' +
           (frozen ? 'Frozen' : 'Active');
       }
       if (copy) copy.textContent = frozen
         ? 'Frozen. Every agent payment on this card is declined.'
         : 'Freeze instantly to block every agent payment.';
     });
-  }
-
-  /* platform tabs */
-  const tabs = $$('[role="tab"]');
-  if (tabs.length) {
-    const select = (key) => {
-      tabs.forEach((t) => {
-        const on = t.id === 'tab-' + key;
-        t.setAttribute('aria-selected', String(on));
-        t.className =
-          'relative whitespace-nowrap px-5 py-3.5 text-[14px] transition-colors duration-200 ' +
-          (on ? 'text-ink' : 'text-muted hover:text-ink');
-        let ul = t.querySelector('.tab-underline');
-        if (on && !ul) {
-          ul = document.createElement('span');
-          ul.className = 'tab-underline absolute inset-x-3 -bottom-px h-[2px] bg-coral';
-          t.appendChild(ul);
-        } else if (!on && ul) {
-          ul.remove();
-        }
-      });
-      $$('[role="tabpanel"]').forEach((p) => {
-        const on = p.id === 'panel-' + key;
-        p.hidden = !on;
-        if (on && !still) {
-          p.animate(
-            [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
-            { duration: 280, easing: 'cubic-bezier(.22,.65,.3,1)' }
-          );
-        }
-      });
-    };
-    tabs.forEach((t) => t.addEventListener('click', () => select(t.id.replace('tab-', ''))));
-  }
-
-  /* faq */
-  $$('button[aria-controls^="faq-"]').forEach((btn) => {
-    const p = document.getElementById(btn.getAttribute('aria-controls'));
-    const icon = btn.querySelector('span[aria-hidden]');
-    btn.addEventListener('click', () => {
-      const open = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!open));
-      if (p) p.hidden = open;
-      if (icon) icon.classList.toggle('rotate-45', !open);
-    });
-  });
-
-  /* terms and privacy dialogs */
-  let opener = null;
-  const closeLegal = () => {
-    $$('[data-legal-panel]').forEach((p) => { p.hidden = true; });
-    document.body.style.overflow = '';
-    if (opener) { opener.focus(); opener = null; }
-  };
-  document.addEventListener('click', (e) => {
-    const open = e.target.closest('[data-legal]');
-    if (open) {
-      e.preventDefault();
-      opener = open;
-      const panel = $('[data-legal-panel="' + open.dataset.legal + '"]');
-      if (panel) {
-        panel.hidden = false;
-        document.body.style.overflow = 'hidden';
-        $('[role="dialog"]', panel)?.focus();
-      }
-      return;
-    }
-    if (e.target.closest('[data-legal-close]')) closeLegal();
-  });
-  addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLegal(); });
-
-  /* the freeze switch on the console further down */
-  const consoleFreeze = $$('button').find((b) => !b.hasAttribute('data-freeze') && /^(Freeze|Unfreeze) card$/.test((b.textContent || '').trim()));
-  if (consoleFreeze) {
-    consoleFreeze.addEventListener('click', () => {
-      consoleFreeze.textContent = /Unfreeze/.test(consoleFreeze.textContent || '') ? 'Freeze card' : 'Unfreeze card';
-    });
-  }
-
-  /* the headline arrives a word at a time */
-  const words = $$('[data-hero-word]');
-  if (words.length && !still) {
-    words.forEach((w, i) => {
-      w.animate(
-        [{ opacity: 0, transform: 'translateY(0.42em)' }, { opacity: 1, transform: 'none' }],
-        { duration: 660, delay: 100 + i * 75, easing: 'cubic-bezier(.22,.65,.3,1)', fill: 'backwards' }
-      );
-    });
-  }
-
-  /* figures count to their value when they reach the viewport */
-  $$('[data-countup]').forEach((el) => {
-    const to = Number(el.dataset.countup);
-    let opts = { decimals: 0, prefix: '', suffix: '' };
-    try { opts = { ...opts, ...JSON.parse(el.dataset.countupFormat || '{}') }; } catch (_) {}
-    const fmt = (n) => opts.prefix + n.toLocaleString('en-US', {
-      minimumFractionDigits: opts.decimals, maximumFractionDigits: opts.decimals,
-    }) + opts.suffix;
-    if (still || !Number.isFinite(to)) return;
-    el.textContent = fmt(0);
-    const io = new IntersectionObserver((entries) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      io.disconnect();
-      const start = performance.now();
-      const tick = (now) => {
-        const t = Math.min(1, (now - start) / 1400);
-        el.textContent = fmt(to * (1 - Math.pow(1 - t, 3)));
-        if (t < 1) requestAnimationFrame(tick); else el.textContent = fmt(to);
-      };
-      requestAnimationFrame(tick);
-    }, { threshold: 0.4 });
-    io.observe(el);
-  });
-
-  /* the spend bars grow into place */
-  const bars = $$('[data-spend-bar]');
-  if (bars.length && !still) {
-    bars.forEach((bar) => { bar.style.height = '0%'; });
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        io.unobserve(entry.target);
-        $$('[data-spend-bar]', entry.target).forEach((bar, i) => {
-          bar.style.height = bar.dataset.spendBar + '%';
-          bar.animate([{ height: '0%' }, { height: bar.dataset.spendBar + '%' }],
-            { duration: 700, delay: i * 70, easing: 'cubic-bezier(.22,.65,.3,1)' });
-        });
-      });
-    }, { threshold: 0.3 });
-    bars.forEach((bar) => { if (bar.parentElement) io.observe(bar.parentElement); });
   }
 
   /* the card face takes its colour from two custom properties */

@@ -46,6 +46,7 @@ softened to grey.
 | `coral` | `#FF5C35` | the accent: money moving, live state, the one loud element |
 | `violet` | `#6C63FF` | secondary accent, reserved for policy and machine decisions |
 | `positive` | `#28A96B` | approved and healthy states |
+| `danger` | `#E5484D` | frozen and stopped states — a state colour, never the accent |
 | `hair` / `hairStrong` | `#151515` at 12% / 22% | every border on the page |
 
 Type: **Archivo** across the board (400–800, tightened to `-0.045em` at display sizes) with
@@ -89,6 +90,15 @@ dismissal — and Tab is trapped inside the dialog while it is up.
 The virtual card in the hero is a live example rather than a picture of one: the cardholder line
 is an input you can type your own name into, the allowlist chips can be removed and added, the
 freeze switch works, and the palette re-colours the face.
+
+The allowlist works both ways: removing a merchant drops it into an **Add back** row rather than
+deleting it, so anything you take off can go straight back on with one click — including names you
+typed yourself. `POOL` in `components/ui/CardPanel.tsx` seeds that row with a few merchants to try.
+
+Card protection carries a light: green while the card is live, red once it is frozen, with the
+badge and the button following it. That red is `danger` (`#E5484D`), a token kept deliberately
+apart from `coral` — semantic colour says what state something is in, and if it were the accent
+you could no longer tell an alarm from a brand flourish.
 
 The network is picked from a menu that shows each mark, and the mark you pick lands on the card
 where a scheme mark sits. **Those networks are Payence's own, with marks drawn for this page.**

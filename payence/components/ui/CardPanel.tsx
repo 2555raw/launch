@@ -3,9 +3,29 @@
 import { useEffect, useRef, useState } from "react";
 import { NETWORKS, type Network } from "./CardNetworks";
 
-const START = ["OpenAI", "AWS", "Vercel", "Datadog"];
-/** Everything the allowlist can hold: the starting four plus a few to try. */
-const POOL = [...START, "Stripe", "GitHub", "Linear"];
+/**
+ * An allowlist rule. A merchant matches one payee; a category matches a whole
+ * class of spend, the way a card network's merchant category does — so
+ * "AI APIs" clears every model provider without naming each one.
+ */
+type Kind = "merchant" | "category";
+type Entry = { name: string; kind: Kind };
+
+const START: Entry[] = [
+  { name: "OpenAI", kind: "merchant" },
+  { name: "AWS", kind: "merchant" },
+  { name: "Vercel", kind: "merchant" },
+  { name: "Datadog", kind: "merchant" },
+];
+
+/** What the "add back" row offers when a rule is not on the list. */
+const POOL: Entry[] = [
+  ...START,
+  { name: "Stripe", kind: "merchant" },
+  { name: "GitHub", kind: "merchant" },
+  { name: "AI APIs", kind: "category" },
+  { name: "Cloud infrastructure", kind: "category" },
+];
 
 /**
  * The colours the card face can take. Each is a token already on the page, so
@@ -22,33 +42,34 @@ export const CARD_THEMES = [
 ] as const;
 
 export function CardPanel() {
-  const [merchants, setMerchants] = useState<string[]>([...START]);
-  const [pool, setPool] = useState<string[]>([...POOL]);
+  const [merchants, setMerchants] = useState<Entry[]>([...START]);
+  const [pool, setPool] = useState<Entry[]>([...POOL]);
+  const [kind, setKind] = useState<Kind>("merchant");
   const [draft, setDraft] = useState("");
   const [frozen, setFrozen] = useState(false);
   const [holder, setHolder] = useState("procurement-agent");
   const [theme, setTheme] = useState<(typeof CARD_THEMES)[number]>(CARD_THEMES[0]);
   const [network, setNetwork] = useState<Network>(NETWORKS[0]);
 
-  const has = (list: string[], name: string) =>
-    list.some((m) => m.toLowerCase() === name.toLowerCase());
+  const has = (list: Entry[], name: string) =>
+    list.some((m) => m.name.toLowerCase() === name.toLowerCase());
 
-  const allow = (name: string) => {
-    if (!name || has(merchants, name)) return;
-    setMerchants((m) => [...m, name]);
-    setPool((p) => (has(p, name) ? p : [...p, name]));
+  const allow = (entry: Entry) => {
+    if (!entry.name || has(merchants, entry.name)) return;
+    setMerchants((m) => [...m, entry]);
+    setPool((p) => (has(p, entry.name) ? p : [...p, entry]));
   };
 
-  const deny = (name: string) => setMerchants((list) => list.filter((x) => x !== name));
+  const deny = (name: string) => setMerchants((list) => list.filter((x) => x.name !== name));
 
   const add = () => {
-    allow(draft.trim());
+    allow({ name: draft.trim(), kind });
     setDraft("");
   };
 
   // What has been taken off the list, and what was never on it, in one row you
   // can put back with a click.
-  const suggestions = pool.filter((m) => !has(merchants, m));
+  const suggestions = pool.filter((m) => !has(merchants, m.name));
 
   return (
     <div
@@ -191,13 +212,20 @@ export function CardPanel() {
 
         <ul data-allow-list className="mt-3 flex flex-wrap gap-2">
           {merchants.map((m) => (
-            <li key={m}>
-              <span className="inline-flex items-center gap-2 rounded-pill border border-hairDark bg-canvas/[0.04] py-1.5 pl-3.5 pr-2 font-mono text-[12px]">
-                {m}
+            <li key={m.name} data-kind={m.kind}>
+              <span
+                className={`inline-flex items-center gap-2 rounded-pill border py-1.5 pl-3 pr-2 font-mono text-[12px] ${
+                  m.kind === "category"
+                    ? "border-violet/45 bg-violet/10 text-canvas"
+                    : "border-hairDark bg-canvas/[0.04]"
+                }`}
+              >
+                {m.kind === "category" && <TagGlyph />}
+                {m.name}
                 <button
                   type="button"
-                  onClick={() => deny(m)}
-                  aria-label={`Remove ${m}`}
+                  onClick={() => deny(m.name)}
+                  aria-label={`Remove ${m.name}`}
                   className="flex h-4 w-4 items-center justify-center rounded-full border border-canvas/25 text-[10px] leading-none text-canvas/60 transition-colors duration-200 hover:border-coral hover:text-coral"
                 >
                   ×
@@ -214,23 +242,45 @@ export function CardPanel() {
             </span>
             {suggestions.map((m) => (
               <button
-                key={m}
+                key={m.name}
                 type="button"
-                data-suggest={m}
+                data-suggest={m.name}
+                data-kind={m.kind}
                 onClick={() => allow(m)}
                 className="inline-flex items-center gap-1.5 rounded-pill border border-dashed border-canvas/25 py-1.5 pl-3 pr-3 font-mono text-[12px] text-canvas/55 transition-colors duration-200 hover:border-positive hover:text-positive"
               >
                 <span aria-hidden>+</span>
-                {m}
+                {m.kind === "category" && <TagGlyph />}
+                {m.name}
               </button>
             ))}
           </div>
         )}
 
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-card border border-hairDark p-2">
-          <span className="flex overflow-hidden rounded-pill border border-hairDark" aria-hidden>
-            <span className="bg-canvas/10 px-2.5 py-1 font-mono text-[11px]">Merchant</span>
-            <span className="px-2.5 py-1 font-mono text-[11px] text-canvas/45">Category</span>
+          <span
+            className="flex overflow-hidden rounded-pill border border-hairDark"
+            role="group"
+            aria-label="What the rule matches"
+          >
+            {(["merchant", "category"] as Kind[]).map((k) => (
+              <button
+                key={k}
+                type="button"
+                data-kind-toggle={k}
+                aria-pressed={kind === k}
+                onClick={() => setKind(k)}
+                className={`px-2.5 py-1 font-mono text-[11px] capitalize transition-colors duration-200 ${
+                  kind === k
+                    ? k === "category"
+                      ? "bg-violet/25 text-canvas"
+                      : "bg-canvas/15 text-canvas"
+                    : "text-canvas/45 hover:text-canvas/80"
+                }`}
+              >
+                {k}
+              </button>
+            ))}
           </span>
           <label htmlFor="allow-add" className="sr-only">
             Add a merchant to the allowlist
@@ -246,7 +296,7 @@ export function CardPanel() {
                 add();
               }
             }}
-            placeholder="e.g. stripe.com"
+            placeholder={kind === "merchant" ? "e.g. stripe.com" : "e.g. observability"}
             className="h-8 min-w-0 flex-1 bg-transparent px-2 font-mono text-[12px] text-canvas placeholder:text-canvas/30 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
           />
           <button
@@ -258,6 +308,12 @@ export function CardPanel() {
             + Add
           </button>
         </div>
+
+        <p data-allow-hint className="mt-2.5 font-mono text-[10.5px] leading-relaxed text-canvas/40">
+          {kind === "merchant"
+            ? "Merchant — the card clears at this payee and nowhere else."
+            : "Category — the card clears at every payee in this class of spend."}
+        </p>
       </div>
 
       {/* the switch */}
@@ -439,5 +495,21 @@ function NetworkPicker({
         ))}
       </div>
     </div>
+  );
+}
+
+/** A small tag, so a category rule reads differently from a merchant rule. */
+function TagGlyph() {
+  return (
+    <svg viewBox="0 0 16 16" className="h-3 w-3 shrink-0 text-violet" aria-hidden>
+      <path
+        d="M2.5 7.2V2.5h4.7l6.3 6.3-4.7 4.7z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <circle cx="5.4" cy="5.4" r="1" fill="currentColor" />
+    </svg>
   );
 }

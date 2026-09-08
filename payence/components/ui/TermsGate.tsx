@@ -23,11 +23,11 @@ export function TermsGate() {
   const dialogRef = useRef<HTMLDivElement>(null);
   const acceptRef = useRef<HTMLButtonElement>(null);
 
-  // A previous acceptance skips the gate entirely.
+  // An acceptance earlier in this session skips the gate.
   useEffect(() => {
     let stored: string | null = null;
     try {
-      stored = localStorage.getItem(KEY);
+      stored = sessionStorage.getItem(KEY);
     } catch (_) {
       /* storage blocked — ask again this visit */
     }
@@ -85,7 +85,7 @@ export function TermsGate() {
 
   const accept = useCallback(() => {
     try {
-      localStorage.setItem(KEY, "accepted");
+      sessionStorage.setItem(KEY, "accepted");
     } catch (_) {
       /* storage blocked — it will ask again next visit */
     }

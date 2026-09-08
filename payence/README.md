@@ -91,6 +91,12 @@ The virtual card in the hero is a live example rather than a picture of one: the
 is an input you can type your own name into, the allowlist chips can be removed and added, the
 freeze switch works, and the palette re-colours the face.
 
+The allowlist holds two kinds of rule, and the **Merchant / Category** toggle picks which one you
+are writing: a merchant matches one payee, a category matches a whole class of spend the way a
+card network's merchant category does — so "AI APIs" clears every model provider without naming
+each one. Category rules carry a tag and the violet accent, because they are a different thing
+from a named merchant and should not look identical to one.
+
 The allowlist works both ways: removing a merchant drops it into an **Add back** row rather than
 deleting it, so anything you take off can go straight back on with one click — including names you
 typed yourself. `POOL` in `components/ui/CardPanel.tsx` seeds that row with a few merchants to try.
@@ -113,6 +119,22 @@ The face is driven by two custom properties, `--face` and `--ink`, set from `CAR
 takes its colour from `currentColor` at an opacity, so a new swatch is two hex values and nothing
 else. That is also why the flat snapshot can re-colour the card by setting two variables instead
 of swapping class lists across a dozen elements.
+
+### Checking the snapshot
+
+The snapshot's behaviour is a hand-written port of the components, so the two can drift — a
+component can gain a control the port never learns about, and an edit to the port can delete
+blocks of it without anything failing to build. `scripts/check-snapshot.js` drives the assembled
+file through every interaction on the page:
+
+```bash
+npm run snapshot
+python3 scripts/assemble-snapshot.py payence.html
+node scripts/check-snapshot.js .
+```
+
+Every value it prints should be true or a real reading, and `errors` should be empty. Run it after
+touching either side.
 
 ## Motion
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { NETWORKS, type Network } from "./CardNetworks";
 
 const START = ["OpenAI", "AWS", "Vercel", "Datadog"];
 
@@ -24,6 +25,7 @@ export function CardPanel() {
   const [frozen, setFrozen] = useState(false);
   const [holder, setHolder] = useState("procurement-agent");
   const [theme, setTheme] = useState<(typeof CARD_THEMES)[number]>(CARD_THEMES[0]);
+  const [network, setNetwork] = useState<Network>(NETWORKS[0]);
 
   const add = () => {
     const name = draft.trim();
@@ -111,8 +113,19 @@ export function CardPanel() {
             </span>
             <span className="tnum mt-1 block font-mono text-[13px]">$2,500 / mo</span>
           </div>
+
+          {/* the network the card is issued on, where a scheme mark sits */}
+          <div data-card-network className="shrink-0 text-right">
+            <network.Mark />
+            <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.16em] opacity-60">
+              {network.name}
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* the network, chosen one at a time */}
+      <NetworkPicker value={network} onChange={setNetwork} />
 
       {/* the palette */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-hairDark px-4 py-3">
@@ -143,7 +156,7 @@ export function CardPanel() {
       </div>
 
       <p className="mt-2.5 font-mono text-[10.5px] leading-relaxed text-canvas/40">
-        Example card — type your own name on it and pick a colour.
+        Example card — type your own name on it, pick a network and a colour.
       </p>
 
       {/* the allowlist, editable */}
@@ -275,5 +288,117 @@ function CardChip() {
         />
       </g>
     </svg>
+  );
+}
+
+/**
+ * The network picker: one choice at a time, opened from the card's own row.
+ * Kept as a menu of buttons rather than a native select because the mark is the
+ * point — you pick the logo you can see.
+ */
+function NetworkPicker({
+  value,
+  onChange,
+}: {
+  value: Network;
+  onChange: (n: Network) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!box.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={box} data-network-picker className="relative mt-4">
+      <button
+        type="button"
+        data-network-toggle
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-4 rounded-card border border-hairDark px-4 py-3 text-left transition-colors duration-200 hover:border-canvas/30"
+      >
+        <span className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-canvas/45">
+          Card network
+        </span>
+        <span className="flex items-center gap-3">
+          <span data-network-current className="flex items-center gap-3">
+            <value.Mark />
+            <span className="font-mono text-[12px]">{value.name}</span>
+          </span>
+          <svg
+            viewBox="0 0 16 16"
+            className={`h-3.5 w-3.5 text-canvas/50 transition-transform duration-200 ${
+              open ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            aria-hidden
+          >
+            <path d="M4 6.5l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </button>
+
+      <div
+        data-network-menu
+        role="menu"
+        aria-label="Card network"
+        hidden={!open}
+        className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-card border border-hairDark bg-[#161616] shadow-[0_24px_50px_-30px_rgba(0,0,0,0.9)]"
+      >
+        {NETWORKS.map((n) => (
+          <button
+            key={n.id}
+            type="button"
+            data-network-name={n.name}
+            role="menuitemradio"
+            aria-checked={n.id === value.id}
+            data-network-option={n.id}
+            onClick={() => {
+              onChange(n);
+              setOpen(false);
+            }}
+            className={`flex w-full items-center gap-3 border-b border-hairDark px-4 py-3 text-left transition-colors duration-150 last:border-0 hover:bg-canvas/[0.06] ${
+              n.id === value.id ? "bg-canvas/[0.04]" : ""
+            }`}
+          >
+            <n.Mark />
+            <span className="min-w-0 flex-1">
+              <span className="block font-mono text-[12.5px]">{n.name}</span>
+              <span className="block font-mono text-[10px] text-canvas/45">{n.blurb}</span>
+            </span>
+            {n.id === value.id && (
+              <svg
+                data-network-tick
+                viewBox="0 0 16 16"
+                className="h-3.5 w-3.5 shrink-0 text-coral"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden
+              >
+                <path d="M3 8.5l3.5 3.5L13 5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

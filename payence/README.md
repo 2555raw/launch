@@ -90,6 +90,14 @@ The virtual card in the hero is a live example rather than a picture of one: the
 is an input you can type your own name into, the allowlist chips can be removed and added, the
 freeze switch works, and the palette re-colours the face.
 
+The network is picked from a menu that shows each mark, and the mark you pick lands on the card
+where a scheme mark sits. **Those networks are Payence's own, with marks drawn for this page.**
+Real scheme marks — Visa, Mastercard, American Express and the rest — are registered trademarks,
+and putting one on a card implies an issuing agreement that does not exist, so they are
+deliberately not reproduced. If you license a scheme's brand assets, swapping one in is a single
+component in `components/ui/CardNetworks.tsx`: keep the viewBox at 44×24 and draw in
+`currentColor`, and the mark takes the colour of whatever face it lands on.
+
 The face is driven by two custom properties, `--face` and `--ink`, set from `CARD_THEMES` in
 `components/ui/CardPanel.tsx`. Everything on the card — the chip, the rules, the muted labels —
 takes its colour from `currentColor` at an opacity, so a new swatch is two hex values and nothing

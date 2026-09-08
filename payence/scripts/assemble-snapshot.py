@@ -328,6 +328,64 @@ VANILLA = r"""
     });
   }
 
+  /* the network picker: one choice, and the mark lands on the card */
+  const picker = $('[data-network-picker]');
+  if (picker) {
+    const toggle = $('[data-network-toggle]', picker);
+    const menu = $('[data-network-menu]', picker);
+    const current = $('[data-network-current]', picker);
+    const onCard = $('[data-card-network]');
+    const tick = $('[data-network-tick]', picker);
+
+    const setOpen = (open) => {
+      menu.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      const chev = toggle.querySelector('svg:last-of-type');
+      if (chev) chev.classList.toggle('rotate-180', open);
+    };
+    setOpen(false);
+
+    toggle?.addEventListener('click', () => setOpen(menu.hidden));
+    document.addEventListener('mousedown', (e) => {
+      if (!picker.contains(e.target)) setOpen(false);
+    });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+
+    $$('[data-network-option]', menu).forEach((opt) => {
+      opt.addEventListener('click', () => {
+        const name = opt.dataset.networkName || '';
+        const mark = opt.querySelector('svg');
+
+        // the mark the option shows is the mark that lands on the card
+        if (onCard && mark) {
+          onCard.innerHTML = '';
+          onCard.appendChild(mark.cloneNode(true));
+          const label = document.createElement('span');
+          label.className = 'mt-1 block font-mono text-[9px] uppercase tracking-[0.16em] opacity-60';
+          label.textContent = name;
+          onCard.appendChild(label);
+        }
+        if (current && mark) {
+          current.innerHTML = '';
+          current.appendChild(mark.cloneNode(true));
+          const label = document.createElement('span');
+          label.className = 'font-mono text-[12px]';
+          label.textContent = name;
+          current.appendChild(label);
+        }
+
+        $$('[data-network-option]', menu).forEach((other) => {
+          const on = other === opt;
+          other.setAttribute('aria-checked', String(on));
+          other.classList.toggle('bg-canvas/[0.04]', on);
+        });
+        if (tick) opt.appendChild(tick);
+
+        setOpen(false);
+      });
+    });
+  }
+
   /* the remaining budget ticks the way a live figure would */
   const budget = $$('p').find((p) => /^\$2,\d{3}$/.test((p.textContent || '').trim()));
   if (budget && !still) {

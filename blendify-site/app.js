@@ -73,22 +73,22 @@
 
   // value: total value in the bag, delta: 24h %, lev: leveraged market
   var BAGS = [
-    { tick: 'BIG3',   name: 'The Big Three',   chain: 'Robinhood', legs: ['BTC','ETH','SOL'],                 value: 412600, delta: 4.2,  lev: true },
-    { tick: 'MAG5',   name: 'Magnificent Five',chain: 'Robinhood', legs: ['AAPL','MSFT','NVDA','AMZN','GOOGL'],value: 396100, delta: 1.7,  lev: false },
-    { tick: 'SILICON',name: 'Silicon Set',     chain: 'Robinhood', legs: ['NVDA','MSFT','AAPL'],               value: 264400, delta: 6.3,  lev: true },
-    { tick: 'HARD',   name: 'Hard Money',      chain: 'Ethereum',  legs: ['GOLD','SILVER','BTC'],              value: 243900, delta: 0.4,  lev: false },
-    { tick: 'CLOUD',  name: 'Cloud Rent',      chain: 'Base',      legs: ['MSFT','AMZN','GOOGL'],              value: 221750, delta: 2.9,  lev: true },
-    { tick: 'DEGEN',  name: 'Degen Three',     chain: 'Solana',    legs: ['DOGE','SOL','XRP'],                 value: 96200,  delta: -5.1, lev: true },
-    { tick: 'L1S',    name: 'Layer Ones',      chain: 'Ethereum',  legs: ['ETH','SOL','ADA','BNB'],            value: 187300, delta: 0.9,  lev: false },
-    { tick: 'SCREEN', name: 'Screen Time',     chain: 'Base',      legs: ['NFLX','META','GOOGL'],              value: 174850, delta: 3.6,  lev: false },
-    { tick: 'STORE',  name: 'Store of Value',  chain: 'Robinhood', legs: ['BTC','GOLD','SILVER'],              value: 331500, delta: 1.2,  lev: false },
-    { tick: 'GRID',   name: 'Wheels and Chips',chain: 'Robinhood', legs: ['TSLA','NVDA','SILVER'],             value: 158900, delta: -2.4, lev: true },
-    { tick: 'ORACLE', name: 'Oracle Set',      chain: 'BNB',       legs: ['LINK','ETH','BTC'],                 value: 74850,  delta: 3.1,  lev: false },
-    { tick: 'DRILL',  name: 'Drill and Mint',  chain: 'Ethereum',  legs: ['OIL','GOLD','SILVER'],              value: 88100,  delta: -1.6, lev: false },
-    { tick: 'CART',   name: 'Everything Store',chain: 'Robinhood', legs: ['AMZN','AAPL','TSLA'],               value: 205800, delta: 1.5,  lev: true },
-    { tick: 'BLUE',   name: 'Blue Chip Five',  chain: 'Robinhood', legs: ['AAPL','MSFT','AMZN','GOOGL','META'],value: 288400, delta: 0.7,  lev: false },
-    { tick: 'ALT4',   name: 'Alt Season',      chain: 'Solana',    legs: ['SOL','ADA','LINK','DOGE'],          value: 63400,  delta: 12.4, lev: true },
-    { tick: 'HEDGE',  name: 'The Hedge',       chain: 'Base',      legs: ['GOLD','OIL','BTC','SILVER'],        value: 119600, delta: 2.1,  lev: false }
+    { tick: 'BIG3',   name: 'The Big Three',    chain: 'Robinhood', legs: ['BTC','ETH','SOL'],                  w: [60,30,10],       value: 412600, delta: 4.2,  lev: true },
+    { tick: 'MAG5',   name: 'Magnificent Five', chain: 'Robinhood', legs: ['AAPL','MSFT','NVDA','AMZN','GOOGL'],w: [25,25,20,15,15], value: 396100, delta: 1.7,  lev: false },
+    { tick: 'SILICON',name: 'Silicon Set',      chain: 'Robinhood', legs: ['NVDA','MSFT','AAPL'],               w: [50,30,20],       value: 264400, delta: 6.3,  lev: true },
+    { tick: 'HARD',   name: 'Hard Money',       chain: 'Ethereum',  legs: ['GOLD','SILVER','BTC'],              w: [50,30,20],       value: 243900, delta: 8.4,  lev: false },
+    { tick: 'CLOUD',  name: 'Cloud Rent',       chain: 'Base',      legs: ['MSFT','AMZN','GOOGL'],              w: [40,35,25],       value: 221750, delta: 2.9,  lev: true },
+    { tick: 'DEGEN',  name: 'Degen Three',      chain: 'Solana',    legs: ['DOGE','SOL','XRP'],                 w: [40,40,20],       value: 96200,  delta: -5.1, lev: true },
+    { tick: 'L1S',    name: 'Layer Ones',       chain: 'Ethereum',  legs: ['ETH','SOL','ADA','BNB'],            w: [40,30,15,15],    value: 187300, delta: 0.9,  lev: false },
+    { tick: 'SCREEN', name: 'Screen Time',      chain: 'Base',      legs: ['NFLX','META','GOOGL'],              w: [40,35,25],       value: 174850, delta: 3.6,  lev: false },
+    { tick: 'STORE',  name: 'Store of Value',   chain: 'Robinhood', legs: ['BTC','GOLD','SILVER'],              w: [50,35,15],       value: 331500, delta: 1.2,  lev: false },
+    { tick: 'GRID',   name: 'Wheels and Chips', chain: 'Robinhood', legs: ['TSLA','NVDA','SILVER'],             w: [45,35,20],       value: 158900, delta: -2.4, lev: true },
+    { tick: 'ORACLE', name: 'Oracle Set',       chain: 'BNB',       legs: ['LINK','ETH','BTC'],                 w: [40,35,25],       value: 74850,  delta: 3.1,  lev: false },
+    { tick: 'DRILL',  name: 'Drill and Mint',   chain: 'Ethereum',  legs: ['OIL','GOLD','SILVER'],              w: [45,35,20],       value: 88100,  delta: -1.6, lev: false },
+    { tick: 'CART',   name: 'Everything Store', chain: 'Robinhood', legs: ['AMZN','AAPL','TSLA'],               w: [40,35,25],       value: 205800, delta: 1.5,  lev: true },
+    { tick: 'BLUE',   name: 'Blue Chip Five',   chain: 'Robinhood', legs: ['AAPL','MSFT','AMZN','GOOGL','META'],w: [25,25,20,15,15], value: 288400, delta: 0.7,  lev: false },
+    { tick: 'ALT4',   name: 'Alt Season',       chain: 'Solana',    legs: ['SOL','ADA','LINK','DOGE'],          w: [40,25,20,15],    value: 63400,  delta: 12.4, lev: true },
+    { tick: 'HEDGE',  name: 'The Hedge',        chain: 'Base',      legs: ['GOLD','OIL','BTC','SILVER'],        w: [35,25,25,15],    value: 119600, delta: 2.1,  lev: false }
   ];
 
   var CATALOG = ['BTC', 'ETH', 'SOL', 'NVDA', 'TSLA', 'AAPL', 'GOLD', 'OIL'];
@@ -114,17 +114,16 @@
   function iconMarkup(sym) {
     var a = ASSETS[sym];
     var inner = a.art
-      ? a.art.replace(/"C"/g, '"' + a.color + '"')
+      ? a.art.replace(/"C"/g, '"#141418"')
       : '<text x="12" y="16.6" text-anchor="middle" font-family="JetBrains Mono, monospace"' +
-        ' font-size="13" font-weight="700" fill="' + a.color + '">' + a.g + '</text>';
+        ' font-size="13" font-weight="700" fill="#141418">' + a.g + '</text>';
     return '<svg class="bl-ic" viewBox="0 0 24 24" role="img" aria-label="' + a.name + '">' + inner + '</svg>';
   }
 
   function iconTile(sym, cls) {
     var a = ASSETS[sym];
     var tile = el('span', 'bl-tile' + (cls ? ' ' + cls : ''));
-    tile.style.background = a.color + '1F';       // the asset's own colour, dialled right down
-    tile.style.borderColor = a.color + '4D';
+    tile.style.background = a.color;              // the tile is the asset's own colour
     tile.innerHTML = iconMarkup(sym);
     tile.title = a.name;
     return tile;
@@ -176,10 +175,12 @@
     var stack = el('div', 'bl-stack');
     m.legs.forEach(function (sym) { stack.appendChild(iconTile(sym)); });
     top.appendChild(stack);
-    var badge = el('div', 'bl-badge');
-    badge.appendChild(el('i'));
-    badge.appendChild(el('span', null, m.chain));
-    top.appendChild(badge);
+    var pill = el('div', 'bl-pill');
+    pill.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+      '<circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/>' +
+      '<path d="M12 7.6v5l3 1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+    pill.appendChild(el('span', null, 'Backtest'));
+    top.appendChild(pill);
     c.appendChild(top);
 
     var id = el('div');
@@ -187,25 +188,28 @@
     id.appendChild(el('div', 'bl-mcard-name', m.name));
     c.appendChild(id);
 
-    var capWrap = el('div');
+    var foot = el('div', 'bl-mcard-foot');
+    var left = el('div');
     var cap = el('div', 'bl-mcard-cap');
     cap.appendChild(el('div', 'bl-cap-num', money(m.value)));
     cap.appendChild(el('div', 'bl-cap-delta ' + (m.delta < 0 ? 'bl-down' : 'bl-up'), pct(m.delta)));
-    capWrap.appendChild(cap);
-    capWrap.appendChild(el('div', 'bl-label', 'Total value'));
-    c.appendChild(capWrap);
-
-    // the bar reads as "how full the bag is": legs held out of the five allowed
-    var track = el('div', 'bl-track');
-    var fill = el('div', 'bl-track-fill');
-    fill.style.width = (m.legs.length / 5 * 100) + '%';
-    track.appendChild(fill);
-    c.appendChild(track);
-
-    var foot = el('div', 'bl-mcard-foot');
-    foot.appendChild(el('span', null, m.legs.join(' · ')));
-    foot.appendChild(el('span', null, m.lev ? 'up to 5x' : 'spot only'));
+    left.appendChild(cap);
+    left.appendChild(el('div', 'bl-label', 'Total value'));
+    foot.appendChild(left);
+    // a five-leg split needs the tighter separator to stay on one line
+    foot.appendChild(el('div', 'bl-split', m.w.join(m.w.length > 3 ? '/' : ' / ')));
     c.appendChild(foot);
+
+    // one segment per leg, sized by its weight and stepped down in opacity
+    var bar = el('div', 'bl-bar');
+    m.w.forEach(function (w, i) {
+      var seg = el('i');
+      seg.style.width = w + '%';
+      seg.style.opacity = [1, .55, .38, .26, .18][i];
+      seg.title = m.legs[i] + ' ' + w + '%';
+      bar.appendChild(seg);
+    });
+    c.appendChild(bar);
 
     return c;
   }
@@ -231,12 +235,56 @@
 
   function renderStats() {
     var total = BAGS.reduce(function (s, m) { return s + m.value; }, 0);
-    var legs = BAGS.reduce(function (s, m) { return s + m.legs.length; }, 0);
-    $('statLive').textContent = BAGS.length;
-    $('statAssets').textContent = Object.keys(ASSETS).length;
-    $('statValue').textContent = money(total);
-    $('statChains').textContent = CHAINS.length;
-    $('statLegs').textContent = (legs / BAGS.length).toFixed(1);
+    var cells = [
+      ['statLive',   BAGS.length,               'dLive',   12],
+      ['statAssets', Object.keys(ASSETS).length, 'dAssets',  6],
+      ['statValue',  money(total),               'dValue',  14],
+      ['statChains', CHAINS.length,              'dChains',  0],
+      ['statFee',    '0.30%',                    'dFee',   -18]
+    ];
+    cells.forEach(function (c) {
+      $(c[0]).textContent = c[1];
+      var d = $(c[2]);
+      d.textContent = (c[3] > 0 ? '↑ ' : c[3] < 0 ? '↓ ' : '± ') + Math.abs(c[3]) + '%';
+      d.className = 'bl-stat-delta ' + (c[3] > 0 ? 'bl-up' : c[3] < 0 ? 'bl-down' : 'is-flat');
+    });
+    var count = $('eyebrowCount');
+    if (count) count.textContent = Object.keys(ASSETS).length;
+  }
+
+  /* ---------- the hero curve ----------
+     Sample artwork, one shape per range — not a feed. */
+
+  var CURVES = {
+    '1D': 'M0 128 C60 132 110 118 160 124 C220 131 260 108 320 112 C380 116 430 92 480 86',
+    '1W': 'M0 140 C70 138 120 120 180 128 C250 137 290 96 350 102 C410 108 440 70 480 62',
+    '1M': 'M0 156 C120 154 210 140 280 106 C350 72 410 46 480 32',
+    '3M': 'M0 164 C90 160 150 150 210 130 C280 107 330 74 480 26',
+    '1Y': 'M0 170 C80 168 130 158 190 142 C260 123 300 92 360 74 C420 56 450 36 480 22',
+    'ALL': 'M0 176 C70 174 120 168 180 150 C250 129 290 100 340 78 C400 52 440 30 480 16'
+  };
+
+  function drawCurve(range) {
+    var line = $('curveLine'), zone = $('curveZone'), dot = $('curveDot');
+    if (!line) return;
+    var d = CURVES[range] || CURVES['1M'];
+    line.setAttribute('d', d);
+    zone.setAttribute('d', d + ' L480 186 L0 186 Z');
+    dot.setAttribute('cy', d.slice(d.lastIndexOf(' ') + 1));
+  }
+
+  /* ---------- theme ---------- */
+
+  var SUN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>' +
+    '<path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+  var MOON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<path d="M20 14.2A8.4 8.4 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
+
+  function paintTheme(btn) {
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.innerHTML = light ? MOON : SUN;
+    btn.setAttribute('aria-label', light ? 'Switch to dark' : 'Switch to light');
   }
 
   /* ---------- builder ---------- */
@@ -324,11 +372,32 @@
 
     var search = $('search');
     if (search) search.addEventListener('input', function () { state.query = search.value; renderBoard(); });
+
+    var ranges = $('ranges');
+    if (ranges) {
+      ranges.addEventListener('click', function (e) {
+        var r = e.target.closest('.bl-range');
+        if (!r) return;
+        ranges.querySelectorAll('.bl-range').forEach(function (n) { n.classList.toggle('is-active', n === r); });
+        drawCurve(r.getAttribute('data-range'));
+      });
+    }
+
+    var theme = $('theme');
+    if (theme) {
+      paintTheme(theme);
+      theme.addEventListener('click', function () {
+        var light = document.documentElement.getAttribute('data-theme') === 'light';
+        document.documentElement.setAttribute('data-theme', light ? 'dark' : 'light');
+        paintTheme(theme);
+      });
+    }
   }
 
   renderTape();
   renderCounts();
   renderStats();
+  drawCurve('1M');
   renderBoard();
   renderBuilder();
   wire();

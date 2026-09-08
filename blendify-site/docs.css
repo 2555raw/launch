@@ -18,7 +18,7 @@
   transition: color .16s ease, background .16s ease, border-color .16s ease;
 }
 .dc-side-links a:hover { color: var(--ink); background: var(--card); }
-.dc-side-links a.is-active { color: var(--ink); background: var(--card); border-left-color: #FFFFFF; }
+.dc-side-links a.is-active { color: var(--ink); background: var(--card); border-left-color: var(--accent); }
 
 /* ---------- reading column ---------- */
 .dc-col { max-width: 760px; }
@@ -32,22 +32,22 @@
   scroll-margin-top: 90px;
 }
 .dc-h3 { font-family: var(--font-mono); font-size: 14px; font-weight: 700; margin: 30px 0 10px; }
-.dc-body p { font-size: 14.5px; line-height: 1.72; color: #C9C9D2; margin: 0 0 18px; }
+.dc-body p { font-size: 14.5px; line-height: 1.72; color: var(--prose); margin: 0 0 18px; }
 .dc-body strong { color: var(--ink); font-weight: 600; }
 .dc-body a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .dc-body ul { margin: 0 0 18px; padding-left: 20px; }
-.dc-body li { font-size: 14.5px; line-height: 1.7; color: #C9C9D2; margin-bottom: 8px; }
+.dc-body li { font-size: 14.5px; line-height: 1.7; color: var(--prose); margin-bottom: 8px; }
 .dc-body li::marker { color: var(--dim); }
 
 /* ---------- blocks ---------- */
 .dc-code {
-  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7; color: #C9C9D2;
+  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7; color: var(--prose);
   background: var(--card); border: 1px solid var(--line); border-radius: 10px;
   padding: 16px 18px; margin: 0 0 20px; overflow-x: auto; white-space: pre;
 }
-.dc-code b { color: #FFFFFF; font-weight: 500; }
+.dc-code b { color: var(--ink); font-weight: 500; }
 .dc-note {
-  border: 1px solid var(--line); border-left: 2px solid #FFFFFF; border-radius: 10px;
+  border: 1px solid var(--line); border-left: 2px solid var(--accent); border-radius: 10px;
   background: var(--card); padding: 16px 18px; margin: 0 0 20px;
 }
 .dc-note p { margin: 0; font-size: 13.5px; color: var(--muted); }
@@ -67,7 +67,7 @@
   content: counter(dstep, decimal-leading-zero);
   position: absolute; left: 0; top: 1px;
   font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-  color: #08080A; background: #FFFFFF; border-radius: 5px; padding: 2px 7px;
+  color: var(--on-accent); background: var(--accent); border-radius: 5px; padding: 2px 7px;
 }
 .dc-steps b { display: block; font-family: var(--font-mono); font-size: 13.5px; color: var(--ink); margin-bottom: 4px; }
 

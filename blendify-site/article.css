@@ -11,7 +11,7 @@
   border-bottom: 1px solid var(--line);
 }
 .ar-back { font-size: 14px; font-weight: 500; color: var(--muted); }
-.ar-back:hover { color: var(--yellow); }
+.ar-back:hover { color: var(--accent); }
 
 /* ---------- column ---------- */
 .ar-col { max-width: var(--measure); margin: 0 auto; padding: 0 24px; }
@@ -21,7 +21,7 @@
 .ar-header { padding: 64px 24px 40px; }
 .ar-kicker {
   font-family: var(--font-mono); font-size: 12px; font-weight: 700;
-  letter-spacing: 0.13em; text-transform: uppercase; color: var(--yellow);
+  letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent);
   margin-bottom: 18px;
 }
 .ar-title {
@@ -42,7 +42,7 @@
 .ar-byline-sep { color: var(--line); }
 
 /* ---------- body ---------- */
-.ar-body { font-size: 18px; line-height: 1.72; color: #C9C9D2; }
+.ar-body { font-size: 18px; line-height: 1.72; color: var(--prose); }
 .ar-body p { margin: 0 0 22px; text-wrap: pretty; }
 .ar-body strong { color: var(--ink); font-weight: 600; }
 .ar-body a { text-decoration: underline; text-underline-offset: 3px; }
@@ -60,7 +60,7 @@
 
 .ar-list { margin: 0 0 22px; padding-left: 22px; }
 .ar-list li { margin-bottom: 9px; }
-.ar-list li::marker { color: var(--yellow); }
+.ar-list li::marker { color: var(--accent); }
 
 /* ---------- the four steps: a real sequence, so it is numbered ---------- */
 .ar-steps { list-style: none; counter-reset: step; margin: 0 0 26px; padding: 0; }
@@ -72,14 +72,14 @@
   content: counter(step, decimal-leading-zero);
   position: absolute; left: 0; top: 2px;
   font-family: var(--font-mono); font-size: 12px; font-weight: 700;
-  color: #08080A; background: var(--yellow);
+  color: var(--on-accent); background: var(--accent);
   padding: 3px 8px; border-radius: 6px;
 }
 .ar-steps b { display: block; font-family: var(--font-mono); color: var(--ink); }
 
 /* ---------- callout: the section a reader could get burned on ---------- */
 .ar-callout {
-  background: var(--card); border-left: 2px solid var(--yellow);
+  background: var(--card); border-left: 2px solid var(--accent);
   border-radius: 0 12px 12px 0; padding: 22px 26px; margin: 0 0 26px;
 }
 .ar-callout p:last-child { margin-bottom: 0; }

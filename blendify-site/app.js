@@ -1,262 +1,404 @@
-/* Blendify — landing page interactions
-   - index builder (3–5 assets, weights split across the basket)
-   - hero trade sizing (input size split across a 40/35/25 index)
-   - gas savings + position sizing calculators
-   - section navigation and the maroon cursor trail
-*/
+/* TRICKER — market page interactions
+   - the asset catalog: every asset carries its own drawn icon and brand colour
+   - ticker tape, the live-bag board (filter / sort / search), the bag builder
+   All figures below are sample data for layout. Wire them to the indexer
+   before this page goes anywhere near a user. */
 (function () {
   'use strict';
 
-  var MAROON = '#7B1523';
-  var BLACK = '#0D0D0D';
-  var GRAY = '#6E6E6E';
-  var IDLE = 'background:#FFFFFF;border-color:#E3E3E3;color:#6E6E6E;';
+  var GAS_PER_SWAP = 1.25; // sample assumption, stated on the page
 
-  function selected(color) {
-    return 'background:' + color + ';border-color:' + color + ';color:#FFFFFF;';
-  }
+  /* ---------- assets ----------
+     Icons are drawn here rather than fetched: a 24x24 glyph or shape per asset,
+     tinted with that asset's own colour. `g` is a Unicode currency glyph;
+     `art` is inline SVG where the asset is better shown as the thing it is. */
 
-  var state = {
-    assets: ['btc', 'eth', 'sol'], // index builder selection
-    size: 2,                       // hero trade sizing, in ETH
-    gasAssets: 5,                  // gas calculator
-    leverage: 2                    // position sizing calculator
+  var ASSETS = {
+    BTC:   { name: 'Bitcoin',    color: '#F7931A', px: '64,180', d: 1.8,  g: '₿' },
+    ETH:   { name: 'Ethereum',   color: '#7A8CF0', px: '3,410',  d: 2.4,  g: 'Ξ' },
+    SOL:   { name: 'Solana',     color: '#14F195', px: '172.40', d: -1.1, g: '◎' },
+    XRP:   { name: 'XRP',        color: '#C8CED6', px: '0.612',  d: 0.9,  g: '✖' },
+    DOGE:  { name: 'Dogecoin',   color: '#D6B54A', px: '0.164',  d: 5.6,  g: 'Ð' },
+    BNB:   { name: 'BNB',        color: '#F3BA2F', px: '588.10', d: 1.1,  g: 'B' },
+    ADA:   { name: 'Cardano',    color: '#4E7BE8', px: '0.478',  d: -2.2, g: '₳' },
+    LINK:  { name: 'Chainlink',  color: '#5C86F5', px: '14.62',  d: 4.1,  g: '⬢' },
+
+    NVDA:  { name: 'Nvidia',     color: '#8FD41C', px: '128.90', d: 3.2, art:
+      '<rect x="7.5" y="7.5" width="9" height="9" rx="2" fill="none" stroke="C" stroke-width="1.7"/>' +
+      '<path d="M10 4.2v3.3M14 4.2v3.3M10 16.5v3.3M14 16.5v3.3M4.2 10h3.3M4.2 14h3.3M16.5 10h3.3M16.5 14h3.3" stroke="C" stroke-width="1.5" stroke-linecap="round"/>' },
+
+    TSLA:  { name: 'Tesla',      color: '#FF4B52', px: '241.05', d: -0.6, art:
+      '<path d="M3.6 15.2c0-1 .9-1.3 1.7-1.5l1.5-2.9c.3-.6.9-1 1.6-1h7.2c.7 0 1.3.4 1.6 1l1.5 2.9c.8.2 1.7.5 1.7 1.5v1.7h-2.1a1.9 1.9 0 0 0-3.8 0H9.5a1.9 1.9 0 0 0-3.8 0H3.6z" fill="none" stroke="C" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<circle cx="7.6" cy="16.9" r="1.6" fill="none" stroke="C" stroke-width="1.4"/><circle cx="16.4" cy="16.9" r="1.6" fill="none" stroke="C" stroke-width="1.4"/>' },
+
+    AAPL:  { name: 'Apple',      color: '#C7CDD2', px: '221.60', d: -0.4, art:
+      '<rect x="7.6" y="3.4" width="8.8" height="17.2" rx="2.2" fill="none" stroke="C" stroke-width="1.6"/>' +
+      '<path d="M10.6 6.4h2.8" stroke="C" stroke-width="1.4" stroke-linecap="round"/><circle cx="12" cy="17.8" r="1" fill="C"/>' },
+
+    MSFT:  { name: 'Microsoft',  color: '#4FC3F7', px: '418.30', d: 0.9, art:
+      '<rect x="3.4" y="4.8" width="17.2" height="11.4" rx="1.8" fill="none" stroke="C" stroke-width="1.6"/>' +
+      '<path d="M12 16.2v3M9 19.2h6" stroke="C" stroke-width="1.6" stroke-linecap="round"/>' },
+
+    AMZN:  { name: 'Amazon',     color: '#FFA726', px: '186.40', d: 1.4, art:
+      '<path d="M3.8 8.2 12 4.6l8.2 3.6v7.6L12 19.4l-8.2-3.6z" fill="none" stroke="C" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<path d="M3.8 8.2 12 11.8l8.2-3.6M12 11.8v7.6" stroke="C" stroke-width="1.4" stroke-linejoin="round"/>' },
+
+    GOOGL: { name: 'Alphabet',   color: '#6BA4FF', px: '168.20', d: 0.7, art:
+      '<circle cx="10.6" cy="10.6" r="5.6" fill="none" stroke="C" stroke-width="1.8"/>' +
+      '<path d="M14.7 14.7 19.6 19.6" stroke="C" stroke-width="1.9" stroke-linecap="round"/>' },
+
+    META:  { name: 'Meta',       color: '#5B9DFF', px: '512.90', d: 2.8, art:
+      '<path d="M12 4.4c4.3 0 7.8 2.7 7.8 6.1s-3.5 6.1-7.8 6.1c-.8 0-1.6-.1-2.4-.3l-4.2 2.1 1.1-2.8C4.9 14.6 4.2 13 4.2 10.5 4.2 7.1 7.7 4.4 12 4.4z" fill="none" stroke="C" stroke-width="1.6" stroke-linejoin="round"/>' },
+
+    NFLX:  { name: 'Netflix',    color: '#FF5C5C', px: '672.10', d: -1.8, art:
+      '<circle cx="12" cy="12" r="8" fill="none" stroke="C" stroke-width="1.6"/><path d="M10.2 8.4 16.2 12l-6 3.6z" fill="C"/>' },
+
+    GOLD:  { name: 'Gold',       color: '#E8C25A', px: '2,388',  d: 0.2, art:
+      '<path d="M4.4 16.6h15.2l-2-6.2H6.4z" fill="none" stroke="C" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<path d="M7 13.4h10" stroke="C" stroke-width="1.4" stroke-linecap="round"/>' },
+
+    SILVER:{ name: 'Silver',     color: '#CFD6DE', px: '28.44',  d: -0.3, art:
+      '<path d="M3.6 12.4h8.2l-1.2-4H4.8z" fill="none" stroke="C" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<path d="M8.4 18.4h11.6l-1.5-4.6H9.9z" fill="none" stroke="C" stroke-width="1.5" stroke-linejoin="round"/>' },
+
+    OIL:   { name: 'Crude oil',  color: '#9AA4B0', px: '78.30',  d: 1.9, art:
+      '<path d="M12 3.8c3.4 4.2 5.6 6.7 5.6 9.4a5.6 5.6 0 0 1-11.2 0c0-2.7 2.2-5.2 5.6-9.4z" fill="none" stroke="C" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<path d="M9.4 13.6a2.6 2.6 0 0 0 2.6 2.6" stroke="C" stroke-width="1.3" stroke-linecap="round"/>' }
   };
 
-  var CATALOG = [
-    { id: 'btc', label: 'BTC', color: MAROON },
-    { id: 'eth', label: 'ETH', color: BLACK },
-    { id: 'sol', label: 'SOL', color: GRAY },
-    { id: 'aapl', label: 'AAPL', color: MAROON },
-    { id: 'tsla', label: 'TSLA', color: BLACK }
+  var TAPE = ['BTC', 'ETH', 'SOL', 'NVDA', 'TSLA', 'AAPL', 'MSFT', 'GOLD',
+              'AMZN', 'GOOGL', 'META', 'DOGE', 'XRP', 'OIL', 'NFLX', 'SILVER'];
+
+  var CHAINS = ['Robinhood', 'Ethereum', 'Base', 'BNB', 'Solana'];
+
+  // value: total value in the bag, delta: 24h %, lev: leveraged market
+  var BAGS = [
+    { tick: 'BIG3',   name: 'The Big Three',    chain: 'Robinhood', legs: ['BTC','ETH','SOL'],                  w: [60,30,10],       value: 412600, delta: 4.2,  lev: true },
+    { tick: 'MAG5',   name: 'Magnificent Five', chain: 'Robinhood', legs: ['AAPL','MSFT','NVDA','AMZN','GOOGL'],w: [25,25,20,15,15], value: 396100, delta: 1.7,  lev: false },
+    { tick: 'SILICON',name: 'Silicon Set',      chain: 'Robinhood', legs: ['NVDA','MSFT','AAPL'],               w: [50,30,20],       value: 264400, delta: 6.3,  lev: true },
+    { tick: 'HARD',   name: 'Hard Money',       chain: 'Ethereum',  legs: ['GOLD','SILVER','BTC'],              w: [50,30,20],       value: 243900, delta: 8.4,  lev: false },
+    { tick: 'CLOUD',  name: 'Cloud Rent',       chain: 'Base',      legs: ['MSFT','AMZN','GOOGL'],              w: [40,35,25],       value: 221750, delta: 2.9,  lev: true },
+    { tick: 'DEGEN',  name: 'Degen Three',      chain: 'Solana',    legs: ['DOGE','SOL','XRP'],                 w: [40,40,20],       value: 96200,  delta: -5.1, lev: true },
+    { tick: 'L1S',    name: 'Layer Ones',       chain: 'Ethereum',  legs: ['ETH','SOL','ADA','BNB'],            w: [40,30,15,15],    value: 187300, delta: 0.9,  lev: false },
+    { tick: 'SCREEN', name: 'Screen Time',      chain: 'Base',      legs: ['NFLX','META','GOOGL'],              w: [40,35,25],       value: 174850, delta: 3.6,  lev: false },
+    { tick: 'STORE',  name: 'Store of Value',   chain: 'Robinhood', legs: ['BTC','GOLD','SILVER'],              w: [50,35,15],       value: 331500, delta: 1.2,  lev: false },
+    { tick: 'GRID',   name: 'Wheels and Chips', chain: 'Robinhood', legs: ['TSLA','NVDA','SILVER'],             w: [45,35,20],       value: 158900, delta: -2.4, lev: true },
+    { tick: 'ORACLE', name: 'Oracle Set',       chain: 'BNB',       legs: ['LINK','ETH','BTC'],                 w: [40,35,25],       value: 74850,  delta: 3.1,  lev: false },
+    { tick: 'DRILL',  name: 'Drill and Mint',   chain: 'Ethereum',  legs: ['OIL','GOLD','SILVER'],              w: [45,35,20],       value: 88100,  delta: -1.6, lev: false },
+    { tick: 'CART',   name: 'Everything Store', chain: 'Robinhood', legs: ['AMZN','AAPL','TSLA'],               w: [40,35,25],       value: 205800, delta: 1.5,  lev: true },
+    { tick: 'BLUE',   name: 'Blue Chip Five',   chain: 'Robinhood', legs: ['AAPL','MSFT','AMZN','GOOGL','META'],w: [25,25,20,15,15], value: 288400, delta: 0.7,  lev: false },
+    { tick: 'ALT4',   name: 'Alt Season',       chain: 'Solana',    legs: ['SOL','ADA','LINK','DOGE'],          w: [40,25,20,15],    value: 63400,  delta: 12.4, lev: true },
+    { tick: 'HEDGE',  name: 'The Hedge',        chain: 'Base',      legs: ['GOLD','OIL','BTC','SILVER'],        w: [35,25,25,15],    value: 119600, delta: 2.1,  lev: false }
   ];
 
-  var LEGS = [
-    { label: 'BTC', pct: 40, color: MAROON },
-    { label: 'ETH', pct: 35, color: BLACK },
-    { label: 'SOL', pct: 25, color: GRAY }
-  ];
+  var CATALOG = ['BTC', 'ETH', 'SOL', 'NVDA', 'TSLA', 'AAPL', 'GOLD', 'OIL'];
 
-  var SIZES = [0.5, 2, 10];
-  var GAS_ASSETS = [3, 4, 5];
-  var LEVERAGES = [2, 3, 5];
+  var state = { filter: 'all', sort: 'new', query: '', picked: ['BTC', 'NVDA', 'GOLD'] };
 
-  var SUBNAV = [
-    { label: 'About', id: 'indexes' },
-    { label: 'Built by traders', id: 'traders' },
-    { label: 'How it works', id: 'how' },
-    { label: 'Inside an index', id: 'inside' },
-    { label: 'The shift', id: 'shift' },
-    { label: 'Your edge', id: 'edge' },
-    { label: 'Calculators', id: 'calc' },
-    { label: 'Features', id: 'features' },
-    { label: 'Why it matters', id: 'why' },
-    { label: 'FAQ', id: 'faq' }
-  ];
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function money(v) {
+    if (v >= 1000000) return '$' + (v / 1000000).toFixed(2) + 'M';
+    if (v >= 1000) return '$' + Math.round(v / 1000) + 'K';
+    return '$' + v;
+  }
+  function pct(d) { return (d > 0 ? '+' : '') + d.toFixed(1) + '%'; }
 
-  function el(id) { return document.getElementById(id); }
+  /* ---------- icons ---------- */
 
-  function scrollToId(id) {
-    var target = document.getElementById(id);
-    if (target && target.scrollIntoView) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  function iconMarkup(sym) {
+    var a = ASSETS[sym];
+    var inner = a.art
+      ? a.art.replace(/"C"/g, '"#141418"')
+      : '<text x="12" y="16.6" text-anchor="middle" font-family="JetBrains Mono, monospace"' +
+        ' font-size="13" font-weight="700" fill="#141418">' + a.g + '</text>';
+    return '<svg class="bl-ic" viewBox="0 0 24 24" role="img" aria-label="' + a.name + '">' + inner + '</svg>';
   }
 
-  /* ---------- navigation ---------- */
+  function iconTile(sym, cls) {
+    var a = ASSETS[sym];
+    var tile = el('span', 'bl-tile' + (cls ? ' ' + cls : ''));
+    tile.style.background = a.color;              // the tile is the asset's own colour
+    tile.innerHTML = iconMarkup(sym);
+    tile.title = a.name;
+    return tile;
+  }
 
-  function renderSubnav() {
-    var wrap = el('subnav');
-    if (!wrap) return;
-    wrap.innerHTML = '';
-    SUBNAV.forEach(function (item) {
-      var a = document.createElement('a');
-      a.textContent = item.label;
-      a.addEventListener('click', function () { scrollToId(item.id); });
-      wrap.appendChild(a);
+  /* ---------- ticker tape ---------- */
+
+  function renderTape() {
+    var tape = $('tape');
+    if (!tape) return;
+    TAPE.forEach(function (sym) {
+      var a = ASSETS[sym];
+      var item = el('div', 'bl-tape-item');
+      item.appendChild(iconTile(sym, 'bl-tile-sm'));
+      item.appendChild(el('b', 'bl-neon', sym));
+      item.appendChild(el('span', null, '$' + a.px));
+      item.appendChild(el('span', 'bl-tape-delta ' + (a.d < 0 ? 'bl-down' : 'bl-up'), pct(a.d)));
+      tape.appendChild(item);
     });
   }
 
-  function bindScrollTargets() {
-    var nodes = document.querySelectorAll('[data-scroll]');
-    Array.prototype.forEach.call(nodes, function (node) {
-      node.addEventListener('click', function () {
-        scrollToId(node.getAttribute('data-scroll'));
+  /* ---------- the board ---------- */
+
+  function matching() {
+    var q = state.query.trim().toLowerCase();
+    return BAGS.filter(function (m) {
+      if (state.filter === 'lev' && !m.lev) return false;
+      if (state.filter === 'spot' && m.lev) return false;
+      if (!q) return true;
+      if (m.tick.toLowerCase().indexOf(q) > -1 || m.name.toLowerCase().indexOf(q) > -1) return true;
+      return m.legs.some(function (s) {
+        return s.toLowerCase().indexOf(q) > -1 || ASSETS[s].name.toLowerCase().indexOf(q) > -1;
       });
     });
   }
 
-  /* ---------- index builder ---------- */
-
-  function toggleAsset(id) {
-    var i = state.assets.indexOf(id);
-    if (i !== -1) {
-      if (state.assets.length > 3) state.assets.splice(i, 1);
-    } else if (state.assets.length < 5) {
-      state.assets.push(id);
-    }
-    renderBuilder();
+  function sorted(list) {
+    var out = list.slice();
+    if (state.sort === 'cap') out.sort(function (a, b) { return b.value - a.value; });
+    else if (state.sort === 'delta') out.sort(function (a, b) { return b.delta - a.delta; });
+    else if (state.sort === 'legs') out.sort(function (a, b) { return b.legs.length - a.legs.length; });
+    return out; // 'new' keeps the authored order, newest first
   }
+
+  function card(m) {
+    var c = el('div', 'bl-mcard');
+
+    var top = el('div', 'bl-mcard-top');
+    var stack = el('div', 'bl-stack');
+    m.legs.forEach(function (sym) { stack.appendChild(iconTile(sym)); });
+    top.appendChild(stack);
+    var pill = el('div', 'bl-pill');
+    pill.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+      '<circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/>' +
+      '<path d="M12 7.6v5l3 1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+    pill.appendChild(el('span', null, 'Backtest'));
+    top.appendChild(pill);
+    c.appendChild(top);
+
+    var id = el('div');
+    id.appendChild(el('div', 'bl-ticker bl-neon', '$' + m.tick));
+    id.appendChild(el('div', 'bl-mcard-name', m.name));
+    c.appendChild(id);
+
+    var foot = el('div', 'bl-mcard-foot');
+    var left = el('div');
+    var cap = el('div', 'bl-mcard-cap');
+    cap.appendChild(el('div', 'bl-cap-num', money(m.value)));
+    cap.appendChild(el('div', 'bl-cap-delta ' + (m.delta < 0 ? 'bl-down' : 'bl-up'), pct(m.delta)));
+    left.appendChild(cap);
+    left.appendChild(el('div', 'bl-label', 'Total value'));
+    foot.appendChild(left);
+    // a five-leg split needs the tighter separator to stay on one line
+    foot.appendChild(el('div', 'bl-split', m.w.join(m.w.length > 3 ? '/' : ' / ')));
+    c.appendChild(foot);
+
+    // one segment per leg, sized by its weight and stepped down in opacity
+    var bar = el('div', 'bl-bar');
+    m.w.forEach(function (w, i) {
+      var seg = el('i');
+      seg.style.width = w + '%';
+      seg.style.opacity = [1, .55, .38, .26, .18][i];
+      seg.title = m.legs[i] + ' ' + w + '%';
+      bar.appendChild(seg);
+    });
+    c.appendChild(bar);
+
+    return c;
+  }
+
+  function renderBoard() {
+    var board = $('board');
+    if (!board) return;
+    var list = sorted(matching());
+    board.textContent = '';
+    if (!list.length) {
+      board.appendChild(el('div', 'bl-empty', 'Nothing matches that search.'));
+      return;
+    }
+    list.forEach(function (m) { board.appendChild(card(m)); });
+  }
+
+  function renderCounts() {
+    var lev = BAGS.filter(function (m) { return m.lev; }).length;
+    $('cAll').textContent = BAGS.length;
+    $('cLev').textContent = lev;
+    $('cSpot').textContent = BAGS.length - lev;
+  }
+
+  function renderStats() {
+    var total = BAGS.reduce(function (s, m) { return s + m.value; }, 0);
+    var cells = [
+      ['statLive',   BAGS.length,               'dLive',   12],
+      ['statAssets', Object.keys(ASSETS).length, 'dAssets',  6],
+      ['statValue',  money(total),               'dValue',  14],
+      ['statChains', CHAINS.length,              'dChains',  0],
+      ['statFee',    '0.30%',                    'dFee',   -18]
+    ];
+    cells.forEach(function (c) {
+      $(c[0]).textContent = c[1];
+      var d = $(c[2]);
+      d.textContent = (c[3] > 0 ? '↑ ' : c[3] < 0 ? '↓ ' : '± ') + Math.abs(c[3]) + '%';
+      d.className = 'bl-stat-delta ' + (c[3] > 0 ? 'bl-up' : c[3] < 0 ? 'bl-down' : 'is-flat');
+    });
+    var count = $('eyebrowCount');
+    if (count) count.textContent = Object.keys(ASSETS).length;
+  }
+
+  /* ---------- the hero curve ----------
+     Sample artwork, one shape per range — not a feed. */
+
+  var CURVES = {
+    '1D': 'M0 128 C60 132 110 118 160 124 C220 131 260 108 320 112 C380 116 430 92 480 86',
+    '1W': 'M0 140 C70 138 120 120 180 128 C250 137 290 96 350 102 C410 108 440 70 480 62',
+    '1M': 'M0 156 C120 154 210 140 280 106 C350 72 410 46 480 32',
+    '3M': 'M0 164 C90 160 150 150 210 130 C280 107 330 74 480 26',
+    '1Y': 'M0 170 C80 168 130 158 190 142 C260 123 300 92 360 74 C420 56 450 36 480 22',
+    'ALL': 'M0 176 C70 174 120 168 180 150 C250 129 290 100 340 78 C400 52 440 30 480 16'
+  };
+
+  function drawCurve(range) {
+    var line = $('curveLine'), zone = $('curveZone'), dot = $('curveDot');
+    if (!line) return;
+    var d = CURVES[range] || CURVES['1M'];
+    line.setAttribute('d', d);
+    zone.setAttribute('d', d + ' L480 186 L0 186 Z');
+    dot.setAttribute('cy', d.slice(d.lastIndexOf(' ') + 1));
+  }
+
+  /* ---------- theme ---------- */
+
+  var SUN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>' +
+    '<path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+  var MOON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<path d="M20 14.2A8.4 8.4 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
+
+  function paintTheme(btn) {
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.innerHTML = light ? MOON : SUN;
+    btn.setAttribute('aria-label', light ? 'Switch to dark' : 'Switch to light');
+  }
+
+  /* ---------- builder ---------- */
 
   function renderBuilder() {
-    var chips = el('assetChips');
-    var weights = el('weights');
+    var chips = $('chips');
+    var weights = $('weights');
     if (!chips || !weights) return;
 
-    var n = state.assets.length;
-    var base = Math.floor(100 / n);
-    var remainder = 100 - base * n;
-
-    chips.innerHTML = '';
-    weights.innerHTML = '';
-
-    CATALOG.forEach(function (asset) {
-      var index = state.assets.indexOf(asset.id);
-      var active = index !== -1;
-
-      var chip = document.createElement('div');
-      chip.className = 'bl-chip';
-      chip.setAttribute('style', active ? selected(asset.color) : IDLE);
-      chip.textContent = asset.label;
-      chip.addEventListener('click', function () { toggleAsset(asset.id); });
+    chips.textContent = '';
+    CATALOG.forEach(function (sym) {
+      var on = state.picked.indexOf(sym) > -1;
+      var chip = el('div', 'bl-chip' + (on ? ' is-on' : ''));
+      chip.appendChild(iconTile(sym, 'bl-tile-sm'));
+      chip.appendChild(el('span', null, sym));
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('tabindex', '0');
+      chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+      function toggle() {
+        var i = state.picked.indexOf(sym);
+        if (i > -1) {
+          if (state.picked.length > 3) state.picked.splice(i, 1);
+        } else if (state.picked.length < 5) {
+          state.picked.push(sym);
+        }
+        renderBuilder();
+      }
+      chip.addEventListener('click', toggle);
+      chip.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
       chips.appendChild(chip);
+    });
 
-      if (!active) return;
-
-      var pct = base + (index === n - 1 ? remainder : 0);
-      var row = document.createElement('div');
-      row.className = 'bl-weight-row';
-      row.innerHTML =
-        '<div class="bl-weight-label bl-display">' + asset.label + '</div>' +
-        '<div class="bl-weight-track"><div class="bl-weight-fill" style="width:' + pct + '%;background:' + asset.color + ';"></div></div>' +
-        '<div class="bl-weight-pct">' + pct + '%</div>';
+    var share = 100 / state.picked.length;
+    weights.textContent = '';
+    state.picked.forEach(function (sym) {
+      var row = el('div', 'bl-weight');
+      row.appendChild(iconTile(sym, 'bl-tile-sm'));
+      row.appendChild(el('div', 'bl-weight-name bl-neon', sym));
+      var track = el('div', 'bl-weight-track');
+      var fill = el('div', 'bl-weight-fill');
+      fill.style.width = share + '%';
+      fill.style.background = ASSETS[sym].color;
+      track.appendChild(fill);
+      row.appendChild(track);
+      row.appendChild(el('div', 'bl-weight-pct', share.toFixed(0) + '%'));
       weights.appendChild(row);
     });
+
+    var n = state.picked.length;
+    $('sumLegs').textContent = n;
+    $('sumSwaps').textContent = n;
+    $('sumGas').textContent = '$' + ((n - 1) * GAS_PER_SWAP).toFixed(2);
   }
 
-  /* ---------- hero trade sizing ---------- */
+  /* ---------- wiring ---------- */
 
-  function renderSizing() {
-    var pills = el('sizePills');
-    var legs = el('legs');
-    if (!pills || !legs) return;
+  function scrollTo(id) {
+    var node = id === 'top' ? document.body : document.getElementById(id);
+    if (!node) return;
+    var y = id === 'top' ? 0 : node.getBoundingClientRect().top + window.pageYOffset - 96;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
 
-    pills.innerHTML = '';
-    SIZES.forEach(function (size) {
-      var pill = document.createElement('div');
-      pill.className = 'bl-pill';
-      pill.textContent = size + ' ETH';
-      pill.setAttribute('style', size === state.size ? selected(MAROON) : IDLE);
-      pill.addEventListener('click', function () { state.size = size; renderSizing(); });
-      pills.appendChild(pill);
+  function wire() {
+    document.querySelectorAll('[data-scroll]').forEach(function (node) {
+      node.style.cursor = 'pointer';
+      node.addEventListener('click', function () { scrollTo(node.getAttribute('data-scroll')); });
     });
 
-    var decimals = state.size < 1 ? 3 : 2;
-    legs.innerHTML = '';
-    LEGS.forEach(function (leg) {
-      var amount = (state.size * leg.pct / 100).toFixed(decimals);
-      var row = document.createElement('div');
-      row.className = 'bl-leg';
-      row.innerHTML =
-        '<span class="bl-leg-swatch" style="background:' + leg.color + ';"></span>' +
-        '<span class="bl-leg-name">' + leg.label + '</span>' +
-        '<span class="bl-leg-weight">' + leg.pct + '%</span>' +
-        '<span class="bl-leg-bar"><span class="bl-leg-fill" style="width:' + leg.pct + '%;background:' + leg.color + ';"></span></span>' +
-        '<span class="bl-leg-amt">' + amount + ' ETH</span>';
-      legs.appendChild(row);
-    });
-  }
-
-  /* ---------- calculators ---------- */
-
-  function renderPills(container, values, current, format, onPick, color) {
-    if (!container) return;
-    container.innerHTML = '';
-    values.forEach(function (value) {
-      var pill = document.createElement('div');
-      pill.className = 'bl-pill';
-      pill.textContent = format(value);
-      pill.setAttribute('style', value === current ? selected(color) : IDLE);
-      pill.addEventListener('click', function () { onPick(value); });
-      container.appendChild(pill);
-    });
-  }
-
-  function setText(id, value) {
-    var node = el(id);
-    if (node) node.textContent = value;
-  }
-
-  function renderCalculators() {
-    renderPills(el('gasPills'), GAS_ASSETS, state.gasAssets,
-      function (v) { return v + ' assets'; },
-      function (v) { state.gasAssets = v; renderCalculators(); }, BLACK);
-
-    renderPills(el('levPills'), LEVERAGES, state.leverage,
-      function (v) { return v + 'x'; },
-      function (v) { state.leverage = v; renderCalculators(); }, MAROON);
-
-    // sample assumption: ~$1.25 of gas per avoided swap, rebalanced monthly
-    var swapsAvoided = state.gasAssets - 1;
-    var gasSaved = Math.round(swapsAvoided * 1.25 * 100) / 100;
-    setText('swapsAvoided', swapsAvoided);
-    setText('gasSaved', gasSaved);
-    setText('yearlySavings', Math.round(gasSaved * 12));
-
-    // sample collateral of 0.05 ETH; liquidation excludes funding and fees
-    setText('totalSize', Math.round(0.05 * state.leverage * 100) / 100);
-    setText('liqMove', Math.round(90 / state.leverage));
-  }
-
-  /* ---------- maroon cursor trail ---------- */
-
-  function cursorTrail() {
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var layer = el('bl-spark-layer');
-    if (!layer) return;
-
-    var lastSpark = 0, lastX = 0, lastY = 0;
-
-    function spark(x, y, size) {
-      var dot = document.createElement('span');
-      dot.className = 'bl-spark';
-      dot.style.width = size + 'px';
-      dot.style.height = size + 'px';
-      dot.style.left = (x - size / 2) + 'px';
-      dot.style.top = (y - size / 2) + 'px';
-      dot.style.setProperty('--dx', (Math.random() * 10 - 5).toFixed(1) + 'px');
-      dot.style.setProperty('--dy', (-4 - Math.random() * 8).toFixed(1) + 'px');
-      layer.appendChild(dot);
-      window.setTimeout(function () {
-        if (dot.parentNode) dot.parentNode.removeChild(dot);
-      }, 640);
+    var tabs = $('tabs');
+    if (tabs) {
+      tabs.addEventListener('click', function (e) {
+        var tab = e.target.closest('.bl-tab');
+        if (!tab) return;
+        state.filter = tab.getAttribute('data-filter');
+        tabs.querySelectorAll('.bl-tab').forEach(function (t) { t.classList.toggle('is-active', t === tab); });
+        renderBoard();
+      });
     }
 
-    document.addEventListener('mousemove', function (e) {
-      var now = Date.now();
-      if (now - lastSpark < 26) return;
-      if (Math.abs(e.clientX - lastX) + Math.abs(e.clientY - lastY) < 5) return;
-      lastSpark = now; lastX = e.clientX; lastY = e.clientY;
-      spark(e.clientX + (Math.random() * 7 - 3.5), e.clientY + (Math.random() * 7 - 3.5), 4 + Math.random() * 6);
-    }, { passive: true });
+    var sort = $('sort');
+    if (sort) sort.addEventListener('change', function () { state.sort = sort.value; renderBoard(); });
 
-    document.addEventListener('mousedown', function (e) {
-      for (var i = 0; i < 5; i++) spark(e.clientX, e.clientY, 4 + Math.random() * 7);
-    }, { passive: true });
+    var search = $('search');
+    if (search) search.addEventListener('input', function () { state.query = search.value; renderBoard(); });
+
+    var ranges = $('ranges');
+    if (ranges) {
+      ranges.addEventListener('click', function (e) {
+        var r = e.target.closest('.bl-range');
+        if (!r) return;
+        ranges.querySelectorAll('.bl-range').forEach(function (n) { n.classList.toggle('is-active', n === r); });
+        drawCurve(r.getAttribute('data-range'));
+      });
+    }
+
+    var theme = $('theme');
+    if (theme) {
+      paintTheme(theme);
+      theme.addEventListener('click', function () {
+        var light = document.documentElement.getAttribute('data-theme') === 'light';
+        document.documentElement.setAttribute('data-theme', light ? 'dark' : 'light');
+        paintTheme(theme);
+      });
+    }
   }
 
-  function init() {
-    renderSubnav();
-    bindScrollTargets();
-    renderBuilder();
-    renderSizing();
-    renderCalculators();
-    cursorTrail();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  renderTape();
+  renderCounts();
+  renderStats();
+  drawCurve('1M');
+  renderBoard();
+  renderBuilder();
+  wire();
 })();

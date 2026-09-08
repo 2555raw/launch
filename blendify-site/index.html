@@ -3,607 +3,271 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Blendify — Build an index. Trade it like one asset.</title>
-  <meta name="description" content="Blendify turns a basket of three to five tokens, tokenized stocks or real-world assets into one tradeable on-chain index. Buy it in one trade, or take it long or short with up to 5x leverage.">
-  <link rel="icon" href="assets/blend-logo.png">
+  <title>Tricker: many tickers, one bag</title>
+  <meta name="description" content="Tricker turns three to five of the assets everyone already watches (BTC, ETH, NVDA, TSLA, gold) into one bag you trade as a single position, long or short, with up to 5x leverage.">
+  <link rel="icon" href="assets/blend-logo-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@110,600;110,700;110,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="bl-root" id="top">
 
-  <div class="bl-spark-layer" id="bl-spark-layer"></div>
-  <div class="bl-progress"></div>
+  <!-- ticker tape: supported assets, horizontally scrollable, never animated -->
+  <div class="bl-tape" id="tape"></div>
 
   <nav class="bl-nav">
-    <div class="bl-nav-left">
-      <div class="bl-logo" data-scroll="top" title="Back to top">
-        <img class="bl-logo-mark" src="assets/blend-logo.png" alt="Blendify">Blendify
-      </div>
-      <a data-scroll="inside">Indexes</a>
-      <a data-scroll="indexes">Launch the app</a>
+    <a class="bl-mark" data-scroll="top" aria-label="Tricker home">
+      <svg viewBox="0 0 40 28" aria-hidden="true"><path d="M13 3h8L11 25H3z"/><path d="M28 3h8L26 25h-8z"/></svg>
+    </a>
+    <div class="bl-nav-links">
+      <a class="is-active" data-scroll="markets">Markets</a>
+      <a data-scroll="build">Launch</a>
+      <a data-scroll="stats">Stats</a>
+      <a data-scroll="how">How it works</a>
+      <a href="docs.html">Docs</a>
+      <a href="https://x.com/useTricker" target="_blank" rel="noopener noreferrer">Follow</a>
     </div>
     <div class="bl-nav-right">
-      <a class="bl-x-link" href="https://x.com/useBlendify" target="_blank" rel="noopener noreferrer" aria-label="Blendify on X" title="@useBlendify">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="#0D0D0D"><path d="M18.9 2H22l-7 8 8.2 12h-6.4l-5-7.3L5.9 22H2.8l7.5-8.6L2.5 2h6.6l4.5 6.7L18.9 2Zm-1.1 18h1.7L7.3 3.9H5.5L17.8 20Z"/></svg>
+      <label class="bl-search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input id="search" type="search" placeholder="Search in Tricker, bag or asset..." aria-label="Search bags">
+      </label>
+      <div class="bl-btn bl-btn-ghost bl-btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="6" width="18" height="13" rx="3" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="16.5" cy="14.5" r="1.3" fill="currentColor"/>
+        </svg>Connect wallet</div>
+      <a class="bl-icon-btn" href="https://x.com/useTricker" target="_blank" rel="noopener noreferrer" aria-label="Tricker on X">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4.5 4.5 19.5 19.5M19.5 4.5 4.5 19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
       </a>
-      <div class="bl-btn bl-btn-primary bl-btn-sm bl-display" data-scroll="indexes">Launch the app</div>
+      <button class="bl-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
     </div>
   </nav>
 
-  <div class="bl-subnav" id="subnav">
-    
-  </div>
-
-  <section class="bl-hero">
-    <div class="bl-blob bl-blob-a"></div>
-    <div class="bl-blob bl-blob-b"></div>
-
-    <div class="bl-hero-col">
-      <h1 class="bl-h1 bl-display">Build an index.<br>Trade it like <span class="bl-nowrap"><mark>one asset</mark>.</span></h1>
-      <p class="bl-sub">Pick three to five tokens, tokenized stocks or real-world assets. Set the weights. Buy the whole thing in one trade, or take it long or short with up to 5x leverage.</p>
-      <div class="bl-cta-row">
-        <div class="bl-btn bl-btn-primary bl-display" data-scroll="indexes">Launch the app</div>
-        <div class="bl-btn bl-btn-mint bl-display" data-scroll="inside">Browse indexes</div>
-      </div>
-      <div class="bl-trust">No approval queue. No listing fees. <b>Your index goes live the moment you save it.</b></div>
-      <div class="bl-chain-row">
-        <div class="bl-chain-chip">Robinhood Chain</div>
-        <div class="bl-chain-chip">Ethereum</div>
-        <div class="bl-chain-chip">Base</div>
-        <div class="bl-chain-chip">BNB Chain</div>
-        <div class="bl-chain-chip">Solana</div>
-      </div>
-    </div>
-
-    <div class="bl-panel">
-      <div class="bl-panel-head">
-        <div class="bl-panel-title bl-display">BTC · ETH · SOL</div>
-        <span class="bl-live"><span class="bl-live-dot"></span>blended price, illustrative</span>
-      </div>
-      <svg class="bl-chart" viewBox="0 0 480 150" preserveAspectRatio="none">
-        <defs><linearGradient id="blChartFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#7B1523" stop-opacity=".7"/><stop offset="100%" stop-color="#7B1523" stop-opacity="0"/>
-        </linearGradient></defs>
-        <path d="M0 112 L40 98 L80 104 L120 78 L160 88 L200 60 L240 70 L280 44 L320 56 L360 30 L400 40 L440 18 L480 26 L480 150 L0 150 Z" fill="url(#blChartFill)"/>
-        <polyline class="bl-chart-line" points="0,112 40,98 80,104 120,78 160,88 200,60 240,70 280,44 320,56 360,30 400,40 440,18 480,26" fill="none" stroke="#7B1523" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-      </svg>
-      <div class="bl-panel-head" style="margin:18px 0 12px;">
-        <div class="bl-panel-title bl-display">Trade sizing</div>
-        <div class="bl-pill-row" style="margin:0;" id="sizePills">
-          
-        </div>
-      </div>
-      <div class="bl-legs" id="legs">
-        
-      </div>
-      <div class="bl-panel-foot">One trade fills every leg at the blended price. Sizing shown for a sample 40/35/25 index.</div>
-    </div>
-  </section>
-
-  <div class="bl-marquee-wrap">
-    <div class="bl-marquee">
-      <span style="background:#F6E8EA;">One trade instead of five</span>
-      <span style="background:#E9E9E9;">Weights fixed on-chain</span>
-      <span style="background:#EFEFEF;">Long or short, up to 5x</span>
-      <span style="background:#F6E8EA;">Blended price every 10s</span>
-      <span style="background:#E9E9E9;">Tokenized stocks and RWAs</span>
-      <span style="background:#EFEFEF;">No listing fees</span>
-    </div>
-  </div>
-
-  <section class="bl-section" id="indexes">
+  <main class="bl-main">
     <div class="bl-wrap">
-      <div class="bl-reveal">
-        <div class="bl-kicker">WHAT BLENDIFY IS</div>
-        <h2 class="bl-h2">Blendify turns a basket of tokens into one tradeable asset.</h2>
-        <p class="bl-section-sub">Four things the protocol gives you the moment your index is live — and the builder that gets you there.</p>
-      </div>
-      <div class="bl-split">
-        <div class="bl-grid-2 bl-stagger">
+
+      <!-- hero -->
+      <section class="bl-hero">
+        <div>
+          <div class="bl-eyebrow">Robinhood Chain · Tricker v1.0 · <span id="eyebrowCount">19</span> assets live</div>
+          <h1 class="bl-h1">MANY TICKERS<br><span class="bl-h1-dim">ONE</span> BAG</h1>
+          <p>A bag holds three to five <b>assets at weights you set</b>: bitcoin next to Nvidia next to
+             gold, if that is the trade. The weights live onchain and apply on every order, so one
+             trade fills every leg at a blended price, long or short, with up to 5x leverage.</p>
+          <div class="bl-hero-cta">
+            <div class="bl-btn bl-btn-primary" data-scroll="build">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3v18M3 12h18M12 3 9 6M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>Build a bag</div>
+            <div class="bl-btn bl-btn-ghost" data-scroll="how">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/>
+                <path d="M10.3 8.8 15.6 12l-5.3 3.2z" fill="currentColor"/>
+              </svg>How it works</div>
+          </div>
+        </div>
+
+        <div class="bl-curve">
+          <div class="bl-curve-head">
+            <span class="bl-label">Blended price</span>
+            <span class="bl-label">Sample</span>
+          </div>
+          <svg viewBox="0 0 480 186" preserveAspectRatio="none" role="img" aria-label="Illustrative blended price curve">
+            <defs>
+              <linearGradient id="blZone" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="currentColor" stop-opacity=".16"/>
+                <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line class="bl-curve-grid" x1="0" y1="44" x2="480" y2="44"/>
+            <line class="bl-curve-grid" x1="0" y1="95" x2="480" y2="95"/>
+            <line class="bl-curve-grid" x1="0" y1="146" x2="480" y2="146"/>
+            <path id="curveZone" class="bl-curve-zone" d=""/>
+            <path id="curveLine" class="bl-curve-line" d=""/>
+            <circle id="curveDot" cx="480" cy="30" r="5" fill="currentColor"/>
+          </svg>
+          <div class="bl-curve-foot">
+            <span class="bl-curve-name">BTC + NVDA + GOLD = 40/35/25</span>
+            <div class="bl-ranges" id="ranges">
+              <div class="bl-range" data-range="1D">1D</div>
+              <div class="bl-range" data-range="1W">1W</div>
+              <div class="bl-range is-active" data-range="1M">1M</div>
+              <div class="bl-range" data-range="3M">3M</div>
+              <div class="bl-range" data-range="1Y">1Y</div>
+              <div class="bl-range" data-range="ALL">All</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- stats -->
+      <section class="bl-stats" id="stats">
+        <div class="bl-stat"><div class="bl-label">Bags live</div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statLive">&hellip;</span><span class="bl-stat-delta" id="dLive"></span></div></div>
+        <div class="bl-stat"><div class="bl-label">Assets supported</div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statAssets">&hellip;</span><span class="bl-stat-delta" id="dAssets"></span></div></div>
+        <div class="bl-stat"><div class="bl-label">Total value</div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statValue">&hellip;</span><span class="bl-stat-delta" id="dValue"></span></div></div>
+        <div class="bl-stat"><div class="bl-label">Chains</div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statChains">&hellip;</span><span class="bl-stat-delta" id="dChains"></span></div></div>
+        <div class="bl-stat"><div class="bl-label">Avg fee</div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statFee">&hellip;</span><span class="bl-stat-delta" id="dFee"></span></div></div>
+      </section>
+
+      <!-- market board -->
+      <section id="markets">
+        <div class="bl-board-head">
+          <div class="bl-board-title">Live bags</div>
+          <div class="bl-tabs" id="tabs">
+            <div class="bl-tab is-active" data-filter="all">All <span id="cAll">0</span></div>
+            <div class="bl-tab" data-filter="spot">Spot only <span id="cSpot">0</span></div>
+            <div class="bl-tab" data-filter="lev">Leveraged <span id="cLev">0</span></div>
+          </div>
+          <div class="bl-sort">
+            <span class="bl-label">Sort</span>
+            <select id="sort" aria-label="Sort indexes">
+              <option value="new">Newest</option>
+              <option value="cap">Total value</option>
+              <option value="delta">24h change</option>
+              <option value="legs">Legs</option>
+            </select>
+          </div>
+        </div>
+        <div class="bl-grid" id="board"></div>
+        <p class="bl-board-note">Sample data for layout. Wire the board to the indexer before launch;
+           the values shown are illustrative, not quotes.</p>
+      </section>
+
+      <!-- how it works -->
+      <section class="bl-section" id="how">
+        <div class="bl-section-head bl-reveal">
+          <div class="bl-label">How it works</div>
+          <h2 class="bl-h2">Four steps, no listing queue</h2>
+          <p class="bl-section-sub">No approval committee and no listing fee. A bag goes live the moment
+             you save it, and the weights you set are the weights it trades at.</p>
+        </div>
+        <div class="bl-cards-4 bl-reveal">
           <div class="bl-card">
-            <div class="bl-card-icon-box bl-icon-yellow">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#0D0D0D" stroke-width="1.6"/><path d="M12 7v5l3.2 2" stroke="#0D0D0D" stroke-width="1.6" stroke-linecap="round"/></svg>
-            </div>
-            <h3 class="bl-card-title">Live blended pricing</h3>
-            <p class="bl-card-desc">The weighted price across every leg, refreshed every ten seconds.</p>
+            <div class="bl-step-n">01</div>
+            <h3>Pick the assets</h3>
+            <p>Three to five of them: BTC, ETH, NVDA, TSLA, gold or oil, from any supported chain.</p>
           </div>
           <div class="bl-card">
-            <div class="bl-card-icon-box bl-icon-green">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 17l4-8 3 5 5-9" stroke="#0D0D0D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <h3 class="bl-card-title">Perps up to 5x</h3>
-            <p class="bl-card-desc">Long or short the whole index, liquidation shown before you open.</p>
+            <div class="bl-step-n">02</div>
+            <h3>Set the weights</h3>
+            <p>Tune each weight until they add to 100%. Stored onchain, so the bag cannot drift.</p>
           </div>
           <div class="bl-card">
-            <div class="bl-card-icon-box bl-icon-red">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6" width="17" height="12" rx="2.5" stroke="#0D0D0D" stroke-width="1.6"/><path d="M3.5 10h17" stroke="#0D0D0D" stroke-width="1.6"/></svg>
-            </div>
-            <h3 class="bl-card-title">Deposit and withdraw</h3>
-            <p class="bl-card-desc">One balance for spot positions and perpetual settlement.</p>
+            <div class="bl-step-n">03</div>
+            <h3>Buy it in one trade</h3>
+            <p>A single order fills every leg at a blended price, refreshed every ten seconds.</p>
           </div>
           <div class="bl-card">
-            <div class="bl-card-icon-box bl-icon-yellow">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="#0D0D0D" stroke-width="1.6"/><path d="M8 14l2.5-3 2.5 2 3-4" stroke="#0D0D0D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="bl-step-n">04</div>
+            <h3>Or trade it with leverage</h3>
+            <p>Long or short the whole basket through perps, with the liquidation level shown up front.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- builder -->
+      <section class="bl-section" id="build">
+        <div class="bl-section-head bl-reveal">
+          <div class="bl-label">Launch</div>
+          <h2 class="bl-h2">Build one now</h2>
+          <p class="bl-section-sub">Pick between three and five assets. Weights split evenly across the bag
+             here; in the app every weight is yours to set.</p>
+        </div>
+        <div class="bl-builder bl-reveal">
+          <div class="bl-panel">
+            <div class="bl-panel-title">What is in the bag</div>
+            <div class="bl-chips" id="chips"></div>
+            <div id="weights"></div>
+            <p class="bl-panel-note">Three assets minimum, five maximum. Weights have to add up to 100%
+               before a bag can be saved.</p>
+          </div>
+          <div class="bl-panel">
+            <div class="bl-panel-title">What it costs to run</div>
+            <div class="bl-rows">
+              <div class="bl-row"><span>Legs in the bag</span><span id="sumLegs">3</span></div>
+              <div class="bl-row"><span>Swaps per rebalance, by hand</span><span id="sumSwaps">3</span></div>
+              <div class="bl-row"><span>Swaps per rebalance, as a bag</span><span>1</span></div>
+              <div class="bl-row"><span>Gas saved per rebalance</span><span id="sumGas">$2.50</span></div>
+              <div class="bl-row"><span>Listing fee</span><span>$0.00</span></div>
+              <div class="bl-row"><span>Max leverage</span><span>5x</span></div>
             </div>
-            <h3 class="bl-card-title">Index builder</h3>
-            <p class="bl-card-desc">Three to five assets, weights to 100%, live the moment you save.</p>
+            <p class="bl-panel-note">Sample gas assumption of $1.25 per avoided swap. Swap it for your own
+               before quoting these numbers anywhere.</p>
           </div>
         </div>
+      </section>
 
-        <div class="bl-panel" style="animation:none;">
-          <div class="bl-panel-head">
-            <div class="bl-panel-title bl-display">Index builder</div>
-            <span class="bl-panel-tag bl-tag-green">interactive demo</span>
-          </div>
-          <div class="bl-chip-row" id="assetChips">
-            
-          </div>
-          <div class="bl-weights" id="weights">
-            
-          </div>
-          <div class="bl-panel-foot">Tap an asset to add or drop it (three minimum, five maximum). Weights split across the basket and are stored on-chain.</div>
+      <!-- faq -->
+      <section class="bl-section" id="faq">
+        <div class="bl-section-head bl-reveal">
+          <div class="bl-label">FAQ</div>
+          <h2 class="bl-h2">The short answers</h2>
         </div>
-      </div>
+        <div class="bl-faq bl-reveal">
+          <div class="bl-card"><h3>How many assets can one bag hold?</h3>
+            <p>Three to five. The weights have to add up to 100%, and they are stored onchain, so the
+               bag does not drift between trades.</p></div>
+          <div class="bl-card"><h3>Do I keep custody of my funds?</h3>
+            <p>Yes. Deposits, spot positions and perp settlement all run onchain from your own wallet,
+               and you withdraw straight back to it.</p></div>
+          <div class="bl-card"><h3>Which chains and asset types are supported?</h3>
+            <p>Robinhood Chain, Ethereum, Base, BNB Chain and Solana. Tokens, tokenized stocks such as
+               tTSLA and tNVDA, and real world assets such as tGOLD can sit in the same index.</p></div>
+          <div class="bl-card"><h3>How often does the blended price update?</h3>
+            <p>Every ten seconds, weighted across every leg, from DexScreener and equity feeds.</p></div>
+          <div class="bl-card"><h3>How much leverage can I take?</h3>
+            <p>Up to 5x through perps, long or short on the whole bag, with the liquidation level shown
+               before you open the position.</p></div>
+          <div class="bl-card"><h3>What does it cost to launch a bag?</h3>
+            <p>There is no listing fee and no approval queue: it goes live the moment you save it.
+               Trading fees are [your fee schedule].</p></div>
+        </div>
+      </section>
+
+      <!-- closing -->
+      <section class="bl-cta bl-reveal">
+        <div class="bl-label">Start today</div>
+        <h2 class="bl-h2">If you hold more than one ticker,<br>you already run a bag</h2>
+        <p class="bl-section-sub">Anyone with a wallet can build one. No permission, no listing committee,
+           no fee to get listed.</p>
+        <div class="bl-cta-row">
+          <div class="bl-btn bl-btn-primary" data-scroll="build">Build a bag</div>
+          <div class="bl-btn bl-btn-ghost" data-scroll="markets">Browse indexes</div>
+        </div>
+      </section>
+
     </div>
-  </section>
-
-  <div class="bl-divider">
-    <span class="bl-divider-line is-left"></span>
-    <img class="bl-divider-mark" src="assets/blend-logo.png" alt="">
-    <span class="bl-divider-line is-right"></span>
-  </div>
-
-  <section class="bl-section bl-section-alt" id="traders">
-    <div class="bl-wrap">
-      <div class="bl-reveal">
-        <div class="bl-kicker">BUILT BY TRADERS</div>
-        <h2 class="bl-h2">Built by traders, used every day.</h2>
-        <p class="bl-section-sub">Traders who stopped buying five coins one at a time. Drop your real quotes and handles into these cards — the brackets are placeholders, not testimonials.</p>
-      </div>
-      <div class="bl-grid-3 bl-stagger">
-        <div class="bl-card">
-          <div class="bl-trader-head">
-            <div class="bl-avatar" style="background:#F6E8EA;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="3.4" stroke="#0D0D0D" stroke-width="1.5"/><path d="M5.5 19c1.4-3 4-4.4 6.5-4.4S17.1 16 18.5 19" stroke="#0D0D0D" stroke-width="1.5" stroke-linecap="round"/></svg>
-            </div>
-            <div>
-              <div class="bl-trader-handle bl-placeholder">[trader handle]</div>
-              <div class="bl-trader-wallet">[0x… wallet]</div>
-            </div>
-          </div>
-          <div class="bl-usecase-tag" style="background:#F6E8EA;">One trade, five assets</div>
-          <p class="bl-quote bl-placeholder">[Their words about putting the whole thesis on in a single trade instead of five separate buys.]</p>
-        </div>
-        <div class="bl-card">
-          <div class="bl-trader-head">
-            <div class="bl-avatar" style="background:#EFEFEF;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="3.4" stroke="#0D0D0D" stroke-width="1.5"/><path d="M5.5 19c1.4-3 4-4.4 6.5-4.4S17.1 16 18.5 19" stroke="#0D0D0D" stroke-width="1.5" stroke-linecap="round"/></svg>
-            </div>
-            <div>
-              <div class="bl-trader-handle bl-placeholder">[trader handle]</div>
-              <div class="bl-trader-wallet">[0x… wallet]</div>
-            </div>
-          </div>
-          <div class="bl-usecase-tag" style="background:#EFEFEF;">Shorted a whole sector</div>
-          <p class="bl-quote bl-placeholder">[Their words about shorting an entire basket with leverage rather than five separate positions.]</p>
-        </div>
-        <div class="bl-card">
-          <div class="bl-trader-head">
-            <div class="bl-avatar" style="background:#E9E9E9;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="3.4" stroke="#0D0D0D" stroke-width="1.5"/><path d="M5.5 19c1.4-3 4-4.4 6.5-4.4S17.1 16 18.5 19" stroke="#0D0D0D" stroke-width="1.5" stroke-linecap="round"/></svg>
-            </div>
-            <div>
-              <div class="bl-trader-handle bl-placeholder">[trader handle]</div>
-              <div class="bl-trader-wallet">[0x… wallet]</div>
-            </div>
-          </div>
-          <div class="bl-usecase-tag" style="background:#E9E9E9;">Weights that hold</div>
-          <p class="bl-quote bl-placeholder">[Their words about the composition staying put instead of drifting with every green candle.]</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="bl-band-divider"><span class="bl-band-fill"></span></div>
-
-  <section class="bl-section" id="how">
-    <div class="bl-wrap">
-      <div class="bl-reveal">
-        <div class="bl-kicker">HOW IT WORKS</div>
-        <h2 class="bl-h2">From a blank basket to a live market.</h2>
-        <p class="bl-section-sub">Four steps. No listing committee, no approval queue. Weights are stored on-chain and applied on every trade, so what you draw is what you trade.</p>
-      </div>
-      <div class="bl-grid-4 bl-stagger">
-        <div class="bl-card">
-          <svg class="bl-step-art" viewBox="0 0 200 92">
-            <rect x="16" y="20" width="46" height="22" rx="11" fill="#7B1523"/>
-            <rect x="70" y="20" width="46" height="22" rx="11" fill="#0D0D0D"/>
-            <rect x="124" y="20" width="46" height="22" rx="11" fill="#6E6E6E"/>
-            <rect x="16" y="52" width="46" height="22" rx="11" fill="#FFFFFF" stroke="#E3E3E3" stroke-width="1.5"/>
-            <rect x="70" y="52" width="46" height="22" rx="11" fill="#FFFFFF" stroke="#E3E3E3" stroke-width="1.5"/>
-            <rect x="124" y="52" width="46" height="22" rx="11" fill="#FFFFFF" stroke="#E3E3E3" stroke-width="1.5"/>
-          </svg>
-          <div class="bl-step-num bl-display">01</div>
-          <h3 class="bl-card-title">Pick the assets</h3>
-          <p class="bl-card-desc">Three to five tokens, tokenized stocks or RWAs from any supported chain.</p>
-        </div>
-        <div class="bl-card">
-          <svg class="bl-step-art" viewBox="0 0 200 92">
-            <rect x="16" y="22" width="168" height="10" rx="5" fill="#FFFFFF" stroke="#E3E3E3" stroke-width="1.4"/>
-            <rect x="16" y="22" width="72" height="10" rx="5" fill="#7B1523"/>
-            <rect x="16" y="41" width="168" height="10" rx="5" fill="#FFFFFF" stroke="#E3E3E3" stroke-width="1.4"/>
-            <rect x="16" y="41" width="60" height="10" rx="5" fill="#0D0D0D"/>
-            <rect x="16" y="60" width="168" height="10" rx="5" fill="#FFFFFF" stroke="#E3E3E3" stroke-width="1.4"/>
-            <rect x="16" y="60" width="42" height="10" rx="5" fill="#6E6E6E"/>
-          </svg>
-          <div class="bl-step-num bl-display" style="background:#0D0D0D;">02</div>
-          <h3 class="bl-card-title">Set the weights</h3>
-          <p class="bl-card-desc">Tune every weight until it adds to 100%. Stored on-chain, so nothing drifts.</p>
-        </div>
-        <div class="bl-card">
-          <svg class="bl-step-art" viewBox="0 0 200 92">
-            <circle cx="34" cy="24" r="9" fill="#7B1523"/><circle cx="34" cy="46" r="9" fill="#0D0D0D"/><circle cx="34" cy="68" r="9" fill="#6E6E6E"/>
-            <path d="M46 24 C74 24 76 46 96 46" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-            <path d="M46 46 L96 46" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-            <path d="M46 68 C74 68 76 46 96 46" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-            <rect x="102" y="30" width="70" height="32" rx="10" fill="#0D0D0D"/>
-            <text x="137" y="50" text-anchor="middle" font-family="Archivo" font-size="12" font-weight="700" fill="#FFFFFF">1 TRADE</text>
-          </svg>
-          <div class="bl-step-num bl-display" style="background:#4A4A4A;">03</div>
-          <h3 class="bl-card-title">Buy it in one trade</h3>
-          <p class="bl-card-desc">A blended price across all constituents, refreshed every ten seconds.</p>
-        </div>
-        <div class="bl-card">
-          <svg class="bl-step-art" viewBox="0 0 200 92">
-            <path d="M18 70 L54 54 L90 60 L126 34 L162 22" stroke="#0D0D0D" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M18 78 L182 78" stroke="#6E6E6E" stroke-width="2" stroke-dasharray="6 5"/>
-            <text x="176" y="74" text-anchor="end" font-family="Instrument Sans" font-size="9" fill="#4A4A4A">liquidation</text>
-            <rect x="140" y="14" width="42" height="20" rx="10" fill="#7B1523"/>
-            <text x="161" y="28" text-anchor="middle" font-family="Archivo" font-size="11" font-weight="700" fill="#FFFFFF">5x</text>
-          </svg>
-          <div class="bl-step-num bl-display">04</div>
-          <h3 class="bl-card-title">Or trade it with leverage</h3>
-          <p class="bl-card-desc">Long or short through perps, liquidation price shown before you execute.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="bl-dots-divider">
-    <span class="bl-dot" style="background:#7B1523;"></span>
-    <span class="bl-dot" style="background:#0D0D0D;"></span>
-    <span class="bl-dot" style="background:#6E6E6E;"></span>
-    <span class="bl-dot" style="background:#0D0D0D;"></span>
-    <span class="bl-dot" style="background:#7B1523;"></span>
-  </div>
-
-  <section class="bl-section bl-section-alt" id="inside">
-    <div class="bl-wrap" style="text-align:center;">
-      <div class="bl-reveal">
-        <div class="bl-kicker">INSIDE AN INDEX</div>
-        <h2 class="bl-h2" style="margin-left:auto;margin-right:auto;">One position, made of three to five assets priced live, every block.</h2>
-        <p class="bl-section-sub" style="margin-left:auto;margin-right:auto;">Weights are stored on-chain and applied on every trade — nothing is recalculated by hand.</p>
-      </div>
-      <div class="bl-drift" style="display:flex;justify-content:center;">
-        <svg class="bl-diagram" width="620" height="200" viewBox="0 0 620 200">
-          <path class="bl-draw" d="M104,36 C240,36 280,100 330,100" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-          <path class="bl-draw" d="M104,100 L330,100" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-          <path class="bl-draw" d="M104,164 C240,164 280,100 330,100" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-          <g font-family="Archivo" font-size="11" font-weight="700" fill="#0D0D0D">
-            <circle cx="86" cy="36" r="18" fill="#F6E8EA" stroke="#7B1523" stroke-width="2"/><text x="86" y="41" text-anchor="middle">BTC</text>
-            <circle cx="86" cy="100" r="18" fill="#E9E9E9" stroke="#0D0D0D" stroke-width="2"/><text x="86" y="105" text-anchor="middle">ETH</text>
-            <circle cx="86" cy="164" r="18" fill="#EFEFEF" stroke="#6E6E6E" stroke-width="2"/><text x="86" y="169" text-anchor="middle">SOL</text>
-          </g>
-          <g font-family="Instrument Sans" font-size="10" fill="#6E6E6E">
-            <text x="140" y="28" >weight 40%</text>
-            <text x="140" y="92" >weight 35%</text>
-            <text x="140" y="156">weight 25%</text>
-          </g>
-          <circle class="diagram-core" cx="366" cy="100" r="36" fill="#7B1523"/>
-          <text x="366" y="97" text-anchor="middle" font-family="Archivo" font-size="11" font-weight="700" fill="#FFFFFF">1 INDEX</text>
-          <text x="366" y="111" text-anchor="middle" font-family="Instrument Sans" font-size="9" fill="#E8CBD0">on-chain</text>
-          <path class="bl-draw" d="M404,100 L470,100" stroke="#0D0D0D" stroke-width="2" stroke-dasharray="5 5" fill="none"/>
-          <rect x="470" y="70" width="118" height="60" rx="12" fill="#FFFFFF" stroke="#0D0D0D" stroke-width="1.8"/>
-          <text x="529" y="94" text-anchor="middle" font-family="Archivo" font-size="11" font-weight="700" fill="#0D0D0D">BLENDED PRICE</text>
-          <text x="529" y="110" text-anchor="middle" font-family="Instrument Sans" font-size="9.5" fill="#6E6E6E">refreshed every 10s</text>
-        </svg>
-      </div>
-    </div>
-  </section>
-
-  <div class="bl-marquee-wrap bl-marquee-thin">
-    <div class="bl-marquee">
-      <span style="background:#E9E9E9;">Three to five assets</span>
-      <span style="background:#F6E8EA;">Weights to 100%</span>
-      <span style="background:#EFEFEF;">Liquidation shown pre-open</span>
-      <span style="background:#E9E9E9;">Self-custody throughout</span>
-      <span style="background:#F6E8EA;">Live on save</span>
-      <span style="background:#EFEFEF;">One balance, spot and perps</span>
-    </div>
-  </div>
-
-  <section class="bl-section" id="shift">
-    <div class="bl-wrap">
-      <div class="bl-reveal bl-reveal-right">
-        <div class="bl-kicker">THE SHIFT</div>
-        <h2 class="bl-h2">Blendify changes what a position looks like.</h2>
-        <p class="bl-section-sub">Stop managing five tickers. Manage one.</p>
-      </div>
-      <div class="bl-grid-3 bl-stagger">
-        <div class="bl-shift-card">
-          <svg class="bl-shift-art" viewBox="0 0 240 78">
-            <g fill="#6E6E6E"><circle cx="22" cy="24" r="8"/><circle cx="48" cy="44" r="8"/><circle cx="24" cy="58" r="8"/><circle cx="62" cy="20" r="8"/><circle cx="76" cy="52" r="8"/></g>
-            <path d="M100 39 L136 39" stroke="#E3E3E3" stroke-width="2"/><path d="M130 33 L138 39 L130 45" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-            <circle cx="190" cy="39" r="24" fill="#0D0D0D"/>
-          </svg>
-          <div class="bl-shift-states"><span class="bl-shift-before">Scattered</span><span class="bl-shift-arrow">→</span><span class="bl-shift-after">One ticker</span></div>
-          <p class="bl-card-desc">Five loose positions collapse into a single line in your portfolio.</p>
-        </div>
-        <div class="bl-shift-card">
-          <svg class="bl-shift-art" viewBox="0 0 240 78">
-            <g fill="#6E6E6E"><rect x="16" y="20" width="12" height="38" rx="4"/><rect x="34" y="20" width="12" height="38" rx="4"/><rect x="52" y="20" width="12" height="38" rx="4"/><rect x="70" y="20" width="12" height="38" rx="4"/><rect x="88" y="20" width="12" height="38" rx="4"/></g>
-            <path d="M118 39 L154 39" stroke="#E3E3E3" stroke-width="2"/><path d="M148 33 L156 39 L148 45" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-            <rect x="186" y="20" width="14" height="38" rx="5" fill="#0D0D0D"/>
-          </svg>
-          <div class="bl-shift-states"><span class="bl-shift-before">Manual</span><span class="bl-shift-arrow">→</span><span class="bl-shift-after">Instant</span></div>
-          <p class="bl-card-desc">Rebalancing stops meaning five transactions and five times the gas.</p>
-        </div>
-        <div class="bl-shift-card">
-          <svg class="bl-shift-art" viewBox="0 0 240 78">
-            <circle cx="52" cy="39" r="24" fill="#EFEFEF"/>
-            <text x="52" y="48" text-anchor="middle" font-family="Archivo" font-size="26" font-weight="700" fill="#4A4A4A">?</text>
-            <path d="M100 39 L136 39" stroke="#E3E3E3" stroke-width="2"/><path d="M130 33 L138 39 L130 45" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-            <rect x="156" y="24" width="68" height="30" rx="10" fill="#F6E8EA"/>
-            <text x="190" y="44" text-anchor="middle" font-family="Archivo" font-size="14" font-weight="700" fill="#7B1523">live</text>
-          </svg>
-          <div class="bl-shift-states"><span class="bl-shift-before">Guesswork</span><span class="bl-shift-arrow">→</span><span class="bl-shift-after">A live number</span></div>
-          <p class="bl-card-desc">The blended price tells you what the thesis is worth, at any moment.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="bl-divider">
-    <span class="bl-divider-line is-left"></span>
-    <img class="bl-divider-mark" src="assets/blend-logo.png" alt="">
-    <span class="bl-divider-line is-right"></span>
-  </div>
-
-  <section class="bl-section bl-section-alt" id="edge">
-    <div class="bl-wrap bl-edge-grid">
-      <div class="bl-reveal bl-reveal-left">
-        <div class="bl-kicker">YOUR EDGE</div>
-        <h2 class="bl-h2">See the whole basket before you put money behind it.</h2>
-        <p class="bl-section-sub" style="margin-bottom:22px;">Every weight, every price, every liquidation level, before you sign.</p>
-        <p>There is no fine print between you and what you are buying: the builder shows the exact composition of the index and the resulting blended price before you confirm the trade.</p>
-        <p>If you are trading with leverage, the liquidation level is computed on the index as a whole rather than asset by asset, so you know exactly how much room you have.</p>
-        <div class="bl-cta-row" style="margin-top:22px;">
-          <div class="bl-btn bl-btn-primary bl-display" data-scroll="calc">Trade perps</div>
-          <div class="bl-btn bl-btn-ghost bl-display" data-scroll="inside">See every index</div>
-        </div>
-      </div>
-      <div class="bl-edge-panel bl-reveal">
-        <div class="bl-edge-row"><span>Composition</span><span>BTC 40% · ETH 35% · SOL 25%</span></div>
-        <div class="bl-edge-row"><span>Blended price</span><span>live, every 10s</span></div>
-        <div class="bl-edge-row"><span>Leverage</span><span>up to 5x</span></div>
-        <div class="bl-edge-row"><span>Liquidation</span><span>shown before you open</span></div>
-        <div class="bl-edge-row"><span>Listing</span><span>permissionless, no fee</span></div>
-        <div class="bl-edge-row"><span>Custody</span><span>always yours, on-chain</span></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="bl-band-divider"><span class="bl-band-fill"></span></div>
-
-  <section class="bl-section" id="calc">
-    <div class="bl-wrap">
-      <div class="bl-reveal">
-        <div class="bl-kicker">CALCULATORS</div>
-        <h2 class="bl-h2">What one trade instead of five is actually worth.</h2>
-        <p class="bl-section-sub">Two quick calculators: what you stop paying, and how big a position gets with leverage.</p>
-      </div>
-      <div class="bl-calc-grid bl-stagger">
-        <div class="bl-calc-card">
-          <div class="bl-calc-title bl-display">Swap and gas savings</div>
-          <div class="bl-pill-row" id="gasPills">
-            
-          </div>
-          <div class="bl-calc-results">
-            <div class="bl-calc-stat bl-stat-green"><div class="bl-calc-stat-num bl-num-green bl-display"><span id="swapsAvoided">4</span></div><div class="bl-calc-stat-label">swaps avoided</div></div>
-            <div class="bl-calc-stat bl-stat-green"><div class="bl-calc-stat-num bl-num-green bl-display">$<span id="gasSaved">5</span></div><div class="bl-calc-stat-label">gas saved per rebalance</div></div>
-            <div class="bl-calc-stat bl-stat-green"><div class="bl-calc-stat-num bl-num-green bl-display">$<span id="yearlySavings">60</span></div><div class="bl-calc-stat-label">yearly saving, monthly rebalance</div></div>
-          </div>
-          <div class="bl-calc-note">Sample figures for illustration — swap the gas assumption for your own.</div>
-        </div>
-        <div class="bl-calc-card">
-          <div class="bl-calc-title bl-display">Position sizing</div>
-          <div class="bl-pill-row" id="levPills">
-            
-          </div>
-          <div class="bl-calc-results">
-            <div class="bl-calc-stat bl-stat-yellow"><div class="bl-calc-stat-num bl-num-yellow bl-display">1</div><div class="bl-calc-stat-label">position open</div></div>
-            <div class="bl-calc-stat bl-stat-yellow"><div class="bl-calc-stat-num bl-num-yellow bl-display"><span id="totalSize">0.1</span> ETH</div><div class="bl-calc-stat-label">total size on 0.05 ETH collateral</div></div>
-            <div class="bl-calc-stat bl-stat-red"><div class="bl-calc-stat-num bl-num-red bl-display"><span id="liqMove">45</span>%</div><div class="bl-calc-stat-label">move to liquidation</div></div>
-          </div>
-          <div class="bl-calc-note">Sample collateral of 0.05 ETH — liquidation excludes funding and fees.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="bl-dots-divider">
-    <span class="bl-dot" style="background:#7B1523;"></span>
-    <span class="bl-dot" style="background:#0D0D0D;"></span>
-    <span class="bl-dot" style="background:#6E6E6E;"></span>
-    <span class="bl-dot" style="background:#0D0D0D;"></span>
-    <span class="bl-dot" style="background:#7B1523;"></span>
-  </div>
-
-  <section class="bl-cta-band" id="start">
-    <img class="bl-cta-watermark" src="assets/blend-logo-light.png" alt="">
-    <svg class="bl-candles" viewBox="0 0 1200 300" preserveAspectRatio="none">
-      <g stroke="#9A9A9A" stroke-width="3">
-        <path d="M60 120 L60 220"/><path d="M140 90 L140 200"/><path d="M220 140 L220 240"/><path d="M300 70 L300 190"/>
-        <path d="M380 110 L380 230"/><path d="M460 60 L460 170"/><path d="M540 130 L540 250"/><path d="M620 80 L620 210"/>
-        <path d="M700 100 L700 220"/><path d="M780 50 L780 180"/><path d="M860 120 L860 240"/><path d="M940 90 L940 200"/>
-        <path d="M1020 140 L1020 250"/><path d="M1100 70 L1100 190"/>
-      </g>
-      <g fill="#FFFFFF">
-        <rect x="48" y="140" width="24" height="50" rx="3"/><rect x="128" y="110" width="24" height="60" rx="3"/>
-        <rect x="288" y="95" width="24" height="70" rx="3"/><rect x="448" y="80" width="24" height="60" rx="3"/>
-        <rect x="608" y="105" width="24" height="65" rx="3"/><rect x="768" y="70" width="24" height="70" rx="3"/>
-        <rect x="928" y="110" width="24" height="55" rx="3"/><rect x="1088" y="95" width="24" height="60" rx="3"/>
-      </g>
-      <g fill="#7B1523" opacity=".75">
-        <rect x="208" y="165" width="24" height="55" rx="3"/><rect x="368" y="140" width="24" height="60" rx="3"/>
-        <rect x="528" y="160" width="24" height="60" rx="3"/><rect x="688" y="130" width="24" height="60" rx="3"/>
-        <rect x="848" y="150" width="24" height="65" rx="3"/><rect x="1008" y="170" width="24" height="55" rx="3"/>
-      </g>
-    </svg>
-    <div class="bl-wrap bl-reveal" style="position:relative;z-index:2;">
-      <div class="bl-kicker">START TODAY</div>
-      <h2 class="bl-h2">The best index for your thesis is the one you build.</h2>
-      <p class="bl-section-sub">Anyone with a wallet can create one — no permission, no listing committee, no fee to get listed.</p>
-      <div class="bl-cta-row">
-        <div class="bl-btn bl-display" style="background:#7B1523;color:#FFFFFF;" data-scroll="indexes">Launch the app</div>
-        <div class="bl-btn bl-display" style="background:transparent;color:#FFFFFF;border:1px solid #FFFFFF;" data-scroll="indexes">Create one now</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="bl-section" id="features">
-    <div class="bl-wrap">
-      <div class="bl-reveal bl-reveal-right">
-        <div class="bl-kicker">FEATURES</div>
-        <h2 class="bl-h2">Everything the protocol does, in one place.</h2>
-        <p class="bl-section-sub">Build it, price it, trade it, and take the money out.</p>
-      </div>
-      <div class="bl-grid-3 bl-stagger">
-        <div class="bl-card">
-          <h3 class="bl-card-title">Index builder</h3>
-          <ul class="bl-list">
-            <li>Three to five assets per index</li>
-            <li>Weights adding up to 100%</li>
-            <li>Any Robinhood Chain contract address</li>
-            <li>Live the moment you save</li>
-          </ul>
-        </div>
-        <div class="bl-card">
-          <h3 class="bl-card-title">Live blended pricing</h3>
-          <ul class="bl-list is-green">
-            <li>Weighted price across every leg</li>
-            <li>DexScreener and equity feeds</li>
-            <li>Ten-second refresh</li>
-            <li>Per-asset charts inside the index</li>
-          </ul>
-        </div>
-        <div class="bl-card">
-          <h3 class="bl-card-title">Perps up to 5x</h3>
-          <ul class="bl-list is-red">
-            <li>Long or short the whole index</li>
-            <li>1x to 5x leverage</li>
-            <li>Liquidation shown before you open</li>
-            <li>Live PnL, close whenever you want</li>
-          </ul>
-        </div>
-        <div class="bl-card">
-          <h3 class="bl-card-title">Multi-chain assets</h3>
-          <ul class="bl-list">
-            <li>Robinhood Chain, Ethereum, Base, BNB Chain, Solana</li>
-            <li>Tokenized stocks such as tTSLA and tNVDA</li>
-            <li>Real-world assets such as tGOLD</li>
-            <li>Mixed-chain indexes in one position</li>
-          </ul>
-        </div>
-        <div class="bl-card">
-          <h3 class="bl-card-title">Balance and withdrawals</h3>
-          <ul class="bl-list is-green">
-            <li>ETH deposits</li>
-            <li>Spot and perp settlement in one balance</li>
-            <li>Withdrawal straight to your wallet</li>
-            <li>Full position history</li>
-          </ul>
-        </div>
-        <div class="bl-card" id="why">
-          <h3 class="bl-card-title">Why it matters</h3>
-          <ul class="bl-list is-red">
-            <li>One trade instead of five</li>
-            <li>Weights that hold, no silent drift</li>
-            <li>Leverage on the basket, not per leg</li>
-            <li>Crypto, equities and RWAs side by side</li>
-            <li>Permissionless listing, self-custody throughout</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="bl-band-divider"><span class="bl-band-fill"></span></div>
-
-  <section class="bl-section bl-section-alt" id="faq">
-    <div class="bl-wrap">
-      <div class="bl-reveal">
-        <div class="bl-kicker">FAQ</div>
-        <h2 class="bl-h2">The questions traders ask before their first index.</h2>
-        <p class="bl-section-sub">Short answers, straight from how the protocol works.</p>
-      </div>
-      <div class="bl-faq-grid bl-stagger">
-        <div class="bl-faq">
-          <h3>How many assets can one index hold?</h3>
-          <p>Three to five. The weights have to add up to 100%, and they are stored on-chain, so the composition does not drift between trades.</p>
-        </div>
-        <div class="bl-faq">
-          <h3>Do I keep custody of my funds?</h3>
-          <p>Yes. Deposits, spot positions and perp settlement all run on-chain from your own wallet, and you withdraw straight back to it.</p>
-        </div>
-        <div class="bl-faq">
-          <h3>Which chains and asset types are supported?</h3>
-          <p>Robinhood Chain, Ethereum, Base, BNB Chain and Solana. Tokens, tokenized stocks such as tTSLA and tNVDA, and real-world assets such as tGOLD can sit in the same index.</p>
-        </div>
-        <div class="bl-faq">
-          <h3>How often does the blended price update?</h3>
-          <p>Every ten seconds, weighted across every leg, from DexScreener and equity feeds.</p>
-        </div>
-        <div class="bl-faq">
-          <h3>How much leverage can I take?</h3>
-          <p>Up to 5x through perps, long or short on the whole index, with the liquidation level shown before you open the position.</p>
-        </div>
-        <div class="bl-faq">
-          <h3>What does it cost to launch an index?</h3>
-          <p>There is no listing fee and no approval queue — it goes live the moment you save it. Trading fees: [your fee schedule].</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="bl-statement">
-    <img class="bl-statement-mark" src="assets/blend-logo-light.png" alt="">
-    <p class="bl-statement-text bl-display bl-reveal">"If you are holding more than one coin, you are already running an index. Make it one."</p>
-    <div class="bl-cta-row" style="justify-content:center;">
-      <div class="bl-btn bl-display" style="background:#FFFFFF;color:#7B1523;" data-scroll="indexes">Launch the app</div>
-      <div class="bl-btn bl-display" style="background:transparent;color:#FFFFFF;border:1px solid #FFFFFF;" data-scroll="inside">Browse indexes</div>
-    </div>
-  </section>
+  </main>
 
   <footer class="bl-footer">
     <div class="bl-wrap">
       <div class="bl-footer-top">
         <div>
-          <div class="bl-logo">
-            <img class="bl-logo-mark" src="assets/blend-logo.png" alt="">Blendify
-          </div>
-          <p class="bl-footer-brand-desc">On-chain indexes you build yourself. Blend it, buy it, and trade it with leverage as a single position.</p>
+          <div class="bl-wordmark">TRICKER</div>
+          <p class="bl-footer-desc">Onchain bags you build yourself. Fill it, buy it, and trade it with
+             leverage as one position.</p>
         </div>
         <div>
           <div class="bl-footer-col-title">Product</div>
           <div class="bl-footer-links">
-            <a data-scroll="indexes">Indexes</a>
+            <a data-scroll="markets">Markets</a>
+            <a data-scroll="build">Launch</a>
             <a data-scroll="how">How it works</a>
-            <a data-scroll="inside">Inside an index</a>
-            <a data-scroll="calc">Calculators</a>
+            <a href="docs.html">Docs</a>
           </div>
         </div>
         <div>
@@ -618,14 +282,15 @@
         <div>
           <div class="bl-footer-col-title">Community</div>
           <div class="bl-footer-links">
-            <a href="https://x.com/useBlendify" target="_blank" rel="noopener noreferrer">@useBlendify on X</a>
+            <a href="https://x.com/useTricker" target="_blank" rel="noopener noreferrer">@useTricker on X</a>
+            <a href="article.html">Explainer</a>
             <a href="#chain">Built on Robinhood Chain</a>
           </div>
         </div>
       </div>
       <div class="bl-footer-bottom">
-        <span>© 2026 Blendify. All rights reserved.</span>
-        <span>Built on-chain, no middlemen.</span>
+        <span>© 2026 Tricker. All rights reserved.</span>
+        <span>Built onchain, no middlemen.</span>
       </div>
     </div>
   </footer>

@@ -16,7 +16,8 @@ styles.css      the design system (palette, type, layout) — shared by all thre
 docs.css        docs furniture only
 article.css     article furniture only
 app.js          assets and their icons, tape, board (filter/sort/search), builder, navigation
-assets/         logo marks left over from an earlier identity; only used as the favicon
+assets/         the slash mark as a square avatar, dark and light, plus avatar-source.html,
+                the page they are rendered from; the dark one is also the favicon
 ```
 
 ## Run it
@@ -83,6 +84,4 @@ there is no observer code. Browsers without support land on the end state. Nothi
 - `[your fee schedule]` appears in the FAQ on `index.html` and twice in the fees table on `docs.html`.
 - Legal links in the footer (`#risk`, `#privacy`, `#terms`, `#fees`) are still anchors.
 - The X handle `@useTricker` is a placeholder.
-- The favicon still points at `assets/blend-logo-light.png`, left over from an earlier identity —
-  replace it with a Tricker mark.
 - The hero curve is illustrative artwork, not a live feed; the "sample" label is there on purpose.

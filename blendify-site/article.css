@@ -1,5 +1,5 @@
 /* Blendify — explainer article
-   Reuses the palette, fonts and font-stretch from .bl-root in styles.css.
+   Reuses the palette and fonts from .bl-root in styles.css.
    Everything here is article-specific: measure, rhythm and reading furniture. */
 
 .ar-page { --measure: 680px; padding-bottom: 90px; }
@@ -42,13 +42,13 @@
 .ar-byline-sep { color: var(--line); }
 
 /* ---------- body ---------- */
-.ar-body { font-size: 18px; line-height: 1.72; color: #23201F; }
+.ar-body { font-size: 18px; line-height: 1.72; color: #E6E2EC; }
 .ar-body p { margin: 0 0 22px; text-wrap: pretty; }
 .ar-body strong { color: var(--ink); font-weight: 600; }
 .ar-body a { text-decoration: underline; text-underline-offset: 3px; }
 
 .ar-h2 {
-  font-family: var(--font-display); font-weight: 700;
+  font-family: var(--font-display); font-weight: 800;
   font-size: clamp(23px, 2.6vw, 29px); line-height: 1.15; letter-spacing: -0.02em;
   color: var(--ink); text-wrap: balance;
   margin: 52px 0 16px; padding-top: 26px; border-top: 2px solid var(--ink);
@@ -72,7 +72,7 @@
   content: counter(step, decimal-leading-zero);
   position: absolute; left: 0; top: 2px;
   font-family: var(--font-display); font-size: 12px; font-weight: 700;
-  color: #FFFFFF; background: var(--yellow);
+  color: #1B1A1F; background: var(--yellow);
   padding: 3px 8px; border-radius: 6px;
 }
 .ar-steps b { display: block; font-family: var(--font-display); color: var(--ink); }

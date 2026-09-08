@@ -2,18 +2,18 @@
    - index builder (3–5 assets, weights split across the basket)
    - hero trade sizing (input size split across a 40/35/25 index)
    - gas savings + position sizing calculators
-   - section navigation and the maroon cursor trail
+   - section navigation and the pink cursor trail
 */
 (function () {
   'use strict';
 
-  var MAROON = '#7B1523';
-  var BLACK = '#0D0D0D';
-  var GRAY = '#6E6E6E';
-  var IDLE = 'background:#FFFFFF;border-color:#E3E3E3;color:#6E6E6E;';
+  var PINK = '#FF5FC7';
+  var PURPLE = '#A16BFF';
+  var VIOLET = '#7C5CFF';
+  var IDLE = 'background:#33323A;border-color:#48464F;color:#A8A2B4;';
 
   function selected(color) {
-    return 'background:' + color + ';border-color:' + color + ';color:#FFFFFF;';
+    return 'background:' + color + ';border-color:' + color + ';color:#1B1A1F;';
   }
 
   var state = {
@@ -24,17 +24,17 @@
   };
 
   var CATALOG = [
-    { id: 'btc', label: 'BTC', color: MAROON },
-    { id: 'eth', label: 'ETH', color: BLACK },
-    { id: 'sol', label: 'SOL', color: GRAY },
-    { id: 'aapl', label: 'AAPL', color: MAROON },
-    { id: 'tsla', label: 'TSLA', color: BLACK }
+    { id: 'btc', label: 'BTC', color: PINK },
+    { id: 'eth', label: 'ETH', color: PURPLE },
+    { id: 'sol', label: 'SOL', color: VIOLET },
+    { id: 'aapl', label: 'AAPL', color: PINK },
+    { id: 'tsla', label: 'TSLA', color: PURPLE }
   ];
 
   var LEGS = [
-    { label: 'BTC', pct: 40, color: MAROON },
-    { label: 'ETH', pct: 35, color: BLACK },
-    { label: 'SOL', pct: 25, color: GRAY }
+    { label: 'BTC', pct: 40, color: PINK },
+    { label: 'ETH', pct: 35, color: PURPLE },
+    { label: 'SOL', pct: 25, color: VIOLET }
   ];
 
   var SIZES = [0.5, 2, 10];
@@ -146,7 +146,7 @@
       var pill = document.createElement('div');
       pill.className = 'bl-pill';
       pill.textContent = size + ' ETH';
-      pill.setAttribute('style', size === state.size ? selected(MAROON) : IDLE);
+      pill.setAttribute('style', size === state.size ? selected(PINK) : IDLE);
       pill.addEventListener('click', function () { state.size = size; renderSizing(); });
       pills.appendChild(pill);
     });
@@ -190,11 +190,11 @@
   function renderCalculators() {
     renderPills(el('gasPills'), GAS_ASSETS, state.gasAssets,
       function (v) { return v + ' assets'; },
-      function (v) { state.gasAssets = v; renderCalculators(); }, BLACK);
+      function (v) { state.gasAssets = v; renderCalculators(); }, PURPLE);
 
     renderPills(el('levPills'), LEVERAGES, state.leverage,
       function (v) { return v + 'x'; },
-      function (v) { state.leverage = v; renderCalculators(); }, MAROON);
+      function (v) { state.leverage = v; renderCalculators(); }, PINK);
 
     // sample assumption: ~$1.25 of gas per avoided swap, rebalanced monthly
     var swapsAvoided = state.gasAssets - 1;
@@ -208,7 +208,7 @@
     setText('liqMove', Math.round(90 / state.leverage));
   }
 
-  /* ---------- maroon cursor trail ---------- */
+  /* ---------- pink cursor trail ---------- */
 
   function cursorTrail() {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;

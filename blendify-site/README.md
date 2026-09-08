@@ -11,8 +11,8 @@ No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 index.html                 all the markup, one page
 styles.css                 the whole design system (palette, layout, animations)
 app.js                     builder, trade sizing, calculators, nav, cursor trail
-assets/blend-logo.png      logo mark (dark, for light backgrounds)
-assets/blend-logo-light.png  logo mark (light, for the dark and maroon bands)
+assets/blend-logo.png      logo mark (dark, kept as the favicon)
+assets/blend-logo-light.png  logo mark (light — used everywhere on the grey ground)
 ```
 
 ## Run it
@@ -27,22 +27,33 @@ Deploy by dropping the folder on any static host (Netlify, Vercel, GitHub Pages,
 
 ## Palette
 
-All colors live in one place — the `.bl-root` block at the top of `styles.css`:
+Matte grey ground, pink and purple accents. All colors live in one place — the `.bl-root`
+block at the top of `styles.css`:
 
 | Token | Value | Role |
 | --- | --- | --- |
-| `--ink` | `#0D0D0D` | text, dark CTA band |
-| `--yellow` | `#7B1523` | maroon accent (buttons, highlights, statement band) |
-| `--red` | `#6E6E6E` | gray secondary |
-| `--green` | `#0D0D0D` | black tertiary |
-| `--bg` / `--bg-alt` / `--surface` | white / `#F7F7F7` / `#F1F1F1` | backgrounds |
-| `--line` | `#E3E3E3` | borders |
+| `--bg` / `--bg-alt` / `--surface` | `#2C2B31` / `#26252B` / `#38373F` | matte grey backgrounds |
+| `--card` | `#33323A` | cards, panels, the hero chart plate |
+| `--ink` | `#F5F2F8` | text on the grey |
+| `--muted` | `#A8A2B4` | secondary text |
+| `--line` | `#48464F` | borders |
+| `--yellow` | `#FF5FC7` | pink accent (buttons, highlights, statement band) |
+| `--red` | `#7C5CFF` | violet secondary |
+| `--green` | `#A16BFF` | purple tertiary |
 
-The variable names are historical (they carried over from an earlier pastel palette); the values
-are what matter. Change `--yellow` and the whole page re-tints.
+The variable names are historical (they carried over from earlier palettes); the values are what
+matter. Change `--yellow` and the whole page re-tints. Anything sitting *on* an accent uses
+`#1B1A1F` rather than white — the pink is bright enough that dark text reads better on it.
 
-The same three colors are repeated in `app.js` (`MAROON`, `BLACK`, `GRAY`) for the parts
-rendered by script — keep them in sync if you change the palette.
+The same three accents are repeated in `app.js` (`PINK`, `PURPLE`, `VIOLET`) for the parts
+rendered by script, and inline in the SVG illustrations in `index.html` — keep them in sync if
+you change the palette.
+
+## Type
+
+`Sora` for display (600/700/800 — headings, buttons, numbers, the logo) and `Inter` for body
+copy, both from Google Fonts. Headings run at 800 with tight tracking, so the type carries as
+much of the contrast as the color does.
 
 ## Interactive parts (`app.js`)
 
@@ -55,7 +66,7 @@ rendered by script — keep them in sync if you change the palette.
   Both are illustrative, labelled as such on the page.
 - **Navigation** — the sub-nav and the buttons scroll to sections by id; sections carry
   `scroll-margin-top` so the sticky header doesn't cover the headline.
-- **Cursor trail** — maroon sparks that follow the pointer, disabled on touch devices and
+- **Cursor trail** — pink sparks that follow the pointer, disabled on touch devices and
   under `prefers-reduced-motion`.
 
 ## Animations

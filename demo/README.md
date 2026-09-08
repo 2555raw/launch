@@ -1,6 +1,6 @@
 # Demo video
 
-`blendify-demo.mp4` — a 25 second tour of the landing page: 1440×900, H.264, no audio.
+`blendify-demo.mp4` — a 25 second tour of the landing page: 1440×900, H.264, AAC stereo.
 
 The run drives a real Chromium over `../blendify-site` with a cursor drawn into the
 page, and clicks through the interactive parts in order:
@@ -13,6 +13,17 @@ page, and clicks through the interactive parts in order:
 6. back to the top, onto the X button in the nav, which opens
    `https://x.com/useBlendify` in a new tab
 
+## The music
+
+`make-music.js` writes the bed as `music.wav`. Every voice is synthesised in the
+script — pad, plucked arpeggio, bass, kick, hats and a small reverb — so there is
+no sample and no licence attached to it. Ten bars of 4/4 at 96 BPM over
+Am7 – Fmaj7 – Cmaj7 – G – Am7, arranged to enter under the opening shot, fill out
+across the middle, and thin back out over the closing one. It sits at about
+-16 LUFS in the video; change `MUSIC_GAIN` in `record-demo.js` to move it.
+
+The generator is seeded, so the same track comes out of every run.
+
 ## Re-recording
 
 ```bash
@@ -21,6 +32,9 @@ npm install
 sh fonts/fetch.sh     # optional, but keeps the first second from being unstyled
 npm run demo
 ```
+
+`npm run demo` writes `music.wav` on its first run and reuses it after that; delete
+it to re-render, or run `node make-music.js` on its own while tuning the track.
 
 The script serves the site itself on port 8123 (override with `PORT`), records, then
 trims and re-times the capture to exactly 25 seconds.

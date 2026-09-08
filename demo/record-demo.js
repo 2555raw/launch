@@ -1,14 +1,14 @@
 /* Records a 25-second guided tour of the Blendify landing page.
  *
  * Drives a real Chromium over the site with a drawn-on cursor, clicking through
- * the interactive parts, and finishes on the X link in the nav. Output is
- * demo/blendify-demo.mp4.
+ * the interactive parts, and finishes on the X link in the nav. The bed under it
+ * comes from make-music.js. Output is demo/blendify-demo.mp4.
  *
  *   cd demo && npm install && npm run demo
  */
 const { chromium } = require('playwright');
 const ffmpegPath = require('ffmpeg-static');
-const { execFile } = require('child_process');
+const { execFile, execFileSync } = require('child_process');
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
@@ -17,10 +17,12 @@ const SITE = path.join(__dirname, '..', 'blendify-site');
 const RAW_DIR = path.join(__dirname, 'video');
 const FONT_DIR = path.join(__dirname, 'fonts');
 const OUT = path.join(__dirname, 'blendify-demo.mp4');
+const MUSIC = path.join(__dirname, 'music.wav');
 const PORT = Number(process.env.PORT || 8123);
 const W = 1440, H = 900;
 const TARGET = 25;            // final running time, in seconds
 const TAIL_HOLD = 0.5;        // frames kept after the closing click
+const MUSIC_GAIN = '-2.3dB';  // brings the bed to about -16 LUFS
 
 /* ---------- the drawn cursor, injected into every page ---------- */
 
@@ -264,9 +266,15 @@ async function cutPoints(file) {
   const pts = (TARGET / (to - from)).toFixed(4);
   console.log(`keeping ${from.toFixed(2)}s–${to.toFixed(2)}s of the capture, retimed by ${pts}x`);
 
-  await ffmpeg(['-y', '-hide_banner', '-loglevel', 'error', '-i', raw,
-    '-vf', `trim=${from}:${to},setpts=(PTS-STARTPTS)*${pts}`, '-an', '-r', '30',
+  if (!fs.existsSync(MUSIC)) execFileSync(process.execPath, [path.join(__dirname, 'make-music.js')], { stdio: 'inherit' });
+
+  await ffmpeg(['-y', '-hide_banner', '-loglevel', 'error', '-i', raw, '-i', MUSIC,
+    '-filter_complex',
+    `[0:v]trim=${from}:${to},setpts=(PTS-STARTPTS)*${pts}[v];` +
+    `[1:a]volume=${MUSIC_GAIN},atrim=0:${TARGET},asetpts=N/SR/TB[a]`,
+    '-map', '[v]', '-map', '[a]', '-r', '30',
     '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-crf', '20',
-    '-preset', 'slow', '-movflags', '+faststart', OUT]);
+    '-preset', 'slow', '-c:a', 'aac', '-b:a', '192k', '-shortest',
+    '-movflags', '+faststart', OUT]);
   console.log('wrote', path.relative(process.cwd(), OUT));
 })();

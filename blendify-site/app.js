@@ -1,4 +1,4 @@
-/* BAGGER — market page interactions
+/* TRICKER — market page interactions
    - the asset catalog: every asset carries its own drawn icon and brand colour
    - ticker tape, the live-bag board (filter / sort / search), the bag builder
    All figures below are sample data for layout. Wire them to the indexer

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blendify — docs</title>
+  <meta name="description" content="How a Blendify index works: composition, weights, the blended price, leverage, fees and the supported chains.">
+  <link rel="icon" href="assets/blend-logo-light.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+<div class="bl-root" id="top">
+
+  <nav class="bl-nav">
+    <a class="bl-wordmark" href="index.html">BLENDIFY</a>
+    <div class="bl-nav-links">
+      <a href="index.html#markets">Markets</a>
+      <a href="index.html#build">Launch</a>
+      <a href="index.html#stats">Stats</a>
+      <a href="index.html#how">How it works</a>
+      <a class="is-active" href="docs.html">Docs</a>
+      <a href="https://x.com/useBlendify" target="_blank" rel="noopener noreferrer">Follow</a>
+    </div>
+    <div class="bl-nav-right">
+      <a class="bl-btn bl-btn-ghost bl-btn-sm" href="index.html">Back to the app</a>
+    </div>
+  </nav>
+
+  <div class="bl-wrap">
+    <div class="bl-docs">
+
+      <aside class="dc-side">
+        <div class="dc-side-group">
+          <div class="dc-side-title">Basics</div>
+          <nav class="dc-side-links">
+            <a href="#what" class="is-active">What an index is</a>
+            <a href="#composition">Composition</a>
+            <a href="#weights">Weights</a>
+            <a href="#price">The blended price</a>
+          </nav>
+        </div>
+        <div class="dc-side-group">
+          <div class="dc-side-title">Trading</div>
+          <nav class="dc-side-links">
+            <a href="#buying">Buying an index</a>
+            <a href="#leverage">Leverage</a>
+            <a href="#fees">Fees</a>
+          </nav>
+        </div>
+        <div class="dc-side-group">
+          <div class="dc-side-title">Reference</div>
+          <nav class="dc-side-links">
+            <a href="#chains">Chains and assets</a>
+            <a href="#launching">Launching one</a>
+            <a href="#risks">Risks</a>
+          </nav>
+        </div>
+      </aside>
+
+      <div class="dc-col dc-body">
+        <header class="dc-header">
+          <div class="bl-label">Docs · v1</div>
+          <h1 class="dc-title">HOW BLENDIFY WORKS</h1>
+          <p class="dc-deck">An index is three to five assets held at fixed weights and traded as one
+             position. This page covers what that means in practice: how a basket is put together,
+             how it is priced, and what you are exposed to when you trade it.</p>
+        </header>
+
+        <h2 class="dc-h2" id="what">What an index is</h2>
+        <p>A Blendify index is a basket of <strong>three to five assets</strong> with a weight assigned
+           to each one. The basket is stored on-chain, so its composition is fixed until whoever
+           created it changes it — it does not drift as prices move.</p>
+        <p>The point is that the basket trades as a single thing. One order fills every leg, the
+           position shows up as one line in your portfolio, and rebalancing is one transaction rather
+           than one per asset.</p>
+
+        <div class="dc-note">
+          <span class="bl-label">Note</span>
+          <p>There is no Blendify token to buy. The protocol is the mechanism that holds a basket
+             together; what you hold is the assets inside your index.</p>
+        </div>
+
+        <h2 class="dc-h2" id="composition">Composition</h2>
+        <p>An index holds a minimum of three assets and a maximum of five. Tokens, tokenized stocks
+           and real-world assets can sit in the same basket, and they do not have to be on the same
+           chain.</p>
+        <div class="dc-code">index BTC·ETH·SOL
+<b>  BTC   40%</b>   spot, Robinhood Chain
+<b>  ETH   35%</b>   spot, Ethereum
+<b>  SOL   25%</b>   spot, Solana
+  ────────────
+  total 100%   3 of 5 legs used</div>
+        <p>The lower bound of three is what makes it an index rather than a position; the upper bound
+           of five keeps the blended price cheap enough to refresh on every block.</p>
+
+        <h2 class="dc-h2" id="weights">Weights</h2>
+        <p>Each leg carries a weight, and the weights have to add up to exactly 100% before an index
+           can be saved. They are written on-chain with the basket and applied on every trade.</p>
+        <p>Because the weights are fixed, buying more of an index does not change its shape — your
+           order is split across the legs in the same proportions each time. Changing the weights is
+           an explicit action by the index creator, not something that happens as the market moves.</p>
+
+        <h2 class="dc-h2" id="price">The blended price</h2>
+        <p>The price of an index is the weighted sum of its legs:</p>
+        <div class="dc-code">price = Σ (leg price × leg weight)
+
+<b>example</b>  0.40 × BTC + 0.35 × ETH + 0.25 × SOL</div>
+        <p>Leg prices come from DexScreener for tokens and from equity feeds for tokenized stocks and
+           real-world assets. The blend is recomputed <strong>every ten seconds</strong>, and the price
+           you are quoted at execution is the one that fills.</p>
+
+        <h2 class="dc-h2" id="buying">Buying an index</h2>
+        <ol class="dc-steps">
+          <li><b>Pick the index</b>Any index on the board can be traded — there is no allowlist and no
+              queue between saving one and trading it.</li>
+          <li><b>Enter a size</b>Your size is split across the legs by weight. A 2 ETH order on a
+              40/35/25 basket buys 0.8 / 0.7 / 0.5 ETH of the three legs.</li>
+          <li><b>Confirm one transaction</b>Every leg settles in the same transaction, at the blended
+              price shown before you sign.</li>
+        </ol>
+
+        <h2 class="dc-h2" id="leverage">Leverage</h2>
+        <p>The same basket can be taken long or short through perps, with <strong>up to 5x</strong>
+           leverage on the index as a whole rather than on any single leg.</p>
+        <div class="dc-table">
+          <div class="dc-tr is-head"><span>Field</span><span>What it means</span></div>
+          <div class="dc-tr"><span>collateral</span><span>What you post to open the position. Denominated in the collateral asset of the market.</span></div>
+          <div class="dc-tr"><span>size</span><span>Collateral × leverage. This is the exposure to the whole basket.</span></div>
+          <div class="dc-tr"><span>liquidation</span><span>The blended price at which the position closes. Shown before you open it, and it excludes funding and fees.</span></div>
+          <div class="dc-tr"><span>funding</span><span>Paid between longs and shorts while the position is open, on the index as a whole.</span></div>
+        </div>
+        <div class="dc-note">
+          <span class="bl-label">Warning</span>
+          <p>Leverage cuts in both directions. A 5x position is liquidated on a move of roughly 20%
+             against you before funding and fees, and the move that matters is the blended one — a
+             single leg can be flat while the index is not.</p>
+        </div>
+
+        <h2 class="dc-h2" id="fees">Fees</h2>
+        <p>There is <strong>no listing fee</strong> and no approval queue: an index costs nothing to
+           create beyond the gas of saving it.</p>
+        <div class="dc-table">
+          <div class="dc-tr is-head"><span>Fee</span><span>Amount</span></div>
+          <div class="dc-tr"><span>listing</span><span>None.</span></div>
+          <div class="dc-tr"><span>spot trade</span><span>[your fee schedule]</span></div>
+          <div class="dc-tr"><span>perp open / close</span><span>[your fee schedule]</span></div>
+          <div class="dc-tr"><span>gas</span><span>One transaction per trade, whatever the chain charges — not one per leg.</span></div>
+        </div>
+
+        <h2 class="dc-h2" id="chains">Chains and assets</h2>
+        <div class="dc-table">
+          <div class="dc-tr is-head"><span>Chain</span><span>Assets</span></div>
+          <div class="dc-tr"><span>Robinhood Chain</span><span>Tokens, tokenized stocks (tTSLA, tNVDA), real-world assets (tGOLD)</span></div>
+          <div class="dc-tr"><span>Ethereum</span><span>Tokens and tokenized assets</span></div>
+          <div class="dc-tr"><span>Base</span><span>Tokens</span></div>
+          <div class="dc-tr"><span>BNB Chain</span><span>Tokens</span></div>
+          <div class="dc-tr"><span>Solana</span><span>Tokens</span></div>
+        </div>
+
+        <h2 class="dc-h2" id="launching">Launching one</h2>
+        <ol class="dc-steps">
+          <li><b>Connect a wallet</b>The wallet that saves the index is its creator, and the only one
+              that can change its weights afterwards.</li>
+          <li><b>Choose three to five assets</b>Across any of the supported chains.</li>
+          <li><b>Set the weights to 100%</b>Anything else is rejected at save time.</li>
+          <li><b>Save it</b>The index is live from that block. There is nothing to wait for.</li>
+        </ol>
+
+        <h2 class="dc-h2" id="risks">Risks</h2>
+        <ul>
+          <li>An index is only as good as its legs. A basket does not remove the risk in any asset
+              inside it — it changes how many transactions you need to hold them.</li>
+          <li>Thin liquidity in one leg affects the whole blend, both when you buy and when you exit.</li>
+          <li>Leveraged positions can be liquidated. The liquidation level shown excludes funding and
+              fees, so the real one arrives sooner the longer a position stays open.</li>
+          <li>Price feeds can be stale or wrong. The blend is only as reliable as the feeds under it.</li>
+        </ul>
+
+        <div class="dc-foot">
+          <a class="bl-btn bl-btn-primary" href="index.html#build">Launch an index</a>
+          <a class="bl-btn bl-btn-ghost" href="article.html">Read the explainer</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="bl-footer">
+    <div class="bl-wrap">
+      <div class="bl-footer-bottom" style="margin-top:0;padding-top:0;border-top:none;">
+        <span>© 2026 Blendify. All rights reserved.</span>
+        <span>Docs v1 — [replace bracketed fields before launch]</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script>
+  /* highlight the section you are reading in the sidebar */
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.dc-side-links a'));
+    var targets = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+    function sync() {
+      var best = 0;
+      targets.forEach(function (t, i) {
+        if (t && t.getBoundingClientRect().top < 140) best = i;
+      });
+      links.forEach(function (a, i) { a.classList.toggle('is-active', i === best); });
+    }
+    window.addEventListener('scroll', sync, { passive: true });
+    sync();
+  })();
+</script>
+</body>
+</html>

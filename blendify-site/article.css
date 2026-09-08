@@ -20,12 +20,12 @@
 /* ---------- header ---------- */
 .ar-header { padding: 64px 24px 40px; }
 .ar-kicker {
-  font-family: var(--font-display); font-size: 12px; font-weight: 700;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 700;
   letter-spacing: 0.13em; text-transform: uppercase; color: var(--yellow);
   margin-bottom: 18px;
 }
 .ar-title {
-  font-family: var(--font-display); font-weight: 800;
+  font-family: var(--font-display); font-weight: 400;
   font-size: clamp(32px, 5vw, 50px); line-height: 1.04; letter-spacing: -0.03em;
   text-wrap: balance; margin: 0 0 22px; color: var(--ink);
 }
@@ -42,19 +42,19 @@
 .ar-byline-sep { color: var(--line); }
 
 /* ---------- body ---------- */
-.ar-body { font-size: 18px; line-height: 1.72; color: #E6E2EC; }
+.ar-body { font-size: 18px; line-height: 1.72; color: #C9C9D2; }
 .ar-body p { margin: 0 0 22px; text-wrap: pretty; }
 .ar-body strong { color: var(--ink); font-weight: 600; }
 .ar-body a { text-decoration: underline; text-underline-offset: 3px; }
 
 .ar-h2 {
-  font-family: var(--font-display); font-weight: 800;
+  font-family: var(--font-mono); font-weight: 800;
   font-size: clamp(23px, 2.6vw, 29px); line-height: 1.15; letter-spacing: -0.02em;
   color: var(--ink); text-wrap: balance;
   margin: 52px 0 16px; padding-top: 26px; border-top: 2px solid var(--ink);
 }
 .ar-h3 {
-  font-family: var(--font-display); font-weight: 700; font-size: 17px;
+  font-family: var(--font-mono); font-weight: 700; font-size: 17px;
   color: var(--ink); margin: 32px 0 10px;
 }
 
@@ -71,27 +71,27 @@
 .ar-steps li::before {
   content: counter(step, decimal-leading-zero);
   position: absolute; left: 0; top: 2px;
-  font-family: var(--font-display); font-size: 12px; font-weight: 700;
-  color: #1B1A1F; background: var(--yellow);
+  font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+  color: #08080A; background: var(--yellow);
   padding: 3px 8px; border-radius: 6px;
 }
-.ar-steps b { display: block; font-family: var(--font-display); color: var(--ink); }
+.ar-steps b { display: block; font-family: var(--font-mono); color: var(--ink); }
 
 /* ---------- callout: the section a reader could get burned on ---------- */
 .ar-callout {
-  background: var(--yellow-soft); border-left: 3px solid var(--yellow);
+  background: var(--card); border-left: 2px solid var(--yellow);
   border-radius: 0 12px 12px 0; padding: 22px 26px; margin: 0 0 26px;
 }
 .ar-callout p:last-child { margin-bottom: 0; }
 .ar-callout-title {
-  font-family: var(--font-display); font-weight: 700; font-size: 15px;
-  color: var(--yellow-hover); margin: 0 0 10px;
+  font-family: var(--font-mono); font-weight: 700; font-size: 15px;
+  color: var(--ink); margin: 0 0 10px;
 }
 
 /* ---------- pull quote ---------- */
 .ar-quote { margin: 44px 0; padding: 0; }
 .ar-quote p {
-  font-family: var(--font-display); font-weight: 700;
+  font-family: var(--font-mono); font-weight: 700;
   font-size: clamp(21px, 2.5vw, 27px); line-height: 1.25; letter-spacing: -0.02em;
   color: var(--ink); margin: 0 0 12px; text-wrap: balance;
 }
@@ -105,7 +105,7 @@
 }
 .ar-specs th, .ar-specs td { text-align: left; padding: 12px 16px 12px 0; border-bottom: 1px solid var(--line); }
 .ar-specs th {
-  font-family: var(--font-display); font-weight: 600; color: var(--muted);
+  font-family: var(--font-mono); font-weight: 600; color: var(--muted);
   white-space: nowrap; width: 38%;
 }
 .ar-specs td { color: var(--ink); }

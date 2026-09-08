@@ -169,3 +169,46 @@ export const LEGAL_DOCS: Record<"terms" | "privacy", LegalDoc> = {
   terms: TERMS,
   privacy: PRIVACY,
 };
+
+/**
+ * The copy shown in the terms gate — the dialog that appears once the visitor
+ * has scrolled a little way into the page and asks them to accept or decline.
+ *
+ * It is deliberately shorter than the full Terms: someone deciding in the moment
+ * needs the points that actually bind them, not ten clauses. The full documents
+ * stay one click away in the footer.
+ */
+export const GATE_TERMS: { heading: string; body: string }[] = [
+  {
+    heading: "1. What you are agreeing to",
+    body: "Payence issues virtual payment cards to software agents you operate, evaluates the spending policies you configure, and authorises or declines each transaction against them. These terms cover your use of this site and of the sandbox behind it.",
+  },
+  {
+    heading: "2. This site is a demonstration",
+    body: "Every figure, agent, card, merchant and transaction shown on this page is sample data. Nothing here moves real money, and no card shown is a live credential. Accepting these terms does not open an account or create any payment obligation.",
+  },
+  {
+    heading: "3. Your agents act with your authority",
+    body: "You are responsible for your API keys, for the agents you authorise and for the policies you set for them. An agent spending inside the limits you configured is acting with your authority, and the resulting charges are yours. Keep credentials out of prompts, model context and public repositories.",
+  },
+  {
+    heading: "4. Acceptable use",
+    body: "Do not use the service for fraud, money laundering or sanctions evasion, and do not attempt to circumvent merchant restrictions, spending ceilings or approval thresholds — whether directly or by instructing an agent to do it for you. We may suspend an agent, a card or an account we reasonably believe is being used this way.",
+  },
+  {
+    heading: "5. Fees",
+    body: "The free plan covers the sandbox and your first agents at no cost. The paid plan is charged as a percentage of settled volume, at the rate shown on the pricing page when the transaction settles. No per-seat fee, no minimum commitment, and no charge until money actually moves.",
+  },
+  {
+    heading: "6. What we hold about you",
+    body: "We keep account details, and the metadata of each authorisation: the agent, the amount, the merchant, the policy applied and the decision. We never receive your agents' prompts, model context or reasoning, we do not sell personal data, and we do not train models on your transactions. The full Privacy Policy is linked in the footer.",
+  },
+  {
+    heading: "7. Changes",
+    body: "We may update these terms. Material changes take effect thirty days after we tell you, and continuing to use the service after that means you accept them.",
+  },
+  {
+    heading: "8. Your choice",
+    body: "Accept to carry on using the site. Decline and the site will close — nothing is stored, and you can come back and accept at any time.",
+  },
+];

@@ -68,6 +68,34 @@ anywhere on the page without being wired up.
 It has not been reviewed by a lawyer — replace it with text from counsel before launch, and
 leave that notice in place until you do.**
 
+## The terms gate
+
+`components/ui/TermsGate.tsx` asks the visitor to accept before they use the site. Three decisions
+worth keeping:
+
+- **It waits.** Nothing interrupts the first frame — the dialog arrives once the visitor has
+  scrolled past 520px, when they are actually reading rather than landing.
+- **It dims, it does not cover.** The scrim is `bg-ink/45` with a 3px backdrop blur, so the page
+  behind stays recognisable and the dialog reads as a layer over the product, not a door before it.
+- **Declining is reversible.** The block screen always offers the way back to the terms. A gate
+  that can lock someone out permanently is a bug, not a policy.
+
+Acceptance is stored in `localStorage` (wrapped in `try/catch`, so a browser that blocks storage
+simply asks again). Escape and backdrop clicks deliberately do nothing — it is a choice, not a
+dismissal — and Tab is trapped inside the dialog while it is up.
+
+## The example card
+
+The virtual card in the hero is a live example rather than a picture of one: the cardholder line
+is an input you can type your own name into, the allowlist chips can be removed and added, the
+freeze switch works, and the palette re-colours the face.
+
+The face is driven by two custom properties, `--face` and `--ink`, set from `CARD_THEMES` in
+`components/ui/CardPanel.tsx`. Everything on the card — the chip, the rules, the muted labels —
+takes its colour from `currentColor` at an opacity, so a new swatch is two hex values and nothing
+else. That is also why the flat snapshot can re-colour the card by setting two variables instead
+of swapping class lists across a dozen elements.
+
 ## Motion
 
 Framer Motion, kept deliberately quiet:

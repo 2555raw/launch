@@ -263,6 +263,71 @@ VANILLA = r"""
     bars.forEach((bar) => { if (bar.parentElement) io.observe(bar.parentElement); });
   }
 
+  /* the card face takes its colour from two custom properties */
+  const face = $('[data-card-face]');
+  const swatches = $$('[data-card-theme]');
+  if (face && swatches.length) {
+    const ON = 'border-canvas ring-2 ring-canvas/70 ring-offset-2 ring-offset-[#0F0F0F]';
+    const OFF = 'border-canvas/25';
+    swatches.forEach((sw) => {
+      sw.addEventListener('click', () => {
+        face.style.setProperty('--face', sw.dataset.face);
+        face.style.setProperty('--ink', sw.dataset.ink);
+        swatches.forEach((other) => {
+          const on = other === sw;
+          other.setAttribute('aria-pressed', String(on));
+          other.className =
+            'h-6 w-6 rounded-full border transition-transform duration-200 hover:scale-110 ' +
+            (on ? ON : OFF);
+        });
+      });
+    });
+  }
+
+  /* the terms gate: it waits until the visitor has scrolled into the page */
+  const gate = $('[data-terms-gate]');
+  const blocked = $('[data-terms-blocked]');
+  if (gate && blocked) {
+    const KEY = 'payence-terms';
+    let accepted = false;
+    try { accepted = localStorage.getItem(KEY) === 'accepted'; } catch (_) {}
+
+    const lock = (on) => { document.body.style.overflow = on ? 'hidden' : ''; };
+    const show = (which) => {
+      gate.hidden = which !== 'gate';
+      blocked.hidden = which !== 'blocked';
+      lock(which !== 'none');
+      if (which === 'gate') $('[data-terms-accept]', gate)?.focus();
+    };
+
+    if (!accepted) {
+      const onScroll = () => {
+        if (window.scrollY < 520) return;
+        removeEventListener('scroll', onScroll);
+        show('gate');
+      };
+      addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    $('[data-terms-accept]', gate)?.addEventListener('click', () => {
+      try { localStorage.setItem(KEY, 'accepted'); } catch (_) {}
+      show('none');
+    });
+    $('[data-terms-decline]', gate)?.addEventListener('click', () => show('blocked'));
+    $('[data-terms-print]', gate)?.addEventListener('click', () => window.print());
+    $('[data-terms-review]', blocked)?.addEventListener('click', () => show('gate'));
+
+    /* Tab stays inside the dialog while it is up */
+    addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab' || gate.hidden) return;
+      const f = $$('button, [href], input, [tabindex]:not([tabindex="-1"])', gate);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+  }
+
   /* the remaining budget ticks the way a live figure would */
   const budget = $$('p').find((p) => /^\$2,\d{3}$/.test((p.textContent || '').trim()));
   if (budget && !still) {

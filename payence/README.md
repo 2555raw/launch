@@ -49,6 +49,11 @@ softened to grey.
 | `danger` | `#E5484D` | frozen and stopped states — a state colour, never the accent |
 | `hair` / `hairStrong` | `#151515` at 12% / 22% | every border on the page |
 
+Section kickers are set in Archivo with a short rule leading them (`.label`), not in mono. A tiny
+uppercase mono label above every heading is one of the tells of a generated page, and the rule
+reads as a printed kicker instead. Mono stays where it means something: figures, identifiers,
+code and card data.
+
 Type: **Archivo** across the board (400–800, tightened to `-0.045em` at display sizes) with
 **JetBrains Mono** for figures, identifiers, labels and code. One scale, defined in
 `tailwind.config.ts` as `label / title / display / mega`; nothing is set off-scale.
@@ -68,6 +73,16 @@ anywhere on the page without being wired up.
 **The copy is a template written for a fictional product, and every dialog says so at the top.
 It has not been reviewed by a lawyer — replace it with text from counsel before launch, and
 leave that notice in place until you do.**
+
+## The cookie notice
+
+`components/ui/CookieNotice.tsx` asks on arrival, bottom-left, and it is wired to something real:
+allow it and the card you design in the hero — its name, colour and network — is still yours when
+you come back; decline and nothing is written, and anything already stored is cleared. It is one
+first-party entry in `localStorage` (`lib/consent.ts`), never sent anywhere.
+
+A consent notice that stores nothing is a lie told politely. If you add anything else that
+persists, put it behind `getConsent()` too, or change the copy.
 
 ## The terms gate
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { NETWORKS, type Network } from "./CardNetworks";
+import { readDesign, saveDesign } from "@/lib/consent";
 
 /**
  * An allowlist rule. A merchant matches one payee; a category matches a whole
@@ -45,11 +46,26 @@ export function CardPanel() {
   const [merchants, setMerchants] = useState<Entry[]>([...START]);
   const [pool, setPool] = useState<Entry[]>([...POOL]);
   const [kind, setKind] = useState<Kind>("merchant");
+
   const [draft, setDraft] = useState("");
   const [frozen, setFrozen] = useState(false);
   const [holder, setHolder] = useState("procurement-agent");
   const [theme, setTheme] = useState<(typeof CARD_THEMES)[number]>(CARD_THEMES[0]);
   const [network, setNetwork] = useState<Network>(NETWORKS[0]);
+  // Restored only when the notice was allowed; readDesign returns null otherwise.
+  useEffect(() => {
+    const saved = readDesign();
+    if (!saved) return;
+    if (saved.holder) setHolder(saved.holder);
+    const t = CARD_THEMES.find((x) => x.id === saved.theme);
+    if (t) setTheme(t);
+    const n = NETWORKS.find((x) => x.id === saved.network);
+    if (n) setNetwork(n);
+  }, []);
+
+  useEffect(() => {
+    saveDesign({ holder, theme: theme.id, network: network.id });
+  }, [holder, theme, network]);
 
   const has = (list: Entry[], name: string) =>
     list.some((m) => m.name.toLowerCase() === name.toLowerCase());

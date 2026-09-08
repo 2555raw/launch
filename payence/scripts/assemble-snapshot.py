@@ -474,6 +474,63 @@ VANILLA = r"""
     bars.forEach((b) => { if (b.parentElement) io.observe(b.parentElement); });
   }
 
+  /* ---------- the cookie notice, and the card it remembers ---------- */
+  const notice = $('[data-cookie-notice]');
+  const CONSENT_KEY = 'payence-consent';
+  const DESIGN_KEY = 'payence-card';
+
+  const consent = () => {
+    try { return localStorage.getItem(CONSENT_KEY); } catch (_) { return null; }
+  };
+  const saveDesign = () => {
+    if (consent() !== 'allowed') return;
+    const name = $('[data-card-name]')?.value || '';
+    const swatch = $$('[data-card-theme]').find((s) => s.getAttribute('aria-pressed') === 'true');
+    const opt = $$('[data-network-option]').find((o) => o.getAttribute('aria-checked') === 'true');
+    try {
+      localStorage.setItem(DESIGN_KEY, JSON.stringify({
+        holder: name,
+        theme: swatch?.dataset.cardTheme,
+        network: opt?.dataset.networkOption,
+      }));
+    } catch (_) {}
+  };
+
+  if (notice) {
+    notice.hidden = consent() !== null;
+    const answer = (v) => {
+      try {
+        localStorage.setItem(CONSENT_KEY, v);
+        if (v === 'declined') localStorage.removeItem(DESIGN_KEY);
+      } catch (_) {}
+      notice.hidden = true;
+      if (v === 'allowed') saveDesign();
+    };
+    $('[data-cookie-allow]', notice)?.addEventListener('click', () => answer('allowed'));
+    $('[data-cookie-decline]', notice)?.addEventListener('click', () => answer('declined'));
+  }
+
+  /* the design is restored by replaying the clicks the visitor made */
+  if (consent() === 'allowed') {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(DESIGN_KEY) || 'null'); } catch (_) {}
+    if (saved) {
+      const nameInput = $('[data-card-name]');
+      if (nameInput && typeof saved.holder === 'string') nameInput.value = saved.holder;
+      if (saved.theme) $('[data-card-theme="' + saved.theme + '"]')?.click();
+      if (saved.network) {
+        const opt = $('[data-network-option="' + saved.network + '"]');
+        if (opt) { opt.click(); $('[data-network-menu]').hidden = true; }
+      }
+    }
+  }
+
+  ['[data-card-name]', '[data-card-theme]', '[data-network-option]'].forEach((sel) => {
+    $$(sel).forEach((el) => {
+      el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'click', () => setTimeout(saveDesign, 0));
+    });
+  });
+
   /* ---------- the remaining budget ticks the way a live figure would ---------- */
   const budget = $$('p').find((p) => /^\$2,\d{3}$/.test((p.textContent || '').trim()));
   if (budget && !still) {
@@ -487,7 +544,8 @@ VANILLA = r"""
 })();
 """
 
-HEAD = """<title>Payence Payment Rail</title>
+HEAD = """<meta charset="utf-8">
+<title>Payence Payment Rail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">"""
@@ -516,6 +574,9 @@ def main() -> int:
         'class="tab-underline absolute inset-x-3 -bottom-px h-[2px] bg-coral"',
     )
 
+    # The charset meta is first on purpose: a host that serves the file without
+    # one (python -m http.server, or a file:// open) otherwise reads it as
+    # Latin-1 and every dash and non-breaking space turns to mojibake.
     target.write_text(f"{HEAD}\n<style>\n{css}\n</style>\n\n{body}\n\n<script>\n{VANILLA}\n</script>\n")
     print(f"wrote {target} ({target.stat().st_size:,} bytes)")
     return 0

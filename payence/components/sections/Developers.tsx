@@ -1,13 +1,22 @@
 import { Reveal } from "../ui/Reveal";
+import { Label } from "../ui/Bits";
 
-const TAGS = [
-  "Virtual Cards",
-  "Spend Limits",
-  "Merchant Locks",
-  "Audit Logs",
-  "Webhooks",
-  "MCP",
+/** The surface those two calls sit on, named the way the docs name it. */
+const ENDPOINTS: [string, string, string][] = [
+  ["POST", "/v1/cards", "Issue a virtual card"],
+  ["POST", "/v1/policies", "Set ceilings and thresholds"],
+  ["PATCH", "/v1/policies/:id", "Lock the card to merchants"],
+  ["GET", "/v1/ledger", "Read the audit trail"],
+  ["POST", "/v1/webhooks", "Subscribe to decisions"],
+  ["MCP", "npx @payence/mcp", "Hand the tools to the agent"],
 ];
+
+const METHOD_TONE: Record<string, string> = {
+  POST: "text-coral",
+  PATCH: "text-violet",
+  GET: "text-positive",
+  MCP: "text-canvas/70",
+};
 
 /** Hand-tokenised so the block needs no highlighting library on the client. */
 const CODE = [
@@ -67,7 +76,7 @@ export function Developers() {
     <section id="developers" data-nav-ink className="bg-ink py-24 text-canvas md:py-32">
       <div className="shell grid grid-cols-1 gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <Reveal>
-          <span className="font-mono text-label uppercase text-canvas/45">Developers</span>
+          <Label className="!text-canvas/50">Developers</Label>
           <h2 className="mt-6 text-title font-extrabold">
             Developer-First
             <br />
@@ -78,16 +87,22 @@ export function Developers() {
             signed webhooks, and a sandbox that returns the same errors production does.
           </p>
 
-          <ul className="mt-10 flex flex-wrap gap-2">
-            {TAGS.map((t) => (
-              <li
-                key={t}
-                className="rounded-pill border border-hairDark px-3.5 py-2 font-mono text-[11.5px] text-canvas/80"
+          <dl className="mt-10 border-t border-hairDark">
+            {ENDPOINTS.map(([method, path, what]) => (
+              <div
+                key={path}
+                className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-hairDark py-3"
               >
-                {t}
-              </li>
+                <dt className="flex min-w-0 items-baseline gap-3 font-mono text-[12.5px]">
+                  <span className={`w-12 shrink-0 text-[10.5px] ${METHOD_TONE[method]}`}>
+                    {method}
+                  </span>
+                  <span className="truncate text-canvas/85">{path}</span>
+                </dt>
+                <dd className="ml-auto text-[12.5px] text-canvas/50">{what}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </Reveal>
 
         <Reveal delay={0.1}>

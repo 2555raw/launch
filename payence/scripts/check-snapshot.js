@@ -24,8 +24,10 @@ const fs = require('fs');
   await p.setContent(wrap(inner), { waitUntil: 'domcontentloaded' });
   await p.waitForTimeout(500);
 
-  // 1. gate: absent at load, appears on scroll
+  // 1. the notice greets you; the gate does not
+  R.cookieAtLoadSeen = await p.locator('[data-cookie-notice]').isVisible();
   R.gateAtLoad = await p.locator('[data-terms-gate]').isVisible();
+  await p.click('[data-cookie-allow]'); await p.waitForTimeout(150);
   await p.evaluate(() => window.scrollTo(0, 800));
   await p.waitForTimeout(600);
   R.gateOnScroll = await p.locator('[data-terms-gate]').isVisible();
@@ -35,6 +37,10 @@ const fs = require('fs');
   await p.click('[data-terms-accept]'); await p.waitForTimeout(300);
   R.acceptReleases = !(await p.locator('[data-terms-gate]').isVisible())
     && (await p.evaluate(() => getComputedStyle(document.body).overflow)) === 'visible';
+
+  // 1b. the cookie notice, bottom-left on arrival
+  R.cookieAtLoad = R.cookieAtLoadSeen;
+  R.cookieDismisses = !(await p.locator('[data-cookie-notice]').isVisible());
 
   // 2. terminal
   await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(400);

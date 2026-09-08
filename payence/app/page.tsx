@@ -14,6 +14,7 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { Footer } from "@/components/sections/Footer";
 import { LegalDialogs } from "@/components/ui/LegalModal";
 import { TermsGate } from "@/components/ui/TermsGate";
+import { CookieNotice } from "@/components/ui/CookieNotice";
 
 export default function Home() {
   return (
@@ -36,6 +37,7 @@ export default function Home() {
       <Footer />
       <LegalDialogs />
       <TermsGate />
+      <CookieNotice />
     </>
   );
 }

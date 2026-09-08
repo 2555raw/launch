@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Blendify — many assets, one position</title>
-  <meta name="description" content="Blendify turns three to five tokens, tokenized stocks or real-world assets into one on-chain index. Buy the basket in a single trade, or take it long or short with up to 5x leverage.">
+  <title>Bagger — many tickers, one bag</title>
+  <meta name="description" content="Bagger turns three to five of the assets everyone already watches — BTC, ETH, NVDA, TSLA, gold — into one bag you trade as a single position, long or short, with up to 5x leverage.">
   <link rel="icon" href="assets/blend-logo-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,14 +18,14 @@
   <div class="bl-tape" id="tape"></div>
 
   <nav class="bl-nav">
-    <div class="bl-wordmark" data-scroll="top">BLENDIFY</div>
+    <div class="bl-wordmark" data-scroll="top">BAGGER</div>
     <div class="bl-nav-links">
       <a class="is-active" data-scroll="markets">Markets</a>
       <a data-scroll="build">Launch</a>
       <a data-scroll="stats">Stats</a>
       <a data-scroll="how">How it works</a>
       <a href="docs.html">Docs</a>
-      <a href="https://x.com/useBlendify" target="_blank" rel="noopener noreferrer">Follow</a>
+      <a href="https://x.com/baggermarket" target="_blank" rel="noopener noreferrer">Follow</a>
     </div>
     <div class="bl-nav-right">
       <label class="bl-search">
@@ -33,7 +33,7 @@
           <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
           <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        <input id="search" type="search" placeholder="search ticker or index name" aria-label="Search indexes">
+        <input id="search" type="search" placeholder="search a ticker, bag or asset" aria-label="Search bags">
       </label>
       <div class="bl-btn bl-btn-ghost bl-btn-sm">Connect wallet</div>
     </div>
@@ -45,13 +45,13 @@
       <!-- hero -->
       <section class="bl-hero">
         <div>
-          <div class="bl-eyebrow">Robinhood Chain · Blendify v1</div>
-          <h1 class="bl-h1">MANY ASSETS<br><span class="bl-h1-dim">ONE</span> POSITION</h1>
-          <p>Every index holds three to five assets at weights you set. The weights are stored
-             on-chain and applied on every trade, so one order fills every leg at a blended price —
-             and the same position can be taken long or short with up to 5x leverage.</p>
+          <div class="bl-eyebrow">Robinhood Chain · Bagger v1 · 19 assets live</div>
+          <h1 class="bl-h1">MANY TICKERS<br><span class="bl-h1-dim">ONE</span> BAG</h1>
+          <p>A bag holds three to five assets at weights you set — bitcoin next to Nvidia next to gold,
+             if that is the trade. The weights live on-chain and apply on every order, so one trade
+             fills every leg at a blended price, long or short, with up to 5x leverage.</p>
           <div class="bl-hero-cta">
-            <div class="bl-btn bl-btn-primary" data-scroll="build">Launch an index</div>
+            <div class="bl-btn bl-btn-primary" data-scroll="build">Build a bag</div>
             <div class="bl-btn bl-btn-ghost" data-scroll="how">How it works</div>
           </div>
         </div>
@@ -76,7 +76,7 @@
             <circle cx="480" cy="30" r="5" fill="#FFFFFF"/>
           </svg>
           <div class="bl-curve-foot">
-            <span class="bl-curve-name">BTC · ETH · SOL — 40/35/25</span>
+            <span class="bl-curve-name">BTC · NVDA · GOLD — 40/35/25</span>
             <span class="bl-label">3 legs · 5x max</span>
           </div>
         </div>
@@ -84,7 +84,7 @@
 
       <!-- stats -->
       <section class="bl-stats" id="stats">
-        <div class="bl-stat"><div class="bl-label">Indexes live</div><div class="bl-stat-num" id="statLive">—</div></div>
+        <div class="bl-stat"><div class="bl-label">Bags live</div><div class="bl-stat-num" id="statLive">—</div></div>
         <div class="bl-stat"><div class="bl-label">Assets supported</div><div class="bl-stat-num" id="statAssets">—</div></div>
         <div class="bl-stat"><div class="bl-label">Total value</div><div class="bl-stat-num" id="statValue">—</div></div>
         <div class="bl-stat"><div class="bl-label">Chains</div><div class="bl-stat-num" id="statChains">—</div></div>
@@ -94,7 +94,7 @@
       <!-- market board -->
       <section id="markets">
         <div class="bl-board-head">
-          <div class="bl-board-title">Live indexes</div>
+          <div class="bl-board-title">Live bags</div>
           <div class="bl-tabs" id="tabs">
             <div class="bl-tab is-active" data-filter="all">All <span id="cAll">0</span></div>
             <div class="bl-tab" data-filter="spot">Spot only <span id="cSpot">0</span></div>
@@ -119,20 +119,20 @@
       <section class="bl-section" id="how">
         <div class="bl-section-head bl-reveal">
           <div class="bl-label">How it works</div>
-          <h2 class="bl-h2">FOUR STEPS, NO LISTING QUEUE</h2>
-          <p class="bl-section-sub">No approval committee and no listing fee. An index goes live the
-             moment you save it, and the weights you set are the weights it trades at.</p>
+          <h2 class="bl-h2">Four steps, no listing queue</h2>
+          <p class="bl-section-sub">No approval committee and no listing fee. A bag goes live the moment
+             you save it, and the weights you set are the weights it trades at.</p>
         </div>
         <div class="bl-cards-4 bl-reveal">
           <div class="bl-card">
             <div class="bl-step-n">01</div>
             <h3>Pick the assets</h3>
-            <p>Three to five tokens, tokenized stocks or real-world assets from any supported chain.</p>
+            <p>Three to five of them — BTC, ETH, NVDA, TSLA, gold, oil — from any supported chain.</p>
           </div>
           <div class="bl-card">
             <div class="bl-step-n">02</div>
             <h3>Set the weights</h3>
-            <p>Tune each weight until they add to 100%. Stored on-chain, so the composition cannot drift.</p>
+            <p>Tune each weight until they add to 100%. Stored on-chain, so the bag cannot drift.</p>
           </div>
           <div class="bl-card">
             <div class="bl-step-n">03</div>
@@ -151,24 +151,24 @@
       <section class="bl-section" id="build">
         <div class="bl-section-head bl-reveal">
           <div class="bl-label">Launch</div>
-          <h2 class="bl-h2">BUILD ONE NOW</h2>
-          <p class="bl-section-sub">Pick between three and five assets. Weights split evenly across the
-             basket here; in the app every weight is yours to set.</p>
+          <h2 class="bl-h2">Build one now</h2>
+          <p class="bl-section-sub">Pick between three and five assets. Weights split evenly across the bag
+             here; in the app every weight is yours to set.</p>
         </div>
         <div class="bl-builder bl-reveal">
           <div class="bl-panel">
-            <div class="bl-panel-title">Composition</div>
+            <div class="bl-panel-title">What is in the bag</div>
             <div class="bl-chips" id="chips"></div>
             <div id="weights"></div>
             <p class="bl-panel-note">Three assets minimum, five maximum. Weights have to add up to 100%
-               before an index can be saved.</p>
+               before a bag can be saved.</p>
           </div>
           <div class="bl-panel">
             <div class="bl-panel-title">What it costs to run</div>
             <div class="bl-rows">
-              <div class="bl-row"><span>Legs in the basket</span><span id="sumLegs">3</span></div>
+              <div class="bl-row"><span>Legs in the bag</span><span id="sumLegs">3</span></div>
               <div class="bl-row"><span>Swaps per rebalance, by hand</span><span id="sumSwaps">3</span></div>
-              <div class="bl-row"><span>Swaps per rebalance, as an index</span><span>1</span></div>
+              <div class="bl-row"><span>Swaps per rebalance, as a bag</span><span>1</span></div>
               <div class="bl-row"><span>Gas saved per rebalance</span><span id="sumGas">$2.50</span></div>
               <div class="bl-row"><span>Listing fee</span><span>$0.00</span></div>
               <div class="bl-row"><span>Max leverage</span><span>5x</span></div>
@@ -183,12 +183,12 @@
       <section class="bl-section" id="faq">
         <div class="bl-section-head bl-reveal">
           <div class="bl-label">FAQ</div>
-          <h2 class="bl-h2">THE SHORT ANSWERS</h2>
+          <h2 class="bl-h2">The short answers</h2>
         </div>
         <div class="bl-faq bl-reveal">
-          <div class="bl-card"><h3>How many assets can one index hold?</h3>
+          <div class="bl-card"><h3>How many assets can one bag hold?</h3>
             <p>Three to five. The weights have to add up to 100%, and they are stored on-chain, so the
-               composition does not drift between trades.</p></div>
+               bag does not drift between trades.</p></div>
           <div class="bl-card"><h3>Do I keep custody of my funds?</h3>
             <p>Yes. Deposits, spot positions and perp settlement all run on-chain from your own wallet,
                and you withdraw straight back to it.</p></div>
@@ -198,9 +198,9 @@
           <div class="bl-card"><h3>How often does the blended price update?</h3>
             <p>Every ten seconds, weighted across every leg, from DexScreener and equity feeds.</p></div>
           <div class="bl-card"><h3>How much leverage can I take?</h3>
-            <p>Up to 5x through perps, long or short on the whole index, with the liquidation level shown
+            <p>Up to 5x through perps, long or short on the whole bag, with the liquidation level shown
                before you open the position.</p></div>
-          <div class="bl-card"><h3>What does it cost to launch an index?</h3>
+          <div class="bl-card"><h3>What does it cost to launch a bag?</h3>
             <p>There is no listing fee and no approval queue — it goes live the moment you save it.
                Trading fees: [your fee schedule].</p></div>
         </div>
@@ -209,11 +209,11 @@
       <!-- closing -->
       <section class="bl-cta bl-reveal">
         <div class="bl-label">Start today</div>
-        <h2 class="bl-h2">IF YOU HOLD MORE THAN ONE COIN,<br>YOU ALREADY RUN AN INDEX</h2>
-        <p class="bl-section-sub">Anyone with a wallet can build one. No permission, no listing
-           committee, no fee to get listed.</p>
+        <h2 class="bl-h2">If you hold more than one ticker,<br>you already run a bag</h2>
+        <p class="bl-section-sub">Anyone with a wallet can build one. No permission, no listing committee,
+           no fee to get listed.</p>
         <div class="bl-cta-row">
-          <div class="bl-btn bl-btn-primary" data-scroll="build">Launch an index</div>
+          <div class="bl-btn bl-btn-primary" data-scroll="build">Build a bag</div>
           <div class="bl-btn bl-btn-ghost" data-scroll="markets">Browse indexes</div>
         </div>
       </section>
@@ -225,9 +225,9 @@
     <div class="bl-wrap">
       <div class="bl-footer-top">
         <div>
-          <div class="bl-wordmark">BLENDIFY</div>
-          <p class="bl-footer-desc">On-chain indexes you build yourself. Blend it, buy it, and trade it
-             with leverage as a single position.</p>
+          <div class="bl-wordmark">BAGGER</div>
+          <p class="bl-footer-desc">On-chain bags you build yourself. Fill it, buy it, and trade it with
+             leverage as one position.</p>
         </div>
         <div>
           <div class="bl-footer-col-title">Product</div>
@@ -250,14 +250,14 @@
         <div>
           <div class="bl-footer-col-title">Community</div>
           <div class="bl-footer-links">
-            <a href="https://x.com/useBlendify" target="_blank" rel="noopener noreferrer">@useBlendify on X</a>
+            <a href="https://x.com/baggermarket" target="_blank" rel="noopener noreferrer">@baggermarket on X</a>
             <a href="article.html">Explainer</a>
             <a href="#chain">Built on Robinhood Chain</a>
           </div>
         </div>
       </div>
       <div class="bl-footer-bottom">
-        <span>© 2026 Blendify. All rights reserved.</span>
+        <span>© 2026 Bagger. All rights reserved.</span>
         <span>Built on-chain, no middlemen.</span>
       </div>
     </div>

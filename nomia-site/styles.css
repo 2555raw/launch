@@ -1,0 +1,409 @@
+/* Nomia — infraestructura de pago para agentes
+   Fondo casi negro con matiz frío (serio, de infraestructura financiera) y un
+   único acento: verde eléctrico #00E5A0. El acento marca movimiento de dinero —
+   cifras vivas, estados en curso, la acción principal — y nada más.
+   El oscuro es el diseño; la paleta clara es a lo que salta el interruptor. */
+
+* { box-sizing: border-box; }
+html { color-scheme: dark; background: #07090C; scroll-behavior: smooth; }
+html[data-theme="light"] { color-scheme: light; background: #F4F6F8; }
+body { margin: 0; background: #07090C; color: #F2F5F8; }
+html[data-theme="light"] body { background: #F4F6F8; color: #0B1015; }
+a { color: inherit; text-decoration: none; }
+img, svg { display: block; }
+
+.nm {
+  /* fondo */
+  --bg: #07090C;
+  --bg-alt: #0A0D12;
+  --card: #0E1218;
+  --card-hi: #131922;
+  --surface: #161D26;
+  /* tinta */
+  --ink: #F2F5F8;
+  --muted: #8E9BAA;
+  --dim: #5E6A78;
+  --prose: #C4CDD8;
+  /* líneas */
+  --line: #1B222C;
+  --line-hi: #2A3441;
+  /* el acento: dinero en movimiento */
+  --accent: #00E5A0;
+  --accent-hi: #4DF3C0;
+  --accent-deep: #00B47E;
+  --accent-soft: rgba(0, 229, 160, .12);
+  --accent-line: rgba(0, 229, 160, .32);
+  --accent-glow: 0 0 24px rgba(0, 229, 160, .28);
+  --on-accent: #04150F;
+  --warn: #FFB84D;
+  --down: #FF6B6B;
+
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --wrap: 1160px;
+  --r: 14px;
+
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+html[data-theme="light"] .nm {
+  --bg: #F4F6F8;
+  --bg-alt: #ECEFF3;
+  --card: #FFFFFF;
+  --card-hi: #F7F9FB;
+  --surface: #E8ECF1;
+  --ink: #0B1015;
+  --muted: #5A6673;
+  --dim: #838F9C;
+  --prose: #26313C;
+  --line: #DDE3EA;
+  --line-hi: #C4CDD8;
+  --accent: #00B47E;
+  --accent-hi: #009C6C;
+  --accent-deep: #007A55;
+  --accent-soft: rgba(0, 180, 126, .10);
+  --accent-line: rgba(0, 180, 126, .30);
+  --accent-glow: none;
+  --on-accent: #FFFFFF;
+}
+
+/* ---------- primitivas ---------- */
+
+.nm-wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+
+.nm-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.nm-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px 6px 8px;
+  border: 1px solid var(--accent-line);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  color: var(--accent);
+}
+.nm-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: var(--accent-glow); }
+
+.nm-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 20px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 14.5px; font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+  white-space: nowrap;
+}
+.nm-btn-primary { background: var(--accent); color: var(--on-accent); box-shadow: var(--accent-glow); }
+.nm-btn-primary:hover { background: var(--accent-hi); transform: translateY(-1px); }
+.nm-btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-hi); }
+.nm-btn-ghost:hover { border-color: var(--accent-line); color: var(--accent); }
+.nm-btn-sm { height: 36px; padding: 0 14px; font-size: 13px; border-radius: 8px; }
+
+.nm-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+
+/* ---------- barra superior ---------- */
+
+.nm-strip {
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-alt);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.nm-strip-in { display: flex; align-items: center; gap: 18px; height: 34px; overflow-x: auto; scrollbar-width: none; }
+.nm-strip-in::-webkit-scrollbar { display: none; }
+.nm-strip b { color: var(--accent); font-weight: 500; }
+.nm-strip span { white-space: nowrap; }
+
+/* ---------- navegación ---------- */
+
+.nm-nav {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: 24px;
+  height: 62px; padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(14px);
+}
+.nm-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
+.nm-mark { width: 28px; height: 28px; color: var(--accent); }
+.nm-mark svg { width: 100%; height: 100%; }
+.nm-nav-links { display: flex; align-items: center; gap: 4px; margin-left: 8px; }
+.nm-nav-links a {
+  padding: 8px 12px; border-radius: 8px;
+  font-size: 14px; color: var(--muted); cursor: pointer;
+  transition: color .15s ease, background .15s ease;
+}
+.nm-nav-links a:hover { color: var(--ink); background: var(--card); }
+.nm-nav-links a.is-active { color: var(--accent); }
+.nm-nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.nm-icon-btn {
+  width: 36px; height: 36px; display: grid; place-items: center;
+  border-radius: 8px; border: 1px solid var(--line-hi);
+  background: transparent; color: var(--muted); cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
+}
+.nm-icon-btn:hover { color: var(--accent); border-color: var(--accent-line); }
+.nm-burger { display: none; }
+
+/* ---------- secciones ---------- */
+
+.nm-sec { padding: 96px 0; }
+.nm-sec-alt { background: var(--bg-alt); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.nm-head { max-width: 660px; margin-bottom: 44px; }
+.nm-head h2 {
+  margin: 12px 0 14px;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.1; letter-spacing: -.03em; font-weight: 700;
+}
+.nm-head p { margin: 0; color: var(--prose); font-size: 16.5px; line-height: 1.65; }
+
+/* ---------- héroe ---------- */
+
+.nm-hero { position: relative; padding: 92px 0 84px; overflow: hidden; }
+.nm-hero::before {
+  content: ""; position: absolute; inset: -40% 30% auto -20%; height: 640px;
+  background: radial-gradient(closest-side, rgba(0,229,160,.16), transparent 70%);
+  pointer-events: none;
+}
+html[data-theme="light"] .nm-hero::before { background: radial-gradient(closest-side, rgba(0,180,126,.14), transparent 70%); }
+.nm-hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+.nm-hero h1 {
+  margin: 20px 0 18px;
+  font-size: clamp(38px, 5.6vw, 62px);
+  line-height: 1.04; letter-spacing: -.035em; font-weight: 700;
+}
+.nm-hero h1 em { font-style: normal; color: var(--accent); }
+.nm-hero-sub { margin: 0 0 30px; font-size: 17.5px; line-height: 1.62; color: var(--prose); max-width: 520px; }
+.nm-hero-cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.nm-hero-note { margin: 22px 0 0; font-family: var(--font-mono); font-size: 11.5px; color: var(--dim); }
+
+/* consola del héroe */
+.nm-console { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.nm-console-bar {
+  display: flex; align-items: center; gap: 8px;
+  height: 40px; padding: 0 14px;
+  border-bottom: 1px solid var(--line); background: var(--card-hi);
+  font-family: var(--font-mono); font-size: 11.5px; color: var(--dim);
+}
+.nm-console-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-hi); }
+.nm-console-bar i:first-child { background: var(--accent); }
+.nm-console-bar span { margin-left: 6px; }
+.nm-code { margin: 0; padding: 18px; font-family: var(--font-mono); font-size: 12.6px; line-height: 1.75; overflow-x: auto; color: var(--prose); }
+.nm-code .c { color: var(--dim); }
+.nm-code .k { color: var(--accent); }
+.nm-code .s { color: var(--ink); }
+.nm-code .n { color: var(--accent-hi); }
+
+.nm-flow { border-top: 1px solid var(--line); padding: 16px 18px 18px; background: var(--bg-alt); }
+.nm-flow-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.nm-flow-track { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.nm-flow-step { padding-top: 9px; border-top: 2px solid var(--line-hi); font-family: var(--font-mono); font-size: 10.5px; color: var(--dim); }
+.nm-flow-step.on { border-top-color: var(--accent); color: var(--accent); }
+
+/* ---------- tira de compatibilidad ---------- */
+
+.nm-logos { padding: 34px 0; border-bottom: 1px solid var(--line); }
+.nm-logos-in { display: flex; align-items: center; flex-wrap: wrap; gap: 14px 34px; }
+.nm-logos-in .nm-label { margin-right: 6px; }
+.nm-logos-in b {
+  font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+  color: var(--muted); letter-spacing: -.01em;
+}
+
+/* ---------- cifras ---------- */
+
+.nm-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.nm-stat { background: var(--card); padding: 26px 22px; }
+.nm-stat-v { font-family: var(--font-mono); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; letter-spacing: -.03em; color: var(--accent); }
+.nm-stat-k { margin-top: 8px; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+/* ---------- pasos ---------- */
+
+.nm-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.nm-step { padding: 26px 24px 28px; position: relative; }
+.nm-step-n {
+  width: 34px; height: 34px; display: grid; place-items: center;
+  border-radius: 9px; border: 1px solid var(--accent-line); background: var(--accent-soft);
+  font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--accent);
+  margin-bottom: 18px;
+}
+.nm-step h3 { margin: 0 0 10px; font-size: 17.5px; letter-spacing: -.02em; }
+.nm-step p { margin: 0; color: var(--prose); font-size: 14.5px; line-height: 1.65; }
+.nm-step code { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent); }
+
+/* ---------- rejilla de funciones ---------- */
+
+.nm-feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.nm-feat { padding: 26px 24px 28px; transition: border-color .18s ease, transform .18s ease; }
+.nm-feat:hover { border-color: var(--accent-line); transform: translateY(-2px); }
+.nm-feat-i { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: var(--surface); color: var(--accent); margin-bottom: 18px; }
+.nm-feat-i svg { width: 19px; height: 19px; }
+.nm-feat h3 { margin: 0 0 9px; font-size: 16.5px; letter-spacing: -.02em; }
+.nm-feat p { margin: 0; color: var(--prose); font-size: 14.5px; line-height: 1.65; }
+
+/* ---------- desarrolladores ---------- */
+
+.nm-dev { display: grid; grid-template-columns: .85fr 1.15fr; gap: 48px; align-items: start; }
+.nm-dev-list { list-style: none; margin: 30px 0 0; padding: 0; }
+.nm-dev-list li { position: relative; padding: 0 0 18px 26px; color: var(--prose); font-size: 15px; line-height: 1.6; }
+.nm-dev-list li::before {
+  content: ""; position: absolute; left: 0; top: 7px;
+  width: 8px; height: 8px; border-radius: 2px; background: var(--accent);
+}
+.nm-tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+.nm-tab {
+  padding: 7px 14px; border-radius: 8px; border: 1px solid var(--line);
+  background: transparent; color: var(--muted);
+  font-family: var(--font-mono); font-size: 12.5px; cursor: pointer;
+  transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.nm-tab:hover { color: var(--ink); }
+.nm-tab.is-active { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
+.nm-panel { display: none; }
+.nm-panel.is-active { display: block; }
+
+/* ---------- panel de control ---------- */
+
+.nm-board { display: grid; grid-template-columns: 1.25fr .75fr; gap: 20px; }
+.nm-board-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--line); }
+.nm-board-head h3 { margin: 0; font-size: 15px; letter-spacing: -.01em; }
+.nm-pill { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); padding: 4px 9px; border-radius: 999px; border: 1px solid var(--accent-line); background: var(--accent-soft); }
+.nm-rows { padding: 8px 0; }
+.nm-row { display: grid; grid-template-columns: 1.4fr 1fr 78px; gap: 14px; align-items: center; padding: 13px 22px; }
+.nm-row + .nm-row { border-top: 1px solid var(--line); }
+.nm-row-n { font-size: 14px; }
+.nm-row-n small { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--dim); margin-top: 3px; }
+.nm-bar { height: 6px; border-radius: 3px; background: var(--surface); overflow: hidden; }
+.nm-bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); box-shadow: var(--accent-glow); }
+.nm-row-v { font-family: var(--font-mono); font-size: 13px; text-align: right; }
+.nm-side { padding: 22px; }
+.nm-side h3 { margin: 0 0 18px; font-size: 15px; }
+.nm-kv { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+.nm-kv b { font-family: var(--font-mono); font-size: 13.5px; color: var(--ink); font-weight: 500; }
+.nm-kv b.up { color: var(--accent); }
+
+/* ---------- casos de uso ---------- */
+
+.nm-cases { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.nm-case { padding: 28px 26px; }
+.nm-case h3 { margin: 14px 0 10px; font-size: 18px; letter-spacing: -.02em; }
+.nm-case p { margin: 0 0 16px; color: var(--prose); font-size: 14.5px; line-height: 1.65; }
+.nm-case-tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.nm-case-meta { display: flex; gap: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+.nm-case-meta div span { display: block; font-family: var(--font-mono); font-size: 17px; color: var(--ink); }
+.nm-case-meta div small { font-size: 11.5px; color: var(--dim); }
+
+/* ---------- precios ---------- */
+
+.nm-plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+.nm-plan { padding: 28px 26px 30px; display: flex; flex-direction: column; }
+.nm-plan ul { flex: 1; }
+.nm-plan.is-feat { border-color: var(--accent-line); background: var(--card-hi); }
+.nm-plan h3 { margin: 0 0 6px; font-size: 16px; }
+.nm-plan-p { display: flex; align-items: baseline; gap: 6px; margin: 16px 0 4px; }
+.nm-plan-p b { font-family: var(--font-mono); font-size: 34px; font-weight: 700; letter-spacing: -.03em; }
+.nm-plan-p b.is-word { font-size: 24px; letter-spacing: -.02em; }
+.nm-plan-p span { font-size: 13px; color: var(--dim); }
+.nm-plan-d { margin: 0 0 22px; font-size: 13.5px; color: var(--muted); line-height: 1.6; min-height: 42px; }
+.nm-plan ul { list-style: none; margin: 22px 0 0; padding: 0; }
+.nm-plan li { position: relative; padding: 0 0 12px 24px; font-size: 14px; color: var(--prose); line-height: 1.55; }
+.nm-plan li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 13px; }
+.nm-plan .nm-btn { width: 100%; }
+
+/* ---------- preguntas ---------- */
+
+.nm-faq { max-width: 820px; border-top: 1px solid var(--line); }
+.nm-faq details { border-bottom: 1px solid var(--line); }
+.nm-faq summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  padding: 22px 4px; font-size: 16px; font-weight: 500; letter-spacing: -.01em;
+}
+.nm-faq summary::-webkit-details-marker { display: none; }
+.nm-faq summary::after { content: "+"; font-family: var(--font-mono); font-size: 20px; color: var(--accent); line-height: 1; }
+.nm-faq details[open] summary::after { content: "−"; }
+.nm-faq p { margin: 0 4px 24px; max-width: 700px; color: var(--prose); font-size: 15px; line-height: 1.7; }
+
+/* ---------- llamada final ---------- */
+
+.nm-cta { position: relative; padding: 64px 44px; text-align: center; overflow: hidden; border-color: var(--accent-line); }
+.nm-cta::before {
+  content: ""; position: absolute; inset: auto -10% -70% -10%; height: 420px;
+  background: radial-gradient(closest-side, rgba(0,229,160,.18), transparent 72%);
+  pointer-events: none;
+}
+html[data-theme="light"] .nm-cta::before { background: radial-gradient(closest-side, rgba(0,180,126,.14), transparent 72%); }
+.nm-cta h2 { position: relative; margin: 16px 0 14px; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.03em; line-height: 1.1; }
+.nm-cta p { position: relative; margin: 0 auto 28px; max-width: 520px; color: var(--prose); font-size: 16.5px; line-height: 1.6; }
+.nm-cta-btns { position: relative; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ---------- pie ---------- */
+
+.nm-foot { border-top: 1px solid var(--line); background: var(--bg-alt); padding: 56px 0 34px; }
+.nm-foot-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 36px; }
+.nm-foot-about p { margin: 16px 0 0; max-width: 300px; font-size: 13.5px; line-height: 1.65; color: var(--muted); }
+.nm-foot h4 { margin: 0 0 14px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); font-weight: 500; }
+.nm-foot ul { list-style: none; margin: 0; padding: 0; }
+.nm-foot li { margin-bottom: 10px; }
+.nm-foot li a { font-size: 14px; color: var(--muted); cursor: pointer; }
+.nm-foot li a:hover { color: var(--accent); }
+.nm-foot-bot { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line); }
+.nm-foot-bot p { margin: 0; font-family: var(--font-mono); font-size: 11.5px; color: var(--dim); }
+
+/* ---------- entrada al hacer scroll ----------
+   El estado oculto sólo se aplica cuando app.js ha marcado la raíz con .nm-js,
+   así que sin JS (o con movimiento reducido) todo se ve desde el primer pintado. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .nm-js .nm-rise {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.2, .7, .3, 1);
+  }
+  .nm-js .nm-rise.is-in { opacity: 1; transform: none; }
+}
+
+/* ---------- adaptable ---------- */
+
+@media (max-width: 1000px) {
+  .nm-hero-grid, .nm-dev, .nm-board { grid-template-columns: 1fr; gap: 36px; }
+  .nm-feats, .nm-steps, .nm-plans { grid-template-columns: repeat(2, 1fr); }
+  .nm-stats { grid-template-columns: repeat(2, 1fr); }
+  .nm-foot-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .nm-sec { padding: 68px 0; }
+  .nm-hero { padding: 60px 0 56px; }
+  .nm-nav-links { display: none; }
+  .nm-nav-links.is-open {
+    display: flex; flex-direction: column; align-items: stretch; gap: 2px;
+    position: absolute; top: 62px; left: 0; right: 0;
+    padding: 12px; margin: 0;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .nm-burger { display: grid; }
+  .nm-hide-sm { display: none; }
+  .nm-feats, .nm-steps, .nm-plans, .nm-cases, .nm-foot-grid { grid-template-columns: 1fr; }
+  .nm-stats { grid-template-columns: 1fr 1fr; }
+  .nm-cta { padding: 46px 24px; }
+  .nm-row { grid-template-columns: 1.2fr 68px; }
+  .nm-row .nm-bar { display: none; }
+}

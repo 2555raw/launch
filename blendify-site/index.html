@@ -8,7 +8,7 @@
   <link rel="icon" href="assets/blend-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@110,600;110,700;110,800&family=Instrument+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -42,7 +42,7 @@
     <div class="bl-blob bl-blob-b"></div>
 
     <div class="bl-hero-col">
-      <h1 class="bl-h1 bl-display">Build an index.<br>Trade it like <mark>one asset</mark>.</h1>
+      <h1 class="bl-h1 bl-display">Build an index.<br>Trade it like <span class="bl-nowrap"><mark>one asset</mark>.</span></h1>
       <p class="bl-sub">Pick three to five tokens, tokenized stocks or real-world assets. Set the weights. Buy the whole thing in one trade, or take it long or short with up to 5x leverage.</p>
       <div class="bl-cta-row">
         <div class="bl-btn bl-btn-primary bl-display" data-scroll="indexes">Launch the app</div>
@@ -84,7 +84,7 @@
   </section>
 
   <div class="bl-marquee-wrap">
-    <div class="bl-marquee bl-marquee-static">
+    <div class="bl-marquee">
       <span style="background:#F6E8EA;">One trade instead of five</span>
       <span style="background:#E9E9E9;">Weights fixed on-chain</span>
       <span style="background:#EFEFEF;">Long or short, up to 5x</span>
@@ -250,7 +250,7 @@
             <path d="M46 46 L96 46" stroke="#E3E3E3" stroke-width="2" fill="none"/>
             <path d="M46 68 C74 68 76 46 96 46" stroke="#E3E3E3" stroke-width="2" fill="none"/>
             <rect x="102" y="30" width="70" height="32" rx="10" fill="#0D0D0D"/>
-            <text x="137" y="50" text-anchor="middle" font-family="Space Grotesk" font-size="12" font-weight="700" fill="#FFFFFF">1 TRADE</text>
+            <text x="137" y="50" text-anchor="middle" font-family="Archivo" font-size="12" font-weight="700" fill="#FFFFFF">1 TRADE</text>
           </svg>
           <div class="bl-step-num bl-display" style="background:#4A4A4A;">03</div>
           <h3 class="bl-card-title">Buy it in one trade</h3>
@@ -260,9 +260,9 @@
           <svg class="bl-step-art" viewBox="0 0 200 92">
             <path d="M18 70 L54 54 L90 60 L126 34 L162 22" stroke="#0D0D0D" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M18 78 L182 78" stroke="#6E6E6E" stroke-width="2" stroke-dasharray="6 5"/>
-            <text x="176" y="74" text-anchor="end" font-family="Sora" font-size="9" fill="#4A4A4A">liquidation</text>
+            <text x="176" y="74" text-anchor="end" font-family="Instrument Sans" font-size="9" fill="#4A4A4A">liquidation</text>
             <rect x="140" y="14" width="42" height="20" rx="10" fill="#7B1523"/>
-            <text x="161" y="28" text-anchor="middle" font-family="Space Grotesk" font-size="11" font-weight="700" fill="#FFFFFF">5x</text>
+            <text x="161" y="28" text-anchor="middle" font-family="Archivo" font-size="11" font-weight="700" fill="#FFFFFF">5x</text>
           </svg>
           <div class="bl-step-num bl-display">04</div>
           <h3 class="bl-card-title">Or trade it with leverage</h3>
@@ -292,36 +292,30 @@
           <path class="bl-draw" d="M104,36 C240,36 280,100 330,100" stroke="#E3E3E3" stroke-width="2" fill="none"/>
           <path class="bl-draw" d="M104,100 L330,100" stroke="#E3E3E3" stroke-width="2" fill="none"/>
           <path class="bl-draw" d="M104,164 C240,164 280,100 330,100" stroke="#E3E3E3" stroke-width="2" fill="none"/>
-          <g font-family="Space Grotesk" font-size="11" font-weight="700" fill="#0D0D0D">
+          <g font-family="Archivo" font-size="11" font-weight="700" fill="#0D0D0D">
             <circle cx="86" cy="36" r="18" fill="#F6E8EA" stroke="#7B1523" stroke-width="2"/><text x="86" y="41" text-anchor="middle">BTC</text>
             <circle cx="86" cy="100" r="18" fill="#E9E9E9" stroke="#0D0D0D" stroke-width="2"/><text x="86" y="105" text-anchor="middle">ETH</text>
             <circle cx="86" cy="164" r="18" fill="#EFEFEF" stroke="#6E6E6E" stroke-width="2"/><text x="86" y="169" text-anchor="middle">SOL</text>
           </g>
-          <g font-family="Sora" font-size="10" fill="#6E6E6E">
+          <g font-family="Instrument Sans" font-size="10" fill="#6E6E6E">
             <text x="140" y="28" >weight 40%</text>
             <text x="140" y="92" >weight 35%</text>
             <text x="140" y="156">weight 25%</text>
           </g>
           <circle class="diagram-core" cx="366" cy="100" r="36" fill="#7B1523"/>
-          <text x="366" y="97" text-anchor="middle" font-family="Space Grotesk" font-size="11" font-weight="700" fill="#FFFFFF">1 INDEX</text>
-          <text x="366" y="111" text-anchor="middle" font-family="Sora" font-size="9" fill="#E8CBD0">on-chain</text>
+          <text x="366" y="97" text-anchor="middle" font-family="Archivo" font-size="11" font-weight="700" fill="#FFFFFF">1 INDEX</text>
+          <text x="366" y="111" text-anchor="middle" font-family="Instrument Sans" font-size="9" fill="#E8CBD0">on-chain</text>
           <path class="bl-draw" d="M404,100 L470,100" stroke="#0D0D0D" stroke-width="2" stroke-dasharray="5 5" fill="none"/>
           <rect x="470" y="70" width="118" height="60" rx="12" fill="#FFFFFF" stroke="#0D0D0D" stroke-width="1.8"/>
-          <text x="529" y="94" text-anchor="middle" font-family="Space Grotesk" font-size="11" font-weight="700" fill="#0D0D0D">BLENDED PRICE</text>
-          <text x="529" y="110" text-anchor="middle" font-family="Sora" font-size="9.5" fill="#6E6E6E">refreshed every 10s</text>
+          <text x="529" y="94" text-anchor="middle" font-family="Archivo" font-size="11" font-weight="700" fill="#0D0D0D">BLENDED PRICE</text>
+          <text x="529" y="110" text-anchor="middle" font-family="Instrument Sans" font-size="9.5" fill="#6E6E6E">refreshed every 10s</text>
         </svg>
       </div>
     </div>
   </section>
 
   <div class="bl-marquee-wrap bl-marquee-thin">
-    <div class="bl-marquee bl-marquee-rev">
-      <span style="background:#E9E9E9;">Three to five assets</span>
-      <span style="background:#F6E8EA;">Weights to 100%</span>
-      <span style="background:#EFEFEF;">Liquidation shown pre-open</span>
-      <span style="background:#E9E9E9;">Self-custody throughout</span>
-      <span style="background:#F6E8EA;">Live on save</span>
-      <span style="background:#EFEFEF;">One balance, spot and perps</span>
+    <div class="bl-marquee">
       <span style="background:#E9E9E9;">Three to five assets</span>
       <span style="background:#F6E8EA;">Weights to 100%</span>
       <span style="background:#EFEFEF;">Liquidation shown pre-open</span>
@@ -360,10 +354,10 @@
         <div class="bl-shift-card">
           <svg class="bl-shift-art" viewBox="0 0 240 78">
             <circle cx="52" cy="39" r="24" fill="#EFEFEF"/>
-            <text x="52" y="48" text-anchor="middle" font-family="Space Grotesk" font-size="26" font-weight="700" fill="#4A4A4A">?</text>
+            <text x="52" y="48" text-anchor="middle" font-family="Archivo" font-size="26" font-weight="700" fill="#4A4A4A">?</text>
             <path d="M100 39 L136 39" stroke="#E3E3E3" stroke-width="2"/><path d="M130 33 L138 39 L130 45" stroke="#E3E3E3" stroke-width="2" fill="none"/>
             <rect x="156" y="24" width="68" height="30" rx="10" fill="#F6E8EA"/>
-            <text x="190" y="44" text-anchor="middle" font-family="Space Grotesk" font-size="14" font-weight="700" fill="#7B1523">live</text>
+            <text x="190" y="44" text-anchor="middle" font-family="Archivo" font-size="14" font-weight="700" fill="#7B1523">live</text>
           </svg>
           <div class="bl-shift-states"><span class="bl-shift-before">Guesswork</span><span class="bl-shift-arrow">→</span><span class="bl-shift-after">A live number</span></div>
           <p class="bl-card-desc">The blended price tells you what the thesis is worth, at any moment.</p>

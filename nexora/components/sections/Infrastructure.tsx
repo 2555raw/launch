@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Reveal } from "../ui/Reveal";
 import { Label, Status } from "../ui/Bits";
 import { Meter } from "../ui/Meter";
+import { SNAPSHOT } from "@/lib/snapshot";
 
 type Panel = {
   key: string;
@@ -208,6 +209,24 @@ export function Infrastructure() {
         </Reveal>
 
         <div className="mt-10">
+          {SNAPSHOT ? (
+            PANELS.map((p) => (
+              <div
+                key={p.key}
+                role="tabpanel"
+                id={`panel-${p.key}`}
+                aria-labelledby={`tab-${p.key}`}
+                hidden={p.key !== active}
+                className="grid grid-cols-1 gap-10 rounded-card border border-hair bg-canvas p-6 md:grid-cols-[0.8fr_1.2fr] md:gap-14 md:p-10"
+              >
+                <div>
+                  <h3 className="text-[24px] font-bold tracking-tight md:text-[28px]">{p.title}</h3>
+                  <p className="mt-4 max-w-[38ch] text-[15px] leading-relaxed text-muted">{p.body}</p>
+                </div>
+                <div>{p.render()}</div>
+              </div>
+            ))
+          ) : (
           <AnimatePresence mode="wait">
             <motion.div
               key={panel.key}
@@ -231,6 +250,7 @@ export function Infrastructure() {
               <div>{panel.render()}</div>
             </motion.div>
           </AnimatePresence>
+          )}
         </div>
       </div>
     </section>

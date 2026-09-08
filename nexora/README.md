@@ -83,6 +83,22 @@ Loaded with a plain `<link>` to Google Fonts rather than `next/font`, so the pro
 never depends on reaching Google's servers at build time. If you prefer self-hosted fonts, swap in
 `next/font/local` and drop the link in `app/layout.tsx`.
 
+## Publishing a flat snapshot
+
+The page can be flattened into one self-contained HTML file — useful for sharing
+a link to the design without deploying the app:
+
+```bash
+npm run snapshot                                        # static export
+python3 scripts/assemble-snapshot.py nexora.html        # one file, CSS inlined
+```
+
+`NEXT_PUBLIC_SNAPSHOT=1` also changes two components: the platform tabs and the
+FAQ render every panel with the closed ones `hidden`, instead of mounting only
+the open one. A flat file has no React to mount the rest, and having the whole
+content in the document is better for crawlers either way. The assembler then
+inlines the stylesheet and restores the behaviour in ~120 lines of vanilla JS.
+
 ## Before going live
 
 - **Every figure is sample data** — the activity feeds, spend monitor, limits and stats. The

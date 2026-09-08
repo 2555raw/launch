@@ -27,6 +27,12 @@
     color: #F4F1EA;
   }
 
+  /* A display utility (grid, flex) outranks the UA rule for [hidden], which
+     would leave a hidden tab panel on screen. Settle it once, here. */
+  [hidden] {
+    display: none !important;
+  }
+
   /* Keyboard focus stays visible everywhere, in the accent rather than the
      browser default, so it reads as part of the design. */
   :focus-visible {

@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
+import { SNAPSHOT } from "@/lib/snapshot";
 
 type Props = {
   children: ReactNode;
@@ -16,7 +17,7 @@ type Props = {
  * viewport, once, never on a loop. With reduced motion it renders in place.
  */
 export function Reveal({ children, delay = 0, className, as = "div" }: Props) {
-  const still = useReducedMotion();
+  const still = useReducedMotion() || SNAPSHOT;
   const Tag = motion[as];
 
   return (

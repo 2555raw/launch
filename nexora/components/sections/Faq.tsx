@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Reveal } from "../ui/Reveal";
 import { Label } from "../ui/Bits";
+import { SNAPSHOT } from "@/lib/snapshot";
 
 const QA = [
   {
@@ -72,6 +73,13 @@ export function Faq() {
                       </span>
                     </button>
                   </h3>
+                  {SNAPSHOT ? (
+                    <div id={`faq-${i}`} hidden={!isOpen}>
+                      <p className="max-w-[62ch] pb-7 pr-10 text-[15px] leading-[1.7] text-muted">
+                        {item.a}
+                      </p>
+                    </div>
+                  ) : (
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
@@ -88,6 +96,7 @@ export function Faq() {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                  )}
                 </li>
               );
             })}

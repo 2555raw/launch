@@ -1,0 +1,5 @@
+demo/node_modules/
+demo/video/
+demo/fonts/*.woff2
+demo/fonts/fonts.css
+demo/fonts/map.txt

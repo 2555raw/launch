@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Button } from "../ui/Button";
+import { SNAPSHOT } from "@/lib/snapshot";
 
 const LINKS = [
   { label: "Product", href: "#product" },
@@ -11,65 +12,40 @@ const LINKS = [
   { label: "Security", href: "#security" },
 ];
 
-const NAV_H = 76;
-
+/**
+ * A floating pill rather than a full-width bar: it sits on the paper and rides
+ * over the ink sections without cutting a band across them, so it needs no
+ * inversion logic at all — it just gains a shadow once the page has moved.
+ */
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [lifted, setLifted] = useState(false);
-  const [dark, setDark] = useState(false);
   const still = useReducedMotion();
 
-  // The bar reads the section behind it. Over the ink sections it inverts, so a
-  // cream band never cuts across them; on paper it stays flat until the page moves.
   useEffect(() => {
-    let raf = 0;
-
-    const measure = () => {
-      raf = 0;
-      const mid = NAV_H / 2;
-      const overInk = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-ink]")).some(
-        (el) => {
-          const r = el.getBoundingClientRect();
-          return r.top <= mid && r.bottom >= mid;
-        }
-      );
-      setDark(overInk);
-      setLifted(window.scrollY > 12);
-    };
-
-    const schedule = () => {
-      if (!raf) raf = window.requestAnimationFrame(measure);
-    };
-
-    measure();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-    return () => {
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-      if (raf) window.cancelAnimationFrame(raf);
-    };
+    const onScroll = () => setLifted(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const surface = dark
-    ? `text-canvas ${lifted ? "border-b border-hairDark bg-ink/90 backdrop-blur-md" : "border-b border-transparent"}`
-    : `text-ink ${lifted ? "border-b border-hair bg-canvas/85 backdrop-blur-md" : "border-b border-transparent"}`;
-
   return (
-    <header className={`sticky top-0 z-50 transition-colors duration-500 ${surface}`}>
-      <nav className="shell flex h-[76px] items-center justify-between gap-8" aria-label="Main">
-        <a href="#top" className="text-[19px] font-extrabold tracking-[-0.04em]">
+    <header className="sticky top-0 z-50 px-4 pt-4 md:px-6 md:pt-5">
+      <div
+        className={`mx-auto flex h-16 w-full max-w-shell items-center justify-between gap-6 rounded-pill border border-hair bg-canvas pl-5 pr-2.5 transition-shadow duration-300 md:pl-7 ${
+          lifted ? "shadow-[0_18px_44px_-30px_rgba(21,21,21,0.6)]" : ""
+        }`}
+      >
+        <a href="#top" className="text-[18px] font-extrabold tracking-[-0.04em]">
           NEXORA
         </a>
 
-        <ul className="hidden items-center gap-9 md:flex">
+        <ul className="hidden items-center gap-8 md:flex">
           {LINKS.map((l) => (
             <li key={l.href}>
               <a
                 href={l.href}
-                className={`text-[14px] transition-colors duration-300 ${
-                  dark ? "text-canvas/60 hover:text-canvas" : "text-muted hover:text-ink"
-                }`}
+                className="text-[14px] text-muted transition-colors duration-200 hover:text-ink"
               >
                 {l.label}
               </a>
@@ -77,13 +53,8 @@ export function Nav() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-3">
-          <Button
-            href="#get-started"
-            size="sm"
-            variant={dark ? "invert" : "solid"}
-            className="hidden sm:inline-flex"
-          >
+        <div className="flex items-center gap-2">
+          <Button href="#get-started" size="md" className="hidden sm:inline-flex">
             Get Started
           </Button>
           <button
@@ -92,46 +63,64 @@ export function Nav() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Close menu" : "Open menu"}
-            className={`flex h-9 w-9 items-center justify-center rounded-pill border transition-colors duration-300 md:hidden ${
-              dark ? "border-canvas/25" : "border-hairStrong"
-            }`}
+            className="flex h-11 w-11 items-center justify-center rounded-pill border border-hairStrong md:hidden"
           >
             <span className="relative block h-3 w-4">
-              {[
-                open ? "top-[5px] rotate-45" : "top-0",
-                open ? "opacity-0" : "opacity-100",
-                open ? "top-[5px] -rotate-45" : "top-[10px]",
-              ].map((state, i) => (
-                <span
-                  key={i}
-                  className={`absolute left-0 block h-[1.5px] w-4 transition-all duration-200 ${
-                    dark ? "bg-canvas" : "bg-ink"
-                  } ${i === 1 ? `top-[5px] ${state}` : state}`}
-                />
-              ))}
+              <span
+                className={`burger-bar absolute left-0 block h-[1.5px] w-4 bg-ink transition-transform duration-200 ${
+                  open ? "top-[5px] rotate-45" : "top-0"
+                }`}
+              />
+              <span
+                className={`burger-bar absolute left-0 top-[5px] block h-[1.5px] w-4 bg-ink transition-opacity duration-200 ${
+                  open ? "opacity-0" : "opacity-100"
+                }`}
+              />
+              <span
+                className={`burger-bar absolute left-0 block h-[1.5px] w-4 bg-ink transition-transform duration-200 ${
+                  open ? "top-[5px] -rotate-45" : "top-[10px]"
+                }`}
+              />
             </span>
           </button>
         </div>
-      </nav>
+      </div>
 
+      {SNAPSHOT ? (
+        <div
+          id="mobile-menu"
+          hidden={!open}
+          className="mx-auto mt-2 w-full max-w-shell overflow-hidden rounded-card border border-hair bg-canvas md:hidden"
+        >
+          <ul className="flex flex-col px-5 py-3">
+            {LINKS.map((l) => (
+              <li key={l.href} className="border-b border-hair last:border-0">
+                <a href={l.href} className="block py-4 text-[17px] tracking-tight">
+                  {l.label}
+                </a>
+              </li>
+            ))}
+            <li className="pb-2 pt-4">
+              <Button href="#get-started" size="md" className="w-full">
+                Get Started
+              </Button>
+            </li>
+          </ul>
+        </div>
+      ) : (
       <AnimatePresence>
         {open && (
           <motion.div
             id="mobile-menu"
-            className={`overflow-hidden border-t md:hidden ${
-              dark ? "border-hairDark bg-ink" : "border-hair bg-canvas"
-            }`}
+            className="mx-auto mt-2 w-full max-w-shell overflow-hidden rounded-card border border-hair bg-canvas md:hidden"
             initial={still ? false : { height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={still ? undefined : { height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.22, 0.65, 0.3, 1] }}
           >
-            <ul className="shell flex flex-col py-4">
+            <ul className="flex flex-col px-5 py-3">
               {LINKS.map((l) => (
-                <li
-                  key={l.href}
-                  className={`border-b last:border-0 ${dark ? "border-hairDark" : "border-hair"}`}
-                >
+                <li key={l.href} className="border-b border-hair last:border-0">
                   <a
                     href={l.href}
                     onClick={() => setOpen(false)}
@@ -141,13 +130,8 @@ export function Nav() {
                   </a>
                 </li>
               ))}
-              <li className="pt-5">
-                <Button
-                  href="#get-started"
-                  size="md"
-                  variant={dark ? "invert" : "solid"}
-                  className="w-full"
-                >
+              <li className="pt-4 pb-2">
+                <Button href="#get-started" size="md" className="w-full">
                   Get Started
                 </Button>
               </li>
@@ -155,6 +139,7 @@ export function Nav() {
           </motion.div>
         )}
       </AnimatePresence>
+      )}
     </header>
   );
 }

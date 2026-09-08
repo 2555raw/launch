@@ -26,45 +26,13 @@ VANILLA = r"""
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* the bar reads the section behind it and inverts over the ink ones */
-  const header = $('header');
-  if (header) {
-    const inks = $$('[data-nav-ink]');
-    const links = $$('header nav ul a');
-    const cta = $$('header a[href="#get-started"]');
-    let raf = 0;
-    const paint = () => {
-      raf = 0;
-      const mid = 38;
-      const dark = inks.some((el) => {
-        const r = el.getBoundingClientRect();
-        return r.top <= mid && r.bottom >= mid;
-      });
-      const lifted = window.scrollY > 12;
-      header.className =
-        'sticky top-0 z-50 transition-colors duration-500 ' +
-        (dark
-          ? 'text-canvas ' + (lifted ? 'border-b border-hairDark bg-ink/90 backdrop-blur-md' : 'border-b border-transparent')
-          : 'text-ink ' + (lifted ? 'border-b border-hair bg-canvas/85 backdrop-blur-md' : 'border-b border-transparent'));
-      links.forEach((a) => {
-        a.className = 'text-[14px] transition-colors duration-300 ' +
-          (dark ? 'text-canvas/60 hover:text-canvas' : 'text-muted hover:text-ink');
-      });
-      cta.forEach((a) => {
-        a.classList.toggle('bg-canvas', dark);
-        a.classList.toggle('text-ink', dark);
-        a.classList.toggle('bg-ink', !dark);
-        a.classList.toggle('text-canvas', !dark);
-      });
-      $$('.burger-bar').forEach((i) => {
-        i.classList.toggle('bg-canvas', dark);
-        i.classList.toggle('bg-ink', !dark);
-      });
-    };
-    const schedule = () => { if (!raf) raf = requestAnimationFrame(paint); };
-    paint();
-    addEventListener('scroll', schedule, { passive: true });
-    addEventListener('resize', schedule);
+  /* the floating bar gains a shadow once the page has moved */
+  const bar = $('header > div');
+  if (bar) {
+    const SHADOW = 'shadow-[0_18px_44px_-30px_rgba(21,21,21,0.6)]';
+    const onScroll = () => bar.classList.toggle(SHADOW, window.scrollY > 12);
+    onScroll();
+    addEventListener('scroll', onScroll, { passive: true });
   }
 
   /* mobile menu */
@@ -75,10 +43,94 @@ VANILLA = r"""
       menu.hidden = !open;
       burger.setAttribute('aria-expanded', String(open));
       burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      $$('.burger-bar', burger).forEach((el, i) => {
+        el.style.transform = open ? (i === 0 ? 'rotate(45deg)' : i === 2 ? 'rotate(-45deg)' : '') : '';
+        el.style.top = open ? '5px' : ['0px', '5px', '10px'][i];
+        if (i === 1) el.style.opacity = open ? '0' : '1';
+      });
     };
     setOpen(false);
     burger.addEventListener('click', () => setOpen(menu.hidden));
     $$('a', menu).forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  }
+
+  /* the authorization log writes itself out once it is in view */
+  const term = $('#agent-terminal');
+  if (term && !still) {
+    const lines = $$('[data-term-line]', term);
+    const caret = $('[data-term-caret]', term);
+    lines.forEach((l) => { l.hidden = true; });
+    if (caret) caret.hidden = false;
+    let i = 0;
+    const step = () => {
+      if (i >= lines.length) { if (caret) caret.hidden = true; return; }
+      lines[i].hidden = false;
+      i += 1;
+      setTimeout(step, 220);
+    };
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { io.disconnect(); setTimeout(step, 260); }
+    }, { threshold: 0.25 });
+    io.observe(term);
+  }
+
+  /* the card panel: allowlist, and the freeze switch */
+  const panel = $('[data-card-panel]');
+  if (panel) {
+    const list = $('[data-allow-list]', panel);
+    const count = $('[data-allow-count]', panel);
+    const input = $('[data-allow-input]', panel);
+    const addBtn = $('[data-allow-add]', panel);
+    const freeze = $('[data-freeze]', panel);
+    const state = $('[data-card-state]', panel);
+    const copy = $('[data-freeze-copy]', panel);
+
+    const sync = () => { if (count) count.textContent = $$('li', list).length + ' allowed'; };
+
+    const wireChip = (li) => {
+      const btn = $('button', li);
+      if (btn) btn.addEventListener('click', () => { li.remove(); sync(); });
+    };
+    if (list) $$('li', list).forEach(wireChip);
+
+    const add = () => {
+      const name = (input?.value || '').trim();
+      if (!name || !list) return;
+      const taken = $$('li', list).some((li) => li.textContent.trim().replace(/\s*×$/, '').toLowerCase() === name.toLowerCase());
+      if (taken) return;
+      const li = document.createElement('li');
+      li.innerHTML =
+        '<span class="inline-flex items-center gap-2 rounded-pill border border-hairDark bg-canvas/[0.04] py-1.5 pl-3.5 pr-2 font-mono text-[12px]">' +
+        name.replace(/[<>&]/g, '') +
+        '<button type="button" aria-label="Remove ' + name.replace(/["<>&]/g, '') + '" class="flex h-4 w-4 items-center justify-center rounded-full border border-canvas/25 text-[10px] leading-none text-canvas/60 transition-colors duration-200 hover:border-coral hover:text-coral">×</button></span>';
+      list.appendChild(li);
+      wireChip(li);
+      input.value = '';
+      sync();
+    };
+    addBtn?.addEventListener('click', add);
+    input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+
+    freeze?.addEventListener('click', () => {
+      const frozen = freeze.getAttribute('aria-pressed') !== 'true';
+      freeze.setAttribute('aria-pressed', String(frozen));
+      freeze.textContent = frozen ? 'Unfreeze card' : 'Freeze card';
+      freeze.className =
+        'h-9 shrink-0 rounded-pill px-4 text-[13px] font-medium transition-colors duration-200 ' +
+        (frozen ? 'bg-coral text-canvas' : 'bg-canvas text-ink hover:bg-coral hover:text-canvas');
+      if (state) {
+        state.className =
+          'inline-flex items-center gap-2 rounded-pill border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] ' +
+          (frozen ? 'border-hairDark text-canvas/50' : 'border-positive/40 text-positive');
+        state.innerHTML =
+          '<i class="h-1.5 w-1.5 rounded-full ' +
+          (frozen ? 'bg-canvas/40' : 'bg-positive animate-pulseDot') + '"></i>' +
+          (frozen ? 'Frozen' : 'Active');
+      }
+      if (copy) copy.textContent = frozen
+        ? 'Frozen. Every agent payment on this card is declined.'
+        : 'Freeze instantly to block every agent payment.';
+    });
   }
 
   /* platform tabs */
@@ -91,13 +143,13 @@ VANILLA = r"""
         t.className =
           'relative whitespace-nowrap px-5 py-3.5 text-[14px] transition-colors duration-200 ' +
           (on ? 'text-ink' : 'text-muted hover:text-ink');
-        let bar = t.querySelector('.tab-underline');
-        if (on && !bar) {
-          bar = document.createElement('span');
-          bar.className = 'tab-underline absolute inset-x-3 -bottom-px h-[2px] bg-coral';
-          t.appendChild(bar);
-        } else if (!on && bar) {
-          bar.remove();
+        let ul = t.querySelector('.tab-underline');
+        if (on && !ul) {
+          ul = document.createElement('span');
+          ul.className = 'tab-underline absolute inset-x-3 -bottom-px h-[2px] bg-coral';
+          t.appendChild(ul);
+        } else if (!on && ul) {
+          ul.remove();
         }
       });
       $$('[role="tabpanel"]').forEach((p) => {
@@ -116,21 +168,45 @@ VANILLA = r"""
 
   /* faq */
   $$('button[aria-controls^="faq-"]').forEach((btn) => {
-    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    const p = document.getElementById(btn.getAttribute('aria-controls'));
     const icon = btn.querySelector('span[aria-hidden]');
     btn.addEventListener('click', () => {
       const open = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', String(!open));
-      if (panel) panel.hidden = open;
+      if (p) p.hidden = open;
       if (icon) icon.classList.toggle('rotate-45', !open);
     });
   });
 
-  /* freeze switch on the console */
-  const freeze = $$('button').find((b) => /Freeze card|Unfreeze card/.test(b.textContent || ''));
-  if (freeze) {
-    freeze.addEventListener('click', () => {
-      freeze.textContent = /Unfreeze/.test(freeze.textContent || '') ? 'Freeze card' : 'Unfreeze card';
+  /* terms and privacy dialogs */
+  let opener = null;
+  const closeLegal = () => {
+    $$('[data-legal-panel]').forEach((p) => { p.hidden = true; });
+    document.body.style.overflow = '';
+    if (opener) { opener.focus(); opener = null; }
+  };
+  document.addEventListener('click', (e) => {
+    const open = e.target.closest('[data-legal]');
+    if (open) {
+      e.preventDefault();
+      opener = open;
+      const panel = $('[data-legal-panel="' + open.dataset.legal + '"]');
+      if (panel) {
+        panel.hidden = false;
+        document.body.style.overflow = 'hidden';
+        $('[role="dialog"]', panel)?.focus();
+      }
+      return;
+    }
+    if (e.target.closest('[data-legal-close]')) closeLegal();
+  });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLegal(); });
+
+  /* the freeze switch on the console further down */
+  const consoleFreeze = $$('button').find((b) => !b.hasAttribute('data-freeze') && /^(Freeze|Unfreeze) card$/.test((b.textContent || '').trim()));
+  if (consoleFreeze) {
+    consoleFreeze.addEventListener('click', () => {
+      consoleFreeze.textContent = /Unfreeze/.test(consoleFreeze.textContent || '') ? 'Freeze card' : 'Unfreeze card';
     });
   }
 
@@ -174,11 +250,6 @@ def main() -> int:
     body = body.replace(
         'class="absolute inset-x-3 -bottom-px h-[2px] bg-coral"',
         'class="tab-underline absolute inset-x-3 -bottom-px h-[2px] bg-coral"',
-    )
-    # give the burger bars a hook the script can recolour
-    body = body.replace(
-        'class="absolute left-0 block h-[1.5px] w-4 transition-all duration-200 bg-ink',
-        'class="burger-bar absolute left-0 block h-[1.5px] w-4 transition-all duration-200 bg-ink',
     )
 
     target.write_text(f"{HEAD}\n<style>\n{css}\n</style>\n\n{body}\n\n<script>\n{VANILLA}\n</script>\n")

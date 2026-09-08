@@ -12,6 +12,7 @@ import { Policy } from "@/components/sections/Policy";
 import { Faq } from "@/components/sections/Faq";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Footer } from "@/components/sections/Footer";
+import { LegalDialogs } from "@/components/ui/LegalModal";
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
         <FinalCta />
       </main>
       <Footer />
+      <LegalDialogs />
     </>
   );
 }

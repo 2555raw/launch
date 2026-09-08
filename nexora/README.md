@@ -56,6 +56,18 @@ Colour is assigned by role, not by decoration: coral only ever marks money in mo
 state, violet only marks policy, green only marks approval. That is why the page reads as a
 product rather than a template.
 
+## Legal dialogs
+
+`lib/legal.ts` holds the Terms of Service and Privacy Policy. Both documents are always in the
+document and hidden when closed, so they are readable without JavaScript and indexable by
+crawlers, and the flat snapshot opens them with a class toggle. Any element carrying
+`data-legal="terms"` or `data-legal="privacy"` opens the matching dialog, so links can live
+anywhere on the page without being wired up.
+
+**The copy is a template written for a fictional product, and every dialog says so at the top.
+It has not been reviewed by a lawyer — replace it with text from counsel before launch, and
+leave that notice in place until you do.**
+
 ## Motion
 
 Framer Motion, kept deliberately quiet:

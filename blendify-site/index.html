@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tricker — many tickers, one bag</title>
-  <meta name="description" content="Tricker turns three to five of the assets everyone already watches — BTC, ETH, NVDA, TSLA, gold — into one bag you trade as a single position, long or short, with up to 5x leverage.">
+  <title>Tricker: many tickers, one bag</title>
+  <meta name="description" content="Tricker turns three to five of the assets everyone already watches (BTC, ETH, NVDA, TSLA, gold) into one bag you trade as a single position, long or short, with up to 5x leverage.">
   <link rel="icon" href="assets/blend-logo-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
   <div class="bl-tape" id="tape"></div>
 
   <nav class="bl-nav">
-    <a class="bl-mark" data-scroll="top" aria-label="Tricker — home">
+    <a class="bl-mark" data-scroll="top" aria-label="Tricker home">
       <svg viewBox="0 0 40 28" aria-hidden="true"><path d="M13 3h8L11 25H3z"/><path d="M28 3h8L26 25h-8z"/></svg>
     </a>
     <div class="bl-nav-links">
@@ -27,7 +27,7 @@
       <a data-scroll="stats">Stats</a>
       <a data-scroll="how">How it works</a>
       <a href="docs.html">Docs</a>
-      <a href="https://x.com/trickermarket" target="_blank" rel="noopener noreferrer">Follow</a>
+      <a href="https://x.com/useTricker" target="_blank" rel="noopener noreferrer">Follow</a>
     </div>
     <div class="bl-nav-right">
       <label class="bl-search">
@@ -43,6 +43,11 @@
           <path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/>
           <circle cx="16.5" cy="14.5" r="1.3" fill="currentColor"/>
         </svg>Connect wallet</div>
+      <a class="bl-icon-btn" href="https://x.com/useTricker" target="_blank" rel="noopener noreferrer" aria-label="Tricker on X">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4.5 4.5 19.5 19.5M19.5 4.5 4.5 19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </a>
       <button class="bl-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
     </div>
   </nav>
@@ -55,8 +60,8 @@
         <div>
           <div class="bl-eyebrow">Robinhood Chain · Tricker v1.0 · <span id="eyebrowCount">19</span> assets live</div>
           <h1 class="bl-h1">MANY TICKERS<br><span class="bl-h1-dim">ONE</span> BAG</h1>
-          <p>A bag holds three to five <b>assets at weights you set</b> — bitcoin next to Nvidia next to
-             gold, if that is the trade. The weights live on-chain and apply on every order, so one
+          <p>A bag holds three to five <b>assets at weights you set</b>: bitcoin next to Nvidia next to
+             gold, if that is the trade. The weights live onchain and apply on every order, so one
              trade fills every leg at a blended price, long or short, with up to 5x leverage.</p>
           <div class="bl-hero-cta">
             <div class="bl-btn bl-btn-primary" data-scroll="build">
@@ -107,15 +112,15 @@
       <!-- stats -->
       <section class="bl-stats" id="stats">
         <div class="bl-stat"><div class="bl-label">Bags live</div>
-          <div class="bl-stat-row"><span class="bl-stat-num" id="statLive">—</span><span class="bl-stat-delta" id="dLive"></span></div></div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statLive">&hellip;</span><span class="bl-stat-delta" id="dLive"></span></div></div>
         <div class="bl-stat"><div class="bl-label">Assets supported</div>
-          <div class="bl-stat-row"><span class="bl-stat-num" id="statAssets">—</span><span class="bl-stat-delta" id="dAssets"></span></div></div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statAssets">&hellip;</span><span class="bl-stat-delta" id="dAssets"></span></div></div>
         <div class="bl-stat"><div class="bl-label">Total value</div>
-          <div class="bl-stat-row"><span class="bl-stat-num" id="statValue">—</span><span class="bl-stat-delta" id="dValue"></span></div></div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statValue">&hellip;</span><span class="bl-stat-delta" id="dValue"></span></div></div>
         <div class="bl-stat"><div class="bl-label">Chains</div>
-          <div class="bl-stat-row"><span class="bl-stat-num" id="statChains">—</span><span class="bl-stat-delta" id="dChains"></span></div></div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statChains">&hellip;</span><span class="bl-stat-delta" id="dChains"></span></div></div>
         <div class="bl-stat"><div class="bl-label">Avg fee</div>
-          <div class="bl-stat-row"><span class="bl-stat-num" id="statFee">—</span><span class="bl-stat-delta" id="dFee"></span></div></div>
+          <div class="bl-stat-row"><span class="bl-stat-num" id="statFee">&hellip;</span><span class="bl-stat-delta" id="dFee"></span></div></div>
       </section>
 
       <!-- market board -->
@@ -138,8 +143,8 @@
           </div>
         </div>
         <div class="bl-grid" id="board"></div>
-        <p class="bl-board-note">Sample data for layout — wire the board to the indexer before launch.
-           Values shown are illustrative, not quotes.</p>
+        <p class="bl-board-note">Sample data for layout. Wire the board to the indexer before launch;
+           the values shown are illustrative, not quotes.</p>
       </section>
 
       <!-- how it works -->
@@ -154,12 +159,12 @@
           <div class="bl-card">
             <div class="bl-step-n">01</div>
             <h3>Pick the assets</h3>
-            <p>Three to five of them — BTC, ETH, NVDA, TSLA, gold, oil — from any supported chain.</p>
+            <p>Three to five of them: BTC, ETH, NVDA, TSLA, gold or oil, from any supported chain.</p>
           </div>
           <div class="bl-card">
             <div class="bl-step-n">02</div>
             <h3>Set the weights</h3>
-            <p>Tune each weight until they add to 100%. Stored on-chain, so the bag cannot drift.</p>
+            <p>Tune each weight until they add to 100%. Stored onchain, so the bag cannot drift.</p>
           </div>
           <div class="bl-card">
             <div class="bl-step-n">03</div>
@@ -200,8 +205,8 @@
               <div class="bl-row"><span>Listing fee</span><span>$0.00</span></div>
               <div class="bl-row"><span>Max leverage</span><span>5x</span></div>
             </div>
-            <p class="bl-panel-note">Sample gas assumption of $1.25 per avoided swap — swap it for your
-               own before quoting these numbers anywhere.</p>
+            <p class="bl-panel-note">Sample gas assumption of $1.25 per avoided swap. Swap it for your own
+               before quoting these numbers anywhere.</p>
           </div>
         </div>
       </section>
@@ -214,22 +219,22 @@
         </div>
         <div class="bl-faq bl-reveal">
           <div class="bl-card"><h3>How many assets can one bag hold?</h3>
-            <p>Three to five. The weights have to add up to 100%, and they are stored on-chain, so the
+            <p>Three to five. The weights have to add up to 100%, and they are stored onchain, so the
                bag does not drift between trades.</p></div>
           <div class="bl-card"><h3>Do I keep custody of my funds?</h3>
-            <p>Yes. Deposits, spot positions and perp settlement all run on-chain from your own wallet,
+            <p>Yes. Deposits, spot positions and perp settlement all run onchain from your own wallet,
                and you withdraw straight back to it.</p></div>
           <div class="bl-card"><h3>Which chains and asset types are supported?</h3>
             <p>Robinhood Chain, Ethereum, Base, BNB Chain and Solana. Tokens, tokenized stocks such as
-               tTSLA and tNVDA, and real-world assets such as tGOLD can sit in the same index.</p></div>
+               tTSLA and tNVDA, and real world assets such as tGOLD can sit in the same index.</p></div>
           <div class="bl-card"><h3>How often does the blended price update?</h3>
             <p>Every ten seconds, weighted across every leg, from DexScreener and equity feeds.</p></div>
           <div class="bl-card"><h3>How much leverage can I take?</h3>
             <p>Up to 5x through perps, long or short on the whole bag, with the liquidation level shown
                before you open the position.</p></div>
           <div class="bl-card"><h3>What does it cost to launch a bag?</h3>
-            <p>There is no listing fee and no approval queue — it goes live the moment you save it.
-               Trading fees: [your fee schedule].</p></div>
+            <p>There is no listing fee and no approval queue: it goes live the moment you save it.
+               Trading fees are [your fee schedule].</p></div>
         </div>
       </section>
 
@@ -253,7 +258,7 @@
       <div class="bl-footer-top">
         <div>
           <div class="bl-wordmark">TRICKER</div>
-          <p class="bl-footer-desc">On-chain bags you build yourself. Fill it, buy it, and trade it with
+          <p class="bl-footer-desc">Onchain bags you build yourself. Fill it, buy it, and trade it with
              leverage as one position.</p>
         </div>
         <div>
@@ -277,7 +282,7 @@
         <div>
           <div class="bl-footer-col-title">Community</div>
           <div class="bl-footer-links">
-            <a href="https://x.com/trickermarket" target="_blank" rel="noopener noreferrer">@trickermarket on X</a>
+            <a href="https://x.com/useTricker" target="_blank" rel="noopener noreferrer">@useTricker on X</a>
             <a href="article.html">Explainer</a>
             <a href="#chain">Built on Robinhood Chain</a>
           </div>
@@ -285,7 +290,7 @@
       </div>
       <div class="bl-footer-bottom">
         <span>© 2026 Tricker. All rights reserved.</span>
-        <span>Built on-chain, no middlemen.</span>
+        <span>Built onchain, no middlemen.</span>
       </div>
     </div>
   </footer>

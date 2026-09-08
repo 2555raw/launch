@@ -82,7 +82,7 @@ there is no observer code. Browsers without support land on the end state. Nothi
   and the page says so under the grid. Wire both to the indexer, then drop the note.
 - `[your fee schedule]` appears in the FAQ on `index.html` and twice in the fees table on `docs.html`.
 - Legal links in the footer (`#risk`, `#privacy`, `#terms`, `#fees`) are still anchors.
-- The X handle `@trickermarket` is a placeholder.
+- The X handle `@useTricker` is a placeholder.
 - The favicon still points at `assets/blend-logo-light.png`, left over from an earlier identity —
   replace it with a Tricker mark.
 - The hero curve is illustrative artwork, not a live feed; the "sample" label is there on purpose.

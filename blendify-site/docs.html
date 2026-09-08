@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tricker — docs</title>
+  <title>Tricker docs</title>
   <meta name="description" content="How a Tricker bag works: composition, weights, the blended price, leverage, fees and the supported chains.">
   <link rel="icon" href="assets/blend-logo-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,9 +23,14 @@
       <a href="index.html#stats">Stats</a>
       <a href="index.html#how">How it works</a>
       <a class="is-active" href="docs.html">Docs</a>
-      <a href="https://x.com/trickermarket" target="_blank" rel="noopener noreferrer">Follow</a>
+      <a href="https://x.com/useTricker" target="_blank" rel="noopener noreferrer">Follow</a>
     </div>
     <div class="bl-nav-right">
+      <a class="bl-icon-btn" href="https://x.com/useTricker" target="_blank" rel="noopener noreferrer" aria-label="Tricker on X">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4.5 4.5 19.5 19.5M19.5 4.5 4.5 19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </a>
       <a class="bl-btn bl-btn-ghost bl-btn-sm" href="index.html">Back to the app</a>
     </div>
   </nav>
@@ -71,8 +76,8 @@
         </header>
 
         <h2 class="dc-h2" id="what">What a bag is</h2>
-        <p>A bag — an on-chain index, in the technical sense — is <strong>three to five assets</strong>
-           with a weight assigned to each one. It is stored on-chain, so its composition is fixed until
+        <p>A bag (an onchain index, in the technical sense) is <strong>three to five assets</strong> with
+           a weight assigned to each one. It is stored onchain, so its composition is fixed until
            whoever created it changes it. It does not drift as prices move.</p>
         <p>The point is that the bag trades as a single thing. One order fills every leg, the
            position shows up as one line in your portfolio, and rebalancing is one transaction rather
@@ -98,8 +103,8 @@
 
         <h2 class="dc-h2" id="weights">Weights</h2>
         <p>Each leg carries a weight, and the weights have to add up to exactly 100% before a bag can be
-           saved. They are written on-chain with the bag and applied on every trade.</p>
-        <p>Because the weights are fixed, buying more of a bag does not change its shape — your
+           saved. They are written onchain with the bag and applied on every trade.</p>
+        <p>Because the weights are fixed, buying more of a bag does not change its shape: your
            order is split across the legs in the same proportions each time. Changing the weights is
            an explicit action by the bag creator, not something that happens as the market moves.</p>
 
@@ -109,12 +114,12 @@
 
 <b>example</b>  0.40 × BTC + 0.35 × GOLD + 0.25 × SILVER</div>
         <p>Leg prices come from DexScreener for tokens and from equity feeds for tokenized stocks and
-           real-world assets. The blend is recomputed <strong>every ten seconds</strong>, and the price
+           real world assets. The blend is recomputed <strong>every ten seconds</strong>, and the price
            you are quoted at execution is the one that fills.</p>
 
         <h2 class="dc-h2" id="buying">Buying a bag</h2>
         <ol class="dc-steps">
-          <li><b>Pick the bag</b>Any bag on the board can be traded — there is no allowlist and no queue
+          <li><b>Pick the bag</b>Any bag on the board can be traded: there is no allowlist and no queue
               between saving one and trading it.</li>
           <li><b>Enter a size</b>Your size is split across the legs by weight. A 2 ETH order on a
               40/35/25 bag buys 0.8 / 0.7 / 0.5 ETH of the three legs.</li>
@@ -135,7 +140,7 @@
         <div class="dc-note">
           <span class="bl-label">Warning</span>
           <p>Leverage cuts in both directions. A 5x position is liquidated on a move of roughly 20%
-             against you before funding and fees, and the move that matters is the blended one — a
+             against you before funding and fees, and the move that matters is the blended one: a
              single leg can be flat while the bag is not.</p>
         </div>
 
@@ -147,13 +152,13 @@
           <div class="dc-tr"><span>listing</span><span>None.</span></div>
           <div class="dc-tr"><span>spot trade</span><span>[your fee schedule]</span></div>
           <div class="dc-tr"><span>perp open / close</span><span>[your fee schedule]</span></div>
-          <div class="dc-tr"><span>gas</span><span>One transaction per trade, whatever the chain charges — not one per leg.</span></div>
+          <div class="dc-tr"><span>gas</span><span>One transaction per trade, whatever the chain charges, not one per leg.</span></div>
         </div>
 
         <h2 class="dc-h2" id="chains">Chains and assets</h2>
         <div class="dc-table">
           <div class="dc-tr is-head"><span>Chain</span><span>Assets</span></div>
-          <div class="dc-tr"><span>Robinhood Chain</span><span>Tokens, tokenized stocks (TSLA, NVDA, AAPL), real-world assets (gold, silver, crude)</span></div>
+          <div class="dc-tr"><span>Robinhood Chain</span><span>Tokens, tokenized stocks (TSLA, NVDA, AAPL), real world assets (gold, silver, crude)</span></div>
           <div class="dc-tr"><span>Ethereum</span><span>Tokens and tokenized assets</span></div>
           <div class="dc-tr"><span>Base</span><span>Tokens</span></div>
           <div class="dc-tr"><span>BNB Chain</span><span>Tokens</span></div>
@@ -171,7 +176,7 @@
 
         <h2 class="dc-h2" id="risks">Risks</h2>
         <ul>
-          <li>A bag is only as good as its legs. Bundling assets does not remove the risk in any of them —
+          <li>A bag is only as good as its legs. Bundling assets does not remove the risk in any of them;
               it changes how many transactions you need to hold them.</li>
           <li>Thin liquidity in one leg affects the whole blend, both when you buy and when you exit.</li>
           <li>Leveraged positions can be liquidated. The liquidation level shown excludes funding and
@@ -192,7 +197,7 @@
     <div class="bl-wrap">
       <div class="bl-footer-bottom" style="margin-top:0;padding-top:0;border-top:none;">
         <span>© 2026 Tricker. All rights reserved.</span>
-        <span>Docs v1 — [replace bracketed fields before launch]</span>
+        <span>Docs v1. [replace bracketed fields before launch]</span>
       </div>
     </div>
   </footer>

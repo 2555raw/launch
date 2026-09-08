@@ -1,6 +1,6 @@
-/* Nomia — comportamiento de la página.
-   Sin dependencias: tema, menú, navegación por anclas, pestañas de código y la
-   maqueta del panel. Nada se anima en bucle. */
+/* Nomia — page behaviour.
+   No dependencies: theme, menu, anchor navigation, code tabs, scroll reveal and
+   the dashboard mockup. Nothing loops. */
 
 (() => {
   'use strict';
@@ -8,7 +8,7 @@
   const $  = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-  /* ---------- tema ---------- */
+  /* ---------- theme ---------- */
 
   const SUN  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg>';
   const MOON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>';
@@ -21,16 +21,16 @@
   };
 
   let stored = null;
-  try { stored = localStorage.getItem('nomia-theme'); } catch (_) { /* almacenamiento bloqueado */ }
+  try { stored = localStorage.getItem('nomia-theme'); } catch (_) { /* storage blocked */ }
   applyTheme(stored === 'light' ? 'light' : 'dark');
 
   themeBtn?.addEventListener('click', () => {
     const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
     applyTheme(next);
-    try { localStorage.setItem('nomia-theme', next); } catch (_) { /* almacenamiento bloqueado */ }
+    try { localStorage.setItem('nomia-theme', next); } catch (_) { /* storage blocked */ }
   });
 
-  /* ---------- menú en móvil ---------- */
+  /* ---------- mobile menu ---------- */
 
   const burger = $('#burger');
   const links  = $('#navlinks');
@@ -40,7 +40,7 @@
     burger.setAttribute('aria-expanded', String(open));
   });
 
-  /* ---------- navegación por anclas ---------- */
+  /* ---------- anchor navigation ---------- */
 
   const NAV_H = 62;
 
@@ -56,7 +56,7 @@
     burger?.setAttribute('aria-expanded', 'false');
   });
 
-  /* ---------- sección activa en el menú ---------- */
+  /* ---------- active section in the nav ---------- */
 
   const navItems = $$('#navlinks a');
   const sections = navItems
@@ -73,9 +73,9 @@
     sections.forEach((s) => spy.observe(s));
   }
 
-  /* ---------- pestañas de código ---------- */
+  /* ---------- code tabs ---------- */
 
-  const FILES = { node: 'agente.ts', python: 'agente.py', curl: 'terminal', mcp: 'mcp.json' };
+  const FILES = { node: 'agent.ts', python: 'agent.py', curl: 'terminal', mcp: 'mcp.json' };
   const tabFile = $('#tabfile');
 
   $('#tabs')?.addEventListener('click', (e) => {
@@ -87,43 +87,41 @@
     if (tabFile) tabFile.textContent = FILES[key] || '';
   });
 
-  /* ---------- maqueta del panel ---------- */
+  /* ---------- dashboard mockup ---------- */
 
-  // Gasto de hoy por agente. Datos de muestra: al conectar la API real, esta
-  // lista es lo único que hay que sustituir.
+  // Today's spend per agent. Sample data: wiring the real API means replacing
+  // this list and nothing else.
   const AGENTS = [
-    { name: 'investigador-de-mercado', id: 'agt_9f21c4', spent: 412.80, cap: 600 },
-    { name: 'agente-de-compras',       id: 'agt_2b70ea', spent: 318.15, cap: 500 },
-    { name: 'soporte-nivel-1',         id: 'agt_57ac31', spent: 244.60, cap: 500 },
-    { name: 'enriquecedor-de-datos',   id: 'agt_c1d908', spent: 187.05, cap: 400 },
-    { name: 'vigilante-de-precios',    id: 'agt_44fe6b', spent:  96.40, cap: 300 },
-    { name: 'conciliador-contable',    id: 'agt_8e05d2', spent:  41.90, cap: 250 }
+    { name: 'market-researcher',  id: 'agt_9f21c4', spent: 412.80, cap: 600 },
+    { name: 'procurement-agent',  id: 'agt_2b70ea', spent: 318.15, cap: 500 },
+    { name: 'support-tier-1',     id: 'agt_57ac31', spent: 244.60, cap: 500 },
+    { name: 'data-enricher',      id: 'agt_c1d908', spent: 187.05, cap: 400 },
+    { name: 'price-watcher',      id: 'agt_44fe6b', spent:  96.40, cap: 300 },
+    { name: 'ledger-reconciler',  id: 'agt_8e05d2', spent:  41.90, cap: 250 }
   ];
 
-  // El símbolo delante, como en el resto de cifras de la página.
-  const num = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const money = (v) => `$${num.format(v)}`;
+  const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 
   const rows = $('#rows');
   if (rows) {
     rows.innerHTML = AGENTS.map((a) => {
       const pct = Math.min(100, Math.round((a.spent / a.cap) * 100));
       return `<div class="nm-row">
-        <div class="nm-row-n">${a.name}<small>${a.id} · ${pct}% del techo</small></div>
+        <div class="nm-row-n">${a.name}<small>${a.id} · ${pct}% of ceiling</small></div>
         <div class="nm-bar"><i style="width:${pct}%"></i></div>
-        <div class="nm-row-v">${money(a.spent)}</div>
+        <div class="nm-row-v">${money.format(a.spent)}</div>
       </div>`;
     }).join('');
   }
 
-  /* ---------- entrada al hacer scroll ---------- */
+  /* ---------- scroll reveal ---------- */
 
   const risers = $$('.nm-rise');
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (risers.length && !still && 'IntersectionObserver' in window) {
-    // El estado oculto lo pone el CSS sólo bajo .nm-js: si esto no corre, la
-    // página se ve entera igualmente.
+    // The hidden state is applied by CSS only under .nm-js, so if this never
+    // runs the page still renders in full.
     $('.nm')?.classList.add('nm-js');
     const reveal = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -135,7 +133,7 @@
     risers.forEach((el) => reveal.observe(el));
   }
 
-  /* ---------- año en el pie ---------- */
+  /* ---------- year in the footer ---------- */
 
   const year = $('#year');
   if (year) year.textContent = String(new Date().getFullYear());

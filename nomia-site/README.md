@@ -1,73 +1,88 @@
 # Nomia — site
 
-Landing estática de **Nomia**, la vía de pago de los agentes autónomos: identidad por agente,
-políticas de gasto y liquidación multi-riel en una sola API.
+Static landing page for **Nomia**, the payment rail for autonomous agents: identity per agent,
+spend policies and multi-rail settlement behind a single API.
 
-Sin build, sin dependencias. HTML, CSS y JS a pelo.
+No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 
-## Estructura
+## Structure
 
 ```
-index.html   la página entera: tira de estado, héroe, cifras, cómo funciona, funciones,
-             desarrolladores, panel, casos de uso, precios, preguntas, llamada final y pie
-styles.css   el sistema de diseño (paleta, tipografía, retícula) y lo adaptable
-app.js       tema, menú móvil, navegación por anclas, sección activa, pestañas de código,
-             y la maqueta de gasto por agente
+index.html   the whole page: status strip, hero, stats, how it works, features,
+             developers, dashboard, use cases, pricing, FAQ, closing call and footer
+styles.css   the design system (palette, type, layout) and the responsive rules
+app.js       theme, mobile menu, anchor navigation, active section, code tabs,
+             scroll reveal and the per-agent spend mockup
 ```
 
-## Verlo
+## Run it
 
-Abre `index.html` directamente, o sirve la carpeta:
+Open `index.html` directly, or serve the folder:
 
 ```bash
-python3 -m http.server 8000     # y abre http://localhost:8000
+python3 -m http.server 8000     # then open http://localhost:8000
 ```
 
-Se despliega dejando la carpeta en cualquier host estático (Netlify, Vercel, GitHub Pages,
-S3, Cloudflare Pages).
+Deploy by dropping the folder on any static host (Netlify, Vercel, GitHub Pages, S3,
+Cloudflare Pages).
 
-## Diseño
+## Design
 
-Fondo casi negro con matiz frío, tipografía sobria de infraestructura financiera y **un solo
-acento**: el verde eléctrico `#00E5A0`. El acento marca dinero en movimiento (cifras vivas,
-estados en curso, la acción principal) y nada más; en cuanto se reparte por toda la página deja
-de significar algo. En el tema claro baja a `#00B47E` para mantener el contraste sobre blanco.
+Two palettes with two different jobs, and the split is the whole idea.
 
-| Token | Oscuro | Claro | Papel |
+**The dusty-rose family is the brand ground.** The four bands of the swatch live in the CSS as
+`--rose-1` … `--rose-4`. They set the page colour (a warm plum-black pulled from the same hue,
+not a neutral grey), the rose-tinted body text and borders, the hero glow, the rail beside the
+headline and the line across the top of the closing card.
+
+**Electric green `#00E5A0` is the accent, and it only ever means money in motion:** live figures,
+in-progress states, the primary button, the spend bars, keywords in the code. Nothing else is
+allowed to be green — the moment the accent spreads across the page it stops meaning anything.
+
+| Token | Dark | Light | Role |
 | --- | --- | --- | --- |
-| `--bg` / `--bg-alt` | `#07090C` / `#0A0D12` | `#F4F6F8` / `#ECEFF3` | fondo de página y bandas alternas |
-| `--card` / `--card-hi` / `--surface` | `#0E1218` / `#131922` / `#161D26` | `#FFFFFF` / `#F7F9FB` / `#E8ECF1` | tarjetas, estado hover, pistas |
-| `--ink` / `--prose` / `--muted` / `--dim` | `#F2F5F8` / `#C4CDD8` / `#8E9BAA` / `#5E6A78` | `#0B1015` / `#26313C` / `#5A6673` / `#838F9C` | texto, cuerpo, secundario, micro-etiquetas |
-| `--line` / `--line-hi` | `#1B222C` / `#2A3441` | `#DDE3EA` / `#C4CDD8` | bordes y bordes al pasar |
-| `--accent` (+ `--accent-glow`) | `#00E5A0` | `#00B47E` | cifras, estados, botón principal |
-| `--warn` / `--down` | `#FFB84D` / `#FF6B6B` | iguales | avisos y caídas |
+| `--rose-1` … `--rose-4` | `#A87377` `#C88A8C` `#E3ABA8` `#F7D6D2` | same | the swatch: glow, rail, step numbers, icons, tags |
+| `--bg` / `--bg-alt` | `#150E0F` / `#1A1214` | `#FBF1EF` / `#F6E6E3` | page ground and alternating bands |
+| `--card` / `--card-hi` / `--surface` | `#1F1719` / `#271D1F` / `#2E2225` | `#FFFFFF` / `#FDF6F5` / `#F3E1DE` | cards, hover state, tracks |
+| `--ink` / `--prose` / `--muted` / `--dim` | `#FDF4F3` / `#DCC6C5` / `#B08C8D` / `#8A6668` | `#2B1B1D` / `#4A3234` / `#7A5C5E` / `#9C7B7C` | text, body copy, secondary, micro-labels |
+| `--line` / `--line-hi` | `#2C1F21` / `#3F2D30` | `#EFDCD9` / `#DFC3BF` | borders and hover borders |
+| `--accent-fill` | `#00E5A0` | `#00E5A0` | button and bar fills, in both themes |
+| `--accent` | `#00E5A0` | `#00845F` | accent **text**: figures, links, keywords |
 
-Tipografía: **Inter** para todo el texto y **JetBrains Mono** para cifras, código y etiquetas.
-Las micro-etiquetas usan `.nm-label`: 10,5 px mono, mayúsculas, `0.16em` de tracking.
+The two accent tokens exist for contrast, not for taste. Dark ink on `#00E5A0` clears 11:1, so the
+electric green stays on the fills in both themes; but `#00E5A0` as small text on the blush ground
+only reaches about 1.6:1, so accent type in the light theme drops to `#00845F`, which clears 4.5:1.
 
-## Partes interactivas (`app.js`)
+Type: **Inter** for everything and **JetBrains Mono** for figures, code and labels. Micro-labels
+use `.nm-label` — 10.5px mono, uppercase, `0.16em` tracking.
 
-- **Tema** — oscuro por defecto, con interruptor y memoria en `localStorage` (envuelto en
-  `try/catch`: si el navegador bloquea el almacenamiento, la página sigue funcionando).
-- **Navegación** — `data-scroll="<id>"` en cualquier elemento lleva a esa sección, con el
-  desplazamiento corregido por la altura de la barra; un `IntersectionObserver` marca el enlace activo.
-- **Menú móvil** — el botón de hamburguesa despliega los enlaces por debajo de la barra.
-- **Pestañas de código** — TypeScript, Python, cURL y MCP; cambian el panel y el nombre del
-  archivo en la barra de la consola.
-- **Panel** — `AGENTS` en `app.js` es la única fuente del gasto por agente: nombre, id, gastado y
-  techo. La barra se llena con el porcentaje del techo consumido.
+## Interactive parts (`app.js`)
 
-## Animaciones
+- **Theme** — dark by default, with a switch and `localStorage` memory (wrapped in `try/catch`, so
+  a browser that blocks storage still renders the page).
+- **Navigation** — `data-scroll="<id>"` on any element scrolls to that section with the nav height
+  taken out; an `IntersectionObserver` marks the active link.
+- **Mobile menu** — the burger drops the links below the bar.
+- **Code tabs** — TypeScript, Python, cURL and MCP; they swap the panel and the filename in the
+  console bar.
+- **Dashboard** — `AGENTS` in `app.js` is the only source of per-agent spend: name, id, spent and
+  ceiling. The bar fills to the percentage of the ceiling used.
 
-Una sola entrada al hacer scroll (`.nm-rise`), resuelta con animaciones nativas ligadas al scroll
-(`animation-timeline: view()`), sin observadores y respetando `prefers-reduced-motion`. Los
-navegadores sin soporte ven el estado final. Nada se repite en bucle.
+## Animation
 
-## Antes de publicar
+One entrance on scroll (`.nm-rise`), driven by an `IntersectionObserver`. The hidden state is
+scoped to `.nm-js`, a class the script adds, so with no JS — or with `prefers-reduced-motion` —
+the page renders complete on the first paint. Nothing loops.
 
-- **Todos los datos son de muestra.** Las cifras de la tira superior, el bloque de estadísticas,
-  el resumen del día y la lista `AGENTS` son ilustrativos; el pie y el panel lo dicen.
-- Los enlaces de "Crear cuenta", "Documentación" y los legales (`#legal`) todavía son anclas.
-- Los protocolos de la tira de compatibilidad (x402, AP2, MCP, USDC, SEPA Instant, ERC-4337)
-  describen intención de compatibilidad, no acuerdos firmados: confírmalos antes de publicarlos.
-- Las comisiones (0,4 % por liquidado) y los límites de los planes son marcador de posición.
+This was deliberately **not** built with `animation-timeline: view()`: a `cover`-based range can
+never complete for the sections at the bottom of the document, which left the closing call to
+action permanently faded.
+
+## Before going live
+
+- **Every number is sample data.** The status strip, the stats block, today's summary and the
+  `AGENTS` list are illustrative; the footer and the dashboard say so.
+- "Get started", "Docs" and the legal links (`#legal`) are still anchors.
+- The protocols in the compatibility strip (x402, AP2, MCP, USDC, SEPA Instant, ERC-4337) state an
+  intent to be compatible, not signed agreements: confirm them before publishing.
+- The fees (0.4% of settled) and the plan limits are placeholders.

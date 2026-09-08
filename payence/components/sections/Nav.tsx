@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Button } from "../ui/Button";
 import { SNAPSHOT } from "@/lib/snapshot";
+import { XLink, X_URL } from "../ui/XLink";
 
 const LINKS = [
   { label: "Product", href: "#product" },
@@ -37,7 +38,7 @@ export function Nav() {
         }`}
       >
         <a href="#top" className="text-[18px] font-extrabold tracking-[-0.04em]">
-          NEXORA
+          PAYENCE
         </a>
 
         <ul className="hidden items-center gap-8 md:flex">
@@ -45,7 +46,7 @@ export function Nav() {
             <li key={l.href}>
               <a
                 href={l.href}
-                className="text-[14px] text-muted transition-colors duration-200 hover:text-ink"
+                className="nav-link text-[14px] text-muted transition-colors duration-200 hover:text-ink"
               >
                 {l.label}
               </a>
@@ -54,6 +55,7 @@ export function Nav() {
         </ul>
 
         <div className="flex items-center gap-2">
+          <XLink className="mr-1 flex h-9 w-9 items-center justify-center rounded-pill text-muted transition-colors duration-200 hover:bg-shell hover:text-ink" />
           <Button href="#get-started" size="md" className="hidden sm:inline-flex">
             Get Started
           </Button>
@@ -105,6 +107,16 @@ export function Nav() {
                 Get Started
               </Button>
             </li>
+            <li className="pb-2">
+              <a
+                href={X_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block py-3 text-[14px] text-muted"
+              >
+                @usepayence on X
+              </a>
+            </li>
           </ul>
         </div>
       ) : (
@@ -130,10 +142,21 @@ export function Nav() {
                   </a>
                 </li>
               ))}
-              <li className="pt-4 pb-2">
+              <li className="pb-2 pt-4">
                 <Button href="#get-started" size="md" className="w-full">
                   Get Started
                 </Button>
+              </li>
+              <li className="pb-2">
+                <a
+                  href={X_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="block py-3 text-[14px] text-muted"
+                >
+                  @usepayence on X
+                </a>
               </li>
             </ul>
           </motion.div>

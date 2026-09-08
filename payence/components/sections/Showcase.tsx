@@ -44,7 +44,7 @@ export function Showcase() {
           <div className="mt-14 overflow-hidden rounded-card border border-hairStrong bg-canvas">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hair px-5 py-4 md:px-7">
               <div className="flex items-center gap-3">
-                <span className="text-[15px] font-bold tracking-tight">NEXORA</span>
+                <span className="text-[15px] font-bold tracking-tight">PAYENCE</span>
                 <span className="font-mono text-[12px] text-muted">— agent activity</span>
               </div>
               <div className="flex items-center gap-3">

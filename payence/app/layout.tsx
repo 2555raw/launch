@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nexora.dev"),
-  title: "Nexora — the financial layer for AI agents",
+  metadataBase: new URL("https://payence.dev"),
+  title: "Payence — the financial layer for AI agents",
   description:
-    "Nexora equips autonomous agents with controlled spending, virtual cards, payment policies and real-time transaction visibility from one platform.",
+    "Payence equips autonomous agents with controlled spending, virtual cards, payment policies and real-time transaction visibility from one platform.",
   keywords: [
     "AI agents",
     "virtual cards",
@@ -15,14 +15,14 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    title: "Nexora — the financial layer for AI agents",
+    title: "Payence — the financial layer for AI agents",
     description:
       "Controlled spending, virtual cards, payment policies and real-time visibility for autonomous agents.",
-    siteName: "Nexora",
+    siteName: "Payence",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nexora — the financial layer for AI agents",
+    title: "Payence — the financial layer for AI agents",
     description:
       "Controlled spending, virtual cards, payment policies and real-time visibility for autonomous agents.",
   },

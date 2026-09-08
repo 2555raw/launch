@@ -34,7 +34,7 @@ export function VirtualCard({
             Virtual card
           </p>
           <p className={`mt-2 font-semibold tracking-tight ${compact ? "text-lg" : "text-xl"}`}>
-            Nexora
+            Payence
           </p>
         </div>
         <span className="inline-flex items-center gap-2 rounded-pill border border-positive/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-positive">

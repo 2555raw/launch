@@ -20,7 +20,7 @@ export const TERMS: LegalDoc = {
   title: "Terms of Service",
   updated: "Last updated 1 January 2026",
   intro:
-    "These terms govern your use of Nexora, a platform that issues virtual payment credentials to software agents you operate.",
+    "These terms govern your use of Payence, a platform that issues virtual payment credentials to software agents you operate.",
   sections: [
     {
       heading: "1. Agreement",
@@ -32,7 +32,7 @@ export const TERMS: LegalDoc = {
     {
       heading: "2. What the service does",
       body: [
-        "Nexora issues virtual cards, evaluates the spending policies you configure, authorises or declines transactions against them, and records the result. Funds are held and settled by our regulated banking and card-network partners, not by Nexora.",
+        "Payence issues virtual cards, evaluates the spending policies you configure, authorises or declines transactions against them, and records the result. Funds are held and settled by our regulated banking and card-network partners, not by Payence.",
         "We are the authorisation and record layer. We are not a bank, and we do not provide credit, investment or tax advice.",
       ],
     },
@@ -89,7 +89,7 @@ export const TERMS: LegalDoc = {
       heading: "10. Governing law",
       body: [
         "These terms are governed by the laws of the jurisdiction named in your order form, and the courts of that jurisdiction have exclusive jurisdiction over any dispute.",
-        "Questions about these terms: legal@nexora.example.",
+        "Questions about these terms: legal@payence.example.",
       ],
     },
   ],
@@ -100,7 +100,7 @@ export const PRIVACY: LegalDoc = {
   title: "Privacy Policy",
   updated: "Last updated 1 January 2026",
   intro:
-    "This policy explains what Nexora collects when you and your agents use the platform, why we hold it, and what you can ask us to do with it.",
+    "This policy explains what Payence collects when you and your agents use the platform, why we hold it, and what you can ask us to do with it.",
   sections: [
     {
       heading: "1. What we collect",
@@ -141,7 +141,7 @@ export const PRIVACY: LegalDoc = {
       heading: "6. Your rights",
       body: [
         "Depending on where you live, you may ask for a copy of your personal data, ask us to correct or delete it, object to or restrict processing, or receive it in a portable format.",
-        "Write to privacy@nexora.example and we will respond within thirty days. You may also complain to your local data protection authority.",
+        "Write to privacy@payence.example and we will respond within thirty days. You may also complain to your local data protection authority.",
       ],
     },
     {

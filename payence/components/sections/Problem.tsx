@@ -26,7 +26,7 @@ export function Problem() {
             <p className="mt-8 max-w-[52ch] text-[17px] leading-[1.65] text-muted">
               An agent can read a contract, pick a vendor and file the ticket. Then it reaches the
               payment screen and stops, because the only options are a shared company card or a key
-              in an environment variable. Nexora replaces both with a card the agent owns, bounded
+              in an environment variable. Payence replaces both with a card the agent owns, bounded
               by a policy it cannot argue with.
             </p>
           </Reveal>

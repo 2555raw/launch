@@ -210,6 +210,59 @@ VANILLA = r"""
     });
   }
 
+  /* the headline arrives a word at a time */
+  const words = $$('[data-hero-word]');
+  if (words.length && !still) {
+    words.forEach((w, i) => {
+      w.animate(
+        [{ opacity: 0, transform: 'translateY(0.42em)' }, { opacity: 1, transform: 'none' }],
+        { duration: 660, delay: 100 + i * 75, easing: 'cubic-bezier(.22,.65,.3,1)', fill: 'backwards' }
+      );
+    });
+  }
+
+  /* figures count to their value when they reach the viewport */
+  $$('[data-countup]').forEach((el) => {
+    const to = Number(el.dataset.countup);
+    let opts = { decimals: 0, prefix: '', suffix: '' };
+    try { opts = { ...opts, ...JSON.parse(el.dataset.countupFormat || '{}') }; } catch (_) {}
+    const fmt = (n) => opts.prefix + n.toLocaleString('en-US', {
+      minimumFractionDigits: opts.decimals, maximumFractionDigits: opts.decimals,
+    }) + opts.suffix;
+    if (still || !Number.isFinite(to)) return;
+    el.textContent = fmt(0);
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      const start = performance.now();
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / 1400);
+        el.textContent = fmt(to * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) requestAnimationFrame(tick); else el.textContent = fmt(to);
+      };
+      requestAnimationFrame(tick);
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+
+  /* the spend bars grow into place */
+  const bars = $$('[data-spend-bar]');
+  if (bars.length && !still) {
+    bars.forEach((bar) => { bar.style.height = '0%'; });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        io.unobserve(entry.target);
+        $$('[data-spend-bar]', entry.target).forEach((bar, i) => {
+          bar.style.height = bar.dataset.spendBar + '%';
+          bar.animate([{ height: '0%' }, { height: bar.dataset.spendBar + '%' }],
+            { duration: 700, delay: i * 70, easing: 'cubic-bezier(.22,.65,.3,1)' });
+        });
+      });
+    }, { threshold: 0.3 });
+    bars.forEach((bar) => { if (bar.parentElement) io.observe(bar.parentElement); });
+  }
+
   /* the remaining budget ticks the way a live figure would */
   const budget = $$('p').find((p) => /^\$2,\d{3}$/.test((p.textContent || '').trim()));
   if (budget && !still) {
@@ -223,14 +276,14 @@ VANILLA = r"""
 })();
 """
 
-HEAD = """<title>Nexora Payment Rail</title>
+HEAD = """<title>Payence Payment Rail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">"""
 
 
 def main() -> int:
-    target = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "nexora-snapshot.html")
+    target = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "payence-snapshot.html")
 
     index = EXPORT / "index.html"
     if not index.exists():

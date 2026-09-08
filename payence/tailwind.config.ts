@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Nexora's palette lives here and nowhere else. Every component pulls from these
+ * Payence's palette lives here and nowhere else. Every component pulls from these
  * tokens, so the whole identity is one file away from being re-pitched.
  */
 const config: Config = {

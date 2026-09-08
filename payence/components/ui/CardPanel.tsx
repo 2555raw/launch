@@ -57,7 +57,7 @@ export function CardPanel() {
         />
 
         <div className="relative flex items-start justify-between gap-4">
-          <p className="text-[17px] font-bold tracking-tight">Nexora</p>
+          <p className="text-[17px] font-bold tracking-tight">Payence</p>
           <span className="rounded-pill border border-hairDark px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.16em] text-canvas/55">
             Agent issued
           </span>

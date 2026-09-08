@@ -65,6 +65,21 @@
     box-shadow: 0 18px 40px -28px rgba(21, 21, 21, 0.45);
   }
 
+  /* Nav links grow a hairline from the middle on hover. */
+  .nav-link {
+    @apply relative;
+  }
+
+  .nav-link::after {
+    content: "";
+    @apply absolute -bottom-1 left-0 right-0 h-px origin-center scale-x-0 bg-ink transition-transform duration-300;
+  }
+
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    @apply scale-x-100;
+  }
+
   .tnum {
     font-variant-numeric: tabular-nums;
   }

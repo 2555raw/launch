@@ -1,4 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Reveal } from "../ui/Reveal";
+import { SNAPSHOT } from "@/lib/snapshot";
 import { Label, Status } from "../ui/Bits";
 import { Meter } from "../ui/Meter";
 
@@ -59,10 +63,15 @@ function SpendArt() {
       </div>
       <div className="mt-6 flex h-24 items-end gap-2" aria-hidden>
         {bars.map((h, i) => (
-          <span
+          <motion.span
             key={i}
+            data-spend-bar={h}
             className={`flex-1 rounded-[3px] ${i === bars.length - 2 ? "bg-coral" : "bg-ink/15"}`}
             style={{ height: `${h}%` }}
+            initial={SNAPSHOT ? false : { height: 0 }}
+            whileInView={{ height: `${h}%` }}
+            viewport={{ once: true, margin: "0px 0px -12% 0px" }}
+            transition={{ duration: 0.7, delay: i * 0.07, ease: [0.22, 0.65, 0.3, 1] }}
           />
         ))}
       </div>

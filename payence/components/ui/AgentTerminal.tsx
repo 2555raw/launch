@@ -3,28 +3,28 @@
 import { useEffect, useState } from "react";
 import { SNAPSHOT } from "@/lib/snapshot";
 
-type Tone = "agent" | "nexora" | "card" | "ok" | "audit" | "deny";
+type Tone = "agent" | "payence" | "card" | "ok" | "audit" | "deny";
 
 const LINES: { tag: Tone; text: string }[] = [
   { tag: "agent", text: "procurement-agent → authorization requested" },
   { tag: "agent", text: "payee api.openai.com · amount $20.00" },
-  { tag: "nexora", text: "per-call ceiling ............... within limit" },
-  { tag: "nexora", text: "merchant allowlist ............. match" },
-  { tag: "nexora", text: "monthly budget ................. $2,411 left" },
+  { tag: "payence", text: "per-call ceiling ............... within limit" },
+  { tag: "payence", text: "merchant allowlist ............. match" },
+  { tag: "payence", text: "monthly budget ................. $2,411 left" },
   { tag: "card", text: "virtual card •••• 4417 authorized in 31 ms" },
   { tag: "ok", text: "captured $20.00 · openai.com" },
   { tag: "audit", text: "auth_3b71de written to the ledger" },
   { tag: "agent", text: "payee aws.amazon.com · amount $48.00" },
-  { tag: "nexora", text: "all policy checks .............. pass" },
+  { tag: "payence", text: "all policy checks .............. pass" },
   { tag: "ok", text: "captured $48.00 · aws.amazon.com" },
   { tag: "agent", text: "payee unknown-vendor.io · amount $99.00" },
-  { tag: "nexora", text: "merchant allowlist ............. no match" },
+  { tag: "payence", text: "merchant allowlist ............. no match" },
   { tag: "deny", text: "declined at the network · pol_procure_2500" },
 ];
 
 const TONE: Record<Tone, string> = {
   agent: "text-canvas/45",
-  nexora: "text-violet",
+  payence: "text-violet",
   card: "text-canvas/70",
   ok: "text-positive",
   audit: "text-canvas/45",
@@ -84,7 +84,7 @@ export function AgentTerminal() {
           ))}
         </span>
         <span className="flex-1 text-center font-mono text-[11px] text-canvas/45">
-          nexora — agent activity
+          payence — agent activity
         </span>
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-coral">
           <i className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-coral align-middle animate-pulseDot" />

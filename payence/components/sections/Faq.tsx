@@ -8,11 +8,11 @@ import { SNAPSHOT } from "@/lib/snapshot";
 
 const QA = [
   {
-    q: "How does Nexora control agent spending?",
+    q: "How does Payence control agent spending?",
     a: "Every agent gets a policy: a ceiling per month and per authorization, a list of merchants it may pay, and a threshold above which a person signs off. The policy is evaluated on our side before the charge clears, so an agent cannot talk its way past it.",
   },
   {
-    q: "What are Nexora virtual cards?",
+    q: "What are Payence virtual cards?",
     a: "Real card credentials issued to a single agent and bounded by that agent's policy. They can be scoped to one task and expire when it closes, so a card that leaks is worth nothing outside its allowlist.",
   },
   {
@@ -28,8 +28,8 @@ const QA = [
     a: "Anything above your threshold goes to an approval queue instead of being declined in silence. Approvers see the agent, the task, the amount and the policy that flagged it, and the charge completes the moment someone signs.",
   },
   {
-    q: "Does Nexora support MCP integration?",
-    a: "Yes. Add the Nexora MCP server to your agent's config and it sees issuing, checking balance and freezing as tools, with the policy already wrapped around each one.",
+    q: "Does Payence support MCP integration?",
+    a: "Yes. Add the Payence MCP server to your agent's config and it sees issuing, checking balance and freezing as tools, with the policy already wrapped around each one.",
   },
 ];
 

@@ -1,6 +1,6 @@
-# Nexora — site
+# Payence — site
 
-Landing page for **Nexora**, a fictional platform that gives AI agents their own financial layer:
+Landing page for **Payence**, a fictional platform that gives AI agents their own financial layer:
 virtual cards, spend policies, merchant locks and real-time transaction visibility.
 
 Built as a brief-driven recreation of a fintech/AI landing structure, with an original identity.
@@ -76,7 +76,12 @@ Framer Motion, kept deliberately quiet:
 - Buttons lift 2px on hover and settle on press.
 - Meters fill to the value they report, once, when they come into view.
 - Tabs cross-fade, and the underline travels between them with a shared `layoutId`.
-- The hero card and the statement rule take a few pixels of parallax. Nothing else moves on scroll.
+- The headline arrives a word at a time on load, and the accent line lands last.
+- Figures count to their value the first time they reach the viewport, and the spend bars grow
+  into place. Both render their final value on the server, so they are right with no JavaScript;
+  the client resets them before the first paint, which is why `CountUp` uses a layout effect
+  rather than an ordinary one — an effect would let the final number flash first.
+- The statement rule takes a few pixels of parallax. Nothing else moves on scroll.
 - The `LIVE` dot is the only looping animation on the page.
 
 Every one of those is bypassed under `prefers-reduced-motion`, both in the components (via
@@ -102,7 +107,7 @@ a link to the design without deploying the app:
 
 ```bash
 npm run snapshot                                        # static export
-python3 scripts/assemble-snapshot.py nexora.html        # one file, CSS inlined
+python3 scripts/assemble-snapshot.py payence.html        # one file, CSS inlined
 ```
 
 `NEXT_PUBLIC_SNAPSHOT=1` also changes two components: the platform tabs and the

@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+  }
+
+  /* Headlines are the whole design here: let them break where they read best. */
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: #FF5C35;
+    color: #F4F1EA;
+  }
+
+  /* Keyboard focus stays visible everywhere, in the accent rather than the
+     browser default, so it reads as part of the design. */
+  :focus-visible {
+    outline: 2px solid #FF5C35;
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-shell px-6 md:px-10;
+  }
+
+  .label {
+    @apply font-mono text-label uppercase text-muted;
+  }
+
+  .hair {
+    @apply border-hair;
+  }
+
+  /* One card object, reused: same edges, same inner padding, same hover lift. */
+  .card {
+    @apply rounded-card border border-hair bg-canvas transition-[transform,border-color,box-shadow] duration-300;
+  }
+
+  .card-hover:hover {
+    @apply -translate-y-[3px] border-hairStrong;
+    box-shadow: 0 18px 40px -28px rgba(21, 21, 21, 0.45);
+  }
+
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

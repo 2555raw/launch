@@ -1,0 +1,2186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ARCHIVE 2020</title>
+<meta name="description" content="An experimental pixel art piece on the COVID-19 pandemic: read the archive as five scrolling sectors, or walk the empty hospital floor room by room.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23000'/%3E%3Crect x='3' y='3' width='2' height='2' fill='%23ff1e2d'/%3E%3C/svg%3E">
+<style>
+/* ARCHIVE 2020 — the furniture around the canvas.
+
+   Everything inside the frame is drawn pixel by pixel in <canvas> at 384x216;
+   this file only builds the cabinet around it: the CRT monitor, the old file
+   browser chrome, the menu and the two modes. */
+
+:root{
+  --ink:#000000;
+  --dark:#0a0a0a;
+  --grey:#1e1e1e;
+  --grey-2:#3a3a3a;
+  --dim:#6a6660;
+  --bone:#e8e3d8;
+  --red:#ff1e2d;
+  --red-deep:#8e0a14;
+  --mono: ui-monospace, "DejaVu Sans Mono", "Courier New", monospace;
+  --cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' d='M1 0h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1H8v1H7v1H6v1H5v1H4v1H3v1H2v1H1z'/%3E%3Cpath fill='%23e8e3d8' d='M2 1h1v1h1v1h1v1h1v1h1v1h1v1h1v1H6v1H5v1H4v1H3v1H2z'/%3E%3C/svg%3E") 0 0, crosshair;
+}
+
+*{box-sizing:border-box}
+
+html{background:#000;scroll-behavior:smooth}
+
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--bone);
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:var(--cursor);
+  overflow-x:hidden;
+}
+
+a{color:inherit;text-decoration:none;cursor:var(--cursor)}
+button{
+  font:inherit;letter-spacing:inherit;text-transform:inherit;
+  cursor:var(--cursor);background:none;border:0;color:inherit;padding:0;
+}
+
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ── which mode is on screen ──────────────────────────────────────── */
+
+.mode{display:none}
+body[data-mode="archive"] .mode--archive{display:block}
+body[data-mode="floor"] .mode--floor{display:block}
+body[data-mode="floor"],body[data-mode="menu"],body[data-mode="boot"]{overflow:hidden;height:100vh}
+body[data-mode="boot"] .menu,body[data-mode="archive"] .menu,body[data-mode="floor"] .menu{display:none}
+
+/* ── startup ──────────────────────────────────────────────────────── */
+
+.boot{
+  position:fixed;inset:0;z-index:90;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  padding:6vh 5vw;
+  transition:opacity .26s steps(4,end), visibility .26s;
+}
+body:not([data-mode="boot"]) .boot{opacity:0;visibility:hidden;pointer-events:none}
+
+.boot__inner{width:min(680px,100%)}
+
+.boot__log{
+  margin:0;font-family:var(--mono);font-size:12px;line-height:1.7;
+  letter-spacing:.06em;color:var(--bone);white-space:pre-wrap;
+  min-height:15em;text-shadow:0 0 6px rgba(232,227,216,.25);
+}
+.boot__log b{color:var(--red);font-weight:400}
+.boot__log i{color:var(--dim);font-style:normal}
+
+.boot__bar{
+  height:12px;margin:14px 0 18px;border:1px solid var(--grey-2);
+  background:
+    repeating-linear-gradient(90deg,var(--bone) 0 6px,transparent 6px 8px) left/var(--w,0%) 100% no-repeat,
+    var(--ink);
+}
+
+.boot__enter{
+  display:block;width:100%;padding:12px;
+  background:var(--ink);color:var(--red);
+  border:1px solid var(--red-deep);
+  animation:blink 1.05s steps(2,end) infinite;
+}
+.boot__enter:hover{background:var(--red);color:var(--ink);border-color:var(--red)}
+
+.boot__warn{margin:18px 0 0;color:var(--red-deep);font-size:10px;letter-spacing:.18em}
+
+@keyframes blink{50%{opacity:.25}}
+
+/* ── main menu ────────────────────────────────────────────────────── */
+
+.menu{
+  position:fixed;inset:0;z-index:50;
+  display:flex;align-items:center;justify-content:center;
+  padding:8vh 6vw;background:var(--ink);
+}
+.menu__inner{width:min(720px,100%)}
+.menu__kicker{margin:0 0 26px;font-size:9px;letter-spacing:.28em;color:var(--red-deep)}
+.menu__title{
+  margin:0;font-size:clamp(30px,7vw,58px);font-weight:400;letter-spacing:.16em;
+  color:var(--bone);text-shadow:2px 0 var(--red-deep),-2px 0 rgba(110,170,200,.35);
+}
+.menu__sub{margin:12px 0 40px;font-size:10px;letter-spacing:.24em;color:var(--dim)}
+
+.menu__opts{display:grid;gap:12px}
+.menu__opts button{
+  display:block;width:100%;text-align:left;
+  padding:16px 18px;border:1px solid var(--grey-2);
+  color:var(--dim);font-size:12px;letter-spacing:.16em;
+}
+.menu__opts button b{color:var(--red);font-weight:400;margin-right:10px}
+.menu__opts button span{
+  display:block;margin-top:8px;font-size:10px;letter-spacing:.06em;
+  text-transform:none;color:var(--grey-2);
+}
+.menu__opts button:hover,.menu__opts button:focus-visible{
+  border-color:var(--red);color:var(--bone);background:rgba(255,30,45,.05);outline:0;
+}
+.menu__opts button:hover span{color:var(--dim)}
+
+.menu__foot{margin:38px 0 0;font-size:9px;letter-spacing:.24em;color:var(--grey-2)}
+
+/* ── CRT layers ───────────────────────────────────────────────────── */
+
+.crt{position:fixed;inset:0;z-index:70;pointer-events:none}
+
+.crt__noise{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:.085;mix-blend-mode:screen;image-rendering:pixelated;
+}
+.crt__scan{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.5) 0 1px,transparent 1px 3px);
+  opacity:.45;
+}
+.crt__glow{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(125% 95% at 50% 45%,transparent 46%,rgba(0,0,0,.45) 84%,#000 100%),
+    linear-gradient(90deg,rgba(255,30,45,.05),transparent 12%,transparent 88%,rgba(110,170,200,.05));
+}
+.crt__tear{
+  position:absolute;left:0;right:0;height:0;
+  background:rgba(232,227,216,.9);mix-blend-mode:overlay;opacity:0;
+}
+
+/* ══ MODE 01 · the scrolling archive ═══════════════════════════════ */
+
+.hud{
+  position:fixed;left:0;top:0;bottom:0;z-index:60;
+  width:190px;padding:22px 16px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  font-size:10px;letter-spacing:.16em;color:var(--dim);
+  border-right:1px solid rgba(58,58,58,.55);
+  background:linear-gradient(90deg,rgba(0,0,0,.85),rgba(0,0,0,.25));
+  pointer-events:none;
+}
+.hud a,.hud button{pointer-events:auto}
+
+.hud__id{margin:0;line-height:1.5;color:var(--bone);font-size:11px}
+.hud__rec{display:block;margin-top:10px;color:var(--red)}
+.hud__rec.off{opacity:.15}
+
+.hud__nav{display:flex;flex-direction:column;gap:9px}
+.hud__nav a{display:flex;gap:8px;color:var(--grey-2);transition:color .15s steps(2,end)}
+.hud__nav a b{font-weight:400;color:var(--grey-2)}
+.hud__nav a:hover{color:var(--bone)}
+.hud__nav a.on{color:var(--bone)}
+.hud__nav a.on b{color:var(--red)}
+.hud__nav a.on::after{content:"<";color:var(--red)}
+
+.hud__meta{margin:0;font-size:9px;letter-spacing:.14em}
+
+.hud__go{
+  display:block;margin-top:12px;padding:6px 0;font-size:9px;letter-spacing:.16em;
+  color:var(--red);border-top:1px solid rgba(94,7,13,.7);text-align:left;width:100%;
+}
+.hud__go:hover{color:var(--bone)}
+.hud__go--menu{color:var(--grey-2);border-top:0;margin-top:2px}
+
+.rail{position:fixed;right:0;top:0;bottom:0;width:3px;z-index:60;background:rgba(58,58,58,.4)}
+.rail__fill{display:block;width:100%;height:0;background:var(--red);box-shadow:0 0 8px rgba(255,30,45,.6)}
+
+.mode--archive main{padding-left:190px}
+
+.chapter{position:relative;height:520vh}
+
+.stage{
+  position:sticky;top:0;height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ink);
+}
+
+.screen{
+  width:100%;height:100%;
+  object-fit:contain;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+}
+
+.fin{
+  position:relative;z-index:10;
+  margin-left:190px;padding:14vh 6vw 12vh;
+  border-top:1px solid rgba(58,58,58,.6);
+  background:var(--ink);
+}
+.fin__line{margin:0 0 40px;color:var(--red);letter-spacing:.2em}
+.caret{animation:blink 1s steps(2,end) infinite}
+
+.fin__cols{
+  display:grid;gap:34px;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  max-width:1000px;
+}
+.fin__cols h3{margin:0 0 10px;font-size:10px;letter-spacing:.24em;color:var(--red-deep);font-weight:400}
+.fin__cols p{margin:0;font-size:11px;line-height:1.9;letter-spacing:.05em;color:var(--dim);text-transform:none}
+
+.fin__mem{margin:60px 0 0;font-size:10px;letter-spacing:.34em;color:var(--grey-2)}
+
+.fin__go{
+  display:inline-block;margin-top:26px;padding:10px 16px;
+  border:1px solid var(--red-deep);color:var(--red);font-size:10px;letter-spacing:.2em;
+}
+.fin__go:hover{background:var(--red);border-color:var(--red);color:var(--ink)}
+
+/* ══ MODE 02 · the walkable floor ══════════════════════════════════ */
+
+.gwrap{
+  position:fixed;inset:0;z-index:5;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ink);
+}
+#game{
+  width:100%;height:100%;
+  object-fit:contain;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+}
+
+.gbar{
+  position:fixed;top:0;left:0;right:0;z-index:40;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 16px;font-size:10px;letter-spacing:.18em;color:var(--dim);
+  pointer-events:none;
+}
+.gbar button{pointer-events:auto;color:var(--red)}
+.gbar button:hover{color:var(--bone)}
+
+.task[hidden],.endcard[hidden],.pad[hidden]{display:none!important}
+
+.task{
+  position:fixed;left:0;right:0;bottom:0;z-index:45;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.92) 45%);
+  display:flex;flex-direction:column;gap:8px;align-items:center;
+  font-size:10px;letter-spacing:.16em;
+}
+.task__title{margin:0;color:var(--bone)}
+.task__bar{width:min(420px,80vw);height:10px;border:1px solid var(--grey-2);background:var(--ink)}
+.task__bar span{
+  display:block;height:100%;width:0;
+  background:repeating-linear-gradient(90deg,var(--red) 0 6px,transparent 6px 8px);
+}
+.task__hint{margin:0;color:var(--dim)}
+.task.done .task__title{color:var(--red)}
+.task.done .task__bar span{background:repeating-linear-gradient(90deg,var(--bone) 0 6px,transparent 6px 8px)}
+
+.endcard{
+  position:fixed;left:0;right:0;bottom:0;z-index:47;
+  padding:26px 16px calc(26px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,transparent,#000 20%);
+  text-align:center;font-size:10px;letter-spacing:.2em;
+}
+.endcard__t{margin:0 0 10px;color:var(--red)}
+.endcard__s{margin:0 0 18px;color:var(--dim)}
+.endcard__l{margin:0}
+.endcard__l button{color:var(--bone);border-bottom:1px solid var(--red-deep)}
+.endcard__l button:hover{color:var(--red)}
+
+.pad{display:none}
+
+@media (hover:none) and (pointer:coarse){
+  body[data-mode="floor"] .pad{
+    display:flex;position:fixed;z-index:46;left:0;right:0;bottom:0;
+    padding:0 18px calc(20px + env(safe-area-inset-bottom));
+    justify-content:space-between;align-items:flex-end;pointer-events:none;
+  }
+  .pad button{
+    pointer-events:auto;width:52px;height:52px;
+    background:rgba(0,0,0,.55);color:var(--bone);border:1px solid var(--grey-2);
+    font-size:14px;line-height:1;
+  }
+  .pad button:active{background:var(--red);border-color:var(--red);color:var(--ink)}
+  .pad__dirs{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:4px}
+  .pad__dirs button:nth-child(1){grid-area:1/2}
+  .pad__dirs button:nth-child(2){grid-area:2/1}
+  .pad__dirs button:nth-child(3){grid-area:2/2}
+  .pad__dirs button:nth-child(4){grid-area:2/3}
+  .pad__use{width:66px;height:66px;font-size:16px}
+  .task{bottom:132px;background:none}
+}
+
+/* ── narrow screens ───────────────────────────────────────────────── */
+
+@media (max-width:760px){
+  .hud{
+    top:auto;bottom:0;right:0;width:auto;height:44px;
+    flex-direction:row;align-items:center;gap:14px;
+    padding:0 12px;border-right:0;border-top:1px solid rgba(58,58,58,.55);
+    background:rgba(0,0,0,.9);
+  }
+  .hud__id,.hud__meta,.hud__go{display:none}
+  .hud__nav{flex-direction:row;gap:12px;overflow:auto}
+  .mode--archive main{padding-left:0}
+  .fin{margin-left:0;padding-bottom:22vh}
+  .fin__go{display:block;text-align:center}
+  .chapter{height:420vh}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .caret,.boot__enter{animation:none}
+  .crt__noise{opacity:.04}
+}
+</style>
+</head>
+<body data-mode="boot">
+
+<!-- ── recovering the volume ────────────────────────────────────────── -->
+<div class="boot" id="boot" role="dialog" aria-label="Archive startup">
+  <div class="boot__inner">
+    <pre class="boot__log" id="bootLog" aria-live="polite"></pre>
+    <div class="boot__bar" id="bootBar" aria-hidden="true"></div>
+    <button class="boot__enter" id="bootEnter" hidden>PRESS HERE TO ENTER</button>
+    <p class="boot__warn">WARNING: THIS VOLUME HOLDS RECORDS OF HUMAN LOSS</p>
+  </div>
+</div>
+
+<!-- ── CRT layers ───────────────────────────────────────────────────── -->
+<div class="crt" aria-hidden="true">
+  <canvas class="crt__noise" id="noise" width="240" height="135"></canvas>
+  <div class="crt__scan"></div>
+  <div class="crt__glow"></div>
+  <div class="crt__tear" id="tear"></div>
+</div>
+
+<!-- ── main menu ────────────────────────────────────────────────────── -->
+<div class="menu" id="menu">
+  <div class="menu__inner">
+    <p class="menu__kicker">VOLUME PANDEMIC_2020_2023 · 05 RECORDS RECOVERED</p>
+    <h1 class="menu__title">ARCHIVE 2020</h1>
+    <p class="menu__sub">Deaths · Hospital · Masks · Vaccines · Memory</p>
+    <div class="menu__opts">
+      <button data-go="archive"><b>01</b> READ THE ARCHIVE<span>Five sectors, scrolled from the first death to the last pixel</span></button>
+      <button data-go="floor"><b>02</b> WALK THE FLOOR<span>Top-down hospital seen from the ceiling camera, five rooms to find</span></button>
+    </div>
+    <p class="menu__foot">NO SOUND. NOTHING HERE MAKES A NOISE.</p>
+  </div>
+</div>
+
+<!-- ══ MODE 01 · the scrolling archive ══════════════════════════════ -->
+<div class="mode mode--archive" id="modeArchive">
+
+  <header class="hud" aria-label="Archive index">
+    <p class="hud__id">ARCHIVE<br>2020<span class="hud__rec" id="rec">&#9679; REC</span></p>
+    <nav class="hud__nav">
+      <a href="#c1" data-idx="1"><b>01</b> DEATHS</a>
+      <a href="#c2" data-idx="2"><b>02</b> HOSPITAL</a>
+      <a href="#c3" data-idx="3"><b>03</b> MASKS</a>
+      <a href="#c4" data-idx="4"><b>04</b> VACCINES</a>
+      <a href="#c5" data-idx="5"><b>05</b> MEMORY</a>
+    </nav>
+    <div>
+      <p class="hud__meta" id="hudMeta">SECTOR 0000 / 5000</p>
+      <button class="hud__go" data-go="floor">&gt; WALK THE FLOOR</button>
+      <button class="hud__go hud__go--menu" data-go="menu">&gt; MENU</button>
+    </div>
+  </header>
+
+  <div class="rail" aria-hidden="true"><span class="rail__fill" id="railFill"></span></div>
+
+  <main>
+    <section class="chapter" id="c1" data-scene="deaths" data-len="520">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>01 — Deaths and losses</h2>
+        <p>An empty room, a hospital bed and a cardiac monitor. The counter climbs to the
+        roughly seven million COVID-19 deaths reported to the World Health Organization.
+        Every lit dot on the screen stands for a thousand people. The silhouettes come
+        apart into pixels until they are gone.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="c2" data-scene="hospital" data-len="560">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>02 — Isolation and hospital</h2>
+        <p>An endless hospital corridor walked in first person: closed doors, flickering
+        fluorescent tubes, abandoned gurneys and figures that appear and are erased.
+        Below, the sound of the ward turns into interference.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="c3" data-scene="masks" data-len="560">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>03 — Masks</h2>
+        <p>A grid of pixel faces held two metres apart by emptiness. They wear surgical,
+        FFP2, cloth or improvised masks. They arrive corrupted, hold still for a moment
+        and are lost like damaged data, leaving NO DATA behind.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="c4" data-scene="vaccines" data-len="560">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>04 — Vaccines</h2>
+        <p>An old videogame inventory unlocks one item after another: vial, syringe,
+        transport cooler, vaccination card and public campaign. The dose counter climbs
+        while a bar of certainty never resolves.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="c5" data-scene="memory" data-len="620">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>05 — Memory</h2>
+        <p>A black screen holding thousands of pixels: people, moments, memories. They go
+        out slowly, one after another, until a single one is left burning.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="fin">
+    <p class="fin__line">&gt; END OF ARCHIVE<span class="caret">_</span></p>
+    <div class="fin__cols">
+      <div>
+        <h3>NOTE</h3>
+        <p>A visual piece, not a data dashboard. The figures are rounded and used as
+        material for the story: around 7,010,000 deaths reported to the WHO, an excess
+        mortality estimate of some 14.9 million for 2020 and 2021, and more than
+        13,500 million vaccine doses administered.</p>
+      </div>
+      <div>
+        <h3>SOURCE</h3>
+        <p>World Health Organization COVID-19 dashboard. Approximate figures, closed at
+        2023; the official records are still being revised.</p>
+      </div>
+      <div>
+        <h3>CONTROLS</h3>
+        <p>Wheel or swipe to move forward. Keys 1 to 5 jump between sectors. The system
+        preference for reduced motion is respected.</p>
+      </div>
+    </div>
+    <p class="fin__mem">IN MEMORY OF THOSE WHO NEVER CAME HOME</p>
+    <button class="fin__go" data-go="floor">&gt; NOW WALK THE FLOOR, ROOM BY ROOM</button>
+  </footer>
+
+</div>
+
+<!-- ══ MODE 02 · the walkable floor ═════════════════════════════════ -->
+<div class="mode mode--floor" id="modeFloor">
+
+  <div class="gwrap">
+    <canvas id="game" width="384" height="216" aria-label="Top-down pixel art hospital floor"></canvas>
+  </div>
+
+  <header class="gbar">
+    <button data-go="menu">&lt; MENU</button>
+    <button data-go="archive">READ THE ARCHIVE &gt;</button>
+  </header>
+
+  <div class="task" id="task" hidden>
+    <p class="task__title" id="taskTitle">RECORD</p>
+    <div class="task__bar"><span id="taskFill"></span></div>
+    <p class="task__hint" id="taskHint">HOLD [E] TO READ · [ESC] TO LEAVE</p>
+  </div>
+
+  <div class="endcard" id="end" hidden>
+    <p class="endcard__t">END OF ARCHIVE</p>
+    <p class="endcard__s">FIVE RECORDS RECOVERED. ONE PIXEL STILL BURNING.</p>
+    <p class="endcard__l"><button data-go="archive">&gt; READ THE ARCHIVE</button> &nbsp; <button data-go="menu">&gt; BACK TO THE MENU</button></p>
+  </div>
+
+  <div class="pad" id="pad" aria-hidden="true">
+    <div class="pad__dirs">
+      <button data-key="up">&#9650;</button>
+      <button data-key="left">&#9664;</button>
+      <button data-key="down">&#9660;</button>
+      <button data-key="right">&#9654;</button>
+    </div>
+    <button class="pad__use" data-key="use">E</button>
+  </div>
+
+</div>
+
+<script>
+/* ARCHIVE 2020 — the pixel art engine and the five scenes.
+
+   Everything is drawn on a 384x216 canvas of real pixels that the browser scales
+   up without smoothing, so what you see (the type included) is made pixel by
+   pixel. A scene is handed a 0..1 progress value and the time; nothing else.
+
+   This file never touches the DOM: it publishes the engine on window.ARCHIVE so
+   both the scrolling archive (archive.js) and the walkable floor (floor.js) can
+   draw the same artwork.
+
+   No dependencies. */
+
+(() => {
+  'use strict';
+  const W = 384, H = 216;
+
+  /* ---------- helpers ---------- */
+
+  const clamp  = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const c01    = (v) => clamp(v, 0, 1);
+  const lerp   = (a, b, t) => a + (b - a) * t;
+  const ease   = (t) => { t = c01(t); return t * t * (3 - 2 * t); };
+  const easeIn = (t) => { t = c01(t); return t * t; };
+  const seg    = (p, a, b) => c01((p - a) / (b - a));
+  const hash   = (n) => { const x = Math.sin(n * 127.1 + 11.7) * 43758.5453; return x - Math.floor(x); };
+
+  const COL = {
+    void:'#000000', deep:'#070707', dark:'#101010', grey:'#242424', grey2:'#3c3c3c',
+    dust:'#5a5754', dim:'#8b867e', bone:'#e8e3d8', white:'#ffffff',
+    red:'#ff1e2d', redMid:'#b3121c', redDeep:'#5e070d',
+    green:'#2fbf71', blue:'#6fa8bf'
+  };
+
+  const R  = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+  const PX = (c, x, y, col) => { c.fillStyle = col; c.fillRect(x | 0, y | 0, 1, 1); };
+
+  /* ---------- 5x7 bitmap typeface ---------- */
+
+  const G = {
+    'A':'01110/10001/10001/11111/10001/10001/10001',
+    'B':'11110/10001/10001/11110/10001/10001/11110',
+    'C':'01110/10001/10000/10000/10000/10001/01110',
+    'D':'11110/10001/10001/10001/10001/10001/11110',
+    'E':'11111/10000/10000/11110/10000/10000/11111',
+    'F':'11111/10000/10000/11110/10000/10000/10000',
+    'G':'01110/10001/10000/10111/10001/10001/01110',
+    'H':'10001/10001/10001/11111/10001/10001/10001',
+    'I':'11111/00100/00100/00100/00100/00100/11111',
+    'J':'00111/00010/00010/00010/00010/10010/01100',
+    'K':'10001/10010/10100/11000/10100/10010/10001',
+    'L':'10000/10000/10000/10000/10000/10000/11111',
+    'M':'10001/11011/10101/10101/10001/10001/10001',
+    'N':'10001/11001/10101/10011/10001/10001/10001',
+    'O':'01110/10001/10001/10001/10001/10001/01110',
+    'P':'11110/10001/10001/11110/10000/10000/10000',
+    'Q':'01110/10001/10001/10001/10101/10010/01101',
+    'R':'11110/10001/10001/11110/10100/10010/10001',
+    'S':'01111/10000/10000/01110/00001/00001/11110',
+    'T':'11111/00100/00100/00100/00100/00100/00100',
+    'U':'10001/10001/10001/10001/10001/10001/01110',
+    'V':'10001/10001/10001/10001/10001/01010/00100',
+    'W':'10001/10001/10001/10101/10101/11011/10001',
+    'X':'10001/10001/01010/00100/01010/10001/10001',
+    'Y':'10001/10001/01010/00100/00100/00100/00100',
+    'Z':'11111/00001/00010/00100/01000/10000/11111',
+    '0':'01110/10001/10011/10101/11001/10001/01110',
+    '1':'00100/01100/00100/00100/00100/00100/01110',
+    '2':'01110/10001/00001/00010/00100/01000/11111',
+    '3':'11111/00010/00100/00010/00001/10001/01110',
+    '4':'00010/00110/01010/10010/11111/00010/00010',
+    '5':'11111/10000/11110/00001/00001/10001/01110',
+    '6':'00110/01000/10000/11110/10001/10001/01110',
+    '7':'11111/00001/00010/00100/01000/01000/01000',
+    '8':'01110/10001/10001/01110/10001/10001/01110',
+    '9':'01110/10001/10001/01111/00001/00010/01100',
+    ' ':'00000/00000/00000/00000/00000/00000/00000',
+    '.':'00000/00000/00000/00000/00000/01100/01100',
+    ',':'00000/00000/00000/00000/01100/01100/01000',
+    ':':'00000/01100/01100/00000/01100/01100/00000',
+    '-':'00000/00000/00000/11111/00000/00000/00000',
+    '_':'00000/00000/00000/00000/00000/00000/11111',
+    '/':'00001/00010/00010/00100/01000/01000/10000',
+    '+':'00000/00100/00100/11111/00100/00100/00000',
+    '=':'00000/00000/11111/00000/11111/00000/00000',
+    '?':'01110/10001/00001/00110/00100/00000/00100',
+    '!':'00100/00100/00100/00100/00100/00000/00100',
+    '(':'00010/00100/01000/01000/01000/00100/00010',
+    ')':'01000/00100/00010/00010/00010/00100/01000',
+    '[':'01110/01000/01000/01000/01000/01000/01110',
+    ']':'01110/00010/00010/00010/00010/00010/01110',
+    '%':'11001/11010/00010/00100/01000/01011/10011',
+    '<':'00010/00100/01000/10000/01000/00100/00010',
+    '>':'01000/00100/00010/00001/00010/00100/01000',
+    '*':'00000/10101/01110/11111/01110/10101/00000',
+    '#':'01010/11111/01010/01010/01010/11111/01010',
+    '"':'01010/01010/00000/00000/00000/00000/00000',
+    "'":'00100/00100/00000/00000/00000/00000/00000',
+    '@':'01110/10001/10111/10101/10111/10000/01110'
+  };
+
+  const GLYPH = {};
+  for (const k in G) GLYPH[k] = G[k].split('/').map((r) => r.split('').map(Number));
+  const MISS = GLYPH['?'];
+
+  const textW = (str, s = 1, sp = 1) => (str.length ? str.length * (5 + sp) * s - sp * s : 0);
+
+  function text(c, str, x, y, col, s = 1, sp = 1, alpha = 1) {
+    if (alpha <= 0.02) return;
+    const prev = c.globalAlpha;
+    if (alpha < 1) c.globalAlpha = prev * alpha;
+    c.fillStyle = col;
+    str = String(str).toUpperCase();
+    let cx = Math.round(x);
+    for (let i = 0; i < str.length; i++) {
+      const g = GLYPH[str[i]] || MISS;
+      for (let ry = 0; ry < 7; ry++) {
+        const row = g[ry];
+        let run = 0;
+        for (let rx = 0; rx <= 5; rx++) {
+          if (rx < 5 && row[rx]) { run++; continue; }
+          if (run) { c.fillRect(cx + (rx - run) * s, Math.round(y) + ry * s, run * s, s); run = 0; }
+        }
+      }
+      cx += (5 + sp) * s;
+    }
+    c.globalAlpha = prev;
+  }
+
+  const textC = (c, str, cx, y, col, s = 1, sp = 1, a = 1) =>
+    text(c, str, Math.round(cx - textW(String(str), s, sp) / 2), y, col, s, sp, a);
+
+  /* thousands separator */
+  const num = (n) => Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  /* ---------- sprites ---------- */
+
+  const PAL = {
+    '.': null, 'k': COL.void, '1': COL.deep, '2': COL.dark, '3': COL.grey,
+    '4': COL.grey2, '5': COL.dust, '6': COL.dim, 'w': COL.bone, 'W': COL.white,
+    'r': COL.redMid, 'R': COL.red, 'd': COL.redDeep, 'g': COL.green, 'b': COL.blue
+  };
+
+  const SPR = {
+    person: ['..www..','..www..','...w...','.wwwww.','wwwwwww','w.www.w','..www..','..www..','..www..','..w.w..','..w.w..','..w.w..','.ww.ww.'],
+    person2:['..www..','..www..','...w...','.wwwww.','wwwwwww','w.www.w','..www..','..www..','.wwww..','.w..w..','.w..w..','.w..w..','ww.ww..'],
+    child:  ['.......','..www..','..www..','...w...','.wwwww.','wwwwwww','..www..','..www..','..w.w..','..w.w..','.ww.ww.','.......','.......']
+  };
+
+  function sprite(c, rows, x, y, s = 1, tint = null, dissolve = 0, seed = 0) {
+    x = Math.round(x); y = Math.round(y);
+    for (let ry = 0; ry < rows.length; ry++) {
+      const row = rows[ry];
+      for (let rx = 0; rx < row.length; rx++) {
+        const ch = row[rx];
+        if (ch === '.') continue;
+        if (dissolve > 0 && hash(seed + ry * 31.7 + rx * 7.3) < dissolve) continue;
+        c.fillStyle = tint || PAL[ch] || COL.bone;
+        c.fillRect(x + rx * s, y + ry * s, s, s);
+      }
+    }
+  }
+
+  /* ---------- textures ---------- */
+
+  function dither(c, x, y, w, h, col, dens, seed) {
+    c.fillStyle = col;
+    const n = Math.round(w * h * dens);
+    for (let i = 0; i < n; i++) {
+      const px = x + Math.floor(hash(seed + i * 1.7) * w);
+      const py = y + Math.floor(hash(seed + i * 3.9 + 0.5) * h);
+      c.fillRect(px, py, 1, 1);
+    }
+  }
+
+  /* video grain: light and dark specks scattered over the whole screen */
+  function grain(c, amount, t) {
+    const n = Math.round(amount * 260);
+    const s = Math.floor(t / 55);
+    for (let i = 0; i < n; i++) {
+      const x = Math.floor(hash(s * 1.13 + i * 2.71) * W);
+      const y = Math.floor(hash(s * 3.31 + i * 5.17) * H);
+      c.fillStyle = hash(i + s) > 0.6 ? 'rgba(232,227,216,0.16)' : 'rgba(0,0,0,0.35)';
+      c.fillRect(x, y, 1, 1);
+    }
+  }
+
+  /* darker scan lines drawn inside the canvas itself */
+  function interlace(c, alpha) {
+    c.fillStyle = `rgba(0,0,0,${alpha})`;
+    for (let y = 0; y < H; y += 2) c.fillRect(0, y, W, 1);
+  }
+
+  /* horizontal band displacement: the glitch of the whole piece */
+  function tear(c, strength, t, seed = 0) {
+    if (strength <= 0) return;
+    const slices = 1 + Math.floor(strength * 3);
+    for (let i = 0; i < slices; i++) {
+      const k = Math.floor(t / 90) + i * 13 + seed;
+      if (hash(k) > 0.28 + 0.5 * (1 - strength)) continue;
+      const y = Math.floor(hash(k * 1.7) * (H - 8));
+      const h = 2 + Math.floor(hash(k * 2.3) * 9);
+      const dx = Math.round((hash(k * 3.1) - 0.5) * 30 * strength);
+      if (!dx) continue;
+      const band = c.getImageData(0, y, W, h);
+      c.fillStyle = COL.void; c.fillRect(0, y, W, h);
+      c.putImageData(band, dx, y);
+      if (hash(k * 4.7) > 0.7) { c.fillStyle = 'rgba(255,30,45,0.22)'; c.fillRect(0, y, W, h); }
+    }
+  }
+
+  /* interface frame: sector number, title and reading state */
+  function chrome(c, code, title, p, t, note) {
+    text(c, code, 8, 8, COL.red, 1, 1, 0.95);
+    text(c, title, 24, 8, COL.dim, 1, 1, 0.8);
+    const on = Math.floor(t / 520) % 2 === 0;
+    text(c, 'READ ' + String(Math.round(p * 100)).padStart(3, '0') + '%', W - 8 - textW('READ 000%'), 8, on ? COL.dim : COL.grey2, 1, 1, 0.75);
+    if (note) text(c, note, 8, H - 12, COL.grey2, 1, 1, 0.7);
+    /* corners of the frame */
+    const corner = (x, y, sx, sy) => {
+      R(c, x, y, 5 * sx, 1, COL.grey2); R(c, x, y, 1, 5 * sy, COL.grey2);
+    };
+    corner(3, 3, 1, 1); corner(W - 4, 3, -1, 1); corner(3, H - 4, 1, -1); corner(W - 4, H - 4, -1, -1);
+  }
+
+  /* ================================================================
+     01 · DEATHS / LOSSES
+     A room, a counter and a field of dots where every lit dot stands for
+     a thousand people.
+     ================================================================ */
+
+  const DEATHS = 7010681;                 /* reported to the WHO, as the dashboard rounds it */
+  const D_COLS = 120, D_SX = 3, D_SY = 2, D_X = 12, D_Y = 52, D_TOTAL = 7011;
+
+  let dotBuf = null, dotN = 0;
+
+  function dotField(c, n) {
+    if (!dotBuf) { dotBuf = document.createElement('canvas'); dotBuf.width = W; dotBuf.height = H; }
+    const b = dotBuf.getContext('2d');
+    if (n < dotN) { b.clearRect(0, 0, W, H); dotN = 0; }
+    for (let i = dotN; i < n; i++) {
+      const v = hash(i * 1.7);
+      b.fillStyle = v > 0.9955 ? COL.red : v > 0.62 ? COL.bone : v > 0.24 ? COL.dim : COL.dust;
+      b.fillRect(D_X + (i % D_COLS) * D_SX, D_Y + ((i / D_COLS) | 0) * D_SY, 1, 1);
+    }
+    dotN = n;
+    c.drawImage(dotBuf, 0, 0);
+  }
+
+  function ecg(ph) {
+    if (ph < 0.10) return Math.sin((ph / 0.10) * Math.PI) * 0.18;
+    if (ph < 0.14) return -0.18;
+    if (ph < 0.19) return 1;
+    if (ph < 0.24) return -0.38;
+    if (ph < 0.46) return Math.max(0, Math.sin(((ph - 0.28) / 0.18) * Math.PI)) * 0.28;
+    return 0;
+  }
+
+  function monitor(c, x, y, t, flat) {
+    R(c, x, y, 108, 66, COL.dark);
+    R(c, x, y, 108, 1, COL.grey2); R(c, x, y + 65, 108, 1, COL.grey2);
+    R(c, x, y, 1, 66, COL.grey2);  R(c, x + 107, y, 1, 66, COL.grey2);
+    R(c, x + 4, y + 4, 100, 40, COL.void);
+
+    const sx = x + 5, sy = y + 24, amp = 17;
+    let prev = sy;
+    for (let i = 0; i < 98; i++) {
+      let v;
+      if (flat) {
+        v = (hash(i * 3.3 + Math.floor(t / 400)) - 0.5) * 0.05;
+      } else {
+        const ph = (((i + t * 0.045) % 74) / 74);
+        v = ecg(ph);
+      }
+      const py = Math.round(sy - v * amp);
+      const a = Math.min(py, prev), b2 = Math.max(py, prev);
+      c.fillStyle = flat ? COL.red : COL.bone;
+      c.fillRect(sx + i, a, 1, b2 - a + 1);
+      prev = py;
+    }
+
+    /* readings: the only green and the only blue in the whole archive */
+    text(c, flat ? '---' : '062', x + 6, y + 48, flat ? COL.red : COL.bone, 1, 1, 0.9);
+    text(c, 'FC', x + 6, y + 56, COL.grey2, 1, 1, 0.8);
+    text(c, flat ? '--' : '94', x + 34, y + 48, COL.blue, 1, 1, 0.75);
+    text(c, 'SPO2', x + 34, y + 56, COL.grey2, 1, 1, 0.8);
+    text(c, flat ? 'ASYSTOLE' : 'STABLE', x + 60, y + 48, flat ? COL.red : COL.dim, 1, 1, 0.85);
+    if (!flat && Math.floor(t / 740) % 2 === 0) PX(c, x + 102, y + 60, COL.green);
+  }
+
+  function bed(c, x, y) {
+    R(c, x + 6, y + 30, 3, 9, COL.grey2);  R(c, x + 68, y + 30, 3, 9, COL.grey2);
+    R(c, x + 3, y + 39, 9, 3, COL.grey);   R(c, x + 65, y + 39, 9, 3, COL.grey);
+    R(c, x, y + 26, 78, 5, COL.grey2);
+    R(c, x + 2, y + 17, 74, 9, COL.dust);
+    R(c, x + 2, y + 15, 74, 3, COL.dim);
+    R(c, x + 12, y + 13, 58, 3, COL.bone);
+    R(c, x + 6, y + 8, 20, 8, COL.bone);
+    R(c, x - 4, y - 8, 3, 36, COL.grey2);
+    R(c, x - 4, y - 8, 16, 2, COL.grey2);
+    R(c, x + 4, y - 8, 2, 10, COL.grey);
+    R(c, x + 76, y + 2, 3, 26, COL.grey2);
+    R(c, x + 76, y + 2, 14, 2, COL.grey2);
+  }
+
+  function room(c, t, a, p) {
+    const prev = c.globalAlpha; c.globalAlpha = a;
+    R(c, 0, 0, W, H, COL.deep);
+    R(c, 0, 152, W, 64, '#050505');
+    R(c, 0, 152, W, 1, COL.grey);
+
+    /* blinds on the window, the only light in the room */
+    R(c, 40, 30, 76, 56, '#0d0d0d');
+    R(c, 40, 30, 76, 1, COL.grey2); R(c, 40, 86, 76, 1, COL.grey2);
+    R(c, 40, 30, 1, 57, COL.grey2); R(c, 115, 30, 1, 57, COL.grey2);
+    for (let i = 0; i < 12; i++) R(c, 42, 34 + i * 4, 72, 1, i % 2 ? '#151515' : '#1d1d1d');
+    dither(c, 42, 32, 72, 52, COL.grey, 0.03, 4);
+
+    bed(c, 38, 108);
+    /* iv stand */
+    R(c, 124, 92, 1, 58, COL.grey2); R(c, 120, 92, 9, 1, COL.grey2);
+    R(c, 126, 96, 5, 11, COL.dust);  R(c, 125, 107, 1, 22, COL.grey);
+
+    monitor(c, 236, 84, t, false);
+    text(c, 'ROOM 214', 8, 24, COL.grey2, 1, 1, 0.8);
+    text(c, 'NO VISITORS', 8, 34, COL.redDeep, 1, 1, 0.9);
+    text(c, 'MARCH 2020', 8, 44, COL.grey2, 1, 1, 0.6);
+    c.globalAlpha = prev;
+  }
+
+  function sceneDeaths(c, p, t) {
+    R(c, 0, 0, W, H, COL.deep);
+
+    const ra = ease(seg(p, 0.02, 0.18)) * (1 - ease(seg(p, 0.30, 0.46)));
+    if (ra > 0.02) room(c, t, ra, p);
+
+    const b = seg(p, 0.26, 0.80);
+    if (b > 0) {
+      dotField(c, Math.floor(ease(b) * D_TOTAL));
+      /* some dots flicker: the figure is never still */
+      const s = Math.floor(t / 120);
+      for (let i = 0; i < 26; i++) {
+        const k = Math.floor(hash(s + i * 2.3) * dotN);
+        PX(c, D_X + (k % D_COLS) * D_SX, D_Y + ((k / D_COLS) | 0) * D_SY, hash(k) > 0.5 ? COL.white : COL.void);
+      }
+    }
+
+    /* the silhouettes come apart as the field fills */
+    const sil = seg(p, 0.30, 0.66);
+    if (sil > 0 && sil < 0.999) {
+      for (let i = 0; i < 9; i++) {
+        const d = c01((sil - i * 0.05) * 2.1);
+        if (d >= 1) continue;
+        const spr = i % 3 === 0 ? SPR.person2 : i % 5 === 0 ? SPR.child : SPR.person;
+        sprite(c, spr, 26 + i * 38, 176, 2, d > 0.55 ? COL.dust : COL.bone, d, i * 97.3);
+      }
+    }
+
+    if (b > 0.001) {
+      const shown = Math.floor(ease(b) * DEATHS);
+      const flick = Math.floor(t / 90) % 7 === 0 && b < 0.999;
+      textC(c, num(shown), W / 2, 18, flick ? COL.white : COL.bone, 3, 1, 1);
+      textC(c, 'DEATHS REPORTED TO THE WHO', W / 2, 44, COL.grey2, 1, 1, 0.9);
+    }
+
+    const fin = ease(seg(p, 0.80, 1));
+    if (fin > 0) {
+      c.fillStyle = `rgba(0,0,0,${0.5 * fin})`; c.fillRect(0, 0, W, H);
+      R(c, 0, 110, Math.round(W * fin), 1, COL.red);
+      if (fin > 0.35) {
+        const a = c01((fin - 0.35) / 0.4);
+        textC(c, 'EACH LIT DOT = 1,000 PEOPLE', W / 2, 188, COL.bone, 1, 1, a * 0.9);
+        textC(c, 'NOT ONE OF THEM WAS A NUMBER', W / 2, 200, COL.redDeep, 1, 1, a);
+      }
+    }
+
+    chrome(c, '01', 'DEATHS / LOSSES', p, t, null);
+    grain(c, 0.5, t);
+    interlace(c, 0.22);
+    tear(c, 0.25 + fin * 0.35, t, 1);
+  }
+
+  /* ================================================================
+     02 · ISOLATION / HOSPITAL
+     An endless corridor walked in first person.
+     ================================================================ */
+
+  const CX = 192, CY = 104, HW = 150, HH = 92;
+  const wallX = (dz, s) => CX + (s * HW) / dz;
+  const wallY = (dz, f) => CY - (f * HH) / dz;
+
+  const DOORS = [];
+  for (let i = 0; i < 22; i++) {
+    DOORS.push({ z: 1.6 + i * 1.15, s: i % 2 ? 1 : -1, red: hash(i * 5.1) > 0.72 });
+  }
+
+  /* the continuous corner lines: what pins the perspective down */
+  function corners(c) {
+    for (const [sx, sy] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
+      for (let dz = 0.34; dz < 26; dz *= 1.006) {
+        const x = CX + (sx * HW) / dz, y = CY - (sy * HH) / dz;
+        if (x < 0 || x >= W || y < 0 || y >= H) continue;
+        c.globalAlpha = clamp(0.8 / dz, 0.05, 0.55);
+        c.fillStyle = COL.grey2;
+        c.fillRect(x | 0, y | 0, 1, 1);
+      }
+    }
+    c.globalAlpha = 1;
+  }
+
+  /* a closed door on one of the two walls */
+  function doorQuad(c, zN, zF, s, camZ, lit) {
+    const dN = zN - camZ, dF = zF - camZ;
+    if (dF < 0.45 || dN > 24) return;
+    const dn = Math.max(dN, 0.45);
+    const x1 = wallX(dn, s), x2 = wallX(dF, s);
+    const a = Math.max(Math.round(Math.min(x1, x2)), 0);
+    const b = Math.min(Math.round(Math.max(x1, x2)), W - 1);
+    if (b <= a) return;
+    for (let x = a; x <= b; x++) {
+      const dz = (s * HW) / (x - CX);
+      if (dz < 0.45 || dz > 40) continue;
+      const yT = Math.round(wallY(dz, 0.72)), yB = Math.round(wallY(dz, -0.98));
+      const h = Math.max(1, yB - yT);
+      const edge = (x === a || x === b);
+      c.globalAlpha = clamp(0.85 / dz, 0.05, 0.55);
+      c.fillStyle = edge ? COL.dim : COL.grey;
+      c.fillRect(x, yT, 1, h);
+      c.fillStyle = COL.grey2;
+      c.fillRect(x, yT, 1, Math.max(1, Math.round(3 / dz)));
+      if (!edge && x > a + (b - a) * 0.28 && x < b - (b - a) * 0.28) {
+        c.fillStyle = lit ? COL.dust : COL.dark;
+        c.fillRect(x, yT + Math.round(h * 0.16), 1, Math.max(1, Math.round(h * 0.24)));
+      }
+      c.globalAlpha = 1;
+    }
+  }
+
+  /* ceiling and floor strips, walked row of pixels by row of pixels */
+  function band(c, zN, zF, camZ, up, halfW, col, a, minDz) {
+    const f = up ? 0.97 : -0.98;
+    const lim = minDz || 0.45;
+    const dN = Math.max(zN - camZ, lim), dF = zF - camZ;
+    if (dF < lim) return;
+    const yA = wallY(dN, f), yB = wallY(dF, f);
+    const lo = Math.round(Math.min(yA, yB)), hi = Math.round(Math.max(yA, yB));
+    for (let y = lo; y <= hi; y++) {
+      if (y < 0 || y >= H) continue;
+      const dz = (f * HH) / (CY - y);
+      if (dz < lim || dz > 40) continue;
+      const hw = Math.max(1, Math.round(halfW / dz));
+      c.globalAlpha = clamp(1.15 / dz, 0.04, 0.9) * a;
+      c.fillStyle = col;
+      c.fillRect(CX - hw, y, hw * 2, 1);
+    }
+    c.globalAlpha = 1;
+  }
+
+  function ring(c, dz, col, a) {
+    if (dz < 0.34) return;
+    const x1 = Math.round(wallX(dz, -1)), x2 = Math.round(wallX(dz, 1));
+    const y1 = Math.round(wallY(dz, 1)), y2 = Math.round(wallY(dz, -1));
+    c.globalAlpha = a;
+    c.fillStyle = col;
+    c.fillRect(Math.max(x1, -10), y1, Math.min(x2 - x1, W + 20), 1);
+    c.fillRect(Math.max(x1, -10), y2, Math.min(x2 - x1, W + 20), 1);
+    if (x1 > -10) c.fillRect(x1, y1, 1, y2 - y1);
+    if (x2 < W + 10) c.fillRect(x2, y1, 1, y2 - y1);
+    c.globalAlpha = 1;
+  }
+
+  function gurney(c, dz, off) {
+    if (dz < 0.8 || dz > 20) return;
+    const s = clamp(Math.round(11 / dz), 1, 7);
+    const x = Math.round(CX + (off * HW) / dz) - 7 * s;
+    const y = Math.round(wallY(dz, -0.98)) - 9 * s;
+    const rows = ['.wwwwwwwwwwww.', '.4444444444444', '..3..........3', '..3..........3', '.33..........33'];
+    c.globalAlpha = clamp(1.15 / dz, 0.1, 1);
+    sprite(c, rows, x, y, s);
+    c.globalAlpha = 1;
+  }
+
+  function figure(c, dz, off, spr, a) {
+    if (dz < 0.9 || dz > 22) return;
+    const s = clamp(Math.round(9 / dz), 1, 6);
+    const x = Math.round(CX + (off * HW) / dz) - 3 * s;
+    const y = Math.round(wallY(dz, -0.98)) - 13 * s;
+    c.globalAlpha = clamp(1.1 / dz, 0.08, 1) * a;
+    sprite(c, spr, x, y, s, COL.dust);
+    c.globalAlpha = 1;
+  }
+
+  function waves(c, t) {
+    const base = 204;
+    R(c, 0, 192, W, 1, COL.grey);
+    for (let x = 0; x < W; x++) {
+      const dead = hash(Math.floor(x / 14) + Math.floor(t / 700)) > 0.86;
+      let v;
+      if (dead) v = (hash(x + Math.floor(t / 60)) - 0.5) * 3;
+      else {
+        v = Math.sin(x * 0.21 + t * 0.006) * 4
+          + Math.sin(x * 0.07 - t * 0.0031) * 3
+          + (hash(x * 1.7 + Math.floor(t / 90)) - 0.5) * 3.5;
+        v *= 0.5 + 0.5 * Math.sin(t * 0.0012 + x * 0.01);
+      }
+      const h = Math.max(1, Math.abs(Math.round(v)));
+      c.fillStyle = dead ? COL.redDeep : h > 6 ? COL.bone : COL.dust;
+      c.fillRect(x, base - h, 1, h * 2);
+    }
+  }
+
+  function sceneHospital(c, p, t) {
+    R(c, 0, 0, W, H, COL.void);
+    const camZ = p * 13;
+    const flick = hash(Math.floor(t / 130)) > 0.1 ? 1 : 0.35;
+
+    corners(c);
+
+    /* cross sections of the corridor, looping */
+    for (let i = 34; i >= 0; i--) {
+      const dz = i * 0.62 - (camZ % 0.62);
+      if (dz < 0.34 || dz > 24) continue;
+      ring(c, dz, COL.grey2, clamp(0.8 / dz, 0.04, 0.5) * flick);
+    }
+
+    /* floor: distance markings */
+    for (let i = 0; i < 26; i++) {
+      const z = 1 + i * 1.05;
+      band(c, z, z + 0.12, camZ, false, 96, i % 3 === 0 ? COL.redDeep : COL.grey, 0.9);
+    }
+
+    /* doors */
+    for (let i = DOORS.length - 1; i >= 0; i--) {
+      const d = DOORS[i];
+      doorQuad(c, d.z, d.z + 0.7, d.s, camZ, d.red);
+      const dz = d.z + 0.35 - camZ;
+      if (d.red && dz > 0.8 && dz < 12 && Math.floor(t / 640 + i) % 2 === 0) {
+        c.globalAlpha = clamp(1 / dz, 0.1, 1);
+        R(c, Math.round(wallX(dz, d.s)) - d.s * 5, Math.round(wallY(dz, 0.72)) - 3, 3, 2, COL.red);
+        c.globalAlpha = 1;
+      }
+    }
+
+    /* fluorescent tubes: the ones still working */
+    for (let i = 0; i < 24; i++) {
+      const z = 1.2 + i * 1.05;
+      const on = hash(i * 3.7 + Math.floor(t / (300 + i * 41))) > 0.13;
+      band(c, z, z + 0.42, camZ, true, 22, COL.bone, on ? flick : 0.14, 0.85);
+    }
+
+    gurney(c, 5.2 - camZ, -0.55);
+    gurney(c, 10.4 - camZ, 0.52);
+    figure(c, 7.6 - camZ, 0.12, SPR.person, hash(Math.floor(t / 900)) > 0.25 ? 1 : 0.3);
+    figure(c, 12.4 - camZ, -0.22, SPR.person2, 0.8);
+
+    const lines = [
+      [0.03, 0.24, 'FLOOR 4 - WING B'],
+      [0.27, 0.48, 'NO VISITORS ALLOWED'],
+      [0.51, 0.72, '23:40 - NOBODY IS WITH ANYBODY'],
+      [0.75, 0.98, 'FROM HERE YOU HEAR EVERYTHING']
+    ];
+    for (const [a, b, str] of lines) {
+      if (p < a || p > b) continue;
+      const k = (p - a) / (b - a);
+      const al = Math.min(ease(k / 0.25), ease((1 - k) / 0.25));
+      textC(c, str, W / 2 + (hash(Math.floor(t / 130)) > 0.93 ? 1 : 0), 168, COL.bone, 1, 1, al * 0.95);
+    }
+
+    waves(c, t);
+    chrome(c, '02', 'ISOLATION / HOSPITAL', p, t, null);
+    text(c, 'DOORS ' + String(Math.floor(p * 22)).padStart(2, '0') + '/22', 8, 22, COL.grey2, 1, 1, 0.75);
+    text(c, 'AUDIO INPUT', W - 8 - textW('AUDIO INPUT'), 22, COL.grey2, 1, 1, 0.55);
+    grain(c, 0.7, t);
+    interlace(c, 0.26);
+    tear(c, 0.45, t, 7);
+  }
+
+  /* ================================================================
+     03 · MASKS
+     Eighteen faces kept apart, arriving corrupted and lost again like
+     damaged data.
+     ================================================================ */
+
+  const MASK_NAMES = ['SURGICAL', 'FFP2', 'CLOTH', 'SCARF'];
+  const FACE_N = 18;
+  const faceCache = [];
+
+  function faceBuf(i) {
+    if (faceCache[i]) return faceCache[i];
+    const g = Array.from({ length: 16 }, () => Array(16).fill(null));
+    const put = (py, a, b, col) => { for (let px = a; px <= b; px++) if (py >= 0 && py < 16 && px >= 0 && px < 16) g[py][px] = col; };
+    const type = i % 4;
+    const hair = Math.floor(hash(i * 9.1) * 4);
+    const skin = hash(i * 4.4) > 0.5 ? COL.dim : COL.dust;
+
+    /* head */
+    put(2, 4, 11, skin); put(3, 3, 12, skin); put(4, 3, 12, skin); put(5, 3, 12, skin);
+    put(6, 3, 12, skin); put(7, 3, 12, skin); put(8, 3, 12, skin); put(9, 3, 12, skin);
+    put(10, 3, 12, skin); put(11, 4, 11, skin); put(12, 5, 10, skin);
+    /* hair */
+    if (hair === 0) { put(1, 4, 11, COL.grey); put(2, 3, 12, COL.grey); put(3, 3, 4, COL.grey); put(3, 11, 12, COL.grey); }
+    if (hair === 1) { put(1, 4, 11, COL.grey2); put(2, 3, 12, COL.grey2); }
+    if (hair === 2) { put(1, 5, 10, COL.grey); put(2, 4, 11, COL.grey); put(3, 3, 3, COL.grey); put(4, 3, 3, COL.grey); put(3, 12, 12, COL.grey); put(4, 12, 12, COL.grey); }
+    if (hair === 3) { put(2, 4, 11, COL.grey2); put(1, 6, 9, COL.grey2); }
+    /* eyes: all that was left of a face */
+    g[6][5] = COL.void; g[6][10] = COL.void;
+    g[5][5] = COL.bone; g[5][10] = COL.bone;
+    /* shoulders */
+    put(14, 2, 13, COL.grey); put(15, 1, 14, COL.grey);
+    put(13, 6, 9, skin);
+
+    if (type === 0) {           /* surgical */
+      put(8, 3, 12, COL.bone); put(9, 3, 12, COL.dim); put(10, 3, 12, COL.bone);
+      put(11, 4, 11, COL.dim); put(12, 5, 10, COL.bone);
+      g[8][2] = COL.grey2; g[8][13] = COL.grey2; g[9][2] = COL.grey2; g[9][13] = COL.grey2;
+      g[7][2] = COL.grey2; g[7][13] = COL.grey2;
+    } else if (type === 1) {    /* FFP2 */
+      put(7, 4, 11, COL.dim); put(8, 3, 12, COL.bone); put(9, 3, 12, COL.bone);
+      put(10, 4, 11, COL.bone); put(11, 5, 10, COL.bone); put(12, 6, 9, COL.dim);
+      g[7][6] = COL.grey2; g[7][9] = COL.grey2;
+      g[8][2] = COL.grey2; g[8][13] = COL.grey2;
+    } else if (type === 2) {    /* cloth */
+      for (let py = 8; py <= 12; py++) for (let px = 3; px <= 12; px++) {
+        if (py === 12 && (px < 5 || px > 10)) continue;
+        if (py === 11 && (px < 4 || px > 11)) continue;
+        g[py][px] = (px + py) % 2 ? COL.dust : COL.dim;
+      }
+      g[8][2] = COL.grey2; g[8][13] = COL.grey2;
+    } else {                    /* improvised scarf */
+      put(8, 2, 13, COL.dust); put(9, 2, 13, COL.dust); put(10, 3, 12, COL.dust);
+      put(11, 4, 11, COL.dust); put(12, 5, 10, COL.dust);
+      g[9][4] = COL.redDeep; g[10][7] = COL.redDeep; g[11][9] = COL.redDeep;
+      g[8][1] = COL.dust; g[9][14] = COL.dust;
+    }
+    faceCache[i] = { g, type };
+    return faceCache[i];
+  }
+
+  function blitFace(c, buf, x, y, s, corrupt, seedn, t) {
+    const g = buf.g, k = Math.floor(t / 80);
+    for (let py = 0; py < 16; py++) {
+      let dx = 0;
+      if (corrupt > 0) {
+        const rs = hash(seedn + py * 3.1 + k);
+        if (rs < corrupt * 0.30) continue;                                   /* row lost */
+        if (rs < corrupt * 0.75) dx = Math.round((hash(seedn + py * 7.7 + k) - 0.5) * 12 * corrupt);
+      }
+      for (let px = 0; px < 16; px++) {
+        let col = g[py][px];
+        if (corrupt > 0.05 && hash(seedn + py * 13.3 + px * 2.7 + k) < corrupt * 0.10) {
+          col = hash(px + py + k) > 0.65 ? COL.red : COL.bone;
+        }
+        if (!col) continue;
+        c.fillStyle = col;
+        c.fillRect(x + (px + dx) * s, y + py * s, s, s);
+      }
+    }
+  }
+
+  function sceneMasks(c, p, t) {
+    R(c, 0, 0, W, H, COL.deep);
+    dither(c, 0, 0, W, H, COL.dark, 0.02, 21);
+
+    let alive = 0;
+    for (let i = 0; i < FACE_N; i++) {
+      const col = i % 6, row = (i / 6) | 0;
+      const x = 22 + col * 60, y = 36 + row * 52;
+      const appear = 0.03 + i * 0.026;
+      const vanish = 0.54 + hash(i * 6.7) * 0.36;
+      const buf = faceBuf(i);
+
+      if (p < appear) {                       /* slot not read yet */
+        c.globalAlpha = 0.5;
+        dither(c, x, y, 32, 32, COL.grey, 0.05, i * 31);
+        c.globalAlpha = 1;
+        continue;
+      }
+      const gone = p > vanish + 0.05;
+      if (gone) {
+        R(c, x + 2, y + 14, 28, 1, COL.grey);
+        text(c, 'NO DATA', x + 3, y + 34, COL.redDeep, 1, 1, 0.8);
+        continue;
+      }
+      alive++;
+      let corrupt = 1 - c01((p - appear) / 0.045);
+      if (p > vanish) corrupt = Math.max(corrupt, c01((p - vanish) / 0.05));
+      if (corrupt < 0.05 && hash(i + Math.floor(t / 900)) > 0.9) corrupt = 0.12;
+
+      blitFace(c, buf, x, y, 2, corrupt, i * 17.3, t);
+      text(c, MASK_NAMES[buf.type], x - 1, y + 34, corrupt > 0.4 ? COL.red : COL.grey2, 1, 1, 0.75);
+    }
+
+    /* two metres of emptiness, drawn */
+    const px1 = 148, px2 = 228;
+    sprite(c, SPR.person, px1, 182, 1, COL.dust);
+    sprite(c, SPR.person2, px2, 182, 1, COL.dust);
+    for (let x = px1 + 10; x < px2; x += 4) PX(c, x, 188, COL.redDeep);
+    textC(c, '2 M', (px1 + px2) / 2 + 4, 194, COL.red, 1, 1, 0.85);
+    textC(c, 'WE LEARNED THE DISTANCE BY HEART', W / 2, 204, COL.grey2, 1, 1, 0.7);
+
+    chrome(c, '03', 'MASKS', p, t, null);
+    text(c, 'READABLE FACES ' + String(alive).padStart(2, '0') + '/' + FACE_N, 8, 22, COL.grey2, 1, 1, 0.75);
+    grain(c, 0.6, t);
+    interlace(c, 0.24);
+    tear(c, 0.55, t, 13);
+  }
+
+  /* ================================================================
+     04 · VACCINES
+     An old videogame inventory unlocking one item after another.
+     ================================================================ */
+
+  const ITEMS = [
+    { name: 'VIAL', at: 0.06 },
+    { name: 'SYRINGE', at: 0.21 },
+    { name: 'COOLER', at: 0.36 },
+    { name: 'CARD', at: 0.51 },
+    { name: 'CAMPAIGN', at: 0.66 }
+  ];
+
+  function item(c, idx, x, y, s) {
+    const g = (px, py, w, h, col) => R(c, x + px * s, y + py * s, w * s, h * s, col);
+    if (idx === 0) {                       /* vial */
+      g(6, 1, 4, 2, COL.grey2); g(6, 3, 4, 1, COL.dim);
+      g(5, 4, 6, 11, COL.grey); g(6, 5, 4, 9, COL.dust);
+      g(6, 9, 4, 5, COL.bone);
+      g(5, 8, 6, 1, COL.redDeep);
+      g(5, 4, 1, 11, COL.dim); g(10, 4, 1, 11, COL.dim);
+    } else if (idx === 1) {                /* syringe */
+      g(1, 7, 4, 1, COL.dim);
+      g(5, 5, 7, 5, COL.grey); g(5, 6, 7, 3, COL.bone);
+      g(12, 4, 2, 7, COL.grey2); g(14, 6, 1, 3, COL.dim);
+      g(7, 5, 1, 1, COL.redDeep); g(9, 5, 1, 1, COL.redDeep); g(11, 5, 1, 1, COL.redDeep);
+    } else if (idx === 2) {                /* transport cooler */
+      g(2, 4, 12, 10, COL.grey);
+      g(2, 4, 12, 2, COL.dust);
+      g(6, 2, 4, 2, COL.grey2);
+      g(3, 7, 10, 6, COL.dark);
+      g(7, 8, 2, 4, COL.red); g(6, 9, 4, 2, COL.red);
+      g(3, 13, 10, 1, COL.grey2);
+    } else if (idx === 3) {                /* vaccination card */
+      g(1, 3, 14, 10, COL.bone);
+      g(1, 3, 14, 2, COL.dust);
+      g(3, 6, 6, 1, COL.grey2); g(3, 8, 8, 1, COL.grey2); g(3, 10, 5, 1, COL.grey2);
+      g(11, 7, 3, 4, COL.redDeep); g(12, 8, 1, 2, COL.red);
+    } else {                               /* public campaign */
+      g(7, 10, 2, 6, COL.grey2);
+      g(1, 1, 14, 9, COL.dark);
+      g(1, 1, 14, 1, COL.dust); g(1, 9, 14, 1, COL.dust);
+      g(1, 1, 1, 9, COL.dust); g(14, 1, 1, 9, COL.dust);
+      g(4, 3, 2, 2, COL.bone); g(3, 5, 4, 3, COL.bone);
+      g(8, 4, 5, 1, COL.grey2); g(8, 6, 5, 1, COL.grey2);
+      g(8, 8, 3, 1, COL.redDeep);
+    }
+  }
+
+  function sceneVaccines(c, p, t) {
+    /* the atmosphere lifts, but only a little */
+    const warm = ease(seg(p, 0.1, 0.9));
+    R(c, 0, 0, W, H, warm > 0.5 ? '#101010' : COL.deep);
+    c.fillStyle = 'rgba(232,227,216,0.02)';
+    for (let x = 8; x < W; x += 16) c.fillRect(x, 0, 1, H);
+    for (let y = 8; y < H; y += 16) c.fillRect(0, y, W, 1);
+
+    /* the inventory frame */
+    const fx = 46, fy = 44, fw = 292, fh = 94;
+    R(c, fx, fy, fw, fh, 'rgba(0,0,0,0.6)');
+    R(c, fx, fy, fw, 1, COL.dim); R(c, fx, fy + fh - 1, fw, 1, COL.dim);
+    R(c, fx, fy, 1, fh, COL.dim); R(c, fx + fw - 1, fy, 1, fh, COL.dim);
+    R(c, fx + 2, fy + 2, fw - 4, 1, COL.grey2); R(c, fx + 2, fy + fh - 3, fw - 4, 1, COL.grey2);
+    text(c, 'INVENTORY', fx + 6, fy - 10, COL.dim, 1, 1, 0.9);
+    text(c, String(Math.min(5, ITEMS.filter((it) => p >= it.at).length)) + '/5', fx + fw - 20, fy - 10, COL.red, 1, 1, 0.9);
+
+    let justUnlocked = null;
+    for (let i = 0; i < ITEMS.length; i++) {
+      const it = ITEMS[i];
+      const x = fx + 12 + i * 54, y = fy + 16;
+      R(c, x, y, 48, 48, 'rgba(0,0,0,0.5)');
+      const on = p >= it.at;
+      const k = c01((p - it.at) / 0.05);
+      R(c, x, y, 48, 1, on ? COL.grey2 : COL.grey);
+      R(c, x, y + 47, 48, 1, on ? COL.grey2 : COL.grey);
+      R(c, x, y, 1, 48, on ? COL.grey2 : COL.grey);
+      R(c, x + 47, y, 1, 48, on ? COL.grey2 : COL.grey);
+
+      if (!on) {
+        textC(c, '?', x + 24, y + 17, COL.grey2, 2, 1, 0.7);
+        dither(c, x + 4, y + 4, 40, 40, COL.grey, 0.03, i * 13);
+        continue;
+      }
+      if (k < 1) {
+        justUnlocked = it.name;
+        c.fillStyle = `rgba(232,227,216,${(1 - k) * 0.9})`;
+        c.fillRect(x, y, 48, 48);
+      }
+      item(c, i, x + 8, y + 8, 2);
+      textC(c, it.name, x + 24, y + 52, COL.grey2, 1, 1, 0.8);
+
+      /* unlock sparks */
+      if (k < 1) {
+        for (let s2 = 0; s2 < 10; s2++) {
+          const a = hash(i * 3.3 + s2) * Math.PI * 2, r = 6 + k * 26;
+          PX(c, x + 24 + Math.cos(a) * r, y + 24 + Math.sin(a) * r, COL.bone);
+        }
+      }
+    }
+
+    if (justUnlocked) {
+      const blink = Math.floor(t / 110) % 2 === 0;
+      textC(c, 'ITEM UNLOCKED', W / 2, 30, blink ? COL.red : COL.bone, 1, 1, 1);
+    }
+
+    /* doses administered */
+    const doses = Math.floor(ease(seg(p, 0.15, 0.95)) * 13567000000);
+    textC(c, num(doses), W / 2, 148, COL.bone, 2, 1, 0.95);
+    textC(c, 'DOSES ADMINISTERED WORLDWIDE', W / 2, 166, COL.grey2, 1, 1, 0.85);
+
+    /* the bar that never quite resolves */
+    const bx = 92, bw = 200;
+    R(c, bx, 182, bw, 7, COL.void);
+    R(c, bx, 182, bw, 1, COL.grey2); R(c, bx, 188, bw, 1, COL.grey2);
+    R(c, bx, 182, 1, 7, COL.grey2); R(c, bx + bw - 1, 182, 1, 7, COL.grey2);
+    const fill = Math.round(bw * (0.62 + Math.sin(t * 0.0011) * 0.05) * ease(seg(p, 0.2, 0.8)));
+    for (let x = 0; x < fill - 2; x += 3) R(c, bx + 1 + x, 184, 2, 3, hash(x + Math.floor(t / 200)) > 0.08 ? COL.red : COL.void);
+    const q = Math.floor(t / 260) % 3;
+    text(c, 'CERTAINTY ' + (q === 0 ? '??' : q === 1 ? '?%' : '--') + ' ', bx + bw + 6, 182, COL.grey2, 1, 1, 0.8);
+    text(c, 'HOPE', bx - 34, 182, COL.dim, 1, 1, 0.8);
+
+    if (p > 0.86) textC(c, 'NOBODY KNEW HOW LONG IT WOULD LAST OR WHO IT WOULD REACH FIRST', W / 2, 200, COL.dim, 1, 1, ease(seg(p, 0.86, 0.97)) * 0.9);
+
+    chrome(c, '04', 'VACCINES', p, t, null);
+    grain(c, 0.4, t);
+    interlace(c, 0.2);
+    tear(c, 0.18, t, 29);
+  }
+
+  /* ================================================================
+     05 · MEMORY
+     Thousands of pixels going out until one is left.
+     ================================================================ */
+
+  const MEM = [];
+  for (let i = 0; i < 3400; i++) {
+    MEM.push({
+      x: 6 + Math.floor(hash(i * 1.13) * (W - 12)),
+      y: 24 + Math.floor(hash(i * 2.71 + 4.2) * (H - 56)),
+      die: 0.05 + hash(i * 3.77 + 1.1) * 0.80,
+      v: hash(i * 5.19)
+    });
+  }
+
+  function sceneMemory(c, p, t) {
+    R(c, 0, 0, W, H, COL.void);
+    const q = p * 1.02;
+
+    for (let i = 0; i < MEM.length; i++) {
+      const m = MEM[i];
+      if (q > m.die) continue;
+      let col = m.v > 0.985 ? COL.red : m.v > 0.55 ? COL.bone : m.v > 0.2 ? COL.dim : COL.dust;
+      /* they flicker just before going out */
+      if (m.die - q < 0.05 && hash(i + Math.floor(t / 90)) > 0.5) col = COL.grey;
+      c.fillStyle = col;
+      c.fillRect(m.x, m.y, 1, 1);
+    }
+
+    /* the last one */
+    const pulse = 0.5 + 0.5 * Math.sin(t * 0.0035);
+    const last = p > 0.86;
+    if (last) {
+      const s = p > 0.95 ? 2 : 1;
+      R(c, W / 2 - (s - 1), H / 2 - (s - 1), s, s, pulse > 0.5 ? COL.bone : COL.red);
+      if (p > 0.9) {
+        c.fillStyle = `rgba(255,30,45,${0.10 * pulse})`;
+        c.fillRect(W / 2 - 6, H / 2 - 6, 13, 13);
+      }
+    }
+
+    const cap = [
+      [0.00, 0.22, 'EVERY PIXEL WAS SOMEONE, SOMETHING, AN ORDINARY DAY'],
+      [0.24, 0.52, 'THEY GO OUT IN THE ORDER WE STOPPED NAMING THEM'],
+      [0.54, 0.82, 'NO FIGURE IS BIG ENOUGH'],
+      [0.86, 1.00, 'ONE IS LEFT']
+    ];
+    for (const [a, b, s] of cap) {
+      if (p < a || p > b) continue;
+      const k = (p - a) / (b - a);
+      const al = Math.min(ease(k / 0.2), ease((1 - k) / 0.2));
+      textC(c, s, W / 2, 186, s === 'ONE IS LEFT' ? COL.red : COL.dim, 1, 1, al * 0.95);
+    }
+    if (p > 0.965) textC(c, 'DO NOT PUT IT OUT', W / 2, 198, COL.bone, 1, 1, ease(seg(p, 0.965, 1)) * 0.9);
+
+    chrome(c, '05', 'MEMORY', p, t, null);
+    grain(c, 0.25, t);
+    interlace(c, 0.18);
+    if (p < 0.5) tear(c, 0.12, t, 41);
+  }
+
+  /* ---------- what the two modes take from here ---------- */
+
+  window.ARCHIVE = {
+    W, H, COL, PAL, SPR,
+    scenes: {
+      deaths: sceneDeaths, hospital: sceneHospital,
+      masks: sceneMasks, vaccines: sceneVaccines, memory: sceneMemory
+    },
+    clamp, c01, lerp, ease, easeIn, seg, hash, num,
+    R, PX, text, textC, textW, sprite, dither, grain, interlace, tear, chrome
+  };
+
+})();
+</script>
+<script>
+/* ARCHIVE 2020 — mode 01: the scrolling archive.
+
+   Mounts the five scenes of engine.js on the five chapters of the page: turns
+   the scroll of each one into a 0..1 progress value and keeps the side index
+   in step with it. The shell (startup, CRT noise, mode switching) is main.js. */
+
+(() => {
+  'use strict';
+
+  const A = window.ARCHIVE;
+  const { c01 } = A;
+  const $  = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  const chapters = $$('.chapter').map((el) => {
+    const cv = $('canvas', el);
+    const cx = cv.getContext('2d', { alpha: false });
+    cx.imageSmoothingEnabled = false;
+    el.style.height = (el.dataset.len || 520) + 'vh';
+    return { el, cx, draw: A.scenes[el.dataset.scene], p: 0 };
+  });
+
+  const links = $$('.hud__nav a');
+  const rail = $('#railFill');
+  const meta = $('#hudMeta');
+  const rec = $('#rec');
+  let current = -1;
+
+  function hud(t) {
+    const doc = document.documentElement;
+    const total = doc.scrollHeight - window.innerHeight;
+    const g = total > 0 ? c01(window.scrollY / total) : 0;
+    rail.style.height = (g * 100) + '%';
+    meta.textContent = 'SECTOR ' + String(Math.round(g * 5000)).padStart(4, '0') + ' / 5000';
+    rec.classList.toggle('off', Math.floor(t / 620) % 2 === 0);
+
+    let idx = 0;
+    const mid = window.innerHeight / 2;
+    chapters.forEach((ch, i) => { if (ch.el.getBoundingClientRect().top <= mid) idx = i; });
+    if (idx !== current) {
+      current = idx;
+      links.forEach((a, i) => a.classList.toggle('on', i === idx));
+      window.SHELL.signalCut();
+    }
+  }
+
+  function frame(dt, t) {
+    const vh = window.innerHeight;
+    for (const ch of chapters) {
+      const r = ch.el.getBoundingClientRect();
+      if (r.bottom < -40 || r.top > vh + 40) continue;
+      const run = r.height - vh;
+      ch.p = run > 0 ? c01(-r.top / run) : 0;
+      ch.draw(ch.cx, ch.p, t);
+    }
+    hud(t);
+  }
+
+  /* jumping between sectors with the number keys */
+  window.addEventListener('keydown', (e) => {
+    if (document.body.dataset.mode !== 'archive') return;
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= chapters.length) {
+      chapters[n - 1].el.scrollIntoView({ behavior: window.SHELL.REDUCED ? 'auto' : 'smooth' });
+      window.SHELL.signalCut();
+    }
+  });
+
+  links.forEach((a) => a.addEventListener('click', () => window.SHELL.signalCut()));
+
+  window.MODE_ARCHIVE = {
+    frame,
+    enter() { current = -1; window.scrollTo(0, 0); }
+  };
+
+})();
+</script>
+<script>
+/* ARCHIVE 2020 — mode 02: the walkable floor.
+
+   The same fourth floor of the archive, this time seen from the ceiling camera:
+   you walk an empty hospital and every station opens one of the five records,
+   drawn by the very same scenes of engine.js.
+
+   An 8 px tile map, a camera that follows the character and lighting by blocks. */
+
+(() => {
+  'use strict';
+
+  const A = window.ARCHIVE;
+  const { W, H, COL, R, text, textC, textW, sprite, hash, clamp, c01, lerp, ease } = A;
+
+  const T = 8, MW = 69, MH = 38;
+  const WORLD_W = MW * T, WORLD_H = MH * T;
+
+  /* ---------- the floor plan ---------- */
+
+  const ROOMS = [
+    { n: 1, x: 3,  y: 3,  w: 18, h: 12, cam: 'CAM 01', name: 'ROOM 214',        light: 0.34, scene: 'deaths',   title: 'RECORD 01 - DEATHS / LOSSES' },
+    { n: 2, x: 24, y: 3,  w: 21, h: 12, cam: 'CAM 02', name: 'ICU - ISOLATION', light: 0.42, scene: 'hospital', title: 'RECORD 02 - ISOLATION / HOSPITAL' },
+    { n: 3, x: 48, y: 3,  w: 19, h: 12, cam: 'CAM 03', name: 'PPE STORE',       light: 0.24, scene: 'masks',    title: 'RECORD 03 - MASKS' },
+    { n: 0, x: 3,  y: 17, w: 64, h: 4,  cam: 'CAM 00', name: 'CORRIDOR 4B',     light: 0.36 },
+    { n: 4, x: 5,  y: 23, w: 22, h: 14, cam: 'CAM 04', name: 'COLD ROOM',       light: 0.30, scene: 'vaccines', title: 'RECORD 04 - VACCINES' },
+    { n: 5, x: 34, y: 23, w: 31, h: 14, cam: 'CAM 05', name: 'WAITING AREA',    light: 0.10, scene: 'memory',   title: 'RECORD 05 - MEMORY' }
+  ];
+
+  const DOORS = [
+    [11, 15], [12, 15], [11, 16], [12, 16],
+    [34, 15], [35, 15], [34, 16], [35, 16],
+    [57, 15], [58, 15], [57, 16], [58, 16],
+    [14, 21], [15, 21], [14, 22], [15, 22],
+    [48, 21], [49, 21], [48, 22], [49, 22]
+  ];
+
+  /* props: origin tile and size in tiles */
+  const PROPS = [
+    /* room 214 */
+    { k: 'bed', x: 5, y: 4 }, { k: 'bed', x: 10, y: 4 },
+    { k: 'mon', x: 7, y: 4 }, { k: 'mon', x: 12, y: 4 },
+    { k: 'iv', x: 4, y: 4 },  { k: 'iv', x: 9, y: 4 },
+    { k: 'desk', x: 15, y: 12, w: 3 },
+    { k: 'chair', x: 14, y: 8 }, { k: 'chair', x: 17, y: 8 },
+    /* icu */
+    { k: 'bed', x: 26, y: 4 }, { k: 'bed', x: 30, y: 4 }, { k: 'bed', x: 35, y: 4 }, { k: 'bed', x: 39, y: 4 },
+    { k: 'mon', x: 28, y: 4 }, { k: 'mon', x: 32, y: 4 }, { k: 'mon', x: 37, y: 4 }, { k: 'mon', x: 41, y: 4 },
+    { k: 'iv', x: 25, y: 4 }, { k: 'iv', x: 34, y: 4 },
+    { k: 'desk', x: 26, y: 12, w: 5 },
+    { k: 'gurney', x: 39, y: 11 },
+    /* ppe store */
+    { k: 'locker', x: 49, y: 3 }, { k: 'locker', x: 51, y: 3 }, { k: 'locker', x: 53, y: 3 },
+    { k: 'locker', x: 55, y: 3 }, { k: 'locker', x: 57, y: 3 }, { k: 'locker', x: 59, y: 3 },
+    { k: 'shelf', x: 49, y: 8, w: 9 },
+    { k: 'box', x: 63, y: 5 }, { k: 'box', x: 64, y: 7 }, { k: 'box', x: 63, y: 10 }, { k: 'box', x: 62, y: 12 },
+    /* corridor */
+    { k: 'gurney', x: 20, y: 18 }, { k: 'gurney', x: 44, y: 18 },
+    { k: 'box', x: 8, y: 17 }, { k: 'box', x: 31, y: 20 }, { k: 'box', x: 60, y: 17 },
+    /* cold room */
+    { k: 'fridge', x: 6, y: 24 }, { k: 'fridge', x: 9, y: 24 }, { k: 'fridge', x: 12, y: 24 },
+    { k: 'table', x: 17, y: 28, w: 3 },
+    { k: 'box', x: 22, y: 25 }, { k: 'box', x: 24, y: 27 }, { k: 'box', x: 21, y: 33 },
+    { k: 'fridge', x: 23, y: 30 },
+    /* waiting area */
+    { k: 'chair', x: 38, y: 27 }, { k: 'chair', x: 41, y: 27 }, { k: 'chair', x: 44, y: 27 },
+    { k: 'chair', x: 47, y: 27 }, { k: 'chair', x: 50, y: 27 }, { k: 'chair', x: 53, y: 27 }, { k: 'chair', x: 56, y: 27 },
+    { k: 'chair', x: 38, y: 31 }, { k: 'chair', x: 41, y: 31 }, { k: 'chair', x: 44, y: 31 },
+    { k: 'chair', x: 47, y: 31 }, { k: 'chair', x: 50, y: 31 }, { k: 'chair', x: 53, y: 31 }, { k: 'chair', x: 56, y: 31 },
+    { k: 'desk', x: 60, y: 24, w: 3 }
+  ];
+
+  const SIZE = { bed: [2, 3], mon: [1, 1], iv: [1, 1], desk: [1, 1], chair: [1, 1], locker: [1, 2], shelf: [1, 1], box: [1, 1], fridge: [2, 2], gurney: [3, 2], table: [1, 1] };
+
+  const STATIONS = [
+    { room: 1, x: 13, y: 9 },
+    { room: 2, x: 33, y: 10 },
+    { room: 3, x: 57, y: 11 },
+    { room: 4, x: 10, y: 30 },
+    { room: 5, x: 49, y: 34 }
+  ];
+
+  /* ---------- the tile grid ---------- */
+
+  const VOID = 0, FLOOR = 1, WALL = 2, DOOR = 3;
+  const grid = new Uint8Array(MW * MH);
+  const roomAt = new Int8Array(MW * MH).fill(-1);
+  const solid = new Uint8Array(MW * MH);
+  const at = (x, y) => (x < 0 || y < 0 || x >= MW || y >= MH ? VOID : grid[y * MW + x]);
+
+  ROOMS.forEach((r, i) => {
+    for (let y = r.y - 1; y <= r.y + r.h; y++) {
+      for (let x = r.x - 1; x <= r.x + r.w; x++) {
+        if (x < 0 || y < 0 || x >= MW || y >= MH) continue;
+        const inside = x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
+        const k = y * MW + x;
+        if (inside) { grid[k] = FLOOR; roomAt[k] = i; }
+        else if (grid[k] !== FLOOR) grid[k] = WALL;
+      }
+    }
+  });
+  DOORS.forEach(([x, y]) => { grid[y * MW + x] = DOOR; });
+  for (let k = 0; k < grid.length; k++) if (grid[k] === WALL || grid[k] === VOID) solid[k] = 1;
+  PROPS.forEach((p) => {
+    const [w, h] = SIZE[p.k];
+    const pw = p.w || w;
+    for (let y = p.y; y < p.y + h; y++) for (let x = p.x; x < p.x + pw; x++) {
+      if (x >= 0 && y >= 0 && x < MW && y < MH) solid[y * MW + x] = 1;
+    }
+  });
+  /* a station tile is always walkable */
+  STATIONS.forEach((s) => { solid[s.y * MW + s.x] = 0; });
+
+  const roomOf = (px, py) => {
+    const k = ((py / T) | 0) * MW + ((px / T) | 0);
+    return roomAt[k] >= 0 ? ROOMS[roomAt[k]] : null;
+  };
+
+  /* ---------- the character ---------- */
+
+  const BODY = {
+    down: ['..66666..', '.6555556.', '.6555556.', '.65k5k56.', '.6wwwww6.', '..wwwww..', '.wwwwwww.', 'wwwwwwwww', 'wwwwwwwww', 'ww66666ww', '.wwwwwww.'],
+    up:   ['..66666..', '.6666666.', '.6666666.', '.6666666.', '..66666..', '..wwwww..', '.wwwwwww.', 'wwwwwwwww', 'wwwwwwwww', 'wwwwwwwww', '.wwwwwww.'],
+    side: ['..6666...', '.655556..', '.655556..', '.65k555..', '.6wwww5..', '..wwww...', '.wwwww...', '.wwwwww..', '.wwwwww..', '.wwwwww..', '.wwwww...']
+  };
+  const mirror = (rows) => rows.map((r) => r.split('').reverse().join(''));
+  BODY.sideL = mirror(BODY.side);
+
+  function drawPlayer(c, x, y, dir, step, moving) {
+    const bob = moving && step % 2 ? 1 : 0;
+    R(c, x - 4, y - 1, 9, 2, 'rgba(0,0,0,0.55)');
+    const rows = dir === 'up' ? BODY.up : dir === 'left' ? BODY.sideL : dir === 'right' ? BODY.side : BODY.down;
+    sprite(c, rows, x - 4, y - 14 - bob, 1);
+    /* legs */
+    const a = moving ? (step % 2 ? 1 : 0) : 0;
+    const b = moving ? (step % 2 ? 0 : 1) : 0;
+    R(c, x - 3, y - 3 - bob + a, 2, 3, COL.grey);
+    R(c, x + 2, y - 3 - bob + b, 2, 3, COL.grey);
+    R(c, x - 3, y - bob + a, 2, 1, COL.grey2);
+    R(c, x + 2, y - bob + b, 2, 1, COL.grey2);
+  }
+
+  /* ---------- props ---------- */
+
+  function prop(c, p, sx, sy) {
+    const x = p.x * T - sx, y = p.y * T - sy;
+    const k = p.k;
+    if (k === 'bed') {
+      R(c, x, y, 16, 24, COL.grey);
+      R(c, x + 1, y + 1, 14, 22, COL.dark);
+      R(c, x + 2, y + 2, 12, 7, COL.bone);            /* pillow */
+      R(c, x + 2, y + 10, 12, 12, COL.dust);          /* sheet */
+      R(c, x + 2, y + 14, 12, 1, COL.dim);
+      R(c, x, y + 22, 16, 2, COL.grey2);
+    } else if (k === 'gurney') {
+      R(c, x, y, 24, 16, COL.grey);
+      R(c, x + 1, y + 1, 22, 14, COL.dark);
+      R(c, x + 2, y + 2, 8, 12, COL.bone);
+      R(c, x + 11, y + 2, 11, 12, COL.dust);
+    } else if (k === 'mon') {
+      R(c, x + 1, y + 1, 6, 6, COL.grey2);
+      R(c, x + 2, y + 2, 4, 3, COL.void);
+      R(c, x + 2, y + 3, 4, 1, COL.red);
+      R(c, x + 2, y + 6, 4, 1, COL.grey);
+    } else if (k === 'iv') {
+      R(c, x + 3, y + 1, 1, 6, COL.grey2);
+      R(c, x + 2, y + 1, 3, 3, COL.dust);
+      R(c, x + 2, y + 6, 3, 1, COL.grey);
+    } else if (k === 'desk') {
+      const w = (p.w || 1) * T;
+      R(c, x, y, w, 8, COL.grey2);
+      R(c, x, y, w, 2, COL.dust);
+      R(c, x + 2, y + 4, w - 4, 1, COL.grey);
+    } else if (k === 'table') {
+      const w = (p.w || 1) * T;
+      R(c, x, y, w, 8, COL.grey);
+      R(c, x, y, w, 1, COL.dim);
+      for (let i = 0; i < w - 4; i += 5) { R(c, x + 2 + i, y + 2, 2, 4, COL.bone); R(c, x + 2 + i, y + 2, 2, 1, COL.red); }
+    } else if (k === 'chair') {
+      R(c, x + 1, y + 2, 6, 5, COL.grey2);
+      R(c, x + 1, y + 1, 6, 2, COL.grey);
+    } else if (k === 'locker') {
+      R(c, x, y, 8, 16, COL.grey2);
+      R(c, x + 1, y + 1, 6, 14, COL.grey);
+      R(c, x + 4, y + 1, 1, 14, COL.grey2);
+      R(c, x + 3, y + 7, 1, 2, COL.dust);
+      R(c, x + 5, y + 7, 1, 2, COL.dust);
+    } else if (k === 'shelf') {
+      const w = (p.w || 1) * T;
+      R(c, x, y, w, 8, COL.grey);
+      R(c, x, y, w, 1, COL.grey2);
+      for (let i = 0; i < w - 3; i += 6) {
+        const v = hash(p.x + i);
+        R(c, x + 2 + i, y + 2, 4, 5, v > 0.5 ? COL.dust : COL.grey2);
+        if (v > 0.82) R(c, x + 3 + i, y + 3, 2, 2, COL.redDeep);
+      }
+    } else if (k === 'box') {
+      R(c, x + 1, y + 2, 6, 5, COL.grey2);
+      R(c, x + 1, y + 2, 6, 1, COL.dust);
+      R(c, x + 3, y + 4, 2, 1, COL.redDeep);
+    } else if (k === 'fridge') {
+      R(c, x, y, 16, 16, COL.grey2);
+      R(c, x + 1, y + 1, 14, 14, COL.dust);
+      R(c, x + 1, y + 1, 14, 4, COL.dim);
+      R(c, x + 7, y + 6, 2, 6, COL.red);
+      R(c, x + 5, y + 8, 6, 2, COL.red);
+      R(c, x + 13, y + 7, 1, 3, COL.grey);
+    }
+  }
+
+  /* ---------- the floor, drawn ---------- */
+
+  function drawWorld(c, camX, camY, t, done) {
+    R(c, 0, 0, W, H, COL.void);
+    const x0 = Math.max(0, (camX / T | 0) - 1), x1 = Math.min(MW - 1, ((camX + W) / T | 0) + 1);
+    const y0 = Math.max(0, (camY / T | 0) - 1), y1 = Math.min(MH - 1, ((camY + H) / T | 0) + 1);
+
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        const g = grid[y * MW + x];
+        if (g === VOID) continue;
+        const sx = x * T - camX, sy = y * T - camY;
+        if (g === WALL) {
+          R(c, sx, sy, T, T, '#2e2e2e');
+          if (at(x, y + 1) === FLOOR || at(x, y + 1) === DOOR) { R(c, sx, sy + 5, T, 1, '#6a6a6a'); R(c, sx, sy + 6, T, 2, '#3c3c3c'); }
+          if (at(x, y - 1) === FLOOR || at(x, y - 1) === DOOR) R(c, sx, sy, T, 2, '#3a3a3a');
+          if (at(x - 1, y) === FLOOR || at(x - 1, y) === DOOR) R(c, sx, sy, 2, T, '#3a3a3a');
+          if (at(x + 1, y) === FLOOR || at(x + 1, y) === DOOR) R(c, sx + 6, sy, 2, T, '#3a3a3a');
+        } else {
+          R(c, sx, sy, T, T, g === DOOR ? '#343434' : '#2a2a2a');
+          R(c, sx, sy, T, 1, '#333333');
+          R(c, sx, sy, 1, T, '#333333');
+          if (hash(x * 3.1 + y * 7.7) > 0.93) R(c, sx + 3, sy + 5, 1, 1, '#3d3d3d');
+          if (g === DOOR) {
+            if (at(x - 1, y) === WALL) R(c, sx, sy, 1, T, COL.redDeep);
+            if (at(x + 1, y) === WALL) R(c, sx + 7, sy, 1, T, COL.redDeep);
+            if (at(x, y - 1) === WALL) R(c, sx, sy, T, 1, COL.redDeep);
+            if (at(x, y + 1) === WALL) R(c, sx, sy + 7, T, 1, COL.redDeep);
+          }
+        }
+      }
+    }
+
+    /* distance markings down the corridor */
+    for (let x = 6; x < 66; x += 4) {
+      const sx = x * T - camX, sy = 20 * T - camY + 5;
+      if (sx < -8 || sx > W) continue;
+      R(c, sx, sy, 5, 1, COL.redDeep);
+    }
+
+    /* room names painted on the floor */
+    for (const r of ROOMS) {
+      const cx = (r.x + r.w / 2) * T - camX, cy = (r.y + r.h / 2) * T - camY;
+      if (cx < -120 || cx > W + 120 || cy < -40 || cy > H + 40) continue;
+      textC(c, r.name, cx, cy - 4, COL.grey2, 1, 1, 0.5);
+      textC(c, r.cam, cx, cy + 6, COL.grey2, 1, 1, 0.3);
+    }
+
+    /* stations */
+    for (let i = 0; i < STATIONS.length; i++) {
+      const s = STATIONS[i];
+      const sx = s.x * T - camX, sy = s.y * T - camY;
+      if (sx < -20 || sx > W + 20 || sy < -20 || sy > H + 20) continue;
+      const ok = done[i];
+      const col = ok ? COL.bone : COL.red;
+      const b = Math.floor(t / 380) % 2 === 0;
+      /* corners of the bracket that marks a station */
+      const q = (ox, oy, ex, ey) => { R(c, sx - 4 + ox, sy - 4 + oy, 4 * ex, 1, col); R(c, sx - 4 + ox, sy - 4 + oy, 1, 4 * ey, col); };
+      q(0, 0, 1, 1); q(15, 0, -1, 1); q(0, 15, 1, -1); q(15, 15, -1, -1);
+      if (!ok && b) { R(c, sx + 3, sy + 1, 2, 5, col); R(c, sx + 3, sy + 8, 2, 2, col); }
+      if (ok) { R(c, sx + 2, sy + 4, 2, 2, col); R(c, sx + 4, sy + 6, 2, 2, col); R(c, sx + 6, sy + 2, 2, 2, col); }
+    }
+  }
+
+  /* ---------- lighting by blocks ---------- */
+
+  function lighting(c, camX, camY, px, py, k, here) {
+    const B = 6;
+    for (let by = 0; by < H; by += B) {
+      for (let bx = 0; bx < W; bx += B) {
+        const wx = camX + bx + 3, wy = camY + by + 3;
+        const r = roomOf(wx, wy);
+        let l = (r ? r.light + (r === here ? 0.2 : 0) : 0) * k;
+        const dx = wx - px, dy = wy - py;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 4900) l += c01(1 - Math.sqrt(d2) / 70) * 0.85 * k;
+        const dark = clamp(1 - l, 0, 0.94);
+        if (dark < 0.07) continue;
+        c.fillStyle = `rgba(0,0,0,${Math.round(dark * 6) / 6})`;
+        c.fillRect(bx, by, B, B);
+      }
+    }
+  }
+
+  /* ---------- camera interface ---------- */
+
+  function minimap(c, px, py, done, t) {
+    const mx = W - MW - 6, my = H - MH - 6;
+    R(c, mx - 2, my - 2, MW + 4, MH + 4, 'rgba(0,0,0,0.78)');
+    R(c, mx - 2, my - 2, MW + 4, 1, COL.grey2); R(c, mx - 2, my + MH + 1, MW + 4, 1, COL.grey2);
+    R(c, mx - 2, my - 2, 1, MH + 4, COL.grey2); R(c, mx + MW + 1, my - 2, 1, MH + 4, COL.grey2);
+    for (let y = 0; y < MH; y++) {
+      for (let x = 0; x < MW; x++) {
+        const g = grid[y * MW + x];
+        if (g === VOID) continue;
+        c.fillStyle = g === WALL ? '#1c1c1c' : g === DOOR ? '#4a4a4a' : '#2e2e2e';
+        c.fillRect(mx + x, my + y, 1, 1);
+      }
+    }
+    STATIONS.forEach((s, i) => { c.fillStyle = done[i] ? COL.bone : COL.red; c.fillRect(mx + s.x, my + s.y, 1, 1); });
+    if (Math.floor(t / 260) % 2 === 0) { c.fillStyle = COL.white; c.fillRect(mx + (px / T | 0), my + (py / T | 0), 1, 1); }
+  }
+
+  function camHud(c, room, done, t, near) {
+    const corner = (x, y, sx, sy) => { R(c, x, y, 5 * sx, 1, COL.grey2); R(c, x, y, 1, 5 * sy, COL.grey2); };
+    corner(3, 3, 1, 1); corner(W - 4, 3, -1, 1); corner(3, H - 4, 1, -1); corner(W - 4, H - 4, -1, -1);
+
+    const rec = Math.floor(t / 620) % 2 === 0;
+    R(c, 8, 9, 3, 3, rec ? COL.red : COL.redDeep);
+    text(c, (room ? room.cam : 'CAM --') + ' / ' + (room ? room.name : 'NO SIGNAL'), 14, 8, COL.dim, 1, 1, 0.9);
+
+    const secs = Math.floor(t / 1000);
+    const clock = String(4 + Math.floor(secs / 3600) % 20).padStart(2, '0') + ':' +
+                  String(Math.floor(secs / 60) % 60).padStart(2, '0') + ':' +
+                  String(secs % 60).padStart(2, '0');
+    text(c, clock, W - 8 - textW(clock), 8, COL.grey2, 1, 1, 0.8);
+
+    const n = done.filter(Boolean).length;
+    text(c, 'RECORDS ' + n + '/5', 8, H - 14, n === 5 ? COL.bone : COL.grey2, 1, 1, 0.9);
+    if (n === 5) text(c, 'ARCHIVE COMPLETE', 8, H - 24, COL.red, 1, 1, Math.floor(t / 400) % 2 ? 0.9 : 0.4);
+
+    if (near !== -1) {
+      textC(c, done[near] ? 'RECORD RECOVERED' : '[E] READ RECORD', W / 2, H - 30, done[near] ? COL.grey2 : COL.bone, 1, 1, 0.95);
+    }
+  }
+
+  /* ================================================================
+     State, controls and the mode's frame
+     ================================================================ */
+
+  const $ = (sel) => document.querySelector(sel);
+  const cv = $('#game');
+  const cx = cv.getContext('2d', { alpha: false });
+  cx.imageSmoothingEnabled = false;
+
+  const taskEl = $('#task'), taskTitle = $('#taskTitle'), taskFill = $('#taskFill'), taskHint = $('#taskHint');
+  const endEl = $('#end');
+
+  const done = [false, false, false, false, false];
+  const player = { x: 8 * T + 4, y: 19 * T + 7, dir: 'down', step: 0, dist: 0, moving: false };
+  const cam = { x: player.x - W / 2, y: player.y - H / 2 };
+
+  let state = 'play';      /* play | fx | task | ending */
+  let taskIdx = -1, taskP = 0, fxLeft = 0, fxNext = 'task', endT = 0;
+
+  const keys = { up: 0, down: 0, left: 0, right: 0, use: 0 };
+  let useEdge = false, escEdge = false;
+
+  const KEY = {
+    KeyW: 'up', ArrowUp: 'up', KeyS: 'down', ArrowDown: 'down',
+    KeyA: 'left', ArrowLeft: 'left', KeyD: 'right', ArrowRight: 'right',
+    KeyE: 'use', Space: 'use', Enter: 'use'
+  };
+
+  const active = () => document.body.dataset.mode === 'floor';
+
+  window.addEventListener('keydown', (e) => {
+    if (!active()) return;
+    if (e.code === 'Escape') { escEdge = true; return; }
+    const k = KEY[e.code];
+    if (!k) return;
+    e.preventDefault();
+    if (k === 'use' && !e.repeat) useEdge = true;
+    keys[k] = 1;
+  });
+  window.addEventListener('keyup', (e) => { const k = KEY[e.code]; if (k) keys[k] = 0; });
+  window.addEventListener('blur', () => { for (const k in keys) keys[k] = 0; });
+
+  document.querySelectorAll('#pad button').forEach((b) => {
+    const k = b.dataset.key;
+    const on = (e) => { e.preventDefault(); if (k === 'use') useEdge = true; keys[k] = 1; };
+    const off = (e) => { e.preventDefault(); keys[k] = 0; };
+    b.addEventListener('pointerdown', on);
+    b.addEventListener('pointerup', off);
+    b.addEventListener('pointercancel', off);
+    b.addEventListener('pointerleave', off);
+  });
+
+  /* ---------- walking ---------- */
+
+  function free(nx, ny) {
+    const l = (nx - 3) | 0, r = (nx + 3) | 0, tp = (ny - 5) | 0, bt = ny | 0;
+    for (let y = (tp / T) | 0; y <= (bt / T) | 0; y++) {
+      for (let x = (l / T) | 0; x <= (r / T) | 0; x++) {
+        if (x < 0 || y < 0 || x >= MW || y >= MH) return false;
+        if (solid[y * MW + x]) return false;
+      }
+    }
+    return true;
+  }
+
+  function nearStation() {
+    for (let i = 0; i < STATIONS.length; i++) {
+      const sx = STATIONS[i].x * T + 4, sy = STATIONS[i].y * T + 4;
+      if (Math.abs(sx - player.x) < 13 && Math.abs(sy - player.y + 4) < 13) return i;
+    }
+    return -1;
+  }
+
+  /* ---------- records ---------- */
+
+  const roomFor = (i) => ROOMS.find((r) => r.n === STATIONS[i].room);
+
+  function openTask(i) {
+    taskIdx = i; taskP = done[i] ? 1 : 0;
+    state = 'fx'; fxLeft = 0.32; fxNext = 'task';
+    taskEl.hidden = false;
+    taskEl.classList.toggle('done', done[i]);
+    taskTitle.textContent = roomFor(i).title;
+    for (const k in keys) keys[k] = 0;
+  }
+
+  function closeTask() {
+    taskEl.hidden = true;
+    taskIdx = -1;
+    if (done.every(Boolean)) { state = 'ending'; endT = 0; }
+    else { state = 'fx'; fxLeft = 0.22; fxNext = 'play'; }
+  }
+
+  function updateTask(dt) {
+    const hold = keys.use || keys.right;
+    if (!done[taskIdx]) {
+      if (hold) taskP = c01(taskP + dt * (keys.right ? 0.2 : 0.12));
+      if (keys.left) taskP = c01(taskP - dt * 0.3);
+      if (taskP >= 1) { done[taskIdx] = true; taskEl.classList.add('done'); }
+    } else if (keys.right) taskP = c01(taskP + dt * 0.2);
+    else if (keys.left) taskP = c01(taskP - dt * 0.3);
+
+    taskFill.style.width = Math.round(taskP * 100) + '%';
+    taskHint.textContent = done[taskIdx]
+      ? (done.every(Boolean) ? 'RECORD RECOVERED · [E] CLOSE THE ARCHIVE' : 'RECORD RECOVERED · [E] TO LEAVE')
+      : 'HOLD [E] TO READ · [ESC] TO LEAVE';
+
+    if (escEdge || (useEdge && done[taskIdx])) closeTask();
+  }
+
+  /* ---------- the static between screens ---------- */
+
+  function staticFrame(c, t) {
+    R(c, 0, 0, W, H, COL.void);
+    for (let i = 0; i < 2600; i++) {
+      const x = (hash(i * 1.7 + t) * W) | 0, y = (hash(i * 3.1 + t * 1.3) * H) | 0;
+      const v = hash(i + t);
+      c.fillStyle = v > 0.93 ? COL.bone : v > 0.6 ? COL.dust : COL.grey;
+      c.fillRect(x, y, 1, 1);
+    }
+    for (let i = 0; i < 3; i++) {
+      const y = (hash(i * 9.1 + Math.floor(t * 20)) * H) | 0;
+      R(c, 0, y, W, 1 + (hash(i + t) * 3 | 0), 'rgba(232,227,216,0.25)');
+    }
+  }
+
+  /* ---------- drawing a frame of the floor ---------- */
+
+  function renderFloor(c, t, lightK) {
+    const camX = Math.round(cam.x), camY = Math.round(cam.y);
+    drawWorld(c, camX, camY, t, done);
+
+    const feet = player.y;
+    const back = [], front = [];
+    for (const p of PROPS) {
+      const [, h] = SIZE[p.k];
+      const sx = p.x * T - camX, sy = p.y * T - camY;
+      if (sx < -32 || sx > W + 32 || sy < -32 || sy > H + 32) continue;
+      ((p.y + h) * T <= feet ? back : front).push(p);
+    }
+    for (const p of back) prop(c, p, camX, camY);
+    drawPlayer(c, Math.round(player.x - camX), Math.round(player.y - camY), player.dir, player.step, player.moving);
+    for (const p of front) prop(c, p, camX, camY);
+
+    const here = roomOf(player.x, player.y - 4);
+    lighting(c, camX, camY, player.x, player.y - 4, lightK, here);
+    if (lightK > 0.5) {
+      camHud(c, here, done, t, nearStation());
+      minimap(c, player.x, player.y, done, t);
+    }
+  }
+
+  /* ---------- one frame, called by the shell ---------- */
+
+  function frame(dt, t) {
+    if (state === 'play') {
+      let vx = 0, vy = 0;
+      if (keys.left) vx--; if (keys.right) vx++;
+      if (keys.up) vy--; if (keys.down) vy++;
+      if (vx && vy) { vx *= 0.7071; vy *= 0.7071; }
+      const sp = 46 * dt;
+      if (vx && free(player.x + vx * sp, player.y)) player.x += vx * sp;
+      if (vy && free(player.x, player.y + vy * sp)) player.y += vy * sp;
+      player.moving = !!(vx || vy);
+      if (player.moving) {
+        player.dist += (Math.abs(vx) + Math.abs(vy)) * sp;
+        player.step = Math.floor(player.dist / 5);
+        player.dir = Math.abs(vx) > Math.abs(vy) ? (vx < 0 ? 'left' : 'right') : (vy < 0 ? 'up' : 'down');
+      }
+      const n = nearStation();
+      if (useEdge && n !== -1) openTask(n);
+
+      const k = Math.min(1, dt * 7);
+      cam.x = lerp(cam.x, clamp(player.x - W / 2, 0, WORLD_W - W), k);
+      cam.y = lerp(cam.y, clamp(player.y - H / 2, 0, WORLD_H - H), k);
+      renderFloor(cx, t, 1);
+
+    } else if (state === 'fx') {
+      fxLeft -= dt;
+      staticFrame(cx, t / 1000);
+      if (fxLeft <= 0) state = fxNext;
+
+    } else if (state === 'task') {
+      const i = taskIdx;
+      updateTask(dt);
+      if (state === 'task') A.scenes[roomFor(i).scene](cx, taskP, t);
+      else staticFrame(cx, t / 1000);
+
+    } else if (state === 'ending') {
+      endT += dt;
+      if (endT < 3) {
+        renderFloor(cx, t, 1 - c01(endT / 2.6));
+        if (endT > 1.2) textC(cx, 'THE FLOOR LIGHTS GO OUT', W / 2, H / 2 + 30, COL.grey2, 1, 1, c01((endT - 1.2) / 0.8) * 0.8);
+      } else if (endT < 3.5) {
+        staticFrame(cx, t / 1000);
+      } else {
+        A.scenes.memory(cx, c01((endT - 3.5) / 15), t);
+        if (endT > 18 && endEl.hidden) { endEl.hidden = false; taskEl.hidden = true; }
+      }
+    }
+
+    /* the screen the camera is filming */
+    A.grain(cx, state === 'task' ? 0.4 : 0.55, t);
+    A.interlace(cx, 0.22);
+    if (!window.SHELL.REDUCED && state !== 'fx') A.tear(cx, state === 'task' ? 0.3 : 0.16, t, 5);
+
+    useEdge = escEdge = false;
+  }
+
+  window.MODE_FLOOR = {
+    frame,
+    enter() { for (const k in keys) keys[k] = 0; useEdge = escEdge = false; },
+    leave() { for (const k in keys) keys[k] = 0; }
+  };
+
+})();
+</script>
+<script>
+/* ARCHIVE 2020 — the shell.
+
+   Startup sequence, CRT noise, the menu and the switch between the two modes.
+   Both modes are drawn from one animation loop: whichever is on screen gets the
+   frame, the other one is not even asked for it. */
+
+(() => {
+  'use strict';
+
+  const $ = (s) => document.querySelector(s);
+  const body = document.body;
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- signal cut, shared by both modes ---------- */
+
+  const tearEl = $('#tear');
+  let tearUntil = 0;
+
+  function signalCut() { if (!REDUCED) tearUntil = performance.now() + 260; }
+
+  window.SHELL = { REDUCED, signalCut };
+
+  /* ---------- screen noise ---------- */
+
+  const nz = $('#noise');
+  const nctx = nz.getContext('2d');
+  const nimg = nctx.createImageData(nz.width, nz.height);
+  let frames = 0;
+
+  function paintNoise() {
+    const d = nimg.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const v = (Math.random() * 255) | 0;
+      d[i] = d[i + 1] = d[i + 2] = v;
+      d[i + 3] = v > 214 ? 78 : v > 130 ? 26 : 8;
+    }
+    nctx.putImageData(nimg, 0, 0);
+  }
+  paintNoise();
+
+  /* ---------- switching modes ---------- */
+
+  function setMode(m) {
+    const prev = body.dataset.mode;
+    if (prev === m) return;
+    if (prev === 'floor' && window.MODE_FLOOR.leave) window.MODE_FLOOR.leave();
+    body.dataset.mode = m;
+    if (m === 'archive') window.MODE_ARCHIVE.enter();
+    if (m === 'floor') window.MODE_FLOOR.enter();
+    signalCut();
+  }
+
+  document.querySelectorAll('[data-go]').forEach((b) =>
+    b.addEventListener('click', () => setMode(b.dataset.go)));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && body.dataset.mode === 'archive') setMode('menu');
+    if (body.dataset.mode === 'menu' && (e.code === 'Digit1' || e.code === 'Digit2')) {
+      setMode(e.code === 'Digit1' ? 'archive' : 'floor');
+    }
+  });
+
+  /* ---------- the loop ---------- */
+
+  let last = performance.now();
+  const t0 = last;
+
+  function loop(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    const t = now - t0;
+    const mode = body.dataset.mode;
+
+    if (mode === 'archive') window.MODE_ARCHIVE.frame(dt, t);
+    else if (mode === 'floor') window.MODE_FLOOR.frame(dt, t);
+
+    if (now < tearUntil) {
+      const k = (tearUntil - now) / 260;
+      tearEl.style.opacity = String(k * 0.8);
+      tearEl.style.height = Math.round(2 + k * 26) + 'px';
+      tearEl.style.top = Math.round(Math.random() * 90) + '%';
+    } else if (tearEl.style.opacity !== '0') {
+      tearEl.style.opacity = '0';
+    }
+
+    if (!REDUCED && ++frames % 3 === 0) paintNoise();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* ---------- startup ---------- */
+
+  const BOOT = [
+    'NATIONAL ARCHIVE OF DIGITAL MEMORY',
+    'DATA RECOVERY UNIT  V0.9.4',
+    '',
+    'CPU 486DX2   MEM 8192K   VIDEO CGA .... <i>OK</i>',
+    'MOUNTING VOLUME: <i>PANDEMIC_2020_2023</i>',
+    'DAMAGED SECTORS: <b>4,219</b>',
+    'RECOVERABLE RECORDS: 05',
+    '',
+    'REBUILDING INDEX ...'
+  ];
+
+  const logEl = $('#bootLog'), barEl = $('#bootBar'), enterEl = $('#bootEnter');
+
+  BOOT.forEach((line, i) => {
+    setTimeout(() => {
+      logEl.innerHTML += line + '\n';
+      barEl.style.setProperty('--w', Math.round(((i + 1) / BOOT.length) * 100) + '%');
+    }, 130 * i + 120);
+  });
+
+  setTimeout(() => {
+    enterEl.hidden = false;
+    barEl.style.setProperty('--w', '100%');
+  }, 130 * BOOT.length + 380);
+
+  const bootEl = $('#boot');
+  const enter = () => {
+    if (body.dataset.mode !== 'boot') return;
+    setMode('menu');
+    setTimeout(() => bootEl.remove(), 380);
+  };
+  enterEl.addEventListener('click', enter);
+  bootEl.addEventListener('click', enter);
+  window.addEventListener('keydown', (e) => {
+    if (body.dataset.mode !== 'boot') return;
+    if (e.code === 'Enter' || e.code === 'Space' || e.code === 'Escape') { e.preventDefault(); enter(); }
+  });
+
+})();
+</script>
+</body>
+</html>

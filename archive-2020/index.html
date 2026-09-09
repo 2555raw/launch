@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ARCHIVE 2020</title>
+<meta name="description" content="An experimental pixel art piece on the COVID-19 pandemic: read the archive as five scrolling sectors, or walk the empty hospital floor room by room.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23000'/%3E%3Crect x='3' y='3' width='2' height='2' fill='%23ff1e2d'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-mode="boot">
+
+<!-- ── recovering the volume ────────────────────────────────────────── -->
+<div class="boot" id="boot" role="dialog" aria-label="Archive startup">
+  <div class="boot__inner">
+    <pre class="boot__log" id="bootLog" aria-live="polite"></pre>
+    <div class="boot__bar" id="bootBar" aria-hidden="true"></div>
+    <button class="boot__enter" id="bootEnter" hidden>PRESS HERE TO ENTER</button>
+    <p class="boot__warn">WARNING: THIS VOLUME HOLDS RECORDS OF HUMAN LOSS</p>
+  </div>
+</div>
+
+<!-- ── CRT layers ───────────────────────────────────────────────────── -->
+<div class="crt" aria-hidden="true">
+  <canvas class="crt__noise" id="noise" width="240" height="135"></canvas>
+  <div class="crt__scan"></div>
+  <div class="crt__glow"></div>
+  <div class="crt__tear" id="tear"></div>
+</div>
+
+<!-- ── main menu ────────────────────────────────────────────────────── -->
+<div class="menu" id="menu">
+  <div class="menu__inner">
+    <p class="menu__kicker">VOLUME PANDEMIC_2020_2023 · 05 RECORDS RECOVERED</p>
+    <h1 class="menu__title">ARCHIVE 2020</h1>
+    <p class="menu__sub">Deaths · Hospital · Masks · Vaccines · Memory</p>
+    <div class="menu__opts">
+      <button data-go="archive"><b>01</b> READ THE ARCHIVE<span>Five sectors, scrolled from the first death to the last pixel</span></button>
+      <button data-go="floor"><b>02</b> WALK THE FLOOR<span>Top-down hospital seen from the ceiling camera, five rooms to find</span></button>
+    </div>
+    <p class="menu__foot">NO SOUND. NOTHING HERE MAKES A NOISE.</p>
+  </div>
+</div>
+
+<!-- ══ MODE 01 · the scrolling archive ══════════════════════════════ -->
+<div class="mode mode--archive" id="modeArchive">
+
+  <header class="hud" aria-label="Archive index">
+    <p class="hud__id">ARCHIVE<br>2020<span class="hud__rec" id="rec">&#9679; REC</span></p>
+    <nav class="hud__nav">
+      <a href="#c1" data-idx="1"><b>01</b> DEATHS</a>
+      <a href="#c2" data-idx="2"><b>02</b> HOSPITAL</a>
+      <a href="#c3" data-idx="3"><b>03</b> MASKS</a>
+      <a href="#c4" data-idx="4"><b>04</b> VACCINES</a>
+      <a href="#c5" data-idx="5"><b>05</b> MEMORY</a>
+    </nav>
+    <div>
+      <p class="hud__meta" id="hudMeta">SECTOR 0000 / 5000</p>
+      <button class="hud__go" data-go="floor">&gt; WALK THE FLOOR</button>
+      <button class="hud__go hud__go--menu" data-go="menu">&gt; MENU</button>
+    </div>
+  </header>
+
+  <div class="rail" aria-hidden="true"><span class="rail__fill" id="railFill"></span></div>
+
+  <main>
+    <section class="chapter" id="c1" data-scene="deaths" data-len="520">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>01 — Deaths and losses</h2>
+        <p>An empty room, a hospital bed and a cardiac monitor. The counter climbs to the
+        roughly seven million COVID-19 deaths reported to the World Health Organization.
+        Every lit dot on the screen stands for a thousand people. The silhouettes come
+        apart into pixels until they are gone.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="c2" data-scene="hospital" data-len="560">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>02 — Isolation and hospital</h2>
+        <p>An endless hospital corridor walked in first person: closed doors, flickering
+        fluorescent tubes, abandoned gurneys and figures that appear and are erased.
+        Below, the sound of the ward turns into interference.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="c3" data-scene="masks" data-len="560">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>03 — Masks</h2>
+        <p>A grid of pixel faces held two metres apart by emptiness. They wear surgical,
+        FFP2, cloth or improvised masks. They arrive corrupted, hold still for a moment
+        and are lost like damaged data, leaving NO DATA behind.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="c4" data-scene="vaccines" data-len="560">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>04 — Vaccines</h2>
+        <p>An old videogame inventory unlocks one item after another: vial, syringe,
+        transport cooler, vaccination card and public campaign. The dose counter climbs
+        while a bar of certainty never resolves.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="c5" data-scene="memory" data-len="620">
+      <div class="stage"><canvas class="screen" width="384" height="216" aria-hidden="true"></canvas></div>
+      <div class="sr">
+        <h2>05 — Memory</h2>
+        <p>A black screen holding thousands of pixels: people, moments, memories. They go
+        out slowly, one after another, until a single one is left burning.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="fin">
+    <p class="fin__line">&gt; END OF ARCHIVE<span class="caret">_</span></p>
+    <div class="fin__cols">
+      <div>
+        <h3>NOTE</h3>
+        <p>A visual piece, not a data dashboard. The figures are rounded and used as
+        material for the story: around 7,010,000 deaths reported to the WHO, an excess
+        mortality estimate of some 14.9 million for 2020 and 2021, and more than
+        13,500 million vaccine doses administered.</p>
+      </div>
+      <div>
+        <h3>SOURCE</h3>
+        <p>World Health Organization COVID-19 dashboard. Approximate figures, closed at
+        2023; the official records are still being revised.</p>
+      </div>
+      <div>
+        <h3>CONTROLS</h3>
+        <p>Wheel or swipe to move forward. Keys 1 to 5 jump between sectors. The system
+        preference for reduced motion is respected.</p>
+      </div>
+    </div>
+    <p class="fin__mem">IN MEMORY OF THOSE WHO NEVER CAME HOME</p>
+    <button class="fin__go" data-go="floor">&gt; NOW WALK THE FLOOR, ROOM BY ROOM</button>
+  </footer>
+
+</div>
+
+<!-- ══ MODE 02 · the walkable floor ═════════════════════════════════ -->
+<div class="mode mode--floor" id="modeFloor">
+
+  <div class="gwrap">
+    <canvas id="game" width="384" height="216" aria-label="Top-down pixel art hospital floor"></canvas>
+  </div>
+
+  <header class="gbar">
+    <button data-go="menu">&lt; MENU</button>
+    <button data-go="archive">READ THE ARCHIVE &gt;</button>
+  </header>
+
+  <div class="task" id="task" hidden>
+    <p class="task__title" id="taskTitle">RECORD</p>
+    <div class="task__bar"><span id="taskFill"></span></div>
+    <p class="task__hint" id="taskHint">HOLD [E] TO READ · [ESC] TO LEAVE</p>
+  </div>
+
+  <div class="endcard" id="end" hidden>
+    <p class="endcard__t">END OF ARCHIVE</p>
+    <p class="endcard__s">FIVE RECORDS RECOVERED. ONE PIXEL STILL BURNING.</p>
+    <p class="endcard__l"><button data-go="archive">&gt; READ THE ARCHIVE</button> &nbsp; <button data-go="menu">&gt; BACK TO THE MENU</button></p>
+  </div>
+
+  <div class="pad" id="pad" aria-hidden="true">
+    <div class="pad__dirs">
+      <button data-key="up">&#9650;</button>
+      <button data-key="left">&#9664;</button>
+      <button data-key="down">&#9660;</button>
+      <button data-key="right">&#9654;</button>
+    </div>
+    <button class="pad__use" data-key="use">E</button>
+  </div>
+
+</div>
+
+<script src="engine.js"></script>
+<script src="archive.js"></script>
+<script src="floor.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

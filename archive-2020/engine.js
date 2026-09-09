@@ -1,19 +1,20 @@
-/* ARCHIVO 2020 — motor de pixel art y las cinco escenas.
+/* ARCHIVE 2020 — the pixel art engine and the five scenes.
 
-   Todo se dibuja en un lienzo de 384x216 píxeles reales que el navegador amplía
-   sin suavizado, así que lo que se ve (tipografía incluida) está hecho píxel a
-   píxel. Cada escena recibe un progreso 0..1 y el tiempo; nada más.
+   Everything is drawn on a 384x216 canvas of real pixels that the browser scales
+   up without smoothing, so what you see (the type included) is made pixel by
+   pixel. A scene is handed a 0..1 progress value and the time; nothing else.
 
-   Este archivo no toca el DOM: publica el motor en window.ARCHIVO para que lo
-   usen tanto el archivo con scroll (app.js) como el modo exploración (juego.js).
+   This file never touches the DOM: it publishes the engine on window.ARCHIVE so
+   both the scrolling archive (archive.js) and the walkable floor (floor.js) can
+   draw the same artwork.
 
-   Sin dependencias. */
+   No dependencies. */
 
 (() => {
   'use strict';
   const W = 384, H = 216;
 
-  /* ---------- utilidades ---------- */
+  /* ---------- helpers ---------- */
 
   const clamp  = (v, a, b) => (v < a ? a : v > b ? b : v);
   const c01    = (v) => clamp(v, 0, 1);
@@ -33,7 +34,7 @@
   const R  = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
   const PX = (c, x, y, col) => { c.fillStyle = col; c.fillRect(x | 0, y | 0, 1, 1); };
 
-  /* ---------- tipografía de mapa de bits 5x7 ---------- */
+  /* ---------- 5x7 bitmap typeface ---------- */
 
   const G = {
     'A':'01110/10001/10001/11111/10001/10001/10001',
@@ -128,8 +129,8 @@
   const textC = (c, str, cx, y, col, s = 1, sp = 1, a = 1) =>
     text(c, str, Math.round(cx - textW(String(str), s, sp) / 2), y, col, s, sp, a);
 
-  /* separador de miles a la española */
-  const num = (n) => Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  /* thousands separator */
+  const num = (n) => Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   /* ---------- sprites ---------- */
 
@@ -159,7 +160,7 @@
     }
   }
 
-  /* ---------- texturas ---------- */
+  /* ---------- textures ---------- */
 
   function dither(c, x, y, w, h, col, dens, seed) {
     c.fillStyle = col;
@@ -171,7 +172,7 @@
     }
   }
 
-  /* grano de vídeo: puntos claros y oscuros repartidos por toda la pantalla */
+  /* video grain: light and dark specks scattered over the whole screen */
   function grain(c, amount, t) {
     const n = Math.round(amount * 260);
     const s = Math.floor(t / 55);
@@ -183,13 +184,13 @@
     }
   }
 
-  /* barrido de líneas más oscuras dentro del propio canvas */
+  /* darker scan lines drawn inside the canvas itself */
   function interlace(c, alpha) {
     c.fillStyle = `rgba(0,0,0,${alpha})`;
     for (let y = 0; y < H; y += 2) c.fillRect(0, y, W, 1);
   }
 
-  /* desplazamiento horizontal de franjas: el glitch de toda la pieza */
+  /* horizontal band displacement: the glitch of the whole piece */
   function tear(c, strength, t, seed = 0) {
     if (strength <= 0) return;
     const slices = 1 + Math.floor(strength * 3);
@@ -207,14 +208,14 @@
     }
   }
 
-  /* marco de interfaz: número de sector, título y estado de la lectura */
+  /* interface frame: sector number, title and reading state */
   function chrome(c, code, title, p, t, note) {
     text(c, code, 8, 8, COL.red, 1, 1, 0.95);
     text(c, title, 24, 8, COL.dim, 1, 1, 0.8);
     const on = Math.floor(t / 520) % 2 === 0;
-    text(c, 'LEC ' + String(Math.round(p * 100)).padStart(3, '0') + '%', W - 8 - textW('LEC 000%'), 8, on ? COL.dim : COL.grey2, 1, 1, 0.75);
+    text(c, 'READ ' + String(Math.round(p * 100)).padStart(3, '0') + '%', W - 8 - textW('READ 000%'), 8, on ? COL.dim : COL.grey2, 1, 1, 0.75);
     if (note) text(c, note, 8, H - 12, COL.grey2, 1, 1, 0.7);
-    /* esquinas del encuadre */
+    /* corners of the frame */
     const corner = (x, y, sx, sy) => {
       R(c, x, y, 5 * sx, 1, COL.grey2); R(c, x, y, 1, 5 * sy, COL.grey2);
     };
@@ -222,12 +223,12 @@
   }
 
   /* ================================================================
-     01 · MUERTES / PERDIDAS
-     Una habitación, un contador y un campo de puntos donde cada punto
-     encendido equivale a mil personas.
+     01 · DEATHS / LOSSES
+     A room, a counter and a field of dots where every lit dot stands for
+     a thousand people.
      ================================================================ */
 
-  const DEATHS = 7010681;                 /* notificados a la OMS, redondeo del panel */
+  const DEATHS = 7010681;                 /* reported to the WHO, as the dashboard rounds it */
   const D_COLS = 120, D_SX = 3, D_SY = 2, D_X = 12, D_Y = 52, D_TOTAL = 7011;
 
   let dotBuf = null, dotN = 0;
@@ -277,12 +278,12 @@
       prev = py;
     }
 
-    /* lecturas: el único verde y el único azul de todo el archivo */
+    /* readings: the only green and the only blue in the whole archive */
     text(c, flat ? '---' : '062', x + 6, y + 48, flat ? COL.red : COL.bone, 1, 1, 0.9);
     text(c, 'FC', x + 6, y + 56, COL.grey2, 1, 1, 0.8);
     text(c, flat ? '--' : '94', x + 34, y + 48, COL.blue, 1, 1, 0.75);
     text(c, 'SPO2', x + 34, y + 56, COL.grey2, 1, 1, 0.8);
-    text(c, flat ? 'ASISTOLIA' : 'ESTABLE', x + 60, y + 48, flat ? COL.red : COL.dim, 1, 1, 0.85);
+    text(c, flat ? 'ASYSTOLE' : 'STABLE', x + 60, y + 48, flat ? COL.red : COL.dim, 1, 1, 0.85);
     if (!flat && Math.floor(t / 740) % 2 === 0) PX(c, x + 102, y + 60, COL.green);
   }
 
@@ -307,7 +308,7 @@
     R(c, 0, 152, W, 64, '#050505');
     R(c, 0, 152, W, 1, COL.grey);
 
-    /* ventana con persiana, la única luz de la habitación */
+    /* blinds on the window, the only light in the room */
     R(c, 40, 30, 76, 56, '#0d0d0d');
     R(c, 40, 30, 76, 1, COL.grey2); R(c, 40, 86, 76, 1, COL.grey2);
     R(c, 40, 30, 1, 57, COL.grey2); R(c, 115, 30, 1, 57, COL.grey2);
@@ -315,14 +316,14 @@
     dither(c, 42, 32, 72, 52, COL.grey, 0.03, 4);
 
     bed(c, 38, 108);
-    /* gotero */
+    /* iv stand */
     R(c, 124, 92, 1, 58, COL.grey2); R(c, 120, 92, 9, 1, COL.grey2);
     R(c, 126, 96, 5, 11, COL.dust);  R(c, 125, 107, 1, 22, COL.grey);
 
     monitor(c, 236, 84, t, false);
-    text(c, 'HABITACION 214', 8, 24, COL.grey2, 1, 1, 0.8);
-    text(c, 'SIN VISITAS', 8, 34, COL.redDeep, 1, 1, 0.9);
-    text(c, 'MARZO 2020', 8, 44, COL.grey2, 1, 1, 0.6);
+    text(c, 'ROOM 214', 8, 24, COL.grey2, 1, 1, 0.8);
+    text(c, 'NO VISITORS', 8, 34, COL.redDeep, 1, 1, 0.9);
+    text(c, 'MARCH 2020', 8, 44, COL.grey2, 1, 1, 0.6);
     c.globalAlpha = prev;
   }
 
@@ -335,7 +336,7 @@
     const b = seg(p, 0.26, 0.80);
     if (b > 0) {
       dotField(c, Math.floor(ease(b) * D_TOTAL));
-      /* algunos puntos parpadean: la cifra nunca está quieta */
+      /* some dots flicker: the figure is never still */
       const s = Math.floor(t / 120);
       for (let i = 0; i < 26; i++) {
         const k = Math.floor(hash(s + i * 2.3) * dotN);
@@ -343,7 +344,7 @@
       }
     }
 
-    /* las siluetas se deshacen mientras el campo se llena */
+    /* the silhouettes come apart as the field fills */
     const sil = seg(p, 0.30, 0.66);
     if (sil > 0 && sil < 0.999) {
       for (let i = 0; i < 9; i++) {
@@ -358,7 +359,7 @@
       const shown = Math.floor(ease(b) * DEATHS);
       const flick = Math.floor(t / 90) % 7 === 0 && b < 0.999;
       textC(c, num(shown), W / 2, 18, flick ? COL.white : COL.bone, 3, 1, 1);
-      textC(c, 'FALLECIMIENTOS NOTIFICADOS A LA OMS', W / 2, 44, COL.grey2, 1, 1, 0.9);
+      textC(c, 'DEATHS REPORTED TO THE WHO', W / 2, 44, COL.grey2, 1, 1, 0.9);
     }
 
     const fin = ease(seg(p, 0.80, 1));
@@ -367,20 +368,20 @@
       R(c, 0, 110, Math.round(W * fin), 1, COL.red);
       if (fin > 0.35) {
         const a = c01((fin - 0.35) / 0.4);
-        textC(c, 'CADA PUNTO ENCENDIDO = 1.000 PERSONAS', W / 2, 188, COL.bone, 1, 1, a * 0.9);
-        textC(c, 'NINGUNA DE ELLAS ERA UN NUMERO', W / 2, 200, COL.redDeep, 1, 1, a);
+        textC(c, 'EACH LIT DOT = 1,000 PEOPLE', W / 2, 188, COL.bone, 1, 1, a * 0.9);
+        textC(c, 'NOT ONE OF THEM WAS A NUMBER', W / 2, 200, COL.redDeep, 1, 1, a);
       }
     }
 
-    chrome(c, '01', 'MUERTES / PERDIDAS', p, t, null);
+    chrome(c, '01', 'DEATHS / LOSSES', p, t, null);
     grain(c, 0.5, t);
     interlace(c, 0.22);
     tear(c, 0.25 + fin * 0.35, t, 1);
   }
 
   /* ================================================================
-     02 · AISLAMIENTO / HOSPITAL
-     Un pasillo infinito recorrido en primera persona.
+     02 · ISOLATION / HOSPITAL
+     An endless corridor walked in first person.
      ================================================================ */
 
   const CX = 192, CY = 104, HW = 150, HH = 92;
@@ -392,7 +393,7 @@
     DOORS.push({ z: 1.6 + i * 1.15, s: i % 2 ? 1 : -1, red: hash(i * 5.1) > 0.72 });
   }
 
-  /* aristas continuas del pasillo: lo que fija la perspectiva */
+  /* the continuous corner lines: what pins the perspective down */
   function corners(c) {
     for (const [sx, sy] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
       for (let dz = 0.34; dz < 26; dz *= 1.006) {
@@ -406,7 +407,7 @@
     c.globalAlpha = 1;
   }
 
-  /* puerta cerrada sobre una de las dos paredes */
+  /* a closed door on one of the two walls */
   function doorQuad(c, zN, zF, s, camZ, lit) {
     const dN = zN - camZ, dF = zF - camZ;
     if (dF < 0.45 || dN > 24) return;
@@ -434,7 +435,7 @@
     }
   }
 
-  /* franjas del techo y del suelo, recorridas por filas de píxeles */
+  /* ceiling and floor strips, walked row of pixels by row of pixels */
   function band(c, zN, zF, camZ, up, halfW, col, a, minDz) {
     const f = up ? 0.97 : -0.98;
     const lim = minDz || 0.45;
@@ -514,20 +515,20 @@
 
     corners(c);
 
-    /* cortes transversales del pasillo, en bucle */
+    /* cross sections of the corridor, looping */
     for (let i = 34; i >= 0; i--) {
       const dz = i * 0.62 - (camZ % 0.62);
       if (dz < 0.34 || dz > 24) continue;
       ring(c, dz, COL.grey2, clamp(0.8 / dz, 0.04, 0.5) * flick);
     }
 
-    /* suelo: marcas de distancia */
+    /* floor: distance markings */
     for (let i = 0; i < 26; i++) {
       const z = 1 + i * 1.05;
       band(c, z, z + 0.12, camZ, false, 96, i % 3 === 0 ? COL.redDeep : COL.grey, 0.9);
     }
 
-    /* puertas */
+    /* doors */
     for (let i = DOORS.length - 1; i >= 0; i--) {
       const d = DOORS[i];
       doorQuad(c, d.z, d.z + 0.7, d.s, camZ, d.red);
@@ -539,7 +540,7 @@
       }
     }
 
-    /* fluorescentes: los que quedan encendidos */
+    /* fluorescent tubes: the ones still working */
     for (let i = 0; i < 24; i++) {
       const z = 1.2 + i * 1.05;
       const on = hash(i * 3.7 + Math.floor(t / (300 + i * 41))) > 0.13;
@@ -552,10 +553,10 @@
     figure(c, 12.4 - camZ, -0.22, SPR.person2, 0.8);
 
     const lines = [
-      [0.03, 0.24, 'PLANTA 4 - ALA B'],
-      [0.27, 0.48, 'PROHIBIDAS LAS VISITAS'],
-      [0.51, 0.72, '23:40 - NADIE ACOMPANA A NADIE'],
-      [0.75, 0.98, 'DESDE AQUI SE OYE TODO']
+      [0.03, 0.24, 'FLOOR 4 - WING B'],
+      [0.27, 0.48, 'NO VISITORS ALLOWED'],
+      [0.51, 0.72, '23:40 - NOBODY IS WITH ANYBODY'],
+      [0.75, 0.98, 'FROM HERE YOU HEAR EVERYTHING']
     ];
     for (const [a, b, str] of lines) {
       if (p < a || p > b) continue;
@@ -565,21 +566,21 @@
     }
 
     waves(c, t);
-    chrome(c, '02', 'AISLAMIENTO / HOSPITAL', p, t, null);
-    text(c, 'PUERTAS ' + String(Math.floor(p * 22)).padStart(2, '0') + '/22', 8, 22, COL.grey2, 1, 1, 0.75);
-    text(c, 'ENTRADA DE AUDIO', W - 8 - textW('ENTRADA DE AUDIO'), 22, COL.grey2, 1, 1, 0.55);
+    chrome(c, '02', 'ISOLATION / HOSPITAL', p, t, null);
+    text(c, 'DOORS ' + String(Math.floor(p * 22)).padStart(2, '0') + '/22', 8, 22, COL.grey2, 1, 1, 0.75);
+    text(c, 'AUDIO INPUT', W - 8 - textW('AUDIO INPUT'), 22, COL.grey2, 1, 1, 0.55);
     grain(c, 0.7, t);
     interlace(c, 0.26);
     tear(c, 0.45, t, 7);
   }
 
   /* ================================================================
-     03 · MASCARILLAS
-     Dieciocho rostros separados entre sí, que llegan corruptos y se
-     pierden como datos dañados.
+     03 · MASKS
+     Eighteen faces kept apart, arriving corrupted and lost again like
+     damaged data.
      ================================================================ */
 
-  const MASK_NAMES = ['QUIRURG.', 'FFP2', 'TELA', 'PANUELO'];
+  const MASK_NAMES = ['SURGICAL', 'FFP2', 'CLOTH', 'SCARF'];
   const FACE_N = 18;
   const faceCache = [];
 
@@ -591,23 +592,23 @@
     const hair = Math.floor(hash(i * 9.1) * 4);
     const skin = hash(i * 4.4) > 0.5 ? COL.dim : COL.dust;
 
-    /* cabeza */
+    /* head */
     put(2, 4, 11, skin); put(3, 3, 12, skin); put(4, 3, 12, skin); put(5, 3, 12, skin);
     put(6, 3, 12, skin); put(7, 3, 12, skin); put(8, 3, 12, skin); put(9, 3, 12, skin);
     put(10, 3, 12, skin); put(11, 4, 11, skin); put(12, 5, 10, skin);
-    /* pelo */
+    /* hair */
     if (hair === 0) { put(1, 4, 11, COL.grey); put(2, 3, 12, COL.grey); put(3, 3, 4, COL.grey); put(3, 11, 12, COL.grey); }
     if (hair === 1) { put(1, 4, 11, COL.grey2); put(2, 3, 12, COL.grey2); }
     if (hair === 2) { put(1, 5, 10, COL.grey); put(2, 4, 11, COL.grey); put(3, 3, 3, COL.grey); put(4, 3, 3, COL.grey); put(3, 12, 12, COL.grey); put(4, 12, 12, COL.grey); }
     if (hair === 3) { put(2, 4, 11, COL.grey2); put(1, 6, 9, COL.grey2); }
-    /* ojos: lo único que quedó de la cara */
+    /* eyes: all that was left of a face */
     g[6][5] = COL.void; g[6][10] = COL.void;
     g[5][5] = COL.bone; g[5][10] = COL.bone;
-    /* hombros */
+    /* shoulders */
     put(14, 2, 13, COL.grey); put(15, 1, 14, COL.grey);
     put(13, 6, 9, skin);
 
-    if (type === 0) {           /* quirúrgica */
+    if (type === 0) {           /* surgical */
       put(8, 3, 12, COL.bone); put(9, 3, 12, COL.dim); put(10, 3, 12, COL.bone);
       put(11, 4, 11, COL.dim); put(12, 5, 10, COL.bone);
       g[8][2] = COL.grey2; g[8][13] = COL.grey2; g[9][2] = COL.grey2; g[9][13] = COL.grey2;
@@ -617,14 +618,14 @@
       put(10, 4, 11, COL.bone); put(11, 5, 10, COL.bone); put(12, 6, 9, COL.dim);
       g[7][6] = COL.grey2; g[7][9] = COL.grey2;
       g[8][2] = COL.grey2; g[8][13] = COL.grey2;
-    } else if (type === 2) {    /* tela */
+    } else if (type === 2) {    /* cloth */
       for (let py = 8; py <= 12; py++) for (let px = 3; px <= 12; px++) {
         if (py === 12 && (px < 5 || px > 10)) continue;
         if (py === 11 && (px < 4 || px > 11)) continue;
         g[py][px] = (px + py) % 2 ? COL.dust : COL.dim;
       }
       g[8][2] = COL.grey2; g[8][13] = COL.grey2;
-    } else {                    /* pañuelo improvisado */
+    } else {                    /* improvised scarf */
       put(8, 2, 13, COL.dust); put(9, 2, 13, COL.dust); put(10, 3, 12, COL.dust);
       put(11, 4, 11, COL.dust); put(12, 5, 10, COL.dust);
       g[9][4] = COL.redDeep; g[10][7] = COL.redDeep; g[11][9] = COL.redDeep;
@@ -640,7 +641,7 @@
       let dx = 0;
       if (corrupt > 0) {
         const rs = hash(seedn + py * 3.1 + k);
-        if (rs < corrupt * 0.30) continue;                                   /* fila perdida */
+        if (rs < corrupt * 0.30) continue;                                   /* row lost */
         if (rs < corrupt * 0.75) dx = Math.round((hash(seedn + py * 7.7 + k) - 0.5) * 12 * corrupt);
       }
       for (let px = 0; px < 16; px++) {
@@ -667,7 +668,7 @@
       const vanish = 0.54 + hash(i * 6.7) * 0.36;
       const buf = faceBuf(i);
 
-      if (p < appear) {                       /* hueco todavía sin leer */
+      if (p < appear) {                       /* slot not read yet */
         c.globalAlpha = 0.5;
         dither(c, x, y, 32, 32, COL.grey, 0.05, i * 31);
         c.globalAlpha = 1;
@@ -676,7 +677,7 @@
       const gone = p > vanish + 0.05;
       if (gone) {
         R(c, x + 2, y + 14, 28, 1, COL.grey);
-        text(c, 'SIN DATOS', x - 1, y + 34, COL.redDeep, 1, 1, 0.8);
+        text(c, 'NO DATA', x + 3, y + 34, COL.redDeep, 1, 1, 0.8);
         continue;
       }
       alive++;
@@ -688,32 +689,32 @@
       text(c, MASK_NAMES[buf.type], x - 1, y + 34, corrupt > 0.4 ? COL.red : COL.grey2, 1, 1, 0.75);
     }
 
-    /* dos metros de vacío, dibujados */
+    /* two metres of emptiness, drawn */
     const px1 = 148, px2 = 228;
     sprite(c, SPR.person, px1, 182, 1, COL.dust);
     sprite(c, SPR.person2, px2, 182, 1, COL.dust);
     for (let x = px1 + 10; x < px2; x += 4) PX(c, x, 188, COL.redDeep);
     textC(c, '2 M', (px1 + px2) / 2 + 4, 194, COL.red, 1, 1, 0.85);
-    textC(c, 'LA DISTANCIA TAMBIEN SE APRENDIO DE MEMORIA', W / 2, 204, COL.grey2, 1, 1, 0.7);
+    textC(c, 'WE LEARNED THE DISTANCE BY HEART', W / 2, 204, COL.grey2, 1, 1, 0.7);
 
-    chrome(c, '03', 'MASCARILLAS', p, t, null);
-    text(c, 'ROSTROS LEGIBLES ' + String(alive).padStart(2, '0') + '/' + FACE_N, 8, 22, COL.grey2, 1, 1, 0.75);
+    chrome(c, '03', 'MASKS', p, t, null);
+    text(c, 'READABLE FACES ' + String(alive).padStart(2, '0') + '/' + FACE_N, 8, 22, COL.grey2, 1, 1, 0.75);
     grain(c, 0.6, t);
     interlace(c, 0.24);
     tear(c, 0.55, t, 13);
   }
 
   /* ================================================================
-     04 · VACUNAS
-     Un inventario de videojuego antiguo que va desbloqueando objetos.
+     04 · VACCINES
+     An old videogame inventory unlocking one item after another.
      ================================================================ */
 
   const ITEMS = [
     { name: 'VIAL', at: 0.06 },
-    { name: 'JERINGA', at: 0.21 },
-    { name: 'NEVERA', at: 0.36 },
-    { name: 'CARTILLA', at: 0.51 },
-    { name: 'CAMPANA', at: 0.66 }
+    { name: 'SYRINGE', at: 0.21 },
+    { name: 'COOLER', at: 0.36 },
+    { name: 'CARD', at: 0.51 },
+    { name: 'CAMPAIGN', at: 0.66 }
   ];
 
   function item(c, idx, x, y, s) {
@@ -724,24 +725,24 @@
       g(6, 9, 4, 5, COL.bone);
       g(5, 8, 6, 1, COL.redDeep);
       g(5, 4, 1, 11, COL.dim); g(10, 4, 1, 11, COL.dim);
-    } else if (idx === 1) {                /* jeringa */
+    } else if (idx === 1) {                /* syringe */
       g(1, 7, 4, 1, COL.dim);
       g(5, 5, 7, 5, COL.grey); g(5, 6, 7, 3, COL.bone);
       g(12, 4, 2, 7, COL.grey2); g(14, 6, 1, 3, COL.dim);
       g(7, 5, 1, 1, COL.redDeep); g(9, 5, 1, 1, COL.redDeep); g(11, 5, 1, 1, COL.redDeep);
-    } else if (idx === 2) {                /* nevera de transporte */
+    } else if (idx === 2) {                /* transport cooler */
       g(2, 4, 12, 10, COL.grey);
       g(2, 4, 12, 2, COL.dust);
       g(6, 2, 4, 2, COL.grey2);
       g(3, 7, 10, 6, COL.dark);
       g(7, 8, 2, 4, COL.red); g(6, 9, 4, 2, COL.red);
       g(3, 13, 10, 1, COL.grey2);
-    } else if (idx === 3) {                /* cartilla de vacunación */
+    } else if (idx === 3) {                /* vaccination card */
       g(1, 3, 14, 10, COL.bone);
       g(1, 3, 14, 2, COL.dust);
       g(3, 6, 6, 1, COL.grey2); g(3, 8, 8, 1, COL.grey2); g(3, 10, 5, 1, COL.grey2);
       g(11, 7, 3, 4, COL.redDeep); g(12, 8, 1, 2, COL.red);
-    } else {                               /* campaña pública */
+    } else {                               /* public campaign */
       g(7, 10, 2, 6, COL.grey2);
       g(1, 1, 14, 9, COL.dark);
       g(1, 1, 14, 1, COL.dust); g(1, 9, 14, 1, COL.dust);
@@ -753,20 +754,20 @@
   }
 
   function sceneVaccines(c, p, t) {
-    /* la atmósfera se aclara, pero solo un poco */
+    /* the atmosphere lifts, but only a little */
     const warm = ease(seg(p, 0.1, 0.9));
     R(c, 0, 0, W, H, warm > 0.5 ? '#101010' : COL.deep);
     c.fillStyle = 'rgba(232,227,216,0.02)';
     for (let x = 8; x < W; x += 16) c.fillRect(x, 0, 1, H);
     for (let y = 8; y < H; y += 16) c.fillRect(0, y, W, 1);
 
-    /* marco del inventario */
+    /* the inventory frame */
     const fx = 46, fy = 44, fw = 292, fh = 94;
     R(c, fx, fy, fw, fh, 'rgba(0,0,0,0.6)');
     R(c, fx, fy, fw, 1, COL.dim); R(c, fx, fy + fh - 1, fw, 1, COL.dim);
     R(c, fx, fy, 1, fh, COL.dim); R(c, fx + fw - 1, fy, 1, fh, COL.dim);
     R(c, fx + 2, fy + 2, fw - 4, 1, COL.grey2); R(c, fx + 2, fy + fh - 3, fw - 4, 1, COL.grey2);
-    text(c, 'INVENTARIO', fx + 6, fy - 10, COL.dim, 1, 1, 0.9);
+    text(c, 'INVENTORY', fx + 6, fy - 10, COL.dim, 1, 1, 0.9);
     text(c, String(Math.min(5, ITEMS.filter((it) => p >= it.at).length)) + '/5', fx + fw - 20, fy - 10, COL.red, 1, 1, 0.9);
 
     let justUnlocked = null;
@@ -794,7 +795,7 @@
       item(c, i, x + 8, y + 8, 2);
       textC(c, it.name, x + 24, y + 52, COL.grey2, 1, 1, 0.8);
 
-      /* chispas del desbloqueo */
+      /* unlock sparks */
       if (k < 1) {
         for (let s2 = 0; s2 < 10; s2++) {
           const a = hash(i * 3.3 + s2) * Math.PI * 2, r = 6 + k * 26;
@@ -805,15 +806,15 @@
 
     if (justUnlocked) {
       const blink = Math.floor(t / 110) % 2 === 0;
-      textC(c, 'OBJETO DESBLOQUEADO', W / 2, 30, blink ? COL.red : COL.bone, 1, 1, 1);
+      textC(c, 'ITEM UNLOCKED', W / 2, 30, blink ? COL.red : COL.bone, 1, 1, 1);
     }
 
-    /* dosis administradas */
+    /* doses administered */
     const doses = Math.floor(ease(seg(p, 0.15, 0.95)) * 13567000000);
     textC(c, num(doses), W / 2, 148, COL.bone, 2, 1, 0.95);
-    textC(c, 'DOSIS ADMINISTRADAS EN EL MUNDO', W / 2, 166, COL.grey2, 1, 1, 0.85);
+    textC(c, 'DOSES ADMINISTERED WORLDWIDE', W / 2, 166, COL.grey2, 1, 1, 0.85);
 
-    /* la barra que nunca termina de resolverse */
+    /* the bar that never quite resolves */
     const bx = 92, bw = 200;
     R(c, bx, 182, bw, 7, COL.void);
     R(c, bx, 182, bw, 1, COL.grey2); R(c, bx, 188, bw, 1, COL.grey2);
@@ -821,20 +822,20 @@
     const fill = Math.round(bw * (0.62 + Math.sin(t * 0.0011) * 0.05) * ease(seg(p, 0.2, 0.8)));
     for (let x = 0; x < fill - 2; x += 3) R(c, bx + 1 + x, 184, 2, 3, hash(x + Math.floor(t / 200)) > 0.08 ? COL.red : COL.void);
     const q = Math.floor(t / 260) % 3;
-    text(c, 'CERTEZA ' + (q === 0 ? '??' : q === 1 ? '?%' : '--') + ' ', bx + bw + 6, 182, COL.grey2, 1, 1, 0.8);
-    text(c, 'ESPERANZA', bx - 62, 182, COL.dim, 1, 1, 0.8);
+    text(c, 'CERTAINTY ' + (q === 0 ? '??' : q === 1 ? '?%' : '--') + ' ', bx + bw + 6, 182, COL.grey2, 1, 1, 0.8);
+    text(c, 'HOPE', bx - 34, 182, COL.dim, 1, 1, 0.8);
 
-    if (p > 0.86) textC(c, 'NADIE SABIA CUANTO DURARIA NI A QUIEN LLEGARIA PRIMERO', W / 2, 200, COL.dim, 1, 1, ease(seg(p, 0.86, 0.97)) * 0.9);
+    if (p > 0.86) textC(c, 'NOBODY KNEW HOW LONG IT WOULD LAST OR WHO IT WOULD REACH FIRST', W / 2, 200, COL.dim, 1, 1, ease(seg(p, 0.86, 0.97)) * 0.9);
 
-    chrome(c, '04', 'VACUNAS', p, t, null);
+    chrome(c, '04', 'VACCINES', p, t, null);
     grain(c, 0.4, t);
     interlace(c, 0.2);
     tear(c, 0.18, t, 29);
   }
 
   /* ================================================================
-     05 · MEMORIA
-     Miles de píxeles que se apagan hasta que queda uno.
+     05 · MEMORY
+     Thousands of pixels going out until one is left.
      ================================================================ */
 
   const MEM = [];
@@ -855,13 +856,13 @@
       const m = MEM[i];
       if (q > m.die) continue;
       let col = m.v > 0.985 ? COL.red : m.v > 0.55 ? COL.bone : m.v > 0.2 ? COL.dim : COL.dust;
-      /* titilan justo antes de apagarse */
+      /* they flicker just before going out */
       if (m.die - q < 0.05 && hash(i + Math.floor(t / 90)) > 0.5) col = COL.grey;
       c.fillStyle = col;
       c.fillRect(m.x, m.y, 1, 1);
     }
 
-    /* el último */
+    /* the last one */
     const pulse = 0.5 + 0.5 * Math.sin(t * 0.0035);
     const last = p > 0.86;
     if (last) {
@@ -874,28 +875,28 @@
     }
 
     const cap = [
-      [0.00, 0.22, 'CADA PIXEL FUE ALGUIEN, ALGO, UN DIA CUALQUIERA'],
-      [0.24, 0.52, 'SE APAGAN EN EL ORDEN EN QUE DEJAMOS DE NOMBRARLOS'],
-      [0.54, 0.82, 'NO CABEN EN NINGUNA CIFRA'],
-      [0.86, 1.00, 'QUEDA UNO']
+      [0.00, 0.22, 'EVERY PIXEL WAS SOMEONE, SOMETHING, AN ORDINARY DAY'],
+      [0.24, 0.52, 'THEY GO OUT IN THE ORDER WE STOPPED NAMING THEM'],
+      [0.54, 0.82, 'NO FIGURE IS BIG ENOUGH'],
+      [0.86, 1.00, 'ONE IS LEFT']
     ];
     for (const [a, b, s] of cap) {
       if (p < a || p > b) continue;
       const k = (p - a) / (b - a);
       const al = Math.min(ease(k / 0.2), ease((1 - k) / 0.2));
-      textC(c, s, W / 2, 186, s === 'QUEDA UNO' ? COL.red : COL.dim, 1, 1, al * 0.95);
+      textC(c, s, W / 2, 186, s === 'ONE IS LEFT' ? COL.red : COL.dim, 1, 1, al * 0.95);
     }
-    if (p > 0.965) textC(c, 'NO LO APAGUES', W / 2, 198, COL.bone, 1, 1, ease(seg(p, 0.965, 1)) * 0.9);
+    if (p > 0.965) textC(c, 'DO NOT PUT IT OUT', W / 2, 198, COL.bone, 1, 1, ease(seg(p, 0.965, 1)) * 0.9);
 
-    chrome(c, '05', 'MEMORIA', p, t, null);
+    chrome(c, '05', 'MEMORY', p, t, null);
     grain(c, 0.25, t);
     interlace(c, 0.18);
     if (p < 0.5) tear(c, 0.12, t, 41);
   }
 
-  /* ---------- lo que se lleva a las dos páginas ---------- */
+  /* ---------- what the two modes take from here ---------- */
 
-  window.ARCHIVO = {
+  window.ARCHIVE = {
     W, H, COL, PAL, SPR,
     scenes: {
       deaths: sceneDeaths, hospital: sceneHospital,

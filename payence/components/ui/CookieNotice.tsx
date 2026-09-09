@@ -27,7 +27,7 @@ export function CookieNotice() {
       hidden={!open}
       role="dialog"
       aria-label="Cookie notice"
-      className="fixed bottom-5 left-5 right-5 z-[70] max-w-[380px] rounded-[18px] border border-hair bg-canvas p-6 shadow-[0_28px_60px_-32px_rgba(21,21,21,0.55)] sm:right-auto"
+      className="fixed bottom-5 left-5 right-5 z-[70] ml-auto max-w-[380px] rounded-[18px] border border-hair bg-canvas p-6 shadow-[0_28px_60px_-32px_rgba(21,21,21,0.55)] sm:left-auto"
     >
       <h2 className="text-[17px] font-bold tracking-tight">A small cookie?</h2>
       <p className="mt-3 text-[13.5px] leading-[1.65] text-muted">

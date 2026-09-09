@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "../ui/Button";
-import { Label } from "../ui/Bits";
 import { CountUp } from "../ui/CountUp";
 import { AgentTerminal } from "../ui/AgentTerminal";
 import { CardPanel } from "../ui/CardPanel";
@@ -25,12 +24,8 @@ export function Hero() {
   return (
     <section id="top" className="relative overflow-hidden pb-20 pt-14 md:pb-28 md:pt-20">
       <div className="shell">
-        <motion.div {...rise(0.05)}>
-          <Label>Financial infrastructure for autonomous agents</Label>
-        </motion.div>
-
         {/* the headline arrives a word at a time, then the accent line lands */}
-        <h1 className="mt-7 max-w-[16ch] text-display font-extrabold">
+        <h1 className="max-w-[16ch] text-display font-extrabold">
           {HEADLINE.map((word, i) => (
             <motion.span
               key={word}
@@ -38,7 +33,7 @@ export function Hero() {
               className="inline-block"
               initial={still ? false : { opacity: 0, y: "0.42em" }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.66, delay: 0.1 + i * 0.075, ease: [0.22, 0.65, 0.3, 1] }}
+              transition={{ duration: 0.66, delay: 0.04 + i * 0.075, ease: [0.22, 0.65, 0.3, 1] }}
             >
               {word}&nbsp;
             </motion.span>
@@ -48,7 +43,7 @@ export function Hero() {
             className="inline-block text-coral"
             initial={still ? false : { opacity: 0, y: "0.42em" }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.72, delay: 0.5, ease: [0.22, 0.65, 0.3, 1] }}
+            transition={{ duration: 0.72, delay: 0.44, ease: [0.22, 0.65, 0.3, 1] }}
           >
             Financial Layer.
           </motion.span>
@@ -56,13 +51,13 @@ export function Hero() {
 
         <motion.p
           className="mt-8 max-w-[54ch] text-[17px] leading-[1.6] text-muted md:text-[18px]"
-          {...rise(0.62)}
+          {...rise(0.56)}
         >
           Equip autonomous agents with controlled spending, virtual cards, payment policies and
           real-time transaction visibility from one platform.
         </motion.p>
 
-        <motion.div className="mt-10 flex flex-wrap items-center gap-3" {...rise(0.7)}>
+        <motion.div className="mt-10 flex flex-wrap items-center gap-3" {...rise(0.64)}>
           <Button href="#get-started" size="lg">
             Get Started
           </Button>
@@ -74,7 +69,7 @@ export function Hero() {
         {/* the product itself, opened up: the log on one side, the card on the other */}
         <motion.div
           className="mt-16 grid grid-cols-1 gap-4 rounded-card border border-hairDark bg-ink p-4 md:mt-20 md:grid-cols-2 md:gap-5 md:p-5"
-          {...rise(0.78)}
+          {...rise(0.72)}
         >
           <AgentTerminal />
           <CardPanel />

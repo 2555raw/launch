@@ -1,0 +1,12 @@
+{
+  "name": "launch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo of small sites. The deployed service serves legalization-site/.",
+  "scripts": {
+    "start": "node legalization-site/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

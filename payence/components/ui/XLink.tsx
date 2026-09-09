@@ -18,7 +18,7 @@ export function XMark({ size = 15, className = "" }: { size?: number; className?
   );
 }
 
-/** The mark as a link. Never nest this inside another anchor — use XMark there. */
+/** The mark as a link. Never nest this inside another anchor; use XMark there. */
 export function XLink({
   className = "",
   size = 15,

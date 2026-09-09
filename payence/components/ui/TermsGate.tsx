@@ -15,7 +15,7 @@ const TRIGGER_PX = 520;
  * It does not interrupt the first frame: the visitor reads the hero, and the
  * dialog arrives once they have scrolled far enough to be actually using the
  * page. Accepting is remembered, so it asks once and not on every visit.
- * Declining closes the site behind a screen that always offers the way back —
+ * Declining closes the site behind a screen that always offers the way back:
  * a gate that can lock someone out permanently is a bug, not a policy.
  */
 export function TermsGate() {
@@ -29,7 +29,7 @@ export function TermsGate() {
     try {
       stored = sessionStorage.getItem(KEY);
     } catch (_) {
-      /* storage blocked — ask again this visit */
+      /* storage blocked, so ask again this visit */
     }
     if (stored === "accepted") {
       setStatus("accepted");
@@ -87,7 +87,7 @@ export function TermsGate() {
     try {
       sessionStorage.setItem(KEY, "accepted");
     } catch (_) {
-      /* storage blocked — it will ask again next visit */
+      /* storage blocked, so it will ask again next visit */
     }
     setStatus("accepted");
   }, []);
@@ -125,7 +125,7 @@ export function TermsGate() {
 
           <div id="terms-gate-body" className="overflow-y-auto px-7 py-6 md:px-9">
             <p className="rounded-card border border-hair bg-shell px-4 py-3 font-mono text-[11.5px] leading-relaxed text-muted">
-              Template copy for a fictional product. Not legal advice — replace it with text
+              Template copy for a fictional product. Not legal advice. Replace it with text
               reviewed by counsel before launch.
             </p>
 

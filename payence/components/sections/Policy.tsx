@@ -26,7 +26,7 @@ export function Policy() {
             <p className="mt-8 max-w-[46ch] text-[16.5px] leading-[1.65] text-muted">
               A policy is a document, not a paragraph in a system prompt. It decides what an agent
               may spend, which card it holds, where that card clears, what needs a human, and who
-              sees the charge — and it is evaluated on our side, every single time.
+              sees the charge, and it is evaluated on our side, every single time.
             </p>
           </Reveal>
           <Reveal delay={0.14}>
@@ -57,7 +57,7 @@ export function Policy() {
             <div className="border-t border-hair bg-shell px-5 py-4 md:px-6">
               <p className="font-mono text-[11.5px] leading-relaxed text-muted">
                 <span className="text-coral">last decision</span> · 12:03:52 · declined
-                unknown-vendor.io — merchant not in allowlist
+                unknown-vendor.io · merchant not in allowlist
               </p>
             </div>
           </div>

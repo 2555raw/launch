@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://payence.dev"),
-  title: "Payence — the financial layer for AI agents",
+  title: "Payence: the financial layer for AI agents",
   description:
     "Payence equips autonomous agents with controlled spending, virtual cards, payment policies and real-time transaction visibility from one platform.",
   keywords: [
@@ -15,14 +15,14 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    title: "Payence — the financial layer for AI agents",
+    title: "Payence: the financial layer for AI agents",
     description:
       "Controlled spending, virtual cards, payment policies and real-time visibility for autonomous agents.",
     siteName: "Payence",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Payence — the financial layer for AI agents",
+    title: "Payence: the financial layer for AI agents",
     description:
       "Controlled spending, virtual cards, payment policies and real-time visibility for autonomous agents.",
   },

@@ -6,7 +6,7 @@
 
 The export is a normal Next.js page: markup plus a stylesheet plus the React
 runtime. A single file can carry the first two but not the third, so the
-behaviour that lived in React is restored here as a small vanilla script — the
+behaviour that lived in React is restored here as a small vanilla script. The
 bar that inverts over the ink sections, the menu, the platform tabs, the FAQ,
 the freeze switch and the ticking budget. Everything renders at rest; nothing
 waits on an observer to become visible.
@@ -21,7 +21,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 EXPORT = ROOT / ".next-snapshot"
 
 VANILLA = r"""
-/* Payence — behaviour for the flat snapshot.
+/* Payence, behaviour for the flat snapshot.
    The export carries the markup and the stylesheet; React does not come with
    it, so everything interactive is restored here. Keep this list in sync with
    the components: nav, terminal, card panel, card face, network picker, tabs,
@@ -117,9 +117,10 @@ VANILLA = r"""
             : 'text-canvas/45 hover:text-canvas/80');
       });
       if (input) input.placeholder = kind === 'merchant' ? 'e.g. stripe.com' : 'e.g. observability';
+      /* the copy lives on the element, so it cannot drift from the component */
       if (hint) hint.textContent = kind === 'merchant'
-        ? 'Merchant — the card clears at this payee and nowhere else.'
-        : 'Category — the card clears at every payee in this class of spend.';
+        ? hint.dataset.hintMerchant || ''
+        : hint.dataset.hintCategory || '';
     };
     toggles.forEach((t) => t.addEventListener('click', () => { kind = t.dataset.kindToggle; paintToggles(); }));
     paintToggles();

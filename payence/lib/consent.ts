@@ -2,7 +2,7 @@
  * The one thing this page would keep about you: the card you designed.
  *
  * A consent notice that stores nothing is a lie told politely, so this is
- * wired to something real — allow it and the card's name, colour and network
+ * wired to something real: allow it and the card's name, colour and network
  * come back with you; decline and nothing is written at all. It lives in this
  * browser's own storage, never leaves it, and no third party can read it.
  */
@@ -32,7 +32,7 @@ export function setConsent(value: Exclude<Consent, null>) {
     localStorage.setItem(CONSENT_KEY, value);
     if (value === "declined") localStorage.removeItem(DESIGN_KEY);
   } catch (_) {
-    /* storage blocked — the choice simply is not remembered */
+    /* storage blocked, so the choice is not remembered */
   }
 }
 
@@ -51,6 +51,6 @@ export function saveDesign(design: CardDesign) {
   try {
     localStorage.setItem(DESIGN_KEY, JSON.stringify(design));
   } catch (_) {
-    /* storage blocked — the design simply is not kept */
+    /* storage blocked, so the design is not kept */
   }
 }

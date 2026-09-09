@@ -7,7 +7,7 @@ type DocId = LegalDoc["id"];
 
 /**
  * The Terms and Privacy dialogs. Both documents are always in the document and
- * hidden when closed — so they are readable without JavaScript, indexable, and
+ * hidden when closed, so they are readable without JavaScript, indexable, and
  * the flat snapshot can open them with nothing but a class toggle.
  */
 export function LegalDialogs() {
@@ -102,7 +102,7 @@ export function LegalDialogs() {
 
               <div className="overflow-y-auto px-6 py-7 md:px-8">
                 <p className="rounded-card border border-hair bg-shell px-4 py-3 font-mono text-[11.5px] leading-relaxed text-muted">
-                  Template copy for a fictional product. Not legal advice — replace it with text
+                  Template copy for a fictional product. Not legal advice. Replace it with text
                   reviewed by counsel before launch.
                 </p>
 

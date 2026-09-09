@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 /**
  * A budget bar. It fills once, when it comes into view, to the value it is
- * actually reporting — the animation is the number, not decoration.
+ * actually reporting. The animation is the number, not decoration.
  */
 export function Meter({
   value,

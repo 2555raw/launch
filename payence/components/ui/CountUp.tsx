@@ -9,7 +9,7 @@ import { SNAPSHOT } from "@/lib/snapshot";
  * The final value is what renders on the server, so the number is correct with
  * no JavaScript and correct in the flat snapshot; the client resets it before
  * the first paint, which is why this uses a layout effect rather than an
- * ordinary one — an effect would let the final value flash first.
+ * ordinary one. An effect would let the final value flash first.
  */
 export function CountUp({
   to,

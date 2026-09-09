@@ -6,10 +6,16 @@ import { readDesign, saveDesign } from "@/lib/consent";
 
 /**
  * An allowlist rule. A merchant matches one payee; a category matches a whole
- * class of spend, the way a card network's merchant category does — so
+ * class of spend, the way a card network's merchant category does, so
  * "AI APIs" clears every model provider without naming each one.
  */
 type Kind = "merchant" | "category";
+
+/** What each kind of rule does, in one place. */
+const HINTS: Record<Kind, string> = {
+  merchant: "Merchant: the card clears at this payee and nowhere else.",
+  category: "Category: the card clears at every payee in this class of spend.",
+};
 type Entry = { name: string; kind: Kind };
 
 const START: Entry[] = [
@@ -111,7 +117,7 @@ export function CardPanel() {
         </span>
       </div>
 
-      {/* the card face — an example you can put your own name on */}
+      {/* the card face, an example you can put your own name on */}
       <div
         data-card-face
         style={
@@ -156,7 +162,7 @@ export function CardPanel() {
               maxLength={24}
               onChange={(e) => setHolder(e.target.value)}
               placeholder="your name here"
-              aria-label="Cardholder name — type your own"
+              aria-label="Cardholder name, type your own"
               className="mt-1 w-full min-w-0 border-b border-current/0 bg-transparent pb-0.5 font-mono text-[13px] text-[var(--ink)] transition-colors duration-200 placeholder:opacity-40 hover:border-current/40 focus:border-current focus:outline-none focus-visible:outline-none"
             />
           </div>
@@ -209,7 +215,7 @@ export function CardPanel() {
       </div>
 
       <p className="mt-2.5 font-mono text-[10.5px] leading-relaxed text-canvas/40">
-        Example card — type your own name on it, pick a network and a colour.
+        Example card. Type your own name on it, pick a network and a colour.
       </p>
 
       {/* the allowlist, editable */}
@@ -325,10 +331,13 @@ export function CardPanel() {
           </button>
         </div>
 
-        <p data-allow-hint className="mt-2.5 font-mono text-[10.5px] leading-relaxed text-canvas/40">
-          {kind === "merchant"
-            ? "Merchant — the card clears at this payee and nowhere else."
-            : "Category — the card clears at every payee in this class of spend."}
+        <p
+          data-allow-hint
+          data-hint-merchant={HINTS.merchant}
+          data-hint-category={HINTS.category}
+          className="mt-2.5 font-mono text-[10.5px] leading-relaxed text-canvas/40"
+        >
+          {HINTS[kind]}
         </p>
       </div>
 
@@ -405,7 +414,7 @@ function CardChip() {
 /**
  * The network picker: one choice at a time, opened from the card's own row.
  * Kept as a menu of buttons rather than a native select because the mark is the
- * point — you pick the logo you can see.
+ * point: you pick the logo you can see.
  */
 function NetworkPicker({
   value,

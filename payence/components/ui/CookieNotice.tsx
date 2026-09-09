@@ -5,7 +5,7 @@ import { getConsent, setConsent } from "@/lib/consent";
 
 /**
  * The consent notice, bottom-left, on arrival. It asks for one thing and says
- * exactly what that thing is — and the thing is real: allow it and the card you
+ * exactly what that thing is, and the thing is real: allow it and the card you
  * design in the hero is still yours when you come back.
  */
 export function CookieNotice() {
@@ -32,7 +32,7 @@ export function CookieNotice() {
       <h2 className="text-[17px] font-bold tracking-tight">A small cookie?</h2>
       <p className="mt-3 text-[13.5px] leading-[1.65] text-muted">
         Payence can keep one first-party entry in this browser that remembers the card you design
-        here — its name, colour and network — so your card is still yours when you come back. No
+        here: its name, colour and network, so your card is still yours when you come back. No
         analytics, no third parties, nothing leaves this browser.
       </p>
       <div className="mt-5 flex gap-2.5">

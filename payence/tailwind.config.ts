@@ -16,7 +16,7 @@ const config: Config = {
         coral: "#FF5C35",    // primary accent: money moving, the one loud colour
         violet: "#6C63FF",   // secondary accent: policy, rules, machine decisions
         positive: "#28A96B", // approved / healthy
-        danger: "#E5484D",   // frozen / stopped — a state, never the accent
+        danger: "#E5484D",   // frozen or stopped: a state, never the accent
       },
       borderColor: {
         hair: "rgba(21,21,21,0.12)",

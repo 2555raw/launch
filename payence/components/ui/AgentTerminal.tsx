@@ -33,7 +33,7 @@ const TONE: Record<Tone, string> = {
 
 /**
  * The authorization log, written out line by line the way it would arrive.
- * It runs once when it reaches the viewport and then holds the full log — it is
+ * It runs once when it reaches the viewport and then holds the full log. It is
  * a record of what happened, not a loop.
  */
 export function AgentTerminal() {
@@ -84,7 +84,7 @@ export function AgentTerminal() {
           ))}
         </span>
         <span className="flex-1 text-center font-mono text-[11px] text-canvas/45">
-          payence — agent activity
+          payence · agent activity
         </span>
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-coral">
           <i className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-coral align-middle animate-pulseDot" />

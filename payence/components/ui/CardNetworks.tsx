@@ -2,7 +2,7 @@
  * The card networks a Payence card can be issued on.
  *
  * These are Payence's own networks, with marks drawn for this page. Real scheme
- * marks — Visa, Mastercard, American Express and the rest — are registered
+ * marks (Visa, Mastercard, American Express and the rest) are registered
  * trademarks, and putting one on a card implies an issuing agreement, so they
  * are deliberately not reproduced here. If you license a scheme's brand assets,
  * swapping one in is a single component: keep the viewBox at 44×24, draw in

@@ -17,7 +17,7 @@ export function Showcase() {
   const [frozen, setFrozen] = useState(false);
 
   // The console cycles through the runs it is reporting. It is the same three
-  // rows every time — the movement shows state changing, not fake volume.
+  // rows every time; the movement shows state changing, not fake volume.
   useEffect(() => {
     if (frozen) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -45,7 +45,7 @@ export function Showcase() {
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hair px-5 py-4 md:px-7">
               <div className="flex items-center gap-3">
                 <span className="text-[15px] font-bold tracking-tight">PAYENCE</span>
-                <span className="font-mono text-[12px] text-muted">— agent activity</span>
+                <span className="font-mono text-[12px] text-muted">· agent activity</span>
               </div>
               <div className="flex items-center gap-3">
                 <Status tone={frozen ? "blocked" : "live"} pulse={!frozen}>

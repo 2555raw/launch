@@ -52,7 +52,7 @@ export function FinalCta() {
         <Reveal delay={0.2}>
           <p className="mt-5 font-mono text-[11.5px] text-canvas/45" role="status">
             {sent
-              ? "Thanks — we'll send your sandbox keys to that address."
+              ? "Thanks. We'll send your sandbox keys to that address."
               : "Sandbox keys in one email. No card required."}
           </p>
         </Reveal>

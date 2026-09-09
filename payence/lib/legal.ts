@@ -3,7 +3,7 @@
  *
  * Written for a fictional product. It reads like the real thing and covers the
  * clauses a payments platform actually needs, but it has not been reviewed by a
- * lawyer — every dialog says so at the top, and that note should stay until real
+ * lawyer. Every dialog says so at the top, and that note should stay until real
  * counsel replaces this text.
  */
 
@@ -171,7 +171,7 @@ export const LEGAL_DOCS: Record<"terms" | "privacy", LegalDoc> = {
 };
 
 /**
- * The copy shown in the terms gate — the dialog that appears once the visitor
+ * The copy shown in the terms gate: the dialog that appears once the visitor
  * has scrolled a little way into the page and asks them to accept or decline.
  *
  * It is deliberately shorter than the full Terms: someone deciding in the moment
@@ -193,7 +193,7 @@ export const GATE_TERMS: { heading: string; body: string }[] = [
   },
   {
     heading: "4. Acceptable use",
-    body: "Do not use the service for fraud, money laundering or sanctions evasion, and do not attempt to circumvent merchant restrictions, spending ceilings or approval thresholds — whether directly or by instructing an agent to do it for you. We may suspend an agent, a card or an account we reasonably believe is being used this way.",
+    body: "Do not use the service for fraud, money laundering or sanctions evasion, and do not attempt to circumvent merchant restrictions, spending ceilings or approval thresholds, whether directly or by instructing an agent to do it for you. We may suspend an agent, a card or an account we reasonably believe is being used this way.",
   },
   {
     heading: "5. Fees",
@@ -209,6 +209,6 @@ export const GATE_TERMS: { heading: string; body: string }[] = [
   },
   {
     heading: "8. Your choice",
-    body: "Accept to carry on using the site. Decline and the site will close — nothing is stored, and you can come back and accept at any time.",
+    body: "Accept to carry on using the site. Decline and the site will close. Nothing is stored, and you can come back and accept at any time.",
   },
 ];

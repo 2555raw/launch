@@ -16,7 +16,7 @@ const LINKS = [
 /**
  * A floating pill rather than a full-width bar: it sits on the paper and rides
  * over the ink sections without cutting a band across them, so it needs no
- * inversion logic at all — it just gains a shadow once the page has moved.
+ * inversion logic at all; it just gains a shadow once the page has moved.
  */
 export function Nav() {
   const [open, setOpen] = useState(false);

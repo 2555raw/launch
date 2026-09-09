@@ -41,10 +41,25 @@ jobs:
 
       - run: npm ci
 
+      - name: Work out the base path
+        id: base
+        run: |
+          # A custom domain serves the site from the root, so the prefix must be
+          # empty; without a domain, Pages serves it from /<repo> and the prefix
+          # is required or every asset under _next/ 404s. public/CNAME is what
+          # Pages reads to know the domain, so it decides this too.
+          if [ -f public/CNAME ]; then
+            echo "path=" >> "$GITHUB_OUTPUT"
+            echo "Custom domain: $(cat public/CNAME), building from the root"
+          else
+            echo "path=/${{ github.event.repository.name }}" >> "$GITHUB_OUTPUT"
+            echo "No custom domain, building for /${{ github.event.repository.name }}"
+          fi
+
       - name: Build the static export
         run: npm run build:pages
         env:
-          BASE_PATH: /${{ github.event.repository.name }}
+          BASE_PATH: ${{ steps.base.outputs.path }}
 
       - run: touch out/.nojekyll
 

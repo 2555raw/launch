@@ -213,6 +213,11 @@ directories starting with an underscore, which is where Next puts everything).
 To turn it on: **Settings, Pages, Source: GitHub Actions**. Pages needs the
 repository to be public on the free plan.
 
+For a custom domain, put the hostname in `public/CNAME` (one line, no protocol).
+Next copies `public/` into the export, so Pages finds it at `out/CNAME`, and the
+workflow reads the same file to decide the base path: a custom domain serves from
+the root, so the prefix has to be empty.
+
 For a host that serves from the root (Vercel, Netlify, a domain of your own),
 leave `BASE_PATH` unset and the export works unprefixed.
 

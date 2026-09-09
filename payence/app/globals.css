@@ -47,15 +47,10 @@
     @apply mx-auto w-full max-w-shell px-6 md:px-10;
   }
 
-  /* A printed kicker, not a terminal label: the page's own sans, a short rule
-     leading it, and tracking wide enough to read as a kicker without shouting. */
+  /* A printed kicker, not a terminal label: the page's own sans, and tracking
+     wide enough to read as a kicker without shouting. */
   .label {
-    @apply inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.11em] text-muted;
-  }
-
-  .label::before {
-    content: "";
-    @apply block h-px w-6 bg-current opacity-60;
+    @apply inline-block text-[11px] font-semibold uppercase tracking-[0.11em] text-muted;
   }
 
   .hair {

@@ -49,10 +49,10 @@ softened to grey.
 | `danger` | `#E5484D` | frozen and stopped states — a state colour, never the accent |
 | `hair` / `hairStrong` | `#151515` at 12% / 22% | every border on the page |
 
-Section kickers are set in Archivo with a short rule leading them (`.label`), not in mono. A tiny
-uppercase mono label above every heading is one of the tells of a generated page, and the rule
-reads as a printed kicker instead. Mono stays where it means something: figures, identifiers,
-code and card data.
+Section kickers are set in Archivo (`.label`), not in mono. A tiny uppercase mono label above
+every heading is one of the tells of a generated page. Mono stays where it means something:
+figures, identifiers, code and card data. The hero carries no kicker at all — the page opens on
+the headline.
 
 Type: **Archivo** across the board (400–800, tightened to `-0.045em` at display sizes) with
 **JetBrains Mono** for figures, identifiers, labels and code. One scale, defined in

@@ -214,6 +214,9 @@ To turn it on: **Settings, Pages, Source: GitHub Actions**. Pages needs the
 repository to be public on the free plan.
 
 For a custom domain, put the hostname in `public/CNAME` (one line, no protocol).
+It is parked as `public/CNAME.disabled` until the domain's DNS actually points at
+GitHub: with the file in place the site builds for the root and the github.io
+URL breaks, which is a bad trade while the domain is not yet pointing here.
 Next copies `public/` into the export, so Pages finds it at `out/CNAME`, and the
 workflow reads the same file to decide the base path: a custom domain serves from
 the root, so the prefix has to be empty.

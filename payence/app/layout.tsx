@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://payence.dev"),
+  metadataBase: new URL("https://payence.site"),
   title: "Payence: the financial layer for AI agents",
   description:
     "Payence equips autonomous agents with controlled spending, virtual cards, payment policies and real-time transaction visibility from one platform.",

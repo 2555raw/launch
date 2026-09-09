@@ -119,7 +119,7 @@
   const bootEl = $('#boot');
   const enter = () => {
     if (body.dataset.mode !== 'boot') return;
-    setMode('menu');
+    setMode('warn');
     setTimeout(() => bootEl.remove(), 380);
   };
   enterEl.addEventListener('click', enter);

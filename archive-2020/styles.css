@@ -46,8 +46,8 @@ button{
 .mode{display:none}
 body[data-mode="archive"] .mode--archive{display:block}
 body[data-mode="floor"] .mode--floor{display:block}
-body[data-mode="floor"],body[data-mode="menu"],body[data-mode="boot"]{overflow:hidden;height:100vh}
-body[data-mode="boot"] .menu,body[data-mode="archive"] .menu,body[data-mode="floor"] .menu{display:none}
+body[data-mode="floor"],body[data-mode="menu"],body[data-mode="boot"],body[data-mode="warn"]{overflow:hidden;height:100vh}
+body:not([data-mode="menu"]) .menu{display:none}
 
 /* ── startup ──────────────────────────────────────────────────────── */
 
@@ -324,3 +324,97 @@ body:not([data-mode="boot"]) .boot{opacity:0;visibility:hidden;pointer-events:no
   .caret,.boot__enter{animation:none}
   .crt__noise{opacity:.04}
 }
+
+/* ── caution card, briefing and claim ─────────────────────────────── */
+
+.warn{
+  position:fixed;inset:0;z-index:80;
+  display:flex;align-items:center;justify-content:center;padding:6vh 5vw;
+  background:var(--ink);
+}
+body:not([data-mode="warn"]) .warn{display:none}
+
+.warn__card{
+  width:min(660px,100%);padding:30px 30px 26px;
+  border:1px solid var(--bone);
+  box-shadow:0 0 0 6px #000,0 0 0 7px var(--grey-2);
+  animation:warnIn .5s steps(3,end) both;
+}
+@keyframes warnIn{from{opacity:0}to{opacity:1}}
+
+.warn__rated{
+  margin:0 0 22px;padding-bottom:12px;border-bottom:1px solid var(--grey-2);
+  font-size:9px;letter-spacing:.3em;color:var(--dim);
+}
+.warn__title{
+  margin:0 0 18px;font-size:clamp(26px,5vw,40px);font-weight:400;letter-spacing:.34em;
+  color:var(--red);text-shadow:2px 0 rgba(0,0,0,.9);
+}
+.warn__body{margin:0 0 20px;font-size:11px;line-height:2;letter-spacing:.12em;color:var(--bone)}
+
+.warn__terms{margin:0 0 24px;padding:0;list-style:none;display:grid;gap:9px}
+.warn__terms li{
+  font-size:10px;line-height:1.8;letter-spacing:.04em;text-transform:none;color:var(--dim);
+  padding-left:14px;position:relative;
+}
+.warn__terms li::before{content:"·";position:absolute;left:2px;color:var(--red-deep)}
+.warn__terms b{color:var(--bone);font-weight:400}
+
+.warn__btns{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.warn__btns button{
+  padding:12px 20px;border:1px solid var(--red-deep);color:var(--red);
+  font-size:10px;letter-spacing:.2em;
+}
+.warn__btns button:hover{background:var(--red);border-color:var(--red);color:var(--ink)}
+.warn__out{font-size:9px;letter-spacing:.2em;color:var(--grey-2)}
+.warn__out:hover{color:var(--dim)}
+
+.brief,.claim{
+  position:fixed;inset:0;z-index:48;
+  display:flex;align-items:center;justify-content:center;
+  padding:5vh 5vw;background:rgba(0,0,0,.93);overflow:auto;
+}
+.brief[hidden],.claim[hidden]{display:none!important}
+
+.brief__box{width:min(660px,100%)}
+.brief__eyebrow{margin:0 0 10px;font-size:9px;letter-spacing:.3em;color:var(--red-deep)}
+.brief__title{
+  margin:0 0 18px;font-size:clamp(28px,6vw,48px);font-weight:400;letter-spacing:.2em;color:var(--bone);
+  text-shadow:2px 0 var(--red-deep),-2px 0 rgba(110,170,200,.3);
+}
+.brief__why,.brief__how{margin:0 0 16px;font-size:11px;line-height:2;letter-spacing:.04em;text-transform:none;color:var(--dim)}
+.brief__why b{color:var(--bone);font-weight:400}
+.brief__how{color:var(--bone)}
+
+.brief__floors{margin:0 0 18px;padding:0;list-style:none;display:grid;gap:8px}
+.brief__floors li{
+  font-size:10px;line-height:1.8;letter-spacing:.04em;text-transform:none;color:var(--dim);
+  border-left:1px solid var(--grey-2);padding-left:12px;
+}
+.brief__floors b{color:var(--red);font-weight:400;letter-spacing:.14em;margin-right:6px}
+
+.brief__warn{margin:0 0 10px;font-size:9px;letter-spacing:.18em;color:var(--red)}
+.brief__keys{margin:0 0 22px;font-size:9px;letter-spacing:.1em;color:var(--grey-2)}
+#briefGo{
+  padding:14px 22px;border:1px solid var(--red);color:var(--red);
+  font-size:11px;letter-spacing:.24em;
+}
+#briefGo:hover{background:var(--red);color:var(--ink)}
+
+.claim__box{width:min(520px,100%);border:1px solid var(--grey-2);padding:26px;background:var(--ink)}
+.claim__t{margin:0 0 6px;font-size:11px;letter-spacing:.16em;color:var(--red)}
+.claim__s{margin:0 0 22px;font-size:10px;letter-spacing:.16em;color:var(--dim)}
+.claim__s b{color:var(--bone);font-weight:400}
+.claim__lab{display:block;margin:0 0 8px;font-size:9px;letter-spacing:.24em;color:var(--dim)}
+#wallet{
+  width:100%;padding:12px;background:#0d0d0d;border:1px solid var(--grey-2);
+  color:var(--bone);font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+}
+#wallet:focus{outline:0;border-color:var(--red)}
+.claim__warn{margin:12px 0 18px;font-size:9px;line-height:1.8;letter-spacing:.1em;color:var(--red)}
+.claim__row{display:flex;gap:12px;align-items:center}
+.claim__row button{padding:12px 18px;border:1px solid var(--red-deep);color:var(--red);font-size:10px;letter-spacing:.18em}
+.claim__row button:hover{background:var(--red);border-color:var(--red);color:var(--ink)}
+.claim__skip{border-color:var(--grey-2)!important;color:var(--grey-2)!important}
+.claim__skip:hover{background:var(--grey-2)!important;border-color:var(--grey-2)!important;color:var(--ink)!important}
+.claim__note{margin:18px 0 0;font-size:9px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--dim)}

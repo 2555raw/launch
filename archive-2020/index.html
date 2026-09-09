@@ -29,6 +29,27 @@
   <div class="crt__tear" id="tear"></div>
 </div>
 
+<!-- ── caution card, before anything else ───────────────────────────── -->
+<div class="warn" id="warn" role="dialog" aria-label="Content warning">
+  <div class="warn__card">
+    <p class="warn__rated">NOT RATED &middot; VIEWER DISCRETION ADVISED</p>
+    <h2 class="warn__title">CAUTION</h2>
+    <p class="warn__body">THE FOLLOWING PRESENTATION CONTAINS FLASHING IMAGES, SCREEN
+    GLITCHES, SUDDEN CUTS, DEPICTIONS OF ILLNESS AND DEATH, BLOOD, AND A PURSUIT
+    SEQUENCE BUILT TO FRIGHTEN. IT MAY CAUSE FEAR OR DISTRESS.</p>
+    <ul class="warn__terms">
+      <li>WORK OF FICTION &mdash; the hospital, the floors, the bodies and the thing on floor three are invented.</li>
+      <li>THE ARCHIVE&rsquo;S FIGURES are rounded public WHO data, used as material for the piece, not as a dashboard.</li>
+      <li>NO SOUND, NO ACCOUNTS, NO TRACKING &mdash; nothing you do here leaves your browser.</li>
+      <li>PHOTOSENSITIVITY &mdash; if flashing images are a risk for you, turn on your system&rsquo;s reduced motion setting first; the piece respects it.</li>
+    </ul>
+    <div class="warn__btns">
+      <button data-go="menu" id="warnGo">I UNDERSTAND &mdash; CONTINUE</button>
+      <a class="warn__out" href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019">LEAVE</a>
+    </div>
+  </div>
+</div>
+
 <!-- ── main menu ────────────────────────────────────────────────────── -->
 <div class="menu" id="menu">
   <div class="menu__inner">
@@ -37,7 +58,7 @@
     <p class="menu__sub">Deaths · Hospital · Masks · Vaccines · Memory</p>
     <div class="menu__opts">
       <button data-go="archive"><b>01</b> READ THE ARCHIVE<span>Five sectors, scrolled from the first death to the last pixel</span></button>
-      <button data-go="floor"><b>02</b> WALK THE FLOOR<span>Top-down hospital seen from the ceiling camera, five rooms to find</span></button>
+      <button data-go="floor"><b>02</b> PLAY: PANDEMIK<span>Four floors of a sealed hospital, a task list on each one, and the last dose of the vaccine at the top</span></button>
     </div>
     <p class="menu__foot">NO SOUND. NOTHING HERE MAKES A NOISE.</p>
   </div>
@@ -57,7 +78,7 @@
     </nav>
     <div>
       <p class="hud__meta" id="hudMeta">SECTOR 0000 / 5000</p>
-      <button class="hud__go" data-go="floor">&gt; WALK THE FLOOR</button>
+      <button class="hud__go" data-go="floor">&gt; PLAY: PANDEMIK</button>
       <button class="hud__go hud__go--menu" data-go="menu">&gt; MENU</button>
     </div>
   </header>
@@ -138,7 +159,7 @@
       </div>
     </div>
     <p class="fin__mem">IN MEMORY OF THOSE WHO NEVER CAME HOME</p>
-    <button class="fin__go" data-go="floor">&gt; NOW WALK THE FLOOR, ROOM BY ROOM</button>
+    <button class="fin__go" data-go="floor">&gt; NOW PLAY PANDEMIK: FOUR FLOORS, ONE DOSE</button>
   </footer>
 
 </div>
@@ -147,7 +168,7 @@
 <div class="mode mode--floor" id="modeFloor">
 
   <div class="gwrap">
-    <canvas id="game" width="384" height="216" aria-label="Top-down pixel art hospital floor"></canvas>
+    <canvas id="game" width="384" height="216" aria-label="Top-down pixel art hospital, four floors to escape"></canvas>
   </div>
 
   <header class="gbar">
@@ -165,6 +186,47 @@
     <p class="endcard__t">END OF ARCHIVE</p>
     <p class="endcard__s">FIVE RECORDS RECOVERED. ONE PIXEL STILL BURNING.</p>
     <p class="endcard__l"><button data-go="archive">&gt; READ THE ARCHIVE</button> &nbsp; <button data-go="menu">&gt; BACK TO THE MENU</button></p>
+  </div>
+
+  <div class="brief" id="brief" hidden>
+    <div class="brief__box">
+      <p class="brief__eyebrow">MODE 02 &middot; A GAME INSIDE THE ARCHIVE</p>
+      <h2 class="brief__title">PANDEMIK</h2>
+      <p class="brief__why">They sealed the building with you inside, and you were exposed on the way in.
+      The reading in the corner of the screen is your infection, and it only climbs.
+      <b>One dose of the vaccine is left in this hospital.</b> It is on the fourth floor, in a first aid kit,
+      inside one of twelve cabinets &mdash; nobody wrote down which one. That dose is the whole game:
+      reach it and you live, and there is no other way out of the building.</p>
+      <p class="brief__how">Every floor hands you a short list of tasks. Tick the list off and the way up opens.</p>
+      <ol class="brief__floors">
+        <li><b>01 LOBBY</b> Get the power back, find a lift keycard, call the one lift out of four that still answers.</li>
+        <li><b>02 WARD</b> A stairwell key is hidden in one of the lockers. A note on the wall says where.</li>
+        <li><b>03 ICU</b> Something is still walking up there. Find a blade before it reaches you, then force the fire door.</li>
+        <li><b>04 STORES</b> Open cabinets until the first aid kit turns up. Inside it is the dose.</li>
+      </ol>
+      <p class="brief__warn">IF IT CATCHES YOU, YOU START AGAIN AT THE FRONT DOORS. NOTHING CARRIES OVER.</p>
+      <p class="brief__keys">[WASD] or arrows to walk &nbsp;·&nbsp; [E] to use, hold it for the slow jobs &nbsp;·&nbsp; [ESC] to leave a record</p>
+      <button id="briefGo">START THE RUN</button>
+    </div>
+  </div>
+
+  <div class="claim" id="claim" hidden>
+    <div class="claim__box">
+      <p class="claim__t">PANDEMIK CLEARED &middot; VACCINE ADMINISTERED</p>
+      <p class="claim__s">TIME <b id="claimTime">00:00</b> &nbsp; DEATHS <b id="claimDeaths">0</b></p>
+      <label class="claim__lab" for="wallet">PUBLIC WALLET ADDRESS</label>
+      <input id="wallet" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
+             spellcheck="false" placeholder="paste your public address">
+      <p class="claim__warn">PUBLIC ADDRESS ONLY. NEVER TYPE A SEED PHRASE OR A PRIVATE KEY
+      &mdash; NOBODY LEGITIMATE WILL EVER ASK YOU FOR ONE.</p>
+      <div class="claim__row">
+        <button id="claimGo">COPY MY CLAIM</button>
+        <button id="claimSkip" class="claim__skip">SKIP</button>
+      </div>
+      <p class="claim__note" id="claimNote">Creator fees go to the first verified clear. This page has no server:
+      your claim is copied to the clipboard and kept in this browser, so you can send it to the project yourself.
+      Nothing is charged, sent or connected here.</p>
+    </div>
   </div>
 
   <div class="pad" id="pad" aria-hidden="true">

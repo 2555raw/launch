@@ -6,13 +6,43 @@ recovers on an old machine and walks through, sector by sector.
 
 Deaths → hospital → masks → vaccines → memory.
 
-Two ways in, from one menu:
+A caution card stands between the startup and the menu, film-rating style: the
+piece flashes, glitches, shows illness, death and blood, and floor three is built
+to frighten. From the menu there are two ways in:
 
 - **Read the archive** — the five sectors as one cinematic scroll.
-- **Walk the floor** — the same fourth floor seen from the ceiling camera, a
-  top-down hospital you actually move through. Every room holds a station, and
-  a station opens that room's record: the very same scene from the archive.
-  Recover the five and the floor goes dark.
+- **Play PANDEMIK** — four floors of the sealed hospital, seen from the ceiling
+  camera, with a task list on each one.
+
+## PANDEMIK
+
+They sealed the building with you inside and you were exposed on the way in. The
+reading in the corner of the screen is your infection and it only climbs. **One
+dose of the vaccine is left in the hospital**, on the fourth floor, in a first
+aid kit, inside one of twelve cabinets — and nobody wrote down which one. That
+dose is the whole game: reach it and you live, and there is no other way out of
+the building. Every floor hands you a short list of tasks; tick the list off and
+the way up opens.
+
+| | | |
+|---|---|---|
+| 01 | LOBBY | Bodies on the tiles, a reception desk and four lifts. Restart the generator, find the lift keycard in the drawers, call the one lift out of four that still answers. |
+| 02 | WARD | An escape room: a note on the corridor wall says where the stairwell key is, and six lockers say it is not in them. |
+| 03 | ICU | Something up here is still walking, and it paths around the beds after you. Find a blade in the theatre, put it down in three hits, then force the fire door. |
+| 04 | STORES | Twelve cabinets across six rooms. Open them until the first aid kit turns up. Inside it is the dose. |
+
+You walk at 46 px/s and it walks at 33, so you can always outrun it — you just
+cannot stand still. If it reaches you, you die and the hospital resets: back to
+the front doors with nothing in your pockets and one more on the death counter.
+The five archive records are hidden on wall terminals along the way, optional
+and worth finding.
+
+Clear the fourth floor and the piece asks for a public wallet address, because
+the creator fees are meant for the first verified clear. Two things it does not
+do: it never asks for a seed phrase or a private key (and refuses anything that
+looks like one), and it does not pretend to pay. The page has no server, so the
+claim is copied to the clipboard and kept in `localStorage` for you to send on.
+Wiring it to a real endpoint is a few lines in `floor.js` whenever you want it.
 
 ## How it is made
 
@@ -30,7 +60,7 @@ index.html   the shell: startup, menu and the two modes
 styles.css   the cabinet: CRT monitor, scan lines, file browser chrome, controls
 engine.js    bitmap type, sprites, textures and the five scenes
 archive.js   mode 01 — mounts the scenes on the scrolling chapters
-floor.js     mode 02 — floor plan, camera, character, block lighting, stations
+floor.js     mode 02 — PANDEMIK: four floor plans, camera, tasks, pursuer, claim
 main.js      startup sequence, screen noise, mode switching, one animation loop
 build.js     bundles all of the above into dist/index.html
 ```
@@ -53,8 +83,9 @@ the stylesheet and every script inlined. Drop it on any host, or paste its
 contents into a page of your own.
 
 Wheel or swipe to move through the archive; keys `1`–`5` jump between sectors.
-On the floor, `WASD` or the arrow keys walk, `E` holds the reading of a record
-and `ESC` leaves it; touch screens get a d-pad and an action button. The system
+In PANDEMIK, `WASD` or the arrow keys walk, `E` uses whatever you are stood in
+front of — hold it for the slow jobs, tap it to swing the blade — and `ESC`
+leaves a record. Touch screens get a d-pad and an action button. The system
 preference for reduced motion is respected.
 
 ## The five sectors
@@ -66,6 +97,9 @@ preference for reduced motion is respected.
 | 03 | MASKS | Eighteen faces that arrive corrupted and are lost like damaged data. |
 | 04 | VACCINES | An old game inventory: the items unlock, the certainty does not. |
 | 05 | MEMORY | Thousands of pixels going out until one is left. |
+
+The same five scenes are what the wall terminals play inside PANDEMIK, and
+record 05 is the ending that runs once the vaccine is in you.
 
 ## The figures
 

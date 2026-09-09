@@ -20,9 +20,17 @@ si alguien la recorre.
 
 ```
 index.html   los cinco sectores, el arranque y el pie con la nota de fuentes
+juego.html   el modo exploración: la planta del hospital vista desde la cámara
 styles.css   el mueble: monitor CRT, rejilla de líneas, ruido, interfaz de archivo
-app.js       tipografía de bits, sprites, texturas y las cinco escenas
+juego.css    el mueble del juego: mando táctil, barra del registro, tarjeta final
+escenas.js   tipografía de bits, sprites, texturas y las cinco escenas
+app.js       monta las escenas sobre el scroll de index.html
+juego.js     planta, cámara, personaje, luz por bloques y puestos de lectura
 ```
+
+Las escenas viven en `escenas.js` y no tocan el DOM: reciben un lienzo, un
+progreso `0..1` y el tiempo. Por eso las mismas cinco valen para el archivo con
+scroll y para las pantallas que se abren dentro del juego.
 
 ## Los cinco sectores
 
@@ -33,6 +41,18 @@ app.js       tipografía de bits, sprites, texturas y las cinco escenas
 | 03 | MASCARILLAS | Dieciocho rostros que llegan corruptos y se pierden como datos dañados. |
 | 04 | VACUNAS | Inventario de videojuego antiguo: los objetos se desbloquean, la certeza no. |
 | 05 | MEMORIA | Miles de píxeles que se apagan hasta que queda uno. |
+
+## Modo exploración
+
+`juego.html` es la otra puerta de entrada: la misma planta cuarta, pero vista
+desde la cámara del techo. Se anda con `WASD` o las flechas por un hospital
+vacío —habitación 214, UCI, almacén de EPI, cámara fría y sala de espera—
+con la luz pegada al personaje y un plano de la planta en la esquina. En cada
+sala hay un puesto marcado en rojo: `E` lo abre y mantiene la lectura del
+registro, que es exactamente la escena correspondiente del archivo. Con los
+cinco recuperados se apagan las luces de la planta y queda el último píxel.
+
+En pantallas táctiles aparece una cruceta y un botón de acción.
 
 ## Las cifras
 

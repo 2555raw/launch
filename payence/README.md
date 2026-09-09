@@ -199,6 +199,23 @@ the open one. A flat file has no React to mount the rest, and having the whole
 content in the document is better for crawlers either way. The assembler then
 inlines the stylesheet and restores the behaviour in ~120 lines of vanilla JS.
 
+## Publishing
+
+`npm run build:pages` exports the real app as static files, and
+`.github/workflows/pages.yml` publishes them to GitHub Pages on every push to
+`main`.
+
+Two details that a project site needs and a root deploy does not: `BASE_PATH`
+(the workflow sets it to `/<repo>`, and `next.config.mjs` feeds it to `basePath`
+and `assetPrefix`, or every asset 404s), and `.nojekyll` (Jekyll drops
+directories starting with an underscore, which is where Next puts everything).
+
+To turn it on: **Settings, Pages, Source: GitHub Actions**. Pages needs the
+repository to be public on the free plan.
+
+For a host that serves from the root (Vercel, Netlify, a domain of your own),
+leave `BASE_PATH` unset and the export works unprefixed.
+
 ## Before going live
 
 - **Every figure is sample data**: the activity feeds, spend monitor, limits and stats. The

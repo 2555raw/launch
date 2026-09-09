@@ -1,14 +1,14 @@
 # Publishes the Payence site to GitHub Pages.
 #
-# This repository holds several projects; Payence lives in payence/ and is the
-# one published. Pages serves a project site from /<repo>, so the export is
-# built with that prefix or every asset under _next/ 404s, and .nojekyll is
-# needed because Jekyll drops directories starting with an underscore.
+# Pages serves a project site from /<repo>, so the export is built with that
+# prefix; without it every asset under _next/ would 404. The .nojekyll file
+# matters for the same reason: Jekyll drops directories that start with an
+# underscore, which is exactly where Next puts its assets.
 name: Deploy Payence to Pages
 
 on:
   push:
-    branches: [claude/500capital-custom-colors-s1kac3]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -24,9 +24,6 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: payence
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -37,7 +34,6 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: payence/package-lock.json
 
       - run: npm ci
 
@@ -51,6 +47,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: payence/out
+          path: out
       - id: deployment
         uses: actions/deploy-pages@v4

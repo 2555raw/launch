@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "snapshot": "NEXT_PUBLIC_SNAPSHOT=1 next build",
-    "check:snapshot": "node scripts/check-snapshot.js ."
+    "check:snapshot": "node scripts/check-snapshot.js .",
+    "build:pages": "PAGES=1 next build"
   },
   "dependencies": {
     "framer-motion": "^11.11.17",

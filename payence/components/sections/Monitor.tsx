@@ -32,7 +32,7 @@ export function Monitor() {
   const spent = LINES.reduce((a, l) => a + l.amount, 0);
 
   return (
-    <section className="border-t border-hair bg-shell py-24 md:py-32">
+    <section id="dashboard" className="border-t border-hair bg-shell py-24 md:py-32">
       <div className="shell">
         <Reveal>
           <Label>Spending monitor</Label>

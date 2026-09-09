@@ -7,3 +7,7 @@ next-env.d.ts
 .next-snapshot
 nexora-snapshot.html
 payence.html
+video/raw
+video/cards
+video/_clips
+video/site

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Title cards for the film. One card per frame, driven by the hash:
+     #kind=word&text=...  Rendered at 1280x720 and screenshotted. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; }
+  body {
+    background: #151515;
+    color: #F4F1EA;
+    font-family: Archivo, system-ui, sans-serif;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+  .wrap { padding: 0 120px; }
+  .word {
+    font-size: 92px;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+  .word .accent { color: #FF5C35; }
+  .line {
+    font-size: 62px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.06;
+    max-width: 18ch;
+    margin: 0 auto;
+  }
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(244, 241, 234, 0.4);
+    margin-bottom: 34px;
+  }
+  .mark { font-size: 104px; font-weight: 800; letter-spacing: 0.02em; }
+  .rule { width: 96px; height: 3px; background: #FF5C35; margin: 40px auto 0; }
+  .meta {
+    margin-top: 46px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 19px;
+    letter-spacing: 0.06em;
+    color: rgba(244, 241, 234, 0.55);
+    line-height: 2;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="wrap"></div>
+<script>
+  const q = new URLSearchParams(location.hash.slice(1));
+  const kind = q.get('kind') || 'word';
+  const text = q.get('text') || '';
+  const kicker = q.get('kicker') || '';
+  const wrap = document.getElementById('wrap');
+
+  const html = {
+    logo: () => `<div class="mark">PAYENCE</div><div class="rule"></div>`,
+    word: () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="word">${text}</div>`,
+    line: () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="line">${text}</div>`,
+    outro: () => `<div class="mark">PAYENCE</div><div class="rule"></div>
+      <div class="meta">@usepayence<br>payence.dev</div>`,
+  };
+  wrap.innerHTML = (html[kind] || html.word)();
+</script>
+</body>
+</html>

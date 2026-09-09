@@ -63,12 +63,10 @@ jobs:
 
       - run: touch out/.nojekyll
 
+      # Pages has to be switched on for the repository first, under
+      # Settings > Pages > Source: GitHub Actions. Doing it from here with
+      # `enablement: true` fails: the workflow token cannot create the site.
       - uses: actions/configure-pages@v5
-        # Turns Pages on for the repository if it is off, so the only thing
-        # left to do by hand is making the repository public: Pages needs that
-        # on the free plan, and this step cannot do it.
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: payence/out

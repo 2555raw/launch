@@ -29,12 +29,18 @@ import { fileURLToPath } from 'node:url';
 const run = promisify(execFile);
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-/* The sets, in the order a mark is preferred: colour before monochrome. */
+/* The sets, in the order a mark is preferred: colour before monochrome.
+   `licence` is carried through into the generated file and shown in the
+   application, because one of these sets asks for attribution and the only
+   honest way to give it is where the mark is used. */
 const SETS = {
   logos:  { pkg: '@iconify-json/logos', licence: 'CC0-1.0', colour: true, kind: 'iconify' },
   crypto: { pkg: 'cryptocurrency-icons', licence: 'CC0-1.0', colour: true, kind: 'files' },
   cib:    { pkg: '@iconify-json/cib', licence: 'CC0-1.0', colour: false, kind: 'iconify' },
   simple: { pkg: 'simple-icons', licence: 'CC0-1.0', colour: false, kind: 'simple' },
+  // CC BY-SA 4.0: attribution required, and the icons stay under that licence.
+  // Used only for the four marks no permissive set carries.
+  arctic: { pkg: '@iconify-json/arcticons', licence: 'CC-BY-SA-4.0', colour: false, kind: 'iconify' },
 };
 
 /* One row per asset that has a real mark available.
@@ -63,6 +69,9 @@ const MAP = {
   COIN: ['simple', 'coinbase'],    HOOD: ['simple', 'robinhood'],
   MSTR: ['simple', 'microstrategy', 'MicroStrategy'],
   ITX: ['simple', 'zara', 'Zara'], FER: ['simple', 'ferrari'],
+
+  DIS: ['arctic', 'disney'],       WMT: ['arctic', 'walmart'],
+  SAN: ['arctic', 'santander'],    BBVA: ['arctic', 'bbva'],
 
   BTC: ['crypto', 'btc'],          ETH: ['crypto', 'eth'],
   SOL: ['crypto', 'sol'],          XRP: ['crypto', 'xrp'],
@@ -122,6 +131,7 @@ try {
     // A monochrome mark is drawn in one colour; the interface supplies it.
     if (!set.colour && !entry.tint) entry.mono = true;
     entry.set = set.pkg;
+    entry.licence = set.licence;
     if (brand) entry.brand = brand;
     marks[asset] = entry;
   }
@@ -139,8 +149,12 @@ try {
    full-colour logo resolved from the entity's own domain when that loads; this
    is the floor beneath it, not a replacement for it.
 
-   Nothing here was drawn or approximated. Sources, all CC0:
+   Nothing here was drawn or approximated. Sources:
 ${versions}
+
+   The @iconify-json/arcticons marks are CC BY-SA 4.0, which asks for
+   attribution: it is given here, in the README, and in the application itself,
+   on each asset's page and in the terms.
 
    Each entry records the set it came from, and \`brand\` names the brand a mark
    belongs to when that is not the listed entity itself. The marks remain the

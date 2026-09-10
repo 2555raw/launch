@@ -18,6 +18,12 @@ the header of every screen and in the footer of every screen, and not in the
 small print: a number that looks like a quote and is not one does more damage
 than an empty slot.
 
+It says so in the terms you have to accept before the application starts, and
+in the footer of every screen. It does not also say it in a header badge and a
+banner across the dashboard, which is where it used to say it: four times is
+not more honest than twice, it is just noise on top of the thing you are
+reading.
+
 The distinction the whole codebase keeps is this:
 
 - **Simulated**: price, change, volume and depth. These are simulator figures.
@@ -88,6 +94,15 @@ accepted, so changing the text asks again instead of assuming an old yes covers
 a new one. `Terms of use` in the footer reopens the same text afterwards — one
 source, so the two cannot drift.
 
+A second notice, about storage, arrives about thirty seconds in. Stacking it on
+the terms would make two walls to get through before seeing anything, and a
+notice about what an application stores means more once it has stored
+something. It says what actually happens rather than the easy copy: Warp sets
+no cookies, has no analytics and no third parties, and the only thing kept is
+the local storage the account lives in. Which means there is no non-essential
+category to switch off, so it says that too instead of offering a toggle that
+controls nothing.
+
 The five clauses say the things that actually matter about this application: the
 money is not money, the prices are not prices, the data never leaves the
 browser, the logos belong to other people, and there is no warranty. There is no
@@ -111,17 +126,23 @@ There are three tiers, in this order:
    images. A runtime-only system falls back to a monogram there, and a monogram
    is not the mark. The embedded one paints on the first frame and stays if the
    network never answers.
-3. **The monogram** in the brand colour, for the assets no set carries: ASML,
-   Disney, PepsiCo, Walmart, Eli Lilly, Johnson & Johnson, ExxonMobil,
-   Santander, BBVA, Iberdrola, LVMH, Novo Nordisk, the five ETFs and USDG. Those
-   have no freely-distributable mark — in several cases because the owner had it
-   removed from the sets that used to carry it. They still resolve at runtime in
-   a browser with a connection. What they never do is borrow another entity's
-   logo.
+3. **The asset's own official symbol on its brand colour**, for the fourteen no
+   set carries: ASML, PepsiCo, Eli Lilly, Johnson & Johnson, ExxonMobil,
+   Iberdrola, LVMH, Novo Nordisk, the five ETFs and USDG. None of them has a
+   logo published under a licence that allows embedding — in several cases
+   because the owner had it removed from the sets that used to carry it — so
+   what stands in is the ticker they actually trade under. That is a real
+   identifier, not a drawing, and it gets exactly the treatment a metal's
+   chemical symbol gets, so the two read as one system rather than as a mark and
+   a failure. The real logo still resolves at runtime in a browser with a
+   connection. What these never do is borrow another entity's logo.
 
 Tier 2 is generated, not hand-assembled: `node warp-app/tools/build-marks.mjs`
-pulls four published CC0 icon sets from npm, takes only the mapped icons, and
-writes `js/marks.js` with the set and version each mark came from. Where a mark
+pulls five published icon sets from npm, takes only the mapped icons, and writes
+`js/marks.js` with the set, version and licence each mark came from. Four of
+them — Disney, Walmart, Santander and BBVA — come from a CC BY-SA 4.0 set,
+which asks for attribution; it is given in the generated file, here, and in the
+application on each asset's page. The other forty-four are CC0. Where a mark
 belongs to a brand of the listed entity rather than the entity itself — Google
 for Alphabet, Chase for JPMorgan Chase, Zara for Inditex — the entry records the
 brand and the asset's page names it, instead of quietly passing one identity off

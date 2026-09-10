@@ -1,4 +1,4 @@
-/* The terms gate.
+/* The terms gate, and the storage notice that follows it.
 
    Nobody reads terms, which is exactly why these are short and say the things
    that actually matter about this application: that the money is not money,
@@ -14,6 +14,12 @@ import { el } from './ui/components.js';
 
 export const TERMS_VERSION = 1;
 const KEY = 'warp.terms';
+
+/* The storage notice waits, on purpose. Stacking it on top of the terms would
+   make two walls to get through before seeing anything, and a notice about what
+   the application stores means more once it has actually stored something. */
+const STORAGE_KEY = 'warp.storage.consent';
+const STORAGE_DELAY = 30000;
 
 export function acceptance() {
   try {
@@ -163,4 +169,65 @@ export function openTerms() {
   document.body.append(overlay);
   document.body.classList.add('wp-locked');
   requestAnimationFrame(() => close.focus());
+}
+
+
+/* -------- the storage notice --------
+
+   Warp sets no cookies. Saying "we use cookies" would be the easy copy and it
+   would be false, so this says what actually happens: the account lives in this
+   browser's local storage, nothing is sent anywhere, and there is no third party
+   and nothing to track. Which also means there is no non-essential category to
+   turn off, and the notice says that too rather than offering a toggle that
+   controls nothing. Both buttons record a choice; neither changes what is
+   stored, because the only thing stored is the application itself. */
+
+export function storageChoice() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    return raw && raw.choice ? raw : null;
+  } catch { return null; }
+}
+
+function recordStorageChoice(choice) {
+  const entry = { choice, at: Date.now() };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entry)); } catch {}
+  return entry;
+}
+
+function storageBar() {
+  const bar = el('div', {
+    class: 'wp-cookie', role: 'region', 'aria-label': 'Cookies and storage',
+  });
+  const dismiss = (choice) => {
+    recordStorageChoice(choice);
+    bar.classList.add('is-going');
+    setTimeout(() => bar.remove(), 220);
+  };
+  bar.append(
+    el('div', { class: 'wp-cookie-text' }, [
+      el('strong', { text: 'Cookies and storage' }),
+      el('p', { text:
+        "Warp sets no cookies and has no analytics, no third parties and nothing to track. Your balance, "
+        + "positions and the indices you list are kept in this browser's local storage so the app can "
+        + "remember them between visits, and that is the only thing stored. There is nothing "
+        + "non-essential to switch off, so both buttons below record your answer and neither changes "
+        + "what is kept." }),
+    ]),
+    el('div', { class: 'wp-cookie-actions' }, [
+      el('button', { class: 'wp-btn sm', type: 'button', text: 'Accept', on: { click: () => dismiss('accepted') } }),
+      el('button', { class: 'wp-btn sm ghost', type: 'button', text: 'Essential only', on: { click: () => dismiss('essential') } }),
+      el('button', { class: 'wp-foot-link', type: 'button', text: 'Terms', on: { click: openTerms } }),
+    ]),
+  );
+  return bar;
+}
+
+/** Shows the notice once, a while into the session, if it has not been answered. */
+export function scheduleStorageNotice() {
+  if (storageChoice()) return;
+  setTimeout(() => {
+    if (storageChoice() || document.querySelector('.wp-cookie')) return;
+    document.body.append(storageBar());
+  }, STORAGE_DELAY);
 }

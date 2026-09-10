@@ -56,7 +56,6 @@ export function panelView() {
       primaryBtn('Create index', () => go('#/create')),
     ]),
 
-    note('<strong>This is a paper market.</strong> Every asset price comes from a reproducible simulator, not from a market data provider, and no number in this app describes the real market. What is real inside the app is your own activity: the positions, the fees and the indices you list.', 'warn'),
 
     el('div', { class: 'wp-grid cols-4' }, [
       stat('Equity', usdg(acc.equity), { sub: 'Balance, margin and open result' }),

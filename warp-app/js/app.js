@@ -14,7 +14,7 @@ import { usdg, dir, clock, marketDay, marketZone, MARKET_TZ_LABEL } from './form
 import { markStack, markEl } from './logos.js';
 import { indexLegs } from './engine.js';
 import { el, toast } from './ui/components.js';
-import { requireAcceptance, openTerms } from './terms.js';
+import { requireAcceptance, openTerms, scheduleStorageNotice } from './terms.js';
 import {
   panelView, marketView, createView, portfolioView, creatorView,
   assetsView, assetView, indexView, notFound, confirmReset,
@@ -233,6 +233,8 @@ function start() {
   tick();
   setInterval(paintClock, 1000);
   setInterval(tick, 5000);
+  // The storage notice arrives a while in, once there is something to talk about.
+  scheduleStorageNotice();
 }
 
 requireAcceptance(start);

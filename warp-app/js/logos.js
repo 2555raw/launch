@@ -10,12 +10,18 @@
       This is what shows the instant the page opens, and what stays where tier 1
       cannot reach: a page opened from the filesystem with no connection, or a
       host that blocks external images.
-   3. The entity's monogram in its brand colour, for an asset no set carries.
-      Never another entity's logo, and never an emoji.
+   3. The asset's own official symbol on its brand colour, for the assets no set
+      carries. Fourteen companies and funds have no logo published under a
+      licence that allows embedding — in several cases because the owner had it
+      removed from the sets that used to carry it — so what stands in is the
+      ticker they actually trade under. That is a real identifier, not a drawing:
+      never another entity's logo, and never an emoji.
 
    A metal skips all three: it is not a company and has no logo. Its mark is its
    official chemical symbol in the real colour of the metal, which is the
-   notation the industry itself uses.
+   notation the industry itself uses. Tier 3 is the same treatment applied to
+   the same kind of fact, so the two read as one system rather than as a mark
+   and a failure.
 
    Tier 2 paints first and tier 1 replaces it only if what arrives is big enough
    to be an improvement, so the slot is never blank and never gets worse.
@@ -66,9 +72,26 @@ export function luminance(hex) {
 }
 export const inkOn = (hex) => (luminance(hex) > 0.55 ? '#111418' : '#FFFFFF');
 
-function monogram(asset) {
-  const words = String(asset?.short || asset?.name || '?').replace(/[^\p{L}\p{N} ]/gu, ' ').trim().split(/\s+/);
-  return ((words[0]?.[0] || '') + (words[1]?.[0] || '')).toUpperCase() || '?';
+/** Symbol text sized to fit its tile: two characters can be large, five have to
+ *  give way. Without this a five-letter ticker would either overflow or force
+ *  every mark down to the size the longest one needs. */
+function symbolType(text, size) {
+  const n = Math.max(text.length, 1);
+  const scale = n <= 2 ? 0.42 : n === 3 ? 0.32 : n === 4 ? 0.26 : 0.21;
+  return Math.max(7, Math.round(size * scale));
+}
+
+/** A tile in the asset's own brand colour carrying its official symbol. The
+ *  same construction serves a metal's chemical symbol and a company's ticker. */
+function symbolTile(el, asset, text, size) {
+  el.classList.add('is-symbol');
+  el.style.background = asset.color;
+  el.style.color = inkOn(asset.color);
+  el.style.fontSize = symbolType(text, size) + 'px';
+  el.append(Object.assign(document.createElement('span'), {
+    className: 'wp-mark-txt', textContent: text,
+  }));
+  return el;
 }
 
 /** Below this many pixels, a fetched image is a favicon rather than a logo and
@@ -99,15 +122,19 @@ export function markProvenance(asset) {
   }
   const m = MARKS[asset?.id];
   if (m) {
+    const who = m.brand
+      ? `Official mark of ${m.brand}, a brand of ${asset.short}`
+      : 'Official mark';
     return {
-      kind: 'embedded', set: m.set, brand: m.brand,
-      text: m.brand
-        ? `Official mark of ${m.brand}, a brand of ${asset.short}, embedded from ${m.set}`
-        : `Official mark embedded from ${m.set}`,
+      kind: 'embedded', set: m.set, brand: m.brand, licence: m.licence,
+      text: `${who}, embedded from ${m.set} (${m.licence}), and resolved at runtime from ${asset.domain} when that loads`,
     };
   }
-  if (asset?.domain) return { kind: 'runtime', text: `Resolved at runtime from ${asset.domain}` };
-  return { kind: 'monogram', text: 'No mark available; the monogram stands in' };
+  return {
+    kind: 'symbol',
+    text: `No logo for ${asset?.short} is published under a licence that allows embedding, so its official ticker `
+        + `${asset?.symbol} stands in${asset?.domain ? `; the real logo still resolves at runtime from ${asset.domain}` : ''}`,
+  };
 }
 
 /** The asset's mark. Returns an element ready to insert. */
@@ -122,13 +149,7 @@ export function markEl(asset, size = 36) {
   // notation, so none of the logo tiers apply.
   if (asset?.class === 'metal') {
     el.classList.add('is-element');
-    el.style.background = asset.color;
-    el.style.color = inkOn(asset.color);
-    el.style.fontSize = Math.round(size * 0.42) + 'px';
-    el.append(Object.assign(document.createElement('span'), {
-      className: 'wp-mark-txt', textContent: asset.element || asset.symbol,
-    }));
-    return el;
+    return symbolTile(el, asset, asset.element || asset.symbol, size);
   }
 
   // Tier 2 first, because it needs nothing and is ready on this frame.
@@ -138,13 +159,7 @@ export function markEl(asset, size = 36) {
     el.style.padding = Math.max(1, Math.round(size * 0.11)) + 'px';
     el.append(embedded);
   } else {
-    el.classList.add('is-monogram');
-    el.style.background = rgba(asset?.color, 0.12);
-    el.style.color = asset?.color || '#5A6473';
-    el.style.fontSize = Math.round(size * 0.36) + 'px';
-    el.append(Object.assign(document.createElement('span'), {
-      className: 'wp-mark-txt', textContent: monogram(asset),
-    }));
+    symbolTile(el, asset, asset.symbol || '?', size);
   }
 
   // Tier 1 on top, if it arrives and is worth the swap.
@@ -167,7 +182,7 @@ export function markEl(asset, size = 36) {
     const floor = embedded ? MIN_USEFUL : 8;
     if (img.naturalWidth < floor) { failed.add(img.src); return tryNext(); }
     img.hidden = false;
-    el.classList.remove('is-monogram', 'is-svg');
+    el.classList.remove('is-symbol', 'is-svg');
     el.style.padding = '0';
     el.style.background = '#fff';
     el.querySelector('.wp-mark-txt')?.remove();

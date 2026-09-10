@@ -8,7 +8,9 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = __dirname;
-const PORT = process.env.PORT || 3000;
+/* Railway passes PORT in; 8080 is what its generated domain points at when it
+   does not, so that is the fallback rather than the usual 3000. */
+const PORT = process.env.PORT || 8080;
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',

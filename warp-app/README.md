@@ -67,16 +67,68 @@ balance reconciles after opening, closing and claiming, and that every limit
 (legs, leverage, minimum margin, balance, duplicate symbol) rejects what it is
 supposed to reject.
 
+## The clock
+
+Warp keeps one clock and it is Madrid's, real time, ticking every second in the
+header. A market has a single wall clock, not one per viewer: two people looking
+at the same funding window have to be looking at the same hour. The zone is
+named (`Europe/Madrid`) rather than computed from an offset, so daylight saving
+is handled by the platform's own timezone data and is right twice a year without
+anyone remembering the dates — the header says which offset is in force. Listing
+dates and timestamps read on that same clock, so nothing in the interface is in
+a second zone.
+
+## The terms gate
+
+Nothing runs before the terms are accepted: no routing, no clock, no heartbeat.
+The gate is not a banner over a working application, it is the application not
+having started. Declining gets a real screen rather than being ignored until the
+button is pressed again, and the acceptance is stored with the version it
+accepted, so changing the text asks again instead of assuming an old yes covers
+a new one. `Terms of use` in the footer reopens the same text afterwards — one
+source, so the two cannot drift.
+
+The five clauses say the things that actually matter about this application: the
+money is not money, the prices are not prices, the data never leaves the
+browser, the logos belong to other people, and there is no warranty. There is no
+clause in there padding the length.
+
 ## The marks: the real logo and the real colour
 
 Rule: **always the entity's real mark, never one drawn, generated or
 approximated.**
 
-A company, an ETF or a coin has a logo of its own. Every row in the registry
-carries its official domain (`nvidia.com`, `lvmh.com`, `ethereum.org`) and
-`js/logos.js` resolves the logo from that domain at runtime against a chain of
-resolvers. No logo is copied into the repository, so none can go stale or
-diverge between screens.
+There are three tiers, in this order:
+
+1. **The full-colour logo resolved at runtime** from the entity's own official
+   domain. Every row in the registry carries that domain (`nvidia.com`,
+   `lvmh.com`, `ethereum.org`) and `js/logos.js` resolves the logo from it
+   against a chain of resolvers. No logo is copied into the repository, so none
+   can go stale. This is the entity's current mark, so when it loads it wins.
+2. **The official mark embedded in `js/marks.js`**, for 44 of the assets. Tier 1
+   needs the network, and two places do not have it: a page opened from the
+   filesystem with no connection, and a sandboxed host that blocks external
+   images. A runtime-only system falls back to a monogram there, and a monogram
+   is not the mark. The embedded one paints on the first frame and stays if the
+   network never answers.
+3. **The monogram** in the brand colour, for the assets no set carries: ASML,
+   Disney, PepsiCo, Walmart, Eli Lilly, Johnson & Johnson, ExxonMobil,
+   Santander, BBVA, Iberdrola, LVMH, Novo Nordisk, the five ETFs and USDG. Those
+   have no freely-distributable mark — in several cases because the owner had it
+   removed from the sets that used to carry it. They still resolve at runtime in
+   a browser with a connection. What they never do is borrow another entity's
+   logo.
+
+Tier 2 is generated, not hand-assembled: `node warp-app/tools/build-marks.mjs`
+pulls four published CC0 icon sets from npm, takes only the mapped icons, and
+writes `js/marks.js` with the set and version each mark came from. Where a mark
+belongs to a brand of the listed entity rather than the entity itself — Google
+for Alphabet, Chase for JPMorgan Chase, Zara for Inditex — the entry records the
+brand and the asset's page names it, instead of quietly passing one identity off
+as another. The marks remain the trademarks of their owners; the terms say so.
+
+Tier 1 only replaces tier 2 when what arrives is at least 32 pixels: a 16-pixel
+favicon is not an upgrade over a clean embedded vector.
 
 A metal has no logo because it is not a company. Its mark is **its official
 chemical symbol written in the real colour of the metal**: Au in gold, Cu in
@@ -152,6 +204,8 @@ charged.
 index.html              the shell: sidebar, search, the simulated notice, views
 styles.css              design system (tokens on :root, white ground, components)
 js/registry.js          IDENTITY: symbol, name, class, sector, brand colour, domain
+js/marks.js             GENERATED: the official mark of 44 assets, embedded
+js/terms.js             the terms, the gate on entry, and the copy in the footer
 js/config.js            VENUE (the market's rules) and the logo resolver chain
 js/logos.js             the mark system described above
 js/market.js            the price simulator and the basket mathematics
@@ -164,6 +218,7 @@ js/ui/components.js     reusable pieces (identity, cards, tables, figures, notic
 js/views.js             the screens
 js/app.js               routing, search, clock and the heartbeat that liquidates
 build.mjs               inlines everything into dist/warp.html, openable with no server
+tools/build-marks.mjs   regenerates js/marks.js from four CC0 icon sets on npm
 test/engine.test.mjs    the market's rules, checked without a browser
 ```
 

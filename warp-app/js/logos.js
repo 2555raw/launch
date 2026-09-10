@@ -2,22 +2,30 @@
    Rule: always the entity's real mark, never one drawn, generated or
    approximated.
 
-   A company, an ETF or a coin has a logo of its own: it is resolved at runtime
-   from the official domain the registry declares, with fallback resolvers
-   behind it. Nothing is copied into the repository.
+   Three tiers, in this order:
 
-   A metal has no logo because it is not a company. Its mark is its official
-   chemical symbol, written in the real colour of the metal. That is not a
-   drawing: it is the notation the industry itself uses.
+   1. The full-colour logo resolved at runtime from the entity's own official
+      domain. This is the entity's current mark, so when it loads it wins.
+   2. The official mark embedded in js/marks.js, from published CC0 icon sets.
+      This is what shows the instant the page opens, and what stays where tier 1
+      cannot reach: a page opened from the filesystem with no connection, or a
+      host that blocks external images.
+   3. The entity's monogram in its brand colour, for an asset no set carries.
+      Never another entity's logo, and never an emoji.
 
-   If no resolver answers, what is left is the entity's monogram in its brand
-   colour. Never another entity's logo, never an emoji.
+   A metal skips all three: it is not a company and has no logo. Its mark is its
+   official chemical symbol in the real colour of the metal, which is the
+   notation the industry itself uses.
+
+   Tier 2 paints first and tier 1 replaces it only if what arrives is big enough
+   to be an improvement, so the slot is never blank and never gets worse.
 
    Every screen builds a mark by calling markEl(), and only that function. That
    is why an asset cannot show one mark in the search box and another in a
    basket. */
 
 import { config } from './config.js';
+import { MARKS } from './marks.js';
 
 const failed = new Set();
 
@@ -63,11 +71,46 @@ function monogram(asset) {
   return ((words[0]?.[0] || '') + (words[1]?.[0] || '')).toUpperCase() || '?';
 }
 
-/** The asset's mark. Returns an element ready to insert.
+/** Below this many pixels, a fetched image is a favicon rather than a logo and
+ *  replacing a clean embedded mark with it would be a downgrade. */
+const MIN_USEFUL = 32;
 
-    The monogram paints on the first frame and the logo loads over it: the slot
-    is never blank while the network answers, and if it never answers what is
-    left is already in place. */
+/** Builds the embedded official mark as inline SVG, or null if there is none.
+ *  A monochrome set is drawn in the entity's own brand colour; a colour set is
+ *  left exactly as published. */
+function embeddedMark(asset) {
+  const m = MARKS[asset?.id];
+  if (!m) return null;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', m.box);
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  svg.classList.add('wp-mark-svg');
+  if (m.tint) svg.setAttribute('fill', m.tint);
+  else if (m.mono) svg.setAttribute('color', asset.color);   // the set draws with currentColor
+  svg.innerHTML = m.body;
+  return svg;
+}
+
+/** What the interface can say about where an asset's mark came from. */
+export function markProvenance(asset) {
+  if (asset?.class === 'metal') {
+    return { kind: 'element', text: `Official chemical symbol, ${asset.element}, in the real colour of the metal` };
+  }
+  const m = MARKS[asset?.id];
+  if (m) {
+    return {
+      kind: 'embedded', set: m.set, brand: m.brand,
+      text: m.brand
+        ? `Official mark of ${m.brand}, a brand of ${asset.short}, embedded from ${m.set}`
+        : `Official mark embedded from ${m.set}`,
+    };
+  }
+  if (asset?.domain) return { kind: 'runtime', text: `Resolved at runtime from ${asset.domain}` };
+  return { kind: 'monogram', text: 'No mark available; the monogram stands in' };
+}
+
+/** The asset's mark. Returns an element ready to insert. */
 export function markEl(asset, size = 36) {
   const el = document.createElement('span');
   el.className = 'wp-mark';
@@ -75,7 +118,8 @@ export function markEl(asset, size = 36) {
   el.style.setProperty('--brand', asset?.color || '#8A94A6');
   el.title = asset?.name || '';
 
-  // A metal carries its chemical symbol in its own colour, which is its real notation.
+  // A metal carries its chemical symbol in its own colour, which is its real
+  // notation, so none of the logo tiers apply.
   if (asset?.class === 'metal') {
     el.classList.add('is-element');
     el.style.background = asset.color;
@@ -87,15 +131,23 @@ export function markEl(asset, size = 36) {
     return el;
   }
 
-  el.classList.add('is-monogram');
-  el.style.background = rgba(asset?.color, 0.12);
-  el.style.color = asset?.color || '#5A6473';
-  el.style.fontSize = Math.round(size * 0.36) + 'px';
-  const label = Object.assign(document.createElement('span'), {
-    className: 'wp-mark-txt', textContent: monogram(asset),
-  });
-  el.append(label);
+  // Tier 2 first, because it needs nothing and is ready on this frame.
+  const embedded = embeddedMark(asset);
+  if (embedded) {
+    el.classList.add('is-svg');
+    el.style.padding = Math.max(1, Math.round(size * 0.11)) + 'px';
+    el.append(embedded);
+  } else {
+    el.classList.add('is-monogram');
+    el.style.background = rgba(asset?.color, 0.12);
+    el.style.color = asset?.color || '#5A6473';
+    el.style.fontSize = Math.round(size * 0.36) + 'px';
+    el.append(Object.assign(document.createElement('span'), {
+      className: 'wp-mark-txt', textContent: monogram(asset),
+    }));
+  }
 
+  // Tier 1 on top, if it arrives and is worth the swap.
   const sources = logoSources(asset?.domain);
   if (!sources.length) return el;
 
@@ -107,16 +159,19 @@ export function markEl(asset, size = 36) {
   img.hidden = true;
   let i = 0;
   const tryNext = () => {
-    if (i >= sources.length) { img.remove(); return; }   // the monogram stays
+    if (i >= sources.length) { img.remove(); return; }   // what is already painted stays
     img.src = sources[i++];
   };
   img.addEventListener('load', () => {
-    // A one-pixel icon is not a logo: it is discarded as though it had failed.
-    if (img.naturalWidth < 8) { failed.add(img.src); return tryNext(); }
+    // A 16-pixel favicon is not an upgrade over an embedded vector mark.
+    const floor = embedded ? MIN_USEFUL : 8;
+    if (img.naturalWidth < floor) { failed.add(img.src); return tryNext(); }
     img.hidden = false;
-    el.classList.remove('is-monogram');
+    el.classList.remove('is-monogram', 'is-svg');
+    el.style.padding = '0';
     el.style.background = '#fff';
-    label.hidden = true;
+    el.querySelector('.wp-mark-txt')?.remove();
+    el.querySelector('.wp-mark-svg')?.remove();
   });
   img.addEventListener('error', () => { failed.add(img.src); tryNext(); });
   el.append(img);

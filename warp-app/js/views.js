@@ -14,7 +14,7 @@ import {
 import { spot, changePct, series, basketSeries, volume24h } from './market.js';
 import { sparkline } from './chart.js';
 import { usdg, pct, num, auto, compact, dir, lev, ago, dateTime, NA_TEXT } from './format.js';
-import { markEl } from './logos.js';
+import { markEl, markProvenance } from './logos.js';
 import {
   el, frag, card, stat, kv, table, note, emptyState, indexIdent, assetIdent,
   symPill, changePill, weightsBar, donut, chartBlock, spark, toast,
@@ -286,6 +286,7 @@ export function assetView(id) {
           { k: a.class === 'metal' ? "Market's domain" : 'Official domain', v: a.venueDomain || a.domain || '—' },
           { k: 'Brand colour', v: a.color.toUpperCase() },
         ]),
+        extra: note(`<strong>Its mark.</strong> ${markProvenance(a).text}.`),
       }),
       card({
         title: 'Simulated change', body: kv([

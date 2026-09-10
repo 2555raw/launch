@@ -10,10 +10,11 @@ import { state, onChange } from './store.js';
 import { liquidationSweep, accountSummary } from './engine.js';
 import { feed } from './market.js';
 import { search } from './search.js';
-import { usdg, dir, clock } from './format.js';
+import { usdg, dir, clock, marketDay, marketZone, MARKET_TZ_LABEL } from './format.js';
 import { markStack, markEl } from './logos.js';
 import { indexLegs } from './engine.js';
 import { el, toast } from './ui/components.js';
+import { requireAcceptance, openTerms } from './terms.js';
 import {
   panelView, marketView, createView, portfolioView, creatorView,
   assetsView, assetView, indexView, notFound, confirmReset,
@@ -105,6 +106,7 @@ function paintSide() {
 }
 
 document.getElementById('resetBtn').addEventListener('click', confirmReset);
+document.getElementById('termsBtn').addEventListener('click', openTerms);
 
 /* The X mark has no destination yet. Rather than a link that goes nowhere, it
    says so. */
@@ -195,9 +197,24 @@ function canRepaint() {
   return !(a && view.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
 }
 
+/* The clock gets its own beat, because a market clock that advances in
+   five-second jumps is not a clock. It only writes into three text nodes, so
+   running it every second costs nothing and never touches the layout. */
+const clockParts = {
+  day: el('span', { class: 'wp-clock-day' }),
+  time: el('b'),
+  zone: el('span', { class: 'wp-clock-zone' }),
+};
+clockEl.append(clockParts.day, clockParts.time, clockParts.zone);
+function paintClock() {
+  const now = Date.now();
+  clockParts.day.textContent = marketDay(now);
+  clockParts.time.textContent = clock(now);
+  clockParts.zone.textContent = `${MARKET_TZ_LABEL} ${marketZone(now)}`;
+}
+
 function tick() {
-  clockEl.textContent = clock();
-  stamp.textContent = `${feed.label}${feed.isSimulated ? ' · simulated price' : ''} · ${clock()}`;
+  stamp.textContent = `${feed.label}${feed.isSimulated ? ' · simulated price' : ''} · ${clock()} ${MARKET_TZ_LABEL}`;
   // A position with no margin is liquidated by the rule, not because someone is
   // watching.
   const killed = liquidationSweep();
@@ -207,6 +224,15 @@ function tick() {
 
 onChange(() => { if (canRepaint()) render(); else paintSide(); });
 
-navigate();
-tick();
-setInterval(tick, 5000);
+/* Nothing runs before the terms are accepted: no routing, no clock, no
+   heartbeat. The gate is not a banner over a working application, it is the
+   application not having started. */
+function start() {
+  navigate();
+  paintClock();
+  tick();
+  setInterval(paintClock, 1000);
+  setInterval(tick, 5000);
+}
+
+requireAcceptance(start);

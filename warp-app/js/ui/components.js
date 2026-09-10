@@ -88,7 +88,7 @@ export function kv(rows) {
     ])));
 }
 
-export function card({ title, note, actions, body, tight = false }) {
+export function card({ title, note, actions, body, extra, tight = false }) {
   const head = (title || note || actions)
     ? el('div', { class: 'wp-card-head' }, [
         title ? el('h2', { text: title }) : null,
@@ -99,6 +99,7 @@ export function card({ title, note, actions, body, tight = false }) {
   return el('section', { class: 'wp-card' }, [
     head,
     el('div', { class: `wp-card-body ${tight ? 'tight' : ''}` }, [body]),
+    extra ? el('div', { class: 'wp-card-foot' }, [extra]) : null,
   ]);
 }
 

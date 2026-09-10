@@ -20,9 +20,9 @@ const root = dirname(fileURLToPath(import.meta.url));
    listing the modules explicitly keeps the bundle deterministic and makes an
    accidentally orphaned file obvious. */
 const MODULES = [
-  'js/format.js', 'js/config.js', 'js/registry.js', 'js/logos.js', 'js/market.js',
-  'js/store.js', 'js/engine.js', 'js/chart.js', 'js/search.js',
-  'js/ui/components.js', 'js/views.js', 'js/app.js',
+  'js/format.js', 'js/config.js', 'js/registry.js', 'js/marks.js', 'js/logos.js',
+  'js/market.js', 'js/store.js', 'js/engine.js', 'js/chart.js', 'js/search.js',
+  'js/ui/components.js', 'js/terms.js', 'js/views.js', 'js/app.js',
 ];
 const ENTRY = 'js/app.js';
 
@@ -71,6 +71,19 @@ const [html, css, ...sources] = await Promise.all([
   readFile(join(root, 'styles.css'), 'utf8'),
   ...MODULES.map(m => readFile(join(root, m), 'utf8')),
 ]);
+
+/* A module that is imported but not listed would only fail at runtime, in the
+   browser, as "module not bundled" — which is exactly what happened the first
+   time two modules were added. So the graph is checked here instead. */
+const listed = new Set(MODULES);
+const missing = new Set();
+sources.forEach((src, i) => {
+  for (const m of src.matchAll(/import\s*\{[\s\S]*?\}\s*from\s*'([^']+)';/g)) {
+    const dep = resolve(MODULES[i], m[1]);
+    if (!listed.has(dep)) missing.add(`${dep} (imported by ${MODULES[i]})`);
+  }
+});
+if (missing.size) throw new Error(`build.mjs: MODULES is missing:\n  ${[...missing].join('\n  ')}`);
 
 const bundle = [LOADER, ...MODULES.map((id, i) => wrap(id, sources[i])), `__req(${JSON.stringify(ENTRY)});`].join('\n\n');
 

@@ -56,9 +56,34 @@ export function ago(ts) {
 }
 export function dateTime(ts) {
   if (!ts) return NA_TEXT;
-  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(ts));
+  // Same clock as the header: a listing date must not read in one zone while
+  // the market reads in another.
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: MARKET_TZ, dateStyle: 'medium', timeStyle: 'short',
+  }).format(new Date(ts));
 }
-export function clock(ts = Date.now()) {
-  return new Intl.DateTimeFormat('en-US', { timeStyle: 'medium', hour12: false }).format(new Date(ts));
+/* Warp keeps one clock, and it is Madrid's.
+   A market has a single wall clock, not one per viewer: two people looking at
+   the same funding window have to be looking at the same hour. Naming the zone
+   in Intl means daylight saving is handled by the platform's own tz data, which
+   is right twice a year without anyone remembering the dates. */
+export const MARKET_TZ = 'Europe/Madrid';
+export const MARKET_TZ_LABEL = 'Madrid';
+
+const marketTime = new Intl.DateTimeFormat('en-GB', {
+  timeZone: MARKET_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+});
+const marketDate = new Intl.DateTimeFormat('en-GB', {
+  timeZone: MARKET_TZ, weekday: 'short', day: 'numeric', month: 'short',
+});
+/** The offset Madrid is on right now, so the clock says which one it is rather
+ *  than leaving the reader to guess whether summer time is in force. */
+const marketOffset = new Intl.DateTimeFormat('en-GB', { timeZone: MARKET_TZ, timeZoneName: 'shortOffset' });
+
+export function clock(ts = Date.now()) { return marketTime.format(new Date(ts)); }
+export function marketDay(ts = Date.now()) { return marketDate.format(new Date(ts)); }
+export function marketZone(ts = Date.now()) {
+  const part = marketOffset.formatToParts(new Date(ts)).find(p => p.type === 'timeZoneName');
+  return part ? part.value.replace('GMT', 'UTC') : 'UTC';
 }
 export const dir = (v) => isNA(v) || v === 0 ? 'flat' : v > 0 ? 'up' : 'down';

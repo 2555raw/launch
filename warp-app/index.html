@@ -91,7 +91,8 @@
           <span class="wp-sim-long">Paper market · simulated prices</span>
           <span class="wp-sim-short">Simulated</span>
         </div>
-        <span class="wp-clock num" id="clock"></span>
+        <!-- The market's clock is Madrid's, real time, and it ticks every second. -->
+        <span class="wp-clock" id="clock" title="Warp's market clock, Europe/Madrid"></span>
       </div>
     </header>
 
@@ -99,7 +100,10 @@
 
     <footer class="wp-foot">
       <span>Warp is a paper market. Its prices come from a simulator and do not describe the real market. None of this is investment advice.</span>
-      <span id="stamp"></span>
+      <span class="wp-foot-right">
+        <button class="wp-foot-link" id="termsBtn" type="button">Terms of use</button>
+        <span id="stamp"></span>
+      </span>
     </footer>
   </div>
 </div>

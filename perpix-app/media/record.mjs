@@ -73,17 +73,20 @@ async function glide(page, target, { steps = 14, hold = 160, click = true } = {}
 const TAKES = (process.argv[2] || 'abcd').split('');
 const browser = await chromium.launch();
 
-/* ---------------- take 1: arriving ---------------- */
+/* ---------------- take 1: the dashboard, cold ----------------
+   No terms gate: the account arrives already accepted, so the video opens on
+   the thing itself rather than on a dialog. */
 if (TAKES.includes('a')) {
-  const ctx = await makeContext(browser, 'a-open', { seed: false });
+  const ctx = await makeContext(browser, 'a-open');
   const p = await ctx.newPage();
   t0 = Date.now();
   await p.goto(BASE, { waitUntil: 'load' });
   await p.evaluate(() => document.fonts.ready);
-  await wait(p, 1100); mark('a.gate');
-  await glide(p, '#termsAgree'); await wait(p, 500); mark('a.checked');
-  await glide(p, '.px-terms-actions .px-btn'); await wait(p, 1600); mark('a.dashboard');
-  await p.mouse.move(1300, 620, { steps: 20 }); await wait(p, 900); mark('a.stats');
+  await wait(p, 1400); mark('a.dashboard');
+  await p.mouse.move(1300, 430, { steps: 22 }); await wait(p, 800); mark('a.stats');
+  await p.mouse.move(760, 760, { steps: 20 }); await wait(p, 900); mark('a.movers');
+  await glide(p, p.locator('.px-head .px-btn', { hasText: 'Create index' }), { click: false });
+  await wait(p, 700); mark('a.cta');
   await ctx.close();
   console.log('take a done');
 }

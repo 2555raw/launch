@@ -8,7 +8,7 @@ ${fontCss}
 *{margin:0;box-sizing:border-box}
 body{width:1920px;height:1080px;background:transparent;font-family:'Inter',system-ui,sans-serif;
      -webkit-font-smoothing:antialiased;position:relative}
-.lower{position:absolute;left:96px;bottom:88px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.lower{position:absolute;left:236px;bottom:168px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
 .tag{display:inline-flex;align-items:center;gap:12px;background:rgba(9,12,18,.82);backdrop-filter:blur(8px);
      border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:12px 22px 12px 16px;
      box-shadow:0 18px 50px -20px rgba(0,0,0,.85)}
@@ -16,7 +16,7 @@ body{width:1920px;height:1080px;background:transparent;font-family:'Inter',syste
 .tag span{color:#fff;font-size:27px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
 .sub{color:rgba(255,255,255,.62);font-size:20px;font-weight:500;padding-left:18px;letter-spacing:-.01em;
      text-shadow:0 2px 14px rgba(0,0,0,.9)}
-.chip{position:absolute;right:96px;top:96px;background:rgba(9,12,18,.82);backdrop-filter:blur(8px);
+.chip{position:absolute;right:236px;top:178px;background:rgba(9,12,18,.82);backdrop-filter:blur(8px);
       border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:11px 18px;color:rgba(255,255,255,.9);
       font-size:21px;font-weight:600;letter-spacing:-.01em}
 /* end card */

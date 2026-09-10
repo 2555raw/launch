@@ -1,20 +1,24 @@
 """Synthesises the backing track.
 
-I cannot license a song from here, and shipping someone else's would be worse
-than useless, so the track is generated: 124 BPM, a four-on-the-floor kick, an
-offbeat hat, a plucked bass and an arpeggio over a i-VI-III-VII loop in A minor.
-Original, royalty-free, and swappable in one ffmpeg command.
+The requested track could not be used: this session cannot reach YouTube, and
+pulling audio off it to redistribute is not something to do on a claim of "no
+copyright" that cannot be verified from here. So the track is generated, which
+at least makes it unambiguously clear to use.
 
-Everything is plain stdlib: no numpy here."""
+Harder than the first one, because the cut is harder: 140 BPM, a clipped kick, a
+distorted saw bass on sixteenths, an offbeat clap, and a snare roll into the
+drop. Original, royalty-free. Dropping a licensed .wav in its place and re-running
+finish.py is a one-file swap; the beat grid in edit.py assumes this tempo."""
 import wave, struct, math, random
 
 SR = 44100
-BPM = 124
+BPM = 140
 BEAT = 60.0 / BPM
-BARS = 30                      # comfortably longer than the edit
-TOTAL = int(SR * BEAT * 4 * BARS)
+BAR = BEAT * 4
+BARS = 26
+TOTAL = int(SR * BAR * BARS)
 buf = [0.0] * TOTAL
-random.seed(7)
+random.seed(11)
 
 def add(at, samples, gain=1.0):
     i = int(at * SR)
@@ -23,105 +27,119 @@ def add(at, samples, gain=1.0):
         if 0 <= j < TOTAL:
             buf[j] += v * gain
 
-def env(n, a, d, s=0.0, sl=1.0):
-    """Attack/decay/sustain envelope, in samples."""
-    out = []
-    for k in range(n):
-        if k < a:      out.append(k / max(a, 1))
-        elif k < a + d: out.append(1 - (1 - sl) * ((k - a) / max(d, 1)))
-        else:           out.append(sl * max(0.0, 1 - (k - a - d) / max(n - a - d, 1)))
-    return out
+def decay(n, power=2.0):
+    return [max(0.0, 1 - k / n) ** power for k in range(n)]
 
-def kick(dur=0.22):
-    n = int(SR * dur); e = env(n, 40, n - 40)
-    return [math.sin(2 * math.pi * (145 * math.exp(-9.0 * k / SR)) * k / SR) * e[k] ** 1.8 for k in range(n)]
-
-def hat(dur=0.055, bright=1.0):
-    n = int(SR * dur); e = env(n, 12, n - 12)
-    prev = 0.0; out = []
-    for k in range(n):                        # noise through a crude high-pass
-        x = random.uniform(-1, 1)
-        hp = x - prev; prev = x
-        out.append(hp * e[k] ** 2.2 * bright)
-    return out
-
-def snare(dur=0.16):
-    n = int(SR * dur); e = env(n, 20, n - 20); out = []
+def kick(dur=0.30):
+    """Pitch sweep plus a click, then clipped: the click is what carries on
+    small speakers, the sweep is what carries on big ones."""
+    n = int(SR * dur); e = decay(n, 1.7); out = []
     for k in range(n):
         t = k / SR
-        out.append((random.uniform(-1, 1) * 0.7 + math.sin(2 * math.pi * 185 * t) * 0.5) * e[k] ** 1.6)
+        f = 190 * math.exp(-13.0 * t) + 44
+        body = math.sin(2 * math.pi * f * t)
+        click = math.sin(2 * math.pi * 1400 * t) * math.exp(-260 * t) * 0.5
+        out.append(math.tanh((body + click) * 2.4) * e[k])
     return out
 
+def hat(dur=0.04, tone=1.0):
+    n = int(SR * dur); e = decay(n, 3.0); prev = 0.0; out = []
+    for k in range(n):
+        x = random.uniform(-1, 1)
+        hp = x - prev * 0.92; prev = x
+        out.append(hp * e[k] * tone)
+    return out
+
+def clap(dur=0.19):
+    n = int(SR * dur); out = [0.0] * n
+    for off in (0, 0.008, 0.017):          # three bursts: that is what a clap is
+        s = int(off * SR)
+        e = decay(n - s, 2.6)
+        for k in range(n - s):
+            out[s + k] += random.uniform(-1, 1) * e[k] * 0.5
+    prev = 0.0
+    for k in range(n):                      # thin it out so it cuts through
+        v = out[k]; out[k] = v - prev * 0.6; prev = v
+    return out
+
+def snare(dur=0.13, tone=1.0):
+    n = int(SR * dur); e = decay(n, 2.2)
+    return [(random.uniform(-1, 1) * 0.75 + math.sin(2 * math.pi * 210 * k / SR) * 0.4) * e[k] * tone
+            for k in range(n)]
+
 def saw(f, t):
-    """Band-limited-ish saw: a few harmonics, so it does not alias into mush."""
     v = 0.0
-    for h in range(1, 9):
+    for h in range(1, 11):
         if f * h > SR / 2.2: break
         v += math.sin(2 * math.pi * f * h * t) / h
     return v * 0.55
 
-def bass(f, dur):
-    n = int(SR * dur); e = env(n, 60, int(SR * 0.06), 0, 0.65)
-    return [(math.sin(2 * math.pi * f * k / SR) * 0.75 + saw(f, k / SR) * 0.25) * e[k] for k in range(n)]
-
-def pluck(f, dur):
-    n = int(SR * dur); e = env(n, 24, n - 24)
-    return [saw(f, k / SR) * e[k] ** 1.4 for k in range(n)]
-
-def pad(f, dur):
-    n = int(SR * dur); e = env(n, int(SR * 0.25), int(SR * 0.1), 0, 0.8)
-    return [(math.sin(2 * math.pi * f * k / SR) + math.sin(2 * math.pi * f * 1.5 * k / SR) * 0.4) * e[k] * 0.5
+def bass(f, dur, drive=3.2):
+    n = int(SR * dur); e = decay(n, 1.1)
+    return [math.tanh((math.sin(2 * math.pi * f * k / SR) * 0.8 + saw(f, k / SR) * 0.6) * drive) * e[k] * 0.55
             for k in range(n)]
 
-NOTE = lambda n: 440.0 * 2 ** ((n - 69) / 12.0)      # midi to hertz
-# A minor: Am - F - C - G, one bar each
-PROG = [(57, [69, 72, 76]), (53, [65, 69, 72]), (60, [67, 72, 76]), (55, [67, 71, 74])]
-ARP = [0, 1, 2, 1, 2, 1, 0, 2]
+def stab(f, dur):
+    """A short bright chord hit, for the top of a bar."""
+    n = int(SR * dur); e = decay(n, 2.4)
+    return [(saw(f, k / SR) + saw(f * 1.5, k / SR) * 0.6 + saw(f * 2, k / SR) * 0.35) * e[k] * 0.3
+            for k in range(n)]
+
+NOTE = lambda m: 440.0 * 2 ** ((m - 69) / 12.0)
+# F minor, four bars: i - VI - III - VII, the same shape but darker than before
+PROG = [41, 37, 44, 39]
+SIXTEENTH = [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]   # bass pattern
 
 for b in range(BARS):
-    bar = b * 4 * BEAT
-    root, chord = PROG[b % 4]
-    intro = b < 2                     # first two bars come in bare
-    drop = b >= 6                     # the beat opens up here
+    bar = b * BAR
+    root = PROG[b % 4]
+    intro = b < 2
+    build = 2 <= b < 4
+    drop = b >= 4
     for beat in range(4):
         t = bar + beat * BEAT
         if not intro:
-            add(t, kick(), 0.95)
-            add(t + BEAT / 2, hat(bright=0.55), 0.32)
-            if drop:
-                add(t + BEAT / 4, hat(0.035, 0.4), 0.16)
-                add(t + BEAT * 0.75, hat(0.04, 0.5), 0.2)
-        if drop and beat in (1, 3):
-            add(t, snare(), 0.34)
-        # bass on every beat, an octave under the chord root
-        if not intro:
-            add(t, bass(NOTE(root - 12), BEAT * 0.9), 0.42)
-    # arpeggio in eighths
-    for i, step in enumerate(ARP):
-        if intro and i % 2: continue
-        add(bar + i * BEAT / 2, pluck(NOTE(chord[step]), BEAT * 0.45), 0.20 if drop else 0.13)
-    # a pad holding the chord under everything
-    for n in chord:
-        add(bar, pad(NOTE(n - 12), BEAT * 4), 0.055)
+            add(t, kick(), 1.0)
+        if drop:
+            add(t + BEAT * 0.5, clap(), 0.30)
+            for s in range(4):              # sixteenth hats, accented off the beat
+                add(t + s * BEAT / 4, hat(tone=0.7 if s % 2 else 0.35), 0.20)
+        elif build:
+            add(t + BEAT * 0.5, hat(tone=0.5), 0.16)
+    # bass on sixteenths
+    if not intro:
+        for i, on in enumerate(SIXTEENTH):
+            if on:
+                add(bar + i * BEAT / 4, bass(NOTE(root - 12), BEAT / 4 * 1.05), 0.40)
+    # a stab on the downbeat, and one pushed late in the bar
+    if drop:
+        for n in (root + 12, root + 15, root + 19):
+            add(bar, stab(NOTE(n), BEAT * 0.7), 0.16)
+            add(bar + BEAT * 2.75, stab(NOTE(n), BEAT * 0.35), 0.11)
 
-# a short riser into the drop
-rn = int(SR * BEAT * 4)
-start = 4 * 4 * BEAT
-for k in range(rn):
-    t = k / SR
-    f = 220 + 700 * (k / rn) ** 2
-    g = 0.16 * (k / rn) ** 2
-    buf[int(start * SR) + k] += math.sin(2 * math.pi * f * t) * g
+# snare roll through the bar before the drop: sixteenths, then thirty-seconds
+roll_start = 3 * BAR
+step = BEAT / 4
+k = 0; t = roll_start
+while t < roll_start + BAR:
+    frac = (t - roll_start) / BAR
+    add(t, snare(0.10, 0.5 + frac * 0.9), 0.34)
+    t += step * (1.0 if frac < 0.5 else 0.5)
+    k += 1
 
-# soft-clip, then normalise: keeps the peaks from squaring off
+# and one hit of silence right before the drop, which is what makes a drop land
+gap_from = int((4 * BAR - BEAT * 0.28) * SR)
+for i in range(gap_from, int(4 * BAR * SR)):
+    if i < TOTAL: buf[i] *= 0.06
+
 peak = max(abs(v) for v in buf) or 1.0
 scale = 1.0 / peak
 frames = bytearray()
 for v in buf:
-    x = math.tanh(v * scale * 1.6) * 0.89
+    x = math.tanh(v * scale * 1.9) * 0.9
     frames += struct.pack('<h', int(max(-1, min(1, x)) * 32767))
 
 with wave.open('music.wav', 'wb') as w:
     w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes(bytes(frames))
-print(f'music.wav  {TOTAL / SR:.1f}s  {BPM} BPM  bar = {BEAT * 4:.3f}s')
+print(f'music.wav  {TOTAL / SR:.1f}s  {BPM} BPM  beat {BEAT:.4f}s  bar {BAR:.4f}s  drop at {4 * BAR:.2f}s')

@@ -16,8 +16,8 @@
   --ease: cubic-bezier(.22, 1, .36, 1);
 }
 
-/* dark (default) */
-html[data-theme="dark"] {
+/* dark is the default palette; the toggle and the OS setting swap in the light one */
+:root {
   --ink: #f2f4f8;
   --ink-2: #a7b0bd;
   --ink-3: #737d8a;
@@ -31,8 +31,7 @@ html[data-theme="dark"] {
   --wall-1: #1b2a4a; --wall-2: #0b1020; --wall-3: #2a1840;
 }
 
-/* light */
-html[data-theme="light"] {
+:root[data-theme="light"] {
   --ink: #131720;
   --ink-2: #5b6472;
   --ink-3: #8a929e;

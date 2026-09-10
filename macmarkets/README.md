@@ -27,9 +27,21 @@ It shares nothing with the other folders in this repository.
 
 Then open <http://localhost:4174>.
 
+## Publish it
+
+`artifact.html` is a generated single-file build of the same site, for hosting
+somewhere that serves one page. Rebuild it after editing any source file:
+
+    python3 macmarkets/build-artifact.py
+
+It inlines the stylesheet and the script, settles the appearance before the
+first paint, and mirrors the light palette into a `prefers-color-scheme` block
+for hosts that do not stamp a theme on the page.
+
 ## Files
 
 - `index.html` — desktop, window and the terms sheet.
+- `artifact.html` — generated bundle, do not edit by hand.
 - `styles.css` — design tokens at the top, then chrome, window, dock, modal.
 - `app.js` — dependency-free: data, charts, filters, live ticks, terms gate.
 

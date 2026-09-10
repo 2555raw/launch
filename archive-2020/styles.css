@@ -230,20 +230,64 @@ body:not([data-mode="boot"]) .boot{opacity:0;visibility:hidden;pointer-events:no
 
 .mode--archive main{padding-left:190px}
 
-.chapter{position:relative;height:520vh}
+/* mode 01 is a document: five files of text, no canvas */
+.doc{max-width:1040px;margin-inline:auto;padding:13vh 6vw 8vh}
+.doc__open{margin:0 0 11vh;font-size:11px;letter-spacing:.16em;color:var(--red)}
 
-.stage{
-  position:sticky;top:0;height:100vh;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--ink);
+.rec{max-width:72ch;margin:0 0 13vh;scroll-margin-top:6vh}
+.rec p{
+  margin:0 0 18px;font-size:13px;line-height:2;letter-spacing:.03em;
+  text-transform:none;color:var(--bone-2);
+}
+.rec p b{color:var(--bone);font-weight:400}
+.rec .rec__id{margin:0 0 14px;font-size:9px;letter-spacing:.26em;color:var(--red-deep)}
+.rec__h{
+  margin:0 0 26px;font-size:clamp(22px,4.4vw,40px);font-weight:400;letter-spacing:.18em;
+  color:var(--bone);text-shadow:2px 0 var(--red-deep),-2px 0 rgba(110,170,200,.28);
+}
+.rec .rec__lead{
+  margin:0 0 26px;padding-left:16px;border-left:2px solid var(--red);
+  font-size:15px;line-height:1.9;letter-spacing:.05em;color:var(--bone);
+}
+.rec .fic{
+  margin:0 0 26px;padding:12px 14px;
+  border:1px solid var(--red-deep);background:rgba(255,30,45,.06);
+  font-size:10px;line-height:1.9;letter-spacing:.16em;color:var(--red);
+}
+.rec .rec__note{
+  margin:34px 0 0;padding-top:18px;border-top:1px solid var(--grey-2);
+  font-size:11.5px;line-height:1.9;color:var(--dim);
+}
+.rec .rec__prize{
+  margin:30px 0 0;padding:14px 16px;border:1px solid var(--red);
+  background:rgba(255,30,45,.09);
+  font-size:12px;line-height:1.8;letter-spacing:.12em;color:var(--bone);
+}
+.rec__prize b{color:var(--red);font-weight:400;font-size:1.3em}
+
+/* the three real figures, the only ones in the volume */
+.figs{margin:0 0 28px;display:grid;gap:16px}
+.figs div{border-left:2px solid var(--red-deep);padding-left:16px}
+.figs dt{
+  font-size:clamp(17px,3.2vw,24px);letter-spacing:.04em;color:var(--red);
+  font-variant-numeric:tabular-nums;
+}
+.figs dd{
+  margin:7px 0 0;font-size:11.5px;line-height:1.85;letter-spacing:.03em;
+  text-transform:none;color:var(--bone-2);
 }
 
-.screen{
-  width:100%;height:100%;
-  object-fit:contain;
-  image-rendering:pixelated;
-  image-rendering:crisp-edges;
+/* one panel per floor */
+.flo{
+  margin:0 0 26px;padding:18px 20px;border:1px solid var(--grey-2);
+  background:linear-gradient(180deg,rgba(232,227,216,.025),transparent);
 }
+.flo--bad{border-color:var(--red-deep);background:linear-gradient(180deg,rgba(255,30,45,.07),transparent)}
+.flo .flo__n{margin:0 0 6px;font-size:9px;letter-spacing:.3em;color:var(--red)}
+.flo__h{margin:0 0 14px;font-size:16px;font-weight:400;letter-spacing:.22em;color:var(--bone)}
+.flo .flo__t{margin:16px 0 0;font-size:10px;line-height:1.95;letter-spacing:.14em;color:var(--red)}
+.flo .flo__d{margin:9px 0 0;font-size:10.5px;line-height:1.8;letter-spacing:.06em;color:var(--dim)}
+
 
 .fin{
   position:relative;z-index:10;
@@ -361,7 +405,10 @@ body:not([data-mode="boot"]) .boot{opacity:0;visibility:hidden;pointer-events:no
   .mode--archive main{padding-left:0}
   .fin{margin-left:0;padding-bottom:22vh}
   .fin__go{display:block;text-align:center}
-  .chapter{height:420vh}
+  .doc{padding:9vh 5vw 16vh}
+  .doc__open{margin-bottom:7vh}
+  .rec{margin-bottom:9vh}
+  .flo{padding:15px 16px}
   .menu{padding:5vh 5vw}
   .prize{padding:15px 16px}
   .prize__head{letter-spacing:.06em}

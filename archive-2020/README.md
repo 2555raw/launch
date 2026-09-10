@@ -4,13 +4,17 @@ An experimental web piece about the COVID-19 pandemic, built as a digital
 installation rather than an informative site: a corrupted volume someone
 recovers on an old machine and walks through, sector by sector.
 
-Deaths → hospital → masks → vaccines → memory.
+The event → the count → the hospital → the floors → the dose.
 
 A caution card stands between the startup and the menu, film-rating style: the
 piece flashes, glitches, shows illness, death and blood, and floor three is built
 to frighten. From the menu there are two ways in:
 
-- **Read the archive** — the five sectors as one cinematic scroll.
+- **Read the archive** — five recovered files of text. Two of them are real:
+  what the pandemic did to the world and what it cost, in rounded WHO figures.
+  The other three are the fiction the game runs on: why this hospital was sealed
+  with you inside, what waits on each of the four floors, and why the last dose
+  is the only way this ends well.
 - **Play PANDEMIK** — four floors of the sealed hospital, seen from the ceiling
   camera, with a task list on each one.
 
@@ -52,9 +56,9 @@ that the browser scales up without smoothing. No images, no web fonts, no
 libraries: the type is a hand-written 5 × 7 bitmap face, and the beds, monitors,
 faces and props are sprites or rectangles one pixel wide.
 
-In the archive, each chapter turns its own scroll into a `0..1` progress value,
-and that number is the whole script of the scene. On the floor, the same value
-is how far you have held the read key.
+The five pixel art scenes are not a mode of their own: they play on the wall
+terminals inside PANDEMIK, driven by a `0..1` value that is how far you have held
+the read key. Mode 01 is plain text around them.
 
 ```
 index.html   the shell: startup, menu and the two modes

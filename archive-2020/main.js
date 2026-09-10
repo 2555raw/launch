@@ -45,6 +45,7 @@
     if (prev === m) return;
     if (prev === 'floor' && window.MODE_FLOOR.leave) window.MODE_FLOOR.leave();
     body.dataset.mode = m;
+    if (m === 'boot') startBoot();
     if (m === 'archive') window.MODE_ARCHIVE.enter();
     if (m === 'floor') window.MODE_FLOOR.enter();
     signalCut();
@@ -88,6 +89,34 @@
   }
   requestAnimationFrame(loop);
 
+  /* ---------- cookies, and the clause under them ---------- */
+
+  const soulChip = $('#soulChip');
+
+  function soul(sold) {
+    window.SHELL.soul = sold;
+    try { localStorage.setItem('pandemik-soul', sold ? 'sold' : 'kept'); } catch (_) { /* storage blocked */ }
+    if (soulChip) soulChip.textContent = sold ? '· SOUL: FORFEITED' : '· SOUL: RETAINED';
+  }
+  soul(false);
+
+  $('#cookAccept').addEventListener('click', () => {
+    const sold = $('#ckSoul').checked;
+    soul(sold);
+    $('#cookFine').textContent = sold
+      ? 'Filed. The Devil thanks you and files nothing, because there is nothing to file. No cookie was set either.'
+      : 'You left the second box empty. Somebody reads the small print after all.';
+    signalCut();
+    setTimeout(() => setMode('boot'), 420);
+  });
+
+  $('#cookReject').addEventListener('click', () => {
+    soul(false);
+    $('#cookFine').textContent = 'Rejected. The cookies still do not exist, your soul stays where it is, and the page works exactly the same. Going in anyway.';
+    signalCut();
+    setTimeout(() => setMode('boot'), 900);
+  });
+
   /* ---------- startup ---------- */
 
   const BOOT = [
@@ -98,28 +127,32 @@
     'MOUNTING VOLUME: <i>PANDEMIC_2020_2023</i>',
     'DAMAGED SECTORS: <b>4,219</b>',
     'RECOVERABLE RECORDS: 05',
+    'SURVIVORS ON RECORD: <b>00</b>',
     '',
     'REBUILDING INDEX ...'
   ];
 
-  const logEl = $('#bootLog'), barEl = $('#bootBar'), enterEl = $('#bootEnter');
+  const logEl = $('#bootLog'), barEl = $('#bootBar'), enterEl = $('#bootEnter'), bootEl = $('#boot');
+  let booted = false;
 
-  BOOT.forEach((line, i) => {
+  function startBoot() {
+    if (booted) return;
+    booted = true;
+    BOOT.forEach((line, i) => {
+      setTimeout(() => {
+        logEl.innerHTML += line + '\n';
+        barEl.style.setProperty('--w', Math.round(((i + 1) / BOOT.length) * 100) + '%');
+      }, 110 * i + 100);
+    });
     setTimeout(() => {
-      logEl.innerHTML += line + '\n';
-      barEl.style.setProperty('--w', Math.round(((i + 1) / BOOT.length) * 100) + '%');
-    }, 130 * i + 120);
-  });
+      enterEl.hidden = false;
+      barEl.style.setProperty('--w', '100%');
+    }, 110 * BOOT.length + 320);
+  }
 
-  setTimeout(() => {
-    enterEl.hidden = false;
-    barEl.style.setProperty('--w', '100%');
-  }, 130 * BOOT.length + 380);
-
-  const bootEl = $('#boot');
   const enter = () => {
-    if (body.dataset.mode !== 'boot') return;
-    setMode('warn');
+    if (body.dataset.mode !== 'boot' || enterEl.hidden) return;
+    setMode('menu');
     setTimeout(() => bootEl.remove(), 380);
   };
   enterEl.addEventListener('click', enter);

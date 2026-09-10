@@ -17,6 +17,10 @@
   const T = 8;
   const BLOOD = '#4a060d', BLOOD2 = '#2c0308';
 
+  /* The prize for the first clear. Paste the contract address into `ca` and it
+     shows up on the end screen, in the copied claim and in the ready-made post. */
+  const COIN = { ticker: 'PANDEMIK', ca: '' };
+
   /* ================================================================
      Characters
      ================================================================ */
@@ -248,13 +252,14 @@
         { id: 'c3', k: 'cabinet', x: 14, y: 3, label: 'PHARMACY CABINET' },
         { id: 'c4', k: 'cabinet', x: 23, y: 3, label: 'LAB CABINET' },
         { id: 'c5', k: 'cabinet', x: 26, y: 3, label: 'LAB CABINET' },
-        { id: 'c6', k: 'cabinet', x: 41, y: 3, label: 'STORE CABINET' },
-        { id: 'c7', k: 'cabinet', x: 48, y: 3, label: 'STORE CABINET' },
-        { id: 'c8', k: 'cabinet', x: 5, y: 18, label: 'STORE CABINET' },
-        { id: 'c9', k: 'cabinet', x: 12, y: 18, label: 'STORE CABINET' },
+        { id: 'c6', k: 'cabinet', x: 41, y: 3, label: 'STORE 01 CABINET' },
+        { id: 'c7', k: 'cabinet', x: 48, y: 3, label: 'STORE 01 CABINET' },
+        { id: 'c8', k: 'cabinet', x: 5, y: 18, label: 'STORE 02 CABINET' },
+        { id: 'c9', k: 'cabinet', x: 12, y: 18, label: 'STORE 02 CABINET' },
         { id: 'c10', k: 'cabinet', x: 24, y: 18, label: 'COLD ROOM CABINET' },
         { id: 'c11', k: 'cabinet', x: 32, y: 18, label: 'COLD ROOM CABINET' },
         { id: 'c12', k: 'cabinet', x: 47, y: 18, label: 'OFFICE CABINET' },
+        { id: 'log', k: 'note', x: 18, y: 17, label: 'DELIVERY LOG', prompt: 'READ THE DELIVERY LOG' },
         { id: 'rec4', k: 'terminal', x: 2, y: 14, rec: 3, label: 'ARCHIVE TERMINAL' }
       ],
       tasks: ['SEARCH THE CABINETS', 'OPEN THE FIRST AID KIT']
@@ -405,6 +410,59 @@
     }
   }
 
+  /* ---------- where to go next ---------- */
+
+  function targetAct() {
+    const i = taskDone.findIndex((d) => !d);
+    if (i < 0) return null;
+    let best = L.acts.find((a) => a.task === i && !a.done);
+    if (best) return best;
+    if (L.def.n === 4 && i === 0) {                 /* twelve cabinets: point at the nearest shut one */
+      let bd = 1e9;
+      for (const a of L.acts) {
+        if (a.k !== 'cabinet' || a.done) continue;
+        const d = Math.abs(a.x * T - player.x) + Math.abs(a.y * T - player.y);
+        if (d < bd) { bd = d; best = a; }
+      }
+    }
+    return best || null;
+  }
+
+  function chevron(c, x, y, dir, col) {
+    for (let i = 0; i < 4; i++) {
+      if (dir === 'down') R(c, x - 3 + i, y + i, 7 - i * 2, 1, col);
+      else if (dir === 'up') R(c, x - 3 + i, y + 3 - i, 7 - i * 2, 1, col);
+      else if (dir === 'left') R(c, x + 3 - i, y - 3 + i, 1, 7 - i * 2, col);
+      else R(c, x + i, y - 3 + i, 1, 7 - i * 2, col);
+    }
+  }
+
+  function guide(c, camX, camY, t) {
+    const a = targetAct();
+    if (!a) return;
+    const ax = a.x * T + 4 - camX, ay = a.y * T + 4 - camY;
+    const on = Math.floor(t / 420) % 2 === 0;
+    if (ax > 10 && ax < W - 10 && ay > 26 && ay < H - 34) {
+      chevron(c, ax, ay - 14 - (on ? 1 : 0), 'down', COL.red);
+      return;
+    }
+    const px = clamp(ax, 20, W - 20), py = clamp(ay, 30, H - 40);
+    const dx = ax - px, dy = ay - py;
+    const dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'up' : 'down');
+    chevron(c, px, py, dir, on ? COL.red : COL.redDeep);
+    const lab = a.label;
+    text(c, lab, clamp(px - textW(lab) / 2, 4, W - 4 - textW(lab)), py + 8, COL.grey2, 1, 1, 0.75);
+  }
+
+  function floorCard(c, k) {
+    const d = LEVELS[floorN];
+    const a = Math.min(1, (2.6 - k) / 0.35) * Math.min(1, k / 0.5);
+    R(c, 0, 88, W, 42, `rgba(0,0,0,${0.82 * a})`);
+    R(c, 0, 88, W, 1, COL.redDeep); R(c, 0, 129, W, 1, COL.redDeep);
+    textC(c, 'FLOOR 0' + d.n, W / 2, 96, COL.red, 2, 1, a);
+    textC(c, d.name + '  ·  ' + d.tasks.length + ' TASKS', W / 2, 116, COL.bone, 1, 1, a * 0.9);
+  }
+
   /* ---------- lighting ---------- */
 
   function lighting(c, camX, camY, px, py, k, here) {
@@ -479,12 +537,17 @@
       text(c, label, 17, y - 1, ok ? COL.grey2 : COL.bone, 1, 1, ok ? 0.55 : 0.9);
     }
 
-    /* what you are carrying, and how the infection is doing */
+    /* what you are carrying, how the infection is doing, and who owns you */
     let ix = 8;
-    const chip = (s, on) => { text(c, s, ix, H - 14, on ? COL.bone : COL.grey2, 1, 1, on ? 0.9 : 0.35); ix += textW(s) + 8; };
+    const chip = (s, on, col) => { text(c, s, ix, H - 24, on ? (col || COL.bone) : COL.grey2, 1, 1, on ? 0.9 : 0.35); ix += textW(s) + 8; };
     chip('CARD', inv.card); chip('KEY', inv.key); chip('BLADE', inv.knife);
+    if (window.SHELL.soul) chip('SOUL SOLD', true, COL.red);
     const inf = 'INFECTION ' + Math.min(99, Math.floor(18 + runMs / 26000)) + '%';
     text(c, inf, W - 8 - textW(inf), 18, COL.red, 1, 1, 0.8);
+
+    /* the controls stay on screen; there is nothing to memorise */
+    text(c, 'WASD OR ARROW KEYS: WALK', 8, H - 13, COL.grey2, 1, 1, 0.6);
+    text(c, 'E: USE / HOLD / SWING', 166, H - 13, COL.grey2, 1, 1, 0.6);
 
     if (zomb.alive && zomb.hp < 3) {
       for (let i = 0; i < 3; i++) R(c, W / 2 - 10 + i * 8, 20, 6, 3, i < zomb.hp ? COL.red : COL.grey);
@@ -516,7 +579,7 @@
 
   const player = { x: 0, y: 0, dir: 'down', step: 0, dist: 0, moving: false };
   const cam = { x: 0, y: 0 };
-  const zomb = { alive: false, x: 0, y: 0, dir: 'down', step: 0, dist: 0, hp: 3, stun: 0, slide: 1 };
+  const zomb = { alive: false, awake: false, x: 0, y: 0, dir: 'down', step: 0, dist: 0, hp: 3, stun: 0 };
 
   let state = 'brief';           /* brief | play | fx | rec | dead | win | claim */
   let floorN = 0, started = false;
@@ -527,7 +590,7 @@
   let msg = '', msgT = 0;
   let holdAct = null, holdP = 0;
   let recIdx = -1, recP = 0;
-  let fxLeft = 0, fxNext = 'play', winT = 0, deadT = 0;
+  let fxLeft = 0, fxNext = 'play', winT = 0, deadT = 0, cardT = 0;
 
   const keys = { up: 0, down: 0, left: 0, right: 0, use: 0 };
   let useEdge = false, escEdge = false;
@@ -553,7 +616,7 @@
     holdAct = null; holdP = 0;
     zomb.alive = false;
     if (LEVELS[i].zombie) {
-      zomb.alive = true; zomb.hp = 3; zomb.stun = 0;
+      zomb.alive = true; zomb.hp = 3; zomb.stun = 0; zomb.awake = false;
       zomb.x = LEVELS[i].zombie[0] * T + 4; zomb.y = LEVELS[i].zombie[1] * T + 7;
     }
     if (i === 3) { opened = 0; kitIn = 'c' + (1 + Math.floor(Math.random() * 12)); }
@@ -564,6 +627,7 @@
     records = [false, false, false, false, false];
     powered = false; runMs = 0; msg = ''; msgT = 0;
     loadFloor(0);
+    cardT = 2.6;
     state = 'fx'; fxLeft = 0.4; fxNext = 'play';
   }
 
@@ -608,13 +672,14 @@
     if (floorN >= 3) return;
     loadFloor(floorN + 1);
     state = 'fx'; fxLeft = 0.5; fxNext = 'play';
-    say('FLOOR ' + LEVELS[floorN].n + ' - ' + LEVELS[floorN].name, 3);
+    cardT = 2.6;
   }
 
   function complete(a) {
     if (a.task !== undefined) taskDone[a.task] = true;
     if (a.gives) inv[a.gives] = true;
     if (a.id === 'gen') powered = true;
+    if (a.gives === 'knife') zomb.awake = true;
     if (a.doneMsg) say(a.doneMsg, 3);
     a.done = true;
     if (a.k === 'lift' || a.k === 'stairs') nextFloor();
@@ -635,6 +700,12 @@
     const no = blocked(a);
     if (no) { say(no, 2.6); return; }
     if (a.k === 'terminal') { openRecord(a); return; }
+    if (a.id === 'log') {
+      const kit = L.acts.find((x) => x.id === kitIn);
+      a.done = true;
+      say('SIGNED IN LAST: ' + (kit ? kit.label.replace(' CABINET', '') : 'UNREADABLE'), 4);
+      return;
+    }
     if (a.k === 'search') {
       a.done = true;
       if (a.gives) complete(a); else say(a.empty || 'EMPTY.', 2.6);
@@ -685,6 +756,14 @@
 
   function zombieStep(dt) {
     if (!zomb.alive) return;
+    if (!zomb.awake) {
+      /* it stands in the dark until you get close, or until you pick up the blade */
+      if (Math.hypot(player.x - zomb.x, player.y - zomb.y) < 120) {
+        zomb.awake = true;
+        say('IT HAS SEEN YOU. KEEP MOVING.', 3);
+      }
+      return;
+    }
     if (zomb.stun > 0) { zomb.stun -= dt; return; }
 
     flowT -= dt;
@@ -709,7 +788,7 @@
 
     const dx = tx - zomb.x, dy = ty - (zomb.y - 3);
     const d = Math.hypot(dx, dy) || 1;
-    const sp = 33 * dt;
+    const sp = 30 * dt;
     const vx = (dx / d) * sp, vy = (dy / d) * sp;
     const ox = zomb.x, oy = zomb.y;
     zomb.x += vx; if (!freeAt(zomb.x, zomb.y)) zomb.x = ox;
@@ -736,7 +815,7 @@
     if (d > 19) return false;
     if (!inv.knife) { say('NOT WITH BARE HANDS.', 2); return true; }
     zomb.hp--;
-    zomb.stun = 0.95;
+    zomb.stun = 1.15;
     const a = Math.atan2(zomb.y - player.y, zomb.x - player.x);
     const bx = zomb.x + Math.cos(a) * 12, by = zomb.y + Math.sin(a) * 12;
     if (freeAt(bx, by)) { zomb.x = bx; zomb.y = by; }
@@ -819,8 +898,10 @@
     lighting(c, camX, camY, player.x, player.y - 4, lightK, here);
 
     if (lightK > 0.5) {
+      guide(c, camX, camY, t);
       hud(c, t, here, near);
       minimap(c, player.x, player.y, t);
+      if (cardT > 0) floorCard(c, cardT);
       if (holdAct && holdP > 0) {
         const bw = 84, bx = (W - bw) / 2;
         R(c, bx, H - 22, bw, 6, COL.void);
@@ -859,6 +940,7 @@
   function frame(dt, t) {
     if (state === 'brief') { staticFrame(cx, t / 1000); return; }
     if (msgT > 0) msgT -= dt;
+    if (cardT > 0) cardT -= dt;
     if (state === 'play' || state === 'fx' || state === 'rec') runMs += dt * 1000;
 
     if (state === 'play') {
@@ -962,6 +1044,7 @@
           state = 'claim';
           $('#claimTime').textContent = clock(runMs);
           $('#claimDeaths').textContent = String(deaths);
+          if (postEl) postEl.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(postText());
           claimEl.hidden = false;
         }
       }
@@ -983,6 +1066,14 @@
     startRun();
   });
 
+  const caEl = $('#prizeCA'), postEl = $('#claimPost');
+  if (caEl && COIN.ca) caEl.textContent = COIN.ca;
+
+  function postText() {
+    return 'I cleared PANDEMIK. Four floors, one dose. TIME ' + clock(runMs) + ' · DEATHS ' + deaths +
+           '.\nFirst clear takes 50% of the creator fees.' + (COIN.ca ? '\nCA: ' + COIN.ca : '');
+  }
+
   $('#claimGo').addEventListener('click', () => {
     const addr = $('#wallet').value.trim();
     const note = $('#claimNote');
@@ -993,10 +1084,13 @@
       return;
     }
     const claim = 'PANDEMIK CLEAR · ' + addr + ' · TIME ' + clock(runMs) + ' · DEATHS ' + deaths +
-                  ' · RECORDS ' + records.filter(Boolean).length + '/5 · ' + new Date().toISOString();
+                  ' · RECORDS ' + records.filter(Boolean).length + '/5' + (COIN.ca ? ' · CA ' + COIN.ca : '') +
+                  ' · ' + new Date().toISOString();
     try { localStorage.setItem('pandemik-claim', claim); } catch (_) { /* storage blocked */ }
     if (navigator.clipboard) navigator.clipboard.writeText(claim).catch(() => {});
-    note.textContent = 'Copied: ' + claim + ' — send that line to the project to be counted. Nothing was charged, sent or connected.';
+    if (postEl) postEl.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(postText() + '\n' + addr);
+    note.textContent = 'Copied: ' + claim + ' — post it on X with the CA and send the line to the project. ' +
+                       'Nothing was charged, sent or connected from this page.';
   });
 
   $('#claimSkip').addEventListener('click', () => { claimEl.hidden = true; });

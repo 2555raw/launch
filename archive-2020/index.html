@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ARCHIVE 2020</title>
-<meta name="description" content="An experimental pixel art piece on the COVID-19 pandemic: read the archive as five scrolling sectors, or walk the empty hospital floor room by room.">
+<title>PANDEMIK</title>
+<meta name="description" content="PANDEMIK: a pixel art hospital escape in four floors, and the archive of the pandemic it is built on.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23000'/%3E%3Crect x='3' y='3' width='2' height='2' fill='%23ff1e2d'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body data-mode="boot">
+<body data-mode="warn">
 
 <!-- ── recovering the volume ────────────────────────────────────────── -->
 <div class="boot" id="boot" role="dialog" aria-label="Archive startup">
@@ -32,7 +32,7 @@
 <!-- ── caution card, before anything else ───────────────────────────── -->
 <div class="warn" id="warn" role="dialog" aria-label="Content warning">
   <div class="warn__card">
-    <p class="warn__rated">NOT RATED &middot; VIEWER DISCRETION ADVISED</p>
+    <p class="warn__rated">PANDEMIK &middot; NOT RATED &middot; VIEWER DISCRETION ADVISED</p>
     <h2 class="warn__title">CAUTION</h2>
     <p class="warn__body">THE FOLLOWING PRESENTATION CONTAINS FLASHING IMAGES, SCREEN
     GLITCHES, SUDDEN CUTS, DEPICTIONS OF ILLNESS AND DEATH, BLOOD, AND A PURSUIT
@@ -44,9 +44,28 @@
       <li>PHOTOSENSITIVITY &mdash; if flashing images are a risk for you, turn on your system&rsquo;s reduced motion setting first; the piece respects it.</li>
     </ul>
     <div class="warn__btns">
-      <button data-go="menu" id="warnGo">I UNDERSTAND &mdash; CONTINUE</button>
+      <button data-go="cookies" id="warnGo">I UNDERSTAND &mdash; CONTINUE</button>
       <a class="warn__out" href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019">LEAVE</a>
     </div>
+  </div>
+</div>
+
+<!-- ── cookies, and the other thing ─────────────────────────────────── -->
+<div class="cook" id="cook" role="dialog" aria-label="Cookie consent">
+  <div class="cook__card">
+    <p class="cook__eyebrow">COOKIE CONSENT &middot; AND ONE OTHER CLAUSE</p>
+    <h2 class="cook__title">WE VALUE YOUR PRIVACY<br>AND YOUR IMMORTAL SOUL</h2>
+    <p class="cook__body">This page sets <b>no cookies</b>. No analytics, no pixel, no third party,
+    nothing to consent to &mdash; we are asking anyway, because everyone else does.
+    Read the second box before you tick it. Nobody ever does.</p>
+    <label class="cook__opt"><input type="checkbox" id="ckCookies" checked><span>Accept the cookies that do not exist. Strictly necessary for nothing.</span></label>
+    <label class="cook__opt cook__opt--soul"><input type="checkbox" id="ckSoul"><span>I hand over my <b>immortal soul</b> to the Devil, in perpetuity, across all known and future afterlives, in exchange for continued access to a browser game.</span></label>
+    <div class="cook__row">
+      <button id="cookAccept">ACCEPT ALL AND CONTINUE</button>
+      <button id="cookReject" class="cook__reject">REJECT EVERYTHING</button>
+    </div>
+    <p class="cook__fine" id="cookFine">Small print: the soul clause is a joke, it is not a contract, and it does nothing
+    but put a word in the corner of the screen. Your browser stores one line to remember you clicked. Nothing leaves this page.</p>
   </div>
 </div>
 
@@ -54,13 +73,15 @@
 <div class="menu" id="menu">
   <div class="menu__inner">
     <p class="menu__kicker">VOLUME PANDEMIC_2020_2023 · 05 RECORDS RECOVERED</p>
-    <h1 class="menu__title">ARCHIVE 2020</h1>
+    <h1 class="menu__title">PANDEMIK</h1>
     <p class="menu__sub">Deaths · Hospital · Masks · Vaccines · Memory</p>
     <div class="menu__opts">
-      <button data-go="archive"><b>01</b> READ THE ARCHIVE<span>Five sectors, scrolled from the first death to the last pixel</span></button>
-      <button data-go="floor"><b>02</b> PLAY: PANDEMIK<span>Four floors of a sealed hospital, a task list on each one, and the last dose of the vaccine at the top</span></button>
+      <button data-go="floor"><b>01</b> PLAY PANDEMIK<span>Four floors of a sealed hospital, a task list on each one, and the last dose of the vaccine at the top. WASD or the arrow keys to walk, E to use.</span></button>
+      <button data-go="archive"><b>02</b> READ THE ARCHIVE<span>The five records the game is built on, scrolled from the first death to the last pixel</span></button>
     </div>
-    <p class="menu__foot">NO SOUND. NOTHING HERE MAKES A NOISE.</p>
+    <p class="menu__prize">FIRST CLEAR TAKES <b>50% OF CREATOR FEES</b> &mdash; finish all four floors, post your clear
+    on X with the coin&rsquo;s CA, and the first verified post takes half.</p>
+    <p class="menu__foot">NO SOUND. NOTHING HERE MAKES A NOISE. <span id="soulChip"></span></p>
   </div>
 </div>
 
@@ -205,7 +226,22 @@
         <li><b>04 STORES</b> Open cabinets until the first aid kit turns up. Inside it is the dose.</li>
       </ol>
       <p class="brief__warn">IF IT CATCHES YOU, YOU START AGAIN AT THE FRONT DOORS. NOTHING CARRIES OVER.</p>
-      <p class="brief__keys">[WASD] or arrows to walk &nbsp;·&nbsp; [E] to use, hold it for the slow jobs &nbsp;·&nbsp; [ESC] to leave a record</p>
+      <div class="keys">
+        <p class="keys__t">CONTROLS</p>
+        <ul>
+          <li><b>W A S D</b> or the <b>ARROW KEYS</b><span>walk</span></li>
+          <li><b>E</b><span>use what you are stood in front of &mdash; hold it down for the slow jobs, the bar shows how long</span></li>
+          <li><b>E</b><span>swing the blade, once you have one</span></li>
+          <li><b>ESC</b><span>leave a record you are reading</span></li>
+        </ul>
+        <p class="keys__t">ON SCREEN</p>
+        <ul>
+          <li><b>TASKS</b><span>top left, ticked off as you go. The next one is arrowed on screen and blinking on the plan</span></li>
+          <li><b>PLAN</b><span>bottom right: red is something to use, white is you</span></li>
+        </ul>
+      </div>
+      <p class="brief__prize">FIRST CLEAR TAKES <b>50% OF CREATOR FEES</b>: beat the four floors, post the clear on X
+      with the coin&rsquo;s CA, and the first verified post takes half.</p>
       <button id="briefGo">START THE RUN</button>
     </div>
   </div>
@@ -214,6 +250,14 @@
     <div class="claim__box">
       <p class="claim__t">PANDEMIK CLEARED &middot; VACCINE ADMINISTERED</p>
       <p class="claim__s">TIME <b id="claimTime">00:00</b> &nbsp; DEATHS <b id="claimDeaths">0</b></p>
+      <div class="prize">
+        <p class="prize__t">FIRST CLEAR TAKES 50% OF CREATOR FEES</p>
+        <ol class="prize__steps">
+          <li>Screenshot or record this screen &mdash; it carries your time and your death count.</li>
+          <li>Post it on X with the coin&rsquo;s CA: <b id="prizeCA">CA to be announced</b></li>
+          <li>The <b>first verified post</b> takes 50% of the creator fees. One winner, checked in the order the posts land.</li>
+        </ol>
+      </div>
       <label class="claim__lab" for="wallet">PUBLIC WALLET ADDRESS</label>
       <input id="wallet" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
              spellcheck="false" placeholder="paste your public address">
@@ -221,6 +265,7 @@
       &mdash; NOBODY LEGITIMATE WILL EVER ASK YOU FOR ONE.</p>
       <div class="claim__row">
         <button id="claimGo">COPY MY CLAIM</button>
+        <a id="claimPost" class="claim__post" href="#" target="_blank" rel="noopener">POST IT ON X</a>
         <button id="claimSkip" class="claim__skip">SKIP</button>
       </div>
       <p class="claim__note" id="claimNote">Creator fees go to the first verified clear. This page has no server:

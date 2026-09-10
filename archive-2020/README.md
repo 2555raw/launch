@@ -1,4 +1,4 @@
-# ARCHIVE 2020
+# PANDEMIK
 
 An experimental web piece about the COVID-19 pandemic, built as a digital
 installation rather than an informative site: a corrupted volume someone
@@ -6,13 +6,23 @@ recovers on an old machine and walks through, sector by sector.
 
 Deaths → hospital → masks → vaccines → memory.
 
-A caution card stands between the startup and the menu, film-rating style: the
-piece flashes, glitches, shows illness, death and blood, and floor three is built
-to frighten. From the menu there are two ways in:
+Opening the page puts three doors in front of you, in this order:
 
-- **Read the archive** — the five sectors as one cinematic scroll.
+1. **The caution card**, film-rating style, before anything else loads: the piece
+   flashes, glitches, shows illness, death and blood, and floor three is built to
+   frighten.
+2. **The cookie banner**, which sets no cookies, admits it sets no cookies, and
+   asks for your immortal soul in the second checkbox. Accepting writes
+   `SOUL: FORFEITED` in the corner of the screen and does nothing else. Rejecting
+   works too, and the page carries on the same either way.
+3. **The recovery sequence**, the old machine mounting the volume.
+
+Then the menu, with two ways in:
+
 - **Play PANDEMIK** — four floors of the sealed hospital, seen from the ceiling
   camera, with a task list on each one.
+- **Read the archive** — the five records the game is built on, as one
+  cinematic scroll.
 
 ## PANDEMIK
 
@@ -37,12 +47,41 @@ the front doors with nothing in your pockets and one more on the death counter.
 The five archive records are hidden on wall terminals along the way, optional
 and worth finding.
 
-Clear the fourth floor and the piece asks for a public wallet address, because
-the creator fees are meant for the first verified clear. Two things it does not
-do: it never asks for a seed phrase or a private key (and refuses anything that
-looks like one), and it does not pretend to pay. The page has no server, so the
-claim is copied to the clipboard and kept in `localStorage` for you to send on.
-Wiring it to a real endpoint is a few lines in `floor.js` whenever you want it.
+### Playing it
+
+Nothing has to be memorised. The controls sit on screen the whole time
+(`WASD` or the arrow keys walk, `E` uses what you are stood in front of — hold it
+for the slow jobs, tap it to swing the blade, `ESC` leaves a record). The task
+list is top left and ticks itself off; the next thing to do is arrowed on screen
+with its name, and blinks red on the plan in the bottom right. Each floor opens
+with a card telling you where you are and how many tasks it wants.
+
+It is meant to be finished, not to beat you: you walk at 46 px/s and it walks at
+30, it stands still in the dark until you come within 120 px or pick up the
+blade, a hit knocks it back and stuns it for a second, and the delivery log in
+the fourth-floor corridor names the room the kit was signed into, so the twelve
+cabinets become two or three.
+
+### First clear takes 50% of the creator fees
+
+Beat the four floors, post the clear on X with the coin's contract address, and
+the **first verified post takes half the creator fees**. One winner, checked in
+the order the posts land. The end screen carries your time and death count, has
+a **POST IT ON X** button with the text already written, and asks for a public
+wallet address so the payout has somewhere to go.
+
+Paste the contract address once, at the top of `floor.js`:
+
+```js
+const COIN = { ticker: 'PANDEMIK', ca: '' };   // ← the CA goes here
+```
+
+Until it is filled in, the end screen says *CA to be announced* rather than
+inventing one. Three things the page will not do: ask for a seed phrase or a
+private key (it refuses anything that looks like one), pretend a payment
+happened, or send your address anywhere — it has no server, so the claim is
+copied to your clipboard and kept in `localStorage` for you to send on. Wiring it
+to a real endpoint is a few lines in `floor.js` whenever you want it.
 
 ## How it is made
 
@@ -59,9 +98,9 @@ is how far you have held the read key.
 index.html   the shell: startup, menu and the two modes
 styles.css   the cabinet: CRT monitor, scan lines, file browser chrome, controls
 engine.js    bitmap type, sprites, textures and the five scenes
-archive.js   mode 01 — mounts the scenes on the scrolling chapters
-floor.js     mode 02 — PANDEMIK: four floor plans, camera, tasks, pursuer, claim
-main.js      startup sequence, screen noise, mode switching, one animation loop
+archive.js   the archive — mounts the scenes on the scrolling chapters
+floor.js     the game — four floor plans, camera, tasks, guide, pursuer, claim
+main.js      caution card, cookie gate, startup, screen noise, one animation loop
 build.js     bundles all of the above into dist/index.html
 ```
 

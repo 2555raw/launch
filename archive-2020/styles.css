@@ -46,7 +46,7 @@ button{
 .mode{display:none}
 body[data-mode="archive"] .mode--archive{display:block}
 body[data-mode="floor"] .mode--floor{display:block}
-body[data-mode="floor"],body[data-mode="menu"],body[data-mode="boot"],body[data-mode="warn"]{overflow:hidden;height:100vh}
+body[data-mode="floor"],body[data-mode="menu"],body[data-mode="boot"],body[data-mode="warn"],body[data-mode="cookies"]{overflow:hidden;height:100vh}
 body:not([data-mode="menu"]) .menu{display:none}
 
 /* ── startup ──────────────────────────────────────────────────────── */
@@ -59,6 +59,7 @@ body:not([data-mode="menu"]) .menu{display:none}
   transition:opacity .26s steps(4,end), visibility .26s;
 }
 body:not([data-mode="boot"]) .boot{opacity:0;visibility:hidden;pointer-events:none}
+body[data-mode="warn"] .boot,body[data-mode="cookies"] .boot{display:none}
 
 .boot__inner{width:min(680px,100%)}
 
@@ -418,3 +419,76 @@ body:not([data-mode="warn"]) .warn{display:none}
 .claim__skip{border-color:var(--grey-2)!important;color:var(--grey-2)!important}
 .claim__skip:hover{background:var(--grey-2)!important;border-color:var(--grey-2)!important;color:var(--ink)!important}
 .claim__note{margin:18px 0 0;font-size:9px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--dim)}
+
+/* ── cookie consent, and the clause under it ──────────────────────── */
+
+.cook{
+  position:fixed;inset:0;z-index:78;
+  display:flex;align-items:center;justify-content:center;padding:5vh 5vw;
+  background:var(--ink);overflow:auto;
+}
+body:not([data-mode="cookies"]) .cook{display:none}
+
+.cook__card{width:min(620px,100%);border:1px solid var(--grey-2);padding:28px;background:#070707}
+.cook__eyebrow{margin:0 0 12px;font-size:9px;letter-spacing:.28em;color:var(--red-deep)}
+.cook__title{
+  margin:0 0 18px;font-size:clamp(16px,2.6vw,22px);font-weight:400;line-height:1.5;
+  letter-spacing:.14em;color:var(--bone);
+}
+.cook__body{margin:0 0 22px;font-size:11px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--dim)}
+.cook__body b{color:var(--bone);font-weight:400}
+
+.cook__opt{
+  display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;padding:12px;
+  border:1px solid #222;font-size:10px;line-height:1.8;letter-spacing:.02em;
+  text-transform:none;color:var(--dim);cursor:var(--cursor);
+}
+.cook__opt input{
+  appearance:none;width:12px;height:12px;flex:0 0 12px;margin-top:3px;
+  border:1px solid var(--grey-2);background:var(--ink);cursor:var(--cursor);
+}
+.cook__opt input:checked{background:var(--red);border-color:var(--red)}
+.cook__opt--soul{border-color:var(--red-deep)}
+.cook__opt--soul b{color:var(--red);font-weight:400}
+
+.cook__row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:20px}
+.cook__row button{padding:13px 20px;border:1px solid var(--red);color:var(--red);font-size:10px;letter-spacing:.2em}
+.cook__row button:hover{background:var(--red);color:var(--ink)}
+.cook__reject{border-color:var(--grey-2)!important;color:var(--grey-2)!important}
+.cook__reject:hover{background:var(--grey-2)!important;color:var(--ink)!important}
+
+.cook__fine{margin:20px 0 0;font-size:9px;line-height:1.9;letter-spacing:.02em;text-transform:none;color:var(--grey-2)}
+
+/* ── controls block and the prize ─────────────────────────────────── */
+
+.keys{border-top:1px solid #222;border-bottom:1px solid #222;padding:16px 0;margin:0 0 18px}
+.keys__t{margin:0 0 10px;font-size:9px;letter-spacing:.28em;color:var(--red-deep)}
+.keys ul{margin:0 0 14px;padding:0;list-style:none;display:grid;gap:8px}
+.keys ul:last-child{margin-bottom:0}
+.keys li{display:flex;gap:12px;align-items:baseline;font-size:10px;line-height:1.7}
+.keys li b{
+  flex:0 0 auto;min-width:104px;font-weight:400;letter-spacing:.16em;color:var(--bone);
+  border:1px solid var(--grey-2);padding:3px 8px;text-align:center;
+}
+.keys li span{text-transform:none;letter-spacing:.02em;color:var(--dim)}
+
+.menu__prize,.brief__prize{
+  margin:26px 0 10px;padding:12px 14px;border-left:2px solid var(--red);
+  font-size:10px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--dim);
+}
+.menu__prize b,.brief__prize b{color:var(--red);font-weight:400}
+.brief__prize{margin:0 0 22px}
+
+.prize{border:1px solid var(--red-deep);padding:14px;margin:0 0 22px}
+.prize__t{margin:0 0 10px;font-size:10px;letter-spacing:.16em;color:var(--red)}
+.prize__steps{margin:0;padding-left:18px;display:grid;gap:7px}
+.prize__steps li{font-size:10px;line-height:1.8;letter-spacing:.02em;text-transform:none;color:var(--dim)}
+.prize__steps b{color:var(--bone);font-weight:400;word-break:break-all}
+
+.claim__post{
+  padding:12px 18px;border:1px solid var(--bone);color:var(--bone);
+  font-size:10px;letter-spacing:.18em;
+}
+.claim__post:hover{background:var(--bone);color:var(--ink)}
+
+#soulChip{color:var(--red)}

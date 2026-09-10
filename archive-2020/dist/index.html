@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ARCHIVE 2020</title>
-<meta name="description" content="An experimental pixel art piece on the COVID-19 pandemic: read the archive as five scrolling sectors, or walk the empty hospital floor room by room.">
+<title>PANDEMIK</title>
+<meta name="description" content="PANDEMIK: a pixel art hospital escape in four floors, and the archive of the pandemic it is built on.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23000'/%3E%3Crect x='3' y='3' width='2' height='2' fill='%23ff1e2d'/%3E%3C/svg%3E">
 <style>
@@ -56,7 +56,7 @@ button{
 .mode{display:none}
 body[data-mode="archive"] .mode--archive{display:block}
 body[data-mode="floor"] .mode--floor{display:block}
-body[data-mode="floor"],body[data-mode="menu"],body[data-mode="boot"],body[data-mode="warn"]{overflow:hidden;height:100vh}
+body[data-mode="floor"],body[data-mode="menu"],body[data-mode="boot"],body[data-mode="warn"],body[data-mode="cookies"]{overflow:hidden;height:100vh}
 body:not([data-mode="menu"]) .menu{display:none}
 
 /* ── startup ──────────────────────────────────────────────────────── */
@@ -69,6 +69,7 @@ body:not([data-mode="menu"]) .menu{display:none}
   transition:opacity .26s steps(4,end), visibility .26s;
 }
 body:not([data-mode="boot"]) .boot{opacity:0;visibility:hidden;pointer-events:none}
+body[data-mode="warn"] .boot,body[data-mode="cookies"] .boot{display:none}
 
 .boot__inner{width:min(680px,100%)}
 
@@ -428,9 +429,82 @@ body:not([data-mode="warn"]) .warn{display:none}
 .claim__skip{border-color:var(--grey-2)!important;color:var(--grey-2)!important}
 .claim__skip:hover{background:var(--grey-2)!important;border-color:var(--grey-2)!important;color:var(--ink)!important}
 .claim__note{margin:18px 0 0;font-size:9px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--dim)}
+
+/* ── cookie consent, and the clause under it ──────────────────────── */
+
+.cook{
+  position:fixed;inset:0;z-index:78;
+  display:flex;align-items:center;justify-content:center;padding:5vh 5vw;
+  background:var(--ink);overflow:auto;
+}
+body:not([data-mode="cookies"]) .cook{display:none}
+
+.cook__card{width:min(620px,100%);border:1px solid var(--grey-2);padding:28px;background:#070707}
+.cook__eyebrow{margin:0 0 12px;font-size:9px;letter-spacing:.28em;color:var(--red-deep)}
+.cook__title{
+  margin:0 0 18px;font-size:clamp(16px,2.6vw,22px);font-weight:400;line-height:1.5;
+  letter-spacing:.14em;color:var(--bone);
+}
+.cook__body{margin:0 0 22px;font-size:11px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--dim)}
+.cook__body b{color:var(--bone);font-weight:400}
+
+.cook__opt{
+  display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;padding:12px;
+  border:1px solid #222;font-size:10px;line-height:1.8;letter-spacing:.02em;
+  text-transform:none;color:var(--dim);cursor:var(--cursor);
+}
+.cook__opt input{
+  appearance:none;width:12px;height:12px;flex:0 0 12px;margin-top:3px;
+  border:1px solid var(--grey-2);background:var(--ink);cursor:var(--cursor);
+}
+.cook__opt input:checked{background:var(--red);border-color:var(--red)}
+.cook__opt--soul{border-color:var(--red-deep)}
+.cook__opt--soul b{color:var(--red);font-weight:400}
+
+.cook__row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:20px}
+.cook__row button{padding:13px 20px;border:1px solid var(--red);color:var(--red);font-size:10px;letter-spacing:.2em}
+.cook__row button:hover{background:var(--red);color:var(--ink)}
+.cook__reject{border-color:var(--grey-2)!important;color:var(--grey-2)!important}
+.cook__reject:hover{background:var(--grey-2)!important;color:var(--ink)!important}
+
+.cook__fine{margin:20px 0 0;font-size:9px;line-height:1.9;letter-spacing:.02em;text-transform:none;color:var(--grey-2)}
+
+/* ── controls block and the prize ─────────────────────────────────── */
+
+.keys{border-top:1px solid #222;border-bottom:1px solid #222;padding:16px 0;margin:0 0 18px}
+.keys__t{margin:0 0 10px;font-size:9px;letter-spacing:.28em;color:var(--red-deep)}
+.keys ul{margin:0 0 14px;padding:0;list-style:none;display:grid;gap:8px}
+.keys ul:last-child{margin-bottom:0}
+.keys li{display:flex;gap:12px;align-items:baseline;font-size:10px;line-height:1.7}
+.keys li b{
+  flex:0 0 auto;min-width:104px;font-weight:400;letter-spacing:.16em;color:var(--bone);
+  border:1px solid var(--grey-2);padding:3px 8px;text-align:center;
+}
+.keys li span{text-transform:none;letter-spacing:.02em;color:var(--dim)}
+
+.menu__prize,.brief__prize{
+  margin:26px 0 10px;padding:12px 14px;border-left:2px solid var(--red);
+  font-size:10px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--dim);
+}
+.menu__prize b,.brief__prize b{color:var(--red);font-weight:400}
+.brief__prize{margin:0 0 22px}
+
+.prize{border:1px solid var(--red-deep);padding:14px;margin:0 0 22px}
+.prize__t{margin:0 0 10px;font-size:10px;letter-spacing:.16em;color:var(--red)}
+.prize__steps{margin:0;padding-left:18px;display:grid;gap:7px}
+.prize__steps li{font-size:10px;line-height:1.8;letter-spacing:.02em;text-transform:none;color:var(--dim)}
+.prize__steps b{color:var(--bone);font-weight:400;word-break:break-all}
+
+.claim__post{
+  padding:12px 18px;border:1px solid var(--bone);color:var(--bone);
+  font-size:10px;letter-spacing:.18em;
+}
+.claim__post:hover{background:var(--bone);color:var(--ink)}
+
+#soulChip{color:var(--red)}
 </style>
 </head>
-<body data-mode="boot">
+<body data-mode="warn">
 
 <!-- ── recovering the volume ────────────────────────────────────────── -->
 <div class="boot" id="boot" role="dialog" aria-label="Archive startup">
@@ -453,7 +527,7 @@ body:not([data-mode="warn"]) .warn{display:none}
 <!-- ── caution card, before anything else ───────────────────────────── -->
 <div class="warn" id="warn" role="dialog" aria-label="Content warning">
   <div class="warn__card">
-    <p class="warn__rated">NOT RATED &middot; VIEWER DISCRETION ADVISED</p>
+    <p class="warn__rated">PANDEMIK &middot; NOT RATED &middot; VIEWER DISCRETION ADVISED</p>
     <h2 class="warn__title">CAUTION</h2>
     <p class="warn__body">THE FOLLOWING PRESENTATION CONTAINS FLASHING IMAGES, SCREEN
     GLITCHES, SUDDEN CUTS, DEPICTIONS OF ILLNESS AND DEATH, BLOOD, AND A PURSUIT
@@ -465,9 +539,28 @@ body:not([data-mode="warn"]) .warn{display:none}
       <li>PHOTOSENSITIVITY &mdash; if flashing images are a risk for you, turn on your system&rsquo;s reduced motion setting first; the piece respects it.</li>
     </ul>
     <div class="warn__btns">
-      <button data-go="menu" id="warnGo">I UNDERSTAND &mdash; CONTINUE</button>
+      <button data-go="cookies" id="warnGo">I UNDERSTAND &mdash; CONTINUE</button>
       <a class="warn__out" href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019">LEAVE</a>
     </div>
+  </div>
+</div>
+
+<!-- ── cookies, and the other thing ─────────────────────────────────── -->
+<div class="cook" id="cook" role="dialog" aria-label="Cookie consent">
+  <div class="cook__card">
+    <p class="cook__eyebrow">COOKIE CONSENT &middot; AND ONE OTHER CLAUSE</p>
+    <h2 class="cook__title">WE VALUE YOUR PRIVACY<br>AND YOUR IMMORTAL SOUL</h2>
+    <p class="cook__body">This page sets <b>no cookies</b>. No analytics, no pixel, no third party,
+    nothing to consent to &mdash; we are asking anyway, because everyone else does.
+    Read the second box before you tick it. Nobody ever does.</p>
+    <label class="cook__opt"><input type="checkbox" id="ckCookies" checked><span>Accept the cookies that do not exist. Strictly necessary for nothing.</span></label>
+    <label class="cook__opt cook__opt--soul"><input type="checkbox" id="ckSoul"><span>I hand over my <b>immortal soul</b> to the Devil, in perpetuity, across all known and future afterlives, in exchange for continued access to a browser game.</span></label>
+    <div class="cook__row">
+      <button id="cookAccept">ACCEPT ALL AND CONTINUE</button>
+      <button id="cookReject" class="cook__reject">REJECT EVERYTHING</button>
+    </div>
+    <p class="cook__fine" id="cookFine">Small print: the soul clause is a joke, it is not a contract, and it does nothing
+    but put a word in the corner of the screen. Your browser stores one line to remember you clicked. Nothing leaves this page.</p>
   </div>
 </div>
 
@@ -475,13 +568,15 @@ body:not([data-mode="warn"]) .warn{display:none}
 <div class="menu" id="menu">
   <div class="menu__inner">
     <p class="menu__kicker">VOLUME PANDEMIC_2020_2023 · 05 RECORDS RECOVERED</p>
-    <h1 class="menu__title">ARCHIVE 2020</h1>
+    <h1 class="menu__title">PANDEMIK</h1>
     <p class="menu__sub">Deaths · Hospital · Masks · Vaccines · Memory</p>
     <div class="menu__opts">
-      <button data-go="archive"><b>01</b> READ THE ARCHIVE<span>Five sectors, scrolled from the first death to the last pixel</span></button>
-      <button data-go="floor"><b>02</b> PLAY: PANDEMIK<span>Four floors of a sealed hospital, a task list on each one, and the last dose of the vaccine at the top</span></button>
+      <button data-go="floor"><b>01</b> PLAY PANDEMIK<span>Four floors of a sealed hospital, a task list on each one, and the last dose of the vaccine at the top. WASD or the arrow keys to walk, E to use.</span></button>
+      <button data-go="archive"><b>02</b> READ THE ARCHIVE<span>The five records the game is built on, scrolled from the first death to the last pixel</span></button>
     </div>
-    <p class="menu__foot">NO SOUND. NOTHING HERE MAKES A NOISE.</p>
+    <p class="menu__prize">FIRST CLEAR TAKES <b>50% OF CREATOR FEES</b> &mdash; finish all four floors, post your clear
+    on X with the coin&rsquo;s CA, and the first verified post takes half.</p>
+    <p class="menu__foot">NO SOUND. NOTHING HERE MAKES A NOISE. <span id="soulChip"></span></p>
   </div>
 </div>
 
@@ -626,7 +721,22 @@ body:not([data-mode="warn"]) .warn{display:none}
         <li><b>04 STORES</b> Open cabinets until the first aid kit turns up. Inside it is the dose.</li>
       </ol>
       <p class="brief__warn">IF IT CATCHES YOU, YOU START AGAIN AT THE FRONT DOORS. NOTHING CARRIES OVER.</p>
-      <p class="brief__keys">[WASD] or arrows to walk &nbsp;·&nbsp; [E] to use, hold it for the slow jobs &nbsp;·&nbsp; [ESC] to leave a record</p>
+      <div class="keys">
+        <p class="keys__t">CONTROLS</p>
+        <ul>
+          <li><b>W A S D</b> or the <b>ARROW KEYS</b><span>walk</span></li>
+          <li><b>E</b><span>use what you are stood in front of &mdash; hold it down for the slow jobs, the bar shows how long</span></li>
+          <li><b>E</b><span>swing the blade, once you have one</span></li>
+          <li><b>ESC</b><span>leave a record you are reading</span></li>
+        </ul>
+        <p class="keys__t">ON SCREEN</p>
+        <ul>
+          <li><b>TASKS</b><span>top left, ticked off as you go. The next one is arrowed on screen and blinking on the plan</span></li>
+          <li><b>PLAN</b><span>bottom right: red is something to use, white is you</span></li>
+        </ul>
+      </div>
+      <p class="brief__prize">FIRST CLEAR TAKES <b>50% OF CREATOR FEES</b>: beat the four floors, post the clear on X
+      with the coin&rsquo;s CA, and the first verified post takes half.</p>
       <button id="briefGo">START THE RUN</button>
     </div>
   </div>
@@ -635,6 +745,14 @@ body:not([data-mode="warn"]) .warn{display:none}
     <div class="claim__box">
       <p class="claim__t">PANDEMIK CLEARED &middot; VACCINE ADMINISTERED</p>
       <p class="claim__s">TIME <b id="claimTime">00:00</b> &nbsp; DEATHS <b id="claimDeaths">0</b></p>
+      <div class="prize">
+        <p class="prize__t">FIRST CLEAR TAKES 50% OF CREATOR FEES</p>
+        <ol class="prize__steps">
+          <li>Screenshot or record this screen &mdash; it carries your time and your death count.</li>
+          <li>Post it on X with the coin&rsquo;s CA: <b id="prizeCA">CA to be announced</b></li>
+          <li>The <b>first verified post</b> takes 50% of the creator fees. One winner, checked in the order the posts land.</li>
+        </ol>
+      </div>
       <label class="claim__lab" for="wallet">PUBLIC WALLET ADDRESS</label>
       <input id="wallet" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
              spellcheck="false" placeholder="paste your public address">
@@ -642,6 +760,7 @@ body:not([data-mode="warn"]) .warn{display:none}
       &mdash; NOBODY LEGITIMATE WILL EVER ASK YOU FOR ONE.</p>
       <div class="claim__row">
         <button id="claimGo">COPY MY CLAIM</button>
+        <a id="claimPost" class="claim__post" href="#" target="_blank" rel="noopener">POST IT ON X</a>
         <button id="claimSkip" class="claim__skip">SKIP</button>
       </div>
       <p class="claim__note" id="claimNote">Creator fees go to the first verified clear. This page has no server:
@@ -1671,6 +1790,10 @@ body:not([data-mode="warn"]) .warn{display:none}
   const T = 8;
   const BLOOD = '#4a060d', BLOOD2 = '#2c0308';
 
+  /* The prize for the first clear. Paste the contract address into `ca` and it
+     shows up on the end screen, in the copied claim and in the ready-made post. */
+  const COIN = { ticker: 'PANDEMIK', ca: '' };
+
   /* ================================================================
      Characters
      ================================================================ */
@@ -1902,13 +2025,14 @@ body:not([data-mode="warn"]) .warn{display:none}
         { id: 'c3', k: 'cabinet', x: 14, y: 3, label: 'PHARMACY CABINET' },
         { id: 'c4', k: 'cabinet', x: 23, y: 3, label: 'LAB CABINET' },
         { id: 'c5', k: 'cabinet', x: 26, y: 3, label: 'LAB CABINET' },
-        { id: 'c6', k: 'cabinet', x: 41, y: 3, label: 'STORE CABINET' },
-        { id: 'c7', k: 'cabinet', x: 48, y: 3, label: 'STORE CABINET' },
-        { id: 'c8', k: 'cabinet', x: 5, y: 18, label: 'STORE CABINET' },
-        { id: 'c9', k: 'cabinet', x: 12, y: 18, label: 'STORE CABINET' },
+        { id: 'c6', k: 'cabinet', x: 41, y: 3, label: 'STORE 01 CABINET' },
+        { id: 'c7', k: 'cabinet', x: 48, y: 3, label: 'STORE 01 CABINET' },
+        { id: 'c8', k: 'cabinet', x: 5, y: 18, label: 'STORE 02 CABINET' },
+        { id: 'c9', k: 'cabinet', x: 12, y: 18, label: 'STORE 02 CABINET' },
         { id: 'c10', k: 'cabinet', x: 24, y: 18, label: 'COLD ROOM CABINET' },
         { id: 'c11', k: 'cabinet', x: 32, y: 18, label: 'COLD ROOM CABINET' },
         { id: 'c12', k: 'cabinet', x: 47, y: 18, label: 'OFFICE CABINET' },
+        { id: 'log', k: 'note', x: 18, y: 17, label: 'DELIVERY LOG', prompt: 'READ THE DELIVERY LOG' },
         { id: 'rec4', k: 'terminal', x: 2, y: 14, rec: 3, label: 'ARCHIVE TERMINAL' }
       ],
       tasks: ['SEARCH THE CABINETS', 'OPEN THE FIRST AID KIT']
@@ -2059,6 +2183,59 @@ body:not([data-mode="warn"]) .warn{display:none}
     }
   }
 
+  /* ---------- where to go next ---------- */
+
+  function targetAct() {
+    const i = taskDone.findIndex((d) => !d);
+    if (i < 0) return null;
+    let best = L.acts.find((a) => a.task === i && !a.done);
+    if (best) return best;
+    if (L.def.n === 4 && i === 0) {                 /* twelve cabinets: point at the nearest shut one */
+      let bd = 1e9;
+      for (const a of L.acts) {
+        if (a.k !== 'cabinet' || a.done) continue;
+        const d = Math.abs(a.x * T - player.x) + Math.abs(a.y * T - player.y);
+        if (d < bd) { bd = d; best = a; }
+      }
+    }
+    return best || null;
+  }
+
+  function chevron(c, x, y, dir, col) {
+    for (let i = 0; i < 4; i++) {
+      if (dir === 'down') R(c, x - 3 + i, y + i, 7 - i * 2, 1, col);
+      else if (dir === 'up') R(c, x - 3 + i, y + 3 - i, 7 - i * 2, 1, col);
+      else if (dir === 'left') R(c, x + 3 - i, y - 3 + i, 1, 7 - i * 2, col);
+      else R(c, x + i, y - 3 + i, 1, 7 - i * 2, col);
+    }
+  }
+
+  function guide(c, camX, camY, t) {
+    const a = targetAct();
+    if (!a) return;
+    const ax = a.x * T + 4 - camX, ay = a.y * T + 4 - camY;
+    const on = Math.floor(t / 420) % 2 === 0;
+    if (ax > 10 && ax < W - 10 && ay > 26 && ay < H - 34) {
+      chevron(c, ax, ay - 14 - (on ? 1 : 0), 'down', COL.red);
+      return;
+    }
+    const px = clamp(ax, 20, W - 20), py = clamp(ay, 30, H - 40);
+    const dx = ax - px, dy = ay - py;
+    const dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'up' : 'down');
+    chevron(c, px, py, dir, on ? COL.red : COL.redDeep);
+    const lab = a.label;
+    text(c, lab, clamp(px - textW(lab) / 2, 4, W - 4 - textW(lab)), py + 8, COL.grey2, 1, 1, 0.75);
+  }
+
+  function floorCard(c, k) {
+    const d = LEVELS[floorN];
+    const a = Math.min(1, (2.6 - k) / 0.35) * Math.min(1, k / 0.5);
+    R(c, 0, 88, W, 42, `rgba(0,0,0,${0.82 * a})`);
+    R(c, 0, 88, W, 1, COL.redDeep); R(c, 0, 129, W, 1, COL.redDeep);
+    textC(c, 'FLOOR 0' + d.n, W / 2, 96, COL.red, 2, 1, a);
+    textC(c, d.name + '  ·  ' + d.tasks.length + ' TASKS', W / 2, 116, COL.bone, 1, 1, a * 0.9);
+  }
+
   /* ---------- lighting ---------- */
 
   function lighting(c, camX, camY, px, py, k, here) {
@@ -2133,12 +2310,17 @@ body:not([data-mode="warn"]) .warn{display:none}
       text(c, label, 17, y - 1, ok ? COL.grey2 : COL.bone, 1, 1, ok ? 0.55 : 0.9);
     }
 
-    /* what you are carrying, and how the infection is doing */
+    /* what you are carrying, how the infection is doing, and who owns you */
     let ix = 8;
-    const chip = (s, on) => { text(c, s, ix, H - 14, on ? COL.bone : COL.grey2, 1, 1, on ? 0.9 : 0.35); ix += textW(s) + 8; };
+    const chip = (s, on, col) => { text(c, s, ix, H - 24, on ? (col || COL.bone) : COL.grey2, 1, 1, on ? 0.9 : 0.35); ix += textW(s) + 8; };
     chip('CARD', inv.card); chip('KEY', inv.key); chip('BLADE', inv.knife);
+    if (window.SHELL.soul) chip('SOUL SOLD', true, COL.red);
     const inf = 'INFECTION ' + Math.min(99, Math.floor(18 + runMs / 26000)) + '%';
     text(c, inf, W - 8 - textW(inf), 18, COL.red, 1, 1, 0.8);
+
+    /* the controls stay on screen; there is nothing to memorise */
+    text(c, 'WASD OR ARROW KEYS: WALK', 8, H - 13, COL.grey2, 1, 1, 0.6);
+    text(c, 'E: USE / HOLD / SWING', 166, H - 13, COL.grey2, 1, 1, 0.6);
 
     if (zomb.alive && zomb.hp < 3) {
       for (let i = 0; i < 3; i++) R(c, W / 2 - 10 + i * 8, 20, 6, 3, i < zomb.hp ? COL.red : COL.grey);
@@ -2170,7 +2352,7 @@ body:not([data-mode="warn"]) .warn{display:none}
 
   const player = { x: 0, y: 0, dir: 'down', step: 0, dist: 0, moving: false };
   const cam = { x: 0, y: 0 };
-  const zomb = { alive: false, x: 0, y: 0, dir: 'down', step: 0, dist: 0, hp: 3, stun: 0, slide: 1 };
+  const zomb = { alive: false, awake: false, x: 0, y: 0, dir: 'down', step: 0, dist: 0, hp: 3, stun: 0 };
 
   let state = 'brief';           /* brief | play | fx | rec | dead | win | claim */
   let floorN = 0, started = false;
@@ -2181,7 +2363,7 @@ body:not([data-mode="warn"]) .warn{display:none}
   let msg = '', msgT = 0;
   let holdAct = null, holdP = 0;
   let recIdx = -1, recP = 0;
-  let fxLeft = 0, fxNext = 'play', winT = 0, deadT = 0;
+  let fxLeft = 0, fxNext = 'play', winT = 0, deadT = 0, cardT = 0;
 
   const keys = { up: 0, down: 0, left: 0, right: 0, use: 0 };
   let useEdge = false, escEdge = false;
@@ -2207,7 +2389,7 @@ body:not([data-mode="warn"]) .warn{display:none}
     holdAct = null; holdP = 0;
     zomb.alive = false;
     if (LEVELS[i].zombie) {
-      zomb.alive = true; zomb.hp = 3; zomb.stun = 0;
+      zomb.alive = true; zomb.hp = 3; zomb.stun = 0; zomb.awake = false;
       zomb.x = LEVELS[i].zombie[0] * T + 4; zomb.y = LEVELS[i].zombie[1] * T + 7;
     }
     if (i === 3) { opened = 0; kitIn = 'c' + (1 + Math.floor(Math.random() * 12)); }
@@ -2218,6 +2400,7 @@ body:not([data-mode="warn"]) .warn{display:none}
     records = [false, false, false, false, false];
     powered = false; runMs = 0; msg = ''; msgT = 0;
     loadFloor(0);
+    cardT = 2.6;
     state = 'fx'; fxLeft = 0.4; fxNext = 'play';
   }
 
@@ -2262,13 +2445,14 @@ body:not([data-mode="warn"]) .warn{display:none}
     if (floorN >= 3) return;
     loadFloor(floorN + 1);
     state = 'fx'; fxLeft = 0.5; fxNext = 'play';
-    say('FLOOR ' + LEVELS[floorN].n + ' - ' + LEVELS[floorN].name, 3);
+    cardT = 2.6;
   }
 
   function complete(a) {
     if (a.task !== undefined) taskDone[a.task] = true;
     if (a.gives) inv[a.gives] = true;
     if (a.id === 'gen') powered = true;
+    if (a.gives === 'knife') zomb.awake = true;
     if (a.doneMsg) say(a.doneMsg, 3);
     a.done = true;
     if (a.k === 'lift' || a.k === 'stairs') nextFloor();
@@ -2289,6 +2473,12 @@ body:not([data-mode="warn"]) .warn{display:none}
     const no = blocked(a);
     if (no) { say(no, 2.6); return; }
     if (a.k === 'terminal') { openRecord(a); return; }
+    if (a.id === 'log') {
+      const kit = L.acts.find((x) => x.id === kitIn);
+      a.done = true;
+      say('SIGNED IN LAST: ' + (kit ? kit.label.replace(' CABINET', '') : 'UNREADABLE'), 4);
+      return;
+    }
     if (a.k === 'search') {
       a.done = true;
       if (a.gives) complete(a); else say(a.empty || 'EMPTY.', 2.6);
@@ -2339,6 +2529,14 @@ body:not([data-mode="warn"]) .warn{display:none}
 
   function zombieStep(dt) {
     if (!zomb.alive) return;
+    if (!zomb.awake) {
+      /* it stands in the dark until you get close, or until you pick up the blade */
+      if (Math.hypot(player.x - zomb.x, player.y - zomb.y) < 120) {
+        zomb.awake = true;
+        say('IT HAS SEEN YOU. KEEP MOVING.', 3);
+      }
+      return;
+    }
     if (zomb.stun > 0) { zomb.stun -= dt; return; }
 
     flowT -= dt;
@@ -2363,7 +2561,7 @@ body:not([data-mode="warn"]) .warn{display:none}
 
     const dx = tx - zomb.x, dy = ty - (zomb.y - 3);
     const d = Math.hypot(dx, dy) || 1;
-    const sp = 33 * dt;
+    const sp = 30 * dt;
     const vx = (dx / d) * sp, vy = (dy / d) * sp;
     const ox = zomb.x, oy = zomb.y;
     zomb.x += vx; if (!freeAt(zomb.x, zomb.y)) zomb.x = ox;
@@ -2390,7 +2588,7 @@ body:not([data-mode="warn"]) .warn{display:none}
     if (d > 19) return false;
     if (!inv.knife) { say('NOT WITH BARE HANDS.', 2); return true; }
     zomb.hp--;
-    zomb.stun = 0.95;
+    zomb.stun = 1.15;
     const a = Math.atan2(zomb.y - player.y, zomb.x - player.x);
     const bx = zomb.x + Math.cos(a) * 12, by = zomb.y + Math.sin(a) * 12;
     if (freeAt(bx, by)) { zomb.x = bx; zomb.y = by; }
@@ -2473,8 +2671,10 @@ body:not([data-mode="warn"]) .warn{display:none}
     lighting(c, camX, camY, player.x, player.y - 4, lightK, here);
 
     if (lightK > 0.5) {
+      guide(c, camX, camY, t);
       hud(c, t, here, near);
       minimap(c, player.x, player.y, t);
+      if (cardT > 0) floorCard(c, cardT);
       if (holdAct && holdP > 0) {
         const bw = 84, bx = (W - bw) / 2;
         R(c, bx, H - 22, bw, 6, COL.void);
@@ -2513,6 +2713,7 @@ body:not([data-mode="warn"]) .warn{display:none}
   function frame(dt, t) {
     if (state === 'brief') { staticFrame(cx, t / 1000); return; }
     if (msgT > 0) msgT -= dt;
+    if (cardT > 0) cardT -= dt;
     if (state === 'play' || state === 'fx' || state === 'rec') runMs += dt * 1000;
 
     if (state === 'play') {
@@ -2616,6 +2817,7 @@ body:not([data-mode="warn"]) .warn{display:none}
           state = 'claim';
           $('#claimTime').textContent = clock(runMs);
           $('#claimDeaths').textContent = String(deaths);
+          if (postEl) postEl.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(postText());
           claimEl.hidden = false;
         }
       }
@@ -2637,6 +2839,14 @@ body:not([data-mode="warn"]) .warn{display:none}
     startRun();
   });
 
+  const caEl = $('#prizeCA'), postEl = $('#claimPost');
+  if (caEl && COIN.ca) caEl.textContent = COIN.ca;
+
+  function postText() {
+    return 'I cleared PANDEMIK. Four floors, one dose. TIME ' + clock(runMs) + ' · DEATHS ' + deaths +
+           '.\nFirst clear takes 50% of the creator fees.' + (COIN.ca ? '\nCA: ' + COIN.ca : '');
+  }
+
   $('#claimGo').addEventListener('click', () => {
     const addr = $('#wallet').value.trim();
     const note = $('#claimNote');
@@ -2647,10 +2857,13 @@ body:not([data-mode="warn"]) .warn{display:none}
       return;
     }
     const claim = 'PANDEMIK CLEAR · ' + addr + ' · TIME ' + clock(runMs) + ' · DEATHS ' + deaths +
-                  ' · RECORDS ' + records.filter(Boolean).length + '/5 · ' + new Date().toISOString();
+                  ' · RECORDS ' + records.filter(Boolean).length + '/5' + (COIN.ca ? ' · CA ' + COIN.ca : '') +
+                  ' · ' + new Date().toISOString();
     try { localStorage.setItem('pandemik-claim', claim); } catch (_) { /* storage blocked */ }
     if (navigator.clipboard) navigator.clipboard.writeText(claim).catch(() => {});
-    note.textContent = 'Copied: ' + claim + ' — send that line to the project to be counted. Nothing was charged, sent or connected.';
+    if (postEl) postEl.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(postText() + '\n' + addr);
+    note.textContent = 'Copied: ' + claim + ' — post it on X with the CA and send the line to the project. ' +
+                       'Nothing was charged, sent or connected from this page.';
   });
 
   $('#claimSkip').addEventListener('click', () => { claimEl.hidden = true; });
@@ -2719,6 +2932,7 @@ body:not([data-mode="warn"]) .warn{display:none}
     if (prev === m) return;
     if (prev === 'floor' && window.MODE_FLOOR.leave) window.MODE_FLOOR.leave();
     body.dataset.mode = m;
+    if (m === 'boot') startBoot();
     if (m === 'archive') window.MODE_ARCHIVE.enter();
     if (m === 'floor') window.MODE_FLOOR.enter();
     signalCut();
@@ -2762,6 +2976,34 @@ body:not([data-mode="warn"]) .warn{display:none}
   }
   requestAnimationFrame(loop);
 
+  /* ---------- cookies, and the clause under them ---------- */
+
+  const soulChip = $('#soulChip');
+
+  function soul(sold) {
+    window.SHELL.soul = sold;
+    try { localStorage.setItem('pandemik-soul', sold ? 'sold' : 'kept'); } catch (_) { /* storage blocked */ }
+    if (soulChip) soulChip.textContent = sold ? '· SOUL: FORFEITED' : '· SOUL: RETAINED';
+  }
+  soul(false);
+
+  $('#cookAccept').addEventListener('click', () => {
+    const sold = $('#ckSoul').checked;
+    soul(sold);
+    $('#cookFine').textContent = sold
+      ? 'Filed. The Devil thanks you and files nothing, because there is nothing to file. No cookie was set either.'
+      : 'You left the second box empty. Somebody reads the small print after all.';
+    signalCut();
+    setTimeout(() => setMode('boot'), 420);
+  });
+
+  $('#cookReject').addEventListener('click', () => {
+    soul(false);
+    $('#cookFine').textContent = 'Rejected. The cookies still do not exist, your soul stays where it is, and the page works exactly the same. Going in anyway.';
+    signalCut();
+    setTimeout(() => setMode('boot'), 900);
+  });
+
   /* ---------- startup ---------- */
 
   const BOOT = [
@@ -2772,28 +3014,32 @@ body:not([data-mode="warn"]) .warn{display:none}
     'MOUNTING VOLUME: <i>PANDEMIC_2020_2023</i>',
     'DAMAGED SECTORS: <b>4,219</b>',
     'RECOVERABLE RECORDS: 05',
+    'SURVIVORS ON RECORD: <b>00</b>',
     '',
     'REBUILDING INDEX ...'
   ];
 
-  const logEl = $('#bootLog'), barEl = $('#bootBar'), enterEl = $('#bootEnter');
+  const logEl = $('#bootLog'), barEl = $('#bootBar'), enterEl = $('#bootEnter'), bootEl = $('#boot');
+  let booted = false;
 
-  BOOT.forEach((line, i) => {
+  function startBoot() {
+    if (booted) return;
+    booted = true;
+    BOOT.forEach((line, i) => {
+      setTimeout(() => {
+        logEl.innerHTML += line + '\n';
+        barEl.style.setProperty('--w', Math.round(((i + 1) / BOOT.length) * 100) + '%');
+      }, 110 * i + 100);
+    });
     setTimeout(() => {
-      logEl.innerHTML += line + '\n';
-      barEl.style.setProperty('--w', Math.round(((i + 1) / BOOT.length) * 100) + '%');
-    }, 130 * i + 120);
-  });
+      enterEl.hidden = false;
+      barEl.style.setProperty('--w', '100%');
+    }, 110 * BOOT.length + 320);
+  }
 
-  setTimeout(() => {
-    enterEl.hidden = false;
-    barEl.style.setProperty('--w', '100%');
-  }, 130 * BOOT.length + 380);
-
-  const bootEl = $('#boot');
   const enter = () => {
-    if (body.dataset.mode !== 'boot') return;
-    setMode('warn');
+    if (body.dataset.mode !== 'boot' || enterEl.hidden) return;
+    setMode('menu');
     setTimeout(() => bootEl.remove(), 380);
   };
   enterEl.addEventListener('click', enter);

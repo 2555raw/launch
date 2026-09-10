@@ -395,13 +395,13 @@
     });
   }
 
+  function setRange(r) {
+    state.range = r;
+    $$("#ranges button").forEach(function (o) { o.classList.toggle("on", o.dataset.range === r); });
+    renderHero(true);
+  }
   $$("#ranges button").forEach(function (b) {
-    b.addEventListener("click", function () {
-      $$("#ranges button").forEach(function (o) { o.classList.remove("on"); });
-      b.classList.add("on");
-      state.range = b.dataset.range;
-      renderHero(true);
-    });
+    b.addEventListener("click", function () { setRange(b.dataset.range); });
   });
 
   /* dock */
@@ -441,7 +441,6 @@
   }
   $("#themeBtn").addEventListener("click", flipTheme);
   $("#dockTheme").addEventListener("click", flipTheme);
-  $$('[data-action="theme"]').forEach(function (b) { b.addEventListener("click", flipTheme); });
 
   /* ------------------------------------------------------------------ live quotes */
 
@@ -734,7 +733,443 @@
     setTimeout(function () { agree.focus(); }, 260);
   }
   $("#dockTerms").addEventListener("click", openModal);
-  $$('[data-action="terms"]').forEach(function (b) { b.addEventListener("click", openModal); });
+
+  /* ------------------------------------------------------------------ menus */
+
+  var menus = $$(".menu");
+
+  function closeMenus() { menus.forEach(function (m) { m.classList.remove("open"); }); }
+  function menusOpen() { return menus.some(function (m) { return m.classList.contains("open"); }); }
+
+  menus.forEach(function (m) {
+    m.querySelector(".menu-item").addEventListener("click", function (e) {
+      e.stopPropagation();
+      var was = m.classList.contains("open");
+      closeMenus();
+      if (!was) m.classList.add("open");
+    });
+    // once a menu is open, sliding across the bar switches between them
+    m.addEventListener("mouseenter", function () {
+      if (menusOpen()) { closeMenus(); m.classList.add("open"); }
+    });
+  });
+  document.addEventListener("click", closeMenus);
+
+  $$(".mi").forEach(function (item) {
+    item.addEventListener("click", function () { closeMenus(); run(item.dataset.cmd); });
+  });
+
+  /* ---- what the menus actually do ---- */
+
+  function toast(message) {
+    var el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 1900);
+  }
+
+  function copyText(text, what) {
+    if (!navigator.clipboard) { toast("This browser will not let the page copy."); return; }
+    navigator.clipboard.writeText(text)
+      .then(function () { toast("Copied the " + what + "."); })
+      .catch(function () { toast("The copy was refused."); });
+  }
+
+  function quoteLine() {
+    var a = byId(state.selected);
+    return [a.sym, a.name, money(a.price), pct(a.change), "simulated quote from Market Desk"].join(" · ");
+  }
+
+  function tableCsv() {
+    var head = ["symbol", "name", "venue", "class", "price", "change_pct", "market_cap"];
+    var rows = visible().map(function (a) {
+      return [a.sym, '"' + a.name + '"', a.venue, a.type, a.price.toFixed(4), a.change.toFixed(2), a.cap].join(",");
+    });
+    return head.join(",") + "\n" + rows.join("\n");
+  }
+
+  // Nudges every price and redraws the book, the way a desk refreshes its feed.
+  function reseed() {
+    ASSETS.forEach(function (a) {
+      a.price = a.price * (1 + (Math.random() - 0.5) * 0.02);
+      Object.keys(RANGES).forEach(function (r) { a.series[r] = makeSeries(a, r); });
+      var s1 = a.series["1D"];
+      a.open = s1[0];
+      a.high = Math.max.apply(null, s1);
+      a.low = Math.min.apply(null, s1);
+      a.change = ((a.price - a.open) / a.open) * 100;
+    });
+    renderClass(state.filter);
+    renderCards();
+    renderRows();
+    renderHero(true);
+    toast("Quotes refreshed.");
+  }
+
+  var infoModal = $("#infoModal");
+  function info(icon, title, html) {
+    $("#infoIcon").textContent = icon;
+    $("#infoTitle").textContent = title;
+    $("#infoBody").innerHTML = html;
+    infoModal.style.display = "";
+    infoModal.classList.remove("gone");
+  }
+  $("#infoClose").addEventListener("click", function () {
+    infoModal.classList.add("gone");
+    setTimeout(function () { infoModal.style.display = "none"; }, 420);
+  });
+
+  function aboutHTML() {
+    return '<div class="wallet-list">' +
+      '<div class="wallet-row"><span>Assets tracked</span><b>' + ASSETS.length + "</b></div>" +
+      '<div class="wallet-row"><span>Classes</span><b>Stocks · Crypto · ETFs · Commodities</b></div>' +
+      '<div class="wallet-row"><span>Quotes</span><b>Simulated in your browser</b></div>' +
+      '<div class="wallet-row"><span>Wallet</span><b>Read-only, no transactions</b></div>' +
+      "</div>" +
+      '<p class="wallet-hint">A desk that behaves like the real thing without pretending its numbers are real. Nothing here is investment advice.</p>';
+  }
+
+  function shortcutsHTML() {
+    var keys = [
+      ["1 – 5", "Watchlist, stocks, crypto, ETFs, commodities"],
+      ["]", "Next asset in the current class"],
+      ["/", "Search assets"],
+      ["D", "Switch appearance"],
+      ["R", "Refresh quotes"],
+      ["C", "Copy the shown quote"],
+      ["W", "Wallet"], ["T", "Terms"], ["G", "Ticker Drop"],
+      ["Esc", "Close what is open"]
+    ];
+    return '<div class="wallet-list">' + keys.map(function (k) {
+      return '<div class="wallet-row"><span>' + k[1] + "</span><b>" + k[0] + "</b></div>";
+    }).join("") + "</div>";
+  }
+
+  function goTo(where) {
+    var el = $({ top: "#heroCard", cards: "#cards", rows: "#rows" }[where]);
+    if (el) el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+  }
+
+  function run(cmd) {
+    if (!cmd) return;
+    var parts = cmd.split(":");
+    switch (parts[0]) {
+      case "about": info("📈", "About Market Desk", aboutHTML()); break;
+      case "shortcuts": info("⌨️", "Keyboard shortcuts", shortcutsHTML()); break;
+      case "wallet": openWallet(); break;
+      case "terms": openModal(); break;
+      case "theme": flipTheme(); break;
+      case "refresh": reseed(); break;
+      case "copyQuote": copyText(quoteLine(), "quote"); break;
+      case "copyCsv": copyText(tableCsv(), "table"); break;
+      case "print": window.print(); break;
+      case "class": setFilter(parts[1]); break;
+      case "range": setRange(parts[1]); break;
+      case "next": feature(state.filter); break;
+      case "go": goTo(parts[1]); break;
+      case "game": openGame(); break;
+      case "x": window.open("https://x.com", "_blank", "noopener"); break;
+    }
+  }
+
+  /* ------------------------------------------------------------ ticker drop */
+
+  // A falling-block puzzle where every piece is a position: the blocks carry the
+  // ticker, the colour is its asset class, and a full row is a closed trade.
+  var COLS = 10, ROWS = 18, CELL = 26;
+  var SHAPES = {
+    I: { n: 4, cells: [[0, 1], [1, 1], [2, 1], [3, 1]] },
+    O: { n: 2, cells: [[0, 0], [1, 0], [0, 1], [1, 1]] },
+    T: { n: 3, cells: [[1, 0], [0, 1], [1, 1], [2, 1]] },
+    S: { n: 3, cells: [[1, 0], [2, 0], [0, 1], [1, 1]] },
+    Z: { n: 3, cells: [[0, 0], [1, 0], [1, 1], [2, 1]] },
+    J: { n: 3, cells: [[0, 0], [0, 1], [1, 1], [2, 1]] },
+    L: { n: 3, cells: [[2, 0], [0, 1], [1, 1], [2, 1]] }
+  };
+  var SHAPE_KEYS = Object.keys(SHAPES);
+  var ROW_VALUE = [0, 1200, 3000, 6400, 12000];   // booked P&L per rows closed
+
+  var gameModal = $("#gameModal"), gameDock = $("#gameDock"), gameDockDot = $("#gameDockDot");
+  var board = $("#board"), bx = board.getContext("2d");
+  var nextCanvas = $("#nextCanvas"), nx = nextCanvas.getContext("2d");
+  var game = null, raf = null;
+
+  function cssColor(token) {
+    return getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  }
+
+  function readable(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(hex);
+    if (!m) return "#ffffff";
+    var v = parseInt(m[1], 16);
+    var lum = (0.299 * ((v >> 16) & 255) + 0.587 * ((v >> 8) & 255) + 0.114 * (v & 255)) / 255;
+    return lum > 0.62 ? "#10141c" : "#ffffff";
+  }
+
+  function newPiece() {
+    var key = SHAPE_KEYS[Math.floor(Math.random() * SHAPE_KEYS.length)];
+    var shape = SHAPES[key];
+    var asset = ASSETS[Math.floor(Math.random() * ASSETS.length)];
+    return {
+      cells: shape.cells.slice(), n: shape.n, asset: asset,
+      color: CLASSES[asset.type].accent, label: asset.sym.slice(0, 4),
+      x: Math.floor((COLS - shape.n) / 2), y: -2
+    };
+  }
+
+  function collides(piece, offX, offY, cells) {
+    cells = cells || piece.cells;
+    for (var i = 0; i < cells.length; i++) {
+      var cx = piece.x + cells[i][0] + offX;
+      var cy = piece.y + cells[i][1] + offY;
+      if (cx < 0 || cx >= COLS || cy >= ROWS) return true;
+      if (cy >= 0 && game.grid[cy][cx]) return true;
+    }
+    return false;
+  }
+
+  function rotate() {
+    var n = game.piece.n;
+    var turned = game.piece.cells.map(function (c) { return [n - 1 - c[1], c[0]]; });
+    var kicks = [0, -1, 1, -2, 2];
+    for (var i = 0; i < kicks.length; i++) {
+      if (!collides(game.piece, kicks[i], 0, turned)) {
+        game.piece.x += kicks[i];
+        game.piece.cells = turned;
+        return;
+      }
+    }
+  }
+
+  function move(dx) { if (!collides(game.piece, dx, 0)) game.piece.x += dx; }
+
+  function lock() {
+    game.piece.cells.forEach(function (c) {
+      var cy = game.piece.y + c[1], cx = game.piece.x + c[0];
+      if (cy >= 0) game.grid[cy][cx] = { color: game.piece.color, label: game.piece.label };
+    });
+
+    var closed = 0;
+    for (var y = ROWS - 1; y >= 0; y--) {
+      if (game.grid[y].every(function (cell) { return !!cell; })) {
+        game.grid.splice(y, 1);
+        game.grid.unshift(new Array(COLS).fill(null));
+        closed++;
+        y++;
+      }
+    }
+    if (closed) {
+      game.lines += closed;
+      game.pnl += ROW_VALUE[closed] * game.level;
+      game.level = 1 + Math.floor(game.lines / 8);
+      paintStats();
+    }
+
+    game.piece = game.next;
+    game.next = newPiece();
+    paintNext();
+    if (collides(game.piece, 0, 0)) endGame();
+  }
+
+  function step() {
+    if (collides(game.piece, 0, 1)) lock();
+    else game.piece.y++;
+  }
+
+  function hardDrop() {
+    while (!collides(game.piece, 0, 1)) game.piece.y++;
+    lock();
+  }
+
+  function cell(ctx, px, py, size, color, label) {
+    ctx.fillStyle = color;
+    ctx.globalAlpha = .92;
+    ctx.beginPath();
+    ctx.roundRect(px + 1, py + 1, size - 2, size - 2, 5);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    if (label && size >= 20) {
+      ctx.fillStyle = readable(color);
+      ctx.font = '600 8px "JetBrains Mono", monospace';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, px + size / 2, py + size / 2 + .5);
+    }
+  }
+
+  function draw() {
+    bx.clearRect(0, 0, board.width, board.height);
+
+    bx.strokeStyle = cssColor("--hair-soft") || "rgba(255,255,255,.06)";
+    bx.lineWidth = 1;
+    for (var i = 1; i < COLS; i++) {
+      bx.beginPath(); bx.moveTo(i * CELL + .5, 0); bx.lineTo(i * CELL + .5, ROWS * CELL); bx.stroke();
+    }
+    for (var j = 1; j < ROWS; j++) {
+      bx.beginPath(); bx.moveTo(0, j * CELL + .5); bx.lineTo(COLS * CELL, j * CELL + .5); bx.stroke();
+    }
+
+    game.grid.forEach(function (row, y) {
+      row.forEach(function (c, x) { if (c) cell(bx, x * CELL, y * CELL, CELL, c.color, c.label); });
+    });
+
+    if (game.piece) {
+      // where it lands, shown faintly
+      var ghost = 0;
+      while (!collides(game.piece, 0, ghost + 1)) ghost++;
+      bx.globalAlpha = .18;
+      game.piece.cells.forEach(function (c) {
+        var gy = game.piece.y + c[1] + ghost;
+        if (gy >= 0) cell(bx, (game.piece.x + c[0]) * CELL, gy * CELL, CELL, game.piece.color, null);
+      });
+      bx.globalAlpha = 1;
+
+      game.piece.cells.forEach(function (c) {
+        var cy = game.piece.y + c[1];
+        if (cy >= 0) cell(bx, (game.piece.x + c[0]) * CELL, cy * CELL, CELL, game.piece.color, game.piece.label);
+      });
+    }
+  }
+
+  function paintNext() {
+    var size = 22, p = game.next;
+    nx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+    var offX = (nextCanvas.width - p.n * size) / 2;
+    var offY = (nextCanvas.height - p.n * size) / 2;
+    p.cells.forEach(function (c) { cell(nx, offX + c[0] * size, offY + c[1] * size, size, p.color, p.label); });
+    $("#nextName").textContent = p.asset.sym + " · " + money(p.asset.price);
+  }
+
+  function paintStats() {
+    $("#gamePnl").textContent = "$" + game.pnl.toLocaleString("en-US");
+    $("#gameLines").textContent = game.lines;
+    $("#gameLevel").textContent = game.level;
+  }
+
+  function endGame() {
+    game.over = true;
+    $("#gameOverTitle").textContent = game.pnl > 0 ? "Book closed" : "Margin call";
+    $("#gameOverLine").textContent = "Booked $" + game.pnl.toLocaleString("en-US") +
+      " across " + game.lines + (game.lines === 1 ? " row." : " rows.");
+    $("#gameOver").hidden = false;
+  }
+
+  function loop(now) {
+    raf = requestAnimationFrame(loop);
+    if (!game || game.over || game.paused) return;
+    if (!game.last) game.last = now;
+    var speed = Math.max(120, 780 - (game.level - 1) * 70);
+    if (now - game.last >= speed) { step(); game.last = now; }
+    draw();
+  }
+
+  function startGame() {
+    game = {
+      grid: Array.from({ length: ROWS }, function () { return new Array(COLS).fill(null); }),
+      piece: newPiece(), next: newPiece(),
+      pnl: 0, lines: 0, level: 1, last: 0, paused: false, over: false
+    };
+    $("#gameOver").hidden = true;
+    $("#gamePause").textContent = "Pause";
+    paintStats();
+    paintNext();
+    draw();
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+
+  function openGame() {
+    gameModal.style.display = "";
+    gameModal.classList.remove("gone");
+    gameDockDot.hidden = false;
+    startGame();
+  }
+
+  function closeGame() {
+    gameModal.classList.add("gone");
+    gameDockDot.hidden = true;
+    setTimeout(function () { gameModal.style.display = "none"; }, 420);
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+    game = null;
+  }
+
+  function gameOpen() { return !!game && !gameModal.classList.contains("gone"); }
+
+  gameDock.addEventListener("click", openGame);
+  $("#gameClose").addEventListener("click", closeGame);
+  $("#gameAgain").addEventListener("click", startGame);
+  $("#gamePause").addEventListener("click", function () {
+    if (!game || game.over) return;
+    game.paused = !game.paused;
+    game.last = 0;
+    $("#gamePause").textContent = game.paused ? "Resume" : "Pause";
+  });
+  $$(".game-pad button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (!game || game.over || game.paused) return;
+      var pad = b.dataset.pad;
+      if (pad === "left") move(-1);
+      else if (pad === "right") move(1);
+      else if (pad === "rot") rotate();
+      else if (pad === "down") step();
+      else if (pad === "drop") hardDrop();
+      draw();
+    });
+  });
+
+  /* ------------------------------------------------------------ keyboard */
+
+  function sheetOpen(el) { return el && el.style.display !== "none" && !el.classList.contains("gone"); }
+
+  document.addEventListener("keydown", function (e) {
+    var tag = e.target && e.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA") {
+      if (e.key === "Escape") e.target.blur();
+      return;
+    }
+
+    if (e.key === "Escape") {
+      if (gameOpen()) return closeGame();
+      if (menusOpen()) return closeMenus();
+      if (sheetOpen(infoModal)) return $("#infoClose").click();
+      if (sheetOpen(walletModal)) return $("#walletClose").click();
+      return;
+    }
+
+    if (gameOpen()) {
+      if (game.over || game.paused) {
+        if (e.key.toLowerCase() === "p") $("#gamePause").click();
+        return;
+      }
+      var handled = true;
+      switch (e.key) {
+        case "ArrowLeft": move(-1); break;
+        case "ArrowRight": move(1); break;
+        case "ArrowUp": rotate(); break;
+        case "ArrowDown": step(); break;
+        case " ": hardDrop(); break;
+        default:
+          if (e.key.toLowerCase() === "p") $("#gamePause").click(); else handled = false;
+      }
+      if (handled) { e.preventDefault(); draw(); }
+      return;
+    }
+
+    if (sheetOpen(infoModal) || sheetOpen(walletModal) || sheetOpen(modal)) return;
+
+    var k = e.key.toLowerCase();
+    var byNumber = { "1": "all", "2": "stock", "3": "crypto", "4": "etf", "5": "commodity" };
+    if (byNumber[e.key]) return setFilter(byNumber[e.key]);
+    if (k === "d") return flipTheme();
+    if (k === "r") return reseed();
+    if (k === "c") return copyText(quoteLine(), "quote");
+    if (k === "w") return openWallet();
+    if (k === "t") return openModal();
+    if (k === "g") return openGame();
+    if (e.key === "]") return feature(state.filter);
+    if (e.key === "?") return run("shortcuts");
+    if (e.key === "/") { e.preventDefault(); $("#search").focus(); }
+  });
 
   /* ------------------------------------------------------------------ boot */
 

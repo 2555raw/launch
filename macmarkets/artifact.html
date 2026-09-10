@@ -70,6 +70,10 @@
 
 * { box-sizing: border-box; }
 
+/* Several elements are toggled with the hidden attribute while their own rule
+   sets a display, which would otherwise win over the browser default. */
+[hidden] { display: none !important; }
+
 html, body { height: 100%; }
 
 body {
@@ -121,6 +125,25 @@ body.ready .menubar { transform: none; transition: transform var(--dur) var(--ea
 .menu-item { padding: 3px 9px; border-radius: 6px; font-size: 13px; color: var(--ink); opacity: .92; }
 .menu-item.strong { font-weight: 700; }
 .menu-item:hover { background: var(--surface-2); }
+/* ---- menu bar menus ---- */
+.menu { position: relative; }
+.menu.open > .menu-item { background: var(--blue); color: #fff; opacity: 1; }
+.menu-drop {
+  display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 70;
+  min-width: 226px; padding: 6px; border-radius: 11px;
+  background: var(--chrome-solid); border: 1px solid var(--hair);
+  box-shadow: 0 26px 50px -22px rgba(0, 0, 0, .75);
+}
+.menu.open .menu-drop { display: block; }
+.mi {
+  display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 26px;
+  padding: 6px 10px; border-radius: 7px; font-size: 13px; text-align: left; color: var(--ink);
+}
+.mi:hover { background: var(--blue); color: #fff; }
+.mi:hover .mi-key { color: rgba(255, 255, 255, .75); }
+.mi-key { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.mi-sep { height: 1px; background: var(--hair); margin: 5px 8px; }
+
 .menu-icon { display: grid; place-items: center; width: 26px; height: 22px; border-radius: 6px; color: var(--ink); opacity: .85; }
 .menu-icon:hover { background: var(--surface-2); opacity: 1; }
 .x-link:hover { color: var(--blue); }
@@ -412,6 +435,7 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
 .i-terms { background: linear-gradient(160deg, #f2f2f7, #c7c7cc) !important; }
 .i-x { background: #0b0b0d !important; color: #fff; }
 .i-wallet { background: linear-gradient(160deg, #64d2ff, #0a84ff) !important; color: #fff; }
+.i-game { background: linear-gradient(160deg, #40cbe0, #30d158) !important; color: #fff; }
 .dock-dot {
   position: absolute; left: 50%; bottom: -6px; translate: -50% 0;
   width: 4px; height: 4px; border-radius: 50%; background: var(--ink);
@@ -499,6 +523,78 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
   .window, .menubar, .dock { opacity: 1; transform: none; }
   .dock { transform: translate(-50%, 0); }
 }
+
+
+.toast {
+  position: fixed; left: 50%; bottom: 96px; translate: -50% 0; z-index: 120;
+  padding: 9px 16px; border-radius: 10px; font-size: 13px;
+  background: var(--chrome-solid); color: var(--ink);
+  border: 1px solid var(--hair); box-shadow: 0 20px 40px -22px rgba(0, 0, 0, .8);
+  animation: toastIn .25s ease;
+}
+@keyframes toastIn { from { opacity: 0; translate: -50% 8px; } }
+
+/* ============ ticker drop ============ */
+
+.game-window {
+  width: min(720px, 100%);
+  border-radius: 16px; overflow: hidden;
+  background: var(--chrome); backdrop-filter: blur(34px) saturate(180%);
+  border: 1px solid var(--hair); box-shadow: var(--shadow);
+}
+.game-bar {
+  display: flex; align-items: center; gap: 14px; height: 50px; padding: 0 14px;
+  border-bottom: 1px solid var(--hair-soft);
+  background: linear-gradient(180deg, var(--surface-2), transparent);
+}
+.game-bar h2 { font-size: 15px; }
+.game-sub { font-size: 12.4px; color: var(--ink-3); }
+
+.game-body { display: flex; gap: 18px; padding: 18px; }
+.board-wrap { position: relative; flex: none; }
+#board {
+  display: block; border-radius: 12px; border: 1px solid var(--hair);
+  background: var(--surface-2); touch-action: none;
+}
+.game-over {
+  position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 10px;
+  padding: 20px; text-align: center; border-radius: 12px;
+  background: color-mix(in srgb, var(--chrome-solid) 86%, transparent);
+}
+.game-over b { font-size: 19px; }
+.game-over span { font-size: 13px; color: var(--ink-2); }
+
+.game-side { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.game-stat {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0;
+  padding: 9px 12px; border-radius: 10px; background: var(--surface-2);
+  border-left: 2px solid var(--blue);
+}
+.game-stat dt { font-size: 10.6px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.game-stat dd { margin: 0; font-family: var(--mono); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.game-next { padding: 12px; border-radius: 10px; background: var(--surface-2); text-align: center; }
+.game-next h4 { font-size: 10.6px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
+.game-next canvas { display: block; margin: 8px auto 6px; }
+.game-next span { font-family: var(--mono); font-size: 11.4px; color: var(--ink-2); }
+
+.game-help { font-size: 11.6px; color: var(--ink-3); line-height: 1.5; }
+.game-actions { display: flex; gap: 8px; margin-top: auto; }
+.game-actions .btn { flex: 1; }
+
+.game-pad { display: none; gap: 8px; padding: 0 18px 18px; }
+.game-pad button {
+  flex: 1; height: 46px; border-radius: 11px; font-size: 17px;
+  background: var(--surface-2); border: 1px solid var(--hair); color: var(--ink);
+}
+.game-pad button:active { background: var(--blue); color: #fff; }
+
+@media (max-width: 720px) {
+  .game-body { flex-direction: column; align-items: center; }
+  .game-side { width: 100%; }
+  .game-pad { display: flex; }
+  .game-sub { display: none; }
+}
 </style>
 <noscript><style>.modal-layer,.stage,.dock{display:none}.nojs{display:block!important}</style></noscript>
 
@@ -528,11 +624,67 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
     <span class="logo" aria-hidden="true">
       <svg viewBox="0 0 32 32" width="15" height="15"><path d="M7 21l5-6 4 3 8-9" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </span>
-    <button class="menu-item strong" type="button">Markets</button>
-    <button class="menu-item" type="button" data-action="terms">File</button>
-    <button class="menu-item" type="button" data-action="theme">View</button>
-    <button class="menu-item" type="button" data-action="terms">Window</button>
-    <button class="menu-item" type="button" data-action="terms">Help</button>
+
+    <div class="menu">
+      <button class="menu-item strong" type="button">Markets</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="about">About Market Desk</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="wallet">Connect wallet<span class="mi-key">W</span></button>
+        <button class="mi" type="button" data-cmd="terms">Terms &amp; Conditions<span class="mi-key">T</span></button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">File</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="refresh">Refresh quotes<span class="mi-key">R</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="copyQuote">Copy this quote<span class="mi-key">C</span></button>
+        <button class="mi" type="button" data-cmd="copyCsv">Copy table as CSV</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="print">Print…</button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">View</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="theme">Switch appearance<span class="mi-key">D</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="class:all">Watchlist<span class="mi-key">1</span></button>
+        <button class="mi" type="button" data-cmd="class:stock">Stocks<span class="mi-key">2</span></button>
+        <button class="mi" type="button" data-cmd="class:crypto">Crypto<span class="mi-key">3</span></button>
+        <button class="mi" type="button" data-cmd="class:etf">ETFs<span class="mi-key">4</span></button>
+        <button class="mi" type="button" data-cmd="class:commodity">Commodities<span class="mi-key">5</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="range:1D">Range · one day</button>
+        <button class="mi" type="button" data-cmd="range:1W">Range · one week</button>
+        <button class="mi" type="button" data-cmd="range:1M">Range · one month</button>
+        <button class="mi" type="button" data-cmd="range:1Y">Range · one year</button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">Window</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="next">Next asset<span class="mi-key">]</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="go:top">Chart</button>
+        <button class="mi" type="button" data-cmd="go:cards">Watchlist cards</button>
+        <button class="mi" type="button" data-cmd="go:rows">All markets</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="game">Ticker Drop<span class="mi-key">G</span></button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">Help</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="shortcuts">Keyboard shortcuts<span class="mi-key">?</span></button>
+        <button class="mi" type="button" data-cmd="x">Follow on X</button>
+      </div>
+    </div>
   </div>
 
   <div class="menubar-right">
@@ -712,8 +864,70 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
   <a class="dock-app" href="https://x.com" target="_blank" rel="noopener noreferrer" data-tip="X">
     <span class="ico i-x"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg></span>
   </a>
+  <button class="dock-app" type="button" data-tip="Ticker Drop" id="gameDock">
+    <span class="ico i-game"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M3 4h8v6H3zm10 0h8v10h-8zM3 12h8v8H3zm10 4h8v4h-8z" opacity=".92"/></svg></span>
+    <span class="dock-dot" id="gameDockDot" hidden></span>
+  </button>
   <span class="dock-sep" aria-hidden="true"></span>
   <button class="dock-app" type="button" data-tip="Terms" id="dockTerms"><span class="ico i-terms">📄</span></button>
+</div>
+
+<!-- ===================== ticker drop ===================== -->
+<div class="modal-layer gone" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="gameTitle" style="display:none">
+  <section class="game-window">
+    <header class="game-bar">
+      <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
+      <h2 id="gameTitle">Ticker Drop</h2>
+      <span class="game-sub">Stack the tape. Close a full row to book it.</span>
+    </header>
+
+    <div class="game-body">
+      <div class="board-wrap">
+        <canvas id="board" width="260" height="468" aria-label="Game board"></canvas>
+        <div class="game-over" id="gameOver" hidden>
+          <b id="gameOverTitle">Margin call</b>
+          <span id="gameOverLine">The book reached the top.</span>
+          <button class="btn btn-blue" type="button" id="gameAgain">Trade again</button>
+        </div>
+      </div>
+
+      <aside class="game-side">
+        <dl class="game-stat"><dt>Booked P&amp;L</dt><dd id="gamePnl">$0</dd></dl>
+        <dl class="game-stat"><dt>Rows closed</dt><dd id="gameLines">0</dd></dl>
+        <dl class="game-stat"><dt>Level</dt><dd id="gameLevel">1</dd></dl>
+
+        <div class="game-next">
+          <h4>On deck</h4>
+          <canvas id="nextCanvas" width="112" height="112" aria-label="Next piece"></canvas>
+          <span id="nextName">—</span>
+        </div>
+
+        <p class="game-help">← → move · ↑ rotate · ↓ soft drop · space drop · P pause</p>
+        <div class="game-actions">
+          <button class="btn btn-quiet" type="button" id="gamePause">Pause</button>
+          <button class="btn btn-blue" type="button" id="gameClose">Close</button>
+        </div>
+      </aside>
+    </div>
+
+    <div class="game-pad" aria-hidden="false">
+      <button type="button" data-pad="left" aria-label="Move left">←</button>
+      <button type="button" data-pad="rot" aria-label="Rotate">⟳</button>
+      <button type="button" data-pad="right" aria-label="Move right">→</button>
+      <button type="button" data-pad="down" aria-label="Soft drop">↓</button>
+      <button type="button" data-pad="drop" aria-label="Hard drop">⤓</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== info sheet ===================== -->
+<div class="modal-layer gone" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoTitle" style="display:none">
+  <div class="sheet">
+    <span class="sheet-icon" id="infoIcon" aria-hidden="true">📈</span>
+    <h2 id="infoTitle">About Market Desk</h2>
+    <div class="wallet-body" id="infoBody"></div>
+    <div class="sheet-actions"><button class="btn btn-blue" type="button" id="infoClose">Done</button></div>
+  </div>
 </div>
 
 <!-- ===================== wallet sheet ===================== -->
@@ -1166,13 +1380,13 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
     });
   }
 
+  function setRange(r) {
+    state.range = r;
+    $$("#ranges button").forEach(function (o) { o.classList.toggle("on", o.dataset.range === r); });
+    renderHero(true);
+  }
   $$("#ranges button").forEach(function (b) {
-    b.addEventListener("click", function () {
-      $$("#ranges button").forEach(function (o) { o.classList.remove("on"); });
-      b.classList.add("on");
-      state.range = b.dataset.range;
-      renderHero(true);
-    });
+    b.addEventListener("click", function () { setRange(b.dataset.range); });
   });
 
   /* dock */
@@ -1212,7 +1426,6 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
   }
   $("#themeBtn").addEventListener("click", flipTheme);
   $("#dockTheme").addEventListener("click", flipTheme);
-  $$('[data-action="theme"]').forEach(function (b) { b.addEventListener("click", flipTheme); });
 
   /* ------------------------------------------------------------------ live quotes */
 
@@ -1505,7 +1718,443 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
     setTimeout(function () { agree.focus(); }, 260);
   }
   $("#dockTerms").addEventListener("click", openModal);
-  $$('[data-action="terms"]').forEach(function (b) { b.addEventListener("click", openModal); });
+
+  /* ------------------------------------------------------------------ menus */
+
+  var menus = $$(".menu");
+
+  function closeMenus() { menus.forEach(function (m) { m.classList.remove("open"); }); }
+  function menusOpen() { return menus.some(function (m) { return m.classList.contains("open"); }); }
+
+  menus.forEach(function (m) {
+    m.querySelector(".menu-item").addEventListener("click", function (e) {
+      e.stopPropagation();
+      var was = m.classList.contains("open");
+      closeMenus();
+      if (!was) m.classList.add("open");
+    });
+    // once a menu is open, sliding across the bar switches between them
+    m.addEventListener("mouseenter", function () {
+      if (menusOpen()) { closeMenus(); m.classList.add("open"); }
+    });
+  });
+  document.addEventListener("click", closeMenus);
+
+  $$(".mi").forEach(function (item) {
+    item.addEventListener("click", function () { closeMenus(); run(item.dataset.cmd); });
+  });
+
+  /* ---- what the menus actually do ---- */
+
+  function toast(message) {
+    var el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 1900);
+  }
+
+  function copyText(text, what) {
+    if (!navigator.clipboard) { toast("This browser will not let the page copy."); return; }
+    navigator.clipboard.writeText(text)
+      .then(function () { toast("Copied the " + what + "."); })
+      .catch(function () { toast("The copy was refused."); });
+  }
+
+  function quoteLine() {
+    var a = byId(state.selected);
+    return [a.sym, a.name, money(a.price), pct(a.change), "simulated quote from Market Desk"].join(" · ");
+  }
+
+  function tableCsv() {
+    var head = ["symbol", "name", "venue", "class", "price", "change_pct", "market_cap"];
+    var rows = visible().map(function (a) {
+      return [a.sym, '"' + a.name + '"', a.venue, a.type, a.price.toFixed(4), a.change.toFixed(2), a.cap].join(",");
+    });
+    return head.join(",") + "\n" + rows.join("\n");
+  }
+
+  // Nudges every price and redraws the book, the way a desk refreshes its feed.
+  function reseed() {
+    ASSETS.forEach(function (a) {
+      a.price = a.price * (1 + (Math.random() - 0.5) * 0.02);
+      Object.keys(RANGES).forEach(function (r) { a.series[r] = makeSeries(a, r); });
+      var s1 = a.series["1D"];
+      a.open = s1[0];
+      a.high = Math.max.apply(null, s1);
+      a.low = Math.min.apply(null, s1);
+      a.change = ((a.price - a.open) / a.open) * 100;
+    });
+    renderClass(state.filter);
+    renderCards();
+    renderRows();
+    renderHero(true);
+    toast("Quotes refreshed.");
+  }
+
+  var infoModal = $("#infoModal");
+  function info(icon, title, html) {
+    $("#infoIcon").textContent = icon;
+    $("#infoTitle").textContent = title;
+    $("#infoBody").innerHTML = html;
+    infoModal.style.display = "";
+    infoModal.classList.remove("gone");
+  }
+  $("#infoClose").addEventListener("click", function () {
+    infoModal.classList.add("gone");
+    setTimeout(function () { infoModal.style.display = "none"; }, 420);
+  });
+
+  function aboutHTML() {
+    return '<div class="wallet-list">' +
+      '<div class="wallet-row"><span>Assets tracked</span><b>' + ASSETS.length + "</b></div>" +
+      '<div class="wallet-row"><span>Classes</span><b>Stocks · Crypto · ETFs · Commodities</b></div>' +
+      '<div class="wallet-row"><span>Quotes</span><b>Simulated in your browser</b></div>' +
+      '<div class="wallet-row"><span>Wallet</span><b>Read-only, no transactions</b></div>' +
+      "</div>" +
+      '<p class="wallet-hint">A desk that behaves like the real thing without pretending its numbers are real. Nothing here is investment advice.</p>';
+  }
+
+  function shortcutsHTML() {
+    var keys = [
+      ["1 – 5", "Watchlist, stocks, crypto, ETFs, commodities"],
+      ["]", "Next asset in the current class"],
+      ["/", "Search assets"],
+      ["D", "Switch appearance"],
+      ["R", "Refresh quotes"],
+      ["C", "Copy the shown quote"],
+      ["W", "Wallet"], ["T", "Terms"], ["G", "Ticker Drop"],
+      ["Esc", "Close what is open"]
+    ];
+    return '<div class="wallet-list">' + keys.map(function (k) {
+      return '<div class="wallet-row"><span>' + k[1] + "</span><b>" + k[0] + "</b></div>";
+    }).join("") + "</div>";
+  }
+
+  function goTo(where) {
+    var el = $({ top: "#heroCard", cards: "#cards", rows: "#rows" }[where]);
+    if (el) el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+  }
+
+  function run(cmd) {
+    if (!cmd) return;
+    var parts = cmd.split(":");
+    switch (parts[0]) {
+      case "about": info("📈", "About Market Desk", aboutHTML()); break;
+      case "shortcuts": info("⌨️", "Keyboard shortcuts", shortcutsHTML()); break;
+      case "wallet": openWallet(); break;
+      case "terms": openModal(); break;
+      case "theme": flipTheme(); break;
+      case "refresh": reseed(); break;
+      case "copyQuote": copyText(quoteLine(), "quote"); break;
+      case "copyCsv": copyText(tableCsv(), "table"); break;
+      case "print": window.print(); break;
+      case "class": setFilter(parts[1]); break;
+      case "range": setRange(parts[1]); break;
+      case "next": feature(state.filter); break;
+      case "go": goTo(parts[1]); break;
+      case "game": openGame(); break;
+      case "x": window.open("https://x.com", "_blank", "noopener"); break;
+    }
+  }
+
+  /* ------------------------------------------------------------ ticker drop */
+
+  // A falling-block puzzle where every piece is a position: the blocks carry the
+  // ticker, the colour is its asset class, and a full row is a closed trade.
+  var COLS = 10, ROWS = 18, CELL = 26;
+  var SHAPES = {
+    I: { n: 4, cells: [[0, 1], [1, 1], [2, 1], [3, 1]] },
+    O: { n: 2, cells: [[0, 0], [1, 0], [0, 1], [1, 1]] },
+    T: { n: 3, cells: [[1, 0], [0, 1], [1, 1], [2, 1]] },
+    S: { n: 3, cells: [[1, 0], [2, 0], [0, 1], [1, 1]] },
+    Z: { n: 3, cells: [[0, 0], [1, 0], [1, 1], [2, 1]] },
+    J: { n: 3, cells: [[0, 0], [0, 1], [1, 1], [2, 1]] },
+    L: { n: 3, cells: [[2, 0], [0, 1], [1, 1], [2, 1]] }
+  };
+  var SHAPE_KEYS = Object.keys(SHAPES);
+  var ROW_VALUE = [0, 1200, 3000, 6400, 12000];   // booked P&L per rows closed
+
+  var gameModal = $("#gameModal"), gameDock = $("#gameDock"), gameDockDot = $("#gameDockDot");
+  var board = $("#board"), bx = board.getContext("2d");
+  var nextCanvas = $("#nextCanvas"), nx = nextCanvas.getContext("2d");
+  var game = null, raf = null;
+
+  function cssColor(token) {
+    return getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  }
+
+  function readable(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(hex);
+    if (!m) return "#ffffff";
+    var v = parseInt(m[1], 16);
+    var lum = (0.299 * ((v >> 16) & 255) + 0.587 * ((v >> 8) & 255) + 0.114 * (v & 255)) / 255;
+    return lum > 0.62 ? "#10141c" : "#ffffff";
+  }
+
+  function newPiece() {
+    var key = SHAPE_KEYS[Math.floor(Math.random() * SHAPE_KEYS.length)];
+    var shape = SHAPES[key];
+    var asset = ASSETS[Math.floor(Math.random() * ASSETS.length)];
+    return {
+      cells: shape.cells.slice(), n: shape.n, asset: asset,
+      color: CLASSES[asset.type].accent, label: asset.sym.slice(0, 4),
+      x: Math.floor((COLS - shape.n) / 2), y: -2
+    };
+  }
+
+  function collides(piece, offX, offY, cells) {
+    cells = cells || piece.cells;
+    for (var i = 0; i < cells.length; i++) {
+      var cx = piece.x + cells[i][0] + offX;
+      var cy = piece.y + cells[i][1] + offY;
+      if (cx < 0 || cx >= COLS || cy >= ROWS) return true;
+      if (cy >= 0 && game.grid[cy][cx]) return true;
+    }
+    return false;
+  }
+
+  function rotate() {
+    var n = game.piece.n;
+    var turned = game.piece.cells.map(function (c) { return [n - 1 - c[1], c[0]]; });
+    var kicks = [0, -1, 1, -2, 2];
+    for (var i = 0; i < kicks.length; i++) {
+      if (!collides(game.piece, kicks[i], 0, turned)) {
+        game.piece.x += kicks[i];
+        game.piece.cells = turned;
+        return;
+      }
+    }
+  }
+
+  function move(dx) { if (!collides(game.piece, dx, 0)) game.piece.x += dx; }
+
+  function lock() {
+    game.piece.cells.forEach(function (c) {
+      var cy = game.piece.y + c[1], cx = game.piece.x + c[0];
+      if (cy >= 0) game.grid[cy][cx] = { color: game.piece.color, label: game.piece.label };
+    });
+
+    var closed = 0;
+    for (var y = ROWS - 1; y >= 0; y--) {
+      if (game.grid[y].every(function (cell) { return !!cell; })) {
+        game.grid.splice(y, 1);
+        game.grid.unshift(new Array(COLS).fill(null));
+        closed++;
+        y++;
+      }
+    }
+    if (closed) {
+      game.lines += closed;
+      game.pnl += ROW_VALUE[closed] * game.level;
+      game.level = 1 + Math.floor(game.lines / 8);
+      paintStats();
+    }
+
+    game.piece = game.next;
+    game.next = newPiece();
+    paintNext();
+    if (collides(game.piece, 0, 0)) endGame();
+  }
+
+  function step() {
+    if (collides(game.piece, 0, 1)) lock();
+    else game.piece.y++;
+  }
+
+  function hardDrop() {
+    while (!collides(game.piece, 0, 1)) game.piece.y++;
+    lock();
+  }
+
+  function cell(ctx, px, py, size, color, label) {
+    ctx.fillStyle = color;
+    ctx.globalAlpha = .92;
+    ctx.beginPath();
+    ctx.roundRect(px + 1, py + 1, size - 2, size - 2, 5);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    if (label && size >= 20) {
+      ctx.fillStyle = readable(color);
+      ctx.font = '600 8px "JetBrains Mono", monospace';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, px + size / 2, py + size / 2 + .5);
+    }
+  }
+
+  function draw() {
+    bx.clearRect(0, 0, board.width, board.height);
+
+    bx.strokeStyle = cssColor("--hair-soft") || "rgba(255,255,255,.06)";
+    bx.lineWidth = 1;
+    for (var i = 1; i < COLS; i++) {
+      bx.beginPath(); bx.moveTo(i * CELL + .5, 0); bx.lineTo(i * CELL + .5, ROWS * CELL); bx.stroke();
+    }
+    for (var j = 1; j < ROWS; j++) {
+      bx.beginPath(); bx.moveTo(0, j * CELL + .5); bx.lineTo(COLS * CELL, j * CELL + .5); bx.stroke();
+    }
+
+    game.grid.forEach(function (row, y) {
+      row.forEach(function (c, x) { if (c) cell(bx, x * CELL, y * CELL, CELL, c.color, c.label); });
+    });
+
+    if (game.piece) {
+      // where it lands, shown faintly
+      var ghost = 0;
+      while (!collides(game.piece, 0, ghost + 1)) ghost++;
+      bx.globalAlpha = .18;
+      game.piece.cells.forEach(function (c) {
+        var gy = game.piece.y + c[1] + ghost;
+        if (gy >= 0) cell(bx, (game.piece.x + c[0]) * CELL, gy * CELL, CELL, game.piece.color, null);
+      });
+      bx.globalAlpha = 1;
+
+      game.piece.cells.forEach(function (c) {
+        var cy = game.piece.y + c[1];
+        if (cy >= 0) cell(bx, (game.piece.x + c[0]) * CELL, cy * CELL, CELL, game.piece.color, game.piece.label);
+      });
+    }
+  }
+
+  function paintNext() {
+    var size = 22, p = game.next;
+    nx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+    var offX = (nextCanvas.width - p.n * size) / 2;
+    var offY = (nextCanvas.height - p.n * size) / 2;
+    p.cells.forEach(function (c) { cell(nx, offX + c[0] * size, offY + c[1] * size, size, p.color, p.label); });
+    $("#nextName").textContent = p.asset.sym + " · " + money(p.asset.price);
+  }
+
+  function paintStats() {
+    $("#gamePnl").textContent = "$" + game.pnl.toLocaleString("en-US");
+    $("#gameLines").textContent = game.lines;
+    $("#gameLevel").textContent = game.level;
+  }
+
+  function endGame() {
+    game.over = true;
+    $("#gameOverTitle").textContent = game.pnl > 0 ? "Book closed" : "Margin call";
+    $("#gameOverLine").textContent = "Booked $" + game.pnl.toLocaleString("en-US") +
+      " across " + game.lines + (game.lines === 1 ? " row." : " rows.");
+    $("#gameOver").hidden = false;
+  }
+
+  function loop(now) {
+    raf = requestAnimationFrame(loop);
+    if (!game || game.over || game.paused) return;
+    if (!game.last) game.last = now;
+    var speed = Math.max(120, 780 - (game.level - 1) * 70);
+    if (now - game.last >= speed) { step(); game.last = now; }
+    draw();
+  }
+
+  function startGame() {
+    game = {
+      grid: Array.from({ length: ROWS }, function () { return new Array(COLS).fill(null); }),
+      piece: newPiece(), next: newPiece(),
+      pnl: 0, lines: 0, level: 1, last: 0, paused: false, over: false
+    };
+    $("#gameOver").hidden = true;
+    $("#gamePause").textContent = "Pause";
+    paintStats();
+    paintNext();
+    draw();
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+
+  function openGame() {
+    gameModal.style.display = "";
+    gameModal.classList.remove("gone");
+    gameDockDot.hidden = false;
+    startGame();
+  }
+
+  function closeGame() {
+    gameModal.classList.add("gone");
+    gameDockDot.hidden = true;
+    setTimeout(function () { gameModal.style.display = "none"; }, 420);
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+    game = null;
+  }
+
+  function gameOpen() { return !!game && !gameModal.classList.contains("gone"); }
+
+  gameDock.addEventListener("click", openGame);
+  $("#gameClose").addEventListener("click", closeGame);
+  $("#gameAgain").addEventListener("click", startGame);
+  $("#gamePause").addEventListener("click", function () {
+    if (!game || game.over) return;
+    game.paused = !game.paused;
+    game.last = 0;
+    $("#gamePause").textContent = game.paused ? "Resume" : "Pause";
+  });
+  $$(".game-pad button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (!game || game.over || game.paused) return;
+      var pad = b.dataset.pad;
+      if (pad === "left") move(-1);
+      else if (pad === "right") move(1);
+      else if (pad === "rot") rotate();
+      else if (pad === "down") step();
+      else if (pad === "drop") hardDrop();
+      draw();
+    });
+  });
+
+  /* ------------------------------------------------------------ keyboard */
+
+  function sheetOpen(el) { return el && el.style.display !== "none" && !el.classList.contains("gone"); }
+
+  document.addEventListener("keydown", function (e) {
+    var tag = e.target && e.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA") {
+      if (e.key === "Escape") e.target.blur();
+      return;
+    }
+
+    if (e.key === "Escape") {
+      if (gameOpen()) return closeGame();
+      if (menusOpen()) return closeMenus();
+      if (sheetOpen(infoModal)) return $("#infoClose").click();
+      if (sheetOpen(walletModal)) return $("#walletClose").click();
+      return;
+    }
+
+    if (gameOpen()) {
+      if (game.over || game.paused) {
+        if (e.key.toLowerCase() === "p") $("#gamePause").click();
+        return;
+      }
+      var handled = true;
+      switch (e.key) {
+        case "ArrowLeft": move(-1); break;
+        case "ArrowRight": move(1); break;
+        case "ArrowUp": rotate(); break;
+        case "ArrowDown": step(); break;
+        case " ": hardDrop(); break;
+        default:
+          if (e.key.toLowerCase() === "p") $("#gamePause").click(); else handled = false;
+      }
+      if (handled) { e.preventDefault(); draw(); }
+      return;
+    }
+
+    if (sheetOpen(infoModal) || sheetOpen(walletModal) || sheetOpen(modal)) return;
+
+    var k = e.key.toLowerCase();
+    var byNumber = { "1": "all", "2": "stock", "3": "crypto", "4": "etf", "5": "commodity" };
+    if (byNumber[e.key]) return setFilter(byNumber[e.key]);
+    if (k === "d") return flipTheme();
+    if (k === "r") return reseed();
+    if (k === "c") return copyText(quoteLine(), "quote");
+    if (k === "w") return openWallet();
+    if (k === "t") return openModal();
+    if (k === "g") return openGame();
+    if (e.key === "]") return feature(state.filter);
+    if (e.key === "?") return run("shortcuts");
+    if (e.key === "/") { e.preventDefault(); $("#search").focus(); }
+  });
 
   /* ------------------------------------------------------------------ boot */
 

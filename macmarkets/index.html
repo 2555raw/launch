@@ -30,11 +30,67 @@
     <span class="logo" aria-hidden="true">
       <svg viewBox="0 0 32 32" width="15" height="15"><path d="M7 21l5-6 4 3 8-9" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </span>
-    <button class="menu-item strong" type="button">Markets</button>
-    <button class="menu-item" type="button" data-action="terms">File</button>
-    <button class="menu-item" type="button" data-action="theme">View</button>
-    <button class="menu-item" type="button" data-action="terms">Window</button>
-    <button class="menu-item" type="button" data-action="terms">Help</button>
+
+    <div class="menu">
+      <button class="menu-item strong" type="button">Markets</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="about">About Market Desk</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="wallet">Connect wallet<span class="mi-key">W</span></button>
+        <button class="mi" type="button" data-cmd="terms">Terms &amp; Conditions<span class="mi-key">T</span></button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">File</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="refresh">Refresh quotes<span class="mi-key">R</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="copyQuote">Copy this quote<span class="mi-key">C</span></button>
+        <button class="mi" type="button" data-cmd="copyCsv">Copy table as CSV</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="print">Print…</button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">View</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="theme">Switch appearance<span class="mi-key">D</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="class:all">Watchlist<span class="mi-key">1</span></button>
+        <button class="mi" type="button" data-cmd="class:stock">Stocks<span class="mi-key">2</span></button>
+        <button class="mi" type="button" data-cmd="class:crypto">Crypto<span class="mi-key">3</span></button>
+        <button class="mi" type="button" data-cmd="class:etf">ETFs<span class="mi-key">4</span></button>
+        <button class="mi" type="button" data-cmd="class:commodity">Commodities<span class="mi-key">5</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="range:1D">Range · one day</button>
+        <button class="mi" type="button" data-cmd="range:1W">Range · one week</button>
+        <button class="mi" type="button" data-cmd="range:1M">Range · one month</button>
+        <button class="mi" type="button" data-cmd="range:1Y">Range · one year</button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">Window</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="next">Next asset<span class="mi-key">]</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="go:top">Chart</button>
+        <button class="mi" type="button" data-cmd="go:cards">Watchlist cards</button>
+        <button class="mi" type="button" data-cmd="go:rows">All markets</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="game">Ticker Drop<span class="mi-key">G</span></button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">Help</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="shortcuts">Keyboard shortcuts<span class="mi-key">?</span></button>
+        <button class="mi" type="button" data-cmd="x">Follow on X</button>
+      </div>
+    </div>
   </div>
 
   <div class="menubar-right">
@@ -214,8 +270,70 @@
   <a class="dock-app" href="https://x.com" target="_blank" rel="noopener noreferrer" data-tip="X">
     <span class="ico i-x"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg></span>
   </a>
+  <button class="dock-app" type="button" data-tip="Ticker Drop" id="gameDock">
+    <span class="ico i-game"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M3 4h8v6H3zm10 0h8v10h-8zM3 12h8v8H3zm10 4h8v4h-8z" opacity=".92"/></svg></span>
+    <span class="dock-dot" id="gameDockDot" hidden></span>
+  </button>
   <span class="dock-sep" aria-hidden="true"></span>
   <button class="dock-app" type="button" data-tip="Terms" id="dockTerms"><span class="ico i-terms">📄</span></button>
+</div>
+
+<!-- ===================== ticker drop ===================== -->
+<div class="modal-layer gone" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="gameTitle" style="display:none">
+  <section class="game-window">
+    <header class="game-bar">
+      <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
+      <h2 id="gameTitle">Ticker Drop</h2>
+      <span class="game-sub">Stack the tape. Close a full row to book it.</span>
+    </header>
+
+    <div class="game-body">
+      <div class="board-wrap">
+        <canvas id="board" width="260" height="468" aria-label="Game board"></canvas>
+        <div class="game-over" id="gameOver" hidden>
+          <b id="gameOverTitle">Margin call</b>
+          <span id="gameOverLine">The book reached the top.</span>
+          <button class="btn btn-blue" type="button" id="gameAgain">Trade again</button>
+        </div>
+      </div>
+
+      <aside class="game-side">
+        <dl class="game-stat"><dt>Booked P&amp;L</dt><dd id="gamePnl">$0</dd></dl>
+        <dl class="game-stat"><dt>Rows closed</dt><dd id="gameLines">0</dd></dl>
+        <dl class="game-stat"><dt>Level</dt><dd id="gameLevel">1</dd></dl>
+
+        <div class="game-next">
+          <h4>On deck</h4>
+          <canvas id="nextCanvas" width="112" height="112" aria-label="Next piece"></canvas>
+          <span id="nextName">—</span>
+        </div>
+
+        <p class="game-help">← → move · ↑ rotate · ↓ soft drop · space drop · P pause</p>
+        <div class="game-actions">
+          <button class="btn btn-quiet" type="button" id="gamePause">Pause</button>
+          <button class="btn btn-blue" type="button" id="gameClose">Close</button>
+        </div>
+      </aside>
+    </div>
+
+    <div class="game-pad" aria-hidden="false">
+      <button type="button" data-pad="left" aria-label="Move left">←</button>
+      <button type="button" data-pad="rot" aria-label="Rotate">⟳</button>
+      <button type="button" data-pad="right" aria-label="Move right">→</button>
+      <button type="button" data-pad="down" aria-label="Soft drop">↓</button>
+      <button type="button" data-pad="drop" aria-label="Hard drop">⤓</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== info sheet ===================== -->
+<div class="modal-layer gone" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoTitle" style="display:none">
+  <div class="sheet">
+    <span class="sheet-icon" id="infoIcon" aria-hidden="true">📈</span>
+    <h2 id="infoTitle">About Market Desk</h2>
+    <div class="wallet-body" id="infoBody"></div>
+    <div class="sheet-actions"><button class="btn btn-blue" type="button" id="infoClose">Done</button></div>
+  </div>
 </div>
 
 <!-- ===================== wallet sheet ===================== -->

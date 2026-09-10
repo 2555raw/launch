@@ -26,6 +26,16 @@ It shares nothing with the other folders in this repository.
   balance, shows them with a generated avatar, and copies or disconnects. It
   never proposes a transaction, and it restores an already-granted connection
   without prompting. With no wallet installed the sheet says so plainly.
+- **Working menu bar.** Markets, File, View, Window and Help are real menus:
+  refresh quotes, copy the shown quote or the whole table as CSV, print, switch
+  appearance, jump between classes and ranges, open the wallet, the terms, the
+  about sheet or the game. Every item names its keyboard shortcut, and the
+  shortcuts work on the page (1–5, ], /, D, R, C, W, T, G, ?, Esc).
+- **Ticker Drop.** A falling-block puzzle in its own window, opened from the
+  dock or the Window menu. Each piece is a position: the blocks carry a ticker
+  and take their colour from the asset class, a ghost shows where it lands, and
+  filling a row books P&L that scales with the level. Arrow keys, space to drop,
+  P to pause, and on-screen buttons at phone width.
 - **X icon** in the menu bar, the sidebar, the dock and the footer.
 - **Light and dark appearance,** toggled from the menu bar or the dock and
   remembered between visits. Follows the system setting on a first visit.

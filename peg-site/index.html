@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peg — Trade the peg, on-chain</title>
+<meta name="description" content="Peg is an on-chain trading terminal for stable pairs: deep liquidity, sub-second fills, and transparent funding.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2300e3a4'/%3E%3Cpath d='M11 24V8h6.5a5.5 5.5 0 0 1 0 11H15' stroke='%230a0f0d' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="grid-bg" aria-hidden="true"></div>
+<div class="glow glow-a" aria-hidden="true"></div>
+<div class="glow glow-b" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="9" fill="url(#g)"/><path d="M11 24V8h6.4a5.6 5.6 0 0 1 0 11.2H15" stroke="#06110d" stroke-width="3.2" fill="none" stroke-linecap="round"/><defs><linearGradient id="g" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#5ef2c0"/><stop offset="1" stop-color="#00c48c"/></linearGradient></defs></svg>
+      </span>
+      <span class="brand-name">Peg</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#markets">Markets</a>
+      <a href="#features">Product</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="#markets">Sign in</a>
+      <a class="btn btn-primary" href="#cta">Launch app</a>
+    </div>
+
+    <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero wrap">
+    <div class="hero-copy reveal">
+      <a class="pill" href="#markets"><span class="dot"></span> Mainnet live · v1.1 <span class="pill-arrow">→</span></a>
+      <h1>Trade the peg,<br><em>not the spread.</em></h1>
+      <p class="lede">Peg is an on-chain terminal built for stable pairs. Route across every venue at once, settle in a block, and see exactly what you pay — no hidden spread, no custody.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="#cta">Start trading</a>
+        <a class="btn btn-outline btn-lg" href="#how">See how it works</a>
+      </div>
+      <dl class="hero-stats">
+        <div><dt>Volume routed</dt><dd data-count="4.28" data-prefix="$" data-suffix="B">$0B</dd></div>
+        <div><dt>Median fill</dt><dd data-count="380" data-suffix="ms">0ms</dd></div>
+        <div><dt>Venues</dt><dd data-count="31" data-suffix="+">0</dd></div>
+      </dl>
+    </div>
+
+    <div class="hero-panel reveal" aria-hidden="true">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="pair"><span class="pair-name">USDC / USDT</span><span class="tag tag-live">live</span></div>
+          <div class="panel-price"><span id="heroPrice">1.00014</span><span class="chg up" id="heroChg">+0.02%</span></div>
+        </div>
+        <svg class="spark" id="spark" viewBox="0 0 320 90" preserveAspectRatio="none">
+          <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00e3a4" stop-opacity=".35"/><stop offset="1" stop-color="#00e3a4" stop-opacity="0"/></linearGradient></defs>
+          <path id="sparkFill" fill="url(#sg)"></path>
+          <path id="sparkLine" fill="none" stroke="#3ff0bb" stroke-width="2" stroke-linejoin="round"></path>
+        </svg>
+        <div class="panel-rows">
+          <div class="row"><span>Route</span><b>Curve · Uniswap · Fluid</b></div>
+          <div class="row"><span>Price impact</span><b class="good">0.004%</b></div>
+          <div class="row"><span>Network fee</span><b>$0.03</b></div>
+          <div class="row total"><span>You receive</span><b>10,001.42 USDT</b></div>
+        </div>
+        <button class="btn btn-primary btn-block" type="button">Swap</button>
+      </div>
+      <div class="panel-badge">
+        <span class="badge-k">Slippage saved</span>
+        <span class="badge-v">+$1,204</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="ticker" aria-label="Market ticker">
+    <div class="ticker-track" id="ticker"></div>
+  </section>
+
+  <section class="section wrap" id="features">
+    <header class="section-head reveal">
+      <span class="eyebrow">Product</span>
+      <h2>Everything a stable desk needs</h2>
+      <p>Execution, monitoring and settlement in one surface. Built for treasuries, market makers and anyone who cares about basis points.</p>
+    </header>
+
+    <div class="cards">
+      <article class="card reveal">
+        <div class="ico">◆</div>
+        <h3>Smart routing</h3>
+        <p>One order is split across AMMs, order books and RFQ makers, then simulated before it signs. You always take the best of all of them.</p>
+      </article>
+      <article class="card reveal">
+        <div class="ico">⚡</div>
+        <h3>Sub-second settlement</h3>
+        <p>Intents are matched off-chain and settled on-chain in the next block, with a solver bond behind every quote you accept.</p>
+      </article>
+      <article class="card reveal">
+        <div class="ico">🛡</div>
+        <h3>Self-custody</h3>
+        <p>Funds never leave your wallet or safe. Peg holds no balances, issues no IOUs, and every route is verifiable on-chain.</p>
+      </article>
+      <article class="card reveal">
+        <div class="ico">📉</div>
+        <h3>Depeg radar</h3>
+        <p>Track collateral ratios, redemption queues and venue depth for 40+ stable assets, with alerts before the chart moves.</p>
+      </article>
+      <article class="card reveal">
+        <div class="ico">⌘</div>
+        <h3>Keyboard terminal</h3>
+        <p>Hit <kbd>/</kbd> to search, <kbd>B</kbd> to buy, <kbd>⏎</kbd> to confirm. Hotkeys, limit ladders and TWAPs, no mouse required.</p>
+      </article>
+      <article class="card reveal">
+        <div class="ico">{ }</div>
+        <h3>API &amp; webhooks</h3>
+        <p>REST and WebSocket endpoints mirror the UI exactly, so the strategy you test by hand ships to production unchanged.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section wrap" id="markets">
+    <header class="section-head reveal">
+      <span class="eyebrow">Markets</span>
+      <h2>Live stable pairs</h2>
+      <p>Indicative prices refreshed continuously from the aggregated book.</p>
+    </header>
+
+    <div class="table-wrap reveal">
+      <table class="market">
+        <thead><tr><th>Pair</th><th>Price</th><th>24h</th><th>Depth ±10bps</th><th>24h volume</th><th></th></tr></thead>
+        <tbody id="marketBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section wrap" id="how">
+    <header class="section-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2>Three steps, one block</h2>
+    </header>
+    <ol class="steps">
+      <li class="step reveal"><span class="num">01</span><h3>Connect</h3><p>Bring any EOA, smart account or multisig. Read-only mode lets you watch the book before you sign anything.</p></li>
+      <li class="step reveal"><span class="num">02</span><h3>Quote</h3><p>Peg simulates your size against every venue and returns a firm, signed quote with the full cost broken out.</p></li>
+      <li class="step reveal"><span class="num">03</span><h3>Settle</h3><p>Accept and the solver settles atomically. If it misses the quote, the bond pays you the difference.</p></li>
+    </ol>
+  </section>
+
+  <section class="band wrap reveal">
+    <div class="band-item"><b>99.98%</b><span>Quote uptime, trailing 90 days</span></div>
+    <div class="band-item"><b>0.6 bps</b><span>Median all-in cost on $1M</span></div>
+    <div class="band-item"><b>3 audits</b><span>Contracts reviewed, reports public</span></div>
+    <div class="band-item"><b>24/7</b><span>Desk coverage for size</span></div>
+  </section>
+
+  <section class="section wrap" id="faq">
+    <header class="section-head reveal">
+      <span class="eyebrow">FAQ</span>
+      <h2>Questions, answered</h2>
+    </header>
+    <div class="faq reveal" id="faqList">
+      <details><summary>Does Peg custody my funds?</summary><p>No. Every trade settles wallet-to-wallet through audited contracts, and approvals are scoped per order. Peg cannot move your balance.</p></details>
+      <details><summary>What does it cost?</summary><p>There is no platform fee on spot routes. Solvers compete on price, and the quote you see is the total: venue fees, price impact and gas included.</p></details>
+      <details><summary>Which chains are supported?</summary><p>Ethereum, Base, Arbitrum and Solana at launch, with the same routing engine and one shared account across all of them.</p></details>
+      <details><summary>Can I trade size without moving the market?</summary><p>Yes. Orders above $250k route through RFQ makers and TWAP schedules; the desk can also work a block quote for you directly.</p></details>
+      <details><summary>Is there an API?</summary><p>Yes, REST plus WebSocket with the same rate limits for everyone. Keys are self-serve from the dashboard once you have traded once.</p></details>
+    </div>
+  </section>
+
+  <section class="cta wrap reveal" id="cta">
+    <h2>Ready when you are</h2>
+    <p>Connect a wallet and pull a quote. It takes about thirty seconds and costs nothing to look.</p>
+    <form class="cta-form" id="waitlist" novalidate>
+      <input type="email" name="email" placeholder="you@fund.xyz" aria-label="Email" required>
+      <button class="btn btn-primary" type="submit">Get access</button>
+    </form>
+    <small class="cta-note" id="ctaNote">Early access rolls out weekly. No spam, unsubscribe in one click.</small>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <span class="brand-name">Peg</span>
+      <p>An on-chain terminal for stable pairs.</p>
+    </div>
+    <nav class="footer-cols">
+      <div><h4>Product</h4><a href="#features">Features</a><a href="#markets">Markets</a><a href="#cta">Access</a></div>
+      <div><h4>Developers</h4><a href="#faq">API</a><a href="#faq">Docs</a><a href="#faq">Status</a></div>
+      <div><h4>Company</h4><a href="#top">About</a><a href="#faq">Security</a><a href="#cta">Contact</a></div>
+    </nav>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© <span id="year">2026</span> Peg Labs</span>
+    <span>Trading involves risk. Nothing here is financial advice.</span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

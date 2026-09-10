@@ -154,7 +154,17 @@
         <div class="side-group">
           <h4>Session</h4>
           <div class="side-status"><span class="pulse"></span><span id="sideStatus">Market open</span></div>
+          <div class="side-clock">
+            <div class="side-meta"><span id="sessionPhase">Regular session</span><b id="sessionLeft">—</b></div>
+            <div class="side-bar"><i id="sessionBar" style="width:0%"></i></div>
+          </div>
           <div id="sideMeta"></div>
+        </div>
+
+        <div class="side-group side-heat">
+          <h4>Heatmap</h4>
+          <div class="heat" id="heat"></div>
+          <p class="heat-note" id="heatNote">Every asset, by move today.</p>
         </div>
 
         <a class="side-x" href="https://x.com" target="_blank" rel="noopener noreferrer">

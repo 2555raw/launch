@@ -264,6 +264,7 @@
     state.selected = sym;
     $$(".card").forEach(function (c) { c.classList.toggle("on", c.dataset.sym === sym); });
     $$("#rows tr").forEach(function (r) { r.classList.toggle("on", r.dataset.sym === sym); });
+    $$("#heat button").forEach(function (t) { t.classList.toggle("on", t.dataset.sym === sym); });
     renderHero(animate !== false);
   }
 
@@ -413,6 +414,69 @@
     });
   });
 
+  /* ------------------------------------------------------------------ session */
+
+  // A desk clock on the viewer's own time: 9:30 to 16:00 is the regular session.
+  var OPEN_MIN = 9 * 60 + 30, CLOSE_MIN = 16 * 60;
+
+  function paintSession() {
+    var now = new Date();
+    var minutes = now.getHours() * 60 + now.getMinutes();
+    var weekend = now.getDay() === 0 || now.getDay() === 6;
+    var phase = $("#sessionPhase"), left = $("#sessionLeft"), bar = $("#sessionBar");
+
+    function gap(mins) {
+      var h = Math.floor(mins / 60), m = mins % 60;
+      return (h ? h + "h " : "") + m + "m";
+    }
+
+    if (weekend) {
+      phase.textContent = "Weekend";
+      left.textContent = "crypto only";
+      bar.style.width = "0%";
+      return;
+    }
+    if (minutes < OPEN_MIN) {
+      phase.textContent = "Pre-market";
+      left.textContent = "in " + gap(OPEN_MIN - minutes);
+      bar.style.width = "0%";
+    } else if (minutes < CLOSE_MIN) {
+      phase.textContent = "Regular session";
+      left.textContent = gap(CLOSE_MIN - minutes) + " left";
+      bar.style.width = (((minutes - OPEN_MIN) / (CLOSE_MIN - OPEN_MIN)) * 100).toFixed(1) + "%";
+    } else {
+      phase.textContent = "After hours";
+      left.textContent = "in " + gap(24 * 60 - minutes + OPEN_MIN);
+      bar.style.width = "100%";
+    }
+  }
+
+  /* ------------------------------------------------------------------ heatmap */
+
+  var heatEl = $("#heat");
+
+  function heatTile(a) {
+    var strength = Math.min(34, 8 + Math.abs(a.change) * 7).toFixed(0);
+    var token = a.change >= 0 ? "--green" : "--red";
+    return '<button type="button" data-sym="' + a.sym + '"' + (a.sym === state.selected ? ' class="on"' : "") +
+      ' style="background:color-mix(in srgb, var(' + token + ') ' + strength + '%, transparent)">' +
+      "<b>" + a.sym + '</b><span style="color:var(' + token + ')">' + pct(a.change) + "</span></button>";
+  }
+
+  function renderHeat() {
+    heatEl.innerHTML = ASSETS.map(heatTile).join("");
+  }
+
+  function repaintHeatTile(a) {
+    var tile = heatEl.querySelector('[data-sym="' + a.sym + '"]');
+    if (tile) tile.outerHTML = heatTile(a);
+  }
+
+  heatEl.addEventListener("click", function (e) {
+    var tile = e.target.closest("button[data-sym]");
+    if (tile) select(tile.dataset.sym);
+  });
+
   /* ------------------------------------------------------------------ clock */
 
   function tickClock() {
@@ -424,7 +488,8 @@
     $("#clock").textContent = days[d.getDay()] + " " + h + ":" + m + " " + ap;
   }
   tickClock();
-  setInterval(tickClock, 20000);
+  paintSession();
+  setInterval(function () { tickClock(); paintSession(); }, 20000);
 
   /* ------------------------------------------------------------------ theme */
 
@@ -477,6 +542,7 @@
       chgCell.className = "num change " + (a.change >= 0 ? "up" : "down");
       row.querySelector(".row-spark").innerHTML = sparkSVG(a, 84, 26);
     }
+    repaintHeatTile(a);
     if (current && a.sym === current.sym) renderHero(false);
   }
 
@@ -803,6 +869,7 @@
     renderClass(state.filter);
     renderCards();
     renderRows();
+    renderHeat();
     renderHero(true);
     toast("Quotes refreshed.");
   }
@@ -1175,6 +1242,7 @@
 
   drawGrid();
   markSorted();
+  renderHeat();
 
   var opening = hashFilter();
   if (opening) {

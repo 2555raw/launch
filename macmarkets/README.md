@@ -20,6 +20,11 @@ It shares nothing with the other folders in this repository.
   next asset in that class, starting from its biggest mover. Tabs are linkable
   (`#crypto`, `#commodity`, ...).
 - **Browsing.** Search, sortable table, click any card or row to load it.
+- **Session clock.** The sidebar says which phase the day is in (pre-market,
+  regular session, after hours, weekend), how long is left, and fills a bar as
+  the session runs, all on the viewer's own clock.
+- **Heatmap.** Every asset as a tile in the sidebar, tinted by how far it moved
+  today and clickable to load its chart.
 - **Live quotes.** Prices move continuously and cells flash green or red.
 - **Wallet.** A menu bar status item next to the battery and a dock app both open a sheet that talks to
   any EIP-1193 browser wallet: it reads the address, the chain and the native

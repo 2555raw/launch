@@ -1,4 +1,4 @@
-/* ARCHIVE 2020 — the shell.
+/* ARCHIVE 2011 — the shell.
 
    Startup sequence, CRT noise, the menu and the switch between the two modes.
    Both modes are drawn from one animation loop: whichever is on screen gets the
@@ -95,7 +95,7 @@
     'DATA RECOVERY UNIT  V0.9.4',
     '',
     'CPU 486DX2   MEM 8192K   VIDEO CGA .... <i>OK</i>',
-    'MOUNTING VOLUME: <i>PANDEMIC_2020_2023</i>',
+    'MOUNTING VOLUME: <i>PANDEMIC_2011_2023</i>',
     'DAMAGED SECTORS: <b>4,219</b>',
     'RECOVERABLE RECORDS: 05',
     '',

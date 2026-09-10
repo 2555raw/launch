@@ -1,4 +1,4 @@
-/* ARCHIVE 2020 — mode 02: four floors.
+/* ARCHIVE 2011 — mode 02: four floors.
 
    A top-down hospital seen from the ceiling camera. Every floor hands you a
    short list of tasks; finish the list and the way up opens. The lobby has one

@@ -1,4 +1,4 @@
-/* ARCHIVE 2020 — the pixel art engine and the five scenes.
+/* ARCHIVE 2011 — the pixel art engine and the five scenes.
 
    Everything is drawn on a 384x216 canvas of real pixels that the browser scales
    up without smoothing, so what you see (the type included) is made pixel by
@@ -323,7 +323,7 @@
     monitor(c, 236, 84, t, false);
     text(c, 'ROOM 214', 8, 24, COL.grey2, 1, 1, 0.8);
     text(c, 'NO VISITORS', 8, 34, COL.redDeep, 1, 1, 0.9);
-    text(c, 'MARCH 2020', 8, 44, COL.grey2, 1, 1, 0.6);
+    text(c, 'MARCH 2011', 8, 44, COL.grey2, 1, 1, 0.6);
     c.globalAlpha = prev;
   }
 

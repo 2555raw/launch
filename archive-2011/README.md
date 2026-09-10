@@ -1,4 +1,4 @@
-# ARCHIVE 2020
+# ARCHIVE 2011
 
 An experimental web piece about the COVID-19 pandemic, built as a digital
 installation rather than an informative site: a corrupted volume someone
@@ -110,5 +110,5 @@ record 05 is the ending that runs once the vaccine is in you.
 
 They are material for the story, rounded and closed at 2023: around 7,010,000
 deaths reported to the WHO, an excess mortality estimate of 14.9 million for
-2020 and 2021, and more than 13,500 million doses administered. The page says
+2011 and 2021, and more than 13,500 million doses administered. The page says
 so in its own footer: it is a visual piece, not a data dashboard.

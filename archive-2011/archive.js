@@ -1,4 +1,4 @@
-/* ARCHIVE 2020 — mode 01: the recovered files.
+/* ARCHIVE 2011 — mode 01: the recovered files.
 
    Mode 01 is a document, not a scene: five files of text that set up what the
    world lost and what is waiting on each floor of mode 02. Nothing is drawn

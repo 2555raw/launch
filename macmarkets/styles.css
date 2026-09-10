@@ -646,3 +646,71 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
 .folio-body .class-stats { margin-bottom: 0; }
 .folio-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 18px 18px; }
 .folio-empty { padding: 22px; text-align: center; color: var(--ink-3); font-size: 13px; }
+
+
+/* ============ live coin ============ */
+
+.live-title { display: flex; align-items: center; gap: 10px; font-size: 16.5px; }
+.live-title::before { content: none; }   /* the LIVE badge stands in for the class dot */
+.live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-family: var(--mono); font-size: 10.4px; font-weight: 700; letter-spacing: .12em;
+  color: var(--red); border: 1px solid color-mix(in srgb, var(--red) 45%, transparent);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--red);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 70%, transparent);
+  animation: livePulse 1.6s infinite;
+}
+@keyframes livePulse {
+  70% { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.live-seg { flex: none; }
+
+.live-card {
+  display: grid; grid-template-columns: minmax(190px, 260px) 1fr; gap: 20px;
+  padding: 18px; border: 1px solid var(--hair); border-radius: var(--radius); background: var(--surface);
+}
+.live-left { display: flex; flex-direction: column; min-width: 0; }
+.live-price {
+  font-family: var(--mono); font-size: clamp(26px, 3.4vw, 36px); font-weight: 700;
+  letter-spacing: -.02em; font-variant-numeric: tabular-nums; transition: color .25s ease;
+}
+.live-price.tick-up { color: var(--green); }
+.live-price.tick-down { color: var(--red); }
+.live-change { font-family: var(--mono); font-size: 13px; margin-top: 4px; }
+.live-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin: 18px 0 0; }
+.live-stats dt { font-size: 10.4px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.live-stats dd { margin: 2px 0 0; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.live-right { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.live-chart { width: 100%; height: clamp(120px, 16vw, 150px); display: block; overflow: visible; }
+.live-chart #liveLine { stroke: var(--green); }
+.live-chart #liveHead { fill: var(--green); }
+.live-chart .g-top { stop-color: var(--green); stop-opacity: .28; }
+.live-chart .g-bottom { stop-color: var(--green); stop-opacity: 0; }
+.live-block.falling .live-chart #liveLine, .live-block.falling .live-chart #liveHead { stroke: var(--red); fill: var(--red); }
+.live-block.falling .live-chart #liveLine { fill: none; }
+.live-block.falling .live-chart .g-top { stop-color: var(--red); stop-opacity: .28; }
+.live-block.falling .live-chart .g-bottom { stop-color: var(--red); stop-opacity: 0; }
+
+.live-tape {
+  display: flex; gap: 6px; overflow: hidden; height: 22px;
+  font-family: var(--mono); font-size: 10.6px;
+}
+.live-tape span {
+  padding: 2px 7px; border-radius: 6px; white-space: nowrap;
+  border: 1px solid var(--hair-soft); background: var(--surface-2); color: var(--ink-2);
+  animation: tapeIn .3s ease;
+}
+.live-tape .up { color: var(--green); }
+.live-tape .down { color: var(--red); }
+@keyframes tapeIn { from { opacity: 0; transform: translateX(-6px); } }
+
+@media (max-width: 720px) {
+  .live-card { grid-template-columns: 1fr; }
+  .live-stats { grid-template-columns: 1fr 1fr; }
+}

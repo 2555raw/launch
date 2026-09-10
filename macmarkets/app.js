@@ -415,6 +415,126 @@
     });
   });
 
+  /* ------------------------------------------------------------------ live coin */
+
+  // A fast lane of its own: while the page is open this streams a point a second
+  // for the coin on show, off the same generated feed as the rest of the desk.
+  var LIVE_POINTS = 90;
+  var live = { sym: "BTC", series: [], last: 0, ticks: [], since: Date.now() };
+  var liveBlock = $("#liveBlock");
+  var liveLine = $("#liveLine"), liveArea = $("#liveArea"), liveHead = $("#liveHead");
+  var LW = 420, LH = 150;
+
+  function liveAsset() { return byId(live.sym); }
+
+  function seedLive() {
+    var a = liveAsset();
+    live.series = a.series["1D"].slice(-LIVE_POINTS);
+    live.last = a.price;
+    live.ticks = [];
+    live.since = Date.now();
+    $("#liveName").textContent = a.name;
+    $("#liveTape").innerHTML = "";
+    drawLive();
+    paintLiveNumbers(0);
+  }
+
+  function drawLive() {
+    var s = live.series;
+    if (s.length < 2) return;
+    var min = Math.min.apply(null, s), max = Math.max.apply(null, s);
+    var span = (max - min) || 1;
+    var pts = s.map(function (p, i) {
+      var x = (i / (s.length - 1)) * LW;
+      var y = LH - 8 - ((p - min) / span) * (LH - 20);
+      return [x, y];
+    });
+    var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join("");
+    liveLine.setAttribute("d", d);
+    liveArea.setAttribute("d", d + "L" + LW + "," + LH + "L0," + LH + "Z");
+    var head = pts[pts.length - 1];
+    liveHead.setAttribute("cx", head[0].toFixed(1));
+    liveHead.setAttribute("cy", head[1].toFixed(1));
+  }
+
+  function paintLiveNumbers(dir) {
+    var a = liveAsset();
+    var price = $("#livePrice");
+    price.textContent = money(a.price);
+    if (dir) {
+      price.classList.remove("tick-up", "tick-down");
+      void price.offsetWidth;
+      price.classList.add(dir > 0 ? "tick-up" : "tick-down");
+    }
+
+    var change = $("#liveChange");
+    change.textContent = pct(a.change) + " today";
+    change.className = "live-change " + (a.change >= 0 ? "up" : "down");
+    liveBlock.classList.toggle("falling", a.change < 0);
+
+    var s = live.series;
+    $("#liveStats").innerHTML = [
+      ["Session high", money(Math.max.apply(null, s))],
+      ["Session low", money(Math.min.apply(null, s))],
+      ["Market cap", a.cap],
+      ["Venue", a.venue]
+    ].map(function (row) { return "<div><dt>" + row[0] + "</dt><dd>" + row[1] + "</dd></div>"; }).join("");
+  }
+
+  function liveTick() {
+    var a = liveAsset();
+    var next = a.price * (1 + (Math.random() - 0.5) * 0.0016 * a.vol);
+    var dir = next > a.price ? 1 : -1;
+
+    a.price = next;
+    a.series["1D"] = a.series["1D"].slice(1).concat([next]);
+    a.change = ((a.price - a.open) / a.open) * 100;
+    a.high = Math.max(a.high, next);
+    a.low = Math.min(a.low, next);
+
+    live.series.push(next);
+    if (live.series.length > LIVE_POINTS) live.series.shift();
+    live.since = Date.now();
+
+    drawLive();
+    paintLiveNumbers(dir);
+    pushTape(next, dir);
+
+    // the rest of the desk shows the same asset, so keep it in step
+    repaintHeatTile(a);
+    var card = cardsEl.querySelector('.card[data-sym="' + a.sym + '"]');
+    if (card) paintQuote(a, dir);
+  }
+
+  function pushTape(price, dir) {
+    var tape = $("#liveTape");
+    var chip = document.createElement("span");
+    chip.className = dir > 0 ? "up" : "down";
+    chip.textContent = (dir > 0 ? "▲ " : "▼ ") + money(price);
+    tape.insertBefore(chip, tape.firstChild);
+    while (tape.children.length > 8) tape.removeChild(tape.lastChild);
+  }
+
+  function paintLiveAgo() {
+    var secs = Math.round((Date.now() - live.since) / 1000);
+    $("#liveAgo").textContent = secs <= 1 ? "just now" : secs + "s ago";
+  }
+
+  $$("#liveSeg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      $$("#liveSeg button").forEach(function (o) { o.classList.toggle("on", o === b); });
+      live.sym = b.dataset.coin;
+      seedLive();
+    });
+  });
+
+  function startLive() {
+    seedLive();
+    if (reduced) return;
+    setInterval(liveTick, 1000);
+    setInterval(paintLiveAgo, 1000);
+  }
+
   /* ------------------------------------------------------------------ session */
 
   // A desk clock on the viewer's own time: 9:30 to 16:00 is the regular session.
@@ -574,6 +694,7 @@
 
     setTimeout(function () { renderHero(true); }, reduced ? 0 : 620);
     startTicking();
+    startLive();
   }
 
   /* ------------------------------------------------------------------ wallet */

@@ -228,6 +228,45 @@
           </div>
         </section>
 
+        <!-- live coin -->
+        <section class="block anim" id="liveBlock">
+          <div class="block-head">
+            <div class="block-title">
+              <h2 class="live-title">
+                <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+                <span id="liveName">Bitcoin</span>
+              </h2>
+              <p class="block-blurb">Streaming while this page is open · <span id="liveAgo">just now</span></p>
+            </div>
+            <div class="seg live-seg" id="liveSeg">
+              <button class="on" type="button" data-coin="BTC">BTC</button>
+              <button type="button" data-coin="ETH">ETH</button>
+              <button type="button" data-coin="SOL">SOL</button>
+            </div>
+          </div>
+
+          <div class="live-card">
+            <div class="live-left">
+              <span class="live-price" id="livePrice">—</span>
+              <span class="live-change" id="liveChange">—</span>
+              <dl class="live-stats" id="liveStats"></dl>
+            </div>
+            <div class="live-right">
+              <svg class="live-chart" id="liveChart" viewBox="0 0 420 150" preserveAspectRatio="none" role="img" aria-label="Live price">
+                <defs>
+                  <linearGradient id="liveGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" class="g-top"/><stop offset="1" class="g-bottom"/>
+                  </linearGradient>
+                </defs>
+                <path id="liveArea" fill="url(#liveGrad)"></path>
+                <path id="liveLine" fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+                <circle id="liveHead" r="3.4"></circle>
+              </svg>
+              <div class="live-tape" id="liveTape"></div>
+            </div>
+          </div>
+        </section>
+
         <!-- cards -->
         <section class="block">
           <div class="block-head">

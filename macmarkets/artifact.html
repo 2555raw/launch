@@ -668,6 +668,74 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
 .folio-body .class-stats { margin-bottom: 0; }
 .folio-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 18px 18px; }
 .folio-empty { padding: 22px; text-align: center; color: var(--ink-3); font-size: 13px; }
+
+
+/* ============ live coin ============ */
+
+.live-title { display: flex; align-items: center; gap: 10px; font-size: 16.5px; }
+.live-title::before { content: none; }   /* the LIVE badge stands in for the class dot */
+.live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-family: var(--mono); font-size: 10.4px; font-weight: 700; letter-spacing: .12em;
+  color: var(--red); border: 1px solid color-mix(in srgb, var(--red) 45%, transparent);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--red);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 70%, transparent);
+  animation: livePulse 1.6s infinite;
+}
+@keyframes livePulse {
+  70% { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.live-seg { flex: none; }
+
+.live-card {
+  display: grid; grid-template-columns: minmax(190px, 260px) 1fr; gap: 20px;
+  padding: 18px; border: 1px solid var(--hair); border-radius: var(--radius); background: var(--surface);
+}
+.live-left { display: flex; flex-direction: column; min-width: 0; }
+.live-price {
+  font-family: var(--mono); font-size: clamp(26px, 3.4vw, 36px); font-weight: 700;
+  letter-spacing: -.02em; font-variant-numeric: tabular-nums; transition: color .25s ease;
+}
+.live-price.tick-up { color: var(--green); }
+.live-price.tick-down { color: var(--red); }
+.live-change { font-family: var(--mono); font-size: 13px; margin-top: 4px; }
+.live-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin: 18px 0 0; }
+.live-stats dt { font-size: 10.4px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.live-stats dd { margin: 2px 0 0; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.live-right { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.live-chart { width: 100%; height: clamp(120px, 16vw, 150px); display: block; overflow: visible; }
+.live-chart #liveLine { stroke: var(--green); }
+.live-chart #liveHead { fill: var(--green); }
+.live-chart .g-top { stop-color: var(--green); stop-opacity: .28; }
+.live-chart .g-bottom { stop-color: var(--green); stop-opacity: 0; }
+.live-block.falling .live-chart #liveLine, .live-block.falling .live-chart #liveHead { stroke: var(--red); fill: var(--red); }
+.live-block.falling .live-chart #liveLine { fill: none; }
+.live-block.falling .live-chart .g-top { stop-color: var(--red); stop-opacity: .28; }
+.live-block.falling .live-chart .g-bottom { stop-color: var(--red); stop-opacity: 0; }
+
+.live-tape {
+  display: flex; gap: 6px; overflow: hidden; height: 22px;
+  font-family: var(--mono); font-size: 10.6px;
+}
+.live-tape span {
+  padding: 2px 7px; border-radius: 6px; white-space: nowrap;
+  border: 1px solid var(--hair-soft); background: var(--surface-2); color: var(--ink-2);
+  animation: tapeIn .3s ease;
+}
+.live-tape .up { color: var(--green); }
+.live-tape .down { color: var(--red); }
+@keyframes tapeIn { from { opacity: 0; transform: translateX(-6px); } }
+
+@media (max-width: 720px) {
+  .live-card { grid-template-columns: 1fr; }
+  .live-stats { grid-template-columns: 1fr 1fr; }
+}
 </style>
 <noscript><style>.modal-layer,.stage,.dock{display:none}.nojs{display:block!important}</style></noscript>
 
@@ -892,6 +960,45 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
               <button type="button" data-range="1Y">1Y</button>
             </div>
             <dl class="stats" id="heroStats"></dl>
+          </div>
+        </section>
+
+        <!-- live coin -->
+        <section class="block anim" id="liveBlock">
+          <div class="block-head">
+            <div class="block-title">
+              <h2 class="live-title">
+                <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+                <span id="liveName">Bitcoin</span>
+              </h2>
+              <p class="block-blurb">Streaming while this page is open · <span id="liveAgo">just now</span></p>
+            </div>
+            <div class="seg live-seg" id="liveSeg">
+              <button class="on" type="button" data-coin="BTC">BTC</button>
+              <button type="button" data-coin="ETH">ETH</button>
+              <button type="button" data-coin="SOL">SOL</button>
+            </div>
+          </div>
+
+          <div class="live-card">
+            <div class="live-left">
+              <span class="live-price" id="livePrice">—</span>
+              <span class="live-change" id="liveChange">—</span>
+              <dl class="live-stats" id="liveStats"></dl>
+            </div>
+            <div class="live-right">
+              <svg class="live-chart" id="liveChart" viewBox="0 0 420 150" preserveAspectRatio="none" role="img" aria-label="Live price">
+                <defs>
+                  <linearGradient id="liveGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" class="g-top"/><stop offset="1" class="g-bottom"/>
+                  </linearGradient>
+                </defs>
+                <path id="liveArea" fill="url(#liveGrad)"></path>
+                <path id="liveLine" fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+                <circle id="liveHead" r="3.4"></circle>
+              </svg>
+              <div class="live-tape" id="liveTape"></div>
+            </div>
           </div>
         </section>
 
@@ -1625,6 +1732,126 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
     });
   });
 
+  /* ------------------------------------------------------------------ live coin */
+
+  // A fast lane of its own: while the page is open this streams a point a second
+  // for the coin on show, off the same generated feed as the rest of the desk.
+  var LIVE_POINTS = 90;
+  var live = { sym: "BTC", series: [], last: 0, ticks: [], since: Date.now() };
+  var liveBlock = $("#liveBlock");
+  var liveLine = $("#liveLine"), liveArea = $("#liveArea"), liveHead = $("#liveHead");
+  var LW = 420, LH = 150;
+
+  function liveAsset() { return byId(live.sym); }
+
+  function seedLive() {
+    var a = liveAsset();
+    live.series = a.series["1D"].slice(-LIVE_POINTS);
+    live.last = a.price;
+    live.ticks = [];
+    live.since = Date.now();
+    $("#liveName").textContent = a.name;
+    $("#liveTape").innerHTML = "";
+    drawLive();
+    paintLiveNumbers(0);
+  }
+
+  function drawLive() {
+    var s = live.series;
+    if (s.length < 2) return;
+    var min = Math.min.apply(null, s), max = Math.max.apply(null, s);
+    var span = (max - min) || 1;
+    var pts = s.map(function (p, i) {
+      var x = (i / (s.length - 1)) * LW;
+      var y = LH - 8 - ((p - min) / span) * (LH - 20);
+      return [x, y];
+    });
+    var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join("");
+    liveLine.setAttribute("d", d);
+    liveArea.setAttribute("d", d + "L" + LW + "," + LH + "L0," + LH + "Z");
+    var head = pts[pts.length - 1];
+    liveHead.setAttribute("cx", head[0].toFixed(1));
+    liveHead.setAttribute("cy", head[1].toFixed(1));
+  }
+
+  function paintLiveNumbers(dir) {
+    var a = liveAsset();
+    var price = $("#livePrice");
+    price.textContent = money(a.price);
+    if (dir) {
+      price.classList.remove("tick-up", "tick-down");
+      void price.offsetWidth;
+      price.classList.add(dir > 0 ? "tick-up" : "tick-down");
+    }
+
+    var change = $("#liveChange");
+    change.textContent = pct(a.change) + " today";
+    change.className = "live-change " + (a.change >= 0 ? "up" : "down");
+    liveBlock.classList.toggle("falling", a.change < 0);
+
+    var s = live.series;
+    $("#liveStats").innerHTML = [
+      ["Session high", money(Math.max.apply(null, s))],
+      ["Session low", money(Math.min.apply(null, s))],
+      ["Market cap", a.cap],
+      ["Venue", a.venue]
+    ].map(function (row) { return "<div><dt>" + row[0] + "</dt><dd>" + row[1] + "</dd></div>"; }).join("");
+  }
+
+  function liveTick() {
+    var a = liveAsset();
+    var next = a.price * (1 + (Math.random() - 0.5) * 0.0016 * a.vol);
+    var dir = next > a.price ? 1 : -1;
+
+    a.price = next;
+    a.series["1D"] = a.series["1D"].slice(1).concat([next]);
+    a.change = ((a.price - a.open) / a.open) * 100;
+    a.high = Math.max(a.high, next);
+    a.low = Math.min(a.low, next);
+
+    live.series.push(next);
+    if (live.series.length > LIVE_POINTS) live.series.shift();
+    live.since = Date.now();
+
+    drawLive();
+    paintLiveNumbers(dir);
+    pushTape(next, dir);
+
+    // the rest of the desk shows the same asset, so keep it in step
+    repaintHeatTile(a);
+    var card = cardsEl.querySelector('.card[data-sym="' + a.sym + '"]');
+    if (card) paintQuote(a, dir);
+  }
+
+  function pushTape(price, dir) {
+    var tape = $("#liveTape");
+    var chip = document.createElement("span");
+    chip.className = dir > 0 ? "up" : "down";
+    chip.textContent = (dir > 0 ? "▲ " : "▼ ") + money(price);
+    tape.insertBefore(chip, tape.firstChild);
+    while (tape.children.length > 8) tape.removeChild(tape.lastChild);
+  }
+
+  function paintLiveAgo() {
+    var secs = Math.round((Date.now() - live.since) / 1000);
+    $("#liveAgo").textContent = secs <= 1 ? "just now" : secs + "s ago";
+  }
+
+  $$("#liveSeg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      $$("#liveSeg button").forEach(function (o) { o.classList.toggle("on", o === b); });
+      live.sym = b.dataset.coin;
+      seedLive();
+    });
+  });
+
+  function startLive() {
+    seedLive();
+    if (reduced) return;
+    setInterval(liveTick, 1000);
+    setInterval(paintLiveAgo, 1000);
+  }
+
   /* ------------------------------------------------------------------ session */
 
   // A desk clock on the viewer's own time: 9:30 to 16:00 is the regular session.
@@ -1784,6 +2011,7 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
 
     setTimeout(function () { renderHero(true); }, reduced ? 0 : 620);
     startTicking();
+    startLive();
   }
 
   /* ------------------------------------------------------------------ wallet */

@@ -20,6 +20,10 @@ It shares nothing with the other folders in this repository.
   next asset in that class, starting from its biggest mover. Tabs are linkable
   (`#crypto`, `#commodity`, ...).
 - **Browsing.** Search, sortable table, click any card or row to load it.
+- **Live coin.** A section of its own, with a LIVE badge and a red pulse, that
+  streams a point a second for BTC, ETH or SOL while the page is open: the price
+  flashes on every tick, the chart grows in real time, and a tape of the last
+  prints runs under it.
 - **Session clock.** The sidebar says which phase the day is in (pre-market,
   regular session, after hours, weekend), how long is left, and fills a bar as
   the session runs, all on the viewer's own clock.

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markets — a desktop for stocks &amp; assets</title>
+<meta name="description" content="A macOS-style desktop for watching stocks, crypto, ETFs and commodities at a glance.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>.modal-layer,.stage,.dock{display:none}.nojs{display:block!important}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a84ff'/%3E%3Cpath d='M7 21l5-6 4 3 8-9' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body class="booting">
+
+<!-- ===================== desktop wallpaper ===================== -->
+<div class="wallpaper" aria-hidden="true">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <span class="noise"></span>
+</div>
+
+<p class="nojs" style="display:none;max-width:520px;margin:22vh auto;padding:24px;border-radius:16px;background:rgba(30,32,37,.9);color:#f2f4f8;font:15px/1.6 system-ui,sans-serif;text-align:center">
+  Markets needs JavaScript: every quote and chart on this page is generated in your browser. Enable it and reload to open the desktop.
+</p>
+
+<!-- ===================== menu bar ===================== -->
+<div class="menubar" id="menubar">
+  <div class="menubar-left">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="15" height="15"><path d="M7 21l5-6 4 3 8-9" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+    <button class="menu-item strong" type="button">Markets</button>
+    <button class="menu-item" type="button" data-action="terms">File</button>
+    <button class="menu-item" type="button" data-action="theme">View</button>
+    <button class="menu-item" type="button" data-action="terms">Window</button>
+    <button class="menu-item" type="button" data-action="terms">Help</button>
+  </div>
+
+  <div class="menubar-right">
+    <a class="menu-icon x-link" href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X" title="Follow us on X">
+      <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg>
+    </a>
+    <button class="menu-icon" type="button" id="themeBtn" aria-label="Toggle appearance" title="Toggle appearance">
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 4a8 8 0 1 0 8 8 6 6 0 0 1-8-8z"/></svg>
+    </button>
+    <span class="menu-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 18.5a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zm0-4.6c1.7 0 3.2.7 4.3 1.8l-1.7 1.7A3.6 3.6 0 0 0 12 16.3c-1 0-1.9.4-2.6 1.1l-1.7-1.7a6 6 0 0 1 4.3-1.8zm0-4.6c2.9 0 5.6 1.2 7.5 3.1l-1.7 1.7A8 8 0 0 0 12 11.9a8 8 0 0 0-5.8 2.2l-1.7-1.7A10.5 10.5 0 0 1 12 9.3z"/></svg>
+    </span>
+    <span class="menu-icon battery" aria-hidden="true"><i></i></span>
+    <span class="menu-clock" id="clock">Mon 09:41</span>
+  </div>
+</div>
+
+<!-- ===================== window ===================== -->
+<main class="stage">
+  <section class="window" id="window" aria-label="Markets app">
+
+    <header class="titlebar">
+      <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
+
+      <div class="titlebar-mid">
+        <div class="seg" role="tablist" aria-label="Asset class">
+          <button role="tab" class="on" data-filter="all" type="button">All</button>
+          <button role="tab" data-filter="stock" type="button">Stocks</button>
+          <button role="tab" data-filter="crypto" type="button">Crypto</button>
+          <button role="tab" data-filter="etf" type="button">ETFs</button>
+          <button role="tab" data-filter="commodity" type="button">Commodities</button>
+        </div>
+      </div>
+
+      <div class="titlebar-right">
+        <label class="search">
+          <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M10 3a7 7 0 1 1-4.2 12.6l-3.1 3.1-1.4-1.4 3.1-3.1A7 7 0 0 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+          <input id="search" type="search" placeholder="Search assets" aria-label="Search assets" autocomplete="off">
+        </label>
+      </div>
+    </header>
+
+    <div class="window-body">
+
+      <aside class="sidebar">
+        <div class="side-group">
+          <h4>Library</h4>
+          <button class="side-item on" type="button" data-filter="all"><span class="si-ico blue">◎</span>Watchlist</button>
+          <button class="side-item" type="button" data-sort="change"><span class="si-ico green">▲</span>Top movers</button>
+          <button class="side-item" type="button" data-filter="stock"><span class="si-ico violet">▤</span>Stocks</button>
+          <button class="side-item" type="button" data-filter="crypto"><span class="si-ico orange">◈</span>Crypto</button>
+          <button class="side-item" type="button" data-filter="etf"><span class="si-ico teal">◧</span>ETFs</button>
+          <button class="side-item" type="button" data-filter="commodity"><span class="si-ico gold">●</span>Commodities</button>
+        </div>
+
+        <div class="side-group">
+          <h4>Session</h4>
+          <div class="side-status"><span class="pulse"></span>Market open</div>
+          <div class="side-meta"><span>S&amp;P 500</span><b class="up" id="idxSpx">+0.62%</b></div>
+          <div class="side-meta"><span>Nasdaq</span><b class="up" id="idxNdx">+0.94%</b></div>
+          <div class="side-meta"><span>VIX</span><b class="down" id="idxVix">−3.10%</b></div>
+        </div>
+
+        <a class="side-x" href="https://x.com" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg>
+          Follow on X
+        </a>
+      </aside>
+
+      <div class="content" id="content">
+
+        <!-- hero chart -->
+        <section class="hero-card anim" id="heroCard">
+          <div class="hero-top">
+            <div class="hero-id">
+              <span class="asset-badge lg" id="heroBadge">AAPL</span>
+              <div>
+                <h1 id="heroSym">AAPL</h1>
+                <p id="heroName">Apple Inc. · NASDAQ</p>
+              </div>
+            </div>
+            <div class="hero-price">
+              <b id="heroPrice">0.00</b>
+              <span class="delta up" id="heroDelta">+0.00 (0.00%)</span>
+            </div>
+          </div>
+
+          <div class="chart-shell">
+            <svg class="chart" id="chart" viewBox="0 0 800 260" preserveAspectRatio="none" role="img" aria-label="Price chart">
+              <defs>
+                <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" class="g-top"/><stop offset="1" class="g-bottom"/>
+                </linearGradient>
+              </defs>
+              <g id="grid"></g>
+              <path id="areaPath" fill="url(#fillGrad)"></path>
+              <path id="linePath" fill="none" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></path>
+              <g id="cross" class="hidden">
+                <line id="crossLine" y1="0" y2="260"></line>
+                <circle id="crossDot" r="4.5"></circle>
+              </g>
+            </svg>
+            <div class="tip" id="tip" hidden></div>
+          </div>
+
+          <div class="hero-foot">
+            <div class="ranges" id="ranges">
+              <button class="on" type="button" data-range="1D">1D</button>
+              <button type="button" data-range="1W">1W</button>
+              <button type="button" data-range="1M">1M</button>
+              <button type="button" data-range="1Y">1Y</button>
+            </div>
+            <dl class="stats" id="heroStats"></dl>
+          </div>
+        </section>
+
+        <!-- cards -->
+        <section class="block">
+          <div class="block-head">
+            <h2>Your assets</h2>
+            <span class="count" id="cardCount"></span>
+          </div>
+          <div class="cards" id="cards"></div>
+        </section>
+
+        <!-- table -->
+        <section class="block">
+          <div class="block-head">
+            <h2>All markets</h2>
+            <span class="hint">Click a row to load the chart</span>
+          </div>
+          <div class="table-card anim">
+            <table class="markets">
+              <thead>
+                <tr>
+                  <th data-sort="symbol">Symbol</th>
+                  <th data-sort="name">Name</th>
+                  <th class="num" data-sort="price">Price</th>
+                  <th class="num" data-sort="change">24h</th>
+                  <th class="num hide-sm" data-sort="cap">Market cap</th>
+                  <th class="num hide-sm">Trend</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <footer class="content-foot">
+          <span>Prices on this page are simulated for demonstration only.</span>
+          <a class="foot-x" href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg>
+          </a>
+        </footer>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== dock ===================== -->
+<div class="dock" id="dock">
+  <button class="dock-app" type="button" data-tip="Markets" data-scroll="top"><span class="ico i-markets">📈</span></button>
+  <button class="dock-app" type="button" data-tip="Watchlist" data-scroll="cards"><span class="ico i-watch">⭐</span></button>
+  <button class="dock-app" type="button" data-tip="All markets" data-scroll="rows"><span class="ico i-table">📊</span></button>
+  <button class="dock-app" type="button" data-tip="Appearance" id="dockTheme"><span class="ico i-theme">🌗</span></button>
+  <a class="dock-app" href="https://x.com" target="_blank" rel="noopener noreferrer" data-tip="X">
+    <span class="ico i-x"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg></span>
+  </a>
+  <span class="dock-sep" aria-hidden="true"></span>
+  <button class="dock-app" type="button" data-tip="Terms" id="dockTerms"><span class="ico i-terms">📄</span></button>
+</div>
+
+<!-- ===================== terms modal ===================== -->
+<div class="modal-layer" id="modal" role="dialog" aria-modal="true" aria-labelledby="tcTitle">
+  <div class="sheet" id="sheet">
+    <span class="sheet-icon" aria-hidden="true">📄</span>
+    <h2 id="tcTitle">Terms &amp; Conditions</h2>
+    <p class="sheet-lede">Please review and accept before entering Markets.</p>
+
+    <div class="sheet-scroll" tabindex="0">
+      <h3>1. Demonstration only</h3>
+      <p>Markets is a demonstration interface. Every quote, chart and statistic shown here is generated in your browser and does not represent a real security, exchange feed or executable price.</p>
+      <h3>2. Not investment advice</h3>
+      <p>Nothing on this site is a recommendation to buy, sell or hold any asset. You are solely responsible for your own decisions, and you should consult a licensed professional before acting on any market information.</p>
+      <h3>3. No warranty</h3>
+      <p>The site is provided as is, without warranty of any kind. Availability, accuracy and continuity of the data are not guaranteed, and the site may change or disappear without notice.</p>
+      <h3>4. Acceptable use</h3>
+      <p>Do not scrape, resell or present this interface as a live trading venue, and do not use it in a way that suggests the figures shown are genuine market data.</p>
+      <h3>5. Privacy</h3>
+      <p>Your acceptance of these terms and your appearance preference are stored locally in your browser. No account is created and nothing is sent to a server.</p>
+      <h3>6. Changes</h3>
+      <p>These terms may be updated. Continuing to use the site after a change means you accept the updated version.</p>
+    </div>
+
+    <label class="sheet-check">
+      <input type="checkbox" id="agree">
+      <span>I have read and agree to the Terms &amp; Conditions.</span>
+    </label>
+
+    <div class="sheet-actions">
+      <button class="btn btn-quiet" type="button" id="declineBtn">Decline</button>
+      <button class="btn btn-blue" type="button" id="acceptBtn" disabled>Accept &amp; enter</button>
+    </div>
+    <p class="sheet-note" id="sheetNote" hidden>You need to accept the terms to open Markets.</p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

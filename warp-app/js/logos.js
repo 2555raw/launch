@@ -1,21 +1,21 @@
-/* El sistema de marcas.
-   Regla: siempre la marca real de la entidad, nunca una dibujada, generada o
-   aproximada.
+/* The mark system.
+   Rule: always the entity's real mark, never one drawn, generated or
+   approximated.
 
-   Una empresa, un ETF o una cripto tienen logo propio: se resuelve en tiempo de
-   ejecucion del dominio oficial que declara el registro, con un segundo
-   resolutor de reserva. No hay copias en el repositorio.
+   A company, an ETF or a coin has a logo of its own: it is resolved at runtime
+   from the official domain the registry declares, with fallback resolvers
+   behind it. Nothing is copied into the repository.
 
-   Un metal no tiene logo porque no es una empresa. Su marca es su simbolo
-   quimico oficial, escrito en el color real del metal. Eso no es un dibujo: es
-   la notacion que usa la propia industria.
+   A metal has no logo because it is not a company. Its mark is its official
+   chemical symbol, written in the real colour of the metal. That is not a
+   drawing: it is the notation the industry itself uses.
 
-   Si ningun resolutor responde, la reserva es el monograma de la entidad en su
-   color de marca. Nunca el logo de otra, nunca un emoji.
+   If no resolver answers, what is left is the entity's monogram in its brand
+   colour. Never another entity's logo, never an emoji.
 
-   Todas las pantallas construyen la marca llamando a markEl(), y solo a esa
-   funcion. Por eso un activo no puede aparecer con una marca en el buscador y
-   otra en el cesto. */
+   Every screen builds a mark by calling markEl(), and only that function. That
+   is why an asset cannot show one mark in the search box and another in a
+   basket. */
 
 import { config } from './config.js';
 
@@ -45,8 +45,8 @@ export function rgba(hex, a) {
   return `rgba(${r},${g},${b},${a})`;
 }
 
-/** Luminancia relativa, para elegir tinta legible sobre el color de marca en
- *  lugar de dar por hecho que el blanco siempre sirve. */
+/** Relative luminance, to pick legible ink over a brand colour instead of
+ *  assuming white always works. */
 export function luminance(hex) {
   const m = String(hex || '#888').replace('#', '');
   const n = m.length === 3 ? m.split('').map(c => c + c).join('') : m;
@@ -63,11 +63,11 @@ function monogram(asset) {
   return ((words[0]?.[0] || '') + (words[1]?.[0] || '')).toUpperCase() || '?';
 }
 
-/** La marca del activo. Devuelve un elemento listo para insertar.
+/** The asset's mark. Returns an element ready to insert.
 
-    El monograma se pinta desde el primer fotograma y el logo se carga encima:
-    asi el hueco nunca esta en blanco mientras la red responde, y si no responde
-    lo que queda ya esta puesto. */
+    The monogram paints on the first frame and the logo loads over it: the slot
+    is never blank while the network answers, and if it never answers what is
+    left is already in place. */
 export function markEl(asset, size = 36) {
   const el = document.createElement('span');
   el.className = 'wp-mark';
@@ -75,7 +75,7 @@ export function markEl(asset, size = 36) {
   el.style.setProperty('--brand', asset?.color || '#8A94A6');
   el.title = asset?.name || '';
 
-  // El metal lleva su simbolo quimico en su propio color, que es su notacion real.
+  // A metal carries its chemical symbol in its own colour, which is its real notation.
   if (asset?.class === 'metal') {
     el.classList.add('is-element');
     el.style.background = asset.color;
@@ -101,17 +101,17 @@ export function markEl(asset, size = 36) {
 
   const img = document.createElement('img');
   img.className = 'wp-mark-img';
-  img.alt = `Logo de ${asset?.name || ''}`;
+  img.alt = `${asset?.name || ''} logo`;
   img.loading = 'lazy';
   img.decoding = 'async';
   img.hidden = true;
   let i = 0;
   const tryNext = () => {
-    if (i >= sources.length) { img.remove(); return; }   // se queda el monograma
+    if (i >= sources.length) { img.remove(); return; }   // the monogram stays
     img.src = sources[i++];
   };
   img.addEventListener('load', () => {
-    // Un icono de un pixel no es un logo: se descarta como si hubiera fallado.
+    // A one-pixel icon is not a logo: it is discarded as though it had failed.
     if (img.naturalWidth < 8) { failed.add(img.src); return tryNext(); }
     img.hidden = false;
     el.classList.remove('is-monogram');
@@ -124,7 +124,7 @@ export function markEl(asset, size = 36) {
   return el;
 }
 
-/** Pila de marcas solapadas: como se lee un cesto de un vistazo. */
+/** Overlapping stack of marks: how a basket reads at a glance. */
 export function markStack(assets, size = 28) {
   const el = document.createElement('span');
   el.className = 'wp-stack';

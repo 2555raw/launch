@@ -1,193 +1,207 @@
 # Warp
 
-Mercado de perpetuos de indices. Agrupas de tres a cinco activos —acciones,
-metales, criptomonedas o ETFs— en un cesto de peso fijo, lo listas como indice
-con su simbolo, y cualquiera puede ponerse largo o corto sobre el con hasta 5x,
-liquidado en USDG. Quien lista un indice se queda el 30 % de las comisiones que
-pague cada operacion abierta sobre el.
+A market of index perpetuals. You bundle three to five assets — stocks, metals,
+crypto or ETFs — into a fixed-weight basket, list it as an index with its own
+symbol, and anyone can take a long or short side on it with up to 5x, settled in
+USDG. Whoever lists an index keeps 30% of the fees every position on it pays.
 
-Sin paso de compilacion: HTML, CSS y modulos ES nativos, igual que el resto del
-repositorio.
+No build step: HTML, CSS and native ES modules, the same as the rest of this
+repository.
 
-## La regla que gobierna el proyecto
+## The rule that governs the project
 
-**Ningun precio de esta aplicacion es real, y la aplicacion lo dice en voz alta.**
+**No price in this application is real, and the application says so out loud.**
 
-Warp es un mercado de practica. El precio de cada activo lo produce el simulador
-de `js/market.js`, no un proveedor de mercado. Por eso el aviso esta en la
-cabecera de todas las pantallas y en el pie de todas, y no en la letra pequena:
-un numero que parece una cotizacion y no lo es hace mas dano que un hueco vacio.
+Warp is a paper market. Every asset price comes from the simulator in
+`js/market.js`, not from a market data provider. That is why the notice sits in
+the header of every screen and in the footer of every screen, and not in the
+small print: a number that looks like a quote and is not one does more damage
+than an empty slot.
 
-La distincion que se mantiene en todo el codigo es esta:
+The distinction the whole codebase keeps is this:
 
-- **Simulado**: precio, variacion, volumen y profundidad. Son cifras del
-  simulador. La interfaz las marca como `sim.` donde caben en una columna.
-- **Real, dentro de los limites de la aplicacion**: tus posiciones, tu saldo, las
-  comisiones que has pagado, las que has generado como creador y los indices que
-  has listado. Eso ha ocurrido porque lo has hecho tu, asi que persiste en el
-  navegador y se puede auditar.
+- **Simulated**: price, change, volume and depth. These are simulator figures.
+  The interface marks them `sim.` where a column has room.
+- **Real, within the limits of the application**: your positions, your balance,
+  the fees you have paid, the fees you have generated as a creator, and the
+  indices you have listed. That happened because you did it, so it persists in
+  the browser and can be audited.
 
-Nada de esto es asesoramiento de inversion.
+None of this is investment advice.
 
-## Arrancar
+## Opening it
+
+Three ways, in order of least ceremony.
+
+**One file, no server.** `dist/warp.html` is the whole application inlined into
+a single file. Download it and double-click it: it opens straight from the
+filesystem, needs nothing installed, and resolves real logos because the browser
+is not sandboxed. Rebuild it after changing any source file with:
 
 ```bash
-python3 -m http.server 8000      # y abrir http://localhost:8000/warp-app/
+node warp-app/build.mjs
 ```
 
-No hay clave que configurar ni cuenta que crear. Arranca con 10 000 USDG de
-practica y nueve indices ya listados por la cuenta demo de la casa. El boton
-**Reiniciar cuenta** de la barra lateral lo devuelve todo al estado inicial.
+**A local server**, which is how you work on the multi-file source:
 
-## Probar
+```bash
+python3 -m http.server 8000      # then open http://localhost:8000/warp-app/
+```
+
+**Any static host.** Copy the folder as it is; there is nothing to compile.
+
+There is no key to configure and no account to create. It starts with 10,000
+USDG of paper balance and nine indices already listed by the house demo
+account. The **Reset account** button in the sidebar returns everything to its
+opening state.
+
+## Testing
 
 ```bash
 node warp-app/test/engine.test.mjs
 ```
 
-Comprueba lo que no puede estar mal sin navegador: que el cesto arranque en su
-base, que las aportaciones de las patas sumen la variacion del indice, que el
-saldo cuadre despues de abrir, cerrar y cobrar, y que cada limite (patas,
-apalancamiento, margen minimo, saldo, simbolo repetido) rechace lo que tiene que
-rechazar.
+It checks, without a browser, what cannot be wrong: that a basket starts at its
+base, that the legs' contributions add up to the index's change, that the
+balance reconciles after opening, closing and claiming, and that every limit
+(legs, leverage, minimum margin, balance, duplicate symbol) rejects what it is
+supposed to reject.
 
-## Las marcas: el logo real y el color real
+## The marks: the real logo and the real colour
 
-Regla: **siempre la marca real de la entidad, nunca una dibujada, generada o
-aproximada.**
+Rule: **always the entity's real mark, never one drawn, generated or
+approximated.**
 
-Una empresa, un ETF o una criptomoneda tienen logo propio. Cada fila del registro
-lleva su dominio oficial (`nvidia.com`, `lvmh.com`, `ethereum.org`) y
-`js/logos.js` resuelve el logo de ese dominio en tiempo de ejecucion contra una
-cadena de resolutores. No hay copias de logos en el repositorio, asi que no pueden
-quedarse obsoletas ni divergir entre pantallas.
+A company, an ETF or a coin has a logo of its own. Every row in the registry
+carries its official domain (`nvidia.com`, `lvmh.com`, `ethereum.org`) and
+`js/logos.js` resolves the logo from that domain at runtime against a chain of
+resolvers. No logo is copied into the repository, so none can go stale or
+diverge between screens.
 
-Un metal no tiene logo porque no es una empresa. Su marca es **su simbolo quimico
-oficial escrito en el color real del metal**: Au en oro, Cu en cobre, Li en el gris
-del litio. Eso no es un dibujo, es la notacion que usa la propia industria. Su
-ficha nombra ademas el mercado que fija su precio (LBMA, LME, LPPM), que si tiene
-logo propio.
+A metal has no logo because it is not a company. Its mark is **its official
+chemical symbol written in the real colour of the metal**: Au in gold, Cu in
+copper, Li in the grey of lithium. That is not a drawing, it is the notation the
+industry itself uses. Its page also names the market that prices it (LBMA, LME,
+LPPM), which does have a logo of its own.
 
-Cada activo lleva tambien **su color de marca real**, el que usa la entidad. Ese
-color no es decoracion: es lo que identifica su tramo en la barra de composicion
-de un cesto, su porcion en la rueda de pesos, su linea en un grafico y su
-pastilla de simbolo. Por eso el fondo de la aplicacion es blanco y se queda
-blanco: sobre el blanco, el unico color con peso es el de las marcas.
+Every asset also carries **its real brand colour**, the one the entity uses.
+That colour is not decoration: it is what identifies its band in a basket's
+composition bar, its slice in the weight wheel, its line on a chart and its
+symbol pill. That is why the application's ground is white and stays white: on
+white, the only colour with weight is the brand's.
 
-Todas las pantallas construyen la marca llamando a `markEl()`, y solo a esa
-funcion. Por eso un activo no puede aparecer con una marca en el buscador y otra
-en el cesto.
+Every screen builds a mark by calling `markEl()`, and only that function. That
+is why an asset cannot show one mark in the search box and another in a basket.
 
-El monograma se pinta desde el primer fotograma y el logo se carga encima, asi
-que el hueco nunca esta en blanco mientras responde la red. Si ningun resolutor
-responde, lo que queda es el monograma en el color de marca. Nunca el logo de
-otra entidad, nunca un emoji.
+The monogram paints on the first frame and the logo loads over it, so a slot is
+never blank while the network answers. If no resolver answers, what is left is
+the monogram in the brand colour. Never another entity's logo, never an emoji.
 
-Con `logoToken` configurado se usa el proveedor de logos de pago, que tiene mejor
-cobertura y resolucion. Sin token se usan los de reserva, que resuelven por
-dominio sin clave.
+With `logoToken` configured, the paid logo provider is used, which has better
+coverage and resolution. Without a token the fallbacks are used, which resolve
+by domain with no key.
 
-El icono de X de la barra lateral es cromo de interfaz, no la marca de un activo:
-**todavia no tiene enlace**, asi que no es un enlace. Es un boton que dice que aun
-no hay destino, en lugar de un ancla que no lleva a ninguna parte.
+The X icon in the sidebar is interface chrome, not an asset's mark: **it has no
+link yet**, so it is not a link. It is a button that says there is no
+destination, rather than an anchor that goes nowhere.
 
-## Como funciona un indice
+## How an index works
 
-Un indice es un cesto de **peso fijo**. Al listarlo se congela el precio de cada
-pata como referencia y el cesto arranca en base 100. Desde ese momento vale:
+An index is a **fixed-weight** basket. On listing it freezes each leg's price as
+a reference and the basket starts at base 100. From that moment it is worth:
 
 ```
 V(t) = 100 · Σᵢ wᵢ · Pᵢ(t) / Pᵢ(t₀)
 ```
 
-No se rebalancea, asi que el cesto de hoy es exactamente el que se listo, y el
-grafico mide exactamente lo que ha hecho desde entonces. La columna
-**aportacion** de su ficha descompone esa variacion pata por pata: el movimiento
-de cada una multiplicado por su peso, de modo que las aportaciones suman la
-variacion del indice.
+It never rebalances, so today's basket is exactly the one that listed, and its
+chart measures exactly what it has done since. The **contribution** column on
+its page decomposes that change leg by leg: each leg's move times its weight,
+so the contributions add up to the index's change.
 
-Las referencias viven en el propio indice (`refs`), no en el feed. Por eso listar
-un indice nuevo no reescribe la historia de ninguno existente.
+The references live in the index itself (`refs`), not in the feed. That is why
+listing a new index does not rewrite the history of an existing one.
 
-## Como funciona una posicion
+## How a position works
 
-Las reglas viven en `VENUE` (`js/config.js`), en un solo sitio, para que lo que
-promete el panel de trading y lo que aplica el motor sean la misma regla:
+The rules live in `VENUE` (`js/config.js`), in one place, so that what the
+trading panel promises and what the engine applies are the same rule:
 
-| Regla | Valor |
+| Rule | Value |
 | --- | --- |
-| Patas por indice | 3 a 5 |
-| Apalancamiento | 1x a 5x |
-| Comision | 0,05 % del nocional, al abrir y al cerrar |
-| Al creador del indice | 30 % de esa comision |
-| Margen de mantenimiento | 0,5 % |
-| Financiacion | 0,01 % base cada 8 h, escalada por el desequilibrio entre largos y cortos, topada en 0,075 % |
+| Legs per index | 3 to 5 |
+| Leverage | 1x to 5x |
+| Fee | 0.05% of notional, on opening and on closing |
+| To the index's creator | 30% of that fee |
+| Maintenance margin | 0.5% |
+| Funding | 0.01% base per 8 h, scaled by the imbalance between longs and shorts, capped at 0.075% |
 
-El precio de liquidacion sale de `liquidationPrice()`, y de esa misma funcion sale
-el aviso del formulario y la liquidacion real: no pueden discrepar. La
-financiacion se devenga con el tiempo al tipo vigente y ya va descontada del
-resultado que muestra cada posicion.
+The liquidation price comes from `liquidationPrice()`, and the form's warning
+and the real liquidation come from that same function: they cannot disagree.
+Funding accrues over time at the rate in force and is already netted off the
+result each position shows.
 
-Una posicion sin margen se liquida por la regla, no porque alguien mire la
-pantalla: el latido de `js/app.js` pasa `liquidationSweep()` cada cinco segundos.
-En una liquidacion se pierde el margen y no se cobra comision de cierre.
+A position with no margin left is liquidated by the rule, not because someone is
+watching the screen: the heartbeat in `js/app.js` runs `liquidationSweep()`
+every five seconds. On a liquidation the margin is lost and no closing fee is
+charged.
 
-## Arquitectura
+## Architecture
 
 ```
-index.html              el armazon: barra lateral, buscador, aviso de simulacion, vistas
-styles.css              sistema de diseno (tokens en :root, fondo blanco, componentes)
-js/registry.js          IDENTIDAD: simbolo, nombre, clase, sector, color de marca y dominio
-js/config.js            VENUE (las reglas del mercado) y la cadena de resolutores de logos
-js/logos.js             el sistema de marcas descrito arriba
-js/market.js            el simulador de precios y las matematicas del cesto
-js/store.js             cartera, indices listados, posiciones e historial; una clave, un evento
-js/engine.js            listar, validar, abrir, cerrar, financiar, liquidar y cobrar comisiones
-js/format.js            formato y el centinela NA, para que "sin dato" nunca parezca un cero
-js/chart.js             graficos en canvas: serie con cruz, linea minima y rueda de pesos
-js/search.js            buscador tolerante a erratas, acentos y nombre comercial
-js/ui/components.js     piezas reutilizables (identidad, tarjetas, tablas, cifras, avisos)
-js/views.js             las pantallas
-js/app.js               enrutado, buscador, reloj y el latido que liquida
-test/engine.test.mjs    las reglas del mercado, comprobadas sin navegador
+index.html              the shell: sidebar, search, the simulated notice, views
+styles.css              design system (tokens on :root, white ground, components)
+js/registry.js          IDENTITY: symbol, name, class, sector, brand colour, domain
+js/config.js            VENUE (the market's rules) and the logo resolver chain
+js/logos.js             the mark system described above
+js/market.js            the price simulator and the basket mathematics
+js/store.js             wallet, listed indices, positions, history; one key, one event
+js/engine.js            list, validate, open, close, fund, liquidate, claim fees
+js/format.js            formatting and the NA sentinel, so "no data" never looks like a zero
+js/chart.js             canvas charts: series with crosshair, minimal line, weight wheel
+js/search.js            search tolerant of typos, accents and trade names
+js/ui/components.js     reusable pieces (identity, cards, tables, figures, notices)
+js/views.js             the screens
+js/app.js               routing, search, clock and the heartbeat that liquidates
+build.mjs               inlines everything into dist/warp.html, openable with no server
+test/engine.test.mjs    the market's rules, checked without a browser
 ```
 
-### Por que el simulador es una suma de ondas y no un paseo aleatorio
+### Why the simulator is a sum of waves and not a random walk
 
-El precio de un activo en un instante es una suma de ondas de distinta escala,
-con fase y amplitud sembradas a partir de su simbolo. Eso da tres propiedades que
-un paseo aleatorio no da:
+An asset's price at an instant is a sum of waves of different scales, with phase
+and amplitude seeded from its symbol. That gives three properties a random walk
+does not:
 
-- **es reproducible**: la misma semilla da el mismo mercado en cada recarga y en
-  cada pestana, asi que una posicion abierta ayer sigue teniendo sentido hoy;
-- **es continuo**: no hay saltos entre recargas;
-- **se evalua en cualquier instante en tiempo constante**, asi que el historico de
-  un grafico no hay que guardarlo: se calcula.
+- **it is reproducible**: the same seed gives the same market on every reload and
+  in every tab, so a position opened yesterday still makes sense today;
+- **it is continuous**: there are no jumps between reloads;
+- **it can be evaluated at any instant in constant time**, so a chart's history
+  does not have to be stored: it is computed.
 
-La semilla se cambia en `config.seed`.
+The seed is changed in `config.seed`.
 
-### Enchufar un proveedor real
+### Plugging in a real provider
 
-`js/market.js` termina en `setFeed()`. La aplicacion nunca llama al simulador
-directamente: llama a `spot`, `changePct`, `series` y `volume24h` a traves de
-`feed`. Un proveedor real se enchufa sustituyendolas y poniendo
-`isSimulated: false`, y entonces el aviso de la cabecera y el del pie dejan de
-decir que el precio es simulado, porque ya no lo sera. Nada mas de la aplicacion
-cambia.
+`js/market.js` ends in `setFeed()`. The application never calls the simulator
+directly: it calls `spot`, `changePct`, `series` and `volume24h` through `feed`.
+A real provider is plugged in by replacing them and setting
+`isSimulated: false`, and at that point the header and footer notices stop
+saying the price is simulated, because it will not be. Nothing else in the
+application changes.
 
-### Anadir un activo
+### Adding an asset
 
-Una fila en `js/registry.js` con simbolo, nombre legal, nombre corto, clase,
-sector, color de marca real y dominio oficial (o, si es un metal, su simbolo
-quimico y su mercado). Un nivel de referencia en `REF` de `js/market.js`, que es
-donde vive el precio. Aparece solo en el buscador, en su pestana de activos, en
-el constructor de cestos y con su marca en todas las pantallas.
+One row in `js/registry.js` with symbol, legal name, short name, class, sector,
+real brand colour and official domain — or, if it is a metal, its chemical
+symbol and its market. One reference level in `REF` in `js/market.js`, which is
+where price lives. It shows up on its own in the search box, in its asset tab,
+in the basket builder, and with its mark on every screen.
 
-## Que falta
+## What is missing
 
-- Ordenes limitadas y stop: hoy solo hay orden a mercado.
-- Cerrar parte de una posicion: hoy el cierre es entero.
-- Rebalanceo opcional de un cesto: hoy el peso fijo es la unica modalidad, que es
-  la que hace que el indice sea auditable sin guardar historia.
-- El historial guarda las ultimas doscientas operaciones cerradas y descarta las
-  anteriores.
+- Limit and stop orders: today there is only a market order.
+- Closing part of a position: today a close is the whole thing.
+- Optional rebalancing of a basket: today fixed weight is the only mode, and it
+  is what makes an index auditable without storing history.
+- The history keeps the last two hundred closed trades and drops the rest.

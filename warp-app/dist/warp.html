@@ -1,0 +1,3192 @@
+<!doctype html>
+<!-- Warp, built into a single file by build.mjs. Edit the source in warp-app/, not this. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warp Index Perpetuals</title>
+<meta name="description" content="A paper market for index perpetuals: bundle three to five assets, metals among them, into a fixed-weight basket, list it, and take a long or short side with up to 5x. Simulated prices.">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Warp — design system.
+
+   The ground is white and it stays white. On white, the only colour with weight
+   is the brand's: each asset's real logo and its brand colour are what tell one
+   row from another, so the rest of the interface gets out of the way. That is
+   why surfaces are white or nearly, structure is a hairline, and semantic
+   colour is reserved for the direction of a move and the side of a position.
+
+   Numbers are always tabular monospace, so a column can be read top to bottom
+   without the digits shifting. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: light; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: #FFFFFF; }
+
+/* The tokens live on :root, not on .wp, because some pieces mount straight
+   onto body (the floating notices) and have to be able to read them. */
+:root {
+  /* ground: white, plus a barely perceptible grey to sink boxes into */
+  --bg: #FFFFFF;
+  --panel: #FFFFFF;
+  --sunken: #F7F8FA;
+  --sunken-2: #F1F3F6;
+  /* ink */
+  --ink: #0E1116;
+  --ink-2: #303845;
+  --muted: #5C6673;
+  --dim: #98A1AE;
+  /* structure */
+  --line: #E6E9EE;
+  --line-2: #D5DAE2;
+  /* one functional accent: what can be pressed */
+  --accent: #1F58F5;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #EDF2FE;
+  /* direction of a move and side of a position, never decoration */
+  --up: #0E9F6E;
+  --up-soft: #E6F6EF;
+  --down: #D8342A;
+  --down-soft: #FDECEB;
+  --warn: #B4690E;
+  --warn-soft: #FDF3E4;
+
+  --r: 10px;
+  --r-lg: 14px;
+  --shadow: 0 1px 2px rgba(16,22,32,.04), 0 8px 24px -16px rgba(16,22,32,.16);
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.wp {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+/* hidden has to beat any display a component sets for itself. */
+[hidden] { display: none !important; }
+button { font: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.up { color: var(--up); } .down { color: var(--down); } .flat { color: var(--muted); }
+.dim { color: var(--dim); } .muted { color: var(--muted); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------------- sidebar ---------------- */
+.wp-side {
+  border-right: 1px solid var(--line);
+  padding: 16px 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: sticky; top: 0; height: 100vh;
+  background: var(--bg);
+}
+.wp-brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
+.wp-brand-mark { width: 28px; height: 28px; flex: none; }
+.wp-brand-name { font-weight: 650; font-size: 15.5px; letter-spacing: -.02em; }
+.wp-brand-sub { display: block; font-size: 11px; font-weight: 450; color: var(--dim); letter-spacing: 0; }
+
+.wp-nav { display: flex; flex-direction: column; gap: 2px; }
+.wp-nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 13.5px; font-weight: 500; color: var(--muted);
+  transition: background .14s, color .14s;
+}
+.wp-nav a:hover { background: var(--sunken); color: var(--ink); }
+.wp-nav a.is-active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.wp-nav svg { width: 16px; height: 16px; flex: none; }
+.wp-nav-count {
+  margin-left: auto; font-family: var(--mono); font-size: 11px;
+  background: var(--sunken-2); color: var(--muted); border-radius: 20px; padding: 1px 7px;
+}
+.wp-nav a.is-active .wp-nav-count { background: #fff; color: var(--accent); }
+
+.wp-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.wp-equity {
+  border: 1px solid var(--line); border-radius: var(--r); padding: 10px 11px;
+  display: grid; gap: 2px;
+}
+.wp-equity dt { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+.wp-equity dd { margin: 0; font-family: var(--mono); font-size: 15px; font-weight: 600; }
+.wp-equity-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
+.wp-side-links { display: flex; align-items: center; gap: 6px; }
+
+/* The X mark. It has no link yet, and that is exactly why it is not a link: it
+   is a button that says there is no destination, rather than an anchor that
+   goes nowhere. */
+.wp-x {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center; cursor: pointer;
+  background: none; border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink); transition: background .14s, border-color .14s;
+}
+.wp-x:hover { background: var(--sunken); border-color: var(--line-2); }
+.wp-x svg { width: 15px; height: 15px; fill: currentColor; }
+.wp-ghost-btn {
+  flex: 1; text-align: left; cursor: pointer; color: var(--muted); font-size: 12px;
+  background: none; border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px;
+  transition: color .14s, border-color .14s;
+}
+.wp-ghost-btn:hover { color: var(--ink); border-color: var(--line-2); }
+
+/* ---------------- header ---------------- */
+.wp-main { display: flex; flex-direction: column; min-width: 0; }
+.wp-top {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 24px;
+  background: rgba(255,255,255,.86); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+/* min-width 0 so the search box yields width to the notice on its right rather
+   than pushing the header off screen. */
+.wp-search { position: relative; flex: 1 1 0; min-width: 0; max-width: 540px; }
+.wp-search-box {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--sunken); border: 1px solid transparent; border-radius: 9px; padding: 0 11px;
+  transition: background .14s, border-color .14s;
+}
+.wp-search-box:focus-within { background: #fff; border-color: var(--accent); }
+.wp-search-box svg { width: 15px; height: 15px; color: var(--dim); flex: none; }
+.wp-search input {
+  flex: 1; min-width: 0; border: 0; background: none; outline: none;
+  font: inherit; font-size: 13.5px; color: var(--ink); padding: 9px 0;
+}
+.wp-search input::placeholder { color: var(--dim); }
+.wp-search kbd {
+  font-family: var(--mono); font-size: 10.5px; color: var(--dim);
+  border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; background: #fff;
+}
+.wp-results {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 50;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow); padding: 5px; max-height: 62vh; overflow: auto;
+}
+.wp-res {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 8px 9px; border-radius: 8px; cursor: pointer;
+  background: none; border: 0; text-align: left;
+}
+.wp-res:hover, .wp-res.is-on { background: var(--sunken); }
+.wp-res-label { font-size: 13.5px; font-weight: 550; }
+.wp-res-sub { font-size: 11.5px; color: var(--muted); }
+.wp-res-sym { margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
+.wp-res-empty { padding: 14px 10px; font-size: 13px; color: var(--muted); }
+
+.wp-top-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex: none; }
+/* The notice that prices are simulated sits in the header of every screen, not
+   in the small print. */
+.wp-sim {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11.5px; font-weight: 550; color: var(--warn);
+  background: var(--warn-soft); border: 1px solid #F2DFC0;
+  border-radius: 20px; padding: 5px 11px;
+}
+.wp-sim-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); flex: none; }
+.wp-sim-short { display: none; }
+.wp-clock { font-family: var(--mono); font-size: 12px; color: var(--dim); }
+
+/* ---------------- view ---------------- */
+.wp-view { padding: 22px 24px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-content: start; }
+.wp-foot {
+  padding: 14px 24px 22px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between;
+  font-size: 11.5px; color: var(--dim);
+}
+
+.wp-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 18px; }
+.wp-head > div { min-width: 0; }
+.wp-head h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.025em; }
+.wp-head p { margin: 3px 0 0; font-size: 13.5px; color: var(--muted); max-width: 64ch; }
+.wp-head-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+.wp-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.wp-card-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px; border-bottom: 1px solid var(--line);
+}
+.wp-card-head h2 { margin: 0; font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; }
+.wp-card-head .wp-card-note { font-size: 11.5px; color: var(--dim); margin-left: auto; text-align: right; }
+.wp-card-head .wp-ranges { margin-left: 10px; }
+.wp-card-body { padding: 16px; }
+.wp-card-body.tight { padding: 0; }
+
+.wp-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.wp-grid > * { min-width: 0; }
+/* min(Npx, 100%) rather than a bare Npx: on a screen narrower than the minimum
+   column, auto-fit would honour it and overflow the page. */
+.wp-grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+.wp-grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); }
+.wp-grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }
+.wp-split { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 336px; align-items: start; }
+
+/* ---------------- figures ---------------- */
+.wp-stat { border: 1px solid var(--line); border-radius: var(--r); padding: 13px 14px; background: var(--panel); }
+.wp-stat dt { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 5px; }
+.wp-stat dd { margin: 0; font-family: var(--mono); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+.wp-stat-sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+.wp-kv { display: grid; gap: 9px; }
+.wp-kv > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 13px; }
+.wp-kv dt { color: var(--muted); }
+.wp-kv dd { margin: 0; font-family: var(--mono); font-weight: 550; text-align: right; }
+.wp-kv-line { border-top: 1px dashed var(--line-2); padding-top: 9px; margin-top: 1px; }
+
+/* ---------------- the asset's mark ---------------- */
+.wp-mark {
+  flex: none; display: grid; place-items: center; overflow: hidden;
+  border-radius: 8px; background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(16,22,32,.09);
+  font-weight: 650; letter-spacing: -.02em; line-height: 1;
+}
+/* The monogram and the logo share a cell: one covers the other with no reflow. */
+.wp-mark > * { grid-area: 1 / 1; }
+.wp-mark-img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.wp-mark-txt { display: block; }
+.wp-mark.is-element { box-shadow: inset 0 0 0 1px rgba(16,22,32,.14); font-family: var(--font); }
+.wp-mark.is-monogram { box-shadow: inset 0 0 0 1px rgba(16,22,32,.07); }
+.wp-stack { display: inline-flex; align-items: center; }
+.wp-stack .wp-mark { box-shadow: inset 0 0 0 1px rgba(16,22,32,.09), 0 0 0 2px #fff; }
+
+.wp-ident { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.wp-ident-text { min-width: 0; }
+.wp-ident-name { font-size: 13.5px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wp-ident-sub { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.wp-sym {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  border-radius: 5px; padding: 1px 5px; letter-spacing: 0;
+}
+
+/* ---------------- pills ---------------- */
+.wp-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; font-weight: 550; border-radius: 20px; padding: 3px 9px;
+  background: var(--sunken); color: var(--muted); white-space: nowrap;
+}
+.wp-pill.up { background: var(--up-soft); color: var(--up); }
+.wp-pill.down { background: var(--down-soft); color: var(--down); }
+.wp-pill.accent { background: var(--accent-soft); color: var(--accent); }
+.wp-pill.warn { background: var(--warn-soft); color: var(--warn); }
+.wp-pill.own { background: #F0EBFD; color: #6335D6; }
+
+/* ---------------- buttons ---------------- */
+.wp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 14px; border-radius: 9px; cursor: pointer;
+  font-size: 13px; font-weight: 600; border: 1px solid transparent;
+  background: var(--accent); color: var(--accent-ink);
+  transition: filter .14s, background .14s, border-color .14s, color .14s;
+}
+.wp-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.wp-btn:disabled { opacity: .45; cursor: not-allowed; }
+.wp-btn.ghost { background: #fff; border-color: var(--line-2); color: var(--ink); }
+.wp-btn.ghost:hover:not(:disabled) { background: var(--sunken); filter: none; }
+.wp-btn.quiet { background: var(--sunken); color: var(--ink-2); }
+.wp-btn.quiet:hover:not(:disabled) { background: var(--sunken-2); filter: none; }
+.wp-btn.long { background: var(--up); }
+.wp-btn.short { background: var(--down); }
+.wp-btn.danger { background: #fff; border-color: #F0C9C6; color: var(--down); }
+.wp-btn.sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+.wp-btn.block { width: 100%; }
+.wp-btn svg { width: 15px; height: 15px; }
+
+/* A segmented control with many options scrolls instead of pushing the page:
+   max-width and overflow live in the component, not at each use site. */
+.wp-seg {
+  display: inline-flex; background: var(--sunken); border-radius: 9px; padding: 3px; gap: 3px;
+  max-width: 100%; overflow-x: auto; scrollbar-width: none;
+}
+.wp-seg::-webkit-scrollbar { display: none; }
+.wp-seg button { flex: none; }
+.wp-seg button {
+  border: 0; background: none; cursor: pointer; border-radius: 7px;
+  padding: 6px 11px; font-size: 12.5px; font-weight: 550; color: var(--muted);
+}
+.wp-seg button.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(16,22,32,.08); }
+.wp-seg.side button.is-on[data-side="long"] { color: var(--up); }
+.wp-seg.side button.is-on[data-side="short"] { color: var(--down); }
+
+/* ---------------- tables ---------------- */
+.wp-scroll { overflow-x: auto; }
+.wp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.wp-table th {
+  text-align: right; font-size: 11px; font-weight: 600; color: var(--dim);
+  text-transform: uppercase; letter-spacing: .06em;
+  padding: 9px 11px; border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.wp-table th:first-child, .wp-table td:first-child { text-align: left; padding-left: 16px; }
+.wp-table th:last-child, .wp-table td:last-child { padding-right: 16px; }
+/* A figure never breaks across two lines: if it does not fit, the table scrolls
+   (each one sits inside its own .wp-scroll). */
+.wp-table td { text-align: right; padding: 11px 11px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+.wp-table td.wide { white-space: normal; }
+.wp-table tbody tr:last-child td { border-bottom: 0; }
+.wp-table tbody tr.clickable { cursor: pointer; }
+.wp-table tbody tr.clickable:hover { background: var(--sunken); }
+.wp-table td.clickable { cursor: pointer; }
+.wp-table td.wide { min-width: 220px; }
+.wp-spark { width: 68px; height: 28px; display: block; margin-left: auto; }
+
+.wp-empty { padding: 34px 16px; text-align: center; color: var(--muted); font-size: 13.5px; }
+.wp-empty strong { display: block; color: var(--ink); font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+.wp-empty .wp-btn { margin-top: 14px; }
+
+/* ---------------- charts ---------------- */
+.wp-chart { position: relative; height: 300px; }
+.wp-chart canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+.wp-chart.sm { height: 180px; }
+.wp-tip {
+  position: absolute; pointer-events: none; z-index: 5;
+  background: var(--ink); color: #fff; border-radius: 7px; padding: 6px 9px;
+  font-size: 11.5px; display: grid; gap: 1px; white-space: nowrap;
+  box-shadow: 0 6px 18px -8px rgba(16,22,32,.5);
+}
+.wp-tip b { font-family: var(--mono); font-size: 12.5px; }
+.wp-tip span { color: #B9C0CC; }
+.wp-ranges { display: flex; gap: 3px; margin-left: auto; }
+
+/* weight bar: the basket in one line */
+.wp-weights { display: flex; height: 8px; border-radius: 20px; overflow: hidden; background: var(--sunken-2); }
+.wp-weights span { display: block; height: 100%; }
+.wp-legend { display: grid; gap: 8px; }
+.wp-legend-row { display: flex; align-items: center; gap: 9px; font-size: 12.5px; }
+.wp-legend-dot { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+.wp-legend-w { margin-left: auto; font-family: var(--mono); font-weight: 600; }
+.wp-donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.wp-donut-wrap canvas { flex: none; }
+.wp-donut-wrap .wp-legend { flex: 1; min-width: 180px; }
+
+/* ---------------- forms ---------------- */
+.wp-field { display: grid; gap: 6px; }
+.wp-field > label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.wp-input {
+  width: 100%; font: inherit; font-size: 13.5px; color: var(--ink);
+  background: #fff; border: 1px solid var(--line-2); border-radius: 9px; padding: 9px 11px;
+  transition: border-color .14s, box-shadow .14s;
+}
+.wp-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.wp-input.num { font-family: var(--mono); }
+.wp-input-unit { position: relative; }
+.wp-input-unit .wp-unit {
+  position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+  font-family: var(--mono); font-size: 11.5px; color: var(--dim); pointer-events: none;
+}
+.wp-input-unit .wp-input { padding-right: 58px; }
+.wp-hint { font-size: 11.5px; color: var(--dim); }
+.wp-error { font-size: 12.5px; color: var(--down); }
+.wp-errors { display: grid; gap: 4px; margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--down); }
+
+.wp-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: none; cursor: pointer; }
+.wp-range::-webkit-slider-runnable-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
+.wp-range::-moz-range-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
+.wp-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 16px; height: 16px; margin-top: -5.5px;
+  border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(16,22,32,.2);
+}
+.wp-range::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(16,22,32,.2);
+}
+.wp-range-marks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
+
+/* the basket builder */
+.wp-leg {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r); background: #fff;
+}
+.wp-leg-w { width: 88px; flex: none; }
+.wp-leg-x {
+  flex: none; width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
+  border: 1px solid var(--line); background: #fff; color: var(--muted); display: grid; place-items: center;
+}
+.wp-leg-x:hover { border-color: #F0C9C6; color: var(--down); }
+.wp-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.wp-chip {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 20px; padding: 4px 11px 4px 5px;
+  background: #fff; font-size: 12.5px; font-weight: 550; color: var(--ink-2);
+  transition: border-color .14s, background .14s;
+}
+.wp-chip:hover:not(:disabled) { border-color: var(--line-2); background: var(--sunken); }
+.wp-chip:disabled { opacity: .4; cursor: not-allowed; }
+.wp-chip.is-on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.wp-tabs { display: flex; flex-wrap: wrap; gap: 6px; max-width: 100%; overflow-x: auto; }
+.wp-tabs .wp-seg { flex: none; }
+
+/* ---------------- notices ---------------- */
+.wp-note {
+  border: 1px solid var(--line); border-left: 3px solid var(--dim);
+  border-radius: 0 var(--r) var(--r) 0; padding: 11px 13px;
+  font-size: 12.5px; color: var(--muted); background: var(--sunken);
+}
+.wp-note.warn { border-left-color: var(--warn); background: var(--warn-soft); color: #6E4409; border-color: #F2DFC0; }
+.wp-note.risk { border-left-color: var(--down); background: var(--down-soft); color: #8A211A; border-color: #F5D2CF; }
+.wp-note strong { color: inherit; font-weight: 600; }
+
+.wp-toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 90; display: grid; gap: 8px; justify-items: center; }
+.wp-toast {
+  background: var(--ink); color: #fff; border-radius: 10px; padding: 10px 15px;
+  font-size: 13px; font-weight: 500; box-shadow: 0 10px 30px -12px rgba(16,22,32,.6);
+  animation: wp-rise .2s ease-out;
+}
+.wp-toast.bad { background: var(--down); }
+.wp-toast.good { background: var(--up); }
+@keyframes wp-rise { from { opacity: 0; transform: translateY(8px); } }
+
+/* ---------------- responsive ---------------- */
+@media (max-width: 940px) {
+  /* minmax(0, 1fr), not 1fr: a grid item does not shrink below its content
+     width by default, and the sidebar laid out horizontally is wider than a
+     phone. */
+  .wp { grid-template-columns: minmax(0, 1fr); }
+  .wp-side {
+    min-width: 0;
+    position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center;
+    border-right: 0; border-bottom: 1px solid var(--line); gap: 8px; padding: 12px 16px;
+  }
+  .wp-brand { padding: 0 8px 0 0; }
+  /* flex: 1 is not enough: without min-width 0 a flex container will not go
+     below its content's width, and the bar pushes the page sideways. */
+  .wp-nav { flex-direction: row; overflow-x: auto; flex: 1 1 0; min-width: 0; scrollbar-width: none; }
+  .wp-nav::-webkit-scrollbar { display: none; }
+  .wp-nav a { white-space: nowrap; }
+  .wp-side-foot { margin: 0; flex-direction: row; align-items: center; }
+  .wp-equity { display: none; }
+  .wp-split { grid-template-columns: minmax(0, 1fr); }
+  .wp-view, .wp-top, .wp-foot { padding-left: 16px; padding-right: 16px; }
+  .wp-clock { display: none; }
+}
+@media (max-width: 640px) {
+  .wp-sim-long { display: none; }
+  .wp-sim-short { display: inline; }
+  .wp-sim { white-space: nowrap; padding: 5px 9px; }
+  .wp-search kbd { display: none; }
+  .wp-head h1 { font-size: 19px; }
+  /* When narrow, a card's title and its note take two lines instead of being
+     squeezed onto one. */
+  .wp-card-head { flex-wrap: wrap; }
+  .wp-card-head .wp-card-note { margin-left: 0; text-align: left; flex-basis: 100%; }
+  .wp-card-head h2 { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F58F5'/%3E%3Cg stroke='white' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M10 7v18M16 7v18M22 7v18'/%3E%3C/g%3E%3Cpath d='M6 16c4-4 6 4 10 0s6 4 10 0' stroke='%23FFC72C' stroke-width='2.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="wp" id="root">
+
+  <aside class="wp-side">
+    <a class="wp-brand" href="#/" aria-label="Warp, home">
+      <svg class="wp-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#1F58F5"/>
+        <g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M10 7v18M16 7v18M22 7v18"/></g>
+        <path d="M6 16c4-4 6 4 10 0s6 4 10 0" stroke="#FFC72C" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span>
+        <span class="wp-brand-name">Warp</span>
+        <span class="wp-brand-sub">Index perpetuals</span>
+      </span>
+    </a>
+
+    <nav class="wp-nav" id="nav" aria-label="Sections">
+      <a href="#/" data-route="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a href="#/market" data-route="market">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 18V9M9.5 18V5M15 18v-6M20.5 18v-9"/></svg>
+        Market
+      </a>
+      <a href="#/create" data-route="create">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Create index
+      </a>
+      <a href="#/portfolio" data-route="portfolio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16.5 14.5h1.5"/></svg>
+        Portfolio
+        <span class="wp-nav-count" id="navOpen" hidden></span>
+      </a>
+      <a href="#/creator" data-route="creator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg>
+        My indices
+      </a>
+      <a href="#/assets" data-route="assets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5M3 17l9 5 9-5"/></svg>
+        Assets
+      </a>
+    </nav>
+
+    <div class="wp-side-foot">
+      <dl class="wp-equity" id="sideEquity"></dl>
+      <div class="wp-side-links">
+        <button class="wp-ghost-btn" id="resetBtn" type="button">Reset account</button>
+        <!-- The X mark. There is no profile to link to yet, so this is not a
+             link: it is a button that says so. -->
+        <button class="wp-x" id="xBtn" type="button" title="X — not linked yet" aria-label="X, not linked yet">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="wp-main">
+    <header class="wp-top">
+      <div class="wp-search" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="results">
+        <div class="wp-search-box">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.9"/>
+            <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+          </svg>
+          <input id="q" type="search" autocomplete="off" spellcheck="false"
+                 placeholder="Search an index, stock, metal or coin" aria-label="Search">
+          <kbd>/</kbd>
+        </div>
+        <div class="wp-results" id="results" role="listbox" hidden></div>
+      </div>
+      <div class="wp-top-right">
+        <!-- The notice shortens on a narrow screen but never disappears: that
+             the price is simulated is not a detail you can hide. -->
+        <div class="wp-sim" title="The prices in this application come from a simulator. They do not describe the real market.">
+          <span class="wp-sim-dot"></span>
+          <span class="wp-sim-long">Paper market · simulated prices</span>
+          <span class="wp-sim-short">Simulated</span>
+        </div>
+        <span class="wp-clock num" id="clock"></span>
+      </div>
+    </header>
+
+    <main class="wp-view" id="view"></main>
+
+    <footer class="wp-foot">
+      <span>Warp is a paper market. Its prices come from a simulator and do not describe the real market. None of this is investment advice.</span>
+      <span id="stamp"></span>
+    </footer>
+  </div>
+</div>
+<script>
+const __mods = Object.create(null);
+function __def(id, fn) { __mods[id] = { fn, exports: null }; }
+function __req(id) {
+  const m = __mods[id];
+  if (!m) throw new Error('module not bundled: ' + id);
+  if (!m.exports) { m.exports = {}; m.fn(m.exports, __req); }
+  return m.exports;
+}
+
+__def("js/format.js", function (exports, __req) {
+/* Formatting. One sentinel for "no data", so that in no screen can it be
+   confused with a zero. */
+
+const NA = Symbol('no data');
+const isNA = (v) => v === NA || v === null || v === undefined
+  || (typeof v === 'number' && !Number.isFinite(v));
+const NA_TEXT = 'No data';
+
+const nf = (min, max) => new Intl.NumberFormat('en-US', { minimumFractionDigits: min, maximumFractionDigits: max });
+
+function num(v, d = 2) {
+  if (isNA(v)) return NA_TEXT;
+  return nf(d, d).format(v);
+}
+/** Decimals by magnitude: an index at 104.32 and a coin at 0.0842 need
+ *  different precision to say the same thing. */
+function auto(v) {
+  if (isNA(v)) return NA_TEXT;
+  const a = Math.abs(v);
+  // An exact zero is written short: "0.000000" reads as precision that isn't
+  // there, not as a zero.
+  const d = a === 0 ? 2 : a >= 1 ? 2 : a >= 0.01 ? 4 : 6;
+  return nf(d, d).format(v);
+}
+function usdg(v, { sign = false } = {}) {
+  if (isNA(v)) return NA_TEXT;
+  const s = auto(Math.abs(v));
+  const mark = v < 0 ? '-' : sign && v > 0 ? '+' : '';
+  return `${mark}${s} USDG`;
+}
+function compact(v) {
+  if (isNA(v)) return NA_TEXT;
+  const a = Math.abs(v);
+  const unit = (n, u) => `${nf(a / n >= 100 ? 0 : 1, a / n >= 100 ? 0 : 1).format(v / n)}${u}`;
+  if (a >= 1e9) return unit(1e9, 'B');
+  if (a >= 1e6) return unit(1e6, 'M');
+  if (a >= 1e3) return unit(1e3, 'K');
+  return nf(0, 0).format(v);
+}
+function pct(v, { sign = true, d = 2 } = {}) {
+  if (isNA(v)) return NA_TEXT;
+  return `${sign && v > 0 ? '+' : ''}${nf(d, d).format(v)}%`;
+}
+function lev(v) { return isNA(v) ? NA_TEXT : `${nf(0, 2).format(v)}x`; }
+
+function ago(ts) {
+  if (!ts) return NA_TEXT;
+  const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  if (s < 60) return 'just now';
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h} h ago`;
+  const d = Math.round(h / 24);
+  return `${d} ${d === 1 ? 'day' : 'days'} ago`;
+}
+function dateTime(ts) {
+  if (!ts) return NA_TEXT;
+  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(ts));
+}
+function clock(ts = Date.now()) {
+  return new Intl.DateTimeFormat('en-US', { timeStyle: 'medium', hour12: false }).format(new Date(ts));
+}
+const dir = (v) => isNA(v) || v === 0 ? 'flat' : v > 0 ? 'up' : 'down';
+
+Object.assign(exports, { NA, isNA, NA_TEXT, num, auto, usdg, compact, pct, lev, ago, dateTime, clock, dir });
+});
+
+__def("js/config.js", function (exports, __req) {
+/* Runtime configuration, and the market's parameters in one place so the
+   interface and the engine cannot disagree about the rules. */
+
+const VENUE = {
+  name: 'Warp',
+  tagline: 'Index perpetuals',
+  settle: 'USDG',
+  /** A basket is fixed-weight and holds three to five legs: fewer is not an
+   *  index, and more dilutes each weight until the basket says nothing. */
+  minLegs: 3,
+  maxLegs: 5,
+  maxLeverage: 5,
+  /** Fee on opening and on closing, charged on notional. */
+  takerFee: 0.0005,
+  /** Of the total fees a position pays, this share goes to the index's
+   *  creator. The protocol keeps the rest. */
+  creatorShare: 0.30,
+  /** Maintenance margin: below this a position is liquidated. */
+  maintenanceMargin: 0.005,
+  /** Reference funding per 8 h, scaled by the imbalance between longs and
+   *  shorts. */
+  fundingBase: 0.0001,
+  fundingCap: 0.00075,
+  /** Paper balance a new account starts with. */
+  openingBalance: 10000,
+  minMargin: 10,
+  /** An index starts at base 100 the day it lists, so its chart measures
+   *  exactly what the basket has done since then. */
+  indexBase: 100,
+};
+
+/* Official logos are resolved from each entity's own domain at runtime. No copy
+   is kept in the repository, so a logo cannot go stale or diverge between
+   screens. */
+const KEY = 'warp.config';
+const DEFAULTS = {
+  logoTemplate: 'https://img.logo.dev/{domain}?token={logoToken}&size=128&format=png&retries=0',
+  logoToken: '',
+  /* Fallback resolvers, in order. None needs a key, so the app shows real logos
+     with nothing configured; the paid one only improves coverage and resolution
+     when a token is present. */
+  logoFallbacks: [
+    'https://icons.duckduckgo.com/ip3/{domain}.ico',
+    'https://www.google.com/s2/favicons?domain={domain}&sz=128',
+  ],
+  /** Seed for the price simulator. Fixing it makes the market reproducible
+   *  across reloads and across tabs. */
+  seed: 20260910,
+};
+
+/* Read from the host if there is one and from the browser if there is one: the
+   modules do not assume a browser exists, so the logic can run and be tested
+   outside of one. */
+const host = () => (typeof window === 'undefined' ? null : window.WARP_CONFIG);
+function read() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { saved = {}; }
+  return { ...DEFAULTS, ...(host() || {}), ...saved };
+}
+const config = read();
+function saveConfig(patch) {
+  const next = { ...read(), ...patch };
+  try { localStorage.setItem(KEY, JSON.stringify(next)); } catch {}
+  Object.assign(config, next);
+  return config;
+}
+
+Object.assign(exports, { VENUE, config, saveConfig });
+});
+
+__def("js/registry.js", function (exports, __req) {
+/* The identity layer.
+   One row per asset, and it is the only place identity is defined: symbol,
+   name, class, brand colour and the official domain the logo is resolved from.
+   Every screen reads from here, so an asset cannot end up with two different
+   logos or two different names in two different places.
+
+   There is no market data here. A price never lives in this file: the feed
+   produces it at runtime.
+
+   The rules of the visual identity, and none of them is skipped:
+   - `domain` is the entity's official site. Its logo is resolved from there at
+     runtime, never drawn, never approximated, and never copied into the repo.
+   - `color` is the entity's real brand colour, the one it uses itself.
+   - A metal has no company logo because it is not a company. Its mark is its
+     official chemical symbol in the real colour of the metal, and `venue` names
+     the market that prices it, which does have a logo of its own. */
+
+const CLASSES = {
+  stock:  { id:'stock',  label:'Stock',  plural:'Stocks' },
+  metal:  { id:'metal',  label:'Metal',  plural:'Metals' },
+  crypto: { id:'crypto', label:'Crypto', plural:'Crypto' },
+  etf:    { id:'etf',    label:'ETF',    plural:'ETFs' },
+};
+
+const ASSETS = [
+  // ---------- Stocks: technology and semiconductors ----------
+  { id:'NVDA', symbol:'NVDA', name:'NVIDIA Corporation', short:'NVIDIA', class:'stock', domain:'nvidia.com', color:'#76B900', venue:'NASDAQ', sector:'Semiconductors', aliases:['nvidia','gpu','graphics'] },
+  { id:'AAPL', symbol:'AAPL', name:'Apple Inc.', short:'Apple', class:'stock', domain:'apple.com', color:'#1D1D1F', venue:'NASDAQ', sector:'Consumer electronics', aliases:['apple','iphone','mac'] },
+  { id:'MSFT', symbol:'MSFT', name:'Microsoft Corporation', short:'Microsoft', class:'stock', domain:'microsoft.com', color:'#00A4EF', venue:'NASDAQ', sector:'Software', aliases:['microsoft','windows','azure','copilot'] },
+  { id:'GOOGL', symbol:'GOOGL', name:'Alphabet Inc.', short:'Alphabet', class:'stock', domain:'abc.xyz', color:'#4285F4', venue:'NASDAQ', sector:'Internet', aliases:['alphabet','google','goog','youtube'] },
+  { id:'AMZN', symbol:'AMZN', name:'Amazon.com, Inc.', short:'Amazon', class:'stock', domain:'amazon.com', color:'#FF9900', venue:'NASDAQ', sector:'E-commerce', aliases:['amazon','aws'] },
+  { id:'META', symbol:'META', name:'Meta Platforms, Inc.', short:'Meta', class:'stock', domain:'meta.com', color:'#0064E0', venue:'NASDAQ', sector:'Social networks', aliases:['meta','facebook','instagram','whatsapp'] },
+  { id:'TSLA', symbol:'TSLA', name:'Tesla, Inc.', short:'Tesla', class:'stock', domain:'tesla.com', color:'#E82127', venue:'NASDAQ', sector:'Automotive', aliases:['tesla','musk'] },
+  { id:'AMD', symbol:'AMD', name:'Advanced Micro Devices, Inc.', short:'AMD', class:'stock', domain:'amd.com', color:'#ED1C24', venue:'NASDAQ', sector:'Semiconductors', aliases:['amd','ryzen','radeon'] },
+  { id:'INTC', symbol:'INTC', name:'Intel Corporation', short:'Intel', class:'stock', domain:'intel.com', color:'#0068B5', venue:'NASDAQ', sector:'Semiconductors', aliases:['intel'] },
+  { id:'AVGO', symbol:'AVGO', name:'Broadcom Inc.', short:'Broadcom', class:'stock', domain:'broadcom.com', color:'#CC092F', venue:'NASDAQ', sector:'Semiconductors', aliases:['broadcom'] },
+  { id:'TSM', symbol:'TSM', name:'Taiwan Semiconductor Manufacturing Company', short:'TSMC', class:'stock', domain:'tsmc.com', color:'#C8102E', venue:'NYSE', sector:'Semiconductors', aliases:['tsmc','taiwan semiconductor'] },
+  { id:'ASML', symbol:'ASML', name:'ASML Holding N.V.', short:'ASML', class:'stock', domain:'asml.com', color:'#0B5FA5', venue:'NASDAQ', sector:'Semiconductor equipment', aliases:['asml','lithography'] },
+  { id:'ORCL', symbol:'ORCL', name:'Oracle Corporation', short:'Oracle', class:'stock', domain:'oracle.com', color:'#C74634', venue:'NYSE', sector:'Software', aliases:['oracle'] },
+  { id:'CRM', symbol:'CRM', name:'Salesforce, Inc.', short:'Salesforce', class:'stock', domain:'salesforce.com', color:'#00A1E0', venue:'NYSE', sector:'Software', aliases:['salesforce'] },
+  { id:'ADBE', symbol:'ADBE', name:'Adobe Inc.', short:'Adobe', class:'stock', domain:'adobe.com', color:'#EB1000', venue:'NASDAQ', sector:'Software', aliases:['adobe','photoshop'] },
+  { id:'PLTR', symbol:'PLTR', name:'Palantir Technologies Inc.', short:'Palantir', class:'stock', domain:'palantir.com', color:'#0F1114', venue:'NASDAQ', sector:'Software', aliases:['palantir'] },
+  { id:'NFLX', symbol:'NFLX', name:'Netflix, Inc.', short:'Netflix', class:'stock', domain:'netflix.com', color:'#E50914', venue:'NASDAQ', sector:'Streaming', aliases:['netflix'] },
+  { id:'SPOT', symbol:'SPOT', name:'Spotify Technology S.A.', short:'Spotify', class:'stock', domain:'spotify.com', color:'#1DB954', venue:'NYSE', sector:'Streaming', aliases:['spotify'] },
+  { id:'UBER', symbol:'UBER', name:'Uber Technologies, Inc.', short:'Uber', class:'stock', domain:'uber.com', color:'#0C0C0C', venue:'NYSE', sector:'Mobility', aliases:['uber'] },
+  { id:'ABNB', symbol:'ABNB', name:'Airbnb, Inc.', short:'Airbnb', class:'stock', domain:'airbnb.com', color:'#FF5A5F', venue:'NASDAQ', sector:'Travel', aliases:['airbnb'] },
+  { id:'SHOP', symbol:'SHOP', name:'Shopify Inc.', short:'Shopify', class:'stock', domain:'shopify.com', color:'#95BF47', venue:'NASDAQ', sector:'E-commerce', aliases:['shopify'] },
+
+  // ---------- Stocks: consumer, health, industry ----------
+  { id:'DIS', symbol:'DIS', name:'The Walt Disney Company', short:'Disney', class:'stock', domain:'disney.com', color:'#113CCF', venue:'NYSE', sector:'Entertainment', aliases:['disney','pixar','marvel'] },
+  { id:'KO', symbol:'KO', name:'The Coca-Cola Company', short:'Coca-Cola', class:'stock', domain:'coca-colacompany.com', color:'#F40009', venue:'NYSE', sector:'Beverages', aliases:['coca cola','cocacola','coke'] },
+  { id:'PEP', symbol:'PEP', name:'PepsiCo, Inc.', short:'PepsiCo', class:'stock', domain:'pepsico.com', color:'#004B93', venue:'NASDAQ', sector:'Beverages', aliases:['pepsi','pepsico'] },
+  { id:'MCD', symbol:'MCD', name:"McDonald's Corporation", short:"McDonald's", class:'stock', domain:'mcdonalds.com', color:'#FFC72C', venue:'NYSE', sector:'Restaurants', aliases:['mcdonalds','mcdonald','burgers'] },
+  { id:'SBUX', symbol:'SBUX', name:'Starbucks Corporation', short:'Starbucks', class:'stock', domain:'starbucks.com', color:'#00704A', venue:'NASDAQ', sector:'Restaurants', aliases:['starbucks'] },
+  { id:'NKE', symbol:'NKE', name:'NIKE, Inc.', short:'Nike', class:'stock', domain:'nike.com', color:'#111111', venue:'NYSE', sector:'Apparel', aliases:['nike'] },
+  { id:'WMT', symbol:'WMT', name:'Walmart Inc.', short:'Walmart', class:'stock', domain:'walmart.com', color:'#0071CE', venue:'NYSE', sector:'Retail', aliases:['walmart'] },
+  { id:'LLY', symbol:'LLY', name:'Eli Lilly and Company', short:'Eli Lilly', class:'stock', domain:'lilly.com', color:'#E1261C', venue:'NYSE', sector:'Pharmaceuticals', aliases:['eli lilly','lilly'] },
+  { id:'JNJ', symbol:'JNJ', name:'Johnson & Johnson', short:'Johnson & Johnson', class:'stock', domain:'jnj.com', color:'#EB1700', venue:'NYSE', sector:'Pharmaceuticals', aliases:['johnson','jnj'] },
+  { id:'BA', symbol:'BA', name:'The Boeing Company', short:'Boeing', class:'stock', domain:'boeing.com', color:'#0039A6', venue:'NYSE', sector:'Aerospace', aliases:['boeing'] },
+  { id:'CAT', symbol:'CAT', name:'Caterpillar Inc.', short:'Caterpillar', class:'stock', domain:'caterpillar.com', color:'#FFCD11', venue:'NYSE', sector:'Machinery', aliases:['caterpillar','cat'] },
+
+  // ---------- Stocks: finance and energy ----------
+  { id:'V', symbol:'V', name:'Visa Inc.', short:'Visa', class:'stock', domain:'visa.com', color:'#1A1F71', venue:'NYSE', sector:'Payments', aliases:['visa'] },
+  { id:'MA', symbol:'MA', name:'Mastercard Incorporated', short:'Mastercard', class:'stock', domain:'mastercard.com', color:'#EB001B', venue:'NYSE', sector:'Payments', aliases:['mastercard'] },
+  { id:'JPM', symbol:'JPM', name:'JPMorgan Chase & Co.', short:'JPMorgan', class:'stock', domain:'jpmorganchase.com', color:'#005EB8', venue:'NYSE', sector:'Banking', aliases:['jpmorgan','jp morgan','chase'] },
+  { id:'GS', symbol:'GS', name:'The Goldman Sachs Group, Inc.', short:'Goldman Sachs', class:'stock', domain:'goldmansachs.com', color:'#6BA4D8', venue:'NYSE', sector:'Investment banking', aliases:['goldman','goldman sachs'] },
+  { id:'COIN', symbol:'COIN', name:'Coinbase Global, Inc.', short:'Coinbase', class:'stock', domain:'coinbase.com', color:'#0052FF', venue:'NASDAQ', sector:'Crypto exchange', aliases:['coinbase'] },
+  { id:'HOOD', symbol:'HOOD', name:'Robinhood Markets, Inc.', short:'Robinhood', class:'stock', domain:'robinhood.com', color:'#00C805', venue:'NASDAQ', sector:'Brokerage', aliases:['robinhood','hood'] },
+  { id:'MSTR', symbol:'MSTR', name:'Strategy Inc.', short:'Strategy', class:'stock', domain:'strategy.com', color:'#F5811F', venue:'NASDAQ', sector:'Bitcoin treasury', aliases:['microstrategy','strategy','saylor'] },
+  { id:'XOM', symbol:'XOM', name:'Exxon Mobil Corporation', short:'ExxonMobil', class:'stock', domain:'exxonmobil.com', color:'#D62B1F', venue:'NYSE', sector:'Oil and gas', aliases:['exxon','exxonmobil'] },
+
+  // ---------- Stocks: Europe ----------
+  { id:'SAN', symbol:'SAN', name:'Banco Santander, S.A.', short:'Santander', class:'stock', domain:'santander.com', color:'#EC0000', venue:'BME', sector:'Banking', aliases:['santander'] },
+  { id:'BBVA', symbol:'BBVA', name:'Banco Bilbao Vizcaya Argentaria, S.A.', short:'BBVA', class:'stock', domain:'bbva.com', color:'#1464A5', venue:'BME', sector:'Banking', aliases:['bbva'] },
+  { id:'ITX', symbol:'ITX', name:'Industria de Diseno Textil, S.A. (Inditex)', short:'Inditex', class:'stock', domain:'inditex.com', color:'#1C1C1C', venue:'BME', sector:'Apparel', aliases:['inditex','zara'] },
+  { id:'IBE', symbol:'IBE', name:'Iberdrola, S.A.', short:'Iberdrola', class:'stock', domain:'iberdrola.com', color:'#8CC63E', venue:'BME', sector:'Utilities', aliases:['iberdrola'] },
+  { id:'MC', symbol:'MC', name:'LVMH Moet Hennessy Louis Vuitton SE', short:'LVMH', class:'stock', domain:'lvmh.com', color:'#3A3226', venue:'Euronext Paris', sector:'Luxury', aliases:['lvmh','louis vuitton','vuitton'] },
+  { id:'SAP', symbol:'SAP', name:'SAP SE', short:'SAP', class:'stock', domain:'sap.com', color:'#0AA8E1', venue:'XETRA', sector:'Software', aliases:['sap'] },
+  { id:'NOVO', symbol:'NOVO', name:'Novo Nordisk A/S', short:'Novo Nordisk', class:'stock', domain:'novonordisk.com', color:'#001965', venue:'Nasdaq Copenhague', sector:'Pharmaceuticals', aliases:['novo nordisk','novo','ozempic'] },
+  { id:'FER', symbol:'FER', name:'Ferrari N.V.', short:'Ferrari', class:'stock', domain:'ferrari.com', color:'#FF2800', venue:'Borsa Italiana', sector:'Automotive', aliases:['ferrari','race'] },
+
+  // ---------- Metals ----------
+  // No company logo, because these are not companies. The mark is the official
+  // chemical symbol in the real colour of the metal, and `venue` is the market
+  // that sets the price.
+  { id:'XAU', symbol:'XAU', element:'Au', name:'Gold', short:'Gold', class:'metal', color:'#D4AF37', venue:'LBMA', venueDomain:'lbma.org.uk', unit:'troy ounce', sector:'Precious metal', aliases:['gold','xau','au','bullion'] },
+  { id:'XAG', symbol:'XAG', element:'Ag', name:'Silver', short:'Silver', class:'metal', color:'#A7ADB5', venue:'LBMA', venueDomain:'lbma.org.uk', unit:'troy ounce', sector:'Precious metal', aliases:['silver','xag','ag'] },
+  { id:'XPT', symbol:'XPT', element:'Pt', name:'Platinum', short:'Platinum', class:'metal', color:'#7F94A0', venue:'LPPM', venueDomain:'lppm.com', unit:'troy ounce', sector:'Precious metal', aliases:['platinum','xpt','pt'] },
+  { id:'XPD', symbol:'XPD', element:'Pd', name:'Palladium', short:'Palladium', class:'metal', color:'#63727C', venue:'LPPM', venueDomain:'lppm.com', unit:'troy ounce', sector:'Precious metal', aliases:['palladium','xpd','pd'] },
+  { id:'XCU', symbol:'XCU', element:'Cu', name:'Copper', short:'Copper', class:'metal', color:'#B87333', venue:'LME', venueDomain:'lme.com', unit:'tonne', sector:'Industrial metal', aliases:['copper','xcu','cu'] },
+  { id:'XAL', symbol:'XAL', element:'Al', name:'Aluminium', short:'Aluminium', class:'metal', color:'#8E9AA3', venue:'LME', venueDomain:'lme.com', unit:'tonne', sector:'Industrial metal', aliases:['aluminium','aluminum','xal','al'] },
+  { id:'XNI', symbol:'XNI', element:'Ni', name:'Nickel', short:'Nickel', class:'metal', color:'#6E7B6B', venue:'LME', venueDomain:'lme.com', unit:'tonne', sector:'Industrial metal', aliases:['nickel','xni','ni'] },
+  { id:'XZN', symbol:'XZN', element:'Zn', name:'Zinc', short:'Zinc', class:'metal', color:'#5F6B72', venue:'LME', venueDomain:'lme.com', unit:'tonne', sector:'Industrial metal', aliases:['zinc','xzn','zn'] },
+  { id:'XSN', symbol:'XSN', element:'Sn', name:'Tin', short:'Tin', class:'metal', color:'#8A8D91', venue:'LME', venueDomain:'lme.com', unit:'tonne', sector:'Industrial metal', aliases:['tin','xsn','sn'] },
+  { id:'XPB', symbol:'XPB', element:'Pb', name:'Lead', short:'Lead', class:'metal', color:'#4E5459', venue:'LME', venueDomain:'lme.com', unit:'tonne', sector:'Industrial metal', aliases:['lead','xpb','pb'] },
+  { id:'XLI', symbol:'XLI', element:'Li', name:'Lithium', short:'Lithium', class:'metal', color:'#C9CDD2', venue:'LME', venueDomain:'lme.com', unit:'tonne', sector:'Battery metal', aliases:['lithium','xli','li'] },
+  { id:'XCO', symbol:'XCO', element:'Co', name:'Cobalt', short:'Cobalt', class:'metal', color:'#3D6EA5', venue:'LME', venueDomain:'lme.com', unit:'tonne', sector:'Battery metal', aliases:['cobalt','xco','co'] },
+
+  // ---------- Crypto ----------
+  { id:'BTC', symbol:'BTC', name:'Bitcoin', short:'Bitcoin', class:'crypto', domain:'bitcoin.org', color:'#F7931A', venue:'Cripto', sector:'Currency', aliases:['bitcoin','btc'] },
+  { id:'ETH', symbol:'ETH', name:'Ethereum', short:'Ethereum', class:'crypto', domain:'ethereum.org', color:'#627EEA', venue:'Cripto', sector:'Smart contracts', aliases:['ethereum','eth','ether'] },
+  { id:'SOL', symbol:'SOL', name:'Solana', short:'Solana', class:'crypto', domain:'solana.com', color:'#14B892', venue:'Cripto', sector:'Smart contracts', aliases:['solana','sol'] },
+  { id:'XRP', symbol:'XRP', name:'XRP', short:'XRP', class:'crypto', domain:'ripple.com', color:'#23292F', venue:'Cripto', sector:'Payments', aliases:['xrp','ripple'] },
+  { id:'DOGE', symbol:'DOGE', name:'Dogecoin', short:'Dogecoin', class:'crypto', domain:'dogecoin.com', color:'#C2A633', venue:'Cripto', sector:'Currency', aliases:['dogecoin','doge'] },
+  { id:'AVAX', symbol:'AVAX', name:'Avalanche', short:'Avalanche', class:'crypto', domain:'avax.network', color:'#E84142', venue:'Cripto', sector:'Smart contracts', aliases:['avalanche','avax'] },
+  { id:'LINK', symbol:'LINK', name:'Chainlink', short:'Chainlink', class:'crypto', domain:'chain.link', color:'#2A5ADA', venue:'Cripto', sector:'Oracles', aliases:['chainlink','link'] },
+  { id:'ADA', symbol:'ADA', name:'Cardano', short:'Cardano', class:'crypto', domain:'cardano.org', color:'#0033AD', venue:'Cripto', sector:'Smart contracts', aliases:['cardano','ada'] },
+
+  // ---------- ETFs ----------
+  { id:'SPY', symbol:'SPY', name:'SPDR S&P 500 ETF Trust', short:'SPY', class:'etf', domain:'ssga.com', color:'#0074C8', venue:'NYSE Arca', sector:'US equity', aliases:['spy','sp500','s&p 500'] },
+  { id:'QQQ', symbol:'QQQ', name:'Invesco QQQ Trust', short:'QQQ', class:'etf', domain:'invesco.com', color:'#003C71', venue:'NASDAQ', sector:'US equity', aliases:['qqq','nasdaq 100'] },
+  { id:'VOO', symbol:'VOO', name:'Vanguard S&P 500 ETF', short:'VOO', class:'etf', domain:'vanguard.com', color:'#96151D', venue:'NYSE Arca', sector:'US equity', aliases:['voo','vanguard'] },
+  { id:'GLD', symbol:'GLD', name:'SPDR Gold Shares', short:'GLD', class:'etf', domain:'ssga.com', color:'#C9A227', venue:'NYSE Arca', sector:'Physical gold', aliases:['gld','gold etf'] },
+  { id:'SLV', symbol:'SLV', name:'iShares Silver Trust', short:'SLV', class:'etf', domain:'ishares.com', color:'#9AA1A8', venue:'NYSE Arca', sector:'Physical silver', aliases:['slv','silver etf'] },
+
+  // ---------- Settlement unit ----------
+  { id:'USDG', symbol:'USDG', name:'Global Dollar', short:'USDG', class:'settle', domain:'paxos.com', color:'#2159F5', venue:'Stablecoin', sector:'Settlement', aliases:['usdg','global dollar','dollar'] },
+];
+
+const BY_ID = new Map(ASSETS.map(a => [a.id.toUpperCase(), a]));
+
+function getAsset(id) {
+  if (!id) return null;
+  return BY_ID.get(String(id).toUpperCase()) || null;
+}
+/** Everything that can be a leg of an index. USDG cannot: it is the unit the
+ *  market settles in, not a leg of a basket. */
+function tradableAssets() { return ASSETS.filter(a => a.class !== 'settle'); }
+function byClass(cls) { return ASSETS.filter(a => a.class === cls); }
+const USDG = getAsset('USDG');
+
+Object.assign(exports, { CLASSES, ASSETS, getAsset, tradableAssets, byClass, USDG });
+});
+
+__def("js/logos.js", function (exports, __req) {
+/* The mark system.
+   Rule: always the entity's real mark, never one drawn, generated or
+   approximated.
+
+   A company, an ETF or a coin has a logo of its own: it is resolved at runtime
+   from the official domain the registry declares, with fallback resolvers
+   behind it. Nothing is copied into the repository.
+
+   A metal has no logo because it is not a company. Its mark is its official
+   chemical symbol, written in the real colour of the metal. That is not a
+   drawing: it is the notation the industry itself uses.
+
+   If no resolver answers, what is left is the entity's monogram in its brand
+   colour. Never another entity's logo, never an emoji.
+
+   Every screen builds a mark by calling markEl(), and only that function. That
+   is why an asset cannot show one mark in the search box and another in a
+   basket. */
+
+const { config } = __req("js/config.js");
+
+const failed = new Set();
+
+function fill(template, domain) {
+  return template
+    .replace('{domain}', encodeURIComponent(domain))
+    .replace('{logoToken}', encodeURIComponent(config.logoToken || ''));
+}
+
+function logoSources(domain) {
+  if (!domain) return [];
+  const out = [];
+  if (config.logoTemplate && (config.logoToken || !config.logoTemplate.includes('{logoToken}'))) {
+    out.push(fill(config.logoTemplate, domain));
+  }
+  for (const tpl of config.logoFallbacks || []) out.push(fill(tpl, domain));
+  return out.filter(u => !failed.has(u));
+}
+
+function rgba(hex, a) {
+  const m = String(hex || '#888').replace('#', '');
+  const n = m.length === 3 ? m.split('').map(c => c + c).join('') : m;
+  const r = parseInt(n.slice(0, 2), 16), g = parseInt(n.slice(2, 4), 16), b = parseInt(n.slice(4, 6), 16);
+  if ([r, g, b].some(Number.isNaN)) return `rgba(136,136,136,${a})`;
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/** Relative luminance, to pick legible ink over a brand colour instead of
+ *  assuming white always works. */
+function luminance(hex) {
+  const m = String(hex || '#888').replace('#', '');
+  const n = m.length === 3 ? m.split('').map(c => c + c).join('') : m;
+  const ch = [0, 2, 4].map(i => {
+    const v = (parseInt(n.slice(i, i + 2), 16) || 0) / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+}
+const inkOn = (hex) => (luminance(hex) > 0.55 ? '#111418' : '#FFFFFF');
+
+function monogram(asset) {
+  const words = String(asset?.short || asset?.name || '?').replace(/[^\p{L}\p{N} ]/gu, ' ').trim().split(/\s+/);
+  return ((words[0]?.[0] || '') + (words[1]?.[0] || '')).toUpperCase() || '?';
+}
+
+/** The asset's mark. Returns an element ready to insert.
+
+    The monogram paints on the first frame and the logo loads over it: the slot
+    is never blank while the network answers, and if it never answers what is
+    left is already in place. */
+function markEl(asset, size = 36) {
+  const el = document.createElement('span');
+  el.className = 'wp-mark';
+  el.style.width = el.style.height = size + 'px';
+  el.style.setProperty('--brand', asset?.color || '#8A94A6');
+  el.title = asset?.name || '';
+
+  // A metal carries its chemical symbol in its own colour, which is its real notation.
+  if (asset?.class === 'metal') {
+    el.classList.add('is-element');
+    el.style.background = asset.color;
+    el.style.color = inkOn(asset.color);
+    el.style.fontSize = Math.round(size * 0.42) + 'px';
+    el.append(Object.assign(document.createElement('span'), {
+      className: 'wp-mark-txt', textContent: asset.element || asset.symbol,
+    }));
+    return el;
+  }
+
+  el.classList.add('is-monogram');
+  el.style.background = rgba(asset?.color, 0.12);
+  el.style.color = asset?.color || '#5A6473';
+  el.style.fontSize = Math.round(size * 0.36) + 'px';
+  const label = Object.assign(document.createElement('span'), {
+    className: 'wp-mark-txt', textContent: monogram(asset),
+  });
+  el.append(label);
+
+  const sources = logoSources(asset?.domain);
+  if (!sources.length) return el;
+
+  const img = document.createElement('img');
+  img.className = 'wp-mark-img';
+  img.alt = `${asset?.name || ''} logo`;
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.hidden = true;
+  let i = 0;
+  const tryNext = () => {
+    if (i >= sources.length) { img.remove(); return; }   // the monogram stays
+    img.src = sources[i++];
+  };
+  img.addEventListener('load', () => {
+    // A one-pixel icon is not a logo: it is discarded as though it had failed.
+    if (img.naturalWidth < 8) { failed.add(img.src); return tryNext(); }
+    img.hidden = false;
+    el.classList.remove('is-monogram');
+    el.style.background = '#fff';
+    label.hidden = true;
+  });
+  img.addEventListener('error', () => { failed.add(img.src); tryNext(); });
+  el.append(img);
+  tryNext();
+  return el;
+}
+
+/** Overlapping stack of marks: how a basket reads at a glance. */
+function markStack(assets, size = 28) {
+  const el = document.createElement('span');
+  el.className = 'wp-stack';
+  (assets || []).forEach((a, i) => {
+    const m = markEl(a, size);
+    m.style.zIndex = String(20 - i);
+    m.style.marginLeft = i ? `-${Math.round(size * 0.24)}px` : '0';
+    el.appendChild(m);
+  });
+  return el;
+}
+
+Object.assign(exports, { logoSources, rgba, luminance, inkOn, markEl, markStack });
+});
+
+__def("js/market.js", function (exports, __req) {
+/* The price feed.
+
+   NOTICE, AND IT GOVERNS THE WHOLE PROJECT: there is no real market data here.
+   Warp is a paper market and this simulator produces its prices. The reference
+   levels below are orders of magnitude picked so the interface reads, not
+   quotes. No number in this application describes the real market, and the
+   interface says so in the header and the footer of every screen instead of
+   leaving it in the small print.
+
+   How it works: an asset's price at an instant is a sum of waves of different
+   scales, with phase and amplitude seeded from the symbol. That gives three
+   properties a random walk does not:
+   - it is reproducible: the same seed gives the same market on every reload and
+     in every tab, so a position opened yesterday still makes sense today;
+   - it is continuous: there are no jumps between reloads;
+   - it can be evaluated at any instant in constant time, so a chart's history
+     does not have to be stored: it is computed.
+
+   To plug in a real provider later, there is `setFeed()` at the end: the
+   application only knows that interface, not this simulator. */
+
+const { config } = __req("js/config.js");
+const { getAsset } = __req("js/registry.js");
+
+/* The simulator's reference levels. These are not quotes. */
+const REF = {
+  NVDA:180, AAPL:240, MSFT:500, GOOGL:240, AMZN:230, META:720, TSLA:400, AMD:165,
+  INTC:35, AVGO:350, TSM:260, ASML:900, ORCL:240, CRM:260, ADBE:380, PLTR:160,
+  NFLX:1200, SPOT:680, UBER:90, ABNB:130, SHOP:150, DIS:115, KO:70, PEP:145,
+  MCD:300, SBUX:95, NKE:75, WMT:100, LLY:800, JNJ:175, BA:210, CAT:400, V:340,
+  MA:570, JPM:290, GS:700, COIN:320, HOOD:110, MSTR:320, XOM:115,
+  SAN:8, BBVA:15, ITX:48, IBE:15, MC:620, SAP:250, NOVO:60, FER:450,
+  XAU:3400, XAG:40, XPT:1400, XPD:1200, XCU:9800, XAL:2600, XNI:15500,
+  XZN:2900, XSN:33000, XPB:2000, XLI:11000, XCO:33000,
+  BTC:95000, ETH:3300, SOL:180, XRP:2.4, DOGE:0.18, AVAX:28, LINK:20, ADA:0.7,
+  SPY:640, QQQ:570, VOO:590, GLD:310, SLV:36,
+  USDG:1,
+};
+
+/* How much each class moves, relative to a stock. */
+const VOL = { stock:1, etf:0.55, metal:0.85, crypto:2.2, settle:0 };
+
+const MIN = 60e3, HOUR = 3600e3, DAY = 24 * HOUR;
+/* Wave scales, from the background trend to the flicker of a tick. */
+const WAVES = [
+  { period: 34 * DAY, amp: 0.150 },
+  { period: 9 * DAY,  amp: 0.095 },
+  { period: 2.4 * DAY, amp: 0.062 },
+  { period: 7 * HOUR, amp: 0.032 },
+  { period: 43 * MIN, amp: 0.013 },
+  { period: 11 * MIN, amp: 0.0055 },
+  { period: 2.2 * MIN, amp: 0.0022 },
+];
+
+function hash32(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return h >>> 0;
+}
+function mulberry32(a) {
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const shapes = new Map();
+function shape(id) {
+  if (shapes.has(id)) return shapes.get(id);
+  const asset = getAsset(id);
+  const rnd = mulberry32(hash32(id + '|' + config.seed));
+  const vol = VOL[asset?.class] ?? 1;
+  const s = {
+    base: REF[id] ?? 100,
+    vol,
+    // Each wave gets its own phase and its amplitude is roughed up a little, so
+    // two assets of the same class do not move in lockstep.
+    waves: WAVES.map(w => ({
+      w: (2 * Math.PI) / w.period,
+      phase: rnd() * Math.PI * 2,
+      amp: w.amp * vol * (0.7 + rnd() * 0.6),
+    })),
+    // The asset's reference volume, also simulated.
+    volBase: (0.4 + rnd() * 3.2) * 1e6,
+  };
+  shapes.set(id, s);
+  return s;
+}
+
+/** The asset's price at an instant. Constant time and stateless. */
+function spot(id, t = Date.now()) {
+  const s = shape(id);
+  if (!s.vol) return s.base;                     // USDG does not move
+  let e = 0;
+  for (const w of s.waves) e += w.amp * Math.sin(w.w * t + w.phase);
+  return s.base * Math.exp(e);
+}
+
+/** The asset's percentage change over the last `hours` hours. */
+function changePct(id, hours = 24, t = Date.now()) {
+  const then = spot(id, t - hours * HOUR);
+  if (!then) return 0;
+  return ((spot(id, t) / then) - 1) * 100;
+}
+
+/** Time series for a chart. Not stored: evaluated. */
+function series(id, from, to, points = 180) {
+  const step = (to - from) / Math.max(points - 1, 1);
+  const out = [];
+  for (let i = 0; i < points; i++) {
+    const t = from + i * step;
+    out.push({ t, c: spot(id, t) });
+  }
+  return out;
+}
+
+/** The asset's simulated 24 h volume, in settlement units. */
+function volume24h(id, t = Date.now()) {
+  const s = shape(id);
+  if (!s.vol) return 0;
+  const heat = 1 + Math.abs(changePct(id, 24, t)) / 12;
+  const wobble = 0.75 + 0.5 * (0.5 + 0.5 * Math.sin(shape(id).waves[3].w * t + 1.7));
+  return s.base * s.volBase * heat * wobble / 1000;
+}
+
+/* -------- the basket --------
+   A fixed-weight index is worth, at base 100 from the day it listed:
+       V(t) = 100 * sum_i  w_i * P_i(t) / P_i(t0)
+   The P_i(t0) are the references frozen when the index lists, and they live in
+   the index itself. So its chart measures exactly what the basket has done
+   since it existed, and listing a new one does not rewrite anyone's history. */
+
+function basketValue(legs, refs, t = Date.now(), base = 100) {
+  let v = 0;
+  for (const leg of legs) {
+    const ref = refs?.[leg.id];
+    if (!ref) return null;                       // no reference, no index
+    v += (leg.weight / 100) * (spot(leg.id, t) / ref);
+  }
+  return base * v;
+}
+
+function basketSeries(legs, refs, from, to, points = 180, base = 100) {
+  const step = (to - from) / Math.max(points - 1, 1);
+  const out = [];
+  for (let i = 0; i < points; i++) {
+    const t = from + i * step;
+    const c = basketValue(legs, refs, t, base);
+    if (c !== null) out.push({ t, c });
+  }
+  return out;
+}
+
+function basketChangePct(legs, refs, hours = 24, t = Date.now()) {
+  const now = basketValue(legs, refs, t);
+  const then = basketValue(legs, refs, t - hours * HOUR);
+  if (now === null || then === null || !then) return null;
+  return ((now / then) - 1) * 100;
+}
+
+/** Snapshot of a basket's references at the moment it lists. */
+function snapshotRefs(legs, t = Date.now()) {
+  const refs = {};
+  for (const leg of legs) refs[leg.id] = spot(leg.id, t);
+  return refs;
+}
+
+/* -------- extension point --------
+   The application never calls the simulator directly: it calls these functions.
+   A real provider is plugged in by replacing them, and nothing else in the
+   application changes. While the feed is the simulator, `isSimulated` is true
+   and the interface announces it. */
+const feed = { spot, changePct, series, volume24h, isSimulated: true, label: 'Warp simulator' };
+function setFeed(next) { Object.assign(feed, next); }
+
+Object.assign(exports, { spot, changePct, series, volume24h, basketValue, basketSeries, basketChangePct, snapshotRefs, feed, setFeed });
+});
+
+__def("js/store.js", function (exports, __req) {
+/* The market's state: wallet, listed indices and positions.
+
+   This part is real data, within the limits of the application: what is here
+   happened because the user did it. The price is simulated, but an open
+   position, a fee charged or an index listed are facts, and that is why they
+   persist and can be audited.
+
+   One object, one storage key and one change event, so no screen can paint a
+   balance that no longer exists. */
+
+const { VENUE } = __req("js/config.js");
+const { snapshotRefs } = __req("js/market.js");
+
+const KEY = 'warp.state.v1';
+const DAY = 86400e3;
+
+/* Indices already listed when you arrive, so the market does not start empty.
+   The house demo account lists them: they are not invented people, and their
+   references were frozen on their listing date, which the simulator reproduces
+   the same way on every reload. */
+const HOUSE = [
+  { symbol:'MAG5', name:'Magnificent 5', note:'The five heaviest names in the US index.',
+    legs:[{id:'NVDA',weight:30},{id:'MSFT',weight:25},{id:'AAPL',weight:20},{id:'GOOGL',weight:15},{id:'AMZN',weight:10}], days:64 },
+  { symbol:'SILICON', name:'Silicon', note:'The semiconductor chain, from the GPU to the lithography.',
+    legs:[{id:'NVDA',weight:30},{id:'TSM',weight:25},{id:'AVGO',weight:20},{id:'AMD',weight:15},{id:'ASML',weight:10}], days:51 },
+  { symbol:'PRECIOUS', name:'Precious metals', note:'Gold and silver by weight, with platinum and palladium behind them.',
+    legs:[{id:'XAU',weight:45},{id:'XAG',weight:30},{id:'XPT',weight:15},{id:'XPD',weight:10}], days:73 },
+  { symbol:'BATTERY', name:'Battery metals', note:'Lithium, cobalt, copper and nickel: what weighs in a cell.',
+    legs:[{id:'XLI',weight:30},{id:'XCO',weight:25},{id:'XCU',weight:25},{id:'XNI',weight:20}], days:38 },
+  { symbol:'CRYPTOBETA', name:'Crypto beta', note:'Crypto and the listed companies that hold it on the balance sheet.',
+    legs:[{id:'BTC',weight:40},{id:'ETH',weight:25},{id:'COIN',weight:20},{id:'MSTR',weight:15}], days:45 },
+  { symbol:'LUXURY', name:'European luxury', note:'Three European houses that sell margin before they sell units.',
+    legs:[{id:'MC',weight:40},{id:'FER',weight:35},{id:'ITX',weight:25}], days:29 },
+  { symbol:'IBERIA', name:'Iberia', note:'The two banks and the utility that move the Spanish market.',
+    legs:[{id:'SAN',weight:35},{id:'BBVA',weight:35},{id:'IBE',weight:30}], days:22 },
+  { symbol:'CRAVING', name:'Consumer craving', note:'Brand, recipe and shop window: consumption that repeats.',
+    legs:[{id:'KO',weight:25},{id:'MCD',weight:25},{id:'PEP',weight:20},{id:'SBUX',weight:15},{id:'NKE',weight:15}], days:57 },
+  { symbol:'GOLDTWICE', name:'Gold two ways', note:'The metal by weight and the ETF that custodies it, in the same basket.',
+    legs:[{id:'XAU',weight:45},{id:'GLD',weight:35},{id:'SLV',weight:20}], days:33 },
+];
+
+function seedIndices() {
+  const now = Date.now();
+  return HOUSE.map((h, i) => {
+    const listedAt = now - h.days * DAY;
+    return {
+      id: 'ix_' + h.symbol.toLowerCase(),
+      symbol: h.symbol,
+      name: h.name,
+      note: h.note,
+      legs: h.legs,
+      refs: snapshotRefs(h.legs, listedAt),
+      creator: 'house',
+      listedAt,
+      feesAccrued: 0,
+      feesClaimed: 0,
+      order: i,
+    };
+  });
+}
+
+function fresh() {
+  return {
+    version: 1,
+    wallet: { balance: VENUE.openingBalance, openedAt: Date.now() },
+    indices: seedIndices(),
+    positions: [],
+    history: [],
+    seq: 1,
+  };
+}
+
+function load() {
+  let raw = null;
+  try { raw = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { raw = null; }
+  if (!raw || raw.version !== 1) return fresh();
+  // The house indices are restored if they are missing, without touching the
+  // user's own ones or any open position.
+  const mine = (raw.indices || []).filter(ix => ix.creator !== 'house');
+  const house = (raw.indices || []).filter(ix => ix.creator === 'house');
+  return { ...fresh(), ...raw, indices: [...(house.length ? house : seedIndices()), ...mine] };
+}
+
+const state = load();
+
+const listeners = new Set();
+function onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
+function commit() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+  listeners.forEach(fn => { try { fn(state); } catch {} });
+}
+function nextId(prefix) { return `${prefix}_${(state.seq++).toString(36)}${Date.now().toString(36).slice(-4)}`; }
+function resetAll() {
+  try { localStorage.removeItem(KEY); } catch {}
+  Object.assign(state, fresh());
+  commit();
+}
+
+const getIndex = (id) => state.indices.find(ix => ix.id === id) || null;
+const openPositions = (indexId) =>
+  state.positions.filter(p => !indexId || p.indexId === indexId);
+const myIndices = () => state.indices.filter(ix => ix.creator === 'me');
+
+Object.assign(exports, { state, onChange, commit, nextId, resetAll, getIndex, openPositions, myIndices });
+});
+
+__def("js/engine.js", function (exports, __req) {
+/* The market's engine: list an index, open and close positions, charge fees,
+   accrue funding and liquidate whatever runs out of margin.
+
+   The rules live in VENUE (config.js), not scattered across the interface, so
+   that what a trading panel says and what the engine does are the same rule.
+   Every function returns { ok, error } instead of throwing: a form needs to
+   explain why it cannot continue, not break. */
+
+const { VENUE } = __req("js/config.js");
+const { state, commit, nextId, getIndex, openPositions } = __req("js/store.js");
+const { basketValue, basketChangePct, snapshotRefs, volume24h } = __req("js/market.js");
+const { getAsset } = __req("js/registry.js");
+
+const HOUR = 3600e3;
+const round = (v, d = 6) => Math.round(v * 10 ** d) / 10 ** d;
+
+/* -------- listing an index -------- */
+
+function validateBasket({ symbol, name, legs }) {
+  const errors = [];
+  const sym = String(symbol || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{3,12}$/.test(sym)) errors.push('A symbol is 3 to 12 letters or digits, with no spaces.');
+  if (state.indices.some(ix => ix.symbol === sym)) errors.push(`There is already an index listed as ${sym}.`);
+  if (!String(name || '').trim()) errors.push('The index needs a name.');
+
+  const rows = (legs || []).filter(l => l && l.id);
+  if (rows.length < VENUE.minLegs) errors.push(`An index holds at least ${VENUE.minLegs} assets.`);
+  if (rows.length > VENUE.maxLegs) errors.push(`An index holds at most ${VENUE.maxLegs} assets.`);
+  if (new Set(rows.map(l => l.id)).size !== rows.length) errors.push('An asset appears twice in the basket.');
+  if (rows.some(l => !getAsset(l.id))) errors.push('An asset is not in the registry.');
+  if (rows.some(l => !(l.weight > 0))) errors.push('Every weight has to be greater than zero.');
+
+  const total = rows.reduce((s, l) => s + (Number(l.weight) || 0), 0);
+  if (rows.length && Math.abs(total - 100) > 0.01) {
+    errors.push(`The weights add up to ${total.toFixed(2)}% and have to add up to 100%.`);
+  }
+  return { ok: !errors.length, errors, total, symbol: sym };
+}
+
+function listIndex({ symbol, name, note, legs }) {
+  const check = validateBasket({ symbol, name, legs });
+  if (!check.ok) return { ok: false, error: check.errors[0], errors: check.errors };
+
+  const listedAt = Date.now();
+  const clean = legs.map(l => ({ id: l.id, weight: round(Number(l.weight), 4) }));
+  const ix = {
+    id: nextId('ix'),
+    symbol: check.symbol,
+    name: String(name).trim(),
+    note: String(note || '').trim(),
+    legs: clean,
+    refs: snapshotRefs(clean, listedAt),
+    creator: 'me',
+    listedAt,
+    feesAccrued: 0,
+    feesClaimed: 0,
+  };
+  state.indices.push(ix);
+  commit();
+  return { ok: true, index: ix };
+}
+
+function delistIndex(id) {
+  const ix = getIndex(id);
+  if (!ix) return { ok: false, error: 'That index does not exist.' };
+  if (ix.creator !== 'me') return { ok: false, error: 'You can only delist an index you listed yourself.' };
+  if (openPositions(id).length) return { ok: false, error: 'You cannot delist an index with open positions.' };
+  if (pendingFees(ix) > 0) return { ok: false, error: 'Claim the accrued fees first.' };
+  state.indices = state.indices.filter(x => x.id !== id);
+  commit();
+  return { ok: true };
+}
+
+/* -------- reading an index -------- */
+
+const indexValue = (ix, t) => (ix ? basketValue(ix.legs, ix.refs, t, VENUE.indexBase) : null);
+const indexChange = (ix, hours = 24, t) => (ix ? basketChangePct(ix.legs, ix.refs, hours, t) : null);
+const indexLegs = (ix) => (ix?.legs || []).map(l => ({ ...l, asset: getAsset(l.id) }));
+
+/** Open interest in the market itself: the sum of the notionals of the
+ *  positions that actually exist, split by side. */
+function openInterest(indexId) {
+  let long = 0, short = 0;
+  for (const p of openPositions(indexId)) {
+    if (p.side === 'long') long += p.notional; else short += p.notional;
+  }
+  return { long, short, total: long + short, skew: long + short ? (long - short) / (long + short) : 0 };
+}
+
+/** The basket's reference depth, inherited from the simulated volume of its
+ *  legs. It is a simulator figure, and the interface marks it as one. */
+function simulatedDepth(ix, t) {
+  if (!ix) return 0;
+  return ix.legs.reduce((s, l) => s + volume24h(l.id, t) * (l.weight / 100), 0);
+}
+
+/** Funding in force per 8 h. Positive: longs pay. */
+function fundingRate(indexId) {
+  const { skew } = openInterest(indexId);
+  const raw = VENUE.fundingBase + skew * VENUE.fundingCap;
+  return Math.max(-VENUE.fundingCap, Math.min(VENUE.fundingCap, raw));
+}
+
+/* -------- positions -------- */
+
+function quoteOrder({ indexId, side, margin, leverage, t = Date.now() }) {
+  const ix = getIndex(indexId);
+  const m = Number(margin), lv = Number(leverage);
+  const entry = indexValue(ix, t);
+  const notional = m * lv;
+  const fee = notional * VENUE.takerFee;
+  const errors = [];
+
+  if (!ix) errors.push('That index does not exist.');
+  if (side !== 'long' && side !== 'short') errors.push('Pick a side: long or short.');
+  if (!(m >= VENUE.minMargin)) errors.push(`The minimum margin is ${VENUE.minMargin} ${VENUE.settle}.`);
+  if (!(lv >= 1 && lv <= VENUE.maxLeverage)) errors.push(`Leverage runs from 1x to ${VENUE.maxLeverage}x.`);
+  if (entry === null) errors.push('The index has no computable value right now.');
+  if (m + fee > state.wallet.balance) errors.push(`Not enough balance: ${(m + fee).toFixed(2)} ${VENUE.settle} is needed with the fee.`);
+
+  return {
+    ok: !errors.length, errors, error: errors[0] || null,
+    entry, notional, fee, margin: m, leverage: lv,
+    liq: entry === null ? null : liquidationPrice(entry, side, lv),
+    creatorFee: fee * VENUE.creatorShare,
+  };
+}
+
+/** The price at which a position runs out of margin. The form's warning and
+ *  the real liquidation come from here, so they cannot disagree. */
+function liquidationPrice(entry, side, leverage) {
+  const room = 1 / leverage - VENUE.maintenanceMargin;
+  return side === 'long' ? entry * (1 - room) : entry * (1 + room);
+}
+
+function openPosition({ indexId, side, margin, leverage }) {
+  const t = Date.now();
+  const q = quoteOrder({ indexId, side, margin, leverage, t });
+  if (!q.ok) return { ok: false, error: q.error, errors: q.errors };
+  const ix = getIndex(indexId);
+
+  state.wallet.balance = round(state.wallet.balance - q.margin - q.fee, 8);
+  ix.feesAccrued = round(ix.feesAccrued + q.creatorFee, 8);
+
+  const pos = {
+    id: nextId('po'),
+    indexId, side,
+    margin: round(q.margin, 8),
+    leverage: q.leverage,
+    notional: round(q.notional, 8),
+    entry: q.entry,
+    openedAt: t,
+    feesPaid: round(q.fee, 8),
+    funding: 0,
+    fundingAt: t,
+  };
+  state.positions.push(pos);
+  commit();
+  return { ok: true, position: pos };
+}
+
+/** A position's live state. None of it is stored: it is computed from price. */
+function markPosition(pos, t = Date.now()) {
+  const ix = getIndex(pos.indexId);
+  const mark = indexValue(ix, t);
+  if (mark === null) return { mark: null };
+  const move = (mark / pos.entry - 1) * (pos.side === 'long' ? 1 : -1);
+  const pnl = pos.notional * move;
+  const funding = accruedFunding(pos, t);
+  const equity = pos.margin + pnl - funding;
+  const closeFee = pos.notional * VENUE.takerFee;
+  return {
+    ix, mark, move: move * 100, pnl,
+    funding,
+    equity,
+    roe: pos.margin ? ((pnl - funding) / pos.margin) * 100 : null,
+    marginRatio: pos.notional ? equity / pos.notional : null,
+    liq: liquidationPrice(pos.entry, pos.side, pos.leverage),
+    closeFee,
+    net: equity - closeFee,
+    liquidatable: pos.notional ? equity / pos.notional <= VENUE.maintenanceMargin : false,
+  };
+}
+
+/** Funding accrues over time at the rate in force. It is measured from the
+ *  position's last settlement so the same stretch is never charged twice. */
+function accruedFunding(pos, t) {
+  const hours = Math.max(0, (t - (pos.fundingAt || pos.openedAt)) / HOUR);
+  const rate = fundingRate(pos.indexId);
+  const paidBySide = pos.side === 'long' ? 1 : -1;
+  return round((pos.funding || 0) + pos.notional * rate * (hours / 8) * paidBySide, 8);
+}
+
+function closePosition(id, reason = 'manual') {
+  const t = Date.now();
+  const i = state.positions.findIndex(p => p.id === id);
+  if (i < 0) return { ok: false, error: 'That position is no longer open.' };
+  const pos = state.positions[i];
+  const m = markPosition(pos, t);
+  if (m.mark === null) return { ok: false, error: 'A position cannot be closed without an index value.' };
+
+  const ix = getIndex(pos.indexId);
+  // A liquidation takes the margin: it returns no remainder and charges no
+  // closing fee.
+  const returned = reason === 'liquidation' ? 0 : Math.max(0, m.net);
+  const closeFee = reason === 'liquidation' ? 0 : m.closeFee;
+
+  state.wallet.balance = round(state.wallet.balance + returned, 8);
+  if (ix && closeFee) ix.feesAccrued = round(ix.feesAccrued + closeFee * VENUE.creatorShare, 8);
+
+  state.positions.splice(i, 1);
+  state.history.unshift({
+    ...pos,
+    closedAt: t, exit: m.mark, reason,
+    pnl: round(m.pnl, 8),
+    fundingTotal: round(m.funding, 8),
+    feesTotal: round(pos.feesPaid + closeFee, 8),
+    returned: round(returned, 8),
+    roe: m.roe,
+  });
+  state.history = state.history.slice(0, 200);
+  commit();
+  return { ok: true, closed: state.history[0] };
+}
+
+/** Sweeps the positions with no margin left. The application's clock calls it,
+ *  so a liquidation happens by the rule and not because someone is watching. */
+function liquidationSweep(t = Date.now()) {
+  const dead = state.positions.filter(p => markPosition(p, t).liquidatable);
+  dead.forEach(p => closePosition(p.id, 'liquidation'));
+  return dead.length;
+}
+
+/* -------- the creator -------- */
+
+const pendingFees = (ix) => round((ix?.feesAccrued || 0) - (ix?.feesClaimed || 0), 8);
+
+function claimFees(indexId) {
+  const ix = getIndex(indexId);
+  if (!ix) return { ok: false, error: 'That index does not exist.' };
+  if (ix.creator !== 'me') return { ok: false, error: "Only an index's creator claims its fees." };
+  const due = pendingFees(ix);
+  if (due <= 0) return { ok: false, error: 'There are no fees pending on this index.' };
+  ix.feesClaimed = round(ix.feesClaimed + due, 8);
+  state.wallet.balance = round(state.wallet.balance + due, 8);
+  commit();
+  return { ok: true, claimed: due };
+}
+
+/* -------- the account -------- */
+
+function accountSummary(t = Date.now()) {
+  let marginUsed = 0, unrealised = 0;
+  for (const p of state.positions) {
+    const m = markPosition(p, t);
+    marginUsed += p.margin;
+    if (m.mark !== null) unrealised += m.pnl - m.funding;
+  }
+  const claimable = state.indices.reduce((s, ix) => s + (ix.creator === 'me' ? pendingFees(ix) : 0), 0);
+  const realised = state.history.reduce((s, h) => s + (h.pnl || 0), 0);
+  return {
+    balance: state.wallet.balance,
+    marginUsed,
+    unrealised,
+    equity: state.wallet.balance + marginUsed + unrealised,
+    claimable,
+    realised,
+    open: state.positions.length,
+  };
+}
+
+Object.assign(exports, { validateBasket, listIndex, delistIndex, indexValue, indexChange, indexLegs, openInterest, simulatedDepth, fundingRate, quoteOrder, liquidationPrice, openPosition, markPosition, closePosition, liquidationSweep, pendingFees, claimFees, accountSummary });
+});
+
+__def("js/chart.js", function (exports, __req) {
+/* Canvas charts. No library, so there is nothing to load and nothing to break.
+   One scale places the line, the axis labels and the crosshair, so that every
+   label names a value the chart actually reaches. */
+
+const { auto, dateTime } = __req("js/format.js");
+const { rgba } = __req("js/logos.js");
+
+const cssVar = (el, name) => getComputedStyle(el).getPropertyValue(name).trim();
+
+/* A canvas can end up with no size: the screen changed before the frame
+   arrived, or it sits inside something hidden. Drawing there does not fail
+   quietly, it throws on a negative radius, so it is checked once here rather
+   than in every drawing function. */
+function fitCanvas(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (!(w > 0 && h > 0)) return null;
+  canvas.width = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+
+/** The main chart, with axis, fill, baseline and crosshair.
+ *  Returns a teardown function. */
+function drawChart(canvas, rows, { color, baseline = null, suffix = '' } = {}) {
+  const wrap = canvas.parentElement;
+  const tip = wrap.querySelector('.wp-tip');
+  const data = (rows || []).filter(r => Number.isFinite(r.c));
+  const theme = {
+    line: cssVar(wrap, '--line') || '#E6E9EE',
+    dim: cssVar(wrap, '--dim') || '#98A1AE',
+    up: cssVar(wrap, '--up') || '#0E9F6E',
+    down: cssVar(wrap, '--down') || '#D8342A',
+  };
+
+  let geo = null;
+
+  function layout() {
+    const fit = fitCanvas(canvas);
+    if (!fit) { geo = null; return; }
+    const { w, h } = fit;
+    const padL = 10, padR = 62, padT = 14, padB = 24;
+    const plotW = Math.max(1, w - padL - padR), plotH = Math.max(1, h - padT - padB);
+    const vals = data.map(r => r.c);
+    if (baseline !== null) vals.push(baseline);
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    const span = hi - lo || Math.abs(hi) * 0.02 || 1;
+    lo -= span * 0.1; hi += span * 0.1;
+    const stroke = color || (data[data.length - 1].c >= data[0].c ? theme.up : theme.down);
+    geo = {
+      w, h, padL, padT, plotW, plotH, lo, hi, stroke,
+      x: (i) => padL + (i / Math.max(data.length - 1, 1)) * plotW,
+      y: (v) => padT + (1 - (v - lo) / (hi - lo)) * plotH,
+    };
+  }
+
+  function render() {
+    if (!geo) return;
+    const { w, h, padL, padT, plotW, plotH, lo, hi, x, y, stroke } = geo;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textBaseline = 'middle';
+    for (let i = 0; i <= 4; i++) {
+      const v = lo + (hi - lo) * (i / 4), py = Math.round(y(v)) + 0.5;
+      ctx.strokeStyle = theme.line; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(padL, py); ctx.lineTo(padL + plotW, py); ctx.stroke();
+      ctx.fillStyle = theme.dim; ctx.textAlign = 'left';
+      ctx.fillText(auto(v) + suffix, padL + plotW + 8, py);
+    }
+
+    // The index's base: where the basket stood the day it listed.
+    if (baseline !== null) {
+      const py = Math.round(y(baseline)) + 0.5;
+      ctx.save();
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = theme.dim; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(padL, py); ctx.lineTo(padL + plotW, py); ctx.stroke();
+      ctx.restore();
+    }
+
+    const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+    grad.addColorStop(0, rgba(stroke, 0.22));
+    grad.addColorStop(1, rgba(stroke, 0));
+    ctx.beginPath(); ctx.moveTo(x(0), y(data[0].c));
+    data.forEach((r, i) => ctx.lineTo(x(i), y(r.c)));
+    ctx.lineTo(x(data.length - 1), padT + plotH); ctx.lineTo(x(0), padT + plotH);
+    ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+
+    ctx.beginPath(); ctx.moveTo(x(0), y(data[0].c));
+    data.forEach((r, i) => ctx.lineTo(x(i), y(r.c)));
+    ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+
+    ctx.fillStyle = theme.dim; ctx.textAlign = 'center'; ctx.font = '11px Inter, sans-serif';
+    [0, Math.floor(data.length / 2), data.length - 1].forEach(i => {
+      const label = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(data[i].t));
+      ctx.fillText(label, Math.min(Math.max(x(i), 30), padL + plotW - 30), h - 8);
+    });
+  }
+
+  function empty() {
+    const fit = fitCanvas(canvas);
+    if (!fit) return;
+    const { ctx, w, h } = fit;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = theme.dim; ctx.font = '13px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('No series to draw over this period', w / 2, h / 2);
+  }
+
+  if (data.length < 2) { empty(); return () => {}; }
+  layout();
+  if (!geo) return () => {};
+  render();
+
+  const onMove = (ev) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = ev.clientX - rect.left;
+    if (!geo) return;
+    const { padL, padT, plotW, plotH, x, y, stroke } = geo;
+    if (mx < padL || mx > padL + plotW) return onLeave();
+    const i = Math.min(Math.max(Math.round(((mx - padL) / plotW) * (data.length - 1)), 0), data.length - 1);
+    const r = data[i];
+    render();
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = theme.line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(Math.round(x(i)) + .5, padT); ctx.lineTo(Math.round(x(i)) + .5, padT + plotH); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x(i), y(r.c), 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.lineWidth = 2.5; ctx.strokeStyle = stroke; ctx.stroke();
+    if (tip) {
+      tip.hidden = false;
+      tip.innerHTML = `<b>${auto(r.c)}${suffix}</b><span>${dateTime(r.t)}</span>`;
+      const tw = tip.offsetWidth;
+      tip.style.left = Math.min(Math.max(x(i) - tw / 2, 4), geo.w - tw - 4) + 'px';
+      tip.style.top = Math.max(y(r.c) - tip.offsetHeight - 14, 4) + 'px';
+    }
+  };
+  const onLeave = () => { if (tip) tip.hidden = true; render(); };
+  const onResize = () => { layout(); render(); };
+
+  canvas.addEventListener('pointermove', onMove);
+  canvas.addEventListener('pointerleave', onLeave);
+  window.addEventListener('resize', onResize);
+  return () => {
+    canvas.removeEventListener('pointermove', onMove);
+    canvas.removeEventListener('pointerleave', onLeave);
+    window.removeEventListener('resize', onResize);
+  };
+}
+
+/** A minimal line for a table row: shape, with no axes and no labels. */
+function sparkline(canvas, rows, color) {
+  const data = (rows || []).filter(r => Number.isFinite(r.c));
+  const fit = fitCanvas(canvas);
+  if (!fit) return;
+  const { ctx, w, h } = fit;
+  ctx.clearRect(0, 0, w, h);
+  if (data.length < 2) return;
+  const vals = data.map(r => r.c);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const span = hi - lo || 1;
+  const x = (i) => (i / (data.length - 1)) * (w - 2) + 1;
+  const y = (v) => h - 3 - ((v - lo) / span) * (h - 6);
+
+  ctx.beginPath(); ctx.moveTo(x(0), y(vals[0]));
+  vals.forEach((v, i) => ctx.lineTo(x(i), y(v)));
+  ctx.lineTo(x(vals.length - 1), h); ctx.lineTo(x(0), h); ctx.closePath();
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, rgba(color, 0.28)); grad.addColorStop(1, rgba(color, 0));
+  ctx.fillStyle = grad; ctx.fill();
+
+  ctx.beginPath(); ctx.moveTo(x(0), y(vals[0]));
+  vals.forEach((v, i) => ctx.lineTo(x(i), y(v)));
+  ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.stroke();
+}
+
+/** Weight wheel: the basket at a glance, each leg in its brand colour. */
+function drawDonut(canvas, legs, size = 132) {
+  canvas.style.width = canvas.style.height = size + 'px';
+  const fit = fitCanvas(canvas);
+  if (!fit) return;
+  const { ctx, w, h } = fit;
+  ctx.clearRect(0, 0, w, h);
+  const r = Math.min(w, h) / 2 - 2;
+  if (r <= 0 || !legs?.length) return;
+  const cx = w / 2, cy = h / 2, inner = r * 0.62;
+  let a = -Math.PI / 2;
+  for (const leg of legs) {
+    const sweep = (leg.weight / 100) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, a, a + sweep);
+    ctx.arc(cx, cy, inner, a + sweep, a, true);
+    ctx.closePath();
+    ctx.fillStyle = leg.asset?.color || '#8A94A6';
+    ctx.fill();
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
+    a += sweep;
+  }
+}
+
+Object.assign(exports, { drawChart, sparkline, drawDonut });
+});
+
+__def("js/search.js", function (exports, __req) {
+/* The search box. It tolerates typos, accents and the trade name, because
+   someone searching "nickel" or "aluminium" should not have to remember that
+   the symbol is XNI or XAL. It never invents a match: if nothing looks close,
+   it says so. */
+
+const { tradableAssets, CLASSES } = __req("js/registry.js");
+const { state } = __req("js/store.js");
+
+const fold = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+/** Bounded edit distance: all that matters is whether it differs by a letter
+ *  or two, not how far apart any two strings are. */
+function close(a, b, max = 1) {
+  if (a === b) return 0;
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const row = [i];
+    for (let j = 1; j <= b.length; j++) {
+      row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = row;
+  }
+  return prev[b.length];
+}
+
+function scoreAsset(asset, q) {
+  const sym = fold(asset.symbol), name = fold(asset.name), short = fold(asset.short);
+  const el = fold(asset.element || '');
+  if (sym === q || el === q) return 100;
+  if (short === q || name === q) return 96;
+  if (sym.startsWith(q)) return 88;
+  if (short.startsWith(q) || name.startsWith(q)) return 80;
+  for (const a of asset.aliases || []) {
+    const fa = fold(a);
+    if (fa === q) return 90;
+    if (fa.startsWith(q)) return 74;
+    if (fa.includes(q)) return 58;
+  }
+  if (short.includes(q) || name.includes(q)) return 52;
+  if (fold(asset.sector).includes(q)) return 34;
+  if (q.length >= 4 && (close(sym, q) <= 1 || close(short.slice(0, q.length), q) <= 1)) return 30;
+  return 0;
+}
+
+function scoreIndex(ix, q) {
+  const sym = fold(ix.symbol), name = fold(ix.name);
+  if (sym === q) return 100;
+  if (sym.startsWith(q) || name.startsWith(q)) return 84;
+  if (sym.includes(q) || name.includes(q) || fold(ix.note).includes(q)) return 50;
+  if (ix.legs.some(l => fold(l.id) === q)) return 44;
+  return 0;
+}
+
+/** Searches listed indices and the asset universe, in that order of interest:
+ *  in a market of indices, what you trade is the index. */
+function search(query, limit = 9) {
+  const q = fold(query).trim();
+  if (q.length < 1) return [];
+  const out = [];
+  for (const ix of state.indices) {
+    const s = scoreIndex(ix, q);
+    if (s) out.push({ kind: 'index', score: s + 6, index: ix, label: ix.name, sub: `Index · ${ix.legs.length} assets` });
+  }
+  for (const a of tradableAssets()) {
+    const s = scoreAsset(a, q);
+    if (s) out.push({ kind: 'asset', score: s, asset: a, label: a.name, sub: `${CLASSES[a.class]?.label || ''} · ${a.sector}` });
+  }
+  return out.sort((x, y) => y.score - x.score || x.label.localeCompare(y.label, 'en')).slice(0, limit);
+}
+
+Object.assign(exports, { search });
+});
+
+__def("js/ui/components.js", function (exports, __req) {
+/* Reusable pieces. Anything that appears on two screens lives here once, so
+   that an index row or an asset's identity looks the same on the dashboard, in
+   the market and in the search box. */
+
+const { markEl, markStack, rgba } = __req("js/logos.js");
+const { CLASSES } = __req("js/registry.js");
+const { pct, dir, num } = __req("js/format.js");
+const { drawChart, sparkline, drawDonut } = __req("js/chart.js");
+
+/** Node builder. Special props: class, text, html, on, style, data. */
+function el(tag, props = {}, kids = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === 'class') node.className = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k === 'html') node.innerHTML = v;
+    else if (k === 'style') Object.assign(node.style, v);
+    else if (k === 'data') for (const [dk, dv] of Object.entries(v)) node.dataset[dk] = dv;
+    else if (k === 'on') for (const [ev, fn] of Object.entries(v)) node.addEventListener(ev, fn);
+    else if (k in node && k !== 'list') node[k] = v;
+    else node.setAttribute(k, v);
+  }
+  for (const kid of [].concat(kids)) {
+    if (kid === null || kid === undefined || kid === false) continue;
+    node.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return node;
+}
+const frag = (kids) => { const f = document.createDocumentFragment(); [].concat(kids).forEach(k => k && f.append(k)); return f; };
+
+/** The symbol pill, tinted with the asset's brand colour. Both the symbol and
+ *  the colour come from the registry, never from the screen. */
+function symPill(asset) {
+  return el('span', {
+    class: 'wp-sym',
+    text: asset.symbol,
+    style: { background: rgba(asset.color, .12), color: asset.color },
+  });
+}
+
+/** An asset's identity: its real mark, its name and its symbol. */
+function assetIdent(asset, { size = 34, sub = null } = {}) {
+  return el('span', { class: 'wp-ident' }, [
+    markEl(asset, size),
+    el('span', { class: 'wp-ident-text' }, [
+      el('span', { class: 'wp-ident-name', text: asset.short }),
+      el('span', { class: 'wp-ident-sub' }, [
+        symPill(asset),
+        el('span', { text: sub ?? (CLASSES[asset.class]?.label || asset.sector) }),
+      ]),
+    ]),
+  ]);
+}
+
+/** An index's identity: the stack of its legs' marks and its symbol. */
+function indexIdent(ix, legs, { size = 28 } = {}) {
+  return el('span', { class: 'wp-ident' }, [
+    markStack(legs.map(l => l.asset), size),
+    el('span', { class: 'wp-ident-text' }, [
+      el('span', { class: 'wp-ident-name', text: ix.name }),
+      el('span', { class: 'wp-ident-sub' }, [
+        el('span', { class: 'wp-sym', text: ix.symbol, style: { background: 'var(--sunken-2)', color: 'var(--muted)' } }),
+        el('span', { text: `${legs.length} assets` }),
+        ix.creator === 'me' ? el('span', { class: 'wp-pill own', text: 'Yours' }) : null,
+      ]),
+    ]),
+  ]);
+}
+
+function changePill(v) {
+  return el('span', { class: `wp-pill ${dir(v)}`, text: pct(v) });
+}
+
+function stat(label, value, { sub = null, cls = '' } = {}) {
+  return el('dl', { class: 'wp-stat' }, [
+    el('dt', { text: label }),
+    el('dd', { class: `num ${cls}`, text: value }),
+    sub ? el('div', { class: 'wp-stat-sub', text: sub }) : null,
+  ]);
+}
+
+function kv(rows) {
+  return el('dl', { class: 'wp-kv' }, rows.filter(Boolean).map(r =>
+    el('div', { class: r.line ? 'wp-kv-line' : '' }, [
+      el('dt', { text: r.k }),
+      el('dd', { class: `num ${r.cls || ''}`, text: r.v }),
+    ])));
+}
+
+function card({ title, note, actions, body, tight = false }) {
+  const head = (title || note || actions)
+    ? el('div', { class: 'wp-card-head' }, [
+        title ? el('h2', { text: title }) : null,
+        note ? el('span', { class: 'wp-card-note', text: note }) : null,
+        actions || null,
+      ])
+    : null;
+  return el('section', { class: 'wp-card' }, [
+    head,
+    el('div', { class: `wp-card-body ${tight ? 'tight' : ''}` }, [body]),
+  ]);
+}
+
+function table(cols, rows) {
+  if (!rows.length) return null;
+  return el('div', { class: 'wp-scroll' }, [
+    el('table', { class: 'wp-table' }, [
+      el('thead', {}, [el('tr', {}, cols.map(c => el('th', { text: c })))]),
+      el('tbody', {}, rows),
+    ]),
+  ]);
+}
+
+function emptyState({ title, text, action }) {
+  return el('div', { class: 'wp-empty' }, [
+    el('strong', { text: title }),
+    el('span', { text: text }),
+    action || null,
+  ]);
+}
+
+function note(text, kind = '') {
+  return el('div', { class: `wp-note ${kind}`, html: text });
+}
+
+/** Weight bar: each leg takes up its weight and carries its brand colour. */
+function weightsBar(legs) {
+  return el('div', { class: 'wp-weights', title: legs.map(l => `${l.asset.symbol} ${num(l.weight, 1)}%`).join(' · ') },
+    legs.map(l => el('span', { style: { width: `${l.weight}%`, background: l.asset.color } })));
+}
+
+function legend(legs, { onPick = null } = {}) {
+  return el('div', { class: 'wp-legend' }, legs.map(l => {
+    const row = el(onPick ? 'button' : 'div', {
+      class: 'wp-legend-row',
+      style: onPick ? { background: 'none', border: 0, cursor: 'pointer', padding: 0, font: 'inherit', textAlign: 'left' } : null,
+      on: onPick ? { click: () => onPick(l) } : null,
+    }, [
+      el('span', { class: 'wp-legend-dot', style: { background: l.asset.color } }),
+      el('span', { text: l.asset.short }),
+      symPill(l.asset),
+      el('span', { class: 'wp-legend-w num', text: num(l.weight, 1) + '%' }),
+    ]);
+    return row;
+  }));
+}
+
+function donut(legs, size = 128) {
+  const c = el('canvas', { class: 'wp-donut' });
+  requestAnimationFrame(() => drawDonut(c, legs, size));
+  return el('div', { class: 'wp-donut-wrap' }, [c, legend(legs)]);
+}
+
+/** A chart block with a range picker. `load(range)` returns the series. */
+function chartBlock({ load, color, baseline = null, suffix = '', ranges = null, initial = '1M', small = false }) {
+  const opts = ranges || [
+    { id: '1D', label: '1D', hours: 24 },
+    { id: '1W', label: '1W', hours: 24 * 7 },
+    { id: '1M', label: '1M', hours: 24 * 30 },
+    { id: '3M', label: '3M', hours: 24 * 90 },
+  ];
+  const canvas = el('canvas');
+  const tip = el('div', { class: 'wp-tip', hidden: true });
+  const wrap = el('div', { class: `wp-chart ${small ? 'sm' : ''}` }, [canvas, tip]);
+  const seg = el('div', { class: 'wp-ranges wp-seg' });
+  let teardown = () => {};
+
+  const paint = (opt) => {
+    teardown();
+    [...seg.children].forEach(b => b.classList.toggle('is-on', b.dataset.id === opt.id));
+    requestAnimationFrame(() => { teardown = drawChart(canvas, load(opt.hours), { color, baseline, suffix }); });
+  };
+  opts.forEach(o => seg.append(el('button', { type: 'button', text: o.label, data: { id: o.id }, on: { click: () => paint(o) } })));
+  const start = opts.find(o => o.id === initial) || opts[opts.length - 1];
+  paint(start);
+  return { wrap, ranges: seg, redraw: () => paint(opts.find(o => seg.querySelector('.is-on')?.dataset.id === o.id) || start) };
+}
+
+function spark(rows, color) {
+  const c = el('canvas', { class: 'wp-spark' });
+  requestAnimationFrame(() => sparkline(c, rows, color));
+  return c;
+}
+
+/* Ephemeral notices. An action that moves balance has to say it happened. */
+let toastHost = null;
+function toast(message, kind = '') {
+  if (!toastHost) { toastHost = el('div', { class: 'wp-toasts' }); document.body.append(toastHost); }
+  const t = el('div', { class: `wp-toast ${kind}`, text: message });
+  toastHost.append(t);
+  setTimeout(() => t.remove(), 3400);
+}
+
+const icon = (paths, size = 16) => {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('width', size); svg.setAttribute('height', size);
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('aria-hidden', 'true');
+  [].concat(paths).forEach(d => {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', d);
+    p.setAttribute('stroke', 'currentColor');
+    p.setAttribute('stroke-width', '1.8');
+    p.setAttribute('stroke-linecap', 'round');
+    p.setAttribute('stroke-linejoin', 'round');
+    svg.append(p);
+  });
+  return svg;
+};
+
+Object.assign(exports, { el, frag, symPill, assetIdent, indexIdent, changePill, stat, kv, card, table, emptyState, note, weightsBar, legend, donut, chartBlock, spark, toast, icon });
+});
+
+__def("js/views.js", function (exports, __req) {
+/* The screens. Each one is a function that returns a node, so the router knows
+   nothing about their insides and one screen cannot write into another. None of
+   them works out a market rule on its own: anything that is a rule, they ask
+   the engine for. */
+
+const { VENUE } = __req("js/config.js");
+const { CLASSES, tradableAssets, byClass, getAsset } = __req("js/registry.js");
+const { state, getIndex, openPositions, myIndices, resetAll } = __req("js/store.js");
+const { indexValue, indexChange, indexLegs, openInterest, simulatedDepth, fundingRate, quoteOrder, openPosition, markPosition, closePosition, listIndex, delistIndex, validateBasket, claimFees, pendingFees, accountSummary } = __req("js/engine.js");
+const { spot, changePct, series, basketSeries, volume24h } = __req("js/market.js");
+const { sparkline } = __req("js/chart.js");
+const { usdg, pct, num, auto, compact, dir, lev, ago, dateTime, NA_TEXT } = __req("js/format.js");
+const { markEl } = __req("js/logos.js");
+const { el, frag, card, stat, kv, table, note, emptyState, indexIdent, assetIdent, symPill, changePill, weightsBar, donut, chartBlock, spark, toast } = __req("js/ui/components.js");
+
+const DAY = 86400e3, HOUR = 3600e3;
+const go = (hash) => { location.hash = hash; };
+
+/** An index's colour is the brand colour of its heaviest leg: a basket is
+ *  recognised by what weighs most inside it. */
+function indexColor(legs) {
+  const top = [...legs].sort((a, b) => b.weight - a.weight)[0];
+  return top?.asset?.color || '#1F58F5';
+}
+const indexSeries = (ix, hours) => basketSeries(ix.legs, ix.refs, Date.now() - hours * HOUR, Date.now(), 170, VENUE.indexBase);
+
+function head(title, text, actions) {
+  return el('div', { class: 'wp-head' }, [
+    el('div', {}, [el('h1', { text: title }), text ? el('p', { text }) : null]),
+    actions ? el('div', { class: 'wp-head-actions' }, actions) : null,
+  ]);
+}
+const primaryBtn = (label, onClick, cls = '') =>
+  el('button', { class: `wp-btn ${cls}`, type: 'button', text: label, on: { click: onClick } });
+
+/* ============================ dashboard ============================ */
+
+function panelView() {
+  const t = Date.now();
+  const acc = accountSummary(t);
+  const rows = state.indices.map(ix => ({ ix, legs: indexLegs(ix), ch: indexChange(ix, 24, t) }));
+  const movers = [...rows].sort((a, b) => Math.abs(b.ch ?? 0) - Math.abs(a.ch ?? 0)).slice(0, 6);
+  const assetMovers = tradableAssets()
+    .map(a => ({ a, ch: changePct(a.id, 24, t) }))
+    .sort((x, y) => Math.abs(y.ch) - Math.abs(x.ch)).slice(0, 8);
+
+  return frag([
+    head('Dashboard', 'Bundle three to five assets into a fixed-weight basket, list it as an index, and take a long or short side on it.', [
+      primaryBtn('Create index', () => go('#/create')),
+    ]),
+
+    note('<strong>This is a paper market.</strong> Every asset price comes from a reproducible simulator, not from a market data provider, and no number in this app describes the real market. What is real inside the app is your own activity: the positions, the fees and the indices you list.', 'warn'),
+
+    el('div', { class: 'wp-grid cols-4' }, [
+      stat('Equity', usdg(acc.equity), { sub: 'Balance, margin and open result' }),
+      stat('Available', usdg(acc.balance), { sub: `${acc.open} open ${acc.open === 1 ? 'position' : 'positions'}` }),
+      stat('Open result', usdg(acc.unrealised, { sign: true }), { cls: dir(acc.unrealised), sub: `Realised ${usdg(acc.realised, { sign: true })}` }),
+      stat('Fees to claim', usdg(acc.claimable), { sub: `${Math.round(VENUE.creatorShare * 100)}% of what every trade pays` }),
+    ]),
+
+    card({
+      title: 'Biggest movers', note: "The basket's 24 h change",
+      tight: true,
+      body: table(['Index', 'Value', '24 h', 'Composition', 'Shape'], movers.map(({ ix, legs, ch }) => {
+        const v = indexValue(ix, t);
+        return el('tr', { class: 'clickable', on: { click: () => go(`#/i/${ix.id}`) } }, [
+          el('td', { class: 'wide' }, [indexIdent(ix, legs)]),
+          el('td', { class: 'num', text: v === null ? NA_TEXT : auto(v) }),
+          el('td', {}, [changePill(ch)]),
+          el('td', { style: { minWidth: '140px' } }, [weightsBar(legs)]),
+          el('td', {}, [spark(indexSeries(ix, 24 * 30), indexColor(legs))]),
+        ]);
+      })),
+    }),
+
+    el('div', { class: 'wp-grid cols-2' }, [
+      card({
+        title: 'Your positions', note: acc.open ? `${acc.open} open` : null, tight: true,
+        body: acc.open
+          ? positionsTable(t, { compact: true })
+          : emptyState({
+              title: 'No positions yet',
+              text: 'Pick an index from the market and take a long or short side with up to ' + VENUE.maxLeverage + 'x.',
+              action: primaryBtn('See the market', () => go('#/market'), 'ghost'),
+            }),
+      }),
+      card({
+        title: 'Legs setting the pace', note: 'Single assets, 24 h', tight: true,
+        body: table(['Asset', 'Sim. price', '24 h'], assetMovers.map(({ a, ch }) =>
+          el('tr', { class: 'clickable', on: { click: () => go(`#/a/${a.id}`) } }, [
+            el('td', { class: 'wide' }, [assetIdent(a, { size: 30 })]),
+            el('td', { class: 'num', text: auto(spot(a.id, t)) }),
+            el('td', {}, [changePill(ch)]),
+          ]))),
+      }),
+    ]),
+  ]);
+}
+
+/* ============================ market ============================ */
+
+let marketFilter = 'all';
+let marketSort = 'depth';
+
+function marketView() {
+  const t = Date.now();
+  const wrap = el('div', { class: 'wp-grid' });
+
+  const filters = [
+    { id: 'all', label: 'All' },
+    { id: 'metals', label: 'With metals' },
+    { id: 'stocks', label: 'Stocks only' },
+    { id: 'mine', label: 'Listed by me' },
+  ];
+  const sorts = [
+    { id: 'depth', label: 'Depth' },
+    { id: 'change', label: 'Change' },
+    { id: 'recent', label: 'Recent' },
+  ];
+
+  const seg = (opts, current, onPick) => el('div', { class: 'wp-seg' }, opts.map(o =>
+    el('button', {
+      type: 'button', text: o.label, class: o.id === current ? 'is-on' : '',
+      on: { click: () => { onPick(o.id); render(); } },
+    })));
+
+  const body = el('div');
+  function render() {
+    let rows = state.indices.map(ix => {
+      const legs = indexLegs(ix);
+      return {
+        ix, legs,
+        value: indexValue(ix, t),
+        ch24: indexChange(ix, 24, t),
+        ch7: indexChange(ix, 24 * 7, t),
+        depth: simulatedDepth(ix, t),
+        oi: openInterest(ix.id),
+        funding: fundingRate(ix.id),
+      };
+    });
+    if (marketFilter === 'metals') rows = rows.filter(r => r.legs.some(l => l.asset.class === 'metal'));
+    if (marketFilter === 'stocks') rows = rows.filter(r => r.legs.every(l => l.asset.class === 'stock'));
+    if (marketFilter === 'mine') rows = rows.filter(r => r.ix.creator === 'me');
+
+    if (marketSort === 'depth') rows.sort((a, b) => b.depth - a.depth);
+    if (marketSort === 'change') rows.sort((a, b) => Math.abs(b.ch24 ?? 0) - Math.abs(a.ch24 ?? 0));
+    if (marketSort === 'recent') rows.sort((a, b) => b.ix.listedAt - a.ix.listedAt);
+
+    body.replaceChildren(card({
+      title: `${rows.length} indices listed`,
+      note: 'Depth is a simulator figure. Open interest and funding come from the positions that actually exist.',
+      tight: true,
+      body: rows.length ? table(
+        ['Index', 'Value', '24 h', '7 d', 'Composition', 'Sim. depth', 'Open interest', 'Funding 8 h', 'Shape'],
+        rows.map(r => el('tr', { class: 'clickable', on: { click: () => go(`#/i/${r.ix.id}`) } }, [
+          el('td', { class: 'wide' }, [indexIdent(r.ix, r.legs)]),
+          el('td', { class: 'num', text: r.value === null ? NA_TEXT : auto(r.value) }),
+          el('td', {}, [changePill(r.ch24)]),
+          el('td', {}, [changePill(r.ch7)]),
+          el('td', { style: { minWidth: '130px' } }, [weightsBar(r.legs)]),
+          el('td', { class: 'num dim', text: compact(r.depth) }),
+          el('td', { class: 'num', text: r.oi.total ? usdg(r.oi.total) : '—' }),
+          el('td', { class: `num ${r.funding > 0 ? 'down' : r.funding < 0 ? 'up' : 'flat'}`, text: pct(r.funding * 100, { d: 4 }) }),
+          el('td', {}, [spark(indexSeries(r.ix, 24 * 30), indexColor(r.legs))]),
+        ]))
+      ) : emptyState({ title: 'No index matches that filter', text: 'Try another one, or list a basket of your own.', action: primaryBtn('Create index', () => go('#/create'), 'ghost') }),
+    }));
+  }
+
+  wrap.append(
+    head('Market', "Every row is a fixed-weight basket with a perpetual of its own. The composition reads off the colour bar: each band is a leg, in the asset's brand colour.", [
+      primaryBtn('Create index', () => go('#/create')),
+    ]),
+    el('div', { class: 'wp-tabs' }, [
+      seg(filters, marketFilter, v => { marketFilter = v; }),
+      seg(sorts, marketSort, v => { marketSort = v; }),
+    ]),
+    body,
+  );
+  render();
+  return wrap;
+}
+
+/* ============================ assets ============================ */
+
+let assetTab = 'stock';
+
+function assetsView() {
+  const t = Date.now();
+  const wrap = el('div', { class: 'wp-grid' });
+  const body = el('div');
+  const tabs = ['stock', 'metal', 'crypto', 'etf'];
+
+  const tabBar = el('div', { class: 'wp-seg' }, tabs.map(id =>
+    el('button', {
+      type: 'button', text: CLASSES[id].plural, data: { cls: id }, class: id === assetTab ? 'is-on' : '',
+      on: { click: () => { assetTab = id; [...tabBar.children].forEach(b => b.classList.toggle('is-on', b.dataset.cls === id)); render(); } },
+    })));
+
+  function render() {
+    const list = byClass(assetTab);
+    const isMetal = assetTab === 'metal';
+    body.replaceChildren(card({
+      title: `${list.length} ${CLASSES[assetTab].plural.toLowerCase()}`,
+      note: isMetal
+        ? "A metal has no logo because it is not a company: its mark is its official chemical symbol in the real colour of the metal, and the last column says where it is priced."
+        : "Each asset's mark is its official logo, resolved at runtime from its own domain.",
+      tight: true,
+      body: table(
+        ['Asset', 'Symbol', 'Sim. price', '24 h', '7 d', 'Shape', isMetal ? 'Market and unit' : 'Market'],
+        list.map(a => el('tr', { class: 'clickable', on: { click: () => go(`#/a/${a.id}`) } }, [
+          el('td', { class: 'wide' }, [assetIdent(a, { size: 34, sub: a.sector })]),
+          el('td', {}, [symPill(a)]),
+          el('td', { class: 'num', text: auto(spot(a.id, t)) }),
+          el('td', {}, [changePill(changePct(a.id, 24, t))]),
+          el('td', {}, [changePill(changePct(a.id, 24 * 7, t))]),
+          el('td', {}, [spark(series(a.id, t - 30 * DAY, t, 40), a.color)]),
+          el('td', { class: 'dim', text: isMetal ? `${a.venue} · ${a.unit}` : a.venue }),
+        ]))
+      ),
+    }));
+  }
+
+  wrap.append(
+    head('Assets', 'The universe a basket is built from. Every asset carries its symbol and its real mark, and that same pair is used on every screen.', null),
+    tabBar, body,
+  );
+  render();
+  return wrap;
+}
+
+/* ============================ asset page ============================ */
+
+function assetView(id) {
+  const a = getAsset(id);
+  if (!a) return notFound('That asset is not in the registry.');
+  const t = Date.now();
+  const inIndices = state.indices
+    .map(ix => ({ ix, legs: indexLegs(ix), leg: ix.legs.find(l => l.id === a.id) }))
+    .filter(r => r.leg);
+  const chart = chartBlock({
+    load: (hours) => series(a.id, t - hours * HOUR, t, 170),
+    color: a.color, initial: '1M',
+  });
+
+  return frag([
+    el('div', { class: 'wp-head' }, [
+      el('div', { class: 'wp-ident' }, [
+        markEl(a, 52),
+        el('div', {}, [
+          el('h1', { text: a.name, style: { fontSize: '20px' } }),
+          el('div', { class: 'wp-ident-sub', style: { marginTop: '5px' } }, [
+            symPill(a),
+            el('span', { text: `${CLASSES[a.class]?.label} · ${a.sector} · ${a.venue}` }),
+          ]),
+        ]),
+      ]),
+      el('div', { class: 'wp-head-actions' }, [
+        el('span', { class: 'num', style: { fontSize: '22px', fontWeight: '600' }, text: auto(spot(a.id, t)) }),
+        changePill(changePct(a.id, 24, t)),
+      ]),
+    ]),
+
+    card({
+      title: 'Simulated price', note: 'A series computed by the simulator, not a quote',
+      actions: chart.ranges, body: chart.wrap,
+    }),
+
+    el('div', { class: 'wp-grid cols-2' }, [
+      card({
+        title: 'Identity', body: kv([
+          { k: 'Legal name', v: a.name },
+          { k: 'Symbol', v: a.symbol },
+          a.element ? { k: 'Chemical symbol', v: a.element } : null,
+          { k: 'Class', v: CLASSES[a.class]?.label || '—' },
+          { k: 'Sector', v: a.sector },
+          { k: 'Market', v: a.venue },
+          a.unit ? { k: 'Unit', v: a.unit } : null,
+          { k: a.class === 'metal' ? "Market's domain" : 'Official domain', v: a.venueDomain || a.domain || '—' },
+          { k: 'Brand colour', v: a.color.toUpperCase() },
+        ]),
+      }),
+      card({
+        title: 'Simulated change', body: kv([
+          { k: '24 hours', v: pct(changePct(a.id, 24, t)), cls: dir(changePct(a.id, 24, t)) },
+          { k: '7 days', v: pct(changePct(a.id, 24 * 7, t)), cls: dir(changePct(a.id, 24 * 7, t)) },
+          { k: '30 days', v: pct(changePct(a.id, 24 * 30, t)), cls: dir(changePct(a.id, 24 * 30, t)) },
+          { k: 'Sim. 24 h volume', v: compact(volume24h(a.id, t)), line: true },
+        ]),
+      }),
+    ]),
+
+    card({
+      title: 'Indices that hold it', tight: true,
+      body: inIndices.length ? table(['Index', 'Weight', 'Value', '24 h'], inIndices.map(r =>
+        el('tr', { class: 'clickable', on: { click: () => go(`#/i/${r.ix.id}`) } }, [
+          el('td', { class: 'wide' }, [indexIdent(r.ix, r.legs)]),
+          el('td', { class: 'num', text: num(r.leg.weight, 1) + '%' }),
+          el('td', { class: 'num', text: auto(indexValue(r.ix, t)) }),
+          el('td', {}, [changePill(indexChange(r.ix, 24, t))]),
+        ]))) : emptyState({
+          title: 'No listed index holds it',
+          text: `You can be the first to put ${a.short} in a basket.`,
+          action: primaryBtn('Create an index with ' + a.short, () => go(`#/create?seed=${a.id}`), 'ghost'),
+        }),
+    }),
+  ]);
+}
+
+function notFound(text) {
+  return frag([
+    head('Not found', null, null),
+    card({ body: emptyState({ title: 'There is nothing here', text, action: primaryBtn('Back to the dashboard', () => go('#/'), 'ghost') }) }),
+  ]);
+}
+
+/* ---- positions table, shared by the dashboard, the portfolio and the index ---- */
+
+function positionsTable(t = Date.now(), { indexId = null, compact: small = false } = {}) {
+  const rows = openPositions(indexId);
+  if (!rows.length) return null;
+  const cols = small
+    ? ['Index', 'Side', 'Result', '']
+    : ['Index', 'Side', 'Margin', 'Notional', 'Entry', 'Mark', 'Liquidation', 'Funding', 'Result', ''];
+
+  return table(cols, rows.map(p => {
+    const m = markPosition(p, t);
+    const ix = getIndex(p.indexId);
+    const legs = indexLegs(ix);
+    const side = el('span', { class: `wp-pill ${p.side === 'long' ? 'up' : 'down'}`, text: `${p.side === 'long' ? 'Long' : 'Short'} ${lev(p.leverage)}` });
+    const result = el('td', {}, [
+      el('div', { class: `num ${dir(m.pnl - m.funding)}`, text: usdg(m.pnl - m.funding, { sign: true }) }),
+      el('div', { class: `wp-ident-sub num ${dir(m.roe)}`, text: pct(m.roe) }),
+    ]);
+    const close = el('td', {}, [
+      el('button', {
+        class: 'wp-btn sm ghost', type: 'button', text: 'Close',
+        on: { click: (ev) => { ev.stopPropagation(); const r = closePosition(p.id); toast(r.ok ? `Position closed: ${usdg(r.closed.pnl, { sign: true })}` : r.error, r.ok ? (r.closed.pnl >= 0 ? 'good' : '') : 'bad'); } },
+      }),
+    ]);
+    const cells = small
+      ? [el('td', { class: 'wide' }, [indexIdent(ix, legs)]), el('td', {}, [side]), result, close]
+      : [
+          el('td', { class: 'wide' }, [indexIdent(ix, legs)]),
+          el('td', {}, [side]),
+          el('td', { class: 'num', text: usdg(p.margin) }),
+          el('td', { class: 'num', text: usdg(p.notional) }),
+          el('td', { class: 'num', text: auto(p.entry) }),
+          el('td', { class: 'num', text: m.mark === null ? NA_TEXT : auto(m.mark) }),
+          el('td', { class: 'num dim', text: auto(m.liq) }),
+          el('td', { class: `num ${m.funding > 0 ? 'down' : m.funding < 0 ? 'up' : 'dim'}`, text: usdg(-m.funding, { sign: true }) }),
+          result, close,
+        ];
+    return el('tr', { class: 'clickable', on: { click: () => go(`#/i/${p.indexId}`) } }, cells);
+  }));
+}
+
+/* ============================ index page ============================ */
+
+function indexView(id) {
+  const ix = getIndex(id);
+  if (!ix) return notFound('That index is not listed.');
+  const t = Date.now();
+  const legs = indexLegs(ix);
+  const color = indexColor(legs);
+  const value = indexValue(ix, t);
+  const oi = openInterest(ix.id);
+  const funding = fundingRate(ix.id);
+  const ch24 = indexChange(ix, 24, t);
+
+  const chart = chartBlock({
+    load: (hours) => indexSeries(ix, hours),
+    color, baseline: VENUE.indexBase, initial: '1M',
+  });
+
+  const legRows = legs.map(l => {
+    const p = spot(l.asset.id, t);
+    const ref = ix.refs[l.asset.id];
+    const sinceList = ref ? (p / ref - 1) * 100 : null;
+    // What the leg contributes to the basket's move since it listed.
+    const contrib = sinceList === null ? null : sinceList * (l.weight / 100);
+    return el('tr', { class: 'clickable', on: { click: () => go(`#/a/${l.asset.id}`) } }, [
+      el('td', { class: 'wide' }, [assetIdent(l.asset, { size: 30 })]),
+      el('td', { class: 'num', text: num(l.weight, 1) + '%' }),
+      el('td', { class: 'num', text: auto(p) }),
+      el('td', { class: 'num dim', text: ref ? auto(ref) : NA_TEXT }),
+      el('td', {}, [changePill(changePct(l.asset.id, 24, t))]),
+      el('td', { class: `num ${dir(contrib)}`, text: contrib === null ? NA_TEXT : pct(contrib) }),
+    ]);
+  });
+
+  const left = el('div', { class: 'wp-grid' }, [
+    card({
+      title: 'Index value',
+      note: `Base ${VENUE.indexBase} the day it listed, ${ago(ix.listedAt)}`,
+      actions: chart.ranges, body: chart.wrap,
+    }),
+    card({
+      title: 'Composition',
+      note: "Fixed weight: it never rebalances, so today's basket is the one that listed",
+      body: el('div', { class: 'wp-grid' }, [
+        donut(legs, 128),
+        note('The <strong>contribution</strong> column is how much of the index\'s change since it listed comes from each leg: its move times its weight.'),
+      ]),
+    }),
+    card({
+      title: 'Leg detail', tight: true,
+      body: table(['Asset', 'Weight', 'Sim. price', 'At listing', '24 h', 'Contribution'], legRows),
+    }),
+    card({
+      title: 'Your positions in this index', tight: true,
+      body: positionsTable(t, { indexId: ix.id })
+        || emptyState({ title: 'No position open here', text: 'Use the panel on the right to open one.' }),
+    }),
+  ]);
+
+  const right = el('div', { class: 'wp-grid' }, [
+    tradePanel(ix, value),
+    card({
+      title: 'Market state',
+      body: frag([
+        kv([
+          { k: 'Value', v: value === null ? NA_TEXT : auto(value) },
+          { k: '24 h change', v: pct(ch24), cls: dir(ch24) },
+          { k: '7 d change', v: pct(indexChange(ix, 24 * 7, t)), cls: dir(indexChange(ix, 24 * 7, t)) },
+          { k: 'Sim. 24 h depth', v: compact(simulatedDepth(ix, t)), line: true },
+          { k: 'Open interest', v: oi.total ? usdg(oi.total) : '—' },
+          { k: 'Longs', v: oi.long ? usdg(oi.long) : '—', cls: 'up' },
+          { k: 'Shorts', v: oi.short ? usdg(oi.short) : '—', cls: 'down' },
+          { k: 'Funding 8 h', v: pct(funding * 100, { d: 4 }), cls: funding > 0 ? 'down' : funding < 0 ? 'up' : 'flat' },
+        ]),
+        el('div', { style: { marginTop: '12px' } }, [
+          el('div', { class: 'wp-weights', title: 'Split of open interest between longs and shorts' }, [
+            el('span', { style: { width: `${oi.total ? (oi.long / oi.total) * 100 : 50}%`, background: 'var(--up)' } }),
+            el('span', { style: { width: `${oi.total ? (oi.short / oi.total) * 100 : 50}%`, background: 'var(--down)' } }),
+          ]),
+          el('div', { class: 'wp-hint', style: { marginTop: '6px' },
+            text: funding > 0 ? 'More longs than shorts: the longs pay.'
+                : funding < 0 ? 'More shorts than longs: the shorts pay.'
+                : 'No imbalance: funding sits at its base rate.' }),
+        ]),
+      ]),
+    }),
+    card({
+      title: 'Who listed it',
+      body: frag([
+        kv([
+          { k: 'Symbol', v: ix.symbol },
+          { k: 'Creator', v: ix.creator === 'me' ? 'You' : 'Warp demo account' },
+          { k: 'Listed', v: dateTime(ix.listedAt) },
+          { k: 'Legs', v: String(legs.length) },
+          { k: 'Fees generated', v: usdg(ix.feesAccrued), line: true },
+        ]),
+        ix.note ? el('p', { class: 'wp-hint', style: { marginTop: '10px' }, text: ix.note }) : null,
+        ix.creator === 'me'
+          ? el('div', { style: { marginTop: '12px', display: 'grid', gap: '8px' } }, [
+              el('button', {
+                class: 'wp-btn quiet block', type: 'button',
+                text: `Claim ${usdg(pendingFees(ix))}`, disabled: pendingFees(ix) <= 0,
+                on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Claimed ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
+              }),
+              el('button', {
+                class: 'wp-btn danger block sm', type: 'button', text: 'Delist the index',
+                on: { click: () => { const r = delistIndex(ix.id); if (r.ok) { toast('Index delisted'); go('#/creator'); } else toast(r.error, 'bad'); } },
+              }),
+            ])
+          : null,
+      ]),
+    }),
+  ]);
+
+  return frag([
+    el('div', { class: 'wp-head' }, [
+      el('div', {}, [
+        indexIdent(ix, legs, { size: 34 }),
+        ix.note ? el('p', { text: ix.note }) : null,
+      ]),
+      el('div', { class: 'wp-head-actions' }, [
+        el('span', { class: 'num', style: { fontSize: '24px', fontWeight: '650' }, text: value === null ? NA_TEXT : auto(value) }),
+        changePill(ch24),
+      ]),
+    ]),
+    el('div', { class: 'wp-split' }, [left, right]),
+  ]);
+}
+
+/* What the user has typed into the trading panel, per index. It lives outside
+   the screen so the periodic price refresh does not wipe their side or a margin
+   they are half way through typing. */
+const tickets = new Map();
+function ticket(indexId) {
+  if (!tickets.has(indexId)) {
+    tickets.set(indexId, {
+      side: 'long',
+      margin: Math.min(100, Math.max(VENUE.minMargin, Math.floor(state.wallet.balance * 0.1))),
+      leverage: 2,
+    });
+  }
+  return tickets.get(indexId);
+}
+
+/** The trading panel. Every figure it shows comes from quoteOrder(), the same
+ *  function that validates the order on the way in: it cannot promise one
+ *  liquidation and then apply another. */
+function tradePanel(ix, value) {
+  const tk = ticket(ix.id);
+
+  const sideSeg = el('div', { class: 'wp-seg side', style: { display: 'flex' } }, ['long', 'short'].map(s =>
+    el('button', {
+      type: 'button', data: { side: s }, style: { flex: '1' },
+      text: s === 'long' ? 'Long' : 'Short',
+      class: s === tk.side ? 'is-on' : '',
+      on: { click: () => { tk.side = s; [...sideSeg.children].forEach(b => b.classList.toggle('is-on', b.dataset.side === s)); refresh(); } },
+    })));
+
+  const marginInput = el('input', {
+    class: 'wp-input num', type: 'number', min: VENUE.minMargin, step: '1', value: String(tk.margin),
+    on: { input: () => { tk.margin = Number(marginInput.value); refresh(); } },
+  });
+  const levInput = el('input', {
+    class: 'wp-range', type: 'range', min: '1', max: String(VENUE.maxLeverage), step: '0.5', value: String(tk.leverage),
+    on: { input: () => { tk.leverage = Number(levInput.value); refresh(); } },
+  });
+  const levLabel = el('span', { class: 'num', text: lev(tk.leverage) });
+
+  const quick = el('div', { style: { display: 'flex', gap: '6px' } }, [0.25, 0.5, 1].map(f =>
+    el('button', {
+      class: 'wp-btn sm quiet', type: 'button', style: { flex: '1' },
+      text: f === 1 ? 'Max' : `${f * 100}%`,
+      on: { click: () => { tk.margin = Math.max(VENUE.minMargin, Math.floor(state.wallet.balance * f * 100) / 100); marginInput.value = String(tk.margin); refresh(); } },
+    })));
+
+  const summary = el('div');
+  const problem = el('div');
+  const risk = el('div');
+  const submit = el('button', { class: 'wp-btn block', type: 'button' });
+
+  function refresh() {
+    levLabel.textContent = lev(tk.leverage);
+    const q = quoteOrder({ indexId: ix.id, side: tk.side, margin: tk.margin, leverage: tk.leverage });
+    summary.replaceChildren(kv([
+      { k: 'Notional', v: usdg(q.notional) },
+      { k: 'Entry', v: q.entry === null ? NA_TEXT : auto(q.entry) },
+      { k: 'Liquidation', v: q.liq === null ? NA_TEXT : auto(q.liq), cls: 'down' },
+      { k: `Fee ${pct(VENUE.takerFee * 100, { sign: false, d: 3 })}`, v: usdg(q.fee) },
+      { k: 'Of it, to the creator', v: usdg(q.creatorFee), line: true },
+      { k: 'Total to lock up', v: usdg(q.margin + q.fee) },
+    ]));
+    problem.replaceChildren(q.ok ? '' : el('div', { class: 'wp-error', text: q.error }));
+    // The warning speaks about the leverage selected right now, not the
+    // maximum: a warning that does not describe your order warns of nothing.
+    risk.replaceChildren(note(
+      `At ${lev(tk.leverage)}, a <strong>${num(100 / tk.leverage, 1)}%</strong> move against you takes the whole margin. ` +
+      `The engine applies the liquidation on its own; you do not need the screen open.`, 'risk'));
+    submit.textContent = `${tk.side === 'long' ? 'Open long' : 'Open short'} ${lev(tk.leverage)}`;
+    submit.className = `wp-btn block ${tk.side === 'long' ? 'long' : 'short'}`;
+    submit.disabled = !q.ok;
+  }
+  submit.addEventListener('click', () => {
+    const r = openPosition({ indexId: ix.id, side: tk.side, margin: tk.margin, leverage: tk.leverage });
+    toast(r.ok ? `${tk.side === 'long' ? 'Long' : 'Short'} opened on ${ix.symbol} for ${usdg(r.position.notional)}` : r.error, r.ok ? 'good' : 'bad');
+  });
+  refresh();
+
+  return card({
+    title: 'Trade', note: value === null ? 'No value' : `Mark ${auto(value)}`,
+    body: el('div', { class: 'wp-grid', style: { gap: '13px' } }, [
+      sideSeg,
+      el('div', { class: 'wp-field' }, [
+        el('label', { text: `Margin (${usdg(state.wallet.balance)} available)` }),
+        el('div', { class: 'wp-input-unit' }, [marginInput, el('span', { class: 'wp-unit', text: VENUE.settle })]),
+        quick,
+      ]),
+      el('div', { class: 'wp-field' }, [
+        el('label', {}, [el('span', { text: 'Leverage ' }), levLabel]),
+        levInput,
+        el('div', { class: 'wp-range-marks' }, ['1x', '2x', '3x', '4x', '5x'].map(x => el('span', { text: x }))),
+      ]),
+      summary,
+      problem,
+      submit,
+      risk,
+    ]),
+  });
+}
+
+/* ============================ create an index ============================ */
+
+let draft = null;
+
+function createView(seedId) {
+  if (!draft) draft = { symbol: '', name: '', note: '', legs: [] };
+  if (seedId && getAsset(seedId) && !draft.legs.some(l => l.id === seedId) && draft.legs.length < VENUE.maxLegs) {
+    draft.legs.push({ id: seedId, weight: 0 });
+    equalise();
+  }
+
+  const wrap = el('div', { class: 'wp-grid' });
+  const legsBox = el('div', { class: 'wp-grid', style: { gap: '8px' } });
+  const pickerBox = el('div', { class: 'wp-picker' });
+  const preview = el('div', { class: 'wp-grid' });
+  const totalLine = el('div', { class: 'wp-hint' });
+  let pickerTab = 'stock';
+  let pickerQuery = '';
+
+  function equalise() {
+    const n = draft.legs.length;
+    if (!n) return;
+    const each = Math.floor((100 / n) * 10) / 10;
+    draft.legs.forEach((l, i) => { l.weight = i === n - 1 ? Math.round((100 - each * (n - 1)) * 10) / 10 : each; });
+  }
+  const total = () => draft.legs.reduce((s, l) => s + (Number(l.weight) || 0), 0);
+
+  function addLeg(id) {
+    if (draft.legs.length >= VENUE.maxLegs) return toast(`An index holds at most ${VENUE.maxLegs} assets.`, 'bad');
+    if (draft.legs.some(l => l.id === id)) return;
+    draft.legs.push({ id, weight: 0 });
+    equalise();
+    renderAll();
+  }
+  function removeLeg(id) {
+    draft.legs = draft.legs.filter(l => l.id !== id);
+    equalise();
+    renderAll();
+  }
+
+  const symbolInput = el('input', {
+    class: 'wp-input num', maxlength: '12', placeholder: 'MYBASKET', value: draft.symbol,
+    on: { input: () => { draft.symbol = symbolInput.value = symbolInput.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); renderPreview(); } },
+  });
+  const nameInput = el('input', {
+    class: 'wp-input', maxlength: '48', placeholder: 'My metals basket', value: draft.name,
+    on: { input: () => { draft.name = nameInput.value; renderPreview(); } },
+  });
+  const noteInput = el('input', {
+    class: 'wp-input', maxlength: '120', placeholder: 'What idea this basket expresses (optional)', value: draft.note,
+    on: { input: () => { draft.note = noteInput.value; } },
+  });
+
+  function renderLegs() {
+    legsBox.replaceChildren(...(draft.legs.length ? draft.legs.map(l => {
+      const a = getAsset(l.id);
+      const w = el('input', {
+        class: 'wp-input num wp-leg-w', type: 'number', min: '0.1', max: '100', step: '0.1', value: String(l.weight),
+        on: { input: () => { l.weight = Number(w.value); renderPreview(); } },
+      });
+      return el('div', { class: 'wp-leg' }, [
+        markEl(a, 30),
+        el('div', { style: { flex: '1', minWidth: '0' } }, [
+          el('div', { class: 'wp-ident-name', text: a.short }),
+          el('div', { class: 'wp-ident-sub' }, [symPill(a), el('span', { text: CLASSES[a.class]?.label })]),
+        ]),
+        w,
+        el('span', { class: 'dim', text: '%' }),
+        el('button', { class: 'wp-leg-x', type: 'button', text: '×', title: `Remove ${a.short}`, on: { click: () => removeLeg(l.id) } }),
+      ]);
+    }) : [note(`Pick between ${VENUE.minLegs} and ${VENUE.maxLegs} assets from the list below. You can mix stocks, metals, crypto and ETFs in the same basket.`)]));
+    const tt = total();
+    totalLine.className = `wp-hint ${Math.abs(tt - 100) > 0.01 ? 'wp-error' : ''}`;
+    totalLine.textContent = `${draft.legs.length} of ${VENUE.maxLegs} assets · weights add up to ${num(tt, 1)}%` +
+      (Math.abs(tt - 100) > 0.01 ? ', and they have to add up to 100%' : '');
+  }
+
+  function renderPicker() {
+    const q = pickerQuery.trim().toLowerCase();
+    const list = byClass(pickerTab).filter(a =>
+      !q || a.short.toLowerCase().includes(q) || a.symbol.toLowerCase().includes(q) || (a.aliases || []).some(x => x.includes(q)));
+    pickerBox.replaceChildren(...(list.length ? list.map(a => {
+      const on = draft.legs.some(l => l.id === a.id);
+      return el('button', {
+        class: `wp-chip ${on ? 'is-on' : ''}`, type: 'button',
+        disabled: !on && draft.legs.length >= VENUE.maxLegs,
+        on: { click: () => (on ? removeLeg(a.id) : addLeg(a.id)) },
+      }, [markEl(a, 20), el('span', { text: a.short }), el('span', { class: 'dim num', style: { fontSize: '11px' }, text: a.symbol })]);
+    }) : [el('span', { class: 'wp-hint', text: 'Nothing matches that search in this class.' })]));
+  }
+
+  function renderPreview() {
+    const check = validateBasket(draft);
+    const legs = draft.legs.map(l => ({ ...l, asset: getAsset(l.id) })).filter(l => l.asset);
+    const kids = [];
+
+    if (legs.length >= 2 && Math.abs(total() - 100) < 0.01) {
+      // Backcast: what this basket, at these weights, would have done had it
+      // listed thirty days ago. The simulator says so, not the market.
+      const from = Date.now() - 30 * DAY;
+      const refs = {};
+      legs.forEach(l => { refs[l.id] = spot(l.id, from); });
+      const rows = basketSeries(legs, refs, from, Date.now(), 120, VENUE.indexBase);
+      const last = rows[rows.length - 1]?.c;
+      kids.push(
+        donut(legs, 118),
+        el('div', {}, [
+          el('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } }, [
+            el('span', { class: 'num', style: { fontSize: '22px', fontWeight: '650' }, text: auto(last) }),
+            changePill(last ? last - VENUE.indexBase : 0),
+            el('span', { class: 'wp-hint', text: 'over 30 days, from base 100' }),
+          ]),
+        ]),
+        el('div', { class: 'wp-chart sm' }, [
+          (() => {
+            const c = el('canvas');
+            requestAnimationFrame(() => sparkline(c, rows, indexColor(legs)));
+            return c;
+          })(),
+        ]),
+        note('This is a <strong>simulator backcast</strong>: what these weights would have done if the basket had existed for the last thirty days. It is not the index\'s history, because the index does not exist yet.'),
+      );
+    } else {
+      kids.push(emptyState({ title: 'No basket to draw yet', text: `Add at least ${VENUE.minLegs} assets and leave the weights adding up to 100%.` }));
+    }
+
+    if (!check.ok && draft.legs.length) {
+      kids.push(el('ul', { class: 'wp-errors' }, check.errors.map(e => el('li', { text: e }))));
+    }
+
+    kids.push(el('button', {
+      class: 'wp-btn block', type: 'button', text: 'List the index', disabled: !check.ok,
+      on: { click: () => {
+        const r = listIndex(draft);
+        if (!r.ok) return toast(r.error, 'bad');
+        toast(`${r.index.symbol} listed`, 'good');
+        draft = null;
+        go(`#/i/${r.index.id}`);
+      } },
+    }));
+    kids.push(note(`On listing, the basket freezes each leg's price as a reference and starts at base ${VENUE.indexBase}. From that moment you take <strong>${Math.round(VENUE.creatorShare * 100)}%</strong> of the fees every trade on it pays.`));
+
+    preview.replaceChildren(...kids);
+  }
+
+  const renderAll = () => { renderLegs(); renderPicker(); renderPreview(); };
+
+  const tabBar = el('div', { class: 'wp-seg' }, ['stock', 'metal', 'crypto', 'etf'].map(id =>
+    el('button', {
+      type: 'button', text: CLASSES[id].plural, class: id === pickerTab ? 'is-on' : '',
+      on: { click: (ev) => { pickerTab = id; [...tabBar.children].forEach(b => b.classList.remove('is-on')); ev.currentTarget.classList.add('is-on'); renderPicker(); } },
+    })));
+  const pickerSearch = el('input', {
+    class: 'wp-input', placeholder: 'Filter within this class', type: 'search',
+    on: { input: () => { pickerQuery = pickerSearch.value; renderPicker(); } },
+  });
+
+  wrap.append(
+    head('Create index', `A fixed-weight basket of ${VENUE.minLegs} to ${VENUE.maxLegs} assets. You list it, anyone can trade it, and you keep ${Math.round(VENUE.creatorShare * 100)}% of the fees.`, null),
+    el('div', { class: 'wp-split' }, [
+      el('div', { class: 'wp-grid' }, [
+        card({
+          title: "The index's identity",
+          body: el('div', { class: 'wp-grid cols-2', style: { gap: '13px' } }, [
+            el('div', { class: 'wp-field' }, [el('label', { text: 'Symbol' }), symbolInput, el('span', { class: 'wp-hint', text: '3 to 12 letters or digits' })]),
+            el('div', { class: 'wp-field' }, [el('label', { text: 'Name' }), nameInput]),
+            el('div', { class: 'wp-field', style: { gridColumn: '1 / -1' } }, [el('label', { text: 'Description' }), noteInput]),
+          ]),
+        }),
+        card({
+          title: 'The basket',
+          actions: el('button', { class: 'wp-btn sm quiet', type: 'button', text: 'Equal weights', on: { click: () => { equalise(); renderAll(); } } }),
+          body: el('div', { class: 'wp-grid', style: { gap: '10px' } }, [legsBox, totalLine]),
+        }),
+        card({
+          title: 'Add assets',
+          note: 'Stocks, metals, crypto and ETFs in the same basket',
+          body: el('div', { class: 'wp-grid', style: { gap: '11px' } }, [tabBar, pickerSearch, pickerBox]),
+        }),
+      ]),
+      card({ title: 'Preview', body: preview }),
+    ]),
+  );
+  renderAll();
+  return wrap;
+}
+
+/* ============================ portfolio ============================ */
+
+function portfolioView() {
+  const t = Date.now();
+  const acc = accountSummary(t);
+
+  const history = state.history.slice(0, 40).map(h => {
+    const ix = getIndex(h.indexId);
+    const legs = ix ? indexLegs(ix) : [];
+    return el('tr', {}, [
+      el('td', { class: 'wide' }, [ix ? indexIdent(ix, legs) : el('span', { class: 'dim', text: 'Index delisted' })]),
+      el('td', {}, [el('span', { class: `wp-pill ${h.side === 'long' ? 'up' : 'down'}`, text: `${h.side === 'long' ? 'Long' : 'Short'} ${lev(h.leverage)}` })]),
+      el('td', { class: 'num', text: auto(h.entry) }),
+      el('td', { class: 'num', text: auto(h.exit) }),
+      el('td', { class: 'num dim', text: usdg(h.feesTotal) }),
+      el('td', { class: 'num dim', text: usdg(-h.fundingTotal, { sign: true }) }),
+      el('td', { class: `num ${dir(h.pnl)}`, text: usdg(h.pnl, { sign: true }) }),
+      el('td', {}, [el('span', { class: `wp-pill ${h.reason === 'liquidation' ? 'down' : ''}`, text: h.reason === 'liquidation' ? 'Liquidated' : 'Closed' })]),
+      el('td', { class: 'dim', text: ago(h.closedAt) }),
+    ]);
+  });
+
+  return frag([
+    head('Portfolio', 'Balance, committed margin and result. The open result is recomputed from price, never stored.', [
+      primaryBtn('See the market', () => go('#/market'), 'ghost'),
+    ]),
+    el('div', { class: 'wp-grid cols-4' }, [
+      stat('Equity', usdg(acc.equity), { sub: 'Available + margin + open' }),
+      stat('Available', usdg(acc.balance)),
+      stat('Committed margin', usdg(acc.marginUsed), { sub: `${acc.open} ${acc.open === 1 ? 'position' : 'positions'}` }),
+      stat('Open result', usdg(acc.unrealised, { sign: true }), { cls: dir(acc.unrealised), sub: `Realised ${usdg(acc.realised, { sign: true })}` }),
+    ]),
+    card({
+      title: 'Open positions', tight: true,
+      note: 'Funding accrues over time and is already netted off the result',
+      body: positionsTable(t) || emptyState({
+        title: 'No open positions',
+        text: "Open one from any index's page.",
+        action: primaryBtn('Go to the market', () => go('#/market'), 'ghost'),
+      }),
+    }),
+    card({
+      title: 'History', tight: true, note: history.length ? `${state.history.length} closed ${state.history.length === 1 ? 'trade' : 'trades'}` : null,
+      body: history.length
+        ? table(['Index', 'Side', 'Entry', 'Exit', 'Fees', 'Funding', 'Result', 'Close', 'When'], history)
+        : emptyState({ title: 'History is empty', text: 'The positions you close, or that get liquidated, will show up here.' }),
+    }),
+  ]);
+}
+
+/* ============================ my indices ============================ */
+
+function creatorView() {
+  const t = Date.now();
+  const mine = myIndices();
+  const totalPending = mine.reduce((s, ix) => s + pendingFees(ix), 0);
+  const totalEarned = mine.reduce((s, ix) => s + ix.feesAccrued, 0);
+
+  const rows = mine.map(ix => {
+    const legs = indexLegs(ix);
+    const oi = openInterest(ix.id);
+    const due = pendingFees(ix);
+    return el('tr', {}, [
+      el('td', { class: 'wide clickable', on: { click: () => go(`#/i/${ix.id}`) } }, [indexIdent(ix, legs)]),
+      el('td', { class: 'num', text: auto(indexValue(ix, t)) }),
+      el('td', {}, [changePill(indexChange(ix, 24, t))]),
+      el('td', { class: 'num', text: oi.total ? usdg(oi.total) : '—' }),
+      el('td', { class: 'num', text: usdg(ix.feesAccrued) }),
+      el('td', { class: `num ${due > 0 ? 'up' : 'dim'}`, text: usdg(due) }),
+      el('td', { class: 'dim', text: ago(ix.listedAt) }),
+      el('td', {}, [el('div', { style: { display: 'flex', gap: '6px', justifyContent: 'flex-end' } }, [
+        el('button', {
+          class: 'wp-btn sm', type: 'button', text: 'Claim', disabled: due <= 0,
+          on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Claimed ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
+        }),
+        el('button', {
+          class: 'wp-btn sm ghost', type: 'button', text: 'Delist',
+          on: { click: () => { const r = delistIndex(ix.id); toast(r.ok ? 'Index delisted' : r.error, r.ok ? '' : 'bad'); } },
+        }),
+      ])]),
+    ]);
+  });
+
+  return frag([
+    head('My indices', `What you have listed yourself. Of every fee a trade on one of your indices pays, ${Math.round(VENUE.creatorShare * 100)}% accrues here until you claim it.`, [
+      primaryBtn('Create index', () => go('#/create')),
+    ]),
+    el('div', { class: 'wp-grid cols-3' }, [
+      stat('Indices listed', String(mine.length)),
+      stat('Fees generated', usdg(totalEarned), { sub: `${Math.round(VENUE.creatorShare * 100)}% of every trade` }),
+      stat('Pending to claim', usdg(totalPending), { cls: totalPending > 0 ? 'up' : '' }),
+    ]),
+    card({
+      title: 'Your indices', tight: true,
+      body: rows.length
+        ? table(['Index', 'Value', '24 h', 'Open interest', 'Generated', 'Pending', 'Listed', ''], rows)
+        : emptyState({
+            title: 'You have not listed an index yet',
+            text: `Bundle ${VENUE.minLegs} to ${VENUE.maxLegs} assets, give it a symbol and list it. From that moment you earn a share of everything traded on it.`,
+            action: primaryBtn('Create my first index', () => go('#/create')),
+          }),
+    }),
+    card({
+      title: 'How a fee is split',
+      body: kv([
+        { k: 'Fee per trade', v: pct(VENUE.takerFee * 100, { sign: false, d: 3 }) + ' of notional' },
+        { k: 'Charged', v: 'On opening and on closing' },
+        { k: "To the index's creator", v: pct(VENUE.creatorShare * 100, { sign: false, d: 0 }) },
+        { k: 'Kept by the protocol', v: pct((1 - VENUE.creatorShare) * 100, { sign: false, d: 0 }) },
+        { k: 'On a liquidation', v: 'No closing fee', line: true },
+      ]),
+    }),
+  ]);
+}
+
+/* ============================ account ============================ */
+
+function confirmReset() {
+  const acc = accountSummary();
+  const ok = window.confirm(
+    `Resetting the account deletes your positions, your history and the indices you have listed, ` +
+    `and returns the balance to ${VENUE.openingBalance} ${VENUE.settle}.\n\n` +
+    `Right now you have ${acc.open} open positions and ${usdg(acc.equity)} of equity.\n\nGo ahead?`);
+  if (!ok) return;
+  resetAll();
+  toast('Account reset');
+  go('#/');
+}
+
+Object.assign(exports, { go, indexColor, panelView, marketView, assetsView, assetView, notFound, positionsTable, indexView, createView, portfolioView, creatorView, confirmReset });
+});
+
+__def("js/app.js", function (exports, __req) {
+/* The shell: routing, search, clock and the heartbeat that liquidates.
+
+   A screen paints whole on entry and repaints when the state changes or the
+   price advances. The repaint is skipped if the user has focus in a field, so
+   nothing they are typing gets wiped, and it never touches the create-index
+   screen, which is a long form. */
+
+const { VENUE } = __req("js/config.js");
+const { state, onChange } = __req("js/store.js");
+const { liquidationSweep, accountSummary } = __req("js/engine.js");
+const { feed } = __req("js/market.js");
+const { search } = __req("js/search.js");
+const { usdg, dir, clock } = __req("js/format.js");
+const { markStack, markEl } = __req("js/logos.js");
+const { indexLegs } = __req("js/engine.js");
+const { el, toast } = __req("js/ui/components.js");
+const { panelView, marketView, createView, portfolioView, creatorView, assetsView, assetView, indexView, notFound, confirmReset } = __req("js/views.js");
+
+const view = document.getElementById('view');
+const nav = document.getElementById('nav');
+const input = document.getElementById('q');
+const results = document.getElementById('results');
+const combobox = input.closest('.wp-search');
+
+/* ---------------- routing ---------------- */
+
+function parseHash() {
+  const raw = (location.hash || '#/').slice(1);
+  const [path, query] = raw.split('?');
+  const parts = path.split('/').filter(Boolean);
+  const params = new URLSearchParams(query || '');
+  if (!parts.length) return { route: 'dashboard', params };
+  if (parts[0] === 'i') return { route: 'index', id: parts[1], params };
+  if (parts[0] === 'a') return { route: 'asset', id: parts[1], params };
+  return { route: parts[0], id: parts[1], params };
+}
+
+const PAGES = {
+  dashboard: () => panelView(),
+  market: () => marketView(),
+  create: (r) => createView(r.params.get('seed')),
+  portfolio: () => portfolioView(),
+  creator: () => creatorView(),
+  assets: () => assetsView(),
+  index: (r) => indexView(r.id),
+  asset: (r) => assetView(r.id),
+};
+
+/* Tab title: says where you are without looking at the sidebar. */
+const TITLES = {
+  dashboard: 'Dashboard', market: 'Market', create: 'Create index',
+  portfolio: 'Portfolio', creator: 'My indices', assets: 'Assets',
+};
+
+let current = parseHash();
+
+function render() {
+  const r = current;
+  const build = PAGES[r.route];
+  view.replaceChildren(build ? build(r) : notFound('That address does not exist in Warp.'));
+  document.title = `${TITLES[r.route] || 'Warp'} · Warp`;
+  [...nav.querySelectorAll('a')].forEach(a => {
+    const active = a.dataset.route === r.route
+      || (r.route === 'index' && a.dataset.route === 'market')
+      || (r.route === 'asset' && a.dataset.route === 'assets');
+    a.classList.toggle('is-active', active);
+    a.setAttribute('aria-current', active ? 'page' : 'false');
+  });
+  paintSide();
+}
+
+function navigate() {
+  const next = parseHash();
+  const same = next.route === current.route && next.id === current.id;
+  current = next;
+  render();
+  if (!same) { window.scrollTo({ top: 0 }); closeResults(); }
+}
+window.addEventListener('hashchange', navigate);
+
+/* ---------------- sidebar ---------------- */
+
+const sideEquity = document.getElementById('sideEquity');
+const navOpen = document.getElementById('navOpen');
+
+function paintSide() {
+  const acc = accountSummary();
+  sideEquity.replaceChildren(
+    el('dt', { text: `Equity (${VENUE.settle})` }),
+    el('dd', { text: usdg(acc.equity).replace(' ' + VENUE.settle, '') }),
+    el('div', { class: 'wp-equity-row' }, [
+      el('span', { text: 'Available' }),
+      el('span', { class: 'num', text: usdg(acc.balance).replace(' ' + VENUE.settle, '') }),
+    ]),
+    el('div', { class: 'wp-equity-row' }, [
+      el('span', { text: 'Open' }),
+      el('span', { class: `num ${dir(acc.unrealised)}`, text: usdg(acc.unrealised, { sign: true }).replace(' ' + VENUE.settle, '') }),
+    ]),
+  );
+  navOpen.hidden = !state.positions.length;
+  navOpen.textContent = String(state.positions.length);
+}
+
+document.getElementById('resetBtn').addEventListener('click', confirmReset);
+
+/* The X mark has no destination yet. Rather than a link that goes nowhere, it
+   says so. */
+document.getElementById('xBtn').addEventListener('click', () => {
+  toast('The X profile is not linked yet.');
+});
+
+/* ---------------- search ---------------- */
+
+let hits = [];
+let cursor = -1;
+
+function closeResults() {
+  results.hidden = true;
+  combobox.setAttribute('aria-expanded', 'false');
+  cursor = -1;
+}
+
+function openHit(hit) {
+  input.value = '';
+  closeResults();
+  location.hash = hit.kind === 'index' ? `#/i/${hit.index.id}` : `#/a/${hit.asset.id}`;
+}
+
+function paintResults() {
+  results.replaceChildren();
+  if (!hits.length) {
+    results.append(el('div', { class: 'wp-res-empty', text: 'Nothing matches. Try the symbol, the name or the metal ("nickel", "XAU").' }));
+  } else {
+    hits.forEach((hit, i) => {
+      const mark = hit.kind === 'index'
+        ? markStack(indexLegs(hit.index).map(l => l.asset), 22)
+        : markEl(hit.asset, 26);
+      results.append(el('button', {
+        class: `wp-res ${i === cursor ? 'is-on' : ''}`, type: 'button', role: 'option',
+        on: { click: () => openHit(hit) },
+      }, [
+        mark,
+        el('span', {}, [
+          el('span', { class: 'wp-res-label', text: hit.label }),
+          el('br'),
+          el('span', { class: 'wp-res-sub', text: hit.sub }),
+        ]),
+        el('span', { class: 'wp-res-sym num', text: hit.kind === 'index' ? hit.index.symbol : hit.asset.symbol }),
+      ]));
+    });
+  }
+  results.hidden = false;
+  combobox.setAttribute('aria-expanded', 'true');
+}
+
+input.addEventListener('input', () => {
+  const q = input.value.trim();
+  if (!q) return closeResults();
+  hits = search(q);
+  cursor = hits.length ? 0 : -1;
+  paintResults();
+});
+input.addEventListener('focus', () => { if (input.value.trim()) paintResults(); });
+input.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape') { input.value = ''; closeResults(); input.blur(); return; }
+  if (!hits.length || results.hidden) return;
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    cursor = (cursor + (ev.key === 'ArrowDown' ? 1 : hits.length - 1)) % hits.length;
+    paintResults();
+  } else if (ev.key === 'Enter' && cursor >= 0) {
+    ev.preventDefault();
+    openHit(hits[cursor]);
+  }
+});
+document.addEventListener('click', (ev) => { if (!combobox.contains(ev.target)) closeResults(); });
+document.addEventListener('keydown', (ev) => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+  if (ev.key === '/' && !typing) { ev.preventDefault(); input.focus(); }
+});
+
+/* ---------------- the heartbeat ---------------- */
+
+const clockEl = document.getElementById('clock');
+const stamp = document.getElementById('stamp');
+
+/** The screen repaints unless the user is typing in it, and never the
+ *  create-index one: a half-finished form is left alone. */
+function canRepaint() {
+  if (current.route === 'create') return false;
+  const a = document.activeElement;
+  return !(a && view.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+}
+
+function tick() {
+  clockEl.textContent = clock();
+  stamp.textContent = `${feed.label}${feed.isSimulated ? ' · simulated price' : ''} · ${clock()}`;
+  // A position with no margin is liquidated by the rule, not because someone is
+  // watching.
+  const killed = liquidationSweep();
+  if (killed) toast(`${killed} ${killed === 1 ? 'position' : 'positions'} liquidated for want of margin`, 'bad');
+  if (canRepaint()) render(); else paintSide();
+}
+
+onChange(() => { if (canRepaint()) render(); else paintSide(); });
+
+navigate();
+tick();
+setInterval(tick, 5000);
+
+Object.assign(exports, {  });
+});
+
+__req("js/app.js");
+</script>
+</body>
+</html>

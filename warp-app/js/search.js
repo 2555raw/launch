@@ -1,14 +1,15 @@
-/* El buscador. Tolera erratas, acentos y el nombre comercial, porque quien busca
-   "niquel" o "aluminio" no deberia tener que acordarse de que el simbolo es XNI
-   o XAL. Nunca inventa una coincidencia: si no hay nada que se parezca, lo dice. */
+/* The search box. It tolerates typos, accents and the trade name, because
+   someone searching "nickel" or "aluminium" should not have to remember that
+   the symbol is XNI or XAL. It never invents a match: if nothing looks close,
+   it says so. */
 
 import { tradableAssets, CLASSES } from './registry.js';
 import { state } from './store.js';
 
 const fold = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-/** Distancia de edicion acotada: solo interesa saber si difiere en una letra o
- *  dos, no cuanto difieren dos cadenas cualesquiera. */
+/** Bounded edit distance: all that matters is whether it differs by a letter
+ *  or two, not how far apart any two strings are. */
 function close(a, b, max = 1) {
   if (a === b) return 0;
   if (Math.abs(a.length - b.length) > max) return max + 1;
@@ -51,19 +52,19 @@ function scoreIndex(ix, q) {
   return 0;
 }
 
-/** Busca en indices listados y en el universo de activos, en ese orden de
- *  interes: en un mercado de indices lo que se opera es el indice. */
+/** Searches listed indices and the asset universe, in that order of interest:
+ *  in a market of indices, what you trade is the index. */
 export function search(query, limit = 9) {
   const q = fold(query).trim();
   if (q.length < 1) return [];
   const out = [];
   for (const ix of state.indices) {
     const s = scoreIndex(ix, q);
-    if (s) out.push({ kind: 'index', score: s + 6, index: ix, label: ix.name, sub: `Indice · ${ix.legs.length} activos` });
+    if (s) out.push({ kind: 'index', score: s + 6, index: ix, label: ix.name, sub: `Index · ${ix.legs.length} assets` });
   }
   for (const a of tradableAssets()) {
     const s = scoreAsset(a, q);
     if (s) out.push({ kind: 'asset', score: s, asset: a, label: a.name, sub: `${CLASSES[a.class]?.label || ''} · ${a.sector}` });
   }
-  return out.sort((x, y) => y.score - x.score || x.label.localeCompare(y.label, 'es')).slice(0, limit);
+  return out.sort((x, y) => y.score - x.score || x.label.localeCompare(y.label, 'en')).slice(0, limit);
 }

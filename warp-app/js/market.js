@@ -1,28 +1,28 @@
-/* El feed de precios.
+/* The price feed.
 
-   AVISO, Y ES EL QUE GOBIERNA TODO EL PROYECTO: aqui no hay dato de mercado
-   real. Warp es un mercado de practica y el precio lo produce este simulador.
-   Los niveles de referencia de abajo son ordenes de magnitud escogidos para que
-   la interfaz se lea, no cotizaciones. Ningun numero de esta aplicacion
-   describe el mercado real, y la interfaz lo dice en la cabecera y en el pie de
-   cada pantalla en lugar de dejarlo en la letra pequena.
+   NOTICE, AND IT GOVERNS THE WHOLE PROJECT: there is no real market data here.
+   Warp is a paper market and this simulator produces its prices. The reference
+   levels below are orders of magnitude picked so the interface reads, not
+   quotes. No number in this application describes the real market, and the
+   interface says so in the header and the footer of every screen instead of
+   leaving it in the small print.
 
-   Como funciona: el precio de un activo en un instante es una suma de ondas de
-   distinta escala, con fase y amplitud sembradas a partir del simbolo. Eso da
-   tres propiedades que un paseo aleatorio no da:
-   - es reproducible: la misma semilla da el mismo mercado en cada recarga y en
-     cada pestana, asi que una posicion abierta ayer sigue teniendo sentido hoy;
-   - es continuo: no hay saltos entre recargas;
-   - se puede evaluar en cualquier instante en tiempo constante, asi que el
-     historico de un grafico no hay que guardarlo: se calcula.
+   How it works: an asset's price at an instant is a sum of waves of different
+   scales, with phase and amplitude seeded from the symbol. That gives three
+   properties a random walk does not:
+   - it is reproducible: the same seed gives the same market on every reload and
+     in every tab, so a position opened yesterday still makes sense today;
+   - it is continuous: there are no jumps between reloads;
+   - it can be evaluated at any instant in constant time, so a chart's history
+     does not have to be stored: it is computed.
 
-   Para enchufar un proveedor real mas adelante, esta `setFeed()` al final: la
-   aplicacion solo conoce esa interfaz, no este simulador. */
+   To plug in a real provider later, there is `setFeed()` at the end: the
+   application only knows that interface, not this simulator. */
 
 import { config } from './config.js';
 import { getAsset } from './registry.js';
 
-/* Niveles de referencia del simulador. No son cotizaciones. */
+/* The simulator's reference levels. These are not quotes. */
 const REF = {
   NVDA:180, AAPL:240, MSFT:500, GOOGL:240, AMZN:230, META:720, TSLA:400, AMD:165,
   INTC:35, AVGO:350, TSM:260, ASML:900, ORCL:240, CRM:260, ADBE:380, PLTR:160,
@@ -37,11 +37,11 @@ const REF = {
   USDG:1,
 };
 
-/* Cuanto se mueve cada clase, en relacion a una accion. */
+/* How much each class moves, relative to a stock. */
 const VOL = { stock:1, etf:0.55, metal:0.85, crypto:2.2, settle:0 };
 
 const MIN = 60e3, HOUR = 3600e3, DAY = 24 * HOUR;
-/* Escalas de la onda, de la tendencia de fondo al parpadeo del tick. */
+/* Wave scales, from the background trend to the flicker of a tick. */
 const WAVES = [
   { period: 34 * DAY, amp: 0.150 },
   { period: 9 * DAY,  amp: 0.095 },
@@ -75,37 +75,37 @@ function shape(id) {
   const s = {
     base: REF[id] ?? 100,
     vol,
-    // Cada onda recibe fase propia y la amplitud se despeina un poco, para que
-    // dos activos de la misma clase no se muevan calcados.
+    // Each wave gets its own phase and its amplitude is roughed up a little, so
+    // two assets of the same class do not move in lockstep.
     waves: WAVES.map(w => ({
       w: (2 * Math.PI) / w.period,
       phase: rnd() * Math.PI * 2,
       amp: w.amp * vol * (0.7 + rnd() * 0.6),
     })),
-    // Volumen de referencia del activo, tambien simulado.
+    // The asset's reference volume, also simulated.
     volBase: (0.4 + rnd() * 3.2) * 1e6,
   };
   shapes.set(id, s);
   return s;
 }
 
-/** Precio del activo en un instante. Tiempo constante y sin estado. */
+/** The asset's price at an instant. Constant time and stateless. */
 export function spot(id, t = Date.now()) {
   const s = shape(id);
-  if (!s.vol) return s.base;                     // USDG no se mueve
+  if (!s.vol) return s.base;                     // USDG does not move
   let e = 0;
   for (const w of s.waves) e += w.amp * Math.sin(w.w * t + w.phase);
   return s.base * Math.exp(e);
 }
 
-/** Variacion porcentual del activo en las ultimas `hours` horas. */
+/** The asset's percentage change over the last `hours` hours. */
 export function changePct(id, hours = 24, t = Date.now()) {
   const then = spot(id, t - hours * HOUR);
   if (!then) return 0;
   return ((spot(id, t) / then) - 1) * 100;
 }
 
-/** Serie temporal para el grafico. No se guarda: se evalua. */
+/** Time series for a chart. Not stored: evaluated. */
 export function series(id, from, to, points = 180) {
   const step = (to - from) / Math.max(points - 1, 1);
   const out = [];
@@ -116,7 +116,7 @@ export function series(id, from, to, points = 180) {
   return out;
 }
 
-/** Volumen simulado de 24 h del activo, en unidades de liquidacion. */
+/** The asset's simulated 24 h volume, in settlement units. */
 export function volume24h(id, t = Date.now()) {
   const s = shape(id);
   if (!s.vol) return 0;
@@ -125,18 +125,18 @@ export function volume24h(id, t = Date.now()) {
   return s.base * s.volBase * heat * wobble / 1000;
 }
 
-/* -------- el cesto --------
-   Un indice de peso fijo vale, en base 100 desde el dia que se listo:
-       V(t) = 100 * suma_i  w_i * P_i(t) / P_i(t0)
-   Los P_i(t0) son las referencias que se congelan al listar el indice, y viven
-   en el propio indice. Asi el grafico mide exactamente lo que ha hecho el cesto
-   desde que existe, y anadir una pata nueva no reescribe su historia. */
+/* -------- the basket --------
+   A fixed-weight index is worth, at base 100 from the day it listed:
+       V(t) = 100 * sum_i  w_i * P_i(t) / P_i(t0)
+   The P_i(t0) are the references frozen when the index lists, and they live in
+   the index itself. So its chart measures exactly what the basket has done
+   since it existed, and listing a new one does not rewrite anyone's history. */
 
 export function basketValue(legs, refs, t = Date.now(), base = 100) {
   let v = 0;
   for (const leg of legs) {
     const ref = refs?.[leg.id];
-    if (!ref) return null;                       // sin referencia no hay indice
+    if (!ref) return null;                       // no reference, no index
     v += (leg.weight / 100) * (spot(leg.id, t) / ref);
   }
   return base * v;
@@ -160,17 +160,17 @@ export function basketChangePct(legs, refs, hours = 24, t = Date.now()) {
   return ((now / then) - 1) * 100;
 }
 
-/** Fotografia de las referencias de un cesto en el momento de listarlo. */
+/** Snapshot of a basket's references at the moment it lists. */
 export function snapshotRefs(legs, t = Date.now()) {
   const refs = {};
   for (const leg of legs) refs[leg.id] = spot(leg.id, t);
   return refs;
 }
 
-/* -------- punto de extension --------
-   La aplicacion nunca llama al simulador directamente: llama a estas funciones.
-   Un proveedor real se enchufa sustituyendolas, y nada mas de la aplicacion
-   cambia. Mientras el feed sea el simulador, `isSimulated` es true y la
-   interfaz lo anuncia. */
-export const feed = { spot, changePct, series, volume24h, isSimulated: true, label: 'Simulador Warp' };
+/* -------- extension point --------
+   The application never calls the simulator directly: it calls these functions.
+   A real provider is plugged in by replacing them, and nothing else in the
+   application changes. While the feed is the simulator, `isSimulated` is true
+   and the interface announces it. */
+export const feed = { spot, changePct, series, volume24h, isSimulated: true, label: 'Warp simulator' };
 export function setFeed(next) { Object.assign(feed, next); }

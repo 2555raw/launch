@@ -1,7 +1,7 @@
-/* Las pantallas. Cada una es una funcion que devuelve un nodo, asi que el
-   enrutador no sabe nada de su interior y una pantalla no puede escribir en
-   otra. Ninguna calcula reglas de mercado por su cuenta: todo lo que es una
-   regla se lo pregunta al motor. */
+/* The screens. Each one is a function that returns a node, so the router knows
+   nothing about their insides and one screen cannot write into another. None of
+   them works out a market rule on its own: anything that is a rule, they ask
+   the engine for. */
 
 import { VENUE } from './config.js';
 import { CLASSES, tradableAssets, byClass, getAsset } from './registry.js';
@@ -23,8 +23,8 @@ import {
 const DAY = 86400e3, HOUR = 3600e3;
 export const go = (hash) => { location.hash = hash; };
 
-/** El color de un indice es el color de marca de su pata de mayor peso: el
- *  cesto se reconoce por lo que mas pesa dentro. */
+/** An index's colour is the brand colour of its heaviest leg: a basket is
+ *  recognised by what weighs most inside it. */
 export function indexColor(legs) {
   const top = [...legs].sort((a, b) => b.weight - a.weight)[0];
   return top?.asset?.color || '#1F58F5';
@@ -40,7 +40,7 @@ function head(title, text, actions) {
 const primaryBtn = (label, onClick, cls = '') =>
   el('button', { class: `wp-btn ${cls}`, type: 'button', text: label, on: { click: onClick } });
 
-/* ============================ panel ============================ */
+/* ============================ dashboard ============================ */
 
 export function panelView() {
   const t = Date.now();
@@ -52,23 +52,23 @@ export function panelView() {
     .sort((x, y) => Math.abs(y.ch) - Math.abs(x.ch)).slice(0, 8);
 
   return frag([
-    head('Panel', 'Agrupa de tres a cinco activos en un cesto de peso fijo, listalo como indice y ponte largo o corto sobre el.', [
-      primaryBtn('Crear indice', () => go('#/crear')),
+    head('Dashboard', 'Bundle three to five assets into a fixed-weight basket, list it as an index, and take a long or short side on it.', [
+      primaryBtn('Create index', () => go('#/create')),
     ]),
 
-    note('<strong>Esto es un mercado de practica.</strong> El precio de cada activo lo produce un simulador reproducible, no un proveedor de mercado, y ningun numero de esta aplicacion describe el mercado real. Lo que si es real dentro de la aplicacion es tu actividad: las posiciones, las comisiones y los indices que listas.', 'warn'),
+    note('<strong>This is a paper market.</strong> Every asset price comes from a reproducible simulator, not from a market data provider, and no number in this app describes the real market. What is real inside the app is your own activity: the positions, the fees and the indices you list.', 'warn'),
 
     el('div', { class: 'wp-grid cols-4' }, [
-      stat('Patrimonio', usdg(acc.equity), { sub: 'Saldo, margen y resultado abierto' }),
-      stat('Disponible', usdg(acc.balance), { sub: `${acc.open} posiciones abiertas` }),
-      stat('Resultado abierto', usdg(acc.unrealised, { sign: true }), { cls: dir(acc.unrealised), sub: `Realizado ${usdg(acc.realised, { sign: true })}` }),
-      stat('Comisiones por cobrar', usdg(acc.claimable), { sub: `${Math.round(VENUE.creatorShare * 100)} % de lo que paga cada operacion` }),
+      stat('Equity', usdg(acc.equity), { sub: 'Balance, margin and open result' }),
+      stat('Available', usdg(acc.balance), { sub: `${acc.open} open ${acc.open === 1 ? 'position' : 'positions'}` }),
+      stat('Open result', usdg(acc.unrealised, { sign: true }), { cls: dir(acc.unrealised), sub: `Realised ${usdg(acc.realised, { sign: true })}` }),
+      stat('Fees to claim', usdg(acc.claimable), { sub: `${Math.round(VENUE.creatorShare * 100)}% of what every trade pays` }),
     ]),
 
     card({
-      title: 'Lo que mas se mueve', note: 'Variacion de 24 h del cesto',
+      title: 'Biggest movers', note: "The basket's 24 h change",
       tight: true,
-      body: table(['Indice', 'Valor', '24 h', 'Composicion', 'Forma'], movers.map(({ ix, legs, ch }) => {
+      body: table(['Index', 'Value', '24 h', 'Composition', 'Shape'], movers.map(({ ix, legs, ch }) => {
         const v = indexValue(ix, t);
         return el('tr', { class: 'clickable', on: { click: () => go(`#/i/${ix.id}`) } }, [
           el('td', { class: 'wide' }, [indexIdent(ix, legs)]),
@@ -82,18 +82,18 @@ export function panelView() {
 
     el('div', { class: 'wp-grid cols-2' }, [
       card({
-        title: 'Tus posiciones', note: acc.open ? `${acc.open} abiertas` : null, tight: true,
+        title: 'Your positions', note: acc.open ? `${acc.open} open` : null, tight: true,
         body: acc.open
           ? positionsTable(t, { compact: true })
           : emptyState({
-              title: 'Todavia no tienes posiciones',
-              text: 'Elige un indice del mercado y ponte largo o corto con hasta ' + VENUE.maxLeverage + 'x.',
-              action: primaryBtn('Ver el mercado', () => go('#/mercado'), 'ghost'),
+              title: 'No positions yet',
+              text: 'Pick an index from the market and take a long or short side with up to ' + VENUE.maxLeverage + 'x.',
+              action: primaryBtn('See the market', () => go('#/market'), 'ghost'),
             }),
       }),
       card({
-        title: 'Patas que mandan hoy', note: 'Activos sueltos, 24 h', tight: true,
-        body: table(['Activo', 'Precio sim.', '24 h'], assetMovers.map(({ a, ch }) =>
+        title: 'Legs setting the pace', note: 'Single assets, 24 h', tight: true,
+        body: table(['Asset', 'Sim. price', '24 h'], assetMovers.map(({ a, ch }) =>
           el('tr', { class: 'clickable', on: { click: () => go(`#/a/${a.id}`) } }, [
             el('td', { class: 'wide' }, [assetIdent(a, { size: 30 })]),
             el('td', { class: 'num', text: auto(spot(a.id, t)) }),
@@ -104,25 +104,25 @@ export function panelView() {
   ]);
 }
 
-/* ============================ mercado ============================ */
+/* ============================ market ============================ */
 
-let marketFilter = 'todos';
-let marketSort = 'volumen';
+let marketFilter = 'all';
+let marketSort = 'depth';
 
 export function marketView() {
   const t = Date.now();
   const wrap = el('div', { class: 'wp-grid' });
 
   const filters = [
-    { id: 'todos', label: 'Todos' },
-    { id: 'metales', label: 'Con metales' },
-    { id: 'acciones', label: 'Solo acciones' },
-    { id: 'mios', label: 'Listados por mi' },
+    { id: 'all', label: 'All' },
+    { id: 'metals', label: 'With metals' },
+    { id: 'stocks', label: 'Stocks only' },
+    { id: 'mine', label: 'Listed by me' },
   ];
   const sorts = [
-    { id: 'volumen', label: 'Profundidad' },
-    { id: 'variacion', label: 'Variacion' },
-    { id: 'nuevos', label: 'Recientes' },
+    { id: 'depth', label: 'Depth' },
+    { id: 'change', label: 'Change' },
+    { id: 'recent', label: 'Recent' },
   ];
 
   const seg = (opts, current, onPick) => el('div', { class: 'wp-seg' }, opts.map(o =>
@@ -145,20 +145,20 @@ export function marketView() {
         funding: fundingRate(ix.id),
       };
     });
-    if (marketFilter === 'metales') rows = rows.filter(r => r.legs.some(l => l.asset.class === 'metal'));
-    if (marketFilter === 'acciones') rows = rows.filter(r => r.legs.every(l => l.asset.class === 'stock'));
-    if (marketFilter === 'mios') rows = rows.filter(r => r.ix.creator === 'yo');
+    if (marketFilter === 'metals') rows = rows.filter(r => r.legs.some(l => l.asset.class === 'metal'));
+    if (marketFilter === 'stocks') rows = rows.filter(r => r.legs.every(l => l.asset.class === 'stock'));
+    if (marketFilter === 'mine') rows = rows.filter(r => r.ix.creator === 'me');
 
-    if (marketSort === 'volumen') rows.sort((a, b) => b.depth - a.depth);
-    if (marketSort === 'variacion') rows.sort((a, b) => Math.abs(b.ch24 ?? 0) - Math.abs(a.ch24 ?? 0));
-    if (marketSort === 'nuevos') rows.sort((a, b) => b.ix.listedAt - a.ix.listedAt);
+    if (marketSort === 'depth') rows.sort((a, b) => b.depth - a.depth);
+    if (marketSort === 'change') rows.sort((a, b) => Math.abs(b.ch24 ?? 0) - Math.abs(a.ch24 ?? 0));
+    if (marketSort === 'recent') rows.sort((a, b) => b.ix.listedAt - a.ix.listedAt);
 
     body.replaceChildren(card({
-      title: `${rows.length} indices listados`,
-      note: 'La profundidad es una cifra del simulador. El interes abierto y la financiacion salen de las posiciones que hay de verdad.',
+      title: `${rows.length} indices listed`,
+      note: 'Depth is a simulator figure. Open interest and funding come from the positions that actually exist.',
       tight: true,
       body: rows.length ? table(
-        ['Indice', 'Valor', '24 h', '7 d', 'Composicion', 'Profundidad sim.', 'Interes abierto', 'Financiacion 8 h', 'Forma'],
+        ['Index', 'Value', '24 h', '7 d', 'Composition', 'Sim. depth', 'Open interest', 'Funding 8 h', 'Shape'],
         rows.map(r => el('tr', { class: 'clickable', on: { click: () => go(`#/i/${r.ix.id}`) } }, [
           el('td', { class: 'wide' }, [indexIdent(r.ix, r.legs)]),
           el('td', { class: 'num', text: r.value === null ? NA_TEXT : auto(r.value) }),
@@ -170,13 +170,13 @@ export function marketView() {
           el('td', { class: `num ${r.funding > 0 ? 'down' : r.funding < 0 ? 'up' : 'flat'}`, text: pct(r.funding * 100, { d: 4 }) }),
           el('td', {}, [spark(indexSeries(r.ix, 24 * 30), indexColor(r.legs))]),
         ]))
-      ) : emptyState({ title: 'Ningun indice cumple ese filtro', text: 'Prueba con otro, o lista tu propio cesto.', action: primaryBtn('Crear indice', () => go('#/crear'), 'ghost') }),
+      ) : emptyState({ title: 'No index matches that filter', text: 'Try another one, or list a basket of your own.', action: primaryBtn('Create index', () => go('#/create'), 'ghost') }),
     }));
   }
 
   wrap.append(
-    head('Mercado', 'Cada fila es un cesto de peso fijo con su propio perpetuo. La composicion se lee en la barra de colores: cada tramo es una pata, con el color de marca del activo.', [
-      primaryBtn('Crear indice', () => go('#/crear')),
+    head('Market', "Every row is a fixed-weight basket with a perpetual of its own. The composition reads off the colour bar: each band is a leg, in the asset's brand colour.", [
+      primaryBtn('Create index', () => go('#/create')),
     ]),
     el('div', { class: 'wp-tabs' }, [
       seg(filters, marketFilter, v => { marketFilter = v; }),
@@ -188,7 +188,7 @@ export function marketView() {
   return wrap;
 }
 
-/* ============================ activos ============================ */
+/* ============================ assets ============================ */
 
 let assetTab = 'stock';
 
@@ -210,11 +210,11 @@ export function assetsView() {
     body.replaceChildren(card({
       title: `${list.length} ${CLASSES[assetTab].plural.toLowerCase()}`,
       note: isMetal
-        ? 'Un metal no tiene logo porque no es una empresa: su marca es su simbolo quimico oficial en el color real del metal, y la ultima columna dice donde cotiza.'
-        : 'La marca de cada activo es su logo oficial, resuelto en tiempo de ejecucion de su propio dominio.',
+        ? "A metal has no logo because it is not a company: its mark is its official chemical symbol in the real colour of the metal, and the last column says where it is priced."
+        : "Each asset's mark is its official logo, resolved at runtime from its own domain.",
       tight: true,
       body: table(
-        ['Activo', 'Simbolo', 'Precio sim.', '24 h', '7 d', 'Forma', isMetal ? 'Mercado y unidad' : 'Mercado'],
+        ['Asset', 'Symbol', 'Sim. price', '24 h', '7 d', 'Shape', isMetal ? 'Market and unit' : 'Market'],
         list.map(a => el('tr', { class: 'clickable', on: { click: () => go(`#/a/${a.id}`) } }, [
           el('td', { class: 'wide' }, [assetIdent(a, { size: 34, sub: a.sector })]),
           el('td', {}, [symPill(a)]),
@@ -229,18 +229,18 @@ export function assetsView() {
   }
 
   wrap.append(
-    head('Activos', 'El universo del que se construye un cesto. Cada activo lleva su simbolo y su marca real, y ese mismo par se usa en todas las pantallas.', null),
+    head('Assets', 'The universe a basket is built from. Every asset carries its symbol and its real mark, and that same pair is used on every screen.', null),
     tabBar, body,
   );
   render();
   return wrap;
 }
 
-/* ============================ ficha de un activo ============================ */
+/* ============================ asset page ============================ */
 
 export function assetView(id) {
   const a = getAsset(id);
-  if (!a) return notFound('Ese activo no esta en el registro.');
+  if (!a) return notFound('That asset is not in the registry.');
   const t = Date.now();
   const inIndices = state.indices
     .map(ix => ({ ix, legs: indexLegs(ix), leg: ix.legs.find(l => l.id === a.id) }))
@@ -269,46 +269,46 @@ export function assetView(id) {
     ]),
 
     card({
-      title: 'Precio simulado', note: 'Serie calculada por el simulador, no una cotizacion',
+      title: 'Simulated price', note: 'A series computed by the simulator, not a quote',
       actions: chart.ranges, body: chart.wrap,
     }),
 
     el('div', { class: 'wp-grid cols-2' }, [
       card({
-        title: 'Identidad', body: kv([
-          { k: 'Nombre legal', v: a.name },
-          { k: 'Simbolo', v: a.symbol },
-          a.element ? { k: 'Simbolo quimico', v: a.element } : null,
-          { k: 'Clase', v: CLASSES[a.class]?.label || '—' },
+        title: 'Identity', body: kv([
+          { k: 'Legal name', v: a.name },
+          { k: 'Symbol', v: a.symbol },
+          a.element ? { k: 'Chemical symbol', v: a.element } : null,
+          { k: 'Class', v: CLASSES[a.class]?.label || '—' },
           { k: 'Sector', v: a.sector },
-          { k: 'Mercado', v: a.venue },
-          a.unit ? { k: 'Unidad', v: a.unit } : null,
-          { k: a.class === 'metal' ? 'Dominio del mercado' : 'Dominio oficial', v: a.venueDomain || a.domain || '—' },
-          { k: 'Color de marca', v: a.color.toUpperCase() },
+          { k: 'Market', v: a.venue },
+          a.unit ? { k: 'Unit', v: a.unit } : null,
+          { k: a.class === 'metal' ? "Market's domain" : 'Official domain', v: a.venueDomain || a.domain || '—' },
+          { k: 'Brand colour', v: a.color.toUpperCase() },
         ]),
       }),
       card({
-        title: 'Variacion simulada', body: kv([
-          { k: '24 horas', v: pct(changePct(a.id, 24, t)), cls: dir(changePct(a.id, 24, t)) },
-          { k: '7 dias', v: pct(changePct(a.id, 24 * 7, t)), cls: dir(changePct(a.id, 24 * 7, t)) },
-          { k: '30 dias', v: pct(changePct(a.id, 24 * 30, t)), cls: dir(changePct(a.id, 24 * 30, t)) },
-          { k: 'Volumen 24 h sim.', v: compact(volume24h(a.id, t)), line: true },
+        title: 'Simulated change', body: kv([
+          { k: '24 hours', v: pct(changePct(a.id, 24, t)), cls: dir(changePct(a.id, 24, t)) },
+          { k: '7 days', v: pct(changePct(a.id, 24 * 7, t)), cls: dir(changePct(a.id, 24 * 7, t)) },
+          { k: '30 days', v: pct(changePct(a.id, 24 * 30, t)), cls: dir(changePct(a.id, 24 * 30, t)) },
+          { k: 'Sim. 24 h volume', v: compact(volume24h(a.id, t)), line: true },
         ]),
       }),
     ]),
 
     card({
-      title: 'Indices que lo llevan', tight: true,
-      body: inIndices.length ? table(['Indice', 'Peso', 'Valor', '24 h'], inIndices.map(r =>
+      title: 'Indices that hold it', tight: true,
+      body: inIndices.length ? table(['Index', 'Weight', 'Value', '24 h'], inIndices.map(r =>
         el('tr', { class: 'clickable', on: { click: () => go(`#/i/${r.ix.id}`) } }, [
           el('td', { class: 'wide' }, [indexIdent(r.ix, r.legs)]),
-          el('td', { class: 'num', text: num(r.leg.weight, 1) + ' %' }),
+          el('td', { class: 'num', text: num(r.leg.weight, 1) + '%' }),
           el('td', { class: 'num', text: auto(indexValue(r.ix, t)) }),
           el('td', {}, [changePill(indexChange(r.ix, 24, t))]),
         ]))) : emptyState({
-          title: 'Ningun indice listado lo lleva',
-          text: `Puedes ser el primero en meter ${a.short} en un cesto.`,
-          action: primaryBtn('Crear indice con ' + a.short, () => go(`#/crear?seed=${a.id}`), 'ghost'),
+          title: 'No listed index holds it',
+          text: `You can be the first to put ${a.short} in a basket.`,
+          action: primaryBtn('Create an index with ' + a.short, () => go(`#/create?seed=${a.id}`), 'ghost'),
         }),
     }),
   ]);
@@ -316,33 +316,33 @@ export function assetView(id) {
 
 export function notFound(text) {
   return frag([
-    head('No encontrado', null, null),
-    card({ body: emptyState({ title: 'Aqui no hay nada', text, action: primaryBtn('Volver al panel', () => go('#/'), 'ghost') }) }),
+    head('Not found', null, null),
+    card({ body: emptyState({ title: 'There is nothing here', text, action: primaryBtn('Back to the dashboard', () => go('#/'), 'ghost') }) }),
   ]);
 }
 
-/* ---- tabla de posiciones, compartida por el panel, la cartera y la ficha ---- */
+/* ---- positions table, shared by the dashboard, the portfolio and the index ---- */
 
 export function positionsTable(t = Date.now(), { indexId = null, compact: small = false } = {}) {
   const rows = openPositions(indexId);
   if (!rows.length) return null;
   const cols = small
-    ? ['Indice', 'Lado', 'Resultado', '']
-    : ['Indice', 'Lado', 'Margen', 'Nocional', 'Entrada', 'Marca', 'Liquidacion', 'Financiacion', 'Resultado', ''];
+    ? ['Index', 'Side', 'Result', '']
+    : ['Index', 'Side', 'Margin', 'Notional', 'Entry', 'Mark', 'Liquidation', 'Funding', 'Result', ''];
 
   return table(cols, rows.map(p => {
     const m = markPosition(p, t);
     const ix = getIndex(p.indexId);
     const legs = indexLegs(ix);
-    const side = el('span', { class: `wp-pill ${p.side === 'long' ? 'up' : 'down'}`, text: `${p.side === 'long' ? 'Largo' : 'Corto'} ${lev(p.leverage)}` });
+    const side = el('span', { class: `wp-pill ${p.side === 'long' ? 'up' : 'down'}`, text: `${p.side === 'long' ? 'Long' : 'Short'} ${lev(p.leverage)}` });
     const result = el('td', {}, [
       el('div', { class: `num ${dir(m.pnl - m.funding)}`, text: usdg(m.pnl - m.funding, { sign: true }) }),
       el('div', { class: `wp-ident-sub num ${dir(m.roe)}`, text: pct(m.roe) }),
     ]);
     const close = el('td', {}, [
       el('button', {
-        class: 'wp-btn sm ghost', type: 'button', text: 'Cerrar',
-        on: { click: (ev) => { ev.stopPropagation(); const r = closePosition(p.id); toast(r.ok ? `Posicion cerrada: ${usdg(r.closed.pnl, { sign: true })}` : r.error, r.ok ? (r.closed.pnl >= 0 ? 'good' : '') : 'bad'); } },
+        class: 'wp-btn sm ghost', type: 'button', text: 'Close',
+        on: { click: (ev) => { ev.stopPropagation(); const r = closePosition(p.id); toast(r.ok ? `Position closed: ${usdg(r.closed.pnl, { sign: true })}` : r.error, r.ok ? (r.closed.pnl >= 0 ? 'good' : '') : 'bad'); } },
       }),
     ]);
     const cells = small
@@ -362,11 +362,11 @@ export function positionsTable(t = Date.now(), { indexId = null, compact: small 
   }));
 }
 
-/* ============================ ficha de un indice ============================ */
+/* ============================ index page ============================ */
 
 export function indexView(id) {
   const ix = getIndex(id);
-  if (!ix) return notFound('Ese indice no esta listado.');
+  if (!ix) return notFound('That index is not listed.');
   const t = Date.now();
   const legs = indexLegs(ix);
   const color = indexColor(legs);
@@ -384,11 +384,11 @@ export function indexView(id) {
     const p = spot(l.asset.id, t);
     const ref = ix.refs[l.asset.id];
     const sinceList = ref ? (p / ref - 1) * 100 : null;
-    // Lo que aporta la pata al movimiento del cesto desde que se listo.
+    // What the leg contributes to the basket's move since it listed.
     const contrib = sinceList === null ? null : sinceList * (l.weight / 100);
     return el('tr', { class: 'clickable', on: { click: () => go(`#/a/${l.asset.id}`) } }, [
       el('td', { class: 'wide' }, [assetIdent(l.asset, { size: 30 })]),
-      el('td', { class: 'num', text: num(l.weight, 1) + ' %' }),
+      el('td', { class: 'num', text: num(l.weight, 1) + '%' }),
       el('td', { class: 'num', text: auto(p) }),
       el('td', { class: 'num dim', text: ref ? auto(ref) : NA_TEXT }),
       el('td', {}, [changePill(changePct(l.asset.id, 24, t))]),
@@ -398,77 +398,77 @@ export function indexView(id) {
 
   const left = el('div', { class: 'wp-grid' }, [
     card({
-      title: 'Valor del indice',
-      note: `Base ${VENUE.indexBase} el dia que se listo, ${ago(ix.listedAt)}`,
+      title: 'Index value',
+      note: `Base ${VENUE.indexBase} the day it listed, ${ago(ix.listedAt)}`,
       actions: chart.ranges, body: chart.wrap,
     }),
     card({
-      title: 'Composicion',
-      note: 'Peso fijo: no se rebalancea, asi que el cesto de hoy es el que se listo',
+      title: 'Composition',
+      note: "Fixed weight: it never rebalances, so today's basket is the one that listed",
       body: el('div', { class: 'wp-grid' }, [
         donut(legs, 128),
-        note('La columna <strong>aportacion</strong> es cuanto de la variacion del indice desde que se listo viene de cada pata: su movimiento por su peso.'),
+        note('The <strong>contribution</strong> column is how much of the index\'s change since it listed comes from each leg: its move times its weight.'),
       ]),
     }),
     card({
-      title: 'Detalle de las patas', tight: true,
-      body: table(['Activo', 'Peso', 'Precio sim.', 'Al listar', '24 h', 'Aportacion'], legRows),
+      title: 'Leg detail', tight: true,
+      body: table(['Asset', 'Weight', 'Sim. price', 'At listing', '24 h', 'Contribution'], legRows),
     }),
     card({
-      title: 'Tus posiciones en este indice', tight: true,
+      title: 'Your positions in this index', tight: true,
       body: positionsTable(t, { indexId: ix.id })
-        || emptyState({ title: 'Ninguna posicion abierta aqui', text: 'Usa el panel de la derecha para abrir una.' }),
+        || emptyState({ title: 'No position open here', text: 'Use the panel on the right to open one.' }),
     }),
   ]);
 
   const right = el('div', { class: 'wp-grid' }, [
     tradePanel(ix, value),
     card({
-      title: 'Estado del mercado',
+      title: 'Market state',
       body: frag([
         kv([
-          { k: 'Valor', v: value === null ? NA_TEXT : auto(value) },
-          { k: 'Variacion 24 h', v: pct(ch24), cls: dir(ch24) },
-          { k: 'Variacion 7 d', v: pct(indexChange(ix, 24 * 7, t)), cls: dir(indexChange(ix, 24 * 7, t)) },
-          { k: 'Profundidad sim. 24 h', v: compact(simulatedDepth(ix, t)), line: true },
-          { k: 'Interes abierto', v: oi.total ? usdg(oi.total) : '—' },
-          { k: 'Largos', v: oi.long ? usdg(oi.long) : '—', cls: 'up' },
-          { k: 'Cortos', v: oi.short ? usdg(oi.short) : '—', cls: 'down' },
-          { k: 'Financiacion 8 h', v: pct(funding * 100, { d: 4 }), cls: funding > 0 ? 'down' : funding < 0 ? 'up' : 'flat' },
+          { k: 'Value', v: value === null ? NA_TEXT : auto(value) },
+          { k: '24 h change', v: pct(ch24), cls: dir(ch24) },
+          { k: '7 d change', v: pct(indexChange(ix, 24 * 7, t)), cls: dir(indexChange(ix, 24 * 7, t)) },
+          { k: 'Sim. 24 h depth', v: compact(simulatedDepth(ix, t)), line: true },
+          { k: 'Open interest', v: oi.total ? usdg(oi.total) : '—' },
+          { k: 'Longs', v: oi.long ? usdg(oi.long) : '—', cls: 'up' },
+          { k: 'Shorts', v: oi.short ? usdg(oi.short) : '—', cls: 'down' },
+          { k: 'Funding 8 h', v: pct(funding * 100, { d: 4 }), cls: funding > 0 ? 'down' : funding < 0 ? 'up' : 'flat' },
         ]),
         el('div', { style: { marginTop: '12px' } }, [
-          el('div', { class: 'wp-weights', title: 'Reparto del interes abierto entre largos y cortos' }, [
+          el('div', { class: 'wp-weights', title: 'Split of open interest between longs and shorts' }, [
             el('span', { style: { width: `${oi.total ? (oi.long / oi.total) * 100 : 50}%`, background: 'var(--up)' } }),
             el('span', { style: { width: `${oi.total ? (oi.short / oi.total) * 100 : 50}%`, background: 'var(--down)' } }),
           ]),
           el('div', { class: 'wp-hint', style: { marginTop: '6px' },
-            text: funding > 0 ? 'Hay mas largos que cortos: pagan los largos.'
-                : funding < 0 ? 'Hay mas cortos que largos: pagan los cortos.'
-                : 'Sin desequilibrio: la financiacion esta en su tipo base.' }),
+            text: funding > 0 ? 'More longs than shorts: the longs pay.'
+                : funding < 0 ? 'More shorts than longs: the shorts pay.'
+                : 'No imbalance: funding sits at its base rate.' }),
         ]),
       ]),
     }),
     card({
-      title: 'Quien lo listo',
+      title: 'Who listed it',
       body: frag([
         kv([
-          { k: 'Simbolo', v: ix.symbol },
-          { k: 'Creador', v: ix.creator === 'yo' ? 'Tu' : 'Cuenta demo de Warp' },
-          { k: 'Listado', v: dateTime(ix.listedAt) },
-          { k: 'Patas', v: String(legs.length) },
-          { k: 'Comisiones generadas', v: usdg(ix.feesAccrued), line: true },
+          { k: 'Symbol', v: ix.symbol },
+          { k: 'Creator', v: ix.creator === 'me' ? 'You' : 'Warp demo account' },
+          { k: 'Listed', v: dateTime(ix.listedAt) },
+          { k: 'Legs', v: String(legs.length) },
+          { k: 'Fees generated', v: usdg(ix.feesAccrued), line: true },
         ]),
         ix.note ? el('p', { class: 'wp-hint', style: { marginTop: '10px' }, text: ix.note }) : null,
-        ix.creator === 'yo'
+        ix.creator === 'me'
           ? el('div', { style: { marginTop: '12px', display: 'grid', gap: '8px' } }, [
               el('button', {
                 class: 'wp-btn quiet block', type: 'button',
-                text: `Cobrar ${usdg(pendingFees(ix))}`, disabled: pendingFees(ix) <= 0,
-                on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Cobradas ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
+                text: `Claim ${usdg(pendingFees(ix))}`, disabled: pendingFees(ix) <= 0,
+                on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Claimed ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
               }),
               el('button', {
-                class: 'wp-btn danger block sm', type: 'button', text: 'Retirar el indice',
-                on: { click: () => { const r = delistIndex(ix.id); if (r.ok) { toast('Indice retirado'); go('#/creador'); } else toast(r.error, 'bad'); } },
+                class: 'wp-btn danger block sm', type: 'button', text: 'Delist the index',
+                on: { click: () => { const r = delistIndex(ix.id); if (r.ok) { toast('Index delisted'); go('#/creator'); } else toast(r.error, 'bad'); } },
               }),
             ])
           : null,
@@ -491,9 +491,9 @@ export function indexView(id) {
   ]);
 }
 
-/* Lo que el usuario ha escrito en el panel de trading, por indice. Vive fuera
-   de la pantalla para que el refresco periodico del precio no le borre el lado
-   ni el margen a medio escribir. */
+/* What the user has typed into the trading panel, per index. It lives outside
+   the screen so the periodic price refresh does not wipe their side or a margin
+   they are half way through typing. */
 const tickets = new Map();
 function ticket(indexId) {
   if (!tickets.has(indexId)) {
@@ -506,16 +506,16 @@ function ticket(indexId) {
   return tickets.get(indexId);
 }
 
-/** El panel de trading. Toda cifra que muestra sale de quoteOrder(), que es la
- *  misma funcion que valida la orden al abrirla: no puede prometer una
- *  liquidacion y luego aplicar otra. */
+/** The trading panel. Every figure it shows comes from quoteOrder(), the same
+ *  function that validates the order on the way in: it cannot promise one
+ *  liquidation and then apply another. */
 function tradePanel(ix, value) {
   const tk = ticket(ix.id);
 
   const sideSeg = el('div', { class: 'wp-seg side', style: { display: 'flex' } }, ['long', 'short'].map(s =>
     el('button', {
       type: 'button', data: { side: s }, style: { flex: '1' },
-      text: s === 'long' ? 'Largo' : 'Corto',
+      text: s === 'long' ? 'Long' : 'Short',
       class: s === tk.side ? 'is-on' : '',
       on: { click: () => { tk.side = s; [...sideSeg.children].forEach(b => b.classList.toggle('is-on', b.dataset.side === s)); refresh(); } },
     })));
@@ -533,7 +533,7 @@ function tradePanel(ix, value) {
   const quick = el('div', { style: { display: 'flex', gap: '6px' } }, [0.25, 0.5, 1].map(f =>
     el('button', {
       class: 'wp-btn sm quiet', type: 'button', style: { flex: '1' },
-      text: f === 1 ? 'Maximo' : `${f * 100} %`,
+      text: f === 1 ? 'Max' : `${f * 100}%`,
       on: { click: () => { tk.margin = Math.max(VENUE.minMargin, Math.floor(state.wallet.balance * f * 100) / 100); marginInput.value = String(tk.margin); refresh(); } },
     })));
 
@@ -546,40 +546,40 @@ function tradePanel(ix, value) {
     levLabel.textContent = lev(tk.leverage);
     const q = quoteOrder({ indexId: ix.id, side: tk.side, margin: tk.margin, leverage: tk.leverage });
     summary.replaceChildren(kv([
-      { k: 'Nocional', v: usdg(q.notional) },
-      { k: 'Entrada', v: q.entry === null ? NA_TEXT : auto(q.entry) },
-      { k: 'Liquidacion', v: q.liq === null ? NA_TEXT : auto(q.liq), cls: 'down' },
-      { k: `Comision ${pct(VENUE.takerFee * 100, { sign: false, d: 3 })}`, v: usdg(q.fee) },
-      { k: 'De ella al creador', v: usdg(q.creatorFee), line: true },
-      { k: 'Total a bloquear', v: usdg(q.margin + q.fee) },
+      { k: 'Notional', v: usdg(q.notional) },
+      { k: 'Entry', v: q.entry === null ? NA_TEXT : auto(q.entry) },
+      { k: 'Liquidation', v: q.liq === null ? NA_TEXT : auto(q.liq), cls: 'down' },
+      { k: `Fee ${pct(VENUE.takerFee * 100, { sign: false, d: 3 })}`, v: usdg(q.fee) },
+      { k: 'Of it, to the creator', v: usdg(q.creatorFee), line: true },
+      { k: 'Total to lock up', v: usdg(q.margin + q.fee) },
     ]));
     problem.replaceChildren(q.ok ? '' : el('div', { class: 'wp-error', text: q.error }));
-    // El aviso habla del apalancamiento que hay elegido ahora, no del maximo:
-    // un aviso que no describe tu orden no avisa de nada.
+    // The warning speaks about the leverage selected right now, not the
+    // maximum: a warning that does not describe your order warns of nothing.
     risk.replaceChildren(note(
-      `A ${lev(tk.leverage)}, un movimiento del <strong>${num(100 / tk.leverage, 1)} %</strong> en contra se lleva el margen entero. ` +
-      `La liquidacion la aplica el motor solo, no hace falta tener la pantalla abierta.`, 'risk'));
-    submit.textContent = `${tk.side === 'long' ? 'Abrir largo' : 'Abrir corto'} ${lev(tk.leverage)}`;
+      `At ${lev(tk.leverage)}, a <strong>${num(100 / tk.leverage, 1)}%</strong> move against you takes the whole margin. ` +
+      `The engine applies the liquidation on its own; you do not need the screen open.`, 'risk'));
+    submit.textContent = `${tk.side === 'long' ? 'Open long' : 'Open short'} ${lev(tk.leverage)}`;
     submit.className = `wp-btn block ${tk.side === 'long' ? 'long' : 'short'}`;
     submit.disabled = !q.ok;
   }
   submit.addEventListener('click', () => {
     const r = openPosition({ indexId: ix.id, side: tk.side, margin: tk.margin, leverage: tk.leverage });
-    toast(r.ok ? `${tk.side === 'long' ? 'Largo' : 'Corto'} abierto en ${ix.symbol} por ${usdg(r.position.notional)}` : r.error, r.ok ? 'good' : 'bad');
+    toast(r.ok ? `${tk.side === 'long' ? 'Long' : 'Short'} opened on ${ix.symbol} for ${usdg(r.position.notional)}` : r.error, r.ok ? 'good' : 'bad');
   });
   refresh();
 
   return card({
-    title: 'Operar', note: value === null ? 'Sin valor' : `Marca ${auto(value)}`,
+    title: 'Trade', note: value === null ? 'No value' : `Mark ${auto(value)}`,
     body: el('div', { class: 'wp-grid', style: { gap: '13px' } }, [
       sideSeg,
       el('div', { class: 'wp-field' }, [
-        el('label', { text: `Margen (disponible ${usdg(state.wallet.balance)})` }),
+        el('label', { text: `Margin (${usdg(state.wallet.balance)} available)` }),
         el('div', { class: 'wp-input-unit' }, [marginInput, el('span', { class: 'wp-unit', text: VENUE.settle })]),
         quick,
       ]),
       el('div', { class: 'wp-field' }, [
-        el('label', {}, [el('span', { text: 'Apalancamiento ' }), levLabel]),
+        el('label', {}, [el('span', { text: 'Leverage ' }), levLabel]),
         levInput,
         el('div', { class: 'wp-range-marks' }, ['1x', '2x', '3x', '4x', '5x'].map(x => el('span', { text: x }))),
       ]),
@@ -591,7 +591,7 @@ function tradePanel(ix, value) {
   });
 }
 
-/* ============================ crear un indice ============================ */
+/* ============================ create an index ============================ */
 
 let draft = null;
 
@@ -619,7 +619,7 @@ export function createView(seedId) {
   const total = () => draft.legs.reduce((s, l) => s + (Number(l.weight) || 0), 0);
 
   function addLeg(id) {
-    if (draft.legs.length >= VENUE.maxLegs) return toast(`Un indice lleva como maximo ${VENUE.maxLegs} activos.`, 'bad');
+    if (draft.legs.length >= VENUE.maxLegs) return toast(`An index holds at most ${VENUE.maxLegs} assets.`, 'bad');
     if (draft.legs.some(l => l.id === id)) return;
     draft.legs.push({ id, weight: 0 });
     equalise();
@@ -632,15 +632,15 @@ export function createView(seedId) {
   }
 
   const symbolInput = el('input', {
-    class: 'wp-input num', maxlength: '12', placeholder: 'MICESTO', value: draft.symbol,
+    class: 'wp-input num', maxlength: '12', placeholder: 'MYBASKET', value: draft.symbol,
     on: { input: () => { draft.symbol = symbolInput.value = symbolInput.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); renderPreview(); } },
   });
   const nameInput = el('input', {
-    class: 'wp-input', maxlength: '48', placeholder: 'Mi cesto de metales', value: draft.name,
+    class: 'wp-input', maxlength: '48', placeholder: 'My metals basket', value: draft.name,
     on: { input: () => { draft.name = nameInput.value; renderPreview(); } },
   });
   const noteInput = el('input', {
-    class: 'wp-input', maxlength: '120', placeholder: 'Que idea expresa este cesto (opcional)', value: draft.note,
+    class: 'wp-input', maxlength: '120', placeholder: 'What idea this basket expresses (optional)', value: draft.note,
     on: { input: () => { draft.note = noteInput.value; } },
   });
 
@@ -659,13 +659,13 @@ export function createView(seedId) {
         ]),
         w,
         el('span', { class: 'dim', text: '%' }),
-        el('button', { class: 'wp-leg-x', type: 'button', text: '×', title: `Quitar ${a.short}`, on: { click: () => removeLeg(l.id) } }),
+        el('button', { class: 'wp-leg-x', type: 'button', text: '×', title: `Remove ${a.short}`, on: { click: () => removeLeg(l.id) } }),
       ]);
-    }) : [note(`Elige entre ${VENUE.minLegs} y ${VENUE.maxLegs} activos de la lista de abajo. Puedes mezclar acciones, metales, cripto y ETFs en el mismo cesto.`)]));
+    }) : [note(`Pick between ${VENUE.minLegs} and ${VENUE.maxLegs} assets from the list below. You can mix stocks, metals, crypto and ETFs in the same basket.`)]));
     const tt = total();
     totalLine.className = `wp-hint ${Math.abs(tt - 100) > 0.01 ? 'wp-error' : ''}`;
-    totalLine.textContent = `${draft.legs.length} de ${VENUE.maxLegs} activos · los pesos suman ${num(tt, 1)} %` +
-      (Math.abs(tt - 100) > 0.01 ? ' y tienen que sumar 100 %' : '');
+    totalLine.textContent = `${draft.legs.length} of ${VENUE.maxLegs} assets · weights add up to ${num(tt, 1)}%` +
+      (Math.abs(tt - 100) > 0.01 ? ', and they have to add up to 100%' : '');
   }
 
   function renderPicker() {
@@ -679,7 +679,7 @@ export function createView(seedId) {
         disabled: !on && draft.legs.length >= VENUE.maxLegs,
         on: { click: () => (on ? removeLeg(a.id) : addLeg(a.id)) },
       }, [markEl(a, 20), el('span', { text: a.short }), el('span', { class: 'dim num', style: { fontSize: '11px' }, text: a.symbol })]);
-    }) : [el('span', { class: 'wp-hint', text: 'Nada coincide con esa busqueda en esta clase.' })]));
+    }) : [el('span', { class: 'wp-hint', text: 'Nothing matches that search in this class.' })]));
   }
 
   function renderPreview() {
@@ -688,8 +688,8 @@ export function createView(seedId) {
     const kids = [];
 
     if (legs.length >= 2 && Math.abs(total() - 100) < 0.01) {
-      // Retroproyeccion: que habria hecho este cesto, con estos pesos, si se
-      // hubiera listado hace treinta dias. Lo dice el simulador, no el mercado.
+      // Backcast: what this basket, at these weights, would have done had it
+      // listed thirty days ago. The simulator says so, not the market.
       const from = Date.now() - 30 * DAY;
       const refs = {};
       legs.forEach(l => { refs[l.id] = spot(l.id, from); });
@@ -701,7 +701,7 @@ export function createView(seedId) {
           el('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } }, [
             el('span', { class: 'num', style: { fontSize: '22px', fontWeight: '650' }, text: auto(last) }),
             changePill(last ? last - VENUE.indexBase : 0),
-            el('span', { class: 'wp-hint', text: 'en 30 dias, desde base 100' }),
+            el('span', { class: 'wp-hint', text: 'over 30 days, from base 100' }),
           ]),
         ]),
         el('div', { class: 'wp-chart sm' }, [
@@ -711,10 +711,10 @@ export function createView(seedId) {
             return c;
           })(),
         ]),
-        note('Esto es una <strong>retroproyeccion del simulador</strong>: lo que habrian hecho estos pesos si el cesto existiera desde hace treinta dias. No es un historial del indice, porque el indice todavia no existe.'),
+        note('This is a <strong>simulator backcast</strong>: what these weights would have done if the basket had existed for the last thirty days. It is not the index\'s history, because the index does not exist yet.'),
       );
     } else {
-      kids.push(emptyState({ title: 'Aun no hay cesto que dibujar', text: `Anade al menos ${VENUE.minLegs} activos y deja los pesos sumando 100 %.` }));
+      kids.push(emptyState({ title: 'No basket to draw yet', text: `Add at least ${VENUE.minLegs} assets and leave the weights adding up to 100%.` }));
     }
 
     if (!check.ok && draft.legs.length) {
@@ -722,16 +722,16 @@ export function createView(seedId) {
     }
 
     kids.push(el('button', {
-      class: 'wp-btn block', type: 'button', text: 'Listar el indice', disabled: !check.ok,
+      class: 'wp-btn block', type: 'button', text: 'List the index', disabled: !check.ok,
       on: { click: () => {
         const r = listIndex(draft);
         if (!r.ok) return toast(r.error, 'bad');
-        toast(`${r.index.symbol} listado`, 'good');
+        toast(`${r.index.symbol} listed`, 'good');
         draft = null;
         go(`#/i/${r.index.id}`);
       } },
     }));
-    kids.push(note(`Al listarlo, el cesto congela el precio de cada pata como referencia y arranca en base ${VENUE.indexBase}. Desde ese momento te llevas el <strong>${Math.round(VENUE.creatorShare * 100)} %</strong> de las comisiones que pague cada operacion abierta sobre el.`));
+    kids.push(note(`On listing, the basket freezes each leg's price as a reference and starts at base ${VENUE.indexBase}. From that moment you take <strong>${Math.round(VENUE.creatorShare * 100)}%</strong> of the fees every trade on it pays.`));
 
     preview.replaceChildren(...kids);
   }
@@ -744,41 +744,41 @@ export function createView(seedId) {
       on: { click: (ev) => { pickerTab = id; [...tabBar.children].forEach(b => b.classList.remove('is-on')); ev.currentTarget.classList.add('is-on'); renderPicker(); } },
     })));
   const pickerSearch = el('input', {
-    class: 'wp-input', placeholder: 'Filtrar dentro de esta clase', type: 'search',
+    class: 'wp-input', placeholder: 'Filter within this class', type: 'search',
     on: { input: () => { pickerQuery = pickerSearch.value; renderPicker(); } },
   });
 
   wrap.append(
-    head('Crear indice', `Un cesto de peso fijo, de ${VENUE.minLegs} a ${VENUE.maxLegs} activos. Lo listas, cualquiera puede operarlo, y tu te quedas el ${Math.round(VENUE.creatorShare * 100)} % de las comisiones.`, null),
+    head('Create index', `A fixed-weight basket of ${VENUE.minLegs} to ${VENUE.maxLegs} assets. You list it, anyone can trade it, and you keep ${Math.round(VENUE.creatorShare * 100)}% of the fees.`, null),
     el('div', { class: 'wp-split' }, [
       el('div', { class: 'wp-grid' }, [
         card({
-          title: 'Identidad del indice',
+          title: "The index's identity",
           body: el('div', { class: 'wp-grid cols-2', style: { gap: '13px' } }, [
-            el('div', { class: 'wp-field' }, [el('label', { text: 'Simbolo' }), symbolInput, el('span', { class: 'wp-hint', text: 'De 3 a 12 letras o numeros' })]),
-            el('div', { class: 'wp-field' }, [el('label', { text: 'Nombre' }), nameInput]),
-            el('div', { class: 'wp-field', style: { gridColumn: '1 / -1' } }, [el('label', { text: 'Descripcion' }), noteInput]),
+            el('div', { class: 'wp-field' }, [el('label', { text: 'Symbol' }), symbolInput, el('span', { class: 'wp-hint', text: '3 to 12 letters or digits' })]),
+            el('div', { class: 'wp-field' }, [el('label', { text: 'Name' }), nameInput]),
+            el('div', { class: 'wp-field', style: { gridColumn: '1 / -1' } }, [el('label', { text: 'Description' }), noteInput]),
           ]),
         }),
         card({
-          title: 'El cesto',
-          actions: el('button', { class: 'wp-btn sm quiet', type: 'button', text: 'Reparto igual', on: { click: () => { equalise(); renderAll(); } } }),
+          title: 'The basket',
+          actions: el('button', { class: 'wp-btn sm quiet', type: 'button', text: 'Equal weights', on: { click: () => { equalise(); renderAll(); } } }),
           body: el('div', { class: 'wp-grid', style: { gap: '10px' } }, [legsBox, totalLine]),
         }),
         card({
-          title: 'Anadir activos',
-          note: 'Acciones, metales, cripto y ETFs en el mismo cesto',
+          title: 'Add assets',
+          note: 'Stocks, metals, crypto and ETFs in the same basket',
           body: el('div', { class: 'wp-grid', style: { gap: '11px' } }, [tabBar, pickerSearch, pickerBox]),
         }),
       ]),
-      card({ title: 'Vista previa', body: preview }),
+      card({ title: 'Preview', body: preview }),
     ]),
   );
   renderAll();
   return wrap;
 }
 
-/* ============================ cartera ============================ */
+/* ============================ portfolio ============================ */
 
 export function portfolioView() {
   const t = Date.now();
@@ -788,47 +788,47 @@ export function portfolioView() {
     const ix = getIndex(h.indexId);
     const legs = ix ? indexLegs(ix) : [];
     return el('tr', {}, [
-      el('td', { class: 'wide' }, [ix ? indexIdent(ix, legs) : el('span', { class: 'dim', text: 'Indice retirado' })]),
-      el('td', {}, [el('span', { class: `wp-pill ${h.side === 'long' ? 'up' : 'down'}`, text: `${h.side === 'long' ? 'Largo' : 'Corto'} ${lev(h.leverage)}` })]),
+      el('td', { class: 'wide' }, [ix ? indexIdent(ix, legs) : el('span', { class: 'dim', text: 'Index delisted' })]),
+      el('td', {}, [el('span', { class: `wp-pill ${h.side === 'long' ? 'up' : 'down'}`, text: `${h.side === 'long' ? 'Long' : 'Short'} ${lev(h.leverage)}` })]),
       el('td', { class: 'num', text: auto(h.entry) }),
       el('td', { class: 'num', text: auto(h.exit) }),
       el('td', { class: 'num dim', text: usdg(h.feesTotal) }),
       el('td', { class: 'num dim', text: usdg(-h.fundingTotal, { sign: true }) }),
       el('td', { class: `num ${dir(h.pnl)}`, text: usdg(h.pnl, { sign: true }) }),
-      el('td', {}, [el('span', { class: `wp-pill ${h.reason === 'liquidacion' ? 'down' : ''}`, text: h.reason === 'liquidacion' ? 'Liquidada' : 'Cerrada' })]),
+      el('td', {}, [el('span', { class: `wp-pill ${h.reason === 'liquidation' ? 'down' : ''}`, text: h.reason === 'liquidation' ? 'Liquidated' : 'Closed' })]),
       el('td', { class: 'dim', text: ago(h.closedAt) }),
     ]);
   });
 
   return frag([
-    head('Cartera', 'Saldo, margen comprometido y resultado. El resultado abierto se recalcula del precio, no se guarda.', [
-      primaryBtn('Ver el mercado', () => go('#/mercado'), 'ghost'),
+    head('Portfolio', 'Balance, committed margin and result. The open result is recomputed from price, never stored.', [
+      primaryBtn('See the market', () => go('#/market'), 'ghost'),
     ]),
     el('div', { class: 'wp-grid cols-4' }, [
-      stat('Patrimonio', usdg(acc.equity), { sub: 'Disponible + margen + abierto' }),
-      stat('Disponible', usdg(acc.balance)),
-      stat('Margen comprometido', usdg(acc.marginUsed), { sub: `${acc.open} posiciones` }),
-      stat('Resultado abierto', usdg(acc.unrealised, { sign: true }), { cls: dir(acc.unrealised), sub: `Realizado ${usdg(acc.realised, { sign: true })}` }),
+      stat('Equity', usdg(acc.equity), { sub: 'Available + margin + open' }),
+      stat('Available', usdg(acc.balance)),
+      stat('Committed margin', usdg(acc.marginUsed), { sub: `${acc.open} ${acc.open === 1 ? 'position' : 'positions'}` }),
+      stat('Open result', usdg(acc.unrealised, { sign: true }), { cls: dir(acc.unrealised), sub: `Realised ${usdg(acc.realised, { sign: true })}` }),
     ]),
     card({
-      title: 'Posiciones abiertas', tight: true,
-      note: 'La financiacion se devenga con el tiempo y ya esta descontada del resultado',
+      title: 'Open positions', tight: true,
+      note: 'Funding accrues over time and is already netted off the result',
       body: positionsTable(t) || emptyState({
-        title: 'Sin posiciones abiertas',
-        text: 'Abre una desde la ficha de cualquier indice.',
-        action: primaryBtn('Ir al mercado', () => go('#/mercado'), 'ghost'),
+        title: 'No open positions',
+        text: "Open one from any index's page.",
+        action: primaryBtn('Go to the market', () => go('#/market'), 'ghost'),
       }),
     }),
     card({
-      title: 'Historial', tight: true, note: history.length ? `${state.history.length} operaciones cerradas` : null,
+      title: 'History', tight: true, note: history.length ? `${state.history.length} closed ${state.history.length === 1 ? 'trade' : 'trades'}` : null,
       body: history.length
-        ? table(['Indice', 'Lado', 'Entrada', 'Salida', 'Comisiones', 'Financiacion', 'Resultado', 'Cierre', 'Cuando'], history)
-        : emptyState({ title: 'Historial vacio', text: 'Aqui apareceran las posiciones que cierres o que se liquiden.' }),
+        ? table(['Index', 'Side', 'Entry', 'Exit', 'Fees', 'Funding', 'Result', 'Close', 'When'], history)
+        : emptyState({ title: 'History is empty', text: 'The positions you close, or that get liquidated, will show up here.' }),
     }),
   ]);
 }
 
-/* ============================ mis indices ============================ */
+/* ============================ my indices ============================ */
 
 export function creatorView() {
   const t = Date.now();
@@ -850,59 +850,59 @@ export function creatorView() {
       el('td', { class: 'dim', text: ago(ix.listedAt) }),
       el('td', {}, [el('div', { style: { display: 'flex', gap: '6px', justifyContent: 'flex-end' } }, [
         el('button', {
-          class: 'wp-btn sm', type: 'button', text: 'Cobrar', disabled: due <= 0,
-          on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Cobradas ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
+          class: 'wp-btn sm', type: 'button', text: 'Claim', disabled: due <= 0,
+          on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Claimed ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
         }),
         el('button', {
-          class: 'wp-btn sm ghost', type: 'button', text: 'Retirar',
-          on: { click: () => { const r = delistIndex(ix.id); toast(r.ok ? 'Indice retirado' : r.error, r.ok ? '' : 'bad'); } },
+          class: 'wp-btn sm ghost', type: 'button', text: 'Delist',
+          on: { click: () => { const r = delistIndex(ix.id); toast(r.ok ? 'Index delisted' : r.error, r.ok ? '' : 'bad'); } },
         }),
       ])]),
     ]);
   });
 
   return frag([
-    head('Mis indices', `Lo que has listado tu. De cada comision que paga una operacion sobre uno de tus indices, el ${Math.round(VENUE.creatorShare * 100)} % se acumula aqui hasta que lo cobras.`, [
-      primaryBtn('Crear indice', () => go('#/crear')),
+    head('My indices', `What you have listed yourself. Of every fee a trade on one of your indices pays, ${Math.round(VENUE.creatorShare * 100)}% accrues here until you claim it.`, [
+      primaryBtn('Create index', () => go('#/create')),
     ]),
     el('div', { class: 'wp-grid cols-3' }, [
-      stat('Indices listados', String(mine.length)),
-      stat('Comisiones generadas', usdg(totalEarned), { sub: `${Math.round(VENUE.creatorShare * 100)} % de cada operacion` }),
-      stat('Pendiente de cobro', usdg(totalPending), { cls: totalPending > 0 ? 'up' : '' }),
+      stat('Indices listed', String(mine.length)),
+      stat('Fees generated', usdg(totalEarned), { sub: `${Math.round(VENUE.creatorShare * 100)}% of every trade` }),
+      stat('Pending to claim', usdg(totalPending), { cls: totalPending > 0 ? 'up' : '' }),
     ]),
     card({
-      title: 'Tus indices', tight: true,
+      title: 'Your indices', tight: true,
       body: rows.length
-        ? table(['Indice', 'Valor', '24 h', 'Interes abierto', 'Generado', 'Pendiente', 'Listado', ''], rows)
+        ? table(['Index', 'Value', '24 h', 'Open interest', 'Generated', 'Pending', 'Listed', ''], rows)
         : emptyState({
-            title: 'Todavia no has listado ningun indice',
-            text: `Agrupa de ${VENUE.minLegs} a ${VENUE.maxLegs} activos, ponle simbolo y listalo. Desde ese momento cobras parte de lo que se opere sobre el.`,
-            action: primaryBtn('Crear mi primer indice', () => go('#/crear')),
+            title: 'You have not listed an index yet',
+            text: `Bundle ${VENUE.minLegs} to ${VENUE.maxLegs} assets, give it a symbol and list it. From that moment you earn a share of everything traded on it.`,
+            action: primaryBtn('Create my first index', () => go('#/create')),
           }),
     }),
     card({
-      title: 'Como se reparte una comision',
+      title: 'How a fee is split',
       body: kv([
-        { k: 'Comision por operacion', v: pct(VENUE.takerFee * 100, { sign: false, d: 3 }) + ' del nocional' },
-        { k: 'Se cobra', v: 'Al abrir y al cerrar' },
-        { k: 'Al creador del indice', v: pct(VENUE.creatorShare * 100, { sign: false, d: 0 }) },
-        { k: 'Retiene el protocolo', v: pct((1 - VENUE.creatorShare) * 100, { sign: false, d: 0 }) },
-        { k: 'En una liquidacion', v: 'No hay comision de cierre', line: true },
+        { k: 'Fee per trade', v: pct(VENUE.takerFee * 100, { sign: false, d: 3 }) + ' of notional' },
+        { k: 'Charged', v: 'On opening and on closing' },
+        { k: "To the index's creator", v: pct(VENUE.creatorShare * 100, { sign: false, d: 0 }) },
+        { k: 'Kept by the protocol', v: pct((1 - VENUE.creatorShare) * 100, { sign: false, d: 0 }) },
+        { k: 'On a liquidation', v: 'No closing fee', line: true },
       ]),
     }),
   ]);
 }
 
-/* ============================ ajustes de la cuenta ============================ */
+/* ============================ account ============================ */
 
 export function confirmReset() {
   const acc = accountSummary();
   const ok = window.confirm(
-    `Reiniciar la cuenta borra tus posiciones, tu historial y los indices que has listado, ` +
-    `y devuelve el saldo a ${VENUE.openingBalance} ${VENUE.settle}.\n\n` +
-    `Ahora mismo tienes ${acc.open} posiciones abiertas y ${usdg(acc.equity)} de patrimonio.\n\n¿Seguir?`);
+    `Resetting the account deletes your positions, your history and the indices you have listed, ` +
+    `and returns the balance to ${VENUE.openingBalance} ${VENUE.settle}.\n\n` +
+    `Right now you have ${acc.open} open positions and ${usdg(acc.equity)} of equity.\n\nGo ahead?`);
   if (!ok) return;
   resetAll();
-  toast('Cuenta reiniciada');
+  toast('Account reset');
   go('#/');
 }

@@ -1,9 +1,9 @@
-/* El armazon: enrutado, buscador, reloj y el latido que liquida.
+/* The shell: routing, search, clock and the heartbeat that liquidates.
 
-   Una pantalla se pinta entera al entrar y se repinta cuando cambia el estado o
-   cuando avanza el precio. El repintado se salta si el usuario tiene el foco en
-   un campo, para no borrarle lo que esta escribiendo, y nunca toca la pantalla
-   de crear indice, que es un formulario largo. */
+   A screen paints whole on entry and repaints when the state changes or the
+   price advances. The repaint is skipped if the user has focus in a field, so
+   nothing they are typing gets wiped, and it never touches the create-index
+   screen, which is a long form. */
 
 import { VENUE } from './config.js';
 import { state, onChange } from './store.js';
@@ -25,34 +25,34 @@ const input = document.getElementById('q');
 const results = document.getElementById('results');
 const combobox = input.closest('.wp-search');
 
-/* ---------------- enrutado ---------------- */
+/* ---------------- routing ---------------- */
 
 function parseHash() {
   const raw = (location.hash || '#/').slice(1);
   const [path, query] = raw.split('?');
   const parts = path.split('/').filter(Boolean);
   const params = new URLSearchParams(query || '');
-  if (!parts.length) return { route: 'panel', params };
-  if (parts[0] === 'i') return { route: 'indice', id: parts[1], params };
-  if (parts[0] === 'a') return { route: 'activo', id: parts[1], params };
+  if (!parts.length) return { route: 'dashboard', params };
+  if (parts[0] === 'i') return { route: 'index', id: parts[1], params };
+  if (parts[0] === 'a') return { route: 'asset', id: parts[1], params };
   return { route: parts[0], id: parts[1], params };
 }
 
 const PAGES = {
-  panel: () => panelView(),
-  mercado: () => marketView(),
-  crear: (r) => createView(r.params.get('seed')),
-  cartera: () => portfolioView(),
-  creador: () => creatorView(),
-  activos: () => assetsView(),
-  indice: (r) => indexView(r.id),
-  activo: (r) => assetView(r.id),
+  dashboard: () => panelView(),
+  market: () => marketView(),
+  create: (r) => createView(r.params.get('seed')),
+  portfolio: () => portfolioView(),
+  creator: () => creatorView(),
+  assets: () => assetsView(),
+  index: (r) => indexView(r.id),
+  asset: (r) => assetView(r.id),
 };
 
-/* Titulo de pestana: dice donde estas sin tener que mirar la barra lateral. */
+/* Tab title: says where you are without looking at the sidebar. */
 const TITLES = {
-  panel: 'Panel', mercado: 'Mercado', crear: 'Crear indice',
-  cartera: 'Cartera', creador: 'Mis indices', activos: 'Activos',
+  dashboard: 'Dashboard', market: 'Market', create: 'Create index',
+  portfolio: 'Portfolio', creator: 'My indices', assets: 'Assets',
 };
 
 let current = parseHash();
@@ -60,12 +60,12 @@ let current = parseHash();
 function render() {
   const r = current;
   const build = PAGES[r.route];
-  view.replaceChildren(build ? build(r) : notFound('Esa direccion no existe en Warp.'));
+  view.replaceChildren(build ? build(r) : notFound('That address does not exist in Warp.'));
   document.title = `${TITLES[r.route] || 'Warp'} · Warp`;
   [...nav.querySelectorAll('a')].forEach(a => {
     const active = a.dataset.route === r.route
-      || (r.route === 'indice' && a.dataset.route === 'mercado')
-      || (r.route === 'activo' && a.dataset.route === 'activos');
+      || (r.route === 'index' && a.dataset.route === 'market')
+      || (r.route === 'asset' && a.dataset.route === 'assets');
     a.classList.toggle('is-active', active);
     a.setAttribute('aria-current', active ? 'page' : 'false');
   });
@@ -81,7 +81,7 @@ function navigate() {
 }
 window.addEventListener('hashchange', navigate);
 
-/* ---------------- barra lateral ---------------- */
+/* ---------------- sidebar ---------------- */
 
 const sideEquity = document.getElementById('sideEquity');
 const navOpen = document.getElementById('navOpen');
@@ -89,14 +89,14 @@ const navOpen = document.getElementById('navOpen');
 function paintSide() {
   const acc = accountSummary();
   sideEquity.replaceChildren(
-    el('dt', { text: `Patrimonio (${VENUE.settle})` }),
+    el('dt', { text: `Equity (${VENUE.settle})` }),
     el('dd', { text: usdg(acc.equity).replace(' ' + VENUE.settle, '') }),
     el('div', { class: 'wp-equity-row' }, [
-      el('span', { text: 'Disponible' }),
+      el('span', { text: 'Available' }),
       el('span', { class: 'num', text: usdg(acc.balance).replace(' ' + VENUE.settle, '') }),
     ]),
     el('div', { class: 'wp-equity-row' }, [
-      el('span', { text: 'Abierto' }),
+      el('span', { text: 'Open' }),
       el('span', { class: `num ${dir(acc.unrealised)}`, text: usdg(acc.unrealised, { sign: true }).replace(' ' + VENUE.settle, '') }),
     ]),
   );
@@ -106,13 +106,13 @@ function paintSide() {
 
 document.getElementById('resetBtn').addEventListener('click', confirmReset);
 
-/* El simbolo de X todavia no tiene destino. En lugar de un enlace que no lleva
-   a ninguna parte, lo dice. */
+/* The X mark has no destination yet. Rather than a link that goes nowhere, it
+   says so. */
 document.getElementById('xBtn').addEventListener('click', () => {
-  toast('El perfil de X aun no esta enlazado.');
+  toast('The X profile is not linked yet.');
 });
 
-/* ---------------- buscador ---------------- */
+/* ---------------- search ---------------- */
 
 let hits = [];
 let cursor = -1;
@@ -132,7 +132,7 @@ function openHit(hit) {
 function paintResults() {
   results.replaceChildren();
   if (!hits.length) {
-    results.append(el('div', { class: 'wp-res-empty', text: 'Nada coincide. Prueba con el simbolo, el nombre o el metal ("niquel", "XAU").' }));
+    results.append(el('div', { class: 'wp-res-empty', text: 'Nothing matches. Try the symbol, the name or the metal ("nickel", "XAU").' }));
   } else {
     hits.forEach((hit, i) => {
       const mark = hit.kind === 'index'
@@ -182,25 +182,26 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === '/' && !typing) { ev.preventDefault(); input.focus(); }
 });
 
-/* ---------------- el latido ---------------- */
+/* ---------------- the heartbeat ---------------- */
 
 const clockEl = document.getElementById('clock');
 const stamp = document.getElementById('stamp');
 
-/** Se repinta la pantalla salvo que el usuario este escribiendo en ella, y
- *  nunca la de crear indice: un formulario a medias no se toca. */
+/** The screen repaints unless the user is typing in it, and never the
+ *  create-index one: a half-finished form is left alone. */
 function canRepaint() {
-  if (current.route === 'crear') return false;
+  if (current.route === 'create') return false;
   const a = document.activeElement;
   return !(a && view.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
 }
 
 function tick() {
   clockEl.textContent = clock();
-  stamp.textContent = `${feed.label}${feed.isSimulated ? ' · precio simulado' : ''} · ${clock()}`;
-  // Una posicion sin margen se liquida por la regla, no porque alguien mire.
+  stamp.textContent = `${feed.label}${feed.isSimulated ? ' · simulated price' : ''} · ${clock()}`;
+  // A position with no margin is liquidated by the rule, not because someone is
+  // watching.
   const killed = liquidationSweep();
-  if (killed) toast(`${killed} ${killed === 1 ? 'posicion liquidada' : 'posiciones liquidadas'} por falta de margen`, 'bad');
+  if (killed) toast(`${killed} ${killed === 1 ? 'position' : 'positions'} liquidated for want of margin`, 'bad');
   if (canRepaint()) render(); else paintSide();
 }
 

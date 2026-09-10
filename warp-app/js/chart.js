@@ -1,16 +1,16 @@
-/* Graficos en canvas. Sin libreria, asi que no hay nada que cargar y nada que
-   se rompa. Una sola escala coloca la linea, las etiquetas del eje y la cruz,
-   de modo que cada etiqueta nombra un valor que el grafico alcanza de verdad. */
+/* Canvas charts. No library, so there is nothing to load and nothing to break.
+   One scale places the line, the axis labels and the crosshair, so that every
+   label names a value the chart actually reaches. */
 
 import { auto, dateTime } from './format.js';
 import { rgba } from './logos.js';
 
 const cssVar = (el, name) => getComputedStyle(el).getPropertyValue(name).trim();
 
-/* Un canvas puede quedarse sin tamano: la pantalla se ha cambiado antes de que
-   llegara el fotograma, o esta dentro de algo oculto. Dibujar ahi no falla
-   silenciosamente, tira una excepcion de radio negativo, asi que se comprueba
-   una vez aqui y no en cada funcion de dibujo. */
+/* A canvas can end up with no size: the screen changed before the frame
+   arrived, or it sits inside something hidden. Drawing there does not fail
+   quietly, it throws on a negative radius, so it is checked once here rather
+   than in every drawing function. */
 function fitCanvas(canvas) {
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -22,8 +22,8 @@ function fitCanvas(canvas) {
   return { ctx, w, h };
 }
 
-/** Grafico principal con eje, relleno, linea de referencia y cruz.
- *  Devuelve una funcion de desmontaje. */
+/** The main chart, with axis, fill, baseline and crosshair.
+ *  Returns a teardown function. */
 export function drawChart(canvas, rows, { color, baseline = null, suffix = '' } = {}) {
   const wrap = canvas.parentElement;
   const tip = wrap.querySelector('.wp-tip');
@@ -72,7 +72,7 @@ export function drawChart(canvas, rows, { color, baseline = null, suffix = '' } 
       ctx.fillText(auto(v) + suffix, padL + plotW + 8, py);
     }
 
-    // La base del indice: donde estaba el cesto el dia que se listo.
+    // The index's base: where the basket stood the day it listed.
     if (baseline !== null) {
       const py = Math.round(y(baseline)) + 0.5;
       ctx.save();
@@ -95,7 +95,7 @@ export function drawChart(canvas, rows, { color, baseline = null, suffix = '' } 
 
     ctx.fillStyle = theme.dim; ctx.textAlign = 'center'; ctx.font = '11px Inter, sans-serif';
     [0, Math.floor(data.length / 2), data.length - 1].forEach(i => {
-      const label = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' }).format(new Date(data[i].t));
+      const label = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(data[i].t));
       ctx.fillText(label, Math.min(Math.max(x(i), 30), padL + plotW - 30), h - 8);
     });
   }
@@ -106,7 +106,7 @@ export function drawChart(canvas, rows, { color, baseline = null, suffix = '' } 
     const { ctx, w, h } = fit;
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = theme.dim; ctx.font = '13px Inter, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Sin serie que dibujar en este periodo', w / 2, h / 2);
+    ctx.fillText('No series to draw over this period', w / 2, h / 2);
   }
 
   if (data.length < 2) { empty(); return () => {}; }
@@ -150,7 +150,7 @@ export function drawChart(canvas, rows, { color, baseline = null, suffix = '' } 
   };
 }
 
-/** Linea minima para una fila de tabla: forma, sin ejes ni etiquetas. */
+/** A minimal line for a table row: shape, with no axes and no labels. */
 export function sparkline(canvas, rows, color) {
   const data = (rows || []).filter(r => Number.isFinite(r.c));
   const fit = fitCanvas(canvas);
@@ -176,7 +176,7 @@ export function sparkline(canvas, rows, color) {
   ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.stroke();
 }
 
-/** Rueda de pesos: el cesto de un vistazo, cada pata en su color de marca. */
+/** Weight wheel: the basket at a glance, each leg in its brand colour. */
 export function drawDonut(canvas, legs, size = 132) {
   canvas.style.width = canvas.style.height = size + 'px';
   const fit = fitCanvas(canvas);

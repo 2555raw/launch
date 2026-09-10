@@ -1,56 +1,56 @@
-/* Configuracion en tiempo de ejecucion, y los parametros del mercado en un solo
-   sitio para que la interfaz y el motor no puedan discrepar sobre las reglas. */
+/* Runtime configuration, and the market's parameters in one place so the
+   interface and the engine cannot disagree about the rules. */
 
 export const VENUE = {
   name: 'Warp',
-  tagline: 'Perpetuos de indices',
+  tagline: 'Index perpetuals',
   settle: 'USDG',
-  /** Un cesto es de peso fijo y de tres a cinco patas: menos no es un indice,
-   *  y mas diluye tanto el peso que el cesto deja de decir nada. */
+  /** A basket is fixed-weight and holds three to five legs: fewer is not an
+   *  index, and more dilutes each weight until the basket says nothing. */
   minLegs: 3,
   maxLegs: 5,
   maxLeverage: 5,
-  /** Comision de apertura y de cierre, sobre el nocional. */
+  /** Fee on opening and on closing, charged on notional. */
   takerFee: 0.0005,
-  /** Del total de comisiones que paga una posicion, esto va al creador del
-   *  indice. El resto lo retiene el protocolo. */
+  /** Of the total fees a position pays, this share goes to the index's
+   *  creator. The protocol keeps the rest. */
   creatorShare: 0.30,
-  /** Margen de mantenimiento: por debajo de esto la posicion se liquida. */
+  /** Maintenance margin: below this a position is liquidated. */
   maintenanceMargin: 0.005,
-  /** Financiacion de referencia por cada 8 h, escalada por el desequilibrio
-   *  entre largos y cortos. */
+  /** Reference funding per 8 h, scaled by the imbalance between longs and
+   *  shorts. */
   fundingBase: 0.0001,
   fundingCap: 0.00075,
-  /** Saldo de practica con el que arranca una cuenta nueva. */
+  /** Paper balance a new account starts with. */
   openingBalance: 10000,
   minMargin: 10,
-  /** El indice arranca en base 100 el dia que se lista, asi que su grafico mide
-   *  exactamente lo que ha hecho el cesto desde entonces. */
+  /** An index starts at base 100 the day it lists, so its chart measures
+   *  exactly what the basket has done since then. */
   indexBase: 100,
 };
 
-/* Los logos oficiales se resuelven del dominio propio de cada entidad en tiempo
-   de ejecucion. No se guarda ninguna copia en el repositorio, asi que un logo no
-   puede quedarse obsoleto ni divergir entre pantallas. */
+/* Official logos are resolved from each entity's own domain at runtime. No copy
+   is kept in the repository, so a logo cannot go stale or diverge between
+   screens. */
 const KEY = 'warp.config';
 const DEFAULTS = {
   logoTemplate: 'https://img.logo.dev/{domain}?token={logoToken}&size=128&format=png&retries=0',
   logoToken: '',
-  /* Resolutores de reserva, en orden. Ninguno pide clave, asi que la aplicacion
-     muestra logos reales sin configurar nada; el de pago solo mejora cobertura
-     y resolucion cuando hay token. */
+  /* Fallback resolvers, in order. None needs a key, so the app shows real logos
+     with nothing configured; the paid one only improves coverage and resolution
+     when a token is present. */
   logoFallbacks: [
     'https://icons.duckduckgo.com/ip3/{domain}.ico',
     'https://www.google.com/s2/favicons?domain={domain}&sz=128',
   ],
-  /** Semilla del simulador de precios. Fijarla hace que el mercado sea
-   *  reproducible entre recargas y entre pestanas. */
+  /** Seed for the price simulator. Fixing it makes the market reproducible
+   *  across reloads and across tabs. */
   seed: 20260910,
 };
 
-/* Se lee del anfitrion si lo hay y del navegador si lo hay: los modulos no dan
-   por hecho que existe un navegador, para que la logica se pueda ejecutar y
-   probar fuera de uno. */
+/* Read from the host if there is one and from the browser if there is one: the
+   modules do not assume a browser exists, so the logic can run and be tested
+   outside of one. */
 const host = () => (typeof window === 'undefined' ? null : window.WARP_CONFIG);
 function read() {
   let saved = {};

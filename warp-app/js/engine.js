@@ -1,10 +1,10 @@
-/* El motor del mercado: listar un indice, abrir y cerrar posiciones, cobrar
-   comisiones, acumular financiacion y liquidar lo que se queda sin margen.
+/* The market's engine: list an index, open and close positions, charge fees,
+   accrue funding and liquidate whatever runs out of margin.
 
-   Las reglas viven en VENUE (config.js), no repartidas por la interfaz, para que
-   lo que dice un panel de trading y lo que hace el motor sean la misma regla.
-   Todas las funciones devuelven { ok, error } en lugar de lanzar: un formulario
-   necesita explicar por que no puede seguir, no romperse. */
+   The rules live in VENUE (config.js), not scattered across the interface, so
+   that what a trading panel says and what the engine does are the same rule.
+   Every function returns { ok, error } instead of throwing: a form needs to
+   explain why it cannot continue, not break. */
 
 import { VENUE } from './config.js';
 import { state, commit, nextId, getIndex, openPositions } from './store.js';
@@ -14,25 +14,25 @@ import { getAsset } from './registry.js';
 const HOUR = 3600e3;
 const round = (v, d = 6) => Math.round(v * 10 ** d) / 10 ** d;
 
-/* -------- listar un indice -------- */
+/* -------- listing an index -------- */
 
 export function validateBasket({ symbol, name, legs }) {
   const errors = [];
   const sym = String(symbol || '').trim().toUpperCase();
-  if (!/^[A-Z0-9]{3,12}$/.test(sym)) errors.push('El simbolo son de 3 a 12 letras o numeros, sin espacios.');
-  if (state.indices.some(ix => ix.symbol === sym)) errors.push(`Ya hay un indice listado como ${sym}.`);
-  if (!String(name || '').trim()) errors.push('El indice necesita un nombre.');
+  if (!/^[A-Z0-9]{3,12}$/.test(sym)) errors.push('A symbol is 3 to 12 letters or digits, with no spaces.');
+  if (state.indices.some(ix => ix.symbol === sym)) errors.push(`There is already an index listed as ${sym}.`);
+  if (!String(name || '').trim()) errors.push('The index needs a name.');
 
   const rows = (legs || []).filter(l => l && l.id);
-  if (rows.length < VENUE.minLegs) errors.push(`Un indice lleva al menos ${VENUE.minLegs} activos.`);
-  if (rows.length > VENUE.maxLegs) errors.push(`Un indice lleva como maximo ${VENUE.maxLegs} activos.`);
-  if (new Set(rows.map(l => l.id)).size !== rows.length) errors.push('Hay un activo repetido en el cesto.');
-  if (rows.some(l => !getAsset(l.id))) errors.push('Hay un activo que no esta en el registro.');
-  if (rows.some(l => !(l.weight > 0))) errors.push('Todo peso tiene que ser mayor que cero.');
+  if (rows.length < VENUE.minLegs) errors.push(`An index holds at least ${VENUE.minLegs} assets.`);
+  if (rows.length > VENUE.maxLegs) errors.push(`An index holds at most ${VENUE.maxLegs} assets.`);
+  if (new Set(rows.map(l => l.id)).size !== rows.length) errors.push('An asset appears twice in the basket.');
+  if (rows.some(l => !getAsset(l.id))) errors.push('An asset is not in the registry.');
+  if (rows.some(l => !(l.weight > 0))) errors.push('Every weight has to be greater than zero.');
 
   const total = rows.reduce((s, l) => s + (Number(l.weight) || 0), 0);
   if (rows.length && Math.abs(total - 100) > 0.01) {
-    errors.push(`Los pesos suman ${total.toFixed(2)} % y tienen que sumar 100 %.`);
+    errors.push(`The weights add up to ${total.toFixed(2)}% and have to add up to 100%.`);
   }
   return { ok: !errors.length, errors, total, symbol: sym };
 }
@@ -50,7 +50,7 @@ export function listIndex({ symbol, name, note, legs }) {
     note: String(note || '').trim(),
     legs: clean,
     refs: snapshotRefs(clean, listedAt),
-    creator: 'yo',
+    creator: 'me',
     listedAt,
     feesAccrued: 0,
     feesClaimed: 0,
@@ -62,23 +62,23 @@ export function listIndex({ symbol, name, note, legs }) {
 
 export function delistIndex(id) {
   const ix = getIndex(id);
-  if (!ix) return { ok: false, error: 'Ese indice no existe.' };
-  if (ix.creator !== 'yo') return { ok: false, error: 'Solo puedes retirar un indice que has listado tu.' };
-  if (openPositions(id).length) return { ok: false, error: 'No puedes retirar un indice con posiciones abiertas.' };
-  if (pendingFees(ix) > 0) return { ok: false, error: 'Reclama primero las comisiones acumuladas.' };
+  if (!ix) return { ok: false, error: 'That index does not exist.' };
+  if (ix.creator !== 'me') return { ok: false, error: 'You can only delist an index you listed yourself.' };
+  if (openPositions(id).length) return { ok: false, error: 'You cannot delist an index with open positions.' };
+  if (pendingFees(ix) > 0) return { ok: false, error: 'Claim the accrued fees first.' };
   state.indices = state.indices.filter(x => x.id !== id);
   commit();
   return { ok: true };
 }
 
-/* -------- lectura de un indice -------- */
+/* -------- reading an index -------- */
 
 export const indexValue = (ix, t) => (ix ? basketValue(ix.legs, ix.refs, t, VENUE.indexBase) : null);
 export const indexChange = (ix, hours = 24, t) => (ix ? basketChangePct(ix.legs, ix.refs, hours, t) : null);
 export const indexLegs = (ix) => (ix?.legs || []).map(l => ({ ...l, asset: getAsset(l.id) }));
 
-/** Interes abierto en el propio mercado: la suma de nocionales de las posiciones
- *  que hay de verdad, separada por lado. */
+/** Open interest in the market itself: the sum of the notionals of the
+ *  positions that actually exist, split by side. */
 export function openInterest(indexId) {
   let long = 0, short = 0;
   for (const p of openPositions(indexId)) {
@@ -87,21 +87,21 @@ export function openInterest(indexId) {
   return { long, short, total: long + short, skew: long + short ? (long - short) / (long + short) : 0 };
 }
 
-/** Profundidad de referencia del cesto, heredada del volumen simulado de sus
- *  patas. Es una cifra del simulador, y la interfaz la marca como tal. */
+/** The basket's reference depth, inherited from the simulated volume of its
+ *  legs. It is a simulator figure, and the interface marks it as one. */
 export function simulatedDepth(ix, t) {
   if (!ix) return 0;
   return ix.legs.reduce((s, l) => s + volume24h(l.id, t) * (l.weight / 100), 0);
 }
 
-/** Financiacion vigente por cada 8 h. Positiva: pagan los largos. */
+/** Funding in force per 8 h. Positive: longs pay. */
 export function fundingRate(indexId) {
   const { skew } = openInterest(indexId);
   const raw = VENUE.fundingBase + skew * VENUE.fundingCap;
   return Math.max(-VENUE.fundingCap, Math.min(VENUE.fundingCap, raw));
 }
 
-/* -------- posiciones -------- */
+/* -------- positions -------- */
 
 export function quoteOrder({ indexId, side, margin, leverage, t = Date.now() }) {
   const ix = getIndex(indexId);
@@ -111,12 +111,12 @@ export function quoteOrder({ indexId, side, margin, leverage, t = Date.now() }) 
   const fee = notional * VENUE.takerFee;
   const errors = [];
 
-  if (!ix) errors.push('Ese indice no existe.');
-  if (side !== 'long' && side !== 'short') errors.push('Elige un lado: largo o corto.');
-  if (!(m >= VENUE.minMargin)) errors.push(`El margen minimo es ${VENUE.minMargin} ${VENUE.settle}.`);
-  if (!(lv >= 1 && lv <= VENUE.maxLeverage)) errors.push(`El apalancamiento va de 1x a ${VENUE.maxLeverage}x.`);
-  if (entry === null) errors.push('El indice no tiene valor calculable ahora mismo.');
-  if (m + fee > state.wallet.balance) errors.push(`No te llega el saldo: hacen falta ${(m + fee).toFixed(2)} ${VENUE.settle} con la comision.`);
+  if (!ix) errors.push('That index does not exist.');
+  if (side !== 'long' && side !== 'short') errors.push('Pick a side: long or short.');
+  if (!(m >= VENUE.minMargin)) errors.push(`The minimum margin is ${VENUE.minMargin} ${VENUE.settle}.`);
+  if (!(lv >= 1 && lv <= VENUE.maxLeverage)) errors.push(`Leverage runs from 1x to ${VENUE.maxLeverage}x.`);
+  if (entry === null) errors.push('The index has no computable value right now.');
+  if (m + fee > state.wallet.balance) errors.push(`Not enough balance: ${(m + fee).toFixed(2)} ${VENUE.settle} is needed with the fee.`);
 
   return {
     ok: !errors.length, errors, error: errors[0] || null,
@@ -126,8 +126,8 @@ export function quoteOrder({ indexId, side, margin, leverage, t = Date.now() }) 
   };
 }
 
-/** Precio al que la posicion se queda sin margen. Del mismo sitio sale el aviso
- *  del formulario y la liquidacion real, asi que no pueden discrepar. */
+/** The price at which a position runs out of margin. The form's warning and
+ *  the real liquidation come from here, so they cannot disagree. */
 export function liquidationPrice(entry, side, leverage) {
   const room = 1 / leverage - VENUE.maintenanceMargin;
   return side === 'long' ? entry * (1 - room) : entry * (1 + room);
@@ -159,7 +159,7 @@ export function openPosition({ indexId, side, margin, leverage }) {
   return { ok: true, position: pos };
 }
 
-/** Estado vivo de una posicion. Nada de esto se guarda: se calcula del precio. */
+/** A position's live state. None of it is stored: it is computed from price. */
 export function markPosition(pos, t = Date.now()) {
   const ix = getIndex(pos.indexId);
   const mark = indexValue(ix, t);
@@ -182,8 +182,8 @@ export function markPosition(pos, t = Date.now()) {
   };
 }
 
-/** La financiacion se devenga con el tiempo, al tipo vigente. Se calcula desde
- *  la ultima liquidacion de la posicion para no cobrar dos veces el mismo tramo. */
+/** Funding accrues over time at the rate in force. It is measured from the
+ *  position's last settlement so the same stretch is never charged twice. */
 function accruedFunding(pos, t) {
   const hours = Math.max(0, (t - (pos.fundingAt || pos.openedAt)) / HOUR);
   const rate = fundingRate(pos.indexId);
@@ -194,15 +194,16 @@ function accruedFunding(pos, t) {
 export function closePosition(id, reason = 'manual') {
   const t = Date.now();
   const i = state.positions.findIndex(p => p.id === id);
-  if (i < 0) return { ok: false, error: 'Esa posicion ya no esta abierta.' };
+  if (i < 0) return { ok: false, error: 'That position is no longer open.' };
   const pos = state.positions[i];
   const m = markPosition(pos, t);
-  if (m.mark === null) return { ok: false, error: 'No se puede cerrar sin valor de indice.' };
+  if (m.mark === null) return { ok: false, error: 'A position cannot be closed without an index value.' };
 
   const ix = getIndex(pos.indexId);
-  // Una liquidacion se lleva el margen: no devuelve resto ni cobra cierre.
-  const returned = reason === 'liquidacion' ? 0 : Math.max(0, m.net);
-  const closeFee = reason === 'liquidacion' ? 0 : m.closeFee;
+  // A liquidation takes the margin: it returns no remainder and charges no
+  // closing fee.
+  const returned = reason === 'liquidation' ? 0 : Math.max(0, m.net);
+  const closeFee = reason === 'liquidation' ? 0 : m.closeFee;
 
   state.wallet.balance = round(state.wallet.balance + returned, 8);
   if (ix && closeFee) ix.feesAccrued = round(ix.feesAccrued + closeFee * VENUE.creatorShare, 8);
@@ -222,31 +223,31 @@ export function closePosition(id, reason = 'manual') {
   return { ok: true, closed: state.history[0] };
 }
 
-/** Barre las posiciones sin margen. La llama el reloj de la aplicacion, asi que
- *  una liquidacion ocurre por la regla y no porque alguien mire la pantalla. */
+/** Sweeps the positions with no margin left. The application's clock calls it,
+ *  so a liquidation happens by the rule and not because someone is watching. */
 export function liquidationSweep(t = Date.now()) {
   const dead = state.positions.filter(p => markPosition(p, t).liquidatable);
-  dead.forEach(p => closePosition(p.id, 'liquidacion'));
+  dead.forEach(p => closePosition(p.id, 'liquidation'));
   return dead.length;
 }
 
-/* -------- el creador -------- */
+/* -------- the creator -------- */
 
 export const pendingFees = (ix) => round((ix?.feesAccrued || 0) - (ix?.feesClaimed || 0), 8);
 
 export function claimFees(indexId) {
   const ix = getIndex(indexId);
-  if (!ix) return { ok: false, error: 'Ese indice no existe.' };
-  if (ix.creator !== 'yo') return { ok: false, error: 'Solo el creador del indice cobra sus comisiones.' };
+  if (!ix) return { ok: false, error: 'That index does not exist.' };
+  if (ix.creator !== 'me') return { ok: false, error: "Only an index's creator claims its fees." };
   const due = pendingFees(ix);
-  if (due <= 0) return { ok: false, error: 'No hay comisiones pendientes en este indice.' };
+  if (due <= 0) return { ok: false, error: 'There are no fees pending on this index.' };
   ix.feesClaimed = round(ix.feesClaimed + due, 8);
   state.wallet.balance = round(state.wallet.balance + due, 8);
   commit();
   return { ok: true, claimed: due };
 }
 
-/* -------- la cuenta -------- */
+/* -------- the account -------- */
 
 export function accountSummary(t = Date.now()) {
   let marginUsed = 0, unrealised = 0;
@@ -255,7 +256,7 @@ export function accountSummary(t = Date.now()) {
     marginUsed += p.margin;
     if (m.mark !== null) unrealised += m.pnl - m.funding;
   }
-  const claimable = state.indices.reduce((s, ix) => s + (ix.creator === 'yo' ? pendingFees(ix) : 0), 0);
+  const claimable = state.indices.reduce((s, ix) => s + (ix.creator === 'me' ? pendingFees(ix) : 0), 0);
   const realised = state.history.reduce((s, h) => s + (h.pnl || 0), 0);
   return {
     balance: state.wallet.balance,

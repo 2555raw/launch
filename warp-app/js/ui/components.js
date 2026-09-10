@@ -1,13 +1,13 @@
-/* Piezas reutilizables. Todo lo que se repite en dos pantallas vive aqui una
-   sola vez, para que una fila de indice o la ficha de un activo se vean igual
-   en el panel, en el mercado y en el buscador. */
+/* Reusable pieces. Anything that appears on two screens lives here once, so
+   that an index row or an asset's identity looks the same on the dashboard, in
+   the market and in the search box. */
 
 import { markEl, markStack, rgba } from '../logos.js';
 import { CLASSES } from '../registry.js';
 import { pct, dir, num } from '../format.js';
 import { drawChart, sparkline, drawDonut } from '../chart.js';
 
-/** Constructor de nodos. props especiales: class, text, html, on, style, data. */
+/** Node builder. Special props: class, text, html, on, style, data. */
 export function el(tag, props = {}, kids = []) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(props || {})) {
@@ -29,8 +29,8 @@ export function el(tag, props = {}, kids = []) {
 }
 export const frag = (kids) => { const f = document.createDocumentFragment(); [].concat(kids).forEach(k => k && f.append(k)); return f; };
 
-/** La pastilla del simbolo, tenida con el color de marca del activo. El simbolo
- *  y el color vienen del registro, nunca de la pantalla. */
+/** The symbol pill, tinted with the asset's brand colour. Both the symbol and
+ *  the colour come from the registry, never from the screen. */
 export function symPill(asset) {
   return el('span', {
     class: 'wp-sym',
@@ -39,7 +39,7 @@ export function symPill(asset) {
   });
 }
 
-/** Identidad de un activo: su marca real, su nombre y su simbolo. */
+/** An asset's identity: its real mark, its name and its symbol. */
 export function assetIdent(asset, { size = 34, sub = null } = {}) {
   return el('span', { class: 'wp-ident' }, [
     markEl(asset, size),
@@ -53,7 +53,7 @@ export function assetIdent(asset, { size = 34, sub = null } = {}) {
   ]);
 }
 
-/** Identidad de un indice: la pila de marcas de sus patas y su simbolo. */
+/** An index's identity: the stack of its legs' marks and its symbol. */
 export function indexIdent(ix, legs, { size = 28 } = {}) {
   return el('span', { class: 'wp-ident' }, [
     markStack(legs.map(l => l.asset), size),
@@ -61,8 +61,8 @@ export function indexIdent(ix, legs, { size = 28 } = {}) {
       el('span', { class: 'wp-ident-name', text: ix.name }),
       el('span', { class: 'wp-ident-sub' }, [
         el('span', { class: 'wp-sym', text: ix.symbol, style: { background: 'var(--sunken-2)', color: 'var(--muted)' } }),
-        el('span', { text: `${legs.length} activos` }),
-        ix.creator === 'yo' ? el('span', { class: 'wp-pill own', text: 'Tuyo' }) : null,
+        el('span', { text: `${legs.length} assets` }),
+        ix.creator === 'me' ? el('span', { class: 'wp-pill own', text: 'Yours' }) : null,
       ]),
     ]),
   ]);
@@ -124,9 +124,9 @@ export function note(text, kind = '') {
   return el('div', { class: `wp-note ${kind}`, html: text });
 }
 
-/** Barra de pesos: cada pata ocupa su peso y lleva su color de marca. */
+/** Weight bar: each leg takes up its weight and carries its brand colour. */
 export function weightsBar(legs) {
-  return el('div', { class: 'wp-weights', title: legs.map(l => `${l.asset.symbol} ${num(l.weight, 1)} %`).join(' · ') },
+  return el('div', { class: 'wp-weights', title: legs.map(l => `${l.asset.symbol} ${num(l.weight, 1)}%`).join(' · ') },
     legs.map(l => el('span', { style: { width: `${l.weight}%`, background: l.asset.color } })));
 }
 
@@ -140,7 +140,7 @@ export function legend(legs, { onPick = null } = {}) {
       el('span', { class: 'wp-legend-dot', style: { background: l.asset.color } }),
       el('span', { text: l.asset.short }),
       symPill(l.asset),
-      el('span', { class: 'wp-legend-w num', text: num(l.weight, 1) + ' %' }),
+      el('span', { class: 'wp-legend-w num', text: num(l.weight, 1) + '%' }),
     ]);
     return row;
   }));
@@ -152,13 +152,13 @@ export function donut(legs, size = 128) {
   return el('div', { class: 'wp-donut-wrap' }, [c, legend(legs)]);
 }
 
-/** Bloque de grafico con selector de rango. `load(range)` devuelve la serie. */
+/** A chart block with a range picker. `load(range)` returns the series. */
 export function chartBlock({ load, color, baseline = null, suffix = '', ranges = null, initial = '1M', small = false }) {
   const opts = ranges || [
-    { id: '1D', label: '1 D', hours: 24 },
-    { id: '1S', label: '1 S', hours: 24 * 7 },
-    { id: '1M', label: '1 M', hours: 24 * 30 },
-    { id: '3M', label: '3 M', hours: 24 * 90 },
+    { id: '1D', label: '1D', hours: 24 },
+    { id: '1W', label: '1W', hours: 24 * 7 },
+    { id: '1M', label: '1M', hours: 24 * 30 },
+    { id: '3M', label: '3M', hours: 24 * 90 },
   ];
   const canvas = el('canvas');
   const tip = el('div', { class: 'wp-tip', hidden: true });
@@ -183,7 +183,7 @@ export function spark(rows, color) {
   return c;
 }
 
-/* Avisos efimeros. Una accion que mueve saldo tiene que decir que ha ocurrido. */
+/* Ephemeral notices. An action that moves balance has to say it happened. */
 let toastHost = null;
 export function toast(message, kind = '') {
   if (!toastHost) { toastHost = el('div', { class: 'wp-toasts' }); document.body.append(toastHost); }

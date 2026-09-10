@@ -1,14 +1,19 @@
-# Publishes the Payence site to GitHub Pages.
+# Publishes ARCHIVE 2011 to GitHub Pages at pandemik.online.
 #
-# This repository holds several projects; Payence lives in payence/ and is the
-# one published. Pages serves a project site from /<repo>, so the export is
-# built with that prefix or every asset under _next/ 404s, and .nojekyll is
-# needed because Jekyll drops directories starting with an underscore.
-name: Deploy Payence to Pages
+# This repository holds several projects; archive-2011/ is the one published.
+# The piece is static — no build step, no dependencies, no assets beyond the six
+# source files — so the folder is uploaded as it stands. archive-2011/CNAME is
+# what tells Pages which domain it is answering on, which also means Pages serves
+# it from the root and every relative path in the page resolves.
+#
+# Pages has to be switched on for the repository first, under
+# Settings > Pages > Source: GitHub Actions. The workflow token cannot create
+# the site itself.
+name: Deploy ARCHIVE 2011 to Pages
 
 on:
   push:
-    branches: [claude/500capital-custom-colors-s1kac3]
+    branches: [claude/modest-lamport-0e2nfg]
   workflow_dispatch:
 
 permissions:
@@ -24,51 +29,14 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: payence
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: payence/package-lock.json
-
-      - run: npm ci
-
-      - name: Work out the base path
-        id: base
-        run: |
-          # A custom domain serves the site from the root, so the prefix must be
-          # empty; without a domain, Pages serves it from /<repo> and the prefix
-          # is required or every asset under _next/ 404s. public/CNAME is what
-          # Pages reads to know the domain, so it decides this too.
-          if [ -f public/CNAME ]; then
-            echo "path=" >> "$GITHUB_OUTPUT"
-            echo "Custom domain: $(cat public/CNAME), building from the root"
-          else
-            echo "path=/${{ github.event.repository.name }}" >> "$GITHUB_OUTPUT"
-            echo "No custom domain, building for /${{ github.event.repository.name }}"
-          fi
-
-      - name: Build the static export
-        run: npm run build:pages
-        env:
-          BASE_PATH: ${{ steps.base.outputs.path }}
-
-      - run: touch out/.nojekyll
-
-      # Pages has to be switched on for the repository first, under
-      # Settings > Pages > Source: GitHub Actions. Doing it from here with
-      # `enablement: true` fails: the workflow token cannot create the site.
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: payence/out
+          path: archive-2011
       - id: deployment
         uses: actions/deploy-pages@v4

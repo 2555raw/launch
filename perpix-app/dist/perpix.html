@@ -808,8 +808,8 @@ button { font: inherit; }
         <div class="px-results" id="results" role="listbox" hidden></div>
       </div>
       <div class="px-top-right">
-        <!-- The market's clock is New York's, real time, and it ticks every second. -->
-        <span class="px-clock" id="clock" title="Perpix's market clock, America/New_York"></span>
+        <!-- The market's clock is Paris's, real time, and it ticks every second. -->
+        <span class="px-clock" id="clock" title="Perpix's market clock, Europe/Paris"></span>
         <!-- Light, dark, or whatever the viewer's machine says. -->
         <button class="px-theme" id="themeBtn" type="button"></button>
       </div>
@@ -897,33 +897,33 @@ function dateTime(ts) {
   if (!ts) return NA_TEXT;
   // Same clock as the header: a listing date must not read in one zone while
   // the market reads in another.
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('en-GB', {
     timeZone: MARKET_TZ, dateStyle: 'medium', timeStyle: 'short',
   }).format(new Date(ts));
 }
-/* Perpix keeps one clock, and it is New York's.
+/* Perpix keeps one clock, and it is Paris's.
    A market has a single wall clock, not one per viewer: two people looking at
-   the same funding window have to be looking at the same hour. New York is the
-   hour the assets themselves keep — most of the registry lists on the NYSE or
-   the NASDAQ — so it is the market's time, not a viewer's.
+   the same funding window have to be looking at the same hour, so the venue
+   publishes its own and everyone reads that one.
 
    Naming the zone in Intl means daylight saving is handled by the platform's
    own tz data, which is right twice a year without anyone remembering the
    dates. Changing the market's clock is these two lines and nothing else. */
-const MARKET_TZ = 'America/New_York';
-const MARKET_TZ_LABEL = 'New York';
+const MARKET_TZ = 'Europe/Paris';
+const MARKET_TZ_LABEL = 'Paris';
 
 /* 24-hour, because a trading clock is read in a column next to other figures
-   and AM/PM both changes width and leaves noon ambiguous. */
-const marketTime = new Intl.DateTimeFormat('en-US', {
+   and AM/PM both changes width and leaves noon ambiguous. Dates read the way
+   they are written where the clock is. */
+const marketTime = new Intl.DateTimeFormat('en-GB', {
   timeZone: MARKET_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
 });
-const marketDate = new Intl.DateTimeFormat('en-US', {
-  timeZone: MARKET_TZ, weekday: 'short', month: 'short', day: 'numeric',
+const marketDate = new Intl.DateTimeFormat('en-GB', {
+  timeZone: MARKET_TZ, weekday: 'short', day: 'numeric', month: 'short',
 });
-/** The offset New York is on right now, so the clock says which one it is
- *  rather than leaving the reader to guess whether summer time is in force. */
-const marketOffset = new Intl.DateTimeFormat('en-US', { timeZone: MARKET_TZ, timeZoneName: 'shortOffset' });
+/** The offset Paris is on right now, so the clock says which one it is rather
+ *  than leaving the reader to guess whether summer time is in force. */
+const marketOffset = new Intl.DateTimeFormat('en-GB', { timeZone: MARKET_TZ, timeZoneName: 'shortOffset' });
 
 function clock(ts = Date.now()) { return marketTime.format(new Date(ts)); }
 function marketDay(ts = Date.now()) { return marketDate.format(new Date(ts)); }

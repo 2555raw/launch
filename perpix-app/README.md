@@ -107,13 +107,12 @@ which is unreadable. Measured, the worst symbol tile in the registry is 4.5:1.
 
 ## The clock
 
-Perpix keeps one clock and it is New York's, real time, ticking every second in
-the header. A market has a single wall clock, not one per viewer: two people
-looking at the same funding window have to be looking at the same hour. New York
-is the hour the assets themselves keep — most of the registry lists on the NYSE
-or the NASDAQ — so it is the market's time rather than a viewer's.
+Perpix keeps one clock and it is Paris's, real time, ticking every second in the
+header. A market has a single wall clock, not one per viewer: two people looking
+at the same funding window have to be looking at the same hour, so the venue
+publishes its own and everyone reads that one.
 
-The zone is named (`America/New_York`) rather than computed from an offset, so
+The zone is named (`Europe/Paris`) rather than computed from an offset, so
 daylight saving is handled by the platform's own timezone data and is right
 twice a year without anyone remembering the dates; the header says which offset
 is in force. It reads in 24 hours, because a trading clock sits in a column next

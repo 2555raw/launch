@@ -521,7 +521,9 @@
   var AVATAR_TOKENS = ["--blue", "--violet", "--teal", "--orange", "--amber", "--green"];
 
   var walletModal = $("#walletModal"), walletBody = $("#walletBody"), walletNote = $("#walletNote");
-  var walletBtn = $("#walletBtn"), walletBtnLabel = $("#walletBtnLabel"), walletAvatar = $("#walletAvatar");
+  var walletMenuBtn = $("#walletMenuBtn"), walletMenuLabel = $("#walletMenuLabel");
+  var walletGlyph = $("#walletGlyph"), walletAvatar = $("#walletAvatar");
+  var walletDock = $("#walletDock"), walletDockDot = $("#walletDockDot");
   var walletAction = $("#walletAction"), walletLede = $("#walletLede");
   var wallet = { address: null, chain: null, balance: null };
 
@@ -594,10 +596,18 @@
 
   function paintWalletButton() {
     var on = !!wallet.address;
-    walletBtn.classList.toggle("on", on);
-    walletBtnLabel.textContent = on ? shortAddr(wallet.address) : "Connect wallet";
+    var label = on ? shortAddr(wallet.address) : "Connect wallet";
+
+    walletMenuBtn.classList.toggle("on", on);
+    walletMenuBtn.title = label;
+    walletMenuLabel.textContent = label;
+    walletMenuLabel.hidden = !on;      // the glyph alone until there is an address to show
+    walletGlyph.style.display = on ? "none" : "";
     walletAvatar.hidden = !on;
     if (on) walletAvatar.style.background = avatarFor(wallet.address);
+
+    walletDock.dataset.tip = label;
+    walletDockDot.hidden = !on;
   }
 
   function walletError(message) {
@@ -657,12 +667,14 @@
     });
   }
 
-  walletBtn.addEventListener("click", function () {
+  function openWallet() {
     walletNote.hidden = true;
     renderWallet();
     walletModal.style.display = "";
     walletModal.classList.remove("gone");
-  });
+  }
+  walletMenuBtn.addEventListener("click", openWallet);
+  walletDock.addEventListener("click", openWallet);
   $("#walletClose").addEventListener("click", function () {
     walletModal.classList.add("gone");
     setTimeout(function () { walletModal.style.display = "none"; }, 420);

@@ -152,16 +152,11 @@ body.ready .window { opacity: 1; transform: none; transition: opacity .7s var(--
 
 /* ---- wallet ---- */
 /* Every colour here comes from the tokens already defined above. */
-.wallet-btn {
-  display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px;
-  border-radius: 8px; border: 1px solid var(--hair); background: var(--surface-2);
-  font-size: 12.6px; font-weight: 500; color: var(--ink);
-  transition: border-color .18s ease, color .18s ease;
-}
-.wallet-btn:hover { border-color: var(--blue); color: var(--blue); }
-.wallet-btn.on { border-color: color-mix(in srgb, var(--blue) 55%, var(--hair)); }
-.wallet-btn.on #walletBtnLabel { font-family: var(--mono); font-size: 11.6px; }
-.wallet-avatar { width: 16px; height: 16px; border-radius: 50%; display: block; flex: none; }
+/* menu bar status item, sitting left of the battery */
+.menu-wallet { display: flex; align-items: center; width: auto; gap: 6px; padding: 0 7px; }
+.menu-wallet.on { color: var(--blue); opacity: 1; }
+.menu-wallet-label { font-family: var(--mono); font-size: 11.4px; color: var(--ink); }
+.wallet-avatar { width: 15px; height: 15px; border-radius: 50%; display: block; flex: none; }
 
 .wallet-body { text-align: left; margin-top: 6px; }
 .wallet-list { border: 1px solid var(--hair); border-radius: 12px; background: var(--surface-2); overflow: hidden; }
@@ -394,6 +389,11 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
 .i-theme { background: linear-gradient(160deg, #64d2ff, #5e5ce6) !important; }
 .i-terms { background: linear-gradient(160deg, #f2f2f7, #c7c7cc) !important; }
 .i-x { background: #0b0b0d !important; color: #fff; }
+.i-wallet { background: linear-gradient(160deg, #64d2ff, #0a84ff) !important; color: #fff; }
+.dock-dot {
+  position: absolute; left: 50%; bottom: -6px; translate: -50% 0;
+  width: 4px; height: 4px; border-radius: 50%; background: var(--ink);
+}
 .dock-sep { width: 1px; height: 42px; background: var(--hair); margin: 0 2px; align-self: center; }
 .dock-app::after {
   content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; translate: -50% -12px;

@@ -174,16 +174,11 @@ body.ready .window { opacity: 1; transform: none; transition: opacity .7s var(--
 
 /* ---- wallet ---- */
 /* Every colour here comes from the tokens already defined above. */
-.wallet-btn {
-  display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px;
-  border-radius: 8px; border: 1px solid var(--hair); background: var(--surface-2);
-  font-size: 12.6px; font-weight: 500; color: var(--ink);
-  transition: border-color .18s ease, color .18s ease;
-}
-.wallet-btn:hover { border-color: var(--blue); color: var(--blue); }
-.wallet-btn.on { border-color: color-mix(in srgb, var(--blue) 55%, var(--hair)); }
-.wallet-btn.on #walletBtnLabel { font-family: var(--mono); font-size: 11.6px; }
-.wallet-avatar { width: 16px; height: 16px; border-radius: 50%; display: block; flex: none; }
+/* menu bar status item, sitting left of the battery */
+.menu-wallet { display: flex; align-items: center; width: auto; gap: 6px; padding: 0 7px; }
+.menu-wallet.on { color: var(--blue); opacity: 1; }
+.menu-wallet-label { font-family: var(--mono); font-size: 11.4px; color: var(--ink); }
+.wallet-avatar { width: 15px; height: 15px; border-radius: 50%; display: block; flex: none; }
 
 .wallet-body { text-align: left; margin-top: 6px; }
 .wallet-list { border: 1px solid var(--hair); border-radius: 12px; background: var(--surface-2); overflow: hidden; }
@@ -416,6 +411,11 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
 .i-theme { background: linear-gradient(160deg, #64d2ff, #5e5ce6) !important; }
 .i-terms { background: linear-gradient(160deg, #f2f2f7, #c7c7cc) !important; }
 .i-x { background: #0b0b0d !important; color: #fff; }
+.i-wallet { background: linear-gradient(160deg, #64d2ff, #0a84ff) !important; color: #fff; }
+.dock-dot {
+  position: absolute; left: 50%; bottom: -6px; translate: -50% 0;
+  width: 4px; height: 4px; border-radius: 50%; background: var(--ink);
+}
 .dock-sep { width: 1px; height: 42px; background: var(--hair); margin: 0 2px; align-self: center; }
 .dock-app::after {
   content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; translate: -50% -12px;
@@ -545,6 +545,11 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
     <span class="menu-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 18.5a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zm0-4.6c1.7 0 3.2.7 4.3 1.8l-1.7 1.7A3.6 3.6 0 0 0 12 16.3c-1 0-1.9.4-2.6 1.1l-1.7-1.7a6 6 0 0 1 4.3-1.8zm0-4.6c2.9 0 5.6 1.2 7.5 3.1l-1.7 1.7A8 8 0 0 0 12 11.9a8 8 0 0 0-5.8 2.2l-1.7-1.7A10.5 10.5 0 0 1 12 9.3z"/></svg>
     </span>
+    <button class="menu-icon menu-wallet" type="button" id="walletMenuBtn" aria-label="Wallet" title="Connect wallet">
+      <span class="wallet-avatar" id="walletAvatar" hidden></span>
+      <svg id="walletGlyph" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M4 6.5A2.5 2.5 0 0 1 6.5 4H17a1 1 0 1 1 0 2H6.5a.5.5 0 0 0 0 1H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm12.5 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+      <span class="menu-wallet-label" id="walletMenuLabel" hidden></span>
+    </button>
     <span class="menu-icon battery" aria-hidden="true"><i></i></span>
     <span class="menu-clock" id="clock">Mon 09:41</span>
   </div>
@@ -568,10 +573,6 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
       </div>
 
       <div class="titlebar-right">
-        <button class="wallet-btn" type="button" id="walletBtn">
-          <span class="wallet-avatar" id="walletAvatar" hidden></span>
-          <span id="walletBtnLabel">Connect wallet</span>
-        </button>
         <label class="search">
           <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M10 3a7 7 0 1 1-4.2 12.6l-3.1 3.1-1.4-1.4 3.1-3.1A7 7 0 0 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
           <input id="search" type="search" placeholder="Search assets" aria-label="Search assets" autocomplete="off">
@@ -704,6 +705,10 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
   <button class="dock-app" type="button" data-tip="Watchlist" data-scroll="cards"><span class="ico i-watch">⭐</span></button>
   <button class="dock-app" type="button" data-tip="All markets" data-scroll="rows"><span class="ico i-table">📊</span></button>
   <button class="dock-app" type="button" data-tip="Appearance" id="dockTheme"><span class="ico i-theme">🌗</span></button>
+  <button class="dock-app" type="button" data-tip="Connect wallet" id="walletDock">
+    <span class="ico i-wallet"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M4 6.5A2.5 2.5 0 0 1 6.5 4H17a1 1 0 1 1 0 2H6.5a.5.5 0 0 0 0 1H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm12.5 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg></span>
+    <span class="dock-dot" id="walletDockDot" hidden></span>
+  </button>
   <a class="dock-app" href="https://x.com" target="_blank" rel="noopener noreferrer" data-tip="X">
     <span class="ico i-x"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg></span>
   </a>
@@ -1287,7 +1292,9 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
   var AVATAR_TOKENS = ["--blue", "--violet", "--teal", "--orange", "--amber", "--green"];
 
   var walletModal = $("#walletModal"), walletBody = $("#walletBody"), walletNote = $("#walletNote");
-  var walletBtn = $("#walletBtn"), walletBtnLabel = $("#walletBtnLabel"), walletAvatar = $("#walletAvatar");
+  var walletMenuBtn = $("#walletMenuBtn"), walletMenuLabel = $("#walletMenuLabel");
+  var walletGlyph = $("#walletGlyph"), walletAvatar = $("#walletAvatar");
+  var walletDock = $("#walletDock"), walletDockDot = $("#walletDockDot");
   var walletAction = $("#walletAction"), walletLede = $("#walletLede");
   var wallet = { address: null, chain: null, balance: null };
 
@@ -1360,10 +1367,18 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
 
   function paintWalletButton() {
     var on = !!wallet.address;
-    walletBtn.classList.toggle("on", on);
-    walletBtnLabel.textContent = on ? shortAddr(wallet.address) : "Connect wallet";
+    var label = on ? shortAddr(wallet.address) : "Connect wallet";
+
+    walletMenuBtn.classList.toggle("on", on);
+    walletMenuBtn.title = label;
+    walletMenuLabel.textContent = label;
+    walletMenuLabel.hidden = !on;      // the glyph alone until there is an address to show
+    walletGlyph.style.display = on ? "none" : "";
     walletAvatar.hidden = !on;
     if (on) walletAvatar.style.background = avatarFor(wallet.address);
+
+    walletDock.dataset.tip = label;
+    walletDockDot.hidden = !on;
   }
 
   function walletError(message) {
@@ -1423,12 +1438,14 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
     });
   }
 
-  walletBtn.addEventListener("click", function () {
+  function openWallet() {
     walletNote.hidden = true;
     renderWallet();
     walletModal.style.display = "";
     walletModal.classList.remove("gone");
-  });
+  }
+  walletMenuBtn.addEventListener("click", openWallet);
+  walletDock.addEventListener("click", openWallet);
   $("#walletClose").addEventListener("click", function () {
     walletModal.classList.add("gone");
     setTimeout(function () { walletModal.style.display = "none"; }, 420);

@@ -21,7 +21,7 @@ It shares nothing with the other folders in this repository.
   (`#crypto`, `#commodity`, ...).
 - **Browsing.** Search, sortable table, click any card or row to load it.
 - **Live quotes.** Prices move continuously and cells flash green or red.
-- **Wallet.** A Connect wallet button in the toolbar opens a sheet that talks to
+- **Wallet.** A menu bar status item next to the battery and a dock app both open a sheet that talks to
   any EIP-1193 browser wallet: it reads the address, the chain and the native
   balance, shows them with a generated avatar, and copies or disconnects. It
   never proposes a transaction, and it restores an already-granted connection

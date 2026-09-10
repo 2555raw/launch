@@ -1,8 +1,8 @@
 # media
 
-The 54-second teaser and the article about the app. Both are reproducible from
-here; neither the rendered video nor the audio is committed, because a 9 MB
-binary does not belong in a repository that is otherwise 300 KB.
+The toolchain for the 54-second teaser. The rendered video and the audio are not
+committed, because a 9 MB binary does not belong in a repository that is
+otherwise 300 KB — everything needed to produce them again is here instead.
 
 ## What is here
 
@@ -12,7 +12,6 @@ cards.mjs           renders the overlay cards, so they carry the app's own type
 music.py            synthesises the backing track
 edit.py             cuts the takes to the music's grid and concatenates them
 finish.py           overlays the cards, punches the section cuts, adds the track
-inside-perpix.html  the article
 ```
 
 ## Making the video

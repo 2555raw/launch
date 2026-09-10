@@ -92,10 +92,8 @@
 
         <div class="side-group">
           <h4>Session</h4>
-          <div class="side-status"><span class="pulse"></span>Market open</div>
-          <div class="side-meta"><span>S&amp;P 500</span><b class="up" id="idxSpx">+0.62%</b></div>
-          <div class="side-meta"><span>Nasdaq</span><b class="up" id="idxNdx">+0.94%</b></div>
-          <div class="side-meta"><span>VIX</span><b class="down" id="idxVix">−3.10%</b></div>
+          <div class="side-status"><span class="pulse"></span><span id="sideStatus">Market open</span></div>
+          <div id="sideMeta"></div>
         </div>
 
         <a class="side-x" href="https://x.com" target="_blank" rel="noopener noreferrer">
@@ -154,9 +152,13 @@
         <!-- cards -->
         <section class="block">
           <div class="block-head">
-            <h2>Your assets</h2>
+            <div class="block-title">
+              <h2 id="blockTitle">Watchlist</h2>
+              <p class="block-blurb" id="blockBlurb">Everything you follow, across every class.</p>
+            </div>
             <span class="count" id="cardCount"></span>
           </div>
+          <div class="class-stats" id="classStats"></div>
           <div class="cards" id="cards"></div>
         </section>
 

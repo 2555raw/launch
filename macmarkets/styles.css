@@ -226,8 +226,9 @@ body.ready .anim.in { opacity: 1; transform: none; transition: opacity .6s var(-
 .hero-id { display: flex; align-items: center; gap: 13px; }
 .asset-badge {
   display: grid; place-items: center; border-radius: 12px; font-family: var(--mono);
-  font-weight: 700; background: var(--surface-2); color: var(--ink);
+  font-weight: 700; background: var(--surface-2); color: var(--accent, var(--ink));
   border: 1px solid var(--hair-soft);
+  transition: color .3s ease;
 }
 .asset-badge.lg { width: 52px; height: 52px; font-size: 13px; }
 .hero-id h1 { font-size: 25px; letter-spacing: -.03em; }
@@ -274,7 +275,21 @@ body.ready .anim.in { opacity: 1; transform: none; transition: opacity .6s var(-
 /* blocks */
 .block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .block-head h2 { font-size: 16.5px; }
+.block-title h2::before {
+  content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent, var(--blue)); margin-right: 9px; vertical-align: middle;
+}
+.block-blurb { font-size: 12.8px; color: var(--ink-3); margin-top: 5px; }
 .count, .hint { font-size: 12.4px; color: var(--ink-3); }
+
+/* One strip of figures per asset class, so each tab reports on its own market. */
+.class-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.class-stat {
+  padding: 9px 12px; border-radius: 10px; background: var(--surface-2);
+  border-left: 2px solid var(--accent, var(--blue));
+}
+.class-stat dt { font-size: 10.6px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.class-stat dd { margin: 3px 0 0; font-family: var(--mono); font-size: 14.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
 
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(206px, 1fr)); gap: 12px; }
 .card {

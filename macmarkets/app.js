@@ -35,6 +35,57 @@
   var RANGES = { "1D": { n: 78,  step: .0022 }, "1W": { n: 120, step: .0042 },
                  "1M": { n: 150, step: .0065 }, "1Y": { n: 220, step: .0125 } };
 
+  // Each tab is its own view: its own heading, its own figures in the sidebar and
+  // in the strip above the cards, its own accent, and its own featured chart.
+  var CLASSES = {
+    all: {
+      label: "Watchlist", accent: "#0a84ff",
+      blurb: "Everything you follow, across every class.",
+      status: "Markets open",
+      meta: [["S&P 500", 0.62], ["Nasdaq", 0.94], ["VIX", -3.10]],
+      stats: function () {
+        var up = ASSETS.filter(function (a) { return a.change >= 0; }).length;
+        return [["Assets", ASSETS.length], ["Advancing", up], ["Declining", ASSETS.length - up], ["Classes", "4"]];
+      }
+    },
+    stock: {
+      label: "Stocks", accent: "#5e9cff",
+      blurb: "US large caps, priced through the regular session.",
+      status: "Regular session · closes 4:00 PM ET",
+      meta: [["S&P 500", 0.62], ["Nasdaq", 0.94], ["Dow 30", 0.21]],
+      stats: function () {
+        return [["Advancers", "312"], ["Decliners", "188"], ["Session volume", "4.1B sh"], ["Median spread", "1.2 bps"]];
+      }
+    },
+    crypto: {
+      label: "Crypto", accent: "#ff9f0a",
+      blurb: "Spot pairs, quoted around the clock.",
+      status: "Trading 24/7 · no close",
+      meta: [["BTC 24h", 6.16], ["ETH 24h", 0.33], ["Total cap 24h", 3.41]],
+      stats: function () {
+        return [["Total cap", "$2.31T"], ["BTC dominance", "54.2%"], ["24h volume", "$98.4B"], ["Funding, 8h", "+0.011%"]];
+      }
+    },
+    etf: {
+      label: "ETFs", accent: "#40cbe0",
+      blurb: "Index funds, with the fees and flows behind them.",
+      status: "Regular session · NAV struck at 4:00 PM ET",
+      meta: [["SPY 24h", -0.16], ["QQQ 24h", -1.48], ["VTI 24h", -0.19]],
+      stats: function () {
+        return [["Net flows, 1W", "+$4.8B"], ["Average fee", "0.05%"], ["Tracking difference", "0.02%"], ["Premium to NAV", "0.01%"]];
+      }
+    },
+    commodity: {
+      label: "Commodities", accent: "#ffc83d",
+      blurb: "Spot metals and energy, in dollars per unit.",
+      status: "Globex open · settles 5:00 PM ET",
+      meta: [["Gold 24h", -0.67], ["WTI 24h", -1.90], ["Dollar index", 0.18]],
+      stats: function () {
+        return [["Dollar index", "101.42"], ["US 10Y", "4.12%"], ["Gold / silver", "83.6"], ["Contango, 3M", "+0.8%"]];
+      }
+    }
+  };
+
   // Deterministic pseudo-random so a symbol always draws the same shape.
   function seeded(seed) {
     var s = 0;
@@ -173,9 +224,11 @@
     var a = byId(state.selected);
     current = a;
     var s = a.series[state.range];
-    var first = s[0], last = s[s.length - 1];
-    var chg = ((last - first) / first) * 100;
-    var abs = last - first;
+    // 1D is measured from the session open so the chart, the cards and the table agree.
+    var base = state.range === "1D" ? a.open : s[0];
+    var last = s[s.length - 1];
+    var abs = last - base;
+    var chg = (abs / base) * 100;
 
     $("#heroBadge").textContent = a.sym.slice(0, 4);
     $("#heroSym").textContent = a.sym;
@@ -258,11 +311,56 @@
     if (tr) { select(tr.dataset.sym); $("#heroCard").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" }); }
   });
 
+  var featured = {};   // per class: how far down its list the last press got
+
+  function renderClass(f) {
+    var cfg = CLASSES[f];
+    $("#blockTitle").textContent = cfg.label;
+    $("#blockBlurb").textContent = cfg.blurb;
+    $("#sideStatus").textContent = cfg.status;
+    $(".window").style.setProperty("--accent", cfg.accent);
+
+    $("#classStats").innerHTML = cfg.stats().map(function (row) {
+      return '<dl class="class-stat"><dt>' + row[0] + "</dt><dd>" + row[1] + "</dd></dl>";
+    }).join("");
+
+    $("#sideMeta").innerHTML = cfg.meta.map(function (row, i) {
+      return '<div class="side-meta"><span>' + row[0] + '</span><b data-meta="' + i + '"></b></div>';
+    }).join("");
+    paintMeta();
+  }
+
+  function paintMeta() {
+    var rows = CLASSES[state.filter].meta;
+    $$("#sideMeta b").forEach(function (el, i) {
+      el.textContent = pct(rows[i][1]);
+      el.className = rows[i][1] >= 0 ? "up" : "down";
+    });
+  }
+
+  // Pressing a tab also moves the chart on: the first press features the class's
+  // biggest mover, each press after that steps to the next asset in it.
+  function feature(f) {
+    var list = visible().slice().sort(function (a, b) { return Math.abs(b.change) - Math.abs(a.change); });
+    if (!list.length) return;
+    var i = featured[f] || 0;
+    featured[f] = i + 1;
+    select(list[i % list.length].sym);
+  }
+
+  function hashFilter() {
+    var h = (window.location.hash || "").replace("#", "");
+    return CLASSES[h] ? h : null;
+  }
+
   function setFilter(f) {
     state.filter = f;
+    try { window.history.replaceState(null, "", "#" + f); } catch (e) { /* sandboxed */ }
     $$(".seg button").forEach(function (b) { b.classList.toggle("on", b.dataset.filter === f); });
     $$(".side-item").forEach(function (b) { b.classList.toggle("on", b.dataset.filter === f); });
+    renderClass(f);
     renderCards(); renderRows();
+    feature(f);
   }
 
   $$(".seg button").forEach(function (b) {
@@ -383,10 +481,6 @@
     if (current && a.sym === current.sym) renderHero(false);
   }
 
-  var indices = [
-    { el: "#idxSpx", v: 0.62 }, { el: "#idxNdx", v: 0.94 }, { el: "#idxVix", v: -3.10 }
-  ];
-
   function startTicking() {
     if (reduced) return;
     setInterval(function () {
@@ -395,12 +489,8 @@
     }, 1200);
 
     setInterval(function () {
-      indices.forEach(function (ix) {
-        ix.v += (Math.random() - 0.5) * 0.08;
-        var el = $(ix.el);
-        el.textContent = pct(ix.v);
-        el.className = ix.v >= 0 ? "up" : "down";
-      });
+      CLASSES[state.filter].meta.forEach(function (row) { row[1] += (Math.random() - 0.5) * 0.08; });
+      paintMeta();
     }, 4000);
   }
 
@@ -462,9 +552,16 @@
 
   drawGrid();
   markSorted();
-  renderCards();
-  renderRows();
-  renderHero(false);
+
+  var opening = hashFilter();
+  if (opening) {
+    setFilter(opening);          // a linked tab opens on its own class, chart included
+  } else {
+    renderClass(state.filter);
+    renderCards();
+    renderRows();
+    renderHero(false);
+  }
 
   if (read(STORE.terms)) {
     closeModal();

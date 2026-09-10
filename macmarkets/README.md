@@ -14,8 +14,12 @@ It shares nothing with the other folders in this repository.
   rises, cards stagger in and the chart line draws itself.
 - **Charts.** A big area chart with a hover crosshair and tooltip, plus a
   sparkline on every card and table row. Ranges: 1D / 1W / 1M / 1Y.
-- **Browsing.** Segmented control and sidebar filters (stocks, crypto, ETFs,
-  commodities), search, sortable table, click any card or row to load it.
+- **A view per asset class.** Each tab is its own screen: its own heading and
+  description, its own figures in the strip above the cards and in the sidebar,
+  its own accent, and its own featured chart. Pressing a tab again steps to the
+  next asset in that class, starting from its biggest mover. Tabs are linkable
+  (`#crypto`, `#commodity`, ...).
+- **Browsing.** Search, sortable table, click any card or row to load it.
 - **Live quotes.** Prices move continuously and cells flash green or red.
 - **X icon** in the menu bar, the sidebar, the dock and the footer.
 - **Light and dark appearance,** toggled from the menu bar or the dock and

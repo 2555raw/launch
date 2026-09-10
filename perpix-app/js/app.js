@@ -15,6 +15,7 @@ import { markStack, markEl } from './logos.js';
 import { indexLegs } from './engine.js';
 import { el, toast } from './ui/components.js';
 import { requireAcceptance, openTerms, scheduleStorageNotice } from './terms.js';
+import { mountThemeButton, onThemeChange } from './theme.js';
 import {
   panelView, marketView, createView, portfolioView, creatorView,
   assetsView, assetView, indexView, notFound, confirmReset,
@@ -108,12 +109,16 @@ function paintSide() {
 
 document.getElementById('resetBtn').addEventListener('click', confirmReset);
 document.getElementById('termsBtn').addEventListener('click', openTerms);
+mountThemeButton(document.getElementById('themeBtn'));
 
-/* The X mark has no destination yet. Rather than a link that goes nowhere, it
-   says so. */
-document.getElementById('xBtn').addEventListener('click', () => {
-  toast('The X profile is not linked yet.');
-});
+/* Nothing repaints before the terms are accepted, so the theme listener has to
+   know whether the application has started. */
+let started = false;
+
+/* A canvas is not in the cascade, so a theme change has to repaint the view;
+   the charts read their colours from the tokens as they draw. */
+onThemeChange(() => { if (started) render(); });
+
 
 /* ---------------- search ---------------- */
 
@@ -229,6 +234,7 @@ onChange(() => { if (canRepaint()) render(); else paintSide(); });
    heartbeat. The gate is not a banner over a working application, it is the
    application not having started. */
 function start() {
+  started = true;
   navigate();
   paintClock();
   tick();

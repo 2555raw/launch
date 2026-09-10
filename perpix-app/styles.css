@@ -10,14 +10,39 @@
    without the digits shifting. */
 
 *, *::before, *::after { box-sizing: border-box; }
-html { color-scheme: light; -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: #FFFFFF; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); }
 
-/* The tokens live on :root, not on .wp, because some pieces mount straight
-   onto body (the floating notices) and have to be able to read them. */
+/* ----------------------------------------------------------------------------
+   The two themes.
+
+   The light one is the original design: a white ground, on which the only
+   colour with weight is the brand's, because each asset's real logo and its
+   brand colour are what tell one row from another. The dark one keeps that
+   idea rather than inverting it — the ground goes to a blue-biased near-black,
+   the hairlines and the accent are lifted until they read on it, and the mark
+   tile stays white, because most logos are drawn dark on nothing and a dark
+   tile would swallow them.
+
+   Every colour is a token declared on bare :root first, so a token can never
+   exist only inside a media query. Four states, in cascade order:
+
+     1. :root                       the complete light palette
+     2. prefers-color-scheme: dark  the viewer's system, unless they chose light here
+     3. [data-theme]                the host's own choice, where this page is embedded
+     4. [data-px-theme]             the choice made in this application, which wins
+
+   The attribute is data-px-theme and not data-theme on purpose: where this page
+   is embedded, the host stamps data-theme itself, and two writers on one
+   attribute fight. So this application reads the host's attribute and writes
+   its own.
+   ---------------------------------------------------------------------------- */
+
 :root {
+  color-scheme: light;
   /* ground: white, plus a barely perceptible grey to sink boxes into */
   --bg: #FFFFFF;
+  --bg-blur: rgba(255, 255, 255, .86);
   --panel: #FFFFFF;
   --sunken: #F7F8FA;
   --sunken-2: #F1F3F6;
@@ -38,17 +63,166 @@ body { margin: 0; background: #FFFFFF; }
   --up-soft: #E6F6EF;
   --down: #D8342A;
   --down-soft: #FDECEB;
+  --down-line: #F0C9C6;
   --warn: #B4690E;
   --warn-soft: #FDF3E4;
+  --warn-ink: #6E4409;
+  --warn-line: #F2DFC0;
+  --risk-ink: #8A211A;
+  --risk-line: #F5D2CF;
+  /* "listed by you", which is neither a direction nor an action */
+  --own: #6335D6;
+  --own-soft: #F0EBFD;
+  /* the tile a logo sits on: white in both themes, because a logo drawn dark
+     on nothing disappears on anything else */
+  --mark-bg: #FFFFFF;
+  --mark-ring: rgba(16, 22, 32, .10);
+  /* things that float above the page and set their own ground */
+  --float-bg: #0E1116;
+  --float-ink: #FFFFFF;
+  --float-dim: #B9C0CC;
+  --veil: rgba(14, 17, 22, .48);
 
   --r: 10px;
   --r-lg: 14px;
   --shadow: 0 1px 2px rgba(16,22,32,.04), 0 8px 24px -16px rgba(16,22,32,.16);
+  --shadow-lift: 0 1px 2px rgba(16,22,32,.08);
+  --shadow-pop: 0 6px 18px -8px rgba(16,22,32,.5);
+  --shadow-panel: 0 24px 70px -30px rgba(16,22,32,.55);
+  --shadow-bar: 0 18px 48px -22px rgba(16,22,32,.45);
   --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-.wp {
+/* The dark palette, written once and pointed at from all three dark states. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-px-theme="light"]):not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0C0F14;
+    --bg-blur: rgba(12, 15, 20, .82);
+    --panel: #12161D;
+    --sunken: #181D25;
+    --sunken-2: #1F2630;
+    --ink: #E8ECF3;
+    --ink-2: #C1C9D6;
+    --muted: #8B95A5;
+    --dim: #667080;
+    --line: #222A35;
+    --line-2: #303945;
+    --accent: #5B8CFF;
+    --accent-ink: #08101F;
+    --accent-soft: #17233C;
+    --up: #21C68A;
+    --up-soft: #0E2A20;
+    --down: #F2564B;
+    --down-soft: #2C1614;
+    --down-line: #582924;
+    --warn: #E3A33F;
+    --warn-soft: #2A2114;
+    --warn-ink: #E8C68A;
+    --warn-line: #4A3A1E;
+    --risk-ink: #F2A9A2;
+    --risk-line: #552924;
+    --own: #B69BFF;
+    --own-soft: #221B3A;
+    --mark-ring: rgba(255, 255, 255, .14);
+    --float-bg: #262E3A;
+    --float-ink: #F2F5FA;
+    --float-dim: #99A3B3;
+    --veil: rgba(4, 6, 10, .66);
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.7);
+    --shadow-lift: 0 1px 2px rgba(0,0,0,.5);
+    --shadow-pop: 0 6px 18px -8px rgba(0,0,0,.8);
+    --shadow-panel: 0 24px 70px -30px rgba(0,0,0,.9);
+    --shadow-bar: 0 18px 48px -22px rgba(0,0,0,.85);
+  }
+}
+
+/* The host's explicit dark choice, for a viewer who has not chosen here. */
+:root[data-theme="dark"]:not([data-px-theme="light"]) {
+  color-scheme: dark;
+  --bg: #0C0F14;
+  --bg-blur: rgba(12, 15, 20, .82);
+  --panel: #12161D;
+  --sunken: #181D25;
+  --sunken-2: #1F2630;
+  --ink: #E8ECF3;
+  --ink-2: #C1C9D6;
+  --muted: #8B95A5;
+  --dim: #667080;
+  --line: #222A35;
+  --line-2: #303945;
+  --accent: #5B8CFF;
+  --accent-ink: #08101F;
+  --accent-soft: #17233C;
+  --up: #21C68A;
+  --up-soft: #0E2A20;
+  --down: #F2564B;
+  --down-soft: #2C1614;
+  --down-line: #582924;
+  --warn: #E3A33F;
+  --warn-soft: #2A2114;
+  --warn-ink: #E8C68A;
+  --warn-line: #4A3A1E;
+  --risk-ink: #F2A9A2;
+  --risk-line: #552924;
+  --own: #B69BFF;
+  --own-soft: #221B3A;
+  --mark-ring: rgba(255, 255, 255, .14);
+  --float-bg: #262E3A;
+  --float-ink: #F2F5FA;
+  --float-dim: #99A3B3;
+  --veil: rgba(4, 6, 10, .66);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.7);
+  --shadow-lift: 0 1px 2px rgba(0,0,0,.5);
+  --shadow-pop: 0 6px 18px -8px rgba(0,0,0,.8);
+  --shadow-panel: 0 24px 70px -30px rgba(0,0,0,.9);
+  --shadow-bar: 0 18px 48px -22px rgba(0,0,0,.85);
+}
+
+/* The choice made here, which beats both of the above in either direction. */
+:root[data-px-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0C0F14;
+  --bg-blur: rgba(12, 15, 20, .82);
+  --panel: #12161D;
+  --sunken: #181D25;
+  --sunken-2: #1F2630;
+  --ink: #E8ECF3;
+  --ink-2: #C1C9D6;
+  --muted: #8B95A5;
+  --dim: #667080;
+  --line: #222A35;
+  --line-2: #303945;
+  --accent: #5B8CFF;
+  --accent-ink: #08101F;
+  --accent-soft: #17233C;
+  --up: #21C68A;
+  --up-soft: #0E2A20;
+  --down: #F2564B;
+  --down-soft: #2C1614;
+  --down-line: #582924;
+  --warn: #E3A33F;
+  --warn-soft: #2A2114;
+  --warn-ink: #E8C68A;
+  --warn-line: #4A3A1E;
+  --risk-ink: #F2A9A2;
+  --risk-line: #552924;
+  --own: #B69BFF;
+  --own-soft: #221B3A;
+  --mark-ring: rgba(255, 255, 255, .14);
+  --float-bg: #262E3A;
+  --float-ink: #F2F5FA;
+  --float-dim: #99A3B3;
+  --veil: rgba(4, 6, 10, .66);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.7);
+  --shadow-lift: 0 1px 2px rgba(0,0,0,.5);
+  --shadow-pop: 0 6px 18px -8px rgba(0,0,0,.8);
+  --shadow-panel: 0 24px 70px -30px rgba(0,0,0,.9);
+  --shadow-bar: 0 18px 48px -22px rgba(0,0,0,.85);
+}
+
+.px {
   font-family: var(--font);
   color: var(--ink);
   background: var(--bg);
@@ -95,7 +269,7 @@ button { font: inherit; }
   margin-left: auto; font-family: var(--mono); font-size: 11px;
   background: var(--sunken-2); color: var(--muted); border-radius: 20px; padding: 1px 7px;
 }
-.px-nav a.is-active .px-nav-count { background: #fff; color: var(--accent); }
+.px-nav a.is-active .px-nav-count { background: var(--panel); color: var(--accent); }
 
 .px-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .px-equity {
@@ -107,9 +281,7 @@ button { font: inherit; }
 .px-equity-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
 .px-side-links { display: flex; align-items: center; gap: 6px; }
 
-/* The X mark. It has no link yet, and that is exactly why it is not a link: it
-   is a button that says there is no destination, rather than an anchor that
-   goes nowhere. */
+/* The X mark, linking to @usePerpix. */
 .px-x {
   width: 34px; height: 34px; flex: none;
   display: grid; place-items: center; cursor: pointer;
@@ -131,7 +303,7 @@ button { font: inherit; }
   position: sticky; top: 0; z-index: 40;
   display: flex; align-items: center; gap: 14px;
   padding: 11px 24px;
-  background: rgba(255,255,255,.86); backdrop-filter: blur(10px);
+  background: var(--bg-blur); backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
 /* min-width 0 so the search box yields width to the notice on its right rather
@@ -142,7 +314,7 @@ button { font: inherit; }
   background: var(--sunken); border: 1px solid transparent; border-radius: 9px; padding: 0 11px;
   transition: background .14s, border-color .14s;
 }
-.px-search-box:focus-within { background: #fff; border-color: var(--accent); }
+.px-search-box:focus-within { background: var(--panel); border-color: var(--accent); }
 .px-search-box svg { width: 15px; height: 15px; color: var(--dim); flex: none; }
 .px-search input {
   flex: 1; min-width: 0; border: 0; background: none; outline: none;
@@ -151,11 +323,11 @@ button { font: inherit; }
 .px-search input::placeholder { color: var(--dim); }
 .px-search kbd {
   font-family: var(--mono); font-size: 10.5px; color: var(--dim);
-  border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; background: #fff;
+  border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; background: var(--panel);
 }
 .px-results {
   position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 50;
-  background: #fff; border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
   box-shadow: var(--shadow); padding: 5px; max-height: 62vh; overflow: auto;
 }
 .px-res {
@@ -175,6 +347,14 @@ button { font: inherit; }
   font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap;
 }
 .px-clock b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.px-theme {
+  width: 32px; height: 32px; flex: none;
+  display: grid; place-items: center; cursor: pointer;
+  background: none; border: 1px solid var(--line); border-radius: 9px;
+  color: var(--muted); transition: color .14s, border-color .14s, background .14s;
+}
+.px-theme:hover { color: var(--ink); border-color: var(--line-2); background: var(--sunken); }
+.px-theme svg { width: 16px; height: 16px; display: block; }
 .px-clock-zone { font-size: 10.5px; color: var(--dim); }
 
 /* ---------------- view ---------------- */
@@ -230,26 +410,27 @@ button { font: inherit; }
 /* ---------------- the asset's mark ---------------- */
 .px-mark {
   flex: none; display: grid; place-items: center; overflow: hidden;
-  border-radius: 8px; background: #fff;
-  box-shadow: inset 0 0 0 1px rgba(16,22,32,.09);
+  border-radius: 8px; background: var(--mark-bg);
+  box-shadow: inset 0 0 0 1px var(--mark-ring);
   font-weight: 650; letter-spacing: -.02em; line-height: 1;
 }
 /* Monogram, embedded mark and fetched logo all share one cell, so replacing one
    with another costs no reflow. */
 .px-mark > * { grid-area: 1 / 1; }
-.px-mark-img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.px-mark-img { width: 100%; height: 100%; object-fit: contain; background: var(--mark-bg); }
 .px-mark-txt { display: block; }
 .px-mark-svg { width: 100%; height: 100%; display: block; }
-.px-mark.is-svg { box-shadow: inset 0 0 0 1px rgba(16,22,32,.08); background: #fff; }
+.px-mark.is-svg, .px-mark.is-logo { box-shadow: inset 0 0 0 1px var(--mark-ring); background: var(--mark-bg); }
 /* A symbol tile: a metal's chemical symbol, or the ticker of an asset whose
    logo cannot be embedded. Both are real identifiers, so both get the same
    treatment rather than one of them looking like a mark that failed to load. */
 .px-mark.is-symbol {
-  box-shadow: inset 0 0 0 1px rgba(16,22,32,.14);
+  box-shadow: inset 0 0 0 1px var(--mark-ring);
   font-family: var(--font); font-weight: 650; letter-spacing: -.02em;
 }
 .px-stack { display: inline-flex; align-items: center; }
-.px-stack .px-mark { box-shadow: inset 0 0 0 1px rgba(16,22,32,.09), 0 0 0 2px #fff; }
+/* The ring that separates stacked marks is the ground behind them, not white. */
+.px-stack .px-mark { box-shadow: inset 0 0 0 1px var(--mark-ring), 0 0 0 2px var(--panel); }
 
 .px-ident { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .px-ident-text { min-width: 0; }
@@ -270,7 +451,7 @@ button { font: inherit; }
 .px-pill.down { background: var(--down-soft); color: var(--down); }
 .px-pill.accent { background: var(--accent-soft); color: var(--accent); }
 .px-pill.warn { background: var(--warn-soft); color: var(--warn); }
-.px-pill.own { background: #F0EBFD; color: #6335D6; }
+.px-pill.own { background: var(--own-soft); color: var(--own); }
 
 /* ---------------- buttons ---------------- */
 .px-btn {
@@ -282,13 +463,13 @@ button { font: inherit; }
 }
 .px-btn:hover:not(:disabled) { filter: brightness(1.08); }
 .px-btn:disabled { opacity: .45; cursor: not-allowed; }
-.px-btn.ghost { background: #fff; border-color: var(--line-2); color: var(--ink); }
+.px-btn.ghost { background: var(--panel); border-color: var(--line-2); color: var(--ink); }
 .px-btn.ghost:hover:not(:disabled) { background: var(--sunken); filter: none; }
 .px-btn.quiet { background: var(--sunken); color: var(--ink-2); }
 .px-btn.quiet:hover:not(:disabled) { background: var(--sunken-2); filter: none; }
 .px-btn.long { background: var(--up); }
 .px-btn.short { background: var(--down); }
-.px-btn.danger { background: #fff; border-color: #F0C9C6; color: var(--down); }
+.px-btn.danger { background: var(--panel); border-color: var(--down-line); color: var(--down); }
 .px-btn.sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
 .px-btn.block { width: 100%; }
 .px-btn svg { width: 15px; height: 15px; }
@@ -305,7 +486,7 @@ button { font: inherit; }
   border: 0; background: none; cursor: pointer; border-radius: 7px;
   padding: 6px 11px; font-size: 12.5px; font-weight: 550; color: var(--muted);
 }
-.px-seg button.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(16,22,32,.08); }
+.px-seg button.is-on { background: var(--panel); color: var(--ink); box-shadow: var(--shadow-lift); }
 .px-seg.side button.is-on[data-side="long"] { color: var(--up); }
 .px-seg.side button.is-on[data-side="short"] { color: var(--down); }
 
@@ -340,12 +521,12 @@ button { font: inherit; }
 .px-chart.sm { height: 180px; }
 .px-tip {
   position: absolute; pointer-events: none; z-index: 5;
-  background: var(--ink); color: #fff; border-radius: 7px; padding: 6px 9px;
+  background: var(--float-bg); color: var(--float-ink); border-radius: 7px; padding: 6px 9px;
   font-size: 11.5px; display: grid; gap: 1px; white-space: nowrap;
-  box-shadow: 0 6px 18px -8px rgba(16,22,32,.5);
+  box-shadow: var(--shadow-pop);
 }
 .px-tip b { font-family: var(--mono); font-size: 12.5px; }
-.px-tip span { color: #B9C0CC; }
+.px-tip span { color: var(--float-dim); }
 .px-ranges { display: flex; gap: 3px; margin-left: auto; }
 
 /* weight bar: the basket in one line */
@@ -364,7 +545,7 @@ button { font: inherit; }
 .px-field > label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 .px-input {
   width: 100%; font: inherit; font-size: 13.5px; color: var(--ink);
-  background: #fff; border: 1px solid var(--line-2); border-radius: 9px; padding: 9px 11px;
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: 9px; padding: 9px 11px;
   transition: border-color .14s, box-shadow .14s;
 }
 .px-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
@@ -384,30 +565,30 @@ button { font: inherit; }
 .px-range::-moz-range-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
 .px-range::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none; width: 16px; height: 16px; margin-top: -5.5px;
-  border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(16,22,32,.2);
+  border-radius: 50%; background: var(--panel); border: 2px solid var(--accent); box-shadow: var(--shadow-lift);
 }
 .px-range::-moz-range-thumb {
-  width: 16px; height: 16px; border-radius: 50%; background: #fff;
-  border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(16,22,32,.2);
+  width: 16px; height: 16px; border-radius: 50%; background: var(--panel);
+  border: 2px solid var(--accent); box-shadow: var(--shadow-lift);
 }
 .px-range-marks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
 
 /* the basket builder */
 .px-leg {
   display: flex; align-items: center; gap: 10px;
-  padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r); background: #fff;
+  padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel);
 }
 .px-leg-w { width: 88px; flex: none; }
 .px-leg-x {
   flex: none; width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
-  border: 1px solid var(--line); background: #fff; color: var(--muted); display: grid; place-items: center;
+  border: 1px solid var(--line); background: var(--panel); color: var(--muted); display: grid; place-items: center;
 }
-.px-leg-x:hover { border-color: #F0C9C6; color: var(--down); }
+.px-leg-x:hover { border-color: var(--down-line); color: var(--down); }
 .px-picker { display: flex; flex-wrap: wrap; gap: 6px; }
 .px-chip {
   display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
   border: 1px solid var(--line); border-radius: 20px; padding: 4px 11px 4px 5px;
-  background: #fff; font-size: 12.5px; font-weight: 550; color: var(--ink-2);
+  background: var(--panel); font-size: 12.5px; font-weight: 550; color: var(--ink-2);
   transition: border-color .14s, background .14s;
 }
 .px-chip:hover:not(:disabled) { border-color: var(--line-2); background: var(--sunken); }
@@ -422,14 +603,14 @@ button { font: inherit; }
   border-radius: 0 var(--r) var(--r) 0; padding: 11px 13px;
   font-size: 12.5px; color: var(--muted); background: var(--sunken);
 }
-.px-note.warn { border-left-color: var(--warn); background: var(--warn-soft); color: #6E4409; border-color: #F2DFC0; }
-.px-note.risk { border-left-color: var(--down); background: var(--down-soft); color: #8A211A; border-color: #F5D2CF; }
+.px-note.warn { border-left-color: var(--warn); background: var(--warn-soft); color: var(--warn-ink); border-color: var(--warn-line); }
+.px-note.risk { border-left-color: var(--down); background: var(--down-soft); color: var(--risk-ink); border-color: var(--risk-line); }
 .px-note strong { color: inherit; font-weight: 600; }
 
 .px-toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 90; display: grid; gap: 8px; justify-items: center; }
 .px-toast {
-  background: var(--ink); color: #fff; border-radius: 10px; padding: 10px 15px;
-  font-size: 13px; font-weight: 500; box-shadow: 0 10px 30px -12px rgba(16,22,32,.6);
+  background: var(--float-bg); color: var(--float-ink); border-radius: 10px; padding: 10px 15px;
+  font-size: 13px; font-weight: 500; box-shadow: var(--shadow-pop);
   animation: px-rise .2s ease-out;
 }
 .px-toast.bad { background: var(--down); }
@@ -443,13 +624,13 @@ button { font: inherit; }
 .px-terms {
   position: fixed; inset: 0; z-index: 200;
   display: grid; place-items: center; padding: 24px 16px;
-  background: rgba(14, 17, 22, .48); backdrop-filter: blur(6px);
+  background: var(--veil); backdrop-filter: blur(6px);
   overflow-y: auto;
 }
 .px-terms-panel {
   width: 100%; max-width: 620px; background: var(--panel);
   border: 1px solid var(--line); border-radius: 16px; padding: 28px 30px 24px;
-  box-shadow: 0 24px 70px -30px rgba(16, 22, 32, .55);
+  box-shadow: var(--shadow-panel);
   display: grid; gap: 16px; align-content: start;
 }
 .px-terms-mark { width: 40px; height: 40px; display: block; }
@@ -490,7 +671,7 @@ button { font: inherit; }
   display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px;
   background: var(--panel); border: 1px solid var(--line-2); border-radius: 14px;
   padding: 14px 16px;
-  box-shadow: 0 18px 48px -22px rgba(16, 22, 32, .45);
+  box-shadow: var(--shadow-bar);
   animation: px-cookie-in .22s ease-out;
 }
 .px-cookie.is-going { opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; }
@@ -505,7 +686,7 @@ button { font: inherit; }
   /* minmax(0, 1fr), not 1fr: a grid item does not shrink below its content
      width by default, and the sidebar laid out horizontally is wider than a
      phone. */
-  .wp { grid-template-columns: minmax(0, 1fr); }
+  .px { grid-template-columns: minmax(0, 1fr); }
   .px-side {
     min-width: 0;
     position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center;

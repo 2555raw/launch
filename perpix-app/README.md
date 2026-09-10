@@ -73,6 +73,38 @@ balance reconciles after opening, closing and claiming, and that every limit
 (legs, leverage, minimum margin, balance, duplicate symbol) rejects what it is
 supposed to reject.
 
+## The two themes
+
+Light, dark, or whatever the viewer's machine says — three modes, not two, and
+the third is the default, because it is the answer most people have already
+given somewhere else and asking again is rude. The button sits in the header and
+says the state it is in, including which way the system currently resolves.
+
+The light theme is the original design: a white ground on which the only colour
+with weight is the brand's. The dark one keeps that idea rather than inverting
+it — the ground goes to a blue-biased near-black, hairlines and the accent lift
+until they read on it, and the tile a logo sits on stays white, because most
+logos are drawn dark on nothing and a dark tile would swallow them.
+
+Every colour is a token declared on bare `:root` first, so no token can exist
+only inside a media query, which is the classic way a themed page ends up
+rendering one theme's text on the other theme's ground. Four states, in cascade
+order: `:root` is the complete light palette; `prefers-color-scheme: dark` is
+the viewer's system, unless they chose light here; `[data-theme]` is the choice
+of a host this page is embedded in; `[data-px-theme]` is the choice made in this
+application, and it wins. The attribute is `data-px-theme` and not `data-theme`
+on purpose: an embedding host stamps `data-theme` itself, and two writers on one
+attribute fight, so this application reads the host's attribute and writes its
+own.
+
+Canvas is not in the cascade, so a theme change repaints the view and the charts
+read their colours from the tokens as they draw.
+
+The ink over a brand colour is chosen by measuring both candidates and taking
+the better one, not by a luminance threshold. A single threshold gets mid-tones
+wrong in either direction: gold sat just under it and took white ink at 2.1:1,
+which is unreadable. Measured, the worst symbol tile in the registry is 4.5:1.
+
 ## The clock
 
 Perpix keeps one clock and it is New York's, real time, ticking every second in
@@ -180,9 +212,8 @@ With `logoToken` configured, the paid logo provider is used, which has better
 coverage and resolution. Without a token the fallbacks are used, which resolve
 by domain with no key.
 
-The X icon in the sidebar is interface chrome, not an asset's mark: **it has no
-link yet**, so it is not a link. It is a button that says there is no
-destination, rather than an anchor that goes nowhere.
+The X icon in the sidebar is interface chrome, not an asset's mark. It links to
+[@usePerpix](https://x.com/usePerpix), and opens in a new tab.
 
 ## How an index works
 
@@ -233,6 +264,7 @@ styles.css              design system (tokens on :root, white ground, components
 js/registry.js          IDENTITY: symbol, name, class, sector, brand colour, domain
 js/marks.js             GENERATED: the official mark of 44 assets, embedded
 js/terms.js             the terms, the gate on entry, and the copy in the footer
+js/theme.js             light, dark or system, and the repaint a theme change needs
 js/config.js            VENUE (the market's rules) and the logo resolver chain
 js/logos.js             the mark system described above
 js/market.js            the price simulator and the basket mathematics

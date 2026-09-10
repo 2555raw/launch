@@ -70,7 +70,19 @@ export function luminance(hex) {
   });
   return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
 }
-export const inkOn = (hex) => (luminance(hex) > 0.55 ? '#111418' : '#FFFFFF');
+/* Ink over a brand colour. This used to be a luminance threshold, and a single
+   threshold gets mid-tones wrong in either direction: gold sits just under it
+   and took white ink at 2.1:1, which is unreadable. So both candidates are
+   measured and the better one wins, which is the only rule that cannot be
+   wrong at the boundary. */
+const INK_DARK = '#111418';
+const INK_LIGHT = '#FFFFFF';
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+export const inkOn = (hex) =>
+  (contrast(hex, INK_DARK) >= contrast(hex, INK_LIGHT) ? INK_DARK : INK_LIGHT);
 
 /** Symbol text sized to fit its tile: two characters can be large, five have to
  *  give way. Without this a five-letter ticker would either overflow or force
@@ -183,8 +195,11 @@ export function markEl(asset, size = 36) {
     if (img.naturalWidth < floor) { failed.add(img.src); return tryNext(); }
     img.hidden = false;
     el.classList.remove('is-symbol', 'is-svg');
+    el.classList.add('is-logo');
     el.style.padding = '0';
-    el.style.background = '#fff';
+    // The tile's colour is a token, so it is left to the stylesheet: an inline
+    // white here would stay white when the theme changed.
+    el.style.background = '';
     el.querySelector('.px-mark-txt')?.remove();
     el.querySelector('.px-mark-svg')?.remove();
   });

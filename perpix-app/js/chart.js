@@ -28,11 +28,14 @@ export function drawChart(canvas, rows, { color, baseline = null, suffix = '' } 
   const wrap = canvas.parentElement;
   const tip = wrap.querySelector('.px-tip');
   const data = (rows || []).filter(r => Number.isFinite(r.c));
+  /* Read at draw time, not at module load, so a theme change repaints in the
+     new palette rather than the one that was current when the page opened. */
   const theme = {
     line: cssVar(wrap, '--line') || '#E6E9EE',
     dim: cssVar(wrap, '--dim') || '#98A1AE',
     up: cssVar(wrap, '--up') || '#0E9F6E',
     down: cssVar(wrap, '--down') || '#D8342A',
+    panel: cssVar(wrap, '--panel') || '#FFFFFF',
   };
 
   let geo = null;
@@ -127,7 +130,7 @@ export function drawChart(canvas, rows, { color, baseline = null, suffix = '' } 
     ctx.strokeStyle = theme.line; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(Math.round(x(i)) + .5, padT); ctx.lineTo(Math.round(x(i)) + .5, padT + plotH); ctx.stroke();
     ctx.beginPath(); ctx.arc(x(i), y(r.c), 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.fillStyle = theme.panel; ctx.fill();
     ctx.lineWidth = 2.5; ctx.strokeStyle = stroke; ctx.stroke();
     if (tip) {
       tip.hidden = false;
@@ -179,6 +182,8 @@ export function sparkline(canvas, rows, color) {
 /** Weight wheel: the basket at a glance, each leg in its brand colour. */
 export function drawDonut(canvas, legs, size = 132) {
   canvas.style.width = canvas.style.height = size + 'px';
+  // The gap between slices is the ground behind the wheel, not white.
+  const gap = cssVar(canvas.parentElement || canvas, '--panel') || '#FFFFFF';
   const fit = fitCanvas(canvas);
   if (!fit) return;
   const { ctx, w, h } = fit;
@@ -195,7 +200,7 @@ export function drawDonut(canvas, legs, size = 132) {
     ctx.closePath();
     ctx.fillStyle = leg.asset?.color || '#8A94A6';
     ctx.fill();
-    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = gap; ctx.lineWidth = 2; ctx.stroke();
     a += sweep;
   }
 }

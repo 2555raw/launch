@@ -22,7 +22,7 @@ const root = dirname(fileURLToPath(import.meta.url));
 const MODULES = [
   'js/format.js', 'js/config.js', 'js/registry.js', 'js/marks.js', 'js/logos.js',
   'js/market.js', 'js/store.js', 'js/engine.js', 'js/chart.js', 'js/search.js',
-  'js/ui/components.js', 'js/terms.js', 'js/views.js', 'js/app.js',
+  'js/ui/components.js', 'js/theme.js', 'js/terms.js', 'js/views.js', 'js/app.js',
 ];
 const ENTRY = 'js/app.js';
 

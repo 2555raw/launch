@@ -13,7 +13,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F58F5'/%3E%3Cpath d='M10 24.5V13M16 24.5V8.5M22 24.5V17' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M6.5 19.5h19' stroke='%23FFC72C' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
-<div class="wp" id="root">
+<div class="px" id="root">
 
   <aside class="px-side">
     <a class="px-brand" href="#/" aria-label="Perpix, home">
@@ -62,11 +62,10 @@
       <dl class="px-equity" id="sideEquity"></dl>
       <div class="px-side-links">
         <button class="px-ghost-btn" id="resetBtn" type="button">Reset account</button>
-        <!-- The X mark. There is no profile to link to yet, so this is not a
-             link: it is a button that says so. -->
-        <button class="px-x" id="xBtn" type="button" title="X — not linked yet" aria-label="X, not linked yet">
+        <a class="px-x" href="https://x.com/usePerpix" target="_blank" rel="noopener noreferrer"
+           title="@usePerpix on X" aria-label="Perpix on X, opens in a new tab">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </button>
+        </a>
       </div>
     </div>
   </aside>
@@ -88,6 +87,8 @@
       <div class="px-top-right">
         <!-- The market's clock is New York's, real time, and it ticks every second. -->
         <span class="px-clock" id="clock" title="Perpix's market clock, America/New_York"></span>
+        <!-- Light, dark, or whatever the viewer's machine says. -->
+        <button class="px-theme" id="themeBtn" type="button"></button>
       </div>
     </header>
 

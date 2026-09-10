@@ -1,7 +1,7 @@
 /* The price feed.
 
    NOTICE, AND IT GOVERNS THE WHOLE PROJECT: there is no real market data here.
-   Warp is a paper market and this simulator produces its prices. The reference
+   Perpix is a paper market and this simulator produces its prices. The reference
    levels below are orders of magnitude picked so the interface reads, not
    quotes. No number in this application describes the real market, and the
    interface says so in the header and the footer of every screen instead of
@@ -172,5 +172,5 @@ export function snapshotRefs(legs, t = Date.now()) {
    A real provider is plugged in by replacing them, and nothing else in the
    application changes. While the feed is the simulator, `isSimulated` is true
    and the interface announces it. */
-export const feed = { spot, changePct, series, volume24h, isSimulated: true, label: 'Warp simulator' };
+export const feed = { spot, changePct, series, volume24h, isSimulated: true, label: 'Perpix simulator' };
 export function setFeed(next) { Object.assign(feed, next); }

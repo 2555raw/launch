@@ -2,7 +2,7 @@
    interface and the engine cannot disagree about the rules. */
 
 export const VENUE = {
-  name: 'Warp',
+  name: 'Perpix',
   tagline: 'Index perpetuals',
   settle: 'USDG',
   /** A basket is fixed-weight and holds three to five legs: fewer is not an
@@ -32,7 +32,8 @@ export const VENUE = {
 /* Official logos are resolved from each entity's own domain at runtime. No copy
    is kept in the repository, so a logo cannot go stale or diverge between
    screens. */
-const KEY = 'warp.config';
+const KEY = 'perpix.config';
+const LEGACY_KEY = 'warp.config';
 const DEFAULTS = {
   logoTemplate: 'https://img.logo.dev/{domain}?token={logoToken}&size=128&format=png&retries=0',
   logoToken: '',
@@ -51,10 +52,19 @@ const DEFAULTS = {
 /* Read from the host if there is one and from the browser if there is one: the
    modules do not assume a browser exists, so the logic can run and be tested
    outside of one. */
-const host = () => (typeof window === 'undefined' ? null : window.WARP_CONFIG);
+const host = () => (typeof window === 'undefined' ? null : window.PERPIX_CONFIG);
 function read() {
   let saved = {};
-  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { saved = {}; }
+  // The old key is read once and moved across: the application was called Warp
+  // before it was renamed, and a rename should not reset anyone's settings.
+  try {
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
+    if (raw !== null && localStorage.getItem(KEY) === null) {
+      localStorage.setItem(KEY, raw);
+      localStorage.removeItem(LEGACY_KEY);
+    }
+    saved = JSON.parse(raw || '{}');
+  } catch { saved = {}; }
   return { ...DEFAULTS, ...(host() || {}), ...saved };
 }
 export const config = read();

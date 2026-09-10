@@ -1,5 +1,5 @@
 /* The market's rules, checked without a browser.
-   Run with:  node warp-app/test/engine.test.mjs
+   Run with:  node perpix-app/test/engine.test.mjs
    What is tested here is what cannot be wrong: that a basket starts at its
    base, that the legs' contributions add up to the index's change, that the
    balance reconciles after every trade, and that a limit is a limit. */

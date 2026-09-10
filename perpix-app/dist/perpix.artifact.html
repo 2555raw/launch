@@ -1,10 +1,10 @@
-<title>Warp Index Perpetuals</title>
+<title>Perpix</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>
-/* Warp — design system.
+/* Perpix — design system.
 
    The ground is white and it stays white. On white, the only colour with weight
    is the brand's: each asset's real logo and its brand colour are what tell one
@@ -75,65 +75,65 @@ button { font: inherit; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------------- sidebar ---------------- */
-.wp-side {
+.px-side {
   border-right: 1px solid var(--line);
   padding: 16px 12px 14px;
   display: flex; flex-direction: column; gap: 4px;
   position: sticky; top: 0; height: 100vh;
   background: var(--bg);
 }
-.wp-brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
-.wp-brand-mark { width: 28px; height: 28px; flex: none; }
-.wp-brand-name { font-weight: 650; font-size: 15.5px; letter-spacing: -.02em; }
-.wp-brand-sub { display: block; font-size: 11px; font-weight: 450; color: var(--dim); letter-spacing: 0; }
+.px-brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
+.px-brand-mark { width: 28px; height: 28px; flex: none; }
+.px-brand-name { font-weight: 650; font-size: 15.5px; letter-spacing: -.02em; }
+.px-brand-sub { display: block; font-size: 11px; font-weight: 450; color: var(--dim); letter-spacing: 0; }
 
-.wp-nav { display: flex; flex-direction: column; gap: 2px; }
-.wp-nav a {
+.px-nav { display: flex; flex-direction: column; gap: 2px; }
+.px-nav a {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 10px; border-radius: 8px;
   font-size: 13.5px; font-weight: 500; color: var(--muted);
   transition: background .14s, color .14s;
 }
-.wp-nav a:hover { background: var(--sunken); color: var(--ink); }
-.wp-nav a.is-active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.wp-nav svg { width: 16px; height: 16px; flex: none; }
-.wp-nav-count {
+.px-nav a:hover { background: var(--sunken); color: var(--ink); }
+.px-nav a.is-active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.px-nav svg { width: 16px; height: 16px; flex: none; }
+.px-nav-count {
   margin-left: auto; font-family: var(--mono); font-size: 11px;
   background: var(--sunken-2); color: var(--muted); border-radius: 20px; padding: 1px 7px;
 }
-.wp-nav a.is-active .wp-nav-count { background: #fff; color: var(--accent); }
+.px-nav a.is-active .px-nav-count { background: #fff; color: var(--accent); }
 
-.wp-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
-.wp-equity {
+.px-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.px-equity {
   border: 1px solid var(--line); border-radius: var(--r); padding: 10px 11px;
   display: grid; gap: 2px;
 }
-.wp-equity dt { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
-.wp-equity dd { margin: 0; font-family: var(--mono); font-size: 15px; font-weight: 600; }
-.wp-equity-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
-.wp-side-links { display: flex; align-items: center; gap: 6px; }
+.px-equity dt { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+.px-equity dd { margin: 0; font-family: var(--mono); font-size: 15px; font-weight: 600; }
+.px-equity-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
+.px-side-links { display: flex; align-items: center; gap: 6px; }
 
 /* The X mark. It has no link yet, and that is exactly why it is not a link: it
    is a button that says there is no destination, rather than an anchor that
    goes nowhere. */
-.wp-x {
+.px-x {
   width: 34px; height: 34px; flex: none;
   display: grid; place-items: center; cursor: pointer;
   background: none; border: 1px solid var(--line); border-radius: 9px;
   color: var(--ink); transition: background .14s, border-color .14s;
 }
-.wp-x:hover { background: var(--sunken); border-color: var(--line-2); }
-.wp-x svg { width: 15px; height: 15px; fill: currentColor; }
-.wp-ghost-btn {
+.px-x:hover { background: var(--sunken); border-color: var(--line-2); }
+.px-x svg { width: 15px; height: 15px; fill: currentColor; }
+.px-ghost-btn {
   flex: 1; text-align: left; cursor: pointer; color: var(--muted); font-size: 12px;
   background: none; border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px;
   transition: color .14s, border-color .14s;
 }
-.wp-ghost-btn:hover { color: var(--ink); border-color: var(--line-2); }
+.px-ghost-btn:hover { color: var(--ink); border-color: var(--line-2); }
 
 /* ---------------- header ---------------- */
-.wp-main { display: flex; flex-direction: column; min-width: 0; }
-.wp-top {
+.px-main { display: flex; flex-direction: column; min-width: 0; }
+.px-top {
   position: sticky; top: 0; z-index: 40;
   display: flex; align-items: center; gap: 14px;
   padding: 11px 24px;
@@ -142,99 +142,99 @@ button { font: inherit; }
 }
 /* min-width 0 so the search box yields width to the notice on its right rather
    than pushing the header off screen. */
-.wp-search { position: relative; flex: 1 1 0; min-width: 0; max-width: 540px; }
-.wp-search-box {
+.px-search { position: relative; flex: 1 1 0; min-width: 0; max-width: 540px; }
+.px-search-box {
   display: flex; align-items: center; gap: 9px;
   background: var(--sunken); border: 1px solid transparent; border-radius: 9px; padding: 0 11px;
   transition: background .14s, border-color .14s;
 }
-.wp-search-box:focus-within { background: #fff; border-color: var(--accent); }
-.wp-search-box svg { width: 15px; height: 15px; color: var(--dim); flex: none; }
-.wp-search input {
+.px-search-box:focus-within { background: #fff; border-color: var(--accent); }
+.px-search-box svg { width: 15px; height: 15px; color: var(--dim); flex: none; }
+.px-search input {
   flex: 1; min-width: 0; border: 0; background: none; outline: none;
   font: inherit; font-size: 13.5px; color: var(--ink); padding: 9px 0;
 }
-.wp-search input::placeholder { color: var(--dim); }
-.wp-search kbd {
+.px-search input::placeholder { color: var(--dim); }
+.px-search kbd {
   font-family: var(--mono); font-size: 10.5px; color: var(--dim);
   border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; background: #fff;
 }
-.wp-results {
+.px-results {
   position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 50;
   background: #fff; border: 1px solid var(--line); border-radius: var(--r);
   box-shadow: var(--shadow); padding: 5px; max-height: 62vh; overflow: auto;
 }
-.wp-res {
+.px-res {
   display: flex; align-items: center; gap: 10px; width: 100%;
   padding: 8px 9px; border-radius: 8px; cursor: pointer;
   background: none; border: 0; text-align: left;
 }
-.wp-res:hover, .wp-res.is-on { background: var(--sunken); }
-.wp-res-label { font-size: 13.5px; font-weight: 550; }
-.wp-res-sub { font-size: 11.5px; color: var(--muted); }
-.wp-res-sym { margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
-.wp-res-empty { padding: 14px 10px; font-size: 13px; color: var(--muted); }
+.px-res:hover, .px-res.is-on { background: var(--sunken); }
+.px-res-label { font-size: 13.5px; font-weight: 550; }
+.px-res-sub { font-size: 11.5px; color: var(--muted); }
+.px-res-sym { margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
+.px-res-empty { padding: 14px 10px; font-size: 13px; color: var(--muted); }
 
-.wp-top-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex: none; }
-.wp-clock {
+.px-top-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex: none; }
+.px-clock {
   display: flex; align-items: baseline; gap: 6px;
   font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap;
 }
-.wp-clock b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
-.wp-clock-zone { font-size: 10.5px; color: var(--dim); }
+.px-clock b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.px-clock-zone { font-size: 10.5px; color: var(--dim); }
 
 /* ---------------- view ---------------- */
-.wp-view { padding: 22px 24px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-content: start; }
-.wp-foot {
+.px-view { padding: 22px 24px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-content: start; }
+.px-foot {
   padding: 14px 24px 22px; border-top: 1px solid var(--line);
   display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between;
   font-size: 11.5px; color: var(--dim);
 }
 
-.wp-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 18px; }
-.wp-head > div { min-width: 0; }
-.wp-head h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.025em; }
-.wp-head p { margin: 3px 0 0; font-size: 13.5px; color: var(--muted); max-width: 64ch; }
-.wp-head-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.px-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 18px; }
+.px-head > div { min-width: 0; }
+.px-head h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.025em; }
+.px-head p { margin: 3px 0 0; font-size: 13.5px; color: var(--muted); max-width: 64ch; }
+.px-head-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
 
-.wp-card {
+.px-card {
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg);
   overflow: hidden;
 }
-.wp-card-head {
+.px-card-head {
   display: flex; align-items: center; gap: 10px;
   padding: 13px 16px; border-bottom: 1px solid var(--line);
 }
-.wp-card-head h2 { margin: 0; font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; }
-.wp-card-head .wp-card-note { font-size: 11.5px; color: var(--dim); margin-left: auto; text-align: right; }
-.wp-card-head .wp-ranges { margin-left: 10px; }
-.wp-card-body { padding: 16px; }
-.wp-card-body.tight { padding: 0; }
-.wp-card-foot { padding: 0 16px 16px; }
+.px-card-head h2 { margin: 0; font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; }
+.px-card-head .px-card-note { font-size: 11.5px; color: var(--dim); margin-left: auto; text-align: right; }
+.px-card-head .px-ranges { margin-left: 10px; }
+.px-card-body { padding: 16px; }
+.px-card-body.tight { padding: 0; }
+.px-card-foot { padding: 0 16px 16px; }
 
-.wp-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.wp-grid > * { min-width: 0; }
+.px-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.px-grid > * { min-width: 0; }
 /* min(Npx, 100%) rather than a bare Npx: on a screen narrower than the minimum
    column, auto-fit would honour it and overflow the page. */
-.wp-grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
-.wp-grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); }
-.wp-grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }
-.wp-split { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 336px; align-items: start; }
+.px-grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+.px-grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); }
+.px-grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }
+.px-split { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 336px; align-items: start; }
 
 /* ---------------- figures ---------------- */
-.wp-stat { border: 1px solid var(--line); border-radius: var(--r); padding: 13px 14px; background: var(--panel); }
-.wp-stat dt { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 5px; }
-.wp-stat dd { margin: 0; font-family: var(--mono); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
-.wp-stat-sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+.px-stat { border: 1px solid var(--line); border-radius: var(--r); padding: 13px 14px; background: var(--panel); }
+.px-stat dt { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 5px; }
+.px-stat dd { margin: 0; font-family: var(--mono); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+.px-stat-sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
 
-.wp-kv { display: grid; gap: 9px; }
-.wp-kv > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 13px; }
-.wp-kv dt { color: var(--muted); }
-.wp-kv dd { margin: 0; font-family: var(--mono); font-weight: 550; text-align: right; }
-.wp-kv-line { border-top: 1px dashed var(--line-2); padding-top: 9px; margin-top: 1px; }
+.px-kv { display: grid; gap: 9px; }
+.px-kv > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 13px; }
+.px-kv dt { color: var(--muted); }
+.px-kv dd { margin: 0; font-family: var(--mono); font-weight: 550; text-align: right; }
+.px-kv-line { border-top: 1px dashed var(--line-2); padding-top: 9px; margin-top: 1px; }
 
 /* ---------------- the asset's mark ---------------- */
-.wp-mark {
+.px-mark {
   flex: none; display: grid; place-items: center; overflow: hidden;
   border-radius: 8px; background: #fff;
   box-shadow: inset 0 0 0 1px rgba(16,22,32,.09);
@@ -242,269 +242,269 @@ button { font: inherit; }
 }
 /* Monogram, embedded mark and fetched logo all share one cell, so replacing one
    with another costs no reflow. */
-.wp-mark > * { grid-area: 1 / 1; }
-.wp-mark-img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
-.wp-mark-txt { display: block; }
-.wp-mark-svg { width: 100%; height: 100%; display: block; }
-.wp-mark.is-svg { box-shadow: inset 0 0 0 1px rgba(16,22,32,.08); background: #fff; }
+.px-mark > * { grid-area: 1 / 1; }
+.px-mark-img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.px-mark-txt { display: block; }
+.px-mark-svg { width: 100%; height: 100%; display: block; }
+.px-mark.is-svg { box-shadow: inset 0 0 0 1px rgba(16,22,32,.08); background: #fff; }
 /* A symbol tile: a metal's chemical symbol, or the ticker of an asset whose
    logo cannot be embedded. Both are real identifiers, so both get the same
    treatment rather than one of them looking like a mark that failed to load. */
-.wp-mark.is-symbol {
+.px-mark.is-symbol {
   box-shadow: inset 0 0 0 1px rgba(16,22,32,.14);
   font-family: var(--font); font-weight: 650; letter-spacing: -.02em;
 }
-.wp-stack { display: inline-flex; align-items: center; }
-.wp-stack .wp-mark { box-shadow: inset 0 0 0 1px rgba(16,22,32,.09), 0 0 0 2px #fff; }
+.px-stack { display: inline-flex; align-items: center; }
+.px-stack .px-mark { box-shadow: inset 0 0 0 1px rgba(16,22,32,.09), 0 0 0 2px #fff; }
 
-.wp-ident { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.wp-ident-text { min-width: 0; }
-.wp-ident-name { font-size: 13.5px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wp-ident-sub { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-.wp-sym {
+.px-ident { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.px-ident-text { min-width: 0; }
+.px-ident-name { font-size: 13.5px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.px-ident-sub { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.px-sym {
   font-family: var(--mono); font-size: 11px; font-weight: 600;
   border-radius: 5px; padding: 1px 5px; letter-spacing: 0;
 }
 
 /* ---------------- pills ---------------- */
-.wp-pill {
+.px-pill {
   display: inline-flex; align-items: center; gap: 5px;
   font-size: 11.5px; font-weight: 550; border-radius: 20px; padding: 3px 9px;
   background: var(--sunken); color: var(--muted); white-space: nowrap;
 }
-.wp-pill.up { background: var(--up-soft); color: var(--up); }
-.wp-pill.down { background: var(--down-soft); color: var(--down); }
-.wp-pill.accent { background: var(--accent-soft); color: var(--accent); }
-.wp-pill.warn { background: var(--warn-soft); color: var(--warn); }
-.wp-pill.own { background: #F0EBFD; color: #6335D6; }
+.px-pill.up { background: var(--up-soft); color: var(--up); }
+.px-pill.down { background: var(--down-soft); color: var(--down); }
+.px-pill.accent { background: var(--accent-soft); color: var(--accent); }
+.px-pill.warn { background: var(--warn-soft); color: var(--warn); }
+.px-pill.own { background: #F0EBFD; color: #6335D6; }
 
 /* ---------------- buttons ---------------- */
-.wp-btn {
+.px-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   padding: 9px 14px; border-radius: 9px; cursor: pointer;
   font-size: 13px; font-weight: 600; border: 1px solid transparent;
   background: var(--accent); color: var(--accent-ink);
   transition: filter .14s, background .14s, border-color .14s, color .14s;
 }
-.wp-btn:hover:not(:disabled) { filter: brightness(1.08); }
-.wp-btn:disabled { opacity: .45; cursor: not-allowed; }
-.wp-btn.ghost { background: #fff; border-color: var(--line-2); color: var(--ink); }
-.wp-btn.ghost:hover:not(:disabled) { background: var(--sunken); filter: none; }
-.wp-btn.quiet { background: var(--sunken); color: var(--ink-2); }
-.wp-btn.quiet:hover:not(:disabled) { background: var(--sunken-2); filter: none; }
-.wp-btn.long { background: var(--up); }
-.wp-btn.short { background: var(--down); }
-.wp-btn.danger { background: #fff; border-color: #F0C9C6; color: var(--down); }
-.wp-btn.sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
-.wp-btn.block { width: 100%; }
-.wp-btn svg { width: 15px; height: 15px; }
+.px-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.px-btn:disabled { opacity: .45; cursor: not-allowed; }
+.px-btn.ghost { background: #fff; border-color: var(--line-2); color: var(--ink); }
+.px-btn.ghost:hover:not(:disabled) { background: var(--sunken); filter: none; }
+.px-btn.quiet { background: var(--sunken); color: var(--ink-2); }
+.px-btn.quiet:hover:not(:disabled) { background: var(--sunken-2); filter: none; }
+.px-btn.long { background: var(--up); }
+.px-btn.short { background: var(--down); }
+.px-btn.danger { background: #fff; border-color: #F0C9C6; color: var(--down); }
+.px-btn.sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+.px-btn.block { width: 100%; }
+.px-btn svg { width: 15px; height: 15px; }
 
 /* A segmented control with many options scrolls instead of pushing the page:
    max-width and overflow live in the component, not at each use site. */
-.wp-seg {
+.px-seg {
   display: inline-flex; background: var(--sunken); border-radius: 9px; padding: 3px; gap: 3px;
   max-width: 100%; overflow-x: auto; scrollbar-width: none;
 }
-.wp-seg::-webkit-scrollbar { display: none; }
-.wp-seg button { flex: none; }
-.wp-seg button {
+.px-seg::-webkit-scrollbar { display: none; }
+.px-seg button { flex: none; }
+.px-seg button {
   border: 0; background: none; cursor: pointer; border-radius: 7px;
   padding: 6px 11px; font-size: 12.5px; font-weight: 550; color: var(--muted);
 }
-.wp-seg button.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(16,22,32,.08); }
-.wp-seg.side button.is-on[data-side="long"] { color: var(--up); }
-.wp-seg.side button.is-on[data-side="short"] { color: var(--down); }
+.px-seg button.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(16,22,32,.08); }
+.px-seg.side button.is-on[data-side="long"] { color: var(--up); }
+.px-seg.side button.is-on[data-side="short"] { color: var(--down); }
 
 /* ---------------- tables ---------------- */
-.wp-scroll { overflow-x: auto; }
-.wp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.wp-table th {
+.px-scroll { overflow-x: auto; }
+.px-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.px-table th {
   text-align: right; font-size: 11px; font-weight: 600; color: var(--dim);
   text-transform: uppercase; letter-spacing: .06em;
   padding: 9px 11px; border-bottom: 1px solid var(--line); white-space: nowrap;
 }
-.wp-table th:first-child, .wp-table td:first-child { text-align: left; padding-left: 16px; }
-.wp-table th:last-child, .wp-table td:last-child { padding-right: 16px; }
+.px-table th:first-child, .px-table td:first-child { text-align: left; padding-left: 16px; }
+.px-table th:last-child, .px-table td:last-child { padding-right: 16px; }
 /* A figure never breaks across two lines: if it does not fit, the table scrolls
-   (each one sits inside its own .wp-scroll). */
-.wp-table td { text-align: right; padding: 11px 11px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
-.wp-table td.wide { white-space: normal; }
-.wp-table tbody tr:last-child td { border-bottom: 0; }
-.wp-table tbody tr.clickable { cursor: pointer; }
-.wp-table tbody tr.clickable:hover { background: var(--sunken); }
-.wp-table td.clickable { cursor: pointer; }
-.wp-table td.wide { min-width: 220px; }
-.wp-spark { width: 68px; height: 28px; display: block; margin-left: auto; }
+   (each one sits inside its own .px-scroll). */
+.px-table td { text-align: right; padding: 11px 11px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+.px-table td.wide { white-space: normal; }
+.px-table tbody tr:last-child td { border-bottom: 0; }
+.px-table tbody tr.clickable { cursor: pointer; }
+.px-table tbody tr.clickable:hover { background: var(--sunken); }
+.px-table td.clickable { cursor: pointer; }
+.px-table td.wide { min-width: 220px; }
+.px-spark { width: 68px; height: 28px; display: block; margin-left: auto; }
 
-.wp-empty { padding: 34px 16px; text-align: center; color: var(--muted); font-size: 13.5px; }
-.wp-empty strong { display: block; color: var(--ink); font-size: 15px; font-weight: 600; margin-bottom: 5px; }
-.wp-empty .wp-btn { margin-top: 14px; }
+.px-empty { padding: 34px 16px; text-align: center; color: var(--muted); font-size: 13.5px; }
+.px-empty strong { display: block; color: var(--ink); font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+.px-empty .px-btn { margin-top: 14px; }
 
 /* ---------------- charts ---------------- */
-.wp-chart { position: relative; height: 300px; }
-.wp-chart canvas { width: 100%; height: 100%; display: block; touch-action: none; }
-.wp-chart.sm { height: 180px; }
-.wp-tip {
+.px-chart { position: relative; height: 300px; }
+.px-chart canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+.px-chart.sm { height: 180px; }
+.px-tip {
   position: absolute; pointer-events: none; z-index: 5;
   background: var(--ink); color: #fff; border-radius: 7px; padding: 6px 9px;
   font-size: 11.5px; display: grid; gap: 1px; white-space: nowrap;
   box-shadow: 0 6px 18px -8px rgba(16,22,32,.5);
 }
-.wp-tip b { font-family: var(--mono); font-size: 12.5px; }
-.wp-tip span { color: #B9C0CC; }
-.wp-ranges { display: flex; gap: 3px; margin-left: auto; }
+.px-tip b { font-family: var(--mono); font-size: 12.5px; }
+.px-tip span { color: #B9C0CC; }
+.px-ranges { display: flex; gap: 3px; margin-left: auto; }
 
 /* weight bar: the basket in one line */
-.wp-weights { display: flex; height: 8px; border-radius: 20px; overflow: hidden; background: var(--sunken-2); }
-.wp-weights span { display: block; height: 100%; }
-.wp-legend { display: grid; gap: 8px; }
-.wp-legend-row { display: flex; align-items: center; gap: 9px; font-size: 12.5px; }
-.wp-legend-dot { width: 9px; height: 9px; border-radius: 3px; flex: none; }
-.wp-legend-w { margin-left: auto; font-family: var(--mono); font-weight: 600; }
-.wp-donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-.wp-donut-wrap canvas { flex: none; }
-.wp-donut-wrap .wp-legend { flex: 1; min-width: 180px; }
+.px-weights { display: flex; height: 8px; border-radius: 20px; overflow: hidden; background: var(--sunken-2); }
+.px-weights span { display: block; height: 100%; }
+.px-legend { display: grid; gap: 8px; }
+.px-legend-row { display: flex; align-items: center; gap: 9px; font-size: 12.5px; }
+.px-legend-dot { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+.px-legend-w { margin-left: auto; font-family: var(--mono); font-weight: 600; }
+.px-donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.px-donut-wrap canvas { flex: none; }
+.px-donut-wrap .px-legend { flex: 1; min-width: 180px; }
 
 /* ---------------- forms ---------------- */
-.wp-field { display: grid; gap: 6px; }
-.wp-field > label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-.wp-input {
+.px-field { display: grid; gap: 6px; }
+.px-field > label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.px-input {
   width: 100%; font: inherit; font-size: 13.5px; color: var(--ink);
   background: #fff; border: 1px solid var(--line-2); border-radius: 9px; padding: 9px 11px;
   transition: border-color .14s, box-shadow .14s;
 }
-.wp-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.wp-input.num { font-family: var(--mono); }
-.wp-input-unit { position: relative; }
-.wp-input-unit .wp-unit {
+.px-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.px-input.num { font-family: var(--mono); }
+.px-input-unit { position: relative; }
+.px-input-unit .px-unit {
   position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
   font-family: var(--mono); font-size: 11.5px; color: var(--dim); pointer-events: none;
 }
-.wp-input-unit .wp-input { padding-right: 58px; }
-.wp-hint { font-size: 11.5px; color: var(--dim); }
-.wp-error { font-size: 12.5px; color: var(--down); }
-.wp-errors { display: grid; gap: 4px; margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--down); }
+.px-input-unit .px-input { padding-right: 58px; }
+.px-hint { font-size: 11.5px; color: var(--dim); }
+.px-error { font-size: 12.5px; color: var(--down); }
+.px-errors { display: grid; gap: 4px; margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--down); }
 
-.wp-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: none; cursor: pointer; }
-.wp-range::-webkit-slider-runnable-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
-.wp-range::-moz-range-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
-.wp-range::-webkit-slider-thumb {
+.px-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: none; cursor: pointer; }
+.px-range::-webkit-slider-runnable-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
+.px-range::-moz-range-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
+.px-range::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none; width: 16px; height: 16px; margin-top: -5.5px;
   border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(16,22,32,.2);
 }
-.wp-range::-moz-range-thumb {
+.px-range::-moz-range-thumb {
   width: 16px; height: 16px; border-radius: 50%; background: #fff;
   border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(16,22,32,.2);
 }
-.wp-range-marks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
+.px-range-marks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
 
 /* the basket builder */
-.wp-leg {
+.px-leg {
   display: flex; align-items: center; gap: 10px;
   padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r); background: #fff;
 }
-.wp-leg-w { width: 88px; flex: none; }
-.wp-leg-x {
+.px-leg-w { width: 88px; flex: none; }
+.px-leg-x {
   flex: none; width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
   border: 1px solid var(--line); background: #fff; color: var(--muted); display: grid; place-items: center;
 }
-.wp-leg-x:hover { border-color: #F0C9C6; color: var(--down); }
-.wp-picker { display: flex; flex-wrap: wrap; gap: 6px; }
-.wp-chip {
+.px-leg-x:hover { border-color: #F0C9C6; color: var(--down); }
+.px-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.px-chip {
   display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
   border: 1px solid var(--line); border-radius: 20px; padding: 4px 11px 4px 5px;
   background: #fff; font-size: 12.5px; font-weight: 550; color: var(--ink-2);
   transition: border-color .14s, background .14s;
 }
-.wp-chip:hover:not(:disabled) { border-color: var(--line-2); background: var(--sunken); }
-.wp-chip:disabled { opacity: .4; cursor: not-allowed; }
-.wp-chip.is-on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-.wp-tabs { display: flex; flex-wrap: wrap; gap: 6px; max-width: 100%; overflow-x: auto; }
-.wp-tabs .wp-seg { flex: none; }
+.px-chip:hover:not(:disabled) { border-color: var(--line-2); background: var(--sunken); }
+.px-chip:disabled { opacity: .4; cursor: not-allowed; }
+.px-chip.is-on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.px-tabs { display: flex; flex-wrap: wrap; gap: 6px; max-width: 100%; overflow-x: auto; }
+.px-tabs .px-seg { flex: none; }
 
 /* ---------------- notices ---------------- */
-.wp-note {
+.px-note {
   border: 1px solid var(--line); border-left: 3px solid var(--dim);
   border-radius: 0 var(--r) var(--r) 0; padding: 11px 13px;
   font-size: 12.5px; color: var(--muted); background: var(--sunken);
 }
-.wp-note.warn { border-left-color: var(--warn); background: var(--warn-soft); color: #6E4409; border-color: #F2DFC0; }
-.wp-note.risk { border-left-color: var(--down); background: var(--down-soft); color: #8A211A; border-color: #F5D2CF; }
-.wp-note strong { color: inherit; font-weight: 600; }
+.px-note.warn { border-left-color: var(--warn); background: var(--warn-soft); color: #6E4409; border-color: #F2DFC0; }
+.px-note.risk { border-left-color: var(--down); background: var(--down-soft); color: #8A211A; border-color: #F5D2CF; }
+.px-note strong { color: inherit; font-weight: 600; }
 
-.wp-toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 90; display: grid; gap: 8px; justify-items: center; }
-.wp-toast {
+.px-toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 90; display: grid; gap: 8px; justify-items: center; }
+.px-toast {
   background: var(--ink); color: #fff; border-radius: 10px; padding: 10px 15px;
   font-size: 13px; font-weight: 500; box-shadow: 0 10px 30px -12px rgba(16,22,32,.6);
-  animation: wp-rise .2s ease-out;
+  animation: px-rise .2s ease-out;
 }
-.wp-toast.bad { background: var(--down); }
-.wp-toast.good { background: var(--up); }
-@keyframes wp-rise { from { opacity: 0; transform: translateY(8px); } }
+.px-toast.bad { background: var(--down); }
+.px-toast.good { background: var(--up); }
+@keyframes px-rise { from { opacity: 0; transform: translateY(8px); } }
 
 /* ---------------- the terms gate ---------------- */
 /* It covers everything, because it is the one thing standing between arriving
    and using the application. The panel scrolls, the page behind it does not. */
-.wp-locked { overflow: hidden; }
-.wp-terms {
+.px-locked { overflow: hidden; }
+.px-terms {
   position: fixed; inset: 0; z-index: 200;
   display: grid; place-items: center; padding: 24px 16px;
   background: rgba(14, 17, 22, .48); backdrop-filter: blur(6px);
   overflow-y: auto;
 }
-.wp-terms-panel {
+.px-terms-panel {
   width: 100%; max-width: 620px; background: var(--panel);
   border: 1px solid var(--line); border-radius: 16px; padding: 28px 30px 24px;
   box-shadow: 0 24px 70px -30px rgba(16, 22, 32, .55);
   display: grid; gap: 16px; align-content: start;
 }
-.wp-terms-mark { width: 40px; height: 40px; display: block; }
-.wp-terms-mark svg { width: 100%; height: 100%; display: block; }
-.wp-terms-panel h1 { margin: 0; font-size: 23px; font-weight: 650; letter-spacing: -.028em; text-wrap: balance; }
-.wp-terms-lead { margin: 0; font-size: 14px; color: var(--muted); max-width: 58ch; }
-.wp-terms-body { display: grid; gap: 14px; }
-.wp-clause h3 {
+.px-terms-mark { width: 40px; height: 40px; display: block; }
+.px-terms-mark svg { width: 100%; height: 100%; display: block; }
+.px-terms-panel h1 { margin: 0; font-size: 23px; font-weight: 650; letter-spacing: -.028em; text-wrap: balance; }
+.px-terms-lead { margin: 0; font-size: 14px; color: var(--muted); max-width: 58ch; }
+.px-terms-body { display: grid; gap: 14px; }
+.px-clause h3 {
   margin: 0 0 4px; font-size: 11.5px; font-weight: 650; color: var(--accent);
   text-transform: uppercase; letter-spacing: .07em;
 }
-.wp-clause p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); max-width: 62ch; }
-.wp-terms-agree {
+.px-clause p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); max-width: 62ch; }
+.px-terms-agree {
   display: flex; gap: 10px; align-items: flex-start; cursor: pointer;
   border: 1px solid var(--line-2); border-radius: var(--r); padding: 12px 13px;
   font-size: 13.5px; font-weight: 550;
 }
-.wp-terms-agree:hover { background: var(--sunken); }
-.wp-check { width: 17px; height: 17px; flex: none; margin: 1px 0 0; accent-color: var(--accent); cursor: pointer; }
-.wp-terms-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.wp-terms-actions .wp-btn { flex: 1; min-width: 140px; }
+.px-terms-agree:hover { background: var(--sunken); }
+.px-check { width: 17px; height: 17px; flex: none; margin: 1px 0 0; accent-color: var(--accent); cursor: pointer; }
+.px-terms-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.px-terms-actions .px-btn { flex: 1; min-width: 140px; }
 
 /* The footer link back to the terms, once you are inside. */
-.wp-foot-link {
+.px-foot-link {
   background: none; border: 0; padding: 0; cursor: pointer;
   font: inherit; font-size: 11.5px; color: var(--muted); text-decoration: underline;
   text-underline-offset: 2px;
 }
-.wp-foot-link:hover { color: var(--ink); }
-.wp-foot-right { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.px-foot-link:hover { color: var(--ink); }
+.px-foot-right { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
 
 /* ---------------- the storage notice ---------------- */
 /* It sits at the bottom and does not cover the application: what it explains is
    not urgent enough to block anything, only honest enough to say. */
-.wp-cookie {
+.px-cookie {
   position: fixed; z-index: 150; left: 16px; right: 16px; bottom: 16px;
   margin: 0 auto; max-width: 720px;
   display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px;
   background: var(--panel); border: 1px solid var(--line-2); border-radius: 14px;
   padding: 14px 16px;
   box-shadow: 0 18px 48px -22px rgba(16, 22, 32, .45);
-  animation: wp-cookie-in .22s ease-out;
+  animation: px-cookie-in .22s ease-out;
 }
-.wp-cookie.is-going { opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; }
-.wp-cookie-text { flex: 1 1 320px; min-width: 0; }
-.wp-cookie-text strong { display: block; font-size: 13px; font-weight: 650; margin-bottom: 3px; }
-.wp-cookie-text p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); max-width: 60ch; }
-.wp-cookie-actions { display: flex; align-items: center; gap: 8px; flex: none; }
-@keyframes wp-cookie-in { from { opacity: 0; transform: translateY(10px); } }
+.px-cookie.is-going { opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; }
+.px-cookie-text { flex: 1 1 320px; min-width: 0; }
+.px-cookie-text strong { display: block; font-size: 13px; font-weight: 650; margin-bottom: 3px; }
+.px-cookie-text p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); max-width: 60ch; }
+.px-cookie-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+@keyframes px-cookie-in { from { opacity: 0; transform: translateY(10px); } }
 
 /* ---------------- responsive ---------------- */
 @media (max-width: 940px) {
@@ -512,33 +512,33 @@ button { font: inherit; }
      width by default, and the sidebar laid out horizontally is wider than a
      phone. */
   .wp { grid-template-columns: minmax(0, 1fr); }
-  .wp-side {
+  .px-side {
     min-width: 0;
     position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center;
     border-right: 0; border-bottom: 1px solid var(--line); gap: 8px; padding: 12px 16px;
   }
-  .wp-brand { padding: 0 8px 0 0; }
+  .px-brand { padding: 0 8px 0 0; }
   /* flex: 1 is not enough: without min-width 0 a flex container will not go
      below its content's width, and the bar pushes the page sideways. */
-  .wp-nav { flex-direction: row; overflow-x: auto; flex: 1 1 0; min-width: 0; scrollbar-width: none; }
-  .wp-nav::-webkit-scrollbar { display: none; }
-  .wp-nav a { white-space: nowrap; }
-  .wp-side-foot { margin: 0; flex-direction: row; align-items: center; }
-  .wp-equity { display: none; }
-  .wp-split { grid-template-columns: minmax(0, 1fr); }
-  .wp-view, .wp-top, .wp-foot { padding-left: 16px; padding-right: 16px; }
+  .px-nav { flex-direction: row; overflow-x: auto; flex: 1 1 0; min-width: 0; scrollbar-width: none; }
+  .px-nav::-webkit-scrollbar { display: none; }
+  .px-nav a { white-space: nowrap; }
+  .px-side-foot { margin: 0; flex-direction: row; align-items: center; }
+  .px-equity { display: none; }
+  .px-split { grid-template-columns: minmax(0, 1fr); }
+  .px-view, .px-top, .px-foot { padding-left: 16px; padding-right: 16px; }
 }
 @media (max-width: 640px) {
-  .wp-clock-day, .wp-clock-zone { display: none; }
-  .wp-cookie-actions { width: 100%; }
-  .wp-cookie-actions .wp-btn { flex: 1; }
-  .wp-search kbd { display: none; }
-  .wp-head h1 { font-size: 19px; }
+  .px-clock-day, .px-clock-zone { display: none; }
+  .px-cookie-actions { width: 100%; }
+  .px-cookie-actions .px-btn { flex: 1; }
+  .px-search kbd { display: none; }
+  .px-head h1 { font-size: 19px; }
   /* When narrow, a card's title and its note take two lines instead of being
      squeezed onto one. */
-  .wp-card-head { flex-wrap: wrap; }
-  .wp-card-head .wp-card-note { margin-left: 0; text-align: left; flex-basis: 100%; }
-  .wp-card-head h2 { flex: 1; }
+  .px-card-head { flex-wrap: wrap; }
+  .px-card-head .px-card-note { margin-left: 0; text-align: left; flex-basis: 100%; }
+  .px-card-head h2 { flex: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
@@ -549,20 +549,22 @@ button { font: inherit; }
 
 <div class="wp" id="root">
 
-  <aside class="wp-side">
-    <a class="wp-brand" href="#/" aria-label="Warp, home">
-      <svg class="wp-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+  <aside class="px-side">
+    <a class="px-brand" href="#/" aria-label="Perpix, home">
+      <!-- Three bars of unequal height, the smallest basket an index can be,
+           cut by the line the perpetual marks against. -->
+      <svg class="px-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
         <rect width="32" height="32" rx="8" fill="#1F58F5"/>
-        <g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M10 7v18M16 7v18M22 7v18"/></g>
-        <path d="M6 16c4-4 6 4 10 0s6 4 10 0" stroke="#FFC72C" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M10 24.5V13M16 24.5V8.5M22 24.5V17" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <path d="M6.5 19.5h19" stroke="#FFC72C" stroke-width="2.6" stroke-linecap="round"/>
       </svg>
       <span>
-        <span class="wp-brand-name">Warp</span>
-        <span class="wp-brand-sub">Index perpetuals</span>
+        <span class="px-brand-name">Perpix</span>
+        <span class="px-brand-sub">Index perpetuals</span>
       </span>
     </a>
 
-    <nav class="wp-nav" id="nav" aria-label="Sections">
+    <nav class="px-nav" id="nav" aria-label="Sections">
       <a href="#/" data-route="dashboard">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
         Dashboard
@@ -578,7 +580,7 @@ button { font: inherit; }
       <a href="#/portfolio" data-route="portfolio">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16.5 14.5h1.5"/></svg>
         Portfolio
-        <span class="wp-nav-count" id="navOpen" hidden></span>
+        <span class="px-nav-count" id="navOpen" hidden></span>
       </a>
       <a href="#/creator" data-route="creator">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg>
@@ -590,23 +592,23 @@ button { font: inherit; }
       </a>
     </nav>
 
-    <div class="wp-side-foot">
-      <dl class="wp-equity" id="sideEquity"></dl>
-      <div class="wp-side-links">
-        <button class="wp-ghost-btn" id="resetBtn" type="button">Reset account</button>
+    <div class="px-side-foot">
+      <dl class="px-equity" id="sideEquity"></dl>
+      <div class="px-side-links">
+        <button class="px-ghost-btn" id="resetBtn" type="button">Reset account</button>
         <!-- The X mark. There is no profile to link to yet, so this is not a
              link: it is a button that says so. -->
-        <button class="wp-x" id="xBtn" type="button" title="X — not linked yet" aria-label="X, not linked yet">
+        <button class="px-x" id="xBtn" type="button" title="X — not linked yet" aria-label="X, not linked yet">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         </button>
       </div>
     </div>
   </aside>
 
-  <div class="wp-main">
-    <header class="wp-top">
-      <div class="wp-search" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="results">
-        <div class="wp-search-box">
+  <div class="px-main">
+    <header class="px-top">
+      <div class="px-search" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="results">
+        <div class="px-search-box">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.9"/>
             <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
@@ -615,20 +617,20 @@ button { font: inherit; }
                  placeholder="Search an index, stock, metal or coin" aria-label="Search">
           <kbd>/</kbd>
         </div>
-        <div class="wp-results" id="results" role="listbox" hidden></div>
+        <div class="px-results" id="results" role="listbox" hidden></div>
       </div>
-      <div class="wp-top-right">
-        <!-- The market's clock is Madrid's, real time, and it ticks every second. -->
-        <span class="wp-clock" id="clock" title="Warp's market clock, Europe/Madrid"></span>
+      <div class="px-top-right">
+        <!-- The market's clock is New York's, real time, and it ticks every second. -->
+        <span class="px-clock" id="clock" title="Perpix's market clock, America/New_York"></span>
       </div>
     </header>
 
-    <main class="wp-view" id="view"></main>
+    <main class="px-view" id="view"></main>
 
-    <footer class="wp-foot">
-      <span>Warp is a paper market. Its prices come from a simulator and do not describe the real market. None of this is investment advice.</span>
-      <span class="wp-foot-right">
-        <button class="wp-foot-link" id="termsBtn" type="button">Terms of use</button>
+    <footer class="px-foot">
+      <span>Perpix is a paper market. Its prices come from a simulator and do not describe the real market. None of this is investment advice.</span>
+      <span class="px-foot-right">
+        <button class="px-foot-link" id="termsBtn" type="button">Terms of use</button>
         <span id="stamp"></span>
       </span>
     </footer>
@@ -705,27 +707,33 @@ function dateTime(ts) {
   if (!ts) return NA_TEXT;
   // Same clock as the header: a listing date must not read in one zone while
   // the market reads in another.
-  return new Intl.DateTimeFormat('en-GB', {
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: MARKET_TZ, dateStyle: 'medium', timeStyle: 'short',
   }).format(new Date(ts));
 }
-/* Warp keeps one clock, and it is Madrid's.
+/* Perpix keeps one clock, and it is New York's.
    A market has a single wall clock, not one per viewer: two people looking at
-   the same funding window have to be looking at the same hour. Naming the zone
-   in Intl means daylight saving is handled by the platform's own tz data, which
-   is right twice a year without anyone remembering the dates. */
-const MARKET_TZ = 'Europe/Madrid';
-const MARKET_TZ_LABEL = 'Madrid';
+   the same funding window have to be looking at the same hour. New York is the
+   hour the assets themselves keep — most of the registry lists on the NYSE or
+   the NASDAQ — so it is the market's time, not a viewer's.
 
-const marketTime = new Intl.DateTimeFormat('en-GB', {
+   Naming the zone in Intl means daylight saving is handled by the platform's
+   own tz data, which is right twice a year without anyone remembering the
+   dates. Changing the market's clock is these two lines and nothing else. */
+const MARKET_TZ = 'America/New_York';
+const MARKET_TZ_LABEL = 'New York';
+
+/* 24-hour, because a trading clock is read in a column next to other figures
+   and AM/PM both changes width and leaves noon ambiguous. */
+const marketTime = new Intl.DateTimeFormat('en-US', {
   timeZone: MARKET_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
 });
-const marketDate = new Intl.DateTimeFormat('en-GB', {
-  timeZone: MARKET_TZ, weekday: 'short', day: 'numeric', month: 'short',
+const marketDate = new Intl.DateTimeFormat('en-US', {
+  timeZone: MARKET_TZ, weekday: 'short', month: 'short', day: 'numeric',
 });
-/** The offset Madrid is on right now, so the clock says which one it is rather
- *  than leaving the reader to guess whether summer time is in force. */
-const marketOffset = new Intl.DateTimeFormat('en-GB', { timeZone: MARKET_TZ, timeZoneName: 'shortOffset' });
+/** The offset New York is on right now, so the clock says which one it is
+ *  rather than leaving the reader to guess whether summer time is in force. */
+const marketOffset = new Intl.DateTimeFormat('en-US', { timeZone: MARKET_TZ, timeZoneName: 'shortOffset' });
 
 function clock(ts = Date.now()) { return marketTime.format(new Date(ts)); }
 function marketDay(ts = Date.now()) { return marketDate.format(new Date(ts)); }
@@ -743,7 +751,7 @@ __def("js/config.js", function (exports, __req) {
    interface and the engine cannot disagree about the rules. */
 
 const VENUE = {
-  name: 'Warp',
+  name: 'Perpix',
   tagline: 'Index perpetuals',
   settle: 'USDG',
   /** A basket is fixed-weight and holds three to five legs: fewer is not an
@@ -773,7 +781,8 @@ const VENUE = {
 /* Official logos are resolved from each entity's own domain at runtime. No copy
    is kept in the repository, so a logo cannot go stale or diverge between
    screens. */
-const KEY = 'warp.config';
+const KEY = 'perpix.config';
+const LEGACY_KEY = 'warp.config';
 const DEFAULTS = {
   logoTemplate: 'https://img.logo.dev/{domain}?token={logoToken}&size=128&format=png&retries=0',
   logoToken: '',
@@ -792,10 +801,19 @@ const DEFAULTS = {
 /* Read from the host if there is one and from the browser if there is one: the
    modules do not assume a browser exists, so the logic can run and be tested
    outside of one. */
-const host = () => (typeof window === 'undefined' ? null : window.WARP_CONFIG);
+const host = () => (typeof window === 'undefined' ? null : window.PERPIX_CONFIG);
 function read() {
   let saved = {};
-  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { saved = {}; }
+  // The old key is read once and moved across: the application was called Warp
+  // before it was renamed, and a rename should not reset anyone's settings.
+  try {
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
+    if (raw !== null && localStorage.getItem(KEY) === null) {
+      localStorage.setItem(KEY, raw);
+      localStorage.removeItem(LEGACY_KEY);
+    }
+    saved = JSON.parse(raw || '{}');
+  } catch { saved = {}; }
   return { ...DEFAULTS, ...(host() || {}), ...saved };
 }
 const config = read();
@@ -946,7 +964,7 @@ Object.assign(exports, { CLASSES, ASSETS, getAsset, tradableAssets, byClass, USD
 
 __def("js/marks.js", function (exports, __req) {
 /* GENERATED FILE — do not edit by hand.
-   Rebuild with: node warp-app/tools/build-marks.mjs
+   Rebuild with: node perpix-app/tools/build-marks.mjs
 
    The official mark of each asset, embedded so it shows with no network and
    inside a host that blocks external images. js/logos.js still prefers the
@@ -1124,7 +1142,7 @@ function symbolTile(el, asset, text, size) {
   el.style.color = inkOn(asset.color);
   el.style.fontSize = symbolType(text, size) + 'px';
   el.append(Object.assign(document.createElement('span'), {
-    className: 'wp-mark-txt', textContent: text,
+    className: 'px-mark-txt', textContent: text,
   }));
   return el;
 }
@@ -1143,7 +1161,7 @@ function embeddedMark(asset) {
   svg.setAttribute('viewBox', m.box);
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
-  svg.classList.add('wp-mark-svg');
+  svg.classList.add('px-mark-svg');
   if (m.tint) svg.setAttribute('fill', m.tint);
   else if (m.mono) svg.setAttribute('color', asset.color);   // the set draws with currentColor
   svg.innerHTML = m.body;
@@ -1175,7 +1193,7 @@ function markProvenance(asset) {
 /** The asset's mark. Returns an element ready to insert. */
 function markEl(asset, size = 36) {
   const el = document.createElement('span');
-  el.className = 'wp-mark';
+  el.className = 'px-mark';
   el.style.width = el.style.height = size + 'px';
   el.style.setProperty('--brand', asset?.color || '#8A94A6');
   el.title = asset?.name || '';
@@ -1202,7 +1220,7 @@ function markEl(asset, size = 36) {
   if (!sources.length) return el;
 
   const img = document.createElement('img');
-  img.className = 'wp-mark-img';
+  img.className = 'px-mark-img';
   img.alt = `${asset?.name || ''} logo`;
   img.loading = 'lazy';
   img.decoding = 'async';
@@ -1220,8 +1238,8 @@ function markEl(asset, size = 36) {
     el.classList.remove('is-symbol', 'is-svg');
     el.style.padding = '0';
     el.style.background = '#fff';
-    el.querySelector('.wp-mark-txt')?.remove();
-    el.querySelector('.wp-mark-svg')?.remove();
+    el.querySelector('.px-mark-txt')?.remove();
+    el.querySelector('.px-mark-svg')?.remove();
   });
   img.addEventListener('error', () => { failed.add(img.src); tryNext(); });
   el.append(img);
@@ -1232,7 +1250,7 @@ function markEl(asset, size = 36) {
 /** Overlapping stack of marks: how a basket reads at a glance. */
 function markStack(assets, size = 28) {
   const el = document.createElement('span');
-  el.className = 'wp-stack';
+  el.className = 'px-stack';
   (assets || []).forEach((a, i) => {
     const m = markEl(a, size);
     m.style.zIndex = String(20 - i);
@@ -1249,7 +1267,7 @@ __def("js/market.js", function (exports, __req) {
 /* The price feed.
 
    NOTICE, AND IT GOVERNS THE WHOLE PROJECT: there is no real market data here.
-   Warp is a paper market and this simulator produces its prices. The reference
+   Perpix is a paper market and this simulator produces its prices. The reference
    levels below are orders of magnitude picked so the interface reads, not
    quotes. No number in this application describes the real market, and the
    interface says so in the header and the footer of every screen instead of
@@ -1420,7 +1438,7 @@ function snapshotRefs(legs, t = Date.now()) {
    A real provider is plugged in by replacing them, and nothing else in the
    application changes. While the feed is the simulator, `isSimulated` is true
    and the interface announces it. */
-const feed = { spot, changePct, series, volume24h, isSimulated: true, label: 'Warp simulator' };
+const feed = { spot, changePct, series, volume24h, isSimulated: true, label: 'Perpix simulator' };
 function setFeed(next) { Object.assign(feed, next); }
 
 Object.assign(exports, { spot, changePct, series, volume24h, basketValue, basketSeries, basketChangePct, snapshotRefs, feed, setFeed });
@@ -1440,7 +1458,11 @@ __def("js/store.js", function (exports, __req) {
 const { VENUE } = __req("js/config.js");
 const { snapshotRefs } = __req("js/market.js");
 
-const KEY = 'warp.state.v1';
+const KEY = 'perpix.state.v1';
+/* The application was called Warp until it was renamed, and its state was
+   stored under that name. An account is not something to throw away over a
+   rename, so the old key is read once and carried over. */
+const LEGACY_KEY = 'warp.state.v1';
 const DAY = 86400e3;
 
 /* Indices already listed when you arrive, so the market does not start empty.
@@ -1499,9 +1521,23 @@ function fresh() {
   };
 }
 
+/** Reads the current key, falling back to the one the application used under
+ *  its old name and moving it across, so a rename costs nobody their history. */
+function readStored() {
+  const parse = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
+  const current = parse(KEY);
+  if (current) return current;
+  const legacy = parse(LEGACY_KEY);
+  if (!legacy) return null;
+  try {
+    localStorage.setItem(KEY, JSON.stringify(legacy));
+    localStorage.removeItem(LEGACY_KEY);
+  } catch {}
+  return legacy;
+}
+
 function load() {
-  let raw = null;
-  try { raw = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { raw = null; }
+  const raw = readStored();
   if (!raw || raw.version !== 1) return fresh();
   // The house indices are restored if they are missing, without touching the
   // user's own ones or any open position.
@@ -1837,7 +1873,7 @@ function fitCanvas(canvas) {
  *  Returns a teardown function. */
 function drawChart(canvas, rows, { color, baseline = null, suffix = '' } = {}) {
   const wrap = canvas.parentElement;
-  const tip = wrap.querySelector('.wp-tip');
+  const tip = wrap.querySelector('.px-tip');
   const data = (rows || []).filter(r => Number.isFinite(r.c));
   const theme = {
     line: cssVar(wrap, '--line') || '#E6E9EE',
@@ -2125,7 +2161,7 @@ const frag = (kids) => { const f = document.createDocumentFragment(); [].concat(
  *  the colour come from the registry, never from the screen. */
 function symPill(asset) {
   return el('span', {
-    class: 'wp-sym',
+    class: 'px-sym',
     text: asset.symbol,
     style: { background: rgba(asset.color, .12), color: asset.color },
   });
@@ -2133,11 +2169,11 @@ function symPill(asset) {
 
 /** An asset's identity: its real mark, its name and its symbol. */
 function assetIdent(asset, { size = 34, sub = null } = {}) {
-  return el('span', { class: 'wp-ident' }, [
+  return el('span', { class: 'px-ident' }, [
     markEl(asset, size),
-    el('span', { class: 'wp-ident-text' }, [
-      el('span', { class: 'wp-ident-name', text: asset.short }),
-      el('span', { class: 'wp-ident-sub' }, [
+    el('span', { class: 'px-ident-text' }, [
+      el('span', { class: 'px-ident-name', text: asset.short }),
+      el('span', { class: 'px-ident-sub' }, [
         symPill(asset),
         el('span', { text: sub ?? (CLASSES[asset.class]?.label || asset.sector) }),
       ]),
@@ -2147,34 +2183,34 @@ function assetIdent(asset, { size = 34, sub = null } = {}) {
 
 /** An index's identity: the stack of its legs' marks and its symbol. */
 function indexIdent(ix, legs, { size = 28 } = {}) {
-  return el('span', { class: 'wp-ident' }, [
+  return el('span', { class: 'px-ident' }, [
     markStack(legs.map(l => l.asset), size),
-    el('span', { class: 'wp-ident-text' }, [
-      el('span', { class: 'wp-ident-name', text: ix.name }),
-      el('span', { class: 'wp-ident-sub' }, [
-        el('span', { class: 'wp-sym', text: ix.symbol, style: { background: 'var(--sunken-2)', color: 'var(--muted)' } }),
+    el('span', { class: 'px-ident-text' }, [
+      el('span', { class: 'px-ident-name', text: ix.name }),
+      el('span', { class: 'px-ident-sub' }, [
+        el('span', { class: 'px-sym', text: ix.symbol, style: { background: 'var(--sunken-2)', color: 'var(--muted)' } }),
         el('span', { text: `${legs.length} assets` }),
-        ix.creator === 'me' ? el('span', { class: 'wp-pill own', text: 'Yours' }) : null,
+        ix.creator === 'me' ? el('span', { class: 'px-pill own', text: 'Yours' }) : null,
       ]),
     ]),
   ]);
 }
 
 function changePill(v) {
-  return el('span', { class: `wp-pill ${dir(v)}`, text: pct(v) });
+  return el('span', { class: `px-pill ${dir(v)}`, text: pct(v) });
 }
 
 function stat(label, value, { sub = null, cls = '' } = {}) {
-  return el('dl', { class: 'wp-stat' }, [
+  return el('dl', { class: 'px-stat' }, [
     el('dt', { text: label }),
     el('dd', { class: `num ${cls}`, text: value }),
-    sub ? el('div', { class: 'wp-stat-sub', text: sub }) : null,
+    sub ? el('div', { class: 'px-stat-sub', text: sub }) : null,
   ]);
 }
 
 function kv(rows) {
-  return el('dl', { class: 'wp-kv' }, rows.filter(Boolean).map(r =>
-    el('div', { class: r.line ? 'wp-kv-line' : '' }, [
+  return el('dl', { class: 'px-kv' }, rows.filter(Boolean).map(r =>
+    el('div', { class: r.line ? 'px-kv-line' : '' }, [
       el('dt', { text: r.k }),
       el('dd', { class: `num ${r.cls || ''}`, text: r.v }),
     ])));
@@ -2182,23 +2218,23 @@ function kv(rows) {
 
 function card({ title, note, actions, body, extra, tight = false }) {
   const head = (title || note || actions)
-    ? el('div', { class: 'wp-card-head' }, [
+    ? el('div', { class: 'px-card-head' }, [
         title ? el('h2', { text: title }) : null,
-        note ? el('span', { class: 'wp-card-note', text: note }) : null,
+        note ? el('span', { class: 'px-card-note', text: note }) : null,
         actions || null,
       ])
     : null;
-  return el('section', { class: 'wp-card' }, [
+  return el('section', { class: 'px-card' }, [
     head,
-    el('div', { class: `wp-card-body ${tight ? 'tight' : ''}` }, [body]),
-    extra ? el('div', { class: 'wp-card-foot' }, [extra]) : null,
+    el('div', { class: `px-card-body ${tight ? 'tight' : ''}` }, [body]),
+    extra ? el('div', { class: 'px-card-foot' }, [extra]) : null,
   ]);
 }
 
 function table(cols, rows) {
   if (!rows.length) return null;
-  return el('div', { class: 'wp-scroll' }, [
-    el('table', { class: 'wp-table' }, [
+  return el('div', { class: 'px-scroll' }, [
+    el('table', { class: 'px-table' }, [
       el('thead', {}, [el('tr', {}, cols.map(c => el('th', { text: c })))]),
       el('tbody', {}, rows),
     ]),
@@ -2206,7 +2242,7 @@ function table(cols, rows) {
 }
 
 function emptyState({ title, text, action }) {
-  return el('div', { class: 'wp-empty' }, [
+  return el('div', { class: 'px-empty' }, [
     el('strong', { text: title }),
     el('span', { text: text }),
     action || null,
@@ -2214,35 +2250,35 @@ function emptyState({ title, text, action }) {
 }
 
 function note(text, kind = '') {
-  return el('div', { class: `wp-note ${kind}`, html: text });
+  return el('div', { class: `px-note ${kind}`, html: text });
 }
 
 /** Weight bar: each leg takes up its weight and carries its brand colour. */
 function weightsBar(legs) {
-  return el('div', { class: 'wp-weights', title: legs.map(l => `${l.asset.symbol} ${num(l.weight, 1)}%`).join(' · ') },
+  return el('div', { class: 'px-weights', title: legs.map(l => `${l.asset.symbol} ${num(l.weight, 1)}%`).join(' · ') },
     legs.map(l => el('span', { style: { width: `${l.weight}%`, background: l.asset.color } })));
 }
 
 function legend(legs, { onPick = null } = {}) {
-  return el('div', { class: 'wp-legend' }, legs.map(l => {
+  return el('div', { class: 'px-legend' }, legs.map(l => {
     const row = el(onPick ? 'button' : 'div', {
-      class: 'wp-legend-row',
+      class: 'px-legend-row',
       style: onPick ? { background: 'none', border: 0, cursor: 'pointer', padding: 0, font: 'inherit', textAlign: 'left' } : null,
       on: onPick ? { click: () => onPick(l) } : null,
     }, [
-      el('span', { class: 'wp-legend-dot', style: { background: l.asset.color } }),
+      el('span', { class: 'px-legend-dot', style: { background: l.asset.color } }),
       el('span', { text: l.asset.short }),
       symPill(l.asset),
-      el('span', { class: 'wp-legend-w num', text: num(l.weight, 1) + '%' }),
+      el('span', { class: 'px-legend-w num', text: num(l.weight, 1) + '%' }),
     ]);
     return row;
   }));
 }
 
 function donut(legs, size = 128) {
-  const c = el('canvas', { class: 'wp-donut' });
+  const c = el('canvas', { class: 'px-donut' });
   requestAnimationFrame(() => drawDonut(c, legs, size));
-  return el('div', { class: 'wp-donut-wrap' }, [c, legend(legs)]);
+  return el('div', { class: 'px-donut-wrap' }, [c, legend(legs)]);
 }
 
 /** A chart block with a range picker. `load(range)` returns the series. */
@@ -2254,9 +2290,9 @@ function chartBlock({ load, color, baseline = null, suffix = '', ranges = null, 
     { id: '3M', label: '3M', hours: 24 * 90 },
   ];
   const canvas = el('canvas');
-  const tip = el('div', { class: 'wp-tip', hidden: true });
-  const wrap = el('div', { class: `wp-chart ${small ? 'sm' : ''}` }, [canvas, tip]);
-  const seg = el('div', { class: 'wp-ranges wp-seg' });
+  const tip = el('div', { class: 'px-tip', hidden: true });
+  const wrap = el('div', { class: `px-chart ${small ? 'sm' : ''}` }, [canvas, tip]);
+  const seg = el('div', { class: 'px-ranges px-seg' });
   let teardown = () => {};
 
   const paint = (opt) => {
@@ -2271,7 +2307,7 @@ function chartBlock({ load, color, baseline = null, suffix = '', ranges = null, 
 }
 
 function spark(rows, color) {
-  const c = el('canvas', { class: 'wp-spark' });
+  const c = el('canvas', { class: 'px-spark' });
   requestAnimationFrame(() => sparkline(c, rows, color));
   return c;
 }
@@ -2279,8 +2315,8 @@ function spark(rows, color) {
 /* Ephemeral notices. An action that moves balance has to say it happened. */
 let toastHost = null;
 function toast(message, kind = '') {
-  if (!toastHost) { toastHost = el('div', { class: 'wp-toasts' }); document.body.append(toastHost); }
-  const t = el('div', { class: `wp-toast ${kind}`, text: message });
+  if (!toastHost) { toastHost = el('div', { class: 'px-toasts' }); document.body.append(toastHost); }
+  const t = el('div', { class: `px-toast ${kind}`, text: message });
   toastHost.append(t);
   setTimeout(() => t.remove(), 3400);
 }
@@ -2322,12 +2358,25 @@ const { VENUE } = __req("js/config.js");
 const { el } = __req("js/ui/components.js");
 
 const TERMS_VERSION = 1;
-const KEY = 'warp.terms';
+const KEY = 'perpix.terms';
+
+/* Read once from the key the application used under its old name, so a rename
+   does not make everyone accept the same terms twice. */
+function carryOver(key, legacyKey) {
+  try {
+    if (localStorage.getItem(key) === null) {
+      const old = localStorage.getItem(legacyKey);
+      if (old !== null) { localStorage.setItem(key, old); localStorage.removeItem(legacyKey); }
+    }
+  } catch {}
+}
+carryOver(KEY, 'warp.terms');
+carryOver('perpix.storage.consent', 'warp.storage.consent');
 
 /* The storage notice waits, on purpose. Stacking it on top of the terms would
    make two walls to get through before seeing anything, and a notice about what
    the application stores means more once it has actually stored something. */
-const STORAGE_KEY = 'warp.storage.consent';
+const STORAGE_KEY = 'perpix.storage.consent';
 const STORAGE_DELAY = 30000;
 
 function acceptance() {
@@ -2349,14 +2398,14 @@ function record() {
 const CLAUSES = [
   {
     title: 'This is a paper market',
-    body: `Warp is for practice. Every price you see is produced by a simulator built into the page, `
+    body: `Perpix is for practice. Every price you see is produced by a simulator built into the page, `
         + `not by a market data provider, and no figure here describes the real market. The ${VENUE.settle} `
         + `balance is not money: it cannot be deposited, withdrawn or exchanged for anything. No order you `
         + `place reaches a real venue, and no asset is ever bought or sold.`,
   },
   {
     title: 'Nothing here is advice',
-    body: `Nothing in Warp is investment advice, a recommendation, an offer or a solicitation. An index `
+    body: `Nothing in Perpix is investment advice, a recommendation, an offer or a solicitation. An index `
         + `performing one way in the simulator says nothing about the assets it names. Leverage in this `
         + `application will lose you simulated money quickly, which is the one lesson it can honestly teach.`,
   },
@@ -2370,27 +2419,27 @@ const CLAUSES = [
   {
     title: 'The logos belong to their owners',
     body: `Company, fund and coin names, symbols and logos are the trademarks of their respective owners. `
-        + `They appear here only to identify which asset a row refers to. Warp is not affiliated with, `
+        + `They appear here only to identify which asset a row refers to. Perpix is not affiliated with, `
         + `sponsored by, or endorsed by any of them, and none of them has reviewed this application.`,
   },
   {
     title: 'No warranty',
-    body: `Warp is provided as it is, with no warranty of any kind. It may contain errors, it may change, `
+    body: `Perpix is provided as it is, with no warranty of any kind. It may contain errors, it may change, `
         + `and it may stop working. Use it as a toy, which is what it is.`,
   },
 ];
 
-const clauseList = () => el('div', { class: 'wp-terms-body' }, CLAUSES.map(c =>
-  el('section', { class: 'wp-clause' }, [
+const clauseList = () => el('div', { class: 'px-terms-body' }, CLAUSES.map(c =>
+  el('section', { class: 'px-clause' }, [
     el('h3', { text: c.title }),
     el('p', { text: c.body }),
   ])));
 
-const brandMark = () => el('span', { class: 'wp-terms-mark', html:
+const brandMark = () => el('span', { class: 'px-terms-mark', html:
   `<svg viewBox="0 0 32 32" aria-hidden="true">
      <rect width="32" height="32" rx="8" fill="#1F58F5"/>
-     <g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M10 7v18M16 7v18M22 7v18"/></g>
-     <path d="M6 16c4-4 6 4 10 0s6 4 10 0" stroke="#FFC72C" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+     <path d="M10 24.5V13M16 24.5V8.5M22 24.5V17" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+     <path d="M6.5 19.5h19" stroke="#FFC72C" stroke-width="2.6" stroke-linecap="round"/>
    </svg>` });
 
 /** Blocks the application until the terms are accepted, then calls `start`.
@@ -2398,16 +2447,16 @@ const brandMark = () => el('span', { class: 'wp-terms-mark', html:
 function requireAcceptance(start) {
   if (hasAccepted()) return start();
 
-  const box = el('input', { type: 'checkbox', id: 'termsAgree', class: 'wp-check' });
-  const accept = el('button', { class: 'wp-btn', type: 'button', text: 'Accept and enter', disabled: true });
-  const decline = el('button', { class: 'wp-btn ghost', type: 'button', text: 'Decline' });
+  const box = el('input', { type: 'checkbox', id: 'termsAgree', class: 'px-check' });
+  const accept = el('button', { class: 'px-btn', type: 'button', text: 'Accept and enter', disabled: true });
+  const decline = el('button', { class: 'px-btn ghost', type: 'button', text: 'Decline' });
 
   box.addEventListener('change', () => { accept.disabled = !box.checked; });
   accept.addEventListener('click', () => {
     if (!box.checked) return;
     record();
     overlay.remove();
-    document.body.classList.remove('wp-locked');
+    document.body.classList.remove('px-locked');
     start();
   });
   decline.addEventListener('click', () => {
@@ -2415,36 +2464,36 @@ function requireAcceptance(start) {
     // quietly ignored until the button is pressed again.
     panel.replaceChildren(
       brandMark(),
-      el('h1', { text: 'Then Warp stays closed' }),
-      el('p', { class: 'wp-terms-lead', text:
+      el('h1', { text: 'Then Perpix stays closed' }),
+      el('p', { class: 'px-terms-lead', text:
         'The terms are the whole basis on which this application can be used, so there is no version of it '
         + 'that runs without them. Nothing has been stored, and nothing has happened.' }),
-      el('div', { class: 'wp-terms-actions' }, [
-        el('button', { class: 'wp-btn ghost', type: 'button', text: 'Read them again', on: { click: () => { overlay.remove(); document.body.classList.remove('wp-locked'); requireAcceptance(start); } } }),
+      el('div', { class: 'px-terms-actions' }, [
+        el('button', { class: 'px-btn ghost', type: 'button', text: 'Read them again', on: { click: () => { overlay.remove(); document.body.classList.remove('px-locked'); requireAcceptance(start); } } }),
       ]),
     );
   });
 
-  const panel = el('div', { class: 'wp-terms-panel', role: 'document' }, [
+  const panel = el('div', { class: 'px-terms-panel', role: 'document' }, [
     brandMark(),
     el('h1', { text: 'Before you go in' }),
-    el('p', { class: 'wp-terms-lead', text:
-      'Warp is a market of index perpetuals you can practise on. Five things are worth knowing before you '
+    el('p', { class: 'px-terms-lead', text:
+      'Perpix is a market of index perpetuals you can practise on. Five things are worth knowing before you '
       + 'start, and all five are short.' }),
     clauseList(),
-    el('label', { class: 'wp-terms-agree', for: 'termsAgree' }, [
+    el('label', { class: 'px-terms-agree', for: 'termsAgree' }, [
       box,
       el('span', { text: 'I have read these terms and I accept them.' }),
     ]),
-    el('div', { class: 'wp-terms-actions' }, [accept, decline]),
+    el('div', { class: 'px-terms-actions' }, [accept, decline]),
   ]);
 
   const overlay = el('div', {
-    class: 'wp-terms', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Terms of use',
+    class: 'px-terms', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Terms of use',
   }, [panel]);
 
   document.body.append(overlay);
-  document.body.classList.add('wp-locked');
+  document.body.classList.add('px-locked');
   // Focus lands on the checkbox, which is the only thing standing in the way.
   requestAnimationFrame(() => box.focus());
 
@@ -2461,29 +2510,29 @@ function requireAcceptance(start) {
 
 /** The same text, reachable from the footer once you are inside. */
 function openTerms() {
-  const close = el('button', { class: 'wp-btn ghost', type: 'button', text: 'Close' });
+  const close = el('button', { class: 'px-btn ghost', type: 'button', text: 'Close' });
   const a = acceptance();
-  const panel = el('div', { class: 'wp-terms-panel', role: 'document' }, [
+  const panel = el('div', { class: 'px-terms-panel', role: 'document' }, [
     brandMark(),
     el('h1', { text: 'Terms of use' }),
-    a ? el('p', { class: 'wp-terms-lead', text: `Accepted on ${new Date(a.acceptedAt).toLocaleString('en-GB')}.` }) : null,
+    a ? el('p', { class: 'px-terms-lead', text: `Accepted on ${new Date(a.acceptedAt).toLocaleString('en-GB')}.` }) : null,
     clauseList(),
-    el('div', { class: 'wp-terms-actions' }, [close]),
+    el('div', { class: 'px-terms-actions' }, [close]),
   ]);
-  const overlay = el('div', { class: 'wp-terms', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Terms of use' }, [panel]);
-  const shut = () => { overlay.remove(); document.body.classList.remove('wp-locked'); };
+  const overlay = el('div', { class: 'px-terms', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Terms of use' }, [panel]);
+  const shut = () => { overlay.remove(); document.body.classList.remove('px-locked'); };
   close.addEventListener('click', shut);
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) shut(); });
   overlay.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') shut(); });
   document.body.append(overlay);
-  document.body.classList.add('wp-locked');
+  document.body.classList.add('px-locked');
   requestAnimationFrame(() => close.focus());
 }
 
 
 /* -------- the storage notice --------
 
-   Warp sets no cookies. Saying "we use cookies" would be the easy copy and it
+   Perpix sets no cookies. Saying "we use cookies" would be the easy copy and it
    would be false, so this says what actually happens: the account lives in this
    browser's local storage, nothing is sent anywhere, and there is no third party
    and nothing to track. Which also means there is no non-essential category to
@@ -2506,7 +2555,7 @@ function recordStorageChoice(choice) {
 
 function storageBar() {
   const bar = el('div', {
-    class: 'wp-cookie', role: 'region', 'aria-label': 'Cookies and storage',
+    class: 'px-cookie', role: 'region', 'aria-label': 'Cookies and storage',
   });
   const dismiss = (choice) => {
     recordStorageChoice(choice);
@@ -2514,19 +2563,19 @@ function storageBar() {
     setTimeout(() => bar.remove(), 220);
   };
   bar.append(
-    el('div', { class: 'wp-cookie-text' }, [
+    el('div', { class: 'px-cookie-text' }, [
       el('strong', { text: 'Cookies and storage' }),
       el('p', { text:
-        "Warp sets no cookies and has no analytics, no third parties and nothing to track. Your balance, "
+        "Perpix sets no cookies and has no analytics, no third parties and nothing to track. Your balance, "
         + "positions and the indices you list are kept in this browser's local storage so the app can "
         + "remember them between visits, and that is the only thing stored. There is nothing "
         + "non-essential to switch off, so both buttons below record your answer and neither changes "
         + "what is kept." }),
     ]),
-    el('div', { class: 'wp-cookie-actions' }, [
-      el('button', { class: 'wp-btn sm', type: 'button', text: 'Accept', on: { click: () => dismiss('accepted') } }),
-      el('button', { class: 'wp-btn sm ghost', type: 'button', text: 'Essential only', on: { click: () => dismiss('essential') } }),
-      el('button', { class: 'wp-foot-link', type: 'button', text: 'Terms', on: { click: openTerms } }),
+    el('div', { class: 'px-cookie-actions' }, [
+      el('button', { class: 'px-btn sm', type: 'button', text: 'Accept', on: { click: () => dismiss('accepted') } }),
+      el('button', { class: 'px-btn sm ghost', type: 'button', text: 'Essential only', on: { click: () => dismiss('essential') } }),
+      el('button', { class: 'px-foot-link', type: 'button', text: 'Terms', on: { click: openTerms } }),
     ]),
   );
   return bar;
@@ -2536,7 +2585,7 @@ function storageBar() {
 function scheduleStorageNotice() {
   if (storageChoice()) return;
   setTimeout(() => {
-    if (storageChoice() || document.querySelector('.wp-cookie')) return;
+    if (storageChoice() || document.querySelector('.px-cookie')) return;
     document.body.append(storageBar());
   }, STORAGE_DELAY);
 }
@@ -2572,13 +2621,13 @@ function indexColor(legs) {
 const indexSeries = (ix, hours) => basketSeries(ix.legs, ix.refs, Date.now() - hours * HOUR, Date.now(), 170, VENUE.indexBase);
 
 function head(title, text, actions) {
-  return el('div', { class: 'wp-head' }, [
+  return el('div', { class: 'px-head' }, [
     el('div', {}, [el('h1', { text: title }), text ? el('p', { text }) : null]),
-    actions ? el('div', { class: 'wp-head-actions' }, actions) : null,
+    actions ? el('div', { class: 'px-head-actions' }, actions) : null,
   ]);
 }
 const primaryBtn = (label, onClick, cls = '') =>
-  el('button', { class: `wp-btn ${cls}`, type: 'button', text: label, on: { click: onClick } });
+  el('button', { class: `px-btn ${cls}`, type: 'button', text: label, on: { click: onClick } });
 
 /* ============================ dashboard ============================ */
 
@@ -2597,7 +2646,7 @@ function panelView() {
     ]),
 
 
-    el('div', { class: 'wp-grid cols-4' }, [
+    el('div', { class: 'px-grid cols-4' }, [
       stat('Equity', usdg(acc.equity), { sub: 'Balance, margin and open result' }),
       stat('Available', usdg(acc.balance), { sub: `${acc.open} open ${acc.open === 1 ? 'position' : 'positions'}` }),
       stat('Open result', usdg(acc.unrealised, { sign: true }), { cls: dir(acc.unrealised), sub: `Realised ${usdg(acc.realised, { sign: true })}` }),
@@ -2619,7 +2668,7 @@ function panelView() {
       })),
     }),
 
-    el('div', { class: 'wp-grid cols-2' }, [
+    el('div', { class: 'px-grid cols-2' }, [
       card({
         title: 'Your positions', note: acc.open ? `${acc.open} open` : null, tight: true,
         body: acc.open
@@ -2650,7 +2699,7 @@ let marketSort = 'depth';
 
 function marketView() {
   const t = Date.now();
-  const wrap = el('div', { class: 'wp-grid' });
+  const wrap = el('div', { class: 'px-grid' });
 
   const filters = [
     { id: 'all', label: 'All' },
@@ -2664,7 +2713,7 @@ function marketView() {
     { id: 'recent', label: 'Recent' },
   ];
 
-  const seg = (opts, current, onPick) => el('div', { class: 'wp-seg' }, opts.map(o =>
+  const seg = (opts, current, onPick) => el('div', { class: 'px-seg' }, opts.map(o =>
     el('button', {
       type: 'button', text: o.label, class: o.id === current ? 'is-on' : '',
       on: { click: () => { onPick(o.id); render(); } },
@@ -2717,7 +2766,7 @@ function marketView() {
     head('Market', "Every row is a fixed-weight basket with a perpetual of its own. The composition reads off the colour bar: each band is a leg, in the asset's brand colour.", [
       primaryBtn('Create index', () => go('#/create')),
     ]),
-    el('div', { class: 'wp-tabs' }, [
+    el('div', { class: 'px-tabs' }, [
       seg(filters, marketFilter, v => { marketFilter = v; }),
       seg(sorts, marketSort, v => { marketSort = v; }),
     ]),
@@ -2733,11 +2782,11 @@ let assetTab = 'stock';
 
 function assetsView() {
   const t = Date.now();
-  const wrap = el('div', { class: 'wp-grid' });
+  const wrap = el('div', { class: 'px-grid' });
   const body = el('div');
   const tabs = ['stock', 'metal', 'crypto', 'etf'];
 
-  const tabBar = el('div', { class: 'wp-seg' }, tabs.map(id =>
+  const tabBar = el('div', { class: 'px-seg' }, tabs.map(id =>
     el('button', {
       type: 'button', text: CLASSES[id].plural, data: { cls: id }, class: id === assetTab ? 'is-on' : '',
       on: { click: () => { assetTab = id; [...tabBar.children].forEach(b => b.classList.toggle('is-on', b.dataset.cls === id)); render(); } },
@@ -2790,18 +2839,18 @@ function assetView(id) {
   });
 
   return frag([
-    el('div', { class: 'wp-head' }, [
-      el('div', { class: 'wp-ident' }, [
+    el('div', { class: 'px-head' }, [
+      el('div', { class: 'px-ident' }, [
         markEl(a, 52),
         el('div', {}, [
           el('h1', { text: a.name, style: { fontSize: '20px' } }),
-          el('div', { class: 'wp-ident-sub', style: { marginTop: '5px' } }, [
+          el('div', { class: 'px-ident-sub', style: { marginTop: '5px' } }, [
             symPill(a),
             el('span', { text: `${CLASSES[a.class]?.label} · ${a.sector} · ${a.venue}` }),
           ]),
         ]),
       ]),
-      el('div', { class: 'wp-head-actions' }, [
+      el('div', { class: 'px-head-actions' }, [
         el('span', { class: 'num', style: { fontSize: '22px', fontWeight: '600' }, text: auto(spot(a.id, t)) }),
         changePill(changePct(a.id, 24, t)),
       ]),
@@ -2812,7 +2861,7 @@ function assetView(id) {
       actions: chart.ranges, body: chart.wrap,
     }),
 
-    el('div', { class: 'wp-grid cols-2' }, [
+    el('div', { class: 'px-grid cols-2' }, [
       card({
         title: 'Identity', body: kv([
           { k: 'Legal name', v: a.name },
@@ -2874,14 +2923,14 @@ function positionsTable(t = Date.now(), { indexId = null, compact: small = false
     const m = markPosition(p, t);
     const ix = getIndex(p.indexId);
     const legs = indexLegs(ix);
-    const side = el('span', { class: `wp-pill ${p.side === 'long' ? 'up' : 'down'}`, text: `${p.side === 'long' ? 'Long' : 'Short'} ${lev(p.leverage)}` });
+    const side = el('span', { class: `px-pill ${p.side === 'long' ? 'up' : 'down'}`, text: `${p.side === 'long' ? 'Long' : 'Short'} ${lev(p.leverage)}` });
     const result = el('td', {}, [
       el('div', { class: `num ${dir(m.pnl - m.funding)}`, text: usdg(m.pnl - m.funding, { sign: true }) }),
-      el('div', { class: `wp-ident-sub num ${dir(m.roe)}`, text: pct(m.roe) }),
+      el('div', { class: `px-ident-sub num ${dir(m.roe)}`, text: pct(m.roe) }),
     ]);
     const close = el('td', {}, [
       el('button', {
-        class: 'wp-btn sm ghost', type: 'button', text: 'Close',
+        class: 'px-btn sm ghost', type: 'button', text: 'Close',
         on: { click: (ev) => { ev.stopPropagation(); const r = closePosition(p.id); toast(r.ok ? `Position closed: ${usdg(r.closed.pnl, { sign: true })}` : r.error, r.ok ? (r.closed.pnl >= 0 ? 'good' : '') : 'bad'); } },
       }),
     ]);
@@ -2936,7 +2985,7 @@ function indexView(id) {
     ]);
   });
 
-  const left = el('div', { class: 'wp-grid' }, [
+  const left = el('div', { class: 'px-grid' }, [
     card({
       title: 'Index value',
       note: `Base ${VENUE.indexBase} the day it listed, ${ago(ix.listedAt)}`,
@@ -2945,7 +2994,7 @@ function indexView(id) {
     card({
       title: 'Composition',
       note: "Fixed weight: it never rebalances, so today's basket is the one that listed",
-      body: el('div', { class: 'wp-grid' }, [
+      body: el('div', { class: 'px-grid' }, [
         donut(legs, 128),
         note('The <strong>contribution</strong> column is how much of the index\'s change since it listed comes from each leg: its move times its weight.'),
       ]),
@@ -2961,7 +3010,7 @@ function indexView(id) {
     }),
   ]);
 
-  const right = el('div', { class: 'wp-grid' }, [
+  const right = el('div', { class: 'px-grid' }, [
     tradePanel(ix, value),
     card({
       title: 'Market state',
@@ -2977,11 +3026,11 @@ function indexView(id) {
           { k: 'Funding 8 h', v: pct(funding * 100, { d: 4 }), cls: funding > 0 ? 'down' : funding < 0 ? 'up' : 'flat' },
         ]),
         el('div', { style: { marginTop: '12px' } }, [
-          el('div', { class: 'wp-weights', title: 'Split of open interest between longs and shorts' }, [
+          el('div', { class: 'px-weights', title: 'Split of open interest between longs and shorts' }, [
             el('span', { style: { width: `${oi.total ? (oi.long / oi.total) * 100 : 50}%`, background: 'var(--up)' } }),
             el('span', { style: { width: `${oi.total ? (oi.short / oi.total) * 100 : 50}%`, background: 'var(--down)' } }),
           ]),
-          el('div', { class: 'wp-hint', style: { marginTop: '6px' },
+          el('div', { class: 'px-hint', style: { marginTop: '6px' },
             text: funding > 0 ? 'More longs than shorts: the longs pay.'
                 : funding < 0 ? 'More shorts than longs: the shorts pay.'
                 : 'No imbalance: funding sits at its base rate.' }),
@@ -2993,21 +3042,21 @@ function indexView(id) {
       body: frag([
         kv([
           { k: 'Symbol', v: ix.symbol },
-          { k: 'Creator', v: ix.creator === 'me' ? 'You' : 'Warp demo account' },
+          { k: 'Creator', v: ix.creator === 'me' ? 'You' : 'Perpix demo account' },
           { k: 'Listed', v: dateTime(ix.listedAt) },
           { k: 'Legs', v: String(legs.length) },
           { k: 'Fees generated', v: usdg(ix.feesAccrued), line: true },
         ]),
-        ix.note ? el('p', { class: 'wp-hint', style: { marginTop: '10px' }, text: ix.note }) : null,
+        ix.note ? el('p', { class: 'px-hint', style: { marginTop: '10px' }, text: ix.note }) : null,
         ix.creator === 'me'
           ? el('div', { style: { marginTop: '12px', display: 'grid', gap: '8px' } }, [
               el('button', {
-                class: 'wp-btn quiet block', type: 'button',
+                class: 'px-btn quiet block', type: 'button',
                 text: `Claim ${usdg(pendingFees(ix))}`, disabled: pendingFees(ix) <= 0,
                 on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Claimed ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
               }),
               el('button', {
-                class: 'wp-btn danger block sm', type: 'button', text: 'Delist the index',
+                class: 'px-btn danger block sm', type: 'button', text: 'Delist the index',
                 on: { click: () => { const r = delistIndex(ix.id); if (r.ok) { toast('Index delisted'); go('#/creator'); } else toast(r.error, 'bad'); } },
               }),
             ])
@@ -3017,17 +3066,17 @@ function indexView(id) {
   ]);
 
   return frag([
-    el('div', { class: 'wp-head' }, [
+    el('div', { class: 'px-head' }, [
       el('div', {}, [
         indexIdent(ix, legs, { size: 34 }),
         ix.note ? el('p', { text: ix.note }) : null,
       ]),
-      el('div', { class: 'wp-head-actions' }, [
+      el('div', { class: 'px-head-actions' }, [
         el('span', { class: 'num', style: { fontSize: '24px', fontWeight: '650' }, text: value === null ? NA_TEXT : auto(value) }),
         changePill(ch24),
       ]),
     ]),
-    el('div', { class: 'wp-split' }, [left, right]),
+    el('div', { class: 'px-split' }, [left, right]),
   ]);
 }
 
@@ -3052,7 +3101,7 @@ function ticket(indexId) {
 function tradePanel(ix, value) {
   const tk = ticket(ix.id);
 
-  const sideSeg = el('div', { class: 'wp-seg side', style: { display: 'flex' } }, ['long', 'short'].map(s =>
+  const sideSeg = el('div', { class: 'px-seg side', style: { display: 'flex' } }, ['long', 'short'].map(s =>
     el('button', {
       type: 'button', data: { side: s }, style: { flex: '1' },
       text: s === 'long' ? 'Long' : 'Short',
@@ -3061,18 +3110,18 @@ function tradePanel(ix, value) {
     })));
 
   const marginInput = el('input', {
-    class: 'wp-input num', type: 'number', min: VENUE.minMargin, step: '1', value: String(tk.margin),
+    class: 'px-input num', type: 'number', min: VENUE.minMargin, step: '1', value: String(tk.margin),
     on: { input: () => { tk.margin = Number(marginInput.value); refresh(); } },
   });
   const levInput = el('input', {
-    class: 'wp-range', type: 'range', min: '1', max: String(VENUE.maxLeverage), step: '0.5', value: String(tk.leverage),
+    class: 'px-range', type: 'range', min: '1', max: String(VENUE.maxLeverage), step: '0.5', value: String(tk.leverage),
     on: { input: () => { tk.leverage = Number(levInput.value); refresh(); } },
   });
   const levLabel = el('span', { class: 'num', text: lev(tk.leverage) });
 
   const quick = el('div', { style: { display: 'flex', gap: '6px' } }, [0.25, 0.5, 1].map(f =>
     el('button', {
-      class: 'wp-btn sm quiet', type: 'button', style: { flex: '1' },
+      class: 'px-btn sm quiet', type: 'button', style: { flex: '1' },
       text: f === 1 ? 'Max' : `${f * 100}%`,
       on: { click: () => { tk.margin = Math.max(VENUE.minMargin, Math.floor(state.wallet.balance * f * 100) / 100); marginInput.value = String(tk.margin); refresh(); } },
     })));
@@ -3080,7 +3129,7 @@ function tradePanel(ix, value) {
   const summary = el('div');
   const problem = el('div');
   const risk = el('div');
-  const submit = el('button', { class: 'wp-btn block', type: 'button' });
+  const submit = el('button', { class: 'px-btn block', type: 'button' });
 
   function refresh() {
     levLabel.textContent = lev(tk.leverage);
@@ -3093,14 +3142,14 @@ function tradePanel(ix, value) {
       { k: 'Of it, to the creator', v: usdg(q.creatorFee), line: true },
       { k: 'Total to lock up', v: usdg(q.margin + q.fee) },
     ]));
-    problem.replaceChildren(q.ok ? '' : el('div', { class: 'wp-error', text: q.error }));
+    problem.replaceChildren(q.ok ? '' : el('div', { class: 'px-error', text: q.error }));
     // The warning speaks about the leverage selected right now, not the
     // maximum: a warning that does not describe your order warns of nothing.
     risk.replaceChildren(note(
       `At ${lev(tk.leverage)}, a <strong>${num(100 / tk.leverage, 1)}%</strong> move against you takes the whole margin. ` +
       `The engine applies the liquidation on its own; you do not need the screen open.`, 'risk'));
     submit.textContent = `${tk.side === 'long' ? 'Open long' : 'Open short'} ${lev(tk.leverage)}`;
-    submit.className = `wp-btn block ${tk.side === 'long' ? 'long' : 'short'}`;
+    submit.className = `px-btn block ${tk.side === 'long' ? 'long' : 'short'}`;
     submit.disabled = !q.ok;
   }
   submit.addEventListener('click', () => {
@@ -3111,17 +3160,17 @@ function tradePanel(ix, value) {
 
   return card({
     title: 'Trade', note: value === null ? 'No value' : `Mark ${auto(value)}`,
-    body: el('div', { class: 'wp-grid', style: { gap: '13px' } }, [
+    body: el('div', { class: 'px-grid', style: { gap: '13px' } }, [
       sideSeg,
-      el('div', { class: 'wp-field' }, [
+      el('div', { class: 'px-field' }, [
         el('label', { text: `Margin (${usdg(state.wallet.balance)} available)` }),
-        el('div', { class: 'wp-input-unit' }, [marginInput, el('span', { class: 'wp-unit', text: VENUE.settle })]),
+        el('div', { class: 'px-input-unit' }, [marginInput, el('span', { class: 'px-unit', text: VENUE.settle })]),
         quick,
       ]),
-      el('div', { class: 'wp-field' }, [
+      el('div', { class: 'px-field' }, [
         el('label', {}, [el('span', { text: 'Leverage ' }), levLabel]),
         levInput,
-        el('div', { class: 'wp-range-marks' }, ['1x', '2x', '3x', '4x', '5x'].map(x => el('span', { text: x }))),
+        el('div', { class: 'px-range-marks' }, ['1x', '2x', '3x', '4x', '5x'].map(x => el('span', { text: x }))),
       ]),
       summary,
       problem,
@@ -3142,11 +3191,11 @@ function createView(seedId) {
     equalise();
   }
 
-  const wrap = el('div', { class: 'wp-grid' });
-  const legsBox = el('div', { class: 'wp-grid', style: { gap: '8px' } });
-  const pickerBox = el('div', { class: 'wp-picker' });
-  const preview = el('div', { class: 'wp-grid' });
-  const totalLine = el('div', { class: 'wp-hint' });
+  const wrap = el('div', { class: 'px-grid' });
+  const legsBox = el('div', { class: 'px-grid', style: { gap: '8px' } });
+  const pickerBox = el('div', { class: 'px-picker' });
+  const preview = el('div', { class: 'px-grid' });
+  const totalLine = el('div', { class: 'px-hint' });
   let pickerTab = 'stock';
   let pickerQuery = '';
 
@@ -3172,15 +3221,15 @@ function createView(seedId) {
   }
 
   const symbolInput = el('input', {
-    class: 'wp-input num', maxlength: '12', placeholder: 'MYBASKET', value: draft.symbol,
+    class: 'px-input num', maxlength: '12', placeholder: 'MYBASKET', value: draft.symbol,
     on: { input: () => { draft.symbol = symbolInput.value = symbolInput.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); renderPreview(); } },
   });
   const nameInput = el('input', {
-    class: 'wp-input', maxlength: '48', placeholder: 'My metals basket', value: draft.name,
+    class: 'px-input', maxlength: '48', placeholder: 'My metals basket', value: draft.name,
     on: { input: () => { draft.name = nameInput.value; renderPreview(); } },
   });
   const noteInput = el('input', {
-    class: 'wp-input', maxlength: '120', placeholder: 'What idea this basket expresses (optional)', value: draft.note,
+    class: 'px-input', maxlength: '120', placeholder: 'What idea this basket expresses (optional)', value: draft.note,
     on: { input: () => { draft.note = noteInput.value; } },
   });
 
@@ -3188,22 +3237,22 @@ function createView(seedId) {
     legsBox.replaceChildren(...(draft.legs.length ? draft.legs.map(l => {
       const a = getAsset(l.id);
       const w = el('input', {
-        class: 'wp-input num wp-leg-w', type: 'number', min: '0.1', max: '100', step: '0.1', value: String(l.weight),
+        class: 'px-input num px-leg-w', type: 'number', min: '0.1', max: '100', step: '0.1', value: String(l.weight),
         on: { input: () => { l.weight = Number(w.value); renderPreview(); } },
       });
-      return el('div', { class: 'wp-leg' }, [
+      return el('div', { class: 'px-leg' }, [
         markEl(a, 30),
         el('div', { style: { flex: '1', minWidth: '0' } }, [
-          el('div', { class: 'wp-ident-name', text: a.short }),
-          el('div', { class: 'wp-ident-sub' }, [symPill(a), el('span', { text: CLASSES[a.class]?.label })]),
+          el('div', { class: 'px-ident-name', text: a.short }),
+          el('div', { class: 'px-ident-sub' }, [symPill(a), el('span', { text: CLASSES[a.class]?.label })]),
         ]),
         w,
         el('span', { class: 'dim', text: '%' }),
-        el('button', { class: 'wp-leg-x', type: 'button', text: '×', title: `Remove ${a.short}`, on: { click: () => removeLeg(l.id) } }),
+        el('button', { class: 'px-leg-x', type: 'button', text: '×', title: `Remove ${a.short}`, on: { click: () => removeLeg(l.id) } }),
       ]);
     }) : [note(`Pick between ${VENUE.minLegs} and ${VENUE.maxLegs} assets from the list below. You can mix stocks, metals, crypto and ETFs in the same basket.`)]));
     const tt = total();
-    totalLine.className = `wp-hint ${Math.abs(tt - 100) > 0.01 ? 'wp-error' : ''}`;
+    totalLine.className = `px-hint ${Math.abs(tt - 100) > 0.01 ? 'px-error' : ''}`;
     totalLine.textContent = `${draft.legs.length} of ${VENUE.maxLegs} assets · weights add up to ${num(tt, 1)}%` +
       (Math.abs(tt - 100) > 0.01 ? ', and they have to add up to 100%' : '');
   }
@@ -3215,11 +3264,11 @@ function createView(seedId) {
     pickerBox.replaceChildren(...(list.length ? list.map(a => {
       const on = draft.legs.some(l => l.id === a.id);
       return el('button', {
-        class: `wp-chip ${on ? 'is-on' : ''}`, type: 'button',
+        class: `px-chip ${on ? 'is-on' : ''}`, type: 'button',
         disabled: !on && draft.legs.length >= VENUE.maxLegs,
         on: { click: () => (on ? removeLeg(a.id) : addLeg(a.id)) },
       }, [markEl(a, 20), el('span', { text: a.short }), el('span', { class: 'dim num', style: { fontSize: '11px' }, text: a.symbol })]);
-    }) : [el('span', { class: 'wp-hint', text: 'Nothing matches that search in this class.' })]));
+    }) : [el('span', { class: 'px-hint', text: 'Nothing matches that search in this class.' })]));
   }
 
   function renderPreview() {
@@ -3241,10 +3290,10 @@ function createView(seedId) {
           el('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } }, [
             el('span', { class: 'num', style: { fontSize: '22px', fontWeight: '650' }, text: auto(last) }),
             changePill(last ? last - VENUE.indexBase : 0),
-            el('span', { class: 'wp-hint', text: 'over 30 days, from base 100' }),
+            el('span', { class: 'px-hint', text: 'over 30 days, from base 100' }),
           ]),
         ]),
-        el('div', { class: 'wp-chart sm' }, [
+        el('div', { class: 'px-chart sm' }, [
           (() => {
             const c = el('canvas');
             requestAnimationFrame(() => sparkline(c, rows, indexColor(legs)));
@@ -3258,11 +3307,11 @@ function createView(seedId) {
     }
 
     if (!check.ok && draft.legs.length) {
-      kids.push(el('ul', { class: 'wp-errors' }, check.errors.map(e => el('li', { text: e }))));
+      kids.push(el('ul', { class: 'px-errors' }, check.errors.map(e => el('li', { text: e }))));
     }
 
     kids.push(el('button', {
-      class: 'wp-btn block', type: 'button', text: 'List the index', disabled: !check.ok,
+      class: 'px-btn block', type: 'button', text: 'List the index', disabled: !check.ok,
       on: { click: () => {
         const r = listIndex(draft);
         if (!r.ok) return toast(r.error, 'bad');
@@ -3278,37 +3327,37 @@ function createView(seedId) {
 
   const renderAll = () => { renderLegs(); renderPicker(); renderPreview(); };
 
-  const tabBar = el('div', { class: 'wp-seg' }, ['stock', 'metal', 'crypto', 'etf'].map(id =>
+  const tabBar = el('div', { class: 'px-seg' }, ['stock', 'metal', 'crypto', 'etf'].map(id =>
     el('button', {
       type: 'button', text: CLASSES[id].plural, class: id === pickerTab ? 'is-on' : '',
       on: { click: (ev) => { pickerTab = id; [...tabBar.children].forEach(b => b.classList.remove('is-on')); ev.currentTarget.classList.add('is-on'); renderPicker(); } },
     })));
   const pickerSearch = el('input', {
-    class: 'wp-input', placeholder: 'Filter within this class', type: 'search',
+    class: 'px-input', placeholder: 'Filter within this class', type: 'search',
     on: { input: () => { pickerQuery = pickerSearch.value; renderPicker(); } },
   });
 
   wrap.append(
     head('Create index', `A fixed-weight basket of ${VENUE.minLegs} to ${VENUE.maxLegs} assets. You list it, anyone can trade it, and you keep ${Math.round(VENUE.creatorShare * 100)}% of the fees.`, null),
-    el('div', { class: 'wp-split' }, [
-      el('div', { class: 'wp-grid' }, [
+    el('div', { class: 'px-split' }, [
+      el('div', { class: 'px-grid' }, [
         card({
           title: "The index's identity",
-          body: el('div', { class: 'wp-grid cols-2', style: { gap: '13px' } }, [
-            el('div', { class: 'wp-field' }, [el('label', { text: 'Symbol' }), symbolInput, el('span', { class: 'wp-hint', text: '3 to 12 letters or digits' })]),
-            el('div', { class: 'wp-field' }, [el('label', { text: 'Name' }), nameInput]),
-            el('div', { class: 'wp-field', style: { gridColumn: '1 / -1' } }, [el('label', { text: 'Description' }), noteInput]),
+          body: el('div', { class: 'px-grid cols-2', style: { gap: '13px' } }, [
+            el('div', { class: 'px-field' }, [el('label', { text: 'Symbol' }), symbolInput, el('span', { class: 'px-hint', text: '3 to 12 letters or digits' })]),
+            el('div', { class: 'px-field' }, [el('label', { text: 'Name' }), nameInput]),
+            el('div', { class: 'px-field', style: { gridColumn: '1 / -1' } }, [el('label', { text: 'Description' }), noteInput]),
           ]),
         }),
         card({
           title: 'The basket',
-          actions: el('button', { class: 'wp-btn sm quiet', type: 'button', text: 'Equal weights', on: { click: () => { equalise(); renderAll(); } } }),
-          body: el('div', { class: 'wp-grid', style: { gap: '10px' } }, [legsBox, totalLine]),
+          actions: el('button', { class: 'px-btn sm quiet', type: 'button', text: 'Equal weights', on: { click: () => { equalise(); renderAll(); } } }),
+          body: el('div', { class: 'px-grid', style: { gap: '10px' } }, [legsBox, totalLine]),
         }),
         card({
           title: 'Add assets',
           note: 'Stocks, metals, crypto and ETFs in the same basket',
-          body: el('div', { class: 'wp-grid', style: { gap: '11px' } }, [tabBar, pickerSearch, pickerBox]),
+          body: el('div', { class: 'px-grid', style: { gap: '11px' } }, [tabBar, pickerSearch, pickerBox]),
         }),
       ]),
       card({ title: 'Preview', body: preview }),
@@ -3329,13 +3378,13 @@ function portfolioView() {
     const legs = ix ? indexLegs(ix) : [];
     return el('tr', {}, [
       el('td', { class: 'wide' }, [ix ? indexIdent(ix, legs) : el('span', { class: 'dim', text: 'Index delisted' })]),
-      el('td', {}, [el('span', { class: `wp-pill ${h.side === 'long' ? 'up' : 'down'}`, text: `${h.side === 'long' ? 'Long' : 'Short'} ${lev(h.leverage)}` })]),
+      el('td', {}, [el('span', { class: `px-pill ${h.side === 'long' ? 'up' : 'down'}`, text: `${h.side === 'long' ? 'Long' : 'Short'} ${lev(h.leverage)}` })]),
       el('td', { class: 'num', text: auto(h.entry) }),
       el('td', { class: 'num', text: auto(h.exit) }),
       el('td', { class: 'num dim', text: usdg(h.feesTotal) }),
       el('td', { class: 'num dim', text: usdg(-h.fundingTotal, { sign: true }) }),
       el('td', { class: `num ${dir(h.pnl)}`, text: usdg(h.pnl, { sign: true }) }),
-      el('td', {}, [el('span', { class: `wp-pill ${h.reason === 'liquidation' ? 'down' : ''}`, text: h.reason === 'liquidation' ? 'Liquidated' : 'Closed' })]),
+      el('td', {}, [el('span', { class: `px-pill ${h.reason === 'liquidation' ? 'down' : ''}`, text: h.reason === 'liquidation' ? 'Liquidated' : 'Closed' })]),
       el('td', { class: 'dim', text: ago(h.closedAt) }),
     ]);
   });
@@ -3344,7 +3393,7 @@ function portfolioView() {
     head('Portfolio', 'Balance, committed margin and result. The open result is recomputed from price, never stored.', [
       primaryBtn('See the market', () => go('#/market'), 'ghost'),
     ]),
-    el('div', { class: 'wp-grid cols-4' }, [
+    el('div', { class: 'px-grid cols-4' }, [
       stat('Equity', usdg(acc.equity), { sub: 'Available + margin + open' }),
       stat('Available', usdg(acc.balance)),
       stat('Committed margin', usdg(acc.marginUsed), { sub: `${acc.open} ${acc.open === 1 ? 'position' : 'positions'}` }),
@@ -3390,11 +3439,11 @@ function creatorView() {
       el('td', { class: 'dim', text: ago(ix.listedAt) }),
       el('td', {}, [el('div', { style: { display: 'flex', gap: '6px', justifyContent: 'flex-end' } }, [
         el('button', {
-          class: 'wp-btn sm', type: 'button', text: 'Claim', disabled: due <= 0,
+          class: 'px-btn sm', type: 'button', text: 'Claim', disabled: due <= 0,
           on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Claimed ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
         }),
         el('button', {
-          class: 'wp-btn sm ghost', type: 'button', text: 'Delist',
+          class: 'px-btn sm ghost', type: 'button', text: 'Delist',
           on: { click: () => { const r = delistIndex(ix.id); toast(r.ok ? 'Index delisted' : r.error, r.ok ? '' : 'bad'); } },
         }),
       ])]),
@@ -3405,7 +3454,7 @@ function creatorView() {
     head('My indices', `What you have listed yourself. Of every fee a trade on one of your indices pays, ${Math.round(VENUE.creatorShare * 100)}% accrues here until you claim it.`, [
       primaryBtn('Create index', () => go('#/create')),
     ]),
-    el('div', { class: 'wp-grid cols-3' }, [
+    el('div', { class: 'px-grid cols-3' }, [
       stat('Indices listed', String(mine.length)),
       stat('Fees generated', usdg(totalEarned), { sub: `${Math.round(VENUE.creatorShare * 100)}% of every trade` }),
       stat('Pending to claim', usdg(totalPending), { cls: totalPending > 0 ? 'up' : '' }),
@@ -3474,7 +3523,7 @@ const view = document.getElementById('view');
 const nav = document.getElementById('nav');
 const input = document.getElementById('q');
 const results = document.getElementById('results');
-const combobox = input.closest('.wp-search');
+const combobox = input.closest('.px-search');
 
 /* ---------------- routing ---------------- */
 
@@ -3511,8 +3560,9 @@ let current = parseHash();
 function render() {
   const r = current;
   const build = PAGES[r.route];
-  view.replaceChildren(build ? build(r) : notFound('That address does not exist in Warp.'));
-  document.title = `${TITLES[r.route] || 'Warp'} · Warp`;
+  view.replaceChildren(build ? build(r) : notFound('That address does not exist in Perpix.'));
+  // On a route with no name the title is just the product, not "Perpix · Perpix".
+  document.title = TITLES[r.route] ? `${TITLES[r.route]} · Perpix` : 'Perpix';
   [...nav.querySelectorAll('a')].forEach(a => {
     const active = a.dataset.route === r.route
       || (r.route === 'index' && a.dataset.route === 'market')
@@ -3542,11 +3592,11 @@ function paintSide() {
   sideEquity.replaceChildren(
     el('dt', { text: `Equity (${VENUE.settle})` }),
     el('dd', { text: usdg(acc.equity).replace(' ' + VENUE.settle, '') }),
-    el('div', { class: 'wp-equity-row' }, [
+    el('div', { class: 'px-equity-row' }, [
       el('span', { text: 'Available' }),
       el('span', { class: 'num', text: usdg(acc.balance).replace(' ' + VENUE.settle, '') }),
     ]),
-    el('div', { class: 'wp-equity-row' }, [
+    el('div', { class: 'px-equity-row' }, [
       el('span', { text: 'Open' }),
       el('span', { class: `num ${dir(acc.unrealised)}`, text: usdg(acc.unrealised, { sign: true }).replace(' ' + VENUE.settle, '') }),
     ]),
@@ -3584,23 +3634,23 @@ function openHit(hit) {
 function paintResults() {
   results.replaceChildren();
   if (!hits.length) {
-    results.append(el('div', { class: 'wp-res-empty', text: 'Nothing matches. Try the symbol, the name or the metal ("nickel", "XAU").' }));
+    results.append(el('div', { class: 'px-res-empty', text: 'Nothing matches. Try the symbol, the name or the metal ("nickel", "XAU").' }));
   } else {
     hits.forEach((hit, i) => {
       const mark = hit.kind === 'index'
         ? markStack(indexLegs(hit.index).map(l => l.asset), 22)
         : markEl(hit.asset, 26);
       results.append(el('button', {
-        class: `wp-res ${i === cursor ? 'is-on' : ''}`, type: 'button', role: 'option',
+        class: `px-res ${i === cursor ? 'is-on' : ''}`, type: 'button', role: 'option',
         on: { click: () => openHit(hit) },
       }, [
         mark,
         el('span', {}, [
-          el('span', { class: 'wp-res-label', text: hit.label }),
+          el('span', { class: 'px-res-label', text: hit.label }),
           el('br'),
-          el('span', { class: 'wp-res-sub', text: hit.sub }),
+          el('span', { class: 'px-res-sub', text: hit.sub }),
         ]),
-        el('span', { class: 'wp-res-sym num', text: hit.kind === 'index' ? hit.index.symbol : hit.asset.symbol }),
+        el('span', { class: 'px-res-sym num', text: hit.kind === 'index' ? hit.index.symbol : hit.asset.symbol }),
       ]));
     });
   }
@@ -3651,9 +3701,9 @@ function canRepaint() {
    five-second jumps is not a clock. It only writes into three text nodes, so
    running it every second costs nothing and never touches the layout. */
 const clockParts = {
-  day: el('span', { class: 'wp-clock-day' }),
+  day: el('span', { class: 'px-clock-day' }),
   time: el('b'),
-  zone: el('span', { class: 'wp-clock-zone' }),
+  zone: el('span', { class: 'px-clock-zone' }),
 };
 clockEl.append(clockParts.day, clockParts.time, clockParts.zone);
 function paintClock() {

@@ -24,7 +24,7 @@ const view = document.getElementById('view');
 const nav = document.getElementById('nav');
 const input = document.getElementById('q');
 const results = document.getElementById('results');
-const combobox = input.closest('.wp-search');
+const combobox = input.closest('.px-search');
 
 /* ---------------- routing ---------------- */
 
@@ -61,8 +61,9 @@ let current = parseHash();
 function render() {
   const r = current;
   const build = PAGES[r.route];
-  view.replaceChildren(build ? build(r) : notFound('That address does not exist in Warp.'));
-  document.title = `${TITLES[r.route] || 'Warp'} · Warp`;
+  view.replaceChildren(build ? build(r) : notFound('That address does not exist in Perpix.'));
+  // On a route with no name the title is just the product, not "Perpix · Perpix".
+  document.title = TITLES[r.route] ? `${TITLES[r.route]} · Perpix` : 'Perpix';
   [...nav.querySelectorAll('a')].forEach(a => {
     const active = a.dataset.route === r.route
       || (r.route === 'index' && a.dataset.route === 'market')
@@ -92,11 +93,11 @@ function paintSide() {
   sideEquity.replaceChildren(
     el('dt', { text: `Equity (${VENUE.settle})` }),
     el('dd', { text: usdg(acc.equity).replace(' ' + VENUE.settle, '') }),
-    el('div', { class: 'wp-equity-row' }, [
+    el('div', { class: 'px-equity-row' }, [
       el('span', { text: 'Available' }),
       el('span', { class: 'num', text: usdg(acc.balance).replace(' ' + VENUE.settle, '') }),
     ]),
-    el('div', { class: 'wp-equity-row' }, [
+    el('div', { class: 'px-equity-row' }, [
       el('span', { text: 'Open' }),
       el('span', { class: `num ${dir(acc.unrealised)}`, text: usdg(acc.unrealised, { sign: true }).replace(' ' + VENUE.settle, '') }),
     ]),
@@ -134,23 +135,23 @@ function openHit(hit) {
 function paintResults() {
   results.replaceChildren();
   if (!hits.length) {
-    results.append(el('div', { class: 'wp-res-empty', text: 'Nothing matches. Try the symbol, the name or the metal ("nickel", "XAU").' }));
+    results.append(el('div', { class: 'px-res-empty', text: 'Nothing matches. Try the symbol, the name or the metal ("nickel", "XAU").' }));
   } else {
     hits.forEach((hit, i) => {
       const mark = hit.kind === 'index'
         ? markStack(indexLegs(hit.index).map(l => l.asset), 22)
         : markEl(hit.asset, 26);
       results.append(el('button', {
-        class: `wp-res ${i === cursor ? 'is-on' : ''}`, type: 'button', role: 'option',
+        class: `px-res ${i === cursor ? 'is-on' : ''}`, type: 'button', role: 'option',
         on: { click: () => openHit(hit) },
       }, [
         mark,
         el('span', {}, [
-          el('span', { class: 'wp-res-label', text: hit.label }),
+          el('span', { class: 'px-res-label', text: hit.label }),
           el('br'),
-          el('span', { class: 'wp-res-sub', text: hit.sub }),
+          el('span', { class: 'px-res-sub', text: hit.sub }),
         ]),
-        el('span', { class: 'wp-res-sym num', text: hit.kind === 'index' ? hit.index.symbol : hit.asset.symbol }),
+        el('span', { class: 'px-res-sym num', text: hit.kind === 'index' ? hit.index.symbol : hit.asset.symbol }),
       ]));
     });
   }
@@ -201,9 +202,9 @@ function canRepaint() {
    five-second jumps is not a clock. It only writes into three text nodes, so
    running it every second costs nothing and never touches the layout. */
 const clockParts = {
-  day: el('span', { class: 'wp-clock-day' }),
+  day: el('span', { class: 'px-clock-day' }),
   time: el('b'),
-  zone: el('span', { class: 'wp-clock-zone' }),
+  zone: el('span', { class: 'px-clock-zone' }),
 };
 clockEl.append(clockParts.day, clockParts.time, clockParts.zone);
 function paintClock() {

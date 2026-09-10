@@ -1,4 +1,4 @@
-/* Builds dist/warp.html: the whole application in one file, openable by
+/* Builds dist/perpix.html: the whole application in one file, openable by
    double-clicking it with no server.
 
    Why a build at all, in a project whose point is that there is no build step:
@@ -102,7 +102,7 @@ out = out.replace(scriptTag, `<script>\n${safe(bundle)}\n</script>`);
 
 // One line saying what this file is, for whoever opens it in an editor.
 out = out.replace('<!doctype html>',
-  `<!doctype html>\n<!-- Warp, built into a single file by build.mjs. Edit the source in warp-app/, not this. -->`);
+  `<!doctype html>\n<!-- Perpix, built into a single file by build.mjs. Edit the source in perpix-app/, not this. -->`);
 
 /* The same page as an Artifact fragment. An Artifact supplies its own doctype,
    html, head and body, so what it wants is the content and nothing else. Both
@@ -120,7 +120,7 @@ const fragment = between('<head>', '</head>')
   + between('<body>', '</body>');
 
 await mkdir(join(root, 'dist'), { recursive: true });
-await writeFile(join(root, 'dist', 'warp.html'), out);
-await writeFile(join(root, 'dist', 'warp.artifact.html'), fragment.trim() + '\n');
-console.log(`dist/warp.html           ${(out.length / 1024).toFixed(0)} KB  ${MODULES.length} modules inlined`);
-console.log(`dist/warp.artifact.html  ${(fragment.length / 1024).toFixed(0)} KB  same page, no document wrapper`);
+await writeFile(join(root, 'dist', 'perpix.html'), out);
+await writeFile(join(root, 'dist', 'perpix.artifact.html'), fragment.trim() + '\n');
+console.log(`dist/perpix.html           ${(out.length / 1024).toFixed(0)} KB  ${MODULES.length} modules inlined`);
+console.log(`dist/perpix.artifact.html  ${(fragment.length / 1024).toFixed(0)} KB  same page, no document wrapper`);

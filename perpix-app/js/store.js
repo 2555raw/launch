@@ -11,7 +11,11 @@
 import { VENUE } from './config.js';
 import { snapshotRefs } from './market.js';
 
-const KEY = 'warp.state.v1';
+const KEY = 'perpix.state.v1';
+/* The application was called Warp until it was renamed, and its state was
+   stored under that name. An account is not something to throw away over a
+   rename, so the old key is read once and carried over. */
+const LEGACY_KEY = 'warp.state.v1';
 const DAY = 86400e3;
 
 /* Indices already listed when you arrive, so the market does not start empty.
@@ -70,9 +74,23 @@ function fresh() {
   };
 }
 
+/** Reads the current key, falling back to the one the application used under
+ *  its old name and moving it across, so a rename costs nobody their history. */
+function readStored() {
+  const parse = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
+  const current = parse(KEY);
+  if (current) return current;
+  const legacy = parse(LEGACY_KEY);
+  if (!legacy) return null;
+  try {
+    localStorage.setItem(KEY, JSON.stringify(legacy));
+    localStorage.removeItem(LEGACY_KEY);
+  } catch {}
+  return legacy;
+}
+
 function load() {
-  let raw = null;
-  try { raw = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { raw = null; }
+  const raw = readStored();
   if (!raw || raw.version !== 1) return fresh();
   // The house indices are restored if they are missing, without touching the
   // user's own ones or any open position.

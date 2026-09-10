@@ -1,5 +1,5 @@
 /* GENERATED FILE — do not edit by hand.
-   Rebuild with: node warp-app/tools/build-marks.mjs
+   Rebuild with: node perpix-app/tools/build-marks.mjs
 
    The official mark of each asset, embedded so it shows with no network and
    inside a host that blocks external images. js/logos.js still prefers the

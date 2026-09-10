@@ -58,27 +58,33 @@ export function dateTime(ts) {
   if (!ts) return NA_TEXT;
   // Same clock as the header: a listing date must not read in one zone while
   // the market reads in another.
-  return new Intl.DateTimeFormat('en-GB', {
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: MARKET_TZ, dateStyle: 'medium', timeStyle: 'short',
   }).format(new Date(ts));
 }
-/* Warp keeps one clock, and it is Madrid's.
+/* Perpix keeps one clock, and it is New York's.
    A market has a single wall clock, not one per viewer: two people looking at
-   the same funding window have to be looking at the same hour. Naming the zone
-   in Intl means daylight saving is handled by the platform's own tz data, which
-   is right twice a year without anyone remembering the dates. */
-export const MARKET_TZ = 'Europe/Madrid';
-export const MARKET_TZ_LABEL = 'Madrid';
+   the same funding window have to be looking at the same hour. New York is the
+   hour the assets themselves keep — most of the registry lists on the NYSE or
+   the NASDAQ — so it is the market's time, not a viewer's.
 
-const marketTime = new Intl.DateTimeFormat('en-GB', {
+   Naming the zone in Intl means daylight saving is handled by the platform's
+   own tz data, which is right twice a year without anyone remembering the
+   dates. Changing the market's clock is these two lines and nothing else. */
+export const MARKET_TZ = 'America/New_York';
+export const MARKET_TZ_LABEL = 'New York';
+
+/* 24-hour, because a trading clock is read in a column next to other figures
+   and AM/PM both changes width and leaves noon ambiguous. */
+const marketTime = new Intl.DateTimeFormat('en-US', {
   timeZone: MARKET_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
 });
-const marketDate = new Intl.DateTimeFormat('en-GB', {
-  timeZone: MARKET_TZ, weekday: 'short', day: 'numeric', month: 'short',
+const marketDate = new Intl.DateTimeFormat('en-US', {
+  timeZone: MARKET_TZ, weekday: 'short', month: 'short', day: 'numeric',
 });
-/** The offset Madrid is on right now, so the clock says which one it is rather
- *  than leaving the reader to guess whether summer time is in force. */
-const marketOffset = new Intl.DateTimeFormat('en-GB', { timeZone: MARKET_TZ, timeZoneName: 'shortOffset' });
+/** The offset New York is on right now, so the clock says which one it is
+ *  rather than leaving the reader to guess whether summer time is in force. */
+const marketOffset = new Intl.DateTimeFormat('en-US', { timeZone: MARKET_TZ, timeZoneName: 'shortOffset' });
 
 export function clock(ts = Date.now()) { return marketTime.format(new Date(ts)); }
 export function marketDay(ts = Date.now()) { return marketDate.format(new Date(ts)); }

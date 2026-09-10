@@ -1,4 +1,4 @@
-# Warp
+# Perpix
 
 A market of index perpetuals. You bundle three to five assets — stocks, metals,
 crypto or ETFs — into a fixed-weight basket, list it as an index with its own
@@ -12,7 +12,7 @@ repository.
 
 **No price in this application is real, and the application says so out loud.**
 
-Warp is a paper market. Every asset price comes from the simulator in
+Perpix is a paper market. Every asset price comes from the simulator in
 `js/market.js`, not from a market data provider. That is why the notice sits in
 the header of every screen and in the footer of every screen, and not in the
 small print: a number that looks like a quote and is not one does more damage
@@ -39,19 +39,19 @@ None of this is investment advice.
 
 Three ways, in order of least ceremony.
 
-**One file, no server.** `dist/warp.html` is the whole application inlined into
+**One file, no server.** `dist/perpix.html` is the whole application inlined into
 a single file. Download it and double-click it: it opens straight from the
 filesystem, needs nothing installed, and resolves real logos because the browser
 is not sandboxed. Rebuild it after changing any source file with:
 
 ```bash
-node warp-app/build.mjs
+node perpix-app/build.mjs
 ```
 
 **A local server**, which is how you work on the multi-file source:
 
 ```bash
-python3 -m http.server 8000      # then open http://localhost:8000/warp-app/
+python3 -m http.server 8000      # then open http://localhost:8000/perpix-app/
 ```
 
 **Any static host.** Copy the folder as it is; there is nothing to compile.
@@ -64,7 +64,7 @@ opening state.
 ## Testing
 
 ```bash
-node warp-app/test/engine.test.mjs
+node perpix-app/test/engine.test.mjs
 ```
 
 It checks, without a browser, what cannot be wrong: that a basket starts at its
@@ -75,14 +75,20 @@ supposed to reject.
 
 ## The clock
 
-Warp keeps one clock and it is Madrid's, real time, ticking every second in the
-header. A market has a single wall clock, not one per viewer: two people looking
-at the same funding window have to be looking at the same hour. The zone is
-named (`Europe/Madrid`) rather than computed from an offset, so daylight saving
-is handled by the platform's own timezone data and is right twice a year without
-anyone remembering the dates — the header says which offset is in force. Listing
-dates and timestamps read on that same clock, so nothing in the interface is in
-a second zone.
+Perpix keeps one clock and it is New York's, real time, ticking every second in
+the header. A market has a single wall clock, not one per viewer: two people
+looking at the same funding window have to be looking at the same hour. New York
+is the hour the assets themselves keep — most of the registry lists on the NYSE
+or the NASDAQ — so it is the market's time rather than a viewer's.
+
+The zone is named (`America/New_York`) rather than computed from an offset, so
+daylight saving is handled by the platform's own timezone data and is right
+twice a year without anyone remembering the dates; the header says which offset
+is in force. It reads in 24 hours, because a trading clock sits in a column next
+to other figures and AM/PM both changes width and leaves noon ambiguous.
+Listing dates and timestamps read on that same clock, so nothing in the
+interface is in a second zone. Moving the market to another city is two lines in
+`js/format.js` and nothing else.
 
 ## The terms gate
 
@@ -97,7 +103,7 @@ source, so the two cannot drift.
 A second notice, about storage, arrives about thirty seconds in. Stacking it on
 the terms would make two walls to get through before seeing anything, and a
 notice about what an application stores means more once it has stored
-something. It says what actually happens rather than the easy copy: Warp sets
+something. It says what actually happens rather than the easy copy: Perpix sets
 no cookies, has no analytics and no third parties, and the only thing kept is
 the local storage the account lives in. Which means there is no non-essential
 category to switch off, so it says that too instead of offering a toggle that
@@ -137,7 +143,7 @@ There are three tiers, in this order:
    a failure. The real logo still resolves at runtime in a browser with a
    connection. What these never do is borrow another entity's logo.
 
-Tier 2 is generated, not hand-assembled: `node warp-app/tools/build-marks.mjs`
+Tier 2 is generated, not hand-assembled: `node perpix-app/tools/build-marks.mjs`
 pulls five published icon sets from npm, takes only the mapped icons, and writes
 `js/marks.js` with the set, version and licence each mark came from. Four of
 them — Disney, Walmart, Santander and BBVA — come from a CC BY-SA 4.0 set,
@@ -238,7 +244,7 @@ js/search.js            search tolerant of typos, accents and trade names
 js/ui/components.js     reusable pieces (identity, cards, tables, figures, notices)
 js/views.js             the screens
 js/app.js               routing, search, clock and the heartbeat that liquidates
-build.mjs               inlines everything into dist/warp.html, openable with no server
+build.mjs               inlines everything into dist/perpix.html, openable with no server
 tools/build-marks.mjs   regenerates js/marks.js from four CC0 icon sets on npm
 test/engine.test.mjs    the market's rules, checked without a browser
 ```

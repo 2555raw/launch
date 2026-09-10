@@ -26,7 +26,7 @@ function fitCanvas(canvas) {
  *  Returns a teardown function. */
 export function drawChart(canvas, rows, { color, baseline = null, suffix = '' } = {}) {
   const wrap = canvas.parentElement;
-  const tip = wrap.querySelector('.wp-tip');
+  const tip = wrap.querySelector('.px-tip');
   const data = (rows || []).filter(r => Number.isFinite(r.c));
   const theme = {
     line: cssVar(wrap, '--line') || '#E6E9EE',

@@ -16,7 +16,7 @@
    interface can say so. The marks themselves remain the trademarks of their
    owners, used only to identify the asset.
 
-   Run with:  node warp-app/tools/build-marks.mjs
+   Run with:  node perpix-app/tools/build-marks.mjs
    It needs network access to registry.npmjs.org and rewrites js/marks.js. */
 
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
@@ -95,7 +95,7 @@ async function fetchPackage(dir, pkg) {
 const inner = (svg) => svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>[\s\S]*$/, '').replace(/<title>[\s\S]*?<\/title>/, '').trim();
 const viewBox = (svg) => (svg.match(/viewBox="([^"]+)"/) || [, '0 0 24 24'])[1];
 
-const dir = await mkdtemp(join(tmpdir(), 'warp-marks-'));
+const dir = await mkdtemp(join(tmpdir(), 'perpix-marks-'));
 try {
   const loaded = {};
   for (const [id, set] of Object.entries(SETS)) {
@@ -142,7 +142,7 @@ try {
     .join('\n');
 
   const file = `/* GENERATED FILE — do not edit by hand.
-   Rebuild with: node warp-app/tools/build-marks.mjs
+   Rebuild with: node perpix-app/tools/build-marks.mjs
 
    The official mark of each asset, embedded so it shows with no network and
    inside a host that blocks external images. js/logos.js still prefers the

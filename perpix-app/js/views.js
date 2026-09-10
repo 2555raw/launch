@@ -32,13 +32,13 @@ export function indexColor(legs) {
 const indexSeries = (ix, hours) => basketSeries(ix.legs, ix.refs, Date.now() - hours * HOUR, Date.now(), 170, VENUE.indexBase);
 
 function head(title, text, actions) {
-  return el('div', { class: 'wp-head' }, [
+  return el('div', { class: 'px-head' }, [
     el('div', {}, [el('h1', { text: title }), text ? el('p', { text }) : null]),
-    actions ? el('div', { class: 'wp-head-actions' }, actions) : null,
+    actions ? el('div', { class: 'px-head-actions' }, actions) : null,
   ]);
 }
 const primaryBtn = (label, onClick, cls = '') =>
-  el('button', { class: `wp-btn ${cls}`, type: 'button', text: label, on: { click: onClick } });
+  el('button', { class: `px-btn ${cls}`, type: 'button', text: label, on: { click: onClick } });
 
 /* ============================ dashboard ============================ */
 
@@ -57,7 +57,7 @@ export function panelView() {
     ]),
 
 
-    el('div', { class: 'wp-grid cols-4' }, [
+    el('div', { class: 'px-grid cols-4' }, [
       stat('Equity', usdg(acc.equity), { sub: 'Balance, margin and open result' }),
       stat('Available', usdg(acc.balance), { sub: `${acc.open} open ${acc.open === 1 ? 'position' : 'positions'}` }),
       stat('Open result', usdg(acc.unrealised, { sign: true }), { cls: dir(acc.unrealised), sub: `Realised ${usdg(acc.realised, { sign: true })}` }),
@@ -79,7 +79,7 @@ export function panelView() {
       })),
     }),
 
-    el('div', { class: 'wp-grid cols-2' }, [
+    el('div', { class: 'px-grid cols-2' }, [
       card({
         title: 'Your positions', note: acc.open ? `${acc.open} open` : null, tight: true,
         body: acc.open
@@ -110,7 +110,7 @@ let marketSort = 'depth';
 
 export function marketView() {
   const t = Date.now();
-  const wrap = el('div', { class: 'wp-grid' });
+  const wrap = el('div', { class: 'px-grid' });
 
   const filters = [
     { id: 'all', label: 'All' },
@@ -124,7 +124,7 @@ export function marketView() {
     { id: 'recent', label: 'Recent' },
   ];
 
-  const seg = (opts, current, onPick) => el('div', { class: 'wp-seg' }, opts.map(o =>
+  const seg = (opts, current, onPick) => el('div', { class: 'px-seg' }, opts.map(o =>
     el('button', {
       type: 'button', text: o.label, class: o.id === current ? 'is-on' : '',
       on: { click: () => { onPick(o.id); render(); } },
@@ -177,7 +177,7 @@ export function marketView() {
     head('Market', "Every row is a fixed-weight basket with a perpetual of its own. The composition reads off the colour bar: each band is a leg, in the asset's brand colour.", [
       primaryBtn('Create index', () => go('#/create')),
     ]),
-    el('div', { class: 'wp-tabs' }, [
+    el('div', { class: 'px-tabs' }, [
       seg(filters, marketFilter, v => { marketFilter = v; }),
       seg(sorts, marketSort, v => { marketSort = v; }),
     ]),
@@ -193,11 +193,11 @@ let assetTab = 'stock';
 
 export function assetsView() {
   const t = Date.now();
-  const wrap = el('div', { class: 'wp-grid' });
+  const wrap = el('div', { class: 'px-grid' });
   const body = el('div');
   const tabs = ['stock', 'metal', 'crypto', 'etf'];
 
-  const tabBar = el('div', { class: 'wp-seg' }, tabs.map(id =>
+  const tabBar = el('div', { class: 'px-seg' }, tabs.map(id =>
     el('button', {
       type: 'button', text: CLASSES[id].plural, data: { cls: id }, class: id === assetTab ? 'is-on' : '',
       on: { click: () => { assetTab = id; [...tabBar.children].forEach(b => b.classList.toggle('is-on', b.dataset.cls === id)); render(); } },
@@ -250,18 +250,18 @@ export function assetView(id) {
   });
 
   return frag([
-    el('div', { class: 'wp-head' }, [
-      el('div', { class: 'wp-ident' }, [
+    el('div', { class: 'px-head' }, [
+      el('div', { class: 'px-ident' }, [
         markEl(a, 52),
         el('div', {}, [
           el('h1', { text: a.name, style: { fontSize: '20px' } }),
-          el('div', { class: 'wp-ident-sub', style: { marginTop: '5px' } }, [
+          el('div', { class: 'px-ident-sub', style: { marginTop: '5px' } }, [
             symPill(a),
             el('span', { text: `${CLASSES[a.class]?.label} · ${a.sector} · ${a.venue}` }),
           ]),
         ]),
       ]),
-      el('div', { class: 'wp-head-actions' }, [
+      el('div', { class: 'px-head-actions' }, [
         el('span', { class: 'num', style: { fontSize: '22px', fontWeight: '600' }, text: auto(spot(a.id, t)) }),
         changePill(changePct(a.id, 24, t)),
       ]),
@@ -272,7 +272,7 @@ export function assetView(id) {
       actions: chart.ranges, body: chart.wrap,
     }),
 
-    el('div', { class: 'wp-grid cols-2' }, [
+    el('div', { class: 'px-grid cols-2' }, [
       card({
         title: 'Identity', body: kv([
           { k: 'Legal name', v: a.name },
@@ -334,14 +334,14 @@ export function positionsTable(t = Date.now(), { indexId = null, compact: small 
     const m = markPosition(p, t);
     const ix = getIndex(p.indexId);
     const legs = indexLegs(ix);
-    const side = el('span', { class: `wp-pill ${p.side === 'long' ? 'up' : 'down'}`, text: `${p.side === 'long' ? 'Long' : 'Short'} ${lev(p.leverage)}` });
+    const side = el('span', { class: `px-pill ${p.side === 'long' ? 'up' : 'down'}`, text: `${p.side === 'long' ? 'Long' : 'Short'} ${lev(p.leverage)}` });
     const result = el('td', {}, [
       el('div', { class: `num ${dir(m.pnl - m.funding)}`, text: usdg(m.pnl - m.funding, { sign: true }) }),
-      el('div', { class: `wp-ident-sub num ${dir(m.roe)}`, text: pct(m.roe) }),
+      el('div', { class: `px-ident-sub num ${dir(m.roe)}`, text: pct(m.roe) }),
     ]);
     const close = el('td', {}, [
       el('button', {
-        class: 'wp-btn sm ghost', type: 'button', text: 'Close',
+        class: 'px-btn sm ghost', type: 'button', text: 'Close',
         on: { click: (ev) => { ev.stopPropagation(); const r = closePosition(p.id); toast(r.ok ? `Position closed: ${usdg(r.closed.pnl, { sign: true })}` : r.error, r.ok ? (r.closed.pnl >= 0 ? 'good' : '') : 'bad'); } },
       }),
     ]);
@@ -396,7 +396,7 @@ export function indexView(id) {
     ]);
   });
 
-  const left = el('div', { class: 'wp-grid' }, [
+  const left = el('div', { class: 'px-grid' }, [
     card({
       title: 'Index value',
       note: `Base ${VENUE.indexBase} the day it listed, ${ago(ix.listedAt)}`,
@@ -405,7 +405,7 @@ export function indexView(id) {
     card({
       title: 'Composition',
       note: "Fixed weight: it never rebalances, so today's basket is the one that listed",
-      body: el('div', { class: 'wp-grid' }, [
+      body: el('div', { class: 'px-grid' }, [
         donut(legs, 128),
         note('The <strong>contribution</strong> column is how much of the index\'s change since it listed comes from each leg: its move times its weight.'),
       ]),
@@ -421,7 +421,7 @@ export function indexView(id) {
     }),
   ]);
 
-  const right = el('div', { class: 'wp-grid' }, [
+  const right = el('div', { class: 'px-grid' }, [
     tradePanel(ix, value),
     card({
       title: 'Market state',
@@ -437,11 +437,11 @@ export function indexView(id) {
           { k: 'Funding 8 h', v: pct(funding * 100, { d: 4 }), cls: funding > 0 ? 'down' : funding < 0 ? 'up' : 'flat' },
         ]),
         el('div', { style: { marginTop: '12px' } }, [
-          el('div', { class: 'wp-weights', title: 'Split of open interest between longs and shorts' }, [
+          el('div', { class: 'px-weights', title: 'Split of open interest between longs and shorts' }, [
             el('span', { style: { width: `${oi.total ? (oi.long / oi.total) * 100 : 50}%`, background: 'var(--up)' } }),
             el('span', { style: { width: `${oi.total ? (oi.short / oi.total) * 100 : 50}%`, background: 'var(--down)' } }),
           ]),
-          el('div', { class: 'wp-hint', style: { marginTop: '6px' },
+          el('div', { class: 'px-hint', style: { marginTop: '6px' },
             text: funding > 0 ? 'More longs than shorts: the longs pay.'
                 : funding < 0 ? 'More shorts than longs: the shorts pay.'
                 : 'No imbalance: funding sits at its base rate.' }),
@@ -453,21 +453,21 @@ export function indexView(id) {
       body: frag([
         kv([
           { k: 'Symbol', v: ix.symbol },
-          { k: 'Creator', v: ix.creator === 'me' ? 'You' : 'Warp demo account' },
+          { k: 'Creator', v: ix.creator === 'me' ? 'You' : 'Perpix demo account' },
           { k: 'Listed', v: dateTime(ix.listedAt) },
           { k: 'Legs', v: String(legs.length) },
           { k: 'Fees generated', v: usdg(ix.feesAccrued), line: true },
         ]),
-        ix.note ? el('p', { class: 'wp-hint', style: { marginTop: '10px' }, text: ix.note }) : null,
+        ix.note ? el('p', { class: 'px-hint', style: { marginTop: '10px' }, text: ix.note }) : null,
         ix.creator === 'me'
           ? el('div', { style: { marginTop: '12px', display: 'grid', gap: '8px' } }, [
               el('button', {
-                class: 'wp-btn quiet block', type: 'button',
+                class: 'px-btn quiet block', type: 'button',
                 text: `Claim ${usdg(pendingFees(ix))}`, disabled: pendingFees(ix) <= 0,
                 on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Claimed ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
               }),
               el('button', {
-                class: 'wp-btn danger block sm', type: 'button', text: 'Delist the index',
+                class: 'px-btn danger block sm', type: 'button', text: 'Delist the index',
                 on: { click: () => { const r = delistIndex(ix.id); if (r.ok) { toast('Index delisted'); go('#/creator'); } else toast(r.error, 'bad'); } },
               }),
             ])
@@ -477,17 +477,17 @@ export function indexView(id) {
   ]);
 
   return frag([
-    el('div', { class: 'wp-head' }, [
+    el('div', { class: 'px-head' }, [
       el('div', {}, [
         indexIdent(ix, legs, { size: 34 }),
         ix.note ? el('p', { text: ix.note }) : null,
       ]),
-      el('div', { class: 'wp-head-actions' }, [
+      el('div', { class: 'px-head-actions' }, [
         el('span', { class: 'num', style: { fontSize: '24px', fontWeight: '650' }, text: value === null ? NA_TEXT : auto(value) }),
         changePill(ch24),
       ]),
     ]),
-    el('div', { class: 'wp-split' }, [left, right]),
+    el('div', { class: 'px-split' }, [left, right]),
   ]);
 }
 
@@ -512,7 +512,7 @@ function ticket(indexId) {
 function tradePanel(ix, value) {
   const tk = ticket(ix.id);
 
-  const sideSeg = el('div', { class: 'wp-seg side', style: { display: 'flex' } }, ['long', 'short'].map(s =>
+  const sideSeg = el('div', { class: 'px-seg side', style: { display: 'flex' } }, ['long', 'short'].map(s =>
     el('button', {
       type: 'button', data: { side: s }, style: { flex: '1' },
       text: s === 'long' ? 'Long' : 'Short',
@@ -521,18 +521,18 @@ function tradePanel(ix, value) {
     })));
 
   const marginInput = el('input', {
-    class: 'wp-input num', type: 'number', min: VENUE.minMargin, step: '1', value: String(tk.margin),
+    class: 'px-input num', type: 'number', min: VENUE.minMargin, step: '1', value: String(tk.margin),
     on: { input: () => { tk.margin = Number(marginInput.value); refresh(); } },
   });
   const levInput = el('input', {
-    class: 'wp-range', type: 'range', min: '1', max: String(VENUE.maxLeverage), step: '0.5', value: String(tk.leverage),
+    class: 'px-range', type: 'range', min: '1', max: String(VENUE.maxLeverage), step: '0.5', value: String(tk.leverage),
     on: { input: () => { tk.leverage = Number(levInput.value); refresh(); } },
   });
   const levLabel = el('span', { class: 'num', text: lev(tk.leverage) });
 
   const quick = el('div', { style: { display: 'flex', gap: '6px' } }, [0.25, 0.5, 1].map(f =>
     el('button', {
-      class: 'wp-btn sm quiet', type: 'button', style: { flex: '1' },
+      class: 'px-btn sm quiet', type: 'button', style: { flex: '1' },
       text: f === 1 ? 'Max' : `${f * 100}%`,
       on: { click: () => { tk.margin = Math.max(VENUE.minMargin, Math.floor(state.wallet.balance * f * 100) / 100); marginInput.value = String(tk.margin); refresh(); } },
     })));
@@ -540,7 +540,7 @@ function tradePanel(ix, value) {
   const summary = el('div');
   const problem = el('div');
   const risk = el('div');
-  const submit = el('button', { class: 'wp-btn block', type: 'button' });
+  const submit = el('button', { class: 'px-btn block', type: 'button' });
 
   function refresh() {
     levLabel.textContent = lev(tk.leverage);
@@ -553,14 +553,14 @@ function tradePanel(ix, value) {
       { k: 'Of it, to the creator', v: usdg(q.creatorFee), line: true },
       { k: 'Total to lock up', v: usdg(q.margin + q.fee) },
     ]));
-    problem.replaceChildren(q.ok ? '' : el('div', { class: 'wp-error', text: q.error }));
+    problem.replaceChildren(q.ok ? '' : el('div', { class: 'px-error', text: q.error }));
     // The warning speaks about the leverage selected right now, not the
     // maximum: a warning that does not describe your order warns of nothing.
     risk.replaceChildren(note(
       `At ${lev(tk.leverage)}, a <strong>${num(100 / tk.leverage, 1)}%</strong> move against you takes the whole margin. ` +
       `The engine applies the liquidation on its own; you do not need the screen open.`, 'risk'));
     submit.textContent = `${tk.side === 'long' ? 'Open long' : 'Open short'} ${lev(tk.leverage)}`;
-    submit.className = `wp-btn block ${tk.side === 'long' ? 'long' : 'short'}`;
+    submit.className = `px-btn block ${tk.side === 'long' ? 'long' : 'short'}`;
     submit.disabled = !q.ok;
   }
   submit.addEventListener('click', () => {
@@ -571,17 +571,17 @@ function tradePanel(ix, value) {
 
   return card({
     title: 'Trade', note: value === null ? 'No value' : `Mark ${auto(value)}`,
-    body: el('div', { class: 'wp-grid', style: { gap: '13px' } }, [
+    body: el('div', { class: 'px-grid', style: { gap: '13px' } }, [
       sideSeg,
-      el('div', { class: 'wp-field' }, [
+      el('div', { class: 'px-field' }, [
         el('label', { text: `Margin (${usdg(state.wallet.balance)} available)` }),
-        el('div', { class: 'wp-input-unit' }, [marginInput, el('span', { class: 'wp-unit', text: VENUE.settle })]),
+        el('div', { class: 'px-input-unit' }, [marginInput, el('span', { class: 'px-unit', text: VENUE.settle })]),
         quick,
       ]),
-      el('div', { class: 'wp-field' }, [
+      el('div', { class: 'px-field' }, [
         el('label', {}, [el('span', { text: 'Leverage ' }), levLabel]),
         levInput,
-        el('div', { class: 'wp-range-marks' }, ['1x', '2x', '3x', '4x', '5x'].map(x => el('span', { text: x }))),
+        el('div', { class: 'px-range-marks' }, ['1x', '2x', '3x', '4x', '5x'].map(x => el('span', { text: x }))),
       ]),
       summary,
       problem,
@@ -602,11 +602,11 @@ export function createView(seedId) {
     equalise();
   }
 
-  const wrap = el('div', { class: 'wp-grid' });
-  const legsBox = el('div', { class: 'wp-grid', style: { gap: '8px' } });
-  const pickerBox = el('div', { class: 'wp-picker' });
-  const preview = el('div', { class: 'wp-grid' });
-  const totalLine = el('div', { class: 'wp-hint' });
+  const wrap = el('div', { class: 'px-grid' });
+  const legsBox = el('div', { class: 'px-grid', style: { gap: '8px' } });
+  const pickerBox = el('div', { class: 'px-picker' });
+  const preview = el('div', { class: 'px-grid' });
+  const totalLine = el('div', { class: 'px-hint' });
   let pickerTab = 'stock';
   let pickerQuery = '';
 
@@ -632,15 +632,15 @@ export function createView(seedId) {
   }
 
   const symbolInput = el('input', {
-    class: 'wp-input num', maxlength: '12', placeholder: 'MYBASKET', value: draft.symbol,
+    class: 'px-input num', maxlength: '12', placeholder: 'MYBASKET', value: draft.symbol,
     on: { input: () => { draft.symbol = symbolInput.value = symbolInput.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); renderPreview(); } },
   });
   const nameInput = el('input', {
-    class: 'wp-input', maxlength: '48', placeholder: 'My metals basket', value: draft.name,
+    class: 'px-input', maxlength: '48', placeholder: 'My metals basket', value: draft.name,
     on: { input: () => { draft.name = nameInput.value; renderPreview(); } },
   });
   const noteInput = el('input', {
-    class: 'wp-input', maxlength: '120', placeholder: 'What idea this basket expresses (optional)', value: draft.note,
+    class: 'px-input', maxlength: '120', placeholder: 'What idea this basket expresses (optional)', value: draft.note,
     on: { input: () => { draft.note = noteInput.value; } },
   });
 
@@ -648,22 +648,22 @@ export function createView(seedId) {
     legsBox.replaceChildren(...(draft.legs.length ? draft.legs.map(l => {
       const a = getAsset(l.id);
       const w = el('input', {
-        class: 'wp-input num wp-leg-w', type: 'number', min: '0.1', max: '100', step: '0.1', value: String(l.weight),
+        class: 'px-input num px-leg-w', type: 'number', min: '0.1', max: '100', step: '0.1', value: String(l.weight),
         on: { input: () => { l.weight = Number(w.value); renderPreview(); } },
       });
-      return el('div', { class: 'wp-leg' }, [
+      return el('div', { class: 'px-leg' }, [
         markEl(a, 30),
         el('div', { style: { flex: '1', minWidth: '0' } }, [
-          el('div', { class: 'wp-ident-name', text: a.short }),
-          el('div', { class: 'wp-ident-sub' }, [symPill(a), el('span', { text: CLASSES[a.class]?.label })]),
+          el('div', { class: 'px-ident-name', text: a.short }),
+          el('div', { class: 'px-ident-sub' }, [symPill(a), el('span', { text: CLASSES[a.class]?.label })]),
         ]),
         w,
         el('span', { class: 'dim', text: '%' }),
-        el('button', { class: 'wp-leg-x', type: 'button', text: '×', title: `Remove ${a.short}`, on: { click: () => removeLeg(l.id) } }),
+        el('button', { class: 'px-leg-x', type: 'button', text: '×', title: `Remove ${a.short}`, on: { click: () => removeLeg(l.id) } }),
       ]);
     }) : [note(`Pick between ${VENUE.minLegs} and ${VENUE.maxLegs} assets from the list below. You can mix stocks, metals, crypto and ETFs in the same basket.`)]));
     const tt = total();
-    totalLine.className = `wp-hint ${Math.abs(tt - 100) > 0.01 ? 'wp-error' : ''}`;
+    totalLine.className = `px-hint ${Math.abs(tt - 100) > 0.01 ? 'px-error' : ''}`;
     totalLine.textContent = `${draft.legs.length} of ${VENUE.maxLegs} assets · weights add up to ${num(tt, 1)}%` +
       (Math.abs(tt - 100) > 0.01 ? ', and they have to add up to 100%' : '');
   }
@@ -675,11 +675,11 @@ export function createView(seedId) {
     pickerBox.replaceChildren(...(list.length ? list.map(a => {
       const on = draft.legs.some(l => l.id === a.id);
       return el('button', {
-        class: `wp-chip ${on ? 'is-on' : ''}`, type: 'button',
+        class: `px-chip ${on ? 'is-on' : ''}`, type: 'button',
         disabled: !on && draft.legs.length >= VENUE.maxLegs,
         on: { click: () => (on ? removeLeg(a.id) : addLeg(a.id)) },
       }, [markEl(a, 20), el('span', { text: a.short }), el('span', { class: 'dim num', style: { fontSize: '11px' }, text: a.symbol })]);
-    }) : [el('span', { class: 'wp-hint', text: 'Nothing matches that search in this class.' })]));
+    }) : [el('span', { class: 'px-hint', text: 'Nothing matches that search in this class.' })]));
   }
 
   function renderPreview() {
@@ -701,10 +701,10 @@ export function createView(seedId) {
           el('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } }, [
             el('span', { class: 'num', style: { fontSize: '22px', fontWeight: '650' }, text: auto(last) }),
             changePill(last ? last - VENUE.indexBase : 0),
-            el('span', { class: 'wp-hint', text: 'over 30 days, from base 100' }),
+            el('span', { class: 'px-hint', text: 'over 30 days, from base 100' }),
           ]),
         ]),
-        el('div', { class: 'wp-chart sm' }, [
+        el('div', { class: 'px-chart sm' }, [
           (() => {
             const c = el('canvas');
             requestAnimationFrame(() => sparkline(c, rows, indexColor(legs)));
@@ -718,11 +718,11 @@ export function createView(seedId) {
     }
 
     if (!check.ok && draft.legs.length) {
-      kids.push(el('ul', { class: 'wp-errors' }, check.errors.map(e => el('li', { text: e }))));
+      kids.push(el('ul', { class: 'px-errors' }, check.errors.map(e => el('li', { text: e }))));
     }
 
     kids.push(el('button', {
-      class: 'wp-btn block', type: 'button', text: 'List the index', disabled: !check.ok,
+      class: 'px-btn block', type: 'button', text: 'List the index', disabled: !check.ok,
       on: { click: () => {
         const r = listIndex(draft);
         if (!r.ok) return toast(r.error, 'bad');
@@ -738,37 +738,37 @@ export function createView(seedId) {
 
   const renderAll = () => { renderLegs(); renderPicker(); renderPreview(); };
 
-  const tabBar = el('div', { class: 'wp-seg' }, ['stock', 'metal', 'crypto', 'etf'].map(id =>
+  const tabBar = el('div', { class: 'px-seg' }, ['stock', 'metal', 'crypto', 'etf'].map(id =>
     el('button', {
       type: 'button', text: CLASSES[id].plural, class: id === pickerTab ? 'is-on' : '',
       on: { click: (ev) => { pickerTab = id; [...tabBar.children].forEach(b => b.classList.remove('is-on')); ev.currentTarget.classList.add('is-on'); renderPicker(); } },
     })));
   const pickerSearch = el('input', {
-    class: 'wp-input', placeholder: 'Filter within this class', type: 'search',
+    class: 'px-input', placeholder: 'Filter within this class', type: 'search',
     on: { input: () => { pickerQuery = pickerSearch.value; renderPicker(); } },
   });
 
   wrap.append(
     head('Create index', `A fixed-weight basket of ${VENUE.minLegs} to ${VENUE.maxLegs} assets. You list it, anyone can trade it, and you keep ${Math.round(VENUE.creatorShare * 100)}% of the fees.`, null),
-    el('div', { class: 'wp-split' }, [
-      el('div', { class: 'wp-grid' }, [
+    el('div', { class: 'px-split' }, [
+      el('div', { class: 'px-grid' }, [
         card({
           title: "The index's identity",
-          body: el('div', { class: 'wp-grid cols-2', style: { gap: '13px' } }, [
-            el('div', { class: 'wp-field' }, [el('label', { text: 'Symbol' }), symbolInput, el('span', { class: 'wp-hint', text: '3 to 12 letters or digits' })]),
-            el('div', { class: 'wp-field' }, [el('label', { text: 'Name' }), nameInput]),
-            el('div', { class: 'wp-field', style: { gridColumn: '1 / -1' } }, [el('label', { text: 'Description' }), noteInput]),
+          body: el('div', { class: 'px-grid cols-2', style: { gap: '13px' } }, [
+            el('div', { class: 'px-field' }, [el('label', { text: 'Symbol' }), symbolInput, el('span', { class: 'px-hint', text: '3 to 12 letters or digits' })]),
+            el('div', { class: 'px-field' }, [el('label', { text: 'Name' }), nameInput]),
+            el('div', { class: 'px-field', style: { gridColumn: '1 / -1' } }, [el('label', { text: 'Description' }), noteInput]),
           ]),
         }),
         card({
           title: 'The basket',
-          actions: el('button', { class: 'wp-btn sm quiet', type: 'button', text: 'Equal weights', on: { click: () => { equalise(); renderAll(); } } }),
-          body: el('div', { class: 'wp-grid', style: { gap: '10px' } }, [legsBox, totalLine]),
+          actions: el('button', { class: 'px-btn sm quiet', type: 'button', text: 'Equal weights', on: { click: () => { equalise(); renderAll(); } } }),
+          body: el('div', { class: 'px-grid', style: { gap: '10px' } }, [legsBox, totalLine]),
         }),
         card({
           title: 'Add assets',
           note: 'Stocks, metals, crypto and ETFs in the same basket',
-          body: el('div', { class: 'wp-grid', style: { gap: '11px' } }, [tabBar, pickerSearch, pickerBox]),
+          body: el('div', { class: 'px-grid', style: { gap: '11px' } }, [tabBar, pickerSearch, pickerBox]),
         }),
       ]),
       card({ title: 'Preview', body: preview }),
@@ -789,13 +789,13 @@ export function portfolioView() {
     const legs = ix ? indexLegs(ix) : [];
     return el('tr', {}, [
       el('td', { class: 'wide' }, [ix ? indexIdent(ix, legs) : el('span', { class: 'dim', text: 'Index delisted' })]),
-      el('td', {}, [el('span', { class: `wp-pill ${h.side === 'long' ? 'up' : 'down'}`, text: `${h.side === 'long' ? 'Long' : 'Short'} ${lev(h.leverage)}` })]),
+      el('td', {}, [el('span', { class: `px-pill ${h.side === 'long' ? 'up' : 'down'}`, text: `${h.side === 'long' ? 'Long' : 'Short'} ${lev(h.leverage)}` })]),
       el('td', { class: 'num', text: auto(h.entry) }),
       el('td', { class: 'num', text: auto(h.exit) }),
       el('td', { class: 'num dim', text: usdg(h.feesTotal) }),
       el('td', { class: 'num dim', text: usdg(-h.fundingTotal, { sign: true }) }),
       el('td', { class: `num ${dir(h.pnl)}`, text: usdg(h.pnl, { sign: true }) }),
-      el('td', {}, [el('span', { class: `wp-pill ${h.reason === 'liquidation' ? 'down' : ''}`, text: h.reason === 'liquidation' ? 'Liquidated' : 'Closed' })]),
+      el('td', {}, [el('span', { class: `px-pill ${h.reason === 'liquidation' ? 'down' : ''}`, text: h.reason === 'liquidation' ? 'Liquidated' : 'Closed' })]),
       el('td', { class: 'dim', text: ago(h.closedAt) }),
     ]);
   });
@@ -804,7 +804,7 @@ export function portfolioView() {
     head('Portfolio', 'Balance, committed margin and result. The open result is recomputed from price, never stored.', [
       primaryBtn('See the market', () => go('#/market'), 'ghost'),
     ]),
-    el('div', { class: 'wp-grid cols-4' }, [
+    el('div', { class: 'px-grid cols-4' }, [
       stat('Equity', usdg(acc.equity), { sub: 'Available + margin + open' }),
       stat('Available', usdg(acc.balance)),
       stat('Committed margin', usdg(acc.marginUsed), { sub: `${acc.open} ${acc.open === 1 ? 'position' : 'positions'}` }),
@@ -850,11 +850,11 @@ export function creatorView() {
       el('td', { class: 'dim', text: ago(ix.listedAt) }),
       el('td', {}, [el('div', { style: { display: 'flex', gap: '6px', justifyContent: 'flex-end' } }, [
         el('button', {
-          class: 'wp-btn sm', type: 'button', text: 'Claim', disabled: due <= 0,
+          class: 'px-btn sm', type: 'button', text: 'Claim', disabled: due <= 0,
           on: { click: () => { const r = claimFees(ix.id); toast(r.ok ? `Claimed ${usdg(r.claimed)}` : r.error, r.ok ? 'good' : 'bad'); } },
         }),
         el('button', {
-          class: 'wp-btn sm ghost', type: 'button', text: 'Delist',
+          class: 'px-btn sm ghost', type: 'button', text: 'Delist',
           on: { click: () => { const r = delistIndex(ix.id); toast(r.ok ? 'Index delisted' : r.error, r.ok ? '' : 'bad'); } },
         }),
       ])]),
@@ -865,7 +865,7 @@ export function creatorView() {
     head('My indices', `What you have listed yourself. Of every fee a trade on one of your indices pays, ${Math.round(VENUE.creatorShare * 100)}% accrues here until you claim it.`, [
       primaryBtn('Create index', () => go('#/create')),
     ]),
-    el('div', { class: 'wp-grid cols-3' }, [
+    el('div', { class: 'px-grid cols-3' }, [
       stat('Indices listed', String(mine.length)),
       stat('Fees generated', usdg(totalEarned), { sub: `${Math.round(VENUE.creatorShare * 100)}% of every trade` }),
       stat('Pending to claim', usdg(totalPending), { cls: totalPending > 0 ? 'up' : '' }),

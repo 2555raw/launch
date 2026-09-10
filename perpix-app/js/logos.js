@@ -89,7 +89,7 @@ function symbolTile(el, asset, text, size) {
   el.style.color = inkOn(asset.color);
   el.style.fontSize = symbolType(text, size) + 'px';
   el.append(Object.assign(document.createElement('span'), {
-    className: 'wp-mark-txt', textContent: text,
+    className: 'px-mark-txt', textContent: text,
   }));
   return el;
 }
@@ -108,7 +108,7 @@ function embeddedMark(asset) {
   svg.setAttribute('viewBox', m.box);
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
-  svg.classList.add('wp-mark-svg');
+  svg.classList.add('px-mark-svg');
   if (m.tint) svg.setAttribute('fill', m.tint);
   else if (m.mono) svg.setAttribute('color', asset.color);   // the set draws with currentColor
   svg.innerHTML = m.body;
@@ -140,7 +140,7 @@ export function markProvenance(asset) {
 /** The asset's mark. Returns an element ready to insert. */
 export function markEl(asset, size = 36) {
   const el = document.createElement('span');
-  el.className = 'wp-mark';
+  el.className = 'px-mark';
   el.style.width = el.style.height = size + 'px';
   el.style.setProperty('--brand', asset?.color || '#8A94A6');
   el.title = asset?.name || '';
@@ -167,7 +167,7 @@ export function markEl(asset, size = 36) {
   if (!sources.length) return el;
 
   const img = document.createElement('img');
-  img.className = 'wp-mark-img';
+  img.className = 'px-mark-img';
   img.alt = `${asset?.name || ''} logo`;
   img.loading = 'lazy';
   img.decoding = 'async';
@@ -185,8 +185,8 @@ export function markEl(asset, size = 36) {
     el.classList.remove('is-symbol', 'is-svg');
     el.style.padding = '0';
     el.style.background = '#fff';
-    el.querySelector('.wp-mark-txt')?.remove();
-    el.querySelector('.wp-mark-svg')?.remove();
+    el.querySelector('.px-mark-txt')?.remove();
+    el.querySelector('.px-mark-svg')?.remove();
   });
   img.addEventListener('error', () => { failed.add(img.src); tryNext(); });
   el.append(img);
@@ -197,7 +197,7 @@ export function markEl(asset, size = 36) {
 /** Overlapping stack of marks: how a basket reads at a glance. */
 export function markStack(assets, size = 28) {
   const el = document.createElement('span');
-  el.className = 'wp-stack';
+  el.className = 'px-stack';
   (assets || []).forEach((a, i) => {
     const m = markEl(a, size);
     m.style.zIndex = String(20 - i);

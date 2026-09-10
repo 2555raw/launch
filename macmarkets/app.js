@@ -1147,7 +1147,7 @@
       case "folio": openFolio(); break;
       case "game": openGame(); break;
       case "scores": openScores(); break;
-      case "x": window.open("https://x.com", "_blank", "noopener"); break;
+      case "x": window.open("https://x.com/useMarketDesk", "_blank", "noopener"); break;
     }
   }
 

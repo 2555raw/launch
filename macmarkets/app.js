@@ -265,6 +265,7 @@
     $$(".card").forEach(function (c) { c.classList.toggle("on", c.dataset.sym === sym); });
     $$("#rows tr").forEach(function (r) { r.classList.toggle("on", r.dataset.sym === sym); });
     $$("#heat button").forEach(function (t) { t.classList.toggle("on", t.dataset.sym === sym); });
+    paintHeroPosition();
     renderHero(animate !== false);
   }
 
@@ -543,6 +544,7 @@
       row.querySelector(".row-spark").innerHTML = sparkSVG(a, 84, 26);
     }
     repaintHeatTile(a);
+    if (folioModal.style.display !== "none" && !folioModal.classList.contains("gone")) renderFolio();
     if (current && a.sym === current.sym) renderHero(false);
   }
 
@@ -694,6 +696,7 @@
     paintWalletButton();
     renderWallet();
     refreshBalance();
+    loadBook();
   }
 
   function connect() {
@@ -718,6 +721,7 @@
 
   function disconnect() {
     wallet = { address: null, chain: null, balance: null };
+    loadBook();
     paintWalletButton();
     renderWallet();
     walletNote.textContent = "Disconnected here. Your wallet may still list this site under its connections.";
@@ -799,6 +803,210 @@
     setTimeout(function () { agree.focus(); }, 260);
   }
   $("#dockTerms").addEventListener("click", openModal);
+
+  /* ------------------------------------------------------------------ book */
+
+  // A paper book. The quotes are generated in the browser, so a fill records
+  // what you would have done; it is kept locally, per connected address, and
+  // never touches a balance.
+  var book = { positions: {}, fills: [], realized: 0 };
+  var ticketSide = "buy";
+
+  var tradeModal = $("#tradeModal"), folioModal = $("#folioModal");
+  var folioDock = $("#folioDock"), folioDockDot = $("#folioDockDot");
+
+  function bookKey() { return "markets.book." + (wallet.address || "guest"); }
+
+  function loadBook() {
+    var raw = read(bookKey());
+    try { book = raw ? JSON.parse(raw) : { positions: {}, fills: [], realized: 0 }; }
+    catch (e) { book = { positions: {}, fills: [], realized: 0 }; }
+    if (!book.positions) book.positions = {};
+    if (!book.fills) book.fills = [];
+    if (typeof book.realized !== "number") book.realized = 0;
+    paintBook();
+  }
+  function saveBook() { write(bookKey(), JSON.stringify(book)); }
+
+  function positionOf(sym) { return book.positions[sym] || null; }
+  function heldQty(sym) { var p = positionOf(sym); return p ? p.qty : 0; }
+
+  function marketValue() {
+    return Object.keys(book.positions).reduce(function (sum, sym) {
+      var a = byId(sym);
+      return sum + (a ? a.price * book.positions[sym].qty : 0);
+    }, 0);
+  }
+  function openPnl() {
+    return Object.keys(book.positions).reduce(function (sum, sym) {
+      var a = byId(sym), p = book.positions[sym];
+      return sum + (a ? (a.price - p.avg) * p.qty : 0);
+    }, 0);
+  }
+  // Aggregates are dollars, so they keep two decimals whatever the unit price does.
+  function dollars(v) {
+    return v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function signed(v) { return (v >= 0 ? "+$" : "−$") + dollars(Math.abs(v)); }
+
+  /* ---- ticket ---- */
+
+  function openTicket(side) {
+    if (!wallet.address) { openWallet(); toast("Connect a wallet to trade this book."); return; }
+    ticketSide = side;
+    var a = byId(state.selected);
+    $("#tradeTitle").textContent = (side === "buy" ? "Buy " : "Sell ") + a.sym;
+    $("#ticketAsset").textContent = a.sym + " · " + a.name;
+    $("#ticketPrice").textContent = money(a.price);
+    $("#ticketAccount").textContent = shortAddr(wallet.address);
+    $("#ticketHeld").textContent = heldQty(a.sym) ? heldQty(a.sym) + " @ " + money(positionOf(a.sym).avg) : "nothing yet";
+    $("#tradeSubmit").textContent = side === "buy" ? "Fill buy" : "Fill sell";
+    $("#tradeNote").hidden = true;
+    $("#ticketQty").value = side === "sell" && heldQty(a.sym) ? heldQty(a.sym) : 1;
+    paintNotional();
+    tradeModal.style.display = "";
+    tradeModal.classList.remove("gone");
+    setTimeout(function () { $("#ticketQty").focus(); }, 240);
+  }
+
+  function closeTicket() {
+    tradeModal.classList.add("gone");
+    setTimeout(function () { tradeModal.style.display = "none"; }, 420);
+  }
+
+  function paintNotional() {
+    var a = byId(state.selected);
+    var qty = parseFloat($("#ticketQty").value) || 0;
+    $("#ticketNotional").textContent = "$" + dollars(qty * a.price);
+  }
+
+  function fillOrder() {
+    var a = byId(state.selected);
+    var qty = parseFloat($("#ticketQty").value);
+    var note = $("#tradeNote");
+
+    if (!qty || qty <= 0) { note.textContent = "Enter a quantity above zero."; note.hidden = false; return; }
+    if (ticketSide === "sell" && qty > heldQty(a.sym) + 1e-9) {
+      note.textContent = "You hold " + heldQty(a.sym) + " " + a.sym + ". This book does not go short.";
+      note.hidden = false;
+      return;
+    }
+
+    var pos = positionOf(a.sym);
+    if (ticketSide === "buy") {
+      var newQty = (pos ? pos.qty : 0) + qty;
+      var newAvg = pos ? (pos.avg * pos.qty + a.price * qty) / newQty : a.price;
+      book.positions[a.sym] = { qty: newQty, avg: newAvg };
+    } else {
+      book.realized += (a.price - pos.avg) * qty;
+      var left = pos.qty - qty;
+      if (left <= 1e-9) delete book.positions[a.sym];
+      else book.positions[a.sym] = { qty: left, avg: pos.avg };
+    }
+
+    book.fills.unshift({
+      t: Date.now(), side: ticketSide, sym: a.sym, qty: qty, price: a.price
+    });
+    book.fills = book.fills.slice(0, 60);
+    saveBook();
+    paintBook();
+    closeTicket();
+    toast((ticketSide === "buy" ? "Bought " : "Sold ") + qty + " " + a.sym + " at " + money(a.price) + ".");
+  }
+
+  /* ---- portfolio ---- */
+
+  function paintBook() {
+    var count = Object.keys(book.positions).length;
+    $("#folioCount").textContent = count || "";
+    folioDockDot.hidden = !count;
+    paintHeroPosition();
+    if (folioModal.style.display !== "none" && !folioModal.classList.contains("gone")) renderFolio();
+  }
+
+  function paintHeroPosition() {
+    var held = heldQty(state.selected);
+    var pos = positionOf(state.selected);
+    $("#heroPosition").textContent = held
+      ? "holding " + held + " @ " + money(pos.avg)
+      : (wallet.address ? "" : "connect a wallet to trade");
+  }
+
+  function renderFolio() {
+    $("#folioAccount").textContent = wallet.address ? shortAddr(wallet.address) + " · paper book" : "Not connected";
+
+    var value = marketValue(), open = openPnl();
+    $("#folioStats").innerHTML = [
+      ["Positions", Object.keys(book.positions).length],
+      ["Market value", "$" + dollars(value)],
+      ["Open P&L", signed(open)],
+      ["Realised", signed(book.realized)]
+    ].map(function (row) {
+      return '<dl class="class-stat"><dt>' + row[0] + "</dt><dd>" + row[1] + "</dd></dl>";
+    }).join("");
+
+    var syms = Object.keys(book.positions);
+    $("#folioRows").innerHTML = syms.length ? syms.map(function (sym) {
+      var a = byId(sym), p = book.positions[sym];
+      var pnl = (a.price - p.avg) * p.qty;
+      return "<tr>" +
+        '<td><span class="row-sym"><span class="asset-badge xs">' + sym.slice(0, 3) + "</span>" + sym + "</span></td>" +
+        '<td class="num">' + (+p.qty.toFixed(4)) + "</td>" +
+        '<td class="num">' + money(p.avg) + "</td>" +
+        '<td class="num">' + money(a.price) + "</td>" +
+        '<td class="num">$' + dollars(a.price * p.qty) + "</td>" +
+        '<td class="num ' + (pnl >= 0 ? "up" : "down") + '">' + signed(pnl) + "</td>" +
+        "</tr>";
+    }).join("") : '<tr><td colspan="6" class="folio-empty">No positions yet. Pick an asset and press Buy.</td></tr>';
+
+    $("#blotterRows").innerHTML = book.fills.length ? book.fills.slice(0, 12).map(function (f) {
+      var d = new Date(f.t);
+      return "<tr>" +
+        "<td>" + d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) + "</td>" +
+        '<td class="' + (f.side === "buy" ? "up" : "down") + '">' + (f.side === "buy" ? "Buy" : "Sell") + "</td>" +
+        "<td>" + f.sym + "</td>" +
+        '<td class="num">' + (+f.qty.toFixed(4)) + "</td>" +
+        '<td class="num">' + money(f.price) + "</td>" +
+        '<td class="num">$' + dollars(f.qty * f.price) + "</td>" +
+        "</tr>";
+    }).join("") : '<tr><td colspan="6" class="folio-empty">Nothing filled yet.</td></tr>';
+  }
+
+  function openFolio() {
+    renderFolio();
+    folioModal.style.display = "";
+    folioModal.classList.remove("gone");
+  }
+  function closeFolio() {
+    folioModal.classList.add("gone");
+    setTimeout(function () { folioModal.style.display = "none"; }, 420);
+  }
+
+  $$(".trade-bar [data-side]").forEach(function (b) {
+    b.addEventListener("click", function () { openTicket(b.dataset.side); });
+  });
+  $("#ticketQty").addEventListener("input", paintNotional);
+  $$("#ticketQuick button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = byId(state.selected);
+      $("#ticketQty").value = b.dataset.qty === "max"
+        ? (ticketSide === "sell" ? heldQty(a.sym) || 1 : Math.max(1, Math.floor(10000 / a.price)))
+        : b.dataset.qty;
+      paintNotional();
+    });
+  });
+  $("#tradeCancel").addEventListener("click", closeTicket);
+  $("#tradeSubmit").addEventListener("click", fillOrder);
+  folioDock.addEventListener("click", openFolio);
+  $("#folioSide").addEventListener("click", openFolio);
+  $("#folioClose").addEventListener("click", closeFolio);
+  $("#folioClear").addEventListener("click", function () {
+    book = { positions: {}, fills: [], realized: 0 };
+    saveBook();
+    paintBook();
+    renderFolio();
+    toast("Book cleared.");
+  });
 
   /* ------------------------------------------------------------------ menus */
 
@@ -905,7 +1113,7 @@
       ["D", "Switch appearance"],
       ["R", "Refresh quotes"],
       ["C", "Copy the shown quote"],
-      ["W", "Wallet"], ["T", "Terms"], ["G", "Ticker Drop"],
+      ["W", "Wallet"], ["B", "Portfolio"], ["T", "Terms"], ["G", "Ticker Drop"],
       ["Esc", "Close what is open"]
     ];
     return '<div class="wallet-list">' + keys.map(function (k) {
@@ -935,6 +1143,7 @@
       case "range": setRange(parts[1]); break;
       case "next": feature(state.filter); break;
       case "go": goTo(parts[1]); break;
+      case "folio": openFolio(); break;
       case "game": openGame(); break;
       case "x": window.open("https://x.com", "_blank", "noopener"); break;
     }
@@ -1199,6 +1408,8 @@
       if (gameOpen()) return closeGame();
       if (menusOpen()) return closeMenus();
       if (sheetOpen(infoModal)) return $("#infoClose").click();
+      if (sheetOpen(tradeModal)) return closeTicket();
+      if (sheetOpen(folioModal)) return closeFolio();
       if (sheetOpen(walletModal)) return $("#walletClose").click();
       return;
     }
@@ -1222,7 +1433,8 @@
       return;
     }
 
-    if (sheetOpen(infoModal) || sheetOpen(walletModal) || sheetOpen(modal)) return;
+    if (sheetOpen(infoModal) || sheetOpen(walletModal) || sheetOpen(modal) ||
+        sheetOpen(tradeModal) || sheetOpen(folioModal)) return;
 
     var k = e.key.toLowerCase();
     var byNumber = { "1": "all", "2": "stock", "3": "crypto", "4": "etf", "5": "commodity" };
@@ -1233,6 +1445,7 @@
     if (k === "w") return openWallet();
     if (k === "t") return openModal();
     if (k === "g") return openGame();
+    if (k === "b") return openFolio();
     if (e.key === "]") return feature(state.filter);
     if (e.key === "?") return run("shortcuts");
     if (e.key === "/") { e.preventDefault(); $("#search").focus(); }
@@ -1243,6 +1456,7 @@
   drawGrid();
   markSorted();
   renderHeat();
+  loadBook();
 
   var opening = hashFilter();
   if (opening) {

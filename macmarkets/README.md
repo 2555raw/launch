@@ -41,6 +41,11 @@ It shares nothing with the other folders in this repository.
   and take their colour from the asset class, a ghost shows where it lands, and
   filling a row books P&L that scales with the level. Arrow keys, space to drop,
   P to pause, and on-screen buttons at phone width.
+- **Paper trading.** With a wallet connected, Buy and Sell on the chart open an
+  order ticket; fills build positions with an average price, open and realised
+  P&L and a blotter, in a Portfolio window opened from the dock, the sidebar or
+  the Window menu. The book is kept in the browser under the connected address.
+  Quotes are simulated, so no money moves and no transaction is ever proposed.
 - **X icon** in the menu bar, the sidebar, the dock and the footer.
 - **Light and dark appearance,** toggled from the menu bar or the dock and
   remembered between visits. Follows the system setting on a first visit.

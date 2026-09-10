@@ -1,0 +1,472 @@
+/* Warp — sistema de diseno.
+
+   El fondo es blanco y se queda blanco. Sobre el blanco, el unico color con
+   peso es el de las marcas: el logo real de cada activo y su color de marca son
+   lo que distingue una fila de otra, asi que el resto de la interfaz se aparta.
+   Por eso las superficies son blancas o casi, la estructura es una linea fina y
+   el color semantico esta reservado a la direccion del movimiento y al lado de
+   una posicion.
+
+   Los numeros van siempre en monoespaciada tabular, para que una columna se
+   pueda leer de arriba abajo sin que los digitos se muevan. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: light; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: #FFFFFF; }
+
+/* Los tokens viven en :root, no en .wp, porque hay piezas que se montan
+   directamente en body (los avisos flotantes) y tienen que poder leerlos. */
+:root {
+  /* ground: blanco, y un gris de apoyo apenas perceptible para hundir cajas */
+  --bg: #FFFFFF;
+  --panel: #FFFFFF;
+  --sunken: #F7F8FA;
+  --sunken-2: #F1F3F6;
+  /* tinta */
+  --ink: #0E1116;
+  --ink-2: #303845;
+  --muted: #5C6673;
+  --dim: #98A1AE;
+  /* estructura */
+  --line: #E6E9EE;
+  --line-2: #D5DAE2;
+  /* un solo acento funcional: lo que se puede pulsar */
+  --accent: #1F58F5;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #EDF2FE;
+  /* direccion del movimiento y lado de la posicion, nunca decoracion */
+  --up: #0E9F6E;
+  --up-soft: #E6F6EF;
+  --down: #D8342A;
+  --down-soft: #FDECEB;
+  --warn: #B4690E;
+  --warn-soft: #FDF3E4;
+
+  --r: 10px;
+  --r-lg: 14px;
+  --shadow: 0 1px 2px rgba(16,22,32,.04), 0 8px 24px -16px rgba(16,22,32,.16);
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.wp {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+/* hidden tiene que ganarle a cualquier display propio del componente. */
+[hidden] { display: none !important; }
+button { font: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.up { color: var(--up); } .down { color: var(--down); } .flat { color: var(--muted); }
+.dim { color: var(--dim); } .muted { color: var(--muted); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------------- barra lateral ---------------- */
+.wp-side {
+  border-right: 1px solid var(--line);
+  padding: 16px 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: sticky; top: 0; height: 100vh;
+  background: var(--bg);
+}
+.wp-brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
+.wp-brand-mark { width: 28px; height: 28px; flex: none; }
+.wp-brand-name { font-weight: 650; font-size: 15.5px; letter-spacing: -.02em; }
+.wp-brand-sub { display: block; font-size: 11px; font-weight: 450; color: var(--dim); letter-spacing: 0; }
+
+.wp-nav { display: flex; flex-direction: column; gap: 2px; }
+.wp-nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 13.5px; font-weight: 500; color: var(--muted);
+  transition: background .14s, color .14s;
+}
+.wp-nav a:hover { background: var(--sunken); color: var(--ink); }
+.wp-nav a.is-active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.wp-nav svg { width: 16px; height: 16px; flex: none; }
+.wp-nav-count {
+  margin-left: auto; font-family: var(--mono); font-size: 11px;
+  background: var(--sunken-2); color: var(--muted); border-radius: 20px; padding: 1px 7px;
+}
+.wp-nav a.is-active .wp-nav-count { background: #fff; color: var(--accent); }
+
+.wp-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.wp-equity {
+  border: 1px solid var(--line); border-radius: var(--r); padding: 10px 11px;
+  display: grid; gap: 2px;
+}
+.wp-equity dt { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+.wp-equity dd { margin: 0; font-family: var(--mono); font-size: 15px; font-weight: 600; }
+.wp-equity-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
+.wp-side-links { display: flex; align-items: center; gap: 6px; }
+
+/* El simbolo de X. Todavia no lleva enlace, y por eso no es un enlace: es un
+   boton que dice que aun no hay destino, en lugar de un ancla que no va a
+   ninguna parte. */
+.wp-x {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center; cursor: pointer;
+  background: none; border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink); transition: background .14s, border-color .14s;
+}
+.wp-x:hover { background: var(--sunken); border-color: var(--line-2); }
+.wp-x svg { width: 15px; height: 15px; fill: currentColor; }
+.wp-ghost-btn {
+  flex: 1; text-align: left; cursor: pointer; color: var(--muted); font-size: 12px;
+  background: none; border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px;
+  transition: color .14s, border-color .14s;
+}
+.wp-ghost-btn:hover { color: var(--ink); border-color: var(--line-2); }
+
+/* ---------------- cabecera ---------------- */
+.wp-main { display: flex; flex-direction: column; min-width: 0; }
+.wp-top {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 24px;
+  background: rgba(255,255,255,.86); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+/* min-width 0 para que el buscador ceda ancho al aviso de la derecha en vez de
+   empujar la cabecera fuera de la pantalla. */
+.wp-search { position: relative; flex: 1 1 0; min-width: 0; max-width: 540px; }
+.wp-search-box {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--sunken); border: 1px solid transparent; border-radius: 9px; padding: 0 11px;
+  transition: background .14s, border-color .14s;
+}
+.wp-search-box:focus-within { background: #fff; border-color: var(--accent); }
+.wp-search-box svg { width: 15px; height: 15px; color: var(--dim); flex: none; }
+.wp-search input {
+  flex: 1; min-width: 0; border: 0; background: none; outline: none;
+  font: inherit; font-size: 13.5px; color: var(--ink); padding: 9px 0;
+}
+.wp-search input::placeholder { color: var(--dim); }
+.wp-search kbd {
+  font-family: var(--mono); font-size: 10.5px; color: var(--dim);
+  border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; background: #fff;
+}
+.wp-results {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 50;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow); padding: 5px; max-height: 62vh; overflow: auto;
+}
+.wp-res {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 8px 9px; border-radius: 8px; cursor: pointer;
+  background: none; border: 0; text-align: left;
+}
+.wp-res:hover, .wp-res.is-on { background: var(--sunken); }
+.wp-res-label { font-size: 13.5px; font-weight: 550; }
+.wp-res-sub { font-size: 11.5px; color: var(--muted); }
+.wp-res-sym { margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
+.wp-res-empty { padding: 14px 10px; font-size: 13px; color: var(--muted); }
+
+.wp-top-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex: none; }
+/* El aviso de que el precio es simulado esta en la cabecera de todas las
+   pantallas, no en la letra pequena. */
+.wp-sim {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11.5px; font-weight: 550; color: var(--warn);
+  background: var(--warn-soft); border: 1px solid #F2DFC0;
+  border-radius: 20px; padding: 5px 11px;
+}
+.wp-sim-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); flex: none; }
+.wp-sim-short { display: none; }
+.wp-clock { font-family: var(--mono); font-size: 12px; color: var(--dim); }
+
+/* ---------------- vista ---------------- */
+.wp-view { padding: 22px 24px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-content: start; }
+.wp-foot {
+  padding: 14px 24px 22px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between;
+  font-size: 11.5px; color: var(--dim);
+}
+
+.wp-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 18px; }
+.wp-head > div { min-width: 0; }
+.wp-head h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.025em; }
+.wp-head p { margin: 3px 0 0; font-size: 13.5px; color: var(--muted); max-width: 64ch; }
+.wp-head-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+.wp-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.wp-card-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px; border-bottom: 1px solid var(--line);
+}
+.wp-card-head h2 { margin: 0; font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; }
+.wp-card-head .wp-card-note { font-size: 11.5px; color: var(--dim); margin-left: auto; text-align: right; }
+.wp-card-head .wp-ranges { margin-left: 10px; }
+.wp-card-body { padding: 16px; }
+.wp-card-body.tight { padding: 0; }
+
+.wp-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.wp-grid > * { min-width: 0; }
+/* min(Npx, 100%) y no Npx a secas: en una pantalla mas estrecha que la columna
+   minima, auto-fit la respetaria y desbordaria la pagina. */
+.wp-grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+.wp-grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); }
+.wp-grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }
+.wp-split { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 336px; align-items: start; }
+
+/* ---------------- cifras ---------------- */
+.wp-stat { border: 1px solid var(--line); border-radius: var(--r); padding: 13px 14px; background: var(--panel); }
+.wp-stat dt { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 5px; }
+.wp-stat dd { margin: 0; font-family: var(--mono); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+.wp-stat-sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+.wp-kv { display: grid; gap: 9px; }
+.wp-kv > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 13px; }
+.wp-kv dt { color: var(--muted); }
+.wp-kv dd { margin: 0; font-family: var(--mono); font-weight: 550; text-align: right; }
+.wp-kv-line { border-top: 1px dashed var(--line-2); padding-top: 9px; margin-top: 1px; }
+
+/* ---------------- la marca del activo ---------------- */
+.wp-mark {
+  flex: none; display: grid; place-items: center; overflow: hidden;
+  border-radius: 8px; background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(16,22,32,.09);
+  font-weight: 650; letter-spacing: -.02em; line-height: 1;
+}
+/* El monograma y el logo comparten celda: uno tapa al otro sin reflujo. */
+.wp-mark > * { grid-area: 1 / 1; }
+.wp-mark-img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.wp-mark-txt { display: block; }
+.wp-mark.is-element { box-shadow: inset 0 0 0 1px rgba(16,22,32,.14); font-family: var(--font); }
+.wp-mark.is-monogram { box-shadow: inset 0 0 0 1px rgba(16,22,32,.07); }
+.wp-stack { display: inline-flex; align-items: center; }
+.wp-stack .wp-mark { box-shadow: inset 0 0 0 1px rgba(16,22,32,.09), 0 0 0 2px #fff; }
+
+.wp-ident { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.wp-ident-text { min-width: 0; }
+.wp-ident-name { font-size: 13.5px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wp-ident-sub { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.wp-sym {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  border-radius: 5px; padding: 1px 5px; letter-spacing: 0;
+}
+
+/* ---------------- pastillas ---------------- */
+.wp-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; font-weight: 550; border-radius: 20px; padding: 3px 9px;
+  background: var(--sunken); color: var(--muted); white-space: nowrap;
+}
+.wp-pill.up { background: var(--up-soft); color: var(--up); }
+.wp-pill.down { background: var(--down-soft); color: var(--down); }
+.wp-pill.accent { background: var(--accent-soft); color: var(--accent); }
+.wp-pill.warn { background: var(--warn-soft); color: var(--warn); }
+.wp-pill.own { background: #F0EBFD; color: #6335D6; }
+
+/* ---------------- botones ---------------- */
+.wp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 14px; border-radius: 9px; cursor: pointer;
+  font-size: 13px; font-weight: 600; border: 1px solid transparent;
+  background: var(--accent); color: var(--accent-ink);
+  transition: filter .14s, background .14s, border-color .14s, color .14s;
+}
+.wp-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.wp-btn:disabled { opacity: .45; cursor: not-allowed; }
+.wp-btn.ghost { background: #fff; border-color: var(--line-2); color: var(--ink); }
+.wp-btn.ghost:hover:not(:disabled) { background: var(--sunken); filter: none; }
+.wp-btn.quiet { background: var(--sunken); color: var(--ink-2); }
+.wp-btn.quiet:hover:not(:disabled) { background: var(--sunken-2); filter: none; }
+.wp-btn.long { background: var(--up); }
+.wp-btn.short { background: var(--down); }
+.wp-btn.danger { background: #fff; border-color: #F0C9C6; color: var(--down); }
+.wp-btn.sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+.wp-btn.block { width: 100%; }
+.wp-btn svg { width: 15px; height: 15px; }
+
+/* Un control segmentado con muchas opciones se desplaza en lugar de empujar la
+   pagina: max-width y overflow van en el propio componente, no en cada uso. */
+.wp-seg {
+  display: inline-flex; background: var(--sunken); border-radius: 9px; padding: 3px; gap: 3px;
+  max-width: 100%; overflow-x: auto; scrollbar-width: none;
+}
+.wp-seg::-webkit-scrollbar { display: none; }
+.wp-seg button { flex: none; }
+.wp-seg button {
+  border: 0; background: none; cursor: pointer; border-radius: 7px;
+  padding: 6px 11px; font-size: 12.5px; font-weight: 550; color: var(--muted);
+}
+.wp-seg button.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(16,22,32,.08); }
+.wp-seg.side button.is-on[data-side="long"] { color: var(--up); }
+.wp-seg.side button.is-on[data-side="short"] { color: var(--down); }
+
+/* ---------------- tablas ---------------- */
+.wp-scroll { overflow-x: auto; }
+.wp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.wp-table th {
+  text-align: right; font-size: 11px; font-weight: 600; color: var(--dim);
+  text-transform: uppercase; letter-spacing: .06em;
+  padding: 9px 14px; border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.wp-table th:first-child, .wp-table td:first-child { text-align: left; padding-left: 16px; }
+.wp-table th:last-child, .wp-table td:last-child { padding-right: 16px; }
+/* Una cifra no se parte en dos lineas: si no cabe, la tabla se desplaza (cada
+   una va dentro de su .wp-scroll). */
+.wp-table td { text-align: right; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+.wp-table td.wide { white-space: normal; }
+.wp-table tbody tr:last-child td { border-bottom: 0; }
+.wp-table tbody tr.clickable { cursor: pointer; }
+.wp-table tbody tr.clickable:hover { background: var(--sunken); }
+.wp-table td.clickable { cursor: pointer; }
+.wp-table td.wide { min-width: 220px; }
+.wp-spark { width: 84px; height: 30px; display: block; margin-left: auto; }
+
+.wp-empty { padding: 34px 16px; text-align: center; color: var(--muted); font-size: 13.5px; }
+.wp-empty strong { display: block; color: var(--ink); font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+.wp-empty .wp-btn { margin-top: 14px; }
+
+/* ---------------- graficos ---------------- */
+.wp-chart { position: relative; height: 300px; }
+.wp-chart canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+.wp-chart.sm { height: 180px; }
+.wp-tip {
+  position: absolute; pointer-events: none; z-index: 5;
+  background: var(--ink); color: #fff; border-radius: 7px; padding: 6px 9px;
+  font-size: 11.5px; display: grid; gap: 1px; white-space: nowrap;
+  box-shadow: 0 6px 18px -8px rgba(16,22,32,.5);
+}
+.wp-tip b { font-family: var(--mono); font-size: 12.5px; }
+.wp-tip span { color: #B9C0CC; }
+.wp-ranges { display: flex; gap: 3px; margin-left: auto; }
+
+/* barra de pesos: el cesto en una linea */
+.wp-weights { display: flex; height: 8px; border-radius: 20px; overflow: hidden; background: var(--sunken-2); }
+.wp-weights span { display: block; height: 100%; }
+.wp-legend { display: grid; gap: 8px; }
+.wp-legend-row { display: flex; align-items: center; gap: 9px; font-size: 12.5px; }
+.wp-legend-dot { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+.wp-legend-w { margin-left: auto; font-family: var(--mono); font-weight: 600; }
+.wp-donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.wp-donut-wrap canvas { flex: none; }
+.wp-donut-wrap .wp-legend { flex: 1; min-width: 180px; }
+
+/* ---------------- formularios ---------------- */
+.wp-field { display: grid; gap: 6px; }
+.wp-field > label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.wp-input {
+  width: 100%; font: inherit; font-size: 13.5px; color: var(--ink);
+  background: #fff; border: 1px solid var(--line-2); border-radius: 9px; padding: 9px 11px;
+  transition: border-color .14s, box-shadow .14s;
+}
+.wp-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.wp-input.num { font-family: var(--mono); }
+.wp-input-unit { position: relative; }
+.wp-input-unit .wp-unit {
+  position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+  font-family: var(--mono); font-size: 11.5px; color: var(--dim); pointer-events: none;
+}
+.wp-input-unit .wp-input { padding-right: 58px; }
+.wp-hint { font-size: 11.5px; color: var(--dim); }
+.wp-error { font-size: 12.5px; color: var(--down); }
+.wp-errors { display: grid; gap: 4px; margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--down); }
+
+.wp-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: none; cursor: pointer; }
+.wp-range::-webkit-slider-runnable-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
+.wp-range::-moz-range-track { height: 5px; border-radius: 20px; background: var(--sunken-2); }
+.wp-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 16px; height: 16px; margin-top: -5.5px;
+  border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(16,22,32,.2);
+}
+.wp-range::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(16,22,32,.2);
+}
+.wp-range-marks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
+
+/* constructor del cesto */
+.wp-leg {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r); background: #fff;
+}
+.wp-leg-w { width: 88px; flex: none; }
+.wp-leg-x {
+  flex: none; width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
+  border: 1px solid var(--line); background: #fff; color: var(--muted); display: grid; place-items: center;
+}
+.wp-leg-x:hover { border-color: #F0C9C6; color: var(--down); }
+.wp-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.wp-chip {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 20px; padding: 4px 11px 4px 5px;
+  background: #fff; font-size: 12.5px; font-weight: 550; color: var(--ink-2);
+  transition: border-color .14s, background .14s;
+}
+.wp-chip:hover:not(:disabled) { border-color: var(--line-2); background: var(--sunken); }
+.wp-chip:disabled { opacity: .4; cursor: not-allowed; }
+.wp-chip.is-on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.wp-tabs { display: flex; flex-wrap: wrap; gap: 6px; max-width: 100%; overflow-x: auto; }
+.wp-tabs .wp-seg { flex: none; }
+
+/* ---------------- avisos ---------------- */
+.wp-note {
+  border: 1px solid var(--line); border-left: 3px solid var(--dim);
+  border-radius: 0 var(--r) var(--r) 0; padding: 11px 13px;
+  font-size: 12.5px; color: var(--muted); background: var(--sunken);
+}
+.wp-note.warn { border-left-color: var(--warn); background: var(--warn-soft); color: #6E4409; border-color: #F2DFC0; }
+.wp-note.risk { border-left-color: var(--down); background: var(--down-soft); color: #8A211A; border-color: #F5D2CF; }
+.wp-note strong { color: inherit; font-weight: 600; }
+
+.wp-toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 90; display: grid; gap: 8px; justify-items: center; }
+.wp-toast {
+  background: var(--ink); color: #fff; border-radius: 10px; padding: 10px 15px;
+  font-size: 13px; font-weight: 500; box-shadow: 0 10px 30px -12px rgba(16,22,32,.6);
+  animation: wp-rise .2s ease-out;
+}
+.wp-toast.bad { background: var(--down); }
+.wp-toast.good { background: var(--up); }
+@keyframes wp-rise { from { opacity: 0; transform: translateY(8px); } }
+
+/* ---------------- responsive ---------------- */
+@media (max-width: 940px) {
+  /* minmax(0, 1fr), no 1fr: un item de rejilla no baja por defecto del ancho de
+     su contenido, y la barra lateral en horizontal es mas ancha que el movil. */
+  .wp { grid-template-columns: minmax(0, 1fr); }
+  .wp-side {
+    min-width: 0;
+    position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center;
+    border-right: 0; border-bottom: 1px solid var(--line); gap: 8px; padding: 12px 16px;
+  }
+  .wp-brand { padding: 0 8px 0 0; }
+  /* flex: 1 no basta: sin min-width 0 un contenedor flexible no baja de lo que
+     mide su contenido, y la barra empuja la pagina a lo ancho. */
+  .wp-nav { flex-direction: row; overflow-x: auto; flex: 1 1 0; min-width: 0; scrollbar-width: none; }
+  .wp-nav::-webkit-scrollbar { display: none; }
+  .wp-nav a { white-space: nowrap; }
+  .wp-side-foot { margin: 0; flex-direction: row; align-items: center; }
+  .wp-equity { display: none; }
+  .wp-split { grid-template-columns: minmax(0, 1fr); }
+  .wp-view, .wp-top, .wp-foot { padding-left: 16px; padding-right: 16px; }
+  .wp-clock { display: none; }
+}
+@media (max-width: 640px) {
+  .wp-sim-long { display: none; }
+  .wp-sim-short { display: inline; }
+  .wp-sim { white-space: nowrap; padding: 5px 9px; }
+  .wp-search kbd { display: none; }
+  .wp-head h1 { font-size: 19px; }
+  /* En estrecho el titulo de la tarjeta y su nota van en dos lineas en lugar de
+     estrujarse en una. */
+  .wp-card-head { flex-wrap: wrap; }
+  .wp-card-head .wp-card-note { margin-left: 0; text-align: left; flex-basis: 100%; }
+  .wp-card-head h2 { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}

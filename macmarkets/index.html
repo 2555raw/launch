@@ -70,6 +70,10 @@
       </div>
 
       <div class="titlebar-right">
+        <button class="wallet-btn" type="button" id="walletBtn">
+          <span class="wallet-avatar" id="walletAvatar" hidden></span>
+          <span id="walletBtnLabel">Connect wallet</span>
+        </button>
         <label class="search">
           <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M10 3a7 7 0 1 1-4.2 12.6l-3.1 3.1-1.4-1.4 3.1-3.1A7 7 0 0 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
           <input id="search" type="search" placeholder="Search assets" aria-label="Search assets" autocomplete="off">
@@ -207,6 +211,23 @@
   </a>
   <span class="dock-sep" aria-hidden="true"></span>
   <button class="dock-app" type="button" data-tip="Terms" id="dockTerms"><span class="ico i-terms">📄</span></button>
+</div>
+
+<!-- ===================== wallet sheet ===================== -->
+<div class="modal-layer gone" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="wTitle" style="display:none">
+  <div class="sheet" id="walletSheet">
+    <span class="sheet-icon" aria-hidden="true">👛</span>
+    <h2 id="wTitle">Connect wallet</h2>
+    <p class="sheet-lede" id="walletLede">Markets reads your address to label the desk. It never asks you to send a transaction.</p>
+
+    <div class="wallet-body" id="walletBody"></div>
+
+    <div class="sheet-actions">
+      <button class="btn btn-quiet" type="button" id="walletClose">Close</button>
+      <button class="btn btn-blue" type="button" id="walletAction">Connect</button>
+    </div>
+    <p class="sheet-note" id="walletNote" hidden></p>
+  </div>
 </div>
 
 <!-- ===================== terms modal ===================== -->

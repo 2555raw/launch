@@ -21,6 +21,11 @@ It shares nothing with the other folders in this repository.
   (`#crypto`, `#commodity`, ...).
 - **Browsing.** Search, sortable table, click any card or row to load it.
 - **Live quotes.** Prices move continuously and cells flash green or red.
+- **Wallet.** A Connect wallet button in the toolbar opens a sheet that talks to
+  any EIP-1193 browser wallet: it reads the address, the chain and the native
+  balance, shows them with a generated avatar, and copies or disconnects. It
+  never proposes a transaction, and it restores an already-granted connection
+  without prompting. With no wallet installed the sheet says so plainly.
 - **X icon** in the menu bar, the sidebar, the dock and the footer.
 - **Light and dark appearance,** toggled from the menu bar or the dock and
   remembered between visits. Follows the system setting on a first visit.

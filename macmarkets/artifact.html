@@ -172,6 +172,37 @@ body.ready .window { opacity: 1; transform: none; transition: opacity .7s var(--
 .seg button:hover { color: var(--ink); }
 .seg button.on { background: var(--blue); color: #fff; box-shadow: 0 1px 6px -1px color-mix(in srgb, var(--blue) 70%, transparent); }
 
+/* ---- wallet ---- */
+/* Every colour here comes from the tokens already defined above. */
+.wallet-btn {
+  display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px;
+  border-radius: 8px; border: 1px solid var(--hair); background: var(--surface-2);
+  font-size: 12.6px; font-weight: 500; color: var(--ink);
+  transition: border-color .18s ease, color .18s ease;
+}
+.wallet-btn:hover { border-color: var(--blue); color: var(--blue); }
+.wallet-btn.on { border-color: color-mix(in srgb, var(--blue) 55%, var(--hair)); }
+.wallet-btn.on #walletBtnLabel { font-family: var(--mono); font-size: 11.6px; }
+.wallet-avatar { width: 16px; height: 16px; border-radius: 50%; display: block; flex: none; }
+
+.wallet-body { text-align: left; margin-top: 6px; }
+.wallet-list { border: 1px solid var(--hair); border-radius: 12px; background: var(--surface-2); overflow: hidden; }
+.wallet-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 14px; font-size: 13px; color: var(--ink-2); }
+.wallet-row + .wallet-row { border-top: 1px solid var(--hair-soft); }
+.wallet-row b { font-family: var(--mono); font-size: 12.4px; font-weight: 500; color: var(--ink); }
+.wallet-id { display: flex; align-items: center; gap: 11px; padding: 14px; }
+.wallet-id .wallet-avatar { width: 34px; height: 34px; }
+.wallet-id-text { min-width: 0; }
+.wallet-id-text b { display: block; font-family: var(--mono); font-size: 14px; }
+.wallet-id-text span { font-size: 12px; color: var(--ink-3); }
+.wallet-mini {
+  height: 26px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--hair);
+  background: var(--surface-2); color: var(--ink-2); font-size: 11.8px; margin-left: auto; flex: none;
+}
+.wallet-mini:hover { color: var(--ink); border-color: var(--line-strong, var(--hair)); }
+.wallet-hint { font-size: 12.4px; color: var(--ink-3); margin-top: 12px; }
+.wallet-hint a { color: var(--blue); }
+
 .search {
   display: flex; align-items: center; gap: 7px; height: 28px; padding: 0 10px;
   border-radius: 8px; background: var(--surface-2); border: 1px solid var(--hair-soft); color: var(--ink-3);
@@ -537,6 +568,10 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
       </div>
 
       <div class="titlebar-right">
+        <button class="wallet-btn" type="button" id="walletBtn">
+          <span class="wallet-avatar" id="walletAvatar" hidden></span>
+          <span id="walletBtnLabel">Connect wallet</span>
+        </button>
         <label class="search">
           <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M10 3a7 7 0 1 1-4.2 12.6l-3.1 3.1-1.4-1.4 3.1-3.1A7 7 0 0 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
           <input id="search" type="search" placeholder="Search assets" aria-label="Search assets" autocomplete="off">
@@ -674,6 +709,23 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
   </a>
   <span class="dock-sep" aria-hidden="true"></span>
   <button class="dock-app" type="button" data-tip="Terms" id="dockTerms"><span class="ico i-terms">📄</span></button>
+</div>
+
+<!-- ===================== wallet sheet ===================== -->
+<div class="modal-layer gone" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="wTitle" style="display:none">
+  <div class="sheet" id="walletSheet">
+    <span class="sheet-icon" aria-hidden="true">👛</span>
+    <h2 id="wTitle">Connect wallet</h2>
+    <p class="sheet-lede" id="walletLede">Markets reads your address to label the desk. It never asks you to send a transaction.</p>
+
+    <div class="wallet-body" id="walletBody"></div>
+
+    <div class="sheet-actions">
+      <button class="btn btn-quiet" type="button" id="walletClose">Close</button>
+      <button class="btn btn-blue" type="button" id="walletAction">Connect</button>
+    </div>
+    <p class="sheet-note" id="walletNote" hidden></p>
+  </div>
 </div>
 
 <!-- ===================== terms modal ===================== -->
@@ -1222,6 +1274,182 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
     setTimeout(function () { renderHero(true); }, reduced ? 0 : 620);
     startTicking();
   }
+
+  /* ------------------------------------------------------------------ wallet */
+
+  // Read-only: the desk asks for the address, the chain and the balance, and
+  // never proposes a transaction. Nothing is sent anywhere; it only labels the UI.
+  var CHAINS = {
+    "0x1": ["Ethereum", "ETH"], "0xa": ["Optimism", "ETH"], "0x38": ["BNB Chain", "BNB"],
+    "0x89": ["Polygon", "POL"], "0xa4b1": ["Arbitrum One", "ETH"], "0x2105": ["Base", "ETH"],
+    "0xa86a": ["Avalanche", "AVAX"], "0xaa36a7": ["Sepolia", "ETH"]
+  };
+  var AVATAR_TOKENS = ["--blue", "--violet", "--teal", "--orange", "--amber", "--green"];
+
+  var walletModal = $("#walletModal"), walletBody = $("#walletBody"), walletNote = $("#walletNote");
+  var walletBtn = $("#walletBtn"), walletBtnLabel = $("#walletBtnLabel"), walletAvatar = $("#walletAvatar");
+  var walletAction = $("#walletAction"), walletLede = $("#walletLede");
+  var wallet = { address: null, chain: null, balance: null };
+
+  function eth() { return window.ethereum || null; }
+  function shortAddr(a) { return a.slice(0, 6) + "\u2026" + a.slice(-4); }
+
+  function avatarFor(address) {
+    var n = 0;
+    for (var i = 2; i < address.length; i++) n = (n * 31 + address.charCodeAt(i)) >>> 0;
+    var a = AVATAR_TOKENS[n % AVATAR_TOKENS.length];
+    var b = AVATAR_TOKENS[(n >> 3) % AVATAR_TOKENS.length];
+    if (a === b) b = AVATAR_TOKENS[(n + 2) % AVATAR_TOKENS.length];
+    return "linear-gradient(140deg, var(" + a + "), var(" + b + "))";
+  }
+
+  function fromWei(hex) {
+    var wei = BigInt(hex);
+    var unit = 1000000000000000000n;
+    var frac = ((wei % unit) * 10000n) / unit;
+    return (wei / unit).toString() + "." + frac.toString().padStart(4, "0");
+  }
+
+  function chainName(id) { return (CHAINS[id] || ["Chain " + parseInt(id, 16), "native"])[0]; }
+  function chainSymbol(id) { return (CHAINS[id] || ["", "native"])[1]; }
+
+  function renderWallet() {
+    var has = !!eth();
+
+    if (wallet.address) {
+      walletLede.textContent = "Connected. Markets only reads this address; disconnecting clears it here.";
+      walletBody.innerHTML =
+        '<div class="wallet-list">' +
+          '<div class="wallet-id">' +
+            '<span class="wallet-avatar" style="background:' + avatarFor(wallet.address) + '"></span>' +
+            '<span class="wallet-id-text"><b>' + shortAddr(wallet.address) + "</b><span>" + chainName(wallet.chain) + "</span></span>" +
+            '<button class="wallet-mini" type="button" id="walletCopy">Copy</button>' +
+          "</div>" +
+          '<div class="wallet-row"><span>Balance</span><b>' +
+            (wallet.balance === null ? "—" : wallet.balance + " " + chainSymbol(wallet.chain)) + "</b></div>" +
+          '<div class="wallet-row"><span>Permissions</span><b>Read address only</b></div>' +
+        "</div>" +
+        '<p class="wallet-hint">Prices on this desk stay simulated. Connecting does not fund, trade or move anything.</p>';
+      walletAction.textContent = "Disconnect";
+      $("#walletCopy").addEventListener("click", copyAddress);
+      return;
+    }
+
+    if (!has) {
+      walletLede.textContent = "No wallet was detected in this browser.";
+      walletBody.innerHTML =
+        '<div class="wallet-list">' +
+          '<div class="wallet-row"><span>Status</span><b>No provider found</b></div>' +
+          '<div class="wallet-row"><span>Needs</span><b>MetaMask or similar</b></div>' +
+        "</div>" +
+        '<p class="wallet-hint">Install a browser wallet, or open this page in a wallet\u2019s own browser, then press Connect again.</p>';
+      walletAction.textContent = "Connect";
+      return;
+    }
+
+    walletLede.textContent = "Markets reads your address to label the desk. It never asks you to send a transaction.";
+    walletBody.innerHTML =
+      '<div class="wallet-list">' +
+        '<div class="wallet-row"><span>Markets will read</span><b>Address &amp; chain</b></div>' +
+        '<div class="wallet-row"><span>And also</span><b>Native balance</b></div>' +
+        '<div class="wallet-row"><span>It will never ask for</span><b>A transaction</b></div>' +
+      "</div>" +
+      '<p class="wallet-hint">Your wallet will ask you to approve the connection. Nothing is stored on a server.</p>';
+    walletAction.textContent = "Connect";
+  }
+
+  function paintWalletButton() {
+    var on = !!wallet.address;
+    walletBtn.classList.toggle("on", on);
+    walletBtnLabel.textContent = on ? shortAddr(wallet.address) : "Connect wallet";
+    walletAvatar.hidden = !on;
+    if (on) walletAvatar.style.background = avatarFor(wallet.address);
+  }
+
+  function walletError(message) {
+    walletNote.textContent = message;
+    walletNote.hidden = false;
+  }
+
+  function refreshBalance() {
+    if (!wallet.address || !eth()) return;
+    eth().request({ method: "eth_getBalance", params: [wallet.address, "latest"] })
+      .then(function (hex) { wallet.balance = fromWei(hex); renderWallet(); })
+      .catch(function () { wallet.balance = null; });
+  }
+
+  function adopt(accounts, chain) {
+    wallet.address = accounts && accounts.length ? accounts[0] : null;
+    wallet.chain = chain || wallet.chain;
+    wallet.balance = null;
+    paintWalletButton();
+    renderWallet();
+    refreshBalance();
+  }
+
+  function connect() {
+    var p = eth();
+    if (!p) { walletError("No wallet provider in this browser."); return; }
+    walletNote.hidden = true;
+    walletAction.disabled = true;
+    walletAction.textContent = "Waiting for wallet\u2026";
+
+    p.request({ method: "eth_requestAccounts" })
+      .then(function (accounts) {
+        return p.request({ method: "eth_chainId" }).then(function (chain) { adopt(accounts, chain); });
+      })
+      .catch(function (err) {
+        walletError(err && err.code === 4001 ? "You rejected the connection."
+          : err && err.code === -32002 ? "Your wallet already has a request open."
+          : "The wallet could not connect.");
+        renderWallet();
+      })
+      .then(function () { walletAction.disabled = false; });
+  }
+
+  function disconnect() {
+    wallet = { address: null, chain: null, balance: null };
+    paintWalletButton();
+    renderWallet();
+    walletNote.textContent = "Disconnected here. Your wallet may still list this site under its connections.";
+    walletNote.hidden = false;
+  }
+
+  function copyAddress() {
+    if (!navigator.clipboard) return;
+    navigator.clipboard.writeText(wallet.address).then(function () {
+      var btn = $("#walletCopy");
+      if (btn) { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy"; }, 1400); }
+    });
+  }
+
+  walletBtn.addEventListener("click", function () {
+    walletNote.hidden = true;
+    renderWallet();
+    walletModal.style.display = "";
+    walletModal.classList.remove("gone");
+  });
+  $("#walletClose").addEventListener("click", function () {
+    walletModal.classList.add("gone");
+    setTimeout(function () { walletModal.style.display = "none"; }, 420);
+  });
+  walletAction.addEventListener("click", function () {
+    if (wallet.address) disconnect(); else connect();
+  });
+
+  if (eth()) {
+    // Restore a connection the wallet already granted, without prompting.
+    eth().request({ method: "eth_accounts" }).then(function (accounts) {
+      if (!accounts || !accounts.length) return;
+      return eth().request({ method: "eth_chainId" }).then(function (chain) { adopt(accounts, chain); });
+    }).catch(function () { /* provider refused a silent read */ });
+
+    eth().on && eth().on("accountsChanged", function (accounts) { adopt(accounts, wallet.chain); });
+    eth().on && eth().on("chainChanged", function (chain) { wallet.chain = chain; wallet.balance = null; renderWallet(); refreshBalance(); });
+  }
+
+  paintWalletButton();
+  renderWallet();
 
   /* ------------------------------------------------------------------ terms gate */
 

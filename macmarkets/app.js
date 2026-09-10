@@ -509,6 +509,182 @@
     startTicking();
   }
 
+  /* ------------------------------------------------------------------ wallet */
+
+  // Read-only: the desk asks for the address, the chain and the balance, and
+  // never proposes a transaction. Nothing is sent anywhere; it only labels the UI.
+  var CHAINS = {
+    "0x1": ["Ethereum", "ETH"], "0xa": ["Optimism", "ETH"], "0x38": ["BNB Chain", "BNB"],
+    "0x89": ["Polygon", "POL"], "0xa4b1": ["Arbitrum One", "ETH"], "0x2105": ["Base", "ETH"],
+    "0xa86a": ["Avalanche", "AVAX"], "0xaa36a7": ["Sepolia", "ETH"]
+  };
+  var AVATAR_TOKENS = ["--blue", "--violet", "--teal", "--orange", "--amber", "--green"];
+
+  var walletModal = $("#walletModal"), walletBody = $("#walletBody"), walletNote = $("#walletNote");
+  var walletBtn = $("#walletBtn"), walletBtnLabel = $("#walletBtnLabel"), walletAvatar = $("#walletAvatar");
+  var walletAction = $("#walletAction"), walletLede = $("#walletLede");
+  var wallet = { address: null, chain: null, balance: null };
+
+  function eth() { return window.ethereum || null; }
+  function shortAddr(a) { return a.slice(0, 6) + "\u2026" + a.slice(-4); }
+
+  function avatarFor(address) {
+    var n = 0;
+    for (var i = 2; i < address.length; i++) n = (n * 31 + address.charCodeAt(i)) >>> 0;
+    var a = AVATAR_TOKENS[n % AVATAR_TOKENS.length];
+    var b = AVATAR_TOKENS[(n >> 3) % AVATAR_TOKENS.length];
+    if (a === b) b = AVATAR_TOKENS[(n + 2) % AVATAR_TOKENS.length];
+    return "linear-gradient(140deg, var(" + a + "), var(" + b + "))";
+  }
+
+  function fromWei(hex) {
+    var wei = BigInt(hex);
+    var unit = 1000000000000000000n;
+    var frac = ((wei % unit) * 10000n) / unit;
+    return (wei / unit).toString() + "." + frac.toString().padStart(4, "0");
+  }
+
+  function chainName(id) { return (CHAINS[id] || ["Chain " + parseInt(id, 16), "native"])[0]; }
+  function chainSymbol(id) { return (CHAINS[id] || ["", "native"])[1]; }
+
+  function renderWallet() {
+    var has = !!eth();
+
+    if (wallet.address) {
+      walletLede.textContent = "Connected. Markets only reads this address; disconnecting clears it here.";
+      walletBody.innerHTML =
+        '<div class="wallet-list">' +
+          '<div class="wallet-id">' +
+            '<span class="wallet-avatar" style="background:' + avatarFor(wallet.address) + '"></span>' +
+            '<span class="wallet-id-text"><b>' + shortAddr(wallet.address) + "</b><span>" + chainName(wallet.chain) + "</span></span>" +
+            '<button class="wallet-mini" type="button" id="walletCopy">Copy</button>' +
+          "</div>" +
+          '<div class="wallet-row"><span>Balance</span><b>' +
+            (wallet.balance === null ? "—" : wallet.balance + " " + chainSymbol(wallet.chain)) + "</b></div>" +
+          '<div class="wallet-row"><span>Permissions</span><b>Read address only</b></div>' +
+        "</div>" +
+        '<p class="wallet-hint">Prices on this desk stay simulated. Connecting does not fund, trade or move anything.</p>';
+      walletAction.textContent = "Disconnect";
+      $("#walletCopy").addEventListener("click", copyAddress);
+      return;
+    }
+
+    if (!has) {
+      walletLede.textContent = "No wallet was detected in this browser.";
+      walletBody.innerHTML =
+        '<div class="wallet-list">' +
+          '<div class="wallet-row"><span>Status</span><b>No provider found</b></div>' +
+          '<div class="wallet-row"><span>Needs</span><b>MetaMask or similar</b></div>' +
+        "</div>" +
+        '<p class="wallet-hint">Install a browser wallet, or open this page in a wallet\u2019s own browser, then press Connect again.</p>';
+      walletAction.textContent = "Connect";
+      return;
+    }
+
+    walletLede.textContent = "Markets reads your address to label the desk. It never asks you to send a transaction.";
+    walletBody.innerHTML =
+      '<div class="wallet-list">' +
+        '<div class="wallet-row"><span>Markets will read</span><b>Address &amp; chain</b></div>' +
+        '<div class="wallet-row"><span>And also</span><b>Native balance</b></div>' +
+        '<div class="wallet-row"><span>It will never ask for</span><b>A transaction</b></div>' +
+      "</div>" +
+      '<p class="wallet-hint">Your wallet will ask you to approve the connection. Nothing is stored on a server.</p>';
+    walletAction.textContent = "Connect";
+  }
+
+  function paintWalletButton() {
+    var on = !!wallet.address;
+    walletBtn.classList.toggle("on", on);
+    walletBtnLabel.textContent = on ? shortAddr(wallet.address) : "Connect wallet";
+    walletAvatar.hidden = !on;
+    if (on) walletAvatar.style.background = avatarFor(wallet.address);
+  }
+
+  function walletError(message) {
+    walletNote.textContent = message;
+    walletNote.hidden = false;
+  }
+
+  function refreshBalance() {
+    if (!wallet.address || !eth()) return;
+    eth().request({ method: "eth_getBalance", params: [wallet.address, "latest"] })
+      .then(function (hex) { wallet.balance = fromWei(hex); renderWallet(); })
+      .catch(function () { wallet.balance = null; });
+  }
+
+  function adopt(accounts, chain) {
+    wallet.address = accounts && accounts.length ? accounts[0] : null;
+    wallet.chain = chain || wallet.chain;
+    wallet.balance = null;
+    paintWalletButton();
+    renderWallet();
+    refreshBalance();
+  }
+
+  function connect() {
+    var p = eth();
+    if (!p) { walletError("No wallet provider in this browser."); return; }
+    walletNote.hidden = true;
+    walletAction.disabled = true;
+    walletAction.textContent = "Waiting for wallet\u2026";
+
+    p.request({ method: "eth_requestAccounts" })
+      .then(function (accounts) {
+        return p.request({ method: "eth_chainId" }).then(function (chain) { adopt(accounts, chain); });
+      })
+      .catch(function (err) {
+        walletError(err && err.code === 4001 ? "You rejected the connection."
+          : err && err.code === -32002 ? "Your wallet already has a request open."
+          : "The wallet could not connect.");
+        renderWallet();
+      })
+      .then(function () { walletAction.disabled = false; });
+  }
+
+  function disconnect() {
+    wallet = { address: null, chain: null, balance: null };
+    paintWalletButton();
+    renderWallet();
+    walletNote.textContent = "Disconnected here. Your wallet may still list this site under its connections.";
+    walletNote.hidden = false;
+  }
+
+  function copyAddress() {
+    if (!navigator.clipboard) return;
+    navigator.clipboard.writeText(wallet.address).then(function () {
+      var btn = $("#walletCopy");
+      if (btn) { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy"; }, 1400); }
+    });
+  }
+
+  walletBtn.addEventListener("click", function () {
+    walletNote.hidden = true;
+    renderWallet();
+    walletModal.style.display = "";
+    walletModal.classList.remove("gone");
+  });
+  $("#walletClose").addEventListener("click", function () {
+    walletModal.classList.add("gone");
+    setTimeout(function () { walletModal.style.display = "none"; }, 420);
+  });
+  walletAction.addEventListener("click", function () {
+    if (wallet.address) disconnect(); else connect();
+  });
+
+  if (eth()) {
+    // Restore a connection the wallet already granted, without prompting.
+    eth().request({ method: "eth_accounts" }).then(function (accounts) {
+      if (!accounts || !accounts.length) return;
+      return eth().request({ method: "eth_chainId" }).then(function (chain) { adopt(accounts, chain); });
+    }).catch(function () { /* provider refused a silent read */ });
+
+    eth().on && eth().on("accountsChanged", function (accounts) { adopt(accounts, wallet.chain); });
+    eth().on && eth().on("chainChanged", function (chain) { wallet.chain = chain; wallet.balance = null; renderWallet(); refreshBalance(); });
+  }
+
+  paintWalletButton();
+  renderWallet();
+
   /* ------------------------------------------------------------------ terms gate */
 
   var modal = $("#modal"), sheet = $("#sheet"), agree = $("#agree");

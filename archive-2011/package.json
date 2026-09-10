@@ -1,0 +1,13 @@
+{
+  "name": "archive-2011",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ARCHIVE 2011 — a pixel art piece on a pandemic, and PANDEMIK, four floors of a sealed hospital.",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node build.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,4 +1,7 @@
-# Publishes ARCHIVE 2011 to GitHub Pages at pandemik.online.
+# Publishes ARCHIVE 2011 to GitHub Pages, as a mirror of the Railway deploy.
+#
+# pandemik.online is served by Railway, so there is no CNAME here and Pages
+# answers on 2555raw.github.io/launch only.
 #
 # This repository holds several projects; archive-2011/ is the one published.
 # The piece is static — no build step, no dependencies, no assets beyond the six

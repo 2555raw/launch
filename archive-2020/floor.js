@@ -996,7 +996,7 @@
                   ' · RECORDS ' + records.filter(Boolean).length + '/5 · ' + new Date().toISOString();
     try { localStorage.setItem('pandemik-claim', claim); } catch (_) { /* storage blocked */ }
     if (navigator.clipboard) navigator.clipboard.writeText(claim).catch(() => {});
-    note.textContent = 'Copied: ' + claim + ' — send that line to the project to be counted. Nothing was charged, sent or connected.';
+    note.textContent = 'Copied: ' + claim + ' — send that line to the project to be counted. If you are the first verified clear, 50% of the creator fees are yours. Nothing was charged, sent or connected.';
   });
 
   $('#claimSkip').addEventListener('click', () => { claimEl.hidden = true; });

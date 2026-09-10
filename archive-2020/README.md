@@ -38,7 +38,8 @@ The five archive records are hidden on wall terminals along the way, optional
 and worth finding.
 
 Clear the fourth floor and the piece asks for a public wallet address, because
-the creator fees are meant for the first verified clear. Two things it does not
+**50% of the creator fees go to the first person to beat PANDEMIK** — one
+winner, the first verified clear, and the menu says so before you start. Two things it does not
 do: it never asks for a seed phrase or a private key (and refuses anything that
 looks like one), and it does not pretend to pay. The page has no server, so the
 claim is copied to the clipboard and kept in `localStorage` for you to send on.

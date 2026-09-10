@@ -21,6 +21,7 @@
   --grey-2:#3a3a3a;
   --dim:#6a6660;
   --bone:#e8e3d8;
+  --bone-2:#b9b3a5;
   --red:#ff1e2d;
   --red-deep:#8e0a14;
   --mono: ui-monospace, "DejaVu Sans Mono", "Courier New", monospace;
@@ -103,34 +104,78 @@ body:not([data-mode="boot"]) .boot{opacity:0;visibility:hidden;pointer-events:no
 
 .menu{
   position:fixed;inset:0;z-index:50;
-  display:flex;align-items:center;justify-content:center;
-  padding:8vh 6vw;background:var(--ink);
+  display:flex;justify-content:center;
+  padding:5vh 6vw;background:var(--ink);
+  overflow-y:auto;
 }
-.menu__inner{width:min(720px,100%)}
-.menu__kicker{margin:0 0 26px;font-size:9px;letter-spacing:.28em;color:var(--red-deep)}
+.menu__inner{width:min(760px,100%);margin:auto 0}
+.menu__kicker{margin:0 0 22px;font-size:10px;letter-spacing:.26em;color:var(--red)}
 .menu__title{
   margin:0;font-size:clamp(30px,7vw,58px);font-weight:400;letter-spacing:.16em;
   color:var(--bone);text-shadow:2px 0 var(--red-deep),-2px 0 rgba(110,170,200,.35);
 }
-.menu__sub{margin:12px 0 40px;font-size:10px;letter-spacing:.24em;color:var(--dim)}
+.menu__sub{margin:13px 0 22px;font-size:11px;letter-spacing:.22em;color:var(--bone-2)}
+
+/* the bounty, the loudest thing on the page after the title */
+.prize{
+  margin:0 0 22px;padding:16px 18px;
+  border:1px solid var(--red);
+  background:linear-gradient(180deg,rgba(255,30,45,.13),rgba(255,30,45,.03));
+  box-shadow:0 0 24px rgba(255,30,45,.12),inset 0 0 0 1px rgba(255,30,45,.14);
+}
+.prize__tag{
+  margin:0 0 12px;font-size:10px;letter-spacing:.28em;color:var(--red);
+  animation:bounty 2.4s steps(2,end) infinite;
+}
+.prize__head{
+  margin:0;font-size:clamp(13px,2.2vw,17px);line-height:1.7;letter-spacing:.1em;color:var(--bone);
+}
+.prize__head b{font-weight:400;color:#fff}
+.prize__pct{
+  font-size:1.5em;letter-spacing:.02em;color:var(--red)!important;
+  text-shadow:0 0 12px rgba(255,30,45,.6);
+}
+.prize__sub{
+  margin:12px 0 0;font-size:11.5px;line-height:1.85;letter-spacing:.04em;
+  text-transform:none;color:var(--bone-2);
+}
+@keyframes bounty{0%,72%{opacity:1}73%,100%{opacity:.42}}
 
 .menu__opts{display:grid;gap:12px}
 .menu__opts button{
   display:block;width:100%;text-align:left;
-  padding:16px 18px;border:1px solid var(--grey-2);
-  color:var(--dim);font-size:12px;letter-spacing:.16em;
+  padding:18px 20px;border:1px solid var(--grey-2);
+  color:var(--bone);font-size:13px;letter-spacing:.16em;
 }
 .menu__opts button b{color:var(--red);font-weight:400;margin-right:10px}
 .menu__opts button span{
-  display:block;margin-top:8px;font-size:10px;letter-spacing:.06em;
-  text-transform:none;color:var(--grey-2);
+  display:block;margin-top:9px;font-size:11.5px;line-height:1.8;letter-spacing:.05em;
+  text-transform:none;color:var(--bone-2);
 }
 .menu__opts button:hover,.menu__opts button:focus-visible{
   border-color:var(--red);color:var(--bone);background:rgba(255,30,45,.05);outline:0;
 }
-.menu__opts button:hover span{color:var(--dim)}
+.menu__opts button:hover span,.menu__opts button:focus-visible span{color:var(--bone)}
 
-.menu__foot{margin:38px 0 0;font-size:9px;letter-spacing:.24em;color:var(--grey-2)}
+.about{margin:22px 0 0;padding-left:16px;border-left:2px solid var(--red-deep)}
+.about__h{margin:0 0 12px;font-size:10px;letter-spacing:.26em;color:var(--red)}
+.about__p{
+  margin:0 0 11px;font-size:11.5px;line-height:1.9;letter-spacing:.04em;
+  text-transform:none;color:var(--bone-2);
+}
+.about__keys{margin:11px 0 0;font-size:10px;line-height:1.8;letter-spacing:.12em;color:var(--dim)}
+
+.menu__foot{margin:20px 0 0;font-size:10px;letter-spacing:.24em;color:var(--dim)}
+
+/* short screens: keep the whole menu, bounty included, on one page */
+@media (min-width:761px) and (max-height:940px){
+  .menu{padding:3vh 6vw}
+  .menu__kicker{margin-bottom:16px}
+  .menu__sub{margin:11px 0 18px}
+  .prize{margin-bottom:18px}
+  .about{margin-top:18px}
+  .menu__foot{margin-top:16px}
+}
 
 /* ── CRT layers ───────────────────────────────────────────────────── */
 
@@ -327,11 +372,15 @@ body:not([data-mode="boot"]) .boot{opacity:0;visibility:hidden;pointer-events:no
   .fin{margin-left:0;padding-bottom:22vh}
   .fin__go{display:block;text-align:center}
   .chapter{height:420vh}
+  .menu{padding:5vh 5vw}
+  .prize{padding:15px 16px}
+  .prize__head{letter-spacing:.06em}
+  .menu__opts button{padding:15px 16px}
 }
 
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .caret,.boot__enter{animation:none}
+  .caret,.boot__enter,.prize__tag{animation:none}
   .crt__noise{opacity:.04}
 }
 
@@ -404,6 +453,12 @@ body:not([data-mode="warn"]) .warn{display:none}
 .brief__floors b{color:var(--red);font-weight:400;letter-spacing:.14em;margin-right:6px}
 
 .brief__warn{margin:0 0 10px;font-size:9px;letter-spacing:.18em;color:var(--red)}
+.brief__prize{
+  margin:0 0 16px;padding:12px 14px;border:1px solid var(--red);
+  background:rgba(255,30,45,.09);
+  font-size:11px;line-height:1.7;letter-spacing:.12em;color:var(--bone);
+}
+.brief__prize b{color:var(--red);font-weight:400;font-size:1.25em}
 .brief__keys{margin:0 0 22px;font-size:9px;letter-spacing:.1em;color:var(--grey-2)}
 #briefGo{
   padding:14px 22px;border:1px solid var(--red);color:var(--red);
@@ -427,7 +482,12 @@ body:not([data-mode="warn"]) .warn{display:none}
 .claim__row button:hover{background:var(--red);border-color:var(--red);color:var(--ink)}
 .claim__skip{border-color:var(--grey-2)!important;color:var(--grey-2)!important}
 .claim__skip:hover{background:var(--grey-2)!important;border-color:var(--grey-2)!important;color:var(--ink)!important}
-.claim__note{margin:18px 0 0;font-size:9px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--dim)}
+.claim__prize{
+  margin:0 0 18px;padding:12px 14px;border:1px solid var(--red);
+  background:rgba(255,30,45,.09);
+  font-size:11px;line-height:1.7;letter-spacing:.12em;color:var(--bone);
+}
+.claim__note{margin:12px 0 0;font-size:10.5px;line-height:1.9;letter-spacing:.03em;text-transform:none;color:var(--bone-2)}
 </style>
 </head>
 <body data-mode="boot">
@@ -477,10 +537,34 @@ body:not([data-mode="warn"]) .warn{display:none}
     <p class="menu__kicker">VOLUME PANDEMIC_2020_2023 · 05 RECORDS RECOVERED</p>
     <h1 class="menu__title">ARCHIVE 2020</h1>
     <p class="menu__sub">Deaths · Hospital · Masks · Vaccines · Memory</p>
+
+    <div class="prize" role="note">
+      <p class="prize__tag">&#9679; BOUNTY &middot; STILL UNCLAIMED</p>
+      <p class="prize__head">THE FIRST PERSON TO BEAT <b>PANDEMIK</b> TAKES
+        <b class="prize__pct">50%</b> OF THE CREATOR FEES.</p>
+      <p class="prize__sub">One winner, once. The first verified clear of mode 02 takes half of every
+      creator fee this project earns. Reach the last dose on floor 04, and the end screen writes your
+      claim for you.</p>
+    </div>
+
     <div class="menu__opts">
       <button data-go="archive"><b>01</b> READ THE ARCHIVE<span>Five sectors, scrolled from the first death to the last pixel</span></button>
-      <button data-go="floor"><b>02</b> PLAY: PANDEMIK<span>Four floors of a sealed hospital, a task list on each one, and the last dose of the vaccine at the top</span></button>
+      <button data-go="floor"><b>02</b> PLAY: PANDEMIK<span>Four floors of a sealed hospital, a task list on each one, and the last dose of the vaccine at the top &mdash; beat it first and half the creator fees are yours</span></button>
     </div>
+
+    <div class="about">
+      <p class="about__h">WHAT PANDEMIK IS</p>
+      <p class="about__p">They sealed the hospital with you inside and you were exposed on the way in, so the
+      reading in the corner of the screen is your infection and it only climbs. One dose of the vaccine is
+      left in the building, four floors up, in a first aid kit inside one of twelve cabinets. Every floor
+      hands you a short list of tasks &mdash; power, a keycard, a stairwell key, a blade &mdash; and finishing
+      the list opens the way up. Something is still walking the third floor. If it catches you, you start
+      again at the front doors and nothing carries over.</p>
+      <p class="about__p">No accounts, no server, no timer but your own. The end screen scores the run by
+      time, deaths and records recovered &mdash; and that line is what a claim is made of.</p>
+      <p class="about__keys">[WASD] or arrows to walk &middot; [E] to use, hold it for the slow jobs &middot; [ESC] to leave a record</p>
+    </div>
+
     <p class="menu__foot">NO SOUND. NOTHING HERE MAKES A NOISE.</p>
   </div>
 </div>
@@ -626,6 +710,7 @@ body:not([data-mode="warn"]) .warn{display:none}
         <li><b>04 STORES</b> Open cabinets until the first aid kit turns up. Inside it is the dose.</li>
       </ol>
       <p class="brief__warn">IF IT CATCHES YOU, YOU START AGAIN AT THE FRONT DOORS. NOTHING CARRIES OVER.</p>
+      <p class="brief__prize">&#9679; THE FIRST PERSON TO BEAT PANDEMIK TAKES <b>50%</b> OF THE CREATOR FEES. STILL UNCLAIMED.</p>
       <p class="brief__keys">[WASD] or arrows to walk &nbsp;·&nbsp; [E] to use, hold it for the slow jobs &nbsp;·&nbsp; [ESC] to leave a record</p>
       <button id="briefGo">START THE RUN</button>
     </div>
@@ -635,6 +720,7 @@ body:not([data-mode="warn"]) .warn{display:none}
     <div class="claim__box">
       <p class="claim__t">PANDEMIK CLEARED &middot; VACCINE ADMINISTERED</p>
       <p class="claim__s">TIME <b id="claimTime">00:00</b> &nbsp; DEATHS <b id="claimDeaths">0</b></p>
+      <p class="claim__prize">&#9679; 50% OF THE CREATOR FEES GO TO THE FIRST VERIFIED CLEAR</p>
       <label class="claim__lab" for="wallet">PUBLIC WALLET ADDRESS</label>
       <input id="wallet" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
              spellcheck="false" placeholder="paste your public address">
@@ -644,9 +730,9 @@ body:not([data-mode="warn"]) .warn{display:none}
         <button id="claimGo">COPY MY CLAIM</button>
         <button id="claimSkip" class="claim__skip">SKIP</button>
       </div>
-      <p class="claim__note" id="claimNote">Creator fees go to the first verified clear. This page has no server:
-      your claim is copied to the clipboard and kept in this browser, so you can send it to the project yourself.
-      Nothing is charged, sent or connected here.</p>
+      <p class="claim__note" id="claimNote">If nobody has claimed it before you, half of every creator fee this
+      project earns is yours. This page has no server: your claim is copied to the clipboard and kept in this
+      browser, so you can send it to the project yourself. Nothing is charged, sent or connected here.</p>
     </div>
   </div>
 
@@ -2650,7 +2736,7 @@ body:not([data-mode="warn"]) .warn{display:none}
                   ' · RECORDS ' + records.filter(Boolean).length + '/5 · ' + new Date().toISOString();
     try { localStorage.setItem('pandemik-claim', claim); } catch (_) { /* storage blocked */ }
     if (navigator.clipboard) navigator.clipboard.writeText(claim).catch(() => {});
-    note.textContent = 'Copied: ' + claim + ' — send that line to the project to be counted. Nothing was charged, sent or connected.';
+    note.textContent = 'Copied: ' + claim + ' — send that line to the project to be counted. If you are the first verified clear, 50% of the creator fees are yours. Nothing was charged, sent or connected.';
   });
 
   $('#claimSkip').addEventListener('click', () => { claimEl.hidden = true; });

@@ -82,6 +82,7 @@
         <div class="mi-sep"></div>
         <button class="mi" type="button" data-cmd="folio">Portfolio<span class="mi-key">B</span></button>
         <button class="mi" type="button" data-cmd="game">Ticker Drop<span class="mi-key">G</span></button>
+        <button class="mi" type="button" data-cmd="scores" id="scoresMenuItem" hidden>Scores</button>
       </div>
     </div>
 
@@ -379,13 +380,41 @@
   </section>
 </div>
 
+<!-- ===================== scores (owner) ===================== -->
+<div class="modal-layer gone" id="scoresModal" role="dialog" aria-modal="true" aria-labelledby="scoresTitle" style="display:none">
+  <section class="game-window folio-window">
+    <header class="game-bar">
+      <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
+      <h2 id="scoresTitle">Scores</h2>
+      <span class="game-sub">Every run played on this page.</span>
+    </header>
+
+    <div class="folio-body">
+      <div class="class-stats" id="scoresStats"></div>
+      <div class="table-card">
+        <table class="markets">
+          <thead><tr><th>#</th><th>Player</th><th class="num">Booked</th><th class="num">Rows</th><th class="num">Level</th><th>When</th></tr></thead>
+          <tbody id="scoresRows"><tr><td colspan="6" class="folio-empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="wallet-hint" id="scoresNote">Runs are stored with the page, so they reach you from whoever plays it.</p>
+    </div>
+
+    <div class="folio-actions">
+      <button class="btn btn-quiet" type="button" id="scoresRefresh">Refresh</button>
+      <button class="btn btn-blue" type="button" id="scoresClose">Close</button>
+    </div>
+  </section>
+</div>
+
 <!-- ===================== ticker drop ===================== -->
 <div class="modal-layer gone" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="gameTitle" style="display:none">
   <section class="game-window">
     <header class="game-bar">
       <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
       <h2 id="gameTitle">Ticker Drop</h2>
-      <span class="game-sub">Stack the tape. Close a full row to book it.</span>
+      <span class="game-sub">Rows pay by how their tickers moved today.</span>
+      <button class="wallet-mini" type="button" id="gameMute">Sound on</button>
     </header>
 
     <div class="game-body">
@@ -399,17 +428,38 @@
       </div>
 
       <aside class="game-side">
+        <label class="ticket-field game-name" for="gameName">
+          <span>Player</span>
+          <input id="gameName" type="text" maxlength="18" placeholder="your name">
+        </label>
         <dl class="game-stat"><dt>Booked P&amp;L</dt><dd id="gamePnl">$0</dd></dl>
         <dl class="game-stat"><dt>Rows closed</dt><dd id="gameLines">0</dd></dl>
         <dl class="game-stat"><dt>Level</dt><dd id="gameLevel">1</dd></dl>
+        <dl class="game-stat"><dt>Streak</dt><dd id="gameStreak">—</dd></dl>
+        <dl class="game-stat"><dt>Best</dt><dd id="gameBest">$0</dd></dl>
 
-        <div class="game-next">
-          <h4>On deck</h4>
-          <canvas id="nextCanvas" width="112" height="112" aria-label="Next piece"></canvas>
-          <span id="nextName">—</span>
+        <div class="game-slots">
+          <div class="game-next">
+            <h4>On deck</h4>
+            <canvas id="nextCanvas" width="96" height="96" aria-label="Next piece"></canvas>
+            <span id="nextName">—</span>
+          </div>
+          <div class="game-next">
+            <h4>Held</h4>
+            <canvas id="holdCanvas" width="96" height="96" aria-label="Held piece"></canvas>
+            <span id="holdName">empty</span>
+          </div>
         </div>
 
-        <p class="game-help">← → move · ↑ rotate · ↓ soft drop · space drop · P pause</p>
+        <p class="game-help">
+          <span><b>A</b><b>D</b> move</span>
+          <span><b>W</b> rotate</span>
+          <span><b>S</b> soft drop</span>
+          <span><b>space</b> drop</span>
+          <span><b>E</b> hold</span>
+          <span><b>P</b> pause</span>
+          <span class="game-help-note">Arrow keys work too.</span>
+        </p>
         <div class="game-actions">
           <button class="btn btn-quiet" type="button" id="gamePause">Pause</button>
           <button class="btn btn-blue" type="button" id="gameClose">Close</button>
@@ -423,6 +473,7 @@
       <button type="button" data-pad="right" aria-label="Move right">→</button>
       <button type="button" data-pad="down" aria-label="Soft drop">↓</button>
       <button type="button" data-pad="drop" aria-label="Hard drop">⤓</button>
+      <button type="button" data-pad="hold" aria-label="Hold piece">⇄</button>
     </div>
   </section>
 </div>

@@ -551,6 +551,7 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
   background: linear-gradient(180deg, var(--surface-2), transparent);
 }
 .game-bar h2 { font-size: 15px; }
+.game-bar .wallet-mini { margin-left: auto; }
 .game-sub { font-size: 12.4px; color: var(--ink-3); }
 
 .game-body { display: flex; gap: 18px; padding: 18px; }
@@ -576,12 +577,21 @@ body.ready .dock { transform: translate(-50%, 0); transition: transform .8s var(
 .game-stat dt { font-size: 10.6px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
 .game-stat dd { margin: 0; font-family: var(--mono); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
-.game-next { padding: 12px; border-radius: 10px; background: var(--surface-2); text-align: center; }
+.game-name { margin-top: 0; padding: 7px 12px; }
+.game-name input { width: 120px; text-align: left; height: 26px; font-size: 12px; }
+.game-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.game-next { padding: 12px 8px; border-radius: 10px; background: var(--surface-2); text-align: center; }
 .game-next h4 { font-size: 10.6px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
 .game-next canvas { display: block; margin: 8px auto 6px; }
-.game-next span { font-family: var(--mono); font-size: 11.4px; color: var(--ink-2); }
+.game-next span { font-family: var(--mono); font-size: 10.6px; color: var(--ink-2); }
 
-.game-help { font-size: 11.6px; color: var(--ink-3); line-height: 1.5; }
+.game-help { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 11.4px; color: var(--ink-3); }
+.game-help span { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.game-help-note { width: 100%; color: var(--ink-3); opacity: .8; }
+.game-help b {
+  font-family: var(--mono); font-size: 10.6px; font-weight: 500; color: var(--ink-2);
+  padding: 1px 5px; border-radius: 5px; border: 1px solid var(--hair); background: var(--surface-2);
+}
 .game-actions { display: flex; gap: 8px; margin-top: auto; }
 .game-actions .btn { flex: 1; }
 

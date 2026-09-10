@@ -1114,7 +1114,8 @@
       ["R", "Refresh quotes"],
       ["C", "Copy the shown quote"],
       ["W", "Wallet"], ["B", "Portfolio"], ["T", "Terms"], ["G", "Ticker Drop"],
-      ["Esc", "Close what is open"]
+      ["Esc", "Close what is open"],
+      ["WASD", "Move, rotate and drop in Ticker Drop"]
     ];
     return '<div class="wallet-list">' + keys.map(function (k) {
       return '<div class="wallet-row"><span>' + k[1] + "</span><b>" + k[0] + "</b></div>";
@@ -1145,6 +1146,7 @@
       case "go": goTo(parts[1]); break;
       case "folio": openFolio(); break;
       case "game": openGame(); break;
+      case "scores": openScores(); break;
       case "x": window.open("https://x.com", "_blank", "noopener"); break;
     }
   }
@@ -1166,9 +1168,41 @@
   var SHAPE_KEYS = Object.keys(SHAPES);
   var ROW_VALUE = [0, 1200, 3000, 6400, 12000];   // booked P&L per rows closed
 
+  // Sound is synthesised with Web Audio: no files to load, nothing to host.
+  var sound = { ctx: null, on: read("markets.sfx") !== "off" };
+
+  function tone(freq, dur, type, vol, delay) {
+    if (!sound.on) return;
+    try {
+      if (!sound.ctx) sound.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var ctx = sound.ctx;
+      var at = ctx.currentTime + (delay || 0);
+      var osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = type || "square";
+      osc.frequency.setValueAtTime(freq, at);
+      gain.gain.setValueAtTime(vol || 0.05, at);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(at);
+      osc.stop(at + dur + 0.02);
+    } catch (e) { sound.on = false; }
+  }
+
+  function sfx(name) {
+    if (name === "move") tone(180, .035, "square", .035);
+    else if (name === "rotate") tone(320, .045, "square", .04);
+    else if (name === "hold") tone(420, .07, "triangle", .05);
+    else if (name === "lock") tone(120, .07, "sine", .06);
+    else if (name === "clear") { tone(440, .09, "triangle", .07); tone(660, .09, "triangle", .06, .07); tone(880, .14, "triangle", .05, .14); }
+    else if (name === "level") { tone(520, .08, "square", .05); tone(780, .12, "square", .045, .08); }
+    else if (name === "over") { tone(200, .18, "sawtooth", .05); tone(150, .22, "sawtooth", .045, .16); tone(90, .3, "sawtooth", .04, .34); }
+  }
+
   var gameModal = $("#gameModal"), gameDock = $("#gameDock"), gameDockDot = $("#gameDockDot");
   var board = $("#board"), bx = board.getContext("2d");
   var nextCanvas = $("#nextCanvas"), nx = nextCanvas.getContext("2d");
+  var holdCanvas = $("#holdCanvas"), hx = holdCanvas.getContext("2d");
+  var LOCK_DELAY = 440, LOCK_RESETS = 12;
   var game = null, raf = null;
 
   function cssColor(token) {
@@ -1188,7 +1222,7 @@
     var shape = SHAPES[key];
     var asset = ASSETS[Math.floor(Math.random() * ASSETS.length)];
     return {
-      cells: shape.cells.slice(), n: shape.n, asset: asset,
+      key: key, cells: shape.cells.slice(), n: shape.n, asset: asset,
       color: CLASSES[asset.type].accent, label: asset.sym.slice(0, 4),
       x: Math.floor((COLS - shape.n) / 2), y: -2
     };
@@ -1213,49 +1247,152 @@
       if (!collides(game.piece, kicks[i], 0, turned)) {
         game.piece.x += kicks[i];
         game.piece.cells = turned;
+        touched();
+        sfx("rotate");
         return;
       }
     }
   }
 
-  function move(dx) { if (!collides(game.piece, dx, 0)) game.piece.x += dx; }
+  function grounded() { return collides(game.piece, 0, 1); }
+
+  function touched() {
+    // sliding or spinning a landed piece buys a little more time, up to a limit
+    if (grounded() && game.lockResets < LOCK_RESETS) {
+      game.lockAt = performance.now();
+      game.lockResets++;
+    }
+  }
+
+  function move(dx) {
+    if (!collides(game.piece, dx, 0)) { game.piece.x += dx; touched(); sfx("move"); }
+  }
+
+  function hold() {
+    if (game.holdUsed) return;
+    var current = game.piece;
+    if (game.hold) {
+      game.piece = game.hold;
+      game.piece.x = Math.floor((COLS - game.piece.n) / 2);
+      game.piece.y = -2;
+    } else {
+      game.piece = game.next;
+      game.next = newPiece();
+      paintNext();
+    }
+    game.hold = { cells: SHAPES[current.key].cells.slice(), n: current.n, key: current.key,
+                  asset: current.asset, color: current.color, label: current.label,
+                  x: 0, y: -2 };
+    game.holdUsed = true;
+    sfx("hold");
+    game.lockAt = 0;
+    game.lockResets = 0;
+    paintHold();
+  }
 
   function lock() {
     game.piece.cells.forEach(function (c) {
       var cy = game.piece.y + c[1], cx = game.piece.x + c[0];
-      if (cy >= 0) game.grid[cy][cx] = { color: game.piece.color, label: game.piece.label };
+      if (cy >= 0) game.grid[cy][cx] = { color: game.piece.color, label: game.piece.label, sym: game.piece.asset.sym };
     });
 
-    var closed = 0;
+    var closed = 0, moves = [], burst = [];
     for (var y = ROWS - 1; y >= 0; y--) {
-      if (game.grid[y].every(function (cell) { return !!cell; })) {
+      if (game.grid[y].every(function (c) { return !!c; })) {
+        game.grid[y].forEach(function (c, i) {
+          var a = byId(c.sym);
+          if (a) moves.push(a.change);
+          burst.push({ x: (i + .5) * CELL, y: (y + .5) * CELL, color: c.color });
+        });
         game.grid.splice(y, 1);
         game.grid.unshift(new Array(COLS).fill(null));
         closed++;
         y++;
       }
     }
+
     if (closed) {
+      var avgMove = moves.reduce(function (t, m) { return t + m; }, 0) / (moves.length || 1);
+      var marketMult = Math.min(2.4, Math.max(0.6, 1 + avgMove / 4));   // gainers pay, losers do not
+      game.streak++;
+      var streakMult = Math.min(2.5, 1 + (game.streak - 1) * 0.25);
+      var payout = Math.round(ROW_VALUE[closed] * game.level * marketMult * streakMult);
+
       game.lines += closed;
-      game.pnl += ROW_VALUE[closed] * game.level;
+      game.pnl += payout;
+      var wasLevel = game.level;
       game.level = 1 + Math.floor(game.lines / 8);
+
+      popup("+$" + payout.toLocaleString("en-US"),
+            "×" + marketMult.toFixed(2) + " market" + (game.streak > 1 ? " · ×" + streakMult.toFixed(2) + " streak" : ""),
+            avgMove >= 0 ? "--green" : "--red");
+      spark(burst);
+      sfx(game.level > wasLevel ? "level" : "clear");
+      paintStats();
+    } else {
+      game.streak = 0;
+      sfx("lock");
       paintStats();
     }
 
     game.piece = game.next;
     game.next = newPiece();
+    game.holdUsed = false;
+    game.lockAt = 0;
+    game.lockResets = 0;
     paintNext();
     if (collides(game.piece, 0, 0)) endGame();
   }
 
   function step() {
-    if (collides(game.piece, 0, 1)) lock();
-    else game.piece.y++;
+    if (grounded()) lock();
+    else { game.piece.y++; game.lockAt = 0; }
   }
 
   function hardDrop() {
     while (!collides(game.piece, 0, 1)) game.piece.y++;
     lock();
+  }
+
+  function popup(text, sub, token) {
+    game.popups.push({ text: text, sub: sub, color: cssColor(token) || "#ffffff", life: 1 });
+  }
+
+  function spark(cells) {
+    cells.forEach(function (c) {
+      for (var i = 0; i < 3; i++) {
+        game.bits.push({
+          x: c.x, y: c.y, color: c.color, life: 1,
+          vx: (Math.random() - .5) * 3.4, vy: -Math.random() * 3.2 - 0.6
+        });
+      }
+    });
+  }
+
+  function drawEffects() {
+    game.bits = game.bits.filter(function (b) { return b.life > 0; });
+    game.bits.forEach(function (b) {
+      b.x += b.vx; b.y += b.vy; b.vy += 0.22; b.life -= 0.022;
+      bx.globalAlpha = Math.max(0, b.life);
+      bx.fillStyle = b.color;
+      bx.fillRect(b.x - 2.5, b.y - 2.5, 5, 5);
+    });
+    bx.globalAlpha = 1;
+
+    game.popups = game.popups.filter(function (p) { return p.life > 0; });
+    game.popups.forEach(function (p, i) {
+      p.life -= 0.012;
+      var y = board.height / 2 - i * 34 - (1 - p.life) * 26;
+      bx.globalAlpha = Math.min(1, p.life * 1.6);
+      bx.textAlign = "center";
+      bx.fillStyle = p.color;
+      bx.font = '700 20px "JetBrains Mono", monospace';
+      bx.fillText(p.text, board.width / 2, y);
+      bx.fillStyle = cssColor("--ink-2") || "#a7b0bd";
+      bx.font = '500 10px "JetBrains Mono", monospace';
+      bx.fillText(p.sub, board.width / 2, y + 15);
+      bx.globalAlpha = 1;
+    });
   }
 
   function cell(ctx, px, py, size, color, label) {
@@ -1306,50 +1443,79 @@
         if (cy >= 0) cell(bx, (game.piece.x + c[0]) * CELL, cy * CELL, CELL, game.piece.color, game.piece.label);
       });
     }
+
+    drawEffects();
   }
 
-  function paintNext() {
-    var size = 22, p = game.next;
-    nx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
-    var offX = (nextCanvas.width - p.n * size) / 2;
-    var offY = (nextCanvas.height - p.n * size) / 2;
-    p.cells.forEach(function (c) { cell(nx, offX + c[0] * size, offY + c[1] * size, size, p.color, p.label); });
-    $("#nextName").textContent = p.asset.sym + " · " + money(p.asset.price);
+  function paintSlot(ctx, canvas, piece, nameEl, emptyText) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!piece) { nameEl.textContent = emptyText; return; }
+    var size = 20;
+    var offX = (canvas.width - piece.n * size) / 2;
+    var offY = (canvas.height - piece.n * size) / 2;
+    piece.cells.forEach(function (c) {
+      cell(ctx, offX + c[0] * size, offY + c[1] * size, size, piece.color, piece.label);
+    });
+    nameEl.textContent = piece.asset.sym + " · " + money(piece.asset.price);
   }
+  function paintNext() { paintSlot(nx, nextCanvas, game.next, $("#nextName"), "—"); }
+  function paintHold() { paintSlot(hx, holdCanvas, game.hold, $("#holdName"), "empty"); }
+
+  function bestKey() { return "markets.best." + (wallet.address || "guest"); }
+  function bestScore() { return parseInt(read(bestKey()) || "0", 10) || 0; }
 
   function paintStats() {
     $("#gamePnl").textContent = "$" + game.pnl.toLocaleString("en-US");
     $("#gameLines").textContent = game.lines;
     $("#gameLevel").textContent = game.level;
+    $("#gameStreak").textContent = game.streak > 1 ? "×" + game.streak : "—";
+    $("#gameBest").textContent = "$" + bestScore().toLocaleString("en-US");
   }
 
   function endGame() {
     game.over = true;
-    $("#gameOverTitle").textContent = game.pnl > 0 ? "Book closed" : "Margin call";
+    sfx("over");
+    var best = bestScore();
+    var beat = game.pnl > best;
+    if (beat) { write(bestKey(), String(game.pnl)); paintStats(); }
+    $("#gameOver").dataset.beat = beat ? "1" : "";
+    $("#gameOverTitle").textContent = beat && game.pnl > 0 ? "New best" : game.pnl > 0 ? "Book closed" : "Margin call";
     $("#gameOverLine").textContent = "Booked $" + game.pnl.toLocaleString("en-US") +
-      " across " + game.lines + (game.lines === 1 ? " row." : " rows.");
+      " across " + game.lines + (game.lines === 1 ? " row" : " rows") +
+      (beat ? ". That is your best yet." : ". Best is $" + best.toLocaleString("en-US") + ".");
     $("#gameOver").hidden = false;
+    recordRun();
   }
 
   function loop(now) {
     raf = requestAnimationFrame(loop);
-    if (!game || game.over || game.paused) return;
+    if (!game) return;
+    if (game.over || game.paused) { draw(); return; }
     if (!game.last) game.last = now;
     var speed = Math.max(120, 780 - (game.level - 1) * 70);
-    if (now - game.last >= speed) { step(); game.last = now; }
+
+    if (grounded()) {
+      if (!game.lockAt) game.lockAt = now;
+      if (now - game.lockAt >= LOCK_DELAY) { lock(); game.last = now; }
+    } else if (now - game.last >= speed) {
+      step();
+      game.last = now;
+    }
     draw();
   }
 
   function startGame() {
     game = {
       grid: Array.from({ length: ROWS }, function () { return new Array(COLS).fill(null); }),
-      piece: newPiece(), next: newPiece(),
-      pnl: 0, lines: 0, level: 1, last: 0, paused: false, over: false
+      piece: newPiece(), next: newPiece(), hold: null, holdUsed: false,
+      pnl: 0, lines: 0, level: 1, streak: 0, last: 0, lockAt: 0, lockResets: 0,
+      popups: [], bits: [], paused: false, over: false
     };
     $("#gameOver").hidden = true;
     $("#gamePause").textContent = "Pause";
     paintStats();
     paintNext();
+    paintHold();
     draw();
     if (!raf) raf = requestAnimationFrame(loop);
   }
@@ -1362,6 +1528,7 @@
   }
 
   function closeGame() {
+    stopRepeat();
     gameModal.classList.add("gone");
     gameDockDot.hidden = true;
     setTimeout(function () { gameModal.style.display = "none"; }, 420);
@@ -1370,6 +1537,15 @@
   }
 
   function gameOpen() { return !!game && !gameModal.classList.contains("gone"); }
+
+  function paintMute() { $("#gameMute").textContent = sound.on ? "Sound on" : "Sound off"; }
+  $("#gameMute").addEventListener("click", function () {
+    sound.on = !sound.on;
+    write("markets.sfx", sound.on ? "on" : "off");
+    paintMute();
+    if (sound.on) sfx("rotate");
+  });
+  paintMute();
 
   gameDock.addEventListener("click", openGame);
   $("#gameClose").addEventListener("click", closeGame);
@@ -1382,18 +1558,142 @@
   });
   $$(".game-pad button").forEach(function (b) {
     b.addEventListener("click", function () {
-      if (!game || game.over || game.paused) return;
+      if (!game) return;
+    if (game.over || game.paused) { draw(); return; }
       var pad = b.dataset.pad;
       if (pad === "left") move(-1);
       else if (pad === "right") move(1);
       else if (pad === "rot") rotate();
       else if (pad === "down") step();
       else if (pad === "drop") hardDrop();
+      else if (pad === "hold") hold();
       draw();
     });
   });
 
+  /* ------------------------------------------------------------ scoreboard */
+
+  // Published as an Artifact, the page gets a small store of its own, so a run
+  // played by anyone who opens it lands where the owner can read it back. Served
+  // as plain files there is no store, and everything below simply stays quiet.
+  var store = null, scoresModal = $("#scoresModal");
+
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("db").then(function (db) { store = db || null; }).catch(function () { store = null; });
+  }
+
+  var playerName = $("#gameName");
+  playerName.value = read("markets.player") || "";
+  playerName.addEventListener("input", function () { write("markets.player", playerName.value.trim()); });
+
+  function recordRun() {
+    if (!store) return;
+    var id = "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    store.doc("runs/" + id).set({
+      score: game.pnl,
+      lines: game.lines,
+      level: game.level,
+      player: (playerName.value.trim() || "anonymous").slice(0, 18),
+      wallet: wallet.address ? shortAddr(wallet.address) : "",
+      at: new Date().toISOString()
+    }).catch(function () { /* the run simply is not recorded */ });
+  }
+
+  function renderScores() {
+    var rows = $("#scoresRows"), stats = $("#scoresStats");
+
+    if (!store) {
+      rows.innerHTML = '<tr><td colspan="6" class="folio-empty">This copy of the page has no store. Runs are recorded on the published version.</td></tr>';
+      stats.innerHTML = "";
+      return;
+    }
+
+    rows.innerHTML = '<tr><td colspan="6" class="folio-empty">Loading…</td></tr>';
+    store.collection("runs").orderBy("score", "desc").limit(50).get().then(function (snap) {
+      var runs = snap.docs.map(function (d) { return d.data(); });
+
+      var players = {};
+      runs.forEach(function (r) { players[r.player || "anonymous"] = true; });
+      stats.innerHTML = [
+        ["Runs", runs.length],
+        ["Players", Object.keys(players).length],
+        ["Best", runs.length ? "$" + (runs[0].score || 0).toLocaleString("en-US") : "—"],
+        ["Rows closed", runs.reduce(function (t, r) { return t + (r.lines || 0); }, 0)]
+      ].map(function (row) {
+        return '<dl class="class-stat"><dt>' + row[0] + "</dt><dd>" + row[1] + "</dd></dl>";
+      }).join("");
+
+      rows.innerHTML = runs.length ? runs.map(function (r, i) {
+        var when = new Date(r.at);
+        return "<tr>" +
+          '<td class="num">' + (i + 1) + "</td>" +
+          "<td>" + escapeText(r.player || "anonymous") + (r.wallet ? ' <span class="hide-sm">· ' + escapeText(r.wallet) + "</span>" : "") + "</td>" +
+          '<td class="num">$' + (r.score || 0).toLocaleString("en-US") + "</td>" +
+          '<td class="num">' + (r.lines || 0) + "</td>" +
+          '<td class="num">' + (r.level || 1) + "</td>" +
+          "<td>" + (isNaN(when) ? "—" : when.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })) + "</td>" +
+          "</tr>";
+      }).join("") : '<tr><td colspan="6" class="folio-empty">Nobody has finished a run yet.</td></tr>';
+    }).catch(function () {
+      rows.innerHTML = '<tr><td colspan="6" class="folio-empty">The store did not answer. Try refresh.</td></tr>';
+    });
+  }
+
+  // Runs are written by whoever plays, so treat every field as text, not markup.
+  function escapeText(value) {
+    return String(value).replace(/[&<>"]/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch];
+    });
+  }
+
+  function openScores() {
+    renderScores();
+    scoresModal.style.display = "";
+    scoresModal.classList.remove("gone");
+  }
+  function closeScores() {
+    scoresModal.classList.add("gone");
+    setTimeout(function () { scoresModal.style.display = "none"; }, 420);
+  }
+  $("#scoresClose").addEventListener("click", closeScores);
+  $("#scoresRefresh").addEventListener("click", renderScores);
+
+  // The scoreboard is yours: it stays out of the menu until this browser has
+  // been unlocked once with #owner in the address.
+  if (window.location.hash === "#owner") write("markets.owner", "1");
+  if (read("markets.owner") === "1") $("#scoresMenuItem").hidden = false;
+
   /* ------------------------------------------------------------ keyboard */
+
+  // Holding a key slides the piece: a short delay, then a fast repeat, the way
+  // this genre expects. The browser's own repeat is too slow to play with.
+  var repeat = { key: null, delay: null, tick: null };
+
+  function stopRepeat() {
+    clearTimeout(repeat.delay);
+    clearInterval(repeat.tick);
+    repeat.key = null;
+  }
+
+  function autoRepeat(key, action) {
+    stopRepeat();
+    action();
+    repeat.key = key;
+    repeat.delay = setTimeout(function () {
+      repeat.tick = setInterval(function () {
+        if (!game || game.over || game.paused) return stopRepeat();
+        action();
+        draw();
+      }, 45);
+    }, 170);
+  }
+
+  document.addEventListener("keyup", function (e) {
+    var key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (key === repeat.key) stopRepeat();
+  });
+  window.addEventListener("blur", stopRepeat);
+
 
   function sheetOpen(el) { return el && el.style.display !== "none" && !el.classList.contains("gone"); }
 
@@ -1410,6 +1710,7 @@
       if (sheetOpen(infoModal)) return $("#infoClose").click();
       if (sheetOpen(tradeModal)) return closeTicket();
       if (sheetOpen(folioModal)) return closeFolio();
+      if (sheetOpen(scoresModal)) return closeScores();
       if (sheetOpen(walletModal)) return $("#walletClose").click();
       return;
     }
@@ -1419,15 +1720,19 @@
         if (e.key.toLowerCase() === "p") $("#gamePause").click();
         return;
       }
+      var key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (e.repeat) { e.preventDefault(); return; }   // the page repeats these itself
+
       var handled = true;
-      switch (e.key) {
-        case "ArrowLeft": move(-1); break;
-        case "ArrowRight": move(1); break;
-        case "ArrowUp": rotate(); break;
-        case "ArrowDown": step(); break;
+      switch (key) {
+        case "ArrowLeft": case "a": autoRepeat(key, function () { move(-1); }); break;
+        case "ArrowRight": case "d": autoRepeat(key, function () { move(1); }); break;
+        case "ArrowDown": case "s": autoRepeat(key, function () { step(); }); break;
+        case "ArrowUp": case "w": rotate(); break;
         case " ": hardDrop(); break;
-        default:
-          if (e.key.toLowerCase() === "p") $("#gamePause").click(); else handled = false;
+        case "e": case "Shift": hold(); break;
+        case "p": $("#gamePause").click(); break;
+        default: handled = false;
       }
       if (handled) { e.preventDefault(); draw(); }
       return;

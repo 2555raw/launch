@@ -38,9 +38,17 @@ It shares nothing with the other folders in this repository.
   shortcuts work on the page (1–5, ], /, D, R, C, W, T, G, ?, Esc).
 - **Ticker Drop.** A falling-block puzzle in its own window, opened from the
   dock or the Window menu. Each piece is a position: the blocks carry a ticker
-  and take their colour from the asset class, a ghost shows where it lands, and
-  filling a row books P&L that scales with the level. Arrow keys, space to drop,
-  P to pause, and on-screen buttons at phone width.
+  and take their colour from the asset class, and a row pays by how those
+  tickers actually moved today, multiplied by the level and by a streak of
+  consecutive clears. It holds a piece (E), keeps a personal best per address,
+  synthesises its own sound with Web Audio, and repeats keys itself so a held
+  key slides the piece. WASD or the arrow keys, space to drop, P to pause,
+  on-screen buttons at phone width.
+- **Scoreboard.** Published as an Artifact, a finished run is written to the
+  page's own store with the player's name, so runs played by anyone who opens
+  it can be read back. The Scores window stays out of the menu until the
+  browser is unlocked once by opening the page with `#owner`. Served as plain
+  files there is no store and the feature stays quiet.
 - **Paper trading.** With a wallet connected, Buy and Sell on the chart open an
   order ticket; fills build positions with an average price, open and realised
   P&L and a blotter, in a Portfolio window opened from the dock, the sidebar or

@@ -981,7 +981,9 @@
     $("#ticketPrice").textContent = money(a.price);
     $("#ticketAccount").textContent = shortAddr(wallet.address);
     $("#ticketHeld").textContent = heldQty(a.sym) ? heldQty(a.sym) + " @ " + money(positionOf(a.sym).avg) : "nothing yet";
-    $("#tradeSubmit").textContent = side === "buy" ? "Fill buy" : "Fill sell";
+    var submit = $("#tradeSubmit");
+    submit.textContent = side === "buy" ? "Fill buy" : "Fill sell";
+    submit.className = "btn " + (side === "buy" ? "btn-green" : "btn-red");
     $("#tradeNote").hidden = true;
     $("#ticketQty").value = side === "sell" && heldQty(a.sym) ? heldQty(a.sym) : 1;
     paintNotional();

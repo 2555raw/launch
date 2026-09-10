@@ -1,0 +1,20 @@
+# Railway hands the container a port in $PORT; 8080 is the local default.
+{
+	admin off
+	auto_https off
+}
+
+:{$PORT:8080} {
+	root * /srv
+	encode gzip
+
+	# One page, so anything unknown lands on it rather than on a 404.
+	try_files {path} {path}/ /index.html
+	file_server
+
+	header {
+		Cache-Control "public, max-age=300"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}

@@ -1,0 +1,6 @@
+Dockerfile
+Caddyfile
+.dockerignore
+README.md
+build-artifact.py
+artifact.html

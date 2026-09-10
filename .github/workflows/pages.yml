@@ -6,10 +6,11 @@
 # what tells Pages which domain it is answering on, which also means Pages serves
 # it from the root and every relative path in the page resolves.
 #
-# configure-pages switches Pages on by itself the first time it runs. That only
-# works on a public repository: on a private one the same call comes back
-# "Get Pages site failed ... Not Found", and the site has to be created by hand
-# under Settings > Pages > Source: GitHub Actions.
+# Pages has to be switched on for the repository by hand, under
+# Settings > Pages > Source: GitHub Actions. Doing it from here with
+# `enablement: true` does not work either: the workflow token comes back
+# "Create Pages site failed ... Resource not accessible by integration", on a
+# public repository as much as on a private one.
 name: Deploy ARCHIVE 2011 to Pages
 
 on:
@@ -36,8 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: archive-2011

@@ -85,11 +85,13 @@ therefore wanders from the dollar price as the market moves, which is fine for
 a demo and wrong for a real storefront. Before taking live payments, either
 quote in a stablecoin like USDC or read a real feed there.
 
-## The wallet panel
+## The wallet on the page
 
-Finishing the flow lands on a wallet rather than a receipt: a balance, the
-address, the network, the passkey, and a list of what has moved. The nav keeps
-a badge afterwards that reopens it.
+Finishing the flow does not end on a receipt. The modal hands off and a wallet
+section appears on the page itself, headed by whatever you named it on the
+passkey screen: the balance in ETH and dollars, the address, network, plan and
+passkey, and a list of what has moved with the plan payment as its first entry.
+A badge in the nav scrolls back to it.
 
 What "add funds" means depends on the mode, because nothing on a web page can
 conjure ETH.
@@ -98,7 +100,7 @@ conjure ETH.
   to send to: the address, a Refresh button, and on a test network a link to
   the faucet that hands out free ETH. Send, refresh, watch it move.
 - **Demo** credits a number on the page. Add 0.25, spend 0.1, and the balance
-  and the activity list behave the way the real one does. The panel says
+  and the activity list behave the way the real ones do. The section says
   plainly that the address is invented and holds nothing.
 
 ## What is real and what is staged

@@ -51,6 +51,7 @@
     wallet: null,        // base58 address
     signature: null,     // payment tx signature
     passkeyId: null,
+    label: '',           // what the visitor named this wallet
     busy: false,
     error: '',
     balance: 0,          // ETH held by the account, read live or credited in demo
@@ -78,7 +79,7 @@
     if (state.mode !== 'live') return;          // demo runs leave no trace
     try {
       localStorage.setItem(STORE, JSON.stringify({
-        plan: state.plan, cycle: state.cycle, wallet: state.wallet,
+        plan: state.plan, cycle: state.cycle, wallet: state.wallet, label: state.label,
         signature: state.signature, passkeyId: state.passkeyId,
         chainId: cfg.chainId, opened: Date.now()
       }));
@@ -364,89 +365,90 @@
       return;
     }
 
-    // the wallet panel
-    const explorer = state.signature && state.mode === 'live' ? explorerFor(state.signature) : null;
-    const live = state.mode === 'live';
-    const bal = state.balance;
-    const balUsd = bal * (cfg.ethReferenceUsd || 0);
-    const fa = faucet();
-
+    // the wallet panel proper lives on the page; this just hands off to it
     el.body.innerHTML = `
-      <div class="ts-opened">
-        <span class="ts-opened-mark" aria-hidden="true">&check;</span>
-        <div>
-          <b>${PLAN_NAMES[state.plan]} account open</b>
-          <p>${live
-            ? 'Your passkey is registered on this device and the plan is paid.'
-            : 'Demo account. Nothing was paid and no passkey was created.'}</p>
-        </div>
+      <div class="ts-done">
+        <div class="ts-done-mark" aria-hidden="true">&check;</div>
+        <h3>${state.label || 'Your wallet'} is open</h3>
+        <p class="ts-lead">${state.mode === 'live'
+          ? 'The passkey is registered on this device and the plan is paid. Your wallet is on the page now, with the balance and somewhere to add funds.'
+          : 'That was the demo: nothing was paid and no passkey was created. The wallet is on the page now, where you can credit it and watch the balance move.'}</p>
       </div>
-
-      <div class="ts-balance">
-        <p class="ts-balance-label">Balance</p>
-        <p class="ts-balance-figure">
-          ${state.loadingBalance ? '…' : bal.toFixed(4)}<span>ETH</span>
-        </p>
-        <p class="ts-balance-usd">
-          ≈ $${balUsd.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-          at $${(cfg.ethReferenceUsd || 0).toLocaleString('en-US')}/ETH
-        </p>
-        ${live ? `<button class="ts-copy ts-balance-refresh" type="button" data-go="refresh">
-          ${state.loadingBalance ? 'Reading…' : 'Refresh'}
-        </button>` : ''}
-      </div>
-
-      <div class="ts-field ts-field-wide">
-        <span>Address</span>
-        <code id="depAddr">${state.wallet || ''}</code>
-        <button class="ts-copy" type="button" data-go="copy">Copy</button>
-      </div>
-      <div class="ts-field"><span>Network</span><code>${cfg.chainName || 'unknown'}</code></div>
-      <div class="ts-field"><span>Passkey</span><code>${short(state.passkeyId, 8, 8) || 'none'}</code></div>
-      ${explorer ? `<div class="ts-field"><span>Plan payment</span><a class="ts-link" href="${explorer}" target="_blank" rel="noopener noreferrer">View on the explorer</a></div>` : ''}
-
-      <div class="ts-deposit">
-        <h4>Adding funds</h4>
-        ${live ? `
-          <p>Nothing here can create ETH. Send it to the address above from an
-             exchange or another wallet${fa ? `, or pull free test ETH from the ${cfg.chainName} faucet` : ''},
-             then press Refresh and watch the balance move.</p>
-          <div class="ts-actions">
-            ${fa ? `<a class="ts-btn ts-btn-primary" href="${fa}" target="_blank" rel="noopener noreferrer">Open the faucet</a>` : ''}
-            <button class="ts-btn ts-btn-ghost" type="button" data-go="refresh">Refresh balance</button>
-          </div>
-          <p class="ts-fineprint">Check the first and last characters against your wallet before you send anything.</p>
-        ` : `
-          <p>This is the demo, so funds are a number on this page and nothing more.
-             Credit yourself as much as you like and watch the balance and the
-             activity below react the way the real thing does.</p>
-          <div class="ts-actions">
-            <button class="ts-btn ts-btn-primary" type="button" data-go="fund">Add 0.25 ETH</button>
-            <button class="ts-btn ts-btn-ghost" type="button" data-go="spend" ${bal < 0.1 ? 'disabled' : ''}>Spend 0.1 ETH</button>
-          </div>
-          <p class="ts-fineprint"><b>Do not send real funds to this address.</b>
-             It was made up for the demo and nobody holds its key.</p>
-        `}
-      </div>
-
-      ${state.activity.length ? `
-        <div class="ts-activity">
-          <h4>Activity</h4>
-          ${state.activity.map((a) => `
-            <div class="ts-act">
-              <span>${a.label}</span>
-              <code class="${a.delta >= 0 ? 'is-in' : 'is-out'}">
-                ${a.delta >= 0 ? '+' : '−'}${Math.abs(a.delta).toFixed(4)} ETH
-              </code>
-              <time>${a.at.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</time>
-            </div>`).join('')}
-        </div>` : ''}
-
       ${err()}
       <div class="ts-actions">
-        <button class="ts-btn ts-btn-primary" type="button" data-go="close">Done</button>
+        <button class="ts-btn ts-btn-primary" type="button" data-go="vault">Open my wallet</button>
         <button class="ts-btn ts-btn-ghost" type="button" data-go="reset">Start over</button>
       </div>`;
+  }
+
+  /* ---------------- the wallet on the page ---------------- */
+
+  // One source of truth: the modal hands off and this section is the wallet.
+  function renderVault() {
+    const sec = $('#wallet');
+    if (!sec || !state.wallet) return;
+
+    const live = state.mode === 'live';
+    const usd = state.balance * (cfg.ethReferenceUsd || 0);
+    const fa = faucet();
+
+    sec.hidden = false;
+    $('#vaultName').textContent = state.label || 'Monelle wallet';
+    $('#vaultSub').textContent = live
+      ? `Opened on ${cfg.chainName}, paid on the ${PLAN_NAMES[state.plan]} plan.`
+      : 'A demo wallet. Nothing was paid and no passkey was created.';
+
+    const tag = $('#vaultTag');
+    tag.textContent = live ? 'Live' : 'Demo';
+    tag.className = `ts-tag ${live ? 'ts-tag-live' : 'ts-tag-demo'}`;
+
+    $('#vaultBal').innerHTML = `${state.loadingBalance ? '…' : state.balance.toFixed(4)}<span>ETH</span>`;
+    $('#vaultUsd').textContent =
+      `≈ $${usd.toLocaleString('en-US', { maximumFractionDigits: 2 })} at $${(cfg.ethReferenceUsd || 0).toLocaleString('en-US')}/ETH`;
+
+    $('#vaultAddr').textContent = state.wallet;
+    $('#vaultNet').textContent = cfg.chainName || 'unknown';
+    $('#vaultPlan').textContent = `${PLAN_NAMES[state.plan]} · ${state.cycle}`;
+    $('#vaultKey').textContent = short(state.passkeyId, 8, 8) || 'none';
+
+    const txRow = $('#vaultTxRow');
+    const tx = state.signature && live ? explorerFor(state.signature) : null;
+    txRow.hidden = !tx;
+    if (tx) $('#vaultTx').href = tx;
+
+    $('#vaultFunds').innerHTML = live
+      ? `${fa ? `<a class="ts-btn ts-btn-primary" href="${fa}" target="_blank" rel="noopener noreferrer">Open the faucet</a>` : ''}
+         <button class="ts-btn ts-btn-ghost" type="button" data-go="refresh">
+           ${state.loadingBalance ? 'Reading…' : 'Refresh balance'}
+         </button>`
+      : `<button class="ts-btn ts-btn-primary" type="button" data-go="fund">Add 0.25 ETH</button>
+         <button class="ts-btn ts-btn-ghost" type="button" data-go="spend" ${state.balance < 0.1 ? 'disabled' : ''}>Spend 0.1 ETH</button>`;
+
+    $('#vaultFine').innerHTML = live
+      ? `Nothing here can create ETH. Send it to the address beside this from an exchange
+         or another wallet, then refresh. Check the first and last characters first.`
+      : `<b>Do not send real funds to this address.</b> It was made up for the demo and
+         nobody holds its key.`;
+
+    const act = $('#vaultActivity');
+    act.hidden = state.activity.length === 0;
+    $('#vaultActList').innerHTML = state.activity.map((a) => `
+      <div class="ts-act">
+        <span>${a.label}</span>
+        <code class="${a.delta >= 0 ? 'is-in' : 'is-out'}">
+          ${a.delta >= 0 ? '+' : '−'}${Math.abs(a.delta).toFixed(4)} ETH
+        </code>
+        <time>${a.at.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</time>
+      </div>`).join('');
+
+    showBadge();
+  }
+
+  function goToVault() {
+    renderVault();
+    close();
+    const sec = $('#wallet');
+    if (sec) window.scrollTo({ top: sec.getBoundingClientRect().top + window.scrollY - 64, behavior: 'smooth' });
   }
 
   /* ---------------- flow ---------------- */
@@ -502,6 +504,7 @@
 
     if (what === 'passkey') {
       const label = ($('#acctLabel')?.value || '').trim() || 'Monelle account';
+      state.label = label;
       state.busy = true; render();
       try {
         state.passkeyId = state.mode === 'live'
@@ -509,7 +512,7 @@
           : (await wait(900), hex(32));
         state.step = 'wallet';
         await refreshBalance();
-        showBadge();
+        renderVault();
         save();
       } catch (e) {
         state.error = e?.name === 'NotAllowedError'
@@ -521,15 +524,19 @@
       return;
     }
 
+    if (what === 'vault') return goToVault();
+
     if (what === 'refresh') {
-      state.loadingBalance = true; render();
+      state.loadingBalance = true; renderVault(); render();
       await refreshBalance();
+      renderVault();
       return render();
     }
 
     if (what === 'fund') {
       state.balance += 0.25;
       logActivity('Demo deposit', 0.25);
+      renderVault();
       return render();
     }
 
@@ -537,6 +544,7 @@
       if (state.balance < 0.1) return;
       state.balance -= 0.1;
       logActivity('Demo spend', -0.1);
+      renderVault();
       return render();
     }
 
@@ -544,8 +552,10 @@
       const addr = state.wallet || '';
       try {
         await navigator.clipboard.writeText(addr);
-        const b = $('[data-go="copy"]');
-        if (b) { b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy'; }, 1400); }
+        $$('[data-go="copy"]').forEach((b) => {
+          b.textContent = 'Copied';
+          setTimeout(() => { b.textContent = 'Copy'; }, 1400);
+        });
       } catch {
         state.error = 'The browser blocked the clipboard. Select the address and copy it by hand.';
         render();
@@ -556,9 +566,13 @@
     if (what === 'reset') {
       Object.assign(state, {
         step: 'plan', wallet: null, signature: null, passkeyId: null,
-        error: '', balance: 0, activity: []
+        label: '', error: '', balance: 0, activity: []
       });
       forget();
+      const sec = $('#wallet');
+      if (sec) sec.hidden = true;
+      const badge = $('#acctBadge');
+      if (badge) badge.hidden = true;
       return render();
     }
 
@@ -574,17 +588,11 @@
     badge.textContent = `Wallet · ${short(state.wallet, 4, 4)}`;
   }
 
-  // Reopen the panel of an account this session already made.
+  // The wallet lives on the page now, so reopening one means painting that
+  // section and going to it, not raising the modal again.
   function openWallet() {
     if (!state.wallet) return;
-    if (!el.root) build();
-    state.step = 'wallet';
-    state.error = '';
-    state.open = true;
-    el.root.hidden = false;
-    document.body.style.overflow = 'hidden';
-    render();
-    if (state.mode === 'live') refreshBalance().then(render);
+    goToVault();
   }
 
   function open(plan, cycle, mode) {
@@ -599,6 +607,7 @@
     state.signature = null;
     state.passkeyId = null;
     state.error = '';
+    state.label = '';
     state.balance = 0;
     state.activity = [];
     state.open = true;
@@ -632,7 +641,7 @@
       return;
     }
     const go = e.target.closest('[data-go]');
-    if (go && state.open) { e.preventDefault(); act(go.dataset.go); }
+    if (go && (state.open || go.closest('#wallet'))) { e.preventDefault(); act(go.dataset.go); }
   });
 
   // A returning visitor who opened a live account sees it on the account button.
@@ -647,5 +656,5 @@
     });
   }
 
-  window.MonelleAccount = { open, openWallet, close, state };
+  window.MonelleAccount = { open, openWallet, renderVault, close, state };
 })();

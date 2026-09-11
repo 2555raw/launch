@@ -49,7 +49,7 @@
 
       <div class="ts-nav-right">
         <a class="ts-ghost-link" data-scroll="build">Docs</a>
-        <button class="ts-badge" id="acctBadge" type="button" data-wallet hidden></button>
+        <button class="ts-badge" id="acctBadge" type="button" data-scroll="wallet" hidden></button>
         <button class="ts-btn ts-btn-sm ts-btn-light" type="button" data-plan="builder">Open an account</button>
         <button class="ts-burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false">
           <span></span><span></span>
@@ -104,6 +104,50 @@
       <div class="ts-marquee-row">
         <span>Relayhouse</span><span>Sablefox</span><span>Northwind Labs</span><span>Parcel</span>
         <span>Tinderbox</span><span>Gridline</span><span>Halcyon Mint</span><span>Orbit Studio</span>
+      </div>
+    </section>
+
+    <!-- your wallet: hidden until an account exists, filled by account.js -->
+    <section class="ts-sec ts-vault" id="wallet" hidden>
+      <div class="ts-wrap">
+        <div class="ts-vault-head">
+          <div>
+            <p class="ts-kicker">Your wallet</p>
+            <h2 class="ts-h2" id="vaultName">Wallet</h2>
+            <p class="ts-vault-sub" id="vaultSub"></p>
+          </div>
+          <span class="ts-tag" id="vaultTag"></span>
+        </div>
+
+        <div class="ts-vault-grid">
+          <div class="ts-vault-balance">
+            <p class="ts-vault-label">Balance</p>
+            <p class="ts-vault-figure" id="vaultBal">0.0000<span>ETH</span></p>
+            <p class="ts-vault-usd" id="vaultUsd"></p>
+            <div class="ts-vault-cta" id="vaultFunds"></div>
+            <p class="ts-vault-fine" id="vaultFine"></p>
+          </div>
+
+          <div class="ts-vault-side">
+            <div class="ts-vault-row">
+              <span>Address</span>
+              <code id="vaultAddr"></code>
+              <button class="ts-copy" type="button" data-go="copy">Copy</button>
+            </div>
+            <div class="ts-vault-row"><span>Network</span><code id="vaultNet"></code></div>
+            <div class="ts-vault-row"><span>Plan</span><code id="vaultPlan"></code></div>
+            <div class="ts-vault-row"><span>Passkey</span><code id="vaultKey"></code></div>
+            <div class="ts-vault-row" id="vaultTxRow" hidden>
+              <span>Plan payment</span>
+              <a class="ts-link" id="vaultTx" target="_blank" rel="noopener noreferrer">View on the explorer</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="ts-vault-activity" id="vaultActivity" hidden>
+          <h3>Activity</h3>
+          <div id="vaultActList"></div>
+        </div>
       </div>
     </section>
 

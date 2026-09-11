@@ -10,7 +10,14 @@ window.MONELLE_CONFIG = {
   /* The chain payments settle on, as the hex id a wallet reports.
        0xaa36a7  Sepolia, the test network. Test ETH is free from a faucet.
        0x1       Ethereum mainnet, where the money is real.
-       0x2105    Base, if you would rather pay cents in gas than dollars. */
+       0x2105    Base, if you would rather pay cents in gas than dollars.
+
+     To settle on Robinhood Chain, put its chain id here, taken from its own
+     documentation or from chainlist. It is deliberately not filled in: a chain
+     id guessed rather than looked up sends the payment to a network the
+     treasury is not on, and the funds sit somewhere nobody is watching. The
+     flow checks eth_chainId against this value before it sends, so a wrong
+     entry here is a wrong send, not an error message. */
   chainId: '0xaa36a7',
   chainName: 'Sepolia',
 

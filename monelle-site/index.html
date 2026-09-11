@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Monelle: passkey wallets and creator tooling for Bitcoin</title>
-  <meta name="description" content="Monelle gives developers passkey native wallets, an Ordinals creator studio and a universal name across Bitcoin and EVM. No seed phrases, no extensions, no passwords.">
+  <title>Monelle: passkey wallets and a launch desk for Robinhood Chain</title>
+  <meta name="description" content="Monelle gives developers passkey native wallets, a token launch desk and a universal name across Robinhood Chain and every EVM network. No seed phrases, no extensions, no passwords.">
   <meta name="theme-color" content="#0B0C11">
-  <meta property="og:title" content="Monelle: passkey wallets and creator tooling for Bitcoin">
+  <meta property="og:title" content="Monelle: passkey wallets and a launch desk for Robinhood Chain">
   <meta property="og:description" content="Self custody that opens with Face ID. Ship a wallet in one afternoon.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/mark.svg">
@@ -78,8 +78,8 @@
         <h1 class="ts-h1">Self custody that opens<br>with a fingerprint</h1>
         <p class="ts-lede">
           Monelle replaces seed phrases with the passkey already on your users' devices.
-          One SDK gives them a wallet on Bitcoin and EVM, a name they can remember,
-          and a studio to launch what they make.
+          One SDK gives them a wallet on Robinhood Chain and every other EVM
+          network, a name they can remember, and a desk to launch a token from.
         </p>
         <div class="ts-hero-cta">
           <button class="ts-btn ts-btn-light" type="button" data-demo="builder">Try the demo</button>
@@ -125,7 +125,7 @@
             <p>A passkey native wallet SDK. The device holds the key material, WebAuthn does the signing prompt, and your user never copies twelve words onto a sticky note.</p>
             <ul class="ts-ticks">
               <li>Face ID, Touch ID or a hardware key</li>
-              <li>Bitcoin, Ordinals and EVM from one session</li>
+              <li>Robinhood Chain and every EVM network from one session</li>
               <li>Recovery through a second passkey or a co signer</li>
             </ul>
             <a class="ts-more" data-scroll="build">Read the quickstart
@@ -137,11 +137,11 @@
               <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="3.5" width="17" height="17" rx="4" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 15l4.2-4.2 4 4 3-3 5.8 5.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="8.6" r="1.5" fill="currentColor"/></svg>
             </div>
             <h3>Studio</h3>
-            <p>A layer editor for inscriptions. Drop in art, define traits and rarity, preview the whole set, then push the collection to a launchpad page with a mint schedule.</p>
+            <p>A launch desk for tokens. Set the supply, the split and the allowlist, deploy the contract from the browser, and get a mint page that reads its state straight off the chain.</p>
             <ul class="ts-ticks">
-              <li>Trait weights with live rarity preview</li>
-              <li>Batch inscribing with fee estimation</li>
-              <li>Allowlists, tiers and reveal timing</li>
+              <li>Supply, vesting and treasury splits in one form</li>
+              <li>Contract verified on deploy, with gas quoted first</li>
+              <li>Allowlists, tiers and launch timing</li>
             </ul>
             <a class="ts-more" data-scroll="cta">Open Studio
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -156,7 +156,7 @@
             <ul class="ts-ticks">
               <li>One name, many chains</li>
               <li>Resolver API and a drop in input field</li>
-              <li>Profiles you can attach to a mint</li>
+              <li>Profiles you can attach to a launch</li>
             </ul>
             <a class="ts-more" data-scroll="build">Resolve a name
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -198,9 +198,9 @@
             <p class="ts-device-sub" id="demoSub">Your device signs. Monelle never sees a private key.</p>
             <button class="ts-btn ts-btn-light ts-btn-block" id="demoBtn" type="button">Create wallet</button>
             <div class="ts-device-out" id="demoOut" hidden>
-              <div class="ts-row"><span>Bitcoin</span><code id="addrBtc"></code></div>
-              <div class="ts-row"><span>Ordinals</span><code id="addrOrd"></code></div>
-              <div class="ts-row"><span>EVM</span><code id="addrEvm"></code></div>
+              <div class="ts-row"><span>Robinhood Chain</span><code id="addrRhc"></code></div>
+              <div class="ts-row"><span>Ethereum</span><code id="addrEth"></code></div>
+              <div class="ts-row"><span>Base</span><code id="addrBase"></code></div>
               <div class="ts-row ts-row-name"><span>Name</span><code id="addrName"></code></div>
             </div>
           </div>
@@ -214,10 +214,10 @@
         <div class="ts-build-copy">
           <p class="ts-kicker">Developers</p>
           <h2 class="ts-h2">Six lines to a working wallet</h2>
-          <p class="ts-sub">Install the SDK, hand it a project key, and call one method. The session object it returns signs Bitcoin PSBTs and EVM transactions with the same prompt.</p>
+          <p class="ts-sub">Install the SDK, hand it a project key, and call one method. The session object it returns signs on Robinhood Chain and every other EVM network with the same prompt.</p>
           <ul class="ts-ticks ts-ticks-wide">
             <li>Typed clients for React, Node, Swift and Kotlin</li>
-            <li>Webhooks for every mint, transfer and recovery</li>
+            <li>Webhooks for every launch, transfer and recovery</li>
             <li>Self host the relayer or let us run it</li>
           </ul>
           <div class="ts-build-cta">
@@ -239,24 +239,24 @@
 
   <span class="c-k">if</span> (!session) <span class="c-k">return</span> &lt;button onClick={connect}&gt;Sign in&lt;/button&gt;
 
-  <span class="c-k">return</span> &lt;button onClick={() =&gt; session.<span class="c-f">inscribe</span>({ file })}&gt;
-    Mint as {session.name ?? session.btc}
+  <span class="c-k">return</span> &lt;button onClick={() =&gt; session.<span class="c-f">mint</span>({ token, amount })}&gt;
+    Mint as {session.name ?? session.address}
   &lt;/button&gt;
 }</code></pre>
           <pre class="ts-code-pane" data-pane="node"><code><span class="c-k">import</span> { Monelle } <span class="c-k">from</span> <span class="c-s">'@monelle/node'</span>
 
 <span class="c-k">const</span> monelle = <span class="c-k">new</span> <span class="c-f">Monelle</span>(process.env.<span class="c-p">MONELLE_KEY</span>)
 
-<span class="c-c">// resolve a name to whichever chain the asset lives on</span>
-<span class="c-k">const</span> to = <span class="c-k">await</span> monelle.names.<span class="c-f">resolve</span>(<span class="c-s">'maria.mon.id'</span>, { chain: <span class="c-s">'bitcoin'</span> })
+<span class="c-c">// one name, whichever network you are sending on</span>
+<span class="c-k">const</span> to = <span class="c-k">await</span> monelle.names.<span class="c-f">resolve</span>(<span class="c-s">'maria.mon.id'</span>, { chain: <span class="c-s">'robinhood'</span> })
 
-<span class="c-k">await</span> monelle.transfers.<span class="c-f">create</span>({ to, inscription, feeRate: <span class="c-n">14</span> })</code></pre>
+<span class="c-k">await</span> monelle.transfers.<span class="c-f">create</span>({ to, token, amount: <span class="c-n">250</span> })</code></pre>
           <pre class="ts-code-pane" data-pane="curl"><code>curl https://api.monelle.dev/v1/wallets \
   -H <span class="c-s">"Authorization: Bearer $MONELLE_KEY"</span> \
-  -d <span class="c-s">'{ "passkey": "&lt;credential&gt;", "chains": ["bitcoin", "base"] }'</span>
+  -d <span class="c-s">'{ "passkey": "&lt;credential&gt;", "chains": ["robinhood", "base"] }'</span>
 
 <span class="c-c"># 201 Created</span>
-<span class="c-c"># { "id": "wal_8fk2", "btc": "bc1q...", "evm": "0x9a...", "name": null }</span></code></pre>
+<span class="c-c"># { "id": "wal_8fk2", "address": "0x9a...", "chains": 2, "name": null }</span></code></pre>
         </div>
       </div>
     </section>
@@ -278,12 +278,12 @@
           <li>
             <span class="ts-num">02</span>
             <h3>Monelle derives the addresses</h3>
-            <p>The public half maps to a taproot address, an ordinals address and an EVM account. All three come back in the same session object.</p>
+            <p>The public half becomes a smart account, and the same account address answers on Robinhood Chain and on every other EVM network. One address to hand out.</p>
           </li>
           <li>
             <span class="ts-num">03</span>
             <h3>Every spend is a prompt</h3>
-            <p>Signing a PSBT looks exactly like unlocking a phone. The user sees what they are approving before the enclave releases a signature.</p>
+            <p>Approving a transaction looks exactly like unlocking a phone. The user sees the amount and the contract before the enclave releases a signature.</p>
           </li>
           <li>
             <span class="ts-num">04</span>
@@ -310,21 +310,19 @@
         <div class="ts-sec-head">
           <p class="ts-kicker">Coverage</p>
           <h2 class="ts-h2">One session, every chain you ship on</h2>
-          <p class="ts-sub">Bitcoin first, because that is the hard one. Everything else falls out of the same credential.</p>
+          <p class="ts-sub">Robinhood Chain first, because that is where you are launching. Every other EVM network falls out of the same credential.</p>
         </div>
         <div class="ts-chains">
-          <div class="ts-chip"><i></i>Bitcoin</div>
-          <div class="ts-chip"><i></i>Ordinals</div>
-          <div class="ts-chip"><i></i>Runes</div>
-          <div class="ts-chip"><i></i>Lightning</div>
+          <div class="ts-chip"><i></i>Robinhood Chain</div>
           <div class="ts-chip"><i></i>Ethereum</div>
           <div class="ts-chip"><i></i>Base</div>
           <div class="ts-chip"><i></i>Arbitrum</div>
           <div class="ts-chip"><i></i>Optimism</div>
+          <div class="ts-chip"><i></i>Zora</div>
           <div class="ts-chip"><i></i>Polygon</div>
-          <div class="ts-chip"><i></i>Solana</div>
-          <div class="ts-chip ts-chip-soon"><i></i>Stacks<em>soon</em></div>
-          <div class="ts-chip ts-chip-soon"><i></i>Fractal<em>soon</em></div>
+          <div class="ts-chip"><i></i>Linea</div>
+          <div class="ts-chip ts-chip-soon"><i></i>Solana<em>soon</em></div>
+          <div class="ts-chip ts-chip-soon"><i></i>Bitcoin<em>soon</em></div>
         </div>
       </div>
     </section>
@@ -350,7 +348,7 @@
             <p class="ts-plan-note">For prototypes and a first launch.</p>
             <ul class="ts-ticks">
               <li>5,000 monthly active wallets</li>
-              <li>Solana, Bitcoin and EVM</li>
+              <li>Robinhood Chain and every EVM network</li>
               <li>Studio with two collections</li>
               <li>Community support</li>
             </ul>
@@ -386,7 +384,7 @@
             <p class="ts-plan-note">For mints that run all week.</p>
             <ul class="ts-ticks">
               <li>500,000 monthly active wallets</li>
-              <li>Priority inscribing and fee oracles</li>
+              <li>Priority deploys and gas oracles</li>
               <li>Custom launchpad domains</li>
               <li>Session keys and spend limits</li>
               <li>A shared channel with an engineer</li>
@@ -428,12 +426,12 @@
             <p>No. The flow runs in the page on any browser that supports WebAuthn, which covers current versions of Safari, Chrome, Firefox and Edge on desktop and mobile.</p>
           </details>
           <details>
-            <summary>Can I bring my own inscribing infrastructure?<span class="ts-x" aria-hidden="true"></span></summary>
+            <summary>Can I deploy with my own contracts?<span class="ts-x" aria-hidden="true"></span></summary>
             <p>You can. Point Studio at your own node and fee oracle, and we only handle the layer editor and the launchpad page. Enterprise plans can run the relayer inside your own network.</p>
           </details>
           <details>
             <summary>How is an mon.id name different from a domain?<span class="ts-x" aria-hidden="true"></span></summary>
-            <p>It resolves per chain. The same name returns a taproot address for an inscription and an EVM account for a token transfer, so senders stop guessing which address belongs to which network.</p>
+            <p>It resolves per chain. The same name points at your account on Robinhood Chain, on Ethereum and on every other network you use, so senders stop pasting an address from the wrong one.</p>
           </details>
           <details>
             <summary>What does it cost to leave?<span class="ts-x" aria-hidden="true"></span></summary>

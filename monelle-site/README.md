@@ -1,7 +1,8 @@
 # Monelle
 
-A static site for a fictional product: passkey wallets and creator tooling
-across Solana, Bitcoin and EVM, with a universal name (`mon.id`).
+A static site for a fictional product: passkey wallets, a token launch desk
+and a universal name (`mon.id`), aimed at Robinhood Chain and every other EVM
+network.
 
 The mark is an arcade: two arches on three stems, which is both the m of the
 name and the shape of a doorway you are let through. The page keeps one
@@ -55,6 +56,15 @@ right address on the wrong chain, which is its own kind of lost.
 
 Start on Sepolia, where test ETH is free from a faucet, and move to mainnet only
 once you have watched a payment land.
+
+### Settling on Robinhood Chain
+
+`config.chainId` ships set to Sepolia, not to Robinhood Chain, and you have to
+put the real id there yourself from its own documentation or from chainlist.
+It is left out on purpose: a chain id guessed rather than looked up sends the
+payment to a network your treasury is not on. The flow compares `eth_chainId`
+against this value and asks the wallet to switch, so a wrong entry here is a
+wrong send rather than an error on screen.
 
 ### Why there is no default treasury address
 

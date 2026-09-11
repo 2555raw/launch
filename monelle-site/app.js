@@ -68,8 +68,6 @@
   const hex = (n, alphabet = '0123456789abcdef') =>
     Array.from({ length: n }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join('');
 
-  const bech32 = (prefix, n) => prefix + hex(n, 'qpzry9x8gf2tvdw0s3jn54khce6mua7l');
-
   const shorten = (value, head = 10, tail = 6) =>
     value.length > head + tail + 1 ? `${value.slice(0, head)}…${value.slice(-tail)}` : value;
 
@@ -101,20 +99,23 @@
 
     setTimeout(() => {
       title.textContent = 'Deriving addresses';
-      sub.textContent = 'One public key, three chains, no network round trip.';
+      sub.textContent = 'One public key, one account address, no network round trip.';
       lightStep(1);
     }, 1100);
 
     setTimeout(() => {
       const handle = `${names[Math.floor(Math.random() * names.length)]}.ova.id`;
-      $('#addrBtc').textContent = shorten(bech32('bc1p', 58));
-      $('#addrOrd').textContent = shorten(bech32('bc1p', 58));
-      $('#addrEvm').textContent = shorten('0x' + hex(40), 8, 6);
+      // one smart account, the same address on every EVM network, which is
+      // the point the copy beside this makes
+      const account = shorten('0x' + hex(40), 8, 6);
+      $('#addrRhc').textContent = account;
+      $('#addrEth').textContent = account;
+      $('#addrBase').textContent = account;
       $('#addrName').textContent = handle;
 
       scan.className = 'ts-scan is-done';
       title.textContent = 'Wallet ready';
-      sub.textContent = 'Signed into three chains with nothing written down.';
+      sub.textContent = 'The same address on every network, with nothing written down.';
       out.hidden = false;
       lightStep(2);
       btn.disabled = false;

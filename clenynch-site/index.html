@@ -122,6 +122,22 @@
   .titlebar.dark .filename{color:#d8c9a8;}
   .window-body{padding:26px;}
 
+  /* ---------- coin ticker ---------- */
+  .coin-ticker{background:var(--brown-deep);border-bottom:1px solid rgba(246,196,69,.15);}
+  .coin-inner{display:flex;align-items:center;gap:24px;padding:10px 24px;flex-wrap:wrap;}
+  .coin-id{display:flex;align-items:baseline;gap:10px;flex:0 0 auto;}
+  .coin-symbol{font-family:'Fraunces',serif;font-weight:600;font-size:.92rem;color:var(--yellow);}
+  .coin-price{font-size:1rem;color:var(--cream-ink);font-weight:600;}
+  .coin-change{font-size:.8rem;}
+  .coin-change.up{color:#9bd66a;} .coin-change.down{color:#e98a78;}
+  .coin-chart{flex:1 1 160px;min-width:120px;max-width:280px;height:32px;}
+  .coin-chart svg{display:block;width:100%;height:100%;}
+  .coin-stats{display:flex;gap:18px;flex:0 0 auto;font-size:.72rem;}
+  .coin-stats > div{display:flex;flex-direction:column;gap:2px;}
+  .coin-stats .k{color:#a6957a;letter-spacing:.05em;}
+  .coin-stats .v{color:var(--cream-ink);}
+  @media (max-width:760px){.coin-stats{display:none;}}
+
   /* ---------- hero ---------- */
   .hero{padding:40px 0 20px;}
   .hero-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:36px;align-items:center;}
@@ -410,6 +426,26 @@
   </nav>
 </div>
 
+<div class="coin-ticker z" id="coinTicker">
+  <div class="wrap coin-inner">
+    <div class="coin-id">
+      <span class="coin-symbol">$CLNYNCH</span>
+      <span class="coin-price mono" id="coinPrice">$0.0042</span>
+      <span class="coin-change up mono" id="coinChange">▲ 0.00%</span>
+    </div>
+    <div class="coin-chart">
+      <svg viewBox="0 0 300 46" preserveAspectRatio="none" aria-hidden="true">
+        <polyline id="coinPolyline" points="" fill="none" stroke="var(--green)" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="coin-stats mono">
+      <div><span class="k">24H HIGH</span><span class="v" id="coinHigh">$0.0042</span></div>
+      <div><span class="k">24H LOW</span><span class="v" id="coinLow">$0.0042</span></div>
+      <div><span class="k">SUPPLY</span><span class="v">1 SANDWICH</span></div>
+    </div>
+  </div>
+</div>
+
 <header class="hero z">
   <div class="wrap">
     <div class="hero-grid">
@@ -633,6 +669,55 @@
 
 <script>
 (function(){
+  (function(){
+    var poly = document.getElementById('coinPolyline');
+    var priceEl = document.getElementById('coinPrice');
+    var changeEl = document.getElementById('coinChange');
+    var highEl = document.getElementById('coinHigh');
+    var lowEl = document.getElementById('coinLow');
+    if(!poly) return;
+    var W = 300, H = 46, N = 28;
+    var base = 0.0042;
+    var points = [];
+    for(var i = 0; i < N; i++) points.push(base);
+    var first = base, high = base, low = base;
+    function fmt(v){ return '$' + v.toFixed(4); }
+    function draw(){
+      var min = Math.min.apply(null, points), max = Math.max.apply(null, points);
+      var range = (max - min) || 0.0001;
+      var step = W / (N - 1);
+      var pts = points.map(function(v, i){
+        var x = i * step;
+        var y = H - ((v - min) / range) * (H - 6) - 3;
+        return x.toFixed(1) + ',' + y.toFixed(1);
+      }).join(' ');
+      poly.setAttribute('points', pts);
+      var last = points[points.length - 1];
+      var up = last >= first;
+      poly.setAttribute('stroke', up ? 'var(--green)' : 'var(--red)');
+      if(priceEl) priceEl.textContent = fmt(last);
+      if(changeEl){
+        var pct = ((last - first) / first) * 100;
+        changeEl.textContent = (up ? '▲ ' : '▼ ') + Math.abs(pct).toFixed(2) + '%';
+        changeEl.className = 'coin-change mono ' + (up ? 'up' : 'down');
+      }
+      if(highEl) highEl.textContent = fmt(high);
+      if(lowEl) lowEl.textContent = fmt(low);
+    }
+    draw();
+    var reduceMotionCoin = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setInterval(function(){
+      var last = points[points.length - 1];
+      var delta = (Math.random() - 0.48) * last * 0.06;
+      var next = Math.max(0.0008, last + delta);
+      points.shift();
+      points.push(next);
+      if(next > high) high = next;
+      if(next < low) low = next;
+      draw();
+    }, reduceMotionCoin ? 4000 : 1600);
+  })();
+
   var progress = document.getElementById('scrollProgress');
   function updateProgress(){
     if(!progress) return;

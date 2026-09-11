@@ -1,13 +1,13 @@
 /* Sigil — opening an account.
-   Four steps: connect a Solana wallet, pay for the plan, register a passkey,
+   Four steps: connect an Ethereum wallet, pay for the plan, register a passkey,
    then land on the account with somewhere to put funds.
 
    Two modes, and the page is loud about which one it is in.
 
-   LIVE  Real Phantom, a real transfer on the cluster named in config.js, and a
-         real WebAuthn credential on the device. Needs config.rpcUrl and
-         config.treasury filled in, Phantom installed, and a page served over
-         https on a real domain.
+   LIVE  Real Phantom, a real ETH transfer on the chain named in config.js, and
+         a real WebAuthn credential on the device. Needs config.treasury filled
+         in, Phantom installed, and a page served over https on a real domain.
+         No RPC endpoint to configure: the wallet supplies one.
    DEMO  The same four screens with nothing behind them. No wallet, no
          transfer, no credential. Every screen says so.
 
@@ -20,21 +20,21 @@
   const cfg = window.SIGIL_CONFIG || {};
   const $ = (s, r = document) => r.querySelector(s);
   const STORE = 'sigil.account.v1';
-  const WEB3_SRC = 'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js';
-  const LAMPORTS = 1e9;
+  const WEI = 10n ** 18n;
 
   /* ---------------- capability detection ---------------- */
 
+  // Phantom speaks EIP-1193 on its ethereum provider, so no library is needed:
+  // the wallet carries the RPC connection and we only send it JSON-RPC calls.
   const phantom = () =>
-    window.phantom?.solana?.isPhantom ? window.phantom.solana
-      : window.solana?.isPhantom ? window.solana
-        : null;
+    window.phantom?.ethereum ? window.phantom.ethereum
+      : window.ethereum?.isPhantom ? window.ethereum
+        : window.ethereum || null;
 
   const liveBlockers = () => {
     const out = [];
     if (!cfg.treasury) out.push('no treasury address is configured');
-    if (!cfg.rpcUrl) out.push('no RPC endpoint is configured');
-    if (!phantom()) out.push('Phantom is not installed in this browser');
+    if (!phantom()) out.push('no Ethereum wallet is installed in this browser');
     if (!window.isSecureContext) out.push('the page is not on a secure origin');
     if (!window.PublicKeyCredential) out.push('this browser has no passkey support');
     return out;
@@ -68,7 +68,7 @@
       localStorage.setItem(STORE, JSON.stringify({
         plan: state.plan, cycle: state.cycle, wallet: state.wallet,
         signature: state.signature, passkeyId: state.passkeyId,
-        cluster: cfg.cluster, opened: Date.now()
+        chainId: cfg.chainId, opened: Date.now()
       }));
     } catch { /* private window, nothing to do */ }
   }
@@ -81,60 +81,71 @@
     try { localStorage.removeItem(STORE); } catch { /* nothing to do */ }
   }
 
-  /* ---------------- solana ---------------- */
+  /* ---------------- ethereum ---------------- */
 
-  let web3Promise = null;
-  function loadWeb3() {
-    if (window.solanaWeb3) return Promise.resolve(window.solanaWeb3);
-    if (web3Promise) return web3Promise;
-    web3Promise = new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = WEB3_SRC;
-      s.async = true;
-      s.onload = () => window.solanaWeb3
-        ? resolve(window.solanaWeb3)
-        : reject(new Error('The Solana library loaded but exposed nothing.'));
-      s.onerror = () => reject(new Error('The Solana library could not be loaded from the CDN.'));
-      document.head.appendChild(s);
-    });
-    return web3Promise;
+  // Decimal ETH to a wei hex string, through BigInt so 0.35 stays 0.35.
+  function toWeiHex(eth) {
+    const [whole, frac = ''] = String(eth).split('.');
+    const padded = (frac + '0'.repeat(18)).slice(0, 18);
+    return '0x' + (BigInt(whole || '0') * WEI + BigInt(padded || '0')).toString(16);
   }
+
+  const fromWei = (hex) => Number(BigInt(hex)) / 1e18;
 
   async function connectWallet() {
     const p = phantom();
-    if (!p) throw new Error('Phantom was not found. Install it, then reload this page.');
-    const res = await p.connect();                       // opens the extension
-    return res.publicKey.toString();
+    if (!p) throw new Error('No Ethereum wallet was found. Install Phantom, then reload this page.');
+    const accounts = await p.request({ method: 'eth_requestAccounts' });   // opens the wallet
+    if (!accounts?.length) throw new Error('The wallet returned no account.');
+    return accounts[0];
+  }
+
+  // A payment on the wrong chain goes to the right address on the wrong network,
+  // so ask the wallet to move before sending anything.
+  async function ensureChain() {
+    const p = phantom();
+    const current = await p.request({ method: 'eth_chainId' });
+    if (current?.toLowerCase() === cfg.chainId?.toLowerCase()) return;
+    try {
+      await p.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: cfg.chainId }]
+      });
+    } catch (e) {
+      throw new Error(`This wallet is on another network. Switch it to ${cfg.chainName} and try again.`);
+    }
   }
 
   async function payLive() {
-    const sol = price();
-    if (sol <= 0) return null;                           // free plan, nothing to send
+    const eth = price();
+    if (eth <= 0) return null;                           // free plan, nothing to send
 
-    const web3 = await loadWeb3();
     const p = phantom();
-    const conn = new web3.Connection(cfg.rpcUrl, 'confirmed');
-    const from = new web3.PublicKey(state.wallet);
-    const to = new web3.PublicKey(cfg.treasury);
+    await ensureChain();
 
-    const balance = await conn.getBalance(from);
-    const needed = Math.round(sol * LAMPORTS);
-    if (balance < needed) {
+    const balanceHex = await p.request({ method: 'eth_getBalance', params: [state.wallet, 'latest'] });
+    const balance = fromWei(balanceHex);
+    if (balance < eth) {
       throw new Error(
-        `That wallet holds ${(balance / LAMPORTS).toFixed(4)} SOL and the plan costs ${sol} SOL. Top it up and try again.`
+        `That wallet holds ${balance.toFixed(4)} ETH and the plan costs ${eth} ETH. Top it up and try again.`
       );
     }
 
-    const tx = new web3.Transaction().add(
-      web3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: needed })
-    );
-    tx.feePayer = from;
-    tx.recentBlockhash = (await conn.getLatestBlockhash('confirmed')).blockhash;
-
-    const { signature } = await p.signAndSendTransaction(tx);
-    await conn.confirmTransaction(signature, 'confirmed');
-    return signature;
+    return await p.request({
+      method: 'eth_sendTransaction',
+      params: [{ from: state.wallet, to: cfg.treasury, value: toWeiHex(eth) }]
+    });
   }
+
+  const EXPLORERS = {
+    '0x1': 'https://etherscan.io',
+    '0xaa36a7': 'https://sepolia.etherscan.io',
+    '0x2105': 'https://basescan.org'
+  };
+  const explorerFor = (hash) => {
+    const base = EXPLORERS[(cfg.chainId || '').toLowerCase()];
+    return base ? `${base}/tx/${hash}` : null;
+  };
 
   /* ---------------- passkey ---------------- */
 
@@ -160,10 +171,8 @@
 
   /* ---------------- demo stand-ins ---------------- */
 
-  const b58 = (n) => {
-    const a = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-    return Array.from({ length: n }, () => a[Math.floor(Math.random() * a.length)]).join('');
-  };
+  const hex = (n) =>
+    '0x' + Array.from({ length: n }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const short = (v, h = 6, t = 6) => (v && v.length > h + t + 1 ? `${v.slice(0, h)}…${v.slice(-t)}` : v || '');
 
@@ -217,7 +226,7 @@
   function renderMode() {
     const live = state.mode === 'live';
     el.mode.innerHTML = live
-      ? `<span class="ts-tag ts-tag-live">Live</span> ${cfg.cluster} · real transfer`
+      ? `<span class="ts-tag ts-tag-live">Live</span> ${cfg.chainName} · real transfer`
       : `<span class="ts-tag ts-tag-demo">Demo</span> nothing here is real`;
   }
 
@@ -228,8 +237,8 @@
   function render() {
     renderRail();
     renderMode();
-    const sol = price();
-    const usd = (sol * (cfg.solReferenceUsd || 0)).toFixed(2);
+    const eth = price();
+    const usd = (eth * (cfg.ethReferenceUsd || 0)).toLocaleString('en-US', { maximumFractionDigits: 0 });
     const blockers = liveBlockers();
 
     if (state.step === 'plan') {
@@ -237,8 +246,8 @@
         <p class="ts-lead">You are opening the <b>${PLAN_NAMES[state.plan]}</b> plan,
            billed ${state.cycle === 'yearly' ? 'yearly' : 'monthly'}.</p>
         <div class="ts-amount">
-          <strong>${sol === 0 ? 'Free' : sol + ' SOL'}</strong>
-          ${sol === 0 ? '' : `<span>≈ $${usd} at $${cfg.solReferenceUsd}/SOL</span>`}
+          <strong>${eth === 0 ? 'Free' : eth + ' ETH'}</strong>
+          ${eth === 0 ? '' : `<span>≈ $${usd} at $${cfg.ethReferenceUsd.toLocaleString('en-US')}/ETH</span>`}
         </div>
         ${blockers.length ? `
           <div class="ts-notice">
@@ -248,7 +257,7 @@
           </div>` : `
           <div class="ts-notice ts-notice-live">
             <p><b>Live mode is available.</b> The next screens use your real
-               Phantom wallet and send ${sol} SOL on ${cfg.cluster}.</p>
+               wallet and send ${eth} ETH on ${cfg.chainName}.</p>
           </div>`}
         ${err()}
         <div class="ts-actions">
@@ -277,18 +286,18 @@
 
     if (state.step === 'pay') {
       el.body.innerHTML = `
-        <p class="ts-lead">${sol === 0
+        <p class="ts-lead">${eth === 0
           ? 'The Starter plan is free, so there is nothing to send.'
           : state.mode === 'live'
-            ? `Phantom will ask you to approve a transfer of <b>${sol} SOL</b> to the Sigil treasury on ${cfg.cluster}.`
-            : `In live mode Phantom would ask you to approve <b>${sol} SOL</b>. Here nothing leaves anything.`}</p>
+            ? `Your wallet will ask you to approve a transfer of <b>${eth} ETH</b> to the Sigil treasury on ${cfg.chainName}.`
+            : `In live mode your wallet would ask you to approve <b>${eth} ETH</b>. Here nothing leaves anything.`}</p>
         <div class="ts-field"><span>From</span><code>${short(state.wallet, 8, 8)}</code></div>
-        <div class="ts-field"><span>Amount</span><code>${sol === 0 ? '0' : sol + ' SOL'}</code></div>
+        <div class="ts-field"><span>Amount</span><code>${eth === 0 ? '0' : eth + ' ETH'}</code></div>
         ${state.signature ? `<div class="ts-field"><span>Signature</span><code>${short(state.signature, 8, 8)}</code></div>` : ''}
         ${err()}
         <div class="ts-actions">
           <button class="ts-btn ts-btn-primary" type="button" data-go="pay" ${state.busy ? 'disabled' : ''}>
-            ${state.busy ? 'Waiting for confirmation…' : state.signature ? 'Continue' : sol === 0 ? 'Continue' : 'Approve payment'}
+            ${state.busy ? 'Waiting for confirmation…' : state.signature ? 'Continue' : eth === 0 ? 'Continue' : 'Approve payment'}
           </button>
           <button class="ts-btn ts-btn-ghost" type="button" data-go="back">Back</button>
         </div>`;
@@ -314,7 +323,7 @@
 
     // done
     const explorer = state.signature && state.mode === 'live'
-      ? `https://explorer.solana.com/tx/${state.signature}?cluster=${encodeURIComponent(cfg.cluster)}`
+      ? explorerFor(state.signature)
       : null;
 
     el.body.innerHTML = `
@@ -374,7 +383,7 @@
       try {
         state.wallet = state.mode === 'live'
           ? await connectWallet()
-          : (await wait(700), b58(44));
+          : (await wait(700), hex(40));
         state.step = 'pay';
       } catch (e) {
         state.error = e?.message || 'The wallet refused the connection.';
@@ -390,7 +399,7 @@
       try {
         state.signature = state.mode === 'live'
           ? await payLive()
-          : (await wait(1200), b58(88));
+          : (await wait(1200), hex(64));
         state.step = 'passkey';
       } catch (e) {
         state.error = e?.message || 'The payment did not go through.';
@@ -406,7 +415,7 @@
       try {
         state.passkeyId = state.mode === 'live'
           ? await createPasskey(label)
-          : (await wait(900), b58(32));
+          : (await wait(900), hex(32));
         state.step = 'done';
         save();
       } catch (e) {

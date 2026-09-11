@@ -74,9 +74,25 @@ therefore wanders from the dollar price as the market moves, which is fine for
 a demo and wrong for a real storefront. Before taking live payments, either
 quote in a stablecoin like USDC or read a real feed there.
 
+## The wallet panel
+
+Finishing the flow lands on a wallet rather than a receipt: a balance, the
+address, the network, the passkey, and a list of what has moved. The nav keeps
+a badge afterwards that reopens it.
+
+What "add funds" means depends on the mode, because nothing on a web page can
+conjure ETH.
+
+- **Live** reads the real balance with `eth_getBalance` and gives you somewhere
+  to send to: the address, a Refresh button, and on a test network a link to
+  the faucet that hands out free ETH. Send, refresh, watch it move.
+- **Demo** credits a number on the page. Add 0.25, spend 0.1, and the balance
+  and the activity list behave the way the real one does. The panel says
+  plainly that the address is invented and holds nothing.
+
 ## What is real and what is staged
 
-- **Real:** the wallet connection, the chain check, the balance check, the
+- **Real:** the wallet connection, the chain check, the balance reads, the
   transfer and the WebAuthn credential. That code path is not a mock.
 - **Staged:** the account itself. A paid plan is recorded in `localStorage` on
   the visitor's device, because there is no backend here. Wire `account.js` to

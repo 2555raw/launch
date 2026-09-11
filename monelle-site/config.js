@@ -33,5 +33,5 @@ window.MONELLE_CONFIG = {
      the dollar price as the market moves. That is fine for a demo and wrong
      for a real storefront: before taking live payments, either quote in a
      stablecoin or read a feed (Chainlink, Coinbase, your own) here. */
-  ethReferenceUsd: 3200
+  ethReferenceUsd: 2500
 };

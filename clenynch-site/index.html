@@ -1,0 +1,713 @@
+<title>Clenynch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,600&display=swap">
+<style>
+  :root{
+    --bg:#eae1d1;
+    --panel:#fffdf7;
+    --red:#d94a35; --red-dark:#a53523; --red-light:#f08a6c;
+    --brown:#7a4f2e; --brown-dark:#4a2f18; --brown-deep:#20140a;
+    --green:#5a9e4c; --green-dark:#3a6e34; --green-light:#9ecf8a; --green-tint:#e6f2df;
+    --yellow:#e0a83a; --yellow-dark:#b9821a; --yellow-light:#f2c96a;
+    --clay:#1f5f60; --clay-dark:#123f40; --clay-light:#4a9b9a;
+    --purple:#8c5fa8; --purple-dark:#623f78; --purple-light:#c0a3d4;
+    --ink:#2c2620; --ink-soft:#6c6153;
+    --cream-ink:#f3e9d6;
+    --shadow-d:rgba(50,35,20,.3); --shadow-l:rgba(255,255,255,.9);
+    --bread:#e3b463; --bread-dark:#c8944a; --crust:#a9713a;
+    --ing-lettuce:#7cc24a; --ing-lettuce-dark:#5a9a30;
+    --ing-tomato:#e34b3c; --ing-tomato-dark:#b5352a;
+    --ing-cheese:#f7c948; --ing-cheese-dark:#d9a422;
+    --ing-ham:#e8998f; --ing-ham-dark:#c96f63;
+    --ing-salami:#c1493f; --ing-salami-dark:#93332b;
+    --ing-egg:#f4e2a6; --ing-egg-dark:#e0c46f;
+    --ing-pickle:#a9c257; --ing-pickle-dark:#84a038;
+    --ing-mustard:#f0c231; --ing-ketchup:#d63b2f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; position:relative; overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(560px 420px at 8% 6%, rgba(111,174,62,.20), transparent 70%),
+      radial-gradient(620px 460px at 96% 14%, rgba(246,196,69,.26), transparent 70%),
+      radial-gradient(680px 520px at 50% 100%, rgba(232,67,44,.12), transparent 70%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.055;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  ::selection{background:var(--red);color:#fff;}
+  ::-webkit-scrollbar{width:12px;height:12px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--clay-light);border-radius:8px;border:3px solid var(--bg);}
+  a{color:inherit;}
+  .z{position:relative;z-index:1;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{font-family:'Fraunces',-apple-system,sans-serif;font-weight:600;text-wrap:balance;margin:0;}
+  .mono{font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+  .eyebrow{
+    display:inline-block;font-family:'Fraunces',sans-serif;font-weight:600;font-size:.72rem;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--clay-light);
+    background:var(--clay-dark);padding:6px 14px;border-radius:999px;
+  }
+
+  /* ---------- gloss & clay primitives ---------- */
+  .gloss{position:relative;overflow:hidden;}
+  .gloss::before{
+    content:"";position:absolute;top:3%;left:8%;right:8%;height:34%;
+    background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0));
+    border-radius:50% 50% 60% 60%/70% 70% 100% 100%;pointer-events:none;
+  }
+  .clay-btn{
+    display:inline-flex;align-items:center;gap:8px;font-family:'Fraunces',sans-serif;font-weight:600;
+    font-size:.95rem;text-decoration:none;padding:13px 24px;border-radius:999px;border:none;cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;position:relative;overflow:hidden;
+  }
+  .clay-btn::before{content:"";position:absolute;top:2px;left:10%;right:10%;height:40%;border-radius:999px;background:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,0));pointer-events:none;}
+  .clay-btn::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.1;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .clay-btn:active{transform:translateY(2px);}
+  .clay-btn.red{background:radial-gradient(120% 160% at 30% 0%,var(--red-light),var(--red) 55%,var(--red-dark) 130%);color:#fff8f0;box-shadow:0 5px 0 var(--red-dark);}
+  .clay-btn.red:active{box-shadow:0 2px 0 var(--red-dark);}
+  .clay-btn.green{background:radial-gradient(120% 160% at 30% 0%,var(--green-light),var(--green) 55%,var(--green-dark) 130%);color:#fbfff0;box-shadow:0 5px 0 var(--green-dark);}
+  .clay-btn.green:active{box-shadow:0 2px 0 var(--green-dark);}
+  .clay-btn.brown{background:radial-gradient(120% 160% at 30% 0%,#9a6f49,var(--brown) 55%,var(--brown-dark) 130%);color:#fbf3e3;box-shadow:0 5px 0 var(--brown-dark);}
+  .clay-btn.brown:active{box-shadow:0 2px 0 var(--brown-dark);}
+  .clay-btn.ghost{background:var(--panel);color:var(--ink);box-shadow:0 3px 0 rgba(67,40,20,.15);border:1px solid rgba(67,40,20,.12);}
+
+  /* ---------- menu bar ---------- */
+  .menubar{
+    position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+    padding:9px 24px;background:rgba(255,253,246,.72);backdrop-filter:blur(18px) saturate(1.4);
+    -webkit-backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid rgba(67,40,20,.1);
+  }
+  .menubar .brand{display:flex;align-items:center;gap:8px;font-family:'Fraunces',sans-serif;font-weight:700;font-size:1.05rem;color:var(--red);}
+  .menubar .brand .dot{width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 30% 25%,var(--clay-light),var(--clay) 60%,var(--clay-dark));box-shadow:0 1px 2px rgba(0,0,0,.3);}
+  .menubar nav{display:flex;gap:18px;align-items:center;font-size:.82rem;}
+  .menubar nav a.link{text-decoration:none;color:var(--ink-soft);font-weight:600;}
+  .menubar nav a.link:hover{color:var(--red);}
+  @media (max-width:860px){.menubar nav a.link{display:none;}}
+
+  /* ---------- window chrome (real clay) ---------- */
+  .window{
+    background:var(--panel);border:1px solid rgba(67,40,20,.1);overflow:hidden;position:relative;
+    box-shadow:0 2px 0 var(--shadow-l) inset, 18px 24px 42px -20px var(--shadow-d);
+  }
+  .w-a{border-radius:28px 22px 32px 24px;}
+  .w-b{border-radius:22px 30px 20px 28px;}
+  .w-c{border-radius:24px 20px 28px 22px;}
+  .titlebar{display:flex;align-items:center;padding:12px 18px;background:linear-gradient(180deg,#fffdf8,#f1e9d5);border-bottom:1px solid rgba(67,40,20,.1);}
+  .titlebar.dark{background:linear-gradient(180deg,#2a1c10,#1e1409);border-bottom-color:rgba(246,196,69,.15);}
+  .traffic{display:flex;gap:8px;flex:0 0 auto;}
+  .traffic span{width:13px;height:13px;border-radius:50%;position:relative;box-shadow:0 2px 3px rgba(0,0,0,.3), inset 0 1px 1px rgba(255,255,255,.4);}
+  .traffic span::after{content:"";position:absolute;inset:2px 2px 5px 2px;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.85),rgba(255,255,255,0) 65%);}
+  .traffic .r{background:radial-gradient(circle at 32% 26%,var(--red-light),var(--red) 55%,var(--red-dark) 120%);}
+  .traffic .y{background:radial-gradient(circle at 32% 26%,var(--yellow-light),var(--yellow) 55%,var(--yellow-dark) 120%);}
+  .traffic .g{background:radial-gradient(circle at 32% 26%,var(--green-light),var(--green) 55%,var(--green-dark) 120%);}
+  .titlebar .filename{flex:1;text-align:center;font-size:.78rem;color:var(--ink-soft);font-weight:600;margin-right:47px;}
+  .titlebar.dark .filename{color:#d8c9a8;}
+  .window-body{padding:26px;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:40px 0 20px;}
+  .hero-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:36px;align-items:center;}
+  .hero h1{
+    font-family:'Fraunces',Georgia,serif;font-weight:600;
+    font-size:clamp(2.8rem,6.6vw,4.6rem);line-height:.98;color:var(--brown-dark);
+    margin:.2em 0 .32em;letter-spacing:-.015em;text-wrap:balance;
+  }
+  .hero .tagline{font-size:1.1rem;line-height:1.55;color:var(--ink-soft);font-weight:400;margin:0 0 14px;max-width:36ch;}
+  .hero .desc{font-size:1rem;line-height:1.65;color:var(--ink-soft);max-width:44ch;margin:0 0 24px;}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;}
+
+  .qt-window .window-body{padding:0;}
+  .qt-body{position:relative;background:var(--bg);aspect-ratio:1200/900;overflow:hidden;}
+  .qt-body img{display:block;width:100%;height:100%;object-fit:cover;}
+  .playbar{display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(#2a1c10,#1e1409);}
+  .play-circle{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 32% 26%,var(--red-light),var(--red) 55%,var(--red-dark) 120%);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 var(--red-dark);}
+  .play-circle svg{width:11px;height:11px;}
+  .scrub{flex:1;height:5px;border-radius:999px;background:rgba(255,255,255,.18);position:relative;}
+  .scrub i{position:absolute;left:0;top:0;bottom:0;width:38%;border-radius:999px;background:var(--yellow);}
+  .scrub i::after{content:"";position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+  .time{color:#e9e2d3;font-size:.72rem;flex:0 0 auto;}
+
+  /* ---------- section heading ---------- */
+  .sec-head{max-width:640px;margin:0 auto 26px;text-align:center;}
+  .sec-head h2{
+    font-size:clamp(1.6rem,3.6vw,2.1rem);font-weight:600;margin:.3em 0 .2em;color:var(--brown-dark);
+  }
+  .sec-head p{color:var(--ink-soft);font-size:1rem;line-height:1.6;margin:.5em 0 0;}
+  section{padding:56px 0;}
+
+  /* ---------- acts (Notes.app) ---------- */
+  .notes-body{background:linear-gradient(180deg,#fffdf3,#fdf6e0);}
+  .acts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .act-card{
+    background:var(--panel);border-radius:16px 20px 14px 18px;padding:18px 18px;border-left:7px solid var(--green);
+    box-shadow:0 2px 0 var(--shadow-l) inset, 8px 10px 20px -14px var(--shadow-d);
+    cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .act-card:hover{transform:translateY(-3px);}
+  .act-card:nth-child(2){border-left-color:var(--yellow);}
+  .act-card:nth-child(3){border-left-color:var(--clay);}
+  .act-card:nth-child(4){border-left-color:var(--red);}
+  .act-card .q-row{display:flex;align-items:center;justify-content:space-between;}
+  .act-card .q{font-family:ui-monospace,monospace;font-size:.68rem;color:var(--ink-soft);letter-spacing:.08em;}
+  .act-card .chevron{
+    width:20px;height:20px;border-radius:50%;background:var(--green-tint);color:var(--green-dark);
+    display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex:0 0 auto;
+    transition:transform .25s ease;
+  }
+  .act-card.expanded .chevron{transform:rotate(45deg);}
+  .act-card h3{font-size:1.05rem;margin:.3em 0 0;}
+  .act-more{max-height:0;opacity:0;overflow:hidden;transition:max-height .3s ease, opacity .25s ease, margin-top .3s ease;margin-top:0;}
+  .act-card.expanded .act-more{max-height:140px;opacity:1;margin-top:.5em;}
+  .act-more p{font-size:.88rem;line-height:1.55;color:var(--ink-soft);margin:0;}
+  @media (max-width:860px){.acts-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:560px){.acts-grid{grid-template-columns:1fr;}}
+
+  /* ---------- sandwich builder ---------- */
+  .sandwich-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;background:linear-gradient(180deg,#fffdf6,#fbf3de);}
+  .ing-list{display:flex;flex-direction:column;gap:10px;}
+  .ing-btn{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;cursor:pointer;
+    padding:11px 16px;border-radius:14px;background:var(--panel);font-family:-apple-system,sans-serif;
+    font-size:.92rem;font-weight:600;color:var(--ink-soft);
+    box-shadow:0 2px 0 var(--shadow-l) inset, 0 4px 10px -6px var(--shadow-d);
+    transition:transform .1s ease, box-shadow .15s ease;
+  }
+  .ing-btn .swatch{width:22px;height:22px;border-radius:50%;flex:0 0 auto;box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1px 2px rgba(0,0,0,.2);}
+  .ing-btn .check{margin-left:auto;font-size:.8rem;opacity:.35;}
+  .ing-btn.active{color:var(--ink);box-shadow:0 2px 6px var(--shadow-d) inset;transform:translateY(1px);}
+  .ing-btn.active .check{opacity:1;color:var(--green-dark);}
+  .sandwich-preview{display:flex;flex-direction:column;align-items:center;}
+  .sandwich-stack{width:min(100%,240px);display:flex;flex-direction:column;}
+  .bread-top{
+    background-color:var(--bread);
+    background-image:
+      radial-gradient(ellipse 16px 8px at 22% 60%, rgba(0,0,0,.14), rgba(0,0,0,0) 70%),
+      radial-gradient(ellipse 12px 7px at 68% 35%, rgba(0,0,0,.1), rgba(0,0,0,0) 70%),
+      radial-gradient(circle 2.5px at 14% 30%, rgba(0,0,0,.16), transparent 100%),
+      radial-gradient(circle 2px at 34% 55%, rgba(0,0,0,.14), transparent 100%),
+      radial-gradient(circle 2.5px at 58% 22%, rgba(0,0,0,.15), transparent 100%),
+      radial-gradient(circle 2px at 78% 45%, rgba(0,0,0,.13), transparent 100%),
+      radial-gradient(circle 2px at 46% 70%, rgba(0,0,0,.12), transparent 100%),
+      linear-gradient(150deg, rgba(255,255,255,.45) 0%, rgba(255,255,255,0) 42%),
+      linear-gradient(335deg, rgba(0,0,0,.16) 0%, rgba(0,0,0,0) 55%);
+    border-radius:58% 62% 30px 30px/70% 75% 16px 16px;height:56px;position:relative;overflow:hidden;
+    box-shadow:0 2px 0 rgba(255,255,255,.35) inset, 0 4px 8px rgba(0,0,0,.15);
+    border-bottom:3px solid var(--crust);
+  }
+  .bread-top::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .bread-bottom{
+    background-color:var(--bread-dark);
+    background-image:
+      linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,0) 40%),
+      linear-gradient(15deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,0) 50%);
+    border-radius:14px 14px 46% 54%/10px 10px 65% 65%;height:26px;position:relative;overflow:hidden;
+    box-shadow:0 -2px 0 rgba(255,255,255,.2) inset, 0 4px 8px rgba(0,0,0,.18);
+    border-top:3px solid var(--crust);
+  }
+  .layer{height:0;opacity:0;transform:rotate(0deg) scaleY(.35);transform-origin:center;overflow:hidden;transition:height .28s cubic-bezier(.34,1.4,.64,1), opacity .2s ease, transform .28s cubic-bezier(.34,1.4,.64,1);margin:0 10px;position:relative;flex:0 0 auto;box-shadow:inset 0 1px 2px rgba(255,255,255,.3), inset 0 -3px 5px rgba(0,0,0,.16);}
+  .layer::before{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.13;mix-blend-mode:overlay;z-index:1;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .layer.on{opacity:1;transform:rotate(var(--wobble,0deg)) scaleY(1);}
+  .layer.on[data-ing="lettuce"]{height:17px;}
+  .layer.on[data-ing="tomato"]{height:11px;}
+  .layer.on[data-ing="cheese"]{height:12px;}
+  .layer.on[data-ing="ham"]{height:11px;}
+  .layer.on[data-ing="salami"]{height:10px;}
+  .layer.on[data-ing="egg"]{height:13px;}
+  .layer.on[data-ing="pickle"]{height:9px;}
+  .layer[data-ing="lettuce"]{
+    background-color:var(--ing-lettuce);
+    background-image:radial-gradient(ellipse 10px 5px at 30% 65%, rgba(0,0,0,.18), transparent 70%), linear-gradient(150deg, rgba(255,255,255,.4), rgba(255,255,255,0) 45%);
+    border-radius:2px 2px 40% 40%/2px 2px 70% 70%;
+    clip-path:polygon(0% 100%,0% 22%,8% 58%,16% 8%,24% 52%,32% 12%,40% 56%,48% 8%,56% 52%,64% 12%,72% 56%,80% 8%,88% 52%,96% 12%,100% 42%,100% 100%);
+  }
+  .layer[data-ing="tomato"]{
+    background-color:var(--ing-tomato);
+    background-image:radial-gradient(ellipse 9px 5px at 68% 35%, rgba(0,0,0,.2), transparent 70%), radial-gradient(circle 10px at 50% 50%, rgba(255,255,255,.12), transparent 75%), linear-gradient(150deg, rgba(255,255,255,.35), rgba(255,255,255,0) 45%);
+    border-radius:9px 7px 8px 10px/8px 10px 7px 9px;
+  }
+  .layer[data-ing="cheese"]{
+    background-color:var(--ing-cheese);
+    background-image:radial-gradient(ellipse 8px 4px at 25% 30%, rgba(0,0,0,.14), transparent 70%), linear-gradient(150deg, rgba(255,255,255,.4), rgba(255,255,255,0) 45%);
+    border-radius:2px 5px 3px 6px;transform-origin:center;
+  }
+  .layer[data-ing="cheese"].on{transform:rotate(var(--wobble,0deg)) scaleY(1) skewX(-6deg);}
+  .layer[data-ing="ham"]{
+    background-color:var(--ing-ham);
+    background-image:radial-gradient(ellipse 10px 5px at 70% 60%, rgba(0,0,0,.16), transparent 70%), linear-gradient(150deg, rgba(255,255,255,.35), rgba(255,255,255,0) 45%);
+    border-radius:12px 9px 11px 8px/9px 12px 8px 11px;
+  }
+  .layer[data-ing="salami"]{
+    background-color:var(--ing-salami);
+    background-image:
+      radial-gradient(circle 3px at 22% 35%, rgba(255,255,255,.28), transparent 100%),
+      radial-gradient(circle 2.5px at 58% 60%, rgba(255,255,255,.22), transparent 100%),
+      radial-gradient(circle 2.5px at 78% 30%, rgba(255,255,255,.2), transparent 100%),
+      radial-gradient(ellipse 8px 4px at 40% 70%, rgba(0,0,0,.18), transparent 70%),
+      linear-gradient(150deg, rgba(255,255,255,.35), rgba(255,255,255,0) 45%);
+    border-radius:999px 40% 999px 40%/60% 40% 60% 40%;
+  }
+  .layer[data-ing="egg"]{
+    background-color:var(--ing-egg);
+    background-image:
+      radial-gradient(circle 9px at 50% 55%, var(--ing-mustard) 96%, transparent 100%),
+      radial-gradient(ellipse 9px 5px at 22% 30%, rgba(0,0,0,.12), transparent 70%),
+      linear-gradient(150deg, rgba(255,255,255,.35), rgba(255,255,255,0) 45%);
+    border-radius:11px 8px 9px 12px/9px 11px 8px 10px;
+  }
+  .layer[data-ing="pickle"]{background:transparent;display:flex;justify-content:space-evenly;box-shadow:none;}
+  .layer[data-ing="pickle"] i{display:block;width:16px;height:9px;background-color:var(--ing-pickle);background-image:radial-gradient(ellipse 5px 3px at 35% 60%, rgba(0,0,0,.16), transparent 70%);border-radius:50%;border:2px dashed var(--ing-pickle-dark);}
+  .sauce-row{display:flex;justify-content:center;gap:6px;height:0;overflow:visible;}
+  .sauce{width:0;height:4px;}
+  .sauce svg{display:block;width:200px;height:14px;overflow:visible;opacity:0;transition:opacity .2s ease;}
+  .sauce.on svg{opacity:1;}
+  .sandwich-caption{margin-top:16px;font-family:'Fraunces',sans-serif;font-weight:600;font-size:.95rem;color:var(--brown-dark);text-align:center;min-height:1.4em;}
+  @media (max-width:760px){.sandwich-grid{grid-template-columns:1fr;}}
+
+  /* ---------- terminal + widget (live feed) ---------- */
+  .feed-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start;}
+  .term-body{background:#160f08;padding:18px 20px;font-family:ui-monospace,monospace;font-size:.82rem;color:#c9e6a8;min-height:260px;}
+  .term-body .prompt{color:var(--yellow);}
+  .term-line{margin:0 0 9px;line-height:1.5;}
+  .term-line .t{color:#8a9f78;margin-right:8px;}
+  .cursor{display:inline-block;width:7px;height:14px;background:#c9e6a8;vertical-align:-2px;animation:blink 1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  @media (prefers-reduced-motion:reduce){.cursor{animation:none;}}
+  .widget-body{padding:22px;background:linear-gradient(180deg,#fffdf6,#fbf3de);}
+  .widget-body .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .widget-body .comp{font-family:'Fraunces',sans-serif;font-weight:700;font-size:1.6rem;color:var(--ink);}
+  .chart{height:100px;border-radius:12px;background:linear-gradient(180deg,rgba(111,174,62,.12),transparent);position:relative;overflow:hidden;margin:14px 0;border:1px solid rgba(67,40,20,.1);}
+  .chart svg{display:block;width:100%;height:100%;}
+  .floor-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+  .deny-msg{margin-top:14px;padding:12px 14px;border-radius:14px 10px 16px 12px;background:rgba(232,67,44,.12);border:1px solid rgba(232,67,44,.35);font-size:.84rem;color:var(--red-dark);display:none;}
+  .deny-msg.show{display:block;animation:shake .32s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+  .attempts{font-family:ui-monospace,monospace;font-size:.7rem;color:var(--ink-soft);margin-top:8px;}
+  @media (max-width:800px){.feed-grid{grid-template-columns:1fr;}}
+
+  /* ---------- TextEdit (code) ---------- */
+  .doc-body{background:#fffefb;padding:36px clamp(20px,6vw,64px);}
+  .doc-page{max-width:640px;margin:0 auto;}
+  .code-item{display:flex;gap:16px;padding:16px 0;border-bottom:1px dashed rgba(67,40,20,.15);}
+  .code-item:last-child{border-bottom:none;}
+  .code-item .num{
+    flex:0 0 auto;width:34px;height:34px;border-radius:50%;
+    background:radial-gradient(circle at 32% 26%,var(--yellow-light),var(--yellow) 60%,var(--yellow-dark) 130%);
+    color:var(--brown-dark);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',sans-serif;font-weight:700;
+    box-shadow:0 2px 4px rgba(0,0,0,.15);
+  }
+  .code-item h3{font-size:1.02rem;margin:0 0 .3em;}
+  .code-item p{font-size:.88rem;color:var(--ink-soft);line-height:1.5;margin:0;}
+
+  /* ---------- Finder (pecking order) ---------- */
+  .finder-body{padding:0;background:var(--panel);}
+  .finder-cols{display:grid;grid-template-columns:2.2fr 1fr 2.6fr;gap:10px;padding:10px 22px;background:#f0ead9;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid rgba(67,40,20,.1);}
+  .finder-row{display:grid;grid-template-columns:2.2fr 1fr 2.6fr;gap:10px;padding:14px 22px;align-items:center;border-bottom:1px solid rgba(67,40,20,.08);}
+  .finder-row:nth-child(even){background:rgba(111,174,62,.05);}
+  .finder-row .name{display:flex;align-items:center;gap:10px;font-weight:600;font-size:.92rem;}
+  .finder-row .ico{width:26px;height:26px;border-radius:50%;flex:0 0 auto;box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 2px 3px rgba(0,0,0,.15);}
+  .finder-row .kind{font-size:.78rem;color:var(--ink-soft);}
+  .finder-row .notes{font-size:.84rem;color:var(--ink-soft);}
+  .finder-divider{padding:8px 22px;font-family:ui-monospace,monospace;font-size:.68rem;color:var(--green-dark);background:var(--green-tint);}
+  @media (max-width:640px){.finder-cols{display:none;} .finder-row{grid-template-columns:1fr;gap:2px;}}
+
+  /* ---------- Preview (bench pass) ---------- */
+  .pass-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:22px;align-items:stretch;}
+  .fill-body{padding:24px;}
+  .fill-body label{display:block;font-size:.8rem;color:var(--ink-soft);margin-bottom:8px;font-weight:600;}
+  .fill-body input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(67,40,20,.2);font-size:1rem;font-family:inherit;margin-bottom:14px;background:var(--bg);color:var(--ink);}
+  .fill-body input:focus{outline:2px solid var(--green);outline-offset:1px;}
+  .preview-body{background:#d9d2bd;padding:30px 22px;display:flex;align-items:center;justify-content:center;}
+  .certificate{
+    background:linear-gradient(180deg,#fffdf6,#f6efd9);border:3px double var(--brown);border-radius:14px;
+    padding:26px 24px 20px;text-align:center;width:100%;max-width:360px;
+    box-shadow:0 18px 34px -18px rgba(0,0,0,.4);
+  }
+  .certificate .cert-head{font-family:'Fraunces',sans-serif;font-weight:700;font-size:1.02rem;color:var(--brown-dark);}
+  .certificate .cert-sub{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:14px;}
+  .certificate .cert-name{font-family:'Fraunces',sans-serif;font-weight:700;font-size:1.35rem;color:var(--red);margin:10px 0;min-height:1.4em;}
+  .certificate .cert-body{font-size:.84rem;color:var(--ink-soft);line-height:1.6;max-width:36ch;margin:0 auto 14px;}
+  .certificate .cert-seal{
+    display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:50%;
+    border:3px solid var(--green-dark);color:var(--green-dark);font-family:'Fraunces',sans-serif;font-weight:700;
+    font-size:.55rem;text-align:center;line-height:1.1;margin-top:6px;transform:rotate(-8deg);
+  }
+  .certificate .cert-no{font-family:ui-monospace,monospace;font-size:.66rem;color:var(--ink-soft);margin-top:10px;}
+  @media (max-width:720px){.pass-grid{grid-template-columns:1fr;}}
+
+  /* ---------- footer ---------- */
+  footer{background:var(--brown-deep);color:var(--cream-ink);padding:20px 0 30px;}
+  footer .brand{font-family:'Fraunces',sans-serif;font-weight:700;font-size:1.25rem;color:var(--yellow);margin-bottom:8px;}
+  footer .tag{font-size:.9rem;color:#e4d6bc;margin-bottom:16px;}
+  footer .credits{font-size:.76rem;color:#a6957a;line-height:1.7;max-width:62ch;margin-bottom:14px;}
+  footer .foot-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid rgba(246,196,69,.15);padding-top:16px;}
+  footer .foot-row a{color:var(--yellow);text-decoration:none;font-weight:600;font-size:.85rem;}
+  footer .disclaimer{font-size:.7rem;color:#8a7a63;}
+
+  /* ---------- terms gate ---------- */
+  .gate{
+    position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+    background:rgba(32,20,10,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px;
+  }
+  .gate[hidden]{display:none;}
+  .gate .window{max-width:440px;width:100%;}
+  .gate-body{padding:24px 26px 26px;}
+  .gate-body h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.4rem;color:var(--brown-dark);margin:0 0 .5em;}
+  .gate-body p{font-size:.92rem;line-height:1.6;color:var(--ink-soft);margin:0 0 16px;}
+  .gate-check{display:flex;align-items:flex-start;gap:10px;font-size:.84rem;color:var(--ink-soft);margin-bottom:18px;cursor:pointer;}
+  .gate-check input{margin-top:3px;flex:0 0 auto;width:16px;height:16px;accent-color:var(--red);cursor:pointer;}
+  .gate .clay-btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;}
+</style>
+
+<div class="gate" id="termsGate">
+  <div class="window w-a">
+    <div class="titlebar"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">Terms.rtf — Before You Enter</div></div>
+    <div class="window-body gate-body">
+      <h2>A Word Before You Enter</h2>
+      <p>This site contains a claymation creature named Clenynch eating a sandwich, alone, in front of you, without offering you any. Viewer discretion is advised. By entering, you acknowledge that Clenynch owes you nothing, that sharing is not guaranteed, and that any hunger experienced while browsing is entirely your own responsibility.</p>
+      <label class="gate-check"><input type="checkbox" id="gateCheck"> I have read and accept the Bench Terms &amp; Conditions, including the part where I will not ask Clenynch for a bite.</label>
+      <button class="clay-btn red" id="gateAccept" type="button" style="width:100%;justify-content:center;" disabled>Accept &amp; Enter</button>
+    </div>
+  </div>
+</div>
+
+<div class="menubar z">
+  <div class="brand"><span class="dot"></span>Clenynch</div>
+  <nav>
+    <a class="link" href="#story">Story.notes</a>
+    <a class="link" href="#sandwich">SandwichBuilder</a>
+    <a class="link" href="#feed">ParkFeed</a>
+    <a class="link" href="#code">TheCode.txt</a>
+    <a class="link" href="#order">Finder</a>
+    <a class="link" href="#pass">BenchPass</a>
+  </nav>
+</div>
+
+<header class="hero z">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Inspired by the stop-motion short film Bench</span>
+        <h1>Clenynch</h1>
+        <p class="tagline">The unbothered king of the park bench. Keeper of the last bite. Sworn enemy of sharing.</p>
+        <p class="desc">One creature. One sandwich. One red bench he isn't giving up. Then somebody smaller sits down right next to him, and Clenynch has to decide exactly how far "sharing" is going to go.</p>
+        <div class="cta-row">
+          <a class="clay-btn red" href="#sandwich">Build your own sandwich</a>
+          <a class="clay-btn ghost" href="#story">Read the story</a>
+        </div>
+      </div>
+
+      <div class="window qt-window w-a">
+        <div class="titlebar dark">
+          <div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="filename">Bench.mov</div>
+        </div>
+        <div class="window-body">
+          <div class="qt-body">
+            <img src="clenynch-photo.png" alt="Clenynch, a blue-grey claymation creature, eating a sandwich on a red bench in a park">
+          </div>
+          <div class="playbar">
+            <span class="play-circle"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3.5v17l15-8.5-15-8.5z" fill="#fff"/></svg></span>
+            <div class="scrub"><i></i></div>
+            <span class="time mono">0:37 / 1:35</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<section id="sandwich" class="z">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Build Your Own Sandwich</h2>
+      <p>Same bread Clenynch uses. Everything in between is entirely up to you.</p>
+    </div>
+    <div class="window w-a">
+      <div class="titlebar"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">Claywich.appbuilder</div></div>
+      <div class="window-body sandwich-grid">
+        <div class="ing-list">
+          <button class="ing-btn" type="button" data-ing="lettuce"><span class="swatch" style="background:var(--ing-lettuce);"></span>Lettuce<span class="check">✓</span></button>
+          <button class="ing-btn" type="button" data-ing="tomato"><span class="swatch" style="background:var(--ing-tomato);"></span>Tomato<span class="check">✓</span></button>
+          <button class="ing-btn" type="button" data-ing="cheese"><span class="swatch" style="background:var(--ing-cheese);"></span>Cheese<span class="check">✓</span></button>
+          <button class="ing-btn" type="button" data-ing="ham"><span class="swatch" style="background:var(--ing-ham);"></span>Ham<span class="check">✓</span></button>
+          <button class="ing-btn" type="button" data-ing="salami"><span class="swatch" style="background:var(--ing-salami);"></span>Salami<span class="check">✓</span></button>
+          <button class="ing-btn" type="button" data-ing="egg"><span class="swatch" style="background:var(--ing-egg);"></span>Egg<span class="check">✓</span></button>
+          <button class="ing-btn" type="button" data-ing="pickle"><span class="swatch" style="background:var(--ing-pickle);"></span>Pickles<span class="check">✓</span></button>
+          <button class="ing-btn" type="button" data-ing="mustard"><span class="swatch" style="background:var(--ing-mustard);"></span>Mustard<span class="check">✓</span></button>
+          <button class="ing-btn" type="button" data-ing="ketchup"><span class="swatch" style="background:var(--ing-ketchup);"></span>Ketchup<span class="check">✓</span></button>
+        </div>
+        <div class="sandwich-preview">
+          <div class="sandwich-stack">
+            <div class="bread-top"></div>
+            <div class="sauce-row">
+              <span class="sauce" data-ing="ketchup"><svg viewBox="0 0 200 14"><path d="M2,7 Q20,1 38,7 T74,7 T110,7 T146,7 T182,7" fill="none" stroke="var(--ing-ketchup)" stroke-width="3" stroke-linecap="round"/></svg></span>
+              <span class="sauce" data-ing="mustard"><svg viewBox="0 0 200 14"><path d="M2,7 Q20,13 38,7 T74,7 T110,7 T146,7 T182,7" fill="none" stroke="var(--ing-mustard)" stroke-width="3" stroke-linecap="round"/></svg></span>
+            </div>
+            <div class="layer" data-ing="lettuce"></div>
+            <div class="layer" data-ing="tomato"></div>
+            <div class="layer" data-ing="egg"></div>
+            <div class="layer" data-ing="pickle"><i></i><i></i><i></i></div>
+            <div class="layer" data-ing="salami"></div>
+            <div class="layer" data-ing="ham"></div>
+            <div class="layer" data-ing="cheese"></div>
+            <div class="bread-bottom"></div>
+          </div>
+          <p class="sandwich-caption" id="sandwichCaption">Just bread. Even Clenynch would judge you.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="story" class="z">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>How Clenynch Took the Bench</h2>
+      <p>The biggest lunchtime standoff in park history, told the only way Clenynch remembers it: without a single word.</p>
+    </div>
+    <div class="window w-b">
+      <div class="titlebar"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">Story.notes</div></div>
+      <div class="window-body notes-body">
+        <div class="acts-grid">
+          <div class="act-card expanded"><div class="q-row"><span class="q mono">ACT 1</span><span class="chevron">+</span></div><h3>The Claim</h3><div class="act-more"><p>Bench claimed. Sandwich out. Eyes closed.</p></div></div>
+          <div class="act-card"><div class="q-row"><span class="q mono">ACT 2</span><span class="chevron">+</span></div><h3>The Neighbor</h3><div class="act-more"><p>Someone smaller sits down. Says nothing. Stares at everything.</p></div></div>
+          <div class="act-card"><div class="q-row"><span class="q mono">ACT 3</span><span class="chevron">+</span></div><h3>The Standoff</h3><div class="act-more"><p>No words. No music. Just chewing.</p></div></div>
+          <div class="act-card"><div class="q-row"><span class="q mono">ACT 4</span><span class="chevron">+</span></div><h3>The Resolution</h3><div class="act-more"><p>Clenynch shares his way. You won't see it coming.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="feed" class="z">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Live from the Park</h2>
+      <p>Open all day, closed for naps. Try asking nicely and see how far that gets you.</p>
+    </div>
+    <div class="feed-grid">
+      <div class="window w-c">
+        <div class="titlebar dark"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">park-feed — zsh — 80×24</div></div>
+        <div class="window-body term-body">
+          <p class="term-line"><span class="t">20:17:17</span>Crumb futures crashed to zero.</p>
+          <p class="term-line"><span class="t">20:17:13</span>Neighbor filed a complaint. Complaint ignored.</p>
+          <p class="term-line"><span class="t">20:17:10</span>Trash can utilization holding steady at empty.</p>
+          <p class="term-line"><span class="t">20:17:07</span>Sandwich composite up 100%, entirely internal.</p>
+          <p class="term-line"><span class="t">20:17:03</span>Clenynch adjusted his grip. Generosity index unmoved.</p>
+          <p class="term-line"><span class="t">20:17:00</span>A pigeon asked for a crumb. Also denied.</p>
+          <p class="term-line"><span class="prompt">clenynch@bench</span> ~ % <span class="cursor"></span></p>
+        </div>
+      </div>
+      <div class="window w-a">
+        <div class="titlebar"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">BenchOccupancy.app</div></div>
+        <div class="window-body widget-body">
+          <div class="row"><span>Bench Occupancy Index</span><span class="comp">100%</span></div>
+          <div class="chart"><svg viewBox="0 0 300 100" preserveAspectRatio="none"><polyline points="0,80 30,70 60,74 90,55 120,60 150,35 180,42 210,20 240,28 270,10 300,15" fill="none" stroke="var(--green-dark)" stroke-width="3"/></svg></div>
+          <div class="floor-btns">
+            <button class="clay-btn green" id="askNicely" type="button">Ask nicely</button>
+            <button class="clay-btn brown" id="begBite" type="button">Beg for a bite</button>
+          </div>
+          <div class="deny-msg" id="denyMsg">Denied. Clenynch does not share. Try the trash can instead.</div>
+          <div class="attempts mono" id="attemptsCount">Attempts: 0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="code" class="z">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>The Bench Code</h2>
+      <p>Six rules, written in crumbs, agreed to by nobody but Clenynch.</p>
+    </div>
+    <div class="window w-b">
+      <div class="titlebar"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">TheBenchCode.rtf — TextEdit</div></div>
+      <div class="window-body doc-body">
+        <div class="doc-page">
+          <div class="code-item"><div class="num">1</div><div><h3>Never open your eyes while eating.</h3><p>What you can't see can't ask for a bite.</p></div></div>
+          <div class="code-item"><div class="num">2</div><div><h3>Every bench is your bench.</h3><p>If you're sitting on it, it's occupied. Permanently.</p></div></div>
+          <div class="code-item"><div class="num">3</div><div><h3>Sharing is a suggestion.</h3><p>A polite one. Very easy to ignore.</p></div></div>
+          <div class="code-item"><div class="num">4</div><div><h3>Crumbs are not currency.</h3><p>They're a rounding error. Nobody's getting change.</p></div></div>
+          <div class="code-item"><div class="num">5</div><div><h3>Silence is a negotiating tactic.</h3><p>If nobody says anything, nothing has to be decided.</p></div></div>
+          <div class="code-item"><div class="num">6</div><div><h3>The last bite decides everything.</h3><p>How the story ends depends entirely on what Clenynch does with it.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="order" class="z">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Pecking Order at the Park</h2>
+      <p>The park runs on a strict hierarchy. One creature at the top, everyone else hoping for scraps.</p>
+    </div>
+    <div class="window w-c">
+      <div class="titlebar"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">Park — Finder</div></div>
+      <div class="window-body finder-body">
+        <div class="finder-cols"><span>Name</span><span>Kind</span><span>Notes</span></div>
+        <div class="finder-row"><div class="name"><span class="ico" style="background:var(--red);"></span>Clenynch</div><div class="kind">Occupant</div><div class="notes">Sole occupant of the bench. Owns the sandwich. Answers to nobody.</div></div>
+        <div class="finder-row"><div class="name"><span class="ico" style="background:var(--yellow);"></span>The Sandwich</div><div class="kind">Asset</div><div class="notes">The entire park economy. Freshly made, tightly held, non-negotiable.</div></div>
+        <div class="finder-row"><div class="name"><span class="ico" style="background:var(--clay);"></span>The Bench</div><div class="kind">Real Estate</div><div class="notes">Prime location, painted red. Seats two. Occupied by one.</div></div>
+        <div class="finder-row"><div class="name"><span class="ico" style="background:var(--brown);"></span>The Neighbor</div><div class="kind">Visitor</div><div class="notes">Smaller creature, bigger appetite. No seat of his own, technically.</div></div>
+        <div class="finder-divider mono">everything below this line just watches</div>
+        <div class="finder-row"><div class="name"><span class="ico" style="background:var(--green-dark);"></span>The Trash Can</div><div class="kind">Fixture</div><div class="notes">Empty and hopeful. Has never once been used.</div></div>
+        <div class="finder-row"><div class="name"><span class="ico" style="background:var(--green);"></span>The Trees</div><div class="kind">Backdrop</div><div class="notes">Painted on. Provide shade and no opinions whatsoever.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pass" class="z">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Get Your Bench Pass</h2>
+      <p>Put your name on it. Clenynch will glance at it for half a second and not share anyway.</p>
+    </div>
+    <div class="pass-grid">
+      <div class="window w-a">
+        <div class="titlebar"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">Fill &amp; Sign</div></div>
+        <div class="window-body fill-body">
+          <label for="passName">Your name</label>
+          <input id="passName" type="text" placeholder="Type your name" maxlength="28" autocomplete="off">
+          <button class="clay-btn red" id="stampBtn" type="button" style="width:100%;justify-content:center;">Stamp it</button>
+        </div>
+      </div>
+      <div class="window w-b">
+        <div class="titlebar"><div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="filename">BenchPass.pdf — Preview</div></div>
+        <div class="window-body preview-body">
+          <div class="certificate">
+            <div class="cert-head">Certificate of Bench Attendance</div>
+            <div class="cert-sub">The Park · Official Grounds</div>
+            <div class="cert-name" id="certName">Your Name Here</div>
+            <p class="cert-body">This certifies that the above visitor sat near Clenynch, witnessed the sandwich, and received zero (0) bites, one (1) life lesson, and unlimited hope for next time.</p>
+            <div class="cert-seal">WITNESSED<br>★ NOT FED ★</div>
+            <div class="cert-no mono" id="certNo">No. 0,000,001</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="z">
+  <div class="wrap">
+    <div class="brand">Clenynch</div>
+    <p class="tag">He isn't just eating a sandwich. He's making a point.</p>
+    <p class="credits"><strong>Bench</strong> (2021), directed by Rich Webber. Animation by Darren Thomson &amp; Rich Webber, cinematography by Sam Morris, sound design by Mick Percival. Studio: Waaber. "Clenynch" is an unofficial fan nickname for the film's unnamed creature.</p>
+    <div class="foot-row">
+      <span class="disclaimer">Unofficial fan tribute. All rights belong to the film's creators. Sharing not guaranteed. © 2026.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var gate = document.getElementById('termsGate');
+  var gateCheck = document.getElementById('gateCheck');
+  var gateAccept = document.getElementById('gateAccept');
+  var ACCEPT_KEY = 'clenynch-terms-accepted';
+  try{
+    if(gate && localStorage.getItem(ACCEPT_KEY) === 'yes'){
+      gate.setAttribute('hidden','');
+    }
+  }catch(e){}
+  if(gateCheck && gateAccept){
+    gateCheck.addEventListener('change', function(){ gateAccept.disabled = !gateCheck.checked; });
+    gateAccept.addEventListener('click', function(){
+      if(gateAccept.disabled) return;
+      gate.setAttribute('hidden','');
+      try{ localStorage.setItem(ACCEPT_KEY, 'yes'); }catch(e){}
+    });
+  }
+
+  var actCards = document.querySelectorAll('.act-card');
+  actCards.forEach(function(card){
+    card.addEventListener('click', function(){
+      var wasExpanded = card.classList.contains('expanded');
+      actCards.forEach(function(c){ c.classList.remove('expanded'); });
+      if(!wasExpanded) card.classList.add('expanded');
+    });
+  });
+
+  var attempts = 0;
+  var attemptsEl = document.getElementById('attemptsCount');
+  var denyMsg = document.getElementById('denyMsg');
+  function deny(){
+    attempts++;
+    if(attemptsEl) attemptsEl.textContent = 'Attempts: ' + attempts;
+    if(denyMsg){ denyMsg.classList.remove('show'); void denyMsg.offsetWidth; denyMsg.classList.add('show'); }
+  }
+  var ask = document.getElementById('askNicely');
+  var beg = document.getElementById('begBite');
+  if(ask) ask.addEventListener('click', deny);
+  if(beg) beg.addEventListener('click', deny);
+
+  var captions = [
+    "Just bread. Even Clenynch would judge you.",
+    "One topping. Bold minimalist choice.",
+    "Now we're talking.",
+    "Getting serious about lunch.",
+    "This is a whole meal now.",
+    "Absolute unit of a sandwich.",
+    "Clenynch is now mildly impressed. Still not sharing."
+  ];
+  var ingButtons = document.querySelectorAll('.ing-btn');
+  var captionEl = document.getElementById('sandwichCaption');
+  function updateSandwichCaption(){
+    if(!captionEl) return;
+    var count = document.querySelectorAll('.ing-btn.active').length;
+    captionEl.textContent = captions[Math.min(count, captions.length - 1)];
+  }
+  ingButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var key = btn.getAttribute('data-ing');
+      var active = btn.classList.toggle('active');
+      var layer = document.querySelector('.layer[data-ing="' + key + '"]');
+      if(layer){
+        if(active) layer.style.setProperty('--wobble', (Math.random() * 8 - 4).toFixed(1) + 'deg');
+        layer.classList.toggle('on', active);
+      }
+      var sauce = document.querySelector('.sauce[data-ing="' + key + '"]');
+      if(sauce) sauce.classList.toggle('on', active);
+      updateSandwichCaption();
+    });
+  });
+
+  var nameInput = document.getElementById('passName');
+  var certName = document.getElementById('certName');
+  var certNo = document.getElementById('certNo');
+  function updateCert(){
+    var v = (nameInput.value || '').trim();
+    certName.textContent = v.length ? v : 'Your Name Here';
+  }
+  if(nameInput){
+    nameInput.addEventListener('input', updateCert);
+    var stampBtn = document.getElementById('stampBtn');
+    if(stampBtn) stampBtn.addEventListener('click', function(){
+      updateCert();
+      var n = Math.floor(1 + Math.random() * 9998);
+      certNo.textContent = 'No. ' + String(n).padStart(7,'0').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,').replace(/^0,/,'');
+    });
+  }
+})();
+</script>

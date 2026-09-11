@@ -1,0 +1,13 @@
+{
+  "name": "clenynch-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static tribute site for Clenynch, served by a dependency free Node server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

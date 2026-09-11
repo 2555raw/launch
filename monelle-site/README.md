@@ -27,12 +27,25 @@ Everything here is original and not affiliated with any existing company.
 | `config.js` | **The file an operator edits.** Treasury address, chain, prices |
 | `assets/mark.svg` | The logo mark |
 | `assets/pfp.png` | The mark as a 1024px avatar, for profiles and social |
+| `server.js` | A dependency free static server, for hosts that run a process |
+| `package.json`, `railway.json` | What Railway and friends read to build and start it |
 
 No build step. Open `index.html`, or serve the folder:
 
 ```sh
 python3 -m http.server --directory monelle-site 8000
 ```
+
+## Deploying
+
+The site is static, so any file host serves it. For a host that expects a
+process rather than a folder (Railway, Render, Fly), `server.js` is a Node
+server with no dependencies that serves this directory and refuses anything
+resolving outside it. `npm start` runs it and it binds to `process.env.PORT`.
+
+On Railway: create a service from this repository and set its **root directory
+to `monelle-site`**, since the repo holds several projects. Nixpacks picks up
+`package.json` and runs `npm start`. Nothing needs building.
 
 ## Live mode and demo mode
 
@@ -48,9 +61,11 @@ the button beside the wallet preview all do.
 credential. It turns on only when all of these hold:
 
 1. `config.treasury` is an Ethereum address **you hold the key for**.
-2. An Ethereum wallet is installed in the visitor's browser. Phantom exposes an
-   EIP-1193 provider at `window.phantom.ethereum`, so no library is bundled and
-   there is no RPC endpoint to configure: the wallet carries its own.
+2. An Ethereum wallet is installed in the visitor's browser. The connect screen
+   lists every one it finds and lets the visitor choose, so MetaMask and Phantom
+   sit side by side rather than fighting over `window.ethereum`. Discovery is
+   EIP-6963, with the older `window.ethereum` paths as a fallback. No library is
+   bundled and there is no RPC endpoint to configure: the wallet carries its own.
 3. The page is served over https from a real domain. WebAuthn needs a secure
    context and a registrable domain, so `file://`, plain http and an embedded
    frame all fail, and the page falls back to demo.

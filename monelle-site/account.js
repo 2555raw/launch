@@ -4,10 +4,11 @@
 
    Two modes, and the page is loud about which one it is in.
 
-   LIVE  Real Phantom, a real ETH transfer on the chain named in config.js, and
-         a real WebAuthn credential on the device. Needs config.treasury filled
-         in, Phantom installed, and a page served over https on a real domain.
-         No RPC endpoint to configure: the wallet supplies one.
+   LIVE  A real wallet of the visitor's choosing, a real ETH transfer on the
+         chain named in config.js, and a real WebAuthn credential on the
+         device. Needs config.treasury filled in, a wallet installed, and a
+         page served over https on a real domain. No RPC endpoint to
+         configure: the wallet supplies one.
    DEMO  The same four screens with nothing behind them. No wallet, no
          transfer, no credential. Every screen says so.
 
@@ -22,19 +23,66 @@
   const STORE = 'monelle.account.v1';
   const WEI = 10n ** 18n;
 
-  /* ---------------- capability detection ---------------- */
+  /* ---------------- finding the wallets ---------------- */
 
-  // Phantom speaks EIP-1193 on its ethereum provider, so no library is needed:
-  // the wallet carries the RPC connection and we only send it JSON-RPC calls.
-  const phantom = () =>
-    window.phantom?.ethereum ? window.phantom.ethereum
-      : window.ethereum?.isPhantom ? window.ethereum
-        : window.ethereum || null;
+  /* Several wallets can be installed at once, and they all used to fight over
+     window.ethereum: whichever loaded last won, so a MetaMask user could find
+     themselves connecting Phantom. EIP-6963 settles it. The page asks, and each
+     extension announces itself with a name, an icon and its own provider, which
+     is what lets the picker below list them separately.
+
+     The legacy paths stay as a fallback for wallets that have not adopted it. */
+
+  const found = new Map();   // key -> { name, icon, provider }
+
+  window.addEventListener('eip6963:announceProvider', (e) => {
+    const info = e.detail?.info;
+    const provider = e.detail?.provider;
+    if (!info || !provider) return;
+    found.set(info.rdns || info.name, { name: info.name, icon: info.uuid && info.icon, provider });
+  });
+
+  function askWallets() {
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+  }
+  askWallets();
+
+  // Anything that never answered the EIP-6963 call, picked up the old way.
+  function legacyWallets() {
+    const out = [];
+    const eth = window.ethereum;
+    const list = Array.isArray(eth?.providers) && eth.providers.length ? eth.providers : (eth ? [eth] : []);
+    list.forEach((p) => {
+      const name = p.isMetaMask ? 'MetaMask' : p.isPhantom ? 'Phantom' : 'Browser wallet';
+      out.push({ name, icon: null, provider: p });
+    });
+    if (window.phantom?.ethereum) out.push({ name: 'Phantom', icon: null, provider: window.phantom.ethereum });
+    return out;
+  }
+
+  function wallets() {
+    askWallets();
+    const byName = new Map();
+    // EIP-6963 first: it carries the icon and the wallet's own name for itself
+    for (const w of found.values()) byName.set(w.name, w);
+    for (const w of legacyWallets()) if (!byName.has(w.name)) byName.set(w.name, w);
+    return [...byName.values()];
+  }
+
+  // The two the page names outright, so a visitor without either is told where
+  // to get them rather than left looking at an empty list.
+  const KNOWN = [
+    { name: 'MetaMask', url: 'https://metamask.io/download/' },
+    { name: 'Phantom', url: 'https://phantom.app/download' }
+  ];
+
+  const anyWallet = () => wallets().length > 0;
+  const provider = () => state.provider;
 
   const liveBlockers = () => {
     const out = [];
     if (!cfg.treasury) out.push('no treasury address is configured');
-    if (!phantom()) out.push('no Ethereum wallet is installed in this browser');
+    if (!anyWallet()) out.push('no Ethereum wallet is installed in this browser');
     if (!window.isSecureContext) out.push('the page is not on a secure origin');
     if (!window.PublicKeyCredential) out.push('this browser has no passkey support');
     return out;
@@ -48,7 +96,9 @@
     step: 'plan',        // plan | connect | pay | passkey | wallet
     plan: 'builder',
     cycle: 'monthly',
-    wallet: null,        // base58 address
+    wallet: null,        // the connected address
+    provider: null,      // the EIP-1193 provider the visitor picked
+    walletName: '',      // and what it calls itself
     signature: null,     // payment tx signature
     passkeyId: null,
     label: '',           // what the visitor named this wallet
@@ -80,6 +130,7 @@
     try {
       localStorage.setItem(STORE, JSON.stringify({
         plan: state.plan, cycle: state.cycle, wallet: state.wallet, label: state.label,
+        walletName: state.walletName,
         signature: state.signature, passkeyId: state.passkeyId,
         chainId: cfg.chainId, opened: Date.now()
       }));
@@ -106,8 +157,8 @@
   const fromWei = (hex) => Number(BigInt(hex)) / 1e18;
 
   async function connectWallet() {
-    const p = phantom();
-    if (!p) throw new Error('No Ethereum wallet was found. Install Phantom, then reload this page.');
+    const p = provider();
+    if (!p) throw new Error('Pick a wallet first.');
     const accounts = await p.request({ method: 'eth_requestAccounts' });   // opens the wallet
     if (!accounts?.length) throw new Error('The wallet returned no account.');
     return accounts[0];
@@ -116,7 +167,7 @@
   // A payment on the wrong chain goes to the right address on the wrong network,
   // so ask the wallet to move before sending anything.
   async function ensureChain() {
-    const p = phantom();
+    const p = provider();
     const current = await p.request({ method: 'eth_chainId' });
     if (current?.toLowerCase() === cfg.chainId?.toLowerCase()) return;
     try {
@@ -134,7 +185,7 @@
     if (usd <= 0) return null;                           // free plan, nothing to send
     const eth = usdToEth(usd);
 
-    const p = phantom();
+    const p = provider();
     await ensureChain();
 
     const balanceHex = await p.request({ method: 'eth_getBalance', params: [state.wallet, 'latest'] });
@@ -154,7 +205,7 @@
   // Live: ask the wallet. Demo: whatever the demo has credited so far.
   async function refreshBalance() {
     if (state.mode !== 'live') return state.balance;
-    const p = phantom();
+    const p = provider();
     if (!p || !state.wallet) return state.balance;
     state.loadingBalance = true;
     try {
@@ -312,17 +363,44 @@
     }
 
     if (state.step === 'connect') {
+      const list = state.mode === 'live' ? wallets() : [];
+      const missing = state.mode === 'live'
+        ? KNOWN.filter((k) => !list.some((w) => w.name === k.name))
+        : [];
+
       el.body.innerHTML = `
         <p class="ts-lead">${state.mode === 'live'
-          ? 'Approve the connection in Phantom. Monelle reads your address and nothing else.'
-          : 'In live mode this opens Phantom. Here it hands you an address that belongs to nobody.'}</p>
+          ? 'Pick the wallet you want to use. Monelle reads its address and nothing else.'
+          : 'In live mode this lists the wallets you have installed. Here it hands you an address that belongs to nobody.'}</p>
+
         ${state.wallet ? `
-          <div class="ts-field"><span>Connected</span><code>${short(state.wallet, 8, 8)}</code></div>` : ''}
+          <div class="ts-field">
+            <span>${state.walletName || 'Connected'}</span>
+            <code>${short(state.wallet, 8, 8)}</code>
+          </div>` : state.mode === 'live' ? `
+          <div class="ts-picker">
+            ${list.map((w, i) => `
+              <button class="ts-pick" type="button" data-go="pick:${i}" ${state.busy ? 'disabled' : ''}>
+                ${w.icon ? `<img src="${w.icon}" alt="" width="24" height="24">` : `<i>${w.name.slice(0, 1)}</i>`}
+                <b>${w.name}</b>
+                <span>Installed</span>
+              </button>`).join('')}
+            ${missing.map((k) => `
+              <a class="ts-pick is-missing" href="${k.url}" target="_blank" rel="noopener noreferrer">
+                <i>${k.name.slice(0, 1)}</i>
+                <b>${k.name}</b>
+                <span>Install</span>
+              </a>`).join('')}
+          </div>` : `
+          <div class="ts-picker">
+            <button class="ts-pick" type="button" data-go="connect" ${state.busy ? 'disabled' : ''}>
+              <i>D</i><b>Demo wallet</b><span>No install</span>
+            </button>
+          </div>`}
+
         ${err()}
         <div class="ts-actions">
-          <button class="ts-btn ts-btn-primary" type="button" data-go="connect" ${state.busy ? 'disabled' : ''}>
-            ${state.busy ? 'Waiting for the wallet…' : state.wallet ? 'Continue' : 'Connect wallet'}
-          </button>
+          ${state.wallet ? '<button class="ts-btn ts-btn-primary" type="button" data-go="connect">Continue</button>' : ''}
           <button class="ts-btn ts-btn-ghost" type="button" data-go="back">Back</button>
         </div>`;
       return;
@@ -408,6 +486,7 @@
 
     $('#vaultAddr').textContent = state.wallet;
     $('#vaultNet').textContent = cfg.chainName || 'unknown';
+    $('#vaultWallet').textContent = state.walletName || (live ? 'Connected wallet' : 'Demo wallet');
     $('#vaultPlan').textContent = `${PLAN_NAMES[state.plan]} · ${state.cycle}`;
     $('#vaultKey').textContent = short(state.passkeyId, 8, 8) || 'none';
 
@@ -468,13 +547,24 @@
       return render();
     }
 
+    if (what.startsWith('pick:')) {
+      const chosen = wallets()[Number(what.slice(5))];
+      if (!chosen) { state.error = 'That wallet is no longer available. Reload and try again.'; return render(); }
+      state.provider = chosen.provider;
+      state.walletName = chosen.name;
+      return act('connect');
+    }
+
     if (what === 'connect') {
       if (state.wallet) { state.step = 'pay'; return render(); }
       state.busy = true; render();
       try {
-        state.wallet = state.mode === 'live'
-          ? await connectWallet()
-          : (await wait(700), hex(40));
+        if (state.mode === 'live') {
+          state.wallet = await connectWallet();
+        } else {
+          state.walletName = 'Demo wallet';
+          state.wallet = (await wait(700), hex(40));
+        }
         state.step = 'pay';
       } catch (e) {
         state.error = e?.message || 'The wallet refused the connection.';
@@ -565,8 +655,9 @@
 
     if (what === 'reset') {
       Object.assign(state, {
-        step: 'plan', wallet: null, signature: null, passkeyId: null,
-        label: '', error: '', balance: 0, activity: []
+        step: 'plan', wallet: null, provider: null, walletName: '',
+        signature: null, passkeyId: null, label: '', error: '',
+        balance: 0, activity: []
       });
       forget();
       const sec = $('#wallet');
@@ -604,6 +695,8 @@
     state.mode = 'demo';
     state.step = mode === 'demo' ? 'connect' : 'plan';
     state.wallet = null;
+    state.provider = null;
+    state.walletName = '';
     state.signature = null;
     state.passkeyId = null;
     state.error = '';

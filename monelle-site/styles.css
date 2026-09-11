@@ -695,6 +695,32 @@ img { max-width: 100%; }
 }
 .ts-badge:hover { background: rgba(69,248,126,.2); }
 
+/* ---------- picking a wallet ---------- */
+.ts-picker { display: grid; gap: 8px; margin-bottom: 18px; }
+.ts-pick {
+  display: flex; align-items: center; gap: 13px;
+  padding: 14px 16px; border-radius: 14px; cursor: pointer; text-align: left;
+  border: 1px solid var(--line-hi); background: rgba(28,30,38,.55);
+  backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+  box-shadow: var(--lip); color: var(--ink);
+  font: 500 14.5px var(--font);
+  transition: border-color .16s, background .16s, transform .12s;
+}
+.ts-pick:hover { border-color: var(--neon-line); background: rgba(69,248,126,.07); }
+.ts-pick:active { transform: translateY(1px); }
+.ts-pick[disabled] { opacity: .5; cursor: progress; }
+.ts-pick img { border-radius: 7px; display: block; flex: none; }
+.ts-pick i {
+  width: 24px; height: 24px; flex: none; border-radius: 7px;
+  display: grid; place-items: center; font-style: normal;
+  font-size: 12px; font-weight: 600; color: var(--on-neon); background: var(--neon);
+}
+.ts-pick b { flex: 1; font-weight: 550; }
+.ts-pick span { font-size: 11.5px; color: var(--dim); }
+.ts-pick.is-missing i { color: var(--muted); background: var(--surface, rgba(255,255,255,.07)); }
+.ts-pick.is-missing b { color: var(--muted); }
+.ts-pick.is-missing span { color: var(--neon); }
+
 /* ---------- the wallet, on the page ---------- */
 .ts-vault {
   border-block: 1px solid var(--line);

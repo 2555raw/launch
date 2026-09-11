@@ -1,4 +1,4 @@
-/* Vouch — opening an account.
+/* Monelle — opening an account.
    Four steps: connect an Ethereum wallet, pay for the plan, register a passkey,
    then land on the account with somewhere to put funds.
 
@@ -17,9 +17,9 @@
 (() => {
   'use strict';
 
-  const cfg = window.VOUCH_CONFIG || {};
+  const cfg = window.MONELLE_CONFIG || {};
   const $ = (s, r = document) => r.querySelector(s);
-  const STORE = 'vouch.account.v1';
+  const STORE = 'monelle.account.v1';
   const WEI = 10n ** 18n;
 
   /* ---------------- capability detection ---------------- */
@@ -167,7 +167,7 @@
     const cred = await navigator.credentials.create({
       publicKey: {
         challenge,
-        rp: { name: 'Vouch', id: location.hostname },
+        rp: { name: 'Monelle', id: location.hostname },
         user: { id: userId, name: label, displayName: label },
         pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
         authenticatorSelection: { residentKey: 'preferred', userVerification: 'preferred' },
@@ -280,7 +280,7 @@
     if (state.step === 'wallet') {
       el.body.innerHTML = `
         <p class="ts-lead">${state.mode === 'live'
-          ? 'Approve the connection in Phantom. Vouch reads your address and nothing else.'
+          ? 'Approve the connection in Phantom. Monelle reads your address and nothing else.'
           : 'In live mode this opens Phantom. Here it hands you an address that belongs to nobody.'}</p>
         ${state.wallet ? `
           <div class="ts-field"><span>Connected</span><code>${short(state.wallet, 8, 8)}</code></div>` : ''}
@@ -299,7 +299,7 @@
         <p class="ts-lead">${usd === 0
           ? 'The Starter plan is free, so there is nothing to send.'
           : state.mode === 'live'
-            ? `Your wallet will ask you to approve a transfer of <b>${eth} ETH</b> (${money(usd)}) to the Vouch treasury on ${cfg.chainName}.`
+            ? `Your wallet will ask you to approve a transfer of <b>${eth} ETH</b> (${money(usd)}) to the Monelle treasury on ${cfg.chainName}.`
             : `In live mode your wallet would ask you to approve <b>${eth} ETH</b> (${money(usd)}). Here nothing leaves anything.`}</p>
         <div class="ts-field"><span>From</span><code>${short(state.wallet, 8, 8)}</code></div>
         <div class="ts-field"><span>Amount</span><code>${usd === 0 ? '0' : eth + ' ETH · ' + money(usd)}</code></div>
@@ -317,10 +317,10 @@
     if (state.step === 'passkey') {
       el.body.innerHTML = `
         <p class="ts-lead">${state.mode === 'live'
-          ? 'Your device will ask for Face ID, Touch ID or a security key. The credential stays on the device; Vouch keeps only its id.'
+          ? 'Your device will ask for Face ID, Touch ID or a security key. The credential stays on the device; Monelle keeps only its id.'
           : 'In live mode your device would prompt for Face ID or Touch ID. Here no credential is created.'}</p>
         <label class="ts-label" for="acctLabel">Name this passkey</label>
-        <input class="ts-input" id="acctLabel" type="text" value="Vouch account" autocomplete="off">
+        <input class="ts-input" id="acctLabel" type="text" value="Monelle account" autocomplete="off">
         ${err()}
         <div class="ts-actions">
           <button class="ts-btn ts-btn-primary" type="button" data-go="passkey" ${state.busy ? 'disabled' : ''}>
@@ -420,7 +420,7 @@
     }
 
     if (what === 'passkey') {
-      const label = ($('#acctLabel')?.value || '').trim() || 'Vouch account';
+      const label = ($('#acctLabel')?.value || '').trim() || 'Monelle account';
       state.busy = true; render();
       try {
         state.passkeyId = state.mode === 'live'
@@ -517,5 +517,5 @@
     });
   }
 
-  window.VouchAccount = { open, close, state };
+  window.MonelleAccount = { open, close, state };
 })();

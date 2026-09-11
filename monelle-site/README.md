@@ -1,12 +1,12 @@
-# Vouch
+# Monelle
 
 A static site for a fictional product: passkey wallets and creator tooling
-across Solana, Bitcoin and EVM, with a universal name (`vouch.id`).
+across Solana, Bitcoin and EVM, with a universal name (`mon.id`).
 
-To vouch for someone is to put your name behind who they say they are, which
-is the whole job of a passkey. The page keeps one electric green and spends it
-only where something is live: a real connection, a real payment, a real
-credential. Everything else is ink and bone.
+The mark is an arcade: two arches on three stems, which is both the m of the
+name and the shape of a doorway you are let through. The page keeps one
+electric green and spends it only where something is live: a real connection,
+a real payment, a real credential. Everything else is ink and bone.
 
 Everything here is original and not affiliated with any existing company.
 
@@ -20,11 +20,12 @@ Everything here is original and not affiliated with any existing company.
 | `account.js` | The four step account flow: wallet, payment, passkey, deposit |
 | `config.js` | **The file an operator edits.** Treasury address, chain, prices |
 | `assets/mark.svg` | The logo mark |
+| `assets/pfp.png` | The mark as a 1024px avatar, for profiles and social |
 
 No build step. Open `index.html`, or serve the folder:
 
 ```sh
-python3 -m http.server --directory vouch-site 8000
+python3 -m http.server --directory monelle-site 8000
 ```
 
 ## Live mode and demo mode

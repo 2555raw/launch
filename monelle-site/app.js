@@ -148,7 +148,7 @@
     });
     // the ETH line comes from config, so a card can never quote a different
     // amount than the one checkout actually asks the wallet to send
-    const cfg = window.VOUCH_CONFIG || {};
+    const cfg = window.MONELLE_CONFIG || {};
     $$('[data-plan-eth]').forEach((n) => {
       const usd = cfg.prices?.[n.dataset.planEth]?.[cycle];
       if (!usd) { n.textContent = ''; return; }

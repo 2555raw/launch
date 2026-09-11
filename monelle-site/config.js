@@ -1,4 +1,4 @@
-/* Vouch — the settings an operator has to fill in before the site can take a
+/* Monelle — the settings an operator has to fill in before the site can take a
    real payment. Everything here is read at load time by account.js.
 
    Until `treasury` holds an address you control, the page refuses to start a
@@ -6,7 +6,7 @@
    address nobody holds the key for is gone, so there is no placeholder address
    in this file and you should not invent one. */
 
-window.VOUCH_CONFIG = {
+window.MONELLE_CONFIG = {
   /* The chain payments settle on, as the hex id a wallet reports.
        0xaa36a7  Sepolia, the test network. Test ETH is free from a faucet.
        0x1       Ethereum mainnet, where the money is real.

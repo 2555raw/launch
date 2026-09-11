@@ -187,7 +187,7 @@
   ];
 
   const wrap = (inner) =>
-    `<svg viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="2.1"
+    `<svg viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="2.7"
        stroke-linecap="round" stroke-linejoin="round">${inner}</g></svg>`;
 
   const keys = $$('.ts-key');

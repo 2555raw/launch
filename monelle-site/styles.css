@@ -154,7 +154,7 @@ img { max-width: 100%; }
 .ts-stage { margin-top: 44px; perspective: 1400px; perspective-origin: 50% 0%; overflow: hidden; }
 .ts-slab {
   position: relative; height: 330px; margin: 0 auto; max-width: 880px;
-  transform: rotateX(49deg) rotateZ(-20deg); transform-style: preserve-3d;
+  transform: rotateX(20deg); transform-style: preserve-3d;
   background:
     linear-gradient(115deg, #14141A 0%, #0C0C11 46%, #101017 74%, #08080B 100%);
   border-radius: 26px; border: 1px solid #191921;
@@ -175,7 +175,7 @@ img { max-width: 100%; }
   transform: translateZ(26px);
 }
 .ts-key-face { display: grid; place-items: center; }
-.ts-key svg { width: 56px; height: 56px; filter: drop-shadow(0 1px 0 rgba(255,255,255,.6)); }
+.ts-key svg { width: 58px; height: 58px; filter: drop-shadow(0 1px 0 rgba(255,255,255,.6)); }
 
 /* the drop: from high above the slab down onto it, with a short settle */
 @keyframes ts-drop {
@@ -194,13 +194,15 @@ img { max-width: 100%; }
 
 /* contact: a green ring thrown out across the slab, and the tile lit for a beat */
 .ts-key-hit {
-  position: absolute; inset: -6px; border-radius: 26px; pointer-events: none;
-  border: 2px solid var(--neon); opacity: 0;
+  position: absolute; inset: -8px; border-radius: 28px; pointer-events: none;
+  border: 4px solid var(--neon); opacity: 0;
 }
+/* A thick ring reads as stray bars once it grows past the slab and gets
+   clipped, so it stays close to the tile and fades early. */
 @keyframes ts-hit {
-  0%   { transform: scale(.72); opacity: 0; }
-  12%  { opacity: .95; }
-  100% { transform: scale(2.3); opacity: 0; }
+  0%   { transform: scale(.84); opacity: 0; }
+  18%  { opacity: 1; }
+  100% { transform: scale(1.42); opacity: 0; }
 }
 .ts-key.is-hit .ts-key-hit { animation: ts-hit .62s ease-out both; }
 .ts-key.is-hit {
@@ -217,9 +219,9 @@ img { max-width: 100%; }
   .ts-key { opacity: 1; transform: translateZ(26px); }
 }
 
-.ts-key-1 { left: 10%; top: 38%; }
-.ts-key-2 { left: 41%; top: 22%; }
-.ts-key-3 { left: 72%; top: 5%; }
+.ts-key-1 { left: 12%; top: 26%; }
+.ts-key-2 { left: 40%; top: 26%; }
+.ts-key-3 { left: 68%; top: 26%; }
 
 /* ---------- marquee ---------- */
 .ts-marquee { padding: 74px 0 10px; text-align: center; }
@@ -690,7 +692,7 @@ img { max-width: 100%; }
   .ts-grid-3, .ts-steps { grid-template-columns: repeat(2, 1fr); }
   .ts-demo, .ts-build, .ts-faq-wrap { grid-template-columns: 1fr; gap: 38px; }
   .ts-foot-in { grid-template-columns: 1fr; gap: 34px; }
-  .ts-slab { height: 270px; transform: rotateX(48deg) rotateZ(-18deg); }
+  .ts-slab { height: 250px; transform: rotateX(18deg); }
   .ts-key { width: 104px; height: 104px; border-radius: 19px; }
   .ts-key svg { width: 46px; height: 46px; }
 }
@@ -707,10 +709,10 @@ img { max-width: 100%; }
   .ts-rail { gap: 4px; }
   .ts-hero { padding-top: 58px; }
   .ts-stage { margin-top: 42px; }
-  .ts-slab { height: 195px; border-radius: 20px; transform: rotateX(46deg) rotateZ(-15deg); }
+  .ts-slab { height: 170px; border-radius: 20px; transform: rotateX(16deg); }
   .ts-key { width: 76px; height: 76px; border-radius: 15px; }
   .ts-key svg { width: 34px; height: 34px; }
-  .ts-key-1 { left: 5%; top: 48%; } .ts-key-2 { left: 37%; top: 28%; } .ts-key-3 { left: 68%; top: 8%; }
+  .ts-key-1 { left: 6%; top: 24%; } .ts-key-2 { left: 38%; top: 24%; } .ts-key-3 { left: 70%; top: 24%; }
   .ts-grid-3, .ts-steps, .ts-stats-in { grid-template-columns: 1fr; }
   .ts-stats-in { gap: 30px; }
   .ts-marquee-row { gap: 14px 26px; }

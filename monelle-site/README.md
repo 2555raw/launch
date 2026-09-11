@@ -4,8 +4,9 @@ A static site for a fictional product: passkey wallets, a token launch desk
 and a universal name (`mon.id`), aimed at Robinhood Chain and every other EVM
 network.
 
-The mark is an arcade: two arches on three stems, which is both the m of the
-name and the shape of a doorway you are let through. The page keeps one
+The mark is a solid tile with the M cut out of it, drawn as two peaks so it
+also reads as a line going up. It is filled rather than outlined, which is what
+keeps it legible at the size an avatar is actually shown. The page keeps one
 electric green and spends it only where something is live: a real connection,
 a real payment, a real credential. Everything else is ink and bone.
 

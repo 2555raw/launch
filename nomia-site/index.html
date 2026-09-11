@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nomia — the payment rail for autonomous agents</title>
+  <meta name="description" content="Nomia gives every AI agent its own identity, a spend limit and a settlement path: per-call micropayments, authorization in milliseconds, and an audit trail finance can read.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23150E0F'/%3E%3Cg fill='none' stroke='%2300E5A0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='10'/%3E%3Cpath d='M12 11.5l5 4.5-5 4.5'/%3E%3Cpath d='M19 12.8l3 3.2-3 3.2'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="nm" id="top">
+
+  <!-- status strip: network figures, scrolls sideways, never animates -->
+  <div class="nm-strip">
+    <div class="nm-wrap nm-strip-in">
+      <span>Network <b>operational</b></span>
+      <span>Authorization p50 <b>38 ms</b></span>
+      <span>Median settlement <b>1.9 s</b></span>
+      <span>Active agents <b>41,280</b></span>
+      <span>24h volume <b>$7.4M</b></span>
+      <span>Rails <b>USDC · SEPA · card</b></span>
+    </div>
+  </div>
+
+  <nav class="nm-nav">
+    <a class="nm-brand" data-scroll="top">
+      <span class="nm-mark">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="16" cy="16" r="10"/>
+          <path d="M12 11.5l5 4.5-5 4.5"/>
+          <path d="M19 12.8l3 3.2-3 3.2"/>
+        </svg>
+      </span>
+      Nomia
+    </a>
+    <div class="nm-nav-links" id="navlinks">
+      <a data-scroll="product">Product</a>
+      <a data-scroll="how">How it works</a>
+      <a data-scroll="developers">Developers</a>
+      <a data-scroll="dashboard">Dashboard</a>
+      <a data-scroll="pricing">Pricing</a>
+      <a data-scroll="faq">FAQ</a>
+    </div>
+    <div class="nm-nav-right">
+      <button class="nm-icon-btn nm-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="nm-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
+      <a class="nm-btn nm-btn-ghost nm-btn-sm nm-hide-sm" data-scroll="developers">Docs</a>
+      <a class="nm-btn nm-btn-primary nm-btn-sm" data-scroll="cta">Get started</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- hero -->
+    <section class="nm-hero">
+      <div class="nm-wrap nm-hero-grid">
+        <div class="nm-hero-copy">
+          <div class="nm-swatch" aria-hidden="true"></div>
+          <div>
+            <span class="nm-eyebrow"><i class="nm-dot"></i>Machine-to-machine payments, in production</span>
+            <h1>The payment rail your <em>agents</em> can use on their own</h1>
+            <p class="nm-hero-sub">
+              Nomia gives every agent its own identity, a budget it cannot exceed, and a real path to
+              settlement. Authorize in milliseconds, charge per call, and leave an audit trail your
+              finance team can read without a translator.
+            </p>
+            <div class="nm-hero-cta">
+              <a class="nm-btn nm-btn-primary" data-scroll="cta">Start free</a>
+              <a class="nm-btn nm-btn-ghost" data-scroll="developers">Read the API</a>
+            </div>
+            <p class="nm-hero-note">No card to try it · 10,000 authorizations a month on the free plan</p>
+          </div>
+        </div>
+
+        <div class="nm-console">
+          <div class="nm-console-bar">
+            <i></i><i></i><i></i><span>authorization · agt_9f21c4</span>
+          </div>
+<pre class="nm-code"><span class="c"># the agent asks to spend; Nomia rules on it against the policy</span>
+<span class="k">POST</span> <span class="s">/v1/authorizations</span>
+{
+  <span class="s">"agent"</span>:    <span class="n">"agt_9f21c4"</span>,
+  <span class="s">"amount"</span>:   <span class="n">2400</span>,           <span class="c"># $24.00</span>
+  <span class="s">"currency"</span>: <span class="n">"USDC"</span>,
+  <span class="s">"payee"</span>:    <span class="n">"vendor_maps_api"</span>,
+  <span class="s">"reason"</span>:   <span class="n">"geocoding batch"</span>
+}
+
+<span class="c">→ 201 Created</span>
+{
+  <span class="s">"status"</span>:    <span class="k">"approved"</span>,
+  <span class="s">"policy"</span>:    <span class="n">"pol_daily_50usd"</span>,
+  <span class="s">"remaining"</span>: <span class="n">2600</span>,
+  <span class="s">"latency"</span>:   <span class="n">"31ms"</span>
+}</pre>
+          <div class="nm-flow">
+            <div class="nm-flow-row">
+              <span class="nm-label">Payment lifecycle</span>
+              <span class="nm-label" style="color:var(--accent)">settled · 1.9 s</span>
+            </div>
+            <div class="nm-flow-track">
+              <div class="nm-flow-step on">01 Identity</div>
+              <div class="nm-flow-step on">02 Policy</div>
+              <div class="nm-flow-step on">03 Authorization</div>
+              <div class="nm-flow-step on">04 Settlement</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- protocols -->
+    <section class="nm-logos">
+      <div class="nm-wrap nm-logos-in">
+        <span class="nm-label">Speaks the protocols you already use</span>
+        <b>x402</b><b>AP2</b><b>MCP</b><b>OpenAPI</b><b>USDC</b><b>SEPA Instant</b><b>ERC&#8209;4337</b><b>Webhooks</b>
+      </div>
+    </section>
+
+    <!-- the problem + stats -->
+    <section class="nm-sec" id="product">
+      <div class="nm-wrap">
+        <div class="nm-head nm-rise">
+          <span class="nm-label">The problem</span>
+          <h2>An agent that cannot pay stops halfway</h2>
+          <p>
+            Agents already decide, search and execute. What they don't have is a safe way to pay:
+            someone lends them the team card, the spend surfaces a month later, and nobody knows
+            which call cost what. Nomia turns every payment into a decision with a policy, a record
+            and a limit.
+          </p>
+        </div>
+
+        <div class="nm-stats nm-rise">
+          <div class="nm-stat"><div class="nm-stat-v">38&nbsp;ms</div><div class="nm-stat-k">p50 authorization, request to response</div></div>
+          <div class="nm-stat"><div class="nm-stat-v">0.4&nbsp;%</div><div class="nm-stat-k">Per settled payment, with no monthly minimum</div></div>
+          <div class="nm-stat"><div class="nm-stat-v">99.99&nbsp;%</div><div class="nm-stat-k">Uptime on the authorization plane</div></div>
+          <div class="nm-stat"><div class="nm-stat-v">$0.001</div><div class="nm-stat-k">Minimum per operation, so you can charge per call</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- how it works -->
+    <section class="nm-sec nm-sec-alt" id="how">
+      <div class="nm-wrap">
+        <div class="nm-head nm-rise">
+          <span class="nm-label">How it works</span>
+          <h2>Three calls between your agent and the money</h2>
+          <p>No shared cards, no keys pasted into a prompt. One credential per agent, a policy that bounds it, and a record that proves it.</p>
+        </div>
+        <div class="nm-steps">
+          <article class="nm-card nm-step nm-rise">
+            <div class="nm-step-n">01</div>
+            <h3>Issue the credential</h3>
+            <p>Every agent gets its own identity and key pair. Revoke it in one click; its history outlives the revocation. <code>POST /v1/agents</code></p>
+          </article>
+          <article class="nm-card nm-step nm-rise">
+            <div class="nm-step-n">02</div>
+            <h3>Write the policy</h3>
+            <p>Daily ceiling, allowed payees, a maximum per operation, and a threshold above which a human has to sign off. <code>POST /v1/policies</code></p>
+          </article>
+          <article class="nm-card nm-step nm-rise">
+            <div class="nm-step-n">03</div>
+            <h3>Let it pay</h3>
+            <p>The agent asks for authorization, Nomia answers in milliseconds and settles on whichever rail fits: stablecoin, transfer or virtual card. <code>POST /v1/authorizations</code></p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- features -->
+    <section class="nm-sec">
+      <div class="nm-wrap">
+        <div class="nm-head nm-rise">
+          <span class="nm-label">Product</span>
+          <h2>What it takes to hand a machine the budget</h2>
+          <p>Control before the payment, traceability after it. Both halves in the same API.</p>
+        </div>
+        <div class="nm-feats">
+          <article class="nm-card nm-feat nm-rise">
+            <div class="nm-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></div>
+            <h3>Identity per agent</h3>
+            <p>A signed credential for each agent, not one team key passed around. You know who spent without inferring it from a log.</p>
+          </article>
+          <article class="nm-card nm-feat nm-rise">
+            <div class="nm-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+            <h3>Spend policies</h3>
+            <p>Ceilings by day, by payee and by operation. What goes over the line isn't declined in silence: it waits for someone to approve it.</p>
+          </article>
+          <article class="nm-card nm-feat nm-rise">
+            <div class="nm-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L5 13h6l-1 8 8-10h-6z"/></svg></div>
+            <h3>Per-call micropayments</h3>
+            <p>From a tenth of a cent. Charge per response, per token or per finished task, and batch the settlement when it pays to.</p>
+          </article>
+          <article class="nm-card nm-feat nm-rise">
+            <div class="nm-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h13l-3-3M21 16H8l3 3"/></svg></div>
+            <h3>Multi&#8209;rail settlement</h3>
+            <p>Stablecoin, instant transfer or a single-use virtual card. The agent asks for a payment; the policy picks the rail.</p>
+          </article>
+          <article class="nm-card nm-feat nm-rise">
+            <div class="nm-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg></div>
+            <h3>Auditable record</h3>
+            <p>Every authorization stores who, how much, to whom and on what grounds, hash-chained and exportable to your ERP.</p>
+          </article>
+          <article class="nm-card nm-feat nm-rise">
+            <div class="nm-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <h3>Kill switch</h3>
+            <p>Catches spend loops and unfamiliar payees, and cuts off the whole agent with a single call when something runs away.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- developers -->
+    <section class="nm-sec nm-sec-alt" id="developers">
+      <div class="nm-wrap nm-dev">
+        <div class="nm-rise">
+          <span class="nm-label">Developers</span>
+          <h2>One API, and your first authorization before the coffee</h2>
+          <p class="nm-dev-intro">
+            REST with idempotency, signed webhooks, and a sandbox with fake money and the same error
+            codes as production.
+          </p>
+          <ul class="nm-dev-list">
+            <li>SDKs in TypeScript, Python and Go, generated from the same OpenAPI spec.</li>
+            <li>MCP server included: your agents see <code>pay</code> as one more tool.</li>
+            <li>x402-compatible: answers a <code>402 Payment Required</code> with no extra code.</li>
+            <li>Separate test and live keys, with a 24-hour idempotent retry window.</li>
+          </ul>
+        </div>
+
+        <div class="nm-rise">
+          <div class="nm-tabs" id="tabs">
+            <button class="nm-tab is-active" data-tab="node" type="button">TypeScript</button>
+            <button class="nm-tab" data-tab="python" type="button">Python</button>
+            <button class="nm-tab" data-tab="curl" type="button">cURL</button>
+            <button class="nm-tab" data-tab="mcp" type="button">MCP</button>
+          </div>
+
+          <div class="nm-console">
+            <div class="nm-console-bar"><i></i><i></i><i></i><span id="tabfile">agent.ts</span></div>
+
+            <div class="nm-panel is-active" data-panel="node">
+<pre class="nm-code"><span class="k">import</span> { Nomia } <span class="k">from</span> <span class="n">"@nomia/sdk"</span>;
+
+<span class="k">const</span> nomia = <span class="k">new</span> Nomia(process.env.NOMIA_KEY);
+
+<span class="c">// a credential and a daily ceiling for this agent</span>
+<span class="k">const</span> agent = <span class="k">await</span> nomia.agents.create({
+  name:   <span class="n">"market-researcher"</span>,
+  policy: { daily: <span class="n">5000</span>, perCall: <span class="n">500</span>, currency: <span class="n">"USDC"</span> }
+});
+
+<span class="c">// the agent pays for a data call</span>
+<span class="k">const</span> payment = <span class="k">await</span> nomia.pay({
+  agent:  agent.id,
+  payee:  <span class="n">"vendor_maps_api"</span>,
+  amount: <span class="n">2400</span>,
+  reason: <span class="n">"geocoding batch"</span>
+});
+
+console.log(payment.status, payment.settledIn); <span class="c">// approved 1.9s</span></pre>
+            </div>
+
+            <div class="nm-panel" data-panel="python">
+<pre class="nm-code"><span class="k">from</span> nomia <span class="k">import</span> Nomia
+
+nomia = Nomia(os.environ[<span class="n">"NOMIA_KEY"</span>])
+
+agent = nomia.agents.create(
+    name=<span class="n">"market-researcher"</span>,
+    policy={<span class="s">"daily"</span>: <span class="n">5000</span>, <span class="s">"per_call"</span>: <span class="n">500</span>, <span class="s">"currency"</span>: <span class="n">"USDC"</span>},
+)
+
+payment = nomia.pay(
+    agent=agent.id,
+    payee=<span class="n">"vendor_maps_api"</span>,
+    amount=<span class="n">2400</span>,
+    reason=<span class="n">"geocoding batch"</span>,
+)
+
+<span class="k">print</span>(payment.status, payment.settled_in)  <span class="c"># approved 1.9s</span></pre>
+            </div>
+
+            <div class="nm-panel" data-panel="curl">
+<pre class="nm-code"><span class="k">curl</span> https://api.nomia.dev/v1/authorizations \
+  -H <span class="n">"Authorization: Bearer $NOMIA_KEY"</span> \
+  -H <span class="n">"Idempotency-Key: 8f10c2"</span> \
+  -d agent=<span class="n">agt_9f21c4</span> \
+  -d payee=<span class="n">vendor_maps_api</span> \
+  -d amount=<span class="n">2400</span> \
+  -d currency=<span class="n">USDC</span>
+
+<span class="c"># 201 Created</span>
+{
+  <span class="s">"id"</span>:      <span class="n">"auth_3b71de"</span>,
+  <span class="s">"status"</span>:  <span class="k">"approved"</span>,
+  <span class="s">"rail"</span>:    <span class="n">"usdc-base"</span>,
+  <span class="s">"latency"</span>: <span class="n">"31ms"</span>
+}</pre>
+            </div>
+
+            <div class="nm-panel" data-panel="mcp">
+<pre class="nm-code"><span class="c">// nomia ships as an MCP server: the agent sees it and uses it</span>
+{
+  <span class="s">"mcpServers"</span>: {
+    <span class="s">"nomia"</span>: {
+      <span class="s">"command"</span>: <span class="n">"npx"</span>,
+      <span class="s">"args"</span>:    [<span class="n">"-y"</span>, <span class="n">"@nomia/mcp"</span>],
+      <span class="s">"env"</span>:     { <span class="s">"NOMIA_KEY"</span>: <span class="n">"sk_live_..."</span> }
+    }
+  }
+}
+
+<span class="c">// tools it publishes</span>
+<span class="k">pay</span>(payee, amount, reason)   <span class="c">→ pays within the policy</span>
+<span class="k">balance</span>()                    <span class="c">→ budget left today</span>
+<span class="k">receipts</span>(since)              <span class="c">→ signed receipts</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- dashboard -->
+    <section class="nm-sec" id="dashboard">
+      <div class="nm-wrap">
+        <div class="nm-head nm-rise">
+          <span class="nm-label">Dashboard</span>
+          <h2>Fleet spend, per agent and live</h2>
+          <p>Who spent it, on which vendor and against which policy. Without waiting for the end-of-month statement.</p>
+        </div>
+
+        <div class="nm-board nm-rise">
+          <div class="nm-card">
+            <div class="nm-board-head">
+              <h3>Spend per agent · today</h3>
+              <span class="nm-pill">live</span>
+            </div>
+            <div class="nm-rows" id="rows"></div>
+          </div>
+
+          <div class="nm-card nm-side">
+            <h3>Today at a glance</h3>
+            <div class="nm-kv"><span>Authorized</span><b>3,812</b></div>
+            <div class="nm-kv"><span>Blocked by policy</span><b>47</b></div>
+            <div class="nm-kv"><span>Waiting on approval</span><b>6</b></div>
+            <div class="nm-kv"><span>Average cost per task</span><b>$0.214</b></div>
+            <div class="nm-kv"><span>Budget used</span><b class="up">62%</b></div>
+            <div class="nm-kv"><span>Saved against flat rate</span><b class="up">$1,940</b></div>
+            <p class="nm-note">Sample figures for the dashboard mockup.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- use cases -->
+    <section class="nm-sec nm-sec-alt">
+      <div class="nm-wrap">
+        <div class="nm-head nm-rise">
+          <span class="nm-label">Use cases</span>
+          <h2>Where agents already touch money</h2>
+        </div>
+        <div class="nm-cases">
+          <article class="nm-card nm-case nm-rise">
+            <span class="nm-case-tag">Autonomous buying</span>
+            <h3>The agent buys the data it needs</h3>
+            <p>A research agent pays per query for market APIs, satellite imagery or listings, without opening an account with every vendor first.</p>
+            <div class="nm-case-meta">
+              <div><span>$0.004</span><small>cost per query</small></div>
+              <div><span>1,100</span><small>vendors in the directory</small></div>
+            </div>
+          </article>
+          <article class="nm-card nm-case nm-rise">
+            <span class="nm-case-tag">Monetization</span>
+            <h3>You charge for work done, not per seat</h3>
+            <p>Bill per resolved conversation, per generated report or per booked meeting, with the margin worked out after the model cost.</p>
+            <div class="nm-case-meta">
+              <div><span>per task</span><small>billing unit</small></div>
+              <div><span>17%</span><small>average margin recovered</small></div>
+            </div>
+          </article>
+          <article class="nm-card nm-case nm-rise">
+            <span class="nm-case-tag">Internal ops</span>
+            <h3>A budget for the whole fleet</h3>
+            <p>Split spend across dozens of agents with per-team ceilings, and cut off the one that drifts out of range before the month ends.</p>
+            <div class="nm-case-meta">
+              <div><span>40+</span><small>agents per account</small></div>
+              <div><span>1 click</span><small>to revoke</small></div>
+            </div>
+          </article>
+          <article class="nm-card nm-case nm-rise">
+            <span class="nm-case-tag">Commerce</span>
+            <h3>Carts that close without a human</h3>
+            <p>A single-use virtual card per order, with the amount and the merchant fixed up front: if the agent gets it wrong, the damage is bounded.</p>
+            <div class="nm-case-meta">
+              <div><span>one use</span><small>card lifetime</small></div>
+              <div><span>3DS</span><small>authentication included</small></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- pricing -->
+    <section class="nm-sec" id="pricing">
+      <div class="nm-wrap">
+        <div class="nm-head nm-rise">
+          <span class="nm-label">Pricing</span>
+          <h2>You pay when your agent pays</h2>
+          <p>No per-seat fee, no lock-in. The fee applies to what actually settles.</p>
+        </div>
+        <div class="nm-plans">
+          <article class="nm-card nm-plan nm-rise">
+            <h3>Free</h3>
+            <div class="nm-plan-p"><b>$0</b><span>/ month</span></div>
+            <p class="nm-plan-d">For your first agent and the sandbox.</p>
+            <a class="nm-btn nm-btn-ghost" data-scroll="cta">Start</a>
+            <ul>
+              <li>10,000 authorizations a month</li>
+              <li>3 agents and 1 policy</li>
+              <li>The full sandbox</li>
+              <li>30 days of records</li>
+            </ul>
+          </article>
+          <article class="nm-card nm-plan is-feat nm-rise">
+            <h3>Scale <span class="nm-pill" style="margin-left:6px">popular</span></h3>
+            <div class="nm-plan-p"><b>0.4%</b><span>/ settled</span></div>
+            <p class="nm-plan-d">For production fleets already moving real money.</p>
+            <a class="nm-btn nm-btn-primary" data-scroll="cta">Create account</a>
+            <ul>
+              <li>Unlimited authorizations</li>
+              <li>Unlimited agents and policies</li>
+              <li>All three settlement rails</li>
+              <li>7 years of records, with export</li>
+              <li>Human approval by threshold</li>
+            </ul>
+          </article>
+          <article class="nm-card nm-plan nm-rise">
+            <h3>Enterprise</h3>
+            <div class="nm-plan-p"><b class="is-word">Custom</b></div>
+            <p class="nm-plan-d">For teams that need their own isolation and their own contract.</p>
+            <a class="nm-btn nm-btn-ghost" data-scroll="cta">Talk to sales</a>
+            <ul>
+              <li>Dedicated instance and data residency</li>
+              <li>SSO, SCIM and custom roles</li>
+              <li>A signed service level agreement</li>
+              <li>Security review and reporting</li>
+              <li>Support on a direct channel</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="nm-sec nm-sec-alt" id="faq">
+      <div class="nm-wrap">
+        <div class="nm-head nm-rise">
+          <span class="nm-label">FAQ</span>
+          <h2>What everyone asks before signing</h2>
+        </div>
+        <div class="nm-faq nm-rise">
+          <details open>
+            <summary>What if the agent goes haywire and overspends?</summary>
+            <p>It can't. The policy is evaluated before every authorization, not after: a ceiling per operation, a ceiling per day, and an allow-list of payees. Anything outside that range waits for human approval, and the loop detector cuts off the whole agent if it repeats the same payment without making progress.</p>
+          </details>
+          <details>
+            <summary>Do you custody the money?</summary>
+            <p>No. Nomia is the authorization and record plane; the funds sit in your account or your wallet and settle through regulated entities and contracts you already have. We decide whether the payment goes out, and we leave the proof of why.</p>
+          </details>
+          <details>
+            <summary>How long does the integration take?</summary>
+            <p>An afternoon. Install the SDK, create an agent with its policy, and run your first authorization in test mode. If your agent already speaks MCP, add the server to its config and <code>pay</code> shows up among its tools.</p>
+          </details>
+          <details>
+            <summary>What if the vendor doesn't take stablecoins?</summary>
+            <p>The policy picks the rail. The agent asks for a payment and Nomia settles it in USDC, by instant transfer, or with a single-use virtual card, depending on what the payee accepts. The agent doesn't change a line of code.</p>
+          </details>
+          <details>
+            <summary>How do I defend this in an audit?</summary>
+            <p>Every authorization stores the agent, the amount, the payee, the policy applied and the stated reason, chained by hash. Export it to CSV or straight into your ERP, and every settled payment carries a signed receipt.</p>
+          </details>
+          <details>
+            <summary>Does it work with agents that aren't mine?</summary>
+            <p>Yes. You can issue scoped credentials to third-party agents, each with its own ceiling and its own list of payees, and revoke them without touching the rest of the fleet.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- closing call -->
+    <section class="nm-sec" id="cta">
+      <div class="nm-wrap">
+        <div class="nm-card nm-cta nm-rise">
+          <span class="nm-eyebrow"><i class="nm-dot"></i>Sandbox open</span>
+          <h2>Give your agent a budget you can defend</h2>
+          <p>Create the account, issue the first credential, and watch your agent pay on its own, inside the limit you set.</p>
+          <div class="nm-cta-btns">
+            <a class="nm-btn nm-btn-primary" href="#top">Create a free account</a>
+            <a class="nm-btn nm-btn-ghost" data-scroll="developers">Read the docs</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nm-foot">
+    <div class="nm-wrap">
+      <div class="nm-foot-grid">
+        <div class="nm-foot-about">
+          <a class="nm-brand" data-scroll="top">
+            <span class="nm-mark">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="16" cy="16" r="10"/>
+                <path d="M12 11.5l5 4.5-5 4.5"/>
+                <path d="M19 12.8l3 3.2-3 3.2"/>
+              </svg>
+            </span>
+            Nomia
+          </a>
+          <p>The payment rail for autonomous agents: identity, policy and settlement in a single API.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a data-scroll="product">Overview</a></li>
+            <li><a data-scroll="how">How it works</a></li>
+            <li><a data-scroll="dashboard">Dashboard</a></li>
+            <li><a data-scroll="pricing">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Developers</h4>
+          <ul>
+            <li><a data-scroll="developers">Docs</a></li>
+            <li><a data-scroll="developers">API reference</a></li>
+            <li><a data-scroll="developers">MCP server</a></li>
+            <li><a data-scroll="developers">Status</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a data-scroll="faq">FAQ</a></li>
+            <li><a href="#legal">Privacy</a></li>
+            <li><a href="#legal">Terms</a></li>
+            <li><a href="#legal">Security</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="nm-foot-bot">
+        <p>© <span id="year">2026</span> Nomia · Sample figures and data</p>
+        <p>Built for machines that pay</p>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.DS_Store
+.next-snapshot
+nexora-snapshot.html
+payence.html
+video/raw
+video/cards
+video/_clips
+video/site

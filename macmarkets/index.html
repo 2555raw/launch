@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Desk</title>
+<meta name="description" content="A macOS-style desktop for watching stocks, crypto, ETFs and commodities at a glance.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>.modal-layer,.stage,.dock{display:none}.nojs{display:block!important}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a84ff'/%3E%3Cpath d='M7 21l5-6 4 3 8-9' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body class="booting">
+
+<!-- ===================== desktop wallpaper ===================== -->
+<div class="wallpaper" aria-hidden="true">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <span class="noise"></span>
+</div>
+
+<p class="nojs" style="display:none;max-width:520px;margin:22vh auto;padding:24px;border-radius:16px;background:rgba(30,32,37,.9);color:#f2f4f8;font:15px/1.6 system-ui,sans-serif;text-align:center">
+  Markets needs JavaScript: every quote and chart on this page is generated in your browser. Enable it and reload to open the desktop.
+</p>
+
+<!-- ===================== menu bar ===================== -->
+<div class="menubar" id="menubar">
+  <div class="menubar-left">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="15" height="15"><path d="M7 21l5-6 4 3 8-9" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+
+    <div class="menu">
+      <button class="menu-item strong" type="button">Markets</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="about">About Market Desk</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="wallet">Connect wallet<span class="mi-key">W</span></button>
+        <button class="mi" type="button" data-cmd="terms">Terms &amp; Conditions<span class="mi-key">T</span></button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">File</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="refresh">Refresh quotes<span class="mi-key">R</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="copyQuote">Copy this quote<span class="mi-key">C</span></button>
+        <button class="mi" type="button" data-cmd="copyCsv">Copy table as CSV</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="print">Print…</button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">View</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="theme">Switch appearance<span class="mi-key">D</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="class:all">Watchlist<span class="mi-key">1</span></button>
+        <button class="mi" type="button" data-cmd="class:stock">Stocks<span class="mi-key">2</span></button>
+        <button class="mi" type="button" data-cmd="class:crypto">Crypto<span class="mi-key">3</span></button>
+        <button class="mi" type="button" data-cmd="class:etf">ETFs<span class="mi-key">4</span></button>
+        <button class="mi" type="button" data-cmd="class:commodity">Commodities<span class="mi-key">5</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="range:1D">Range · one day</button>
+        <button class="mi" type="button" data-cmd="range:1W">Range · one week</button>
+        <button class="mi" type="button" data-cmd="range:1M">Range · one month</button>
+        <button class="mi" type="button" data-cmd="range:1Y">Range · one year</button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">Window</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="next">Next asset<span class="mi-key">]</span></button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="go:top">Chart</button>
+        <button class="mi" type="button" data-cmd="go:cards">Watchlist cards</button>
+        <button class="mi" type="button" data-cmd="go:rows">All markets</button>
+        <div class="mi-sep"></div>
+        <button class="mi" type="button" data-cmd="folio">Portfolio<span class="mi-key">B</span></button>
+        <button class="mi" type="button" data-cmd="game">Ticker Drop<span class="mi-key">G</span></button>
+        <button class="mi" type="button" data-cmd="scores" id="scoresMenuItem" hidden>Scores</button>
+      </div>
+    </div>
+
+    <div class="menu">
+      <button class="menu-item" type="button">Help</button>
+      <div class="menu-drop" role="menu">
+        <button class="mi" type="button" data-cmd="shortcuts">Keyboard shortcuts<span class="mi-key">?</span></button>
+        <button class="mi" type="button" data-cmd="x">Follow on X</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="menubar-right">
+    <a class="menu-icon x-link" href="https://x.com/useMarketDesk" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X" title="Follow us on X">
+      <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg>
+    </a>
+    <button class="menu-icon" type="button" id="themeBtn" aria-label="Toggle appearance" title="Toggle appearance">
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 4a8 8 0 1 0 8 8 6 6 0 0 1-8-8z"/></svg>
+    </button>
+    <span class="menu-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 18.5a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zm0-4.6c1.7 0 3.2.7 4.3 1.8l-1.7 1.7A3.6 3.6 0 0 0 12 16.3c-1 0-1.9.4-2.6 1.1l-1.7-1.7a6 6 0 0 1 4.3-1.8zm0-4.6c2.9 0 5.6 1.2 7.5 3.1l-1.7 1.7A8 8 0 0 0 12 11.9a8 8 0 0 0-5.8 2.2l-1.7-1.7A10.5 10.5 0 0 1 12 9.3z"/></svg>
+    </span>
+    <button class="menu-icon menu-wallet" type="button" id="walletMenuBtn" aria-label="Wallet" title="Connect wallet">
+      <span class="wallet-avatar" id="walletAvatar" hidden></span>
+      <svg id="walletGlyph" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M4 6.5A2.5 2.5 0 0 1 6.5 4H17a1 1 0 1 1 0 2H6.5a.5.5 0 0 0 0 1H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm12.5 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+      <span class="menu-wallet-label" id="walletMenuLabel" hidden></span>
+    </button>
+    <span class="menu-icon battery" aria-hidden="true"><i></i></span>
+    <span class="menu-clock" id="clock">Mon 09:41</span>
+  </div>
+</div>
+
+<!-- ===================== window ===================== -->
+<main class="stage">
+  <section class="window" id="window" aria-label="Markets app">
+
+    <header class="titlebar">
+      <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
+
+      <div class="titlebar-mid">
+        <div class="seg" role="tablist" aria-label="Asset class">
+          <button role="tab" class="on" data-filter="all" type="button">All</button>
+          <button role="tab" data-filter="stock" type="button">Stocks</button>
+          <button role="tab" data-filter="crypto" type="button">Crypto</button>
+          <button role="tab" data-filter="etf" type="button">ETFs</button>
+          <button role="tab" data-filter="commodity" type="button">Commodities</button>
+        </div>
+      </div>
+
+      <div class="titlebar-right">
+        <label class="search">
+          <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M10 3a7 7 0 1 1-4.2 12.6l-3.1 3.1-1.4-1.4 3.1-3.1A7 7 0 0 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+          <input id="search" type="search" placeholder="Search assets" aria-label="Search assets" autocomplete="off">
+        </label>
+      </div>
+    </header>
+
+    <div class="window-body">
+
+      <aside class="sidebar">
+        <div class="side-group">
+          <h4>Library</h4>
+          <button class="side-item on" type="button" data-filter="all"><span class="si-ico blue">◎</span>Watchlist</button>
+          <button class="side-item" type="button" data-sort="change"><span class="si-ico green">▲</span>Top movers</button>
+          <button class="side-item" type="button" data-filter="stock"><span class="si-ico violet">▤</span>Stocks</button>
+          <button class="side-item" type="button" data-filter="crypto"><span class="si-ico orange">◈</span>Crypto</button>
+          <button class="side-item" type="button" data-filter="etf"><span class="si-ico teal">◧</span>ETFs</button>
+          <button class="side-item" type="button" data-filter="commodity"><span class="si-ico gold">●</span>Commodities</button>
+          <button class="side-item" type="button" id="folioSide"><span class="si-ico blue">▦</span>Portfolio<span class="side-count" id="folioCount"></span></button>
+        </div>
+
+        <div class="side-group">
+          <h4>Session</h4>
+          <div class="side-status"><span class="pulse"></span><span id="sideStatus">Market open</span></div>
+          <div class="side-clock">
+            <div class="side-meta"><span id="sessionPhase">Regular session</span><b id="sessionLeft">—</b></div>
+            <div class="side-bar"><i id="sessionBar" style="width:0%"></i></div>
+          </div>
+          <div id="sideMeta"></div>
+        </div>
+
+        <div class="side-group side-heat">
+          <h4>Heatmap</h4>
+          <div class="heat" id="heat"></div>
+          <p class="heat-note" id="heatNote">Every asset, by move today.</p>
+        </div>
+
+        <a class="side-x" href="https://x.com/useMarketDesk" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg>
+          Follow on X
+        </a>
+      </aside>
+
+      <div class="content" id="content">
+
+        <!-- hero chart -->
+        <section class="hero-card anim" id="heroCard">
+          <div class="hero-top">
+            <div class="hero-id">
+              <span class="asset-badge lg" id="heroBadge">AAPL</span>
+              <div>
+                <h1 id="heroSym">AAPL</h1>
+                <p id="heroName">Apple Inc. · NASDAQ</p>
+              </div>
+            </div>
+            <div class="hero-price">
+              <b id="heroPrice">0.00</b>
+              <span class="delta up" id="heroDelta">+0.00 (0.00%)</span>
+            </div>
+          </div>
+
+          <div class="chart-shell">
+            <svg class="chart" id="chart" viewBox="0 0 800 260" preserveAspectRatio="none" role="img" aria-label="Price chart">
+              <defs>
+                <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" class="g-top"/><stop offset="1" class="g-bottom"/>
+                </linearGradient>
+              </defs>
+              <g id="grid"></g>
+              <path id="areaPath" fill="url(#fillGrad)"></path>
+              <path id="linePath" fill="none" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></path>
+              <g id="cross" class="hidden">
+                <line id="crossLine" y1="0" y2="260"></line>
+                <circle id="crossDot" r="4.5"></circle>
+              </g>
+            </svg>
+            <div class="tip" id="tip" hidden></div>
+          </div>
+
+          <div class="hero-foot">
+            <div class="trade-bar">
+              <button class="btn btn-green" type="button" data-side="buy">Buy</button>
+              <button class="btn btn-red" type="button" data-side="sell">Sell</button>
+              <span class="trade-pos" id="heroPosition"></span>
+            </div>
+            <div class="ranges" id="ranges">
+              <button class="on" type="button" data-range="1D">1D</button>
+              <button type="button" data-range="1W">1W</button>
+              <button type="button" data-range="1M">1M</button>
+              <button type="button" data-range="1Y">1Y</button>
+            </div>
+            <dl class="stats" id="heroStats"></dl>
+          </div>
+        </section>
+
+        <!-- live coin -->
+        <section class="block anim" id="liveBlock">
+          <div class="block-head">
+            <div class="block-title">
+              <h2 class="live-title">
+                <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+                <span id="liveName">Bitcoin</span>
+              </h2>
+              <p class="block-blurb">Streaming while this page is open · <span id="liveAgo">just now</span></p>
+            </div>
+            <div class="seg live-seg" id="liveSeg">
+              <button class="on" type="button" data-coin="BTC">BTC</button>
+              <button type="button" data-coin="ETH">ETH</button>
+              <button type="button" data-coin="SOL">SOL</button>
+            </div>
+          </div>
+
+          <div class="live-card">
+            <div class="live-left">
+              <span class="live-price" id="livePrice">—</span>
+              <span class="live-change" id="liveChange">—</span>
+              <dl class="live-stats" id="liveStats"></dl>
+            </div>
+            <div class="live-right">
+              <svg class="live-chart" id="liveChart" viewBox="0 0 420 150" preserveAspectRatio="none" role="img" aria-label="Live price">
+                <defs>
+                  <linearGradient id="liveGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" class="g-top"/><stop offset="1" class="g-bottom"/>
+                  </linearGradient>
+                </defs>
+                <path id="liveArea" fill="url(#liveGrad)"></path>
+                <path id="liveLine" fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+                <circle id="liveHead" r="3.4"></circle>
+              </svg>
+              <div class="live-tape" id="liveTape"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- cards -->
+        <section class="block">
+          <div class="block-head">
+            <div class="block-title">
+              <h2 id="blockTitle">Watchlist</h2>
+              <p class="block-blurb" id="blockBlurb">Everything you follow, across every class.</p>
+            </div>
+            <span class="count" id="cardCount"></span>
+          </div>
+          <div class="class-stats" id="classStats"></div>
+          <div class="cards" id="cards"></div>
+        </section>
+
+        <!-- table -->
+        <section class="block">
+          <div class="block-head">
+            <h2>All markets</h2>
+            <span class="hint">Click a row to load the chart</span>
+          </div>
+          <div class="table-card anim">
+            <table class="markets">
+              <thead>
+                <tr>
+                  <th data-sort="symbol">Symbol</th>
+                  <th data-sort="name">Name</th>
+                  <th class="num" data-sort="price">Price</th>
+                  <th class="num" data-sort="change">24h</th>
+                  <th class="num hide-sm" data-sort="cap">Market cap</th>
+                  <th class="num hide-sm">Trend</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <footer class="content-foot">
+          <span>Prices on this page are simulated for demonstration only.</span>
+          <a class="foot-x" href="https://x.com/useMarketDesk" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg>
+          </a>
+        </footer>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== dock ===================== -->
+<div class="dock" id="dock">
+  <button class="dock-app" type="button" data-tip="Markets" data-scroll="top"><span class="ico i-markets">📈</span></button>
+  <button class="dock-app" type="button" data-tip="Watchlist" data-scroll="cards"><span class="ico i-watch">⭐</span></button>
+  <button class="dock-app" type="button" data-tip="All markets" data-scroll="rows"><span class="ico i-table">📊</span></button>
+  <button class="dock-app" type="button" data-tip="Appearance" id="dockTheme"><span class="ico i-theme">🌗</span></button>
+  <button class="dock-app" type="button" data-tip="Connect wallet" id="walletDock">
+    <span class="ico i-wallet"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M4 6.5A2.5 2.5 0 0 1 6.5 4H17a1 1 0 1 1 0 2H6.5a.5.5 0 0 0 0 1H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm12.5 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg></span>
+    <span class="dock-dot" id="walletDockDot" hidden></span>
+  </button>
+  <a class="dock-app" href="https://x.com/useMarketDesk" target="_blank" rel="noopener noreferrer" data-tip="X">
+    <span class="ico i-x"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.49h2.04L6.49 3.24H4.3z"/></svg></span>
+  </a>
+  <button class="dock-app" type="button" data-tip="Portfolio" id="folioDock">
+    <span class="ico i-folio"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M9 3h6a2 2 0 0 1 2 2v1h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3V5a2 2 0 0 1 2-2zm0 3h6V5H9zM4 11v8h16v-8h-6v2h-4v-2z"/></svg></span>
+    <span class="dock-dot" id="folioDockDot" hidden></span>
+  </button>
+  <button class="dock-app" type="button" data-tip="Ticker Drop" id="gameDock">
+    <span class="ico i-game"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M3 4h8v6H3zm10 0h8v10h-8zM3 12h8v8H3zm10 4h8v4h-8z" opacity=".92"/></svg></span>
+    <span class="dock-dot" id="gameDockDot" hidden></span>
+  </button>
+  <span class="dock-sep" aria-hidden="true"></span>
+  <button class="dock-app" type="button" data-tip="Terms" id="dockTerms"><span class="ico i-terms">📄</span></button>
+</div>
+
+<!-- ===================== order ticket ===================== -->
+<div class="modal-layer gone" id="tradeModal" role="dialog" aria-modal="true" aria-labelledby="tradeTitle" style="display:none">
+  <div class="sheet">
+    <span class="sheet-icon" aria-hidden="true">🧾</span>
+    <h2 id="tradeTitle">Buy</h2>
+    <p class="sheet-lede" id="tradeLede">A paper book kept for your address. No money moves.</p>
+
+    <div class="wallet-body">
+      <div class="wallet-list">
+        <div class="wallet-row"><span>Asset</span><b id="ticketAsset">—</b></div>
+        <div class="wallet-row"><span>Price</span><b id="ticketPrice">—</b></div>
+        <div class="wallet-row"><span>Account</span><b id="ticketAccount">—</b></div>
+        <div class="wallet-row"><span>You hold</span><b id="ticketHeld">—</b></div>
+      </div>
+
+      <label class="ticket-field" for="ticketQty">
+        <span>Quantity</span>
+        <input id="ticketQty" type="number" min="0" step="0.0001" value="1" inputmode="decimal">
+      </label>
+
+      <div class="ticket-quick" id="ticketQuick">
+        <button type="button" data-qty="1">1</button>
+        <button type="button" data-qty="5">5</button>
+        <button type="button" data-qty="10">10</button>
+        <button type="button" data-qty="max">Max</button>
+      </div>
+
+      <div class="wallet-list">
+        <div class="wallet-row"><span>Order value</span><b id="ticketNotional">—</b></div>
+      </div>
+
+      <p class="wallet-hint">Quotes on this desk are generated in your browser, so filling this ticket records a paper position for the connected address. It never touches your wallet balance.</p>
+    </div>
+
+    <div class="sheet-actions">
+      <button class="btn btn-quiet" type="button" id="tradeCancel">Cancel</button>
+      <button class="btn btn-blue" type="button" id="tradeSubmit">Fill order</button>
+    </div>
+    <p class="sheet-note" id="tradeNote" hidden></p>
+  </div>
+</div>
+
+<!-- ===================== portfolio ===================== -->
+<div class="modal-layer gone" id="folioModal" role="dialog" aria-modal="true" aria-labelledby="folioTitle" style="display:none">
+  <section class="game-window folio-window">
+    <header class="game-bar">
+      <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
+      <h2 id="folioTitle">Portfolio</h2>
+      <span class="game-sub" id="folioAccount">Not connected</span>
+    </header>
+
+    <div class="folio-body">
+      <div class="class-stats" id="folioStats"></div>
+
+      <h3 class="folio-head">Positions</h3>
+      <div class="table-card">
+        <table class="markets">
+          <thead><tr><th>Symbol</th><th class="num">Quantity</th><th class="num">Average</th><th class="num">Last</th><th class="num">Value</th><th class="num">Open P&amp;L</th></tr></thead>
+          <tbody id="folioRows"></tbody>
+        </table>
+      </div>
+
+      <h3 class="folio-head">Blotter</h3>
+      <div class="table-card">
+        <table class="markets">
+          <thead><tr><th>Time</th><th>Side</th><th>Symbol</th><th class="num">Quantity</th><th class="num">Price</th><th class="num">Value</th></tr></thead>
+          <tbody id="blotterRows"></tbody>
+        </table>
+      </div>
+
+      <p class="wallet-hint">Quotes here are generated in your browser, so this is a paper book: it records what you would have done, kept locally for the connected address. Nothing is sent anywhere and no balance changes.</p>
+    </div>
+
+    <div class="folio-actions">
+      <button class="btn btn-quiet" type="button" id="folioClear">Clear book</button>
+      <button class="btn btn-blue" type="button" id="folioClose">Close</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== scores (owner) ===================== -->
+<div class="modal-layer gone" id="scoresModal" role="dialog" aria-modal="true" aria-labelledby="scoresTitle" style="display:none">
+  <section class="game-window folio-window">
+    <header class="game-bar">
+      <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
+      <h2 id="scoresTitle">Scores</h2>
+      <span class="game-sub">Every run played on this page.</span>
+    </header>
+
+    <div class="folio-body">
+      <div class="class-stats" id="scoresStats"></div>
+      <div class="table-card">
+        <table class="markets">
+          <thead><tr><th>#</th><th>Player</th><th class="num">Booked</th><th class="num">Rows</th><th class="num">Level</th><th>When</th></tr></thead>
+          <tbody id="scoresRows"><tr><td colspan="6" class="folio-empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="wallet-hint" id="scoresNote">Runs are stored with the page, so they reach you from whoever plays it.</p>
+    </div>
+
+    <div class="folio-actions">
+      <button class="btn btn-quiet" type="button" id="scoresRefresh">Refresh</button>
+      <button class="btn btn-blue" type="button" id="scoresClose">Close</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== ticker drop ===================== -->
+<div class="modal-layer gone" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="gameTitle" style="display:none">
+  <section class="game-window">
+    <header class="game-bar">
+      <div class="lights" aria-hidden="true"><span class="l red"></span><span class="l amber"></span><span class="l green"></span></div>
+      <h2 id="gameTitle">Ticker Drop</h2>
+      <span class="game-sub">Rows pay by how their tickers moved today.</span>
+      <button class="wallet-mini" type="button" id="gameMute">Sound on</button>
+    </header>
+
+    <div class="game-body">
+      <div class="board-wrap">
+        <canvas id="board" width="260" height="468" aria-label="Game board"></canvas>
+        <div class="game-over" id="gameOver" hidden>
+          <b id="gameOverTitle">Margin call</b>
+          <span id="gameOverLine">The book reached the top.</span>
+          <button class="btn btn-blue" type="button" id="gameAgain">Trade again</button>
+        </div>
+      </div>
+
+      <aside class="game-side">
+        <label class="ticket-field game-name" for="gameName">
+          <span>Player</span>
+          <input id="gameName" type="text" maxlength="18" placeholder="your name">
+        </label>
+        <dl class="game-stat"><dt>Booked P&amp;L</dt><dd id="gamePnl">$0</dd></dl>
+        <dl class="game-stat"><dt>Rows closed</dt><dd id="gameLines">0</dd></dl>
+        <dl class="game-stat"><dt>Level</dt><dd id="gameLevel">1</dd></dl>
+        <dl class="game-stat"><dt>Streak</dt><dd id="gameStreak">—</dd></dl>
+        <dl class="game-stat"><dt>Best</dt><dd id="gameBest">$0</dd></dl>
+
+        <div class="game-slots">
+          <div class="game-next">
+            <h4>On deck</h4>
+            <canvas id="nextCanvas" width="96" height="96" aria-label="Next piece"></canvas>
+            <span id="nextName">—</span>
+          </div>
+          <div class="game-next">
+            <h4>Held</h4>
+            <canvas id="holdCanvas" width="96" height="96" aria-label="Held piece"></canvas>
+            <span id="holdName">empty</span>
+          </div>
+        </div>
+
+        <p class="game-help">
+          <span><b>A</b><b>D</b> move</span>
+          <span><b>W</b> rotate</span>
+          <span><b>S</b> soft drop</span>
+          <span><b>space</b> drop</span>
+          <span><b>E</b> hold</span>
+          <span><b>P</b> pause</span>
+          <span class="game-help-note">Arrow keys work too.</span>
+        </p>
+        <div class="game-actions">
+          <button class="btn btn-quiet" type="button" id="gamePause">Pause</button>
+          <button class="btn btn-blue" type="button" id="gameClose">Close</button>
+        </div>
+      </aside>
+    </div>
+
+    <div class="game-pad" aria-hidden="false">
+      <button type="button" data-pad="left" aria-label="Move left">←</button>
+      <button type="button" data-pad="rot" aria-label="Rotate">⟳</button>
+      <button type="button" data-pad="right" aria-label="Move right">→</button>
+      <button type="button" data-pad="down" aria-label="Soft drop">↓</button>
+      <button type="button" data-pad="drop" aria-label="Hard drop">⤓</button>
+      <button type="button" data-pad="hold" aria-label="Hold piece">⇄</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== info sheet ===================== -->
+<div class="modal-layer gone" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoTitle" style="display:none">
+  <div class="sheet">
+    <span class="sheet-icon" id="infoIcon" aria-hidden="true">📈</span>
+    <h2 id="infoTitle">About Market Desk</h2>
+    <div class="wallet-body" id="infoBody"></div>
+    <div class="sheet-actions"><button class="btn btn-blue" type="button" id="infoClose">Done</button></div>
+  </div>
+</div>
+
+<!-- ===================== wallet sheet ===================== -->
+<div class="modal-layer gone" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="wTitle" style="display:none">
+  <div class="sheet" id="walletSheet">
+    <span class="sheet-icon" aria-hidden="true">👛</span>
+    <h2 id="wTitle">Connect wallet</h2>
+    <p class="sheet-lede" id="walletLede">Markets reads your address to label the desk. It never asks you to send a transaction.</p>
+
+    <div class="wallet-body" id="walletBody"></div>
+
+    <div class="sheet-actions">
+      <button class="btn btn-quiet" type="button" id="walletClose">Close</button>
+      <button class="btn btn-blue" type="button" id="walletAction">Connect</button>
+    </div>
+    <p class="sheet-note" id="walletNote" hidden></p>
+  </div>
+</div>
+
+<!-- ===================== terms modal ===================== -->
+<div class="modal-layer" id="modal" role="dialog" aria-modal="true" aria-labelledby="tcTitle">
+  <div class="sheet" id="sheet">
+    <span class="sheet-icon" aria-hidden="true">📄</span>
+    <h2 id="tcTitle">Terms &amp; Conditions</h2>
+    <p class="sheet-lede">Please review and accept before entering Markets.</p>
+
+    <div class="sheet-scroll" tabindex="0">
+      <h3>1. Demonstration only</h3>
+      <p>Markets is a demonstration interface. Every quote, chart and statistic shown here is generated in your browser and does not represent a real security, exchange feed or executable price.</p>
+      <h3>2. Not investment advice</h3>
+      <p>Nothing on this site is a recommendation to buy, sell or hold any asset. You are solely responsible for your own decisions, and you should consult a licensed professional before acting on any market information.</p>
+      <h3>3. No warranty</h3>
+      <p>The site is provided as is, without warranty of any kind. Availability, accuracy and continuity of the data are not guaranteed, and the site may change or disappear without notice.</p>
+      <h3>4. Acceptable use</h3>
+      <p>Do not scrape, resell or present this interface as a live trading venue, and do not use it in a way that suggests the figures shown are genuine market data.</p>
+      <h3>5. Privacy</h3>
+      <p>Your acceptance of these terms and your appearance preference are stored locally in your browser. No account is created and nothing is sent to a server.</p>
+      <h3>6. Changes</h3>
+      <p>These terms may be updated. Continuing to use the site after a change means you accept the updated version.</p>
+    </div>
+
+    <label class="sheet-check">
+      <input type="checkbox" id="agree">
+      <span>I have read and agree to the Terms &amp; Conditions.</span>
+    </label>
+
+    <div class="sheet-actions">
+      <button class="btn btn-quiet" type="button" id="declineBtn">Decline</button>
+      <button class="btn btn-blue" type="button" id="acceptBtn" disabled>Accept &amp; enter</button>
+    </div>
+    <p class="sheet-note" id="sheetNote" hidden>You need to accept the terms to open Markets.</p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

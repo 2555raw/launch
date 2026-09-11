@@ -1,4 +1,4 @@
-/* Tessera — the settings an operator has to fill in before the site can take
+/* Sigil — the settings an operator has to fill in before the site can take
    a real payment. Everything here is read at load time by account.js.
 
    Until `treasury` holds an address you control, the page refuses to start a
@@ -6,7 +6,7 @@
    an address nobody holds the key for destroys it, so there is no placeholder
    address in this file and you should not invent one. */
 
-window.TESSERA_CONFIG = {
+window.SIGIL_CONFIG = {
   /* 'devnet' while you are testing, 'mainnet-beta' when you mean it.
      Devnet SOL is free from a faucet, so test there first. */
   cluster: 'devnet',

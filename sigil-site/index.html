@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tessera: passkey wallets and creator tooling for Bitcoin</title>
-  <meta name="description" content="Tessera gives developers passkey native wallets, an Ordinals creator studio and a universal name across Bitcoin and EVM. No seed phrases, no extensions, no passwords.">
+  <title>Sigil: passkey wallets and creator tooling for Bitcoin</title>
+  <meta name="description" content="Sigil gives developers passkey native wallets, an Ordinals creator studio and a universal name across Bitcoin and EVM. No seed phrases, no extensions, no passwords.">
   <meta name="theme-color" content="#0B0C11">
-  <meta property="og:title" content="Tessera: passkey wallets and creator tooling for Bitcoin">
+  <meta property="og:title" content="Sigil: passkey wallets and creator tooling for Bitcoin">
   <meta property="og:description" content="Self custody that opens with Face ID. Ship a wallet in one afternoon.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/mark.svg">
@@ -28,7 +28,7 @@
   <!-- nav -->
   <header class="ts-nav" id="nav">
     <div class="ts-nav-in">
-      <a class="ts-brand" data-scroll="top" aria-label="Tessera home">
+      <a class="ts-brand" data-scroll="top" aria-label="Sigil home">
         <svg class="ts-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
           <rect x="1.2" y="1.2" width="29.6" height="29.6" rx="9" fill="url(#g1)" stroke="rgba(255,255,255,.22)" stroke-width="1.2"/>
           <path d="M16 8.5c-3.6 0-6.2 2.6-6.2 6.1 0 2 .9 3.6 2.4 4.7v3.1c0 .6.5 1.1 1.1 1.1h5.4c.6 0 1.1-.5 1.1-1.1v-3.1c1.5-1.1 2.4-2.7 2.4-4.7 0-3.5-2.6-6.1-6.2-6.1Z" fill="none" stroke="#0B0B0F" stroke-width="1.9" stroke-linejoin="round"/>
@@ -37,7 +37,7 @@
             <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#C9CBD4"/><stop offset="1" stop-color="#8A8D99"/>
           </linearGradient></defs>
         </svg>
-        <span class="ts-brand-name">Tessera</span>
+        <span class="ts-brand-name">Sigil</span>
       </a>
 
       <nav class="ts-links" aria-label="Primary">
@@ -77,7 +77,7 @@
         </div>
         <h1 class="ts-h1">Self custody that opens<br>with a fingerprint</h1>
         <p class="ts-lede">
-          Tessera replaces seed phrases with the passkey already on your users' devices.
+          Sigil replaces seed phrases with the passkey already on your users' devices.
           One SDK gives them a wallet on Bitcoin and EVM, a name they can remember,
           and a studio to launch what they make.
         </p>
@@ -112,8 +112,8 @@
     </section>
 
     <!-- marquee -->
-    <section class="ts-marquee" aria-label="Teams building on Tessera">
-      <p class="ts-marquee-label">Wallets, marketplaces and mints running on Tessera</p>
+    <section class="ts-marquee" aria-label="Teams building on Sigil">
+      <p class="ts-marquee-label">Wallets, marketplaces and mints running on Sigil</p>
       <div class="ts-marquee-row">
         <span>Relayhouse</span><span>Sablefox</span><span>Northwind Labs</span><span>Parcel</span>
         <span>Tinderbox</span><span>Gridline</span><span>Halcyon Mint</span><span>Orbit Studio</span>
@@ -164,8 +164,8 @@
             <div class="ts-card-ico">
               <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.3 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.3-3.6-8.5S9.6 5.9 12 3.5Z" stroke="currentColor" stroke-width="1.7"/></svg>
             </div>
-            <h3>tess.id</h3>
-            <p>One readable name pointing at every address a person owns. Send to <span class="ts-mono">maria.tess.id</span> and the resolver picks the right chain for the asset.</p>
+            <h3>sig.id</h3>
+            <p>One readable name pointing at every address a person owns. Send to <span class="ts-mono">maria.sig.id</span> and the resolver picks the right chain for the asset.</p>
             <ul class="ts-ticks">
               <li>One name, many chains</li>
               <li>Resolver API and a drop in input field</li>
@@ -195,7 +195,7 @@
         <div class="ts-device">
           <div class="ts-device-bar">
             <span class="ts-device-dot"></span><span class="ts-device-dot"></span><span class="ts-device-dot"></span>
-            <span class="ts-device-url">demo.tessera.dev</span>
+            <span class="ts-device-url">demo.sigil.dev</span>
           </div>
           <div class="ts-device-body" id="demoBody">
             <div class="ts-scan" id="scan">
@@ -205,7 +205,7 @@
               </g></svg>
             </div>
             <p class="ts-device-title" id="demoTitle">Create a wallet with a passkey</p>
-            <p class="ts-device-sub" id="demoSub">Your device signs. Tessera never sees a private key.</p>
+            <p class="ts-device-sub" id="demoSub">Your device signs. Sigil never sees a private key.</p>
             <button class="ts-btn ts-btn-light ts-btn-block" id="demoBtn" type="button">Create wallet</button>
             <div class="ts-device-out" id="demoOut" hidden>
               <div class="ts-row"><span>Bitcoin</span><code id="addrBtc"></code></div>
@@ -242,10 +242,10 @@
             <button role="tab" data-tab="node" aria-selected="false">Node</button>
             <button role="tab" data-tab="curl" aria-selected="false">cURL</button>
           </div>
-          <pre class="ts-code-pane is-active" data-pane="react"><code><span class="c-k">import</span> { useTessera } <span class="c-k">from</span> <span class="c-s">'@tessera/react'</span>
+          <pre class="ts-code-pane is-active" data-pane="react"><code><span class="c-k">import</span> { useSigil } <span class="c-k">from</span> <span class="c-s">'@sigil/react'</span>
 
 <span class="c-k">export function</span> <span class="c-f">MintButton</span>() {
-  <span class="c-k">const</span> { connect, session } = <span class="c-f">useTessera</span>()
+  <span class="c-k">const</span> { connect, session } = <span class="c-f">useSigil</span>()
 
   <span class="c-k">if</span> (!session) <span class="c-k">return</span> &lt;button onClick={connect}&gt;Sign in&lt;/button&gt;
 
@@ -253,16 +253,16 @@
     Mint as {session.name ?? session.btc}
   &lt;/button&gt;
 }</code></pre>
-          <pre class="ts-code-pane" data-pane="node"><code><span class="c-k">import</span> { Tessera } <span class="c-k">from</span> <span class="c-s">'@tessera/node'</span>
+          <pre class="ts-code-pane" data-pane="node"><code><span class="c-k">import</span> { Sigil } <span class="c-k">from</span> <span class="c-s">'@sigil/node'</span>
 
-<span class="c-k">const</span> tessera = <span class="c-k">new</span> <span class="c-f">Tessera</span>(process.env.<span class="c-p">TESSERA_KEY</span>)
+<span class="c-k">const</span> sigil = <span class="c-k">new</span> <span class="c-f">Sigil</span>(process.env.<span class="c-p">SIGIL_KEY</span>)
 
 <span class="c-c">// resolve a name to whichever chain the asset lives on</span>
-<span class="c-k">const</span> to = <span class="c-k">await</span> tessera.names.<span class="c-f">resolve</span>(<span class="c-s">'maria.tess.id'</span>, { chain: <span class="c-s">'bitcoin'</span> })
+<span class="c-k">const</span> to = <span class="c-k">await</span> sigil.names.<span class="c-f">resolve</span>(<span class="c-s">'maria.sig.id'</span>, { chain: <span class="c-s">'bitcoin'</span> })
 
-<span class="c-k">await</span> tessera.transfers.<span class="c-f">create</span>({ to, inscription, feeRate: <span class="c-n">14</span> })</code></pre>
-          <pre class="ts-code-pane" data-pane="curl"><code>curl https://api.tessera.dev/v1/wallets \
-  -H <span class="c-s">"Authorization: Bearer $TESSERA_KEY"</span> \
+<span class="c-k">await</span> sigil.transfers.<span class="c-f">create</span>({ to, inscription, feeRate: <span class="c-n">14</span> })</code></pre>
+          <pre class="ts-code-pane" data-pane="curl"><code>curl https://api.sigil.dev/v1/wallets \
+  -H <span class="c-s">"Authorization: Bearer $SIGIL_KEY"</span> \
   -d <span class="c-s">'{ "passkey": "&lt;credential&gt;", "chains": ["bitcoin", "base"] }'</span>
 
 <span class="c-c"># 201 Created</span>
@@ -277,7 +277,7 @@
         <div class="ts-sec-head">
           <p class="ts-kicker">How it works</p>
           <h2 class="ts-h2">The key never leaves the device</h2>
-          <p class="ts-sub">A passkey is a keypair the secure enclave generates and guards. Tessera uses it as the signer, so there is no secret on our side to lose.</p>
+          <p class="ts-sub">A passkey is a keypair the secure enclave generates and guards. Sigil uses it as the signer, so there is no secret on our side to lose.</p>
         </div>
         <ol class="ts-steps">
           <li>
@@ -287,7 +287,7 @@
           </li>
           <li>
             <span class="ts-num">02</span>
-            <h3>Tessera derives the addresses</h3>
+            <h3>Sigil derives the addresses</h3>
             <p>The public half maps to a taproot address, an ordinals address and an EVM account. All three come back in the same session object.</p>
           </li>
           <li>
@@ -310,7 +310,7 @@
         <div><strong>4.1s</strong><span>Median time from tap to funded address</span></div>
         <div><strong>0</strong><span>Seed phrases shown to a user, ever</span></div>
         <div><strong>99.98%</strong><span>Relayer uptime over the last twelve months</span></div>
-        <div><strong>12</strong><span>Chains resolved by a single tess.id name</span></div>
+        <div><strong>12</strong><span>Chains resolved by a single sig.id name</span></div>
       </div>
     </section>
 
@@ -356,7 +356,7 @@
         <div class="ts-grid-3 ts-plans">
           <article class="ts-plan">
             <h3>Starter</h3>
-            <p class="ts-price"><span class="ts-sol" data-monthly="0" data-yearly="0">Free</span></p>
+            <p class="ts-price"><span class="ts-sol" data-monthly="Free" data-yearly="Free">Free</span></p>
             <p class="ts-plan-note">For prototypes and a first launch.</p>
             <ul class="ts-ticks">
               <li>5,000 monthly active wallets</li>
@@ -371,7 +371,7 @@
             <span class="ts-plan-flag">Most teams</span>
             <h3>Builder</h3>
             <p class="ts-price">
-              <span class="ts-sol" data-monthly="0.35" data-yearly="3.5">0.35 SOL</span>
+              <span class="ts-sol" data-monthly="0.35 SOL" data-yearly="3.5 SOL">0.35 SOL</span>
               <span class="ts-per" data-monthly="/month" data-yearly="/year">/month</span>
             </p>
             <p class="ts-fiat" data-monthly="≈ $63" data-yearly="≈ $630">≈ $63</p>
@@ -389,7 +389,7 @@
           <article class="ts-plan">
             <h3>Studio</h3>
             <p class="ts-price">
-              <span class="ts-sol" data-monthly="1.2" data-yearly="12">1.2 SOL</span>
+              <span class="ts-sol" data-monthly="1.2 SOL" data-yearly="12 SOL">1.2 SOL</span>
               <span class="ts-per" data-monthly="/month" data-yearly="/year">/month</span>
             </p>
             <p class="ts-fiat" data-monthly="≈ $216" data-yearly="≈ $2,160">≈ $216</p>
@@ -427,7 +427,7 @@
         <div class="ts-faq">
           <details>
             <summary>Is this actually self custody?<span class="ts-x" aria-hidden="true"></span></summary>
-            <p>Yes. The signing key is generated inside the device enclave and cannot be exported, by us or by anyone else. Tessera holds public keys and routing metadata, which is enough to build addresses and nothing else.</p>
+            <p>Yes. The signing key is generated inside the device enclave and cannot be exported, by us or by anyone else. Sigil holds public keys and routing metadata, which is enough to build addresses and nothing else.</p>
           </details>
           <details>
             <summary>What happens when a user loses their phone?<span class="ts-x" aria-hidden="true"></span></summary>
@@ -442,7 +442,7 @@
             <p>You can. Point Studio at your own node and fee oracle, and we only handle the layer editor and the launchpad page. Enterprise plans can run the relayer inside your own network.</p>
           </details>
           <details>
-            <summary>How is an tess.id name different from a domain?<span class="ts-x" aria-hidden="true"></span></summary>
+            <summary>How is an sig.id name different from a domain?<span class="ts-x" aria-hidden="true"></span></summary>
             <p>It resolves per chain. The same name returns a taproot address for an inscription and an EVM account for a token transfer, so senders stop guessing which address belongs to which network.</p>
           </details>
           <details>
@@ -471,7 +471,7 @@
   <footer class="ts-foot">
     <div class="ts-wrap ts-foot-in">
       <div class="ts-foot-brand">
-        <a class="ts-brand" data-scroll="top" aria-label="Tessera home">
+        <a class="ts-brand" data-scroll="top" aria-label="Sigil home">
           <svg class="ts-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
             <rect x="1.2" y="1.2" width="29.6" height="29.6" rx="9" fill="url(#g2)" stroke="rgba(255,255,255,.22)" stroke-width="1.2"/>
             <path d="M16 8.5c-3.6 0-6.2 2.6-6.2 6.1 0 2 .9 3.6 2.4 4.7v3.1c0 .6.5 1.1 1.1 1.1h5.4c.6 0 1.1-.5 1.1-1.1v-3.1c1.5-1.1 2.4-2.7 2.4-4.7 0-3.5-2.6-6.1-6.2-6.1Z" fill="none" stroke="#0B0B0F" stroke-width="1.9" stroke-linejoin="round"/>
@@ -480,7 +480,7 @@
               <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#C9CBD4"/><stop offset="1" stop-color="#8A8D99"/>
             </linearGradient></defs>
           </svg>
-          <span class="ts-brand-name">Tessera</span>
+          <span class="ts-brand-name">Sigil</span>
         </a>
         <p>Passkey wallets, a creator studio and a name that works everywhere.</p>
       </div>
@@ -489,7 +489,7 @@
           <h4>Products</h4>
           <a data-scroll="products">Connect</a>
           <a data-scroll="studio">Studio</a>
-          <a data-scroll="products">tess.id</a>
+          <a data-scroll="products">sig.id</a>
         </div>
         <div>
           <h4>Developers</h4>
@@ -506,7 +506,7 @@
       </div>
     </div>
     <div class="ts-wrap ts-foot-bar">
-      <span>© <span id="year">2026</span> Tessera. A demonstration site.</span>
+      <span>© <span id="year">2026</span> Sigil. A demonstration site.</span>
       <span class="ts-foot-legal">Not affiliated with any other company. Built as a design exercise.</span>
     </div>
   </footer>

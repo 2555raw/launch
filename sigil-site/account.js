@@ -1,4 +1,4 @@
-/* Tessera — opening an account.
+/* Sigil — opening an account.
    Four steps: connect a Solana wallet, pay for the plan, register a passkey,
    then land on the account with somewhere to put funds.
 
@@ -17,9 +17,9 @@
 (() => {
   'use strict';
 
-  const cfg = window.TESSERA_CONFIG || {};
+  const cfg = window.SIGIL_CONFIG || {};
   const $ = (s, r = document) => r.querySelector(s);
-  const STORE = 'tessera.account.v1';
+  const STORE = 'sigil.account.v1';
   const WEB3_SRC = 'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js';
   const LAMPORTS = 1e9;
 
@@ -146,7 +146,7 @@
     const cred = await navigator.credentials.create({
       publicKey: {
         challenge,
-        rp: { name: 'Tessera', id: location.hostname },
+        rp: { name: 'Sigil', id: location.hostname },
         user: { id: userId, name: label, displayName: label },
         pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
         authenticatorSelection: { residentKey: 'preferred', userVerification: 'preferred' },
@@ -261,7 +261,7 @@
     if (state.step === 'wallet') {
       el.body.innerHTML = `
         <p class="ts-lead">${state.mode === 'live'
-          ? 'Approve the connection in Phantom. Tessera reads your address and nothing else.'
+          ? 'Approve the connection in Phantom. Sigil reads your address and nothing else.'
           : 'In live mode this opens Phantom. Here it hands you an address that belongs to nobody.'}</p>
         ${state.wallet ? `
           <div class="ts-field"><span>Connected</span><code>${short(state.wallet, 8, 8)}</code></div>` : ''}
@@ -280,7 +280,7 @@
         <p class="ts-lead">${sol === 0
           ? 'The Starter plan is free, so there is nothing to send.'
           : state.mode === 'live'
-            ? `Phantom will ask you to approve a transfer of <b>${sol} SOL</b> to the Tessera treasury on ${cfg.cluster}.`
+            ? `Phantom will ask you to approve a transfer of <b>${sol} SOL</b> to the Sigil treasury on ${cfg.cluster}.`
             : `In live mode Phantom would ask you to approve <b>${sol} SOL</b>. Here nothing leaves anything.`}</p>
         <div class="ts-field"><span>From</span><code>${short(state.wallet, 8, 8)}</code></div>
         <div class="ts-field"><span>Amount</span><code>${sol === 0 ? '0' : sol + ' SOL'}</code></div>
@@ -298,10 +298,10 @@
     if (state.step === 'passkey') {
       el.body.innerHTML = `
         <p class="ts-lead">${state.mode === 'live'
-          ? 'Your device will ask for Face ID, Touch ID or a security key. The credential stays on the device; Tessera keeps only its id.'
+          ? 'Your device will ask for Face ID, Touch ID or a security key. The credential stays on the device; Sigil keeps only its id.'
           : 'In live mode your device would prompt for Face ID or Touch ID. Here no credential is created.'}</p>
         <label class="ts-label" for="acctLabel">Name this passkey</label>
-        <input class="ts-input" id="acctLabel" type="text" value="Tessera account" autocomplete="off">
+        <input class="ts-input" id="acctLabel" type="text" value="Sigil account" autocomplete="off">
         ${err()}
         <div class="ts-actions">
           <button class="ts-btn ts-btn-primary" type="button" data-go="passkey" ${state.busy ? 'disabled' : ''}>
@@ -401,7 +401,7 @@
     }
 
     if (what === 'passkey') {
-      const label = ($('#acctLabel')?.value || '').trim() || 'Tessera account';
+      const label = ($('#acctLabel')?.value || '').trim() || 'Sigil account';
       state.busy = true; render();
       try {
         state.passkeyId = state.mode === 'live'
@@ -484,5 +484,5 @@
     });
   }
 
-  window.TesseraAccount = { open, close, state };
+  window.SigilAccount = { open, close, state };
 })();

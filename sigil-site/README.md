@@ -1,11 +1,12 @@
-# Tessera
+# Sigil
 
 A static site for a fictional product: passkey wallets and creator tooling
-across Solana, Bitcoin and EVM, with a universal name (`tess.id`).
+across Solana, Bitcoin and EVM, with a universal name (`sig.id`).
 
-A *tessera* was the small tile a Roman carried as a token of identity and
-admission, and the same word names the tiles of a mosaic. Hence the palette:
-an ink ground, bone type, and the verdigris of aged bronze as the one accent.
+A *sigil* is the mark that seals a thing as yours. That is what a signature
+from a passkey is, so the page keeps one electric green and spends it only
+where something is live: a real connection, a real payment, a real credential.
+Everything else is ink and bone.
 
 Everything here is original and not affiliated with any existing company.
 
@@ -23,7 +24,7 @@ Everything here is original and not affiliated with any existing company.
 No build step. Open `index.html`, or serve the folder:
 
 ```sh
-python3 -m http.server --directory tessera-site 8000
+python3 -m http.server --directory sigil-site 8000
 ```
 
 ## Live mode and demo mode

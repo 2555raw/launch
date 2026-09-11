@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ovanto: passkey wallets and creator tooling for Bitcoin</title>
+  <meta name="description" content="Ovanto gives developers passkey native wallets, an Ordinals creator studio and a universal name across Bitcoin and EVM. No seed phrases, no extensions, no passwords.">
+  <meta name="theme-color" content="#08080B">
+  <meta property="og:title" content="Ovanto: passkey wallets and creator tooling for Bitcoin">
+  <meta property="og:description" content="Self custody that opens with Face ID. Ship a wallet in one afternoon.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/mark.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="ov" id="top">
+
+  <!-- announcement -->
+  <a class="ov-ribbon" data-scroll="studio">
+    <span class="ov-ribbon-tag">New</span>
+    Studio 2.0 ships recursive collections and on chain traits
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+
+  <!-- nav -->
+  <header class="ov-nav" id="nav">
+    <div class="ov-nav-in">
+      <a class="ov-brand" data-scroll="top" aria-label="Ovanto home">
+        <svg class="ov-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="1.2" y="1.2" width="29.6" height="29.6" rx="9" fill="url(#g1)" stroke="rgba(255,255,255,.22)" stroke-width="1.2"/>
+          <path d="M16 8.5c-3.6 0-6.2 2.6-6.2 6.1 0 2 .9 3.6 2.4 4.7v3.1c0 .6.5 1.1 1.1 1.1h5.4c.6 0 1.1-.5 1.1-1.1v-3.1c1.5-1.1 2.4-2.7 2.4-4.7 0-3.5-2.6-6.1-6.2-6.1Z" fill="none" stroke="#0B0B0F" stroke-width="1.9" stroke-linejoin="round"/>
+          <circle cx="16" cy="14.4" r="2.1" fill="#0B0B0F"/>
+          <defs><linearGradient id="g1" x1="4" y1="2" x2="28" y2="30">
+            <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#C9CBD4"/><stop offset="1" stop-color="#8A8D99"/>
+          </linearGradient></defs>
+        </svg>
+        <span class="ov-brand-name">Ovanto</span>
+      </a>
+
+      <nav class="ov-links" aria-label="Primary">
+        <a data-scroll="products">Products</a>
+        <a data-scroll="build">Developers</a>
+        <a data-scroll="chains">Chains</a>
+        <a data-scroll="pricing">Pricing</a>
+        <a data-scroll="faq">FAQ</a>
+      </nav>
+
+      <div class="ov-nav-right">
+        <a class="ov-ghost-link" data-scroll="build">Docs</a>
+        <a class="ov-btn ov-btn-sm ov-btn-light" data-scroll="cta">Get started</a>
+        <button class="ov-burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="ov-mobile" id="mobile" hidden>
+      <a data-scroll="products">Products</a>
+      <a data-scroll="build">Developers</a>
+      <a data-scroll="chains">Chains</a>
+      <a data-scroll="pricing">Pricing</a>
+      <a data-scroll="faq">FAQ</a>
+      <a class="ov-btn ov-btn-light" data-scroll="cta">Get started</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- hero -->
+    <section class="ov-hero">
+      <div class="ov-hero-glow" aria-hidden="true"></div>
+      <div class="ov-wrap ov-hero-in">
+        <div class="ov-pill">
+          <span class="ov-dot"></span> Passkey wallet infrastructure · public beta
+        </div>
+        <h1 class="ov-h1">Self custody that opens<br>with a fingerprint</h1>
+        <p class="ov-lede">
+          Ovanto replaces seed phrases with the passkey already on your users' devices.
+          One SDK gives them a wallet on Bitcoin and EVM, a name they can remember,
+          and a studio to launch what they make.
+        </p>
+        <div class="ov-hero-cta">
+          <a class="ov-btn ov-btn-light" data-scroll="demo">Try the interactive demo</a>
+          <a class="ov-btn ov-btn-outline" data-scroll="cta">Get started</a>
+        </div>
+        <p class="ov-hero-note">Free up to 10,000 monthly wallets. No card, no contract.</p>
+      </div>
+
+      <!-- keycap render -->
+      <div class="ov-stage" aria-hidden="true">
+        <div class="ov-slab">
+          <div class="ov-key ov-key-1">
+            <svg viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
+              <path d="M20 7c-4 0-7.3 3.3-7.3 7.4v3"/><path d="M27.3 17.4v-3C27.3 10.3 24 7 20 7"/>
+              <path d="M12.7 20v4.4c0 4 3.3 7.3 7.3 7.3"/><path d="M16.6 15.2v9.3"/><path d="M20 13.6v11"/><path d="M23.4 15.6v8.6"/>
+            </g></svg>
+          </div>
+          <div class="ov-key ov-key-2">
+            <svg viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="16.2" cy="16.2" r="6.4"/><path d="M20.9 20.9 31 31"/><path d="M27.4 27.4l2.6-2.6"/>
+            </g></svg>
+          </div>
+          <div class="ov-key ov-key-3">
+            <svg viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+              <path d="M20 6.5 31.5 20 20 33.5 8.5 20z"/><path d="M14.2 20h11.6M20 13.2v13.6"/>
+            </g></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- marquee -->
+    <section class="ov-marquee" aria-label="Teams building on Ovanto">
+      <p class="ov-marquee-label">Wallets, marketplaces and mints running on Ovanto</p>
+      <div class="ov-marquee-row">
+        <span>Relayhouse</span><span>Sablefox</span><span>Northwind Labs</span><span>Parcel</span>
+        <span>Tinderbox</span><span>Gridline</span><span>Halcyon Mint</span><span>Orbit Studio</span>
+      </div>
+    </section>
+
+    <!-- products -->
+    <section class="ov-sec" id="products">
+      <div class="ov-wrap">
+        <div class="ov-sec-head">
+          <p class="ov-kicker">Three pieces, one account</p>
+          <h2 class="ov-h2">Everything a self custody app needs, minus the onboarding</h2>
+          <p class="ov-sub">Take the whole stack or one piece of it. Each product stands on its own and they share a single key, a single dashboard and a single bill.</p>
+        </div>
+
+        <div class="ov-grid-3">
+          <article class="ov-card ov-card-lit">
+            <div class="ov-card-ico">
+              <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="10" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+            </div>
+            <h3>Connect</h3>
+            <p>A passkey native wallet SDK. The device holds the key material, WebAuthn does the signing prompt, and your user never copies twelve words onto a sticky note.</p>
+            <ul class="ov-ticks">
+              <li>Face ID, Touch ID or a hardware key</li>
+              <li>Bitcoin, Ordinals and EVM from one session</li>
+              <li>Recovery through a second passkey or a co signer</li>
+            </ul>
+            <a class="ov-more" data-scroll="build">Read the quickstart
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </article>
+
+          <article class="ov-card" id="studio">
+            <div class="ov-card-ico">
+              <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="3.5" width="17" height="17" rx="4" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 15l4.2-4.2 4 4 3-3 5.8 5.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="8.6" r="1.5" fill="currentColor"/></svg>
+            </div>
+            <h3>Studio</h3>
+            <p>A layer editor for inscriptions. Drop in art, define traits and rarity, preview the whole set, then push the collection to a launchpad page with a mint schedule.</p>
+            <ul class="ov-ticks">
+              <li>Trait weights with live rarity preview</li>
+              <li>Batch inscribing with fee estimation</li>
+              <li>Allowlists, tiers and reveal timing</li>
+            </ul>
+            <a class="ov-more" data-scroll="cta">Open Studio
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </article>
+
+          <article class="ov-card">
+            <div class="ov-card-ico">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.3 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.3-3.6-8.5S9.6 5.9 12 3.5Z" stroke="currentColor" stroke-width="1.7"/></svg>
+            </div>
+            <h3>ova.id</h3>
+            <p>One readable name pointing at every address a person owns. Send to <span class="ov-mono">maria.ova.id</span> and the resolver picks the right chain for the asset.</p>
+            <ul class="ov-ticks">
+              <li>One name, many chains</li>
+              <li>Resolver API and a drop in input field</li>
+              <li>Profiles you can attach to a mint</li>
+            </ul>
+            <a class="ov-more" data-scroll="build">Resolve a name
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- interactive demo -->
+    <section class="ov-sec ov-sec-alt" id="demo">
+      <div class="ov-wrap ov-demo">
+        <div class="ov-demo-copy">
+          <p class="ov-kicker">Interactive demo</p>
+          <h2 class="ov-h2">Watch a wallet exist in four seconds</h2>
+          <p class="ov-sub">This is the real flow your users see, running on signet. Press the button, approve the prompt, and an address is live. Nothing to install and nothing to write down.</p>
+          <div class="ov-demo-steps">
+            <div class="ov-step" data-step="1"><span>1</span> Create the passkey</div>
+            <div class="ov-step" data-step="2"><span>2</span> Derive the addresses</div>
+            <div class="ov-step" data-step="3"><span>3</span> Claim a name</div>
+          </div>
+        </div>
+
+        <div class="ov-device">
+          <div class="ov-device-bar">
+            <span class="ov-device-dot"></span><span class="ov-device-dot"></span><span class="ov-device-dot"></span>
+            <span class="ov-device-url">demo.ovanto.dev</span>
+          </div>
+          <div class="ov-device-body" id="demoBody">
+            <div class="ov-scan" id="scan">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M24 8c-5.3 0-9.6 4.3-9.6 9.6v3.8"/><path d="M33.6 21.4v-3.8C33.6 12.3 29.3 8 24 8"/>
+                <path d="M14.4 24.8v5.6c0 5.3 4.3 9.6 9.6 9.6"/><path d="M19.5 18.5v12.2"/><path d="M24 16.5v15"/><path d="M28.5 19.2v11"/>
+              </g></svg>
+            </div>
+            <p class="ov-device-title" id="demoTitle">Create a wallet with a passkey</p>
+            <p class="ov-device-sub" id="demoSub">Your device signs. Ovanto never sees a private key.</p>
+            <button class="ov-btn ov-btn-light ov-btn-block" id="demoBtn" type="button">Create wallet</button>
+            <div class="ov-device-out" id="demoOut" hidden>
+              <div class="ov-row"><span>Bitcoin</span><code id="addrBtc"></code></div>
+              <div class="ov-row"><span>Ordinals</span><code id="addrOrd"></code></div>
+              <div class="ov-row"><span>EVM</span><code id="addrEvm"></code></div>
+              <div class="ov-row ov-row-name"><span>Name</span><code id="addrName"></code></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- developers -->
+    <section class="ov-sec" id="build">
+      <div class="ov-wrap ov-build">
+        <div class="ov-build-copy">
+          <p class="ov-kicker">Developers</p>
+          <h2 class="ov-h2">Six lines to a working wallet</h2>
+          <p class="ov-sub">Install the SDK, hand it a project key, and call one method. The session object it returns signs Bitcoin PSBTs and EVM transactions with the same prompt.</p>
+          <ul class="ov-ticks ov-ticks-wide">
+            <li>Typed clients for React, Node, Swift and Kotlin</li>
+            <li>Webhooks for every mint, transfer and recovery</li>
+            <li>Self host the relayer or let us run it</li>
+          </ul>
+          <div class="ov-build-cta">
+            <a class="ov-btn ov-btn-light" data-scroll="cta">Read the docs</a>
+            <a class="ov-btn ov-btn-quiet" data-scroll="pricing">See limits</a>
+          </div>
+        </div>
+
+        <div class="ov-code">
+          <div class="ov-code-tabs" role="tablist" aria-label="Code samples">
+            <button class="is-active" role="tab" data-tab="react" aria-selected="true">React</button>
+            <button role="tab" data-tab="node" aria-selected="false">Node</button>
+            <button role="tab" data-tab="curl" aria-selected="false">cURL</button>
+          </div>
+          <pre class="ov-code-pane is-active" data-pane="react"><code><span class="c-k">import</span> { useOvanto } <span class="c-k">from</span> <span class="c-s">'@ovanto/react'</span>
+
+<span class="c-k">export function</span> <span class="c-f">MintButton</span>() {
+  <span class="c-k">const</span> { connect, session } = <span class="c-f">useOvanto</span>()
+
+  <span class="c-k">if</span> (!session) <span class="c-k">return</span> &lt;button onClick={connect}&gt;Sign in&lt;/button&gt;
+
+  <span class="c-k">return</span> &lt;button onClick={() =&gt; session.<span class="c-f">inscribe</span>({ file })}&gt;
+    Mint as {session.name ?? session.btc}
+  &lt;/button&gt;
+}</code></pre>
+          <pre class="ov-code-pane" data-pane="node"><code><span class="c-k">import</span> { Ovanto } <span class="c-k">from</span> <span class="c-s">'@ovanto/node'</span>
+
+<span class="c-k">const</span> ovanto = <span class="c-k">new</span> <span class="c-f">Ovanto</span>(process.env.<span class="c-p">OVANTO_KEY</span>)
+
+<span class="c-c">// resolve a name to whichever chain the asset lives on</span>
+<span class="c-k">const</span> to = <span class="c-k">await</span> ovanto.names.<span class="c-f">resolve</span>(<span class="c-s">'maria.ova.id'</span>, { chain: <span class="c-s">'bitcoin'</span> })
+
+<span class="c-k">await</span> ovanto.transfers.<span class="c-f">create</span>({ to, inscription, feeRate: <span class="c-n">14</span> })</code></pre>
+          <pre class="ov-code-pane" data-pane="curl"><code>curl https://api.ovanto.dev/v1/wallets \
+  -H <span class="c-s">"Authorization: Bearer $OVANTO_KEY"</span> \
+  -d <span class="c-s">'{ "passkey": "&lt;credential&gt;", "chains": ["bitcoin", "base"] }'</span>
+
+<span class="c-c"># 201 Created</span>
+<span class="c-c"># { "id": "wal_8fk2", "btc": "bc1q...", "evm": "0x9a...", "name": null }</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- how it works -->
+    <section class="ov-sec ov-sec-alt">
+      <div class="ov-wrap">
+        <div class="ov-sec-head">
+          <p class="ov-kicker">How it works</p>
+          <h2 class="ov-h2">The key never leaves the device</h2>
+          <p class="ov-sub">A passkey is a keypair the secure enclave generates and guards. Ovanto uses it as the signer, so there is no secret on our side to lose.</p>
+        </div>
+        <ol class="ov-steps">
+          <li>
+            <span class="ov-num">01</span>
+            <h3>The device makes the key</h3>
+            <p>WebAuthn creates a credential inside the secure enclave. It is bound to your domain, so no other site can ask for a signature with it.</p>
+          </li>
+          <li>
+            <span class="ov-num">02</span>
+            <h3>Ovanto derives the addresses</h3>
+            <p>The public half maps to a taproot address, an ordinals address and an EVM account. All three come back in the same session object.</p>
+          </li>
+          <li>
+            <span class="ov-num">03</span>
+            <h3>Every spend is a prompt</h3>
+            <p>Signing a PSBT looks exactly like unlocking a phone. The user sees what they are approving before the enclave releases a signature.</p>
+          </li>
+          <li>
+            <span class="ov-num">04</span>
+            <h3>Recovery is another passkey</h3>
+            <p>Add a laptop, a second phone or a hardware key as a co signer. Losing one device costs an afternoon, not a wallet.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- stats -->
+    <section class="ov-stats">
+      <div class="ov-wrap ov-stats-in">
+        <div><strong>4.1s</strong><span>Median time from tap to funded address</span></div>
+        <div><strong>0</strong><span>Seed phrases shown to a user, ever</span></div>
+        <div><strong>99.98%</strong><span>Relayer uptime over the last twelve months</span></div>
+        <div><strong>12</strong><span>Chains resolved by a single ova.id name</span></div>
+      </div>
+    </section>
+
+    <!-- chains -->
+    <section class="ov-sec" id="chains">
+      <div class="ov-wrap">
+        <div class="ov-sec-head">
+          <p class="ov-kicker">Coverage</p>
+          <h2 class="ov-h2">One session, every chain you ship on</h2>
+          <p class="ov-sub">Bitcoin first, because that is the hard one. Everything else falls out of the same credential.</p>
+        </div>
+        <div class="ov-chains">
+          <div class="ov-chip"><i></i>Bitcoin</div>
+          <div class="ov-chip"><i></i>Ordinals</div>
+          <div class="ov-chip"><i></i>Runes</div>
+          <div class="ov-chip"><i></i>Lightning</div>
+          <div class="ov-chip"><i></i>Ethereum</div>
+          <div class="ov-chip"><i></i>Base</div>
+          <div class="ov-chip"><i></i>Arbitrum</div>
+          <div class="ov-chip"><i></i>Optimism</div>
+          <div class="ov-chip"><i></i>Polygon</div>
+          <div class="ov-chip"><i></i>Solana</div>
+          <div class="ov-chip ov-chip-soon"><i></i>Stacks<em>soon</em></div>
+          <div class="ov-chip ov-chip-soon"><i></i>Fractal<em>soon</em></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- pricing -->
+    <section class="ov-sec ov-sec-alt" id="pricing">
+      <div class="ov-wrap">
+        <div class="ov-sec-head">
+          <p class="ov-kicker">Pricing</p>
+          <h2 class="ov-h2">Pay for wallets that get used</h2>
+          <p class="ov-sub">Monthly active wallets, counted once per user. Network fees go to the network, not to us.</p>
+        </div>
+        <div class="ov-grid-3 ov-plans">
+          <article class="ov-plan">
+            <h3>Build</h3>
+            <p class="ov-price">$0<span>/month</span></p>
+            <p class="ov-plan-note">For prototypes and small launches.</p>
+            <ul class="ov-ticks">
+              <li>10,000 monthly active wallets</li>
+              <li>Bitcoin, Ordinals and EVM</li>
+              <li>Studio with two collections</li>
+              <li>Community support</li>
+            </ul>
+            <a class="ov-btn ov-btn-outline ov-btn-block" data-scroll="cta">Start free</a>
+          </article>
+
+          <article class="ov-plan ov-plan-featured">
+            <span class="ov-plan-flag">Most teams</span>
+            <h3>Scale</h3>
+            <p class="ov-price">$249<span>/month</span></p>
+            <p class="ov-plan-note">For products with users to keep.</p>
+            <ul class="ov-ticks">
+              <li>100,000 monthly active wallets</li>
+              <li>Co signer recovery and device policies</li>
+              <li>Unlimited collections and launchpad pages</li>
+              <li>Webhooks, audit log and a shared dashboard</li>
+              <li>Support with a same day answer</li>
+            </ul>
+            <a class="ov-btn ov-btn-light ov-btn-block" data-scroll="cta">Start a trial</a>
+          </article>
+
+          <article class="ov-plan">
+            <h3>Enterprise</h3>
+            <p class="ov-price">Custom</p>
+            <p class="ov-plan-note">For regulated and high volume work.</p>
+            <ul class="ov-ticks">
+              <li>Self hosted relayer and signer policy</li>
+              <li>Dedicated infrastructure and regions</li>
+              <li>SSO, SOC 2 report and a DPA</li>
+              <li>An engineer in your channel</li>
+            </ul>
+            <a class="ov-btn ov-btn-outline ov-btn-block" data-scroll="cta">Talk to us</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="ov-sec" id="faq">
+      <div class="ov-wrap ov-faq-wrap">
+        <div class="ov-sec-head ov-sec-head-left">
+          <p class="ov-kicker">Questions</p>
+          <h2 class="ov-h2">The ones we get every week</h2>
+        </div>
+        <div class="ov-faq">
+          <details>
+            <summary>Is this actually self custody?<span class="ov-x" aria-hidden="true"></span></summary>
+            <p>Yes. The signing key is generated inside the device enclave and cannot be exported, by us or by anyone else. Ovanto holds public keys and routing metadata, which is enough to build addresses and nothing else.</p>
+          </details>
+          <details>
+            <summary>What happens when a user loses their phone?<span class="ov-x" aria-hidden="true"></span></summary>
+            <p>They recover through any other passkey registered on the wallet, or through a co signer you configure. Passkeys sync through the platform keychain, so most people are back in before they contact support.</p>
+          </details>
+          <details>
+            <summary>Do users need a browser extension?<span class="ov-x" aria-hidden="true"></span></summary>
+            <p>No. The flow runs in the page on any browser that supports WebAuthn, which covers current versions of Safari, Chrome, Firefox and Edge on desktop and mobile.</p>
+          </details>
+          <details>
+            <summary>Can I bring my own inscribing infrastructure?<span class="ov-x" aria-hidden="true"></span></summary>
+            <p>You can. Point Studio at your own node and fee oracle, and we only handle the layer editor and the launchpad page. Enterprise plans can run the relayer inside your own network.</p>
+          </details>
+          <details>
+            <summary>How is an ova.id name different from a domain?<span class="ov-x" aria-hidden="true"></span></summary>
+            <p>It resolves per chain. The same name returns a taproot address for an inscription and an EVM account for a token transfer, so senders stop guessing which address belongs to which network.</p>
+          </details>
+          <details>
+            <summary>What does it cost to leave?<span class="ov-x" aria-hidden="true"></span></summary>
+            <p>Nothing. Export the public key set and the name records at any time. Wallets keep working without us because the signer was never ours.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- cta -->
+    <section class="ov-cta" id="cta">
+      <div class="ov-wrap ov-cta-in">
+        <h2 class="ov-h2">Ship a wallet before the coffee goes cold</h2>
+        <p class="ov-sub">Create a project, copy the key, call one method. The free tier covers your first ten thousand users.</p>
+        <form class="ov-form" id="form" novalidate>
+          <label class="sr-only" for="email">Work email</label>
+          <input id="email" type="email" name="email" placeholder="you@company.com" autocomplete="email" required>
+          <button class="ov-btn ov-btn-light" type="submit">Get an API key</button>
+        </form>
+        <p class="ov-form-note" id="formNote">A demo page, so nothing is sent anywhere.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ov-foot">
+    <div class="ov-wrap ov-foot-in">
+      <div class="ov-foot-brand">
+        <a class="ov-brand" data-scroll="top" aria-label="Ovanto home">
+          <svg class="ov-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="1.2" y="1.2" width="29.6" height="29.6" rx="9" fill="url(#g2)" stroke="rgba(255,255,255,.22)" stroke-width="1.2"/>
+            <path d="M16 8.5c-3.6 0-6.2 2.6-6.2 6.1 0 2 .9 3.6 2.4 4.7v3.1c0 .6.5 1.1 1.1 1.1h5.4c.6 0 1.1-.5 1.1-1.1v-3.1c1.5-1.1 2.4-2.7 2.4-4.7 0-3.5-2.6-6.1-6.2-6.1Z" fill="none" stroke="#0B0B0F" stroke-width="1.9" stroke-linejoin="round"/>
+            <circle cx="16" cy="14.4" r="2.1" fill="#0B0B0F"/>
+            <defs><linearGradient id="g2" x1="4" y1="2" x2="28" y2="30">
+              <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#C9CBD4"/><stop offset="1" stop-color="#8A8D99"/>
+            </linearGradient></defs>
+          </svg>
+          <span class="ov-brand-name">Ovanto</span>
+        </a>
+        <p>Passkey wallets, a creator studio and a name that works everywhere.</p>
+      </div>
+      <div class="ov-foot-cols">
+        <div>
+          <h4>Products</h4>
+          <a data-scroll="products">Connect</a>
+          <a data-scroll="studio">Studio</a>
+          <a data-scroll="products">ova.id</a>
+        </div>
+        <div>
+          <h4>Developers</h4>
+          <a data-scroll="build">Quickstart</a>
+          <a data-scroll="build">API reference</a>
+          <a data-scroll="chains">Chain coverage</a>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <a data-scroll="pricing">Pricing</a>
+          <a data-scroll="faq">FAQ</a>
+          <a data-scroll="cta">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="ov-wrap ov-foot-bar">
+      <span>© <span id="year">2026</span> Ovanto. A demonstration site.</span>
+      <span class="ov-foot-legal">Not affiliated with any other company. Built as a design exercise.</span>
+    </div>
+  </footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

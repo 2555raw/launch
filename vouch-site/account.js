@@ -1,4 +1,4 @@
-/* Sigil — opening an account.
+/* Vouch — opening an account.
    Four steps: connect an Ethereum wallet, pay for the plan, register a passkey,
    then land on the account with somewhere to put funds.
 
@@ -17,9 +17,9 @@
 (() => {
   'use strict';
 
-  const cfg = window.SIGIL_CONFIG || {};
+  const cfg = window.VOUCH_CONFIG || {};
   const $ = (s, r = document) => r.querySelector(s);
-  const STORE = 'sigil.account.v1';
+  const STORE = 'vouch.account.v1';
   const WEI = 10n ** 18n;
 
   /* ---------------- capability detection ---------------- */
@@ -57,8 +57,17 @@
 
   const PLAN_NAMES = { starter: 'Starter', builder: 'Builder', studio: 'Studio' };
 
-  const price = (plan = state.plan, cycle = state.cycle) =>
+  // Plans are priced in dollars; the chain is paid in ETH. One conversion,
+  // used by both the cards and the transaction, so they cannot disagree.
+  const priceUsd = (plan = state.plan, cycle = state.cycle) =>
     (cfg.prices?.[plan]?.[cycle]) ?? 0;
+
+  const usdToEth = (usd) => usd / (cfg.ethReferenceUsd || 1);
+
+  // Four decimals is the most a plan needs and keeps the figure readable.
+  const ethLabel = (usd) => usdToEth(usd).toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+
+  const money = (usd) => '$' + usd.toLocaleString('en-US');
 
   /* ---------------- persistence ---------------- */
 
@@ -117,8 +126,9 @@
   }
 
   async function payLive() {
-    const eth = price();
-    if (eth <= 0) return null;                           // free plan, nothing to send
+    const usd = priceUsd();
+    if (usd <= 0) return null;                           // free plan, nothing to send
+    const eth = usdToEth(usd);
 
     const p = phantom();
     await ensureChain();
@@ -127,13 +137,13 @@
     const balance = fromWei(balanceHex);
     if (balance < eth) {
       throw new Error(
-        `That wallet holds ${balance.toFixed(4)} ETH and the plan costs ${eth} ETH. Top it up and try again.`
+        `That wallet holds ${balance.toFixed(4)} ETH and the plan costs ${ethLabel(usd)} ETH. Top it up and try again.`
       );
     }
 
     return await p.request({
       method: 'eth_sendTransaction',
-      params: [{ from: state.wallet, to: cfg.treasury, value: toWeiHex(eth) }]
+      params: [{ from: state.wallet, to: cfg.treasury, value: toWeiHex(eth.toFixed(18)) }]
     });
   }
 
@@ -157,7 +167,7 @@
     const cred = await navigator.credentials.create({
       publicKey: {
         challenge,
-        rp: { name: 'Sigil', id: location.hostname },
+        rp: { name: 'Vouch', id: location.hostname },
         user: { id: userId, name: label, displayName: label },
         pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
         authenticatorSelection: { residentKey: 'preferred', userVerification: 'preferred' },
@@ -237,8 +247,8 @@
   function render() {
     renderRail();
     renderMode();
-    const eth = price();
-    const usd = (eth * (cfg.ethReferenceUsd || 0)).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    const usd = priceUsd();
+    const eth = ethLabel(usd);
     const blockers = liveBlockers();
 
     if (state.step === 'plan') {
@@ -246,8 +256,8 @@
         <p class="ts-lead">You are opening the <b>${PLAN_NAMES[state.plan]}</b> plan,
            billed ${state.cycle === 'yearly' ? 'yearly' : 'monthly'}.</p>
         <div class="ts-amount">
-          <strong>${eth === 0 ? 'Free' : eth + ' ETH'}</strong>
-          ${eth === 0 ? '' : `<span>≈ $${usd} at $${cfg.ethReferenceUsd.toLocaleString('en-US')}/ETH</span>`}
+          <strong>${usd === 0 ? 'Free' : money(usd)}</strong>
+          ${usd === 0 ? '' : `<span>${eth} ETH at $${cfg.ethReferenceUsd.toLocaleString('en-US')}/ETH</span>`}
         </div>
         ${blockers.length ? `
           <div class="ts-notice">
@@ -270,7 +280,7 @@
     if (state.step === 'wallet') {
       el.body.innerHTML = `
         <p class="ts-lead">${state.mode === 'live'
-          ? 'Approve the connection in Phantom. Sigil reads your address and nothing else.'
+          ? 'Approve the connection in Phantom. Vouch reads your address and nothing else.'
           : 'In live mode this opens Phantom. Here it hands you an address that belongs to nobody.'}</p>
         ${state.wallet ? `
           <div class="ts-field"><span>Connected</span><code>${short(state.wallet, 8, 8)}</code></div>` : ''}
@@ -286,18 +296,18 @@
 
     if (state.step === 'pay') {
       el.body.innerHTML = `
-        <p class="ts-lead">${eth === 0
+        <p class="ts-lead">${usd === 0
           ? 'The Starter plan is free, so there is nothing to send.'
           : state.mode === 'live'
-            ? `Your wallet will ask you to approve a transfer of <b>${eth} ETH</b> to the Sigil treasury on ${cfg.chainName}.`
-            : `In live mode your wallet would ask you to approve <b>${eth} ETH</b>. Here nothing leaves anything.`}</p>
+            ? `Your wallet will ask you to approve a transfer of <b>${eth} ETH</b> (${money(usd)}) to the Vouch treasury on ${cfg.chainName}.`
+            : `In live mode your wallet would ask you to approve <b>${eth} ETH</b> (${money(usd)}). Here nothing leaves anything.`}</p>
         <div class="ts-field"><span>From</span><code>${short(state.wallet, 8, 8)}</code></div>
-        <div class="ts-field"><span>Amount</span><code>${eth === 0 ? '0' : eth + ' ETH'}</code></div>
+        <div class="ts-field"><span>Amount</span><code>${usd === 0 ? '0' : eth + ' ETH · ' + money(usd)}</code></div>
         ${state.signature ? `<div class="ts-field"><span>Signature</span><code>${short(state.signature, 8, 8)}</code></div>` : ''}
         ${err()}
         <div class="ts-actions">
           <button class="ts-btn ts-btn-primary" type="button" data-go="pay" ${state.busy ? 'disabled' : ''}>
-            ${state.busy ? 'Waiting for confirmation…' : state.signature ? 'Continue' : eth === 0 ? 'Continue' : 'Approve payment'}
+            ${state.busy ? 'Waiting for confirmation…' : state.signature ? 'Continue' : usd === 0 ? 'Continue' : 'Approve payment'}
           </button>
           <button class="ts-btn ts-btn-ghost" type="button" data-go="back">Back</button>
         </div>`;
@@ -307,10 +317,10 @@
     if (state.step === 'passkey') {
       el.body.innerHTML = `
         <p class="ts-lead">${state.mode === 'live'
-          ? 'Your device will ask for Face ID, Touch ID or a security key. The credential stays on the device; Sigil keeps only its id.'
+          ? 'Your device will ask for Face ID, Touch ID or a security key. The credential stays on the device; Vouch keeps only its id.'
           : 'In live mode your device would prompt for Face ID or Touch ID. Here no credential is created.'}</p>
         <label class="ts-label" for="acctLabel">Name this passkey</label>
-        <input class="ts-input" id="acctLabel" type="text" value="Sigil account" autocomplete="off">
+        <input class="ts-input" id="acctLabel" type="text" value="Vouch account" autocomplete="off">
         ${err()}
         <div class="ts-actions">
           <button class="ts-btn ts-btn-primary" type="button" data-go="passkey" ${state.busy ? 'disabled' : ''}>
@@ -394,7 +404,7 @@
     }
 
     if (what === 'pay') {
-      if (state.signature || price() === 0) { state.step = 'passkey'; return render(); }
+      if (state.signature || priceUsd() === 0) { state.step = 'passkey'; return render(); }
       state.busy = true; render();
       try {
         state.signature = state.mode === 'live'
@@ -410,7 +420,7 @@
     }
 
     if (what === 'passkey') {
-      const label = ($('#acctLabel')?.value || '').trim() || 'Sigil account';
+      const label = ($('#acctLabel')?.value || '').trim() || 'Vouch account';
       state.busy = true; render();
       try {
         state.passkeyId = state.mode === 'live'
@@ -450,11 +460,19 @@
     if (what === 'close') close();
   }
 
-  function open(plan, cycle) {
+  // `mode` lets a visitor land straight in the demo without first being asked
+  // to pick between demo and live: the demo buttons on the page skip that.
+  function open(plan, cycle, mode) {
     if (!el.root) build();
     state.plan = plan || state.plan;
     state.cycle = cycle || state.cycle;
-    state.step = 'plan';
+    // Demo is always the starting point; live is only ever reached by choosing
+    // it on the plan screen, which is the screen this skips.
+    state.mode = 'demo';
+    state.step = mode === 'demo' ? 'wallet' : 'plan';
+    state.wallet = null;
+    state.signature = null;
+    state.passkeyId = null;
     state.error = '';
     state.open = true;
     el.root.hidden = false;
@@ -471,6 +489,12 @@
   /* ---------------- wiring ---------------- */
 
   document.addEventListener('click', (e) => {
+    const demo = e.target.closest('[data-demo]');
+    if (demo) {
+      e.preventDefault();
+      open(demo.dataset.demo || 'builder', document.body.dataset.cycle || 'monthly', 'demo');
+      return;
+    }
     const starter = e.target.closest('[data-plan]');
     if (starter) {
       e.preventDefault();
@@ -493,5 +517,5 @@
     });
   }
 
-  window.SigilAccount = { open, close, state };
+  window.VouchAccount = { open, close, state };
 })();

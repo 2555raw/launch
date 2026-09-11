@@ -1,12 +1,12 @@
-# Sigil
+# Vouch
 
 A static site for a fictional product: passkey wallets and creator tooling
-across Solana, Bitcoin and EVM, with a universal name (`sig.id`).
+across Solana, Bitcoin and EVM, with a universal name (`vouch.id`).
 
-A *sigil* is the mark that seals a thing as yours. That is what a signature
-from a passkey is, so the page keeps one electric green and spends it only
-where something is live: a real connection, a real payment, a real credential.
-Everything else is ink and bone.
+To vouch for someone is to put your name behind who they say they are, which
+is the whole job of a passkey. The page keeps one electric green and spends it
+only where something is live: a real connection, a real payment, a real
+credential. Everything else is ink and bone.
 
 Everything here is original and not affiliated with any existing company.
 
@@ -24,7 +24,7 @@ Everything here is original and not affiliated with any existing company.
 No build step. Open `index.html`, or serve the folder:
 
 ```sh
-python3 -m http.server --directory sigil-site 8000
+python3 -m http.server --directory vouch-site 8000
 ```
 
 ## Live mode and demo mode
@@ -33,7 +33,9 @@ The account flow runs in one of two modes, and every screen says which.
 
 **Demo** is the default and needs nothing. It walks the same four screens with
 no wallet, no transfer and no credential. It never claims otherwise, and it
-writes nothing to storage.
+writes nothing to storage. Anything marked `data-demo` opens it directly,
+skipping the screen that asks demo or live: the hero button, the nav entry and
+the button beside the wallet preview all do.
 
 **Live** uses a real wallet connection, a real ETH transfer and a real WebAuthn
 credential. It turns on only when all of these hold:
@@ -58,6 +60,18 @@ once you have watched a payment land.
 ETH sent to an address nobody holds the key for is gone. So `config.js` ships
 with the field empty and the page refuses live mode until it is filled in.
 Do not paste an address you found somewhere; use one from a wallet you control.
+
+## Pricing
+
+Plans are priced in dollars in `config.js`, because that is the number a buyer
+reasons about. The ETH figure on the cards and the amount checkout asks the
+wallet to send are both worked out from that one number and `ethReferenceUsd`,
+so they cannot drift apart.
+
+`ethReferenceUsd` is a fixed number, not a price feed. The ETH charged
+therefore wanders from the dollar price as the market moves, which is fine for
+a demo and wrong for a real storefront. Before taking live payments, either
+quote in a stablecoin like USDC or read a real feed there.
 
 ## What is real and what is staged
 

@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sigil: passkey wallets and creator tooling for Bitcoin</title>
-  <meta name="description" content="Sigil gives developers passkey native wallets, an Ordinals creator studio and a universal name across Bitcoin and EVM. No seed phrases, no extensions, no passwords.">
+  <title>Vouch: passkey wallets and creator tooling for Bitcoin</title>
+  <meta name="description" content="Vouch gives developers passkey native wallets, an Ordinals creator studio and a universal name across Bitcoin and EVM. No seed phrases, no extensions, no passwords.">
   <meta name="theme-color" content="#0B0C11">
-  <meta property="og:title" content="Sigil: passkey wallets and creator tooling for Bitcoin">
+  <meta property="og:title" content="Vouch: passkey wallets and creator tooling for Bitcoin">
   <meta property="og:description" content="Self custody that opens with Face ID. Ship a wallet in one afternoon.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/mark.svg">
@@ -28,17 +28,17 @@
   <!-- nav -->
   <header class="ts-nav" id="nav">
     <div class="ts-nav-in">
-      <a class="ts-brand" data-scroll="top" aria-label="Sigil home">
+      <a class="ts-brand" data-scroll="top" aria-label="Vouch home">
         <svg class="ts-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <circle cx="16" cy="16" r="13.3" fill="#0E1016" stroke="url(#sigilRingA)" stroke-width="1.7"/>
+          <circle cx="16" cy="16" r="13.3" fill="#0E1016" stroke="url(#vouchRingA)" stroke-width="1.7"/>
           <g fill="none" stroke="#45F87E" stroke-width="2" stroke-linecap="round">
             <path d="M16 7.6v16.8"/><path d="M16 14.2 21.8 8.4"/><path d="M16 17.8 10.2 23.6"/>
           </g>
-          <defs><linearGradient id="sigilRingA" x1="4" y1="3" x2="28" y2="29">
+          <defs><linearGradient id="vouchRingA" x1="4" y1="3" x2="28" y2="29">
             <stop offset="0" stop-color="#F2EFE6"/><stop offset=".5" stop-color="#8E8C84"/><stop offset="1" stop-color="#45F87E"/>
           </linearGradient></defs>
         </svg>
-        <span class="ts-brand-name">Sigil</span>
+        <span class="ts-brand-name">Vouch</span>
       </a>
 
       <nav class="ts-links" aria-label="Primary">
@@ -47,6 +47,7 @@
         <a data-scroll="chains">Chains</a>
         <a data-scroll="pricing">Pricing</a>
         <a data-scroll="faq">FAQ</a>
+        <a data-demo="builder">Demo</a>
       </nav>
 
       <div class="ts-nav-right">
@@ -64,6 +65,7 @@
       <a data-scroll="chains">Chains</a>
       <a data-scroll="pricing">Pricing</a>
       <a data-scroll="faq">FAQ</a>
+      <a data-demo="builder">Demo</a>
       <button class="ts-btn ts-btn-light" type="button" data-plan="builder">Open an account</button>
     </div>
   </header>
@@ -78,43 +80,30 @@
         </div>
         <h1 class="ts-h1">Self custody that opens<br>with a fingerprint</h1>
         <p class="ts-lede">
-          Sigil replaces seed phrases with the passkey already on your users' devices.
+          Vouch replaces seed phrases with the passkey already on your users' devices.
           One SDK gives them a wallet on Bitcoin and EVM, a name they can remember,
           and a studio to launch what they make.
         </p>
         <div class="ts-hero-cta">
-          <a class="ts-btn ts-btn-light" data-scroll="demo">Try the interactive demo</a>
+          <button class="ts-btn ts-btn-light" type="button" data-demo="builder">Try the demo</button>
           <button class="ts-btn ts-btn-outline" type="button" data-plan="builder">Open an account</button>
         </div>
-        <p class="ts-hero-note">Free up to 10,000 monthly wallets. No card, no contract.</p>
+        <p class="ts-hero-note">The demo needs no wallet and moves no funds. Free tier up to 5,000 monthly wallets.</p>
       </div>
 
-      <!-- keycap render -->
+      <!-- keycap render: the tiles drop, land, and flash on contact (app.js) -->
       <div class="ts-stage" aria-hidden="true">
         <div class="ts-slab">
-          <div class="ts-key ts-key-1">
-            <svg viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
-              <path d="M20 7c-4 0-7.3 3.3-7.3 7.4v3"/><path d="M27.3 17.4v-3C27.3 10.3 24 7 20 7"/>
-              <path d="M12.7 20v4.4c0 4 3.3 7.3 7.3 7.3"/><path d="M16.6 15.2v9.3"/><path d="M20 13.6v11"/><path d="M23.4 15.6v8.6"/>
-            </g></svg>
-          </div>
-          <div class="ts-key ts-key-2">
-            <svg viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="16.2" cy="16.2" r="6.4"/><path d="M20.9 20.9 31 31"/><path d="M27.4 27.4l2.6-2.6"/>
-            </g></svg>
-          </div>
-          <div class="ts-key ts-key-3">
-            <svg viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
-              <path d="M20 6.5 31.5 20 20 33.5 8.5 20z"/><path d="M14.2 20h11.6M20 13.2v13.6"/>
-            </g></svg>
-          </div>
+          <div class="ts-key ts-key-1"><i class="ts-key-hit"></i><span class="ts-key-face"></span></div>
+          <div class="ts-key ts-key-2"><i class="ts-key-hit"></i><span class="ts-key-face"></span></div>
+          <div class="ts-key ts-key-3"><i class="ts-key-hit"></i><span class="ts-key-face"></span></div>
         </div>
       </div>
     </section>
 
     <!-- marquee -->
-    <section class="ts-marquee" aria-label="Teams building on Sigil">
-      <p class="ts-marquee-label">Wallets, marketplaces and mints running on Sigil</p>
+    <section class="ts-marquee" aria-label="Teams building on Vouch">
+      <p class="ts-marquee-label">Wallets, marketplaces and mints running on Vouch</p>
       <div class="ts-marquee-row">
         <span>Relayhouse</span><span>Sablefox</span><span>Northwind Labs</span><span>Parcel</span>
         <span>Tinderbox</span><span>Gridline</span><span>Halcyon Mint</span><span>Orbit Studio</span>
@@ -165,8 +154,8 @@
             <div class="ts-card-ico">
               <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.3 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.3-3.6-8.5S9.6 5.9 12 3.5Z" stroke="currentColor" stroke-width="1.7"/></svg>
             </div>
-            <h3>sig.id</h3>
-            <p>One readable name pointing at every address a person owns. Send to <span class="ts-mono">maria.sig.id</span> and the resolver picks the right chain for the asset.</p>
+            <h3>vouch.id</h3>
+            <p>One readable name pointing at every address a person owns. Send to <span class="ts-mono">maria.vouch.id</span> and the resolver picks the right chain for the asset.</p>
             <ul class="ts-ticks">
               <li>One name, many chains</li>
               <li>Resolver API and a drop in input field</li>
@@ -186,6 +175,9 @@
           <p class="ts-kicker">Interactive demo</p>
           <h2 class="ts-h2">Watch a wallet exist in four seconds</h2>
           <p class="ts-sub">This is the real flow your users see, running on signet. Press the button, approve the prompt, and an address is live. Nothing to install and nothing to write down.</p>
+          <button class="ts-btn ts-btn-primary ts-demo-launch" type="button" data-demo="builder">
+            Walk the whole flow
+          </button>
           <div class="ts-demo-steps">
             <div class="ts-step" data-step="1"><span>1</span> Create the passkey</div>
             <div class="ts-step" data-step="2"><span>2</span> Derive the addresses</div>
@@ -196,7 +188,7 @@
         <div class="ts-device">
           <div class="ts-device-bar">
             <span class="ts-device-dot"></span><span class="ts-device-dot"></span><span class="ts-device-dot"></span>
-            <span class="ts-device-url">demo.sigil.dev</span>
+            <span class="ts-device-url">demo.vouch.dev</span>
           </div>
           <div class="ts-device-body" id="demoBody">
             <div class="ts-scan" id="scan">
@@ -206,7 +198,7 @@
               </g></svg>
             </div>
             <p class="ts-device-title" id="demoTitle">Create a wallet with a passkey</p>
-            <p class="ts-device-sub" id="demoSub">Your device signs. Sigil never sees a private key.</p>
+            <p class="ts-device-sub" id="demoSub">Your device signs. Vouch never sees a private key.</p>
             <button class="ts-btn ts-btn-light ts-btn-block" id="demoBtn" type="button">Create wallet</button>
             <div class="ts-device-out" id="demoOut" hidden>
               <div class="ts-row"><span>Bitcoin</span><code id="addrBtc"></code></div>
@@ -243,10 +235,10 @@
             <button role="tab" data-tab="node" aria-selected="false">Node</button>
             <button role="tab" data-tab="curl" aria-selected="false">cURL</button>
           </div>
-          <pre class="ts-code-pane is-active" data-pane="react"><code><span class="c-k">import</span> { useSigil } <span class="c-k">from</span> <span class="c-s">'@sigil/react'</span>
+          <pre class="ts-code-pane is-active" data-pane="react"><code><span class="c-k">import</span> { useVouch } <span class="c-k">from</span> <span class="c-s">'@vouch/react'</span>
 
 <span class="c-k">export function</span> <span class="c-f">MintButton</span>() {
-  <span class="c-k">const</span> { connect, session } = <span class="c-f">useSigil</span>()
+  <span class="c-k">const</span> { connect, session } = <span class="c-f">useVouch</span>()
 
   <span class="c-k">if</span> (!session) <span class="c-k">return</span> &lt;button onClick={connect}&gt;Sign in&lt;/button&gt;
 
@@ -254,16 +246,16 @@
     Mint as {session.name ?? session.btc}
   &lt;/button&gt;
 }</code></pre>
-          <pre class="ts-code-pane" data-pane="node"><code><span class="c-k">import</span> { Sigil } <span class="c-k">from</span> <span class="c-s">'@sigil/node'</span>
+          <pre class="ts-code-pane" data-pane="node"><code><span class="c-k">import</span> { Vouch } <span class="c-k">from</span> <span class="c-s">'@vouch/node'</span>
 
-<span class="c-k">const</span> sigil = <span class="c-k">new</span> <span class="c-f">Sigil</span>(process.env.<span class="c-p">SIGIL_KEY</span>)
+<span class="c-k">const</span> vouch = <span class="c-k">new</span> <span class="c-f">Vouch</span>(process.env.<span class="c-p">VOUCH_KEY</span>)
 
 <span class="c-c">// resolve a name to whichever chain the asset lives on</span>
-<span class="c-k">const</span> to = <span class="c-k">await</span> sigil.names.<span class="c-f">resolve</span>(<span class="c-s">'maria.sig.id'</span>, { chain: <span class="c-s">'bitcoin'</span> })
+<span class="c-k">const</span> to = <span class="c-k">await</span> vouch.names.<span class="c-f">resolve</span>(<span class="c-s">'maria.vouch.id'</span>, { chain: <span class="c-s">'bitcoin'</span> })
 
-<span class="c-k">await</span> sigil.transfers.<span class="c-f">create</span>({ to, inscription, feeRate: <span class="c-n">14</span> })</code></pre>
-          <pre class="ts-code-pane" data-pane="curl"><code>curl https://api.sigil.dev/v1/wallets \
-  -H <span class="c-s">"Authorization: Bearer $SIGIL_KEY"</span> \
+<span class="c-k">await</span> vouch.transfers.<span class="c-f">create</span>({ to, inscription, feeRate: <span class="c-n">14</span> })</code></pre>
+          <pre class="ts-code-pane" data-pane="curl"><code>curl https://api.vouch.dev/v1/wallets \
+  -H <span class="c-s">"Authorization: Bearer $VOUCH_KEY"</span> \
   -d <span class="c-s">'{ "passkey": "&lt;credential&gt;", "chains": ["bitcoin", "base"] }'</span>
 
 <span class="c-c"># 201 Created</span>
@@ -278,7 +270,7 @@
         <div class="ts-sec-head">
           <p class="ts-kicker">How it works</p>
           <h2 class="ts-h2">The key never leaves the device</h2>
-          <p class="ts-sub">A passkey is a keypair the secure enclave generates and guards. Sigil uses it as the signer, so there is no secret on our side to lose.</p>
+          <p class="ts-sub">A passkey is a keypair the secure enclave generates and guards. Vouch uses it as the signer, so there is no secret on our side to lose.</p>
         </div>
         <ol class="ts-steps">
           <li>
@@ -288,7 +280,7 @@
           </li>
           <li>
             <span class="ts-num">02</span>
-            <h3>Sigil derives the addresses</h3>
+            <h3>Vouch derives the addresses</h3>
             <p>The public half maps to a taproot address, an ordinals address and an EVM account. All three come back in the same session object.</p>
           </li>
           <li>
@@ -311,7 +303,7 @@
         <div><strong>4.1s</strong><span>Median time from tap to funded address</span></div>
         <div><strong>0</strong><span>Seed phrases shown to a user, ever</span></div>
         <div><strong>99.98%</strong><span>Relayer uptime over the last twelve months</span></div>
-        <div><strong>12</strong><span>Chains resolved by a single sig.id name</span></div>
+        <div><strong>12</strong><span>Chains resolved by a single vouch.id name</span></div>
       </div>
     </section>
 
@@ -345,8 +337,8 @@
       <div class="ts-wrap">
         <div class="ts-sec-head">
           <p class="ts-kicker">Pricing</p>
-          <h2 class="ts-h2">Pay in ETH, from the wallet you already use</h2>
-          <p class="ts-sub">Billed to an Ethereum address, not a card. Monthly active
+          <h2 class="ts-h2">Priced in dollars, paid from your wallet</h2>
+          <p class="ts-sub">Charged in ETH at checkout, not to a card. Monthly active
              wallets are counted once per person, and network fees go to the network.</p>
           <div class="ts-toggle" role="group" aria-label="Billing period">
             <button class="is-on" type="button" data-cycle="monthly">Monthly</button>
@@ -357,7 +349,7 @@
         <div class="ts-grid-3 ts-plans">
           <article class="ts-plan">
             <h3>Starter</h3>
-            <p class="ts-price"><span class="ts-sol" data-monthly="Free" data-yearly="Free">Free</span></p>
+            <p class="ts-price"><span class="ts-figure" data-monthly="Free" data-yearly="Free">Free</span></p>
             <p class="ts-plan-note">For prototypes and a first launch.</p>
             <ul class="ts-ticks">
               <li>5,000 monthly active wallets</li>
@@ -372,10 +364,10 @@
             <span class="ts-plan-flag">Most teams</span>
             <h3>Builder</h3>
             <p class="ts-price">
-              <span class="ts-sol" data-monthly="0.35 ETH" data-yearly="3.5 ETH">0.35 ETH</span>
+              <span class="ts-figure" data-monthly="$59" data-yearly="$590">$59</span>
               <span class="ts-per" data-monthly="/month" data-yearly="/year">/month</span>
             </p>
-            <p class="ts-fiat" data-monthly="≈ $1,120" data-yearly="≈ $11,200">≈ $1,120</p>
+            <p class="ts-fiat" data-plan-eth="builder"></p>
             <p class="ts-plan-note">For products with users worth keeping.</p>
             <ul class="ts-ticks">
               <li>75,000 monthly active wallets</li>
@@ -390,10 +382,10 @@
           <article class="ts-plan">
             <h3>Studio</h3>
             <p class="ts-price">
-              <span class="ts-sol" data-monthly="1.2 ETH" data-yearly="12 ETH">1.2 ETH</span>
+              <span class="ts-figure" data-monthly="$159" data-yearly="$1,590">$159</span>
               <span class="ts-per" data-monthly="/month" data-yearly="/year">/month</span>
             </p>
-            <p class="ts-fiat" data-monthly="≈ $3,840" data-yearly="≈ $38,400">≈ $3,840</p>
+            <p class="ts-fiat" data-plan-eth="studio"></p>
             <p class="ts-plan-note">For mints that run all week.</p>
             <ul class="ts-ticks">
               <li>500,000 monthly active wallets</li>
@@ -428,7 +420,7 @@
         <div class="ts-faq">
           <details>
             <summary>Is this actually self custody?<span class="ts-x" aria-hidden="true"></span></summary>
-            <p>Yes. The signing key is generated inside the device enclave and cannot be exported, by us or by anyone else. Sigil holds public keys and routing metadata, which is enough to build addresses and nothing else.</p>
+            <p>Yes. The signing key is generated inside the device enclave and cannot be exported, by us or by anyone else. Vouch holds public keys and routing metadata, which is enough to build addresses and nothing else.</p>
           </details>
           <details>
             <summary>What happens when a user loses their phone?<span class="ts-x" aria-hidden="true"></span></summary>
@@ -443,7 +435,7 @@
             <p>You can. Point Studio at your own node and fee oracle, and we only handle the layer editor and the launchpad page. Enterprise plans can run the relayer inside your own network.</p>
           </details>
           <details>
-            <summary>How is an sig.id name different from a domain?<span class="ts-x" aria-hidden="true"></span></summary>
+            <summary>How is an vouch.id name different from a domain?<span class="ts-x" aria-hidden="true"></span></summary>
             <p>It resolves per chain. The same name returns a taproot address for an inscription and an EVM account for a token transfer, so senders stop guessing which address belongs to which network.</p>
           </details>
           <details>
@@ -472,17 +464,17 @@
   <footer class="ts-foot">
     <div class="ts-wrap ts-foot-in">
       <div class="ts-foot-brand">
-        <a class="ts-brand" data-scroll="top" aria-label="Sigil home">
+        <a class="ts-brand" data-scroll="top" aria-label="Vouch home">
           <svg class="ts-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-            <circle cx="16" cy="16" r="13.3" fill="#0E1016" stroke="url(#sigilRingB)" stroke-width="1.7"/>
+            <circle cx="16" cy="16" r="13.3" fill="#0E1016" stroke="url(#vouchRingB)" stroke-width="1.7"/>
             <g fill="none" stroke="#45F87E" stroke-width="2" stroke-linecap="round">
               <path d="M16 7.6v16.8"/><path d="M16 14.2 21.8 8.4"/><path d="M16 17.8 10.2 23.6"/>
             </g>
-            <defs><linearGradient id="sigilRingB" x1="4" y1="3" x2="28" y2="29">
+            <defs><linearGradient id="vouchRingB" x1="4" y1="3" x2="28" y2="29">
               <stop offset="0" stop-color="#F2EFE6"/><stop offset=".5" stop-color="#8E8C84"/><stop offset="1" stop-color="#45F87E"/>
             </linearGradient></defs>
           </svg>
-          <span class="ts-brand-name">Sigil</span>
+          <span class="ts-brand-name">Vouch</span>
         </a>
         <p>Passkey wallets, a creator studio and a name that works everywhere.</p>
       </div>
@@ -491,7 +483,7 @@
           <h4>Products</h4>
           <a data-scroll="products">Connect</a>
           <a data-scroll="studio">Studio</a>
-          <a data-scroll="products">sig.id</a>
+          <a data-scroll="products">vouch.id</a>
         </div>
         <div>
           <h4>Developers</h4>
@@ -508,7 +500,7 @@
       </div>
     </div>
     <div class="ts-wrap ts-foot-bar">
-      <span>© <span id="year">2026</span> Sigil. A demonstration site.</span>
+      <span>© <span id="year">2026</span> Vouch. A demonstration site.</span>
       <span class="ts-foot-legal">Not affiliated with any other company. Built as a design exercise.</span>
     </div>
   </footer>

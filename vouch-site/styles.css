@@ -171,7 +171,49 @@ img { max-width: 100%; }
     inset 0 -3px 6px rgba(80,84,96,.55);
   transform: translateZ(26px);
 }
+.ts-key-face { display: grid; place-items: center; }
 .ts-key svg { width: 56px; height: 56px; filter: drop-shadow(0 1px 0 rgba(255,255,255,.6)); }
+
+/* the drop: from high above the slab down onto it, with a short settle */
+@keyframes ts-drop {
+  0%   { transform: translateZ(260px) rotate(-9deg); opacity: 0; }
+  35%  { opacity: 1; }
+  70%  { transform: translateZ(26px) rotate(0deg); }
+  80%  { transform: translateZ(14px); }
+  100% { transform: translateZ(26px); }
+}
+@keyframes ts-lift {
+  0%   { transform: translateZ(26px); opacity: 1; }
+  100% { transform: translateZ(150px); opacity: 0; }
+}
+.ts-key.is-dropping { animation: ts-drop .72s cubic-bezier(.45,.05,.35,1) both; }
+.ts-key.is-leaving  { animation: ts-lift .34s ease-in both; }
+
+/* contact: a green ring thrown out across the slab, and the tile lit for a beat */
+.ts-key-hit {
+  position: absolute; inset: -6px; border-radius: 26px; pointer-events: none;
+  border: 2px solid var(--neon); opacity: 0;
+}
+@keyframes ts-hit {
+  0%   { transform: scale(.72); opacity: 0; }
+  12%  { opacity: .95; }
+  100% { transform: scale(2.3); opacity: 0; }
+}
+.ts-key.is-hit .ts-key-hit { animation: ts-hit .62s ease-out both; }
+.ts-key.is-hit {
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.62),
+    0 0 44px rgba(69,248,126,.55),
+    inset 0 2px 2px rgba(255,255,255,.85),
+    inset 0 -3px 6px rgba(80,84,96,.55);
+}
+.ts-key.is-hit .ts-key-face { color: #1C7A4E; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ts-key.is-dropping, .ts-key.is-leaving, .ts-key.is-hit .ts-key-hit { animation: none; }
+  .ts-key { opacity: 1; transform: translateZ(26px); }
+}
+
 .ts-key-1 { left: 10%; top: 38%; }
 .ts-key-2 { left: 41%; top: 22%; }
 .ts-key-3 { left: 72%; top: 5%; }
@@ -292,6 +334,8 @@ img { max-width: 100%; }
 .ts-row code { font-size: 12px; color: var(--prose); overflow: hidden; text-overflow: ellipsis; }
 .ts-row-name code { color: var(--neon); }
 
+.ts-demo-launch { margin: 22px 0 4px; }
+
 /* ---------- developers ---------- */
 .ts-build { display: grid; grid-template-columns: .88fr 1.12fr; gap: 56px; align-items: center; }
 .ts-build-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
@@ -370,7 +414,7 @@ img { max-width: 100%; }
 }
 .ts-plan h3 { margin: 0; font-size: 16px; font-weight: 600; color: var(--prose); }
 .ts-price { margin: 12px 0 0; font-family: var(--font-display); font-size: 44px; font-weight: 400; letter-spacing: -.015em; }
-.ts-price .ts-sol { color: var(--ink); }
+.ts-price .ts-figure { color: var(--ink); }
 .ts-plan-note { margin: 8px 0 0; font-size: 13.5px; color: var(--muted); }
 .ts-plan .ts-ticks { margin-block: 22px 26px; }
 .ts-plan .ts-btn { margin-top: auto; }

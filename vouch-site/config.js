@@ -1,4 +1,4 @@
-/* Sigil — the settings an operator has to fill in before the site can take a
+/* Vouch — the settings an operator has to fill in before the site can take a
    real payment. Everything here is read at load time by account.js.
 
    Until `treasury` holds an address you control, the page refuses to start a
@@ -6,7 +6,7 @@
    address nobody holds the key for is gone, so there is no placeholder address
    in this file and you should not invent one. */
 
-window.SIGIL_CONFIG = {
+window.VOUCH_CONFIG = {
   /* The chain payments settle on, as the hex id a wallet reports.
        0xaa36a7  Sepolia, the test network. Test ETH is free from a faucet.
        0x1       Ethereum mainnet, where the money is real.
@@ -18,15 +18,20 @@ window.SIGIL_CONFIG = {
      Empty means live mode stays off. */
   treasury: '',
 
-  /* Plan prices in ETH. Keep them in step with the cards in index.html.
-     No RPC endpoint is needed: the visitor's wallet supplies one. */
+  /* Plans are priced in dollars, because that is the number a buyer reasons
+     about. The ETH actually charged is worked out from `ethReferenceUsd`
+     below, so the cards and the checkout can never drift apart. */
   prices: {
-    starter: { monthly: 0,    yearly: 0 },
-    builder: { monthly: 0.35, yearly: 3.5 },
-    studio:  { monthly: 1.2,  yearly: 12 }
+    starter: { monthly: 0,  yearly: 0 },
+    builder: { monthly: 59, yearly: 590 },   // two months free on the year
+    studio:  { monthly: 159, yearly: 1590 }
   },
 
-  /* Shown next to the ETH figure so the page does not have to fetch a price
-     feed. Update it when it drifts far enough to matter. */
+  /* What one ETH is worth, in dollars.
+
+     This is a fixed number, not a price feed, so the ETH charged drifts from
+     the dollar price as the market moves. That is fine for a demo and wrong
+     for a real storefront: before taking live payments, either quote in a
+     stablecoin or read a feed (Chainlink, Coinbase, your own) here. */
   ethReferenceUsd: 3200
 };

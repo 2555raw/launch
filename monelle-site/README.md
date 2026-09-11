@@ -5,10 +5,14 @@ and a universal name (`mon.id`), aimed at Robinhood Chain and every other EVM
 network.
 
 The mark is a solid tile with the M cut out of it, drawn as two peaks so it
-also reads as a line going up. It is filled rather than outlined, which is what
-keeps it legible at the size an avatar is actually shown. The page keeps one
-electric green and spends it only where something is live: a real connection,
-a real payment, a real credential. Everything else is ink and bone.
+also reads as a line going up.
+
+The page is built the way macOS builds a window: the system face at tight
+tracking, so SF Pro renders on Apple hardware and the platform's own face
+elsewhere with nothing to download; surfaces that are translucent and blurred
+rather than painted; generous corner radii; and a hairline of light along every
+top edge. The ground stays ink and the one electric green is spent only where
+something is live: a real connection, a real payment, a real credential.
 
 Everything here is original and not affiliated with any existing company.
 

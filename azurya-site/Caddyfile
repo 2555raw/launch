@@ -1,0 +1,47 @@
+{
+	# no admin API is needed inside Railway's environment
+	admin off
+	# the filesystem is not persistent, so there is nothing to persist
+	persist_config off
+	# Railway terminates TLS at its edge; leaving this on breaks the deploy
+	auto_https off
+
+	log {
+		format json
+	}
+
+	servers {
+		trusted_proxies static private_ranges 100.0.0.0/8
+	}
+}
+
+# Railway assigns $PORT at runtime. The fallback is 8080 because that is the
+# port the service's domains already target, so this works whether or not the
+# variable is set.
+:{$PORT:8080} {
+	log {
+		format json
+	}
+
+	root * /srv
+	encode gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options SAMEORIGIN
+	}
+
+	# The deployment registry polls this. There is no backend, and the page
+	# handles the failure — but without this it would fall through to try_files
+	# and cost a 181 KB index.html on every page load.
+	handle /api/* {
+		respond 404
+	}
+
+	handle {
+		file_server
+		# one page with hash routing, so anything unknown is still index.html
+		try_files {path} /index.html
+	}
+}

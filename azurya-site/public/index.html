@@ -3097,6 +3097,82 @@
 
   body.is-gated { overflow: hidden; }
 
+  /* ============ second composition pass ============ */
+  /* Sides swapped again. Nothing here changes a word, only which half of the
+     screen each block sits on. */
+
+  /* the hero turns back: the claim leads, the number answers it */
+  .hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); }
+  .hero-col   { order: 1; text-align: left; }
+  .hero-panel { order: 2; }
+  .hero-col h1, .hero-col .hero-sub { margin-left: 0; }
+  .hero-col .hero-actions,
+  .hero-col .rule-eyebrow { justify-content: flex-start; }
+  .hero-watermark { left: auto; right: -130px; }
+  .hero-glow { inset: -24% auto auto -12%; }
+
+  /* the honest slab reads from the right now */
+  .band { text-align: right; }
+  .band-sub { margin-left: auto; margin-right: 0; }
+  .band-stats { justify-content: flex-end; }
+  .band-stat:first-child { padding-left: 44px; }
+  .band-stat:last-child { padding-right: 0; }
+
+  /* the registry stops climbing over the band and stands on its own */
+  #token { margin-top: 0; padding-top: 72px; z-index: auto; }
+  .ca { box-shadow: none; }
+  .ca-head { flex-direction: row-reverse; }
+
+  /* the stair descends instead of climbing */
+  .numgrid > .numcard:nth-child(1) { transform: translateY(52px); }
+  .numgrid > .numcard:nth-child(2) { transform: translateY(26px); }
+  .numgrid > .numcard:nth-child(3) { transform: none; }
+
+  /* the chart leaves the middle of the feature row and takes the width below it */
+  .feat-grid { grid-template-columns: repeat(2, 1fr); }
+  .feat-chart { order: 3; grid-column: span 2; }
+
+  /* questions cross to the right rail */
+  .faq { margin-left: auto; margin-right: 0; }
+  .faq h2 { text-align: right; }
+
+  /* the app: the chart leads, the card that does the work sits on the right */
+  .app-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 452px); }
+  .app-grid > div:first-child { order: 2; }
+  .app-grid > .chart-panel { order: 1; }
+
+  /* the bar: links centred, everything that acts gathered on the right */
+  .nav-in .brand       { order: 1; }
+  .nav-in .nav-links   { order: 2; margin-left: auto; margin-right: auto; }
+  .nav-in .nav-ca      { order: 3; margin-left: 0; }
+  .nav-in .nav-cta     { order: 4; }
+  .nav-in .nav-app     { order: 5; }
+  .nav-in .wallet-wrap { order: 6; margin-left: 0; }
+
+  .foot-in { flex-direction: row-reverse; }
+
+  @media (max-width: 1020px) {
+    .app-grid { grid-template-columns: 1fr; }
+    .app-grid > div:first-child { order: 1; }
+    .app-grid > .chart-panel { order: 2; }
+  }
+
+  @media (max-width: 1000px) {
+    .numgrid > .numcard:nth-child(1),
+    .numgrid > .numcard:nth-child(2) { transform: none; }
+    .band { text-align: left; }
+    .band-sub { margin-left: 0; }
+    .band-stats { justify-content: flex-start; }
+    .band-stat:first-child { padding-left: 0; }
+    .faq { margin-left: 0; }
+    .faq h2 { text-align: left; }
+  }
+
+  @media (max-width: 940px) {
+    .feat-grid { grid-template-columns: 1fr; }
+    .feat-chart { grid-column: span 1; order: 3; }
+  }
+
   @media (max-width: 560px) {
     .gate { padding: 12px; }
     .gate-head, .gate-body, .gate-agree, .gate-actions { padding-inline: 18px; }

@@ -3344,22 +3344,6 @@
     background: var(--surface);
   }
 
-  /* ---- scroll progress ---- */
-  .scroll-progress {
-    position: fixed;
-    inset: 0 0 auto 0;
-    height: 2px;
-    z-index: 200;
-    pointer-events: none;
-  }
-
-  .scroll-progress i {
-    display: block;
-    height: 100%;
-    width: var(--p, 0%);
-    background: linear-gradient(90deg, var(--red-deep), var(--red), var(--red-soft));
-  }
-
   /* ---- controls do not wrap ----
      A button that breaks onto two lines is half again as tall as the bar that
      holds it, so it hangs out of the pill's rounded edge. Nothing in the bar
@@ -3442,117 +3426,6 @@
 
   .nav-links a:hover::after { scale: 1 1; }
 
-  /* ---- buttons: a sheen crosses the fill on hover ---- */
-  .btn { position: relative; overflow: hidden; isolation: isolate; }
-
-  .btn::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    translate: -120% 0;
-    background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--void) 24%, transparent), transparent);
-    transition: translate .55s cubic-bezier(.3,.7,.3,1);
-  }
-
-  .btn-ghost::before {
-    background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--red) 16%, transparent), transparent);
-  }
-
-  .btn:hover::before { translate: 120% 0; }
-  .btn-primary:hover { transform: translateY(-2px); }
-  .btn:active { transform: translateY(0) scale(.98); }
-
-  /* ---- the ground drifts, the way blown sand does ---- */
-  /* The stripes are a 26px tile rotated 45 degrees, so a horizontal shift of
-     26 x root-2 lands exactly one tile along each of the pattern's own axes.
-     Any other distance leaves a visible jump when the loop restarts. */
-  .stripe-fill { animation: stripe-drift 26s linear infinite; }
-
-  @keyframes stripe-drift { to { transform: translateX(-36.77px); } }
-
-  /* ---- warm light pooling behind the hero ---- */
-  .hero-aurora {
-    position: absolute;
-    inset: -30% -10% auto -10%;
-    height: 150%;
-    z-index: -2;
-    pointer-events: none;
-    filter: blur(72px);
-    opacity: .75;
-  }
-
-  .hero-aurora i {
-    position: absolute;
-    display: block;
-    border-radius: 50%;
-    mix-blend-mode: multiply;
-  }
-
-  :root:not([data-theme="light"]) .hero-aurora i { mix-blend-mode: screen; }
-
-  .hero-aurora i:nth-child(1) {
-    width: 46%; aspect-ratio: 1; top: 6%; right: 4%;
-    background: color-mix(in srgb, var(--red) 34%, transparent);
-    animation: pool-a 19s ease-in-out infinite;
-  }
-
-  .hero-aurora i:nth-child(2) {
-    width: 34%; aspect-ratio: 1; top: 34%; right: 34%;
-    background: color-mix(in srgb, var(--red-soft) 30%, transparent);
-    animation: pool-b 23s ease-in-out infinite;
-  }
-
-  .hero-aurora i:nth-child(3) {
-    width: 28%; aspect-ratio: 1; top: 2%; left: 8%;
-    background: color-mix(in srgb, var(--red-deep) 20%, transparent);
-    animation: pool-c 27s ease-in-out infinite;
-  }
-
-  @keyframes pool-a {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33%      { transform: translate(-8%, 7%) scale(1.14); }
-    66%      { transform: translate(5%, -5%) scale(.92); }
-  }
-
-  @keyframes pool-b {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50%      { transform: translate(11%, 9%) scale(1.2); }
-  }
-
-  @keyframes pool-c {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    40%      { transform: translate(9%, -7%) scale(1.16); }
-    75%      { transform: translate(-6%, 6%) scale(.94); }
-  }
-
-  /* ---- grains of it still in the air ---- */
-  .grains {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .grains i {
-    position: absolute;
-    display: block;
-    width: var(--s, 3px);
-    height: var(--s, 3px);
-    border-radius: 50%;
-    background: var(--red);
-    opacity: 0;
-    animation: blow var(--dur, 16s) linear var(--delay, 0s) infinite;
-  }
-
-  @keyframes blow {
-    0%   { opacity: 0;   transform: translate(0, 0); }
-    12%  { opacity: .55; }
-    80%  { opacity: .28; }
-    100% { opacity: 0;   transform: translate(var(--dx, 120px), var(--dy, -70px)); }
-  }
-
   /* ---- the tickers ---- */
   .ticker {
     display: flex;
@@ -3565,14 +3438,6 @@
     border-bottom: 1px solid var(--line);
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
             mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-  }
-
-  /* the second strip is a filled band of the wash, not a dark slab */
-  .ticker-solid {
-    background: var(--surface-2);
-    border-color: var(--line);
-    margin: 78px 0 46px;
-    padding: 17px 0;
   }
 
   .ticker-track {
@@ -3598,130 +3463,71 @@
     color: var(--ink-muted);
   }
 
-  .ticker-solid span { color: var(--ink); }
-
   .tk-mark { flex: 0 0 auto; color: var(--red); opacity: .8; }
 
   @keyframes ticker-run { to { transform: translateX(-100%); } }
 
-  /* ---- the headline lands a word at a time ----
-     The clipping box is what makes a word look like it rises out of the line,
-     so it has to be tight - but a tight box on a 1.04 line-height cuts the
-     tail off a p or a y. The padding buys the descender back and the negative
-     margin gives the layout its space again. */
-  .w-line {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: bottom;
-    padding-bottom: .14em;
-    margin-bottom: -.14em;
+  /* The FAQ chevron is a 10px square rotated 45 degrees, so it occupies 14.1px
+     and its corners stick out about 2px either side of the box the layout
+     reserved. Flush against the right edge of a phone, those 2px were the
+     whole page's sideways scroll. */
+  .q summary::after { margin-inline: 2.1px; }
+
+  /* ---- three facts, not three steps ----
+     These were three bordered cards numbered 01 to 03, which claimed a
+     sequence the content does not have: who sets the date, how big the step
+     is, and who is awake for it are three independent facts about the same
+     problem, in no particular order. They are a list now - hairline rules, the
+     figure carried out to the right - and the numbering has gone with the
+     boxes. The lifecycle further down is a real sequence and keeps its arrows. */
+  .numgrid {
+    display: block;
+    margin-top: 38px;
+    margin-bottom: 0;
+    border-top: 1px solid var(--line-strong);
   }
 
-  /* The word that carries the sentence is simply the accent colour, the way the
-     page arrived. A wash behind it fouled the descenders, and it was never
-     needed: the accent is the deep end of the red under the light theme and
-     the bright end of it at night, so it reads on both grounds. */
-  .hero-col h1 em, .hero h1 em {
-    font-style: normal;
-    font-weight: 700;
-    color: var(--red);
+  .numgrid > .numcard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 48px;
+    align-items: start;
+    padding: 26px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
     background: none;
+    transform: none;
+    box-shadow: none;
   }
 
-  html.motion .hero h1 .w {
-    display: inline-block;
-    translate: 0 105%;
-    rotate: 2deg;
-    opacity: 0;
-    animation: word-rise .82s cubic-bezier(.18,.8,.24,1) var(--wd, 0ms) forwards;
+  .numgrid > .numcard:hover { transform: none; box-shadow: none; }
+
+  .numgrid > .numcard h3 { grid-column: 1; grid-row: 1; }
+  .numgrid > .numcard p  { grid-column: 1; grid-row: 2; max-width: 64ch; margin-top: 8px; }
+
+  .numgrid > .numcard .metric {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: block;
+    text-align: right;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 9rem;
   }
 
-  @keyframes word-rise {
-    to { translate: 0 0; rotate: 0deg; opacity: 1; }
-  }
+  .numgrid > .numcard .metric-label { display: block; }
+  .numgrid > .numcard .metric-val { display: block; margin-top: 4px; font-size: 17px; }
 
-  /* everything else in the hero follows it in */
-  html.motion .hero .rule-eyebrow,
-  html.motion .hero-sub,
-  html.motion .hero-punch,
-  html.motion .hero-actions,
-  html.motion .hero-stat,
-  html.motion .hero-panel {
-    opacity: 0;
-    translate: 0 20px;
-    animation: hero-in .8s cubic-bezier(.2,.75,.25,1) var(--wd, 0ms) forwards;
-  }
-
-  html.motion .hero .rule-eyebrow { --wd: 60ms; }
-  html.motion .hero-sub           { --wd: 420ms; }
-  html.motion .hero-punch         { --wd: 520ms; }
-  html.motion .hero-actions       { --wd: 600ms; }
-  html.motion .hero-stat          { --wd: 680ms; }
-  html.motion .hero-panel         { --wd: 300ms; translate: 26px 20px; }
-
-  @keyframes hero-in { to { opacity: 1; translate: 0 0; } }
-
-  /* ---- anything below the fold arrives when it is reached ---- */
-  html.motion [data-reveal] {
-    opacity: 0;
-    translate: 0 26px;
-    scale: .988;
-    filter: blur(4px);
-    transition:
-      opacity .72s cubic-bezier(.2,.75,.25,1) var(--d, 0ms),
-      translate .72s cubic-bezier(.2,.75,.25,1) var(--d, 0ms),
-      scale .72s cubic-bezier(.2,.75,.25,1) var(--d, 0ms),
-      filter .6s ease var(--d, 0ms);
-  }
-
-  html.motion [data-reveal].is-in {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-    filter: none;
-  }
-
-  /* reveal owns `translate` and `scale`, hover owns `transform`, so the two
-     never overwrite each other halfway through */
-  .lift { transition: transform .34s cubic-bezier(.2,.7,.3,1), box-shadow .34s ease, border-color .2s ease; }
-
-  .lift:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 26px 54px color-mix(in srgb, var(--shade) 20%, transparent);
-    border-color: color-mix(in srgb, var(--red) 52%, var(--line-strong));
-  }
-
-  /* The numbered cards sit on a staircase, and hovering one lifts it off that
-     step rather than resetting it to zero - so the offset lives in a variable
-     that both the resting and the hovered transform are written against.
-
-     They also never collapsed to one column: a later pass re-declared three
-     columns after the breakpoint that undid them, so on a phone the row ran
-     120px off the side of the page. That is the horizontal scroll gone. */
-  .numgrid > .numcard { --stagger: 0px; transform: translateY(var(--stagger)); }
-  .numgrid > .numcard:nth-child(2) { --stagger: 26px; }
-  .numgrid > .numcard:nth-child(3) { --stagger: 52px; }
-
-  .numcard:hover { transform: translateY(calc(var(--stagger, 0px) - 6px)) rotate(-.5deg); }
-  .numcard:nth-child(even):hover { transform: translateY(calc(var(--stagger, 0px) - 6px)) rotate(.5deg); }
-
-  @media (max-width: 1000px) {
-    .numgrid { grid-template-columns: 1fr; }
-    .numgrid > .numcard { --stagger: 0px; }
-  }
-
-  .numcard .num {
-    transition: color .3s ease, letter-spacing .3s ease;
-  }
-
-  .numcard:hover .num { color: var(--red); letter-spacing: -.04em; }
-
-  /* ---- the mark keeps turning over on the closing panel ---- */
-  .close-cta > .wavemark { animation: mark-sway 11s ease-in-out infinite; }
-
-  @keyframes mark-sway {
-    0%, 100% { transform: translateY(0) rotate(-3deg); }
-    50%      { transform: translateY(-9px) rotate(3deg); }
+  @media (max-width: 720px) {
+    .numgrid > .numcard { grid-template-columns: 1fr; }
+    .numgrid > .numcard .metric {
+      grid-column: 1;
+      grid-row: 3;
+      text-align: left;
+      margin-top: 14px;
+    }
   }
 
   /* ---- questions open on a curve ---- */
@@ -3773,26 +3579,9 @@
     .tint-label { display: none; }
   }
 
-  /* ---- the eyebrow rules draw themselves ---- */
-  html.motion .rule-eyebrow::before,
-  html.motion .rule-eyebrow::after { transition: width .6s cubic-bezier(.2,.75,.25,1) 120ms; }
-
-  /* ---- reduced motion: none of the above ---- */
+  /* ---- reduced motion ---- */
   @media (prefers-reduced-motion: reduce) {
-    html.motion [data-reveal],
-    html.motion .hero h1 .w,
-    html.motion .hero .rule-eyebrow,
-    html.motion .hero-sub,
-    html.motion .hero-punch,
-    html.motion .hero-actions,
-    html.motion .hero-stat,
-    html.motion .hero-panel {
-      opacity: 1 !important;
-      translate: none !important;
-      rotate: none !important;
-      scale: none !important;
-      filter: none !important;
-    }
+    .ticker-track { animation: none; }
   }
 
   /* ---- what the composition passes left behind on a phone ----
@@ -3851,9 +3640,7 @@
 
   @media (max-width: 860px) {
     .ticker span { font-size: 20px; }
-    .ticker-solid { margin-top: 52px; margin-bottom: 34px; }
     .ticker-track { gap: 18px; padding-right: 18px; }
-    .hero-aurora { filter: blur(54px); }
   }
 
   @media (max-width: 620px) {
@@ -3894,8 +3681,6 @@
 
   </defs>
 </svg>
-
-<div class="scroll-progress" id="scrollProgress" aria-hidden="true"><i></i></div>
 
 <header class="nav">
   <div class="wrap nav-in">
@@ -3968,8 +3753,6 @@
       <rect class="stripe-fill" width="200%" height="100%" fill="url(#stripeTile)"/>
     </svg>
     <div class="hero-glow"></div>
-    <div class="hero-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
-    <div class="grains" id="grains" aria-hidden="true"></div>
     <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg>
     <div class="wrap hero-grid">
 
@@ -4082,7 +3865,6 @@
 
     <div class="numgrid">
       <article class="numcard">
-        <span class="num">01</span>
         <h3>You do not pick the date</h3>
         <p>The issuer sets the calendar, and nobody asks the pool. A record date is published weeks out, lands on a Tuesday morning, and the curve has no idea any of it happened.</p>
         <div class="metric">
@@ -4092,7 +3874,6 @@
       </article>
 
       <article class="numcard is-hot">
-        <span class="num">02</span>
         <h3>The cost is not gradual</h3>
         <p>A dividend moves the quote by a few basis points and barely registers. A four for one split divides the fair price by four in a single step. Same mechanism, four orders of magnitude apart.</p>
         <div class="metric">
@@ -4102,7 +3883,6 @@
       </article>
 
       <article class="numcard">
-        <span class="num">03</span>
         <h3>Somebody has to be watching</h3>
         <p>The information is public and free. It just has to be read at the right second by something that can act on it before the pool settles the next swap. People stop doing that in week three.</p>
         <div class="metric">
@@ -4338,12 +4118,6 @@
     </div>
   </section>
 
-
-  <!-- ticker -->
-  <div class="ticker ticker-solid" aria-hidden="true">
-    <div class="ticker-track ticker-rev"><span>95% to the pool</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Auctioned, not raced</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Uniswap v4</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Arbitrum</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>HyperEVM</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Base</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Polygon</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Nothing on mainnet yet</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg></div>
-    <div class="ticker-track ticker-rev"><span>95% to the pool</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Auctioned, not raced</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Uniswap v4</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Arbitrum</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>HyperEVM</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Base</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Polygon</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg><span>Nothing on mainnet yet</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#vermya-mark"/></svg></div>
-  </div>
 
   <!-- closing -->
   <section class="wrap" style="padding-bottom:88px">
@@ -6252,223 +6026,24 @@
   var root  = document.documentElement;
   var still = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ---- scroll progress, and the bar tightening once you leave the top ---- */
+  /* The bar tightening once you leave the top is interface, not decoration, so
+     it runs whatever the motion preference says. */
   (function () {
-    var bar = document.getElementById('scrollProgress');
-    var fill = bar && bar.firstElementChild;
     var nav = document.querySelector('.nav');
+    if (!nav) return;
     var ticking = false;
-
     function paint() {
       ticking = false;
-      var h = document.documentElement.scrollHeight - window.innerHeight;
-      var y = window.scrollY || window.pageYOffset;
-      if (fill) fill.style.setProperty('--p', (h > 0 ? Math.min(100, (y / h) * 100) : 0).toFixed(2) + '%');
-      if (nav) nav.classList.toggle('is-stuck', y > 12);
+      nav.classList.toggle('is-stuck', (window.scrollY || window.pageYOffset) > 12);
     }
-
-    function onScroll() {
+    window.addEventListener('scroll', function () {
       if (!ticking) { ticking = true; requestAnimationFrame(paint); }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
+    }, { passive: true });
     paint();
   })();
 
   if (still.matches) return;
   root.classList.add('motion');
-
-  /* ---- the headline, split into words that can be animated one at a time ----
-     Only text nodes are touched, so the <br> and the <em> inside the heading
-     survive and the sentence still reads as one sentence to a screen reader. */
-  (function () {
-    var h1 = document.querySelector('.hero h1');
-    if (!h1) return;
-
-    /* innerText, not textContent: the heading has a <br> in it, and
-       textContent would glue the two halves of the sentence together. */
-    var label = (h1.innerText || h1.textContent).replace(/\s+/g, ' ').trim();
-    var i = 0;
-
-    function split(node) {
-      Array.prototype.slice.call(node.childNodes).forEach(function (child) {
-        if (child.nodeType === 3) {
-          var frag = document.createDocumentFragment();
-          child.nodeValue.split(/(\s+)/).forEach(function (part) {
-            if (!part) return;
-            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
-            var line = document.createElement('span');
-            line.className = 'w-line';
-            var word = document.createElement('span');
-            word.className = 'w';
-            word.textContent = part;
-            word.style.setProperty('--wd', (60 + i * 72) + 'ms');
-            i++;
-            line.appendChild(word);
-            frag.appendChild(line);
-          });
-          node.replaceChild(frag, child);
-        } else if (child.nodeType === 1 && child.tagName !== 'BR') {
-          split(child);
-        }
-      });
-    }
-
-    split(h1);
-    /* the heading is now a pile of spans, so give it back its sentence */
-    h1.setAttribute('aria-label', label);
-  })();
-
-  /* ---- the cards lift off the sand ---- */
-  (function () {
-    document.querySelectorAll(
-      '.panel, .numcard, .flow-step, .feat, .board, .ca, .launch, .code,' +
-      '.close-cta, .token-card, .netcard, .q, .launch-item'
-    ).forEach(function (el) { el.classList.add('lift'); });
-  })();
-
-  /* ---- blown sand in the hero ---- */
-  (function () {
-    var box = document.getElementById('grains');
-    if (!box) return;
-    var frag = document.createDocumentFragment();
-    for (var n = 0; n < 18; n++) {
-      var g = document.createElement('i');
-      g.style.cssText =
-        'left:' + (Math.random() * 100).toFixed(1) + '%;' +
-        'top:' + (35 + Math.random() * 62).toFixed(1) + '%;' +
-        '--s:' + (1.5 + Math.random() * 3).toFixed(1) + 'px;' +
-        '--dx:' + (60 + Math.random() * 220).toFixed(0) + 'px;' +
-        '--dy:' + (-60 - Math.random() * 190).toFixed(0) + 'px;' +
-        '--dur:' + (13 + Math.random() * 13).toFixed(1) + 's;' +
-        '--delay:' + (Math.random() * 14).toFixed(1) + 's';
-      frag.appendChild(g);
-    }
-    box.appendChild(frag);
-  })();
-
-  /* ---- reveal on approach ----
-     Cards are staggered against their own row rather than against the page, so
-     a group that scrolls in together arrives together rather than in a queue
-     whose length depends on how far down the page it happens to sit. */
-  (function () {
-    if (!window.IntersectionObserver) return;
-
-    var GROUPS = [
-      '.numgrid > *', '.flow > *', '.feat-grid > *', '.launch-list > *',
-      '.band-stats > *', '.faq .q', '.doc-grid > *', '.net-grid > *'
-    ];
-    var SINGLES = [
-      '.sec > .rule-eyebrow', '.sec > .sec-title', '.sec > .sec-lede',
-      '.band > .wrap', '.board', '.ca', '.code', '.launch', '.close-cta',
-      '.grid-foot', '.faq h2', '.ticker'
-    ];
-
-    var seen = [];
-
-    GROUPS.forEach(function (sel) {
-      document.querySelectorAll(sel).forEach(function (el, i) {
-        if (el.closest('#appView, #docsView, .gate')) return;
-        el.setAttribute('data-reveal', '');
-        el.style.setProperty('--d', Math.min(i, 6) * 85 + 'ms');
-        seen.push(el);
-      });
-    });
-
-    SINGLES.forEach(function (sel) {
-      document.querySelectorAll(sel).forEach(function (el) {
-        if (el.hasAttribute('data-reveal')) return;
-        if (el.closest('#appView, #docsView, .gate, .hero')) return;
-        el.setAttribute('data-reveal', '');
-        seen.push(el);
-      });
-    });
-
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('is-in');
-        io.unobserve(e.target);
-      });
-    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
-
-    seen.forEach(function (el) { io.observe(el); });
-
-    /* A safety net. An element inside a view that was hidden when the
-       observer first ran never reports an intersection, so anything already
-       on screen and still waiting gets shown outright. Runs once after load,
-       and again after a route change for the same reason. */
-    function rescue() {
-      seen.forEach(function (el) {
-        if (el.classList.contains('is-in')) return;
-        var r = el.getBoundingClientRect();
-        if (r.top < window.innerHeight * 1.15 && r.bottom > -window.innerHeight * 0.15) {
-          el.classList.add('is-in');
-        }
-      });
-    }
-
-    window.setTimeout(rescue, 2600);
-    window.addEventListener('hashchange', function () { window.setTimeout(rescue, 300); });
-  })();
-
-  /* ---- figures count up the first time they are read ---- */
-  (function () {
-    if (!window.IntersectionObserver) return;
-
-    var NUM = /^([^0-9-]*)(-?[\d.,]*\d)(.*)$/;
-
-    var targets = [];
-    document.querySelectorAll('.band-stat .n, .metric-val, .panel-rows dd.hot').forEach(function (el) {
-      var m = NUM.exec(el.textContent.trim().replace(/−/g, '-'));
-      if (!m) return;
-      var raw = m[2];
-      var value = parseFloat(raw.replace(/,/g, ''));
-      if (!isFinite(value) || Math.abs(value) < 10) return;
-      var decimals = (raw.split('.')[1] || '').length;
-      targets.push({ el: el, pre: m[1], post: m[3], to: value, dec: decimals, grouped: raw.indexOf(',') > -1 });
-    });
-
-    if (!targets.length) return;
-
-    function render(t, v) {
-      var n = t.grouped
-        ? Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: t.dec, maximumFractionDigits: t.dec })
-        : Math.abs(v).toFixed(t.dec);
-      t.el.textContent = t.pre + (v < 0 ? '−' : '') + n + t.post;
-    }
-
-    function run(t) {
-      var start = null, DUR = 1150;
-      function step(ts) {
-        if (start === null) start = ts;
-        var p = Math.min(1, (ts - start) / DUR);
-        var eased = 1 - Math.pow(1 - p, 3);
-        render(t, t.to * eased);
-        if (p < 1) requestAnimationFrame(step);
-        else t.el.textContent = t.original;
-      }
-      requestAnimationFrame(step);
-    }
-
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        io.unobserve(e.target);
-        var t = targets.filter(function (x) { return x.el === e.target; })[0];
-        if (t) run(t);
-      });
-    }, { threshold: 0.5 });
-
-    targets.forEach(function (t) {
-      t.original = t.el.textContent;
-      /* hold the width so the row does not jump while the digits climb */
-      t.el.style.minWidth = t.el.getBoundingClientRect().width.toFixed(1) + 'px';
-      t.el.style.display = 'inline-block';
-      io.observe(t.el);
-    });
-  })();
 
   /* ---- a ticker that has nothing to scroll past should not scroll ---- */
   (function () {

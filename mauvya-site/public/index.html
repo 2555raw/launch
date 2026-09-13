@@ -3297,10 +3297,18 @@
     .nav-links a { padding: 6px 7px; font-size: 12px; }
   }
 
-  /* The links are the widest thing in the bar and the only one repeated in
-     the footer, so they are what goes. The address stays. */
+  /* Below this everything no longer fits on one line. Nothing is dropped for
+     it: the bubble grows to two rows and keeps every link pressable. */
   @media (max-width: 1040px) {
-    .nav-in .nav-links { display: none; }
+    .nav-in {
+      flex-wrap: wrap;
+      height: auto;
+      padding: 10px 14px;
+      border-radius: 26px;
+      row-gap: 6px;
+    }
+    .nav-in .nav-links { margin-left: 0; flex: 1 0 100%; order: 9; justify-content: center; }
+    .nav-in .wallet-wrap { margin-left: auto; }
   }
 </style>
 </head>

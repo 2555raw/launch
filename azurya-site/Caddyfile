@@ -32,6 +32,12 @@
 		X-Frame-Options SAMEORIGIN
 	}
 
+	# The whole site is one HTML file that gets redeployed often. Without this
+	# the browser keeps serving the copy it already has and a deploy looks like
+	# it did nothing. no-cache still lets it revalidate, so it is cheap.
+	@html path / /index.html
+	header @html Cache-Control "no-cache"
+
 	# The deployment registry polls this. There is no backend, and the page
 	# handles the failure — but without this it would fall through to try_files
 	# and cost a 181 KB index.html on every page load.

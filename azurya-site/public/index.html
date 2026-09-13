@@ -3178,6 +3178,70 @@
     .feat-chart { grid-column: span 1; order: 3; }
   }
 
+  /* ============ third composition pass ============ */
+  /* The hero is left exactly where it was, title and all. Everything under it
+     crosses to the other side. */
+
+  /* the honest slab goes back to the left */
+  .band { text-align: left; }
+  .band-sub { margin-left: 0; margin-right: auto; }
+  .band-stats { justify-content: flex-start; }
+  .band-stat:first-child { padding-left: 0; }
+  .band-stat:last-child { padding-right: 44px; }
+
+  /* the registry header turns back, state chip on the right */
+  .ca-head { flex-direction: row; }
+
+  /* the stair climbs again instead of descending */
+  .numgrid > .numcard:nth-child(1) { transform: none; }
+  .numgrid > .numcard:nth-child(2) { transform: translateY(26px); }
+  .numgrid > .numcard:nth-child(3) { transform: translateY(52px); }
+
+  /* the chart leads the feature row now, across the top instead of the bottom */
+  .feat-chart { order: -1; grid-column: span 2; }
+
+  /* questions cross back to the left rail */
+  .faq { margin-left: 0; margin-right: auto; }
+  .faq h2 { text-align: left; }
+
+  /* the closing card moves off centre, to the right */
+  .close-cta { text-align: right; }
+  .close-cta p { margin: 16px 0 0 auto; }
+  .close-cta > .wavemark { margin: 0 0 18px auto !important; }
+
+  /* the app: the swap card leads again, chart to the right */
+  .app-grid { grid-template-columns: minmax(0, 452px) minmax(0, 1fr); }
+  .app-grid > div:first-child { order: 1; }
+  .app-grid > .chart-panel { order: 2; }
+
+  /* the bar: links gather on the right with everything that acts */
+  .nav-in .nav-links { margin-left: auto; margin-right: 18px; }
+
+  .foot-in { flex-direction: row; }
+
+  /* and the theme toggle changes corner */
+  .tint-picker { right: auto; left: 18px; }
+
+  @media (max-width: 1020px) {
+    .app-grid { grid-template-columns: 1fr; }
+    .app-grid > div:first-child { order: 1; }
+    .app-grid > .chart-panel { order: 2; }
+  }
+
+  @media (max-width: 1000px) {
+    .numgrid > .numcard:nth-child(2),
+    .numgrid > .numcard:nth-child(3) { transform: none; }
+    .close-cta { text-align: left; }
+    .close-cta p { margin: 16px auto 0 0; }
+    .band-stat:last-child { padding-right: 0; }
+  }
+
+  @media (max-width: 940px) {
+    .feat-chart { grid-column: span 1; order: -1; }
+  }
+
+  @media (max-width: 620px) { .tint-picker { right: auto; left: 10px; } }
+
   @media (max-width: 560px) {
     .gate { padding: 12px; }
     .gate-head, .gate-body, .gate-agree, .gate-actions { padding-inline: 18px; }

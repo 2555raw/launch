@@ -4834,8 +4834,7 @@
     addrEl.textContent = t.address;
 
     var navCa = document.getElementById('navCa');
-    if (navCa && !navCa.dataset.wired) {
-      navCa.dataset.wired = '1';
+    if (navCa) {
       navCa.dataset.state = 'live';
       navCa.title = t.address;
       document.getElementById('navCaVal').textContent =
@@ -4844,17 +4843,12 @@
         var lbl = document.getElementById('navCaVal');
         var prev = lbl.textContent;
         try {
-          navigator.clipboard.writeText(addrEl.textContent.trim()).then(function () {
+          navigator.clipboard.writeText(t.address).then(function () {
             lbl.textContent = 'copied';
             setTimeout(function () { lbl.textContent = prev; }, 1400);
           }, function () {});
         } catch (e) {}
       });
-    } else if (navCa) {
-      navCa.dataset.state = 'live';
-      navCa.title = t.address;
-      document.getElementById('navCaVal').textContent =
-        t.address.slice(0, 6) + '\u2026' + t.address.slice(-4);
     }
 
     document.getElementById('caSym').textContent = t.symbol;
@@ -4877,21 +4871,6 @@
     } catch (e) { done('Blocked'); }
   });
 
-  /* The address ships with the page. This file is the whole site, so baking it
-     in is the one way the registry cannot end up empty because a request
-     failed - and the registry is where this page promises the address appears
-     first, so it had better not depend on anything. */
-  var TOKEN = {
-    announced: true,
-    symbol: 'VRM',
-    chain: 'Base',
-    address: '0x6e92ee21a65d7f9fa06d6deb7016723b55e3902a',
-    explorer: 'https://basescan.org/token/0x6e92ee21a65d7f9fa06d6deb7016723b55e3902a'
-  };
-
-  if (TOKEN.announced && TOKEN.address) announce(TOKEN);
-
-  /* and the deployment registry can still override it without a deploy */
   fetch('/api/token', { cache: 'no-store' })
     .then(function (r) { if (!r.ok) throw new Error('bad status'); return r.json(); })
     .then(function (t) { if (t && t.announced && t.address) announce(t); })

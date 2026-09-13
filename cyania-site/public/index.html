@@ -22,7 +22,7 @@
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 
 <style>
   /* ============ tokens, dark-first ============ */
@@ -47,9 +47,10 @@
     --up:          #34d399;
     --down:        #ef5350;
 
-    --font-display: "Familjen Grotesk", "Segoe UI", sans-serif;
+    --font-serif:   "Instrument Serif", Georgia, "Times New Roman", serif;
+    --font-display: "Archivo", "Segoe UI", sans-serif;
     --font-body:    "Public Sans", -apple-system, "Segoe UI", sans-serif;
-    --font-mono:    "DM Mono", ui-monospace, Menlo, monospace;
+    --font-mono:    "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
     --wrap: 1240px;
     --r-lg: 6px;
@@ -109,6 +110,14 @@
     margin: 0;
   }
 
+  /* The statements are set in the serif; the working headings stay sans. */
+  h1, h2 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -.012em;
+    line-height: 1.06;
+  }
+
   p { margin: 0; }
 
   a { color: inherit; text-decoration: none; }
@@ -163,11 +172,11 @@
   .brand {
     display: flex;
     align-items: center;
-    gap: 9px;
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -.02em;
+    gap: 10px;
+    font-family: var(--font-serif);
+    font-size: 23px;
+    font-weight: 400;
+    letter-spacing: -.005em;
     color: var(--ink);
   }
 
@@ -2212,9 +2221,9 @@
     margin: 42px 0;
     padding: 2px 0 2px 22px;
     border-left: 2px solid var(--cyan);
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 24px;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 27px;
     line-height: 1.24;
     max-width: 30ch;
   }
@@ -2608,7 +2617,7 @@
   }
 
   .hero-col h1 { font-size: clamp(38px, 4.6vw, 62px); margin: 22px 0 0; max-width: 15ch; }
-  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--cyan); }
+  .hero-col h1 em { font-style: italic; font-weight: 400; color: var(--cyan); }
   .hero-col .hero-sub { font-size: 16.5px; max-width: 52ch; margin-top: 22px; }
   .hero-col .hero-sub code {
     font-family: var(--font-mono);

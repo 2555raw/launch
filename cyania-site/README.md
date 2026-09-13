@@ -59,7 +59,7 @@ it and falls back to 8080, which is the port the service's domains already targe
 The page makes exactly two requests off its own origin, both documented in the privacy
 notice inside the site:
 
-- **Google Fonts** — Familjen Grotesk, Public Sans, DM Mono.
+- **Google Fonts** — Instrument Serif, Archivo, Public Sans, IBM Plex Mono.
 - **Binance public API** — candles for the price chart. Failure is handled: the chart
   falls back to a deterministic simulated series and relabels itself.
 

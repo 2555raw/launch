@@ -1,6 +1,6 @@
-# Cyra
+# Cyania
 
-Marketing site and interface prototype for **Cyra**, a Uniswap v4 hook that reprices a
+Marketing site and interface prototype for **Cyania**, a Uniswap v4 hook that reprices a
 pool at a corporate action so a stock split does not cost the liquidity providers.
 
 **Nothing here is deployed on mainnet.** There is no token, no sale, and no audit. The only
@@ -30,15 +30,15 @@ The page has three views behind hash routes:
 | `#/docs`   | the protocol note                                       |
 
 A terms and privacy gate blocks first entry and records the answer in `localStorage`
-under `cyra-legal-v1`. Clear site data to see it again.
+under `cyania-legal-v1`. Clear site data to see it again.
 
 ## Running it locally
 
 Anything that serves a directory over HTTP will do. With Docker:
 
 ```bash
-docker build -t cyra .
-docker run --rm -p 8080:8080 cyra
+docker build -t cyania .
+docker run --rm -p 8080:8080 cyania
 ```
 
 Then open <http://localhost:8080>.
@@ -49,7 +49,7 @@ chart's market-data request, so the chart falls back to its simulated series.
 ## Deploying
 
 Railway builds the `Dockerfile` and serves `public/` through Caddy. Set the service's
-Root Directory to `/cyra-site`, push, and Railway redeploys on its own.
+Root Directory to `/cyania-site`, push, and Railway redeploys on its own.
 
 No environment variables are required. The `Caddyfile` reads `PORT` if the platform sets
 it and falls back to 8080, which is the port the service's domains already target.

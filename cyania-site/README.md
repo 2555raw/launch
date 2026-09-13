@@ -19,7 +19,11 @@ public/
 Caddyfile       server config, reads $PORT from Railway
 Dockerfile      caddy:2.8-alpine + the two files above
 railway.json    tells Railway to use the Dockerfile
+video/          the film: capture, title cards, soundtrack, cut
 ```
+
+`video/` is tooling, not site content. The Dockerfile copies `Caddyfile` and
+`public/` only, so nothing in it reaches the deployed image.
 
 The page has three views behind hash routes:
 

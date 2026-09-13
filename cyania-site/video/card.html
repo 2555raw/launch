@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="/_fonts/fonts.css">
+<style>
+  /* Title cards for the film, in the site's own type and palette, so the cut
+     between a title and the product does not change typeface mid sentence.
+     One card per frame, driven by the hash: #kind=word&text=... */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; }
+  body {
+    background: #04131b;
+    color: #ddf2f8;
+    font-family: "Instrument Serif", Georgia, serif;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+  .wrap { padding: 0 130px; }
+
+  .word {
+    font-size: 96px;
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    line-height: 1.02;
+  }
+  .word .accent { color: #22d3ee; font-style: italic; }
+
+  .line {
+    font-size: 64px;
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    line-height: 1.08;
+    max-width: 17ch;
+    margin: 0 auto;
+  }
+  .line .accent { color: #22d3ee; font-style: italic; }
+
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #22d3ee;
+    margin-bottom: 34px;
+  }
+
+  .mark { display: block; width: 84px; height: 84px; color: #22d3ee; margin: 0 auto 26px; }
+  .name { font-size: 96px; letter-spacing: -0.005em; }
+  .rule { width: 88px; height: 2px; background: #22d3ee; margin: 34px auto 0; }
+  .meta {
+    margin-top: 40px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    color: #5d8897;
+    line-height: 2.1;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="wrap"></div>
+<script>
+  // The split mark: one position on the left, the same position after a 4:1
+  // split on the right. Same geometry as the site's own mark.
+  const MARK = '<svg class="mark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+    '<rect x="3.1" y="2.6" width="6.3" height="18.8" rx="1.1"/>' +
+    '<rect x="12.6" y="2.60" width="8.3" height="3.95" rx="1.1"/>' +
+    '<rect x="12.6" y="7.55" width="8.3" height="3.95" rx="1.1"/>' +
+    '<rect x="12.6" y="12.50" width="8.3" height="3.95" rx="1.1"/>' +
+    '<rect x="12.6" y="17.45" width="8.3" height="3.95" rx="1.1"/></svg>';
+
+  const q = new URLSearchParams(location.hash.slice(1));
+  const kind = q.get('kind') || 'word';
+  const text = q.get('text') || '';
+  const kicker = q.get('kicker') || '';
+  const kick = kicker ? `<div class="kicker">${kicker}</div>` : '';
+
+  const html = {
+    logo:  () => `${MARK}<div class="name">Cyania</div><div class="rule"></div>`,
+    word:  () => `${kick}<div class="word">${text}</div>`,
+    line:  () => `${kick}<div class="line">${text}</div>`,
+    outro: () => `${MARK}<div class="name">Cyania</div><div class="rule"></div>
+      <div class="meta">@CyaniaTech<br>Base Sepolia &middot; no mainnet contracts</div>`,
+  };
+  document.getElementById('wrap').innerHTML = (html[kind] || html.word)();
+</script>
+</body>
+</html>

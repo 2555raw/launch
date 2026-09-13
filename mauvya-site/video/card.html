@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="/_fonts/fonts.css">
+<style>
+  /* Title cards for the film, in the site's own type and palette, so the cut
+     between a title and the product does not change typeface mid sentence.
+     One card per frame, driven by the hash: #kind=word&text=... */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; }
+  body {
+    background: #140f1f;
+    color: #ece3fa;
+    font-family: "Instrument Serif", Georgia, serif;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+  .wrap { padding: 0 130px; }
+
+  .word {
+    font-size: 96px;
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    line-height: 1.02;
+  }
+  .word .accent { color: #c8a2ff; font-style: italic; }
+
+  .line {
+    font-size: 64px;
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    line-height: 1.08;
+    max-width: 17ch;
+    margin: 0 auto;
+  }
+  .line .accent { color: #c8a2ff; font-style: italic; }
+
+  .kicker {
+    font-family: "Azeret Mono", ui-monospace, monospace;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #c8a2ff;
+    margin-bottom: 34px;
+  }
+
+  .mark { display: block; width: 84px; height: 84px; color: #c8a2ff; margin: 0 auto 26px; }
+  .name { font-size: 96px; letter-spacing: -0.005em; }
+  .rule { width: 88px; height: 2px; background: #c8a2ff; margin: 34px auto 0; }
+  .meta {
+    margin-top: 40px;
+    font-family: "Azeret Mono", ui-monospace, monospace;
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    color: #7e6ea0;
+    line-height: 2.1;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="wrap"></div>
+<script>
+  // The split mark: one position on the left, the same position after a 4:1
+  // split on the right. Same geometry as the site's own mark.
+  // A holding quartered by the event: three quarters hold, and the fourth is
+  // the piece that moves. Same geometry as the site's own mark.
+  const MARK = '<svg class="mark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+    '<path d="M12.6 2.9A9.1 9.1 0 0 1 21.1 11.4H12.6Z"/>' +
+    '<path d="M11.4 2.9A9.1 9.1 0 0 0 2.9 11.4h8.5Z"/>' +
+    '<path d="M11.4 21.1A9.1 9.1 0 0 1 2.9 12.6h8.5Z"/>' +
+    '<path d="M21.1 12.6A9.1 9.1 0 0 1 12.6 21.1V16.5A4.6 4.6 0 0 0 16.5 12.6Z"/></svg>';
+
+  const q = new URLSearchParams(location.hash.slice(1));
+  const kind = q.get('kind') || 'word';
+  const text = q.get('text') || '';
+  const kicker = q.get('kicker') || '';
+  const kick = kicker ? `<div class="kicker">${kicker}</div>` : '';
+
+  const html = {
+    logo:  () => `${MARK}<div class="name">Mauvya</div><div class="rule"></div>`,
+    word:  () => `${kick}<div class="word">${text}</div>`,
+    line:  () => `${kick}<div class="line">${text}</div>`,
+    outro: () => `${MARK}<div class="name">Mauvya</div><div class="rule"></div>
+      <div class="meta">@MauvyaTech<br>Base Sepolia &middot; no mainnet contracts</div>`,
+  };
+  document.getElementById('wrap').innerHTML = (html[kind] || html.word)();
+</script>
+</body>
+</html>

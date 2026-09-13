@@ -3297,6 +3297,31 @@
     .nav-links a { padding: 6px 7px; font-size: 12px; }
   }
 
+  /* A full address is about 190px wider than the "not deployed" it replaces.
+     The bar takes that room from its own margins rather than from the links,
+     and the address sets a size of its own. */
+  .nav-in:has(.nav-ca[data-state="live"]) { max-width: 1360px; }
+  .nav-ca[data-state="live"] .nav-ca-val { font-size: 11px; letter-spacing: -.005em; }
+
+  /* Between 1180 and here the address only fits if the rest of the bar gives
+     up a little, so it does. */
+  @media (max-width: 1340px) {
+    .nav-in:has(.nav-ca[data-state="live"]) { gap: 7px; padding: 0 5px 0 11px; }
+    .nav-in:has(.nav-ca[data-state="live"]) .brand { font-size: 19px; gap: 8px; }
+    .nav-in:has(.nav-ca[data-state="live"]) .brand svg { width: 19px; height: 19px; }
+    .nav-in:has(.nav-ca[data-state="live"]) .nav-links a { font-size: 11px; padding: 5px 4px; }
+    .nav-in:has(.nav-ca[data-state="live"]) .btn { padding: 8px 12px; font-size: 12.5px; }
+    .nav-ca[data-state="live"] { padding: 6px 9px; gap: 6px; }
+    .nav-ca[data-state="live"] .nav-ca-val { font-size: 10.5px; }
+  }
+
+  /* Below this the address and six links cannot share a row, and the address
+     is the one repeated elsewhere: the registry section carries it in full,
+     with the copy button and the explorer link. */
+  @media (max-width: 1210px) {
+    .nav-ca[data-state="live"] { display: none; }
+  }
+
   /* One row, all the way down to where the address pill bows out on its own
      at 900. Nothing wraps and nothing is dropped: the pieces give up a little
      size each, in the order they can spare it. */
@@ -4684,7 +4709,7 @@
     { sym: 'USDT', name: 'Tether USD',      price: 0.9998,   bal: 0,        color: '#26a17b', addr: '0xFd08…dbe9', depth: 900000 },
     { sym: 'ARB',  name: 'Arbitrum',        price: 0.4215,   bal: 1204.88,  color: '#28a0f0', addr: '0x912C…4a48', depth: 640000 },
     { sym: 'HYPE', name: 'Hyperliquid',     price: 27.4180,  bal: 0,        color: '#4ad2b0', addr: '0x5555…5555', depth: 720000 },
-    { sym: 'MAU',  name: 'Mauvya',          price: 0.0847,   bal: 45120,    color: '#c8a2ff', addr: '0x0000…0000', depth: 310000 },
+    { sym: 'MAU',  name: 'Mauvya',          price: 0.0847,   bal: 45120,    color: '#c8a2ff', addr: '0x07e6…ee6f', depth: 310000 },
     { sym: 'xMAU', name: 'Staked Mauvya',   price: 0.0912,   bal: 12880.4,  color: '#6d3fae', addr: '0x7B0d…2fA6', depth: 180000 }
   ];
 

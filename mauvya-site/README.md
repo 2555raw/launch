@@ -34,9 +34,8 @@ python3 announce.py --clear             # back to "nothing is live yet"
 That writes `public/api/token`. The page reads it on load: the registry turns
 live, the address appears in full in the bar and one click selects it, and the
 app's token list stops being the only place it shows. Until that file exists
-the request 404s, the registry reads not deployed, and the bar hides its
-address pill entirely, because the registry section is where that state
-belongs and it says it in full.
+the request 404s and the page stays as it is, with the bar reading "not
+deployed" and the registry saying so in full.
 
 Nothing validates that the address is the right contract. `announce.py` checks
 the shape and copies it character for character; checking it is the contract

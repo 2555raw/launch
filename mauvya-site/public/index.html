@@ -3264,6 +3264,11 @@
   .btn { border-radius: 999px; }
   .nav-in .btn { padding: 9px 16px; }
 
+  /* Until there is an address, the pill has nothing to say: the registry
+     section below is where "not deployed" belongs, and it says it in full.
+     announce() flips data-state to live, and the pill appears with it. */
+  .nav-ca[data-state="pending"] { display: none; }
+
   /* A bubble needs no minimum width: it takes the shape of what it holds, so
      long as what it holds is never broken over two lines. */
   .nav-in .nav-ca { min-width: 0; flex: none; border-radius: 999px; padding: 7px 15px; }

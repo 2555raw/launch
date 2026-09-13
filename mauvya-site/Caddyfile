@@ -32,11 +32,19 @@
 		X-Frame-Options SAMEORIGIN
 	}
 
-	# The deployment registry polls this. Nothing is announced yet, so there is
-	# nothing to serve: the page handles the failure and stays on "not
-	# deployed". Without this it would fall through to try_files and cost a
-	# 181 KB index.html on every page load. To announce, put the JSON at
-	# public/api/token and give it a handle of its own above this one.
+	# The deployment registry reads this. It is a file, not a backend, so it
+	# needs its type said out loud and its caching turned off: the address is
+	# the one thing on the site nobody should be served a stale copy of.
+	# Until public/api/token exists this 404s, which is what the page expects,
+	# and writing that file is the whole of announcing. See video/../announce.py
+	handle /api/token {
+		header Content-Type application/json
+		header Cache-Control "no-store"
+		file_server
+	}
+
+	# Nothing else under /api exists. Without this it would fall through to
+	# try_files and cost a 181 KB index.html on every page load.
 	handle /api/* {
 		respond 404
 	}

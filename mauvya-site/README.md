@@ -19,7 +19,28 @@ public/
 Caddyfile       server config, reads $PORT from Railway
 Dockerfile      caddy:2.8-alpine + the two files above
 railway.json    tells Railway to use the Dockerfile
+announce.py     writes public/api/token, which is the whole of going live
+video/          the films: capture, title cards, soundtrack, cut
 ```
+
+## Announcing the contract address
+
+```bash
+python3 announce.py 0x…                 # symbol MAU on Base by default
+python3 announce.py 0x… --symbol MAU --chain Base --explorer https://…
+python3 announce.py --clear             # back to "nothing is live yet"
+```
+
+That writes `public/api/token`. The page reads it on load: the registry turns
+live, the address appears in full in the bar and one click selects it, and the
+app's token list stops being the only place it shows. Until that file exists
+the request 404s, the registry reads not deployed, and the bar hides its
+address pill entirely, because the registry section is where that state
+belongs and it says it in full.
+
+Nothing validates that the address is the right contract. `announce.py` checks
+the shape and copies it character for character; checking it is the contract
+you deployed is yours to do on the explorer.
 
 The page has three views behind hash routes:
 

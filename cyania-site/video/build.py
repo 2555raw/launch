@@ -19,27 +19,27 @@ import sys
 FF = os.environ.get("FFMPEG") or __import__("imageio_ffmpeg").get_ffmpeg_exe()
 FPS = 30
 W, H = 1280, 720
-XFADE = 0.45          # the crossfade between every beat
+XFADE = 0.26          # the crossfade between every beat
 
 # name, source, seconds. Footage seconds are trimmed from the recording's own
 # action window; card seconds are how long the title holds.
 SEQUENCE = [
-    ("card", "01-logo", 2.4),
-    ("card", "02-line", 3.0),
-    ("shot", "hero", 4.6),
-    ("card", "03-split", 1.8),
-    ("shot", "state", 3.4),
-    ("card", "04-ledger", 1.8),
-    ("shot", "ledger", 4.4),
-    ("card", "05-hook", 1.9),
-    ("shot", "hook", 4.4),
-    ("shot", "theme", 4.0),
-    ("card", "06-registry", 1.9),
-    ("shot", "registry", 3.4),
-    ("card", "07-app", 1.8),
-    ("shot", "app", 4.4),
-    ("shot", "docs", 3.6),
-    ("card", "08-outro", 3.4),
+    ("card", "01-logo", 1.4),
+    ("card", "02-line", 2.0),
+    ("shot", "hero", 2.8),
+    ("card", "03-split", 1.1),
+    ("shot", "state", 2.0),
+    ("card", "04-ledger", 1.1),
+    ("shot", "ledger", 2.6),
+    ("card", "05-hook", 1.1),
+    ("shot", "hook", 2.6),
+    ("shot", "theme", 2.2),
+    ("card", "06-registry", 1.1),
+    ("shot", "registry", 2.0),
+    ("card", "07-app", 1.1),
+    ("shot", "app", 2.6),
+    ("shot", "docs", 2.0),
+    ("card", "08-outro", 2.2),
 ]
 
 
@@ -118,7 +118,7 @@ def main():
         label = nxt
 
     total = acc
-    steps.append(f"[{label}]fade=t=in:st=0:d=0.6,fade=t=out:st={total - 1.0:.3f}:d=1.0[v]")
+    steps.append(f"[{label}]fade=t=in:st=0:d=0.4,fade=t=out:st={total - 0.8:.3f}:d=0.8[v]")
     silent = work / "silent.mp4"
     run([FF, "-hide_banner", "-loglevel", "error", *inputs,
          "-filter_complex", ";".join(steps), "-map", "[v]",

@@ -4,7 +4,7 @@
     python3 video/music.py out.wav [seconds]
 
 An original piece, synthesised here rather than sampled or licensed: nothing in
-it is anyone else's audio. E minor at 112 BPM, patient, built around a sonar
+it is anyone else's audio. E minor at 126 BPM, built around a sonar
 ping, because the thing the film is about is a hook that looks. The parts
 arrive one at a time, the way the picture does.
 """
@@ -16,7 +16,7 @@ import wave
 import numpy as np
 
 SR = 44100
-BPM = 112.0
+BPM = 126.0
 BEAT = 60.0 / BPM
 BAR = BEAT * 4
 
@@ -148,18 +148,18 @@ def render(seconds):
         if b == 0 or b % 4 == 0:                         # the ping, every four bars
             ping(t0 + BEAT * 0.5, buf, gain=0.26 if b == 0 else 0.19)
 
-        if b >= 2:                                       # the clock
+        if b >= 1:                                       # the clock
             for e in range(8):
                 tick(t0 + e * BEAT / 2, buf, 0.16 if e % 2 else 0.11)
 
-        if b >= 4:                                       # the floor
+        if b >= 2:                                       # the floor
             for beat in (0, 2):
                 sub(t0 + beat * BEAT, buf, 1.0 if beat == 0 else 0.8)
             for i, off in enumerate((0.0, 1.5, 2.0, 3.5)):
                 note = (E2, E2, G2, B2)[i] if b % 4 != 3 else (E2, D3, G2, B2)[i]
                 bass(note, t0 + off * BEAT, BEAT * 0.5, buf)
 
-        if b >= 6:                                       # the figure on top
+        if b >= 4:                                       # the figure on top
             for i, note in enumerate(FIGURE):
                 if b % 4 == 3 and i % 2:
                     continue                             # thin it every fourth bar
@@ -177,7 +177,7 @@ def render(seconds):
                 duck[at : at + m] *= np.linspace(0.74, 1.0, m)
     out *= duck
 
-    out *= env(n, 1.1, 0, 1.0, 3.0)                      # fade in, fade out
+    out *= env(n, 0.7, 0, 1.0, 2.2)                      # fade in, fade out
     peak = np.max(np.abs(out)) or 1.0
     out = np.tanh(out / peak * 1.2) * 0.86               # gentle limiting
 
@@ -187,7 +187,7 @@ def render(seconds):
 
 def main():
     target = sys.argv[1] if len(sys.argv) > 1 else "soundtrack.wav"
-    seconds = float(sys.argv[2]) if len(sys.argv) > 2 else 40.0
+    seconds = float(sys.argv[2]) if len(sys.argv) > 2 else 26.0
     audio = (render(seconds) * 32767).astype(np.int16)
     with wave.open(target, "w") as w:
         w.setnchannels(2)

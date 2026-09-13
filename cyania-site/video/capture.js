@@ -55,9 +55,9 @@ const BEATS = [
     // The split panel, and the headline the whole piece hangs on.
     name: 'hero',
     run: async (page) => {
-      await page.waitForTimeout(1700);
-      await ease(page, 240, 2400);
       await page.waitForTimeout(1000);
+      await ease(page, 260, 1300);
+      await page.waitForTimeout(1100);
     },
   },
   {
@@ -65,9 +65,9 @@ const BEATS = [
     name: 'state',
     run: async (page) => {
       await jump(page, '#state', 120);
-      await page.waitForTimeout(900);
-      await ease(page, (await topOf(page, '#state')) + 220, 2100);
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(700);
+      await ease(page, (await topOf(page, '#state')) + 200, 1100);
+      await page.waitForTimeout(1000);
     },
   },
   {
@@ -75,9 +75,9 @@ const BEATS = [
     name: 'ledger',
     run: async (page) => {
       await jump(page, '#security', 60);
+      await page.waitForTimeout(800);
+      await ease(page, (await topOf(page, '#security')) + 320, 1200);
       await page.waitForTimeout(1000);
-      await ease(page, (await topOf(page, '#security')) + 330, 2300);
-      await page.waitForTimeout(1100);
     },
   },
   {
@@ -85,9 +85,9 @@ const BEATS = [
     name: 'hook',
     run: async (page) => {
       await jump(page, '#earn', 60);
-      await page.waitForTimeout(1200);
-      await ease(page, (await topOf(page, '#interface')) - 40, 2400);
-      await page.waitForTimeout(1400);
+      await page.waitForTimeout(900);
+      await ease(page, (await topOf(page, '#interface')) - 40, 1300);
+      await page.waitForTimeout(1000);
     },
   },
   {
@@ -95,9 +95,9 @@ const BEATS = [
     name: 'registry',
     run: async (page) => {
       await jump(page, '#token', 70);
-      await page.waitForTimeout(1000);
-      await ease(page, (await topOf(page, '#token')) + 280, 2000);
-      await page.waitForTimeout(900);
+      await page.waitForTimeout(800);
+      await ease(page, (await topOf(page, '#token')) + 260, 1100);
+      await page.waitForTimeout(800);
     },
   },
   {
@@ -106,11 +106,11 @@ const BEATS = [
     name: 'theme',
     run: async (page) => {
       await jump(page, '#security', 60);
+      await page.waitForTimeout(600);
+      await page.click('#themeBtn');
+      await page.waitForTimeout(1200);
+      await page.click('#themeBtn');
       await page.waitForTimeout(900);
-      await page.click('#themeBtn');
-      await page.waitForTimeout(2000);
-      await page.click('#themeBtn');
-      await page.waitForTimeout(1300);
     },
   },
   {
@@ -118,13 +118,13 @@ const BEATS = [
     name: 'app',
     run: async (page) => {
       await page.evaluate(() => { window.location.hash = '#/trade'; });
-      await page.waitForTimeout(2600);
+      await page.waitForTimeout(1500);
       await page.click('#amtIn');
       for (const ch of '2.5') {
         await page.keyboard.press(ch === '.' ? 'Period' : ch);
-        await page.waitForTimeout(300);
+        await page.waitForTimeout(180);
       }
-      await page.waitForTimeout(2200);
+      await page.waitForTimeout(1300);
     },
   },
   {
@@ -132,9 +132,9 @@ const BEATS = [
     name: 'docs',
     run: async (page) => {
       await page.evaluate(() => { window.location.hash = '#/docs'; });
-      await page.waitForTimeout(1600);
-      await ease(page, 420, 2600);
       await page.waitForTimeout(900);
+      await ease(page, 420, 1400);
+      await page.waitForTimeout(800);
     },
   },
 ];

@@ -1,11 +1,23 @@
-# Azurya
+# Sablya
 
-Marketing site and interface prototype for **Azurya**, a Uniswap v4 hook that reprices a
+Marketing site and interface prototype for **Sablya**, a Uniswap v4 hook that reprices a
 pool at a corporate action so a stock split does not cost the liquidity providers.
 
 **Nothing here is deployed on mainnet.** There is no token, no sale, and no audit. The only
 real transaction the interface can send is an ETH → WETH wrap on Base Sepolia. Every other
 quote on the app screen is simulated and labelled as such in the UI.
+
+## The brand
+
+Sablya is named for *sable*, the sand colour — so the page is built on beige rather than
+decorated with it. The ground is beige, the cards are the paper laid on it, and the accent
+is a darker reading of the same colour. The mark is three wind ripples in sand, which is
+also the ground texture, tiled.
+
+The light theme is the real one. Dark is the same sand at night: warm browns, never grey.
+The accent picker in the corner carries four readings of the beige, each with a light and a
+dark set, because an accent that reads on cream is invisible on brown and the other way
+round.
 
 ## What this repository is
 
@@ -15,7 +27,7 @@ site — markup, styles and behaviour in a single file — served by Caddy from 
 ```
 public/
   index.html    the entire site
-  favicon.svg   the droplet mark
+  favicon.svg   the ripple mark
 Caddyfile       server config, reads $PORT from Railway
 Dockerfile      caddy:2.8-alpine + the two files above
 railway.json    tells Railway to use the Dockerfile
@@ -30,15 +42,15 @@ The page has three views behind hash routes:
 | `#/docs`   | the protocol note                                       |
 
 A terms and privacy gate blocks first entry and records the answer in `localStorage`
-under `azurya-legal-v1`. Clear site data to see it again.
+under `sablya-legal-v1`. Clear site data to see it again.
 
 ## Running it locally
 
 Anything that serves a directory over HTTP will do. With Docker:
 
 ```bash
-docker build -t azurya .
-docker run --rm -p 8080:8080 azurya
+docker build -t sablya .
+docker run --rm -p 8080:8080 sablya
 ```
 
 Then open <http://localhost:8080>.
@@ -51,6 +63,11 @@ chart's market-data request, so the chart falls back to its simulated series.
 Railway builds the `Dockerfile` and serves `public/` through Caddy. Set the service's
 Root Directory to `/azurya-site`, push, and Railway redeploys on its own.
 
+The directory keeps the name `azurya-site` on purpose. It is what the Railway service's
+Root Directory points at, and renaming it here would take the deploy down until somebody
+went and changed that setting too. The brand has moved on three times inside it; the path
+has not.
+
 No environment variables are required. The `Caddyfile` reads `PORT` if the platform sets
 it and falls back to 8080, which is the port the service's domains already target.
 
@@ -59,7 +76,7 @@ it and falls back to 8080, which is the port the service's domains already targe
 The page makes exactly two requests off its own origin, both documented in the privacy
 notice inside the site:
 
-- **Google Fonts** — Familjen Grotesk, Public Sans, DM Mono.
+- **Google Fonts** — Instrument Serif, Familjen Grotesk, Public Sans, DM Mono.
 - **Binance public API** — candles for the price chart. Failure is handled: the chart
   falls back to a deterministic simulated series and relabels itself.
 

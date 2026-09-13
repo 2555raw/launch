@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nivya — the hook that looks</title>
+<title>Sablya — the hook that looks</title>
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
@@ -13,35 +13,41 @@
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 
 <style>
-  /* ============ tokens, dark-first ============ */
+  /* ============ tokens: beige first ============ */
+  /* Sablya is named for sable, the sand colour, so beige is not decoration
+     here - it is the ground the whole page stands on. White is the accent,
+     used for the cards that have to lift off that ground. The light theme is
+     the real one; the dark theme is the same sand seen at night. */
   :root {
-    /* Dark theme. Here white can be the accent, because it has somewhere to
-       sit against. The grounds are cold rather than neutral: a true grey next
-       to white reads as dirty, a blue leaning one reads as ice. */
-    --void:        #04070a;
-    --ground:      #090d12;
-    --surface:     #10151c;
-    --surface-2:   #1a2129;
-    --line:        rgba(219,231,243,.13);
-    --line-strong: rgba(219,231,243,.26);
-    --ink:         #eef3f9;
-    --ink-muted:   #a1b0c0;
-    --ink-faint:   #71808f;
-    --frost:       #dbe7f3;
-    --frost-soft:  #ffffff;
-    --frost-deep:  #8fa2b6;
-    --on-frost:    #070b10;
-    --band:        #eef3f9;
-    --band-ink:    #090d12;
-    --band-muted:  #64748a;
-    --glow:        rgba(219,231,243,.11);
-    --up:          #3fbf95;
-    --down:        #ef5350;
+    /* Dark theme: warm, not cold. The grounds are browns pulled almost to
+       black, so the beige accent sitting on them still reads as sand rather
+       than as yellow. */
+    --void:        #0b0805;
+    --ground:      #14100a;
+    --surface:     #1c1610;
+    --surface-2:   #2a2118;
+    --line:        rgba(233,214,181,.14);
+    --line-strong: rgba(233,214,181,.28);
+    --ink:         #f6eee0;
+    --ink-muted:   #c0ad93;
+    --ink-faint:   #8d7d69;
+    --sable:       #e0c79b;
+    --sable-soft:  #f4e6cc;
+    --sable-deep:  #a58a5f;
+    --on-sable:    #14100a;
+    --band:        #f0e4cd;
+    --band-ink:    #17120c;
+    --band-muted:  #7a6a53;
+    --glow:        rgba(224,199,155,.13);
+    --up:          #5aa87a;
+    --down:        #d9614f;
+    --shade:       #000000;
 
-    --font-display: "Familjen Grotesk", "Segoe UI", sans-serif;
+    --font-display: "Instrument Serif", "Familjen Grotesk", Georgia, serif;
+    --font-ui:      "Familjen Grotesk", "Segoe UI", sans-serif;
     --font-body:    "Public Sans", -apple-system, "Segoe UI", sans-serif;
     --font-mono:    "DM Mono", ui-monospace, Menlo, monospace;
 
@@ -55,28 +61,30 @@
 
   :root[data-theme="light"] {
     color-scheme: light;
-    /* Light theme, and the real one for a brand called snow. White is the
-       canvas here, not the accent, so the accent has to become the cold thing
-       that sits ON white: slate. An off white ground with a pure white surface
-       is what keeps the cards readable as cards. */
-    --void:        #ffffff;
-    --ground:      #f4f7fa;
-    --surface:     #ffffff;
-    --surface-2:   #e9eef4;
-    --line:        rgba(24,42,64,.13);
-    --line-strong: rgba(24,42,64,.26);
-    --ink:         #0c1723;
-    --ink-muted:   #46586c;
-    --ink-faint:   #5a6c7f;
-    --frost:       #2c4a6b;
-    --frost-soft:  #3d6390;
-    --frost-deep:  #1a3047;
-    --on-frost:    #ffffff;
-    --band:        #0c1723;
-    --band-ink:    #eef3f9;
-    --band-muted:  #8496a8;
-    --glow:        rgba(44,74,107,.08);
-    --up:          #10734f;
+    /* The real theme. The page sits on beige and the cards are the white, so
+       the eye reads sand first and paper second. The inks are warm browns:
+       a neutral grey on beige looks like dust on it. */
+    --void:        #fffdf8;
+    --ground:      #e7dac0;
+    --surface:     #fbf6ec;
+    --surface-2:   #dccdaf;
+    --line:        rgba(92,70,40,.17);
+    --line-strong: rgba(92,70,40,.32);
+    --ink:         #2b2116;
+    --ink-muted:   #6b5a43;
+    --ink-faint:   #8d7c63;
+    --sable:       #a5773c;
+    --sable-soft:  #c2944f;
+    --sable-deep:  #6d4c1e;
+    --on-sable:    #fffdf8;
+    --band:        #2b2116;
+    --band-ink:    #f5ecda;
+    --band-muted:  #a08d70;
+    --glow:        rgba(165,119,60,.12);
+    --up:          #3f7a4e;
+    --down:        #b4463a;
+    /* warm: a neutral black shadow on beige reads as a smudge on it */
+    --shade:       #4a3014;
   }
 
   /* ============ base ============ */
@@ -99,12 +107,27 @@
   }
 
   h1, h2, h3 {
-    font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -.025em;
-    line-height: 1.04;
     text-wrap: balance;
     margin: 0;
+  }
+
+  /* The two big voices. Instrument Serif carries the headlines - one weight,
+     so nothing here asks for a bold it does not have and gets a synthesised
+     one. Familjen Grotesk keeps the card headings and the interface. */
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -.018em;
+    line-height: 1.02;
+  }
+
+  h1 em, h2 em { font-style: italic; }
+
+  h3 {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.16;
   }
 
   p { margin: 0; }
@@ -112,7 +135,7 @@
   a { color: inherit; text-decoration: none; }
 
   :focus-visible {
-    outline: 2px solid var(--frost);
+    outline: 2px solid var(--sable);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -134,11 +157,11 @@
     font-size: 11px;
     letter-spacing: .16em;
     text-transform: uppercase;
-    color: var(--frost);
+    color: var(--sable);
     margin: 0;
   }
 
-  /* ============ Nivya mark ============ */
+  /* ============ Sablya mark ============ */
   .wavemark { display: block; }
 
   /* ============ nav ============ */
@@ -163,13 +186,13 @@
     align-items: center;
     gap: 9px;
     font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -.02em;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: .005em;
     color: var(--ink);
   }
 
-  .brand svg { color: var(--frost); }
+  .brand svg { color: var(--sable); }
 
   .nav-links {
     display: flex;
@@ -208,17 +231,17 @@
 
   .nav-ca[data-state="live"] {
     cursor: pointer;
-    border-color: color-mix(in srgb, var(--frost) 45%, transparent);
-    background: color-mix(in srgb, var(--frost) 9%, var(--surface));
+    border-color: color-mix(in srgb, var(--sable) 45%, transparent);
+    background: color-mix(in srgb, var(--sable) 9%, var(--surface));
   }
 
-  .nav-ca[data-state="live"]:hover { border-color: var(--frost); }
+  .nav-ca[data-state="live"]:hover { border-color: var(--sable); }
 
   .nav-ca-label {
     font-size: 10.5px;
     font-weight: 500;
     letter-spacing: .16em;
-    color: var(--frost);
+    color: var(--sable);
   }
 
   .nav-ca-val {
@@ -248,12 +271,12 @@
   }
 
   .btn-primary {
-    background: var(--frost);
-    color: var(--on-frost);
+    background: var(--sable);
+    color: var(--on-sable);
   }
 
   .btn-primary:hover {
-    background: var(--frost-soft);
+    background: var(--sable-soft);
     transform: translateY(-1px);
   }
 
@@ -263,8 +286,8 @@
   }
 
   .btn-ghost:hover {
-    border-color: var(--frost);
-    color: var(--frost);
+    border-color: var(--sable);
+    color: var(--sable);
   }
 
   /* ============ hero ============ */
@@ -294,7 +317,7 @@
     left: 50%;
     translate: -50% 0;
     width: 520px;
-    color: var(--frost);
+    color: var(--sable);
     opacity: .05;
     z-index: -1;
     pointer-events: none;
@@ -314,7 +337,7 @@
 
   .hero h1 em {
     font-style: normal;
-    color: var(--frost);
+    color: var(--sable);
   }
 
   .hero-sub {
@@ -361,7 +384,7 @@
   .hero-stat-go {
     font-size: 11.5px;
     font-weight: 600;
-    color: var(--frost);
+    color: var(--sable);
     padding-left: 4px;
   }
 
@@ -376,8 +399,8 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--frost);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--frost) 22%, transparent);
+    background: var(--sable);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sable) 22%, transparent);
   }
 
   /* ============ fee comparison ============ */
@@ -401,7 +424,7 @@
   .fees-delta {
     font-family: var(--font-mono);
     font-size: 30px;
-    color: var(--frost);
+    color: var(--sable);
     margin-top: 18px;
     line-height: 1;
   }
@@ -450,7 +473,7 @@
   .bar-fill {
     height: 100%;
     border-radius: 4px;
-    background: var(--frost);
+    background: var(--sable);
   }
 
   .bar-fill.is-alt { background: var(--ink-faint); }
@@ -574,7 +597,7 @@
 
   .token-row + .token-row { border-top: 1px solid var(--line); }
 
-  .token-row svg { flex: none; color: var(--frost); margin-top: 2px; }
+  .token-row svg { flex: none; color: var(--sable); margin-top: 2px; }
 
   .token-row h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 
@@ -681,7 +704,7 @@
     gap: 9px;
   }
 
-  .launch-item h3 svg { color: var(--frost); flex: none; }
+  .launch-item h3 svg { color: var(--sable); flex: none; }
 
   .launch-item p { font-size: 13.5px; color: var(--ink-muted); margin-top: 8px; }
 
@@ -741,8 +764,8 @@
     flex: none;
     width: 10px;
     height: 10px;
-    border-right: 1.6px solid var(--frost);
-    border-bottom: 1.6px solid var(--frost);
+    border-right: 1.6px solid var(--sable);
+    border-bottom: 1.6px solid var(--sable);
     rotate: 45deg;
     translate: 0 -3px;
     transition: rotate .2s ease, translate .2s ease;
@@ -800,7 +823,7 @@
     flex-wrap: wrap;
   }
 
-  .foot-links a:hover { color: var(--frost); }
+  .foot-links a:hover { color: var(--sable); }
 
 
   /* ============ socials ============ */
@@ -819,8 +842,8 @@
   }
 
   .social:hover {
-    color: var(--frost);
-    border-color: var(--frost);
+    color: var(--sable);
+    border-color: var(--sable);
     transform: translateY(-2px);
   }
 
@@ -843,14 +866,14 @@
     transition: border-color .16s ease;
   }
 
-  .wallet-pill:hover { border-color: var(--frost); }
+  .wallet-pill:hover { border-color: var(--sable); }
 
   .chain-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--frost);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--frost) 20%, transparent);
+    background: var(--sable);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sable) 20%, transparent);
     flex: none;
   }
 
@@ -864,7 +887,7 @@
     font-size: 10px;
     letter-spacing: .1em;
     text-transform: uppercase;
-    color: var(--frost);
+    color: var(--sable);
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     padding: 1px 5px;
@@ -881,7 +904,7 @@
     border: 1px solid var(--line-strong);
     border-radius: var(--r-md);
     background: var(--surface);
-    box-shadow: 0 18px 40px color-mix(in srgb, var(--void) 55%, transparent);
+    box-shadow: 0 18px 40px color-mix(in srgb, var(--shade) 30%, transparent);
     z-index: 80;
   }
 
@@ -959,7 +982,7 @@
     transition: color .16s ease, border-color .16s ease;
   }
 
-  .modal-close:hover { color: var(--frost); border-color: var(--frost); }
+  .modal-close:hover { color: var(--sable); border-color: var(--sable); }
 
   .w-list { display: flex; flex-direction: column; gap: 9px; }
 
@@ -981,7 +1004,7 @@
     transition: border-color .16s ease, transform .16s ease;
   }
 
-  .w-opt:hover { border-color: var(--frost); transform: translateX(2px); }
+  .w-opt:hover { border-color: var(--sable); transform: translateX(2px); }
 
   .w-mark {
     width: 32px;
@@ -1030,7 +1053,7 @@
     left: 0;
     width: 100%;
     height: 46px;
-    color: var(--frost);
+    color: var(--sable);
     opacity: .13;
     pointer-events: none;
   }
@@ -1060,7 +1083,7 @@
     transition: color .16s ease, border-color .16s ease;
   }
 
-  .icon-btn:hover { color: var(--frost); border-color: var(--frost); }
+  .icon-btn:hover { color: var(--sable); border-color: var(--sable); }
 
   .tabs {
     display: flex;
@@ -1163,7 +1186,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 5px;
     background: none;
-    color: var(--frost);
+    color: var(--sable);
     font-family: var(--font-body);
     font-size: 11px;
     font-weight: 600;
@@ -1171,7 +1194,7 @@
     cursor: pointer;
   }
 
-  .max-btn:hover { border-color: var(--frost); }
+  .max-btn:hover { border-color: var(--sable); }
 
   .tk-btn {
     display: inline-flex;
@@ -1190,7 +1213,7 @@
     transition: border-color .16s ease;
   }
 
-  .tk-btn:hover { border-color: var(--frost); }
+  .tk-btn:hover { border-color: var(--sable); }
 
   .tk-dot {
     width: 25px;
@@ -1231,12 +1254,12 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: var(--surface);
-    color: var(--frost);
+    color: var(--sable);
     cursor: pointer;
     transition: transform .22s ease, border-color .16s ease;
   }
 
-  .flip:hover { transform: rotate(180deg); border-color: var(--frost); }
+  .flip:hover { transform: rotate(180deg); border-color: var(--sable); }
 
   .swap-cta {
     width: 100%;
@@ -1367,7 +1390,7 @@
     transition: color .14s ease, border-color .14s ease;
   }
 
-  .sim-chip[aria-pressed="true"] { border-color: var(--frost); color: var(--frost); }
+  .sim-chip[aria-pressed="true"] { border-color: var(--sable); color: var(--sable); }
 
   #simRun { margin-left: auto; padding: 12px 26px; }
 
@@ -1389,7 +1412,7 @@
     padding: 20px;
   }
 
-  .sim-side[data-side="good"] { border-color: color-mix(in srgb, var(--frost) 38%, transparent); }
+  .sim-side[data-side="good"] { border-color: color-mix(in srgb, var(--sable) 38%, transparent); }
 
   .sim-side header {
     display: flex;
@@ -1432,7 +1455,7 @@
   }
 
   .sim-side dd.is-bad { color: var(--down); font-weight: 600; }
-  .sim-side dd.is-good { color: var(--frost); font-weight: 600; }
+  .sim-side dd.is-good { color: var(--sable); font-weight: 600; }
 
   .sim-bar {
     height: 8px;
@@ -1450,7 +1473,7 @@
   }
 
   .sim-fill.is-bad { background: var(--down); }
-  .sim-fill.is-good { background: var(--frost); }
+  .sim-fill.is-good { background: var(--sable); }
 
   .sim-caption {
     margin-top: 11px;
@@ -1476,7 +1499,7 @@
     padding: 32px;
   }
 
-  .ca[data-state="live"] { border-color: color-mix(in srgb, var(--frost) 42%, transparent); }
+  .ca[data-state="live"] { border-color: color-mix(in srgb, var(--sable) 42%, transparent); }
 
   @media (max-width: 720px) { .ca { padding: 22px; } }
 
@@ -1543,7 +1566,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: none;
-    color: var(--frost);
+    color: var(--sable);
     font-family: var(--font-body);
     font-size: 12.5px;
     font-weight: 600;
@@ -1551,7 +1574,7 @@
   }
 
   .ca-copy:hover,
-  .ca-link:hover { border-color: var(--frost); }
+  .ca-link:hover { border-color: var(--sable); }
 
   .ca-meta {
     display: flex;
@@ -1600,14 +1623,14 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: none;
-    color: var(--frost);
+    color: var(--sable);
     font-family: var(--font-body);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
   }
 
-  .live-switch:hover { border-color: var(--frost); }
+  .live-switch:hover { border-color: var(--sable); }
 
   .tx-note {
     margin-top: 11px;
@@ -1619,7 +1642,7 @@
     color: var(--ink-muted);
   }
 
-  .tx-note a { color: var(--frost); text-decoration: underline; }
+  .tx-note a { color: var(--sable); text-decoration: underline; }
   .tx-note[data-tone="ok"]  { border-color: color-mix(in srgb, var(--up) 45%, transparent); color: var(--ink); }
   .tx-note[data-tone="bad"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--ink); }
 
@@ -1655,13 +1678,13 @@
     padding: 6px 13px;
     border: 1px solid var(--line-strong);
     border-radius: 4px;
-    color: var(--frost);
+    color: var(--sable);
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
   }
 
-  .netcard-faucet:hover { border-color: var(--frost); }
+  .netcard-faucet:hover { border-color: var(--sable); }
 
   .netcard-contract {
     margin-top: 14px;
@@ -1690,7 +1713,7 @@
     text-underline-offset: 3px;
   }
 
-  .netcard-addr:hover { color: var(--frost); text-decoration-color: var(--frost); }
+  .netcard-addr:hover { color: var(--sable); text-decoration-color: var(--sable); }
 
   .netcard-note {
     margin-top: 13px;
@@ -1721,7 +1744,7 @@
     display: flex;
     align-items: center;
     gap: 11px;
-    font-family: var(--font-display);
+    font-family: var(--font-ui);
     font-size: 19px;
     font-weight: 600;
     letter-spacing: -.02em;
@@ -1800,7 +1823,7 @@
   .range[aria-pressed="true"] {
     background: var(--surface-2);
     border-color: var(--line-strong);
-    color: var(--frost);
+    color: var(--sable);
   }
 
   .plot { position: relative; }
@@ -1810,8 +1833,8 @@
     position: absolute;
     padding: 3px 7px;
     border-radius: 5px;
-    background: var(--frost);
-    color: var(--on-frost);
+    background: var(--sable);
+    color: var(--on-sable);
     font-family: var(--font-mono);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
@@ -1834,7 +1857,7 @@
     font-size: 14.5px;
   }
 
-  .tk-search:focus { border-color: var(--frost); }
+  .tk-search:focus { border-color: var(--sable); }
 
   .tk-list {
     display: flex;
@@ -1890,7 +1913,7 @@
     transition: color .14s ease, border-color .14s ease;
   }
 
-  .slip[aria-pressed="true"] { border-color: var(--frost); color: var(--frost); }
+  .slip[aria-pressed="true"] { border-color: var(--sable); color: var(--sable); }
 
   /* ---- receipt ---- */
   .receipt {
@@ -1913,7 +1936,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .receipt-arrow { color: var(--frost); padding-left: 7px; }
+  .receipt-arrow { color: var(--sable); padding-left: 7px; }
 
   .done-mark {
     width: 52px;
@@ -1969,7 +1992,7 @@
     border-radius: 4px;
     background: color-mix(in srgb, var(--surface) 88%, transparent);
     backdrop-filter: blur(12px);
-    box-shadow: 0 10px 30px color-mix(in srgb, var(--void) 45%, transparent);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--shade) 22%, transparent);
   }
 
   .tint-label {
@@ -2014,7 +2037,7 @@
     transition: color .16s ease;
   }
 
-  .theme-btn:hover { color: var(--frost); }
+  .theme-btn:hover { color: var(--sable); }
   .theme-btn .moon { display: none; }
   :root[data-theme="light"] .theme-btn .moon { display: block; }
   :root[data-theme="light"] .theme-btn .sun { display: none; }
@@ -2139,7 +2162,7 @@
   .pct-row { display: inline-flex; gap: 4px; }
   .max-btn { padding: 3px 7px; font-size: 10.5px; border-radius: 2px; }
   .pct-btn { color: var(--ink-muted); }
-  .pct-btn:hover { color: var(--frost); border-color: var(--frost); }
+  .pct-btn:hover { color: var(--sable); border-color: var(--sable); }
 
   /* ============ docs view ============ */
   .docs { padding: 0 0 72px; }
@@ -2170,7 +2193,7 @@
     transition: border-color .16s ease, color .16s ease;
   }
 
-  .doc-back:hover { border-color: var(--frost); color: var(--frost); }
+  .doc-back:hover { border-color: var(--sable); color: var(--sable); }
 
   .doc-kind {
     margin-left: auto;
@@ -2204,16 +2227,16 @@
   .doc-body h2 { font-size: 25px; margin-top: 50px; }
   .doc-body h2 + p { margin-top: 13px; }
   .doc-lead { font-size: 18.5px; color: var(--ink-muted); }
-  .doc-term { font-style: normal; font-family: var(--font-mono); font-size: .9em; color: var(--frost); }
+  .doc-term { font-style: normal; font-family: var(--font-mono); font-size: .9em; color: var(--sable); }
 
   .doc-pull {
     margin: 42px 0;
     padding: 2px 0 2px 22px;
-    border-left: 2px solid var(--frost);
+    border-left: 2px solid var(--sable);
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 1.24;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.2;
     max-width: 30ch;
   }
 
@@ -2233,7 +2256,7 @@
     font-size: 11px;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--frost);
+    color: var(--sable);
     padding-bottom: 12px;
   }
 
@@ -2296,7 +2319,7 @@
     content: counter(step, decimal-leading-zero);
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--frost);
+    color: var(--sable);
     padding-top: 3px;
   }
 
@@ -2361,7 +2384,7 @@
     }
   }
 
-  /* ============ nivya: sides swapped, blocks overlapped ============ */
+  /* ============ sablya: sides swapped, blocks overlapped ============ */
 
   /* the bar on top, mirrored */
   .nav-in .wallet-wrap { order: 1; margin-left: 0; margin-right: auto; }
@@ -2381,7 +2404,7 @@
 
   /* the ledger card climbs over the hero */
   #liquidity { position: relative; z-index: 2; margin-top: -112px; }
-  .fees { box-shadow: 0 34px 90px rgba(0,0,0,.5); }
+  .fees { box-shadow: 0 34px 90px color-mix(in srgb, var(--shade) 26%, transparent); }
   .fees { grid-template-columns: minmax(240px, .82fr) 1.18fr; }
   .fees > div:first-child { order: 1; }
   .fees > div:last-child  { order: 2; }
@@ -2402,7 +2425,7 @@
 
   /* the launch panel rides up over the section above it */
   #bridge { position: relative; z-index: 2; margin-top: -56px; }
-  .launch { box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+  .launch { box-shadow: 0 30px 80px color-mix(in srgb, var(--shade) 22%, transparent); }
 
   /* questions sit on the right */
   .faq { max-width: 820px; margin-left: auto; margin-right: 0; }
@@ -2432,13 +2455,13 @@
   @media (max-width: 620px) { .tint-picker { left: auto; right: 10px; } }
 
 
-  /* ============ ground texture: the comb ============ */
+  /* ============ ground texture: the ripples ============ */
   /* The pattern lives in an <svg> rather than a CSS gradient, because a data URI
      cannot read var(--line) and this has to follow the theme. */
   .hero::before,
   .app::before { display: none; }
 
-  .comb {
+  .dunes {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -2453,13 +2476,13 @@
 
   body {
     background:
-      radial-gradient(1100px 620px at 84% -8%, color-mix(in srgb, var(--frost) 9%, transparent) 0%, transparent 68%),
-      radial-gradient(900px 560px at 6% 108%, color-mix(in srgb, var(--frost) 7%, transparent) 0%, transparent 66%),
+      radial-gradient(1100px 620px at 84% -8%, color-mix(in srgb, var(--sable) 9%, transparent) 0%, transparent 68%),
+      radial-gradient(900px 560px at 6% 108%, color-mix(in srgb, var(--sable) 7%, transparent) 0%, transparent 66%),
       var(--ground);
     background-attachment: fixed;
   }
 
-  .band { background-image: linear-gradient(180deg, var(--band) 0%, color-mix(in srgb, var(--band) 92%, var(--frost)) 100%); }
+  .band { background-image: linear-gradient(180deg, var(--band) 0%, color-mix(in srgb, var(--band) 92%, var(--sable)) 100%); }
 
 
   /* the data state chip on the chart */
@@ -2513,9 +2536,9 @@
 
   .code-body code { font-family: inherit; white-space: pre; }
 
-  .c-kw { color: var(--frost); }
+  .c-kw { color: var(--sable); }
   .c-ty { color: var(--ink); }
-  .c-fn { color: var(--frost-soft); }
+  .c-fn { color: var(--sable-soft); }
   .c-nm { color: var(--ink); }
   .c-cm { color: var(--ink-faint); font-style: italic; }
 
@@ -2575,7 +2598,7 @@
     border-radius: 999px;
     background: color-mix(in srgb, var(--surface) 86%, transparent);
     backdrop-filter: blur(16px);
-    box-shadow: 0 18px 50px rgba(0,0,0,.45);
+    box-shadow: 0 18px 50px color-mix(in srgb, var(--shade) 22%, transparent);
     gap: 18px;
   }
 
@@ -2598,7 +2621,7 @@
     content: "";
     width: 26px;
     height: 1px;
-    background: var(--frost);
+    background: var(--sable);
     flex: none;
   }
 
@@ -2611,7 +2634,7 @@
   }
 
   .hero-col h1 { font-size: clamp(38px, 4.6vw, 62px); margin: 22px 0 0; max-width: 15ch; }
-  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--frost); }
+  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--sable); }
   .hero-col .hero-sub { font-size: 16.5px; max-width: 52ch; margin-top: 22px; }
   .hero-col .hero-sub code {
     font-family: var(--font-mono);
@@ -2667,8 +2690,8 @@
   }
 
   .panel-rows .was { color: var(--ink-faint); }
-  .panel-rows .arrow { color: var(--frost); padding: 0 3px; }
-  .panel-rows .hot { color: var(--frost); font-size: 17px; }
+  .panel-rows .arrow { color: var(--sable); padding: 0 3px; }
+  .panel-rows .hot { color: var(--sable); font-size: 17px; }
 
   .panel-foot {
     margin-top: 18px;
@@ -2703,12 +2726,12 @@
     flex-direction: column;
   }
 
-  .numcard.is-hot { border-color: color-mix(in srgb, var(--frost) 32%, transparent); }
+  .numcard.is-hot { border-color: color-mix(in srgb, var(--sable) 32%, transparent); }
 
   .numcard .num {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--frost);
+    color: var(--sable);
     letter-spacing: .1em;
   }
 
@@ -2783,8 +2806,8 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--frost);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--frost) 20%, transparent);
+    background: var(--sable);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sable) 20%, transparent);
   }
 
   .board-meta {
@@ -2826,7 +2849,7 @@
   .board-table tbody td { font-family: var(--font-mono); font-size: 14px; color: var(--ink); }
   .board-table tbody tr:last-child th,
   .board-table tbody tr:last-child td { border-bottom: 0; }
-  .board-table td.is-good { color: var(--frost); }
+  .board-table td.is-good { color: var(--sable); }
   .board-table td.is-bad { color: var(--down); }
 
   .board-foot {
@@ -2856,11 +2879,11 @@
   .flow-tag {
     display: inline-block;
     padding: 4px 10px;
-    border: 1px solid color-mix(in srgb, var(--frost) 32%, transparent);
+    border: 1px solid color-mix(in srgb, var(--sable) 32%, transparent);
     border-radius: 999px;
     font-family: var(--font-mono);
     font-size: 11.5px;
-    color: var(--frost);
+    color: var(--sable);
   }
 
   .flow-step h3 { font-size: 17px; margin-top: 16px; }
@@ -2918,7 +2941,7 @@
 
   /* the registry is the pair to the band, so it climbs up under it */
   #token { position: relative; z-index: 2; margin-top: -44px; padding-top: 0; }
-  .ca { box-shadow: 0 28px 70px rgba(0,0,0,.42); background: var(--surface); }
+  .ca { box-shadow: 0 28px 70px color-mix(in srgb, var(--shade) 20%, transparent); background: var(--surface); }
 
   /* the problem grid staggers instead of sitting in a flat row */
   .numgrid { grid-template-columns: repeat(3, 1fr); align-items: start; }
@@ -2965,7 +2988,7 @@
     border: 1px solid var(--line-strong);
     border-radius: var(--r-lg);
     background: var(--surface);
-    box-shadow: 0 30px 90px rgba(0,0,0,.55);
+    box-shadow: 0 30px 90px color-mix(in srgb, var(--shade) 30%, transparent);
     animation: pop .2s ease-out;
     overflow: hidden;
   }
@@ -2987,7 +3010,7 @@
     border-bottom: 1px solid var(--line);
   }
 
-  .gate-head > svg { flex: none; color: var(--frost); margin-top: 2px; }
+  .gate-head > svg { flex: none; color: var(--sable); margin-top: 2px; }
   .gate-head h2 { font-size: 22px; margin-top: 6px; }
 
   .gate-tabs {
@@ -3013,7 +3036,7 @@
   .gate-tab[aria-selected="true"] {
     background: var(--surface-2);
     border-color: var(--line-strong);
-    color: var(--frost);
+    color: var(--sable);
   }
 
   .gate-body {
@@ -3033,7 +3056,7 @@
     font-weight: 500;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--frost);
+    color: var(--sable);
   }
 
   .gate-panel p { font-size: 14px; line-height: 1.62; color: var(--ink-muted); }
@@ -3058,7 +3081,7 @@
     width: 17px;
     height: 17px;
     margin: 1px 0 0;
-    accent-color: var(--frost);
+    accent-color: var(--sable);
     cursor: pointer;
   }
 
@@ -3283,7 +3306,7 @@
     padding: 1px;
     background: radial-gradient(
       170px circle at var(--mx, 50%) var(--my, 50%),
-      color-mix(in srgb, var(--frost) 62%, transparent),
+      color-mix(in srgb, var(--sable) 62%, transparent),
       transparent 68%
     );
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -3307,16 +3330,501 @@
     [data-spot]::after { display: none; }
   }
 
+
+  /* ============ Sablya: the rebrand pass ============ */
+  /* Everything below is the beige brand and the movement that came with it.
+     It sits last on purpose: three composition passes already moved this
+     layout around, and this has to win over all of them.
+
+     One rule holds throughout. Motion is gated on `html.motion`, a class the
+     script only adds when the browser is not asking for reduced motion. So if
+     the script never runs, or the reader has asked for stillness, the page is
+     simply the page - nothing here can leave content hidden. */
+
+  /* softer corners: beige is a warm ground and 4px edges fight it */
+  :root { --r-lg: 16px; --r-md: 12px; --r-sm: 8px; }
+
+  .btn, .nav-chip, .nav-ca, .chip, .tint, .wallet-pill,
+  .hero-stat, .panel, .numcard, .flow-step, .feat, .board, .ca, .launch,
+  .code, .close-cta, .swap, .chart-panel, .netcard, .gate-card, .q,
+  .launch-item, .band-stat, .modal, .wallet-menu, .tint-picker, .token-card {
+    border-radius: var(--r-md);
+  }
+
+  .panel, .board, .ca, .launch, .code, .close-cta, .chart-panel, .gate-card,
+  .modal, .swap { border-radius: var(--r-lg); }
+
+  .btn { border-radius: 999px; padding: 11px 22px; }
+  .chip, .nav-chip, .nav-ca, .wallet-pill, .hero-stat { border-radius: 999px; }
+  .tint { border-radius: 50%; }
+
+  /* the paper the cards are made of, against the sand of the page */
+  .panel, .numcard, .flow-step, .feat, .board, .ca, .launch, .code,
+  .close-cta, .token-card, .q {
+    background: var(--surface);
+  }
+
+  /* ---- scroll progress ---- */
+  .scroll-progress {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  .scroll-progress i {
+    display: block;
+    height: 100%;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--sable-deep), var(--sable), var(--sable-soft));
+  }
+
+  /* ---- the bar is a floating pill, and it tightens once you leave the top ---- */
+  /* Warm shadows throughout. A neutral black shadow on a beige ground reads as
+     a smudge on it rather than as depth. */
+  .nav-in {
+    box-shadow: 0 16px 40px color-mix(in srgb, var(--shade) 14%, transparent);
+    transition: height .32s cubic-bezier(.2,.7,.3,1), background .32s ease,
+                box-shadow .32s ease, padding .32s ease;
+  }
+
+  .nav.is-stuck .nav-in {
+    height: 50px;
+    padding-left: 18px;
+    background: color-mix(in srgb, var(--surface) 97%, transparent);
+    box-shadow: 0 18px 44px color-mix(in srgb, var(--shade) 20%, transparent);
+  }
+
+  .nav.is-stuck .brand { font-size: 21px; }
+
+  .fees   { box-shadow: 0 34px 90px color-mix(in srgb, var(--shade) 22%, transparent); }
+  .launch { box-shadow: 0 30px 80px color-mix(in srgb, var(--shade) 20%, transparent); }
+  .ca     { box-shadow: 0 28px 70px color-mix(in srgb, var(--shade) 18%, transparent); }
+  .modal  { box-shadow: 0 30px 90px color-mix(in srgb, var(--shade) 26%, transparent); }
+
+  /* a rule that draws itself under the link you are pointing at */
+  .nav-links a { position: relative; }
+
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -5px;
+    height: 1.5px;
+    background: var(--sable);
+    scale: 0 1;
+    transform-origin: left;
+    transition: scale .3s cubic-bezier(.2,.7,.3,1);
+  }
+
+  .nav-links a:hover::after { scale: 1 1; }
+
+  /* ---- buttons: a sheen crosses the fill on hover ---- */
+  .btn { position: relative; overflow: hidden; isolation: isolate; }
+
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    translate: -120% 0;
+    background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--void) 24%, transparent), transparent);
+    transition: translate .55s cubic-bezier(.3,.7,.3,1);
+  }
+
+  .btn-ghost::before {
+    background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--sable) 16%, transparent), transparent);
+  }
+
+  .btn:hover::before { translate: 120% 0; }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0) scale(.98); }
+
+  /* ---- the ground drifts, the way blown sand does ---- */
+  .dune-fill { animation: dune-drift 34s linear infinite; }
+
+  @keyframes dune-drift { to { transform: translateX(-150px); } }
+
+  /* ---- warm light pooling behind the hero ---- */
+  .hero-aurora {
+    position: absolute;
+    inset: -30% -10% auto -10%;
+    height: 150%;
+    z-index: -2;
+    pointer-events: none;
+    filter: blur(72px);
+    opacity: .75;
+  }
+
+  .hero-aurora i {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+    mix-blend-mode: multiply;
+  }
+
+  :root:not([data-theme="light"]) .hero-aurora i { mix-blend-mode: screen; }
+
+  .hero-aurora i:nth-child(1) {
+    width: 46%; aspect-ratio: 1; top: 6%; right: 4%;
+    background: color-mix(in srgb, var(--sable) 34%, transparent);
+    animation: pool-a 19s ease-in-out infinite;
+  }
+
+  .hero-aurora i:nth-child(2) {
+    width: 34%; aspect-ratio: 1; top: 34%; right: 34%;
+    background: color-mix(in srgb, var(--sable-soft) 30%, transparent);
+    animation: pool-b 23s ease-in-out infinite;
+  }
+
+  .hero-aurora i:nth-child(3) {
+    width: 28%; aspect-ratio: 1; top: 2%; left: 8%;
+    background: color-mix(in srgb, var(--sable-deep) 20%, transparent);
+    animation: pool-c 27s ease-in-out infinite;
+  }
+
+  @keyframes pool-a {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(-8%, 7%) scale(1.14); }
+    66%      { transform: translate(5%, -5%) scale(.92); }
+  }
+
+  @keyframes pool-b {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(11%, 9%) scale(1.2); }
+  }
+
+  @keyframes pool-c {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40%      { transform: translate(9%, -7%) scale(1.16); }
+    75%      { transform: translate(-6%, 6%) scale(.94); }
+  }
+
+  /* ---- grains of it still in the air ---- */
+  .grains {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .grains i {
+    position: absolute;
+    display: block;
+    width: var(--s, 3px);
+    height: var(--s, 3px);
+    border-radius: 50%;
+    background: var(--sable);
+    opacity: 0;
+    animation: blow var(--dur, 16s) linear var(--delay, 0s) infinite;
+  }
+
+  @keyframes blow {
+    0%   { opacity: 0;   transform: translate(0, 0); }
+    12%  { opacity: .55; }
+    80%  { opacity: .28; }
+    100% { opacity: 0;   transform: translate(var(--dx, 120px), var(--dy, -70px)); }
+  }
+
+  /* ---- the tickers ---- */
+  .ticker {
+    display: flex;
+    gap: 0;
+    overflow: hidden;
+    user-select: none;
+    margin-top: 12px;
+    padding: 15px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+
+  .ticker-dark {
+    background: var(--band);
+    color: var(--band-ink);
+    border-color: transparent;
+    margin: 78px 0 46px;
+    padding: 19px 0;
+  }
+
+  .ticker-track {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    padding-right: 26px;
+    flex: 0 0 auto;
+    animation: ticker-run 38s linear infinite;
+  }
+
+  .ticker-rev { animation-duration: 46s; animation-direction: reverse; }
+
+  .ticker:hover .ticker-track { animation-play-state: paused; }
+
+  .ticker span {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-style: italic;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+
+  .ticker-dark span { color: var(--band-ink); }
+
+  .tk-mark { flex: 0 0 auto; color: var(--sable); opacity: .85; }
+  .ticker-dark .tk-mark { color: var(--sable-soft); }
+
+  @keyframes ticker-run { to { transform: translateX(-100%); } }
+
+  /* ---- the headline lands a word at a time ----
+     The clipping box is what makes a word look like it rises out of the line,
+     so it has to be tight - but a tight box on a 1.02 line-height cuts the
+     tail off a p or a y. The padding buys the descender back and the negative
+     margin gives the layout its space again. */
+  .w-line {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-bottom: .14em;
+    margin-bottom: -.14em;
+  }
+
+  /* Instrument Serif ships one weight. Anything asking for 500 or 700 here
+     gets a browser-drawn fake bold, which on a serif looks like a smudge. */
+  .hero-col h1 em, .hero h1 em { font-weight: 400; font-style: italic; color: var(--sable); }
+
+  html.motion .hero h1 .w {
+    display: inline-block;
+    translate: 0 105%;
+    rotate: 2deg;
+    opacity: 0;
+    animation: word-rise .82s cubic-bezier(.18,.8,.24,1) var(--wd, 0ms) forwards;
+  }
+
+  @keyframes word-rise {
+    to { translate: 0 0; rotate: 0deg; opacity: 1; }
+  }
+
+  /* everything else in the hero follows it in */
+  html.motion .hero .rule-eyebrow,
+  html.motion .hero-sub,
+  html.motion .hero-punch,
+  html.motion .hero-actions,
+  html.motion .hero-stat,
+  html.motion .hero-panel {
+    opacity: 0;
+    translate: 0 20px;
+    animation: hero-in .8s cubic-bezier(.2,.75,.25,1) var(--wd, 0ms) forwards;
+  }
+
+  html.motion .hero .rule-eyebrow { --wd: 60ms; }
+  html.motion .hero-sub           { --wd: 420ms; }
+  html.motion .hero-punch         { --wd: 520ms; }
+  html.motion .hero-actions       { --wd: 600ms; }
+  html.motion .hero-stat          { --wd: 680ms; }
+  html.motion .hero-panel         { --wd: 300ms; translate: 26px 20px; }
+
+  @keyframes hero-in { to { opacity: 1; translate: 0 0; } }
+
+  /* ---- anything below the fold arrives when it is reached ---- */
+  html.motion [data-reveal] {
+    opacity: 0;
+    translate: 0 26px;
+    scale: .988;
+    filter: blur(4px);
+    transition:
+      opacity .72s cubic-bezier(.2,.75,.25,1) var(--d, 0ms),
+      translate .72s cubic-bezier(.2,.75,.25,1) var(--d, 0ms),
+      scale .72s cubic-bezier(.2,.75,.25,1) var(--d, 0ms),
+      filter .6s ease var(--d, 0ms);
+  }
+
+  html.motion [data-reveal].is-in {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: none;
+  }
+
+  /* reveal owns `translate` and `scale`, hover owns `transform`, so the two
+     never overwrite each other halfway through */
+  .lift { transition: transform .34s cubic-bezier(.2,.7,.3,1), box-shadow .34s ease, border-color .2s ease; }
+
+  .lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 26px 54px color-mix(in srgb, var(--shade) 20%, transparent);
+    border-color: color-mix(in srgb, var(--sable) 52%, var(--line-strong));
+  }
+
+  /* The numbered cards sit on a staircase, and hovering one lifts it off that
+     step rather than resetting it to zero - so the offset lives in a variable
+     that both the resting and the hovered transform are written against.
+
+     They also never collapsed to one column: a later pass re-declared three
+     columns after the breakpoint that undid them, so on a phone the row ran
+     120px off the side of the page. That is the horizontal scroll gone. */
+  .numgrid > .numcard { --stagger: 0px; transform: translateY(var(--stagger)); }
+  .numgrid > .numcard:nth-child(2) { --stagger: 26px; }
+  .numgrid > .numcard:nth-child(3) { --stagger: 52px; }
+
+  .numcard:hover { transform: translateY(calc(var(--stagger, 0px) - 6px)) rotate(-.5deg); }
+  .numcard:nth-child(even):hover { transform: translateY(calc(var(--stagger, 0px) - 6px)) rotate(.5deg); }
+
+  @media (max-width: 1000px) {
+    .numgrid { grid-template-columns: 1fr; }
+    .numgrid > .numcard { --stagger: 0px; }
+  }
+
+  .numcard .num {
+    transition: color .3s ease, letter-spacing .3s ease;
+  }
+
+  .numcard:hover .num { color: var(--sable); letter-spacing: -.04em; }
+
+  /* ---- the mark keeps turning over on the closing panel ---- */
+  .close-cta > .wavemark { animation: mark-sway 11s ease-in-out infinite; }
+
+  @keyframes mark-sway {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%      { transform: translateY(-9px) rotate(3deg); }
+  }
+
+  /* ---- questions open on a curve ---- */
+  .q { transition: background .25s ease, border-color .25s ease; }
+  .q summary { transition: color .2s ease; }
+  .q[open] { background: color-mix(in srgb, var(--sable) 7%, var(--surface)); }
+
+  .q[open] > p { animation: answer-in .42s cubic-bezier(.2,.75,.25,1) both; }
+
+  @keyframes answer-in {
+    from { opacity: 0; translate: 0 -8px; }
+    to   { opacity: 1; translate: 0 0; }
+  }
+
+  /* ---- the chain chips drift on hover ---- */
+  .chip { transition: transform .24s cubic-bezier(.2,.7,.3,1), background .24s ease, color .24s ease, border-color .24s ease; }
+
+  .chip:hover {
+    transform: translateY(-3px);
+    background: var(--sable);
+    color: var(--on-sable);
+    border-color: var(--sable);
+  }
+
+  /* ---- the band inverts to warm dark, and its figures count in ---- */
+  .band { border-radius: var(--r-lg); }
+  .band-stat .n { font-family: var(--font-display); font-weight: 400; }
+
+  /* ---- the beige readings come back ----
+     A previous pass hid the swatches and kept only the theme toggle. For a
+     brand whose whole argument is a colour, letting somebody hold four
+     readings of that colour against the page is the point, so they return -
+     now carrying a light and a dark set each. */
+  .tint-picker { gap: 9px; padding: 9px 13px; }
+  .tint-label, .tint, .tint-sep { display: block; }
+  .tint-label { color: var(--ink-muted); }
+
+  .tint {
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--shade) 22%, transparent);
+  }
+
+  .tint[aria-pressed="true"] {
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--sable);
+  }
+
+  @media (max-width: 620px) {
+    .tint-picker { padding: 7px 10px; gap: 7px; }
+    .tint-label { display: none; }
+  }
+
+  /* ---- the eyebrow rules draw themselves ---- */
+  html.motion .rule-eyebrow::before,
+  html.motion .rule-eyebrow::after { transition: width .6s cubic-bezier(.2,.75,.25,1) 120ms; }
+
+  /* ---- reduced motion: none of the above ---- */
+  @media (prefers-reduced-motion: reduce) {
+    html.motion [data-reveal],
+    html.motion .hero h1 .w,
+    html.motion .hero .rule-eyebrow,
+    html.motion .hero-sub,
+    html.motion .hero-punch,
+    html.motion .hero-actions,
+    html.motion .hero-stat,
+    html.motion .hero-panel {
+      opacity: 1 !important;
+      translate: none !important;
+      rotate: none !important;
+      scale: none !important;
+      filter: none !important;
+    }
+  }
+
+  /* ---- what the composition passes left behind on a phone ----
+     Each of those passes re-declared its grids after the breakpoint that had
+     already collapsed them, so on a narrow screen the hero still tried to run
+     two columns and the page scrolled sideways. These put the single column
+     back, last, where nothing can undo it again. */
+  @media (max-width: 1000px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 38px; }
+    .hero-col   { order: 1; text-align: left; }
+    .hero-panel { order: 2; }
+    .hero-col h1,
+    .hero-col .hero-sub { margin-left: 0; max-width: none; }
+    .hero-col .hero-actions,
+    .hero-col .rule-eyebrow { justify-content: flex-start; }
+    html.motion .hero-panel { translate: 0 20px; }
+  }
+
+  @media (max-width: 900px) {
+    /* the link row scrolls sideways on its own, so say so with an edge */
+    .nav-links {
+      -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent);
+              mask-image: linear-gradient(90deg, #000 88%, transparent);
+      scrollbar-width: none;
+    }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav.is-stuck .nav-in { height: auto; }
+
+    /* the wordmark and the wallet share the first row, the links take the
+       second - rather than three stacked rows, one per control */
+    .nav-in .brand       { order: 1; margin-right: auto; }
+    .nav-in .wallet-wrap { order: 2; margin-left: 0; margin-right: 0; }
+    .nav-in .nav-cta     { order: 3; }
+    .nav-in .nav-links   { order: 4; margin-right: 0; }
+  }
+
+  @media (max-width: 560px) {
+    /* the hero already offers the app, twice */
+    .nav-in .nav-cta { display: none; }
+  }
+
+  @media (max-width: 860px) {
+    .ticker span { font-size: 20px; }
+    .ticker-dark { margin-top: 52px; margin-bottom: 34px; }
+    .ticker-track { gap: 18px; padding-right: 18px; }
+    .hero-aurora { filter: blur(54px); }
+  }
+
+  @media (max-width: 620px) {
+    .ticker span { font-size: 17px; }
+    .btn { padding: 10px 18px; }
+  }
+
 </style>
 </head>
 <body>
 
 <script>
 /* Set the theme before anything paints. Without this the page renders dark for
-   a frame and then flips, which on a white brand is the first thing you see. */
+   a frame and then flips, and on a brand this pale the flash is the first thing
+   anybody sees. */
 (function () {
   try {
-    var m = localStorage.getItem('nivya-theme');
+    var m = localStorage.getItem('sablya-theme');
     if (m !== 'dark') document.documentElement.setAttribute('data-theme', 'light');
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'light');
@@ -3324,43 +3832,29 @@
 })();
 </script>
 
-<!-- reusable Nivya mark -->
+<!-- reusable Sablya mark -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <!-- A frost crystal: six tapered arms off a hexagonal core, each with a
-         pair of branches. Filled rather than stroked, because every use of the
-         mark sets ill and a stroked version would come out invisible.
-         Geometry generated, not drawn: six arms at exactly 60 degrees. -->
-    <g id="nivya-mark">
-      <path d="M14.9 13.25L22.7 12.32L22.7 11.68L14.9 10.75Z"/>
-      <path d="M18.6 11.2L20.4 9.12L18.6 12.3Z"/>
-      <path d="M18.6 12.8L20.4 14.88L18.6 11.7Z"/>
-      <path d="M12.37 15.14L17.07 21.43L17.63 21.11L14.53 13.89Z"/>
-      <path d="M15.99 17.32L18.7 17.83L15.04 17.87Z"/>
-      <path d="M14.61 18.12L13.7 20.72L15.56 17.57Z"/>
-      <path d="M9.47 13.89L6.37 21.11L6.93 21.43L11.63 15.14Z"/>
-      <path d="M9.39 18.12L10.3 20.72L8.44 17.57Z"/>
-      <path d="M8.01 17.32L5.3 17.83L8.96 17.87Z"/>
-      <path d="M9.1 10.75L1.3 11.68L1.3 12.32L9.1 13.25Z"/>
-      <path d="M5.4 12.8L3.6 14.88L5.4 11.7Z"/>
-      <path d="M5.4 11.2L3.6 9.12L5.4 12.3Z"/>
-      <path d="M11.63 8.86L6.93 2.57L6.37 2.89L9.47 10.11Z"/>
-      <path d="M8.01 6.68L5.3 6.17L8.96 6.13Z"/>
-      <path d="M9.39 5.88L10.3 3.28L8.44 6.43Z"/>
-      <path d="M14.53 10.11L17.63 2.89L17.07 2.57L12.37 8.86Z"/>
-      <path d="M14.61 5.88L13.7 3.28L15.56 6.43Z"/>
-      <path d="M15.99 6.68L18.7 6.17L15.04 6.13Z"/>
-      <path d="M14.85 12L13.42 14.47L10.58 14.47L9.15 12L10.58 9.53L13.42 9.53Z"/>
+    <!-- Wind ripples in sand: three ribbons of one sine period each, stacked
+         and widening as they come forward. Filled rather than stroked, because
+         every use of the mark sets fill and a stroked version would come out
+         invisible. Geometry generated, not drawn. -->
+    <g id="sablya-mark">
+      <path d="M4.6 5.17L5.1 4.77L5.6 4.38L6.1 4.03L6.6 3.73L7.1 3.49L7.6 3.32L8.1 3.24L8.5 3.24L9.0 3.32L9.5 3.49L10.0 3.73L10.5 4.03L11.0 4.38L11.5 4.77L12.0 5.18L12.5 5.58L13.0 5.97L13.5 6.32L14.0 6.62L14.5 6.86L15.0 7.03L15.5 7.11L15.9 7.11L16.4 7.03L16.9 6.86L17.4 6.62L17.9 6.32L18.4 5.97L18.9 5.58L19.4 5.18L19.4 7.03L18.9 7.43L18.4 7.82L17.9 8.17L17.4 8.47L16.9 8.71L16.4 8.88L15.9 8.96L15.5 8.96L15.0 8.88L14.5 8.71L14.0 8.47L13.5 8.17L13.0 7.82L12.5 7.43L12.0 7.03L11.5 6.62L11.0 6.23L10.5 5.88L10.0 5.58L9.5 5.34L9.0 5.17L8.5 5.09L8.1 5.09L7.6 5.17L7.1 5.34L6.6 5.58L6.1 5.88L5.6 6.23L5.1 6.62L4.6 7.02Z"/>
+      <path d="M2.6 10.90L3.2 10.39L3.9 9.90L4.5 9.46L5.1 9.08L5.7 8.78L6.4 8.57L7.0 8.46L7.6 8.46L8.2 8.57L8.9 8.78L9.5 9.08L10.1 9.46L10.7 9.90L11.4 10.39L12.0 10.90L12.6 11.41L13.3 11.90L13.9 12.34L14.5 12.72L15.1 13.02L15.8 13.23L16.4 13.34L17.0 13.34L17.6 13.23L18.3 13.02L18.9 12.72L19.5 12.34L20.1 11.90L20.8 11.41L21.4 10.90L21.4 13.20L20.8 13.71L20.1 14.20L19.5 14.64L18.9 15.02L18.3 15.32L17.6 15.53L17.0 15.64L16.4 15.64L15.8 15.53L15.1 15.32L14.5 15.02L13.9 14.64L13.3 14.20L12.6 13.71L12.0 13.20L11.4 12.69L10.7 12.20L10.1 11.76L9.5 11.38L8.9 11.08L8.2 10.87L7.6 10.76L7.0 10.76L6.4 10.87L5.7 11.08L5.1 11.38L4.5 11.76L3.9 12.20L3.2 12.69L2.6 13.20Z"/>
+      <path d="M1.6 16.62L2.3 16.20L3.0 15.79L3.7 15.42L4.4 15.10L5.1 14.85L5.8 14.68L6.5 14.59L7.1 14.59L7.8 14.68L8.5 14.85L9.2 15.10L9.9 15.42L10.6 15.79L11.3 16.20L12.0 16.62L12.7 17.05L13.4 17.46L14.1 17.83L14.8 18.15L15.5 18.40L16.2 18.57L16.9 18.66L17.5 18.66L18.2 18.57L18.9 18.40L19.6 18.15L20.3 17.83L21.0 17.46L21.7 17.05L22.4 16.62L22.4 19.38L21.7 19.80L21.0 20.21L20.3 20.58L19.6 20.90L18.9 21.15L18.2 21.32L17.5 21.41L16.9 21.41L16.2 21.32L15.5 21.15L14.8 20.90L14.1 20.58L13.4 20.21L12.7 19.80L12.0 19.38L11.3 18.95L10.6 18.54L9.9 18.17L9.2 17.85L8.5 17.60L7.8 17.43L7.1 17.34L6.5 17.34L5.8 17.43L5.1 17.60L4.4 17.85L3.7 18.17L3.0 18.54L2.3 18.95L1.6 19.38Z"/>
     </g>
 
   </defs>
 </svg>
 
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"><i></i></div>
+
 <header class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top">
-      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#nivya-mark"/></svg>
-      Nivya
+      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg>
+      Sablya
     </a>
     <nav class="nav-links">
       <a href="#state">State</a>
@@ -3383,8 +3877,8 @@
         <span class="caret"></span>
       </button>
       <button class="nav-chip" type="button">
-        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--frost)" aria-hidden="true"><use href="#nivya-mark"/></svg>
-        NIV
+        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
+        SAB
         <span class="val">$0.0847</span>
       </button>
     </div>
@@ -3412,36 +3906,38 @@
 
   <!-- hero -->
   <section class="hero">
-    <svg class="comb" aria-hidden="true">
+    <svg class="dunes" aria-hidden="true">
       <defs>
-        <!-- One crystal, drawn once as six arms with branches, then reused at
-             four sizes and rotations across the tile. Stroked and thin, so it
-             reads as frost on glass rather than as a pattern of snowflakes. -->
-        <g id="flake" fill="none" stroke="currentColor" stroke-linecap="round">
-          <path d="M0 -10V10M-8.66 -5L8.66 5M-8.66 5L8.66 -5"/>
-          <path d="M0 -6.4L-2.6 -9M0 -6.4L2.6 -9M0 6.4L-2.6 9M0 6.4L2.6 9"/>
-          <path d="M-5.54 -3.2L-8.9 -3.5M-5.54 -3.2L-5.2 -6.6M5.54 3.2L8.9 3.5M5.54 3.2L5.2 6.6"/>
-          <path d="M-5.54 3.2L-8.9 3.5M-5.54 3.2L-5.2 6.6M5.54 -3.2L8.9 -3.5M5.54 -3.2L5.2 -6.6"/>
+        <!-- The ground is the same ripple as the mark, drawn open and tiled.
+             Four lines at different phases, so the seam between tiles does not
+             line up into a grid the eye can find. -->
+        <g id="ripple" fill="none" stroke="currentColor" stroke-linecap="round">
+          <path d="M0.0 18.0L3.4 16.5L6.8 15.2L10.2 14.1L13.6 13.3L17.0 12.9L20.5 12.9L23.9 13.3L27.3 14.1L30.7 15.2L34.1 16.5L37.5 18.0L40.9 19.5L44.3 20.8L47.7 21.9L51.1 22.7L54.5 23.1L58.0 23.1L61.4 22.7L64.8 21.9L68.2 20.8L71.6 19.5L75.0 18.0L78.4 16.5L81.8 15.2L85.2 14.1L88.6 13.3L92.0 12.9L95.5 12.9L98.9 13.3L102.3 14.1L105.7 15.2L109.1 16.5L112.5 18.0L115.9 19.5L119.3 20.8L122.7 21.9L126.1 22.7L129.5 23.1L133.0 23.1L136.4 22.7L139.8 21.9L143.2 20.8L146.6 19.5L150.0 18.0" stroke-width="1.1"/>
+          <path d="M0.0 47.7L3.4 47.6L6.8 47.9L10.2 48.5L13.6 49.5L17.0 50.6L20.5 51.8L23.9 53.0L27.3 54.2L30.7 55.2L34.1 55.9L37.5 56.3L40.9 56.4L44.3 56.1L47.7 55.5L51.1 54.5L54.5 53.4L58.0 52.2L61.4 51.0L64.8 49.8L68.2 48.8L71.6 48.1L75.0 47.7L78.4 47.6L81.8 47.9L85.2 48.5L88.6 49.5L92.0 50.6L95.5 51.8L98.9 53.0L102.3 54.2L105.7 55.2L109.1 55.9L112.5 56.3L115.9 56.4L119.3 56.1L122.7 55.5L126.1 54.5L129.5 53.4L133.0 52.2L136.4 51.0L139.8 49.8L143.2 48.8L146.6 48.1L150.0 47.7" stroke-width="0.9"/>
+          <path d="M0.0 85.3L3.4 86.9L6.8 88.4L10.2 89.7L13.6 90.8L17.0 91.4L20.5 91.6L23.9 91.3L27.3 90.7L30.7 89.6L34.1 88.2L37.5 86.7L40.9 85.1L44.3 83.6L47.7 82.3L51.1 81.2L54.5 80.6L58.0 80.4L61.4 80.7L64.8 81.3L68.2 82.4L71.6 83.8L75.0 85.3L78.4 86.9L81.8 88.4L85.2 89.7L88.6 90.8L92.0 91.4L95.5 91.6L98.9 91.3L102.3 90.7L105.7 89.6L109.1 88.2L112.5 86.7L115.9 85.1L119.3 83.6L122.7 82.3L126.1 81.2L129.5 80.6L133.0 80.4L136.4 80.7L139.8 81.3L143.2 82.4L146.6 83.8L150.0 85.3" stroke-width="1.2"/>
+          <path d="M0.0 123.9L3.4 124.0L6.8 123.8L10.2 123.3L13.6 122.5L17.0 121.5L20.5 120.4L23.9 119.3L27.3 118.2L30.7 117.3L34.1 116.6L37.5 116.1L40.9 116.0L44.3 116.2L47.7 116.7L51.1 117.5L54.5 118.5L58.0 119.6L61.4 120.7L64.8 121.8L68.2 122.7L71.6 123.4L75.0 123.9L78.4 124.0L81.8 123.8L85.2 123.3L88.6 122.5L92.0 121.5L95.5 120.4L98.9 119.3L102.3 118.2L105.7 117.3L109.1 116.6L112.5 116.1L115.9 116.0L119.3 116.2L122.7 116.7L126.1 117.5L129.5 118.5L133.0 119.6L136.4 120.7L139.8 121.8L143.2 122.7L146.6 123.4L150.0 123.9" stroke-width="0.9"/>
         </g>
-        <pattern id="combTile" width="190" height="190" patternUnits="userSpaceOnUse">
-          <use href="#flake" transform="translate(34 30) scale(1.15)" stroke-width="1"/>
-          <use href="#flake" transform="translate(138 62) rotate(18) scale(0.62)" stroke-width="1.3"/>
-          <use href="#flake" transform="translate(74 132) rotate(-12) scale(0.82)" stroke-width="1.1"/>
-          <use href="#flake" transform="translate(165 158) rotate(25) scale(0.45)" stroke-width="1.5"/>
-          <use href="#flake" transform="translate(6 96) rotate(8) scale(0.5)" stroke-width="1.4"/>
+        <pattern id="duneTile" width="150" height="150" patternUnits="userSpaceOnUse">
+          <use href="#ripple"/>
+          <circle cx="26" cy="35" r="1.1" fill="currentColor" stroke="none"/>
+          <circle cx="112" cy="70" r="0.9" fill="currentColor" stroke="none"/>
+          <circle cx="64" cy="104" r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="134" cy="137" r="0.9" fill="currentColor" stroke="none"/>
         </pattern>
       </defs>
-      <rect width="100%" height="100%" fill="url(#combTile)"/>
+      <rect class="dune-fill" width="200%" height="100%" fill="url(#duneTile)"/>
     </svg>
     <div class="hero-glow"></div>
-    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#nivya-mark"/></svg>
+    <div class="hero-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="grains" id="grains" aria-hidden="true"></div>
+    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg>
     <div class="wrap hero-grid">
 
       <div class="hero-col">
         <p class="rule-eyebrow">Uniswap v4 hook &middot; Base Sepolia</p>
         <h1>Your pool should not<br><em>pay</em> for the split.</h1>
         <p class="hero-sub">A corporate action reprices an asset at a known moment, by a known factor, with nobody trading. Nothing lands in the pool to tell it, so it keeps quoting yesterday's number. The curve stays wrong for exactly as long as nobody looks.</p>
-        <p class="hero-punch">Nivya is the hook that looks.</p>
+        <p class="hero-punch">Sablya is the hook that looks.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
           <a class="btn btn-ghost" href="#/docs">Read the note</a>
@@ -3480,6 +3976,13 @@
     </div>
   </section>
 
+
+  <!-- ticker -->
+  <div class="ticker ticker-light" aria-hidden="true">
+    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>One block</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Sablya</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg></div>
+    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>One block</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Sablya</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg></div>
+  </div>
+
   <!-- state of it -->
   <section class="band" id="state">
     <div class="wrap">
@@ -3515,7 +4018,7 @@
 
       <p class="ca-lede" id="caLede">
         When the token exists, its address appears here and nowhere else first.
-        Until this box shows one, any contract claiming to be Nivya is not ours.
+        Until this box shows one, any contract claiming to be Sablya is not ours.
         Check this page before you buy anything.
       </p>
 
@@ -3641,7 +4144,7 @@
 
     <div class="code">
       <div class="code-bar">
-        <span class="code-file">NivyaHook.sol</span>
+        <span class="code-file">SablyaHook.sol</span>
         <span class="code-meta">solidity 0.8.26 &middot; v4-core</span>
       </div>
       <pre class="code-body"><code><span class="c-cm">// runs before the pool settles the swap in front of it</span>
@@ -3669,7 +4172,7 @@
   <section class="sec wrap" id="fees-tech">
     <p class="rule-eyebrow">Fee controller</p>
     <h2 class="sec-title">The fee is a function,<br>not a constant.</h2>
-    <p class="sec-lede">Nivya runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
+    <p class="sec-lede">Sablya runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
 
     <div class="feat-grid">
       <article class="feat">
@@ -3686,7 +4189,7 @@
         <h3>Fee against volatility</h3>
         <div class="chart-legend">
           <span><i class="swatch" style="background:var(--ink-faint)"></i>Volatility</span>
-          <span><i class="swatch" style="background:var(--frost)"></i>Swap fee</span>
+          <span><i class="swatch" style="background:var(--sable)"></i>Swap fee</span>
         </div>
         <svg class="chart-svg" viewBox="0 0 400 150" role="img" aria-label="Swap fee tracking market volatility over twelve intervals, peaking at 58 percent volatility and 14 basis points.">
           <line x1="44" y1="16"  x2="384" y2="16"  stroke="var(--line)" stroke-width="1"/>
@@ -3697,12 +4200,12 @@
           <text x="38" y="132" text-anchor="end" fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">0%</text>
           <polyline fill="none" stroke="var(--ink-faint)" stroke-width="1.6" stroke-dasharray="3 3" stroke-linejoin="round"
             points="44,105.6 74.9,94.4 105.8,100 136.7,64.5 167.6,19.7 198.5,42.1 229.4,75.7 260.3,86.9 291.2,98.1 322.1,103.7 353,107.5 383.9,101.9"/>
-          <polygon fill="var(--frost)" fill-opacity="0.14"
+          <polygon fill="var(--sable)" fill-opacity="0.14"
             points="44,124.3 74.9,120.5 105.8,120.5 136.7,105.6 167.6,75.7 198.5,86.9 229.4,105.6 260.3,113.1 291.2,116.8 322.1,120.5 353,120.5 383.9,116.8 383.9,128 44,128"/>
-          <polyline fill="none" stroke="var(--frost)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
+          <polyline fill="none" stroke="var(--sable)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
             points="44,124.3 74.9,120.5 105.8,120.5 136.7,105.6 167.6,75.7 198.5,86.9 229.4,105.6 260.3,113.1 291.2,116.8 322.1,120.5 353,120.5 383.9,116.8"/>
-          <circle cx="167.6" cy="75.7" r="3.4" fill="var(--frost)"/>
-          <text x="176" y="70" fill="var(--frost)" font-size="9.5" font-family="DM Mono, monospace">14 bps</text>
+          <circle cx="167.6" cy="75.7" r="3.4" fill="var(--sable)"/>
+          <text x="176" y="70" fill="var(--sable)" font-size="9.5" font-family="DM Mono, monospace">14 bps</text>
           <text x="44"  y="145" text-anchor="start" fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">t&minus;12h</text>
           <text x="383.9" y="145" text-anchor="end"  fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">now</text>
         </svg>
@@ -3727,21 +4230,21 @@
       <div class="launch-list">
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#nivya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#sablya-mark"/></svg>
             95% to LPs
           </h3>
           <p>Fee only pools keep 95% of swap fees with the liquidity providers and send 5% to the protocol.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#nivya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#sablya-mark"/></svg>
             Pool options for your launch
           </h3>
           <p>Legacy V2 and concentrated V3 pools on every supported chain, with DLMM available on select networks.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#nivya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#sablya-mark"/></svg>
             Your launch. Your rules.
           </h3>
           <p>You keep control of your launch and your graduation mechanics, and we stay on the integration with you.</p>
@@ -3764,13 +4267,13 @@
       <h2>Questions we actually get</h2>
 
       <details class="q" open>
-        <summary>What is xNIV?</summary>
-        <p>xNIV carries the votes. It borrows the useful half of vote escrow, which is that long term holders steer emissions, and drops the half that traps you for four years. Balances stay liquid and the weight comes from participation instead of sentence length.</p>
+        <summary>What is xSAB?</summary>
+        <p>xSAB carries the votes. It borrows the useful half of vote escrow, which is that long term holders steer emissions, and drops the half that traps you for four years. Balances stay liquid and the weight comes from participation instead of sentence length.</p>
       </details>
 
       <details class="q">
         <summary>What is f33?</summary>
-        <p>f33 is xNIV you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperNivya.</p>
+        <p>f33 is xSAB you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperSablya.</p>
       </details>
 
       <details class="q">
@@ -3779,7 +4282,7 @@
       </details>
 
       <details class="q">
-        <summary>Which chains does Nivya support?</summary>
+        <summary>Which chains does Sablya support?</summary>
         <p>The target set is Arbitrum, HyperEVM, Base and Polygon, with routing that can reach HyperCore and connected lending markets inside the same transaction. None of it is on mainnet yet.</p>
       </details>
 
@@ -3789,18 +4292,25 @@
       </details>
 
       <details class="q">
-        <summary>Has Nivya been audited?</summary>
+        <summary>Has Sablya been audited?</summary>
         <p>Not yet, and there is nothing deployed to audit. When there is, external review happens before a single unit of mainnet liquidity is accepted, and the report goes up next to the docs. It is a gate, not a badge.</p>
       </details>
     </div>
   </section>
 
+
+  <!-- ticker -->
+  <div class="ticker ticker-dark" aria-hidden="true">
+    <div class="ticker-track ticker-rev"><span>95% to the pool</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Auctioned, not raced</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Uniswap v4</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Arbitrum</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>HyperEVM</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Base</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Polygon</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Nothing on mainnet yet</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg></div>
+    <div class="ticker-track ticker-rev"><span>95% to the pool</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Auctioned, not raced</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Uniswap v4</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Arbitrum</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>HyperEVM</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Base</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Polygon</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Nothing on mainnet yet</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg></div>
+  </div>
+
   <!-- closing -->
   <section class="wrap" style="padding-bottom:88px">
     <div class="close-cta" id="app">
-      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--frost)" aria-hidden="true"><use href="#nivya-mark"/></svg>
+      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
       <h2>Point a pool at it.</h2>
-      <p>Connect a wallet, add liquidity or stake xNIV, and earn from every trade the protocol routes.</p>
+      <p>Connect a wallet, add liquidity or stake xSAB, and earn from every trade the protocol routes.</p>
       <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
     </div>
   </section>
@@ -3812,8 +4322,8 @@
   <div class="wrap">
     <div class="foot-in">
       <a class="brand" href="#top">
-        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#nivya-mark"/></svg>
-        Nivya
+        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg>
+        Sablya
       </a>
       <nav class="foot-links">
         <a href="#/trade">Trade</a>
@@ -3826,14 +4336,14 @@
       </nav>
 
       <div class="socials">
-        <a class="social" href="https://x.com/NivyaTech" target="_blank" rel="noopener" aria-label="Nivya on X" data-social="x">
+        <a class="social" href="https://x.com/SablyaTech" target="_blank" rel="noopener" aria-label="Sablya on X" data-social="x">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
         </a>
       </div>
 
-      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 A Z U R Y A</span>
+      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 S A B L Y A</span>
     </div>
   </div>
 </footer>
@@ -3842,7 +4352,7 @@
 <main class="docs" id="docsView" hidden>
   <div class="doc-bar">
     <div class="wrap doc-bar-in">
-      <a class="doc-back" href="#top">&#8592; Back to Nivya</a>
+      <a class="doc-back" href="#top">&#8592; Back to Sablya</a>
       <a class="doc-back" href="#/trade">Launch App &#8599;</a>
       <span class="doc-kind">Protocol note &middot; 12 Sep 2026</span>
     </div>
@@ -3905,7 +4415,7 @@
 
       <h2>Why the curve cannot see it coming</h2>
 
-      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Nivya is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
+      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Sablya is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
 
       <p>The reason this is solvable at all is that these events are <em class="doc-term">scheduled</em>. A record date is public. A split ratio is public. Nothing about the moment of repricing is a surprise, it is only a surprise to the pool, because a pool has historically had no place to put that knowledge.</p>
 
@@ -3952,9 +4462,9 @@
         </dl>
       </div>
 
-      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Nivya before that box shows an address is not ours.</p>
+      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Sablya before that box shows an address is not ours.</p>
 
-      <p>The governance design, <em class="doc-term">xNIV</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
+      <p>The governance design, <em class="doc-term">xSAB</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
 
       <h2>Try the part that is real</h2>
 
@@ -3974,16 +4484,16 @@
 
       <p>In order: the attested feed for record dates, the auction contract for the residual, and an external review of both before a single unit of mainnet liquidity is accepted. Everything above stays on testnet until that sequence is finished, and this page will say so plainly for as long as it is true.</p>
 
-      <p>The pitch is not that Nivya invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
+      <p>The pitch is not that Sablya invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
 
       <div class="doc-end">
         <a class="btn btn-primary" href="#/trade">Launch App &#8599;</a>
-        <a class="btn btn-ghost" href="#top">&#8592; Back to Nivya</a>
+        <a class="btn btn-ghost" href="#top">&#8592; Back to Sablya</a>
       </div>
 
       <div class="doc-foot">
         <p>Figures are worked from constant product math on the stated reserves and are illustrative, not performance claims. Nothing here is investment advice or an offer of any token.</p>
-        <p>Nivya &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
+        <p>Sablya &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
       </div>
     </div>
   </div>
@@ -3991,8 +4501,8 @@
 
 <!-- ============ app view ============ -->
 <main class="app" id="appView" hidden>
-  <svg class="comb" aria-hidden="true">
-    <rect width="100%" height="100%" fill="url(#combTile)"/>
+  <svg class="dunes" aria-hidden="true">
+    <rect class="dune-fill" width="200%" height="100%" fill="url(#duneTile)"/>
   </svg>
   <svg class="frieze frieze-top" height="46" aria-hidden="true">
     <defs>
@@ -4000,7 +4510,7 @@
         <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
           <path d="M0 42H58"/>
         </g>
-        <use href="#nivya-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
+        <use href="#sablya-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
       </pattern>
     </defs>
     <rect width="100%" height="46" fill="url(#friezeTile)"/>
@@ -4124,7 +4634,7 @@
         <div class="rate-bar">
           <span id="rateLine">1 ETH = 3,529.67 USDC</span>
           <span class="gas-pick">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--frost)" aria-hidden="true"><use href="#nivya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
             Native
             <span class="caret"></span>
           </span>
@@ -4164,15 +4674,15 @@
           <svg id="chartSvg" viewBox="0 0 660 300" preserveAspectRatio="none" role="img" aria-label="Price chart for the selected pair">
             <defs>
               <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--frost)" stop-opacity="0.28"/>
-                <stop offset="100%" stop-color="var(--frost)" stop-opacity="0"/>
+                <stop offset="0%" stop-color="var(--sable)" stop-opacity="0.28"/>
+                <stop offset="100%" stop-color="var(--sable)" stop-opacity="0"/>
               </linearGradient>
             </defs>
             <g id="gridLines"></g>
             <path id="areaPath" fill="url(#areaFill)"/>
-            <path id="linePath" fill="none" stroke="var(--frost)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            <path id="linePath" fill="none" stroke="var(--sable)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             <line id="xhair" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" y1="0" y2="300" x1="-10" x2="-10" vector-effect="non-scaling-stroke"/>
-            <circle id="xdot" r="4" fill="var(--frost)" cx="-10" cy="-10"/>
+            <circle id="xdot" r="4" fill="var(--sable)" cx="-10" cy="-10"/>
           </svg>
           <div class="crosshair-label" id="xlabel" hidden></div>
         </div>
@@ -4222,7 +4732,7 @@
       <button class="slip" type="button" data-slip="1" aria-pressed="false">1.0%</button>
       <button class="slip" type="button" data-slip="3" aria-pressed="false">3.0%</button>
     </div>
-    <p class="modal-foot">Nivya quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
+    <p class="modal-foot">Sablya quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
   </div>
 </div>
 
@@ -4335,7 +4845,7 @@
   var val = document.getElementById('heroStatVal');
 
   function sync() {
-    var w = window.NivyaWallet;
+    var w = window.SablyaWallet;
     var onSepolia = !!(w && w.connected() && !w.isDemo() && w.chainId() === '0x14a34');
     pill.dataset.live = String(onSepolia);
     val.innerHTML = onSepolia
@@ -4343,18 +4853,18 @@
       : 'Base Sepolia \u00b7 testnet';
   }
 
-  if (window.NivyaWallet) window.NivyaWallet.onChange(sync);
+  if (window.SablyaWallet) window.SablyaWallet.onChange(sync);
   sync();
 })();
 </script>
 
 <!-- accent picker -->
 <div class="tint-picker" id="tintPicker" role="group" aria-label="Accent intensity">
-  <span class="tint-label">Frost</span>
-  <button class="tint" type="button" data-tint="0" aria-pressed="false" aria-label="Slate" title="Slate" style="background:#2c4a6b"></button>
-  <button class="tint" type="button" data-tint="1" aria-pressed="true"  aria-label="Frost" title="Frost" style="background:#dbe7f3"></button>
-  <button class="tint" type="button" data-tint="2" aria-pressed="false" aria-label="Ice"   title="Ice"   style="background:#eef4fb"></button>
-  <button class="tint" type="button" data-tint="3" aria-pressed="false" aria-label="Snow"  title="Snow"  style="background:#ffffff"></button>
+  <span class="tint-label">Sable</span>
+  <button class="tint" type="button" data-tint="0" aria-pressed="false" aria-label="Greige" title="Greige" style="background:#8c7b62"></button>
+  <button class="tint" type="button" data-tint="1" aria-pressed="true"  aria-label="Sable"  title="Sable"  style="background:#a5773c"></button>
+  <button class="tint" type="button" data-tint="2" aria-pressed="false" aria-label="Honey"  title="Honey"  style="background:#c08a2e"></button>
+  <button class="tint" type="button" data-tint="3" aria-pressed="false" aria-label="Umber"  title="Umber"  style="background:#6b4a21"></button>
   <span class="tint-sep"></span>
   <button class="theme-btn" type="button" id="themeBtn" aria-label="Switch theme">
     <svg class="sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -4369,57 +4879,79 @@
 
 <script>
 (function () {
+  /* Four readings of the same beige, from the grey end of it to the burnt end.
+     Each carries two sets: on cream the accent has to be darker than the
+     ground to read, and on the night theme it has to be lighter. One list of
+     values for both would fail at one end or the other. */
   var TINTS = [
-    { frost: '#2c4a6b', soft: '#3d6390', deep: '#1a3047', on: '#ffffff',
-      glow: 'rgba(44,74,107,.14)', line: 'rgba(60,95,135,.13)', lineStrong: 'rgba(60,95,135,.26)' },
-    { frost: '#dbe7f3', soft: '#ffffff', deep: '#8fa2b6', on: '#070b10',
-      glow: 'rgba(219,231,243,.12)', line: 'rgba(219,231,243,.13)', lineStrong: 'rgba(219,231,243,.26)' },
-    { frost: '#eef4fb', soft: '#ffffff', deep: '#a3b5c8', on: '#070b10',
-      glow: 'rgba(238,244,251,.14)', line: 'rgba(238,244,251,.15)', lineStrong: 'rgba(238,244,251,.30)' },
-    { frost: '#ffffff', soft: '#ffffff', deep: '#b8c6d4', on: '#070b10',
-      glow: 'rgba(255,255,255,.15)', line: 'rgba(255,255,255,.17)', lineStrong: 'rgba(255,255,255,.32)' }
+    { name: 'greige',
+      light: { sable: '#8c7b62', soft: '#a3907a', deep: '#5c4f3c', on: '#fffdf8',
+               glow: 'rgba(140,123,98,.13)', line: 'rgba(92,79,60,.17)', lineStrong: 'rgba(92,79,60,.32)' },
+      dark:  { sable: '#d5c7b0', soft: '#eadfcd', deep: '#9c8d76', on: '#14100a',
+               glow: 'rgba(213,199,176,.12)', line: 'rgba(213,199,176,.14)', lineStrong: 'rgba(213,199,176,.28)' } },
+    { name: 'sable',
+      light: { sable: '#a5773c', soft: '#c2944f', deep: '#6d4c1e', on: '#fffdf8',
+               glow: 'rgba(165,119,60,.12)', line: 'rgba(92,70,40,.17)', lineStrong: 'rgba(92,70,40,.32)' },
+      dark:  { sable: '#e0c79b', soft: '#f4e6cc', deep: '#a58a5f', on: '#14100a',
+               glow: 'rgba(224,199,155,.13)', line: 'rgba(233,214,181,.14)', lineStrong: 'rgba(233,214,181,.28)' } },
+    { name: 'honey',
+      light: { sable: '#c08a2e', soft: '#d9a341', deep: '#8a601a', on: '#fffdf8',
+               glow: 'rgba(192,138,46,.14)', line: 'rgba(110,80,32,.16)', lineStrong: 'rgba(110,80,32,.30)' },
+      dark:  { sable: '#eccb84', soft: '#f8e3b3', deep: '#b28f45', on: '#14100a',
+               glow: 'rgba(236,203,132,.14)', line: 'rgba(236,203,132,.15)', lineStrong: 'rgba(236,203,132,.30)' } },
+    { name: 'umber',
+      light: { sable: '#6b4a21', soft: '#8a6430', deep: '#4a3014', on: '#fffdf8',
+               glow: 'rgba(107,74,33,.13)', line: 'rgba(74,54,28,.18)', lineStrong: 'rgba(74,54,28,.34)' },
+      dark:  { sable: '#c9a877', soft: '#dfc39a', deep: '#8f7247', on: '#14100a',
+               glow: 'rgba(201,168,119,.13)', line: 'rgba(201,168,119,.14)', lineStrong: 'rgba(201,168,119,.28)' } }
   ];
 
   var root = document.documentElement;
   var buttons = document.querySelectorAll('.tint');
+  var current = 1;
+
+  function paint() {
+    var set = TINTS[current][root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'];
+    root.style.setProperty('--sable', set.sable);
+    root.style.setProperty('--sable-soft', set.soft);
+    root.style.setProperty('--sable-deep', set.deep);
+    root.style.setProperty('--on-sable', set.on);
+    root.style.setProperty('--glow', set.glow);
+    root.style.setProperty('--line', set.line);
+    root.style.setProperty('--line-strong', set.lineStrong);
+  }
 
   function apply(i) {
-    var t = TINTS[i];
-    if (!t) return;
-    root.style.setProperty('--frost', t.frost);
-    root.style.setProperty('--frost-soft', t.soft);
-    root.style.setProperty('--frost-deep', t.deep);
-    root.style.setProperty('--on-frost', t.on);
-    root.style.setProperty('--glow', t.glow);
-    root.style.setProperty('--line', t.line);
-    root.style.setProperty('--line-strong', t.lineStrong);
+    if (!TINTS[i]) return;
+    current = i;
+    paint();
     buttons.forEach(function (b) {
       b.setAttribute('aria-pressed', String(Number(b.dataset.tint) === i));
     });
-    try { localStorage.setItem('nivya-tint', String(i)); } catch (e) {}
+    try { localStorage.setItem('sablya-tint', String(i)); } catch (e) {}
   }
 
   buttons.forEach(function (b) {
     b.addEventListener('click', function () { apply(Number(b.dataset.tint)); });
   });
 
-  var saved = null;
-  try { saved = localStorage.getItem('nivya-tint'); } catch (e) {}
-  if (saved !== null && TINTS[Number(saved)]) apply(Number(saved));
-
   var themeBtn = document.getElementById('themeBtn');
 
   function setTheme(mode) {
     if (mode === 'light') root.setAttribute('data-theme', 'light');
     else root.removeAttribute('data-theme');
-    try { localStorage.setItem('nivya-theme', mode); } catch (e) {}
+    try { localStorage.setItem('sablya-theme', mode); } catch (e) {}
+    paint();
   }
 
-  /* Light is the default for a brand called snow. Only an explicit choice of
-     dark turns it off, which is the opposite of how this started. */
-  var savedTheme = null;
-  try { savedTheme = localStorage.getItem('nivya-theme'); } catch (e) {}
+  /* Light is the default for a brand named after sand. Only an explicit choice
+     of dark turns it off, which is the opposite of how this started. */
+  var savedTheme = null, saved = null;
+  try { savedTheme = localStorage.getItem('sablya-theme'); } catch (e) {}
+  try { saved = localStorage.getItem('sablya-tint'); } catch (e) {}
+
   setTheme(savedTheme === 'dark' ? 'dark' : 'light');
+  apply(saved !== null && TINTS[Number(saved)] ? Number(saved) : 1);
 
   themeBtn.addEventListener('click', function () {
     setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
@@ -4431,10 +4963,10 @@
 <div class="modal-backdrop" id="walletModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-head">
-      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--frost)" aria-hidden="true"><use href="#nivya-mark"/></svg>
+      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
       <div>
         <h2 id="walletModalTitle">Connect a wallet</h2>
-        <p>Choose how you want to connect to Nivya.</p>
+        <p>Choose how you want to connect to Sablya.</p>
       </div>
       <button class="modal-close" id="walletClose" type="button" aria-label="Close">&times;</button>
     </div>
@@ -4481,7 +5013,7 @@
       </button>
     </div>
 
-    <p class="modal-foot">Nivya only reads your public address. This concept page never requests a signature or a transaction.</p>
+    <p class="modal-foot">Sablya only reads your public address. This concept page never requests a signature or a transaction.</p>
   </div>
 </div>
 
@@ -4565,7 +5097,7 @@
     emit();
   }
 
-  window.NivyaWallet = {
+  window.SablyaWallet = {
     connected: function () { return !!account; },
     address: function () { return account; },
     chainId: function () { return currentChainId; },
@@ -4705,7 +5237,7 @@
     if (lastView !== null && view !== lastView) window.scrollTo(0, 0);
     lastView = view;
 
-    if (isApp && window.NivyaSwap) window.NivyaSwap.refresh();
+    if (isApp && window.SablyaSwap) window.SablyaSwap.refresh();
   }
 
   window.addEventListener('hashchange', apply);
@@ -4737,8 +5269,8 @@
     { sym: 'USDT', name: 'Tether USD',      price: 0.9998,   bal: 0,        color: '#26a17b', addr: '0xFd08…dbe9', depth: 900000 },
     { sym: 'ARB',  name: 'Arbitrum',        price: 0.4215,   bal: 1204.88,  color: '#28a0f0', addr: '0x912C…4a48', depth: 640000 },
     { sym: 'HYPE', name: 'Hyperliquid',     price: 27.4180,  bal: 0,        color: '#4ad2b0', addr: '0x5555…5555', depth: 720000 },
-    { sym: 'NIV',  name: 'Nivya',           price: 0.0847,   bal: 45120,    color: '#dbe7f3', addr: '0x1C4a…9eD3', depth: 310000 },
-    { sym: 'xNIV', name: 'Staked Nivya',    price: 0.0912,   bal: 12880.4,  color: '#8fa2b6', addr: '0x7B0d…2fA6', depth: 180000 }
+    { sym: 'SAB',  name: 'Sablya',           price: 0.0847,   bal: 45120,    color: '#dbe7f3', addr: '0x1C4a…9eD3', depth: 310000 },
+    { sym: 'xSAB', name: 'Staked Sablya',    price: 0.0912,   bal: 12880.4,  color: '#8fa2b6', addr: '0x7B0d…2fA6', depth: 180000 }
   ];
 
   var STABLE = ['USDC', 'USDT'];
@@ -4760,7 +5292,7 @@
   var details = byId('swapDetails'), cta = byId('swapCta');
 
   function connected() {
-    return !!(window.NivyaWallet && window.NivyaWallet.connected());
+    return !!(window.SablyaWallet && window.SablyaWallet.connected());
   }
 
   function num(el) {
@@ -5178,7 +5710,7 @@
   }
 
   cta.addEventListener('click', function () {
-    if (cta.dataset.action === 'connect') { window.NivyaWallet.open(); return; }
+    if (cta.dataset.action === 'connect') { window.SablyaWallet.open(); return; }
     if (cta.dataset.action === 'live') { executeWrap(); return; }
     if (cta.dataset.action !== 'review') return;
 
@@ -5238,7 +5770,7 @@
   var liveBalances = { ETH: null, WETH: null };
   var txBusy = false;
 
-  function wallet() { return window.NivyaWallet; }
+  function wallet() { return window.SablyaWallet; }
   function onTestnet() {
     return !!(wallet() && !wallet().isDemo() && wallet().chainId() === TESTNET.chainId);
   }
@@ -5352,7 +5884,7 @@
     });
   }
 
-  window.NivyaLive = {
+  window.SablyaLive = {
     active: liveMode,
     onTestnet: onTestnet,
     isWrapPair: isWrapPair,
@@ -5389,13 +5921,13 @@
     });
   });
 
-  if (window.NivyaWallet) window.NivyaWallet.onChange(function () {
+  if (window.SablyaWallet) window.SablyaWallet.onChange(function () {
     setTxNote('');
     loadLiveBalances();
     render();
   });
 
-  window.NivyaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
+  window.SablyaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
 
   paintChartHead();
   drawChart();
@@ -5409,7 +5941,7 @@
 
     <div id="gateMain">
       <header class="gate-head">
-        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#nivya-mark"/></svg>
+        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg>
         <div>
           <p class="eyebrow">Before you continue</p>
           <h2 id="gateTitle">Terms and privacy</h2>
@@ -5423,10 +5955,10 @@
 
       <div class="gate-body" tabindex="0">
         <div class="gate-panel" id="panelTerms" role="tabpanel" aria-labelledby="tabTerms">
-          <p><b>Nivya is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
+          <p><b>Sablya is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
 
           <h3>Nothing is deployed</h3>
-          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Nivya while that box reads <b>not deployed</b> is not ours.</p>
+          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Sablya while that box reads <b>not deployed</b> is not ours.</p>
 
           <h3>Unaudited software</h3>
           <p>The hook has not been audited. The only real transaction this interface can send is an ETH to WETH wrap on Base Sepolia, a test network, using test ETH with no monetary value. Every other quote on the app screen is simulated and labelled as such.</p>
@@ -5435,7 +5967,7 @@
           <p>Nothing here is investment, financial, legal, or tax advice. The figures shown are constant product arithmetic on stated reserves, worked as illustrations. They are not projections, performance claims, or a forecast of anything.</p>
 
           <h3>Your keys stay yours</h3>
-          <p>Nivya never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
+          <p>Sablya never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
 
           <h3>Your side of it</h3>
           <p>You confirm you are of legal age where you live, that you are not accessing this from a jurisdiction where it would be prohibited, and that you use it as is, at your own risk, with no warranty of any kind.</p>
@@ -5460,7 +5992,7 @@
 
       <label class="gate-agree" for="gateAgree" id="gateAgreeRow">
         <input type="checkbox" id="gateAgree">
-        <span>I have read the terms and the privacy notice, and I understand that Nivya is unaudited testnet software with no token and no mainnet deployment.</span>
+        <span>I have read the terms and the privacy notice, and I understand that Sablya is unaudited testnet software with no token and no mainnet deployment.</span>
       </label>
 
       <div class="gate-actions">
@@ -5472,7 +6004,7 @@
     </div>
 
     <div class="gate-blocked" id="gateBlocked" hidden>
-      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--frost)" aria-hidden="true"><use href="#nivya-mark"/></svg>
+      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
       <h2>Then this is where it stops.</h2>
       <p>Declining is a real answer and nothing here is worth overriding it for. Close the tab whenever you like, or read the notice again if you changed your mind.</p>
       <button class="btn btn-ghost" id="gateBack" type="button">Read it again</button>
@@ -5483,7 +6015,7 @@
 
 <script>
 (function () {
-  var KEY   = 'nivya-legal-v1';
+  var KEY   = 'sablya-legal-v1';
   var gate  = document.getElementById('legalGate');
   if (!gate) return;
 
@@ -5670,5 +6202,253 @@
   }, { passive: true });
 })();
 </script>
+<script>
+/* ---------- Sablya: movement ----------
+   Every effect in here is opt-in through the `motion` class on <html>. If the
+   reader has asked for reduced motion the class is never set, the reveal CSS
+   never matches, and the page renders exactly as it would have without this
+   file. Nothing below is allowed to be load bearing. */
+(function () {
+  var root  = document.documentElement;
+  var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ---- scroll progress, and the bar tightening once you leave the top ---- */
+  (function () {
+    var bar = document.getElementById('scrollProgress');
+    var fill = bar && bar.firstElementChild;
+    var nav = document.querySelector('.nav');
+    var ticking = false;
+
+    function paint() {
+      ticking = false;
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var y = window.scrollY || window.pageYOffset;
+      if (fill) fill.style.setProperty('--p', (h > 0 ? Math.min(100, (y / h) * 100) : 0).toFixed(2) + '%');
+      if (nav) nav.classList.toggle('is-stuck', y > 12);
+    }
+
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(paint); }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    paint();
+  })();
+
+  if (still.matches) return;
+  root.classList.add('motion');
+
+  /* ---- the headline, split into words that can be animated one at a time ----
+     Only text nodes are touched, so the <br> and the <em> inside the heading
+     survive and the sentence still reads as one sentence to a screen reader. */
+  (function () {
+    var h1 = document.querySelector('.hero h1');
+    if (!h1) return;
+
+    /* innerText, not textContent: the heading has a <br> in it, and
+       textContent would glue the two halves of the sentence together. */
+    var label = (h1.innerText || h1.textContent).replace(/\s+/g, ' ').trim();
+    var i = 0;
+
+    function split(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+        if (child.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          child.nodeValue.split(/(\s+)/).forEach(function (part) {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            var line = document.createElement('span');
+            line.className = 'w-line';
+            var word = document.createElement('span');
+            word.className = 'w';
+            word.textContent = part;
+            word.style.setProperty('--wd', (60 + i * 72) + 'ms');
+            i++;
+            line.appendChild(word);
+            frag.appendChild(line);
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === 1 && child.tagName !== 'BR') {
+          split(child);
+        }
+      });
+    }
+
+    split(h1);
+    /* the heading is now a pile of spans, so give it back its sentence */
+    h1.setAttribute('aria-label', label);
+  })();
+
+  /* ---- the cards lift off the sand ---- */
+  (function () {
+    document.querySelectorAll(
+      '.panel, .numcard, .flow-step, .feat, .board, .ca, .launch, .code,' +
+      '.close-cta, .token-card, .netcard, .q, .launch-item'
+    ).forEach(function (el) { el.classList.add('lift'); });
+  })();
+
+  /* ---- blown sand in the hero ---- */
+  (function () {
+    var box = document.getElementById('grains');
+    if (!box) return;
+    var frag = document.createDocumentFragment();
+    for (var n = 0; n < 18; n++) {
+      var g = document.createElement('i');
+      g.style.cssText =
+        'left:' + (Math.random() * 100).toFixed(1) + '%;' +
+        'top:' + (35 + Math.random() * 62).toFixed(1) + '%;' +
+        '--s:' + (1.5 + Math.random() * 3).toFixed(1) + 'px;' +
+        '--dx:' + (60 + Math.random() * 220).toFixed(0) + 'px;' +
+        '--dy:' + (-60 - Math.random() * 190).toFixed(0) + 'px;' +
+        '--dur:' + (13 + Math.random() * 13).toFixed(1) + 's;' +
+        '--delay:' + (Math.random() * 14).toFixed(1) + 's';
+      frag.appendChild(g);
+    }
+    box.appendChild(frag);
+  })();
+
+  /* ---- reveal on approach ----
+     Cards are staggered against their own row rather than against the page, so
+     a group that scrolls in together arrives together rather than in a queue
+     whose length depends on how far down the page it happens to sit. */
+  (function () {
+    if (!window.IntersectionObserver) return;
+
+    var GROUPS = [
+      '.numgrid > *', '.flow > *', '.feat-grid > *', '.launch-list > *',
+      '.band-stats > *', '.faq .q', '.doc-grid > *', '.net-grid > *'
+    ];
+    var SINGLES = [
+      '.sec > .rule-eyebrow', '.sec > .sec-title', '.sec > .sec-lede',
+      '.band > .wrap', '.board', '.ca', '.code', '.launch', '.close-cta',
+      '.grid-foot', '.faq h2', '.ticker'
+    ];
+
+    var seen = [];
+
+    GROUPS.forEach(function (sel) {
+      document.querySelectorAll(sel).forEach(function (el, i) {
+        if (el.closest('#appView, #docsView, .gate')) return;
+        el.setAttribute('data-reveal', '');
+        el.style.setProperty('--d', Math.min(i, 6) * 85 + 'ms');
+        seen.push(el);
+      });
+    });
+
+    SINGLES.forEach(function (sel) {
+      document.querySelectorAll(sel).forEach(function (el) {
+        if (el.hasAttribute('data-reveal')) return;
+        if (el.closest('#appView, #docsView, .gate, .hero')) return;
+        el.setAttribute('data-reveal', '');
+        seen.push(el);
+      });
+    });
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+
+    seen.forEach(function (el) { io.observe(el); });
+
+    /* A safety net. An element inside a view that was hidden when the
+       observer first ran never reports an intersection, so anything already
+       on screen and still waiting gets shown outright. Runs once after load,
+       and again after a route change for the same reason. */
+    function rescue() {
+      seen.forEach(function (el) {
+        if (el.classList.contains('is-in')) return;
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 1.15 && r.bottom > -window.innerHeight * 0.15) {
+          el.classList.add('is-in');
+        }
+      });
+    }
+
+    window.setTimeout(rescue, 2600);
+    window.addEventListener('hashchange', function () { window.setTimeout(rescue, 300); });
+  })();
+
+  /* ---- figures count up the first time they are read ---- */
+  (function () {
+    if (!window.IntersectionObserver) return;
+
+    var NUM = /^([^0-9-]*)(-?[\d.,]*\d)(.*)$/;
+
+    var targets = [];
+    document.querySelectorAll('.band-stat .n, .metric-val, .panel-rows dd.hot').forEach(function (el) {
+      var m = NUM.exec(el.textContent.trim().replace(/−/g, '-'));
+      if (!m) return;
+      var raw = m[2];
+      var value = parseFloat(raw.replace(/,/g, ''));
+      if (!isFinite(value) || Math.abs(value) < 10) return;
+      var decimals = (raw.split('.')[1] || '').length;
+      targets.push({ el: el, pre: m[1], post: m[3], to: value, dec: decimals, grouped: raw.indexOf(',') > -1 });
+    });
+
+    if (!targets.length) return;
+
+    function render(t, v) {
+      var n = t.grouped
+        ? Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: t.dec, maximumFractionDigits: t.dec })
+        : Math.abs(v).toFixed(t.dec);
+      t.el.textContent = t.pre + (v < 0 ? '−' : '') + n + t.post;
+    }
+
+    function run(t) {
+      var start = null, DUR = 1150;
+      function step(ts) {
+        if (start === null) start = ts;
+        var p = Math.min(1, (ts - start) / DUR);
+        var eased = 1 - Math.pow(1 - p, 3);
+        render(t, t.to * eased);
+        if (p < 1) requestAnimationFrame(step);
+        else t.el.textContent = t.original;
+      }
+      requestAnimationFrame(step);
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        var t = targets.filter(function (x) { return x.el === e.target; })[0];
+        if (t) run(t);
+      });
+    }, { threshold: 0.5 });
+
+    targets.forEach(function (t) {
+      t.original = t.el.textContent;
+      /* hold the width so the row does not jump while the digits climb */
+      t.el.style.minWidth = t.el.getBoundingClientRect().width.toFixed(1) + 'px';
+      t.el.style.display = 'inline-block';
+      io.observe(t.el);
+    });
+  })();
+
+  /* ---- a ticker that has nothing to scroll past should not scroll ---- */
+  (function () {
+    document.querySelectorAll('.ticker').forEach(function (t) {
+      var track = t.firstElementChild;
+      if (!track) return;
+      function fit() {
+        /* the two tracks are identical, so one has to be at least as wide as
+           the frame or the loop shows a gap at the seam */
+        var copies = Math.max(1, Math.ceil(t.offsetWidth / Math.max(1, track.offsetWidth)));
+        while (t.children.length < copies * 2) {
+          t.appendChild(track.cloneNode(true));
+        }
+      }
+      fit();
+      window.addEventListener('resize', fit, { passive: true });
+    });
+  })();
+})();
+</script>
+
 </body>
 </html>

@@ -32,9 +32,17 @@
 		X-Frame-Options SAMEORIGIN
 	}
 
-	# The deployment registry polls this. There is no backend, and the page
-	# handles the failure — but without this it would fall through to try_files
-	# and cost a 181 KB index.html on every page load.
+	# The deployment registry reads this. It is a file, not a backend, so it
+	# needs its type said out loud and its caching turned off: the address is
+	# the one thing on the site nobody should be served a stale copy of.
+	handle /api/token {
+		header Content-Type application/json
+		header Cache-Control "no-store"
+		file_server
+	}
+
+	# Nothing else under /api exists. Without this it would fall through to
+	# try_files and cost a 181 KB index.html on every page load.
 	handle /api/* {
 		respond 404
 	}

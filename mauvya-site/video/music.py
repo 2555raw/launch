@@ -10,13 +10,14 @@ arrive one at a time, the way the picture does.
 """
 
 import math
+import os
 import sys
 import wave
 
 import numpy as np
 
 SR = 44100
-BPM = 118.0
+BPM = 142.0 if os.environ.get("DRIVE") else 118.0
 BEAT = 60.0 / BPM
 BAR = BEAT * 4
 
@@ -148,18 +149,20 @@ def render(seconds):
         if b == 0 or b % 4 == 0:                         # the ping, every four bars
             ping(t0 + BEAT * 0.5, buf, gain=0.26 if b == 0 else 0.19)
 
-        if b >= 1:                                       # the clock
+        if b >= (0 if os.environ.get("DRIVE") else 1):   # the clock
             for e in range(8):
                 tick(t0 + e * BEAT / 2, buf, 0.16 if e % 2 else 0.11)
 
-        if b >= 2:                                       # the floor
-            for beat in (0, 2):
-                sub(t0 + beat * BEAT, buf, 1.0 if beat == 0 else 0.8)
+        drive = bool(os.environ.get("DRIVE"))
+
+        if b >= (1 if drive else 2):                     # the floor
+            for beat in ((0, 1, 2, 3) if drive else (0, 2)):
+                sub(t0 + beat * BEAT, buf, 1.0 if beat % 2 == 0 else 0.72)
             for i, off in enumerate((0.0, 1.5, 2.0, 3.5)):
                 note = (E2, E2, G2, B2)[i] if b % 4 != 3 else (E2, D3, G2, B2)[i]
                 bass(note, t0 + off * BEAT, BEAT * 0.5, buf)
 
-        if b >= 4:                                       # the figure on top
+        if b >= (2 if drive else 4):                     # the figure on top
             for i, note in enumerate(FIGURE):
                 if b % 4 == 3 and i % 2:
                     continue                             # thin it every fourth bar

@@ -18,6 +18,21 @@ node video/capture.js video/raw app docs    # or re-shoot some
 python3 video/build.py video/raw video/cards video/mauvya.mp4
 ```
 
+## The app film
+
+A second, shorter piece: the interface being used rather than the page being
+read. Every beat is somebody pressing something and the interface answering,
+so it is nearly all footage, the cuts are shorter, and the soundtrack drives.
+
+```bash
+SITE=http://localhost:8903/ node video/capture-app.js video/raw-app
+SEQ=app DRIVE=1 XFADE=0.18 python3 video/build.py \
+    video/raw-app video/cards video/mauvya-app.mp4
+```
+
+`SEQ=app` picks the app running order, `DRIVE=1` gives the soundtrack a floor
+on every beat at 142 BPM instead of 118, and `XFADE` overrides the crossfade.
+
 Needs `playwright`, `numpy` and `imageio-ffmpeg`, and a Chromium at
 `$CHROMIUM` (default `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`).
 

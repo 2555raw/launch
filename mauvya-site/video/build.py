@@ -19,7 +19,7 @@ import sys
 FF = os.environ.get("FFMPEG") or __import__("imageio_ffmpeg").get_ffmpeg_exe()
 FPS = 30
 W, H = 1280, 720
-XFADE = 0.26          # the crossfade between every beat
+XFADE = float(os.environ.get("XFADE", 0.26))   # the crossfade between every beat
 
 # name, source, seconds. Footage seconds are trimmed from the recording's own
 # action window; card seconds are how long the title holds.
@@ -41,6 +41,24 @@ SEQUENCE = [
     ("shot", "docs", 2.0),
     ("card", "08-outro", 2.2),
 ]
+
+# The app film: the interface being used rather than the page being read, so
+# it is nearly all footage and the cuts are shorter.
+APP_SEQUENCE = [
+    ("card", "01-logo", 1.2),
+    ("shot", "open", 2.4),
+    ("shot", "pick", 2.6),
+    ("shot", "amount", 2.6),
+    ("shot", "settings", 2.2),
+    ("shot", "wallet", 2.6),
+    ("shot", "confirm", 3.0),
+    ("shot", "chart", 2.4),
+    ("shot", "theme", 2.2),
+    ("card", "08-outro", 2.0),
+]
+
+if os.environ.get("SEQ") == "app":
+    SEQUENCE = APP_SEQUENCE
 
 
 def run(args):

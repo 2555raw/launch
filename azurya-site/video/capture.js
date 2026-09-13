@@ -51,116 +51,139 @@ const land = async (page, sel, pad = 90, settle = 900) => {
 
 const BEATS = [
   {
-    // the headline builds itself a word at a time, so this one shoots from load
     name: 'hero',
     run: async (page) => {
-      await page.waitForTimeout(2600);
-      await ease(page, 300, 1600);
-      await page.waitForTimeout(700);
+      await page.waitForTimeout(1400);
+      await ease(page, 260, 1100);
+      await page.waitForTimeout(500);
     },
   },
   {
     name: 'ticker',
-    run: async (page) => {
-      await land(page, '.ticker', 260, 1500);
-      await page.waitForTimeout(1800);
-    },
+    run: async (page) => { await land(page, '.ticker', 250, 1500); await page.waitForTimeout(1200); },
   },
   {
-    // the figures count up as the band comes into view
     name: 'band',
-    run: async (page) => {
-      const y = await topOf(page, '.band');
-      await page.evaluate((v) => window.scrollTo(0, v - 700), y);
-      await page.waitForTimeout(400);
-      await ease(page, y - 140, 1100);
-      await page.waitForTimeout(3200);   // the reveal, then the figures counting
-    },
+    run: async (page) => { await land(page, '.band', 130, 1600); await page.waitForTimeout(900); },
   },
   {
-    name: 'registry',
-    run: async (page) => {
-      await land(page, '#token', 140, 1700);
-      await page.waitForTimeout(900);
-    },
-  },
-  {
-    // three cards on a staircase, revealing in sequence
-    name: 'cards',
-    run: async (page) => {
-      const y = await topOf(page, '#liquidity');
-      await page.evaluate((v) => window.scrollTo(0, v - 620), y);
-      await page.waitForTimeout(400);
-      await ease(page, y + 130, 1500);
-      await page.waitForTimeout(1900);
-    },
+    name: 'rows',
+    run: async (page) => { await land(page, '#liquidity', 120, 1700); await page.waitForTimeout(900); },
   },
   {
     name: 'board',
-    run: async (page) => {
-      await land(page, '#security', 120, 2100);
-      await page.waitForTimeout(1000);
-    },
+    run: async (page) => { await land(page, '#security', 120, 1700); await page.waitForTimeout(900); },
   },
   {
     name: 'flow',
-    run: async (page) => {
-      await land(page, '#earn', 120, 2100);
-      await page.waitForTimeout(900);
-    },
+    run: async (page) => { await land(page, '#earn', 120, 1700); await page.waitForTimeout(800); },
   },
   {
+    // the hook itself, on screen
     name: 'code',
     run: async (page) => {
-      await land(page, '#interface', 110, 1900);
-      await page.waitForTimeout(900);
+      await land(page, '#interface', 100, 1600);
+      await ease(page, (await topOf(page, '#interface')) + 210, 1000);
+      await page.waitForTimeout(1100);
     },
   },
   {
     name: 'chart',
     run: async (page) => {
-      await land(page, '#fees-tech', 110, 2000);
-      await ease(page, (await topOf(page, '#fees-tech')) + 260, 1400);
+      await land(page, '#fees-tech', 100, 1600);
+      await ease(page, (await topOf(page, '#fees-tech')) + 250, 1000);
       await page.waitForTimeout(900);
     },
   },
   {
-    // the whole page changes colour: four readings of the beige, then the night
+    // the whole page changes colour, four times, then the night
     name: 'tints',
     run: async (page) => {
-      await land(page, '#earn', 120, 1200);
+      await land(page, '#earn', 120, 900);
       for (const i of [0, 2, 3, 1]) {
         await page.click(`.tint[data-tint="${i}"]`);
-        await page.waitForTimeout(760);
+        await page.waitForTimeout(420);
       }
       await page.click('#themeBtn');
-      await page.waitForTimeout(1500);
-      await page.click('#themeBtn');
-      await page.waitForTimeout(900);
+      await page.waitForTimeout(1200);
     },
   },
+
+  /* ---- the app: one beat per thing it does ---- */
   {
-    name: 'app',
+    name: 'app-type',
     run: async (page) => {
       await page.evaluate(() => { location.hash = '#/trade'; });
-      await page.waitForTimeout(1700);
+      await page.waitForTimeout(1500);
       await page.click('#amtIn');
       for (const ch of '2.5') {
         await page.keyboard.press(ch === '.' ? 'Period' : `Digit${ch}`);
-        await page.waitForTimeout(150);
+        await page.waitForTimeout(130);
       }
       await page.waitForTimeout(900);
+    },
+  },
+  {
+    name: 'app-flip',
+    run: async (page) => {
+      await page.evaluate(() => { location.hash = '#/trade'; });
+      await page.waitForTimeout(1500);
+      await page.click('#amtIn');
+      for (const ch of '1') await page.keyboard.press(`Digit${ch}`);
+      await page.waitForTimeout(500);
       await page.click('#flipBtn');
-      await page.waitForTimeout(1300);
+      await page.waitForTimeout(700);
+      await page.click('#flipBtn');
+      await page.waitForTimeout(800);
+    },
+  },
+  {
+    name: 'app-token',
+    run: async (page) => {
+      await page.evaluate(() => { location.hash = '#/trade'; });
+      await page.waitForTimeout(1500);
+      await page.click('#tkOutBtn');
+      await page.waitForTimeout(700);
+      await page.click('#tkSearch');
+      for (const ch of 'US') await page.keyboard.press(`Key${ch}`), await page.waitForTimeout(140);
+      await page.waitForTimeout(900);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(400);
+    },
+  },
+  {
+    name: 'app-slip',
+    run: async (page) => {
+      await page.evaluate(() => { location.hash = '#/trade'; });
+      await page.waitForTimeout(1500);
+      await page.click('#slipBtn');
+      await page.waitForTimeout(650);
+      for (const v of ['0.1', '1', '3', '0.5']) {
+        await page.click(`.slip[data-slip="${v}"]`);
+        await page.waitForTimeout(420);
+      }
+      await page.waitForTimeout(500);
+    },
+  },
+  {
+    name: 'app-chart',
+    run: async (page) => {
+      await page.evaluate(() => { location.hash = '#/trade'; });
+      await page.waitForTimeout(1600);
+      for (const r of ['1H', '1W', '1M', '1D']) {
+        await page.click(`.range[data-range="${r}"]`);
+        await page.waitForTimeout(520);
+      }
+      await page.waitForTimeout(600);
     },
   },
   {
     name: 'docs',
     run: async (page) => {
       await page.evaluate(() => { location.hash = '#/docs'; });
-      await page.waitForTimeout(1400);
-      await ease(page, 620, 2000);
-      await page.waitForTimeout(700);
+      await page.waitForTimeout(1300);
+      await ease(page, 900, 1600);
+      await page.waitForTimeout(600);
     },
   },
 ];
@@ -199,9 +222,9 @@ const BEATS = [
     // which is the real one for a brand named after a colour.
     await ctx.addInitScript(() => {
       try {
-        localStorage.setItem('beyga-legal-v1', 'accepted');
-        localStorage.setItem('beyga-theme', 'light');
-        localStorage.setItem('beyga-tint', '1');
+        localStorage.setItem('vermya-legal-v1', 'accepted');
+        localStorage.setItem('vermya-theme', 'light');
+        localStorage.setItem('vermya-tint', '1');
       } catch (_) {}
     });
 

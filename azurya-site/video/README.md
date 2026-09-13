@@ -1,6 +1,6 @@
 # The film
 
-A 34 second piece for Beyga: title cards cut against footage of the real page,
+A 28 second piece for Vermya: title cards cut against footage of the real page,
 over an original soundtrack. 1280x720, 30fps, H.264 + AAC.
 
 ```bash
@@ -13,8 +13,10 @@ SITE=http://127.0.0.1:8899/ node video/capture.js video/raw          # all beats
 SITE=http://127.0.0.1:8899/ node video/capture.js video/raw tints    # or re-shoot one
 CARD_URL=http://127.0.0.1:8899/card.html node video/cards.js video/cards
 
+CAP_URL=http://127.0.0.1:8899/caption.html node video/overlays.js video/caps
+
 # 3. cut it
-python3 video/build.py video/raw video/cards video/beyga.mp4
+python3 video/build.py video/raw video/cards video/vermya.mp4 video/caps
 ```
 
 ## The parts
@@ -24,17 +26,30 @@ python3 video/build.py video/raw video/cards video/beyga.mp4
 | `capture.js` | Drives the page and records a clip per beat. One context each, the legal gate answered before load, and a manifest of where each action starts. |
 | `card.html` | The title cards, in the site's own type and palette. |
 | `cards.js` | Screenshots one card per title. |
+| `caption.html` | The on-screen captions, transparent, same type and red. |
+| `overlays.js` | Screenshots one PNG per caption. |
 | `music.py` | Synthesises the soundtrack. |
 | `build.py` | Trims every beat to a whole number of beats, chains them with hard cuts, writes the music to the length the picture came out at, and muxes. |
 
 ## Notes
 
-**Every cut lands on a beat.** The soundtrack is 120 BPM, so a beat is exactly
-half a second and exactly fifteen frames at 30fps — which is the whole reason
-for that tempo. `SEQUENCE` in `build.py` counts clip lengths in beats, never in
-seconds. The cuts are hard: a crossfade on each of the twenty-one would smear
-the edit into a slideshow, and the cut landing on the kick is what makes it feel
-cut at all.
+**Every cut lands on a beat.** The soundtrack is 150 BPM, so a beat is exactly
+0.4 seconds and exactly twelve frames at 30fps — which is the whole reason for
+that tempo. `SEQUENCE` in `build.py` counts clip lengths in beats, never in
+seconds. Twenty-five cuts in twenty-eight seconds, averaging 1.1s each; the
+cuts are hard, because a crossfade on each of them would smear the edit into a
+slideshow, and the cut landing on the kick is what makes it feel cut at all.
+
+**The captions sit on the footage, not between it.** A title card costs a
+second of the cut. A caption costs nothing, because the product is still on
+screen underneath it — which is the point of a film that is meant to show the
+thing working. `overlays.js` renders them to transparent PNGs in the site's own
+type and red, and `build.py` composites one onto a shot with `overlay`.
+
+**A shot can appear twice.** Two cuts taken from different seconds of the same
+recording cost no extra footage and are most of what keeps the count up. The
+`at` field in `SEQUENCE` picks how far into the beat's action window each one
+starts.
 
 **The music is original**, synthesised by `music.py` rather than sampled or
 licensed: a minimal piece in A minor, arranged so the parts arrive as the
@@ -51,6 +66,11 @@ real page at native resolution — nothing scaled, nothing lost off the sides.
 the browser context does, not when the page loads. A manifest offset measured
 from a later mark leaves `build.py` trimming from before the page has arrived,
 and every shot then opens on an unscrolled, half-revealed hero.
+
+**The storage keys carry the brand name.** `capture.js` answers the legal gate
+by writing `<brand>-legal-v1` before the page loads. Rename the brand and
+forget that line, and every shot comes out with the gate over it and every
+click retrying against it until the beat times out.
 
 **Fonts.** The page loads Familjen Grotesk, Public Sans and DM Mono from
 Google, which a recording environment may not reach; the footage then comes out

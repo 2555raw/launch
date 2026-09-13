@@ -21,33 +21,41 @@ import sys
 FF = os.environ.get("FFMPEG") or __import__("imageio_ffmpeg").get_ffmpeg_exe()
 FPS = 30
 W, H = 1280, 720
-BEAT = 0.5                      # 120 BPM
-BEAT_FRAMES = int(BEAT * FPS)   # 15
+BEAT = 0.4                      # 150 BPM
+BEAT_FRAMES = int(BEAT * FPS)   # 12
 
 # kind, name, beats, and for footage how far into the beat's action window to
 # start - the interesting second of a shot is rarely its first.
+# kind, name, beats, and for footage how far into the action window to start
+# plus the caption to lay over it. A shot may appear more than once: two cuts
+# from different seconds of the same recording cost no extra footage and are
+# what keeps the count up.
 SEQUENCE = [
-    ("card", "01-logo",    3, None),
-    ("card", "02-line",    4, None),
-    ("shot", "hero",       5, 0.05),   # the headline builds itself at load
-    ("shot", "ticker",     2, 0.62),
-    ("card", "04-nobody",  3, None),
-    ("shot", "cards",      4, 0.86),   # the three cards, once they have landed
-    ("card", "03-cost",    3, None),
-    ("shot", "board",      4, 0.72),
-    ("card", "05-first",   3, None),
-    ("shot", "flow",       3, 0.78),
-    ("shot", "code",       2, 0.70),
-    ("card", "06-auction", 3, None),
-    ("shot", "chart",      3, 0.74),
-    ("card", "07-back",    3, None),
-    ("shot", "band",       3, 0.72),   # the figures counting up
-    ("shot", "tints",      4, 0.86),   # the page changing colour, into the night flip
-    ("shot", "app",        4, 0.46),
-    ("shot", "docs",       2, 0.58),
-    ("shot", "registry",   2, 0.68),
-    ("card", "08-state",   3, None),
-    ("card", "09-outro",   5, None),
+    ("card", "01-logo",     3, None, None),
+    ("card", "02-line",     4, None, None),
+    ("shot", "hero",        3, 0.10, None),
+    ("shot", "ticker",      2, 0.55, None),
+    ("shot", "rows",        3, 0.70, "watching"),
+    ("shot", "board",       2, 0.60, None),
+    ("shot", "board",       3, 0.85, "back"),
+    ("shot", "flow",        3, 0.70, "threecalls"),
+    ("shot", "code",        2, 0.30, None),
+    ("shot", "code",        4, 0.80, "beforeswap"),
+    ("shot", "chart",       3, 0.75, "fee"),
+    ("shot", "app-type",    2, 0.40, None),
+    ("shot", "app-type",    3, 0.80, "sepolia"),
+    ("shot", "app-flip",    2, 0.55, None),
+    ("shot", "app-flip",    2, 0.80, None),
+    ("shot", "app-token",   3, 0.55, None),
+    ("shot", "app-slip",    2, 0.45, None),
+    ("shot", "app-slip",    3, 0.80, "slippage"),
+    ("shot", "app-chart",   2, 0.35, None),
+    ("shot", "app-chart",   2, 0.70, None),
+    ("shot", "tints",       2, 0.35, None),
+    ("shot", "tints",       3, 0.80, "reds"),
+    ("shot", "docs",        3, 0.65, "note"),
+    ("shot", "band",        3, 0.70, None),
+    ("card", "09-outro",    5, None, None),
 ]
 
 
@@ -84,27 +92,41 @@ def clip_from_card(png, frames, out):
 BLIND = 88
 
 
-def clip_from_shot(src, start, frames, out):
-    run([
-        FF, "-hide_banner", "-loglevel", "error", "-ss", f"{start:.3f}", "-i", str(src),
-        "-vf", f"crop={W}:{H}:0:0,fps={FPS},format=yuv420p,setsar=1",
-        "-frames:v", str(frames),
-        "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", str(FPS),
-        str(out), "-y",
-    ])
+def clip_from_shot(src, start, frames, out, caption=None):
+    """A shot, optionally with a caption laid over it.
+
+    The caption goes on top of the footage rather than between shots. A title
+    card costs a second of the cut; a caption costs nothing, because the
+    product is still on screen underneath it - which is the whole point of a
+    film that is supposed to show the thing working."""
+    base = f"crop={W}:{H}:0:0,fps={FPS},format=yuv420p,setsar=1"
+    args = [FF, "-hide_banner", "-loglevel", "error", "-ss", f"{start:.3f}", "-i", str(src)]
+
+    if caption:
+        args += ["-i", str(caption),
+                 "-filter_complex", f"[0:v]{base}[v];[v][1:v]overlay=0:0:format=auto[o]",
+                 "-map", "[o]"]
+    else:
+        args += ["-vf", base]
+
+    args += ["-frames:v", str(frames),
+             "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", str(FPS),
+             str(out), "-y"]
+    run(args)
 
 
 def main():
     raw_dir = pathlib.Path(sys.argv[1])
     cards_dir = pathlib.Path(sys.argv[2])
-    target = pathlib.Path(sys.argv[3] if len(sys.argv) > 3 else "beyga.mp4")
+    target = pathlib.Path(sys.argv[3] if len(sys.argv) > 3 else "vermya.mp4")
+    caps_dir = pathlib.Path(sys.argv[4]) if len(sys.argv) > 4 else cards_dir.parent / "caps"
     work = target.parent / "_clips"
     work.mkdir(parents=True, exist_ok=True)
 
     shots = {b["name"]: b for b in json.load(open(raw_dir / "manifest.json"))}
 
     clips, total_frames = [], 0
-    for i, (kind, name, beats, at) in enumerate(SEQUENCE):
+    for i, (kind, name, beats, at, cap) in enumerate(SEQUENCE):
         frames = beats * BEAT_FRAMES
         out = work / f"{i:02d}-{name}.mp4"
         if kind == "card":
@@ -113,10 +135,12 @@ def main():
             beat = shots[name]
             want = frames / FPS
             start = beat["offset"] + max(0.0, (beat["duration"] - want) * at)
-            clip_from_shot(beat["file"], start, frames, out)
+            clip_from_shot(beat["file"], start, frames, out,
+                           caps_dir / f"{cap}.png" if cap else None)
         clips.append(out)
         total_frames += frames
-        print(f"  {i:02d} {name:<11} {beats} beats  {frames / FPS:.1f}s")
+        print(f"  {i:02d} {name:<11} {beats} beats  {frames / FPS:.1f}s"
+              + (f"   [{cap}]" if cap else ""))
 
     total = total_frames / FPS
 

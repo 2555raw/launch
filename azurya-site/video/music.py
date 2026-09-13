@@ -17,7 +17,7 @@ import wave
 import numpy as np
 
 SR = 44100
-BPM = 120.0            # 0.5s a beat, which is exactly 15 frames at 30fps
+BPM = 150.0            # 0.4s a beat, which is exactly 12 frames at 30fps
 BEAT = 60.0 / BPM
 BAR = BEAT * 4
 
@@ -136,14 +136,14 @@ def render(seconds):
             for e in range(8):
                 hat(t0 + e * BEAT / 2, buf, 0.20 if e % 2 else 0.30)
 
-        if b >= 3:                                   # the floor arrives
+        if b >= 2:                                   # the floor arrives
             for beat in range(4):
                 kick(t0 + beat * BEAT, buf, 1.0 if beat % 2 == 0 else 0.85)
             for i, off in enumerate((0.5, 1.5, 2.5, 3.5)):
                 note = (A2, A2, C3, E3)[i] if b % 4 != 3 else (A2, G3, C3, E3)[i]
                 bass(note, t0 + off * BEAT, BEAT * 0.45, buf)
 
-        if b >= 5:                                   # the melody on top
+        if b >= 3:                                   # the melody on top
             for i, note in enumerate(ARP):
                 if b % 4 == 3 and i % 2:
                     continue                          # thin it out every fourth bar

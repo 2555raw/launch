@@ -3366,8 +3366,25 @@
   .btn, .nav-chip, .nav-ca, .wallet-pill, .chip { white-space: nowrap; }
   .nav-in > * { flex: none; }
 
-  @media (max-width: 1260px) {
-    /* the registry chip: the page has a whole section for this one */
+  /* The registry chip sits next to the wordmark, in the gap the links leave
+     when they push right. It used to sit after them, which put the one piece
+     of live state on this page out at the far end of the bar. */
+  .nav-in .nav-ca      { order: 2; margin-left: 0; margin-right: 0; }
+  .nav-in .nav-links   { order: 3; }
+
+  /* It only needs to be as wide as what it says. The 190px floor was holding
+     it open long after the bar had run out of room to hold it. */
+  @media (max-width: 1340px) {
+    .nav-in .nav-ca { min-width: 0; padding: 6px 13px; }
+  }
+
+  @media (max-width: 1150px) {
+    .nav-in .nav-ca { gap: 7px; padding: 6px 10px; font-size: 12px; }
+  }
+
+  @media (max-width: 1040px) {
+    /* below this it is the chip or the bar, and the page has a whole section
+       for the registry a screen further down */
     .nav-in .nav-ca { display: none; }
   }
 

@@ -222,9 +222,9 @@ const BEATS = [
     // which is the real one for a brand named after a colour.
     await ctx.addInitScript(() => {
       try {
-        localStorage.setItem('vermya-legal-v1', 'accepted');
-        localStorage.setItem('vermya-theme', 'light');
-        localStorage.setItem('vermya-tint', '1');
+        localStorage.setItem('veryam-legal-v1', 'accepted');
+        localStorage.setItem('veryam-theme', 'light');
+        localStorage.setItem('veryam-tint', '1');
       } catch (_) {}
     });
 

@@ -118,7 +118,7 @@ def clip_from_shot(src, start, frames, out, caption=None):
 def main():
     raw_dir = pathlib.Path(sys.argv[1])
     cards_dir = pathlib.Path(sys.argv[2])
-    target = pathlib.Path(sys.argv[3] if len(sys.argv) > 3 else "vermya.mp4")
+    target = pathlib.Path(sys.argv[3] if len(sys.argv) > 3 else "veryam.mp4")
     caps_dir = pathlib.Path(sys.argv[4]) if len(sys.argv) > 4 else cards_dir.parent / "caps"
     work = target.parent / "_clips"
     work.mkdir(parents=True, exist_ok=True)

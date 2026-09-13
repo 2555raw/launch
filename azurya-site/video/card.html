@@ -110,11 +110,11 @@
   const mark = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mk"/></svg>';
 
   const html = {
-    logo:  () => `<div class="mark">${mark}Vermya</div><div class="rule"></div>`,
+    logo:  () => `<div class="mark">${mark}Veryam</div><div class="rule"></div>`,
     word:  () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="word">${text}</div>`,
     line:  () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="line">${text}</div>`,
     fig:   () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="fig">${text}</div>`,
-    outro: () => `<div class="mark">${mark}Vermya</div><div class="rule"></div>
+    outro: () => `<div class="mark">${mark}Veryam</div><div class="rule"></div>
       <div class="meta">${meta.replace(/\|/g, '<br>')}</div>`,
   };
   document.getElementById('wrap').innerHTML = (html[kind] || html.word)();

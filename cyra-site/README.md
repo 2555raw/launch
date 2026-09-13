@@ -15,7 +15,7 @@ site — markup, styles and behaviour in a single file — served by Caddy from 
 ```
 public/
   index.html    the entire site
-  favicon.svg   the droplet mark
+  favicon.svg   the split mark
 Caddyfile       server config, reads $PORT from Railway
 Dockerfile      caddy:2.8-alpine + the two files above
 railway.json    tells Railway to use the Dockerfile

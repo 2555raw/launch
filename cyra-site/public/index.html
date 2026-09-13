@@ -141,7 +141,7 @@
   }
 
   /* ============ Cyra mark ============ */
-  .wavemark { display: block; }
+  .splitmark { display: block; }
 
   /* ============ nav ============ */
   .nav {
@@ -2067,7 +2067,7 @@
 
   .close-cta { text-align: left; padding: 56px 40px; }
   .close-cta p { margin: 16px 0 0; }
-  .close-cta > .wavemark { margin: 0 0 18px !important; }
+  .close-cta > .splitmark { margin: 0 0 18px !important; }
 
   .foot-in { flex-direction: row-reverse; }
 
@@ -2412,7 +2412,7 @@
 
   .close-cta { text-align: right; }
   .close-cta p { margin: 16px 0 0 auto; }
-  .close-cta > .wavemark { margin: 0 0 18px auto !important; }
+  .close-cta > .splitmark { margin: 0 0 18px auto !important; }
 
   .foot-in { flex-direction: row; }
 
@@ -2929,7 +2929,7 @@
   /* the closing card is the only centred thing left */
   .close-cta { text-align: center; padding: 64px 32px; }
   .close-cta p { margin: 16px auto 0; }
-  .close-cta > .wavemark { margin: 0 auto 18px !important; }
+  .close-cta > .splitmark { margin: 0 auto 18px !important; }
 
   @media (max-width: 1000px) {
     .hero-col { order: 1; text-align: left; }
@@ -3171,14 +3171,13 @@
 <!-- reusable Cyra mark -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <clipPath id="s-bands" clipPathUnits="userSpaceOnUse">
-      <rect x="-2" y="2.6" width="28" height="4.6"/>
-      <rect x="-2" y="8.0" width="28" height="4.6"/>
-      <rect x="-2" y="13.4" width="28" height="4.6"/>
-      <rect x="-2" y="18.8" width="28" height="4.6"/>
-    </clipPath>
     <g id="cyra-mark">
-      <path clip-path="url(#s-bands)" d="M12 1.8c0 0 7.4 8.2 7.4 12.7a7.4 7.4 0 0 1-14.8 0C4.6 10 12 1.8 12 1.8Z"/>
+      <!-- one position on the left, the same position after a 4:1 split on the right -->
+      <rect x="3.1" y="2.6" width="6.3" height="18.8" rx="1.1"/>
+      <rect x="12.6" y="2.60"  width="8.3" height="3.95" rx="1.1"/>
+      <rect x="12.6" y="7.55"  width="8.3" height="3.95" rx="1.1"/>
+      <rect x="12.6" y="12.50" width="8.3" height="3.95" rx="1.1"/>
+      <rect x="12.6" y="17.45" width="8.3" height="3.95" rx="1.1"/>
     </g>
 
   </defs>
@@ -3187,7 +3186,7 @@
 <header class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top">
-      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#cyra-mark"/></svg>
+      <svg class="splitmark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#cyra-mark"/></svg>
       Cyra
     </a>
     <nav class="nav-links">
@@ -3211,7 +3210,7 @@
         <span class="caret"></span>
       </button>
       <button class="nav-chip" type="button">
-        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--cyan)" aria-hidden="true"><use href="#cyra-mark"/></svg>
+        <svg class="splitmark" width="14" height="14" viewBox="0 0 24 24" fill="var(--cyan)" aria-hidden="true"><use href="#cyra-mark"/></svg>
         CYR
         <span class="val">$0.0847</span>
       </button>
@@ -3534,21 +3533,21 @@
       <div class="launch-list">
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#cyra-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#cyra-mark"/></svg>
             95% to LPs
           </h3>
           <p>Fee only pools keep 95% of swap fees with the liquidity providers and send 5% to the protocol.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#cyra-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#cyra-mark"/></svg>
             Pool options for your launch
           </h3>
           <p>Legacy V2 and concentrated V3 pools on every supported chain, with DLMM available on select networks.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#cyra-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#cyra-mark"/></svg>
             Your launch. Your rules.
           </h3>
           <p>You keep control of your launch and your graduation mechanics, and we stay on the integration with you.</p>
@@ -3605,7 +3604,7 @@
   <!-- closing -->
   <section class="wrap" style="padding-bottom:88px">
     <div class="close-cta" id="app">
-      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--cyan)" aria-hidden="true"><use href="#cyra-mark"/></svg>
+      <svg class="splitmark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--cyan)" aria-hidden="true"><use href="#cyra-mark"/></svg>
       <h2>Point a pool at it.</h2>
       <p>Connect a wallet, add liquidity or stake xCYR, and earn from every trade the protocol routes.</p>
       <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
@@ -3619,7 +3618,7 @@
   <div class="wrap">
     <div class="foot-in">
       <a class="brand" href="#top">
-        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#cyra-mark"/></svg>
+        <svg class="splitmark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#cyra-mark"/></svg>
         Cyra
       </a>
       <nav class="foot-links">
@@ -3640,7 +3639,7 @@
         </a>
       </div>
 
-      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 A Z U R Y A</span>
+      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 C Y R A</span>
     </div>
   </div>
 </footer>
@@ -4233,7 +4232,7 @@
 <div class="modal-backdrop" id="walletModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-head">
-      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--cyan)" aria-hidden="true"><use href="#cyra-mark"/></svg>
+      <svg class="splitmark" width="28" height="28" viewBox="0 0 24 24" fill="var(--cyan)" aria-hidden="true"><use href="#cyra-mark"/></svg>
       <div>
         <h2 id="walletModalTitle">Connect a wallet</h2>
         <p>Choose how you want to connect to Cyra.</p>
@@ -5211,7 +5210,7 @@
 
     <div id="gateMain">
       <header class="gate-head">
-        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#cyra-mark"/></svg>
+        <svg class="splitmark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#cyra-mark"/></svg>
         <div>
           <p class="eyebrow">Before you continue</p>
           <h2 id="gateTitle">Terms and privacy</h2>
@@ -5274,7 +5273,7 @@
     </div>
 
     <div class="gate-blocked" id="gateBlocked" hidden>
-      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--cyan)" aria-hidden="true"><use href="#cyra-mark"/></svg>
+      <svg class="splitmark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--cyan)" aria-hidden="true"><use href="#cyra-mark"/></svg>
       <h2>Then this is where it stops.</h2>
       <p>Declining is a real answer and nothing here is worth overriding it for. Close the tab whenever you like, or read the notice again if you changed your mind.</p>
       <button class="btn btn-ghost" id="gateBack" type="button">Read it again</button>

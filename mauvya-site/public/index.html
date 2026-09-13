@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mauvia — the hook that looks</title>
+<title>Mauvya — the hook that looks</title>
 <meta name="description" content="A Uniswap v4 hook that reprices a pool at a corporate action, so a stock split does not cost the liquidity providers. Testnet only, unaudited, no token.">
 <meta name="color-scheme" content="dark light">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Mauvia — the hook that looks">
-<meta property="og:description" content="A stock split reprices the asset. Your pool keeps quoting yesterday. Mauvia moves the curve first and auctions the rest back to the LPs.">
+<meta property="og:title" content="Mauvya — the hook that looks">
+<meta property="og:description" content="A stock split reprices the asset. Your pool keeps quoting yesterday. Mauvya moves the curve first and auctions the rest back to the LPs.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:site" content="@MauviaTech">
-<meta name="twitter:creator" content="@MauviaTech">
-<meta name="twitter:title" content="Mauvia — the hook that looks">
-<meta name="twitter:description" content="A stock split reprices the asset. Your pool keeps quoting yesterday. Mauvia moves the curve first and auctions the rest back to the LPs.">
+<meta name="twitter:site" content="@MauvyaTech">
+<meta name="twitter:creator" content="@MauvyaTech">
+<meta name="twitter:title" content="Mauvya — the hook that looks">
+<meta name="twitter:description" content="A stock split reprices the asset. Your pool keeps quoting yesterday. Mauvya moves the curve first and auctions the rest back to the LPs.">
 
 <style>
   body { margin: 0; padding: 0; }
@@ -24,7 +24,7 @@
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Chivo:wght@500;600;700&family=Karla:wght@400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap">
 
 <style>
   /* ============ tokens, dark-first ============ */
@@ -50,9 +50,9 @@
     --down:        #ef5350;
 
     --font-serif:   "Instrument Serif", Georgia, "Times New Roman", serif;
-    --font-display: "Archivo", "Segoe UI", sans-serif;
-    --font-body:    "Public Sans", -apple-system, "Segoe UI", sans-serif;
-    --font-mono:    "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --font-display: "Chivo", "Segoe UI", sans-serif;
+    --font-body:    "Karla", -apple-system, "Segoe UI", sans-serif;
+    --font-mono:    "Azeret Mono", ui-monospace, Menlo, monospace;
 
     --wrap: 1240px;
     --r-lg: 6px;
@@ -151,7 +151,7 @@
     margin: 0;
   }
 
-  /* ============ Mauvia mark ============ */
+  /* ============ Mauvya mark ============ */
   .splitmark { display: block; }
 
   /* ============ nav ============ */
@@ -2390,7 +2390,7 @@
     }
   }
 
-  /* ============ mauvia: sides swapped, blocks overlapped ============ */
+  /* ============ mauvya: sides swapped, blocks overlapped ============ */
 
   /* the bar on top, mirrored */
   .nav-in .wallet-wrap { order: 1; margin-left: 0; margin-right: auto; }
@@ -3191,20 +3191,61 @@
     [data-spot]::after { display: none; }
   }
 
+
+  /* ============ mauvya: the claim leads, and the measure tightens ============ */
+
+  /* The last pass put the arithmetic first and pushed the headline to the
+     right margin. This one reads the other way: the claim opens the page on
+     the left, and the panel answers it. */
+  .hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); }
+  .hero-col   { order: 1; text-align: left; }
+  .hero-panel { order: 2; }
+  .hero-col h1 { max-width: 16ch; margin-left: 0; margin-right: auto; }
+  .hero-col .hero-sub { max-width: 52ch; margin-left: 0; margin-right: auto; }
+  .hero-col .hero-actions { justify-content: flex-start; }
+  .hero-col .rule-eyebrow { justify-content: flex-start; }
+  .hero-watermark { left: auto; right: -130px; }
+  .hero-glow { inset: -24% -12% auto auto; }
+
+  /* A narrower measure. Everything on the page is set against this, so one
+     number moves the whole composition in from the edges. */
+  :root { --wrap: 1120px; }
+
+  /* Corners follow the palette: mauve does not want the hard 3px square the
+     azure original was cut with. */
+  :root { --r-lg: 12px; --r-md: 9px; --r-sm: 6px; }
+  .nav, .nav-in { border-radius: 0; }
+  .btn { border-radius: var(--r-md); }
+  .nav-ca { border-radius: var(--r-md); }
+  .ca { border-radius: var(--r-lg); }
+
+  /* A narrower bar cannot afford to break a two word button over two lines. */
+  .nav .btn, .nav-cta, .nav-app { white-space: nowrap; }
+  .nav-in { gap: 22px; }
+  .nav-in .nav-links { gap: 20px; margin-right: 10px; }
+
+  /* The band and the registry were welded together by the repositioning pass.
+     Let them breathe, now that the page is narrower. */
+  .band { padding: 88px 0; }
+  #token { margin-top: -36px; }
+
+  @media (max-width: 900px) {
+    .hero-col h1, .hero-col .hero-sub { max-width: none; }
+  }
 </style>
 </head>
 <body>
 
-<!-- reusable Mauvia mark -->
+<!-- reusable Mauvya mark -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <g id="mauvia-mark">
-      <!-- one position on the left, the same position after a 4:1 split on the right -->
-      <rect x="3.1" y="2.6" width="6.3" height="18.8" rx="1.1"/>
-      <rect x="12.6" y="2.60"  width="8.3" height="3.95" rx="1.1"/>
-      <rect x="12.6" y="7.55"  width="8.3" height="3.95" rx="1.1"/>
-      <rect x="12.6" y="12.50" width="8.3" height="3.95" rx="1.1"/>
-      <rect x="12.6" y="17.45" width="8.3" height="3.95" rx="1.1"/>
+    <g id="mauvya-mark">
+      <!-- One holding, quartered by the event. Three quarters hold the ring;
+           the fourth is the piece that moves, and the hook is what catches it. -->
+      <path d="M12.6 2.9A9.1 9.1 0 0 1 21.1 11.4H12.6Z"/>
+      <path d="M11.4 2.9A9.1 9.1 0 0 0 2.9 11.4h8.5Z"/>
+      <path d="M11.4 21.1A9.1 9.1 0 0 1 2.9 12.6h8.5Z"/>
+      <path d="M21.1 12.6A9.1 9.1 0 0 1 12.6 21.1V16.5A4.6 4.6 0 0 0 16.5 12.6Z"/>
     </g>
 
   </defs>
@@ -3213,8 +3254,8 @@
 <header class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top">
-      <svg class="splitmark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mauvia-mark"/></svg>
-      Mauvia
+      <svg class="splitmark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mauvya-mark"/></svg>
+      Mauvya
     </a>
     <nav class="nav-links">
       <a href="#state">State</a>
@@ -3237,7 +3278,7 @@
         <span class="caret"></span>
       </button>
       <button class="nav-chip" type="button">
-        <svg class="splitmark" width="14" height="14" viewBox="0 0 24 24" fill="var(--mauve)" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+        <svg class="splitmark" width="14" height="14" viewBox="0 0 24 24" fill="var(--mauve)" aria-hidden="true"><use href="#mauvya-mark"/></svg>
         MAU
         <span class="val">$0.0847</span>
       </button>
@@ -3267,14 +3308,14 @@
   <!-- hero -->
   <section class="hero">
     <div class="hero-glow"></div>
-    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mauvya-mark"/></svg>
     <div class="wrap hero-grid">
 
       <div class="hero-col">
         <p class="rule-eyebrow">Uniswap v4 hook &middot; Base Sepolia</p>
         <h1>Your pool should not<br><em>pay</em> for the split.</h1>
         <p class="hero-sub">A corporate action reprices an asset at a known moment, by a known factor, with nobody trading. Nothing lands in the pool to tell it, so it keeps quoting yesterday's number. The curve stays wrong for exactly as long as nobody looks.</p>
-        <p class="hero-punch">Mauvia is the hook that looks.</p>
+        <p class="hero-punch">Mauvya is the hook that looks.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
           <a class="btn btn-ghost" href="#/docs">Read the note</a>
@@ -3348,7 +3389,7 @@
 
       <p class="ca-lede" id="caLede">
         When the token exists, its address appears here and nowhere else first.
-        Until this box shows one, any contract claiming to be Mauvia is not ours.
+        Until this box shows one, any contract claiming to be Mauvya is not ours.
         Check this page before you buy anything.
       </p>
 
@@ -3474,7 +3515,7 @@
 
     <div class="code">
       <div class="code-bar">
-        <span class="code-file">MauviaHook.sol</span>
+        <span class="code-file">MauvyaHook.sol</span>
         <span class="code-meta">solidity 0.8.26 &middot; v4-core</span>
       </div>
       <pre class="code-body"><code><span class="c-cm">// runs before the pool settles the swap in front of it</span>
@@ -3502,7 +3543,7 @@
   <section class="sec wrap" id="fees-tech">
     <p class="rule-eyebrow">Fee controller</p>
     <h2 class="sec-title">The fee is a function,<br>not a constant.</h2>
-    <p class="sec-lede">Mauvia runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
+    <p class="sec-lede">Mauvya runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
 
     <div class="feat-grid">
       <article class="feat">
@@ -3560,21 +3601,21 @@
       <div class="launch-list">
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#mauvya-mark"/></svg>
             95% to LPs
           </h3>
           <p>Fee only pools keep 95% of swap fees with the liquidity providers and send 5% to the protocol.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#mauvya-mark"/></svg>
             Pool options for your launch
           </h3>
           <p>Legacy V2 and concentrated V3 pools on every supported chain, with DLMM available on select networks.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="splitmark" aria-hidden="true"><use href="#mauvya-mark"/></svg>
             Your launch. Your rules.
           </h3>
           <p>You keep control of your launch and your graduation mechanics, and we stay on the integration with you.</p>
@@ -3603,7 +3644,7 @@
 
       <details class="q">
         <summary>What is f33?</summary>
-        <p>f33 is xMAU you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperMauvia.</p>
+        <p>f33 is xMAU you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperMauvya.</p>
       </details>
 
       <details class="q">
@@ -3612,7 +3653,7 @@
       </details>
 
       <details class="q">
-        <summary>Which chains does Mauvia support?</summary>
+        <summary>Which chains does Mauvya support?</summary>
         <p>The target set is Arbitrum, HyperEVM, Base and Polygon, with routing that can reach HyperCore and connected lending markets inside the same transaction. None of it is on mainnet yet.</p>
       </details>
 
@@ -3622,7 +3663,7 @@
       </details>
 
       <details class="q">
-        <summary>Has Mauvia been audited?</summary>
+        <summary>Has Mauvya been audited?</summary>
         <p>Not yet, and there is nothing deployed to audit. When there is, external review happens before a single unit of mainnet liquidity is accepted, and the report goes up next to the docs. It is a gate, not a badge.</p>
       </details>
     </div>
@@ -3631,7 +3672,7 @@
   <!-- closing -->
   <section class="wrap" style="padding-bottom:88px">
     <div class="close-cta" id="app">
-      <svg class="splitmark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--mauve)" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+      <svg class="splitmark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--mauve)" aria-hidden="true"><use href="#mauvya-mark"/></svg>
       <h2>Point a pool at it.</h2>
       <p>Connect a wallet, add liquidity or stake xMAU, and earn from every trade the protocol routes.</p>
       <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
@@ -3645,8 +3686,8 @@
   <div class="wrap">
     <div class="foot-in">
       <a class="brand" href="#top">
-        <svg class="splitmark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mauvia-mark"/></svg>
-        Mauvia
+        <svg class="splitmark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mauvya-mark"/></svg>
+        Mauvya
       </a>
       <nav class="foot-links">
         <a href="#/trade">Trade</a>
@@ -3659,14 +3700,14 @@
       </nav>
 
       <div class="socials">
-        <a class="social" href="https://x.com/MauviaTech" target="_blank" rel="noopener" aria-label="Mauvia on X" data-social="x">
+        <a class="social" href="https://x.com/MauvyaTech" target="_blank" rel="noopener" aria-label="Mauvya on X" data-social="x">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
         </a>
       </div>
 
-      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 M A U V I A</span>
+      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 M A U V Y A</span>
     </div>
   </div>
 </footer>
@@ -3675,7 +3716,7 @@
 <main class="docs" id="docsView" hidden>
   <div class="doc-bar">
     <div class="wrap doc-bar-in">
-      <a class="doc-back" href="#top">&#8592; Back to Mauvia</a>
+      <a class="doc-back" href="#top">&#8592; Back to Mauvya</a>
       <a class="doc-back" href="#/trade">Launch App &#8599;</a>
       <span class="doc-kind">Protocol note &middot; 12 Sep 2026</span>
     </div>
@@ -3738,7 +3779,7 @@
 
       <h2>Why the curve cannot see it coming</h2>
 
-      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Mauvia is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
+      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Mauvya is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
 
       <p>The reason this is solvable at all is that these events are <em class="doc-term">scheduled</em>. A record date is public. A split ratio is public. Nothing about the moment of repricing is a surprise, it is only a surprise to the pool, because a pool has historically had no place to put that knowledge.</p>
 
@@ -3785,7 +3826,7 @@
         </dl>
       </div>
 
-      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Mauvia before that box shows an address is not ours.</p>
+      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Mauvya before that box shows an address is not ours.</p>
 
       <p>The governance design, <em class="doc-term">xMAU</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
 
@@ -3807,16 +3848,16 @@
 
       <p>In order: the attested feed for record dates, the auction contract for the residual, and an external review of both before a single unit of mainnet liquidity is accepted. Everything above stays on testnet until that sequence is finished, and this page will say so plainly for as long as it is true.</p>
 
-      <p>The pitch is not that Mauvia invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
+      <p>The pitch is not that Mauvya invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
 
       <div class="doc-end">
         <a class="btn btn-primary" href="#/trade">Launch App &#8599;</a>
-        <a class="btn btn-ghost" href="#top">&#8592; Back to Mauvia</a>
+        <a class="btn btn-ghost" href="#top">&#8592; Back to Mauvya</a>
       </div>
 
       <div class="doc-foot">
         <p>Figures are worked from constant product math on the stated reserves and are illustrative, not performance claims. Nothing here is investment advice or an offer of any token.</p>
-        <p>Mauvia &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
+        <p>Mauvya &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
       </div>
     </div>
   </div>
@@ -3830,7 +3871,7 @@
         <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
           <path d="M0 42H58"/>
         </g>
-        <use href="#mauvia-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
+        <use href="#mauvya-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
       </pattern>
     </defs>
     <rect width="100%" height="46" fill="url(#friezeTile)"/>
@@ -3954,7 +3995,7 @@
         <div class="rate-bar">
           <span id="rateLine">1 ETH = 3,529.67 USDC</span>
           <span class="gas-pick">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--mauve)" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--mauve)" aria-hidden="true"><use href="#mauvya-mark"/></svg>
             Native
             <span class="caret"></span>
           </span>
@@ -4052,7 +4093,7 @@
       <button class="slip" type="button" data-slip="1" aria-pressed="false">1.0%</button>
       <button class="slip" type="button" data-slip="3" aria-pressed="false">3.0%</button>
     </div>
-    <p class="modal-foot">Mauvia quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
+    <p class="modal-foot">Mauvya quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
   </div>
 </div>
 
@@ -4156,7 +4197,7 @@
   var val = document.getElementById('heroStatVal');
 
   function sync() {
-    var w = window.MauviaWallet;
+    var w = window.MauvyaWallet;
     var onSepolia = !!(w && w.connected() && !w.isDemo() && w.chainId() === '0x14a34');
     pill.dataset.live = String(onSepolia);
     val.innerHTML = onSepolia
@@ -4164,7 +4205,7 @@
       : 'Base Sepolia \u00b7 testnet';
   }
 
-  if (window.MauviaWallet) window.MauviaWallet.onChange(sync);
+  if (window.MauvyaWallet) window.MauvyaWallet.onChange(sync);
   sync();
 })();
 </script>
@@ -4217,7 +4258,7 @@
     buttons.forEach(function (b) {
       b.setAttribute('aria-pressed', String(Number(b.dataset.tint) === i));
     });
-    try { localStorage.setItem('mauvia-tint', String(i)); } catch (e) {}
+    try { localStorage.setItem('mauvya-tint', String(i)); } catch (e) {}
   }
 
   buttons.forEach(function (b) {
@@ -4225,7 +4266,7 @@
   });
 
   var saved = null;
-  try { saved = localStorage.getItem('mauvia-tint'); } catch (e) {}
+  try { saved = localStorage.getItem('mauvya-tint'); } catch (e) {}
   if (saved !== null && TINTS[Number(saved)]) apply(Number(saved));
 
   var themeBtn = document.getElementById('themeBtn');
@@ -4233,11 +4274,11 @@
   function setTheme(mode) {
     if (mode === 'light') root.setAttribute('data-theme', 'light');
     else root.removeAttribute('data-theme');
-    try { localStorage.setItem('mauvia-theme', mode); } catch (e) {}
+    try { localStorage.setItem('mauvya-theme', mode); } catch (e) {}
   }
 
   var savedTheme = null;
-  try { savedTheme = localStorage.getItem('mauvia-theme'); } catch (e) {}
+  try { savedTheme = localStorage.getItem('mauvya-theme'); } catch (e) {}
   if (savedTheme === 'light') setTheme('light');
 
   themeBtn.addEventListener('click', function () {
@@ -4250,10 +4291,10 @@
 <div class="modal-backdrop" id="walletModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-head">
-      <svg class="splitmark" width="28" height="28" viewBox="0 0 24 24" fill="var(--mauve)" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+      <svg class="splitmark" width="28" height="28" viewBox="0 0 24 24" fill="var(--mauve)" aria-hidden="true"><use href="#mauvya-mark"/></svg>
       <div>
         <h2 id="walletModalTitle">Connect a wallet</h2>
-        <p>Choose how you want to connect to Mauvia.</p>
+        <p>Choose how you want to connect to Mauvya.</p>
       </div>
       <button class="modal-close" id="walletClose" type="button" aria-label="Close">&times;</button>
     </div>
@@ -4300,7 +4341,7 @@
       </button>
     </div>
 
-    <p class="modal-foot">Mauvia only reads your public address. This concept page never requests a signature or a transaction.</p>
+    <p class="modal-foot">Mauvya only reads your public address. This concept page never requests a signature or a transaction.</p>
   </div>
 </div>
 
@@ -4384,7 +4425,7 @@
     emit();
   }
 
-  window.MauviaWallet = {
+  window.MauvyaWallet = {
     connected: function () { return !!account; },
     address: function () { return account; },
     chainId: function () { return currentChainId; },
@@ -4524,7 +4565,7 @@
     if (lastView !== null && view !== lastView) window.scrollTo(0, 0);
     lastView = view;
 
-    if (isApp && window.MauviaSwap) window.MauviaSwap.refresh();
+    if (isApp && window.MauvyaSwap) window.MauvyaSwap.refresh();
   }
 
   window.addEventListener('hashchange', apply);
@@ -4556,8 +4597,8 @@
     { sym: 'USDT', name: 'Tether USD',      price: 0.9998,   bal: 0,        color: '#26a17b', addr: '0xFd08…dbe9', depth: 900000 },
     { sym: 'ARB',  name: 'Arbitrum',        price: 0.4215,   bal: 1204.88,  color: '#28a0f0', addr: '0x912C…4a48', depth: 640000 },
     { sym: 'HYPE', name: 'Hyperliquid',     price: 27.4180,  bal: 0,        color: '#4ad2b0', addr: '0x5555…5555', depth: 720000 },
-    { sym: 'MAU',  name: 'Mauvia',          price: 0.0847,   bal: 45120,    color: '#c8a2ff', addr: '0x0000…0000', depth: 310000 },
-    { sym: 'xMAU', name: 'Staked Mauvia',   price: 0.0912,   bal: 12880.4,  color: '#6d3fae', addr: '0x7B0d…2fA6', depth: 180000 }
+    { sym: 'MAU',  name: 'Mauvya',          price: 0.0847,   bal: 45120,    color: '#c8a2ff', addr: '0x0000…0000', depth: 310000 },
+    { sym: 'xMAU', name: 'Staked Mauvya',   price: 0.0912,   bal: 12880.4,  color: '#6d3fae', addr: '0x7B0d…2fA6', depth: 180000 }
   ];
 
   var STABLE = ['USDC', 'USDT'];
@@ -4579,7 +4620,7 @@
   var details = byId('swapDetails'), cta = byId('swapCta');
 
   function connected() {
-    return !!(window.MauviaWallet && window.MauviaWallet.connected());
+    return !!(window.MauvyaWallet && window.MauvyaWallet.connected());
   }
 
   function num(el) {
@@ -4997,7 +5038,7 @@
   }
 
   cta.addEventListener('click', function () {
-    if (cta.dataset.action === 'connect') { window.MauviaWallet.open(); return; }
+    if (cta.dataset.action === 'connect') { window.MauvyaWallet.open(); return; }
     if (cta.dataset.action === 'live') { executeWrap(); return; }
     if (cta.dataset.action !== 'review') return;
 
@@ -5057,7 +5098,7 @@
   var liveBalances = { ETH: null, WETH: null };
   var txBusy = false;
 
-  function wallet() { return window.MauviaWallet; }
+  function wallet() { return window.MauvyaWallet; }
   function onTestnet() {
     return !!(wallet() && !wallet().isDemo() && wallet().chainId() === TESTNET.chainId);
   }
@@ -5171,7 +5212,7 @@
     });
   }
 
-  window.MauviaLive = {
+  window.MauvyaLive = {
     active: liveMode,
     onTestnet: onTestnet,
     isWrapPair: isWrapPair,
@@ -5208,13 +5249,13 @@
     });
   });
 
-  if (window.MauviaWallet) window.MauviaWallet.onChange(function () {
+  if (window.MauvyaWallet) window.MauvyaWallet.onChange(function () {
     setTxNote('');
     loadLiveBalances();
     render();
   });
 
-  window.MauviaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
+  window.MauvyaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
 
   paintChartHead();
   drawChart();
@@ -5228,7 +5269,7 @@
 
     <div id="gateMain">
       <header class="gate-head">
-        <svg class="splitmark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+        <svg class="splitmark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mauvya-mark"/></svg>
         <div>
           <p class="eyebrow">Before you continue</p>
           <h2 id="gateTitle">Terms and privacy</h2>
@@ -5242,10 +5283,10 @@
 
       <div class="gate-body" tabindex="0">
         <div class="gate-panel" id="panelTerms" role="tabpanel" aria-labelledby="tabTerms">
-          <p><b>Mauvia is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
+          <p><b>Mauvya is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
 
           <h3>Nothing is deployed</h3>
-          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Mauvia while that box reads <b>not deployed</b> is not ours.</p>
+          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Mauvya while that box reads <b>not deployed</b> is not ours.</p>
 
           <h3>Unaudited software</h3>
           <p>The hook has not been audited. The only real transaction this interface can send is an ETH to WETH wrap on Base Sepolia, a test network, using test ETH with no monetary value. Every other quote on the app screen is simulated and labelled as such.</p>
@@ -5254,7 +5295,7 @@
           <p>Nothing here is investment, financial, legal, or tax advice. The figures shown are constant product arithmetic on stated reserves, worked as illustrations. They are not projections, performance claims, or a forecast of anything.</p>
 
           <h3>Your keys stay yours</h3>
-          <p>Mauvia never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
+          <p>Mauvya never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
 
           <h3>Your side of it</h3>
           <p>You confirm you are of legal age where you live, that you are not accessing this from a jurisdiction where it would be prohibited, and that you use it as is, at your own risk, with no warranty of any kind.</p>
@@ -5279,7 +5320,7 @@
 
       <label class="gate-agree" for="gateAgree" id="gateAgreeRow">
         <input type="checkbox" id="gateAgree">
-        <span>I have read the terms and the privacy notice, and I understand that Mauvia is unaudited testnet software with no token and no mainnet deployment.</span>
+        <span>I have read the terms and the privacy notice, and I understand that Mauvya is unaudited testnet software with no token and no mainnet deployment.</span>
       </label>
 
       <div class="gate-actions">
@@ -5291,7 +5332,7 @@
     </div>
 
     <div class="gate-blocked" id="gateBlocked" hidden>
-      <svg class="splitmark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--mauve)" aria-hidden="true"><use href="#mauvia-mark"/></svg>
+      <svg class="splitmark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--mauve)" aria-hidden="true"><use href="#mauvya-mark"/></svg>
       <h2>Then this is where it stops.</h2>
       <p>Declining is a real answer and nothing here is worth overriding it for. Close the tab whenever you like, or read the notice again if you changed your mind.</p>
       <button class="btn btn-ghost" id="gateBack" type="button">Read it again</button>
@@ -5302,7 +5343,7 @@
 
 <script>
 (function () {
-  var KEY   = 'mauvia-legal-v1';
+  var KEY   = 'mauvya-legal-v1';
   var gate  = document.getElementById('legalGate');
   if (!gate) return;
 

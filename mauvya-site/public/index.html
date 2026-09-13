@@ -3230,6 +3230,24 @@
     .hero-col h1, .hero-col .hero-sub { max-width: none; }
   }
 
+  /* Two blocks are wider than a phone and always were: the ledger table and
+     the Solidity listing. They get to scroll inside their own box rather than
+     dragging the whole document sideways with them. */
+  .board-scroll, .code-body { max-width: 100%; overflow-x: auto; }
+
+  /* The decoration is parked off the right edge, which on a phone is the
+     document's edge: it dragged the whole page sideways. */
+  /* Three columns of cards never collapsed, so on a phone they ran off the
+     side and took the document's width with them. */
+  @media (max-width: 760px) {
+    .numgrid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 700px) {
+    .hero-watermark { right: -30px; width: 240px; }
+    .hero-glow { inset: -18% -6% auto auto; width: min(420px, 96%); }
+  }
+
   /* ============ mauvya: everything in the bar is a bubble ============ */
 
   /* The bar is a lozenge, so nothing square may sit inside it. */
@@ -3270,9 +3288,19 @@
   .tint-picker { border-radius: 999px; padding: 8px 12px; }
   .wallet-chip, .nav-chip, .sim-chip, .live-switch { border-radius: 999px; }
 
+  /* Below this the bar cannot hold everything at full size. Nothing in it may
+     shrink, or the registry pill prints over the brand, so the bar gives
+     things up in order of what the page can spare. */
   @media (max-width: 1180px) {
-    .nav-in { padding: 0 6px 0 14px; gap: 10px; }
-    .nav-links a { padding: 6px 8px; }
+    .nav-in { padding: 0 6px 0 14px; gap: 8px; }
+    .nav-links { gap: 0; }
+    .nav-links a { padding: 6px 7px; font-size: 12px; }
+  }
+
+  /* The links are the widest thing in the bar and the only one repeated in
+     the footer, so they are what goes. The address stays. */
+  @media (max-width: 1040px) {
+    .nav-in .nav-links { display: none; }
   }
 </style>
 </head>

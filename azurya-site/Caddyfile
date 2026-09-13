@@ -38,9 +38,21 @@
 	@html path / /index.html
 	header @html Cache-Control "no-cache"
 
-	# The deployment registry polls this. There is no backend, and the page
-	# handles the failure — but without this it would fall through to try_files
-	# and cost a 181 KB index.html on every page load.
+	# The deployment registry polls this. Answering it from the environment is
+	# what makes announcing an address a variable change rather than a deploy:
+	# set TOKEN_CA in Railway and the registry fills in on the next request.
+	#
+	# `announced` is always true because the page needs BOTH announced and a
+	# non-empty address before it will show anything, so an unset TOKEN_CA
+	# leaves the registry reading "not deployed" on its own.
+	handle /api/token {
+		header Content-Type "application/json"
+		header Cache-Control "no-store"
+		respond `{"announced":true,"symbol":"{$TOKEN_SYMBOL:}","chain":"{$TOKEN_CHAIN:}","address":"{$TOKEN_CA:}","explorer":"{$TOKEN_EXPLORER:}"}`
+	}
+
+	# anything else under /api has no backend behind it, and without this it
+	# would fall through to try_files and cost a 226 KB index.html per request
 	handle /api/* {
 		respond 404
 	}

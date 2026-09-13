@@ -68,8 +68,29 @@ Root Directory points at, and renaming it here would take the deploy down until 
 went and changed that setting too. The brand has moved on four times inside it; the path
 has not.
 
-No environment variables are required. The `Caddyfile` reads `PORT` if the platform sets
-it and falls back to 8080, which is the port the service's domains already target.
+No environment variables are required to serve the site. The `Caddyfile` reads `PORT` if
+the platform sets it and falls back to 8080, which is the port the service's domains
+already target.
+
+## Announcing the contract address
+
+The registry on the page asks `/api/token`, and Caddy answers it out of the environment.
+Announcing an address is therefore a variable change, not a deploy:
+
+| Variable | Example |
+| --- | --- |
+| `TOKEN_CA` | `0x0000000000000000000000000000000000000000` |
+| `TOKEN_SYMBOL` | `VERYAM` |
+| `TOKEN_CHAIN` | `Base` |
+| `TOKEN_EXPLORER` | `https://basescan.org/token/0x0000...` |
+
+Set them on the Railway service and the registry fills in on the next request. Clear
+`TOKEN_CA` and it goes back to reading **not deployed** - the page needs both `announced`
+and a non-empty address before it shows anything, so an unset variable is the off switch.
+
+This matters beyond convenience: the page promises the address appears in that registry
+first, and nowhere else before it. Anything that makes announcing slower than posting
+makes that promise harder to keep.
 
 ## Third-party requests
 

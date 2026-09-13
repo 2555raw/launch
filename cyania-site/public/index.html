@@ -219,10 +219,26 @@
 
   @media (max-width: 1180px) { .nav-ca { min-width: 220px; padding: 6px 16px; } }
 
+  /* A full address is wider than the "not deployed" it replaces, so the nav
+     tightens around it rather than wrapping the buttons at the end. */
+  .nav-in:has(.nav-ca[data-state="live"]) { gap: 20px; }
+  .nav-in:has(.nav-ca[data-state="live"]) .btn { white-space: nowrap; }
+
   .nav-ca[data-state="live"] {
-    cursor: pointer;
+    cursor: text;
+    min-width: 0;
+    gap: 8px;
+    padding: 6px 12px;
     border-color: color-mix(in srgb, var(--cyan) 45%, transparent);
     background: color-mix(in srgb, var(--cyan) 9%, var(--surface));
+  }
+
+  /* The address is the whole point of the pill, so a click takes all of it
+     rather than dropping a caret in the middle of a hex string. */
+  .nav-ca[data-state="live"] .nav-ca-val {
+    user-select: all;
+    -webkit-user-select: all;
+    font-size: 12px;
   }
 
   .nav-ca[data-state="live"]:hover { border-color: var(--cyan); }
@@ -3208,10 +3224,10 @@
       <a href="#bridge">Integrations</a>
       <a href="#/docs">Docs</a>
     </nav>
-    <button class="nav-ca" id="navCa" type="button" data-state="pending" title="Contract address">
+    <div class="nav-ca" id="navCa" data-state="pending" title="Contract address">
       <span class="nav-ca-label">CA</span>
       <span class="nav-ca-val" id="navCaVal">not deployed</span>
-    </button>
+    </div>
 
 
     <div class="nav-app">
@@ -4101,18 +4117,9 @@
     if (navCa) {
       navCa.dataset.state = 'live';
       navCa.title = t.address;
-      document.getElementById('navCaVal').textContent =
-        t.address.slice(0, 6) + '\u2026' + t.address.slice(-4);
-      navCa.addEventListener('click', function () {
-        var lbl = document.getElementById('navCaVal');
-        var prev = lbl.textContent;
-        try {
-          navigator.clipboard.writeText(t.address).then(function () {
-            lbl.textContent = 'copied';
-            setTimeout(function () { lbl.textContent = prev; }, 1400);
-          }, function () {});
-        } catch (e) {}
-      });
+      // The address in full: the pill is there to be selected and copied, and
+      // a truncated one copies an ellipsis.
+      document.getElementById('navCaVal').textContent = t.address;
     }
 
     document.getElementById('caSym').textContent = t.symbol;

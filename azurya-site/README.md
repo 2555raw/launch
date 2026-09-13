@@ -1,6 +1,6 @@
-# Sablya
+# Beyga
 
-Marketing site and interface prototype for **Sablya**, a Uniswap v4 hook that reprices a
+Marketing site and interface prototype for **Beyga**, a Uniswap v4 hook that reprices a
 pool at a corporate action so a stock split does not cost the liquidity providers.
 
 **Nothing here is deployed on mainnet.** There is no token, no sale, and no audit. The only
@@ -9,7 +9,7 @@ quote on the app screen is simulated and labelled as such in the UI.
 
 ## The brand
 
-Sablya is named for *sable*, the sand colour — so the page is built on beige rather than
+Beyga is named for *sable*, the sand colour — so the page is built on beige rather than
 decorated with it. The ground is beige, the cards are the paper laid on it, and the accent
 is a darker reading of the same colour. The mark is three wind ripples in sand, which is
 also the ground texture, tiled.
@@ -42,15 +42,15 @@ The page has three views behind hash routes:
 | `#/docs`   | the protocol note                                       |
 
 A terms and privacy gate blocks first entry and records the answer in `localStorage`
-under `sablya-legal-v1`. Clear site data to see it again.
+under `beyga-legal-v1`. Clear site data to see it again.
 
 ## Running it locally
 
 Anything that serves a directory over HTTP will do. With Docker:
 
 ```bash
-docker build -t sablya .
-docker run --rm -p 8080:8080 sablya
+docker build -t beyga .
+docker run --rm -p 8080:8080 beyga
 ```
 
 Then open <http://localhost:8080>.
@@ -65,7 +65,7 @@ Root Directory to `/azurya-site`, push, and Railway redeploys on its own.
 
 The directory keeps the name `azurya-site` on purpose. It is what the Railway service's
 Root Directory points at, and renaming it here would take the deploy down until somebody
-went and changed that setting too. The brand has moved on three times inside it; the path
+went and changed that setting too. The brand has moved on four times inside it; the path
 has not.
 
 No environment variables are required. The `Caddyfile` reads `PORT` if the platform sets
@@ -76,7 +76,7 @@ it and falls back to 8080, which is the port the service's domains already targe
 The page makes exactly two requests off its own origin, both documented in the privacy
 notice inside the site:
 
-- **Google Fonts** — Instrument Serif, Familjen Grotesk, Public Sans, DM Mono.
+- **Google Fonts** — Familjen Grotesk, Public Sans, DM Mono.
 - **Binance public API** — candles for the price chart. Failure is handled: the chart
   falls back to a deterministic simulated series and relabels itself.
 

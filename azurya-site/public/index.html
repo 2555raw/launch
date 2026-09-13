@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sablya — the hook that looks</title>
+<title>Beyga — the hook that looks</title>
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
@@ -13,40 +13,44 @@
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 
 <style>
-  /* ============ tokens: beige first ============ */
-  /* Sablya is named for sable, the sand colour, so beige is not decoration
-     here - it is the ground the whole page stands on. White is the accent,
-     used for the cards that have to lift off that ground. The light theme is
-     the real one; the dark theme is the same sand seen at night. */
+  /* ============ tokens: beige and white ============ */
+  /* Beyga is named for the colour, so there is only the one. Beige is the
+     ground, white is the paper on it, and the ink is a neutral near-black. The
+     accent is the dark end of that same beige - a greige, held at low
+     saturation on purpose: take beige darker while keeping its saturation and
+     it turns brown, which is a different colour and not this brand.
+
+     Everything else is the type and the grid doing the work, which is how the
+     page arrived: a grotesk for the headings, a mono for every label and
+     figure, and edges measured in single-digit pixels. */
   :root {
-    /* Dark theme: warm, not cold. The grounds are browns pulled almost to
-       black, so the beige accent sitting on them still reads as sand rather
-       than as yellow. */
-    --void:        #0b0805;
-    --ground:      #14100a;
-    --surface:     #1c1610;
-    --surface-2:   #2a2118;
-    --line:        rgba(233,214,181,.14);
-    --line-strong: rgba(233,214,181,.28);
-    --ink:         #f6eee0;
-    --ink-muted:   #c0ad93;
-    --ink-faint:   #8d7d69;
-    --sable:       #e0c79b;
-    --sable-soft:  #f4e6cc;
-    --sable-deep:  #a58a5f;
-    --on-sable:    #14100a;
-    --band:        #f0e4cd;
-    --band-ink:    #17120c;
-    --band-muted:  #7a6a53;
-    --glow:        rgba(224,199,155,.13);
-    --up:          #5aa87a;
-    --down:        #d9614f;
+    /* Night: neutral charcoals, never warm-dark. A brown ground would put the
+       brown back in by the back door. */
+    --void:        #0a0a0b;
+    --ground:      #121213;
+    --surface:     #191919;
+    --surface-2:   #232324;
+    --line:        rgba(232,223,204,.14);
+    --line-strong: rgba(232,223,204,.28);
+    --ink:         #f3efe5;
+    --ink-muted:   #a8a498;
+    --ink-faint:   #78756c;
+    --beige:       #ddd2b6;
+    --beige-soft:  #f1e9d6;
+    --beige-deep:  #9b9683;
+    --on-beige:    #121213;
+    --band:        #e8dfcc;
+    --band-ink:    #141414;
+    --band-muted:  #6f6b5e;
+    --glow:        rgba(221,210,182,.12);
+    --up:          #5faa7f;
+    --down:        #d8635a;
     --shade:       #000000;
 
-    --font-display: "Instrument Serif", "Familjen Grotesk", Georgia, serif;
+    --font-display: "Familjen Grotesk", "Segoe UI", sans-serif;
     --font-ui:      "Familjen Grotesk", "Segoe UI", sans-serif;
     --font-body:    "Public Sans", -apple-system, "Segoe UI", sans-serif;
     --font-mono:    "DM Mono", ui-monospace, Menlo, monospace;
@@ -61,30 +65,29 @@
 
   :root[data-theme="light"] {
     color-scheme: light;
-    /* The real theme. The page sits on beige and the cards are the white, so
-       the eye reads sand first and paper second. The inks are warm browns:
-       a neutral grey on beige looks like dust on it. */
-    --void:        #fffdf8;
-    --ground:      #e7dac0;
-    --surface:     #fbf6ec;
-    --surface-2:   #dccdaf;
-    --line:        rgba(92,70,40,.17);
-    --line-strong: rgba(92,70,40,.32);
-    --ink:         #2b2116;
-    --ink-muted:   #6b5a43;
-    --ink-faint:   #8d7c63;
-    --sable:       #a5773c;
-    --sable-soft:  #c2944f;
-    --sable-deep:  #6d4c1e;
-    --on-sable:    #fffdf8;
-    --band:        #2b2116;
-    --band-ink:    #f5ecda;
-    --band-muted:  #a08d70;
-    --glow:        rgba(165,119,60,.12);
+    /* The real theme. Beige is the page, white is every card on it, and the
+       accent is beige taken down in value and saturation together. */
+    --void:        #ffffff;
+    --ground:      #e8dfcc;
+    --surface:     #fdfbf5;
+    --surface-2:   #dcd2ba;
+    --line:        rgba(52,49,38,.17);
+    --line-strong: rgba(52,49,38,.32);
+    --ink:         #1a1915;
+    --ink-muted:   #565246;
+    --ink-faint:   #7e7a6c;
+    --beige:       #6e6a57;
+    --beige-soft:  #8a8571;
+    --beige-deep:  #4a4739;
+    --on-beige:    #fdfbf5;
+    /* the inverted band is white now, not a dark slab */
+    --band:        #ffffff;
+    --band-ink:    #1a1915;
+    --band-muted:  #7e7a6c;
+    --glow:        rgba(110,106,87,.10);
     --up:          #3f7a4e;
     --down:        #b4463a;
-    /* warm: a neutral black shadow on beige reads as a smudge on it */
-    --shade:       #4a3014;
+    --shade:       #34312a;
   }
 
   /* ============ base ============ */
@@ -111,23 +114,11 @@
     margin: 0;
   }
 
-  /* The two big voices. Instrument Serif carries the headlines - one weight,
-     so nothing here asks for a bold it does not have and gets a synthesised
-     one. Familjen Grotesk keeps the card headings and the interface. */
-  h1, h2 {
+  h1, h2, h3 {
     font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -.018em;
-    line-height: 1.02;
-  }
-
-  h1 em, h2 em { font-style: italic; }
-
-  h3 {
-    font-family: var(--font-ui);
     font-weight: 700;
-    letter-spacing: -.02em;
-    line-height: 1.16;
+    letter-spacing: -.025em;
+    line-height: 1.04;
   }
 
   p { margin: 0; }
@@ -135,7 +126,7 @@
   a { color: inherit; text-decoration: none; }
 
   :focus-visible {
-    outline: 2px solid var(--sable);
+    outline: 2px solid var(--beige);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -157,11 +148,11 @@
     font-size: 11px;
     letter-spacing: .16em;
     text-transform: uppercase;
-    color: var(--sable);
+    color: var(--beige);
     margin: 0;
   }
 
-  /* ============ Sablya mark ============ */
+  /* ============ Beyga mark ============ */
   .wavemark { display: block; }
 
   /* ============ nav ============ */
@@ -186,13 +177,13 @@
     align-items: center;
     gap: 9px;
     font-family: var(--font-display);
-    font-size: 24px;
-    font-weight: 400;
-    letter-spacing: .005em;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.02em;
     color: var(--ink);
   }
 
-  .brand svg { color: var(--sable); }
+  .brand svg { color: var(--beige); }
 
   .nav-links {
     display: flex;
@@ -231,17 +222,17 @@
 
   .nav-ca[data-state="live"] {
     cursor: pointer;
-    border-color: color-mix(in srgb, var(--sable) 45%, transparent);
-    background: color-mix(in srgb, var(--sable) 9%, var(--surface));
+    border-color: color-mix(in srgb, var(--beige) 45%, transparent);
+    background: color-mix(in srgb, var(--beige) 9%, var(--surface));
   }
 
-  .nav-ca[data-state="live"]:hover { border-color: var(--sable); }
+  .nav-ca[data-state="live"]:hover { border-color: var(--beige); }
 
   .nav-ca-label {
     font-size: 10.5px;
     font-weight: 500;
     letter-spacing: .16em;
-    color: var(--sable);
+    color: var(--beige);
   }
 
   .nav-ca-val {
@@ -271,12 +262,12 @@
   }
 
   .btn-primary {
-    background: var(--sable);
-    color: var(--on-sable);
+    background: var(--beige);
+    color: var(--on-beige);
   }
 
   .btn-primary:hover {
-    background: var(--sable-soft);
+    background: var(--beige-soft);
     transform: translateY(-1px);
   }
 
@@ -286,8 +277,8 @@
   }
 
   .btn-ghost:hover {
-    border-color: var(--sable);
-    color: var(--sable);
+    border-color: var(--beige);
+    color: var(--beige);
   }
 
   /* ============ hero ============ */
@@ -317,7 +308,7 @@
     left: 50%;
     translate: -50% 0;
     width: 520px;
-    color: var(--sable);
+    color: var(--beige);
     opacity: .05;
     z-index: -1;
     pointer-events: none;
@@ -337,7 +328,7 @@
 
   .hero h1 em {
     font-style: normal;
-    color: var(--sable);
+    color: var(--beige);
   }
 
   .hero-sub {
@@ -384,7 +375,7 @@
   .hero-stat-go {
     font-size: 11.5px;
     font-weight: 600;
-    color: var(--sable);
+    color: var(--beige);
     padding-left: 4px;
   }
 
@@ -399,8 +390,8 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--sable);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sable) 22%, transparent);
+    background: var(--beige);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--beige) 22%, transparent);
   }
 
   /* ============ fee comparison ============ */
@@ -424,7 +415,7 @@
   .fees-delta {
     font-family: var(--font-mono);
     font-size: 30px;
-    color: var(--sable);
+    color: var(--beige);
     margin-top: 18px;
     line-height: 1;
   }
@@ -473,7 +464,7 @@
   .bar-fill {
     height: 100%;
     border-radius: 4px;
-    background: var(--sable);
+    background: var(--beige);
   }
 
   .bar-fill.is-alt { background: var(--ink-faint); }
@@ -597,7 +588,7 @@
 
   .token-row + .token-row { border-top: 1px solid var(--line); }
 
-  .token-row svg { flex: none; color: var(--sable); margin-top: 2px; }
+  .token-row svg { flex: none; color: var(--beige); margin-top: 2px; }
 
   .token-row h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 
@@ -704,7 +695,7 @@
     gap: 9px;
   }
 
-  .launch-item h3 svg { color: var(--sable); flex: none; }
+  .launch-item h3 svg { color: var(--beige); flex: none; }
 
   .launch-item p { font-size: 13.5px; color: var(--ink-muted); margin-top: 8px; }
 
@@ -764,8 +755,8 @@
     flex: none;
     width: 10px;
     height: 10px;
-    border-right: 1.6px solid var(--sable);
-    border-bottom: 1.6px solid var(--sable);
+    border-right: 1.6px solid var(--beige);
+    border-bottom: 1.6px solid var(--beige);
     rotate: 45deg;
     translate: 0 -3px;
     transition: rotate .2s ease, translate .2s ease;
@@ -823,7 +814,7 @@
     flex-wrap: wrap;
   }
 
-  .foot-links a:hover { color: var(--sable); }
+  .foot-links a:hover { color: var(--beige); }
 
 
   /* ============ socials ============ */
@@ -842,8 +833,8 @@
   }
 
   .social:hover {
-    color: var(--sable);
-    border-color: var(--sable);
+    color: var(--beige);
+    border-color: var(--beige);
     transform: translateY(-2px);
   }
 
@@ -866,14 +857,14 @@
     transition: border-color .16s ease;
   }
 
-  .wallet-pill:hover { border-color: var(--sable); }
+  .wallet-pill:hover { border-color: var(--beige); }
 
   .chain-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--sable);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sable) 20%, transparent);
+    background: var(--beige);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--beige) 20%, transparent);
     flex: none;
   }
 
@@ -887,7 +878,7 @@
     font-size: 10px;
     letter-spacing: .1em;
     text-transform: uppercase;
-    color: var(--sable);
+    color: var(--beige);
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     padding: 1px 5px;
@@ -982,7 +973,7 @@
     transition: color .16s ease, border-color .16s ease;
   }
 
-  .modal-close:hover { color: var(--sable); border-color: var(--sable); }
+  .modal-close:hover { color: var(--beige); border-color: var(--beige); }
 
   .w-list { display: flex; flex-direction: column; gap: 9px; }
 
@@ -1004,7 +995,7 @@
     transition: border-color .16s ease, transform .16s ease;
   }
 
-  .w-opt:hover { border-color: var(--sable); transform: translateX(2px); }
+  .w-opt:hover { border-color: var(--beige); transform: translateX(2px); }
 
   .w-mark {
     width: 32px;
@@ -1053,7 +1044,7 @@
     left: 0;
     width: 100%;
     height: 46px;
-    color: var(--sable);
+    color: var(--beige);
     opacity: .13;
     pointer-events: none;
   }
@@ -1083,7 +1074,7 @@
     transition: color .16s ease, border-color .16s ease;
   }
 
-  .icon-btn:hover { color: var(--sable); border-color: var(--sable); }
+  .icon-btn:hover { color: var(--beige); border-color: var(--beige); }
 
   .tabs {
     display: flex;
@@ -1186,7 +1177,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 5px;
     background: none;
-    color: var(--sable);
+    color: var(--beige);
     font-family: var(--font-body);
     font-size: 11px;
     font-weight: 600;
@@ -1194,7 +1185,7 @@
     cursor: pointer;
   }
 
-  .max-btn:hover { border-color: var(--sable); }
+  .max-btn:hover { border-color: var(--beige); }
 
   .tk-btn {
     display: inline-flex;
@@ -1213,7 +1204,7 @@
     transition: border-color .16s ease;
   }
 
-  .tk-btn:hover { border-color: var(--sable); }
+  .tk-btn:hover { border-color: var(--beige); }
 
   .tk-dot {
     width: 25px;
@@ -1254,12 +1245,12 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: var(--surface);
-    color: var(--sable);
+    color: var(--beige);
     cursor: pointer;
     transition: transform .22s ease, border-color .16s ease;
   }
 
-  .flip:hover { transform: rotate(180deg); border-color: var(--sable); }
+  .flip:hover { transform: rotate(180deg); border-color: var(--beige); }
 
   .swap-cta {
     width: 100%;
@@ -1390,7 +1381,7 @@
     transition: color .14s ease, border-color .14s ease;
   }
 
-  .sim-chip[aria-pressed="true"] { border-color: var(--sable); color: var(--sable); }
+  .sim-chip[aria-pressed="true"] { border-color: var(--beige); color: var(--beige); }
 
   #simRun { margin-left: auto; padding: 12px 26px; }
 
@@ -1412,7 +1403,7 @@
     padding: 20px;
   }
 
-  .sim-side[data-side="good"] { border-color: color-mix(in srgb, var(--sable) 38%, transparent); }
+  .sim-side[data-side="good"] { border-color: color-mix(in srgb, var(--beige) 38%, transparent); }
 
   .sim-side header {
     display: flex;
@@ -1455,7 +1446,7 @@
   }
 
   .sim-side dd.is-bad { color: var(--down); font-weight: 600; }
-  .sim-side dd.is-good { color: var(--sable); font-weight: 600; }
+  .sim-side dd.is-good { color: var(--beige); font-weight: 600; }
 
   .sim-bar {
     height: 8px;
@@ -1473,7 +1464,7 @@
   }
 
   .sim-fill.is-bad { background: var(--down); }
-  .sim-fill.is-good { background: var(--sable); }
+  .sim-fill.is-good { background: var(--beige); }
 
   .sim-caption {
     margin-top: 11px;
@@ -1499,7 +1490,7 @@
     padding: 32px;
   }
 
-  .ca[data-state="live"] { border-color: color-mix(in srgb, var(--sable) 42%, transparent); }
+  .ca[data-state="live"] { border-color: color-mix(in srgb, var(--beige) 42%, transparent); }
 
   @media (max-width: 720px) { .ca { padding: 22px; } }
 
@@ -1566,7 +1557,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: none;
-    color: var(--sable);
+    color: var(--beige);
     font-family: var(--font-body);
     font-size: 12.5px;
     font-weight: 600;
@@ -1574,7 +1565,7 @@
   }
 
   .ca-copy:hover,
-  .ca-link:hover { border-color: var(--sable); }
+  .ca-link:hover { border-color: var(--beige); }
 
   .ca-meta {
     display: flex;
@@ -1623,14 +1614,14 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: none;
-    color: var(--sable);
+    color: var(--beige);
     font-family: var(--font-body);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
   }
 
-  .live-switch:hover { border-color: var(--sable); }
+  .live-switch:hover { border-color: var(--beige); }
 
   .tx-note {
     margin-top: 11px;
@@ -1642,7 +1633,7 @@
     color: var(--ink-muted);
   }
 
-  .tx-note a { color: var(--sable); text-decoration: underline; }
+  .tx-note a { color: var(--beige); text-decoration: underline; }
   .tx-note[data-tone="ok"]  { border-color: color-mix(in srgb, var(--up) 45%, transparent); color: var(--ink); }
   .tx-note[data-tone="bad"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--ink); }
 
@@ -1678,13 +1669,13 @@
     padding: 6px 13px;
     border: 1px solid var(--line-strong);
     border-radius: 4px;
-    color: var(--sable);
+    color: var(--beige);
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
   }
 
-  .netcard-faucet:hover { border-color: var(--sable); }
+  .netcard-faucet:hover { border-color: var(--beige); }
 
   .netcard-contract {
     margin-top: 14px;
@@ -1713,7 +1704,7 @@
     text-underline-offset: 3px;
   }
 
-  .netcard-addr:hover { color: var(--sable); text-decoration-color: var(--sable); }
+  .netcard-addr:hover { color: var(--beige); text-decoration-color: var(--beige); }
 
   .netcard-note {
     margin-top: 13px;
@@ -1823,7 +1814,7 @@
   .range[aria-pressed="true"] {
     background: var(--surface-2);
     border-color: var(--line-strong);
-    color: var(--sable);
+    color: var(--beige);
   }
 
   .plot { position: relative; }
@@ -1833,8 +1824,8 @@
     position: absolute;
     padding: 3px 7px;
     border-radius: 5px;
-    background: var(--sable);
-    color: var(--on-sable);
+    background: var(--beige);
+    color: var(--on-beige);
     font-family: var(--font-mono);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
@@ -1857,7 +1848,7 @@
     font-size: 14.5px;
   }
 
-  .tk-search:focus { border-color: var(--sable); }
+  .tk-search:focus { border-color: var(--beige); }
 
   .tk-list {
     display: flex;
@@ -1913,7 +1904,7 @@
     transition: color .14s ease, border-color .14s ease;
   }
 
-  .slip[aria-pressed="true"] { border-color: var(--sable); color: var(--sable); }
+  .slip[aria-pressed="true"] { border-color: var(--beige); color: var(--beige); }
 
   /* ---- receipt ---- */
   .receipt {
@@ -1936,7 +1927,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .receipt-arrow { color: var(--sable); padding-left: 7px; }
+  .receipt-arrow { color: var(--beige); padding-left: 7px; }
 
   .done-mark {
     width: 52px;
@@ -2037,7 +2028,7 @@
     transition: color .16s ease;
   }
 
-  .theme-btn:hover { color: var(--sable); }
+  .theme-btn:hover { color: var(--beige); }
   .theme-btn .moon { display: none; }
   :root[data-theme="light"] .theme-btn .moon { display: block; }
   :root[data-theme="light"] .theme-btn .sun { display: none; }
@@ -2162,7 +2153,7 @@
   .pct-row { display: inline-flex; gap: 4px; }
   .max-btn { padding: 3px 7px; font-size: 10.5px; border-radius: 2px; }
   .pct-btn { color: var(--ink-muted); }
-  .pct-btn:hover { color: var(--sable); border-color: var(--sable); }
+  .pct-btn:hover { color: var(--beige); border-color: var(--beige); }
 
   /* ============ docs view ============ */
   .docs { padding: 0 0 72px; }
@@ -2193,7 +2184,7 @@
     transition: border-color .16s ease, color .16s ease;
   }
 
-  .doc-back:hover { border-color: var(--sable); color: var(--sable); }
+  .doc-back:hover { border-color: var(--beige); color: var(--beige); }
 
   .doc-kind {
     margin-left: auto;
@@ -2227,16 +2218,16 @@
   .doc-body h2 { font-size: 25px; margin-top: 50px; }
   .doc-body h2 + p { margin-top: 13px; }
   .doc-lead { font-size: 18.5px; color: var(--ink-muted); }
-  .doc-term { font-style: normal; font-family: var(--font-mono); font-size: .9em; color: var(--sable); }
+  .doc-term { font-style: normal; font-family: var(--font-mono); font-size: .9em; color: var(--beige); }
 
   .doc-pull {
     margin: 42px 0;
     padding: 2px 0 2px 22px;
-    border-left: 2px solid var(--sable);
+    border-left: 2px solid var(--beige);
     font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 30px;
-    line-height: 1.2;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.24;
     max-width: 30ch;
   }
 
@@ -2256,7 +2247,7 @@
     font-size: 11px;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--sable);
+    color: var(--beige);
     padding-bottom: 12px;
   }
 
@@ -2319,7 +2310,7 @@
     content: counter(step, decimal-leading-zero);
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--sable);
+    color: var(--beige);
     padding-top: 3px;
   }
 
@@ -2384,7 +2375,7 @@
     }
   }
 
-  /* ============ sablya: sides swapped, blocks overlapped ============ */
+  /* ============ beyga: sides swapped, blocks overlapped ============ */
 
   /* the bar on top, mirrored */
   .nav-in .wallet-wrap { order: 1; margin-left: 0; margin-right: auto; }
@@ -2476,13 +2467,13 @@
 
   body {
     background:
-      radial-gradient(1100px 620px at 84% -8%, color-mix(in srgb, var(--sable) 9%, transparent) 0%, transparent 68%),
-      radial-gradient(900px 560px at 6% 108%, color-mix(in srgb, var(--sable) 7%, transparent) 0%, transparent 66%),
+      radial-gradient(1100px 620px at 84% -8%, color-mix(in srgb, var(--beige) 9%, transparent) 0%, transparent 68%),
+      radial-gradient(900px 560px at 6% 108%, color-mix(in srgb, var(--beige) 7%, transparent) 0%, transparent 66%),
       var(--ground);
     background-attachment: fixed;
   }
 
-  .band { background-image: linear-gradient(180deg, var(--band) 0%, color-mix(in srgb, var(--band) 92%, var(--sable)) 100%); }
+  .band { background-image: linear-gradient(180deg, var(--band) 0%, color-mix(in srgb, var(--band) 92%, var(--beige)) 100%); }
 
 
   /* the data state chip on the chart */
@@ -2536,9 +2527,9 @@
 
   .code-body code { font-family: inherit; white-space: pre; }
 
-  .c-kw { color: var(--sable); }
+  .c-kw { color: var(--beige); }
   .c-ty { color: var(--ink); }
-  .c-fn { color: var(--sable-soft); }
+  .c-fn { color: var(--beige-soft); }
   .c-nm { color: var(--ink); }
   .c-cm { color: var(--ink-faint); font-style: italic; }
 
@@ -2621,7 +2612,7 @@
     content: "";
     width: 26px;
     height: 1px;
-    background: var(--sable);
+    background: var(--beige);
     flex: none;
   }
 
@@ -2634,7 +2625,7 @@
   }
 
   .hero-col h1 { font-size: clamp(38px, 4.6vw, 62px); margin: 22px 0 0; max-width: 15ch; }
-  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--sable); }
+  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--beige); }
   .hero-col .hero-sub { font-size: 16.5px; max-width: 52ch; margin-top: 22px; }
   .hero-col .hero-sub code {
     font-family: var(--font-mono);
@@ -2690,8 +2681,8 @@
   }
 
   .panel-rows .was { color: var(--ink-faint); }
-  .panel-rows .arrow { color: var(--sable); padding: 0 3px; }
-  .panel-rows .hot { color: var(--sable); font-size: 17px; }
+  .panel-rows .arrow { color: var(--beige); padding: 0 3px; }
+  .panel-rows .hot { color: var(--beige); font-size: 17px; }
 
   .panel-foot {
     margin-top: 18px;
@@ -2726,12 +2717,12 @@
     flex-direction: column;
   }
 
-  .numcard.is-hot { border-color: color-mix(in srgb, var(--sable) 32%, transparent); }
+  .numcard.is-hot { border-color: color-mix(in srgb, var(--beige) 32%, transparent); }
 
   .numcard .num {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--sable);
+    color: var(--beige);
     letter-spacing: .1em;
   }
 
@@ -2806,8 +2797,8 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--sable);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sable) 20%, transparent);
+    background: var(--beige);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--beige) 20%, transparent);
   }
 
   .board-meta {
@@ -2849,7 +2840,7 @@
   .board-table tbody td { font-family: var(--font-mono); font-size: 14px; color: var(--ink); }
   .board-table tbody tr:last-child th,
   .board-table tbody tr:last-child td { border-bottom: 0; }
-  .board-table td.is-good { color: var(--sable); }
+  .board-table td.is-good { color: var(--beige); }
   .board-table td.is-bad { color: var(--down); }
 
   .board-foot {
@@ -2879,11 +2870,11 @@
   .flow-tag {
     display: inline-block;
     padding: 4px 10px;
-    border: 1px solid color-mix(in srgb, var(--sable) 32%, transparent);
+    border: 1px solid color-mix(in srgb, var(--beige) 32%, transparent);
     border-radius: 999px;
     font-family: var(--font-mono);
     font-size: 11.5px;
-    color: var(--sable);
+    color: var(--beige);
   }
 
   .flow-step h3 { font-size: 17px; margin-top: 16px; }
@@ -3010,7 +3001,7 @@
     border-bottom: 1px solid var(--line);
   }
 
-  .gate-head > svg { flex: none; color: var(--sable); margin-top: 2px; }
+  .gate-head > svg { flex: none; color: var(--beige); margin-top: 2px; }
   .gate-head h2 { font-size: 22px; margin-top: 6px; }
 
   .gate-tabs {
@@ -3036,7 +3027,7 @@
   .gate-tab[aria-selected="true"] {
     background: var(--surface-2);
     border-color: var(--line-strong);
-    color: var(--sable);
+    color: var(--beige);
   }
 
   .gate-body {
@@ -3056,7 +3047,7 @@
     font-weight: 500;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--sable);
+    color: var(--beige);
   }
 
   .gate-panel p { font-size: 14px; line-height: 1.62; color: var(--ink-muted); }
@@ -3081,7 +3072,7 @@
     width: 17px;
     height: 17px;
     margin: 1px 0 0;
-    accent-color: var(--sable);
+    accent-color: var(--beige);
     cursor: pointer;
   }
 
@@ -3306,7 +3297,7 @@
     padding: 1px;
     background: radial-gradient(
       170px circle at var(--mx, 50%) var(--my, 50%),
-      color-mix(in srgb, var(--sable) 62%, transparent),
+      color-mix(in srgb, var(--beige) 62%, transparent),
       transparent 68%
     );
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -3331,7 +3322,7 @@
   }
 
 
-  /* ============ Sablya: the rebrand pass ============ */
+  /* ============ Beyga: the rebrand pass ============ */
   /* Everything below is the beige brand and the movement that came with it.
      It sits last on purpose: three composition passes already moved this
      layout around, and this has to win over all of them.
@@ -3341,22 +3332,8 @@
      the script never runs, or the reader has asked for stillness, the page is
      simply the page - nothing here can leave content hidden. */
 
-  /* softer corners: beige is a warm ground and 4px edges fight it */
-  :root { --r-lg: 16px; --r-md: 12px; --r-sm: 8px; }
-
-  .btn, .nav-chip, .nav-ca, .chip, .tint, .wallet-pill,
-  .hero-stat, .panel, .numcard, .flow-step, .feat, .board, .ca, .launch,
-  .code, .close-cta, .swap, .chart-panel, .netcard, .gate-card, .q,
-  .launch-item, .band-stat, .modal, .wallet-menu, .tint-picker, .token-card {
-    border-radius: var(--r-md);
-  }
-
-  .panel, .board, .ca, .launch, .code, .close-cta, .chart-panel, .gate-card,
-  .modal, .swap { border-radius: var(--r-lg); }
-
-  .btn { border-radius: 999px; padding: 11px 22px; }
-  .chip, .nav-chip, .nav-ca, .wallet-pill, .hero-stat { border-radius: 999px; }
-  .tint { border-radius: 50%; }
+  /* The edges stay where the uploaded page left them - single digit pixels,
+     not pills. Beige changes the colour of this page, not its build. */
 
   /* the paper the cards are made of, against the sand of the page */
   .panel, .numcard, .flow-step, .feat, .board, .ca, .launch, .code,
@@ -3377,7 +3354,7 @@
     display: block;
     height: 100%;
     width: var(--p, 0%);
-    background: linear-gradient(90deg, var(--sable-deep), var(--sable), var(--sable-soft));
+    background: linear-gradient(90deg, var(--beige-deep), var(--beige), var(--beige-soft));
   }
 
   /* ---- the bar is a floating pill, and it tightens once you leave the top ---- */
@@ -3413,7 +3390,7 @@
     right: 0;
     bottom: -5px;
     height: 1.5px;
-    background: var(--sable);
+    background: var(--beige);
     scale: 0 1;
     transform-origin: left;
     transition: scale .3s cubic-bezier(.2,.7,.3,1);
@@ -3435,7 +3412,7 @@
   }
 
   .btn-ghost::before {
-    background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--sable) 16%, transparent), transparent);
+    background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--beige) 16%, transparent), transparent);
   }
 
   .btn:hover::before { translate: 120% 0; }
@@ -3469,19 +3446,19 @@
 
   .hero-aurora i:nth-child(1) {
     width: 46%; aspect-ratio: 1; top: 6%; right: 4%;
-    background: color-mix(in srgb, var(--sable) 34%, transparent);
+    background: color-mix(in srgb, var(--beige) 34%, transparent);
     animation: pool-a 19s ease-in-out infinite;
   }
 
   .hero-aurora i:nth-child(2) {
     width: 34%; aspect-ratio: 1; top: 34%; right: 34%;
-    background: color-mix(in srgb, var(--sable-soft) 30%, transparent);
+    background: color-mix(in srgb, var(--beige-soft) 30%, transparent);
     animation: pool-b 23s ease-in-out infinite;
   }
 
   .hero-aurora i:nth-child(3) {
     width: 28%; aspect-ratio: 1; top: 2%; left: 8%;
-    background: color-mix(in srgb, var(--sable-deep) 20%, transparent);
+    background: color-mix(in srgb, var(--beige-deep) 20%, transparent);
     animation: pool-c 27s ease-in-out infinite;
   }
 
@@ -3517,7 +3494,7 @@
     width: var(--s, 3px);
     height: var(--s, 3px);
     border-radius: 50%;
-    background: var(--sable);
+    background: var(--beige);
     opacity: 0;
     animation: blow var(--dur, 16s) linear var(--delay, 0s) infinite;
   }
@@ -3543,19 +3520,19 @@
             mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
   }
 
-  .ticker-dark {
-    background: var(--band);
-    color: var(--band-ink);
-    border-color: transparent;
+  /* the second strip is a filled beige band, not a dark slab */
+  .ticker-solid {
+    background: var(--surface-2);
+    border-color: var(--line);
     margin: 78px 0 46px;
-    padding: 19px 0;
+    padding: 17px 0;
   }
 
   .ticker-track {
     display: flex;
     align-items: center;
-    gap: 26px;
-    padding-right: 26px;
+    gap: 22px;
+    padding-right: 22px;
     flex: 0 0 auto;
     animation: ticker-run 38s linear infinite;
   }
@@ -3564,25 +3541,25 @@
 
   .ticker:hover .ticker-track { animation-play-state: paused; }
 
+  /* a tape of terms, set the way every other label on this page is set */
   .ticker span {
-    font-family: var(--font-display);
-    font-size: 26px;
-    font-style: italic;
-    letter-spacing: -.01em;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: .19em;
+    text-transform: uppercase;
     white-space: nowrap;
-    color: var(--ink);
+    color: var(--ink-muted);
   }
 
-  .ticker-dark span { color: var(--band-ink); }
+  .ticker-solid span { color: var(--ink); }
 
-  .tk-mark { flex: 0 0 auto; color: var(--sable); opacity: .85; }
-  .ticker-dark .tk-mark { color: var(--sable-soft); }
+  .tk-mark { flex: 0 0 auto; color: var(--beige); opacity: .8; }
 
   @keyframes ticker-run { to { transform: translateX(-100%); } }
 
   /* ---- the headline lands a word at a time ----
      The clipping box is what makes a word look like it rises out of the line,
-     so it has to be tight - but a tight box on a 1.02 line-height cuts the
+     so it has to be tight - but a tight box on a 1.04 line-height cuts the
      tail off a p or a y. The padding buys the descender back and the negative
      margin gives the layout its space again. */
   .w-line {
@@ -3593,9 +3570,20 @@
     margin-bottom: -.14em;
   }
 
-  /* Instrument Serif ships one weight. Anything asking for 500 or 700 here
-     gets a browser-drawn fake bold, which on a serif looks like a smudge. */
-  .hero-col h1 em, .hero h1 em { font-weight: 400; font-style: italic; color: var(--sable); }
+  /* The word that carries the sentence is marked with beige rather than
+     recoloured: on a beige page a beige word would disappear. */
+  .hero-col h1 em, .hero h1 em {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--ink);
+    background: linear-gradient(
+      180deg,
+      transparent 58%,
+      color-mix(in srgb, var(--beige) 30%, transparent) 58%,
+      color-mix(in srgb, var(--beige) 30%, transparent) 94%,
+      transparent 94%
+    );
+  }
 
   html.motion .hero h1 .w {
     display: inline-block;
@@ -3657,7 +3645,7 @@
   .lift:hover {
     transform: translateY(-6px);
     box-shadow: 0 26px 54px color-mix(in srgb, var(--shade) 20%, transparent);
-    border-color: color-mix(in srgb, var(--sable) 52%, var(--line-strong));
+    border-color: color-mix(in srgb, var(--beige) 52%, var(--line-strong));
   }
 
   /* The numbered cards sit on a staircase, and hovering one lifts it off that
@@ -3683,7 +3671,7 @@
     transition: color .3s ease, letter-spacing .3s ease;
   }
 
-  .numcard:hover .num { color: var(--sable); letter-spacing: -.04em; }
+  .numcard:hover .num { color: var(--beige); letter-spacing: -.04em; }
 
   /* ---- the mark keeps turning over on the closing panel ---- */
   .close-cta > .wavemark { animation: mark-sway 11s ease-in-out infinite; }
@@ -3696,7 +3684,7 @@
   /* ---- questions open on a curve ---- */
   .q { transition: background .25s ease, border-color .25s ease; }
   .q summary { transition: color .2s ease; }
-  .q[open] { background: color-mix(in srgb, var(--sable) 7%, var(--surface)); }
+  .q[open] { background: color-mix(in srgb, var(--beige) 7%, var(--surface)); }
 
   .q[open] > p { animation: answer-in .42s cubic-bezier(.2,.75,.25,1) both; }
 
@@ -3710,14 +3698,14 @@
 
   .chip:hover {
     transform: translateY(-3px);
-    background: var(--sable);
-    color: var(--on-sable);
-    border-color: var(--sable);
+    background: var(--beige);
+    color: var(--on-beige);
+    border-color: var(--beige);
   }
 
   /* ---- the band inverts to warm dark, and its figures count in ---- */
   .band { border-radius: var(--r-lg); }
-  .band-stat .n { font-family: var(--font-display); font-weight: 400; }
+  .band-stat .n { font-family: var(--font-display); font-weight: 700; }
 
   /* ---- the beige readings come back ----
      A previous pass hid the swatches and kept only the theme toggle. For a
@@ -3729,11 +3717,12 @@
   .tint-label { color: var(--ink-muted); }
 
   .tint {
-    box-shadow: 0 2px 6px color-mix(in srgb, var(--shade) 22%, transparent);
+    border-radius: var(--r-sm);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--shade) 18%, transparent);
   }
 
   .tint[aria-pressed="true"] {
-    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--sable);
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--beige);
   }
 
   @media (max-width: 620px) {
@@ -3804,7 +3793,7 @@
 
   @media (max-width: 860px) {
     .ticker span { font-size: 20px; }
-    .ticker-dark { margin-top: 52px; margin-bottom: 34px; }
+    .ticker-solid { margin-top: 52px; margin-bottom: 34px; }
     .ticker-track { gap: 18px; padding-right: 18px; }
     .hero-aurora { filter: blur(54px); }
   }
@@ -3824,7 +3813,7 @@
    anybody sees. */
 (function () {
   try {
-    var m = localStorage.getItem('sablya-theme');
+    var m = localStorage.getItem('beyga-theme');
     if (m !== 'dark') document.documentElement.setAttribute('data-theme', 'light');
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'light');
@@ -3832,14 +3821,14 @@
 })();
 </script>
 
-<!-- reusable Sablya mark -->
+<!-- reusable Beyga mark -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <!-- Wind ripples in sand: three ribbons of one sine period each, stacked
          and widening as they come forward. Filled rather than stroked, because
          every use of the mark sets fill and a stroked version would come out
          invisible. Geometry generated, not drawn. -->
-    <g id="sablya-mark">
+    <g id="beyga-mark">
       <path d="M4.6 5.17L5.1 4.77L5.6 4.38L6.1 4.03L6.6 3.73L7.1 3.49L7.6 3.32L8.1 3.24L8.5 3.24L9.0 3.32L9.5 3.49L10.0 3.73L10.5 4.03L11.0 4.38L11.5 4.77L12.0 5.18L12.5 5.58L13.0 5.97L13.5 6.32L14.0 6.62L14.5 6.86L15.0 7.03L15.5 7.11L15.9 7.11L16.4 7.03L16.9 6.86L17.4 6.62L17.9 6.32L18.4 5.97L18.9 5.58L19.4 5.18L19.4 7.03L18.9 7.43L18.4 7.82L17.9 8.17L17.4 8.47L16.9 8.71L16.4 8.88L15.9 8.96L15.5 8.96L15.0 8.88L14.5 8.71L14.0 8.47L13.5 8.17L13.0 7.82L12.5 7.43L12.0 7.03L11.5 6.62L11.0 6.23L10.5 5.88L10.0 5.58L9.5 5.34L9.0 5.17L8.5 5.09L8.1 5.09L7.6 5.17L7.1 5.34L6.6 5.58L6.1 5.88L5.6 6.23L5.1 6.62L4.6 7.02Z"/>
       <path d="M2.6 10.90L3.2 10.39L3.9 9.90L4.5 9.46L5.1 9.08L5.7 8.78L6.4 8.57L7.0 8.46L7.6 8.46L8.2 8.57L8.9 8.78L9.5 9.08L10.1 9.46L10.7 9.90L11.4 10.39L12.0 10.90L12.6 11.41L13.3 11.90L13.9 12.34L14.5 12.72L15.1 13.02L15.8 13.23L16.4 13.34L17.0 13.34L17.6 13.23L18.3 13.02L18.9 12.72L19.5 12.34L20.1 11.90L20.8 11.41L21.4 10.90L21.4 13.20L20.8 13.71L20.1 14.20L19.5 14.64L18.9 15.02L18.3 15.32L17.6 15.53L17.0 15.64L16.4 15.64L15.8 15.53L15.1 15.32L14.5 15.02L13.9 14.64L13.3 14.20L12.6 13.71L12.0 13.20L11.4 12.69L10.7 12.20L10.1 11.76L9.5 11.38L8.9 11.08L8.2 10.87L7.6 10.76L7.0 10.76L6.4 10.87L5.7 11.08L5.1 11.38L4.5 11.76L3.9 12.20L3.2 12.69L2.6 13.20Z"/>
       <path d="M1.6 16.62L2.3 16.20L3.0 15.79L3.7 15.42L4.4 15.10L5.1 14.85L5.8 14.68L6.5 14.59L7.1 14.59L7.8 14.68L8.5 14.85L9.2 15.10L9.9 15.42L10.6 15.79L11.3 16.20L12.0 16.62L12.7 17.05L13.4 17.46L14.1 17.83L14.8 18.15L15.5 18.40L16.2 18.57L16.9 18.66L17.5 18.66L18.2 18.57L18.9 18.40L19.6 18.15L20.3 17.83L21.0 17.46L21.7 17.05L22.4 16.62L22.4 19.38L21.7 19.80L21.0 20.21L20.3 20.58L19.6 20.90L18.9 21.15L18.2 21.32L17.5 21.41L16.9 21.41L16.2 21.32L15.5 21.15L14.8 20.90L14.1 20.58L13.4 20.21L12.7 19.80L12.0 19.38L11.3 18.95L10.6 18.54L9.9 18.17L9.2 17.85L8.5 17.60L7.8 17.43L7.1 17.34L6.5 17.34L5.8 17.43L5.1 17.60L4.4 17.85L3.7 18.17L3.0 18.54L2.3 18.95L1.6 19.38Z"/>
@@ -3853,8 +3842,8 @@
 <header class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top">
-      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg>
-      Sablya
+      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg>
+      Beyga
     </a>
     <nav class="nav-links">
       <a href="#state">State</a>
@@ -3877,8 +3866,8 @@
         <span class="caret"></span>
       </button>
       <button class="nav-chip" type="button">
-        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
-        SAB
+        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--beige)" aria-hidden="true"><use href="#beyga-mark"/></svg>
+        BEY
         <span class="val">$0.0847</span>
       </button>
     </div>
@@ -3930,14 +3919,14 @@
     <div class="hero-glow"></div>
     <div class="hero-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="grains" id="grains" aria-hidden="true"></div>
-    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg>
+    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg>
     <div class="wrap hero-grid">
 
       <div class="hero-col">
         <p class="rule-eyebrow">Uniswap v4 hook &middot; Base Sepolia</p>
         <h1>Your pool should not<br><em>pay</em> for the split.</h1>
         <p class="hero-sub">A corporate action reprices an asset at a known moment, by a known factor, with nobody trading. Nothing lands in the pool to tell it, so it keeps quoting yesterday's number. The curve stays wrong for exactly as long as nobody looks.</p>
-        <p class="hero-punch">Sablya is the hook that looks.</p>
+        <p class="hero-punch">Beyga is the hook that looks.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
           <a class="btn btn-ghost" href="#/docs">Read the note</a>
@@ -3979,8 +3968,8 @@
 
   <!-- ticker -->
   <div class="ticker ticker-light" aria-hidden="true">
-    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>One block</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Sablya</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg></div>
-    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>One block</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Sablya</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg></div>
+    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Beyga</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg></div>
+    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Beyga</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg></div>
   </div>
 
   <!-- state of it -->
@@ -4018,7 +4007,7 @@
 
       <p class="ca-lede" id="caLede">
         When the token exists, its address appears here and nowhere else first.
-        Until this box shows one, any contract claiming to be Sablya is not ours.
+        Until this box shows one, any contract claiming to be Beyga is not ours.
         Check this page before you buy anything.
       </p>
 
@@ -4144,7 +4133,7 @@
 
     <div class="code">
       <div class="code-bar">
-        <span class="code-file">SablyaHook.sol</span>
+        <span class="code-file">BeygaHook.sol</span>
         <span class="code-meta">solidity 0.8.26 &middot; v4-core</span>
       </div>
       <pre class="code-body"><code><span class="c-cm">// runs before the pool settles the swap in front of it</span>
@@ -4172,7 +4161,7 @@
   <section class="sec wrap" id="fees-tech">
     <p class="rule-eyebrow">Fee controller</p>
     <h2 class="sec-title">The fee is a function,<br>not a constant.</h2>
-    <p class="sec-lede">Sablya runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
+    <p class="sec-lede">Beyga runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
 
     <div class="feat-grid">
       <article class="feat">
@@ -4189,7 +4178,7 @@
         <h3>Fee against volatility</h3>
         <div class="chart-legend">
           <span><i class="swatch" style="background:var(--ink-faint)"></i>Volatility</span>
-          <span><i class="swatch" style="background:var(--sable)"></i>Swap fee</span>
+          <span><i class="swatch" style="background:var(--beige)"></i>Swap fee</span>
         </div>
         <svg class="chart-svg" viewBox="0 0 400 150" role="img" aria-label="Swap fee tracking market volatility over twelve intervals, peaking at 58 percent volatility and 14 basis points.">
           <line x1="44" y1="16"  x2="384" y2="16"  stroke="var(--line)" stroke-width="1"/>
@@ -4200,12 +4189,12 @@
           <text x="38" y="132" text-anchor="end" fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">0%</text>
           <polyline fill="none" stroke="var(--ink-faint)" stroke-width="1.6" stroke-dasharray="3 3" stroke-linejoin="round"
             points="44,105.6 74.9,94.4 105.8,100 136.7,64.5 167.6,19.7 198.5,42.1 229.4,75.7 260.3,86.9 291.2,98.1 322.1,103.7 353,107.5 383.9,101.9"/>
-          <polygon fill="var(--sable)" fill-opacity="0.14"
+          <polygon fill="var(--beige)" fill-opacity="0.14"
             points="44,124.3 74.9,120.5 105.8,120.5 136.7,105.6 167.6,75.7 198.5,86.9 229.4,105.6 260.3,113.1 291.2,116.8 322.1,120.5 353,120.5 383.9,116.8 383.9,128 44,128"/>
-          <polyline fill="none" stroke="var(--sable)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
+          <polyline fill="none" stroke="var(--beige)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
             points="44,124.3 74.9,120.5 105.8,120.5 136.7,105.6 167.6,75.7 198.5,86.9 229.4,105.6 260.3,113.1 291.2,116.8 322.1,120.5 353,120.5 383.9,116.8"/>
-          <circle cx="167.6" cy="75.7" r="3.4" fill="var(--sable)"/>
-          <text x="176" y="70" fill="var(--sable)" font-size="9.5" font-family="DM Mono, monospace">14 bps</text>
+          <circle cx="167.6" cy="75.7" r="3.4" fill="var(--beige)"/>
+          <text x="176" y="70" fill="var(--beige)" font-size="9.5" font-family="DM Mono, monospace">14 bps</text>
           <text x="44"  y="145" text-anchor="start" fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">t&minus;12h</text>
           <text x="383.9" y="145" text-anchor="end"  fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">now</text>
         </svg>
@@ -4230,21 +4219,21 @@
       <div class="launch-list">
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#sablya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#beyga-mark"/></svg>
             95% to LPs
           </h3>
           <p>Fee only pools keep 95% of swap fees with the liquidity providers and send 5% to the protocol.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#sablya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#beyga-mark"/></svg>
             Pool options for your launch
           </h3>
           <p>Legacy V2 and concentrated V3 pools on every supported chain, with DLMM available on select networks.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#sablya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#beyga-mark"/></svg>
             Your launch. Your rules.
           </h3>
           <p>You keep control of your launch and your graduation mechanics, and we stay on the integration with you.</p>
@@ -4267,13 +4256,13 @@
       <h2>Questions we actually get</h2>
 
       <details class="q" open>
-        <summary>What is xSAB?</summary>
-        <p>xSAB carries the votes. It borrows the useful half of vote escrow, which is that long term holders steer emissions, and drops the half that traps you for four years. Balances stay liquid and the weight comes from participation instead of sentence length.</p>
+        <summary>What is xBEY?</summary>
+        <p>xBEY carries the votes. It borrows the useful half of vote escrow, which is that long term holders steer emissions, and drops the half that traps you for four years. Balances stay liquid and the weight comes from participation instead of sentence length.</p>
       </details>
 
       <details class="q">
         <summary>What is f33?</summary>
-        <p>f33 is xSAB you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperSablya.</p>
+        <p>f33 is xBEY you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperBeyga.</p>
       </details>
 
       <details class="q">
@@ -4282,7 +4271,7 @@
       </details>
 
       <details class="q">
-        <summary>Which chains does Sablya support?</summary>
+        <summary>Which chains does Beyga support?</summary>
         <p>The target set is Arbitrum, HyperEVM, Base and Polygon, with routing that can reach HyperCore and connected lending markets inside the same transaction. None of it is on mainnet yet.</p>
       </details>
 
@@ -4292,7 +4281,7 @@
       </details>
 
       <details class="q">
-        <summary>Has Sablya been audited?</summary>
+        <summary>Has Beyga been audited?</summary>
         <p>Not yet, and there is nothing deployed to audit. When there is, external review happens before a single unit of mainnet liquidity is accepted, and the report goes up next to the docs. It is a gate, not a badge.</p>
       </details>
     </div>
@@ -4300,17 +4289,17 @@
 
 
   <!-- ticker -->
-  <div class="ticker ticker-dark" aria-hidden="true">
-    <div class="ticker-track ticker-rev"><span>95% to the pool</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Auctioned, not raced</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Uniswap v4</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Arbitrum</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>HyperEVM</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Base</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Polygon</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Nothing on mainnet yet</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg></div>
-    <div class="ticker-track ticker-rev"><span>95% to the pool</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Auctioned, not raced</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Uniswap v4</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Arbitrum</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>HyperEVM</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Base</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Polygon</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg><span>Nothing on mainnet yet</span><svg class="tk-mark" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg></div>
+  <div class="ticker ticker-solid" aria-hidden="true">
+    <div class="ticker-track ticker-rev"><span>95% to the pool</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Auctioned, not raced</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Uniswap v4</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Arbitrum</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>HyperEVM</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Base</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Polygon</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Nothing on mainnet yet</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg></div>
+    <div class="ticker-track ticker-rev"><span>95% to the pool</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Auctioned, not raced</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Uniswap v4</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Arbitrum</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>HyperEVM</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Base</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Polygon</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg><span>Nothing on mainnet yet</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg></div>
   </div>
 
   <!-- closing -->
   <section class="wrap" style="padding-bottom:88px">
     <div class="close-cta" id="app">
-      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
+      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--beige)" aria-hidden="true"><use href="#beyga-mark"/></svg>
       <h2>Point a pool at it.</h2>
-      <p>Connect a wallet, add liquidity or stake xSAB, and earn from every trade the protocol routes.</p>
+      <p>Connect a wallet, add liquidity or stake xBEY, and earn from every trade the protocol routes.</p>
       <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
     </div>
   </section>
@@ -4322,8 +4311,8 @@
   <div class="wrap">
     <div class="foot-in">
       <a class="brand" href="#top">
-        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg>
-        Sablya
+        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg>
+        Beyga
       </a>
       <nav class="foot-links">
         <a href="#/trade">Trade</a>
@@ -4336,14 +4325,14 @@
       </nav>
 
       <div class="socials">
-        <a class="social" href="https://x.com/SablyaTech" target="_blank" rel="noopener" aria-label="Sablya on X" data-social="x">
+        <a class="social" href="https://x.com/BeygaTech" target="_blank" rel="noopener" aria-label="Beyga on X" data-social="x">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
         </a>
       </div>
 
-      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 S A B L Y A</span>
+      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 B E Y G A</span>
     </div>
   </div>
 </footer>
@@ -4352,7 +4341,7 @@
 <main class="docs" id="docsView" hidden>
   <div class="doc-bar">
     <div class="wrap doc-bar-in">
-      <a class="doc-back" href="#top">&#8592; Back to Sablya</a>
+      <a class="doc-back" href="#top">&#8592; Back to Beyga</a>
       <a class="doc-back" href="#/trade">Launch App &#8599;</a>
       <span class="doc-kind">Protocol note &middot; 12 Sep 2026</span>
     </div>
@@ -4415,7 +4404,7 @@
 
       <h2>Why the curve cannot see it coming</h2>
 
-      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Sablya is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
+      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Beyga is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
 
       <p>The reason this is solvable at all is that these events are <em class="doc-term">scheduled</em>. A record date is public. A split ratio is public. Nothing about the moment of repricing is a surprise, it is only a surprise to the pool, because a pool has historically had no place to put that knowledge.</p>
 
@@ -4462,9 +4451,9 @@
         </dl>
       </div>
 
-      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Sablya before that box shows an address is not ours.</p>
+      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Beyga before that box shows an address is not ours.</p>
 
-      <p>The governance design, <em class="doc-term">xSAB</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
+      <p>The governance design, <em class="doc-term">xBEY</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
 
       <h2>Try the part that is real</h2>
 
@@ -4484,16 +4473,16 @@
 
       <p>In order: the attested feed for record dates, the auction contract for the residual, and an external review of both before a single unit of mainnet liquidity is accepted. Everything above stays on testnet until that sequence is finished, and this page will say so plainly for as long as it is true.</p>
 
-      <p>The pitch is not that Sablya invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
+      <p>The pitch is not that Beyga invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
 
       <div class="doc-end">
         <a class="btn btn-primary" href="#/trade">Launch App &#8599;</a>
-        <a class="btn btn-ghost" href="#top">&#8592; Back to Sablya</a>
+        <a class="btn btn-ghost" href="#top">&#8592; Back to Beyga</a>
       </div>
 
       <div class="doc-foot">
         <p>Figures are worked from constant product math on the stated reserves and are illustrative, not performance claims. Nothing here is investment advice or an offer of any token.</p>
-        <p>Sablya &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
+        <p>Beyga &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
       </div>
     </div>
   </div>
@@ -4510,7 +4499,7 @@
         <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
           <path d="M0 42H58"/>
         </g>
-        <use href="#sablya-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
+        <use href="#beyga-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
       </pattern>
     </defs>
     <rect width="100%" height="46" fill="url(#friezeTile)"/>
@@ -4634,7 +4623,7 @@
         <div class="rate-bar">
           <span id="rateLine">1 ETH = 3,529.67 USDC</span>
           <span class="gas-pick">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--beige)" aria-hidden="true"><use href="#beyga-mark"/></svg>
             Native
             <span class="caret"></span>
           </span>
@@ -4674,15 +4663,15 @@
           <svg id="chartSvg" viewBox="0 0 660 300" preserveAspectRatio="none" role="img" aria-label="Price chart for the selected pair">
             <defs>
               <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--sable)" stop-opacity="0.28"/>
-                <stop offset="100%" stop-color="var(--sable)" stop-opacity="0"/>
+                <stop offset="0%" stop-color="var(--beige)" stop-opacity="0.28"/>
+                <stop offset="100%" stop-color="var(--beige)" stop-opacity="0"/>
               </linearGradient>
             </defs>
             <g id="gridLines"></g>
             <path id="areaPath" fill="url(#areaFill)"/>
-            <path id="linePath" fill="none" stroke="var(--sable)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            <path id="linePath" fill="none" stroke="var(--beige)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             <line id="xhair" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" y1="0" y2="300" x1="-10" x2="-10" vector-effect="non-scaling-stroke"/>
-            <circle id="xdot" r="4" fill="var(--sable)" cx="-10" cy="-10"/>
+            <circle id="xdot" r="4" fill="var(--beige)" cx="-10" cy="-10"/>
           </svg>
           <div class="crosshair-label" id="xlabel" hidden></div>
         </div>
@@ -4732,7 +4721,7 @@
       <button class="slip" type="button" data-slip="1" aria-pressed="false">1.0%</button>
       <button class="slip" type="button" data-slip="3" aria-pressed="false">3.0%</button>
     </div>
-    <p class="modal-foot">Sablya quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
+    <p class="modal-foot">Beyga quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
   </div>
 </div>
 
@@ -4845,7 +4834,7 @@
   var val = document.getElementById('heroStatVal');
 
   function sync() {
-    var w = window.SablyaWallet;
+    var w = window.BeygaWallet;
     var onSepolia = !!(w && w.connected() && !w.isDemo() && w.chainId() === '0x14a34');
     pill.dataset.live = String(onSepolia);
     val.innerHTML = onSepolia
@@ -4853,18 +4842,18 @@
       : 'Base Sepolia \u00b7 testnet';
   }
 
-  if (window.SablyaWallet) window.SablyaWallet.onChange(sync);
+  if (window.BeygaWallet) window.BeygaWallet.onChange(sync);
   sync();
 })();
 </script>
 
 <!-- accent picker -->
 <div class="tint-picker" id="tintPicker" role="group" aria-label="Accent intensity">
-  <span class="tint-label">Sable</span>
-  <button class="tint" type="button" data-tint="0" aria-pressed="false" aria-label="Greige" title="Greige" style="background:#8c7b62"></button>
-  <button class="tint" type="button" data-tint="1" aria-pressed="true"  aria-label="Sable"  title="Sable"  style="background:#a5773c"></button>
-  <button class="tint" type="button" data-tint="2" aria-pressed="false" aria-label="Honey"  title="Honey"  style="background:#c08a2e"></button>
-  <button class="tint" type="button" data-tint="3" aria-pressed="false" aria-label="Umber"  title="Umber"  style="background:#6b4a21"></button>
+  <span class="tint-label">Beige</span>
+  <button class="tint" type="button" data-tint="0" aria-pressed="false" aria-label="Greige" title="Greige" style="background:#7f7b6e"></button>
+  <button class="tint" type="button" data-tint="1" aria-pressed="true"  aria-label="Sand"   title="Sand"   style="background:#6e6a57"></button>
+  <button class="tint" type="button" data-tint="2" aria-pressed="false" aria-label="Khaki"  title="Khaki"  style="background:#67693f"></button>
+  <button class="tint" type="button" data-tint="3" aria-pressed="false" aria-label="Ash"    title="Ash"    style="background:#4e4c42"></button>
   <span class="tint-sep"></span>
   <button class="theme-btn" type="button" id="themeBtn" aria-label="Switch theme">
     <svg class="sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -4879,31 +4868,32 @@
 
 <script>
 (function () {
-  /* Four readings of the same beige, from the grey end of it to the burnt end.
-     Each carries two sets: on cream the accent has to be darker than the
-     ground to read, and on the night theme it has to be lighter. One list of
-     values for both would fail at one end or the other. */
+  /* Four readings of the same beige, from the greyest to the deepest. None of
+     them is brown, and that is the constraint rather than an accident: beige
+     taken darker at full saturation turns brown, so every step down here drops
+     saturation with it. Each carries two sets, because the accent has to be
+     darker than the page on beige and lighter than it at night. */
   var TINTS = [
     { name: 'greige',
-      light: { sable: '#8c7b62', soft: '#a3907a', deep: '#5c4f3c', on: '#fffdf8',
-               glow: 'rgba(140,123,98,.13)', line: 'rgba(92,79,60,.17)', lineStrong: 'rgba(92,79,60,.32)' },
-      dark:  { sable: '#d5c7b0', soft: '#eadfcd', deep: '#9c8d76', on: '#14100a',
-               glow: 'rgba(213,199,176,.12)', line: 'rgba(213,199,176,.14)', lineStrong: 'rgba(213,199,176,.28)' } },
-    { name: 'sable',
-      light: { sable: '#a5773c', soft: '#c2944f', deep: '#6d4c1e', on: '#fffdf8',
-               glow: 'rgba(165,119,60,.12)', line: 'rgba(92,70,40,.17)', lineStrong: 'rgba(92,70,40,.32)' },
-      dark:  { sable: '#e0c79b', soft: '#f4e6cc', deep: '#a58a5f', on: '#14100a',
-               glow: 'rgba(224,199,155,.13)', line: 'rgba(233,214,181,.14)', lineStrong: 'rgba(233,214,181,.28)' } },
-    { name: 'honey',
-      light: { sable: '#c08a2e', soft: '#d9a341', deep: '#8a601a', on: '#fffdf8',
-               glow: 'rgba(192,138,46,.14)', line: 'rgba(110,80,32,.16)', lineStrong: 'rgba(110,80,32,.30)' },
-      dark:  { sable: '#eccb84', soft: '#f8e3b3', deep: '#b28f45', on: '#14100a',
-               glow: 'rgba(236,203,132,.14)', line: 'rgba(236,203,132,.15)', lineStrong: 'rgba(236,203,132,.30)' } },
-    { name: 'umber',
-      light: { sable: '#6b4a21', soft: '#8a6430', deep: '#4a3014', on: '#fffdf8',
-               glow: 'rgba(107,74,33,.13)', line: 'rgba(74,54,28,.18)', lineStrong: 'rgba(74,54,28,.34)' },
-      dark:  { sable: '#c9a877', soft: '#dfc39a', deep: '#8f7247', on: '#14100a',
-               glow: 'rgba(201,168,119,.13)', line: 'rgba(201,168,119,.14)', lineStrong: 'rgba(201,168,119,.28)' } }
+      light: { beige: '#7f7b6e', soft: '#98948a', deep: '#575447', on: '#fdfbf5',
+               glow: 'rgba(127,123,110,.11)', line: 'rgba(52,49,38,.17)', lineStrong: 'rgba(52,49,38,.32)' },
+      dark:  { beige: '#d7d3c6', soft: '#eeebe1', deep: '#96938a', on: '#121213',
+               glow: 'rgba(215,211,198,.12)', line: 'rgba(232,227,214,.14)', lineStrong: 'rgba(232,227,214,.28)' } },
+    { name: 'sand',
+      light: { beige: '#6e6a57', soft: '#8a8571', deep: '#4a4739', on: '#fdfbf5',
+               glow: 'rgba(110,106,87,.10)', line: 'rgba(52,49,38,.17)', lineStrong: 'rgba(52,49,38,.32)' },
+      dark:  { beige: '#ddd2b6', soft: '#f1e9d6', deep: '#9b9683', on: '#121213',
+               glow: 'rgba(221,210,182,.12)', line: 'rgba(232,223,204,.14)', lineStrong: 'rgba(232,223,204,.28)' } },
+    { name: 'khaki',
+      light: { beige: '#67693f', soft: '#7f8155', deep: '#43451f', on: '#fdfbf5',
+               glow: 'rgba(103,105,63,.11)', line: 'rgba(48,50,30,.17)', lineStrong: 'rgba(48,50,30,.32)' },
+      dark:  { beige: '#d5d6a8', soft: '#e9eac6', deep: '#93946e', on: '#121213',
+               glow: 'rgba(213,214,168,.12)', line: 'rgba(219,220,186,.14)', lineStrong: 'rgba(219,220,186,.28)' } },
+    { name: 'ash',
+      light: { beige: '#4e4c42', soft: '#6a675c', deep: '#312f28', on: '#fdfbf5',
+               glow: 'rgba(78,76,66,.10)', line: 'rgba(40,38,31,.18)', lineStrong: 'rgba(40,38,31,.34)' },
+      dark:  { beige: '#c6c3b6', soft: '#ded9cc', deep: '#8a877c', on: '#121213',
+               glow: 'rgba(198,195,182,.12)', line: 'rgba(206,202,190,.14)', lineStrong: 'rgba(206,202,190,.28)' } }
   ];
 
   var root = document.documentElement;
@@ -4912,10 +4902,10 @@
 
   function paint() {
     var set = TINTS[current][root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'];
-    root.style.setProperty('--sable', set.sable);
-    root.style.setProperty('--sable-soft', set.soft);
-    root.style.setProperty('--sable-deep', set.deep);
-    root.style.setProperty('--on-sable', set.on);
+    root.style.setProperty('--beige', set.beige);
+    root.style.setProperty('--beige-soft', set.soft);
+    root.style.setProperty('--beige-deep', set.deep);
+    root.style.setProperty('--on-beige', set.on);
     root.style.setProperty('--glow', set.glow);
     root.style.setProperty('--line', set.line);
     root.style.setProperty('--line-strong', set.lineStrong);
@@ -4928,7 +4918,7 @@
     buttons.forEach(function (b) {
       b.setAttribute('aria-pressed', String(Number(b.dataset.tint) === i));
     });
-    try { localStorage.setItem('sablya-tint', String(i)); } catch (e) {}
+    try { localStorage.setItem('beyga-tint', String(i)); } catch (e) {}
   }
 
   buttons.forEach(function (b) {
@@ -4940,15 +4930,15 @@
   function setTheme(mode) {
     if (mode === 'light') root.setAttribute('data-theme', 'light');
     else root.removeAttribute('data-theme');
-    try { localStorage.setItem('sablya-theme', mode); } catch (e) {}
+    try { localStorage.setItem('beyga-theme', mode); } catch (e) {}
     paint();
   }
 
   /* Light is the default for a brand named after sand. Only an explicit choice
      of dark turns it off, which is the opposite of how this started. */
   var savedTheme = null, saved = null;
-  try { savedTheme = localStorage.getItem('sablya-theme'); } catch (e) {}
-  try { saved = localStorage.getItem('sablya-tint'); } catch (e) {}
+  try { savedTheme = localStorage.getItem('beyga-theme'); } catch (e) {}
+  try { saved = localStorage.getItem('beyga-tint'); } catch (e) {}
 
   setTheme(savedTheme === 'dark' ? 'dark' : 'light');
   apply(saved !== null && TINTS[Number(saved)] ? Number(saved) : 1);
@@ -4963,10 +4953,10 @@
 <div class="modal-backdrop" id="walletModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-head">
-      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
+      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--beige)" aria-hidden="true"><use href="#beyga-mark"/></svg>
       <div>
         <h2 id="walletModalTitle">Connect a wallet</h2>
-        <p>Choose how you want to connect to Sablya.</p>
+        <p>Choose how you want to connect to Beyga.</p>
       </div>
       <button class="modal-close" id="walletClose" type="button" aria-label="Close">&times;</button>
     </div>
@@ -5013,7 +5003,7 @@
       </button>
     </div>
 
-    <p class="modal-foot">Sablya only reads your public address. This concept page never requests a signature or a transaction.</p>
+    <p class="modal-foot">Beyga only reads your public address. This concept page never requests a signature or a transaction.</p>
   </div>
 </div>
 
@@ -5097,7 +5087,7 @@
     emit();
   }
 
-  window.SablyaWallet = {
+  window.BeygaWallet = {
     connected: function () { return !!account; },
     address: function () { return account; },
     chainId: function () { return currentChainId; },
@@ -5237,7 +5227,7 @@
     if (lastView !== null && view !== lastView) window.scrollTo(0, 0);
     lastView = view;
 
-    if (isApp && window.SablyaSwap) window.SablyaSwap.refresh();
+    if (isApp && window.BeygaSwap) window.BeygaSwap.refresh();
   }
 
   window.addEventListener('hashchange', apply);
@@ -5269,8 +5259,8 @@
     { sym: 'USDT', name: 'Tether USD',      price: 0.9998,   bal: 0,        color: '#26a17b', addr: '0xFd08…dbe9', depth: 900000 },
     { sym: 'ARB',  name: 'Arbitrum',        price: 0.4215,   bal: 1204.88,  color: '#28a0f0', addr: '0x912C…4a48', depth: 640000 },
     { sym: 'HYPE', name: 'Hyperliquid',     price: 27.4180,  bal: 0,        color: '#4ad2b0', addr: '0x5555…5555', depth: 720000 },
-    { sym: 'SAB',  name: 'Sablya',           price: 0.0847,   bal: 45120,    color: '#dbe7f3', addr: '0x1C4a…9eD3', depth: 310000 },
-    { sym: 'xSAB', name: 'Staked Sablya',    price: 0.0912,   bal: 12880.4,  color: '#8fa2b6', addr: '0x7B0d…2fA6', depth: 180000 }
+    { sym: 'BEY',  name: 'Beyga',           price: 0.0847,   bal: 45120,    color: '#dbe7f3', addr: '0x1C4a…9eD3', depth: 310000 },
+    { sym: 'xBEY', name: 'Staked Beyga',    price: 0.0912,   bal: 12880.4,  color: '#8fa2b6', addr: '0x7B0d…2fA6', depth: 180000 }
   ];
 
   var STABLE = ['USDC', 'USDT'];
@@ -5292,7 +5282,7 @@
   var details = byId('swapDetails'), cta = byId('swapCta');
 
   function connected() {
-    return !!(window.SablyaWallet && window.SablyaWallet.connected());
+    return !!(window.BeygaWallet && window.BeygaWallet.connected());
   }
 
   function num(el) {
@@ -5710,7 +5700,7 @@
   }
 
   cta.addEventListener('click', function () {
-    if (cta.dataset.action === 'connect') { window.SablyaWallet.open(); return; }
+    if (cta.dataset.action === 'connect') { window.BeygaWallet.open(); return; }
     if (cta.dataset.action === 'live') { executeWrap(); return; }
     if (cta.dataset.action !== 'review') return;
 
@@ -5770,7 +5760,7 @@
   var liveBalances = { ETH: null, WETH: null };
   var txBusy = false;
 
-  function wallet() { return window.SablyaWallet; }
+  function wallet() { return window.BeygaWallet; }
   function onTestnet() {
     return !!(wallet() && !wallet().isDemo() && wallet().chainId() === TESTNET.chainId);
   }
@@ -5884,7 +5874,7 @@
     });
   }
 
-  window.SablyaLive = {
+  window.BeygaLive = {
     active: liveMode,
     onTestnet: onTestnet,
     isWrapPair: isWrapPair,
@@ -5921,13 +5911,13 @@
     });
   });
 
-  if (window.SablyaWallet) window.SablyaWallet.onChange(function () {
+  if (window.BeygaWallet) window.BeygaWallet.onChange(function () {
     setTxNote('');
     loadLiveBalances();
     render();
   });
 
-  window.SablyaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
+  window.BeygaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
 
   paintChartHead();
   drawChart();
@@ -5941,7 +5931,7 @@
 
     <div id="gateMain">
       <header class="gate-head">
-        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#sablya-mark"/></svg>
+        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#beyga-mark"/></svg>
         <div>
           <p class="eyebrow">Before you continue</p>
           <h2 id="gateTitle">Terms and privacy</h2>
@@ -5955,10 +5945,10 @@
 
       <div class="gate-body" tabindex="0">
         <div class="gate-panel" id="panelTerms" role="tabpanel" aria-labelledby="tabTerms">
-          <p><b>Sablya is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
+          <p><b>Beyga is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
 
           <h3>Nothing is deployed</h3>
-          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Sablya while that box reads <b>not deployed</b> is not ours.</p>
+          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Beyga while that box reads <b>not deployed</b> is not ours.</p>
 
           <h3>Unaudited software</h3>
           <p>The hook has not been audited. The only real transaction this interface can send is an ETH to WETH wrap on Base Sepolia, a test network, using test ETH with no monetary value. Every other quote on the app screen is simulated and labelled as such.</p>
@@ -5967,7 +5957,7 @@
           <p>Nothing here is investment, financial, legal, or tax advice. The figures shown are constant product arithmetic on stated reserves, worked as illustrations. They are not projections, performance claims, or a forecast of anything.</p>
 
           <h3>Your keys stay yours</h3>
-          <p>Sablya never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
+          <p>Beyga never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
 
           <h3>Your side of it</h3>
           <p>You confirm you are of legal age where you live, that you are not accessing this from a jurisdiction where it would be prohibited, and that you use it as is, at your own risk, with no warranty of any kind.</p>
@@ -5992,7 +5982,7 @@
 
       <label class="gate-agree" for="gateAgree" id="gateAgreeRow">
         <input type="checkbox" id="gateAgree">
-        <span>I have read the terms and the privacy notice, and I understand that Sablya is unaudited testnet software with no token and no mainnet deployment.</span>
+        <span>I have read the terms and the privacy notice, and I understand that Beyga is unaudited testnet software with no token and no mainnet deployment.</span>
       </label>
 
       <div class="gate-actions">
@@ -6004,7 +5994,7 @@
     </div>
 
     <div class="gate-blocked" id="gateBlocked" hidden>
-      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--sable)" aria-hidden="true"><use href="#sablya-mark"/></svg>
+      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--beige)" aria-hidden="true"><use href="#beyga-mark"/></svg>
       <h2>Then this is where it stops.</h2>
       <p>Declining is a real answer and nothing here is worth overriding it for. Close the tab whenever you like, or read the notice again if you changed your mind.</p>
       <button class="btn btn-ghost" id="gateBack" type="button">Read it again</button>
@@ -6015,7 +6005,7 @@
 
 <script>
 (function () {
-  var KEY   = 'sablya-legal-v1';
+  var KEY   = 'beyga-legal-v1';
   var gate  = document.getElementById('legalGate');
   if (!gate) return;
 
@@ -6203,7 +6193,7 @@
 })();
 </script>
 <script>
-/* ---------- Sablya: movement ----------
+/* ---------- Beyga: movement ----------
    Every effect in here is opt-in through the `motion` class on <html>. If the
    reader has asked for reduced motion the class is never set, the reveal CSS
    never matches, and the page renders exactly as it would have without this

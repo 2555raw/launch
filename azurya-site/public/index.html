@@ -13,7 +13,7 @@
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 
 <style>
   /* ============ tokens: beige and white ============ */
@@ -50,10 +50,13 @@
     --down:        #d8635a;
     --shade:       #000000;
 
-    --font-display: "Familjen Grotesk", "Segoe UI", sans-serif;
-    --font-ui:      "Familjen Grotesk", "Segoe UI", sans-serif;
-    --font-body:    "Public Sans", -apple-system, "Segoe UI", sans-serif;
-    --font-mono:    "DM Mono", ui-monospace, Menlo, monospace;
+    /* An engineering stack, because that is what the page is: Archivo sets the
+       headings tight and industrial, IBM Plex Sans reads long, and IBM Plex
+       Mono carries every label, address and figure on the page. */
+    --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-ui:      "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-body:    "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --font-mono:    "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
     --wrap: 1240px;
     --r-lg: 6px;
@@ -3357,6 +3360,30 @@
     background: linear-gradient(90deg, var(--beige-deep), var(--beige), var(--beige-soft));
   }
 
+  /* ---- controls do not wrap ----
+     A button that breaks onto two lines is half again as tall as the bar that
+     holds it, so it hangs out of the pill's rounded edge. Nothing in the bar
+     is allowed to reflow: below the width where it all fits, the bar drops a
+     control instead, in order of how little it is missed. */
+  .btn, .nav-chip, .nav-ca, .wallet-pill, .chip { white-space: nowrap; }
+  .nav-in > * { flex: none; }
+
+  @media (max-width: 1260px) {
+    /* the registry chip: the page has a whole section for this one */
+    .nav-in .nav-ca { display: none; }
+  }
+
+  @media (max-width: 1080px) {
+    /* the hero offers the app twice; the bar does not need to as well */
+    .nav-in .nav-cta { display: none; }
+  }
+
+  @media (max-width: 980px) and (min-width: 901px) {
+    .nav-in { gap: 14px; }
+    .nav-links { gap: 18px; }
+    .nav-links a { font-size: 12px; }
+  }
+
   /* ---- the bar is a floating pill, and it tightens once you leave the top ---- */
   /* Warm shadows throughout. A neutral black shadow on a beige ground reads as
      a smudge on it rather than as depth. */
@@ -3570,19 +3597,15 @@
     margin-bottom: -.14em;
   }
 
-  /* The word that carries the sentence is marked with beige rather than
-     recoloured: on a beige page a beige word would disappear. */
+  /* The word that carries the sentence is simply the accent colour, the way the
+     page arrived. A wash behind it fouled the descenders, and it was never
+     needed: the accent is the dark end of the beige under the light theme and
+     the light end of it at night, so it reads on both grounds. */
   .hero-col h1 em, .hero h1 em {
     font-style: normal;
     font-weight: 700;
-    color: var(--ink);
-    background: linear-gradient(
-      180deg,
-      transparent 58%,
-      color-mix(in srgb, var(--beige) 30%, transparent) 58%,
-      color-mix(in srgb, var(--beige) 30%, transparent) 94%,
-      transparent 94%
-    );
+    color: var(--beige);
+    background: none;
   }
 
   html.motion .hero h1 .w {
@@ -3776,7 +3799,22 @@
       scrollbar-width: none;
     }
     .nav-links::-webkit-scrollbar { display: none; }
-    .nav.is-stuck .nav-in { height: auto; }
+
+    /* The bar is allowed to grow here. The breakpoint that said so was undone
+       by the pass that turned the bar into a pill and restated its height, so
+       the contents wrapped to two rows inside a box still 58px tall and the
+       link row hung out of the bottom edge. A two-row bar is also a panel
+       rather than a pill, so the corner comes back in. */
+    .nav-in {
+      height: auto;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 11px 14px;
+      row-gap: 10px;
+      border-radius: var(--r-lg);
+    }
+
+    .nav.is-stuck .nav-in { height: auto; padding: 9px 14px; }
 
     /* the wordmark and the wallet share the first row, the links take the
        second - rather than three stacked rows, one per control */

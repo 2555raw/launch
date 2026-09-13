@@ -3214,9 +3214,6 @@
   /* Corners follow the palette: mauve does not want the hard 3px square the
      azure original was cut with. */
   :root { --r-lg: 12px; --r-md: 9px; --r-sm: 6px; }
-  .nav, .nav-in { border-radius: 0; }
-  .btn { border-radius: var(--r-md); }
-  .nav-ca { border-radius: var(--r-md); }
   .ca { border-radius: var(--r-lg); }
 
   /* A narrower bar cannot afford to break a two word button over two lines. */
@@ -3231,6 +3228,51 @@
 
   @media (max-width: 900px) {
     .hero-col h1, .hero-col .hero-sub { max-width: none; }
+  }
+
+  /* ============ mauvya: everything in the bar is a bubble ============ */
+
+  /* The bar is a lozenge, so nothing square may sit inside it. */
+  .nav { top: 16px; }
+
+  .nav-in {
+    height: 62px;
+    padding: 0 8px 0 18px;
+    border-radius: 999px;
+    gap: 10px;
+    box-shadow: 0 16px 44px color-mix(in srgb, var(--void) 55%, transparent);
+  }
+
+  .btn { border-radius: 999px; }
+  .nav-in .btn { padding: 9px 16px; }
+
+  /* A bubble needs no minimum width: it takes the shape of what it holds, so
+     long as what it holds is never broken over two lines. */
+  .nav-in .nav-ca { min-width: 0; flex: none; border-radius: 999px; padding: 7px 15px; }
+  .nav-ca, .nav-ca-val, .nav-ca-label { white-space: nowrap; }
+  .nav-in .btn, .nav-in .nav-links { flex: none; }
+  /* An earlier pass left a right margin on the links that the bubbles cannot
+     afford; the gap does that job now. */
+  .nav-in .nav-links { margin-left: auto; margin-right: 0; }
+  .nav-ca[data-state="live"] { border-radius: 999px; padding: 7px 14px; }
+
+  /* The links get a bubble of their own on hover, rather than only a colour. */
+  .nav-links a {
+    padding: 6px 7px;
+    border-radius: 999px;
+    transition: color .16s ease, background .16s ease;
+  }
+  .nav-links a:hover { background: color-mix(in srgb, var(--mauve) 12%, transparent); }
+  .nav-links { gap: 2px; }
+
+  /* Round everything else that floats: the theme button, the wallet chip. */
+  .theme-btn { border-radius: 999px; }
+  .tint-picker { border-radius: 999px; padding: 8px 12px; }
+  .wallet-chip, .nav-chip, .sim-chip, .live-switch { border-radius: 999px; }
+
+  @media (max-width: 1180px) {
+    .nav-in { padding: 0 6px 0 14px; gap: 10px; }
+    .nav-links a { padding: 6px 8px; }
   }
 </style>
 </head>

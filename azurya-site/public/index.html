@@ -43,9 +43,9 @@
     --red-soft:    #ff6a52;
     --red-deep:    #c41505;
     --on-red:      #140604;
-    --band:        #d01904;
+    --band:        #6b1020;
     --band-ink:    #ffffff;
-    --band-muted:  #ffeae5;
+    --band-muted:  #f2d2d6;
     --glow:        rgba(255,58,29,.16);
     --up:          #4fb072;
     --down:        #ff6a52;
@@ -83,10 +83,14 @@
     --red-soft:    #ff3a1d;
     --red-deep:    #8f1002;
     --on-red:      #ffffff;
-    /* the inverted band is the loud red itself, full bleed */
-    --band:        #d01904;
+    /* The slab is a maroon rather than the brand red. At full vermilion it
+       carried white at 4.8:1 and its secondary line at 3.3:1, which is a
+       headline you can read and a sentence under it you cannot. The maroon
+       takes those to 12.2:1 and 8.4:1, and gives the loud red something to be
+       loud against. */
+    --band:        #6b1020;
     --band-ink:    #ffffff;
-    --band-muted:  #ffeae5;
+    --band-muted:  #f2d2d6;
     --glow:        rgba(208,25,4,.14);
     --up:          #1f7a45;
     --down:        #b3140a;
@@ -3472,6 +3476,49 @@
      reserved. Flush against the right edge of a phone, those 2px were the
      whole page's sideways scroll. */
   .q summary::after { margin-inline: 2.1px; }
+
+  /* ---- the state strip ----
+     Three tiles with big mono figures and hairlines between them read as a
+     metrics row, and these are not metrics: "v4" is a version, "audit" is a
+     gate that has not been passed, and only one of the three is a number at
+     all. The label goes on top where it belongs, the figures come down to a
+     size that does not shout over the sentence above them, and the vertical
+     rules give way to one line across the top of the row.
+
+     On the night theme the maroon sits only 1.6:1 off the ground, so the slab
+     needs edges to read as a slab. */
+  .band {
+    border-top: 1px solid color-mix(in srgb, var(--band-ink) 16%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--band-ink) 16%, transparent);
+    padding: 74px 0 70px;
+  }
+
+  .band-sub { margin-top: 4px; }
+
+  .band-stats {
+    margin-top: 46px;
+    padding-top: 24px;
+    border-top: 1px solid color-mix(in srgb, var(--band-ink) 22%, transparent);
+  }
+
+  .band-stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 9px;
+    text-align: left;
+    padding: 0 52px 0 0;
+  }
+
+  .band-stat + .band-stat { border-left: 0; padding-left: 0; }
+
+  .band-stat .n { font-size: 25px; letter-spacing: -.01em; }
+  .band-stat .l { margin-top: 0; font-size: 11px; letter-spacing: .16em; }
+
+  @media (max-width: 720px) {
+    .band-stats { gap: 22px; flex-direction: column; }
+    .band-stat { padding: 0; }
+    .band-stat + .band-stat { border-top: 0; }
+  }
 
   /* ---- three facts, not three steps ----
      These were three bordered cards numbered 01 to 03, which claimed a

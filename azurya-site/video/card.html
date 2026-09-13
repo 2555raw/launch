@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="/fonts.css">
+<style>
+  /* Title cards for the film, in the site's own type and palette, so the cut
+     between a title and the page is not a change of typeface mid-sentence.
+     One card per frame, driven by the hash: #kind=word&text=... */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; }
+
+  body {
+    /* the page's own light theme: beige ground, near-black ink */
+    --ground: #e8dfcc;
+    --ink:    #1a1915;
+    --muted:  #565246;
+    --beige:  #6e6a57;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Familjen Grotesk", system-ui, sans-serif;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+
+  /* the bookends invert, so the film opens and closes on the night theme */
+  body.dark {
+    --ground: #121213;
+    --ink:    #f3efe5;
+    --muted:  #a8a498;
+    --beige:  #ddd2b6;
+  }
+
+  .wrap { padding: 0 120px; }
+
+  .word {
+    font-size: 88px;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.0;
+  }
+
+  .word .accent { color: var(--beige); }
+
+  .line {
+    font-size: 58px;
+    font-weight: 700;
+    letter-spacing: -0.032em;
+    line-height: 1.08;
+    max-width: 19ch;
+    margin: 0 auto;
+  }
+
+  .kicker {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 14px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .mark { font-size: 96px; font-weight: 700; letter-spacing: -0.03em; }
+  .mark svg { width: 78px; height: 78px; vertical-align: -8px; margin-right: 14px; color: var(--beige); }
+  .rule { width: 88px; height: 3px; background: var(--beige); margin: 36px auto 0; }
+
+  .meta {
+    margin-top: 40px;
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    line-height: 2;
+  }
+
+  .fig {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 132px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .fig .unit { font-size: 54px; color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="wrap" id="wrap"></div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <g id="mk">
+        <path d="M4.6 5.17L5.1 4.77L5.6 4.38L6.1 4.03L6.6 3.73L7.1 3.49L7.6 3.32L8.1 3.24L8.5 3.24L9.0 3.32L9.5 3.49L10.0 3.73L10.5 4.03L11.0 4.38L11.5 4.77L12.0 5.18L12.5 5.58L13.0 5.97L13.5 6.32L14.0 6.62L14.5 6.86L15.0 7.03L15.5 7.11L15.9 7.11L16.4 7.03L16.9 6.86L17.4 6.62L17.9 6.32L18.4 5.97L18.9 5.58L19.4 5.18L19.4 7.03L18.9 7.43L18.4 7.82L17.9 8.17L17.4 8.47L16.9 8.71L16.4 8.88L15.9 8.96L15.5 8.96L15.0 8.88L14.5 8.71L14.0 8.47L13.5 8.17L13.0 7.82L12.5 7.43L12.0 7.03L11.5 6.62L11.0 6.23L10.5 5.88L10.0 5.58L9.5 5.34L9.0 5.17L8.5 5.09L8.1 5.09L7.6 5.17L7.1 5.34L6.6 5.58L6.1 5.88L5.6 6.23L5.1 6.62L4.6 7.02Z"/>
+        <path d="M2.6 10.90L3.2 10.39L3.9 9.90L4.5 9.46L5.1 9.08L5.7 8.78L6.4 8.57L7.0 8.46L7.6 8.46L8.2 8.57L8.9 8.78L9.5 9.08L10.1 9.46L10.7 9.90L11.4 10.39L12.0 10.90L12.6 11.41L13.3 11.90L13.9 12.34L14.5 12.72L15.1 13.02L15.8 13.23L16.4 13.34L17.0 13.34L17.6 13.23L18.3 13.02L18.9 12.72L19.5 12.34L20.1 11.90L20.8 11.41L21.4 10.90L21.4 13.20L20.8 13.71L20.1 14.20L19.5 14.64L18.9 15.02L18.3 15.32L17.6 15.53L17.0 15.64L16.4 15.64L15.8 15.53L15.1 15.32L14.5 15.02L13.9 14.64L13.3 14.20L12.6 13.71L12.0 13.20L11.4 12.69L10.7 12.20L10.1 11.76L9.5 11.38L8.9 11.08L8.2 10.87L7.6 10.76L7.0 10.76L6.4 10.87L5.7 11.08L5.1 11.38L4.5 11.76L3.9 12.20L3.2 12.69L2.6 13.20Z"/>
+        <path d="M1.6 16.62L2.3 16.20L3.0 15.79L3.7 15.42L4.4 15.10L5.1 14.85L5.8 14.68L6.5 14.59L7.1 14.59L7.8 14.68L8.5 14.85L9.2 15.10L9.9 15.42L10.6 15.79L11.3 16.20L12.0 16.62L12.7 17.05L13.4 17.46L14.1 17.83L14.8 18.15L15.5 18.40L16.2 18.57L16.9 18.66L17.5 18.66L18.2 18.57L18.9 18.40L19.6 18.15L20.3 17.83L21.0 17.46L21.7 17.05L22.4 16.62L22.4 19.38L21.7 19.80L21.0 20.21L20.3 20.58L19.6 20.90L18.9 21.15L18.2 21.32L17.5 21.41L16.9 21.41L16.2 21.32L15.5 21.15L14.8 20.90L14.1 20.58L13.4 20.21L12.7 19.80L12.0 19.38L11.3 18.95L10.6 18.54L9.9 18.17L9.2 17.85L8.5 17.60L7.8 17.43L7.1 17.34L6.5 17.34L5.8 17.43L5.1 17.60L4.4 17.85L3.7 18.17L3.0 18.54L2.3 18.95L1.6 19.38Z"/>
+      </g>
+    </defs>
+  </svg>
+
+<script>
+  const q = new URLSearchParams(location.hash.slice(1));
+  const kind = q.get('kind') || 'word';
+  const text = q.get('text') || '';
+  const kicker = q.get('kicker') || '';
+  const meta = q.get('meta') || '';
+  if (q.get('dark') === '1') document.body.classList.add('dark');
+
+  const mark = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mk"/></svg>';
+
+  const html = {
+    logo:  () => `<div class="mark">${mark}Beyga</div><div class="rule"></div>`,
+    word:  () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="word">${text}</div>`,
+    line:  () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="line">${text}</div>`,
+    fig:   () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="fig">${text}</div>`,
+    outro: () => `<div class="mark">${mark}Beyga</div><div class="rule"></div>
+      <div class="meta">${meta.replace(/\|/g, '<br>')}</div>`,
+  };
+  document.getElementById('wrap').innerHTML = (html[kind] || html.word)();
+</script>
+</body>
+</html>

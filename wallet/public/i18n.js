@@ -142,7 +142,17 @@ window.WARD_I18N = {
   "hero.cent": " cent",
   "nav.openmine": "Open my wallet",
   "nav.mine": "My wallet",
-  "cs.hide": "Hide details"
+  "cs.hide": "Hide details",
+  "ask.open": "Ask about Ward",
+  "ask.close": "Close",
+  "ask.title": "Ask about Ward",
+  "ask.sub": "Pick a question, or search. Every answer is taken straight from this page.",
+  "ask.ph": "Search for an answer",
+  "ask.none": "Nothing here matches that. Try another word, or read the sections above.",
+  "ask.foot": "This panel only quotes what is written on this page. Nothing you type here leaves your browser, and nothing is sent to us.",
+  "ask.g1": "Common questions",
+  "ask.g2": "Security",
+  "ask.g3": "Before you begin"
  },
  "es": {
   "meta.title": "Ward · solo encaja tu llave",
@@ -281,7 +291,17 @@ window.WARD_I18N = {
   "cs.more": "Qué se guarda",
   "nav.openmine": "Abrir mi wallet",
   "nav.mine": "Mi wallet",
-  "cs.hide": "Ocultar detalles"
+  "cs.hide": "Ocultar detalles",
+  "ask.open": "Preguntar sobre Ward",
+  "ask.close": "Cerrar",
+  "ask.title": "Preguntar sobre Ward",
+  "ask.sub": "Elige una pregunta o busca. Cada respuesta sale tal cual de esta página.",
+  "ask.ph": "Buscar una respuesta",
+  "ask.none": "Aquí no hay nada que encaje con eso. Prueba otra palabra, o lee las secciones de arriba.",
+  "ask.foot": "Este panel solo cita lo que está escrito en esta página. Nada de lo que escribas aquí sale de tu navegador, y no se nos envía nada.",
+  "ask.g1": "Preguntas frecuentes",
+  "ask.g2": "Seguridad",
+  "ask.g3": "Antes de empezar"
  },
  "zh": {
   "meta.title": "Ward · 只有你的钥匙能开",
@@ -420,7 +440,17 @@ window.WARD_I18N = {
   "cs.more": "存了哪些东西",
   "nav.openmine": "打开我的钱包",
   "nav.mine": "我的钱包",
-  "cs.hide": "收起详情"
+  "cs.hide": "收起详情",
+  "ask.open": "关于 Ward 的提问",
+  "ask.close": "关闭",
+  "ask.title": "关于 Ward 的提问",
+  "ask.sub": "选一个问题，或者直接搜索。每条回答都原样来自本页面。",
+  "ask.ph": "搜索答案",
+  "ask.none": "这里没有匹配的内容。换个词试试，或者看看上面的章节。",
+  "ask.foot": "本面板只引用写在这个页面上的内容。你在这里输入的任何东西都不会离开你的浏览器，也不会发送给我们。",
+  "ask.g1": "常见问题",
+  "ask.g2": "安全性",
+  "ask.g3": "开始之前"
  },
  "ru": {
   "meta.title": "Ward · подходит только ваш ключ",
@@ -559,6 +589,16 @@ window.WARD_I18N = {
   "cs.more": "Что хранится",
   "nav.openmine": "Открыть мой кошелёк",
   "nav.mine": "Мой кошелёк",
-  "cs.hide": "Свернуть"
+  "cs.hide": "Свернуть",
+  "ask.open": "Спросить о Ward",
+  "ask.close": "Закрыть",
+  "ask.title": "Спросить о Ward",
+  "ask.sub": "Выберите вопрос или найдите его. Каждый ответ взят прямо с этой страницы.",
+  "ask.ph": "Поиск ответа",
+  "ask.none": "Здесь нет ничего подходящего. Попробуйте другое слово или прочитайте разделы выше.",
+  "ask.foot": "Эта панель цитирует только то, что написано на этой странице. Ничего из введённого здесь не покидает ваш браузер и нам не отправляется.",
+  "ask.g1": "Частые вопросы",
+  "ask.g2": "Безопасность",
+  "ask.g3": "Прежде чем начать"
  }
 };

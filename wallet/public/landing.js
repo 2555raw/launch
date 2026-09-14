@@ -130,6 +130,7 @@
       if (shown || scrollY < 180) return;
       shown = true;
       consent.hidden = false;
+      document.body.classList.add('notice-up');
       requestAnimationFrame(() => consent.classList.add('in'));
     };
     onScroll.push(reveal);
@@ -138,6 +139,7 @@
       consent.classList.remove('in');
       consent.classList.add('out');
       try { localStorage.setItem(SEEN, String(Date.now())); } catch {}
+      document.body.classList.remove('notice-up');
       setTimeout(() => { consent.hidden = true; }, 500);
     };
     $('#csOk').addEventListener('click', dismiss);
@@ -185,6 +187,15 @@
       const v = d[el.dataset.i18nSuffix];
       if (v != null) el.dataset.suffix = v;
     });
+    $$('[data-i18n-ph]').forEach(el => {
+      const v = d[el.dataset.i18nPh];
+      if (v != null) el.placeholder = v;
+    });
+    $$('[data-i18n-label]').forEach(el => {
+      const v = d[el.dataset.i18nLabel];
+      if (v != null) el.setAttribute('aria-label', v);
+    });
+    paintAsk();
     repaint.forEach(f => f());
     if (d['meta.title']) document.title = d['meta.title'];
     const desc = $('meta[name="description"]');
@@ -230,6 +241,74 @@
     });
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target)) closeMenu(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  }
+
+  /* ── Ask about Ward ──────────────────────────────────────────────────────
+     Every entry here is a section of this page, so the panel is translated for
+     free and can never drift from what the page actually says. */
+  const ASK = [
+    ['ask.g1', ['faq.q1','faq.q2','faq.q3','faq.q4','faq.q5','faq.q6','faq.q7','faq.q8'].map(q => [q, q.replace('.q', '.a')])],
+    ['ask.g2', [['sec.f1h','sec.f1p'], ['sec.f2h','sec.f2p'], ['sec.f3h','sec.f3p'], ['sec.f4h','sec.f4p']]],
+    ['ask.g3', [['tm.t1h','tm.t1p'], ['tm.t2h','tm.t2p'], ['tm.t3h','tm.t3p'], ['tm.t4h','tm.t4p'], ['tm.t5h','tm.t5p']]]
+  ];
+  const askList = $('#askList'), askQ = $('#askQ');
+  const plain = html => { const t = document.createElement('div'); t.innerHTML = html || ''; return t.textContent || ''; };
+  /* Fold accents so "contraseña" is found by typing "contrasena". */
+  const fold = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  function paintAsk() {
+    if (!askList) return;
+    const d = DICT[document.documentElement.lang.slice(0, 2)] || DICT.en || {};
+    const term = fold((askQ && askQ.value || '').trim());
+    askList.innerHTML = '';
+    let shown = 0;
+
+    ASK.forEach(([groupKey, pairs]) => {
+      const hits = pairs.filter(([q, a]) =>
+        !term || fold(plain(d[q]) + ' ' + plain(d[a])).includes(term));
+      if (!hits.length) return;
+
+      const h = document.createElement('p');
+      h.className = 'ask-group';
+      h.textContent = d[groupKey] || groupKey;
+      askList.appendChild(h);
+
+      hits.forEach(([q, a]) => {
+        shown++;
+        const item = document.createElement('details');
+        item.className = 'ask-item';
+        item.innerHTML = '<summary></summary><div></div>';
+        item.querySelector('summary').textContent = plain(d[q]);
+        item.querySelector('div').innerHTML = d[a] || '';
+        if (term) item.open = true;
+        askList.appendChild(item);
+      });
+    });
+
+    if (!shown) {
+      const none = document.createElement('p');
+      none.className = 'ask-none';
+      none.textContent = d['ask.none'] || '';
+      askList.appendChild(none);
+    }
+  }
+
+  const ask = $('#ask'), askFab = $('#askFab');
+  if (ask && askFab) {
+    const openAsk = () => {
+      ask.hidden = false;
+      requestAnimationFrame(() => ask.classList.add('in'));
+      setTimeout(() => askQ && askQ.focus({ preventScroll: true }), 220);
+    };
+    const closeAsk = () => {
+      ask.classList.remove('in');
+      setTimeout(() => { ask.hidden = true; }, 260);
+    };
+    askFab.addEventListener('click', openAsk);
+    $('#askX').addEventListener('click', closeAsk);
+    $$('[data-ask-close]').forEach(el => el.addEventListener('click', closeAsk));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !ask.hidden) closeAsk(); });
+    askQ.addEventListener('input', paintAsk);
   }
 
   applyLang(chooseLang(), false);

@@ -458,3 +458,63 @@
 .cs-link:hover { color: var(--brand); }
 
 @media (prefers-reduced-motion: reduce) { .cs-card { transition: none; } }
+
+/* ── language picker ─────────────────────────────── */
+.lang { position: relative; flex: none; }
+.lang-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+  padding: 8px 14px 8px 11px; font: inherit; font-size: 13px; font-weight: 580;
+  color: var(--ink-2); cursor: pointer; box-shadow: var(--shadow-1);
+  transition: border-color .18s, color .18s, background .35s;
+}
+.lang-btn:hover { border-color: var(--brand); color: var(--brand); }
+.lang-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.nav.stuck .lang-btn { background: transparent; border-color: transparent; box-shadow: none; }
+
+.lang-menu {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 60;
+  list-style: none; margin: 0; padding: 6px; min-width: 168px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; box-shadow: var(--shadow-2);
+  animation: langIn .2s cubic-bezier(.22,.9,.3,1);
+}
+@keyframes langIn { from { opacity: 0; transform: translateY(-6px); } }
+.lang-menu button {
+  width: 100%; text-align: left; background: none; border: 0; border-radius: 11px;
+  padding: 10px 13px; font: inherit; font-size: 14px; color: var(--ink);
+  cursor: pointer; transition: background .15s, color .15s;
+}
+.lang-menu button:hover { background: var(--bg-2); }
+.lang-menu button.on { background: var(--brand-soft); color: var(--brand-deep); font-weight: 620; }
+
+/* ── a fuller background ─────────────────────────────────────────────────────
+   The page was mostly flat wash. A fine dot grid gives the whole thing a
+   surface, and each long section carries its own blurred glow so the colour
+   changes as you scroll instead of holding one tint for the entire page. */
+.site::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, var(--line-2) 1px, transparent 0);
+  background-size: 32px 32px;
+  opacity: .55;
+}
+@media (prefers-color-scheme: dark) { .site::before { opacity: .38; } }
+
+/* The ambient layer is positioned, so without this the page content would
+   paint underneath it rather than on top. */
+.site main, .site .foot, .site .nav, .site .consent { position: relative; z-index: 1; }
+
+.journey, .sec, .closer, .works { position: relative; }
+/* The glows sit inside their section's box and spread by blur alone. Blur
+   paints past the box without adding to the page width, so nothing has to be
+   clipped, and nothing has to be clipped precisely because a clip edge through
+   a soft gradient shows up as a hard seam. */
+.sec > *, .journey > *, .closer > * { position: relative; z-index: 1; }
+.glow { position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
+#topup .glow  { width: 30vmax; height: 30vmax; top: -6vmax; right: 0; background: var(--sky); opacity: .2; }
+.journey .glow { width: 34vmax; height: 34vmax; top: 8%; left: 0; background: var(--iris); opacity: .2; }
+#plans .glow  { width: 32vmax; height: 32vmax; top: 0; right: 0; background: var(--brand); opacity: .16; }
+#name .glow   { width: 30vmax; height: 30vmax; bottom: 0; left: 24%; background: var(--iris); opacity: .17; }
+#terms .glow  { width: 32vmax; height: 32vmax; top: 4vmax; left: 0; background: var(--sky); opacity: .16; }
+#faq .glow    { width: 30vmax; height: 30vmax; bottom: 0; right: 0; background: var(--brand); opacity: .15; }
+@media (prefers-color-scheme: dark) { .glow { opacity: .1 !important; } }

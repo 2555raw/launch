@@ -34,11 +34,13 @@
   }
 
   /* ── Counters ──────────────────────────────────────────────────────────── */
+  const repaint = [];
   $$('[data-count]').forEach(el => {
     const to = Number(el.dataset.count);
-    const pre = el.dataset.prefix || '', post = el.dataset.suffix || '';
-    const paint = v => { el.textContent = pre + v + post; };
-    if (calm || !('IntersectionObserver' in window)) return paint(to);
+    const paint = v => { el.textContent = (el.dataset.prefix || '') + v + (el.dataset.suffix || ''); };
+    /* The suffix is translated, so the final value has to be repaintable. */
+    repaint.push(() => paint(el.dataset.done ? to : 0));
+    if (calm || !('IntersectionObserver' in window)) { el.dataset.done = '1'; return paint(to); }
     paint(0);
     const io = new IntersectionObserver(es => es.forEach(e => {
       if (!e.isIntersecting) return;
@@ -47,7 +49,7 @@
       const tick = now => {
         const k = Math.min(1, (now - t0) / ms);
         paint(Math.round(to * (1 - Math.pow(1 - k, 3))));
-        if (k < 1) requestAnimationFrame(tick);
+        if (k < 1) requestAnimationFrame(tick); else el.dataset.done = '1';
       };
       requestAnimationFrame(tick);
     }), { threshold: .6 });
@@ -112,18 +114,6 @@
     });
   }
 
-  /* ── Anyone who already has a wallet is not offered a second one ───────────
-     Making another on top of the first would lose the first. */
-  let hasWallet = false;
-  try {
-    hasWallet = ['ward.v1', 'quiver.v1', 'calma.v1']
-      .some(ns => localStorage.getItem(ns + '.keystore'));
-  } catch {}
-  if (hasWallet) {
-    $$('#heroCta, #footCta').forEach(a => { a.textContent = 'Open my wallet'; });
-    if ($('#navCta')) $('#navCta').textContent = 'My wallet';
-  }
-
   /* ── What Ward stores ───────────────────────────────────────────────────
      It waits for the page to move rather than blocking the first screen: a
      notice about storage is worth reading, and nobody reads one that lands
@@ -156,9 +146,94 @@
     more.addEventListener('click', () => {
       const open = detail.hidden;
       detail.hidden = !open;
-      more.textContent = open ? 'Hide details' : "What's stored";
+      const d = (window.WARD_I18N || {})[document.documentElement.lang.slice(0, 2)] || {};
+      more.textContent = open ? (d['cs.hide'] || 'Hide details') : (d['cs.more'] || "What's stored");
     });
   }
+
+  /* ── Language ────────────────────────────────────────────────────────────
+     One page, four dictionaries, swapped at runtime. English stays in the HTML
+     as the source, so a failure to load i18n.js leaves a readable page rather
+     than an empty one. */
+  const LANGS = [
+    { id: 'en', name: 'English', short: 'EN' },
+    { id: 'es', name: 'Español', short: 'ES' },
+    { id: 'zh', name: '中文', short: '中文' },
+    { id: 'ru', name: 'Русский', short: 'RU' }
+  ];
+  const HTML_LANG = { en: 'en', es: 'es', zh: 'zh-Hans', ru: 'ru' };
+  const LANG_KEY = 'ward.v1.lang';
+  const DICT = window.WARD_I18N || {};
+
+  function chooseLang() {
+    try { const saved = localStorage.getItem(LANG_KEY); if (saved && DICT[saved]) return saved; } catch {}
+    const n = (navigator.language || 'en').toLowerCase();
+    if (n.startsWith('es')) return 'es';
+    if (n.startsWith('zh')) return 'zh';
+    if (n.startsWith('ru')) return 'ru';
+    return 'en';
+  }
+
+  function applyLang(id, remember) {
+    const d = DICT[id];
+    if (!d) return;
+    document.documentElement.lang = HTML_LANG[id] || id;
+    $$('[data-i18n]').forEach(el => {
+      const v = d[el.dataset.i18n];
+      if (v != null) el.innerHTML = v;
+    });
+    $$('[data-i18n-suffix]').forEach(el => {
+      const v = d[el.dataset.i18nSuffix];
+      if (v != null) el.dataset.suffix = v;
+    });
+    repaint.forEach(f => f());
+    if (d['meta.title']) document.title = d['meta.title'];
+    const desc = $('meta[name="description"]');
+    if (desc && d['meta.desc']) desc.setAttribute('content', d['meta.desc']);
+
+    const now = LANGS.find(l => l.id === id);
+    if ($('#langNow')) $('#langNow').textContent = now ? now.short : id.toUpperCase();
+    $$('#langMenu button').forEach(b => b.classList.toggle('on', b.dataset.lang === id));
+    if (remember) { try { localStorage.setItem(LANG_KEY, id); } catch {} }
+
+    /* The notice button carries two labels; keep the one it is showing. */
+    const more = $('#csMore'), detail = $('#csDetail');
+    if (more && detail && !detail.hidden) more.textContent = d['cs.hide'] || more.textContent;
+    if (hasWallet) markHasWallet();
+  }
+
+  let hasWallet = false;
+  try {
+    hasWallet = ['ward.v1', 'quiver.v1', 'calma.v1'].some(ns => localStorage.getItem(ns + '.keystore'));
+  } catch {}
+  function markHasWallet() {
+    const d = DICT[chooseLang()] || {};
+    const open = d['nav.openmine'] || 'Open my wallet';
+    $$('#heroCta, #footCta').forEach(a => { a.textContent = open; });
+    if ($('#navCta')) $('#navCta').textContent = d['nav.mine'] || 'My wallet';
+  }
+
+  const menu = $('#langMenu'), langBtn = $('#langBtn');
+  if (menu && langBtn) {
+    LANGS.forEach(l => {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.lang = l.id; b.textContent = l.name;
+      b.addEventListener('click', () => { applyLang(l.id, true); closeMenu(); });
+      li.appendChild(b); menu.appendChild(li);
+    });
+    const closeMenu = () => { menu.hidden = true; langBtn.setAttribute('aria-expanded', 'false'); };
+    langBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = menu.hidden;
+      menu.hidden = !open;
+      langBtn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target)) closeMenu(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  }
+
+  applyLang(chooseLang(), false);
 
   onScroll.forEach(f => f());
 })();

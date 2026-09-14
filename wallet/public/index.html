@@ -232,73 +232,119 @@
     </ol>
   </section>
 
-  <!-- ── Plans ────────────────────────────────────── -->
-  <section class="sec wrap" id="plans">
+  <!-- ── Plans ──────────────────────────────────────
+       A column of framing on the left, the three cards large on the right, and
+       every perk carrying its own line of explanation rather than four words. -->
+  <section class="sec plans-sec" id="plans">
     <span class="glow" aria-hidden="true"></span>
-    <span class="eyebrow" data-i18n="nav.plans">Plans</span>
-    <h2 data-i18n="pl.h2">The wallet is free. Always.</h2>
-    <p class="sec-lede" data-i18n="pl.lede">Self-custody, every network and unlimited payments sit outside the price list. The paid tiers add tools for people running money through it every day. They never buy permission to use your own funds.</p>
+    <div class="plans-wrap">
 
-    <div class="tiers">
+      <aside class="plans-intro">
+        <span class="eyebrow" data-i18n="nav.plans">Plans</span>
+        <h2 data-i18n="pl.h2">The wallet is free. Always.</h2>
+        <p class="sec-lede" data-i18n="pl.lede">Self-custody, every network and unlimited payments sit outside the price list.</p>
+        <div class="note" data-i18n="pl.billing"><b>How the paid tiers are billed.</b> A month is one USDC payment on chain.</div>
+      </aside>
+
+      <div class="tiers">
       <article class="tier reveal" data-tier="classic">
+        
+        <div class="tier-name"><b data-i18n="plan.classic">Plan</b><span data-i18n="pl.subC">…</span></div>
         <div class="tcard classic">
-          <div class="tc-sheen" aria-hidden="true"></div>
-          <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
-          <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
-          <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Classic</span></div>
-        </div>
-        <h3 data-i18n="plan.classic">Classic</h3>
-        <p class="tier-price" data-i18n="pl.free">Free</p>
+            <div class="tc-sheen" aria-hidden="true"></div>
+            <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
+            <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
+            <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name"><span data-i18n="plan.classic">Plan</span></span></div>
+          </div>
+        <p class="tier-price"><span data-i18n="pl.free">Free</span></p>
         <ul class="perks">
-          <li data-i18n="pl.c1">Self-custody wallet across six networks</li>
-          <li data-i18n="pl.c2">Unlimited payments and payment requests</li>
-          <li data-i18n="pl.c3">Top up from MetaMask, Coinbase Wallet, Phantom and more</li>
-          <li data-i18n="pl.c4">Encrypted on your device with your own password</li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5a14 14 0 010 17M12 3.5a14 14 0 000 17"/></svg></span>
+              <div><b data-i18n="pl.c1t">…</b><small data-i18n="pl.c1d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span>
+              <div><b data-i18n="pl.c2t">…</b><small data-i18n="pl.c2d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/></svg></span>
+              <div><b data-i18n="pl.c3t">…</b><small data-i18n="pl.c3d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg></span>
+              <div><b data-i18n="pl.c4t">…</b><small data-i18n="pl.c4d">…</small></div>
+            </li>
         </ul>
-        <a class="cta ghost full" href="/app" data-i18n="pl.startfree">Start free</a>
+        <a class="cta ghost full" href="/app" data-i18n="pl.startfree">Get it</a>
       </article>
 
       <article class="tier feat reveal" data-tier="gold">
         <span class="ribbon" data-i18n="pl.ribbon">Most picked</span>
+        <div class="tier-name"><b data-i18n="plan.gold">Plan</b><span data-i18n="pl.subG">…</span></div>
         <div class="tcard gold">
-          <div class="tc-sheen" aria-hidden="true"></div>
-          <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
-          <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
-          <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Gold</span></div>
-        </div>
-        <h3 data-i18n="plan.gold">Gold</h3>
+            <div class="tc-sheen" aria-hidden="true"></div>
+            <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
+            <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
+            <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name"><span data-i18n="plan.gold">Plan</span></span></div>
+          </div>
         <p class="tier-price">$19.99<small data-i18n="pl.month">/month</small></p>
         <ul class="perks">
-          <li data-i18n="pl.g1">Everything in Classic</li>
-          <li data-i18n="pl.g2">The Gold card</li>
-          <li data-i18n="pl.g3">Saved payees, so you stop retyping addresses</li>
-          <li data-i18n="pl.g4">Your name on every payment request</li>
-          <li data-i18n="pl.g5">Export your activity as a CSV</li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7.5 3.2v5c0 4.5-3.1 8.3-7.5 9.6-4.4-1.3-7.5-5.1-7.5-9.6v-5z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span>
+              <div><b data-i18n="pl.g1t">…</b><small data-i18n="pl.g1d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><rect x="5.6" y="9.5" width="5" height="4" rx="1"/></svg></span>
+              <div><b data-i18n="pl.g2t">…</b><small data-i18n="pl.g2d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.2"/><path d="M3.8 19a5.2 5.2 0 0110.4 0"/><path d="M16 7.2a3 3 0 010 5.6M17.5 18.6a5 5 0 00-2-3.3"/></svg></span>
+              <div><b data-i18n="pl.g3t">…</b><small data-i18n="pl.g3d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 11.5V5a1 1 0 011-1h6.5a1 1 0 01.7.3l7.5 7.5a1 1 0 010 1.4l-6.5 6.5a1 1 0 01-1.4 0L4.3 12.2a1 1 0 01-.3-.7z"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/></svg></span>
+              <div><b data-i18n="pl.g4t">…</b><small data-i18n="pl.g4d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 3.5H7a1.5 1.5 0 00-1.5 1.5v14A1.5 1.5 0 007 20.5h10a1.5 1.5 0 001.5-1.5V9z"/><path d="M13 3.5V9h5.5"/><path d="M8.5 13.5h7M8.5 16.5h4.5"/></svg></span>
+              <div><b data-i18n="pl.g5t">…</b><small data-i18n="pl.g5d">…</small></div>
+            </li>
         </ul>
-        <a class="cta full" href="/app" data-i18n="pl.getgold">Get Gold</a>
+        <a class="cta  full" href="/app" data-i18n="pl.getgold">Get it</a>
       </article>
 
       <article class="tier reveal" data-tier="plat">
+        
+        <div class="tier-name"><b data-i18n="plan.plat">Plan</b><span data-i18n="pl.subP">…</span></div>
         <div class="tcard plat">
-          <div class="tc-sheen" aria-hidden="true"></div>
-          <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
-          <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
-          <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Platinum</span></div>
-        </div>
-        <h3 data-i18n="plan.plat">Platinum</h3>
+            <div class="tc-sheen" aria-hidden="true"></div>
+            <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
+            <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
+            <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name"><span data-i18n="plan.plat">Plan</span></span></div>
+          </div>
         <p class="tier-price">$49.99<small data-i18n="pl.month">/month</small></p>
         <ul class="perks">
-          <li data-i18n="pl.p1">Everything in Gold</li>
-          <li data-i18n="pl.p2">The Platinum card</li>
-          <li data-i18n="pl.p3">Several accounts from the same recovery phrase</li>
-          <li data-i18n="pl.p4">One backup still covers all of them</li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7.5 3.2v5c0 4.5-3.1 8.3-7.5 9.6-4.4-1.3-7.5-5.1-7.5-9.6v-5z"/><path d="M9.2 12l2 2 3.6-3.8"/></svg></span>
+              <div><b data-i18n="pl.p1t">…</b><small data-i18n="pl.p1d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><rect x="5.6" y="9.5" width="5" height="4" rx="1"/></svg></span>
+              <div><b data-i18n="pl.p2t">…</b><small data-i18n="pl.p2d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="9" height="9" rx="2"/><rect x="11.5" y="11.5" width="9" height="9" rx="2"/></svg></span>
+              <div><b data-i18n="pl.p3t">…</b><small data-i18n="pl.p3d">…</small></div>
+            </li>
+            <li>
+              <span class="pk-i" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg></span>
+              <div><b data-i18n="pl.p4t">…</b><small data-i18n="pl.p4d">…</small></div>
+            </li>
         </ul>
-        <a class="cta ghost full" href="/app" data-i18n="pl.getplat">Get Platinum</a>
+        <a class="cta ghost full" href="/app" data-i18n="pl.getplat">Get it</a>
       </article>
-    </div>
+      </div>
 
-    <div class="note wide-note" data-i18n="pl.billing">
-      <b>How the paid tiers are billed.</b> A month is one USDC payment on chain, made from your own wallet. Nothing auto-renews, no card is stored, and there is no account to cancel. When the month runs out you simply decide whether to pay for another. The plan is proved by the transaction itself, which Ward re-checks against the chain every time you open it.
     </div>
   </section>
 

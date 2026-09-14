@@ -217,28 +217,6 @@
 .reveal.seen { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } .wcard { animation: none; } .chip { animation: none; opacity: 1; } }
 
-/* ── The three plans ─────────────────────────────── */
-.tiers { display: grid; gap: 16px; margin: 36px 0 24px; }
-@media (min-width: 860px) { .tiers { grid-template-columns: repeat(3, 1fr); align-items: start; } }
-.tier {
-  background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-lg);
-  padding: 22px; box-shadow: var(--shadow-1); position: relative;
-  transition: transform .22s, box-shadow .22s, border-color .22s;
-}
-.tier:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); }
-.tier.feat { border-color: var(--gold-b); }
-.ribbon {
-  position: absolute; top: -11px; right: 20px;
-  background: var(--gold-b); color: #fff; font-size: 10.5px; font-weight: 700;
-  letter-spacing: .09em; text-transform: uppercase; padding: 4px 11px; border-radius: 999px;
-}
-.tier h3 { font-size: 19px; margin-bottom: 4px; }
-.tier-price { margin: 0 0 18px; font-size: 30px; font-weight: 690; letter-spacing: -.035em; }
-.tier-price small { font-size: 14px; font-weight: 520; color: var(--ink-3); letter-spacing: 0; }
-.tier .perks { margin-bottom: 0; }
-
-.wide-note { max-width: none; font-size: 14px; line-height: 1.6; }
-
 /* ── Supported wallets ───────────────────────────── */
 .logos { list-style: none; padding: 0; margin: 30px 0 14px; display: flex; flex-wrap: wrap; gap: 10px; }
 .logos li {
@@ -279,7 +257,7 @@
 .logos .lg { width: 26px; height: 26px; display: block; flex: none; border-radius: 7px; overflow: hidden; }
 
 /* ── plan cards ──────────────────────────────────── */
-.tiers { perspective: 1000px; }
+
 .tcard {
   --sheen: 50%;
   aspect-ratio: 1.6 / 1; border-radius: 16px; padding: 16px; margin-bottom: 20px;
@@ -709,3 +687,87 @@ body.notice-up .ask-fab { opacity: 0; pointer-events: none; }
 .mock-note { margin: 0; font-size: 11.5px; color: var(--ink-2); line-height: 1.5; }
 
 @media (prefers-reduced-motion: reduce) { .step.on .mock-lock i { animation: none; } }
+
+/* ── plans, at size ──────────────────────────────────────────────────────────
+   Framing on the left, three large cards on the right, and every perk carrying
+   its own line rather than four words on a checkmark. */
+/* This section is wider than .wrap allows, so it carries its own container:
+   without the centring and the side padding it bled off the left edge. */
+.plans-sec { width: 100%; max-width: 1340px; margin-inline: auto; padding-inline: 22px; }
+.plans-wrap { display: grid; gap: 40px; }
+@media (min-width: 1080px) {
+  .plans-wrap { grid-template-columns: 320px 1fr; gap: 56px; align-items: start; }
+  .plans-intro { position: sticky; top: 110px; }
+}
+.plans-intro h2 { max-width: none; font-size: clamp(30px, 3.4vw, 42px); }
+.plans-intro .sec-lede { margin-bottom: 22px; font-size: 16px; }
+.plans-intro .note { margin-bottom: 0; }
+
+.tiers { display: grid; gap: 22px; perspective: 1200px; }
+@media (min-width: 680px) and (max-width: 1079px) { .tiers { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1080px) { .tiers { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+
+.tier {
+  position: relative; display: flex; flex-direction: column;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 26px;
+  padding: 24px 22px 24px; box-shadow: var(--shadow-1);
+  transition: transform .24s, border-color .24s, box-shadow .24s;
+}
+.tier:hover { transform: translateY(-4px); border-color: var(--line-2); box-shadow: var(--shadow-2); }
+.tier.feat { border-color: var(--gold-b); }
+.ribbon {
+  position: absolute; top: -12px; left: 22px;
+  background: var(--gold-b); color: #fff; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px;
+}
+.tier-name { margin-bottom: 16px; }
+.tier-name b { display: block; font-size: 21px; font-weight: 680; letter-spacing: -.025em; }
+.tier-name span { font-size: 13.5px; color: var(--ink-3); }
+
+/* The card itself, big. */
+.tcard {
+  --sheen: 32%;
+  aspect-ratio: 1.58 / 1; border-radius: 18px; padding: 18px; margin-bottom: 22px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+  transition: transform .25s cubic-bezier(.22,.9,.3,1);
+  box-shadow: 0 18px 34px -16px rgba(16,20,48,.55);
+}
+.tc-sheen { position: absolute; inset: 0; background: radial-gradient(62% 92% at var(--sheen) 0%, rgba(255,255,255,.36), transparent 62%); }
+.tcard.classic { background: linear-gradient(145deg, var(--classic-a), var(--classic-b) 52%, var(--classic-c)); color: var(--classic-ink); }
+.tcard.gold    { background: linear-gradient(145deg, var(--gold-a), var(--gold-b) 52%, var(--gold-c)); color: var(--gold-ink); }
+.tcard.plat    { background: linear-gradient(145deg, var(--plat-a), var(--plat-b) 52%, var(--plat-c)); color: var(--plat-ink); }
+.tc-top { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+.tc-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 640; font-size: 15px; letter-spacing: -.01em; }
+.tcard.gold .mark.sm, .tcard.plat .mark.sm { background: rgba(0,0,0,.2); }
+.tcard.gold .mark.sm::after, .tcard.plat .mark.sm::after { background: currentColor; }
+.tc-net { font-size: 11px; font-weight: 600; opacity: .82; letter-spacing: .04em; }
+.tcard .chip { width: 42px; height: 31px; }
+.tcard.gold .c-lines, .tcard.plat .c-lines { stroke: rgba(70,48,8,.55); }
+.tc-bot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; position: relative; z-index: 1; }
+.tc-addr { font-family: var(--mono); font-size: 12.5px; opacity: .88; }
+.tc-name { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
+
+.tier-price { margin: 0 0 20px; font-size: 38px; font-weight: 700; letter-spacing: -.04em; line-height: 1; }
+.tier-price small { font-size: 15px; font-weight: 520; color: var(--ink-3); letter-spacing: 0; margin-left: 2px; }
+
+.perks { list-style: none; padding: 0; margin: 0 0 22px; display: grid; gap: 16px; }
+.perks li { display: flex; gap: 12px; align-items: flex-start; }
+.perks li::before { content: none; }
+.pk-i {
+  flex: none; width: 30px; height: 30px; border-radius: 10px; margin-top: 1px;
+  background: var(--brand-soft); display: grid; place-items: center;
+}
+.pk-i svg { width: 16px; height: 16px; fill: none; stroke: var(--brand-deep); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.tier.feat .pk-i { background: color-mix(in srgb, var(--gold-a) 26%, transparent); }
+.tier.feat .pk-i svg { stroke: var(--gold-c); }
+.perks b { display: block; font-size: 14.5px; font-weight: 620; letter-spacing: -.012em; margin-bottom: 2px; }
+.perks small { display: block; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+
+.tier .cta.full { margin-top: auto; padding: 15px 26px; font-size: 15px; }
+.tier.feat .cta { background: var(--gold-b); box-shadow: 0 6px 18px rgba(201,146,47,.34); color: #fff; }
+.tier.feat .cta:hover { background: var(--gold-c); }
+
+/* The bar is sticky, so an anchor jump would otherwise land with the section's
+   heading tucked underneath it. */
+main [id] { scroll-margin-top: 96px; }

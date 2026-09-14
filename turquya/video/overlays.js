@@ -7,7 +7,7 @@
  * keeps the cut moving: a title card costs a second of black, a caption costs
  * nothing because the product is still on screen underneath it.
  *
- * Rendered in the site's own type and salmon, at the film's own size, with the
+ * Rendered in the site's own type and turquoise, at the film's own size, with the
  * background omitted so ffmpeg can overlay them straight on.
  */
 
@@ -27,7 +27,7 @@ const CAPS = [
   { id: 'fee',       kind: 'tag',   text: 'The fee is a function, not a constant' },
   { id: 'sepolia',   kind: 'tag',   text: 'Live on Base Sepolia · chain 84532' },
   { id: 'slippage',  kind: 'tag',   text: 'Slippage, routing, settlement — yours' },
-  { id: 'reds',      kind: 'tag',   text: 'Four readings of one salmon' },
+  { id: 'reds',      kind: 'tag',   text: 'Four readings of one turquoise' },
   { id: 'note',      kind: 'tag',   text: 'The protocol note, in full' },
   { id: 'split',     kind: 'punch', tag: 'One 4:1 split', text: 'The curve moves first' },
 ];

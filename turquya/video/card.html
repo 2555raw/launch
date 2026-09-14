@@ -12,11 +12,11 @@
   html, body { width: 1280px; height: 720px; overflow: hidden; }
 
   body {
-    /* the page's own light theme: a wash of the brand salmon, near-black ink */
-    --ground: #ffece6;
-    --ink:    #2e1410;
-    --muted:  #6b332a;
-    --accent: #b4442f;
+    /* the page's own light theme: a wash of the brand turquoise, near-black ink */
+    --ground: #e4f7f4;
+    --ink:    #06231f;
+    --muted:  #14524b;
+    --accent: #0f6f64;
     background: var(--ground);
     color: var(--ink);
     font-family: "Familjen Grotesk", system-ui, sans-serif;
@@ -27,10 +27,10 @@
 
   /* the bookends invert, so the film opens and closes on the night theme */
   body.dark {
-    --ground: #17100e;
-    --ink:    #ffece6;
-    --muted:  #d8a99e;
-    --accent: #ff9683;
+    --ground: #0b1a18;
+    --ink:    #e4f7f4;
+    --muted:  #93cfc6;
+    --accent: #5fe3d2;
   }
 
   .wrap { padding: 0 120px; }
@@ -92,7 +92,7 @@
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
       <g id="mk">
-        <path fill-rule="evenodd" d="M22.4 12 C 20.4 7.6 15.4 4.4 10.4 4.4 C 8.4 4.4 6.7 5.0 5.4 6.0 L 1.2 2.4 L 5.2 12 L 1.2 21.6 L 5.4 18.0 C 6.7 19.0 8.4 19.6 10.4 19.6 C 15.4 19.6 20.4 16.4 22.4 12 Z M19.0 10.3 a1.2 1.2 0 1 0 0.01 0 Z"/>
+        <path fill-rule="evenodd" d="M12.00 1.60 L2.99 6.80 L2.99 17.20 L12.00 22.40 L21.01 17.20 L21.01 6.80 Z M14.60 7.50 L9.40 7.50 L6.80 12.00 L9.40 16.50 L14.60 16.50 L17.20 12.00 Z M13.95 8.62 L10.05 8.62 L8.10 12.00 L10.05 15.38 L13.95 15.38 L15.90 12.00 Z"/>
       </g>
     </defs>
   </svg>
@@ -108,11 +108,11 @@
   const mark = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#mk"/></svg>';
 
   const html = {
-    logo:  () => `<div class="mark">${mark}Salmya</div><div class="rule"></div>`,
+    logo:  () => `<div class="mark">${mark}Turquya</div><div class="rule"></div>`,
     word:  () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="word">${text}</div>`,
     line:  () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="line">${text}</div>`,
     fig:   () => `${kicker ? `<div class="kicker">${kicker}</div>` : ''}<div class="fig">${text}</div>`,
-    outro: () => `<div class="mark">${mark}Salmya</div><div class="rule"></div>
+    outro: () => `<div class="mark">${mark}Turquya</div><div class="rule"></div>
       <div class="meta">${meta.replace(/\|/g, '<br>')}</div>`,
   };
   document.getElementById('wrap').innerHTML = (html[kind] || html.word)();

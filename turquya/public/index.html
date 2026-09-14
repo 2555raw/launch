@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Salmya — the hook that looks</title>
+<title>Turquya — the hook that looks</title>
 <meta name="color-scheme" content="light dark">
 <!-- The mark itself, inline. A served file needs the server to be serving
      it, which is not true of every copy of this page that exists. -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E %3Crect width=%2224%22 height=%2224%22 rx=%222.5%22 fill=%22%23fa8072%22/%3E %3Cpath fill=%22%232e1410%22 fill-rule=%22evenodd%22 d=%22M22.4 12 C 20.4 7.6 15.4 4.4 10.4 4.4 C 8.4 4.4 6.7 5.0 5.4 6.0 L 1.2 2.4 L 5.2 12 L 1.2 21.6 L 5.4 18.0 C 6.7 19.0 8.4 19.6 10.4 19.6 C 15.4 19.6 20.4 16.4 22.4 12 Z M19.0 10.3 a1.2 1.2 0 1 0 0.01 0 Z%22/%3E %3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E %3Crect width=%2224%22 height=%2224%22 rx=%222.5%22 fill=%22%2340e0d0%22/%3E %3Cpath fill=%22%2306231f%22 fill-rule=%22evenodd%22 d=%22M12.00 1.60 L2.99 6.80 L2.99 17.20 L12.00 22.40 L21.01 17.20 L21.01 6.80 Z M14.60 7.50 L9.40 7.50 L6.80 12.00 L9.40 16.50 L14.60 16.50 L17.20 12.00 Z M13.95 8.62 L10.05 8.62 L8.10 12.00 L10.05 15.38 L13.95 15.38 L15.90 12.00 Z%22/%3E %3C/svg%3E">
 <link rel="alternate icon" href="/favicon.svg" type="image/svg+xml">
 <style>
   body { margin: 0; padding: 0; }
@@ -19,35 +19,36 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 
 <style>
-  /* ============ tokens: salmon ============ */
-  /* Salmon is a fill, not an ink. Measured against the wash below, true salmon
-     as type lands at 2.2:1 and white on top of it at 2.5:1 - neither is
-     readable - but dark ink ON salmon is 6.9:1. So the colour does its work
-     where something sits on it: the slab, the marks, the chart. Anything that
-     has to be read AS salmon is the same hue taken down until it clears 4.5:1,
-     which is the accent.
+  /* ============ tokens: turquoise ============ */
+  /* Turquoise is a fill before it is an ink. Measured against the wash below,
+     true turquoise as type lands at 1.5:1 and white on top of it at 1.6:1 -
+     neither is readable - but dark ink ON turquoise is 10.1:1. So the colour
+     does its work where something sits on it: the slab, the marks, the chart.
+     Anything that has to be read AS turquoise is the same hue taken down until
+     it clears 4.5:1, which is the accent.
 
      Every value below was measured against both grounds rather than picked. */
   :root {
-    /* Night: a warm charcoal. A neutral one turns the salmon pink. */
-    --void:         #0d0908;
-    --ground:       #17100e;
-    --surface:      #221715;
-    --surface-2:    #2f201d;
-    --line:         rgba(255,236,230,.14);
-    --line-strong:  rgba(255,236,230,.28);
-    --ink:          #ffece6;
-    --ink-muted:    #e0b3a6;
-    --ink-faint:    #a87d72;
-    --salmon:       #ff9683;
-    --salmon-soft:  #ffb4a5;
-    --salmon-deep:  #c4553c;
-    --on-salmon:    #17100e;
-    --band:         #fa8072;
-    --band-ink:     #2e1410;
-    --band-muted:   #55241b;
-    --glow:         rgba(255,150,131,.16);
-    --up:           #5aa87a;
+    /* Night: a green-black, not a neutral one. A neutral charcoal under this
+       hue reads as grey with a leak in it. */
+    --void:         #060f0e;
+    --ground:       #0b1a18;
+    --surface:      #122422;
+    --surface-2:    #1a302d;
+    --line:         rgba(228,247,244,.14);
+    --line-strong:  rgba(228,247,244,.28);
+    --ink:          #e4f7f4;
+    --ink-muted:    #93cfc6;
+    --ink-faint:    #6aa79e;
+    --turq:         #5fe3d2;
+    --turq-soft:    #8df0e3;
+    --turq-deep:    #2aa093;
+    --on-turq:      #0b1a18;
+    --band:         #40e0d0;
+    --band-ink:     #06231f;
+    --band-muted:   #0f3f38;
+    --glow:         rgba(95,227,210,.16);
+    --up:           #4fbf88;
     --down:         #ff8f8a;
     --shade:        #000000;
 
@@ -66,31 +67,32 @@
 
   :root[data-theme="light"] {
     color-scheme: light;
-    /* The real theme. A wash of salmon for the ground, white cards on it, and
-       the accent a deeper reading of the same hue. Measured: ink 15.0:1 on the
-       wash, muted 8.6:1, faint 5.7:1, accent 4.8:1 as type. */
+    /* The real theme. A wash of turquoise for the ground, white cards on it,
+       and the accent a deeper reading of the same hue. Measured: ink 14.9:1 on
+       the wash, muted 8.1:1, faint 5.0:1, accent 5.4:1 as type and 6.0:1
+       carrying white as a button fill. */
     --void:         #ffffff;
-    --ground:       #ffece6;
+    --ground:       #e4f7f4;
     --surface:      #ffffff;
-    --surface-2:    #ffd4c6;
-    --line:         rgba(120,52,36,.20);
-    --line-strong:  rgba(120,52,36,.38);
-    --ink:          #2e1410;
-    --ink-muted:    #6b332a;
-    --ink-faint:    #8c4c40;
-    --salmon:       #b4442f;
-    --salmon-soft:  #fa8072;
-    --salmon-deep:  #7e2b1a;
-    --on-salmon:    #ffffff;
-    /* The slab is true salmon with dark ink on it - the one place the colour
-       gets to be itself at full strength and still be read. */
-    --band:         #fa8072;
-    --band-ink:     #2e1410;
-    --band-muted:   #55241b;
-    --glow:         rgba(180,68,47,.13);
+    --surface-2:    #bdeee7;
+    --line:         rgba(6,45,40,.20);
+    --line-strong:  rgba(6,45,40,.38);
+    --ink:          #06231f;
+    --ink-muted:    #14524b;
+    --ink-faint:    #2b736a;
+    --turq:         #0f6f64;
+    --turq-soft:    #40e0d0;
+    --turq-deep:    #06443c;
+    --on-turq:      #ffffff;
+    /* The slab is true turquoise with dark ink on it - the one place the
+       colour gets to be itself at full strength and still be read, at 10.1:1. */
+    --band:         #40e0d0;
+    --band-ink:     #06231f;
+    --band-muted:   #0f3f38;
+    --glow:         rgba(15,111,100,.13);
     --up:           #1f7a45;
     --down:         #a9372c;
-    --shade:        #7e3a2a;
+    --shade:        #14524b;
   }
 
   /* ============ base ============ */
@@ -129,7 +131,7 @@
   a { color: inherit; text-decoration: none; }
 
   :focus-visible {
-    outline: 2px solid var(--salmon);
+    outline: 2px solid var(--turq);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -151,11 +153,11 @@
     font-size: 11px;
     letter-spacing: .16em;
     text-transform: uppercase;
-    color: var(--salmon);
+    color: var(--turq);
     margin: 0;
   }
 
-  /* ============ Salmya mark ============ */
+  /* ============ Turquya mark ============ */
   .wavemark { display: block; }
 
   /* ============ nav ============ */
@@ -186,7 +188,7 @@
     color: var(--ink);
   }
 
-  .brand svg { color: var(--salmon); }
+  .brand svg { color: var(--turq); }
 
   .nav-links {
     display: flex;
@@ -225,17 +227,17 @@
 
   .nav-ca[data-state="live"] {
     cursor: pointer;
-    border-color: color-mix(in srgb, var(--salmon) 45%, transparent);
-    background: color-mix(in srgb, var(--salmon) 9%, var(--surface));
+    border-color: color-mix(in srgb, var(--turq) 45%, transparent);
+    background: color-mix(in srgb, var(--turq) 9%, var(--surface));
   }
 
-  .nav-ca[data-state="live"]:hover { border-color: var(--salmon); }
+  .nav-ca[data-state="live"]:hover { border-color: var(--turq); }
 
   .nav-ca-label {
     font-size: 10.5px;
     font-weight: 500;
     letter-spacing: .16em;
-    color: var(--salmon);
+    color: var(--turq);
   }
 
   .nav-ca-val {
@@ -265,12 +267,12 @@
   }
 
   .btn-primary {
-    background: var(--salmon);
-    color: var(--on-salmon);
+    background: var(--turq);
+    color: var(--on-turq);
   }
 
   .btn-primary:hover {
-    background: var(--salmon-soft);
+    background: var(--turq-soft);
     transform: translateY(-1px);
   }
 
@@ -280,8 +282,8 @@
   }
 
   .btn-ghost:hover {
-    border-color: var(--salmon);
-    color: var(--salmon);
+    border-color: var(--turq);
+    color: var(--turq);
   }
 
   /* ============ hero ============ */
@@ -311,7 +313,7 @@
     left: 50%;
     translate: -50% 0;
     width: 520px;
-    color: var(--salmon);
+    color: var(--turq);
     opacity: .05;
     z-index: -1;
     pointer-events: none;
@@ -331,7 +333,7 @@
 
   .hero h1 em {
     font-style: normal;
-    color: var(--salmon);
+    color: var(--turq);
   }
 
   .hero-sub {
@@ -378,7 +380,7 @@
   .hero-stat-go {
     font-size: 11.5px;
     font-weight: 600;
-    color: var(--salmon);
+    color: var(--turq);
     padding-left: 4px;
   }
 
@@ -393,8 +395,8 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--salmon);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--salmon) 22%, transparent);
+    background: var(--turq);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--turq) 22%, transparent);
   }
 
   /* ============ fee comparison ============ */
@@ -418,7 +420,7 @@
   .fees-delta {
     font-family: var(--font-mono);
     font-size: 30px;
-    color: var(--salmon);
+    color: var(--turq);
     margin-top: 18px;
     line-height: 1;
   }
@@ -467,7 +469,7 @@
   .bar-fill {
     height: 100%;
     border-radius: 4px;
-    background: var(--salmon);
+    background: var(--turq);
   }
 
   .bar-fill.is-alt { background: var(--ink-faint); }
@@ -591,7 +593,7 @@
 
   .token-row + .token-row { border-top: 1px solid var(--line); }
 
-  .token-row svg { flex: none; color: var(--salmon); margin-top: 2px; }
+  .token-row svg { flex: none; color: var(--turq); margin-top: 2px; }
 
   .token-row h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 
@@ -698,7 +700,7 @@
     gap: 9px;
   }
 
-  .launch-item h3 svg { color: var(--salmon); flex: none; }
+  .launch-item h3 svg { color: var(--turq); flex: none; }
 
   .launch-item p { font-size: 13.5px; color: var(--ink-muted); margin-top: 8px; }
 
@@ -758,8 +760,8 @@
     flex: none;
     width: 10px;
     height: 10px;
-    border-right: 1.6px solid var(--salmon);
-    border-bottom: 1.6px solid var(--salmon);
+    border-right: 1.6px solid var(--turq);
+    border-bottom: 1.6px solid var(--turq);
     rotate: 45deg;
     translate: 0 -3px;
     transition: rotate .2s ease, translate .2s ease;
@@ -817,7 +819,7 @@
     flex-wrap: wrap;
   }
 
-  .foot-links a:hover { color: var(--salmon); }
+  .foot-links a:hover { color: var(--turq); }
 
 
   /* ============ socials ============ */
@@ -836,8 +838,8 @@
   }
 
   .social:hover {
-    color: var(--salmon);
-    border-color: var(--salmon);
+    color: var(--turq);
+    border-color: var(--turq);
     transform: translateY(-2px);
   }
 
@@ -860,14 +862,14 @@
     transition: border-color .16s ease;
   }
 
-  .wallet-pill:hover { border-color: var(--salmon); }
+  .wallet-pill:hover { border-color: var(--turq); }
 
   .chain-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--salmon);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--salmon) 20%, transparent);
+    background: var(--turq);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--turq) 20%, transparent);
     flex: none;
   }
 
@@ -881,7 +883,7 @@
     font-size: 10px;
     letter-spacing: .1em;
     text-transform: uppercase;
-    color: var(--salmon);
+    color: var(--turq);
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     padding: 1px 5px;
@@ -976,7 +978,7 @@
     transition: color .16s ease, border-color .16s ease;
   }
 
-  .modal-close:hover { color: var(--salmon); border-color: var(--salmon); }
+  .modal-close:hover { color: var(--turq); border-color: var(--turq); }
 
   .w-list { display: flex; flex-direction: column; gap: 9px; }
 
@@ -998,7 +1000,7 @@
     transition: border-color .16s ease, transform .16s ease;
   }
 
-  .w-opt:hover { border-color: var(--salmon); transform: translateX(2px); }
+  .w-opt:hover { border-color: var(--turq); transform: translateX(2px); }
 
   .w-mark {
     width: 32px;
@@ -1047,7 +1049,7 @@
     left: 0;
     width: 100%;
     height: 46px;
-    color: var(--salmon);
+    color: var(--turq);
     opacity: .13;
     pointer-events: none;
   }
@@ -1077,7 +1079,7 @@
     transition: color .16s ease, border-color .16s ease;
   }
 
-  .icon-btn:hover { color: var(--salmon); border-color: var(--salmon); }
+  .icon-btn:hover { color: var(--turq); border-color: var(--turq); }
 
   .tabs {
     display: flex;
@@ -1180,7 +1182,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 5px;
     background: none;
-    color: var(--salmon);
+    color: var(--turq);
     font-family: var(--font-body);
     font-size: 11px;
     font-weight: 600;
@@ -1188,7 +1190,7 @@
     cursor: pointer;
   }
 
-  .max-btn:hover { border-color: var(--salmon); }
+  .max-btn:hover { border-color: var(--turq); }
 
   .tk-btn {
     display: inline-flex;
@@ -1207,7 +1209,7 @@
     transition: border-color .16s ease;
   }
 
-  .tk-btn:hover { border-color: var(--salmon); }
+  .tk-btn:hover { border-color: var(--turq); }
 
   .tk-dot {
     width: 25px;
@@ -1248,12 +1250,12 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: var(--surface);
-    color: var(--salmon);
+    color: var(--turq);
     cursor: pointer;
     transition: transform .22s ease, border-color .16s ease;
   }
 
-  .flip:hover { transform: rotate(180deg); border-color: var(--salmon); }
+  .flip:hover { transform: rotate(180deg); border-color: var(--turq); }
 
   .swap-cta {
     width: 100%;
@@ -1384,7 +1386,7 @@
     transition: color .14s ease, border-color .14s ease;
   }
 
-  .sim-chip[aria-pressed="true"] { border-color: var(--salmon); color: var(--salmon); }
+  .sim-chip[aria-pressed="true"] { border-color: var(--turq); color: var(--turq); }
 
   #simRun { margin-left: auto; padding: 12px 26px; }
 
@@ -1406,7 +1408,7 @@
     padding: 20px;
   }
 
-  .sim-side[data-side="good"] { border-color: color-mix(in srgb, var(--salmon) 38%, transparent); }
+  .sim-side[data-side="good"] { border-color: color-mix(in srgb, var(--turq) 38%, transparent); }
 
   .sim-side header {
     display: flex;
@@ -1449,7 +1451,7 @@
   }
 
   .sim-side dd.is-bad { color: var(--down); font-weight: 600; }
-  .sim-side dd.is-good { color: var(--salmon); font-weight: 600; }
+  .sim-side dd.is-good { color: var(--turq); font-weight: 600; }
 
   .sim-bar {
     height: 8px;
@@ -1467,7 +1469,7 @@
   }
 
   .sim-fill.is-bad { background: var(--down); }
-  .sim-fill.is-good { background: var(--salmon); }
+  .sim-fill.is-good { background: var(--turq); }
 
   .sim-caption {
     margin-top: 11px;
@@ -1493,7 +1495,7 @@
     padding: 32px;
   }
 
-  .ca[data-state="live"] { border-color: color-mix(in srgb, var(--salmon) 42%, transparent); }
+  .ca[data-state="live"] { border-color: color-mix(in srgb, var(--turq) 42%, transparent); }
 
   @media (max-width: 720px) { .ca { padding: 22px; } }
 
@@ -1560,7 +1562,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: none;
-    color: var(--salmon);
+    color: var(--turq);
     font-family: var(--font-body);
     font-size: 12.5px;
     font-weight: 600;
@@ -1568,7 +1570,7 @@
   }
 
   .ca-copy:hover,
-  .ca-link:hover { border-color: var(--salmon); }
+  .ca-link:hover { border-color: var(--turq); }
 
   .ca-meta {
     display: flex;
@@ -1617,14 +1619,14 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: none;
-    color: var(--salmon);
+    color: var(--turq);
     font-family: var(--font-body);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
   }
 
-  .live-switch:hover { border-color: var(--salmon); }
+  .live-switch:hover { border-color: var(--turq); }
 
   .tx-note {
     margin-top: 11px;
@@ -1636,7 +1638,7 @@
     color: var(--ink-muted);
   }
 
-  .tx-note a { color: var(--salmon); text-decoration: underline; }
+  .tx-note a { color: var(--turq); text-decoration: underline; }
   .tx-note[data-tone="ok"]  { border-color: color-mix(in srgb, var(--up) 45%, transparent); color: var(--ink); }
   .tx-note[data-tone="bad"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--ink); }
 
@@ -1672,13 +1674,13 @@
     padding: 6px 13px;
     border: 1px solid var(--line-strong);
     border-radius: 4px;
-    color: var(--salmon);
+    color: var(--turq);
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
   }
 
-  .netcard-faucet:hover { border-color: var(--salmon); }
+  .netcard-faucet:hover { border-color: var(--turq); }
 
   .netcard-contract {
     margin-top: 14px;
@@ -1707,7 +1709,7 @@
     text-underline-offset: 3px;
   }
 
-  .netcard-addr:hover { color: var(--salmon); text-decoration-color: var(--salmon); }
+  .netcard-addr:hover { color: var(--turq); text-decoration-color: var(--turq); }
 
   .netcard-note {
     margin-top: 13px;
@@ -1817,7 +1819,7 @@
   .range[aria-pressed="true"] {
     background: var(--surface-2);
     border-color: var(--line-strong);
-    color: var(--salmon);
+    color: var(--turq);
   }
 
   .plot { position: relative; }
@@ -1827,8 +1829,8 @@
     position: absolute;
     padding: 3px 7px;
     border-radius: 5px;
-    background: var(--salmon);
-    color: var(--on-salmon);
+    background: var(--turq);
+    color: var(--on-turq);
     font-family: var(--font-mono);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
@@ -1851,7 +1853,7 @@
     font-size: 14.5px;
   }
 
-  .tk-search:focus { border-color: var(--salmon); }
+  .tk-search:focus { border-color: var(--turq); }
 
   .tk-list {
     display: flex;
@@ -1907,7 +1909,7 @@
     transition: color .14s ease, border-color .14s ease;
   }
 
-  .slip[aria-pressed="true"] { border-color: var(--salmon); color: var(--salmon); }
+  .slip[aria-pressed="true"] { border-color: var(--turq); color: var(--turq); }
 
   /* ---- receipt ---- */
   .receipt {
@@ -1930,7 +1932,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .receipt-arrow { color: var(--salmon); padding-left: 7px; }
+  .receipt-arrow { color: var(--turq); padding-left: 7px; }
 
   .done-mark {
     width: 52px;
@@ -2031,7 +2033,7 @@
     transition: color .16s ease;
   }
 
-  .theme-btn:hover { color: var(--salmon); }
+  .theme-btn:hover { color: var(--turq); }
   .theme-btn .moon { display: none; }
   :root[data-theme="light"] .theme-btn .moon { display: block; }
   :root[data-theme="light"] .theme-btn .sun { display: none; }
@@ -2156,7 +2158,7 @@
   .pct-row { display: inline-flex; gap: 4px; }
   .max-btn { padding: 3px 7px; font-size: 10.5px; border-radius: 2px; }
   .pct-btn { color: var(--ink-muted); }
-  .pct-btn:hover { color: var(--salmon); border-color: var(--salmon); }
+  .pct-btn:hover { color: var(--turq); border-color: var(--turq); }
 
   /* ============ docs view ============ */
   .docs { padding: 0 0 72px; }
@@ -2187,7 +2189,7 @@
     transition: border-color .16s ease, color .16s ease;
   }
 
-  .doc-back:hover { border-color: var(--salmon); color: var(--salmon); }
+  .doc-back:hover { border-color: var(--turq); color: var(--turq); }
 
   .doc-kind {
     margin-left: auto;
@@ -2221,12 +2223,12 @@
   .doc-body h2 { font-size: 25px; margin-top: 50px; }
   .doc-body h2 + p { margin-top: 13px; }
   .doc-lead { font-size: 18.5px; color: var(--ink-muted); }
-  .doc-term { font-style: normal; font-family: var(--font-mono); font-size: .9em; color: var(--salmon); }
+  .doc-term { font-style: normal; font-family: var(--font-mono); font-size: .9em; color: var(--turq); }
 
   .doc-pull {
     margin: 42px 0;
     padding: 2px 0 2px 22px;
-    border-left: 2px solid var(--salmon);
+    border-left: 2px solid var(--turq);
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 24px;
@@ -2250,7 +2252,7 @@
     font-size: 11px;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--salmon);
+    color: var(--turq);
     padding-bottom: 12px;
   }
 
@@ -2313,7 +2315,7 @@
     content: counter(step, decimal-leading-zero);
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--salmon);
+    color: var(--turq);
     padding-top: 3px;
   }
 
@@ -2378,7 +2380,7 @@
     }
   }
 
-  /* ============ salmya: sides swapped, blocks overlapped ============ */
+  /* ============ turquya: sides swapped, blocks overlapped ============ */
 
   /* the bar on top, mirrored */
   .nav-in .wallet-wrap { order: 1; margin-left: 0; margin-right: auto; }
@@ -2470,13 +2472,13 @@
 
   body {
     background:
-      radial-gradient(1100px 620px at 84% -8%, color-mix(in srgb, var(--salmon) 9%, transparent) 0%, transparent 68%),
-      radial-gradient(900px 560px at 6% 108%, color-mix(in srgb, var(--salmon) 7%, transparent) 0%, transparent 66%),
+      radial-gradient(1100px 620px at 84% -8%, color-mix(in srgb, var(--turq) 9%, transparent) 0%, transparent 68%),
+      radial-gradient(900px 560px at 6% 108%, color-mix(in srgb, var(--turq) 7%, transparent) 0%, transparent 66%),
       var(--ground);
     background-attachment: fixed;
   }
 
-  .band { background-image: linear-gradient(180deg, var(--band) 0%, color-mix(in srgb, var(--band) 92%, var(--salmon)) 100%); }
+  .band { background-image: linear-gradient(180deg, var(--band) 0%, color-mix(in srgb, var(--band) 92%, var(--turq)) 100%); }
 
 
   /* the data state chip on the chart */
@@ -2530,9 +2532,9 @@
 
   .code-body code { font-family: inherit; white-space: pre; }
 
-  .c-kw { color: var(--salmon); }
+  .c-kw { color: var(--turq); }
   .c-ty { color: var(--ink); }
-  .c-fn { color: var(--salmon-soft); }
+  .c-fn { color: var(--turq-soft); }
   .c-nm { color: var(--ink); }
   .c-cm { color: var(--ink-faint); font-style: italic; }
 
@@ -2615,7 +2617,7 @@
     content: "";
     width: 26px;
     height: 1px;
-    background: var(--salmon);
+    background: var(--turq);
     flex: none;
   }
 
@@ -2628,7 +2630,7 @@
   }
 
   .hero-col h1 { font-size: clamp(38px, 4.6vw, 62px); margin: 22px 0 0; max-width: 15ch; }
-  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--salmon); }
+  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--turq); }
   .hero-col .hero-sub { font-size: 16.5px; max-width: 52ch; margin-top: 22px; }
   .hero-col .hero-sub code {
     font-family: var(--font-mono);
@@ -2684,8 +2686,8 @@
   }
 
   .panel-rows .was { color: var(--ink-faint); }
-  .panel-rows .arrow { color: var(--salmon); padding: 0 3px; }
-  .panel-rows .hot { color: var(--salmon); font-size: 17px; }
+  .panel-rows .arrow { color: var(--turq); padding: 0 3px; }
+  .panel-rows .hot { color: var(--turq); font-size: 17px; }
 
   .panel-foot {
     margin-top: 18px;
@@ -2720,12 +2722,12 @@
     flex-direction: column;
   }
 
-  .numcard.is-hot { border-color: color-mix(in srgb, var(--salmon) 32%, transparent); }
+  .numcard.is-hot { border-color: color-mix(in srgb, var(--turq) 32%, transparent); }
 
   .numcard .num {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--salmon);
+    color: var(--turq);
     letter-spacing: .1em;
   }
 
@@ -2800,8 +2802,8 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--salmon);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--salmon) 20%, transparent);
+    background: var(--turq);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--turq) 20%, transparent);
   }
 
   .board-meta {
@@ -2843,7 +2845,7 @@
   .board-table tbody td { font-family: var(--font-mono); font-size: 14px; color: var(--ink); }
   .board-table tbody tr:last-child th,
   .board-table tbody tr:last-child td { border-bottom: 0; }
-  .board-table td.is-good { color: var(--salmon); }
+  .board-table td.is-good { color: var(--turq); }
   .board-table td.is-bad { color: var(--down); }
 
   .board-foot {
@@ -2873,11 +2875,11 @@
   .flow-tag {
     display: inline-block;
     padding: 4px 10px;
-    border: 1px solid color-mix(in srgb, var(--salmon) 32%, transparent);
+    border: 1px solid color-mix(in srgb, var(--turq) 32%, transparent);
     border-radius: 999px;
     font-family: var(--font-mono);
     font-size: 11.5px;
-    color: var(--salmon);
+    color: var(--turq);
   }
 
   .flow-step h3 { font-size: 17px; margin-top: 16px; }
@@ -3004,7 +3006,7 @@
     border-bottom: 1px solid var(--line);
   }
 
-  .gate-head > svg { flex: none; color: var(--salmon); margin-top: 2px; }
+  .gate-head > svg { flex: none; color: var(--turq); margin-top: 2px; }
   .gate-head h2 { font-size: 22px; margin-top: 6px; }
 
   .gate-tabs {
@@ -3030,7 +3032,7 @@
   .gate-tab[aria-selected="true"] {
     background: var(--surface-2);
     border-color: var(--line-strong);
-    color: var(--salmon);
+    color: var(--turq);
   }
 
   .gate-body {
@@ -3050,7 +3052,7 @@
     font-weight: 500;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--salmon);
+    color: var(--turq);
   }
 
   .gate-panel p { font-size: 14px; line-height: 1.62; color: var(--ink-muted); }
@@ -3075,7 +3077,7 @@
     width: 17px;
     height: 17px;
     margin: 1px 0 0;
-    accent-color: var(--salmon);
+    accent-color: var(--turq);
     cursor: pointer;
   }
 
@@ -3300,7 +3302,7 @@
     padding: 1px;
     background: radial-gradient(
       170px circle at var(--mx, 50%) var(--my, 50%),
-      color-mix(in srgb, var(--salmon) 62%, transparent),
+      color-mix(in srgb, var(--turq) 62%, transparent),
       transparent 68%
     );
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -3325,7 +3327,7 @@
   }
 
 
-  /* ============ Salmya: the rebrand pass ============ */
+  /* ============ Turquya: the rebrand pass ============ */
   /* Everything below is the brand and the movement that came with it.
      It sits last on purpose: three composition passes already moved this
      layout around, and this has to win over all of them.
@@ -3386,8 +3388,8 @@
   }
 
   /* ---- the bar is a floating pill, and it tightens once you leave the top ---- */
-  /* Warm shadows throughout. A neutral black shadow on a salmon ground reads
-     as grey dirt on it rather than as depth. */
+  /* The shadows carry the hue. A neutral black shadow on a turquoise ground
+     reads as grey dirt on it rather than as depth. */
   .nav-in {
     box-shadow: 0 16px 40px color-mix(in srgb, var(--shade) 14%, transparent);
     transition: height .32s cubic-bezier(.2,.7,.3,1), background .32s ease,
@@ -3418,7 +3420,7 @@
     right: 0;
     bottom: -5px;
     height: 1.5px;
-    background: var(--salmon);
+    background: var(--turq);
     scale: 0 1;
     transform-origin: left;
     transition: scale .3s cubic-bezier(.2,.7,.3,1);
@@ -3463,7 +3465,7 @@
     color: var(--ink-muted);
   }
 
-  .tk-mark { flex: 0 0 auto; color: var(--salmon); opacity: .8; }
+  .tk-mark { flex: 0 0 auto; color: var(--turq); opacity: .8; }
 
   @keyframes ticker-run { to { transform: translateX(-100%); } }
 
@@ -3576,7 +3578,7 @@
   /* ---- questions open on a curve ---- */
   .q { transition: background .25s ease, border-color .25s ease; }
   .q summary { transition: color .2s ease; }
-  .q[open] { background: color-mix(in srgb, var(--salmon) 7%, var(--surface)); }
+  .q[open] { background: color-mix(in srgb, var(--turq) 7%, var(--surface)); }
 
   .q[open] > p { animation: answer-in .42s cubic-bezier(.2,.75,.25,1) both; }
 
@@ -3590,16 +3592,16 @@
 
   .chip:hover {
     transform: translateY(-3px);
-    background: var(--salmon);
-    color: var(--on-salmon);
-    border-color: var(--salmon);
+    background: var(--turq);
+    color: var(--on-turq);
+    border-color: var(--turq);
   }
 
-  /* ---- the band inverts to warm dark, and its figures count in ---- */
+  /* ---- the band inverts to the deep hue, and its figures count in ---- */
   .band { border-radius: var(--r-lg); }
   .band-stat .n { font-family: var(--font-display); font-weight: 700; }
 
-  /* ---- the four salmons ----
+  /* ---- the four turquoises ----
      A previous pass hid the swatches and kept only the theme toggle. For a
      brand whose whole argument is a colour, letting somebody hold four
      readings of that colour against the page is the point, so they return -
@@ -3614,7 +3616,7 @@
   }
 
   .tint[aria-pressed="true"] {
-    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--salmon);
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--turq);
   }
 
   @media (max-width: 620px) {
@@ -3701,7 +3703,7 @@
    anybody sees. */
 (function () {
   try {
-    var m = localStorage.getItem('salmya-theme');
+    var m = localStorage.getItem('turquya-theme');
     if (m !== 'dark') document.documentElement.setAttribute('data-theme', 'light');
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'light');
@@ -3709,16 +3711,16 @@
 })();
 </script>
 
-<!-- reusable Salmya mark -->
+<!-- reusable Turquya mark -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <!-- A salmon, pointing the way the curve moves. Solid rather than cut out
-         of a disc: the mark has to survive at 13px between two words in the
-         ticker, and at that size a fish in negative space is a smudge. One
-         path, even-odd, so the eye stays a hole and every use of the mark only
-         has to set a fill. -->
-    <g id="salmya-mark">
-      <path fill-rule="evenodd" d="M22.4 12 C 20.4 7.6 15.4 4.4 10.4 4.4 C 8.4 4.4 6.7 5.0 5.4 6.0 L 1.2 2.4 L 5.2 12 L 1.2 21.6 L 5.4 18.0 C 6.7 19.0 8.4 19.6 10.4 19.6 C 15.4 19.6 20.4 16.4 22.4 12 Z M19.0 10.3 a1.2 1.2 0 1 0 0.01 0 Z"/>
+    <!-- A cut stone, table up. The outer hexagon is the girdle, the inner one
+         is the table, turned thirty degrees off it so the two never line up
+         into one flat shape. Solid with the table knocked out, one path under
+         an even-odd rule, so the mark survives at 13px between two words in
+         the ticker and every use of it only has to set a fill. -->
+    <g id="turquya-mark">
+      <path fill-rule="evenodd" d="M12.00 1.60 L2.99 6.80 L2.99 17.20 L12.00 22.40 L21.01 17.20 L21.01 6.80 Z M14.60 7.50 L9.40 7.50 L6.80 12.00 L9.40 16.50 L14.60 16.50 L17.20 12.00 Z M13.95 8.62 L10.05 8.62 L8.10 12.00 L10.05 15.38 L13.95 15.38 L15.90 12.00 Z"/>
     </g>
 
   </defs>
@@ -3727,8 +3729,8 @@
 <header class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top">
-      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg>
-      Salmya
+      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg>
+      Turquya
     </a>
     <nav class="nav-links">
       <a href="#state">State</a>
@@ -3751,8 +3753,8 @@
         <span class="caret"></span>
       </button>
       <button class="nav-chip" type="button">
-        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
-        SLM
+        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--turq)" aria-hidden="true"><use href="#turquya-mark"/></svg>
+        TRQ
         <span class="val">$0.0847</span>
       </button>
     </div>
@@ -3795,14 +3797,14 @@
       <rect class="stripe-fill" width="200%" height="100%" fill="url(#stripeTile)"/>
     </svg>
     <div class="hero-glow"></div>
-    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg>
+    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg>
     <div class="wrap hero-grid">
 
       <div class="hero-col">
         <p class="rule-eyebrow">Uniswap v4 hook &middot; Base Sepolia</p>
         <h1>Your pool should not<br><em>pay</em> for the split.</h1>
         <p class="hero-sub">A corporate action reprices an asset at a known moment, by a known factor, with nobody trading. Nothing lands in the pool to tell it, so it keeps quoting yesterday's number. The curve stays wrong for exactly as long as nobody looks.</p>
-        <p class="hero-punch">Salmya is the hook that looks.</p>
+        <p class="hero-punch">Turquya is the hook that looks.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
           <a class="btn btn-ghost" href="#/docs">Read the note</a>
@@ -3844,8 +3846,8 @@
 
   <!-- ticker -->
   <div class="ticker ticker-light" aria-hidden="true">
-    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Salmya</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg></div>
-    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Salmya</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg></div>
+    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Turquya</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg></div>
+    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg><span>Turquya</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg></div>
   </div>
 
   <!-- state of it -->
@@ -3883,7 +3885,7 @@
 
       <p class="ca-lede" id="caLede">
         When the token exists, its address appears here and nowhere else first.
-        Until this box shows one, any contract claiming to be Salmya is not ours.
+        Until this box shows one, any contract claiming to be Turquya is not ours.
         Check this page before you buy anything.
       </p>
 
@@ -4006,7 +4008,7 @@
 
     <div class="code">
       <div class="code-bar">
-        <span class="code-file">SalmyaHook.sol</span>
+        <span class="code-file">TurquyaHook.sol</span>
         <span class="code-meta">solidity 0.8.26 &middot; v4-core</span>
       </div>
       <pre class="code-body"><code><span class="c-cm">// runs before the pool settles the swap in front of it</span>
@@ -4034,7 +4036,7 @@
   <section class="sec wrap" id="fees-tech">
     <p class="rule-eyebrow">Fee controller</p>
     <h2 class="sec-title">The fee is a function,<br>not a constant.</h2>
-    <p class="sec-lede">Salmya runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
+    <p class="sec-lede">Turquya runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
 
     <div class="feat-grid">
       <article class="feat">
@@ -4051,7 +4053,7 @@
         <h3>Fee against volatility</h3>
         <div class="chart-legend">
           <span><i class="swatch" style="background:var(--ink-faint)"></i>Volatility</span>
-          <span><i class="swatch" style="background:var(--salmon)"></i>Swap fee</span>
+          <span><i class="swatch" style="background:var(--turq)"></i>Swap fee</span>
         </div>
         <svg class="chart-svg" viewBox="0 0 400 150" role="img" aria-label="Swap fee tracking market volatility over twelve intervals, peaking at 58 percent volatility and 14 basis points.">
           <line x1="44" y1="16"  x2="384" y2="16"  stroke="var(--line)" stroke-width="1"/>
@@ -4062,12 +4064,12 @@
           <text x="38" y="132" text-anchor="end" fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">0%</text>
           <polyline fill="none" stroke="var(--ink-faint)" stroke-width="1.6" stroke-dasharray="3 3" stroke-linejoin="round"
             points="44,105.6 74.9,94.4 105.8,100 136.7,64.5 167.6,19.7 198.5,42.1 229.4,75.7 260.3,86.9 291.2,98.1 322.1,103.7 353,107.5 383.9,101.9"/>
-          <polygon fill="var(--salmon)" fill-opacity="0.14"
+          <polygon fill="var(--turq)" fill-opacity="0.14"
             points="44,124.3 74.9,120.5 105.8,120.5 136.7,105.6 167.6,75.7 198.5,86.9 229.4,105.6 260.3,113.1 291.2,116.8 322.1,120.5 353,120.5 383.9,116.8 383.9,128 44,128"/>
-          <polyline fill="none" stroke="var(--salmon)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
+          <polyline fill="none" stroke="var(--turq)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
             points="44,124.3 74.9,120.5 105.8,120.5 136.7,105.6 167.6,75.7 198.5,86.9 229.4,105.6 260.3,113.1 291.2,116.8 322.1,120.5 353,120.5 383.9,116.8"/>
-          <circle cx="167.6" cy="75.7" r="3.4" fill="var(--salmon)"/>
-          <text x="176" y="70" fill="var(--salmon)" font-size="9.5" font-family="DM Mono, monospace">14 bps</text>
+          <circle cx="167.6" cy="75.7" r="3.4" fill="var(--turq)"/>
+          <text x="176" y="70" fill="var(--turq)" font-size="9.5" font-family="DM Mono, monospace">14 bps</text>
           <text x="44"  y="145" text-anchor="start" fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">t&minus;12h</text>
           <text x="383.9" y="145" text-anchor="end"  fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">now</text>
         </svg>
@@ -4092,21 +4094,21 @@
       <div class="launch-list">
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#salmya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#turquya-mark"/></svg>
             95% to LPs
           </h3>
           <p>Fee only pools keep 95% of swap fees with the liquidity providers and send 5% to the protocol.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#salmya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#turquya-mark"/></svg>
             Pool options for your launch
           </h3>
           <p>Legacy V2 and concentrated V3 pools on every supported chain, with DLMM available on select networks.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#salmya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#turquya-mark"/></svg>
             Your launch. Your rules.
           </h3>
           <p>You keep control of your launch and your graduation mechanics, and we stay on the integration with you.</p>
@@ -4129,13 +4131,13 @@
       <h2>Questions we actually get</h2>
 
       <details class="q" open>
-        <summary>What is xSLM?</summary>
-        <p>xSLM carries the votes. It borrows the useful half of vote escrow, which is that long term holders steer emissions, and drops the half that traps you for four years. Balances stay liquid and the weight comes from participation instead of sentence length.</p>
+        <summary>What is xTRQ?</summary>
+        <p>xTRQ carries the votes. It borrows the useful half of vote escrow, which is that long term holders steer emissions, and drops the half that traps you for four years. Balances stay liquid and the weight comes from participation instead of sentence length.</p>
       </details>
 
       <details class="q">
         <summary>What is f33?</summary>
-        <p>f33 is xSLM you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperSalmya.</p>
+        <p>f33 is xTRQ you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperTurquya.</p>
       </details>
 
       <details class="q">
@@ -4144,7 +4146,7 @@
       </details>
 
       <details class="q">
-        <summary>Which chains does Salmya support?</summary>
+        <summary>Which chains does Turquya support?</summary>
         <p>The target set is Arbitrum, HyperEVM, Base and Polygon, with routing that can reach HyperCore and connected lending markets inside the same transaction. None of it is on mainnet yet.</p>
       </details>
 
@@ -4154,7 +4156,7 @@
       </details>
 
       <details class="q">
-        <summary>Has Salmya been audited?</summary>
+        <summary>Has Turquya been audited?</summary>
         <p>Not yet, and there is nothing deployed to audit. When there is, external review happens before a single unit of mainnet liquidity is accepted, and the report goes up next to the docs. It is a gate, not a badge.</p>
       </details>
     </div>
@@ -4164,9 +4166,9 @@
   <!-- closing -->
   <section class="wrap" style="padding-bottom:88px">
     <div class="close-cta" id="app">
-      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
+      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--turq)" aria-hidden="true"><use href="#turquya-mark"/></svg>
       <h2>Point a pool at it.</h2>
-      <p>Connect a wallet, add liquidity or stake xSLM, and earn from every trade the protocol routes.</p>
+      <p>Connect a wallet, add liquidity or stake xTRQ, and earn from every trade the protocol routes.</p>
       <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
     </div>
   </section>
@@ -4178,8 +4180,8 @@
   <div class="wrap">
     <div class="foot-in">
       <a class="brand" href="#top">
-        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg>
-        Salmya
+        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg>
+        Turquya
       </a>
       <nav class="foot-links">
         <a href="#/trade">Trade</a>
@@ -4192,14 +4194,14 @@
       </nav>
 
       <div class="socials">
-        <a class="social" href="https://x.com/SalmyaTech" target="_blank" rel="noopener" aria-label="Salmya on X" data-social="x">
+        <a class="social" href="https://x.com/TurquyaTech" target="_blank" rel="noopener" aria-label="Turquya on X" data-social="x">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
         </a>
       </div>
 
-      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 S A L M Y A</span>
+      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 T U R Q U Y A</span>
     </div>
   </div>
 </footer>
@@ -4208,7 +4210,7 @@
 <main class="docs" id="docsView" hidden>
   <div class="doc-bar">
     <div class="wrap doc-bar-in">
-      <a class="doc-back" href="#top">&#8592; Back to Salmya</a>
+      <a class="doc-back" href="#top">&#8592; Back to Turquya</a>
       <a class="doc-back" href="#/trade">Launch App &#8599;</a>
       <span class="doc-kind">Protocol note &middot; 12 Sep 2026</span>
     </div>
@@ -4271,7 +4273,7 @@
 
       <h2>Why the curve cannot see it coming</h2>
 
-      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Salmya is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
+      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Turquya is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
 
       <p>The reason this is solvable at all is that these events are <em class="doc-term">scheduled</em>. A record date is public. A split ratio is public. Nothing about the moment of repricing is a surprise, it is only a surprise to the pool, because a pool has historically had no place to put that knowledge.</p>
 
@@ -4318,9 +4320,9 @@
         </dl>
       </div>
 
-      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Salmya before that box shows an address is not ours.</p>
+      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Turquya before that box shows an address is not ours.</p>
 
-      <p>The governance design, <em class="doc-term">xSLM</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
+      <p>The governance design, <em class="doc-term">xTRQ</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
 
       <h2>Try the part that is real</h2>
 
@@ -4340,16 +4342,16 @@
 
       <p>In order: the attested feed for record dates, the auction contract for the residual, and an external review of both before a single unit of mainnet liquidity is accepted. Everything above stays on testnet until that sequence is finished, and this page will say so plainly for as long as it is true.</p>
 
-      <p>The pitch is not that Salmya invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
+      <p>The pitch is not that Turquya invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
 
       <div class="doc-end">
         <a class="btn btn-primary" href="#/trade">Launch App &#8599;</a>
-        <a class="btn btn-ghost" href="#top">&#8592; Back to Salmya</a>
+        <a class="btn btn-ghost" href="#top">&#8592; Back to Turquya</a>
       </div>
 
       <div class="doc-foot">
         <p>Figures are worked from constant product math on the stated reserves and are illustrative, not performance claims. Nothing here is investment advice or an offer of any token.</p>
-        <p>Salmya &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
+        <p>Turquya &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
       </div>
     </div>
   </div>
@@ -4366,7 +4368,7 @@
         <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
           <path d="M0 42H58"/>
         </g>
-        <use href="#salmya-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
+        <use href="#turquya-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
       </pattern>
     </defs>
     <rect width="100%" height="46" fill="url(#friezeTile)"/>
@@ -4490,7 +4492,7 @@
         <div class="rate-bar">
           <span id="rateLine">1 ETH = 3,529.67 USDC</span>
           <span class="gas-pick">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--turq)" aria-hidden="true"><use href="#turquya-mark"/></svg>
             Native
             <span class="caret"></span>
           </span>
@@ -4530,15 +4532,15 @@
           <svg id="chartSvg" viewBox="0 0 660 300" preserveAspectRatio="none" role="img" aria-label="Price chart for the selected pair">
             <defs>
               <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--salmon)" stop-opacity="0.28"/>
-                <stop offset="100%" stop-color="var(--salmon)" stop-opacity="0"/>
+                <stop offset="0%" stop-color="var(--turq)" stop-opacity="0.28"/>
+                <stop offset="100%" stop-color="var(--turq)" stop-opacity="0"/>
               </linearGradient>
             </defs>
             <g id="gridLines"></g>
             <path id="areaPath" fill="url(#areaFill)"/>
-            <path id="linePath" fill="none" stroke="var(--salmon)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            <path id="linePath" fill="none" stroke="var(--turq)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             <line id="xhair" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" y1="0" y2="300" x1="-10" x2="-10" vector-effect="non-scaling-stroke"/>
-            <circle id="xdot" r="4" fill="var(--salmon)" cx="-10" cy="-10"/>
+            <circle id="xdot" r="4" fill="var(--turq)" cx="-10" cy="-10"/>
           </svg>
           <div class="crosshair-label" id="xlabel" hidden></div>
         </div>
@@ -4588,7 +4590,7 @@
       <button class="slip" type="button" data-slip="1" aria-pressed="false">1.0%</button>
       <button class="slip" type="button" data-slip="3" aria-pressed="false">3.0%</button>
     </div>
-    <p class="modal-foot">Salmya quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
+    <p class="modal-foot">Turquya quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
   </div>
 </div>
 
@@ -4701,7 +4703,7 @@
   var val = document.getElementById('heroStatVal');
 
   function sync() {
-    var w = window.SalmyaWallet;
+    var w = window.TurquyaWallet;
     var onSepolia = !!(w && w.connected() && !w.isDemo() && w.chainId() === '0x14a34');
     pill.dataset.live = String(onSepolia);
     val.innerHTML = onSepolia
@@ -4709,18 +4711,18 @@
       : 'Base Sepolia \u00b7 testnet';
   }
 
-  if (window.SalmyaWallet) window.SalmyaWallet.onChange(sync);
+  if (window.TurquyaWallet) window.TurquyaWallet.onChange(sync);
   sync();
 })();
 </script>
 
 <!-- accent picker -->
 <div class="tint-picker" id="tintPicker" role="group" aria-label="Accent intensity">
-  <span class="tint-label">Salmon</span>
-  <button class="tint" type="button" data-tint="0" aria-pressed="false" aria-label="Blush"  title="Blush"  style="background:#b8455a"></button>
-  <button class="tint" type="button" data-tint="1" aria-pressed="true"  aria-label="Salmon" title="Salmon" style="background:#b4442f"></button>
-  <button class="tint" type="button" data-tint="2" aria-pressed="false" aria-label="Coral"  title="Coral"  style="background:#bb3f3a"></button>
-  <button class="tint" type="button" data-tint="3" aria-pressed="false" aria-label="Clay"   title="Clay"   style="background:#9c5030"></button>
+  <span class="tint-label">Turquoise</span>
+  <button class="tint" type="button" data-tint="0" aria-pressed="false" aria-label="Aqua"      title="Aqua"      style="background:#0a6f82"></button>
+  <button class="tint" type="button" data-tint="1" aria-pressed="true"  aria-label="Turquoise" title="Turquoise" style="background:#0f6f64"></button>
+  <button class="tint" type="button" data-tint="2" aria-pressed="false" aria-label="Jade"      title="Jade"      style="background:#15704f"></button>
+  <button class="tint" type="button" data-tint="3" aria-pressed="false" aria-label="Pine"      title="Pine"      style="background:#356b5e"></button>
   <span class="tint-sep"></span>
   <button class="theme-btn" type="button" id="themeBtn" aria-label="Switch theme">
     <svg class="sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -4735,32 +4737,33 @@
 
 <script>
 (function () {
-  /* Four readings of the salmon, each measured rather than picked: every one
-     clears 4.5:1 as type on the wash and carries white on it as a button fill,
-     and each has a night set, because a salmon that reads on the wash is far
-     too dark against the charcoal. */
+  /* Four readings of the turquoise, each measured rather than picked: every
+     one clears 4.5:1 as type on the wash and carries white on it as a button
+     fill, and each has a night set, because a turquoise that reads on the wash
+     disappears against the green-black. */
   var TINTS = [
-    { name: 'blush',
-      light: { salmon: '#b8455a', soft: '#e8697f', deep: '#7d2939', on: '#ffffff',
-               glow: 'rgba(184,69,90,.13)', line: 'rgba(125,41,57,.20)', lineStrong: 'rgba(125,41,57,.38)' },
-      dark:  { salmon: '#ff8fa3', soft: '#ffb3c0', deep: '#c4566a', on: '#17100e',
-               glow: 'rgba(255,143,163,.16)', line: 'rgba(255,236,230,.14)', lineStrong: 'rgba(255,236,230,.28)' } },
-    { name: 'salmon',
-      light: { salmon: '#b4442f', soft: '#fa8072', deep: '#7e2b1a', on: '#ffffff',
-               glow: 'rgba(180,68,47,.13)', line: 'rgba(120,52,36,.20)', lineStrong: 'rgba(120,52,36,.38)' },
-      dark:  { salmon: '#ff9683', soft: '#ffb4a5', deep: '#c4553c', on: '#17100e',
-               glow: 'rgba(255,150,131,.16)', line: 'rgba(255,236,230,.14)', lineStrong: 'rgba(255,236,230,.28)' } },
-    { name: 'coral',
-      light: { salmon: '#bb3f3a', soft: '#f4736d', deep: '#832622', on: '#ffffff',
-               glow: 'rgba(187,63,58,.13)', line: 'rgba(131,38,34,.20)', lineStrong: 'rgba(131,38,34,.38)' },
-      dark:  { salmon: '#ff8f8a', soft: '#ffb2ae', deep: '#c45651', on: '#17100e',
-               glow: 'rgba(255,143,138,.16)', line: 'rgba(255,236,230,.14)', lineStrong: 'rgba(255,236,230,.28)' } },
-    { name: 'clay',
-      light: { salmon: '#9c5030', soft: '#d98a5e', deep: '#6b351c', on: '#ffffff',
-               glow: 'rgba(156,80,48,.13)', line: 'rgba(107,53,28,.20)', lineStrong: 'rgba(107,53,28,.38)' },
-      dark:  { salmon: '#e5a878', soft: '#f2c8a5', deep: '#a8724a', on: '#17100e',
-               glow: 'rgba(229,168,120,.16)', line: 'rgba(255,236,230,.14)', lineStrong: 'rgba(255,236,230,.28)' } }
+    { name: 'aqua',
+      light: { turq: '#0a6f82', soft: '#38b6cc', deep: '#064c59', on: '#ffffff',
+               glow: 'rgba(10,111,130,.13)', line: 'rgba(6,76,89,.20)', lineStrong: 'rgba(6,76,89,.38)' },
+      dark:  { turq: '#5ad6ee', soft: '#96e6f5', deep: '#2a95ad', on: '#0b1a18',
+               glow: 'rgba(90,214,238,.16)', line: 'rgba(228,247,244,.14)', lineStrong: 'rgba(228,247,244,.28)' } },
+    { name: 'turquoise',
+      light: { turq: '#0f6f64', soft: '#40e0d0', deep: '#06443c', on: '#ffffff',
+               glow: 'rgba(15,111,100,.13)', line: 'rgba(6,45,40,.20)', lineStrong: 'rgba(6,45,40,.38)' },
+      dark:  { turq: '#5fe3d2', soft: '#8df0e3', deep: '#2aa093', on: '#0b1a18',
+               glow: 'rgba(95,227,210,.16)', line: 'rgba(228,247,244,.14)', lineStrong: 'rgba(228,247,244,.28)' } },
+    { name: 'jade',
+      light: { turq: '#15704f', soft: '#39c48c', deep: '#0a4a34', on: '#ffffff',
+               glow: 'rgba(21,112,79,.13)', line: 'rgba(10,74,52,.20)', lineStrong: 'rgba(10,74,52,.38)' },
+      dark:  { turq: '#4fd99a', soft: '#8ae9bf', deep: '#259a66', on: '#0b1a18',
+               glow: 'rgba(79,217,154,.16)', line: 'rgba(228,247,244,.14)', lineStrong: 'rgba(228,247,244,.28)' } },
+    { name: 'pine',
+      light: { turq: '#356b5e', soft: '#79b8a8', deep: '#204840', on: '#ffffff',
+               glow: 'rgba(53,107,94,.13)', line: 'rgba(32,72,64,.20)', lineStrong: 'rgba(32,72,64,.38)' },
+      dark:  { turq: '#9bd3c2', soft: '#c2e6dc', deep: '#5d9384', on: '#0b1a18',
+               glow: 'rgba(155,211,194,.16)', line: 'rgba(228,247,244,.14)', lineStrong: 'rgba(228,247,244,.28)' } }
   ];
+
 
   var root = document.documentElement;
   var buttons = document.querySelectorAll('.tint');
@@ -4768,10 +4771,10 @@
 
   function paint() {
     var set = TINTS[current][root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'];
-    root.style.setProperty('--salmon', set.salmon);
-    root.style.setProperty('--salmon-soft', set.soft);
-    root.style.setProperty('--salmon-deep', set.deep);
-    root.style.setProperty('--on-salmon', set.on);
+    root.style.setProperty('--turq', set.turq);
+    root.style.setProperty('--turq-soft', set.soft);
+    root.style.setProperty('--turq-deep', set.deep);
+    root.style.setProperty('--on-turq', set.on);
     root.style.setProperty('--glow', set.glow);
     root.style.setProperty('--line', set.line);
     root.style.setProperty('--line-strong', set.lineStrong);
@@ -4784,7 +4787,7 @@
     buttons.forEach(function (b) {
       b.setAttribute('aria-pressed', String(Number(b.dataset.tint) === i));
     });
-    try { localStorage.setItem('salmya-tint', String(i)); } catch (e) {}
+    try { localStorage.setItem('turquya-tint', String(i)); } catch (e) {}
   }
 
   buttons.forEach(function (b) {
@@ -4796,15 +4799,15 @@
   function setTheme(mode) {
     if (mode === 'light') root.setAttribute('data-theme', 'light');
     else root.removeAttribute('data-theme');
-    try { localStorage.setItem('salmya-theme', mode); } catch (e) {}
+    try { localStorage.setItem('turquya-theme', mode); } catch (e) {}
     paint();
   }
 
   /* Light is the default for a brand named after sand. Only an explicit choice
      of dark turns it off, which is the opposite of how this started. */
   var savedTheme = null, saved = null;
-  try { savedTheme = localStorage.getItem('salmya-theme'); } catch (e) {}
-  try { saved = localStorage.getItem('salmya-tint'); } catch (e) {}
+  try { savedTheme = localStorage.getItem('turquya-theme'); } catch (e) {}
+  try { saved = localStorage.getItem('turquya-tint'); } catch (e) {}
 
   setTheme(savedTheme === 'dark' ? 'dark' : 'light');
   apply(saved !== null && TINTS[Number(saved)] ? Number(saved) : 1);
@@ -4819,10 +4822,10 @@
 <div class="modal-backdrop" id="walletModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-head">
-      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
+      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--turq)" aria-hidden="true"><use href="#turquya-mark"/></svg>
       <div>
         <h2 id="walletModalTitle">Connect a wallet</h2>
-        <p>Choose how you want to connect to Salmya.</p>
+        <p>Choose how you want to connect to Turquya.</p>
       </div>
       <button class="modal-close" id="walletClose" type="button" aria-label="Close">&times;</button>
     </div>
@@ -4869,7 +4872,7 @@
       </button>
     </div>
 
-    <p class="modal-foot">Salmya only reads your public address. This concept page never requests a signature or a transaction.</p>
+    <p class="modal-foot">Turquya only reads your public address. This concept page never requests a signature or a transaction.</p>
   </div>
 </div>
 
@@ -4953,7 +4956,7 @@
     emit();
   }
 
-  window.SalmyaWallet = {
+  window.TurquyaWallet = {
     connected: function () { return !!account; },
     address: function () { return account; },
     chainId: function () { return currentChainId; },
@@ -5093,7 +5096,7 @@
     if (lastView !== null && view !== lastView) window.scrollTo(0, 0);
     lastView = view;
 
-    if (isApp && window.SalmyaSwap) window.SalmyaSwap.refresh();
+    if (isApp && window.TurquyaSwap) window.TurquyaSwap.refresh();
   }
 
   window.addEventListener('hashchange', apply);
@@ -5125,8 +5128,8 @@
     { sym: 'USDT', name: 'Tether USD',      price: 0.9998,   bal: 0,        color: '#26a17b', addr: '0xFd08…dbe9', depth: 900000 },
     { sym: 'ARB',  name: 'Arbitrum',        price: 0.4215,   bal: 1204.88,  color: '#28a0f0', addr: '0x912C…4a48', depth: 640000 },
     { sym: 'HYPE', name: 'Hyperliquid',     price: 27.4180,  bal: 0,        color: '#4ad2b0', addr: '0x5555…5555', depth: 720000 },
-    { sym: 'SLM',  name: 'Salmya',           price: 0.0847,   bal: 45120,    color: '#dbe7f3', addr: '0x1C4a…9eD3', depth: 310000 },
-    { sym: 'xSLM', name: 'Staked Salmya',    price: 0.0912,   bal: 12880.4,  color: '#8fa2b6', addr: '0x7B0d…2fA6', depth: 180000 }
+    { sym: 'TRQ',  name: 'Turquya',           price: 0.0847,   bal: 45120,    color: '#dbe7f3', addr: '0x1C4a…9eD3', depth: 310000 },
+    { sym: 'xTRQ', name: 'Staked Turquya',    price: 0.0912,   bal: 12880.4,  color: '#8fa2b6', addr: '0x7B0d…2fA6', depth: 180000 }
   ];
 
   var STABLE = ['USDC', 'USDT'];
@@ -5148,7 +5151,7 @@
   var details = byId('swapDetails'), cta = byId('swapCta');
 
   function connected() {
-    return !!(window.SalmyaWallet && window.SalmyaWallet.connected());
+    return !!(window.TurquyaWallet && window.TurquyaWallet.connected());
   }
 
   function num(el) {
@@ -5566,7 +5569,7 @@
   }
 
   cta.addEventListener('click', function () {
-    if (cta.dataset.action === 'connect') { window.SalmyaWallet.open(); return; }
+    if (cta.dataset.action === 'connect') { window.TurquyaWallet.open(); return; }
     if (cta.dataset.action === 'live') { executeWrap(); return; }
     if (cta.dataset.action !== 'review') return;
 
@@ -5626,7 +5629,7 @@
   var liveBalances = { ETH: null, WETH: null };
   var txBusy = false;
 
-  function wallet() { return window.SalmyaWallet; }
+  function wallet() { return window.TurquyaWallet; }
   function onTestnet() {
     return !!(wallet() && !wallet().isDemo() && wallet().chainId() === TESTNET.chainId);
   }
@@ -5740,7 +5743,7 @@
     });
   }
 
-  window.SalmyaLive = {
+  window.TurquyaLive = {
     active: liveMode,
     onTestnet: onTestnet,
     isWrapPair: isWrapPair,
@@ -5777,13 +5780,13 @@
     });
   });
 
-  if (window.SalmyaWallet) window.SalmyaWallet.onChange(function () {
+  if (window.TurquyaWallet) window.TurquyaWallet.onChange(function () {
     setTxNote('');
     loadLiveBalances();
     render();
   });
 
-  window.SalmyaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
+  window.TurquyaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
 
   paintChartHead();
   drawChart();
@@ -5797,7 +5800,7 @@
 
     <div id="gateMain">
       <header class="gate-head">
-        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg>
+        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#turquya-mark"/></svg>
         <div>
           <p class="eyebrow">Before you continue</p>
           <h2 id="gateTitle">Terms and privacy</h2>
@@ -5811,10 +5814,10 @@
 
       <div class="gate-body" tabindex="0">
         <div class="gate-panel" id="panelTerms" role="tabpanel" aria-labelledby="tabTerms">
-          <p><b>Salmya is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
+          <p><b>Turquya is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
 
           <h3>Nothing is deployed</h3>
-          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Salmya while that box reads <b>not deployed</b> is not ours.</p>
+          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Turquya while that box reads <b>not deployed</b> is not ours.</p>
 
           <h3>Unaudited software</h3>
           <p>The hook has not been audited. The only real transaction this interface can send is an ETH to WETH wrap on Base Sepolia, a test network, using test ETH with no monetary value. Every other quote on the app screen is simulated and labelled as such.</p>
@@ -5823,7 +5826,7 @@
           <p>Nothing here is investment, financial, legal, or tax advice. The figures shown are constant product arithmetic on stated reserves, worked as illustrations. They are not projections, performance claims, or a forecast of anything.</p>
 
           <h3>Your keys stay yours</h3>
-          <p>Salmya never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
+          <p>Turquya never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
 
           <h3>Your side of it</h3>
           <p>You confirm you are of legal age where you live, that you are not accessing this from a jurisdiction where it would be prohibited, and that you use it as is, at your own risk, with no warranty of any kind.</p>
@@ -5848,7 +5851,7 @@
 
       <label class="gate-agree" for="gateAgree" id="gateAgreeRow">
         <input type="checkbox" id="gateAgree">
-        <span>I have read the terms and the privacy notice, and I understand that Salmya is unaudited testnet software with no token and no mainnet deployment.</span>
+        <span>I have read the terms and the privacy notice, and I understand that Turquya is unaudited testnet software with no token and no mainnet deployment.</span>
       </label>
 
       <div class="gate-actions">
@@ -5860,7 +5863,7 @@
     </div>
 
     <div class="gate-blocked" id="gateBlocked" hidden>
-      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
+      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--turq)" aria-hidden="true"><use href="#turquya-mark"/></svg>
       <h2>Then this is where it stops.</h2>
       <p>Declining is a real answer and nothing here is worth overriding it for. Close the tab whenever you like, or read the notice again if you changed your mind.</p>
       <button class="btn btn-ghost" id="gateBack" type="button">Read it again</button>
@@ -5871,7 +5874,7 @@
 
 <script>
 (function () {
-  var KEY   = 'salmya-legal-v1';
+  var KEY   = 'turquya-legal-v1';
   var gate  = document.getElementById('legalGate');
   if (!gate) return;
 
@@ -6059,7 +6062,7 @@
 })();
 </script>
 <script>
-/* ---------- Salmya: movement ----------
+/* ---------- Turquya: movement ----------
    Every effect in here is opt-in through the `motion` class on <html>. If the
    reader has asked for reduced motion the class is never set, the reveal CSS
    never matches, and the page renders exactly as it would have without this

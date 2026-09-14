@@ -1,0 +1,10 @@
+{
+  "name": "Calma — tu wallet",
+  "short_name": "Calma",
+  "description": "Wallet no custodia: tus claves se crean y se quedan en tu navegador.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#EFF7F4",
+  "theme_color": "#0E9E8E",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "calma-wallet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Calma — wallet no custodia en el navegador, con pagos reales en redes EVM.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

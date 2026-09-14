@@ -64,13 +64,13 @@ chart's market-data request, so the chart falls back to its simulated series.
 
 ## Deploying
 
-Railway builds the `Dockerfile` and serves `public/` through Caddy. Set the service's
-Root Directory to `/azurya-site`, push, and Railway redeploys on its own.
+Railway builds the `Dockerfile` and serves `public/` through Caddy. The service's Root
+Directory is `/salmya`; push, and Railway redeploys on its own.
 
-The directory keeps the name `azurya-site` on purpose. It is what the Railway service's
-Root Directory points at, and renaming it here would take the deploy down until somebody
-went and changed that setting too. The brand has moved on four times inside it; the path
-has not.
+The directory name and that setting have to agree. Renaming one without the other fails
+the build at the image stage with `Root directory "/salmya" was not found in the deployed
+source` - which is a clearer error than most, but still a deploy down until both sides
+match.
 
 No environment variables are required to serve the site. The `Caddyfile` reads `PORT` if
 the platform sets it and falls back to 8080, which is the port the service's domains

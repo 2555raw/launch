@@ -3,359 +3,235 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calma — tu wallet</title>
-<meta name="description" content="Wallet no custodia: creas tus claves en tu propio navegador y pagas en redes reales.">
-<meta name="theme-color" content="#F2F8F6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#071614" media="(prefers-color-scheme: dark)">
+<title>Calma — la wallet que solo tú controlas</title>
+<meta name="description" content="Crea una wallet en tu navegador y cobra o paga en redes reales. Sin custodia, sin registro, sin intermediarios.">
+<meta name="theme-color" content="#EFF7F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#061513" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="landing.css">
 </head>
-<body>
+<body class="site">
 
 <div class="ambient" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 
-<div class="shell">
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Calma</span></a>
+    <div class="nav-links">
+      <a href="#como">Cómo funciona</a>
+      <a href="#seguridad">Seguridad</a>
+      <a href="#preguntas">Preguntas</a>
+    </div>
+    <a class="cta sm" href="/app" id="navCta">Abrir wallet</a>
+  </div>
+</nav>
 
-  <header class="bar" id="bar" hidden>
-    <button class="brand" id="brandHome" type="button">
-      <span class="mark" aria-hidden="true"></span>
-      <span class="brand-name">Calma</span>
-    </button>
-    <div class="bar-right">
-      <button class="pill" id="netPill" type="button">
-        <span class="dot" id="netDot"></span><span id="netName">Base</span>
-        <svg viewBox="0 0 24 24" class="chev" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-      <button class="icon-btn" id="lockBtn" type="button" title="Bloquear" aria-label="Bloquear">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg>
-      </button>
+<main id="top">
+
+  <!-- ── Portada ──────────────────────────────────── -->
+  <header class="hero wrap">
+    <div class="hero-copy">
+      <span class="eyebrow">Sin custodia · sin registro</span>
+      <h1>Tu dinero,<br>en calma.</h1>
+      <p class="lede">Crea una wallet en tu navegador en menos de un minuto. Cobra con un enlace, paga con un toque, y las claves no salen nunca de tu dispositivo — ni siquiera hacia nosotros.</p>
+      <div class="cta-row">
+        <a class="cta" href="/app" id="heroCta">Crear mi wallet</a>
+        <a class="cta ghost" href="#como">Ver cómo funciona</a>
+      </div>
+      <ul class="trust">
+        <li><b>0</b><span>datos personales</span></li>
+        <li><b>6</b><span>redes</span></li>
+        <li><b>~1&nbsp;céntimo</b><span>por pago en Base</span></li>
+      </ul>
+    </div>
+
+    <div class="stage reveal">
+      <div class="wcard">
+        <div class="wc-glow" aria-hidden="true"></div>
+        <div class="wc-top">
+          <span class="wc-brand"><span class="mark sm" aria-hidden="true"></span>Calma</span>
+          <span class="wc-net"><i></i>Base</span>
+        </div>
+        <p class="wc-bal">1,284<small>ETH</small></p>
+        <div class="wc-bot">
+          <span class="wc-addr">0x7a29 ···· e92E</span>
+          <span class="wc-seal">solo tú firmas</span>
+        </div>
+      </div>
+      <div class="chip c1"><span class="tick-sm" aria-hidden="true"></span>Pago confirmado</div>
+      <div class="chip c2">Mesa 4 · 12,00 USDC</div>
     </div>
   </header>
 
-  <main id="views">
+  <!-- ── Redes ────────────────────────────────────── -->
+  <section class="strip wrap" aria-label="Redes disponibles">
+    <p>Funciona en</p>
+    <ul>
+      <li><i style="background:#2151F5"></i>Base</li>
+      <li><i style="background:#8247E5"></i>Polygon</li>
+      <li><i style="background:#12AAFF"></i>Arbitrum</li>
+      <li><i style="background:#FF0420"></i>Optimism</li>
+      <li><i style="background:#627EEA"></i>Ethereum</li>
+      <li class="muted"><i style="background:#7B8794"></i>y dos redes de prueba</li>
+    </ul>
+  </section>
 
-    <!-- ── Bienvenida ─────────────────────────────── -->
-    <section class="view" data-view="welcome">
-      <div class="hero">
-        <div class="hero-mark" aria-hidden="true"><span></span></div>
-        <h1>Tu dinero,<br>en calma.</h1>
-        <p class="lede">Una wallet que vive solo en tu navegador. Tus claves se crean aquí, se quedan aquí, y nadie más — ni nosotros — puede tocarlas.</p>
+  <!-- ── Cómo funciona ────────────────────────────── -->
+  <section class="sec wrap" id="como">
+    <span class="eyebrow">Cómo funciona</span>
+    <h2>Tres pasos y ya estás cobrando.</h2>
+    <ol class="steps">
+      <li class="reveal">
+        <span class="step-n">1</span>
+        <h3>Creas la wallet</h3>
+        <p>El navegador genera doce palabras y te las enseña una sola vez. Las apuntas en papel; te pedimos tres al azar para comprobar que de verdad las tienes.</p>
+      </li>
+      <li class="reveal">
+        <span class="step-n">2</span>
+        <h3>Pones una contraseña</h3>
+        <p>Con ella se cifra la wallet en tu dispositivo. Sin esa contraseña, lo que queda guardado no le sirve a nadie — ni a quien te robe el portátil.</p>
+      </li>
+      <li class="reveal">
+        <span class="step-n">3</span>
+        <h3>Cobras o pagas</h3>
+        <p>Generas un enlace con el importe y el concepto. Quien lo abre ve el pago ya relleno y solo confirma. El dinero llega en segundos.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── Capacidades ──────────────────────────────── -->
+  <section class="sec wrap">
+    <span class="eyebrow">Qué puedes hacer</span>
+    <h2>Lo que necesita un cobro, y nada más.</h2>
+    <div class="grid">
+      <article class="tile reveal">
+        <span class="t-i"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/></svg></span>
+        <h3>Enlaces de cobro</h3>
+        <p>Importe, moneda y concepto en un enlace o un QR. Sirve para una factura, una mesa o un traspaso entre amigos.</p>
+      </article>
+      <article class="tile reveal">
+        <span class="t-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 1.8"/></svg></span>
+        <h3>Liquidación en segundos</h3>
+        <p>En Base o Polygon un pago se confirma en un par de segundos y cuesta céntimos. No hay retención de tres días ni contracargos.</p>
+      </article>
+      <article class="tile reveal">
+        <span class="t-i"><svg viewBox="0 0 24 24"><path d="M12 3l7.5 3.2v5c0 4.5-3.1 8.3-7.5 9.6-4.4-1.3-7.5-5.1-7.5-9.6v-5z"/></svg></span>
+        <h3>Euros digitales estables</h3>
+        <p>Cobra en USDC o USDT si no quieres exponerte al vaivén de precio. Un dólar cobrado sigue siendo un dólar mañana.</p>
+      </article>
+      <article class="tile reveal">
+        <span class="t-i"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg></span>
+        <h3>Bloqueo automático</h3>
+        <p>A los cinco minutos sin usarla se cierra sola y la clave se borra de la memoria. Un móvil olvidado en una mesa no cuesta dinero.</p>
+      </article>
+      <article class="tile reveal">
+        <span class="t-i"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span>
+        <h3>Revisión antes de firmar</h3>
+        <p>Antes de cada pago ves destinatario, red, comisión estimada y con cuánto te quedas. Nada se firma sin que lo hayas leído.</p>
+      </article>
+      <article class="tile reveal">
+        <span class="t-i"><svg viewBox="0 0 24 24"><path d="M4 12h6M14 12h6"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <h3>Tu propio nodo</h3>
+        <p>Si no te fías del nodo público, pon el tuyo en Ajustes. La app habla con la red que tú elijas, incluida una en tu propia máquina.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── Seguridad ────────────────────────────────── -->
+  <section class="sec wrap" id="seguridad">
+    <span class="eyebrow">Seguridad</span>
+    <h2>Por qué esto es distinto de dejar el dinero en una web.</h2>
+    <p class="sec-lede">La mayoría de los sitios que “guardan tu cripto” son la custodia de siempre con otro nombre: tu dinero está en su servidor y tú tienes una promesa. Aquí no hay servidor que pueda gastarlo, porque no hay servidor que conozca la clave.</p>
+
+    <div class="sec-grid">
+      <div class="fact reveal">
+        <h3>La clave nace y muere en tu navegador</h3>
+        <p>Se genera con el generador criptográfico del sistema, se cifra con <b>scrypt + AES</b> y se guarda solo en tu dispositivo. Nunca viaja por la red, ni cifrada.</p>
       </div>
+      <div class="fact reveal">
+        <h3>Ningún script ajeno puede ejecutarse</h3>
+        <p>La librería de firma va servida desde este mismo dominio, no desde una CDN, y la política de contenido bloquea cualquier otro script. Así es como se roban las claves en la mayoría de los casos, y aquí esa puerta está tapiada.</p>
+      </div>
+      <div class="fact reveal">
+        <h3>Si desaparecemos, tu dinero sigue ahí</h3>
+        <p>Tus doce palabras son un estándar abierto (BIP-39). Funcionan en MetaMask, Rainbow, Ledger o cualquier otra wallet. No dependes de que esta página siga en pie.</p>
+      </div>
+      <div class="fact reveal">
+        <h3>Puedes leer el código</h3>
+        <p>Es una página estática: abre las herramientas del navegador y lee lo que hace, línea a línea. No hay nada corriendo en un servidor que no puedas ver.</p>
+      </div>
+    </div>
+  </section>
 
-      <ul class="assur">
-        <li><span class="tick" aria-hidden="true"></span><div><b>Sin custodia</b><small>Nadie guarda tu dinero por ti</small></div></li>
-        <li><span class="tick" aria-hidden="true"></span><div><b>Sin registro</b><small>Ni correo, ni teléfono, ni datos</small></div></li>
-        <li><span class="tick" aria-hidden="true"></span><div><b>Redes reales</b><small>Pagos que se liquidan de verdad</small></div></li>
+  <!-- ── Honestidad ───────────────────────────────── -->
+  <section class="sec wrap">
+    <div class="honest reveal">
+      <span class="eyebrow warn">Lo que esto no es</span>
+      <h2>Lo que no te vamos a prometer.</h2>
+      <ul>
+        <li><b>No es una tarjeta de débito.</b> Para pagar en el súper con una Visa hace falta un emisor con licencia y patrocinio de BIN — eso es un contrato con un banco, no algo que se resuelva con código. Aquí los pagos son transferencias entre direcciones.</li>
+        <li><b>No hay «he olvidado mi contraseña».</b> Nadie puede restablecerla porque nadie la tiene. Se recupera con tus doce palabras, y solo con ellas.</li>
+        <li><b>Los pagos son definitivos.</b> No existe el contracargo. Si te equivocas de dirección, el dinero se fue. Por eso hay una pantalla de revisión antes de cada firma.</li>
+        <li><b>El precio se mueve.</b> ETH y POL suben y bajan. Si eso te quita el sueño, cobra en USDC o USDT.</li>
       </ul>
-
-      <div class="stack">
-        <button class="btn primary lg" id="startCreate">Crear una wallet nueva</button>
-        <button class="btn ghost lg" data-go="import">Ya tengo una — importar</button>
-      </div>
-      <p class="fineprint">Al continuar aceptas que tú eres el único responsable de tu frase de recuperación.</p>
-    </section>
-
-    <!-- ── Crear: frase ───────────────────────────── -->
-    <section class="view" data-view="create">
-      <button class="back" data-go="welcome" type="button">Atrás</button>
-      <h2>Tu frase de recuperación</h2>
-      <p class="sub">Estas 12 palabras <b>son</b> tu wallet. Cópialas en papel, en orden. Si las pierdes, nadie puede devolvértelas.</p>
-
-      <div class="warn-card">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5v5"/><circle cx="12" cy="17" r="1.1" fill="currentColor" stroke="none"/><path d="M10.3 3.9L2.7 17.2A2 2 0 004.4 20.2h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
-        <p>Jamás la escribas en un chat, una foto o un correo. Nadie legítimo te la va a pedir.</p>
-      </div>
-
-      <div class="seed" id="seedGrid"></div>
-
-      <div class="row-2">
-        <button class="btn ghost" id="copySeed" type="button">Copiar</button>
-        <button class="btn ghost" id="blurSeed" type="button">Ocultar</button>
-      </div>
-
-      <label class="check"><input type="checkbox" id="seedSaved"><span></span><em>La guardé en un lugar seguro y offline.</em></label>
-      <button class="btn primary lg" id="toVerify" disabled>Continuar</button>
-    </section>
-
-    <!-- ── Crear: verificar ───────────────────────── -->
-    <section class="view" data-view="verify">
-      <button class="back" data-go="create" type="button">Atrás</button>
-      <h2>Comprobemos</h2>
-      <p class="sub">Escribe las palabras que faltan. Es el único modo de saber que de verdad la guardaste.</p>
-      <div class="verify" id="verifyFields"></div>
-      <p class="err" id="verifyErr" hidden></p>
-      <button class="btn primary lg" id="toPass">Continuar</button>
-    </section>
-
-    <!-- ── Contraseña ─────────────────────────────── -->
-    <section class="view" data-view="password">
-      <button class="back" id="passBack" type="button">Atrás</button>
-      <h2>Pon una contraseña</h2>
-      <p class="sub">Cifra tu wallet en este dispositivo. Se te pedirá cada vez que la abras o pagues.</p>
-
-      <label class="field">
-        <span>Contraseña</span>
-        <input type="password" id="pw1" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
-      </label>
-      <div class="meter"><i id="pwBar"></i></div>
-      <p class="meter-label" id="pwLabel">&nbsp;</p>
-
-      <label class="field">
-        <span>Repítela</span>
-        <input type="password" id="pw2" autocomplete="new-password" placeholder="La misma">
-      </label>
-      <p class="err" id="pwErr" hidden></p>
-
-      <div class="note">
-        <b>No hay «olvidé mi contraseña».</b> Si la pierdes, recuperas la wallet con tus 12 palabras — por eso importan tanto.
-      </div>
-
-      <button class="btn primary lg" id="doCreate">Cifrar y abrir</button>
-    </section>
-
-    <!-- ── Importar ───────────────────────────────── -->
-    <section class="view" data-view="import">
-      <button class="back" data-go="welcome" type="button">Atrás</button>
-      <h2>Importar wallet</h2>
-      <p class="sub">Pega tus 12 o 24 palabras, o una clave privada. Se procesa solo en tu navegador.</p>
-      <label class="field">
-        <span>Frase de recuperación o clave privada</span>
-        <textarea id="importInput" rows="4" spellcheck="false" placeholder="palabra uno  palabra dos  palabra tres …"></textarea>
-      </label>
-      <p class="err" id="importErr" hidden></p>
-      <button class="btn primary lg" id="doImport">Continuar</button>
-    </section>
-
-    <!-- ── Desbloquear ────────────────────────────── -->
-    <section class="view" data-view="unlock">
-      <div class="hero sm">
-        <div class="hero-mark" aria-hidden="true"><span></span></div>
-        <h2>Hola de nuevo</h2>
-        <p class="sub center">Tu wallet está cifrada en este dispositivo.</p>
-      </div>
-      <label class="field">
-        <span>Contraseña</span>
-        <input type="password" id="unlockPw" autocomplete="current-password" placeholder="Tu contraseña">
-      </label>
-      <p class="err" id="unlockErr" hidden></p>
-      <button class="btn primary lg" id="doUnlock">Abrir</button>
-      <button class="btn flat" id="forgot" type="button">Olvidé la contraseña</button>
-    </section>
-
-    <!-- ── Home ───────────────────────────────────── -->
-    <section class="view" data-view="home">
-      <div class="balance-card">
-        <p class="bal-label">Saldo total</p>
-        <p class="bal" id="totalBal"><span class="skeleton w-40"></span></p>
-        <button class="addr-chip" id="addrChip" type="button">
-          <span id="addrShort">…</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 6.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h1.5"/></svg>
-        </button>
-      </div>
-
-      <div class="actions">
-        <button class="act" data-go="send"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span>Enviar</button>
-        <button class="act" data-go="receive"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M18 13l-6 6-6-6"/></svg></span>Recibir</button>
-        <button class="act" data-go="charge"><span class="act-i"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/></svg></span>Cobrar</button>
-      </div>
-
-      <h3 class="sec-title">Tus fondos</h3>
-      <ul class="tokens" id="tokenList"></ul>
-
-      <div class="sec-head">
-        <h3 class="sec-title">Movimientos</h3>
-        <button class="link-btn" data-go="activity" type="button">Ver todo</button>
-      </div>
-      <ul class="activity" id="recentList"></ul>
-
-      <button class="btn flat wide" data-go="settings" type="button">Ajustes y seguridad</button>
-    </section>
-
-    <!-- ── Enviar ─────────────────────────────────── -->
-    <section class="view" data-view="send">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Enviar</h2>
-
-      <div class="pay-note" id="payNote" hidden></div>
-
-      <label class="field">
-        <span>Para</span>
-        <input type="text" id="toInput" spellcheck="false" autocomplete="off" placeholder="0x… o nombre.eth">
-        <small class="hint" id="toHint"></small>
-      </label>
-
-      <label class="field">
-        <span>Moneda</span>
-        <div class="select-wrap"><select id="tokenSelect"></select></div>
-      </label>
-
-      <label class="field">
-        <span>Cantidad</span>
-        <div class="amount-row">
-          <input type="text" inputmode="decimal" id="amtInput" placeholder="0.00">
-          <button class="max" id="maxBtn" type="button">MÁX</button>
-        </div>
-        <small class="hint" id="amtHint"></small>
-      </label>
-
-      <p class="err" id="sendErr" hidden></p>
-      <button class="btn primary lg" id="reviewBtn">Revisar pago</button>
-      <p class="fineprint">Las transferencias en blockchain son definitivas. Revisa la dirección con calma.</p>
-    </section>
-
-    <!-- ── Recibir ────────────────────────────────── -->
-    <section class="view" data-view="receive">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Recibir</h2>
-      <p class="sub">Comparte esta dirección o el código. Solo acepta fondos de la red que tengas seleccionada.</p>
-      <div class="qr-card">
-        <div class="qr" id="qrBox"></div>
-        <p class="net-tag"><span class="dot" id="recvDot"></span><span id="recvNet"></span></p>
-        <p class="addr-full" id="addrFull"></p>
-        <div class="row-2">
-          <button class="btn ghost" id="copyAddr" type="button">Copiar dirección</button>
-          <button class="btn ghost" id="shareAddr" type="button">Compartir</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Cobrar ─────────────────────────────────── -->
-    <section class="view" data-view="charge">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Cobrar</h2>
-      <p class="sub">Genera un enlace de cobro. Quien lo abra verá el pago ya rellenado — solo tiene que confirmar.</p>
-
-      <label class="field">
-        <span>Moneda</span>
-        <div class="select-wrap"><select id="chargeToken"></select></div>
-      </label>
-      <label class="field">
-        <span>Cantidad</span>
-        <input type="text" inputmode="decimal" id="chargeAmt" placeholder="0.00">
-      </label>
-      <label class="field">
-        <span>Concepto <i>(opcional)</i></span>
-        <input type="text" id="chargeNote" maxlength="60" placeholder="Mesa 4 · dos cafés">
-      </label>
-
-      <button class="btn primary lg" id="makeLink">Generar cobro</button>
-
-      <div class="link-out" id="linkOut" hidden>
-        <div class="qr sm" id="chargeQr"></div>
-        <p class="link-text" id="linkText"></p>
-        <div class="row-2">
-          <button class="btn ghost" id="copyLink" type="button">Copiar enlace</button>
-          <button class="btn ghost" id="shareLink" type="button">Compartir</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Actividad ──────────────────────────────── -->
-    <section class="view" data-view="activity">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Movimientos</h2>
-      <p class="sub">Los pagos que hiciste desde este dispositivo. El registro definitivo siempre está en la blockchain.</p>
-      <ul class="activity" id="allList"></ul>
-    </section>
-
-    <!-- ── Ajustes ────────────────────────────────── -->
-    <section class="view" data-view="settings">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Ajustes y seguridad</h2>
-
-      <h3 class="sec-title">Red</h3>
-      <label class="field">
-        <span>RPC personalizado <i>(opcional)</i></span>
-        <input type="text" id="rpcInput" spellcheck="false" placeholder="https://…">
-        <small class="hint">Déjalo vacío para usar el nodo público de la red.</small>
-      </label>
-      <button class="btn ghost wide" id="saveRpc" type="button">Guardar RPC</button>
-
-      <h3 class="sec-title">Copia de seguridad</h3>
-      <div class="note">Tu frase es la única forma de recuperar esta wallet en otro dispositivo. Mírala solo tú, sin cámaras ni pantallas compartidas.</div>
-      <button class="btn ghost wide" id="revealSeed" type="button">Ver mi frase de recuperación</button>
-      <button class="btn ghost wide" id="exportKs" type="button">Descargar copia cifrada</button>
-
-      <h3 class="sec-title">Sesión</h3>
-      <button class="btn ghost wide" id="lockNow" type="button">Bloquear ahora</button>
-      <button class="btn danger wide" id="wipe" type="button">Borrar la wallet de este dispositivo</button>
-
-      <p class="fineprint" id="versionLine"></p>
-    </section>
-
-  </main>
-</div>
-
-<!-- ── Hoja de redes ─────────────────────────────── -->
-<div class="sheet-wrap" id="netSheet" hidden>
-  <div class="sheet-bg" data-close-sheet></div>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Elegir red">
-    <div class="grab" aria-hidden="true"></div>
-    <h3>Red</h3>
-    <p class="sub">Cada red tiene sus propias monedas y comisiones.</p>
-    <ul class="net-list" id="netList"></ul>
-  </div>
-</div>
-
-<!-- ── Confirmación de pago ──────────────────────── -->
-<div class="sheet-wrap" id="confirmSheet" hidden>
-  <div class="sheet-bg" data-close-sheet></div>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Confirmar pago">
-    <div class="grab" aria-hidden="true"></div>
-    <h3 id="cfTitle">Confirma el pago</h3>
-    <p class="cf-amount" id="cfAmount"></p>
-    <dl class="cf-rows">
-      <div><dt>Para</dt><dd id="cfTo"></dd></div>
-      <div><dt>Red</dt><dd id="cfNet"></dd></div>
-      <div><dt>Comisión estimada</dt><dd id="cfFee"></dd></div>
-      <div class="total"><dt>Saldo después</dt><dd id="cfAfter"></dd></div>
-    </dl>
-    <p class="err" id="cfErr" hidden></p>
-    <button class="btn primary lg" id="cfSend">Firmar y enviar</button>
-    <button class="btn flat" data-close-sheet type="button">Cancelar</button>
-  </div>
-</div>
-
-<!-- ── Frase revelada ────────────────────────────── -->
-<div class="sheet-wrap" id="seedSheet" hidden>
-  <div class="sheet-bg" data-close-sheet></div>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Frase de recuperación">
-    <div class="grab" aria-hidden="true"></div>
-    <h3>Tu frase de recuperación</h3>
-    <div id="seedGateWrap">
-      <p class="sub">Escribe tu contraseña para verla.</p>
-      <label class="field"><span>Contraseña</span><input type="password" id="seedPw" placeholder="Tu contraseña"></label>
-      <p class="err" id="seedErr" hidden></p>
-      <button class="btn primary lg" id="seedGo">Mostrar</button>
     </div>
-    <div id="seedShowWrap" hidden>
-      <div class="seed" id="seedShow"></div>
-      <button class="btn ghost wide" id="seedCopy2" type="button">Copiar</button>
-      <button class="btn flat" data-close-sheet type="button">Listo</button>
+  </section>
+
+  <!-- ── Preguntas ────────────────────────────────── -->
+  <section class="sec wrap" id="preguntas">
+    <span class="eyebrow">Preguntas</span>
+    <h2>Lo que suele preguntarse la gente.</h2>
+    <div class="faq">
+      <details>
+        <summary>¿Tenéis acceso a mi dinero?</summary>
+        <p>No, y no es una cuestión de confianza sino de arquitectura: la clave que autoriza un pago se genera en tu navegador y se queda cifrada en tu dispositivo. Nuestro servidor solo entrega archivos; no recibe la clave ni cifrada, así que no hay nada que podamos gastar, congelar ni entregar a nadie.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa si pierdo el móvil?</summary>
+        <p>Nada, si guardaste tus doce palabras. Instalas la wallet en otro dispositivo, las introduces y recuperas el mismo saldo. Quien encuentre el móvil se topa con un archivo cifrado y una contraseña que no conoce.</p>
+      </details>
+      <details>
+        <summary>¿Y si pierdo las doce palabras?</summary>
+        <p>Entonces se pierde el acceso al dinero, de forma definitiva. No es una política que podamos flexibilizar: no existe ninguna copia de esas palabras en ningún sitio salvo donde tú las hayas puesto. Escríbelas en papel, y guarda ese papel como guardarías dinero en efectivo.</p>
+      </details>
+      <details>
+        <summary>¿Cuánto cuesta usarla?</summary>
+        <p>La wallet no cobra nada. Cada pago paga la comisión de la red, que va a quien valida la transacción, no a nosotros: en Base o Polygon suele rondar el céntimo; en Ethereum puede ser bastante más. El selector de red está en la barra de arriba.</p>
+      </details>
+      <details>
+        <summary>¿Puedo probarlo sin arriesgar dinero?</summary>
+        <p>Sí, y es lo recomendable antes del primer cobro de verdad. Elige <b>Base Sepolia</b> en el selector de red y pide monedas gratis en un faucet. Es una cadena real, con los mismos bloques y las mismas firmas, pero su moneda no vale nada: te sirve para comprobar el recorrido completo sin poner nada en juego.</p>
+      </details>
+      <details>
+        <summary>¿Hace falta verificar mi identidad?</summary>
+        <p>No hay registro, ni correo, ni teléfono. Dicho esto, las transacciones en blockchain son públicas: cualquiera que conozca tu dirección puede ver su historial. Es transparente, no anónimo, y conviene no confundir una cosa con la otra.</p>
+      </details>
+      <details>
+        <summary>¿Sirve para cobrar en un negocio?</summary>
+        <p>Para cobros puntuales, sí: generas el enlace o el QR con el importe y el cliente confirma. Para un negocio con volumen querrás además contabilidad, devoluciones y conversión a euros, que esto no cubre.</p>
+      </details>
     </div>
-  </div>
-</div>
+  </section>
 
-<!-- ── Estado de envío ───────────────────────────── -->
-<div class="sheet-wrap" id="statusSheet" hidden>
-  <div class="sheet-bg"></div>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Estado del pago">
-    <div class="status-body">
-      <div class="status-icon" id="stIcon"><span class="spin"></span></div>
-      <h3 id="stTitle">Enviando…</h3>
-      <p class="sub center" id="stText">Tu pago va camino a la red.</p>
-      <a class="btn ghost wide" id="stLink" target="_blank" rel="noopener noreferrer" hidden>Ver en el explorador</a>
-      <button class="btn primary lg" id="stDone" hidden>Listo</button>
+  <!-- ── Cierre ───────────────────────────────────── -->
+  <section class="closer wrap">
+    <div class="closer-in reveal">
+      <h2>Un minuto y es tuya.</h2>
+      <p>Sin correo, sin tarjeta, sin esperar aprobación de nadie.</p>
+      <a class="cta big" href="/app" id="footCta">Crear mi wallet</a>
+      <small>Funciona en el navegador que ya tienes abierto.</small>
     </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Calma</span></a>
+    <p>Wallet no custodia. Tú guardas las claves y tú asumes su custodia. Esto no es asesoramiento financiero ni un servicio de pagos regulado.</p>
   </div>
-</div>
+</footer>
 
-<div class="toast-wrap" id="toasts" aria-live="polite"></div>
-
-<script src="vendor/qrcode.js"></script>
-<script src="vendor/qrcode_UTF8.js"></script>
-<script src="vendor/ethers.umd.min.js"></script>
-<script src="app.js"></script>
+<script src="landing.js"></script>
 </body>
 </html>

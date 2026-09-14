@@ -2,7 +2,7 @@
   "name": "Calma — tu wallet",
   "short_name": "Calma",
   "description": "Wallet no custodia: tus claves se crean y se quedan en tu navegador.",
-  "start_url": ".",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#EFF7F4",
   "theme_color": "#0E9E8E",

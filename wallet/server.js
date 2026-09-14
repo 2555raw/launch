@@ -58,7 +58,11 @@ http.createServer((req, res) => {
   }
 
   let rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-  if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
+  /* /app es la wallet y / es la portada. La wallet tiene su propia ruta limpia
+     porque los enlaces de cobro se construyen sobre ella y acaban pegados en
+     chats y facturas: ahí un ".html" sobra. */
+  if (rel === '/app' || rel === '/app/') rel = '/app.html';
+  else if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
 
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT + path.sep) && file !== ROOT) {

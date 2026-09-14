@@ -31,6 +31,13 @@
   --r:    18px;
   --r-lg: 26px;
 
+  /* El degradado de las piezas de marca (tarjeta, tarjeta de saldo, bloque de
+     cierre) es el mismo en claro y en oscuro: llevan texto blanco encima, y si
+     siguieran a --brand en modo oscuro se aclararían hasta no leerse. */
+  --card-a: #14AD9B;
+  --card-b: #0B7C71;
+  --card-c: #07514A;
+
   --shadow-1: 0 1px 2px rgba(12,42,40,.04), 0 4px 14px rgba(12,42,40,.05);
   --shadow-2: 0 2px 6px rgba(12,42,40,.05), 0 18px 40px rgba(12,42,40,.09);
   --shadow-brand: 0 6px 18px rgba(14,158,142,.28);
@@ -300,7 +307,7 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 
 /* ── saldo ───────────────────────────────────────── */
 .balance-card {
-  background: linear-gradient(150deg, var(--brand) 0%, var(--brand-deep) 100%);
+  background: linear-gradient(150deg, var(--card-a) 0%, var(--card-b) 55%, var(--card-c) 100%);
   border-radius: var(--r-lg); padding: 26px 24px 20px; color: #fff;
   box-shadow: var(--shadow-brand); margin-bottom: 18px; position: relative; overflow: hidden;
 }
@@ -308,10 +315,10 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
   content: ""; position: absolute; width: 190px; height: 190px; border-radius: 50%;
   background: rgba(255,255,255,.1); top: -80px; right: -50px;
 }
-.bal-label { margin: 0 0 4px; font-size: 13px; opacity: .8; font-weight: 520; }
+.bal-label { margin: 0 0 4px; font-size: 13px; opacity: .92; font-weight: 520; }
 .bal { margin: 0 0 16px; font-size: 38px; font-weight: 680; letter-spacing: -.035em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .addr-chip {
-  display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.16);
+  display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.22);
   border: 0; border-radius: 999px; padding: 7px 13px; color: #fff; font: inherit;
   font-size: 13px; font-family: var(--mono); cursor: pointer; position: relative; z-index: 1;
   transition: background .18s;

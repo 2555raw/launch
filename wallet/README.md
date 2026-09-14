@@ -30,6 +30,14 @@ ve nunca un secreto. Los pagos van a cadenas EVM reales y se liquidan de verdad.
   `localhost` (para quien corre un nodo propio en su máquina). Nada más.
 - La clave descifrada vive solo en memoria y se borra al bloquear.
 
+## Estructura
+
+- `public/index.html` — la portada.
+- `public/app.html` + `app.js` — la wallet, servida en `/app`.
+- `public/vendor/` — ethers y el generador de QR, congelados aquí a propósito.
+- `server.js` — estáticos y cabeceras de seguridad.
+- `test/e2e.js` — el recorrido completo contra una cadena real (ver `test/README.md`).
+
 ## Correr en local
 
 ```sh
@@ -38,6 +46,14 @@ npm start           # http://localhost:8080
 ```
 
 No hay dependencias que instalar: `server.js` usa solo módulos de Node.
+
+## Cómo se ha comprobado
+
+Con una cadena EVM local fijada al id 8453, el navegador crea la wallet, la
+cifra, firma un pago y la prueba verifica **en la cadena** que la transacción
+existe y que el destinatario recibió el importe exacto. También comprueba que
+ni la frase ni la clave privada quedan en claro en el navegador. Está en
+`test/`; se vuelve a pasar con un comando.
 
 ## Desplegar
 

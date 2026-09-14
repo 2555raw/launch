@@ -141,10 +141,13 @@ function show(name) {
 }
 
 function toast(msg) {
+  const wrap = $('#toasts');
+  /* Más de dos a la vez y dejan de ser avisos para ser una pared. */
+  while (wrap.children.length >= 2) wrap.firstElementChild.remove();
   const el = document.createElement('div');
   el.className = 'toast';
   el.textContent = msg;
-  $('#toasts').appendChild(el);
+  wrap.appendChild(el);
   setTimeout(() => el.remove(), 2600);
 }
 
@@ -174,12 +177,30 @@ async function share(text, title) {
 
 const short = a => a ? a.slice(0, 6) + '···' + a.slice(-4) : '';
 
-/* Recorta ceros a la derecha sin caer en notación científica. */
+/* Recorta ceros a la derecha sin caer en notación científica. Devuelve siempre
+   la forma "de máquina", con punto decimal: es la que se parsea. */
 function trim(str, max = 6) {
   if (!str.includes('.')) return str;
   let [i, d] = str.split('.');
   d = d.slice(0, max).replace(/0+$/, '');
   return d ? i + '.' + d : i;
+}
+
+/* Y esta es la forma que lee una persona en español: coma decimal y punto de
+   millar. Importa más de lo que parece — "1.284 ETH" delante de un lector
+   español son mil doscientos ochenta y cuatro, no uno y pico. */
+const NUM = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 20 });
+function fmt(plain) {
+  if (plain == null || plain === '—' || plain === '…') return plain;
+  const n = Number(plain);
+  return isFinite(n) ? NUM.format(n) : plain;
+}
+
+/* El camino de vuelta: acepta lo que escriba la gente — "1,5", "1.5" y
+   "1.234,56" — y devuelve algo que parseUnits entienda. */
+function parseAmount(raw) {
+  const v = String(raw).trim().replace(/\s/g, '');
+  return v.includes(',') ? v.replace(/\./g, '').replace(',', '.') : v;
 }
 
 function openSheet(id) { $(id).hidden = false; document.body.style.overflow = 'hidden'; }
@@ -307,7 +328,7 @@ async function refresh() {
     const native = await p.getBalance(addr);
     if (mine !== refresh.gen) return;
     balances.native = native;
-    $('#totalBal').textContent = trim(E.formatEther(native), 6) + ' ' + c.coin;
+    $('#totalBal').textContent = fmt(trim(E.formatEther(native), 6)) + ' ' + c.coin;
   } catch (err) {
     if (mine !== refresh.gen) return;
     $('#totalBal').textContent = '—';
@@ -338,8 +359,8 @@ function paintTokens(loading) {
   rows.forEach(t => {
     let amt = '…';
     if (!loading) {
-      if (t.native) amt = balances.native == null ? '—' : trim(E.formatEther(balances.native), 6);
-      else amt = balances.tokens[t.symbol] == null ? '—' : trim(E.formatUnits(balances.tokens[t.symbol], t.decimals), 6);
+      if (t.native) amt = balances.native == null ? '—' : fmt(trim(E.formatEther(balances.native), 6));
+      else amt = balances.tokens[t.symbol] == null ? '—' : fmt(trim(E.formatUnits(balances.tokens[t.symbol], t.decimals), 6));
     }
     const li = document.createElement('li');
     li.innerHTML = coinBadge(t.symbol, t.color) +
@@ -402,7 +423,7 @@ function paintActivity(list, limit) {
     li.querySelector('b').textContent = 'A ' + short(a.to);
     li.querySelector('small').textContent = (c ? c.short : 'Red ' + a.chainId) + ' · ' +
       new Date(a.ts).toLocaleString('es', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-    li.querySelector('.tok-amt div').textContent = '−' + a.amount + ' ' + a.symbol;
+    li.querySelector('.tok-amt div').textContent = '−' + fmt(a.amount) + ' ' + a.symbol;
     if (c) {
       li.style.cursor = 'pointer';
       li.addEventListener('click', () => window.open(c.explorer + '/tx/' + a.hash, '_blank', 'noopener'));
@@ -474,7 +495,7 @@ async function review() {
   const key = $('#tokenSelect').value;
   const tok = tokenByKey(key);
   const c = chain();
-  const raw = $('#amtInput').value.trim().replace(',', '.');
+  const raw = parseAmount($('#amtInput').value);
   if (!raw || !/^\d*\.?\d*$/.test(raw) || Number(raw) <= 0) return fail('#sendErr', 'Escribe una cantidad mayor que cero.');
 
   let value;
@@ -499,13 +520,13 @@ async function review() {
 
     draft = { to, tok, value, raw, fee, symbol: tok ? tok.symbol : c.coin };
 
-    $('#cfAmount').textContent = trim(raw, 8) + ' ' + draft.symbol;
+    $('#cfAmount').textContent = fmt(trim(raw, 8)) + ' ' + draft.symbol;
     $('#cfTo').textContent = short(to);
     $('#cfNet').textContent = c.name + (c.test ? ' (prueba)' : '');
-    $('#cfFee').textContent = '≈ ' + trim(E.formatEther(fee.cost), 7) + ' ' + c.coin;
+    $('#cfFee').textContent = '≈ ' + fmt(trim(E.formatEther(fee.cost), 7)) + ' ' + c.coin;
     const after = tok
-      ? (balances.tokens[tok.symbol] != null ? trim(E.formatUnits(balances.tokens[tok.symbol] - value, tok.decimals), 6) + ' ' + tok.symbol : '—')
-      : (balances.native != null ? trim(E.formatEther(balances.native - value - fee.cost), 6) + ' ' + c.coin : '—');
+      ? (balances.tokens[tok.symbol] != null ? fmt(trim(E.formatUnits(balances.tokens[tok.symbol] - value, tok.decimals), 6)) + ' ' + tok.symbol : '—')
+      : (balances.native != null ? fmt(trim(E.formatEther(balances.native - value - fee.cost), 6)) + ' ' + c.coin : '—');
     $('#cfAfter').textContent = after;
     fail('#cfErr', '');
     $('#cfSend').disabled = false;
@@ -618,7 +639,7 @@ async function useMax() {
   if (tok) {
     const b = balances.tokens[tok.symbol];
     if (b == null) return toast('Aún no sé tu saldo');
-    $('#amtInput').value = trim(E.formatUnits(b, tok.decimals), tok.decimals);
+    $('#amtInput').value = trim(E.formatUnits(b, tok.decimals), tok.decimals).replace('.', ',');
     return;
   }
   if (balances.native == null) return toast('Aún no sé tu saldo');
@@ -628,7 +649,7 @@ async function useMax() {
     const fee = await feeFor({ to, value: 1n });
     const left = balances.native - fee.cost;
     if (left <= 0n) { $('#amtInput').value = '0'; toast('La comisión se lleva todo tu saldo'); }
-    else $('#amtInput').value = trim(E.formatEther(left), 8);
+    else $('#amtInput').value = trim(E.formatEther(left), 8).replace('.', ',');
     $('#amtHint').textContent = 'Dejamos fuera la comisión de red estimada.';
   } catch { toast('No se pudo estimar la comisión'); }
   finally { $('#maxBtn').textContent = 'MÁX'; }
@@ -646,7 +667,7 @@ function paintReceive() {
 
 function payLink() {
   const key = $('#chargeToken').value;
-  const amt = $('#chargeAmt').value.trim().replace(',', '.');
+  const amt = parseAmount($('#chargeAmt').value);
   const note = $('#chargeNote').value.trim();
   const p = new URLSearchParams({ to: wallet.address, chain: String(prefs.chainId), token: key });
   if (amt && Number(amt) > 0) p.set('amount', amt);
@@ -680,7 +701,8 @@ function applyPrefill() {
   $('#toInput').value = prefill.to;
   const known = prefill.token === 'native' || !!tokenByKey(prefill.token);
   $('#tokenSelect').value = known ? prefill.token : 'native';
-  $('#amtInput').value = prefill.amount;
+  /* El enlace viaja con punto decimal (es una URL); en pantalla se lee con coma. */
+  $('#amtInput').value = prefill.amount.replace('.', ',');
   resolveTo(prefill.to);
   const c = CHAINS[prefill.chainId];
   const note = $('#payNote');

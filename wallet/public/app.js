@@ -1,4 +1,4 @@
-/* Quiver — self-custody wallet.
+/* Ward — self-custody wallet.
  *
  * Everything that matters happens in this file and in the browser of whoever
  * opens it: the key is generated here, encrypted here and signed here. The only
@@ -31,7 +31,7 @@ const PLANS = {
     ]
   },
   gold: {
-    name: 'Gold', price: 3, tier: 'gold',
+    name: 'Gold', price: 19.99, tier: 'gold',
     line: 'For people who get paid through it',
     perks: [
       'Everything in Classic',
@@ -42,7 +42,7 @@ const PLANS = {
     ]
   },
   platinum: {
-    name: 'Platinum', price: 9, tier: 'plat',
+    name: 'Platinum', price: 49.99, tier: 'plat',
     line: 'For running more than one set of books',
     perks: [
       'Everything in Gold',
@@ -135,28 +135,34 @@ const ERC20 = new E.Interface(ERC20_ABI);
 /* ── Storage ───────────────────────────────────────────────────────────────
    Four things in localStorage: the encrypted keystore, the address (public
    anyway), preferences and a local copy of the activity. Nothing in the clear. */
+const NS = 'ward.v1';
+const FIELDS = ['keystore', 'address', 'prefs', 'activity', 'plan', 'payees'];
 const K = {
-  store:  'quiver.v1.keystore',
-  addr:   'quiver.v1.address',
-  prefs:  'quiver.v1.prefs',
-  acts:   'quiver.v1.activity',
-  plan:   'quiver.v1.plan',
-  payees: 'quiver.v1.payees'
+  store:  NS + '.keystore',
+  addr:   NS + '.address',
+  prefs:  NS + '.prefs',
+  acts:   NS + '.activity',
+  plan:   NS + '.plan',
+  payees: NS + '.payees'
 };
-const OLD = { store: 'calma.v1.keystore', addr: 'calma.v1.address', prefs: 'calma.v1.prefs', acts: 'calma.v1.activity' };
+/* The product has been renamed twice. Someone who made a wallet under an older
+   name keeps it: losing a keystore to a rename would lose their money. */
+const LEGACY_NS = ['quiver.v1', 'calma.v1'];
 
 const read = (k, fb) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch { return fb; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 const drop = k => { try { localStorage.removeItem(k); } catch {} };
 
-/* Anyone who made a wallet under the old name keeps it. Losing someone's
-   keystore over a rename would lose their money. */
 (function migrate() {
-  if (read(K.store, null) || !read(OLD.store, null)) return;
-  Object.keys(OLD).forEach(k => {
-    const v = read(OLD[k], null);
-    if (v !== null) write(K[k], v);
-  });
+  if (read(K.store, null)) return;
+  for (const ns of LEGACY_NS) {
+    if (!read(ns + '.keystore', null)) continue;
+    FIELDS.forEach(f => {
+      const v = read(ns + '.' + f, null);
+      if (v !== null) write(NS + '.' + f, v);
+    });
+    return;
+  }
 })();
 
 let prefs = Object.assign({ chainId: 8453, rpc: {}, accounts: [{ i: 0, name: 'Account 1' }], active: 0 }, read(K.prefs, {}));
@@ -361,9 +367,16 @@ function paintPlans() {
     card.className = 'plan ' + p.tier + (id === plan ? ' current' : '');
     const price = p.price ? `$${p.price}<small>/month</small>` : 'Free';
     card.innerHTML =
-      `<div class="plan-face"><span class="pf-name"></span><span class="pf-chip"></span></div>` +
+      `<div class="tcard ${p.tier}">` +
+        '<div class="tc-sheen"></div>' +
+        '<div class="tc-top"><span class="tc-brand"><span class="mark sm"></span>Ward</span><span class="tc-net"></span></div>' +
+        '<span class="tc-chip"><i></i><i></i><i></i></span>' +
+        '<div class="tc-bot"><span class="tc-addr"></span><span class="tc-name"></span></div>' +
+      '</div>' +
       `<h3></h3><p class="plan-line"></p><p class="plan-price">${price}</p><ul class="perks"></ul>`;
-    card.querySelector('.pf-name').textContent = p.name;
+    card.querySelector('.tc-net').textContent = chain().short;
+    card.querySelector('.tc-addr').textContent = wallet ? short(wallet.address) : '0x···';
+    card.querySelector('.tc-name').textContent = p.name;
     card.querySelector('h3').textContent = p.name;
     card.querySelector('.plan-line').textContent = p.line;
     const ul = card.querySelector('.perks');
@@ -688,7 +701,7 @@ function exportCsv() {
   const csv = rows.map(r => r.map(f => `"${String(f).replace(/"/g, '""')}"`).join(',')).join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = 'quiver-activity.csv';
+  a.download = 'ward-activity.csv';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   toast('CSV downloaded');
@@ -931,7 +944,7 @@ async function useMax() {
 /* ── Topping up from another wallet ────────────────────────────────────────
    Wallets announce themselves under EIP-6963, which is how MetaMask, Coinbase
    Wallet, Phantom, Rainbow and the rest can coexist in one browser — the old
-   window.ethereum is a single slot they used to fight over. Quiver never sees
+   window.ethereum is a single slot they used to fight over. Ward never sees
    the other wallet's keys: it asks, the other wallet signs. */
 const found = new Map();
 
@@ -1067,7 +1080,7 @@ async function depositIn() {
       if (!r) await new Promise(s => setTimeout(s, 2000));
     }
     if (r && r.status === 1) {
-      statusSheet('ok', hash, 'The funds are in your Quiver wallet.');
+      statusSheet('ok', hash, 'The funds are in your Ward wallet.');
       $('#stTitle').textContent = 'Topped up';
       $('#depAmt').value = '';
       refresh(); linkedBalance();
@@ -1076,7 +1089,7 @@ async function depositIn() {
   } catch (err) {
     fail('#depErr', friendly(err));
   } finally {
-    btn.disabled = false; btn.textContent = 'Send to my Quiver wallet';
+    btn.disabled = false; btn.textContent = 'Send to my Ward wallet';
   }
 }
 
@@ -1191,7 +1204,7 @@ function enterWallet() {
 }
 
 function boot() {
-  $('#versionLine').textContent = 'Quiver · ethers ' + (E.version || '6') + ' · everything runs in your browser';
+  $('#versionLine').textContent = 'Ward · ethers ' + (E.version || '6') + ' · everything runs in your browser';
   prefill = readPayHash();
   paintNet();
   paintNetList();
@@ -1382,7 +1395,7 @@ $('#seedCopy2').addEventListener('click', () => copy($('#seedShow').dataset.phra
 $('#exportKs').addEventListener('click', () => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([read(K.store, '')], { type: 'application/json' }));
-  a.download = 'quiver-' + short(read(K.addr, '')).replace(/·/g, '') + '.json';
+  a.download = 'ward-' + short(read(K.addr, '')).replace(/·/g, '') + '.json';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   toast('Encrypted backup downloaded — it still needs your password');

@@ -11,7 +11,7 @@ const RPC = process.env.RPC_URL || 'http://127.0.0.1:8545';
 const FUNDER = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
 const DEST = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
 
-const SHOTS = process.env.SHOT_DIR || require('os').tmpdir() + '/quiver-';
+const SHOTS = process.env.SHOT_DIR || require('os').tmpdir() + '/ward-';
 const step = m => console.log('  ▸ ' + m);
 
 (async () => {
@@ -51,15 +51,15 @@ const step = m => console.log('  ▸ ' + m);
   await page.waitForSelector('[data-view="password"].on');
   step('phrase check passed');
 
-  await page.fill('#pw1', 'Quiver-2026!ok');
-  await page.fill('#pw2', 'Quiver-2026!ok');
+  await page.fill('#pw1', 'Ward-2026!ok');
+  await page.fill('#pw2', 'Ward-2026!ok');
   await page.click('#doCreate');
   await page.waitForSelector('[data-view="home"].on', { timeout: 60000 });
   step('wallet encrypted (scrypt) and opened');
 
   const store = await page.evaluate(() => ({
-    ks: localStorage.getItem('quiver.v1.keystore'),
-    addr: JSON.parse(localStorage.getItem('quiver.v1.address')),
+    ks: localStorage.getItem('ward.v1.keystore'),
+    addr: JSON.parse(localStorage.getItem('ward.v1.address')),
     all: JSON.stringify(Object.fromEntries(Object.entries(localStorage)))
   }));
   const ksObj = JSON.parse(JSON.parse(store.ks));
@@ -134,7 +134,7 @@ const step = m => console.log('  ▸ ' + m);
   await page.click('#doUnlock');
   await page.waitForSelector('#unlockErr:not([hidden])');
   step('wrong password rejected');
-  await page.fill('#unlockPw', 'Quiver-2026!ok');
+  await page.fill('#unlockPw', 'Ward-2026!ok');
   await page.click('#doUnlock');
   await page.waitForSelector('[data-view="home"].on', { timeout: 60000 });
   await page.waitForSelector('#recentList li .st-tag');
@@ -155,7 +155,7 @@ const step = m => console.log('  ▸ ' + m);
   payer.on('pageerror', e => errors.push('PAGEERROR(pagador): ' + e.message));
   await payer.goto(link, { waitUntil: 'domcontentloaded' });
   await payer.waitForSelector('[data-view="unlock"].on', { timeout: 30000 });
-  await payer.fill('#unlockPw', 'Quiver-2026!ok');
+  await payer.fill('#unlockPw', 'Ward-2026!ok');
   await payer.click('#doUnlock');
   await payer.waitForSelector('[data-view="send"].on', { timeout: 60000 });
   const to = await payer.inputValue('#toInput'), amt = await payer.inputValue('#amtInput');

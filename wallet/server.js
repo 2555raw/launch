@@ -8,6 +8,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, 'public');
 const PORT = process.env.PORT || 8080;
@@ -83,12 +84,27 @@ http.createServer((req, res) => {
       return;
     }
     const ext = path.extname(file).toLowerCase();
+    /* Caching, learnt the hard way: a long max-age on the stylesheet meant a
+       deploy shipped new HTML to browsers still holding yesterday's CSS, and the
+       page rendered half-styled for a day. Only /vendor is safe to freeze — it
+       is pinned to one library version and never edited in place. Everything
+       else revalidates, which costs one cheap 304 and can never go stale. */
+    const frozen = rel.startsWith('/vendor/');
+    const etag = '"' + crypto.createHash('sha1').update(body).digest('base64').slice(0, 22) + '"';
+
+    if (!frozen && req.headers['if-none-match'] === etag) {
+      res.writeHead(304, Object.assign({}, SECURITY, { etag, 'cache-control': 'no-cache' }));
+      res.end();
+      return;
+    }
+
     res.writeHead(200, Object.assign({}, SECURITY, {
       'content-type': TYPES[ext] || 'application/octet-stream',
-      /* HTML is never cached so a deploy lands immediately; ethers is frozen at
-         one version and can be cached freely. */
-      'cache-control': ext === '.html' ? 'no-store' : 'public, max-age=86400'
+      etag,
+      'cache-control': ext === '.html' ? 'no-store'
+        : frozen ? 'public, max-age=31536000, immutable'
+        : 'no-cache'
     }));
     res.end(req.method === 'HEAD' ? undefined : body);
   });
-}).listen(PORT, () => console.log(`Quiver listening on :${PORT}`));
+}).listen(PORT, () => console.log(`Ward listening on :${PORT}`));

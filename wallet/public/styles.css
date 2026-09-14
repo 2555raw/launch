@@ -10,18 +10,18 @@
 }
 
 :root {
-  --bg:        #F3F4FD;
-  --bg-2:      #E9EBFB;
+  --bg:        #F4F5FB;
+  --bg-2:      #E8EBF8;
   --surface:   #FFFFFF;
   --surface-2: #F8F9FF;
-  --ink:       #14162E;
+  --ink:       #101430;
   --ink-2:     #545878;
   --ink-3:     #8C90AE;
   --line:      #E3E5F5;
   --line-2:    #CFD2ED;
 
-  --brand:      #5A5CE0;
-  --brand-deep: #4340C2;
+  --brand:      #5250E4;
+  --brand-deep: #3B37BE;
   --brand-soft: #E6E7FD;
   --iris:       #8A7BF0;
   --sky:        #6FA8E8;
@@ -72,8 +72,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg:        #0A0B18;
-    --bg-2:      #10122A;
+    --bg:        #080A16;
+    --bg-2:      #0E1126;
     --surface:   #14162C;
     --surface-2: #1A1D38;
     --ink:       #EDEEFA;
@@ -515,22 +515,6 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
   border-radius: var(--r-lg); padding: 20px; box-shadow: var(--shadow-1);
 }
 .plan.current { border-color: var(--brand); }
-.plan-face {
-  border-radius: 16px; padding: 16px; margin-bottom: 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  min-height: 78px; position: relative; overflow: hidden;
-}
-.plan.classic .plan-face { color: var(--classic-ink); }
-.plan.gold    .plan-face { color: var(--gold-ink); }
-.plan.plat    .plan-face { color: var(--plat-ink); }
-.plan.gold .pf-chip, .plan.plat .pf-chip { background: rgba(0,0,0,.16); }
-.plan-face::after { content: ""; position: absolute; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,.12); top: -70px; right: -40px; }
-.plan.classic .plan-face { background: linear-gradient(145deg, var(--classic-a), var(--classic-b) 55%, var(--classic-c)); }
-.plan.gold    .plan-face { background: linear-gradient(145deg, var(--gold-a), var(--gold-b) 55%, var(--gold-c)); }
-.plan.plat    .plan-face { background: linear-gradient(145deg, var(--plat-a), var(--plat-b) 55%, var(--plat-c)); }
-.pf-name { font-size: 18px; font-weight: 680; letter-spacing: -.02em; position: relative; z-index: 1; }
-.pf-chip { width: 30px; height: 22px; border-radius: 5px; background: rgba(255,255,255,.35); position: relative; z-index: 1; }
-
 .plan h3 { font-size: 19px; margin-bottom: 2px; }
 .plan-line { margin: 0 0 10px; font-size: 13.5px; color: var(--ink-3); }
 .plan-price { margin: 0 0 16px; font-size: 27px; font-weight: 690; letter-spacing: -.03em; }
@@ -586,3 +570,31 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .payee:hover { border-color: var(--brand); color: var(--brand); }
 
 .note code { font-family: var(--mono); font-size: 12.5px; background: var(--bg-2); padding: 1px 5px; border-radius: 5px; }
+
+/* ── The card, as it appears in the plan list ────── */
+.plan .tcard {
+  aspect-ratio: 1.6 / 1; border-radius: 16px; padding: 15px; margin-bottom: 18px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+  box-shadow: 0 12px 26px -12px rgba(16,20,48,.5);
+}
+.plan .tc-sheen { position: absolute; inset: 0; background: radial-gradient(60% 90% at 30% 0%, rgba(255,255,255,.32), transparent 62%); }
+.plan .tcard.classic { background: linear-gradient(145deg, var(--classic-a), var(--classic-b) 52%, var(--classic-c)); color: var(--classic-ink); }
+.plan .tcard.gold    { background: linear-gradient(145deg, var(--gold-a), var(--gold-b) 52%, var(--gold-c)); color: var(--gold-ink); }
+.plan .tcard.plat    { background: linear-gradient(145deg, var(--plat-a), var(--plat-b) 52%, var(--plat-c)); color: var(--plat-ink); }
+.plan .tc-top { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+.plan .tc-brand { display: inline-flex; align-items: center; gap: 7px; font-weight: 640; font-size: 13.5px; }
+.plan .tc-net { font-size: 10.5px; font-weight: 600; opacity: .8; }
+.plan .tc-chip {
+  position: relative; z-index: 1; width: 34px; height: 25px; border-radius: 5px;
+  background: linear-gradient(145deg, rgba(255,255,255,.75), rgba(255,255,255,.4));
+  display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 0 5px;
+}
+.plan .tc-chip i { display: block; height: 1.5px; border-radius: 2px; background: rgba(0,0,0,.24); }
+.plan .tc-chip i:nth-child(2) { width: 70%; }
+.plan .tcard.gold .tc-chip i, .plan .tcard.plat .tc-chip i { background: rgba(0,0,0,.3); }
+.plan .tcard.gold .mark.sm, .plan .tcard.plat .mark.sm { background: rgba(0,0,0,.2); }
+.plan .tcard.gold .mark.sm::after, .plan .tcard.plat .mark.sm::after { background: currentColor; }
+.plan .tc-bot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; position: relative; z-index: 1; }
+.plan .tc-addr { font-family: var(--mono); font-size: 11px; opacity: .85; }
+.plan .tc-name { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }

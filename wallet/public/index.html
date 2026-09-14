@@ -3,26 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Quiver — the wallet that answers to you</title>
-<meta name="description" content="Create a wallet in your browser, top it up from MetaMask, Coinbase Wallet or Phantom, and get paid on real networks. No custody, no sign-up.">
-<meta name="theme-color" content="#F3F4FD" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0A0B18" media="(prefers-color-scheme: dark)">
+<title>Ward — only your key fits</title>
+<meta name="description" content="Self-custody wallet. Create it in your browser, top it up from MetaMask, Coinbase Wallet or Phantom, and get paid on real networks. No custody, no sign-up.">
+<meta name="theme-color" content="#F4F5FC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#080A16" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="landing.css">
 </head>
 <body class="site">
 
+<div class="progress" id="progress" aria-hidden="true"></div>
 <div class="ambient" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 
 <nav class="nav">
   <div class="wrap nav-in">
-    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Quiver</span></a>
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Ward</span></a>
     <div class="nav-links">
       <a href="#how">How it works</a>
-      <a href="#topup">Top up</a>
+      <a href="#journey">Follow a payment</a>
       <a href="#plans">Plans</a>
-      <a href="#security">Security</a>
+      <a href="#name">The name</a>
     </div>
     <a class="cta sm" href="/app" id="navCta">Open wallet</a>
   </div>
@@ -34,30 +35,31 @@
   <header class="hero wrap">
     <div class="hero-copy">
       <span class="eyebrow">Self-custody · no sign-up</span>
-      <h1>Money that<br>answers to you.</h1>
-      <p class="lede">Make a wallet in your browser in under a minute. Top it up from the wallet you already use, get paid with a link, and keep the keys where nobody else can reach them — us included.</p>
+      <h1>Only your<br>key fits.</h1>
+      <p class="lede">Make a wallet in your browser in under a minute. Top it up from the wallet you already use, get paid with a link, and keep the key where nobody else can reach it — us included.</p>
       <div class="cta-row">
         <a class="cta" href="/app" id="heroCta">Create my wallet</a>
-        <a class="cta ghost" href="#how">See how it works</a>
+        <a class="cta ghost" href="#journey">Follow a payment</a>
       </div>
       <ul class="trust">
-        <li><b>0</b><span>personal details</span></li>
-        <li><b>6</b><span>networks</span></li>
-        <li><b>~1&nbsp;cent</b><span>per payment on Base</span></li>
+        <li><b data-count="0">0</b><span>personal details</span></li>
+        <li><b data-count="6">0</b><span>networks</span></li>
+        <li><b data-count="1" data-prefix="~" data-suffix=" cent">0</b><span>per payment on Base</span></li>
       </ul>
     </div>
 
-    <div class="stage reveal">
-      <div class="wcard">
-        <div class="wc-glow" aria-hidden="true"></div>
+    <div class="stage reveal" id="stage">
+      <div class="wcard tilt" data-tier="classic" id="heroCard">
+        <div class="wc-sheen" aria-hidden="true"></div>
         <div class="wc-top">
-          <span class="wc-brand"><span class="mark sm" aria-hidden="true"></span>Quiver</span>
+          <span class="wc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span>
           <span class="wc-net"><i></i>Base</span>
         </div>
+        <span class="wc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
         <p class="wc-bal">1.284<small>ETH</small></p>
         <div class="wc-bot">
           <span class="wc-addr">0x7a29 ···· e92E</span>
-          <span class="wc-seal">you sign, nobody else</span>
+          <span class="wc-seal">Classic</span>
         </div>
       </div>
       <div class="chip c1"><span class="tick-sm" aria-hidden="true"></span>Payment confirmed</div>
@@ -65,17 +67,36 @@
     </div>
   </header>
 
-  <!-- ── Networks ─────────────────────────────────── -->
-  <section class="strip wrap" aria-label="Available networks">
-    <p>Runs on</p>
-    <ul>
-      <li><i style="background:#2151F5"></i>Base</li>
-      <li><i style="background:#8247E5"></i>Polygon</li>
-      <li><i style="background:#12AAFF"></i>Arbitrum</li>
-      <li><i style="background:#FF0420"></i>Optimism</li>
-      <li><i style="background:#627EEA"></i>Ethereum</li>
-      <li class="muted"><i style="background:#7B8794"></i>plus two test networks</li>
+  <!-- ── Works with ───────────────────────────────── -->
+  <section class="wrap works" id="topup">
+    <p class="works-lead">Top up from the wallet you already use</p>
+    <ul class="logos">
+      <li class="reveal">
+        <svg class="lg" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M3.4 3.6l10.3 7.6h4.6l10.3-7.6-2.1 8 1.9 3-2.5 7.2-5.9-1.8h-4l-5.9 1.8L7.6 14.6l1.9-3z" fill="#E2761B"/>
+          <path d="M13.7 11.2h4.6l1.3 4.2-2.1 1.6h-3l-2.1-1.6z" fill="#F6C99B"/>
+          <path d="M10.2 22.6l3.5-1.1h4.6l3.5 1.1-1.3 3.3-3.1-.9h-2.8l-3.1.9z" fill="#CD6116"/>
+        </svg>MetaMask</li>
+      <li class="reveal">
+        <svg class="lg" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="16" fill="#0052FF"/>
+          <rect x="11" y="11" width="10" height="10" rx="2.4" fill="#fff"/>
+        </svg>Coinbase Wallet</li>
+      <li class="reveal">
+        <svg class="lg" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="9" fill="#AB9FF2"/>
+          <path d="M24.5 16.4c0 4.6-3.8 8.3-8.4 8.3H8.4c-.6 0-1-.6-.7-1.1a12 12 0 001.6-4.2c.1-.6.6-1 1.2-1h1.3c.6 0 1 .5 1 1.1v1c0 .5.4.9.9.9s.9-.4.9-.9v-1c0-.6.5-1.1 1.1-1.1h1.2c.6 0 1.1.5 1.1 1.1v1c0 .5.4.9.9.9s.9-.4.9-.9v-1c0-3.2-2.6-5.8-5.8-5.8s-5.8 2.6-5.8 5.8c0 .4-.4.7-.8.6a1 1 0 01-.7-1c.2-4.4 3.9-7.9 8.4-7.9 4.6 0 8.4 3.7 8.4 8.3z" fill="#fff"/>
+        </svg>Phantom</li>
+      <li class="reveal">
+        <svg class="lg" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="9" fill="#001E59"/>
+          <path d="M7 25a18 18 0 0118-18" stroke="#FF4000" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+          <path d="M7 25a12 12 0 0112-12" stroke="#FFB800" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+          <path d="M7 25a6 6 0 016-6" stroke="#1DA1F2" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+        </svg>Rainbow</li>
+      <li class="more reveal">and any other in your browser</li>
     </ul>
+    <p class="fineprint left">Ward never touches those wallets' keys — it asks, they sign, you approve. Marks shown to identify compatible wallets; Ward is not affiliated with any of them.</p>
   </section>
 
   <!-- ── How it works ─────────────────────────────── -->
@@ -101,20 +122,82 @@
     </ol>
   </section>
 
-  <!-- ── Top up ───────────────────────────────────── -->
-  <section class="sec wrap" id="topup">
-    <span class="eyebrow">Top up</span>
-    <h2>Bring in funds from the wallet you already use.</h2>
-    <p class="sec-lede">Quiver talks to MetaMask, Coinbase Wallet, Phantom, Rainbow and anything else installed in your browser. You pick the amount here, the other wallet asks you to confirm, and the funds land on your Quiver address. Quiver never touches that wallet's keys — it can only ask.</p>
+  <!-- ── Scrollytelling ───────────────────────────── -->
+  <section class="journey" id="journey">
+    <div class="wrap jr-head">
+      <span class="eyebrow">Follow a payment</span>
+      <h2>Scroll, and watch one go through.</h2>
+    </div>
 
-    <ul class="logos reveal">
-      <li><span class="lg mm"></span>MetaMask</li>
-      <li><span class="lg cb"></span>Coinbase Wallet</li>
-      <li><span class="lg ph"></span>Phantom</li>
-      <li><span class="lg rb"></span>Rainbow</li>
-      <li class="more">and any other</li>
-    </ul>
-    <p class="fineprint left">On a phone, browser wallets only appear inside their own app. Open this page from within MetaMask, Coinbase Wallet, Phantom or Rainbow and they'll show up. Not affiliated with any of them.</p>
+    <div class="wrap jr-grid">
+      <div class="jr-steps">
+        <article class="jr-step" data-step="0">
+          <span class="jr-n">01</span>
+          <h3>You ask for €12</h3>
+          <p>Amount, coin and a note. Ward turns it into a link and a QR code. Nothing has left your device yet — the request is just text.</p>
+        </article>
+        <article class="jr-step" data-step="1">
+          <span class="jr-n">02</span>
+          <h3>They open the link</h3>
+          <p>The payment is already filled in on their side: who, how much, on which network. All they do is read it and confirm.</p>
+        </article>
+        <article class="jr-step" data-step="2">
+          <span class="jr-n">03</span>
+          <h3>Their key signs it</h3>
+          <p>The signature happens in their browser, on their device. No server in the middle ever holds enough to move the money.</p>
+        </article>
+        <article class="jr-step" data-step="3">
+          <span class="jr-n">04</span>
+          <h3>The chain settles it</h3>
+          <p>A couple of seconds later it is in a block, and it is yours. No three-day hold, no chargeback, no one who can reverse it.</p>
+        </article>
+      </div>
+
+      <div class="jr-sticky">
+        <div class="jr-phone" aria-hidden="true">
+          <div class="jr-screen">
+
+            <div class="jr-scene" data-scene="0">
+              <p class="jr-label">Request</p>
+              <p class="jr-amount">€12.00</p>
+              <p class="jr-note">Table 4 · two coffees</p>
+              <div class="jr-qr"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+
+            <div class="jr-scene" data-scene="1">
+              <p class="jr-label">They see</p>
+              <div class="jr-row"><b>To</b><span>Ward · 0x7a29···e92E</span></div>
+              <div class="jr-row"><b>Amount</b><span>12.00 USDC</span></div>
+              <div class="jr-row"><b>Network</b><span>Base</span></div>
+              <div class="jr-row"><b>Fee</b><span>≈ $0.01</span></div>
+              <div class="jr-btn">Review payment</div>
+            </div>
+
+            <div class="jr-scene" data-scene="2">
+              <p class="jr-label">Signing</p>
+              <div class="jr-lock">
+                <svg viewBox="0 0 48 48"><rect x="10" y="21" width="28" height="19" rx="4"/><path d="M17 21v-5a7 7 0 0114 0v5"/></svg>
+                <span class="jr-pulse"></span>
+              </div>
+              <p class="jr-note">Their key, their device.<br>Nothing leaves but the signature.</p>
+            </div>
+
+            <div class="jr-scene" data-scene="3">
+              <p class="jr-label">Settled</p>
+              <div class="jr-done">
+                <svg viewBox="0 0 48 48"><path d="M12 25l8 8 16-17"/></svg>
+              </div>
+              <p class="jr-amount sm">+12.00 USDC</p>
+              <p class="jr-note">Block 24,918,331 · Base<br>Final.</p>
+            </div>
+
+          </div>
+        </div>
+        <div class="jr-dots">
+          <i class="on"></i><i></i><i></i><i></i>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ── Plans ────────────────────────────────────── -->
@@ -124,8 +207,13 @@
     <p class="sec-lede">Self-custody, every network, unlimited payments — none of that is behind a price. The paid tiers add tools for people running money through it every day; they never buy permission to use your own funds.</p>
 
     <div class="tiers">
-      <article class="tier reveal">
-        <div class="tier-face classic"><span>Classic</span><i></i></div>
+      <article class="tier reveal" data-tier="classic">
+        <div class="tcard classic">
+          <div class="tc-sheen" aria-hidden="true"></div>
+          <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
+          <span class="tc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Classic</span></div>
+        </div>
         <h3>Classic</h3>
         <p class="tier-price">Free</p>
         <ul class="perks">
@@ -134,13 +222,19 @@
           <li>Top up from MetaMask, Coinbase Wallet, Phantom and more</li>
           <li>Encrypted on your device with your own password</li>
         </ul>
+        <a class="cta ghost full" href="/app">Start free</a>
       </article>
 
-      <article class="tier feat reveal">
+      <article class="tier feat reveal" data-tier="gold">
         <span class="ribbon">Most picked</span>
-        <div class="tier-face gold"><span>Gold</span><i></i></div>
+        <div class="tcard gold">
+          <div class="tc-sheen" aria-hidden="true"></div>
+          <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
+          <span class="tc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Gold</span></div>
+        </div>
         <h3>Gold</h3>
-        <p class="tier-price">$3<small>/month</small></p>
+        <p class="tier-price">$19.99<small>/month</small></p>
         <ul class="perks">
           <li>Everything in Classic</li>
           <li>The Gold card</li>
@@ -148,23 +242,52 @@
           <li>Your name on every payment request</li>
           <li>Export your activity as a CSV</li>
         </ul>
+        <a class="cta full" href="/app">Get Gold</a>
       </article>
 
-      <article class="tier reveal">
-        <div class="tier-face plat"><span>Platinum</span><i></i></div>
+      <article class="tier reveal" data-tier="plat">
+        <div class="tcard plat">
+          <div class="tc-sheen" aria-hidden="true"></div>
+          <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
+          <span class="tc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Platinum</span></div>
+        </div>
         <h3>Platinum</h3>
-        <p class="tier-price">$9<small>/month</small></p>
+        <p class="tier-price">$49.99<small>/month</small></p>
         <ul class="perks">
           <li>Everything in Gold</li>
           <li>The Platinum card</li>
           <li>Several accounts from the same recovery phrase</li>
           <li>One backup still covers all of them</li>
         </ul>
+        <a class="cta ghost full" href="/app">Get Platinum</a>
       </article>
     </div>
 
     <div class="note wide-note">
-      <b>How the paid tiers are billed.</b> A month is one USDC payment on-chain, made from your own wallet. Nothing auto-renews, no card is stored, and there is no account to cancel — when the month runs out you simply decide whether to pay for another. The plan is proved by the transaction itself, which Quiver re-checks against the chain every time you open it.
+      <b>How the paid tiers are billed.</b> A month is one USDC payment on-chain, made from your own wallet. Nothing auto-renews, no card is stored, and there is no account to cancel — when the month runs out you simply decide whether to pay for another. The plan is proved by the transaction itself, which Ward re-checks against the chain every time you open it.
+    </div>
+  </section>
+
+  <!-- ── The name ─────────────────────────────────── -->
+  <section class="sec wrap" id="name">
+    <div class="namebox reveal">
+      <div class="nb-art" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="46" class="nb-ring"/>
+          <circle cx="60" cy="60" r="34" class="nb-ring slow"/>
+          <path class="nb-ward" d="M60 26v18M60 76v18M26 60h18M76 60h18"/>
+          <path class="nb-key" d="M60 44a16 16 0 100 32 16 16 0 100-32z"/>
+          <path class="nb-cut" d="M60 60h22l4 5 4-5 4 5"/>
+        </svg>
+      </div>
+      <div class="nb-copy">
+        <span class="eyebrow">Why "Ward"</span>
+        <h2>A lock doesn't keep things safe by trusting you.</h2>
+        <p>Inside a warded lock sit the <b>wards</b>: fixed obstructions machined into the mechanism. They don't check who you are and they don't ask permission from anyone. Either the cuts in your key clear them, or the lock doesn't turn. That's the whole security model, and it has no customer service department.</p>
+        <p>This wallet works the same way. There's no account to suspend, no support line that can let someone in, no server holding a copy of anything worth stealing. A payment moves because a key that only you have produced the right signature — geometry, not trust.</p>
+        <p>The other meaning is the older one: to <b>ward</b> is to guard, and what's <b>in your ward</b> is what you've taken responsibility for. Which is the honest description of what you're doing here. Nobody is minding it for you.</p>
+      </div>
     </div>
   </section>
 
@@ -220,7 +343,7 @@
       </details>
       <details>
         <summary>How does topping up from MetaMask work?</summary>
-        <p>Your browser wallet announces itself to the page, you approve a connection, and then you approve one ordinary transfer to your Quiver address. Quiver never sees that wallet's private key — it can only ask it to sign, and you can always say no. Coinbase Wallet, Phantom, Rainbow and the rest work the same way.</p>
+        <p>Your browser wallet announces itself to the page, you approve a connection, and then you approve one ordinary transfer to your Ward address. Ward never sees that wallet's private key — it can only ask it to sign, and you can always say no. Coinbase Wallet, Phantom, Rainbow and the rest work the same way.</p>
       </details>
       <details>
         <summary>What happens if I lose my phone?</summary>
@@ -262,8 +385,8 @@
 
 <footer class="foot">
   <div class="wrap foot-in">
-    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Quiver</span></a>
-    <p>Self-custody wallet. You hold the keys and you carry the custody. This is not financial advice, not a bank, and not a regulated payment service. Quiver is independent and not affiliated with, endorsed by, or connected to any wallet, exchange, brokerage or network named on this page.</p>
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Ward</span></a>
+    <p>Self-custody wallet. You hold the keys and you carry the custody. This is not financial advice, not a bank, and not a regulated payment service. Ward is independent and not affiliated with, endorsed by, or connected to any wallet, exchange, brokerage or network named on this page; their marks are shown only to say what it works with.</p>
   </div>
 </footer>
 

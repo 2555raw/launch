@@ -1,6 +1,6 @@
 {
-  "name": "Quiver — your wallet",
-  "short_name": "Quiver",
+  "name": "Ward — your wallet",
+  "short_name": "Ward",
   "description": "Self-custody wallet: your keys are created in, and stay in, your browser.",
   "start_url": "/app",
   "display": "standalone",

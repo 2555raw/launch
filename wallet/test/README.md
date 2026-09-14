@@ -20,7 +20,7 @@ that cost money when they break.
 A browser extension cannot be installed here, so the test announces its own
 EIP-6963 provider — the same interface MetaMask, Coinbase Wallet, Phantom and
 Rainbow announce — and forwards every request to the local node. What is under
-test is Quiver's side of that conversation: discovery, connection, the chain
+test is Ward's side of that conversation: discovery, connection, the chain
 switch, and real funds arriving at the address it generated, with the balance on
 screen agreeing with the chain afterwards.
 

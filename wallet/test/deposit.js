@@ -3,7 +3,7 @@
  * A browser extension cannot be installed here, so the test announces its own
  * EIP-6963 provider — the same interface MetaMask, Coinbase Wallet, Phantom and
  * Rainbow announce — and forwards every request to the local node. What is
- * being tested is Quiver's side of that conversation: that it discovers the
+ * being tested is Ward's side of that conversation: that it discovers the
  * wallet, connects, switches the chain, and moves real funds to the address it
  * generated. */
 const { chromium } = require('playwright');
@@ -66,8 +66,8 @@ function fakeWallet(rpc, payer) {
     await row.$eval('input', (i, v) => { i.value = v; i.dispatchEvent(new Event('input')); }, words[n - 1]);
   }
   await page.click('#toPass');
-  await page.fill('#pw1', 'Quiver-2026!ok');
-  await page.fill('#pw2', 'Quiver-2026!ok');
+  await page.fill('#pw1', 'Ward-2026!ok');
+  await page.fill('#pw2', 'Ward-2026!ok');
   await page.click('#doCreate');
   await page.waitForSelector('[data-view="home"].on', { timeout: 60000 });
 
@@ -75,7 +75,7 @@ function fakeWallet(rpc, payer) {
   await page.fill('#rpcInput', RPC);
   await page.click('#saveRpc');
   await page.click('.view[data-view="settings"] .back');
-  const mine = await page.evaluate(() => JSON.parse(localStorage.getItem('quiver.v1.address')));
+  const mine = await page.evaluate(() => JSON.parse(localStorage.getItem('ward.v1.address')));
   step('fresh wallet at ' + mine);
 
   await page.click('[data-go="deposit"]');
@@ -102,8 +102,8 @@ function fakeWallet(rpc, payer) {
   if (got !== ethers.parseEther('0.75')) throw new Error('the wallet received ' + ethers.formatEther(got));
   const tx = await prov.getTransaction(hash);
   if (tx.from.toLowerCase() !== PAYER.toLowerCase()) throw new Error('the payer was not the linked wallet');
-  if (tx.to.toLowerCase() !== mine.toLowerCase()) throw new Error('the funds did not go to the Quiver address');
-  step(`ON CHAIN: ${hash.slice(0, 18)}… moved 0.75 ETH from the linked wallet into Quiver`);
+  if (tx.to.toLowerCase() !== mine.toLowerCase()) throw new Error('the funds did not go to the Ward address');
+  step(`ON CHAIN: ${hash.slice(0, 18)}… moved 0.75 ETH from the linked wallet into Ward`);
 
   /* The screen has to agree with the chain. */
   await page.click('#stDone');

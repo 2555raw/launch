@@ -1,4 +1,4 @@
-# Quiver — self-custody wallet
+# Ward — self-custody wallet
 
 A wallet that lives entirely in the browser of whoever opens it. The key is
 generated there, encrypted there and signed there; the server only ever hands
@@ -15,7 +15,7 @@ settle for real.
 - **Pay** — the network coin and ERC-20s (USDC/USDT), with a fee estimate, a
   review screen, and the receipt followed on chain.
 - **Top up from another wallet** — MetaMask, Coinbase Wallet, Phantom, Rainbow
-  or anything else installed, discovered over **EIP-6963**. Quiver never sees
+  or anything else installed, discovered over **EIP-6963**. Ward never sees
   that wallet's keys; it asks, the other wallet signs.
 - **Receive** — address and an `ethereum:` QR carrying the chain id.
 - **Request** — a link (and QR) that opens the payer's app with the payment
@@ -27,7 +27,7 @@ settle for real.
 ## Plans
 
 Classic is free and always will be: self-custody, every network, unlimited
-payments. Gold ($3/month) and Platinum ($9/month) add software features — card
+payments. Gold ($19.99/month) and Platinum ($49.99/month) add software features — card
 face, saved payees, named payment requests, CSV export, and on Platinum several
 accounts derived from the same phrase.
 
@@ -113,5 +113,5 @@ contract, not code. Here, payments are blockchain transfers between addresses.
 Not a bank, and not insured. No deposit protection scheme covers this, because
 there is no deposit: you are holding your own money.
 
-Quiver is independent. It is not affiliated with, endorsed by or connected to
+Ward is independent. It is not affiliated with, endorsed by or connected to
 any wallet, exchange, brokerage or network it interoperates with or names.

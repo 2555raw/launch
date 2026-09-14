@@ -256,13 +256,6 @@
 
 .fineprint.left { text-align: left; max-width: 68ch; margin-top: 4px; }
 
-/* ── reading progress ────────────────────────────── */
-.progress {
-  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 60;
-  background: linear-gradient(90deg, var(--iris), var(--brand));
-  transform: scaleX(0); transform-origin: 0 50%; will-change: transform;
-}
-
 /* ── the hero card ───────────────────────────────── */
 .wcard { --sheen: 50%; transition: transform .25s cubic-bezier(.22,.9,.3,1); }
 .wc-sheen {
@@ -408,7 +401,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .nb-ring, .jr-qr span, .jr-pulse, .chip-tag { animation: none; }
-  .progress { transition: none; }
 }
 
 /* ── the EMV chip ────────────────────────────────── */

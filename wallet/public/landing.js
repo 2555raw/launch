@@ -17,14 +17,9 @@
     requestAnimationFrame(() => { onScroll.forEach(f => f()); ticking = false; });
   }, { passive: true });
 
-  /* ── Reading progress ──────────────────────────────────────────────────── */
-  const bar = $('#progress');
+  /* ── The bar closes into a capsule once the page moves ─────────────────── */
   const nav = $('.nav');
-  onScroll.push(() => {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    bar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
-    nav.classList.toggle('stuck', scrollY > 8);
-  });
+  onScroll.push(() => nav.classList.toggle('stuck', scrollY > 8));
 
   /* ── Sections arriving ─────────────────────────────────────────────────── */
   if ('IntersectionObserver' in window) {

@@ -7,7 +7,7 @@
 <meta name="color-scheme" content="light dark">
 <!-- The mark itself, inline. A served file needs the server to be serving
      it, which is not true of every copy of this page that exists. -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22> <rect width=%2224%22 height=%2224%22 rx=%222.5%22 fill=%22%23d01904%22/> <g fill=%22%23ffffff%22> <path d=%22M2.5 2.0H12.5V6.4H2.5Z%22/> <path d=%22M6.5 9.8H16.5V14.2H6.5Z%22/> <path d=%22M10.5 17.6H21.5V22.0H10.5Z%22/> </g> </svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22> <rect width=%2224%22 height=%2224%22 rx=%222.5%22 fill=%22%23fa8072%22/> <g fill=%22%232e1410%22> <path d=%22M2.5 2.0H12.5V6.4H2.5Z%22/> <path d=%22M6.5 9.8H16.5V14.2H6.5Z%22/> <path d=%22M10.5 17.6H21.5V22.0H10.5Z%22/> </g> </svg>">
 <link rel="alternate icon" href="/favicon.svg" type="image/svg+xml">
 <style>
   body { margin: 0; padding: 0; }
@@ -19,40 +19,37 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 
 <style>
-  /* ============ tokens: loud red ============ */
-  /* Veryam is named for vermilion, and the colour is the whole argument - so
-     the loud red carries the slabs, the controls, the marks and every type
-     accent on the page.
+  /* ============ tokens: salmon ============ */
+  /* Salmon is a fill, not an ink. Measured against the wash below, true salmon
+     as type lands at 2.2:1 and white on top of it at 2.5:1 - neither is
+     readable - but dark ink ON salmon is 6.9:1. So the colour does its work
+     where something sits on it: the slab, the marks, the chart. Anything that
+     has to be read AS salmon is the same hue taken down until it clears 4.5:1,
+     which is the accent.
 
-     What it cannot be is the ground you read body copy on. A vermilion that
-     loud sits in the dead zone of the contrast curve: dark text on it lands at
-     3.4:1 and small labels at 2.6:1, and white text does no better. The
-     reading ground is therefore a wash of the same red, and the red at full
-     strength is everywhere you are not reading a paragraph. Every colour below
-     was measured against both grounds rather than picked by eye. */
+     Every value below was measured against both grounds rather than picked. */
   :root {
-    /* Night: a red-black, so the vermilion on it still reads as vermilion
-       rather than as orange. */
-    --void:        #0a0403;
-    --ground:      #140604;
-    --surface:     #1e0908;
-    --surface-2:   #2c0d0a;
-    --line:        rgba(255,240,236,.15);
-    --line-strong: rgba(255,240,236,.30);
-    --ink:         #fff0ec;
-    --ink-muted:   #e0aca2;
-    --ink-faint:   #a87a72;
-    --red:         #ff3a1d;
-    --red-soft:    #ff6a52;
-    --red-deep:    #c41505;
-    --on-red:      #140604;
-    --band:        #6b1020;
-    --band-ink:    #ffffff;
-    --band-muted:  #f2d2d6;
-    --glow:        rgba(255,58,29,.16);
-    --up:          #4fb072;
-    --down:        #ff6a52;
-    --shade:       #000000;
+    /* Night: a warm charcoal. A neutral one turns the salmon pink. */
+    --void:         #0d0908;
+    --ground:       #17100e;
+    --surface:      #221715;
+    --surface-2:    #2f201d;
+    --line:         rgba(255,236,230,.14);
+    --line-strong:  rgba(255,236,230,.28);
+    --ink:          #ffece6;
+    --ink-muted:    #e0b3a6;
+    --ink-faint:    #a87d72;
+    --salmon:       #ff9683;
+    --salmon-soft:  #ffb4a5;
+    --salmon-deep:  #c4553c;
+    --on-salmon:    #17100e;
+    --band:         #fa8072;
+    --band-ink:     #2e1410;
+    --band-muted:   #55241b;
+    --glow:         rgba(255,150,131,.16);
+    --up:           #5aa87a;
+    --down:         #ff8f8a;
+    --shade:        #000000;
 
     --font-display: "Familjen Grotesk", "Segoe UI", sans-serif;
     --font-ui:      "Familjen Grotesk", "Segoe UI", sans-serif;
@@ -69,35 +66,31 @@
 
   :root[data-theme="light"] {
     color-scheme: light;
-    /* The real theme. The ground is a wash of the brand red, the cards are
-       white, and the red at full strength is the band, the buttons, the marks
-       and every accent. Measured: ink 16.8:1 on the ground, muted 10.9:1,
-       faint 8.1:1, and the red itself 5.0:1 as type. */
-    --void:        #ffffff;
-    --ground:      #fff0ec;
-    --surface:     #ffffff;
-    --surface-2:   #ffd9d1;
-    --line:        rgba(140,26,10,.20);
-    --line-strong: rgba(140,26,10,.38);
-    --ink:         #2b0603;
-    --ink-muted:   #6d1206;
-    --ink-faint:   #8f1c0c;
-    --red:         #d01904;
-    --red-soft:    #ff3a1d;
-    --red-deep:    #8f1002;
-    --on-red:      #ffffff;
-    /* The slab is a maroon rather than the brand red. At full vermilion it
-       carried white at 4.8:1 and its secondary line at 3.3:1, which is a
-       headline you can read and a sentence under it you cannot. The maroon
-       takes those to 12.2:1 and 8.4:1, and gives the loud red something to be
-       loud against. */
-    --band:        #6b1020;
-    --band-ink:    #ffffff;
-    --band-muted:  #f2d2d6;
-    --glow:        rgba(208,25,4,.14);
-    --up:          #1f7a45;
-    --down:        #b3140a;
-    --shade:       #7a1206;
+    /* The real theme. A wash of salmon for the ground, white cards on it, and
+       the accent a deeper reading of the same hue. Measured: ink 15.0:1 on the
+       wash, muted 8.6:1, faint 5.7:1, accent 4.8:1 as type. */
+    --void:         #ffffff;
+    --ground:       #ffece6;
+    --surface:      #ffffff;
+    --surface-2:    #ffd4c6;
+    --line:         rgba(120,52,36,.20);
+    --line-strong:  rgba(120,52,36,.38);
+    --ink:          #2e1410;
+    --ink-muted:    #6b332a;
+    --ink-faint:    #8c4c40;
+    --salmon:       #b4442f;
+    --salmon-soft:  #fa8072;
+    --salmon-deep:  #7e2b1a;
+    --on-salmon:    #ffffff;
+    /* The slab is true salmon with dark ink on it - the one place the colour
+       gets to be itself at full strength and still be read. */
+    --band:         #fa8072;
+    --band-ink:     #2e1410;
+    --band-muted:   #55241b;
+    --glow:         rgba(180,68,47,.13);
+    --up:           #1f7a45;
+    --down:         #a9372c;
+    --shade:        #7e3a2a;
   }
 
   /* ============ base ============ */
@@ -136,7 +129,7 @@
   a { color: inherit; text-decoration: none; }
 
   :focus-visible {
-    outline: 2px solid var(--red);
+    outline: 2px solid var(--salmon);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -158,7 +151,7 @@
     font-size: 11px;
     letter-spacing: .16em;
     text-transform: uppercase;
-    color: var(--red);
+    color: var(--salmon);
     margin: 0;
   }
 
@@ -193,7 +186,7 @@
     color: var(--ink);
   }
 
-  .brand svg { color: var(--red); }
+  .brand svg { color: var(--salmon); }
 
   .nav-links {
     display: flex;
@@ -232,17 +225,17 @@
 
   .nav-ca[data-state="live"] {
     cursor: pointer;
-    border-color: color-mix(in srgb, var(--red) 45%, transparent);
-    background: color-mix(in srgb, var(--red) 9%, var(--surface));
+    border-color: color-mix(in srgb, var(--salmon) 45%, transparent);
+    background: color-mix(in srgb, var(--salmon) 9%, var(--surface));
   }
 
-  .nav-ca[data-state="live"]:hover { border-color: var(--red); }
+  .nav-ca[data-state="live"]:hover { border-color: var(--salmon); }
 
   .nav-ca-label {
     font-size: 10.5px;
     font-weight: 500;
     letter-spacing: .16em;
-    color: var(--red);
+    color: var(--salmon);
   }
 
   .nav-ca-val {
@@ -272,12 +265,12 @@
   }
 
   .btn-primary {
-    background: var(--red);
-    color: var(--on-red);
+    background: var(--salmon);
+    color: var(--on-salmon);
   }
 
   .btn-primary:hover {
-    background: var(--red-soft);
+    background: var(--salmon-soft);
     transform: translateY(-1px);
   }
 
@@ -287,8 +280,8 @@
   }
 
   .btn-ghost:hover {
-    border-color: var(--red);
-    color: var(--red);
+    border-color: var(--salmon);
+    color: var(--salmon);
   }
 
   /* ============ hero ============ */
@@ -318,7 +311,7 @@
     left: 50%;
     translate: -50% 0;
     width: 520px;
-    color: var(--red);
+    color: var(--salmon);
     opacity: .05;
     z-index: -1;
     pointer-events: none;
@@ -338,7 +331,7 @@
 
   .hero h1 em {
     font-style: normal;
-    color: var(--red);
+    color: var(--salmon);
   }
 
   .hero-sub {
@@ -385,7 +378,7 @@
   .hero-stat-go {
     font-size: 11.5px;
     font-weight: 600;
-    color: var(--red);
+    color: var(--salmon);
     padding-left: 4px;
   }
 
@@ -400,8 +393,8 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--red);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 22%, transparent);
+    background: var(--salmon);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--salmon) 22%, transparent);
   }
 
   /* ============ fee comparison ============ */
@@ -425,7 +418,7 @@
   .fees-delta {
     font-family: var(--font-mono);
     font-size: 30px;
-    color: var(--red);
+    color: var(--salmon);
     margin-top: 18px;
     line-height: 1;
   }
@@ -474,7 +467,7 @@
   .bar-fill {
     height: 100%;
     border-radius: 4px;
-    background: var(--red);
+    background: var(--salmon);
   }
 
   .bar-fill.is-alt { background: var(--ink-faint); }
@@ -598,7 +591,7 @@
 
   .token-row + .token-row { border-top: 1px solid var(--line); }
 
-  .token-row svg { flex: none; color: var(--red); margin-top: 2px; }
+  .token-row svg { flex: none; color: var(--salmon); margin-top: 2px; }
 
   .token-row h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 
@@ -705,7 +698,7 @@
     gap: 9px;
   }
 
-  .launch-item h3 svg { color: var(--red); flex: none; }
+  .launch-item h3 svg { color: var(--salmon); flex: none; }
 
   .launch-item p { font-size: 13.5px; color: var(--ink-muted); margin-top: 8px; }
 
@@ -765,8 +758,8 @@
     flex: none;
     width: 10px;
     height: 10px;
-    border-right: 1.6px solid var(--red);
-    border-bottom: 1.6px solid var(--red);
+    border-right: 1.6px solid var(--salmon);
+    border-bottom: 1.6px solid var(--salmon);
     rotate: 45deg;
     translate: 0 -3px;
     transition: rotate .2s ease, translate .2s ease;
@@ -824,7 +817,7 @@
     flex-wrap: wrap;
   }
 
-  .foot-links a:hover { color: var(--red); }
+  .foot-links a:hover { color: var(--salmon); }
 
 
   /* ============ socials ============ */
@@ -843,8 +836,8 @@
   }
 
   .social:hover {
-    color: var(--red);
-    border-color: var(--red);
+    color: var(--salmon);
+    border-color: var(--salmon);
     transform: translateY(-2px);
   }
 
@@ -867,14 +860,14 @@
     transition: border-color .16s ease;
   }
 
-  .wallet-pill:hover { border-color: var(--red); }
+  .wallet-pill:hover { border-color: var(--salmon); }
 
   .chain-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--red);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 20%, transparent);
+    background: var(--salmon);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--salmon) 20%, transparent);
     flex: none;
   }
 
@@ -888,7 +881,7 @@
     font-size: 10px;
     letter-spacing: .1em;
     text-transform: uppercase;
-    color: var(--red);
+    color: var(--salmon);
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     padding: 1px 5px;
@@ -983,7 +976,7 @@
     transition: color .16s ease, border-color .16s ease;
   }
 
-  .modal-close:hover { color: var(--red); border-color: var(--red); }
+  .modal-close:hover { color: var(--salmon); border-color: var(--salmon); }
 
   .w-list { display: flex; flex-direction: column; gap: 9px; }
 
@@ -1005,7 +998,7 @@
     transition: border-color .16s ease, transform .16s ease;
   }
 
-  .w-opt:hover { border-color: var(--red); transform: translateX(2px); }
+  .w-opt:hover { border-color: var(--salmon); transform: translateX(2px); }
 
   .w-mark {
     width: 32px;
@@ -1054,7 +1047,7 @@
     left: 0;
     width: 100%;
     height: 46px;
-    color: var(--red);
+    color: var(--salmon);
     opacity: .13;
     pointer-events: none;
   }
@@ -1084,7 +1077,7 @@
     transition: color .16s ease, border-color .16s ease;
   }
 
-  .icon-btn:hover { color: var(--red); border-color: var(--red); }
+  .icon-btn:hover { color: var(--salmon); border-color: var(--salmon); }
 
   .tabs {
     display: flex;
@@ -1187,7 +1180,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 5px;
     background: none;
-    color: var(--red);
+    color: var(--salmon);
     font-family: var(--font-body);
     font-size: 11px;
     font-weight: 600;
@@ -1195,7 +1188,7 @@
     cursor: pointer;
   }
 
-  .max-btn:hover { border-color: var(--red); }
+  .max-btn:hover { border-color: var(--salmon); }
 
   .tk-btn {
     display: inline-flex;
@@ -1214,7 +1207,7 @@
     transition: border-color .16s ease;
   }
 
-  .tk-btn:hover { border-color: var(--red); }
+  .tk-btn:hover { border-color: var(--salmon); }
 
   .tk-dot {
     width: 25px;
@@ -1255,12 +1248,12 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: var(--surface);
-    color: var(--red);
+    color: var(--salmon);
     cursor: pointer;
     transition: transform .22s ease, border-color .16s ease;
   }
 
-  .flip:hover { transform: rotate(180deg); border-color: var(--red); }
+  .flip:hover { transform: rotate(180deg); border-color: var(--salmon); }
 
   .swap-cta {
     width: 100%;
@@ -1391,7 +1384,7 @@
     transition: color .14s ease, border-color .14s ease;
   }
 
-  .sim-chip[aria-pressed="true"] { border-color: var(--red); color: var(--red); }
+  .sim-chip[aria-pressed="true"] { border-color: var(--salmon); color: var(--salmon); }
 
   #simRun { margin-left: auto; padding: 12px 26px; }
 
@@ -1413,7 +1406,7 @@
     padding: 20px;
   }
 
-  .sim-side[data-side="good"] { border-color: color-mix(in srgb, var(--red) 38%, transparent); }
+  .sim-side[data-side="good"] { border-color: color-mix(in srgb, var(--salmon) 38%, transparent); }
 
   .sim-side header {
     display: flex;
@@ -1456,7 +1449,7 @@
   }
 
   .sim-side dd.is-bad { color: var(--down); font-weight: 600; }
-  .sim-side dd.is-good { color: var(--red); font-weight: 600; }
+  .sim-side dd.is-good { color: var(--salmon); font-weight: 600; }
 
   .sim-bar {
     height: 8px;
@@ -1474,7 +1467,7 @@
   }
 
   .sim-fill.is-bad { background: var(--down); }
-  .sim-fill.is-good { background: var(--red); }
+  .sim-fill.is-good { background: var(--salmon); }
 
   .sim-caption {
     margin-top: 11px;
@@ -1500,7 +1493,7 @@
     padding: 32px;
   }
 
-  .ca[data-state="live"] { border-color: color-mix(in srgb, var(--red) 42%, transparent); }
+  .ca[data-state="live"] { border-color: color-mix(in srgb, var(--salmon) 42%, transparent); }
 
   @media (max-width: 720px) { .ca { padding: 22px; } }
 
@@ -1567,7 +1560,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: none;
-    color: var(--red);
+    color: var(--salmon);
     font-family: var(--font-body);
     font-size: 12.5px;
     font-weight: 600;
@@ -1575,7 +1568,7 @@
   }
 
   .ca-copy:hover,
-  .ca-link:hover { border-color: var(--red); }
+  .ca-link:hover { border-color: var(--salmon); }
 
   .ca-meta {
     display: flex;
@@ -1624,14 +1617,14 @@
     border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: none;
-    color: var(--red);
+    color: var(--salmon);
     font-family: var(--font-body);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
   }
 
-  .live-switch:hover { border-color: var(--red); }
+  .live-switch:hover { border-color: var(--salmon); }
 
   .tx-note {
     margin-top: 11px;
@@ -1643,7 +1636,7 @@
     color: var(--ink-muted);
   }
 
-  .tx-note a { color: var(--red); text-decoration: underline; }
+  .tx-note a { color: var(--salmon); text-decoration: underline; }
   .tx-note[data-tone="ok"]  { border-color: color-mix(in srgb, var(--up) 45%, transparent); color: var(--ink); }
   .tx-note[data-tone="bad"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--ink); }
 
@@ -1679,13 +1672,13 @@
     padding: 6px 13px;
     border: 1px solid var(--line-strong);
     border-radius: 4px;
-    color: var(--red);
+    color: var(--salmon);
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
   }
 
-  .netcard-faucet:hover { border-color: var(--red); }
+  .netcard-faucet:hover { border-color: var(--salmon); }
 
   .netcard-contract {
     margin-top: 14px;
@@ -1714,7 +1707,7 @@
     text-underline-offset: 3px;
   }
 
-  .netcard-addr:hover { color: var(--red); text-decoration-color: var(--red); }
+  .netcard-addr:hover { color: var(--salmon); text-decoration-color: var(--salmon); }
 
   .netcard-note {
     margin-top: 13px;
@@ -1824,7 +1817,7 @@
   .range[aria-pressed="true"] {
     background: var(--surface-2);
     border-color: var(--line-strong);
-    color: var(--red);
+    color: var(--salmon);
   }
 
   .plot { position: relative; }
@@ -1834,8 +1827,8 @@
     position: absolute;
     padding: 3px 7px;
     border-radius: 5px;
-    background: var(--red);
-    color: var(--on-red);
+    background: var(--salmon);
+    color: var(--on-salmon);
     font-family: var(--font-mono);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
@@ -1858,7 +1851,7 @@
     font-size: 14.5px;
   }
 
-  .tk-search:focus { border-color: var(--red); }
+  .tk-search:focus { border-color: var(--salmon); }
 
   .tk-list {
     display: flex;
@@ -1914,7 +1907,7 @@
     transition: color .14s ease, border-color .14s ease;
   }
 
-  .slip[aria-pressed="true"] { border-color: var(--red); color: var(--red); }
+  .slip[aria-pressed="true"] { border-color: var(--salmon); color: var(--salmon); }
 
   /* ---- receipt ---- */
   .receipt {
@@ -1937,7 +1930,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .receipt-arrow { color: var(--red); padding-left: 7px; }
+  .receipt-arrow { color: var(--salmon); padding-left: 7px; }
 
   .done-mark {
     width: 52px;
@@ -2038,7 +2031,7 @@
     transition: color .16s ease;
   }
 
-  .theme-btn:hover { color: var(--red); }
+  .theme-btn:hover { color: var(--salmon); }
   .theme-btn .moon { display: none; }
   :root[data-theme="light"] .theme-btn .moon { display: block; }
   :root[data-theme="light"] .theme-btn .sun { display: none; }
@@ -2163,7 +2156,7 @@
   .pct-row { display: inline-flex; gap: 4px; }
   .max-btn { padding: 3px 7px; font-size: 10.5px; border-radius: 2px; }
   .pct-btn { color: var(--ink-muted); }
-  .pct-btn:hover { color: var(--red); border-color: var(--red); }
+  .pct-btn:hover { color: var(--salmon); border-color: var(--salmon); }
 
   /* ============ docs view ============ */
   .docs { padding: 0 0 72px; }
@@ -2194,7 +2187,7 @@
     transition: border-color .16s ease, color .16s ease;
   }
 
-  .doc-back:hover { border-color: var(--red); color: var(--red); }
+  .doc-back:hover { border-color: var(--salmon); color: var(--salmon); }
 
   .doc-kind {
     margin-left: auto;
@@ -2228,12 +2221,12 @@
   .doc-body h2 { font-size: 25px; margin-top: 50px; }
   .doc-body h2 + p { margin-top: 13px; }
   .doc-lead { font-size: 18.5px; color: var(--ink-muted); }
-  .doc-term { font-style: normal; font-family: var(--font-mono); font-size: .9em; color: var(--red); }
+  .doc-term { font-style: normal; font-family: var(--font-mono); font-size: .9em; color: var(--salmon); }
 
   .doc-pull {
     margin: 42px 0;
     padding: 2px 0 2px 22px;
-    border-left: 2px solid var(--red);
+    border-left: 2px solid var(--salmon);
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 24px;
@@ -2257,7 +2250,7 @@
     font-size: 11px;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--red);
+    color: var(--salmon);
     padding-bottom: 12px;
   }
 
@@ -2320,7 +2313,7 @@
     content: counter(step, decimal-leading-zero);
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--red);
+    color: var(--salmon);
     padding-top: 3px;
   }
 
@@ -2477,13 +2470,13 @@
 
   body {
     background:
-      radial-gradient(1100px 620px at 84% -8%, color-mix(in srgb, var(--red) 9%, transparent) 0%, transparent 68%),
-      radial-gradient(900px 560px at 6% 108%, color-mix(in srgb, var(--red) 7%, transparent) 0%, transparent 66%),
+      radial-gradient(1100px 620px at 84% -8%, color-mix(in srgb, var(--salmon) 9%, transparent) 0%, transparent 68%),
+      radial-gradient(900px 560px at 6% 108%, color-mix(in srgb, var(--salmon) 7%, transparent) 0%, transparent 66%),
       var(--ground);
     background-attachment: fixed;
   }
 
-  .band { background-image: linear-gradient(180deg, var(--band) 0%, color-mix(in srgb, var(--band) 92%, var(--red)) 100%); }
+  .band { background-image: linear-gradient(180deg, var(--band) 0%, color-mix(in srgb, var(--band) 92%, var(--salmon)) 100%); }
 
 
   /* the data state chip on the chart */
@@ -2537,9 +2530,9 @@
 
   .code-body code { font-family: inherit; white-space: pre; }
 
-  .c-kw { color: var(--red); }
+  .c-kw { color: var(--salmon); }
   .c-ty { color: var(--ink); }
-  .c-fn { color: var(--red-soft); }
+  .c-fn { color: var(--salmon-soft); }
   .c-nm { color: var(--ink); }
   .c-cm { color: var(--ink-faint); font-style: italic; }
 
@@ -2622,7 +2615,7 @@
     content: "";
     width: 26px;
     height: 1px;
-    background: var(--red);
+    background: var(--salmon);
     flex: none;
   }
 
@@ -2635,7 +2628,7 @@
   }
 
   .hero-col h1 { font-size: clamp(38px, 4.6vw, 62px); margin: 22px 0 0; max-width: 15ch; }
-  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--red); }
+  .hero-col h1 em { font-style: italic; font-weight: 500; color: var(--salmon); }
   .hero-col .hero-sub { font-size: 16.5px; max-width: 52ch; margin-top: 22px; }
   .hero-col .hero-sub code {
     font-family: var(--font-mono);
@@ -2691,8 +2684,8 @@
   }
 
   .panel-rows .was { color: var(--ink-faint); }
-  .panel-rows .arrow { color: var(--red); padding: 0 3px; }
-  .panel-rows .hot { color: var(--red); font-size: 17px; }
+  .panel-rows .arrow { color: var(--salmon); padding: 0 3px; }
+  .panel-rows .hot { color: var(--salmon); font-size: 17px; }
 
   .panel-foot {
     margin-top: 18px;
@@ -2727,12 +2720,12 @@
     flex-direction: column;
   }
 
-  .numcard.is-hot { border-color: color-mix(in srgb, var(--red) 32%, transparent); }
+  .numcard.is-hot { border-color: color-mix(in srgb, var(--salmon) 32%, transparent); }
 
   .numcard .num {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--red);
+    color: var(--salmon);
     letter-spacing: .1em;
   }
 
@@ -2807,8 +2800,8 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--red);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 20%, transparent);
+    background: var(--salmon);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--salmon) 20%, transparent);
   }
 
   .board-meta {
@@ -2850,7 +2843,7 @@
   .board-table tbody td { font-family: var(--font-mono); font-size: 14px; color: var(--ink); }
   .board-table tbody tr:last-child th,
   .board-table tbody tr:last-child td { border-bottom: 0; }
-  .board-table td.is-good { color: var(--red); }
+  .board-table td.is-good { color: var(--salmon); }
   .board-table td.is-bad { color: var(--down); }
 
   .board-foot {
@@ -2880,11 +2873,11 @@
   .flow-tag {
     display: inline-block;
     padding: 4px 10px;
-    border: 1px solid color-mix(in srgb, var(--red) 32%, transparent);
+    border: 1px solid color-mix(in srgb, var(--salmon) 32%, transparent);
     border-radius: 999px;
     font-family: var(--font-mono);
     font-size: 11.5px;
-    color: var(--red);
+    color: var(--salmon);
   }
 
   .flow-step h3 { font-size: 17px; margin-top: 16px; }
@@ -3011,7 +3004,7 @@
     border-bottom: 1px solid var(--line);
   }
 
-  .gate-head > svg { flex: none; color: var(--red); margin-top: 2px; }
+  .gate-head > svg { flex: none; color: var(--salmon); margin-top: 2px; }
   .gate-head h2 { font-size: 22px; margin-top: 6px; }
 
   .gate-tabs {
@@ -3037,7 +3030,7 @@
   .gate-tab[aria-selected="true"] {
     background: var(--surface-2);
     border-color: var(--line-strong);
-    color: var(--red);
+    color: var(--salmon);
   }
 
   .gate-body {
@@ -3057,7 +3050,7 @@
     font-weight: 500;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--red);
+    color: var(--salmon);
   }
 
   .gate-panel p { font-size: 14px; line-height: 1.62; color: var(--ink-muted); }
@@ -3082,7 +3075,7 @@
     width: 17px;
     height: 17px;
     margin: 1px 0 0;
-    accent-color: var(--red);
+    accent-color: var(--salmon);
     cursor: pointer;
   }
 
@@ -3307,7 +3300,7 @@
     padding: 1px;
     background: radial-gradient(
       170px circle at var(--mx, 50%) var(--my, 50%),
-      color-mix(in srgb, var(--red) 62%, transparent),
+      color-mix(in srgb, var(--salmon) 62%, transparent),
       transparent 68%
     );
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -3393,8 +3386,8 @@
   }
 
   /* ---- the bar is a floating pill, and it tightens once you leave the top ---- */
-  /* Warm shadows throughout. A neutral black shadow on a red ground reads as
-     grey dirt on it rather than as depth. */
+  /* Warm shadows throughout. A neutral black shadow on a salmon ground reads
+     as grey dirt on it rather than as depth. */
   .nav-in {
     box-shadow: 0 16px 40px color-mix(in srgb, var(--shade) 14%, transparent);
     transition: height .32s cubic-bezier(.2,.7,.3,1), background .32s ease,
@@ -3425,7 +3418,7 @@
     right: 0;
     bottom: -5px;
     height: 1.5px;
-    background: var(--red);
+    background: var(--salmon);
     scale: 0 1;
     transform-origin: left;
     transition: scale .3s cubic-bezier(.2,.7,.3,1);
@@ -3470,7 +3463,7 @@
     color: var(--ink-muted);
   }
 
-  .tk-mark { flex: 0 0 auto; color: var(--red); opacity: .8; }
+  .tk-mark { flex: 0 0 auto; color: var(--salmon); opacity: .8; }
 
   @keyframes ticker-run { to { transform: translateX(-100%); } }
 
@@ -3583,7 +3576,7 @@
   /* ---- questions open on a curve ---- */
   .q { transition: background .25s ease, border-color .25s ease; }
   .q summary { transition: color .2s ease; }
-  .q[open] { background: color-mix(in srgb, var(--red) 7%, var(--surface)); }
+  .q[open] { background: color-mix(in srgb, var(--salmon) 7%, var(--surface)); }
 
   .q[open] > p { animation: answer-in .42s cubic-bezier(.2,.75,.25,1) both; }
 
@@ -3597,16 +3590,16 @@
 
   .chip:hover {
     transform: translateY(-3px);
-    background: var(--red);
-    color: var(--on-red);
-    border-color: var(--red);
+    background: var(--salmon);
+    color: var(--on-salmon);
+    border-color: var(--salmon);
   }
 
   /* ---- the band inverts to warm dark, and its figures count in ---- */
   .band { border-radius: var(--r-lg); }
   .band-stat .n { font-family: var(--font-display); font-weight: 700; }
 
-  /* ---- the four reds ----
+  /* ---- the four salmons ----
      A previous pass hid the swatches and kept only the theme toggle. For a
      brand whose whole argument is a colour, letting somebody hold four
      readings of that colour against the page is the point, so they return -
@@ -3621,7 +3614,7 @@
   }
 
   .tint[aria-pressed="true"] {
-    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--red);
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--salmon);
   }
 
   @media (max-width: 620px) {
@@ -3759,7 +3752,7 @@
         <span class="caret"></span>
       </button>
       <button class="nav-chip" type="button">
-        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--red)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
         VERYAM
         <span class="val">$0.0847</span>
       </button>
@@ -4059,7 +4052,7 @@
         <h3>Fee against volatility</h3>
         <div class="chart-legend">
           <span><i class="swatch" style="background:var(--ink-faint)"></i>Volatility</span>
-          <span><i class="swatch" style="background:var(--red)"></i>Swap fee</span>
+          <span><i class="swatch" style="background:var(--salmon)"></i>Swap fee</span>
         </div>
         <svg class="chart-svg" viewBox="0 0 400 150" role="img" aria-label="Swap fee tracking market volatility over twelve intervals, peaking at 58 percent volatility and 14 basis points.">
           <line x1="44" y1="16"  x2="384" y2="16"  stroke="var(--line)" stroke-width="1"/>
@@ -4070,12 +4063,12 @@
           <text x="38" y="132" text-anchor="end" fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">0%</text>
           <polyline fill="none" stroke="var(--ink-faint)" stroke-width="1.6" stroke-dasharray="3 3" stroke-linejoin="round"
             points="44,105.6 74.9,94.4 105.8,100 136.7,64.5 167.6,19.7 198.5,42.1 229.4,75.7 260.3,86.9 291.2,98.1 322.1,103.7 353,107.5 383.9,101.9"/>
-          <polygon fill="var(--red)" fill-opacity="0.14"
+          <polygon fill="var(--salmon)" fill-opacity="0.14"
             points="44,124.3 74.9,120.5 105.8,120.5 136.7,105.6 167.6,75.7 198.5,86.9 229.4,105.6 260.3,113.1 291.2,116.8 322.1,120.5 353,120.5 383.9,116.8 383.9,128 44,128"/>
-          <polyline fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
+          <polyline fill="none" stroke="var(--salmon)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
             points="44,124.3 74.9,120.5 105.8,120.5 136.7,105.6 167.6,75.7 198.5,86.9 229.4,105.6 260.3,113.1 291.2,116.8 322.1,120.5 353,120.5 383.9,116.8"/>
-          <circle cx="167.6" cy="75.7" r="3.4" fill="var(--red)"/>
-          <text x="176" y="70" fill="var(--red)" font-size="9.5" font-family="DM Mono, monospace">14 bps</text>
+          <circle cx="167.6" cy="75.7" r="3.4" fill="var(--salmon)"/>
+          <text x="176" y="70" fill="var(--salmon)" font-size="9.5" font-family="DM Mono, monospace">14 bps</text>
           <text x="44"  y="145" text-anchor="start" fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">t&minus;12h</text>
           <text x="383.9" y="145" text-anchor="end"  fill="var(--ink-faint)" font-size="9" font-family="DM Mono, monospace">now</text>
         </svg>
@@ -4172,7 +4165,7 @@
   <!-- closing -->
   <section class="wrap" style="padding-bottom:88px">
     <div class="close-cta" id="app">
-      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--red)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
       <h2>Point a pool at it.</h2>
       <p>Connect a wallet, add liquidity or stake xVERYAM, and earn from every trade the protocol routes.</p>
       <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
@@ -4498,7 +4491,7 @@
         <div class="rate-bar">
           <span id="rateLine">1 ETH = 3,529.67 USDC</span>
           <span class="gas-pick">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--red)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
             Native
             <span class="caret"></span>
           </span>
@@ -4538,15 +4531,15 @@
           <svg id="chartSvg" viewBox="0 0 660 300" preserveAspectRatio="none" role="img" aria-label="Price chart for the selected pair">
             <defs>
               <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--red)" stop-opacity="0.28"/>
-                <stop offset="100%" stop-color="var(--red)" stop-opacity="0"/>
+                <stop offset="0%" stop-color="var(--salmon)" stop-opacity="0.28"/>
+                <stop offset="100%" stop-color="var(--salmon)" stop-opacity="0"/>
               </linearGradient>
             </defs>
             <g id="gridLines"></g>
             <path id="areaPath" fill="url(#areaFill)"/>
-            <path id="linePath" fill="none" stroke="var(--red)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            <path id="linePath" fill="none" stroke="var(--salmon)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             <line id="xhair" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" y1="0" y2="300" x1="-10" x2="-10" vector-effect="non-scaling-stroke"/>
-            <circle id="xdot" r="4" fill="var(--red)" cx="-10" cy="-10"/>
+            <circle id="xdot" r="4" fill="var(--salmon)" cx="-10" cy="-10"/>
           </svg>
           <div class="crosshair-label" id="xlabel" hidden></div>
         </div>
@@ -4724,11 +4717,11 @@
 
 <!-- accent picker -->
 <div class="tint-picker" id="tintPicker" role="group" aria-label="Accent intensity">
-  <span class="tint-label">Red</span>
-  <button class="tint" type="button" data-tint="0" aria-pressed="false" aria-label="Ember"     title="Ember"     style="background:#d4400a"></button>
-  <button class="tint" type="button" data-tint="1" aria-pressed="true"  aria-label="Vermilion" title="Vermilion" style="background:#d01904"></button>
-  <button class="tint" type="button" data-tint="2" aria-pressed="false" aria-label="Scarlet"   title="Scarlet"   style="background:#c40f22"></button>
-  <button class="tint" type="button" data-tint="3" aria-pressed="false" aria-label="Crimson"   title="Crimson"   style="background:#b3123f"></button>
+  <span class="tint-label">Salmon</span>
+  <button class="tint" type="button" data-tint="0" aria-pressed="false" aria-label="Blush"  title="Blush"  style="background:#b8455a"></button>
+  <button class="tint" type="button" data-tint="1" aria-pressed="true"  aria-label="Salmon" title="Salmon" style="background:#b4442f"></button>
+  <button class="tint" type="button" data-tint="2" aria-pressed="false" aria-label="Coral"  title="Coral"  style="background:#bb3f3a"></button>
+  <button class="tint" type="button" data-tint="3" aria-pressed="false" aria-label="Clay"   title="Clay"   style="background:#9c5030"></button>
   <span class="tint-sep"></span>
   <button class="theme-btn" type="button" id="themeBtn" aria-label="Switch theme">
     <svg class="sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -4743,31 +4736,31 @@
 
 <script>
 (function () {
-  /* Four readings of a loud red, each measured rather than picked: every one
-     has to clear 4.5:1 as type on the wash ground and carry white on it as a
-     button fill, and each carries a night set too, because a red that reads on
-     the wash is far too dark against the red-black. */
+  /* Four readings of the salmon, each measured rather than picked: every one
+     clears 4.5:1 as type on the wash and carries white on it as a button fill,
+     and each has a night set, because a salmon that reads on the wash is far
+     too dark against the charcoal. */
   var TINTS = [
-    { name: 'ember',
-      light: { red: '#d4400a', soft: '#ff5c2b', deep: '#8f2a02', on: '#ffffff',
-               glow: 'rgba(212,64,10,.15)', line: 'rgba(143,42,2,.20)', lineStrong: 'rgba(143,42,2,.38)' },
-      dark:  { red: '#ff5c2b', soft: '#ff8461', deep: '#c43c05', on: '#140604',
-               glow: 'rgba(255,92,43,.16)', line: 'rgba(255,240,236,.15)', lineStrong: 'rgba(255,240,236,.30)' } },
-    { name: 'vermilion',
-      light: { red: '#d01904', soft: '#ff3a1d', deep: '#8f1002', on: '#ffffff',
-               glow: 'rgba(208,25,4,.14)', line: 'rgba(140,26,10,.20)', lineStrong: 'rgba(140,26,10,.38)' },
-      dark:  { red: '#ff3a1d', soft: '#ff6a52', deep: '#c41505', on: '#140604',
-               glow: 'rgba(255,58,29,.16)', line: 'rgba(255,240,236,.15)', lineStrong: 'rgba(255,240,236,.30)' } },
-    { name: 'scarlet',
-      light: { red: '#c40f22', soft: '#ff3247', deep: '#860818', on: '#ffffff',
-               glow: 'rgba(196,15,34,.14)', line: 'rgba(134,8,24,.20)', lineStrong: 'rgba(134,8,24,.38)' },
-      dark:  { red: '#ff3247', soft: '#ff6577', deep: '#b70d1e', on: '#140604',
-               glow: 'rgba(255,50,71,.16)', line: 'rgba(255,240,236,.15)', lineStrong: 'rgba(255,240,236,.30)' } },
-    { name: 'crimson',
-      light: { red: '#b3123f', soft: '#ff3f75', deep: '#7a0a2b', on: '#ffffff',
-               glow: 'rgba(179,18,63,.14)', line: 'rgba(122,10,43,.20)', lineStrong: 'rgba(122,10,43,.38)' },
-      dark:  { red: '#ff3f75', soft: '#ff7098', deep: '#a80d3a', on: '#140604',
-               glow: 'rgba(255,63,117,.16)', line: 'rgba(255,240,236,.15)', lineStrong: 'rgba(255,240,236,.30)' } }
+    { name: 'blush',
+      light: { salmon: '#b8455a', soft: '#e8697f', deep: '#7d2939', on: '#ffffff',
+               glow: 'rgba(184,69,90,.13)', line: 'rgba(125,41,57,.20)', lineStrong: 'rgba(125,41,57,.38)' },
+      dark:  { salmon: '#ff8fa3', soft: '#ffb3c0', deep: '#c4566a', on: '#17100e',
+               glow: 'rgba(255,143,163,.16)', line: 'rgba(255,236,230,.14)', lineStrong: 'rgba(255,236,230,.28)' } },
+    { name: 'salmon',
+      light: { salmon: '#b4442f', soft: '#fa8072', deep: '#7e2b1a', on: '#ffffff',
+               glow: 'rgba(180,68,47,.13)', line: 'rgba(120,52,36,.20)', lineStrong: 'rgba(120,52,36,.38)' },
+      dark:  { salmon: '#ff9683', soft: '#ffb4a5', deep: '#c4553c', on: '#17100e',
+               glow: 'rgba(255,150,131,.16)', line: 'rgba(255,236,230,.14)', lineStrong: 'rgba(255,236,230,.28)' } },
+    { name: 'coral',
+      light: { salmon: '#bb3f3a', soft: '#f4736d', deep: '#832622', on: '#ffffff',
+               glow: 'rgba(187,63,58,.13)', line: 'rgba(131,38,34,.20)', lineStrong: 'rgba(131,38,34,.38)' },
+      dark:  { salmon: '#ff8f8a', soft: '#ffb2ae', deep: '#c45651', on: '#17100e',
+               glow: 'rgba(255,143,138,.16)', line: 'rgba(255,236,230,.14)', lineStrong: 'rgba(255,236,230,.28)' } },
+    { name: 'clay',
+      light: { salmon: '#9c5030', soft: '#d98a5e', deep: '#6b351c', on: '#ffffff',
+               glow: 'rgba(156,80,48,.13)', line: 'rgba(107,53,28,.20)', lineStrong: 'rgba(107,53,28,.38)' },
+      dark:  { salmon: '#e5a878', soft: '#f2c8a5', deep: '#a8724a', on: '#17100e',
+               glow: 'rgba(229,168,120,.16)', line: 'rgba(255,236,230,.14)', lineStrong: 'rgba(255,236,230,.28)' } }
   ];
 
   var root = document.documentElement;
@@ -4776,10 +4769,10 @@
 
   function paint() {
     var set = TINTS[current][root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'];
-    root.style.setProperty('--red', set.red);
-    root.style.setProperty('--red-soft', set.soft);
-    root.style.setProperty('--red-deep', set.deep);
-    root.style.setProperty('--on-red', set.on);
+    root.style.setProperty('--salmon', set.salmon);
+    root.style.setProperty('--salmon-soft', set.soft);
+    root.style.setProperty('--salmon-deep', set.deep);
+    root.style.setProperty('--on-salmon', set.on);
     root.style.setProperty('--glow', set.glow);
     root.style.setProperty('--line', set.line);
     root.style.setProperty('--line-strong', set.lineStrong);
@@ -4827,7 +4820,7 @@
 <div class="modal-backdrop" id="walletModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-head">
-      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--red)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
       <div>
         <h2 id="walletModalTitle">Connect a wallet</h2>
         <p>Choose how you want to connect to Veryam.</p>
@@ -5868,7 +5861,7 @@
     </div>
 
     <div class="gate-blocked" id="gateBlocked" hidden>
-      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--red)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
       <h2>Then this is where it stops.</h2>
       <p>Declining is a real answer and nothing here is worth overriding it for. Close the tab whenever you like, or read the notice again if you changed your mind.</p>
       <button class="btn btn-ghost" id="gateBack" type="button">Read it again</button>

@@ -70,35 +70,6 @@
     stage.addEventListener('pointerleave', () => { card.style.transform = base; });
   }
 
-  /* ── Follow a payment ──────────────────────────────────────────────────────
-     Four blocks of copy scroll past a panel that stays put. The scene shown is
-     whichever step sits closest to the middle of the screen, so the panel keeps
-     up with reading rather than with pixel counts. */
-  const steps = $$('.jr-step');
-  const scenes = $$('.jr-scene');
-  const dots = $$('.jr-dots i');
-  if (steps.length && scenes.length) {
-    let current = -1;
-    const setScene = i => {
-      if (i === current) return;
-      current = i;
-      scenes.forEach((s, n) => s.classList.toggle('on', n === i));
-      dots.forEach((d, n) => d.classList.toggle('on', n === i));
-      steps.forEach((s, n) => s.classList.toggle('active', n === i));
-    };
-    setScene(0);
-    onScroll.push(() => {
-      const mid = innerHeight * 0.5;
-      let best = 0, bestD = Infinity;
-      steps.forEach((s, i) => {
-        const r = s.getBoundingClientRect();
-        const d = Math.abs(r.top + r.height / 2 - mid);
-        if (d < bestD) { bestD = d; best = i; }
-      });
-      setScene(best);
-    });
-  }
-
   /* ── Plan cards lean towards the cursor ────────────────────────────────── */
   if (!calm && matchMedia('(hover: hover)').matches) {
     $$('.tier .tcard').forEach(tc => {
@@ -252,8 +223,9 @@
     ['ask.g3', [['tm.t1h','tm.t1p'], ['tm.t2h','tm.t2p'], ['tm.t3h','tm.t3p'], ['tm.t4h','tm.t4p'], ['tm.t5h','tm.t5p']]]
   ];
   const askList = $('#askList'), askQ = $('#askQ');
+  let askTab = 'all';
   const plain = html => { const t = document.createElement('div'); t.innerHTML = html || ''; return t.textContent || ''; };
-  /* Fold accents so "contraseña" is found by typing "contrasena". */
+  /* Fold accents so "contrasena" finds "contraseña". */
   const fold = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   function paintAsk() {
@@ -264,14 +236,17 @@
     let shown = 0;
 
     ASK.forEach(([groupKey, pairs]) => {
+      if (askTab !== 'all' && askTab !== groupKey) return;
       const hits = pairs.filter(([q, a]) =>
         !term || fold(plain(d[q]) + ' ' + plain(d[a])).includes(term));
       if (!hits.length) return;
 
-      const h = document.createElement('p');
-      h.className = 'ask-group';
-      h.textContent = d[groupKey] || groupKey;
-      askList.appendChild(h);
+      if (askTab === 'all') {
+        const h = document.createElement('p');
+        h.className = 'ask-group';
+        h.textContent = d[groupKey] || groupKey;
+        askList.appendChild(h);
+      }
 
       hits.forEach(([q, a]) => {
         shown++;
@@ -293,9 +268,26 @@
     }
   }
 
+  const tabs = $('#askTabs');
+  if (tabs) {
+    tabs.addEventListener('click', e => {
+      const b = e.target.closest('button[data-tab]');
+      if (!b) return;
+      askTab = b.dataset.tab;
+      $$('#askTabs button').forEach(x => x.classList.toggle('on', x === b));
+      paintAsk();
+      const body = $('#askBody');
+      if (body) body.scrollTop = 0;
+    });
+  }
+
   const ask = $('#ask'), askFab = $('#askFab');
   if (ask && askFab) {
     const openAsk = () => {
+      askTab = 'all';
+      if (askQ) askQ.value = '';
+      $$('#askTabs button').forEach(x => x.classList.toggle('on', x.dataset.tab === 'all'));
+      paintAsk();
       ask.hidden = false;
       requestAnimationFrame(() => ask.classList.add('in'));
       setTimeout(() => askQ && askQ.focus({ preventScroll: true }), 220);

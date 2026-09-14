@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ward — only your key fits</title>
+<title>Ward · only your key fits</title>
 <meta name="description" content="Self-custody wallet. Create it in your browser, top it up from MetaMask, Coinbase Wallet or Phantom, and get paid on real networks. No custody, no sign-up.">
-<meta name="theme-color" content="#F4F5FC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#F4F5FB" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#080A16" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
@@ -16,10 +16,29 @@
 <div class="progress" id="progress" aria-hidden="true"></div>
 <div class="ambient" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 
+<!-- Shapes reused across the page: the chip and the wordmark. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="chipgold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F6DFA6"/>
+      <stop offset=".45" stop-color="#D7B268"/>
+      <stop offset="1" stop-color="#B08C3E"/>
+    </linearGradient>
+    <symbol id="emv" viewBox="0 0 40 30">
+      <rect class="c-body" x=".5" y=".5" width="39" height="29" rx="4.5"/>
+      <g class="c-lines">
+        <path d="M.5 10h39M.5 20h39M20 .5v29"/>
+        <rect x="12" y="7" width="16" height="16" rx="2.5"/>
+        <path d="M12 15h16"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
 <nav class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Ward</span></a>
-    <div class="nav-links">
+    <div class="nav-pill">
       <a href="#how">How it works</a>
       <a href="#journey">Follow a payment</a>
       <a href="#plans">Plans</a>
@@ -36,7 +55,7 @@
     <div class="hero-copy">
       <span class="eyebrow">Self-custody · no sign-up</span>
       <h1>Only your<br>key fits.</h1>
-      <p class="lede">Make a wallet in your browser in under a minute. Top it up from the wallet you already use, get paid with a link, and keep the key where nobody else can reach it — us included.</p>
+      <p class="lede">Make a wallet in your browser in under a minute. Top it up from the wallet you already use, get paid with a link, and keep the key somewhere nobody else can reach it, including us.</p>
       <div class="cta-row">
         <a class="cta" href="/app" id="heroCta">Create my wallet</a>
         <a class="cta ghost" href="#journey">Follow a payment</a>
@@ -49,21 +68,21 @@
     </div>
 
     <div class="stage reveal" id="stage">
-      <div class="wcard tilt" data-tier="classic" id="heroCard">
+      <div class="wcard tilt" id="heroCard">
         <div class="wc-sheen" aria-hidden="true"></div>
         <div class="wc-top">
           <span class="wc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span>
           <span class="wc-net"><i></i>Base</span>
         </div>
-        <span class="wc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
+        <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
         <p class="wc-bal">1.284<small>ETH</small></p>
         <div class="wc-bot">
           <span class="wc-addr">0x7a29 ···· e92E</span>
           <span class="wc-seal">Classic</span>
         </div>
       </div>
-      <div class="chip c1"><span class="tick-sm" aria-hidden="true"></span>Payment confirmed</div>
-      <div class="chip c2">Table 4 · 12.00 USDC</div>
+      <div class="chip-tag c1"><span class="tick-sm" aria-hidden="true"></span>Payment confirmed</div>
+      <div class="chip-tag c2">Table 4 · 12.00 USDC</div>
     </div>
   </header>
 
@@ -73,9 +92,18 @@
     <ul class="logos">
       <li class="reveal">
         <svg class="lg" viewBox="0 0 32 32" aria-hidden="true">
-          <path d="M3.4 3.6l10.3 7.6h4.6l10.3-7.6-2.1 8 1.9 3-2.5 7.2-5.9-1.8h-4l-5.9 1.8L7.6 14.6l1.9-3z" fill="#E2761B"/>
-          <path d="M13.7 11.2h4.6l1.3 4.2-2.1 1.6h-3l-2.1-1.6z" fill="#F6C99B"/>
-          <path d="M10.2 22.6l3.5-1.1h4.6l3.5 1.1-1.3 3.3-3.1-.9h-2.8l-3.1.9z" fill="#CD6116"/>
+          <path fill="#E17726" d="M28.9 3 17.5 11.5l2.1-5z"/>
+          <path fill="#E27625" d="m3.1 3 11.3 8.6-2-5zM24.5 21.7l-3 4.6 6.5 1.8 1.8-6.3zM2.2 21.8 4 28.1l6.5-1.8-3-4.6z"/>
+          <path fill="#E27625" d="m10.1 14.5-1.8 2.7 6.4.3-.2-6.9zm11.8 0-4.5-4-.1 7 6.4-.3zM10.5 26.3l3.9-1.9-3.4-2.6zm7.1-1.9 3.9 1.9-.5-4.5z"/>
+          <path fill="#D5BFB2" d="m21.5 24.4-3.9-1.9.3 2.5v1.1zm-11 0 3.6 1.7v-1.1l.3-2.5z"/>
+          <path fill="#233447" d="m14.2 20.4-3.3-1 2.3-1.1zm3.6 0 1-2.1 2.3 1.1z"/>
+          <path fill="#CC6228" d="m10.5 26.3.5-4.6-3.6.1zm10.5-4.6.5 4.6 3.1-4.5zm2.9-4.5-6.4.3.6 3.3.9-2 2.3 1.1zm-12.8 2.7 2.3-1.1 1 2-.6-3.3-6.4-.3z"/>
+          <path fill="#E27525" d="m8.3 17.2 2.7 5.2-.1-2.6zm12.9 2.6-.1 2.6 2.7-5.2zm-4.2-2.3-.6 3.3.7 3.8.2-5.1zm-2.2 0-.3 2 .2 5.1.7-3.8z"/>
+          <path fill="#F5841F" d="m17.8 20.4-.7 3.8.5.4 3.4-2.6.1-2.6zm-6.9-1 .1 2.6 3.4 2.6.5-.4-.7-3.8z"/>
+          <path fill="#C0AC9D" d="M17.9 27v-1.1l-.3-.3h-3.2l-.3.3V27l-3.6-1.7 1.3 1 2.5 1.8h3.4l2.6-1.8 1.2-1z"/>
+          <path fill="#161616" d="m17.6 24.6-.5-.4h-2.2l-.5.4-.3 2.4.3-.3h3.2l.3.3z"/>
+          <path fill="#763E1A" d="m29.4 12 1-4.7L28.9 3 17.9 11.2l4.2 3.6 6 1.7 1.3-1.5-.6-.4.9-.9-.7-.5.9-.7zM1.6 7.3l1 4.7-.7.5.9.7-.7.5.9.9-.6.4 1.3 1.5 6-1.7 4.2-3.6L3.1 3z"/>
+          <path fill="#F5841F" d="m28.1 16.5-6-1.7 1.8 2.7-2.7 5.2 3.6-.1h5.3zm-18.2-1.7-6 1.7-1.7 6.1h5.3l3.6.1-2.7-5.2zm7.2 2.7.4-6.6 1.7-4.6h-7.7l1.7 4.6.4 6.6.2 2.1v5.1h2.2v-5.1z"/>
         </svg>MetaMask</li>
       <li class="reveal">
         <svg class="lg" viewBox="0 0 32 32" aria-hidden="true">
@@ -85,18 +113,20 @@
       <li class="reveal">
         <svg class="lg" viewBox="0 0 32 32" aria-hidden="true">
           <rect width="32" height="32" rx="9" fill="#AB9FF2"/>
-          <path d="M24.5 16.4c0 4.6-3.8 8.3-8.4 8.3H8.4c-.6 0-1-.6-.7-1.1a12 12 0 001.6-4.2c.1-.6.6-1 1.2-1h1.3c.6 0 1 .5 1 1.1v1c0 .5.4.9.9.9s.9-.4.9-.9v-1c0-.6.5-1.1 1.1-1.1h1.2c.6 0 1.1.5 1.1 1.1v1c0 .5.4.9.9.9s.9-.4.9-.9v-1c0-3.2-2.6-5.8-5.8-5.8s-5.8 2.6-5.8 5.8c0 .4-.4.7-.8.6a1 1 0 01-.7-1c.2-4.4 3.9-7.9 8.4-7.9 4.6 0 8.4 3.7 8.4 8.3z" fill="#fff"/>
+          <path fill="#fff" d="M7 21v-5a9 9 0 0 1 18 0v5q-2.25 2.6-4.5 0-2.25-2.6-4.5 0-2.25 2.6-4.5 0-2.25-2.6-4.5 0z"/>
+          <ellipse cx="12.7" cy="16.2" rx="1.7" ry="2.3" fill="#534BB1"/>
+          <ellipse cx="19.3" cy="16.2" rx="1.7" ry="2.3" fill="#534BB1"/>
         </svg>Phantom</li>
       <li class="reveal">
         <svg class="lg" viewBox="0 0 32 32" aria-hidden="true">
           <rect width="32" height="32" rx="9" fill="#001E59"/>
-          <path d="M7 25a18 18 0 0118-18" stroke="#FF4000" stroke-width="3.4" fill="none" stroke-linecap="round"/>
-          <path d="M7 25a12 12 0 0112-12" stroke="#FFB800" stroke-width="3.4" fill="none" stroke-linecap="round"/>
-          <path d="M7 25a6 6 0 016-6" stroke="#1DA1F2" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+          <path d="M7 25a18 18 0 0 1 18-18" stroke="#FF4000" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <path d="M7 25a12 12 0 0 1 12-12" stroke="#FFB800" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <path d="M7 25a6 6 0 0 1 6-6" stroke="#1DA1F2" stroke-width="3.6" fill="none" stroke-linecap="round"/>
         </svg>Rainbow</li>
       <li class="more reveal">and any other in your browser</li>
     </ul>
-    <p class="fineprint left">Ward never touches those wallets' keys — it asks, they sign, you approve. Marks shown to identify compatible wallets; Ward is not affiliated with any of them.</p>
+    <p class="fineprint left">Ward never touches those wallets' keys. It asks, they sign, you approve. Their marks appear here to say what Ward works with; Ward is not affiliated with any of them.</p>
   </section>
 
   <!-- ── How it works ─────────────────────────────── -->
@@ -107,12 +137,12 @@
       <li class="reveal">
         <span class="step-n">1</span>
         <h3>You make the wallet</h3>
-        <p>The browser generates twelve words and shows them once. You write them down; we ask for three at random to check you really have them.</p>
+        <p>The browser generates twelve words and shows them once. You write them down, and we ask for three at random to check you really have them.</p>
       </li>
       <li class="reveal">
         <span class="step-n">2</span>
         <h3>You set a password</h3>
-        <p>It encrypts the wallet on your device. Without it, what's stored is useless to anyone — including whoever steals your laptop.</p>
+        <p>It encrypts the wallet on your device. Without it, what's stored is useless to anyone, including whoever steals your laptop.</p>
       </li>
       <li class="reveal">
         <span class="step-n">3</span>
@@ -134,7 +164,7 @@
         <article class="jr-step" data-step="0">
           <span class="jr-n">01</span>
           <h3>You ask for €12</h3>
-          <p>Amount, coin and a note. Ward turns it into a link and a QR code. Nothing has left your device yet — the request is just text.</p>
+          <p>Amount, coin and a note. Ward turns it into a link and a QR code. Nothing has left your device yet, because the request is only text.</p>
         </article>
         <article class="jr-step" data-step="1">
           <span class="jr-n">02</span>
@@ -149,7 +179,7 @@
         <article class="jr-step" data-step="3">
           <span class="jr-n">04</span>
           <h3>The chain settles it</h3>
-          <p>A couple of seconds later it is in a block, and it is yours. No three-day hold, no chargeback, no one who can reverse it.</p>
+          <p>A couple of seconds later it sits in a block, and it is yours. No three day hold, no chargeback, nobody who can reverse it.</p>
         </article>
       </div>
 
@@ -193,9 +223,7 @@
 
           </div>
         </div>
-        <div class="jr-dots">
-          <i class="on"></i><i></i><i></i><i></i>
-        </div>
+        <div class="jr-dots"><i class="on"></i><i></i><i></i><i></i></div>
       </div>
     </div>
   </section>
@@ -204,14 +232,14 @@
   <section class="sec wrap" id="plans">
     <span class="eyebrow">Plans</span>
     <h2>The wallet is free. Always.</h2>
-    <p class="sec-lede">Self-custody, every network, unlimited payments — none of that is behind a price. The paid tiers add tools for people running money through it every day; they never buy permission to use your own funds.</p>
+    <p class="sec-lede">Self-custody, every network and unlimited payments sit outside the price list. The paid tiers add tools for people running money through it every day. They never buy permission to use your own funds.</p>
 
     <div class="tiers">
       <article class="tier reveal" data-tier="classic">
         <div class="tcard classic">
           <div class="tc-sheen" aria-hidden="true"></div>
           <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
-          <span class="tc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
+          <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
           <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Classic</span></div>
         </div>
         <h3>Classic</h3>
@@ -230,7 +258,7 @@
         <div class="tcard gold">
           <div class="tc-sheen" aria-hidden="true"></div>
           <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
-          <span class="tc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
+          <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
           <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Gold</span></div>
         </div>
         <h3>Gold</h3>
@@ -238,7 +266,7 @@
         <ul class="perks">
           <li>Everything in Classic</li>
           <li>The Gold card</li>
-          <li>Saved payees — stop retyping addresses</li>
+          <li>Saved payees, so you stop retyping addresses</li>
           <li>Your name on every payment request</li>
           <li>Export your activity as a CSV</li>
         </ul>
@@ -249,7 +277,7 @@
         <div class="tcard plat">
           <div class="tc-sheen" aria-hidden="true"></div>
           <div class="tc-top"><span class="tc-brand"><span class="mark sm" aria-hidden="true"></span>Ward</span><span class="tc-net">Base</span></div>
-          <span class="tc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
+          <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
           <div class="tc-bot"><span class="tc-addr">0x7a29 ···· e92E</span><span class="tc-name">Platinum</span></div>
         </div>
         <h3>Platinum</h3>
@@ -265,7 +293,7 @@
     </div>
 
     <div class="note wide-note">
-      <b>How the paid tiers are billed.</b> A month is one USDC payment on-chain, made from your own wallet. Nothing auto-renews, no card is stored, and there is no account to cancel — when the month runs out you simply decide whether to pay for another. The plan is proved by the transaction itself, which Ward re-checks against the chain every time you open it.
+      <b>How the paid tiers are billed.</b> A month is one USDC payment on chain, made from your own wallet. Nothing auto-renews, no card is stored, and there is no account to cancel. When the month runs out you simply decide whether to pay for another. The plan is proved by the transaction itself, which Ward re-checks against the chain every time you open it.
     </div>
   </section>
 
@@ -284,9 +312,9 @@
       <div class="nb-copy">
         <span class="eyebrow">Why "Ward"</span>
         <h2>A lock doesn't keep things safe by trusting you.</h2>
-        <p>Inside a warded lock sit the <b>wards</b>: fixed obstructions machined into the mechanism. They don't check who you are and they don't ask permission from anyone. Either the cuts in your key clear them, or the lock doesn't turn. That's the whole security model, and it has no customer service department.</p>
-        <p>This wallet works the same way. There's no account to suspend, no support line that can let someone in, no server holding a copy of anything worth stealing. A payment moves because a key that only you have produced the right signature — geometry, not trust.</p>
-        <p>The other meaning is the older one: to <b>ward</b> is to guard, and what's <b>in your ward</b> is what you've taken responsibility for. Which is the honest description of what you're doing here. Nobody is minding it for you.</p>
+        <p>Inside a warded lock sit the <b>wards</b>: fixed obstructions machined into the mechanism. They don't check who you are and they ask nobody's permission. Either the cuts in your key clear them, or the lock doesn't turn. That is the whole security model, and it has no customer service department.</p>
+        <p>This wallet works the same way. There is no account to suspend, no support line that can let someone in, and no server holding a copy of anything worth stealing. A payment moves because a key that only you have produced the right signature. Geometry, not trust.</p>
+        <p>The other meaning is the older one. To <b>ward</b> is to guard, and what is <b>in your ward</b> is what you have taken responsibility for. That is the honest description of what you are doing here: nobody is minding it for you.</p>
       </div>
     </div>
   </section>
@@ -300,35 +328,55 @@
     <div class="sec-grid">
       <div class="fact reveal">
         <h3>The key is born and dies in your browser</h3>
-        <p>Generated with the system's cryptographic source, encrypted with <b>scrypt + AES</b>, and stored only on your device. It never travels over the network, not even encrypted.</p>
+        <p>Generated with the system's cryptographic source, encrypted with <b>scrypt and AES</b>, and stored only on your device. It never travels over the network, not even encrypted.</p>
       </div>
       <div class="fact reveal">
         <h3>No outside script can run here</h3>
-        <p>The signing library is served from this domain, not a CDN, and the content policy blocks every other script. That is how keys get stolen in most cases, and that door is bricked up.</p>
+        <p>The signing library is served from this domain rather than a CDN, and the content policy blocks every other script. That is how keys get stolen in most cases, and that door is bricked up.</p>
       </div>
       <div class="fact reveal">
         <h3>If we disappear, your money doesn't</h3>
-        <p>Your twelve words are an open standard (BIP-39). They work in MetaMask, Rainbow, Ledger or any other wallet. You don't depend on this page staying up.</p>
+        <p>Your twelve words are an open standard (BIP-39). They work in MetaMask, Rainbow, Ledger or any other wallet. You do not depend on this page staying up.</p>
       </div>
       <div class="fact reveal">
         <h3>You can read the code</h3>
-        <p>It's a static page: open your browser's tools and read exactly what it does, line by line. Nothing runs on a server you can't see.</p>
+        <p>It is a static page: open your browser's tools and read exactly what it does, line by line. Nothing runs on a server you cannot see.</p>
       </div>
     </div>
   </section>
 
-  <!-- ── Honesty ──────────────────────────────────── -->
-  <section class="sec wrap">
-    <div class="honest reveal">
-      <span class="eyebrow warn">What this is not</span>
-      <h2>What we won't promise you.</h2>
-      <ul>
-        <li><b>It is not a debit card.</b> Paying at a shop with a Visa needs a licensed issuer and BIN sponsorship — that's a contract with a bank, not something code can solve. Here, payments are transfers between addresses.</li>
-        <li><b>It is not a bank, and it is not insured.</b> No deposit protection scheme covers this, because there is no deposit — you are holding your own money.</li>
-        <li><b>There is no "forgot my password".</b> Nobody can reset it because nobody has it. You recover with your twelve words, and only with those.</li>
-        <li><b>Payments are final.</b> Chargebacks don't exist. Send to the wrong address and the money is gone. That's why there's a review screen before every signature.</li>
-        <li><b>The price moves.</b> ETH and POL go up and down. If that keeps you awake, get paid in USDC or USDT.</li>
-      </ul>
+  <!-- ── Before you begin ─────────────────────────── -->
+  <section class="sec wrap" id="terms">
+    <span class="eyebrow">Before you begin</span>
+    <h2>Know exactly what you are holding.</h2>
+    <p class="sec-lede">Self-custody is a real trade. You gain a wallet nobody can freeze, and you take on the part a bank normally carries. These five points are the whole of it, stated plainly so there is nothing to discover later.</p>
+
+    <div class="terms-grid">
+      <article class="term reveal">
+        <span class="tn">01</span>
+        <h3>A wallet, not a card</h3>
+        <p>Ward moves value between blockchain addresses. Paying at a shop terminal requires a licensed card issuer and BIN sponsorship, which is a banking contract rather than a piece of software. If you need to tap at a till, you need a card product, and this is not one.</p>
+      </article>
+      <article class="term reveal">
+        <span class="tn">02</span>
+        <h3>You are the custodian</h3>
+        <p>Ward is not a bank and holds no deposits, so no deposit protection scheme applies. What protects the balance is your own key and your own backup, which is exactly why both matter so much.</p>
+      </article>
+      <article class="term reveal">
+        <span class="tn">03</span>
+        <h3>Your twelve words are the only spare key</h3>
+        <p>Passwords here cannot be reset, because nobody holds a copy to reset them against. The recovery phrase restores the wallet on any device, in Ward or in any other BIP-39 wallet. Write it on paper and store that paper the way you store cash.</p>
+      </article>
+      <article class="term reveal">
+        <span class="tn">04</span>
+        <h3>Settlement is final</h3>
+        <p>A confirmed transaction cannot be recalled, reversed or charged back by anyone, Ward included. That is what makes the money arrive in seconds instead of days, and it is why every payment passes a review screen showing the recipient, the network and the fee before you sign.</p>
+      </article>
+      <article class="term reveal">
+        <span class="tn">05</span>
+        <h3>Value moves with the market</h3>
+        <p>ETH and POL are volatile assets, and a balance held in them can be worth more or less tomorrow. Getting paid in USDC or USDT keeps the amount you agreed on, which is what most people invoicing in Ward choose.</p>
+      </article>
     </div>
   </section>
 
@@ -339,35 +387,35 @@
     <div class="faq">
       <details>
         <summary>Can you get at my money?</summary>
-        <p>No, and it isn't a matter of trust — it's architecture. The key that authorises a payment is generated in your browser and stays encrypted on your device. Our server only hands out files; it never receives the key, encrypted or otherwise, so there is nothing for us to spend, freeze, or hand to anyone.</p>
+        <p>No, and it is not a matter of trust but of architecture. The key that authorises a payment is generated in your browser and stays encrypted on your device. Our server only hands out files and never receives the key, encrypted or otherwise, so there is nothing for us to spend, freeze, or hand to anyone.</p>
       </details>
       <details>
         <summary>How does topping up from MetaMask work?</summary>
-        <p>Your browser wallet announces itself to the page, you approve a connection, and then you approve one ordinary transfer to your Ward address. Ward never sees that wallet's private key — it can only ask it to sign, and you can always say no. Coinbase Wallet, Phantom, Rainbow and the rest work the same way.</p>
+        <p>Your browser wallet announces itself to the page, you approve a connection, and then you approve one ordinary transfer to your Ward address. Ward never sees that wallet's private key. It can only ask it to sign, and you can always say no. Coinbase Wallet, Phantom, Rainbow and the rest work the same way.</p>
       </details>
       <details>
         <summary>What happens if I lose my phone?</summary>
-        <p>Nothing, if you saved your twelve words. Install the wallet on another device, type them in, and the same balance is there. Whoever finds the phone meets an encrypted file and a password they don't know.</p>
+        <p>Nothing, if you saved your twelve words. Install the wallet on another device, type them in, and the same balance is there. Whoever finds the phone meets an encrypted file and a password they do not know.</p>
       </details>
       <details>
         <summary>And if I lose the twelve words?</summary>
-        <p>Then access to the money is gone for good. This isn't a policy we can bend: no copy of those words exists anywhere except where you put them. Write them on paper and keep that paper the way you'd keep cash.</p>
+        <p>Then access to the money is gone for good. This is not a policy we can bend: no copy of those words exists anywhere except where you put them. Write them on paper and keep that paper the way you would keep cash.</p>
       </details>
       <details>
         <summary>What does the paid plan actually get me?</summary>
-        <p>Software features, and only ones that exist: the Gold or Platinum card face, saved payees, your name on payment requests, CSV export, and on Platinum several accounts from one phrase. It does not raise a limit, unlock your own money, or buy you priority on any network — none of that is ours to sell.</p>
+        <p>Software features, and only ones that exist: the Gold or Platinum card face, saved payees, your name on payment requests, CSV export, and on Platinum several accounts from one phrase. It does not raise a limit, unlock your own money, or buy you priority on any network, because none of that is ours to sell.</p>
       </details>
       <details>
         <summary>What does it cost to use?</summary>
-        <p>The wallet charges nothing. Each payment pays the network fee, which goes to whoever validates the transaction, not to us: on Base or Polygon that's usually around a cent; on Ethereum it can be considerably more. The network picker is in the top bar.</p>
+        <p>The wallet charges nothing. Each payment pays the network fee, which goes to whoever validates the transaction rather than to us. On Base or Polygon that is usually around a cent; on Ethereum it can be considerably more. The network picker sits in the top bar.</p>
       </details>
       <details>
         <summary>Can I try it without risking money?</summary>
-        <p>Yes, and you should before your first real payment. Pick <b>Base Sepolia</b> in the network menu and get free coins from a faucet. It's a real chain, with the same blocks and the same signatures, but its coin is worth nothing — so you can walk the whole path with nothing at stake.</p>
+        <p>Yes, and you should before your first real payment. Pick <b>Base Sepolia</b> in the network menu and get free coins from a faucet. It is a real chain, with the same blocks and the same signatures, but its coin is worth nothing, so you can walk the whole path with nothing at stake.</p>
       </details>
       <details>
         <summary>Do I have to verify my identity?</summary>
-        <p>There's no sign-up, no email, no phone. That said, blockchain transactions are public: anyone who knows your address can see its history. It's transparent, not anonymous, and the two are worth not confusing.</p>
+        <p>There is no sign-up, no email and no phone. That said, blockchain transactions are public: anyone who knows your address can see its history. It is transparent rather than anonymous, and the two are worth not confusing.</p>
       </details>
     </div>
   </section>
@@ -386,9 +434,43 @@
 <footer class="foot">
   <div class="wrap foot-in">
     <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Ward</span></a>
-    <p>Self-custody wallet. You hold the keys and you carry the custody. This is not financial advice, not a bank, and not a regulated payment service. Ward is independent and not affiliated with, endorsed by, or connected to any wallet, exchange, brokerage or network named on this page; their marks are shown only to say what it works with.</p>
+    <p>Self-custody wallet. You hold the keys and you carry the custody. This is not financial advice, not a bank, and not a regulated payment service. Ward is independent and is not affiliated with, endorsed by, or connected to any wallet, exchange, brokerage or network named on this page. Their marks appear only to say what it works with.</p>
   </div>
 </footer>
+
+<!-- ── Storage notice ───────────────────────────────
+     Not a cookie banner in the usual sense, because there are no cookies to
+     ask about. It says what actually gets stored, which is the thing a person
+     wants to know when a wallet asks to keep something on their device. -->
+<aside class="consent" id="consent" hidden aria-label="What Ward stores">
+  <div class="cs-card">
+    <div class="cs-head">
+      <span class="cs-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3l7.5 3.2v5c0 4.5-3.1 8.3-7.5 9.6-4.4-1.3-7.5-5.1-7.5-9.6v-5z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>
+      </span>
+      <div>
+        <b>Ward keeps things on your device, not on a server.</b>
+        <p>No cookies, no trackers, no analytics, and nothing sent to us or to anyone else. There is no server that could receive it.</p>
+      </div>
+    </div>
+
+    <div class="cs-detail" id="csDetail" hidden>
+      <ul>
+        <li><b>Your encrypted wallet.</b> The private key, sealed with your password using scrypt and AES. It is useless to anyone without that password, and it never leaves this browser.</li>
+        <li><b>Your settings.</b> The network you picked, any custom node address, and your account names.</li>
+        <li><b>A local copy of your activity.</b> So the list loads instantly. The authoritative record is always the blockchain.</li>
+        <li><b>Saved payees, on Gold and above.</b> Only names and addresses you chose to keep.</li>
+        <li><b>Your plan receipt.</b> The transaction hash that proves the month you paid for.</li>
+      </ul>
+      <p class="cs-foot">All of it lives in this browser's local storage and is erased the moment you clear site data, or from Settings, under "Erase this wallet from this device". Erasing removes the key too, so keep your twelve words first.</p>
+    </div>
+
+    <div class="cs-actions">
+      <button class="cta sm" id="csOk" type="button">Understood</button>
+      <button class="cs-link" id="csMore" type="button">What's stored</button>
+    </div>
+  </div>
+</aside>
 
 <script src="landing.js"></script>
 </body>

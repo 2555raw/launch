@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ward — your wallet</title>
+<title>Ward · your wallet</title>
 <meta name="description" content="Non-custodial wallet. Your keys are created and stay in your browser.">
 <meta name="theme-color" content="#F3F4FD" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A0B18" media="(prefers-color-scheme: dark)">
@@ -12,6 +12,24 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="chipgold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F6DFA6"/>
+      <stop offset=".45" stop-color="#D7B268"/>
+      <stop offset="1" stop-color="#B08C3E"/>
+    </linearGradient>
+    <symbol id="emv" viewBox="0 0 40 30">
+      <rect class="c-body" x=".5" y=".5" width="39" height="29" rx="4.5"/>
+      <g class="c-lines">
+        <path d="M.5 10h39M.5 20h39M20 .5v29"/>
+        <rect x="12" y="7" width="16" height="16" rx="2.5"/>
+        <path d="M12 15h16"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
 
 <div class="ambient" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 
@@ -40,7 +58,7 @@
       <div class="hero">
         <div class="hero-mark" aria-hidden="true"><span></span></div>
         <h1>Money that<br>answers to you.</h1>
-        <p class="lede">A wallet that lives only in your browser. Your keys are made here, they stay here, and nobody else — us included — can touch them.</p>
+        <p class="lede">A wallet that lives only in your browser. Your keys are made here, they stay here, and nobody else can touch them, not even us.</p>
       </div>
 
       <ul class="assur">
@@ -51,7 +69,7 @@
 
       <div class="stack">
         <button class="btn primary lg" id="startCreate">Create a new wallet</button>
-        <button class="btn ghost lg" data-go="import">I already have one — import</button>
+        <button class="btn ghost lg" data-go="import">I already have one: import it</button>
       </div>
       <p class="fineprint">By continuing you accept that you alone are responsible for your recovery phrase.</p>
     </section>
@@ -108,7 +126,7 @@
       <p class="err" id="pwErr" hidden></p>
 
       <div class="note">
-        <b>There is no "forgot my password".</b> If you lose it, you recover the wallet with your 12 words — which is exactly why they matter.
+        <b>There is no "forgot my password".</b> If you lose it, you recover the wallet with your 12 words, which is exactly why they matter.
       </div>
 
       <button class="btn primary lg" id="doCreate">Encrypt and open</button>
@@ -150,6 +168,7 @@
           <span class="bc-tier" id="tierBadge">Classic</span>
           <button class="bc-acct" id="acctSwitch" type="button" hidden><span id="acctName">Account 1</span></button>
         </div>
+        <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
         <p class="bal-label">Balance on Base</p>
         <p class="bal" id="totalBal"><span class="skeleton w-40"></span></p>
         <button class="addr-chip" id="addrChip" type="button">
@@ -182,7 +201,7 @@
     <section class="view" data-view="deposit">
       <button class="back" data-go="home" type="button">Back</button>
       <h2>Top up</h2>
-      <p class="sub">Move funds in from a wallet you already use. Ward never sees its keys — the other wallet signs, you just approve.</p>
+      <p class="sub">Move funds in from a wallet you already use. Ward never sees its keys. The other wallet signs, and you approve.</p>
 
       <div id="depIntro">
         <ul class="wallet-list" id="walletList"></ul>
@@ -191,7 +210,7 @@
           <b>On a phone?</b> Injected wallets only appear inside their own app's browser. Open this page from MetaMask, Coinbase Wallet, Phantom or Rainbow and they'll show up here.
         </div>
         <h3 class="sec-title">Or send it yourself</h3>
-        <p class="sub">Any wallet or exchange works — just send to this address on the network you have selected.</p>
+        <p class="sub">Any wallet or exchange works. Just send to this address on the network you have selected.</p>
         <button class="btn ghost wide" data-go="receive" type="button">Show my address and QR</button>
       </div>
 
@@ -224,10 +243,10 @@
     <section class="view" data-view="plans">
       <button class="back" data-go="home" type="button">Back</button>
       <h2>Plans</h2>
-      <p class="sub">The wallet itself is free and always will be — self-custody, every network, unlimited payments. Paid tiers add tools, not permission to use your own money.</p>
+      <p class="sub">The wallet itself is free and always will be: self-custody, every network, unlimited payments. Paid tiers add tools, not permission to use your own money.</p>
       <div class="plans" id="planList"></div>
       <div class="note" id="treasuryNote" hidden></div>
-      <p class="fineprint">Paid plans are charged as a one-month on-chain payment in USDC. Nothing renews by itself and nothing is stored on a card — when the month ends, you simply choose whether to pay again.</p>
+      <p class="fineprint">Paid plans are charged as a one-month on-chain payment in USDC. Nothing renews by itself and nothing is stored on a card. When the month ends, you simply choose whether to pay again.</p>
     </section>
 
     <!-- ── Send ───────────────────────────────────── -->
@@ -283,7 +302,7 @@
     <section class="view" data-view="charge">
       <button class="back" data-go="home" type="button">Back</button>
       <h2>Request a payment</h2>
-      <p class="sub">Create a payment link. Whoever opens it sees the payment already filled in — all they do is confirm.</p>
+      <p class="sub">Create a payment link. Whoever opens it sees the payment already filled in, and all they do is confirm.</p>
 
       <label class="field" id="fromField" hidden>
         <span>From <i>(shown to the payer)</i></span>

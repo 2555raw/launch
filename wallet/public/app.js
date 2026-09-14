@@ -36,7 +36,7 @@ const PLANS = {
     perks: [
       'Everything in Classic',
       'The Gold card',
-      'Saved payees — stop retyping addresses',
+      'Saved payees, so you stop retyping addresses',
       'Your name on every payment request',
       'Export your activity as a CSV'
     ]
@@ -99,7 +99,7 @@ const CHAINS = {
   1: {
     name: 'Ethereum', short: 'Ethereum', coin: 'ETH', color: '#627EEA',
     rpc: 'https://ethereum-rpc.publicnode.com', explorer: 'https://etherscan.io',
-    blurb: 'The main one — fees run higher',
+    blurb: 'The main one, and the priciest to use',
     tokens: [
       { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', color: '#2775CA' },
       { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', color: '#26A17B' }
@@ -108,7 +108,7 @@ const CHAINS = {
   84532: {
     name: 'Base Sepolia', short: 'Base Sepolia', coin: 'ETH', color: '#7B8794', test: true,
     rpc: 'https://sepolia.base.org', explorer: 'https://sepolia.basescan.org',
-    blurb: 'Practice here — the money is worthless on purpose',
+    blurb: 'Practice here; the money is worthless on purpose',
     tokens: [
       { symbol: 'USDC', name: 'Test USDC', decimals: 6, address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', color: '#2775CA' }
     ]
@@ -245,7 +245,7 @@ async function copy(text, said) {
 
 async function share(text, title) {
   if (navigator.share) { try { await navigator.share({ title, text }); return; } catch {} }
-  copy(text, 'Copied — paste it wherever you need');
+  copy(text, 'Copied. Paste it wherever you need');
 }
 
 const short = a => a ? a.slice(0, 6) + '···' + a.slice(-4) : '';
@@ -261,7 +261,7 @@ function trim(str, max = 6) {
 
 const NUM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 20 });
 function fmt(plain) {
-  if (plain == null || plain === '—' || plain === '…') return plain;
+  if (plain == null || plain === 'n/a' || plain === '…') return plain;
   const n = Number(plain);
   return isFinite(n) ? NUM.format(n) : plain;
 }
@@ -370,12 +370,12 @@ function paintPlans() {
       `<div class="tcard ${p.tier}">` +
         '<div class="tc-sheen"></div>' +
         '<div class="tc-top"><span class="tc-brand"><span class="mark sm"></span>Ward</span><span class="tc-net"></span></div>' +
-        '<span class="tc-chip"><i></i><i></i><i></i></span>' +
+        '<svg class="chip"><use href="#emv"/></svg>' +
         '<div class="tc-bot"><span class="tc-addr"></span><span class="tc-name"></span></div>' +
       '</div>' +
       `<h3></h3><p class="plan-line"></p><p class="plan-price">${price}</p><ul class="perks"></ul>`;
     card.querySelector('.tc-net').textContent = chain().short;
-    card.querySelector('.tc-addr').textContent = wallet ? short(wallet.address) : '0x···';
+    card.querySelector('.tc-addr').textContent = wallet ? short(wallet.address) : '0x0000 ···· 0000';
     card.querySelector('.tc-name').textContent = p.name;
     card.querySelector('h3').textContent = p.name;
     card.querySelector('.plan-line').textContent = p.line;
@@ -572,7 +572,7 @@ async function refresh() {
     $('#totalBal').textContent = fmt(trim(E.formatEther(native), 6)) + ' ' + c.coin;
   } catch {
     if (mine !== refresh.gen) return;
-    $('#totalBal').textContent = '—';
+    $('#totalBal').textContent = 'Unavailable';
     toast("Couldn't read the balance. Connection?");
   }
 
@@ -597,8 +597,8 @@ function paintTokens(loading) {
   [{ symbol: c.coin, name: c.name, color: c.color, native: true }].concat(c.tokens).forEach(t => {
     let amt = '…';
     if (!loading) {
-      if (t.native) amt = balances.native == null ? '—' : fmt(trim(E.formatEther(balances.native), 6));
-      else amt = balances.tokens[t.symbol] == null ? '—' : fmt(trim(E.formatUnits(balances.tokens[t.symbol], t.decimals), 6));
+      if (t.native) amt = balances.native == null ? 'n/a' : fmt(trim(E.formatEther(balances.native), 6));
+      else amt = balances.tokens[t.symbol] == null ? 'n/a' : fmt(trim(E.formatUnits(balances.tokens[t.symbol], t.decimals), 6));
     }
     const li = document.createElement('li');
     li.innerHTML = coinBadge(t.symbol, t.color) + '<div class="tok-mid"><b></b><small></small></div><div class="tok-amt"></div>';
@@ -800,8 +800,8 @@ async function review() {
     $('#cfNet').textContent = c.name + (c.test ? ' (test)' : '');
     $('#cfFee').textContent = '≈ ' + fmt(trim(E.formatEther(fee.cost), 7)) + ' ' + c.coin;
     $('#cfAfter').textContent = tok
-      ? (balances.tokens[tok.symbol] != null ? fmt(trim(E.formatUnits(balances.tokens[tok.symbol] - value, tok.decimals), 6)) + ' ' + tok.symbol : '—')
-      : (balances.native != null ? fmt(trim(E.formatEther(balances.native - value - fee.cost), 6)) + ' ' + c.coin : '—');
+      ? (balances.tokens[tok.symbol] != null ? fmt(trim(E.formatUnits(balances.tokens[tok.symbol] - value, tok.decimals), 6)) + ' ' + tok.symbol : 'n/a')
+      : (balances.native != null ? fmt(trim(E.formatEther(balances.native - value - fee.cost), 6)) + ' ' + c.coin : 'n/a');
     fail('#cfErr', '');
     $('#cfSend').disabled = false;
     $('#cfSend').textContent = 'Sign and send';
@@ -1237,7 +1237,7 @@ $('#addAcct').addEventListener('click', () => {
   closeSheet('#acctSheet');
 });
 
-$('#copySeed').addEventListener('click', () => copy(pendingMnemonic, 'Phrase copied — paste it into your manager and clear the clipboard'));
+$('#copySeed').addEventListener('click', () => copy(pendingMnemonic, 'Phrase copied. Paste it into your manager, then clear the clipboard'));
 $('#blurSeed').addEventListener('click', () => {
   const g = $('#seedGrid'); g.classList.toggle('hidden');
   $('#blurSeed').textContent = g.classList.contains('hidden') ? 'Show' : 'Hide';
@@ -1398,7 +1398,7 @@ $('#exportKs').addEventListener('click', () => {
   a.download = 'ward-' + short(read(K.addr, '')).replace(/·/g, '') + '.json';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  toast('Encrypted backup downloaded — it still needs your password');
+  toast('Encrypted backup downloaded. It still needs your password');
 });
 
 $('#wipe').addEventListener('click', () => {

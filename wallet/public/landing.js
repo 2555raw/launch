@@ -129,5 +129,41 @@
     if ($('#navCta')) $('#navCta').textContent = 'My wallet';
   }
 
+  /* ── What Ward stores ───────────────────────────────────────────────────
+     It waits for the page to move rather than blocking the first screen: a
+     notice about storage is worth reading, and nobody reads one that lands
+     before they have seen what the site is. Dismissing it is itself the only
+     thing it writes. */
+  const consent = $('#consent');
+  const SEEN = 'ward.v1.notice';
+  let told = true;
+  try { told = !!localStorage.getItem(SEEN); } catch {}
+
+  if (consent && !told) {
+    let shown = false;
+    const reveal = () => {
+      if (shown || scrollY < 180) return;
+      shown = true;
+      consent.hidden = false;
+      requestAnimationFrame(() => consent.classList.add('in'));
+    };
+    onScroll.push(reveal);
+
+    const dismiss = () => {
+      consent.classList.remove('in');
+      consent.classList.add('out');
+      try { localStorage.setItem(SEEN, String(Date.now())); } catch {}
+      setTimeout(() => { consent.hidden = true; }, 500);
+    };
+    $('#csOk').addEventListener('click', dismiss);
+
+    const more = $('#csMore'), detail = $('#csDetail');
+    more.addEventListener('click', () => {
+      const open = detail.hidden;
+      detail.hidden = !open;
+      more.textContent = open ? 'Hide details' : "What's stored";
+    });
+  }
+
   onScroll.forEach(f => f());
 })();

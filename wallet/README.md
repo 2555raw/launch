@@ -57,8 +57,13 @@ ni la frase ni la clave privada quedan en claro en el navegador. Está en
 
 ## Desplegar
 
-Es un sitio estático con un servidor Node mínimo. En Railway, apunta un servicio
-a este directorio (`wallet/`) — `npm start` escucha en `$PORT`.
+Es un sitio estático con un servidor Node mínimo; `server.js` escucha en `$PORT`.
+
+En Railway hay que apuntar el servicio a este directorio (**Root Directory:
+`/wallet`**). Sin eso, el detector analiza la raíz del repositorio —que aloja
+varios proyectos y no tiene `package.json`— y el build falla antes de empezar.
+`railway.json` fija el resto: comando de arranque, healthcheck y política de
+reinicio, para que el despliegue no dependa de que la autodetección acierte.
 
 ## Probarlo sin arriesgar dinero
 

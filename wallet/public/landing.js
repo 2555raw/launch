@@ -70,6 +70,42 @@
     stage.addEventListener('pointerleave', () => { card.style.transform = base; });
   }
 
+  /* ── The walkthrough ─────────────────────────────────────────────────────
+     It steps along on its own so the section shows what it does without being
+     touched, and stops the moment somebody picks a step, because a thing that
+     keeps moving under your finger is worse than one that stands still. */
+  const rail = $('#rail'), walkGrid = $('#walkGrid');
+  if (rail && walkGrid) {
+    const pills = $$('.rail-pill', rail);
+    const lines = $$('.rail-line', rail);
+    const cards = $$('.step', walkGrid);
+    let at = 0, timer = null;
+
+    const paintStep = () => {
+      pills.forEach((p, i) => {
+        p.classList.toggle('on', i === at);
+        p.classList.toggle('done', i < at);
+        p.setAttribute('aria-selected', String(i === at));
+      });
+      lines.forEach((l, i) => l.classList.toggle('done', i < at));
+      cards.forEach((c, i) => c.classList.toggle('on', i === at));
+    };
+    const go = i => { at = (i + cards.length) % cards.length; paintStep(); };
+    const stop = () => { clearInterval(timer); timer = null; };
+    const start = () => { if (!timer && !calm) timer = setInterval(() => go(at + 1), 4200); };
+
+    pills.forEach((p, i) => p.addEventListener('click', () => { stop(); go(i); }));
+    cards.forEach((c, i) => c.addEventListener('click', () => { stop(); go(i); }));
+    walkGrid.addEventListener('pointerenter', stop);
+
+    /* It only runs while the section is actually on screen. */
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop()), { threshold: .25 })
+        .observe(walkGrid);
+    } else start();
+    paintStep();
+  }
+
   /* ── Plan cards lean towards the cursor ────────────────────────────────── */
   if (!calm && matchMedia('(hover: hover)').matches) {
     $$('.tier .tcard').forEach(tc => {

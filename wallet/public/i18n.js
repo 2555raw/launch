@@ -33,13 +33,13 @@ window.WARD_I18N = {
   "how.s3p": "Make a link with the amount and what it's for. Whoever opens it sees the payment filled in and just confirms. The money arrives in seconds.",
   "jr.h2": "One payment, from asking to settled.",
   "jr.s1h": "You ask for €12",
-  "jr.s1p": "Amount, coin and a note. Ward turns it into a link and a QR code. Nothing has left your device yet, because the request is only text.",
+  "jr.s1p": "Amount, coin and a note. Ward turns it into a link and a QR code.",
   "jr.s2h": "They open the link",
-  "jr.s2p": "The payment is already filled in on their side: who, how much, on which network. All they do is read it and confirm.",
+  "jr.s2p": "The payment is already filled in on their side: who, how much, on which network.",
   "jr.s3h": "Their key signs it",
-  "jr.s3p": "The signature happens in their browser, on their device. No server in the middle ever holds enough to move the money.",
+  "jr.s3p": "The signature happens in their browser, on their device. No server in the middle holds enough to move the money.",
   "jr.s4h": "The chain settles it",
-  "jr.s4p": "A couple of seconds later it sits in a block, and it is yours. No three day hold, no chargeback, nobody who can reverse it.",
+  "jr.s4p": "A couple of seconds later it sits in a block, and it is yours. No hold, no chargeback.",
   "jr.l1": "Request",
   "jr.n1": "Table 4 · two coffees",
   "jr.l2": "They see",
@@ -166,7 +166,8 @@ window.WARD_I18N = {
   "ask.tab1": "Home",
   "ask.tab2": "Questions",
   "ask.tab3": "Security",
-  "ask.tab4": "Start here"
+  "ask.tab4": "Start here",
+  "jr.step": "Step"
  },
  "es": {
   "meta.title": "Ward · solo encaja tu llave",
@@ -199,13 +200,13 @@ window.WARD_I18N = {
   "how.s3p": "Creas un enlace con el importe y el concepto. Quien lo abre ve el pago relleno y solo confirma. El dinero llega en segundos.",
   "jr.h2": "Un pago, de la petición a la liquidación.",
   "jr.s1h": "Pides 12 €",
-  "jr.s1p": "Importe, moneda y un concepto. Ward lo convierte en un enlace y un código QR. Todavía no ha salido nada de tu dispositivo, porque la petición es solo texto.",
+  "jr.s1p": "Importe, moneda y un concepto. Ward lo convierte en un enlace y un código QR.",
   "jr.s2h": "Abren el enlace",
-  "jr.s2p": "El pago ya está relleno en su lado: a quién, cuánto y en qué red. Lo único que hacen es leerlo y confirmar.",
+  "jr.s2p": "El pago ya está relleno en su lado: a quién, cuánto y en qué red.",
   "jr.s3h": "Su llave lo firma",
-  "jr.s3p": "La firma ocurre en su navegador, en su dispositivo. Ningún servidor intermedio llega a tener lo suficiente para mover el dinero.",
+  "jr.s3p": "La firma ocurre en su navegador, en su dispositivo. Ningún servidor intermedio tiene lo suficiente para mover el dinero.",
   "jr.s4h": "La cadena lo liquida",
-  "jr.s4p": "Un par de segundos después está en un bloque, y es tuyo. Sin retención de tres días, sin contracargo, sin nadie que pueda revertirlo.",
+  "jr.s4p": "Un par de segundos después está en un bloque, y es tuyo. Sin retención, sin contracargo.",
   "jr.l1": "Petición",
   "jr.n1": "Mesa 4 · dos cafés",
   "jr.l2": "Ellos ven",
@@ -329,7 +330,8 @@ window.WARD_I18N = {
   "ask.tab1": "Inicio",
   "ask.tab2": "Preguntas",
   "ask.tab3": "Seguridad",
-  "ask.tab4": "Empieza aquí"
+  "ask.tab4": "Empieza aquí",
+  "jr.step": "Paso"
  },
  "zh": {
   "meta.title": "Ward · 只有你的钥匙能开",
@@ -362,13 +364,13 @@ window.WARD_I18N = {
   "how.s3p": "生成一个带金额和事由的链接。打开它的人看到的是已经填好的付款，只需确认。钱在几秒内到账。",
   "jr.h2": "一笔付款，从请求到结算。",
   "jr.s1h": "你要收 12 欧元",
-  "jr.s1p": "金额、币种和一条备注。Ward 把它变成一个链接和一个二维码。目前还没有任何东西离开你的设备，因为这个请求只是文本。",
+  "jr.s1p": "金额、币种和一条备注。Ward 把它变成一个链接和一个二维码。",
   "jr.s2h": "对方打开链接",
-  "jr.s2p": "付款在他们那一侧已经填好：付给谁、多少钱、在哪条网络。他们要做的只是读一遍然后确认。",
+  "jr.s2p": "付款在他们那一侧已经填好：付给谁、多少钱、在哪条网络。",
   "jr.s3h": "他们的私钥签名",
   "jr.s3p": "签名发生在他们的浏览器里、他们的设备上。中间没有任何服务器掌握足以动用这笔钱的东西。",
   "jr.s4h": "链上完成结算",
-  "jr.s4p": "几秒之后它就写进了区块，钱就是你的了。没有三天冻结，没有拒付，没有人能撤回。",
+  "jr.s4p": "几秒之后它就写进了区块，钱就是你的了。没有冻结，没有拒付。",
   "jr.l1": "收款请求",
   "jr.n1": "4 号桌 · 两杯咖啡",
   "jr.l2": "对方看到",
@@ -492,7 +494,8 @@ window.WARD_I18N = {
   "ask.tab1": "首页",
   "ask.tab2": "问题",
   "ask.tab3": "安全",
-  "ask.tab4": "从这里开始"
+  "ask.tab4": "从这里开始",
+  "jr.step": "第"
  },
  "ru": {
   "meta.title": "Ward · подходит только ваш ключ",
@@ -525,13 +528,13 @@ window.WARD_I18N = {
   "how.s3p": "Создаёте ссылку с суммой и назначением. Тот, кто её откроет, видит уже заполненный платёж и просто подтверждает. Деньги приходят за секунды.",
   "jr.h2": "Один платёж, от запроса до расчёта.",
   "jr.s1h": "Вы выставляете счёт на 12 €",
-  "jr.s1p": "Сумма, монета и заметка. Ward превращает это в ссылку и QR-код. С вашего устройства пока ничего не ушло, ведь запрос остаётся просто текстом.",
+  "jr.s1p": "Сумма, монета и заметка. Ward превращает это в ссылку и QR-код.",
   "jr.s2h": "Они открывают ссылку",
-  "jr.s2p": "На их стороне платёж уже заполнен: кому, сколько и в какой сети. Всё, что им нужно, это прочитать и подтвердить.",
+  "jr.s2p": "На их стороне платёж уже заполнен: кому, сколько и в какой сети.",
   "jr.s3h": "Их ключ подписывает",
   "jr.s3p": "Подпись происходит в их браузере, на их устройстве. Ни один сервер посередине не получает достаточно, чтобы сдвинуть деньги.",
   "jr.s4h": "Сеть проводит расчёт",
-  "jr.s4p": "Через пару секунд платёж уже в блоке, и он ваш. Никакой трёхдневной заморозки, никаких чарджбэков, никого, кто мог бы его отменить.",
+  "jr.s4p": "Через пару секунд платёж уже в блоке, и он ваш. Без заморозки и без чарджбэков.",
   "jr.l1": "Запрос",
   "jr.n1": "Столик 4 · два кофе",
   "jr.l2": "Они видят",
@@ -655,6 +658,7 @@ window.WARD_I18N = {
   "ask.tab1": "Главная",
   "ask.tab2": "Вопросы",
   "ask.tab3": "Безопасность",
-  "ask.tab4": "С чего начать"
+  "ask.tab4": "С чего начать",
+  "jr.step": "Шаг"
  }
 };

@@ -500,9 +500,11 @@
 }
 @media (prefers-color-scheme: dark) { .site::before { opacity: .38; } }
 
-/* The ambient layer is positioned, so without this the page content would
-   paint underneath it rather than on top. */
-.site main, .site .foot, .site .nav, .site .consent { position: relative; z-index: 1; }
+/* The ambient layer is positioned, so without this the page content would paint
+   underneath it rather than on top. Only the two unpositioned blocks get this:
+   the navigation is already sticky at z-index 50 and the notice already fixed
+   at 70, and a rule this specific would quietly take both away. */
+.site main, .site .foot { position: relative; z-index: 1; }
 
 .journey, .sec, .closer, .works { position: relative; }
 /* The glows sit inside their section's box and spread by blur alone. Blur

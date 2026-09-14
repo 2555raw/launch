@@ -165,12 +165,11 @@
   const LANG_KEY = 'ward.v1.lang';
   const DICT = window.WARD_I18N || {};
 
+  /* English by default, always. Guessing from navigator.language meant someone
+     on a Spanish browser landed in Spanish without asking for it; the picker is
+     right there, and a deliberate choice is the only thing that changes it. */
   function chooseLang() {
     try { const saved = localStorage.getItem(LANG_KEY); if (saved && DICT[saved]) return saved; } catch {}
-    const n = (navigator.language || 'en').toLowerCase();
-    if (n.startsWith('es')) return 'es';
-    if (n.startsWith('zh')) return 'zh';
-    if (n.startsWith('ru')) return 'ru';
     return 'en';
   }
 

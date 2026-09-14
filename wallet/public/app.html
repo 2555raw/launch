@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calma — tu wallet</title>
-<meta name="description" content="Wallet no custodia: creas tus claves en tu propio navegador y pagas en redes reales.">
-<meta name="theme-color" content="#F2F8F6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#071614" media="(prefers-color-scheme: dark)">
+<title>Quiver — your wallet</title>
+<meta name="description" content="Non-custodial wallet. Your keys are created and stay in your browser.">
+<meta name="theme-color" content="#F3F4FD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0B18" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="styles.css">
@@ -20,14 +20,14 @@
   <header class="bar" id="bar" hidden>
     <button class="brand" id="brandHome" type="button">
       <span class="mark" aria-hidden="true"></span>
-      <span class="brand-name">Calma</span>
+      <span class="brand-name">Quiver</span>
     </button>
     <div class="bar-right">
       <button class="pill" id="netPill" type="button">
         <span class="dot" id="netDot"></span><span id="netName">Base</span>
         <svg viewBox="0 0 24 24" class="chev" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <button class="icon-btn" id="lockBtn" type="button" title="Bloquear" aria-label="Bloquear">
+      <button class="icon-btn" id="lockBtn" type="button" title="Lock" aria-label="Lock">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg>
       </button>
     </div>
@@ -35,118 +35,122 @@
 
   <main id="views">
 
-    <!-- ── Bienvenida ─────────────────────────────── -->
+    <!-- ── Welcome ────────────────────────────────── -->
     <section class="view" data-view="welcome">
       <div class="hero">
         <div class="hero-mark" aria-hidden="true"><span></span></div>
-        <h1>Tu dinero,<br>en calma.</h1>
-        <p class="lede">Una wallet que vive solo en tu navegador. Tus claves se crean aquí, se quedan aquí, y nadie más — ni nosotros — puede tocarlas.</p>
+        <h1>Money that<br>answers to you.</h1>
+        <p class="lede">A wallet that lives only in your browser. Your keys are made here, they stay here, and nobody else — us included — can touch them.</p>
       </div>
 
       <ul class="assur">
-        <li><span class="tick" aria-hidden="true"></span><div><b>Sin custodia</b><small>Nadie guarda tu dinero por ti</small></div></li>
-        <li><span class="tick" aria-hidden="true"></span><div><b>Sin registro</b><small>Ni correo, ni teléfono, ni datos</small></div></li>
-        <li><span class="tick" aria-hidden="true"></span><div><b>Redes reales</b><small>Pagos que se liquidan de verdad</small></div></li>
+        <li><span class="tick" aria-hidden="true"></span><div><b>Self-custody</b><small>No one holds your money for you</small></div></li>
+        <li><span class="tick" aria-hidden="true"></span><div><b>No sign-up</b><small>No email, no phone, no paperwork</small></div></li>
+        <li><span class="tick" aria-hidden="true"></span><div><b>Real networks</b><small>Payments that actually settle</small></div></li>
       </ul>
 
       <div class="stack">
-        <button class="btn primary lg" id="startCreate">Crear una wallet nueva</button>
-        <button class="btn ghost lg" data-go="import">Ya tengo una — importar</button>
+        <button class="btn primary lg" id="startCreate">Create a new wallet</button>
+        <button class="btn ghost lg" data-go="import">I already have one — import</button>
       </div>
-      <p class="fineprint">Al continuar aceptas que tú eres el único responsable de tu frase de recuperación.</p>
+      <p class="fineprint">By continuing you accept that you alone are responsible for your recovery phrase.</p>
     </section>
 
-    <!-- ── Crear: frase ───────────────────────────── -->
+    <!-- ── Create: phrase ─────────────────────────── -->
     <section class="view" data-view="create">
-      <button class="back" data-go="welcome" type="button">Atrás</button>
-      <h2>Tu frase de recuperación</h2>
-      <p class="sub">Estas 12 palabras <b>son</b> tu wallet. Cópialas en papel, en orden. Si las pierdes, nadie puede devolvértelas.</p>
+      <button class="back" data-go="welcome" type="button">Back</button>
+      <h2>Your recovery phrase</h2>
+      <p class="sub">These 12 words <b>are</b> your wallet. Copy them onto paper, in order. If you lose them, nobody can give them back to you.</p>
 
       <div class="warn-card">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5v5"/><circle cx="12" cy="17" r="1.1" fill="currentColor" stroke="none"/><path d="M10.3 3.9L2.7 17.2A2 2 0 004.4 20.2h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
-        <p>Jamás la escribas en un chat, una foto o un correo. Nadie legítimo te la va a pedir.</p>
+        <p>Never put it in a chat, a photo or an email. Nobody legitimate will ever ask you for it.</p>
       </div>
 
       <div class="seed" id="seedGrid"></div>
 
       <div class="row-2">
-        <button class="btn ghost" id="copySeed" type="button">Copiar</button>
-        <button class="btn ghost" id="blurSeed" type="button">Ocultar</button>
+        <button class="btn ghost" id="copySeed" type="button">Copy</button>
+        <button class="btn ghost" id="blurSeed" type="button">Hide</button>
       </div>
 
-      <label class="check"><input type="checkbox" id="seedSaved"><span></span><em>La guardé en un lugar seguro y offline.</em></label>
-      <button class="btn primary lg" id="toVerify" disabled>Continuar</button>
+      <label class="check"><input type="checkbox" id="seedSaved"><span></span><em>I saved it somewhere safe and offline.</em></label>
+      <button class="btn primary lg" id="toVerify" disabled>Continue</button>
     </section>
 
-    <!-- ── Crear: verificar ───────────────────────── -->
+    <!-- ── Create: verify ─────────────────────────── -->
     <section class="view" data-view="verify">
-      <button class="back" data-go="create" type="button">Atrás</button>
-      <h2>Comprobemos</h2>
-      <p class="sub">Escribe las palabras que faltan. Es el único modo de saber que de verdad la guardaste.</p>
+      <button class="back" data-go="create" type="button">Back</button>
+      <h2>Let's check</h2>
+      <p class="sub">Type the missing words. It's the only way to know you really saved it.</p>
       <div class="verify" id="verifyFields"></div>
       <p class="err" id="verifyErr" hidden></p>
-      <button class="btn primary lg" id="toPass">Continuar</button>
+      <button class="btn primary lg" id="toPass">Continue</button>
     </section>
 
-    <!-- ── Contraseña ─────────────────────────────── -->
+    <!-- ── Password ───────────────────────────────── -->
     <section class="view" data-view="password">
-      <button class="back" id="passBack" type="button">Atrás</button>
-      <h2>Pon una contraseña</h2>
-      <p class="sub">Cifra tu wallet en este dispositivo. Se te pedirá cada vez que la abras o pagues.</p>
+      <button class="back" id="passBack" type="button">Back</button>
+      <h2>Set a password</h2>
+      <p class="sub">It encrypts your wallet on this device. You'll be asked for it every time you open it.</p>
 
       <label class="field">
-        <span>Contraseña</span>
-        <input type="password" id="pw1" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+        <span>Password</span>
+        <input type="password" id="pw1" autocomplete="new-password" placeholder="At least 8 characters">
       </label>
       <div class="meter"><i id="pwBar"></i></div>
       <p class="meter-label" id="pwLabel">&nbsp;</p>
 
       <label class="field">
-        <span>Repítela</span>
-        <input type="password" id="pw2" autocomplete="new-password" placeholder="La misma">
+        <span>Repeat it</span>
+        <input type="password" id="pw2" autocomplete="new-password" placeholder="The same one">
       </label>
       <p class="err" id="pwErr" hidden></p>
 
       <div class="note">
-        <b>No hay «olvidé mi contraseña».</b> Si la pierdes, recuperas la wallet con tus 12 palabras — por eso importan tanto.
+        <b>There is no "forgot my password".</b> If you lose it, you recover the wallet with your 12 words — which is exactly why they matter.
       </div>
 
-      <button class="btn primary lg" id="doCreate">Cifrar y abrir</button>
+      <button class="btn primary lg" id="doCreate">Encrypt and open</button>
     </section>
 
-    <!-- ── Importar ───────────────────────────────── -->
+    <!-- ── Import ─────────────────────────────────── -->
     <section class="view" data-view="import">
-      <button class="back" data-go="welcome" type="button">Atrás</button>
-      <h2>Importar wallet</h2>
-      <p class="sub">Pega tus 12 o 24 palabras, o una clave privada. Se procesa solo en tu navegador.</p>
+      <button class="back" data-go="welcome" type="button">Back</button>
+      <h2>Import a wallet</h2>
+      <p class="sub">Paste your 12 or 24 words, or a private key. It is processed only in your browser.</p>
       <label class="field">
-        <span>Frase de recuperación o clave privada</span>
-        <textarea id="importInput" rows="4" spellcheck="false" placeholder="palabra uno  palabra dos  palabra tres …"></textarea>
+        <span>Recovery phrase or private key</span>
+        <textarea id="importInput" rows="4" spellcheck="false" placeholder="word one  word two  word three …"></textarea>
       </label>
       <p class="err" id="importErr" hidden></p>
-      <button class="btn primary lg" id="doImport">Continuar</button>
+      <button class="btn primary lg" id="doImport">Continue</button>
     </section>
 
-    <!-- ── Desbloquear ────────────────────────────── -->
+    <!-- ── Unlock ─────────────────────────────────── -->
     <section class="view" data-view="unlock">
       <div class="hero sm">
         <div class="hero-mark" aria-hidden="true"><span></span></div>
-        <h2>Hola de nuevo</h2>
-        <p class="sub center">Tu wallet está cifrada en este dispositivo.</p>
+        <h2>Welcome back</h2>
+        <p class="sub center">Your wallet is encrypted on this device.</p>
       </div>
       <label class="field">
-        <span>Contraseña</span>
-        <input type="password" id="unlockPw" autocomplete="current-password" placeholder="Tu contraseña">
+        <span>Password</span>
+        <input type="password" id="unlockPw" autocomplete="current-password" placeholder="Your password">
       </label>
       <p class="err" id="unlockErr" hidden></p>
-      <button class="btn primary lg" id="doUnlock">Abrir</button>
-      <button class="btn flat" id="forgot" type="button">Olvidé la contraseña</button>
+      <button class="btn primary lg" id="doUnlock">Open</button>
+      <button class="btn flat" id="forgot" type="button">I forgot my password</button>
     </section>
 
     <!-- ── Home ───────────────────────────────────── -->
     <section class="view" data-view="home">
-      <div class="balance-card">
-        <p class="bal-label">Saldo total</p>
+      <div class="balance-card" id="balCard">
+        <div class="bc-top">
+          <span class="bc-tier" id="tierBadge">Classic</span>
+          <button class="bc-acct" id="acctSwitch" type="button" hidden><span id="acctName">Account 1</span></button>
+        </div>
+        <p class="bal-label">Balance on Base</p>
         <p class="bal" id="totalBal"><span class="skeleton w-40"></span></p>
         <button class="addr-chip" id="addrChip" type="button">
           <span id="addrShort">…</span>
@@ -154,132 +158,195 @@
         </button>
       </div>
 
-      <div class="actions">
-        <button class="act" data-go="send"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span>Enviar</button>
-        <button class="act" data-go="receive"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M18 13l-6 6-6-6"/></svg></span>Recibir</button>
-        <button class="act" data-go="charge"><span class="act-i"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/></svg></span>Cobrar</button>
+      <div class="actions four">
+        <button class="act" data-go="send"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span>Send</button>
+        <button class="act" data-go="deposit"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></svg></span>Top up</button>
+        <button class="act" data-go="receive"><span class="act-i"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2z"/></svg></span>Receive</button>
+        <button class="act" data-go="charge"><span class="act-i"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/></svg></span>Request</button>
       </div>
 
-      <h3 class="sec-title">Tus fondos</h3>
+      <h3 class="sec-title">Your funds</h3>
       <ul class="tokens" id="tokenList"></ul>
 
       <div class="sec-head">
-        <h3 class="sec-title">Movimientos</h3>
-        <button class="link-btn" data-go="activity" type="button">Ver todo</button>
+        <h3 class="sec-title">Activity</h3>
+        <button class="link-btn" data-go="activity" type="button">See all</button>
       </div>
       <ul class="activity" id="recentList"></ul>
 
-      <button class="btn flat wide" data-go="settings" type="button">Ajustes y seguridad</button>
+      <button class="btn ghost wide" data-go="plans" type="button" id="plansCta">Compare plans</button>
+      <button class="btn flat wide" data-go="settings" type="button">Settings and security</button>
     </section>
 
-    <!-- ── Enviar ─────────────────────────────────── -->
+    <!-- ── Top up from another wallet ─────────────── -->
+    <section class="view" data-view="deposit">
+      <button class="back" data-go="home" type="button">Back</button>
+      <h2>Top up</h2>
+      <p class="sub">Move funds in from a wallet you already use. Quiver never sees its keys — the other wallet signs, you just approve.</p>
+
+      <div id="depIntro">
+        <ul class="wallet-list" id="walletList"></ul>
+        <p class="hint" id="walletHint"></p>
+        <div class="note">
+          <b>On a phone?</b> Injected wallets only appear inside their own app's browser. Open this page from MetaMask, Coinbase Wallet, Phantom or Rainbow and they'll show up here.
+        </div>
+        <h3 class="sec-title">Or send it yourself</h3>
+        <p class="sub">Any wallet or exchange works — just send to this address on the network you have selected.</p>
+        <button class="btn ghost wide" data-go="receive" type="button">Show my address and QR</button>
+      </div>
+
+      <div id="depForm" hidden>
+        <div class="linked" id="linkedBox">
+          <span class="li-icon" id="linkedIcon"></span>
+          <div class="li-mid"><b id="linkedName"></b><small id="linkedAddr"></small></div>
+          <button class="link-btn" id="unlinkBtn" type="button">Disconnect</button>
+        </div>
+        <p class="hint" id="linkedBal"></p>
+
+        <label class="field">
+          <span>Coin</span>
+          <div class="select-wrap"><select id="depToken"></select></div>
+        </label>
+        <label class="field">
+          <span>Amount</span>
+          <div class="amount-row">
+            <input type="text" inputmode="decimal" id="depAmt" placeholder="0.00">
+            <button class="max" id="depMax" type="button">MAX</button>
+          </div>
+        </label>
+        <p class="err" id="depErr" hidden></p>
+        <button class="btn primary lg" id="depSend">Send to my Quiver wallet</button>
+        <p class="fineprint">Your other wallet will ask you to confirm. The funds land on the address above.</p>
+      </div>
+    </section>
+
+    <!-- ── Plans ──────────────────────────────────── -->
+    <section class="view" data-view="plans">
+      <button class="back" data-go="home" type="button">Back</button>
+      <h2>Plans</h2>
+      <p class="sub">The wallet itself is free and always will be — self-custody, every network, unlimited payments. Paid tiers add tools, not permission to use your own money.</p>
+      <div class="plans" id="planList"></div>
+      <div class="note" id="treasuryNote" hidden></div>
+      <p class="fineprint">Paid plans are charged as a one-month on-chain payment in USDC. Nothing renews by itself and nothing is stored on a card — when the month ends, you simply choose whether to pay again.</p>
+    </section>
+
+    <!-- ── Send ───────────────────────────────────── -->
     <section class="view" data-view="send">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Enviar</h2>
+      <button class="back" data-go="home" type="button">Back</button>
+      <h2>Send</h2>
 
       <div class="pay-note" id="payNote" hidden></div>
 
       <label class="field">
-        <span>Para</span>
-        <input type="text" id="toInput" spellcheck="false" autocomplete="off" placeholder="0x… o nombre.eth">
+        <span>To</span>
+        <input type="text" id="toInput" spellcheck="false" autocomplete="off" placeholder="0x… or name.eth">
         <small class="hint" id="toHint"></small>
       </label>
+      <div class="payees" id="payeeRow" hidden></div>
 
       <label class="field">
-        <span>Moneda</span>
+        <span>Coin</span>
         <div class="select-wrap"><select id="tokenSelect"></select></div>
       </label>
 
       <label class="field">
-        <span>Cantidad</span>
+        <span>Amount</span>
         <div class="amount-row">
           <input type="text" inputmode="decimal" id="amtInput" placeholder="0.00">
-          <button class="max" id="maxBtn" type="button">MÁX</button>
+          <button class="max" id="maxBtn" type="button">MAX</button>
         </div>
         <small class="hint" id="amtHint"></small>
       </label>
 
       <p class="err" id="sendErr" hidden></p>
-      <button class="btn primary lg" id="reviewBtn">Revisar pago</button>
-      <p class="fineprint">Las transferencias en blockchain son definitivas. Revisa la dirección con calma.</p>
+      <button class="btn primary lg" id="reviewBtn">Review payment</button>
+      <p class="fineprint">Blockchain transfers are final. Check the address carefully.</p>
     </section>
 
-    <!-- ── Recibir ────────────────────────────────── -->
+    <!-- ── Receive ────────────────────────────────── -->
     <section class="view" data-view="receive">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Recibir</h2>
-      <p class="sub">Comparte esta dirección o el código. Solo acepta fondos de la red que tengas seleccionada.</p>
+      <button class="back" data-go="home" type="button">Back</button>
+      <h2>Receive</h2>
+      <p class="sub">Share this address or the code. It only accepts funds on the network you have selected.</p>
       <div class="qr-card">
         <div class="qr" id="qrBox"></div>
         <p class="net-tag"><span class="dot" id="recvDot"></span><span id="recvNet"></span></p>
         <p class="addr-full" id="addrFull"></p>
         <div class="row-2">
-          <button class="btn ghost" id="copyAddr" type="button">Copiar dirección</button>
-          <button class="btn ghost" id="shareAddr" type="button">Compartir</button>
+          <button class="btn ghost" id="copyAddr" type="button">Copy address</button>
+          <button class="btn ghost" id="shareAddr" type="button">Share</button>
         </div>
       </div>
     </section>
 
-    <!-- ── Cobrar ─────────────────────────────────── -->
+    <!-- ── Request ────────────────────────────────── -->
     <section class="view" data-view="charge">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Cobrar</h2>
-      <p class="sub">Genera un enlace de cobro. Quien lo abra verá el pago ya rellenado — solo tiene que confirmar.</p>
+      <button class="back" data-go="home" type="button">Back</button>
+      <h2>Request a payment</h2>
+      <p class="sub">Create a payment link. Whoever opens it sees the payment already filled in — all they do is confirm.</p>
 
+      <label class="field" id="fromField" hidden>
+        <span>From <i>(shown to the payer)</i></span>
+        <input type="text" id="chargeFrom" maxlength="32" placeholder="Your name or business">
+      </label>
       <label class="field">
-        <span>Moneda</span>
+        <span>Coin</span>
         <div class="select-wrap"><select id="chargeToken"></select></div>
       </label>
       <label class="field">
-        <span>Cantidad</span>
+        <span>Amount</span>
         <input type="text" inputmode="decimal" id="chargeAmt" placeholder="0.00">
       </label>
       <label class="field">
-        <span>Concepto <i>(opcional)</i></span>
-        <input type="text" id="chargeNote" maxlength="60" placeholder="Mesa 4 · dos cafés">
+        <span>What for <i>(optional)</i></span>
+        <input type="text" id="chargeNote" maxlength="60" placeholder="Table 4 · two coffees">
       </label>
 
-      <button class="btn primary lg" id="makeLink">Generar cobro</button>
+      <button class="btn primary lg" id="makeLink">Create request</button>
 
       <div class="link-out" id="linkOut" hidden>
         <div class="qr sm" id="chargeQr"></div>
         <p class="link-text" id="linkText"></p>
         <div class="row-2">
-          <button class="btn ghost" id="copyLink" type="button">Copiar enlace</button>
-          <button class="btn ghost" id="shareLink" type="button">Compartir</button>
+          <button class="btn ghost" id="copyLink" type="button">Copy link</button>
+          <button class="btn ghost" id="shareLink" type="button">Share</button>
         </div>
       </div>
     </section>
 
-    <!-- ── Actividad ──────────────────────────────── -->
+    <!-- ── Activity ───────────────────────────────── -->
     <section class="view" data-view="activity">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Movimientos</h2>
-      <p class="sub">Los pagos que hiciste desde este dispositivo. El registro definitivo siempre está en la blockchain.</p>
+      <button class="back" data-go="home" type="button">Back</button>
+      <h2>Activity</h2>
+      <p class="sub">Payments made from this device. The definitive record is always the blockchain.</p>
       <ul class="activity" id="allList"></ul>
+      <button class="btn ghost wide" id="exportCsv" type="button" hidden>Export as CSV</button>
     </section>
 
-    <!-- ── Ajustes ────────────────────────────────── -->
+    <!-- ── Settings ───────────────────────────────── -->
     <section class="view" data-view="settings">
-      <button class="back" data-go="home" type="button">Atrás</button>
-      <h2>Ajustes y seguridad</h2>
+      <button class="back" data-go="home" type="button">Back</button>
+      <h2>Settings and security</h2>
 
-      <h3 class="sec-title">Red</h3>
+      <h3 class="sec-title">Plan</h3>
+      <div class="plan-row" id="planRow"></div>
+
+      <h3 class="sec-title">Network</h3>
       <label class="field">
-        <span>RPC personalizado <i>(opcional)</i></span>
+        <span>Custom RPC <i>(optional)</i></span>
         <input type="text" id="rpcInput" spellcheck="false" placeholder="https://…">
-        <small class="hint">Déjalo vacío para usar el nodo público de la red.</small>
+        <small class="hint">Leave it empty to use the network's public node.</small>
       </label>
-      <button class="btn ghost wide" id="saveRpc" type="button">Guardar RPC</button>
+      <button class="btn ghost wide" id="saveRpc" type="button">Save RPC</button>
 
-      <h3 class="sec-title">Copia de seguridad</h3>
-      <div class="note">Tu frase es la única forma de recuperar esta wallet en otro dispositivo. Mírala solo tú, sin cámaras ni pantallas compartidas.</div>
-      <button class="btn ghost wide" id="revealSeed" type="button">Ver mi frase de recuperación</button>
-      <button class="btn ghost wide" id="exportKs" type="button">Descargar copia cifrada</button>
+      <h3 class="sec-title">Backup</h3>
+      <div class="note">Your phrase is the only way to recover this wallet on another device. Look at it alone, with no cameras and no shared screens.</div>
+      <button class="btn ghost wide" id="revealSeed" type="button">Show my recovery phrase</button>
+      <button class="btn ghost wide" id="exportKs" type="button">Download encrypted backup</button>
 
-      <h3 class="sec-title">Sesión</h3>
-      <button class="btn ghost wide" id="lockNow" type="button">Bloquear ahora</button>
-      <button class="btn danger wide" id="wipe" type="button">Borrar la wallet de este dispositivo</button>
+      <h3 class="sec-title">Session</h3>
+      <button class="btn ghost wide" id="lockNow" type="button">Lock now</button>
+      <button class="btn danger wide" id="wipe" type="button">Erase this wallet from this device</button>
 
       <p class="fineprint" id="versionLine"></p>
     </section>
@@ -287,66 +354,78 @@
   </main>
 </div>
 
-<!-- ── Hoja de redes ─────────────────────────────── -->
+<!-- ── Network sheet ─────────────────────────────── -->
 <div class="sheet-wrap" id="netSheet" hidden>
   <div class="sheet-bg" data-close-sheet></div>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Elegir red">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Choose network">
     <div class="grab" aria-hidden="true"></div>
-    <h3>Red</h3>
-    <p class="sub">Cada red tiene sus propias monedas y comisiones.</p>
+    <h3>Network</h3>
+    <p class="sub">Each network has its own coins and its own fees.</p>
     <ul class="net-list" id="netList"></ul>
   </div>
 </div>
 
-<!-- ── Confirmación de pago ──────────────────────── -->
-<div class="sheet-wrap" id="confirmSheet" hidden>
+<!-- ── Accounts sheet ────────────────────────────── -->
+<div class="sheet-wrap" id="acctSheet" hidden>
   <div class="sheet-bg" data-close-sheet></div>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Confirmar pago">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Choose account">
     <div class="grab" aria-hidden="true"></div>
-    <h3 id="cfTitle">Confirma el pago</h3>
-    <p class="cf-amount" id="cfAmount"></p>
-    <dl class="cf-rows">
-      <div><dt>Para</dt><dd id="cfTo"></dd></div>
-      <div><dt>Red</dt><dd id="cfNet"></dd></div>
-      <div><dt>Comisión estimada</dt><dd id="cfFee"></dd></div>
-      <div class="total"><dt>Saldo después</dt><dd id="cfAfter"></dd></div>
-    </dl>
-    <p class="err" id="cfErr" hidden></p>
-    <button class="btn primary lg" id="cfSend">Firmar y enviar</button>
-    <button class="btn flat" data-close-sheet type="button">Cancelar</button>
+    <h3>Accounts</h3>
+    <p class="sub">All of these come from the same recovery phrase, so one backup covers them all.</p>
+    <ul class="net-list" id="acctList"></ul>
+    <button class="btn ghost wide" id="addAcct" type="button">Add an account</button>
   </div>
 </div>
 
-<!-- ── Frase revelada ────────────────────────────── -->
+<!-- ── Payment confirmation ──────────────────────── -->
+<div class="sheet-wrap" id="confirmSheet" hidden>
+  <div class="sheet-bg" data-close-sheet></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Confirm payment">
+    <div class="grab" aria-hidden="true"></div>
+    <h3 id="cfTitle">Confirm the payment</h3>
+    <p class="cf-amount" id="cfAmount"></p>
+    <dl class="cf-rows">
+      <div><dt>To</dt><dd id="cfTo"></dd></div>
+      <div><dt>Network</dt><dd id="cfNet"></dd></div>
+      <div><dt>Estimated fee</dt><dd id="cfFee"></dd></div>
+      <div class="total"><dt>Balance after</dt><dd id="cfAfter"></dd></div>
+    </dl>
+    <p class="err" id="cfErr" hidden></p>
+    <button class="btn primary lg" id="cfSend">Sign and send</button>
+    <button class="btn flat" data-close-sheet type="button">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Recovery phrase ───────────────────────────── -->
 <div class="sheet-wrap" id="seedSheet" hidden>
   <div class="sheet-bg" data-close-sheet></div>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Frase de recuperación">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Recovery phrase">
     <div class="grab" aria-hidden="true"></div>
-    <h3>Tu frase de recuperación</h3>
+    <h3>Your recovery phrase</h3>
     <div id="seedGateWrap">
-      <p class="sub">Escribe tu contraseña para verla.</p>
-      <label class="field"><span>Contraseña</span><input type="password" id="seedPw" placeholder="Tu contraseña"></label>
+      <p class="sub">Type your password to see it.</p>
+      <label class="field"><span>Password</span><input type="password" id="seedPw" placeholder="Your password"></label>
       <p class="err" id="seedErr" hidden></p>
-      <button class="btn primary lg" id="seedGo">Mostrar</button>
+      <button class="btn primary lg" id="seedGo">Show</button>
     </div>
     <div id="seedShowWrap" hidden>
       <div class="seed" id="seedShow"></div>
-      <button class="btn ghost wide" id="seedCopy2" type="button">Copiar</button>
-      <button class="btn flat" data-close-sheet type="button">Listo</button>
+      <button class="btn ghost wide" id="seedCopy2" type="button">Copy</button>
+      <button class="btn flat" data-close-sheet type="button">Done</button>
     </div>
   </div>
 </div>
 
-<!-- ── Estado de envío ───────────────────────────── -->
+<!-- ── Payment status ────────────────────────────── -->
 <div class="sheet-wrap" id="statusSheet" hidden>
   <div class="sheet-bg"></div>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Estado del pago">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Payment status">
     <div class="status-body">
       <div class="status-icon" id="stIcon"><span class="spin"></span></div>
-      <h3 id="stTitle">Enviando…</h3>
-      <p class="sub center" id="stText">Tu pago va camino a la red.</p>
-      <a class="btn ghost wide" id="stLink" target="_blank" rel="noopener noreferrer" hidden>Ver en el explorador</a>
-      <button class="btn primary lg" id="stDone" hidden>Listo</button>
+      <h3 id="stTitle">Sending…</h3>
+      <p class="sub center" id="stText">Your payment is on its way to the network.</p>
+      <a class="btn ghost wide" id="stLink" target="_blank" rel="noopener noreferrer" hidden>View in the explorer</a>
+      <button class="btn primary lg" id="stDone" hidden>Done</button>
     </div>
   </div>
 </div>

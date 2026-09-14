@@ -1,11 +1,10 @@
-/* Sirve Calma como sitio estático.
+/* Serves Quiver as a static site.
  *
- * Una wallet es una página que maneja claves privadas, así que el servidor no
- * es solo un `readFile`: las cabeceras de abajo son parte de la seguridad del
- * producto. La más importante es la CSP — script-src 'self' significa que
- * ningún script ajeno puede ejecutarse en esta página aunque alguien logre
- * inyectar una etiqueta, que es justo como se roban las claves. Por eso ethers
- * va vendorizado en public/vendor y no en una CDN. */
+ * A wallet is a page that handles private keys, so the server is not just a
+ * `readFile`: the headers below are part of the product's security. The most
+ * important is the CSP — script-src 'self' means no outside script can run on
+ * this page even if someone manages to inject a tag, which is exactly how keys
+ * get stolen. That is why ethers is vendored in public/vendor, not on a CDN. */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -25,9 +24,9 @@ const TYPES = {
   '.txt': 'text/plain; charset=utf-8'
 };
 
-/* connect-src tiene que dejar pasar https: porque el usuario puede apuntar a
-   cualquier nodo RPC desde Ajustes; localhost va incluido para quien corre su
-   propio nodo en la misma máquina. Todo lo demás queda cerrado. */
+/* connect-src has to allow https: because the user can point at any RPC node
+   from Settings; localhost is in there for anyone running their own node on the
+   same machine. Everything else stays shut. */
 const CSP = [
   "default-src 'self'",
   "script-src 'self'",
@@ -58,9 +57,9 @@ http.createServer((req, res) => {
   }
 
   let rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-  /* /app es la wallet y / es la portada. La wallet tiene su propia ruta limpia
-     porque los enlaces de cobro se construyen sobre ella y acaban pegados en
-     chats y facturas: ahí un ".html" sobra. */
+  /* /app is the wallet and / is the landing page. The wallet gets its own clean
+     path because payment links are built on it and end up pasted into chats and
+     invoices, where a ".html" is just noise. */
   if (rel === '/app' || rel === '/app/') rel = '/app.html';
   else if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
 
@@ -72,8 +71,8 @@ http.createServer((req, res) => {
 
   fs.readFile(file, (err, body) => {
     if (err) {
-      /* Una ruta desconocida devuelve la app: los enlaces de cobro viven en el
-         hash, pero así un /pay escrito a mano tampoco rompe nada. */
+      /* An unknown path returns the app: payment links live in the hash, but
+         this way a hand-typed /pay does not break either. */
       fs.readFile(path.join(ROOT, 'index.html'), (e2, home) => {
         if (e2) { res.writeHead(404, SECURITY).end('404'); return; }
         res.writeHead(404, Object.assign({}, SECURITY, {
@@ -86,10 +85,10 @@ http.createServer((req, res) => {
     const ext = path.extname(file).toLowerCase();
     res.writeHead(200, Object.assign({}, SECURITY, {
       'content-type': TYPES[ext] || 'application/octet-stream',
-      /* El HTML nunca se cachea para que un despliegue llegue de inmediato;
-         ethers está congelado en una versión y puede cachearse a gusto. */
+      /* HTML is never cached so a deploy lands immediately; ethers is frozen at
+         one version and can be cached freely. */
       'cache-control': ext === '.html' ? 'no-store' : 'public, max-age=86400'
     }));
     res.end(req.method === 'HEAD' ? undefined : body);
   });
-}).listen(PORT, () => console.log(`Calma escuchando en :${PORT}`));
+}).listen(PORT, () => console.log(`Quiver listening on :${PORT}`));

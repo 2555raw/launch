@@ -1,15 +1,15 @@
-/* Portada: solo adorno y una comprobación. Nada de esto toca claves. */
+/* Landing page: decoration and one check. None of this touches keys. */
 (() => {
   'use strict';
 
-  /* La barra se separa del fondo con una línea en cuanto hay scroll. */
+  /* The bar grows a hairline as soon as the page scrolls. */
   const nav = document.querySelector('.nav');
   const onScroll = () => nav.classList.toggle('stuck', window.scrollY > 8);
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  /* Las secciones entran al asomarse. Sin IntersectionObserver se quedan
-     visibles, que es el estado correcto por defecto. */
+  /* Sections fade in as they appear. Without IntersectionObserver they simply
+     stay visible, which is the right default. */
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
       entries.forEach(e => {
@@ -23,13 +23,13 @@
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('seen'));
   }
 
-  /* A quien ya tiene una wallet en este navegador no se le ofrece crear otra:
-     crear otra encima sería perder la primera. */
+  /* Anyone who already has a wallet in this browser is not offered a new one:
+     making another on top of it would lose the first. */
   let has = false;
-  try { has = !!localStorage.getItem('calma.v1.keystore'); } catch {}
+  try { has = !!localStorage.getItem('quiver.v1.keystore') || localStorage.getItem('calma.v1.keystore'); } catch {}
   if (has) {
-    document.querySelectorAll('#heroCta, #footCta').forEach(a => { a.textContent = 'Abrir mi wallet'; });
+    document.querySelectorAll('#heroCta, #footCta').forEach(a => { a.textContent = 'Open my wallet'; });
     const nav = document.getElementById('navCta');
-    if (nav) nav.textContent = 'Mi wallet';
+    if (nav) nav.textContent = 'My wallet';
   }
 })();

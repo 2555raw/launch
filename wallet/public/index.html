@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calma — la wallet que solo tú controlas</title>
-<meta name="description" content="Crea una wallet en tu navegador y cobra o paga en redes reales. Sin custodia, sin registro, sin intermediarios.">
-<meta name="theme-color" content="#EFF7F4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#061513" media="(prefers-color-scheme: dark)">
+<title>Quiver — the wallet that answers to you</title>
+<meta name="description" content="Create a wallet in your browser, top it up from MetaMask, Coinbase Wallet or Phantom, and get paid on real networks. No custody, no sign-up.">
+<meta name="theme-color" content="#F3F4FD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0B18" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="landing.css">
@@ -17,32 +17,33 @@
 
 <nav class="nav">
   <div class="wrap nav-in">
-    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Calma</span></a>
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Quiver</span></a>
     <div class="nav-links">
-      <a href="#como">Cómo funciona</a>
-      <a href="#seguridad">Seguridad</a>
-      <a href="#preguntas">Preguntas</a>
+      <a href="#how">How it works</a>
+      <a href="#topup">Top up</a>
+      <a href="#plans">Plans</a>
+      <a href="#security">Security</a>
     </div>
-    <a class="cta sm" href="/app" id="navCta">Abrir wallet</a>
+    <a class="cta sm" href="/app" id="navCta">Open wallet</a>
   </div>
 </nav>
 
 <main id="top">
 
-  <!-- ── Portada ──────────────────────────────────── -->
+  <!-- ── Hero ─────────────────────────────────────── -->
   <header class="hero wrap">
     <div class="hero-copy">
-      <span class="eyebrow">Sin custodia · sin registro</span>
-      <h1>Tu dinero,<br>en calma.</h1>
-      <p class="lede">Crea una wallet en tu navegador en menos de un minuto. Cobra con un enlace, paga con un toque, y las claves no salen nunca de tu dispositivo — ni siquiera hacia nosotros.</p>
+      <span class="eyebrow">Self-custody · no sign-up</span>
+      <h1>Money that<br>answers to you.</h1>
+      <p class="lede">Make a wallet in your browser in under a minute. Top it up from the wallet you already use, get paid with a link, and keep the keys where nobody else can reach them — us included.</p>
       <div class="cta-row">
-        <a class="cta" href="/app" id="heroCta">Crear mi wallet</a>
-        <a class="cta ghost" href="#como">Ver cómo funciona</a>
+        <a class="cta" href="/app" id="heroCta">Create my wallet</a>
+        <a class="cta ghost" href="#how">See how it works</a>
       </div>
       <ul class="trust">
-        <li><b>0</b><span>datos personales</span></li>
-        <li><b>6</b><span>redes</span></li>
-        <li><b>~1&nbsp;céntimo</b><span>por pago en Base</span></li>
+        <li><b>0</b><span>personal details</span></li>
+        <li><b>6</b><span>networks</span></li>
+        <li><b>~1&nbsp;cent</b><span>per payment on Base</span></li>
       </ul>
     </div>
 
@@ -50,185 +51,219 @@
       <div class="wcard">
         <div class="wc-glow" aria-hidden="true"></div>
         <div class="wc-top">
-          <span class="wc-brand"><span class="mark sm" aria-hidden="true"></span>Calma</span>
+          <span class="wc-brand"><span class="mark sm" aria-hidden="true"></span>Quiver</span>
           <span class="wc-net"><i></i>Base</span>
         </div>
-        <p class="wc-bal">1,284<small>ETH</small></p>
+        <p class="wc-bal">1.284<small>ETH</small></p>
         <div class="wc-bot">
           <span class="wc-addr">0x7a29 ···· e92E</span>
-          <span class="wc-seal">solo tú firmas</span>
+          <span class="wc-seal">you sign, nobody else</span>
         </div>
       </div>
-      <div class="chip c1"><span class="tick-sm" aria-hidden="true"></span>Pago confirmado</div>
-      <div class="chip c2">Mesa 4 · 12,00 USDC</div>
+      <div class="chip c1"><span class="tick-sm" aria-hidden="true"></span>Payment confirmed</div>
+      <div class="chip c2">Table 4 · 12.00 USDC</div>
     </div>
   </header>
 
-  <!-- ── Redes ────────────────────────────────────── -->
-  <section class="strip wrap" aria-label="Redes disponibles">
-    <p>Funciona en</p>
+  <!-- ── Networks ─────────────────────────────────── -->
+  <section class="strip wrap" aria-label="Available networks">
+    <p>Runs on</p>
     <ul>
       <li><i style="background:#2151F5"></i>Base</li>
       <li><i style="background:#8247E5"></i>Polygon</li>
       <li><i style="background:#12AAFF"></i>Arbitrum</li>
       <li><i style="background:#FF0420"></i>Optimism</li>
       <li><i style="background:#627EEA"></i>Ethereum</li>
-      <li class="muted"><i style="background:#7B8794"></i>y dos redes de prueba</li>
+      <li class="muted"><i style="background:#7B8794"></i>plus two test networks</li>
     </ul>
   </section>
 
-  <!-- ── Cómo funciona ────────────────────────────── -->
-  <section class="sec wrap" id="como">
-    <span class="eyebrow">Cómo funciona</span>
-    <h2>Tres pasos y ya estás cobrando.</h2>
+  <!-- ── How it works ─────────────────────────────── -->
+  <section class="sec wrap" id="how">
+    <span class="eyebrow">How it works</span>
+    <h2>Three steps and you're taking payments.</h2>
     <ol class="steps">
       <li class="reveal">
         <span class="step-n">1</span>
-        <h3>Creas la wallet</h3>
-        <p>El navegador genera doce palabras y te las enseña una sola vez. Las apuntas en papel; te pedimos tres al azar para comprobar que de verdad las tienes.</p>
+        <h3>You make the wallet</h3>
+        <p>The browser generates twelve words and shows them once. You write them down; we ask for three at random to check you really have them.</p>
       </li>
       <li class="reveal">
         <span class="step-n">2</span>
-        <h3>Pones una contraseña</h3>
-        <p>Con ella se cifra la wallet en tu dispositivo. Sin esa contraseña, lo que queda guardado no le sirve a nadie — ni a quien te robe el portátil.</p>
+        <h3>You set a password</h3>
+        <p>It encrypts the wallet on your device. Without it, what's stored is useless to anyone — including whoever steals your laptop.</p>
       </li>
       <li class="reveal">
         <span class="step-n">3</span>
-        <h3>Cobras o pagas</h3>
-        <p>Generas un enlace con el importe y el concepto. Quien lo abre ve el pago ya relleno y solo confirma. El dinero llega en segundos.</p>
+        <h3>You get paid</h3>
+        <p>Make a link with the amount and what it's for. Whoever opens it sees the payment filled in and just confirms. The money arrives in seconds.</p>
       </li>
     </ol>
   </section>
 
-  <!-- ── Capacidades ──────────────────────────────── -->
-  <section class="sec wrap">
-    <span class="eyebrow">Qué puedes hacer</span>
-    <h2>Lo que necesita un cobro, y nada más.</h2>
-    <div class="grid">
-      <article class="tile reveal">
-        <span class="t-i"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/></svg></span>
-        <h3>Enlaces de cobro</h3>
-        <p>Importe, moneda y concepto en un enlace o un QR. Sirve para una factura, una mesa o un traspaso entre amigos.</p>
+  <!-- ── Top up ───────────────────────────────────── -->
+  <section class="sec wrap" id="topup">
+    <span class="eyebrow">Top up</span>
+    <h2>Bring in funds from the wallet you already use.</h2>
+    <p class="sec-lede">Quiver talks to MetaMask, Coinbase Wallet, Phantom, Rainbow and anything else installed in your browser. You pick the amount here, the other wallet asks you to confirm, and the funds land on your Quiver address. Quiver never touches that wallet's keys — it can only ask.</p>
+
+    <ul class="logos reveal">
+      <li><span class="lg mm"></span>MetaMask</li>
+      <li><span class="lg cb"></span>Coinbase Wallet</li>
+      <li><span class="lg ph"></span>Phantom</li>
+      <li><span class="lg rb"></span>Rainbow</li>
+      <li class="more">and any other</li>
+    </ul>
+    <p class="fineprint left">On a phone, browser wallets only appear inside their own app. Open this page from within MetaMask, Coinbase Wallet, Phantom or Rainbow and they'll show up. Not affiliated with any of them.</p>
+  </section>
+
+  <!-- ── Plans ────────────────────────────────────── -->
+  <section class="sec wrap" id="plans">
+    <span class="eyebrow">Plans</span>
+    <h2>The wallet is free. Always.</h2>
+    <p class="sec-lede">Self-custody, every network, unlimited payments — none of that is behind a price. The paid tiers add tools for people running money through it every day; they never buy permission to use your own funds.</p>
+
+    <div class="tiers">
+      <article class="tier reveal">
+        <div class="tier-face classic"><span>Classic</span><i></i></div>
+        <h3>Classic</h3>
+        <p class="tier-price">Free</p>
+        <ul class="perks">
+          <li>Self-custody wallet across six networks</li>
+          <li>Unlimited payments and payment requests</li>
+          <li>Top up from MetaMask, Coinbase Wallet, Phantom and more</li>
+          <li>Encrypted on your device with your own password</li>
+        </ul>
       </article>
-      <article class="tile reveal">
-        <span class="t-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 1.8"/></svg></span>
-        <h3>Liquidación en segundos</h3>
-        <p>En Base o Polygon un pago se confirma en un par de segundos y cuesta céntimos. No hay retención de tres días ni contracargos.</p>
+
+      <article class="tier feat reveal">
+        <span class="ribbon">Most picked</span>
+        <div class="tier-face gold"><span>Gold</span><i></i></div>
+        <h3>Gold</h3>
+        <p class="tier-price">$3<small>/month</small></p>
+        <ul class="perks">
+          <li>Everything in Classic</li>
+          <li>The Gold card</li>
+          <li>Saved payees — stop retyping addresses</li>
+          <li>Your name on every payment request</li>
+          <li>Export your activity as a CSV</li>
+        </ul>
       </article>
-      <article class="tile reveal">
-        <span class="t-i"><svg viewBox="0 0 24 24"><path d="M12 3l7.5 3.2v5c0 4.5-3.1 8.3-7.5 9.6-4.4-1.3-7.5-5.1-7.5-9.6v-5z"/></svg></span>
-        <h3>Euros digitales estables</h3>
-        <p>Cobra en USDC o USDT si no quieres exponerte al vaivén de precio. Un dólar cobrado sigue siendo un dólar mañana.</p>
+
+      <article class="tier reveal">
+        <div class="tier-face plat"><span>Platinum</span><i></i></div>
+        <h3>Platinum</h3>
+        <p class="tier-price">$9<small>/month</small></p>
+        <ul class="perks">
+          <li>Everything in Gold</li>
+          <li>The Platinum card</li>
+          <li>Several accounts from the same recovery phrase</li>
+          <li>One backup still covers all of them</li>
+        </ul>
       </article>
-      <article class="tile reveal">
-        <span class="t-i"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg></span>
-        <h3>Bloqueo automático</h3>
-        <p>A los cinco minutos sin usarla se cierra sola y la clave se borra de la memoria. Un móvil olvidado en una mesa no cuesta dinero.</p>
-      </article>
-      <article class="tile reveal">
-        <span class="t-i"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span>
-        <h3>Revisión antes de firmar</h3>
-        <p>Antes de cada pago ves destinatario, red, comisión estimada y con cuánto te quedas. Nada se firma sin que lo hayas leído.</p>
-      </article>
-      <article class="tile reveal">
-        <span class="t-i"><svg viewBox="0 0 24 24"><path d="M4 12h6M14 12h6"/><circle cx="12" cy="12" r="9"/></svg></span>
-        <h3>Tu propio nodo</h3>
-        <p>Si no te fías del nodo público, pon el tuyo en Ajustes. La app habla con la red que tú elijas, incluida una en tu propia máquina.</p>
-      </article>
+    </div>
+
+    <div class="note wide-note">
+      <b>How the paid tiers are billed.</b> A month is one USDC payment on-chain, made from your own wallet. Nothing auto-renews, no card is stored, and there is no account to cancel — when the month runs out you simply decide whether to pay for another. The plan is proved by the transaction itself, which Quiver re-checks against the chain every time you open it.
     </div>
   </section>
 
-  <!-- ── Seguridad ────────────────────────────────── -->
-  <section class="sec wrap" id="seguridad">
-    <span class="eyebrow">Seguridad</span>
-    <h2>Por qué esto es distinto de dejar el dinero en una web.</h2>
-    <p class="sec-lede">La mayoría de los sitios que “guardan tu cripto” son la custodia de siempre con otro nombre: tu dinero está en su servidor y tú tienes una promesa. Aquí no hay servidor que pueda gastarlo, porque no hay servidor que conozca la clave.</p>
+  <!-- ── Security ─────────────────────────────────── -->
+  <section class="sec wrap" id="security">
+    <span class="eyebrow">Security</span>
+    <h2>Why this isn't the same as leaving money on a website.</h2>
+    <p class="sec-lede">Most sites that "hold your crypto" are ordinary custody under a new name: your money sits on their server and you hold a promise. Here there is no server that can spend it, because there is no server that knows the key.</p>
 
     <div class="sec-grid">
       <div class="fact reveal">
-        <h3>La clave nace y muere en tu navegador</h3>
-        <p>Se genera con el generador criptográfico del sistema, se cifra con <b>scrypt + AES</b> y se guarda solo en tu dispositivo. Nunca viaja por la red, ni cifrada.</p>
+        <h3>The key is born and dies in your browser</h3>
+        <p>Generated with the system's cryptographic source, encrypted with <b>scrypt + AES</b>, and stored only on your device. It never travels over the network, not even encrypted.</p>
       </div>
       <div class="fact reveal">
-        <h3>Ningún script ajeno puede ejecutarse</h3>
-        <p>La librería de firma va servida desde este mismo dominio, no desde una CDN, y la política de contenido bloquea cualquier otro script. Así es como se roban las claves en la mayoría de los casos, y aquí esa puerta está tapiada.</p>
+        <h3>No outside script can run here</h3>
+        <p>The signing library is served from this domain, not a CDN, and the content policy blocks every other script. That is how keys get stolen in most cases, and that door is bricked up.</p>
       </div>
       <div class="fact reveal">
-        <h3>Si desaparecemos, tu dinero sigue ahí</h3>
-        <p>Tus doce palabras son un estándar abierto (BIP-39). Funcionan en MetaMask, Rainbow, Ledger o cualquier otra wallet. No dependes de que esta página siga en pie.</p>
+        <h3>If we disappear, your money doesn't</h3>
+        <p>Your twelve words are an open standard (BIP-39). They work in MetaMask, Rainbow, Ledger or any other wallet. You don't depend on this page staying up.</p>
       </div>
       <div class="fact reveal">
-        <h3>Puedes leer el código</h3>
-        <p>Es una página estática: abre las herramientas del navegador y lee lo que hace, línea a línea. No hay nada corriendo en un servidor que no puedas ver.</p>
+        <h3>You can read the code</h3>
+        <p>It's a static page: open your browser's tools and read exactly what it does, line by line. Nothing runs on a server you can't see.</p>
       </div>
     </div>
   </section>
 
-  <!-- ── Honestidad ───────────────────────────────── -->
+  <!-- ── Honesty ──────────────────────────────────── -->
   <section class="sec wrap">
     <div class="honest reveal">
-      <span class="eyebrow warn">Lo que esto no es</span>
-      <h2>Lo que no te vamos a prometer.</h2>
+      <span class="eyebrow warn">What this is not</span>
+      <h2>What we won't promise you.</h2>
       <ul>
-        <li><b>No es una tarjeta de débito.</b> Para pagar en el súper con una Visa hace falta un emisor con licencia y patrocinio de BIN — eso es un contrato con un banco, no algo que se resuelva con código. Aquí los pagos son transferencias entre direcciones.</li>
-        <li><b>No hay «he olvidado mi contraseña».</b> Nadie puede restablecerla porque nadie la tiene. Se recupera con tus doce palabras, y solo con ellas.</li>
-        <li><b>Los pagos son definitivos.</b> No existe el contracargo. Si te equivocas de dirección, el dinero se fue. Por eso hay una pantalla de revisión antes de cada firma.</li>
-        <li><b>El precio se mueve.</b> ETH y POL suben y bajan. Si eso te quita el sueño, cobra en USDC o USDT.</li>
+        <li><b>It is not a debit card.</b> Paying at a shop with a Visa needs a licensed issuer and BIN sponsorship — that's a contract with a bank, not something code can solve. Here, payments are transfers between addresses.</li>
+        <li><b>It is not a bank, and it is not insured.</b> No deposit protection scheme covers this, because there is no deposit — you are holding your own money.</li>
+        <li><b>There is no "forgot my password".</b> Nobody can reset it because nobody has it. You recover with your twelve words, and only with those.</li>
+        <li><b>Payments are final.</b> Chargebacks don't exist. Send to the wrong address and the money is gone. That's why there's a review screen before every signature.</li>
+        <li><b>The price moves.</b> ETH and POL go up and down. If that keeps you awake, get paid in USDC or USDT.</li>
       </ul>
     </div>
   </section>
 
-  <!-- ── Preguntas ────────────────────────────────── -->
-  <section class="sec wrap" id="preguntas">
-    <span class="eyebrow">Preguntas</span>
-    <h2>Lo que suele preguntarse la gente.</h2>
+  <!-- ── FAQ ──────────────────────────────────────── -->
+  <section class="sec wrap" id="faq">
+    <span class="eyebrow">Questions</span>
+    <h2>What people usually ask.</h2>
     <div class="faq">
       <details>
-        <summary>¿Tenéis acceso a mi dinero?</summary>
-        <p>No, y no es una cuestión de confianza sino de arquitectura: la clave que autoriza un pago se genera en tu navegador y se queda cifrada en tu dispositivo. Nuestro servidor solo entrega archivos; no recibe la clave ni cifrada, así que no hay nada que podamos gastar, congelar ni entregar a nadie.</p>
+        <summary>Can you get at my money?</summary>
+        <p>No, and it isn't a matter of trust — it's architecture. The key that authorises a payment is generated in your browser and stays encrypted on your device. Our server only hands out files; it never receives the key, encrypted or otherwise, so there is nothing for us to spend, freeze, or hand to anyone.</p>
       </details>
       <details>
-        <summary>¿Qué pasa si pierdo el móvil?</summary>
-        <p>Nada, si guardaste tus doce palabras. Instalas la wallet en otro dispositivo, las introduces y recuperas el mismo saldo. Quien encuentre el móvil se topa con un archivo cifrado y una contraseña que no conoce.</p>
+        <summary>How does topping up from MetaMask work?</summary>
+        <p>Your browser wallet announces itself to the page, you approve a connection, and then you approve one ordinary transfer to your Quiver address. Quiver never sees that wallet's private key — it can only ask it to sign, and you can always say no. Coinbase Wallet, Phantom, Rainbow and the rest work the same way.</p>
       </details>
       <details>
-        <summary>¿Y si pierdo las doce palabras?</summary>
-        <p>Entonces se pierde el acceso al dinero, de forma definitiva. No es una política que podamos flexibilizar: no existe ninguna copia de esas palabras en ningún sitio salvo donde tú las hayas puesto. Escríbelas en papel, y guarda ese papel como guardarías dinero en efectivo.</p>
+        <summary>What happens if I lose my phone?</summary>
+        <p>Nothing, if you saved your twelve words. Install the wallet on another device, type them in, and the same balance is there. Whoever finds the phone meets an encrypted file and a password they don't know.</p>
       </details>
       <details>
-        <summary>¿Cuánto cuesta usarla?</summary>
-        <p>La wallet no cobra nada. Cada pago paga la comisión de la red, que va a quien valida la transacción, no a nosotros: en Base o Polygon suele rondar el céntimo; en Ethereum puede ser bastante más. El selector de red está en la barra de arriba.</p>
+        <summary>And if I lose the twelve words?</summary>
+        <p>Then access to the money is gone for good. This isn't a policy we can bend: no copy of those words exists anywhere except where you put them. Write them on paper and keep that paper the way you'd keep cash.</p>
       </details>
       <details>
-        <summary>¿Puedo probarlo sin arriesgar dinero?</summary>
-        <p>Sí, y es lo recomendable antes del primer cobro de verdad. Elige <b>Base Sepolia</b> en el selector de red y pide monedas gratis en un faucet. Es una cadena real, con los mismos bloques y las mismas firmas, pero su moneda no vale nada: te sirve para comprobar el recorrido completo sin poner nada en juego.</p>
+        <summary>What does the paid plan actually get me?</summary>
+        <p>Software features, and only ones that exist: the Gold or Platinum card face, saved payees, your name on payment requests, CSV export, and on Platinum several accounts from one phrase. It does not raise a limit, unlock your own money, or buy you priority on any network — none of that is ours to sell.</p>
       </details>
       <details>
-        <summary>¿Hace falta verificar mi identidad?</summary>
-        <p>No hay registro, ni correo, ni teléfono. Dicho esto, las transacciones en blockchain son públicas: cualquiera que conozca tu dirección puede ver su historial. Es transparente, no anónimo, y conviene no confundir una cosa con la otra.</p>
+        <summary>What does it cost to use?</summary>
+        <p>The wallet charges nothing. Each payment pays the network fee, which goes to whoever validates the transaction, not to us: on Base or Polygon that's usually around a cent; on Ethereum it can be considerably more. The network picker is in the top bar.</p>
       </details>
       <details>
-        <summary>¿Sirve para cobrar en un negocio?</summary>
-        <p>Para cobros puntuales, sí: generas el enlace o el QR con el importe y el cliente confirma. Para un negocio con volumen querrás además contabilidad, devoluciones y conversión a euros, que esto no cubre.</p>
+        <summary>Can I try it without risking money?</summary>
+        <p>Yes, and you should before your first real payment. Pick <b>Base Sepolia</b> in the network menu and get free coins from a faucet. It's a real chain, with the same blocks and the same signatures, but its coin is worth nothing — so you can walk the whole path with nothing at stake.</p>
+      </details>
+      <details>
+        <summary>Do I have to verify my identity?</summary>
+        <p>There's no sign-up, no email, no phone. That said, blockchain transactions are public: anyone who knows your address can see its history. It's transparent, not anonymous, and the two are worth not confusing.</p>
       </details>
     </div>
   </section>
 
-  <!-- ── Cierre ───────────────────────────────────── -->
+  <!-- ── Closer ───────────────────────────────────── -->
   <section class="closer wrap">
     <div class="closer-in reveal">
-      <h2>Un minuto y es tuya.</h2>
-      <p>Sin correo, sin tarjeta, sin esperar aprobación de nadie.</p>
-      <a class="cta big" href="/app" id="footCta">Crear mi wallet</a>
-      <small>Funciona en el navegador que ya tienes abierto.</small>
+      <h2>A minute, and it's yours.</h2>
+      <p>No email, no card, no waiting for anyone's approval.</p>
+      <a class="cta big" href="/app" id="footCta">Create my wallet</a>
+      <small>Works in the browser you already have open.</small>
     </div>
   </section>
 </main>
 
 <footer class="foot">
   <div class="wrap foot-in">
-    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Calma</span></a>
-    <p>Wallet no custodia. Tú guardas las claves y tú asumes su custodia. Esto no es asesoramiento financiero ni un servicio de pagos regulado.</p>
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Quiver</span></a>
+    <p>Self-custody wallet. You hold the keys and you carry the custody. This is not financial advice, not a bank, and not a regulated payment service. Quiver is independent and not affiliated with, endorsed by, or connected to any wallet, exchange, brokerage or network named on this page.</p>
   </div>
 </footer>
 

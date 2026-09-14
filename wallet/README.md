@@ -1,80 +1,117 @@
-# Calma — wallet no custodia
+# Quiver — self-custody wallet
 
-Una wallet que vive entera en el navegador de quien la abre. La clave se genera
-ahí, se cifra ahí y se firma ahí; el servidor solo sirve archivos estáticos y no
-ve nunca un secreto. Los pagos van a cadenas EVM reales y se liquidan de verdad.
+A wallet that lives entirely in the browser of whoever opens it. The key is
+generated there, encrypted there and signed there; the server only ever hands
+out static files and never sees a secret. Payments go to real EVM chains and
+settle for real.
 
-## Qué hace
+## What it does
 
-- **Crear wallet** — frase BIP-39 de 12 palabras generada con `crypto.getRandomValues`,
-  con verificación obligatoria de tres palabras antes de seguir.
-- **Importar** — frase de 12/24 palabras o clave privada.
-- **Cifrado en disco** — keystore JSON estándar (scrypt + AES-128-CTR) en
-  `localStorage`. Ni la frase ni la clave quedan nunca en claro.
-- **Pagar** — moneda nativa y ERC-20 (USDC/USDT), con estimación de comisión,
-  pantalla de revisión y seguimiento del recibo en cadena.
-- **Recibir** — dirección y QR `ethereum:` con el id de red.
-- **Cobrar** — enlace (y QR) que abre la app del pagador con el pago ya relleno.
-- **Redes** — Base, Polygon, Arbitrum, Optimism, Ethereum y dos de prueba
-  (Base Sepolia, Sepolia). RPC propio configurable por red.
-- **Bloqueo automático** a los 5 minutos de inactividad.
+- **Create a wallet** — a 12-word BIP-39 phrase generated with
+  `crypto.getRandomValues`, with three words checked back before you can go on.
+- **Import** — a 12/24-word phrase, or a private key.
+- **Encrypted on disk** — a standard keystore JSON (scrypt + AES-128-CTR) in
+  `localStorage`. Neither the phrase nor the key is ever stored in the clear.
+- **Pay** — the network coin and ERC-20s (USDC/USDT), with a fee estimate, a
+  review screen, and the receipt followed on chain.
+- **Top up from another wallet** — MetaMask, Coinbase Wallet, Phantom, Rainbow
+  or anything else installed, discovered over **EIP-6963**. Quiver never sees
+  that wallet's keys; it asks, the other wallet signs.
+- **Receive** — address and an `ethereum:` QR carrying the chain id.
+- **Request** — a link (and QR) that opens the payer's app with the payment
+  already filled in.
+- **Networks** — Base, Polygon, Arbitrum, Optimism, Ethereum, plus two test
+  chains. A custom RPC can be set per network.
+- **Auto-lock** after five minutes idle.
 
-## Decisiones de seguridad
+## Plans
 
-- **ethers va vendorizado** en `public/vendor`, no en una CDN. Un script de
-  terceros en una página que maneja claves privadas es una puerta abierta: quien
-  controle la CDN controla las claves.
-- **CSP con `script-src 'self'`** (ver `server.js`), más `frame-ancestors 'none'`,
-  `nosniff`, `no-referrer` y `Permissions-Policy` restrictiva.
-- **`connect-src`** deja pasar `https:` (el usuario puede elegir su nodo RPC) y
-  `localhost` (para quien corre un nodo propio en su máquina). Nada más.
-- La clave descifrada vive solo en memoria y se borra al bloquear.
+Classic is free and always will be: self-custody, every network, unlimited
+payments. Gold ($3/month) and Platinum ($9/month) add software features — card
+face, saved payees, named payment requests, CSV export, and on Platinum several
+accounts derived from the same phrase.
 
-## Estructura
+A month is **one USDC transfer on chain** to the address in `TREASURY`
+(`public/app.js`, top of the file). Set it to an address you control; until you
+do, the upgrade buttons say so rather than pretending to charge.
 
-- `public/index.html` — la portada.
-- `public/app.html` + `app.js` — la wallet, servida en `/app`.
-- `public/vendor/` — ethers y el generador de QR, congelados aquí a propósito.
-- `server.js` — estáticos y cabeceras de seguridad.
-- `test/e2e.js` — el recorrido completo contra una cadena real (ver `test/README.md`).
+Nothing auto-renews and no card is stored. The entitlement is proved by the
+transaction itself: on every unlock the stored hash is re-fetched and its
+Transfer log checked for sender, recipient and amount, so a plan cannot be
+granted by editing `localStorage` — only by a payment that actually happened.
 
-## Correr en local
+The perks are deliberately things the software can deliver. A paid tier here
+never raises a limit, unlocks your own money, or buys priority on a network:
+none of that would be ours to sell.
+
+## Security decisions
+
+- **ethers is vendored** in `public/vendor`, not loaded from a CDN. A
+  third-party script on a page that handles private keys is an open door:
+  whoever controls the CDN controls the keys.
+- **CSP with `script-src 'self'`** (see `server.js`), plus
+  `frame-ancestors 'none'`, `nosniff`, `no-referrer` and a tight
+  `Permissions-Policy`.
+- **`connect-src`** allows `https:` (the user picks their RPC node) and
+  `localhost` (for anyone running their own). Nothing else.
+- The decrypted key lives in memory only and is wiped on lock.
+
+## Structure
+
+- `public/index.html` — the landing page.
+- `public/app.html` + `app.js` — the wallet, served at `/app`.
+- `public/vendor/` — ethers and the QR generator, frozen here on purpose.
+- `server.js` — static files and security headers.
+- `test/` — the full journey against a real chain (see `test/README.md`).
+
+## Running it locally
 
 ```sh
 cd wallet
 npm start           # http://localhost:8080
 ```
 
-No hay dependencias que instalar: `server.js` usa solo módulos de Node.
+Nothing to install: `server.js` uses only Node's own modules.
 
-## Cómo se ha comprobado
+## How it has been checked
 
-Con una cadena EVM local fijada al id 8453, el navegador crea la wallet, la
-cifra, firma un pago y la prueba verifica **en la cadena** que la transacción
-existe y que el destinatario recibió el importe exacto. También comprueba que
-ni la frase ni la clave privada quedan en claro en el navegador. Está en
-`test/`; se vuelve a pasar con un comando.
+Against a local EVM chain pinned to id 8453, the browser creates the wallet,
+encrypts it, signs a payment, and the test verifies **on the chain** that the
+transaction exists and the recipient received the exact amount. A second test
+announces its own EIP-6963 provider — the same interface the real wallets use —
+and proves the top-up path moves real funds into the generated address. Both
+also check that neither the phrase nor the private key is left in the clear in
+the browser.
 
-## Desplegar
+```sh
+npm test
+```
 
-Es un sitio estático con un servidor Node mínimo; `server.js` escucha en `$PORT`.
+## Deploying
 
-En Railway hay que apuntar el servicio a este directorio (**Root Directory:
-`/wallet`**). Sin eso, el detector analiza la raíz del repositorio —que aloja
-varios proyectos y no tiene `package.json`— y el build falla antes de empezar.
-`railway.json` fija el resto: comando de arranque, healthcheck y política de
-reinicio, para que el despliegue no dependa de que la autodetección acierte.
+A static site with a minimal Node server; `server.js` listens on `$PORT`.
 
-## Probarlo sin arriesgar dinero
+On Railway the service must point at this directory (**Root Directory:
+`/wallet`**). Without that, the detector analyses the repository root — which
+holds several projects and no `package.json` — and the build fails before it
+starts. `railway.json` pins the rest: start command, healthcheck and restart
+policy, so the deploy does not depend on autodetection guessing right.
 
-Elige **Base Sepolia** en el selector de red y pide ETH de prueba en un faucet.
-Es una cadena real, con los mismos bloques y las mismas firmas, pero su moneda no
-vale nada: sirve para comprobar de punta a punta que un cobro funciona antes de
-mover dinero de verdad.
+## Trying it without risking money
 
-## Lo que esto NO es
+Pick **Base Sepolia** in the network menu and get test ETH from a faucet. It is
+a real chain, with the same blocks and the same signatures, but its coin is
+worth nothing: it is there to prove a payment works end to end before any money
+moves.
 
-No es una tarjeta de débito ni un emisor de pagos. Gastar en comercios con una
-Visa/Mastercard exige un emisor con licencia, patrocinio de BIN y KYC — eso es un
-contrato, no código. Aquí los pagos son transferencias en blockchain entre
-direcciones.
+## What this is not
+
+Not a debit card and not a payment issuer. Spending at shops on a Visa or
+Mastercard needs a licensed issuer, BIN sponsorship and KYC — that is a
+contract, not code. Here, payments are blockchain transfers between addresses.
+
+Not a bank, and not insured. No deposit protection scheme covers this, because
+there is no deposit: you are holding your own money.
+
+Quiver is independent. It is not affiliated with, endorsed by or connected to
+any wallet, exchange, brokerage or network it interoperates with or names.

@@ -1,40 +1,50 @@
-# Prueba de punta a punta
+# End-to-end tests
 
-`e2e.js` abre la wallet en un navegador de verdad, crea una wallet, la cifra,
-paga, y después comprueba en la cadena que ese pago existe y movió el dinero.
-No comprueba maquetación; comprueba las cosas que, si fallan, cuestan dinero:
+These open the wallet in a real browser, do real things, and then check the
+result **against the chain**. They do not check layout; they check the parts
+that cost money when they break.
 
-- la frase generada es BIP-39 válida y la dirección deriva de ella;
-- el keystore queda cifrado con scrypt, y **ni la frase ni la clave privada
-  aparecen en claro** en ningún sitio de `localStorage`;
-- una palabra de verificación incorrecta se rechaza;
-- una contraseña incorrecta se rechaza;
-- una cantidad escrita a la española (`0,25`) mueve exactamente 0,25;
-- el recibo en cadena existe, es de tipo 2 (EIP-1559), lo firma la dirección de
-  la wallet y el destinatario recibe el importe exacto;
-- un enlace de cobro, abierto en frío en otra pestaña, lleva al pago relleno.
+## `e2e.js` — the full journey
 
-## Qué hace falta
+- the generated phrase is valid BIP-39 and the address derives from it;
+- the keystore is encrypted with scrypt, and **neither the phrase nor the
+  private key** appears in the clear anywhere in `localStorage`;
+- a wrong verification word is rejected;
+- a wrong password is rejected;
+- the on-chain receipt exists, is type 2 (EIP-1559), is signed by the wallet's
+  address, and the recipient receives the exact amount;
+- a payment link, opened cold in another tab, lands on the prefilled payment.
 
-- `playwright` y `ethers` resolubles desde aquí (`npm i -D playwright ethers`,
-  o globales).
-- Un nodo EVM local **con chain id 8453**, porque la app firma para la red que
-  tiene seleccionada y un id distinto haría que el nodo rechazara la firma:
+## `deposit.js` — topping up from an external wallet
+
+A browser extension cannot be installed here, so the test announces its own
+EIP-6963 provider — the same interface MetaMask, Coinbase Wallet, Phantom and
+Rainbow announce — and forwards every request to the local node. What is under
+test is Quiver's side of that conversation: discovery, connection, the chain
+switch, and real funds arriving at the address it generated, with the balance on
+screen agreeing with the chain afterwards.
+
+## What they need
+
+- `playwright` and `ethers` resolvable from here (`npm i -D playwright ethers`,
+  or installed globally).
+- A local EVM node **on chain id 8453**, because the app signs for the network
+  it has selected and a different id would make the node reject the signature:
 
   ```sh
-  npx hardhat node --port 8545      # con networks.hardhat.chainId = 8453
+  npx hardhat node --port 8545      # with networks.hardhat.chainId = 8453
   ```
 
-- La wallet servida: `PORT=8099 npm start` desde `wallet/`.
+- The wallet being served: `PORT=8099 npm start` from `wallet/`.
 
-## Correrlo
+## Running them
 
 ```sh
-node test/e2e.js
+npm test            # both, in order
 ```
 
-Variables opcionales: `APP_URL`, `RPC_URL`, `CHROME_PATH`, `SHOT_DIR`.
+Optional variables: `APP_URL`, `RPC_URL`, `CHROME_PATH`, `SHOT_DIR`.
 
-La clave privada que aparece en el archivo es la primera cuenta de Hardhat, que
-es pública y conocida por todo el mundo. Sirve para financiar la wallet de
-prueba en la cadena local y **no debe usarse en ninguna red real**.
+The private key in the files is Hardhat's first account, which is public and
+known to everyone. It funds the test wallet on the local chain and **must never
+be used on a real network**.

@@ -1,10 +1,10 @@
 {
-  "name": "Calma — tu wallet",
-  "short_name": "Calma",
-  "description": "Wallet no custodia: tus claves se crean y se quedan en tu navegador.",
+  "name": "Quiver — your wallet",
+  "short_name": "Quiver",
+  "description": "Self-custody wallet: your keys are created in, and stay in, your browser.",
   "start_url": "/app",
   "display": "standalone",
-  "background_color": "#EFF7F4",
-  "theme_color": "#0E9E8E",
+  "background_color": "#F3F4FD",
+  "theme_color": "#5A5CE0",
   "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
 }

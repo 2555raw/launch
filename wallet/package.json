@@ -1,10 +1,11 @@
 {
-  "name": "calma-wallet",
+  "name": "quiver-wallet",
   "version": "1.0.0",
   "private": true,
-  "description": "Calma — wallet no custodia en el navegador, con pagos reales en redes EVM.",
+  "description": "Quiver — self-custody wallet in the browser, with real payments on EVM networks.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node test/e2e.js && node test/deposit.js"
   },
   "engines": {
     "node": ">=18"

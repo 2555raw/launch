@@ -3,3 +3,8 @@ Thumbs.db
 *.log
 .env
 .env.*
+# film intermediates - regenerate with video/README.md, only the cut is committed
+video/raw/
+video/cards/
+video/caps/
+video/_clips/

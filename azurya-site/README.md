@@ -11,8 +11,9 @@ quote on the app screen is simulated and labelled as such in the UI.
 
 Salmya is named for *salmon*, the colour — so the page is built on salmon rather than
 decorated with it. The ground is a salmon wash, the cards are the paper laid on it, and the
-accent is a deeper reading of the same colour. The mark is three descending bars, which is
-also the page's repeating motif.
+accent is a deeper reading of the same colour. The mark is a salmon cut out of a disc: the
+fish is the hole rather than the shape, so one filled path with an even-odd rule carries it
+everywhere, from the 13px separator in the ticker to the watermark behind the hero.
 
 The light theme is the real one. Dark is the same salmon after dusk: warm charcoal, never
 grey. The accent picker in the corner carries four readings of the salmon, each with a light

@@ -160,7 +160,8 @@ const step = m => console.log('  ▸ ' + m);
   await payer.waitForSelector('[data-view="send"].on', { timeout: 60000 });
   const to = await payer.inputValue('#toInput'), amt = await payer.inputValue('#amtInput');
   const noteTxt = await payer.textContent('#payNote');
-  if (to.toLowerCase() !== store.addr.toLowerCase() || amt !== '1.5') throw new Error('el cobro no se rellenó: ' + to + ' / ' + amt);
+  /* El enlace lleva 1.5 (es una URL) y la pantalla lo muestra 1,5 (es español). */
+  if (to.toLowerCase() !== store.addr.toLowerCase() || amt !== '1,5') throw new Error('el cobro no se rellenó: ' + to + ' / ' + amt);
   if (!noteTxt.includes('Mesa 4')) throw new Error('el concepto no llegó');
   step('el enlace, abierto en frío, lleva directo al pago rellenado: ' + amt + ' ETH · "' + noteTxt.trim().slice(0, 44) + '"');
   await payer.screenshot({ path: SHOTS + 'shot-pay.png' });

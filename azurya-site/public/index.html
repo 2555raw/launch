@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Veryam — the hook that looks</title>
+<title>Salmya — the hook that looks</title>
 <meta name="color-scheme" content="light dark">
 <!-- The mark itself, inline. A served file needs the server to be serving
      it, which is not true of every copy of this page that exists. -->
@@ -155,7 +155,7 @@
     margin: 0;
   }
 
-  /* ============ Veryam mark ============ */
+  /* ============ Salmya mark ============ */
   .wavemark { display: block; }
 
   /* ============ nav ============ */
@@ -2378,7 +2378,7 @@
     }
   }
 
-  /* ============ veryam: sides swapped, blocks overlapped ============ */
+  /* ============ salmya: sides swapped, blocks overlapped ============ */
 
   /* the bar on top, mirrored */
   .nav-in .wallet-wrap { order: 1; margin-left: 0; margin-right: auto; }
@@ -3325,7 +3325,7 @@
   }
 
 
-  /* ============ Veryam: the rebrand pass ============ */
+  /* ============ Salmya: the rebrand pass ============ */
   /* Everything below is the brand and the movement that came with it.
      It sits last on purpose: three composition passes already moved this
      layout around, and this has to win over all of them.
@@ -3701,7 +3701,7 @@
    anybody sees. */
 (function () {
   try {
-    var m = localStorage.getItem('veryam-theme');
+    var m = localStorage.getItem('salmya-theme');
     if (m !== 'dark') document.documentElement.setAttribute('data-theme', 'light');
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'light');
@@ -3709,14 +3709,14 @@
 })();
 </script>
 
-<!-- reusable Veryam mark -->
+<!-- reusable Salmya mark -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <!-- A price taking the split in one move: three bars stepping down and
          shortening as they go. Square ends on purpose - a brand this loud does
          not want soft corners - and filled rather than stroked, because every
          use of the mark sets fill. -->
-    <g id="veryam-mark">
+    <g id="salmya-mark">
       <path d="M1.60 4.60H10.40V7.90H1.60Z"/>
       <path d="M8.20 10.35H15.80V13.65H8.20Z"/>
       <path d="M14.20 16.10H22.40V19.40H14.20Z"/>
@@ -3728,8 +3728,8 @@
 <header class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top">
-      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg>
-      Veryam
+      <svg class="wavemark" width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg>
+      Salmya
     </a>
     <nav class="nav-links">
       <a href="#state">State</a>
@@ -3752,8 +3752,8 @@
         <span class="caret"></span>
       </button>
       <button class="nav-chip" type="button">
-        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
-        VERYAM
+        <svg class="wavemark" width="14" height="14" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
+        SLM
         <span class="val">$0.0847</span>
       </button>
     </div>
@@ -3796,14 +3796,14 @@
       <rect class="stripe-fill" width="200%" height="100%" fill="url(#stripeTile)"/>
     </svg>
     <div class="hero-glow"></div>
-    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg>
+    <svg class="hero-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg>
     <div class="wrap hero-grid">
 
       <div class="hero-col">
         <p class="rule-eyebrow">Uniswap v4 hook &middot; Base Sepolia</p>
         <h1>Your pool should not<br><em>pay</em> for the split.</h1>
         <p class="hero-sub">A corporate action reprices an asset at a known moment, by a known factor, with nobody trading. Nothing lands in the pool to tell it, so it keeps quoting yesterday's number. The curve stays wrong for exactly as long as nobody looks.</p>
-        <p class="hero-punch">Veryam is the hook that looks.</p>
+        <p class="hero-punch">Salmya is the hook that looks.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
           <a class="btn btn-ghost" href="#/docs">Read the note</a>
@@ -3845,8 +3845,8 @@
 
   <!-- ticker -->
   <div class="ticker ticker-light" aria-hidden="true">
-    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Veryam</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg></div>
-    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg><span>Veryam</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg></div>
+    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Salmya</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg></div>
+    <div class="ticker-track"><span>Splits</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Dividends</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Rebases</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Redenominations</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>The curve moves first</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Record date</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>One block</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg><span>Salmya</span><svg class="tk-mark" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg></div>
   </div>
 
   <!-- state of it -->
@@ -3884,7 +3884,7 @@
 
       <p class="ca-lede" id="caLede">
         When the token exists, its address appears here and nowhere else first.
-        Until this box shows one, any contract claiming to be Veryam is not ours.
+        Until this box shows one, any contract claiming to be Salmya is not ours.
         Check this page before you buy anything.
       </p>
 
@@ -4007,7 +4007,7 @@
 
     <div class="code">
       <div class="code-bar">
-        <span class="code-file">VeryamHook.sol</span>
+        <span class="code-file">SalmyaHook.sol</span>
         <span class="code-meta">solidity 0.8.26 &middot; v4-core</span>
       </div>
       <pre class="code-body"><code><span class="c-cm">// runs before the pool settles the swap in front of it</span>
@@ -4035,7 +4035,7 @@
   <section class="sec wrap" id="fees-tech">
     <p class="rule-eyebrow">Fee controller</p>
     <h2 class="sec-title">The fee is a function,<br>not a constant.</h2>
-    <p class="sec-lede">Veryam runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
+    <p class="sec-lede">Salmya runs a dynamic fee onchain. When volatility climbs the fee climbs with it, which is exactly when uninformed liquidity gets picked off. When the market calms down the fee drops back, so routers keep choosing the pool.</p>
 
     <div class="feat-grid">
       <article class="feat">
@@ -4093,21 +4093,21 @@
       <div class="launch-list">
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#veryam-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#salmya-mark"/></svg>
             95% to LPs
           </h3>
           <p>Fee only pools keep 95% of swap fees with the liquidity providers and send 5% to the protocol.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#veryam-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#salmya-mark"/></svg>
             Pool options for your launch
           </h3>
           <p>Legacy V2 and concentrated V3 pools on every supported chain, with DLMM available on select networks.</p>
         </div>
         <div class="launch-item">
           <h3>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#veryam-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="wavemark" aria-hidden="true"><use href="#salmya-mark"/></svg>
             Your launch. Your rules.
           </h3>
           <p>You keep control of your launch and your graduation mechanics, and we stay on the integration with you.</p>
@@ -4130,13 +4130,13 @@
       <h2>Questions we actually get</h2>
 
       <details class="q" open>
-        <summary>What is xVERYAM?</summary>
-        <p>xVERYAM carries the votes. It borrows the useful half of vote escrow, which is that long term holders steer emissions, and drops the half that traps you for four years. Balances stay liquid and the weight comes from participation instead of sentence length.</p>
+        <summary>What is xSLM?</summary>
+        <p>xSLM carries the votes. It borrows the useful half of vote escrow, which is that long term holders steer emissions, and drops the half that traps you for four years. Balances stay liquid and the weight comes from participation instead of sentence length.</p>
       </details>
 
       <details class="q">
         <summary>What is f33?</summary>
-        <p>f33 is xVERYAM you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperVeryam.</p>
+        <p>f33 is xSLM you can still move. It votes for you each epoch and folds the rewards back into the position, so you are not logging in every Thursday to click a gauge. On HyperEVM the same asset trades as HyperSalmya.</p>
       </details>
 
       <details class="q">
@@ -4145,7 +4145,7 @@
       </details>
 
       <details class="q">
-        <summary>Which chains does Veryam support?</summary>
+        <summary>Which chains does Salmya support?</summary>
         <p>The target set is Arbitrum, HyperEVM, Base and Polygon, with routing that can reach HyperCore and connected lending markets inside the same transaction. None of it is on mainnet yet.</p>
       </details>
 
@@ -4155,7 +4155,7 @@
       </details>
 
       <details class="q">
-        <summary>Has Veryam been audited?</summary>
+        <summary>Has Salmya been audited?</summary>
         <p>Not yet, and there is nothing deployed to audit. When there is, external review happens before a single unit of mainnet liquidity is accepted, and the report goes up next to the docs. It is a gate, not a badge.</p>
       </details>
     </div>
@@ -4165,9 +4165,9 @@
   <!-- closing -->
   <section class="wrap" style="padding-bottom:88px">
     <div class="close-cta" id="app">
-      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+      <svg class="wavemark" width="42" height="42" viewBox="0 0 24 24" fill="currentColor" style="margin:0 0 18px auto;color:var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
       <h2>Point a pool at it.</h2>
-      <p>Connect a wallet, add liquidity or stake xVERYAM, and earn from every trade the protocol routes.</p>
+      <p>Connect a wallet, add liquidity or stake xSLM, and earn from every trade the protocol routes.</p>
       <a class="btn btn-primary" href="#/trade">Open the app &#8594;</a>
     </div>
   </section>
@@ -4179,8 +4179,8 @@
   <div class="wrap">
     <div class="foot-in">
       <a class="brand" href="#top">
-        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg>
-        Veryam
+        <svg class="wavemark" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg>
+        Salmya
       </a>
       <nav class="foot-links">
         <a href="#/trade">Trade</a>
@@ -4193,14 +4193,14 @@
       </nav>
 
       <div class="socials">
-        <a class="social" href="https://x.com/VeryamTech" target="_blank" rel="noopener" aria-label="Veryam on X" data-social="x">
+        <a class="social" href="https://x.com/SalmyaTech" target="_blank" rel="noopener" aria-label="Salmya on X" data-social="x">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
         </a>
       </div>
 
-      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 V E R Y A M</span>
+      <span class="mono" style="font-size:11px;color:var(--ink-faint);letter-spacing:.14em">&copy; 2026 S A L M Y A</span>
     </div>
   </div>
 </footer>
@@ -4209,7 +4209,7 @@
 <main class="docs" id="docsView" hidden>
   <div class="doc-bar">
     <div class="wrap doc-bar-in">
-      <a class="doc-back" href="#top">&#8592; Back to Veryam</a>
+      <a class="doc-back" href="#top">&#8592; Back to Salmya</a>
       <a class="doc-back" href="#/trade">Launch App &#8599;</a>
       <span class="doc-kind">Protocol note &middot; 12 Sep 2026</span>
     </div>
@@ -4272,7 +4272,7 @@
 
       <h2>Why the curve cannot see it coming</h2>
 
-      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Veryam is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
+      <p>It is worth being precise about what is broken, because two different holes get confused. The first is entitlement: when the split is distributed, the pool has to actually receive its share, the same way any other holder does. The second is the quote: even a pool that receives everything it is owed will still price the asset wrong until the curve is moved. Salmya is built around the second problem, and it rides on the same attested feed that has to solve the first.</p>
 
       <p>The reason this is solvable at all is that these events are <em class="doc-term">scheduled</em>. A record date is public. A split ratio is public. Nothing about the moment of repricing is a surprise, it is only a surprise to the pool, because a pool has historically had no place to put that knowledge.</p>
 
@@ -4319,9 +4319,9 @@
         </dl>
       </div>
 
-      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Veryam before that box shows an address is not ours.</p>
+      <p>That list is the point of publishing this now rather than later. There is no contract address to put in front of you, so there is nothing anyone can impersonate yet, and when there is one, it appears on the site first and nowhere else. Any contract claiming to be Salmya before that box shows an address is not ours.</p>
 
-      <p>The governance design, <em class="doc-term">xVERYAM</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
+      <p>The governance design, <em class="doc-term">xSLM</em> and the liquid staked <em class="doc-term">f33</em> that votes and compounds on your behalf, is exactly that for now: design. It is written down because it shapes the fee routing, not because it is shipped.</p>
 
       <h2>Try the part that is real</h2>
 
@@ -4341,16 +4341,16 @@
 
       <p>In order: the attested feed for record dates, the auction contract for the residual, and an external review of both before a single unit of mainnet liquidity is accepted. Everything above stays on testnet until that sequence is finished, and this page will say so plainly for as long as it is true.</p>
 
-      <p>The pitch is not that Veryam invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
+      <p>The pitch is not that Salmya invents value. It is that a quarter of a million dollars already changes hands every time a split hits an unprotected pool, and right now none of it goes to the people who funded the position.</p>
 
       <div class="doc-end">
         <a class="btn btn-primary" href="#/trade">Launch App &#8599;</a>
-        <a class="btn btn-ghost" href="#top">&#8592; Back to Veryam</a>
+        <a class="btn btn-ghost" href="#top">&#8592; Back to Salmya</a>
       </div>
 
       <div class="doc-foot">
         <p>Figures are worked from constant product math on the stated reserves and are illustrative, not performance claims. Nothing here is investment advice or an offer of any token.</p>
-        <p>Veryam &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
+        <p>Salmya &middot; Uniswap v4 hook &middot; Base Sepolia testnet &middot; no mainnet contracts deployed</p>
       </div>
     </div>
   </div>
@@ -4367,7 +4367,7 @@
         <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
           <path d="M0 42H58"/>
         </g>
-        <use href="#veryam-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
+        <use href="#salmya-mark" transform="translate(18 8) scale(0.92)" fill="currentColor"/>
       </pattern>
     </defs>
     <rect width="100%" height="46" fill="url(#friezeTile)"/>
@@ -4491,7 +4491,7 @@
         <div class="rate-bar">
           <span id="rateLine">1 ETH = 3,529.67 USDC</span>
           <span class="gas-pick">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
             Native
             <span class="caret"></span>
           </span>
@@ -4589,7 +4589,7 @@
       <button class="slip" type="button" data-slip="1" aria-pressed="false">1.0%</button>
       <button class="slip" type="button" data-slip="3" aria-pressed="false">3.0%</button>
     </div>
-    <p class="modal-foot">Veryam quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
+    <p class="modal-foot">Salmya quotes include the dynamic fee for the pair, so the rate you see already accounts for current volatility.</p>
   </div>
 </div>
 
@@ -4702,7 +4702,7 @@
   var val = document.getElementById('heroStatVal');
 
   function sync() {
-    var w = window.VeryamWallet;
+    var w = window.SalmyaWallet;
     var onSepolia = !!(w && w.connected() && !w.isDemo() && w.chainId() === '0x14a34');
     pill.dataset.live = String(onSepolia);
     val.innerHTML = onSepolia
@@ -4710,7 +4710,7 @@
       : 'Base Sepolia \u00b7 testnet';
   }
 
-  if (window.VeryamWallet) window.VeryamWallet.onChange(sync);
+  if (window.SalmyaWallet) window.SalmyaWallet.onChange(sync);
   sync();
 })();
 </script>
@@ -4785,7 +4785,7 @@
     buttons.forEach(function (b) {
       b.setAttribute('aria-pressed', String(Number(b.dataset.tint) === i));
     });
-    try { localStorage.setItem('veryam-tint', String(i)); } catch (e) {}
+    try { localStorage.setItem('salmya-tint', String(i)); } catch (e) {}
   }
 
   buttons.forEach(function (b) {
@@ -4797,15 +4797,15 @@
   function setTheme(mode) {
     if (mode === 'light') root.setAttribute('data-theme', 'light');
     else root.removeAttribute('data-theme');
-    try { localStorage.setItem('veryam-theme', mode); } catch (e) {}
+    try { localStorage.setItem('salmya-theme', mode); } catch (e) {}
     paint();
   }
 
   /* Light is the default for a brand named after sand. Only an explicit choice
      of dark turns it off, which is the opposite of how this started. */
   var savedTheme = null, saved = null;
-  try { savedTheme = localStorage.getItem('veryam-theme'); } catch (e) {}
-  try { saved = localStorage.getItem('veryam-tint'); } catch (e) {}
+  try { savedTheme = localStorage.getItem('salmya-theme'); } catch (e) {}
+  try { saved = localStorage.getItem('salmya-tint'); } catch (e) {}
 
   setTheme(savedTheme === 'dark' ? 'dark' : 'light');
   apply(saved !== null && TINTS[Number(saved)] ? Number(saved) : 1);
@@ -4820,10 +4820,10 @@
 <div class="modal-backdrop" id="walletModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-head">
-      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+      <svg class="wavemark" width="28" height="28" viewBox="0 0 24 24" fill="var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
       <div>
         <h2 id="walletModalTitle">Connect a wallet</h2>
-        <p>Choose how you want to connect to Veryam.</p>
+        <p>Choose how you want to connect to Salmya.</p>
       </div>
       <button class="modal-close" id="walletClose" type="button" aria-label="Close">&times;</button>
     </div>
@@ -4870,7 +4870,7 @@
       </button>
     </div>
 
-    <p class="modal-foot">Veryam only reads your public address. This concept page never requests a signature or a transaction.</p>
+    <p class="modal-foot">Salmya only reads your public address. This concept page never requests a signature or a transaction.</p>
   </div>
 </div>
 
@@ -4954,7 +4954,7 @@
     emit();
   }
 
-  window.VeryamWallet = {
+  window.SalmyaWallet = {
     connected: function () { return !!account; },
     address: function () { return account; },
     chainId: function () { return currentChainId; },
@@ -5094,7 +5094,7 @@
     if (lastView !== null && view !== lastView) window.scrollTo(0, 0);
     lastView = view;
 
-    if (isApp && window.VeryamSwap) window.VeryamSwap.refresh();
+    if (isApp && window.SalmyaSwap) window.SalmyaSwap.refresh();
   }
 
   window.addEventListener('hashchange', apply);
@@ -5126,8 +5126,8 @@
     { sym: 'USDT', name: 'Tether USD',      price: 0.9998,   bal: 0,        color: '#26a17b', addr: '0xFd08…dbe9', depth: 900000 },
     { sym: 'ARB',  name: 'Arbitrum',        price: 0.4215,   bal: 1204.88,  color: '#28a0f0', addr: '0x912C…4a48', depth: 640000 },
     { sym: 'HYPE', name: 'Hyperliquid',     price: 27.4180,  bal: 0,        color: '#4ad2b0', addr: '0x5555…5555', depth: 720000 },
-    { sym: 'VERYAM',  name: 'Veryam',           price: 0.0847,   bal: 45120,    color: '#dbe7f3', addr: '0x1C4a…9eD3', depth: 310000 },
-    { sym: 'xVERYAM', name: 'Staked Veryam',    price: 0.0912,   bal: 12880.4,  color: '#8fa2b6', addr: '0x7B0d…2fA6', depth: 180000 }
+    { sym: 'SLM',  name: 'Salmya',           price: 0.0847,   bal: 45120,    color: '#dbe7f3', addr: '0x1C4a…9eD3', depth: 310000 },
+    { sym: 'xSLM', name: 'Staked Salmya',    price: 0.0912,   bal: 12880.4,  color: '#8fa2b6', addr: '0x7B0d…2fA6', depth: 180000 }
   ];
 
   var STABLE = ['USDC', 'USDT'];
@@ -5149,7 +5149,7 @@
   var details = byId('swapDetails'), cta = byId('swapCta');
 
   function connected() {
-    return !!(window.VeryamWallet && window.VeryamWallet.connected());
+    return !!(window.SalmyaWallet && window.SalmyaWallet.connected());
   }
 
   function num(el) {
@@ -5567,7 +5567,7 @@
   }
 
   cta.addEventListener('click', function () {
-    if (cta.dataset.action === 'connect') { window.VeryamWallet.open(); return; }
+    if (cta.dataset.action === 'connect') { window.SalmyaWallet.open(); return; }
     if (cta.dataset.action === 'live') { executeWrap(); return; }
     if (cta.dataset.action !== 'review') return;
 
@@ -5627,7 +5627,7 @@
   var liveBalances = { ETH: null, WETH: null };
   var txBusy = false;
 
-  function wallet() { return window.VeryamWallet; }
+  function wallet() { return window.SalmyaWallet; }
   function onTestnet() {
     return !!(wallet() && !wallet().isDemo() && wallet().chainId() === TESTNET.chainId);
   }
@@ -5741,7 +5741,7 @@
     });
   }
 
-  window.VeryamLive = {
+  window.SalmyaLive = {
     active: liveMode,
     onTestnet: onTestnet,
     isWrapPair: isWrapPair,
@@ -5778,13 +5778,13 @@
     });
   });
 
-  if (window.VeryamWallet) window.VeryamWallet.onChange(function () {
+  if (window.SalmyaWallet) window.SalmyaWallet.onChange(function () {
     setTxNote('');
     loadLiveBalances();
     render();
   });
 
-  window.VeryamSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
+  window.SalmyaSwap = { refresh: function () { paintChartHead(); drawChart(); render(); } };
 
   paintChartHead();
   drawChart();
@@ -5798,7 +5798,7 @@
 
     <div id="gateMain">
       <header class="gate-head">
-        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#veryam-mark"/></svg>
+        <svg class="wavemark" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#salmya-mark"/></svg>
         <div>
           <p class="eyebrow">Before you continue</p>
           <h2 id="gateTitle">Terms and privacy</h2>
@@ -5812,10 +5812,10 @@
 
       <div class="gate-body" tabindex="0">
         <div class="gate-panel" id="panelTerms" role="tabpanel" aria-labelledby="tabTerms">
-          <p><b>Veryam is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
+          <p><b>Salmya is a preview, not a product.</b> This site demonstrates a Uniswap v4 hook that reprices a pool at a corporate action. Nothing on it is an offer, a solicitation, or a promise that anything will ship.</p>
 
           <h3>Nothing is deployed</h3>
-          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Veryam while that box reads <b>not deployed</b> is not ours.</p>
+          <p>There is no mainnet contract and no token. The deployment registry on this page is the only place an address will ever appear first. Any contract claiming to be Salmya while that box reads <b>not deployed</b> is not ours.</p>
 
           <h3>Unaudited software</h3>
           <p>The hook has not been audited. The only real transaction this interface can send is an ETH to WETH wrap on Base Sepolia, a test network, using test ETH with no monetary value. Every other quote on the app screen is simulated and labelled as such.</p>
@@ -5824,7 +5824,7 @@
           <p>Nothing here is investment, financial, legal, or tax advice. The figures shown are constant product arithmetic on stated reserves, worked as illustrations. They are not projections, performance claims, or a forecast of anything.</p>
 
           <h3>Your keys stay yours</h3>
-          <p>Veryam never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
+          <p>Salmya never asks for a seed phrase or a private key, and will never ask you for one. The only signature this site requests is the testnet wrap you start yourself. Treat anyone asking for more, anywhere, as an attacker.</p>
 
           <h3>Your side of it</h3>
           <p>You confirm you are of legal age where you live, that you are not accessing this from a jurisdiction where it would be prohibited, and that you use it as is, at your own risk, with no warranty of any kind.</p>
@@ -5849,7 +5849,7 @@
 
       <label class="gate-agree" for="gateAgree" id="gateAgreeRow">
         <input type="checkbox" id="gateAgree">
-        <span>I have read the terms and the privacy notice, and I understand that Veryam is unaudited testnet software with no token and no mainnet deployment.</span>
+        <span>I have read the terms and the privacy notice, and I understand that Salmya is unaudited testnet software with no token and no mainnet deployment.</span>
       </label>
 
       <div class="gate-actions">
@@ -5861,7 +5861,7 @@
     </div>
 
     <div class="gate-blocked" id="gateBlocked" hidden>
-      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--salmon)" aria-hidden="true"><use href="#veryam-mark"/></svg>
+      <svg class="wavemark" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="margin:0 auto 14px;color:var(--salmon)" aria-hidden="true"><use href="#salmya-mark"/></svg>
       <h2>Then this is where it stops.</h2>
       <p>Declining is a real answer and nothing here is worth overriding it for. Close the tab whenever you like, or read the notice again if you changed your mind.</p>
       <button class="btn btn-ghost" id="gateBack" type="button">Read it again</button>
@@ -5872,7 +5872,7 @@
 
 <script>
 (function () {
-  var KEY   = 'veryam-legal-v1';
+  var KEY   = 'salmya-legal-v1';
   var gate  = document.getElementById('legalGate');
   if (!gate) return;
 
@@ -6060,7 +6060,7 @@
 })();
 </script>
 <script>
-/* ---------- Veryam: movement ----------
+/* ---------- Salmya: movement ----------
    Every effect in here is opt-in through the `motion` class on <html>. If the
    reader has asked for reduced motion the class is never set, the reveal CSS
    never matches, and the page renders exactly as it would have without this

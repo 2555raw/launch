@@ -1,6 +1,6 @@
-# Beyga
+# Salmya
 
-Marketing site and interface prototype for **Beyga**, a Uniswap v4 hook that reprices a
+Marketing site and interface prototype for **Salmya**, a Uniswap v4 hook that reprices a
 pool at a corporate action so a stock split does not cost the liquidity providers.
 
 **Nothing here is deployed on mainnet.** There is no token, no sale, and no audit. The only
@@ -9,15 +9,18 @@ quote on the app screen is simulated and labelled as such in the UI.
 
 ## The brand
 
-Beyga is named for *sable*, the sand colour — so the page is built on beige rather than
-decorated with it. The ground is beige, the cards are the paper laid on it, and the accent
-is a darker reading of the same colour. The mark is three wind ripples in sand, which is
-also the ground texture, tiled.
+Salmya is named for *salmon*, the colour — so the page is built on salmon rather than
+decorated with it. The ground is a salmon wash, the cards are the paper laid on it, and the
+accent is a deeper reading of the same colour. The mark is three descending bars, which is
+also the page's repeating motif.
 
-The light theme is the real one. Dark is the same sand at night: warm browns, never grey.
-The accent picker in the corner carries four readings of the beige, each with a light and a
-dark set, because an accent that reads on cream is invisible on brown and the other way
-round.
+The light theme is the real one. Dark is the same salmon after dusk: warm charcoal, never
+grey. The accent picker in the corner carries four readings of the salmon, each with a light
+and a dark set, because an accent that reads on a pale wash disappears on charcoal and the
+other way round.
+
+Every colour pair on the page was checked against WCAG before it shipped: body text clears
+7:1 on its ground, and nothing that carries meaning sits below 4.5:1.
 
 ## What this repository is
 
@@ -42,15 +45,15 @@ The page has three views behind hash routes:
 | `#/docs`   | the protocol note                                       |
 
 A terms and privacy gate blocks first entry and records the answer in `localStorage`
-under `beyga-legal-v1`. Clear site data to see it again.
+under `salmya-legal-v1`. Clear site data to see it again.
 
 ## Running it locally
 
 Anything that serves a directory over HTTP will do. With Docker:
 
 ```bash
-docker build -t beyga .
-docker run --rm -p 8080:8080 beyga
+docker build -t salmya .
+docker run --rm -p 8080:8080 salmya
 ```
 
 Then open <http://localhost:8080>.
@@ -80,7 +83,7 @@ Announcing an address is therefore a variable change, not a deploy:
 | Variable | Example |
 | --- | --- |
 | `TOKEN_CA` | `0x0000000000000000000000000000000000000000` |
-| `TOKEN_SYMBOL` | `VERYAM` |
+| `TOKEN_SYMBOL` | `SLM` |
 | `TOKEN_CHAIN` | `Base` |
 | `TOKEN_EXPLORER` | `https://basescan.org/token/0x0000...` |
 

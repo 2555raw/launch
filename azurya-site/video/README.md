@@ -1,6 +1,6 @@
 # The film
 
-A 28 second piece for Veryam: title cards cut against footage of the real page,
+A 28 second piece for Salmya: title cards cut against footage of the real page,
 over an original soundtrack. 1280x720, 30fps, H.264 + AAC.
 
 ```bash
@@ -16,7 +16,7 @@ CARD_URL=http://127.0.0.1:8899/card.html node video/cards.js video/cards
 CAP_URL=http://127.0.0.1:8899/caption.html node video/overlays.js video/caps
 
 # 3. cut it
-python3 video/build.py video/raw video/cards video/veryam.mp4 video/caps
+python3 video/build.py video/raw video/cards video/salmya.mp4 video/caps
 ```
 
 ## The parts

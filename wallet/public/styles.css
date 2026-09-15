@@ -70,6 +70,16 @@
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
+/* Below this point the dark rules are written twice: once behind the media
+   query, guarded so an explicit light choice beats the system, and once under
+   an explicit dark choice. Where the guard is only a prefix on some other
+   selector it is wrapped in :where(), which matches the same elements but
+   contributes nothing to specificity — without it the guard silently outranks
+   every rule the plain selector used to lose to. That is not hypothetical:
+   ":root:not([data-theme=\"light\"]) .cta" beat ".cta.ghost" and painted the
+   ghost buttons' label near-black on a dark page. The two :root blocks that
+   carry the tokens are the exception and keep their specificity, because there
+   the guard IS the whole selector and it has to outrank the plain :root above. */
 @media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) {
     --bg:        #080A16;
     --bg-2:      #0E1126;
@@ -147,11 +157,11 @@ body {
 .b1 { width: 60vmax; height: 60vmax; top: -28vmax; left: -22vmax; background: var(--iris); opacity: .2; }
 .b2 { width: 45vmax; height: 45vmax; bottom: -20vmax; right: -16vmax; background: var(--sky); opacity: .2; }
 .b3 { width: 38vmax; height: 38vmax; top: 40%; left: 55%; background: var(--brand-soft); opacity: .55; }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .b1 { opacity: .13; }:root:not([data-theme="light"]) .b2 { opacity: .1; }:root:not([data-theme="light"]) .b3 { opacity: .2; }
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .b1 { opacity: .13; }:where(:root:not([data-theme="light"])) .b2 { opacity: .1; }:where(:root:not([data-theme="light"])) .b3 { opacity: .2; }
 }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .b1 { opacity: .13; }:root[data-theme="dark"] .b2 { opacity: .1; }:root[data-theme="dark"] .b3 { opacity: .2; }
+:where(:root[data-theme="dark"]) .b1 { opacity: .13; }:where(:root[data-theme="dark"]) .b2 { opacity: .1; }:where(:root[data-theme="dark"]) .b3 { opacity: .2; }
 
 
 .shell {
@@ -294,10 +304,10 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 
 .btn.primary { background: var(--brand); color: #fff; box-shadow: var(--shadow-brand); }
 .btn.primary:hover:not([disabled]) { background: var(--brand-deep); }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .btn.primary { color: #05201C; } }
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .btn.primary { color: #05201C; } }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .btn.primary { color: #05201C; }
+:where(:root[data-theme="dark"]) .btn.primary { color: #05201C; }
 
 
 .btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-1); }

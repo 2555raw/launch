@@ -103,10 +103,12 @@
   .nav .lang-btn svg { width: 15px; height: 15px; }
 }
 .cta.ghost:hover { background: var(--surface); border-color: var(--line-2); }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .cta { color: #05201C; } }
+/* :where() keeps the theme guard from adding specificity — see the note over
+   the token blocks in styles.css. */
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .cta { color: #05201C; } }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .cta { color: #05201C; }
+:where(:root[data-theme="dark"]) .cta { color: #05201C; }
 
 
 .eyebrow {
@@ -493,10 +495,10 @@
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, rgba(0,0,0,.35) 76%, rgba(0,0,0,.2) 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 42%, rgba(0,0,0,.35) 76%, rgba(0,0,0,.2) 100%);
 }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .site::before { opacity: .38; } }
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .site::before { opacity: .38; } }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .site::before { opacity: .38; }
+:where(:root[data-theme="dark"]) .site::before { opacity: .38; }
 
 
 /* The ambient layer is positioned, so without this the page content would paint
@@ -518,10 +520,10 @@
 #name .glow   { width: 30vmax; height: 30vmax; bottom: 0; left: 24%; background: var(--iris); opacity: .17; }
 #terms .glow  { width: 32vmax; height: 32vmax; top: 4vmax; left: 0; background: var(--sky); opacity: .16; }
 #faq .glow    { width: 30vmax; height: 30vmax; bottom: 0; right: 0; background: var(--brand); opacity: .15; }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .glow { opacity: .1 !important; } }
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .glow { opacity: .1 !important; } }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .glow { opacity: .1 !important; }
+:where(:root[data-theme="dark"]) .glow { opacity: .1 !important; }
 
 
 /* ── a background with something in it ───────────────────────────────────────
@@ -542,10 +544,10 @@
   width: 72vmax; height: 72vmax; color: var(--brand);
   opacity: .1; animation: turn 150s linear infinite;
 }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .wards { opacity: .07; } }
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .wards { opacity: .07; } }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .wards { opacity: .07; }
+:where(:root[data-theme="dark"]) .wards { opacity: .07; }
 
 @media (max-width: 899px) { .wards { top: 30vh; right: -34vmax; width: 86vmax; height: 86vmax; opacity: .07; } }
 @keyframes turn { to { transform: rotate(360deg); } }
@@ -557,10 +559,10 @@
     radial-gradient(56vmax 40vmax at 12% 6%, color-mix(in srgb, var(--sky) 20%, transparent), transparent 68%);
   opacity: .5;
 }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .grid-fade { opacity: .26; } }
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .grid-fade { opacity: .26; } }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .grid-fade { opacity: .26; }
+:where(:root[data-theme="dark"]) .grid-fade { opacity: .26; }
 
 
 @keyframes drift {
@@ -758,10 +760,10 @@ body.notice-up .ask-fab { opacity: 0; pointer-events: none; }
   color: #fff; background: var(--brand); border-color: transparent;
   box-shadow: var(--shadow-brand); transform: scale(1.06);
 }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .rail-pill.on { color: #07081A; } }
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .rail-pill.on { color: #07081A; } }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .rail-pill.on { color: #07081A; }
+:where(:root[data-theme="dark"]) .rail-pill.on { color: #07081A; }
 
 .rail-pill.done { color: var(--brand-deep); border-color: var(--brand-soft); background: var(--brand-soft); }
 
@@ -811,10 +813,10 @@ body.notice-up .ask-fab { opacity: 0; pointer-events: none; }
 .mf b { font-size: 13.5px; font-weight: 620; text-align: right; }
 
 .mock-cta { background: var(--brand); color: #fff; border-radius: 9px; padding: 10px; text-align: center; font-size: 13.5px; font-weight: 620; margin-top: auto; }
-@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .mock-cta { color: #07081A; } }
+@media (prefers-color-scheme: dark) {:where(:root:not([data-theme="light"])) .mock-cta { color: #07081A; } }
 /* The same again for a deliberate choice, so the switch beats the system
    in both directions rather than only when the system says light. */
-:root[data-theme="dark"] .mock-cta { color: #07081A; }
+:where(:root[data-theme="dark"]) .mock-cta { color: #07081A; }
 
 
 .mock-qr { background: #fff; border-radius: 9px; padding: 7px; line-height: 0; justify-self: center; }

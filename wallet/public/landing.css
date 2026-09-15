@@ -413,8 +413,10 @@
 .site::before {
   content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background-image: radial-gradient(circle at 1px 1px, var(--line-2) 1px, transparent 0);
-  background-size: 32px 32px;
-  opacity: .55;
+  background-size: 30px 30px;
+  opacity: .62;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, rgba(0,0,0,.35) 76%, rgba(0,0,0,.2) 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, rgba(0,0,0,.35) 76%, rgba(0,0,0,.2) 100%);
 }
 @media (prefers-color-scheme: dark) { .site::before { opacity: .38; } }
 
@@ -445,6 +447,31 @@
 .blob { animation: drift 34s ease-in-out infinite alternate; }
 .b2 { animation-duration: 44s; animation-delay: -12s; }
 .b3 { animation-duration: 52s; animation-delay: -24s; }
+
+/* ── the hero's backdrop ─────────────────────────────────────────────────────
+   Above the fold the page was one pale wash with a card floating in it. These
+   three layers give that space something to sit on without competing with the
+   heading: concentric wards behind the card, a warmer pool of light under the
+   whole hero, and a dot grid that fades out before the first section so the
+   texture stops rather than running the length of the page. */
+.wards {
+  position: absolute; top: -12vmax; right: -14vmax;
+  width: 72vmax; height: 72vmax; color: var(--brand);
+  opacity: .1; animation: turn 150s linear infinite;
+}
+@media (prefers-color-scheme: dark) { .wards { opacity: .07; } }
+@media (max-width: 899px) { .wards { top: 30vh; right: -34vmax; width: 86vmax; height: 86vmax; opacity: .07; } }
+@keyframes turn { to { transform: rotate(360deg); } }
+
+.grid-fade {
+  position: absolute; inset: 0 0 auto 0; height: 128vh;
+  background:
+    radial-gradient(70vmax 52vmax at 76% 22%, color-mix(in srgb, var(--iris) 26%, transparent), transparent 70%),
+    radial-gradient(56vmax 40vmax at 12% 6%, color-mix(in srgb, var(--sky) 20%, transparent), transparent 68%);
+  opacity: .5;
+}
+@media (prefers-color-scheme: dark) { .grid-fade { opacity: .26; } }
+
 @keyframes drift {
   from { transform: translate3d(0, 0, 0) scale(1); }
   to   { transform: translate3d(6vw, -4vh, 0) scale(1.18); }
@@ -486,7 +513,7 @@
 @media (max-width: 899px) { .hero { overflow-x: clip; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .blob, .coin { animation: none; }
+  .blob, .coin, .wards { animation: none; }
 }
 
 /* ── ask about Ward ──────────────────────────────────────────────────────────

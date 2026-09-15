@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ward · money in</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#F3F4FD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0B18" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="dev.css">
+</head>
+<body class="dev">
+
+<header class="dv-top">
+  <span class="brand"><span class="mark" aria-hidden="true"></span><b class="brand-name">Ward</b></span>
+  <span class="dv-tag">Money in</span>
+  <button class="link-btn" id="forget" type="button" hidden>Forget this address</button>
+</header>
+
+<!-- Nothing is shown until an address is typed in, so opening this page tells a
+     stranger nothing. The address is kept in this browser only. -->
+<main class="dv-wrap">
+
+  <section class="dv-gate" id="gate">
+    <h1>Which address should I watch?</h1>
+    <p class="dv-lede">Paste the address the plan payments go to. It is remembered in this browser and nowhere else, so this page is blank for anyone else who opens it.</p>
+    <form id="watchForm" autocomplete="off">
+      <input id="addrInput" type="text" spellcheck="false" placeholder="0x…" aria-label="Address to watch">
+      <button class="btn primary" type="submit">Watch it</button>
+    </form>
+    <p class="dv-err" id="gateErr" hidden></p>
+    <p class="dv-fine"><b>What this page can and cannot hide.</b> It holds no secret: every payment below is already public on the chain, and anyone with the address can read the same thing on a block explorer. What nobody can do is move the money, because that needs the key. Treat this as a convenient view of public facts, not as a private ledger.</p>
+  </section>
+
+  <section class="dv-body" id="body" hidden>
+    <div class="dv-head">
+      <div>
+        <p class="dv-label">Watching</p>
+        <h1 class="dv-addr" id="watching"></h1>
+      </div>
+      <button class="btn ghost" id="reload" type="button">Refresh</button>
+    </div>
+
+    <p class="dv-label dv-sec">Held right now</p>
+    <div class="dv-grid" id="balances"></div>
+
+    <div class="dv-list-top">
+      <p class="dv-label">Payments in</p>
+      <span class="dv-scan" id="scanNote"></span>
+    </div>
+    <div class="dv-list" id="feed"></div>
+    <button class="btn ghost wide" id="more" type="button" hidden>Look further back</button>
+
+    <p class="dv-fine" id="bodyFine"></p>
+  </section>
+
+</main>
+
+<script src="vendor/ethers.umd.min.js"></script>
+<script src="chains.js"></script>
+<script src="dev.js"></script>
+</body>
+</html>

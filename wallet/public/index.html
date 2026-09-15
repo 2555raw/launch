@@ -13,7 +13,23 @@
 </head>
 <body class="site">
 
-<div class="ambient" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<div class="ambient" aria-hidden="true">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <!-- Concentric wards, the shape the product is named after, drawn very faint
+       and turning slowly so the hero has something behind it. -->
+  <svg class="wards" viewBox="0 0 600 600" fill="none">
+    <g stroke="currentColor" stroke-width="1">
+      <circle cx="300" cy="300" r="286" stroke-dasharray="3 10"/>
+      <circle cx="300" cy="300" r="232"/>
+      <circle cx="300" cy="300" r="176" stroke-dasharray="1 9"/>
+      <circle cx="300" cy="300" r="118"/>
+      <circle cx="300" cy="300" r="62" stroke-dasharray="3 10"/>
+      <path d="M300 14v88M300 498v88M14 300h88M498 300h88"/>
+      <path d="M98 98l62 62M502 98l-62 62M98 502l62-62M502 502l-62-62" stroke-dasharray="2 8"/>
+    </g>
+  </svg>
+  <span class="grid-fade"></span>
+</div>
 
 <!-- Shapes reused across the page: the chip and the wordmark. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -312,7 +328,7 @@
               <div><b data-i18n="pl.g5t">…</b><small data-i18n="pl.g5d">…</small></div>
             </li>
         </ul>
-        <a class="cta  full" href="/app" data-i18n="pl.getgold">Get it</a>
+        <a class="cta  full" href="/app#/plan?id=gold" data-i18n="pl.getgold">Get it</a>
       </article>
 
       <article class="tier reveal" data-tier="plat">
@@ -343,7 +359,7 @@
               <div><b data-i18n="pl.p4t">…</b><small data-i18n="pl.p4d">…</small></div>
             </li>
         </ul>
-        <a class="cta ghost full" href="/app" data-i18n="pl.getplat">Get it</a>
+        <a class="cta ghost full" href="/app#/plan?id=platinum" data-i18n="pl.getplat">Get it</a>
       </article>
       </div>
 

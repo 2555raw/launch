@@ -62,7 +62,12 @@ http.createServer((req, res) => {
      path because payment links are built on it and end up pasted into chats and
      invoices, where a ".html" is just noise. */
   if (rel === '/app' || rel === '/app/') rel = '/app.html';
+  /* The money-in page. It is not linked from anywhere and it holds nothing
+     until an address is typed into it, but it should still never turn up in a
+     search result, so it is served with noindex below. */
+  else if (rel === '/dev' || rel === '/dev/') rel = '/dev.html';
   else if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
+  const unlisted = rel === '/dev.html';
 
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT + path.sep) && file !== ROOT) {
@@ -104,7 +109,7 @@ http.createServer((req, res) => {
       'cache-control': ext === '.html' ? 'no-store'
         : frozen ? 'public, max-age=31536000, immutable'
         : 'no-cache'
-    }));
+    }, unlisted ? { 'x-robots-tag': 'noindex, nofollow, noarchive' } : null));
     res.end(req.method === 'HEAD' ? undefined : body);
   });
 }).listen(PORT, () => console.log(`Ward listening on :${PORT}`));

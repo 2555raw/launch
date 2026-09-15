@@ -139,8 +139,17 @@ body {
 }
 .brand { display: flex; align-items: center; gap: 9px; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); font: inherit; }
 .brand-name { font-weight: 640; letter-spacing: -.01em; font-size: 17px; }
-.mark { width: 26px; height: 26px; border-radius: 9px; background: linear-gradient(145deg, var(--iris), var(--brand-deep)); box-shadow: var(--shadow-brand); display: block; position: relative; }
-.mark::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: rgba(255,255,255,.85); }
+/* The mark. One shape, drawn once as a mask, so every place it appears takes
+   its colour from whatever it is sitting on: brand indigo on a page, the card's
+   own ink on a card face. */
+:root {
+  --mark: url('data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2032%2032%22%20fill=%22none%22%20stroke=%22%23000%22%3E%3Cpath%20d=%22M19.6%207.6A8.9%208.9%200%201%200%2024.9%2016%22%20stroke-width=%225%22%20stroke-linecap=%22round%22/%3E%3Cpath%20d=%22M24.9%2016h-5.6%22%20stroke-width=%225%22%20stroke-linecap=%22round%22/%3E%3Ccircle%20cx=%2224.2%22%20cy=%227.2%22%20r=%223.2%22%20fill=%22%23000%22%20stroke=%22none%22/%3E%3C/svg%3E') center / contain no-repeat;
+}
+.mark {
+  width: 26px; height: 26px; display: block; flex: none;
+  background: var(--brand);
+  -webkit-mask: var(--mark); mask: var(--mark);
+}
 
 .bar-right { display: flex; align-items: center; gap: 8px; }
 .pill {
@@ -196,11 +205,11 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .hero.sm { padding: 40px 0 26px; text-align: center; }
 .hero.sm .hero-mark { margin: 0 auto 20px; }
 .hero-mark {
-  width: 62px; height: 62px; border-radius: 21px; margin-bottom: 26px;
-  background: linear-gradient(145deg, var(--iris), var(--brand-deep));
-  box-shadow: var(--shadow-brand); display: grid; place-items: center;
+  width: 62px; height: 62px; margin-bottom: 26px;
+  background: var(--brand);
+  -webkit-mask: var(--mark); mask: var(--mark);
 }
-.hero-mark span { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.9); display: block; }
+.hero-mark span { display: none; }
 
 .back {
   background: none; border: 0; padding: 6px 0; margin: 4px 0 14px -2px;
@@ -598,8 +607,7 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .plan .tc-top { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
 .plan .tc-brand { display: inline-flex; align-items: center; gap: 7px; font-weight: 640; font-size: 13.5px; }
 .plan .tc-net { font-size: 10.5px; font-weight: 600; opacity: .8; }
-.plan .tcard.gold .mark.sm, .plan .tcard.plat .mark.sm { background: rgba(0,0,0,.2); }
-.plan .tcard.gold .mark.sm::after, .plan .tcard.plat .mark.sm::after { background: currentColor; }
+.mark.sm { width: 20px; height: 20px; background: currentColor; }
 .plan .tc-bot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; position: relative; z-index: 1; }
 .plan .tc-addr { font-family: var(--mono); font-size: 11px; opacity: .85; }
 .plan .tc-name { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }

@@ -1,14 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8C86F5"/>
-      <stop offset="1" stop-color="#4340C4"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="18" fill="url(#g)"/>
-  <g fill="none" stroke="#fff" stroke-width="7.4" stroke-linecap="round">
-    <path d="M38.4 19.2A13.4 13.4 0 1 0 46.3 32"/>
-    <path d="M46.3 32h-8.4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The same shape the site draws as .mark, so the tab matches the header. -->
+  <g fill="none" stroke="#5250E4" stroke-width="5" stroke-linecap="round">
+    <path d="M19.6 7.6A8.9 8.9 0 1 0 24.9 16"/>
+    <path d="M24.9 16h-5.6"/>
   </g>
-  <circle cx="45.3" cy="18.6" r="4.8" fill="#fff"/>
+  <circle cx="24.2" cy="7.2" r="3.2" fill="#5250E4"/>
 </svg>

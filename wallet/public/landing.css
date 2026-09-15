@@ -15,13 +15,18 @@
   border: 1px solid transparent; border-radius: 999px;
   transition: background .35s, border-color .35s, box-shadow .35s, padding .35s, max-width .35s;
 }
-.nav .brand { text-decoration: none; margin-right: auto; }
+.nav .brand { text-decoration: none; margin-right: auto; gap: 10px; }
+.nav .brand-name { font-size: 19.5px; }
+.nav .mark { width: 28px; height: 28px; }
 
 /* The links live in their own capsule, and once the page scrolls the whole bar
    closes around them into a single floating one. */
 .nav-pill {
   display: none; align-items: center; gap: 2px;
-  background: var(--surface); border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
   border-radius: 999px; padding: 5px; box-shadow: var(--shadow-1);
   transition: background .35s, border-color .35s, box-shadow .35s;
 }
@@ -40,19 +45,24 @@
    underneath. */
 .nav.stuck .nav-in {
   max-width: 1000px;
-  background: color-mix(in srgb, var(--surface) 62%, transparent);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-color: color-mix(in srgb, var(--line) 70%, transparent);
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  backdrop-filter: saturate(185%) blur(26px);
+  -webkit-backdrop-filter: saturate(185%) blur(26px);
+  border-color: color-mix(in srgb, var(--line) 45%, transparent);
   box-shadow: var(--shadow-2);
   padding: 7px 7px 7px 20px;
 }
 /* A browser with no backdrop-filter would show the page straight through and
    the links would be unreadable, so there it stays opaque. */
 @supports not (backdrop-filter: blur(1px)) {
-  .nav.stuck .nav-in { background: var(--surface); }
+  .nav.stuck .nav-in, .nav-pill { background: var(--surface); }
 }
-.nav.stuck .nav-pill { background: transparent; border-color: transparent; box-shadow: none; }
+/* Once the whole bar is frosted the capsule stops blurring on its own, or the
+   strip behind the links would be blurred twice and read darker than the rest. */
+.nav.stuck .nav-pill {
+  background: transparent; border-color: transparent; box-shadow: none;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
 
 /* ── calls to action ─────────────────────────────── */
 .cta {

@@ -51,6 +51,31 @@ const SECURITY = {
   'cross-origin-resource-policy': 'same-origin'
 };
 
+const stampCache = new Map();
+function versionOf(name) {
+  const full = path.join(ROOT, name);
+  let st;
+  try { st = fs.statSync(full); } catch { return null; }
+  const key = name + ':' + st.mtimeMs + ':' + st.size;
+  if (stampCache.has(key)) return stampCache.get(key);
+  let v = null;
+  try {
+    v = crypto.createHash('sha1').update(fs.readFileSync(full)).digest('hex').slice(0, 10);
+  } catch { /* unreadable: leave the reference alone */ }
+  stampCache.clear();          // one entry is all that is ever wanted per file
+  stampCache.set(key, v);
+  return v;
+}
+
+/* Rewrites src="app.js" to src="app.js?v=<hash>" for local files only. Anything
+   already carrying a query, and anything absolute, is left as it is. */
+function stamp(html) {
+  return html.replace(/\b(src|href)="([A-Za-z0-9._\/-]+\.(?:js|css))"/g, (whole, attr, name) => {
+    const v = versionOf(name);
+    return v ? `${attr}="${name}?v=${v}"` : whole;
+  });
+}
+
 http.createServer((req, res) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { allow: 'GET, HEAD' }).end();
@@ -89,6 +114,13 @@ http.createServer((req, res) => {
       return;
     }
     const ext = path.extname(file).toLowerCase();
+    /* Revalidation asks the browser to check; it does not force it to, and a
+       browser that answers from its own cache anyway ends up running yesterday's
+       script against today's markup — a button that is drawn but has nothing
+       listening to it. The HTML is never cached, so stamping each local script
+       and stylesheet with a hash of its own contents settles it: a changed file
+       changes its URL, and the old URL is simply not asked for any more. */
+    if (ext === '.html') body = Buffer.from(stamp(body.toString('utf8')), 'utf8');
     /* Caching, learnt the hard way: a long max-age on the stylesheet meant a
        deploy shipped new HTML to browsers still holding yesterday's CSS, and the
        page rendered half-styled for a day. Only /vendor is safe to freeze — it

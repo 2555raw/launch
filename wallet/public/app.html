@@ -214,8 +214,83 @@
       </div>
       <ul class="activity" id="recentList"></ul>
 
+      <button class="launch-cta" data-go="launch" type="button">
+        <span class="lc-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3c3.5 2.4 5.2 5.8 5.2 9.3 0 2-.5 3.6-1.2 4.9H8C7.3 15.9 6.8 14.3 6.8 12.3 6.8 8.8 8.5 5.4 12 3z"/><circle cx="12" cy="10.4" r="1.9"/><path d="M8.2 18.2c-1.2 1-1.7 2.2-1.6 3.6 1.4.1 2.6-.4 3.6-1.6M15.8 18.2c1.2 1 1.7 2.2 1.6 3.6-1.4.1-2.6-.4-3.6-1.6"/></svg></span>
+        <span class="lc-t">
+          <b data-i18n="w.launchtitle">Launch a coin</b>
+          <small data-i18n="w.launchsub">On a bonding curve, from this wallet</small>
+        </span>
+        <svg class="lc-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+
       <button class="btn ghost wide" data-go="plans" type="button" id="plansCta" data-i18n="w.compareplans">Compare plans</button>
       <button class="btn flat wide" data-go="settings" type="button" data-i18n="w.settingsandsec">Settings and security</button>
+    </section>
+
+    <!-- ── Launching a coin ───────────────────────────
+         The screen is deliberately blunt. A bonding curve launch is
+         irreversible, public the instant it lands, and the overwhelming
+         majority of coins launched this way go to nothing — so the warnings
+         are part of the screen rather than a page of terms nobody opens. -->
+    <section class="view" data-view="launch">
+      <div class="head">
+        <button class="back" data-go="home" type="button" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <h2 data-i18n="w.launchtitle">Launch a coin</h2>
+      </div>
+
+      <p class="lede" data-i18n="w.launchlede">Your coin gets a price the moment it exists, set by a curve rather than by you: every buy moves it up, every sell moves it down. Once enough has been bought it graduates to a real pool and trades anywhere.</p>
+
+      <!-- Not on Solana -->
+      <div class="note warn" id="launchWrongChain" hidden>
+        <b data-i18n="w.launchsolonly">Launching happens on Solana</b>
+        <span data-i18n="w.launchsolonlyb">The curve program runs there. Switch network to continue — your wallet already has a Solana account on the same twelve words.</span>
+        <button class="btn ghost sm" id="launchToSol" type="button" data-i18n="w.launchswitch">Switch to Solana</button>
+      </div>
+
+      <!-- No config: the launchpad is not switched on -->
+      <div class="note warn" id="launchNoConfig" hidden>
+        <b data-i18n="w.launchoffttl">Ward's launchpad is not switched on yet</b>
+        <span data-i18n="w.launchoffb">A launchpad needs a configuration on chain that fixes the curve, the fees and where a graduated coin goes. It is a one-time transaction and it has not been made. Everything below is built and checked, and nothing can be launched until it exists.</span>
+      </div>
+
+      <form id="launchForm" autocomplete="off">
+        <label class="field">
+          <span data-i18n="w.launchname">Name</span>
+          <input id="lcName" maxlength="32" placeholder="Ward Coin" required>
+        </label>
+        <label class="field">
+          <span data-i18n="w.launchsym">Symbol</span>
+          <input id="lcSym" maxlength="10" placeholder="WARD" required>
+        </label>
+        <label class="field">
+          <span data-i18n="w.launchuri">Link to the coin's details</span>
+          <input id="lcUri" type="url" maxlength="200" placeholder="https://…/coin.json">
+          <small class="hint" data-i18n="w.launchurihint">A JSON file holding the name, the symbol and a picture. Ward does not host files yet, so this points at one you host.</small>
+        </label>
+        <label class="field">
+          <span data-i18n="w.launchbuy">Buy some yourself (optional)</span>
+          <input id="lcBuy" inputmode="decimal" placeholder="0.00">
+          <small class="hint" data-i18n="w.launchbuyhint">Bought in the same transaction, at the bottom of the curve.</small>
+        </label>
+
+        <div class="lc-preview" id="lcPreview" aria-live="polite">
+          <span class="lc-av" id="lcAv">?</span>
+          <span class="lc-meta"><b id="lcPvName">—</b><small id="lcPvSym">—</small></span>
+        </div>
+
+        <div class="note danger" id="launchTerms">
+          <b data-i18n="w.launchrisk">Before you do this</b>
+          <ul>
+            <li data-i18n="w.launchrisk1">It cannot be undone, edited or taken down. The coin exists the moment the transaction lands.</li>
+            <li data-i18n="w.launchrisk2">Anyone can buy and sell it immediately, including people betting against you.</li>
+            <li data-i18n="w.launchrisk3">Almost all coins launched this way end up worth nothing. Assume yours will.</li>
+            <li data-i18n="w.launchrisk4">Selling a coin you created may be regulated where you live. That is on you, not on Ward.</li>
+          </ul>
+          <label class="check"><input type="checkbox" id="lcAgree"><span></span><em data-i18n="w.launchagree">I have read this and I want to continue</em></label>
+        </div>
+
+        <button class="btn primary wide" id="lcGo" type="submit" disabled data-i18n="w.launchgo">Launch this coin</button>
+      </form>
     </section>
 
     <!-- ── Top up from another wallet ─────────────── -->
@@ -548,6 +623,7 @@
 <script src="vendor/ethers.umd.min.js"></script>
 <script src="chains.js"></script>
 <script src="sol.js"></script>
+<script src="dbc.js"></script>
 <script src="langs.js"></script>
 <script src="app-i18n.js"></script>
 <script src="app.js"></script>

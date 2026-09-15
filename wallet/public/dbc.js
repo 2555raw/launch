@@ -162,6 +162,11 @@ window.WARD_DBC = (function () {
   }
 
   return {
+    /* The launchpad's configuration account, base58. Null until the one-time
+       create_config transaction has been made and its address put here: the
+       curve, the fees and the migration target all live in it, so there is
+       nothing to launch against until it exists. Deliberately not a guess. */
+    config: null,
     PROGRAM, WSOL, METADATA_PROGRAM, DISC,
     poolAuthority, eventAuthority, poolAddress, tokenVault, mintMetadata,
     initializeIx, swapIx,

@@ -393,6 +393,25 @@ window.WARD_SOL = (function () {
     return rpc('sendTransaction', [b64(tx), { encoding: 'base64', preflightCommitment: 'confirmed' }]);
   }
 
+  /* A brand new key, for a coin that does not exist yet. The randomness comes
+     from the platform's own generator rather than anything of ours. */
+  async function newKeypair() {
+    const e = await lib();
+    const secret = crypto.getRandomValues(new Uint8Array(32));
+    const pub = await e.getPublicKeyAsync(secret);
+    return { secret, pub, address: b58encode(pub) };
+  }
+
+  const blockhash = async () =>
+    (await rpc('getLatestBlockhash', [{ commitment: 'finalized' }])).value.blockhash;
+
+  /* Submitting something this file did not build. Deliberately not retried,
+     for the same reason a transfer is not: the network rejects the second copy
+     of a signed transaction, and reporting that as a failure for something that
+     already went is the worse of the two wrong answers. */
+  const submit = tx =>
+    rpc('sendTransaction', [b64(tx), { encoding: 'base64', preflightCommitment: 'confirmed' }]);
+
   async function confirmed(signature) {
     const r = await rpc('getSignatureStatuses', [[signature], { searchTransactionHistory: true }]);
     const s = (r.value || [])[0];
@@ -434,7 +453,8 @@ window.WARD_SOL = (function () {
        exporting it means dbc.js inherits that rather than repeating it. */
     parts: {
       SYSTEM_PROGRAM, TOKEN_PROGRAM, ATA_PROGRAM,
-      buildMessage, signedBy, signersOf, findPda, sha256, cat, lib, shortvec, eq
+      buildMessage, signedBy, signersOf, findPda, sha256, cat, lib, shortvec, eq,
+      newKeypair, blockhash, submit
     },
     txUrl: sig => EXPLORER + '/tx/' + sig,
     addrUrl: a => EXPLORER + '/account/' + a

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "node test/e2e.js && node test/deposit.js",
-    "test:dbc": "node test/dbc.js"
+    "test:dbc": "node test/dbc.js",
+    "test:launch": "node test/launch.js"
   },
   "engines": {
     "node": ">=18"

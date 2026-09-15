@@ -423,6 +423,26 @@ function applyLang(id) {
   paintPlans();
 }
 
+/* Everything that has to happen when the network changes, in one place: the
+   launch screen needs to move the wallet to Solana too, and a second copy of
+   this list would be a second thing to forget to update. */
+function switchChain(id) {
+  const c = CHAINS[id];
+  if (!c) return;
+  prefs.chainId = id; savePrefs();
+  linked = null;
+  paintNet(); fillTokenSelects(); verifyPlan();
+  paintAddr(); paintChainMode(); clearChainWarn();
+  /* The card names the network and lists that network's coins, so it is
+     wrong the moment the network changes under it. The launch screen is the
+     same: the network pill sits in the bar on every screen, so someone can
+     move off Solana while looking at a launch form that only works there. */
+  paintCard();
+  if ($('[data-view="launch"]').classList.contains('on')) paintLaunch();
+  refresh().then(paintCard);
+  toast(tr('w.youreon', { net: c.name }));
+}
+
 function show(name) {
   $$('.view').forEach(v => v.classList.toggle('on', v.dataset.view === name));
   const chrome = ['welcome', 'create', 'verify', 'password', 'import', 'unlock'].indexOf(name) === -1;
@@ -436,6 +456,103 @@ function show(name) {
   if (name === 'deposit') paintDeposit();
   if (name === 'charge') $('#fromField').hidden = !has('gold');
   if (name === 'send') paintPayees();
+  if (name === 'launch') paintLaunch();
+}
+
+/* ── launching a coin ───────────────────────────────────────────────────── */
+/* The screen has three states and only one of them is a form you can submit:
+   wrong network, launchpad not configured, and ready. They are checked in that
+   order because each makes the next one irrelevant. */
+function paintLaunch() {
+  const wrong = !isSol();
+  const unset = !window.WARD_DBC || !window.WARD_DBC.config;
+  $('#launchWrongChain').hidden = !wrong;
+  $('#launchNoConfig').hidden = wrong || !unset;
+  $('#launchForm').hidden = wrong;
+  launchPreview();
+  launchGate();
+}
+
+function launchPreview() {
+  const name = $('#lcName').value.trim();
+  const sym = $('#lcSym').value.trim().toUpperCase();
+  $('#lcPvName').textContent = name || '—';
+  $('#lcPvSym').textContent = sym || '—';
+  $('#lcAv').textContent = (sym || name || '?').slice(0, 1).toUpperCase();
+}
+
+/* The button turns on only when the form is complete, the box is ticked and
+   there is something to launch against. */
+function launchGate() {
+  const ok = !isSol() ? false
+    : !!($('#lcName').value.trim() && $('#lcSym').value.trim() && $('#lcAgree').checked
+         && window.WARD_DBC && window.WARD_DBC.config);
+  $('#lcGo').disabled = !ok;
+}
+
+function wireLaunch() {
+  ['#lcName', '#lcSym'].forEach(s => $(s).addEventListener('input', () => { launchPreview(); launchGate(); }));
+  $('#lcAgree').addEventListener('change', launchGate);
+  $('#lcUri').addEventListener('input', launchGate);
+  $('#launchToSol').addEventListener('click', () => { switchChain('sol'); paintLaunch(); });
+  $('#launchForm').addEventListener('submit', e => { e.preventDefault(); doLaunch(); });
+}
+
+async function doLaunch() {
+  const DBC = window.WARD_DBC;
+  /* A disabled button is a hint, not a guarantee. */
+  if (!DBC || !DBC.config) { toast(tr('w.launchoffttl')); return; }
+
+  const btn = $('#lcGo');
+  btn.disabled = true;
+  try {
+    const k = await solKeys();
+    if (!k) throw new Error(tr('w.nosolkey'));
+    SOL.setRpc((prefs.rpc[prefs.chainId] || '').trim() || chain().rpc);
+
+    /* The coin's own key. It signs once, here, to let the program create the
+       mint at its address, and then it is never needed again — the coin is not
+       owned by it afterwards. */
+    const mint = await SOL.parts.newKeypair();
+
+    const ix = await DBC.initializeIx({
+      config: SOL.b58decode(DBC.config),
+      baseMint: mint.pub,
+      quoteMint: DBC.WSOL,
+      creator: k.pub,
+      payer: k.pub,
+      name: $('#lcName').value.trim(),
+      symbol: $('#lcSym').value.trim().toUpperCase(),
+      uri: $('#lcUri').value.trim()
+    });
+
+    const msg = SOL.parts.buildMessage(k.pub, [ix], await SOL.parts.blockhash());
+    const tx = await SOL.parts.signedBy(
+      [{ pub: k.pub, secret: k.secret }, { pub: mint.pub, secret: mint.secret }], msg);
+    const sig = await SOL.parts.submit(tx);
+
+    statusSheet('sending', sig);
+    pushAct({
+      hash: sig, chainId: prefs.chainId, from: k.address, to: mint.address,
+      amount: '1', symbol: $('#lcSym').value.trim().toUpperCase(),
+      ts: Date.now(), status: 'pending', kind: 'launch'
+    });
+
+    /* Asked rather than assumed, the same as a payment: a slow node leaves it
+       pending instead of claiming a coin exists that does not. */
+    let done = false;
+    for (let i = 0; i < 20 && !done; i++) {
+      await new Promise(r => setTimeout(r, 1200));
+      done = await SOL.confirmed(sig);
+    }
+    if (done) { patchAct(sig, { status: 'ok' }); statusSheet('ok', sig); }
+    else statusSheet('slow', sig);
+    refresh();
+  } catch (e) {
+    statusSheet('failed', null, (e && e.message) || tr('w.errunknown'));
+  } finally {
+    launchGate();
+  }
 }
 
 function toast(msg) {
@@ -1942,17 +2059,7 @@ function paintNetList() {
       '<span class="nl-mid"><b></b><small></small></span>';
     b.querySelector('b').textContent = c.name;
     b.querySelector('small').textContent = blurbFor(id, c);
-    b.addEventListener('click', () => {
-      prefs.chainId = id; savePrefs();
-      linked = null;
-      paintNet(); fillTokenSelects(); closeSheet('#netSheet'); verifyPlan();
-      paintAddr(); paintChainMode(); clearChainWarn();
-      /* The card names the network and lists that network's coins, so it is
-         wrong the moment the network changes under it. */
-      paintCard();
-      refresh().then(paintCard);
-      toast(tr('w.youreon', { net: c.name }));
-    });
+    b.addEventListener('click', () => { switchChain(id); closeSheet('#netSheet'); });
     li.appendChild(b);
     list.appendChild(li);
   });
@@ -2010,6 +2117,7 @@ function boot() {
 
 /* ── Wiring ────────────────────────────────────────────────────────────────── */
 $$('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
+wireLaunch();
 /* Only this button makes a new phrase. Stepping back from the check shows the
    same one: regenerating would void what they already wrote down. */
 $('#startCreate').addEventListener('click', startCreate);

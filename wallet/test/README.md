@@ -73,3 +73,13 @@ vendor itself. Point `DBC_MODULES` elsewhere if they live somewhere else.
 What it proves: the bytes are right. What it cannot prove: that a launch
 succeeds against the live program. That needs an RPC node, a funded key, and a
 config account that exists — see the note at the top of `public/dbc.js`.
+
+## launch.js — the launch screen
+
+`node test/launch.js` needs the wallet served (`PORT=8111 npm start`) but no
+chain: it creates a wallet through the interface, walks the launch screen's
+three states, and checks the button stays shut with the form filled in and the
+box ticked, because the configuration it would launch against does not exist
+yet. It also covers the network pill, which is reachable from every screen —
+moving off Solana while looking at the launch form has to turn the form back
+into an offer to switch.

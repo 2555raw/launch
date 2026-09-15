@@ -31,7 +31,7 @@ const PLANS = {
     ]
   },
   gold: {
-    name: 'Gold', price: 19.99, tier: 'gold',
+    name: 'Gold', price: window.WARD_PLAN_PRICES.gold, tier: 'gold',
     line: 'For people who get paid through it',
     perks: [
       'Everything in Classic',
@@ -42,7 +42,7 @@ const PLANS = {
     ]
   },
   platinum: {
-    name: 'Platinum', price: 49.99, tier: 'plat',
+    name: 'Platinum', price: window.WARD_PLAN_PRICES.platinum, tier: 'plat',
     line: 'For running more than one set of books',
     perks: [
       'Everything in Gold',

@@ -18,6 +18,20 @@ const $ = s => document.querySelector(s);
 const KEY = 'ward.v1.watch';
 const TRANSFER = E.id('Transfer(address,address,uint256)');
 const ERC20 = ['function balanceOf(address) view returns (uint256)'];
+const PRICES = window.WARD_PLAN_PRICES;
+
+/* An incoming amount that matches a tier's price to the cent is almost
+   certainly someone buying that tier, so the row says so. It is a match on
+   the number and nothing more, which is why the wording is "looks like":
+   anyone can send any amount, and the wallet is what actually grants the
+   plan, off the buyer's own receipt. */
+function looksLike(value, decimals) {
+  const usd = Number(E.formatUnits(value, decimals));
+  for (const [id, price] of Object.entries(PRICES)) {
+    if (Math.abs(usd - price) < 0.005) return id;
+  }
+  return null;
+}
 
 /* Live networks only. A test chain's "money" is worthless on purpose, so
    counting it as income would be a lie. */
@@ -36,7 +50,6 @@ let scanned = {};   // chainId -> block we have scanned back to
 let rows = [];
 let passes = 0;     // how many windows back the scan has walked
 
-const short = a => a.slice(0, 6) + '…' + a.slice(-4);
 const usdOf = (v, d) => (Number(E.formatUnits(v, d))).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function providerFor(id) {
@@ -189,20 +202,45 @@ function paintFeed() {
   }
   rows.slice(0, 60).forEach(r => {
     const c = CHAINS[r.chainId];
-    const el = document.createElement('a');
+    const tier = looksLike(r.value, r.decimals);
+
+    const el = document.createElement('article');
     el.className = 'dv-row';
-    el.href = c.explorer + '/tx/' + r.hash;
-    el.target = '_blank';
-    el.rel = 'noopener noreferrer';
-    el.innerHTML = '<span class="dv-in">+$<span class="dv-v"></span></span>' +
-                   '<span class="dv-mid"><b></b><small></small></span>' +
-                   '<span class="dv-when"></span>';
+    el.innerHTML =
+      '<div class="dv-sum">' +
+        '<span class="dv-in">+$<span class="dv-v"></span></span>' +
+        '<span class="dv-tier"></span>' +
+        '<span class="dv-when"></span>' +
+      '</div>' +
+      '<p class="dv-paid">Paid by</p>' +
+      '<div class="dv-who">' +
+        '<code class="dv-from"></code>' +
+        '<button class="dv-copy" type="button">Copy</button>' +
+      '</div>' +
+      '<p class="dv-meta"><span class="dv-chain"></span> · <a class="dv-tx" target="_blank" rel="noopener noreferrer">See the transaction</a></p>';
+
     el.querySelector('.dv-v').textContent = usdOf(r.value, r.decimals);
-    el.querySelector('b').textContent = 'From ' + short(r.from);
-    el.querySelector('small').textContent = c.short + ' · block ' + r.block.toLocaleString('en-US');
+    el.querySelector('.dv-from').textContent = r.from;
+
+    const tag = el.querySelector('.dv-tier');
+    if (tier) { tag.textContent = 'looks like ' + tier[0].toUpperCase() + tier.slice(1); tag.classList.add('is-' + tier); }
+    else tag.remove();
+
     el.querySelector('.dv-when').textContent = r.ts
       ? new Date(r.ts).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
       : '';
+    el.querySelector('.dv-chain').textContent = c.short + ' · block ' + r.block.toLocaleString('en-US');
+    el.querySelector('.dv-tx').href = c.explorer + '/tx/' + r.hash;
+
+    /* The address is the point of this row: it is who to send the card to, so
+       it is here in full and one click from the clipboard. */
+    const copy = el.querySelector('.dv-copy');
+    copy.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(r.from); copy.textContent = 'Copied'; }
+      catch { copy.textContent = 'Select it by hand'; }
+      setTimeout(() => { copy.textContent = 'Copy'; }, 1600);
+    });
+
     box.appendChild(el);
   });
 }

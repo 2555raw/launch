@@ -73,22 +73,45 @@
 .dv-list-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .dv-scan { font-size: 13px; color: var(--ink-3); margin-left: auto; }
 
-.dv-list { display: grid; gap: 8px; margin: 4px 0 16px; }
+.dv-list { display: grid; gap: 10px; margin: 4px 0 16px; }
 .dv-row {
-  display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit;
   background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
-  padding: 14px 16px; box-shadow: var(--shadow-1);
-  transition: border-color .18s, transform .18s;
+  padding: 14px 16px 12px; box-shadow: var(--shadow-1);
 }
-.dv-row:hover { border-color: var(--line-2); transform: translateY(-1px); }
+.dv-sum { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .dv-in {
-  font-weight: 700; font-size: 17px; color: var(--ok); letter-spacing: -.02em;
-  font-variant-numeric: tabular-nums; flex: none;
+  font-weight: 700; font-size: 19px; color: var(--ok); letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
 }
-.dv-mid { min-width: 0; flex: 1; }
-.dv-mid b { display: block; font-size: 14.5px; font-weight: 600; font-family: var(--mono); }
-.dv-mid small { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
-.dv-when { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; flex: none; }
+.dv-tier {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2);
+}
+.dv-tier.is-gold { background: #F6E6C0; color: #6B4E12; }
+.dv-tier.is-platinum { background: #DFE2EC; color: #3C4257; }
+@media (prefers-color-scheme: dark) {
+  .dv-tier.is-gold { background: #3A2E12; color: #EBCE87; }
+  .dv-tier.is-platinum { background: #262A3D; color: #C3C9DC; }
+}
+.dv-when { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; margin-left: auto; }
+
+/* The payer's address is what this page is for — it is who to send the card
+   to — so it gets its own line, in full, next to a copy button. */
+.dv-paid { margin: 12px 0 5px; font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.dv-who { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dv-from {
+  font-family: var(--mono); font-size: 13.5px; color: var(--ink);
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 7px 10px; overflow-wrap: anywhere; min-width: 0;
+}
+.dv-copy {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  background: var(--brand-soft); color: var(--brand-deep);
+  border: 0; border-radius: 10px; padding: 8px 14px; flex: none;
+}
+.dv-copy:hover { background: var(--brand); color: #fff; }
+.dv-meta { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-3); }
+.dv-tx { color: var(--brand-deep); }
 
 .dv-empty {
   background: var(--surface-2); border: 1px dashed var(--line-2); border-radius: 16px;

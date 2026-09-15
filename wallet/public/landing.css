@@ -216,9 +216,19 @@
 /* ── footer ──────────────────────────────────────── */
 .foot { border-top: 1px solid var(--line); padding-block: 34px calc(40px + env(safe-area-inset-bottom)); }
 .foot-in { display: grid; gap: 16px; }
-@media (min-width: 760px) { .foot-in { grid-template-columns: auto 1fr; align-items: center; gap: 36px; } }
+@media (min-width: 760px) { .foot-in { grid-template-columns: auto 1fr; align-items: start; gap: 44px; } }
 .foot .brand { text-decoration: none; }
 .foot p { margin: 0; font-size: 13.5px; color: var(--ink-3); line-height: 1.6; max-width: 70ch; }
+
+/* The wordmark and the copyright line, bottom left, the way a company signs a
+   page. The mark is ™ and not ®: ® states that the name sits on a trademark
+   register, so it stays ™ until there is a registration to point at. */
+.foot-id { display: grid; gap: 10px; justify-items: start; }
+.tm {
+  font-size: .52em; font-weight: 600; vertical-align: super;
+  margin-left: 2px; letter-spacing: .02em; color: var(--ink-3);
+}
+.foot-legal { font-size: 13px; color: var(--ink-3); white-space: nowrap; }
 
 /* ── scroll reveal ───────────────────────────────── */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s cubic-bezier(.22,.9,.3,1), transform .6s cubic-bezier(.22,.9,.3,1); }

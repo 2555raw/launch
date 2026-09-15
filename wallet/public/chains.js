@@ -1,3 +1,8 @@
+/* What each paid tier costs, in USDC. The wallet charges it and the money-in
+   page names an incoming amount after it, so the two must agree; keeping the
+   numbers here is what makes that true by construction rather than by luck. */
+window.WARD_PLAN_PRICES = { gold: 19.99, platinum: 49.99 };
+
 /* The networks Ward speaks to, kept in their own file because two pages read
    them: the wallet, and the page that watches what has been paid in. One copy
    means an RPC or a token address can never be right on one and stale on the

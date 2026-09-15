@@ -44,6 +44,22 @@ window.WARD_CHAINS = {
       { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', color: '#26A17B' }
     ]
   },
+  56: {
+    name: 'BNB Smart Chain', short: 'BNB Chain', coin: 'BNB', color: '#F3BA2F',
+    rpc: 'https://bsc-dataseed.binance.org', explorer: 'https://bscscan.com',
+    blurb: 'Cheap, and where BNB lives',
+    /* Native BNB only. This container cannot reach the chain, so no token
+       contract here could be checked against it, and an unchecked token address
+       is a way to send money somewhere nobody can reach. Add USDC here once its
+       contract is confirmed on bscscan. */
+    tokens: []
+  },
+  999: {
+    name: 'Hyperliquid', short: 'Hyperliquid', coin: 'HYPE', color: '#97FCE4',
+    rpc: 'https://rpc.hyperliquid.xyz/evm', explorer: 'https://hyperevmscan.io',
+    blurb: 'Where HYPE lives',
+    tokens: []
+  },
   1: {
     name: 'Ethereum', short: 'Ethereum', coin: 'ETH', color: '#627EEA',
     rpc: 'https://ethereum-rpc.publicnode.com', explorer: 'https://etherscan.io',

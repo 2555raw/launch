@@ -65,7 +65,7 @@ const rank = p => PLAN_ORDER.indexOf(p);
    blocks — their coin just isn't worth anything, which makes them the right
    place to prove a payment works before risking money. */
 const CHAINS = window.WARD_CHAINS;
-const CHAIN_ORDER = [8453, 137, 42161, 10, 1];
+const CHAIN_ORDER = [8453, 137, 42161, 10, 1, 56, 999];
 
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
@@ -114,6 +114,7 @@ let prefs = Object.assign({ chainId: 8453, rpc: {}, accounts: [{ i: 0, name: '' 
    anything, so it is put back into shape rather than trusted. */
 if (!prefs.card || typeof prefs.card !== 'object') prefs.card = { name: '', stickers: [] };
 if (typeof prefs.card.name !== 'string') prefs.card.name = '';
+if (typeof prefs.card.coin !== 'string') prefs.card.coin = 'ETH';
 if (!Array.isArray(prefs.card.stickers)) prefs.card.stickers = [];
 if (!CHAINS[prefs.chainId]) prefs.chainId = 8453;
 if (!Array.isArray(prefs.accounts) || !prefs.accounts.length) prefs.accounts = [{ i: 0, name: '' }];
@@ -1356,6 +1357,17 @@ const blurbFor = (id, c) => {
 const STICKERS = ['⭐', '🔥', '🌙', '⚡', '🍀', '🌊', '🐉', '🎯', '💎', '🌸', '🛡️', '🎧'];
 const MAX_STICKERS = 2;
 
+/* Which coin the card shows. A coin only exists on the chain that carries it,
+   so choosing one chooses a network too, and ETH is first because it is the
+   one most people arrive with. */
+const CARD_COINS = [
+  { key: 'ETH',  chainId: 8453, symbol: null },
+  { key: 'USDC', chainId: 8453, symbol: 'USDC' },
+  { key: 'BNB',  chainId: 56,   symbol: null },
+  { key: 'HYPE', chainId: 999,  symbol: null }
+];
+const cardCoin = () => CARD_COINS.find(x => x.key === prefs.card.coin) || CARD_COINS[0];
+
 function paintCardFaces() {
   const c = prefs.card;
   const name = (c.name || '').trim();
@@ -1371,10 +1383,24 @@ function paintCard() {
   const c = chain();
   $('#cardTier').textContent = PLANS[plan].name;
   $('#cardNet').textContent = c.short;
+  const pickedCoin = cardCoin();
+  const tok = pickedCoin.symbol ? c.tokens.find(t => t.symbol === pickedCoin.symbol) : null;
+  const held = tok ? balances.tokens[tok.symbol] : balances.native;
   $('#cardBalLabel').textContent = tr('w.balanceon', { net: c.short });
-  $('#cardBal').textContent = balances.native == null
+  $('#cardBal').textContent = held == null
     ? tr('w.na')
-    : fmt(trim(E.formatEther(balances.native), 6)) + ' ' + c.coin;
+    : fmt(trim(tok ? E.formatUnits(held, tok.decimals) : E.formatEther(held), 6)) + ' ' + (tok ? tok.symbol : c.coin);
+
+  const coins = $('#coinPick');
+  coins.innerHTML = '';
+  CARD_COINS.forEach(coin => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = coin.key;
+    b.className = coin.key === pickedCoin.key ? 'on' : '';
+    b.addEventListener('click', () => pickCardCoin(coin));
+    coins.appendChild(b);
+  });
   $('#cardAddr').textContent = wallet ? short(wallet.address) : '…';
   $('#cardNameInput').value = prefs.card.name;
 
@@ -1390,6 +1416,21 @@ function paintCard() {
     pick.appendChild(b);
   });
   paintCardFaces();
+}
+
+function pickCardCoin(coin) {
+  prefs.card.coin = coin.key;
+  /* The coin lives on one chain, so the wallet follows it there rather than
+     showing a balance the selected network does not have. */
+  if (Number(prefs.chainId) !== coin.chainId && CHAINS[coin.chainId]) {
+    prefs.chainId = coin.chainId;
+    savePrefs();
+    paintNet(); fillTokenSelects(); verifyPlan();
+    refresh().then(paintCard);
+  } else {
+    savePrefs();
+  }
+  paintCard();
 }
 
 function toggleSticker(sticker) {

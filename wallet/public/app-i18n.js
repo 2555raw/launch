@@ -12,6 +12,10 @@
 window.WARD_APP_I18N = {
 
 en: {
+  "w.blurb56": "Cheap, and where BNB lives",
+  "w.blurb999": "Where HYPE lives",
+  "w.cardcoin": "Coin on the card",
+  "w.cardcoinsub": "The card shows what you hold in this one. Picking it switches the network too.",
   "w.paywithother": "Pay with another wallet",
   "w.paywithothersub": "It signs and it pays. This wallet keeps the plan.",
   "w.choosewallet": "Choose a wallet",
@@ -225,6 +229,10 @@ en: {
 },
 
 es: {
+  "w.blurb56": "Barata, y donde vive BNB",
+  "w.blurb999": "Donde vive HYPE",
+  "w.cardcoin": "Moneda de la tarjeta",
+  "w.cardcoinsub": "La tarjeta enseña lo que tengas de esta. Al elegirla cambia también de red.",
   "w.paywithother": "Pagar con otra wallet",
   "w.paywithothersub": "Ella firma y ella paga. El plan se queda en esta wallet.",
   "w.choosewallet": "Elegir una wallet",
@@ -438,6 +446,10 @@ es: {
 },
 
 zh: {
+  "w.blurb56": "便宜，也是 BNB 的家",
+  "w.blurb999": "HYPE 的家",
+  "w.cardcoin": "卡面上的币",
+  "w.cardcoinsub": "卡面显示的是你手上这种币的数量。选它也会跟着切换网络。",
   "w.paywithother": "用其他钱包支付",
   "w.paywithothersub": "由它签名、由它付款。方案仍然留在这个钱包里。",
   "w.choosewallet": "选择钱包",
@@ -651,6 +663,10 @@ zh: {
 },
 
 ru: {
+  "w.blurb56": "Дёшево, и здесь живёт BNB",
+  "w.blurb999": "Здесь живёт HYPE",
+  "w.cardcoin": "Монета на карте",
+  "w.cardcoinsub": "Карта показывает, сколько у вас этой монеты. Выбор также переключает сеть.",
   "w.paywithother": "Заплатить другим кошельком",
   "w.paywithothersub": "Она подписывает и она платит. Тариф остаётся у этого кошелька.",
   "w.choosewallet": "Выберите кошелёк",

@@ -34,13 +34,23 @@
 @media (min-width: 940px) { .nav-pill { display: flex; } .nav .brand { margin-right: 0; } .nav-in { justify-content: space-between; } .nav-pill { margin-inline: auto; } }
 
 .nav.stuck { padding-block: 10px; }
+/* Once it is floating over the page it stops being a solid lid: the page shows
+   through it, blurred, so you can see what it is covering. Frosted rather than
+   clear, because the links still have to be readable over whatever passes
+   underneath. */
 .nav.stuck .nav-in {
   max-width: 1000px;
-  background: color-mix(in srgb, var(--surface) 86%, transparent);
-  backdrop-filter: saturate(170%) blur(16px);
-  border-color: var(--line);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-color: color-mix(in srgb, var(--line) 70%, transparent);
   box-shadow: var(--shadow-2);
   padding: 7px 7px 7px 20px;
+}
+/* A browser with no backdrop-filter would show the page straight through and
+   the links would be unreadable, so there it stays opaque. */
+@supports not (backdrop-filter: blur(1px)) {
+  .nav.stuck .nav-in { background: var(--surface); }
 }
 .nav.stuck .nav-pill { background: transparent; border-color: transparent; box-shadow: none; }
 

@@ -168,11 +168,15 @@ body {
 @media (max-width: 420px) { .bar .brand-name { display: none; } }
 .chev { width: 14px; height: 14px; fill: none; stroke: var(--ink-3); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
+/* One of these is an <a> out to the site rather than a <button>, so the rule
+   carries the bits an anchor does not inherit: no underline, no shrinking. */
 .icon-btn {
-  width: 38px; height: 38px; display: grid; place-items: center;
+  width: 38px; height: 38px; display: grid; place-items: center; flex: none;
   background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-  cursor: pointer; box-shadow: var(--shadow-1); transition: transform .18s, border-color .18s;
+  cursor: pointer; text-decoration: none;
+  box-shadow: var(--shadow-1); transition: transform .18s, border-color .18s;
 }
+.icon-btn:hover { border-color: var(--line-2); }
 .icon-btn:active { transform: scale(.94); }
 .icon-btn svg { width: 19px; height: 19px; fill: none; stroke: var(--ink-2); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -462,7 +466,6 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .net-list .nl-mid { flex: 1; }
 .net-list b { display: block; font-size: 14.5px; font-weight: 600; }
 .net-list small { color: var(--ink-3); font-size: 12.5px; }
-.test-tag { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; color: var(--warn); background: var(--warn-bg); padding: 3px 7px; border-radius: 6px; }
 
 .cf-amount { font-size: 34px; font-weight: 680; letter-spacing: -.035em; text-align: center; margin: 14px 0 18px; font-variant-numeric: tabular-nums; }
 .cf-rows { margin: 0 0 18px; display: grid; gap: 1px; background: var(--line); border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); }

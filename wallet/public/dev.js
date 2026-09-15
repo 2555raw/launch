@@ -33,9 +33,7 @@ function looksLike(value, decimals) {
   return null;
 }
 
-/* Live networks only. A test chain's "money" is worthless on purpose, so
-   counting it as income would be a lie. */
-const LIVE = Object.keys(CHAINS).map(Number).filter(id => !CHAINS[id].test);
+const LIVE = Object.keys(CHAINS).map(Number);
 
 /* Public nodes cap how many blocks one eth_getLogs may cover, and they differ
    on where the cap is, so the scan walks backwards in windows this size. */

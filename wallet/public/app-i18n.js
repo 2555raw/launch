@@ -12,6 +12,7 @@
 window.WARD_APP_I18N = {
 
 en: {
+  "w.backtosite": "Back to the site",
   "w.couldntcopy": "Couldn't copy",
   "w.lockedidle": "Locked after inactivity",
   "w.nophrasekey": "This wallet was imported from a private key, so it has no extra accounts",
@@ -73,8 +74,6 @@ en: {
   "w.blurb42161": "Cheap, and deep on liquidity",
   "w.blurb10": "Quick, low fees",
   "w.blurb1": "The main one, and the priciest to use",
-  "w.blurb84532": "Practice here; the money is worthless on purpose",
-  "w.blurb11155111": "Ethereum's test network",
   "w.moneythat": "Money that<br>answers to you.",
   "w.isavedit": "I saved it somewhere safe and offline.",
   "w.noforgotnote": "<b>There is no \"forgot my password\".</b> If you lose it, you recover the wallet with your 12 words, which is exactly why they matter.",
@@ -201,7 +200,6 @@ en: {
   "w.yourplan": "Your plan",
   "w.upgradeto": "Upgrade to {plan}",
   "w.daysof": "30 days of {plan}",
-  "w.testnetwork": "(test network)",
   "w.unavailable": "Unavailable",
   "w.na": "n/a",
   "w.couldntread": "Couldn't read the balance. Connection?",
@@ -214,6 +212,7 @@ en: {
 },
 
 es: {
+  "w.backtosite": "Volver a la página",
   "w.couldntcopy": "No se ha podido copiar",
   "w.lockedidle": "Bloqueada por inactividad",
   "w.nophrasekey": "Esta wallet se importó desde una clave privada, así que no tiene cuentas adicionales",
@@ -275,8 +274,6 @@ es: {
   "w.blurb42161": "Barata y con mucha liquidez",
   "w.blurb10": "Rápida, comisiones bajas",
   "w.blurb1": "La principal, y la más cara de usar",
-  "w.blurb84532": "Practica aquí; el dinero no vale nada a propósito",
-  "w.blurb11155111": "La red de pruebas de Ethereum",
   "w.moneythat": "Dinero que<br>te responde a ti.",
   "w.isavedit": "La he guardado en un sitio seguro y sin conexión.",
   "w.noforgotnote": "<b>Aquí no existe el \"he olvidado mi contraseña\".</b> Si la pierdes, recuperas la wallet con tus 12 palabras, que es justo por lo que importan tanto.",
@@ -403,7 +400,6 @@ es: {
   "w.yourplan": "Tu plan",
   "w.upgradeto": "Mejorar a {plan}",
   "w.daysof": "30 días de {plan}",
-  "w.testnetwork": "(red de pruebas)",
   "w.unavailable": "No disponible",
   "w.na": "n/d",
   "w.couldntread": "No se ha podido leer el saldo. ¿Conexión?",
@@ -416,6 +412,7 @@ es: {
 },
 
 zh: {
+  "w.backtosite": "返回网站",
   "w.couldntcopy": "复制不了",
   "w.lockedidle": "闲置过久，已锁定",
   "w.nophrasekey": "这个钱包是用私钥导入的，所以没有额外的账户",
@@ -477,8 +474,6 @@ zh: {
   "w.blurb42161": "便宜，流动性充足",
   "w.blurb10": "快，手续费低",
   "w.blurb1": "最主要的一条，也是最贵的",
-  "w.blurb84532": "在这里练手；这里的钱故意设计成没有价值",
-  "w.blurb11155111": "以太坊的测试网络",
   "w.moneythat": "只听你的<br>那笔钱。",
   "w.isavedit": "我已经把它离线保存在安全的地方了。",
   "w.noforgotnote": "<b>这里没有\"忘记密码\"这回事。</b>如果你忘了，就用那 12 个词把钱包找回来，这正是它们重要的原因。",
@@ -605,7 +600,6 @@ zh: {
   "w.yourplan": "你的方案",
   "w.upgradeto": "升级到 {plan}",
   "w.daysof": "30 天的 {plan}",
-  "w.testnetwork": "（测试网络）",
   "w.unavailable": "读不到",
   "w.na": "无",
   "w.couldntread": "读不到余额。是不是网络问题？",
@@ -618,6 +612,7 @@ zh: {
 },
 
 ru: {
+  "w.backtosite": "Вернуться на сайт",
   "w.couldntcopy": "Не удалось скопировать",
   "w.lockedidle": "Заблокировано из-за бездействия",
   "w.nophrasekey": "Этот кошелёк импортирован из приватного ключа, поэтому дополнительных счетов у него нет",
@@ -679,8 +674,6 @@ ru: {
   "w.blurb42161": "Дёшево и с глубокой ликвидностью",
   "w.blurb10": "Быстро, низкие комиссии",
   "w.blurb1": "Основная и самая дорогая в использовании",
-  "w.blurb84532": "Тренируйтесь здесь: деньги здесь ничего не стоят, и это намеренно",
-  "w.blurb11155111": "Тестовая сеть Ethereum",
   "w.moneythat": "Деньги, которые<br>слушаются вас.",
   "w.isavedit": "Я сохранил её в надёжном месте, не в сети.",
   "w.noforgotnote": "<b>Здесь не бывает «забыл пароль».</b> Если вы его потеряете, кошелёк восстанавливается сид-фразой из 12 слов, ровно поэтому она так важна.",
@@ -807,7 +800,6 @@ ru: {
   "w.yourplan": "Ваш тариф",
   "w.upgradeto": "Переход на {plan}",
   "w.daysof": "30 дней тарифа {plan}",
-  "w.testnetwork": "(тестовая сеть)",
   "w.unavailable": "Недоступно",
   "w.na": "н/д",
   "w.couldntread": "Не удалось прочитать баланс. Связь?",

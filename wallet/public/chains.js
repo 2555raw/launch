@@ -52,21 +52,5 @@ window.WARD_CHAINS = {
       { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', color: '#2775CA' },
       { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', color: '#26A17B' }
     ]
-  },
-  84532: {
-    name: 'Base Sepolia', short: 'Base Sepolia', coin: 'ETH', color: '#7B8794', test: true,
-    rpc: 'https://sepolia.base.org', explorer: 'https://sepolia.basescan.org',
-    blurb: 'Practice here; the money is worthless on purpose',
-    tokens: [
-      { symbol: 'USDC', name: 'Test USDC', decimals: 6, address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', color: '#2775CA' }
-    ]
-  },
-  11155111: {
-    name: 'Sepolia', short: 'Sepolia', coin: 'ETH', color: '#7B8794', test: true,
-    rpc: 'https://ethereum-sepolia-rpc.publicnode.com', explorer: 'https://sepolia.etherscan.io',
-    blurb: "Ethereum's test network",
-    tokens: [
-      { symbol: 'USDC', name: 'Test USDC', decimals: 6, address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', color: '#2775CA' }
-    ]
   }
 };

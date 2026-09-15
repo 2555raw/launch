@@ -65,7 +65,7 @@ const rank = p => PLAN_ORDER.indexOf(p);
    blocks — their coin just isn't worth anything, which makes them the right
    place to prove a payment works before risking money. */
 const CHAINS = window.WARD_CHAINS;
-const CHAIN_ORDER = [8453, 137, 42161, 10, 1, 84532, 11155111];
+const CHAIN_ORDER = [8453, 137, 42161, 10, 1];
 
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
@@ -440,7 +440,7 @@ async function buyPlan(id) {
     $('#cfTitle').textContent = tr('w.upgradeto', { plan: p.name });
     $('#cfAmount').textContent = `$${p.price} USDC`;
     $('#cfTo').textContent = short(TREASURY);
-    $('#cfNet').textContent = c.name + (c.test ? ' ' + tr('w.testnetwork') : '');
+    $('#cfNet').textContent = c.name;
     $('#cfFee').textContent = '≈ ' + fmt(trim(E.formatEther(fee.cost), 7)) + ' ' + c.coin;
     $('#cfAfter').textContent = tr('w.daysof', { plan: p.name });
     fail('#cfErr', '');
@@ -804,7 +804,7 @@ async function review() {
     $('#cfTitle').textContent = tr('w.confirmthepaym');
     $('#cfAmount').textContent = fmt(trim(raw, 8)) + ' ' + draft.symbol;
     $('#cfTo').textContent = short(to);
-    $('#cfNet').textContent = c.name + (c.test ? ' ' + tr('w.testnetwork') : '');
+    $('#cfNet').textContent = c.name;
     $('#cfFee').textContent = '≈ ' + fmt(trim(E.formatEther(fee.cost), 7)) + ' ' + c.coin;
     $('#cfAfter').textContent = tok
       ? (balances.tokens[tok.symbol] != null ? fmt(trim(E.formatUnits(balances.tokens[tok.symbol] - value, tok.decimals), 6)) + ' ' + tok.symbol : tr('w.na'))
@@ -1107,7 +1107,7 @@ function paintReceive() {
   if (!wallet) return;
   const c = chain();
   $('#addrFull').textContent = wallet.address;
-  $('#recvNet').textContent = c.name + (c.test ? ' (test network)' : '') + ' only';
+  $('#recvNet').textContent = c.name + ' only';
   $('#recvDot').style.background = c.color;
   qrInto($('#qrBox'), 'ethereum:' + wallet.address + '@' + prefs.chainId, 6);
 }
@@ -1221,8 +1221,7 @@ function paintNetList() {
     b.type = 'button';
     b.className = id === Number(prefs.chainId) ? 'sel' : '';
     b.innerHTML = `<span class="dot" style="background:${c.color};width:11px;height:11px"></span>` +
-      '<span class="nl-mid"><b></b><small></small></span>' +
-      (c.test ? '<span class="test-tag">TEST</span>' : '');
+      '<span class="nl-mid"><b></b><small></small></span>';
     b.querySelector('b').textContent = c.name;
     b.querySelector('small').textContent = blurbFor(id, c);
     b.addEventListener('click', () => {

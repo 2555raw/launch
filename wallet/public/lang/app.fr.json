@@ -231,5 +231,10 @@
  "w.solnolink": "<b>Solana n'est pas une chaîne EVM.</b> Les portefeuilles de navigateur se connectent via une interface EVM que Solana ne parle pas, ils ne peuvent donc pas être liés ici. Envoie plutôt à l'adresse ci-dessous : depuis Phantom, depuis une plateforme, depuis n'importe où.",
  "w.wrongchain": "Ce nœud répond pour la chaîne {got}, pas pour {net}. Vérifie le RPC dans les Réglages avant d’envoyer quoi que ce soit.",
  "w.needsolforfee": "Il te faut un peu de {coin} pour payer les frais et ouvrir le compte de jeton du destinataire.",
- "w.plusrent": "(dépôt du compte compris, s’il en faut un)"
+ "w.plusrent": "(dépôt du compte compris, s’il en faut un)",
+ "w.today": "Passer en mode jour",
+ "w.tonight": "Passer en mode nuit",
+ "w.recvtakes": "Cette adresse accepte {coins} sur {net}. Tout arrive à la même adresse : un jeton est une ligne dans un contrat, pas un compte séparé.",
+ "w.recvwarnevm": "N’envoie rien de Solana ici. Cette adresse appartient au côté EVM, et ce qui y arrive depuis Solana est perdu pour de bon. Un autre réseau EVM, c’est bon : l’adresse est la même partout, l’argent est simplement sur cette chaîne.",
+ "w.recvwarnsol": "N’envoie rien depuis Ethereum, Base, Polygon ou un autre réseau EVM. Cette adresse appartient à Solana, et ce qui vient de là est perdu pour de bon."
 }

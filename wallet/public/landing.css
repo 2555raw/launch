@@ -85,14 +85,29 @@
 @media (max-width: 460px) {
   .cta { padding-inline: 20px; }
   .cta-row .cta { flex: 1 1 auto; }
-  /* The label in the bar is a translation, and some languages need more room
-     for it than English does — Japanese "ウォレットを開く" is half again as wide
-     as "Open wallet". Rather than shorten one language's wording, the button
-     itself gives way at the width where it stops fitting. */
-  .nav .cta.sm { padding: 8px 13px; font-size: 14px; }
+  /* The bar carries a wordmark, a language, a theme and a call to action, and
+     the label in the last one is a translation: Japanese "ウォレットを開く" is
+     half again as wide as "Open wallet". Rather than shorten one language's
+     wording or drop a control, everything gives a little at the width where
+     the row stops fitting. */
+  .nav-in { gap: 8px; }
+  /* The mark carries the brand on a phone; the word beside it is the first
+     thing that can go, and the wallet's own bar already drops it here. */
+  .nav .brand-name { display: none; }
+  .nav .cta.sm { padding: 8px 12px; font-size: 13.5px; min-width: 0; }
+  /* A backstop for the longest translations — "Ouvrir le portefeuille" is
+     nearly twice "Open wallet". Shrinking beats spilling off the screen. */
+  .nav .cta.sm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 1; }
+  .nav .lang-btn { padding: 8px 11px 8px 9px; font-size: 13.5px; gap: 5px; }
+  .nav .lang-btn.icon-only { padding: 8px; }
+  .nav .lang-btn svg { width: 15px; height: 15px; }
 }
 .cta.ghost:hover { background: var(--surface); border-color: var(--line-2); }
-@media (prefers-color-scheme: dark) { .cta { color: #05201C; } }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .cta { color: #05201C; } }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .cta { color: #05201C; }
+
 
 .eyebrow {
   display: inline-block; font-size: 13px; font-weight: 680;
@@ -430,6 +445,7 @@
   transition: border-color .18s, color .18s, background .35s;
 }
 .lang-btn:hover { border-color: var(--brand); color: var(--brand); }
+.lang-btn.icon-only { padding: 8px; flex: none; }
 .lang-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
 .nav.stuck .lang-btn { background: transparent; border-color: transparent; box-shadow: none; }
 
@@ -477,7 +493,11 @@
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, rgba(0,0,0,.35) 76%, rgba(0,0,0,.2) 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 42%, rgba(0,0,0,.35) 76%, rgba(0,0,0,.2) 100%);
 }
-@media (prefers-color-scheme: dark) { .site::before { opacity: .38; } }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .site::before { opacity: .38; } }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .site::before { opacity: .38; }
+
 
 /* The ambient layer is positioned, so without this the page content would paint
    underneath it rather than on top. Only the two unpositioned blocks get this:
@@ -498,7 +518,11 @@
 #name .glow   { width: 30vmax; height: 30vmax; bottom: 0; left: 24%; background: var(--iris); opacity: .17; }
 #terms .glow  { width: 32vmax; height: 32vmax; top: 4vmax; left: 0; background: var(--sky); opacity: .16; }
 #faq .glow    { width: 30vmax; height: 30vmax; bottom: 0; right: 0; background: var(--brand); opacity: .15; }
-@media (prefers-color-scheme: dark) { .glow { opacity: .1 !important; } }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .glow { opacity: .1 !important; } }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .glow { opacity: .1 !important; }
+
 
 /* ── a background with something in it ───────────────────────────────────────
    The page was carrying its colour in three still blobs. They drift now, on
@@ -518,7 +542,11 @@
   width: 72vmax; height: 72vmax; color: var(--brand);
   opacity: .1; animation: turn 150s linear infinite;
 }
-@media (prefers-color-scheme: dark) { .wards { opacity: .07; } }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .wards { opacity: .07; } }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .wards { opacity: .07; }
+
 @media (max-width: 899px) { .wards { top: 30vh; right: -34vmax; width: 86vmax; height: 86vmax; opacity: .07; } }
 @keyframes turn { to { transform: rotate(360deg); } }
 
@@ -529,7 +557,11 @@
     radial-gradient(56vmax 40vmax at 12% 6%, color-mix(in srgb, var(--sky) 20%, transparent), transparent 68%);
   opacity: .5;
 }
-@media (prefers-color-scheme: dark) { .grid-fade { opacity: .26; } }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .grid-fade { opacity: .26; } }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .grid-fade { opacity: .26; }
+
 
 @keyframes drift {
   from { transform: translate3d(0, 0, 0) scale(1); }
@@ -701,6 +733,19 @@ body.notice-up .ask-fab { opacity: 0; pointer-events: none; }
    advances on its own until someone touches it, and then it stops and follows
    them instead. */
 .rail { display: flex; align-items: center; margin: 34px 0 24px; }
+/* Four pills and three connecting lines, and "Step" is a longer word in some
+   languages than in English — Indonesian "Langkah 4" is half again as wide.
+   On a narrow phone the row scrolls rather than pushing the page sideways,
+   which is what a row of steps should do anyway. */
+@media (max-width: 420px) {
+  .rail {
+    overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+    margin-inline: calc(var(--pad, 18px) * -1); padding-inline: var(--pad, 18px);
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail-pill { padding: 8px 13px; font-size: 13.5px; }
+  .rail-line { min-width: 18px; }
+}
 .rail-pill {
   flex: none; background: var(--surface); border: 1px solid var(--line);
   border-radius: 999px; padding: 8px 17px; cursor: pointer;
@@ -713,7 +758,11 @@ body.notice-up .ask-fab { opacity: 0; pointer-events: none; }
   color: #fff; background: var(--brand); border-color: transparent;
   box-shadow: var(--shadow-brand); transform: scale(1.06);
 }
-@media (prefers-color-scheme: dark) { .rail-pill.on { color: #07081A; } }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .rail-pill.on { color: #07081A; } }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .rail-pill.on { color: #07081A; }
+
 .rail-pill.done { color: var(--brand-deep); border-color: var(--brand-soft); background: var(--brand-soft); }
 
 .rail-line { flex: 1; height: 2px; background: var(--line); margin: 0 10px; position: relative; overflow: hidden; border-radius: 2px; }
@@ -762,7 +811,11 @@ body.notice-up .ask-fab { opacity: 0; pointer-events: none; }
 .mf b { font-size: 13.5px; font-weight: 620; text-align: right; }
 
 .mock-cta { background: var(--brand); color: #fff; border-radius: 9px; padding: 10px; text-align: center; font-size: 13.5px; font-weight: 620; margin-top: auto; }
-@media (prefers-color-scheme: dark) { .mock-cta { color: #07081A; } }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .mock-cta { color: #07081A; } }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .mock-cta { color: #07081A; }
+
 
 .mock-qr { background: #fff; border-radius: 9px; padding: 7px; line-height: 0; justify-self: center; }
 .mock-qr svg { width: 74px; height: 74px; display: block; shape-rendering: crispEdges; }

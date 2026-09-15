@@ -231,5 +231,10 @@
  "w.solnolink": "<b>A Solana nem EVM-lánc.</b> A böngészőtárcák egy EVM-felületen csatlakoznak, amit a Solana nem beszél, így ide nem köthetők be. Küldd inkább az alábbi címre — Phantomból, tőzsdéről, bárhonnan.",
  "w.wrongchain": "Ez a csomópont a(z) {got} láncra válaszol, nem a(z) {net} láncra. Mielőtt bármit küldenél, nézd meg az RPC-t a Beállításokban.",
  "w.needsolforfee": "Kell egy kis {coin} a díjra és arra, hogy megnyisd a címzett tokenszámláját.",
- "w.plusrent": "(a számlaletéttel együtt, ha kell)"
+ "w.plusrent": "(a számlaletéttel együtt, ha kell)",
+ "w.today": "Váltás nappali módra",
+ "w.tonight": "Váltás éjszakai módra",
+ "w.recvtakes": "Ez a cím {coins} érkezését fogadja a(z) {net} hálózaton. Mind ugyanarra a címre jön — egy token egy sor egy szerződésben, nem külön számla.",
+ "w.recvwarnevm": "Solanáról ide ne küldj semmit. Ez a cím az EVM-oldalé, és ami Solanáról ideér, végleg odavan. Másik EVM-hálózat rendben: a cím mindenhol ugyanaz, a pénz csak azon a láncon lesz.",
+ "w.recvwarnsol": "Ethereumról, Base-ről, Polygonról vagy más EVM-hálózatról ide ne küldj semmit. Ez a cím a Solanáé, és ami onnan jön, végleg odavan."
 }

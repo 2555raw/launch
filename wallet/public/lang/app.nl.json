@@ -231,5 +231,10 @@
  "w.solnolink": "<b>Solana is geen EVM-keten.</b> Browserwallets verbinden via een EVM-interface die Solana niet spreekt, dus ze zijn hier niet te koppelen. Stuur in plaats daarvan naar het adres hieronder: vanuit Phantom, vanaf een beurs, waarvandaan dan ook.",
  "w.wrongchain": "Deze node antwoordt voor keten {got}, niet voor {net}. Controleer de RPC in Instellingen voordat je iets verstuurt.",
  "w.needsolforfee": "Je hebt wat {coin} nodig om de kosten te betalen en de tokenrekening van de ontvanger te openen.",
- "w.plusrent": "(inclusief de rekeningwaarborg, als die nodig is)"
+ "w.plusrent": "(inclusief de rekeningwaarborg, als die nodig is)",
+ "w.today": "Overschakelen naar dagmodus",
+ "w.tonight": "Overschakelen naar nachtmodus",
+ "w.recvtakes": "Dit adres accepteert {coins} op {net}. Alles komt op hetzelfde adres aan — een token is een regel in een contract, geen aparte rekening.",
+ "w.recvwarnevm": "Stuur hier niets vanaf Solana heen. Dit adres hoort bij de EVM-kant, en wat er vanaf Solana aankomt is voorgoed weg. Een ander EVM-netwerk kan wel: het adres is overal hetzelfde, het geld staat dan gewoon op die keten.",
+ "w.recvwarnsol": "Stuur hier niets vanaf Ethereum, Base, Polygon of een ander EVM-netwerk heen. Dit adres hoort bij Solana, en wat daarvandaan komt is voorgoed weg."
 }

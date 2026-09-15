@@ -245,6 +245,11 @@ window.WARD_APP_I18N = {
   "w.solnolink": "<b>Solana is not an EVM chain.</b> Browser wallets connect over an EVM interface Solana does not speak, so they cannot be linked here. Send to the address below instead — from Phantom, an exchange, or anywhere.",
   "w.wrongchain": "This node answers for chain {got}, not {net}. Check the RPC in Settings before sending anything.",
   "w.needsolforfee": "You need a little {coin} to pay the fee and open the recipient's token account.",
-  "w.plusrent": "(includes the account deposit, if they need one)"
+  "w.plusrent": "(includes the account deposit, if they need one)",
+  "w.today": "Switch to day",
+  "w.tonight": "Switch to night",
+  "w.recvtakes": "This address takes {coins} on {net}. They all arrive at the same address — a token is a row in a contract, not a separate account.",
+  "w.recvwarnevm": "Do not send Solana assets here. This address belongs to the EVM side, and anything sent to it from Solana is gone for good. Another EVM network is fine: the address is the same on all of them, so the money is simply on that chain.",
+  "w.recvwarnsol": "Do not send Ethereum, Base, Polygon or any other EVM asset here. This address belongs to Solana, and anything sent to it from those networks is gone for good."
  }
 };

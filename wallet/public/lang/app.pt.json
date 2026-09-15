@@ -231,5 +231,10 @@
  "w.solnolink": "<b>A Solana não é uma rede EVM.</b> Carteiras de navegador se conectam por uma interface EVM que a Solana não fala, então não dá para ligá-las aqui. Mande para o endereço abaixo: da Phantom, de uma corretora, de onde for.",
  "w.wrongchain": "Este nó responde pela rede {got}, não pela {net}. Confira o RPC nas Configurações antes de enviar qualquer coisa.",
  "w.needsolforfee": "Você precisa de um pouco de {coin} para pagar a taxa e abrir a conta de token de quem recebe.",
- "w.plusrent": "(inclui o depósito da conta, se for preciso)"
+ "w.plusrent": "(inclui o depósito da conta, se for preciso)",
+ "w.today": "Mudar para o modo dia",
+ "w.tonight": "Mudar para o modo noite",
+ "w.recvtakes": "Este endereço aceita {coins} na {net}. Tudo chega no mesmo endereço: um token é uma linha num contrato, não uma conta separada.",
+ "w.recvwarnevm": "Não mande nada da Solana para cá. Este endereço é do lado EVM, e o que chegar da Solana some de vez. Outra rede EVM tudo bem: o endereço é o mesmo em todas, o dinheiro só fica naquela rede.",
+ "w.recvwarnsol": "Não mande nada de Ethereum, Base, Polygon ou outra rede EVM para cá. Este endereço é da Solana, e o que vier dessas redes some de vez."
 }

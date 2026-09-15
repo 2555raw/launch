@@ -208,6 +208,11 @@
     });
   }
 
+  window.WARD_THEME_LABEL = dark => {
+    const d = DICT[chosen] || DICT.en || {};
+    return d[dark ? 'th.day' : 'th.night'] || (dark ? 'Switch to day' : 'Switch to night');
+  };
+
   function applyLang(id) {
     const d = DICT[id];
     if (!d) return;
@@ -239,6 +244,7 @@
     if (desc && d['meta.desc']) desc.setAttribute('content', d['meta.desc']);
 
     if ($('#langNow')) $('#langNow').textContent = meta ? meta.short : id.toUpperCase();
+    if (window.WARD_THEME) window.WARD_THEME.paint();
     $$('#langMenu button').forEach(b => {
       const on = b.dataset.lang === id;
       b.classList.toggle('on', on);

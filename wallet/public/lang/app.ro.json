@@ -231,5 +231,10 @@
  "w.solnolink": "<b>Solana nu e un lanț EVM.</b> Portofelele din browser se conectează printr-o interfață EVM pe care Solana nu o vorbește, așa că nu pot fi legate aici. Trimite în schimb la adresa de mai jos — din Phantom, de pe o bursă, de oriunde.",
  "w.wrongchain": "Nodul ăsta răspunde pentru lanțul {got}, nu pentru {net}. Verifică RPC-ul din Setări înainte să trimiți ceva.",
  "w.needsolforfee": "Îți trebuie puțin {coin} ca să plătești comisionul și să deschizi contul de token al destinatarului.",
- "w.plusrent": "(include depozitul contului, dacă e nevoie)"
+ "w.plusrent": "(include depozitul contului, dacă e nevoie)",
+ "w.today": "Treci la modul zi",
+ "w.tonight": "Treci la modul noapte",
+ "w.recvtakes": "Adresa asta acceptă {coins} pe {net}. Totul ajunge la aceeași adresă — un token e un rând într-un contract, nu un cont separat.",
+ "w.recvwarnevm": "Nu trimite nimic de pe Solana aici. Adresa asta e de partea EVM, și ce ajunge aici de pe Solana e pierdut definitiv. Altă rețea EVM e în regulă: adresa e aceeași peste tot, banii sunt doar pe lanțul ăla.",
+ "w.recvwarnsol": "Nu trimite nimic de pe Ethereum, Base, Polygon sau altă rețea EVM aici. Adresa asta e a Solanei, și ce vine de acolo e pierdut definitiv."
 }

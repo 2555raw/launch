@@ -197,6 +197,8 @@ window.WARD_I18N = {
   "pl.p3t": "Several accounts",
   "pl.p3d": "Keep separate books from the same recovery phrase.",
   "pl.p4t": "One backup covers all",
-  "pl.p4d": "The same twelve words still restore every account."
+  "pl.p4d": "The same twelve words still restore every account.",
+  "th.day": "Switch to day",
+  "th.night": "Switch to night"
  }
 };

@@ -190,5 +190,7 @@
  "pl.p3t": "Kilka kont",
  "pl.p3d": "Prowadź osobne księgi z tej samej frazy odzyskiwania.",
  "pl.p4t": "Jedna kopia obejmuje wszystko",
- "pl.p4d": "Te same dwanaście słów wciąż przywracają każde konto."
+ "pl.p4d": "Te same dwanaście słów wciąż przywracają każde konto.",
+ "th.day": "Przełącz na tryb dzienny",
+ "th.night": "Przełącz na tryb nocny"
 }

@@ -70,8 +70,7 @@
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) {
     --bg:        #080A16;
     --bg-2:      #0E1126;
     --surface:   #14162C;
@@ -98,6 +97,35 @@
     --shadow-brand: 0 6px 18px rgba(131,133,240,.24);
   }
 }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] {
+    --bg:        #080A16;
+    --bg-2:      #0E1126;
+    --surface:   #14162C;
+    --surface-2: #1A1D38;
+    --ink:       #EDEEFA;
+    --ink-2:     #A9ADCE;
+    --ink-3:     #727697;
+    --line:      #242743;
+    --line-2:    #333758;
+
+    --brand:      #8385F0;
+    --brand-deep: #9B9DF7;
+    --brand-soft: #22234A;
+    --iris:       #A99BF7;
+
+    --ok:     #35C289;
+    --warn:   #DFA945;
+    --warn-bg:#2A2314;
+    --danger: #E4767E;
+    --danger-bg:#2C1A1D;
+
+    --shadow-1: 0 1px 2px rgba(0,0,0,.34), 0 4px 14px rgba(0,0,0,.3);
+    --shadow-2: 0 2px 6px rgba(0,0,0,.4), 0 18px 40px rgba(0,0,0,.5);
+    --shadow-brand: 0 6px 18px rgba(131,133,240,.24);
+  }
+
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -119,9 +147,12 @@ body {
 .b1 { width: 60vmax; height: 60vmax; top: -28vmax; left: -22vmax; background: var(--iris); opacity: .2; }
 .b2 { width: 45vmax; height: 45vmax; bottom: -20vmax; right: -16vmax; background: var(--sky); opacity: .2; }
 .b3 { width: 38vmax; height: 38vmax; top: 40%; left: 55%; background: var(--brand-soft); opacity: .55; }
-@media (prefers-color-scheme: dark) {
-  .b1 { opacity: .13; } .b2 { opacity: .1; } .b3 { opacity: .2; }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .b1 { opacity: .13; }:root:not([data-theme="light"]) .b2 { opacity: .1; }:root:not([data-theme="light"]) .b3 { opacity: .2; }
 }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .b1 { opacity: .13; }:root[data-theme="dark"] .b2 { opacity: .1; }:root[data-theme="dark"] .b3 { opacity: .2; }
+
 
 .shell {
   position: relative; z-index: 1;
@@ -156,6 +187,20 @@ body {
 }
 
 .bar-right { display: flex; align-items: center; gap: 8px; }
+/* The theme button is the one pill with no label: a sun or a moon and nothing
+   else, so it stays the same width in every language. */
+.recv-takes { margin: -6px 0 14px; font-size: 14px; font-weight: 560; color: var(--ink-2); }
+.note.warn {
+  background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent);
+  color: var(--warn); border-radius: 14px; padding: 12px 14px; margin-top: 14px;
+  font-size: 13px; line-height: 1.45; font-weight: 540;
+}
+.pill.icon-only { padding: 7px; }
+.pill.icon-only svg, .lang-btn.icon-only svg {
+  width: 17px; height: 17px; display: block;
+  fill: none; stroke: currentColor; stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
 .pill {
   display: inline-flex; align-items: center; gap: 7px;
   background: var(--surface); border: 1px solid var(--line);
@@ -249,7 +294,11 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 
 .btn.primary { background: var(--brand); color: #fff; box-shadow: var(--shadow-brand); }
 .btn.primary:hover:not([disabled]) { background: var(--brand-deep); }
-@media (prefers-color-scheme: dark) { .btn.primary { color: #05201C; } }
+@media (prefers-color-scheme: dark) {:root:not([data-theme="light"]) .btn.primary { color: #05201C; } }
+/* The same again for a deliberate choice, so the switch beats the system
+   in both directions rather than only when the system says light. */
+:root[data-theme="dark"] .btn.primary { color: #05201C; }
+
 
 .btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-1); }
 .btn.ghost:hover { border-color: var(--line-2); }

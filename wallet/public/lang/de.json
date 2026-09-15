@@ -190,5 +190,7 @@
  "pl.p3t": "Mehrere Konten",
  "pl.p3d": "Führe getrennte Bücher aus derselben Wiederherstellungsphrase.",
  "pl.p4t": "Eine Sicherung deckt alles ab",
- "pl.p4d": "Dieselben zwölf Wörter stellen weiterhin jedes Konto wieder her."
+ "pl.p4d": "Dieselben zwölf Wörter stellen weiterhin jedes Konto wieder her.",
+ "th.day": "Auf Tagmodus umschalten",
+ "th.night": "Auf Nachtmodus umschalten"
 }

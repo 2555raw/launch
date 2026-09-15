@@ -190,5 +190,7 @@
  "pl.p3t": "Több számla",
  "pl.p3d": "Vezess külön könyveket ugyanabból a helyreállító mondatból.",
  "pl.p4t": "Egy mentés mindent lefed",
- "pl.p4d": "Ugyanaz a tizenkét szó továbbra is minden számlát visszahoz."
+ "pl.p4d": "Ugyanaz a tizenkét szó továbbra is minden számlát visszahoz.",
+ "th.day": "Váltás nappali módra",
+ "th.night": "Váltás éjszakai módra"
 }

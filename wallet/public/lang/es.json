@@ -190,5 +190,7 @@
  "pl.p3t": "Varias cuentas",
  "pl.p3d": "Lleva contabilidades separadas desde la misma frase de recuperación.",
  "pl.p4t": "Una copia las cubre todas",
- "pl.p4d": "Las mismas doce palabras siguen restaurando cada cuenta."
+ "pl.p4d": "Las mismas doce palabras siguen restaurando cada cuenta.",
+ "th.day": "Cambiar a modo día",
+ "th.night": "Cambiar a modo noche"
 }

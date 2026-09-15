@@ -13,8 +13,7 @@ window.WARD_CHAINS = {
     rpc: 'https://mainnet.base.org', explorer: 'https://basescan.org',
     blurb: 'Fast, with fees in cents',
     tokens: [
-      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', color: '#2775CA' },
-      { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2', color: '#26A17B' }
+      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', color: '#2775CA' }
     ]
   },
   137: {
@@ -22,8 +21,7 @@ window.WARD_CHAINS = {
     rpc: 'https://polygon-rpc.com', explorer: 'https://polygonscan.com',
     blurb: 'Tiny fees, widely used for getting paid',
     tokens: [
-      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359', color: '#2775CA' },
-      { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', color: '#26A17B' }
+      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359', color: '#2775CA' }
     ]
   },
   42161: {
@@ -31,8 +29,7 @@ window.WARD_CHAINS = {
     rpc: 'https://arb1.arbitrum.io/rpc', explorer: 'https://arbiscan.io',
     blurb: 'Cheap, and deep on liquidity',
     tokens: [
-      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', color: '#2775CA' },
-      { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', color: '#26A17B' }
+      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', color: '#2775CA' }
     ]
   },
   10: {
@@ -40,8 +37,7 @@ window.WARD_CHAINS = {
     rpc: 'https://mainnet.optimism.io', explorer: 'https://optimistic.etherscan.io',
     blurb: 'Quick, low fees',
     tokens: [
-      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', color: '#2775CA' },
-      { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', color: '#26A17B' }
+      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', color: '#2775CA' }
     ]
   },
   56: {
@@ -57,8 +53,7 @@ window.WARD_CHAINS = {
        they have on every other network here. Guessing that would have
        mis-stated every amount by a factor of a trillion. */
     tokens: [
-      { symbol: 'USDC', name: 'Binance-Peg USD Coin', decimals: 18, address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', color: '#2775CA' },
-      { symbol: 'USDT', name: 'Tether USD', decimals: 18, address: '0x55d398326f99059fF775485246999027B3197955', color: '#26A17B' }
+      { symbol: 'USDC', name: 'Binance-Peg USD Coin', decimals: 18, address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', color: '#2775CA' }
     ]
   },
   999: {
@@ -84,8 +79,7 @@ window.WARD_CHAINS = {
     rpc: 'https://api.mainnet-beta.solana.com', explorer: 'https://solscan.io',
     blurb: 'Fast and cheap, and not an EVM chain',
     tokens: [
-      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', color: '#2775CA' },
-      { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', color: '#26A17B' }
+      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', color: '#2775CA' }
     ]
   },
   1: {
@@ -93,8 +87,7 @@ window.WARD_CHAINS = {
     rpc: 'https://ethereum-rpc.publicnode.com', explorer: 'https://etherscan.io',
     blurb: 'The main one, and the priciest to use',
     tokens: [
-      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', color: '#2775CA' },
-      { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', color: '#26A17B' }
+      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', color: '#2775CA' }
     ]
   }
 };

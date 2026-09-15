@@ -231,5 +231,10 @@
  "w.solnolink": "<b>Solana no es una cadena EVM.</b> Las carteras del navegador se conectan por una interfaz EVM que Solana no habla, así que no se pueden enlazar aquí. Envía a la dirección de abajo: desde Phantom, desde un exchange o desde donde sea.",
  "w.wrongchain": "Este nodo responde por la cadena {got}, no por {net}. Revisa el RPC en Ajustes antes de enviar nada.",
  "w.needsolforfee": "Necesitas un poco de {coin} para pagar la comisión y abrir la cuenta de token del destinatario.",
- "w.plusrent": "(incluye el depósito de la cuenta, si le hace falta)"
+ "w.plusrent": "(incluye el depósito de la cuenta, si le hace falta)",
+ "w.today": "Cambiar a modo día",
+ "w.tonight": "Cambiar a modo noche",
+ "w.recvtakes": "Esta dirección acepta {coins} en {net}. Todo llega a la misma dirección: un token es una fila en un contrato, no una cuenta aparte.",
+ "w.recvwarnevm": "No mandes aquí nada de Solana. Esta dirección es del lado EVM, y lo que le llegue desde Solana se pierde para siempre. Otra red EVM sí vale: la dirección es la misma en todas, así que el dinero simplemente está en esa cadena.",
+ "w.recvwarnsol": "No mandes aquí nada de Ethereum, Base, Polygon ni ninguna otra red EVM. Esta dirección es de Solana, y lo que le llegue desde esas redes se pierde para siempre."
 }

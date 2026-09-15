@@ -190,5 +190,7 @@
  "pl.p3t": "Birden çok hesap",
  "pl.p3d": "Aynı kurtarma cümlesinden ayrı defterler tut.",
  "pl.p4t": "Tek yedek hepsini kapsar",
- "pl.p4d": "Aynı on iki kelime yine her hesabı geri getirir."
+ "pl.p4d": "Aynı on iki kelime yine her hesabı geri getirir.",
+ "th.day": "Gündüz moduna geç",
+ "th.night": "Gece moduna geç"
 }

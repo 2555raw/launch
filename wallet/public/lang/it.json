@@ -190,5 +190,7 @@
  "pl.p3t": "Più conti",
  "pl.p3d": "Tieni contabilità separate dalla stessa frase di recupero.",
  "pl.p4t": "Un backup copre tutto",
- "pl.p4d": "Le stesse dodici parole continuano a ripristinare ogni conto."
+ "pl.p4d": "Le stesse dodici parole continuano a ripristinare ogni conto.",
+ "th.day": "Passa alla modalità giorno",
+ "th.night": "Passa alla modalità notte"
 }

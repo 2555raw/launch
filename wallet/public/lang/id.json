@@ -190,5 +190,7 @@
  "pl.p3t": "Beberapa akun",
  "pl.p3d": "Simpan pembukuan terpisah dari frasa pemulihan yang sama.",
  "pl.p4t": "Satu cadangan mencakup semua",
- "pl.p4d": "Dua belas kata yang sama tetap memulihkan setiap akun."
+ "pl.p4d": "Dua belas kata yang sama tetap memulihkan setiap akun.",
+ "th.day": "Ganti ke mode siang",
+ "th.night": "Ganti ke mode malam"
 }

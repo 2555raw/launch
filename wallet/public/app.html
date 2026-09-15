@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0A0B18" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
+<script src="theme.js"></script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -49,6 +50,9 @@
         <svg viewBox="0 0 24 24" class="globe" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 2.6 15 0 18M12 3c-2.6 2.6-2.6 15 0 18"/></svg>
         <span id="langNow">EN</span>
       </button>
+      <!-- Next to the language, because both are about how the wallet is
+           presented rather than about money. -->
+      <button class="pill icon-only" type="button" data-theme-toggle></button>
       <a class="icon-btn" id="siteLink" href="/" aria-label="Back to the site" data-i18n-label="w.backtosite">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.7V19h13V9.7"/><path d="M9.8 19v-5.2h4.4V19"/></svg>
       </a>
@@ -350,6 +354,10 @@
       <button class="back" data-go="home" type="button" data-i18n="w.back">Back</button>
       <h2 data-i18n="w.receive">Receive</h2>
       <p class="sub" data-i18n="w.sharethisaddre">Share this address or the code. It only accepts funds on the network you have selected.</p>
+      <!-- Naming the coins outright. The one mistake that cannot be undone is
+           sending an asset from the wrong family to this address, and nothing
+           in a bare string of characters warns anyone about that. -->
+      <p class="recv-takes" id="recvTakes"></p>
       <div class="qr-card">
         <div class="qr" id="qrBox"></div>
         <p class="net-tag"><span class="dot" id="recvDot"></span><span id="recvNet"></span></p>
@@ -359,6 +367,7 @@
           <button class="btn ghost" id="shareAddr" type="button" data-i18n="w.share">Share</button>
         </div>
       </div>
+      <div class="note warn" id="recvWarn"></div>
     </section>
 
     <!-- ── Request ────────────────────────────────── -->

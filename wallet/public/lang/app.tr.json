@@ -231,5 +231,10 @@
  "w.solnolink": "<b>Solana bir EVM zinciri değil.</b> Tarayıcı cüzdanları Solana’nın konuşmadığı bir EVM arayüzü üzerinden bağlanır, bu yüzden buraya bağlanamazlar. Bunun yerine aşağıdaki adrese gönder: Phantom’dan, bir borsadan, nereden olursa.",
  "w.wrongchain": "Bu düğüm {net} için değil, {got} zinciri için yanıt veriyor. Bir şey göndermeden önce Ayarlar’daki RPC’yi kontrol et.",
  "w.needsolforfee": "Ücreti ödemek ve alıcının token hesabını açmak için biraz {coin} gerekiyor.",
- "w.plusrent": "(gerekiyorsa hesap depozitosu dahil)"
+ "w.plusrent": "(gerekiyorsa hesap depozitosu dahil)",
+ "w.today": "Gündüz moduna geç",
+ "w.tonight": "Gece moduna geç",
+ "w.recvtakes": "Bu adres {net} üzerinde {coins} kabul eder. Hepsi aynı adrese gelir — token ayrı bir hesap değil, bir sözleşmedeki satırdır.",
+ "w.recvwarnevm": "Buraya Solana’dan bir şey gönderme. Bu adres EVM tarafına ait ve Solana’dan gelen her şey temelli kaybolur. Başka bir EVM ağı sorun değil: adres hepsinde aynı, para sadece o zincirde olur.",
+ "w.recvwarnsol": "Buraya Ethereum, Base, Polygon ya da başka bir EVM ağından bir şey gönderme. Bu adres Solana’ya ait ve oralardan gelen her şey temelli kaybolur."
 }

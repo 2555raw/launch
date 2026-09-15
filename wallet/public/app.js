@@ -388,6 +388,10 @@ function useLang(id) {
   });
 }
 
+/* The theme button's label is the only string theme.js needs, and it lives in
+   whichever dictionary the page happens to have. */
+window.WARD_THEME_LABEL = dark => tr(dark ? 'w.today' : 'w.tonight');
+
 function applyLang(id) {
   if (!DICT[id]) return;
   lang = id;
@@ -403,6 +407,7 @@ function applyLang(id) {
   $$('[data-i18n-label]').forEach(el => { const v = tr(el.dataset.i18nLabel); if (v) el.setAttribute('aria-label', v); });
 
   if ($('#langNow')) $('#langNow').textContent = meta ? meta.short : id.toUpperCase();
+  if (window.WARD_THEME) window.WARD_THEME.paint();
   paintLangList();
 
   /* Everything the app writes itself has to be redrawn, or half the screen
@@ -1637,6 +1642,20 @@ function paintReceive() {
   $('#addrFull').textContent = myAddress() || '…';
   $('#recvNet').textContent = c.name + ' only';
   $('#recvDot').style.background = c.color;
+
+  /* Which coins this exact address can receive, spelled out. On an EVM chain
+     the native coin and its tokens all arrive at the same address — a token
+     balance is a row in a contract, not a separate account — so there is no
+     such thing as a "USDC address" to show instead. Saying so here is the
+     difference between money arriving and money being sent somewhere that
+     looks plausible. */
+  const coins = [c.coin].concat(c.tokens.map(t => t.symbol));
+  $('#recvTakes').textContent = tr('w.recvtakes', { coins: coins.join(', '), net: c.name });
+
+  /* The mistake that cannot be undone. Wrong EVM network is recoverable — the
+     address is the same on all of them, so the money is simply on another
+     chain — but crossing between Solana and the EVM side is not. */
+  $('#recvWarn').textContent = isSol() ? tr('w.recvwarnsol') : tr('w.recvwarnevm');
   /* A Solana address is not an ethereum: URI, and a wallet reading one would
      be pointed at the wrong chain entirely. */
   qrInto($('#qrBox'), isSol() ? (myAddress() || '') : 'ethereum:' + wallet.address + '@' + prefs.chainId, 6);

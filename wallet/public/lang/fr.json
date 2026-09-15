@@ -190,5 +190,7 @@
  "pl.p3t": "Plusieurs comptes",
  "pl.p3d": "Tiens des comptabilités séparées depuis la même phrase de récupération.",
  "pl.p4t": "Une sauvegarde couvre tout",
- "pl.p4d": "Les mêmes douze mots restaurent toujours chaque compte."
+ "pl.p4d": "Les mêmes douze mots restaurent toujours chaque compte.",
+ "th.day": "Passer en mode jour",
+ "th.night": "Passer en mode nuit"
 }

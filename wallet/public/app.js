@@ -15,9 +15,14 @@ const E = window.ethers;
 
 /* ── Plan payments ─────────────────────────────────────────────────────────
    Paid plans are an ordinary USDC transfer to this address, on the network the
-   user is on. Set it to an address you control; until you do, the upgrade
-   buttons say so instead of pretending to charge. */
-const TREASURY = '';
+   buyer is on. It is the owner's address and it is public by necessity: it is
+   where people pay, so it ships in this file and anyone can read it. That is
+   fine. It receives, it cannot spend: spending needs the key, which is not
+   here and never will be.
+
+   Change it only to an address whose key you hold. A typo here sends every
+   payment somewhere no one can reach, and nothing on a chain can be undone. */
+const TREASURY = '0xB5530232ee1DEA37C57Dc72e7aBD7b551C62c3B6';
 
 const PLANS = {
   classic: {

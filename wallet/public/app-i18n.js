@@ -12,6 +12,10 @@
 window.WARD_APP_I18N = {
 
 en: {
+  "w.paywithother": "Pay with another wallet",
+  "w.paywithothersub": "It signs and it pays. This wallet keeps the plan.",
+  "w.choosewallet": "Choose a wallet",
+  "w.planunconfirmed": "The payment went through, but the plan could not be confirmed from it. Nothing is lost: open the plans screen again in a moment.",
   "w.yourcard": "Your card",
   "w.yourcardsub": "Put your name on it and pick a couple of stickers. It changes how the card looks in this wallet, on this device.",
   "w.customise": "Customise",
@@ -221,6 +225,10 @@ en: {
 },
 
 es: {
+  "w.paywithother": "Pagar con otra wallet",
+  "w.paywithothersub": "Ella firma y ella paga. El plan se queda en esta wallet.",
+  "w.choosewallet": "Elegir una wallet",
+  "w.planunconfirmed": "El pago ha salido, pero no se ha podido confirmar el plan a partir de él. No se pierde nada: vuelve a abrir la pantalla de planes en un momento.",
   "w.yourcard": "Tu tarjeta",
   "w.yourcardsub": "Ponle tu nombre y elige un par de pegatinas. Cambia cómo se ve la tarjeta en esta wallet, en este dispositivo.",
   "w.customise": "Personalizar",
@@ -430,6 +438,10 @@ es: {
 },
 
 zh: {
+  "w.paywithother": "用其他钱包支付",
+  "w.paywithothersub": "由它签名、由它付款。方案仍然留在这个钱包里。",
+  "w.choosewallet": "选择钱包",
+  "w.planunconfirmed": "付款成功了，但还无法据此确认方案。什么都没丢：过一会儿再打开方案页面看看。",
   "w.yourcard": "你的卡",
   "w.yourcardsub": "把你的名字放上去，再挑两张贴纸。这只会改变这个钱包里、这台设备上这张卡的样子。",
   "w.customise": "自定义",
@@ -639,6 +651,10 @@ zh: {
 },
 
 ru: {
+  "w.paywithother": "Заплатить другим кошельком",
+  "w.paywithothersub": "Она подписывает и она платит. Тариф остаётся у этого кошелька.",
+  "w.choosewallet": "Выберите кошелёк",
+  "w.planunconfirmed": "Платёж прошёл, но подтвердить по нему тариф пока не удалось. Ничего не потеряно: откройте экран тарифов через минуту.",
   "w.yourcard": "Ваша карта",
   "w.yourcardsub": "Поставьте на неё своё имя и выберите пару наклеек. Это меняет вид карты в этом кошельке, на этом устройстве.",
   "w.customise": "Оформить",

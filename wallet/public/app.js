@@ -329,16 +329,49 @@ function lock(auto) {
    transaction that actually happened. */
 const TRANSFER_TOPIC = E.id('Transfer(address,address,uint256)');
 
+/* A plan can also be paid from a wallet the buyer already has, which means the
+   payment does not come from the Ward address that gets the plan. Something has
+   to tie the two together, or anyone could copy a stranger's transaction hash
+   out of a block explorer and claim their plan.
+
+   That something is a signature. The paying wallet signs this sentence, naming
+   the Ward address it is paying for, and only the holder of the paying key can
+   produce it. Verification then asks for both: a payment from that address, and
+   its signature over this exact text.
+   
+   What it does not stop is the payer using one payment for two wallets of their
+   own, since they can sign for both. Closing that needs a server keeping a list
+   of spent transactions, and there is no server here. */
+const planMessage = (rec, wardAddress) =>
+  ['Ward plan authorisation',
+   'Plan: ' + rec.plan,
+   'For wallet: ' + E.getAddress(wardAddress),
+   'Paying to: ' + E.getAddress(TREASURY),
+   'Chain: ' + Number(rec.chainId)].join('\n');
+
+/* Thirty days from the block the payment landed in, not from a date written
+   next to it: the stored record is editable and a block timestamp is not. */
+const PLAN_DAYS = 30;
+
 async function verifyPlan() {
   plan = 'classic';
   const rec = read(K.plan, null);
   if (!rec || !rec.hash || !TREASURY || !wallet) return paintTier();
-  if (Date.now() > rec.expires) { drop(K.plan); return paintTier(); }
   if (rec.address && rec.address.toLowerCase() !== wallet.address.toLowerCase()) return paintTier();
 
   const c = CHAINS[rec.chainId];
   const want = PLANS[rec.plan];
   if (!c || !want) return paintTier();
+
+  /* Which address had to have paid. Normally this wallet; for a payment made
+     from another wallet, whichever address signed for this one. */
+  let payer = wallet.address;
+  if (rec.payer && rec.sig) {
+    try {
+      if (E.verifyMessage(planMessage(rec, wallet.address), rec.sig).toLowerCase() !== rec.payer.toLowerCase()) return paintTier();
+      payer = rec.payer;
+    } catch { return paintTier(); }
+  }
 
   try {
     const p = new E.JsonRpcProvider(prefs.rpc[rec.chainId] || c.rpc, E.Network.from(Number(rec.chainId)), { staticNetwork: true });
@@ -350,10 +383,16 @@ async function verifyPlan() {
     const paid = r.logs.some(l =>
       l.topics[0] === TRANSFER_TOPIC &&
       usdc && l.address.toLowerCase() === usdc.address.toLowerCase() &&
-      ('0x' + l.topics[1].slice(26)).toLowerCase() === wallet.address.toLowerCase() &&
+      ('0x' + l.topics[1].slice(26)).toLowerCase() === payer.toLowerCase() &&
       ('0x' + l.topics[2].slice(26)).toLowerCase() === TREASURY.toLowerCase() &&
       E.toBigInt(l.data) >= need);
-    if (paid) plan = rec.plan;
+    if (!paid) return paintTier();
+
+    const block = await p.getBlock(r.blockNumber);
+    const until = block ? (block.timestamp * 1000) + PLAN_DAYS * 24 * 3600 * 1000 : 0;
+    if (!until || Date.now() > until) { drop(K.plan); return paintTier(); }
+    if (rec.expires !== until) { rec.expires = until; write(K.plan, rec); }
+    plan = rec.plan;
   } catch { /* an unreachable node is not proof of non-payment; stay on Classic */ }
   paintTier();
 }
@@ -429,6 +468,110 @@ function paintPlanRow() {
   row.appendChild(go);
 }
 
+/* Paying a plan from a wallet the buyer already has, rather than from this
+   one. The Ward wallet never holds the money and never signs the transfer: the
+   other wallet does both, and signs the sentence that says who it is paying
+   for. */
+async function payPlanFrom(w, id) {
+  const p = PLANS[id], c = chain();
+  const usdc = c.tokens.find(t => t.symbol === 'USDC');
+  if (!usdc) return toast(tr('w.switchusdc'));
+
+  const btn = $('#cfOther');
+  btn.disabled = true;
+  btn.textContent = tr('w.waitingother');
+  try {
+    const accounts = await w.provider.request({ method: 'eth_requestAccounts' });
+    if (!accounts || !accounts.length) throw new Error('No account was shared.');
+    const payer = E.getAddress(accounts[0]);
+
+    const hex = '0x' + Number(prefs.chainId).toString(16);
+    try {
+      await w.provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] });
+    } catch (err) {
+      if (err && (err.code === 4902 || (err.data && err.data.originalError && err.data.originalError.code === 4902))) {
+        await w.provider.request({ method: 'wallet_addEthereumChain', params: [{
+          chainId: hex, chainName: c.name,
+          nativeCurrency: { name: c.coin, symbol: c.coin, decimals: 18 },
+          rpcUrls: [c.rpc], blockExplorerUrls: [c.explorer]
+        }] });
+      } else throw err;
+    }
+
+    /* The signature first. If the payer refuses it there is nothing to undo;
+       if the payment went first, a refusal here would cost them the money. */
+    const draftRec = { plan: id, chainId: Number(prefs.chainId) };
+    const msg = planMessage(draftRec, wallet.address);
+    const sig = await w.provider.request({ method: 'personal_sign', params: [msg, payer] });
+    if (E.verifyMessage(msg, sig).toLowerCase() !== payer.toLowerCase()) throw new Error('That signature does not match the account.');
+
+    const value = E.parseUnits(String(p.price), usdc.decimals);
+    const hash = await w.provider.request({ method: 'eth_sendTransaction', params: [{
+      from: payer, to: usdc.address,
+      data: ERC20.encodeFunctionData('transfer', [TREASURY, value])
+    }] });
+
+    closeSheet('#confirmSheet');
+    statusSheet('sending', hash);
+    $('#stTitle').textContent = tr('w.toppingup');
+    $('#stText').textContent = tr('w.onthewayfrom', { amt: '$' + p.price + ' USDC', who: w.info.name });
+
+    write(K.plan, {
+      plan: id, hash, chainId: Number(prefs.chainId),
+      address: wallet.address, payer, sig, paidAt: Date.now(),
+      expires: Date.now() + PLAN_DAYS * 24 * 3600 * 1000
+    });
+
+    let r = null;
+    for (let i = 0; i < 60 && !r; i++) {
+      try { r = await provider().getTransactionReceipt(hash); } catch { /* not mined yet */ }
+      if (!r) await new Promise(done => setTimeout(done, 2000));
+    }
+    if (r && r.status === 1) {
+      await verifyPlan();
+      statusSheet(plan === id ? 'plan' : 'fail', hash, plan === id ? undefined : tr('w.planunconfirmed'));
+    } else if (r) statusSheet('fail', hash, tr('w.netrejected'));
+    else statusSheet('slow', hash);
+  } catch (err) {
+    fail('#cfErr', friendly(err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = tr('w.paywithother');
+  }
+}
+
+function paintPayFrom(id) {
+  const btn = $('#cfOther');
+  scanWallets();
+  const all = [...found.values()];
+  btn.hidden = !all.length;
+  if (!all.length) return;
+  btn.disabled = false;
+  btn.textContent = tr('w.paywithother');
+  btn.onclick = () => {
+    if (all.length === 1) return payPlanFrom(all[0], id);
+    /* More than one is installed, so the buyer picks which. */
+    paintWalletPick(w => payPlanFrom(w, id));
+    openSheet('#walletSheet');
+  };
+}
+
+function paintWalletPick(onPick) {
+  const list = $('#pickList');
+  list.innerHTML = '';
+  [...found.values()].forEach(w => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = (w.info.icon ? `<img class="li-icon" src="${w.info.icon}" alt="">` : '<span class="li-icon gen"></span>') +
+      '<span class="li-mid"><b></b></span>';
+    b.querySelector('b').textContent = w.info.name;
+    b.addEventListener('click', () => { closeSheet('#walletSheet'); onPick(w); });
+    li.appendChild(b);
+    list.appendChild(li);
+  });
+}
+
 async function buyPlan(id) {
   const p = PLANS[id], c = chain();
   const usdc = c.tokens.find(t => t.symbol === 'USDC');
@@ -453,6 +596,7 @@ async function buyPlan(id) {
     fail('#cfErr', '');
     $('#cfSend').disabled = false;
     $('#cfSend').textContent = tr('w.signandpay');
+    paintPayFrom(id);
     openSheet('#confirmSheet');
   } catch (err) { toast(friendly(err)); }
 }
@@ -819,6 +963,7 @@ async function review() {
     fail('#cfErr', '');
     $('#cfSend').disabled = false;
     $('#cfSend').textContent = tr('w.signandsend');
+    $('#cfOther').hidden = true;
     openSheet('#confirmSheet');
   } catch (err) {
     fail('#sendErr', friendly(err));

@@ -420,6 +420,16 @@
 </div>
 
 <!-- ── Network sheet ─────────────────────────────── -->
+<div class="sheet-wrap" id="walletSheet" hidden>
+  <div class="sheet-bg" data-close-sheet></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Choose a wallet" data-i18n-label="w.choosewallet">
+    <div class="grab" aria-hidden="true"></div>
+    <h3 data-i18n="w.paywithother">Pay with another wallet</h3>
+    <p class="sub" data-i18n="w.paywithothersub">It signs and it pays. This wallet keeps the plan.</p>
+    <ul class="wallet-list" id="pickList"></ul>
+  </div>
+</div>
+
 <div class="sheet-wrap" id="langSheet" hidden>
   <div class="sheet-bg" data-close-sheet></div>
   <div class="sheet" role="dialog" aria-modal="true" aria-label="Language" data-i18n-label="w.lang">
@@ -466,6 +476,7 @@
     </dl>
     <p class="err" id="cfErr" hidden></p>
     <button class="btn primary lg" id="cfSend" data-i18n="w.signandsend">Sign and send</button>
+    <button class="btn ghost" id="cfOther" type="button" hidden data-i18n="w.paywithother">Pay with another wallet</button>
     <button class="btn flat" data-close-sheet type="button" data-i18n="w.cancel">Cancel</button>
   </div>
 </div>

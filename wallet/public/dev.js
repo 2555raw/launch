@@ -56,36 +56,123 @@ function providerFor(id) {
   return new E.JsonRpcProvider(CHAINS[id].rpc, E.Network.from(id), { staticNetwork: true });
 }
 
-/* ── the gate ──────────────────────────────────────────────────────────────── */
+/* ── the lock ──────────────────────────────────────────────────────────────
+   The address is not stored in the clear. It is sealed with AES-GCM under a
+   key derived from the passphrase with PBKDF2, so this page cannot draw
+   anything for someone who does not have that passphrase: it does not know
+   which address to ask the chains about. There is no reset, because there is
+   nowhere a reset could come from — no server, no account, no copy. */
+const ITERATIONS = 310000;
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = str => Uint8Array.from(atob(str), ch => ch.charCodeAt(0));
+
+async function keyFrom(pass, salt) {
+  const base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: ITERATIONS, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+
+async function seal(addr, pass) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await keyFrom(pass, salt);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(addr));
+  return JSON.stringify({ v: 1, salt: b64(salt), iv: b64(iv), ct: b64(ct) });
+}
+
+/* A wrong passphrase fails the AES-GCM tag rather than returning rubbish, so
+   "it threw" and "wrong passphrase" are the same answer. */
+async function unseal(blob, pass) {
+  const box = JSON.parse(blob);
+  const key = await keyFrom(pass, unb64(box.salt));
+  const out = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(box.iv) }, key, unb64(box.ct));
+  return dec.decode(out);
+}
+
+const store = {
+  get() { try { return localStorage.getItem(KEY); } catch { return null; } },
+  set(v) { try { localStorage.setItem(KEY, v); } catch { /* private window: this session only */ } },
+  clear() { try { localStorage.removeItem(KEY); } catch { /* nothing to remove */ } }
+};
+
 function startWatching(addr) {
   watching = addr;
-  try { localStorage.setItem(KEY, addr); } catch { /* private window; this session only */ }
-  $('#gate').hidden = true;
+  $('#setup').hidden = true;
+  $('#unlock').hidden = true;
   $('#body').hidden = false;
-  $('#forget').hidden = false;
+  $('#lockBtn').hidden = false;
   $('#watching').textContent = addr;
   $('#watching').title = addr;
   $('#bodyFine').innerHTML =
-    'Read straight off the chain, live. Every line below is public: anyone holding this address can see the same on a block explorer, ' +
-    'with or without this page. What no one can do is move it. Amounts are USDC, which is worth a dollar, so the figures are dollars.';
+    'Read straight off the chain, live. The lock keeps this page to you; it cannot keep the chain to you. ' +
+    'Anyone who already has this address can read the same figures on a block explorer, with or without this page. ' +
+    'What no one can do is move the money. Amounts are USDC, which is worth a dollar, so the figures are dollars.';
   reload();
 }
 
-$('#watchForm').addEventListener('submit', e => {
+function showGate() {
+  const has = !!store.get();
+  $('#setup').hidden = has;
+  $('#unlock').hidden = !has;
+  $('#body').hidden = true;
+  $('#lockBtn').hidden = true;
+  (has ? $('#pw') : $('#addrInput')).focus();
+}
+
+function say(sel, msg) {
+  const el = $(sel);
+  el.textContent = msg;
+  el.hidden = !msg;
+}
+
+$('#setupForm').addEventListener('submit', async e => {
   e.preventDefault();
   const raw = $('#addrInput').value.trim();
-  const err = $('#gateErr');
-  if (!E.isAddress(raw)) {
-    err.textContent = "That is not an address. It should be 42 characters starting 0x.";
-    err.hidden = false;
-    return;
+  const p1 = $('#pw1').value, p2 = $('#pw2').value;
+  if (!E.isAddress(raw)) return say('#setupErr', 'That is not an address. It should be 42 characters starting 0x.');
+  if (p1.length < 8) return say('#setupErr', 'Use a passphrase of at least 8 characters.');
+  if (p1 !== p2) return say('#setupErr', 'The two passphrases are not the same.');
+  say('#setupErr', '');
+
+  const btn = e.target.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Locking…';
+  try {
+    store.set(await seal(E.getAddress(raw), p1));
+    startWatching(E.getAddress(raw));
+  } catch {
+    say('#setupErr', "This browser wouldn't do the encryption. It needs a secure connection (https).");
+  } finally {
+    btn.disabled = false; btn.textContent = 'Lock it and watch';
   }
-  err.hidden = true;
-  startWatching(E.getAddress(raw));
 });
 
-$('#forget').addEventListener('click', () => {
-  try { localStorage.removeItem(KEY); } catch { /* nothing to remove */ }
+$('#unlockForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pass = $('#pw').value;
+  if (!pass) return;
+  const btn = e.target.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Unlocking…';
+  say('#unlockErr', '');
+  try {
+    const addr = await unseal(store.get(), pass);
+    $('#pw').value = '';
+    startWatching(addr);
+  } catch {
+    say('#unlockErr', 'That passphrase does not open it.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Unlock';
+  }
+});
+
+/* Locking is only ever a reload: the address lives in a variable, so leaving
+   the page is enough to forget it. */
+$('#lockBtn').addEventListener('click', () => location.reload());
+
+$('#startOver').addEventListener('click', () => {
+  store.clear();
   location.reload();
 });
 
@@ -254,7 +341,5 @@ function reload() {
 }
 
 /* ── start ─────────────────────────────────────────────────────────────────── */
-let saved = null;
-try { saved = localStorage.getItem(KEY); } catch { /* storage blocked; ask again */ }
-if (saved && E.isAddress(saved)) startWatching(E.getAddress(saved));
+showGate();
 })();

@@ -16,22 +16,38 @@
 <header class="dv-top">
   <span class="brand"><span class="mark" aria-hidden="true"></span><b class="brand-name">Ward</b></span>
   <span class="dv-tag">Money in</span>
-  <button class="link-btn" id="forget" type="button" hidden>Forget this address</button>
+  <button class="link-btn" id="lockBtn" type="button" hidden>Lock</button>
 </header>
 
-<!-- Nothing is shown until an address is typed in, so opening this page tells a
-     stranger nothing. The address is kept in this browser only. -->
+<!-- The address this page watches is stored encrypted under a passphrase, so
+     without that passphrase the page cannot show anything: it does not know
+     which address to ask about. -->
 <main class="dv-wrap">
 
-  <section class="dv-gate" id="gate">
-    <h1>Which address should I watch?</h1>
-    <p class="dv-lede">Paste the address the plan payments go to. It is remembered in this browser and nowhere else, so this page is blank for anyone else who opens it.</p>
-    <form id="watchForm" autocomplete="off">
+  <!-- First run: pick the address and the passphrase that will lock it. -->
+  <section class="dv-gate" id="setup" hidden>
+    <h1>Lock this page to you</h1>
+    <p class="dv-lede">Give it the address the plan payments go to, and a passphrase. The address is encrypted with that passphrase before it is stored, so anyone who opens this page without it sees nothing at all: no address, no balances, no payments.</p>
+    <form id="setupForm" autocomplete="off">
       <input id="addrInput" type="text" spellcheck="false" placeholder="0x…" aria-label="Address to watch">
-      <button class="btn primary" type="submit">Watch it</button>
+      <input id="pw1" type="password" placeholder="Passphrase" aria-label="Passphrase" autocomplete="new-password">
+      <input id="pw2" type="password" placeholder="Repeat it" aria-label="Repeat the passphrase" autocomplete="new-password">
+      <button class="btn primary" type="submit">Lock it and watch</button>
     </form>
-    <p class="dv-err" id="gateErr" hidden></p>
-    <p class="dv-fine"><b>What this page can and cannot hide.</b> It holds no secret: every payment below is already public on the chain, and anyone with the address can read the same thing on a block explorer. What nobody can do is move the money, because that needs the key. Treat this as a convenient view of public facts, not as a private ledger.</p>
+    <p class="dv-err" id="setupErr" hidden></p>
+    <p class="dv-fine"><b>What the lock does, and what it cannot do.</b> It keeps this page shut: the address is sealed in this browser with AES-GCM, under a key stretched from your passphrase by 310,000 rounds of PBKDF2. There is no way in without the passphrase and no way to reset it, because there is nowhere a reset could come from. What no lock can change is the chain itself: payments to an address are public, so anyone who already has the address can read the same figures on a block explorer. This hides your page, not the blockchain.</p>
+  </section>
+
+  <!-- Every run after that: the passphrase alone. -->
+  <section class="dv-gate" id="unlock" hidden>
+    <h1>Passphrase</h1>
+    <p class="dv-lede">This page is locked to whoever set it up.</p>
+    <form id="unlockForm" autocomplete="off">
+      <input id="pw" type="password" placeholder="Passphrase" aria-label="Passphrase" autocomplete="current-password">
+      <button class="btn primary" type="submit">Unlock</button>
+    </form>
+    <p class="dv-err" id="unlockErr" hidden></p>
+    <button class="link-btn" id="startOver" type="button">Forget it and set up again</button>
   </section>
 
   <section class="dv-body" id="body" hidden>

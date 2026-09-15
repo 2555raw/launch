@@ -23,10 +23,10 @@
    closes around them into a single floating one. */
 .nav-pill {
   display: none; align-items: center; gap: 2px;
-  background: color-mix(in srgb, var(--surface) 76%, transparent);
-  backdrop-filter: saturate(180%) blur(18px);
-  -webkit-backdrop-filter: saturate(180%) blur(18px);
-  border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+  background: color-mix(in srgb, var(--surface) 52%, transparent);
+  backdrop-filter: saturate(185%) blur(22px);
+  -webkit-backdrop-filter: saturate(185%) blur(22px);
+  border: 1px solid color-mix(in srgb, var(--line) 42%, transparent);
   border-radius: 999px; padding: 5px; box-shadow: var(--shadow-1);
   transition: background .35s, border-color .35s, box-shadow .35s;
 }
@@ -45,11 +45,11 @@
    underneath. */
 .nav.stuck .nav-in {
   max-width: 1000px;
-  background: color-mix(in srgb, var(--surface) 40%, transparent);
-  backdrop-filter: saturate(185%) blur(26px);
-  -webkit-backdrop-filter: saturate(185%) blur(26px);
-  border-color: color-mix(in srgb, var(--line) 45%, transparent);
-  box-shadow: var(--shadow-2);
+  background: color-mix(in srgb, var(--surface) 20%, transparent);
+  backdrop-filter: saturate(190%) blur(30px);
+  -webkit-backdrop-filter: saturate(190%) blur(30px);
+  border-color: color-mix(in srgb, var(--line) 32%, transparent);
+  box-shadow: var(--shadow-1);
   padding: 7px 7px 7px 20px;
 }
 /* A browser with no backdrop-filter would show the page straight through and

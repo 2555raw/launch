@@ -975,3 +975,58 @@ main [id] { scroll-margin-top: 96px; }
   .logos li { justify-content: flex-start; }
   .works .fineprint.left { max-width: 96ch; }
 }
+
+/* ── the launchpad ───────────────────────────────── */
+#launchpad { position: relative; padding-block: 92px 84px; }
+.lp-head { max-width: 760px; margin-bottom: 40px; }
+.lp-head h2 { font-size: clamp(30px, 4.4vw, 46px); letter-spacing: -.035em; margin: 0 0 14px; }
+
+.lp-steps {
+  list-style: none; margin: 0 0 34px; padding: 0;
+  display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr);
+}
+.lp-steps li {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: 22px 20px 20px;
+  box-shadow: var(--shadow-1);
+}
+.lp-n {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--brand-soft); color: var(--brand-deep);
+  font-size: 14px; font-weight: 720; margin-bottom: 13px;
+}
+.lp-steps b { display: block; font-size: 17px; font-weight: 660; letter-spacing: -.015em; margin-bottom: 6px; }
+.lp-steps p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+
+/* The two notices that keep this section honest. They are given the same
+   weight as the steps rather than tucked underneath in small grey type. */
+.lp-honest, .lp-warn {
+  border-radius: var(--r-lg); padding: 20px 22px; margin-bottom: 14px;
+  font-size: 14.5px; line-height: 1.6;
+}
+.lp-honest {
+  background: var(--brand-soft);
+  border: 1px solid color-mix(in srgb, var(--brand) 26%, transparent);
+  color: var(--brand-deep);
+}
+.lp-warn {
+  background: var(--warn-bg);
+  border: 1px solid color-mix(in srgb, var(--warn) 34%, transparent);
+  color: var(--warn);
+}
+.lp-honest b, .lp-warn b { display: block; font-weight: 720; margin-bottom: 6px; }
+.lp-honest p, .lp-warn p { margin: 0; }
+
+@media (max-width: 1000px) { .lp-steps { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) {
+  #launchpad { padding-block: 64px 56px; }
+  .lp-steps { grid-template-columns: 1fr; }
+}
+
+/* The glows are decoration: big blurred circles positioned by percentage, so
+   on a narrow screen one of them lands past the right edge and the page
+   scrolls sideways. `clip` rather than `hidden` so the sections do not become
+   scroll containers, which would change how anything positioned inside them
+   behaves for the sake of hiding decoration. */
+section.wrap:has(> .glow) { overflow: clip; }
+#launchpad .glow { width: 32vmax; height: 32vmax; top: 2vmax; right: 0; background: var(--brand); opacity: .17; }

@@ -55,10 +55,10 @@
   <div class="wrap nav-in">
     <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Ward</span></a>
     <div class="nav-pill">
-      <a href="#how" data-i18n="nav.how">How it works</a>
+      <a href="#launchpad" data-i18n="nav.launchpad">Launchpad</a>
+      <a href="#how" data-i18n="nav.wallet">The wallet</a>
       <a href="#journey" data-i18n="nav.journey">Follow a payment</a>
       <a href="#plans" data-i18n="nav.plans">Plans</a>
-      <a href="#name" data-i18n="nav.name">The name</a>
     </div>
     <div class="lang" id="lang">
       <button class="lang-btn" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
@@ -77,17 +77,17 @@
   <!-- ── Hero ─────────────────────────────────────── -->
   <header class="hero wrap">
     <div class="hero-copy">
-      <span class="eyebrow" data-i18n="hero.eyebrow">Self-custody · no sign-up</span>
-      <h1 data-i18n="hero.h1">Only your<br>key fits.</h1>
-      <p class="lede" data-i18n="hero.lede">Make a wallet in your browser in under a minute. Top it up from the wallet you already use, get paid with a link, and keep the key somewhere nobody else can reach it, including us.</p>
+      <span class="eyebrow" data-i18n="hero.lpeyebrow">Launch a coin · you hold the keys</span>
+      <h1 data-i18n="hero.lph1">Launch a coin.<br>Keep the key.</h1>
+      <p class="lede" data-i18n="hero.lplede">Put a coin on a bonding curve in about a minute, from a wallet that exists only in your browser. It gets a price the moment it exists, anyone can trade it, and the key that made it never leaves your machine — not to us, not to anyone.</p>
       <div class="cta-row">
-        <a class="cta" href="/app" id="heroCta" data-i18n="cta.create">Create my wallet</a>
-        <a class="cta ghost" href="#journey" data-i18n="nav.journey">Follow a payment</a>
+        <a class="cta" href="/app" id="heroCta" data-i18n="cta.launch">Launch a coin</a>
+        <a class="cta ghost" href="#launchpad" data-i18n="cta.howcurve">How the curve works</a>
       </div>
       <ul class="trust">
         <li><b data-count="0">0</b><span data-i18n="hero.t1">personal details</span></li>
-        <li><b data-count="5">0</b><span data-i18n="hero.t2">networks</span></li>
-        <li><b data-count="1" data-prefix="~" data-suffix=" cent" data-i18n-suffix="hero.cent">0</b><span data-i18n="hero.t3">per payment on Base</span></li>
+        <li><b data-count="12">0</b><span data-i18n="hero.lpt2">words are the whole account</span></li>
+        <li><b data-count="8">0</b><span data-i18n="hero.lpt3">networks, Solana included</span></li>
       </ul>
     </div>
 
@@ -113,6 +113,54 @@
     </div>
   </header>
 
+  <!-- ── The launchpad ────────────────────────────────
+       The headline feature, and the one that has to be honest about not being
+       open yet: the curve program is somebody else's and it is live, but the
+       configuration that says what Ward's curve looks like has not been made,
+       so nothing can actually be launched. Saying "coming soon" quietly under
+       a Launch button would be the dishonest version of this. -->
+  <section class="wrap pad" id="launchpad">
+    <span class="glow" aria-hidden="true"></span>
+    <div class="lp-head">
+      <span class="eyebrow" data-i18n="lp.eyebrow">The launchpad</span>
+      <h2 data-i18n="lp.h2">A price from the first second</h2>
+      <p class="sec-lede" data-i18n="lp.lede">There is no listing, no market maker and nobody to ask. Your coin is sold by a curve: the first buyer pays the least, every buy after that pays a little more, and every sell moves it back down. When enough has been bought the curve empties into a real pool and the coin trades wherever Solana trades.</p>
+    </div>
+
+    <ol class="lp-steps">
+      <li class="reveal">
+        <span class="lp-n">1</span>
+        <b data-i18n="lp.s1t">Name it</b>
+        <p data-i18n="lp.s1b">A name, a symbol and a picture. That is the whole form.</p>
+      </li>
+      <li class="reveal">
+        <span class="lp-n">2</span>
+        <b data-i18n="lp.s2t">Sign it</b>
+        <p data-i18n="lp.s2b">Your wallet signs, in your browser. The coin's own key signs once and is never needed again.</p>
+      </li>
+      <li class="reveal">
+        <span class="lp-n">3</span>
+        <b data-i18n="lp.s3t">It trades</b>
+        <p data-i18n="lp.s3b">It exists the moment the transaction lands, and anyone can buy it a second later.</p>
+      </li>
+      <li class="reveal">
+        <span class="lp-n">4</span>
+        <b data-i18n="lp.s4t">It graduates</b>
+        <p data-i18n="lp.s4b">Past a threshold the curve hands its liquidity to a real pool and steps out of the way.</p>
+      </li>
+    </ol>
+
+    <div class="lp-honest">
+      <b data-i18n="lp.honestt">Not open yet, and worth saying so</b>
+      <p data-i18n="lp.honestb">The curve program Ward builds on is Meteora's, it is open source and it is already running. What does not exist yet is Ward's own configuration on it — the one thing that fixes the curve and the fees — so the screen is built and checked but nothing can be launched through it today. The button will tell you that rather than taking your money for a transaction that cannot land.</p>
+    </div>
+
+    <div class="lp-warn">
+      <b data-i18n="lp.riskt">And the part nobody puts on a landing page</b>
+      <p data-i18n="lp.riskb">Almost every coin launched this way ends up worth nothing. It cannot be undone or taken down, anyone can trade against you from the first second, and selling a coin you created may be regulated where you live. Ward gives you the key and the button. The rest is yours.</p>
+    </div>
+  </section>
+
   <!-- ── Works with ───────────────────────────────── -->
   <section class="wrap works" id="topup">
     <span class="glow" aria-hidden="true"></span>
@@ -136,7 +184,7 @@
   <!-- ── How it works ─────────────────────────────── -->
   <section class="sec wrap" id="how">
     <div class="sec-top">
-      <span class="eyebrow" data-i18n="nav.how">How it works</span>
+      <span class="eyebrow" data-i18n="nav.wallet">How it works</span>
       <h2 data-i18n="how.h2">Three steps and you're taking payments.</h2>
     </div>
     <ol class="steps">

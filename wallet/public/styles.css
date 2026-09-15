@@ -610,3 +610,43 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .c-body { fill: url(#chipgold); }
 .c-lines { fill: none; stroke: rgba(92,62,10,.5); stroke-width: 1.1; }
 .balance-card .chip { margin-bottom: 12px; }
+
+/* ── the card's own face ─────────────────────────────────────────────────────
+   The name and the stickers are the only parts a person chooses, so they sit
+   where a real card puts them: the name embossed along the bottom, and the
+   stickers stuck in the corner rather than lined up in the layout. */
+.bc-name {
+  margin: 0 0 12px; font-size: 14px; font-weight: 640;
+  letter-spacing: .1em; text-transform: uppercase;
+  position: relative; z-index: 1; overflow-wrap: anywhere;
+}
+.bc-bot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.bc-edit {
+  background: var(--tier-veil); border: 0; border-radius: 999px; padding: 7px 13px;
+  color: inherit; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  position: relative; z-index: 1; transition: background .18s; flex: none;
+}
+.bc-edit:hover { background: var(--tier-veil2); }
+.addr-chip.as-text { cursor: default; }
+
+/* Beside the balance rather than above it: the top corner already has the
+   network on one card and the account on the other, and the bottom corner has
+   the Customise button. */
+.bc-stickers {
+  position: absolute; top: 50%; right: 22px; z-index: 1;
+  display: flex; gap: 8px; font-size: 30px; line-height: 1;
+  transform: translateY(-50%) rotate(-8deg);
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,.24));
+  pointer-events: none;
+}
+.card-big { margin-bottom: 26px; }
+
+.sticker-pick { display: flex; flex-wrap: wrap; gap: 9px; margin: 6px 0 22px; }
+.sticker-pick button {
+  width: 48px; height: 48px; font-size: 24px; line-height: 1; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: var(--shadow-1); transition: transform .16s, border-color .16s, background .16s;
+}
+.sticker-pick button:hover { transform: translateY(-2px); border-color: var(--line-2); }
+.sticker-pick button.on { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand); }
+.sticker-pick button:active { transform: scale(.94); }

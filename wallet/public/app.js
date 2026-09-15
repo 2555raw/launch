@@ -108,7 +108,13 @@ const drop = k => { try { localStorage.removeItem(k); } catch {} };
   }
 })();
 
-let prefs = Object.assign({ chainId: 8453, rpc: {}, accounts: [{ i: 0, name: '' }], active: 0 }, read(K.prefs, {}));
+let prefs = Object.assign({ chainId: 8453, rpc: {}, accounts: [{ i: 0, name: '' }], active: 0,
+  card: { name: '', stickers: [] } }, read(K.prefs, {}));
+/* An older stored prefs has no card, and a hand-edited one could have
+   anything, so it is put back into shape rather than trusted. */
+if (!prefs.card || typeof prefs.card !== 'object') prefs.card = { name: '', stickers: [] };
+if (typeof prefs.card.name !== 'string') prefs.card.name = '';
+if (!Array.isArray(prefs.card.stickers)) prefs.card.stickers = [];
 if (!CHAINS[prefs.chainId]) prefs.chainId = 8453;
 if (!Array.isArray(prefs.accounts) || !prefs.accounts.length) prefs.accounts = [{ i: 0, name: '' }];
 const savePrefs = () => write(K.prefs, prefs);
@@ -214,6 +220,7 @@ function show(name) {
   if (name === 'activity') { paintActivity($('#allList'), 100); $('#exportCsv').hidden = !has('gold'); }
   if (name === 'settings') { $('#rpcInput').value = prefs.rpc[prefs.chainId] || ''; paintPlanRow(); }
   if (name === 'plans') paintPlans();
+  if (name === 'card') paintCard();
   if (name === 'deposit') paintDeposit();
   if (name === 'charge') $('#fromField').hidden = !has('gold');
   if (name === 'send') paintPayees();
@@ -908,6 +915,7 @@ function statusSheet(state, hash, msg) {
   if (hash) link.href = c.explorer + '/tx/' + hash;
   done.hidden = state === 'sending';
 
+  $('#stDone').dataset.card = '';
   if (state === 'sending') {
     icon.innerHTML = '<span class="spin"></span>';
     $('#stTitle').textContent = tr('w.sending');
@@ -916,6 +924,9 @@ function statusSheet(state, hash, msg) {
     icon.className = 'status-icon ok';
     icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     $('#stTitle').textContent = state === 'plan' ? tr('w.planactive') : tr('w.paymentconfirmed');
+    /* A plan changes the face of the card, so that is where the button goes. */
+    $('#stDone').textContent = state === 'plan' ? tr('w.seeyourcard') : tr('w.done');
+    $('#stDone').dataset.card = state === 'plan' ? '1' : '';
     $('#stText').textContent = msg || tr('w.recordedon', { net: c.name });
   } else if (state === 'slow') {
     icon.innerHTML = '<svg viewBox="0 0 24 24" style="stroke:var(--warn)"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5l3 1.6"/></svg>';
@@ -1194,6 +1205,59 @@ const blurbFor = (id, c) => {
   return (d && d[k]) || c.blurb;
 };
 
+/* ── The card's face ───────────────────────────────────────────────────────
+   Cosmetic, and only here: the name and the stickers live in this browser and
+   are never part of a payment. Nothing on the chain knows or cares. */
+const STICKERS = ['⭐', '🔥', '🌙', '⚡', '🍀', '🌊', '🐉', '🎯', '💎', '🌸', '🛡️', '🎧'];
+const MAX_STICKERS = 2;
+
+function paintCardFaces() {
+  const c = prefs.card;
+  const name = (c.name || '').trim();
+  [['#bcName', '#bcStickers'], ['#cardName', '#cardStickers']].forEach(([n, st]) => {
+    const el = $(n);
+    if (el) { el.textContent = name; el.hidden = !name; }
+    const box = $(st);
+    if (box) box.textContent = c.stickers.join(' ');
+  });
+}
+
+function paintCard() {
+  const c = chain();
+  $('#cardTier').textContent = PLANS[plan].name;
+  $('#cardNet').textContent = c.short;
+  $('#cardBalLabel').textContent = tr('w.balanceon', { net: c.short });
+  $('#cardBal').textContent = balances.native == null
+    ? tr('w.na')
+    : fmt(trim(E.formatEther(balances.native), 6)) + ' ' + c.coin;
+  $('#cardAddr').textContent = wallet ? short(wallet.address) : '…';
+  $('#cardNameInput').value = prefs.card.name;
+
+  const pick = $('#stickerPick');
+  pick.innerHTML = '';
+  STICKERS.forEach(sticker => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = sticker;
+    b.setAttribute('aria-label', sticker);
+    b.className = prefs.card.stickers.includes(sticker) ? 'on' : '';
+    b.addEventListener('click', () => toggleSticker(sticker));
+    pick.appendChild(b);
+  });
+  paintCardFaces();
+}
+
+function toggleSticker(sticker) {
+  const list = prefs.card.stickers;
+  const at = list.indexOf(sticker);
+  if (at >= 0) list.splice(at, 1);
+  /* Two is the limit, so a third pushes the oldest one off rather than being
+     silently ignored. */
+  else { list.push(sticker); if (list.length > MAX_STICKERS) list.shift(); }
+  savePrefs();
+  paintCard();
+}
+
 function paintLangList() {
   const list = $('#langList');
   list.innerHTML = '';
@@ -1242,6 +1306,7 @@ function enterWallet() {
   const acc = prefs.accounts.find(a => a.i === prefs.active);
   $('#acctName').textContent = acc && acc.name ? acc.name : tr('w.accountn', { n: 1 });
   $('#addrShort').textContent = short(wallet.address);
+  paintCardFaces();
   show('home');
   refresh();
   paintActivity($('#recentList'), 4);
@@ -1293,6 +1358,12 @@ $$('[data-close-sheet]').forEach(b => b.addEventListener('click', () => closeAll
 $('#brandHome').addEventListener('click', () => wallet && show('home'));
 $('#netPill').addEventListener('click', () => { paintNetList(); openSheet('#netSheet'); });
 $('#langPill').addEventListener('click', () => { paintLangList(); openSheet('#langSheet'); });
+$('#cardEdit').addEventListener('click', () => show('card'));
+$('#cardNameInput').addEventListener('input', e => {
+  prefs.card.name = e.target.value.slice(0, 22);
+  savePrefs();
+  paintCardFaces();
+});
 $('#lockBtn').addEventListener('click', () => lock(false));
 $('#lockNow').addEventListener('click', () => lock(false));
 
@@ -1401,7 +1472,10 @@ $('#tokenSelect').addEventListener('change', () => { $('#amtHint').textContent =
 $('#maxBtn').addEventListener('click', useMax);
 $('#reviewBtn').addEventListener('click', review);
 $('#cfSend').addEventListener('click', doSend);
-$('#stDone').addEventListener('click', () => { closeSheet('#statusSheet'); show('home'); });
+$('#stDone').addEventListener('click', e => {
+  closeSheet('#statusSheet');
+  show(e.currentTarget.dataset.card ? 'card' : 'home');
+});
 $('#exportCsv').addEventListener('click', exportCsv);
 
 $('#depToken').addEventListener('change', linkedBalance);

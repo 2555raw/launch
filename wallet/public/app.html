@@ -178,10 +178,15 @@
         <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
         <p class="bal-label">Balance on Base</p>
         <p class="bal" id="totalBal"><span class="skeleton w-40"></span></p>
-        <button class="addr-chip" id="addrChip" type="button">
-          <span id="addrShort">…</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 6.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h1.5"/></svg>
-        </button>
+        <p class="bc-name" id="bcName" hidden></p>
+        <div class="bc-bot">
+          <button class="addr-chip" id="addrChip" type="button">
+            <span id="addrShort">…</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 6.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h1.5"/></svg>
+          </button>
+          <button class="bc-edit" id="cardEdit" type="button" data-i18n="w.customise">Customise</button>
+        </div>
+        <span class="bc-stickers" id="bcStickers" aria-hidden="true"></span>
       </div>
 
       <div class="actions four">
@@ -205,6 +210,40 @@
     </section>
 
     <!-- ── Top up from another wallet ─────────────── -->
+    <!-- The card screen. What it changes is the face of the card in this wallet
+         and nothing else: it is a skin, not a piece of plastic. -->
+    <section class="view" data-view="card">
+      <button class="back" data-go="home" type="button" data-i18n="w.back">Back</button>
+      <h2 data-i18n="w.yourcard">Your card</h2>
+      <p class="sub" data-i18n="w.yourcardsub">Put your name on it and pick a couple of stickers. It changes how the card looks in this wallet, on this device.</p>
+
+      <div class="balance-card card-big">
+        <div class="bc-top">
+          <span class="bc-tier" id="cardTier">Classic</span>
+          <span class="bc-net" id="cardNet"></span>
+        </div>
+        <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
+        <p class="bal-label" id="cardBalLabel"></p>
+        <p class="bal" id="cardBal">—</p>
+        <p class="bc-name" id="cardName" hidden></p>
+        <div class="bc-bot">
+          <span class="addr-chip as-text" id="cardAddr">…</span>
+        </div>
+        <span class="bc-stickers" id="cardStickers" aria-hidden="true"></span>
+      </div>
+
+      <label class="field">
+        <span data-i18n="w.nameoncard">Name on the card</span>
+        <input id="cardNameInput" type="text" maxlength="22" spellcheck="false" placeholder="Your name" data-i18n-ph="w.yourname">
+      </label>
+
+      <h3 class="sec-title" data-i18n="w.stickers">Stickers</h3>
+      <p class="sub" data-i18n="w.stickerssub">Up to two. Tap one again to take it off.</p>
+      <div class="sticker-pick" id="stickerPick"></div>
+
+      <p class="fineprint" data-i18n="w.cardfine">This is the face of your wallet, not a payment card. It does not tap at a till and there is no card number: what moves money is still the address below it.</p>
+    </section>
+
     <section class="view" data-view="deposit">
       <button class="back" data-go="home" type="button" data-i18n="w.back">Back</button>
       <h2 data-i18n="w.topup">Top up</h2>

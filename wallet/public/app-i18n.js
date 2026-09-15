@@ -12,6 +12,15 @@
 window.WARD_APP_I18N = {
 
 en: {
+  "w.yourcard": "Your card",
+  "w.yourcardsub": "Put your name on it and pick a couple of stickers. It changes how the card looks in this wallet, on this device.",
+  "w.customise": "Customise",
+  "w.nameoncard": "Name on the card",
+  "w.yourname": "Your name",
+  "w.stickers": "Stickers",
+  "w.stickerssub": "Up to two. Tap one again to take it off.",
+  "w.seeyourcard": "See your card",
+  "w.cardfine": "This is the face of your wallet, not a payment card. It does not tap at a till and there is no card number: what moves money is still the address below it.",
   "w.backtosite": "Back to the site",
   "w.couldntcopy": "Couldn't copy",
   "w.lockedidle": "Locked after inactivity",
@@ -212,6 +221,15 @@ en: {
 },
 
 es: {
+  "w.yourcard": "Tu tarjeta",
+  "w.yourcardsub": "Ponle tu nombre y elige un par de pegatinas. Cambia cómo se ve la tarjeta en esta wallet, en este dispositivo.",
+  "w.customise": "Personalizar",
+  "w.nameoncard": "Nombre en la tarjeta",
+  "w.yourname": "Tu nombre",
+  "w.stickers": "Pegatinas",
+  "w.stickerssub": "Hasta dos. Toca otra vez una para quitarla.",
+  "w.seeyourcard": "Ver tu tarjeta",
+  "w.cardfine": "Esto es la cara de tu wallet, no una tarjeta de pago. No se acerca a un datáfono y no tiene número de tarjeta: lo que mueve el dinero sigue siendo la dirección de debajo.",
   "w.backtosite": "Volver a la página",
   "w.couldntcopy": "No se ha podido copiar",
   "w.lockedidle": "Bloqueada por inactividad",
@@ -412,6 +430,15 @@ es: {
 },
 
 zh: {
+  "w.yourcard": "你的卡",
+  "w.yourcardsub": "把你的名字放上去，再挑两张贴纸。这只会改变这个钱包里、这台设备上这张卡的样子。",
+  "w.customise": "自定义",
+  "w.nameoncard": "卡面上的名字",
+  "w.yourname": "你的名字",
+  "w.stickers": "贴纸",
+  "w.stickerssub": "最多两张。再点一次就取下。",
+  "w.seeyourcard": "看看你的卡",
+  "w.cardfine": "这是你钱包的外观，不是一张支付卡。它不能在收银台刷，也没有卡号：真正在转移资金的，仍然是下面那个地址。",
   "w.backtosite": "返回网站",
   "w.couldntcopy": "复制不了",
   "w.lockedidle": "闲置过久，已锁定",
@@ -612,6 +639,15 @@ zh: {
 },
 
 ru: {
+  "w.yourcard": "Ваша карта",
+  "w.yourcardsub": "Поставьте на неё своё имя и выберите пару наклеек. Это меняет вид карты в этом кошельке, на этом устройстве.",
+  "w.customise": "Оформить",
+  "w.nameoncard": "Имя на карте",
+  "w.yourname": "Ваше имя",
+  "w.stickers": "Наклейки",
+  "w.stickerssub": "Не больше двух. Нажмите ещё раз, чтобы снять.",
+  "w.seeyourcard": "Посмотреть карту",
+  "w.cardfine": "Это лицо вашего кошелька, а не платёжная карта. Её не приложить к терминалу, и номера карты у неё нет: деньги по-прежнему двигает адрес под ней.",
   "w.backtosite": "Вернуться на сайт",
   "w.couldntcopy": "Не удалось скопировать",
   "w.lockedidle": "Заблокировано из-за бездействия",

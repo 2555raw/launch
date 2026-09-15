@@ -125,6 +125,7 @@ let prefill = null;
 /* Set when the landing page's Get Gold / Get Platinum link is followed, so the
    purchase opens by itself once the wallet is unlocked. */
 let planWanted = null;
+let topUpWanted = false;
 let plan = 'classic';
 let linked = null;            // { info, provider, address } — an external wallet
 
@@ -1122,6 +1123,10 @@ function payLink() {
   return location.origin + location.pathname + '#/pay?' + p.toString();
 }
 
+/* "#/topup" — the wallet marks on the landing page link straight here, so
+   clicking Phantom means the screen that links Phantom. */
+const wantsTopUp = () => (location.hash || '').startsWith('#/topup');
+
 /* "#/plan?id=gold" — the plan buttons on the landing page link straight here so
    that "Get Gold" means the confirm screen, not a wallet home the buyer then
    has to find the plans in. */
@@ -1247,6 +1252,7 @@ function enterWallet() {
   touch();
   if (prefill) applyPrefill();
   if (planWanted) applyPlanWanted();
+  else if (topUpWanted) { topUpWanted = false; history.replaceState(null, '', location.pathname); show('deposit'); }
 }
 
 /* The buyer arrives here from the landing page wanting one specific plan. Open
@@ -1269,6 +1275,7 @@ function boot() {
   $('#versionLine').textContent = tr('w.everythingruns', { v: E.version || '6' });
   prefill = readPayHash();
   planWanted = readPlanHash();
+  topUpWanted = wantsTopUp();
   paintNet();
   paintNetList();
   fillTokenSelects();
@@ -1484,6 +1491,11 @@ document.addEventListener('keydown', e => {
 });
 
 window.addEventListener('hashchange', () => {
+  if (wantsTopUp()) {
+    topUpWanted = true;
+    if (wallet) { topUpWanted = false; history.replaceState(null, '', location.pathname); show('deposit'); }
+    return;
+  }
   const id = readPlanHash();
   if (id) { planWanted = id; if (wallet) applyPlanWanted(); return; }
   const p = readPayHash();

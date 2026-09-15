@@ -105,17 +105,50 @@ window.WARD_SOL = (function () {
   let endpoint = RPC;
   const setRpc = url => { endpoint = url || RPC; };
 
+  /* The public Solana endpoint rate-limits harder than any of the EVM ones,
+     so a 429 here is ordinary rather than exceptional. Reads are retried; a
+     sendTransaction is not, because the same signed transaction sent twice is
+     rejected by the network the second time and that rejection would be shown
+     as a failure for a payment that already went. */
+  const READ_METHODS = new Set([
+    'getBalance', 'getLatestBlockhash', 'getSignatureStatuses',
+    'getTokenAccountsByOwner', 'getAccountInfo', 'getFeeForMessage',
+    'getMinimumBalanceForRentExemption'
+  ]);
+  const TRIES = 3;
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
   let id = 0;
-  async function rpc(method, params) {
+  async function once(method, params) {
     const r = await fetch(endpoint, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ jsonrpc: '2.0', id: ++id, method, params })
     });
-    if (!r.ok) throw new Error('rpc ' + r.status);
+    if (!r.ok) {
+      const err = new Error('rpc ' + r.status);
+      /* 429 and 5xx are the node having a moment; a 400 is this code being
+         wrong, and retrying it would only be wrong three times. */
+      err.transient = r.status === 429 || r.status >= 500;
+      throw err;
+    }
     const j = await r.json();
     if (j.error) throw new Error(j.error.message || 'rpc error');
     return j.result;
+  }
+
+  async function rpc(method, params) {
+    const safe = READ_METHODS.has(method);
+    for (let i = 0; ; i++) {
+      try { return await once(method, params); }
+      catch (e) {
+        /* A dropped connection arrives as a bare TypeError from fetch, with
+           none of the detail an HTTP status would have carried. */
+        const retryable = e.transient || (!e.transient && e instanceof TypeError);
+        if (!safe || i >= TRIES - 1 || !retryable) throw e;
+        await wait(250 * Math.pow(2, i));
+      }
+    }
   }
 
   const balance = async address =>

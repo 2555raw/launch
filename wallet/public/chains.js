@@ -50,14 +50,26 @@ window.WARD_CHAINS = {
     blurb: 'Cheap, and where BNB lives',
     /* Native BNB only. This container cannot reach the chain, so no token
        contract here could be checked against it, and an unchecked token address
-       is a way to send money somewhere nobody can reach. Add USDC here once its
-       contract is confirmed on bscscan. */
-    tokens: []
+       is a way to send money somewhere nobody can reach. These two were
+       confirmed against PancakeSwap's and SushiSwap's own token definitions —
+       two unrelated projects that agree on the same address — rather than
+       from memory. Note the decimals: on BNB Chain these are 18, not the 6
+       they have on every other network here. Guessing that would have
+       mis-stated every amount by a factor of a trillion. */
+    tokens: [
+      { symbol: 'USDC', name: 'Binance-Peg USD Coin', decimals: 18, address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', color: '#2775CA' },
+      { symbol: 'USDT', name: 'Tether USD', decimals: 18, address: '0x55d398326f99059fF775485246999027B3197955', color: '#26A17B' }
+    ]
   },
   999: {
     name: 'Hyperliquid', short: 'Hyperliquid', coin: 'HYPE', color: '#97FCE4',
     rpc: 'https://rpc.hyperliquid.xyz/evm', explorer: 'https://hyperevmscan.io',
     blurb: 'Where HYPE lives',
+    /* Still empty, and for the same reason as before: no source I can check
+       from here lists a USDC contract on HyperEVM, and an unchecked token
+       address is a way to send money somewhere nobody can reach. The chain id
+       below is checked against the node itself at runtime, which is the part
+       that actually matters. */
     tokens: []
   },
   /* Solana is the one entry here that is not EVM. It has its own key type,

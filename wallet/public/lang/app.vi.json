@@ -229,5 +229,6 @@
  "w.nosolkey": "Ví này được nhập từ một khóa riêng, nên không có tài khoản Solana",
  "w.solsplsoon": "Gửi {sym} trên Solana chưa sẵn sàng. Bạn nhận được ở đây, và gửi từ bất kỳ ví nào giữ đúng 12 từ đó.",
  "w.planevmonly": "Các gói được trả trên mạng EVM",
- "w.solnolink": "<b>Solana không phải chuỗi EVM.</b> Ví trình duyệt kết nối qua giao diện EVM mà Solana không nói, nên không liên kết được ở đây. Hãy gửi tới địa chỉ bên dưới — từ Phantom, từ một sàn, từ bất cứ đâu."
+ "w.solnolink": "<b>Solana không phải chuỗi EVM.</b> Ví trình duyệt kết nối qua giao diện EVM mà Solana không nói, nên không liên kết được ở đây. Hãy gửi tới địa chỉ bên dưới — từ Phantom, từ một sàn, từ bất cứ đâu.",
+ "w.wrongchain": "Nút này trả lời cho chuỗi {got}, không phải {net}. Hãy kiểm tra RPC trong Thiết lập trước khi gửi bất cứ thứ gì."
 }

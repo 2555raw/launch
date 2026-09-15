@@ -229,5 +229,6 @@
  "w.nosolkey": "Ten portfel zaimportowano z klucza prywatnego, więc nie ma konta w Solanie",
  "w.solsplsoon": "Wysyłanie {sym} w Solanie jeszcze nie jest gotowe. Tutaj możesz je odebrać, a wysłać z dowolnego portfela mającego te same 12 słów.",
  "w.planevmonly": "Plany opłaca się w sieci EVM",
- "w.solnolink": "<b>Solana nie jest łańcuchem EVM.</b> Portfele przeglądarkowe łączą się przez interfejs EVM, którego Solana nie zna, więc nie da się ich tu podłączyć. Wyślij zamiast tego na adres poniżej — z Phantoma, z giełdy, skądkolwiek."
+ "w.solnolink": "<b>Solana nie jest łańcuchem EVM.</b> Portfele przeglądarkowe łączą się przez interfejs EVM, którego Solana nie zna, więc nie da się ich tu podłączyć. Wyślij zamiast tego na adres poniżej — z Phantoma, z giełdy, skądkolwiek.",
+ "w.wrongchain": "Ten węzeł odpowiada za łańcuch {got}, nie za {net}. Sprawdź RPC w Ustawieniach, zanim cokolwiek wyślesz."
 }

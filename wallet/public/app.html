@@ -58,6 +58,11 @@
     </div>
   </header>
 
+  <!-- A node serving a chain other than the one named is not a passing notice:
+       anything signed against it is signed for the wrong chain, and that is not
+       recoverable. It stays on screen until the RPC is put right. -->
+  <div class="chain-warn" id="chainWarn" role="alert" hidden></div>
+
   <main id="views">
 
     <!-- ── Welcome ────────────────────────────────── -->

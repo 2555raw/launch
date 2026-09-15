@@ -142,6 +142,104 @@ const chain = () => CHAINS[prefs.chainId];
    contract, an address check, a signature — applies when this is true, so it
    guards every one of those rather than being assumed anywhere. */
 const isSol = () => chain().family === 'sol';
+
+/* ── Reaching a node ───────────────────────────────────────────────────────
+   Public RPC endpoints are free, and they behave like it: a 429 when you lean
+   on them, a 502 when they are unwell, a dropped connection when they are
+   gone. None of that means anything is wrong with the wallet, but all of it
+   used to reach the screen as "Couldn't read the balance", which is how a
+   working wallet gets mistaken for a broken one.
+
+   ethers already retries a 429 on its own, and consults nothing for the rest,
+   so the rest is handled here. Only reads are retried. Re-sending a signed
+   transaction would be safe on the chain — it carries the same nonce, so the
+   second copy is rejected — but the node reports that rejection as an error,
+   and a wallet that turns a payment it already sent into a failure message is
+   worse than one that says nothing at all. */
+const RETRYABLE_READS = new Set([
+  'eth_chainId', 'eth_blockNumber', 'eth_getBalance', 'eth_call', 'eth_estimateGas',
+  'eth_getTransactionCount', 'eth_getTransactionReceipt', 'eth_getTransactionByHash',
+  'eth_getBlockByNumber', 'eth_getBlockByHash', 'eth_gasPrice', 'eth_feeHistory',
+  'eth_getLogs', 'eth_getCode', 'eth_maxPriorityFeePerGas'
+]);
+const TRIES = 3;
+const backoff = i => new Promise(r => setTimeout(r, 250 * Math.pow(2, i)));
+const transient = e => {
+  const c = e && e.code;
+  if (c === 'SERVER_ERROR' || c === 'NETWORK_ERROR' || c === 'TIMEOUT') return true;
+  /* A connection dropped mid-flight never reaches ethers' error codes: fetch
+     rejects with a bare TypeError. */
+  return !c && e instanceof TypeError;
+};
+
+class RetryingProvider extends E.JsonRpcProvider {
+  async _send(payload) {
+    const calls = Array.isArray(payload) ? payload : [payload];
+    const readOnly = calls.every(c => RETRYABLE_READS.has(c.method));
+    let last;
+    for (let i = 0; ; i++) {
+      try { return await super._send(payload); }
+      catch (e) {
+        last = e;
+        if (!readOnly || i >= TRIES - 1 || !transient(e)) throw e;
+        await backoff(i);
+      }
+    }
+  }
+}
+
+/* Every provider in the wallet is built here, so none of them is left with
+   ethers' default five-minute timeout — long enough for a wedged node to look
+   like a frozen app. */
+function makeProvider(url, chainId) {
+  const req = new E.FetchRequest(url);
+  req.timeout = 15000;
+  const p = new RetryingProvider(req, E.Network.from(Number(chainId)), { staticNetwork: true });
+  checkChainId(p, url, chainId);
+  return p;
+}
+
+/* staticNetwork tells ethers to believe the chain id in the table rather than
+   asking the node, which saves a round trip on every single call. The cost is
+   that nothing ever checks the table is right. A node that answers for a
+   different chain than the one named — a typo'd custom RPC, an endpoint that
+   moved, a table entry that was wrong from the start — would be signed
+   against anyway, and a transaction signed for the wrong chain is not a
+   recoverable mistake.
+   So the id is asked for exactly once per endpoint, out of band, and a
+   disagreement is said out loud rather than discovered later. */
+const chainIdChecked = new Map();
+/* The warning belongs to one chain, so switching away from that chain takes it
+   down; switching back re-checks and puts it up again if it is still true. */
+function clearChainWarn() {
+  const bar = $('#chainWarn');
+  if (bar && bar.dataset.for !== String(prefs.chainId)) bar.hidden = true;
+}
+function checkChainId(p, url, want) {
+  const key = want + '|' + url;
+  if (chainIdChecked.has(key)) return;
+  chainIdChecked.set(key, true);
+  p.send('eth_chainId', []).then(hex => {
+    const got = Number(BigInt(hex));
+    if (got === Number(want)) return;
+    chainIdChecked.set(key, false);
+    const c = CHAINS[want];
+    console.warn('Ward: ' + url + ' reports chain ' + got + ', not ' + want);
+    /* Not a toast. A toast is gone in under three seconds, and this is the
+       one message in the wallet that has to still be on screen when someone
+       reaches for the send button. */
+    const bar = $('#chainWarn');
+    if (bar) {
+      bar.textContent = tr('w.wrongchain', { net: (c && c.name) || want, got: got });
+      bar.hidden = false;
+      bar.dataset.for = String(want);
+    }
+  }).catch(() => {
+    /* Unreachable is not the same as wrong, and the balance read that follows
+       will report it in its own words. */
+    chainIdChecked.delete(key);
+  });
+}
 /* Both families write a balance as an integer of the smallest unit, so one
    formatter serves both; ethers is not reached for just because a chain
    happens to be EVM. */
@@ -201,7 +299,7 @@ function provider() {
   const key = prefs.chainId + '|' + rpcUrl();
   if (_provider && _providerKey === key) return _provider;
   _providerKey = key;
-  _provider = new E.JsonRpcProvider(rpcUrl(), E.Network.from(Number(prefs.chainId)), { staticNetwork: true });
+  _provider = makeProvider(rpcUrl(), prefs.chainId);
   return _provider;
 }
 
@@ -475,7 +573,7 @@ async function verifyPlan() {
   }
 
   try {
-    const p = new E.JsonRpcProvider(prefs.rpc[rec.chainId] || c.rpc, E.Network.from(Number(rec.chainId)), { staticNetwork: true });
+    const p = makeProvider(prefs.rpc[rec.chainId] || c.rpc, rec.chainId);
     const r = await p.getTransactionReceipt(rec.hash);
     if (!r || r.status !== 1) return paintTier();
 
@@ -1031,7 +1129,7 @@ async function reconcile() {
     const c = CHAINS[a.chainId];
     if (!c) continue;
     try {
-      const p = new E.JsonRpcProvider(prefs.rpc[a.chainId] || c.rpc, E.Network.from(Number(a.chainId)), { staticNetwork: true });
+      const p = makeProvider(prefs.rpc[a.chainId] || c.rpc, a.chainId);
       const r = await p.getTransactionReceipt(a.hash);
       if (r) patchAct(a.hash, { status: r.status === 1 ? 'ok' : 'fail' });
     } catch {}
@@ -1068,7 +1166,7 @@ async function resolveTo(raw) {
     hint.textContent = tr('w.lookingup', { name: v });
     hint.className = 'hint';
     try {
-      const mp = new E.JsonRpcProvider(CHAINS[1].rpc, E.Network.from(1), { staticNetwork: true });
+      const mp = makeProvider(CHAINS[1].rpc, 1);
       const addr = await mp.resolveName(v);
       if (seq !== resolveSeq) return null;
       if (addr) { hint.textContent = v + ' → ' + short(addr); hint.className = 'hint good'; return addr; }
@@ -1805,7 +1903,7 @@ function paintNetList() {
       prefs.chainId = id; savePrefs();
       linked = null;
       paintNet(); fillTokenSelects(); closeSheet('#netSheet'); verifyPlan();
-      paintAddr(); paintChainMode();
+      paintAddr(); paintChainMode(); clearChainWarn();
       /* The card names the network and lists that network's coins, so it is
          wrong the moment the network changes under it. */
       paintCard();

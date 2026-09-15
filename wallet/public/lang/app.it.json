@@ -229,5 +229,6 @@
  "w.nosolkey": "Questo wallet è stato importato da una chiave privata, quindi non ha un conto Solana",
  "w.solsplsoon": "Inviare {sym} su Solana non è ancora pronto. Qui puoi riceverlo, e inviarlo da qualsiasi wallet che abbia le stesse 12 parole.",
  "w.planevmonly": "I piani si pagano su una rete EVM",
- "w.solnolink": "<b>Solana non è una catena EVM.</b> I wallet del browser si collegano tramite un’interfaccia EVM che Solana non parla, quindi qui non si possono collegare. Manda invece all’indirizzo qui sotto: da Phantom, da un exchange o da dove vuoi."
+ "w.solnolink": "<b>Solana non è una catena EVM.</b> I wallet del browser si collegano tramite un’interfaccia EVM che Solana non parla, quindi qui non si possono collegare. Manda invece all’indirizzo qui sotto: da Phantom, da un exchange o da dove vuoi.",
+ "w.wrongchain": "Questo nodo risponde per la catena {got}, non per {net}. Controlla l’RPC nelle Impostazioni prima di inviare qualcosa."
 }

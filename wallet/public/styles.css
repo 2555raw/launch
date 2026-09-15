@@ -510,6 +510,16 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .status-body .btn { margin-top: 12px; }
 
 /* ── toasts ──────────────────────────────────────── */
+/* Sits under the bar, above everything else, and does not go away on its own. */
+.chain-warn {
+  position: sticky; top: 62px; z-index: 40;
+  margin: 0 var(--pad, 18px) 10px;
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--danger);
+  border-radius: 14px; padding: 11px 14px;
+  font-size: 13.5px; font-weight: 560; line-height: 1.4;
+}
 .toast-wrap { position: fixed; left: 0; right: 0; bottom: calc(22px + env(safe-area-inset-bottom)); z-index: 90; display: grid; gap: 8px; justify-items: center; pointer-events: none; padding: 0 18px; }
 .toast {
   background: var(--ink); color: var(--bg); font-size: 13.5px; font-weight: 540;

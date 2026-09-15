@@ -229,5 +229,6 @@
  "w.nosolkey": "Esta carteira foi importada de uma chave privada, então não tem conta na Solana",
  "w.solsplsoon": "Enviar {sym} na Solana ainda não está pronto. Aqui você pode receber, e enviar por qualquer carteira com as mesmas 12 palavras.",
  "w.planevmonly": "Planos são pagos numa rede EVM",
- "w.solnolink": "<b>A Solana não é uma rede EVM.</b> Carteiras de navegador se conectam por uma interface EVM que a Solana não fala, então não dá para ligá-las aqui. Mande para o endereço abaixo: da Phantom, de uma corretora, de onde for."
+ "w.solnolink": "<b>A Solana não é uma rede EVM.</b> Carteiras de navegador se conectam por uma interface EVM que a Solana não fala, então não dá para ligá-las aqui. Mande para o endereço abaixo: da Phantom, de uma corretora, de onde for.",
+ "w.wrongchain": "Este nó responde pela rede {got}, não pela {net}. Confira o RPC nas Configurações antes de enviar qualquer coisa."
 }

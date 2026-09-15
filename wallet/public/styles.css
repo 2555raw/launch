@@ -155,6 +155,17 @@ body {
 .pill:active { transform: scale(.97); }
 .pill span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); flex: none; }
+
+/* The language pill is two or three characters wide and must stay legible:
+   the generic pill rule ellipsises its second span, which turned "ES" into
+   "E" as soon as the bar ran short of room. It never shrinks; the network
+   name, which can afford to be clipped, gives way instead. */
+#langPill { flex: none; padding: 7px 11px; gap: 6px; max-width: none; }
+#langPill span { overflow: visible; text-overflow: clip; }
+#netPill { min-width: 0; }
+.globe { width: 15px; height: 15px; fill: none; stroke: var(--ink-3); stroke-width: 1.7; flex: none; }
+/* On a narrow phone the wordmark is the one thing the bar can spare. */
+@media (max-width: 420px) { .bar .brand-name { display: none; } }
 .chev { width: 14px; height: 14px; fill: none; stroke: var(--ink-3); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
 .icon-btn {

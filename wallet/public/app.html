@@ -45,6 +45,10 @@
         <span class="dot" id="netDot"></span><span id="netName">Base</span>
         <svg viewBox="0 0 24 24" class="chev" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </button>
+      <button class="pill" id="langPill" type="button" aria-label="Language" data-i18n-label="w.lang">
+        <svg viewBox="0 0 24 24" class="globe" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 2.6 15 0 18M12 3c-2.6 2.6-2.6 15 0 18"/></svg>
+        <span id="langNow">EN</span>
+      </button>
       <button class="icon-btn" id="lockBtn" type="button" title="Lock" aria-label="Lock" data-i18n-label="w.lock">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg>
       </button>
@@ -57,7 +61,7 @@
     <section class="view" data-view="welcome">
       <div class="hero">
         <div class="hero-mark" aria-hidden="true"><span></span></div>
-        <h1>Money that<br>answers to you.</h1>
+        <h1 data-i18n="w.moneythat">Money that<br>answers to you.</h1>
         <p class="lede" data-i18n="w.awalletthatliv">A wallet that lives only in your browser. Your keys are made here, they stay here, and nobody else can touch them, not even us.</p>
       </div>
 
@@ -92,7 +96,7 @@
         <button class="btn ghost" id="blurSeed" type="button" data-i18n="w.hide">Hide</button>
       </div>
 
-      <label class="check"><input type="checkbox" id="seedSaved"><span></span><em>I saved it somewhere safe and offline.</em></label>
+      <label class="check"><input type="checkbox" id="seedSaved"><span></span><em data-i18n="w.isavedit">I saved it somewhere safe and offline.</em></label>
       <button class="btn primary lg" id="toVerify" disabled data-i18n="w.continue">Continue</button>
     </section>
 
@@ -125,8 +129,8 @@
       </label>
       <p class="err" id="pwErr" hidden></p>
 
-      <div class="note">
-        <b data-i18n="w.thereisnoforgo">There is no "forgot my password".</b> If you lose it, you recover the wallet with your 12 words, which is exactly why they matter.
+      <div class="note" data-i18n="w.noforgotnote">
+        <b>There is no "forgot my password".</b> If you lose it, you recover the wallet with your 12 words, which is exactly why they matter.
       </div>
 
       <button class="btn primary lg" id="doCreate" data-i18n="w.encryptandopen">Encrypt and open</button>
@@ -178,10 +182,10 @@
       </div>
 
       <div class="actions four">
-        <button class="act" data-go="send"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span>Send</button>
-        <button class="act" data-go="deposit"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></svg></span>Top up</button>
-        <button class="act" data-go="receive"><span class="act-i"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2z"/></svg></span>Receive</button>
-        <button class="act" data-go="charge"><span class="act-i"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/></svg></span>Request</button>
+        <button class="act" data-go="send"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></span><span data-i18n="w.send">Send</span></button>
+        <button class="act" data-go="deposit"><span class="act-i"><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></svg></span><span data-i18n="w.topup">Top up</span></button>
+        <button class="act" data-go="receive"><span class="act-i"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2z"/></svg></span><span data-i18n="w.receive">Receive</span></button>
+        <button class="act" data-go="charge"><span class="act-i"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/></svg></span><span data-i18n="w.request">Request</span></button>
       </div>
 
       <h3 class="sec-title" data-i18n="w.yourfunds">Your funds</h3>
@@ -206,8 +210,8 @@
       <div id="depIntro">
         <ul class="wallet-list" id="walletList"></ul>
         <p class="hint" id="walletHint"></p>
-        <div class="note">
-          <b data-i18n="w.onaphone">On a phone?</b> Injected wallets only appear inside their own app's browser. Open this page from MetaMask, Coinbase Wallet, Phantom or Rainbow and they'll show up here.
+        <div class="note" data-i18n="w.onaphonenote">
+          <b>On a phone?</b> Injected wallets only appear inside their own app's browser. Open this page from MetaMask, Coinbase Wallet, Phantom or Rainbow and they'll show up here.
         </div>
         <h3 class="sec-title" data-i18n="w.orsendityourse">Or send it yourself</h3>
         <p class="sub" data-i18n="w.anywalletorexc">Any wallet or exchange works. Just send to this address on the network you have selected.</p>
@@ -305,7 +309,7 @@
       <p class="sub" data-i18n="w.createapayment">Create a payment link. Whoever opens it sees the payment already filled in, and all they do is confirm.</p>
 
       <label class="field" id="fromField" hidden>
-        <span>From <i>(shown to the payer)</i></span>
+        <span data-i18n="w.fromlabel">From <i>(shown to the payer)</i></span>
         <input type="text" id="chargeFrom" maxlength="32" placeholder="Your name or business" data-i18n-ph="w.yournameorbusi">
       </label>
       <label class="field">
@@ -317,7 +321,7 @@
         <input type="text" inputmode="decimal" id="chargeAmt" placeholder="0.00">
       </label>
       <label class="field">
-        <span>What for <i>(optional)</i></span>
+        <span data-i18n="w.whatforlabel">What for <i>(optional)</i></span>
         <input type="text" id="chargeNote" maxlength="60" placeholder="Table 4 · two coffees" data-i18n-ph="w.table4twocoffe">
       </label>
 
@@ -352,14 +356,14 @@
 
       <h3 class="sec-title" data-i18n="w.network">Network</h3>
       <label class="field">
-        <span>Custom RPC <i>(optional)</i></span>
+        <span data-i18n="w.rpclabel">Custom RPC <i>(optional)</i></span>
         <input type="text" id="rpcInput" spellcheck="false" placeholder="https://…">
         <small class="hint" data-i18n="w.leaveitemptyto">Leave it empty to use the network's public node.</small>
       </label>
       <button class="btn ghost wide" id="saveRpc" type="button" data-i18n="w.saverpc">Save RPC</button>
 
       <h3 class="sec-title" data-i18n="w.backup">Backup</h3>
-      <div class="note">Your phrase is the only way to recover this wallet on another device. Look at it alone, with no cameras and no shared screens.</div>
+      <div class="note" data-i18n="w.phrasenote">Your phrase is the only way to recover this wallet on another device. Look at it alone, with no cameras and no shared screens.</div>
       <button class="btn ghost wide" id="revealSeed" type="button" data-i18n="w.showmyrecovery">Show my recovery phrase</button>
       <button class="btn ghost wide" id="exportKs" type="button" data-i18n="w.downloadencryp">Download encrypted backup</button>
 
@@ -374,6 +378,15 @@
 </div>
 
 <!-- ── Network sheet ─────────────────────────────── -->
+<div class="sheet-wrap" id="langSheet" hidden>
+  <div class="sheet-bg" data-close-sheet></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Language" data-i18n-label="w.lang">
+    <div class="grab" aria-hidden="true"></div>
+    <h3 data-i18n="w.lang">Language</h3>
+    <ul class="net-list" id="langList"></ul>
+  </div>
+</div>
+
 <div class="sheet-wrap" id="netSheet" hidden>
   <div class="sheet-bg" data-close-sheet></div>
   <div class="sheet" role="dialog" aria-modal="true" aria-label="Choose network" data-i18n-label="w.choosenetwork">
@@ -404,10 +417,10 @@
     <h3 id="cfTitle" data-i18n="w.confirmthepaym">Confirm the payment</h3>
     <p class="cf-amount" id="cfAmount"></p>
     <dl class="cf-rows">
-      <div><dt>To</dt><dd id="cfTo"></dd></div>
-      <div><dt>Network</dt><dd id="cfNet"></dd></div>
-      <div><dt>Estimated fee</dt><dd id="cfFee"></dd></div>
-      <div class="total"><dt>Balance after</dt><dd id="cfAfter"></dd></div>
+      <div><dt data-i18n="w.to">To</dt><dd id="cfTo"></dd></div>
+      <div><dt data-i18n="w.network">Network</dt><dd id="cfNet"></dd></div>
+      <div><dt data-i18n="w.estfee">Estimated fee</dt><dd id="cfFee"></dd></div>
+      <div class="total"><dt data-i18n="w.balafter">Balance after</dt><dd id="cfAfter"></dd></div>
     </dl>
     <p class="err" id="cfErr" hidden></p>
     <button class="btn primary lg" id="cfSend" data-i18n="w.signandsend">Sign and send</button>
@@ -443,7 +456,7 @@
       <div class="status-icon" id="stIcon"><span class="spin"></span></div>
       <h3 id="stTitle" data-i18n="w.sending">Sending…</h3>
       <p class="sub center" id="stText" data-i18n="w.yourpaymentiso">Your payment is on its way to the network.</p>
-      <a class="btn ghost wide" id="stLink" target="_blank" rel="noopener noreferrer" hidden>View in the explorer</a>
+      <a class="btn ghost wide" id="stLink" target="_blank" rel="noopener noreferrer" hidden data-i18n="w.viewexplorer">View in the explorer</a>
       <button class="btn primary lg" id="stDone" hidden data-i18n="w.done">Done</button>
     </div>
   </div>
@@ -455,6 +468,7 @@
 <script src="vendor/qrcode_UTF8.js"></script>
 <script src="vendor/ethers.umd.min.js"></script>
 <script src="chains.js"></script>
+<script src="app-i18n.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

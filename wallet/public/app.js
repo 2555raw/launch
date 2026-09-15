@@ -103,9 +103,9 @@ const drop = k => { try { localStorage.removeItem(k); } catch {} };
   }
 })();
 
-let prefs = Object.assign({ chainId: 8453, rpc: {}, accounts: [{ i: 0, name: 'Account 1' }], active: 0 }, read(K.prefs, {}));
+let prefs = Object.assign({ chainId: 8453, rpc: {}, accounts: [{ i: 0, name: '' }], active: 0 }, read(K.prefs, {}));
 if (!CHAINS[prefs.chainId]) prefs.chainId = 8453;
-if (!Array.isArray(prefs.accounts) || !prefs.accounts.length) prefs.accounts = [{ i: 0, name: 'Account 1' }];
+if (!Array.isArray(prefs.accounts) || !prefs.accounts.length) prefs.accounts = [{ i: 0, name: '' }];
 const savePrefs = () => write(K.prefs, prefs);
 
 /* ── Session state (memory only, never persisted) ─────────────────────────── */
@@ -139,6 +139,65 @@ function provider() {
 /* ── Screen helpers ────────────────────────────────────────────────────────── */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+/* ── Language ──────────────────────────────────────────────────────────────
+   The dictionary is app-i18n.js; the choice is shared with the landing page
+   through ward.v1.lang, so picking Spanish on the front page opens the wallet
+   in Spanish. English is the default and only a deliberate choice changes it:
+   guessing from navigator.language put people in a language they had not asked
+   for. */
+const DICT = window.WARD_APP_I18N || {};
+const HTML_LANG = { en: 'en', es: 'es', zh: 'zh-Hans', ru: 'ru' };
+const LANG_KEY = 'ward.v1.lang';
+const LANGS = [
+  { id: 'en', short: 'EN', name: 'English' },
+  { id: 'es', short: 'ES', name: 'Español' },
+  { id: 'zh', short: '中文', name: '中文（简体）' },
+  { id: 'ru', short: 'RU', name: 'Русский' }
+];
+
+let lang = 'en';
+try { const saved = localStorage.getItem(LANG_KEY); if (saved && DICT[saved]) lang = saved; } catch { /* storage blocked */ }
+
+/* tr('w.balanceon', { net: 'Base' }). Falls back to English, and then to the key
+   itself, so a missing translation shows English rather than nothing. */
+/* Dates follow the chosen language. Numbers deliberately do not: a comma as
+   the decimal separator is how 1.284 ETH gets read as 1284. */
+const DATE_LOCALE = { en: 'en-GB', es: 'es-ES', zh: 'zh-CN', ru: 'ru-RU' };
+const dateLocale = () => DATE_LOCALE[lang] || 'en-GB';
+
+function tr(key, vars) {
+  let str = (DICT[lang] && DICT[lang][key]) || (DICT.en && DICT.en[key]) || key;
+  if (vars) for (const k of Object.keys(vars)) str = str.split('{' + k + '}').join(vars[k]);
+  return str;
+}
+
+function applyLang(id) {
+  if (!DICT[id]) return;
+  lang = id;
+  try { localStorage.setItem(LANG_KEY, id); } catch { /* this session only */ }
+  document.documentElement.lang = HTML_LANG[id] || id;
+
+  $$('[data-i18n]').forEach(el => { const v = tr(el.dataset.i18n); if (v) el.innerHTML = v; });
+  $$('[data-i18n-ph]').forEach(el => { const v = tr(el.dataset.i18nPh); if (v) el.placeholder = v; });
+  $$('[data-i18n-label]').forEach(el => { const v = tr(el.dataset.i18nLabel); if (v) el.setAttribute('aria-label', v); });
+
+  const now = LANGS.find(l => l.id === id);
+  if ($('#langNow')) $('#langNow').textContent = now ? now.short : id.toUpperCase();
+  $$('#langList button').forEach(b => b.classList.toggle('sel', b.dataset.lang === id));
+
+  /* Everything the app writes itself has to be redrawn, or half the screen
+     stays in the language it was drawn in. */
+  $('#versionLine').textContent = tr('w.everythingruns', { v: E.version || '6' });
+  $('.bal-label').textContent = tr('w.balanceon', { net: chain().short });
+  paintNet();
+  paintNetList();
+  fillTokenSelects();
+  paintTier();
+  if (wallet) { refresh(); paintActivity($('#recentList'), 4); }
+  if (!$('[data-view="plans"]').classList.contains('on')) return;
+  paintPlans();
+}
 
 function show(name) {
   $$('.view').forEach(v => v.classList.toggle('on', v.dataset.view === name));
@@ -180,8 +239,8 @@ async function copy(text, said) {
       t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
       document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
     }
-    toast(said || 'Copied');
-  } catch { toast("Couldn't copy"); }
+    toast(said || tr('w.copied'));
+  } catch { toast(tr('w.couldntcopy')); }
 }
 
 async function share(text, title) {
@@ -246,7 +305,7 @@ function lock(auto) {
   show('unlock');
   $('#unlockPw').value = '';
   fail('#unlockErr', '');
-  if (auto) toast('Locked after inactivity');
+  if (auto) toast(tr('w.lockedidle'));
 }
 ['click', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, touch, { passive: true }));
 
@@ -292,7 +351,7 @@ function paintTier() {
   ['a', 'b', 'c', 'ink', 'veil', 'veil2'].forEach(k =>
     root.setProperty(`--tier-${k}`, `var(--${t}-${k})`));
   $('#tierBadge').textContent = PLANS[plan].name;
-  $('#plansCta').textContent = plan === 'platinum' ? 'Your plan' : 'Compare plans';
+  $('#plansCta').textContent = plan === 'platinum' ? tr('w.yourplan') : tr('w.compareplans');
   $('#acctSwitch').hidden = !has('platinum');
   $('#exportCsv').hidden = !has('gold');
   $('#fromField').hidden = !has('gold');
@@ -325,17 +384,17 @@ function paintPlans() {
 
     const btn = document.createElement('button');
     btn.className = 'btn ' + (id === plan ? 'ghost' : 'primary') + ' wide';
-    if (id === plan) { btn.textContent = 'Current plan'; btn.disabled = true; }
-    else if (rank(id) < rank(plan)) { btn.textContent = 'Included'; btn.disabled = true; }
-    else if (!TREASURY) { btn.textContent = 'Upgrades not set up yet'; btn.disabled = true; }
-    else { btn.textContent = `Pay $${p.price} for a month`; btn.addEventListener('click', () => buyPlan(id)); }
+    if (id === plan) { btn.textContent = tr('w.plancurrent'); btn.disabled = true; }
+    else if (rank(id) < rank(plan)) { btn.textContent = tr('w.planincluded'); btn.disabled = true; }
+    else if (!TREASURY) { btn.textContent = tr('w.planoff'); btn.disabled = true; }
+    else { btn.textContent = tr('w.planbuy', { price: p.price }); btn.addEventListener('click', () => buyPlan(id)); }
     card.appendChild(btn);
     box.appendChild(card);
   });
 
   const note = $('#treasuryNote');
   if (!TREASURY) {
-    note.innerHTML = '<b>Upgrades are switched off.</b> Paid plans need an address to pay into; set <code>TREASURY</code> at the top of app.js to one you control, and the buttons start working.';
+    note.innerHTML = tr('w.treasurynote');
     note.hidden = false;
   } else note.hidden = true;
 }
@@ -348,11 +407,11 @@ function paintPlanRow() {
   row.querySelector('.pr-badge').textContent = p.name[0];
   row.querySelector('b').textContent = p.name;
   row.querySelector('small').textContent = plan === 'classic'
-    ? 'Free forever'
-    : 'Runs out ' + new Date(rec.expires).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    ? tr('w.freeforever')
+    : tr('w.runsout', { date: new Date(rec.expires).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short', year: 'numeric' }) });
   const go = document.createElement('button');
   go.className = 'link-btn';
-  go.textContent = plan === 'platinum' ? 'See plans' : 'Upgrade';
+  go.textContent = plan === 'platinum' ? tr('w.seeplans') : tr('w.upgrade');
   go.addEventListener('click', () => show('plans'));
   row.appendChild(go);
 }
@@ -360,11 +419,11 @@ function paintPlanRow() {
 async function buyPlan(id) {
   const p = PLANS[id], c = chain();
   const usdc = c.tokens.find(t => t.symbol === 'USDC');
-  if (!usdc) return toast('Switch to a network with USDC first');
+  if (!usdc) return toast(tr('w.switchusdc'));
 
   const value = E.parseUnits(String(p.price), usdc.decimals);
   const held = balances.tokens.USDC;
-  if (held != null && value > held) return toast(`You need $${p.price} USDC on ${c.short}`);
+  if (held != null && value > held) return toast(tr('w.needusdc', { price: p.price, net: c.short }));
 
   try {
     const fee = await feeFor({ to: usdc.address, data: ERC20.encodeFunctionData('transfer', [TREASURY, value]) });
@@ -372,15 +431,15 @@ async function buyPlan(id) {
       to: TREASURY, tok: usdc, value, raw: String(p.price), fee, symbol: 'USDC',
       planBuy: id
     };
-    $('#cfTitle').textContent = `Upgrade to ${p.name}`;
+    $('#cfTitle').textContent = tr('w.upgradeto', { plan: p.name });
     $('#cfAmount').textContent = `$${p.price} USDC`;
     $('#cfTo').textContent = short(TREASURY);
-    $('#cfNet').textContent = c.name + (c.test ? ' (test)' : '');
+    $('#cfNet').textContent = c.name + (c.test ? ' ' + tr('w.testnetwork') : '');
     $('#cfFee').textContent = '≈ ' + fmt(trim(E.formatEther(fee.cost), 7)) + ' ' + c.coin;
-    $('#cfAfter').textContent = '30 days of ' + p.name;
+    $('#cfAfter').textContent = tr('w.daysof', { plan: p.name });
     fail('#cfErr', '');
     $('#cfSend').disabled = false;
-    $('#cfSend').textContent = 'Sign and pay';
+    $('#cfSend').textContent = tr('w.signandpay');
     openSheet('#confirmSheet');
   } catch (err) { toast(friendly(err)); }
 }
@@ -403,7 +462,7 @@ function startCreate() {
   pendingMnemonic = w.mnemonic.phrase;
   paintSeed($('#seedGrid'), pendingMnemonic.split(' '));
   $('#seedGrid').classList.remove('hidden');
-  $('#blurSeed').textContent = 'Hide';
+  $('#blurSeed').textContent = tr('w.hide');
   $('#seedSaved').checked = false;
   $('#toVerify').disabled = true;
   show('create');
@@ -423,7 +482,7 @@ function startVerify() {
     const row = document.createElement('label');
     row.className = 'vf';
     row.innerHTML = '<b></b><input type="text" spellcheck="false" autocapitalize="none" autocomplete="off">';
-    row.querySelector('b').textContent = 'Word ' + (i + 1);
+    row.querySelector('b').textContent = tr('w.wordn', { n: i + 1 });
     const inp = row.querySelector('input');
     inp.addEventListener('input', () => {
       row.classList.toggle('ok', inp.value.trim().toLowerCase() === words[i]);
@@ -465,12 +524,12 @@ async function persist(signer, password) {
 const PATH = i => "m/44'/60'/0'/0/" + i;
 
 function useAccount(i) {
-  if (!rootPhrase) return toast('This wallet was imported from a private key, so it has no extra accounts');
+  if (!rootPhrase) return toast(tr('w.nophrasekey'));
   wallet = E.HDNodeWallet.fromPhrase(rootPhrase, undefined, PATH(i));
   prefs.active = i; savePrefs();
   write(K.addr, wallet.address);
   const acc = prefs.accounts.find(a => a.i === i);
-  $('#acctName').textContent = acc ? acc.name : 'Account ' + (i + 1);
+  $('#acctName').textContent = acc && acc.name ? acc.name : tr('w.accountn', { n: i + 1 });
   $('#addrShort').textContent = short(wallet.address);
   balances = { native: null, tokens: {} };
   refresh();
@@ -486,7 +545,7 @@ function paintAccounts() {
     b.type = 'button';
     b.className = a.i === prefs.active ? 'sel' : '';
     b.innerHTML = '<span class="nl-mid"><b></b><small></small></span>';
-    b.querySelector('b').textContent = a.name;
+    b.querySelector('b').textContent = a.name || tr('w.accountn', { n: a.i + 1 });
     let addr = '';
     try { addr = E.HDNodeWallet.fromPhrase(rootPhrase, undefined, PATH(a.i)).address; } catch {}
     b.querySelector('small').textContent = short(addr);
@@ -502,7 +561,7 @@ async function refresh() {
   const c = chain(), p = provider(), addr = wallet.address;
   const mine = ++refresh.gen;
 
-  $('.bal-label').textContent = 'Balance on ' + c.short;
+  $('.bal-label').textContent = tr('w.balanceon', { net: c.short });
   $('#totalBal').innerHTML = '<span class="skeleton w-40"></span>';
   paintTokens(true);
 
@@ -513,8 +572,8 @@ async function refresh() {
     $('#totalBal').textContent = fmt(trim(E.formatEther(native), 6)) + ' ' + c.coin;
   } catch {
     if (mine !== refresh.gen) return;
-    $('#totalBal').textContent = 'Unavailable';
-    toast("Couldn't read the balance. Connection?");
+    $('#totalBal').textContent = tr('w.unavailable');
+    toast(tr('w.couldntread'));
   }
 
   balances.tokens = {};
@@ -538,13 +597,13 @@ function paintTokens(loading) {
   [{ symbol: c.coin, name: c.name, color: c.color, native: true }].concat(c.tokens).forEach(t => {
     let amt = '…';
     if (!loading) {
-      if (t.native) amt = balances.native == null ? 'n/a' : fmt(trim(E.formatEther(balances.native), 6));
-      else amt = balances.tokens[t.symbol] == null ? 'n/a' : fmt(trim(E.formatUnits(balances.tokens[t.symbol], t.decimals), 6));
+      if (t.native) amt = balances.native == null ? tr('w.na') : fmt(trim(E.formatEther(balances.native), 6));
+      else amt = balances.tokens[t.symbol] == null ? tr('w.na') : fmt(trim(E.formatUnits(balances.tokens[t.symbol], t.decimals), 6));
     }
     const li = document.createElement('li');
     li.innerHTML = coinBadge(t.symbol, t.color) + '<div class="tok-mid"><b></b><small></small></div><div class="tok-amt"></div>';
     li.querySelector('b').textContent = t.symbol;
-    li.querySelector('small').textContent = t.native ? 'Network coin' : t.name;
+    li.querySelector('small').textContent = t.native ? tr('w.networkcoin') : t.name;
     li.querySelector('.tok-amt').textContent = amt;
     list.appendChild(li);
   });
@@ -556,7 +615,7 @@ function fillTokenSelects() {
     if (!sel) return;
     const keep = sel.value;
     sel.innerHTML = '';
-    const opts = [{ v: 'native', l: c.coin + ' · ' + c.short + ' coin' }]
+    const opts = [{ v: 'native', l: c.coin + ' · ' + tr('w.nativecoin', { net: c.short }) }]
       .concat(c.tokens.map(t => ({ v: t.symbol, l: t.symbol + ' · ' + t.name })));
     opts.forEach(o => {
       const el = document.createElement('option');
@@ -605,7 +664,8 @@ function paintActivity(list, limit) {
   const rows = myActs().slice(0, limit);
   list.innerHTML = '';
   if (!rows.length) {
-    list.innerHTML = '<li class="empty">No payments from here yet.</li>';
+    list.innerHTML = '<li class="empty"></li>';
+    list.querySelector('.empty').textContent = tr('w.nopayments');
     return;
   }
   rows.forEach(a => {
@@ -623,7 +683,7 @@ function paintActivity(list, limit) {
       `<div class="tok-amt"><div></div><span class="st-tag ${cls}">${tag}</span></div>`;
     li.querySelector('b').textContent = a.kind === 'plan' ? PLANS[a.plan].name + ' plan' : 'To ' + short(a.to);
     li.querySelector('small').textContent = (c ? c.short : 'Chain ' + a.chainId) + ' · ' +
-      new Date(a.ts).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+      new Date(a.ts).toLocaleString(dateLocale(), { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
     li.querySelector('.tok-amt div').textContent = '−' + fmt(a.amount) + ' ' + a.symbol;
     if (c) {
       li.style.cursor = 'pointer';
@@ -645,7 +705,7 @@ function exportCsv() {
   a.download = 'ward-activity.csv';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  toast('CSV downloaded');
+  toast(tr('w.csvdone'));
 }
 
 /* Payments left hanging (tab closed, slow network) are reconciled against the
@@ -676,17 +736,17 @@ async function resolveTo(raw) {
   }
   if (/^[\w-]+(\.[\w-]+)+$/.test(v)) {
     const seq = ++resolveSeq;
-    hint.textContent = 'Looking up ' + v + '…';
+    hint.textContent = tr('w.lookingup', { name: v });
     hint.className = 'hint';
     try {
       const mp = new E.JsonRpcProvider(CHAINS[1].rpc, E.Network.from(1), { staticNetwork: true });
       const addr = await mp.resolveName(v);
       if (seq !== resolveSeq) return null;
       if (addr) { hint.textContent = v + ' → ' + short(addr); hint.className = 'hint good'; return addr; }
-      hint.textContent = "That name doesn't point anywhere"; hint.className = 'hint bad';
+      hint.textContent = tr('w.namenowhere'); hint.className = 'hint bad';
       return null;
     } catch {
-      if (seq === resolveSeq) { hint.textContent = "Couldn't look that name up"; hint.className = 'hint bad'; }
+      if (seq === resolveSeq) { hint.textContent = tr('w.namelookupfail'); hint.className = 'hint bad'; }
       return null;
     }
   }
@@ -706,22 +766,22 @@ async function feeFor(tx) {
 async function review() {
   fail('#sendErr', '');
   const to = await resolveTo($('#toInput').value);
-  if (!to) return fail('#sendErr', 'Check the recipient before going on.');
+  if (!to) return fail('#sendErr', tr('w.checkrecipient'));
 
   const tok = tokenByKey($('#tokenSelect').value);
   const c = chain();
   const raw = parseAmount($('#amtInput').value);
-  if (!raw || !/^\d*\.?\d*$/.test(raw) || Number(raw) <= 0) return fail('#sendErr', 'Enter an amount greater than zero.');
+  if (!raw || !/^\d*\.?\d*$/.test(raw) || Number(raw) <= 0) return fail('#sendErr', tr('w.amountzero'));
 
   let value;
   try { value = tok ? E.parseUnits(raw, tok.decimals) : E.parseEther(raw); }
-  catch { return fail('#sendErr', `That amount has too many decimals for ${tok ? tok.symbol : c.coin}.`); }
+  catch { return fail('#sendErr', tr('w.toomanydec', { sym: tok ? tok.symbol : c.coin })); }
 
   const held = tok ? balances.tokens[tok.symbol] : balances.native;
   if (held != null && value > held) return fail('#sendErr', `You don't have that much ${tok ? tok.symbol : c.coin} on ${c.short}.`);
 
   $('#reviewBtn').disabled = true;
-  $('#reviewBtn').textContent = 'Working out the fee…';
+  $('#reviewBtn').textContent = tr('w.workingfee');
   try {
     const tx = tok
       ? { to: tok.address, data: ERC20.encodeFunctionData('transfer', [to, value]) }
@@ -735,41 +795,43 @@ async function review() {
 
     draft = { to, tok, value, raw, fee, symbol: tok ? tok.symbol : c.coin };
 
-    $('#cfTitle').textContent = 'Confirm the payment';
+    $('#cfTitle').textContent = tr('w.confirmthepaym');
     $('#cfAmount').textContent = fmt(trim(raw, 8)) + ' ' + draft.symbol;
     $('#cfTo').textContent = short(to);
-    $('#cfNet').textContent = c.name + (c.test ? ' (test)' : '');
+    $('#cfNet').textContent = c.name + (c.test ? ' ' + tr('w.testnetwork') : '');
     $('#cfFee').textContent = '≈ ' + fmt(trim(E.formatEther(fee.cost), 7)) + ' ' + c.coin;
     $('#cfAfter').textContent = tok
-      ? (balances.tokens[tok.symbol] != null ? fmt(trim(E.formatUnits(balances.tokens[tok.symbol] - value, tok.decimals), 6)) + ' ' + tok.symbol : 'n/a')
-      : (balances.native != null ? fmt(trim(E.formatEther(balances.native - value - fee.cost), 6)) + ' ' + c.coin : 'n/a');
+      ? (balances.tokens[tok.symbol] != null ? fmt(trim(E.formatUnits(balances.tokens[tok.symbol] - value, tok.decimals), 6)) + ' ' + tok.symbol : tr('w.na'))
+      : (balances.native != null ? fmt(trim(E.formatEther(balances.native - value - fee.cost), 6)) + ' ' + c.coin : tr('w.na'));
     fail('#cfErr', '');
     $('#cfSend').disabled = false;
-    $('#cfSend').textContent = 'Sign and send';
+    $('#cfSend').textContent = tr('w.signandsend');
     openSheet('#confirmSheet');
   } catch (err) {
     fail('#sendErr', friendly(err));
   } finally {
     $('#reviewBtn').disabled = false;
-    $('#reviewBtn').textContent = 'Review payment';
+    $('#reviewBtn').textContent = tr('w.reviewpayment');
   }
 }
 
 function friendly(err) {
   const m = (err && (err.shortMessage || err.reason || err.message) || '').toString();
-  if (/user rejected|user denied|4001/i.test(m)) return 'You turned the request down in the other wallet.';
-  if (/insufficient funds/i.test(m)) return 'Not enough balance for the amount plus the network fee.';
-  if (/transfer amount exceeds balance/i.test(m)) return "You don't have that many tokens on this network.";
-  if (/could not detect network|network|fetch|timeout/i.test(m)) return "Couldn't reach the network. Check your connection or change the RPC in Settings.";
-  if (/nonce/i.test(m)) return 'Another payment of yours is still in flight. Wait for it to confirm and try again.';
-  if (/replacement fee too low/i.test(m)) return 'There is already an identical payment pending. Wait for it to confirm.';
-  return m || 'Something went wrong.';
+  if (/user rejected|user denied|4001/i.test(m)) return tr('w.errrejected');
+  if (/insufficient funds/i.test(m)) return tr('w.errfunds');
+  if (/transfer amount exceeds balance/i.test(m)) return tr('w.errtokens');
+  if (/could not detect network|network|fetch|timeout/i.test(m)) return tr('w.errnetwork');
+  if (/nonce/i.test(m)) return tr('w.errnonce');
+  if (/replacement fee too low/i.test(m)) return tr('w.errreplace');
+  /* An error we have no wording for is shown as the node sent it, in English,
+     rather than swallowed: a raw message is more use than a shrug. */
+  return m || tr('w.errunknown');
 }
 
 async function doSend() {
   if (!draft || !wallet) return;
   $('#cfSend').disabled = true;
-  $('#cfSend').textContent = 'Signing…';
+  $('#cfSend').textContent = tr('w.signing');
   const c = chain();
 
   try {
@@ -827,7 +889,7 @@ async function doSend() {
   } catch (err) {
     fail('#cfErr', friendly(err));
     $('#cfSend').disabled = false;
-    $('#cfSend').textContent = 'Sign and send';
+    $('#cfSend').textContent = tr('w.signandsend');
   }
 }
 
@@ -842,22 +904,22 @@ function statusSheet(state, hash, msg) {
 
   if (state === 'sending') {
     icon.innerHTML = '<span class="spin"></span>';
-    $('#stTitle').textContent = 'Sending…';
-    $('#stText').textContent = 'Your payment is on the network. It usually takes a few seconds.';
+    $('#stTitle').textContent = tr('w.sending');
+    $('#stText').textContent = tr('w.onthenetwork');
   } else if (state === 'ok' || state === 'plan') {
     icon.className = 'status-icon ok';
     icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-    $('#stTitle').textContent = state === 'plan' ? 'Plan active' : 'Payment confirmed';
-    $('#stText').textContent = msg || `It's recorded on ${c.name} now. That's final.`;
+    $('#stTitle').textContent = state === 'plan' ? tr('w.planactive') : tr('w.paymentconfirmed');
+    $('#stText').textContent = msg || tr('w.recordedon', { net: c.name });
   } else if (state === 'slow') {
     icon.innerHTML = '<svg viewBox="0 0 24 24" style="stroke:var(--warn)"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5l3 1.6"/></svg>';
-    $('#stTitle').textContent = 'Still on its way';
-    $('#stText').textContent = 'The network is slow. It was sent and will confirm on its own; you can follow it in the explorer.';
+    $('#stTitle').textContent = tr('w.stillonway');
+    $('#stText').textContent = tr('w.networkslow');
   } else {
     icon.className = 'status-icon fail';
     icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>';
-    $('#stTitle').textContent = "Didn't go through";
-    $('#stText').textContent = msg || 'Try again.';
+    $('#stTitle').textContent = tr('w.didntgo');
+    $('#stText').textContent = msg || tr('w.tryagain');
   }
 }
 
@@ -865,20 +927,20 @@ async function useMax() {
   const tok = tokenByKey($('#tokenSelect').value);
   if (tok) {
     const b = balances.tokens[tok.symbol];
-    if (b == null) return toast("I don't know your balance yet");
+    if (b == null) return toast(tr('w.nobalyet'));
     $('#amtInput').value = trim(E.formatUnits(b, tok.decimals), tok.decimals);
     return;
   }
-  if (balances.native == null) return toast("I don't know your balance yet");
+  if (balances.native == null) return toast(tr('w.nobalyet'));
   $('#maxBtn').textContent = '…';
   try {
     const to = E.isAddress($('#toInput').value.trim()) ? $('#toInput').value.trim() : wallet.address;
     const fee = await feeFor({ to, value: 1n });
     const left = balances.native - fee.cost;
-    if (left <= 0n) { $('#amtInput').value = '0'; toast('The fee would take your whole balance'); }
+    if (left <= 0n) { $('#amtInput').value = '0'; toast(tr('w.feeeatsall')); }
     else $('#amtInput').value = trim(E.formatEther(left), 8);
-    $('#amtHint').textContent = 'The estimated network fee is left out.';
-  } catch { toast("Couldn't estimate the fee"); }
+    $('#amtHint').textContent = tr('w.feeleftout');
+  } catch { toast(tr('w.nofeeest')); }
   finally { $('#maxBtn').textContent = 'MAX'; }
 }
 
@@ -915,7 +977,7 @@ function paintDeposit() {
   list.innerHTML = '';
   const all = [...found.values()];
   if (!all.length) {
-    $('#walletHint').textContent = 'No wallet extension detected in this browser.';
+    $('#walletHint').textContent = tr('w.noextension');
     return;
   }
   $('#walletHint').textContent = '';
@@ -969,7 +1031,7 @@ async function linkWallet(w) {
     fillTokenSelects();
     paintDeposit();
     linkedBalance();
-    toast('Connected to ' + w.info.name);
+    toast(tr('w.connectedto', { name: w.info.name }));
   } catch (err) {
     toast(friendly(err));
   }
@@ -978,7 +1040,7 @@ async function linkWallet(w) {
 async function linkedBalance() {
   if (!linked) return;
   const c = chain();
-  $('#linkedBal').textContent = 'Reading its balance…';
+  $('#linkedBal').textContent = tr('w.readingbal');
   try {
     const tok = tokenByKey($('#depToken').value);
     const p = provider();
@@ -987,7 +1049,7 @@ async function linkedBalance() {
       : await p.getBalance(linked.address);
     const txt = tok ? trim(E.formatUnits(b, tok.decimals), 6) : trim(E.formatEther(b), 6);
     linked.balance = b; linked.tok = tok;
-    $('#linkedBal').textContent = `Available there: ${fmt(txt)} ${tok ? tok.symbol : c.coin}`;
+    $('#linkedBal').textContent = tr('w.availablethere', { amt: fmt(txt) + ' ' + (tok ? tok.symbol : c.coin) });
   } catch { $('#linkedBal').textContent = ''; }
 }
 
@@ -997,14 +1059,14 @@ async function depositIn() {
   const tok = tokenByKey($('#depToken').value);
   const c = chain();
   const raw = parseAmount($('#depAmt').value);
-  if (!raw || !/^\d*\.?\d*$/.test(raw) || Number(raw) <= 0) return fail('#depErr', 'Enter an amount greater than zero.');
+  if (!raw || !/^\d*\.?\d*$/.test(raw) || Number(raw) <= 0) return fail('#depErr', tr('w.amountzero'));
 
   let value;
   try { value = tok ? E.parseUnits(raw, tok.decimals) : E.parseEther(raw); }
-  catch { return fail('#depErr', 'Too many decimals for that coin.'); }
+  catch { return fail('#depErr', tr('w.deptoomany')); }
 
   const btn = $('#depSend');
-  btn.disabled = true; btn.textContent = 'Waiting for the other wallet…';
+  btn.disabled = true; btn.textContent = tr('w.waitingother');
   try {
     const tx = tok
       ? { from: linked.address, to: tok.address, data: ERC20.encodeFunctionData('transfer', [wallet.address, value]) }
@@ -1012,8 +1074,8 @@ async function depositIn() {
     const hash = await linked.provider.request({ method: 'eth_sendTransaction', params: [tx] });
 
     statusSheet('sending', hash);
-    $('#stTitle').textContent = 'Topping up…';
-    $('#stText').textContent = `${fmt(trim(raw, 8))} ${tok ? tok.symbol : c.coin} on the way from ${linked.info.name}.`;
+    $('#stTitle').textContent = tr('w.toppingup');
+    $('#stText').textContent = tr('w.onthewayfrom', { amt: fmt(trim(raw, 8)) + ' ' + (tok ? tok.symbol : c.coin), who: linked.info.name });
 
     let r = null;
     for (let i = 0; i < 60 && !r; i++) {
@@ -1021,16 +1083,16 @@ async function depositIn() {
       if (!r) await new Promise(s => setTimeout(s, 2000));
     }
     if (r && r.status === 1) {
-      statusSheet('ok', hash, 'The funds are in your Ward wallet.');
-      $('#stTitle').textContent = 'Topped up';
+      statusSheet('ok', hash, tr('w.fundsarein'));
+      $('#stTitle').textContent = tr('w.toppedup');
       $('#depAmt').value = '';
       refresh(); linkedBalance();
-    } else if (r) statusSheet('fail', hash, 'The network rejected the transfer.');
+    } else if (r) statusSheet('fail', hash, tr('w.netrejected'));
     else statusSheet('slow', hash);
   } catch (err) {
     fail('#depErr', friendly(err));
   } finally {
-    btn.disabled = false; btn.textContent = 'Send to my Ward wallet';
+    btn.disabled = false; btn.textContent = tr('w.sendtomywardwa');
   }
 }
 
@@ -1098,9 +1160,9 @@ function applyPrefill() {
   const c = CHAINS[prefill.chainId];
   const note = $('#payNote');
   note.innerHTML = '<b></b><span></span>';
-  note.querySelector('b').textContent = prefill.from ? prefill.from + ' is asking you to pay' : "You're being asked to pay";
+  note.querySelector('b').textContent = prefill.from ? tr('w.askingyoutopay', { who: prefill.from }) : tr('w.beingasked');
   note.querySelector('span').textContent =
-    (prefill.note ? prefill.note + ' · ' : '') + `Payment on ${c.short}. Check the amount and confirm.`;
+    (prefill.note ? prefill.note + ' · ' : '') + tr('w.checkamount', { net: c.short });
   note.hidden = false;
   show('send');
   history.replaceState(null, '', location.pathname);
@@ -1111,6 +1173,32 @@ function paintNet() {
   const c = chain();
   $('#netName').textContent = c.short;
   $('#netDot').style.background = c.color;
+}
+
+/* The chain table's blurbs are written in English next to the RPC they
+   describe. The translations live in the dictionary, keyed by chain id, and the
+   table is the fallback for any that is missing. */
+const blurbFor = (id, c) => {
+  const k = 'w.blurb' + id;
+  const d = DICT[lang];
+  return (d && d[k]) || c.blurb;
+};
+
+function paintLangList() {
+  const list = $('#langList');
+  list.innerHTML = '';
+  LANGS.forEach(l => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.lang = l.id;
+    b.className = l.id === lang ? 'sel' : '';
+    b.innerHTML = '<span class="nl-mid"><b></b></span>';
+    b.querySelector('b').textContent = l.name;
+    b.addEventListener('click', () => { applyLang(l.id); paintLangList(); closeSheet('#langSheet'); });
+    li.appendChild(b);
+    list.appendChild(li);
+  });
 }
 
 function paintNetList() {
@@ -1126,12 +1214,12 @@ function paintNetList() {
       '<span class="nl-mid"><b></b><small></small></span>' +
       (c.test ? '<span class="test-tag">TEST</span>' : '');
     b.querySelector('b').textContent = c.name;
-    b.querySelector('small').textContent = c.blurb;
+    b.querySelector('small').textContent = blurbFor(id, c);
     b.addEventListener('click', () => {
       prefs.chainId = id; savePrefs();
       linked = null;
       paintNet(); fillTokenSelects(); closeSheet('#netSheet'); refresh(); verifyPlan();
-      toast("You're on " + c.name + ' now');
+      toast(tr('w.youreon', { net: c.name }));
     });
     li.appendChild(b);
     list.appendChild(li);
@@ -1143,7 +1231,7 @@ function enterWallet() {
   paintNet();
   fillTokenSelects();
   const acc = prefs.accounts.find(a => a.i === prefs.active);
-  $('#acctName').textContent = acc ? acc.name : 'Account 1';
+  $('#acctName').textContent = acc && acc.name ? acc.name : tr('w.accountn', { n: 1 });
   $('#addrShort').textContent = short(wallet.address);
   show('home');
   refresh();
@@ -1172,7 +1260,8 @@ async function applyPlanWanted() {
 }
 
 function boot() {
-  $('#versionLine').textContent = 'Ward · ethers ' + (E.version || '6') + ' · everything runs in your browser';
+  applyLang(lang);
+  $('#versionLine').textContent = tr('w.everythingruns', { v: E.version || '6' });
   prefill = readPayHash();
   planWanted = readPlanHash();
   paintNet();
@@ -1192,14 +1281,15 @@ $$('[data-close-sheet]').forEach(b => b.addEventListener('click', () => closeAll
 
 $('#brandHome').addEventListener('click', () => wallet && show('home'));
 $('#netPill').addEventListener('click', () => { paintNetList(); openSheet('#netSheet'); });
+$('#langPill').addEventListener('click', () => { paintLangList(); openSheet('#langSheet'); });
 $('#lockBtn').addEventListener('click', () => lock(false));
 $('#lockNow').addEventListener('click', () => lock(false));
 
 $('#acctSwitch').addEventListener('click', () => { paintAccounts(); openSheet('#acctSheet'); });
 $('#addAcct').addEventListener('click', () => {
-  if (!rootPhrase) return toast('This wallet has no recovery phrase, so it has no extra accounts');
+  if (!rootPhrase) return toast(tr('w.nophrase'));
   const i = Math.max(...prefs.accounts.map(a => a.i)) + 1;
-  prefs.accounts.push({ i, name: 'Account ' + (i + 1) });
+  prefs.accounts.push({ i, name: tr('w.accountn', { n: i + 1 }) });
   savePrefs();
   useAccount(i);
   paintAccounts();
@@ -1240,7 +1330,7 @@ $('#doCreate').addEventListener('click', async () => {
     pendingMnemonic = null; pendingImport = null;
     $('#pw1').value = ''; $('#pw2').value = '';
     enterWallet();
-    toast('Wallet ready');
+    toast(tr('w.walletready'));
   } catch (err) {
     fail('#pwErr', friendly(err));
   } finally { btn.disabled = false; btn.textContent = 'Encrypt and open'; }
@@ -1286,7 +1376,7 @@ $('#doUnlock').addEventListener('click', async () => {
 $('#unlockPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('#doUnlock').click(); });
 
 $('#forgot').addEventListener('click', () => {
-  toast('Recover it with your 12 words: Import a wallet');
+  toast(tr('w.recoverwith12'));
   setTimeout(() => show('import'), 900);
 });
 
@@ -1332,10 +1422,10 @@ $('#saveRpc').addEventListener('click', () => {
   /* https only, except a node on this same machine: sending signed traffic over
      open http would hand it to the local network. */
   const ok = /^https:\/\//i.test(v) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/i.test(v);
-  if (v && !ok) return toast('The RPC must start with https://');
+  if (v && !ok) return toast(tr('w.rpchttps'));
   if (v) prefs.rpc[prefs.chainId] = v; else delete prefs.rpc[prefs.chainId];
   savePrefs(); _provider = null;
-  toast(v ? 'RPC saved' : 'Back to the public node');
+  toast(v ? tr('w.rpcsaved') : tr('w.rpcpublic'));
   refresh();
 });
 
@@ -1367,7 +1457,7 @@ $('#exportKs').addEventListener('click', () => {
   a.download = 'ward-' + short(read(K.addr, '')).replace(/·/g, '') + '.json';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  toast('Encrypted backup downloaded. It still needs your password');
+  toast(tr('w.backupdone'));
 });
 
 $('#wipe').addEventListener('click', () => {

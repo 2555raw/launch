@@ -48,3 +48,28 @@ Optional variables: `APP_URL`, `RPC_URL`, `CHROME_PATH`, `SHOT_DIR`.
 The private key in the files is Hardhat's first account, which is public and
 known to everyone. It funds the test wallet on the local chain and **must never
 be used on a real network**.
+
+## dbc.js — the launchpad instructions
+
+`node test/dbc.js` needs no node, no network and no keys: it compares the
+instructions `public/dbc.js` builds by hand against the ones Meteora's own SDK
+and Anchor build from the published IDL, and stops at the first byte that
+differs. It also re-proves `findAta` against `@solana/spl-token`, because the
+launchpad made it share a code path with the rest of the program-derived
+addresses.
+
+Install its reference libraries once:
+
+```sh
+npm i --no-save --prefix test \
+  @coral-xyz/anchor @solana/web3.js @solana/spl-token \
+  @meteora-ag/dynamic-bonding-curve-sdk
+```
+
+They are reference implementations for the tests only — nothing in `public/`
+imports them, and the wallet still ships no third-party script it did not
+vendor itself. Point `DBC_MODULES` elsewhere if they live somewhere else.
+
+What it proves: the bytes are right. What it cannot prove: that a launch
+succeeds against the live program. That needs an RPC node, a funded key, and a
+config account that exists — see the note at the top of `public/dbc.js`.

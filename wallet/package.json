@@ -5,7 +5,8 @@
   "description": "Ward — self-custody wallet in the browser, with real payments on EVM networks.",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/e2e.js && node test/deposit.js"
+    "test": "node test/e2e.js && node test/deposit.js",
+    "test:dbc": "node test/dbc.js"
   },
   "engines": {
     "node": ">=18"

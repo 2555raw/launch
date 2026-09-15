@@ -265,6 +265,33 @@ window.WARD_SOL = (function () {
     return Uint8Array.from([...shortvec(1), ...sig, ...msg]);
   }
 
+  /* Reads back the signer list the message itself declares, rather than being
+     told it. A message names how many signatures it requires and carries the
+     accounts in the order those signatures must appear; creating a token needs
+     two of them — the creator and the brand new mint — and putting them in the
+     wrong order is a rejected transaction, so the order comes from the bytes
+     that will actually be signed rather than from the caller's argument list. */
+  function signersOf(msg) {
+    const required = msg[0];
+    let i = 3, len = 0, shift = 0;          // shortvec: account count
+    for (;;) { const b = msg[i++]; len |= (b & 0x7f) << shift; if (!(b & 0x80)) break; shift += 7; }
+    const out = [];
+    for (let k = 0; k < required; k++) out.push(msg.slice(i + k * 32, i + k * 32 + 32));
+    return out;
+  }
+
+  async function signedBy(keypairs, msg) {
+    const e = await lib();
+    const want = signersOf(msg);
+    const sigs = [];
+    for (const pub of want) {
+      const kp = keypairs.find(k => eq(k.pub, pub));
+      if (!kp) throw new Error('missing a signer the message requires');
+      sigs.push(await e.signAsync(msg, kp.secret));
+    }
+    return Uint8Array.from([...shortvec(sigs.length), ...cat(...sigs), ...msg]);
+  }
+
   const signedTransfer = (secret, fromPub, to, lamports, blockhash) =>
     signedMessage(secret, transferMessage(fromPub, b58decode(to), lamports, blockhash));
 
@@ -288,17 +315,19 @@ window.WARD_SOL = (function () {
      means it is deliberately *not* a point on the curve — no private key can
      ever exist for it. The bump is counted down until the hash lands off the
      curve, which is what makes that guarantee hold. */
-  async function findAta(ownerPub, mintPub) {
+  async function findPda(seeds, programId) {
     const e = await lib();
     for (let bump = 255; bump >= 0; bump--) {
-      const h = await sha256(cat(ownerPub, TOKEN_PROGRAM, mintPub,
-        Uint8Array.of(bump), ATA_PROGRAM, PDA_MARKER));
+      const h = await sha256(cat(...seeds, Uint8Array.of(bump), programId, PDA_MARKER));
       let onCurve = true;
       try { e.Point.fromBytes(h); } catch { onCurve = false; }
       if (!onCurve) return { address: h, bump };
     }
     throw new Error('no address off the curve');
   }
+
+  const findAta = (ownerPub, mintPub) =>
+    findPda([ownerPub, TOKEN_PROGRAM, mintPub], ATA_PROGRAM);
 
   /* Creating the recipient's token account if it is missing. The idempotent
      form is used on purpose: asking first and then creating leaves a gap where
@@ -400,6 +429,13 @@ window.WARD_SOL = (function () {
     transferMessage, signedTransfer, send, confirmed,
     findAta, splTransferMessage, sendToken,
     toLamports, fromLamports,
+    /* The pieces the launchpad builds its own instructions out of. Everything
+       here is already proved against @solana/web3.js by the transfer tests;
+       exporting it means dbc.js inherits that rather than repeating it. */
+    parts: {
+      SYSTEM_PROGRAM, TOKEN_PROGRAM, ATA_PROGRAM,
+      buildMessage, signedBy, signersOf, findPda, sha256, cat, lib, shortvec, eq
+    },
     txUrl: sig => EXPLORER + '/tx/' + sig,
     addrUrl: a => EXPLORER + '/account/' + a
   };

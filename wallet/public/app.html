@@ -237,6 +237,10 @@
         <input id="cardNameInput" type="text" maxlength="22" spellcheck="false" placeholder="Your name" data-i18n-ph="w.yourname">
       </label>
 
+      <h3 class="sec-title" data-i18n="w.cardtitle">Title</h3>
+      <p class="sub" data-i18n="w.cardtitlesub">It sits in front of your name, in whichever language the wallet is in.</p>
+      <div class="coin-pick" id="titlePick"></div>
+
       <h3 class="sec-title" data-i18n="w.cardcoin">Coin on the card</h3>
       <p class="sub" data-i18n="w.cardcoinsub">The card shows what you hold in this one. Picking it switches the network too.</p>
       <div class="coin-pick" id="coinPick"></div>
@@ -525,6 +529,7 @@
 <script src="vendor/qrcode_UTF8.js"></script>
 <script src="vendor/ethers.umd.min.js"></script>
 <script src="chains.js"></script>
+<script src="langs.js"></script>
 <script src="app-i18n.js"></script>
 <script src="app.js"></script>
 </body>

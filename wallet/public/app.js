@@ -115,6 +115,7 @@ let prefs = Object.assign({ chainId: 8453, rpc: {}, accounts: [{ i: 0, name: '' 
 if (!prefs.card || typeof prefs.card !== 'object') prefs.card = { name: '', stickers: [] };
 if (typeof prefs.card.name !== 'string') prefs.card.name = '';
 if (typeof prefs.card.coin !== 'string') prefs.card.coin = 'ETH';
+if (typeof prefs.card.title !== 'string') prefs.card.title = '';
 if (!Array.isArray(prefs.card.stickers)) prefs.card.stickers = [];
 if (!CHAINS[prefs.chainId]) prefs.chainId = 8453;
 if (!Array.isArray(prefs.accounts) || !prefs.accounts.length) prefs.accounts = [{ i: 0, name: '' }];
@@ -159,25 +160,31 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
    in Spanish. English is the default and only a deliberate choice changes it:
    guessing from navigator.language put people in a language they had not asked
    for. */
-const DICT = window.WARD_APP_I18N || {};
-const HTML_LANG = { en: 'en', es: 'es', zh: 'zh-Hans', ru: 'ru' };
+const DICT = window.WARD_APP_I18N || { en: {} };
+const LANGS = window.WARD_LANGS || [{ id: 'en', short: 'EN', name: 'English', html: 'en', date: 'en-GB' }];
+const LOADER = window.WARD_LANG;
 const LANG_KEY = 'ward.v1.lang';
-const LANGS = [
-  { id: 'en', short: 'EN', name: 'English' },
-  { id: 'es', short: 'ES', name: 'Español' },
-  { id: 'zh', short: '中文', name: '中文（简体）' },
-  { id: 'ru', short: 'RU', name: 'Русский' }
-];
+const langMeta = id => LANGS.find(l => l.id === id) || null;
 
 let lang = 'en';
-try { const saved = localStorage.getItem(LANG_KEY); if (saved && DICT[saved]) lang = saved; } catch { /* storage blocked */ }
+try {
+  const saved = localStorage.getItem(LANG_KEY);
+  if (saved && langMeta(saved)) {
+    lang = saved;
+    /* English is the only dictionary that ships with the page. If this browser
+       kept a copy of the chosen one from last time, take it now, before the
+       first paint, so the wallet does not open in English and correct itself a
+       moment later. The fetch below replaces it either way. */
+    const c = LOADER && LOADER.cached('app', saved);
+    if (c) DICT[saved] = c;
+  }
+} catch { /* storage blocked */ }
 
 /* tr('w.balanceon', { net: 'Base' }). Falls back to English, and then to the key
    itself, so a missing translation shows English rather than nothing. */
 /* Dates follow the chosen language. Numbers deliberately do not: a comma as
    the decimal separator is how 1.284 ETH gets read as 1284. */
-const DATE_LOCALE = { en: 'en-GB', es: 'es-ES', zh: 'zh-CN', ru: 'ru-RU' };
-const dateLocale = () => DATE_LOCALE[lang] || 'en-GB';
+const dateLocale = () => { const m = langMeta(lang); return (m && m.date) || 'en-GB'; };
 
 function tr(key, vars) {
   let str = (DICT[lang] && DICT[lang][key]) || (DICT.en && DICT.en[key]) || key;
@@ -185,19 +192,53 @@ function tr(key, vars) {
   return str;
 }
 
+/* What the wallet is meant to be showing. A second pick made while the first
+   is still in the air must not be overwritten when that one lands. */
+let chosenLang = lang;
+
+/* Picks a language, loading it if this browser has never seen it. Paints from
+   the copy kept here if there is one, then again when the fetch answers. A
+   language that will not load leaves English standing rather than a screen
+   half in one language and half in another. */
+function useLang(id) {
+  if (!langMeta(id)) return;
+  chosenLang = id;
+  try { localStorage.setItem(LANG_KEY, id); } catch { /* this session only */ }
+  if (DICT[id]) applyLang(id);
+  else {
+    const c = LOADER && LOADER.cached('app', id);
+    if (c) { DICT[id] = c; applyLang(id); }
+    /* Nothing to paint from yet. Mark the choice in the list so the tap is
+       acknowledged, and let the fetch bring the words. */
+    else { lang = id; paintLangList(); }
+  }
+  if (!LOADER) return;
+  LOADER.load('app', id).then(d => {
+    if (!d || chosenLang !== id) return;
+    /* Revalidating costs one cheap 304 and usually changes nothing. Repainting
+       anyway would re-read the balance off the network for no reason. */
+    if (DICT[id] && JSON.stringify(DICT[id]) === JSON.stringify(d)) return;
+    DICT[id] = d;
+    applyLang(id);
+  });
+}
+
 function applyLang(id) {
   if (!DICT[id]) return;
   lang = id;
-  try { localStorage.setItem(LANG_KEY, id); } catch { /* this session only */ }
-  document.documentElement.lang = HTML_LANG[id] || id;
+  const meta = langMeta(id);
+  document.documentElement.lang = (meta && meta.html) || id;
+  /* Arabic reads right to left, so the wallet is laid out that way rather than
+     merely filled with Arabic words. Addresses, amounts and transaction hashes
+     stay left to right wherever they appear; the CSS marks those. */
+  document.documentElement.dir = meta && meta.rtl ? 'rtl' : 'ltr';
 
   $$('[data-i18n]').forEach(el => { const v = tr(el.dataset.i18n); if (v) el.innerHTML = v; });
   $$('[data-i18n-ph]').forEach(el => { const v = tr(el.dataset.i18nPh); if (v) el.placeholder = v; });
   $$('[data-i18n-label]').forEach(el => { const v = tr(el.dataset.i18nLabel); if (v) el.setAttribute('aria-label', v); });
 
-  const now = LANGS.find(l => l.id === id);
-  if ($('#langNow')) $('#langNow').textContent = now ? now.short : id.toUpperCase();
-  $$('#langList button').forEach(b => b.classList.toggle('sel', b.dataset.lang === id));
+  if ($('#langNow')) $('#langNow').textContent = meta ? meta.short : id.toUpperCase();
+  paintLangList();
 
   /* Everything the app writes itself has to be redrawn, or half the screen
      stays in the language it was drawn in. */
@@ -1354,8 +1395,62 @@ const blurbFor = (id, c) => {
 /* ── The card's face ───────────────────────────────────────────────────────
    Cosmetic, and only here: the name and the stickers live in this browser and
    are never part of a payment. Nothing on the chain knows or cares. */
-const STICKERS = ['⭐', '🔥', '🌙', '⚡', '🍀', '🌊', '🐉', '🎯', '💎', '🌸', '🛡️', '🎧'];
+/* Five stickers, drawn here rather than taken from the emoji set. An emoji is
+   a different picture on every operating system and none of them mean anything
+   in particular; these are cut from what the page actually says. Each is a disc
+   in its own colour with a white die-cut ring, so it reads as something stuck
+   on rather than printed, and so it stays legible on the indigo card, the gold
+   one and the graphite one alike. */
+const STICKER_ART = {
+  /* The mark itself. The same shape as the header, so the card is plainly this
+     wallet's card. */
+  mark: ['#5250E4', '<g transform="translate(8.6 8.6) scale(.715)" fill="none" stroke="#fff" ' +
+    'stroke-width="5" stroke-linecap="round"><path d="M19.6 7.6A8.9 8.9 0 1 0 24.9 16"/>' +
+    '<path d="M24.9 16h-5.6"/></g><circle cx="25.9" cy="13.8" r="2.3" fill="#fff"/>'],
+  /* "Only your key fits" is the whole of the front page, so the key is the one
+     sticker that had to exist. */
+  key: ['#D9982F', '<g fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round">' +
+    '<circle cx="20" cy="14.2" r="4.6"/><path d="M20 18.8v11.4"/><path d="M20 24.6h4.2"/>' +
+    '<path d="M20 28.6h3.2"/></g>'],
+  /* The wards in a warded lock: the obstruction that asks nobody's permission.
+     It is where the name comes from. */
+  shield: ['#2C8F72', '<path d="M20 9.4l8.4 3.1v6.9c0 5.6-3.5 9.4-8.4 11.4-4.9-2-8.4-5.8-8.4-11.4v-6.9z" ' +
+    'fill="#fff"/><circle cx="20" cy="18.6" r="2.4" fill="#2C8F72"/>' +
+    '<path d="M18.5 20.4h3l.9 4.4h-4.8z" fill="#2C8F72"/>'],
+  /* "A couple of seconds later it sits in a block, and it is yours." */
+  block: ['#414A73', '<g fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round" ' +
+    'stroke-linecap="round"><path d="M20 9.6 29.6 15v10L20 30.4 10.4 25V15z"/>' +
+    '<path d="M10.4 15 20 20.5 29.6 15"/><path d="M20 20.5v9.9"/></g>'],
+  /* Seconds instead of days, which is the other half of why settlement being
+     final is worth the trade. */
+  bolt: ['#C6455F', '<path d="M23.2 8.8 12.6 23h6.2l-1.8 8.6L27.4 17h-6.1z" fill="#fff"/>']
+};
+const STICKERS = Object.keys(STICKER_ART);
 const MAX_STICKERS = 2;
+
+/* One SVG string per sticker, used both on the card and in the picker; the
+   size comes from CSS so the same markup serves both. */
+function stickerSvg(key) {
+  const art = STICKER_ART[key];
+  if (!art) return '';
+  return '<svg class="st" viewBox="0 0 40 40" aria-hidden="true">' +
+    '<circle cx="20" cy="20" r="18.6" fill="' + art[0] + '" stroke="#fff" stroke-width="2.2"/>' +
+    art[1] + '</svg>';
+}
+
+/* The honorific printed before the name. Stored as one of these keys, never as
+   the words themselves, so the card follows the language the wallet is in
+   rather than freezing whichever one it was set in. Mx is here because a card
+   that prints a gendered title should offer a way out of choosing one. */
+const CARD_TITLES = ['', 'mr', 'mrs', 'mx'];
+const titleWord = key => (key ? tr('w.title' + key) : '');
+
+/* Stickers used to be emoji and are drawings now, so anything saved under the
+   old scheme is not a sticker any more and is dropped rather than left to paint
+   as nothing. The check runs every load, because stored preferences are only
+   ever as trustworthy as the last version that wrote them. */
+prefs.card.stickers = prefs.card.stickers.filter(k => STICKERS.indexOf(k) >= 0).slice(0, MAX_STICKERS);
+if (CARD_TITLES.indexOf(prefs.card.title) < 0) prefs.card.title = '';
 
 /* Which coin the card shows. A coin only exists on the chain that carries it,
    so choosing one chooses a network too, and ETH is first because it is the
@@ -1371,11 +1466,14 @@ const cardCoin = () => CARD_COINS.find(x => x.key === prefs.card.coin) || CARD_C
 function paintCardFaces() {
   const c = prefs.card;
   const name = (c.name || '').trim();
+  /* The title only makes sense in front of a name, so an empty name hides it
+     rather than leaving a lone "Mr" embossed on the card. */
+  const line = name ? ((titleWord(c.title) ? titleWord(c.title) + ' ' : '') + name) : '';
   [['#bcName', '#bcStickers'], ['#cardName', '#cardStickers']].forEach(([n, st]) => {
     const el = $(n);
-    if (el) { el.textContent = name; el.hidden = !name; }
+    if (el) { el.textContent = line; el.hidden = !line; }
     const box = $(st);
-    if (box) box.textContent = c.stickers.join(' ');
+    if (box) box.innerHTML = c.stickers.map(stickerSvg).join('');
   });
 }
 
@@ -1409,11 +1507,28 @@ function paintCard() {
   STICKERS.forEach(sticker => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.textContent = sticker;
-    b.setAttribute('aria-label', sticker);
+    b.innerHTML = stickerSvg(sticker);
+    b.setAttribute('aria-label', tr('w.st' + sticker));
+    b.setAttribute('aria-pressed', String(prefs.card.stickers.includes(sticker)));
     b.className = prefs.card.stickers.includes(sticker) ? 'on' : '';
     b.addEventListener('click', () => toggleSticker(sticker));
     pick.appendChild(b);
+  });
+
+  const titles = $('#titlePick');
+  titles.innerHTML = '';
+  CARD_TITLES.forEach(key => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = key ? titleWord(key) : tr('w.titlenone');
+    b.className = key === prefs.card.title ? 'on' : '';
+    b.setAttribute('aria-pressed', String(key === prefs.card.title));
+    b.addEventListener('click', () => {
+      prefs.card.title = key;
+      savePrefs();
+      paintCard();
+    });
+    titles.appendChild(b);
   });
   paintCardFaces();
 }
@@ -1452,10 +1567,15 @@ function paintLangList() {
     const b = document.createElement('button');
     b.type = 'button';
     b.dataset.lang = l.id;
-    b.className = l.id === lang ? 'sel' : '';
-    b.innerHTML = '<span class="nl-mid"><b></b></span>';
-    b.querySelector('b').textContent = l.name;
-    b.addEventListener('click', () => { applyLang(l.id); paintLangList(); closeSheet('#langSheet'); });
+    b.className = l.id === chosenLang ? 'sel' : '';
+    b.innerHTML = '<span class="nl-mid"><b></b></span><span class="nl-tick" aria-hidden="true"></span>';
+    const n = b.querySelector('b');
+    n.textContent = l.name;
+    /* Each name is written in its own language, so it is tagged with that
+       language or the browser reaches for the wrong font to draw it. */
+    n.lang = l.html || l.id;
+    if (l.rtl) n.dir = 'rtl';
+    b.addEventListener('click', () => { useLang(l.id); closeSheet('#langSheet'); });
     li.appendChild(b);
     list.appendChild(li);
   });
@@ -1521,7 +1641,7 @@ async function applyPlanWanted() {
 }
 
 function boot() {
-  applyLang(lang);
+  useLang(lang);
   $('#versionLine').textContent = tr('w.everythingruns', { v: E.version || '6' });
   prefill = readPayHash();
   planWanted = readPlanHash();

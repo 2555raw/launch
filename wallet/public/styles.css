@@ -145,6 +145,10 @@ body {
 :root {
   --mark: url('data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2032%2032%22%20fill=%22none%22%20stroke=%22%23000%22%3E%3Cpath%20d=%22M19.6%207.6A8.9%208.9%200%201%200%2024.9%2016%22%20stroke-width=%225%22%20stroke-linecap=%22round%22/%3E%3Cpath%20d=%22M24.9%2016h-5.6%22%20stroke-width=%225%22%20stroke-linecap=%22round%22/%3E%3Ccircle%20cx=%2224.2%22%20cy=%227.2%22%20r=%223.2%22%20fill=%22%23000%22%20stroke=%22none%22/%3E%3C/svg%3E') center / contain no-repeat;
 }
+/* The tick that marks the chosen one in a long list. Same trick as the mark:
+   one shape, drawn as a mask, so it takes the colour of whatever row it is on. */
+:root { --tick: url('data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2016%2016%22%20fill=%22none%22%20stroke=%22%23000%22%20stroke-width=%222.4%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M3%208.6%206.3%2012%2013%204.6%22/%3E%3C/svg%3E'); }
+
 .mark {
   width: 26px; height: 26px; display: block; flex: none;
   background: var(--brand);
@@ -472,7 +476,18 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 }
 .net-list button:hover { border-color: var(--line-2); }
 .net-list button.sel { border-color: var(--brand); background: var(--brand-soft); }
-.net-list .nl-mid { flex: 1; }
+.net-list .nl-mid { flex: 1; min-width: 0; }
+/* Holds its width whether or not it is showing a tick, so names do not shift
+   sideways as the selection moves down the list. */
+.net-list .nl-tick { width: 16px; height: 16px; flex: none; }
+.net-list button.sel .nl-tick {
+  background: var(--brand);
+  -webkit-mask: var(--tick) center / contain no-repeat;
+  mask: var(--tick) center / contain no-repeat;
+}
+/* Twenty-one languages: the sheet's own list is the thing that scrolls, so the
+   heading and the grab handle stay put above it. */
+#langList { max-height: min(56vh, 420px); overflow-y: auto; overscroll-behavior: contain; padding: 2px; }
 .net-list b { display: block; font-size: 14.5px; font-weight: 600; }
 .net-list small { color: var(--ink-3); font-size: 12.5px; }
 
@@ -641,12 +656,16 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
    network on one card and the account on the other, and the bottom corner has
    the Customise button. */
 .bc-stickers {
-  position: absolute; top: 50%; right: 22px; z-index: 1;
-  display: flex; gap: 8px; font-size: 30px; line-height: 1;
+  position: absolute; top: 50%; inset-inline-end: 22px; z-index: 1;
+  display: flex; gap: 8px; line-height: 1;
   transform: translateY(-50%) rotate(-8deg);
   filter: drop-shadow(0 3px 6px rgba(0,0,0,.24));
   pointer-events: none;
 }
+.bc-stickers .st { width: 34px; height: 34px; display: block; }
+/* Stuck on by hand, not printed: the second one sits at a slightly different
+   angle so a pair does not read as a logo lockup. */
+.bc-stickers .st:nth-child(2) { transform: rotate(13deg); }
 .card-big { margin-bottom: 26px; }
 
 .coin-pick { display: flex; flex-wrap: wrap; gap: 9px; margin: 6px 0 24px; }
@@ -662,10 +681,12 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 
 .sticker-pick { display: flex; flex-wrap: wrap; gap: 9px; margin: 6px 0 22px; }
 .sticker-pick button {
-  width: 48px; height: 48px; font-size: 24px; line-height: 1; cursor: pointer;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  width: 52px; height: 52px; line-height: 1; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 15px;
   box-shadow: var(--shadow-1); transition: transform .16s, border-color .16s, background .16s;
 }
+.sticker-pick .st { width: 32px; height: 32px; display: block; }
 .sticker-pick button:hover { transform: translateY(-2px); border-color: var(--line-2); }
 .sticker-pick button.on { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand); }
 .sticker-pick button:active { transform: scale(.94); }

@@ -164,28 +164,58 @@
      One page, four dictionaries, swapped at runtime. English stays in the HTML
      as the source, so a failure to load i18n.js leaves a readable page rather
      than an empty one. */
-  const LANGS = [
-    { id: 'en', name: 'English', short: 'EN' },
-    { id: 'es', name: 'Español', short: 'ES' },
-    { id: 'zh', name: '中文', short: '中文' },
-    { id: 'ru', name: 'Русский', short: 'RU' }
-  ];
-  const HTML_LANG = { en: 'en', es: 'es', zh: 'zh-Hans', ru: 'ru' };
+  const LANGS = (window.WARD_LANGS || [{ id: 'en', name: 'English', short: 'EN', html: 'en' }]);
+  const LOADER = window.WARD_LANG;
   const LANG_KEY = 'ward.v1.lang';
-  const DICT = window.WARD_I18N || {};
+  /* English arrives with the page; the rest are filled in here as they load. */
+  const DICT = window.WARD_I18N || { en: {} };
 
   /* English by default, always. Guessing from navigator.language meant someone
      on a Spanish browser landed in Spanish without asking for it; the picker is
      right there, and a deliberate choice is the only thing that changes it. */
   function chooseLang() {
-    try { const saved = localStorage.getItem(LANG_KEY); if (saved && DICT[saved]) return saved; } catch {}
+    try {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved && LANGS.some(l => l.id === saved)) return saved;
+    } catch {}
     return 'en';
   }
 
-  function applyLang(id, remember) {
+  /* What the page is meant to be showing. A second pick while the first is
+     still in the air must not be overwritten when that one lands. */
+  let chosen = 'en';
+
+  /* Paints from whatever is already to hand — the copy kept in this browser
+     from last time, if there is one — and then again when the fetch answers.
+     A language that cannot be loaded leaves the page in English rather than
+     half-translated. */
+  function useLang(id, remember) {
+    chosen = id;
+    if (remember) { try { localStorage.setItem(LANG_KEY, id); } catch {} }
+    if (DICT[id]) applyLang(id);
+    else {
+      const c = LOADER && LOADER.cached('land', id);
+      if (c) { DICT[id] = c; applyLang(id); }
+    }
+    if (!LOADER) return;
+    LOADER.load('land', id).then(d => {
+      if (!d || chosen !== id) return;
+      /* Revalidating costs one cheap 304 and usually changes nothing, so only
+         a dictionary that actually differs is worth redrawing the page for. */
+      if (DICT[id] && JSON.stringify(DICT[id]) === JSON.stringify(d)) return;
+      DICT[id] = d;
+      applyLang(id);
+    });
+  }
+
+  function applyLang(id) {
     const d = DICT[id];
     if (!d) return;
-    document.documentElement.lang = HTML_LANG[id] || id;
+    const meta = LANGS.find(l => l.id === id);
+    document.documentElement.lang = (meta && meta.html) || id;
+    /* Arabic reads right to left, so the page has to be laid out that way and
+       not merely filled with Arabic words. */
+    document.documentElement.dir = meta && meta.rtl ? 'rtl' : 'ltr';
     $$('[data-i18n]').forEach(el => {
       const v = d[el.dataset.i18n];
       if (v != null) el.innerHTML = v;
@@ -208,10 +238,12 @@
     const desc = $('meta[name="description"]');
     if (desc && d['meta.desc']) desc.setAttribute('content', d['meta.desc']);
 
-    const now = LANGS.find(l => l.id === id);
-    if ($('#langNow')) $('#langNow').textContent = now ? now.short : id.toUpperCase();
-    $$('#langMenu button').forEach(b => b.classList.toggle('on', b.dataset.lang === id));
-    if (remember) { try { localStorage.setItem(LANG_KEY, id); } catch {} }
+    if ($('#langNow')) $('#langNow').textContent = meta ? meta.short : id.toUpperCase();
+    $$('#langMenu button').forEach(b => {
+      const on = b.dataset.lang === id;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', String(on));
+    });
 
     /* The notice button carries two labels; keep the one it is showing. */
     const more = $('#csMore'), detail = $('#csDetail');
@@ -224,7 +256,7 @@
     hasWallet = ['ward.v1', 'quiver.v1', 'calma.v1'].some(ns => localStorage.getItem(ns + '.keystore'));
   } catch {}
   function markHasWallet() {
-    const d = DICT[chooseLang()] || {};
+    const d = DICT[chosen] || DICT.en || {};
     const open = d['nav.openmine'] || 'Open my wallet';
     $$('#heroCta, #footCta').forEach(a => { a.textContent = open; });
     if ($('#navCta')) $('#navCta').textContent = d['nav.mine'] || 'My wallet';
@@ -235,8 +267,19 @@
     LANGS.forEach(l => {
       const li = document.createElement('li');
       const b = document.createElement('button');
-      b.type = 'button'; b.dataset.lang = l.id; b.textContent = l.name;
-      b.addEventListener('click', () => { applyLang(l.id, true); closeMenu(); });
+      b.type = 'button'; b.dataset.lang = l.id; b.role = 'option';
+      /* The name sits in its own element so the tick beside it is not part of
+         the label a screen reader reads out. */
+      const n = document.createElement('span');
+      n.className = 'lm-name'; n.textContent = l.name;
+      /* Each name is written in its own language, so it has to be tagged with
+         that language or the browser picks the wrong font for it. */
+      n.lang = l.html || l.id;
+      if (l.rtl) n.dir = 'rtl';
+      const tick = document.createElement('span');
+      tick.className = 'lm-tick'; tick.setAttribute('aria-hidden', 'true');
+      b.appendChild(n); b.appendChild(tick);
+      b.addEventListener('click', () => { useLang(l.id, true); closeMenu(); });
       li.appendChild(b); menu.appendChild(li);
     });
     const closeMenu = () => { menu.hidden = true; langBtn.setAttribute('aria-expanded', 'false'); };
@@ -245,6 +288,12 @@
       const open = menu.hidden;
       menu.hidden = !open;
       langBtn.setAttribute('aria-expanded', String(open));
+      /* Twenty-one entries do not fit on screen, so the list opens scrolled to
+         the one in use rather than at the top with the tick out of sight. */
+      if (open) {
+        const sel = menu.querySelector('button.on');
+        if (sel) sel.scrollIntoView({ block: 'nearest' });
+      }
     });
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target)) closeMenu(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
@@ -339,7 +388,7 @@
     askQ.addEventListener('input', paintAsk);
   }
 
-  applyLang(chooseLang(), false);
+  useLang(chooseLang(), false);
 
   onScroll.forEach(f => f());
 })();

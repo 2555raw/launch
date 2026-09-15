@@ -227,8 +227,9 @@
  "w.notasoladdress": "Itu bukan alamat Solana",
  "w.blurbsol": "Cepat dan murah, dan bukan rantai EVM",
  "w.nosolkey": "Dompet ini diimpor dari kunci privat, jadi tidak punya akun Solana",
- "w.solsplsoon": "Mengirim {sym} di Solana belum siap. Di sini kamu bisa menerimanya, dan mengirimnya dari dompet mana pun yang memegang 12 kata yang sama.",
  "w.planevmonly": "Paket dibayar di jaringan EVM",
  "w.solnolink": "<b>Solana bukan rantai EVM.</b> Dompet peramban terhubung lewat antarmuka EVM yang tidak dipahami Solana, jadi tidak bisa ditautkan di sini. Kirim saja ke alamat di bawah — dari Phantom, dari bursa, dari mana pun.",
- "w.wrongchain": "Node ini menjawab untuk rantai {got}, bukan {net}. Periksa RPC di Pengaturan sebelum mengirim apa pun."
+ "w.wrongchain": "Node ini menjawab untuk rantai {got}, bukan {net}. Periksa RPC di Pengaturan sebelum mengirim apa pun.",
+ "w.needsolforfee": "Kamu butuh sedikit {coin} untuk membayar biaya dan membuka akun token penerima.",
+ "w.plusrent": "(termasuk deposit akun, kalau memang perlu)"
 }

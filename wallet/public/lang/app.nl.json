@@ -227,8 +227,9 @@
  "w.notasoladdress": "Dat is geen Solana-adres",
  "w.blurbsol": "Snel en goedkoop, en geen EVM-keten",
  "w.nosolkey": "Deze wallet is geïmporteerd uit een privésleutel en heeft daarom geen Solana-rekening",
- "w.solsplsoon": "{sym} versturen op Solana is nog niet klaar. Ontvangen kan hier wel, en versturen vanuit elke wallet met dezelfde 12 woorden.",
  "w.planevmonly": "Pakketten worden op een EVM-netwerk betaald",
  "w.solnolink": "<b>Solana is geen EVM-keten.</b> Browserwallets verbinden via een EVM-interface die Solana niet spreekt, dus ze zijn hier niet te koppelen. Stuur in plaats daarvan naar het adres hieronder: vanuit Phantom, vanaf een beurs, waarvandaan dan ook.",
- "w.wrongchain": "Deze node antwoordt voor keten {got}, niet voor {net}. Controleer de RPC in Instellingen voordat je iets verstuurt."
+ "w.wrongchain": "Deze node antwoordt voor keten {got}, niet voor {net}. Controleer de RPC in Instellingen voordat je iets verstuurt.",
+ "w.needsolforfee": "Je hebt wat {coin} nodig om de kosten te betalen en de tokenrekening van de ontvanger te openen.",
+ "w.plusrent": "(inclusief de rekeningwaarborg, als die nodig is)"
 }

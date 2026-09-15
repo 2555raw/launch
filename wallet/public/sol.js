@@ -182,37 +182,49 @@ window.WARD_SOL = (function () {
 
   const eq = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
 
-  /* A legacy transfer message.
+  /* A legacy message, built from any list of instructions.
    *
    * The account list has to be deduplicated, and a key that turns up twice
-   * takes the stronger of the two roles: paying yourself puts the same key in
-   * as both sender and recipient, and it stays one writable signer rather than
+   * takes the stronger of its roles: paying yourself puts the same key in as
+   * both sender and recipient, and it stays one writable signer rather than
    * becoming two accounts. Getting this wrong produces bytes the runtime
    * rejects, so it is done generally rather than by special-casing the pairs
    * that happen to be easy to imagine. */
-  function transferMessage(fromPub, toPub, lamports, blockhash) {
+  function buildMessage(feePayer, instructions, blockhash) {
     const metas = [];
     const add = (key, signer, writable) => {
       const seen = metas.find(m => eq(m.key, key));
       if (seen) { seen.signer = seen.signer || signer; seen.writable = seen.writable || writable; }
       else metas.push({ key, signer, writable });
     };
-    add(fromPub, true, true);            // the sender, who also pays the fee
-    add(toPub, false, true);
-    add(SYSTEM_PROGRAM, false, false);   // the program that moves the lamports
+    add(feePayer, true, true);
+    /* Order matters, and it is not the obvious one: every instruction's
+       accounts go in first, and only then the programs they call. Interleaving
+       them per instruction gives the same set in a different order, which is a
+       different message and a rejected transaction. With a single instruction
+       the two are identical, which is exactly why this only showed up once a
+       second instruction existed. */
+    instructions.forEach(ix => ix.keys.forEach(k => add(k.key, !!k.signer, !!k.writable)));
+    instructions.forEach(ix => add(ix.programId, false, false));
 
-    /* The runtime fixes the order: signers first, and within each half the
-       writable accounts before the read-only ones. The sender is the only
-       account that is both, so it lands at index 0, where the fee payer must
-       be. */
-    const rank = m => (m.signer ? 0 : 2) + (m.writable ? 0 : 1);
-    metas.sort((a, b) => rank(a) - rank(b));
+    /* Signers first, and within each half the writable accounts before the
+       read-only ones. Ties are broken by comparing the addresses as base58
+       text — not by the order they were added, which is the natural guess and
+       is wrong. The exact comparison matters, down to the locale options,
+       because a different order is a different message and the runtime
+       rejects it. These are the options @solana/web3.js uses. */
+    const ORDER = { localeMatcher: 'best fit', usage: 'sort', sensitivity: 'variant',
+                    ignorePunctuation: false, numeric: false, caseFirst: 'lower' };
+    metas.forEach(m => { m.b58 = b58encode(m.key); });
+    metas.sort((a, b) => {
+      if (a.signer !== b.signer) return a.signer ? -1 : 1;
+      if (a.writable !== b.writable) return a.writable ? -1 : 1;
+      return a.b58.localeCompare(b.b58, 'en', ORDER);
+    });
+    /* The fee payer has to be first whatever the sort thinks. */
+    const payerAt = metas.findIndex(m => eq(m.key, feePayer));
+    if (payerAt > 0) metas.unshift(metas.splice(payerAt, 1)[0]);
     const indexOf = key => metas.findIndex(m => eq(m.key, key));
-
-    const data = new Uint8Array(12);
-    const dv = new DataView(data.buffer);
-    dv.setUint32(0, 2, true);                       // SystemInstruction::Transfer
-    dv.setBigUint64(4, BigInt(lamports), true);
 
     const out = [];
     out.push(metas.filter(m => m.signer).length);
@@ -221,19 +233,127 @@ window.WARD_SOL = (function () {
     out.push(...shortvec(metas.length));
     metas.forEach(m => out.push(...m.key));
     out.push(...b58decode(blockhash));
-    out.push(...shortvec(1));                       // one instruction
-    out.push(indexOf(SYSTEM_PROGRAM));
-    const accts = [indexOf(fromPub), indexOf(toPub)];
-    out.push(...shortvec(accts.length), ...accts);
-    out.push(...shortvec(data.length), ...data);
+    out.push(...shortvec(instructions.length));
+    instructions.forEach(ix => {
+      out.push(indexOf(ix.programId));
+      const accts = ix.keys.map(k => indexOf(k.key));
+      out.push(...shortvec(accts.length), ...accts);
+      out.push(...shortvec(ix.data.length), ...ix.data);
+    });
     return Uint8Array.from(out);
   }
 
-  async function signedTransfer(secret, fromPub, to, lamports, blockhash) {
+  /* Moving plain SOL: one instruction, to the system program. */
+  function transferIx(fromPub, toPub, lamports) {
+    const data = new Uint8Array(12);
+    const dv = new DataView(data.buffer);
+    dv.setUint32(0, 2, true);                       // SystemInstruction::Transfer
+    dv.setBigUint64(4, BigInt(lamports), true);
+    return {
+      programId: SYSTEM_PROGRAM,
+      keys: [{ key: fromPub, signer: true, writable: true }, { key: toPub, signer: false, writable: true }],
+      data
+    };
+  }
+
+  const transferMessage = (fromPub, toPub, lamports, blockhash) =>
+    buildMessage(fromPub, [transferIx(fromPub, toPub, lamports)], blockhash);
+
+  async function signedMessage(secret, msg) {
     const e = await lib();
-    const msg = transferMessage(fromPub, b58decode(to), lamports, blockhash);
     const sig = await e.signAsync(msg, secret);
     return Uint8Array.from([...shortvec(1), ...sig, ...msg]);
+  }
+
+  const signedTransfer = (secret, fromPub, to, lamports, blockhash) =>
+    signedMessage(secret, transferMessage(fromPub, b58decode(to), lamports, blockhash));
+
+  /* ── SPL tokens ─────────────────────────────────────────────────────── */
+  /* Program ids taken from @solana/spl-token, not from memory. */
+  const TOKEN_PROGRAM = b58decode('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+  const ATA_PROGRAM = b58decode('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
+  const PDA_MARKER = enc.encode('ProgramDerivedAddress');
+
+  const sha256 = async bytes => new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
+  const cat = (...parts) => {
+    const n = parts.reduce((a, p) => a + p.length, 0);
+    const out = new Uint8Array(n);
+    let i = 0;
+    for (const p of parts) { out.set(p, i); i += p.length; }
+    return out;
+  };
+
+  /* A token balance does not live at your address; it lives in a separate
+     account derived from it. That account is a program-derived address, which
+     means it is deliberately *not* a point on the curve — no private key can
+     ever exist for it. The bump is counted down until the hash lands off the
+     curve, which is what makes that guarantee hold. */
+  async function findAta(ownerPub, mintPub) {
+    const e = await lib();
+    for (let bump = 255; bump >= 0; bump--) {
+      const h = await sha256(cat(ownerPub, TOKEN_PROGRAM, mintPub,
+        Uint8Array.of(bump), ATA_PROGRAM, PDA_MARKER));
+      let onCurve = true;
+      try { e.Point.fromBytes(h); } catch { onCurve = false; }
+      if (!onCurve) return { address: h, bump };
+    }
+    throw new Error('no address off the curve');
+  }
+
+  /* Creating the recipient's token account if it is missing. The idempotent
+     form is used on purpose: asking first and then creating leaves a gap where
+     someone else creates it and the transaction fails on arrival. */
+  const createAtaIx = (payerPub, ataPub, ownerPub, mintPub) => ({
+    programId: ATA_PROGRAM,
+    keys: [
+      { key: payerPub, signer: true, writable: true },
+      { key: ataPub, signer: false, writable: true },
+      { key: ownerPub, signer: false, writable: false },
+      { key: mintPub, signer: false, writable: false },
+      { key: SYSTEM_PROGRAM, signer: false, writable: false },
+      { key: TOKEN_PROGRAM, signer: false, writable: false }
+    ],
+    data: Uint8Array.of(1)          // CreateIdempotent
+  });
+
+  /* TransferChecked rather than Transfer: it carries the mint and the decimals
+     and fails if they disagree, which turns "sent the wrong token" from a loss
+     into a rejected transaction. */
+  function splTransferIx(sourcePub, mintPub, destPub, ownerPub, amount, decimals) {
+    const data = new Uint8Array(10);
+    data[0] = 12;                                   // TransferChecked
+    new DataView(data.buffer).setBigUint64(1, BigInt(amount), true);
+    data[9] = decimals;
+    return {
+      programId: TOKEN_PROGRAM,
+      keys: [
+        { key: sourcePub, signer: false, writable: true },
+        { key: mintPub, signer: false, writable: false },
+        { key: destPub, signer: false, writable: true },
+        { key: ownerPub, signer: true, writable: false }
+      ],
+      data
+    };
+  }
+
+  /* The whole of sending a token: find both sides' token accounts, make the
+     recipient's if it is not there, then move the amount. */
+  async function splTransferMessage(fromPub, to, mint, amount, decimals, blockhash) {
+    const mintPub = b58decode(mint);
+    const toPub = b58decode(to);
+    const from = await findAta(fromPub, mintPub);
+    const dest = await findAta(toPub, mintPub);
+    return buildMessage(fromPub, [
+      createAtaIx(fromPub, dest.address, toPub, mintPub),
+      splTransferIx(from.address, mintPub, dest.address, fromPub, amount, decimals)
+    ], blockhash);
+  }
+
+  async function sendToken(secret, fromPub, to, mint, amount, decimals) {
+    const { value } = await rpc('getLatestBlockhash', [{ commitment: 'finalized' }]);
+    const msg = await splTransferMessage(fromPub, to, mint, amount, decimals, value.blockhash);
+    const tx = await signedMessage(secret, msg);
+    return rpc('sendTransaction', [b64(tx), { encoding: 'base64', preflightCommitment: 'confirmed' }]);
   }
 
   const b64 = bytes => btoa(String.fromCharCode(...bytes));
@@ -278,6 +398,7 @@ window.WARD_SOL = (function () {
     b58encode, b58decode, isAddress,
     fromSeed, setRpc, rpc, balance, tokenBalance,
     transferMessage, signedTransfer, send, confirmed,
+    findAta, splTransferMessage, sendToken,
     toLamports, fromLamports,
     txUrl: sig => EXPLORER + '/tx/' + sig,
     addrUrl: a => EXPLORER + '/account/' + a

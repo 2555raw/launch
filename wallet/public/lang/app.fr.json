@@ -227,8 +227,9 @@
  "w.notasoladdress": "Ce n'est pas une adresse Solana",
  "w.blurbsol": "Rapide et bon marché, et pas une chaîne EVM",
  "w.nosolkey": "Ce portefeuille a été importé depuis une clé privée, il n'a donc pas de compte Solana",
- "w.solsplsoon": "Envoyer des {sym} sur Solana n'est pas encore prêt. Tu peux en recevoir ici, et en envoyer depuis n'importe quel portefeuille ayant les mêmes 12 mots.",
  "w.planevmonly": "Les formules se paient sur un réseau EVM",
  "w.solnolink": "<b>Solana n'est pas une chaîne EVM.</b> Les portefeuilles de navigateur se connectent via une interface EVM que Solana ne parle pas, ils ne peuvent donc pas être liés ici. Envoie plutôt à l'adresse ci-dessous : depuis Phantom, depuis une plateforme, depuis n'importe où.",
- "w.wrongchain": "Ce nœud répond pour la chaîne {got}, pas pour {net}. Vérifie le RPC dans les Réglages avant d’envoyer quoi que ce soit."
+ "w.wrongchain": "Ce nœud répond pour la chaîne {got}, pas pour {net}. Vérifie le RPC dans les Réglages avant d’envoyer quoi que ce soit.",
+ "w.needsolforfee": "Il te faut un peu de {coin} pour payer les frais et ouvrir le compte de jeton du destinataire.",
+ "w.plusrent": "(dépôt du compte compris, s’il en faut un)"
 }

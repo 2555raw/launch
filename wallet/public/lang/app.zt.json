@@ -227,8 +227,9 @@
  "w.notasoladdress": "那不是 Solana 位址",
  "w.blurbsol": "又快又便宜，而且不是 EVM 鏈",
  "w.nosolkey": "這個錢包是從私鑰匯入的，所以沒有 Solana 帳戶",
- "w.solsplsoon": "在 Solana 上傳送 {sym} 還沒做好。你可以在這裡收，要傳送就用任何持有同樣 12 個單字的錢包。",
  "w.planevmonly": "方案要在 EVM 網路上付款",
  "w.solnolink": "<b>Solana 不是 EVM 鏈。</b>瀏覽器錢包透過 Solana 不會說的 EVM 介面連線，所以沒辦法在這裡連上。改成往下面這個位址送就好——從 Phantom、從交易所、從哪裡都行。",
- "w.wrongchain": "這個節點回應的是鏈 {got}，不是 {net}。傳送任何東西之前先到設定裡檢查 RPC。"
+ "w.wrongchain": "這個節點回應的是鏈 {got}，不是 {net}。傳送任何東西之前先到設定裡檢查 RPC。",
+ "w.needsolforfee": "你需要一點 {coin} 來付手續費，以及為收款人開一個代幣帳戶。",
+ "w.plusrent": "（如果需要，已含帳戶押金）"
 }

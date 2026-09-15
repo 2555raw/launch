@@ -241,9 +241,10 @@ window.WARD_APP_I18N = {
   "w.notasoladdress": "That isn't a Solana address",
   "w.blurbsol": "Fast and cheap, and not an EVM chain",
   "w.nosolkey": "This wallet was imported from a private key, so it has no Solana account",
-  "w.solsplsoon": "Sending {sym} on Solana is not ready yet. You can receive it here, and send it from any wallet holding the same 12 words.",
   "w.planevmonly": "Plans are paid on an EVM network",
   "w.solnolink": "<b>Solana is not an EVM chain.</b> Browser wallets connect over an EVM interface Solana does not speak, so they cannot be linked here. Send to the address below instead — from Phantom, an exchange, or anywhere.",
-  "w.wrongchain": "This node answers for chain {got}, not {net}. Check the RPC in Settings before sending anything."
+  "w.wrongchain": "This node answers for chain {got}, not {net}. Check the RPC in Settings before sending anything.",
+  "w.needsolforfee": "You need a little {coin} to pay the fee and open the recipient's token account.",
+  "w.plusrent": "(includes the account deposit, if they need one)"
  }
 };

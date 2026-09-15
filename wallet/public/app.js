@@ -219,8 +219,19 @@ function checkChainId(p, url, want) {
   const key = want + '|' + url;
   if (chainIdChecked.has(key)) return;
   chainIdChecked.set(key, true);
-  p.send('eth_chainId', []).then(hex => {
-    const got = Number(BigInt(hex));
+  /* Asked with a plain fetch rather than through the provider on purpose.
+     ethers batches concurrent calls into one JSON-RPC array, so a probe sent
+     through it rides along with whatever real work is in flight — and a node
+     that handles batches poorly would then fail the balance read because of a
+     diagnostic. A check on the wallet's health must not be able to break the
+     wallet. */
+  fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_chainId', params: [] })
+  }).then(r => r.json()).then(j => {
+    if (!j || !j.result) throw new Error('no answer');
+    const got = Number(BigInt(j.result));
     if (got === Number(want)) return;
     chainIdChecked.set(key, false);
     const c = CHAINS[want];
@@ -240,6 +251,7 @@ function checkChainId(p, url, want) {
     chainIdChecked.delete(key);
   });
 }
+
 /* Both families write a balance as an integer of the smallest unit, so one
    formatter serves both; ethers is not reached for just because a chain
    happens to be EVM. */
@@ -1191,8 +1203,11 @@ async function feeFor(tx) {
 }
 
 /* Solana has no gas market to estimate against: a transfer costs the base
-   fee per signature, and there is one signature. */
+   fee per signature, and there is one signature. A token transfer may also
+   have to open an account for the recipient, which carries a rent deposit —
+   about 0.00204 SOL, and it belongs to them, not to us. */
 const SOL_FEE = 5000n;
+const ATA_RENT = 2039280n;
 
 async function reviewSol() {
   const c = chain();
@@ -1200,32 +1215,39 @@ async function reviewSol() {
   if (!to) return fail('#sendErr', tr('w.checkrecipient'));
 
   const tok = tokenByKey($('#tokenSelect').value);
-  /* Reading and receiving an SPL balance works; sending one needs the token
-     account handling that is not written yet, and offering a button that
-     cannot do it would be worse than saying so. */
-  if (tok) return fail('#sendErr', tr('w.solsplsoon', { sym: tok.symbol }));
+  const decimals = tok ? tok.decimals : c.decimals;
+  const symbol = tok ? tok.symbol : c.coin;
 
   const raw = parseAmount($('#amtInput').value);
   if (!raw || Number(raw) <= 0) return fail('#sendErr', tr('w.amountzero'));
 
   let value;
-  try { value = SOL.toLamports(raw, c.decimals); }
-  catch { return fail('#sendErr', tr('w.toomanydec', { sym: c.coin })); }
+  try { value = SOL.toLamports(raw, decimals); }
+  catch { return fail('#sendErr', tr('w.toomanydec', { sym: symbol })); }
 
-  if (balances.native != null && value + SOL_FEE > balances.native)
+  const held = tok ? balances.tokens[tok.symbol] : balances.native;
+  if (held != null && value > held) return fail('#sendErr', tr('w.errtokens'));
+
+  /* A token transfer still costs SOL: the signature, and the rent for the
+     recipient's token account if they do not have one yet. That deposit is
+     theirs, not ours to keep, but it has to be on hand. */
+  const fee = tok ? SOL_FEE + ATA_RENT : SOL_FEE;
+  if (!tok && balances.native != null && value + fee > balances.native)
     return fail('#sendErr', tr('w.errfunds'));
+  if (tok && balances.native != null && fee > balances.native)
+    return fail('#sendErr', tr('w.needsolforfee', { coin: c.coin }));
 
-  draft = { to, tok: null, value, raw, symbol: c.coin, sol: true,
-            fee: { cost: SOL_FEE, text: fmt(trim(SOL.fromLamports(SOL_FEE, c.decimals), 9)) + ' ' + c.coin } };
+  draft = { to, tok, value, raw, symbol, sol: true, decimals,
+            fee: { cost: fee, text: fmt(trim(SOL.fromLamports(fee, c.decimals), 9)) + ' ' + c.coin } };
 
   $('#cfTitle').textContent = tr('w.confirmthepaym');
-  $('#cfAmount').textContent = fmt(trim(raw, 8)) + ' ' + c.coin;
+  $('#cfAmount').textContent = fmt(trim(raw, 8)) + ' ' + symbol;
   $('#cfTo').textContent = short(to);
   $('#cfNet').textContent = c.name;
-  $('#cfFee').textContent = draft.fee.text;
-  $('#cfAfter').textContent = balances.native == null
+  $('#cfFee').textContent = draft.fee.text + (tok ? ' ' + tr('w.plusrent') : '');
+  $('#cfAfter').textContent = held == null
     ? tr('w.na')
-    : fmt(trim(SOL.fromLamports(balances.native - value - SOL_FEE, c.decimals), 6)) + ' ' + c.coin;
+    : fmt(trim(SOL.fromLamports(held - value - (tok ? 0n : fee), decimals), 6)) + ' ' + symbol;
   openSheet('#confirmSheet');
 }
 
@@ -1235,7 +1257,9 @@ async function doSendSol() {
     const k = await solKeys();
     if (!k) throw new Error(tr('w.nosolkey'));
     SOL.setRpc((prefs.rpc[prefs.chainId] || '').trim() || c.rpc);
-    const sig = await SOL.send(k.secret, k.pub, draft.to, draft.value);
+    const sig = draft.tok
+      ? await SOL.sendToken(k.secret, k.pub, draft.to, draft.tok.address, draft.value, draft.decimals)
+      : await SOL.send(k.secret, k.pub, draft.to, draft.value);
 
     closeSheet('#confirmSheet');
     statusSheet('sending', sig);

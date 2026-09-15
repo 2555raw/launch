@@ -227,8 +227,9 @@
  "w.notasoladdress": "Aia nu e o adresă Solana",
  "w.blurbsol": "Rapidă și ieftină, și nu e un lanț EVM",
  "w.nosolkey": "Portofelul ăsta a fost importat dintr-o cheie privată, deci nu are cont pe Solana",
- "w.solsplsoon": "Trimiterea de {sym} pe Solana încă nu e gata. Aici poți primi, iar trimite poți din orice portofel care are aceleași 12 cuvinte.",
  "w.planevmonly": "Planurile se plătesc pe o rețea EVM",
  "w.solnolink": "<b>Solana nu e un lanț EVM.</b> Portofelele din browser se conectează printr-o interfață EVM pe care Solana nu o vorbește, așa că nu pot fi legate aici. Trimite în schimb la adresa de mai jos — din Phantom, de pe o bursă, de oriunde.",
- "w.wrongchain": "Nodul ăsta răspunde pentru lanțul {got}, nu pentru {net}. Verifică RPC-ul din Setări înainte să trimiți ceva."
+ "w.wrongchain": "Nodul ăsta răspunde pentru lanțul {got}, nu pentru {net}. Verifică RPC-ul din Setări înainte să trimiți ceva.",
+ "w.needsolforfee": "Îți trebuie puțin {coin} ca să plătești comisionul și să deschizi contul de token al destinatarului.",
+ "w.plusrent": "(include depozitul contului, dacă e nevoie)"
 }

@@ -222,5 +222,12 @@
  "w.stkey": "Llave",
  "w.stshield": "Escudo de guardas",
  "w.stblock": "Bloque",
- "w.stbolt": "Rayo"
+ "w.stbolt": "Rayo",
+ "w.validaddress": "Dirección válida",
+ "w.notasoladdress": "Eso no es una dirección de Solana",
+ "w.blurbsol": "Rápida y barata, y no es una cadena EVM",
+ "w.nosolkey": "Esta cartera se importó desde una clave privada, así que no tiene cuenta de Solana",
+ "w.solsplsoon": "Enviar {sym} en Solana todavía no está listo. Aquí puedes recibirlo, y enviarlo desde cualquier cartera que tenga las mismas 12 palabras.",
+ "w.planevmonly": "Los planes se pagan en una red EVM",
+ "w.solnolink": "<b>Solana no es una cadena EVM.</b> Las carteras del navegador se conectan por una interfaz EVM que Solana no habla, así que no se pueden enlazar aquí. Envía a la dirección de abajo: desde Phantom, desde un exchange o desde donde sea."
 }

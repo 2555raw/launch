@@ -651,6 +651,15 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 }
 .bc-edit:hover { background: var(--tier-veil2); }
 .addr-chip.as-text { cursor: default; }
+/* The network on the card face is a button, but it should look like the label
+   it replaced until you go near it. */
+.bc-net.as-btn {
+  font: inherit; font-size: inherit; color: inherit; cursor: pointer;
+  background: var(--tier-veil); border: 0; border-radius: 999px;
+  padding: 5px 11px; transition: background .18s;
+}
+.bc-net.as-btn:hover { background: var(--tier-veil2); }
+.bc-net.as-btn::after { content: ' ⌄'; opacity: .7; }
 
 /* Beside the balance rather than above it: the top corner already has the
    network on one card and the account on the other, and the bottom corner has

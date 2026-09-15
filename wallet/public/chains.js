@@ -60,6 +60,22 @@ window.WARD_CHAINS = {
     blurb: 'Where HYPE lives',
     tokens: []
   },
+  /* Solana is the one entry here that is not EVM. It has its own key type,
+     its own address format and its own RPC, so the wallet keeps its handling
+     in sol.js and marks it here rather than letting ethers anywhere near it.
+     The mint addresses come from Solana Labs' own token registry, not from
+     memory — an unchecked token address is a way to send money somewhere
+     nobody can reach. */
+  sol: {
+    family: 'sol', decimals: 9,
+    name: 'Solana', short: 'Solana', coin: 'SOL', color: '#14F195',
+    rpc: 'https://api.mainnet-beta.solana.com', explorer: 'https://solscan.io',
+    blurb: 'Fast and cheap, and not an EVM chain',
+    tokens: [
+      { symbol: 'USDC', name: 'USD Coin', decimals: 6, address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', color: '#2775CA' },
+      { symbol: 'USDT', name: 'Tether USD', decimals: 6, address: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', color: '#26A17B' }
+    ]
+  },
   1: {
     name: 'Ethereum', short: 'Ethereum', coin: 'ETH', color: '#627EEA',
     rpc: 'https://ethereum-rpc.publicnode.com', explorer: 'https://etherscan.io',

@@ -222,5 +222,12 @@
  "w.stkey": "Schlüssel",
  "w.stshield": "Besatzungsschild",
  "w.stblock": "Block",
- "w.stbolt": "Blitz"
+ "w.stbolt": "Blitz",
+ "w.validaddress": "Gültige Adresse",
+ "w.notasoladdress": "Das ist keine Solana-Adresse",
+ "w.blurbsol": "Schnell und günstig, und keine EVM-Kette",
+ "w.nosolkey": "Dieses Wallet wurde aus einem privaten Schlüssel importiert und hat daher kein Solana-Konto",
+ "w.solsplsoon": "{sym} auf Solana zu senden ist noch nicht fertig. Empfangen kannst du es hier, und senden aus jedem Wallet mit denselben 12 Wörtern.",
+ "w.planevmonly": "Tarife werden auf einer EVM-Kette bezahlt",
+ "w.solnolink": "<b>Solana ist keine EVM-Kette.</b> Browser-Wallets verbinden sich über eine EVM-Schnittstelle, die Solana nicht spricht, also lassen sie sich hier nicht verbinden. Schick es stattdessen an die Adresse unten – aus Phantom, von einer Börse oder von sonst wo."
 }

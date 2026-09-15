@@ -222,5 +222,12 @@
  "w.stkey": "Anahtar",
  "w.stshield": "Engelli kalkan",
  "w.stblock": "Blok",
- "w.stbolt": "Şimşek"
+ "w.stbolt": "Şimşek",
+ "w.validaddress": "Geçerli adres",
+ "w.notasoladdress": "Bu bir Solana adresi değil",
+ "w.blurbsol": "Hızlı ve ucuz, ve EVM zinciri değil",
+ "w.nosolkey": "Bu cüzdan bir özel anahtardan içe aktarıldı, bu yüzden Solana hesabı yok",
+ "w.solsplsoon": "Solana üzerinde {sym} göndermek henüz hazır değil. Burada alabilirsin; göndermeyi aynı 12 kelimeye sahip herhangi bir cüzdandan yapabilirsin.",
+ "w.planevmonly": "Planlar bir EVM ağında ödenir",
+ "w.solnolink": "<b>Solana bir EVM zinciri değil.</b> Tarayıcı cüzdanları Solana’nın konuşmadığı bir EVM arayüzü üzerinden bağlanır, bu yüzden buraya bağlanamazlar. Bunun yerine aşağıdaki adrese gönder: Phantom’dan, bir borsadan, nereden olursa."
 }

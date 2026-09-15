@@ -222,5 +222,12 @@
  "w.stkey": "Chave",
  "w.stshield": "Escudo de guardas",
  "w.stblock": "Bloco",
- "w.stbolt": "Raio"
+ "w.stbolt": "Raio",
+ "w.validaddress": "Endereço válido",
+ "w.notasoladdress": "Isso não é um endereço Solana",
+ "w.blurbsol": "Rápida e barata, e não é uma rede EVM",
+ "w.nosolkey": "Esta carteira foi importada de uma chave privada, então não tem conta na Solana",
+ "w.solsplsoon": "Enviar {sym} na Solana ainda não está pronto. Aqui você pode receber, e enviar por qualquer carteira com as mesmas 12 palavras.",
+ "w.planevmonly": "Planos são pagos numa rede EVM",
+ "w.solnolink": "<b>A Solana não é uma rede EVM.</b> Carteiras de navegador se conectam por uma interface EVM que a Solana não fala, então não dá para ligá-las aqui. Mande para o endereço abaixo: da Phantom, de uma corretora, de onde for."
 }

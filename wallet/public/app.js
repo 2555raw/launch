@@ -65,7 +65,7 @@ const rank = p => PLAN_ORDER.indexOf(p);
    blocks — their coin just isn't worth anything, which makes them the right
    place to prove a payment works before risking money. */
 const CHAINS = window.WARD_CHAINS;
-const CHAIN_ORDER = [8453, 137, 42161, 10, 1, 56, 999];
+const CHAIN_ORDER = [8453, 137, 42161, 10, 1, 56, 999, 'sol'];
 
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
@@ -138,6 +138,61 @@ let plan = 'classic';
 let linked = null;            // { info, provider, address } — an external wallet
 
 const chain = () => CHAINS[prefs.chainId];
+/* Solana is not an EVM chain. Nothing that touches ethers — the provider, a
+   contract, an address check, a signature — applies when this is true, so it
+   guards every one of those rather than being assumed anywhere. */
+const isSol = () => chain().family === 'sol';
+/* Both families write a balance as an integer of the smallest unit, so one
+   formatter serves both; ethers is not reached for just because a chain
+   happens to be EVM. */
+const units = (v, decimals) => {
+  const d = BigInt(decimals);
+  const base = 10n ** d;
+  const a = BigInt(v);
+  const frac = (a % base).toString().padStart(Number(d), '0').replace(/0+$/, '');
+  return (a / base) + (frac ? '.' + frac : '');
+};
+const SOL = window.WARD_SOL;
+
+/* The Solana account for the account index in use. Derived from the same
+   twelve words, on the path Phantom and Solflare use, so it is the same
+   account in all three. A wallet imported from a private key has no phrase
+   and therefore no Solana account — the same limit that already stops it
+   having more than one EVM account. */
+let solAcct = null;
+async function solKeys() {
+  if (!rootPhrase) return null;
+  const want = Number(prefs.active) || 0;
+  if (solAcct && solAcct.i === want) return solAcct;
+  const seed = E.Mnemonic.fromPhrase(rootPhrase).computeSeed();
+  const k = await SOL.fromSeed(seed, want);
+  solAcct = { i: want, secret: k.secret, pub: k.pub, address: k.address };
+  return solAcct;
+}
+/* What to show, share and put in a QR code: the Solana address on Solana, the
+   EVM one everywhere else. */
+const myAddress = () => (isSol() ? (solAcct ? solAcct.address : null) : (wallet ? wallet.address : null));
+/* The chip on the home card. Until the Solana key is derived there is no
+   address to show, and an ellipsis is the only honest thing to put there —
+   showing the EVM one would be showing an address that cannot receive what
+   the screen says it can. */
+/* Turns off the parts of the wallet that are EVM-only when an EVM chain is
+   not what is selected. A button that cannot work is worse than one that is
+   not there, and worse still is one that looks like it worked. */
+function paintChainMode() {
+  const sol = isSol();
+  $$('[data-evm-only]').forEach(el => { el.hidden = sol; });
+  if ($('#depSolNote')) $('#depSolNote').hidden = !sol;
+  /* A plan bought on an EVM chain stays yours while you are looking at Solana,
+     so the tier is repainted rather than cleared. What Solana cannot do is
+     sell you one; paintPlans says so on the buttons. */
+  paintTier();
+}
+
+function paintAddr() {
+  const a = myAddress();
+  if ($('#addrShort')) $('#addrShort').textContent = a ? short(a) : '…';
+}
 const rpcUrl = () => (prefs.rpc[prefs.chainId] || '').trim() || chain().rpc;
 const has = need => rank(plan) >= rank(need);
 
@@ -404,6 +459,10 @@ async function verifyPlan() {
   const c = CHAINS[rec.chainId];
   const want = PLANS[rec.plan];
   if (!c || !want) return paintTier();
+  /* A plan is only ever recorded against an EVM chain, because that is the
+     only place it can be paid and the only place the proof can be read back.
+     A record naming anything else did not come from here. */
+  if (c.family === 'sol') return paintTier();
 
   /* Which address had to have paid. Normally this wallet; for a payment made
      from another wallet, whichever address signed for this one. */
@@ -469,7 +528,7 @@ function paintPlans() {
       '</div>' +
       `<h3></h3><p class="plan-line"></p><p class="plan-price">${price}</p><ul class="perks"></ul>`;
     card.querySelector('.tc-net').textContent = chain().short;
-    card.querySelector('.tc-addr').textContent = wallet ? short(wallet.address) : '0x0000 ···· 0000';
+    card.querySelector('.tc-addr').textContent = myAddress() ? short(myAddress()) : '0x0000 ···· 0000';
     card.querySelector('.tc-name').textContent = p.name;
     card.querySelector('h3').textContent = p.name;
     card.querySelector('.plan-line').textContent = p.line;
@@ -481,6 +540,10 @@ function paintPlans() {
     if (id === plan) { btn.textContent = tr('w.plancurrent'); btn.disabled = true; }
     else if (rank(id) < rank(plan)) { btn.textContent = tr('w.planincluded'); btn.disabled = true; }
     else if (!TREASURY) { btn.textContent = tr('w.planoff'); btn.disabled = true; }
+    /* A plan is one USDC payment on an EVM chain, and it is proved by reading
+       that transaction back off the chain. Solana carries neither the payment
+       nor the proof, so the button says so instead of failing later. */
+    else if (isSol()) { btn.textContent = tr('w.planevmonly'); btn.disabled = true; }
     else { btn.textContent = tr('w.planbuy', { price: p.price }); btn.addEventListener('click', () => buyPlan(id)); }
     card.appendChild(btn);
     box.appendChild(card);
@@ -729,7 +792,10 @@ function useAccount(i) {
   write(K.addr, wallet.address);
   const acc = prefs.accounts.find(a => a.i === i);
   $('#acctName').textContent = acc && acc.name ? acc.name : tr('w.accountn', { n: i + 1 });
-  $('#addrShort').textContent = short(wallet.address);
+  /* A different account index is a different Solana key, so the old one must
+     not linger on screen while the new one derives. */
+  solAcct = null;
+  paintAddr();
   balances = { native: null, tokens: {} };
   refresh();
   paintActivity($('#recentList'), 4);
@@ -757,13 +823,16 @@ function paintAccounts() {
 /* ── Balances ──────────────────────────────────────────────────────────────── */
 async function refresh() {
   if (!wallet) return;
-  const c = chain(), p = provider(), addr = wallet.address;
+  const c = chain();
   const mine = ++refresh.gen;
 
   $('.bal-label').textContent = tr('w.balanceon', { net: c.short });
   $('#totalBal').innerHTML = '<span class="skeleton w-40"></span>';
   paintTokens(true);
 
+  if (isSol()) return refreshSol(mine, c);
+
+  const p = provider(), addr = wallet.address;
   try {
     const native = await p.getBalance(addr);
     if (mine !== refresh.gen) return;
@@ -796,8 +865,8 @@ function paintTokens(loading) {
   [{ symbol: c.coin, name: c.name, color: c.color, native: true }].concat(c.tokens).forEach(t => {
     let amt = '…';
     if (!loading) {
-      if (t.native) amt = balances.native == null ? tr('w.na') : fmt(trim(E.formatEther(balances.native), 6));
-      else amt = balances.tokens[t.symbol] == null ? tr('w.na') : fmt(trim(E.formatUnits(balances.tokens[t.symbol], t.decimals), 6));
+      if (t.native) amt = balances.native == null ? tr('w.na') : fmt(trim(units(balances.native, c.decimals || 18), 6));
+      else amt = balances.tokens[t.symbol] == null ? tr('w.na') : fmt(trim(units(balances.tokens[t.symbol], t.decimals), 6));
     }
     const li = document.createElement('li');
     li.innerHTML = coinBadge(t.symbol, t.color) + '<div class="tok-mid"><b></b><small></small></div><div class="tok-amt"></div>';
@@ -857,7 +926,55 @@ function patchAct(hash, patch) {
   const l = acts(); const i = l.findIndex(x => x.hash === hash);
   if (i > -1) { Object.assign(l[i], patch); write(K.acts, l); }
 }
-const myActs = () => acts().filter(a => a.from && wallet && a.from.toLowerCase() === wallet.address.toLowerCase());
+/* Payments are listed for whichever address made them, and the two families
+   write addresses differently: EVM hex is compared case-insensitively, base58
+   is not — case is meaning there, and lowercasing one would match the wrong
+   account. */
+const myActs = () => acts().filter(a => {
+  if (!a.from) return false;
+  if (solAcct && a.from === solAcct.address) return true;
+  return wallet && a.from.toLowerCase() === wallet.address.toLowerCase();
+});
+
+/* The same shape as the EVM refresh above, and deliberately a separate
+   function: the two share a screen and nothing else. */
+async function refreshSol(mine, c) {
+  const k = await solKeys();
+  if (mine !== refresh.gen) return;
+  paintAddr();
+  if (!k) {
+    /* No phrase, so no Solana account: a wallet imported from a private key
+       has an EVM key and nothing else. */
+    $('#totalBal').textContent = tr('w.na');
+    balances.native = null; balances.tokens = {};
+    paintTokens(false); fillTokenSelects();
+    toast(tr('w.nosolkey'));
+    return;
+  }
+  SOL.setRpc((prefs.rpc[prefs.chainId] || '').trim() || c.rpc);
+
+  try {
+    const native = await SOL.balance(k.address);
+    if (mine !== refresh.gen) return;
+    balances.native = native;
+    $('#totalBal').textContent = fmt(trim(SOL.fromLamports(native, c.decimals), 6)) + ' ' + c.coin;
+  } catch {
+    if (mine !== refresh.gen) return;
+    $('#totalBal').textContent = tr('w.unavailable');
+    toast(tr('w.couldntread'));
+  }
+
+  balances.tokens = {};
+  await Promise.all(c.tokens.map(async t => {
+    try {
+      const bal = await SOL.tokenBalance(k.address, t.address);
+      if (mine === refresh.gen) balances.tokens[t.symbol] = bal;
+    } catch { /* one unreadable token must not take down the screen */ }
+  }));
+  if (mine !== refresh.gen) return;
+  paintTokens(false);
+  fillTokenSelects();
+}
 
 function paintActivity(list, limit) {
   const rows = myActs().slice(0, limit);
@@ -928,8 +1045,21 @@ async function resolveTo(raw) {
   const v = String(raw).trim();
   const hint = $('#toHint');
   if (!v) { hint.textContent = ''; hint.className = 'hint'; return null; }
+  /* A Solana address is base58 and has no checksum to appeal to, and there
+     are no .eth names here either. All this can say is that the shape is
+     right; whether it is the right account is for the person reading it. */
+  if (isSol()) {
+    if (SOL.isAddress(v)) {
+      hint.textContent = tr('w.validaddress');
+      hint.className = 'hint good';
+      return v;
+    }
+    hint.textContent = tr('w.notasoladdress');
+    hint.className = 'hint bad';
+    return null;
+  }
   if (E.isAddress(v)) {
-    hint.textContent = 'Valid address';
+    hint.textContent = tr('w.validaddress');
     hint.className = 'hint good';
     return E.getAddress(v);
   }
@@ -962,7 +1092,84 @@ async function feeFor(tx) {
   return { limit, price, cost: limit * (price || 0n), fd };
 }
 
+/* Solana has no gas market to estimate against: a transfer costs the base
+   fee per signature, and there is one signature. */
+const SOL_FEE = 5000n;
+
+async function reviewSol() {
+  const c = chain();
+  const to = await resolveTo($('#toInput').value);
+  if (!to) return fail('#sendErr', tr('w.checkrecipient'));
+
+  const tok = tokenByKey($('#tokenSelect').value);
+  /* Reading and receiving an SPL balance works; sending one needs the token
+     account handling that is not written yet, and offering a button that
+     cannot do it would be worse than saying so. */
+  if (tok) return fail('#sendErr', tr('w.solsplsoon', { sym: tok.symbol }));
+
+  const raw = parseAmount($('#amtInput').value);
+  if (!raw || Number(raw) <= 0) return fail('#sendErr', tr('w.amountzero'));
+
+  let value;
+  try { value = SOL.toLamports(raw, c.decimals); }
+  catch { return fail('#sendErr', tr('w.toomanydec', { sym: c.coin })); }
+
+  if (balances.native != null && value + SOL_FEE > balances.native)
+    return fail('#sendErr', tr('w.errfunds'));
+
+  draft = { to, tok: null, value, raw, symbol: c.coin, sol: true,
+            fee: { cost: SOL_FEE, text: fmt(trim(SOL.fromLamports(SOL_FEE, c.decimals), 9)) + ' ' + c.coin } };
+
+  $('#cfTitle').textContent = tr('w.confirmthepaym');
+  $('#cfAmount').textContent = fmt(trim(raw, 8)) + ' ' + c.coin;
+  $('#cfTo').textContent = short(to);
+  $('#cfNet').textContent = c.name;
+  $('#cfFee').textContent = draft.fee.text;
+  $('#cfAfter').textContent = balances.native == null
+    ? tr('w.na')
+    : fmt(trim(SOL.fromLamports(balances.native - value - SOL_FEE, c.decimals), 6)) + ' ' + c.coin;
+  openSheet('#confirmSheet');
+}
+
+async function doSendSol() {
+  const c = chain();
+  try {
+    const k = await solKeys();
+    if (!k) throw new Error(tr('w.nosolkey'));
+    SOL.setRpc((prefs.rpc[prefs.chainId] || '').trim() || c.rpc);
+    const sig = await SOL.send(k.secret, k.pub, draft.to, draft.value);
+
+    closeSheet('#confirmSheet');
+    statusSheet('sending', sig);
+    pushAct({
+      hash: sig, chainId: prefs.chainId, from: k.address, to: draft.to,
+      amount: trim(draft.raw, 8), symbol: draft.symbol, ts: Date.now(),
+      status: 'pending', kind: 'send'
+    });
+
+    /* Solana confirms in about a second, but the node is asked rather than
+       assumed, and a slow one leaves the payment pending rather than claiming
+       something that has not happened. */
+    let done = false;
+    for (let i = 0; i < 20 && !done; i++) {
+      await new Promise(r => setTimeout(r, 1200));
+      try { done = await SOL.confirmed(sig); } catch (e) { throw e; }
+    }
+    if (done) { patchAct(sig, { status: 'ok' }); statusSheet('ok', sig); }
+    else statusSheet('slow', sig);
+    refresh();
+  } catch (e) {
+    patchAct(draft && draft.hash, { status: 'failed' });
+    statusSheet('failed', null, (e && e.message) || tr('w.errunknown'));
+  } finally {
+    $('#cfSend').disabled = false;
+    $('#cfSend').textContent = tr('w.signandsend');
+    draft = null;
+  }
+}
+
 async function review() {
+  if (isSol()) return reviewSol();
   fail('#sendErr', '');
   const to = await resolveTo($('#toInput').value);
   if (!to) return fail('#sendErr', tr('w.checkrecipient'));
@@ -1032,6 +1239,7 @@ async function doSend() {
   if (!draft || !wallet) return;
   $('#cfSend').disabled = true;
   $('#cfSend').textContent = tr('w.signing');
+  if (draft.sol) return doSendSol();
   const c = chain();
 
   try {
@@ -1304,17 +1512,19 @@ async function depositIn() {
 function paintReceive() {
   if (!wallet) return;
   const c = chain();
-  $('#addrFull').textContent = wallet.address;
+  $('#addrFull').textContent = myAddress() || '…';
   $('#recvNet').textContent = c.name + ' only';
   $('#recvDot').style.background = c.color;
-  qrInto($('#qrBox'), 'ethereum:' + wallet.address + '@' + prefs.chainId, 6);
+  /* A Solana address is not an ethereum: URI, and a wallet reading one would
+     be pointed at the wrong chain entirely. */
+  qrInto($('#qrBox'), isSol() ? (myAddress() || '') : 'ethereum:' + wallet.address + '@' + prefs.chainId, 6);
 }
 
 function payLink() {
   const amt = parseAmount($('#chargeAmt').value);
   const note = $('#chargeNote').value.trim();
   const from = has('gold') ? $('#chargeFrom').value.trim() : '';
-  const p = new URLSearchParams({ to: wallet.address, chain: String(prefs.chainId), token: $('#chargeToken').value });
+  const p = new URLSearchParams({ to: myAddress(), chain: String(prefs.chainId), token: $('#chargeToken').value });
   if (amt && Number(amt) > 0) p.set('amount', amt);
   if (note) p.set('note', note);
   if (from) p.set('from', from.slice(0, 32));
@@ -1452,16 +1662,22 @@ const titleWord = key => (key ? tr('w.title' + key) : '');
 prefs.card.stickers = prefs.card.stickers.filter(k => STICKERS.indexOf(k) >= 0).slice(0, MAX_STICKERS);
 if (CARD_TITLES.indexOf(prefs.card.title) < 0) prefs.card.title = '';
 
-/* Which coin the card shows. A coin only exists on the chain that carries it,
-   so choosing one chooses a network too, and ETH is first because it is the
-   one most people arrive with. */
-const CARD_COINS = [
-  { key: 'ETH',  chainId: 8453, symbol: null },
-  { key: 'USDC', chainId: 8453, symbol: 'USDC' },
-  { key: 'BNB',  chainId: 56,   symbol: null },
-  { key: 'HYPE', chainId: 999,  symbol: null }
-];
-const cardCoin = () => CARD_COINS.find(x => x.key === prefs.card.coin) || CARD_COINS[0];
+/* Which coin the card shows. The list used to be four coins picked by hand,
+   which meant choosing one also changed the network under you. It is the
+   current network's own coins now — its native one first, then its tokens —
+   so the network is chosen on the card's own network chip and the coins
+   follow it, rather than the other way round. */
+const cardCoins = () => {
+  const c = chain();
+  return [{ key: c.coin, symbol: null }].concat(c.tokens.map(t => ({ key: t.symbol, symbol: t.symbol })));
+};
+/* A coin saved on one network usually does not exist on the next, so a stored
+   choice that is not on this chain falls back to what every chain has: its
+   own native coin. */
+const cardCoin = () => {
+  const list = cardCoins();
+  return list.find(x => x.key === prefs.card.coin) || list[0];
+};
 
 function paintCardFaces() {
   const c = prefs.card;
@@ -1487,11 +1703,11 @@ function paintCard() {
   $('#cardBalLabel').textContent = tr('w.balanceon', { net: c.short });
   $('#cardBal').textContent = held == null
     ? tr('w.na')
-    : fmt(trim(tok ? E.formatUnits(held, tok.decimals) : E.formatEther(held), 6)) + ' ' + (tok ? tok.symbol : c.coin);
+    : fmt(trim(units(held, tok ? tok.decimals : (c.decimals || 18)), 6)) + ' ' + (tok ? tok.symbol : c.coin);
 
   const coins = $('#coinPick');
   coins.innerHTML = '';
-  CARD_COINS.forEach(coin => {
+  cardCoins().forEach(coin => {
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = coin.key;
@@ -1499,7 +1715,7 @@ function paintCard() {
     b.addEventListener('click', () => pickCardCoin(coin));
     coins.appendChild(b);
   });
-  $('#cardAddr').textContent = wallet ? short(wallet.address) : '…';
+  $('#cardAddr').textContent = myAddress() ? short(myAddress()) : '…';
   $('#cardNameInput').value = prefs.card.name;
 
   const pick = $('#stickerPick');
@@ -1535,16 +1751,7 @@ function paintCard() {
 
 function pickCardCoin(coin) {
   prefs.card.coin = coin.key;
-  /* The coin lives on one chain, so the wallet follows it there rather than
-     showing a balance the selected network does not have. */
-  if (Number(prefs.chainId) !== coin.chainId && CHAINS[coin.chainId]) {
-    prefs.chainId = coin.chainId;
-    savePrefs();
-    paintNet(); fillTokenSelects(); verifyPlan();
-    refresh().then(paintCard);
-  } else {
-    savePrefs();
-  }
+  savePrefs();
   paintCard();
 }
 
@@ -1597,7 +1804,12 @@ function paintNetList() {
     b.addEventListener('click', () => {
       prefs.chainId = id; savePrefs();
       linked = null;
-      paintNet(); fillTokenSelects(); closeSheet('#netSheet'); refresh(); verifyPlan();
+      paintNet(); fillTokenSelects(); closeSheet('#netSheet'); verifyPlan();
+      paintAddr(); paintChainMode();
+      /* The card names the network and lists that network's coins, so it is
+         wrong the moment the network changes under it. */
+      paintCard();
+      refresh().then(paintCard);
       toast(tr('w.youreon', { net: c.name }));
     });
     li.appendChild(b);
@@ -1611,7 +1823,8 @@ function enterWallet() {
   fillTokenSelects();
   const acc = prefs.accounts.find(a => a.i === prefs.active);
   $('#acctName').textContent = acc && acc.name ? acc.name : tr('w.accountn', { n: 1 });
-  $('#addrShort').textContent = short(wallet.address);
+  paintAddr();
+  paintChainMode();
   paintCardFaces();
   show('home');
   refresh();
@@ -1663,6 +1876,9 @@ $$('[data-close-sheet]').forEach(b => b.addEventListener('click', () => closeAll
 
 $('#brandHome').addEventListener('click', () => wallet && show('home'));
 $('#netPill').addEventListener('click', () => { paintNetList(); openSheet('#netSheet'); });
+/* The chip on the card face is the other way in. It is where you are looking
+   when you are deciding what the card should show. */
+$('#cardNet').addEventListener('click', () => { paintNetList(); openSheet('#netSheet'); });
 $('#langPill').addEventListener('click', () => { paintLangList(); openSheet('#langSheet'); });
 $('#cardEdit').addEventListener('click', () => show('card'));
 $('#cardNameInput').addEventListener('input', e => {
@@ -1768,9 +1984,9 @@ $('#forgot').addEventListener('click', () => {
   setTimeout(() => show('import'), 900);
 });
 
-$('#addrChip').addEventListener('click', () => copy(wallet.address, 'Address copied'));
-$('#copyAddr').addEventListener('click', () => copy(wallet.address, 'Address copied'));
-$('#shareAddr').addEventListener('click', () => share(wallet.address, 'My address'));
+$('#addrChip').addEventListener('click', () => copy(myAddress(), 'Address copied'));
+$('#copyAddr').addEventListener('click', () => copy(myAddress(), 'Address copied'));
+$('#shareAddr').addEventListener('click', () => share(myAddress(), 'My address'));
 
 $('#toInput').addEventListener('change', e => resolveTo(e.target.value));
 $('#toInput').addEventListener('blur', e => resolveTo(e.target.value));

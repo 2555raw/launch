@@ -220,7 +220,7 @@
       <div class="balance-card card-big">
         <div class="bc-top">
           <span class="bc-tier" id="cardTier">Classic</span>
-          <span class="bc-net" id="cardNet"></span>
+          <button class="bc-net as-btn" id="cardNet" type="button" data-i18n-label="w.choosenetwork" aria-label="Choose network"></button>
         </div>
         <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
         <p class="bal-label" id="cardBalLabel"></p>
@@ -257,10 +257,14 @@
       <h2 data-i18n="w.topup">Top up</h2>
       <p class="sub" data-i18n="w.movefundsinfro">Move funds in from a wallet you already use. Ward never sees its keys. The other wallet signs, and you approve.</p>
 
+      <div class="note" id="depSolNote" hidden data-i18n="w.solnolink">
+        <b>Solana is not an EVM chain.</b> Browser wallets connect over an EVM interface Solana does not speak, so they cannot be linked here. Send to the address below instead — from Phantom, an exchange, or anywhere.
+      </div>
+
       <div id="depIntro">
-        <ul class="wallet-list" id="walletList"></ul>
-        <p class="hint" id="walletHint"></p>
-        <div class="note" data-i18n="w.onaphonenote">
+        <ul class="wallet-list" id="walletList" data-evm-only></ul>
+        <p class="hint" id="walletHint" data-evm-only></p>
+        <div class="note" data-evm-only data-i18n="w.onaphonenote">
           <b>On a phone?</b> Injected wallets only appear inside their own app's browser. Open this page from MetaMask, Coinbase Wallet, Phantom or Rainbow and they'll show up here.
         </div>
         <h3 class="sec-title" data-i18n="w.orsendityourse">Or send it yourself</h3>
@@ -529,6 +533,7 @@
 <script src="vendor/qrcode_UTF8.js"></script>
 <script src="vendor/ethers.umd.min.js"></script>
 <script src="chains.js"></script>
+<script src="sol.js"></script>
 <script src="langs.js"></script>
 <script src="app-i18n.js"></script>
 <script src="app.js"></script>

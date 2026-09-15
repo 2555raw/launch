@@ -222,5 +222,12 @@
  "w.stkey": "鍵",
  "w.stshield": "ウォードの盾",
  "w.stblock": "ブロック",
- "w.stbolt": "稲妻"
+ "w.stbolt": "稲妻",
+ "w.validaddress": "有効なアドレス",
+ "w.notasoladdress": "Solana のアドレスではありません",
+ "w.blurbsol": "速くて安く、EVM チェーンではありません",
+ "w.nosolkey": "このウォレットは秘密鍵から取り込んだものなので、Solana のアカウントはありません",
+ "w.solsplsoon": "Solana での {sym} の送金はまだ用意できていません。受け取りはここでできますし、送るのは同じ12個の単語を持つどのウォレットからでもできます。",
+ "w.planevmonly": "プランは EVM ネットワークで支払います",
+ "w.solnolink": "<b>Solana は EVM チェーンではありません。</b> ブラウザのウォレットは Solana が話さない EVM の口で接続するので、ここでは繋げません。かわりに下のアドレスへ送ってください — Phantom からでも、取引所からでも、どこからでも。"
 }

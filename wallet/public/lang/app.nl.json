@@ -222,5 +222,12 @@
  "w.stkey": "Sleutel",
  "w.stshield": "Schild met wards",
  "w.stblock": "Blok",
- "w.stbolt": "Bliksem"
+ "w.stbolt": "Bliksem",
+ "w.validaddress": "Geldig adres",
+ "w.notasoladdress": "Dat is geen Solana-adres",
+ "w.blurbsol": "Snel en goedkoop, en geen EVM-keten",
+ "w.nosolkey": "Deze wallet is geïmporteerd uit een privésleutel en heeft daarom geen Solana-rekening",
+ "w.solsplsoon": "{sym} versturen op Solana is nog niet klaar. Ontvangen kan hier wel, en versturen vanuit elke wallet met dezelfde 12 woorden.",
+ "w.planevmonly": "Pakketten worden op een EVM-netwerk betaald",
+ "w.solnolink": "<b>Solana is geen EVM-keten.</b> Browserwallets verbinden via een EVM-interface die Solana niet spreekt, dus ze zijn hier niet te koppelen. Stuur in plaats daarvan naar het adres hieronder: vanuit Phantom, vanaf een beurs, waarvandaan dan ook."
 }

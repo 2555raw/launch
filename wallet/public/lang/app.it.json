@@ -222,5 +222,12 @@
  "w.stkey": "Chiave",
  "w.stshield": "Scudo a guardie",
  "w.stblock": "Blocco",
- "w.stbolt": "Fulmine"
+ "w.stbolt": "Fulmine",
+ "w.validaddress": "Indirizzo valido",
+ "w.notasoladdress": "Quello non è un indirizzo Solana",
+ "w.blurbsol": "Veloce ed economica, e non è una catena EVM",
+ "w.nosolkey": "Questo wallet è stato importato da una chiave privata, quindi non ha un conto Solana",
+ "w.solsplsoon": "Inviare {sym} su Solana non è ancora pronto. Qui puoi riceverlo, e inviarlo da qualsiasi wallet che abbia le stesse 12 parole.",
+ "w.planevmonly": "I piani si pagano su una rete EVM",
+ "w.solnolink": "<b>Solana non è una catena EVM.</b> I wallet del browser si collegano tramite un’interfaccia EVM che Solana non parla, quindi qui non si possono collegare. Manda invece all’indirizzo qui sotto: da Phantom, da un exchange o da dove vuoi."
 }

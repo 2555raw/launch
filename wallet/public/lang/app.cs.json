@@ -222,5 +222,12 @@
  "w.stkey": "Klíč",
  "w.stshield": "Štít s překážkami",
  "w.stblock": "Blok",
- "w.stbolt": "Blesk"
+ "w.stbolt": "Blesk",
+ "w.validaddress": "Platná adresa",
+ "w.notasoladdress": "To není adresa na Solaně",
+ "w.blurbsol": "Rychlá a levná, a není to EVM řetězec",
+ "w.nosolkey": "Tahle peněženka byla naimportována ze soukromého klíče, takže nemá účet na Solaně",
+ "w.solsplsoon": "Posílání {sym} na Solaně zatím není hotové. Přijmout ho tu můžete, a poslat z jakékoli peněženky s týmiž 12 slovy.",
+ "w.planevmonly": "Tarify se platí na EVM síti",
+ "w.solnolink": "<b>Solana není EVM řetězec.</b> Peněženky v prohlížeči se připojují přes EVM rozhraní, kterým Solana nemluví, takže je sem nejde připojit. Pošlete to místo toho na adresu níž — z Phantomu, z burzy, odkudkoli."
 }

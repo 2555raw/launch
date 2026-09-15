@@ -222,5 +222,12 @@
  "w.stkey": "Klucz",
  "w.stshield": "Tarcza z przeszkodami",
  "w.stblock": "Blok",
- "w.stbolt": "Błyskawica"
+ "w.stbolt": "Błyskawica",
+ "w.validaddress": "Poprawny adres",
+ "w.notasoladdress": "To nie jest adres Solany",
+ "w.blurbsol": "Szybka i tania, i nie jest łańcuchem EVM",
+ "w.nosolkey": "Ten portfel zaimportowano z klucza prywatnego, więc nie ma konta w Solanie",
+ "w.solsplsoon": "Wysyłanie {sym} w Solanie jeszcze nie jest gotowe. Tutaj możesz je odebrać, a wysłać z dowolnego portfela mającego te same 12 słów.",
+ "w.planevmonly": "Plany opłaca się w sieci EVM",
+ "w.solnolink": "<b>Solana nie jest łańcuchem EVM.</b> Portfele przeglądarkowe łączą się przez interfejs EVM, którego Solana nie zna, więc nie da się ich tu podłączyć. Wyślij zamiast tego na adres poniżej — z Phantoma, z giełdy, skądkolwiek."
 }

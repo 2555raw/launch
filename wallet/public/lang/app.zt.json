@@ -222,5 +222,12 @@
  "w.stkey": "鑰匙",
  "w.stshield": "障礙片盾牌",
  "w.stblock": "區塊",
- "w.stbolt": "閃電"
+ "w.stbolt": "閃電",
+ "w.validaddress": "位址有效",
+ "w.notasoladdress": "那不是 Solana 位址",
+ "w.blurbsol": "又快又便宜，而且不是 EVM 鏈",
+ "w.nosolkey": "這個錢包是從私鑰匯入的，所以沒有 Solana 帳戶",
+ "w.solsplsoon": "在 Solana 上傳送 {sym} 還沒做好。你可以在這裡收，要傳送就用任何持有同樣 12 個單字的錢包。",
+ "w.planevmonly": "方案要在 EVM 網路上付款",
+ "w.solnolink": "<b>Solana 不是 EVM 鏈。</b>瀏覽器錢包透過 Solana 不會說的 EVM 介面連線，所以沒辦法在這裡連上。改成往下面這個位址送就好——從 Phantom、從交易所、從哪裡都行。"
 }

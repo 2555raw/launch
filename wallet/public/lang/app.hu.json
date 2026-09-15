@@ -222,5 +222,12 @@
  "w.stkey": "Kulcs",
  "w.stshield": "Akadályos pajzs",
  "w.stblock": "Blokk",
- "w.stbolt": "Villám"
+ "w.stbolt": "Villám",
+ "w.validaddress": "Érvényes cím",
+ "w.notasoladdress": "Ez nem Solana-cím",
+ "w.blurbsol": "Gyors és olcsó, és nem EVM-lánc",
+ "w.nosolkey": "Ezt a tárcát privát kulcsból importálták, így nincs Solana-számlája",
+ "w.solsplsoon": "A {sym} küldése Solanán még nincs kész. Fogadni itt tudod, küldeni pedig bármelyik tárcából, amiben ugyanaz a 12 szó van.",
+ "w.planevmonly": "A csomagokat EVM-hálózaton kell fizetni",
+ "w.solnolink": "<b>A Solana nem EVM-lánc.</b> A böngészőtárcák egy EVM-felületen csatlakoznak, amit a Solana nem beszél, így ide nem köthetők be. Küldd inkább az alábbi címre — Phantomból, tőzsdéről, bárhonnan."
 }

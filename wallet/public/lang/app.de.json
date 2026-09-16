@@ -234,7 +234,7 @@
  "w.plusrent": "(inklusive Kontoeinlage, falls eine nötig ist)",
  "w.today": "Auf Tagmodus umschalten",
  "w.tonight": "Auf Nachtmodus umschalten",
- "w.recvtakes": "Diese Adresse nimmt {coins} auf {net}. Alles landet auf derselben Adresse — ein Token ist eine Zeile in einem Vertrag, kein eigenes Konto.",
+ "w.recvtakes": "Diese Adresse nimmt {coins} auf {net}. Alles landet auf derselben Adresse, ein Token ist eine Zeile in einem Vertrag, kein eigenes Konto.",
  "w.recvwarnevm": "Schick hierher nichts von Solana. Diese Adresse gehört zur EVM-Seite, und was von Solana aus hier ankommt, ist endgültig weg. Ein anderes EVM-Netz ist in Ordnung: die Adresse ist überall dieselbe, das Geld liegt dann einfach auf jener Chain.",
  "w.recvwarnsol": "Schick hierher nichts von Ethereum, Base, Polygon oder einer anderen EVM-Kette. Diese Adresse gehört zu Solana, und was von dort kommt, ist endgültig weg."
 }

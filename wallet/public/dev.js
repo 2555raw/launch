@@ -203,7 +203,7 @@ async function paintBalances() {
         p.getBalance(watching),
         usdc ? new E.Contract(usdc.address, ERC20, p).balanceOf(watching) : Promise.resolve(null)
       ]);
-      el.querySelector('.dv-amt').textContent = token == null ? '—' : '$' + usdOf(token, usdc.decimals);
+      el.querySelector('.dv-amt').textContent = token == null ? 'n/a' : '$' + usdOf(token, usdc.decimals);
       el.querySelector('.dv-sub').textContent =
         Number(E.formatEther(native)).toFixed(4).replace(/0+$/, '').replace(/\.$/, '') + ' ' + c.coin + ' for fees';
       el.classList.toggle('dv-has', token != null && token > 0n);

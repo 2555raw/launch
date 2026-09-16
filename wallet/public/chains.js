@@ -8,6 +8,19 @@ window.WARD_PLAN_PRICES = { gold: 19.99, platinum: 49.99 };
    means an RPC or a token address can never be right on one and stale on the
    other. */
 window.WARD_CHAINS = {
+  /* Robinhood's own Ethereum L2, on the Arbitrum Orbit stack, mainnet since
+     July 2026. Chain id, RPC and explorer all taken from Robinhood's own
+     documentation rather than from memory; the explorer in particular has a
+     crop of lookalike domains, so it is the Blockscout one their docs name.
+     No stablecoin entry, for the same reason Hyperliquid has none: nothing
+     checkable from here names a canonical USDC on it yet. */
+  4663: {
+    name: 'Robinhood Chain', short: 'Robinhood', coin: 'ETH', color: '#04D287',
+    rpc: 'https://rpc.mainnet.chain.robinhood.com',
+    explorer: 'https://robinhoodchain.blockscout.com',
+    blurb: 'Robinhood\'s own Ethereum layer 2',
+    tokens: []
+  },
   8453: {
     name: 'Base', short: 'Base', coin: 'ETH', color: '#2151F5',
     rpc: 'https://mainnet.base.org', explorer: 'https://basescan.org',

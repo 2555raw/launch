@@ -78,15 +78,29 @@ const { chromium } = require('playwright');
      does not exist. */
   await page.fill('#lcName', 'Ward Coin');
   await page.fill('#lcSym', 'ward');
-  await page.waitForTimeout(120);
-  const pv = await page.evaluate(() => ({
-    name: document.querySelector('#lcPvName').textContent,
-    sym: document.querySelector('#lcPvSym').textContent,
-    av: document.querySelector('#lcAv').textContent
+  await page.fill('#lcDesc', 'A coin for the tests.');
+  await page.waitForTimeout(150);
+  const cnt = await page.evaluate(() => ({
+    n: document.querySelector('#lcNameCount').textContent,
+    s: document.querySelector('#lcSymCount').textContent
   }));
-  if (pv.name !== 'Ward Coin' || pv.sym !== 'WARD' || pv.av !== 'W') {
-    console.log('  preview wrong:', JSON.stringify(pv)); fail++;
+  if (cnt.n !== '9/64' || cnt.s !== '4/16') {
+    console.log('  the character counters are wrong:', JSON.stringify(cnt)); fail++;
   }
+
+  /* The picture is read locally and shown; nothing is uploaded, because there
+     is nowhere to upload it to yet. */
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+  await page.setInputFiles('#lcFile', { name: 'coin.png', mimeType: 'image/png', buffer: png });
+  await page.waitForTimeout(400);
+  const shown = await page.$eval('#lcPrevBox', b => (b.querySelector('img') || {}).src || '');
+  if (!shown.startsWith('data:image/png')) { console.log('  the picture never appeared'); fail++; }
+
+  await page.setInputFiles('#lcFile', { name: 'x.txt', mimeType: 'text/plain', buffer: Buffer.from('no') });
+  await page.waitForTimeout(350);
+  const refused = await page.$$eval('.toast', t => t.map(x => x.textContent));
+  if (!refused.some(t => /jpg|png|gif/i.test(t))) { console.log('  a .txt was not refused'); fail++; }
+
   await page.click('.note.danger .check span');   // on the label, as a person does
   await page.waitForTimeout(120);
   if (!(await page.$eval('#lcGo', x => x.disabled))) {

@@ -65,7 +65,7 @@ const rank = p => PLAN_ORDER.indexOf(p);
    blocks — their coin just isn't worth anything, which makes them the right
    place to prove a payment works before risking money. */
 const CHAINS = window.WARD_CHAINS;
-const CHAIN_ORDER = [8453, 137, 42161, 10, 1, 56, 999, 'sol'];
+const CHAIN_ORDER = [4663, 8453, 137, 42161, 10, 1, 56, 999, 'sol'];
 
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
@@ -464,38 +464,64 @@ function show(name) {
    wrong network, launchpad not configured, and ready. They are checked in that
    order because each makes the next one irrelevant. */
 function paintLaunch() {
-  const wrong = !isSol();
+  /* Four states, checked in this order because each makes the next
+     irrelevant: no wallet at all, wrong network, no configuration, ready. */
+  const none = !wallet;
+  const wrong = !none && !isSol();
   const unset = !window.WARD_DBC || !window.WARD_DBC.config;
-  $('#launchWrongChain').hidden = !wrong;
-  $('#launchNoConfig').hidden = wrong || !unset;
-  $('#launchForm').hidden = wrong;
-  launchPreview();
+  $('#launchNoWallet').hidden = !none;
+  $('#launchWrongChain').hidden = none || !wrong;
+  $('#launchNoConfig').hidden = none || wrong || !unset;
+  $('#launchForm').hidden = none || wrong;
   launchGate();
 }
 
-function launchPreview() {
-  const name = $('#lcName').value.trim();
-  const sym = $('#lcSym').value.trim().toUpperCase();
-  $('#lcPvName').textContent = name || '—';
-  $('#lcPvSym').textContent = sym || '—';
-  $('#lcAv').textContent = (sym || name || '?').slice(0, 1).toUpperCase();
+/* The button turns on only when the form is complete, the box is ticked, there
+   is a wallet to sign with and something to launch against. */
+function launchGate() {
+  const filled = $('#lcName').value.trim() && $('#lcSym').value.trim() && $('#lcDesc').value.trim();
+  const ok = !!(isSol() && wallet && filled && $('#lcAgree').checked
+                && window.WARD_DBC && window.WARD_DBC.config);
+  $('#lcGo').disabled = !ok;
+  $('#lcNameCount').textContent = $('#lcName').value.length + '/64';
+  $('#lcSymCount').textContent = $('#lcSym').value.length + '/16';
 }
 
-/* The button turns on only when the form is complete, the box is ticked and
-   there is something to launch against. */
-function launchGate() {
-  const ok = !isSol() ? false
-    : !!($('#lcName').value.trim() && $('#lcSym').value.trim() && $('#lcAgree').checked
-         && window.WARD_DBC && window.WARD_DBC.config);
-  $('#lcGo').disabled = !ok;
+/* The picture, read locally. Ward has nowhere to publish it, so this is a
+   preview and nothing more; saying so on the screen beats letting someone
+   believe they uploaded something. */
+const MAX_PIC = 2 * 1024 * 1024;
+function takePicture(file) {
+  if (!file) return;
+  if (!/^image\/(jpeg|png|gif)$/.test(file.type)) { toast(tr('w.lcbadkind')); return; }
+  if (file.size > MAX_PIC) { toast(tr('w.lcbigpic')); return; }
+  const r = new FileReader();
+  r.onload = () => {
+    const box = $('#lcPrevBox');
+    box.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = r.result;
+    img.alt = '';
+    box.appendChild(img);
+  };
+  r.readAsDataURL(file);
 }
 
 function wireLaunch() {
-  ['#lcName', '#lcSym'].forEach(s => $(s).addEventListener('input', () => { launchPreview(); launchGate(); }));
+  ['#lcName', '#lcSym', '#lcDesc'].forEach(s => $(s).addEventListener('input', launchGate));
   $('#lcAgree').addEventListener('change', launchGate);
-  $('#lcUri').addEventListener('input', launchGate);
   $('#launchToSol').addEventListener('click', () => { switchChain('sol'); paintLaunch(); });
   $('#launchForm').addEventListener('submit', e => { e.preventDefault(); doLaunch(); });
+
+  $('#lcFile').addEventListener('change', e => takePicture(e.target.files[0]));
+  const drop = $('#lcDrop');
+  ['dragenter', 'dragover'].forEach(n => drop.addEventListener(n, e => {
+    e.preventDefault(); drop.classList.add('over');
+  }));
+  ['dragleave', 'drop'].forEach(n => drop.addEventListener(n, e => {
+    e.preventDefault(); drop.classList.remove('over');
+  }));
+  drop.addEventListener('drop', e => takePicture(e.dataTransfer.files[0]));
 }
 
 async function doLaunch() {

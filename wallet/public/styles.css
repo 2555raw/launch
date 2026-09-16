@@ -807,19 +807,6 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .note.danger li { margin-bottom: 4px; }
 .note.danger .check { margin: 0; color: var(--danger); font-weight: 600; }
 
-.lc-preview {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--surface-2); border: 1px solid var(--line);
-  border-radius: var(--r-sm); padding: 12px 14px; margin: 4px 0 16px;
-}
-.lc-av {
-  flex: none; width: 40px; height: 40px; border-radius: 50%;
-  display: grid; place-items: center; font-weight: 700; font-size: 17px;
-  background: var(--brand); color: #fff;
-}
-.lc-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.lc-meta b { font-size: 15px; font-weight: 640; }
-.lc-meta small { font-size: 12.5px; color: var(--ink-3); font-family: var(--mono); }
 
 .note.warn .btn { margin-top: 10px; }
 
@@ -829,7 +816,54 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .note.danger .check { margin: 0; }
 .note.danger .check em { color: var(--danger); font-weight: 600; }
 
-/* In the dark the brand is a pale lavender, so a white letter on it reads at
-   3.2:1. The same thing the primary button already does: a dark letter. */
-@media (prefers-color-scheme: dark) { :where(:root:not([data-theme="light"])) .lc-av { color: #05201C; } }
-:where(:root[data-theme="dark"]) .lc-av { color: #05201C; }
+/* ── the launch form ──────────────────────────────────────────────────── */
+.lc-sec { margin: 26px 0 14px; }
+.lc-sec b { display: block; font-size: 17px; font-weight: 660; letter-spacing: -.015em; }
+.lc-sec small { display: block; font-size: 13px; color: var(--ink-3); margin-top: 3px; }
+.lc-sec:first-child { margin-top: 4px; }
+
+.row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 560px) { .row-3 { grid-template-columns: 1fr; gap: 0; } }
+
+/* A required field says so in the label rather than only when it is rejected. */
+.field > span i.req { color: var(--danger); font-weight: 700; }
+.field > span i.count { float: inline-end; font-variant-numeric: tabular-nums; }
+/* The description is prose, not an address, so it does not want the mono face
+   the other multi-line fields use. */
+#lcDesc { font-family: var(--font); font-size: 15px; line-height: 1.5; }
+
+.lc-drop-row { display: grid; grid-template-columns: 1fr 132px; gap: 12px; align-items: start; }
+@media (max-width: 480px) { .lc-drop-row { grid-template-columns: 1fr; } }
+
+.lc-drop {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px; text-align: center; cursor: pointer;
+  min-height: 132px; padding: 18px 16px;
+  border: 1.5px dashed var(--line-2); border-radius: var(--r);
+  background: var(--surface-2); transition: border-color .18s, background .18s;
+}
+.lc-drop:hover, .lc-drop.over { border-color: var(--brand); background: var(--brand-soft); }
+.lc-drop svg { width: 22px; height: 22px; fill: none; stroke: var(--ink-3); stroke-width: 1.7;
+               stroke-linecap: round; stroke-linejoin: round; }
+.lc-drop b { font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.lc-drop small { font-size: 12px; color: var(--ink-3); }
+
+.lc-prev { display: flex; flex-direction: column; gap: 6px; }
+.lc-prev-l { font-size: 11px; letter-spacing: .09em; text-transform: uppercase;
+             font-weight: 650; color: var(--ink-3); }
+.lc-prev-box {
+  width: 100%; aspect-ratio: 1; border-radius: var(--r);
+  border: 1.5px solid var(--line); background: var(--surface-2);
+  overflow: hidden; display: grid; place-items: center;
+}
+.lc-prev-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* The label text sits in an <em> so the required mark and the counter can be
+   separate elements beside it; it is a label, not emphasis. */
+.field > span em { font-style: normal; }
+/* Stacked, the preview would otherwise become a full-width square taller than
+   the form it belongs to. */
+@media (max-width: 480px) {
+  .lc-drop-row { grid-template-columns: 1fr; }
+  .lc-prev-box { width: 124px; }
+}

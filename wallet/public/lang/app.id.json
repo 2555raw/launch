@@ -228,13 +228,13 @@
  "w.blurbsol": "Cepat dan murah, dan bukan rantai EVM",
  "w.nosolkey": "Dompet ini diimpor dari kunci privat, jadi tidak punya akun Solana",
  "w.planevmonly": "Paket dibayar di jaringan EVM",
- "w.solnolink": "<b>Solana bukan rantai EVM.</b> Dompet peramban terhubung lewat antarmuka EVM yang tidak dipahami Solana, jadi tidak bisa ditautkan di sini. Kirim saja ke alamat di bawah — dari Phantom, dari bursa, dari mana pun.",
+ "w.solnolink": "<b>Solana bukan rantai EVM.</b> Dompet peramban terhubung lewat antarmuka EVM yang tidak dipahami Solana, jadi tidak bisa ditautkan di sini. Kirim saja ke alamat di bawah, dari Phantom, dari bursa, dari mana pun.",
  "w.wrongchain": "Node ini menjawab untuk rantai {got}, bukan {net}. Periksa RPC di Pengaturan sebelum mengirim apa pun.",
  "w.needsolforfee": "Kamu butuh sedikit {coin} untuk membayar biaya dan membuka akun token penerima.",
  "w.plusrent": "(termasuk deposit akun, kalau memang perlu)",
  "w.today": "Ganti ke mode siang",
  "w.tonight": "Ganti ke mode malam",
- "w.recvtakes": "Alamat ini menerima {coins} di {net}. Semuanya masuk ke alamat yang sama — token itu baris di sebuah kontrak, bukan akun terpisah.",
+ "w.recvtakes": "Alamat ini menerima {coins} di {net}. Semuanya masuk ke alamat yang sama, token itu baris di sebuah kontrak, bukan akun terpisah.",
  "w.recvwarnevm": "Jangan kirim apa pun dari Solana ke sini. Alamat ini milik sisi EVM, dan apa pun yang datang dari Solana hilang selamanya. Jaringan EVM lain tidak apa-apa: alamatnya sama di semuanya, uangnya cuma berada di rantai itu.",
  "w.recvwarnsol": "Jangan kirim apa pun dari Ethereum, Base, Polygon atau jaringan EVM lain ke sini. Alamat ini milik Solana, dan apa pun dari sana hilang selamanya."
 }

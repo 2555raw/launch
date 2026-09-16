@@ -240,10 +240,19 @@
 
       <p class="lede" data-i18n="w.launchlede">Your coin gets a price the moment it exists, set by a curve rather than by you: every buy moves it up, every sell moves it down. Once enough has been bought it graduates to a real pool and trades anywhere.</p>
 
+      <!-- No wallet yet. This is the first thing most people hit: the launch
+           button lives behind having an account, and saying so beats an empty
+           screen that looks broken. -->
+      <div class="note warn" id="launchNoWallet" hidden>
+        <b data-i18n="w.lcneedwallet">You need a wallet first</b>
+        <span data-i18n="w.lcneedwalletb">Launching signs a transaction, so there has to be a key to sign it with. Creating one takes about a minute and never leaves this browser.</span>
+        <button class="btn ghost sm" data-go="welcome" type="button" data-i18n="w.createanewwall">Create a new wallet</button>
+      </div>
+
       <!-- Not on Solana -->
       <div class="note warn" id="launchWrongChain" hidden>
         <b data-i18n="w.launchsolonly">Launching happens on Solana</b>
-        <span data-i18n="w.launchsolonlyb">The curve program runs there. Switch network to continue — your wallet already has a Solana account on the same twelve words.</span>
+        <span data-i18n="w.launchsolonlyb">The curve program runs there. Switch network to continue. Your wallet already has a Solana account on the same twelve words.</span>
         <button class="btn ghost sm" id="launchToSol" type="button" data-i18n="w.launchswitch">Switch to Solana</button>
       </div>
 
@@ -254,29 +263,74 @@
       </div>
 
       <form id="launchForm" autocomplete="off">
+        <div class="lc-sec">
+          <b data-i18n="w.lctokdet">Token details</b>
+          <small data-i18n="w.lctokdetsub">How your coin appears in explorers, wallets and launchpads.</small>
+        </div>
+
+        <div class="row-2">
+          <label class="field">
+            <span><em data-i18n="w.launchname">Name</em> <i class="req">*</i> <i class="count" id="lcNameCount">0/64</i></span>
+            <input id="lcName" maxlength="64" placeholder="Proxima" required>
+          </label>
+          <label class="field">
+            <span><em data-i18n="w.launchsym">Symbol</em> <i class="req">*</i> <i class="count" id="lcSymCount">0/16</i></span>
+            <input id="lcSym" maxlength="16" placeholder="PXM" required>
+          </label>
+        </div>
+
         <label class="field">
-          <span data-i18n="w.launchname">Name</span>
-          <input id="lcName" maxlength="32" placeholder="Ward Coin" required>
+          <span><em data-i18n="w.lcdesc">Description</em> <i class="req">*</i></span>
+          <textarea id="lcDesc" rows="3" maxlength="500" placeholder="What is this coin?" required></textarea>
         </label>
-        <label class="field">
-          <span data-i18n="w.launchsym">Symbol</span>
-          <input id="lcSym" maxlength="10" placeholder="WARD" required>
-        </label>
+
+        <div class="field">
+          <span><em data-i18n="w.lcimage">Picture</em> <i class="req">*</i></span>
+          <div class="lc-drop-row">
+            <label class="lc-drop" id="lcDrop" for="lcFile">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V5"/><path d="M8 9l4-4 4 4"/><path d="M4 16v2.5A1.5 1.5 0 005.5 20h13a1.5 1.5 0 001.5-1.5V16"/></svg>
+              <b data-i18n="w.lcdrop">Drag a file here, or choose one</b>
+              <small data-i18n="w.lcdropkinds">.jpg, .png or .gif, up to 2 MB</small>
+              <input type="file" id="lcFile" accept="image/jpeg,image/png,image/gif" hidden>
+            </label>
+            <div class="lc-prev">
+              <span class="lc-prev-l" data-i18n="w.lcpreview">Preview</span>
+              <div class="lc-prev-box" id="lcPrevBox"></div>
+            </div>
+          </div>
+          <small class="hint" data-i18n="w.lcimghint">Held on this device for now. Ward has nowhere to publish it yet, so paste a link below if you already host one.</small>
+        </div>
+
         <label class="field">
           <span data-i18n="w.launchuri">Link to the coin's details</span>
           <input id="lcUri" type="url" maxlength="200" placeholder="https://…/coin.json">
-          <small class="hint" data-i18n="w.launchurihint">A JSON file holding the name, the symbol and a picture. Ward does not host files yet, so this points at one you host.</small>
         </label>
+
+        <div class="lc-sec">
+          <b data-i18n="w.lclinks">Links</b>
+          <small data-i18n="w.lclinkssub">Optional, and shown wherever the coin is listed.</small>
+        </div>
+
+        <div class="row-3">
+          <label class="field">
+            <span data-i18n="w.lcx">X / Twitter</span>
+            <input id="lcX" maxlength="120" placeholder="x.com/proxima">
+          </label>
+          <label class="field">
+            <span data-i18n="w.lctg">Telegram</span>
+            <input id="lcTg" maxlength="120" placeholder="t.me/proxima">
+          </label>
+          <label class="field">
+            <span data-i18n="w.lcsite">Website</span>
+            <input id="lcSite" maxlength="120" placeholder="proxima.io">
+          </label>
+        </div>
+
         <label class="field">
           <span data-i18n="w.launchbuy">Buy some yourself (optional)</span>
           <input id="lcBuy" inputmode="decimal" placeholder="0.00">
           <small class="hint" data-i18n="w.launchbuyhint">Bought in the same transaction, at the bottom of the curve.</small>
         </label>
-
-        <div class="lc-preview" id="lcPreview" aria-live="polite">
-          <span class="lc-av" id="lcAv">?</span>
-          <span class="lc-meta"><b id="lcPvName">—</b><small id="lcPvSym">—</small></span>
-        </div>
 
         <div class="note danger" id="launchTerms">
           <b data-i18n="w.launchrisk">Before you do this</b>
@@ -308,7 +362,7 @@
         </div>
         <svg class="chip" aria-hidden="true"><use href="#emv"/></svg>
         <p class="bal-label" id="cardBalLabel"></p>
-        <p class="bal" id="cardBal">—</p>
+        <p class="bal" id="cardBal"></p>
         <p class="bc-name" id="cardName" hidden></p>
         <div class="bc-bot">
           <span class="addr-chip as-text" id="cardAddr">…</span>
@@ -342,7 +396,7 @@
       <p class="sub" data-i18n="w.movefundsinfro">Move funds in from a wallet you already use. Ward never sees its keys. The other wallet signs, and you approve.</p>
 
       <div class="note" id="depSolNote" hidden data-i18n="w.solnolink">
-        <b>Solana is not an EVM chain.</b> Browser wallets connect over an EVM interface Solana does not speak, so they cannot be linked here. Send to the address below instead — from Phantom, an exchange, or anywhere.
+        <b>Solana is not an EVM chain.</b> Browser wallets connect over an EVM interface Solana does not speak, so they cannot be linked here. Send to the address below instead, from Phantom, an exchange, or anywhere.
       </div>
 
       <div id="depIntro">

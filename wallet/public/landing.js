@@ -519,4 +519,41 @@
     relive();
   })();
 
+
+  /* ── the contract address, and the account ────────────────────────────
+     Both are switched on by putting a value in the attributes on #caBar and
+     nothing else. Until then the chip reads PENDING and does nothing, and the
+     mark is not a link: no pointer, no hover, out of the tab order. A dead
+     link is worse than an obvious placeholder. */
+  (function ca() {
+    const bar = $('#caBar');
+    if (!bar) return;
+    const addr = (bar.dataset.ca || '').trim();
+    const xUrl = (bar.dataset.x || '').trim();
+    const d = () => DICT[document.documentElement.lang.slice(0, 2)] || DICT.en || {};
+
+    if (/^https:\/\//i.test(xUrl)) {
+      const a = $('#caX');
+      a.href = xUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.removeAttribute('tabindex');
+    }
+
+    if (!/^0x[0-9a-fA-F]{40}$/.test(addr)) return;   // still pending
+
+    const chip = $('#caChip'), val = $('#caVal');
+    chip.disabled = false;
+    chip.classList.add('live');
+    val.textContent = addr.slice(0, 6) + '\u00b7\u00b7\u00b7' + addr.slice(-4);
+    val.removeAttribute('data-i18n');               // no longer a translated word
+    chip.title = addr;
+    chip.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(addr); } catch { return; }
+      const was = val.textContent;
+      val.textContent = d()['ca.copied'] || 'Copied';
+      setTimeout(() => { val.textContent = was; }, 1400);
+    });
+  })();
+
 })();

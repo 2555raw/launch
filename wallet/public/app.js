@@ -490,15 +490,20 @@ const isPons = () => Number(prefs.chainId) === 4663;
 const canLaunchHere = () => isSol() || isPons();
 
 function paintLaunch() {
-  /* Four states, checked in this order because each makes the next
-     irrelevant: no wallet at all, a chain with no launchpad, nothing to
-     launch against, ready. */
+  /* Five states, checked in this order because each makes the next
+     irrelevant: no signer and no wallet on this device, a wallet that exists
+     but is closed, a chain with no launchpad, nothing to launch against,
+     ready. The closed case is split out because it is not the same problem:
+     there is nothing to make, only something to open, and on Solana it can be
+     stepped around entirely by signing with Phantom. */
   const none = !wallet && !phLinked;
+  const locked = none && !!read(K.store, null);
   const wrong = !none && !canLaunchHere();
   const unset = isPons()
     ? false                                   /* Pons needs no setup of ours */
     : (!window.WARD_DBC || !window.WARD_DBC.config);
-  $('#launchNoWallet').hidden = !none;
+  $('#launchNoWallet').hidden = !none || locked;
+  $('#launchLocked').hidden = !locked;
   $('#launchWrongChain').hidden = none || !wrong;
   $('#launchNoConfig').hidden = none || wrong || !unset;
   $('#launchForm').hidden = none || wrong;
@@ -508,15 +513,20 @@ function paintLaunch() {
      where it cannot help: off Solana, and on the EVM launchpad. */
   const row = $('#lcSigner');
   if (row) row.hidden = wrong || isPons();
+  /* On Pons there is no Phantom to fall back on, so a closed wallet is the
+     only way through and the button says so rather than offering a choice
+     that does not exist here. */
+  const open = $('#launchUnlock');
+  if (open) open.classList.toggle('primary', isPons());
   paintSigner();
 }
 
-/* The button turns on only when the form is complete, the box is ticked, there
-   is a wallet to sign with and something to launch against. */
+/* The button turns on only when the form is complete, there is a wallet to
+   sign with and something to launch against. */
 function launchGate() {
   const filled = $('#lcName').value.trim() && $('#lcSym').value.trim() && $('#lcDesc').value.trim();
   const ready = isPons() ? !!wallet : ((wallet || phLinked) && window.WARD_DBC && window.WARD_DBC.config);
-  const ok = !!(canLaunchHere() && ready && filled && $('#lcAgree').checked);
+  const ok = !!(canLaunchHere() && ready && filled);
   $('#lcGo').disabled = !ok;
   $('#lcNameCount').textContent = $('#lcName').value.length + '/64';
   $('#lcSymCount').textContent = $('#lcSym').value.length + '/16';
@@ -626,12 +636,13 @@ async function linkPhantom() {
 
 function wireLaunch() {
   $('#lcPhantom').addEventListener('click', linkPhantom);
+  /* launchWanted is still set, so unlocking comes straight back here. */
+  $('#launchUnlock').addEventListener('click', () => { launchWanted = true; show('unlock'); });
   $('#lcUnlinkPh').addEventListener('click', async () => {
     if (PH) await PH.disconnect();
     phLinked = null; paintLaunch();
   });
   ['#lcName', '#lcSym', '#lcDesc'].forEach(s => $(s).addEventListener('input', launchGate));
-  $('#lcAgree').addEventListener('change', launchGate);
   $('#launchToSol').addEventListener('click', () => { switchChain('sol'); paintLaunch(); });
   $('#launchToPons').addEventListener('click', () => { switchChain(4663); paintLaunch(); });
   $('#launchOffToPons').addEventListener('click', () => { switchChain(4663); paintLaunch(); });
@@ -2319,11 +2330,12 @@ function boot() {
     }).catch(() => { show('welcome'); toast(tr('w.qlostkey')); });
     return;
   }
-  /* Someone who clicked "Launchpad" with no wallet yet should land on the
-     launch screen and read why it cannot start, rather than on a welcome page
-     that never mentions the thing they came for. Locked wallets still unlock
-     first; the screen opens on its own afterwards. */
-  if (launchWanted && !read(K.store, null)) show('launch');
+  /* Someone who clicked "Launchpad" lands on the launch screen, whatever
+     state this device is in. Launching a coin is not a reason to demand a
+     password: a closed wallet says so on that screen and can be opened from
+     there, and on Solana a linked Phantom signs without one being opened at
+     all. Only the card needs an account. */
+  if (launchWanted) show('launch');
   else show(read(K.store, null) ? 'unlock' : 'welcome');
 }
 

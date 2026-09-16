@@ -101,11 +101,10 @@ const { chromium } = require('playwright');
   const refused = await page.$$eval('.toast', t => t.map(x => x.textContent));
   if (!refused.some(t => /jpg|png|gif/i.test(t))) { console.log('  a .txt was not refused'); fail++; }
 
-  await page.click('.note.danger .check span');   // on the label, as a person does
   await page.waitForTimeout(120);
   if (!(await page.$eval('#lcGo', x => x.disabled))) {
     console.log('  the button is live with no config on chain'); fail++;
-  } else console.log('  form complete and ticked, still refuses: ok');
+  } else console.log('  form complete, still refuses: ok');
 
   /* And if something forces the click anyway, it says why rather than
      building a transaction that cannot land. */

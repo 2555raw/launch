@@ -1114,3 +1114,25 @@ section.wrap:has(> .glow) { overflow: clip; }
 }
 .fd-tab:hover { color: var(--ink-2); }
 .fd-tab.on { background: var(--brand-soft); border-color: transparent; color: var(--brand-deep); }
+
+/* ── contract address and account ────────────────── */
+.ca-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.ca {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .04em;
+  padding: 9px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink-2);
+  cursor: default; transition: color .18s, border-color .18s, background .18s;
+}
+.ca-k {
+  font-size: 10.5px; font-weight: 800; letter-spacing: .1em;
+  padding: 2px 6px; border-radius: 5px;
+  background: var(--brand-soft); color: var(--brand-deep);
+}
+.ca-v { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0; }
+/* The copy icon only means anything once there is something to copy. */
+.ca-copy { width: 14px; height: 14px; display: none; fill: none; stroke: currentColor;
+           stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.ca.live { cursor: pointer; }
+.ca.live .ca-copy { display: block; }
+.ca.live:hover { color: var(--ink); border-color: var(--line-2); }

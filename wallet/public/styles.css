@@ -802,26 +802,11 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 .lc-go { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--ink-3);
          stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-/* The strongest warning in the wallet. Everything else it says can be undone;
-   this cannot, so it does not look like the ordinary notes. */
-.note.danger {
-  background: var(--danger-bg); border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
-  color: var(--danger); border-radius: 14px; padding: 13px 15px; margin: 4px 0 16px;
-  font-size: 13px; line-height: 1.5; font-weight: 540;
-}
-.note.danger b { color: var(--danger); display: block; margin-bottom: 6px; font-weight: 700; }
-.note.danger ul { margin: 0 0 10px; padding-inline-start: 18px; }
-.note.danger li { margin-bottom: 4px; }
-.note.danger .check { margin: 0; color: var(--danger); font-weight: 600; }
-
-
 .note.warn .btn { margin-top: 10px; }
 
-/* The heading in a notice is a heading, not the first words of the sentence.
-   Both kinds carry one, and only the danger one was saying so. */
-.note.warn b { display: block; margin-bottom: 5px; }
-.note.danger .check { margin: 0; }
-.note.danger .check em { color: var(--danger); font-weight: 600; }
+/* The heading in a notice is a heading, not the first words of the sentence. */
+.note b { display: block; margin-bottom: 5px; }
+.note .btn { margin-top: 10px; }
 
 /* ── the launch form ──────────────────────────────────────────────────── */
 .lc-sec { margin: 26px 0 14px; }

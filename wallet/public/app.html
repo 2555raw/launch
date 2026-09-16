@@ -263,6 +263,19 @@
         <button class="btn ghost sm" data-go="welcome" type="button" data-i18n="w.qfullsetup">Set one up properly instead</button>
       </div>
 
+      <!-- A wallet exists on this device but is closed. Launching is not a
+           reason to make anyone open it: Phantom signs on Solana without it,
+           and the password is asked for only by someone who wants to sign
+           with the wallet itself.
+           A plain note rather than a warning, because nothing here is wrong.
+           A closed wallet is a state, and painting it yellow says the screen
+           has a problem when all it has is a choice. -->
+      <div class="note" id="launchLocked" hidden>
+        <b data-i18n="w.lclocked">Your wallet is closed</b>
+        <span data-i18n="w.lclockedb">You do not need an account to launch a coin. Link Phantom below and sign with that, or open your Ward wallet if you would rather the coin came from it.</span>
+        <button class="btn ghost sm" id="launchUnlock" type="button" data-i18n="w.lcopenwallet">Open my wallet</button>
+      </div>
+
       <!-- Not on Solana -->
       <div class="note warn" id="launchWrongChain" hidden>
         <b data-i18n="w.launchwhere">This network has no launchpad</b>
@@ -361,17 +374,6 @@
           <input id="lcBuy" inputmode="decimal" placeholder="0.00">
           <small class="hint" data-i18n="w.launchbuyhint">Optional, and bought in the same transaction at the bottom of the curve, before anyone else can. Paid from whichever wallet signs.</small>
         </label>
-
-        <div class="note danger" id="launchTerms">
-          <b data-i18n="w.launchrisk">Before you do this</b>
-          <ul>
-            <li data-i18n="w.launchrisk1">It cannot be undone, edited or taken down. The coin exists the moment the transaction lands.</li>
-            <li data-i18n="w.launchrisk2">Anyone can buy and sell it immediately, including people betting against you.</li>
-            <li data-i18n="w.launchrisk3">Most coins launched this way never find buyers. Put in what you are willing to put in.</li>
-            <li data-i18n="w.launchrisk4">Selling a coin you created may be regulated where you live. That is on you, not on Ward.</li>
-          </ul>
-          <label class="check"><input type="checkbox" id="lcAgree"><span></span><em data-i18n="w.launchagree">I have read this and I want to continue</em></label>
-        </div>
 
         <button class="btn primary wide" id="lcGo" type="submit" disabled data-i18n="w.launchgo">Launch this coin</button>
       </form>

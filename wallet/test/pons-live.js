@@ -69,7 +69,6 @@ const FUNDER = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff
   await page.fill('#lcDesc', 'Una moneda de prueba, lanzada desde la propia web.');
   await page.fill('#lcUri', 'https://proxima.io/logo.png');
   await page.fill('#lcX', 'x.com/proxima');
-  await page.click('.note.danger .check span');
   await page.waitForTimeout(300);
   const off = await page.$eval('#lcGo', x => x.disabled);
   console.log('3. boton habilitado:', !off);

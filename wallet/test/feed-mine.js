@@ -5,9 +5,22 @@
  * bytes, so Ward begins its salts with "WARD" in ASCII and the answer lives in
  * the calldata of the transaction that emitted the event.
  *
- * Two launches are put on a local chain, one with that salt and one with a
- * random one, and the tabs have to separate them. It is a claim, not a proof:
- * anyone can write the same four bytes, and the page says so.
+ * feed-mine-seed.js puts one tagged launch on a local chain, one untagged, and
+ * then forty more untagged on top, and the tabs have to separate them. It is a
+ * claim, not a proof: anyone can write the same four bytes, and the page says
+ * so.
+ *
+ * The forty are the point of the test as much as the salt is. The Ward tab
+ * used to fetch a fixed pile of the most recent launches and sieve it
+ * afterwards, so a Ward coin with enough strangers stacked on top of it fell
+ * off the bottom of the pile and the tab read empty while the coin sat on
+ * chain the whole time. Burying it is what turns that into a failure here.
+ *
+ *   npx hardhat node --port 8545          (chainId 4663)
+ *   node test/feed-mine-mock.js           (needs solc; compiles the stand-in)
+ *   node test/feed-mine-seed.js
+ *   PORT=8099 npm start
+ *   node test/feed-mine.js
  */
 const { chromium } = require('playwright');
 (async () => {
@@ -29,24 +42,37 @@ const { chromium } = require('playwright');
 
   /* Counted by what must and must not be there rather than by how many, so a
      chain that other tests have also launched on does not read as a failure. */
+  const ajena = n => n === 'Rando Coin' || /^Filler /.test(n);
+
   const mine = await names();
   console.log('pestaña "From Ward":', JSON.stringify(mine));
   if (!mine.includes('Ward Sentinel')) { console.log('  falta la lanzada desde Ward'); fail++; }
-  if (mine.includes('Rando Coin')) { console.log('  UNA AJENA SE CUELA COMO DE WARD'); fail++; }
+  const colada = mine.filter(ajena);
+  if (colada.length) { console.log('  SE CUELAN AJENAS COMO DE WARD:', colada.join(', ')); fail++; }
 
   await page.click('#fdAll');
   await page.waitForTimeout(2500);
   const all = await names();
   console.log('pestaña "Everything":', JSON.stringify(all));
-  if (!all.includes('Rando Coin')) { console.log('  la ajena no sale ni en "todas"'); fail++; }
-  if (!all.includes('Ward Sentinel')) { console.log('  la de Ward no sale en "todas"'); fail++; }
-  if (all.length <= mine.length) { console.log('  "todas" deberia ser mas que "de Ward"'); fail++; }
+  if (!all.some(ajena)) { console.log('  las ajenas no salen ni en "todas"'); fail++; }
+
+  /* The buried one. The Ward launch went on before the forty fillers, so it is
+     nowhere near the head of the chain and cannot be in the page of recent
+     launches the other tab shows. Finding it anyway is the whole point: the
+     Ward tab has to keep digging until it has enough, not sieve one page and
+     call the chain empty. */
+  if (all.includes('Ward Sentinel')) {
+    console.log('  (la de Ward sigue siendo reciente: el relleno no la enterró)');
+  } else {
+    console.log('  enterrada bajo', all.length, 'ajenas mas recientes, y aun asi aparece: ok');
+  }
 
   await page.click('#fdMine');
   await page.waitForTimeout(2500);
   const back = await names();
   console.log('vuelta a "From Ward":', JSON.stringify(back));
-  if (back.includes('Rando Coin')) { console.log('  no volvio a filtrar'); fail++; }
+  if (back.some(ajena)) { console.log('  no volvio a filtrar'); fail++; }
+  if (!back.includes('Ward Sentinel')) { console.log('  perdio la de Ward al volver'); fail++; }
 
   await page.evaluate(() => document.querySelector('#launches').scrollIntoView({ block: 'center' }));
   await page.waitForTimeout(400);

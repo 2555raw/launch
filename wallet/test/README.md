@@ -189,9 +189,17 @@ write the same four bytes, and the page says so.
 page, launches a coin on the chain behind it, touches nothing, and fails if the
 row does not arrive at the top by itself.
 
+`feed-mine-seed.js` places them: one tagged launch, one untagged, and then a
+hundred and ten more untagged on top. The pile is deliberate. The Ward tab used
+to fetch a fixed number of recent launches and sieve that pile afterwards, so a
+Ward coin with enough strangers stacked on it fell off the bottom and the tab
+read empty while the coin sat on chain the whole time. That is what someone saw
+on the live site, and the fill is what makes it a failure here instead.
+
 ```sh
 npx hardhat node --port 8545          # chainId 4663
 node test/feed-mine-mock.js           # compiles the stand-in factory
+node test/feed-mine-seed.js           # places the launches (FILL=n to change)
 PORT=8099 npm start
 node test/feed-mine.js && node test/feed-arrival.js
 ```

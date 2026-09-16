@@ -81,7 +81,19 @@ window.WARD_FEED = (function () {
     return salt.length === 64 ? salt.toLowerCase() : null;
   }
 
+  /* Coins launched from Ward before the salt carried that mark. The mark is
+     six days younger than the launchpad, so the first launches out of Ward
+     are plain random salts and no rule can pick them out of the chain; they
+     are named here because the alternative is a front page that says Ward has
+     never launched anything. Addresses only, checked against the same chain
+     as everything else, and nothing is added to this list that was not
+     launched from Ward. */
+  const EARLY = [
+    /* '0x...'  token address */
+  ].map(a => a.toLowerCase());
+
   async function fromWard(t) {
+    if (EARLY.indexOf((t.token || '').toLowerCase()) !== -1) return true;
     try {
       const tx = await rpc('eth_getTransactionByHash', [t.tx]);
       const salt = tx && saltOf(tx.input);
@@ -89,14 +101,34 @@ window.WARD_FEED = (function () {
     } catch { return false; }
   }
 
+  /* How many salts are asked after at once. */
+  const RUN = 12;
+
+  const launchOf = l => ({
+    token: addrOf(l.topics[1]),
+    curve: addrOf(l.topics[2]),
+    deployer: addrOf(l.topics[3]),
+    block: hexToNum(l.blockNumber),
+    tx: l.transactionHash
+  });
+
   /* Walks backwards from the head in windows, because a public node will
      refuse a request that spans the whole chain, and stops as soon as enough
      launches have been found or the search has gone far enough back to be
-     worth giving up on. */
-  async function launches(want = 12, windowSize = 50000, maxWindows = 12) {
+     worth giving up on.
+
+     `keep` decides what counts towards that enough. It matters more than it
+     looks: without it the Ward tab had to ask for a big pile of launches and
+     sieve it afterwards, so the depth it really searched was however far back
+     that pile happened to reach. On a busy day that is an hour, and a coin
+     launched yesterday was not missing from the chain, only from the pile.
+     Counting after the sieve instead means the search goes as deep as it has
+     to, and the windows are the only limit. */
+  async function launches(want = 12, windowSize = 50000, maxWindows = 12,
+                          keep = null, budget = 240) {
     const head = hexToNum(await rpc('eth_blockNumber', []));
     const found = [];
-    let to = head;
+    let left = budget, to = head;
     for (let w = 0; w < maxWindows && found.length < want && to > 0; w++) {
       const from = Math.max(0, to - windowSize);
       let logs = [];
@@ -107,15 +139,28 @@ window.WARD_FEED = (function () {
         }]);
       } catch { /* a window the node would not serve: try an older one */ }
       /* Newest first within the window. */
-      for (const l of logs.reverse()) {
-        found.push({
-          token: addrOf(l.topics[1]),
-          curve: addrOf(l.topics[2]),
-          deployer: addrOf(l.topics[3]),
-          block: hexToNum(l.blockNumber),
-          tx: l.transactionHash
-        });
-        if (found.length >= want) break;
+      const here = logs.reverse().map(launchOf);
+      if (!keep) {
+        for (const t of here) { found.push(t); if (found.length >= want) break; }
+      } else {
+        /* A run at a time, asked for together. Each of these is a second call
+           to the node, so they go in parallel and against a budget: without
+           one, a tab that finds nothing would walk the whole search asking
+           after every launch on the chain, and the node would be right to
+           stop answering. Running out of budget means the list is short, not
+           that it is complete, which is what the empty line on the page
+           says. */
+        for (let i = 0; i < here.length && found.length < want && left > 0; i += RUN) {
+          const run = here.slice(i, Math.min(i + RUN, i + left));
+          left -= run.length;
+          const flags = await Promise.all(run.map(keep));
+          for (let k = 0; k < run.length; k++) {
+            if (!flags[k]) continue;
+            found.push(run[k]);
+            if (found.length >= want) break;
+          }
+        }
+        if (left <= 0) break;
       }
       to = from - 1;
     }
@@ -139,15 +184,13 @@ window.WARD_FEED = (function () {
     });
   }
 
-  /* `mine` asks for launches made through Ward. Those need one more call each,
-     to read the salt out of the transaction, so more are fetched than are
-     wanted: on a chain this busy most launches are somebody else's. */
+  /* `mine` asks for launches made through Ward. Each one costs a second call,
+     to read the salt out of the transaction that made it, and the sieve runs
+     inside the walk so that the depth searched is a stretch of chain rather
+     than a number of other people's launches. */
   async function recent(want = 12, mine = false) {
-    const found = await launches(mine ? want * 8 : want);
-    if (!mine) return Promise.all(found.map(describe));
-    const flags = await Promise.all(found.map(fromWard));
-    const ours = found.filter((_, i) => flags[i]).slice(0, want);
-    return Promise.all(ours.map(describe));
+    const found = await launches(want, 50000, 12, mine ? fromWard : null);
+    return Promise.all(found.map(describe));
   }
 
   /* Watching for launches as they land.
@@ -207,6 +250,6 @@ window.WARD_FEED = (function () {
   const txUrl = h => EXPLORER + '/tx/' + h;
 
   return { RPC, FACTORY, EXPLORER, TOPIC_LAUNCHED, SEL,
-           WARD_TAG, rpc, recent, launches, describe, readString, addrOf,
+           WARD_TAG, EARLY, rpc, recent, launches, describe, readString, addrOf,
            saltOf, fromWard, watch, picture, IPFS, tokenUrl, txUrl };
 })();

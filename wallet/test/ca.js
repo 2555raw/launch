@@ -1,0 +1,107 @@
+/* The contract address chip, and the mark next to it.
+ *
+ * Ward's own coin does not exist yet, so the chip on the landing page reads
+ * PENDING and the mark beside it goes nowhere. Both are switched on later by
+ * putting values in two attributes on #caBar and changing nothing else, which
+ * is only a good idea if the switched-off state is genuinely inert: a chip
+ * that copies an empty string, or a mark that links to nowhere, is worse than
+ * an obvious placeholder.
+ *
+ * So this opens the page twice. Once as it ships, and once with the attributes
+ * filled, which is done by rewriting the HTML on its way to the browser rather
+ * than from a script: landing.js reads them as it starts, and anything that
+ * sets them afterwards tests the wrong thing.
+ *
+ *   PORT=8099 npm start
+ *   node test/ca.js
+ */
+const { chromium } = require('playwright');
+const SITE = process.env.SITE_URL || 'http://127.0.0.1:8099/';
+const ADDR = '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e';
+const XURL = 'https://x.com/wardwallet';
+
+(async () => {
+  const b = await chromium.launch({ ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}) });
+  let fail = 0;
+
+  async function open(fill) {
+    const ctx = await b.newContext({ colorScheme: 'dark', viewport: { width: 1180, height: 900 },
+                                     permissions: ['clipboard-read', 'clipboard-write'] });
+    const page = await ctx.newPage();
+    page.on('pageerror', e => { console.log('   PAGEERROR ' + e.message); fail++; });
+    if (fill) {
+      await page.route('**/', async route => {
+        const r = await route.fetch();
+        const html = (await r.text())
+          .replace('data-ca=""', 'data-ca="' + ADDR + '"')
+          .replace('data-x=""', 'data-x="' + XURL + '"');
+        await route.fulfill({ response: r, body: html, headers: { ...r.headers(), 'content-length': undefined } });
+      });
+    }
+    await page.goto(SITE, { waitUntil: 'networkidle' });
+    await page.evaluate(() => { const c = document.querySelector('.consent'); if (c) c.remove(); });
+    return { ctx, page };
+  }
+
+  /* As it ships. */
+  console.log('1. before there is a coin');
+  {
+    const { ctx, page } = await open(false);
+    const st = await page.evaluate(() => ({
+      text: document.querySelector('#caVal').textContent.trim(),
+      off: document.querySelector('#caChip').disabled,
+      href: document.querySelector('#caX').getAttribute('href'),
+      tab: document.querySelector('#caX').getAttribute('tabindex'),
+      pointer: getComputedStyle(document.querySelector('#caX')).cursor
+    }));
+    console.log('  ', JSON.stringify(st));
+    if (!/pending/i.test(st.text)) { console.log('   ✗ the chip does not read PENDING'); fail++; }
+    if (!st.off) { console.log('   ✗ the chip is clickable with nothing to copy'); fail++; }
+    if (st.href) { console.log('   ✗ the mark links somewhere already'); fail++; }
+    if (st.tab !== '-1') { console.log('   ✗ the dead mark is still in the tab order'); fail++; }
+    else console.log('   ✓ inert, and says so');
+    await ctx.close();
+  }
+
+  /* And once the two attributes are filled in. */
+  console.log('2. once the coin exists');
+  {
+    const { ctx, page } = await open(true);
+    const st = await page.evaluate(() => ({
+      text: document.querySelector('#caVal').textContent.trim(),
+      off: document.querySelector('#caChip').disabled,
+      title: document.querySelector('#caChip').title,
+      href: document.querySelector('#caX').getAttribute('href'),
+      rel: document.querySelector('#caX').getAttribute('rel'),
+      tab: document.querySelector('#caX').getAttribute('tabindex')
+    }));
+    console.log('  ', JSON.stringify(st));
+    if (st.off) { console.log('   ✗ the chip is still dead'); fail++; }
+    if (!/^0x7eD5/.test(st.text) || !/EC7e$/.test(st.text)) {
+      console.log('   ✗ the chip does not show the shortened address'); fail++;
+    }
+    if (st.title !== ADDR) { console.log('   ✗ the whole address is not on the chip'); fail++; }
+    if (st.href !== XURL) { console.log('   ✗ the mark does not link to the account'); fail++; }
+    if (!/noopener/.test(st.rel || '')) { console.log('   ✗ the link opens without noopener'); fail++; }
+    if (st.tab === '-1') { console.log('   ✗ a live link is still out of the tab order'); fail++; }
+
+    /* Copying is the only thing the chip is for. */
+    await page.click('#caChip');
+    await page.waitForTimeout(250);
+    const said = await page.$eval('#caVal', n => n.textContent.trim());
+    const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => ''));
+    console.log('   after a click: chip says', JSON.stringify(said), '| clipboard', JSON.stringify(clip));
+    if (clip !== ADDR) { console.log('   ✗ the address did not reach the clipboard'); fail++; }
+    if (!/copi/i.test(said)) { console.log('   ✗ the chip did not say it copied'); fail++; }
+
+    await page.waitForTimeout(1500);
+    const back = await page.$eval('#caVal', n => n.textContent.trim());
+    if (!/^0x7eD5/.test(back)) { console.log('   ✗ it never went back to the address'); fail++; }
+    else console.log('   ✓ copies, says so, and goes back');
+    await ctx.close();
+  }
+
+  console.log(fail ? `\nFAIL (${fail})` : '\nPASS');
+  await b.close();
+  process.exit(fail ? 1 : 0);
+})();

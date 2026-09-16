@@ -1045,3 +1045,30 @@ section.wrap:has(> .glow) { overflow: clip; }
    Adding the href turns all of that back on with no other change. */
 .soc:not([href]) { opacity: .45; pointer-events: none; }
 .soc[href]:hover { color: var(--ink); border-color: var(--line-2); transform: translateY(-1px); }
+
+/* ── launched coins ──────────────────────────────── */
+#launches { position: relative; padding-block: 84px; }
+.fd-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
+           grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 760px) { .fd-list { grid-template-columns: 1fr; } }
+.fd-item {
+  display: flex; align-items: center; gap: 13px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: 14px 16px; box-shadow: var(--shadow-1);
+}
+.fd-av {
+  flex: none; width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700; font-size: 17px;
+  background: var(--brand-soft); color: var(--brand-deep);
+}
+.fd-mid { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.fd-mid b { font-size: 15.5px; font-weight: 650; letter-spacing: -.015em;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fd-mid small { font-size: 12.5px; color: var(--ink-3); font-family: var(--mono); }
+.fd-desc { font-size: 13px; color: var(--ink-2); margin-top: 3px;
+           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+           overflow: hidden; }
+.fd-go { flex: none; font-family: var(--mono); font-size: 12.5px;
+         color: var(--ink-3); text-decoration: none; }
+.fd-go:hover { color: var(--brand-deep); }
+.fd-loading, .fd-note { color: var(--ink-3); font-size: 14px; list-style: none; }

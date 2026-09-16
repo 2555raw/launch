@@ -11,7 +11,9 @@
     "test:pons": "node test/pons.js",
     "test:quick": "node test/quick.js",
     "test:phantom": "node test/phantom.js",
-    "test:pons-live": "node test/pons-live.js"
+    "test:pons-live": "node test/pons-live.js",
+    "test:feed": "node test/feed.js",
+    "test:feed-live": "node test/feed-live.js"
   },
   "engines": {
     "node": ">=18"

@@ -151,3 +151,20 @@ node test/pons-live.js
 
 What it proves: the wiring, the discovery, the encoding, the fee, the fields.
 What it cannot prove: that the deployed Pons behaves like its published source.
+
+## feed.js and feed-live.js — the launched-coins list
+
+The landing page does not load ethers and should not start, so `feed.js`
+decodes what it needs by hand. The two things a browser cannot compute — the
+event topic and the function selectors, which need keccak-256 — are written
+down, so `test/feed.js` recomputes every one from its signature and checks the
+hand-rolled string decoder against ethers across the cases that break naive
+ones: empty, multi-byte, emoji, and lengths either side of the 32-byte word
+boundary. It also reads the event out of Pons's source when `PONS_SRC` is set.
+
+`test/feed-live.js` runs the whole path against a local chain seeded with three
+launches. Two of its checks are not about whether it works: that a multi-byte
+name survives, and that **no coin's picture is ever fetched**. The logo is a URL
+chosen by whoever launched the coin, and this page tells visitors it has no
+trackers; loading it would send every visitor's address to a host a stranger
+picked. The avatar is a letter, and the test fails if an `<img>` appears.

@@ -397,4 +397,64 @@
   useLang(chooseLang(), false);
 
   onScroll.forEach(f => f());
+
+  /* ── the launched coins ───────────────────────────────────────────────
+     Everything below comes off a public chain, which means anyone can put
+     anything in it: a coin's name is whatever its creator typed. It is all
+     inserted as text and never as markup, and the logo is only used when it is
+     an https URL, so a coin cannot paint itself into this page. */
+  (function feed() {
+    const list = $('#fdList'), note = $('#fdNote');
+    if (!list || !window.WARD_FEED) return;
+    const F = window.WARD_FEED;
+    const d = () => DICT[document.documentElement.lang.slice(0, 2)] || DICT.en || {};
+    const say = k => d()[k] || k;
+
+    const short = a => a.slice(0, 6) + '\u00b7\u00b7\u00b7' + a.slice(-4);
+
+    function row(c) {
+      const li = document.createElement('li');
+      li.className = 'fd-item';
+
+      const av = document.createElement('span');
+      av.className = 'fd-av';
+      /* Deliberately a letter and not the coin's picture. The logo is a URL
+         chosen by whoever launched the coin, so showing it would send every
+         visitor's address to a host a stranger picked. This page says it has
+         no trackers and sends nothing to anyone, and that has to keep being
+         true when the content comes from the chain. */
+      av.textContent = (c.symbol || c.name || '?').slice(0, 1).toUpperCase();
+
+      const mid = document.createElement('span');
+      mid.className = 'fd-mid';
+      const b = document.createElement('b');
+      b.textContent = c.name || short(c.token);
+      const sym = document.createElement('small');
+      sym.textContent = c.symbol || '';
+      const desc = document.createElement('span');
+      desc.className = 'fd-desc';
+      desc.textContent = c.description || '';
+      mid.append(b, sym, desc);
+
+      const a = document.createElement('a');
+      a.className = 'fd-go';
+      a.href = F.tokenUrl(c.token);
+      a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.textContent = short(c.token);
+
+      li.append(av, mid, a);
+      return li;
+    }
+
+    F.recent(12).then(coins => {
+      list.innerHTML = '';
+      if (!coins.length) { note.textContent = say('fd.none'); note.hidden = false; return; }
+      coins.forEach(c => list.appendChild(row(c)));
+    }).catch(() => {
+      list.innerHTML = '';
+      note.textContent = say('fd.off');
+      note.hidden = false;
+    });
+  })();
+
 })();

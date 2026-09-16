@@ -234,7 +234,7 @@
  "w.plusrent": "(gerekiyorsa hesap depozitosu dahil)",
  "w.today": "Gündüz moduna geç",
  "w.tonight": "Gece moduna geç",
- "w.recvtakes": "Bu adres {net} üzerinde {coins} kabul eder. Hepsi aynı adrese gelir, token ayrı bir hesap değil, bir sözleşmedeki satırdır.",
+ "w.recvtakes": "Bu adres {net} üzerinde {coins} kabul eder. Hepsi aynı adrese gelir: token ayrı bir hesap değil, bir sözleşmedeki satırdır.",
  "w.recvwarnevm": "Buraya Solana’dan bir şey gönderme. Bu adres EVM tarafına ait ve Solana’dan gelen her şey temelli kaybolur. Başka bir EVM ağı sorun değil: adres hepsinde aynı, para sadece o zincirde olur.",
  "w.recvwarnsol": "Buraya Ethereum, Base, Polygon ya da başka bir EVM ağından bir şey gönderme. Bu adres Solana’ya ait ve oralardan gelen her şey temelli kaybolur."
 }

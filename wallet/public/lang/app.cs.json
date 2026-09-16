@@ -234,7 +234,7 @@
  "w.plusrent": "(včetně vkladu za účet, pokud je potřeba)",
  "w.today": "Přepnout na denní režim",
  "w.tonight": "Přepnout na noční režim",
- "w.recvtakes": "Tahle adresa bere {coins} na síti {net}. Všechno dorazí na tutéž adresu, token je řádek ve smlouvě, ne samostatný účet.",
+ "w.recvtakes": "Tahle adresa bere {coins} na síti {net}. Všechno dorazí na tutéž adresu: token je řádek ve smlouvě, ne samostatný účet.",
  "w.recvwarnevm": "Neposílejte sem nic ze Solany. Tahle adresa patří EVM straně a co sem ze Solany dorazí, je nadobro pryč. Jiná EVM síť nevadí: adresa je všude stejná, peníze budou prostě na tom řetězci.",
  "w.recvwarnsol": "Neposílejte sem nic z Etherea, Base, Polygonu ani jiné EVM sítě. Tahle adresa patří Solaně a co odtamtud přijde, je nadobro pryč."
 }

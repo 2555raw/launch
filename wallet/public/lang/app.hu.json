@@ -234,7 +234,7 @@
  "w.plusrent": "(a számlaletéttel együtt, ha kell)",
  "w.today": "Váltás nappali módra",
  "w.tonight": "Váltás éjszakai módra",
- "w.recvtakes": "Ez a cím {coins} érkezését fogadja a(z) {net} hálózaton. Mind ugyanarra a címre jön, egy token egy sor egy szerződésben, nem külön számla.",
+ "w.recvtakes": "Ez a cím {coins} érkezését fogadja a(z) {net} hálózaton. Mind ugyanarra a címre jön: egy token egy sor egy szerződésben, nem külön számla.",
  "w.recvwarnevm": "Solanáról ide ne küldj semmit. Ez a cím az EVM-oldalé, és ami Solanáról ideér, végleg odavan. Másik EVM-hálózat rendben: a cím mindenhol ugyanaz, a pénz csak azon a láncon lesz.",
  "w.recvwarnsol": "Ethereumról, Base-ről, Polygonról vagy más EVM-hálózatról ide ne küldj semmit. Ez a cím a Solanáé, és ami onnan jön, végleg odavan."
 }

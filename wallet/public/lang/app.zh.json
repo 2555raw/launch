@@ -234,7 +234,7 @@
  "w.plusrent": "（如果需要，已含账户押金）",
  "w.today": "切换到日间模式",
  "w.tonight": "切换到夜间模式",
- "w.recvtakes": "这个地址在 {net} 上接收 {coins}。它们都到同一个地址，代币是合约里的一行，不是单独的账户。",
+ "w.recvtakes": "这个地址在 {net} 上接收 {coins}。它们都到同一个地址：代币是合约里的一行，不是单独的账户。",
  "w.recvwarnevm": "不要从 Solana 往这里发任何东西。这个地址属于 EVM 一侧，从 Solana 发来的会永远消失。换成别的 EVM 网络没关系：地址在所有网络上都一样，钱只是在那条链上。",
  "w.recvwarnsol": "不要从以太坊、Base、Polygon 或任何其他 EVM 网络往这里发东西。这个地址属于 Solana，从那些网络发来的会永远消失。"
 }

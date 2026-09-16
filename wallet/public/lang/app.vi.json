@@ -234,7 +234,7 @@
  "w.plusrent": "(đã gồm tiền đặt cọc tài khoản, nếu cần)",
  "w.today": "Chuyển sang chế độ ngày",
  "w.tonight": "Chuyển sang chế độ đêm",
- "w.recvtakes": "Địa chỉ này nhận {coins} trên {net}. Tất cả đều về cùng một địa chỉ, token là một dòng trong hợp đồng, không phải tài khoản riêng.",
+ "w.recvtakes": "Địa chỉ này nhận {coins} trên {net}. Tất cả đều về cùng một địa chỉ: token là một dòng trong hợp đồng, không phải tài khoản riêng.",
  "w.recvwarnevm": "Đừng gửi bất cứ thứ gì từ Solana tới đây. Địa chỉ này thuộc phía EVM, và thứ gì từ Solana tới sẽ mất hẳn. Mạng EVM khác thì không sao: địa chỉ giống nhau ở mọi mạng, tiền chỉ nằm trên chuỗi đó.",
  "w.recvwarnsol": "Đừng gửi bất cứ thứ gì từ Ethereum, Base, Polygon hay mạng EVM nào khác tới đây. Địa chỉ này thuộc Solana, và thứ gì từ đó tới sẽ mất hẳn."
 }

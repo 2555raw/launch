@@ -234,7 +234,7 @@
  "w.plusrent": "(include depozitul contului, dacă e nevoie)",
  "w.today": "Treci la modul zi",
  "w.tonight": "Treci la modul noapte",
- "w.recvtakes": "Adresa asta acceptă {coins} pe {net}. Totul ajunge la aceeași adresă, un token e un rând într-un contract, nu un cont separat.",
+ "w.recvtakes": "Adresa asta acceptă {coins} pe {net}. Totul ajunge la aceeași adresă: un token e un rând într-un contract, nu un cont separat.",
  "w.recvwarnevm": "Nu trimite nimic de pe Solana aici. Adresa asta e de partea EVM, și ce ajunge aici de pe Solana e pierdut definitiv. Altă rețea EVM e în regulă: adresa e aceeași peste tot, banii sunt doar pe lanțul ăla.",
  "w.recvwarnsol": "Nu trimite nimic de pe Ethereum, Base, Polygon sau altă rețea EVM aici. Adresa asta e a Solanei, și ce vine de acolo e pierdut definitiv."
 }

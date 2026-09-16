@@ -234,7 +234,7 @@
  "w.plusrent": "(zawiera depozyt konta, jeśli jest potrzebny)",
  "w.today": "Przełącz na tryb dzienny",
  "w.tonight": "Przełącz na tryb nocny",
- "w.recvtakes": "Ten adres przyjmuje {coins} w sieci {net}. Wszystko trafia pod ten sam adres, token to wiersz w kontrakcie, nie osobne konto.",
+ "w.recvtakes": "Ten adres przyjmuje {coins} w sieci {net}. Wszystko trafia pod ten sam adres: token to wiersz w kontrakcie, nie osobne konto.",
  "w.recvwarnevm": "Nie wysyłaj tu niczego z Solany. Ten adres należy do strony EVM, a to, co przyjdzie z Solany, przepada na dobre. Inna sieć EVM jest w porządku: adres jest wszędzie ten sam, pieniądze będą po prostu na tamtym łańcuchu.",
  "w.recvwarnsol": "Nie wysyłaj tu niczego z Ethereum, Base, Polygona ani innej sieci EVM. Ten adres należy do Solany, a to, co przyjdzie stamtąd, przepada na dobre."
 }

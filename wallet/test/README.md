@@ -168,3 +168,10 @@ name survives, and that **no coin's picture is ever fetched**. The logo is a URL
 chosen by whoever launched the coin, and this page tells visitors it has no
 trackers; loading it would send every visitor's address to a host a stranger
 picked. The avatar is a letter, and the test fails if an `<img>` appears.
+
+## stale-balance.js — a balance that belonged to another network
+
+A balance is an integer of its chain's smallest unit, so carrying one across a
+network switch does not merely show the wrong number, it invents one: 0.0001
+ETH is 10^14 wei, and painted against a nine-decimal chain that reads as
+"100,000 SOL". This fails if any balance survives a switch.

@@ -445,6 +445,12 @@ function switchChain(id) {
   if (!c) return;
   prefs.chainId = id; savePrefs();
   linked = null;
+  /* The old chain's balance is meaningless on the new one, and worse than
+     meaningless: it is an integer of the old chain's smallest unit, so
+     repainting it against the new chain's decimals invents a number. Moving
+     0.0001 ETH (10^14 wei) to a nine-decimal chain showed "100,000 SOL".
+     It goes before anything repaints, not after the read comes back. */
+  balances = { native: null, tokens: {} };
   paintNet(); fillTokenSelects(); verifyPlan();
   paintAddr(); paintChainMode(); clearChainWarn();
   /* The card names the network and lists that network's coins, so it is

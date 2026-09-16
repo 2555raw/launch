@@ -13,7 +13,8 @@
     "test:phantom": "node test/phantom.js",
     "test:pons-live": "node test/pons-live.js",
     "test:feed": "node test/feed.js",
-    "test:feed-live": "node test/feed-live.js"
+    "test:feed-live": "node test/feed-live.js",
+    "test:stale": "node test/stale-balance.js"
   },
   "engines": {
     "node": ">=18"

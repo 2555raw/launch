@@ -1000,7 +1000,7 @@ main [id] { scroll-margin-top: 96px; }
 
 /* The two notices that keep this section honest. They are given the same
    weight as the steps rather than tucked underneath in small grey type. */
-.lp-honest, .lp-warn {
+.lp-honest {
   border-radius: var(--r-lg); padding: 20px 22px; margin-bottom: 14px;
   font-size: 14.5px; line-height: 1.6;
 }
@@ -1009,13 +1009,8 @@ main [id] { scroll-margin-top: 96px; }
   border: 1px solid color-mix(in srgb, var(--brand) 26%, transparent);
   color: var(--brand-deep);
 }
-.lp-warn {
-  background: var(--warn-bg);
-  border: 1px solid color-mix(in srgb, var(--warn) 34%, transparent);
-  color: var(--warn);
-}
-.lp-honest b, .lp-warn b { display: block; font-weight: 720; margin-bottom: 6px; }
-.lp-honest p, .lp-warn p { margin: 0; }
+.lp-honest b { display: block; font-weight: 720; margin-bottom: 6px; }
+.lp-honest p { margin: 0; }
 
 @media (max-width: 1000px) { .lp-steps { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) {

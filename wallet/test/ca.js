@@ -24,7 +24,7 @@ const XURL = 'https://x.com/wardwallet';
   const b = await chromium.launch({ ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}) });
   let fail = 0;
 
-  async function open(fill) {
+  async function open(fill, lang) {
     const ctx = await b.newContext({ colorScheme: 'dark', viewport: { width: 1180, height: 900 },
                                      permissions: ['clipboard-read', 'clipboard-write'] });
     const page = await ctx.newPage();
@@ -38,7 +38,14 @@ const XURL = 'https://x.com/wardwallet';
         await route.fulfill({ response: r, body: html, headers: { ...r.headers(), 'content-length': undefined } });
       });
     }
+    /* The language is stored, so it takes a second visit to take effect: the
+       first load is what puts it there. */
+    if (lang && lang !== 'en') {
+      await page.goto(SITE, { waitUntil: 'domcontentloaded' });
+      await page.evaluate(l => localStorage.setItem('ward.v1.lang', l), lang);
+    }
     await page.goto(SITE, { waitUntil: 'networkidle' });
+    if (lang && lang !== 'en') await page.waitForTimeout(700);
     await page.evaluate(() => { const c = document.querySelector('.consent'); if (c) c.remove(); });
     return { ctx, page };
   }
@@ -107,42 +114,58 @@ const XURL = 'https://x.com/wardwallet';
     await ctx.close();
   }
 
-  /* The bar has to hold it at every width, not at the three anyone thinks to
-     look at. Moving the chip into the bar broke four widths that no phone and
-     no laptop happens to be: the band just above where the bar compacts, and
-     the one where the links capsule joins the row. Both were found by
-     measuring the row rather than by looking at it, so the measuring is the
-     part worth keeping. */
-  console.log('3. the bar holds it at every width');
-  for (const fill of [true, false]) {
-    const { ctx, page } = await open(fill);
-    const bad = [];
-    for (let w = 320; w <= 1460; w += 10) {
-      await page.setViewportSize({ width: w, height: 800 });
-      await page.waitForTimeout(60);
-      const r = await page.evaluate(() => {
-        const n = document.querySelector('.nav-in');
-        const cta = document.querySelector('.nav .cta.sm');
-        return {
-          nav: n.scrollWidth - n.clientWidth,
-          page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-          cta: Math.round(cta.getBoundingClientRect().width),
-          ca: Math.round(document.querySelector('#caBar').getBoundingClientRect().width)
-        };
-      });
-      /* Spilling off the row is the obvious failure. A call to action squeezed
-         down to its first letter, or an address too narrow to read, is the one
-         that looks fine in a screenshot taken at some other width. */
-      if (r.nav > 0 || r.page > 0) bad.push(w + 'px spills ' + Math.max(r.nav, r.page));
-      else if (r.cta < 60) bad.push(w + 'px crushes the button to ' + r.cta);
-      else if (r.ca < 70) bad.push(w + 'px crushes the address to ' + r.ca);
+  /* The bar has to hold it at every width, in every language, not at the three
+     anyone thinks to look at in the one they read. Putting the address in the
+     links capsule broke nine widths that no phone and no laptop happens to be,
+     and four of those only in Portuguese, whose links are the longest. None of
+     it was visible in a screenshot; all of it came out of measuring the row.
+     So the measuring is the part worth keeping.
+     The languages are the ones that actually broke while this was being fitted,
+     plus the baseline. Portuguese, French and Vietnamese have the longest
+     links; Russian and Japanese the longest call to action. English is here
+     because it is the baseline, not because it is the risk: it was clean at
+     four of the widths the others failed on. */
+  console.log('3. the bar holds it at every width, in the widest languages');
+  for (const lang of ['en', 'vi', 'pt', 'ru', 'fr', 'ja']) {
+    for (const fill of [true, false]) {
+      const { ctx, page } = await open(fill, lang);
+      const bad = [];
+      for (let w = 320; w <= 1460; w += 20) {
+        await page.setViewportSize({ width: w, height: 800 });
+        await page.waitForTimeout(55);
+        const r = await page.evaluate(() => {
+          const n = document.querySelector('.nav-in'), pill = document.querySelector('.nav-pill');
+          const cta = document.querySelector('.nav .cta.sm');
+          const links = [...pill.querySelectorAll(':scope > a')]
+            .filter(a => getComputedStyle(a).display !== 'none');
+          return {
+            nav: n.scrollWidth - n.clientWidth,
+            page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            pill: pill.scrollWidth - pill.clientWidth,
+            rows: new Set(links.map(a => Math.round(a.getBoundingClientRect().top))).size,
+            cta: cta.scrollWidth - cta.clientWidth,
+            ca: (c => c.scrollWidth - c.clientWidth)(document.querySelector('#caChip'))
+          };
+        });
+        /* Spilling off the row is the obvious failure. Links on two lines, or
+           a label clipped inside its own button, are the ones that look fine
+           in a screenshot taken at some other width. Clipping rather than a
+           width in pixels, because "Open wallet" is "Mở ví" in Vietnamese and a
+           button that is narrow because its word is short is not a bug. */
+        const spill = Math.max(r.nav, r.page, r.pill);
+        if (spill > 0) bad.push(w + 'px spills ' + spill);
+        else if (r.rows > 1) bad.push(w + 'px puts the links on ' + r.rows + ' rows');
+        else if (r.cta > 0) bad.push(w + 'px clips the button by ' + r.cta);
+        else if (r.ca > 0) bad.push(w + 'px clips the address by ' + r.ca);
+      }
+      const what = lang + ', ' + (fill ? 'with an address' : 'pending');
+      if (bad.length) {
+        console.log('   ✗ ' + what + ', ' + bad.length + ' widths:');
+        bad.slice(0, 5).forEach(x => console.log('       ' + x));
+        fail++;
+      } else console.log('   ✓ ' + what + ': 320 to 1460 clean');
+      await ctx.close();
     }
-    if (bad.length) {
-      console.log('   ✗ ' + (fill ? 'with an address' : 'pending') + ', ' + bad.length + ' widths:');
-      bad.slice(0, 6).forEach(x => console.log('       ' + x));
-      fail++;
-    } else console.log('   ✓ ' + (fill ? 'with an address' : 'pending') + ': 320 to 1460, nothing spills or is crushed');
-    await ctx.close();
   }
 
   console.log(fail ? `\nFAIL (${fail})` : '\nPASS');

@@ -20,9 +20,19 @@
 .nav .mark { width: 28px; height: 28px; }
 
 /* The links live in their own capsule, and once the page scrolls the whole bar
-   closes around them into a single floating one. */
+   closes around them into a single floating one. The contract address rides in
+   it too, after the last link, so the coin reads as part of the navigation
+   rather than as an ornament on the end of the bar.
+   The capsule is in the row at every width now, because below 1040 the links go
+   but the address stays and something has to carry it. Down there it drops its
+   own background and padding and is a plain wrapper.
+   That width used to be 940. It moved out because the links are translated and
+   the longest of them plus an address do not fit: Portuguese was spilling by
+   forty-eight pixels at 940. Between those widths the links go rather than the
+   address, because the page reaches those sections by scrolling anyway and an
+   address cannot be got any other way. */
 .nav-pill {
-  display: none; align-items: center; gap: 2px;
+  display: flex; align-items: center; gap: 2px;
   background: color-mix(in srgb, var(--surface) 52%, transparent);
   backdrop-filter: saturate(185%) blur(22px);
   -webkit-backdrop-filter: saturate(185%) blur(22px);
@@ -33,10 +43,21 @@
 .nav-pill a {
   padding: 8px 15px; border-radius: 999px; text-decoration: none;
   font-size: 14.5px; font-weight: 540; color: var(--ink-2);
+  /* A link that wraps turns the capsule into two ragged lines, and with the
+     address in there beside them the capsule is wide enough for that to
+     happen. It is the address that gives way instead, further down. */
+  white-space: nowrap;
   transition: background .18s, color .18s;
 }
 .nav-pill a:hover { background: var(--brand-soft); color: var(--brand-deep); }
-@media (min-width: 940px) { .nav-pill { display: flex; } .nav .brand { margin-right: 0; } .nav-in { justify-content: space-between; } .nav-pill { margin-inline: auto; } }
+@media (min-width: 1040px) { .nav .brand { margin-right: 0; } .nav-in { justify-content: space-between; } .nav-pill { margin-inline: auto; } }
+@media (max-width: 1039px) {
+  .nav-pill a { display: none; }
+  .nav-pill {
+    background: none; border-color: transparent; box-shadow: none; padding: 0;
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+}
 
 .nav.stuck { padding-block: 10px; }
 /* Once it is floating over the page it stops being a solid lid: the page shows
@@ -56,6 +77,9 @@
    the links would be unreadable, so there it stays opaque. */
 @supports not (backdrop-filter: blur(1px)) {
   .nav.stuck .nav-in, .nav-pill { background: var(--surface); }
+  /* Except where the capsule holds no links: there it is a wrapper, and an
+     opaque slab around the address is a box nobody asked for. */
+  @media (max-width: 1039px) { .nav-pill { background: none; } }
 }
 /* Once the whole bar is frosted the capsule stops blurring on its own, or the
    strip behind the links would be blurred twice and read darker than the rest. */
@@ -91,8 +115,9 @@
    "ウォレットを開く" is half again as wide as "Open wallet". Rather than shorten one
    language's wording or drop a control, everything gives a little at the width
    where the row stops fitting. That width moved out from 460 when the address
-   joined the row: at 480 the row was thirty pixels over. */
-@media (max-width: 520px) {
+   joined the row: at 480 the row was thirty pixels over in English, and by 560
+   in Russian, whose call to action is half again as long. */
+@media (max-width: 580px) {
   .nav-in { gap: 8px; }
   /* The mark carries the brand on a phone; the word beside it is the first
      thing that can go, and the wallet's own bar already drops it here. */
@@ -1121,45 +1146,50 @@ section.wrap:has(> .glow) { overflow: clip; }
 /* ── contract address and account ────────────────── */
 .ca-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
 
-/* In the bar rather than in the hero, so it is the first thing on the page and
-   stays there as the page scrolls. It has to hold its own height against the
-   language and theme pills beside it, which is the only reason it is a
-   separate set of sizes rather than the hero one shrunk. */
-.ca-bar.in-nav { margin: 0; gap: 6px; }
+/* In the capsule with the links rather than in the hero, so the coin is part
+   of the navigation and stays on screen as the page scrolls. It keeps its own
+   border and background in there, so it reads as a thing to press rather than
+   as a fifth link, and it is sized against the links beside it, which is the
+   only reason it is a separate set of sizes rather than the hero one shrunk. */
+.ca-bar.in-nav { margin: 0 0 0 6px; gap: 4px; }
 .ca-bar.in-nav .ca { padding: 8px 12px; gap: 6px; }
 .ca-bar.in-nav .soc { width: 34px; height: 34px; border-radius: 999px; }
 .ca-bar.in-nav .soc svg { width: 14px; height: 14px; }
 
-/* The row now carries one more thing than it was built for, and it runs out of
-   width in two places rather than one: where the links capsule joins it at
-   940px, and again on a phone. So the address gives up a piece at a time, in
-   the order of what can be lost without losing the point of it.
-   The copy icon goes first; a tap on the chip still copies. Then the mark
-   beside it, since the footer carries the same link and a row that spills off
-   the screen is worse than one link appearing once instead of twice. Then the
-   CA label, because an address is recognisably an address. What never goes is
-   the address, which is the thing people came for; below the width where even
-   that cannot share a line, it takes a line of its own.
-   The widths are where the row stops fitting rather than where phones start,
-   and they were found by measuring the row rather than guessed. */
-@media (max-width: 1100px) {
-  .nav .ca-bar.in-nav .ca-copy { display: none; }
-}
-@media (max-width: 1040px) {
-  .nav .ca-bar.in-nav .soc { display: none; }
-}
-@media (max-width: 720px) {
+/* Four links and an address in one capsule is more than the bar was built for,
+   and below about 1200 they stop both fitting at full size: at 1040, where the
+   links first appear, the row was seventy pixels over in English, and French
+   was still five pixels over at 1160. So the whole capsule tightens at once
+   rather than the address alone, because taking it all out of the address
+   would leave four roomy links beside a squint of hex.
+   What the address gives up, in the order of what can go without losing the
+   point of it: the mark beside it, since the footer carries the same link and
+   a row that spills off the screen is worse than one link appearing once
+   instead of twice; the copy icon, since a tap on the chip still copies; and
+   the CA label, because an address is recognisably an address. What never goes
+   is the address itself, which is the thing people came for.
+   The width is where the row stops fitting rather than where laptops start,
+   and it was found by measuring the row rather than guessed. */
+@media (max-width: 1200px) {
+  .nav-pill a { padding: 7px 11px; font-size: 13.5px; }
   .nav .ca-bar.in-nav { gap: 4px; }
   .nav .ca-bar.in-nav .ca { padding: 7px 10px; gap: 5px; font-size: 11.5px; }
   .nav .ca-bar.in-nav .ca-v { font-size: 11.5px; }
-  .nav .ca-bar.in-nav .ca-k { display: none; }
+  .nav .ca-bar.in-nav .ca-k,
+  .nav .ca-bar.in-nav .ca-copy,
+  .nav .ca-bar.in-nav .soc { display: none; }
 }
 /* Its own line. The bar is a little taller on the narrowest phones, which is
-   cheaper than a call to action squeezed down to three letters. */
-@media (max-width: 430px) {
+   cheaper than a call to action squeezed down to three letters. It is the
+   capsule that takes the line rather than the address inside it, because by
+   this width the capsule holds nothing else.
+   At 430 this was still clipping the Russian call to action, which is the
+   longest, so it happens a little sooner than the English row needs. */
+@media (max-width: 500px) {
   .nav-in { flex-wrap: wrap; row-gap: 8px; }
-  .nav .ca-bar.in-nav { order: 3; flex-basis: 100%; justify-content: center; }
-  .nav .ca-bar.in-nav .ca { width: 100%; justify-content: center; }
+  .nav .nav-pill { order: 3; flex-basis: 100%; }
+  .nav .nav-pill .ca-bar.in-nav { margin: 0; width: 100%; justify-content: center; }
+  .nav .nav-pill .ca { width: 100%; justify-content: center; }
 }
 
 .ca {

@@ -59,21 +59,22 @@
       <a href="#how" data-i18n="nav.wallet">The wallet</a>
       <a href="#journey" data-i18n="nav.journey">Follow a payment</a>
       <a href="#plans" data-i18n="nav.plans">Plans</a>
-    </div>
-    <!-- The contract address and the account, both waiting. To switch either
-         on, put the value in its attribute here; nothing else needs changing.
-         An empty one stays inert rather than linking nowhere.
-         It sits in the bar because that is where anyone who came for the coin
-         looks for it, and because the bar follows the page down. -->
-    <div class="ca-bar in-nav" id="caBar" data-ca="" data-x="">
-      <button class="ca" id="caChip" type="button" disabled>
-        <span class="ca-k">CA</span>
-        <span class="ca-v" id="caVal" data-i18n="ca.pending">PENDING</span>
-        <svg class="ca-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 6.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h1.5"/></svg>
-      </button>
-      <a class="soc x" id="caX" tabindex="-1" aria-label="Ward on X" title="Ward on X">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      </a>
+      <!-- The contract address and the account, both waiting. To switch either
+           on, put the value in its attribute here; nothing else needs changing.
+           An empty one stays inert rather than linking nowhere.
+           They sit in the capsule with the links, so the coin is part of the
+           navigation rather than an ornament on the end of the bar, and the
+           capsule follows the page down. -->
+      <div class="ca-bar in-nav" id="caBar" data-ca="" data-x="">
+        <button class="ca" id="caChip" type="button" disabled>
+          <span class="ca-k">CA</span>
+          <span class="ca-v" id="caVal" data-i18n="ca.pending">PENDING</span>
+          <svg class="ca-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 6.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h1.5"/></svg>
+        </button>
+        <a class="soc x" id="caX" tabindex="-1" aria-label="Ward on X" title="Ward on X">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+      </div>
     </div>
     <div class="lang" id="lang">
       <button class="lang-btn" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false">

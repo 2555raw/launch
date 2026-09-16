@@ -302,8 +302,9 @@
         </div>
 
         <label class="field">
-          <span data-i18n="w.launchuri">Link to the coin's details</span>
+          <span data-i18n="w.lcmeta">Metadata link (only if you already host one)</span>
           <input id="lcUri" type="url" maxlength="200" placeholder="https://…/coin.json">
+          <small class="hint" data-i18n="w.lcmetahint">Not the description. Everything above travels as one JSON file, and this is where that file lives: it is what explorers and wallets read to show your coin. Ward cannot publish one yet, so leave this empty unless you host your own.</small>
         </label>
 
         <div class="lc-sec">

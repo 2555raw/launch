@@ -83,3 +83,22 @@ box ticked, because the configuration it would launch against does not exist
 yet. It also covers the network pill, which is reachable from every screen —
 moving off Solana while looking at the launch form has to turn the form back
 into an offer to switch.
+
+## pons.js — the Robinhood Chain launchpad
+
+`node test/pons.js` needs no chain. Pons publishes no SDK, and ethers is the
+encoder here rather than an independent witness, so "ethers agreed with itself"
+would prove nothing. It checks the three things ethers cannot fake: the
+selector, recomputed from the canonical signature with keccak-256; the
+`TokenParams` struct, read field by field out of Pons's own Solidity source;
+and a round trip proving every value lands in the field it was given to.
+
+Point it at a clone of the contracts to get the source check:
+
+```sh
+git clone --depth 1 https://github.com/ponsdotdev/ponsfamily /tmp/ponsfamily
+PONS_SRC=/tmp/ponsfamily npm run test:pons
+```
+
+Without `PONS_SRC` it says the struct was not checked rather than passing
+quietly. It needs `ethers` available; `PONS_MODULES` points at it.

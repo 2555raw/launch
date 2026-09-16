@@ -31,6 +31,8 @@ window.WARD_APP_I18N = {
   "w.lcimghint": "Held on this device for now. Ward has nowhere to publish it yet, so paste a link below if you already host one.",
   "w.lcbadkind": "That has to be a .jpg, .png or .gif",
   "w.lcbigpic": "That picture is over 2 MB",
+  "w.lcmeta": "Metadata link (only if you already host one)",
+  "w.lcmetahint": "Not the description. Everything above travels as one JSON file, and this is where that file lives: it is what explorers and wallets read to show your coin. Ward cannot publish one yet, so leave this empty unless you host your own.",
   "w.lclinks": "Links",
   "w.lclinkssub": "Optional, and shown wherever the coin is listed.",
   "w.lcx": "X / Twitter",

@@ -55,7 +55,7 @@
   <div class="wrap nav-in">
     <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Ward</span></a>
     <div class="nav-pill">
-      <a href="#launchpad" data-i18n="nav.launchpad">Launchpad</a>
+      <a href="/app#/launch" data-i18n="nav.launchpad">Launchpad</a>
       <a href="#how" data-i18n="nav.wallet">The wallet</a>
       <a href="#journey" data-i18n="nav.journey">Follow a payment</a>
       <a href="#plans" data-i18n="nav.plans">Plans</a>
@@ -81,7 +81,7 @@
       <h1 data-i18n="hero.lph1">Launch a coin.<br>Keep the key.</h1>
       <p class="lede" data-i18n="hero.lplede">Put a coin on a bonding curve in about a minute, from a wallet that exists only in your browser. It gets a price the moment it exists, anyone can trade it, and the key that made it never leaves your machine. Not to us, not to anyone.</p>
       <div class="cta-row">
-        <a class="cta" href="/app" id="heroCta" data-i18n="cta.launch">Launch a coin</a>
+        <a class="cta" href="/app#/launch" id="heroCta" data-i18n="cta.launch">Launch a coin</a>
         <a class="cta ghost" href="#launchpad" data-i18n="cta.howcurve">How the curve works</a>
       </div>
       <ul class="trust">
@@ -566,6 +566,16 @@
     <div class="foot-id">
       <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span class="brand-name">Ward<sup class="tm">&trade;</sup></span></a>
       <p class="foot-legal" data-i18n="foot.rights">&copy; 2026 Ward. All rights reserved.</p>
+      <!-- The account does not exist yet, so the icon carries no href and is
+           inert rather than a link to nowhere. To switch it on, put the URL in
+           the href below; nothing else needs changing. -->
+      <ul class="foot-social">
+        <li>
+          <a class="soc" tabindex="-1" aria-label="Ward on X" title="Ward on X">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+        </li>
+      </ul>
     </div>
     <p data-i18n="foot.p">Self-custody wallet. You hold the keys and you carry the custody. This is not financial advice, not a bank, and not a regulated payment service. Ward is independent and is not affiliated with, endorsed by, or connected to any wallet, exchange, brokerage or network named on this page. Their marks appear only to say what it works with.</p>
   </div>

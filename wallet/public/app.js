@@ -65,7 +65,14 @@ const rank = p => PLAN_ORDER.indexOf(p);
    blocks — their coin just isn't worth anything, which makes them the right
    place to prove a payment works before risking money. */
 const CHAINS = window.WARD_CHAINS;
-const CHAIN_ORDER = [4663, 8453, 137, 42161, 10, 1, 56, 999, 'sol'];
+/* The list people actually choose from, most-used first. Optimism, BNB Smart
+   Chain and Hyperliquid are off it: the first two are covered by Base and
+   Arbitrum for everything this wallet does, and Hyperliquid never had a
+   stablecoin entry, so it could only ever hold HYPE.
+   They stay defined in chains.js on purpose rather than being deleted. Old
+   payments carry a chain id, and a wallet that forgets what chain 10 was would
+   show "Chain 10" in someone's history instead of "Optimism". */
+const CHAIN_ORDER = [4663, 'sol', 8453, 1, 42161, 137];
 
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
@@ -134,6 +141,7 @@ let prefill = null;
    purchase opens by itself once the wallet is unlocked. */
 let planWanted = null;
 let topUpWanted = false;
+let launchWanted = false;
 let plan = 'classic';
 let linked = null;            // { info, provider, address } — an external wallet
 
@@ -1819,6 +1827,11 @@ function payLink() {
    clicking Phantom means the screen that links Phantom. */
 const wantsTopUp = () => (location.hash || '').startsWith('#/topup');
 
+/* "#/launch" — "Launchpad" on the landing page means the screen that makes a
+   coin, not a wallet home the person then has to find it in. With no wallet
+   yet it survives creating one and opens straight afterwards. */
+const wantsLaunch = () => (location.hash || '').startsWith('#/launch');
+
 /* "#/plan?id=gold" — the plan buttons on the landing page link straight here so
    that "Get Gold" means the confirm screen, not a wallet home the buyer then
    has to find the plans in. */
@@ -2110,6 +2123,7 @@ function enterWallet() {
   if (prefill) applyPrefill();
   if (planWanted) applyPlanWanted();
   else if (topUpWanted) { topUpWanted = false; history.replaceState(null, '', location.pathname); show('deposit'); }
+  else if (launchWanted) { launchWanted = false; history.replaceState(null, '', location.pathname); show('launch'); }
 }
 
 /* The buyer arrives here from the landing page wanting one specific plan. Open
@@ -2133,12 +2147,18 @@ function boot() {
   prefill = readPayHash();
   planWanted = readPlanHash();
   topUpWanted = wantsTopUp();
+  launchWanted = wantsLaunch();
   paintNet();
   paintNetList();
   fillTokenSelects();
   paintTier();
   scanWallets();
-  show(read(K.store, null) ? 'unlock' : 'welcome');
+  /* Someone who clicked "Launchpad" with no wallet yet should land on the
+     launch screen and read why it cannot start, rather than on a welcome page
+     that never mentions the thing they came for. Locked wallets still unlock
+     first; the screen opens on its own afterwards. */
+  if (launchWanted && !read(K.store, null)) show('launch');
+  else show(read(K.store, null) ? 'unlock' : 'welcome');
 }
 
 /* ── Wiring ────────────────────────────────────────────────────────────────── */
@@ -2361,6 +2381,11 @@ document.addEventListener('keydown', e => {
 });
 
 window.addEventListener('hashchange', () => {
+  if (wantsLaunch()) {
+    launchWanted = true;
+    if (wallet) { launchWanted = false; history.replaceState(null, '', location.pathname); show('launch'); }
+    return;
+  }
   if (wantsTopUp()) {
     topUpWanted = true;
     if (wallet) { topUpWanted = false; history.replaceState(null, '', location.pathname); show('deposit'); }

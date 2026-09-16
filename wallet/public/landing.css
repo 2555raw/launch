@@ -1030,3 +1030,18 @@ main [id] { scroll-margin-top: 96px; }
    behaves for the sake of hiding decoration. */
 section.wrap:has(> .glow) { overflow: clip; }
 #launchpad .glow { width: 32vmax; height: 32vmax; top: 2vmax; right: 0; background: var(--brand); opacity: .17; }
+
+/* ── social ──────────────────────────────────────── */
+.foot-social { list-style: none; display: flex; gap: 8px; margin: 14px 0 0; padding: 0; }
+.soc {
+  display: grid; place-items: center; width: 36px; height: 36px;
+  border-radius: 10px; color: var(--ink-2);
+  border: 1px solid var(--line); background: var(--surface);
+  transition: color .18s, border-color .18s, background .18s, transform .18s;
+}
+.soc svg { width: 16px; height: 16px; fill: currentColor; }
+/* Without an href it is a mark, not a link: no pointer, no hover, and out of
+   the tab order, so nobody is invited to click something that goes nowhere.
+   Adding the href turns all of that back on with no other change. */
+.soc:not([href]) { opacity: .45; pointer-events: none; }
+.soc[href]:hover { color: var(--ink); border-color: var(--line-2); transform: translateY(-1px); }

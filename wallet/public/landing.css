@@ -40,7 +40,12 @@
   border-radius: 999px; padding: 5px; box-shadow: var(--shadow-1);
   transition: background .35s, border-color .35s, box-shadow .35s;
 }
-.nav-pill a {
+/* The links, and only the links. The contract address and the mark beside it
+   ride in this capsule too, and the mark is an <a>, so an unscoped rule here
+   lands on it: it was inheriting a link's 15px of side padding into a 38px
+   box, which left six pixels of content for a fourteen pixel icon and pushed
+   the glyph four pixels off centre. */
+.nav-pill > a:not(.soc) {
   padding: 8px 15px; border-radius: 999px; text-decoration: none;
   font-size: 14.5px; font-weight: 540; color: var(--ink-2);
   /* A link that wraps turns the capsule into two ragged lines, and with the
@@ -49,10 +54,10 @@
   white-space: nowrap;
   transition: background .18s, color .18s;
 }
-.nav-pill a:hover { background: var(--brand-soft); color: var(--brand-deep); }
+.nav-pill > a:not(.soc):hover { background: var(--brand-soft); color: var(--brand-deep); }
 @media (min-width: 1040px) { .nav .brand { margin-right: 0; } .nav-in { justify-content: space-between; } .nav-pill { margin-inline: auto; } }
 @media (max-width: 1039px) {
-  .nav-pill a { display: none; }
+  .nav-pill > a:not(.soc) { display: none; }
   .nav-pill {
     background: none; border-color: transparent; box-shadow: none; padding: 0;
     backdrop-filter: none; -webkit-backdrop-filter: none;
@@ -1168,7 +1173,7 @@ section.wrap:has(> .glow) { overflow: clip; }
 .ca-bar.in-nav .ca,
 .ca-bar.in-nav .soc { height: 38px; padding-block: 0; }
 .ca-bar.in-nav .ca { padding-inline: 12px; gap: 6px; }
-.ca-bar.in-nav .soc { width: 38px; border-radius: 999px; }
+.ca-bar.in-nav .soc { width: 38px; padding: 0; border-radius: 999px; }
 .ca-bar.in-nav .soc svg { width: 14px; height: 14px; }
 
 /* Four links and an address in one capsule is more than the bar was built for,
@@ -1186,7 +1191,7 @@ section.wrap:has(> .glow) { overflow: clip; }
    The width is where the row stops fitting rather than where laptops start,
    and it was found by measuring the row rather than guessed. */
 @media (max-width: 1200px) {
-  .nav-pill a { padding: 7px 11px; font-size: 13.5px; }
+  .nav-pill > a:not(.soc) { padding: 7px 11px; font-size: 13.5px; }
   .nav .ca-bar.in-nav { gap: 4px; }
   .nav .ca-bar.in-nav .ca,
   .nav .ca-bar.in-nav .soc { height: 34px; }

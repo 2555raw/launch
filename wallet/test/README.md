@@ -175,3 +175,23 @@ A balance is an integer of its chain's smallest unit, so carrying one across a
 network switch does not merely show the wrong number, it invents one: 0.0001
 ETH is 10^14 wei, and painted against a nine-decimal chain that reads as
 "100,000 SOL". This fails if any balance survives a switch.
+
+## feed-mine.js and feed-arrival.js — whose launch, and live
+
+Pons's event says nothing about who launched through what. But the launch is
+CREATE2 and its salt is a free 32 bytes, so Ward begins its salts with `WARD`
+in ASCII and the answer lives in the calldata of the transaction that emitted
+the event. `feed-mine.js` puts two launches on a local chain, one tagged and
+one not, and fails if the tabs mix them. It is a claim, not a proof: anyone can
+write the same four bytes, and the page says so.
+
+`feed-arrival.js` is the one that makes the LIVE label honest. It opens the
+page, launches a coin on the chain behind it, touches nothing, and fails if the
+row does not arrive at the top by itself.
+
+```sh
+npx hardhat node --port 8545          # chainId 4663
+node test/feed-mine-mock.js           # compiles the stand-in factory
+PORT=8099 npm start
+node test/feed-mine.js && node test/feed-arrival.js
+```

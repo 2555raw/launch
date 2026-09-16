@@ -14,7 +14,9 @@
     "test:pons-live": "node test/pons-live.js",
     "test:feed": "node test/feed.js",
     "test:feed-live": "node test/feed-live.js",
-    "test:stale": "node test/stale-balance.js"
+    "test:stale": "node test/stale-balance.js",
+    "test:feed-mine": "node test/feed-mine.js",
+    "test:feed-arrival": "node test/feed-arrival.js"
   },
   "engines": {
     "node": ">=18"

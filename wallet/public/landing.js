@@ -418,22 +418,22 @@
 
       const av = document.createElement('span');
       av.className = 'fd-av';
-      /* The coin's own picture, from a URL its creator put on chain. The letter
-         is drawn first and stays until the image loads, so a slow or dead host
-         leaves a coin looking finished rather than blank, and a host that
-         serves something that is not an image gets the letter back.
-         Only https, never data: or javascript:, and no referrer, so the host
-         learns an address and nothing about where the visitor came from. The
-         storage notice says this happens. */
+      /* The coin's own picture. The letter is drawn first and stays until an
+         image really loads, so a dead host, an ipfs gateway having a bad day,
+         or a host serving HTML all leave a finished-looking row.
+         Only https and ipfs, and no referrer, so the host learns an address
+         and nothing about where the visitor came from. The storage notice
+         says this is the one thing on the page that reaches outside it. */
       av.textContent = (c.symbol || c.name || '?').slice(0, 1).toUpperCase();
-      if (/^https:\/\//i.test(c.logo || '')) {
+      const src = F.picture(c.logo);
+      if (src) {
         const img = new Image();
         img.referrerPolicy = 'no-referrer';
         img.loading = 'lazy';
         img.decoding = 'async';
         img.alt = '';
-        img.onload = () => { av.textContent = ''; av.appendChild(img); };
-        img.src = c.logo;
+        img.onload = () => { av.textContent = ''; av.appendChild(img); av.classList.add('has-img'); };
+        img.src = src;
       }
 
       const mid = document.createElement('span');
@@ -452,20 +452,71 @@
       a.href = F.tokenUrl(c.token);
       a.target = '_blank'; a.rel = 'noopener noreferrer';
       a.textContent = short(c.token);
+      a.setAttribute('aria-label', (c.name || c.symbol || 'coin') + ' on the explorer');
 
       li.append(av, mid, a);
       return li;
     }
 
-    F.recent(12).then(coins => {
+    let mine = true, token = 0;
+    function load() {
+      const run = ++token;
+      note.hidden = true;
       list.innerHTML = '';
-      if (!coins.length) { note.textContent = say('fd.none'); note.hidden = false; return; }
-      coins.forEach(c => list.appendChild(row(c)));
-    }).catch(() => {
-      list.innerHTML = '';
-      note.textContent = say('fd.off');
-      note.hidden = false;
-    });
+      const li = document.createElement('li');
+      li.className = 'fd-loading';
+      li.textContent = say('fd.loading');
+      list.appendChild(li);
+      F.recent(12, mine).then(coins => {
+        if (run !== token) return;            // a tab was clicked meanwhile
+        list.innerHTML = '';
+        if (!coins.length) {
+          note.textContent = say(mine ? 'fd.nonemine' : 'fd.none');
+          note.hidden = false;
+          return;
+        }
+        coins.forEach(c => list.appendChild(row(c)));
+      }).catch(() => {
+        if (run !== token) return;
+        list.innerHTML = '';
+        note.textContent = say('fd.off');
+        note.hidden = false;
+      });
+    }
+
+    function tab(wantMine) {
+      mine = wantMine;
+      $('#fdMine').classList.toggle('on', mine);
+      $('#fdAll').classList.toggle('on', !mine);
+      $('#fdMine').setAttribute('aria-selected', String(mine));
+      $('#fdAll').setAttribute('aria-selected', String(!mine));
+      load();
+      relive();
+    }
+    if ($('#fdMine')) $('#fdMine').addEventListener('click', () => tab(true));
+    if ($('#fdAll')) $('#fdAll').addEventListener('click', () => tab(false));
+    /* A launch that lands while someone is reading should appear, because a
+       list headed "live" that only updates on reload is a screenshot. */
+    let watcher = null;
+    function relive() {
+      if (watcher) watcher.stop();
+      watcher = F.watch(c => {
+        const empty = list.querySelector('.fd-loading');
+        if (empty) empty.remove();
+        note.hidden = true;
+        const li = row(c);
+        li.classList.add('fd-fresh');
+        list.prepend(li);
+        /* The flash is once, not forever: the class comes off when the
+           animation ends so a row does not keep announcing itself. */
+        li.addEventListener('animationend', () => li.classList.remove('fd-fresh'), { once: true });
+        while (list.children.length > 24) list.lastElementChild.remove();
+      }, { mine });
+    }
+
+    repaint.push(load);
+    load();
+    relive();
   })();
 
 })();

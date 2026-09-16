@@ -59,6 +59,36 @@ window.WARD_FEED = (function () {
 
   const call = (to, data) => rpc('eth_call', [{ to, data }, 'latest']);
 
+  /* Was this launch made through Ward?
+     The event does not say, and there is no field on it that could. But the
+     launch is CREATE2 and its salt is a free 32 bytes that Ward begins with
+     "WARD" in ASCII, so the answer is in the calldata of the transaction that
+     emitted the event.
+     Reading it by hand: the call is launchToken(TokenParams, uint256, address).
+     TokenParams holds strings, so it is dynamic and its first word is an offset
+     to where the tuple really starts. Inside that tuple the first five fields
+     are also dynamic and occupy one word each as offsets, then come five
+     static ones. The salt is the last of them, so it is word nine of the tuple.
+     A claim rather than a proof: anyone can write the same four bytes. */
+  const WARD_TAG = '57415244';
+  const word = (b, i) => b.slice(i * 64, (i + 1) * 64);
+
+  function saltOf(input) {
+    const b = (input || '').replace(/^0x/, '').slice(8);   // past the selector
+    if (b.length < 64 * 3) return null;
+    const tuple = hexToNum(word(b, 0)) * 2;
+    const salt = b.slice(tuple + 9 * 64, tuple + 10 * 64);
+    return salt.length === 64 ? salt.toLowerCase() : null;
+  }
+
+  async function fromWard(t) {
+    try {
+      const tx = await rpc('eth_getTransactionByHash', [t.tx]);
+      const salt = tx && saltOf(tx.input);
+      return !!salt && salt.startsWith(WARD_TAG);
+    } catch { return false; }
+  }
+
   /* Walks backwards from the head in windows, because a public node will
      refuse a request that spans the whole chain, and stops as soon as enough
      launches have been found or the search has gone far enough back to be
@@ -109,14 +139,74 @@ window.WARD_FEED = (function () {
     });
   }
 
-  async function recent(want = 12) {
-    const found = await launches(want);
-    return Promise.all(found.map(describe));
+  /* `mine` asks for launches made through Ward. Those need one more call each,
+     to read the salt out of the transaction, so more are fetched than are
+     wanted: on a chain this busy most launches are somebody else's. */
+  async function recent(want = 12, mine = false) {
+    const found = await launches(mine ? want * 8 : want);
+    if (!mine) return Promise.all(found.map(describe));
+    const flags = await Promise.all(found.map(fromWard));
+    const ours = found.filter((_, i) => flags[i]).slice(0, want);
+    return Promise.all(ours.map(describe));
+  }
+
+  /* Watching for launches as they land.
+     Polling rather than a subscription because this is a public HTTP node and
+     a websocket would be one more thing to keep open and reconnect. Only the
+     blocks since the last look are asked for, so a quiet minute costs two
+     small calls, and nothing is asked at all while the tab is in the
+     background. */
+  function watch(onNew, { every = 12000, mine = false } = {}) {
+    let last = null, stopped = false, timer = null;
+
+    async function tick() {
+      if (stopped) return;
+      try {
+        const head = hexToNum(await rpc('eth_blockNumber', []));
+        if (last === null) { last = head; return; }
+        if (head > last) {
+          const logs = await rpc('eth_getLogs', [{
+            address: FACTORY, topics: [TOPIC_LAUNCHED],
+            fromBlock: '0x' + (last + 1).toString(16),
+            toBlock: '0x' + head.toString(16)
+          }]);
+          last = head;
+          /* Oldest first here, so prepending one at a time leaves the newest
+             on top when several land in the same window. */
+          for (const l of logs) {
+            const t = { token: addrOf(l.topics[1]), curve: addrOf(l.topics[2]),
+                        deployer: addrOf(l.topics[3]), block: hexToNum(l.blockNumber),
+                        tx: l.transactionHash };
+            if (mine && !(await fromWard(t))) continue;
+            onNew(await describe(t));
+          }
+        }
+      } catch { /* a node that blinked; the next tick picks the gap up */ }
+      finally { if (!stopped) timer = setTimeout(tick, document.hidden ? every * 5 : every); }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !stopped) { clearTimeout(timer); tick(); }
+    });
+    tick();
+    return { stop() { stopped = true; clearTimeout(timer); }, seen: b => { last = b; } };
+  }
+
+  /* A picture a coin put on chain. ipfs:// is common and is not something a
+     browser can fetch, so it goes through a gateway; anything that is not one
+     of these two is refused rather than guessed at. */
+  const IPFS = 'https://ipfs.io/ipfs/';
+  function picture(logo) {
+    const s = (logo || '').trim();
+    if (/^https:\/\//i.test(s)) return s;
+    if (/^ipfs:\/\//i.test(s)) return IPFS + s.replace(/^ipfs:\/\/(ipfs\/)?/i, '');
+    return null;
   }
 
   const tokenUrl = a => EXPLORER + '/token/' + a;
   const txUrl = h => EXPLORER + '/tx/' + h;
 
   return { RPC, FACTORY, EXPLORER, TOPIC_LAUNCHED, SEL,
-           rpc, recent, launches, describe, readString, addrOf, tokenUrl, txUrl };
+           WARD_TAG, rpc, recent, launches, describe, readString, addrOf,
+           saltOf, fromWard, watch, picture, IPFS, tokenUrl, txUrl };
 })();

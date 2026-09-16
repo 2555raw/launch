@@ -165,7 +165,11 @@
     <div class="lp-head">
       <span class="eyebrow" data-i18n="fd.eyebrow">Live</span>
       <h2 data-i18n="fd.h2">Coins launched on Pons</h2>
-      <p class="sec-lede" data-i18n="fd.lede">Read from Robinhood Chain as you load this page. Every coin launched through Pons appears here, including ones launched somewhere other than Ward: there is no marker on chain to tell them apart, and inventing one would mean hiding real launches or claiming other people's.</p>
+      <p class="sec-lede" data-i18n="fd.lede">Read from Robinhood Chain as you load this page. A launch made through Ward signs its own transaction, so these are told apart by the chain rather than by a list we keep. Anyone could copy that signature, so treat it as a claim; the other tab is every launch on Pons, whoever made it.</p>
+    </div>
+    <div class="fd-tabs" role="tablist">
+      <button class="fd-tab on" id="fdMine" type="button" role="tab" aria-selected="true" data-i18n="fd.mine">From Ward</button>
+      <button class="fd-tab" id="fdAll" type="button" role="tab" aria-selected="false" data-i18n="fd.all">Everything on Pons</button>
     </div>
     <ul class="fd-list" id="fdList" aria-live="polite">
       <li class="fd-loading" data-i18n="fd.loading">Reading the chain…</li>

@@ -56,10 +56,20 @@ window.WARD_PONS = (function () {
   ];
 
   /* The launch is CREATE2, so the salt fixes the token's address. It only has
-     to be unique among this account's own launches; random is enough, and
-     mining it is how someone would choose a vanity address. */
-  const salt = () => '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32)))
+     to be unique among this account's own launches, and beyond that the
+     contract does not care what is in it.
+     That free space is where Ward signs its work: the first four bytes spell
+     WARD in ASCII, so a launch made here is recognisable from its own
+     transaction, and the remaining 28 bytes are random, which is far more
+     uniqueness than one account's launches could ever need.
+     It is a claim, not a proof. Anyone can put the same four bytes in a salt,
+     and nothing here pretends otherwise; it distinguishes Ward's launches from
+     the rest of a busy chain, which is all it is for. */
+  const TAG = '57415244';                       // "WARD"
+  const salt = () => '0x' + TAG + Array.from(crypto.getRandomValues(new Uint8Array(28)))
     .map(b => b.toString(16).padStart(2, '0')).join('');
+  const isWardSalt = hex =>
+    typeof hex === 'string' && hex.replace(/^0x/, '').toLowerCase().startsWith(TAG);
 
   /* Builds TokenParams from what the launch form collects. Empty strings are
      deliberate rather than omitted: the ABI has no notion of an absent field,
@@ -143,6 +153,6 @@ window.WARD_PONS = (function () {
     /* Filled by discover() at launch time rather than written here. */
     config: null,
     NATIVE, CHAIN_ID, FACTORY, ABI,
-    params, launchCall, salt, iface, discover
+    params, launchCall, salt, iface, discover, TAG, isWardSalt
   };
 })();

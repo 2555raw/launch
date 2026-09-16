@@ -1152,6 +1152,12 @@ section.wrap:has(> .glow) { overflow: clip; }
    as a fifth link, and it is sized against the links beside it, which is the
    only reason it is a separate set of sizes rather than the hero one shrunk. */
 .ca-bar.in-nav { margin: 0 0 0 6px; gap: 4px; }
+/* The capsule ends in a curve, and the mark is a circle, so the five pixels
+   that are plenty of room beside a straight-edged link read as pinched here:
+   the two arcs close on each other at the corners and the gap the eye sees is
+   smaller than the gap that is there. The end gets a little more room, and
+   only the end, because the other side still meets a straight edge. */
+.nav-pill:has(.ca-bar.in-nav) { padding-right: 9px; }
 /* One height for the chip, the mark and the links they sit between, so the row
    lines up on its edges. Centring alone was not enough: the mark was a 34 next
    to a 38 chip, centred to the pixel and still reading as a mistake, because

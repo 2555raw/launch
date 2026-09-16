@@ -85,11 +85,14 @@
 @media (max-width: 460px) {
   .cta { padding-inline: 20px; }
   .cta-row .cta { flex: 1 1 auto; }
-  /* The bar carries a wordmark, a language, a theme and a call to action, and
-     the label in the last one is a translation: Japanese "ウォレットを開く" is
-     half again as wide as "Open wallet". Rather than shorten one language's
-     wording or drop a control, everything gives a little at the width where
-     the row stops fitting. */
+}
+/* The bar carries a wordmark, a language, a theme, a call to action and now a
+   contract address, and the label in one of them is a translation: Japanese
+   "ウォレットを開く" is half again as wide as "Open wallet". Rather than shorten one
+   language's wording or drop a control, everything gives a little at the width
+   where the row stops fitting. That width moved out from 460 when the address
+   joined the row: at 480 the row was thirty pixels over. */
+@media (max-width: 520px) {
   .nav-in { gap: 8px; }
   /* The mark carries the brand on a phone; the word beside it is the first
      thing that can go, and the wallet's own bar already drops it here. */
@@ -1117,6 +1120,48 @@ section.wrap:has(> .glow) { overflow: clip; }
 
 /* ── contract address and account ────────────────── */
 .ca-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+
+/* In the bar rather than in the hero, so it is the first thing on the page and
+   stays there as the page scrolls. It has to hold its own height against the
+   language and theme pills beside it, which is the only reason it is a
+   separate set of sizes rather than the hero one shrunk. */
+.ca-bar.in-nav { margin: 0; gap: 6px; }
+.ca-bar.in-nav .ca { padding: 8px 12px; gap: 6px; }
+.ca-bar.in-nav .soc { width: 34px; height: 34px; border-radius: 999px; }
+.ca-bar.in-nav .soc svg { width: 14px; height: 14px; }
+
+/* The row now carries one more thing than it was built for, and it runs out of
+   width in two places rather than one: where the links capsule joins it at
+   940px, and again on a phone. So the address gives up a piece at a time, in
+   the order of what can be lost without losing the point of it.
+   The copy icon goes first; a tap on the chip still copies. Then the mark
+   beside it, since the footer carries the same link and a row that spills off
+   the screen is worse than one link appearing once instead of twice. Then the
+   CA label, because an address is recognisably an address. What never goes is
+   the address, which is the thing people came for; below the width where even
+   that cannot share a line, it takes a line of its own.
+   The widths are where the row stops fitting rather than where phones start,
+   and they were found by measuring the row rather than guessed. */
+@media (max-width: 1100px) {
+  .nav .ca-bar.in-nav .ca-copy { display: none; }
+}
+@media (max-width: 1040px) {
+  .nav .ca-bar.in-nav .soc { display: none; }
+}
+@media (max-width: 720px) {
+  .nav .ca-bar.in-nav { gap: 4px; }
+  .nav .ca-bar.in-nav .ca { padding: 7px 10px; gap: 5px; font-size: 11.5px; }
+  .nav .ca-bar.in-nav .ca-v { font-size: 11.5px; }
+  .nav .ca-bar.in-nav .ca-k { display: none; }
+}
+/* Its own line. The bar is a little taller on the narrowest phones, which is
+   cheaper than a call to action squeezed down to three letters. */
+@media (max-width: 430px) {
+  .nav-in { flex-wrap: wrap; row-gap: 8px; }
+  .nav .ca-bar.in-nav { order: 3; flex-basis: 100%; justify-content: center; }
+  .nav .ca-bar.in-nav .ca { width: 100%; justify-content: center; }
+}
+
 .ca {
   display: inline-flex; align-items: center; gap: 8px;
   font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .04em;

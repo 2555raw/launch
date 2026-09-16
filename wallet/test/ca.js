@@ -52,12 +52,13 @@ const XURL = 'https://x.com/wardwallet';
       off: document.querySelector('#caChip').disabled,
       href: document.querySelector('#caX').getAttribute('href'),
       tab: document.querySelector('#caX').getAttribute('tabindex'),
-      pointer: getComputedStyle(document.querySelector('#caX')).cursor
+      linked: [...document.querySelectorAll('.soc.x')].filter(a => a.hasAttribute('href')).length
     }));
     console.log('  ', JSON.stringify(st));
     if (!/pending/i.test(st.text)) { console.log('   ✗ the chip does not read PENDING'); fail++; }
     if (!st.off) { console.log('   ✗ the chip is clickable with nothing to copy'); fail++; }
     if (st.href) { console.log('   ✗ the mark links somewhere already'); fail++; }
+    if (st.linked) { console.log('   ✗ ' + st.linked + ' mark(s) link somewhere already'); fail++; }
     if (st.tab !== '-1') { console.log('   ✗ the dead mark is still in the tab order'); fail++; }
     else console.log('   ✓ inert, and says so');
     await ctx.close();
@@ -67,14 +68,16 @@ const XURL = 'https://x.com/wardwallet';
   console.log('2. once the coin exists');
   {
     const { ctx, page } = await open(true);
-    const st = await page.evaluate(() => ({
+    const st = await page.evaluate(XURL => ({
       text: document.querySelector('#caVal').textContent.trim(),
       off: document.querySelector('#caChip').disabled,
       title: document.querySelector('#caChip').title,
       href: document.querySelector('#caX').getAttribute('href'),
       rel: document.querySelector('#caX').getAttribute('rel'),
-      tab: document.querySelector('#caX').getAttribute('tabindex')
-    }));
+      tab: document.querySelector('#caX').getAttribute('tabindex'),
+      marks: [...document.querySelectorAll('.soc.x')].length,
+      linked: [...document.querySelectorAll('.soc.x')].filter(a => a.href === XURL).length
+    }), XURL);
     console.log('  ', JSON.stringify(st));
     if (st.off) { console.log('   ✗ the chip is still dead'); fail++; }
     if (!/^0x7eD5/.test(st.text) || !/EC7e$/.test(st.text)) {
@@ -84,6 +87,9 @@ const XURL = 'https://x.com/wardwallet';
     if (st.href !== XURL) { console.log('   ✗ the mark does not link to the account'); fail++; }
     if (!/noopener/.test(st.rel || '')) { console.log('   ✗ the link opens without noopener'); fail++; }
     if (st.tab === '-1') { console.log('   ✗ a live link is still out of the tab order'); fail++; }
+    if (st.linked !== st.marks) {
+      console.log('   ✗ only ' + st.linked + ' of ' + st.marks + ' marks link anywhere'); fail++;
+    }
 
     /* Copying is the only thing the chip is for. */
     await page.click('#caChip');
@@ -98,6 +104,44 @@ const XURL = 'https://x.com/wardwallet';
     const back = await page.$eval('#caVal', n => n.textContent.trim());
     if (!/^0x7eD5/.test(back)) { console.log('   ✗ it never went back to the address'); fail++; }
     else console.log('   ✓ copies, says so, and goes back');
+    await ctx.close();
+  }
+
+  /* The bar has to hold it at every width, not at the three anyone thinks to
+     look at. Moving the chip into the bar broke four widths that no phone and
+     no laptop happens to be: the band just above where the bar compacts, and
+     the one where the links capsule joins the row. Both were found by
+     measuring the row rather than by looking at it, so the measuring is the
+     part worth keeping. */
+  console.log('3. the bar holds it at every width');
+  for (const fill of [true, false]) {
+    const { ctx, page } = await open(fill);
+    const bad = [];
+    for (let w = 320; w <= 1460; w += 10) {
+      await page.setViewportSize({ width: w, height: 800 });
+      await page.waitForTimeout(60);
+      const r = await page.evaluate(() => {
+        const n = document.querySelector('.nav-in');
+        const cta = document.querySelector('.nav .cta.sm');
+        return {
+          nav: n.scrollWidth - n.clientWidth,
+          page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          cta: Math.round(cta.getBoundingClientRect().width),
+          ca: Math.round(document.querySelector('#caBar').getBoundingClientRect().width)
+        };
+      });
+      /* Spilling off the row is the obvious failure. A call to action squeezed
+         down to its first letter, or an address too narrow to read, is the one
+         that looks fine in a screenshot taken at some other width. */
+      if (r.nav > 0 || r.page > 0) bad.push(w + 'px spills ' + Math.max(r.nav, r.page));
+      else if (r.cta < 60) bad.push(w + 'px crushes the button to ' + r.cta);
+      else if (r.ca < 70) bad.push(w + 'px crushes the address to ' + r.ca);
+    }
+    if (bad.length) {
+      console.log('   ✗ ' + (fill ? 'with an address' : 'pending') + ', ' + bad.length + ' widths:');
+      bad.slice(0, 6).forEach(x => console.log('       ' + x));
+      fail++;
+    } else console.log('   ✓ ' + (fill ? 'with an address' : 'pending') + ': 320 to 1460, nothing spills or is crushed');
     await ctx.close();
   }
 

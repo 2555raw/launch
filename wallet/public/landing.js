@@ -532,12 +532,16 @@
     const xUrl = (bar.dataset.x || '').trim();
     const d = () => DICT[document.documentElement.lang.slice(0, 2)] || DICT.en || {};
 
+    /* Every mark on the page, not only the one in the bar: the footer carries
+       the same link, and the bar drops its mark on a phone to keep the row on
+       the screen, so the footer is the only one left there. */
     if (/^https:\/\//i.test(xUrl)) {
-      const a = $('#caX');
-      a.href = xUrl;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.removeAttribute('tabindex');
+      document.querySelectorAll('.soc.x').forEach(a => {
+        a.href = xUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.removeAttribute('tabindex');
+      });
     }
 
     if (!/^0x[0-9a-fA-F]{40}$/.test(addr)) return;   // still pending

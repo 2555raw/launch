@@ -60,6 +60,21 @@
       <a href="#journey" data-i18n="nav.journey">Follow a payment</a>
       <a href="#plans" data-i18n="nav.plans">Plans</a>
     </div>
+    <!-- The contract address and the account, both waiting. To switch either
+         on, put the value in its attribute here; nothing else needs changing.
+         An empty one stays inert rather than linking nowhere.
+         It sits in the bar because that is where anyone who came for the coin
+         looks for it, and because the bar follows the page down. -->
+    <div class="ca-bar in-nav" id="caBar" data-ca="" data-x="">
+      <button class="ca" id="caChip" type="button" disabled>
+        <span class="ca-k">CA</span>
+        <span class="ca-v" id="caVal" data-i18n="ca.pending">PENDING</span>
+        <svg class="ca-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 6.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h1.5"/></svg>
+      </button>
+      <a class="soc x" id="caX" tabindex="-1" aria-label="Ward on X" title="Ward on X">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+    </div>
     <div class="lang" id="lang">
       <button class="lang-btn" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg>
@@ -80,20 +95,6 @@
       <span class="eyebrow" data-i18n="hero.lpeyebrow">Launch a coin · you hold the keys</span>
       <h1 data-i18n="hero.lph1">Launch a coin.<br>Keep the key.</h1>
       <p class="lede" data-i18n="hero.lplede">Put a coin on a bonding curve in about a minute, from a wallet that exists only in your browser. It gets a price the moment it exists, anyone can trade it, and the key that made it never leaves your machine. Not to us, not to anyone.</p>
-      <!-- The contract address and the account, both waiting. To switch either
-           on, put the value in its attribute here; nothing else needs
-           changing. An empty one stays inert rather than linking nowhere. -->
-      <div class="ca-bar" id="caBar" data-ca="" data-x="">
-        <button class="ca" id="caChip" type="button" disabled>
-          <span class="ca-k">CA</span>
-          <span class="ca-v" id="caVal" data-i18n="ca.pending">PENDING</span>
-          <svg class="ca-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 6.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h1.5"/></svg>
-        </button>
-        <a class="soc" id="caX" tabindex="-1" aria-label="Ward on X" title="Ward on X">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </a>
-      </div>
-
       <div class="cta-row">
         <a class="cta" href="/app#/launch" id="heroCta" data-i18n="cta.launch">Launch a coin</a>
         <a class="cta ghost" href="#launchpad" data-i18n="cta.howcurve">How the curve works</a>
@@ -601,7 +602,7 @@
            the href below; nothing else needs changing. -->
       <ul class="foot-social">
         <li>
-          <a class="soc" tabindex="-1" aria-label="Ward on X" title="Ward on X">
+          <a class="soc x" tabindex="-1" aria-label="Ward on X" title="Ward on X">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
         </li>

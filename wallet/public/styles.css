@@ -506,6 +506,13 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
 
 /* ── modal sheets ────────────────────────────────── */
 .sheet-wrap { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; }
+/* Every .btn sets display:block, which beats the display:none a browser gives
+   [hidden]. So hiding a button did nothing at all, anywhere in this app: the
+   launch screen showed "Use Phantom" next to an already-linked Phantom. One
+   rule, rather than a hidden-class of its own, because the attribute is the
+   right tool and it only needed to win. */
+[hidden] { display: none !important; }
+
 /* The display:flex above beats the display:none the browser gives [hidden], so
    it has to be handed back or a closed sheet keeps covering the screen. */
 .sheet-wrap[hidden] { display: none; }

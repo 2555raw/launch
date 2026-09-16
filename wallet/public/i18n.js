@@ -157,7 +157,7 @@ window.WARD_I18N = {
   "foot.rights": "© 2026 Ward. All rights reserved.",
   "foot.p": "Self-custody wallet. You hold the keys and you carry the custody. This is not financial advice, not a bank, and not a regulated payment service. Ward is independent and is not affiliated with, endorsed by, or connected to any wallet, exchange, brokerage or network named on this page. Their marks appear only to say what it works with.",
   "cs.title": "Ward keeps things on your device, not on a server.",
-  "cs.body": "No cookies, no trackers, no analytics, and nothing sent to us or to anyone else. There is no server that could receive it.",
+  "cs.body": "No cookies, no trackers, no analytics, and nothing about you sent to us: there is no server that could receive it. One exception, and it is worth knowing: the launched-coins list shows each coin's own picture, and that picture is fetched from a host the coin's creator chose, which tells that host your address. Nothing else on this page reaches outside it.",
   "cs.d1": "<b>Your encrypted wallet.</b> The private key, sealed with your password using scrypt and AES. It is useless to anyone without that password, and it never leaves this browser.",
   "cs.d2": "<b>Your settings.</b> The network you picked, any custom node address, and your account names.",
   "cs.d3": "<b>A local copy of your activity.</b> So the list loads instantly. The authoritative record is always the blockchain.",

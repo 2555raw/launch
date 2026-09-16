@@ -1067,3 +1067,4 @@ section.wrap:has(> .glow) { overflow: clip; }
          color: var(--ink-3); text-decoration: none; }
 .fd-go:hover { color: var(--brand-deep); }
 .fd-loading, .fd-note { color: var(--ink-3); font-size: 14px; list-style: none; }
+.fd-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }

@@ -32,7 +32,11 @@ const CSP = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
+  /* https: rather than 'self' because the launched-coins list shows each coin's
+     own picture, and that URL is chosen by whoever launched it. It is the one
+     place this site loads something from a host it does not control, and the
+     storage notice says so rather than claiming otherwise. */
+  "img-src 'self' data: https:",
   "font-src 'self'",
   "connect-src https: http://localhost:* http://127.0.0.1:*",
   "form-action 'none'",

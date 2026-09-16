@@ -118,9 +118,9 @@ const { chromium } = require('playwright');
   await page.click('#lcGo');
   await page.waitForTimeout(400);
   const said = await page.$$eval('.toast', t => t.map(x => x.textContent));
-  const named = said.some(t => /launchpad/i.test(t));
+  const named = said.some(t => /not open|launchpad/i.test(t));
   if (!named) { console.log('  a forced submit did not say why it refused:', JSON.stringify(said)); fail++; }
-  else console.log('  a forced submit answers:', JSON.stringify(said.find(t => /launchpad/i.test(t))));
+  else console.log('  a forced submit answers:', JSON.stringify(said.find(t => /not open|launchpad/i.test(t))));
 
   // and back to an EVM chain
   await page.click('#netPill');

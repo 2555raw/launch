@@ -258,7 +258,7 @@
            screen that looks broken. -->
       <div class="note warn" id="launchNoWallet" hidden>
         <b data-i18n="w.lcneedwallet">You need a wallet first</b>
-        <span data-i18n="w.lcneedwalletb">Launching signs a transaction, so there has to be a key to sign it with. Creating one takes about a minute and never leaves this browser.</span>
+        <span data-i18n="w.lcneedwalletb">Launching signs a transaction, so there has to be a key to sign it with. Make one here in a tap, or link Phantom above and sign with that instead.</span>
         <button class="btn primary sm" id="quickGoLaunch" type="button" data-i18n="w.qstart">Start now, no password</button>
         <button class="btn ghost sm" data-go="welcome" type="button" data-i18n="w.qfullsetup">Set one up properly instead</button>
       </div>
@@ -275,8 +275,9 @@
 
       <!-- No config: the launchpad is not switched on -->
       <div class="note warn" id="launchNoConfig" hidden>
-        <b data-i18n="w.launchoffttl">Ward's launchpad is not switched on yet</b>
-        <span data-i18n="w.launchoffb">A launchpad needs a configuration on chain that fixes the curve, the fees and where a graduated coin goes. It is a one-time transaction and it has not been made. Everything below is built and checked, and nothing can be launched until it exists.</span>
+        <b data-i18n="w.launchoffttl">Solana is not open yet</b>
+        <span data-i18n="w.launchoffb">Launching on Solana needs one setup transaction of ours that has not been made, so nothing can go out on this network today. Robinhood Chain is open right now and needs nothing set up.</span>
+        <button class="btn ghost sm" id="launchOffToPons" type="button" data-i18n="w.launchtorh">Use Robinhood Chain</button>
       </div>
 
       <!-- Who signs. Ward's own wallet, or Phantom, which means the coin is

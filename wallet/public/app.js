@@ -502,8 +502,12 @@ function paintLaunch() {
   $('#launchWrongChain').hidden = none || !wrong;
   $('#launchNoConfig').hidden = none || wrong || !unset;
   $('#launchForm').hidden = none || wrong;
+  /* Deliberately visible when there is no wallet: linking Phantom is one of
+     the ways to get a signer, so hiding the row exactly when someone has
+     nothing to sign with would close the door they came through. It goes only
+     where it cannot help: off Solana, and on the EVM launchpad. */
   const row = $('#lcSigner');
-  if (row) row.hidden = none || wrong || isPons();
+  if (row) row.hidden = wrong || isPons();
   paintSigner();
 }
 
@@ -630,6 +634,7 @@ function wireLaunch() {
   $('#lcAgree').addEventListener('change', launchGate);
   $('#launchToSol').addEventListener('click', () => { switchChain('sol'); paintLaunch(); });
   $('#launchToPons').addEventListener('click', () => { switchChain(4663); paintLaunch(); });
+  $('#launchOffToPons').addEventListener('click', () => { switchChain(4663); paintLaunch(); });
   $('#launchForm').addEventListener('submit', e => { e.preventDefault(); doLaunch(); });
 
   $('#lcFile').addEventListener('change', e => takePicture(e.target.files[0]));

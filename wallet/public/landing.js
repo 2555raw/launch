@@ -418,12 +418,23 @@
 
       const av = document.createElement('span');
       av.className = 'fd-av';
-      /* Deliberately a letter and not the coin's picture. The logo is a URL
-         chosen by whoever launched the coin, so showing it would send every
-         visitor's address to a host a stranger picked. This page says it has
-         no trackers and sends nothing to anyone, and that has to keep being
-         true when the content comes from the chain. */
+      /* The coin's own picture, from a URL its creator put on chain. The letter
+         is drawn first and stays until the image loads, so a slow or dead host
+         leaves a coin looking finished rather than blank, and a host that
+         serves something that is not an image gets the letter back.
+         Only https, never data: or javascript:, and no referrer, so the host
+         learns an address and nothing about where the visitor came from. The
+         storage notice says this happens. */
       av.textContent = (c.symbol || c.name || '?').slice(0, 1).toUpperCase();
+      if (/^https:\/\//i.test(c.logo || '')) {
+        const img = new Image();
+        img.referrerPolicy = 'no-referrer';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.alt = '';
+        img.onload = () => { av.textContent = ''; av.appendChild(img); };
+        img.src = c.logo;
+      }
 
       const mid = document.createElement('span');
       mid.className = 'fd-mid';

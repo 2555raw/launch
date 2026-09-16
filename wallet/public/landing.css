@@ -1152,8 +1152,17 @@ section.wrap:has(> .glow) { overflow: clip; }
    as a fifth link, and it is sized against the links beside it, which is the
    only reason it is a separate set of sizes rather than the hero one shrunk. */
 .ca-bar.in-nav { margin: 0 0 0 6px; gap: 4px; }
-.ca-bar.in-nav .ca { padding: 8px 12px; gap: 6px; }
-.ca-bar.in-nav .soc { width: 34px; height: 34px; border-radius: 999px; }
+/* One height for the chip, the mark and the links they sit between, so the row
+   lines up on its edges. Centring alone was not enough: the mark was a 34 next
+   to a 38 chip, centred to the pixel and still reading as a mistake, because
+   what the eye compares is the top and bottom edges, not the middles.
+   A number rather than stretch, because stretch makes the two take their
+   height from each other and they grow together until they are taller than the
+   links beside them. */
+.ca-bar.in-nav .ca,
+.ca-bar.in-nav .soc { height: 38px; padding-block: 0; }
+.ca-bar.in-nav .ca { padding-inline: 12px; gap: 6px; }
+.ca-bar.in-nav .soc { width: 38px; border-radius: 999px; }
 .ca-bar.in-nav .soc svg { width: 14px; height: 14px; }
 
 /* Four links and an address in one capsule is more than the bar was built for,
@@ -1173,7 +1182,10 @@ section.wrap:has(> .glow) { overflow: clip; }
 @media (max-width: 1200px) {
   .nav-pill a { padding: 7px 11px; font-size: 13.5px; }
   .nav .ca-bar.in-nav { gap: 4px; }
-  .nav .ca-bar.in-nav .ca { padding: 7px 10px; gap: 5px; font-size: 11.5px; }
+  .nav .ca-bar.in-nav .ca,
+  .nav .ca-bar.in-nav .soc { height: 34px; }
+  .nav .ca-bar.in-nav .soc { width: 34px; }
+  .nav .ca-bar.in-nav .ca { padding-inline: 10px; gap: 5px; font-size: 11.5px; }
   .nav .ca-bar.in-nav .ca-v { font-size: 11.5px; }
   .nav .ca-bar.in-nav .ca-k,
   .nav .ca-bar.in-nav .ca-copy,

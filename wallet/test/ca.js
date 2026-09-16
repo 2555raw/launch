@@ -18,7 +18,10 @@
 const { chromium } = require('playwright');
 const SITE = process.env.SITE_URL || 'http://127.0.0.1:8099/';
 const ADDR = '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e';
-const XURL = 'https://x.com/wardwallet';
+/* The account the page ships pointing at. Read from the page rather than
+   written here would test nothing: the point is that this address is the one
+   that arrives in the mark. */
+const XURL = 'https://x.com/useGwardpad';
 
 (async () => {
   const b = await chromium.launch({ ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}) });
@@ -29,15 +32,17 @@ const XURL = 'https://x.com/wardwallet';
                                      permissions: ['clipboard-read', 'clipboard-write'] });
     const page = await ctx.newPage();
     page.on('pageerror', e => { console.log('   PAGEERROR ' + e.message); fail++; });
-    if (fill) {
-      await page.route('**/', async route => {
-        const r = await route.fetch();
-        const html = (await r.text())
-          .replace('data-ca=""', 'data-ca="' + ADDR + '"')
-          .replace('data-x=""', 'data-x="' + XURL + '"');
-        await route.fulfill({ response: r, body: html, headers: { ...r.headers(), 'content-length': undefined } });
-      });
-    }
+    /* Two states off the same page. Filled is what it looks like once there is
+       a coin; bare is the inert state, which the page no longer ships now that
+       the account exists, so the attribute is emptied on the way through to
+       keep that branch covered. */
+    await page.route('**/', async route => {
+      const r = await route.fetch();
+      const html = fill
+        ? (await r.text()).replace('data-ca=""', 'data-ca="' + ADDR + '"')
+        : (await r.text()).replace(/data-x="[^"]*"/, 'data-x=""');
+      await route.fulfill({ response: r, body: html, headers: { ...r.headers(), 'content-length': undefined } });
+    });
     /* The language is stored, so it takes a second visit to take effect: the
        first load is what puts it there. */
     if (lang && lang !== 'en') {
@@ -50,8 +55,22 @@ const XURL = 'https://x.com/wardwallet';
     return { ctx, page };
   }
 
-  /* As it ships. */
-  console.log('1. before there is a coin');
+  /* What the page actually ships: no coin yet, but the account exists. */
+  console.log('0. as it ships');
+  {
+    const { ctx, page } = await open(true);
+    const st = await page.evaluate(() => ({
+      marks: [...document.querySelectorAll('.soc.x')].map(a => a.getAttribute('href'))
+    }));
+    const wrong = st.marks.filter(h => h !== XURL);
+    if (!st.marks.length) { console.log('   ✗ no X mark on the page at all'); fail++; }
+    else if (wrong.length) { console.log('   ✗ a mark points at ' + wrong[0]); fail++; }
+    else console.log('   ✓ ' + st.marks.length + ' marks, both to ' + XURL);
+    await ctx.close();
+  }
+
+  /* With nothing filled in at all. */
+  console.log('1. with neither a coin nor an account');
   {
     const { ctx, page } = await open(false);
     const st = await page.evaluate(() => ({
@@ -64,15 +83,15 @@ const XURL = 'https://x.com/wardwallet';
     console.log('  ', JSON.stringify(st));
     if (!/pending/i.test(st.text)) { console.log('   ✗ the chip does not read PENDING'); fail++; }
     if (!st.off) { console.log('   ✗ the chip is clickable with nothing to copy'); fail++; }
-    if (st.href) { console.log('   ✗ the mark links somewhere already'); fail++; }
-    if (st.linked) { console.log('   ✗ ' + st.linked + ' mark(s) link somewhere already'); fail++; }
+    if (st.href) { console.log('   ✗ the mark links somewhere with an empty attribute'); fail++; }
+    if (st.linked) { console.log('   ✗ ' + st.linked + ' mark(s) link with an empty attribute'); fail++; }
     if (st.tab !== '-1') { console.log('   ✗ the dead mark is still in the tab order'); fail++; }
     else console.log('   ✓ inert, and says so');
     await ctx.close();
   }
 
   /* And once the two attributes are filled in. */
-  console.log('2. once the coin exists');
+  console.log('2. once the coin exists too');
   {
     const { ctx, page } = await open(true);
     const st = await page.evaluate(XURL => ({

@@ -265,9 +265,12 @@
 
       <!-- Not on Solana -->
       <div class="note warn" id="launchWrongChain" hidden>
-        <b data-i18n="w.launchsolonly">Launching happens on Solana</b>
-        <span data-i18n="w.launchsolonlyb">The curve program runs there. Switch network to continue. Your wallet already has a Solana account on the same twelve words.</span>
-        <button class="btn ghost sm" id="launchToSol" type="button" data-i18n="w.launchswitch">Switch to Solana</button>
+        <b data-i18n="w.launchwhere">This network has no launchpad</b>
+        <span data-i18n="w.launchwhereb">Coins are launched on Robinhood Chain, through Pons, or on Solana, through Meteora's curve. Your wallet already has an account on both.</span>
+        <div class="row-2">
+          <button class="btn ghost sm" id="launchToPons" type="button" data-i18n="w.launchtorh">Use Robinhood Chain</button>
+          <button class="btn ghost sm" id="launchToSol" type="button" data-i18n="w.launchswitch">Use Solana</button>
+        </div>
       </div>
 
       <!-- No config: the launchpad is not switched on -->
@@ -704,6 +707,7 @@
 <script src="chains.js"></script>
 <script src="sol.js"></script>
 <script src="vault.js"></script>
+<script src="pons.js"></script>
 <script src="phantom.js"></script>
 <script src="dbc.js"></script>
 <script src="langs.js"></script>

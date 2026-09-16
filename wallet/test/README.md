@@ -128,3 +128,26 @@ belongs at that position.
 
 It does not prove Phantom itself accepts the transaction. That needs the real
 extension and a real network.
+
+## pons-live.js — a coin actually launched
+
+Pons is on Robinhood Chain mainnet only, so a real launch costs real money and
+cannot be undone. This puts a stand-in factory at Pons's actual address on a
+local chain running Robinhood's chain id (4663), then does the whole thing for
+real: a wallet in one tap, funded, the form filled in, the button pressed, a
+transaction mined. Afterwards it reads back out of the contract what it was
+handed, and checks every field, the exact fee and the pinned economics.
+
+The stand-in is not a yes-machine: its launch config **id 0 is retired and id 1
+is live**, so a wallet that assumed 0 would launch against a dead curve and
+this test would say so.
+
+```sh
+npx hardhat node --port 8545          # hardhat.config.js: chainId 4663
+PORT=8099 npm start
+node test/pons-mock.js                # compiles the stand-in (needs solc)
+node test/pons-live.js
+```
+
+What it proves: the wiring, the discovery, the encoding, the fee, the fields.
+What it cannot prove: that the deployed Pons behaves like its published source.

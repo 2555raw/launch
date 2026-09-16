@@ -477,18 +477,27 @@ function show(name) {
 /* The screen has three states and only one of them is a form you can submit:
    wrong network, launchpad not configured, and ready. They are checked in that
    order because each makes the next one irrelevant. */
+/* Two launchpads now, on two chains. Solana goes through Meteora's curve;
+   Robinhood Chain goes through Pons, which owns its own configurations, so
+   nothing has to be set up before a launch can happen there. */
+const isPons = () => Number(prefs.chainId) === 4663;
+const canLaunchHere = () => isSol() || isPons();
+
 function paintLaunch() {
   /* Four states, checked in this order because each makes the next
-     irrelevant: no wallet at all, wrong network, no configuration, ready. */
+     irrelevant: no wallet at all, a chain with no launchpad, nothing to
+     launch against, ready. */
   const none = !wallet && !phLinked;
-  const wrong = !none && !isSol();
-  const unset = !window.WARD_DBC || !window.WARD_DBC.config;
+  const wrong = !none && !canLaunchHere();
+  const unset = isPons()
+    ? false                                   /* Pons needs no setup of ours */
+    : (!window.WARD_DBC || !window.WARD_DBC.config);
   $('#launchNoWallet').hidden = !none;
   $('#launchWrongChain').hidden = none || !wrong;
   $('#launchNoConfig').hidden = none || wrong || !unset;
   $('#launchForm').hidden = none || wrong;
   const row = $('#lcSigner');
-  if (row) row.hidden = none || wrong;
+  if (row) row.hidden = none || wrong || isPons();
   paintSigner();
 }
 
@@ -496,8 +505,8 @@ function paintLaunch() {
    is a wallet to sign with and something to launch against. */
 function launchGate() {
   const filled = $('#lcName').value.trim() && $('#lcSym').value.trim() && $('#lcDesc').value.trim();
-  const ok = !!(isSol() && (wallet || phLinked) && filled && $('#lcAgree').checked
-                && window.WARD_DBC && window.WARD_DBC.config);
+  const ready = isPons() ? !!wallet : ((wallet || phLinked) && window.WARD_DBC && window.WARD_DBC.config);
+  const ok = !!(canLaunchHere() && ready && filled && $('#lcAgree').checked);
   $('#lcGo').disabled = !ok;
   $('#lcNameCount').textContent = $('#lcName').value.length + '/64';
   $('#lcSymCount').textContent = $('#lcSym').value.length + '/16';
@@ -521,6 +530,53 @@ function takePicture(file) {
     box.appendChild(img);
   };
   r.readAsDataURL(file);
+}
+
+/* Launching through Pons. The terms are read from the factory at this moment
+   rather than assumed: whether launching is open, what it charges, which curve
+   configuration is live, and the economics to pin so an owner re-peg cannot
+   land underneath a launch already in flight. */
+async function doLaunchPons() {
+  const PONS = window.WARD_PONS;
+  const btn = $('#lcGo');
+  btn.disabled = true;
+  try {
+    if (!wallet) throw new Error(tr('w.nosolkey'));
+    const p = provider();
+    const me = wallet.address;
+    const terms = await PONS.discover(p, me, E);
+    if (!terms.open) throw new Error(tr(terms.noConfig ? 'w.pnoconfig' : 'w.pclosed'));
+
+    const call = PONS.launchCall(E, {
+      name: $('#lcName').value.trim(),
+      symbol: $('#lcSym').value.trim().toUpperCase(),
+      description: $('#lcDesc').value.trim(),
+      logo: $('#lcUri').value.trim(),
+      twitter: $('#lcX').value.trim(),
+      telegram: $('#lcTg').value.trim(),
+      website: $('#lcSite').value.trim(),
+      creator: me,
+      launchConfigId: terms.launchConfigId,
+      pairToken: terms.pairToken,
+      expectedEconomics: terms.expectedEconomics,
+      launchFee: terms.launchFee
+    });
+
+    const signer = wallet.connect(p);
+    const tx = await signer.sendTransaction(call);
+    statusSheet('sending', tx.hash);
+    pushAct({
+      hash: tx.hash, chainId: prefs.chainId, from: me, to: PONS.FACTORY,
+      amount: '1', symbol: $('#lcSym').value.trim().toUpperCase(),
+      ts: Date.now(), status: 'pending', kind: 'launch'
+    });
+    const r = await tx.wait();
+    if (r && r.status === 1) { patchAct(tx.hash, { status: 'ok' }); statusSheet('ok', tx.hash); }
+    else { patchAct(tx.hash, { status: 'failed' }); statusSheet('failed', tx.hash); }
+    refresh();
+  } catch (e) {
+    statusSheet('failed', null, friendly(e));
+  } finally { launchGate(); }
 }
 
 /* ── signing a launch with Phantom ─────────────────────────────────────────
@@ -567,6 +623,7 @@ function wireLaunch() {
   ['#lcName', '#lcSym', '#lcDesc'].forEach(s => $(s).addEventListener('input', launchGate));
   $('#lcAgree').addEventListener('change', launchGate);
   $('#launchToSol').addEventListener('click', () => { switchChain('sol'); paintLaunch(); });
+  $('#launchToPons').addEventListener('click', () => { switchChain(4663); paintLaunch(); });
   $('#launchForm').addEventListener('submit', e => { e.preventDefault(); doLaunch(); });
 
   $('#lcFile').addEventListener('change', e => takePicture(e.target.files[0]));
@@ -581,6 +638,7 @@ function wireLaunch() {
 }
 
 async function doLaunch() {
+  if (isPons()) return doLaunchPons();
   const DBC = window.WARD_DBC;
   /* A disabled button is a hint, not a guarantee. */
   if (!DBC || !DBC.config) { toast(tr('w.launchoffttl')); return; }

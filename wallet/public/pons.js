@@ -20,10 +20,12 @@
  * that source and recomputes the selector from the signature rather than
  * trusting what ethers returns.
  *
- * What is NOT decided here, because it is read off the chain and this machine
- * cannot reach one: which launchConfigId to use, which pairToken to quote in,
- * and what launchFee the factory currently asks for. WARD_PONS.config carries
- * them and is null until someone fills it in. */
+ * What is deliberately NOT hardcoded: which launchConfigId to use, what the
+ * factory charges, and whether launching is open at all. The factory owns
+ * those and can change them between one launch and the next, so discover()
+ * reads them from the chain at the moment of launching. This machine cannot
+ * reach a node, but the browser running this can, which is the whole reason
+ * that works. */
 
 window.WARD_PONS = (function () {
   const CHAIN_ID = 4663;
@@ -45,7 +47,12 @@ window.WARD_PONS = (function () {
     'function previewLaunchEconomics(uint256 launchConfigId,address pairToken) view returns (bytes32)',
     'function canLaunch(address launcher) view returns (bool)',
     'function launchFee() view returns (uint256)',
-    'function launchEnabled() view returns (bool)'
+    'function launchEnabled() view returns (bool)',
+    'function launchConfigCount() view returns (uint256)',
+    /* LaunchConfig, in the order it is declared in the source. */
+    'function getLaunchConfig(uint256 id) view returns (' +
+      '(uint256 supply,uint256 curveFeeBps,uint256 phantomQuote,uint256 graduationThreshold,' +
+      'uint24 poolFee,int24 tickSpacing,bool enabled))'
   ];
 
   /* The launch is CREATE2, so the salt fixes the token's address. It only has
@@ -93,12 +100,49 @@ window.WARD_PONS = (function () {
     };
   }
 
+  /* Quoting a launch is not a thing to hardcode: the factory owns the curve
+     configurations, sets its own fee and can turn launching off, and all of it
+     can change between one launch and the next. This machine cannot reach the
+     chain, but the browser running this can, so the terms are read at the
+     moment of launching rather than pinned into the source.
+
+     pairToken address(0) is a launch quoted in the chain's own coin. An
+     approved ERC-20 would go here instead, and the curve figures would then be
+     in that asset's decimals rather than in wei. */
+  const NATIVE = '0x0000000000000000000000000000000000000000';
+
+  async function discover(provider, me, E) {
+    const c = new E.Contract(FACTORY, ABI, provider);
+    const [open, fee, count] = await Promise.all([
+      c.canLaunch(me), c.launchFee(), c.launchConfigCount()
+    ]);
+    if (!open) return { open: false };
+
+    /* The first configuration the factory says is enabled. Reading them rather
+       than assuming id 0 means a disabled or retired one cannot be launched
+       against by accident. */
+    let id = null, cfg = null;
+    for (let i = 0n; i < count; i++) {
+      const got = await c.getLaunchConfig(i);
+      if (got.enabled) { id = i; cfg = got; break; }
+    }
+    if (id === null) return { open: false, noConfig: true };
+
+    /* Quoted now and pinned into the launch, so an owner re-peg cannot land
+       underneath a launch already in flight. */
+    const economics = await c.previewLaunchEconomics(id, NATIVE);
+    return {
+      open: true, launchFee: fee, launchConfigId: id, pairToken: NATIVE,
+      expectedEconomics: economics,
+      supply: cfg.supply, curveFeeBps: cfg.curveFeeBps,
+      graduationThreshold: cfg.graduationThreshold
+    };
+  }
+
   return {
-    /* Read off the chain, not guessed: which curve configuration to launch
-       against, what asset it is quoted in, and what the factory charges. Null
-       until those three are known. */
+    /* Filled by discover() at launch time rather than written here. */
     config: null,
-    CHAIN_ID, FACTORY, ABI,
-    params, launchCall, salt, iface
+    NATIVE, CHAIN_ID, FACTORY, ABI,
+    params, launchCall, salt, iface, discover
   };
 })();

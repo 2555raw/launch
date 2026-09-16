@@ -10,7 +10,8 @@
     "test:launch": "node test/launch.js",
     "test:pons": "node test/pons.js",
     "test:quick": "node test/quick.js",
-    "test:phantom": "node test/phantom.js"
+    "test:phantom": "node test/phantom.js",
+    "test:pons-live": "node test/pons-live.js"
   },
   "engines": {
     "node": ">=18"

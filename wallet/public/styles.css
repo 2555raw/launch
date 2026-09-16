@@ -867,3 +867,19 @@ h3 { font-size: 17px; letter-spacing: -.015em; font-weight: 620; margin: 0 0 6px
   .lc-drop-row { grid-template-columns: 1fr; }
   .lc-prev-box { width: 124px; }
 }
+
+/* ── the standing notice on a wallet with no password ─────────────────── */
+/* Sits with the wrong-chain warning rather than among the toasts: both
+   describe a condition that is still true, and a toast that expires would be
+   the wrong shape for something that has not stopped being the case. */
+.quick-warn {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: var(--warn-bg);
+  border: 1px solid color-mix(in srgb, var(--warn) 34%, transparent);
+  color: var(--warn); border-radius: 14px;
+  padding: 12px 14px; margin: 0 0 16px;
+  font-size: 13px; line-height: 1.45; font-weight: 540;
+}
+.quick-warn > div { flex: 1 1 220px; min-width: 0; }
+.quick-warn b { display: block; font-weight: 700; margin-bottom: 3px; }
+.quick-warn .btn { flex: none; }

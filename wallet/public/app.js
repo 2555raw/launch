@@ -93,7 +93,13 @@ const K = {
   prefs:  NS + '.prefs',
   acts:   NS + '.activity',
   plan:   NS + '.plan',
-  payees: NS + '.payees'
+  payees: NS + '.payees',
+  /* The recovery phrase, sealed with a key the browser will not hand back.
+     See vault.js. Present only for a wallet started without a password. */
+  sealed: NS + '.sealed',
+  /* Set once the person has actually seen their twelve words, so the banner
+     can stop nagging someone who has already done the thing it asks for. */
+  saved:  NS + '.phrasesaved'
 };
 /* The product has been renamed twice. Someone who made a wallet under an older
    name keeps it: losing a keystore to a rename would lose their money. */
@@ -1036,6 +1042,36 @@ function paintPw() {
   $('#pwBar').style.width = p ? [6, 28, 52, 76, 100][s] + '%' : '0';
   $('#pwBar').style.background = ['var(--danger)', 'var(--danger)', 'var(--warn)', 'var(--ok)', 'var(--brand)'][s];
   $('#pwLabel').textContent = ['', 'Very weak', 'Weak', 'Good', 'Excellent'][s] || ' ';
+}
+
+/* ── starting without a password ───────────────────────────────────────────
+   A real key, made the same way as any other; what it skips is choosing a
+   password and meeting twelve words before you have decided you care. The
+   phrase is sealed with a non-extractable browser key instead. The cost is
+   real, so the wallet says so until the phrase is written down. */
+const VAULT = window.WARD_VAULT;
+const isQuick = () => !!read(K.sealed, null);
+const phraseSaved = () => read(K.saved, false);
+
+async function quickStart() {
+  if (!VAULT || !VAULT.supported()) throw new Error(tr('w.qnosupport'));
+  const signer = E.HDNodeWallet.createRandom();
+  write(K.sealed, await VAULT.seal(signer.mnemonic.phrase));
+  write(K.addr, signer.address);
+  wallet = signer;
+  rootPhrase = signer.mnemonic.phrase;
+  touch();
+  enterWallet();
+}
+
+/* Opening one on a later visit: no password, and no unlock screen. */
+async function quickOpen() {
+  const phrase = await VAULT.unseal(read(K.sealed, null));
+  if (!phrase) return false;
+  wallet = E.HDNodeWallet.fromPhrase(phrase);
+  rootPhrase = phrase;
+  touch();
+  return true;
 }
 
 async function persist(signer, password) {
@@ -2106,6 +2142,7 @@ function paintNetList() {
 
 /* ── Boot ──────────────────────────────────────────────────────────────────── */
 function enterWallet() {
+  paintQuickWarn();
   paintNet();
   fillTokenSelects();
   const acc = prefs.accounts.find(a => a.i === prefs.active);
@@ -2153,6 +2190,19 @@ function boot() {
   fillTokenSelects();
   paintTier();
   scanWallets();
+  /* A wallet started without a password has no unlock screen: the key that
+     opens it is already in this browser, so asking for something the person
+     never set would be theatre. It still has to be opened asynchronously, so
+     the welcome screen goes up first and is replaced when it lands. */
+  if (isQuick()) {
+    show('welcome');
+    quickOpen().then(ok => {
+      if (!ok) { drop(K.sealed); show('welcome'); return toast(tr('w.qlostkey')); }
+      enterWallet();
+      if (launchWanted) { launchWanted = false; history.replaceState(null, '', location.pathname); show('launch'); }
+    }).catch(() => { show('welcome'); toast(tr('w.qlostkey')); });
+    return;
+  }
   /* Someone who clicked "Launchpad" with no wallet yet should land on the
      launch screen and read why it cannot start, rather than on a welcome page
      that never mentions the thing they came for. Locked wallets still unlock
@@ -2164,6 +2214,30 @@ function boot() {
 /* ── Wiring ────────────────────────────────────────────────────────────────── */
 $$('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
 wireLaunch();
+
+/* One tap to a working wallet. Both buttons do the same thing; one is on the
+   welcome screen and one is on the launch screen, which is where someone who
+   came for the launchpad actually lands. */
+async function startQuick(btn) {
+  if (btn) btn.disabled = true;
+  try {
+    await quickStart();
+    paintQuickWarn();
+    if (launchWanted) { launchWanted = false; history.replaceState(null, '', location.pathname); show('launch'); }
+    toast(tr('w.walletready'));
+  } catch (e) {
+    toast((e && e.message) || tr('w.errunknown'));
+  } finally { if (btn) btn.disabled = false; }
+}
+$('#quickGo').addEventListener('click', e => startQuick(e.currentTarget));
+$('#quickGoLaunch').addEventListener('click', e => startQuick(e.currentTarget));
+
+/* Shown whenever the wallet is one of these and the phrase has not been seen.
+   Not dismissable: it is describing a condition, not announcing news. */
+function paintQuickWarn() {
+  const w = $('#quickWarn');
+  if (w) w.hidden = !(wallet && isQuick() && !phraseSaved());
+}
 /* Only this button makes a new phrase. Stepping back from the check shows the
    same one: regenerating would void what they already wrote down. */
 $('#startCreate').addEventListener('click', startCreate);
@@ -2335,18 +2409,37 @@ $('#revealSeed').addEventListener('click', () => {
   $('#seedGateWrap').hidden = false;
   $('#seedShowWrap').hidden = true;
   $('#seedPw').value = ''; fail('#seedErr', '');
+  /* A wallet started without a password has none to ask for, so the field goes
+     and the prompt stops asking for something that was never set. */
+  const quick = isQuick();
+  $('#seedPw').closest('.field').hidden = quick;
+  $('#seedGateWrap').querySelector('.sub').textContent =
+    tr(quick ? 'w.qshowsub' : 'w.typeyourpasswo');
   openSheet('#seedSheet');
 });
 $('#seedGo').addEventListener('click', async () => {
   const btn = $('#seedGo');
   btn.disabled = true; btn.textContent = 'Decrypting…';
   try {
-    const w = await E.Wallet.fromEncryptedJson(read(K.store, ''), $('#seedPw').value);
-    if (!w.mnemonic) { fail('#seedErr', 'This wallet was imported from a private key, so it has no phrase.'); return; }
-    paintSeed($('#seedShow'), w.mnemonic.phrase.split(' '));
-    $('#seedShow').dataset.phrase = w.mnemonic.phrase;
+    /* A wallet started without a password has none to ask for. Its phrase is
+       sealed with the browser's own key, so the vault opens it directly. */
+    let phrase;
+    if (isQuick()) {
+      phrase = await VAULT.unseal(read(K.sealed, null));
+      if (!phrase) { fail('#seedErr', tr('w.qlostkey')); return; }
+    } else {
+      const w = await E.Wallet.fromEncryptedJson(read(K.store, ''), $('#seedPw').value);
+      if (!w.mnemonic) { fail('#seedErr', 'This wallet was imported from a private key, so it has no phrase.'); return; }
+      phrase = w.mnemonic.phrase;
+    }
+    paintSeed($('#seedShow'), phrase.split(' '));
+    $('#seedShow').dataset.phrase = phrase;
     $('#seedGateWrap').hidden = true;
     $('#seedShowWrap').hidden = false;
+    /* They have now seen the words, which is the thing the banner was asking
+       for. Whether they wrote them down is not something a browser can know. */
+    write(K.saved, true);
+    paintQuickWarn();
   } catch {
     fail('#seedErr', 'Wrong password.');
   } finally { btn.disabled = false; btn.textContent = 'Show'; $('#seedPw').value = ''; }

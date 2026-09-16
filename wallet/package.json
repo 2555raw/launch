@@ -8,7 +8,8 @@
     "test": "node test/e2e.js && node test/deposit.js",
     "test:dbc": "node test/dbc.js",
     "test:launch": "node test/launch.js",
-    "test:pons": "node test/pons.js"
+    "test:pons": "node test/pons.js",
+    "test:quick": "node test/quick.js"
   },
   "engines": {
     "node": ">=18"

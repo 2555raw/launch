@@ -67,6 +67,17 @@
        recoverable. It stays on screen until the RPC is put right. -->
   <div class="chain-warn" id="chainWarn" role="alert" hidden></div>
 
+  <!-- A wallet with no password and no backup is fine for trying things and
+       bad for holding money, and the difference is one action the person has
+       not taken yet. It stays until they take it. -->
+  <div class="quick-warn" id="quickWarn" role="status" hidden>
+    <div>
+      <b data-i18n="w.qbannert">No password, no backup</b>
+      <span data-i18n="w.qbannerb">This wallet lives in this browser only. Write your twelve words down and it survives anything.</span>
+    </div>
+    <button class="btn ghost sm" data-go="settings" type="button" data-i18n="w.qbackup">Back it up</button>
+  </div>
+
   <main id="views">
 
     <!-- ── Welcome ────────────────────────────────── -->
@@ -84,9 +95,11 @@
       </ul>
 
       <div class="stack">
-        <button class="btn primary lg" id="startCreate" data-i18n="w.createanewwall">Create a new wallet</button>
-        <button class="btn ghost lg" data-go="import" data-i18n="w.ialreadyhaveon">I already have one: import it</button>
+        <button class="btn primary lg" id="quickGo" data-i18n="w.qstart">Start now, no password</button>
+        <button class="btn ghost lg" id="startCreate" data-i18n="w.createanewwall">Create a new wallet</button>
+        <button class="btn flat lg" data-go="import" data-i18n="w.ialreadyhaveon">I already have one: import it</button>
       </div>
+      <p class="fineprint" data-i18n="w.qstartfine">Starting now makes a real wallet on this device with no password and no backup. Anyone who can use this browser can spend from it, and clearing site data ends it. Write your twelve words down before it holds anything you would miss.</p>
       <p class="fineprint" data-i18n="w.bycontinuingyo">By continuing you accept that you alone are responsible for your recovery phrase.</p>
     </section>
 
@@ -246,7 +259,8 @@
       <div class="note warn" id="launchNoWallet" hidden>
         <b data-i18n="w.lcneedwallet">You need a wallet first</b>
         <span data-i18n="w.lcneedwalletb">Launching signs a transaction, so there has to be a key to sign it with. Creating one takes about a minute and never leaves this browser.</span>
-        <button class="btn ghost sm" data-go="welcome" type="button" data-i18n="w.createanewwall">Create a new wallet</button>
+        <button class="btn primary sm" id="quickGoLaunch" type="button" data-i18n="w.qstart">Start now, no password</button>
+        <button class="btn ghost sm" data-go="welcome" type="button" data-i18n="w.qfullsetup">Set one up properly instead</button>
       </div>
 
       <!-- Not on Solana -->
@@ -338,7 +352,7 @@
           <ul>
             <li data-i18n="w.launchrisk1">It cannot be undone, edited or taken down. The coin exists the moment the transaction lands.</li>
             <li data-i18n="w.launchrisk2">Anyone can buy and sell it immediately, including people betting against you.</li>
-            <li data-i18n="w.launchrisk3">Almost all coins launched this way end up worth nothing. Assume yours will.</li>
+            <li data-i18n="w.launchrisk3">Most coins launched this way never find buyers. Put in what you are willing to put in.</li>
             <li data-i18n="w.launchrisk4">Selling a coin you created may be regulated where you live. That is on you, not on Ward.</li>
           </ul>
           <label class="check"><input type="checkbox" id="lcAgree"><span></span><em data-i18n="w.launchagree">I have read this and I want to continue</em></label>
@@ -678,6 +692,7 @@
 <script src="vendor/ethers.umd.min.js"></script>
 <script src="chains.js"></script>
 <script src="sol.js"></script>
+<script src="vault.js"></script>
 <script src="dbc.js"></script>
 <script src="langs.js"></script>
 <script src="app-i18n.js"></script>

@@ -102,3 +102,12 @@ PONS_SRC=/tmp/ponsfamily npm run test:pons
 
 Without `PONS_SRC` it says the struct was not checked rather than passing
 quietly. It needs `ethers` available; `PONS_MODULES` points at it.
+
+## quick.js — starting without a password
+
+`node test/quick.js` needs the wallet served and no chain. The check that
+matters is step 5: it asks the browser to export the wallet's encryption key
+and **fails if it can**. The shortcut this replaces was to keep a passphrase
+beside the keystore, which is not encryption at all — anything that reads
+localStorage reads both halves. If that step ever starts passing, the wallet is
+storing a key an injected script could copy and send away.

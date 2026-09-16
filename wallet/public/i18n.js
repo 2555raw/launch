@@ -21,6 +21,7 @@ window.WARD_I18N = {
   "fd.lede": "Read from Robinhood Chain as you load this page. A launch made through Ward signs its own transaction, so these are told apart by the chain rather than by a list we keep. Anyone could copy that signature, so treat it as a claim; the other tab is every launch on Pons, whoever made it.",
   "ca.pending": "PENDING",
   "ca.copied": "Copied",
+  "ca.copyfail": "Press and hold to copy",
   "fd.mine": "From Ward",
   "fd.all": "Everything on Pons",
   "fd.nonemine": "Nothing here yet. A launch is recognised by a mark Ward writes into its own transaction, and coins launched before that mark existed carry no trace of where they came from. The other tab shows every launch on Pons, ours among them.",

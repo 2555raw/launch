@@ -552,11 +552,41 @@
     val.textContent = addr.slice(0, 6) + '\u00b7\u00b7\u00b7' + addr.slice(-4);
     val.removeAttribute('data-i18n');               // no longer a translated word
     chip.title = addr;
+    /* Copying, with somewhere to fall back to. The clipboard API needs a
+       secure context and a browser that feels like granting it, and when it
+       refuses it does so by rejecting a promise: the old code caught that and
+       returned, so the chip did nothing at all and said nothing either. A
+       contract address nobody can copy is the one thing this chip exists for,
+       so there is a second way, and a third that at least admits it failed. */
+    const legacy = text => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch { ok = false; }
+      ta.remove();
+      return ok;
+    };
+
+    let resetting = null;
+    const flash = key => {
+      const was = addr.slice(0, 6) + '\u00b7\u00b7\u00b7' + addr.slice(-4);
+      val.textContent = d()[key] || (key === 'ca.copied' ? 'Copied' : 'Press and hold to copy');
+      clearTimeout(resetting);
+      resetting = setTimeout(() => { val.textContent = was; }, 1600);
+    };
+
     chip.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(addr); } catch { return; }
-      const was = val.textContent;
-      val.textContent = d()['ca.copied'] || 'Copied';
-      setTimeout(() => { val.textContent = was; }, 1400);
+      let ok = false;
+      try {
+        await navigator.clipboard.writeText(addr);
+        ok = true;
+      } catch { ok = legacy(addr); }
+      flash(ok ? 'ca.copied' : 'ca.copyfail');
     });
   })();
 

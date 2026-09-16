@@ -480,21 +480,23 @@ function show(name) {
 function paintLaunch() {
   /* Four states, checked in this order because each makes the next
      irrelevant: no wallet at all, wrong network, no configuration, ready. */
-  const none = !wallet;
+  const none = !wallet && !phLinked;
   const wrong = !none && !isSol();
   const unset = !window.WARD_DBC || !window.WARD_DBC.config;
   $('#launchNoWallet').hidden = !none;
   $('#launchWrongChain').hidden = none || !wrong;
   $('#launchNoConfig').hidden = none || wrong || !unset;
   $('#launchForm').hidden = none || wrong;
-  launchGate();
+  const row = $('#lcSigner');
+  if (row) row.hidden = none || wrong;
+  paintSigner();
 }
 
 /* The button turns on only when the form is complete, the box is ticked, there
    is a wallet to sign with and something to launch against. */
 function launchGate() {
   const filled = $('#lcName').value.trim() && $('#lcSym').value.trim() && $('#lcDesc').value.trim();
-  const ok = !!(isSol() && wallet && filled && $('#lcAgree').checked
+  const ok = !!(isSol() && (wallet || phLinked) && filled && $('#lcAgree').checked
                 && window.WARD_DBC && window.WARD_DBC.config);
   $('#lcGo').disabled = !ok;
   $('#lcNameCount').textContent = $('#lcName').value.length + '/64';
@@ -521,7 +523,47 @@ function takePicture(file) {
   r.readAsDataURL(file);
 }
 
+/* ── signing a launch with Phantom ─────────────────────────────────────────
+   The coin is then created by the account people already know, and Ward never
+   holds the key that made it. */
+const PH = window.WARD_PHANTOM;
+let phLinked = null;
+
+function paintSigner() {
+  const name = $('#lcSignerName');
+  if (!name) return;
+  name.textContent = phLinked ? 'Phantom · ' + short(phLinked) : tr('w.lcthiswallet');
+  $('#lcPhantom').hidden = !!phLinked;
+  $('#lcUnlinkPh').hidden = !phLinked;
+  launchGate();
+}
+
+async function linkPhantom() {
+  if (!PH || !PH.available()) { toast(tr('w.lcphnone')); return; }
+  try {
+    phLinked = await PH.connect();
+    /* Phantom is a Solana wallet, so linking one says which network this
+       launch is for. Leaving the wallet on Base and then telling them to
+       switch would be asking a question they already answered. */
+    if (!isSol()) switchChain('sol');
+    /* Switching account inside Phantom must move the address Ward is about to
+       put on a coin, not leave a stale one on screen. */
+    PH.onChange(a => { phLinked = a; paintLaunch(); });
+    /* A linked Phantom is a signer, so the whole screen changes state: the
+       "you need a wallet" notice no longer applies and the form appears. */
+    paintLaunch();
+    toast(tr('w.lcphlinked'));
+  } catch {
+    toast(tr('w.lcphfail'));
+  }
+}
+
 function wireLaunch() {
+  $('#lcPhantom').addEventListener('click', linkPhantom);
+  $('#lcUnlinkPh').addEventListener('click', async () => {
+    if (PH) await PH.disconnect();
+    phLinked = null; paintLaunch();
+  });
   ['#lcName', '#lcSym', '#lcDesc'].forEach(s => $(s).addEventListener('input', launchGate));
   $('#lcAgree').addEventListener('change', launchGate);
   $('#launchToSol').addEventListener('click', () => { switchChain('sol'); paintLaunch(); });
@@ -546,8 +588,9 @@ async function doLaunch() {
   const btn = $('#lcGo');
   btn.disabled = true;
   try {
-    const k = await solKeys();
-    if (!k) throw new Error(tr('w.nosolkey'));
+    const k = phLinked ? null : await solKeys();
+    if (!k && !phLinked) throw new Error(tr('w.nosolkey'));
+    const payer = phLinked ? SOL.b58decode(phLinked) : k.pub;
     SOL.setRpc((prefs.rpc[prefs.chainId] || '').trim() || chain().rpc);
 
     /* The coin's own key. It signs once, here, to let the program create the
@@ -559,21 +602,25 @@ async function doLaunch() {
       config: SOL.b58decode(DBC.config),
       baseMint: mint.pub,
       quoteMint: DBC.WSOL,
-      creator: k.pub,
-      payer: k.pub,
+      creator: payer,
+      payer,
       name: $('#lcName').value.trim(),
       symbol: $('#lcSym').value.trim().toUpperCase(),
       uri: $('#lcUri').value.trim()
     });
 
-    const msg = SOL.parts.buildMessage(k.pub, [ix], await SOL.parts.blockhash());
-    const tx = await SOL.parts.signedBy(
-      [{ pub: k.pub, secret: k.secret }, { pub: mint.pub, secret: mint.secret }], msg);
-    const sig = await SOL.parts.submit(tx);
+    const msg = SOL.parts.buildMessage(payer, [ix], await SOL.parts.blockhash());
+    /* Two signatures either way. With Phantom it signs for the creator and the
+       mint's is added beside it; signAndSendTransaction cannot be used here
+       because it refuses a transaction that already carries one. */
+    const sig = phLinked
+      ? await PH.signWithOthers(msg, [{ pub: mint.pub, secret: mint.secret }])
+      : await SOL.parts.submit(await SOL.parts.signedBy(
+          [{ pub: k.pub, secret: k.secret }, { pub: mint.pub, secret: mint.secret }], msg));
 
     statusSheet('sending', sig);
     pushAct({
-      hash: sig, chainId: prefs.chainId, from: k.address, to: mint.address,
+      hash: sig, chainId: prefs.chainId, from: phLinked || k.address, to: mint.address,
       amount: '1', symbol: $('#lcSym').value.trim().toUpperCase(),
       ts: Date.now(), status: 'pending', kind: 'launch'
     });

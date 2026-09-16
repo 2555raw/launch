@@ -111,3 +111,20 @@ and **fails if it can**. The shortcut this replaces was to keep a passphrase
 beside the keystore, which is not encryption at all — anything that reads
 localStorage reads both halves. If that step ever starts passing, the wallet is
 storing a key an injected script could copy and send away.
+
+## phantom.js — launching with Phantom
+
+`node test/phantom.js` needs the wallet served and no chain. Phantom is a
+browser extension and there is none here, so a stand-in is injected the way
+`deposit.js` injects an EIP-6963 wallet — but a real one: it holds an ed25519
+key and signs what it is given, so the assembled transaction is verified
+rather than inspected.
+
+What it is really testing is ordering. A launch carries two signatures, the
+creator's and the brand-new mint's, and the message declares the exact order
+they must appear in. Phantom returns only its own, so Ward assembles the rest
+around it, and every signature is checked against the signer the message says
+belongs at that position.
+
+It does not prove Phantom itself accepts the transaction. That needs the real
+extension and a real network.

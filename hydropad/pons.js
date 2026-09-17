@@ -87,8 +87,38 @@ const PONS = {
     "function claim() returns (uint256 amount)",
   ],
 
-  has(chainId) { return !!this.FACTORY[Number(chainId)]; },
-  address(chainId) { return this.FACTORY[Number(chainId)] || null; },
+  /* A factory this browser has been pointed at by hand, for a test network.
+   *
+   * Pons is on one chain and CI can reach none of them, so the launch path —
+   * the one call that spends money — was the only path never exercised end to
+   * end. contracts/PonsV2Mock.sol puts the same surface on a local node, and
+   * this is how a page is aimed at it.
+   *
+   * The published addresses always win, so 4663 can never be repointed, and a
+   * chain Hydropad marks as live is refused outright. The reach of this is one
+   * browser's own storage on a test network, which is the reach a test needs
+   * and no more.
+   */
+  OVERRIDE_KEY: id => `hydropad.pons.factory.${id}`,
+
+  overrideAllowed(chainId) {
+    const id = Number(chainId);
+    if (this.FACTORY[id]) return false;
+    const info = typeof CHAINS !== "undefined" ? CHAINS[id] : null;
+    return !info || !!info.test;
+  },
+
+  override(chainId) {
+    const id = Number(chainId);
+    if (!this.overrideAllowed(id)) return null;
+    try {
+      const v = localStorage.getItem(this.OVERRIDE_KEY(id));
+      return v && ethers.isAddress(v) ? ethers.getAddress(v) : null;
+    } catch (_) { return null; }
+  },
+
+  has(chainId) { return !!this.address(chainId); },
+  address(chainId) { return this.FACTORY[Number(chainId)] || this.override(chainId); },
 
   /* ---------------- the pairing, written into `description` ----------------
    *

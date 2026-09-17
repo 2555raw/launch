@@ -13,7 +13,9 @@
     "photos": "node scripts/photos.js",
     "plates": "python3 scripts/plates.py",
     "extend": "python3 scripts/extend.py",
-    "deploy": "node scripts/deploy.js"
+    "deploy": "node scripts/deploy.js",
+    "e2e:pons": "node contracts/e2e-pons.js",
+    "e2e:all": "node contracts/e2e.js && node contracts/e2e-pons.js"
   },
   "devDependencies": {
     "ethers": "^6.13.4",

@@ -22,7 +22,22 @@ const eq = (a, b, name) => ok(a === b, name, a === b ? "" : `got ${a}, wanted ${
 /* pons.js is a browser file: it expects ethers as a global and defines two. */
 const src = fs.readFileSync(path.join(__dirname, "..", "pons.js"), "utf8")
   + "\n;globalThis.__PONS = PONS; globalThis.__ADAPTER = PonsAdapter;";
-const ctx = vm.createContext({ ethers, console });
+
+/* Enough of a browser for the override to be exercised: the chain table it
+ * consults, and a store to read a hand-set address out of. */
+const store = new Map();
+const localStorage = {
+  getItem: k => (store.has(k) ? store.get(k) : null),
+  setItem: (k, v) => store.set(k, String(v)),
+  removeItem: k => store.delete(k),
+};
+const CHAINS = {
+  1337: { name: "Local", test: true },
+  4663: { name: "Robinhood Chain" },
+  46630: { name: "Robinhood Testnet", test: true },
+  1: { name: "Ethereum" },
+};
+const ctx = vm.createContext({ ethers, console, localStorage, CHAINS });
 vm.runInContext(src, ctx);
 const PONS = vm.runInContext("__PONS", ctx);
 const PonsAdapter = vm.runInContext("__ADAPTER", ctx);
@@ -76,6 +91,32 @@ eq(factory.getFunction("launchToken").selector, "0xf35abbcf", "and that selector
 eq(back[0].length, 10, "TokenParams carries all ten of its fields");
 eq(curve.getFunction("buy").selector, "0x59a87bc1", "buy keeps its selector");
 eq(curve.getFunction("sell").selector, "0xd04c6983", "sell keeps its selector");
+
+console.log("\nthe factory a test may point at\n");
+
+/* The mock exists so the paying path can be walked without Robinhood Chain.
+ * What must never follow from that is a way to aim a real visitor at a
+ * factory somebody else chose. */
+const MOCK = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+store.set("hydropad.pons.factory.46630", MOCK);
+store.set("hydropad.pons.factory.4663", MOCK);
+store.set("hydropad.pons.factory.1", MOCK);
+
+eq(PONS.address(46630), ethers.getAddress(MOCK), "a test chain can be pointed at a local factory");
+ok(PONS.has(46630), "and Pons is then routed to on that chain");
+eq(PONS.address(4663), "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
+   "the published address always wins: mainnet cannot be repointed");
+eq(PONS.address(1), null, "and a live chain with no factory of ours refuses the override outright");
+ok(!PONS.overrideAllowed(4663), "4663 is not overridable");
+ok(!PONS.overrideAllowed(1), "nor is Ethereum");
+ok(PONS.overrideAllowed(46630), "the testnet is");
+
+store.set("hydropad.pons.factory.46630", "not an address");
+eq(PONS.address(46630), null, "a stored value that is not an address is ignored rather than trusted");
+store.delete("hydropad.pons.factory.46630");
+store.delete("hydropad.pons.factory.4663");
+store.delete("hydropad.pons.factory.1");
+ok(!PONS.has(46630), "and with nothing stored the testnet has no Pons again");
 
 console.log("\nthe pairing, through the only field Pons gives us\n");
 

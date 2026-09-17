@@ -3,6 +3,7 @@
  */
 
 const PHOTOS = {
+  "GLC": "media/sources/GLC.jpg",
   "GRN": "media/sources/GRN.jpg",
   "MEAD": "media/sources/MEAD.jpg",
   "ORO": "media/sources/ORO.jpg",
@@ -17,5 +18,6 @@ const PHOTO_CREDITS = {
   "TGR": "supplied by the project, credit pending",
   "GRN": "supplied by the project, credit pending",
   "POW": "supplied by the project, credit pending",
-  "ORO": "supplied by the project, credit pending"
+  "ORO": "supplied by the project, credit pending",
+  "GLC": "supplied by the project, credit pending"
 };

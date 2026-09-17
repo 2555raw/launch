@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hydro — cada token, medido contra algo real</title>
-<meta name="description" content="Lanza un token pareado a una fuente de agua: embalse, acuífero, glaciar o desaladora.">
+<title>Hydro Water Pairings</title>
+<meta name="description" content="Launch a token paired to one water source: a reservoir, an aquifer, a glacier or a desalination plant.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,27 +19,27 @@
       Hydro
     </a>
     <nav class="nav-links">
-      <a href="index.html" class="on">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
-      <a href="launch.html">Parear</a>
+      <a href="index.html" class="on">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="launch.html">Launch</a>
       <a href="docs.html">Docs</a>
     </nav>
-    <div class="nav-cta"><button class="btn" type="button" id="connect">Conectar wallet</button></div>
+    <div class="nav-cta"><button class="btn" type="button" id="connect">Connect wallet</button></div>
   </div>
 </header>
 <main>
   <section class="hero">
     <div class="wrap hero-in">
       <div>
-        <p class="eyebrow">Hydro v1 · pareados hídricos</p>
-        <h1>Cada token,<br>medido contra<br><span class="accent">algo que se agota.</span></h1>
-        <p class="lede">Lanza un token atado a una sola fuente de agua: un embalse, un acuífero, un glaciar
-        o una planta de desalación. Hereda su unidad, su registro y su precio spot, y cada operación
-        que recibe paga a una bóveda propia.</p>
+        <p class="eyebrow">Hydro v1 · water pairings</p>
+        <h1>Every token,<br>measured against<br><span class="accent">something that runs out.</span></h1>
+        <p class="lede">Launch a token bound to a single water source: a reservoir, an aquifer, a glacier
+        or a desalination plant. It inherits the unit, the venue and the spot price, and every trade it
+        takes pays into a vault of its own.</p>
         <div class="hero-cta">
-          <a class="btn" href="launch.html">Parear una fuente</a>
-          <a class="btn alt" href="docs.html">Cómo funciona</a>
+          <a class="btn" href="launch.html">Pair a source</a>
+          <a class="btn alt" href="docs.html">How it works</a>
         </div>
       </div>
       <div class="hero-figure">
@@ -76,11 +76,11 @@
     </div>
     <div class="wrap">
       <dl class="factbar">
-        <div><dt>Fuentes</dt><dd id="stat-sources">32</dd></div>
-        <div><dt>Clases</dt><dd id="stat-classes">4</dd></div>
-        <div><dt>Llenado medio</dt><dd id="stat-level">—</dd></div>
-        <div><dt>Comisión del creador</dt><dd>3%<small>toda a la bóveda</small></dd></div>
-        <div><dt>Lanzamientos</dt><dd id="stat-launches">0</dd></div>
+        <div><dt>Sources</dt><dd id="stat-sources">32</dd></div>
+        <div><dt>Classes</dt><dd id="stat-classes">4</dd></div>
+        <div><dt>Average fill</dt><dd id="stat-level">—</dd></div>
+        <div><dt>Creator fee</dt><dd>3%<small>all of it to the vault</small></dd></div>
+        <div><dt>Launches</dt><dd id="stat-launches">0</dd></div>
       </dl>
     </div>
   </section>
@@ -91,19 +91,19 @@
     <div class="wrap">
       <div class="panel">
         <div class="panel-head">
-          <h3>Tablón spot</h3>
-          <span class="label">cotizaciones en vivo</span>
+          <h3>Spot board</h3>
+          <span class="label">live quotes</span>
         </div>
         <table class="tbl">
           <thead><tr>
-            <th>#</th><th>Fuente</th><th class="hide-s">Registro</th><th class="hide-xs">Ensayo</th>
-            <th class="hide-s">Disponibilidad</th><th class="num">Spot</th><th class="num hide-xs">7d</th><th></th>
+            <th>#</th><th>Source</th><th class="hide-s">Venue</th><th class="hide-xs">Assay</th>
+            <th class="hide-s">Availability</th><th class="num">Spot</th><th class="num hide-xs">7d</th><th></th>
           </tr></thead>
           <tbody id="board"></tbody>
         </table>
         <div class="panel-foot">
-          <span>Las diez fuentes más caras del registro. El spot sube cuando el llenado baja.</span>
-          <a href="sources.html">Ver las 32 →</a>
+          <span>The ten dearest sources in the register. Spot rises as the fill falls.</span>
+          <a href="sources.html">See all 32 →</a>
         </div>
       </div>
     </div>
@@ -113,43 +113,44 @@
     <div class="wrap">
       <div class="section-head">
         <div>
-          <p class="eyebrow">El pareado</p>
-          <h2>Un token, una fuente,<br>una bóveda.</h2>
+          <p class="eyebrow">The pairing</p>
+          <h2>One token, one source,<br>one vault.</h2>
         </div>
-        <a class="btn alt" href="docs.html">Leer los docs</a>
+        <a class="btn alt" href="docs.html">Read the docs</a>
       </div>
       <div class="cards">
-        <article class="card"><span class="n">01</span><h3>Elige la fuente</h3>
-          <p>32 contratos entre embalses, acuíferos, glaciares y desalación. Cada uno trae su registro,
-          su ensayo de calidad y su unidad de medida.</p></article>
-        <article class="card"><span class="n">02</span><h3>El token la hereda</h3>
-          <p>El precio de apertura sale del spot de la fuente y de su llenado. A menos agua disponible,
-          más caro abre el token.</p></article>
-        <article class="card"><span class="n">03</span><h3>Curva hasta graduar</h3>
-          <p>Se opera sobre una curva de bonding hasta 4,2 ETH. Al llenarse, la pool se abre y el token
-          queda liberado.</p></article>
-        <article class="card"><span class="n">04</span><h3>La bóveda cobra</h3>
-          <p>El 3% de cada operación entra en una bóveda propia del token. No se reparte: se acumula
-          mientras el pareado siga vivo.</p></article>
+        <article class="card"><span class="n">01</span><h3>Pick the source</h3>
+          <p>32 contracts across reservoirs, aquifers, glaciers and desalination. Each one carries its
+          venue, its quality assay and its unit of measure.</p></article>
+        <article class="card"><span class="n">02</span><h3>The token inherits it</h3>
+          <p>The opening price comes from the source's spot and its fill. The less water there is to
+          go round, the dearer the token opens.</p></article>
+        <article class="card"><span class="n">03</span><h3>Curve to graduation</h3>
+          <p>Trading runs on a bonding curve up to 4.2 ETH. Once it fills, the pool opens and the token
+          is released.</p></article>
+        <article class="card"><span class="n">04</span><h3>The vault takes its cut</h3>
+          <p>3% of every trade goes into the token's own vault. Nothing is distributed: it accumulates
+          for as long as the pairing lives.</p></article>
       </div>
     </div>
   </section>
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Hydro — demo. Sin cadena, sin wallet y sin valor: todo se simula en tu navegador.</span>
+    <span>Hydro — a demo. No chain, no wallet, no value: everything is simulated in your browser.</span>
     <nav>
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
       <a href="docs.html">Docs</a>
-      <a href="#" id="reset">Reiniciar datos</a>
+      <a href="#" id="reset">Reset data</a>
     </nav>
   </div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>window.HYDRO_PAGE = "markets";</script>
 <script src="data.js"></script>
 <script src="app.js"></script>
-<script>document.getElementById("connect").addEventListener("click",function(){toast("Demo sin cadena: no hay wallet que conectar.")});</script>
+<script>document.getElementById("connect").addEventListener("click",function(){toast("Chainless demo: there is no wallet to connect.")});</script>
 </body>
 </html>

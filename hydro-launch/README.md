@@ -1,39 +1,42 @@
 # Hydro
 
-Launchpad simulado donde cada token se lanza pareado a una fuente de agua —
-un embalse, un acuífero, un glaciar o una planta de desalación — y hereda su
-unidad, su registro y su precio spot.
+A simulated launchpad where every token is launched paired to one water source —
+a reservoir, an aquifer, a glacier or a desalination plant — and inherits its
+unit, its venue and its spot price.
 
-Sitio estático: HTML, CSS y JavaScript sin dependencias ni build. Ábrelo con
-cualquier servidor de ficheros:
+Static site: HTML, CSS and JavaScript, no dependencies and no build step. Serve
+it with anything:
 
 ```
 python3 -m http.server 8777
 ```
 
-## Páginas
+Live demo: https://claude.ai/artifact/Ufecei9ytDXXideA9nijbC
 
-| Fichero | Qué es |
+## Pages
+
+| File | What it is |
 | --- | --- |
-| `index.html` | Portada y tablón spot en vivo |
-| `sources.html` | El registro: 32 fuentes con filtro por clase, búsqueda y orden |
-| `launch.html` | Formulario de pareado y lanzamiento |
-| `launches.html` | Todos los tokens lanzados |
-| `token.html?id=…` | Ficha de un token: precio, curva, bóveda y pareado |
-| `docs.html` | El modelo, explicado |
+| `index.html` | Front page and live spot board |
+| `sources.html` | The register: 32 sources with class filter, search and sort |
+| `launch.html` | Pairing and launch form |
+| `launches.html` | Every token launched |
+| `token.html?id=…` | A token's page: price, curve, vault and pairing |
+| `docs.html` | The model, explained |
 
-`data.js` define el catálogo de fuentes y su llenado inicial; `app.js` lleva el
-mercado simulado, los lanzamientos y el render de cada página.
+`data.js` holds the source register and its starting fill levels; `app.js` runs
+the simulated market, the launches and each page's rendering.
 
-## Modelo
+## The model
 
-- Cada fuente tiene un llenado entre 0 y 1 que deriva con el tiempo. Cuando baja
-  el llenado, sube el spot: manda la escasez, no el volumen.
-- Al lanzar, el token fija el spot de su fuente y abre a
-  `precio0 = 0,4 · objetivo_de_curva / supply · (1 + (1 − llenado) · 0,5)`.
-- Después, `precio = precio0 · (spot / spot0)^β · (1 + curva / 4,2 · 0,65)`.
-- Se opera sobre una curva de bonding hasta 4,2 ETH; al completarse, gradúa.
-- El 3% de cada operación entra en la bóveda del token.
+- Every source has a fill level between 0 and 1 that drifts over time. As the
+  fill falls, spot rises: scarcity sets the price, not volume.
+- At launch a token fixes its source's spot and opens at
+  `price0 = 0.4 · curve_target / supply · (1 + (1 − fill) · 0.5)`.
+- After that, `price = price0 · (spot / spot0)^β · (1 + curve / 4.2 · 0.65)`.
+- Trading runs on a bonding curve up to 4.2 ETH; once it fills, the token
+  graduates.
+- 3% of every trade goes into the token's vault.
 
-No hay cadena, wallet ni backend: el estado vive en `localStorage` y se borra
-con «Reiniciar datos» en el pie.
+No chain, wallet or backend: state lives in `localStorage` and "Reset data" in
+the footer wipes it.

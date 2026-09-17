@@ -1,18 +1,18 @@
-/* Runtime de Hydro. Sin backend: el mercado se simula en el navegador y los
- * lanzamientos se guardan en localStorage. data.js define WATER y BASE_LEVEL.
+/* Hydro runtime. No backend: the market is simulated in the browser and launches
+ * are kept in localStorage. data.js defines WATER and BASE_LEVEL.
  */
 
 const KEY = "hydro.v1";
-const TICK = 5000;          // ms entre refrescos del mercado
-const FEE = 0.03;           // comisión del creador que va a la bóveda
-const CURVE_TARGET = 4.2;   // ETH simulados para graduar la curva
+const TICK = 5000;          // ms between market refreshes
+const FEE = 0.03;           // creator fee, all of it to the vault
+const CURVE_TARGET = 4.2;   // simulated ETH to graduate the curve
 
-/* ---------------- acceso al catálogo ---------------- */
+/* ---------------- register access ---------------- */
 
 function byTicker(t) { return WATER.find(w => w.t === t); }
 function mk(t) { return S.market[t]; }
 
-/* ---------------- estado ---------------- */
+/* ---------------- state ---------------- */
 
 let S = loadState();
 
@@ -53,13 +53,13 @@ function seedHistory(p) {
 
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) {} }
 
-/* ---------------- mercado ---------------- */
+/* ---------------- market ---------------- */
 
 function stepMarket() {
   S.tick++;
   for (const w of WATER) {
     const m = mk(w.t);
-    // el nivel deriva despacio y tira del precio: menos agua, spot más caro
+    // the level drifts slowly and drags the price: less water, dearer spot
     const drift = (Math.random() - 0.5) * 0.012 + (0.5 - m.l) * 0.0006;
     m.l = clamp(m.l + drift, 0.02, 1);
     const scarcity = 1 + (0.5 - m.l) * 0.02;
@@ -76,7 +76,7 @@ function repriceLaunch(l) {
   if (!m) return;
   const ratio = m.p / l.spot0;
   l.prev = l.price;
-  // el token hereda el spot de su fuente, amplificado por la curva ya recorrida
+  // the token inherits its source's spot, lifted by how far the curve has run
   l.price = l.price0 * Math.pow(ratio, l.beta) * (1 + l.raised / CURVE_TARGET * 0.65);
   l.h = l.h || [];
   l.h.push(l.price);
@@ -85,10 +85,10 @@ function repriceLaunch(l) {
 
 function marketCapEth(l) { return l.price * l.supply; }
 
-/* ---------------- lanzamientos ---------------- */
+/* ---------------- launches ---------------- */
 
-/* Precio de apertura: la cap. inicial ronda el 40% del objetivo de curva, y sube
- * cuanto menos llena esté la fuente — el agua escasa abre más cara. */
+/* Opening price: the starting cap lands near 40% of the curve target, and rises
+ * the emptier the source is — scarce water opens dearer. */
 function openPrice(supply, level) {
   return (CURVE_TARGET * 0.4 / Math.max(supply, 1)) * (1 + (1 - level) * 0.5);
 }
@@ -126,8 +126,8 @@ function trade(id, dir, sizeEth) {
 }
 
 const stageOf = l => l.raised >= CURVE_TARGET
-  ? { label: "Graduado · pool abierta", cls: "ok" }
-  : { label: `Curva · ${Math.round(l.raised / CURVE_TARGET * 100)}%`, cls: "" };
+  ? { label: "Graduated · pool open", cls: "ok" }
+  : { label: `Curve · ${Math.round(l.raised / CURVE_TARGET * 100)}%`, cls: "" };
 
 function fakeAddr() {
   const hex = "0123456789abcdefABCDEF";
@@ -137,7 +137,7 @@ function fakeAddr() {
 }
 const shortAddr = a => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
-/* ---------------- formato ---------------- */
+/* ---------------- formatting ---------------- */
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -152,10 +152,10 @@ function level(v) { return `${Math.round(v * 100)}%`; }
 
 function ago(ts) {
   const s = Math.max(1, (Date.now() - ts) / 1000);
-  if (s < 60) return `hace ${Math.floor(s)}s`;
-  if (s < 3600) return `hace ${Math.floor(s / 60)}m`;
-  if (s < 86400) return `hace ${Math.floor(s / 3600)}h`;
-  return `hace ${Math.floor(s / 86400)}d`;
+  if (s < 60) return `${Math.floor(s)}s ago`;
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
 }
 
 function change7d(h) {
@@ -172,11 +172,11 @@ function spark(h, color) {
   return `<svg class="spark" viewBox="0 0 78 26" aria-hidden="true"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
 }
 
-const CLASS_TINT = { "Embalse": "#4f46e5", "Acuífero": "#0e9f9f", "Glaciar": "#3b82f6", "Desalación": "#7c5cff" };
+const CLASS_TINT = { "Reservoir": "#4f46e5", "Aquifer": "#0e9f9f", "Glacier": "#3b82f6", "Desalination": "#7c5cff" };
 
 function dropGlyph(t, size = 22) {
   const w = byTicker(t);
-  const c = CLASS_TINT[w ? w.c : "Embalse"] || "#4f46e5";
+  const c = CLASS_TINT[w ? w.c : "Reservoir"] || "#4f46e5";
   const lvl = mk(t) ? mk(t).l : .5;
   const y = 21 - lvl * 13;
   const uid = `c${t}`;
@@ -213,7 +213,7 @@ function renderTape() {
   host.innerHTML = `<div class="tape-track">${row}${row}</div>`;
 }
 
-/* ---------------- tablas compartidas ---------------- */
+/* ---------------- shared tables ---------------- */
 
 function boardRows(list, opts = {}) {
   return list.map((w, i) => {
@@ -230,7 +230,7 @@ function boardRows(list, opts = {}) {
       <td class="hide-s mono">${esc(w.v)}</td>
       <td class="hide-xs"><span class="pill">${esc(w.a)}</span></td>
       <td class="hide-s">
-        <div class="level ${lc}"><div class="bar"><i style="width:${(m.l * 100).toFixed(0)}%"></i></div><span>llenado ${level(m.l)}</span></div>
+        <div class="level ${lc}"><div class="bar"><i style="width:${(m.l * 100).toFixed(0)}%"></i></div><span>${level(m.l)} full</span></div>
       </td>
       <td class="num spot"><b>${usd(m.p)}</b><small class="sub">${esc(w.u)}</small></td>
       <td class="num hide-xs">${spark(m.h, ch >= 0 ? "#12a150" : "#e5484d")}<span class="${ch >= 0 ? "up" : "down"}" style="font-size:12.5px">${pct(ch)}</span></td>
@@ -239,7 +239,7 @@ function boardRows(list, opts = {}) {
   }).join("");
 }
 
-/* ---------------- páginas ---------------- */
+/* ---------------- pages ---------------- */
 
 const PAGES = {
 
@@ -263,8 +263,8 @@ const PAGES = {
       const host = document.getElementById("launch-rows");
       const foot = document.getElementById("launch-count");
       if (!S.launches.length) {
-        host.innerHTML = `<tr><td colspan="8"><p class="empty">Todavía no hay ningún token pareado desde este navegador.<br>
-          <a href="launch.html" style="color:var(--accent)">Parea una fuente de agua</a> para abrir el primero.</p></td></tr>`;
+        host.innerHTML = `<tr><td colspan="8"><p class="empty">No token has been paired from this browser yet.<br>
+          <a href="launch.html" style="color:var(--accent)">Pair a water source</a> to open the first one.</p></td></tr>`;
       } else {
         host.innerHTML = S.launches.map((l, i) => {
           const w = byTicker(l.pair), st = stageOf(l);
@@ -281,7 +281,7 @@ const PAGES = {
           </tr>`;
         }).join("");
       }
-      foot.textContent = `${S.launches.length} ${S.launches.length === 1 ? "lanzamiento" : "lanzamientos"}`;
+      foot.textContent = `${S.launches.length} ${S.launches.length === 1 ? "launch" : "launches"}`;
       setText("l-count", S.launches.length);
       setText("l-paired", new Set(S.launches.map(l => l.pair)).size);
       setText("l-graduated", S.launches.filter(l => l.raised >= CURVE_TARGET).length);
@@ -293,20 +293,20 @@ const PAGES = {
   },
 
   sources() {
-    let filter = "Todas", sort = "destacadas", q = "";
+    let filter = "All", sort = "featured", q = "";
     const rows = () => {
-      let list = WATER.filter(w => filter === "Todas" || w.c === filter);
+      let list = WATER.filter(w => filter === "All" || w.c === filter);
       if (q) {
         const n = q.toLowerCase();
         list = list.filter(w => (w.n + w.t + w.v + w.c).toLowerCase().includes(n));
       }
-      if (sort === "precio") list.sort((a, b) => mk(b.t).p - mk(a.t).p);
-      else if (sort === "llenado") list.sort((a, b) => mk(a.t).l - mk(b.t).l);
-      else if (sort === "nombre") list.sort((a, b) => a.n.localeCompare(b.n));
+      if (sort === "spot") list.sort((a, b) => mk(b.t).p - mk(a.t).p);
+      else if (sort === "fill") list.sort((a, b) => mk(a.t).l - mk(b.t).l);
+      else if (sort === "name") list.sort((a, b) => a.n.localeCompare(b.n));
       document.getElementById("source-rows").innerHTML = list.length
         ? boardRows(list, { action: true })
-        : `<tr><td colspan="8"><p class="empty">Ninguna fuente coincide con la búsqueda.</p></td></tr>`;
-      setText("source-count", `${list.length} de ${WATER.length} fuentes`);
+        : `<tr><td colspan="8"><p class="empty">No source matches that search.</p></td></tr>`;
+      setText("source-count", `${list.length} of ${WATER.length} sources`);
     };
     document.querySelectorAll("[data-class]").forEach(btn => btn.addEventListener("click", () => {
       document.querySelectorAll("[data-class]").forEach(b => b.classList.toggle("on", b === btn));
@@ -334,15 +334,15 @@ const PAGES = {
       const price0 = openPrice(supply, m.l);
       setText("beta-out", `${beta.toFixed(1)}×`);
       document.getElementById("pair-summary").innerHTML = `
-        <div class="line"><span>fuente</span><b>${esc(w.n)} · ${w.t}</b></div>
-        <div class="line"><span>registro</span><b>${esc(w.v)}</b></div>
-        <div class="line"><span>ensayo</span><b>${esc(w.a)}</b></div>
-        <div class="line"><span>spot heredado</span><b>${usd(m.p)} ${esc(w.u)}</b></div>
-        <div class="line"><span>llenado actual</span><b>${level(m.l)}</b></div>
-        <div class="line"><span>precio de apertura</span><b>${price0.toExponential(3)} ETH</b></div>
-        <div class="line"><span>cap. de apertura</span><b>${eth(price0 * supply)}</b></div>
-        <div class="line"><span>comisión del creador</span><b>${(FEE * 100).toFixed(0)}% → bóveda</b></div>
-        <div class="line"><span>gradúa en</span><b>${CURVE_TARGET} ETH de curva</b></div>`;
+        <div class="line"><span>source</span><b>${esc(w.n)} · ${w.t}</b></div>
+        <div class="line"><span>venue</span><b>${esc(w.v)}</b></div>
+        <div class="line"><span>assay</span><b>${esc(w.a)}</b></div>
+        <div class="line"><span>inherited spot</span><b>${usd(m.p)} ${esc(w.u)}</b></div>
+        <div class="line"><span>current fill</span><b>${level(m.l)}</b></div>
+        <div class="line"><span>opening price</span><b>${price0.toExponential(3)} ETH</b></div>
+        <div class="line"><span>opening cap</span><b>${eth(price0 * supply)}</b></div>
+        <div class="line"><span>creator fee</span><b>${(FEE * 100).toFixed(0)}% → vault</b></div>
+        <div class="line"><span>graduates at</span><b>${CURVE_TARGET} ETH on the curve</b></div>`;
       document.getElementById("preview-glyph").innerHTML = dropGlyph(w.t, 44);
     };
     form.addEventListener("input", refresh);
@@ -352,8 +352,8 @@ const PAGES = {
     form.addEventListener("submit", e => {
       e.preventDefault();
       const symbol = form.symbol.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
-      if (!symbol) return toast("El ticker necesita al menos una letra");
-      if (S.launches.some(l => l.symbol === symbol)) return toast(`$${symbol} ya está lanzado`);
+      if (!symbol) return toast("The ticker needs at least one letter");
+      if (S.launches.some(l => l.symbol === symbol)) return toast(`$${symbol} is already launched`);
       const l = createLaunch({
         name: form.name.value.trim() || symbol,
         symbol,
@@ -371,11 +371,11 @@ const PAGES = {
     const l = S.launches.find(x => x.id === id);
     const host = document.getElementById("token-view");
     if (!l) {
-      host.innerHTML = `<p class="empty">Ese token no existe en este navegador.
-        <a href="launches.html" style="color:var(--accent)">Ver los lanzamientos</a>.</p>`;
+      host.innerHTML = `<p class="empty">That token does not exist in this browser.
+        <a href="launches.html" style="color:var(--accent)">See the launches</a>.</p>`;
       return;
     }
-    if (qs("new")) toast(`$${l.symbol} pareado con ${byTicker(l.pair).n}`);
+    if (qs("new")) toast(`$${l.symbol} paired with ${byTicker(l.pair).n}`);
 
     const refresh = () => {
       const w = byTicker(l.pair), m = mk(l.pair), st = stageOf(l);
@@ -386,7 +386,7 @@ const PAGES = {
           <span class="glyph">${dropGlyph(l.pair, 30)}</span>
           <div>
             <h1>${esc(l.name)}</h1>
-            <span class="sub">$${esc(l.symbol)} · pareado con ${esc(w.n)} (${w.t}) en ${esc(w.v)}</span>
+            <span class="sub">$${esc(l.symbol)} · paired with ${esc(w.n)} (${w.t}) on ${esc(w.v)}</span>
           </div>
           <span class="pill ${st.cls}" style="margin-left:auto"><span class="dot"></span>${st.label}</span>
         </div>
@@ -394,39 +394,39 @@ const PAGES = {
           <div class="panel">
             <div class="panel-head">
               <div><h3>${l.price.toFixed(8)} ETH <span class="${ch >= 0 ? "up" : "down"}" style="font-size:14px">${pct(ch)}</span></h3></div>
-              <span class="label">precio · en vivo</span>
+              <span class="label">price · live</span>
             </div>
             <div style="padding:18px">${bigChart(l.h)}</div>
             <div class="panel-foot">
-              <span>El precio hereda el spot de ${w.t} amplificado ${l.beta}× y sube con la curva.</span>
+              <span>The price inherits ${w.t} spot at ${l.beta}× and rises with the curve.</span>
               <span class="mono">spot ${usd(m.p)}</span>
             </div>
           </div>
           <div style="display:grid;gap:16px">
             <div class="panel">
-              <div class="panel-head"><h3>Operar</h3><span class="label">simulado</span></div>
+              <div class="panel-head"><h3>Trade</h3><span class="label">simulated</span></div>
               <div style="padding:18px;display:grid;gap:10px">
                 <div style="display:flex;gap:8px">
-                  <button class="btn accent" data-buy="0.1" style="flex:1">Comprar 0,1</button>
-                  <button class="btn alt" data-sell="0.1" style="flex:1">Vender 0,1</button>
+                  <button class="btn accent" data-buy="0.1" style="flex:1">Buy 0.1 ETH</button>
+                  <button class="btn alt" data-sell="0.1" style="flex:1">Sell 0.1</button>
                 </div>
                 <div style="display:flex;gap:8px">
-                  <button class="btn alt sm" data-buy="0.5" style="flex:1">+0,5 ETH</button>
+                  <button class="btn alt sm" data-buy="0.5" style="flex:1">+0.5 ETH</button>
                   <button class="btn alt sm" data-buy="1" style="flex:1">+1 ETH</button>
                 </div>
               </div>
-              <div class="panel-foot"><span>Cada operación paga ${(FEE * 100).toFixed(0)}% a la bóveda.</span></div>
+              <div class="panel-foot"><span>Every trade pays ${(FEE * 100).toFixed(0)}% into the vault.</span></div>
             </div>
             <div class="panel summary">
-              <div class="line"><span>cap. de mercado</span><b>${eth(marketCapEth(l))}</b></div>
-              <div class="line"><span>curva</span><b>${l.raised.toFixed(3)} / ${CURVE_TARGET} ETH</b></div>
-              <div class="line"><span>bóveda</span><b>${eth(l.vault)}</b></div>
-              <div class="line"><span>supply</span><b>${l.supply.toLocaleString("es")}</b></div>
-              <div class="line"><span>operaciones</span><b>${l.trades}</b></div>
-              <div class="line"><span>llenado de la fuente</span><b>${level(m.l)} (apertura ${level(l.level0)})</b></div>
-              <div class="line"><span>creador</span><b>${shortAddr(l.by)}</b></div>
-              <div class="line"><span>contrato</span><b>${shortAddr(l.contract)}</b></div>
-              <div class="line"><span>lanzado</span><b>${ago(l.at)}</b></div>
+              <div class="line"><span>market cap</span><b>${eth(marketCapEth(l))}</b></div>
+              <div class="line"><span>curve</span><b>${l.raised.toFixed(3)} / ${CURVE_TARGET} ETH</b></div>
+              <div class="line"><span>vault</span><b>${eth(l.vault)}</b></div>
+              <div class="line"><span>supply</span><b>${l.supply.toLocaleString("en-US")}</b></div>
+              <div class="line"><span>trades</span><b>${l.trades}</b></div>
+              <div class="line"><span>source fill</span><b>${level(m.l)} (at open ${level(l.level0)})</b></div>
+              <div class="line"><span>creator</span><b>${shortAddr(l.by)}</b></div>
+              <div class="line"><span>contract</span><b>${shortAddr(l.contract)}</b></div>
+              <div class="line"><span>launched</span><b>${ago(l.at)}</b></div>
             </div>
           </div>
         </div>`;
@@ -434,7 +434,7 @@ const PAGES = {
         const buy = b.dataset.buy;
         trade(l.id, buy ? 1 : -1, +(buy || b.dataset.sell));
         refresh();
-        toast(buy ? `Compra de ${buy} ETH en $${l.symbol}` : `Venta en $${l.symbol}`);
+        toast(buy ? `Bought ${buy} ETH of $${l.symbol}` : `Sold $${l.symbol}`);
       }));
     };
     refresh();
@@ -444,7 +444,7 @@ const PAGES = {
 
 function bigChart(h) {
   const pts = (h || []).slice(-60);
-  if (pts.length < 2) return `<p class="empty">Sin histórico todavía.</p>`;
+  if (pts.length < 2) return `<p class="empty">No history yet.</p>`;
   const lo = Math.min(...pts), hi = Math.max(...pts), span = hi - lo || 1;
   const xy = i => [(i / (pts.length - 1)) * 760 + 10, 220 - ((pts[i] - lo) / span) * 190];
   const line = pts.map((_, i) => { const [x, y] = xy(i); return `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`; }).join(" ");
@@ -460,7 +460,7 @@ function bigChart(h) {
 
 function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
 
-/* ---------------- arranque ---------------- */
+/* ---------------- boot ---------------- */
 
 document.addEventListener("DOMContentLoaded", () => {
   renderTape();
@@ -469,6 +469,6 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem(KEY);
     location.reload();
   });
-  const page = PAGES[document.body.dataset.page];
+  const page = PAGES[document.body.dataset.page || window.HYDRO_PAGE];
   if (page) page();
 });

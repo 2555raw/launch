@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lanzamientos — Hydro</title>
-<meta name="description" content="Todos los tokens pareados en Hydro, del más reciente al primero.">
+<title>Launches — Hydro</title>
+<meta name="description" content="Every token paired on Hydro, newest first.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,26 +19,26 @@
       Hydro
     </a>
     <nav class="nav-links">
-      <a href="index.html">Mercados</a>
-      <a href="launches.html" class="on">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
-      <a href="launch.html">Parear</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html" class="on">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="launch.html">Launch</a>
       <a href="docs.html">Docs</a>
     </nav>
-    <div class="nav-cta"><button class="btn" type="button" id="connect">Conectar wallet</button></div>
+    <div class="nav-cta"><button class="btn" type="button" id="connect">Connect wallet</button></div>
   </div>
 </header>
 <main>
   <section class="wrap page-head">
-    <p class="eyebrow">En Hydro</p>
-    <h1>Lanzamientos</h1>
-    <p class="lede">Cada token pareado desde este navegador, el más nuevo primero.
-    Abre uno para ver su mercado, su bóveda y su pareado.</p>
+    <p class="eyebrow">On Hydro</p>
+    <h1>Launches</h1>
+    <p class="lede">Every token paired from this browser, newest first.
+    Open one for its market, its vault and its pairing.</p>
     <dl class="factbar">
-      <div><dt>Lanzamientos</dt><dd id="l-count">0</dd></div>
-      <div><dt>Fuentes pareadas</dt><dd id="l-paired">0<small>de 32</small></dd></div>
-      <div><dt>Graduados</dt><dd id="l-graduated">0</dd></div>
-      <div><dt>Último</dt><dd id="l-latest">—</dd></div>
+      <div><dt>Launches</dt><dd id="l-count">0</dd></div>
+      <div><dt>Sources paired</dt><dd id="l-paired">0<small>of 32</small></dd></div>
+      <div><dt>Graduated</dt><dd id="l-graduated">0</dd></div>
+      <div><dt>Latest</dt><dd id="l-latest">—</dd></div>
     </dl>
   </section>
 
@@ -49,37 +49,38 @@
       <div class="panel">
         <table class="tbl">
           <thead><tr>
-            <th>#</th><th>Token</th><th>Pareado con</th><th class="hide-s">Lanzado</th>
-            <th class="hide-xs">Por</th><th class="hide-xs">Contrato</th><th>Etapa</th><th class="num">Cap.</th>
+            <th>#</th><th>Token</th><th>Paired with</th><th class="hide-s">Launched</th>
+            <th class="hide-xs">By</th><th class="hide-xs">Contract</th><th>Stage</th><th class="num">Market cap</th>
           </tr></thead>
           <tbody id="launch-rows"></tbody>
         </table>
         <div class="panel-foot">
-          <span id="launch-count">0 lanzamientos</span>
-          <a href="launch.html">Parear una fuente →</a>
+          <span id="launch-count">0 launches</span>
+          <a href="launch.html">Pair a source →</a>
         </div>
       </div>
       <p class="muted" style="margin-top:16px;font-size:13px;max-width:70ch">
-        La cap. de mercado es el precio de curva por todo el supply. Esta lista solo contiene lo que
-        guarda tu navegador: no hay servidor ni cadena detrás.</p>
+        Market cap is the curve price across the whole supply. This list holds only what your browser
+        keeps: there is no server and no chain behind it.</p>
     </div>
   </section>
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Hydro — demo. Sin cadena, sin wallet y sin valor: todo se simula en tu navegador.</span>
+    <span>Hydro — a demo. No chain, no wallet, no value: everything is simulated in your browser.</span>
     <nav>
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
       <a href="docs.html">Docs</a>
-      <a href="#" id="reset">Reiniciar datos</a>
+      <a href="#" id="reset">Reset data</a>
     </nav>
   </div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>window.HYDRO_PAGE = "launches";</script>
 <script src="data.js"></script>
 <script src="app.js"></script>
-<script>document.getElementById("connect").addEventListener("click",function(){toast("Demo sin cadena: no hay wallet que conectar.")});</script>
+<script>document.getElementById("connect").addEventListener("click",function(){toast("Chainless demo: there is no wallet to connect.")});</script>
 </body>
 </html>

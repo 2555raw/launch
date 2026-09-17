@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fuentes — Hydro</title>
-<meta name="description" content="El registro: 32 fuentes de agua entre embalses, acuíferos, glaciares y desalación.">
+<title>Sources — Hydro</title>
+<meta name="description" content="The register: 32 water sources across reservoirs, aquifers, glaciers and desalination.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,21 +19,21 @@
       Hydro
     </a>
     <nav class="nav-links">
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html" class="on">Fuentes</a>
-      <a href="launch.html">Parear</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html" class="on">Sources</a>
+      <a href="launch.html">Launch</a>
       <a href="docs.html">Docs</a>
     </nav>
-    <div class="nav-cta"><button class="btn" type="button" id="connect">Conectar wallet</button></div>
+    <div class="nav-cta"><button class="btn" type="button" id="connect">Connect wallet</button></div>
   </div>
 </header>
 <main>
   <section class="wrap page-head">
-    <p class="eyebrow">El registro</p>
-    <h1>Fuentes</h1>
-    <p class="lede">32 contratos entre embalses, acuíferos, glaciares y plantas de desalación.
-    Abre uno para verlo entero, o lanza un token pareado con él.</p>
+    <p class="eyebrow">The register</p>
+    <h1>Sources</h1>
+    <p class="lede">32 contracts across reservoirs, aquifers, glaciers and desalination plants.
+    Open one to see it in full, or launch a token paired with it.</p>
   </section>
 
   <div class="tape" id="tape"></div>
@@ -43,34 +43,34 @@
       <div class="panel">
         <div class="toolbar">
           <div class="chips">
-            <button class="chip on" data-class="Todas" type="button">Todas</button>
-            <button class="chip" data-class="Embalse" type="button">Embalses</button>
-            <button class="chip" data-class="Acuífero" type="button">Acuíferos</button>
-            <button class="chip" data-class="Glaciar" type="button">Glaciares</button>
-            <button class="chip" data-class="Desalación" type="button">Desalación</button>
+            <button class="chip on" data-class="All" type="button">All</button>
+            <button class="chip" data-class="Reservoir" type="button">Reservoirs</button>
+            <button class="chip" data-class="Aquifer" type="button">Aquifers</button>
+            <button class="chip" data-class="Glacier" type="button">Glaciers</button>
+            <button class="chip" data-class="Desalination" type="button">Desalination</button>
           </div>
           <div class="grow">
-            <label for="search">Buscar</label>
-            <input id="search" type="search" placeholder="Nombre, ticker o registro" style="width:210px">
-            <label for="sort">Orden</label>
+            <label for="search">Search</label>
+            <input id="search" type="search" placeholder="Name, ticker or venue" style="width:210px">
+            <label for="sort">Sort</label>
             <select id="sort">
-              <option value="destacadas">Destacadas</option>
-              <option value="precio">Spot más alto</option>
-              <option value="llenado">Menos llenado</option>
-              <option value="nombre">Nombre</option>
+              <option value="featured">Featured</option>
+              <option value="spot">Highest spot</option>
+              <option value="fill">Lowest fill</option>
+              <option value="name">Name</option>
             </select>
           </div>
         </div>
         <table class="tbl">
           <thead><tr>
-            <th>#</th><th>Fuente</th><th class="hide-s">Registro</th><th class="hide-xs">Ensayo</th>
-            <th class="hide-s">Disponibilidad</th><th class="num">Spot</th><th class="num hide-xs">7d</th><th></th>
+            <th>#</th><th>Source</th><th class="hide-s">Venue</th><th class="hide-xs">Assay</th>
+            <th class="hide-s">Availability</th><th class="num">Spot</th><th class="num hide-xs">7d</th><th></th>
           </tr></thead>
           <tbody id="source-rows"></tbody>
         </table>
         <div class="panel-foot">
           <span id="source-count">—</span>
-          <a href="launch.html">Parear una fuente →</a>
+          <a href="launch.html">Pair a source →</a>
         </div>
       </div>
     </div>
@@ -78,19 +78,20 @@
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Hydro — demo. Sin cadena, sin wallet y sin valor: todo se simula en tu navegador.</span>
+    <span>Hydro — a demo. No chain, no wallet, no value: everything is simulated in your browser.</span>
     <nav>
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
       <a href="docs.html">Docs</a>
-      <a href="#" id="reset">Reiniciar datos</a>
+      <a href="#" id="reset">Reset data</a>
     </nav>
   </div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>window.HYDRO_PAGE = "sources";</script>
 <script src="data.js"></script>
 <script src="app.js"></script>
-<script>document.getElementById("connect").addEventListener("click",function(){toast("Demo sin cadena: no hay wallet que conectar.")});</script>
+<script>document.getElementById("connect").addEventListener("click",function(){toast("Chainless demo: there is no wallet to connect.")});</script>
 </body>
 </html>

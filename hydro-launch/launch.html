@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parear — Hydro</title>
-<meta name="description" content="Lanza un token pareado a una fuente de agua.">
+<title>Launch — Hydro</title>
+<meta name="description" content="Launch a token paired to a water source.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,21 +19,21 @@
       Hydro
     </a>
     <nav class="nav-links">
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
-      <a href="launch.html" class="on">Parear</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="launch.html" class="on">Launch</a>
       <a href="docs.html">Docs</a>
     </nav>
-    <div class="nav-cta"><button class="btn" type="button" id="connect">Conectar wallet</button></div>
+    <div class="nav-cta"><button class="btn" type="button" id="connect">Connect wallet</button></div>
   </div>
 </header>
 <main>
   <section class="wrap page-head">
-    <p class="eyebrow">Emitir</p>
-    <h1>Parear una fuente</h1>
-    <p class="lede">Elige la fuente, ponle nombre al token y lánzalo. Abre en curva de bonding,
-    con la comisión del creador yendo entera a su bóveda.</p>
+    <p class="eyebrow">Issue</p>
+    <h1>Pair a source</h1>
+    <p class="lede">Pick the source, name the token and launch it. It opens on a bonding curve,
+    with the creator fee going whole into its vault.</p>
   </section>
 
   <section class="section" style="padding-top:0">
@@ -41,55 +41,56 @@
       <div class="panel">
         <form class="stack" id="pair-form" autocomplete="off">
           <div class="two">
-            <label>Nombre del token
-              <input name="name" maxlength="32" placeholder="Agua Cruda" required>
+            <label>Token name
+              <input name="name" maxlength="32" placeholder="Raw Water" required>
             </label>
             <label>Ticker
               <input name="symbol" class="mono" maxlength="8" placeholder="H2O" required>
             </label>
           </div>
-          <label>Fuente pareada
+          <label>Paired source
             <select name="pair" id="pair"></select>
-            <span class="hint">El token hereda la unidad, el registro y el spot de esta fuente.</span>
+            <span class="hint">The token inherits this source's unit, venue and spot price.</span>
           </label>
           <label>Supply
             <input name="supply" class="mono" type="number" min="1000" step="1000" value="1000000000" required>
           </label>
-          <label><span style="display:flex;justify-content:space-between;gap:10px">Sensibilidad al spot <b id="beta-out" style="color:var(--accent);font-family:var(--mono)">1.0×</b></span>
+          <label><span style="display:flex;justify-content:space-between;gap:10px">Spot sensitivity <b id="beta-out" style="color:var(--accent);font-family:var(--mono)">1.0×</b></span>
             <input name="beta" type="range" min="0.2" max="3" step="0.1" value="1">
-            <span class="hint">Cuánto amplifica el token cada movimiento del precio de su fuente.</span>
+            <span class="hint">How much the token amplifies each move in its source's price.</span>
           </label>
-          <div class="note">Comisión del creador fija en el 3%, y va entera a la bóveda del token.
-          Nada de esto toca una cadena: el lanzamiento se guarda en tu navegador.</div>
-          <button class="btn accent" type="submit">Lanzar el pareado</button>
+          <div class="note">The creator fee is fixed at 3%, and all of it goes to the token's vault.
+          None of this touches a chain: the launch is kept in your browser.</div>
+          <button class="btn accent" type="submit">Launch the pairing</button>
         </form>
       </div>
       <aside class="panel">
         <div class="panel-head">
-          <h3>Resumen</h3>
+          <h3>Summary</h3>
           <span id="preview-glyph"></span>
         </div>
         <div class="summary" id="pair-summary"></div>
-        <div class="panel-foot"><span>Los valores se refrescan con el mercado.</span></div>
+        <div class="panel-foot"><span>Figures refresh with the market.</span></div>
       </aside>
     </div>
   </section>
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Hydro — demo. Sin cadena, sin wallet y sin valor: todo se simula en tu navegador.</span>
+    <span>Hydro — a demo. No chain, no wallet, no value: everything is simulated in your browser.</span>
     <nav>
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
       <a href="docs.html">Docs</a>
-      <a href="#" id="reset">Reiniciar datos</a>
+      <a href="#" id="reset">Reset data</a>
     </nav>
   </div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>window.HYDRO_PAGE = "launch";</script>
 <script src="data.js"></script>
 <script src="app.js"></script>
-<script>document.getElementById("connect").addEventListener("click",function(){toast("Demo sin cadena: no hay wallet que conectar.")});</script>
+<script>document.getElementById("connect").addEventListener("click",function(){toast("Chainless demo: there is no wallet to connect.")});</script>
 </body>
 </html>

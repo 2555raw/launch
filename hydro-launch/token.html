@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Token — Hydro</title>
-<meta name="description" content="Mercado, bóveda y pareado de un token de Hydro.">
+<meta name="description" content="Market, vault and pairing of a Hydro token.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,13 +19,13 @@
       Hydro
     </a>
     <nav class="nav-links">
-      <a href="index.html">Mercados</a>
-      <a href="launches.html" class="on">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
-      <a href="launch.html">Parear</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html" class="on">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="launch.html">Launch</a>
       <a href="docs.html">Docs</a>
     </nav>
-    <div class="nav-cta"><button class="btn" type="button" id="connect">Conectar wallet</button></div>
+    <div class="nav-cta"><button class="btn" type="button" id="connect">Connect wallet</button></div>
   </div>
 </header>
 <main>
@@ -34,19 +34,20 @@
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Hydro — demo. Sin cadena, sin wallet y sin valor: todo se simula en tu navegador.</span>
+    <span>Hydro — a demo. No chain, no wallet, no value: everything is simulated in your browser.</span>
     <nav>
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
       <a href="docs.html">Docs</a>
-      <a href="#" id="reset">Reiniciar datos</a>
+      <a href="#" id="reset">Reset data</a>
     </nav>
   </div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>window.HYDRO_PAGE = "token";</script>
 <script src="data.js"></script>
 <script src="app.js"></script>
-<script>document.getElementById("connect").addEventListener("click",function(){toast("Demo sin cadena: no hay wallet que conectar.")});</script>
+<script>document.getElementById("connect").addEventListener("click",function(){toast("Chainless demo: there is no wallet to connect.")});</script>
 </body>
 </html>

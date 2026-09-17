@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Docs — Hydro</title>
-<meta name="description" content="Cómo funciona el pareado hídrico, la curva y la bóveda.">
+<meta name="description" content="How the water pairing, the curve and the vault work.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,73 +19,74 @@
       Hydro
     </a>
     <nav class="nav-links">
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
-      <a href="launch.html">Parear</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="launch.html">Launch</a>
       <a href="docs.html" class="on">Docs</a>
     </nav>
-    <div class="nav-cta"><button class="btn" type="button" id="connect">Conectar wallet</button></div>
+    <div class="nav-cta"><button class="btn" type="button" id="connect">Connect wallet</button></div>
   </div>
 </header>
 <main>
   <section class="wrap page-head">
     <p class="eyebrow">Docs</p>
-    <h1>Cómo funciona</h1>
-    <p class="lede">Hydro parea un token con una fuente de agua concreta. Lo que sigue es el
-    modelo completo, tal y como está implementado en la demo.</p>
+    <h1>How it works</h1>
+    <p class="lede">Hydro pairs a token with one specific water source. What follows is the whole
+    model, exactly as the demo implements it.</p>
   </section>
 
   <section class="section" style="padding-top:0">
     <div class="wrap prose">
-      <h3>El registro</h3>
-      <p>Hay 32 fuentes en cuatro clases: embalses, acuíferos, glaciares y desalación. Cada una lleva
-      un registro (el organismo que la mide), un ensayo de calidad, una unidad — acre-pie, mil metros
-      cúbicos o tonelada — y un precio spot.</p>
+      <h3>The register</h3>
+      <p>There are 32 sources in four classes: reservoirs, aquifers, glaciers and desalination. Each one
+      carries a venue (the body that measures it), a quality assay, a unit — acre-foot, thousand cubic
+      metres or tonne — and a spot price.</p>
 
-      <h3>Disponibilidad y spot</h3>
-      <p>Cada fuente tiene un llenado entre 0 y 1. El llenado deriva con el tiempo y arrastra al spot:
-      cuando baja el agua disponible, el spot sube. Es la escasez, no el volumen, la que marca precio.</p>
+      <h3>Availability and spot</h3>
+      <p>Every source has a fill level between 0 and 1. The fill drifts over time and drags the spot with
+      it: when available water falls, spot rises. Scarcity sets the price, not volume.</p>
 
-      <h3>El pareado</h3>
-      <p>Al lanzar, el token fija <code>spot0</code>, el spot de su fuente en ese instante, y abre a un
-      precio derivado del llenado. A partir de ahí:</p>
+      <h3>The pairing</h3>
+      <p>At launch the token fixes <code>spot0</code>, its source's spot at that moment, and opens at a
+      price derived from the fill. From there:</p>
       <ul>
-        <li><code>precio = precio0 · (spot / spot0)<sup>β</sup> · (1 + curva/4,2 · 0,65)</code></li>
-        <li><code>β</code> es la sensibilidad que elige el creador, entre 0,2× y 3×.</li>
-        <li>La curva es lo recaudado sobre el objetivo de graduación.</li>
+        <li><code>price = price0 · (spot / spot0)<sup>β</sup> · (1 + curve/4.2 · 0.65)</code></li>
+        <li><code>β</code> is the sensitivity the creator picks, between 0.2× and 3×.</li>
+        <li>Curve is what has been raised against the graduation target.</li>
       </ul>
 
-      <h3>Curva y graduación</h3>
-      <p>Cada token opera sobre una curva de bonding hasta 4,2 ETH. Mientras tanto la etapa se muestra
-      como porcentaje recorrido; al completarse queda graduado y se abre la pool.</p>
+      <h3>Curve and graduation</h3>
+      <p>Each token trades on a bonding curve up to 4.2 ETH. Until then the stage shows how far the curve
+      has run; once it completes, the token graduates and the pool opens.</p>
 
-      <h3>La bóveda</h3>
-      <p>El 3% de cada operación, compra o venta, entra en la bóveda del token. No se reparte ni se
-      reclama en la demo: se acumula y queda a la vista en la ficha.</p>
+      <h3>The vault</h3>
+      <p>3% of every trade, buy or sell, goes into the token's vault. In the demo nothing is distributed
+      or claimed: it accumulates and stays visible on the token page.</p>
 
-      <h3>Qué no es esto</h3>
-      <p>Una demo. No hay cadena, wallet, custodia ni derecho de agua real detrás de ningún ticker.
-      Los organismos y embalses citados existen, pero aquí solo dan nombre a datos simulados que se
-      generan y se guardan en tu propio navegador. «Reiniciar datos», abajo, lo borra todo.</p>
+      <h3>What this is not</h3>
+      <p>A demo. There is no chain, wallet, custody or real water right behind any ticker. The bodies and
+      reservoirs named here exist, but here they only label simulated data generated and kept in your own
+      browser. "Reset data", in the footer, wipes all of it.</p>
     </div>
   </section>
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Hydro — demo. Sin cadena, sin wallet y sin valor: todo se simula en tu navegador.</span>
+    <span>Hydro — a demo. No chain, no wallet, no value: everything is simulated in your browser.</span>
     <nav>
-      <a href="index.html">Mercados</a>
-      <a href="launches.html">Lanzamientos</a>
-      <a href="sources.html">Fuentes</a>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
       <a href="docs.html">Docs</a>
-      <a href="#" id="reset">Reiniciar datos</a>
+      <a href="#" id="reset">Reset data</a>
     </nav>
   </div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>window.HYDRO_PAGE = "docs";</script>
 <script src="data.js"></script>
 <script src="app.js"></script>
-<script>document.getElementById("connect").addEventListener("click",function(){toast("Demo sin cadena: no hay wallet que conectar.")});</script>
+<script>document.getElementById("connect").addEventListener("click",function(){toast("Chainless demo: there is no wallet to connect.")});</script>
 </body>
 </html>

@@ -88,11 +88,6 @@
       It is a milestone, not a switch: the curve keeps working exactly the same afterwards. Nothing is
       locked, migrated or handed to a pool. The contract does not promise what it cannot do.</p>
 
-      <h3>Deploying a launcher</h3>
-      <p>Hydropad is not a service. If the network you are on has no launcher, the site offers to deploy
-      one from your wallet: that instance is yours, its address is remembered in this browser, and you
-      can share it by adding <code>?launcher=0x…</code> to any link here.</p>
-
       <h3>The water register</h3>
       <p>The 32 sources, their venues, assays, units, spot figures and fill levels ship with the build as
       reference data. They label a pairing, and the ticker goes on chain with the token, but they do not
@@ -124,8 +119,10 @@
             <button class="btn accent sm" type="button" id="deploy-launcher">Deploy a launcher</button>
             <button class="btn alt sm" type="button" id="set-launcher">Use an address I have</button>
           </div>
-          <p class="desk-note">The source is <code>contracts/Hydropad.sol</code>, and the suite that
-          has to pass before it goes anywhere is <code>contracts/test.js</code>.</p>
+          <p class="desk-note">The address you deploy or enter is remembered per chain, in this
+          browser, and you can hand it to someone by adding <code>?launcher=0x…</code> to any link
+          here. The source is <code>contracts/Hydropad.sol</code> and the suite that has to pass
+          before it goes anywhere is <code>contracts/test.js</code>.</p>
         </div>
       </div>
     </div>

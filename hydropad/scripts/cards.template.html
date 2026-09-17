@@ -1,0 +1,37 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { width: WIDTHpx; height: HEIGHTpx; overflow: hidden;
+         font-family: "Liberation Sans", system-ui, sans-serif; }
+
+  .stage { position: relative; width: WIDTHpx; height: HEIGHTpx; overflow: hidden;
+           background: linear-gradient(160deg, #eaf4fb 0%, #f5fbff 38%, #eef8f4 70%, #e6f2f8 100%); }
+  /* Soft colour behind the glass, the way light comes off water. */
+  .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .72; }
+
+  .card {
+    position: absolute; width: 430px; padding: 22px 26px 18px; border-radius: 24px;
+    background: rgba(255,255,255,.62);
+    border: 1px solid rgba(255,255,255,.85);
+    box-shadow: 0 30px 60px -28px rgba(16,58,74,.45), 0 2px 8px rgba(16,58,74,.06);
+    backdrop-filter: blur(22px) saturate(1.25);
+  }
+  .top { display: flex; align-items: flex-start; gap: 16px; }
+  /* The photographs are dark next to a flag, and at 52px that reads as a smudge. */
+  .ico { width: 56px; height: 56px; margin-top: 2px; border-radius: 50%; object-fit: cover; flex: none;
+         filter: saturate(1.25) brightness(1.12) contrast(1.06);
+         box-shadow: 0 3px 12px rgba(16,58,74,.3), 0 0 0 3px rgba(255,255,255,.95); }
+  .who { flex: 1; min-width: 0; }
+  .tk { font-size: 28px; font-weight: 700; color: #16303c; letter-spacing: -.01em; line-height: 1.05; }
+  .nm { font-size: 15px; color: #6c8794; margin-top: 3px; }
+  .fig { text-align: right; flex: none; padding-top: 2px; }
+  .px { font-size: 24px; font-weight: 600; color: #16303c; letter-spacing: -.01em; }
+  .unit { font-size: 12px; color: #8ba3ae; margin-top: 3px; }
+  .lvl { display: inline-block; margin-top: 8px; padding: 4px 10px; border-radius: 8px;
+         font-size: 14px; font-weight: 600; }
+  .lvl.high { background: rgba(16,185,129,.16); color: #0b7a5b; }
+  .lvl.mid  { background: rgba(59,159,212,.16); color: #1c6d95; }
+  .lvl.low  { background: rgba(239,68,68,.14);  color: #b3352f; }
+  .chart { margin-top: 14px; height: 84px; }
+</style>
+<div class="stage">BLOBS CARDS</div>

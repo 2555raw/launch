@@ -16,3 +16,20 @@ over the banner, and anything put there is hidden on half the clients.
 
 The photographs are the project's own supply and are still credit pending —
 settle that before any of these goes out publicly.
+
+
+# Cards
+
+The six featured reserves, one card each plus the six together in `cards.png`
+(1600 × 900 at 2x). Built by `scripts/cards.js` from `data.js`, so the figures
+on them are the register's own and change with it.
+
+The photograph of the place stands in for a flag, and the two figures are the
+published spot and the fill level.
+
+The little chart is the level itself — water standing in the reserve, with a
+wave for a surface. It is not a price history: there is no price history to
+draw, and a sparkline that means nothing is the kind of thing that reads as a
+fake chart later.
+
+Nothing here is loaded by the site. These are for posts.

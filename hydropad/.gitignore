@@ -1,2 +1,8 @@
 node_modules/
+
+# The end-to-end runs drop screenshots beside the code; those are throwaway.
+# Artwork under media/ has to ship: a blanket *.png rule here once kept the
+# logo out of the repository entirely, so the live site served a broken image.
+e2e-*.png
 *.png
+!media/**/*.png

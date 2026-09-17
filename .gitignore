@@ -1,0 +1,6 @@
+node_modules/
+
+# See hydropad/.gitignore: screenshots are throwaway, artwork under media/ ships.
+e2e-*.png
+*.png
+!**/media/**/*.png

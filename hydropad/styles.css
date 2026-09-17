@@ -1458,8 +1458,10 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 .brand { font-size: 21px; letter-spacing: -.03em; gap: 10px; }
 /* The mark is a raster with its own glow, so the hover is on the whole thing:
  * a little nearer and a little brighter, not a recolour it cannot take. */
+/* 36 rather than 34: this mark's stroke is thin and most of its area is glow,
+ * so it needs the extra two pixels to hold together where it is smallest. */
 .brand .mark {
-  flex: none; width: 34px; height: 34px; display: block;
+  flex: none; width: 36px; height: 36px; display: block;
   transition: transform var(--t) var(--ease-out), filter var(--t) var(--ease);
 }
 .brand:hover .mark { transform: scale(1.07); filter: brightness(1.18) saturate(1.06); }

@@ -61,8 +61,16 @@ const SITE_NOTES = {
   NSAS: "Fossil water under four countries, recharged when the Sahara was green. There is no inflow to speak of, which makes any figure for it a measurement of a stock, not a flow.",
   GRN: "Ice laid down season by season and read back as a core. Mass balance is the difference between what falls on top and what leaves at the margins.",
   SOR: "Seawater pushed through membranes at pressure. Availability here is an engineering figure, not a hydrological one: it depends on the plant running, not on the rain.",
+  POW: "The Colorado's other store, behind Glen Canyon Dam. It and Mead are the same water twice: what one lets go the other receives, which is why nobody reads either level on its own.",
+  ORO: "The tallest dam in the United States. In 2017 both its spillways failed in a wet winter and 180,000 people were moved out below it, which is the plainest lesson anywhere in what freeboard is for.",
+  GLC: "One of the few glaciers not simply retreating. It advances until it dams a lake against the far shore, the water builds behind the ice, and the arch collapses. Then it starts again.",
   TRR: "A salt lagoon the colour of its own biology: the brine is dense enough for halophilic algae and archaea to turn it pink. The salt pans have been worked from it since the eighteenth century.",
 };
 
-/* The order they appear in as you scroll the front page. */
-const FEATURED = ["MEAD", "TGR", "OGL", "NSAS", "GRN", "SOR"];
+/* The order they appear in as you scroll the front page.
+ *
+ * These are chosen to be places anyone can go and look at. An aquifer has no
+ * surface to photograph, which is exactly why the two that used to be here
+ * looked wrong, so the gallery is surface water and ice and the aquifers stay
+ * in the register, where the text can do the explaining. */
+const FEATURED = ["MEAD", "TGR", "POW", "ORO", "GRN", "GLC"];

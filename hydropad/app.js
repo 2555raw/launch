@@ -631,11 +631,14 @@ function renderSites() {
     }).catch(e => console.warn("pairing tally", e));
   }
 
-  const shown = FEATURED.filter(t => sourceArt(t)).length;
-  const photos = typeof PHOTOS !== "undefined" ? Object.keys(PHOTOS).length : 0;
-  setText("sites-note", photos
-    ? `Six of the 32 entries in the register. ${photos} of them carry a photograph; the rest are rendered from the site's class and its own fill figure.`
-    : `Six of the 32 entries in the register. Photographs of these places belong to the people who took them, so each plate is rendered instead, from that site's class and its published fill: a reservoir at ${level(BASE_LEVEL.MEAD ?? 0.3)} is drawn down to ${level(BASE_LEVEL.MEAD ?? 0.3)}. Drop a photograph in media/sources and it takes the plate's place.`);
+  const shown = FEATURED.filter(t => typeof PHOTOS !== "undefined" && (OWN[t] || PHOTOS[t])).length;
+  const total = FEATURED.length;
+  setText("sites-note", shown === total
+    ? `Six of the ${WATER.length} entries in the register, each one a place you can go and look at. Every one of these carries a photograph of it.`
+    : shown
+      ? `Six of the ${WATER.length} entries in the register, each one a place you can go and look at. ${shown} of the six carry a photograph of that place; the other ${total - shown} are cut from Hydropad's own photography until one arrives.`
+      : `Six of the ${WATER.length} entries in the register, each one a place you can go and look at. None carries a photograph of it yet: these plates are cut from Hydropad's own photography. Drop one in media/sources and it takes over.`);
+
   return shown;
 }
 

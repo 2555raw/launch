@@ -87,8 +87,9 @@
               <span class="hint">Minted once, into the curve. Nobody can mint more.</span>
             </label>
             <label class="field">Take the first position (optional, ETH)
-              <input name="firstBuy" id="f-firstbuy" class="mono" type="number" min="0" step="0.01" placeholder="0.00">
-              <span class="hint">Filled on the curve in the same transaction. Leave it empty to open flat.</span>
+              <input name="firstBuy" id="f-firstbuy" class="mono" type="number" min="0" step="any" placeholder="0.000">
+              <span class="hint">Any amount, or none at all — there is no minimum. Leave it empty to
+              open the curve flat and let somebody else take the first position.</span>
             </label>
           </div>
         </div>
@@ -111,7 +112,7 @@
 
         <div class="lp-go">
           <button class="btn accent lg" type="submit" id="f-submit">Launch</button>
-          <span class="lp-fee">Launch fee none, plus gas.</span>
+          <span class="lp-fee" id="f-cost">Plus gas.</span>
         </div>
       </form>
 

@@ -255,16 +255,60 @@ const PonsAdapter = {
    * have turned up or the scan runs out of room. Pons carries every launch on
    * the chain, most of which have nothing to do with water, so the tag in the
    * description is what decides. */
+  /* How long a scan may take before it gives back whatever it has. A page that
+   * says "reading the chain" forever is worse than one that says "nothing
+   * here yet" in a few seconds. */
+  BUDGET_MS: 9000,
+  MAX_LOGS: 600,
+  BATCH: 12,
+
+  /* Tokens on this chain already known to be ours, so a second visit does not
+   * pay for the scan again. */
+  knownKey() { return `hydropad.pons.known.${this.chain.chainId}`; },
+  known() {
+    try { return JSON.parse(localStorage.getItem(this.knownKey()) || "[]"); }
+    catch (_) { return []; }
+  },
+  remember(token, curve, source) {
+    try {
+      const all = this.known().filter(k => k.token.toLowerCase() !== token.toLowerCase());
+      all.unshift({ token, curve, source });
+      localStorage.setItem(this.knownKey(), JSON.stringify(all.slice(0, 60)));
+    } catch (_) {}
+  },
+
+  /* Pons carries every launch on the chain and most have nothing to do with
+   * water, so the tag in the description is what decides. Reading that is one
+   * call per token, which is why this is bounded on every axis: a deadline, a
+   * ceiling on how many logs are inspected, and the reads themselves run in
+   * batches rather than one after another. Whatever is known already is shown
+   * first and costs nothing.
+   */
   async pairings(limit = 50) {
+    const out = [];
+    const seen = new Set();
+
+    /* Anything this browser has already established is ours. */
+    for (const k of this.known()) {
+      if (seen.has(k.token.toLowerCase())) continue;
+      seen.add(k.token.toLowerCase());
+      this.cache.set(k.token.toLowerCase(), { curve: k.curve, source: k.source });
+      try { out.push(await this.pairing(k.token, { curve: k.curve, source: k.source })); }
+      catch (e) { console.warn("pons: known token unreadable", k.token, e.shortMessage || e.message); }
+      if (out.length >= limit) return out;
+    }
+
+    const deadline = Date.now() + this.BUDGET_MS;
     const f = this.factory();
-    const head = await this.provider().getBlockNumber();
-    const floor = Math.max(
-      this.START_BLOCK[Number(this.chain.chainId)] || 0,
-      head - this.MAX_SCAN,
-    );
-    const found = [];
+    let head;
+    try { head = await this.provider().getBlockNumber(); }
+    catch (e) { console.warn("pons: no head", e.shortMessage || e.message); return out; }
+
+    const floor = Math.max(this.START_BLOCK[Number(this.chain.chainId)] || 0, head - this.MAX_SCAN);
     let to = head;
-    while (to > floor && found.length < limit) {
+    let inspected = 0;
+
+    while (to > floor && out.length < limit && inspected < this.MAX_LOGS && Date.now() < deadline) {
       const from = Math.max(floor, to - this.CHUNK);
       let logs = [];
       try {
@@ -272,14 +316,20 @@ const PonsAdapter = {
       } catch (e) {
         console.warn("pons: log range refused", from, to, e.shortMessage || e.message);
       }
-      for (const l of logs.reverse()) {
-        const p = await this.fromLaunchLog(l);
-        if (p) found.push(p);
-        if (found.length >= limit) break;
+      logs.reverse();
+
+      for (let i = 0; i < logs.length && out.length < limit; i += this.BATCH) {
+        if (Date.now() > deadline || inspected >= this.MAX_LOGS) break;
+        const slice = logs.slice(i, i + this.BATCH);
+        inspected += slice.length;
+        const found = await Promise.all(slice.map(l => this.fromLaunchLog(l).catch(() => null)));
+        for (const p of found) {
+          if (p && !seen.has(p.token.toLowerCase())) { seen.add(p.token.toLowerCase()); out.push(p); }
+        }
       }
       to = from - 1;
     }
-    return found;
+    return out;
   },
 
   /* One launch event into a pairing, or null when it is not one of ours. */
@@ -291,6 +341,7 @@ const PonsAdapter = {
       const source = PONS.sourceOf(description);
       if (!source) return null;
       this.cache.set(token.toLowerCase(), { curve: log.args.curve, source });
+      this.remember(token, log.args.curve, source);
       return this.pairing(token, { curve: log.args.curve, source, block: log.blockNumber });
     } catch (e) {
       console.warn("pons: could not read", token, e.shortMessage || e.message);
@@ -464,6 +515,7 @@ const PonsAdapter = {
     }
     if (!token) throw new Error("Pons did not emit TokenLaunched in this receipt.");
     this.cache.set(token.toLowerCase(), { curve, source });
+    this.remember(token, curve, source);
 
     /* Take the first position, if one was asked for. A failure here leaves the
      * launch standing: the coin exists, it just has no opening buy. */

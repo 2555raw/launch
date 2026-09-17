@@ -901,7 +901,9 @@ const PAGES = {
       return;
     }
     if (!Chain.ready()) {
-      host.innerHTML = emptyRow(8, `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet. Open the chain menu to move onto Robinhood Chain, or <a href="launch.html" style="color:var(--accent)">be the first to pair a source here</a>.`);
+      host.innerHTML = emptyRow(8, `${Chain.viaPons()
+        ? `Nothing paired to water has been launched on ${esc(Chain.chainInfo().name)} yet. Pons carries every launch on this chain, and none of them are Hydropad's so far.`
+        : `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet.`} <a href="launch.html" style="color:var(--accent)">Be the first to pair a source</a>.`);
       setText("stat-launches", "0");
       return;
     }
@@ -922,7 +924,9 @@ const PAGES = {
       return;
     }
     if (!Chain.ready()) {
-      host.innerHTML = emptyRow(8, `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet. Open the chain menu to move onto Robinhood Chain, or <a href="launch.html" style="color:var(--accent)">be the first to pair a source here</a>.`);
+      host.innerHTML = emptyRow(8, `${Chain.viaPons()
+        ? `Nothing paired to water has been launched on ${esc(Chain.chainInfo().name)} yet. Pons carries every launch on this chain, and none of them are Hydropad's so far.`
+        : `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet.`} <a href="launch.html" style="color:var(--accent)">Be the first to pair a source</a>.`);
       return;
     }
     host.innerHTML = emptyRow(8, "Reading the chain…");
@@ -1165,6 +1169,19 @@ const PAGES = {
           first and pairs against it. Two transactions, one after the other, both from your wallet.
           Everything launched on ${esc(info().name)} after that reads from the same contract.</span>`;
         host.parentNode.insertBefore(el, host);
+      }
+      /* What the launch itself costs, read off Pons rather than guessed. Our own
+       * launcher charges nothing, so on that route it is gas alone. */
+      const cost = $("f-cost");
+      if (cost) {
+        if (route.value === "pons") {
+          cost.textContent = "Reading the launch fee…";
+          PONS.terms(Chain.provider, Chain.chainId, Chain.account)
+            .then(t => { cost.textContent = `Launch fee ${ethers.formatEther(t.launchFee)} ETH, plus gas.`; })
+            .catch(() => { cost.textContent = "Plus gas."; });
+        } else {
+          cost.textContent = "Launch fee none, plus gas.";
+        }
       }
       if (btn) {
         btn.disabled = stuck || wrongChain;

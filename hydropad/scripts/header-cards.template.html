@@ -1,0 +1,76 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1500px; height: 500px; overflow: hidden; }
+  body { background: #06100e; font-family: "Liberation Sans", system-ui, sans-serif; }
+
+  .banner { position: relative; width: 1500px; height: 500px; overflow: hidden; }
+  .shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+          object-position: POS; }
+  /* Ink under the words, the photograph left alone behind the cards. */
+  .wash { position: absolute; inset: 0;
+    background:
+      linear-gradient(97deg, rgba(4,12,11,.97) 0%, rgba(4,12,11,.93) 26%, rgba(4,12,11,.72) 44%, rgba(4,12,11,.56) 62%, rgba(4,12,11,.68) 100%),
+      linear-gradient(180deg, rgba(4,12,11,.3), rgba(4,12,11,0) 30%, rgba(4,12,11,0) 72%, rgba(4,12,11,.5)); }
+
+  .lockup { position: absolute; left: 88px; top: 50%; transform: translateY(-52%); color: #f2fbf8; z-index: 5; }
+  .row { display: flex; align-items: center; gap: 16px; }
+  h1 { font: 600 62px/1 "Bitstream Charter", Georgia, serif; letter-spacing: -.015em; }
+  .line { margin-top: 18px; font-size: 21px; line-height: 1.4; color: rgba(242,251,248,.86); max-width: 440px; }
+  .rule { width: 72px; height: 2px; margin: 22px 0 16px; background: #67c0e2; opacity: .85; }
+  .meta { font: 400 13px/1 "DejaVu Sans Mono", monospace; letter-spacing: .13em;
+          text-transform: uppercase; color: rgba(242,251,248,.6); }
+  .meta b { color: #67c0e2; font-weight: 400; }
+  .site { position: absolute; right: 54px; bottom: 34px; z-index: 6;
+          font: 400 15px/1 "DejaVu Sans Mono", monospace; letter-spacing: .1em;
+          color: rgba(242,251,248,.85); }
+
+  /* The cards, smaller here than on their own sheet so three sit in half a banner. */
+  .deck { position: absolute; inset: 0; z-index: 4; }
+  .card {
+    position: absolute; width: 368px; padding: 15px 19px 12px; border-radius: 18px;
+    background: rgba(255,255,255,.72);
+    border: 1px solid rgba(255,255,255,.9);
+    box-shadow: 0 34px 60px -26px rgba(0,0,0,.72);
+    backdrop-filter: blur(18px) saturate(1.2);
+    transform-origin: center;
+  }
+  .top { display: flex; align-items: flex-start; gap: 13px; }
+  .ico { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex: none; margin-top: 2px;
+         filter: saturate(1.25) brightness(1.12) contrast(1.06);
+         box-shadow: 0 3px 10px rgba(16,58,74,.3), 0 0 0 3px rgba(255,255,255,.95); }
+  .who { flex: 1; min-width: 0; }
+  .tk { font-size: 22px; font-weight: 700; color: #16303c; line-height: 1.05; }
+  .nm { font-size: 13px; color: #6c8794; margin-top: 2px; }
+  .fig { text-align: right; flex: none; padding-top: 1px; }
+  .px { font-size: 19px; font-weight: 600; color: #16303c; }
+  .unit { font-size: 11px; color: #8ba3ae; margin-top: 2px; }
+  .lvl, .chg { display: inline-block; margin-top: 7px; padding: 3px 9px; border-radius: 7px;
+               font-size: 12px; font-weight: 600; }
+  .lvl.high { background: rgba(23,107,153,.22); color: #10506f; }
+  .lvl.mid  { background: rgba(59,159,212,.19); color: #1c6d95; }
+  .lvl.low  { background: rgba(125,196,231,.24); color: #3583a8; }
+  /* The change is a move, so it keeps its direction colours. */
+  .chg.up   { background: rgba(16,185,129,.18); color: #0b7a5b; }
+  .chg.down { background: rgba(239,68,68,.16);  color: #b3352f; }
+  .chart { margin-top: 10px; height: 52px; }
+</style>
+<div class="banner">
+  <img class="shot" src="SHOT">
+  <div class="wash"></div>
+  <div class="lockup">
+    <div class="row">
+      <svg width="58" height="58" viewBox="0 0 26 26">
+        <defs><clipPath id="d"><circle cx="13" cy="13" r="9.4"/></clipPath></defs>
+        <g clip-path="url(#d)"><path d="M-3 16q3.25-2.2 6.5 0t6.5 0 6.5 0 6.5 0V30H-3Z" fill="#67c0e2"/></g>
+        <circle cx="13" cy="13" r="10.1" fill="none" stroke="#67c0e2" stroke-width="2.1"/>
+      </svg>
+      <h1>hydropad</h1>
+    </div>
+    <p class="line">Meme coins paired to named bodies of water.</p>
+    <div class="rule"></div>
+    <div class="meta"><b>Robinhood Chain</b> · via Pons V2</div>
+  </div>
+  <div class="deck">DECK</div>
+  <div class="site">hydropad.site</div>
+</div>

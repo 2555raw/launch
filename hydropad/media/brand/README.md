@@ -18,14 +18,29 @@ The photographs are the project's own supply and are still credit pending —
 settle that before any of these goes out publicly.
 
 
+# Banners with the cards
+
+`header-cards-<shot>.png`, 1500 × 500 with a 2x, built by
+`scripts/header-cards.js`: the lockup on ink to the left, three reserve cards
+floating over the photograph on the right. Three shots to choose from — mead,
+glc, oro.
+
+The cards are kept whole inside the frame. One running off the edge reads as a
+crop rather than as depth, and X crops this again on a phone.
+
+The same warning below applies: the line and the percentage on those cards are
+generated.
+
 # Cards
 
 The six featured reserves, one card each plus the six together in `cards.png`
 (1600 × 900 at 2x). Built by `scripts/cards.js` from `data.js`, so the figures
 on them are the register's own and change with it.
 
-The photograph of the place stands in for a flag, and the two figures are the
-published spot and the fill level.
+The photograph of the place stands in for a flag. The fill level sits on a blue
+scale — one hue at three weights, because it is an amount of water; a traffic
+light there reads as something being wrong. The change badge keeps green and
+red, because that one is a direction.
 
 ## The line and the percentage are not measured
 

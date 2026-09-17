@@ -118,6 +118,10 @@ const page = (width, height, blobs, cards) =>
     .replace(/WIDTH/g, width).replace(/HEIGHT/g, height)
     .replace("BLOBS", blobs).replace("CARDS", cards);
 
+/* Required from scripts/header.js, which puts a few of these on a banner. */
+module.exports = { card, series, trace, FEATURED, WATER, BASE_LEVEL };
+if (require.main !== module) return;
+
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
   fs.mkdirSync(OUT, { recursive: true });

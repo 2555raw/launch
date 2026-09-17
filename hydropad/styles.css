@@ -1708,3 +1708,9 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 .lp-blocked b { font-size: 14.5px; }
 .lp-blocked span { color: var(--ink-2); font-size: 13px; line-height: 1.6; }
 .lp-blocked-acts { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 2px; }
+
+/* A column of text keeps the page's left edge: it is narrower than the shell,
+   not centred inside it, so the title, the lede and every heading under them
+   start on the same line. */
+.prose { max-width: 74ch; margin-inline: 0; }
+.page-head .lede { max-width: 74ch; }

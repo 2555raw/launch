@@ -721,21 +721,7 @@ input[type=range] { padding: 0; border: 0; accent-color: var(--accent); }
 .hero.stage .factbar dd { color: #fff; }
 .hero.stage .factbar dd small { color: rgba(255, 255, 255, .55); }
 
-.scroll-cue {
-  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
-  display: inline-flex; align-items: center; gap: 8px; z-index: 2;
-  color: rgba(255, 255, 255, .78); font: 500 10.5px/1 var(--mono);
-  letter-spacing: .12em; text-transform: uppercase;
-  border: 1px solid rgba(255, 255, 255, .28); border-radius: 999px;
-  padding: 8px 15px; background: rgba(4, 28, 39, .35); backdrop-filter: blur(6px);
-  animation: cue 2.8s ease-in-out infinite;
-}
-.scroll-cue:hover { color: #fff; border-color: rgba(255, 255, 255, .6); }
-@keyframes cue { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 5px); } }
-
 .br-s { display: none; }
-
-@media (prefers-reduced-motion: reduce) { .scroll-cue { animation: none; } }
 
 @media (max-width: 720px) {
   .hero.stage { padding-bottom: 54px; }
@@ -1278,12 +1264,6 @@ body.scrolled .x-link { width: 26px; height: 26px; }
 /* no rules between sections anywhere: the landscape is the separator */
 .section + .section { border-top: 0; }
 .eyebrow::before { display: none !important; }
-
-/* the cue is pinned, not a row in the hero's stack */
-.hero.stage > .scroll-cue {
-  position: absolute; left: 50%; bottom: 16px; z-index: 3;
-  width: max-content; transform: translateX(-50%);
-}
 
 /* The photograph is the point, so nothing washes over it at the top. What is
    left is a gradient under the copy itself and a strip behind the bar. */

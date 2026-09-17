@@ -15,6 +15,19 @@ const TYPES = {
   ".svg": "image/svg+xml",
   ".sol": "text/plain; charset=utf-8",
   ".md": "text/plain; charset=utf-8",
+  /* The photographs and the banners. Without these they go out as
+   * application/octet-stream: a browser sniffs its way through that, but a
+   * link-preview scraper does not, and the card comes back without its
+   * image. */
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".avif": "image/avif",
+  ".gif": "image/gif",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+  ".txt": "text/plain; charset=utf-8",
 };
 
 http.createServer((req, res) => {

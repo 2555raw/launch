@@ -14,6 +14,8 @@ const Motion = {
   veil: null,
   reduced: false,
 
+  video: null,
+
   mount() {
     this.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!document.querySelector(".scene")) {
@@ -38,6 +40,7 @@ const Motion = {
     ];
     this.veil = document.querySelector(".scene-veil");
     if (!this.reduced) Scene.mount(document.querySelector(".scene-live"));
+    this.tryVideo();
 
     this.onScroll();
     let ticking = false;
@@ -48,6 +51,52 @@ const Motion = {
     }, { passive: true });
 
     this.watchReveals();
+  },
+
+  /* A filmed backdrop takes over the moment one is present: drop an encoded
+   * loop at media/scene.mp4 and the drawn scene steps aside. Nothing else has
+   * to change, and if the file is missing or the browser will not play it, the
+   * drawn scene simply stays. */
+  tryVideo() {
+    const scene = document.querySelector(".scene");
+    if (!scene || scene.querySelector(".scene-video")) return;
+
+    const v = document.createElement("video");
+    v.className = "scene-video";
+    v.muted = true;
+    v.defaultMuted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.autoplay = true;
+    v.preload = "auto";
+    v.setAttribute("muted", "");
+    v.setAttribute("playsinline", "");
+    v.setAttribute("aria-hidden", "true");
+    v.poster = "media/scene-poster.jpg";
+
+    // webm first where it exists: same footage, smaller file
+    for (const [file, type] of [["media/scene.webm", "video/webm"], ["media/scene.mp4", "video/mp4"]]) {
+      const src = document.createElement("source");
+      src.src = file;
+      src.type = type;
+      v.appendChild(src);
+    }
+
+    // a viewer on a metered connection keeps the drawn scene
+    const conn = navigator.connection;
+    if (conn && (conn.saveData || /2g/.test(conn.effectiveType || ""))) return;
+
+    v.addEventListener("loadeddata", () => {
+      scene.classList.add("filmed");
+      this.video = v;
+      this.layers.push([v, 0.12]);
+      Scene.stop();
+      v.play().catch(() => {});      // a refused autoplay still leaves the frame
+    }, { once: true });
+    v.addEventListener("error", () => v.remove(), { once: true });
+
+    scene.prepend(v);
+    if (this.reduced) v.removeAttribute("autoplay");
   },
 
   onScroll() {

@@ -26,6 +26,7 @@ const Motion = {
     }, { passive: true });
 
     this.watchReveals();
+    this.watchBars();
   },
 
   /* Build the scene on the front page, take it away everywhere else. */
@@ -136,18 +137,62 @@ const Motion = {
     }
   },
 
-  /* Sections arrive rather than appear, but only once and only below the fold. */
+  /* Sections arrive rather than appear, but only once and only below the fold.
+   * Whatever sits in a row inside them arrives in order, which reads as one
+   * movement instead of a dozen. */
   watchReveals() {
-    const targets = document.querySelectorAll(".section, .page-head, .hero-in, .site, .step");
+    const targets = document.querySelectorAll(".section, .page-head, .hero-in, .site, .step, .card, .pad");
     if (this.reduced || !("IntersectionObserver" in window)) {
       targets.forEach(t => t.classList.add("in"));
+      this.fillBars(document);
       return;
     }
     const io = new IntersectionObserver(entries => {
       for (const e of entries) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+        if (!e.isIntersecting) continue;
+        e.target.classList.add("in");
+        this.stagger(e.target);
+        this.fillBars(e.target);
+        io.unobserve(e.target);
       }
     }, { rootMargin: "-40px 0px -10% 0px" });
     targets.forEach(t => { t.classList.add("reveal"); io.observe(t); });
   },
+
+  /* Give each child in a row its place in the queue. */
+  stagger(root) {
+    const rows = root.querySelectorAll(".cards, .steps, .sites, .pv-boxes, .factbar, .chips, .pads");
+    for (const row of rows) {
+      [...row.children].forEach((child, i) => child.style.setProperty("--i", String(i)));
+    }
+  },
+
+  /* A bar that is already at its width cannot animate to it, so every bar is
+   * rendered empty and filled a frame later. Most of them arrive with a table
+   * that was read from the chain long after the section was revealed, so this
+   * watches for them instead of being called from each render. */
+  fillBars(root) {
+    const bars = root && root.querySelectorAll ? root.querySelectorAll("[data-fill]") : [];
+    for (const bar of bars) {
+      requestAnimationFrame(() => {
+        bar.style.width = bar.dataset.fill;
+        delete bar.dataset.fill;
+      });
+    }
+  },
+
+  watchBars() {
+    this.fillBars(document);
+    if (!("MutationObserver" in window)) return;
+    new MutationObserver(records => {
+      for (const r of records) {
+        for (const node of r.addedNodes) {
+          if (node.nodeType !== 1) continue;
+          if (node.dataset && node.dataset.fill) this.fillBars(node.parentNode);
+          else this.fillBars(node);
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  },
+
 };

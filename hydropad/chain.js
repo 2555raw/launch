@@ -94,8 +94,12 @@ const Chain = {
       onProgress("Deploying the launcher…");
       await this.deployLauncher();
     }
-    const existing = await this.pairings(5);
-    if (existing.length) return;
+    /* Top up rather than bail out: a reload part way through the seeding used
+     * to leave the world permanently half open, because any one pairing was
+     * taken as proof that all of them were there. Each seed is paired to a
+     * different source, so that is what is checked. */
+    const existing = await this.pairings(20);
+    const have = new Set(existing.map(p => p.source));
 
     const open = s => this.launch({
       name: s.name,
@@ -109,7 +113,9 @@ const Chain = {
      * second or two. Only the first is waited on: the page opens with something
      * in its tables, and the rest arrive behind it, announcing themselves so
      * whatever is on screen can read the chain again. */
-    const [first, ...rest] = DemoChain.SEEDS;
+    const missing = DemoChain.SEEDS.filter(s => !have.has(s.source));
+    if (!missing.length) return;
+    const [first, ...rest] = missing;
     onProgress(`Opening ${first.symbol}…`);
     await open(first);
     this.seeding = (async () => {

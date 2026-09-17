@@ -94,6 +94,7 @@ function sourceMark(t, size = 22) {
   if (!photo) return dropGlyph(t, size);
   const w = byTicker(t);
   return `<img class="photo" src="${esc(photo)}" alt="${esc(w ? w.n : t)}" loading="lazy" decoding="async"
+    onload="this.classList.add('ready')"
     onerror="this.replaceWith(document.createRange().createContextualFragment(dropGlyph('${esc(t)}', ${size})))">`;
 }
 
@@ -107,6 +108,35 @@ function dropGlyph(t, size = 22) {
     <path d="M10 1C10 1 3 9.4 3 14a7 7 0 0 0 14 0C17 9.4 10 1 10 1Z" fill="none" stroke="${c}" stroke-width="1.3"/>
     <rect x="0" y="${(21 - lvl * 13).toFixed(1)}" width="20" height="22" fill="${c}" opacity=".85" clip-path="url(#${uid})"/>
   </svg>`;
+}
+
+/* ---------------- the pages menu on a small screen ---------------- */
+
+/* The bar cannot hold five links on a phone, so below 900px they live in a
+ * sheet under it. It closes on a link, on Escape, on a click outside and on
+ * the way back up to a wide window, so it can never be left open and hidden. */
+function wireMenu() {
+  const btn = document.getElementById("burger");
+  const links = document.getElementById("nav-links");
+  if (!btn || !links || btn.dataset.wired === "1") return;
+  btn.dataset.wired = "1";
+
+  [...links.children].forEach((a, i) => a.style.setProperty("--i", String(i)));
+
+  const set = open => {
+    document.body.classList.toggle("menu-open", open);
+    btn.setAttribute("aria-expanded", String(open));
+  };
+  const isOpen = () => document.body.classList.contains("menu-open");
+
+  btn.addEventListener("click", e => { e.stopPropagation(); set(!isOpen()); });
+  links.addEventListener("click", e => { if (e.target.closest("a")) set(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && isOpen()) { set(false); btn.focus(); } });
+  document.addEventListener("click", e => {
+    if (isOpen() && !links.contains(e.target) && e.target !== btn) set(false);
+  });
+  const wide = window.matchMedia("(min-width: 901px)");
+  wide.addEventListener("change", e => { if (e.matches) set(false); });
 }
 
 /* ---------------- network chrome ---------------- */
@@ -127,7 +157,7 @@ function renderNetwork() {
   host.innerHTML = `
     <button class="pill ${cls} as-btn" type="button" id="chain-btn" aria-expanded="false"
             aria-haspopup="true" title="Where this page reads and writes">
-      <span class="dot"></span>${esc(name)}
+      <span class="dot"></span><span class="net-name">${esc(name)}</span>
       <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3.2 5 7 9 3.2"
         fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
@@ -136,11 +166,23 @@ function renderNetwork() {
 
   const btn = $("chain-btn");
   const menu = $("chain-menu");
-  const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
+  let closing = null;
+  const close = () => {
+    if (menu.hidden) return;
+    menu.classList.remove("open");
+    btn.setAttribute("aria-expanded", "false");
+    clearTimeout(closing);
+    closing = setTimeout(() => { menu.hidden = true; }, 220);
+  };
+  const open = () => {
+    clearTimeout(closing);
+    menu.hidden = false;
+    requestAnimationFrame(() => menu.classList.add("open"));
+    btn.setAttribute("aria-expanded", "true");
+  };
   btn.addEventListener("click", e => {
     e.stopPropagation();
-    menu.hidden = !menu.hidden;
-    btn.setAttribute("aria-expanded", String(!menu.hidden));
+    menu.hidden || !menu.classList.contains("open") ? open() : close();
   });
   document.addEventListener("click", e => { if (!menu.contains(e.target) && e.target !== btn) close(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
@@ -281,7 +323,7 @@ function sourceRows(list, withAction = true) {
       <td class="hide-s mono">${esc(w.v)}</td>
       <td class="hide-xs"><span class="pill">${esc(w.a)}</span></td>
       <td class="hide-s">
-        <div class="level ${lc}"><div class="bar"><i style="width:${(fill * 100).toFixed(0)}%"></i></div><span>${level(fill)} full</span></div>
+        <div class="level ${lc}"><div class="bar"><i style="width:0" data-fill="${(fill * 100).toFixed(0)}%"></i></div><span>${level(fill)} full</span></div>
       </td>
       <td class="num spot"><b>${usd(w.p)}</b><small class="sub">${esc(w.u)}</small></td>
       ${withAction ? `<td class="num nowrap"><a class="btn alt sm" href="launch.html?source=${w.t}">Pair</a></td>` : ""}
@@ -454,7 +496,8 @@ function renderSites() {
     const fill = BASE_LEVEL[t] ?? 0.5;
     const note = (typeof SITE_NOTES !== "undefined" && SITE_NOTES[t]) || "";
     const shot = art
-      ? `<img src="${esc(art)}" alt="${esc(w.n)}, rendered from its published figures" loading="lazy" decoding="async">`
+      ? `<img src="${esc(art)}" alt="${esc(w.n)}, rendered from its published figures" loading="lazy" decoding="async"
+           onload="this.classList.add('ready')">`
       : `<div class="empty">${esc(w.n)}</div>`;
     return `<article class="site">
       <figure class="site-shot">
@@ -471,7 +514,7 @@ function renderSites() {
           <div><dt>Assay</dt><dd>${esc(w.a)}<small>as published</small></dd></div>
           <div><dt>Spot</dt><dd>${usd(w.p)}<small>${esc(w.u)}</small></dd></div>
         </dl>
-        <div class="gauge" style="--w:${(fill * 100).toFixed(0)}%"><i style="width:${(fill * 100).toFixed(0)}%"></i></div>
+        <div class="gauge" style="--w:${(fill * 100).toFixed(0)}%"><i style="width:0" data-fill="${(fill * 100).toFixed(0)}%"></i></div>
         <div class="site-cta">
           <a class="btn sm" href="launch.html?source=${esc(w.t)}">Pair ${esc(w.t)}</a>
           <a class="btn alt sm" href="sources.html">See the register</a>
@@ -1044,6 +1087,7 @@ async function swap(href, replace) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   Motion.mount();
+  wireMenu();
   /* Booting an EVM takes a few seconds. Say so out of the way, not in a box
    * across the top of the page. */
   let boot = null;

@@ -1,7 +1,7 @@
 /* The live water.
  *
  * The dam, the canyon and the sky are drawn once as SVG. The water is painted
- * every frame on a canvas laid over them: sheets accelerating down the hydropad,
+ * every frame on a canvas laid over them: sheets accelerating down the spillway,
  * the boil where they land, spray climbing out of it, a rainbow in that spray,
  * and the swell on the reservoir held above the crest.
  *

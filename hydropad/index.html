@@ -18,7 +18,11 @@
       <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z" fill="#0e7490"/></svg>
       Hydropad
     </a>
-    <nav class="nav-links">
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav-links"
+            aria-label="Pages">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="nav-links">
       <a href="index.html" class="on">Markets</a>
       <a href="launches.html">Launches</a>
       <a href="sources.html">Sources</a>
@@ -124,7 +128,7 @@
                 stroke="#c6d5da" stroke-width="1.1"/>
           <rect x="500" y="106" width="68" height="12" rx="3" fill="#fbfdfd" stroke="#a9bfc6"/>
 
-          <!-- 6 the hydropad: a chute down the face, dry until the lake reaches the crest -->
+          <!-- 6 the spillway: a chute down the face, dry until the lake reaches the crest -->
           <path d="M558 120 L578 120 L628 340 L606 340 Z" fill="#c9d8dd" stroke="#a9bfc6" stroke-width="1.2"/>
           <path d="M566 122 L616 338" stroke="#9fd8e6" stroke-width="3.5" stroke-dasharray="8 12"
                 class="cut-flow" opacity=".5"/>
@@ -189,9 +193,9 @@
           <p>Water falls through a steel pipe onto a runner. Power depends on head, the height of the drop,
           so a half empty reservoir does not just hold less water: every cubic metre is worth less energy
           on the way out.</p></li>
-        <li class="step"><span class="n">6</span><h3>The hydropad</h3>
+        <li class="step"><span class="n">6</span><h3>The spillway</h3>
           <p>The relief valve. When inflow beats what the outlets can pass, the surplus goes over the crest
-          and is lost downstream. A hydropad running is a sign of a full reservoir, not of supply.</p></li>
+          and is lost downstream. A spillway running is a sign of a full reservoir, not of supply.</p></li>
         <li class="step"><span class="n">7</span><h3>The compensation flow</h3>
           <p>A river below the dam still has to run. Minimum releases for ecology, navigation and the towns
           downstream come off the top of the account before anyone else is served.</p></li>

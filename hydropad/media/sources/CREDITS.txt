@@ -1,0 +1,6 @@
+# One line per reserve: TICKER: who took it, under what licence.
+# The site prints these under the register, because a photograph belongs to
+# whoever took it. Fill these in before the site goes anywhere public.
+MEAD: supplied by the project, credit pending
+TRR: supplied by the project, credit pending
+TGR: supplied by the project, credit pending

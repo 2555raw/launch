@@ -88,6 +88,10 @@ const CLASS_TINT = { Reservoir: "#0e7490", Aquifer: "#0f9d76", Glacier: "#3b9fd4
  * every image host it would need is blocked there. It can be fetched by the
  * browser reading this page, which is why a photograph can be added here as a
  * link and kept in this browser until it is put in the repository. */
+/* What the register is filtered to. It lives out here so a chain event
+ * redrawing the page does not throw away what someone typed. */
+const REGISTER = { filter: "All", sort: "featured", q: "" };
+
 const PHOTO_KEY = "hydropad.photos";
 
 function ownPhotos() {
@@ -694,7 +698,9 @@ const PAGES = {
 
   sources() {
     wirePhotoDesk();
-    let filter = "All", sort = "featured", q = "";
+    /* Kept outside this function: the page is re-rendered whenever the chain
+     * says something, and a filter someone typed should survive that. */
+    let filter = REGISTER.filter, sort = REGISTER.sort, q = REGISTER.q;
     const rows = () => {
       let list = WATER.filter(w => filter === "All" || w.c === filter);
       if (q) {
@@ -714,12 +720,19 @@ const PAGES = {
       });
       setText("source-count", `${list.length} of ${WATER.length} sources`);
     };
+    /* and the chip that is lit has to agree with it */
+    document.querySelectorAll("[data-class]").forEach(b => b.classList.toggle("on", b.dataset.class === filter));
+    const searchBox = $("search");
+    if (searchBox && searchBox.value !== q) searchBox.value = q;
+    const sortBox = $("sort");
+    if (sortBox && sortBox.value !== sort) sortBox.value = sort;
+
     document.querySelectorAll("[data-class]").forEach(btn => btn.addEventListener("click", () => {
       document.querySelectorAll("[data-class]").forEach(b => b.classList.toggle("on", b === btn));
-      filter = btn.dataset.class; rows();
+      filter = REGISTER.filter = btn.dataset.class; rows();
     }));
-    $("search").addEventListener("input", e => { q = e.target.value; rows(); });
-    $("sort").addEventListener("change", e => { sort = e.target.value; rows(); });
+    $("search").addEventListener("input", e => { q = REGISTER.q = e.target.value; rows(); });
+    $("sort").addEventListener("change", e => { sort = REGISTER.sort = e.target.value; rows(); });
     rows();
     renderTape();
     renderCredits();

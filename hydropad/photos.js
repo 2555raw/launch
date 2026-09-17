@@ -2,6 +2,14 @@
  * source's ticker and run the script again.
  */
 
-const PHOTOS = {};
+const PHOTOS = {
+  "MEAD": "media/sources/MEAD.jpg",
+  "TGR": "media/sources/TGR.jpg",
+  "TRR": "media/sources/TRR.jpg"
+};
 
-const PHOTO_CREDITS = {};
+const PHOTO_CREDITS = {
+  "MEAD": "supplied by the project, credit pending",
+  "TRR": "supplied by the project, credit pending",
+  "TGR": "supplied by the project, credit pending"
+};

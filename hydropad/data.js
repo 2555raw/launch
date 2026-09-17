@@ -40,7 +40,7 @@ const WATER = [
   { t: "RAS",  n: "Ras Al Khair",           c: "Desalination", v: "SWCC",   a: "permeate, 99.9%",  u: "per 1,000 m³",  p: 498.00, l: "Ras Al Khair, Saudi Arabia", g: [27.517, 49.2]},
   { t: "SOR",  n: "Sorek B",                c: "Desalination", v: "IWA",    a: "permeate, 99.9%",  u: "per 1,000 m³",  p: 402.00, l: "Sorek, Israel", g: [31.933, 34.706]},
   { t: "CRL",  n: "Carlsbad",               c: "Desalination", v: "SDCWA",  a: "permeate, 99.8%",  u: "per acre-foot", p: 2380.00, l: "Carlsbad, California", g: [33.14, -117.34]},
-  { t: "TRR",  n: "Torrevieja",             c: "Desalination", v: "ACUAES", a: "permeate, 99.6%",  u: "per 1,000 m³",  p: 612.00, l: "Torrevieja, Spain", g: [37.98, -0.7]},
+  { t: "TRR",  n: "Laguna Rosa",            c: "Reservoir",    v: "SALINAS", a: "brine, 300 g/L",  u: "per 1,000 m³",  p: 612.00, l: "Torrevieja, Spain", g: [37.98, -0.7]},
   { t: "PRT",  n: "Reclaimed water",        c: "Desalination", v: "REUT",   a: "tertiary, 98.5%",  u: "per 1,000 m³",  p: 188.00, l: "Municipal, worldwide"},
 ];
 
@@ -53,7 +53,7 @@ const BASE_LEVEL = {
 };
 
 /* A line on the featured sites, for the gallery on the front page. Figures are
- * the published ones; the drawings in media/plates are built from them. */
+ * the published ones. */
 const SITE_NOTES = {
   MEAD: "The Colorado's largest store, held behind Hoover Dam. Two decades of drawdown left a white band of mineral on the canyon walls that marks where the surface used to be.",
   TGR: "The largest impoundment by installed power. Its level is run to a schedule: low through the flood season, high through the winter so the turbines keep their head.",
@@ -61,6 +61,7 @@ const SITE_NOTES = {
   NSAS: "Fossil water under four countries, recharged when the Sahara was green. There is no inflow to speak of, which makes any figure for it a measurement of a stock, not a flow.",
   GRN: "Ice laid down season by season and read back as a core. Mass balance is the difference between what falls on top and what leaves at the margins.",
   SOR: "Seawater pushed through membranes at pressure. Availability here is an engineering figure, not a hydrological one: it depends on the plant running, not on the rain.",
+  TRR: "A salt lagoon the colour of its own biology: the brine is dense enough for halophilic algae and archaea to turn it pink. The salt pans have been worked from it since the eighteenth century.",
 };
 
 /* The order they appear in as you scroll the front page. */

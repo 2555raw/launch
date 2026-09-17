@@ -244,29 +244,71 @@ function coordTag(w, cls = "coords") {
 
 /* One reserve, in the space the sidebar was wasting. A photograph of a real
  * place, its fill, and where it is — the thing behind the ticker, in the one
- * piece of chrome that is on every page. It changes on each load, so the site
- * shows more of the register than the front page has room for. */
+ * piece of chrome that is on every page. It works through the register rather
+ * than sticking on one, so a visit shows more of it than the front page has
+ * room for. */
+let sideTimer = null;
+
+function sideCard(w) {
+  const pct = Math.round((BASE_LEVEL[w.t] ?? .5) * 100);
+  return `
+    <span class="sf-art">
+      <img src="${esc(PHOTOS[w.t])}" alt="${esc(w.n)}" loading="lazy" decoding="async">
+    </span>
+    <span class="sf-body">
+      <b>${esc(w.n)}</b>
+      <small>${esc(w.t)} · ${esc(w.c)}</small>
+      <span class="sf-bar"><i style="width:${pct}%"></i></span>
+      <small class="sf-fig"><span>${pct}% full</span><span>${esc(w.l || "")}</span></small>
+    </span>`;
+}
+
 function renderSideFeature() {
   const host = $("side-feature");
   if (!host) return;
+  clearInterval(sideTimer);
+
   const pool = WATER.filter(w => PAIRABLE(w) && PHOTOS[w.t]);
   if (!pool.length) { host.innerHTML = ""; return; }
-  const w = pool[Math.floor(Math.random() * pool.length)];
-  const fill = BASE_LEVEL[w.t] ?? .5;
-  const pct = Math.round(fill * 100);
 
-  host.innerHTML = `
-    <a class="sf-card" href="sources.html?source=${esc(w.t)}" aria-label="${esc(w.n)} in the register">
-      <span class="sf-art">
-        <img src="${esc(PHOTOS[w.t])}" alt="${esc(w.n)}" loading="lazy" decoding="async">
-      </span>
-      <span class="sf-body">
-        <b>${esc(w.n)}</b>
-        <small>${esc(w.t)} · ${esc(w.c)}</small>
-        <span class="sf-bar"><i style="width:${pct}%"></i></span>
-        <small class="sf-fig"><span>${pct}% full</span><span>${esc(w.l || "")}</span></small>
-      </span>
-    </a>`;
+  /* Shuffled, so two loads running at the same pace do not show the same
+   * reserve at the same moment, and every one of them comes up once before
+   * any comes up twice. */
+  const order = pool.slice();
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  let at = 0;
+
+  host.innerHTML = `<a class="sf-card" href="sources.html" aria-live="polite"></a>`;
+  const card = host.firstElementChild;
+
+  const show = w => {
+    card.innerHTML = sideCard(w);
+    card.href = `sources.html?source=${encodeURIComponent(w.t)}`;
+    card.setAttribute("aria-label", `${w.n} in the register`);
+  };
+  show(order[at]);
+
+  /* A photograph that swaps under you while you are reading it is worse than
+   * one that never moves, so it holds still for anyone who asked for less
+   * motion, and stops entirely while the tab is in the background. */
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  sideTimer = setInterval(() => {
+    if (document.hidden) return;
+    at = (at + 1) % order.length;
+    const next = order[at];
+    /* Hold the next photograph until it has actually loaded, so the fade is
+     * never onto an empty frame. */
+    const pre = new Image();
+    pre.onload = pre.onerror = () => {
+      card.classList.add("is-out");
+      setTimeout(() => { show(next); card.classList.remove("is-out"); }, 260);
+    };
+    pre.src = PHOTOS[next.t];
+  }, 7000);
 }
 
 /* ---------------- network chrome ---------------- */
@@ -288,7 +330,17 @@ function renderNetwork() {
       : Chain.ready()
         ? `Hydropad is on ${info.name}, and this page reads and writes there. Click to change network.`
         : `Your wallet is on ${info.name}, and Hydropad is not there yet. Click to move to Robinhood Chain.`;
-  const suffix = cls === "warn" ? `<span class="net-off">not here</span>` : "";
+  /* "not here" named the problem and left it there. When there is a network
+   * that does work, the pill carries the way onto it instead. */
+  const stranded = cls === "warn" && !Chain.demo && Chain.hasWallet();
+  const suffix = cls === "warn" && !stranded ? `<span class="net-off">not here</span>` : "";
+  const fix = stranded
+    ? `<button class="net-fix" type="button" data-switch="4663" title="Move this wallet to Robinhood Chain, where Hydropad runs">
+         Switch to Robinhood
+         <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.4 2.4 10 6l-3.6 3.6"
+           fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+       </button>`
+    : "";
 
   const account = Chain.demo
     ? `<span class="pill"><span class="dot"></span>${shortAddr(Chain.account)}</span>`
@@ -298,10 +350,20 @@ function renderNetwork() {
 
   const side = $("side-chain");
   if (side) {
-    side.innerHTML = `<b><span class="dot" style="background:${Chain.offline ? "#e0705f" : Chain.ready() ? "#63c49c" : "#e8a33d"}"></span>${esc(name)}</b>` +
+    /* Being on a network Hydropad is not on is a state with an answer, so the
+     * line carries the answer rather than only the complaint: one tap moves
+     * the wallet, and the dot goes green by itself once it lands. */
+    const stranded = !Chain.demo && !Chain.offline && !Chain.ready() && Chain.hasWallet();
+    const dot = Chain.offline ? "#e0705f" : Chain.ready() ? "#63c49c" : "#e8a33d";
+    side.innerHTML = `<b><span class="dot" style="background:${dot}"></span>${esc(name)}</b>` +
       (Chain.demo ? "<span>in this browser only, nothing costs anything</span>"
                   : Chain.viaPons() ? "<span>launching through Pons V2</span>"
                   : Chain.launcher ? `<span class="mono">${shortAddr(Chain.launcher)}</span>`
+                  : stranded ? `<button class="side-switch" type="button" data-switch="4663">
+                        Move to Robinhood Chain
+                        <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.4 2.4 10 6l-3.6 3.6"
+                          fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>`
                                    : "<span>Hydropad is not on this network</span>");
   }
   host.innerHTML = `
@@ -311,6 +373,7 @@ function renderNetwork() {
       <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3.2 5 7 9 3.2"
         fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
+    ${fix}
     ${account}
     <div class="chain-menu" id="chain-menu" hidden>${chainMenu()}</div>`;
 
@@ -379,19 +442,11 @@ function chainMenu() {
      * the thing they can actually do about it. Deploying a launcher is real,
      * but it is a job for whoever is running the project, not something to put
      * in front of a visitor with no explanation. */
-    rows.push(`<p><b>Your wallet is on ${here}, and Hydropad is not there.</b> The site has no
-      server: it reads and writes on whichever network your wallet is on, and on ${here} there is no
-      launcher contract to read, so the tables are empty and there is nothing to launch against.</p>`);
-    rows.push(`<p>It runs on <b>Robinhood Chain</b> instead: an Arbitrum layer 2 that settles to
-      Ethereum and pays gas in ETH. Move your wallet there, or run the whole thing inside this page
-      to see how it works without spending anything.</p>`);
+    rows.push(`<p><b>Hydropad runs on Robinhood Chain.</b> Your wallet is on ${here}, so there is
+      nothing here to read and nothing to launch against.</p>`);
     rows.push(`<div class="chain-acts">
-      <button class="btn accent sm" type="button" data-switch="4663">Robinhood Chain</button>
-      <button class="btn alt sm" type="button" data-switch="46630">Testnet</button>
-      <button class="btn alt sm" type="button" id="start-demo">Run it in this page</button>
+      <button class="btn accent sm" type="button" data-switch="4663">Move to Robinhood Chain</button>
     </div>`);
-    rows.push(`<p class="chain-fine">Deploying there is permissionless: the first launch on a network
-      opens the launcher itself, in one extra transaction.</p>`);
   }
 
   if (Chain.launcher) {

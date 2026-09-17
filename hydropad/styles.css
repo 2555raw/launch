@@ -1774,3 +1774,30 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 }
 /* On a short viewport the card is the first thing to go: the nav matters more. */
 @media (max-height: 760px) { .side-feature { display: none; } }
+
+/* The card works through the register; the swap is a fade, never a jump. */
+.sf-card { opacity: 1; transition: opacity .26s var(--ease), border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), transform var(--t) var(--ease-out); }
+.sf-card.is-out { opacity: 0; }
+
+/* A stranded network is one tap from a working one. */
+.side-switch {
+  display: inline-flex; align-items: center; gap: 6px; width: 100%;
+  margin-top: 2px; padding: 7px 10px; border-radius: 8px; cursor: pointer;
+  border: 1px solid rgba(88,167,201,.42); background: rgba(88,167,201,.14);
+  color: #cfeaf6; font: 500 11px/1 var(--mono); letter-spacing: .04em;
+  transition: background var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+.side-switch:hover { background: rgba(88,167,201,.24); border-color: rgba(88,167,201,.7); }
+.side-switch svg { flex: none; }
+.side-switch:disabled { opacity: .6; cursor: default; }
+/* The way out of a network Hydropad is not on, beside the pill that says so. */
+.net-fix {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  padding: 8px 13px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid rgba(88,167,201,.5); background: rgba(88,167,201,.16);
+  color: #cfeaf6; font: 500 11.5px/1 var(--mono); letter-spacing: .03em;
+  transition: background var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+.net-fix:hover { background: rgba(88,167,201,.28); border-color: rgba(88,167,201,.8); }
+.net-fix:disabled { opacity: .6; cursor: default; }
+@media (max-width: 720px) { .net-fix { padding: 8px 10px; font-size: 0; gap: 0; } }

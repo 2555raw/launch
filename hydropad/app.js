@@ -669,7 +669,7 @@ const PAGES = {
       return;
     }
     if (!Chain.launcher) {
-      host.innerHTML = emptyRow(8, "No launcher on this network yet. Deploy one above to open the first pairing.");
+      host.innerHTML = emptyRow(8, `Hydropad is not deployed on ${esc(Chain.chainInfo().name)}, so there is nothing to read here. Switch your wallet to a network it is on, or <a href="docs.html#deploy" style="color:var(--accent)">run it in this page</a>.`);
       setText("stat-launches", "0");
       return;
     }
@@ -690,7 +690,7 @@ const PAGES = {
       return;
     }
     if (!Chain.launcher) {
-      host.innerHTML = emptyRow(8, "No launcher on this network yet. Deploy one above to open the first pairing.");
+      host.innerHTML = emptyRow(8, `Hydropad is not deployed on ${esc(Chain.chainInfo().name)}, so there is nothing to read here. Switch your wallet to a network it is on, or <a href="docs.html#deploy" style="color:var(--accent)">run it in this page</a>.`);
       return;
     }
     host.innerHTML = emptyRow(8, "Reading the chain…");
@@ -885,6 +885,31 @@ const PAGES = {
       const host = $("f-wallets");
       const note = $("f-walletnote");
       const rows = [];
+      const btn = $("f-submit");
+      const blocked = !Chain.demo && !Chain.offline && Chain.hasWallet() && !Chain.launcher;
+
+      /* Nothing to launch against: say it here, before the form is filled in,
+       * rather than at the moment somebody presses the button. */
+      const warn = $("f-blocked");
+      if (warn) warn.remove();
+      if (blocked) {
+        const el = document.createElement("div");
+        el.id = "f-blocked";
+        el.className = "lp-blocked";
+        el.innerHTML = `<b>Hydropad is not deployed on ${esc(info().name)}.</b>
+          <span>There is no launcher contract on this network, so there is nothing to launch against.
+          Switch your wallet to a network it is on, or run the whole thing in this page and launch
+          there.</span>
+          <span class="lp-blocked-acts">
+            <button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>
+            <a class="btn alt sm" href="docs.html#deploy">Deploy your own</a>
+          </span>`;
+        host.parentNode.insertBefore(el, host);
+      }
+      if (btn) {
+        btn.disabled = blocked;
+        btn.textContent = blocked ? `Nothing to launch against on ${info().name}` : `Launch on ${info().name}`;
+      }
       if (Chain.demo) {
         rows.push(`<div class="wallet on"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"/></svg></span>
           <span><b>This page's own chain</b><small>A real EVM in the browser, signing with
@@ -917,7 +942,7 @@ const PAGES = {
       const btn = $("f-submit");
       try {
         if (!Chain.account) await Chain.connect();
-        if (!Chain.launcher) return toast("No launcher on this network yet. Deploy one from the chain menu.");
+        if (!Chain.launcher) return toast(`Hydropad is not deployed on ${Chain.chainInfo().name}. Run it in this page, or deploy a launcher from the docs.`);
         const symbol = form.symbol.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
         if (!symbol) return toast("The symbol needs at least one letter.");
         const { supply, firstBuy } = figures();

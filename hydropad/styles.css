@@ -1698,3 +1698,13 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 .chain-fine { font-size: 12px; color: var(--ink-3); }
 .chain-fine a { color: var(--accent); }
 .chain-fine a:hover { color: #9ad6ee; }
+
+/* nothing to launch against here, said before the form is filled in */
+.lp-blocked {
+  display: grid; gap: 10px; padding: 18px 20px; border-radius: var(--r);
+  border: 1px solid rgba(88, 167, 201, .35); border-left: 3px solid var(--accent);
+  background: linear-gradient(180deg, rgba(88, 167, 201, .08), rgba(10, 21, 19, .6));
+}
+.lp-blocked b { font-size: 14.5px; }
+.lp-blocked span { color: var(--ink-2); font-size: 13px; line-height: 1.6; }
+.lp-blocked-acts { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 2px; }

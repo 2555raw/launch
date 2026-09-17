@@ -219,8 +219,15 @@ function mapLink(g, zoom = "3000m") {
 
 function coordTag(w, cls = "coords") {
   if (!w || !w.g) return "";
+  /* A reservoir or a glacier is a thing you can point at. An aquifer is water
+   * in the rock under a whole basin, so its coordinate is a point over it and
+   * what you see from above is the land being irrigated from it. Say so, rather
+   * than let the link look like a broken pin. */
+  const why = w.c === "Aquifer"
+    ? `${w.n} lies under this ground — satellite view shows the land drawing on it, not the water`
+    : `Open ${w.n} in satellite view`;
   return `<a class="${cls}" href="${mapLink(w.g)}" target="_blank" rel="noopener"
-    title="Open ${esc(w.n)} in satellite view">${esc(coordText(w.g))}
+    title="${esc(why)}">${esc(coordText(w.g))}
     <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2h5.5v5.5M10 2 2 10"
       fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>`;
 }

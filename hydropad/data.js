@@ -21,11 +21,11 @@ const WATER = [
   { t: "GUR",  n: "Guri",                   c: "Reservoir",    v: "EDELCA", a: "elev. 271 m",      u: "per 1,000 m³",  p: 37.25, l: "Bolívar, Venezuela", g: [7.7626, -62.9989]},
 
   { t: "OGL",  n: "Ogallala",               c: "Aquifer",      v: "HPWD",   a: "static level",     u: "per acre-foot", p: 620.00, l: "High Plains, US", g: [37.0, -101.0]},
-  { t: "CAM",  n: "Cambrian-Ordovician",    c: "Aquifer",      v: "MDE",    a: "potable, 99.4%",   u: "per 1,000 m³",  p: 384.00, l: "Midwest, US", g: [41.8781, -87.6298]},
-  { t: "GAB",  n: "Guarani",                c: "Aquifer",      v: "OAS",    a: "thermal, 99.1%",   u: "per 1,000 m³",  p: 172.60, l: "Paraná Basin, South America", g: [-21.1767, -47.8208]},
+  { t: "CAM",  n: "Cambrian-Ordovician",    c: "Aquifer",      v: "MDE",    a: "potable, 99.4%",   u: "per 1,000 m³",  p: 384.00, l: "Midwest, US", g: [41.9000, -88.6000]},
+  { t: "GAB",  n: "Guarani",                c: "Aquifer",      v: "OAS",    a: "thermal, 99.1%",   u: "per 1,000 m³",  p: 172.60, l: "Paraná Basin, South America", g: [-21.3000, -47.6000]},
   { t: "NSAS", n: "Nubian Sandstone",       c: "Aquifer",      v: "CEDARE", a: "fossil",           u: "per 1,000 m³",  p: 205.40, l: "Sahara, North Africa", g: [24.2, 23.3]},
-  { t: "CVA",  n: "Central Valley",         c: "Aquifer",      v: "SGMA",   a: "managed pumping",  u: "per acre-foot", p: 890.00, l: "California, US", g: [36.7378, -119.7871]},
-  { t: "IND",  n: "Indo-Gangetic",          c: "Aquifer",      v: "CGWB",   a: "potable, 98.2%",   u: "per 1,000 m³",  p: 143.00, l: "Indo-Gangetic Plain", g: [30.901, 75.8573]},
+  { t: "CVA",  n: "Central Valley",         c: "Aquifer",      v: "SGMA",   a: "managed pumping",  u: "per acre-foot", p: 890.00, l: "California, US", g: [36.4000, -120.1500]},
+  { t: "IND",  n: "Indo-Gangetic",          c: "Aquifer",      v: "CGWB",   a: "potable, 98.2%",   u: "per 1,000 m³",  p: 143.00, l: "Indo-Gangetic Plain", g: [30.7000, 75.3000]},
   { t: "MRB",  n: "Great Artesian Basin",   c: "Aquifer",      v: "MDBA",   a: "artesian",         u: "per 1,000 m³",  p: 118.70, l: "Queensland, Australia", g: [-23.44, 144.25]},
   { t: "KRS",  n: "Dinaric Karst",          c: "Aquifer",      v: "EEA",    a: "mineral, 99.7%",   u: "per 1,000 m³",  p: 466.00, l: "Dinaric Alps, Balkans", g: [45.78, 14.2]},
 
@@ -64,6 +64,9 @@ const SITE_NOTES = {
   POW: "The Colorado's other store, behind Glen Canyon Dam. It and Mead are the same water twice: what one lets go the other receives, which is why nobody reads either level on its own.",
   ORO: "The tallest dam in the United States. In 2017 both its spillways failed in a wet winter and 180,000 people were moved out below it, which is the plainest lesson anywhere in what freeboard is for.",
   GLC: "One of the few glaciers not simply retreating. It advances until it dams a lake against the far shore, the water builds behind the ice, and the arch collapses. Then it starts again.",
+  ALP: "The longest glacier in the Alps, and a gauge the rest of Europe reads. Its tongue has pulled back far enough that the rock it used to cover is now the first thing you stand on to look at it.",
+  ICE: "Europe's largest ice cap by volume, and the roof over several active volcanoes. When one of them erupts the meltwater does not trickle out, it leaves in a single flood the glacier has its own word for: j\u00f6kulhlaup.",
+  SHT: "The keystone of the Central Valley Project. What is released from it sets the river temperature the salmon need and the water the delta pumps send south, so most of California's supply turns on one gate.",
   TRR: "A salt lagoon the colour of its own biology: the brine is dense enough for halophilic algae and archaea to turn it pink. The salt pans have been worked from it since the eighteenth century.",
 };
 

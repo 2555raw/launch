@@ -3,11 +3,14 @@
  */
 
 const PHOTOS = {
+  "ALP": "media/sources/ALP.jpg",
   "GLC": "media/sources/GLC.jpg",
   "GRN": "media/sources/GRN.jpg",
+  "ICE": "media/sources/ICE.jpg",
   "MEAD": "media/sources/MEAD.jpg",
   "ORO": "media/sources/ORO.jpg",
   "POW": "media/sources/POW.jpg",
+  "SHT": "media/sources/SHT.jpg",
   "TGR": "media/sources/TGR.jpg",
   "TRR": "media/sources/TRR.jpg"
 };
@@ -19,5 +22,8 @@ const PHOTO_CREDITS = {
   "GRN": "supplied by the project, credit pending",
   "POW": "supplied by the project, credit pending",
   "ORO": "supplied by the project, credit pending",
-  "GLC": "supplied by the project, credit pending"
+  "GLC": "supplied by the project, credit pending",
+  "ICE": "supplied by the project, credit pending",
+  "SHT": "supplied by the project, credit pending",
+  "ALP": "supplied by the project, credit pending"
 };

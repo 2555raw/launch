@@ -87,6 +87,9 @@ const log = [];
     await p.waitForSelector('#stat-chain');
     const name = (await p.textContent('#stat-chain')).trim();
     if (name !== 'Robinhood Testnet') throw new Error('read ' + name + ', not Robinhood Testnet');
+    /* Nothing launched yet, so the header's slot says what it is holding. */
+    const ca = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
+    if (ca !== 'CApending') throw new Error('the empty slot reads "' + ca + '"');
   });
 
   await step('connect wallet', async () => {
@@ -161,10 +164,11 @@ const log = [];
   const tokenAddr = new URL(p.url()).searchParams.get('addr');
   console.log('   token:', tokenAddr);
   await step('the header keeps the address, and the button copies it', async () => {
-    await p.waitForSelector('#last-ca:not([hidden])', { timeout: 15000 });
+    await p.waitForFunction(() => !/pending/.test(document.querySelector('#last-ca')?.textContent || ''),
+      null, { timeout: 15000 });
     const shown = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
-    if (!shown.includes('$POOL')) throw new Error('the slot reads ' + shown);
     if (!shown.includes(tokenAddr.slice(0, 6))) throw new Error('not this token: ' + shown);
+    if (!shown.includes(tokenAddr.slice(-4))) throw new Error('not the whole tail: ' + shown);
 
     /* The address, not the shortened version of it, is what has to land on the
      * clipboard: an elided address is useless to paste anywhere. */
@@ -176,7 +180,8 @@ const log = [];
     /* It outlives the page it was launched from: the slot is chrome, and a
      * reload rebuilds it from what the launch put away. */
     await p.goto(base + 'sources.html', { waitUntil: 'networkidle' });
-    await p.waitForSelector('#last-ca:not([hidden])', { timeout: 15000 });
+    await p.waitForFunction(a => (document.querySelector('#last-ca')?.textContent || '').includes(a.slice(0, 6)),
+      tokenAddr, { timeout: 15000 });
     await p.goto(base + 'token.html?addr=' + tokenAddr, { waitUntil: 'networkidle' });
   });
 

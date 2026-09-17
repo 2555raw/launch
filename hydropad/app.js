@@ -430,14 +430,23 @@ function renderLastCa() {
   const host = $("last-ca");
   if (!host) return;
   const last = lastLaunch();
-  if (!last) { host.hidden = true; host.innerHTML = ""; return; }
+  host.hidden = false;
+
+  /* Before the first launch the slot stays, saying what it is waiting for:
+   * somewhere to put the address is worth more than an empty header, and a
+   * visitor who has never launched still learns where it will appear. */
+  if (!last) {
+    host.classList.add("waiting");
+    host.innerHTML = `<span class="ca-tag">CA</span><span class="ca-addr mono">pending</span>`;
+    return;
+  }
 
   const explorer = Chain.chainInfo().explorer;
-  host.hidden = false;
+  host.classList.remove("waiting");
   host.innerHTML = `
     <span class="ca-tag">CA</span>
     <a class="ca-addr mono" href="token.html?addr=${esc(last.token)}"
-       title="${esc(last.token)}">${esc(last.symbol ? "$" + last.symbol + " " : "")}${shortAddr(last.token)}</a>
+       title="${esc(last.token)}">${shortAddr(last.token)}</a>
     <button class="ca-copy" type="button" data-copy="${esc(last.token)}" title="Copy the address">
       <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-1a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h1"/></svg>
       <span class="sr">Copy the contract address</span>

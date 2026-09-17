@@ -1353,6 +1353,9 @@ body { padding-top: 0; }
   max-width: min(42vw, 340px);
 }
 .last-ca[hidden] { display: none; }
+.last-ca.waiting { border-style: dashed; }
+.last-ca.waiting .ca-tag { background: var(--tint); color: var(--ink-3); }
+.last-ca.waiting .ca-addr { color: var(--ink-3); }
 .last-ca .ca-tag {
   padding: 3px 6px; border-radius: 999px; font-size: 9.5px; letter-spacing: .14em;
   background: var(--accent-soft); color: var(--accent); text-transform: uppercase;

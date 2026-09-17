@@ -1046,16 +1046,16 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-5.8px) rotate(
   --line: rgba(196, 226, 214, .15);
   --line-2: rgba(196, 226, 214, .3);
   --tint: rgba(196, 226, 214, .06);
-  --accent: #58a7c9;           /* the blue of the reservoir */
+  --accent: #3fd3e0;           /* the mark's own cyan, so the chrome matches the logo */
   --accent-2: #c6a562;         /* the gold the light puts on the stone */
-  --accent-soft: rgba(88, 167, 201, .16);
+  --accent-soft: rgba(63, 211, 224, .16);
   --up: #63c49c;
   --down: #e0705f;
   --e1: 0 1px 2px rgba(0, 0, 0, .3);
   --e2: 0 1px 2px rgba(0, 0, 0, .3), 0 16px 34px -20px rgba(0, 0, 0, .8);
   --e3: 0 2px 5px rgba(0, 0, 0, .35), 0 30px 56px -28px rgba(0, 0, 0, .9);
   --e4: 0 4px 10px rgba(0, 0, 0, .4), 0 48px 80px -36px rgba(0, 0, 0, .95);
-  --glow: 0 12px 34px -14px rgba(88, 167, 201, .55);
+  --glow: 0 12px 34px -14px rgba(63, 211, 224, .5);
 }
 
 body {
@@ -1117,8 +1117,8 @@ body.scrolled .logo, body.scrolled .nav-links, body.scrolled .nav-cta, body.scro
 .btn:hover { background: linear-gradient(180deg, #fff, #dfeae5); }
 .btn.alt { background: rgba(14, 27, 24, .6); color: var(--ink); border-color: var(--line-2); }
 .btn.alt:hover { background: rgba(20, 38, 34, .75); color: #fff; border-color: var(--accent); }
-.btn.accent { background: linear-gradient(180deg, #67b6d6, #3d88a8); color: #04181f; border-color: transparent; }
-.btn.accent:hover { background: linear-gradient(180deg, #7ac5e2, #4694b4); }
+.btn.accent { background: linear-gradient(180deg, #4fe4ea, #14a6d2); color: #04181f; border-color: transparent; }
+.btn.accent:hover { background: linear-gradient(180deg, #6df3f4, #1cbbe6); }
 
 .empty { color: var(--ink-3); }
 .level .bar { background: rgba(196, 226, 214, .14); }
@@ -1141,8 +1141,8 @@ body.scrolled .logo, body.scrolled .nav-links, body.scrolled .nav-cta, body.scro
 /* the hero sits on the photograph, so its buttons follow the dark palette */
 .hero.stage .btn { background: linear-gradient(180deg, rgba(240, 247, 243, .96), rgba(214, 228, 221, .92)); color: #08201c; border-color: transparent; }
 .hero.stage .btn:hover { background: linear-gradient(180deg, #fff, #e3ede8); }
-.hero.stage .btn.accent { background: linear-gradient(180deg, #6bbbdb, #3f8cad); color: #04181f; }
-.hero.stage .btn.accent:hover { background: linear-gradient(180deg, #7fcae8, #4998ba); }
+.hero.stage .btn.accent { background: linear-gradient(180deg, #4fe4ea, #14a6d2); color: #03212a; }
+.hero.stage .btn.accent:hover { background: linear-gradient(180deg, #6df3f4, #1cbbe6); }
 .hero.stage .btn.alt { background: rgba(9, 20, 18, .5); color: var(--ink); border-color: rgba(198, 226, 214, .38); }
 .hero.stage .btn.alt:hover { background: rgba(14, 30, 27, .68); border-color: var(--accent); color: #fff; }
 .hero.stage .lede { color: rgba(234, 242, 238, .88); }

@@ -1685,3 +1685,12 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 }
 .disclaimer h4 { color: var(--accent); }
 .hero-note { border-left-color: rgba(88, 167, 201, .8); }
+
+/* the page's tag was still white from the light theme */
+.tag {
+  background: rgba(88, 167, 201, .14);
+  border-color: rgba(88, 167, 201, .45);
+  color: #a8dcf0;
+  font-weight: 600;
+}
+.tag .dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(88, 167, 201, .22); }

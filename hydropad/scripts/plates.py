@@ -27,34 +27,41 @@ W, H = 960, 600
 
 # Regions worth cutting from, as fractions of each source frame. The world
 # frame is 1600x6300 and holds the whole descent, so most of these are in it.
+# Regions of the photograph worth cutting from. Everything here is the
+# photograph itself: the rendered extension is softer than a photograph and it
+# showed at card size, so the plates come out of the real frame.
 REGIONS = {
     "Reservoir": [
-        ("source", .30, .02, .68, .34),     # the reservoir above the wall
-        ("source", .34, .10, .74, .46),     # the wall, its crest and the spill
-        ("world", .10, .560, .92, .700),    # the confluence opening out
-        ("world", .06, .720, .94, .860),    # the reserve
-        ("world", .16, .300, .84, .420),    # the gorge holding water
+        ("source", .62, .00, .99, .26),     # the reservoir above the wall
+        ("source", .55, .06, .95, .38),     # the crest, its road and the water
+        ("source", .74, .20, .99, .55),     # the arm of the lake behind it
+        ("source", .30, .16, .64, .48),     # the face of the wall in shade
+        ("source", .66, .30, .99, .62),     # water against the far bank
+        ("source", .50, .00, .80, .22),     # the head of the reservoir
     ],
     "Aquifer": [
-        ("world", .02, .175, .46, .275),    # forest and worked ground on the bank
-        ("world", .54, .200, .98, .300),
-        ("world", .04, .380, .48, .480),
-        ("source", .00, .18, .30, .52),     # the wooded slope in the photograph
-        ("world", .52, .430, .96, .530),
+        ("source", .00, .16, .28, .52),     # the wooded slope
+        ("source", .00, .50, .26, .92),     # forest lower down
+        ("source", .26, .00, .56, .22),     # trees over the crest road
+        ("source", .10, .28, .38, .66),     # canopy and rock
+        ("source", .56, .70, .88, .99),     # the wooded shoulder by the track
+        ("source", .02, .60, .30, .99),
     ],
     "Glacier": [
-        ("world", .22, .130, .78, .230),    # white water in the channel
-        ("source", .42, .28, .70, .58),     # the sheets leaving the gates
-        ("world", .26, .240, .74, .330),
-        ("world", .10, .880, .90, .980),    # the weather at the bottom
-        ("source", .30, .55, .62, .82),     # the plunge pool and its mist
+        ("source", .42, .24, .70, .58),     # the sheets leaving the gates
+        ("source", .46, .30, .66, .52),     # the face of the spill
+        ("source", .30, .50, .60, .80),     # the plunge pool and its mist
+        ("source", .36, .38, .58, .64),
+        ("source", .12, .74, .46, .99),     # white water over the basin
+        ("source", .40, .20, .62, .44),
     ],
     "Desalination": [
-        ("source", .55, .10, .95, .42),     # the crest, its road and the water
-        ("source", .62, .55, .98, .88),     # the apron, the track and the shore
-        ("world", .00, .640, .52, .740),
-        ("source", .12, .78, .52, .99),     # the basin and its wall
-        ("world", .48, .760, .98, .860),
+        ("source", .62, .52, .98, .86),     # the apron, the track and the shore
+        ("source", .55, .30, .90, .64),     # the crest running down to it
+        ("source", .10, .72, .50, .99),     # the basin and its wall
+        ("source", .70, .40, .99, .74),
+        ("source", .26, .48, .52, .80),     # rock and structures below the dam
+        ("source", .58, .18, .86, .48),
     ],
 }
 

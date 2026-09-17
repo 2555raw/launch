@@ -78,7 +78,12 @@ const Motion = {
 
     /* It gets darker on the way down the valley, which keeps type readable and
      * makes the descent read as one movement. */
-    if (this.worldScrim) this.worldScrim.style.opacity = (0.1 + p * 0.52).toFixed(3);
+    /* Nothing over the photograph while it is the photograph; the shade comes
+       in as the page goes down into the valley. */
+    if (this.worldScrim) {
+      const shade = Math.max(0, (p - 0.06) / 0.94) * 0.55;
+      this.worldScrim.style.opacity = shade.toFixed(3);
+    }
     this.progress = p;
   },
 

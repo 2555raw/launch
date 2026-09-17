@@ -12,32 +12,38 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z' fill='%230e7490'/%3E%3C/svg%3E">
 </head>
 <body data-page="docs">
-<header class="nav">
-  <div class="wrap nav-in">
-    <a class="logo" href="index.html">
-      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z" fill="#0e7490"/></svg>
-      Hydropad
+<div class="shell">
+  <aside class="side" id="side">
+    <a class="brand" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z" fill="currentColor"/></svg>
+      hydropad
     </a>
-    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav-links"
-            aria-label="Pages">
-      <span></span><span></span><span></span>
-    </button>
-    <nav class="nav-links" id="nav-links">
-      <a href="launch.html">Launch</a>
-      <a href="launches.html">Explore</a>
-      <a href="sources.html">Water Reserves</a>
-      <a href="docs.html" class="on">Documentation</a>
+    <p class="brand-note">Meme coins, paired to water.</p>
+    <nav class="side-nav">
+        <a href="index.html"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg><span>Explore</span></a>
+        <a href="launch.html"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v12M2 8h12"/></svg><span>Launch</span></a>
+        <a href="sources.html"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5h12M2 8h12M2 11.5h12"/></svg><span>Water Reserves</span></a>
+        <a href="launches.html"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 12.5 6 7l3 3 5-6.5"/></svg><span>Launches</span></a>
+        <a href="docs.html" class="on"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3"/></svg><span>Docs</span></a>
     </nav>
-    <div class="nav-cta">
-      <a class="x-link" href="https://x.com/" target="_blank" rel="noopener me"
-         aria-label="Hydropad on X" title="Hydropad on X">
-        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      </a>
-      <span id="network" class="net"></span>
+    <div class="side-foot">
+      <div class="side-links">
+        <a href="docs.html">Documentation</a>
+        <a class="x-link" href="https://x.com/" target="_blank" rel="noopener me" aria-label="Hydropad on X">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+      </div>
+      <div class="side-chain" id="side-chain"></div>
     </div>
-  </div>
-</header>
-<div class="wrap" id="launcher-banner"></div>
+  </aside>
+  <div class="col">
+    <header class="top">
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="side" aria-label="Sections">
+        <span></span><span></span><span></span>
+      </button>
+      <span class="crumb">hydropad <i>/</i> <b>docs</b></span>
+      <div class="top-cta"><span id="network" class="net"></span></div>
+    </header>
 <main>
   <section class="wrap page-head">
     <p class="eyebrow">Docs</p>
@@ -102,7 +108,7 @@
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Hydropad is an open launcher contract. No custody, no admin key: the code is in <code>contracts/Hydropad.sol</code>.</span>
+    <span>Hydropad is one open contract. No custody, no admin key, no owner: the only privileged call in it is withdrawing your own vault. Pairing a coin to a reserve names that body of water and nothing more, and conveys no ownership of it.</span>
     <nav>
       <a href="index.html">Markets</a>
       <a href="launches.html">Launches</a>
@@ -112,6 +118,8 @@
     </nav>
   </div>
 </footer>
+  </div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
 <script>window.HYDROPAD_PAGE = "docs";</script>

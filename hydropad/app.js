@@ -80,13 +80,74 @@ const CLASS_TINT = { Reservoir: "#0e7490", Aquifer: "#0f9d76", Glacier: "#3b9fd4
 /* A source shows its photograph when one has been added, and the drawn glyph
  * when it has not. The glyph stays behind the image so a file that fails to
  * decode leaves the row looking deliberate rather than broken. */
-/* A photograph of the source if one has been dropped in media/sources/, the
- * drawing built from its own figures otherwise, and the level glyph if even
- * that is missing. */
+/* What to show for a reserve, in order of how real it is: a photograph of that
+ * place if one has been given, then a file dropped in media/sources/, then the
+ * plate cut from the project's own photography, then the level glyph.
+ *
+ * The first of those cannot be fetched from the machine that builds this site:
+ * every image host it would need is blocked there. It can be fetched by the
+ * browser reading this page, which is why a photograph can be added here as a
+ * link and kept in this browser until it is put in the repository. */
+const PHOTO_KEY = "hydropad.photos";
+
+function ownPhotos() {
+  try { return JSON.parse(localStorage.getItem(PHOTO_KEY) || "{}"); } catch (_) { return {}; }
+}
+
+function setOwnPhotos(map) {
+  try { localStorage.setItem(PHOTO_KEY, JSON.stringify(map)); } catch (_) {}
+}
+
+let OWN = typeof localStorage !== "undefined" ? ownPhotos() : {};
+
 function sourceArt(t) {
+  if (OWN[t]) return OWN[t];
   const photo = typeof PHOTOS !== "undefined" ? PHOTOS[t] : null;
   if (photo) return photo;
   return typeof PLATES !== "undefined" ? PLATES[t] || null : null;
+}
+
+/* Paste a list of "TICKER https://…" lines and the register uses them. They
+ * stay in this browser; the button prints what to paste into photos.js to make
+ * them part of the build. */
+function wirePhotoDesk() {
+  const box = $("photo-desk");
+  if (!box || box.dataset.wired === "1") return;
+  box.dataset.wired = "1";
+  const field = $("photo-input");
+  const say = msg => setText("photo-said", msg);
+
+  field.value = Object.entries(OWN).map(([t, u]) => `${t} ${u}`).join("\n");
+
+  $("photo-save").addEventListener("click", () => {
+    const map = {};
+    let bad = 0;
+    for (const line of field.value.split(/\n+/)) {
+      const m = line.trim().match(/^([A-Za-z0-9]{1,12})[\s,:]+(\S+)$/);
+      if (!m) { if (line.trim()) bad++; continue; }
+      const t = m[1].toUpperCase();
+      if (!byTicker(t)) { bad++; continue; }
+      map[t] = m[2];
+    }
+    OWN = map;
+    setOwnPhotos(map);
+    render();
+    say(`${Object.keys(map).length} in place${bad ? `, ${bad} line${bad === 1 ? "" : "s"} ignored` : ""}.`);
+  });
+
+  $("photo-clear").addEventListener("click", () => {
+    OWN = {};
+    setOwnPhotos({});
+    field.value = "";
+    render();
+    say("Cleared. Back to the plates.");
+  });
+
+  $("photo-export").addEventListener("click", async () => {
+    const body = "const PHOTOS = " + JSON.stringify(OWN, null, 2) + ";\n";
+    try { await navigator.clipboard.writeText(body); say("Copied. Paste it over photos.js."); }
+    catch (_) { field.value = body; say("Copy it from the box and paste it over photos.js."); }
+  });
 }
 
 function sourceMark(t, size = 22) {
@@ -117,11 +178,12 @@ function dropGlyph(t, size = 22) {
  * the way back up to a wide window, so it can never be left open and hidden. */
 function wireMenu() {
   const btn = document.getElementById("burger");
-  const links = document.getElementById("nav-links");
+  const links = document.getElementById("side");
   if (!btn || !links || btn.dataset.wired === "1") return;
   btn.dataset.wired = "1";
 
-  [...links.children].forEach((a, i) => a.style.setProperty("--i", String(i)));
+  const nav = links.querySelector(".side-nav");
+  if (nav) [...nav.children].forEach((a, i) => a.style.setProperty("--i", String(i)));
 
   const set = open => {
     document.body.classList.toggle("menu-open", open);
@@ -154,6 +216,13 @@ function renderNetwork() {
       ? `<button class="btn alt sm" type="button" id="connect">${shortAddr(Chain.account)}</button>`
       : `<button class="btn sm" type="button" id="connect">Connect wallet</button>`;
 
+  const side = $("side-chain");
+  if (side) {
+    side.innerHTML = `<b><span class="dot" style="background:${Chain.offline ? "#e0705f" : Chain.launcher ? "#63c49c" : "#e8a33d"}"></span>${esc(name)}</b>` +
+      (Chain.demo ? "<span>a real EVM inside this page</span>"
+                  : Chain.launcher ? `<span class="mono">${shortAddr(Chain.launcher)}</span>`
+                                   : "<span>no launcher here yet</span>");
+  }
   host.innerHTML = `
     <button class="pill ${cls} as-btn" type="button" id="chain-btn" aria-expanded="false"
             aria-haspopup="true" title="Where this page reads and writes">
@@ -602,6 +671,7 @@ const PAGES = {
   },
 
   sources() {
+    wirePhotoDesk();
     let filter = "All", sort = "featured", q = "";
     const rows = () => {
       let list = WATER.filter(w => filter === "All" || w.c === filter);

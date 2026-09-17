@@ -111,6 +111,8 @@ const Motion = {
 
   /* Give each child in a row its place in the queue. */
   stagger(root) {
+    root.querySelectorAll && [...root.querySelectorAll(".mark-pt")]
+      .forEach((m, i) => m.style.setProperty("--i", String(i)));
     const rows = root.querySelectorAll(".cards, .steps, .sites, .pv-boxes, .factbar, .chips, .pads");
     for (const row of rows) {
       [...row.children].forEach((child, i) => child.style.setProperty("--i", String(i)));

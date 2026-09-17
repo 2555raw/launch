@@ -1485,29 +1485,85 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 /* the parts of a dam, marked on a photograph of one */
 .cut { position: relative; background: #08110f; padding: 0; overflow: hidden; }
 .cut-photo { display: block; width: 100%; height: auto; }
+
 .mark-pt {
   position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%);
-  display: flex; align-items: center; gap: 9px; z-index: 2;
+  z-index: 2; padding: 0; border: 0; background: none; cursor: help;
+  font-family: var(--sans);
 }
 .mark-pt i {
-  width: 26px; height: 26px; border-radius: 50%; flex: none; font-style: normal;
-  display: grid; place-items: center; font: 500 12px/1 var(--mono);
-  color: #05171b; background: #eaf7fb; box-shadow: 0 0 0 4px rgba(6, 22, 26, .45), var(--e2);
+  position: relative; z-index: 2;
+  width: 27px; height: 27px; border-radius: 50%; display: grid; place-items: center;
+  font-style: normal; font: 500 12px/1 var(--mono);
+  color: #05171b; background: #eaf7fb;
+  box-shadow: 0 0 0 4px rgba(6, 22, 26, .4), var(--e2);
+  transition: transform var(--t) var(--ease-out), background var(--t-fast) var(--ease),
+              box-shadow var(--t) var(--ease);
 }
-.mark-pt b {
-  font: 500 11px/1 var(--mono); letter-spacing: .09em; text-transform: uppercase;
-  color: #eaf7fb; background: rgba(5, 17, 20, .72); backdrop-filter: blur(8px);
-  border: 1px solid rgba(234, 247, 251, .22); border-radius: 999px; padding: 6px 11px;
-  white-space: nowrap;
-  opacity: 0; transform: translateX(-6px);
-  transition: opacity var(--t) var(--ease), transform var(--t) var(--ease-out);
+/* a ring goes out from each mark now and then, so they read as things to touch */
+.mark-pt::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 27px; height: 27px;
+  margin: -13.5px 0 0 -13.5px; border-radius: 50%;
+  border: 1.5px solid rgba(234, 247, 251, .75);
+  animation: ping 3.4s var(--ease-out) infinite;
+  animation-delay: calc(var(--i, 0) * .5s);
+  pointer-events: none;
 }
-.cut:hover .mark-pt b, .mark-pt:hover b { opacity: 1; transform: none; }
+@keyframes ping {
+  0%   { transform: scale(1); opacity: .8; }
+  55%  { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+.mark-pt:hover i, .mark-pt:focus-visible i {
+  transform: scale(1.14); background: #fff;
+  box-shadow: 0 0 0 5px rgba(88, 167, 201, .45), var(--e3);
+}
+.mark-pt:hover::before, .mark-pt:focus-visible::before { animation: none; opacity: 0; }
+
+.tip {
+  position: absolute; top: 50%; left: calc(100% + 14px);
+  width: min(280px, 60vw); transform: translateY(-50%) translateX(-8px) scale(.97);
+  display: grid; gap: 6px; text-align: left;
+  background: linear-gradient(180deg, rgba(9, 21, 24, .94), rgba(6, 15, 17, .96));
+  backdrop-filter: blur(14px) saturate(1.1);
+  border: 1px solid rgba(234, 247, 251, .22); border-radius: 12px;
+  padding: 13px 15px; box-shadow: var(--e4);
+  opacity: 0; pointer-events: none; visibility: hidden;
+  transition: opacity var(--t-fast) var(--ease), transform var(--t) var(--ease-out),
+              visibility 0s linear var(--t);
+}
+.mark-pt[data-side="left"] .tip { left: auto; right: calc(100% + 14px); transform: translateY(-50%) translateX(8px) scale(.97); }
+.tip b {
+  font: 500 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent);
+}
+.tip em { font-style: normal; color: #dfeae6; font-size: 12.8px; line-height: 1.55; }
+/* the arrow that ties it to its mark */
+.tip::after {
+  content: ""; position: absolute; top: 50%; left: -5px; width: 9px; height: 9px;
+  margin-top: -4.5px; transform: rotate(45deg);
+  background: rgba(9, 21, 24, .94);
+  border-left: 1px solid rgba(234, 247, 251, .22); border-bottom: 1px solid rgba(234, 247, 251, .22);
+}
+.mark-pt[data-side="left"] .tip::after {
+  left: auto; right: -5px;
+  border: 0; border-right: 1px solid rgba(234, 247, 251, .22); border-top: 1px solid rgba(234, 247, 251, .22);
+}
+.mark-pt:hover .tip, .mark-pt:focus-visible .tip {
+  opacity: 1; visibility: visible; transform: translateY(-50%) scale(1); transition-delay: 0s;
+}
+
 .cut figcaption {
   position: relative; background: rgba(5, 14, 12, .82); border-top: 1px solid var(--line);
   color: var(--ink-2); backdrop-filter: blur(10px);
 }
-@media (max-width: 700px) {
-  .mark-pt b { display: none; }
-  .mark-pt i { width: 22px; height: 22px; font-size: 11px; }
+
+@media (max-width: 760px) {
+  .mark-pt i { width: 23px; height: 23px; font-size: 11px; }
+  .tip { width: min(230px, 66vw); padding: 11px 13px; }
+  .tip em { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mark-pt::before { animation: none; opacity: 0; }
+  .mark-pt i, .tip { transition: none; }
 }

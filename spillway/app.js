@@ -694,6 +694,8 @@ async function swap(href, replace) {
 /* ---------------- boot ---------------- */
 
 document.addEventListener("DOMContentLoaded", async () => {
+  Motion.mount();
+  wireSound();
   const banner = $("launcher-banner");
   if (banner && (DemoChain.isOn() || (!Chain.hasWallet() && !DemoChain.optedOut()))) {
     banner.innerHTML = `<div class="note strip"><span id="boot-msg">Starting an Ethereum node in this page…</span></div>`;

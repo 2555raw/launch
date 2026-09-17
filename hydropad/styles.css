@@ -1218,3 +1218,73 @@ body.scrolled .logo, body.scrolled .nav-links, body.scrolled .nav-cta, body.scro
 .pv-foot { border-color: var(--line); }
 .pv-art { background: rgba(6, 14, 12, .6); border-color: var(--line); }
 .toast { background: rgba(8, 18, 16, .95); border: 1px solid var(--line-2); }
+
+/* ---------------- X ---------------- */
+
+.x-link {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 999px;
+  color: var(--ink-2); flex: none;
+  transition: color var(--t-fast) var(--ease), background var(--t) var(--ease), transform var(--t-fast) var(--ease);
+}
+.x-link:hover { color: var(--ink); background: rgba(196, 226, 214, .12); }
+.x-link:active { transform: scale(.92); }
+
+/* ---------------- the bar condenses on the way down ---------------- */
+
+.nav-in { transition: height var(--t) var(--ease); }
+.logo, .nav-links, .nav-cta, .burger {
+  transition: background var(--t) var(--ease), box-shadow var(--t) var(--ease),
+              padding var(--t) var(--ease), transform var(--t) var(--ease),
+              border-color var(--t) var(--ease);
+}
+.logo { transition: background var(--t) var(--ease), box-shadow var(--t) var(--ease),
+                    padding var(--t) var(--ease), font-size var(--t) var(--ease),
+                    gap var(--t) var(--ease), border-color var(--t) var(--ease); }
+.logo svg { transition: width var(--t) var(--ease), height var(--t) var(--ease); }
+
+body.scrolled .nav-in { height: 44px; }
+body.scrolled .logo { padding: 7px 14px 7px 11px; font-size: 16.5px; gap: 7px; }
+body.scrolled .logo svg { width: 20px; height: 20px; }
+body.scrolled .nav-links { padding: 5px 6px; }
+body.scrolled .nav-links a { padding: 5px 12px; font-size: 13.5px; }
+body.scrolled .nav-cta { padding: 5px 7px 5px 10px; }
+body.scrolled .logo, body.scrolled .nav-links, body.scrolled .nav-cta, body.scrolled .burger {
+  border-color: rgba(196, 226, 214, .12);
+  box-shadow: 0 20px 44px -26px rgba(0, 0, 0, .95);
+}
+body.scrolled .x-link { width: 26px; height: 26px; }
+
+/* the hero's block sits a little higher than the foot of the screen */
+.hero.stage { padding-bottom: 34px; }
+.hero.stage .hero-in.solo { padding: 0 0 clamp(34px, 8vh, 86px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-in, .logo, .nav-links, .nav-cta, .burger, .logo svg, .x-link { transition: none; }
+}
+
+/* the eyebrow reads over the landscape, and carries no rule */
+.section .eyebrow::before, .page-head .eyebrow::before { display: none; }
+.section .eyebrow, .page-head .eyebrow, .eyebrow {
+  color: rgba(234, 242, 238, .78);
+  text-shadow: 0 2px 14px rgba(4, 12, 10, .85);
+}
+.panel-head .label, .tbl th { color: var(--ink-3); text-shadow: none; }
+
+.works-foot {
+  margin: 26px 0 0; max-width: 78ch; color: var(--ink-2); font-size: 14px; line-height: 1.7;
+  text-shadow: 0 2px 16px rgba(4, 12, 10, .8);
+}
+.works-foot a { color: var(--accent); white-space: nowrap; }
+.works-foot a:hover { color: #fff; }
+.steps { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.step p { font-size: 13px; }
+
+/* no rules between sections anywhere: the landscape is the separator */
+.section + .section { border-top: 0; }
+.eyebrow::before { display: none !important; }
+
+/* the cue is pinned, not a row in the hero's stack */
+.hero.stage > .scroll-cue {
+  position: absolute; left: 50%; bottom: 16px; z-index: 3;
+  width: max-content; transform: translateX(-50%);
+}

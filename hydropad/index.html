@@ -29,6 +29,10 @@
       <a href="docs.html">Documentation</a>
     </nav>
     <div class="nav-cta">
+      <a class="x-link" href="https://x.com/" target="_blank" rel="noopener me"
+         aria-label="Hydropad on X" title="Hydropad on X">
+        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
       <span id="network" class="net"></span>
     </div>
   </div>
@@ -80,9 +84,8 @@
         </div>
         <span class="pill"><span class="dot"></span>the thing behind the ticker</span>
       </div>
-      <p class="lede works-lede">A dam does not make water. It holds back what the catchment sends down and
-      releases it on a schedule, which is why the number everyone watches is a level rather than a flow.
-      Here is the whole machine in one section, from the rain to the river below.</p>
+      <p class="lede works-lede">A dam does not make water. It holds back what the catchment sends
+      down and releases it on a schedule, which is why the number everyone watches is a level.</p>
 
       <figure class="cut">
         <svg viewBox="0 0 960 400" class="cut-svg" role="img" aria-label="Cross section of a dam and its reservoir">
@@ -175,62 +178,20 @@
       </figure>
 
       <ol class="steps">
-        <li class="step"><span class="n">1</span><h3>The catchment</h3>
-          <p>Everything starts as rain and snowmelt on a basin that can be a hundred times the area of the
-          lake itself. The dam collects a whole watershed into one number.</p></li>
-        <li class="step"><span class="n">2</span><h3>Live storage</h3>
-          <p>The water above the intakes: the part that can actually be used. It is reported as a surface
-          elevation, then converted to volume through a curve of area against height that is surveyed for
-          each reservoir individually.</p></li>
-        <li class="step"><span class="n">3</span><h3>Dead storage</h3>
-          <p>The bottom of the basin, below the lowest outlet, plus the silt that has settled into it. It
-          is in the lake but it cannot be drawn, which is why a reservoir at 25% is closer to empty than
-          the figure suggests.</p></li>
-        <li class="step"><span class="n">4</span><h3>The intake tower</h3>
-          <p>A shaft with gates at several heights, so operators can draw from whichever depth has the
-          temperature and the quality they want. Once the surface drops below the top gate, that option is
-          gone for the season.</p></li>
-        <li class="step"><span class="n">5</span><h3>Penstock and turbines</h3>
-          <p>Water falls through a steel pipe onto a runner. Power depends on head, the height of the drop,
-          so a half empty reservoir does not just hold less water: every cubic metre is worth less energy
-          on the way out.</p></li>
-        <li class="step"><span class="n">6</span><h3>The spillway</h3>
-          <p>The relief valve. When inflow beats what the outlets can pass, the surplus goes over the crest
-          and is lost downstream. A spillway running is a sign of a full reservoir, not of supply.</p></li>
-        <li class="step"><span class="n">7</span><h3>The compensation flow</h3>
-          <p>A river below the dam still has to run. Minimum releases for ecology, navigation and the towns
-          downstream come off the top of the account before anyone else is served.</p></li>
+        <li class="step"><span class="n">1</span><h3>Live storage</h3>
+          <p>The water above the intakes. The only part that can actually be used.</p></li>
+        <li class="step"><span class="n">2</span><h3>Dead storage</h3>
+          <p>The bottom, below the lowest outlet. In the lake, but out of reach.</p></li>
+        <li class="step"><span class="n">3</span><h3>Penstock</h3>
+          <p>Head becomes power, so a low reservoir is worth less per cubic metre.</p></li>
+        <li class="step"><span class="n">4</span><h3>Spillway</h3>
+          <p>The relief valve. Running means full, not plentiful.</p></li>
       </ol>
 
-      <div class="works-out">
-        <div class="panel works-panel">
-          <div class="panel-head"><h3>What moves the level</h3><span class="label">inflow against draw</span></div>
-          <div class="works-body">
-            <p>Storage is a balance, not a forecast: inflow from the catchment, minus releases for supply,
-            irrigation and power, minus what evaporates off the surface and seeps through the ground, plus
-            whatever rain falls on the lake directly. A hot week can take more off a shallow reservoir than
-            a city does.</p>
-            <ul class="bullets">
-              <li><b>Inflow</b> arrives in bursts, over days, and is the only term that refills the account.</li>
-              <li><b>Releases</b> are a decision, taken by an operator against a rule curve set months ahead.</li>
-              <li><b>Evaporation</b> is a loss nobody chose, and it scales with surface area, so it bites hardest
-              on wide shallow lakes.</li>
-            </ul>
-          </div>
-        </div>
-        <div class="panel works-panel">
-          <div class="panel-head"><h3>And in the contract</h3><span class="label">what Hydropad does with it</span></div>
-          <div class="works-body">
-            <p>Hydropad writes the ticker of one source into the token, where anyone can read it back as
-            <code>source()</code>. The fill figures on this site are the published ones for that source, kept
-            as reference: they are the reason a pairing means something, not an input the curve trades on.</p>
-            <p>Price comes from the bonding curve alone, which is deterministic and in the contract. A token
-            paired to a reservoir at 31% is a position on a name and the state it is in, and the register
-            keeps that state in front of you instead of leaving it as a logo.</p>
-            <a class="btn alt sm" href="docs.html">The mechanics in full</a>
-          </div>
-        </div>
-      </div>
+      <p class="works-foot">A level is a balance, not a forecast: what the catchment sends down,
+      minus what is released, minus what the sun takes back. Hydropad writes one reserve's ticker
+      into the token and keeps its published figures beside it. Price comes from the curve alone.
+      <a href="docs.html">The mechanics in full →</a></p>
     </div>
   </section>
 
@@ -361,6 +322,7 @@
       <a href="launches.html">Launches</a>
       <a href="sources.html">Sources</a>
       <a href="docs.html">Docs</a>
+      <a href="https://x.com/" target="_blank" rel="noopener me">X</a>
     </nav>
   </div>
 </footer>

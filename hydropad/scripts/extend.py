@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import numpy as np
 from PIL import Image, ImageFilter
-from terrain import Frame, col, rgb, mix
+from terrain import Frame, col, rgb, mix, patch, quilt
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA = os.path.join(ROOT, "media")
@@ -50,45 +50,6 @@ WATER_SHALLOW = "#6f9db2"
 FOAM = "#e9f0f2"
 CONCRETE = "#9a978c"
 SILT = "#6d6a59"
-
-
-
-# ---------------------------------------------------------------- texture
-
-def patch(photo, x0, x1, y0, y1):
-    h, w, _ = photo.shape
-    return photo[int(y0 * h):int(y1 * h), int(x0 * w):int(x1 * w)].copy()
-
-
-def quilt(src, w, h, tile, overlap, seed):
-    """Fill w x h with random crops of src, feathered into each other.
-
-    The extension has to have the photograph's grain, and no amount of value
-    noise has photographic grain. So the ground down there is made of the
-    ground up here: crops of the real canopy, the real water and the real white
-    water, laid down at random offsets and flipped, with the joins ramped out.
-    """
-    r = np.random.default_rng(seed)
-    sh, sw, _ = src.shape
-    tile = min(tile, sh - 2, sw - 2)
-    step = max(8, tile - overlap)
-    out = np.zeros((h + tile, w + tile, 3), np.float32)
-    acc = np.zeros((h + tile, w + tile, 1), np.float32)
-    ramp = np.minimum(np.linspace(0, 1, tile) * (tile / max(1, overlap)), 1.0).astype(np.float32)
-    ramp = np.minimum(ramp, ramp[::-1])
-    mask = (ramp[:, None] * ramp[None, :])[..., None] + 1e-4
-    for y in range(0, h + 1, step):
-        for x in range(0, w + 1, step):
-            sy = int(r.integers(0, sh - tile))
-            sx = int(r.integers(0, sw - tile))
-            crop = src[sy:sy + tile, sx:sx + tile]
-            if r.random() < .5:
-                crop = crop[:, ::-1]
-            if r.random() < .5:
-                crop = crop[::-1]
-            out[y:y + tile, x:x + tile] += crop * mask
-            acc[y:y + tile, x:x + tile] += mask
-    return (out[:h, :w] / acc[:h, :w]).astype(np.float32)
 
 
 def smoothstep(x, a, b):
@@ -122,7 +83,7 @@ def build(f, photo):
     lit = f.shade(f.smooth(coarse, 2.2), lx=-0.6, ly=-0.4, strength=1.25)
 
     forest = quilt(patch(photo, .015, .195, .20, .60), f.w, f.h, 190, 85, 7)
-    rocks = quilt(patch(photo, .755, .90, .74, .93), f.w, f.h, 120, 55, 8)
+    rocks = quilt(patch(photo, .30, .38, .55, .66), f.w, f.h, 110, 55, 8)
 
     # the valley is lit the way the photograph is lit, from the upper left
     forest = np.clip(forest * (0.72 + 0.62 * lit[..., None]), 0, 1)
@@ -136,20 +97,40 @@ def build(f, photo):
     f.img[:] = ground
 
     # ---- the water, also out of the photograph ---------------------------
-    still_tex = quilt(patch(photo, .66, .97, .02, .20), f.w, f.h, 150, 90, 9)       # the reservoir
-    fast_tex = quilt(patch(photo, .38, .58, .56, .74), f.w, f.h, 130, 80, 10)       # the plunge pool
+    deep_tex = quilt(patch(photo, .66, .97, .02, .20), f.w, f.h, 130, 70, 9)        # the reservoir
+    streak_tex = quilt(patch(photo, .455, .60, .30, .52), f.w, f.h, 150, 80, 10)    # the gates
     flow = f.noise(34, 4, 31, aspect=0.3)
+    ripple = f.noise(140, 3, 35, aspect=6.0)
 
     still = smoothstep(v, 0.52, 0.74)
-    body = mix(fast_tex, still_tex, still[..., None])
-    # deeper in the middle of the channel, shallower against the banks
-    body = np.clip(body * (0.78 + 0.5 * np.clip(d, 0, 1.2)[..., None]), 0, 1)
-    body = mix(body, rgb(col(WATER_DEEP)), (np.clip(1 - d, 0, 1) ** 1.6 * 0.35 * still)[..., None])
-    # white water, only where it is moving and only in patches
-    broken = np.clip((flow - 0.62) * 4.0, 0, 1) * np.clip(1.15 - d, 0, 1) * (1 - still) * 0.85
-    body = mix(body, rgb(col(FOAM)), broken[..., None])
-    water = smoothstep(1 - d, 0.0, 0.14)
-    f.put(water, np.clip(body, 0, 1), soft=1.2)
+    fast = 1 - still
+
+    # the body of it is reservoir water, kept dark, with its own ripple
+    body = np.clip(deep_tex * (0.9 + 0.22 * ripple[..., None]), 0, 1)
+    body = mix(body, rgb(col(WATER_DEEP)), (np.clip(1 - d, 0, 1) ** 1.8 * 0.22)[..., None])
+    # where it is moving, the streaked water from the gates is laid over it
+    run = np.clip((flow - 0.42) * 2.2, 0, 1) * fast * np.clip(1.2 - d, 0, 1)
+    body = mix(body, np.clip(streak_tex * 1.06, 0, 1), np.clip(run, 0, 1)[..., None] * 0.85)
+    # and the shallows against the banks go paler
+    body = mix(body, rgb(col(WATER_SHALLOW)), (np.clip(d - 0.55, 0, 1) ** 1.4 * 0.55)[..., None])
+
+    # rocks standing in the fast water, each with white water below it
+    rocks_n = f.noise(52, 3, 37, aspect=1.0)
+    boulder = np.clip((rocks_n - 0.70) * 9, 0, 1) * fast * np.clip(1.0 - d, 0, 1)
+    body = mix(body, rgb(col(ROCK_DARK)), np.clip(boulder, 0, 1)[..., None] * 0.85)
+    wake = np.roll(boulder, 26, axis=0) * 0.8
+    body = mix(body, rgb(col(FOAM)), np.clip(wake, 0, 1)[..., None] * 0.6)
+
+    water = smoothstep(1 - d, 0.0, 0.10)
+    f.put(water, np.clip(body, 0, 1), soft=1.0)
+
+    # the shore: pale shingle on the sunlit side, the trees' own shadow on the other
+    shingle = np.clip(1 - np.abs(d - 1.02) / 0.09, 0, 1) * (1 - still * 0.5)
+    f.put(np.clip(shingle * (0.5 + 0.9 * f.noise(60, 4, 39)), 0, 1) * 0.75,
+          np.clip(rocks * 1.22, 0, 1), soft=1.4)
+    shadow_side = np.clip((u - centre) / np.maximum(half, 1e-6), -1, 1)   # sun is upper left
+    f.put(np.clip(1 - np.abs(d - 0.92) / 0.07, 0, 1) * np.clip(-shadow_side, 0, 1) * 0.55,
+          rgb(col("#0b1a16")), soft=2.2)
 
     # a rim of wet silt where water meets land
     f.put(np.clip(1 - np.abs(d - 1.0) / 0.10, 0, 1) * 0.55 * (1 - still * 0.6),
@@ -157,60 +138,42 @@ def build(f, photo):
 
     # ---- steps in the bed: the water goes white right across -------------
     for vy, strength in ((0.075, 0.9), (0.175, 0.75), (0.285, 0.95), (0.405, 0.8), (0.495, 0.7)):
-        step = np.clip(1 - np.abs(v - vy) / 0.016, 0, 1) * np.clip(1.15 - d, 0, 1)
-        f.put(np.clip(step * (0.6 + 0.7 * flow), 0, 1) * strength, rgb(col(FOAM)), soft=2.2)
+        step = np.clip(1 - np.abs(v - vy) / 0.010, 0, 1) * np.clip(1.1 - d, 0, 1)
+        f.put(np.clip(step * (0.45 + 0.85 * flow) - 0.15, 0, 1) * strength, rgb(col(FOAM)), soft=1.8)
         # and the spray it throws downstream of itself
         plume = (np.clip(1 - np.abs(u - centre) / (half * 1.5), 0, 1)
                  * np.clip(1 - np.abs(v - (vy + 0.018)) / 0.030, 0, 1))
-        f.put(np.clip(plume * (0.4 + 0.9 * f.noise(10, 4, 41, aspect=1.6)), 0, 1) * 0.5 * strength,
-              rgb(col("#eef4f6")), soft=9)
+        f.put(np.clip(plume * (0.35 + 0.8 * f.noise(16, 4, 41, aspect=1.6)) - 0.3, 0, 1) * 0.5 * strength,
+              rgb(col("#eef4f6")), soft=5)
 
-    # ---- tributaries, coming in off the valley sides ---------------------
-    for side, vy, length, wide, seed in ((0, 0.135, 0.05, 0.016, 51), (1, 0.24, 0.058, 0.013, 52),
-                                         (0, 0.35, 0.052, 0.018, 53), (1, 0.445, 0.045, 0.014, 54),
-                                         (0, 0.55, 0.04, 0.012, 55)):
-        x0 = 0.03 if side == 0 else 0.97
+    # ---- tributaries, cutting down through the forest to join it ---------
+    for side, vy, length, wide, seed in ((0, 0.135, 0.075, 0.013, 51), (1, 0.245, 0.085, 0.011, 52),
+                                         (0, 0.355, 0.08, 0.014, 53), (1, 0.45, 0.07, 0.011, 54),
+                                         (0, 0.555, 0.06, 0.010, 55)):
+        x0 = 0.02 if side == 0 else 0.98
         k = np.clip((v - (vy - length)) / length, 0, 1)
         path = x0 + (centre - x0) * k ** 1.7
-        line = (np.clip(1 - np.abs(u - path) / (wide * (0.6 + 1.2 * k)), 0, 1)
-                * smoothstep(v, vy - length, vy - length * 0.85)
-                * (1 - smoothstep(v, vy - 0.012, vy)))
-        trib = np.clip(line * (0.45 + 0.85 * f.noise(46, 4, seed, aspect=0.22)) - 0.1, 0, 1) * 1.3
-        f.put(trib, np.clip(mix(fast_tex, rgb(col(FOAM)), 0.45), 0, 1), soft=1.2)
-        f.put(np.clip(trib - 0.55, 0, 1) * 1.2, rgb(col(FOAM)), soft=3)
+        near = np.abs(u - path) / (wide * (0.55 + 1.3 * k))
+        live = smoothstep(v, vy - length, vy - length * 0.9) * (1 - smoothstep(v, vy - 0.014, vy))
+        # the notch it has cut, which is darker than the canopy either side
+        f.put(np.clip(1 - near / 3.2, 0, 1) * live * 0.62, rgb(col("#16240f")), soft=3.0)
+        # the water in it
+        chan = np.clip(1 - near, 0, 1) * live
+        f.put(np.clip(chan * (0.5 + 0.8 * f.noise(44, 4, seed, aspect=0.25)), 0, 1) * 0.75,
+              np.clip(streak_tex * 1.1, 0, 1), soft=1.1)
+        f.put(np.clip(chan * (0.35 + 0.95 * f.noise(64, 3, seed + 1, aspect=0.2)) - 0.62, 0, 1) * 2.2,
+              rgb(col(FOAM)), soft=1.0)
+        # and the fan of gravel where it arrives
+        fan = np.clip(1 - np.sqrt(((u - centre) / 0.055) ** 2 + ((v - vy) / 0.016) ** 2), 0, 1)
+        f.put(fan * 0.45, np.clip(rocks * 1.2, 0, 1), soft=2.6)
 
-    # ---- islands, once there is enough water to hold them ----------------
-    r = np.random.default_rng(4)
-    for _ in range(7):
-        iy = float(r.uniform(0.60, 0.95))
-        ix = float(r.uniform(0.2, 0.8))
-        s = float(r.uniform(0.02, 0.055))
-        e = (((u - ix) / s) ** 2 + ((v - iy) / (s * 0.30)) ** 2)
-        isl = np.clip(1.0 - e, 0, 1)
-        inside = np.clip(1 - d, 0, 1) > 0.15
-        shade_k = np.clip(0.55 + (ix - u) / s * 0.5 + (iy - v) / (s * 0.3) * 0.35, 0, 1)
-        f.put(smoothstep(isl, 0.0, 0.25) * inside,
-              np.clip(forest * (0.62 + 0.7 * shade_k[..., None]), 0, 1), soft=1.3)
-        # what it casts on the water, down and to the right of it
-        f.put(smoothstep(np.clip(1.0 - (((u - ix - s * 0.25) / s) ** 2
-                                        + ((v - iy - s * 0.10) / (s * 0.30)) ** 2), 0, 1), 0, 0.4)
-              * inside * 0.3, rgb(col("#10243a")), soft=5)
-
-    # ---- a second wall, the same architecture seen again in plan ---------
-    wv = 0.885
-    arc = wv + 0.012 * np.cos((u - 0.5) * 3.1)
-    crest = np.clip(1 - np.abs(v - arc) / 0.010, 0, 1)
-    f.put(crest * np.clip(1.6 - d, 0, 1), rgb(col(CONCRETE)) * (0.72 + 0.4 * lit[..., None]), soft=1.0)
-    f.put(np.clip(1 - np.abs(v - (arc + 0.013)) / 0.008, 0, 1) * np.clip(1.6 - d, 0, 1) * 0.5,
-          rgb(col("#1b2026")), soft=1.4)
-    for gx in (-0.10, 0.0, 0.10):
-        gate = (np.clip(1 - np.abs(u - (centre + gx)) / 0.022, 0, 1)
-                * np.clip(1 - np.abs(v - (arc + 0.020)) / 0.022, 0, 1))
-        f.put(np.clip(gate * (0.5 + 0.8 * flow), 0, 1) * 0.9, rgb(col(FOAM)), soft=2.0)
+    # Islands were tried here and every version of them read as moss on a
+    # pond, so the reserve is left as open water. What cannot be made to look
+    # real is better left out than polished.
 
     # ---- weather, thickening all the way down ----------------------------
     veil = f.noise(5, 4, 61, aspect=3.0)
-    mist = smoothstep(v, 0.74, 1.0) * (0.25 + 0.9 * veil)
+    mist = smoothstep(v, 0.80, 1.0) * (0.3 + 0.95 * veil)
     f.put(np.clip(mist, 0, 1) * 0.30, rgb(col("#a9c2cc")), soft=26)
     # and the light going long as the valley gets deeper
     f.img = mix(f.img, rgb(col("#9fbac6")), (smoothstep(v, 0.55, 1.0) * 0.16)[..., None])
@@ -223,6 +186,9 @@ def main():
 
     f = Frame(pw, EXT, seed=90210)
     build(f, photo)
+    # the photograph is contrastier than any render comes out
+    m = f.img.mean(axis=(0, 1), keepdims=True)
+    f.img = np.clip(m + (f.img - m) * 1.1, 0, 1)
     f.grade(vignette=0.08, grain=0.012)
     # a photograph has edges; a render has to be given them
     blurred = np.stack([np.asarray(Image.fromarray((np.clip(f.img[..., c], 0, 1) * 255).astype(np.uint8), "L")

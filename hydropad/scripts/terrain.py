@@ -61,6 +61,43 @@ class Frame:
             path, quality=quality, optimize=True, progressive=True)
 
 
+def patch(photo, x0, x1, y0, y1):
+    h, w, _ = photo.shape
+    return photo[int(y0 * h):int(y1 * h), int(x0 * w):int(x1 * w)].copy()
+
+
+def quilt(src, w, h, tile, overlap, seed):
+    """Fill w x h with random crops of src, feathered into each other.
+
+    The extension has to have the photograph's grain, and no amount of value
+    noise has photographic grain. So the ground down there is made of the
+    ground up here: crops of the real canopy, the real water and the real white
+    water, laid down at random offsets and flipped, with the joins ramped out.
+    """
+    r = np.random.default_rng(seed)
+    sh, sw, _ = src.shape
+    tile = min(tile, sh - 2, sw - 2)
+    step = max(8, tile - overlap)
+    out = np.zeros((h + tile, w + tile, 3), np.float32)
+    acc = np.zeros((h + tile, w + tile, 1), np.float32)
+    ramp = np.minimum(np.linspace(0, 1, tile) * (tile / max(1, overlap)), 1.0).astype(np.float32)
+    ramp = np.minimum(ramp, ramp[::-1])
+    mask = (ramp[:, None] * ramp[None, :])[..., None] + 1e-4
+    for y in range(0, h + 1, step):
+        for x in range(0, w + 1, step):
+            sy = int(r.integers(0, sh - tile))
+            sx = int(r.integers(0, sw - tile))
+            crop = src[sy:sy + tile, sx:sx + tile]
+            if r.random() < .5:
+                crop = crop[:, ::-1]
+            if r.random() < .5:
+                crop = crop[::-1]
+            out[y:y + tile, x:x + tile] += crop * mask
+            acc[y:y + tile, x:x + tile] += mask
+    return (out[:h, :w] / acc[:h, :w]).astype(np.float32)
+
+
+
 def col(hexv):
     hexv = hexv.lstrip("#")
     return np.array([int(hexv[i:i + 2], 16) / 255.0 for i in (0, 2, 4)], np.float32)

@@ -874,33 +874,10 @@ const PAGES = {
     if (form.dataset.wired !== "1") {
       form.dataset.wired = "1";
 
-      /* The networks this build knows how to read. The one in use is the one
-       * the page actually booted on: picking another tells you how to get
-       * there, it cannot move your wallet for you. */
-      $("f-chains").innerHTML = [4663, 46630, 1337].map(id => {
-        const c = CHAINS[id];
-        const on = Chain.chainId === id;
-        return `<button class="chip${on ? " on" : ""}" type="button" data-chain="${id}" aria-pressed="${on}">
-          <span class="dot"></span>${esc(c.name)}${c.test ? `<small>test</small>` : ""}
-        </button>`;
-      }).join("");
-      $("f-chains").addEventListener("click", async e => {
-        const b = e.target.closest("[data-chain]");
-        if (!b) return;
-        const id = Number(b.dataset.chain);
-        if (id === Chain.chainId) return;
-        if (id === 1337) return toast("Open the chain menu at the top and run a chain in this page.");
-        if (Chain.demo) return toast("Leave the in-page chain first: open the chain menu and pick your wallet.");
-        if (!Chain.hasWallet()) return toast(`No wallet in this browser to move onto ${CHAINS[id].name}.`);
-        /* Really move the wallet, adding the network if it has never seen it.
-         * The wallet fires chainChanged, which reloads the page. */
-        try {
-          b.disabled = true;
-          await Chain.switchTo(id);
-        } catch (err) {
-          toast(errText(err));
-        } finally { b.disabled = false; }
-      });
+      /* There is no network to pick here any more: coins launch on Robinhood
+       * Chain and nowhere else, so the form does not ask. Being on the wrong
+       * one is said where it matters — the pill at the top, and the panel above
+       * the button, which carries the switch. */
 
       /* Four classes of water, and each one behaves differently enough that it
        * is worth choosing before the source. */

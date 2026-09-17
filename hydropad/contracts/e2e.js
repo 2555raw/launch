@@ -103,8 +103,12 @@ const log = [];
     if (label !== 'Open Hydropad on Robinhood Testnet') throw new Error('button reads ' + label);
   });
 
-  await step('the network chips really ask the wallet to switch', async () => {
-    await p.click('[data-chain="4663"]');
+  await step('the docs really ask the wallet to switch', async () => {
+    /* The launch form no longer picks a network — coins launch on Robinhood
+     * Chain and nowhere else — so the switch lives in the docs, beside the
+     * facts a wallet needs. */
+    await p.goto(base + 'docs.html', { waitUntil: 'networkidle' });
+    await p.click('#networks [data-switch="4663"]');
     await p.waitForFunction(() => window.__switches.includes('0x1237'), null, { timeout: 15000 });
     const added = await p.evaluate(() => window.__addedParams);
     if (!added || added.chainId !== '0x1237') throw new Error('no add for Robinhood Chain');

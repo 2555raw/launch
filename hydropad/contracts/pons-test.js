@@ -1,0 +1,117 @@
+/* What can be checked about the Pons integration without reaching Pons.
+ *
+ * The calls themselves cannot be exercised from here: Pons lives on Robinhood
+ * Chain and this machine has no route to it. What is testable is everything
+ * that would be wrong before a packet ever left — that the ABI fragments parse
+ * and encode the arguments the published contracts declare, that the pairing
+ * survives the round trip through the one field Pons gives us, and that the
+ * curve arithmetic the pages quote with matches the curve's own shape.
+ */
+const fs = require("fs");
+const path = require("path");
+const vm = require("vm");
+const { ethers } = require("ethers");
+
+let failed = 0;
+const ok = (cond, name, extra) => {
+  console.log(`${cond ? "ok  " : "FAIL"}   ${name}${extra ? "  — " + extra : ""}`);
+  if (!cond) failed++;
+};
+const eq = (a, b, name) => ok(a === b, name, a === b ? "" : `got ${a}, wanted ${b}`);
+
+/* pons.js is a browser file: it expects ethers as a global and defines two. */
+const src = fs.readFileSync(path.join(__dirname, "..", "pons.js"), "utf8")
+  + "\n;globalThis.__PONS = PONS; globalThis.__ADAPTER = PonsAdapter;";
+const ctx = vm.createContext({ ethers, console });
+vm.runInContext(src, ctx);
+const PONS = vm.runInContext("__PONS", ctx);
+const PonsAdapter = vm.runInContext("__ADAPTER", ctx);
+
+console.log("\nthe published surface\n");
+
+const factory = new ethers.Interface(PONS.FACTORY_ABI);
+const curve = new ethers.Interface(PONS.CURVE_ABI);
+const token = new ethers.Interface(PONS.TOKEN_ABI);
+ok(!!factory && !!curve && !!token, "every ABI fragment parses");
+
+eq(PONS.address(4663), "0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB", "the factory is the published address");
+ok(PONS.has(4663), "Pons is on Robinhood Chain");
+ok(!PONS.has(46630), "and not claimed on the testnet");
+ok(!PONS.has(1337), "nor on the chain inside the page");
+
+/* A launch is the one call that spends money, so its encoding is the one that
+ * has to be right. Encode a whole TokenParams and read it back. */
+const params = {
+  name: "Dead Pool",
+  symbol: "POOL",
+  logo: "",
+  description: PONS.describe("MEAD", "Lake Mead, Nevada / Arizona, US", "At 36.0161° N, 114.7377° W."),
+  socials: { twitter: "", telegram: "", discord: "", website: "", farcaster: "" },
+  creatorFeeRecipient: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+  creatorTaxBps: 0,
+  buybackEnabled: true,
+  expectedEconomics: ethers.ZeroHash,
+};
+const data = factory.encodeFunctionData("launchToken", [params, 3n, PONS.NATIVE]);
+const back = factory.decodeFunctionData("launchToken", data);
+eq(back[0].name, "Dead Pool", "the launch encodes and decodes its name");
+eq(back[0].symbol, "POOL", "and its symbol");
+eq(Number(back[1]), 3, "and the launch config id");
+eq(back[2], PONS.NATIVE, "and an ETH-quoted curve");
+eq(back[0].socials.length, 5, "socials carry the five fields the token stores");
+
+eq(factory.getFunction("launchToken").selector, "0xa41d5f2b", "launchToken keeps its selector");
+eq(curve.getFunction("buy").selector, "0x59a87bc1", "buy keeps its selector");
+eq(curve.getFunction("sell").selector, "0xd04c6983", "sell keeps its selector");
+
+console.log("\nthe pairing, through the only field Pons gives us\n");
+
+const described = PONS.describe("MEAD", "Lake Mead", null);
+eq(PONS.sourceOf(described), "MEAD", "the ticker survives the round trip");
+ok(described.includes("Lake Mead"), "a person reads the place, not a tag");
+ok(/no ownership of the water/.test(described), "and the disclaimer travels with it on chain");
+eq(PONS.sourceOf("just some meme coin"), null, "a token that is not ours reads as not ours");
+eq(PONS.sourceOf(""), null, "an empty description does not throw");
+eq(PONS.sourceOf(undefined), null, "nor does a missing one");
+eq(PONS.sourceOf(PONS.describe("NSAS", "Nubian Sandstone")), "NSAS", "a second source, with no note");
+
+console.log("\nthe curve the pages quote with\n");
+
+/* Pons prices against a reserve that includes a phantom amount nobody
+ * deposited, exactly the shape of Hydropad's own virtual reserve. */
+const q = ethers.parseEther("4.2");      // quote reserve, phantom included
+const t = ethers.parseEther("800000000");
+const feeBps = 100;
+
+const out = PONS.quoteBuy(q, t, ethers.parseEther("1"), feeBps);
+ok(out > 0n, "a buy returns tokens", ethers.formatEther(out));
+
+const bigger = PONS.quoteBuy(q, t, ethers.parseEther("2"), feeBps);
+ok(bigger > out, "twice the ETH buys more tokens");
+ok(bigger < out * 2n, "but less than twice as many: the price rises as it fills");
+
+const after = PONS.quoteBuy(q + ethers.parseEther("1"), t - out, ethers.parseEther("1"), feeBps);
+ok(after < out, "the second buyer of the same size pays more per token");
+
+const backOut = PONS.quoteSell(q, t, out, feeBps);
+ok(backOut < ethers.parseEther("1"), "selling straight back loses the fee both ways",
+   ethers.formatEther(backOut));
+
+eq(PONS.quoteBuy(q, t, 0n, feeBps), 0n, "nothing in, nothing out");
+eq(PONS.quoteSell(q, t, 0n, feeBps), 0n, "and the same selling");
+
+const noFee = PONS.quoteBuy(q, t, ethers.parseEther("1"), 0);
+ok(noFee > out, "a fee-free curve returns more than a fee-charging one");
+
+console.log("\nthe adapter\n");
+
+ok(typeof PonsAdapter.launch === "function", "the adapter launches");
+ok(typeof PonsAdapter.buy === "function" && typeof PonsAdapter.sell === "function", "and trades");
+for (const m of ["pairings", "pairing", "tokenMeta", "balanceOf", "price", "quoteBuy", "quoteSell", "trades"]) {
+  ok(typeof PonsAdapter[m] === "function", `it answers ${m}(), like the launcher it stands in for`);
+}
+eq(PonsAdapter.START_BLOCK[4663], 8991118, "the backward scan stops where Pons began");
+ok(PonsAdapter.CHUNK <= 50000, "and asks for log ranges a public RPC will serve");
+
+console.log(failed ? `\n${failed} failed\n` : "\nall good\n");
+process.exit(failed ? 1 : 0);

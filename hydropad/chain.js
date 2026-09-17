@@ -192,6 +192,17 @@ const Chain = {
   /* Can a pairing be opened from where we are standing? */
   canLaunch() { return LAUNCH_CHAINS.has(Number(this.chainId)); },
 
+  /* Pons is already deployed on Robinhood Chain, so on that network there is
+   * no launcher of ours to deploy and nothing to wait for: the pages talk to
+   * Pons and a coin launched here graduates into a locked Uniswap V4 pool.
+   * Everywhere else — the testnet, the EVM inside this page — Hydropad's own
+   * launcher is what there is. */
+  viaPons() {
+    return !this.demo && typeof PONS !== "undefined" && PONS.has(this.chainId);
+  },
+
+  pons() { return PonsAdapter.bind(this); },
+
   chainInfo() {
     return CHAINS[this.chainId] || { name: `Chain ${this.chainId}`, explorer: "", ticker: "ETH" };
   },
@@ -228,6 +239,9 @@ const Chain = {
   },
 
   launcherAddress() {
+    /* Nothing to discover or remember on a Pons chain: the factory is at a
+     * fixed address and it is always there, which is the whole point. */
+    if (this.viaPons()) return PONS.address(this.chainId);
     const fromUrl = new URLSearchParams(location.search).get("launcher");
     if (fromUrl && ethers.isAddress(fromUrl)) {
       try { localStorage.setItem(LAUNCHER_KEY(this.chainId), fromUrl); } catch (_) {}
@@ -296,17 +310,20 @@ const Chain = {
   /* ---------------- reads ---------------- */
 
   async pairings(limit = 50) {
+    if (this.viaPons()) return this.pons().pairings(limit);
     if (!this.launcher) return [];
     const raw = await this.contract().listPairings(0, limit);
     return raw.map(toPairing);
   },
 
   async pairing(token) {
+    if (this.viaPons()) return this.pons().pairing(token);
     const p = await this.contract().pairings(token);
     return toPairing(p);
   },
 
   async tokenMeta(address) {
+    if (this.viaPons()) return this.pons().tokenMeta(address);
     const t = this.token(address);
     const [name, symbol, source, totalSupply] = await Promise.all([
       t.name(), t.symbol(), t.source(), t.totalSupply(),
@@ -315,15 +332,23 @@ const Chain = {
   },
 
   async balanceOf(token, who) {
+    if (this.viaPons()) return this.pons().balanceOf(token, who);
     return this.token(token).balanceOf(who || this.account);
   },
 
-  async price(token) { return this.contract().price(token); },
-  async quoteBuy(token, ethIn) { return this.contract().quoteBuy(token, ethIn); },
-  async quoteSell(token, amount) { return this.contract().quoteSell(token, amount); },
+  async price(token) {
+    return this.viaPons() ? this.pons().price(token) : this.contract().price(token);
+  },
+  async quoteBuy(token, ethIn) {
+    return this.viaPons() ? this.pons().quoteBuy(token, ethIn) : this.contract().quoteBuy(token, ethIn);
+  },
+  async quoteSell(token, amount) {
+    return this.viaPons() ? this.pons().quoteSell(token, amount) : this.contract().quoteSell(token, amount);
+  },
 
   /* Trade history from the launcher's own logs. */
   async trades(token, blocks = 50000) {
+    if (this.viaPons()) return this.pons().trades(token, blocks);
     const c = this.contract();
     const head = await this.provider.getBlockNumber();
     const from = Math.max(0, head - blocks);
@@ -341,7 +366,8 @@ const Chain = {
 
   /* ---------------- writes ---------------- */
 
-  async launch({ name, symbol, source, supply, firstBuyWei }) {
+  async launch({ name, symbol, source, supply, firstBuyWei, place, note }) {
+    if (this.viaPons()) return this.pons().launch({ name, symbol, source, place, note, firstBuyWei });
     const c = this.contract(true);
     const tx = await c.launch(name, symbol, source, supply, this.gas("launch", { value: firstBuyWei || 0n }));
     const rc = await tx.wait();
@@ -356,11 +382,13 @@ const Chain = {
   },
 
   async buy(token, ethWei, minTokensOut = 0n) {
+    if (this.viaPons()) return this.pons().buy(token, ethWei, minTokensOut);
     const tx = await this.contract(true).buy(token, minTokensOut, this.gas("buy", { value: ethWei }));
     return tx.wait();
   },
 
   async sell(token, amount, minEthOut = 0n) {
+    if (this.viaPons()) return this.pons().sell(token, amount, minEthOut);
     const erc = this.token(token, true);
     const allowance = await erc.allowance(this.account, this.launcher);
     if (allowance < amount) {
@@ -372,6 +400,7 @@ const Chain = {
   },
 
   async claimVault(token) {
+    if (this.viaPons()) throw new Error("Creator fees on Pons are claimed from its own fee escrow, not from here.");
     const tx = await this.contract(true).claimVault(token, this.gas("claim"));
     return tx.wait();
   },

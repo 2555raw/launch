@@ -961,7 +961,8 @@ const PAGES = {
       /* Hydropad launches on Robinhood Chain and nowhere else. Reading works on
        * any network; opening a pairing does not. */
       const wrongChain = !Chain.offline && !Chain.canLaunch();
-      const first = !wrongChain && !Chain.demo && !Chain.offline && Chain.hasWallet() && !Chain.launcher;
+      const first = !wrongChain && !Chain.demo && !Chain.offline && !Chain.viaPons()
+        && Chain.hasWallet() && !Chain.launcher;
       const stuck = !Chain.demo && !Chain.offline && !Chain.hasWallet();
 
       const warn = $("f-blocked");
@@ -1044,12 +1045,17 @@ const PAGES = {
           toast(`Launcher opened at ${shortAddr(addr)} on ${info().name}`);
         }
         btn.textContent = "Confirm in your wallet…";
+        const w = byTicker(form.source.value);
         const { token } = await Chain.launch({
           name: form.name.value.trim() || symbol,
           symbol,
           source: form.source.value,
           supply,
           firstBuyWei: firstBuy,
+          /* Only Pons uses these: its token has no source() of ours, so the
+           * pairing is written into the description a person actually reads. */
+          place: w ? (w.l ? `${w.n}, ${w.l}` : w.n) : null,
+          note: w && w.g ? `At ${coordText(w.g)}.` : null,
         });
         await navigate(`token.html?addr=${token}&new=1`);
       } catch (err) {

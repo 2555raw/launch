@@ -112,9 +112,15 @@
         </div>
         <div class="works-body">
           <p>Hydropad runs on <b>Robinhood Chain</b>, the Arbitrum Orbit layer 2 that settles to
-          Ethereum and pays gas in ETH, so the launcher and every token it mints are ordinary EVM
-          contracts there. Deployment on it is permissionless. The pages read whichever network your
-          wallet is on; these two are the ones this build is aimed at.</p>
+          Ethereum and pays gas in ETH. On it, coins are launched through <b>Pons V2</b>, the
+          launchpad already deployed there, at
+          <code>0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB</code>: the supply mints into a
+          constant-product curve and graduates into a Uniswap V4 pool whose liquidity is locked for
+          good. Nothing has to be deployed first, by anyone. Pons' token has no field of ours, so
+          the pairing is written into its <code>description</code>, which is a public string on
+          chain that any explorer will show you. Everywhere else — the testnet, the chain inside
+          this page — Hydropad's own launcher is what runs, and the pairing goes in
+          <code>source()</code>.</p>
           <div class="net-facts">
             <div>
               <h4>Robinhood Chain</h4>
@@ -202,6 +208,7 @@
 <script src="world.js"></script>
 <script src="demo.js"></script>
 <script src="contract.js"></script>
+<script src="pons.js"></script>
 <script src="chain.js"></script>
 <script src="motion.js"></script>
 <script src="app.js"></script>

@@ -5,7 +5,7 @@
   "description": "Launch an ERC-20 paired to a water source, on a bonding curve in an open launcher contract.",
   "scripts": {
     "build": "node contracts/compile.js",
-    "test": "node contracts/compile.js && node contracts/test.js",
+    "test": "node contracts/compile.js && node contracts/test.js && node contracts/pons-test.js",
     "node": "node contracts/node.js",
     "serve": "node server.js",
     "e2e": "node contracts/e2e.js",

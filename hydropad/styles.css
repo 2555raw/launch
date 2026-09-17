@@ -1475,12 +1475,15 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
   font: 500 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
 }
 
-/* the mark: a drop with the arc of a wall across it, and what goes over */
-.brand { font-size: 22px; letter-spacing: -.03em; gap: 10px; }
-.brand .mark { flex: none; filter: drop-shadow(0 2px 10px rgba(63, 157, 196, .45)); }
-.brand:hover .mark { filter: drop-shadow(0 3px 14px rgba(127, 214, 242, .6)); }
-.brand .mark { transition: filter var(--t) var(--ease), transform var(--t) var(--ease); }
-.brand:hover .mark { transform: translateY(-1px); }
+/* The mark is the crest of a wall and what goes over it: two strokes, one
+   colour, and nothing that stops working at 16 pixels. */
+.brand { font-size: 21px; letter-spacing: -.03em; gap: 10px; }
+.brand .mark { flex: none; color: var(--accent); }
+.brand .mark path:last-child { opacity: .78; }
+.brand .mark { transition: color var(--t) var(--ease), transform var(--t) var(--ease-out); }
+.brand:hover .mark { color: #7fd0ea; transform: translateY(-1px); }
+.brand:hover .mark path:last-child { opacity: 1; }
+.brand .mark path:last-child { transition: opacity var(--t) var(--ease); }
 
 /* the parts of a dam, marked on a photograph of one */
 .cut { position: relative; background: #08110f; padding: 0; overflow: hidden; }
@@ -1624,3 +1627,16 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
   .toolbar .chip, .toolbar .chip::before { transition: none; }
   .tbl tbody tr.dealt { animation: none; }
 }
+
+.brand .mark { color: #67c0e2; }
+.brand:hover .mark { color: #8fd8f2; }
+
+/* the numbers on the step cards were barely there */
+.step .n {
+  width: 27px; height: 27px; font: 500 12.5px/1 var(--mono);
+  background: linear-gradient(180deg, #67b6d6, #3f8cad); color: #04181f;
+  box-shadow: 0 6px 18px -8px rgba(88, 167, 201, .8);
+}
+.step h3 { color: var(--ink); font-size: 15.5px; }
+.step p { color: rgba(234, 242, 238, .78); font-size: 13.2px; }
+.step { padding: 20px 20px 22px; }

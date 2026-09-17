@@ -4,6 +4,7 @@
   "private": true,
   "description": "Launch an ERC-20 paired to a water source, on a bonding curve in an open launcher contract.",
   "scripts": {
+    "start": "node server.js",
     "build": "node contracts/compile.js",
     "test": "node contracts/compile.js && node contracts/test.js && node contracts/pons-test.js",
     "node": "node contracts/node.js",

@@ -322,11 +322,16 @@ function chainMenu() {
      * the thing they can actually do about it. Deploying a launcher is real,
      * but it is a job for whoever is running the project, not something to put
      * in front of a visitor with no explanation. */
-    rows.push(`<p><b>Hydropad is not on ${here}.</b> Switch your wallet to a network it is deployed
-      on, or run the whole thing in this page to see how it works.</p>`);
-    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>`);
-    rows.push(`<p class="chain-fine">Running your own: <a href="docs.html#deploy">the launcher is one
-      transaction</a>, and whoever sends it owns it.</p>`);
+    rows.push(`<p><b>No launcher on ${here} yet.</b> Hydropad runs on Robinhood Chain, the Arbitrum
+      L2 that settles to Ethereum and pays gas in ETH. Move your wallet there, or run the whole thing
+      in this page to see how it works.</p>`);
+    rows.push(`<div class="chain-acts">
+      <button class="btn accent sm" type="button" data-switch="4663">Robinhood Chain</button>
+      <button class="btn alt sm" type="button" data-switch="46630">Testnet</button>
+      <button class="btn alt sm" type="button" id="start-demo">Run it in this page</button>
+    </div>`);
+    rows.push(`<p class="chain-fine">Deploying there is permissionless: the first launch on a network
+      opens the launcher itself, in one extra transaction.</p>`);
   }
 
   if (Chain.launcher) {
@@ -353,6 +358,21 @@ function renderBanners() {
 
 function wireChainActions() {
   const on = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
+
+  /* Anything carrying data-switch really moves the wallet, adding the network
+   * first if the wallet has never seen it. */
+  document.querySelectorAll("[data-switch]").forEach(b => {
+    if (b.dataset.wired === "1") return;
+    b.dataset.wired = "1";
+    b.addEventListener("click", async () => {
+      const was = b.textContent;
+      b.disabled = true;
+      b.textContent = "Check your wallet…";
+      try { await Chain.switchTo(Number(b.dataset.switch)); }
+      catch (e) { toast(errText(e)); }
+      finally { b.disabled = false; b.textContent = was; }
+    });
+  });
 
   on("start-demo", async e => {
     const btn = e.currentTarget;
@@ -669,7 +689,7 @@ const PAGES = {
       return;
     }
     if (!Chain.launcher) {
-      host.innerHTML = emptyRow(8, `Hydropad is not deployed on ${esc(Chain.chainInfo().name)}, so there is nothing to read here. Switch your wallet to a network it is on, or <a href="docs.html#deploy" style="color:var(--accent)">run it in this page</a>.`);
+      host.innerHTML = emptyRow(8, `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet. Open the chain menu to move onto Robinhood Chain, or <a href="launch.html" style="color:var(--accent)">be the first to pair a source here</a>.`);
       setText("stat-launches", "0");
       return;
     }
@@ -690,7 +710,7 @@ const PAGES = {
       return;
     }
     if (!Chain.launcher) {
-      host.innerHTML = emptyRow(8, `Hydropad is not deployed on ${esc(Chain.chainInfo().name)}, so there is nothing to read here. Switch your wallet to a network it is on, or <a href="docs.html#deploy" style="color:var(--accent)">run it in this page</a>.`);
+      host.innerHTML = emptyRow(8, `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet. Open the chain menu to move onto Robinhood Chain, or <a href="launch.html" style="color:var(--accent)">be the first to pair a source here</a>.`);
       return;
     }
     host.innerHTML = emptyRow(8, "Reading the chain…");
@@ -756,21 +776,29 @@ const PAGES = {
       /* The networks this build knows how to read. The one in use is the one
        * the page actually booted on: picking another tells you how to get
        * there, it cannot move your wallet for you. */
-      $("f-chains").innerHTML = [1337, 8453, 84532, 31337].map(id => {
+      $("f-chains").innerHTML = [46630, 4663, 8453, 1337].map(id => {
         const c = CHAINS[id];
         const on = Chain.chainId === id;
         return `<button class="chip${on ? " on" : ""}" type="button" data-chain="${id}" aria-pressed="${on}">
           <span class="dot"></span>${esc(c.name)}${c.test ? `<small>test</small>` : ""}
         </button>`;
       }).join("");
-      $("f-chains").addEventListener("click", e => {
+      $("f-chains").addEventListener("click", async e => {
         const b = e.target.closest("[data-chain]");
         if (!b) return;
         const id = Number(b.dataset.chain);
         if (id === Chain.chainId) return;
-        toast(id === 1337
-          ? "Open the chain menu at the top and run a chain in this page."
-          : `Switch your wallet to ${CHAINS[id].name}, then reload. Hydropad reads whichever chain your wallet is on.`);
+        if (id === 1337) return toast("Open the chain menu at the top and run a chain in this page.");
+        if (Chain.demo) return toast("Leave the in-page chain first: open the chain menu and pick your wallet.");
+        if (!Chain.hasWallet()) return toast(`No wallet in this browser to move onto ${CHAINS[id].name}.`);
+        /* Really move the wallet, adding the network if it has never seen it.
+         * The wallet fires chainChanged, which reloads the page. */
+        try {
+          b.disabled = true;
+          await Chain.switchTo(id);
+        } catch (err) {
+          toast(errText(err));
+        } finally { b.disabled = false; }
       });
 
       /* Four classes of water, and each one behaves differently enough that it
@@ -877,7 +905,9 @@ const PAGES = {
         </div>`;
 
       const btn = $("f-submit");
-      if (!btn.disabled) btn.textContent = `Launch on ${info().name}`;
+      if (!btn.disabled) btn.textContent = Chain.launcher || Chain.demo
+        ? `Launch on ${info().name}`
+        : `Open Hydropad on ${info().name}`;
     }
 
     /* Whatever can actually sign here, named. */
@@ -886,29 +916,30 @@ const PAGES = {
       const note = $("f-walletnote");
       const rows = [];
       const btn = $("f-submit");
-      const blocked = !Chain.demo && !Chain.offline && Chain.hasWallet() && !Chain.launcher;
+      /* Nobody has opened a launcher on this network yet. That is not a wall:
+       * the launcher is a plain contract and anyone can put it there, so the
+       * first launch carries it. Say so before the form is filled in, so the
+       * second wallet prompt is not a surprise. */
+      const first = !Chain.demo && !Chain.offline && Chain.hasWallet() && !Chain.launcher;
+      const stuck = !Chain.demo && !Chain.offline && !Chain.hasWallet();
 
-      /* Nothing to launch against: say it here, before the form is filled in,
-       * rather than at the moment somebody presses the button. */
       const warn = $("f-blocked");
       if (warn) warn.remove();
-      if (blocked) {
+      if (first) {
         const el = document.createElement("div");
         el.id = "f-blocked";
         el.className = "lp-blocked";
-        el.innerHTML = `<b>Hydropad is not deployed on ${esc(info().name)}.</b>
-          <span>There is no launcher contract on this network, so there is nothing to launch against.
-          Switch your wallet to a network it is on, or run the whole thing in this page and launch
-          there.</span>
-          <span class="lp-blocked-acts">
-            <button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>
-            <a class="btn alt sm" href="docs.html#deploy">Deploy your own</a>
-          </span>`;
+        el.innerHTML = `<b>You would be the first to launch on ${esc(info().name)}.</b>
+          <span>No launcher contract has been opened on this network yet, so your launch opens one
+          first and pairs against it. Two transactions, one after the other, both from your wallet.
+          Everything launched on ${esc(info().name)} after that reads from the same contract.</span>`;
         host.parentNode.insertBefore(el, host);
       }
       if (btn) {
-        btn.disabled = blocked;
-        btn.textContent = blocked ? `Nothing to launch against on ${info().name}` : `Launch on ${info().name}`;
+        btn.disabled = stuck;
+        btn.textContent = stuck ? "No wallet in this browser"
+          : first ? `Open Hydropad on ${info().name}`
+          : `Launch on ${info().name}`;
       }
       if (Chain.demo) {
         rows.push(`<div class="wallet on"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"/></svg></span>
@@ -942,12 +973,18 @@ const PAGES = {
       const btn = $("f-submit");
       try {
         if (!Chain.account) await Chain.connect();
-        if (!Chain.launcher) return toast(`Hydropad is not deployed on ${Chain.chainInfo().name}. Run it in this page, or deploy a launcher from the docs.`);
         const symbol = form.symbol.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
         if (!symbol) return toast("The symbol needs at least one letter.");
         const { supply, firstBuy } = figures();
 
         btn.disabled = true;
+        /* First launch on this network: the launcher goes up in its own
+         * transaction, then the pairing runs against it. */
+        if (!Chain.launcher) {
+          btn.textContent = "Confirm the launcher in your wallet…";
+          const addr = await Chain.deployLauncher();
+          toast(`Launcher opened at ${shortAddr(addr)} on ${info().name}`);
+        }
         btn.textContent = "Confirm in your wallet…";
         const { token } = await Chain.launch({
           name: form.name.value.trim() || symbol,
@@ -959,7 +996,7 @@ const PAGES = {
         await navigate(`token.html?addr=${token}&new=1`);
       } catch (err) {
         btn.disabled = false;
-        btn.textContent = `Launch on ${info().name}`;
+        btn.textContent = Chain.launcher ? `Launch on ${info().name}` : `Open Hydropad on ${info().name}`;
         toast(errText(err));
       }
     }

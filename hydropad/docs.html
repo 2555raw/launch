@@ -103,6 +103,47 @@
     </div>
   </section>
 
+  <section class="section" id="networks">
+    <div class="wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Networks</h3>
+          <span class="label">where the contract lives</span>
+        </div>
+        <div class="works-body">
+          <p>Hydropad runs on <b>Robinhood Chain</b>, the Arbitrum Orbit layer 2 that settles to
+          Ethereum and pays gas in ETH, so the launcher and every token it mints are ordinary EVM
+          contracts there. Deployment on it is permissionless. The pages read whichever network your
+          wallet is on; these two are the ones this build is aimed at.</p>
+          <div class="net-facts">
+            <div>
+              <h4>Robinhood Chain</h4>
+              <dl>
+                <dt>Chain ID</dt><dd class="mono">4663</dd>
+                <dt>RPC</dt><dd class="mono">https://rpc.mainnet.chain.robinhood.com</dd>
+                <dt>Explorer</dt><dd class="mono"><a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener">robinhoodchain.blockscout.com</a></dd>
+                <dt>Gas</dt><dd>ETH</dd>
+              </dl>
+              <button class="btn accent sm" type="button" data-switch="4663">Add it to my wallet</button>
+            </div>
+            <div>
+              <h4>Robinhood Testnet</h4>
+              <dl>
+                <dt>Chain ID</dt><dd class="mono">46630</dd>
+                <dt>RPC</dt><dd class="mono">https://rpc.testnet.chain.robinhood.com/rpc</dd>
+                <dt>Explorer</dt><dd class="mono"><a href="https://explorer.testnet.chain.robinhood.com" target="_blank" rel="noopener">explorer.testnet.chain.robinhood.com</a></dd>
+                <dt>Gas</dt><dd>test ETH</dd>
+              </dl>
+              <button class="btn alt sm" type="button" data-switch="46630">Add it to my wallet</button>
+            </div>
+          </div>
+          <p class="desk-note">Both buttons send <code>wallet_addEthereumChain</code> and then
+          <code>wallet_switchEthereumChain</code>; your wallet decides, this page only asks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="deploy">
     <div class="wrap">
       <div class="panel">
@@ -114,7 +155,9 @@
           <p>Hydropad is not a service and there is no server behind it. The launcher is a contract,
           and on any chain it has not been deployed to there is simply nothing to read. Sending it is
           one transaction; whoever sends it owns nothing except the right to be the address this
-          build talks to, because the contract has no owner and no admin function.</p>
+          build talks to, because the contract has no owner and no admin function. You do not have to
+          come here for it: the first launch on a network without one deploys the launcher as part of
+          the flow.</p>
           <p>Deploy it from the wallet you want it under, or point this build at a launcher that is
           already out there. Either choice is remembered per chain, in this browser only.</p>
           <div class="chain-acts">

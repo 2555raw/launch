@@ -1,10 +1,16 @@
-/* End-to-end: a real browser, a real EVM node, and an injected EIP-1193 wallet
- * that signs with a local key. Exercises deploy → launch → buy → sell → claim. */
+/* End-to-end through a wallet: a real browser, a real EVM node answering as
+ * Robinhood Testnet (46630), and an injected EIP-1193 wallet that signs with a
+ * local key. Walks the path a visitor actually takes on a network nothing has
+ * been deployed to yet: connect → the launch opens the launcher → pair → buy →
+ * sell → claim. Also checks that the network chips really ask the wallet to
+ * switch, rather than telling the visitor to do it themselves. */
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
-const WALLET_SHIM = `
+const CHAIN = Number(process.env.CHAIN_ID || 46630);
+
+const WALLET_SHIM = chainHex => `
 window.__rpc = async (method, params = []) => {
   const r = await fetch('http://127.0.0.1:8545', {
     method: 'POST', headers: { 'content-type': 'application/json' },
@@ -14,9 +20,12 @@ window.__rpc = async (method, params = []) => {
   if (j.error) { const e = new Error(j.error.message); e.code = j.error.code; e.data = j.error.data; throw e; }
   return j.result;
 };
+window.__switches = [];
+window.__added = [];
 window.ethereum = {
   isMetaMask: true,
   _acct: null,
+  _chain: '${chainHex}',
   on() {}, removeListener() {},
   async request({ method, params = [] }) {
     if (method === 'eth_requestAccounts' || method === 'eth_accounts') {
@@ -25,7 +34,23 @@ window.ethereum = {
       this._acct = accts[0];
       return [this._acct];
     }
-    if (method === 'eth_chainId') return '0x7a69';
+    if (method === 'eth_chainId') return this._chain;
+    /* A wallet that has never seen the chain answers 4902, which is what sends
+     * the page down the add-then-switch path. This one has only ever seen the
+     * chain the node is on. */
+    if (method === 'wallet_switchEthereumChain') {
+      const want = params[0].chainId;
+      window.__switches.push(want);
+      if (want !== this._chain && !window.__added.includes(want)) {
+        const e = new Error('Unrecognized chain ID'); e.code = 4902; throw e;
+      }
+      return null;
+    }
+    if (method === 'wallet_addEthereumChain') {
+      window.__added.push(params[0].chainId);
+      window.__addedParams = params[0];
+      return null;
+    }
     if (method === 'eth_sendTransaction') {
       return window.__rpc('eth_sendTransaction', params);
     }
@@ -41,7 +66,7 @@ const log = [];
   const p = await b.newPage({ viewport: { width: 1360, height: 950 } });
   p.on('pageerror', e => log.push('PAGEERROR ' + e.message));
   p.on('console', m => { if (m.type() === 'error' && !/CERT|favicon|fonts/.test(m.text())) log.push('CONSOLE ' + m.text()); });
-  await p.addInitScript(WALLET_SHIM);
+  await p.addInitScript(WALLET_SHIM('0x' + CHAIN.toString(16)));
   // Serve ethers and skip the font CSS from disk, so the run does not depend on
   // reaching a CDN. The page loads the same build in a browser.
   const umd = path.join(__dirname, '..', 'node_modules', 'ethers', 'dist', 'ethers.umd.min.js');
@@ -54,9 +79,11 @@ const log = [];
   const base = 'http://127.0.0.1:8080/';
   const step = async (name, fn) => { process.stdout.write(name + ' … '); await fn(); console.log('ok'); };
 
-  await step('load markets', async () => {
+  await step('the pages read the wallet\'s network', async () => {
     await p.goto(base + 'index.html', { waitUntil: 'networkidle' });
-    await p.waitForSelector('#launcher-banner .note');
+    await p.waitForSelector('#stat-chain');
+    const name = (await p.textContent('#stat-chain')).trim();
+    if (name !== 'Robinhood Testnet') throw new Error('read ' + name + ', not Robinhood Testnet');
   });
 
   await step('connect wallet', async () => {
@@ -64,14 +91,26 @@ const log = [];
     await p.waitForFunction(() => document.querySelector('#connect')?.textContent.startsWith('0x'), null, { timeout: 15000 });
   });
 
-  await step('deploy launcher', async () => {
-    await p.click('#deploy-launcher');
-    await p.waitForFunction(() => /Launcher on/.test(document.querySelector('#launcher-banner')?.textContent || ''), null, { timeout: 60000 });
+  await step('nothing deployed yet, so the launch says it opens one', async () => {
+    await p.goto(base + 'launch.html', { waitUntil: 'networkidle' });
+    await p.waitForSelector('#f-blocked');
+    const said = await p.textContent('#f-blocked');
+    if (!/first to launch on Robinhood Testnet/.test(said)) throw new Error('unexpected notice: ' + said.trim());
+    const label = (await p.textContent('#f-submit')).trim();
+    if (label !== 'Open Hydropad on Robinhood Testnet') throw new Error('button reads ' + label);
   });
-  const launcher = await p.evaluate(() => localStorage.getItem('hydropad.launcher.31337'));
-  console.log('   launcher:', launcher);
 
-  await step('launch a pairing', async () => {
+  await step('the network chips really ask the wallet to switch', async () => {
+    await p.click('[data-chain="4663"]');
+    await p.waitForFunction(() => window.__switches.includes('0x1237'), null, { timeout: 15000 });
+    const added = await p.evaluate(() => window.__addedParams);
+    if (!added || added.chainId !== '0x1237') throw new Error('no add for Robinhood Chain');
+    if (added.rpcUrls[0] !== 'https://rpc.mainnet.chain.robinhood.com') throw new Error('wrong rpc: ' + added.rpcUrls[0]);
+    if (added.nativeCurrency.symbol !== 'ETH') throw new Error('wrong gas token');
+    console.log('   wallet was asked to add', added.chainName, added.chainId, added.rpcUrls[0]);
+  });
+
+  await step('the launch deploys the launcher, then pairs against it', async () => {
     await p.goto(base + 'launch.html', { waitUntil: 'networkidle' });
     await p.fill('#f-name', 'Raw Water');
     await p.fill('#f-symbol', 'h2o');
@@ -81,6 +120,9 @@ const log = [];
     await p.waitForURL(/token\.html\?addr=0x/, { timeout: 60000 });
     await p.waitForSelector('#buy-btn', { timeout: 30000 });
   });
+  const launcher = await p.evaluate(c => localStorage.getItem('hydropad.launcher.' + c), CHAIN);
+  if (!launcher) throw new Error('no launcher remembered for chain ' + CHAIN);
+  console.log('   launcher:', launcher);
   const tokenAddr = new URL(p.url()).searchParams.get('addr');
   console.log('   token:', tokenAddr);
   const capAfterLaunch = await p.textContent('.summary .line b');

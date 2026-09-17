@@ -7,6 +7,11 @@
 
 const CHAINS = {
   1337:     { name: "In-page chain", rpc: "",                                            explorer: "",                               ticker: "ETH", test: true },
+  /* Robinhood Chain is an Arbitrum Orbit L2 that settles to Ethereum and pays
+   * gas in ETH, so the launcher deploys and runs on it unchanged. Contract
+   * deployment there is permissionless: no allowlist to get onto. */
+  4663:     { name: "Robinhood Chain", rpc: "https://rpc.mainnet.chain.robinhood.com",   explorer: "https://robinhoodchain.blockscout.com", ticker: "ETH" },
+  46630:    { name: "Robinhood Testnet", rpc: "https://rpc.testnet.chain.robinhood.com/rpc", explorer: "https://explorer.testnet.chain.robinhood.com", ticker: "ETH", test: true },
   1:        { name: "Ethereum",     rpc: "https://ethereum-rpc.publicnode.com",         explorer: "https://etherscan.io",           ticker: "ETH" },
   8453:     { name: "Base",         rpc: "https://mainnet.base.org",                    explorer: "https://basescan.org",           ticker: "ETH" },
   84532:    { name: "Base Sepolia", rpc: "https://sepolia.base.org",                    explorer: "https://sepolia.basescan.org",   ticker: "ETH", test: true },
@@ -20,8 +25,12 @@ const CHAINS = {
 /* Launchers known to this build. Anyone can deploy their own from the UI; the
  * address they get is remembered per chain in localStorage. */
 const DEPLOYMENTS = {
-  // 84532: "0x…",
+  // 4663:  "0x…",
+  // 46630: "0x…",
 };
+
+/* Where the pages read from when nobody has a wallet connected. */
+const DEFAULT_CHAIN = 46630;
 
 const LAUNCHER_KEY = c => `hydropad.launcher.${c}`;
 
@@ -66,8 +75,8 @@ const Chain = {
       } catch (e) { console.warn("wallet init failed", e); }
     }
     if (!this.provider) {
-      this.chainId = this.chainId || Number(localStorage.getItem("hydropad.chain") || 84532);
-      const cfg = CHAINS[this.chainId] || CHAINS[84532];
+      this.chainId = this.chainId || Number(localStorage.getItem("hydropad.chain") || DEFAULT_CHAIN);
+      const cfg = CHAINS[this.chainId] || CHAINS[DEFAULT_CHAIN];
       this.provider = new ethers.JsonRpcProvider(cfg.rpc, undefined, { staticNetwork: true });
     }
     this.launcher = this.launcherAddress();
@@ -174,6 +183,37 @@ const Chain = {
 
   chainInfo() {
     return CHAINS[this.chainId] || { name: `Chain ${this.chainId}`, explorer: "", ticker: "ETH" };
+  },
+
+  /* Move the wallet onto another network. A wallet that has never seen the
+   * chain answers 4902; then it has to be added before it can be switched to,
+   * which is what EIP-3085 is for. Robinhood Chain is new enough that most
+   * wallets will take this path. */
+  async switchTo(id) {
+    if (this.demo) throw new Error("Leave the in-page chain first.");
+    if (!this.hasWallet()) throw new Error("No wallet in this browser.");
+    const cfg = CHAINS[id];
+    if (!cfg || !cfg.rpc) throw new Error("That network cannot be switched to from here.");
+    const hex = "0x" + Number(id).toString(16);
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
+    } catch (e) {
+      const code = e && (e.code ?? e.data?.originalError?.code);
+      if (code !== 4902 && code !== -32603) throw e;
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          chainId: hex,
+          chainName: cfg.name,
+          nativeCurrency: { name: "Ether", symbol: cfg.ticker, decimals: 18 },
+          rpcUrls: [cfg.rpc],
+          blockExplorerUrls: cfg.explorer ? [cfg.explorer] : undefined,
+        }],
+      });
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
+    }
+    try { localStorage.setItem("hydropad.chain", String(id)); } catch (_) {}
+    return id;
   },
 
   launcherAddress() {

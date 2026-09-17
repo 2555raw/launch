@@ -1714,3 +1714,19 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
    start on the same line. */
 .prose { max-width: 74ch; margin-inline: 0; }
 .page-head .lede { max-width: 74ch; }
+
+/* Networks panel in the docs: the facts a wallet needs, side by side. */
+.net-facts { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 18px 0 14px; }
+.net-facts > div {
+  border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012));
+  box-shadow: var(--e1); transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.net-facts > div:hover { border-color: rgba(88,167,201,.42); box-shadow: var(--e2); }
+.net-facts h4 { font: 600 14px/1.2 var(--display); margin: 0 0 12px; letter-spacing: .01em; }
+.net-facts dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0 0 14px; }
+.net-facts dt { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); align-self: center; }
+.net-facts dd { margin: 0; font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+.net-facts dd.mono, .net-facts .mono { font-family: var(--mono); }
+.net-facts a { color: var(--accent); }
+.net-facts a:hover { color: #9ad6ee; }

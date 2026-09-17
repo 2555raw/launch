@@ -9,13 +9,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&amp;family=Fraunces:opsz,wght@9..144,500..700&amp;family=Public+Sans:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z' fill='%230e7490'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2.5c0 0 10.5 12 10.5 17.8A10.5 10.5 0 0 1 5.5 20.3C5.5 14.5 16 2.5 16 2.5Z' fill='%233f9dc4'/%3E%3Cpath d='M6.2 17.6c3.6 3.4 16 3.4 19.6 0' fill='none' stroke='%23c6a562' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body data-page="markets">
 <div class="shell">
   <aside class="side" id="side">
     <a class="brand" href="index.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z" fill="currentColor"/></svg>
+      <svg class="mark" width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="mk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fd6f2"/><stop offset=".55" stop-color="#3f9dc4"/><stop offset="1" stop-color="#1c6b8e"/></linearGradient><linearGradient id="mk2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e3b4"/><stop offset="1" stop-color="#c6a562"/></linearGradient></defs><path d="M16 2.5c0 0 10.5 12 10.5 17.8A10.5 10.5 0 0 1 5.5 20.3C5.5 14.5 16 2.5 16 2.5Z" fill="url(#mk)"/><path d="M6.2 17.6c3.6 3.4 16 3.4 19.6 0" fill="none" stroke="url(#mk2)" stroke-width="2.6" stroke-linecap="round"/><path d="M13.2 18.9c.5 3.9.5 6.6 0 9.2M16 19.1c.5 4.2.5 7.1 0 9.9M18.8 18.9c.5 3.9.5 6.6 0 9.2" fill="none" stroke="#eaf7fb" stroke-width="1.7" stroke-linecap="round" opacity=".92"/></svg>
       hydropad
     </a>
     <p class="brand-note">Meme coins, paired to water.</p>
@@ -94,93 +94,15 @@
       down and releases it on a schedule, which is why the number everyone watches is a level.</p>
 
       <figure class="cut">
-        <svg viewBox="0 0 960 400" class="cut-svg" role="img" aria-label="Cross section of a dam and its reservoir">
-          <defs>
-            <linearGradient id="cw" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#6ac6dc"/><stop offset="1" stop-color="#0d5a75"/>
-            </linearGradient>
-            <linearGradient id="cconc" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#dde5e8"/><stop offset=".55" stop-color="#f1f5f6"/>
-              <stop offset="1" stop-color="#cdd9dd"/>
-            </linearGradient>
-            <linearGradient id="csky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#eaf6f9"/><stop offset="1" stop-color="#ffffff"/>
-            </linearGradient>
-            <clipPath id="cclip"><rect x="52" y="150" width="458" height="190"/></clipPath>
-          </defs>
-
-          <rect width="960" height="400" fill="url(#csky)"/>
-
-          <!-- 1 the catchment, delivering the basin's rain to one place -->
-          <path d="M-10 78 L120 116 L250 104 L338 142" fill="none" stroke="#0f9d76" stroke-width="2.5"
-                stroke-dasharray="7 7" class="cut-inflow"/>
-          <path d="M330 136 l15 7 -14 9 z" fill="#0f9d76"/>
-
-          <!-- the stored body of water -->
-          <rect x="52" y="168" width="458" height="172" fill="url(#cw)" clip-path="url(#cclip)"/>
-          <rect x="52" y="167" width="458" height="3" fill="#cdeef7" class="cut-surface"/>
-          <rect x="52" y="286" width="458" height="54" fill="#08394b" opacity=".5" clip-path="url(#cclip)"/>
-          <path d="M52 286 L510 286" stroke="#7fb9c9" stroke-width="1.6" stroke-dasharray="6 6" opacity=".8"/>
-
-          <!-- freeboard: the gap the operators keep between the surface and the crest -->
-          <path d="M120 126 L120 166" stroke="#8aa3ac" stroke-width="1.2" stroke-dasharray="4 4"/>
-          <path d="M112 126 L128 126 M112 166 L128 166" stroke="#8aa3ac" stroke-width="1.2"/>
-
-          <!-- the ground it all sits in -->
-          <path d="M0 340 L0 126 L52 126 L52 340 Z" fill="#cbbb9f"/>
-          <path d="M0 340 L620 340 L620 384 L0 384 Z" fill="#b6a486"/>
-          <path d="M0 340 L620 340 L620 352 L0 352 Z" fill="#c2b195"/>
-
-          <!-- the wall, thin at the crest and thick at the toe -->
-          <path d="M510 118 L556 118 L616 340 L510 340 Z" fill="url(#cconc)" stroke="#a9bfc6" stroke-width="1.4"/>
-          <path d="M556 118 L616 340" stroke="#b9cbd1" stroke-width="1.2"/>
-          <path d="M524 150 L556 150 M530 200 L570 200 M537 250 L584 250 M544 300 L598 300"
-                stroke="#c6d5da" stroke-width="1.1"/>
-          <rect x="500" y="106" width="68" height="12" rx="3" fill="#fbfdfd" stroke="#a9bfc6"/>
-
-          <!-- 6 the spillway: a chute down the face, dry until the lake reaches the crest -->
-          <path d="M558 120 L578 120 L628 340 L606 340 Z" fill="#c9d8dd" stroke="#a9bfc6" stroke-width="1.2"/>
-          <path d="M566 122 L616 338" stroke="#9fd8e6" stroke-width="3.5" stroke-dasharray="8 12"
-                class="cut-flow" opacity=".5"/>
-
-          <!-- 4 the intake tower, drawing from whichever gate is still under water -->
-          <rect x="470" y="186" width="24" height="154" fill="#e4ecee" stroke="#c3d2d7"/>
-          <rect x="465" y="176" width="34" height="12" rx="3" fill="#f4f8f8" stroke="#c3d2d7"/>
-          <rect x="474" y="206" width="16" height="7" rx="2" fill="#8fb3bd"/>
-          <rect x="474" y="238" width="16" height="7" rx="2" fill="#8fb3bd"/>
-          <rect x="474" y="270" width="16" height="7" rx="2" fill="#8fb3bd"/>
-
-          <!-- 5 the penstock and the runner it turns -->
-          <path d="M494 262 L566 306" stroke="#d3e0e4" stroke-width="15" fill="none" stroke-linecap="round"/>
-          <path d="M494 262 L566 306" stroke="#59b7cf" stroke-width="5.5" fill="none" stroke-linecap="round"
-                stroke-dasharray="10 12" class="cut-flow"/>
-          <rect x="546" y="286" width="76" height="54" rx="4" fill="#f4f8f9" stroke="#a9bfc6"/>
-          <rect x="546" y="286" width="76" height="9" rx="3" fill="#dde7ea"/>
-          <circle cx="584" cy="316" r="16" fill="#fff" stroke="#9fb9c1"/>
-          <g class="cut-runner"><path d="M584 304 v24 M573 310 l22 12 M573 322 l22-12"
-             stroke="#0e7490" stroke-width="2.6" stroke-linecap="round"/></g>
-
-          <!-- 7 the river the dam still has to feed -->
-          <path d="M628 340 L960 340 L960 384 L628 384 Z" fill="#b6a486"/>
-          <path d="M634 330 L960 330 L960 358 L634 358 Z" fill="#2e8fae"/>
-          <rect x="660" y="338" width="120" height="2.5" rx="1" fill="#cdeaf3" class="cut-drift"/>
-          <rect x="720" y="348" width="90" height="2.5" rx="1" fill="#cdeaf3" class="cut-drift b"/>
-
-          <!-- what the sun takes back off the surface -->
-          <path d="M170 164 q6-15 -2-27 M250 164 q-7-14 2-26 M330 164 q6-15 -3-25 M410 164 q-6-13 2-24"
-                fill="none" stroke="#7fb2c1" stroke-width="2" stroke-linecap="round" class="cut-vapour"/>
-
-          <g class="cut-marks">
-            <g transform="translate(96,88)"><circle r="13"/><text dy="4.5">1</text></g>
-            <g transform="translate(250,196)"><circle r="13"/><text dy="4.5">2</text></g>
-            <g transform="translate(250,312)"><circle r="13"/><text dy="4.5">3</text></g>
-            <g transform="translate(482,160)"><circle r="13"/><text dy="4.5">4</text></g>
-            <g transform="translate(640,300)"><circle r="13"/><text dy="4.5">5</text></g>
-            <g transform="translate(600,150)"><circle r="13"/><text dy="4.5">6</text></g>
-            <g transform="translate(800,318)"><circle r="13"/><text dy="4.5">7</text></g>
-          </g>
-        </svg>
-        <figcaption>Not to scale, and drawn with the lake below its crest: the gap between the surface and the top of the wall is freeboard, kept clear so a flood has somewhere to go.</figcaption>
+        <img class="cut-photo" src="media/source.jpg" alt="An arch dam spilling through three gates"
+             loading="lazy" decoding="async">
+        <span class="mark-pt" style="--x:80%;--y:13%"><i>1</i><b>Live storage</b></span>
+        <span class="mark-pt" style="--x:64%;--y:25%"><i>2</i><b>The crest</b></span>
+        <span class="mark-pt" style="--x:56%;--y:34%"><i>3</i><b>The gates</b></span>
+        <span class="mark-pt" style="--x:44%;--y:63%"><i>4</i><b>The plunge pool</b></span>
+        <span class="mark-pt" style="--x:24%;--y:87%"><i>5</i><b>Stilling basin</b></span>
+        <figcaption>The same machine, on a real wall: the water it is holding, the crest it is held
+        to, the gates passing the surplus, and where that surplus lands.</figcaption>
       </figure>
 
       <ol class="steps">

@@ -201,6 +201,26 @@ function wireMenu() {
   wide.addEventListener("change", e => { if (e.matches) set(false); });
 }
 
+/* Where a reserve is, written so it can be checked. The link opens the place in
+ * satellite view, which is the quickest way for anyone to see whether the
+ * register is telling the truth about it. */
+function coordText(g) {
+  const [lat, lon] = g;
+  return `${Math.abs(lat).toFixed(4)}\u00b0 ${lat >= 0 ? "N" : "S"}, ${Math.abs(lon).toFixed(4)}\u00b0 ${lon >= 0 ? "E" : "W"}`;
+}
+
+function mapLink(g, zoom = "3000m") {
+  return `https://www.google.com/maps/@${g[0]},${g[1]},${zoom}/data=!3m1!1e3`;
+}
+
+function coordTag(w, cls = "coords") {
+  if (!w || !w.g) return "";
+  return `<a class="${cls}" href="${mapLink(w.g)}" target="_blank" rel="noopener"
+    title="Open ${esc(w.n)} in satellite view">${esc(coordText(w.g))}
+    <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2h5.5v5.5M10 2 2 10"
+      fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>`;
+}
+
 /* ---------------- network chrome ---------------- */
 
 function renderNetwork() {
@@ -389,7 +409,8 @@ function sourceRows(list, withAction = true) {
           <span><b>${esc(w.n)}</b><small>${w.t} · ${esc(w.c)}</small></span>
         </div>
       </td>
-      <td class="hide-s"><span class="where"><b>${esc(w.l || "")}</b><small class="mono">${esc(w.v)}</small></span></td>
+      <td class="hide-s"><span class="where"><b>${esc(w.l || "")}</b>${w.g
+        ? coordTag(w) : `<small class="mono">${esc(w.v)}</small>`}</span></td>
       <td class="hide-xs"><span class="pill">${esc(w.a)}</span></td>
       <td class="hide-s">
         <div class="level ${lc}"><div class="bar"><i style="width:0" data-fill="${(fill * 100).toFixed(0)}%"></i></div><span>${level(fill)} full</span></div>
@@ -584,6 +605,7 @@ function renderSites() {
           <div><dt>Spot</dt><dd>${usd(w.p)}<small>${esc(w.u)}</small></dd></div>
           <div><dt>Paired</dt><dd data-paired="${esc(w.t)}">—<small>coins on this reserve</small></dd></div>
         </dl>
+        ${w.g ? `<div class="whereis"><span>Go and look</span>${coordTag(w, "coords big")}</div>` : ""}
         <div class="gauge" style="--w:${(fill * 100).toFixed(0)}%"><i style="width:0" data-fill="${(fill * 100).toFixed(0)}%"></i></div>
         <div class="site-cta">
           <a class="btn sm" href="launch.html?source=${esc(w.t)}">Pair ${esc(w.t)}</a>

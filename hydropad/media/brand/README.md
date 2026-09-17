@@ -18,6 +18,22 @@ The photographs are the project's own supply and are still credit pending —
 settle that before any of these goes out publicly.
 
 
+# The wide banner
+
+`banner.png` at 2000 × 650 for a post and `banner-header.png` at 1500 × 500 for
+the X header, each with a 2x. Built by `scripts/banner.js`: the six reserves
+either side of the headline, coins turning between them, over a sky.
+
+The two sizes are laid out separately rather than one cropped from the other —
+a crop of the wide one loses the cards at both ends.
+
+The sky is one of the register's own photographs, blurred past recognition and
+framed on its top, where it is sky. Lower down that frame has a person standing
+in it, and at this blur a person is still a person.
+
+The coins carry a perspective. Without one `rotate3d` does nothing and they come
+out as flat circles.
+
 # Banners with the cards
 
 `header-cards-<shot>.png`, 1500 × 500 with a 2x, built by

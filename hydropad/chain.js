@@ -50,7 +50,6 @@ const Chain = {
   launcher: null,     // address
   readOnly: true,
   offline: false,     // no node reachable from here
-  demo: false,        // running the EVM inside this page
 
   /* ---------------- wallets ----------------
    *
@@ -118,21 +117,15 @@ const Chain = {
 
   hasWallet() { return typeof window !== "undefined" && this.walletList().length > 0; },
 
-  /* Read-only boot: pick a chain and provider without prompting the wallet. */
+  /* Read-only boot: pick a chain and provider without prompting the wallet.
+   *
+   * There used to be an EVM booted inside the page when there was no wallet.
+   * It made the site look alive with no network and no money, and it is gone:
+   * coins launch through Pons on Robinhood Chain, and a table of coins that
+   * exist only in one browser tab is indistinguishable from a table of coins
+   * that exist, which is worse than an empty table. */
   async init(onProgress) {
-    /* Ask before anything else: wallets answer this synchronously, and every
-     * later question about what is installed reads the answer. */
     this.discoverWallets();
-    if (DemoChain.isOn()) {
-      try {
-        await this.useDemo(onProgress);
-        await this.openDemoWorld(onProgress);
-        return this;
-      } catch (e) {
-        console.warn("demo chain failed to boot", e);
-        DemoChain.disable();
-      }
-    }
     if (this.hasWallet()) {
       try {
         this.useWallet(this.pickWallet());
@@ -157,76 +150,6 @@ const Chain = {
     }
     this.launcher = this.launcherAddress();
     this.offline = !(await this.reachable());
-
-    /* Nothing to talk to: rather than show a dead site, run the chain here,
-     * unless somebody has deliberately switched back to their own wallet. */
-    if ((this.offline || !this.hasWallet()) && !DemoChain.optedOut()) {
-      try {
-        await this.useDemo(onProgress);
-        await this.openDemoWorld(onProgress);
-      } catch (e) {
-        console.warn("could not start the in-page chain", e);
-      }
-    }
-    return this;
-  },
-
-  /* A fresh in-page chain has no launcher and nothing launched. Deploy one and
-   * open the seed pairings, so the tables hold real state from the first load. */
-  async openDemoWorld(onProgress = () => {}) {
-    if (!this.demo) return;
-    if (!this.launcher) {
-      onProgress("Deploying the launcher…");
-      await this.deployLauncher();
-    }
-    /* Top up rather than bail out: a reload part way through the seeding used
-     * to leave the world permanently half open, because any one pairing was
-     * taken as proof that all of them were there. Each seed is paired to a
-     * different source, so that is what is checked. */
-    const existing = await this.pairings(20);
-    const have = new Set(existing.map(p => p.source));
-
-    const open = s => this.launch({
-      name: s.name,
-      symbol: s.symbol,
-      source: s.source,
-      supply: ethers.parseEther(s.supply),
-      firstBuyWei: ethers.parseEther(s.buy),
-    });
-
-    /* Each of these is a real transaction through a real EVM, which takes a
-     * second or two. Only the first is waited on: the page opens with something
-     * in its tables, and the rest arrive behind it, announcing themselves so
-     * whatever is on screen can read the chain again. */
-    const missing = DemoChain.SEEDS.filter(s => !have.has(s.source));
-    if (!missing.length) return;
-    const [first, ...rest] = missing;
-    onProgress(`Opening ${first.symbol}…`);
-    await open(first);
-    this.seeding = (async () => {
-      for (const s of rest) {
-        try {
-          await open(s);
-          window.dispatchEvent(new CustomEvent("hydropad:chain", { detail: { symbol: s.symbol } }));
-        } catch (e) { console.warn("seed failed", s.symbol, e); }
-      }
-      this.seeding = null;
-    })();
-  },
-
-  /* Start (or restart) the in-page EVM and run everything against it. */
-  async useDemo(onProgress) {
-    DemoChain.enable();
-    const injected = await DemoChain.boot(onProgress);
-    const bp = new ethers.BrowserProvider(injected);
-    this.provider = bp;
-    this.signer = await bp.getSigner(DemoChain.accounts[0]);
-    this.account = ethers.getAddress(DemoChain.accounts[0]);
-    this.chainId = DemoChain.CHAIN_ID;
-    this.demo = true;
-    this.offline = false;
-    this.readOnly = false;
-    this.launcher = this.launcherAddress();
     return this;
   },
 
@@ -244,7 +167,6 @@ const Chain = {
 
   /* Prompt the wallet. Returns the connected address. */
   async connect(rdns) {
-    if (this.demo) return this.account;
     if (!this.hasWallet()) throw new Error("No wallet found. Install MetaMask, Phantom, Rabby or another EIP-1193 wallet.");
     this.useWallet(this.pickWallet(rdns));
     const accounts = await this.wallet.request({ method: "eth_requestAccounts" });
@@ -267,7 +189,7 @@ const Chain = {
    * Everywhere else — the testnet, the EVM inside this page — Hydropad's own
    * launcher is what there is. */
   viaPons() {
-    return !this.demo && typeof PONS !== "undefined" && PONS.has(this.chainId);
+    return typeof PONS !== "undefined" && PONS.has(this.chainId);
   },
 
   pons() { return PonsAdapter.bind(this); },
@@ -301,7 +223,6 @@ const Chain = {
    * which is what EIP-3085 is for. Robinhood Chain is new enough that most
    * wallets will take this path. */
   async switchTo(id) {
-    if (this.demo) throw new Error("Leave the in-page chain first.");
     if (!this.hasWallet()) throw new Error("No wallet in this browser.");
     if (!this.wallet) this.useWallet(this.pickWallet());
     const cfg = CHAINS[id];
@@ -370,24 +291,10 @@ const Chain = {
   },
 
   /* Deploy a launcher from the connected wallet. */
-  /* Estimating gas makes the node run the transaction over and over while it
-   * binary searches for a limit. On a real node that is cheap; on the EVM
-   * running inside this page it is the slowest thing the site does, and a
-   * launch that deploys a token inside the call can take minutes. These are
-   * measured ceilings from contracts/test.js, generous enough to cover any
-   * input the forms allow, and they are only used on the in-page chain: a real
-   * wallet still estimates and still shows the user what it will cost. */
-  GAS: { deploy: 4_200_000n, launch: 3_400_000n, buy: 420_000n, sell: 400_000n, approve: 120_000n, claim: 140_000n },
-
-  gas(kind, extra = {}) {
-    if (!this.demo) return extra;
-    return { ...extra, gasLimit: this.GAS[kind] };
-  },
-
   async deployLauncher() {
     const signer = this.requireSigner();
     const factory = new ethers.ContractFactory(HYDROPAD.Hydropad.abi, HYDROPAD.Hydropad.bytecode, signer);
-    const c = await factory.deploy(this.gas("deploy"));
+    const c = await factory.deploy();
     await c.waitForDeployment();
     const addr = await c.getAddress();
     this.rememberLauncher(addr);
@@ -474,7 +381,7 @@ const Chain = {
      * first, the same as anywhere else. */
     if (!this.launcher) await this.deployLauncher();
     const c = this.contract(true);
-    const tx = await c.launch(name, symbol, source, supply, this.gas("launch", { value: firstBuyWei || 0n }));
+    const tx = await c.launch(name, symbol, source, supply, { value: firstBuyWei || 0n });
     const rc = await tx.wait();
     const iface = new ethers.Interface(HYDROPAD.Hydropad.abi);
     for (const log of rc.logs) {
@@ -488,7 +395,7 @@ const Chain = {
 
   async buy(token, ethWei, minTokensOut = 0n) {
     if (await this.routeFor(token) === "pons") return this.pons().buy(token, ethWei, minTokensOut);
-    const tx = await this.contract(true).buy(token, minTokensOut, this.gas("buy", { value: ethWei }));
+    const tx = await this.contract(true).buy(token, minTokensOut, { value: ethWei });
     return tx.wait();
   },
 
@@ -497,10 +404,10 @@ const Chain = {
     const erc = this.token(token, true);
     const allowance = await erc.allowance(this.account, this.launcher);
     if (allowance < amount) {
-      const approve = await erc.approve(this.launcher, ethers.MaxUint256, this.gas("approve"));
+      const approve = await erc.approve(this.launcher, ethers.MaxUint256);
       await approve.wait();
     }
-    const tx = await this.contract(true).sell(token, amount, minEthOut, this.gas("sell"));
+    const tx = await this.contract(true).sell(token, amount, minEthOut);
     return tx.wait();
   },
 
@@ -508,7 +415,7 @@ const Chain = {
     if (await this.routeFor(token) === "pons") {
       throw new Error("Creator fees on Pons are claimed from its own fee escrow, not from here.");
     }
-    const tx = await this.contract(true).claimVault(token, this.gas("claim"));
+    const tx = await this.contract(true).claimVault(token);
     return tx.wait();
   },
 

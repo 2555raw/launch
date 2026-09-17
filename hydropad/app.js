@@ -401,22 +401,6 @@ async function loadSideLaunches() {
   }
 }
 
-/* A table of coins looks the same whether the chain under it is Robinhood or
- * the EVM running in this tab, and the addresses in it are real addresses
- * either way. That is exactly how somebody ends up pasting one into an
- * explorer and finding nothing. Say which it is, next to the table. */
-function renderDemoNote() {
-  const host = $("demo-note");
-  if (!host) return;
-  if (!Chain.demo) { host.innerHTML = ""; return; }
-  host.innerHTML = `<p class="demo-note">
-    <b>These are running on the chain inside this page.</b>
-    Hydropad opened them when you arrived, on a real EVM in your own browser, with real
-    transactions and real addresses — but that chain exists in this tab and nowhere else. None of
-    these coins are on a public network, and no explorer will find them. Connect a wallet on
-    Robinhood Chain to see what has actually been launched there.</p>`;
-}
-
 /* ---------------- network chrome ---------------- */
 
 function renderNetwork() {
@@ -431,14 +415,12 @@ function renderNetwork() {
    * and what this particular state of it means. */
   const hint = Chain.offline
     ? "This browser cannot reach any Ethereum node. Click to run a chain inside this page instead."
-    : Chain.demo
-      ? "A chain is running inside this page, and everything here is executed by it. Click to start over or hand back to your wallet."
       : Chain.ready()
         ? `Hydropad is on ${info.name}, and this page reads and writes there. Click to change network.`
         : `Your wallet is on ${info.name}, and Hydropad is not there yet. Click to move to Robinhood Chain.`;
   /* "not here" named the problem and left it there. When there is a network
    * that does work, the pill carries the way onto it instead. */
-  const stranded = cls === "warn" && !Chain.demo && Chain.hasWallet();
+  const stranded = cls === "warn" && Chain.hasWallet();
   const suffix = cls === "warn" && !stranded ? `<span class="net-off">not here</span>` : "";
   const fix = stranded
     ? `<button class="net-fix" type="button" data-switch="4663" title="Move this wallet to Robinhood Chain, where Hydropad runs">
@@ -453,17 +435,15 @@ function renderNetwork() {
    * in it. */
   const purse = `<svg class="w-glyph" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/><circle cx="17" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg>`;
 
-  const found = Chain.demo ? [] : Chain.walletList();
-  const account = Chain.demo
-    ? `<span class="pill">${purse}${shortAddr(Chain.account)}</span>`
-    : Chain.account
+  const found = Chain.walletList();
+  const account = Chain.account
       ? `<button class="btn alt sm w-btn" type="button" id="connect">${purse}${shortAddr(Chain.account)}</button>`
       : `<button class="btn sm w-btn" type="button" id="connect">${purse}Connect wallet</button>`;
 
   /* One wallet: connect straight to it. Several: ask which, because whichever
    * loaded last owns window.ethereum and that is rarely the one somebody
    * meant. */
-  const picker = (!Chain.demo && !Chain.account && found.length > 1)
+  const picker = (!Chain.account && found.length > 1)
     ? `<div class="wallet-menu" id="wallet-menu" hidden>
         <p class="wm-head">Connect with</p>
         ${found.map(w => `<button class="wm-row" type="button" data-wallet="${esc(w.info.rdns)}">
@@ -479,10 +459,10 @@ function renderNetwork() {
     /* Being on a network Hydropad is not on is a state with an answer, so the
      * line carries the answer rather than only the complaint: one tap moves
      * the wallet, and the dot goes green by itself once it lands. */
-    const stranded = !Chain.demo && !Chain.offline && !Chain.ready() && Chain.hasWallet();
+    const stranded = !Chain.offline && !Chain.ready() && Chain.hasWallet();
     const dot = Chain.offline ? "#e0705f" : Chain.ready() ? "#63c49c" : "#e8a33d";
     side.innerHTML = `<b><span class="dot" style="background:${dot}"></span>${esc(name)}</b>` +
-      (Chain.demo ? "<span>in this browser only, nothing costs anything</span>"
+      (Chain.offline ? "<span>nothing reachable from this browser</span>"
                   : Chain.viaPons() ? "<span>launching through Pons V2</span>"
                   : Chain.launcher ? `<span class="mono">${shortAddr(Chain.launcher)}</span>`
                   : stranded ? `<button class="side-switch" type="button" data-switch="4663">
@@ -572,24 +552,14 @@ function chainMenu() {
   const rows = [];
   const here = esc(Chain.chainInfo().name);
 
-  if (Chain.demo) {
-    rows.push(`<p>An Ethereum node is running <b>inside this page</b>. Everything you see here was
-      executed by it: the same contract, a real EVM, in your browser. Nothing leaves this browser and
-      nothing costs anything.</p>`);
-  } else if (Chain.offline) {
-    rows.push(`<p>This browser cannot reach an Ethereum node, so there is nothing to read from
-      ${here}. Hydropad can run a chain in the page instead: the real contract on a real EVM, with no
-      network and no wallet.</p>`);
-    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>`);
+  if (Chain.offline) {
+    rows.push(`<p>This browser cannot reach a node, so there is nothing to read from ${here}.
+      Check the connection, or open a wallet on Robinhood Chain.</p>`);
   } else if (!Chain.hasWallet()) {
-    rows.push(`<p>There is no wallet in this browser. Hydropad can run a chain in the page instead,
-      with the real contract on a real EVM.</p>`);
-    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>`);
+    rows.push(`<p>There is no wallet in this browser. The register and the docs read fine without
+      one; launching and trading need a wallet on <b>Robinhood Chain</b>.</p>`);
+    rows.push(`<p class="chain-fine">MetaMask, Phantom, Rabby — anything that speaks EIP-1193.</p>`);
   } else if (!Chain.ready()) {
-    /* Somebody's wallet is on a chain Hydropad is not on. Say that, and offer
-     * the thing they can actually do about it. Deploying a launcher is real,
-     * but it is a job for whoever is running the project, not something to put
-     * in front of a visitor with no explanation. */
     rows.push(`<p><b>Hydropad runs on Robinhood Chain.</b> Your wallet is on ${here}, so there is
       nothing here to read and nothing to launch against.</p>`);
     rows.push(`<div class="chain-acts">
@@ -603,13 +573,6 @@ function chainMenu() {
       ? `<a class="mono" href="${link}" target="_blank" rel="noopener">${shortAddr(Chain.launcher)}</a>`
       : `<span class="mono">${shortAddr(Chain.launcher)}</span>`}</div>`);
   }
-
-  const acts = [];
-  if (Chain.demo) {
-    acts.push(`<button class="btn alt sm" type="button" id="reset-demo">Start over</button>`);
-    if (Chain.hasWallet()) acts.push(`<button class="btn alt sm" type="button" id="leave-demo">Use my wallet</button>`);
-  }
-  if (acts.length) rows.push(`<div class="chain-acts">${acts.join("")}</div>`);
   return rows.join("");
 }
 
@@ -637,29 +600,8 @@ function wireChainActions() {
     });
   });
 
-  on("start-demo", async e => {
-    const btn = e.currentTarget;
-    btn.disabled = true;
-    try {
-      await Chain.useDemo(msg => { btn.textContent = msg; });
-      await Chain.openDemoWorld(msg => { btn.textContent = msg; });
-      location.reload();
-    } catch (err) {
-      btn.disabled = false;
-      btn.textContent = "Run a chain in this page";
-      toast(errText(err));
-    }
-  });
 
-  on("reset-demo", () => {
-    DemoChain.reset();
-    location.reload();
-  });
 
-  on("leave-demo", () => {
-    DemoChain.disable();
-    location.reload();
-  });
 
   on("deploy-launcher", async e => {
     const btn = e.currentTarget;
@@ -1228,7 +1170,7 @@ const PAGES = {
         </div>`;
 
       const btn = $("f-submit");
-      if (!btn.disabled) btn.textContent = Chain.launcher || Chain.demo || route.value === "pons"
+      if (!btn.disabled) btn.textContent = Chain.launcher || route.value === "pons"
         ? `Launch on ${info().name}`
         : `Open Hydropad on ${info().name}`;
       if (btn.disabled && !Chain.offline && !Chain.canLaunch()) {
@@ -1255,10 +1197,10 @@ const PAGES = {
        * is knowable without a wallet. On a Pons chain it takes asking the
        * factory, which needs an address to ask about. */
       const viaOwn = !Chain.viaPons() || route.value === "own";
-      const first = !wrongChain && !Chain.demo && !Chain.offline && viaOwn
+      const first = !wrongChain && !Chain.offline && viaOwn
         && Chain.hasWallet() && !Chain.launcher;
-      if (Chain.account && !Chain.demo) resolveRoute();
-      const stuck = !Chain.demo && !Chain.offline && !Chain.hasWallet();
+      if (Chain.account) resolveRoute();
+      const stuck = !Chain.offline && !Chain.hasWallet();
 
       const warn = $("f-blocked");
       if (warn) warn.remove();
@@ -1308,12 +1250,7 @@ const PAGES = {
          * should not offer to. */
         if (route.value === "pons" && !btn.disabled) btn.textContent = `Launch on ${info().name}`;
       }
-      if (Chain.demo) {
-        rows.push(`<div class="wallet on"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"/></svg></span>
-          <span><b>This page's own chain</b><small>A real EVM in the browser, signing with
-          ${shortAddr(Chain.account)}. No wallet needed.</small></span></div>`);
-        note.textContent = "Ready to launch.";
-      } else if (Chain.account) {
+      if (Chain.account) {
         const through = route.value === "pons"
           ? "Launching through Pons V2."
           : route.value === "own" && Chain.viaPons()
@@ -1327,9 +1264,9 @@ const PAGES = {
           <span><b>Browser wallet</b><small>Connect it to sign the launch.</small></span></button>`);
         note.textContent = "Connect a wallet to launch.";
       } else {
-        rows.push(`<button class="wallet" type="button" id="start-demo"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"/></svg></span>
-          <span><b>Run a chain in this page</b><small>No wallet in this browser. Hydropad can run the
-          real contract on a real EVM here instead.</small></span></button>`);
+        rows.push(`<div class="wallet"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><circle cx="17" cy="15" r="1.3" fill="currentColor" stroke="none"/></svg></span>
+          <span><b>No wallet in this browser</b><small>Launching needs one, on Robinhood Chain.
+          MetaMask, Phantom, Rabby — anything that speaks EIP-1193.</small></span></div>`);
         note.textContent = "No wallet found in this browser.";
       }
       host.innerHTML = rows.join("");
@@ -1657,21 +1594,10 @@ async function swap(href, replace) {
 document.addEventListener("DOMContentLoaded", async () => {
   Motion.mount();
   wireMenu();
-  /* Booting an EVM takes a few seconds. Say so out of the way, not in a box
-   * across the top of the page. */
-  let boot = null;
-  if (DemoChain.isOn() || (!Chain.hasWallet() && !DemoChain.optedOut())) {
-    boot = document.createElement("div");
-    boot.className = "booting";
-    boot.innerHTML = `<span class="spin"></span><span id="boot-msg">Starting an Ethereum node in this page…</span>`;
-    document.body.appendChild(boot);
-  }
-  await Chain.init(msg => setText("boot-msg", msg));
-  if (boot) boot.remove();
+  await Chain.init();
   renderNetwork();
   renderSideFeature();
   loadSideLaunches();
-  renderDemoNote();
   renderBanners();
   wireRouter();
   render();
@@ -1690,7 +1616,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (chromeSig() !== chrome) { chrome = chromeSig(); renderNetwork(); }
       render();
       loadSideLaunches();
-      renderDemoNote();
     }, 120);
   });
 });

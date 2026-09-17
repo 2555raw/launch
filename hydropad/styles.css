@@ -1818,7 +1818,13 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
   color: #eafff5;
   box-shadow: inset 0 1px 0 rgba(174, 240, 208, .16), 0 4px 14px -8px rgba(0, 0, 0, .8);
 }
-.net .pill.ok .net-lbl { color: rgba(174, 232, 202, .78); }
+.net .pill.ok .net-lbl {
+  /* It was a muted green word on a green badge. Give it its own weight and a
+     step of separation instead of borrowing the badge's colour. */
+  color: #a9edcb; font-weight: 700; letter-spacing: .12em;
+  padding-right: 8px; margin-right: 1px;
+  border-right: 1px solid rgba(169, 237, 203, .28);
+}
 .net .pill.ok .net-name { color: #f2fff9; font-weight: 500; }
 .net .pill.ok .dot {
   background: #6cf0b6;

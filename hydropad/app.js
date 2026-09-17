@@ -401,6 +401,22 @@ async function loadSideLaunches() {
   }
 }
 
+/* A table of coins looks the same whether the chain under it is Robinhood or
+ * the EVM running in this tab, and the addresses in it are real addresses
+ * either way. That is exactly how somebody ends up pasting one into an
+ * explorer and finding nothing. Say which it is, next to the table. */
+function renderDemoNote() {
+  const host = $("demo-note");
+  if (!host) return;
+  if (!Chain.demo) { host.innerHTML = ""; return; }
+  host.innerHTML = `<p class="demo-note">
+    <b>These are running on the chain inside this page.</b>
+    Hydropad opened them when you arrived, on a real EVM in your own browser, with real
+    transactions and real addresses — but that chain exists in this tab and nowhere else. None of
+    these coins are on a public network, and no explorer will find them. Connect a wallet on
+    Robinhood Chain to see what has actually been launched there.</p>`;
+}
+
 /* ---------------- network chrome ---------------- */
 
 function renderNetwork() {
@@ -1655,6 +1671,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderNetwork();
   renderSideFeature();
   loadSideLaunches();
+  renderDemoNote();
   renderBanners();
   wireRouter();
   render();
@@ -1673,6 +1690,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (chromeSig() !== chrome) { chrome = chromeSig(); renderNetwork(); }
       render();
       loadSideLaunches();
+      renderDemoNote();
     }, 120);
   });
 });

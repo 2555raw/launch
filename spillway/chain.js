@@ -31,6 +31,7 @@ const Chain = {
   chainId: null,
   launcher: null,     // address
   readOnly: true,
+  offline: false,     // no node reachable from here
 
   hasWallet() { return typeof window !== "undefined" && !!window.ethereum; },
 
@@ -58,7 +59,20 @@ const Chain = {
       this.provider = new ethers.JsonRpcProvider(cfg.rpc, undefined, { staticNetwork: true });
     }
     this.launcher = this.launcherAddress();
+    this.offline = !(await this.reachable());
     return this;
+  },
+
+  /* A node is only useful if we can actually reach it: a blocked network, an
+   * offline browser or a sandboxed frame all land here. */
+  async reachable() {
+    try {
+      await Promise.race([
+        this.provider.getBlockNumber(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 8000)),
+      ]);
+      return true;
+    } catch (_) { return false; }
   },
 
   /* Prompt the wallet. Returns the connected address. */

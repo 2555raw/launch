@@ -88,7 +88,9 @@ function renderNetwork() {
   const host = $("network");
   if (!host) return;
   const info = Chain.chainInfo();
-  const net = `<span class="pill ${Chain.launcher ? "ok" : "warn"}"><span class="dot"></span>${esc(info.name)}</span>`;
+  const net = Chain.offline
+    ? `<span class="pill bad"><span class="dot"></span>No node</span>`
+    : `<span class="pill ${Chain.launcher ? "ok" : "warn"}"><span class="dot"></span>${esc(info.name)}</span>`;
   if (Chain.account) {
     host.innerHTML = `${net}<button class="btn alt sm" type="button" id="connect">${shortAddr(Chain.account)}</button>`;
   } else {
@@ -116,6 +118,14 @@ function renderNetwork() {
 function renderLauncherBanner() {
   const host = $("launcher-banner");
   if (!host) return;
+  if (Chain.offline) {
+    host.innerHTML = `<div class="note strip">
+      <span>No Ethereum node is reachable from this browser, so nothing on chain can be read or
+      written here. Open Spillway over the network — or run <code>npm run serve</code> — with a wallet
+      installed.</span>
+    </div>`;
+    return;
+  }
   if (Chain.launcher) {
     const link = Chain.explorerLink("address", Chain.launcher);
     host.innerHTML = `<div class="note strip">
@@ -239,6 +249,11 @@ const PAGES = {
 
     const host = $("recent");
     if (!host) return;
+    if (Chain.offline) {
+      host.innerHTML = emptyRow(8, "No node reachable from this browser.");
+      setText("stat-launches", "—");
+      return;
+    }
     if (!Chain.launcher) {
       host.innerHTML = emptyRow(8, "No launcher on this network yet — deploy one above to open the first pairing.");
       setText("stat-launches", "0");
@@ -253,12 +268,16 @@ const PAGES = {
 
   launches() {
     const host = $("launch-rows");
+    renderTape();
+    if (Chain.offline) {
+      host.innerHTML = emptyRow(8, "No node reachable from this browser.");
+      return;
+    }
     if (!Chain.launcher) {
       host.innerHTML = emptyRow(8, "No launcher on this network yet — deploy one above to open the first pairing.");
       return;
     }
     host.innerHTML = emptyRow(8, "Reading the chain…");
-    renderTape();
     launchRows(100).then(({ list, html }) => {
       host.innerHTML = html || emptyRow(8, `Nothing launched on ${esc(Chain.chainInfo().name)} yet. <a href="launch.html" style="color:var(--accent)">Pair a source</a>.`);
       setText("launch-count", `${list.length} ${list.length === 1 ? "launch" : "launches"}`);
@@ -365,6 +384,10 @@ const PAGES = {
     const host = $("token-view");
     if (!addr || !ethers.isAddress(addr)) {
       host.innerHTML = `<p class="empty">No token address in the link. <a href="launches.html" style="color:var(--accent)">See the launches</a>.</p>`;
+      return;
+    }
+    if (Chain.offline) {
+      host.innerHTML = `<p class="empty">No node reachable from this browser, so this token cannot be read.</p>`;
       return;
     }
     if (!Chain.launcher) {

@@ -22,19 +22,22 @@ const Motion = {
       scene.setAttribute("aria-hidden", "true");
       scene.innerHTML = `
         <div class="scene-layer far"></div>
+        <div class="scene-layer clouds"></div>
         <div class="scene-layer mid"></div>
-        <div class="scene-layer shimmer"></div>
+        <canvas class="scene-live"></canvas>
         <div class="scene-layer near"></div>
         <div class="scene-veil"></div>`;
       document.body.prepend(scene);
     }
     this.layers = [
       [document.querySelector(".scene-layer.far"), 0.08],
+      [document.querySelector(".scene-layer.clouds"), 0.05],
       [document.querySelector(".scene-layer.mid"), 0.18],
-      [document.querySelector(".scene-layer.shimmer"), 0.18],
+      [document.querySelector(".scene-live"), 0.18],
       [document.querySelector(".scene-layer.near"), 0.32],
     ];
     this.veil = document.querySelector(".scene-veil");
+    if (!this.reduced) Scene.mount(document.querySelector(".scene-live"));
 
     this.onScroll();
     let ticking = false;

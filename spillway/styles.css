@@ -55,18 +55,16 @@ body {
 .scene-layer.far  { background-image: url("scene-far.svg"); }
 .scene-layer.mid  { background-image: url("scene-mid.svg"); }
 .scene-layer.near { background-image: url("scene-near.svg"); }
+.scene-layer.clouds {
+  background-image: url("scene-clouds.svg");
+  background-repeat: repeat-x;
+  background-size: 200% auto;
+  animation: sail 240s linear infinite;
+}
+@keyframes sail { from { background-position-x: 0; } to { background-position-x: -200%; } }
 
-/* light moving across the water */
-.scene-layer.shimmer {
-  background: linear-gradient(104deg,
-    transparent 28%, rgba(255, 255, 255, .16) 42%, rgba(255, 255, 255, .05) 52%, transparent 66%);
-  mix-blend-mode: screen;
-  animation: sheen 19s ease-in-out infinite alternate;
-}
-@keyframes sheen {
-  from { transform: translate3d(-6%, 0, 0); opacity: .55; }
-  to   { transform: translate3d(6%, 0, 0); opacity: .95; }
-}
+/* sunlight, swell and mist, painted live */
+.scene-live { position: absolute; inset: 0; width: 100%; height: 100%; will-change: transform; }
 
 .scene-veil {
   position: absolute; inset: 0; opacity: 0;
@@ -76,15 +74,15 @@ body {
 
 /* below the scene the page keeps its own ground, whatever the scroll position */
 .scene::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 46%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(248, 249, 254, .92) 58%, var(--bg) 100%);
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(248, 249, 254, .88) 62%, var(--bg) 100%);
 }
 
 /* The hero reads over the water, so it carries its own light behind it. */
 .hero-in::before {
   content: "";
   position: absolute; inset: -6% -8% -10% -12%;
-  background: radial-gradient(64% 72% at 20% 46%, rgba(255, 255, 255, .95) 0%, rgba(255, 255, 255, .72) 42%, transparent 76%);
+  background: radial-gradient(56% 62% at 18% 44%, rgba(255, 255, 255, .72) 0%, rgba(255, 255, 255, .34) 46%, transparent 72%);
   z-index: -1; pointer-events: none;
 }
 
@@ -188,9 +186,9 @@ body.scrolled .logo, body.scrolled .nav-links, body.scrolled .nav-cta {
 .hero { position: relative; }
 .hero-in { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; padding: 84px 0 56px; align-items: center; }
 .hero-in.solo { grid-template-columns: minmax(0, 760px); padding: 40px 0 72px; }
-h1 { font-size: clamp(38px, 5.4vw, 64px); }
+h1 { font-size: clamp(38px, 5.4vw, 64px); text-shadow: 0 1px 0 rgba(255, 255, 255, .55), 0 2px 18px rgba(255, 255, 255, .5); }
 h1 .accent { color: var(--accent); }
-.hero .lede { margin-top: 22px; }
+.hero .lede { margin-top: 22px; text-shadow: 0 1px 0 rgba(255, 255, 255, .6); }
 .hero-cta { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
 
 .hero-figure { position: relative; height: 340px; }

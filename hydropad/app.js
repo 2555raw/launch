@@ -809,7 +809,7 @@ const PAGES = {
       /* The networks this build knows how to read. The one in use is the one
        * the page actually booted on: picking another tells you how to get
        * there, it cannot move your wallet for you. */
-      $("f-chains").innerHTML = [46630, 4663, 1337].map(id => {
+      $("f-chains").innerHTML = [4663, 46630, 1337].map(id => {
         const c = CHAINS[id];
         const on = Chain.chainId === id;
         return `<button class="chip${on ? " on" : ""}" type="button" data-chain="${id}" aria-pressed="${on}">

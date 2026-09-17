@@ -29,8 +29,9 @@ const DEPLOYMENTS = {
   // 46630: "0x…",
 };
 
-/* Where the pages read from when nobody has a wallet connected. */
-const DEFAULT_CHAIN = 46630;
+/* Where the pages read from when nobody has a wallet connected: the network
+ * coins are actually launched on. */
+const DEFAULT_CHAIN = 4663;
 
 /* Launching is Robinhood Chain only. Reading works on any network your wallet
  * is on — if somebody put a launcher there, the tables will show it — but this

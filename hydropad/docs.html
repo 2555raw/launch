@@ -164,6 +164,12 @@
             <button class="btn accent sm" type="button" id="deploy-launcher">Deploy a launcher</button>
             <button class="btn alt sm" type="button" id="set-launcher">Use an address I have</button>
           </div>
+          <p>From a checkout, <code>PRIVATE_KEY=0x… npm run deploy -- --network robinhood</code>
+          does the same thing without a browser: it checks the node really is the chain you named,
+          shows the gas before it sends anything, reads the contract back off the chain afterwards,
+          and with <code>--write</code> puts the address into the build so every visitor on that
+          network reads the same launcher. The key is read from the environment and never written
+          anywhere.</p>
           <p class="desk-note">The address you deploy or enter is remembered per chain, in this
           browser, and you can hand it to someone by adding <code>?launcher=0x…</code> to any link
           here. The source is <code>contracts/Hydropad.sol</code> and the suite that has to pass

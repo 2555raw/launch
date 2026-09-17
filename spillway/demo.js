@@ -4,7 +4,7 @@
  * browser (Ganache's web build) and deploy the same compiled bytecode to it.
  * Nothing is faked: the launcher executes, the curve is the contract's, and the
  * numbers come from state transitions the EVM actually performed. Nothing leaves
- * the browser either — there is no node to leave to.
+ * the browser either: there is no node to leave to.
  *
  * Each page load starts a fresh EVM, so every transaction sent here is journalled
  * in localStorage and replayed on boot. Accounts are deterministic, so replaying
@@ -15,6 +15,7 @@
 const DemoChain = {
   JOURNAL: "spillway.demo.journal",
   FLAG: "spillway.demo.on",
+  OPTED_OUT: "spillway.demo.off",
   CHAIN_ID: 1337,
   MAX_TXS: 200,
 
@@ -26,15 +27,34 @@ const DemoChain = {
     try { return localStorage.getItem(this.FLAG) === "1"; } catch (_) { return false; }
   },
 
-  enable() { try { localStorage.setItem(this.FLAG, "1"); } catch (_) {} },
+  /* Somebody who switched back to their wallet is not asked again. */
+  optedOut() {
+    try { return localStorage.getItem(this.OPTED_OUT) === "1"; } catch (_) { return false; }
+  },
+
+  enable() {
+    try {
+      localStorage.setItem(this.FLAG, "1");
+      localStorage.removeItem(this.OPTED_OUT);
+    } catch (_) {}
+  },
 
   disable() {
     try {
+      localStorage.setItem(this.OPTED_OUT, "1");
       localStorage.removeItem(this.FLAG);
       localStorage.removeItem(this.JOURNAL);
       localStorage.removeItem(`spillway.launcher.${this.CHAIN_ID}`);
     } catch (_) {}
   },
+
+  /* Pairings opened on a fresh in-page chain, so the tables have something real
+   * in them. They are ordinary launches: the same contract call anyone makes. */
+  SEEDS: [
+    { name: "Dead Pool",    symbol: "POOL", source: "MEAD", supply: "1000000000", buy: "0.6" },
+    { name: "Fossil Water", symbol: "NUBI", source: "NSAS", supply: "500000000",  buy: "0.25" },
+    { name: "Blue Ice",     symbol: "BLUE", source: "PTG",  supply: "888000000",  buy: "0.12" },
+  ],
 
   reset() {
     try {

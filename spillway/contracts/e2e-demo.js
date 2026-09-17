@@ -25,14 +25,15 @@ const log = [];
   const base = 'http://127.0.0.1:8080/';
   const step = async (name, fn) => { process.stdout.write(name + ' … '); await fn(); console.log('ok'); };
 
-  await step('offer the in-page chain when there is nothing to connect to', async () => {
+  await step('boot the EVM by itself when there is nothing to connect to', async () => {
     await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded' });
-    await p.waitForSelector('#start-demo', { timeout: 30000 });
+    await p.waitForSelector('#reset-demo', { timeout: 240000 });
   });
 
-  await step('boot the EVM and deploy the launcher', async () => {
-    await p.click('#start-demo');
-    await p.waitForSelector('#reset-demo', { timeout: 180000 });
+  await step('the seed pairings are on chain', async () => {
+    await p.waitForSelector('#recent tr .asset', { timeout: 120000 });
+    const rows = await p.locator('#recent tr').count();
+    if (rows !== 3) throw new Error('expected 3 seeded pairings, got ' + rows);
   });
   console.log('   launcher:', await p.evaluate(() => localStorage.getItem('spillway.launcher.1337')));
 
@@ -63,7 +64,7 @@ const log = [];
     await p.goto(base + 'launches.html', { waitUntil: 'domcontentloaded' });
     await p.waitForSelector('#launch-rows tr .asset', { timeout: 180000 });
     const rows = await p.locator('#launch-rows tr').count();
-    if (rows !== 1) throw new Error('expected 1 row after replay, got ' + rows);
+    if (rows !== 4) throw new Error('expected 4 rows after replay, got ' + rows);
   });
 
   await step('the token page reads the same state back', async () => {
@@ -74,9 +75,15 @@ const log = [];
   });
   await p.screenshot({ path: 'e2e-demo-token.png' });
 
-  await step('reset wipes the chain', async () => {
-    await p.click('#reset-demo');
-    await p.waitForSelector('#deploy-launcher', { timeout: 180000 });
+  await step('reset wipes the chain back to the seeds', async () => {
+    await p.click('#reset-demo');                       // reloads wherever we are
+    await p.waitForSelector('#reset-demo', { timeout: 240000 });
+    await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForSelector('#recent tr .asset', { timeout: 240000 });
+    const rows = await p.locator('#recent tr').count();
+    if (rows !== 3) throw new Error('expected the 3 seeds after a reset, got ' + rows);
+    const journal = await p.evaluate(() => JSON.parse(localStorage.getItem('spillway.demo.journal') || '[]').length);
+    if (journal !== 4) throw new Error('expected a 4 transaction journal after a reset, got ' + journal);
   });
 
   console.log('\nerrors:', log.length ? log : 'none');

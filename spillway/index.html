@@ -31,11 +31,11 @@
 <div class="wrap" id="launcher-banner"></div>
 <main>
   <section class="hero">
-    <div class="wrap hero-in">
+    <div class="wrap hero-in solo">
       <div>
         <p class="eyebrow">Spillway · water pairings</p>
         <h1>Every token,<br>measured against<br><span class="accent">something that runs out.</span></h1>
-        <p class="lede">Launch an ERC-20 bound to a single water source — a reservoir, an aquifer, a
+        <p class="lede">Launch an ERC-20 bound to a single water source: a reservoir, an aquifer, a
         glacier, a desalination plant. The source is written into the token. Trading runs on a bonding
         curve in the launcher contract, and the fee on every trade accrues to a vault only you can
         withdraw.</p>
@@ -44,31 +44,14 @@
           <a class="btn alt" href="docs.html">How it works</a>
         </div>
       </div>
-      <div class="hero-figure">
-        <svg viewBox="0 0 420 330" aria-hidden="true">
-          <defs>
-            <linearGradient id="w1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d63ff"/><stop offset="1" stop-color="#4f46e5"/></linearGradient>
-            <linearGradient id="w2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ecfe0"/><stop offset="1" stop-color="#0e9f9f"/></linearGradient>
-          </defs>
-          <path d="M40 30 h60 v150 q0 40 -30 60 h-30 Z" fill="#eceaff" stroke="#4f46e5" stroke-opacity=".35"/>
-          <path d="M100 30 h230 v26 H100 Z" fill="#4f46e5" opacity=".1"/>
-          <path d="M100 56 q80 10 150 -6 t80 4 v122 q-60 -18 -140 2 t-90 -4 Z" fill="url(#w2)" opacity=".55"/>
-          <path d="M100 180 q60 -14 120 2 t110 -6 v18 q-70 22 -140 2 t-90 8 Z" fill="url(#w1)" opacity=".5"/>
-          <path d="M100 186 q30 34 66 56 t80 40" fill="none" stroke="url(#w1)" stroke-width="26" stroke-linecap="round" opacity=".85"/>
-          <path d="M100 186 q30 34 66 56 t80 40" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".35"/>
-          <circle cx="252" cy="286" r="7" fill="#4f46e5" opacity=".6"/>
-          <circle cx="276" cy="272" r="4" fill="#4f46e5" opacity=".4"/>
-          <circle cx="232" cy="300" r="4" fill="#0e9f9f" opacity=".5"/>
-        </svg>
-      </div>
     </div>
     <div class="wrap">
       <dl class="factbar">
         <div><dt>Sources</dt><dd id="stat-sources">32</dd></div>
         <div><dt>Classes</dt><dd id="stat-classes">4</dd></div>
-        <div><dt>Average fill</dt><dd id="stat-level">—</dd></div>
+        <div><dt>Average fill</dt><dd id="stat-level">...</dd></div>
         <div><dt>Trade fee</dt><dd>3%<small>to the creator's vault</small></dd></div>
-        <div><dt>Network</dt><dd id="stat-chain">—</dd></div>
+        <div><dt>Network</dt><dd id="stat-chain">...</dd></div>
       </dl>
     </div>
   </section>
@@ -80,7 +63,7 @@
       <div class="panel">
         <div class="panel-head">
           <h3>Latest pairings</h3>
-          <span class="label" id="stat-launches">—</span>
+          <span class="label" id="stat-launches">...</span>
         </div>
         <table class="tbl">
           <thead><tr>
@@ -90,7 +73,7 @@
           <tbody id="recent"></tbody>
         </table>
         <div class="panel-foot">
-          <span>Read from the launcher contract on the network your wallet is on.</span>
+          <span id="recent-foot">Read from the launcher contract.</span>
           <a href="launches.html">All launches →</a>
         </div>
       </div>
@@ -140,14 +123,14 @@
           later buyer pays more. Sells go back through the same curve.</p></article>
         <article class="card"><span class="n">04</span><h3>Keep the fee</h3>
           <p>3% of every trade accrues to that token's vault. Only the creator can withdraw it, and only
-          that vault — never anyone's position.</p></article>
+          that vault, never anyone's position.</p></article>
       </div>
     </div>
   </section>
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Spillway — an open launcher contract. No custody, no admin key: the code is in <code>contracts/Spillway.sol</code>.</span>
+    <span>Spillway is an open launcher contract. No custody, no admin key: the code is in <code>contracts/Spillway.sol</code>.</span>
     <nav>
       <a href="index.html">Markets</a>
       <a href="launches.html">Launches</a>

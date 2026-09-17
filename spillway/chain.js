@@ -42,6 +42,7 @@ const Chain = {
     if (DemoChain.isOn()) {
       try {
         await this.useDemo(onProgress);
+        await this.openDemoWorld(onProgress);
         return this;
       } catch (e) {
         console.warn("demo chain failed to boot", e);
@@ -71,7 +72,40 @@ const Chain = {
     }
     this.launcher = this.launcherAddress();
     this.offline = !(await this.reachable());
+
+    /* Nothing to talk to: rather than show a dead site, run the chain here,
+     * unless somebody has deliberately switched back to their own wallet. */
+    if ((this.offline || !this.hasWallet()) && !DemoChain.optedOut()) {
+      try {
+        await this.useDemo(onProgress);
+        await this.openDemoWorld(onProgress);
+      } catch (e) {
+        console.warn("could not start the in-page chain", e);
+      }
+    }
     return this;
+  },
+
+  /* A fresh in-page chain has no launcher and nothing launched. Deploy one and
+   * open the seed pairings, so the tables hold real state from the first load. */
+  async openDemoWorld(onProgress = () => {}) {
+    if (!this.demo) return;
+    if (!this.launcher) {
+      onProgress("Deploying the launcher…");
+      await this.deployLauncher();
+    }
+    const existing = await this.pairings(5);
+    if (existing.length) return;
+    for (const s of DemoChain.SEEDS) {
+      onProgress(`Opening ${s.symbol}…`);
+      await this.launch({
+        name: s.name,
+        symbol: s.symbol,
+        source: s.source,
+        supply: ethers.parseEther(s.supply),
+        firstBuyWei: ethers.parseEther(s.buy),
+      });
+    }
   },
 
   /* Start (or restart) the in-page EVM and run everything against it. */

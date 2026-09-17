@@ -1,4 +1,4 @@
-/* Spillway's pages. Everything a token does — minting, the curve, the vault —
+/* Spillway's pages. Everything a token does (minting, the curve, the vault)
  * happens in the launcher contract; chain.js is the only thing that talks to it.
  * The water register in data.js is reference data that labels a pairing, not a
  * price feed: a token's price comes from its curve.
@@ -118,12 +118,12 @@ function renderNetwork() {
 }
 
 /* Two strips above every page: where the chain is, and which launcher we read.
- * The launcher is not a service someone runs for you — if the chain you are on
+ * The launcher is not a service someone runs for you: if the chain you are on
  * has none, you deploy one and the site remembers it. */
 function renderBanners() {
   const host = $("launcher-banner");
   if (!host) return;
-  host.innerHTML = chainStrip() + launcherStrip();
+  host.innerHTML = Chain.demo ? chainStrip() : chainStrip() + launcherStrip();
 
   const on = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
 
@@ -132,8 +132,7 @@ function renderBanners() {
     btn.disabled = true;
     try {
       await Chain.useDemo(msg => { btn.textContent = msg; });
-      btn.textContent = "Deploying the launcher…";
-      if (!Chain.launcher) await Chain.deployLauncher();
+      await Chain.openDemoWorld(msg => { btn.textContent = msg; });
       location.reload();
     } catch (err) {
       btn.disabled = false;
@@ -182,9 +181,10 @@ function chainStrip() {
   if (Chain.demo) {
     return `<div class="note strip">
       <span><b>Running an Ethereum node inside this page.</b> The launcher and every token here are the
-      same compiled bytecode executing on a real EVM in your browser; transactions are journalled
+      same compiled bytecode executing on a real EVM in your browser. Transactions are journalled
       locally and replayed on each load. Nothing leaves this browser${Chain.hasWallet() ? "" : ", and no wallet is needed"}.</span>
-      <span style="display:flex;gap:8px">
+      <span style="display:flex;gap:8px;align-items:center">
+        ${Chain.launcher ? `<span class="mono" style="font-size:12px;color:#5b55a8">launcher ${shortAddr(Chain.launcher)}</span>` : ""}
         <button class="btn alt sm" type="button" id="reset-demo">Reset chain</button>
         ${Chain.hasWallet() ? `<button class="btn alt sm" type="button" id="leave-demo">Use my wallet</button>` : ""}
       </span>
@@ -215,7 +215,7 @@ function launcherStrip() {
     </div>`;
   }
   return `<div class="note strip">
-    <span>No launcher on ${esc(Chain.chainInfo().name)} yet. Deploy one from your wallet — it is a
+    <span>No launcher on ${esc(Chain.chainInfo().name)} yet. Deploy one from your wallet: it is a
     single transaction, and you own it.</span>
     <span style="display:flex;gap:8px">
       <button class="btn accent sm" type="button" id="deploy-launcher">Deploy launcher</button>
@@ -294,17 +294,18 @@ const PAGES = {
     setText("stat-classes", CLASSES.length);
     setText("stat-level", level(avg));
     setText("stat-chain", Chain.chainInfo().name);
+    setText("recent-foot", `Read from the launcher contract on ${Chain.chainInfo().name}.`);
     renderTape();
 
     const host = $("recent");
     if (!host) return;
     if (Chain.offline) {
       host.innerHTML = emptyRow(8, "No node reachable from this browser.");
-      setText("stat-launches", "—");
+      setText("stat-launches", "...");
       return;
     }
     if (!Chain.launcher) {
-      host.innerHTML = emptyRow(8, "No launcher on this network yet — deploy one above to open the first pairing.");
+      host.innerHTML = emptyRow(8, "No launcher on this network yet. Deploy one above to open the first pairing.");
       setText("stat-launches", "0");
       return;
     }
@@ -323,7 +324,7 @@ const PAGES = {
       return;
     }
     if (!Chain.launcher) {
-      host.innerHTML = emptyRow(8, "No launcher on this network yet — deploy one above to open the first pairing.");
+      host.innerHTML = emptyRow(8, "No launcher on this network yet. Deploy one above to open the first pairing.");
       return;
     }
     host.innerHTML = emptyRow(8, "Reading the chain…");
@@ -333,7 +334,7 @@ const PAGES = {
       setText("l-count", list.length);
       setText("l-paired", new Set(list.map(p => p.source)).size);
       setText("l-graduated", list.filter(p => p.graduated).length);
-      setText("l-latest", list.length ? ago(list[0].launchedAt) : "—");
+      setText("l-latest", list.length ? ago(list[0].launchedAt) : "...");
     }).catch(e => { host.innerHTML = emptyRow(8, esc(errText(e))); });
   },
 
@@ -366,7 +367,7 @@ const PAGES = {
     if (form.dataset.wired !== "1") {
       form.dataset.wired = "1";
       form.source.innerHTML = CLASSES.map(c => `<optgroup label="${c}">` +
-        WATER.filter(w => w.c === c).map(w => `<option value="${w.t}">${esc(w.n)} — ${w.t} · ${esc(w.v)}</option>`).join("") +
+        WATER.filter(w => w.c === c).map(w => `<option value="${w.t}">${esc(w.n)}, ${w.t} · ${esc(w.v)}</option>`).join("") +
         `</optgroup>`).join("");
       const pre = qs("source");
       if (pre && byTicker(pre)) form.source.value = pre;
@@ -419,7 +420,7 @@ const PAGES = {
           supply,
           firstBuyWei: firstBuy,
         });
-        location.href = `token.html?addr=${token}&new=1`;
+        await navigate(`token.html?addr=${token}&new=1`);
       } catch (err) {
         btn.disabled = false;
         btn.textContent = "Launch the pairing";
@@ -471,7 +472,7 @@ const PAGES = {
       const cap = (price * meta.totalSupply) / 10n ** 18n;
       const isCreator = Chain.account && Chain.account.toLowerCase() === p.creator.toLowerCase();
       const tokenLink = Chain.explorerLink("address", p.token);
-      document.title = `$${meta.symbol} — Spillway`;
+      document.title = `$${meta.symbol} on Spillway`;
 
       host.innerHTML = `
         <div class="detail-head">
@@ -506,7 +507,7 @@ const PAGES = {
                   <input id="sell-amount" class="mono" type="number" min="0" step="1" value="${balance > 0n ? Number(ethers.formatEther(balance / 2n)).toFixed(0) : 0}">
                 </label>
                 <button class="btn alt" id="sell-btn" type="button">Sell</button>
-                <div class="sub" id="quote">—</div>
+                <div class="sub" id="quote">...</div>
               </div>
               <div class="panel-foot"><span>Your balance</span><span class="mono">${tokens(balance)} $${esc(meta.symbol)}</span></div>
             </div>
@@ -544,7 +545,7 @@ const PAGES = {
             const net = back - (back * CURVE.FEE_BPS) / 10000n;
             text += `${text ? " · " : ""}${tokens(amount)} sells for about ${eth(net)}`;
           }
-          quote.textContent = text || "—";
+          quote.textContent = text || "...";
         } catch (e) { quote.textContent = errText(e); }
       };
       buyInput.addEventListener("input", showQuote);
@@ -600,7 +601,7 @@ function chart(trades) {
     .filter(t => t.tokens > 0n)
     .map(t => Number(ethers.formatEther(t.eth)) / Number(ethers.formatEther(t.tokens)));
   if (pts.length < 2) {
-    return `<p class="empty">${pts.length ? "One trade so far — the chart draws from the second." : "No trades yet. The first buy sets the first point."}</p>`;
+    return `<p class="empty">${pts.length ? "One trade so far. The chart draws from the second." : "No trades yet. The first buy sets the first point."}</p>`;
   }
   const lo = Math.min(...pts), hi = Math.max(...pts), span = hi - lo || lo || 1;
   const xy = i => [(i / (pts.length - 1)) * 760 + 10, 220 - ((pts[i] - lo) / span) * 190];
@@ -626,16 +627,81 @@ function renderTape() {
 
 function setText(id, v) { const el = $(id); if (el) el.textContent = v; }
 
+
+/* ---------------- soft navigation ---------------- */
+
+/* Every page here shares one script and, in the in-page chain, one EVM that
+ * lives in memory. A full page load would throw that EVM away and have to
+ * replay the journal, so internal links swap the page's main content instead of
+ * reloading. A hard refresh still works: it just rebuilds the chain first. */
+const ROUTES = {
+  "index.html": "markets",
+  "launches.html": "launches",
+  "sources.html": "sources",
+  "launch.html": "launch",
+  "token.html": "token",
+  "docs.html": "docs",
+};
+
+function pageFor(pathname) {
+  const file = pathname.split("/").pop() || "index.html";
+  return ROUTES[file];
+}
+
+function wireRouter() {
+  document.addEventListener("click", e => {
+    const a = e.target.closest("a");
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || a.target === "_blank") return;
+    const href = a.getAttribute("href");
+    if (!href || href.startsWith("#") || /^[a-z]+:/i.test(href)) return;
+    const url = new URL(href, location.href);
+    if (url.origin !== location.origin || !pageFor(url.pathname)) return;
+    e.preventDefault();
+    navigate(url.href);
+  });
+  window.addEventListener("popstate", () => swap(location.href, false));
+}
+
+async function navigate(href) {
+  history.pushState({}, "", href);
+  await swap(href, false);
+  window.scrollTo(0, 0);
+}
+
+async function swap(href, replace) {
+  const key = pageFor(new URL(href, location.href).pathname);
+  if (!key) { location.href = href; return; }
+  try {
+    const res = await fetch(href, { credentials: "same-origin" });
+    const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+    const main = doc.querySelector("main");
+    if (!main) { location.href = href; return; }
+    document.querySelector("main").replaceWith(main);
+    document.title = doc.title;
+    document.body.dataset.page = key;
+    window.SPILLWAY_PAGE = key;
+    document.querySelectorAll(".nav-links a").forEach(a => {
+      a.classList.toggle("on", pageFor(new URL(a.getAttribute("href"), location.href).pathname) === key);
+    });
+    renderBanners();
+    const page = PAGES[key];
+    if (page) page();
+  } catch (e) {
+    location.href = href;
+  }
+}
+
 /* ---------------- boot ---------------- */
 
 document.addEventListener("DOMContentLoaded", async () => {
   const banner = $("launcher-banner");
-  if (banner && DemoChain.isOn()) {
-    banner.innerHTML = `<div class="note strip"><span id="boot-msg">Starting the chain in this page…</span></div>`;
+  if (banner && (DemoChain.isOn() || (!Chain.hasWallet() && !DemoChain.optedOut()))) {
+    banner.innerHTML = `<div class="note strip"><span id="boot-msg">Starting an Ethereum node in this page…</span></div>`;
   }
   await Chain.init(msg => setText("boot-msg", msg));
   renderNetwork();
   renderBanners();
+  wireRouter();
   const page = PAGES[document.body.dataset.page || window.SPILLWAY_PAGE];
   if (page) {
     try { page(); } catch (e) { console.error(e); toast(errText(e)); }

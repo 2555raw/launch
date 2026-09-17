@@ -1,7 +1,7 @@
 # Spillway
 
-Launch an ERC-20 paired to a single water source — a reservoir, an aquifer, a
-glacier, a desalination plant — and trade it on a bonding curve that lives in an
+Launch an ERC-20 paired to a single water source: a reservoir, an aquifer, a
+glacier, a desalination plant, and trade it on a bonding curve that lives in an
 open launcher contract. The source ticker is written into the token itself and
 readable on chain as `source()`.
 
@@ -20,9 +20,9 @@ npm run e2e       # browser run: deploy → launch → buy → sell → claim
 
 `contracts/Spillway.sol` holds two contracts:
 
-- **`SpillwayToken`** — a plain ERC-20 that also stores its water source ticker.
+- **`SpillwayToken`**: a plain ERC-20 that also stores its water source ticker.
   The whole supply is minted to the launcher at birth; there is no mint function.
-- **`Spillway`** — the launcher. It creates pairings, runs each curve, and keeps
+- **`Spillway`**: the launcher. It creates pairings, runs each curve, and keeps
   each token's fee vault. It has no owner, no pause and no upgrade path. The only
   privileged call is `claimVault`, which pays a creator their own fees and
   nothing else.
@@ -30,7 +30,7 @@ npm run e2e       # browser run: deploy → launch → buy → sell → claim
 ### The curve
 
 Each pairing is a constant product `k = ethReserve · tokenReserve`. The ETH side
-opens at a virtual 1.2 ETH that nobody deposits and nobody can withdraw — it sets
+opens at a virtual 1.2 ETH that nobody deposits and nobody can withdraw. It sets
 the opening price and no more.
 
 - buy: `tokensOut = tokenReserve − k / (ethReserve + valueAfterFee)`
@@ -43,7 +43,7 @@ take a minimum-out, and the site quotes on chain and submits with 3% of room.
 
 3% of every trade accrues to that pairing's vault. Passing 4.2 ETH raised marks
 the pairing graduated and emits an event; the curve keeps working exactly the
-same afterwards. Nothing is locked or migrated — the contract does not promise
+same afterwards. Nothing is locked or migrated: the contract does not promise
 what it cannot do.
 
 ## Running a launcher
@@ -74,7 +74,7 @@ wallet is present, so the pages work logged out.
 ## The water register
 
 The 32 sources, their venues, assays, units, spot figures and fill levels ship
-with the build as reference data. They label a pairing — the ticker goes on chain
-with the token — but they do not price it: a token's price is its curve and
+with the build as reference data. They label a pairing, and the ticker goes on chain
+with the token, but they do not price it: a token's price is its curve and
 nothing else. Pricing off real hydrology would need an oracle, and the contract
 deliberately has none.

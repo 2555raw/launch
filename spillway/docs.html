@@ -34,14 +34,14 @@
     <p class="eyebrow">Docs</p>
     <h1>How it works</h1>
     <p class="lede">Spillway is one contract and a static front end. There is no server, no database
-    and no admin key — what follows is what the code does.</p>
+    and no admin key. What follows is what the code does.</p>
   </section>
 
   <section class="section" style="padding-top:0">
     <div class="wrap prose">
       <h3>The launcher</h3>
       <p><code>Spillway.sol</code> holds every pairing. <code>launch()</code> deploys a
-      <code>SpillwayToken</code> — a plain ERC-20 that also stores the ticker of its water source —
+      <code>SpillwayToken</code>, a plain ERC-20 that also stores the ticker of its water source,
       mints the whole supply to the launcher, and opens a curve for it. The launcher has no owner, no
       pause, no mint and no upgrade path.</p>
 
@@ -55,7 +55,7 @@
         <li>price at any moment is <code>ethReserve / tokenReserve</code></li>
       </ul>
       <p>So the first buyer pays the opening price and every later buyer pays more, and a seller is
-      paid out of the real ETH the curve has taken in — never out of the virtual reserve, which is why
+      paid out of the real ETH the curve has taken in, never out of the virtual reserve, which is why
       a sell reverts rather than dipping into someone else's position.</p>
 
       <h3>Slippage</h3>
@@ -71,7 +71,7 @@
       <h3>Graduation</h3>
       <p>When a pairing's raised amount passes 4.2 ETH it is marked graduated and the event is emitted.
       It is a milestone, not a switch: the curve keeps working exactly the same afterwards. Nothing is
-      locked, migrated or handed to a pool — the contract does not promise what it cannot do.</p>
+      locked, migrated or handed to a pool. The contract does not promise what it cannot do.</p>
 
       <h3>Deploying a launcher</h3>
       <p>Spillway is not a service. If the network you are on has no launcher, the site offers to deploy
@@ -80,20 +80,20 @@
 
       <h3>The water register</h3>
       <p>The 32 sources, their venues, assays, units, spot figures and fill levels ship with the build as
-      reference data. They label a pairing — the ticker goes on chain with the token — but they do not
+      reference data. They label a pairing, and the ticker goes on chain with the token, but they do not
       price it: a token's price is its curve and nothing else. Wiring a real hydrological feed to a
       price would need an oracle, and the contract deliberately has none.</p>
 
       <h3>Running it</h3>
       <p>The contract is in <code>contracts/Spillway.sol</code>; <code>npm test</code> compiles it and
-      runs the suite against an in-process EVM. The front end is static files — no build step, no
+      runs the suite against an in-process EVM. The front end is static files: no build step, no
       framework, ethers.js from a CDN.</p>
     </div>
   </section>
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>Spillway — an open launcher contract. No custody, no admin key: the code is in <code>contracts/Spillway.sol</code>.</span>
+    <span>Spillway is an open launcher contract. No custody, no admin key: the code is in <code>contracts/Spillway.sol</code>.</span>
     <nav>
       <a href="index.html">Markets</a>
       <a href="launches.html">Launches</a>

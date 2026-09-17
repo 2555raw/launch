@@ -641,7 +641,7 @@ function renderSites() {
   setText("sites-note", shown === total
     ? `Six of the ${WATER.length} entries in the register, each one a place you can go and look at. Every one of these carries a photograph of it.`
     : shown
-      ? `Six of the ${WATER.length} entries in the register, each one a place you can go and look at. ${shown} of the six carry a photograph of that place; the other ${total - shown} are cut from Hydropad's own photography until one arrives.`
+      ? `Six of the ${WATER.length} entries in the register, each one a place you can go and look at. ${shown} of the six carry a photograph of that place; the ${total - shown === 1 ? "one that does not is cut" : `other ${total - shown} are cut`} from Hydropad's own photography until one arrives.`
       : `Six of the ${WATER.length} entries in the register, each one a place you can go and look at. None carries a photograph of it yet: these plates are cut from Hydropad's own photography. Drop one in media/sources and it takes over.`);
 
   return shown;

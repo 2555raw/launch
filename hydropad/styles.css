@@ -1640,3 +1640,48 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 .step h3 { color: var(--ink); font-size: 15.5px; }
 .step p { color: rgba(234, 242, 238, .78); font-size: 13.2px; }
 .step { padding: 20px 20px 22px; }
+
+/* the photograph itself, at full quality, over the top of the tall frame */
+.world-photo {
+  position: absolute; top: 0; left: 50%;
+  width: max(100vw, calc(100svh * 1.7778)); height: auto; max-width: none;
+  transform: translate3d(-50%, 0, 0);
+  will-change: transform, opacity;
+  transition: opacity .25s linear;
+}
+
+/* one chip everywhere: the launcher's networks and the register's classes */
+.chips .chip {
+  position: relative; overflow: hidden; z-index: 0;
+  background: rgba(8, 18, 16, .55);
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+  font: 600 13px/1 var(--sans); letter-spacing: -.01em; padding: 9px 15px;
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease), box-shadow var(--t) var(--ease);
+}
+.chips .chip::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg, #67b6d6, #3f8cad);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .42s var(--ease-out);
+}
+.chips .chip:hover { color: var(--ink); border-color: var(--accent); transform: translateY(-1px); }
+.chips .chip:active { transform: translateY(0) scale(.97); }
+.chips .chip .dot { background: var(--ink-3); }
+.chips .chip small { color: var(--ink-3); }
+.chips .chip.on {
+  color: #04181f; border-color: transparent; background: transparent; box-shadow: var(--glow);
+}
+.chips .chip.on::before { transform: scaleX(1); }
+.chips .chip.on .dot { background: #04181f; }
+.chips .chip.on small { color: rgba(4, 24, 31, .68); }
+
+/* The disclaimer is information, not an alarm: it reads in the water blue the
+   rest of the site uses, not in amber. */
+.disclaimer {
+  border-color: rgba(88, 167, 201, .32); border-left-color: var(--accent);
+  background: linear-gradient(180deg, rgba(88, 167, 201, .07), rgba(10, 21, 19, .6));
+}
+.disclaimer h4 { color: var(--accent); }
+.hero-note { border-left-color: rgba(88, 167, 201, .8); }

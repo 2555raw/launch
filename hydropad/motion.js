@@ -36,7 +36,15 @@ const Motion = {
       const el = document.createElement("div");
       el.className = "world";
       el.setAttribute("aria-hidden", "true");
+      /* Two layers, aligned. The tall frame carries the whole descent and is
+       * encoded for its size; the photograph itself is laid back over the top
+       * of it at full quality, because that is the part anyone actually looks
+       * at closely. Both are anchored to the top of the frame and scaled to the
+       * same width, so they sit on each other exactly. */
       el.innerHTML = `<img class="world-img" src="${WORLD.blur}" alt="" decoding="async">
+        <img class="world-photo" alt="" decoding="async" fetchpriority="high"
+             src="media/source.jpg"
+             srcset="media/source.jpg 1600w, media/source@2x.jpg 3200w" sizes="100vw">
         <div class="world-scrim"></div>`;
       document.body.prepend(el);
 
@@ -50,6 +58,7 @@ const Motion = {
       full.addEventListener("load", () => { img.src = full.src; img.classList.add("sharp"); });
     }
     this.worldImg = document.querySelector(".world-img");
+    this.worldPhoto = document.querySelector(".world-photo");
     this.worldScrim = document.querySelector(".world-scrim");
     document.body.classList.add("has-world");
     this.onScroll();
@@ -58,7 +67,7 @@ const Motion = {
   teardown() {
     const el = document.querySelector(".world");
     if (el) el.remove();
-    this.worldImg = this.worldScrim = null;
+    this.worldImg = this.worldPhoto = this.worldScrim = null;
     document.body.classList.remove("has-world");
   },
 
@@ -74,7 +83,13 @@ const Motion = {
     const p = Math.min(1, Math.max(0, y / doc));
     const frameH = this.worldImg.getBoundingClientRect().height || 1;
     const travel = Math.max(0, frameH - window.innerHeight);
-    this.worldImg.style.transform = `translate3d(-50%, ${(-p * travel).toFixed(1)}px, 0)`;
+    const shift = `translate3d(-50%, ${(-p * travel).toFixed(1)}px, 0)`;
+    this.worldImg.style.transform = shift;
+    if (this.worldPhoto) {
+      this.worldPhoto.style.transform = shift;
+      /* once it has gone by there is nothing to composite */
+      this.worldPhoto.style.opacity = p * travel > this.worldPhoto.getBoundingClientRect().height + 200 ? "0" : "1";
+    }
 
     /* It gets darker on the way down the valley, which keeps type readable and
      * makes the descent read as one movement. */

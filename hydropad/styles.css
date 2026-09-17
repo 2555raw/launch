@@ -1394,6 +1394,11 @@ body { padding-top: 0; }
 }
 .last-ca .ca-out:hover { color: var(--accent); }
 
+/* When a field stops being yours to fill in, it says whose it is. */
+#f-supply[readonly] { opacity: .78; cursor: default; }
+#f-supply-note { display: block; margin-top: 3px; color: var(--accent); font-weight: 600; }
+#f-supply-note:empty { display: none; }
+
 /* Left for a screen reader, taken off the page for everyone else. */
 .sr {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

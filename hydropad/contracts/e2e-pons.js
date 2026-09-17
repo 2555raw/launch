@@ -115,6 +115,17 @@ function compile() {
       null, { timeout: 20000 });
   });
 
+  await step('supply is Pons\' to set, and the form says so', async () => {
+    /* The box used to take a number that was then thrown away: on this route
+     * the launch config mints a fixed amount and the form is not consulted. */
+    await p.waitForFunction(() => {
+      const el = document.querySelector('#f-supply');
+      return el && el.readOnly && Number(el.value) === 800000000;
+    }, null, { timeout: 20000 });
+    const note = (await p.textContent('#f-supply-note')).trim();
+    if (!/Pons/.test(note)) throw new Error('the field does not say whose it is: ' + note);
+  });
+
   await step('the launch goes through Pons and pays the fee exactly', async () => {
     const before = await provider.getBalance(at);
     await p.fill('#f-name', 'Dead Pool');

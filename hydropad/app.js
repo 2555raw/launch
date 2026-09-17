@@ -1304,6 +1304,31 @@ const PAGES = {
           Everything launched on ${esc(info().name)} after that reads from the same contract.</span>`;
         host.parentNode.insertBefore(el, host);
       }
+      /* Supply is ours to choose on our own launcher and Pons' to choose on
+       * Pons: its launch config mints a fixed amount straight into the curve
+       * and the number in this box is not consulted. Leaving it editable said
+       * otherwise, so on that route it shows what Pons will actually mint and
+       * stops taking input. */
+      const supply = $("f-supply");
+      const supplyNote = $("f-supply-note");
+      if (supply) {
+        if (route.value === "pons") {
+          supply.readOnly = true;
+          supply.dataset.pons = "1";
+          if (supplyNote) supplyNote.textContent = "Set by Pons' launch config.";
+          PONS.terms(Chain.provider, Chain.chainId, Chain.account)
+            .then(t => {
+              if (supply.dataset.pons !== "1") return;
+              supply.value = Math.round(Number(ethers.formatEther(t.config.supply)));
+            })
+            .catch(() => {});
+        } else if (supply.dataset.pons === "1") {
+          supply.readOnly = false;
+          delete supply.dataset.pons;
+          if (supplyNote) supplyNote.textContent = "";
+        }
+      }
+
       /* What the launch itself costs, read off Pons rather than guessed. Our own
        * launcher charges nothing, so on that route it is gas alone. */
       const cost = $("f-cost");

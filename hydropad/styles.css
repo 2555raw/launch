@@ -1350,6 +1350,9 @@ body { padding-top: 0; }
   padding: 5px 8px 5px 6px; border-radius: 999px;
   background: #0d1a18; border: 1px solid var(--line-2);
   font: 500 11.5px/1 var(--mono); letter-spacing: .04em;
+  /* Held at the width and height it has once it is full, so filling it does
+     not shove the header around. */
+  min-width: 180px; min-height: 32px;
   max-width: min(42vw, 340px);
 }
 .last-ca[hidden] { display: none; }

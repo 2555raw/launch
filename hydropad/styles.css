@@ -1727,3 +1727,47 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
   background: rgba(0,0,0,.28); color: var(--ink-2);
   font: 400 12px/1.7 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere;
 }
+
+/* One reserve in the sidebar, where there was nothing. A real photograph of a
+   real place, the level it is at, and where to go and look at it. */
+.side-feature { margin-top: 4px; }
+.sf-card {
+  display: block; border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+  box-shadow: var(--e1); color: inherit;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease),
+              transform var(--t) var(--ease-out);
+}
+.sf-card:hover {
+  border-color: rgba(88,167,201,.45); box-shadow: var(--e2); transform: translateY(-2px);
+}
+.sf-art { display: block; position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #0d1a18; }
+.sf-art img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform var(--t-slow) var(--ease-out);
+}
+.sf-card:hover .sf-art img { transform: scale(1.06); }
+.sf-art::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(5,12,11,0) 45%, rgba(5,12,11,.85));
+}
+.sf-body { display: grid; gap: 6px; padding: 10px 12px 12px; }
+.sf-body b { font: 500 13px/1.25 var(--display); color: var(--ink); }
+.sf-body small { font: 400 10.5px/1.4 var(--mono); color: var(--ink-3); letter-spacing: .04em; }
+.sf-bar { display: block; height: 3px; border-radius: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
+.sf-bar i {
+  display: block; height: 100%; border-radius: 2px; background: var(--accent);
+  transition: width var(--t-slow) var(--ease-out);
+}
+.sf-fig { display: flex; justify-content: space-between; gap: 8px; }
+.sf-fig span:first-child { flex: none; white-space: nowrap; color: var(--ink-2); }
+.sf-fig span:last-child {
+  min-width: 0; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sf-card, .sf-art img, .sf-bar i { transition: none; }
+  .sf-card:hover { transform: none; }
+  .sf-card:hover .sf-art img { transform: none; }
+}
+/* On a short viewport the card is the first thing to go: the nav matters more. */
+@media (max-height: 760px) { .side-feature { display: none; } }

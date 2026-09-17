@@ -242,6 +242,33 @@ function coordTag(w, cls = "coords") {
       fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>`;
 }
 
+/* One reserve, in the space the sidebar was wasting. A photograph of a real
+ * place, its fill, and where it is — the thing behind the ticker, in the one
+ * piece of chrome that is on every page. It changes on each load, so the site
+ * shows more of the register than the front page has room for. */
+function renderSideFeature() {
+  const host = $("side-feature");
+  if (!host) return;
+  const pool = WATER.filter(w => PAIRABLE(w) && PHOTOS[w.t]);
+  if (!pool.length) { host.innerHTML = ""; return; }
+  const w = pool[Math.floor(Math.random() * pool.length)];
+  const fill = BASE_LEVEL[w.t] ?? .5;
+  const pct = Math.round(fill * 100);
+
+  host.innerHTML = `
+    <a class="sf-card" href="sources.html?source=${esc(w.t)}" aria-label="${esc(w.n)} in the register">
+      <span class="sf-art">
+        <img src="${esc(PHOTOS[w.t])}" alt="${esc(w.n)}" loading="lazy" decoding="async">
+      </span>
+      <span class="sf-body">
+        <b>${esc(w.n)}</b>
+        <small>${esc(w.t)} · ${esc(w.c)}</small>
+        <span class="sf-bar"><i style="width:${pct}%"></i></span>
+        <small class="sf-fig"><span>${pct}% full</span><span>${esc(w.l || "")}</span></small>
+      </span>
+    </a>`;
+}
+
 /* ---------------- network chrome ---------------- */
 
 function renderNetwork() {
@@ -1410,6 +1437,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await Chain.init(msg => setText("boot-msg", msg));
   if (boot) boot.remove();
   renderNetwork();
+  renderSideFeature();
   renderBanners();
   wireRouter();
   render();

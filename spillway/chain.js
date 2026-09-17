@@ -96,16 +96,31 @@ const Chain = {
     }
     const existing = await this.pairings(5);
     if (existing.length) return;
-    for (const s of DemoChain.SEEDS) {
-      onProgress(`Opening ${s.symbol}…`);
-      await this.launch({
-        name: s.name,
-        symbol: s.symbol,
-        source: s.source,
-        supply: ethers.parseEther(s.supply),
-        firstBuyWei: ethers.parseEther(s.buy),
-      });
-    }
+
+    const open = s => this.launch({
+      name: s.name,
+      symbol: s.symbol,
+      source: s.source,
+      supply: ethers.parseEther(s.supply),
+      firstBuyWei: ethers.parseEther(s.buy),
+    });
+
+    /* Each of these is a real transaction through a real EVM, which takes a
+     * second or two. Only the first is waited on: the page opens with something
+     * in its tables, and the rest arrive behind it, announcing themselves so
+     * whatever is on screen can read the chain again. */
+    const [first, ...rest] = DemoChain.SEEDS;
+    onProgress(`Opening ${first.symbol}…`);
+    await open(first);
+    this.seeding = (async () => {
+      for (const s of rest) {
+        try {
+          await open(s);
+          window.dispatchEvent(new CustomEvent("spillway:chain", { detail: { symbol: s.symbol } }));
+        } catch (e) { console.warn("seed failed", s.symbol, e); }
+      }
+      this.seeding = null;
+    })();
   },
 
   /* Start (or restart) the in-page EVM and run everything against it. */
@@ -192,10 +207,24 @@ const Chain = {
   },
 
   /* Deploy a launcher from the connected wallet. */
+  /* Estimating gas makes the node run the transaction over and over while it
+   * binary searches for a limit. On a real node that is cheap; on the EVM
+   * running inside this page it is the slowest thing the site does, and a
+   * launch that deploys a token inside the call can take minutes. These are
+   * measured ceilings from contracts/test.js, generous enough to cover any
+   * input the forms allow, and they are only used on the in-page chain: a real
+   * wallet still estimates and still shows the user what it will cost. */
+  GAS: { deploy: 4_200_000n, launch: 3_400_000n, buy: 420_000n, sell: 400_000n, approve: 120_000n, claim: 140_000n },
+
+  gas(kind, extra = {}) {
+    if (!this.demo) return extra;
+    return { ...extra, gasLimit: this.GAS[kind] };
+  },
+
   async deployLauncher() {
     const signer = this.requireSigner();
     const factory = new ethers.ContractFactory(SPILLWAY.Spillway.abi, SPILLWAY.Spillway.bytecode, signer);
-    const c = await factory.deploy();
+    const c = await factory.deploy(this.gas("deploy"));
     await c.waitForDeployment();
     const addr = await c.getAddress();
     this.rememberLauncher(addr);
@@ -252,7 +281,7 @@ const Chain = {
 
   async launch({ name, symbol, source, supply, firstBuyWei }) {
     const c = this.contract(true);
-    const tx = await c.launch(name, symbol, source, supply, { value: firstBuyWei || 0n });
+    const tx = await c.launch(name, symbol, source, supply, this.gas("launch", { value: firstBuyWei || 0n }));
     const rc = await tx.wait();
     const iface = new ethers.Interface(SPILLWAY.Spillway.abi);
     for (const log of rc.logs) {
@@ -265,7 +294,7 @@ const Chain = {
   },
 
   async buy(token, ethWei, minTokensOut = 0n) {
-    const tx = await this.contract(true).buy(token, minTokensOut, { value: ethWei });
+    const tx = await this.contract(true).buy(token, minTokensOut, this.gas("buy", { value: ethWei }));
     return tx.wait();
   },
 
@@ -273,15 +302,15 @@ const Chain = {
     const erc = this.token(token, true);
     const allowance = await erc.allowance(this.account, this.launcher);
     if (allowance < amount) {
-      const approve = await erc.approve(this.launcher, ethers.MaxUint256);
+      const approve = await erc.approve(this.launcher, ethers.MaxUint256, this.gas("approve"));
       await approve.wait();
     }
-    const tx = await this.contract(true).sell(token, amount, minEthOut);
+    const tx = await this.contract(true).sell(token, amount, minEthOut, this.gas("sell"));
     return tx.wait();
   },
 
   async claimVault(token) {
-    const tx = await this.contract(true).claimVault(token);
+    const tx = await this.contract(true).claimVault(token, this.gas("claim"));
     return tx.wait();
   },
 

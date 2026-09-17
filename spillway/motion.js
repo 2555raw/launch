@@ -139,7 +139,7 @@ const Motion = {
 
   /* Sections arrive rather than appear, but only once and only below the fold. */
   watchReveals() {
-    const targets = document.querySelectorAll(".section, .page-head, .hero-in");
+    const targets = document.querySelectorAll(".section, .page-head, .hero-in, .site, .step");
     if (this.reduced || !("IntersectionObserver" in window)) {
       targets.forEach(t => t.classList.add("in"));
       return;

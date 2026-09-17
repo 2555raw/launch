@@ -73,8 +73,17 @@ const CLASS_TINT = { Reservoir: "#0e7490", Aquifer: "#0f9d76", Glacier: "#3b9fd4
 /* A source shows its photograph when one has been added, and the drawn glyph
  * when it has not. The glyph stays behind the image so a file that fails to
  * decode leaves the row looking deliberate rather than broken. */
-function sourceMark(t, size = 22) {
+/* A photograph of the source if one has been dropped in media/sources/, the
+ * drawing built from its own figures otherwise, and the level glyph if even
+ * that is missing. */
+function sourceArt(t) {
   const photo = typeof PHOTOS !== "undefined" ? PHOTOS[t] : null;
+  if (photo) return photo;
+  return typeof PLATES !== "undefined" ? PLATES[t] || null : null;
+}
+
+function sourceMark(t, size = 22) {
+  const photo = sourceArt(t);
   if (!photo) return dropGlyph(t, size);
   const w = byTicker(t);
   return `<img class="photo" src="${esc(photo)}" alt="${esc(w ? w.n : t)}" loading="lazy" decoding="async"
@@ -413,6 +422,52 @@ function countUp(el, to, suffix = "") {
 
 /* ---------------- pages ---------------- */
 
+/* ---------------- the sites, down the front page ---------------- */
+
+function renderSites() {
+  const host = $("sites");
+  if (!host || typeof FEATURED === "undefined") return;
+  host.innerHTML = FEATURED.map(t => {
+    const w = byTicker(t);
+    if (!w) return "";
+    const art = sourceArt(t);
+    const fill = BASE_LEVEL[t] ?? 0.5;
+    const note = (typeof SITE_NOTES !== "undefined" && SITE_NOTES[t]) || "";
+    const shot = art
+      ? `<img src="${esc(art)}" alt="${esc(w.n)}, drawn from its published figures" loading="lazy" decoding="async">`
+      : `<div class="empty">${esc(w.n)}</div>`;
+    return `<article class="site">
+      <figure class="site-shot">
+        ${shot}
+        <span class="tick">${esc(w.t)}</span>
+        <figcaption>${esc(w.c)} · ${esc(w.v)}</figcaption>
+      </figure>
+      <div class="site-text">
+        <p class="eyebrow">${esc(w.c)}</p>
+        <h3>${esc(w.n)}</h3>
+        <p>${esc(note)}</p>
+        <dl class="site-facts">
+          <div><dt>Availability</dt><dd>${level(fill)}<small>of capacity</small></dd></div>
+          <div><dt>Assay</dt><dd>${esc(w.a)}<small>as published</small></dd></div>
+          <div><dt>Spot</dt><dd>${usd(w.p)}<small>${esc(w.u)}</small></dd></div>
+        </dl>
+        <div class="gauge" style="--w:${(fill * 100).toFixed(0)}%"><i style="width:${(fill * 100).toFixed(0)}%"></i></div>
+        <div class="site-cta">
+          <a class="btn sm" href="launch.html?source=${esc(w.t)}">Pair ${esc(w.t)}</a>
+          <a class="btn alt sm" href="sources.html">See the register</a>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+
+  const shown = FEATURED.filter(t => sourceArt(t)).length;
+  const photos = typeof PHOTOS !== "undefined" ? Object.keys(PHOTOS).length : 0;
+  setText("sites-note", photos
+    ? `Six of the 32 entries in the register. ${photos} of them carry a photograph; the rest are drawn from the site's class and its own fill figure.`
+    : `Six of the 32 entries in the register. Each plate is drawn from that site's class and its own fill figure, so a reservoir at ${level(BASE_LEVEL.MEAD ?? 0.3)} looks like one. Drop a photograph in media/sources and it takes the place of the drawing.`);
+  return shown;
+}
+
 const PAGES = {
 
   markets() {
@@ -425,6 +480,7 @@ const PAGES = {
     setText("stat-chain", Chain.chainInfo().name);
     setText("recent-foot", `Read from the launcher contract on ${Chain.chainInfo().name}.`);
     renderTape();
+    renderSites();
 
     const host = $("recent");
     if (!host) return;
@@ -850,8 +906,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderNetwork();
   renderBanners();
   wireRouter();
-  const page = PAGES[document.body.dataset.page || window.SPILLWAY_PAGE];
-  if (page) {
-    try { page(); } catch (e) { console.error(e); toast(errText(e)); }
-  }
+  render();
+
+  /* Pairings that land after the first paint (the in-page chain opens its seeds
+   * behind the page) redraw whatever is on screen. */
+  let pending = null;
+  window.addEventListener("spillway:chain", () => {
+    clearTimeout(pending);
+    pending = setTimeout(render, 120);
+  });
 });
+
+function render() {
+  const page = PAGES[document.body.dataset.page || window.SPILLWAY_PAGE];
+  if (!page) return;
+  try { page(); } catch (e) { console.error(e); toast(errText(e)); }
+}

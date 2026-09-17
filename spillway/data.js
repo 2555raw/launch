@@ -50,3 +50,17 @@ const BASE_LEVEL = {
   CVA: .36, IND: .47, MRB: .69, KRS: .77, GLC: .61, GRN: .88, ALP: .43, HKH: .49,
   PTG: .64, ICE: .57, DSL: .93, RAS: .95, SOR: .91, CRL: .9, TRR: .87, PRT: .84,
 };
+
+/* A line on the featured sites, for the gallery on the front page. Figures are
+ * the published ones; the drawings in media/plates are built from them. */
+const SITE_NOTES = {
+  MEAD: "The Colorado's largest store, held behind Hoover Dam. Two decades of drawdown left a white band of mineral on the canyon walls that marks where the surface used to be.",
+  TGR: "The largest impoundment by installed power. Its level is run to a schedule: low through the flood season, high through the winter so the turbines keep their head.",
+  OGL: "Not a lake but the pore space of the High Plains, saturated over millennia. What is pumped out in a year takes centuries to come back, so the static level only moves one way.",
+  NSAS: "Fossil water under four countries, recharged when the Sahara was green. There is no inflow to speak of, which makes any figure for it a measurement of a stock, not a flow.",
+  GRN: "Ice laid down season by season and read back as a core. Mass balance is the difference between what falls on top and what leaves at the margins.",
+  SOR: "Seawater pushed through membranes at pressure. Availability here is an engineering figure, not a hydrological one: it depends on the plant running, not on the rain.",
+};
+
+/* The order they appear in as you scroll the front page. */
+const FEATURED = ["MEAD", "TGR", "OGL", "NSAS", "GRN", "SOR"];

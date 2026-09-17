@@ -30,10 +30,17 @@ const log = [];
     await p.waitForSelector('#reset-demo', { timeout: 240000 });
   });
 
-  await step('the seed pairings are on chain', async () => {
+  await step('the first seed is on chain before the page waits for the rest', async () => {
     await p.waitForSelector('#recent tr .asset', { timeout: 120000 });
     const rows = await p.locator('#recent tr').count();
-    if (rows !== 3) throw new Error('expected 3 seeded pairings, got ' + rows);
+    if (rows < 1) throw new Error('expected the first pairing to be rendered, got ' + rows);
+  });
+
+  /* The other two are opened behind the first paint and announce themselves, so
+   * the table has to grow on its own without a reload. */
+  await step('the rest arrive behind the page and redraw it', async () => {
+    await p.waitForFunction(() => document.querySelectorAll('#recent tr .asset').length === 3,
+      null, { timeout: 180000 });
   });
   console.log('   launcher:', await p.evaluate(() => localStorage.getItem('spillway.launcher.1337')));
 
@@ -79,9 +86,8 @@ const log = [];
     await p.click('#reset-demo');                       // reloads wherever we are
     await p.waitForSelector('#reset-demo', { timeout: 240000 });
     await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded' });
-    await p.waitForSelector('#recent tr .asset', { timeout: 240000 });
-    const rows = await p.locator('#recent tr').count();
-    if (rows !== 3) throw new Error('expected the 3 seeds after a reset, got ' + rows);
+    await p.waitForFunction(() => document.querySelectorAll('#recent tr .asset').length === 3,
+      null, { timeout: 240000 });
     const journal = await p.evaluate(() => JSON.parse(localStorage.getItem('spillway.demo.journal') || '[]').length);
     if (journal !== 4) throw new Error('expected a 4 transaction journal after a reset, got ' + journal);
   });

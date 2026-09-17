@@ -33,50 +33,68 @@
 </header>
 <div class="wrap" id="launcher-banner"></div>
 <main>
-  <section class="wrap page-head">
-    <p class="eyebrow">Issue</p>
-    <h1>Pair a source</h1>
-    <p class="lede">One transaction mints the supply into the launcher and opens the curve. Send value
-    with it to take the first position in the same call.</p>
+  <section class="wrap page-head lp-head">
+    <span class="tag"><span class="dot"></span>LAUNCH</span>
+    <h1>Launch a coin</h1>
+    <p class="lede">Pick a network and a source, fill in the coin, sign one transaction. The token is
+    minted into the launcher in that same call, its curve opens immediately, and it is listed here the
+    moment the block lands.</p>
   </section>
 
-  <section class="section" style="padding-top:0">
-    <div class="wrap form-grid">
-      <div class="panel">
-        <form class="stack" id="pair-form" autocomplete="off">
-          <div class="two">
-            <label>Token name
-              <input name="name" id="f-name" maxlength="32" placeholder="Raw Water" required>
-            </label>
-            <label>Ticker
-              <input name="symbol" id="f-symbol" class="mono" maxlength="12" placeholder="H2O" required>
-            </label>
-          </div>
-          <label>Paired source
-            <select name="source" id="f-source"></select>
-            <span class="hint">Written into the ERC-20 and readable on chain as <code>source()</code>.</span>
-          </label>
-          <div class="two">
-            <label>Supply
-              <input name="supply" id="f-supply" class="mono" type="number" min="1000" step="1000" value="1000000000" required>
-            </label>
-            <label>First buy
-              <input name="firstBuy" id="f-firstbuy" class="mono" type="number" min="0" step="0.01" value="0">
-            </label>
-          </div>
-          <div class="note">Nobody can mint more, pause your token or touch the curve: the launcher has
-          no owner and no admin function. The only privileged call is withdrawing your own vault.</div>
-          <button class="btn accent" type="submit">Launch the pairing</button>
-        </form>
-      </div>
-      <aside class="panel">
-        <div class="panel-head">
-          <h3>Summary</h3>
-          <span id="preview-glyph"></span>
+  <section class="section lp-section">
+    <div class="wrap lp-grid">
+      <form class="lp-main" id="pair-form" autocomplete="off">
+
+        <div class="lp-row">
+          <span class="lp-label">Network</span>
+          <div class="chips" id="f-chains"></div>
         </div>
-        <div class="summary" id="pair-summary"></div>
-        <div class="panel-foot"><span>Figures come from the curve constants in the contract.</span></div>
-      </aside>
+
+        <div class="lp-row">
+          <span class="lp-label">Source class</span>
+          <div class="pads" id="f-classes"></div>
+        </div>
+
+        <div class="lp-panel">
+          <div class="two">
+            <label class="field">Name
+              <input name="name" id="f-name" maxlength="32" placeholder="Dead Pool" required>
+            </label>
+            <label class="field">Symbol
+              <input name="symbol" id="f-symbol" class="mono" maxlength="12" placeholder="POOL" required>
+            </label>
+          </div>
+
+          <label class="field">Paired source
+            <select name="source" id="f-source"></select>
+            <span class="hint">Written into the ERC-20 and readable by anyone on chain as <code>source()</code>.</span>
+          </label>
+
+          <div class="lp-logo" id="f-logo"></div>
+
+          <div class="two">
+            <label class="field">Supply
+              <input name="supply" id="f-supply" class="mono" type="number" min="1000" step="1000" value="1000000000" required>
+              <span class="hint">Minted once, into the curve. Nobody can mint more.</span>
+            </label>
+            <label class="field">Take the first position (optional, ETH)
+              <input name="firstBuy" id="f-firstbuy" class="mono" type="number" min="0" step="0.01" placeholder="0.00">
+              <span class="hint">Filled on the curve in the same transaction. Leave it empty to open flat.</span>
+            </label>
+          </div>
+        </div>
+
+        <p class="lp-note" id="f-walletnote">Connect a wallet to launch.</p>
+
+        <div class="lp-panel wallets" id="f-wallets"></div>
+
+        <div class="lp-go">
+          <button class="btn accent lg" type="submit" id="f-submit">Launch</button>
+          <span class="lp-fee">Launch fee none, plus gas.</span>
+        </div>
+      </form>
+
+      <aside class="preview" id="f-preview"></aside>
     </div>
   </section>
 </main>

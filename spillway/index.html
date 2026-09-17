@@ -61,98 +61,6 @@
 
   <div class="tape" id="tape"></div>
 
-  <section class="section">
-    <div class="wrap">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Latest pairings</h3>
-          <span class="label" id="stat-launches">...</span>
-        </div>
-        <table class="tbl">
-          <thead><tr>
-            <th>#</th><th>Token</th><th>Paired with</th><th class="hide-s">Launched</th>
-            <th class="hide-xs">By</th><th class="hide-xs">Contract</th><th>Stage</th><th class="num">Market cap</th>
-          </tr></thead>
-          <tbody id="recent"></tbody>
-        </table>
-        <div class="panel-foot">
-          <span id="recent-foot">Read from the launcher contract.</span>
-          <a href="launches.html">All launches →</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">The curve</p>
-          <h2>What the next buyer pays.</h2>
-        </div>
-        <span class="pill"><span class="dot"></span>live from the launcher</span>
-      </div>
-      <div class="curve-grid">
-        <div class="panel curve-panel">
-          <div class="panel-head">
-            <h3>Price against the curve</h3>
-            <span class="label" id="curve-label">price = (1.2 + raised)² / (1.2 · supply)</span>
-          </div>
-          <div id="curve-chart" class="curve-chart"></div>
-          <div class="panel-foot">
-            <span>Every pairing sits on this line. The marks are the ones on this launcher right now.</span>
-            <span class="mono" id="curve-foot">graduation at 4.2 ETH</span>
-          </div>
-        </div>
-        <div class="panel feed-panel">
-          <div class="panel-head">
-            <h3>Trades</h3>
-            <span class="label">from the chain's logs</span>
-          </div>
-          <ul class="feed" id="feed"></ul>
-          <div class="panel-foot"><span id="feed-foot">...</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>The register</h3>
-          <span class="label">reference figures</span>
-        </div>
-        <table class="tbl">
-          <thead><tr>
-            <th>#</th><th>Source</th><th class="hide-s">Venue</th><th class="hide-xs">Assay</th>
-            <th class="hide-s">Availability</th><th class="num">Spot</th><th></th>
-          </tr></thead>
-          <tbody id="board"></tbody>
-        </table>
-        <div class="panel-foot">
-          <span>The ten dearest sources. Spot and fill are published reference figures, not a live feed.</span>
-          <a href="sources.html">See all 32 →</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section sites-section">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">The sites</p>
-          <h2>What you are<br>actually pairing with.</h2>
-        </div>
-        <a class="btn alt" href="sources.html">The whole register</a>
-      </div>
-      <div class="sites" id="sites"></div>
-      <p class="sites-note" id="sites-note"></p>
-    </div>
-  </section>
-
   <section class="section works">
     <div class="wrap">
       <div class="section-head">
@@ -313,6 +221,99 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <div class="wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Latest pairings</h3>
+          <span class="label" id="stat-launches">...</span>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>#</th><th>Token</th><th>Paired with</th><th class="hide-s">Launched</th>
+            <th class="hide-xs">By</th><th class="hide-xs">Contract</th><th>Stage</th><th class="num">Market cap</th>
+          </tr></thead>
+          <tbody id="recent"></tbody>
+        </table>
+        <div class="panel-foot">
+          <span id="recent-foot">Read from the launcher contract.</span>
+          <a href="launches.html">All launches →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The curve</p>
+          <h2>What the next buyer pays.</h2>
+        </div>
+        <span class="pill"><span class="dot"></span>live from the launcher</span>
+      </div>
+      <div class="curve-grid">
+        <div class="panel curve-panel">
+          <div class="panel-head">
+            <h3>Price against the curve</h3>
+            <span class="label" id="curve-label">price = (1.2 + raised)² / (1.2 · supply)</span>
+          </div>
+          <div id="curve-chart" class="curve-chart"></div>
+          <div class="panel-foot">
+            <span>Every pairing sits on this line. The marks are the ones on this launcher right now.</span>
+            <span class="mono" id="curve-foot">graduation at 4.2 ETH</span>
+          </div>
+        </div>
+        <div class="panel feed-panel">
+          <div class="panel-head">
+            <h3>Trades</h3>
+            <span class="label">from the chain's logs</span>
+          </div>
+          <ul class="feed" id="feed"></ul>
+          <div class="panel-foot"><span id="feed-foot">...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>The register</h3>
+          <span class="label">reference figures</span>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>#</th><th>Source</th><th class="hide-s">Venue</th><th class="hide-xs">Assay</th>
+            <th class="hide-s">Availability</th><th class="num">Spot</th><th></th>
+          </tr></thead>
+          <tbody id="board"></tbody>
+        </table>
+        <div class="panel-foot">
+          <span>The ten dearest sources. Spot and fill are published reference figures, not a live feed.</span>
+          <a href="sources.html">See all 32 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section sites-section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The sites</p>
+          <h2>What you are<br>actually pairing with.</h2>
+        </div>
+        <a class="btn alt" href="sources.html">The whole register</a>
+      </div>
+      <div class="sites" id="sites"></div>
+      <p class="sites-note" id="sites-note"></p>
     </div>
   </section>
 

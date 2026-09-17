@@ -27,7 +27,7 @@ const log = [];
 
   await step('boot the EVM by itself when there is nothing to connect to', async () => {
     await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded' });
-    await p.waitForSelector('#reset-demo', { timeout: 240000 });
+    await p.waitForFunction(() => typeof Chain !== 'undefined' && Chain.demo === true, null, { timeout: 240000 });
   });
 
   await step('the first seed is on chain before the page waits for the rest', async () => {
@@ -83,8 +83,9 @@ const log = [];
   await p.screenshot({ path: 'e2e-demo-token.png' });
 
   await step('reset wipes the chain back to the seeds', async () => {
+    await p.click('#chain-btn');                        // the chain's controls live under the pill
     await p.click('#reset-demo');                       // reloads wherever we are
-    await p.waitForSelector('#reset-demo', { timeout: 240000 });
+    await p.waitForSelector('#chain-btn', { timeout: 240000 });
     await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded' });
     await p.waitForFunction(() => document.querySelectorAll('#recent tr .asset').length === 3,
       null, { timeout: 240000 });

@@ -68,6 +68,13 @@ function errText(e) {
   return raw.replace(/^execution reverted:?\s*/i, "Reverted: ").slice(0, 160);
 }
 
+const CLASS_BLURB = {
+  Reservoir: "Rain and snowmelt held behind a wall. The level moves with the season and with what the operator releases.",
+  Aquifer: "Water in the pore space of rock. It refills over centuries, so the static level mostly moves one way.",
+  Glacier: "Ice as a stock, measured by mass balance: what falls on top against what leaves at the margins.",
+  Desalination: "Seawater pushed through membranes. Availability is an engineering figure, not a hydrological one.",
+};
+
 const CLASS_TINT = { Reservoir: "#0e7490", Aquifer: "#0f9d76", Glacier: "#3b9fd4", Desalination: "#0b6b7d" };
 
 /* A source shows its photograph when one has been added, and the drawn glyph
@@ -108,19 +115,39 @@ function renderNetwork() {
   const host = $("network");
   if (!host) return;
   const info = Chain.chainInfo();
-  const net = Chain.offline
-    ? `<span class="pill bad"><span class="dot"></span>No node</span>`
-    : `<span class="pill ${Chain.launcher ? "ok" : "warn"}"><span class="dot"></span>${esc(info.name)}</span>`;
-  if (Chain.demo) {
-    host.innerHTML = `${net}<span class="pill"><span class="dot"></span>${shortAddr(Chain.account)}</span>`;
-    return;
-  }
-  if (Chain.account) {
-    host.innerHTML = `${net}<button class="btn alt sm" type="button" id="connect">${shortAddr(Chain.account)}</button>`;
-  } else {
-    host.innerHTML = `${net}<button class="btn sm" type="button" id="connect">Connect wallet</button>`;
-  }
-  $("connect").addEventListener("click", async () => {
+  const cls = Chain.offline ? "bad" : Chain.launcher ? "ok" : "warn";
+  const name = Chain.offline ? "No node" : info.name;
+
+  const account = Chain.demo
+    ? `<span class="pill"><span class="dot"></span>${shortAddr(Chain.account)}</span>`
+    : Chain.account
+      ? `<button class="btn alt sm" type="button" id="connect">${shortAddr(Chain.account)}</button>`
+      : `<button class="btn sm" type="button" id="connect">Connect wallet</button>`;
+
+  host.innerHTML = `
+    <button class="pill ${cls} as-btn" type="button" id="chain-btn" aria-expanded="false"
+            aria-haspopup="true" title="Where this page reads and writes">
+      <span class="dot"></span>${esc(name)}
+      <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3.2 5 7 9 3.2"
+        fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    ${account}
+    <div class="chain-menu" id="chain-menu" hidden>${chainMenu()}</div>`;
+
+  const btn = $("chain-btn");
+  const menu = $("chain-menu");
+  const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    menu.hidden = !menu.hidden;
+    btn.setAttribute("aria-expanded", String(!menu.hidden));
+  });
+  document.addEventListener("click", e => { if (!menu.contains(e.target) && e.target !== btn) close(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  wireChainActions();
+
+  const connect = $("connect");
+  if (connect) connect.addEventListener("click", async () => {
     if (Chain.account) {
       const link = Chain.explorerLink("address", Chain.account);
       if (link) window.open(link, "_blank", "noopener");
@@ -129,22 +156,62 @@ function renderNetwork() {
     try {
       await Chain.connect();
       renderNetwork();
-      renderBanners();
-      const page = PAGES[document.body.dataset.page || window.SPILLWAY_PAGE];
-      if (page) page();
+      render();
       toast(`Connected ${shortAddr(Chain.account)} on ${Chain.chainInfo().name}`);
     } catch (e) { toast(errText(e)); }
   });
 }
 
-/* Two strips above every page: where the chain is, and which launcher we read.
- * The launcher is not a service someone runs for you: if the chain you are on
- * has none, you deploy one and the site remembers it. */
+/* This used to be a paragraph across the top of every page. It is worth saying
+ * once, not on every load, so it lives under the pill that says where the page
+ * is reading and writing. */
+function chainMenu() {
+  const rows = [];
+  if (Chain.demo) {
+    rows.push(`<p>An Ethereum node is running <b>inside this page</b>. The launcher and every token here
+      are the same compiled bytecode executing on a real EVM in your browser. Transactions are
+      journalled locally and replayed on each load, and nothing leaves this browser.</p>`);
+  } else if (Chain.offline) {
+    rows.push(`<p>No Ethereum node is reachable from this browser, so nothing on a public chain can be
+      read or written here. You can run one in the page instead: a real EVM, the real contract, no
+      network and no wallet.</p>`);
+    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run a chain in this page</button>`);
+  } else if (!Chain.hasWallet()) {
+    rows.push(`<p>No wallet is installed in this browser. You can run a chain in the page instead.</p>`);
+    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run a chain in this page</button>`);
+  }
+
+  if (!Chain.offline || Chain.demo) {
+    if (Chain.launcher) {
+      const link = Chain.explorerLink("address", Chain.launcher);
+      rows.push(`<div class="chain-row"><span>Launcher</span>${link
+        ? `<a class="mono" href="${link}" target="_blank" rel="noopener">${shortAddr(Chain.launcher)}</a>`
+        : `<span class="mono">${shortAddr(Chain.launcher)}</span>`}</div>`);
+    } else if (!Chain.demo) {
+      rows.push(`<p>No launcher on ${esc(Chain.chainInfo().name)} yet. Deploy one from your wallet: it is
+        a single transaction, and you own it.</p>`);
+    }
+  }
+
+  const acts = [];
+  if (Chain.demo) {
+    acts.push(`<button class="btn alt sm" type="button" id="reset-demo">Reset chain</button>`);
+    if (Chain.hasWallet()) acts.push(`<button class="btn alt sm" type="button" id="leave-demo">Use my wallet</button>`);
+  } else if (!Chain.offline) {
+    if (!Chain.launcher) acts.push(`<button class="btn accent sm" type="button" id="deploy-launcher">Deploy launcher</button>`);
+    acts.push(`<button class="btn alt sm" type="button" id="set-launcher">${Chain.launcher ? "Use another" : "I have an address"}</button>`);
+  }
+  if (acts.length) rows.push(`<div class="chain-acts">${acts.join("")}</div>`);
+  return rows.join("");
+}
+
+/* Nothing is pushed above the page any more. */
 function renderBanners() {
   const host = $("launcher-banner");
-  if (!host) return;
-  host.innerHTML = Chain.demo ? chainStrip() : chainStrip() + launcherStrip();
+  if (host) host.innerHTML = "";
+}
 
+function wireChainActions() {
   const on = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
 
   on("start-demo", async e => {
@@ -195,53 +262,6 @@ function renderBanners() {
     Chain.rememberLauncher(addr.trim());
     location.reload();
   });
-}
-
-function chainStrip() {
-  if (Chain.demo) {
-    return `<div class="note strip">
-      <span><b>Running an Ethereum node inside this page.</b> The launcher and every token here are the
-      same compiled bytecode executing on a real EVM in your browser. Transactions are journalled
-      locally and replayed on each load. Nothing leaves this browser${Chain.hasWallet() ? "" : ", and no wallet is needed"}.</span>
-      <span style="display:flex;gap:8px;align-items:center">
-        ${Chain.launcher ? `<span class="mono" style="font-size:12px;color:#5b55a8">launcher ${shortAddr(Chain.launcher)}</span>` : ""}
-        <button class="btn alt sm" type="button" id="reset-demo">Reset chain</button>
-        ${Chain.hasWallet() ? `<button class="btn alt sm" type="button" id="leave-demo">Use my wallet</button>` : ""}
-      </span>
-    </div>`;
-  }
-  if (Chain.offline || !Chain.hasWallet()) {
-    const why = Chain.offline
-      ? "No Ethereum node is reachable from this browser"
-      : "No wallet is installed in this browser";
-    return `<div class="note strip">
-      <span>${why}, so nothing on a public chain can be read or written here. Run one in the page
-      instead: a real EVM, the real contract, no network and no wallet.</span>
-      <button class="btn accent sm" type="button" id="start-demo">Run a chain in this page</button>
-    </div>`;
-  }
-  return "";
-}
-
-function launcherStrip() {
-  if (Chain.offline && !Chain.demo) return "";
-  if (Chain.launcher) {
-    const link = Chain.explorerLink("address", Chain.launcher);
-    return `<div class="note strip">
-      <span>Launcher on ${esc(Chain.chainInfo().name)}:
-        ${link ? `<a href="${link}" target="_blank" rel="noopener"><code>${shortAddr(Chain.launcher)}</code></a>` : `<code>${shortAddr(Chain.launcher)}</code>`}
-      </span>
-      <button class="btn alt sm" type="button" id="set-launcher">Use another</button>
-    </div>`;
-  }
-  return `<div class="note strip">
-    <span>No launcher on ${esc(Chain.chainInfo().name)} yet. Deploy one from your wallet: it is a
-    single transaction, and you own it.</span>
-    <span style="display:flex;gap:8px">
-      <button class="btn accent sm" type="button" id="deploy-launcher">Deploy launcher</button>
-      <button class="btn alt sm" type="button" id="set-launcher">I have an address</button>
-    </span>
-  </div>`;
 }
 
 /* ---------------- the register ---------------- */
@@ -552,52 +572,179 @@ const PAGES = {
 
   launch() {
     const form = $("pair-form");
+    const info = () => Chain.chainInfo();
+
     if (form.dataset.wired !== "1") {
       form.dataset.wired = "1";
-      form.source.innerHTML = CLASSES.map(c => `<optgroup label="${c}">` +
-        WATER.filter(w => w.c === c).map(w => `<option value="${w.t}">${esc(w.n)}, ${w.t} · ${esc(w.v)}</option>`).join("") +
-        `</optgroup>`).join("");
-      const pre = qs("source");
-      if (pre && byTicker(pre)) form.source.value = pre;
-      form.addEventListener("input", summary);
-      form.addEventListener("submit", submit);
-    }
-    summary();
 
-    function summary() {
-      const w = byTicker(form.source.value);
+      /* The networks this build knows how to read. The one in use is the one
+       * the page actually booted on: picking another tells you how to get
+       * there, it cannot move your wallet for you. */
+      $("f-chains").innerHTML = [1337, 8453, 84532, 31337].map(id => {
+        const c = CHAINS[id];
+        const on = Chain.chainId === id;
+        return `<button class="chip${on ? " on" : ""}" type="button" data-chain="${id}" aria-pressed="${on}">
+          <span class="dot"></span>${esc(c.name)}${c.test ? `<small>test</small>` : ""}
+        </button>`;
+      }).join("");
+      $("f-chains").addEventListener("click", e => {
+        const b = e.target.closest("[data-chain]");
+        if (!b) return;
+        const id = Number(b.dataset.chain);
+        if (id === Chain.chainId) return;
+        toast(id === 1337
+          ? "Open the chain menu at the top and run a chain in this page."
+          : `Switch your wallet to ${CHAINS[id].name}, then reload. Spillway reads whichever chain your wallet is on.`);
+      });
+
+      /* Four classes of water, and each one behaves differently enough that it
+       * is worth choosing before the source. */
+      $("f-classes").innerHTML = CLASSES.map((c, i) => `
+        <button class="pad${i === 0 ? " on" : ""}" type="button" data-class="${esc(c)}" aria-pressed="${i === 0}">
+          <b>${esc(c)}</b>
+          <span>${esc(CLASS_BLURB[c])}</span>
+          <small>${WATER.filter(w => w.c === c).length} sources</small>
+        </button>`).join("");
+      $("f-classes").addEventListener("click", e => {
+        const b = e.target.closest("[data-class]");
+        if (!b) return;
+        pickClass(b.dataset.class);
+      });
+
+      form.addEventListener("input", paint);
+      form.addEventListener("change", paint);
+      form.addEventListener("submit", submit);
+      form.source.addEventListener("change", () => {
+        const w = byTicker(form.source.value);
+        if (w) pickClass(w.c, true);
+      });
+
+      const pre = qs("source");
+      pickClass(pre && byTicker(pre) ? byTicker(pre).c : CLASSES[0], false, pre);
+    }
+
+    renderWallets();
+    paint();
+
+    function pickClass(cls, keepSource = false, preferred = null) {
+      for (const b of $("f-classes").querySelectorAll("[data-class]")) {
+        const on = b.dataset.class === cls;
+        b.classList.toggle("on", on);
+        b.setAttribute("aria-pressed", String(on));
+      }
+      const before = form.source.value;
+      form.source.innerHTML = WATER.filter(w => w.c === cls)
+        .map(w => `<option value="${w.t}">${esc(w.n)} · ${w.t} · ${esc(w.v)}</option>`).join("");
+      if (preferred && byTicker(preferred) && byTicker(preferred).c === cls) form.source.value = preferred;
+      else if (keepSource && [...form.source.options].some(o => o.value === before)) form.source.value = before;
+      paint();
+    }
+
+    function figures() {
       const supply = BigInt(Math.max(1000, Math.floor(+form.supply.value || 0))) * 10n ** 18n;
       let firstBuy = 0n;
       try { firstBuy = ethers.parseEther(form.firstBuy.value || "0"); } catch (_) {}
       const opening = (CURVE.VIRTUAL_ETH * 10n ** 18n) / supply;
       const fee = (firstBuy * CURVE.FEE_BPS) / 10000n;
       const net = firstBuy - fee;
-      const k = CURVE.VIRTUAL_ETH * supply;
-      const out = net > 0n ? supply - k / (CURVE.VIRTUAL_ETH + net) : 0n;
-      $("preview-glyph").innerHTML = sourceMark(form.source.value, 26);
-      $("pair-summary").innerHTML = `
-        <div class="line"><span>source</span><b>${esc(w.n)} · ${w.t}</b></div>
-        <div class="line"><span>venue</span><b>${esc(w.v)}</b></div>
-        <div class="line"><span>assay</span><b>${esc(w.a)}</b></div>
-        <div class="line"><span>reference spot</span><b>${usd(w.p)} ${esc(w.u)}</b></div>
-        <div class="line"><span>network</span><b>${esc(Chain.chainInfo().name)}</b></div>
-        <div class="line"><span>opening price</span><b>${Number(ethers.formatEther(opening)).toExponential(3)} ${Chain.chainInfo().ticker}</b></div>
-        <div class="line"><span>first buy</span><b>${firstBuy > 0n ? `${eth(firstBuy)} → ${tokens(out)} $${esc(form.symbol.value.toUpperCase() || "TOKEN")}` : "none"}</b></div>
-        <div class="line"><span>trade fee</span><b>${Number(CURVE.FEE_BPS) / 100}% → your vault</b></div>
-        <div class="line"><span>graduates at</span><b>${eth(CURVE.TARGET, 1)} raised</b></div>`;
+      const out = net > 0n ? supply - (CURVE.VIRTUAL_ETH * supply) / (CURVE.VIRTUAL_ETH + net) : 0n;
+      return { supply, firstBuy, opening, out };
+    }
+
+    /* The coin as it will exist, redrawn on every keystroke: the plate of the
+     * source it is bound to, and the four numbers the contract will enforce. */
+    function paint() {
+      const w = byTicker(form.source.value) || WATER[0];
+      const sym = (form.symbol.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+      const name = form.name.value.trim();
+      const { firstBuy, opening, out } = figures();
+      const fill = BASE_LEVEL[w.t] ?? 0.5;
+
+      $("f-logo").innerHTML = `
+        <span class="lp-logo-art">${sourceMark(w.t, 34)}</span>
+        <span class="lp-logo-text"><b>The source is the logo</b>
+          <small>Every pairing carries ${esc(w.n)}'s own plate, drawn from its class and its
+          ${level(fill)} fill. Nothing to upload.</small></span>`;
+
+      $("f-preview").innerHTML = `
+        <div class="pv">
+          <div class="pv-head">
+            <span class="pv-art">${sourceMark(w.t, 30)}</span>
+            <span class="pv-id">
+              <b>${esc(name || "Your coin")}</b>
+              <small class="mono">${esc(sym || "SYMBOL")}</small>
+            </span>
+          </div>
+          <p class="pv-lede">Bound to ${esc(w.n)}, ${esc(w.v)}'s ${esc(w.a)} at ${level(fill)} of capacity.
+          The ticker goes into the token itself, where anyone can read it back.</p>
+          <div class="pv-chips">
+            <span class="pill"><span class="dot"></span>${esc(info().name)}</span>
+            <span class="pill">${esc(w.c)}</span>
+            <span class="pill mono">${esc(w.t)}</span>
+          </div>
+          <div class="pv-boxes">
+            <div><span>Launch fee</span><b>None</b></div>
+            <div><span>Trade fee</span><b>3% to your vault</b></div>
+            <div><span>Opening price</span><b>${Number(ethers.formatEther(opening)).toExponential(2)} ${esc(info().ticker)}</b></div>
+            <div><span>Graduates at</span><b>${eth(CURVE.TARGET, 1)} raised</b></div>
+          </div>
+          <ol class="pv-steps">
+            <li><span>1</span>Sign the launch transaction</li>
+            <li><span>2</span>The launcher mints the supply and opens the curve</li>
+            <li><span>3</span>${firstBuy > 0n
+                ? `Your ${eth(firstBuy)} fills on that curve: about ${tokens(out)} ${esc(sym || "tokens")}`
+                : "Take the first position, or leave the curve flat"}</li>
+            <li><span>4</span>Done, and listed on Markets</li>
+          </ol>
+          <p class="pv-foot">No owner, no admin key, no pause. The only privileged call in the contract
+          is withdrawing your own vault.</p>
+        </div>`;
+
+      const btn = $("f-submit");
+      if (!btn.disabled) btn.textContent = `Launch on ${info().name}`;
+    }
+
+    /* Whatever can actually sign here, named. */
+    function renderWallets() {
+      const host = $("f-wallets");
+      const note = $("f-walletnote");
+      const rows = [];
+      if (Chain.demo) {
+        rows.push(`<div class="wallet on"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"/></svg></span>
+          <span><b>This page's own chain</b><small>A real EVM in the browser, signing with
+          ${shortAddr(Chain.account)}. No wallet needed.</small></span></div>`);
+        note.textContent = "Ready to launch.";
+      } else if (Chain.account) {
+        rows.push(`<div class="wallet on"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><circle cx="17" cy="15" r="1.3" fill="currentColor" stroke="none"/></svg></span>
+          <span><b>${shortAddr(Chain.account)}</b><small>Connected on ${esc(info().name)}.</small></span></div>`);
+        note.textContent = "Ready to launch.";
+      } else if (Chain.hasWallet()) {
+        rows.push(`<button class="wallet" type="button" id="w-connect"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><circle cx="17" cy="15" r="1.3" fill="currentColor" stroke="none"/></svg></span>
+          <span><b>Browser wallet</b><small>Connect it to sign the launch.</small></span></button>`);
+        note.textContent = "Connect a wallet to launch.";
+      } else {
+        rows.push(`<button class="wallet" type="button" id="start-demo"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"/></svg></span>
+          <span><b>Run a chain in this page</b><small>No wallet in this browser. Spillway can run the
+          real contract on a real EVM here instead.</small></span></button>`);
+        note.textContent = "No wallet found in this browser.";
+      }
+      host.innerHTML = rows.join("");
+      wireChainActions();
+      const wc = $("w-connect");
+      if (wc) wc.addEventListener("click", async () => {
+        try { await Chain.connect(); renderNetwork(); render(); } catch (e) { toast(errText(e)); }
+      });
     }
 
     async function submit(e) {
       e.preventDefault();
-      const btn = form.querySelector("button[type=submit]");
+      const btn = $("f-submit");
       try {
         if (!Chain.account) await Chain.connect();
-        if (!Chain.launcher) return toast("Deploy a launcher on this network first.");
+        if (!Chain.launcher) return toast("No launcher on this network yet. Deploy one from the chain menu.");
         const symbol = form.symbol.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
-        if (!symbol) return toast("The ticker needs at least one letter.");
-        const supply = BigInt(Math.max(1000, Math.floor(+form.supply.value || 0))) * 10n ** 18n;
-        let firstBuy = 0n;
-        try { firstBuy = ethers.parseEther(form.firstBuy.value || "0"); } catch (_) {}
+        if (!symbol) return toast("The symbol needs at least one letter.");
+        const { supply, firstBuy } = figures();
 
         btn.disabled = true;
         btn.textContent = "Confirm in your wallet…";
@@ -611,7 +758,7 @@ const PAGES = {
         await navigate(`token.html?addr=${token}&new=1`);
       } catch (err) {
         btn.disabled = false;
-        btn.textContent = "Launch the pairing";
+        btn.textContent = `Launch on ${info().name}`;
         toast(errText(err));
       }
     }

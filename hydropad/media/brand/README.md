@@ -27,12 +27,17 @@ either side of the headline, coins turning between them, over a sky.
 The two sizes are laid out separately rather than one cropped from the other —
 a crop of the wide one loses the cards at both ends.
 
-The sky is one of the register's own photographs, blurred past recognition and
-framed on its top, where it is sky. Lower down that frame has a person standing
-in it, and at this blur a person is still a person.
+The ground is the site's own — forest floor at dusk, `#0b1512` deepening to
+`#060f0e` — so the banner and the page look like one thing.
 
-The coins carry a perspective. Without one `rotate3d` does nothing and they come
-out as flat circles.
+Falling water instead of coins. A drop is a shape with light in it: a highlight
+near the top where it comes in, a bright rim where it bends round the edge, and
+a small spot low down where it comes back through. Take those away and it is a
+blue circle.
+
+The cards turn in space rather than on the page — left-hand ones send their
+right edge away, right-hand ones their left — so the set stands around the
+headline instead of sitting pasted flat on it.
 
 # Banners with the cards
 

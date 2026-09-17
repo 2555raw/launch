@@ -18,24 +18,36 @@ const ROOT = path.join(__dirname, "..");
 const OUT = path.join(ROOT, "media", "brand");
 const b64 = p => "data:image/jpeg;base64," + fs.readFileSync(p).toString("base64");
 
-/* A disc, lit from above, with the mark pressed into it. */
-function coin(size, x, y, rot, tilt, hue) {
-  const [a, c] = hue;
-  return `<div class="coin" style="left:${x}px;top:${y}px;width:${size}px;height:${size}px;
-    background:linear-gradient(150deg,${a},${c});
-    transform:perspective(900px) rotate(${rot}deg) rotate3d(1,.38,0,${tilt}deg);z-index:2">
-    <svg width="${Math.round(size * 0.52)}" height="${Math.round(size * 0.52)}" viewBox="0 0 26 26">
-      <defs><clipPath id="c${x}${y}"><circle cx="13" cy="13" r="9.4"/></clipPath></defs>
-      <g clip-path="url(#c${x}${y})">
-        <path d="M-3 16q3.25-2.2 6.5 0t6.5 0 6.5 0 6.5 0V30H-3Z" fill="#fff"/></g>
-      <circle cx="13" cy="13" r="10.1" fill="none" stroke="#fff" stroke-width="2.1"/>
+/* A falling drop. The shape is the easy part; what makes it water is the
+ * highlight near the top, the darker rim where the light bends round, and the
+ * small bright spot low down where it comes back through. */
+function drop(size, x, y, rot, tint) {
+  const h = Math.round(size * 1.34);
+  const id = `d${x}${y}`;
+  return `<div class="drop" style="left:${x}px;top:${y}px;transform:rotate(${rot}deg)">
+    <svg width="${size}" height="${h}" viewBox="0 0 60 80">
+      <defs>
+        <radialGradient id="b${id}" cx="36%" cy="30%" r="72%">
+          <stop offset="0" stop-color="#ffffff" stop-opacity=".92"/>
+          <stop offset="34%" stop-color="${tint}" stop-opacity=".78"/>
+          <stop offset="100%" stop-color="${tint}" stop-opacity=".34"/>
+        </radialGradient>
+        <linearGradient id="r${id}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity=".75"/>
+          <stop offset="55%" stop-color="#ffffff" stop-opacity=".12"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity=".5"/>
+        </linearGradient>
+      </defs>
+      <path d="M30 2C30 2 54 36 54 52a24 24 0 0 1-48 0C6 36 30 2 30 2Z"
+            fill="url(#b${id})" stroke="url(#r${id})" stroke-width="1.6"/>
+      <ellipse cx="22" cy="44" rx="7.5" ry="11" fill="#fff" opacity=".55"
+               transform="rotate(-18 22 44)"/>
+      <circle cx="39" cy="61" r="3.4" fill="#fff" opacity=".8"/>
     </svg></div>`;
 }
 
-const HUES = [
-  ["#a8e6c9", "#6fcfa6"], ["#bcd8f7", "#7fb0e8"], ["#f7c9d8", "#eda3bd"],
-  ["#cfd2f5", "#a3a8ea"], ["#bfe9f5", "#82cfe6"], ["#d8eeba", "#aed77f"],
-];
+/* Water, not sweets: the site's accent and two steps either side of it. */
+const TINTS = ["#67c0e2", "#8fd6ee", "#4aa9d0", "#a8e3f2", "#5bb8dc"];
 
 function layout({ W, H, head, sub, headSize, subSize, cardW, cards, coins, glows }) {
   return fs.readFileSync(path.join(__dirname, "banner.template.html"), "utf8")
@@ -43,12 +55,11 @@ function layout({ W, H, head, sub, headSize, subSize, cardW, cards, coins, glows
     .replace(/Wpx/g, W + "px").replace(/Hpx/g, H + "px")
     .replace("HEADpx", headSize + "px").replace("SUBpx", subSize + "px")
     .replace("CARDpx", cardW + "px")
-    .replace("SKY", b64(path.join(ROOT, "media", "sources", "ICE.jpg")))
     .replace("HEADLINE", head).replace("SUB", sub)
-    .replace("GLOWS", glows).replace("COINS", coins).replace("CARDS", cards);
+    .replace("GLOWS", glows).replace("DROPS", coins).replace("CARDS", cards);
 }
 
-const HEAD = `Meme coins, paired to <span class="on">real water</span>`;
+const HEAD = `A launchpad paired to <span class="on">real water</span>`;
 const SUB = "26 named reserves. One curve each. On Robinhood Chain.";
 
 const WIDE = {
@@ -62,15 +73,17 @@ const WIDE = {
     { left: 1478, top: 442, rot: 2 },
   ],
   coins: [
-    coin(118, 690, 22,  -12, 28, HUES[0]),
-    coin(96,  1280, 452, 14, 22, HUES[3]),
-    coin(74,  620,  500, 8,  30, HUES[1]),
-    coin(64,  1330, 60,  -8, 26, HUES[2]),
-    coin(52,  980,  580, 10, 24, HUES[5]),
+    drop(84, 700,  26,  -12, TINTS[0]),
+    drop(66, 1288, 430,  14, TINTS[2]),
+    drop(52, 628,  486,   8, TINTS[1]),
+    drop(46, 1332, 62,   -9, TINTS[3]),
+    drop(38, 986,  556,  11, TINTS[4]),
+    drop(30, 1150, 190,  -6, TINTS[1]),
+    drop(26, 486,  392,   9, TINTS[3]),
   ].join(""),
-  glows: `<div class="glow" style="left:-80px;top:-60px;width:520px;height:520px;background:#8fd3f2"></div>
-    <div class="glow" style="left:1520px;top:-40px;width:520px;height:520px;background:#9fe6c9"></div>
-    <div class="glow" style="left:760px;top:420px;width:520px;height:520px;background:#c9d6fa"></div>`,
+  glows: `<div class="glow" style="left:-120px;top:-120px;width:640px;height:640px;background:#1c6d95"></div>
+    <div class="glow" style="left:1500px;top:-100px;width:640px;height:640px;background:#12705a"></div>
+    <div class="glow" style="left:720px;top:380px;width:620px;height:620px;background:#1f5f83"></div>`,
 };
 
 const HEADER = {
@@ -84,18 +97,24 @@ const HEADER = {
     { left: 1118, top: 342, rot: 2 },
   ],
   coins: [
-    coin(88, 470, 26,  -12, 28, HUES[0]),
-    coin(72, 980, 366, 14,  22, HUES[3]),
-    coin(54, 420, 402, 8,   30, HUES[1]),
+    drop(64, 476, 28,  -12, TINTS[0]),
+    drop(52, 986, 352,  14, TINTS[2]),
+    drop(40, 430, 386,   8, TINTS[1]),
+    drop(30, 900, 96,   -7, TINTS[3]),
+    drop(24, 360, 250,  10, TINTS[4]),
   ].join(""),
-  glows: `<div class="glow" style="left:-100px;top:-80px;width:440px;height:440px;background:#8fd3f2"></div>
-    <div class="glow" style="left:1120px;top:-60px;width:440px;height:440px;background:#9fe6c9"></div>
-    <div class="glow" style="left:540px;top:320px;width:440px;height:440px;background:#c9d6fa"></div>`,
+  glows: `<div class="glow" style="left:-140px;top:-120px;width:520px;height:520px;background:#1c6d95"></div>
+    <div class="glow" style="left:1100px;top:-100px;width:520px;height:520px;background:#12705a"></div>
+    <div class="glow" style="left:520px;top:280px;width:500px;height:500px;background:#1f5f83"></div>`,
 };
 
+/* Left-hand cards turn their right edge away, right-hand ones their left, so
+ * the set reads as standing around the headline rather than pasted flat on it. */
 const deck = spec => FEATURED.map((t, i) => {
   const a = spec.at[i];
-  return card(t, `left:${a.left}px;top:${a.top}px;z-index:5;transform:rotate(${a.rot}deg)`);
+  const yaw = i < 3 ? 13 : -13;
+  return card(t, `left:${a.left}px;top:${a.top}px;z-index:5;`
+    + `transform:perspective(1400px) rotateY(${yaw}deg) rotate(${a.rot}deg)`);
 }).join("");
 
 (async () => {

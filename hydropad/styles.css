@@ -1456,15 +1456,16 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 /* The mark is the crest of a wall and what goes over it: two strokes, one
    colour, and nothing that stops working at 16 pixels. */
 .brand { font-size: 21px; letter-spacing: -.03em; gap: 10px; }
-/* The mark is a reserve seen from the side: a ring with a level in it. On
- * hover the level rises, which is the only thing it has to say. */
-.brand .mark { flex: none; color: var(--accent); transition: color var(--t) var(--ease); }
-.brand .mark .lvl { transition: transform var(--t-slow) var(--ease-out); }
-.brand:hover .mark { color: #7fd0ea; }
-.brand:hover .mark .lvl { transform: translateY(-4.4px); }
+/* The mark is a raster with its own glow, so the hover is on the whole thing:
+ * a little nearer and a little brighter, not a recolour it cannot take. */
+.brand .mark {
+  flex: none; width: 34px; height: 34px; display: block;
+  transition: transform var(--t) var(--ease-out), filter var(--t) var(--ease);
+}
+.brand:hover .mark { transform: scale(1.07); filter: brightness(1.18) saturate(1.06); }
 @media (prefers-reduced-motion: reduce) {
-  .brand .mark .lvl { transition: none; }
-  .brand:hover .mark .lvl { transform: none; }
+  .brand .mark { transition: none; }
+  .brand:hover .mark { transform: none; }
 }
 
 /* the parts of a dam, marked on a photograph of one */

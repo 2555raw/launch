@@ -29,6 +29,8 @@ const at = [
 
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
+  const logo = "data:image/png;base64,"
+    + fs.readFileSync(path.join(ROOT, "media", "brand", "logo-128.png")).toString("base64");
   const tpl = fs.readFileSync(path.join(__dirname, "header-cards.template.html"), "utf8");
 
   for (const v of variants) {
@@ -39,7 +41,7 @@ const at = [
       return card(t, `left:${a.left}px;top:${a.top}px;z-index:${3 - i};`
         + `transform:rotate(${a.rot}deg)`);
     }).join("");
-    const html = tpl.replace("SHOT", shot).replace("POS", v.pos).replace("DECK", deck);
+    const html = tpl.replace("SHOT", shot).replace("LOGO", logo).replace("POS", v.pos).replace("DECK", deck);
 
     for (const [suffix, scale] of [["@2x", 2], ["", 1]]) {
       const p = await b.newPage({ viewport: { width: 1500, height: 500 }, deviceScaleFactor: scale });

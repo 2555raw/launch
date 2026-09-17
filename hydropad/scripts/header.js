@@ -12,10 +12,12 @@ const variants = [
 ];
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
+  const logo = "data:image/png;base64,"
+    + fs.readFileSync(path.join(__dirname, "..", "media", "brand", "logo-128.png")).toString("base64");
   const tpl = fs.readFileSync(path.join(__dirname, 'header.template.html'), 'utf8');
   for (const v of variants) {
     const data = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(BASE, v.t + '.jpg')).toString('base64');
-    const html = tpl.replace('SHOT', data).replace('CAPTION', v.caption).replace('var(--pos, center)', v.pos);
+    const html = tpl.replace('SHOT', data).replace('LOGO', logo).replace('CAPTION', v.caption).replace('var(--pos, center)', v.pos);
     const out = n => path.join(__dirname, '..', 'media', 'brand', n);
 
     /* Rendered at 2x and kept, because X downsamples better than it upsamples,

@@ -34,7 +34,10 @@ const curve = new ethers.Interface(PONS.CURVE_ABI);
 const token = new ethers.Interface(PONS.TOKEN_ABI);
 ok(!!factory && !!curve && !!token, "every ABI fragment parses");
 
-eq(PONS.address(4663), "0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB", "the factory is the published address");
+eq(PONS.address(4663), "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
+   "the factory is PonsV2LaunchFactory, from the repository's deployment table");
+ok(PONS.address(4663) !== PONS.V1_FACTORY,
+   "and not the V1 factory, which answers enough of the same calls to look like a closed gate");
 ok(PONS.has(4663), "Pons is on Robinhood Chain");
 ok(!PONS.has(46630), "and not claimed on the testnet");
 ok(!PONS.has(1337), "nor on the chain inside the page");
@@ -110,7 +113,8 @@ ok(typeof PonsAdapter.buy === "function" && typeof PonsAdapter.sell === "functio
 for (const m of ["pairings", "pairing", "tokenMeta", "balanceOf", "price", "quoteBuy", "quoteSell", "trades"]) {
   ok(typeof PonsAdapter[m] === "function", `it answers ${m}(), like the launcher it stands in for`);
 }
-eq(PonsAdapter.START_BLOCK[4663], 8991118, "the backward scan stops where Pons began");
+ok(PonsAdapter.START_BLOCK[4663] === undefined,
+   "no invented floor for the scan: 8991118 was the V1 factory's, and too high a floor hides launches");
 ok(PonsAdapter.CHUNK <= 50000, "and asks for log ranges a public RPC will serve");
 
 console.log("\nthe gate\n");

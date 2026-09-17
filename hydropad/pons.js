@@ -24,8 +24,16 @@ const PONS = {
    * runs inside the page, and on those Hydropad falls back to its own
    * launcher, which is why that contract is still in the build. */
   FACTORY: {
-    4663: "0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB",
+    /* PonsV2LaunchFactory, from the repository's own deployment table.
+     * 0xA5aAb3F0…51feB is the V1 factory and answers some of the same calls,
+     * which is exactly why pointing at it looked like a closed gate rather
+     * than a wrong address. */
+    4663: "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
   },
+
+  /* The V1 factory, kept here so a build that ever reads it back knows what it
+   * is looking at rather than guessing. Nothing calls it. */
+  V1_FACTORY: "0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB",
 
   /* The bonding curve's quote asset. Pons also takes USDG and tokenized
    * equities; a coin paired to a body of water trades in ETH. */
@@ -197,7 +205,10 @@ const PONS = {
 const PonsAdapter = {
   /* Pons went live on Robinhood Chain at this block. Nothing before it can
    * hold a launch, so a backward scan has somewhere to stop. */
-  START_BLOCK: { 4663: 8991118 },
+  /* 8991118 is where the V1 factory started, not this one, and guessing a
+   * floor that is too high silently hides launches. The scan is bounded by
+   * MAX_SCAN instead, which is a window, not a claim about history. */
+  START_BLOCK: {},
 
   /* Public RPCs cap how many blocks one eth_getLogs may cover. */
   CHUNK: 45000,

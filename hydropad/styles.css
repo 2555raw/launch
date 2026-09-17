@@ -1722,3 +1722,8 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 }
 @media (max-width: 720px) { .net-lbl, .net-off { display: none; } }
 .no-pair { color: var(--ink-3); font-family: var(--mono); cursor: default; }
+.readout {
+  margin: 14px 0 6px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px;
+  background: rgba(0,0,0,.28); color: var(--ink-2);
+  font: 400 12px/1.7 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere;
+}

@@ -145,6 +145,12 @@
           </div>
           <p class="desk-note">Both buttons send <code>wallet_addEthereumChain</code> and then
           <code>wallet_switchEthereumChain</code>; your wallet decides, this page only asks.</p>
+          <div class="chain-acts">
+            <button class="btn accent sm" type="button" id="pons-check">Check Pons on this network</button>
+          </div>
+          <pre class="readout" id="pons-readout" hidden></pre>
+          <p class="desk-note">The check only reads: it asks the factory what it is, whether it would
+          take a launch from your address, and on what terms. Nothing is signed and nothing is spent.</p>
         </div>
       </div>
     </div>

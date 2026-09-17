@@ -447,6 +447,59 @@ function wireChainActions() {
     }
   });
 
+  /* Reading Pons out loud. Everything here comes off the chain the visitor's
+   * wallet is on: when a launch is refused, this is what says why, instead of
+   * a guess from a machine that cannot reach the chain at all. */
+  on("pons-check", async e => {
+    const btn = e.currentTarget;
+    const out = $("pons-readout");
+    const say = lines => { out.hidden = false; out.textContent = lines.join("\n"); };
+    btn.disabled = true;
+    const was = btn.textContent;
+    btn.textContent = "Reading…";
+    try {
+      const id = Number(Chain.chainId);
+      if (!PONS.has(id)) {
+        say([`Pons is not on ${Chain.chainInfo().name} (chain ${id}).`,
+             `It is on Robinhood Chain, 4663. Switch there and check again.`]);
+        return;
+      }
+      const at = PONS.address(id);
+      const f = PONS.factory(Chain.provider, id);
+      const who = Chain.account;
+      const lines = [`factory        ${at}`, `network        ${Chain.chainInfo().name} (${id})`];
+
+      const read = async (label, fn) => {
+        try { lines.push(`${label}${await fn()}`); }
+        catch (err) { lines.push(`${label}— ${err.shortMessage || err.message}`); }
+      };
+
+      await read("launchFee      ", async () => `${ethers.formatEther(await f.launchFee())} ETH`);
+      await read("publicGate     ", async () => (await f.launchEnabled()) ? "open" : "closed");
+      await read("configs        ", async () => String(await f.launchConfigCount()));
+      if (who) {
+        await read("canLaunch(you) ", async () => (await f.canLaunch(who)) ? "yes" : "no");
+        lines.push(`you            ${who}`);
+      } else {
+        lines.push("canLaunch(you) — connect a wallet to ask");
+      }
+      try {
+        const c = await PONS.pickConfig(f);
+        lines.push(`config #${c.id}      supply ${ethers.formatEther(c.supply)}, graduates at ${ethers.formatEther(c.graduationThreshold)} ETH, fee ${c.curveFeeBps} bps`);
+      } catch (err) {
+        lines.push(`config         — ${err.shortMessage || err.message}`);
+      }
+      const w = byTicker("MEAD");
+      lines.push("", "description that would go on chain:", PONS.describe("MEAD", w ? w.n : "Lake Mead"));
+      say(lines);
+    } catch (err) {
+      say([`failed: ${errText(err)}`]);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = was;
+    }
+  });
+
   on("set-launcher", () => {
     const addr = prompt("Launcher address on this network:", Chain.launcher || "");
     if (addr === null) return;

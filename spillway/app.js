@@ -1045,11 +1045,17 @@ async function swap(href, replace) {
 document.addEventListener("DOMContentLoaded", async () => {
   Motion.mount();
   wireSound();
-  const banner = $("launcher-banner");
-  if (banner && (DemoChain.isOn() || (!Chain.hasWallet() && !DemoChain.optedOut()))) {
-    banner.innerHTML = `<div class="note strip"><span id="boot-msg">Starting an Ethereum node in this page…</span></div>`;
+  /* Booting an EVM takes a few seconds. Say so out of the way, not in a box
+   * across the top of the page. */
+  let boot = null;
+  if (DemoChain.isOn() || (!Chain.hasWallet() && !DemoChain.optedOut())) {
+    boot = document.createElement("div");
+    boot.className = "booting";
+    boot.innerHTML = `<span class="spin"></span><span id="boot-msg">Starting an Ethereum node in this page…</span>`;
+    document.body.appendChild(boot);
   }
   await Chain.init(msg => setText("boot-msg", msg));
+  if (boot) boot.remove();
   renderNetwork();
   renderBanners();
   wireRouter();

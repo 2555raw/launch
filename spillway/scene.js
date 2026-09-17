@@ -14,10 +14,10 @@ const Scene = {
   streaks: [], boil: [], spray: [],
 
   /* Landmarks, read off the artwork. */
-  LIP: { left: 0.2687, right: 0.5238, y: 0.5267 },      // the gate sills
-  FOOT: { left: 0.2000, right: 0.5988, y: 0.9422 },   // where the sheet lands
-  POOL: { y: 0.9489 },
-  RESERVOIR: { top: 0.4156, bottom: 0.5267, left: 0.0663, right: 0.7462 },
+  LIP: { left: 0.4350, right: 0.5650, y: 0.4700 },    // the overflow bay in the crest
+  FOOT: { left: 0.4150, right: 0.5850, y: 0.8600 },   // where the sheet lands
+  POOL: { y: 0.8850 },
+  RESERVOIR: { top: 0.3350, bottom: 0.4700, left: 0.0550, right: 0.9450 },
 
   mount(canvas) {
     this.canvas = canvas;
@@ -200,12 +200,14 @@ const Scene = {
   /* Where it lands: white water turning over itself. */
   drawBoil(ctx, w, h) {
     const y = this.POOL.y * h;
+    /* The white water is as wide as what lands in it, not as wide as the frame. */
+    const chute = (this.FOOT.right - this.FOOT.left) * w;
     for (const b of this.boil) {
       b.life += b.grow;
       b.u += b.drift;
       if (b.life >= 1) Object.assign(b, this.newBoil(0));
       const x = (this.FOOT.left + (this.FOOT.right - this.FOOT.left) * b.u) * w;
-      const r = b.r * w * (0.4 + b.life * 1.3);
+      const r = b.r * chute * 3.1 * (0.4 + b.life * 1.3);
       const a = Math.sin(b.life * Math.PI) * 0.55;
       const g = ctx.createRadialGradient(x, y, 0, x, y, r);
       g.addColorStop(0, `rgba(255,255,255,${a.toFixed(3)})`);
@@ -221,14 +223,15 @@ const Scene = {
   /* Spray climbing out of the boil and drifting downstream. */
   drawSpray(ctx, w, h) {
     const baseY = this.POOL.y * h;
+    const chute = (this.FOOT.right - this.FOOT.left) * w;
     for (const s of this.spray) {
       s.life += s.fade;
       s.y -= s.rise;
       s.x += s.drift;
       if (s.life >= 1) Object.assign(s, this.newSpray(0));
-      const x = (this.FOOT.left + (this.FOOT.right - this.FOOT.left) * s.u) * w + s.x * w;
+      const x = (this.FOOT.left + (this.FOOT.right - this.FOOT.left) * s.u) * w + s.x * chute * 2.4;
       const y = baseY + s.y * h;
-      const r = s.r * w * (0.5 + s.life * 1.8);
+      const r = s.r * chute * 2.2 * (0.5 + s.life * 1.8);
       const a = Math.sin(s.life * Math.PI) * 0.3;
       if (a < 0.004) continue;
       const g = ctx.createRadialGradient(x, y, 0, x, y, r);
@@ -245,9 +248,9 @@ const Scene = {
   drawRainbow(ctx, w, h, t) {
     const strength = 0.34 + 0.3 * Math.sin(t * 0.13);
     if (strength <= 0.05) return;
-    const cx = (this.FOOT.right + 0.09) * w;
-    const cy = this.POOL.y * h + 0.05 * h;
-    const r = 0.16 * w;
+    const cx = (this.FOOT.right + 0.055) * w;
+    const cy = this.POOL.y * h + 0.04 * h;
+    const r = 0.115 * w;
     const bands = [
       ["255,120,110", 1.0], ["255,178,96", 0.92], ["250,226,120", 0.86],
       ["150,220,150", 0.8], ["130,196,240", 0.76], ["170,150,230", 0.72],
@@ -256,9 +259,9 @@ const Scene = {
     ctx.lineCap = "butt";
     bands.forEach(([rgb, k], i) => {
       ctx.strokeStyle = `rgba(${rgb},${(strength * 0.22 * k).toFixed(3)})`;
-      ctx.lineWidth = 7;
+      ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.arc(cx, cy, r - i * 7, Math.PI * 1.06, Math.PI * 1.62);
+      ctx.arc(cx, cy, r - i * 5, Math.PI * 1.06, Math.PI * 1.62);
       ctx.stroke();
     });
     ctx.restore();

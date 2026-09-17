@@ -124,8 +124,11 @@ const Motion = {
     document.body.classList.toggle("scrolled", y > 24);
     if (!this.veil) return;
 
-    // gone by the end of the first screen, and out of the way entirely after it
-    const fade = Math.min(1, y / (window.innerHeight * 0.8));
+    /* The first screen belongs to the scene, so the veil only starts closing
+     * once the hero is on its way out, and is shut by the time the tables are
+     * on screen. */
+    const start = window.innerHeight * 0.45;
+    const fade = Math.min(1, Math.max(0, (y - start) / (window.innerHeight * 0.65)));
     this.veil.style.opacity = fade.toFixed(3);
     const spent = fade >= 1;
     document.querySelector(".scene").classList.toggle("spent", spent);

@@ -10,7 +10,8 @@
     "serve": "node server.js",
     "e2e": "node contracts/e2e.js",
     "photos": "node scripts/photos.js",
-    "plates": "python3 scripts/plates.py"
+    "plates": "python3 scripts/plates.py",
+    "scene": "python3 scripts/render.py"
   },
   "devDependencies": {
     "ethers": "^6.13.4",

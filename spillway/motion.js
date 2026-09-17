@@ -18,6 +18,23 @@ const Motion = {
 
   mount() {
     this.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    this.syncScene(document.body.dataset.page || window.SPILLWAY_PAGE);
+
+    this.onScroll();
+    let ticking = false;
+    window.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { this.onScroll(); ticking = false; });
+    }, { passive: true });
+
+    this.watchReveals();
+  },
+
+  /* Build the scene on the front page, take it away everywhere else. */
+  syncScene(page) {
+    if (page !== "markets") { this.teardown(); return; }
     if (!document.querySelector(".scene")) {
       const scene = document.createElement("div");
       scene.className = "scene";
@@ -41,16 +58,19 @@ const Motion = {
     this.veil = document.querySelector(".scene-veil");
     if (!this.reduced) Scene.mount(document.querySelector(".scene-live"));
     this.tryVideo();
-
+    document.body.classList.add("has-scene");
     this.onScroll();
-    let ticking = false;
-    window.addEventListener("scroll", () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => { this.onScroll(); ticking = false; });
-    }, { passive: true });
+  },
 
-    this.watchReveals();
+  teardown() {
+    const scene = document.querySelector(".scene");
+    Scene.stop();
+    if (this.video) { this.video.pause(); this.video = null; }
+    if (scene) scene.remove();
+    this.layers = [];
+    this.veil = null;
+    document.body.classList.remove("has-scene", "scrolled");
+
   },
 
   /* A filmed backdrop takes over the moment one is present: drop an encoded
@@ -101,9 +121,16 @@ const Motion = {
 
   onScroll() {
     const y = window.scrollY || 0;
-    const fade = Math.min(1, y / (window.innerHeight * 0.85));
-    if (this.veil) this.veil.style.opacity = fade.toFixed(3);
     document.body.classList.toggle("scrolled", y > 24);
+    if (!this.veil) return;
+
+    // gone by the end of the first screen, and out of the way entirely after it
+    const fade = Math.min(1, y / (window.innerHeight * 0.8));
+    this.veil.style.opacity = fade.toFixed(3);
+    const spent = fade >= 1;
+    document.querySelector(".scene").classList.toggle("spent", spent);
+    if (spent) { Scene.stop(); if (this.video) this.video.pause(); }
+    else { if (!this.reduced) Scene.start(); if (this.video && this.video.paused) this.video.play().catch(() => {}); }
     if (this.reduced) return;
     for (const [el, rate] of this.layers) {
       if (el) el.style.transform = `translate3d(0, ${(-y * rate).toFixed(1)}px, 0)`;

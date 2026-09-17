@@ -800,6 +800,7 @@ async function swap(href, replace) {
     document.title = doc.title;
     document.body.dataset.page = key;
     window.SPILLWAY_PAGE = key;
+    Motion.syncScene(key);
     document.querySelectorAll(".nav-links a").forEach(a => {
       a.classList.toggle("on", pageFor(new URL(a.getAttribute("href"), location.href).pathname) === key);
     });

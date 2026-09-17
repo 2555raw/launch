@@ -45,6 +45,8 @@ body {
  * with a veil that closes over them on the way down so the tables below sit on
  * plain ground. */
 .scene { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+/* once the veil has closed there is nothing left to composite */
+.scene.spent { visibility: hidden; }
 .scene-layer {
   position: absolute; inset: 0;
   background-repeat: no-repeat;
@@ -96,7 +98,7 @@ body {
 }
 
 /* The hero reads over the water, so it carries its own light behind it. */
-.hero-in::before {
+body.has-scene .hero-in::before {
   content: "";
   position: absolute; inset: -6% -8% -10% -12%;
   background: radial-gradient(56% 62% at 18% 44%, rgba(255, 255, 255, .72) 0%, rgba(255, 255, 255, .34) 46%, transparent 72%);

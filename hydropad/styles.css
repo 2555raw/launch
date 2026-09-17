@@ -1567,3 +1567,60 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
   .mark-pt::before { animation: none; opacity: 0; }
   .mark-pt i, .tip { transition: none; }
 }
+
+/* ---------------- the register's toolbar ---------------- */
+
+.toolbar {
+  gap: 14px; padding: 15px 20px;
+  background: linear-gradient(180deg, rgba(10, 22, 20, .6), rgba(7, 16, 15, .4));
+}
+.toolbar .chips { gap: 7px; }
+.toolbar .chip {
+  position: relative; overflow: hidden;
+  background: rgba(8, 18, 16, .55);
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+  font: 600 13px/1 var(--sans); letter-spacing: -.01em;
+  padding: 9px 15px;
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease),
+              box-shadow var(--t) var(--ease);
+}
+/* the accent floods in from the left rather than switching on */
+.toolbar .chip::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg, #67b6d6, #3f8cad);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .42s var(--ease-out);
+}
+.toolbar .chip > * { position: relative; }
+.toolbar .chip:hover { color: var(--ink); border-color: var(--accent); transform: translateY(-1px); }
+.toolbar .chip:active { transform: translateY(0) scale(.97); }
+.toolbar .chip.on {
+  color: #04181f; border-color: transparent; background: transparent;
+  box-shadow: var(--glow);
+}
+.toolbar .chip.on::before { transform: scaleX(1); }
+
+.toolbar input, .toolbar select {
+  background: rgba(6, 14, 12, .6); color: var(--ink); border-color: var(--line-2);
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease),
+              box-shadow var(--t) var(--ease);
+}
+.toolbar input::placeholder { color: var(--ink-3); }
+.toolbar input:focus, .toolbar select:focus {
+  outline: none; border-color: var(--accent); background: rgba(6, 14, 12, .9);
+  box-shadow: 0 0 0 3px rgba(88, 167, 201, .18);
+}
+.toolbar label { color: var(--ink-3); }
+
+/* rows arrive in order when the filter changes, so the table reads as moving */
+.tbl tbody tr.dealt { animation: deal .42s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 26ms); }
+@keyframes deal {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toolbar .chip, .toolbar .chip::before { transition: none; }
+  .tbl tbody tr.dealt { animation: none; }
+}

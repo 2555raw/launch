@@ -704,7 +704,14 @@ const PAGES = {
       if (sort === "spot") list = [...list].sort((a, b) => b.p - a.p);
       else if (sort === "fill") list = [...list].sort((a, b) => (BASE_LEVEL[a.t] ?? .5) - (BASE_LEVEL[b.t] ?? .5));
       else if (sort === "name") list = [...list].sort((a, b) => a.n.localeCompare(b.n));
-      $("source-rows").innerHTML = list.length ? sourceRows(list) : emptyRow(7, "No source matches that search.");
+      const host = $("source-rows");
+      host.innerHTML = list.length ? sourceRows(list) : emptyRow(7, "No source matches that search.");
+      /* dealt out one after another, so a filter reads as the table changing
+       * rather than as a new table appearing */
+      [...host.children].forEach((tr, i) => {
+        tr.style.setProperty("--i", String(Math.min(i, 18)));
+        tr.classList.add("dealt");
+      });
       setText("source-count", `${list.length} of ${WATER.length} sources`);
     };
     document.querySelectorAll("[data-class]").forEach(btn => btn.addEventListener("click", () => {

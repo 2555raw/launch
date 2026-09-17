@@ -115,6 +115,16 @@ function sourceArt(t) {
  * stay in this browser; the button prints what to paste into photos.js to make
  * them part of the build. */
 function wirePhotoDesk() {
+  /* Say how many of the register's entries actually have a photograph, rather
+   * than a number in the markup that goes stale the next time one is added. */
+  const count = $("photo-count");
+  if (count) {
+    const n = Object.keys(typeof PHOTOS !== "undefined" ? PHOTOS : {}).length;
+    const words = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+                   "Eleven", "Twelve"];
+    count.textContent = words[n] || String(n);
+  }
+
   const box = $("photo-desk");
   if (!box || box.dataset.wired === "1") return;
   box.dataset.wired = "1";
@@ -241,6 +251,18 @@ function renderNetwork() {
   const cls = Chain.offline ? "bad" : Chain.launcher ? "ok" : "warn";
   const name = Chain.offline ? "No node" : info.name;
 
+  /* A coloured dot beside a chain name means nothing to somebody who has not
+   * been told what the colours are. Say it in words instead: what the pill is,
+   * and what this particular state of it means. */
+  const hint = Chain.offline
+    ? "This browser cannot reach any Ethereum node. Click to run a chain inside this page instead."
+    : Chain.demo
+      ? "A chain is running inside this page, and everything here is executed by it. Click to start over or hand back to your wallet."
+      : Chain.launcher
+        ? `Hydropad is on ${info.name}, and this page reads and writes there. Click to change network.`
+        : `Your wallet is on ${info.name}, and Hydropad is not there yet. Click to move to Robinhood Chain.`;
+  const suffix = cls === "warn" ? `<span class="net-off">not here</span>` : "";
+
   const account = Chain.demo
     ? `<span class="pill"><span class="dot"></span>${shortAddr(Chain.account)}</span>`
     : Chain.account
@@ -252,12 +274,12 @@ function renderNetwork() {
     side.innerHTML = `<b><span class="dot" style="background:${Chain.offline ? "#e0705f" : Chain.launcher ? "#63c49c" : "#e8a33d"}"></span>${esc(name)}</b>` +
       (Chain.demo ? "<span>a real EVM inside this page</span>"
                   : Chain.launcher ? `<span class="mono">${shortAddr(Chain.launcher)}</span>`
-                                   : "<span>no launcher here yet</span>");
+                                   : "<span>Hydropad is not on this network</span>");
   }
   host.innerHTML = `
     <button class="pill ${cls} as-btn" type="button" id="chain-btn" aria-expanded="false"
-            aria-haspopup="true" title="Where this page reads and writes">
-      <span class="dot"></span><span class="net-name">${esc(name)}</span>
+            aria-haspopup="true" title="${esc(hint)}">
+      <span class="dot"></span><span class="net-lbl">Network</span><span class="net-name">${esc(name)}</span>${suffix}
       <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3.2 5 7 9 3.2"
         fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
@@ -329,9 +351,12 @@ function chainMenu() {
      * the thing they can actually do about it. Deploying a launcher is real,
      * but it is a job for whoever is running the project, not something to put
      * in front of a visitor with no explanation. */
-    rows.push(`<p><b>No launcher on ${here} yet.</b> Hydropad runs on Robinhood Chain, the Arbitrum
-      L2 that settles to Ethereum and pays gas in ETH. Move your wallet there, or run the whole thing
-      in this page to see how it works.</p>`);
+    rows.push(`<p><b>Your wallet is on ${here}, and Hydropad is not there.</b> The site has no
+      server: it reads and writes on whichever network your wallet is on, and on ${here} there is no
+      launcher contract to read, so the tables are empty and there is nothing to launch against.</p>`);
+    rows.push(`<p>It runs on <b>Robinhood Chain</b> instead: an Arbitrum layer 2 that settles to
+      Ethereum and pays gas in ETH. Move your wallet there, or run the whole thing inside this page
+      to see how it works without spending anything.</p>`);
     rows.push(`<div class="chain-acts">
       <button class="btn accent sm" type="button" data-switch="4663">Robinhood Chain</button>
       <button class="btn alt sm" type="button" data-switch="46630">Testnet</button>
@@ -770,7 +795,6 @@ const PAGES = {
     $("sort").addEventListener("change", e => { sort = REGISTER.sort = e.target.value; rows(); });
     rows();
     renderTape();
-    renderCredits();
   },
 
   launch() {
@@ -1193,19 +1217,6 @@ function chart(trades) {
     <path d="${line} L770 230 L10 230 Z" fill="url(#g)"/>
     <path d="${line}" fill="none" stroke="#0e7490" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
   </svg>`;
-}
-
-/* Photographs carry their attribution, listed under the register. */
-function renderCredits() {
-  const host = $("credits");
-  if (!host) return;
-  const credits = typeof PHOTO_CREDITS !== "undefined" ? PHOTO_CREDITS : {};
-  const entries = Object.entries(credits);
-  if (!entries.length) { host.innerHTML = ""; return; }
-  host.innerHTML = `<h4>Photographs</h4><ul>` + entries.map(([t, credit]) => {
-    const w = byTicker(t);
-    return `<li><b>${esc(w ? w.n : t)}</b> — ${esc(credit)}</li>`;
-  }).join("") + `</ul>`;
 }
 
 /* ---------------- ticker ---------------- */

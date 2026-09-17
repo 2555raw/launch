@@ -6,7 +6,7 @@
  */
 
 const CHAINS = {
-  1337:     { name: "In-page chain", rpc: "",                                            explorer: "",                               ticker: "ETH", test: true },
+  1337:     { name: "Demo chain",    rpc: "",                                            explorer: "",                               ticker: "ETH", test: true },
   /* Robinhood Chain is an Arbitrum Orbit L2 that settles to Ethereum and pays
    * gas in ETH, so the launcher deploys and runs on it unchanged. Contract
    * deployment there is permissionless: no allowlist to get onto. */

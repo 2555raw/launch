@@ -299,7 +299,7 @@ function renderNetwork() {
   const side = $("side-chain");
   if (side) {
     side.innerHTML = `<b><span class="dot" style="background:${Chain.offline ? "#e0705f" : Chain.ready() ? "#63c49c" : "#e8a33d"}"></span>${esc(name)}</b>` +
-      (Chain.demo ? "<span>a real EVM inside this page</span>"
+      (Chain.demo ? "<span>in this browser only, nothing costs anything</span>"
                   : Chain.viaPons() ? "<span>launching through Pons V2</span>"
                   : Chain.launcher ? `<span class="mono">${shortAddr(Chain.launcher)}</span>`
                                    : "<span>Hydropad is not on this network</span>");

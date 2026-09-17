@@ -1730,7 +1730,10 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 
 /* One reserve in the sidebar, where there was nothing. A real photograph of a
    real place, the level it is at, and where to go and look at it. */
-.side-feature { margin-top: 4px; }
+/* The sidebar is a flex column, so without this the card is the thing that
+   gets squashed when the viewport is short: the photograph loses its aspect
+   ratio and the text rides up over it. */
+.side-feature { margin-top: 4px; flex: none; }
 .sf-card {
   display: block; border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
   background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));

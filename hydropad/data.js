@@ -76,4 +76,10 @@ const SITE_NOTES = {
  * surface to photograph, which is exactly why the two that used to be here
  * looked wrong, so the gallery is surface water and ice and the aquifers stay
  * in the register, where the text can do the explaining. */
+/* What a coin can be paired to: a named body of water somebody can go and look
+ * at. That leaves out the four generic entries, which are categories rather
+ * than places, and the desalination plants, which make water rather than hold
+ * it. They stay in the register, because the register is a register. */
+const PAIRABLE = w => w.c !== "Desalination" && Array.isArray(w.g);
+
 const FEATURED = ["MEAD", "TGR", "POW", "ORO", "GRN", "GLC"];

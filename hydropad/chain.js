@@ -32,6 +32,13 @@ const DEPLOYMENTS = {
 /* Where the pages read from when nobody has a wallet connected. */
 const DEFAULT_CHAIN = 46630;
 
+/* Launching is Robinhood Chain only. Reading works on any network your wallet
+ * is on — if somebody put a launcher there, the tables will show it — but this
+ * build only opens new pairings on the chain it is for. 1337 is the EVM that
+ * runs inside the page, which is a sandbox rather than a network, and is kept
+ * open so the site can be used with no wallet and no money. */
+const LAUNCH_CHAINS = new Set([4663, 46630, 1337]);
+
 const LAUNCHER_KEY = c => `hydropad.launcher.${c}`;
 
 const Chain = {
@@ -181,6 +188,9 @@ const Chain = {
     return this.account;
   },
 
+  /* Can a pairing be opened from where we are standing? */
+  canLaunch() { return LAUNCH_CHAINS.has(Number(this.chainId)); },
+
   chainInfo() {
     return CHAINS[this.chainId] || { name: `Chain ${this.chainId}`, explorer: "", ticker: "ETH" };
   },
@@ -231,6 +241,11 @@ const Chain = {
   rememberLauncher(addr) {
     this.launcher = ethers.getAddress(addr);
     try { localStorage.setItem(LAUNCHER_KEY(this.chainId), this.launcher); } catch (_) {}
+    /* The pages navigate softly, so nothing reloads when a launcher appears
+     * part way through a visit. Announce it, and the chrome catches up. */
+    try {
+      window.dispatchEvent(new CustomEvent("hydropad:chain", { detail: { launcher: this.launcher } }));
+    } catch (_) {}
   },
 
   forgetLauncher() {

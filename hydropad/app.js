@@ -477,7 +477,9 @@ function sourceRows(list, withAction = true) {
         <div class="level ${lc}"><div class="bar"><i style="width:0" data-fill="${(fill * 100).toFixed(0)}%"></i></div><span>${level(fill)} full</span></div>
       </td>
       <td class="num spot"><b>${usd(w.p)}</b><small class="sub">${esc(w.u)}</small></td>
-      ${withAction ? `<td class="num nowrap"><a class="btn alt sm" href="launch.html?source=${w.t}">Pair</a></td>` : ""}
+      ${withAction ? `<td class="num nowrap">${PAIRABLE(w)
+        ? `<a class="btn alt sm" href="launch.html?source=${w.t}">Pair</a>`
+        : `<span class="no-pair" title="A coin is paired to a named body of water. This entry is a category, or a plant that makes water rather than a place that holds it.">—</span>`}</td>` : ""}
     </tr>`;
   }).join("");
 }
@@ -669,7 +671,7 @@ function renderSites() {
         ${w.g ? `<div class="whereis"><span>Go and look</span>${coordTag(w, "coords big")}</div>` : ""}
         <div class="gauge" style="--w:${(fill * 100).toFixed(0)}%"><i style="width:0" data-fill="${(fill * 100).toFixed(0)}%"></i></div>
         <div class="site-cta">
-          <a class="btn sm" href="launch.html?source=${esc(w.t)}">Pair ${esc(w.t)}</a>
+          ${PAIRABLE(w) ? `<a class="btn sm" href="launch.html?source=${esc(w.t)}">Pair ${esc(w.t)}</a>` : ""}
           <a class="btn alt sm" href="sources.html">See the register</a>
         </div>
       </div>
@@ -807,7 +809,7 @@ const PAGES = {
       /* The networks this build knows how to read. The one in use is the one
        * the page actually booted on: picking another tells you how to get
        * there, it cannot move your wallet for you. */
-      $("f-chains").innerHTML = [46630, 4663, 8453, 1337].map(id => {
+      $("f-chains").innerHTML = [46630, 4663, 1337].map(id => {
         const c = CHAINS[id];
         const on = Chain.chainId === id;
         return `<button class="chip${on ? " on" : ""}" type="button" data-chain="${id}" aria-pressed="${on}">
@@ -834,11 +836,12 @@ const PAGES = {
 
       /* Four classes of water, and each one behaves differently enough that it
        * is worth choosing before the source. */
-      $("f-classes").innerHTML = CLASSES.map((c, i) => `
+      const classes = CLASSES.filter(c => WATER.some(w => w.c === c && PAIRABLE(w)));
+      $("f-classes").innerHTML = classes.map((c, i) => `
         <button class="pad${i === 0 ? " on" : ""}" type="button" data-class="${esc(c)}" aria-pressed="${i === 0}">
           <b>${esc(c)}</b>
           <span>${esc(CLASS_BLURB[c])}</span>
-          <small>${WATER.filter(w => w.c === c).length} sources</small>
+          <small>${WATER.filter(w => w.c === c && PAIRABLE(w)).length} sources</small>
         </button>`).join("");
       $("f-classes").addEventListener("click", e => {
         const b = e.target.closest("[data-class]");
@@ -855,7 +858,8 @@ const PAGES = {
       });
 
       const pre = qs("source");
-      pickClass(pre && byTicker(pre) ? byTicker(pre).c : CLASSES[0], false, pre);
+      const preW = pre && byTicker(pre);
+      pickClass(preW && PAIRABLE(preW) ? preW.c : classes[0], false, preW && PAIRABLE(preW) ? pre : null);
     }
 
     renderWallets();
@@ -868,7 +872,7 @@ const PAGES = {
         b.setAttribute("aria-pressed", String(on));
       }
       const before = form.source.value;
-      form.source.innerHTML = WATER.filter(w => w.c === cls)
+      form.source.innerHTML = WATER.filter(w => w.c === cls && PAIRABLE(w))
         .map(w => `<option value="${w.t}">${esc(w.n)} · ${w.t} · ${esc(w.v)}</option>`).join("");
       if (preferred && byTicker(preferred) && byTicker(preferred).c === cls) form.source.value = preferred;
       else if (keepSource && [...form.source.options].some(o => o.value === before)) form.source.value = before;
@@ -939,6 +943,9 @@ const PAGES = {
       if (!btn.disabled) btn.textContent = Chain.launcher || Chain.demo
         ? `Launch on ${info().name}`
         : `Open Hydropad on ${info().name}`;
+      if (btn.disabled && !Chain.offline && !Chain.canLaunch()) {
+        btn.textContent = "Switch to Robinhood Chain to launch";
+      }
     }
 
     /* Whatever can actually sign here, named. */
@@ -951,12 +958,28 @@ const PAGES = {
        * the launcher is a plain contract and anyone can put it there, so the
        * first launch carries it. Say so before the form is filled in, so the
        * second wallet prompt is not a surprise. */
-      const first = !Chain.demo && !Chain.offline && Chain.hasWallet() && !Chain.launcher;
+      /* Hydropad launches on Robinhood Chain and nowhere else. Reading works on
+       * any network; opening a pairing does not. */
+      const wrongChain = !Chain.offline && !Chain.canLaunch();
+      const first = !wrongChain && !Chain.demo && !Chain.offline && Chain.hasWallet() && !Chain.launcher;
       const stuck = !Chain.demo && !Chain.offline && !Chain.hasWallet();
 
       const warn = $("f-blocked");
       if (warn) warn.remove();
-      if (first) {
+      if (wrongChain) {
+        const el = document.createElement("div");
+        el.id = "f-blocked";
+        el.className = "lp-blocked";
+        el.innerHTML = `<b>Coins are launched on Robinhood Chain, not on ${esc(info().name)}.</b>
+          <span>Your wallet is on ${esc(info().name)}. Hydropad opens pairings on Robinhood Chain,
+          the Arbitrum layer 2 that settles to Ethereum and pays gas in ETH. Move your wallet over
+          and the form works as it is.</span>
+          <span class="lp-blocked-acts">
+            <button class="btn accent sm" type="button" data-switch="4663">Robinhood Chain</button>
+            <button class="btn alt sm" type="button" data-switch="46630">Testnet</button>
+          </span>`;
+        host.parentNode.insertBefore(el, host);
+      } else if (first) {
         const el = document.createElement("div");
         el.id = "f-blocked";
         el.className = "lp-blocked";
@@ -967,8 +990,9 @@ const PAGES = {
         host.parentNode.insertBefore(el, host);
       }
       if (btn) {
-        btn.disabled = stuck;
-        btn.textContent = stuck ? "No wallet in this browser"
+        btn.disabled = stuck || wrongChain;
+        btn.textContent = wrongChain ? "Switch to Robinhood Chain to launch"
+          : stuck ? "No wallet in this browser"
           : first ? `Open Hydropad on ${info().name}`
           : `Launch on ${info().name}`;
       }
@@ -1004,6 +1028,9 @@ const PAGES = {
       const btn = $("f-submit");
       try {
         if (!Chain.account) await Chain.connect();
+        if (!Chain.canLaunch()) {
+          return toast(`Hydropad launches on Robinhood Chain. Your wallet is on ${info().name}.`);
+        }
         const symbol = form.symbol.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
         if (!symbol) return toast("The symbol needs at least one letter.");
         const { supply, firstBuy } = figures();
@@ -1327,9 +1354,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   /* Pairings that land after the first paint (the in-page chain opens its seeds
    * behind the page) redraw whatever is on screen. */
   let pending = null;
+  /* The network pill, the sidebar line and the launch form all read the same
+   * four facts. Redraw that chrome only when one of them actually changes, so
+   * an open chain menu is not torn down by a pairing landing behind it. */
+  const chromeSig = () => [Chain.chainId, Chain.launcher, Chain.account, Chain.offline].join("|");
+  let chrome = chromeSig();
   window.addEventListener("hydropad:chain", () => {
     clearTimeout(pending);
-    pending = setTimeout(render, 120);
+    pending = setTimeout(() => {
+      if (chromeSig() !== chrome) { chrome = chromeSig(); renderNetwork(); }
+      render();
+    }, 120);
   });
 });
 

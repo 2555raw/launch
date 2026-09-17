@@ -25,7 +25,10 @@ window.__added = [];
 window.ethereum = {
   isMetaMask: true,
   _acct: null,
-  _chain: '${chainHex}',
+  /* Kept in sessionStorage so it survives the navigations the run makes: the
+   * shim is re-injected on every page load. */
+  get _chain() { try { return sessionStorage.getItem('__chain') || '${chainHex}'; } catch (e) { return '${chainHex}'; } },
+  set _chain(v) { try { sessionStorage.setItem('__chain', v); } catch (e) {} },
   on() {}, removeListener() {},
   async request({ method, params = [] }) {
     if (method === 'eth_requestAccounts' || method === 'eth_accounts') {
@@ -110,10 +113,38 @@ const log = [];
     console.log('   wallet was asked to add', added.chainName, added.chainId, added.rpcUrls[0]);
   });
 
+  await step('only natural reserves are on offer', async () => {
+    await p.goto(base + 'launch.html', { waitUntil: 'networkidle' });
+    const classes = await p.locator('#f-classes [data-class]').evaluateAll(
+      els => els.map(e => e.dataset.class));
+    if (classes.includes('Desalination')) throw new Error('a plant is not a natural reserve');
+    /* Every source the form offers has to be a named place with coordinates. */
+    for (const cls of classes) {
+      await p.click(`[data-class="${cls}"]`);
+      const opts = await p.locator('#f-source option').evaluateAll(els => els.map(e => e.value));
+      const bad = await p.evaluate(ts => ts.filter(t => {
+        const w = WATER.find(x => x.t === t);
+        return !w || !Array.isArray(w.g) || w.c === 'Desalination';
+      }), opts);
+      if (bad.length) throw new Error(cls + ' offers ' + bad.join(', '));
+    }
+    console.log('   pairable classes:', classes.join(', '));
+  });
+
+  await step('launching anywhere but Robinhood is refused', async () => {
+    await p.evaluate(() => sessionStorage.setItem('__chain', '0x2105'));  // Base
+    await p.goto(base + 'launch.html', { waitUntil: 'networkidle' });
+    await p.waitForSelector('#f-blocked');
+    const said = await p.textContent('#f-blocked');
+    if (!/launched on Robinhood Chain, not on Base/.test(said)) throw new Error('unexpected: ' + said.trim());
+    if (!(await p.locator('#f-submit').isDisabled())) throw new Error('the button is still live on Base');
+    await p.evaluate(c => sessionStorage.setItem('__chain', c), '0x' + CHAIN.toString(16));
+  });
+
   await step('the launch deploys the launcher, then pairs against it', async () => {
     await p.goto(base + 'launch.html', { waitUntil: 'networkidle' });
-    await p.fill('#f-name', 'Raw Water');
-    await p.fill('#f-symbol', 'h2o');
+    await p.fill('#f-name', 'Dead Pool');
+    await p.fill('#f-symbol', 'pool');
     await p.selectOption('#f-source', 'MEAD');
     await p.fill('#f-firstbuy', '0.5');
     await p.click('button[type=submit]');
@@ -125,6 +156,14 @@ const log = [];
   console.log('   launcher:', launcher);
   const tokenAddr = new URL(p.url()).searchParams.get('addr');
   console.log('   token:', tokenAddr);
+  await step('the chrome catches up with the launcher it just deployed', async () => {
+    await p.waitForFunction(() => !/not here/.test(document.querySelector('#chain-btn')?.textContent || ''),
+      null, { timeout: 15000 });
+    const pill = (await p.textContent('#chain-btn')).replace(/\s+/g, ' ').trim();
+    if (!/Robinhood Testnet/.test(pill)) throw new Error('pill reads ' + pill);
+    console.log('   pill:', pill);
+  });
+
   const capAfterLaunch = await p.textContent('.summary .line b');
   console.log('   market cap:', capAfterLaunch.trim());
 

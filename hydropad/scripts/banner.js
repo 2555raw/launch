@@ -60,7 +60,7 @@ function layout({ W, H, head, sub, headSize, subSize, cardW, cards, coins, glows
 }
 
 const HEAD = `A launchpad paired to <span class="on">real water</span>`;
-const SUB = "26 named reserves. One curve each. On Robinhood Chain.";
+const SUB = "26 reserves to pair to. One curve each. On Robinhood Chain.";
 
 const WIDE = {
   W: 2000, H: 650, headSize: 62, subSize: 21, cardW: 372,

@@ -339,6 +339,68 @@ function renderSideFeature() {
   }, 7000);
 }
 
+/* What has actually been launched, in the sidebar, on every page. The tables
+ * are the record; this is the pulse — three coins, newest first, so a visit
+ * that never reaches Launches still sees the thing working.
+ *
+ * One read per page load, reused rather than scanned twice: on a Pons chain a
+ * listing is a walk over the chain's logs and is not free. */
+let sidePairings = null;
+
+function renderSideLaunches(rows) {
+  const host = $("side-launches");
+  if (!host) return;
+
+  if (!rows) {
+    host.innerHTML = `<p class="sl-head">Latest launches</p><p class="sl-empty">Reading the chain…</p>`;
+    return;
+  }
+  if (!rows.length) {
+    host.innerHTML = `<p class="sl-head">Latest launches</p>
+      <a class="sl-empty sl-cta" href="launch.html">Nothing paired yet. Be the first →</a>`;
+    return;
+  }
+
+  const items = rows.slice(0, 3).map(p => {
+    const w = byTicker(p.source);
+    /* A photograph where there is one, and the source's own glyph where there
+     * is not — tinted by its class and filled to its level — rather than a
+     * grey square standing in for a place. */
+    const art = w && PHOTOS[w.t]
+      ? `<img src="${esc(PHOTOS[w.t])}" alt="" loading="lazy" decoding="async">`
+      : dropGlyph(p.source, 26);
+    /* A pairing carries no supply, so market cap would need another read per
+     * row. What it does carry is what the curve has taken in, which is the
+     * figure worth three lines of sidebar anyway. */
+    const raised = eth(p.raised || 0n, 2);
+    return `<a class="sl-row" href="token.html?addr=${esc(p.token)}">
+      <span class="sl-art">${art}</span>
+      <span class="sl-who"><b>${esc(p.symbol || shortAddr(p.token))}</b>
+        <small>${esc(w ? w.n : p.source)}</small></span>
+      <span class="sl-fig">${esc(raised)}</span>
+    </a>`;
+  }).join("");
+
+  host.innerHTML = `<p class="sl-head">Latest launches</p>${items}
+    <a class="sl-all" href="launches.html">All launches →</a>`;
+}
+
+async function loadSideLaunches() {
+  if (!$("side-launches")) return;
+  renderSideLaunches(null);
+  try {
+    sidePairings = await Chain.pairings(6);
+    /* The symbol is on the token, not on the pairing. */
+    await Promise.all(sidePairings.slice(0, 3).map(async p => {
+      try { p.symbol = (await Chain.tokenMeta(p.token)).symbol; } catch (_) {}
+    }));
+    renderSideLaunches(sidePairings);
+  } catch (e) {
+    console.warn("sidebar launches", e.shortMessage || e.message);
+    renderSideLaunches([]);
+  }
+}
+
 /* ---------------- network chrome ---------------- */
 
 function renderNetwork() {
@@ -913,8 +975,17 @@ const PAGES = {
     const list = [...WATER].sort((a, b) => b.p - a.p).slice(0, 10);
     $("board").innerHTML = sourceRows(list);
     const avg = WATER.reduce((s, w) => s + (BASE_LEVEL[w.t] ?? 0.5), 0) / WATER.length;
+    /* Two numbers, not one. The register holds 32 entries and a coin can be
+     * paired to 26 of them: the generic ones are categories rather than places,
+     * and a desalination plant makes water rather than holding it. Saying only
+     * the larger number is how a page ends up advertising something the launch
+     * form will not do. */
+    const pairable = WATER.filter(PAIRABLE);
+    const classes = CLASSES.filter(c => pairable.some(w => w.c === c));
     countUp($("stat-sources"), WATER.length);
     countUp($("stat-classes"), CLASSES.length);
+    setText("stat-pairable", `${pairable.length} pairable`);
+    setText("stat-classes-pairable", `${classes.length} pairable`);
     countUp($("stat-level"), Math.round(avg * 100), "%");
     setText("stat-chain", Chain.chainInfo().name);
     setText("recent-foot", `Read from the launcher contract on ${Chain.chainInfo().name}.`);
@@ -1583,6 +1654,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (boot) boot.remove();
   renderNetwork();
   renderSideFeature();
+  loadSideLaunches();
   renderBanners();
   wireRouter();
   render();
@@ -1600,6 +1672,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     pending = setTimeout(() => {
       if (chromeSig() !== chrome) { chrome = chromeSig(); renderNetwork(); }
       render();
+      loadSideLaunches();
     }, 120);
   });
 });

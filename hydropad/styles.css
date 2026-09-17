@@ -1300,9 +1300,11 @@ body { padding-top: 0; }
   color: var(--ink);
 }
 .brand svg { color: var(--accent); flex: none; }
+/* Short enough to sit on one line under the mark, and set in the text face:
+   the mono caps read as a system label rather than as the thing it is. */
 .brand-note {
-  margin: -14px 0 0; padding: 0 8px;
-  font: 500 9.5px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase;
+  margin: -14px 0 0; padding: 0 9px;
+  font: 400 12px/1.4 var(--sans); letter-spacing: .01em;
   color: var(--ink-3);
 }
 .side-nav { display: grid; gap: 2px; }
@@ -1801,3 +1803,51 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
 .net-fix:hover { background: rgba(88,167,201,.28); border-color: rgba(88,167,201,.8); }
 .net-fix:disabled { opacity: .6; cursor: default; }
 @media (max-width: 720px) { .net-fix { padding: 8px 10px; font-size: 0; gap: 0; } }
+
+/* On a network that works, the pill is a badge and it says so loudly: this is
+   the one piece of chrome that tells you the site is live. */
+.net .pill.ok {
+  border-color: rgba(99, 196, 156, .55);
+  background: linear-gradient(180deg, rgba(99, 196, 156, .22), rgba(99, 196, 156, .13));
+  color: #d8f6e8;
+  box-shadow: 0 0 0 1px rgba(99, 196, 156, .1), 0 6px 18px -10px rgba(99, 196, 156, .6);
+}
+.net .pill.ok .net-lbl { color: rgba(216, 246, 232, .62); }
+.net .pill.ok .net-name { color: #eafff5; font-weight: 500; }
+.net .pill.ok .dot {
+  background: #5fe0a8;
+  box-shadow: 0 0 0 3px rgba(95, 224, 168, .18);
+  animation: netlive 2.6s var(--ease) infinite;
+}
+@keyframes netlive {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(95, 224, 168, .18); }
+  50%      { box-shadow: 0 0 0 5px rgba(95, 224, 168, .05); }
+}
+@media (prefers-reduced-motion: reduce) { .net .pill.ok .dot { animation: none; } }
+
+/* The connect button wears a wallet, so it reads as one before it is read. */
+.w-btn { display: inline-flex; align-items: center; gap: 7px; }
+.w-glyph { flex: none; opacity: .85; }
+.pill .w-glyph { opacity: .7; }
+
+/* Which wallet, when the browser holds more than one. */
+.wallet-menu {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 60; min-width: 216px;
+  display: grid; gap: 2px; padding: 8px;
+  border: 1px solid var(--line-2); border-radius: 12px;
+  background: rgba(9, 19, 17, .97); backdrop-filter: blur(18px) saturate(1.1);
+  box-shadow: var(--e4, 0 24px 60px -30px rgba(0,0,0,.9));
+}
+.wm-head {
+  margin: 2px 6px 6px; font: 500 10px/1 var(--mono);
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+}
+.wm-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; cursor: pointer;
+  padding: 9px 10px; border: 0; border-radius: 8px; background: transparent;
+  color: var(--ink-2); font: 400 13px/1 var(--sans); text-align: left;
+  transition: background var(--t-fast, .15s) var(--ease), color var(--t-fast, .15s) var(--ease);
+}
+.wm-row:hover { background: rgba(88, 167, 201, .16); color: var(--ink); }
+.wm-row img { border-radius: 5px; flex: none; }
+.wm-dot { width: 18px; height: 18px; border-radius: 5px; background: rgba(196,226,214,.18); flex: none; }

@@ -342,11 +342,31 @@ function renderNetwork() {
        </button>`
     : "";
 
+  /* One line on purpose: broken across several, the markup leaves whitespace
+   * text nodes inside the button, and the label stops being the first thing
+   * in it. */
+  const purse = `<svg class="w-glyph" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/><circle cx="17" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg>`;
+
+  const found = Chain.demo ? [] : Chain.walletList();
   const account = Chain.demo
-    ? `<span class="pill"><span class="dot"></span>${shortAddr(Chain.account)}</span>`
+    ? `<span class="pill">${purse}${shortAddr(Chain.account)}</span>`
     : Chain.account
-      ? `<button class="btn alt sm" type="button" id="connect">${shortAddr(Chain.account)}</button>`
-      : `<button class="btn sm" type="button" id="connect">Connect wallet</button>`;
+      ? `<button class="btn alt sm w-btn" type="button" id="connect">${purse}${shortAddr(Chain.account)}</button>`
+      : `<button class="btn sm w-btn" type="button" id="connect">${purse}Connect wallet</button>`;
+
+  /* One wallet: connect straight to it. Several: ask which, because whichever
+   * loaded last owns window.ethereum and that is rarely the one somebody
+   * meant. */
+  const picker = (!Chain.demo && !Chain.account && found.length > 1)
+    ? `<div class="wallet-menu" id="wallet-menu" hidden>
+        <p class="wm-head">Connect with</p>
+        ${found.map(w => `<button class="wm-row" type="button" data-wallet="${esc(w.info.rdns)}">
+            ${w.info.icon ? `<img src="${esc(w.info.icon)}" alt="" width="18" height="18">`
+                          : `<span class="wm-dot"></span>`}
+            <span>${esc(w.info.name)}</span>
+          </button>`).join("")}
+      </div>`
+    : "";
 
   const side = $("side-chain");
   if (side) {
@@ -366,48 +386,70 @@ function renderNetwork() {
                       </button>`
                                    : "<span>Hydropad is not on this network</span>");
   }
-  host.innerHTML = `
-    <button class="pill ${cls} as-btn" type="button" id="chain-btn" aria-expanded="false"
-            aria-haspopup="true" title="${esc(hint)}">
-      <span class="dot"></span><span class="net-lbl">Network</span><span class="net-name">${esc(name)}</span>${suffix}
-      <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3.2 5 7 9 3.2"
-        fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    </button>
-    ${fix}
-    ${account}
-    <div class="chain-menu" id="chain-menu" hidden>${chainMenu()}</div>`;
+  /* The pill opens a menu only when the menu has something in it. On a network
+   * that works there is nothing to choose, so it is a badge: no chevron, no
+   * dropdown, just where you are. */
+  const menu = chainMenu();
+  const inner = `<span class="dot"></span><span class="net-lbl">Network</span>` +
+    `<span class="net-name">${esc(name)}</span>${suffix}`;
+  host.innerHTML = (menu
+    ? `<button class="pill ${cls} as-btn" type="button" id="chain-btn" aria-expanded="false"
+              aria-haspopup="true" title="${esc(hint)}">
+        ${inner}
+        <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3.2 5 7 9 3.2"
+          fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>`
+    : `<span class="pill ${cls}" title="${esc(hint)}">${inner}</span>`) +
+    `${fix}${account}${picker}` +
+    (menu ? `<div class="chain-menu" id="chain-menu" hidden>${menu}</div>` : "");
 
   const btn = $("chain-btn");
-  const menu = $("chain-menu");
+  const menuEl = $("chain-menu");
   let closing = null;
-  const close = () => {
-    if (menu.hidden) return;
-    menu.classList.remove("open");
-    btn.setAttribute("aria-expanded", "false");
-    clearTimeout(closing);
-    closing = setTimeout(() => { menu.hidden = true; }, 220);
-  };
-  const open = () => {
-    clearTimeout(closing);
-    menu.hidden = false;
-    requestAnimationFrame(() => menu.classList.add("open"));
-    btn.setAttribute("aria-expanded", "true");
-  };
-  btn.addEventListener("click", e => {
-    e.stopPropagation();
-    menu.hidden || !menu.classList.contains("open") ? open() : close();
-  });
-  document.addEventListener("click", e => { if (!menu.contains(e.target) && e.target !== btn) close(); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  if (btn && menuEl) {
+    const close = () => {
+      if (menuEl.hidden) return;
+      menuEl.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+      clearTimeout(closing);
+      closing = setTimeout(() => { menuEl.hidden = true; }, 220);
+    };
+    const open = () => {
+      clearTimeout(closing);
+      menuEl.hidden = false;
+      requestAnimationFrame(() => menuEl.classList.add("open"));
+      btn.setAttribute("aria-expanded", "true");
+    };
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      menuEl.hidden || !menuEl.classList.contains("open") ? open() : close();
+    });
+    document.addEventListener("click", e => { if (!menuEl.contains(e.target) && e.target !== btn) close(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  }
   wireChainActions();
 
+  /* Picking one of several wallets, then connecting with that one. */
+  const wm = $("wallet-menu");
+  if (wm) {
+    wm.querySelectorAll("[data-wallet]").forEach(b => b.addEventListener("click", async () => {
+      wm.hidden = true;
+      try { await Chain.connect(b.dataset.wallet); renderNetwork(); render(); }
+      catch (e) { toast(errText(e)); }
+    }));
+    document.addEventListener("click", e => {
+      if (!wm.contains(e.target) && e.target.closest("#connect") === null) wm.hidden = true;
+    });
+  }
+
   const connect = $("connect");
-  if (connect) connect.addEventListener("click", async () => {
+  if (connect) connect.addEventListener("click", async e => {
     if (Chain.account) {
       const link = Chain.explorerLink("address", Chain.account);
       if (link) window.open(link, "_blank", "noopener");
       return;
     }
+    if (wm) { e.stopPropagation(); wm.hidden = !wm.hidden; return; }
     try {
       await Chain.connect();
       renderNetwork();

@@ -52,10 +52,77 @@ const Chain = {
   offline: false,     // no node reachable from here
   demo: false,        // running the EVM inside this page
 
-  hasWallet() { return typeof window !== "undefined" && !!window.ethereum; },
+  /* ---------------- wallets ----------------
+   *
+   * More than one wallet can be installed in the same browser, and when they
+   * are, whichever loaded last owns window.ethereum: picking MetaMask in the
+   * UI while Phantom had taken the global is how people end up signing from
+   * the wrong account. EIP-6963 exists for exactly this — every wallet
+   * announces itself with a name, an icon and a stable id, and the page picks.
+   * window.ethereum stays as the fallback for anything that has not caught up.
+   */
+  wallets: [],          // [{ info: { uuid, name, icon, rdns }, provider }]
+  wallet: null,         // the EIP-1193 provider actually in use
+
+  /* Wallets answer this synchronously during page load, so the list is asked
+   * for once, early, and read from there. */
+  discoverWallets() {
+    if (typeof window === "undefined") return;
+    const seen = new Set(this.wallets.map(w => w.info.rdns));
+    window.addEventListener("eip6963:announceProvider", e => {
+      const d = e.detail;
+      if (!d || !d.info || seen.has(d.info.rdns)) return;
+      seen.add(d.info.rdns);
+      this.wallets.push(d);
+      window.dispatchEvent(new CustomEvent("hydropad:wallets"));
+    });
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+  },
+
+  /* Everything a picker needs: the announced wallets, plus whatever has taken
+   * window.ethereum if it never announced itself. */
+  walletList() {
+    const out = this.wallets.slice();
+    if (window.ethereum && !out.some(w => w.provider === window.ethereum)) {
+      const eth = window.ethereum;
+      const name = eth.isMetaMask ? "MetaMask"
+        : eth.isPhantom ? "Phantom"
+        : eth.isRabby ? "Rabby"
+        : eth.isCoinbaseWallet ? "Coinbase Wallet"
+        : "Browser wallet";
+      out.push({ info: { uuid: "injected", name, icon: "", rdns: "injected" }, provider: eth });
+    }
+    return out;
+  },
+
+  /* The one in use: what was chosen, else what was chosen last time, else
+   * whatever there is. */
+  pickWallet(rdns) {
+    const list = this.walletList();
+    if (!list.length) return null;
+    if (rdns) {
+      const hit = list.find(w => w.info.rdns === rdns);
+      if (hit) return hit;
+    }
+    let saved = null;
+    try { saved = localStorage.getItem("hydropad.wallet"); } catch (_) {}
+    return list.find(w => w.info.rdns === saved) || list[0];
+  },
+
+  useWallet(entry) {
+    if (!entry) return null;
+    this.wallet = entry.provider;
+    try { localStorage.setItem("hydropad.wallet", entry.info.rdns); } catch (_) {}
+    return entry;
+  },
+
+  hasWallet() { return typeof window !== "undefined" && this.walletList().length > 0; },
 
   /* Read-only boot: pick a chain and provider without prompting the wallet. */
   async init(onProgress) {
+    /* Ask before anything else: wallets answer this synchronously, and every
+     * later question about what is installed reads the answer. */
+    this.discoverWallets();
     if (DemoChain.isOn()) {
       try {
         await this.useDemo(onProgress);
@@ -68,18 +135,19 @@ const Chain = {
     }
     if (this.hasWallet()) {
       try {
-        const accounts = await window.ethereum.request({ method: "eth_accounts" });
-        const hexId = await window.ethereum.request({ method: "eth_chainId" });
+        this.useWallet(this.pickWallet());
+        const accounts = await this.wallet.request({ method: "eth_accounts" });
+        const hexId = await this.wallet.request({ method: "eth_chainId" });
         this.chainId = Number(BigInt(hexId));
-        const bp = new ethers.BrowserProvider(window.ethereum);
+        const bp = new ethers.BrowserProvider(this.wallet);
         this.provider = bp;
         if (accounts && accounts.length) {
           this.account = ethers.getAddress(accounts[0]);
           this.signer = await bp.getSigner();
           this.readOnly = false;
         }
-        window.ethereum.on?.("chainChanged", () => location.reload());
-        window.ethereum.on?.("accountsChanged", () => location.reload());
+        this.wallet.on?.("chainChanged", () => location.reload());
+        this.wallet.on?.("accountsChanged", () => location.reload());
       } catch (e) { console.warn("wallet init failed", e); }
     }
     if (!this.provider) {
@@ -175,11 +243,12 @@ const Chain = {
   },
 
   /* Prompt the wallet. Returns the connected address. */
-  async connect() {
+  async connect(rdns) {
     if (this.demo) return this.account;
-    if (!this.hasWallet()) throw new Error("No wallet found. Install MetaMask, Rabby or another EIP-1193 wallet.");
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    const bp = new ethers.BrowserProvider(window.ethereum);
+    if (!this.hasWallet()) throw new Error("No wallet found. Install MetaMask, Phantom, Rabby or another EIP-1193 wallet.");
+    this.useWallet(this.pickWallet(rdns));
+    const accounts = await this.wallet.request({ method: "eth_requestAccounts" });
+    const bp = new ethers.BrowserProvider(this.wallet);
     this.provider = bp;
     this.signer = await bp.getSigner();
     this.account = ethers.getAddress(accounts[0]);
@@ -234,15 +303,16 @@ const Chain = {
   async switchTo(id) {
     if (this.demo) throw new Error("Leave the in-page chain first.");
     if (!this.hasWallet()) throw new Error("No wallet in this browser.");
+    if (!this.wallet) this.useWallet(this.pickWallet());
     const cfg = CHAINS[id];
     if (!cfg || !cfg.rpc) throw new Error("That network cannot be switched to from here.");
     const hex = "0x" + Number(id).toString(16);
     try {
-      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
+      await this.wallet.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
     } catch (e) {
       const code = e && (e.code ?? e.data?.originalError?.code);
       if (code !== 4902 && code !== -32603) throw e;
-      await window.ethereum.request({
+      await this.wallet.request({
         method: "wallet_addEthereumChain",
         params: [{
           chainId: hex,
@@ -252,7 +322,7 @@ const Chain = {
           blockExplorerUrls: cfg.explorer ? [cfg.explorer] : undefined,
         }],
       });
-      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
+      await this.wallet.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
     }
     try { localStorage.setItem("hydropad.chain", String(id)); } catch (_) {}
     return id;

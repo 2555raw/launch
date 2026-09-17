@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spillway</title>
+<meta name="description" content="Launch a token paired to one water source, on a bonding curve that lives in a contract you can read.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z' fill='%234f46e5'/%3E%3C/svg%3E">
+</head>
+<body data-page="markets">
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z" fill="#4f46e5"/></svg>
+      Spillway
+    </a>
+    <nav class="nav-links">
+      <a href="index.html" class="on">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="launch.html">Launch</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+    <div class="nav-cta" id="network"></div>
+  </div>
+</header>
+<div class="wrap" id="launcher-banner"></div>
+<main>
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div>
+        <p class="eyebrow">Spillway · water pairings</p>
+        <h1>Every token,<br>measured against<br><span class="accent">something that runs out.</span></h1>
+        <p class="lede">Launch an ERC-20 bound to a single water source — a reservoir, an aquifer, a
+        glacier, a desalination plant. The source is written into the token. Trading runs on a bonding
+        curve in the launcher contract, and the fee on every trade accrues to a vault only you can
+        withdraw.</p>
+        <div class="hero-cta">
+          <a class="btn" href="launch.html">Pair a source</a>
+          <a class="btn alt" href="docs.html">How it works</a>
+        </div>
+      </div>
+      <div class="hero-figure">
+        <svg viewBox="0 0 420 330" aria-hidden="true">
+          <defs>
+            <linearGradient id="w1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d63ff"/><stop offset="1" stop-color="#4f46e5"/></linearGradient>
+            <linearGradient id="w2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ecfe0"/><stop offset="1" stop-color="#0e9f9f"/></linearGradient>
+          </defs>
+          <path d="M40 30 h60 v150 q0 40 -30 60 h-30 Z" fill="#eceaff" stroke="#4f46e5" stroke-opacity=".35"/>
+          <path d="M100 30 h230 v26 H100 Z" fill="#4f46e5" opacity=".1"/>
+          <path d="M100 56 q80 10 150 -6 t80 4 v122 q-60 -18 -140 2 t-90 -4 Z" fill="url(#w2)" opacity=".55"/>
+          <path d="M100 180 q60 -14 120 2 t110 -6 v18 q-70 22 -140 2 t-90 8 Z" fill="url(#w1)" opacity=".5"/>
+          <path d="M100 186 q30 34 66 56 t80 40" fill="none" stroke="url(#w1)" stroke-width="26" stroke-linecap="round" opacity=".85"/>
+          <path d="M100 186 q30 34 66 56 t80 40" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".35"/>
+          <circle cx="252" cy="286" r="7" fill="#4f46e5" opacity=".6"/>
+          <circle cx="276" cy="272" r="4" fill="#4f46e5" opacity=".4"/>
+          <circle cx="232" cy="300" r="4" fill="#0e9f9f" opacity=".5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="wrap">
+      <dl class="factbar">
+        <div><dt>Sources</dt><dd id="stat-sources">32</dd></div>
+        <div><dt>Classes</dt><dd id="stat-classes">4</dd></div>
+        <div><dt>Average fill</dt><dd id="stat-level">—</dd></div>
+        <div><dt>Trade fee</dt><dd>3%<small>to the creator's vault</small></dd></div>
+        <div><dt>Network</dt><dd id="stat-chain">—</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="tape" id="tape"></div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Latest pairings</h3>
+          <span class="label" id="stat-launches">—</span>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>#</th><th>Token</th><th>Paired with</th><th class="hide-s">Launched</th>
+            <th class="hide-xs">By</th><th class="hide-xs">Contract</th><th>Stage</th><th class="num">Market cap</th>
+          </tr></thead>
+          <tbody id="recent"></tbody>
+        </table>
+        <div class="panel-foot">
+          <span>Read from the launcher contract on the network your wallet is on.</span>
+          <a href="launches.html">All launches →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>The register</h3>
+          <span class="label">reference figures</span>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>#</th><th>Source</th><th class="hide-s">Venue</th><th class="hide-xs">Assay</th>
+            <th class="hide-s">Availability</th><th class="num">Spot</th><th></th>
+          </tr></thead>
+          <tbody id="board"></tbody>
+        </table>
+        <div class="panel-foot">
+          <span>The ten dearest sources. Spot and fill are published reference figures, not a live feed.</span>
+          <a href="sources.html">See all 32 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The pairing</p>
+          <h2>One token, one source,<br>one vault.</h2>
+        </div>
+        <a class="btn alt" href="docs.html">Read the docs</a>
+      </div>
+      <div class="cards">
+        <article class="card"><span class="n">01</span><h3>Pick the source</h3>
+          <p>32 entries across reservoirs, aquifers, glaciers and desalination. The ticker you pick is
+          written into the ERC-20 itself, readable by anyone as <code>source()</code>.</p></article>
+        <article class="card"><span class="n">02</span><h3>Launch it</h3>
+          <p>One transaction mints the supply into the launcher and opens the curve. Send value with it
+          and you take the first position in the same call.</p></article>
+        <article class="card"><span class="n">03</span><h3>Trade the curve</h3>
+          <p>A constant product over a virtual reserve: the first buyer pays the opening price and every
+          later buyer pays more. Sells go back through the same curve.</p></article>
+        <article class="card"><span class="n">04</span><h3>Keep the fee</h3>
+          <p>3% of every trade accrues to that token's vault. Only the creator can withdraw it, and only
+          that vault — never anyone's position.</p></article>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span>Spillway — an open launcher contract. No custody, no admin key: the code is in <code>contracts/Spillway.sol</code>.</span>
+    <nav>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script>window.SPILLWAY_PAGE = "markets";</script>
+<script src="data.js"></script>
+<script src="contract.js"></script>
+<script src="chain.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

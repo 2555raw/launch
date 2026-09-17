@@ -1,0 +1,20 @@
+{
+  "name": "spillway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Launch an ERC-20 paired to a water source, on a bonding curve in an open launcher contract.",
+  "scripts": {
+    "build": "node contracts/compile.js",
+    "test": "node contracts/compile.js && node contracts/test.js",
+    "node": "node contracts/node.js",
+    "serve": "node server.js",
+    "e2e": "node contracts/e2e.js"
+  },
+  "devDependencies": {
+    "ethers": "^6.13.4",
+    "ganache": "^7.9.2",
+    "playwright": "^1.49.1",
+    "solc": "^0.8.26"
+  },
+  "engines": { "node": ">=20" }
+}

@@ -70,6 +70,16 @@ wallet is present, so the pages work logged out.
 | `app.js` | Page rendering |
 | `data.js` | The water register: 32 sources |
 | `server.js` | Static file server for deployment |
+| `scripts/photos.js` | Builds `photos.js` from the photographs in `media/sources/` |
+
+## Photographs
+
+A source shows a photograph when one is in `media/sources/`, named after its
+ticker (`MEAD.jpg`, `SAU.png`, …), and the drawn water-drop glyph when there is
+none. `npm run photos` rewrites `photos.js` from whatever is in that folder, so
+the pages never request a file that is not there. Attribution goes in
+`media/sources/CREDITS.txt`, one `TICKER: photographer, licence` per line, and
+is listed under the register. See `media/sources/README.md`.
 
 ## The water register
 

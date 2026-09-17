@@ -8,7 +8,8 @@
     "test": "node contracts/compile.js && node contracts/test.js",
     "node": "node contracts/node.js",
     "serve": "node server.js",
-    "e2e": "node contracts/e2e.js"
+    "e2e": "node contracts/e2e.js",
+    "photos": "node scripts/photos.js"
   },
   "devDependencies": {
     "ethers": "^6.13.4",
@@ -16,5 +17,7 @@
     "playwright": "^1.49.1",
     "solc": "^0.8.26"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }

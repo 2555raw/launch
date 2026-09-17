@@ -70,6 +70,17 @@ function errText(e) {
 
 const CLASS_TINT = { Reservoir: "#0e7490", Aquifer: "#0f9d76", Glacier: "#3b9fd4", Desalination: "#0b6b7d" };
 
+/* A source shows its photograph when one has been added, and the drawn glyph
+ * when it has not. The glyph stays behind the image so a file that fails to
+ * decode leaves the row looking deliberate rather than broken. */
+function sourceMark(t, size = 22) {
+  const photo = typeof PHOTOS !== "undefined" ? PHOTOS[t] : null;
+  if (!photo) return dropGlyph(t, size);
+  const w = byTicker(t);
+  return `<img class="photo" src="${esc(photo)}" alt="${esc(w ? w.n : t)}" loading="lazy" decoding="async"
+    onerror="this.replaceWith(document.createRange().createContextualFragment(dropGlyph('${esc(t)}', ${size})))">`;
+}
+
 function dropGlyph(t, size = 22) {
   const w = byTicker(t);
   const c = CLASS_TINT[w ? w.c : "Reservoir"] || "#0e7490";
@@ -234,7 +245,7 @@ function sourceRows(list, withAction = true) {
       <td class="idx">${String(i + 1).padStart(2, "0")}</td>
       <td>
         <div class="asset">
-          <span class="glyph">${dropGlyph(w.t)}</span>
+          <span class="glyph">${sourceMark(w.t)}</span>
           <span><b>${esc(w.n)}</b><small>${w.t} · ${esc(w.c)}</small></span>
         </div>
       </td>
@@ -264,7 +275,7 @@ async function launchRows(limit) {
     const link = Chain.explorerLink("address", p.token);
     return `<tr>
       <td class="idx">${String(i + 1).padStart(2, "0")}</td>
-      <td><div class="asset"><span class="glyph">${dropGlyph(p.source)}</span>
+      <td><div class="asset"><span class="glyph">${sourceMark(p.source)}</span>
         <span><b><a href="token.html?addr=${p.token}">${esc(m.name)}</a></b><small>$${esc(m.symbol)}</small></span></div></td>
       <td><b style="font-size:14px">${esc(w ? w.n : p.source)}</b><small class="sub">${esc(p.source)}${w ? " · " + esc(w.v) : ""}</small></td>
       <td class="hide-s mono" style="font-size:12.5px;color:var(--ink-2)">${ago(p.launchedAt)}</td>
@@ -480,6 +491,7 @@ const PAGES = {
     $("sort").addEventListener("change", e => { sort = e.target.value; rows(); });
     rows();
     renderTape();
+    renderCredits();
   },
 
   launch() {
@@ -506,7 +518,7 @@ const PAGES = {
       const net = firstBuy - fee;
       const k = CURVE.VIRTUAL_ETH * supply;
       const out = net > 0n ? supply - k / (CURVE.VIRTUAL_ETH + net) : 0n;
-      $("preview-glyph").innerHTML = dropGlyph(form.source.value, 26);
+      $("preview-glyph").innerHTML = sourceMark(form.source.value, 26);
       $("pair-summary").innerHTML = `
         <div class="line"><span>source</span><b>${esc(w.n)} · ${w.t}</b></div>
         <div class="line"><span>venue</span><b>${esc(w.v)}</b></div>
@@ -596,7 +608,7 @@ const PAGES = {
 
       host.innerHTML = `
         <div class="detail-head">
-          <span class="glyph">${dropGlyph(p.source, 30)}</span>
+          <span class="glyph">${sourceMark(p.source, 30)}</span>
           <div>
             <h1>${esc(meta.name)}</h1>
             <span class="sub">$${esc(meta.symbol)} · paired with ${esc(w ? w.n : p.source)} (${esc(p.source)})${w ? " · " + esc(w.v) : ""}</span>
@@ -733,6 +745,19 @@ function chart(trades) {
     <path d="${line} L770 230 L10 230 Z" fill="url(#g)"/>
     <path d="${line}" fill="none" stroke="#0e7490" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
   </svg>`;
+}
+
+/* Photographs carry their attribution, listed under the register. */
+function renderCredits() {
+  const host = $("credits");
+  if (!host) return;
+  const credits = typeof PHOTO_CREDITS !== "undefined" ? PHOTO_CREDITS : {};
+  const entries = Object.entries(credits);
+  if (!entries.length) { host.innerHTML = ""; return; }
+  host.innerHTML = `<h4>Photographs</h4><ul>` + entries.map(([t, credit]) => {
+    const w = byTicker(t);
+    return `<li><b>${esc(w ? w.n : t)}</b> — ${esc(credit)}</li>`;
+  }).join("") + `</ul>`;
 }
 
 /* ---------------- ticker ---------------- */

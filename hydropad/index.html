@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hydropad</title>
+<meta name="description" content="Launch a token paired to one water source, on a bonding curve that lives in a contract you can read.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&amp;family=Fraunces:opsz,wght@9..144,500..700&amp;family=Public+Sans:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z' fill='%230e7490'/%3E%3C/svg%3E">
+</head>
+<body data-page="markets">
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z" fill="#0e7490"/></svg>
+      Hydropad
+    </a>
+    <nav class="nav-links">
+      <a href="index.html" class="on">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="launch.html">Launch</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+    <div class="nav-cta">
+      <span id="network" class="net"></span>
+    </div>
+  </div>
+</header>
+<div class="wrap" id="launcher-banner"></div>
+<main>
+  <section class="hero stage">
+    <div class="wrap hero-in solo">
+      <div>
+        <p class="eyebrow">Hydropad · water pairings</p>
+        <h1>Every token<br>measured against<br><span class="accent">something <br class="br-s">that runs out</span></h1>
+        <p class="lede">Launch an ERC-20 bound to a single water source: a reservoir, an aquifer, a
+        glacier, a desalination plant. The source is written into the token, trading runs on a bonding
+        curve in the launcher contract, and the fee on every trade accrues to a vault only you can
+        withdraw.</p>
+        <div class="hero-cta">
+          <a class="btn" href="launch.html">Pair a source</a>
+          <a class="btn alt" href="#how">How a reservoir works</a>
+        </div>
+      </div>
+    </div>
+    <div class="wrap">
+      <dl class="factbar">
+        <div><dt>Sources</dt><dd id="stat-sources">32</dd></div>
+        <div><dt>Classes</dt><dd id="stat-classes">4</dd></div>
+        <div><dt>Average fill</dt><dd id="stat-level">...</dd></div>
+        <div><dt>Trade fee</dt><dd>3%<small>to the creator's vault</small></dd></div>
+        <div><dt>Network</dt><dd id="stat-chain">...</dd></div>
+      </dl>
+    </div>
+    <a class="scroll-cue" href="#how" aria-label="Down to what a reservoir is">
+      <span>What a reservoir is</span>
+      <svg width="13" height="13" viewBox="0 0 12 12" aria-hidden="true">
+        <path d="M6 1v9M2.4 6.6 6 10.2l3.6-3.6" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+  <div class="tape" id="tape"></div>
+
+  <section class="section works" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">How it works</p>
+          <h2>A reservoir is a<br>bank account for rain.</h2>
+        </div>
+        <span class="pill"><span class="dot"></span>the thing behind the ticker</span>
+      </div>
+      <p class="lede works-lede">A dam does not make water. It holds back what the catchment sends down and
+      releases it on a schedule, which is why the number everyone watches is a level rather than a flow.
+      Here is the whole machine in one section, from the rain to the river below.</p>
+
+      <figure class="cut">
+        <svg viewBox="0 0 960 400" class="cut-svg" role="img" aria-label="Cross section of a dam and its reservoir">
+          <defs>
+            <linearGradient id="cw" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6ac6dc"/><stop offset="1" stop-color="#0d5a75"/>
+            </linearGradient>
+            <linearGradient id="cconc" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#dde5e8"/><stop offset=".55" stop-color="#f1f5f6"/>
+              <stop offset="1" stop-color="#cdd9dd"/>
+            </linearGradient>
+            <linearGradient id="csky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#eaf6f9"/><stop offset="1" stop-color="#ffffff"/>
+            </linearGradient>
+            <clipPath id="cclip"><rect x="52" y="150" width="458" height="190"/></clipPath>
+          </defs>
+
+          <rect width="960" height="400" fill="url(#csky)"/>
+
+          <!-- 1 the catchment, delivering the basin's rain to one place -->
+          <path d="M-10 78 L120 116 L250 104 L338 142" fill="none" stroke="#0f9d76" stroke-width="2.5"
+                stroke-dasharray="7 7" class="cut-inflow"/>
+          <path d="M330 136 l15 7 -14 9 z" fill="#0f9d76"/>
+
+          <!-- the stored body of water -->
+          <rect x="52" y="168" width="458" height="172" fill="url(#cw)" clip-path="url(#cclip)"/>
+          <rect x="52" y="167" width="458" height="3" fill="#cdeef7" class="cut-surface"/>
+          <rect x="52" y="286" width="458" height="54" fill="#08394b" opacity=".5" clip-path="url(#cclip)"/>
+          <path d="M52 286 L510 286" stroke="#7fb9c9" stroke-width="1.6" stroke-dasharray="6 6" opacity=".8"/>
+
+          <!-- freeboard: the gap the operators keep between the surface and the crest -->
+          <path d="M120 126 L120 166" stroke="#8aa3ac" stroke-width="1.2" stroke-dasharray="4 4"/>
+          <path d="M112 126 L128 126 M112 166 L128 166" stroke="#8aa3ac" stroke-width="1.2"/>
+
+          <!-- the ground it all sits in -->
+          <path d="M0 340 L0 126 L52 126 L52 340 Z" fill="#cbbb9f"/>
+          <path d="M0 340 L620 340 L620 384 L0 384 Z" fill="#b6a486"/>
+          <path d="M0 340 L620 340 L620 352 L0 352 Z" fill="#c2b195"/>
+
+          <!-- the wall, thin at the crest and thick at the toe -->
+          <path d="M510 118 L556 118 L616 340 L510 340 Z" fill="url(#cconc)" stroke="#a9bfc6" stroke-width="1.4"/>
+          <path d="M556 118 L616 340" stroke="#b9cbd1" stroke-width="1.2"/>
+          <path d="M524 150 L556 150 M530 200 L570 200 M537 250 L584 250 M544 300 L598 300"
+                stroke="#c6d5da" stroke-width="1.1"/>
+          <rect x="500" y="106" width="68" height="12" rx="3" fill="#fbfdfd" stroke="#a9bfc6"/>
+
+          <!-- 6 the hydropad: a chute down the face, dry until the lake reaches the crest -->
+          <path d="M558 120 L578 120 L628 340 L606 340 Z" fill="#c9d8dd" stroke="#a9bfc6" stroke-width="1.2"/>
+          <path d="M566 122 L616 338" stroke="#9fd8e6" stroke-width="3.5" stroke-dasharray="8 12"
+                class="cut-flow" opacity=".5"/>
+
+          <!-- 4 the intake tower, drawing from whichever gate is still under water -->
+          <rect x="470" y="186" width="24" height="154" fill="#e4ecee" stroke="#c3d2d7"/>
+          <rect x="465" y="176" width="34" height="12" rx="3" fill="#f4f8f8" stroke="#c3d2d7"/>
+          <rect x="474" y="206" width="16" height="7" rx="2" fill="#8fb3bd"/>
+          <rect x="474" y="238" width="16" height="7" rx="2" fill="#8fb3bd"/>
+          <rect x="474" y="270" width="16" height="7" rx="2" fill="#8fb3bd"/>
+
+          <!-- 5 the penstock and the runner it turns -->
+          <path d="M494 262 L566 306" stroke="#d3e0e4" stroke-width="15" fill="none" stroke-linecap="round"/>
+          <path d="M494 262 L566 306" stroke="#59b7cf" stroke-width="5.5" fill="none" stroke-linecap="round"
+                stroke-dasharray="10 12" class="cut-flow"/>
+          <rect x="546" y="286" width="76" height="54" rx="4" fill="#f4f8f9" stroke="#a9bfc6"/>
+          <rect x="546" y="286" width="76" height="9" rx="3" fill="#dde7ea"/>
+          <circle cx="584" cy="316" r="16" fill="#fff" stroke="#9fb9c1"/>
+          <g class="cut-runner"><path d="M584 304 v24 M573 310 l22 12 M573 322 l22-12"
+             stroke="#0e7490" stroke-width="2.6" stroke-linecap="round"/></g>
+
+          <!-- 7 the river the dam still has to feed -->
+          <path d="M628 340 L960 340 L960 384 L628 384 Z" fill="#b6a486"/>
+          <path d="M634 330 L960 330 L960 358 L634 358 Z" fill="#2e8fae"/>
+          <rect x="660" y="338" width="120" height="2.5" rx="1" fill="#cdeaf3" class="cut-drift"/>
+          <rect x="720" y="348" width="90" height="2.5" rx="1" fill="#cdeaf3" class="cut-drift b"/>
+
+          <!-- what the sun takes back off the surface -->
+          <path d="M170 164 q6-15 -2-27 M250 164 q-7-14 2-26 M330 164 q6-15 -3-25 M410 164 q-6-13 2-24"
+                fill="none" stroke="#7fb2c1" stroke-width="2" stroke-linecap="round" class="cut-vapour"/>
+
+          <g class="cut-marks">
+            <g transform="translate(96,88)"><circle r="13"/><text dy="4.5">1</text></g>
+            <g transform="translate(250,196)"><circle r="13"/><text dy="4.5">2</text></g>
+            <g transform="translate(250,312)"><circle r="13"/><text dy="4.5">3</text></g>
+            <g transform="translate(482,160)"><circle r="13"/><text dy="4.5">4</text></g>
+            <g transform="translate(640,300)"><circle r="13"/><text dy="4.5">5</text></g>
+            <g transform="translate(600,150)"><circle r="13"/><text dy="4.5">6</text></g>
+            <g transform="translate(800,318)"><circle r="13"/><text dy="4.5">7</text></g>
+          </g>
+        </svg>
+        <figcaption>Not to scale, and drawn with the lake below its crest: the gap between the surface and the top of the wall is freeboard, kept clear so a flood has somewhere to go.</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li class="step"><span class="n">1</span><h3>The catchment</h3>
+          <p>Everything starts as rain and snowmelt on a basin that can be a hundred times the area of the
+          lake itself. The dam collects a whole watershed into one number.</p></li>
+        <li class="step"><span class="n">2</span><h3>Live storage</h3>
+          <p>The water above the intakes: the part that can actually be used. It is reported as a surface
+          elevation, then converted to volume through a curve of area against height that is surveyed for
+          each reservoir individually.</p></li>
+        <li class="step"><span class="n">3</span><h3>Dead storage</h3>
+          <p>The bottom of the basin, below the lowest outlet, plus the silt that has settled into it. It
+          is in the lake but it cannot be drawn, which is why a reservoir at 25% is closer to empty than
+          the figure suggests.</p></li>
+        <li class="step"><span class="n">4</span><h3>The intake tower</h3>
+          <p>A shaft with gates at several heights, so operators can draw from whichever depth has the
+          temperature and the quality they want. Once the surface drops below the top gate, that option is
+          gone for the season.</p></li>
+        <li class="step"><span class="n">5</span><h3>Penstock and turbines</h3>
+          <p>Water falls through a steel pipe onto a runner. Power depends on head, the height of the drop,
+          so a half empty reservoir does not just hold less water: every cubic metre is worth less energy
+          on the way out.</p></li>
+        <li class="step"><span class="n">6</span><h3>The hydropad</h3>
+          <p>The relief valve. When inflow beats what the outlets can pass, the surplus goes over the crest
+          and is lost downstream. A hydropad running is a sign of a full reservoir, not of supply.</p></li>
+        <li class="step"><span class="n">7</span><h3>The compensation flow</h3>
+          <p>A river below the dam still has to run. Minimum releases for ecology, navigation and the towns
+          downstream come off the top of the account before anyone else is served.</p></li>
+      </ol>
+
+      <div class="works-out">
+        <div class="panel works-panel">
+          <div class="panel-head"><h3>What moves the level</h3><span class="label">inflow against draw</span></div>
+          <div class="works-body">
+            <p>Storage is a balance, not a forecast: inflow from the catchment, minus releases for supply,
+            irrigation and power, minus what evaporates off the surface and seeps through the ground, plus
+            whatever rain falls on the lake directly. A hot week can take more off a shallow reservoir than
+            a city does.</p>
+            <ul class="bullets">
+              <li><b>Inflow</b> arrives in bursts, over days, and is the only term that refills the account.</li>
+              <li><b>Releases</b> are a decision, taken by an operator against a rule curve set months ahead.</li>
+              <li><b>Evaporation</b> is a loss nobody chose, and it scales with surface area, so it bites hardest
+              on wide shallow lakes.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="panel works-panel">
+          <div class="panel-head"><h3>And in the contract</h3><span class="label">what Hydropad does with it</span></div>
+          <div class="works-body">
+            <p>Hydropad writes the ticker of one source into the token, where anyone can read it back as
+            <code>source()</code>. The fill figures on this site are the published ones for that source, kept
+            as reference: they are the reason a pairing means something, not an input the curve trades on.</p>
+            <p>Price comes from the bonding curve alone, which is deterministic and in the contract. A token
+            paired to a reservoir at 31% is a position on a name and the state it is in, and the register
+            keeps that state in front of you instead of leaving it as a logo.</p>
+            <a class="btn alt sm" href="docs.html">The mechanics in full</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <div class="wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Latest pairings</h3>
+          <span class="label" id="stat-launches">...</span>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>#</th><th>Token</th><th>Paired with</th><th class="hide-s">Launched</th>
+            <th class="hide-xs">By</th><th class="hide-xs">Contract</th><th>Stage</th><th class="num">Market cap</th>
+          </tr></thead>
+          <tbody id="recent"></tbody>
+        </table>
+        <div class="panel-foot">
+          <span id="recent-foot">Read from the launcher contract.</span>
+          <a href="launches.html">All launches →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The curve</p>
+          <h2>What the next buyer pays.</h2>
+        </div>
+        <span class="pill"><span class="dot"></span>live from the launcher</span>
+      </div>
+      <div class="curve-grid">
+        <div class="panel curve-panel">
+          <div class="panel-head">
+            <h3>Price against the curve</h3>
+            <span class="label" id="curve-label">price = (1.2 + raised)² / (1.2 · supply)</span>
+          </div>
+          <div id="curve-chart" class="curve-chart"></div>
+          <div class="panel-foot">
+            <span>Every pairing sits on this line. The marks are the ones on this launcher right now.</span>
+            <span class="mono" id="curve-foot">graduation at 4.2 ETH</span>
+          </div>
+        </div>
+        <div class="panel feed-panel">
+          <div class="panel-head">
+            <h3>Trades</h3>
+            <span class="label">from the chain's logs</span>
+          </div>
+          <ul class="feed" id="feed"></ul>
+          <div class="panel-foot"><span id="feed-foot">...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>The register</h3>
+          <span class="label">reference figures</span>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>#</th><th>Source</th><th class="hide-s">Venue</th><th class="hide-xs">Assay</th>
+            <th class="hide-s">Availability</th><th class="num">Spot</th><th></th>
+          </tr></thead>
+          <tbody id="board"></tbody>
+        </table>
+        <div class="panel-foot">
+          <span>The ten dearest sources. Spot and fill are published reference figures, not a live feed.</span>
+          <a href="sources.html">See all 32 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section sites-section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The sites</p>
+          <h2>What you are<br>actually pairing with.</h2>
+        </div>
+        <a class="btn alt" href="sources.html">The whole register</a>
+      </div>
+      <div class="sites" id="sites"></div>
+      <p class="sites-note" id="sites-note"></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The pairing</p>
+          <h2>One token, one source,<br>one vault.</h2>
+        </div>
+        <a class="btn alt" href="docs.html">Read the docs</a>
+      </div>
+      <div class="cards">
+        <article class="card"><span class="n">01</span><h3>Pick the source</h3>
+          <p>32 entries across reservoirs, aquifers, glaciers and desalination. The ticker you pick is
+          written into the ERC-20 itself, readable by anyone as <code>source()</code>.</p></article>
+        <article class="card"><span class="n">02</span><h3>Launch it</h3>
+          <p>One transaction mints the supply into the launcher and opens the curve. Send value with it
+          and you take the first position in the same call.</p></article>
+        <article class="card"><span class="n">03</span><h3>Trade the curve</h3>
+          <p>A constant product over a virtual reserve: the first buyer pays the opening price and every
+          later buyer pays more. Sells go back through the same curve.</p></article>
+        <article class="card"><span class="n">04</span><h3>Keep the fee</h3>
+          <p>3% of every trade accrues to that token's vault. Only the creator can withdraw it, and only
+          that vault, never anyone's position.</p></article>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span>Hydropad is an open launcher contract. No custody, no admin key: the code is in <code>contracts/Hydropad.sol</code>.</span>
+    <nav>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script>window.HYDROPAD_PAGE = "markets";</script>
+<script src="data.js"></script>
+<script src="photos.js"></script>
+<script src="plates.js"></script>
+<script src="demo.js"></script>
+<script src="contract.js"></script>
+<script src="chain.js"></script>
+<script src="scene.js"></script>
+<script src="motion.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

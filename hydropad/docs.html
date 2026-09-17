@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hydropad Docs</title>
+<meta name="description" content="The launcher contract, the curve, the vault and what the water register is.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&amp;family=Fraunces:opsz,wght@9..144,500..700&amp;family=Public+Sans:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z' fill='%230e7490'/%3E%3C/svg%3E">
+</head>
+<body data-page="docs">
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4l2 9 3-5 3 5 2-9h4v3l-4 13H7L3 7Z" fill="#0e7490"/></svg>
+      Hydropad
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="launch.html">Launch</a>
+      <a href="docs.html" class="on">Docs</a>
+    </nav>
+    <div class="nav-cta">
+      <span id="network" class="net"></span>
+    </div>
+  </div>
+</header>
+<div class="wrap" id="launcher-banner"></div>
+<main>
+  <section class="wrap page-head">
+    <p class="eyebrow">Docs</p>
+    <h1>How it works</h1>
+    <p class="lede">Hydropad is one contract and a static front end. There is no server, no database
+    and no admin key. What follows is what the code does.</p>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap prose">
+      <h3>The launcher</h3>
+      <p><code>Hydropad.sol</code> holds every pairing. <code>launch()</code> deploys a
+      <code>HydropadToken</code>, a plain ERC-20 that also stores the ticker of its water source,
+      mints the whole supply to the launcher, and opens a curve for it. The launcher has no owner, no
+      pause, no mint and no upgrade path.</p>
+
+      <h3>The curve</h3>
+      <p>Each pairing is a constant product <code>k = ethReserve · tokenReserve</code>. The ETH side
+      starts at a virtual 1.2 ETH that nobody deposited and nobody can withdraw; it only sets the
+      opening price. A buy of <code>v</code>, after the fee, moves the reserves:</p>
+      <ul>
+        <li><code>tokensOut = tokenReserve − k / (ethReserve + v)</code></li>
+        <li><code>ethOut = ethReserve − k / (tokenReserve + amountIn)</code> on the way back</li>
+        <li>price at any moment is <code>ethReserve / tokenReserve</code></li>
+      </ul>
+      <p>So the first buyer pays the opening price and every later buyer pays more, and a seller is
+      paid out of the real ETH the curve has taken in, never out of the virtual reserve, which is why
+      a sell reverts rather than dipping into someone else's position.</p>
+
+      <h3>Slippage</h3>
+      <p><code>buy()</code> and <code>sell()</code> both take a minimum out. The site quotes with
+      <code>quoteBuy</code> / <code>quoteSell</code> and sends the trade with 3% of room, so a
+      transaction that lands after a big move reverts instead of filling at a price you did not see.</p>
+
+      <h3>The vault</h3>
+      <p>3% of every trade, buy and sell, accrues to that pairing's vault. Only the address that
+      launched it can call <code>claimVault</code>, and it can only take that vault: fees, never
+      reserves. Nothing else in the contract moves ETH to anyone but the trader.</p>
+
+      <h3>Graduation</h3>
+      <p>When a pairing's raised amount passes 4.2 ETH it is marked graduated and the event is emitted.
+      It is a milestone, not a switch: the curve keeps working exactly the same afterwards. Nothing is
+      locked, migrated or handed to a pool. The contract does not promise what it cannot do.</p>
+
+      <h3>Deploying a launcher</h3>
+      <p>Hydropad is not a service. If the network you are on has no launcher, the site offers to deploy
+      one from your wallet: that instance is yours, its address is remembered in this browser, and you
+      can share it by adding <code>?launcher=0x…</code> to any link here.</p>
+
+      <h3>The water register</h3>
+      <p>The 32 sources, their venues, assays, units, spot figures and fill levels ship with the build as
+      reference data. They label a pairing, and the ticker goes on chain with the token, but they do not
+      price it: a token's price is its curve and nothing else. Wiring a real hydrological feed to a
+      price would need an oracle, and the contract deliberately has none.</p>
+
+      <h3>Running it</h3>
+      <p>The contract is in <code>contracts/Hydropad.sol</code>; <code>npm test</code> compiles it and
+      runs the suite against an in-process EVM. The front end is static files: no build step, no
+      framework, ethers.js from a CDN.</p>
+    </div>
+  </section>
+</main>
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span>Hydropad is an open launcher contract. No custody, no admin key: the code is in <code>contracts/Hydropad.sol</code>.</span>
+    <nav>
+      <a href="index.html">Markets</a>
+      <a href="launches.html">Launches</a>
+      <a href="sources.html">Sources</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script>window.HYDROPAD_PAGE = "docs";</script>
+<script src="data.js"></script>
+<script src="photos.js"></script>
+<script src="plates.js"></script>
+<script src="demo.js"></script>
+<script src="contract.js"></script>
+<script src="chain.js"></script>
+<script src="scene.js"></script>
+<script src="motion.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

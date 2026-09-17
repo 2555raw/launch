@@ -1,35 +1,30 @@
-/* The live part of the backdrop.
+/* The live water.
  *
- * The scene's hills, dam and lake are drawn once as SVG; what moves goes here:
- * sunlight breaking on the water, the swell crossing it, and the mist thrown up
- * where the discharge hits the river. It paints on a canvas sized to the same
- * layout box as the scene layers, so everything lines up with the artwork
- * whatever the viewport.
+ * The dam, the canyon and the sky are drawn once as SVG. The water is painted
+ * every frame on a canvas laid over them: sheets accelerating down the spillway,
+ * the boil where they land, spray climbing out of it, a rainbow in that spray,
+ * and the swell on the reservoir held above the crest.
+ *
+ * Coordinates are fractions of the artwork's 1600x900 box, so every landmark
+ * keeps its place at any width.
  */
 
 const Scene = {
-  canvas: null,
-  ctx: null,
-  dpr: 1,
-  w: 0,
-  h: 0,
-  frame: 0,
-  running: false,
-  glints: [],
-  motes: [],
+  canvas: null, ctx: null, dpr: 1, w: 0, h: 0, frame: 0, running: false,
+  streaks: [], boil: [], spray: [],
 
-  /* Landmarks, in fractions of the artwork's 1600x900 box, so they track it. */
-  LAKE: { top: 0.40, bottom: 0.72, left: 0.02, right: 0.99 },
-  TOE: { x: 0.155, y: 0.955 },
+  /* Landmarks, read off the artwork. */
+  LIP: { left: 0.2687, right: 0.5238, y: 0.5267 },      // the gate sills
+  FOOT: { left: 0.2000, right: 0.5988, y: 0.9422 },   // where the sheet lands
+  POOL: { y: 0.9489 },
+  RESERVOIR: { top: 0.4156, bottom: 0.5267, left: 0.0663, right: 0.7462 },
 
   mount(canvas) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext("2d", { alpha: true });
+    this.ctx = canvas.getContext("2d");
     this.resize();
     window.addEventListener("resize", () => this.resize(), { passive: true });
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) this.stop(); else this.start();
-    });
+    document.addEventListener("visibilitychange", () => document.hidden ? this.stop() : this.start());
     this.seed();
     this.start();
   },
@@ -44,57 +39,64 @@ const Scene = {
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   },
 
-  /* The artwork is drawn at 100% width from the top, so its box is the page
-   * width by that width times 900/1600. */
-  art() {
-    const w = this.w;
-    const h = w * (900 / 1600);
-    return { w, h };
-  },
+  art() { const w = this.w; return { w, h: w * (900 / 1600) }; },
 
   seed() {
-    this.glints = [];
-    for (let i = 0; i < 90; i++) {
-      this.glints.push({
-        x: Math.random(),
-        y: Math.random(),
-        len: 0.02 + Math.random() * 0.08,
-        speed: 0.004 + Math.random() * 0.012,
-        phase: Math.random() * Math.PI * 2,
-        weight: 0.5 + Math.random() * 1.6,
-      });
-    }
-    this.motes = [];
-    for (let i = 0; i < 26; i++) this.motes.push(this.newMote(Math.random()));
+    this.streaks = [];
+    for (let i = 0; i < 260; i++) this.streaks.push(this.newStreak(Math.random()));
+    this.boil = [];
+    for (let i = 0; i < 34; i++) this.boil.push(this.newBoil(Math.random()));
+    this.spray = [];
+    for (let i = 0; i < 40; i++) this.spray.push(this.newSpray(Math.random()));
   },
 
-  newMote(life = 0) {
+  newStreak(p = 0) {
+    // u is where across the chute it falls; the gates make it slightly banded
+    const gate = Math.floor(Math.random() * 7);
+    const u = (gate + 0.08 + Math.random() * 0.84) / 7;
     return {
-      x: (Math.random() - 0.5) * 0.06,
-      y: (Math.random() - 0.5) * 0.012,
-      r: 0.012 + Math.random() * 0.03,
-      rise: 0.00035 + Math.random() * 0.0007,
-      drift: (Math.random() - 0.3) * 0.0006,
+      u,
+      p,
+      speed: 0.0085 + Math.random() * 0.0115,
+      len: 0.06 + Math.random() * 0.22,
+      width: 0.6 + Math.random() * 2.6,
+      alpha: 0.18 + Math.random() * 0.5,
+      wobble: Math.random() * Math.PI * 2,
+    };
+  },
+
+  newBoil(life = 0) {
+    return {
+      u: Math.random(),
       life,
-      fade: 0.0015 + Math.random() * 0.0025,
+      grow: 0.004 + Math.random() * 0.01,
+      r: 0.012 + Math.random() * 0.03,
+      drift: (Math.random() - 0.45) * 0.0012,
+      x: 0,
+    };
+  },
+
+  newSpray(life = 0) {
+    return {
+      u: Math.random(),
+      life,
+      rise: 0.0012 + Math.random() * 0.0026,
+      drift: 0.0004 + Math.random() * 0.0016,
+      r: 0.02 + Math.random() * 0.05,
+      fade: 0.0016 + Math.random() * 0.003,
+      y: 0,
+      x: 0,
     };
   },
 
   start() {
     if (this.running) return;
     this.running = true;
-    const loop = () => {
-      if (!this.running) return;
-      this.draw();
-      this.frame = requestAnimationFrame(loop);
-    };
+    const loop = () => { if (!this.running) return; this.draw(); this.frame = requestAnimationFrame(loop); };
     this.frame = requestAnimationFrame(loop);
   },
 
-  stop() {
-    this.running = false;
-    cancelAnimationFrame(this.frame);
-  },
+  stop() { this.running = false; cancelAnimationFrame(this.frame); },
 
   draw() {
     const { ctx } = this;
@@ -102,84 +104,163 @@ const Scene = {
     const t = performance.now() / 1000;
     ctx.clearRect(0, 0, this.w, this.h);
 
-    // nothing to paint once the veil has closed over the scene
     const veil = parseFloat(document.querySelector(".scene-veil")?.style.opacity || "0");
     if (veil > 0.97) return;
     ctx.globalAlpha = Math.max(0, 1 - veil);
 
-    this.drawWater(ctx, w, h, t);
-    this.drawMist(ctx, w, h);
+    this.drawReservoir(ctx, w, h, t);
+    this.drawFall(ctx, w, h, t);
+    this.drawBoil(ctx, w, h);
+    this.drawSpray(ctx, w, h);
+    this.drawRainbow(ctx, w, h, t);
     ctx.globalAlpha = 1;
   },
 
-  /* Sunlight breaking on the swell: short horizontal strokes that drift with the
-   * surface and flare as they pass under the sun, which sits to the right. */
-  drawWater(ctx, w, h, t) {
-    const top = h * this.LAKE.top, bottom = h * this.LAKE.bottom;
+  /* Swell on the water held behind the dam. */
+  drawReservoir(ctx, w, h, t) {
+    const top = this.RESERVOIR.top * h, bottom = this.RESERVOIR.bottom * h;
     ctx.save();
     ctx.beginPath();
-    ctx.rect(0, top, w, bottom - top);
+    ctx.rect(this.RESERVOIR.left * w, top, (this.RESERVOIR.right - this.RESERVOIR.left) * w, bottom - top);
     ctx.clip();
-    ctx.lineCap = "round";
-
-    for (const g of this.glints) {
-      g.x += g.speed * 0.0016;
-      if (g.x > 1.08) g.x -= 1.16;
-
-      const y = top + g.y * (bottom - top);
-      const depth = g.y;                                   // 0 far shore, 1 near
-      const swell = Math.sin(t * 0.7 + g.phase + g.y * 9) * (2 + depth * 5);
-      const x = g.x * w;
-      const len = g.len * w * (0.45 + depth);
-      const sun = Math.max(0, 1 - Math.abs(x / w - 0.72) * 1.7);   // the sun's track
-      const flare = 0.1 + 0.9 * Math.pow(Math.max(0, Math.sin(t * 0.9 + g.phase)), 2);
-      const alpha = (0.05 + 0.5 * sun) * flare * (0.35 + depth * 0.65);
-      if (alpha < 0.012) continue;
-
-      ctx.strokeStyle = `rgba(255, 252, 240, ${alpha.toFixed(3)})`;
-      ctx.lineWidth = g.weight * (0.6 + depth);
+    for (let i = 0; i < 26; i++) {
+      const y = top + ((i * 37 + t * 5) % (bottom - top));
+      const x = this.RESERVOIR.left * w + ((i * 97 + t * 13) % ((this.RESERVOIR.right - this.RESERVOIR.left) * w));
+      const a = 0.06 + 0.1 * Math.abs(Math.sin(t * 0.8 + i));
+      ctx.strokeStyle = `rgba(255,255,255,${a.toFixed(3)})`;
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(x - len / 2, y + swell);
-      ctx.quadraticCurveTo(x, y + swell - 1.5, x + len / 2, y + swell);
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 18 + (i % 5) * 6, y);
       ctx.stroke();
-    }
-
-    // the swell itself: broad bands of shade crossing the lake
-    for (let i = 0; i < 3; i++) {
-      const phase = t * (0.05 + i * 0.015) + i * 2.1;
-      const y = top + ((phase % 1) * 1.2 - 0.1) * (bottom - top);
-      const band = ctx.createLinearGradient(0, y - 26, 0, y + 26);
-      band.addColorStop(0, "rgba(16, 48, 74, 0)");
-      band.addColorStop(0.5, `rgba(16, 48, 74, ${0.05 + i * 0.012})`);
-      band.addColorStop(1, "rgba(16, 48, 74, 0)");
-      ctx.fillStyle = band;
-      ctx.fillRect(0, y - 26, w, 52);
     }
     ctx.restore();
   },
 
-  /* Mist off the discharge: it climbs, spreads and thins out. */
-  drawMist(ctx, w, h) {
-    const ox = this.TOE.x * w, oy = this.TOE.y * h;
-    for (const m of this.motes) {
-      m.life += m.fade;
-      m.y -= m.rise;
-      m.x += m.drift;
-      if (m.life >= 1) Object.assign(m, this.newMote(0));
+  /* The sheets themselves: each streak accelerates as it falls and spreads out
+   * with the chute, so the water fans on its way down. */
+  drawFall(ctx, w, h, t) {
+    const lipY = this.LIP.y * h, footY = this.FOOT.y * h;
+    const drop = footY - lipY;
 
-      const x = ox + m.x * w;
-      const y = oy + m.y * h;
-      const r = m.r * w * (0.5 + m.life * 1.6);
-      const alpha = Math.sin(m.life * Math.PI) * 0.3;
-      if (alpha <= 0.002) continue;
+    ctx.save();
+    ctx.lineCap = "round";
 
+    // the lip: a bright rim where the water leaves the gates
+    const lipGrad = ctx.createLinearGradient(0, lipY - 4, 0, lipY + 26);
+    lipGrad.addColorStop(0, "rgba(255,255,255,.75)");
+    lipGrad.addColorStop(1, "rgba(226,243,250,0)");
+    ctx.fillStyle = lipGrad;
+    ctx.fillRect(this.LIP.left * w, lipY - 4, (this.LIP.right - this.LIP.left) * w, 30);
+
+    for (const s of this.streaks) {
+      s.p += s.speed * (0.45 + s.p * 1.5);              // gravity
+      if (s.p > 1.05) Object.assign(s, this.newStreak(0));
+
+      const xTop = (this.LIP.left + (this.LIP.right - this.LIP.left) * s.u) * w;
+      const xBot = (this.FOOT.left + (this.FOOT.right - this.FOOT.left) * s.u) * w;
+      const p0 = Math.max(0, s.p - s.len);
+      const p1 = Math.min(1, s.p);
+      const wob = Math.sin(t * 2.2 + s.wobble) * 2.2;
+
+      const x0 = xTop + (xBot - xTop) * p0 + wob;
+      const x1 = xTop + (xBot - xTop) * p1 + wob;
+      const y0 = lipY + drop * p0;
+      const y1 = lipY + drop * p1;
+
+      const g = ctx.createLinearGradient(x0, y0, x1, y1);
+      const a = s.alpha * (0.35 + 0.65 * (1 - Math.abs(s.u - 0.5) * 1.1));
+      g.addColorStop(0, "rgba(255,255,255,0)");
+      g.addColorStop(0.35, `rgba(248,253,255,${(a * 0.75).toFixed(3)})`);
+      g.addColorStop(1, `rgba(255,255,255,${a.toFixed(3)})`);
+      ctx.strokeStyle = g;
+      ctx.lineWidth = s.width * (0.7 + p1 * 0.8);
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.quadraticCurveTo((x0 + x1) / 2 + wob * 0.6, (y0 + y1) / 2, x1, y1);
+      ctx.stroke();
+    }
+
+    // the body of the fall, a soft veil the streaks ride on
+    const body = ctx.createLinearGradient(0, lipY, 0, footY);
+    body.addColorStop(0, "rgba(233,247,252,.42)");
+    body.addColorStop(0.55, "rgba(226,242,250,.3)");
+    body.addColorStop(1, "rgba(255,255,255,.5)");
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.moveTo(this.LIP.left * w, lipY);
+    ctx.lineTo(this.LIP.right * w, lipY);
+    ctx.lineTo(this.FOOT.right * w, footY);
+    ctx.lineTo(this.FOOT.left * w, footY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  },
+
+  /* Where it lands: white water turning over itself. */
+  drawBoil(ctx, w, h) {
+    const y = this.POOL.y * h;
+    for (const b of this.boil) {
+      b.life += b.grow;
+      b.u += b.drift;
+      if (b.life >= 1) Object.assign(b, this.newBoil(0));
+      const x = (this.FOOT.left + (this.FOOT.right - this.FOOT.left) * b.u) * w;
+      const r = b.r * w * (0.4 + b.life * 1.3);
+      const a = Math.sin(b.life * Math.PI) * 0.55;
       const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, `rgba(255, 255, 255, ${alpha.toFixed(3)})`);
-      g.addColorStop(1, "rgba(255, 255, 255, 0)");
+      g.addColorStop(0, `rgba(255,255,255,${a.toFixed(3)})`);
+      g.addColorStop(0.6, `rgba(243,250,253,${(a * 0.5).toFixed(3)})`);
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(x, y + (Math.random() - 0.5) * 2, r, r * 0.55, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  },
+
+  /* Spray climbing out of the boil and drifting downstream. */
+  drawSpray(ctx, w, h) {
+    const baseY = this.POOL.y * h;
+    for (const s of this.spray) {
+      s.life += s.fade;
+      s.y -= s.rise;
+      s.x += s.drift;
+      if (s.life >= 1) Object.assign(s, this.newSpray(0));
+      const x = (this.FOOT.left + (this.FOOT.right - this.FOOT.left) * s.u) * w + s.x * w;
+      const y = baseY + s.y * h;
+      const r = s.r * w * (0.5 + s.life * 1.8);
+      const a = Math.sin(s.life * Math.PI) * 0.3;
+      if (a < 0.004) continue;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `rgba(255,255,255,${a.toFixed(3)})`);
+      g.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = g;
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
     }
+  },
+
+  /* A rainbow stands in the spray when the light is right, and fades when it is not. */
+  drawRainbow(ctx, w, h, t) {
+    const strength = 0.34 + 0.3 * Math.sin(t * 0.13);
+    if (strength <= 0.05) return;
+    const cx = (this.FOOT.right + 0.09) * w;
+    const cy = this.POOL.y * h + 0.05 * h;
+    const r = 0.16 * w;
+    const bands = [
+      ["255,120,110", 1.0], ["255,178,96", 0.92], ["250,226,120", 0.86],
+      ["150,220,150", 0.8], ["130,196,240", 0.76], ["170,150,230", 0.72],
+    ];
+    ctx.save();
+    ctx.lineCap = "butt";
+    bands.forEach(([rgb, k], i) => {
+      ctx.strokeStyle = `rgba(${rgb},${(strength * 0.22 * k).toFixed(3)})`;
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r - i * 7, Math.PI * 1.06, Math.PI * 1.62);
+      ctx.stroke();
+    });
+    ctx.restore();
   },
 };

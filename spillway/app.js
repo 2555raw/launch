@@ -253,7 +253,7 @@ function sourceRows(list, withAction = true) {
 
 async function launchRows(limit) {
   const list = await Chain.pairings(limit);
-  if (!list.length) return { list, html: "" };
+  if (!list.length) return { list, html: "", metas: [] };
   const metas = await Promise.all(list.map(p => Chain.tokenMeta(p.token).catch(() => null)));
   const html = list.map((p, i) => {
     const m = metas[i] || { name: "Token", symbol: "?", totalSupply: 0n };
@@ -275,11 +275,129 @@ async function launchRows(limit) {
       <td class="num mono">${eth(cap)}</td>
     </tr>`;
   }).join("");
-  return { list, html };
+  return { list, html, metas };
 }
 
 function emptyRow(cols, msg) {
   return `<tr><td colspan="${cols}"><p class="empty">${msg}</p></td></tr>`;
+}
+
+
+/* ---------------- the curve, drawn from the contract's own constants ---------------- */
+
+/* With k = virtualEth · supply, buying moves the reserves so that
+ * price(raised) = (V + raised)^2 / (V · supply). The chart is that line, with
+ * every live pairing placed on it. */
+function curvePrice(raisedWei, supplyWei) {
+  const V = Number(ethers.formatEther(CURVE.VIRTUAL_ETH));
+  const r = Number(ethers.formatEther(raisedWei));
+  const s = Number(ethers.formatEther(supplyWei));
+  return ((V + r) ** 2) / (V * s);
+}
+
+function renderCurve(pairings, metas) {
+  const host = $("curve-chart");
+  if (!host) return;
+  const W = 720, H = 260, padL = 56, padR = 18, padT = 16, padB = 34;
+  const target = Number(ethers.formatEther(CURVE.TARGET));
+  const supply = metas.find(Boolean)?.totalSupply || ethers.parseEther("1000000000");
+
+  const pts = [];
+  for (let i = 0; i <= 60; i++) {
+    const r = (target * i) / 60;
+    pts.push([r, curvePrice(ethers.parseEther(r.toFixed(6)), supply)]);
+  }
+  const maxY = pts[pts.length - 1][1] * 1.08;
+  const x = r => padL + (r / target) * (W - padL - padR);
+  const y = p => H - padB - (p / maxY) * (H - padT - padB);
+
+  const line = pts.map(([r, p], i) => `${i ? "L" : "M"}${x(r).toFixed(1)} ${y(p).toFixed(1)}`).join(" ");
+  const area = `${line} L${x(target).toFixed(1)} ${H - padB} L${padL} ${H - padB} Z`;
+
+  const gridY = [0, 0.25, 0.5, 0.75, 1].map(f => {
+    const py = padT + f * (H - padT - padB);
+    const val = (maxY * (1 - f));
+    return `<line class="grid-line" x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}"/>
+            <text class="tick" x="${padL - 8}" y="${py + 3}" text-anchor="end">${val.toExponential(1)}</text>`;
+  }).join("");
+
+  const gridX = [0, 0.25, 0.5, 0.75, 1].map(f => {
+    const px = padL + f * (W - padL - padR);
+    return `<text class="tick" x="${px}" y="${H - padB + 18}" text-anchor="middle">${(target * f).toFixed(1)}</text>`;
+  }).join("");
+
+  const marks = pairings.map((p, i) => {
+    const m = metas[i];
+    if (!m) return "";
+    const r = Number(ethers.formatEther(p.raised));
+    const price = curvePrice(p.raised, m.totalSupply);
+    const cx = x(Math.min(r, target)), cy = y(Math.min(price, maxY));
+    return `<g>
+      <circle class="mark" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="5.5" fill="#4f46e5" fill-opacity=".92" stroke="#fff" stroke-width="2">
+        <title>$${esc(m.symbol)} · ${eth(p.raised)} raised</title>
+      </circle>
+      <text class="mark-label" x="${(cx + 9).toFixed(1)}" y="${(cy - 8).toFixed(1)}">$${esc(m.symbol)}</text>
+    </g>`;
+  }).join("");
+
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Price along the bonding curve">
+    <defs><linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f46e5" stop-opacity=".16"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${gridY}${gridX}
+    <path d="${area}" fill="url(#curveFill)"/>
+    <path d="${line}" fill="none" stroke="#4f46e5" stroke-width="2.4" stroke-linejoin="round"/>
+    <line class="axis" x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}"/>
+    <line class="axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}"/>
+    <text class="tick" x="${W - padR}" y="${H - 6}" text-anchor="end">ETH raised</text>
+    ${marks}
+  </svg>`;
+  setText("curve-foot", `${pairings.length} on the curve · graduation at ${eth(CURVE.TARGET, 1)}`);
+}
+
+/* ---------------- what the launcher has been doing ---------------- */
+
+async function renderFeed(pairings, metas) {
+  const host = $("feed");
+  if (!host) return;
+  const symbols = {};
+  pairings.forEach((p, i) => { if (metas[i]) symbols[p.token.toLowerCase()] = metas[i].symbol; });
+
+  const c = Chain.contract();
+  const head = await Chain.provider.getBlockNumber();
+  const logs = await c.queryFilter(c.filters.Traded(), Math.max(0, head - 50000), head);
+  const rows = logs.slice(-12).reverse();
+
+  if (!rows.length) {
+    host.innerHTML = `<li style="color:var(--ink-3)">No trades yet. The first buy shows up here.</li>`;
+    setText("feed-foot", "waiting on the first trade");
+    return;
+  }
+
+  host.innerHTML = rows.map(l => {
+    const sym = symbols[l.args.token.toLowerCase()] || "?";
+    const buy = l.args.isBuy;
+    return `<li>
+      <span class="side ${buy ? "buy" : "sell"}">${buy ? "buy" : "sell"}</span>
+      <span class="sym">$${esc(sym)}</span>
+      <span class="amt">${eth(l.args.ethAmount)}</span>
+      <span class="when">#${l.blockNumber}</span>
+    </li>`;
+  }).join("");
+  setText("feed-foot", `${logs.length} trade${logs.length === 1 ? "" : "s"} on this launcher`);
+}
+
+/* Numbers that arrive rather than appear. */
+function countUp(el, to, suffix = "") {
+  if (!el) return;
+  const from = 0, dur = 900, t0 = performance.now();
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur);
+    const eased = 1 - Math.pow(1 - k, 3);
+    el.textContent = Math.round(from + (to - from) * eased) + suffix;
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 
 /* ---------------- pages ---------------- */
@@ -290,9 +408,9 @@ const PAGES = {
     const list = [...WATER].sort((a, b) => b.p - a.p).slice(0, 10);
     $("board").innerHTML = sourceRows(list);
     const avg = WATER.reduce((s, w) => s + (BASE_LEVEL[w.t] ?? 0.5), 0) / WATER.length;
-    setText("stat-sources", WATER.length);
-    setText("stat-classes", CLASSES.length);
-    setText("stat-level", level(avg));
+    countUp($("stat-sources"), WATER.length);
+    countUp($("stat-classes"), CLASSES.length);
+    countUp($("stat-level"), Math.round(avg * 100), "%");
     setText("stat-chain", Chain.chainInfo().name);
     setText("recent-foot", `Read from the launcher contract on ${Chain.chainInfo().name}.`);
     renderTape();
@@ -310,9 +428,11 @@ const PAGES = {
       return;
     }
     host.innerHTML = emptyRow(8, "Reading the chain…");
-    launchRows(8).then(({ list, html }) => {
+    launchRows(8).then(async ({ list, html, metas }) => {
       host.innerHTML = html || emptyRow(8, `Nothing launched on ${esc(Chain.chainInfo().name)} yet. <a href="launch.html" style="color:var(--accent)">Pair a source</a>.`);
-      setText("stat-launches", list.length);
+      setText("stat-launches", `${list.length} live`);
+      renderCurve(list, metas);
+      await renderFeed(list, metas).catch(e => console.warn("feed", e));
     }).catch(e => { host.innerHTML = emptyRow(8, esc(errText(e))); });
   },
 

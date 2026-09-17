@@ -83,6 +83,40 @@
     </div>
   </section>
 
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The curve</p>
+          <h2>What the next buyer pays.</h2>
+        </div>
+        <span class="pill"><span class="dot"></span>live from the launcher</span>
+      </div>
+      <div class="curve-grid">
+        <div class="panel curve-panel">
+          <div class="panel-head">
+            <h3>Price against the curve</h3>
+            <span class="label" id="curve-label">price = (1.2 + raised)² / (1.2 · supply)</span>
+          </div>
+          <div id="curve-chart" class="curve-chart"></div>
+          <div class="panel-foot">
+            <span>Every pairing sits on this line. The marks are the ones on this launcher right now.</span>
+            <span class="mono" id="curve-foot">graduation at 4.2 ETH</span>
+          </div>
+        </div>
+        <div class="panel feed-panel">
+          <div class="panel-head">
+            <h3>Trades</h3>
+            <span class="label">from the chain's logs</span>
+          </div>
+          <ul class="feed" id="feed"></ul>
+          <div class="panel-foot"><span id="feed-foot">...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="wrap">
       <div class="panel">

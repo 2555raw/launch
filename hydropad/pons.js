@@ -139,13 +139,32 @@ const PONS = {
     throw new Error("Every Pons launch config is disabled.");
   },
 
-  /* Everything the launch form needs to quote a launch honestly, read live. */
-  async terms(runner, chainId) {
+  /* Everything the launch form needs to quote a launch honestly, read live.
+   *
+   * `launchEnabled` is only the public gate. The predicate launchToken really
+   * enforces is canLaunch(caller) — the gate OR a place on the whitelist — so
+   * that is what decides whether this account can launch, and asking the other
+   * one told whitelisted launchers they were locked out when they were not. */
+  async terms(runner, chainId, who) {
     const f = this.factory(runner, chainId);
-    const [fee, enabled, config] = await Promise.all([
-      f.launchFee(), f.launchEnabled(), this.pickConfig(f),
+    const [fee, open, allowed, config] = await Promise.all([
+      f.launchFee(),
+      f.launchEnabled(),
+      who ? f.canLaunch(who) : Promise.resolve(false),
+      this.pickConfig(f),
     ]);
-    return { factory: f, launchFee: fee, enabled, config };
+    return { factory: f, launchFee: fee, publicGate: open, allowed, config };
+  },
+
+  /* Will Pons take a launch from this address right now? */
+  async willLaunch(runner, chainId, who) {
+    if (!who) return false;
+    try {
+      return await this.factory(runner, chainId).canLaunch(who);
+    } catch (e) {
+      console.warn("pons: canLaunch failed", e.shortMessage || e.message);
+      return false;
+    }
   },
 
   /* The curve's own arithmetic, mirrored for display only. The quote reserve
@@ -188,6 +207,29 @@ const PonsAdapter = {
   cache: new Map(),     // token address -> { curve, source, launchedAt }
 
   bind(chain) { this.chain = chain; return this; },
+
+  /* Whether Pons would accept a launch from the connected account. Cached per
+   * account, because the launch form asks on every repaint. */
+  async canLaunch() {
+    const who = this.chain.account;
+    if (!who) return false;
+    if (this._canFor === who) return this._can;
+    this._can = await PONS.willLaunch(this.chain.provider, this.chain.chainId, who);
+    this._canFor = who;
+    return this._can;
+  },
+
+  /* Does Pons know this token? Tokens opened on Hydropad's own launcher on the
+   * same chain do not appear here, and are read the old way. */
+  async knows(token) {
+    const key = String(token).toLowerCase();
+    if (this.cache.has(key)) return true;
+    try {
+      const rec = await this.factory().getLaunchedToken(token);
+      if (rec.exists) { this.cache.set(key, { curve: rec.curve }); return true; }
+    } catch (_) { /* not a Pons launch */ }
+    return false;
+  },
 
   provider() { return this.chain.provider; },
   signerOr(runner) { return runner || this.chain.provider; },
@@ -372,8 +414,13 @@ const PonsAdapter = {
    */
   async launch({ name, symbol, source, place, note, firstBuyWei, logo = "" }) {
     const signer = this.chain.requireSigner();
-    const { factory, launchFee, enabled, config } = await PONS.terms(signer, this.chain.chainId);
-    if (!enabled) throw new Error("Pons has launching switched off on this network.");
+    const { factory, launchFee, publicGate, allowed, config } =
+      await PONS.terms(signer, this.chain.chainId, this.chain.account);
+    if (!allowed) {
+      throw new Error(publicGate
+        ? "Pons refused this address."
+        : "Pons has its public launch gate closed: only whitelisted addresses can launch through it right now.");
+    }
 
     /* Ties the launch to the terms quoted a moment ago, so an owner re-peg
      * landing underneath this transaction makes it revert instead of silently

@@ -113,5 +113,22 @@ for (const m of ["pairings", "pairing", "tokenMeta", "balanceOf", "price", "quot
 eq(PonsAdapter.START_BLOCK[4663], 8991118, "the backward scan stops where Pons began");
 ok(PonsAdapter.CHUNK <= 50000, "and asks for log ranges a public RPC will serve");
 
+console.log("\nthe gate\n");
+
+/* The bug this file exists to keep out: asking launchEnabled() rather than
+ * canLaunch(caller). The first is only the public gate; the second is the
+ * predicate launchToken enforces, and it is also true for whitelisted
+ * addresses while the gate is shut. */
+ok(PONS.FACTORY_ABI.some(f => /function canLaunch/.test(f)), "canLaunch is in the surface");
+const ponsSrc = fs.readFileSync(path.join(__dirname, "..", "pons.js"), "utf8");
+ok(/canLaunch\(/.test(ponsSrc), "and the launch path asks it");
+ok(!/if \(!enabled\) throw/.test(ponsSrc), "the public gate alone no longer refuses a launch");
+ok(/willLaunch/.test(ponsSrc), "there is a read for whether Pons would take this address");
+
+const chainSrc = fs.readFileSync(path.join(__dirname, "..", "chain.js"), "utf8");
+ok(/launchRoute\(\)/.test(chainSrc), "a launch picks its route");
+ok(/routeFor\(/.test(chainSrc), "and each token is read wherever it lives");
+ok(/ready\(\)/.test(chainSrc), "somewhere to read from is either route, not just a launcher of ours");
+
 console.log(failed ? `\n${failed} failed\n` : "\nall good\n");
 process.exit(failed ? 1 : 0);

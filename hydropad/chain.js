@@ -203,6 +203,26 @@ const Chain = {
 
   pons() { return PonsAdapter.bind(this); },
 
+  /* Somewhere to read from and launch against, by either route. On a Pons
+   * chain that is always true; elsewhere it takes a launcher of ours. */
+  ready() { return this.viaPons() || !!this.launcher; },
+
+  /* Pons is the launchpad on Robinhood Chain, but its public launch gate can
+   * be closed, and then only whitelisted addresses get through it. That is not
+   * a dead end: Hydropad's own launcher is a contract like any other and can
+   * be opened on that chain too. This decides which route a launch takes, and
+   * the form says which one it is before anybody signs. */
+  async launchRoute() {
+    if (!this.viaPons()) return "own";
+    return (await this.pons().canLaunch()) ? "pons" : "own";
+  },
+
+  /* Reads go wherever the token actually lives. A chain can hold both. */
+  async routeFor(token) {
+    if (!this.viaPons()) return "own";
+    return (await this.pons().knows(token)) ? "pons" : "own";
+  },
+
   chainInfo() {
     return CHAINS[this.chainId] || { name: `Chain ${this.chainId}`, explorer: "", ticker: "ETH" };
   },
@@ -239,9 +259,6 @@ const Chain = {
   },
 
   launcherAddress() {
-    /* Nothing to discover or remember on a Pons chain: the factory is at a
-     * fixed address and it is always there, which is the whole point. */
-    if (this.viaPons()) return PONS.address(this.chainId);
     const fromUrl = new URLSearchParams(location.search).get("launcher");
     if (fromUrl && ethers.isAddress(fromUrl)) {
       try { localStorage.setItem(LAUNCHER_KEY(this.chainId), fromUrl); } catch (_) {}
@@ -309,21 +326,31 @@ const Chain = {
 
   /* ---------------- reads ---------------- */
 
+  /* A chain can hold coins opened both ways: through Pons, and through a
+   * launcher of ours somebody put there when Pons would not take them. Read
+   * both and merge, newest first. */
   async pairings(limit = 50) {
-    if (this.viaPons()) return this.pons().pairings(limit);
-    if (!this.launcher) return [];
-    const raw = await this.contract().listPairings(0, limit);
-    return raw.map(toPairing);
+    const lots = [];
+    if (this.viaPons()) {
+      try { lots.push(await this.pons().pairings(limit)); }
+      catch (e) { console.warn("pons: could not list", e.shortMessage || e.message); }
+    }
+    if (this.launcher) {
+      try { lots.push((await this.contract().listPairings(0, limit)).map(toPairing)); }
+      catch (e) { console.warn("launcher: could not list", e.shortMessage || e.message); }
+    }
+    if (lots.length === 1) return lots[0];
+    return lots.flat().sort((a, b) => b.launchedAt - a.launchedAt).slice(0, limit);
   },
 
   async pairing(token) {
-    if (this.viaPons()) return this.pons().pairing(token);
+    if (await this.routeFor(token) === "pons") return this.pons().pairing(token);
     const p = await this.contract().pairings(token);
     return toPairing(p);
   },
 
   async tokenMeta(address) {
-    if (this.viaPons()) return this.pons().tokenMeta(address);
+    if (await this.routeFor(address) === "pons") return this.pons().tokenMeta(address);
     const t = this.token(address);
     const [name, symbol, source, totalSupply] = await Promise.all([
       t.name(), t.symbol(), t.source(), t.totalSupply(),
@@ -332,23 +359,26 @@ const Chain = {
   },
 
   async balanceOf(token, who) {
-    if (this.viaPons()) return this.pons().balanceOf(token, who);
+    if (await this.routeFor(token) === "pons") return this.pons().balanceOf(token, who);
     return this.token(token).balanceOf(who || this.account);
   },
 
   async price(token) {
-    return this.viaPons() ? this.pons().price(token) : this.contract().price(token);
+    return await this.routeFor(token) === "pons"
+      ? this.pons().price(token) : this.contract().price(token);
   },
   async quoteBuy(token, ethIn) {
-    return this.viaPons() ? this.pons().quoteBuy(token, ethIn) : this.contract().quoteBuy(token, ethIn);
+    return await this.routeFor(token) === "pons"
+      ? this.pons().quoteBuy(token, ethIn) : this.contract().quoteBuy(token, ethIn);
   },
   async quoteSell(token, amount) {
-    return this.viaPons() ? this.pons().quoteSell(token, amount) : this.contract().quoteSell(token, amount);
+    return await this.routeFor(token) === "pons"
+      ? this.pons().quoteSell(token, amount) : this.contract().quoteSell(token, amount);
   },
 
   /* Trade history from the launcher's own logs. */
   async trades(token, blocks = 50000) {
-    if (this.viaPons()) return this.pons().trades(token, blocks);
+    if (await this.routeFor(token) === "pons") return this.pons().trades(token, blocks);
     const c = this.contract();
     const head = await this.provider.getBlockNumber();
     const from = Math.max(0, head - blocks);
@@ -367,7 +397,12 @@ const Chain = {
   /* ---------------- writes ---------------- */
 
   async launch({ name, symbol, source, supply, firstBuyWei, place, note }) {
-    if (this.viaPons()) return this.pons().launch({ name, symbol, source, place, note, firstBuyWei });
+    if (await this.launchRoute() === "pons") {
+      return this.pons().launch({ name, symbol, source, place, note, firstBuyWei });
+    }
+    /* Falling back to our own launcher on a chain that has none yet: open it
+     * first, the same as anywhere else. */
+    if (!this.launcher) await this.deployLauncher();
     const c = this.contract(true);
     const tx = await c.launch(name, symbol, source, supply, this.gas("launch", { value: firstBuyWei || 0n }));
     const rc = await tx.wait();
@@ -382,13 +417,13 @@ const Chain = {
   },
 
   async buy(token, ethWei, minTokensOut = 0n) {
-    if (this.viaPons()) return this.pons().buy(token, ethWei, minTokensOut);
+    if (await this.routeFor(token) === "pons") return this.pons().buy(token, ethWei, minTokensOut);
     const tx = await this.contract(true).buy(token, minTokensOut, this.gas("buy", { value: ethWei }));
     return tx.wait();
   },
 
   async sell(token, amount, minEthOut = 0n) {
-    if (this.viaPons()) return this.pons().sell(token, amount, minEthOut);
+    if (await this.routeFor(token) === "pons") return this.pons().sell(token, amount, minEthOut);
     const erc = this.token(token, true);
     const allowance = await erc.allowance(this.account, this.launcher);
     if (allowance < amount) {
@@ -400,7 +435,9 @@ const Chain = {
   },
 
   async claimVault(token) {
-    if (this.viaPons()) throw new Error("Creator fees on Pons are claimed from its own fee escrow, not from here.");
+    if (await this.routeFor(token) === "pons") {
+      throw new Error("Creator fees on Pons are claimed from its own fee escrow, not from here.");
+    }
     const tx = await this.contract(true).claimVault(token, this.gas("claim"));
     return tx.wait();
   },

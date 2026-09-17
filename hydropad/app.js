@@ -248,7 +248,7 @@ function renderNetwork() {
   const host = $("network");
   if (!host) return;
   const info = Chain.chainInfo();
-  const cls = Chain.offline ? "bad" : Chain.launcher ? "ok" : "warn";
+  const cls = Chain.offline ? "bad" : Chain.ready() ? "ok" : "warn";
   const name = Chain.offline ? "No node" : info.name;
 
   /* A coloured dot beside a chain name means nothing to somebody who has not
@@ -258,7 +258,7 @@ function renderNetwork() {
     ? "This browser cannot reach any Ethereum node. Click to run a chain inside this page instead."
     : Chain.demo
       ? "A chain is running inside this page, and everything here is executed by it. Click to start over or hand back to your wallet."
-      : Chain.launcher
+      : Chain.ready()
         ? `Hydropad is on ${info.name}, and this page reads and writes there. Click to change network.`
         : `Your wallet is on ${info.name}, and Hydropad is not there yet. Click to move to Robinhood Chain.`;
   const suffix = cls === "warn" ? `<span class="net-off">not here</span>` : "";
@@ -271,8 +271,9 @@ function renderNetwork() {
 
   const side = $("side-chain");
   if (side) {
-    side.innerHTML = `<b><span class="dot" style="background:${Chain.offline ? "#e0705f" : Chain.launcher ? "#63c49c" : "#e8a33d"}"></span>${esc(name)}</b>` +
+    side.innerHTML = `<b><span class="dot" style="background:${Chain.offline ? "#e0705f" : Chain.ready() ? "#63c49c" : "#e8a33d"}"></span>${esc(name)}</b>` +
       (Chain.demo ? "<span>a real EVM inside this page</span>"
+                  : Chain.viaPons() ? "<span>launching through Pons V2</span>"
                   : Chain.launcher ? `<span class="mono">${shortAddr(Chain.launcher)}</span>`
                                    : "<span>Hydropad is not on this network</span>");
   }
@@ -346,7 +347,7 @@ function chainMenu() {
     rows.push(`<p>There is no wallet in this browser. Hydropad can run a chain in the page instead,
       with the real contract on a real EVM.</p>`);
     rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>`);
-  } else if (!Chain.launcher) {
+  } else if (!Chain.ready()) {
     /* Somebody's wallet is on a chain Hydropad is not on. Say that, and offer
      * the thing they can actually do about it. Deploying a launcher is real,
      * but it is a job for whoever is running the project, not something to put
@@ -679,7 +680,7 @@ function renderSites() {
   }).join("");
 
   /* How many coins are actually paired to each of them, read from the chain. */
-  if (!Chain.offline && Chain.launcher) {
+  if (!Chain.offline && Chain.ready()) {
     Chain.pairings(200).then(list => {
       const tally = {};
       for (const p of list) tally[p.source] = (tally[p.source] || 0) + 1;
@@ -722,7 +723,7 @@ const PAGES = {
       setText("stat-launches", "...");
       return;
     }
-    if (!Chain.launcher) {
+    if (!Chain.ready()) {
       host.innerHTML = emptyRow(8, `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet. Open the chain menu to move onto Robinhood Chain, or <a href="launch.html" style="color:var(--accent)">be the first to pair a source here</a>.`);
       setText("stat-launches", "0");
       return;
@@ -743,7 +744,7 @@ const PAGES = {
       host.innerHTML = emptyRow(8, "No node reachable from this browser.");
       return;
     }
-    if (!Chain.launcher) {
+    if (!Chain.ready()) {
       host.innerHTML = emptyRow(8, `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet. Open the chain menu to move onto Robinhood Chain, or <a href="launch.html" style="color:var(--accent)">be the first to pair a source here</a>.`);
       return;
     }
@@ -802,6 +803,20 @@ const PAGES = {
   launch() {
     const form = $("pair-form");
     const info = () => Chain.chainInfo();
+
+    /* Which launchpad this launch would go through. Pons' public gate can be
+     * closed, and asking the chain is the only way to know, so it is resolved
+     * in the background and the form repaints when the answer lands. */
+    const route = { at: null, value: null };
+    async function resolveRoute() {
+      const key = `${Chain.chainId}|${Chain.account}`;
+      if (route.at === key) return route.value;
+      route.at = key;
+      try { route.value = await Chain.launchRoute(); }
+      catch (_) { route.value = "own"; }
+      renderWallets();
+      return route.value;
+    }
 
     if (form.dataset.wired !== "1") {
       form.dataset.wired = "1";
@@ -961,8 +976,15 @@ const PAGES = {
       /* Hydropad launches on Robinhood Chain and nowhere else. Reading works on
        * any network; opening a pairing does not. */
       const wrongChain = !Chain.offline && !Chain.canLaunch();
-      const first = !wrongChain && !Chain.demo && !Chain.offline && !Chain.viaPons()
+      /* Only our own launcher has a "somebody has to open it" state, and only
+       * when this launch is actually taking that route. */
+      /* On a chain Pons is not on, our own launcher is the only route and that
+       * is knowable without a wallet. On a Pons chain it takes asking the
+       * factory, which needs an address to ask about. */
+      const viaOwn = !Chain.viaPons() || route.value === "own";
+      const first = !wrongChain && !Chain.demo && !Chain.offline && viaOwn
         && Chain.hasWallet() && !Chain.launcher;
+      if (Chain.account && !Chain.demo) resolveRoute();
       const stuck = !Chain.demo && !Chain.offline && !Chain.hasWallet();
 
       const warn = $("f-blocked");
@@ -1003,8 +1025,13 @@ const PAGES = {
           ${shortAddr(Chain.account)}. No wallet needed.</small></span></div>`);
         note.textContent = "Ready to launch.";
       } else if (Chain.account) {
+        const through = route.value === "pons"
+          ? "Launching through Pons V2."
+          : route.value === "own" && Chain.viaPons()
+            ? "Pons has its public gate closed, so this goes through Hydropad's own launcher."
+            : route.value === "own" ? "Launching through Hydropad's own launcher." : "";
         rows.push(`<div class="wallet on"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><circle cx="17" cy="15" r="1.3" fill="currentColor" stroke="none"/></svg></span>
-          <span><b>${shortAddr(Chain.account)}</b><small>Connected on ${esc(info().name)}.</small></span></div>`);
+          <span><b>${shortAddr(Chain.account)}</b><small>Connected on ${esc(info().name)}. ${esc(through)}</small></span></div>`);
         note.textContent = "Ready to launch.";
       } else if (Chain.hasWallet()) {
         rows.push(`<button class="wallet" type="button" id="w-connect"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><circle cx="17" cy="15" r="1.3" fill="currentColor" stroke="none"/></svg></span>
@@ -1039,7 +1066,7 @@ const PAGES = {
         btn.disabled = true;
         /* First launch on this network: the launcher goes up in its own
          * transaction, then the pairing runs against it. */
-        if (!Chain.launcher) {
+        if (!Chain.ready()) {
           btn.textContent = "Confirm the launcher in your wallet…";
           const addr = await Chain.deployLauncher();
           toast(`Launcher opened at ${shortAddr(addr)} on ${info().name}`);
@@ -1077,7 +1104,7 @@ const PAGES = {
       host.innerHTML = `<p class="empty">No node reachable from this browser, so this token cannot be read.</p>`;
       return;
     }
-    if (!Chain.launcher) {
+    if (!Chain.ready()) {
       host.innerHTML = `<p class="empty">No launcher known on ${esc(Chain.chainInfo().name)}. Set its address above to read this token.</p>`;
       return;
     }

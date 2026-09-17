@@ -320,7 +320,7 @@ function sourceRows(list, withAction = true) {
           <span><b>${esc(w.n)}</b><small>${w.t} · ${esc(w.c)}</small></span>
         </div>
       </td>
-      <td class="hide-s mono">${esc(w.v)}</td>
+      <td class="hide-s"><span class="where"><b>${esc(w.l || "")}</b><small class="mono">${esc(w.v)}</small></span></td>
       <td class="hide-xs"><span class="pill">${esc(w.a)}</span></td>
       <td class="hide-s">
         <div class="level ${lc}"><div class="bar"><i style="width:0" data-fill="${(fill * 100).toFixed(0)}%"></i></div><span>${level(fill)} full</span></div>
@@ -503,16 +503,17 @@ function renderSites() {
       <figure class="site-shot">
         ${shot}
         <span class="tick">${esc(w.t)}</span>
-        <figcaption>${esc(w.c)} · ${esc(w.v)}</figcaption>
+        <figcaption>${esc(w.c)} · ${esc(w.l || w.v)}</figcaption>
       </figure>
       <div class="site-text">
-        <p class="eyebrow">${esc(w.c)}</p>
+        <p class="eyebrow">${esc(w.c)} · ${esc(w.l || "")}</p>
         <h3>${esc(w.n)}</h3>
         <p>${esc(note)}</p>
         <dl class="site-facts">
           <div><dt>Availability</dt><dd>${level(fill)}<small>of capacity</small></dd></div>
           <div><dt>Assay</dt><dd>${esc(w.a)}<small>as published</small></dd></div>
           <div><dt>Spot</dt><dd>${usd(w.p)}<small>${esc(w.u)}</small></dd></div>
+          <div><dt>Paired</dt><dd data-paired="${esc(w.t)}">—<small>coins on this reserve</small></dd></div>
         </dl>
         <div class="gauge" style="--w:${(fill * 100).toFixed(0)}%"><i style="width:0" data-fill="${(fill * 100).toFixed(0)}%"></i></div>
         <div class="site-cta">
@@ -522,6 +523,18 @@ function renderSites() {
       </div>
     </article>`;
   }).join("");
+
+  /* How many coins are actually paired to each of them, read from the chain. */
+  if (!Chain.offline && Chain.launcher) {
+    Chain.pairings(200).then(list => {
+      const tally = {};
+      for (const p of list) tally[p.source] = (tally[p.source] || 0) + 1;
+      for (const el of document.querySelectorAll("[data-paired]")) {
+        const n = tally[el.dataset.paired] || 0;
+        el.firstChild.textContent = String(n);
+      }
+    }).catch(e => console.warn("pairing tally", e));
+  }
 
   const shown = FEATURED.filter(t => sourceArt(t)).length;
   const photos = typeof PHOTOS !== "undefined" ? Object.keys(PHOTOS).length : 0;

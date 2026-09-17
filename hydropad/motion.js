@@ -29,112 +29,57 @@ const Motion = {
     this.watchBars();
   },
 
-  /* Build the scene on the front page, take it away everywhere else. */
+  /* Build the descent on the front page, take it away everywhere else. */
   syncScene(page) {
-    if (page !== "markets") { this.teardown(); return; }
-    if (!document.querySelector(".scene")) {
-      const scene = document.createElement("div");
-      scene.className = "scene";
-      scene.setAttribute("aria-hidden", "true");
-      scene.innerHTML = `
-        <div class="scene-layer far"></div>
-        <div class="scene-layer clouds"></div>
-        <div class="scene-layer mid"></div>
-        <canvas class="scene-live"></canvas>
-        <div class="scene-layer near"></div>
-        <div class="scene-veil"></div>`;
-      document.body.prepend(scene);
+    if (page !== "markets" || typeof WORLD === "undefined") { this.teardown(); return; }
+    if (!document.querySelector(".world")) {
+      const el = document.createElement("div");
+      el.className = "world";
+      el.setAttribute("aria-hidden", "true");
+      el.innerHTML = `<img class="world-img" src="${WORLD.blur}" alt="" decoding="async">
+        <div class="world-scrim"></div>`;
+      document.body.prepend(el);
+
+      /* The blurred frame is 11 KB and shows at once; the full one is two
+       * megabytes and takes its place when it has decoded, so nothing is ever
+       * blank and nothing ever pops. */
+      const img = el.querySelector(".world-img");
+      const full = new Image();
+      full.decoding = "async";
+      full.src = window.matchMedia("(max-width: 760px)").matches ? WORLD.low : WORLD.src;
+      full.addEventListener("load", () => { img.src = full.src; img.classList.add("sharp"); });
     }
-    this.layers = [
-      [document.querySelector(".scene-layer.far"), 0.08],
-      [document.querySelector(".scene-layer.clouds"), 0.05],
-      [document.querySelector(".scene-layer.mid"), 0.18],
-      [document.querySelector(".scene-live"), 0.18],
-      [document.querySelector(".scene-layer.near"), 0.32],
-    ];
-    this.veil = document.querySelector(".scene-veil");
-    if (!this.reduced) Scene.mount(document.querySelector(".scene-live"));
-    this.tryVideo();
-    document.body.classList.add("has-scene");
+    this.worldImg = document.querySelector(".world-img");
+    this.worldScrim = document.querySelector(".world-scrim");
+    document.body.classList.add("has-world");
     this.onScroll();
   },
 
   teardown() {
-    const scene = document.querySelector(".scene");
-    Scene.stop();
-    if (this.video) { this.video.pause(); this.video = null; }
-    if (scene) scene.remove();
-    this.layers = [];
-    this.veil = null;
-    document.body.classList.remove("has-scene", "scrolled");
-
-  },
-
-  /* A filmed backdrop takes over the moment one is present: drop an encoded
-   * loop at media/scene.mp4 and the drawn scene steps aside. Nothing else has
-   * to change, and if the file is missing or the browser will not play it, the
-   * drawn scene simply stays. */
-  tryVideo() {
-    const scene = document.querySelector(".scene");
-    if (!scene || scene.querySelector(".scene-video")) return;
-
-    const v = document.createElement("video");
-    v.className = "scene-video";
-    v.muted = true;
-    v.defaultMuted = true;
-    v.loop = true;
-    v.playsInline = true;
-    v.autoplay = true;
-    v.preload = "auto";
-    v.setAttribute("muted", "");
-    v.setAttribute("playsinline", "");
-    v.setAttribute("aria-hidden", "true");
-    v.poster = "media/scene-poster.jpg";
-
-    // webm first where it exists: same footage, smaller file
-    for (const [file, type] of [["media/scene.webm", "video/webm"], ["media/scene.mp4", "video/mp4"]]) {
-      const src = document.createElement("source");
-      src.src = file;
-      src.type = type;
-      v.appendChild(src);
-    }
-
-    // a viewer on a metered connection keeps the drawn scene
-    const conn = navigator.connection;
-    if (conn && (conn.saveData || /2g/.test(conn.effectiveType || ""))) return;
-
-    v.addEventListener("loadeddata", () => {
-      scene.classList.add("filmed");
-      this.video = v;
-      this.layers.push([v, 0.12]);
-      Scene.stop();
-      v.play().catch(() => {});      // a refused autoplay still leaves the frame
-    }, { once: true });
-    v.addEventListener("error", () => v.remove(), { once: true });
-
-    scene.prepend(v);
-    if (this.reduced) v.removeAttribute("autoplay");
+    const el = document.querySelector(".world");
+    if (el) el.remove();
+    this.worldImg = this.worldScrim = null;
+    document.body.classList.remove("has-world");
   },
 
   onScroll() {
     const y = window.scrollY || 0;
     document.body.classList.toggle("scrolled", y > 24);
-    if (!this.veil) return;
+    if (!this.worldImg) return;
 
-    /* The first screen belongs to the scene, so the veil only starts closing
-     * once the hero is on its way out, and is shut by the time the tables are
-     * on screen. */
-    const start = window.innerHeight * 0.62;
-    const fade = Math.min(1, Math.max(0, (y - start) / (window.innerHeight * 0.34)));
-    this.veil.style.opacity = fade.toFixed(3);
-    const spent = fade >= 1;
-    document.querySelector(".scene").classList.toggle("spent", spent);
-    if (spent) { Scene.stop(); if (this.video) this.video.pause(); }
-    else { if (!this.reduced) Scene.start(); if (this.video && this.video.paused) this.video.play().catch(() => {}); }
-    if (this.reduced) return;
-    for (const [el, rate] of this.layers) {
-      if (el) el.style.transform = `translate3d(0, ${(-y * rate).toFixed(1)}px, 0)`;
-    }
+    /* One frame, descended: the top of the page is the top of the photograph
+     * and the bottom of the page is the bottom of the landscape that continues
+     * from it. Every scroll position is a position in the same picture. */
+    const doc = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const p = Math.min(1, Math.max(0, y / doc));
+    const frameH = this.worldImg.getBoundingClientRect().height || 1;
+    const travel = Math.max(0, frameH - window.innerHeight);
+    this.worldImg.style.transform = `translate3d(-50%, ${(-p * travel).toFixed(1)}px, 0)`;
+
+    /* It gets darker on the way down the valley, which keeps type readable and
+     * makes the descent read as one movement. */
+    if (this.worldScrim) this.worldScrim.style.opacity = (0.1 + p * 0.52).toFixed(3);
+    this.progress = p;
   },
 
   /* Sections arrive rather than appear, but only once and only below the fold.

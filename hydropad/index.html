@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hydropad</title>
-<meta name="description" content="Launch a token paired to one water source, on a bonding curve that lives in a contract you can read.">
+<meta name="description" content="A launchpad for meme coins paired to named bodies of water. One open contract, one bonding curve, and a register of real reserves.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&amp;family=Fraunces:opsz,wght@9..144,500..700&amp;family=Public+Sans:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
@@ -23,11 +23,10 @@
       <span></span><span></span><span></span>
     </button>
     <nav class="nav-links" id="nav-links">
-      <a href="index.html" class="on">Markets</a>
-      <a href="launches.html">Launches</a>
-      <a href="sources.html">Sources</a>
       <a href="launch.html">Launch</a>
-      <a href="docs.html">Docs</a>
+      <a href="launches.html">Explore</a>
+      <a href="sources.html">Water Reserves</a>
+      <a href="docs.html">Documentation</a>
     </nav>
     <div class="nav-cta">
       <span id="network" class="net"></span>
@@ -39,29 +38,31 @@
   <section class="hero stage">
     <div class="wrap hero-in solo">
       <div>
-        <p class="eyebrow">Hydropad · water pairings</p>
-        <h1>Every token<br>measured against<br><span class="accent">something <br class="br-s">that runs out</span></h1>
-        <p class="lede">Launch an ERC-20 bound to a single water source: a reservoir, an aquifer, a
-        glacier, a desalination plant. The source is written into the token, trading runs on a bonding
-        curve in the launcher contract, and the fee on every trade accrues to a vault only you can
-        withdraw.</p>
+        <p class="eyebrow">Hydropad · meme coins paired to real water</p>
+        <h1>Liquidity,<br><span class="accent">rooted in nature</span></h1>
+        <p class="lede">Launch a meme coin and pair it to a named body of water: a reservoir, an
+        alpine lake, a river, a working reserve. The pairing is written into the token itself and
+        read back on chain, the curve lives in one open contract, and the fee on every trade accrues
+        to a vault only you can withdraw.</p>
         <div class="hero-cta">
-          <a class="btn" href="launch.html">Pair a source</a>
-          <a class="btn alt" href="#how">How a reservoir works</a>
+          <a class="btn accent" href="launch.html">Launch a Coin</a>
+          <a class="btn alt" href="sources.html">Explore Water Reserves</a>
         </div>
+        <p class="hero-note">A pairing is a name, not a deed. It conveys no ownership of the water,
+        no legal claim on it and no physical backing.</p>
       </div>
     </div>
     <div class="wrap">
       <dl class="factbar">
-        <div><dt>Sources</dt><dd id="stat-sources">32</dd></div>
-        <div><dt>Classes</dt><dd id="stat-classes">4</dd></div>
+        <div><dt>Reserves</dt><dd id="stat-sources">32</dd></div>
+        <div><dt>Kinds of water</dt><dd id="stat-classes">4</dd></div>
         <div><dt>Average fill</dt><dd id="stat-level">...</dd></div>
         <div><dt>Trade fee</dt><dd>3%<small>to the creator's vault</small></dd></div>
         <div><dt>Network</dt><dd id="stat-chain">...</dd></div>
       </dl>
     </div>
-    <a class="scroll-cue" href="#how" aria-label="Down to what a reservoir is">
-      <span>What a reservoir is</span>
+    <a class="scroll-cue" href="#how" aria-label="Descend into the valley">
+      <span>Descend</span>
       <svg width="13" height="13" viewBox="0 0 12 12" aria-hidden="true">
         <path d="M6 1v9M2.4 6.6 6 10.2l3.6-3.6" fill="none" stroke="currentColor" stroke-width="1.5"
               stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -299,7 +300,7 @@
         </div>
         <table class="tbl">
           <thead><tr>
-            <th>#</th><th>Source</th><th class="hide-s">Venue</th><th class="hide-xs">Assay</th>
+            <th>#</th><th>Source</th><th class="hide-s">Location</th><th class="hide-xs">Assay</th>
             <th class="hide-s">Availability</th><th class="num">Spot</th><th></th>
           </tr></thead>
           <tbody id="board"></tbody>
@@ -369,10 +370,10 @@
 <script src="data.js"></script>
 <script src="photos.js"></script>
 <script src="plates.js"></script>
+<script src="world.js"></script>
 <script src="demo.js"></script>
 <script src="contract.js"></script>
 <script src="chain.js"></script>
-<script src="scene.js"></script>
 <script src="motion.js"></script>
 <script src="app.js"></script>
 </body>

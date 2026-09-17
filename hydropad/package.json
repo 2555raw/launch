@@ -11,7 +11,7 @@
     "e2e": "node contracts/e2e.js",
     "photos": "node scripts/photos.js",
     "plates": "python3 scripts/plates.py",
-    "scene": "python3 scripts/render.py"
+    "extend": "python3 scripts/extend.py"
   },
   "devDependencies": {
     "ethers": "^6.13.4",

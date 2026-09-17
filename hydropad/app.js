@@ -1578,9 +1578,29 @@ async function swap(href, replace) {
     document.body.dataset.page = key;
     window.HYDROPAD_PAGE = key;
     Motion.syncScene(key);
-    document.querySelectorAll(".nav-links a").forEach(a => {
+
+    /* Everything outside <main> that differs page to page has to come across
+     * too, or the page reads as one thing and says it is another: the crumb
+     * said "launches" over the explore hero because it was never touched here,
+     * and the sidebar kept its old highlight because this asked for .nav-links,
+     * a class the markup stopped using. */
+    const crumb = document.querySelector(".crumb");
+    const fresh = doc.querySelector(".crumb");
+    if (crumb && fresh) crumb.innerHTML = fresh.innerHTML;
+
+    document.querySelectorAll(".side-nav a").forEach(a => {
       a.classList.toggle("on", pageFor(new URL(a.getAttribute("href"), location.href).pathname) === key);
     });
+
+    /* A share sheet reads whatever the head says at the moment it is asked. */
+    for (const sel of ['meta[name="description"]', 'meta[property="og:title"]',
+                       'meta[property="og:description"]', 'meta[property="og:url"]',
+                       'link[rel="canonical"]']) {
+      const here = document.head.querySelector(sel);
+      const there = doc.head.querySelector(sel);
+      if (here && there) here.setAttribute(here.hasAttribute("href") ? "href" : "content",
+        there.getAttribute(there.hasAttribute("href") ? "href" : "content"));
+    }
     renderBanners();
     const page = PAGES[key];
     if (page) page();

@@ -220,6 +220,40 @@ const log = [];
   });
   await p.screenshot({ path: 'e2e-markets.png' });
 
+  /* Internal links swap <main> rather than reloading. Everything outside it
+   * that differs page to page has to be carried across by hand, and for a
+   * while none of it was: the crumb read "launches" over the explore hero and
+   * the sidebar kept the old page lit. Walk it link to link and read the
+   * chrome, not just the content. */
+  await step('soft navigation carries the chrome with it', async () => {
+    const chrome = () => p.evaluate(() => ({
+      crumb: document.querySelector('.crumb').textContent.replace(/\s+/g, ' ').trim(),
+      lit: [...document.querySelectorAll('.side-nav a.on')].map(a => a.textContent.trim()),
+      title: document.title,
+      page: document.body.dataset.page,
+    }));
+    const want = {
+      'launches.html': ['hydropad / launches', 'Launches'],
+      'sources.html': ['hydropad / water reserves', 'Water Reserves'],
+      'index.html': ['hydropad / explore', 'Explore'],
+    };
+    await p.goto(base + 'launch.html', { waitUntil: 'networkidle' });
+    for (const [href, [crumb, lit]] of Object.entries(want)) {
+      await p.click(`.side-nav a[href="${href}"]`);
+      await p.waitForFunction(h => location.pathname.endsWith(h), href);
+      await p.waitForTimeout(150);
+      const c = await chrome();
+      if (c.crumb !== crumb) throw new Error(`${href}: crumb reads "${c.crumb}", not "${crumb}"`);
+      if (c.lit.join() !== lit) throw new Error(`${href}: sidebar lights ${c.lit.join() || 'nothing'}, not ${lit}`);
+      if (!/^Hydropad/.test(c.title)) throw new Error(`${href}: title reads "${c.title}"`);
+    }
+    /* Back is the same swap, so it has to land on the same chrome. */
+    await p.goBack();
+    await p.waitForTimeout(400);
+    const back = await chrome();
+    if (back.crumb !== 'hydropad / water reserves') throw new Error('back left the crumb on ' + back.crumb);
+  });
+
   console.log('\nerrors:', log.length ? log : 'none');
   await b.close();
 })().catch(async e => { console.error('\nFAILED:', e.message); console.log('errors:', log); process.exit(1); });

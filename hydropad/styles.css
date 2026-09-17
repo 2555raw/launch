@@ -1694,3 +1694,7 @@ body.has-world .col::before, body.has-world .col::after { display: none; }
   font-weight: 600;
 }
 .tag .dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(88, 167, 201, .22); }
+
+.chain-fine { font-size: 12px; color: var(--ink-3); }
+.chain-fine a { color: var(--accent); }
+.chain-fine a:hover { color: #9ad6ee; }

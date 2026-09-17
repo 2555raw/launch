@@ -105,6 +105,31 @@
       framework, ethers.js from a CDN.</p>
     </div>
   </section>
+
+  <section class="section" id="deploy">
+    <div class="wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Running your own launcher</h3>
+          <span class="label">for whoever deploys this</span>
+        </div>
+        <div class="works-body">
+          <p>Hydropad is not a service and there is no server behind it. The launcher is a contract,
+          and on any chain it has not been deployed to there is simply nothing to read. Sending it is
+          one transaction; whoever sends it owns nothing except the right to be the address this
+          build talks to, because the contract has no owner and no admin function.</p>
+          <p>Deploy it from the wallet you want it under, or point this build at a launcher that is
+          already out there. Either choice is remembered per chain, in this browser only.</p>
+          <div class="chain-acts">
+            <button class="btn accent sm" type="button" id="deploy-launcher">Deploy a launcher</button>
+            <button class="btn alt sm" type="button" id="set-launcher">Use an address I have</button>
+          </div>
+          <p class="desk-note">The source is <code>contracts/Hydropad.sol</code>, and the suite that
+          has to pass before it goes anywhere is <code>contracts/test.js</code>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 <footer class="foot">
   <div class="wrap foot-in">

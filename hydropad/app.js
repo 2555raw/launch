@@ -302,39 +302,44 @@ function renderNetwork() {
  * is reading and writing. */
 function chainMenu() {
   const rows = [];
+  const here = esc(Chain.chainInfo().name);
+
   if (Chain.demo) {
-    rows.push(`<p>An Ethereum node is running <b>inside this page</b>. The launcher and every token here
-      are the same compiled bytecode executing on a real EVM in your browser. Transactions are
-      journalled locally and replayed on each load, and nothing leaves this browser.</p>`);
+    rows.push(`<p>An Ethereum node is running <b>inside this page</b>. Everything you see here was
+      executed by it: the same contract, a real EVM, in your browser. Nothing leaves this browser and
+      nothing costs anything.</p>`);
   } else if (Chain.offline) {
-    rows.push(`<p>No Ethereum node is reachable from this browser, so nothing on a public chain can be
-      read or written here. You can run one in the page instead: a real EVM, the real contract, no
+    rows.push(`<p>This browser cannot reach an Ethereum node, so there is nothing to read from
+      ${here}. Hydropad can run a chain in the page instead: the real contract on a real EVM, with no
       network and no wallet.</p>`);
-    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run a chain in this page</button>`);
+    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>`);
   } else if (!Chain.hasWallet()) {
-    rows.push(`<p>No wallet is installed in this browser. You can run a chain in the page instead.</p>`);
-    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run a chain in this page</button>`);
+    rows.push(`<p>There is no wallet in this browser. Hydropad can run a chain in the page instead,
+      with the real contract on a real EVM.</p>`);
+    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>`);
+  } else if (!Chain.launcher) {
+    /* Somebody's wallet is on a chain Hydropad is not on. Say that, and offer
+     * the thing they can actually do about it. Deploying a launcher is real,
+     * but it is a job for whoever is running the project, not something to put
+     * in front of a visitor with no explanation. */
+    rows.push(`<p><b>Hydropad is not on ${here}.</b> Switch your wallet to a network it is deployed
+      on, or run the whole thing in this page to see how it works.</p>`);
+    rows.push(`<button class="btn accent sm" type="button" id="start-demo">Run it in this page</button>`);
+    rows.push(`<p class="chain-fine">Running your own: <a href="docs.html#deploy">the launcher is one
+      transaction</a>, and whoever sends it owns it.</p>`);
   }
 
-  if (!Chain.offline || Chain.demo) {
-    if (Chain.launcher) {
-      const link = Chain.explorerLink("address", Chain.launcher);
-      rows.push(`<div class="chain-row"><span>Launcher</span>${link
-        ? `<a class="mono" href="${link}" target="_blank" rel="noopener">${shortAddr(Chain.launcher)}</a>`
-        : `<span class="mono">${shortAddr(Chain.launcher)}</span>`}</div>`);
-    } else if (!Chain.demo) {
-      rows.push(`<p>No launcher on ${esc(Chain.chainInfo().name)} yet. Deploy one from your wallet: it is
-        a single transaction, and you own it.</p>`);
-    }
+  if (Chain.launcher) {
+    const link = Chain.explorerLink("address", Chain.launcher);
+    rows.push(`<div class="chain-row"><span>Launcher</span>${link
+      ? `<a class="mono" href="${link}" target="_blank" rel="noopener">${shortAddr(Chain.launcher)}</a>`
+      : `<span class="mono">${shortAddr(Chain.launcher)}</span>`}</div>`);
   }
 
   const acts = [];
   if (Chain.demo) {
-    acts.push(`<button class="btn alt sm" type="button" id="reset-demo">Reset chain</button>`);
+    acts.push(`<button class="btn alt sm" type="button" id="reset-demo">Start over</button>`);
     if (Chain.hasWallet()) acts.push(`<button class="btn alt sm" type="button" id="leave-demo">Use my wallet</button>`);
-  } else if (!Chain.offline) {
-    if (!Chain.launcher) acts.push(`<button class="btn accent sm" type="button" id="deploy-launcher">Deploy launcher</button>`);
-    acts.push(`<button class="btn alt sm" type="button" id="set-launcher">${Chain.launcher ? "Use another" : "I have an address"}</button>`);
   }
   if (acts.length) rows.push(`<div class="chain-acts">${acts.join("")}</div>`);
   return rows.join("");
@@ -1153,6 +1158,13 @@ function setText(id, v) { const el = $(id); if (el) el.textContent = v; }
  * lives in memory. A full page load would throw that EVM away and have to
  * replay the journal, so internal links swap the page's main content instead of
  * reloading. A hard refresh still works: it just rebuilds the chain first. */
+PAGES.docs = function docs() {
+  /* The deploy controls live here rather than in the network menu: they are a
+   * job for whoever runs the project, not something to put in front of a
+   * visitor with no explanation. */
+  wireChainActions();
+};
+
 const ROUTES = {
   "index.html": "markets",
   "launches.html": "launches",

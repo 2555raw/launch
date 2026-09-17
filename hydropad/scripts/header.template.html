@@ -1,0 +1,50 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  :root { --accent: #67c0e2; --gold: #c6a562; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1500px; height: 500px; overflow: hidden; }
+  body { background: #06100e; }
+  .banner { position: relative; width: 1500px; height: 500px; overflow: hidden; }
+  .shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+          object-position: var(--pos, center); }
+  /* Dark from the left so the words sit on ink, with the photograph left alone on the right. */
+  .wash { position: absolute; inset: 0;
+    background:
+      linear-gradient(100deg, rgba(4,12,11,.96) 0%, rgba(4,12,11,.9) 30%, rgba(4,12,11,.55) 52%, rgba(4,12,11,.12) 72%, rgba(4,12,11,.3) 100%),
+      linear-gradient(180deg, rgba(4,12,11,.35), rgba(4,12,11,0) 25%, rgba(4,12,11,0) 70%, rgba(4,12,11,.55));
+  }
+  .lockup { position: absolute; left: 96px; top: 50%; transform: translateY(-54%); color: #f2fbf8; }
+  .row { display: flex; align-items: center; gap: 18px; }
+  .mark { flex: none; }
+  h1 { font: 600 76px/1 "Bitstream Charter", Georgia, serif; letter-spacing: -.015em; }
+  .line { margin-top: 20px; font: 400 25px/1.35 "Liberation Sans", system-ui, sans-serif;
+          color: rgba(242,251,248,.88); max-width: 720px; }
+  .rule { width: 84px; height: 2px; margin: 26px 0 18px; background: var(--accent); opacity: .85; }
+  .meta { display: flex; align-items: center; gap: 14px;
+          font: 400 15px/1 "DejaVu Sans Mono", monospace; letter-spacing: .13em;
+          text-transform: uppercase; color: rgba(242,251,248,.62); }
+  .meta b { color: var(--accent); font-weight: 400; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(242,251,248,.3); }
+  /* Where the profile picture lands, kept clear. */
+  .site { position: absolute; right: 60px; bottom: 40px;
+          font: 400 16px/1 "DejaVu Sans Mono", monospace; letter-spacing: .1em;
+          color: rgba(242,251,248,.8); text-transform: lowercase; }
+</style>
+<div class="banner">
+  <img class="shot" src="SHOT">
+  <div class="wash"></div>
+  <div class="lockup">
+    <div class="row">
+      <svg class="mark" width="72" height="72" viewBox="0 0 26 26">
+        <defs><clipPath id="d"><circle cx="13" cy="13" r="9.4"/></clipPath></defs>
+        <g clip-path="url(#d)"><path d="M-3 16q3.25-2.2 6.5 0t6.5 0 6.5 0 6.5 0V30H-3Z" fill="#67c0e2"/></g>
+        <circle cx="13" cy="13" r="10.1" fill="none" stroke="#67c0e2" stroke-width="2.1"/>
+      </svg>
+      <h1>hydropad</h1>
+    </div>
+    <p class="line">Meme coins paired to named bodies of water.<br>The pairing is written into the token and read back on chain.</p>
+    <div class="rule"></div>
+    <div class="meta"><b>Robinhood Chain</b><span class="dot"></span><span>via Pons V2</span><span class="dot"></span><span>CAPTION</span></div>
+  </div>
+  <div class="site">hydropad.site</div>
+</div>

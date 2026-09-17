@@ -1,0 +1,56 @@
+# Publishes Spillway to GitHub Pages, so the site is served over HTTPS and a
+# browser wallet will talk to it. The front end is static — no build step; the
+# contract artifact (contract.js) is committed, built by contracts/compile.js.
+#
+# This repository holds several projects and one Pages site. The ARCHIVE 2011
+# workflow publishes from its own branch and this one from ours; they share the
+# `pages` concurrency group, so whichever pushed last is what the site serves.
+name: Deploy Spillway to Pages
+
+on:
+  push:
+    branches: [claude/awesome-clarke-y3ig7z]
+    paths: ["spillway/**", ".github/workflows/spillway.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install
+        working-directory: spillway
+        run: npm install --no-audit --no-fund
+      - name: Compile and test the contracts
+        working-directory: spillway
+        run: npm test
+      - name: Fail if the committed artifact is stale
+        working-directory: spillway
+        run: git diff --exit-code contract.js
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: spillway
+      - id: deployment
+        uses: actions/deploy-pages@v4

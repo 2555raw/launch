@@ -27,9 +27,24 @@ on them are the register's own and change with it.
 The photograph of the place stands in for a flag, and the two figures are the
 published spot and the fill level.
 
-The little chart is the level itself — water standing in the reserve, with a
-wave for a surface. It is not a price history: there is no price history to
-draw, and a sparkline that means nothing is the kind of thing that reads as a
-fake chart later.
+## The line and the percentage are not measured
+
+Read this before any of these goes out.
+
+The trace and the percentage on each card are **generated**, not observed.
+There is no public series of these figures to plot, so the line is a walk
+seeded from the ticker — stable across runs, different on every card, and
+drawn to lean the same way its badge reads. The percentage sits in the
+range one of these would plausibly move in a session.
+
+They are there because the card wants a line, on the same footing as the
+seeded drift `data.js` already applies to the spot figures.
+
+What IS the register's own: the spot price, the unit, the fill level, the
+name and the photograph.
+
+If any of this goes somewhere it could be read as market data, say so beside
+it, or take the line off. A chart nobody labelled is the kind of thing that
+gets quoted back at you.
 
 Nothing here is loaded by the site. These are for posts.

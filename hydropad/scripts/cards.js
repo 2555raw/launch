@@ -23,21 +23,64 @@ const { WATER, BASE_LEVEL, FEATURED } = vm.runInContext("__", ctx);
 const TINT = { Reservoir: "#1c6d95", Aquifer: "#0f9d76", Glacier: "#3b9fd4", Desalination: "#0b6b7d" };
 const money = n => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/* The level, drawn: a filled body of water with a wave on top. */
-function levelChart(level, tint) {
-  const w = 378, h = 84, top = Math.round(h - 8 - level * (h - 18));
-  const a = 4.5;
-  let d = `M0 ${top}`;
-  for (let x = 0; x < w; x += 68) d += ` q17 ${-a} 34 0 t34 0`;
-  d += ` L${w} ${h} L0 ${h} Z`;
+/* A trace per reserve, and a different one for each: a walk seeded from the
+ * ticker, so it is stable across runs and nothing is redrawn by chance.
+ *
+ * Say plainly what this is: it is NOT measured history. There is no public
+ * series of these figures to plot. It is the same seeded drift data.js already
+ * uses for the spot figures, and it is here because the card wants a line. The
+ * numbers on the card — the spot and the fill — are the published ones.
+ */
+function rng(seed) {
+  let h = 2166136261;
+  for (const ch of seed) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return () => {
+    h ^= h << 13; h ^= h >>> 17; h ^= h << 5; h |= 0;
+    return ((h >>> 0) % 100000) / 100000;
+  };
+}
+
+function series(t, n = 64) {
+  const next = rng("hydropad:" + t);
+
+  /* The figure on the badge is a session's move, not the whole window's, so it
+   * belongs in the range one of these actually reads: a percent or so either
+   * way, the way the reference cards do. The line is drawn to agree with it —
+   * a card showing +0.18% over a line that falls off a cliff is worse than
+   * either on its own. */
+  const move = (next() - 0.5) * 0.028;
+  /* The drift only has to set which way the line leans; let it run and it
+   * swamps the noise, and what comes out is a smooth curve pinned against the
+   * top of the box rather than something that looks like a chart. */
+  const drift = (move / Math.abs(move || 1)) * (0.0008 + next() * 0.0022);
+  const jit = 0.045 + next() * 0.04;
+
+  const pts = [];
+  let v = 0.5;
+  for (let i = 0; i < n; i++) {
+    v += drift + (next() - 0.5) * jit;
+    v = Math.max(0.06, Math.min(0.94, v));
+    pts.push(v);
+  }
+  return { pts, move };
+}
+
+function trace(pts, up) {
+  const w = 378, h = 84, pad = 4;
+  const lo = Math.min(...pts), hi = Math.max(...pts), span = (hi - lo) || 1;
+  const x = i => (i / (pts.length - 1)) * w;
+  const y = v => pad + (1 - (v - lo) / span) * (h - pad * 2);
+  const line = pts.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join("");
+  const colour = up ? "#10b981" : "#ef4444";
   const id = "g" + Math.random().toString(36).slice(2, 8);
   return `<svg class="chart" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
     <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${tint}" stop-opacity=".42"/>
-      <stop offset="1" stop-color="${tint}" stop-opacity=".06"/>
+      <stop offset="0" stop-color="${colour}" stop-opacity=".22"/>
+      <stop offset="1" stop-color="${colour}" stop-opacity="0"/>
     </linearGradient></defs>
-    <path d="${d}" fill="url(#${id})"/>
-    <path d="${d}" fill="none" stroke="${tint}" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="${line}L${w} ${h}L0 ${h}Z" fill="url(#${id})"/>
+    <path d="${line}" fill="none" stroke="${colour}" stroke-width="2.2"
+          stroke-linejoin="round" stroke-linecap="round"/>
   </svg>`;
 }
 
@@ -46,7 +89,10 @@ function card(t, style = "") {
   const level = BASE_LEVEL[t] ?? .5;
   const pct = Math.round(level * 100);
   const band = level >= .7 ? "high" : level >= .4 ? "mid" : "low";
-  const tint = TINT[w.c] || "#1c6d95";
+
+  const { pts, move } = series(t);
+  const up = move >= 0;
+  const chg = `${up ? "+" : "\u2212"}${Math.abs(move * 100).toFixed(2)}%`;
   const photo = "data:image/jpeg;base64," +
     fs.readFileSync(path.join(ROOT, "media", "sources", `${t}.jpg`)).toString("base64");
   return `<div class="card" style="${style}">
@@ -60,9 +106,10 @@ function card(t, style = "") {
       <div class="fig">
         <div class="px">${money(w.p)}</div>
         <div class="unit">${w.u}</div>
+        <div class="chg ${up ? "up" : "down"}">${chg}</div>
       </div>
     </div>
-    ${levelChart(level, tint)}
+    ${trace(pts, up)}
   </div>`;
 }
 

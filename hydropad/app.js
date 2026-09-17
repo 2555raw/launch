@@ -401,6 +401,74 @@ async function loadSideLaunches() {
   }
 }
 
+/* ---------------- the address of the last coin launched ---------------- */
+
+/* A launch hands back an address and then the page moves on, and the address
+ * is the one thing nobody can reconstruct: it is what gets pasted into a
+ * wallet, an explorer, a group chat. So it stays in the header, one click from
+ * the clipboard, until the next launch replaces it. Kept per chain, because an
+ * address from the testnet means nothing on mainnet. */
+const CA_KEY = id => `hydropad.lastca.${id}`;
+
+function rememberLaunch(chainId, token, symbol) {
+  try {
+    localStorage.setItem(CA_KEY(chainId), JSON.stringify({ token, symbol, at: Date.now() }));
+  } catch (_) {}
+  renderLastCa();
+}
+
+function lastLaunch() {
+  if (!Chain.chainId) return null;
+  try {
+    const raw = localStorage.getItem(CA_KEY(Chain.chainId));
+    const v = raw ? JSON.parse(raw) : null;
+    return v && v.token ? v : null;
+  } catch (_) { return null; }
+}
+
+function renderLastCa() {
+  const host = $("last-ca");
+  if (!host) return;
+  const last = lastLaunch();
+  if (!last) { host.hidden = true; host.innerHTML = ""; return; }
+
+  const explorer = Chain.chainInfo().explorer;
+  host.hidden = false;
+  host.innerHTML = `
+    <span class="ca-tag">CA</span>
+    <a class="ca-addr mono" href="token.html?addr=${esc(last.token)}"
+       title="${esc(last.token)}">${esc(last.symbol ? "$" + last.symbol + " " : "")}${shortAddr(last.token)}</a>
+    <button class="ca-copy" type="button" data-copy="${esc(last.token)}" title="Copy the address">
+      <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-1a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h1"/></svg>
+      <span class="sr">Copy the contract address</span>
+    </button>
+    ${explorer ? `<a class="ca-out" href="${esc(explorer)}/address/${esc(last.token)}" target="_blank"
+       rel="noopener" title="Open in the explorer">↗</a>` : ""}`;
+}
+
+/* One listener for the page, so it survives every redraw of the slot. */
+function wireCopy() {
+  document.addEventListener("click", async e => {
+    const btn = e.target.closest("[data-copy]");
+    if (!btn) return;
+    const text = btn.getAttribute("data-copy");
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (_) {
+      /* No clipboard permission, or an insecure origin: select it instead so
+       * the address can still be copied by hand rather than read off screen. */
+      const f = document.createElement("textarea");
+      f.value = text; f.style.position = "fixed"; f.style.opacity = "0";
+      document.body.appendChild(f); f.select();
+      try { document.execCommand("copy"); } catch (__) {}
+      f.remove();
+    }
+    btn.classList.add("done");
+    setTimeout(() => btn.classList.remove("done"), 1200);
+    toast(`Copied ${text}`);
+  });
+}
+
 /* ---------------- network chrome ---------------- */
 
 function renderNetwork() {
@@ -1310,6 +1378,7 @@ const PAGES = {
           place: w ? (w.l ? `${w.n}, ${w.l}` : w.n) : null,
           note: w && w.g ? `At ${coordText(w.g)}.` : null,
         });
+        rememberLaunch(Chain.chainId, token, symbol);
         await navigate(`token.html?addr=${token}&new=1`);
       } catch (err) {
         btn.disabled = false;
@@ -1584,6 +1653,8 @@ async function swap(href, replace) {
      * said "launches" over the explore hero because it was never touched here,
      * and the sidebar kept its old highlight because this asked for .nav-links,
      * a class the markup stopped using. */
+    renderLastCa();
+
     const crumb = document.querySelector(".crumb");
     const fresh = doc.querySelector(".crumb");
     if (crumb && fresh) crumb.innerHTML = fresh.innerHTML;
@@ -1616,6 +1687,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   wireMenu();
   await Chain.init();
   renderNetwork();
+  renderLastCa();
+  wireCopy();
   renderSideFeature();
   loadSideLaunches();
   renderBanners();
@@ -1633,7 +1706,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("hydropad:chain", () => {
     clearTimeout(pending);
     pending = setTimeout(() => {
-      if (chromeSig() !== chrome) { chrome = chromeSig(); renderNetwork(); }
+      if (chromeSig() !== chrome) { chrome = chromeSig(); renderNetwork(); renderLastCa(); }
       render();
       loadSideLaunches();
     }, 120);

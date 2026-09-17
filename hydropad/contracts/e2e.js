@@ -160,6 +160,26 @@ const log = [];
   console.log('   launcher:', launcher);
   const tokenAddr = new URL(p.url()).searchParams.get('addr');
   console.log('   token:', tokenAddr);
+  await step('the header keeps the address, and the button copies it', async () => {
+    await p.waitForSelector('#last-ca:not([hidden])', { timeout: 15000 });
+    const shown = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
+    if (!shown.includes('$POOL')) throw new Error('the slot reads ' + shown);
+    if (!shown.includes(tokenAddr.slice(0, 6))) throw new Error('not this token: ' + shown);
+
+    /* The address, not the shortened version of it, is what has to land on the
+     * clipboard: an elided address is useless to paste anywhere. */
+    await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await p.click('#last-ca .ca-copy');
+    const copied = await p.evaluate(() => navigator.clipboard.readText());
+    if (copied !== tokenAddr) throw new Error(`clipboard holds ${copied}, not ${tokenAddr}`);
+
+    /* It outlives the page it was launched from: the slot is chrome, and a
+     * reload rebuilds it from what the launch put away. */
+    await p.goto(base + 'sources.html', { waitUntil: 'networkidle' });
+    await p.waitForSelector('#last-ca:not([hidden])', { timeout: 15000 });
+    await p.goto(base + 'token.html?addr=' + tokenAddr, { waitUntil: 'networkidle' });
+  });
+
   await step('the chrome catches up with the launcher it just deployed', async () => {
     await p.waitForFunction(() => !/not here/.test(document.querySelector('#chain-btn')?.textContent || ''),
       null, { timeout: 15000 });

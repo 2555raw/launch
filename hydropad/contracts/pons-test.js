@@ -54,6 +54,7 @@ const params = {
   creatorTaxBps: 0,
   buybackEnabled: true,
   expectedEconomics: ethers.ZeroHash,
+  salt: ethers.ZeroHash,
 };
 const data = factory.encodeFunctionData("launchToken", [params, 3n, PONS.NATIVE]);
 const back = factory.decodeFunctionData("launchToken", data);
@@ -63,7 +64,16 @@ eq(Number(back[1]), 3, "and the launch config id");
 eq(back[2], PONS.NATIVE, "and an ETH-quoted curve");
 eq(back[0].socials.length, 5, "socials carry the five fields the token stores");
 
-eq(factory.getFunction("launchToken").selector, "0xa41d5f2b", "launchToken keeps its selector");
+/* The struct is ten fields, and it was nine here once: the tenth is the CREATE2
+   salt, and leaving it out made a selector no function on the chain answers to,
+   so every launch reverted with nothing to read. Checked against the signature
+   written straight out of the Solidity rather than against itself. */
+const LAUNCH_SIG = "launchToken((string,string,string,string,(string,string,string,string,string),"
+  + "address,uint16,bool,bytes32,bytes32),uint256,address)";
+eq(factory.getFunction("launchToken").selector, ethers.id(LAUNCH_SIG).slice(0, 10),
+   "launchToken matches the signature in PonsV2LaunchFactory.sol");
+eq(factory.getFunction("launchToken").selector, "0xf35abbcf", "and that selector is 0xf35abbcf");
+eq(back[0].length, 10, "TokenParams carries all ten of its fields");
 eq(curve.getFunction("buy").selector, "0x59a87bc1", "buy keeps its selector");
 eq(curve.getFunction("sell").selector, "0xd04c6983", "sell keeps its selector");
 

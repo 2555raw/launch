@@ -62,10 +62,38 @@ function toast(msg, ms = 3400) {
   toastTimer = setTimeout(() => el.classList.remove("on"), ms);
 }
 
+/* A contract that reverts with a custom error says so in four bytes, and a
+ * wallet passes those through as opaque data. "Reverted:" with nothing after
+ * it is the useless end of that: the chain said exactly what was wrong and the
+ * page threw the answer away. These are the ABIs whose errors can reach a
+ * visitor, so the name — and any arguments — can be read back out. */
+function revertName(e) {
+  const data = e?.data ?? e?.info?.error?.data?.data ?? e?.info?.error?.data
+    ?? e?.error?.data?.originalError?.data ?? e?.error?.data;
+  const hex = typeof data === "string" ? data : data?.data;
+  if (typeof hex !== "string" || !/^0x[0-9a-fA-F]{8}/.test(hex)) return null;
+
+  const abis = [];
+  if (typeof PONS !== "undefined") abis.push(PONS.FACTORY_ABI, PONS.CURVE_ABI);
+  if (typeof HYDROPAD !== "undefined") abis.push(HYDROPAD.Hydropad.abi, HYDROPAD.HydropadToken.abi);
+  for (const abi of abis) {
+    try {
+      const parsed = new ethers.Interface(abi).parseError(hex);
+      if (!parsed) continue;
+      const args = parsed.args.length ? ` (${parsed.args.map(a => String(a)).join(", ")})` : "";
+      return `${parsed.name}${args}`;
+    } catch (_) { /* not from this one */ }
+  }
+  /* Nothing recognised it, but the selector is still more than nothing. */
+  return `unrecognised revert ${hex.slice(0, 10)}`;
+}
+
 function errText(e) {
   const raw = e?.info?.error?.message || e?.shortMessage || e?.reason || e?.message || String(e);
   if (/user rejected|denied transaction/i.test(raw)) return "Transaction rejected in the wallet.";
-  return raw.replace(/^execution reverted:?\s*/i, "Reverted: ").slice(0, 160);
+  const named = revertName(e);
+  if (named) return `Reverted: ${named}`.slice(0, 200);
+  return raw.replace(/^execution reverted:?\s*/i, "Reverted: ").slice(0, 200);
 }
 
 const CLASS_BLURB = {
@@ -1113,7 +1141,7 @@ const PAGES = {
         </div>`;
 
       const btn = $("f-submit");
-      if (!btn.disabled) btn.textContent = Chain.launcher || Chain.demo
+      if (!btn.disabled) btn.textContent = Chain.launcher || Chain.demo || route.value === "pons"
         ? `Launch on ${info().name}`
         : `Open Hydropad on ${info().name}`;
       if (btn.disabled && !Chain.offline && !Chain.canLaunch()) {
@@ -1189,6 +1217,9 @@ const PAGES = {
           : stuck ? "No wallet in this browser"
           : first ? `Open Hydropad on ${info().name}`
           : `Launch on ${info().name}`;
+        /* Nothing of ours is being opened on the Pons route, so the button
+         * should not offer to. */
+        if (route.value === "pons" && !btn.disabled) btn.textContent = `Launch on ${info().name}`;
       }
       if (Chain.demo) {
         rows.push(`<div class="wallet on"><span class="w-art"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"/></svg></span>

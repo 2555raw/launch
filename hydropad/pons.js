@@ -48,7 +48,7 @@ const PONS = {
     "function maxCreatorTaxBps() view returns (uint256)",
     "function canLaunch(address launcher) view returns (bool)",
     "function getLaunchedToken(address token) view returns (tuple(address token, address curve, address deployer, address creatorFeeRecipient, address pairToken, uint256 graduationThreshold, uint24 poolFee, int24 tickSpacing, uint16 creatorTaxBps, bool buybackEnabled, uint8 phase, uint256 sweptQuote, uint256 sweptTokens, uint256 sweptAt, bool exists))",
-    "function launchToken(tuple(string name, string symbol, string logo, string description, tuple(string twitter, string telegram, string discord, string website, string farcaster) socials, address creatorFeeRecipient, uint16 creatorTaxBps, bool buybackEnabled, bytes32 expectedEconomics) params, uint256 launchConfigId, address pairToken) payable returns (address token, address curve)",
+    "function launchToken(tuple(string name, string symbol, string logo, string description, tuple(string twitter, string telegram, string discord, string website, string farcaster) socials, address creatorFeeRecipient, uint16 creatorTaxBps, bool buybackEnabled, bytes32 expectedEconomics, bytes32 salt) params, uint256 launchConfigId, address pairToken) payable returns (address token, address curve)",
     "event TokenLaunched(address indexed token, address indexed curve, address indexed deployer, address pairToken, uint256 launchConfigId, uint256 graduationThreshold)",
   ],
 
@@ -499,6 +499,9 @@ const PonsAdapter = {
       creatorTaxBps: 0,
       buybackEnabled: true,
       expectedEconomics,
+      /* The token's address is derived from this, so two launches must never
+       * share one. Random, rather than zero, which every caller would reuse. */
+      salt: ethers.hexlify(ethers.randomBytes(32)),
     };
 
     const tx = await factory.launchToken(params, config.id, PONS.NATIVE, { value: launchFee });

@@ -91,6 +91,10 @@ function renderNetwork() {
   const net = Chain.offline
     ? `<span class="pill bad"><span class="dot"></span>No node</span>`
     : `<span class="pill ${Chain.launcher ? "ok" : "warn"}"><span class="dot"></span>${esc(info.name)}</span>`;
+  if (Chain.demo) {
+    host.innerHTML = `${net}<span class="pill"><span class="dot"></span>${shortAddr(Chain.account)}</span>`;
+    return;
+  }
   if (Chain.account) {
     host.innerHTML = `${net}<button class="btn alt sm" type="button" id="connect">${shortAddr(Chain.account)}</button>`;
   } else {
@@ -105,7 +109,7 @@ function renderNetwork() {
     try {
       await Chain.connect();
       renderNetwork();
-      renderLauncherBanner();
+      renderBanners();
       const page = PAGES[document.body.dataset.page || window.SPILLWAY_PAGE];
       if (page) page();
       toast(`Connected ${shortAddr(Chain.account)} on ${Chain.chainInfo().name}`);
@@ -113,45 +117,42 @@ function renderNetwork() {
   });
 }
 
-/* The launcher is not a service someone runs for you: if the chain you are on
+/* Two strips above every page: where the chain is, and which launcher we read.
+ * The launcher is not a service someone runs for you — if the chain you are on
  * has none, you deploy one and the site remembers it. */
-function renderLauncherBanner() {
+function renderBanners() {
   const host = $("launcher-banner");
   if (!host) return;
-  if (Chain.offline) {
-    host.innerHTML = `<div class="note strip">
-      <span>No Ethereum node is reachable from this browser, so nothing on chain can be read or
-      written here. Open Spillway over the network — or run <code>npm run serve</code> — with a wallet
-      installed.</span>
-    </div>`;
-    return;
-  }
-  if (Chain.launcher) {
-    const link = Chain.explorerLink("address", Chain.launcher);
-    host.innerHTML = `<div class="note strip">
-      <span>Launcher on ${esc(Chain.chainInfo().name)}:
-        ${link ? `<a href="${link}" target="_blank" rel="noopener"><code>${shortAddr(Chain.launcher)}</code></a>` : `<code>${shortAddr(Chain.launcher)}</code>`}
-      </span>
-      <button class="btn alt sm" type="button" id="forget-launcher">Use another</button>
-    </div>`;
-    $("forget-launcher").addEventListener("click", () => {
-      const addr = prompt("Launcher address on this network (blank to clear):", Chain.launcher);
-      if (addr === null) return;
-      if (addr.trim() === "") { Chain.forgetLauncher(); location.reload(); return; }
-      if (!ethers.isAddress(addr.trim())) return toast("That is not an address.");
-      Chain.rememberLauncher(addr.trim());
+  host.innerHTML = chainStrip() + launcherStrip();
+
+  const on = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
+
+  on("start-demo", async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try {
+      await Chain.useDemo(msg => { btn.textContent = msg; });
+      btn.textContent = "Deploying the launcher…";
+      if (!Chain.launcher) await Chain.deployLauncher();
       location.reload();
-    });
-    return;
-  }
-  host.innerHTML = `<div class="note strip">
-    <span>No launcher on ${esc(Chain.chainInfo().name)} yet. Deploy one from your wallet — it is a single transaction, and you own it.</span>
-    <span style="display:flex;gap:8px">
-      <button class="btn accent sm" type="button" id="deploy-launcher">Deploy launcher</button>
-      <button class="btn alt sm" type="button" id="set-launcher">I have an address</button>
-    </span>
-  </div>`;
-  $("deploy-launcher").addEventListener("click", async e => {
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = "Run a chain in this page";
+      toast(errText(err));
+    }
+  });
+
+  on("reset-demo", () => {
+    DemoChain.reset();
+    location.reload();
+  });
+
+  on("leave-demo", () => {
+    DemoChain.disable();
+    location.reload();
+  });
+
+  on("deploy-launcher", async e => {
     const btn = e.currentTarget;
     try {
       if (!Chain.account) await Chain.connect();
@@ -166,13 +167,61 @@ function renderLauncherBanner() {
       toast(errText(err));
     }
   });
-  $("set-launcher").addEventListener("click", () => {
-    const addr = prompt("Launcher address on this network:");
-    if (!addr) return;
+
+  on("set-launcher", () => {
+    const addr = prompt("Launcher address on this network:", Chain.launcher || "");
+    if (addr === null) return;
+    if (addr.trim() === "") { Chain.forgetLauncher(); location.reload(); return; }
     if (!ethers.isAddress(addr.trim())) return toast("That is not an address.");
     Chain.rememberLauncher(addr.trim());
     location.reload();
   });
+}
+
+function chainStrip() {
+  if (Chain.demo) {
+    return `<div class="note strip">
+      <span><b>Running an Ethereum node inside this page.</b> The launcher and every token here are the
+      same compiled bytecode executing on a real EVM in your browser; transactions are journalled
+      locally and replayed on each load. Nothing leaves this browser${Chain.hasWallet() ? "" : ", and no wallet is needed"}.</span>
+      <span style="display:flex;gap:8px">
+        <button class="btn alt sm" type="button" id="reset-demo">Reset chain</button>
+        ${Chain.hasWallet() ? `<button class="btn alt sm" type="button" id="leave-demo">Use my wallet</button>` : ""}
+      </span>
+    </div>`;
+  }
+  if (Chain.offline || !Chain.hasWallet()) {
+    const why = Chain.offline
+      ? "No Ethereum node is reachable from this browser"
+      : "No wallet is installed in this browser";
+    return `<div class="note strip">
+      <span>${why}, so nothing on a public chain can be read or written here. Run one in the page
+      instead: a real EVM, the real contract, no network and no wallet.</span>
+      <button class="btn accent sm" type="button" id="start-demo">Run a chain in this page</button>
+    </div>`;
+  }
+  return "";
+}
+
+function launcherStrip() {
+  if (Chain.offline && !Chain.demo) return "";
+  if (Chain.launcher) {
+    const link = Chain.explorerLink("address", Chain.launcher);
+    return `<div class="note strip">
+      <span>Launcher on ${esc(Chain.chainInfo().name)}:
+        ${link ? `<a href="${link}" target="_blank" rel="noopener"><code>${shortAddr(Chain.launcher)}</code></a>` : `<code>${shortAddr(Chain.launcher)}</code>`}
+      </span>
+      <button class="btn alt sm" type="button" id="set-launcher">Use another</button>
+    </div>`;
+  }
+  return `<div class="note strip">
+    <span>No launcher on ${esc(Chain.chainInfo().name)} yet. Deploy one from your wallet — it is a
+    single transaction, and you own it.</span>
+    <span style="display:flex;gap:8px">
+      <button class="btn accent sm" type="button" id="deploy-launcher">Deploy launcher</button>
+      <button class="btn alt sm" type="button" id="set-launcher">I have an address</button>
+    </span>
+  </div>`;
 }
 
 /* ---------------- the register ---------------- */
@@ -580,9 +629,13 @@ function setText(id, v) { const el = $(id); if (el) el.textContent = v; }
 /* ---------------- boot ---------------- */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await Chain.init();
+  const banner = $("launcher-banner");
+  if (banner && DemoChain.isOn()) {
+    banner.innerHTML = `<div class="note strip"><span id="boot-msg">Starting the chain in this page…</span></div>`;
+  }
+  await Chain.init(msg => setText("boot-msg", msg));
   renderNetwork();
-  renderLauncherBanner();
+  renderBanners();
   const page = PAGES[document.body.dataset.page || window.SPILLWAY_PAGE];
   if (page) {
     try { page(); } catch (e) { console.error(e); toast(errText(e)); }

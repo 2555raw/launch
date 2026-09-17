@@ -6,6 +6,7 @@
  */
 
 const CHAINS = {
+  1337:     { name: "In-page chain", rpc: "",                                            explorer: "",                               ticker: "ETH", test: true },
   1:        { name: "Ethereum",     rpc: "https://ethereum-rpc.publicnode.com",         explorer: "https://etherscan.io",           ticker: "ETH" },
   8453:     { name: "Base",         rpc: "https://mainnet.base.org",                    explorer: "https://basescan.org",           ticker: "ETH" },
   84532:    { name: "Base Sepolia", rpc: "https://sepolia.base.org",                    explorer: "https://sepolia.basescan.org",   ticker: "ETH", test: true },
@@ -32,11 +33,21 @@ const Chain = {
   launcher: null,     // address
   readOnly: true,
   offline: false,     // no node reachable from here
+  demo: false,        // running the EVM inside this page
 
   hasWallet() { return typeof window !== "undefined" && !!window.ethereum; },
 
   /* Read-only boot: pick a chain and provider without prompting the wallet. */
-  async init() {
+  async init(onProgress) {
+    if (DemoChain.isOn()) {
+      try {
+        await this.useDemo(onProgress);
+        return this;
+      } catch (e) {
+        console.warn("demo chain failed to boot", e);
+        DemoChain.disable();
+      }
+    }
     if (this.hasWallet()) {
       try {
         const accounts = await window.ethereum.request({ method: "eth_accounts" });
@@ -63,13 +74,29 @@ const Chain = {
     return this;
   },
 
+  /* Start (or restart) the in-page EVM and run everything against it. */
+  async useDemo(onProgress) {
+    DemoChain.enable();
+    const injected = await DemoChain.boot(onProgress);
+    const bp = new ethers.BrowserProvider(injected);
+    this.provider = bp;
+    this.signer = await bp.getSigner(DemoChain.accounts[0]);
+    this.account = ethers.getAddress(DemoChain.accounts[0]);
+    this.chainId = DemoChain.CHAIN_ID;
+    this.demo = true;
+    this.offline = false;
+    this.readOnly = false;
+    this.launcher = this.launcherAddress();
+    return this;
+  },
+
   /* A node is only useful if we can actually reach it: a blocked network, an
    * offline browser or a sandboxed frame all land here. */
   async reachable() {
     try {
       await Promise.race([
         this.provider.getBlockNumber(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 8000)),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 5000)),
       ]);
       return true;
     } catch (_) { return false; }
@@ -77,6 +104,7 @@ const Chain = {
 
   /* Prompt the wallet. Returns the connected address. */
   async connect() {
+    if (this.demo) return this.account;
     if (!this.hasWallet()) throw new Error("No wallet found. Install MetaMask, Rabby or another EIP-1193 wallet.");
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     const bp = new ethers.BrowserProvider(window.ethereum);

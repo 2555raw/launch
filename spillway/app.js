@@ -68,11 +68,11 @@ function errText(e) {
   return raw.replace(/^execution reverted:?\s*/i, "Reverted: ").slice(0, 160);
 }
 
-const CLASS_TINT = { Reservoir: "#4f46e5", Aquifer: "#0e9f9f", Glacier: "#3b82f6", Desalination: "#7c5cff" };
+const CLASS_TINT = { Reservoir: "#0e7490", Aquifer: "#0f9d76", Glacier: "#3b9fd4", Desalination: "#0b6b7d" };
 
 function dropGlyph(t, size = 22) {
   const w = byTicker(t);
-  const c = CLASS_TINT[w ? w.c : "Reservoir"] || "#4f46e5";
+  const c = CLASS_TINT[w ? w.c : "Reservoir"] || "#0e7490";
   const lvl = w ? (BASE_LEVEL[t] ?? 0.5) : 0.5;
   const uid = `c${t}-${Math.round(size)}`;
   return `<svg width="${size}" height="${size * 1.12}" viewBox="0 0 20 22" aria-hidden="true">
@@ -333,7 +333,7 @@ function renderCurve(pairings, metas) {
     const price = curvePrice(p.raised, m.totalSupply);
     const cx = x(Math.min(r, target)), cy = y(Math.min(price, maxY));
     return `<g>
-      <circle class="mark" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="5.5" fill="#4f46e5" fill-opacity=".92" stroke="#fff" stroke-width="2">
+      <circle class="mark" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="5.5" fill="#0e7490" fill-opacity=".92" stroke="#fff" stroke-width="2">
         <title>$${esc(m.symbol)} · ${eth(p.raised)} raised</title>
       </circle>
       <text class="mark-label" x="${(cx + 9).toFixed(1)}" y="${(cy - 8).toFixed(1)}">$${esc(m.symbol)}</text>
@@ -342,11 +342,11 @@ function renderCurve(pairings, metas) {
 
   host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Price along the bonding curve">
     <defs><linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4f46e5" stop-opacity=".16"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/>
+      <stop offset="0" stop-color="#0e7490" stop-opacity=".16"/><stop offset="1" stop-color="#0e7490" stop-opacity="0"/>
     </linearGradient></defs>
     ${gridY}${gridX}
     <path d="${area}" fill="url(#curveFill)"/>
-    <path d="${line}" fill="none" stroke="#4f46e5" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="${line}" fill="none" stroke="#0e7490" stroke-width="2.4" stroke-linejoin="round"/>
     <line class="axis" x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}"/>
     <line class="axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}"/>
     <text class="tick" x="${W - padR}" y="${H - 6}" text-anchor="end">ETH raised</text>
@@ -728,10 +728,10 @@ function chart(trades) {
   const line = pts.map((_, i) => { const [x, y] = xy(i); return `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`; }).join(" ");
   return `<svg class="chart" viewBox="0 0 780 240" preserveAspectRatio="none" aria-hidden="true">
     <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4f46e5" stop-opacity=".18"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/>
+      <stop offset="0" stop-color="#0e7490" stop-opacity=".18"/><stop offset="1" stop-color="#0e7490" stop-opacity="0"/>
     </linearGradient></defs>
     <path d="${line} L770 230 L10 230 Z" fill="url(#g)"/>
-    <path d="${line}" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <path d="${line}" fill="none" stroke="#0e7490" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
   </svg>`;
 }
 

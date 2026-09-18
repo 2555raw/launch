@@ -5,21 +5,23 @@
  * public RPC when no wallet is present, so the pages work logged out.
  */
 
+/* The networks Hydropad runs on, and nothing else. Coins launch on Robinhood
+ * Chain, so that is what the pages read: a wallet parked on Base or Polygon
+ * does not drag the register somewhere there is nothing to read. */
 const CHAINS = {
-  1337:     { name: "Demo chain",    rpc: "",                                            explorer: "",                               ticker: "ETH", test: true },
   /* Robinhood Chain is an Arbitrum Orbit L2 that settles to Ethereum and pays
    * gas in ETH, so the launcher deploys and runs on it unchanged. Contract
    * deployment there is permissionless: no allowlist to get onto. */
   4663:     { name: "Robinhood Chain", rpc: "https://rpc.mainnet.chain.robinhood.com",   explorer: "https://robinhoodchain.blockscout.com", ticker: "ETH" },
   46630:    { name: "Robinhood Testnet", rpc: "https://rpc.testnet.chain.robinhood.com/rpc", explorer: "https://explorer.testnet.chain.robinhood.com", ticker: "ETH", test: true },
-  1:        { name: "Ethereum",     rpc: "https://ethereum-rpc.publicnode.com",         explorer: "https://etherscan.io",           ticker: "ETH" },
-  8453:     { name: "Base",         rpc: "https://mainnet.base.org",                    explorer: "https://basescan.org",           ticker: "ETH" },
-  84532:    { name: "Base Sepolia", rpc: "https://sepolia.base.org",                    explorer: "https://sepolia.basescan.org",   ticker: "ETH", test: true },
-  11155111: { name: "Sepolia",      rpc: "https://ethereum-sepolia-rpc.publicnode.com", explorer: "https://sepolia.etherscan.io",   ticker: "ETH", test: true },
-  10:       { name: "Optimism",     rpc: "https://mainnet.optimism.io",                 explorer: "https://optimistic.etherscan.io",ticker: "ETH" },
-  42161:    { name: "Arbitrum",     rpc: "https://arb1.arbitrum.io/rpc",                explorer: "https://arbiscan.io",            ticker: "ETH" },
-  137:      { name: "Polygon",      rpc: "https://polygon-rpc.com",                     explorer: "https://polygonscan.com",        ticker: "POL" },
-  31337:    { name: "Localhost",    rpc: "http://127.0.0.1:8545",                       explorer: "",                               ticker: "ETH", test: true },
+};
+
+/* Only so a wallet somewhere else can be named in the sentence that asks it to
+ * move. Nothing is ever read from these. */
+const ELSEWHERE = {
+  1: "Ethereum", 10: "Optimism", 56: "BNB Chain", 137: "Polygon", 8453: "Base",
+  42161: "Arbitrum", 43114: "Avalanche", 59144: "Linea", 534352: "Scroll",
+  84532: "Base Sepolia", 11155111: "Sepolia", 31337: "Localhost", 1337: "Localhost",
 };
 
 /* Launchers known to this build. Anyone can deploy their own from the UI; the
@@ -38,11 +40,12 @@ const DEFAULT_CHAIN = 4663;
  * build only opens new pairings on the chain it is for. 1337 is the EVM that
  * runs inside the page, which is a sandbox rather than a network, and is kept
  * open so the site can be used with no wallet and no money. */
-const LAUNCH_CHAINS = new Set([4663, 46630, 1337]);
+const LAUNCH_CHAINS = new Set([4663, 46630]);
 
 const LAUNCHER_KEY = c => `hydropad.launcher.${c}`;
 
 const Chain = {
+  walletChain: null,
   provider: null,     // read provider (wallet or public RPC)
   signer: null,
   account: null,
@@ -131,9 +134,16 @@ const Chain = {
         this.useWallet(this.pickWallet());
         const accounts = await this.wallet.request({ method: "eth_accounts" });
         const hexId = await this.wallet.request({ method: "eth_chainId" });
-        this.chainId = Number(BigInt(hexId));
+        this.walletChain = Number(BigInt(hexId));
+        /* The site is pinned to Robinhood Chain. A wallet parked somewhere else
+         * is a thing to tell the visitor about, not a place to go and read: the
+         * register, the prices and the launches all live on one network, and
+         * following the wallet to Polygon only ever finds an empty page there. */
         const bp = new ethers.BrowserProvider(this.wallet);
-        this.provider = bp;
+        if (LAUNCH_CHAINS.has(this.walletChain)) {
+          this.chainId = this.walletChain;
+          this.provider = bp;
+        }
         if (accounts && accounts.length) {
           this.account = ethers.getAddress(accounts[0]);
           this.signer = await bp.getSigner();
@@ -144,8 +154,11 @@ const Chain = {
       } catch (e) { console.warn("wallet init failed", e); }
     }
     if (!this.provider) {
-      this.chainId = this.chainId || Number(localStorage.getItem("hydropad.chain") || DEFAULT_CHAIN);
-      const cfg = CHAINS[this.chainId] || CHAINS[DEFAULT_CHAIN];
+      /* No wallet, or a wallet on a network Hydropad does not run on: read from
+       * Robinhood Chain's own node either way. */
+      const saved = Number(localStorage.getItem("hydropad.chain") || DEFAULT_CHAIN);
+      this.chainId = CHAINS[saved] ? saved : DEFAULT_CHAIN;
+      const cfg = CHAINS[this.chainId];
       this.provider = new ethers.JsonRpcProvider(cfg.rpc, undefined, { staticNetwork: true });
     }
     this.launcher = this.launcherAddress();
@@ -174,14 +187,25 @@ const Chain = {
     this.provider = bp;
     this.signer = await bp.getSigner();
     this.account = ethers.getAddress(accounts[0]);
-    this.chainId = Number((await bp.getNetwork()).chainId);
+    this.walletChain = Number((await bp.getNetwork()).chainId);
+    if (LAUNCH_CHAINS.has(this.walletChain)) this.chainId = this.walletChain;
     this.readOnly = false;
     this.launcher = this.launcherAddress();
     return this.account;
   },
 
-  /* Can a pairing be opened from where we are standing? */
-  canLaunch() { return LAUNCH_CHAINS.has(Number(this.chainId)); },
+  /* Can a pairing be opened from where we are standing? This one asks about
+   * the WALLET, not about what the pages are reading: reading is pinned to
+   * Robinhood Chain, and signing happens wherever the wallet actually is. */
+  canLaunch() { return LAUNCH_CHAINS.has(Number(this.walletChain)); },
+
+  /* Where the wallet is, for the sentence that asks it to move. Named, when it
+   * is somewhere well known, so that sentence reads like a sentence. */
+  walletChainInfo() {
+    const id = Number(this.walletChain);
+    if (CHAINS[id]) return CHAINS[id];
+    return { name: ELSEWHERE[id] || `chain ${id}`, explorer: "", ticker: "ETH", away: true };
+  },
 
   /* Pons is already deployed on Robinhood Chain, so on that network there is
    * no launcher of ours to deploy and nothing to wait for: the pages talk to
@@ -235,9 +259,8 @@ const Chain = {
     return (await this.within(this.pons().knows(token), false)) ? "pons" : "own";
   },
 
-  chainInfo() {
-    return CHAINS[this.chainId] || { name: `Chain ${this.chainId}`, explorer: "", ticker: "ETH" };
-  },
+  /* What the pages are reading. Always one of Hydropad's own networks. */
+  chainInfo() { return CHAINS[this.chainId] || CHAINS[DEFAULT_CHAIN]; },
 
   /* Move the wallet onto another network. A wallet that has never seen the
    * chain answers 4902; then it has to be added before it can be switched to,

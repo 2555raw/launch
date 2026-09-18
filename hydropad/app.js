@@ -514,13 +514,13 @@ function renderNetwork() {
    * been told what the colours are. Say it in words instead: what the pill is,
    * and what this particular state of it means. */
   const hint = Chain.offline
-    ? "This browser cannot reach any Ethereum node. Click to run a chain inside this page instead."
-      : Chain.ready()
-        ? `Hydropad is on ${info.name}, and this page reads and writes there. Click to change network.`
-        : `Your wallet is on ${info.name}, and Hydropad is not there yet. Click to move to Robinhood Chain.`;
+    ? `This browser cannot reach ${info.name}, so there is nothing to read.`
+    : Chain.hasWallet() && !Chain.canLaunch()
+      ? `Hydropad reads ${info.name}. Your wallet is on ${Chain.walletChainInfo().name}, so it cannot launch or trade until it moves.`
+      : `Hydropad runs on ${info.name} and pays gas in ${info.ticker}. It does not read any other network.`;
   /* "not here" named the problem and left it there. When there is a network
    * that does work, the pill carries the way onto it instead. */
-  const stranded = cls === "warn" && Chain.hasWallet();
+  const stranded = Chain.hasWallet() && !Chain.offline && !Chain.canLaunch();
   const suffix = cls === "warn" && !stranded ? `<span class="net-off">not here</span>` : "";
   const fix = stranded
     ? `<button class="net-fix" type="button" data-switch="4663" title="Move this wallet to Robinhood Chain, where Hydropad runs">
@@ -659,9 +659,10 @@ function chainMenu() {
     rows.push(`<p>There is no wallet in this browser. The register and the docs read fine without
       one; launching and trading need a wallet on <b>Robinhood Chain</b>.</p>`);
     rows.push(`<p class="chain-fine">MetaMask, Phantom, Rabby — anything that speaks EIP-1193.</p>`);
-  } else if (!Chain.ready()) {
-    rows.push(`<p><b>Hydropad runs on Robinhood Chain.</b> Your wallet is on ${here}, so there is
-      nothing here to read and nothing to launch against.</p>`);
+  } else if (!Chain.canLaunch()) {
+    rows.push(`<p><b>Hydropad runs on Robinhood Chain.</b> The pages read it whatever your wallet is
+      set to, so the register above is real; but your wallet is on ${esc(Chain.walletChainInfo().name)},
+      so there is nothing to launch or trade from until it moves.</p>`);
     rows.push(`<div class="chain-acts">
       <button class="btn accent sm" type="button" data-switch="4663">Move to Robinhood Chain</button>
     </div>`);
@@ -1370,7 +1371,10 @@ const PAGES = {
        * second wallet prompt is not a surprise. */
       /* Hydropad launches on Robinhood Chain and nowhere else. Reading works on
        * any network; opening a pairing does not. */
-      const wrongChain = !Chain.offline && !Chain.canLaunch();
+      /* Whether this browser can reach a node has nothing to do with it: a
+       * wallet on Base cannot open a pairing on Robinhood Chain either way,
+       * and that is the thing to say first. */
+      const wrongChain = Chain.hasWallet() && !Chain.canLaunch();
       /* Only our own launcher has a "somebody has to open it" state, and only
        * when this launch is actually taking that route. */
       /* On a chain Pons is not on, our own launcher is the only route and that
@@ -1388,8 +1392,9 @@ const PAGES = {
         const el = document.createElement("div");
         el.id = "f-blocked";
         el.className = "lp-blocked";
-        el.innerHTML = `<b>Coins are launched on Robinhood Chain, not on ${esc(info().name)}.</b>
-          <span>Your wallet is on ${esc(info().name)}. Hydropad opens pairings on Robinhood Chain,
+        const away = Chain.walletChainInfo();
+        el.innerHTML = `<b>Coins are launched on Robinhood Chain, not on ${esc(away.name)}.</b>
+          <span>Your wallet is on ${esc(away.name)}. Hydropad opens pairings on Robinhood Chain,
           the Arbitrum layer 2 that settles to Ethereum and pays gas in ETH. Move your wallet over
           and the form works as it is.</span>
           <span class="lp-blocked-acts">
@@ -1480,7 +1485,7 @@ const PAGES = {
       try {
         if (!Chain.account) await Chain.connect();
         if (!Chain.canLaunch()) {
-          return toast(`Hydropad launches on Robinhood Chain. Your wallet is on ${info().name}.`);
+          return toast(`Hydropad launches on Robinhood Chain. Your wallet is on ${Chain.walletChainInfo().name}.`);
         }
         const symbol = form.symbol.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
         if (!symbol) return toast("The symbol needs at least one letter.");

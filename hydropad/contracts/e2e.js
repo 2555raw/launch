@@ -18,7 +18,12 @@ const log = [];
   const b = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
   const p = await b.newPage({ viewport: { width: 1360, height: 950 } });
   p.on('pageerror', e => log.push('PAGEERROR ' + e.message));
-  p.on('console', m => { if (m.type() === 'error' && !/CERT|favicon|fonts/.test(m.text())) log.push('CONSOLE ' + m.text()); });
+  /* The pages are pinned to Robinhood Chain, so the step that parks the wallet
+   * on Base still opens a provider to Robinhood's public RPC — which no test
+   * machine here can reach. That failed fetch is the pinning working, not a
+   * fault, so it is not counted. */
+  const EXPECTED = /CERT|favicon|fonts|ERR_TUNNEL_CONNECTION_FAILED|ERR_NAME_NOT_RESOLVED/;
+  p.on('console', m => { if (m.type() === 'error' && !EXPECTED.test(m.text())) log.push('CONSOLE ' + m.text()); });
   await p.addInitScript(WALLET_SHIM('0x' + CHAIN.toString(16)));
   // Serve ethers and skip the font CSS from disk, so the run does not depend on
   // reaching a CDN. The page loads the same build in a browser.

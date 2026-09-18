@@ -1,0 +1,83 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch · Gridpad</title>
+<meta name="description" content="Bind a coin to a named renewable power station and launch it through Pons V2 on Robinhood Chain.">
+<link rel="stylesheet" href="styles.css">
+</head><body data-page="launch">
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M13.4 1.8 4.2 13.4h5.3L9 22.2l9.8-11.8h-5.5l.1-8.6Z" fill="#c9f24e" stroke="#23342e" stroke-width="1.1" stroke-linejoin="round"/>
+    </svg>gridpad</a>
+  <nav class="nav">
+    <a href="index.html">Register</a>
+    <a href="launch.html" class="on">Launch</a>
+    <a href="launches.html">Launches</a>
+    <a href="docs.html">Docs</a>
+  </nav>
+  <div class="bar-right">
+    <span class="ca" id="ca"></span>
+    <button class="btn dark" type="button" id="connect">Connect wallet</button>
+  </div>
+</div></header>
+<section class="band"><div class="wrap">
+  <p class="eyebrow">Launch</p>
+  <div class="lede-row">
+    <h1>Pick a station. <em>Name the coin.</em></h1>
+    <p class="aside">The pairing goes into the token's own description, where anybody can read it back and nobody can edit it afterwards — including you.</p>
+  </div>
+  
+</div></section>
+<div class="seam"></div>
+
+<main class="wrap">
+  <div class="lay">
+    <form class="sheet form" id="form" autocomplete="off">
+      <div class="f-block">
+        <p class="f-label">1 · The station</p>
+        <div class="tabs" id="f-classes"></div>
+        <select id="f-source" name="source" class="f-select"></select>
+        <div class="picked" id="f-picked"></div>
+      </div>
+
+      <div class="f-block">
+        <p class="f-label">2 · The coin</p>
+        <div class="two">
+          <label class="field">Name
+            <input id="f-name" name="name" maxlength="32" placeholder="Grand Coulee Coin" required>
+          </label>
+          <label class="field">Ticker
+            <input id="f-symbol" name="symbol" class="mono" maxlength="12" placeholder="GC" required>
+            <span class="hint">Letters and numbers. It goes on the token itself.</span>
+          </label>
+        </div>
+        <label class="field">Opening buy <span class="opt">optional</span>
+          <input id="f-firstbuy" name="firstBuy" class="mono" type="number" min="0" step="any" placeholder="0.000">
+          <span class="hint">ETH spent on the curve straight after the launch. A second transaction;
+          if it fails the coin still exists, it just has no opening position.</span>
+        </label>
+      </div>
+
+      <div class="f-block">
+        <p class="f-label">3 · Sign</p>
+        <div id="f-wallet"></div>
+        <div class="f-go">
+          <button class="btn dark lg" type="submit" id="f-submit">Launch</button>
+          <span class="f-cost" id="f-cost">Plus gas.</span>
+        </div>
+      </div>
+    </form>
+
+    <aside class="pv" id="preview"></aside>
+  </div>
+  <p class="note" id="note"></p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="pons.js"></script>
+<script src="chain.js"></script>
+<script src="ui.js"></script>
+</body></html>

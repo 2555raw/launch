@@ -1,0 +1,121 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs · Gridpad</title>
+<meta name="description" content="How Gridpad works: the register, what goes on chain, the network, and how a creator reads and claims fees.">
+<link rel="stylesheet" href="styles.css">
+</head><body data-page="docs">
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M13.4 1.8 4.2 13.4h5.3L9 22.2l9.8-11.8h-5.5l.1-8.6Z" fill="#c9f24e" stroke="#23342e" stroke-width="1.1" stroke-linejoin="round"/>
+    </svg>gridpad</a>
+  <nav class="nav">
+    <a href="index.html">Register</a>
+    <a href="launch.html">Launch</a>
+    <a href="launches.html">Launches</a>
+    <a href="docs.html" class="on">Docs</a>
+  </nav>
+  <div class="bar-right">
+    <span class="ca" id="ca"></span>
+    <button class="btn dark" type="button" id="connect">Connect wallet</button>
+  </div>
+</div></header>
+
+<section class="band"><div class="wrap">
+  <p class="eyebrow">Docs</p>
+  <div class="lede-row">
+    <h1>What this <span class="volt">actually</span> <em>does.</em></h1>
+    <p class="aside">Short, because there is not much to it: a register with sources on it,
+    a launchpad that is not ours, and one sentence written into every token.</p>
+  </div>
+</div></section>
+<div class="seam"></div>
+
+<main class="wrap">
+  <div class="doc">
+
+    <h2>The register</h2>
+    <p>Twenty-eight power stations — seven each of hydro, wind, solar and geothermal — built from
+    the <b>Global Power Plant Database v1.3.0</b> published by the World Resources Institute under
+    <b>CC BY 4.0</b>. Commercial use is allowed and attribution is required, which is why the
+    attribution is on every page that shows a figure from it.</p>
+    <p>The database holds 23,354 renewable rows with coordinates, and most of them are called
+    things like <span class="mono">PV Plant 118</span>. A register nobody can read through is a
+    search box, so this one is curated. What decides the order is how checkable a row is rather
+    than how big it is: a named authority as the source, a URL on the row, generation actually
+    reported rather than modelled.</p>
+    <p>Twenty-eight is short enough that being recognised matters too. Ranking purely on
+    verifiability filled the hydro class with installations nobody can picture and left out Three
+    Gorges and Itaipu, so a short list of stations is seeded by hand and the rest is earned. That
+    is a judgement, and it is said out loud in the script that builds the file rather than dressed
+    up as an algorithm.</p>
+    <p class="say">Nothing in the register is measured here. Every capacity and every coordinate is
+    as its source published it, and that source is linked on the row.</p>
+
+    <h2>What goes on chain</h2>
+    <p>Pons' token has no field of ours, so the pairing is written into the one public string it
+    does have — its <span class="mono">description</span>, set at launch and not editable
+    afterwards by anyone, including whoever launched it:</p>
+    <pre class="readout" id="sample"></pre>
+    <p>The tag on the end is for a machine. Anyone indexing the chain pulls the ticker straight out
+    of it without asking this site for anything, which is the point: the pairing does not depend on
+    a database somebody controls.</p>
+
+    <h2>The network</h2>
+    <p>Coins launch on <b>Robinhood Chain</b>, an Arbitrum Orbit L2 that settles to Ethereum and
+    pays gas in ETH. The pages read that chain whatever your wallet is set to — a wallet parked
+    somewhere else does not drag the register to a network with nothing on it.</p>
+    <div class="acts">
+      <button class="btn dark sm" type="button" data-switch="4663">Add Robinhood Chain</button>
+      <button class="btn ghost sm" type="button" data-switch="46630">Testnet</button>
+      <button class="btn ghost sm" type="button" id="pons-check">Check Pons</button>
+    </div>
+    <pre class="readout" id="pons-readout" hidden></pre>
+    <p class="hint">The check only reads. It asks the factory what it is, whether it would take a
+    launch from your address and on what terms. Nothing is signed and nothing is spent.</p>
+
+    <h2>Why Pons</h2>
+    <p>Launches go through <b>Pons V2</b>, which mints the supply straight into a bonding curve,
+    trades it, and graduates it into a Uniswap V4 pool whose liquidity is locked. There is no
+    launcher of ours underneath. Writing one and asking you to trust it instead would have been
+    the easy thing and the worse one.</p>
+    <p>The launch fee is Pons'. The form reads it off the factory at the moment you are about to
+    sign rather than quoting a number hardcoded weeks ago and hoping it still holds.</p>
+
+    <h2>Creator fees</h2>
+    <p>Fees accrue on the curve and stay there until a sweep moves them into Pons' escrow. The
+    escrow is what pays out, so a balance that looks like nothing is usually a curve nobody has
+    swept. The sweep is not privileged: the protocol's operator can call it and so can the token's
+    deployer, so a creator never waits on Pons to be paid.</p>
+    <div class="acts">
+      <input id="fee-token" class="mono f-input" placeholder="0x… token address" spellcheck="false">
+      <button class="btn dark sm" type="button" id="fee-check">Check fees</button>
+    </div>
+    <pre class="readout" id="fee-readout" hidden></pre>
+    <div class="acts" id="fee-acts" hidden>
+      <button class="btn ghost sm" type="button" id="fee-sweep">Sweep the curve</button>
+      <button class="btn dark sm" type="button" id="fee-claim">Claim from escrow</button>
+    </div>
+
+    <h2>What a pairing is not</h2>
+    <p class="say">A coin paired to a power station names that station and nothing more. It conveys
+    no ownership of the plant, no claim on its output or its revenue, and no physical backing. That
+    sentence is not in this footer — it is in the token, and it travels with it into every explorer
+    and every wallet that reads it.</p>
+    <p>Nothing on this site is an endorsement either. No exchange, launchpad, operator or public
+    body has verified, approved or has any opinion about a coin launched here. The green mark in
+    the register means one thing: the capacity and the coordinates are as that named body
+    published them, and here is the link.</p>
+
+    <p class="note" id="note"></p>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="pons.js"></script>
+<script src="chain.js"></script>
+<script src="ui.js"></script>
+</body></html>

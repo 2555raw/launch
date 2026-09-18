@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launches · Gridpad</title>
+<meta name="description" content="Every coin paired to a power station on this chain, newest first, filling in as they launch.">
+<link rel="stylesheet" href="styles.css">
+</head><body data-page="launches">
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M13.4 1.8 4.2 13.4h5.3L9 22.2l9.8-11.8h-5.5l.1-8.6Z" fill="#c9f24e" stroke="#23342e" stroke-width="1.1" stroke-linejoin="round"/>
+    </svg>gridpad</a>
+  <nav class="nav">
+    <a href="index.html">Register</a>
+    <a href="launch.html">Launch</a>
+    <a href="launches.html" class="on">Launches</a>
+    <a href="docs.html">Docs</a>
+  </nav>
+  <div class="bar-right">
+    <span class="ca" id="ca"></span>
+    <button class="btn dark" type="button" id="connect">Connect wallet</button>
+  </div>
+</div></header>
+<section class="band"><div class="wrap">
+  <p class="eyebrow">On chain</p>
+  <div class="lede-row">
+    <h1>Every coin <span class="volt">paired</span> <em>so far.</em></h1>
+    <p class="aside">Read straight off the chain by your browser, as it lands. There is no server in this.</p>
+  </div>
+  <dl class="stats" id="stats"></dl>
+</div></section>
+<div class="seam"></div>
+
+<main class="wrap">
+  <div class="sheet" style="margin-top:26px">
+    <table>
+      <thead><tr>
+        <th>Coin</th><th class="hide-s">Paired with</th><th class="hide-l">Launched</th>
+        <th class="hide-l">Contract</th><th class="r">Raised</th><th class="r">Stage</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="note" id="note"></p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="pons.js"></script>
+<script src="chain.js"></script>
+<script src="ui.js"></script>
+</body></html>

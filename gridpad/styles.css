@@ -183,3 +183,103 @@ tbody tr:hover { background: #fafbf9; }
   .stats > div { flex: 1 1 50%; }
   .stats > div:nth-child(3) { border-left: 0; padding-left: 0; }
 }
+
+/* A row of choices that reads as a row of choices. Used for the class filter
+   on the register and for picking one on the launch form. */
+.tabs { display: flex; gap: 7px; flex-wrap: wrap; }
+.tab { border: 1px solid var(--line-2); background: var(--card); color: var(--ink-2);
+       border-radius: 999px; padding: 7px 15px; font-size: 12.5px; font-weight: 600;
+       cursor: pointer; transition: all .18s cubic-bezier(.2,.7,.3,1); }
+.tab:hover { color: var(--ink); border-color: var(--ink-3); }
+.tab.on { background: var(--go); border-color: var(--go); color: #fff; }
+
+/* ---------------- the launch form ---------------- */
+.lay { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; align-items: start; padding: 26px 0 0; }
+.form { padding: 4px 0; }
+.f-block { padding: 22px 24px; border-bottom: 1px solid var(--line); }
+.f-block:last-child { border-bottom: 0; }
+.f-label { font: 600 11px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase;
+           color: var(--ink-3); margin-bottom: 16px; }
+.field { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 14px; }
+.field input, .f-select, .f-input {
+  display: block; width: 100%; margin-top: 7px; padding: 10px 12px; font: inherit; font-size: 14px;
+  color: var(--ink); background: var(--card); border: 1px solid var(--line-2); border-radius: 8px;
+}
+.f-select { margin-top: 12px; }
+.field input:focus, .f-select:focus, .f-input:focus {
+  outline: none; border-color: var(--ink-3); box-shadow: 0 0 0 3px rgba(23,33,29,.06); }
+.field input[readonly] { background: #f6f7f5; color: var(--ink-2); }
+.hint { display: block; margin-top: 6px; font-size: 11.5px; font-weight: 400; color: var(--ink-3); }
+.opt { font-weight: 400; color: var(--ink-3); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.f-go { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+.btn.lg { padding: 12px 22px; font-size: 15px; border-radius: 9px; }
+.f-cost { font-size: 12.5px; color: var(--ink-3); }
+
+.picked { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 12px;
+          border: 1px solid var(--line); border-radius: 9px; background: #fafbf9; }
+.picked b { display: block; font-size: 14px; }
+.picked .pair { font: 500 11.5px/1.5 var(--mono); color: var(--ink-3); }
+.picked a { margin-left: auto; }
+
+.wallet { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+          padding: 12px; border: 1px solid var(--line-2); border-radius: 9px; background: var(--card);
+          cursor: pointer; }
+.wallet.on { cursor: default; border-color: #cfe4d8; background: #f5fbf8; }
+.wallet .w-art { width: 30px; height: 30px; border-radius: 8px; background: #eef1ee; display: grid;
+                 place-items: center; color: var(--ink-2); flex: none; }
+.wallet b { display: block; font-size: 13.5px; }
+.wallet small { color: var(--ink-3); font-size: 11.5px; }
+.blocked { padding: 13px 15px; border-radius: 9px; background: #fdf3e6; border: 1px solid #f0d9ae;
+           font-size: 13px; color: #6b4d18; margin-bottom: 14px; }
+.blocked b { display: block; margin-bottom: 4px; }
+
+/* the coin as it will exist */
+.pv { border: 1px solid var(--line); border-radius: var(--r); background: var(--card);
+      box-shadow: var(--e1); padding: 20px; position: sticky; top: 70px; }
+.pv-head { display: flex; align-items: center; gap: 12px; }
+.pv-head b { display: block; font-size: 16px; letter-spacing: -.01em; }
+.pv-head .mono { font-size: 12px; color: var(--ink-3); }
+.pv-lede { font-size: 12.5px; color: var(--ink-2); margin: 14px 0; line-height: 1.55; }
+.pv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+.pv-grid div { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.pv-grid span { display: block; font-size: 10.5px; color: var(--ink-3); }
+.pv-grid b { font-size: 14px; }
+.pv-steps { list-style: none; font-size: 12.5px; color: var(--ink-2); }
+.pv-steps li { display: flex; gap: 10px; padding: 6px 0; }
+.pv-steps li span { width: 17px; height: 17px; border-radius: 50%; background: #eef1ee; flex: none;
+                    display: grid; place-items: center; font-size: 10px; font-weight: 700; color: var(--ink-2); }
+
+/* ---------------- docs ---------------- */
+.doc { max-width: 76ch; padding: 30px 0 70px; }
+.doc h2 { font-size: 21px; font-weight: 700; letter-spacing: -.02em; margin: 34px 0 10px; }
+.doc h2:first-child { margin-top: 0; }
+.doc p { color: var(--ink-2); font-size: 14.5px; margin-bottom: 12px; }
+.doc p b { color: var(--ink); }
+.doc .say { border-left: 2px solid var(--volt); padding-left: 14px; color: var(--ink); }
+.doc .hint { margin-top: -4px; }
+.acts { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+.acts .f-input { width: auto; flex: 1 1 260px; margin: 0; }
+.readout { background: #10201b; color: #cfe2d9; border-radius: 9px; padding: 14px 16px; margin: 12px 0;
+           font: 400 12px/1.65 var(--mono); white-space: pre-wrap; overflow-x: auto; }
+
+/* ---------------- one coin ---------------- */
+.tok { padding: 30px 0 70px; }
+.tok .empty { padding: 60px 0; }
+.tok-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.tok-head h1 { font-size: 30px; font-weight: 700; letter-spacing: -.03em; }
+.tok-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 18px 0; }
+.tok-grid div { border: 1px solid var(--line); border-radius: 9px; background: var(--card); padding: 13px 15px; }
+.tok-grid span { display: block; font-size: 11px; color: var(--ink-3); }
+.tok-grid b { font-size: 19px; letter-spacing: -.02em; }
+.trade { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.trade .sheet { padding: 18px; }
+
+.toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(14px);
+         background: var(--go); color: #fff; padding: 11px 18px; border-radius: 9px; font-size: 13.5px;
+         box-shadow: var(--e2); opacity: 0; pointer-events: none; transition: all .22s cubic-bezier(.2,.7,.3,1);
+         z-index: 60; max-width: 90vw; }
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 980px) { .lay { grid-template-columns: 1fr; } .pv { position: static; } .trade { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .two { grid-template-columns: 1fr; } }

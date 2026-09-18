@@ -8,70 +8,66 @@
 
   $$("[data-year]").forEach((e) => (e.textContent = new Date().getFullYear()));
 
-  /* ---- the bar menus ------------------------------------------------
-     Click opens and closes. On a device with a real pointer, hovering
-     across the bar moves the open menu with the cursor, which is what a
-     menu bar is expected to do; touch gets click only. */
-  const menus = $$(".tnav .menu");
+  /* ---- the rail flyouts ----------------------------------------------
+     Click opens and closes. With a real pointer, running down the rail
+     moves the open panel with the cursor — which needs its own "the rail
+     is active" flag, because mouseleave on one icon fires before
+     mouseenter on the next. */
+  const menus = $$(".rail .menu");
   if (menus.length) {
     const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
-    let open = null;
+    let open = null, armed = false;
 
     function show(m) {
       if (open === m) return;
-      if (open) hide();
+      if (open) close();
       open = m;
-      const btn = $("button", m), pop = $(".pop", m);
-      btn.setAttribute("aria-expanded", "true");
+      $("button", m).setAttribute("aria-expanded", "true");
+      const pop = $(".pop", m);
       pop.hidden = false;
-      // Keep the panel on screen: flip it to the right edge if it would
-      // run past the viewport.
-      pop.style.left = "0"; pop.style.right = "auto";
+      // keep the panel on screen when the icon sits low in the rail
+      pop.style.top = "-8px"; pop.style.bottom = "auto";
       const r = pop.getBoundingClientRect();
-      if (r.right > innerWidth - 12) { pop.style.left = "auto"; pop.style.right = "0"; }
+      if (r.bottom > innerHeight - 12) { pop.style.top = "auto"; pop.style.bottom = "-8px"; }
     }
-    function hide() {
+    function close() {
       if (!open) return;
       $("button", open).setAttribute("aria-expanded", "false");
       $(".pop", open).hidden = true;
       open = null;
     }
 
-    // Leaving one menu fires before entering the next, so "is the bar
-    // active" has to be its own flag — reading it off the open panel
-    // closes the bar halfway across it.
-    let armed = false;
     menus.forEach((m) => {
       const btn = $("button", m);
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (open === m) { hide(); armed = false; }
+        if (open === m) { close(); armed = false; }
         else { armed = true; show(m); }
       });
       if (fine) m.addEventListener("mouseenter", () => { if (armed) show(m); });
       m.addEventListener("focusout", (e) => {
-        if (open === m && !m.contains(e.relatedTarget)) { hide(); armed = false; }
+        if (open === m && !m.contains(e.relatedTarget)) { close(); armed = false; }
       });
     });
-    const bar = $(".tnav");
-    if (fine && bar) bar.addEventListener("mouseleave", (e) => {
-      if (!bar.contains(e.relatedTarget)) { hide(); armed = false; }
+    const rail = $(".rail");
+    if (fine && rail) rail.addEventListener("mouseleave", (e) => {
+      if (!rail.contains(e.relatedTarget)) { close(); armed = false; }
     });
-    document.addEventListener("click", () => { hide(); armed = false; });
+    document.addEventListener("click", () => { close(); armed = false; });
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape" || !open) return;
       const btn = $("button", open);
-      hide(); armed = false; btn.focus();
+      close(); armed = false; btn.focus();
     });
   }
 
-  /* ---- the drawer, for screens with no room for a bar ---------------- */
+  /* ---- the drawer, for screens too narrow for the rail --------------- */
   const burger = $("#burger"), drawer = $("#drawer");
   if (burger && drawer) {
     burger.addEventListener("click", () => {
-      const now = burger.getAttribute("aria-expanded") !== "true";
-      burger.setAttribute("aria-expanded", String(now));
-      drawer.hidden = !now;
+      const open = burger.getAttribute("aria-expanded") !== "true";
+      burger.setAttribute("aria-expanded", String(open));
+      drawer.hidden = !open;
     });
   }
 
@@ -154,33 +150,165 @@
     if (sl) sl.textContent = Object.keys(LABS).length;
   }
 
-  /* ---- the compare panel ------------------------------------------- */
-  const a = $("#modelA"), b = $("#modelB");
-  if (a && b && window.MODELS) {
-    const opts = MODELS.filter((m) => m.s === "live");
-    const fill = (sel, i) => {
-      sel.innerHTML = opts.map((m, j) =>
-        `<option value="${esc(m.id)}"${j === i ? " selected" : ""}>${esc(m.n)}</option>`).join("");
+  /* ---- the compare panel --------------------------------------------
+     This actually calls something. Point it at any OpenAI-compatible
+     endpoint and give it a key; both live in this browser's localStorage
+     and go nowhere but the endpoint named here. With no key it falls
+     back to the static register for the two dropdowns and says plainly,
+     before you click, that it has nothing to call. */
+  const selA = $("#modelA"), selB = $("#modelB");
+  if (selA && selB) {
+    const KEY = "mw.endpoint";
+    const msg = $("#compare-msg"), out = $("#answers");
+    const wire = $("#wire"), inBase = $("#w-base"), inKey = $("#w-key"), state = $("#w-state");
+
+    const load = () => {
+      try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; }
     };
-    fill(a, 0); fill(b, 3);
-    const prov = (sel, out) => {
-      const m = opts.find((x) => x.id === sel.value);
-      if (m && out) out.textContent = m.lab;
+    const save = (v) => {
+      try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); }
+      catch (e) { /* private window: the session still works, it just won't persist */ }
     };
-    const pa = $("#provA"), pb = $("#provB");
-    const sync = () => { prov(a, pa); prov(b, pb); };
-    a.addEventListener("change", sync); b.addEventListener("change", sync); sync();
+    const say = (t, bad) => {
+      if (!msg) return;
+      msg.hidden = !t; msg.textContent = t || "";
+      msg.style.color = bad ? "#a32d4e" : "";
+    };
+
+    let live = null;   // ids the endpoint reported, once a key is in
+
+    function fill(ids) {
+      const opts = ids.map((m) => typeof m === "string"
+        ? { id: m, n: m, lab: "" } : m);
+      [selA, selB].forEach((sel, i) => {
+        const keep = sel.value;
+        sel.innerHTML = opts.map((m) =>
+          `<option value="${esc(m.id)}">${esc(m.n || m.id)}</option>`).join("");
+        sel.value = opts.some((m) => m.id === keep) ? keep
+                  : (opts[Math.min(i * 3, opts.length - 1)] || opts[0] || {}).id || "";
+      });
+      syncLab();
+    }
+    function syncLab() {
+      const lab = (sel, el) => {
+        if (!el) return;
+        const m = (window.MODELS || []).find((x) => x.id === sel.value);
+        el.textContent = live ? (new URL(load().base).host) : (m ? m.lab : "");
+      };
+      lab(selA, $("#provA")); lab(selB, $("#provB"));
+    }
+    selA.addEventListener("change", syncLab);
+    selB.addEventListener("change", syncLab);
+
+    // start from the published register, so the panel is never empty
+    if (window.MODELS) fill(MODELS.filter((m) => m.s === "live"));
+
+    /* ---- the endpoint form ---- */
+    if ($("#w-toggle")) $("#w-toggle").addEventListener("click", () => {
+      wire.hidden = !wire.hidden;
+      if (!wire.hidden) inBase.focus();
+    });
+    const saved = load();
+    if (saved) {
+      // A saved key has to be visible: otherwise its state, and the button
+      // that forgets it, sit behind a disclosure nobody has opened.
+      inBase.value = saved.base;
+      wire.hidden = false;
+      state.textContent = "Key saved in this browser. Loading models…";
+      pullModels(saved.base, saved.key).then((ids) => {
+        live = ids; fill(ids);
+        state.textContent = ids.length + " models loaded · key saved in this browser.";
+      }).catch((e) => {
+        state.textContent = "Key saved, but the endpoint did not answer: " + e.message;
+      });
+    }
+
+    async function pullModels(base, key) {
+      const res = await fetch(base.replace(/\/$/, "") + "/models",
+        { headers: { Authorization: "Bearer " + key } });
+      if (!res.ok) throw new Error("HTTP " + res.status + " from /models");
+      const j = await res.json();
+      const ids = (j.data || j.models || []).map((m) => m.id).filter(Boolean).sort();
+      if (!ids.length) throw new Error("the endpoint listed no models");
+      return ids;
+    }
+
+    if ($("#w-save")) $("#w-save").addEventListener("click", async () => {
+      const base = (inBase.value || "").trim() || "https://api.openai.com/v1";
+      const key = (inKey.value || "").trim();
+      if (!key) { state.textContent = "A key is needed."; return; }
+      state.textContent = "Asking the endpoint what it has…";
+      try {
+        const ids = await pullModels(base, key);
+        save({ base: base, key: key });
+        live = ids; fill(ids);
+        state.textContent = ids.length + " models loaded.";
+        say("");
+      } catch (e) {
+        state.textContent = "";
+        say("Could not reach that endpoint: " + e.message +
+            ". A browser call also needs the endpoint to allow CORS from this page.", true);
+      }
+    });
+    if ($("#w-clear")) $("#w-clear").addEventListener("click", () => {
+      save(null); live = null; inKey.value = ""; state.textContent = "Forgotten.";
+      if (window.MODELS) fill(MODELS.filter((m) => m.s === "live"));
+    });
+
+    /* ---- the call ---- */
+    async function ask(base, key, model, prompt) {
+      const t0 = performance.now();
+      const res = await fetch(base.replace(/\/$/, "") + "/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+        body: JSON.stringify({ model: model, messages: [{ role: "user", content: prompt }] })
+      });
+      const ms = Math.round(performance.now() - t0);
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const m = (j.error && (j.error.message || j.error.code)) || ("HTTP " + res.status);
+        throw Object.assign(new Error(m), { ms: ms });
+      }
+      const c = j.choices && j.choices[0] && j.choices[0].message;
+      return { text: (c && c.content) || "(empty answer)", ms: ms, usage: j.usage || null };
+    }
 
     const go = $("#compare-go");
-    if (go) go.addEventListener("click", () => {
-      const out = $("#compare-out");
-      if (!out) return;
+    if (go) go.addEventListener("click", async () => {
       const q = ($("#compare-q").value || "").trim();
+      if (!q) { say("Type a question first."); return; }
+      const cfg = load();
+      if (!cfg) {
+        wire.hidden = false;
+        say("Nothing to call yet — name an OpenAI-compatible endpoint and key below. " +
+            "They stay in this browser.");
+        inBase.focus();
+        return;
+      }
+      say("");
       out.hidden = false;
-      out.textContent = q
-        ? "The comparison runs against the shared pool. This build is the front end only — " +
-          "wire #compare-go to /v1/chat/completions and stream both answers into this panel."
-        : "Type a question first.";
+      const pairs = [[selA, "#ans-a", "#ans-a-name", "#ans-a-meta"],
+                     [selB, "#ans-b", "#ans-b-name", "#ans-b-meta"]];
+      pairs.forEach(([sel, body, name, meta]) => {
+        $(name).textContent = sel.value;
+        $(body).textContent = "…"; $(body).classList.remove("bad");
+        $(meta).textContent = "";
+      });
+      go.disabled = true;
+      await Promise.all(pairs.map(async ([sel, body, , meta]) => {
+        try {
+          const r = await ask(cfg.base, cfg.key, sel.value, q);
+          $(body).textContent = r.text;
+          $(meta).textContent = r.ms + " ms" + (r.usage
+            ? " · " + (r.usage.prompt_tokens || 0) + " in / " + (r.usage.completion_tokens || 0) + " out"
+            : "");
+        } catch (e) {
+          $(body).textContent = e.message;
+          $(body).classList.add("bad");
+          $(meta).textContent = (e.ms || 0) + " ms · failed";
+        }
+      }));
+      go.disabled = false;
     });
   }
 

@@ -1,0 +1,12 @@
+{
+  "name": "manyways",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Every model, one key, one endpoint — a cherry-blossom front end.",
+  "scripts": {
+    "start": "node server.js",
+    "build": "python3 build.py",
+    "serve": "node server.js"
+  },
+  "engines": { "node": ">=18" }
+}

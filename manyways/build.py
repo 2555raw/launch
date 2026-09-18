@@ -40,9 +40,9 @@ MENUS = {
         ("Render", "index.html#curiosity", "Turn an answer into something to look at"),
         ("Models", "models.html", "Everything reachable through the endpoint"),
     ],
-    "Blossom": [
-        ("Meet Blossom", "docs.html#blossom", "Talk an idea into an agent brief"),
-        ("Agent briefs", "docs.html#blossom", "Mission, research skills, a character"),
+    "Sherwood": [
+        ("Meet Sherwood", "docs.html#sherwood", "Talk an idea into an agent brief"),
+        ("Agent briefs", "docs.html#sherwood", "Mission, research skills, a character"),
         ("CLI documentation", "docs.html#cli", "The same key, in your terminal"),
     ],
     "Community": [
@@ -52,49 +52,73 @@ MENUS = {
     ],
 }
 
-def menu(label):
-    items = "".join(
-        f'<a href="{h}" role="menuitem"><b>{t}</b><span>{d}</span></a>'
-        for t, h, d in MENUS[label])
-    mid = label.lower()
-    return (f'<div class="menu">'
-            f'<button type="button" aria-expanded="false" aria-controls="m-{mid}" '
-            f'aria-haspopup="true">{label}{CV}</button>'
-            f'<div class="pop" id="m-{mid}" role="menu" hidden>{items}</div>'
-            f'</div>')
+ICON = {
+    "Platform":  '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>',
+    "Sherwood":  '<path d="M12 21V9"/><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 12c0-3-2-5-5-5 0 3 2 5 5 5z"/>',
+    "Community": '<circle cx="9" cy="9" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 6.5a3 3 0 0 1 0 5.8M17.5 20a6 6 0 0 0-3-5.2"/>',
+    "Rewards":   '<path d="M12 4l2.3 4.7 5.2.8-3.7 3.6.9 5.1-4.7-2.4-4.7 2.4.9-5.1L4.5 9.5l5.2-.8z"/>',
+    "Docs":      '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/>',
+    "Account":   '<circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+}
+
+def svg(name, size=20):
+    return (f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
+            f'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
+            f'stroke-linejoin="round" aria-hidden="true">{ICON[name]}</svg>')
+
+NAV = [("Platform", None), ("Sherwood", None), ("Community", None),
+       ("Rewards", "staking.html"), ("Docs", "docs.html")]
+
+def rail(active=""):
+    """The whole navigation, as a rail. An icon with a group opens the same
+    panel the bar used to; an icon without one is a plain link."""
+    out = [f'<a class="mark" href="index.html" aria-label="Manyways home">{MARK}</a>']
+    for label, href in NAV:
+        on = ' on' if label.lower() == active else ''
+        if href is None:
+            mid = label.lower()
+            items = "".join(
+                f'<a href="{h}" role="menuitem"><b>{t}</b><span>{d}</span></a>'
+                for t, h, d in MENUS[label])
+            out.append(
+                f'<div class="menu"><button type="button" class="ri{on}" aria-haspopup="true" '
+                f'aria-expanded="false" aria-controls="m-{mid}" aria-label="{label}" '
+                f'data-tip="{label}">{svg(label)}</button>'
+                f'<div class="pop" id="m-{mid}" role="menu" hidden>'
+                f'<h6>{label}</h6>{items}</div></div>')
+        else:
+            out.append(f'<a class="ri{on}" href="{href}" aria-label="{label}" '
+                       f'data-tip="{label}">{svg(label)}</a>')
+    out.append('<span class="gap"></span>')
+    out.append(f'<a class="ri" href="staking.html" aria-label="Your account" '
+               f'data-tip="Your account">{svg("Account")}</a>')
+    return '<nav class="rail" aria-label="Main">' + "".join(out) + '</nav>'
+
+def drawer():
+    """The same links, flattened, for a screen too narrow for a rail."""
+    d = ""
+    for label, href in NAV:
+        if href is None:
+            d += f'<h6>{label}</h6>' + "".join(
+                f'<a href="{u}">{n}</a>' for n, u, _ in MENUS[label])
+        else:
+            d += f'<a class="solo" href="{href}">{label}</a>'
+    d += '<a class="solo" href="staking.html">Your account</a>'
+    return (f'<div class="railbar"><a class="brand" href="index.html">{MARK} Manyways</a>'
+            f'<button class="burger" type="button" id="burger" aria-expanded="false" '
+            f'aria-controls="drawer" aria-label="Menu">'
+            f'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+            f'stroke-width="1.8" stroke-linecap="round" aria-hidden="true">'
+            f'<path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>'
+            f'<div class="drawer" id="drawer" hidden>{d}</div>')
 
 def top(active=""):
-    flat = [("Platform", None), ("Blossom", None), ("Community", None),
-            ("Rewards", "staking.html"), ("Docs", "docs.html")]
-    desk = "".join(menu(t) if h is None else f'<a href="{h}">{t}</a>' for t, h in flat)
-    # The same links, flattened, for the drawer — a phone has no hover and no
-    # room for a second level.
-    drawer = ""
-    for t, h in flat:
-        if h is None:
-            drawer += f'<h6>{t}</h6>' + "".join(
-                f'<a href="{u}">{n}</a>' for n, u, _ in MENUS[t])
-        else:
-            drawer += f'<a class="solo" href="{h}">{t}</a>'
-    return f"""<header class="top"><div class="wrap">
-  <a class="brand" href="index.html">{MARK} Manyways</a>
-  <nav class="tnav" aria-label="Main">{desk}</nav>
-  <div class="far">
-    <button class="who" type="button" aria-label="Your account">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
-    </button>
-    <a class="btn pale" href="staking.html">Get started</a>
-    <button class="who burger" type="button" id="burger" aria-expanded="false"
-            aria-controls="drawer" aria-label="Menu">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-  </div>
-</div>
-<div class="drawer" id="drawer" hidden><div class="wrap">{drawer}</div></div>
-</header>
-"""
+    """Opens the page shell: the rail, then the column everything else sits in."""
+    return f'<div class="shell">\n{rail(active)}\n<div class="col">\n{drawer()}\n'
 
-FOOT = f"""<footer class="foot"><div class="wrap">
+SHELL_END = "</div>\n</div>\n"
+
+FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
   <div class="foot-grid">
     <div>
       <div class="brand">{MARK} Manyways</div>
@@ -106,7 +130,7 @@ FOOT = f"""<footer class="foot"><div class="wrap">
       <li><a href="models.html">Models</a></li>
     </ul></div>
     <div><h4>Build</h4><ul>
-      <li><a href="docs.html">Blossom</a></li>
+      <li><a href="docs.html">Sherwood</a></li>
       <li><a href="docs.html#cli">CLI documentation</a></li>
       <li><a href="docs.html#keys">API keys</a></li>
     </ul></div>
@@ -152,14 +176,14 @@ index = head("Manyways · Every model. Your way.",
              '') + top("index") + f"""
 <section class="hero">
   <div class="frame">
-    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in blossom below Mount Fuji at dusk">
+    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in sherwood below Mount Fuji at dusk">
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
       <h1>Every model.<br>Your way.</h1>
       <p>A place to explore AI, bring ideas to life, and build with the models you choose.</p>
       <div class="cta">
-        <a class="btn pale" href="#curiosity">Ask Blossom {AR}</a>
-        <a class="btn on-dark" href="docs.html">Learn more {AR}</a>
+        <a class="btn pale" href="#curiosity">Ask Sherwood {AR}</a>
+        <a class="btn on-dark" href="docs.html">Learn More {AR}</a>
       </div>
     </div></div>
   </div>
@@ -201,9 +225,9 @@ index = head("Manyways · Every model. Your way.",
   <div class="split" style="margin-top:100px">
     <div class="stack">
       <h2>An idea is enough<br>to get started.</h2>
-      <p>Talk it through with Blossom. Build an agent brief with a mission, research skills,
-        and a character of its own.</p>
-      <a class="btn pale" href="docs.html#blossom">Meet Blossom {AR}</a>
+      <p>Talk it through with Sherwood. Build an agent brief with a
+        mission, research skills, and a character of its own.</p>
+      <a class="btn pale" href="docs.html#sherwood">Meet Sherwood {AR}</a>
     </div>
     <div class="chat">
       <div class="me">
@@ -231,7 +255,7 @@ index = head("Manyways · Every model. Your way.",
       </div>
       <p class="lede" style="margin-top:26px">Send one prompt to two models you choose. Read their
         answers side by side and decide what works for you.</p>
-      <a class="link" style="margin-top:22px" href="models.html">Open the register {AR}</a>
+      <a class="link" style="margin-top:22px" href="models.html">Open Dispatch {AR}</a>
     </div>
     <div class="panel">
       <div class="split tight" style="gap:22px">
@@ -254,7 +278,34 @@ index = head("Manyways · Every model. Your way.",
         <span class="sub">Free to try. No wallet needed.</span>
         <span class="far"><button class="btn line" type="button" id="compare-go">Compare responses {AR}</button></span>
       </div>
-      <p class="sub" id="compare-out" hidden style="margin-top:14px"></p>
+      <p class="sub" id="compare-msg" hidden style="margin-top:14px"></p>
+
+      <div class="wire-up" id="wire" hidden>
+        <p class="sub" style="margin-bottom:12px">Point this at any OpenAI-compatible endpoint.
+          The key is kept in this browser only — it is never sent anywhere but the endpoint you
+          name here.</p>
+        <div class="split tight" style="gap:16px">
+          <div class="field"><label for="w-base">Base URL</label>
+            <input type="text" id="w-base" placeholder="https://api.openai.com/v1"></div>
+          <div class="field"><label for="w-key">API key</label>
+            <input type="password" id="w-key" placeholder="sk-…" autocomplete="off"></div>
+        </div>
+        <div class="foot">
+          <button class="btn fill sm" type="button" id="w-save">Save and load models</button>
+          <button class="btn line sm" type="button" id="w-clear">Forget</button>
+          <span class="sub" id="w-state" style="margin-left:auto"></span>
+        </div>
+      </div>
+      <p style="margin-top:12px"><button class="link" type="button" id="w-toggle"
+        style="background:none;border:0;padding:0;cursor:pointer;font-size:13px">Use your own
+        endpoint</button></p>
+
+      <div class="answers" id="answers" hidden>
+        <div class="ans"><h4 id="ans-a-name">Model A</h4><div class="body" id="ans-a"></div>
+          <div class="meta" id="ans-a-meta"></div></div>
+        <div class="ans"><h4 id="ans-b-name">Model B</h4><div class="body" id="ans-b"></div>
+          <div class="meta" id="ans-b-meta"></div></div>
+      </div>
     </div>
   </div>
 </div></section>
@@ -265,8 +316,8 @@ index = head("Manyways · Every model. Your way.",
       <h2>Shared access.<br>More ways forward.</h2>
       <p>Manyways makes AI easier to explore and use. Start with a free web comparison, then
         connect a wallet to create client keys for the shared inference pool.</p>
-      <p>Access follows wallet-scoped fair-use limits. Explore the register, see how the pool is
-        used, and help shape what gets built next.</p>
+      <p>Access follows wallet-scoped fair-use limits. Explore the catalog,
+        see how the pool is used, and help shape what we build next.</p>
       <a class="btn pale" href="models.html">Explore the models {AR}</a>
     </div>
     <div class="biglist">
@@ -354,7 +405,7 @@ def side():
     return f"""<aside class="side">
   <div class="toggle">
     <button type="button" aria-pressed="true">Manyways</button>
-    <button type="button" aria-pressed="false">Blossom</button>
+    <button type="button" aria-pressed="false">Sherwood</button>
   </div>
   <nav>{a("Manyways platform overview", "#")}</nav>
   <h5>Start here</h5>
@@ -383,22 +434,6 @@ def side():
     {a("Errors", "#limits")}
   </nav>
 </aside>"""
-
-RAIL_ICONS = [
-    ('index.html', '<path d="M4 7h16M4 12h16M4 17h10"/>', "Home"),
-    ('models.html', '<path d="M5 12l7-7 7 7-7 7z"/>', "Models"),
-    ('staking.html', '<path d="M4 20V9l8-5 8 5v11"/><path d="M9 20v-6h6v6"/>', "Rewards"),
-    ('index.html#curiosity', '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>', "Playground"),
-]
-rail = '<nav class="rail" aria-label="Sections">' + \
-    f'<a href="index.html" aria-label="Manyways" style="color:var(--on-dark)">{MARK}</a>' + \
-    "".join(f'<a href="{h}" aria-label="{t}"><svg width="19" height="19" viewBox="0 0 24 24" '
-            f'fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">{p}</svg></a>'
-            for h, p, t in RAIL_ICONS) + \
-    '<span class="gap"></span>' + \
-    '<a href="docs.html" class="on" aria-label="Docs"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/></svg></a>' + \
-    '<a href="staking.html" aria-label="Your account"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></a>' + \
-    '</nav>'
 
 TAB = [
   ("Client key", "tp1", "A credential for one client.",
@@ -442,7 +477,8 @@ tabs_panels = "".join(f"""
 docs = head("Manyways · Documentation",
             "The Manyways API, CLI and controls in one developer workflow.") + f"""
 <div class="docs">
-{rail}
+{rail("docs")}
+{drawer()}
 {side()}
 <div>
   <div class="docbar">

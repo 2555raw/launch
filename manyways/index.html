@@ -11,33 +11,21 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <a class="brand" href="index.html"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><ellipse cx="12" cy="6" rx="2.7" ry="4.3"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(72 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(144 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(216 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(288 12 12)"/></g><circle cx="12" cy="12" r="1.5" fill="#47202e" opacity=".35"/></svg> Manyways</a>
-  <nav class="tnav" aria-label="Main"><div class="menu"><button type="button" aria-expanded="false" aria-controls="m-platform" aria-haspopup="true">Platform<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="pop" id="m-platform" role="menu" hidden><a href="models.html" role="menuitem"><b>Console</b><span>The register, and what each model costs</span></a><a href="index.html#curiosity" role="menuitem"><b>Playground</b><span>One prompt, two models, side by side</span></a><a href="index.html#curiosity" role="menuitem"><b>Render</b><span>Turn an answer into something to look at</span></a><a href="models.html" role="menuitem"><b>Models</b><span>Everything reachable through the endpoint</span></a></div></div><div class="menu"><button type="button" aria-expanded="false" aria-controls="m-blossom" aria-haspopup="true">Blossom<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="pop" id="m-blossom" role="menu" hidden><a href="docs.html#blossom" role="menuitem"><b>Meet Blossom</b><span>Talk an idea into an agent brief</span></a><a href="docs.html#blossom" role="menuitem"><b>Agent briefs</b><span>Mission, research skills, a character</span></a><a href="docs.html#cli" role="menuitem"><b>CLI documentation</b><span>The same key, in your terminal</span></a></div></div><div class="menu"><button type="button" aria-expanded="false" aria-controls="m-community" aria-haspopup="true">Community<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="pop" id="m-community" role="menu" hidden><a href="staking.html" role="menuitem"><b>Commons</b><span>Where the pool is discussed</span></a><a href="staking.html#mip" role="menuitem"><b>Roadmap</b><span>Proposals, and what is being built</span></a><a href="staking.html#ledger" role="menuitem"><b>Ledger</b><span>Published usage and pool reporting</span></a></div></div><a href="staking.html">Rewards</a><a href="docs.html">Docs</a></nav>
-  <div class="far">
-    <button class="who" type="button" aria-label="Your account">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
-    </button>
-    <a class="btn pale" href="staking.html">Get started</a>
-    <button class="who burger" type="button" id="burger" aria-expanded="false"
-            aria-controls="drawer" aria-label="Menu">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-  </div>
-</div>
-<div class="drawer" id="drawer" hidden><div class="wrap"><h6>Platform</h6><a href="models.html">Console</a><a href="index.html#curiosity">Playground</a><a href="index.html#curiosity">Render</a><a href="models.html">Models</a><h6>Blossom</h6><a href="docs.html#blossom">Meet Blossom</a><a href="docs.html#blossom">Agent briefs</a><a href="docs.html#cli">CLI documentation</a><h6>Community</h6><a href="staking.html">Commons</a><a href="staking.html#mip">Roadmap</a><a href="staking.html#ledger">Ledger</a><a class="solo" href="staking.html">Rewards</a><a class="solo" href="docs.html">Docs</a></div></div>
-</header>
+<div class="shell">
+<nav class="rail" aria-label="Main"><a class="mark" href="index.html" aria-label="Manyways home"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><ellipse cx="12" cy="6" rx="2.7" ry="4.3"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(72 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(144 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(216 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(288 12 12)"/></g><circle cx="12" cy="12" r="1.5" fill="#47202e" opacity=".35"/></svg></a><div class="menu"><button type="button" class="ri" aria-haspopup="true" aria-expanded="false" aria-controls="m-platform" aria-label="Platform" data-tip="Platform"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></button><div class="pop" id="m-platform" role="menu" hidden><h6>Platform</h6><a href="models.html" role="menuitem"><b>Console</b><span>The register, and what each model costs</span></a><a href="index.html#curiosity" role="menuitem"><b>Playground</b><span>One prompt, two models, side by side</span></a><a href="index.html#curiosity" role="menuitem"><b>Render</b><span>Turn an answer into something to look at</span></a><a href="models.html" role="menuitem"><b>Models</b><span>Everything reachable through the endpoint</span></a></div></div><div class="menu"><button type="button" class="ri" aria-haspopup="true" aria-expanded="false" aria-controls="m-sherwood" aria-label="Sherwood" data-tip="Sherwood"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"/><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 12c0-3-2-5-5-5 0 3 2 5 5 5z"/></svg></button><div class="pop" id="m-sherwood" role="menu" hidden><h6>Sherwood</h6><a href="docs.html#sherwood" role="menuitem"><b>Meet Sherwood</b><span>Talk an idea into an agent brief</span></a><a href="docs.html#sherwood" role="menuitem"><b>Agent briefs</b><span>Mission, research skills, a character</span></a><a href="docs.html#cli" role="menuitem"><b>CLI documentation</b><span>The same key, in your terminal</span></a></div></div><div class="menu"><button type="button" class="ri" aria-haspopup="true" aria-expanded="false" aria-controls="m-community" aria-label="Community" data-tip="Community"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 6.5a3 3 0 0 1 0 5.8M17.5 20a6 6 0 0 0-3-5.2"/></svg></button><div class="pop" id="m-community" role="menu" hidden><h6>Community</h6><a href="staking.html" role="menuitem"><b>Commons</b><span>Where the pool is discussed</span></a><a href="staking.html#mip" role="menuitem"><b>Roadmap</b><span>Proposals, and what is being built</span></a><a href="staking.html#ledger" role="menuitem"><b>Ledger</b><span>Published usage and pool reporting</span></a></div></div><a class="ri" href="staking.html" aria-label="Rewards" data-tip="Rewards"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.3 4.7 5.2.8-3.7 3.6.9 5.1-4.7-2.4-4.7 2.4.9-5.1L4.5 9.5l5.2-.8z"/></svg></a><a class="ri" href="docs.html" aria-label="Docs" data-tip="Docs"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/></svg></a><span class="gap"></span><a class="ri" href="staking.html" aria-label="Your account" data-tip="Your account"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></a></nav>
+<div class="col">
+<div class="railbar"><a class="brand" href="index.html"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><ellipse cx="12" cy="6" rx="2.7" ry="4.3"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(72 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(144 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(216 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(288 12 12)"/></g><circle cx="12" cy="12" r="1.5" fill="#47202e" opacity=".35"/></svg> Manyways</a><button class="burger" type="button" id="burger" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div><div class="drawer" id="drawer" hidden><h6>Platform</h6><a href="models.html">Console</a><a href="index.html#curiosity">Playground</a><a href="index.html#curiosity">Render</a><a href="models.html">Models</a><h6>Sherwood</h6><a href="docs.html#sherwood">Meet Sherwood</a><a href="docs.html#sherwood">Agent briefs</a><a href="docs.html#cli">CLI documentation</a><h6>Community</h6><a href="staking.html">Commons</a><a href="staking.html#mip">Roadmap</a><a href="staking.html#ledger">Ledger</a><a class="solo" href="staking.html">Rewards</a><a class="solo" href="docs.html">Docs</a><a class="solo" href="staking.html">Your account</a></div>
 
 <section class="hero">
   <div class="frame">
-    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in blossom below Mount Fuji at dusk">
+    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in sherwood below Mount Fuji at dusk">
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
       <h1>Every model.<br>Your way.</h1>
       <p>A place to explore AI, bring ideas to life, and build with the models you choose.</p>
       <div class="cta">
-        <a class="btn pale" href="#curiosity">Ask Blossom <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-        <a class="btn on-dark" href="docs.html">Learn more <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
+        <a class="btn pale" href="#curiosity">Ask Sherwood <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
+        <a class="btn on-dark" href="docs.html">Learn More <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
       </div>
     </div></div>
   </div>
@@ -79,9 +67,9 @@
   <div class="split" style="margin-top:100px">
     <div class="stack">
       <h2>An idea is enough<br>to get started.</h2>
-      <p>Talk it through with Blossom. Build an agent brief with a mission, research skills,
-        and a character of its own.</p>
-      <a class="btn pale" href="docs.html#blossom">Meet Blossom <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
+      <p>Talk it through with Sherwood. Build an agent brief with a
+        mission, research skills, and a character of its own.</p>
+      <a class="btn pale" href="docs.html#sherwood">Meet Sherwood <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
     </div>
     <div class="chat">
       <div class="me">
@@ -109,7 +97,7 @@
       </div>
       <p class="lede" style="margin-top:26px">Send one prompt to two models you choose. Read their
         answers side by side and decide what works for you.</p>
-      <a class="link" style="margin-top:22px" href="models.html">Open the register <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
+      <a class="link" style="margin-top:22px" href="models.html">Open Dispatch <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
     </div>
     <div class="panel">
       <div class="split tight" style="gap:22px">
@@ -132,7 +120,34 @@
         <span class="sub">Free to try. No wallet needed.</span>
         <span class="far"><button class="btn line" type="button" id="compare-go">Compare responses <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></button></span>
       </div>
-      <p class="sub" id="compare-out" hidden style="margin-top:14px"></p>
+      <p class="sub" id="compare-msg" hidden style="margin-top:14px"></p>
+
+      <div class="wire-up" id="wire" hidden>
+        <p class="sub" style="margin-bottom:12px">Point this at any OpenAI-compatible endpoint.
+          The key is kept in this browser only — it is never sent anywhere but the endpoint you
+          name here.</p>
+        <div class="split tight" style="gap:16px">
+          <div class="field"><label for="w-base">Base URL</label>
+            <input type="text" id="w-base" placeholder="https://api.openai.com/v1"></div>
+          <div class="field"><label for="w-key">API key</label>
+            <input type="password" id="w-key" placeholder="sk-…" autocomplete="off"></div>
+        </div>
+        <div class="foot">
+          <button class="btn fill sm" type="button" id="w-save">Save and load models</button>
+          <button class="btn line sm" type="button" id="w-clear">Forget</button>
+          <span class="sub" id="w-state" style="margin-left:auto"></span>
+        </div>
+      </div>
+      <p style="margin-top:12px"><button class="link" type="button" id="w-toggle"
+        style="background:none;border:0;padding:0;cursor:pointer;font-size:13px">Use your own
+        endpoint</button></p>
+
+      <div class="answers" id="answers" hidden>
+        <div class="ans"><h4 id="ans-a-name">Model A</h4><div class="body" id="ans-a"></div>
+          <div class="meta" id="ans-a-meta"></div></div>
+        <div class="ans"><h4 id="ans-b-name">Model B</h4><div class="body" id="ans-b"></div>
+          <div class="meta" id="ans-b-meta"></div></div>
+      </div>
     </div>
   </div>
 </div></section>
@@ -143,8 +158,8 @@
       <h2>Shared access.<br>More ways forward.</h2>
       <p>Manyways makes AI easier to explore and use. Start with a free web comparison, then
         connect a wallet to create client keys for the shared inference pool.</p>
-      <p>Access follows wallet-scoped fair-use limits. Explore the register, see how the pool is
-        used, and help shape what gets built next.</p>
+      <p>Access follows wallet-scoped fair-use limits. Explore the catalog,
+        see how the pool is used, and help shape what we build next.</p>
       <a class="btn pale" href="models.html">Explore the models <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
     </div>
     <div class="biglist">
@@ -166,6 +181,8 @@
   </div>
 </div></section>
 <script src="art.js"></script>
+</div>
+</div>
 <footer class="foot"><div class="wrap">
   <div class="foot-grid">
     <div>
@@ -178,7 +195,7 @@
       <li><a href="models.html">Models</a></li>
     </ul></div>
     <div><h4>Build</h4><ul>
-      <li><a href="docs.html">Blossom</a></li>
+      <li><a href="docs.html">Sherwood</a></li>
       <li><a href="docs.html#cli">CLI documentation</a></li>
       <li><a href="docs.html#keys">API keys</a></li>
     </ul></div>

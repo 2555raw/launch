@@ -69,52 +69,64 @@ p { margin: 0; }
 .link .ar { transition: transform .22s cubic-bezier(.2,.8,.3,1); }
 .link:hover .ar { transform: translateX(4px); }
 
-/* ---------------- top bar ---------------- */
-.top { background: var(--bark); color: var(--on-dark); position: sticky;
-       top: env(safe-area-inset-top, 0px); z-index: 60; }
-.top .wrap { display: flex; align-items: center; gap: 8px; height: 62px; }
-.brand { display: flex; align-items: center; gap: 10px; font-family: var(--serif);
-         font-size: 22px; font-weight: 500; letter-spacing: -.02em; margin-right: 28px; }
-.brand svg { flex: none; }
-.tnav { display: flex; align-items: center; gap: 4px; }
-.tnav > * { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
-            border-radius: var(--r); font-size: 14.5px; font-weight: 500;
-            color: var(--on-dark); background: none; border: 0; cursor: pointer; }
-.tnav > * { position: relative; }
-.tnav > *:hover, .tnav .menu > button:hover { background: rgba(255,238,243,.10); }
-.tnav .cv { opacity: .6; transition: transform .18s ease; }
-.tnav .menu { padding: 0; }
-.tnav .menu > button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
-                       border-radius: var(--r); font-size: 14.5px; font-weight: 500;
-                       color: var(--on-dark); background: none; border: 0; cursor: pointer; }
-.tnav .menu > button[aria-expanded="true"] { background: rgba(255,238,243,.14); }
-.tnav .menu > button[aria-expanded="true"] .cv { transform: rotate(180deg); }
+/* ---------------- the rail ----------------
+   Navigation is a rail, not a bar: a column of icons pinned to the left
+   edge on every page, the way the documentation already had it. An icon
+   that stands for a group opens its panel beside it; the rest are links.
+   ------------------------------------------------------------------ */
+.shell { display: grid; grid-template-columns: 64px minmax(0, 1fr); min-height: 100vh; }
+.shell > .col { min-width: 0; }
+.rail { background: var(--bark); display: flex; flex-direction: column; align-items: center;
+        gap: 4px; padding: 14px 0 18px; position: sticky; top: 0; height: 100vh;
+        z-index: 60; }
+.rail .mark { display: grid; place-items: center; width: 40px; height: 40px; color: var(--petal);
+              margin-bottom: 10px; }
+.rail .ri { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px;
+            color: var(--on-dark-3); background: none; border: 0; cursor: pointer;
+            position: relative; transition: color .16s ease, background .16s ease; }
+.rail .ri:hover, .rail .ri.on, .rail .ri[aria-expanded="true"] {
+  color: var(--on-dark); background: rgba(255,238,243,.13); }
+.rail .gap { margin-top: auto; }
+.rail .menu { position: relative; }
+/* the label, since an icon on its own names nothing */
+.rail .ri::after { content: attr(data-tip); position: absolute; left: calc(100% + 10px);
+  top: 50%; transform: translateY(-50%); background: var(--bark-2); color: var(--on-dark);
+  font-size: 12.5px; font-weight: 600; padding: 6px 10px; border-radius: 7px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .14s ease;
+  box-shadow: 0 8px 20px rgba(46,18,32,.35); }
+.rail .ri:hover::after { opacity: 1; }
+.rail .ri[aria-expanded="true"]::after { opacity: 0; }
 
-/* The panel opens on the bar, so it is painted in the light palette — the
-   bar is the only dark thing above it. */
-.pop { position: absolute; top: calc(100% + 10px); left: 0; z-index: 70;
-       min-width: 310px; padding: 8px; background: var(--card); color: var(--ink);
-       border: 1px solid var(--line); border-radius: 11px;
+/* the flyout opens beside the rail, in the light palette */
+.pop { position: absolute; left: calc(100% + 12px); top: -8px; z-index: 70;
+       min-width: 320px; padding: 10px; background: var(--card); color: var(--ink);
+       border: 1px solid var(--line); border-radius: 12px;
        box-shadow: 0 2px 6px rgba(46,18,32,.10), 0 26px 60px rgba(46,18,32,.26); }
+.pop h6 { margin: 4px 6px 8px; font: 700 10.5px/1 var(--sans); letter-spacing: .13em;
+          text-transform: uppercase; color: var(--ink-3); }
 .pop a { display: block; padding: 11px 13px; border-radius: 8px; }
 .pop a:hover, .pop a:focus-visible { background: var(--blush); }
 .pop a b { display: block; font-size: 14.5px; font-weight: 600; }
 .pop a span { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
 
-/* The drawer: the same links flattened, for a screen with no hover. */
-.burger { display: none; }
-.drawer { border-top: 1px solid var(--dark-line); background: var(--bark-2); }
-.drawer .wrap { padding: 14px 0 22px; display: grid; gap: 2px; }
+/* below the rail width: a strip and a drawer instead */
+.railbar { display: none; align-items: center; gap: 12px; background: var(--bark);
+           color: var(--on-dark); padding: 10px 20px;
+           padding-top: calc(10px + env(safe-area-inset-top, 0px));
+           position: sticky; top: 0; z-index: 60; }
+.railbar .brand { color: var(--on-dark); margin: 0; margin-right: auto; }
+.burger { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px;
+          border: 0; background: none; color: var(--on-dark); cursor: pointer; }
+.burger:hover { background: rgba(255,238,243,.12); }
+/* Hidden at rail widths by the cascade, shown by the media query below —
+   and only when the burger has actually opened it. */
+.drawer { display: none; background: var(--bark-2); padding: 12px 20px 22px; }
 .drawer h6 { margin: 16px 0 4px; font: 700 11px/1 var(--sans); letter-spacing: .12em;
              text-transform: uppercase; color: var(--on-dark-3); }
-.drawer a { padding: 11px 12px; border-radius: var(--r); font-size: 15.5px;
+.drawer a { display: block; padding: 11px 12px; border-radius: var(--r); font-size: 15.5px;
             color: var(--on-dark-2); }
 .drawer a.solo { font-weight: 600; color: var(--on-dark); }
 .drawer a:hover { background: rgba(255,238,243,.10); color: var(--on-dark); }
-.top .far { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-.top .who { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
-            border: 0; background: none; cursor: pointer; }
-.top .who:hover { background: rgba(255,238,243,.10); }
 
 /* ---------------- bands ---------------- */
 .band { padding: 104px 0; }
@@ -132,6 +144,7 @@ h3 { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.14; }
 
 /* ---------------- hero ---------------- */
 .hero { background: var(--bark); padding: 0 14px 14px; }
+.col > .hero:first-of-type { padding-top: 14px; }
 .hero .frame { position: relative; overflow: hidden; }
 .hero .frame::after { content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(100deg, rgba(48,18,30,.80) 0%, rgba(48,18,30,.55) 26%,
@@ -277,12 +290,6 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
 
 /* ---------------- docs shell ---------------- */
 .docs { display: grid; grid-template-columns: 64px 300px minmax(0, 1fr); min-height: 100vh; }
-.rail { background: var(--bark-2); display: flex; flex-direction: column; align-items: center;
-        gap: 6px; padding: 16px 0; position: sticky; top: 0; height: 100vh; }
-.rail a { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px;
-          color: var(--on-dark-3); }
-.rail a:hover, .rail a.on { color: var(--on-dark); background: rgba(255,238,243,.12); }
-.rail .gap { margin-top: auto; }
 .side { border-right: 1px solid var(--line); padding: 26px 26px 60px; background: var(--snow); }
 .toggle { display: inline-flex; padding: 4px; background: var(--blush); border-radius: 9px;
           margin-bottom: 22px; }
@@ -360,6 +367,7 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
 @media (max-width: 1100px) {
   .docs { grid-template-columns: 64px minmax(0, 1fr); }
   .side { display: none; }
+  .docs > .railbar, .docs > .drawer { grid-column: 1 / -1; }
   .doc, .docbar { padding-inline: 32px; }
 }
 @media (max-width: 940px) {
@@ -369,10 +377,17 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
   .spec { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 800px) {
-  .tnav { display: none; }
-  .burger { display: grid; }
   .wrap { width: calc(100% - 40px); }
   .hero canvas { height: 440px; }
+}
+@media (max-width: 760px) {
+  /* Under this the rail eats too much of the line length: it becomes a
+     strip with a drawer, and the flyouts flatten into it. */
+  .shell, .docs { grid-template-columns: minmax(0, 1fr); }
+  .rail { display: none; }
+  .railbar { display: flex; }
+  .drawer:not([hidden]) { display: block; }
+  .shell > .col, .docs > div { min-width: 0; }
 }
 @media (max-width: 620px) {
   .dia .fan { flex-direction: column; gap: 9px; }
@@ -386,12 +401,6 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
   .rail .gap { margin-top: 0; margin-left: auto; }
   .doc, .docbar { padding-inline: 20px; }
 }
-@media (max-width: 520px) {
-  /* The bar runs out of room here: the account lives in the drawer, and
-     the burger is the only control that has to stay reachable. */
-  .top .who:not(.burger) { display: none; }
-  .brand { font-size: 19px; margin-right: 10px; }
-}
 @media (max-width: 460px) {
   .wrap { width: calc(100% - 32px); }
   .hide-xs { display: none; }
@@ -399,3 +408,19 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
+
+/* ---------------- the working comparison ---------------- */
+.wire-up { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.wire-up input { font-size: 14px; }
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px;
+           padding-top: 20px; border-top: 1px solid var(--line); }
+.answers .ans { min-width: 0; background: var(--blush); border: 1px solid var(--line);
+                border-radius: 9px; padding: 14px 16px; display: flex; flex-direction: column;
+                gap: 9px; }
+.answers h4 { font-family: var(--sans); font-size: 12.5px; font-weight: 700; color: var(--rose); }
+.answers .body { font-size: 13.5px; line-height: 1.6; color: var(--ink-2); white-space: pre-wrap;
+                 overflow-wrap: anywhere; max-height: 340px; overflow-y: auto; }
+.answers .meta { font: 500 11.5px/1.4 var(--mono); color: var(--ink-3);
+                 border-top: 1px solid var(--line); padding-top: 9px; }
+.answers .bad { color: #a32d4e; }
+@media (max-width: 620px) { .answers { grid-template-columns: 1fr; } }

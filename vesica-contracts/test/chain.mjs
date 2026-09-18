@@ -9,7 +9,11 @@ import { createVM } from '@ethereumjs/vm';
 import { Common, Mainnet, Hardfork } from '@ethereumjs/common';
 import { createAddressFromString, createAccount, hexToBytes, bytesToHex } from '@ethereumjs/util';
 import { Interface } from 'ethers';
-import { artifacts } from './compile.mjs';
+import { artifacts as own } from './compile.mjs';
+import { uniswapArtifacts } from './uniswap.mjs';
+
+/* our contracts, plus Uniswap's as Uniswap ships them */
+const artifacts = { ...own, ...uniswapArtifacts };
 
 /* A revert can carry a custom error declared in any contract the call touched,
    not just the one we addressed, so decode against every ABI we compiled. */

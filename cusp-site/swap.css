@@ -5,13 +5,13 @@
    page this one follows, and rounding them into rems would have lost the thing
    being matched. */
 
-.tr { min-height: 100%; }
+.tr { min-height: 100%; --wrap-swap: 900px; }
 
 
 
 /* ---------- header ---------- */
 
-.tr-nav { background: var(--head); border-bottom: 1px solid var(--line); }
+.tr-nav { background: var(--card); border-bottom: 1px solid var(--line); }
 .tr-nav-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: 66px; display: flex; align-items: center; gap: 22px;
@@ -47,7 +47,7 @@
 .tr-band { background: var(--band); }
 .tr-band-in {
   /* + the padding, so the content box is exactly --wrap and lines up with .tr-cols */
-  position: relative; max-width: calc(var(--wrap) + 48px); margin: 0 auto; padding: 32px 24px 44px;
+  position: relative; max-width: calc(var(--wrap-swap) + 48px); margin: 0 auto; padding: 32px 24px 44px;
   display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 44px; align-items: start;
 }
 .tr-eyebrow {
@@ -86,7 +86,7 @@
 
 .tr-main { background: var(--bg); padding: 42px 24px 60px; }
 .tr-cols {
-  max-width: var(--wrap); margin: 0 auto;
+  max-width: var(--wrap-swap); margin: 0 auto;
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.07fr); gap: 20px; align-items: start;
 }
 .tr-card { border: 1px solid var(--line); border-radius: 12px; background: var(--card); padding: 22px; }
@@ -213,7 +213,7 @@
 /* ---------- footer ---------- */
 
 .tr-foot {
-  background: var(--head); border-top: 1px solid var(--line);
+  background: var(--card); border-top: 1px solid var(--line);
   background-image: repeating-linear-gradient(to right, var(--dash) 0 1px, transparent 1px 120px);
   -webkit-mask-image: none;
 }
@@ -244,8 +244,8 @@
 /* ---------- responsive ---------- */
 
 @media (max-width: 940px) {
-  .tr-band-in { grid-template-columns: 1fr; gap: 26px; }
-  .tr-cols { grid-template-columns: 1fr; }
+  .tr-band-in { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .tr-cols { grid-template-columns: minmax(0, 1fr); }
   .tr-links { display: none; }
   .tr-foot-in { grid-template-columns: 1fr 1fr; }
 }

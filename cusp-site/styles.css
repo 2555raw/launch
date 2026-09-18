@@ -8,7 +8,7 @@
 
 /* ---------- chain strip ---------- */
 
-.cs-strip { border-bottom: 1px solid var(--line); background: var(--head); overflow-x: auto; scrollbar-width: none; }
+.cs-strip { border-bottom: 1px solid var(--line); background: var(--card); overflow-x: auto; scrollbar-width: none; }
 .cs-strip::-webkit-scrollbar { display: none; }
 .cs-strip-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
@@ -20,7 +20,7 @@
 
 /* ---------- nav ---------- */
 
-.cs-nav { position: relative; z-index: 40; background: var(--head); border-bottom: 1px solid var(--line); }
+.cs-nav { position: relative; z-index: 40; background: var(--card); border-bottom: 1px solid var(--line); }
 .cs-nav::after { content: none; }
 .cs-nav > * { position: relative; }
 .cs-nav {
@@ -74,7 +74,7 @@
   padding: 9px 10px; border: 0; border-radius: 8px; background: transparent;
   color: var(--muted); font-family: inherit; font-size: 13px; cursor: pointer;
 }
-.cs-pop-btn:hover { background: var(--head); color: var(--ink); }
+.cs-pop-btn:hover { background: var(--card); color: var(--ink); }
 .cs-pop-btn:last-child:hover { color: var(--down); }
 
 /* ---------- the dark band: page head ---------- */
@@ -185,7 +185,7 @@
 .cs-ticker {
   width: 36px; height: 36px; flex: none; border-radius: 9px;
   display: grid; place-items: center;
-  border: 1px solid var(--line); background: var(--head); color: var(--brand);
+  border: 1px solid var(--line); background: var(--card); color: var(--brand, var(--ink));   /* app.js sets --brand per row */
 }
 .cs-ticker svg { width: 18px; height: 18px; fill: currentColor; }
 .cs-vault-t { min-width: 0; }
@@ -233,7 +233,7 @@
   scroll-margin-top: 10px;
 }
 .cs-band-alt {
-  max-width: none; background: var(--head); border-block: 1px solid var(--line);
+  max-width: none; background: var(--card); border-block: 1px solid var(--line);
   padding-inline: max(24px, calc((100vw - var(--wrap-head)) / 2 + 24px));
 }
 .cs-band-label { position: sticky; top: 78px; align-self: start; }
@@ -306,7 +306,7 @@
 /* ---------- footer ---------- */
 
 .cs-foot {
-  border-top: 1px solid var(--line); background: var(--head);
+  border-top: 1px solid var(--line); background: var(--card);
   background-image: repeating-linear-gradient(to right, var(--dash) 0 1px, transparent 1px 120px);
 }
 .cs-foot-in {
@@ -333,7 +333,7 @@
 .cs-drawer.on { transform: none; visibility: visible; }
 .cs-drawer header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .cs-drawer header h3 { margin: 7px 0 0; font-size: 19px; letter-spacing: -.02em; font-weight: 600; }
-.cs-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: var(--head); }
+.cs-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: var(--card); }
 .cs-seg button { height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .cs-seg button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(43, 41, 55, .08); }
 .cs-field { display: block; }

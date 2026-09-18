@@ -75,7 +75,7 @@
 
   wireBtn.addEventListener("click", () => showWire(wire.hidden));
   document.getElementById("t-save").addEventListener("click", async () => {
-    const base = (inBase.value || "").trim() || "https://api.openai.com/v1";
+    const base = (inBase.value || "").trim() || "https://api.groq.com/openai/v1";
     const key = (inKey.value || "").trim();
     if (!key) { wireState.textContent = "A key is needed."; return; }
     saveCfg({ base: base, key: key });

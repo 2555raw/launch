@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 8080;
    the site and useless for everyone else. So one key lives here, in the
    environment, and the browser never sees it.
 
-   Set HANAMY_KEY, and HANAMY_UPSTREAM if the provider is not OpenAI.
+   Set HANAMY_KEY, and HANAMY_UPSTREAM if the provider is not Groq.
    With neither set the site still works; the chat just asks the visitor
    for an endpoint, as before.
 
@@ -27,7 +27,7 @@ const PORT = process.env.PORT || 8080;
    does with a request once it leaves is its own business, which the
    documentation says plainly.
    ------------------------------------------------------------------ */
-const UPSTREAM = (process.env.HANAMY_UPSTREAM || "https://api.openai.com/v1")
+const UPSTREAM = (process.env.HANAMY_UPSTREAM || "https://api.groq.com/openai/v1")
   .replace(/\/$/, "");
 const UPSTREAM_KEY = process.env.HANAMY_KEY || "";
 const MAX_BODY = 256 * 1024;          // one message and a file, not a library

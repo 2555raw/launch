@@ -49,19 +49,3 @@ function markSvg(l) {
   }
   return `<svg viewBox="${l.vb}" fill="currentColor"><path d="${l.p}"${l.evenodd ? ' fill-rule="evenodd"' : ''}/></svg>`;
 }
-
-/* The safeguards band's partner row borrows these marks, and that band runs on
-   two pages now, so the wiring lives here beside the marks rather than in one
-   page's script. */
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', paintPartnerMarks);
-  if (document.readyState !== 'loading') paintPartnerMarks();
-}
-function paintPartnerMarks() {
-  document.querySelectorAll('.pr-ic[data-logo]').forEach(el => {
-    const l = LOGOS[el.dataset.logo];
-    if (!l || el.firstChild) return;
-    el.style.color = l.c;
-    el.innerHTML = markSvg(l);
-  });
-}

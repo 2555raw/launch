@@ -244,7 +244,7 @@ img, svg { display: block; }
   -webkit-mask: url(mark.svg) center / contain no-repeat;
   mask: url(mark.svg) center / contain no-repeat;
 }
-.brand-mk { width: 36px; height: 36px; color: var(--band); }
+.brand-mk { width: 46px; height: 46px; color: var(--band); }
 .ft-mk { width: 96px; height: 96px; color: var(--band); }
 .ft-sign { display: grid; place-items: center; padding: 30px 24px 26px; border-top: 1px dashed var(--line); }
 
@@ -355,8 +355,8 @@ img, svg { display: block; }
 
 .pr-partners { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; padding: 4px 0 30px; }
 .pr-p { display: flex; gap: 11px; align-items: flex-start; }
-.pr-ic { width: 24px; height: 24px; flex: none; display: grid; place-items: center; }
-.pr-ic svg { width: 22px; height: 22px; }
+.pr-ic { width: 28px; height: 28px; flex: none; display: grid; place-items: center; }
+.pr-ic svg { width: 28px; height: 28px; border-radius: 50%; }
 .pr-p b { display: block; font-size: 14.4px; font-weight: 600; margin-bottom: 4px; }
 .pr-p span span { display: block; font-size: 13.4px; line-height: 1.55; color: var(--dim); }
 

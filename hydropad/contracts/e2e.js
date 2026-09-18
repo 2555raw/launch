@@ -42,9 +42,18 @@ const log = [];
     await p.waitForSelector('#stat-chain');
     const name = (await p.textContent('#stat-chain')).trim();
     if (name !== 'Robinhood Testnet') throw new Error('read ' + name + ', not Robinhood Testnet');
-    /* Nothing launched yet, so the header's slot says what it is holding. */
+    /* The header carries one published address, the same on every page. Until
+     * there is one it reads "pending"; once SITE_CA is set it has to be that
+     * address and nothing else. */
     const ca = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
-    if (ca !== 'CApending') throw new Error('the empty slot reads "' + ca + '"');
+    const published = await p.evaluate(() => SITE_CA.address);
+    if (published) {
+      if (!ca.includes(published.slice(0, 6)) || !ca.includes(published.slice(-4))) {
+        throw new Error(`the header reads "${ca}" but ${published} is published`);
+      }
+    } else if (!/pending/.test(ca)) {
+      throw new Error('with nothing published the slot should read pending: ' + ca);
+    }
   });
 
   await step('connect wallet', async () => {
@@ -127,28 +136,32 @@ const log = [];
     if (shown.includes(tokenAddr.slice(0, 6))) {
       throw new Error('the launch leaked into the header: ' + shown);
     }
-    if (shown !== 'CApending') throw new Error('with no CA published it should read pending: ' + shown);
 
-    /* And when there is one, the whole slot works off it: link, copy, explorer.
-     * Set here the way the build sets it, rather than trusted to be right. */
+    /* Whatever is published, clicking the pill has to put the WHOLE address on
+     * the clipboard: an elided one is useless to paste anywhere. Set here if
+     * nothing is published yet, so this holds either side of a launch. */
     await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
-    const published = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
-    await p.evaluate(a => { SITE_CA.address = a; renderLastCa(); }, published);
+    let published = await p.evaluate(() => SITE_CA.address);
+    if (!published) {
+      published = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+      await p.evaluate(a => { SITE_CA.address = a; renderLastCa(); }, published);
+    }
     const filled = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
-    if (!filled.includes('0x5FbD')) throw new Error('the published CA is not shown: ' + filled);
+    if (!filled.includes(published.slice(0, 6))) {
+      throw new Error('the published CA is not shown: ' + filled);
+    }
 
-    /* The whole address has to land on the clipboard: an elided one is
-     * useless to paste anywhere. */
     await p.click('#last-ca .ca-hit');          // the address itself is the button
     const copied = await p.evaluate(() => navigator.clipboard.readText());
     if (copied !== published) throw new Error(`clipboard holds ${copied}, not ${published}`);
 
-    const href = await p.getAttribute('#last-ca .ca-out', 'href');
-    if (!href || !href.includes(published)) throw new Error('the explorer link points at ' + href);
-
     /* Clicking it says so on the pill, not only in a toast somewhere else. */
     const said = await p.textContent('#last-ca .ca-addr');
     if (!/Copied/.test(said)) throw new Error('the pill did not confirm: ' + said);
+
+    const href = await p.getAttribute('#last-ca .ca-out', 'href');
+    if (!href || !href.includes(published)) throw new Error('the explorer link points at ' + href);
+    console.log('   header CA:', published);
 
     await p.goto(base + 'token.html?addr=' + tokenAddr, { waitUntil: 'networkidle' });
   });

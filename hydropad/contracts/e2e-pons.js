@@ -311,7 +311,12 @@ function compile() {
   await step('the header does not fill itself from this visitor\'s launch', async () => {
     const shown = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
     if (shown.includes(token.slice(0, 6))) throw new Error('the launch leaked into the header: ' + shown);
-    if (shown !== 'CApending') throw new Error('expected pending, read ' + shown);
+    /* It carries whatever is published, which is not this visitor's launch. */
+    const published = await p.evaluate(() => SITE_CA.address);
+    if (published && !shown.includes(published.slice(0, 6))) {
+      throw new Error(`the header reads "${shown}" but ${published} is published`);
+    }
+    if (!published && !/pending/.test(shown)) throw new Error('expected pending, read ' + shown);
   });
 
   await p.screenshot({ path: 'e2e-pons.png', fullPage: false });

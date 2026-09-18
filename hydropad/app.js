@@ -440,7 +440,7 @@ async function loadSideLaunches() {
 const SITE_CA = {
   /* 4663 is Robinhood Chain. Add the address as a string once the token is
      launched; anything that is not an address is treated as not set. */
-  address: "",
+  address: "0x47D6a145c8def751676BbC6B27131a39260c47cB",
   chainId: 4663,
   explorer: "https://robinhoodchain.blockscout.com",
 };

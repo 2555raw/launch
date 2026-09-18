@@ -1,0 +1,21 @@
+{
+  "name": "gridpad",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Launch a coin paired to a named renewable power station, on Robinhood Chain through Pons V2.",
+  "scripts": {
+    "start": "node server.js",
+    "serve": "node server.js",
+    "register": "python3 scripts/build-register.py",
+    "test": "node contracts/pons-test.js",
+    "e2e:pons": "node contracts/e2e-pons.js",
+    "node": "node contracts/node.js",
+    "pair": "node contracts/pair-test.js"
+  },
+  "devDependencies": {
+    "ethers": "^6.13.4",
+    "ganache": "^7.9.2",
+    "playwright": "^1.49.1",
+    "solc": "^0.8.26"
+  }
+}

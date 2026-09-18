@@ -115,3 +115,18 @@
                    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
   .composer-bar .sub { display: none; }
 }
+
+/* ---------------- the endpoint, set from the chat ----------------
+   It used to live on the landing page. The chat is the landing page now,
+   so asking someone to go and find it elsewhere would be asking them to
+   leave before they have started. */
+.wire { border-bottom: 1px solid var(--line); background: var(--blush); }
+.wire-in { max-width: 760px; margin-inline: auto; padding: 16px 24px 18px; }
+.wire-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-top: 12px; }
+.wire .field { display: grid; gap: 5px; flex: 1 1 220px; min-width: 0; }
+.wire .field span { font-size: 12.5px; font-weight: 600; color: var(--rose); }
+.wire input { background: var(--card); border: 1px solid var(--line-2); border-radius: 8px;
+              padding: 9px 12px; font-size: 14px; }
+.wire #t-wire-state { margin-top: 10px; }
+/* When there is nowhere to send, say it here rather than after the click */
+.needs-endpoint .composer { border-color: var(--rose); }

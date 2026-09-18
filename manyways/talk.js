@@ -29,6 +29,55 @@
   const MARK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"' +
     ' aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>';
 
+  /* ---- the endpoint --------------------------------------------------
+     Set from here, because this page is the front door. Stored under the
+     same key the rest of the site uses, so setting it in one place sets
+     it everywhere. */
+  const wire = document.getElementById("t-wire");
+  const wireBtn = document.getElementById("t-endpoint");
+  const wireState = document.getElementById("t-wire-state");
+  const inBase = document.getElementById("t-base");
+  const inKey = document.getElementById("t-key");
+
+  function saveCfg(v) {
+    try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); }
+    catch (e) { /* private window: this session still works, it just will not persist */ }
+  }
+  function showWire(open) {
+    wire.hidden = !open;
+    wireBtn.setAttribute("aria-expanded", String(open));
+    if (open) inBase.focus();
+  }
+  function wireLabel() {
+    const c = cfg();
+    wireBtn.textContent = c ? "Endpoint set" : "Endpoint";
+    document.body.classList.toggle("needs-endpoint", !c);
+    if (c && wireState) wireState.textContent = "Pointing at " + c.base + ". The key is in this browser only.";
+    if (!c && wireState) wireState.textContent = "";
+    if (c) inBase.value = c.base;
+  }
+
+  wireBtn.addEventListener("click", () => showWire(wire.hidden));
+  document.getElementById("t-save").addEventListener("click", async () => {
+    const base = (inBase.value || "").trim() || "https://api.openai.com/v1";
+    const key = (inKey.value || "").trim();
+    if (!key) { wireState.textContent = "A key is needed."; return; }
+    saveCfg({ base: base, key: key });
+    wireLabel();
+    wireState.textContent = "Saved. Asking the endpoint what it has\u2026";
+    const ok = await pullModels();
+    wireState.textContent = ok
+      ? ok + " models loaded. Pointing at " + base + "."
+      : "Saved, but that endpoint did not answer /models. Sending will still be tried.";
+    note("");
+    setTimeout(() => showWire(false), 900);
+  });
+  document.getElementById("t-forget").addEventListener("click", () => {
+    saveCfg(null); inKey.value = "";
+    wireLabel();
+    wireState.textContent = "Forgotten.";
+  });
+
   /* ---- the model list ------------------------------------------------ */
   const sel = $("#t-model");
   function fillModels(ids) {
@@ -39,18 +88,21 @@
     }).join("");
   }
   if (window.MODELS) fillModels(MODELS.filter((m) => m.s === "live"));
-  (async function pull() {
+  async function pullModels() {
     const c = cfg();
-    if (!c) return;
+    if (!c) return 0;
     try {
       const res = await fetch(c.base.replace(/\/$/, "") + "/models",
         { headers: { Authorization: "Bearer " + c.key } });
-      if (!res.ok) return;
+      if (!res.ok) return 0;
       const j = await res.json();
       const ids = (j.data || j.models || []).map((m) => m.id).filter(Boolean).sort();
-      if (ids.length) fillModels(ids);
-    } catch (e) { /* the static register stands in */ }
-  })();
+      if (!ids.length) return 0;
+      fillModels(ids);
+      return ids.length;
+    } catch (e) { return 0; }   // the static register stands in
+  }
+  pullModels();
 
   /* ---- attachments ---------------------------------------------------- */
   let files = [];                    // only ever the ones on the composer now
@@ -183,7 +235,8 @@
   async function send(text) {
     const c = cfg();
     if (!c) {
-      note("No endpoint yet. Set one on the home page, under “Use your own endpoint”.", true);
+      note("Nowhere to send this yet. Set an endpoint above and it will go.", true);
+      showWire(true);
       return;
     }
 
@@ -279,5 +332,6 @@
     foot();
   });
 
+  wireLabel();
   foot();
 })();

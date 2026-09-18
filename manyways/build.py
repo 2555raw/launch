@@ -805,9 +805,27 @@ index = head("Hanamy · Say anything",
     </div>
     <div class="far">
       <span class="sub" id="t-count"></span>
+      <button class="btn line sm" type="button" id="t-endpoint"
+              aria-expanded="false" aria-controls="t-wire">Endpoint</button>
       <button class="btn line sm" type="button" id="t-clear">Clear the screen</button>
     </div>
   </header>
+
+  <div class="wire" id="t-wire" hidden>
+    <div class="wire-in">
+      <p class="sub">Hanamy has no server of its own. Point it at any OpenAI-compatible
+        endpoint and the key stays in this browser, sent nowhere but there.</p>
+      <div class="wire-row">
+        <label class="field"><span>Base URL</span>
+          <input type="text" id="t-base" placeholder="https://api.openai.com/v1"></label>
+        <label class="field"><span>API key</span>
+          <input type="password" id="t-key" placeholder="sk-…" autocomplete="off"></label>
+        <button class="btn fill sm" type="button" id="t-save">Save</button>
+        <button class="btn line sm" type="button" id="t-forget">Forget</button>
+      </div>
+      <p class="sub" id="t-wire-state"></p>
+    </div>
+  </div>
 
   <div class="thread" id="t-thread">
     <div class="empty" id="t-empty">
@@ -854,7 +872,7 @@ index = head("Hanamy · Say anything",
     <p class="sub t-foot" id="t-foot"></p>
   </div>
 </div>
-{{SHELL_END}}
+""" + SHELL_END + f"""
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="talk.js"></script>

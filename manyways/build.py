@@ -23,6 +23,19 @@ AR = ('<svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" '
 CV = ('<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
       'stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>')
 
+# Sets the colour mode before the first paint, so a saved choice never shows
+# up as a flash of the default one. It lives outside the f-string because its
+# braces are JavaScript, not format fields.
+MODE_BOOT = """<script>
+(function () {
+  try {
+    var m = localStorage.getItem("hanamy.mode");
+    if (m === "legacy" || m === "night" || m === "light")
+      document.documentElement.setAttribute("data-mode", m);
+  } catch (e) {}
+})();
+</script>"""
+
 def head(title, desc, extra=""):
     return f"""<!doctype html>
 <html lang="en">
@@ -44,6 +57,7 @@ def head(title, desc, extra=""):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Kaku+Gothic+Antique:wght@400;500;700&family=M+PLUS+1+Code:wght@400;500&family=Yuji+Syuku&display=swap">
 <link rel="stylesheet" href="styles.css">
+{MODE_BOOT}
 {extra}</head>
 <body>
 """
@@ -67,13 +81,40 @@ MENUS = {
     ],
 }
 
+# The rail's icons, drawn rather than traced: at 20px a traced screenshot
+# turns to mush, and these have to stay crisp at every size and take the
+# stroke weight of the set. One grid (24), one weight, one joint style.
 ICON = {
-    "Platform":  '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>',
-    "Tsubomi":  '<path d="M12 21V9"/><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 12c0-3-2-5-5-5 0 3 2 5 5 5z"/>',
-    "Community": '<circle cx="9" cy="9" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 6.5a3 3 0 0 1 0 5.8M17.5 20a6 6 0 0 0-3-5.2"/>',
-    "Rewards":   '<path d="M12 4l2.3 4.7 5.2.8-3.7 3.6.9 5.1-4.7-2.4-4.7 2.4.9-5.1L4.5 9.5l5.2-.8z"/>',
-    "Docs":      '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/>',
-    "Account":   '<circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+    # a package — what the platform hands you
+    "Platform": ('<path d="M12 2.6l8.3 4.2v10.4L12 21.4l-8.3-4.2V6.8z"/>'
+                 '<path d="M3.7 6.8l8.3 4.2 8.3-4.2"/><path d="M12 11v10.4"/>'
+                 '<path d="M7.85 4.7l8.3 4.2"/>'),
+    # an arrow, fletched — the assistant that sends the prompt out
+    "Tsubomi": ('<path d="M2.9 12h13.4"/><path d="M13.2 7.4l4.8 4.6-4.8 4.6"/>'
+                # The feathers sit ON the shaft, with the tail running past
+                # them. Put their vertex at the tail instead and the icon
+                # becomes a chevron, or a second arrowhead.
+                '<path d="M6.9 12L4.4 9M6.9 12L4.4 15"/>'),
+    # three, not two: a community is more than a pair
+    "Community": ('<circle cx="8.6" cy="9.4" r="2.6"/>'
+                  '<path d="M3.6 19a5 5 0 0 1 10 0"/>'
+                  '<circle cx="16.4" cy="8" r="2.1"/>'
+                  '<path d="M14.6 19a5 5 0 0 1 5.8-4.6"/>'),
+    # the treasury, with its columns
+    "Rewards": ('<path d="M3.4 9.6L12 4.4l8.6 5.2"/><path d="M4.6 9.6h14.8"/>'
+                '<path d="M6.8 12.4v5M10.3 12.4v5M13.7 12.4v5M17.2 12.4v5"/>'
+                '<path d="M3.4 20.2h17.2"/>'),
+    "Docs": ('<path d="M12 7.2C10.1 5.5 7.6 4.9 4.6 5.1v12.4c3-.2 5.5.4 7.4 2.1'
+             '1.9-1.7 4.4-2.3 7.4-2.1V5.1c-3-.2-5.5.4-7.4 2.1z"/><path d="M12 7.2v12.4"/>'),
+    "Account": '<circle cx="12" cy="8.4" r="3.2"/><path d="M5.6 20a6.4 6.4 0 0 1 12.8 0"/>',
+    # kept for the places that need them
+    "Terminal": ('<rect x="3.4" y="5.2" width="17.2" height="13.6" rx="2.2"/>'
+                 '<path d="M7.4 11l2.6 2.2-2.6 2.2"/><path d="M12.8 15.4h4.2"/>'),
+    "Crest": ('<path d="M12 3.2l7 2.9v5.4c0 4.1-2.9 7.2-7 8.7-4.1-1.5-7-4.6-7-8.7V6.1z"/>'
+              '<path d="M9.2 12.2c.9 1.3 1.8 1.9 2.8 1.9s1.9-.6 2.8-1.9"/>'
+              '<path d="M9.6 9.3h.02M14.4 9.3h.02"/>'),
+    "Medal": ('<circle cx="12" cy="12" r="8.6"/>'
+              '<path d="M8.6 15.6V8.4l3.4 4 3.4-4v7.2"/>'),
 }
 
 def svg(name, size=20):
@@ -110,6 +151,13 @@ def rail(active=""):
             out.append(f'<a class="ri{on}" href="{href}"{cur}>{svg(label)}'
                        f'<span class="lbl">{label}</span></a>')
     out.append('<span class="sep"></span>')
+    out.append(
+        '<div class="modes" role="group" aria-label="Colour mode">'
+        + "".join(
+            f'<button type="button" data-mode="{k}" aria-pressed="false" title="{t}">'
+            f'<span class="sw sw-{k}"></span><span class="lbl">{t}</span></button>'
+            for k, t in (("legacy", "Legacy"), ("night", "Night"), ("light", "Light")))
+        + '</div>')
     out.append('<span class="gap" aria-hidden="true"><span class="kana">\u82b1\u898b</span></span>')
     out.append(f'<a class="ri" href="staking.html">{svg("Account")}'
                f'<span class="lbl">Your account</span></a>')
@@ -143,6 +191,9 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
   <div class="foot-grid">
     <div>
       <div class="brand">{MARK} Hanamy</div>
+      <p class="foot-line">Looking is free.</p>
+      <a class="x" href="https://x.com/" target="_blank" rel="noopener"
+         aria-label="Hanamy on X"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow on X</span></a>
     </div>
     <div><h4>Platform</h4><ul>
       <li><a href="models.html">Console</a></li>

@@ -5,41 +5,96 @@
    are the plum-black of a cherry trunk in rain — not a neutral dark.
    Every grey here carries the same pink bias, on purpose.
    ------------------------------------------------------------------ */
-:root {
-  --snow:    #fffdf7;   /* page ground — a warm white, not a cool one */
-  --blush:   #fcf4ee;   /* alternate band / cards on snow */
-  --petal:   #fbdfe4;   /* fills, rules on light */
-  --card:    #fffefb;
-  --bark:    #47202e;   /* the dark band */
-  --bark-2:  #3a1826;   /* deeper, for the rail */
-  --ink:     #47202e;
-  --ink-2:   #7d5361;
+/* ------------------------------------------------------------------
+   Three palettes, one set of names. Every component in this file reads
+   tokens and never a literal, which is why a mode is a block of colours
+   here and nothing else anywhere.
+
+   legacy — light pink over wood: warm paper, walnut ink, walnut bands
+   night  — matte black and dark grey, with the pink taken down to suit
+   light  — white and pale pink, the bands pink rather than dark
+   ------------------------------------------------------------------ */
+:root, :root[data-mode="legacy"] {
+  --snow:    #fdf8f2;   /* warm paper */
+  --blush:   #f9e7e1;   /* pink, over the wood */
+  --petal:   #f2d2d7;
+  --card:    #fffdf8;
+  --bark:    #4a3326;   /* walnut, for the dark bands and the rail */
+  --bark-2:  #3a2619;
+  --ink:     #43301f;
+  --ink-2:   #7a5b45;
+  --ink-3:   #a68a72;
+  --rose:    #b8506b;
+  --line:    rgba(67, 48, 31, .14);
+  --line-2:  rgba(67, 48, 31, .24);
+  --on-dark:   #fdf3e8;
+  --on-dark-2: #ddc4ae;
+  --on-dark-3: #b59b85;
+  --dark-line: rgba(253, 243, 232, .18);
+  --blossom: #f2a8bc;
+  --select:  #f7d9c9;
+  --e1: 0 1px 2px rgba(67,48,31,.05), 0 8px 24px rgba(67,48,31,.07);
+  --e2: 0 2px 4px rgba(67,48,31,.07), 0 20px 48px rgba(67,48,31,.11);
+}
+:root[data-mode="night"] {
+  --snow:    #121213;   /* matte black, not blue-black */
+  --blush:   #1a1a1c;
+  --petal:   #3d2831;
+  --card:    #17181a;
+  --bark:    #0c0c0d;
+  --bark-2:  #070708;
+  --ink:     #eeeef0;
+  --ink-2:   #adadb3;
+  --ink-3:   #7b7b82;
+  --rose:    #cf6d8d;   /* the pink, taken down to sit on black */
+  --line:    rgba(255, 255, 255, .11);
+  --line-2:  rgba(255, 255, 255, .19);
+  --on-dark:   #eeeef0;
+  --on-dark-2: #a9a9b0;
+  --on-dark-3: #77777e;
+  --dark-line: rgba(255, 255, 255, .13);
+  --blossom: #e07f9d;
+  --select:  #52303c;
+  --e1: 0 1px 2px rgba(0,0,0,.5);
+  --e2: 0 2px 4px rgba(0,0,0,.5), 0 20px 48px rgba(0,0,0,.6);
+}
+:root[data-mode="light"] {
+  --snow:    #ffffff;
+  --blush:   #fdf1f5;
+  --petal:   #fbdfe8;
+  --card:    #ffffff;
+  /* The bands are pale pink here rather than dark, so the whole page
+     stays white and pink — which means the text on them goes dark, and
+     it does, because they read the same two tokens. */
+  --bark:    #fbe4ec;
+  --bark-2:  #f7d8e3;
+  --ink:     #40222e;
+  --ink-2:   #7a5361;
   --ink-3:   #a98795;
-  --rose:    #b8446a;   /* link / accent on light */
-  --line:    rgba(71, 32, 46, .13);
-  --line-2:  rgba(71, 32, 46, .22);
-  --on-dark:    #fff4f7;
-  --on-dark-2:  #e7c3d0;
-  --on-dark-3:  #c59aaa;
-  --dark-line:  rgba(255, 238, 243, .18);
-  --blossom: #f7a8c0;   /* the flush at the base of a petal */
+  --rose:    #c2557d;
+  --line:    rgba(64, 34, 46, .12);
+  --line-2:  rgba(64, 34, 46, .20);
+  --on-dark:   #40222e;
+  --on-dark-2: #7a5361;
+  --on-dark-3: #a2808e;
+  --dark-line: rgba(64, 34, 46, .16);
+  --blossom: #e2749a;
+  --select:  #fbd3e0;
+  --e1: 0 1px 2px rgba(64,34,46,.05), 0 8px 24px rgba(194,85,125,.07);
+  --e2: 0 2px 4px rgba(64,34,46,.06), 0 20px 48px rgba(194,85,125,.12);
+}
+:root {
+  /* Type and geometry do not change with the palette. */
   --r: 7px;
   --shell: 1240px;
-  /* Shippori Mincho B1 is a mincho — the Japanese answer to a serif —
-     and its Latin keeps the brush entry and the sharp uroko terminal, so
-     the headlines read as cut with a brush rather than set in a serif.
-     Zen Kaku Gothic Antique is the gothic beside it, M PLUS 1 Code the
-     monospace, all three drawn for Japanese first. */
   --serif: "Shippori Mincho B1", ui-serif, Georgia, "Times New Roman", serif;
   --sans: "Zen Kaku Gothic Antique", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "M PLUS 1 Code", ui-monospace, SFMono-Regular, Menlo, monospace;
-  /* A brush hand, for the wordmark and the small uppercase labels only —
-     it is a signature, not a text face. */
   --brush: "Yuji Syuku", var(--serif);
+  /* Text over a photograph stays light in every mode: the scrim under it
+     is dark in every mode too, and it has to be, or the headline goes. */
+  --on-photo: #fff4f7;
 }
-/* Committed to one world — a cherry in daylight — so an explicit dark
-   scheme would be a different tree. Everything is painted regardless,
-   which is what keeps it honest on a dark host. */
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--snow); color: var(--ink);
@@ -57,11 +112,11 @@ p { margin: 0; }
 /* Selected text — what you see the instant before you copy — comes up in
    blossom rather than the browser's blue. Stated twice: one rule with an
    unknown pseudo-element in it is dropped whole by every engine. */
-::selection { background: #fbd3e0; color: var(--ink); text-shadow: none; }
-::-moz-selection { background: #fbd3e0; color: var(--ink); text-shadow: none; }
+::selection { background: var(--select); color: var(--ink); text-shadow: none; }
+::-moz-selection { background: var(--select); color: var(--ink); text-shadow: none; }
 .band.dark ::selection, .rail ::selection, .railbar ::selection, .drawer ::selection,
-.hero ::selection { background: #f7a8c0; color: #3a1826; }
-.band.dark ::-moz-selection { background: #f7a8c0; color: #3a1826; }
+.hero ::selection { background: var(--blossom); color: var(--bark); }
+.band.dark ::-moz-selection { background: var(--blossom); color: var(--bark); }
 
 /* ---------------- buttons ---------------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 12px;
@@ -74,10 +129,11 @@ p { margin: 0; }
 .btn.fill:hover { background: var(--bark-2); }
 .btn.line { background: transparent; color: var(--ink); border-color: var(--line-2); }
 .btn.line:hover { background: var(--blush); }
-.btn.pale { background: var(--snow); color: var(--bark); }
-.btn.pale:hover { background: var(--petal); }
-.btn.on-dark { background: transparent; color: var(--on-dark); border-color: var(--dark-line); }
-.btn.on-dark:hover { background: rgba(255,238,243,.10); }
+.btn.pale { background: var(--snow); color: var(--ink); }
+.btn.pale:hover { background: var(--blush); }
+.btn.on-dark { background: transparent; color: var(--on-photo);
+              border-color: rgba(255,244,247,.30); }
+.btn.on-dark:hover { background: rgba(255,244,247,.14); }
 .btn.sm { height: 36px; padding: 0 14px; font-size: 13.5px; gap: 8px; }
 .link { display: inline-flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 600;
         color: var(--rose); }
@@ -100,7 +156,7 @@ p { margin: 0; }
    and a tooltip only tells you after you have already guessed. */
 .rail:hover, .rail:focus-within { width: 214px; }
 .rail .mark { display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 7px;
-              color: var(--petal); margin-bottom: 14px; border-radius: 10px; }
+              color: var(--blossom); margin-bottom: 14px; border-radius: 10px; }
 .rail .mark svg { flex: none; width: 30px; height: 30px; margin: 0 -2px; }
 .rail .wordmark { font-family: var(--brush); font-size: 19px; color: var(--on-dark); }
 .rail .ri { position: relative; display: flex; align-items: center; gap: 12px; height: 38px;
@@ -109,10 +165,10 @@ p { margin: 0; }
             transition: color .16s ease, background .16s ease; }
 .rail .ri svg:first-child { flex: none; }
 .rail .ri:hover, .rail .ri[aria-expanded="true"] {
-  color: var(--on-dark); background: rgba(255,238,243,.11); }
+  color: var(--on-dark); background: color-mix(in srgb, var(--on-dark) 11%, transparent); }
 /* Where you are. Without this the navigation never answers the first
    question anyone asks it. */
-.rail .ri.on { color: var(--on-dark); background: rgba(255,238,243,.14); font-weight: 600; }
+.rail .ri.on { color: var(--on-dark); background: color-mix(in srgb, var(--on-dark) 14%, transparent); font-weight: 600; }
 .rail .ri.on::before { content: ""; position: absolute; left: -7px; top: 8px; bottom: 8px;
                        width: 2.5px; border-radius: 0 3px 3px 0; background: var(--blossom); }
 .rail .lbl { font-size: 14.5px; font-weight: 500; white-space: nowrap;
@@ -122,13 +178,13 @@ p { margin: 0; }
 .rail .ri .cv { margin-left: auto; opacity: 0; transition: opacity .16s ease; }
 .rail:hover .ri .cv, .rail:focus-within .ri .cv { opacity: .5; }
 /* The product sits above the rule, the reference below it. */
-.rail .sep { height: 1px; margin: 9px 7px; background: rgba(255,238,243,.14); }
+.rail .sep { height: 1px; margin: 9px 7px; background: color-mix(in srgb, var(--on-dark) 14%, transparent); }
 /* The kanji sits at the foot of the column, just above the account, so the
    empty middle reads as breathing room rather than as something missing. */
 .rail .gap { flex: 1; display: flex; align-items: flex-end; justify-content: center;
              padding-bottom: 16px; min-height: 40px; }
 .rail .kana { font-family: var(--serif); font-size: 15px; letter-spacing: .34em;
-              color: rgba(255,238,243,.20); writing-mode: vertical-rl; user-select: none; }
+              color: color-mix(in srgb, var(--on-dark) 20%, transparent); writing-mode: vertical-rl; user-select: none; }
 .rail .menu { position: relative; }
 
 /* the flyout opens beside the rail, in the light palette */
@@ -151,7 +207,7 @@ p { margin: 0; }
 .railbar .brand { color: var(--on-dark); margin: 0; margin-right: auto; font-family: var(--brush); }
 .burger { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px;
           border: 0; background: none; color: var(--on-dark); cursor: pointer; }
-.burger:hover { background: rgba(255,238,243,.12); }
+.burger:hover { background: color-mix(in srgb, var(--on-dark) 12%, transparent); }
 /* Hidden at rail widths by the cascade, shown by the media query below —
    and only when the burger has actually opened it. */
 .drawer { display: none; background: var(--bark-2); padding: 12px 20px 22px; }
@@ -160,7 +216,7 @@ p { margin: 0; }
 .drawer a { display: block; padding: 11px 12px; border-radius: var(--r); font-size: 15.5px;
             color: var(--on-dark-2); }
 .drawer a.solo { font-weight: 600; color: var(--on-dark); }
-.drawer a:hover { background: rgba(255,238,243,.10); color: var(--on-dark); }
+.drawer a:hover { background: color-mix(in srgb, var(--on-dark) 10%, transparent); color: var(--on-dark); }
 
 /* ---------------- bands ---------------- */
 .band { padding: 104px 0; }
@@ -193,8 +249,8 @@ h3 { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.14; }
 .hero img[hidden] { display: none; }
 .hero .over { position: absolute; inset: 0; display: flex; align-items: center; }
 .hero .over .wrap { width: min(var(--shell), 100% - 64px); }
-.hero h1 { color: var(--on-dark); max-width: 14ch; }
-.hero p { color: var(--on-dark); max-width: 34ch; margin-top: 20px; font-size: 17px;
+.hero h1 { color: var(--on-photo); max-width: 14ch; }
+.hero p { color: var(--on-photo); max-width: 34ch; margin-top: 20px; font-size: 17px;
          }
 .hero .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 
@@ -472,12 +528,38 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
   background: linear-gradient(95deg, rgba(58,24,38,.86) 0%, rgba(58,24,38,.62) 34%,
                               rgba(58,24,38,.18) 62%, rgba(58,24,38,.05) 100%); }
 .plate-in { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; }
-.plate-in .kicker { color: var(--petal); }
-.plate-in h2 { color: var(--on-dark); margin-top: 14px; }
-.plate-in p { color: var(--on-dark-2); max-width: 44ch; margin-top: 16px; font-size: 16.5px; }
+.plate-in .kicker { color: #fbdfe4; }
+.plate-in h2 { color: var(--on-photo); margin-top: 14px; }
+.plate-in p { color: rgba(255,244,247,.82); max-width: 44ch; margin-top: 16px; font-size: 16.5px; }
 @media (max-width: 700px) {
   .plate img { height: 460px; object-position: 58% 60%; }
   .plate::after { background: linear-gradient(180deg, rgba(58,24,38,.45) 0%,
                               rgba(58,24,38,.86) 62%, rgba(58,24,38,.94) 100%); }
   .plate-in { align-items: flex-end; padding-bottom: 34px; }
 }
+
+/* ---------------- the mode picker ---------------- */
+.modes { display: grid; gap: 2px; margin-top: 4px; }
+.modes button { display: flex; align-items: center; gap: 12px; height: 34px; padding: 0 7px;
+                border: 0; background: none; border-radius: 9px; cursor: pointer;
+                color: var(--on-dark-3); font: inherit; text-align: left; }
+.modes button:hover { background: color-mix(in srgb, var(--on-dark) 10%, transparent); color: var(--on-dark); }
+.modes button[aria-pressed="true"] { color: var(--on-dark); }
+.modes .sw { width: 16px; height: 16px; border-radius: 50%; flex: none; margin-left: 3px;
+             box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--on-dark) 28%, transparent); }
+.modes button[aria-pressed="true"] .sw { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--on-dark) 50%, transparent),
+                                                     0 0 0 2px var(--blossom); }
+.modes .lbl { font-size: 13.5px; }
+/* Each swatch shows its own palette, not the one in use — otherwise the
+   three read identically and choose nothing. */
+.sw-legacy { background: linear-gradient(135deg, #fdf8f2 50%, #4a3326 50%); }
+.sw-night  { background: linear-gradient(135deg, #1a1a1c 50%, #cf6d8d 50%); }
+.sw-light  { background: linear-gradient(135deg, #ffffff 50%, #fbdfe8 50%); }
+
+/* ---------------- the footer's X link ---------------- */
+.foot-line { margin-top: 12px; font-size: 13.5px; color: var(--ink-3); }
+.foot .x { display: inline-flex; align-items: center; gap: 9px; margin-top: 16px;
+           padding: 8px 14px 8px 12px; border: 1px solid var(--line-2); border-radius: 999px;
+           font-size: 13.5px; font-weight: 600; color: var(--ink);
+           transition: background .16s ease, border-color .16s ease; }
+.foot .x:hover { background: var(--blush); border-color: var(--ink-3); }

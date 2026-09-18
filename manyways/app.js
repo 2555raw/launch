@@ -61,6 +61,31 @@
     });
   }
 
+  /* ---- colour mode ---------------------------------------------------
+     The choice is one attribute on <html>; every colour in the stylesheet
+     hangs off it. Kept per browser, and read before first paint by the
+     inline script in the page head so the mode never flashes. */
+  const MODES = ["legacy", "night", "light"];
+  const MODE_KEY = "hanamy.mode";
+  const modeBox = $(".modes");
+  if (modeBox) {
+    const current = () => {
+      const m = document.documentElement.getAttribute("data-mode");
+      return MODES.includes(m) ? m : "legacy";
+    };
+    const paint = () => {
+      const now = current();
+      $$("button", modeBox).forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.mode === now)));
+    };
+    $$("button", modeBox).forEach((b) => b.addEventListener("click", () => {
+      document.documentElement.setAttribute("data-mode", b.dataset.mode);
+      try { localStorage.setItem(MODE_KEY, b.dataset.mode); } catch (e) { /* private window */ }
+      paint();
+    }));
+    paint();
+  }
+
   /* ---- the drawer, for screens too narrow for the rail --------------- */
   const burger = $("#burger"), drawer = $("#drawer");
   if (burger && drawer) {

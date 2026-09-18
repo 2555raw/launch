@@ -3,7 +3,7 @@
    token balances. Nothing is signed, no chain is touched, and no address here
    belongs to anyone. It exists so the pages can be used rather than looked at. */
 
-const WALLET_KEY = 'cusp-demo';
+const WALLET_KEY = 'vesica-demo';
 const SEED_USDG = 25000;
 const SEED_BAL = { ETH: 2.5, WBTC: 0.05, xNVDA: 0, xTSLA: 0 };
 

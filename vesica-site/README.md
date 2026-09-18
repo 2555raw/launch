@@ -1,6 +1,6 @@
-# Cusp — vaults page
+# Vesica — vaults page
 
-Static page for **Cusp**, a fictional protocol running managed liquidity vaults for
+Static page for **Vesica**, a fictional protocol running managed liquidity vaults for
 tokenized stocks: deposit USDG, the vault keeps one concentrated position per
 USDG / Stock Token pool centred on the oracle price, and the trading fees compound
 inside the vault.
@@ -122,10 +122,10 @@ handed to CSS as `--brand` / `--brand-dk` on each badge.
 The badge itself went neutral when the logos landed: surface fill, plain border, no
 magenta. The accent is money, and a brand mark is not money.
 
-## The Cusp mark
+## The Vesica mark
 
 A lens: two arcs meeting at a point top and bottom, with a dot at the centre. Those
-two meeting points are the cusps — there is not a straight line anywhere in it, and
+two meeting points are the vesicas — there is not a straight line anywhere in it, and
 the favicon sits on a circle rather than a rounded square, so nothing about the mark
 is square.
 
@@ -155,7 +155,7 @@ It replaced an angular chevron, which read as rigid next to a palette this soft.
   the vault's cap, a paused vault takes no deposits, and **a paused vault still
   redeems**, which is exactly what the FAQ and the terms promise. Share price is
   `1 + apr × age / 365`, so it is at least consistent with the vault it belongs to.
-- **State survives a reload** — positions live in `localStorage` under `cusp-demo`,
+- **State survives a reload** — positions live in `localStorage` under `vesica-demo`,
   and the TVL each one sits in is rebuilt from them on load, so nothing drifts.
 - **Deposit drawer** — two modes, deposit and withdraw, with a Max that fills in the
   balance, the room under the cap or the whole position. Closes on the scrim, the ✕
@@ -187,11 +187,11 @@ same nav, same footer, same tokens — with a sticky contents list on the left a
 prose on the right, which is the label-left / content-right rhythm the vaults page
 already uses for its sections.
 
-The copy is placeholder, and every page says so in a banner at the top: Cusp is not
+The copy is placeholder, and every page says so in a banner at the top: Vesica is not
 a real protocol and none of this has been near a lawyer. It is written to show what
 belongs on each page rather than to be lifted. Two parts are accurate about *this*
-build and worth keeping: the privacy page's account of what is stored (`cusp-theme`,
-`cusp-demo`, nothing else, no cookies, no analytics) and its note that Google Fonts
+build and worth keeping: the privacy page's account of what is stored (`vesica-demo`,
+nothing else, no cookies, no analytics) and its note that Google Fonts
 is the one external request the site makes — which is the thing to fix, by
 self-hosting the two fonts, before any real launch.
 
@@ -210,5 +210,5 @@ loops.
   and the marks are their trademarks. Anything shipping for real needs its own list
   and the legal review that comes with tokenized equity.
 - "Connect wallet", the deposit button and the footer links are inert.
-- The fee split (70 / 20 / 10) and the name **Cusp** are placeholders — swap both
+- The fee split (70 / 20 / 10) and the name **Vesica** are placeholders — swap both
   before this is anything but a mock.

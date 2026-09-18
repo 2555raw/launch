@@ -1,4 +1,4 @@
-/* Cusp — vault list, deposit drawer, theme, menu.
+/* Vesica — vault list, deposit drawer, theme, menu.
    VAULTS below is the only source of truth for the list: every row, every
    figure and everything in the deposit drawer is derived from it. All of it is
    sample data for a design mock. */
@@ -46,7 +46,7 @@ const dollars = n => '$' + n.toLocaleString('en-US', {
 
 const money = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const pct = n => n.toFixed(1) + '%';
-const addr = t => '0x' + [...('cusp' + t)].map(c => c.charCodeAt(0).toString(16)).join('') + 'a41d';
+const addr = t => '0x' + [...('vesica' + t)].map(c => c.charCodeAt(0).toString(16)).join('') + 'a41d';
 
 /* ---------- the demo wallet ----------
    The storage, the address and the balances live in wallet.js, which the swap
@@ -415,7 +415,7 @@ const CONTRACTS = [
   ['Vault factory', 'factory'],
   ['Deposit router', 'router'],
   ['Oracle adapter', 'oracle'],
-  ['CUSP token', 'token'],
+  ['VESICA token', 'token'],
   ['Treasury timelock', 'treasury'],
 ];
 

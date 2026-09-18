@@ -1,4 +1,4 @@
-/* Cusp — the documentation page: nothing but the contents rail.
+/* Vesica — the documentation page: nothing but the contents rail.
    Measured on scroll rather than by observer, because jumping to an anchor
    lands the heading outside any sensible band and an observer would leave the
    previous entry lit. */

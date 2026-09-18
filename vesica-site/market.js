@@ -1,4 +1,4 @@
-/* Cusp — the market table.
+/* Vesica — the market table.
    The token list, the four routers and the arithmetic between them live here
    because two places quote the same trade now: the swap desk, and the quick
    trade that hangs off the nav on every page. Every price and every provider

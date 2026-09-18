@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Risk disclosure — Cusp</title>
-  <meta name="description" content="Risk disclosure for Cusp — placeholder copy for a design mock.">
+  <title>Terms of use — Vesica</title>
+  <meta name="description" content="Terms of use for Vesica — placeholder copy for a design mock.">
   <link rel="icon" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
   <header class="cs-nav">
     <a class="cs-brand" href="index.html">
         <span class="brand-mk" aria-hidden="true"></span>
-        Cusp
+        Vesica
     </a>
 
     <nav class="cs-tabs" id="tabs" aria-label="Legal pages">
@@ -52,7 +52,7 @@
 
     <div class="cs-nav-right">
                 <span class="nav-lang" title="English"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>EN</span>
-        <span class="nav-x" title="@cusp — soon" aria-label="X, coming soon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.53 3h3.2l-6.99 7.99L22 21h-6.44l-5.04-6.6L4.75 21H1.54l7.48-8.55L2 3h6.6l4.56 6.03zm-1.12 16.1h1.77L7.68 4.8H5.78z"/></svg></span>
+        <span class="nav-x" title="@vesica — soon" aria-label="X, coming soon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.53 3h3.2l-6.99 7.99L22 21h-6.44l-5.04-6.6L4.75 21H1.54l7.48-8.55L2 3h6.6l4.56 6.03zm-1.12 16.1h1.77L7.68 4.8H5.78z"/></svg></span>
 
       <a class="cs-btn cs-btn-line" href="docs.html">Docs</a>
       <a class="cs-btn cs-btn-fill" href="vaults.html#list">Vaults</a>
@@ -63,64 +63,62 @@
   </header>
 
   <section class="cs-legal-head">
-    <span class="cs-label"><b>Cusp</b> · Legal</span>
-    <h1>Risk disclosure</h1>
-    <p class="cs-lede">The honest page: every way a liquidity vault on a tokenized stock can cost you money.</p>
+    <span class="cs-label"><b>Vesica</b> · Legal</span>
+    <h1>Terms of use</h1>
+    <p class="cs-lede">What the protocol is, what it does not promise, and what you take on by using it.</p>
   </section>
   <div class="hatch" aria-hidden="true"></div>
 
   <main class="cs-legal">
     <aside class="cs-legal-toc">
-      <span class="cs-label">Risk disclosure</span>
+      <span class="cs-label">Terms of use</span>
       <ol id="toc">
-        <li><a href="#lose">You can lose money</a></li>
-        <li><a href="#principal">Shares are not principal-protected</a></li>
-        <li><a href="#divergence">The liquidity provider&rsquo;s trade-off</a></li>
-        <li><a href="#apr">Fee APR describes yesterday</a></li>
-        <li><a href="#oracle">Oracle and sequencer risk</a></li>
-        <li><a href="#contract">Smart contract risk</a></li>
-        <li><a href="#exit">Liquidity and redemption</a></li>
-        <li><a href="#token">The Stock Token itself</a></li>
-        <li><a href="#usdg">USDG</a></li>
-        <li><a href="#gov">Caps, pauses and the keeper</a></li>
-        <li><a href="#reg">Regulation</a></li>
+        <li><a href="#what">What Vesica is</a></li>
+        <li><a href="#noadvice">No advice, no offer</a></li>
+        <li><a href="#who">Who can use it</a></li>
+        <li><a href="#wallet">Your wallet is yours</a></li>
+        <li><a href="#asis">The vaults are software, and software breaks</a></li>
+        <li><a href="#fees">Fees</a></li>
+        <li><a href="#pauses">Caps, pauses and stale feeds</a></li>
+        <li><a href="#nots">Tokenized stocks are not stocks</a></li>
+        <li><a href="#changes">Changes</a></li>
       </ol>
       <span class="cs-updated">Last updated 18 September 2026</span>
     </aside>
 
     <article class="cs-prose">
       <p class="cs-mock">
-        <b>Placeholder copy for a design mock.</b> Cusp is not a real protocol, none
+        <b>Placeholder copy for a design mock.</b> Vesica is not a real protocol, none
         of this has been near a lawyer, and none of it is legal advice. It is here to
         show what belongs on the page — anything shipping for real needs its own
         drafting and its own review.
       </p>
-        <h2 id="lose">You can lose money</h2>
-        <p>Start here, because everything below is a variation on it. A vault share is a claim on a liquidity position, not a deposit. There is no guaranteed return, no floor under the value and nobody standing behind it.</p>
-        <p>Do not put in more than you can lose entirely.</p>
-        <h2 id="principal">Shares are not principal-protected</h2>
-        <p>Deposit USDG and half of it is swapped into the Stock Token, so from that moment you are exposed to the stock. If it falls, your share falls with it. The fees soften the fall; they do not cancel it.</p>
-        <h2 id="divergence">The liquidity provider&rsquo;s trade-off</h2>
-        <p>A concentrated position is sold into a rising market and bought into a falling one. When the price moves and comes back, the fees are pure gain. When it moves and stays, you end up holding more of the side that fell — the loss LPs call impermanent, which stops being impermanent the moment you redeem.</p>
-        <p>A tighter band earns more fees and takes this harder. Cusp runs tight bands.</p>
-        <h2 id="apr">Fee APR describes yesterday</h2>
-        <p>Every APR on the site is the last 24 hours of trading in that pool, annualised. It is an observation, not a forecast and not a promise. A quiet day drops it as fast as a busy one lifts it, and a vault out of range earns nothing at all.</p>
-        <h2 id="oracle">Oracle and sequencer risk</h2>
-        <p>Re-centring depends on the Chainlink price feed and the chain&rsquo;s sequencer feed being fresh. A stale, delayed or wrong feed means the position is re-centred badly or not at all, and a vault stuck out of range earns nothing while the market walks away from it.</p>
-        <p>Waiting rather than guessing is the safer failure, but it is still a cost.</p>
-        <h2 id="contract">Smart contract risk</h2>
-        <p>Bugs, economic exploits, failures in a dependency and compromised upgrade keys are all real and all have precedent. Verification on a block explorer proves the code is what was reviewed. It does not prove the code is right.</p>
-        <h2 id="exit">Liquidity and redemption</h2>
-        <p>Redeeming pulls your slice out of the pool at the price the pool is at, which in a thin or fast market can be materially worse than the price on the screen. Large redemptions move the pool themselves.</p>
-        <h2 id="token">The Stock Token itself</h2>
-        <p>Each pool depends on a tokenized stock issued by somebody. That issuer has its own custody, its own solvency, its own redemption rules and its own regulator.</p>
-        <p>Corporate actions — splits, dividends, delistings, halts — do not always map cleanly onto a token, and the underlying market keeps opening hours while the pool does not. The gap between a closed market and a live pool is where the sharpest moves happen.</p>
-        <h2 id="usdg">USDG</h2>
-        <p>The whole system is denominated in a stablecoin. If USDG loses its peg, every figure on the site is wrong at once — deposits, positions, caps and redemptions alike.</p>
-        <h2 id="gov">Caps, pauses and the keeper</h2>
-        <p>Deposits close at the cap. Vaults can be paused. Rebalances are executed by a keeper, and a keeper that is offline, censored or priced out of the block leaves the position exactly where it is.</p>
-        <h2 id="reg">Regulation</h2>
-        <p>Tokenized equity sits in a moving regulatory area. Rules can change with little notice, and a change can make a vault unusable, illiquid or unlawful to hold where you live. That risk is yours and cannot be hedged inside the protocol.</p>
+        <h2 id="what">What Vesica is</h2>
+        <p>Vesica is software. It runs <strong>ERC-4626 vaults</strong>, each holding one concentrated liquidity position in a single USDG / Stock Token pool, and it re-centres that position on the oracle price. You deposit USDG, you receive vault shares, and you redeem those shares whenever you want.</p>
+        <p>There is no account, no custody and no intermediary. Using the contracts is between you and the chain; this site is only one way to reach them.</p>
+        <h2 id="noadvice">No advice, no offer</h2>
+        <p>Nothing here is investment, tax or legal advice, and nothing here is an offer or a solicitation to buy or sell anything. The figures on the site — APR, TVL, prices, capacity — describe what the contracts did. They are not a recommendation to act on it.</p>
+        <p>Whether any of this suits you is your call, and worth taking to someone qualified before you make it.</p>
+        <h2 id="who">Who can use it</h2>
+        <p>You are responsible for whether you may lawfully use the protocol where you are. Tokenized equity is regulated differently in almost every jurisdiction and some place it out of reach entirely. If your law says no, this page does not override it.</p>
+        <p>You must be of legal age where you live, and you must not be subject to sanctions.</p>
+        <h2 id="wallet">Your wallet is yours</h2>
+        <p>You hold your keys. Nobody here can move, freeze or recover your funds, and nobody here can restore them if you lose access. A transaction you sign is final the moment the chain accepts it.</p>
+        <p>Anything that asks you for a seed phrase is a theft in progress, whatever it claims to be.</p>
+        <h2 id="asis">The vaults are software, and software breaks</h2>
+        <p>The contracts are provided <strong>as is</strong>, without warranty of any kind. Audits reduce risk; they do not remove it. A rebalance can be badly timed, a keeper can be late, a dependency can fail, and a bug can survive review.</p>
+        <p>To the fullest extent the law allows, nobody involved in building this is liable for losses arising from your use of it. The <a href="risk.html">risk disclosure</a> is the part of this document worth reading twice.</p>
+        <h2 id="fees">Fees</h2>
+        <p>No deposit fee, no management fee, no lock-up. The only protocol fee comes out of the trading fees the position earns, split <strong>70% compounded back into the position, 20% to buy back and burn VESICA, 10% to the treasury</strong>.</p>
+        <p>Network gas and the pool&rsquo;s own swap fee are separate, and they are yours.</p>
+        <h2 id="pauses">Caps, pauses and stale feeds</h2>
+        <p>Every vault has a hard deposit cap, and deposits close when it fills. Vaults can be paused one at a time. Rebalances and deposits need fresh Chainlink price and sequencer feeds, and they wait rather than guess when a feed is stale.</p>
+        <p><strong>Redemptions are deliberately the last thing any of this touches.</strong> A paused or stale vault still lets you out.</p>
+        <h2 id="nots">Tokenized stocks are not stocks</h2>
+        <p>A Stock Token tracks a price. It is not the share, and holding one through a vault gives you no shareholder rights: no vote, no dividend unless the issuer explicitly passes one through, no claim on the company.</p>
+        <p>What the token is worth depends on the issuer backing it and the market pricing it, and both are risks of their own.</p>
+        <h2 id="changes">Changes</h2>
+        <p>These terms can change. The version in force is the one on this page, and the date in the margin says when it last moved. Continuing to use the protocol after a change is how you accept it.</p>
       <p class="cs-end">A real deployment would put a contact address here.
         <a href="vaults.html#list">Vaults</a>.</p>
     </article>
@@ -150,8 +148,8 @@
           </svg>
           <span class="ft-px"></span>
         </div>
-        <b class="ft-word">cusp</b>
-        <span class="ft-cap">Fig. 1 — two arcs, two cusps</span>
+        <b class="ft-word">vesica</b>
+        <span class="ft-cap">Fig. 1 — two arcs, one vesica</span>
       </div>
       <div class="ft-col">
         <span class="k">Products</span>

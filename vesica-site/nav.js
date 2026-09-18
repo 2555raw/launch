@@ -1,4 +1,4 @@
-/* Cusp — the nav: the quick trade, the dropdowns and the cube field.
+/* Vesica — the nav: the quick trade, the dropdowns and the cube field.
    Everything here runs on all seven pages, because all seven share the bar
    and the footer. */
 
@@ -108,7 +108,7 @@
   paint();
 })();
 
-/* Cusp — the nav dropdowns.
+/* Vesica — the nav dropdowns.
    Click opens, hover opens once one is already open (so sliding along the bar
    works), Escape and an outside click close. Keyboard reaches everything: the
    trigger is a button and the panel holds plain links. */

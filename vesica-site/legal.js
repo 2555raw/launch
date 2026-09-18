@@ -1,4 +1,4 @@
-/* Cusp — the legal pages: the mobile menu and the contents list.
+/* Vesica — the legal pages: the mobile menu and the contents list.
    The vaults page's app.js is about vaults and would throw here, so these pages
    carry their own small script instead. */
 

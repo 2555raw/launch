@@ -1,4 +1,4 @@
-/* Cusp — the home page: the brand marks in the stock grid, and the copy button. */
+/* Vesica — the home page: the brand marks in the stock grid, and the copy button. */
 
 document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   const l = LOGOS[el.dataset.logo];
@@ -41,7 +41,7 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   const layers = [];
   for (let i = 0; i < DEPTH; i++) {
     const u = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    u.setAttribute('href', '#cuspmark');
+    u.setAttribute('href', '#vesicamark');
     // back layers are faint, the face is solid
     const front = i / (DEPTH - 1);
     u.setAttribute('opacity', (0.05 + 0.5 * Math.pow(front, 2.4)).toFixed(3));

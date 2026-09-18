@@ -1,4 +1,4 @@
-/* Cusp — the swap page.
+/* Vesica — the swap page.
    Four invented aggregators quote the same trade, the best one wins, and the
    swap moves the balances of the shared demo wallet. Every price and every
    provider here is made up; the arithmetic between them is not. */

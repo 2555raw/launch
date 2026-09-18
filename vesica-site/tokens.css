@@ -377,6 +377,55 @@ img, svg { display: block; }
 }
 @media (max-width: 620px) { .pr { padding-left: 16px; padding-right: 16px; } .pr-partners { grid-template-columns: 1fr; } }
 
+/* ---------- the way a page arrives ----------
+   Every rule here is behind .rv, which reveal.js adds and nothing else does.
+   Without that script the page is untouched, so a broken animation can never
+   cost anyone the content. The reduced-motion rule at the top of this file
+   kills the transitions outright, and reveal.js declines to run at all. */
+
+.rv [data-rv] {
+  opacity: 0;
+  transform: translateY(15px);
+  will-change: opacity, transform;
+}
+.rv [data-rv].rv-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity .66s cubic-bezier(.22, .61, .36, 1),
+              transform .66s cubic-bezier(.22, .61, .36, 1);
+}
+/* the mark is the one thing that arrives by growing rather than rising */
+.rv .hm-form[data-rv] { transform: translateY(0) scale(.92); }
+.rv .hm-form[data-rv].rv-in { transform: none; }
+
+/* the curtain: the ground colour, the mark, and then it lifts */
+.rv-curtain {
+  position: fixed; inset: 0; z-index: 200;
+  display: grid; place-items: center;
+  background: var(--bg);
+}
+.rv-curtain i {
+  display: block; width: 116px; height: 116px;
+  background: var(--band);
+  -webkit-mask: url(mark.svg) center / contain no-repeat;
+  mask: url(mark.svg) center / contain no-repeat;
+  animation: rv-mark 620ms cubic-bezier(.22, .61, .36, 1) both;
+}
+@keyframes rv-mark {
+  from { opacity: 0; transform: scale(.74) rotate(-16deg); }
+  to   { opacity: 1; transform: none; }
+}
+.rv-curtain.rv-out {
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity .48s ease, transform .48s cubic-bezier(.22, .61, .36, 1);
+  pointer-events: none;
+}
+/* the page settles the last per cent as the curtain goes, so the two move
+   together rather than one replacing the other */
+.rv .hd, .rv body > main, .rv body > header { transition: none; }
+.rv-open .rv-curtain i { opacity: 0; transition: opacity .3s ease; }
+
 /* ---------- the contract address, held open ---------- */
 
 .nav-ca {

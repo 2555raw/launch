@@ -5,14 +5,15 @@
    navy #3D3B4F does double duty as the band and as the ink.
 
    Three accents, each with its own ground:
-   The accent is a pastel yellow. It cannot be text on a light ground, so it
-   works as a fill and a darker relative carries the type:
+   The accent is burgundy. The deep end carries type; the pale end is the fill
+   that navy ink sits on. The two ends were picked to hold the luminance the
+   yellow palette had, so no contrast in the page got worse in the change:
 
-     --accent-fill  #F2EAA0  pills, buttons, tiles, badges — navy ink on top
-     --accent-soft  #FBF7DA  the tinted card and the quieter badges
-     --accent-lift  #F2EAA0  the same pastel, where it sits on the navy band
-     --accent       #6E5D0D  accent type on the light ground
-     --accent-ink   #5C4E08  type on a tinted fill
+     --accent-fill  #F7E3E5  pills, buttons, tiles, badges — navy ink on top
+     --accent-soft  #FCF4F5  the tinted card and the quieter badges
+     --accent-lift  #F7E3E5  the same pale rose, where it sits on the navy band
+     --accent       #7A1F2B  accent type on the light ground
+     --accent-ink   #641420  type on a tinted fill
      --pink         #FFCFFE  the second accent, dark grounds only
 
    The tokens are named for their job now, not for a colour. They have been
@@ -36,16 +37,16 @@
   --dim: #A9A8AF;
   --faint: #C3C3C7;
 
-  --accent: #6E5D0D;
-  --accent-ink: #5C4E08;
-  --accent-fill: #F2EAA0;
-  --accent-soft: #FBF7DA;
-  --accent-line: #E6DC94;
-  --accent-lift: #F2EAA0;
-  --accent-glow: #EFD95E;   /* the pastel, pushed up where it has to read against grey */
+  --accent: #7A1F2B;
+  --accent-ink: #641420;
+  --accent-fill: #F7E3E5;
+  --accent-soft: #FCF4F5;
+  --accent-line: #EFD4D7;
+  --accent-lift: #F7E3E5;
+  --accent-glow: #F5CFD4;   /* the pale end, pushed down where it has to read against grey */
   --pink: #FFCFFE;
   --on-accent: #3D3B4F;    /* the fill is pale, so its ink is the navy */
-  --yellow: #F2EAA0;       /* the closing headline: the same pastel, not a second one */
+  --yellow: #F7E3E5;       /* the closing headline: the same pale rose, not a second one */
 
   --on-band: #E9E9E9;
   --on-band-2: #A9A8AF;

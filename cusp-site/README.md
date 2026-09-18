@@ -80,7 +80,32 @@ the label sticky so it holds while the content scrolls past it. The alt bands ar
 full-bleed but their content still lines up with the 1200px container, via
 `padding-inline: calc(var(--gut) + max(0px, (100vw - var(--wrap)) / 2))`.
 
-## The mark
+## The brand marks
+
+Each row carries the real mark of the company behind the pool, inlined as SVG —
+no network call, no build step, nothing to load at runtime.
+
+- Eight come from **Simple Icons** (the SVG files are CC0).
+- **AMZN** and **MSFT** come from **Font Awesome Free** (icons under CC BY 4.0),
+  which is why they carry a different viewBox; Simple Icons does not ship those two.
+- **COIN** is drawn in `app.js`: Simple Icons ships Coinbase as a wordmark, which is
+  mud at 18px, so the symbol — a circle with a rounded square knocked out, on
+  `fill-rule="evenodd"` — is written out by hand.
+
+Every logo is the trademark of its owner. They are here to identify the stock
+behind each pool and for no other purpose; a real deployment needs its own check on
+that, tokenized equity being what it is.
+
+Each entry carries two colours, because one is never enough across two themes:
+`c` is the brand's own hex, used on the light theme, and `d` is the same mark
+lifted enough to survive the dark ground — Apple's black and Palantir's near-black
+simply vanish there, and Robinhood's chartreuse does the same on white. The pair is
+handed to CSS as `--brand` / `--brand-dk` on each badge.
+
+The badge itself went neutral when the logos landed: surface fill, plain border, no
+magenta. The accent is money, and a brand mark is not money.
+
+## The Cusp mark
 
 A cusp: two strokes meeting at a point, with the point itself called out as a dot.
 One path, one circle, `currentColor`, no fills to theme — it works at 24px in the
@@ -111,8 +136,9 @@ loops.
 
 - **Every figure is sample data.** The ten vaults, the TVL, the APRs, the depositor
   counts and the contract addresses are invented; the footer says so.
-- The tickers are real companies used as placeholder pool names. Anything shipping
-  for real needs its own list and the legal review that comes with tokenized equity.
+- The tickers and their logos are real companies used as placeholder pool names,
+  and the marks are their trademarks. Anything shipping for real needs its own list
+  and the legal review that comes with tokenized equity.
 - "Connect wallet", the deposit button and the footer links are inert.
 - The fee split (70 / 20 / 10) and the name **Cusp** are placeholders — swap both
   before this is anything but a mock.

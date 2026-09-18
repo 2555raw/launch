@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentation — Cusp</title>
+  <meta name="description" content="How Cusp works, without the protocol jargon: vaults, safeguards, the fee split, the oracle rules, the contracts and what is coming next.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233D3B4F'/%3E%3Cg transform='translate(16 16) scale(.82) translate(-16 -16)'%3E%3Cpath d='M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z' fill='none' stroke='%23C5FFD6' stroke-width='2.9' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='2.9' fill='%23C5FFD6'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body id="top">
+
+  <header class="dx-nav">
+    <div class="dx-nav-in">
+      <a class="dx-brand" href="index.html">
+        <span class="dx-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+            <circle cx="16" cy="16" r="2.4" fill="currentColor"/>
+          </svg>
+        </span>
+        Cusp
+      </a>
+      <nav class="dx-links" aria-label="Sections">
+        <a href="index.html#list">Vaults</a>
+        <a href="swap.html">Swap</a>
+        <a class="on" href="docs.html">Docs</a>
+        <a href="risk.html">Risk</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+      <div class="dx-nav-right">
+        <span class="dx-chip"><i>CA</i>0x730e…82c8</span>
+        <a class="btn btn-dark tr-btn-sm" href="index.html#list">Connect wallet</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="dx">
+    <aside class="dx-toc">
+      <span class="k">On this page</span>
+      <ol id="toc">
+          <li><a href="#top">Help center <em>↗</em></a></li>
+          <li><a href="#contracts">Verification <em>↗</em></a></li>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#vaults">Vaults</a></li>
+          <li><a href="#safeguards">Safeguards</a></li>
+          <li><a href="#flywheel">Cusp token flywheel</a></li>
+          <li><a href="#chainlink">Chainlink safety</a></li>
+          <li><a href="#contracts">Contracts</a></li>
+          <li><a href="#open">Open source</a></li>
+          <li><a href="#roadmap">Roadmap</a></li>
+          <li><a href="#faq">FAQ</a></li>
+      </ol>
+    </aside>
+
+    <main class="dx-main">
+
+      <div class="dx-top">
+        <span class="k">Documentation</span>
+        <span class="k">Robinhood Chain · 4663</span>
+      </div>
+
+      <section class="dx-hero" id="overview">
+        <h1>Markets move.<br>Your capital can <em>work<br>with them</em>.</h1>
+        <p>Cusp brings tokenized-stock liquidity strategies, vaults, and lending into one onchain experience. This guide explains the essentials without the protocol jargon.</p>
+        <div class="dx-actions">
+          <a class="btn btn-dark" href="index.html#list">Explore vaults <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 7l5 5-5 5"/></svg></a>
+          <a class="btn btn-pink" href="#contracts">View contracts</a>
+        </div>
+      </section>
+
+      <section class="dx-sec" id="vaults">
+        <span class="k">01 · Vaults</span>
+        <div class="dx-head">
+          <h2>A simple way to participate in onchain market making.</h2>
+          <p>Deposit USDG into a vault and receive vault shares in return. The strategy supplies liquidity around a tokenized stock market, collects trading fees, and adjusts its range as the market moves.</p>
+        </div>
+        <div class="dx-grid dx-grid-4">
+          <article class="dx-card"><span class="dx-card-n">1</span><h3>Choose a market</h3><p>Select the company or ETF vault that fits your interests.</p></article>
+          <article class="dx-card"><span class="dx-card-n">2</span><h3>Deposit USDG</h3><p>Your vault shares track your portion of the vault.</p></article>
+          <article class="dx-card"><span class="dx-card-n">3</span><h3>Follow performance</h3><p>See holdings, fees, activity, and your position in one place.</p></article>
+          <article class="dx-card"><span class="dx-card-n">4</span><h3>Withdraw when ready</h3><p>Use the available withdrawal path shown by the app.</p></article>
+        </div>
+      </section>
+
+      <section class="dx-sec" id="safeguards">
+        <span class="k">02 · Safeguards</span>
+        <div class="dx-head">
+          <h2>Guardrails are part of the product.</h2>
+          <p>Cusp combines live market data with onchain limits and clearly separated controls. If required information is not available, sensitive actions wait instead of guessing.</p>
+        </div>
+        <div class="dx-grid">
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.4-3 7.6-7.5 9-4.5-1.4-7.5-4.6-7.5-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></span><h3>Bounded execution</h3><p>Every vault operates within defined limits for price movement, trade size, and acceptable execution loss.</p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 118 0v3"/></svg></span><h3>Separated controls</h3><p>Day-to-day operation, emergency controls, and protocol treasury responsibilities use separate roles.</p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 1.8"/></svg></span><h3>Delayed changes</h3><p>Important configuration changes follow a review window instead of taking effect immediately.</p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h9a3 3 0 013 3v2a3 3 0 003 3h1M4 16h5"/><circle cx="19" cy="8" r="2"/><circle cx="6" cy="16" r="2"/></svg></span><h3>Flexible exits</h3><p>Vaults include multiple withdrawal and recovery paths so users are not dependent on a single trade route.</p></article>
+        </div>
+      </section>
+
+      <section class="dx-sec" id="flywheel">
+        <span class="k">03 · The Cusp token flywheel</span>
+        <div class="dx-head">
+          <h2>Protocol growth feeds back into the ecosystem.</h2>
+          <p>The fee split applies only to liquidity fees earned by the vaults, not to deposits or withdrawals. Seven tenths of every claimed fee stays with vault participants, two tenths buy back and burn the Cusp token, and one tenth goes to the protocol treasury. The split is enforced by the vault contract and visible in its counters.</p>
+        </div>
+        <div class="dx-grid dx-grid-3">
+          <article class="dx-card"><div class="dx-pct">70%</div><h3>Retained by the vault</h3><p>Compounds back into the position for vault participants.</p></article>
+          <article class="dx-card dx-card-dark"><div class="dx-pct">20%</div><h3>Cusp token buybacks</h3><p>Reserved to buy the Cusp token and permanently burn it.</p></article>
+          <article class="dx-card"><div class="dx-pct">10%</div><h3>Protocol treasury</h3><p>Funds keepers, oracles and development of the protocol.</p></article>
+        </div>
+        <div class="dx-flow">
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5l7.5-4 7.5 4v7l-7.5 4-7.5-4z"/><path d="M4.5 8.5l7.5 4 7.5-4M12 12.5v7"/></svg>Vaults generate fees</span><i>→</i>
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h9a3 3 0 013 3v2a3 3 0 003 3h1M4 16h5"/><circle cx="19" cy="8" r="2"/><circle cx="6" cy="16" r="2"/></svg>20% funds buybacks</span><i>→</i>
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.9 4.6L19 10l-4.1 3.2L15.6 18 12 15.4 8.4 18l.7-4.8L5 10l5.1-1.4z"/></svg>Purchased Cusp token is burned</span><i>→</i>
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0114 0M8.5 12a3.5 3.5 0 017 0"/><circle cx="12" cy="17.5" r="1.6"/></svg>Supply is permanently reduced</span>
+        </div>
+      </section>
+
+      <section class="dx-sec" id="chainlink">
+        <span class="k">04 · Chainlink safety</span>
+        <div class="dx-head">
+          <h2>Fresh reference prices come before speed.</h2>
+          <p>Tokenized-stock markets follow a 24/5 schedule. Cusp uses Chainlink as an independent reference before accepting a price-dependent action, rather than trusting a pool price by itself.</p>
+        </div>
+        <div class="dx-panel">
+          <div class="dx-panel-fig">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0114 0M8.5 12a3.5 3.5 0 017 0"/><circle cx="12" cy="17.5" r="1.6"/></svg>
+            <b>24/5</b>
+            <span>Chainlink stock pricing</span>
+          </div>
+          <div class="dx-panel-c"><h3><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.4-3 7.6-7.5 9-4.5-1.4-7.5-4.6-7.5-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>Deposits check the reference price</h3><p>A deposit proceeds only when the Chainlink price is fresh and the pool remains within its permitted range.</p></div>
+          <div class="dx-panel-c"><h3><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 1.8"/></svg>Weekends favor safety</h3><p>When stock feeds stop updating, deposits and other price-dependent actions can pause until fresh pricing returns.</p></div>
+          <div class="dx-panel-c"><h3><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5l7.5-4 7.5 4v7l-7.5 4-7.5-4z"/><path d="M4.5 8.5l7.5 4 7.5-4M12 12.5v7"/></svg>Vault-share exits remain available</h3><p>Users can withdraw their proportional underlying tokens without waiting for a stock sale. A one-click USDG conversion waits for a live protected price.</p></div>
+          <div class="dx-panel-c"><h3><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h9a3 3 0 013 3v2a3 3 0 003 3h1M4 16h5"/><circle cx="19" cy="8" r="2"/><circle cx="6" cy="16" r="2"/></svg>Strategy changes are checked too</h3><p>Rebalances compare current pool conditions with Chainlink before assets are repositioned.</p></div>
+        </div>
+      </section>
+
+      <section class="dx-sec" id="contracts">
+        <span class="k">05 · Smart contracts</span>
+        <div class="dx-head">
+          <h2>Verify, don't trust.</h2>
+          <p>These are the 18 user-facing V7 vault contracts deployed on Robinhood Chain. Each address opens in Robinhood Chain Blockscout, and its matching public source is available through Sourcify.</p>
+        </div>
+        <div class="dx-th k"><span>Vault</span><span>Contract address</span><span>Source</span></div>
+        <div class="dx-table">
+        <div class="dx-tr"><b>AAPL</b><code>0xab246ddb0ac6bdfe64999dfffc468616a83c5bda</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>AMD</b><code>0x7858e488537d2e253a8919bef8d6d81d96e09292</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>AMZN</b><code>0x3f81f66e999363a21c8a753a982ecd2251de6cbf</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>COIN</b><code>0x8beee26c887f9c2c6b883792f59c3c7095f54b38</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>GME</b><code>0xf56448825f70915f66c6a37e8209eb8c2259f2da</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>GOOGL</b><code>0x281f03e4944389f3289d8121ba66cdea468c50d3</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>INTC</b><code>0x6081c4dd44cdf4024253ab581fda4f9dba72669b</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>META</b><code>0xb392cc6142a9b0544ead3abdfbc1e8b0ddf6cfd7</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>MSFT</b><code>0x989f8dedee6fd8edc00fd25ec4b804af42e07d0d</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>MSTR</b><code>0xa3d56c63c5f98cba3cc68138eabef05e56d27e34</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>MU</b><code>0xe8ee3a7b0718163a181c10c99e8add54cd973305</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>NVDA</b><code>0xd48f999937cd0122794c282c357c87d999b77a7f</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>PLTR</b><code>0x541d62e6649a2f6778190412ca8438f9aeb8c2be</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>QQQ</b><code>0x7291aa8937b28c879b5cc20df701a1db82777304</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>SNDK</b><code>0xdf1c8cbceafd328ea5c63416a0a9a9c09ea377db</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>SPY</b><code>0x0b06b719503f3fcf7510c160c4df5e51d838b23c</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>TSLA</b><code>0xd82dcac32e50386211e1dc4e273209b3306cb263</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        <div class="dx-tr"><b>HOOD</b><code>0xb859fb1ef223c8ba667087b3269e42bf28092cf1</code><span class="dx-ok"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>Verified</span></div>
+        </div>
+      </section>
+
+      <section class="dx-sec" id="open">
+        <span class="k">06 · Open source</span>
+        <div class="dx-head">
+          <h2>The whole site, in the open.</h2>
+          <p>Cusp is published under the MIT license. Every figure on the site is a chain read you can run yourself, and the code that makes those reads sits in one repository: the vault quotes, the router calls and the verification script. The vault contracts are the protocol's, verified above; what is open here is everything between the chain and your screen.</p>
+        </div>
+        <div class="dx-grid">
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5l7.5-4 7.5 4v7l-7.5 4-7.5-4z"/><path d="M4.5 8.5l7.5 4 7.5-4M12 12.5v7"/></svg></span><h3>Chain reads</h3><p>One read-only client with fallback endpoints, the vault state reader and the snapshot service that refreshes every 15 seconds. <a href="#open">src/lib/managed-vault.ts ↗</a></p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h9a3 3 0 013 3v2a3 3 0 003 3h1M4 16h5"/><circle cx="19" cy="8" r="2"/><circle cx="6" cy="16" r="2"/></svg></span><h3>Deposits and withdrawals</h3><p>How a USDG budget becomes a router deposit, and how a redemption is quoted and simulated before you sign. <a href="#open">src/components/strategies ↗</a></p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.4-3 7.6-7.5 9-4.5-1.4-7.5-4.6-7.5-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></span><h3>Verification</h3><p>The script behind /verify: contract wiring, fee counters, simulated deposits and withdrawals through state overrides, site and API checks. <a href="#open">scripts/verify.ts ↗</a></p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0114 0M8.5 12a3.5 3.5 0 017 0"/><circle cx="12" cy="17.5" r="1.6"/></svg></span><h3>Intelligence rules</h3><p>The signals, the alerts, the brief and the seven guided answers are plain functions over the snapshot. No model is needed to run them. <a href="#open">src/server/intelligence.ts ↗</a></p></article>
+        </div>
+        <div class="dx-grid" style="margin-top:10px">
+          <div class="dx-code">
+            <span class="k">scripts/verify.ts · the fee split, checked against the vault counters</span>
+            <pre><code><span class="c">const</span> [g0, g1, p0, p1, b0, b1] = <span class="c">await</span> Promise.all([
+  read(<span class="s">"grossFees"</span>, 0n), read(<span class="s">"grossFees"</span>, 1n),
+  read(<span class="s">"protocolFees"</span>, 0n), read(<span class="s">"protocolFees"</span>, 1n),
+  read(<span class="s">"buybackFees"</span>, 0n), read(<span class="s">"buybackFees"</span>, 1n),
+]);
+<span class="c">const</span> buyback  = pct(b0, g0);   <span class="c">// 20%</span>
+<span class="c">const</span> treasury = pct(p0, g0);   <span class="c">// 10%</span>
+<span class="c">const</span> ok = Math.abs(buyback - CLAIM.buyback) &lt;= <span class="n">0.5</span>
+        &amp;&amp; Math.abs(treasury - CLAIM.treasury) &lt;= <span class="n">0.5</span>;</code></pre>
+          </div>
+          <div class="dx-code">
+            <span class="k">src/server/intelligence.ts · where a price sits in its range</span>
+            <pre><code><span class="c">const</span> rangePosition = (price - lower) / (upper - lower);
+<span class="c">if</span> (inRange === <span class="n">false</span>) flags.push(<span class="s">"out of range"</span>);
+<span class="c">else if</span> (rangePosition &lt; <span class="n">0.15</span> || rangePosition &gt; <span class="n">0.85</span>)
+  flags.push(rangePosition &lt; <span class="n">0.15</span> ? <span class="s">"near lower bound"</span> : <span class="s">"near upper bound"</span>);
+<span class="c">if</span> (oracleAgeSeconds &gt; <span class="n">26</span> * <span class="n">3600</span>) flags.push(<span class="s">"oracle stale"</span>);</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="dx-sec" id="roadmap">
+        <span class="k">07 · Roadmap</span>
+        <div class="dx-head">
+          <h2>Vaults are the foundation, not the finish line.</h2>
+          <p>The roadmap connects liquidity, credit, and strategy automation into a broader onchain financial toolkit.</p>
+        </div>
+        <ol class="dx-road">
+          <li><span class="dx-road-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.9 4.6L19 10l-4.1 3.2L15.6 18 12 15.4 8.4 18l.7-4.8L5 10l5.1-1.4z"/></svg></span><div><span class="k">01 · Ongoing</span><h3>Expand vaults and lending</h3><p>Grow supported markets carefully, deepen the lending experience, and make portfolio management feel seamless across both products.</p></div></li>
+          <li><span class="dx-road-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h9a3 3 0 013 3v2a3 3 0 003 3h1M4 16h5"/><circle cx="19" cy="8" r="2"/><circle cx="6" cy="16" r="2"/></svg></span><div><span class="k">02 · Next strategy</span><h3>Delta-neutral strategy</h3><p>Introduce a strategy designed to collect opportunities from the market while reducing directional exposure.</p></div></li>
+          <li><span class="dx-road-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5l7.5-4 7.5 4v7l-7.5 4-7.5-4z"/><path d="M4.5 8.5l7.5 4 7.5-4M12 12.5v7"/></svg></span><div><span class="k">03 · Planned</span><h3>Vault + lending loop</h3><p>Combine vault positions with lending in a guided looping strategy built to pursue a higher blended return.</p></div></li>
+          <li><span class="dx-road-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0114 0M8.5 12a3.5 3.5 0 017 0"/><circle cx="12" cy="17.5" r="1.6"/></svg></span><div><span class="k">04 · In development</span><h3>A new AI × DeFi experience</h3><p>A new feature is being built around AI, DeFi, and Uniswap V4 hooks. Development is expected to take about 30 days, with more revealed closer to release.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="dx-sec" id="faq">
+        <span class="k">08 · FAQ</span>
+        <div class="dx-faq">
+          <details open><summary>What do I receive when I deposit?</summary><p>An ERC-4626 vault share. It is your claim on the vault's liquidity position, it moves with the Stock Token price, and it is the thing you redeem later.</p></details>
+          <details><summary>Where does vault performance come from?</summary><p>Trading fees paid by people swapping in that pool. Seven tenths of every claimed fee compounds back into the position, which is what lifts the share price.</p></details>
+          <details><summary>What happens when stock markets are closed?</summary><p>Chainlink stock feeds follow a 24/5 schedule. When they stop updating, price-dependent actions can pause until fresh pricing returns — but proportional withdrawals stay available.</p></details>
+          <details><summary>How do vault fees support the Cusp token?</summary><p>Two tenths of every claimed fee buys the token on the open market and burns it, permanently reducing supply. It is enforced by the vault contract and visible in its counters.</p></details>
+          <details><summary>How does lending fit in?</summary><p>You can supply USDG for interest paid by borrowers, or pledge eligible vault shares and borrow against them. Each market has its own cash, its own limits and its own oracle.</p></details>
+          <details><summary>Where can I follow product updates?</summary><p>The roadmap above is kept current, and every contract change lands in the repository first.</p></details>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="dx-foot">
+    <div class="dx-foot-in">
+      <div><span class="k">Products</span><a href="index.html#list">Vaults</a><a href="swap.html">Swap</a><a href="index.html#fees">Fees</a></div>
+      <div><span class="k">Platform</span><a href="index.html#how">Mechanics</a><a href="docs.html">Docs</a><a href="index.html#safeguards">Safeguards</a></div>
+      <div><span class="k">Resources</span><a href="#contracts">Contracts</a><a href="#roadmap">Roadmap</a><a href="#faq">FAQ</a></div>
+      <div><span class="k">Support</span><a href="risk.html">Risk</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a></div>
+    </div>
+    <p class="dx-fine">
+      A design mock. Cusp is not a real protocol: every address, figure and repository path on this page is invented,
+      and nothing here is an offer or financial advice.
+    </p>
+  </footer>
+
+<script src="docs.js"></script>
+</body>
+</html>

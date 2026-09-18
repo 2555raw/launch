@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hanamy · Say anything, it keeps nothing</title>
-<meta name="description" content="An AI that keeps nothing. Say anything, attach a file, get an answer, and nothing is stored, threaded or remembered.">
+<title>Hanamy · Say anything</title>
+<meta name="description" content="A chat that keeps nothing: attach a file, ask anything, and nothing above the line is ever sent.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Hanamy · Say anything, it keeps nothing">
-<meta property="og:description" content="An AI that keeps nothing. Say anything, attach a file, get an answer, and nothing is stored, threaded or remembered.">
+<meta property="og:title" content="Hanamy · Say anything">
+<meta property="og:description" content="A chat that keeps nothing: attach a file, ask anything, and nothing above the line is ever sent.">
 <meta property="og:image" content="media/card.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Hanamy · Say anything, it keeps nothing">
-<meta name="twitter:description" content="An AI that keeps nothing. Say anything, attach a file, get an answer, and nothing is stored, threaded or remembered.">
+<meta name="twitter:title" content="Hanamy · Say anything">
+<meta name="twitter:description" content="A chat that keeps nothing: attach a file, ask anything, and nothing above the line is ever sent.">
 <meta name="twitter:image" content="media/card.jpg">
 <meta name="theme-color" content="#47202e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,288 +27,74 @@
   } catch (e) {}
 })();
 </script>
-</head>
+<link rel="stylesheet" href="talk.css"></head>
 <body>
 <div class="shell">
-<nav class="rail" aria-label="Main"><a class="mark" href="index.html"><svg width="26" height="26" viewBox="0 0 560 560" fill="currentColor" aria-hidden="true"><path d="M273.74 527.34C267.50 522.90 258.41 509.40 251.96 495.00C249.81 490.20 249.51 488.11 249.56 478.50C249.62 466.18 251.13 460.93 258.03 449.00C262.97 440.48 273.77 426.24 277.28 423.63C279.80 421.76 280.28 421.71 282.47 423.04C285.31 424.76 294.30 435.77 300.39 445.00C311.76 462.21 313.75 479.34 306.48 497.25C303.50 504.58 294.77 517.77 288.27 524.75C282.51 530.93 279.53 531.46 273.74 527.34ZM270.50 393.60C259.38 390.07 251.58 383.51 247.01 373.86C241.96 363.17 242.17 350.96 247.55 342.77C248.90 340.72 250.00 338.23 250.00 337.25C250.00 335.00 242.81 322.31 236.44 313.32C229.96 304.16 215.22 289.70 205.73 283.19C188.41 271.30 168.01 263.91 147.00 261.91C126.61 259.98 122.13 258.61 115.70 252.37C110.19 247.02 110.63 244.79 118.75 236.81C126.73 228.96 129.68 227.59 145.34 224.50C151.85 223.21 157.25 222.01 157.34 221.83C160.89 214.64 165.69 210.32 171.63 208.96C176.87 207.75 186.97 209.45 193.81 212.69C199.80 215.52 210.70 225.65 215.71 233.02C220.96 240.75 228.66 255.91 234.50 270.00C244.76 294.78 250.22 306.18 251.31 305.09C253.19 303.21 253.40 284.11 251.61 277.11C247.95 262.85 238.49 242.79 223.75 218.05C219.97 211.70 214.80 202.34 212.27 197.27C208.23 189.16 207.61 187.05 207.21 180.00C206.67 170.72 208.53 164.30 212.71 161.01C215.75 158.62 219.24 158.47 224.91 160.47C228.75 161.82 229.21 161.79 230.92 160.08C231.94 159.06 233.72 155.68 234.89 152.57C238.27 143.53 240.87 139.06 245.84 133.71C254.73 124.15 265.02 119.16 277.63 118.29C297.84 116.90 316.28 129.24 324.06 149.34C329.10 162.35 329.75 162.91 337.20 160.43C348.52 156.67 354.50 163.57 352.06 177.59C349.68 191.24 343.37 206.15 332.00 225.00C315.84 251.80 310.36 268.48 309.35 294.00L308.78 308.50L313.72 298.50C316.44 293.00 319.49 286.25 320.48 283.50C323.23 275.93 332.88 254.34 336.79 247.00C342.11 237.01 349.75 227.25 356.77 221.46C376.08 205.53 393.27 204.37 401.52 218.44L404.05 222.75L413.27 224.41C429.06 227.25 434.34 229.45 441.58 236.22C446.52 240.85 448.00 242.87 448.00 245.04C448.00 248.75 444.32 252.96 438.14 256.32C433.11 259.07 430.36 259.58 407.96 261.94C385.29 264.33 361.01 275.16 343.89 290.54C333.50 299.87 322.31 314.57 313.55 330.41C310.46 335.98 309.94 337.64 310.88 338.91C317.87 348.45 319.04 360.68 313.99 371.37C305.50 389.34 286.95 398.82 270.50 393.60ZM191.00 195.67C189.62 194.94 182.48 190.84 175.12 186.55C167.77 182.27 152.74 174.52 141.73 169.35C130.72 164.17 119.86 158.69 117.60 157.17C113.54 154.42 113.50 154.33 113.51 148.26C113.52 141.37 115.23 138.18 121.09 134.17C124.07 132.13 125.46 131.87 132.05 132.17C148.25 132.88 160.49 142.95 178.81 170.64C186.39 182.09 195.00 195.84 195.00 196.49C195.00 197.34 193.63 197.06 191.00 195.67ZM367.23 193.75C368.04 192.51 371.33 187.22 374.55 182.00C388.39 159.57 402.56 142.73 411.90 137.65C430.48 127.54 447.08 131.63 447.41 146.40C447.57 153.71 446.04 154.92 420.75 167.43C407.96 173.76 390.75 182.76 382.50 187.45C374.25 192.13 367.11 195.97 366.63 195.98C366.16 195.99 366.43 194.99 367.23 193.75ZM277.79 102.75C276.92 102.06 274.20 97.90 271.74 93.50C262.28 76.57 257.33 61.98 258.40 54.14C259.60 45.29 267.01 35.59 275.75 31.45C283.52 27.76 292.32 31.66 297.44 41.07C303.52 52.24 301.47 65.65 290.26 87.94C283.22 101.92 280.64 104.99 277.79 102.75Z"/></svg><span class="lbl wordmark">Hanamy</span></a><a class="ri" href="talk.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.4 12.2c0 4.2-3.8 7.6-8.4 7.6-1.1 0-2.2-.2-3.2-.6L4 20.6l1.5-4.1c-1.2-1.3-1.9-3-1.9-4.9 0-4.2 3.8-7.6 8.4-7.6s8.4 3.4 8.4 7.6z"/><path d="M9.4 11.6c.8-.5 1.7-1.6 2.6-3.2.9 1.6 1.8 2.7 2.6 3.2"/></svg><span class="lbl">Talk</span></a><div class="menu"><button type="button" class="ri on" aria-haspopup="true" aria-expanded="false" aria-controls="m-platform"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6l8.3 4.2v10.4L12 21.4l-8.3-4.2V6.8z"/><path d="M3.7 6.8l8.3 4.2 8.3-4.2"/><path d="M12 11v10.4"/><path d="M7.85 4.7l8.3 4.2"/></svg><span class="lbl">Platform</span><svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div class="pop" id="m-platform" role="menu" hidden><h6>Platform</h6><a href="models.html" role="menuitem"><b>Console</b><span>The register, and what each model costs</span></a><a href="index.html#curiosity" role="menuitem"><b>Playground</b><span>One prompt, two models, side by side</span></a><a href="index.html#curiosity" role="menuitem"><b>Render</b><span>Turn an answer into something to look at</span></a><a href="models.html" role="menuitem"><b>Models</b><span>Everything reachable through the endpoint</span></a></div></div><div class="menu"><button type="button" class="ri" aria-haspopup="true" aria-expanded="false" aria-controls="m-tsubomi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.9 12h13.4"/><path d="M13.2 7.4l4.8 4.6-4.8 4.6"/><path d="M6.9 12L4.4 9M6.9 12L4.4 15"/></svg><span class="lbl">Tsubomi</span><svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div class="pop" id="m-tsubomi" role="menu" hidden><h6>Tsubomi</h6><a href="talk.html" role="menuitem"><b>Talk to Tsubomi</b><span>One question, one answer, no thread</span></a><a href="docs.html#tsubomi" role="menuitem"><b>Agent briefs</b><span>Mission, research skills, a character</span></a><a href="docs.html#cli" role="menuitem"><b>CLI documentation</b><span>The same key, in your terminal</span></a></div></div><div class="menu"><button type="button" class="ri" aria-haspopup="true" aria-expanded="false" aria-controls="m-community"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.6" cy="9.4" r="2.6"/><path d="M3.6 19a5 5 0 0 1 10 0"/><circle cx="16.4" cy="8" r="2.1"/><path d="M14.6 19a5 5 0 0 1 5.8-4.6"/></svg><span class="lbl">Community</span><svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div class="pop" id="m-community" role="menu" hidden><h6>Community</h6><a href="staking.html" role="menuitem"><b>Commons</b><span>Where the pool is discussed</span></a><a href="staking.html#mip" role="menuitem"><b>Roadmap</b><span>Proposals, and what is being built</span></a><a href="staking.html#ledger" role="menuitem"><b>Ledger</b><span>Published usage and pool reporting</span></a></div></div><a class="ri" href="staking.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 9.6L12 4.4l8.6 5.2"/><path d="M4.6 9.6h14.8"/><path d="M6.8 12.4v5M10.3 12.4v5M13.7 12.4v5M17.2 12.4v5"/><path d="M3.4 20.2h17.2"/></svg><span class="lbl">Rewards</span></a><a class="ri" href="docs.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7.2C10.1 5.5 7.6 4.9 4.6 5.1v12.4c3-.2 5.5.4 7.4 2.11.9-1.7 4.4-2.3 7.4-2.1V5.1c-3-.2-5.5.4-7.4 2.1z"/><path d="M12 7.2v12.4"/></svg><span class="lbl">Docs</span></a><span class="sep"></span><div class="modes" role="group" aria-label="Colour mode"><button type="button" data-mode="legacy" aria-pressed="false" title="Legacy"><span class="sw sw-legacy"></span><span class="lbl">Legacy</span></button><button type="button" data-mode="night" aria-pressed="false" title="Night"><span class="sw sw-night"></span><span class="lbl">Night</span></button><button type="button" data-mode="light" aria-pressed="false" title="Light"><span class="sw sw-light"></span><span class="lbl">Light</span></button></div><span class="gap" aria-hidden="true"><span class="kana">花見</span></span><a class="ri" href="staking.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.4" r="3.2"/><path d="M5.6 20a6.4 6.4 0 0 1 12.8 0"/></svg><span class="lbl">Your account</span></a></nav>
+<nav class="rail" aria-label="Main"><a class="mark" href="index.html"><svg width="26" height="26" viewBox="0 0 560 560" fill="currentColor" aria-hidden="true"><path d="M273.74 527.34C267.50 522.90 258.41 509.40 251.96 495.00C249.81 490.20 249.51 488.11 249.56 478.50C249.62 466.18 251.13 460.93 258.03 449.00C262.97 440.48 273.77 426.24 277.28 423.63C279.80 421.76 280.28 421.71 282.47 423.04C285.31 424.76 294.30 435.77 300.39 445.00C311.76 462.21 313.75 479.34 306.48 497.25C303.50 504.58 294.77 517.77 288.27 524.75C282.51 530.93 279.53 531.46 273.74 527.34ZM270.50 393.60C259.38 390.07 251.58 383.51 247.01 373.86C241.96 363.17 242.17 350.96 247.55 342.77C248.90 340.72 250.00 338.23 250.00 337.25C250.00 335.00 242.81 322.31 236.44 313.32C229.96 304.16 215.22 289.70 205.73 283.19C188.41 271.30 168.01 263.91 147.00 261.91C126.61 259.98 122.13 258.61 115.70 252.37C110.19 247.02 110.63 244.79 118.75 236.81C126.73 228.96 129.68 227.59 145.34 224.50C151.85 223.21 157.25 222.01 157.34 221.83C160.89 214.64 165.69 210.32 171.63 208.96C176.87 207.75 186.97 209.45 193.81 212.69C199.80 215.52 210.70 225.65 215.71 233.02C220.96 240.75 228.66 255.91 234.50 270.00C244.76 294.78 250.22 306.18 251.31 305.09C253.19 303.21 253.40 284.11 251.61 277.11C247.95 262.85 238.49 242.79 223.75 218.05C219.97 211.70 214.80 202.34 212.27 197.27C208.23 189.16 207.61 187.05 207.21 180.00C206.67 170.72 208.53 164.30 212.71 161.01C215.75 158.62 219.24 158.47 224.91 160.47C228.75 161.82 229.21 161.79 230.92 160.08C231.94 159.06 233.72 155.68 234.89 152.57C238.27 143.53 240.87 139.06 245.84 133.71C254.73 124.15 265.02 119.16 277.63 118.29C297.84 116.90 316.28 129.24 324.06 149.34C329.10 162.35 329.75 162.91 337.20 160.43C348.52 156.67 354.50 163.57 352.06 177.59C349.68 191.24 343.37 206.15 332.00 225.00C315.84 251.80 310.36 268.48 309.35 294.00L308.78 308.50L313.72 298.50C316.44 293.00 319.49 286.25 320.48 283.50C323.23 275.93 332.88 254.34 336.79 247.00C342.11 237.01 349.75 227.25 356.77 221.46C376.08 205.53 393.27 204.37 401.52 218.44L404.05 222.75L413.27 224.41C429.06 227.25 434.34 229.45 441.58 236.22C446.52 240.85 448.00 242.87 448.00 245.04C448.00 248.75 444.32 252.96 438.14 256.32C433.11 259.07 430.36 259.58 407.96 261.94C385.29 264.33 361.01 275.16 343.89 290.54C333.50 299.87 322.31 314.57 313.55 330.41C310.46 335.98 309.94 337.64 310.88 338.91C317.87 348.45 319.04 360.68 313.99 371.37C305.50 389.34 286.95 398.82 270.50 393.60ZM191.00 195.67C189.62 194.94 182.48 190.84 175.12 186.55C167.77 182.27 152.74 174.52 141.73 169.35C130.72 164.17 119.86 158.69 117.60 157.17C113.54 154.42 113.50 154.33 113.51 148.26C113.52 141.37 115.23 138.18 121.09 134.17C124.07 132.13 125.46 131.87 132.05 132.17C148.25 132.88 160.49 142.95 178.81 170.64C186.39 182.09 195.00 195.84 195.00 196.49C195.00 197.34 193.63 197.06 191.00 195.67ZM367.23 193.75C368.04 192.51 371.33 187.22 374.55 182.00C388.39 159.57 402.56 142.73 411.90 137.65C430.48 127.54 447.08 131.63 447.41 146.40C447.57 153.71 446.04 154.92 420.75 167.43C407.96 173.76 390.75 182.76 382.50 187.45C374.25 192.13 367.11 195.97 366.63 195.98C366.16 195.99 366.43 194.99 367.23 193.75ZM277.79 102.75C276.92 102.06 274.20 97.90 271.74 93.50C262.28 76.57 257.33 61.98 258.40 54.14C259.60 45.29 267.01 35.59 275.75 31.45C283.52 27.76 292.32 31.66 297.44 41.07C303.52 52.24 301.47 65.65 290.26 87.94C283.22 101.92 280.64 104.99 277.79 102.75Z"/></svg><span class="lbl wordmark">Hanamy</span></a><a class="ri on" href="index.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.4 12.2c0 4.2-3.8 7.6-8.4 7.6-1.1 0-2.2-.2-3.2-.6L4 20.6l1.5-4.1c-1.2-1.3-1.9-3-1.9-4.9 0-4.2 3.8-7.6 8.4-7.6s8.4 3.4 8.4 7.6z"/><path d="M9.4 11.6c.8-.5 1.7-1.6 2.6-3.2.9 1.6 1.8 2.7 2.6 3.2"/></svg><span class="lbl">Talk</span></a><div class="menu"><button type="button" class="ri" aria-haspopup="true" aria-expanded="false" aria-controls="m-platform"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6l8.3 4.2v10.4L12 21.4l-8.3-4.2V6.8z"/><path d="M3.7 6.8l8.3 4.2 8.3-4.2"/><path d="M12 11v10.4"/><path d="M7.85 4.7l8.3 4.2"/></svg><span class="lbl">Platform</span><svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div class="pop" id="m-platform" role="menu" hidden><h6>Platform</h6><a href="story.html" role="menuitem"><b>The idea</b><span>Why it forgets, and what that buys you</span></a><a href="models.html" role="menuitem"><b>Models</b><span>Everything reachable through the endpoint</span></a><a href="story.html#curiosity" role="menuitem"><b>Compare two</b><span>One prompt, two models, side by side</span></a><a href="docs.html#cli" role="menuitem"><b>CLI documentation</b><span>The same key, in your terminal</span></a></div></div><div class="menu"><button type="button" class="ri" aria-haspopup="true" aria-expanded="false" aria-controls="m-community"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.6" cy="9.4" r="2.6"/><path d="M3.6 19a5 5 0 0 1 10 0"/><circle cx="16.4" cy="8" r="2.1"/><path d="M14.6 19a5 5 0 0 1 5.8-4.6"/></svg><span class="lbl">Community</span><svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div class="pop" id="m-community" role="menu" hidden><h6>Community</h6><a href="staking.html" role="menuitem"><b>Commons</b><span>Where the pool is discussed</span></a><a href="staking.html#mip" role="menuitem"><b>Roadmap</b><span>Proposals, and what is being built</span></a><a href="staking.html#ledger" role="menuitem"><b>Ledger</b><span>Published usage and pool reporting</span></a></div></div><a class="ri" href="staking.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 9.6L12 4.4l8.6 5.2"/><path d="M4.6 9.6h14.8"/><path d="M6.8 12.4v5M10.3 12.4v5M13.7 12.4v5M17.2 12.4v5"/><path d="M3.4 20.2h17.2"/></svg><span class="lbl">Rewards</span></a><a class="ri" href="docs.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7.2C10.1 5.5 7.6 4.9 4.6 5.1v12.4c3-.2 5.5.4 7.4 2.11.9-1.7 4.4-2.3 7.4-2.1V5.1c-3-.2-5.5.4-7.4 2.1z"/><path d="M12 7.2v12.4"/></svg><span class="lbl">Docs</span></a><span class="sep"></span><div class="modes" role="group" aria-label="Colour mode"><button type="button" data-mode="legacy" aria-pressed="false" title="Legacy"><span class="sw sw-legacy"></span><span class="lbl">Legacy</span></button><button type="button" data-mode="night" aria-pressed="false" title="Night"><span class="sw sw-night"></span><span class="lbl">Night</span></button><button type="button" data-mode="light" aria-pressed="false" title="Light"><span class="sw sw-light"></span><span class="lbl">Light</span></button></div><span class="gap" aria-hidden="true"><span class="kana">花見</span></span><a class="ri" href="staking.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.4" r="3.2"/><path d="M5.6 20a6.4 6.4 0 0 1 12.8 0"/></svg><span class="lbl">Your account</span></a></nav>
 <div class="col">
-<div class="railbar"><a class="brand" href="index.html"><svg width="26" height="26" viewBox="0 0 560 560" fill="currentColor" aria-hidden="true"><path d="M273.74 527.34C267.50 522.90 258.41 509.40 251.96 495.00C249.81 490.20 249.51 488.11 249.56 478.50C249.62 466.18 251.13 460.93 258.03 449.00C262.97 440.48 273.77 426.24 277.28 423.63C279.80 421.76 280.28 421.71 282.47 423.04C285.31 424.76 294.30 435.77 300.39 445.00C311.76 462.21 313.75 479.34 306.48 497.25C303.50 504.58 294.77 517.77 288.27 524.75C282.51 530.93 279.53 531.46 273.74 527.34ZM270.50 393.60C259.38 390.07 251.58 383.51 247.01 373.86C241.96 363.17 242.17 350.96 247.55 342.77C248.90 340.72 250.00 338.23 250.00 337.25C250.00 335.00 242.81 322.31 236.44 313.32C229.96 304.16 215.22 289.70 205.73 283.19C188.41 271.30 168.01 263.91 147.00 261.91C126.61 259.98 122.13 258.61 115.70 252.37C110.19 247.02 110.63 244.79 118.75 236.81C126.73 228.96 129.68 227.59 145.34 224.50C151.85 223.21 157.25 222.01 157.34 221.83C160.89 214.64 165.69 210.32 171.63 208.96C176.87 207.75 186.97 209.45 193.81 212.69C199.80 215.52 210.70 225.65 215.71 233.02C220.96 240.75 228.66 255.91 234.50 270.00C244.76 294.78 250.22 306.18 251.31 305.09C253.19 303.21 253.40 284.11 251.61 277.11C247.95 262.85 238.49 242.79 223.75 218.05C219.97 211.70 214.80 202.34 212.27 197.27C208.23 189.16 207.61 187.05 207.21 180.00C206.67 170.72 208.53 164.30 212.71 161.01C215.75 158.62 219.24 158.47 224.91 160.47C228.75 161.82 229.21 161.79 230.92 160.08C231.94 159.06 233.72 155.68 234.89 152.57C238.27 143.53 240.87 139.06 245.84 133.71C254.73 124.15 265.02 119.16 277.63 118.29C297.84 116.90 316.28 129.24 324.06 149.34C329.10 162.35 329.75 162.91 337.20 160.43C348.52 156.67 354.50 163.57 352.06 177.59C349.68 191.24 343.37 206.15 332.00 225.00C315.84 251.80 310.36 268.48 309.35 294.00L308.78 308.50L313.72 298.50C316.44 293.00 319.49 286.25 320.48 283.50C323.23 275.93 332.88 254.34 336.79 247.00C342.11 237.01 349.75 227.25 356.77 221.46C376.08 205.53 393.27 204.37 401.52 218.44L404.05 222.75L413.27 224.41C429.06 227.25 434.34 229.45 441.58 236.22C446.52 240.85 448.00 242.87 448.00 245.04C448.00 248.75 444.32 252.96 438.14 256.32C433.11 259.07 430.36 259.58 407.96 261.94C385.29 264.33 361.01 275.16 343.89 290.54C333.50 299.87 322.31 314.57 313.55 330.41C310.46 335.98 309.94 337.64 310.88 338.91C317.87 348.45 319.04 360.68 313.99 371.37C305.50 389.34 286.95 398.82 270.50 393.60ZM191.00 195.67C189.62 194.94 182.48 190.84 175.12 186.55C167.77 182.27 152.74 174.52 141.73 169.35C130.72 164.17 119.86 158.69 117.60 157.17C113.54 154.42 113.50 154.33 113.51 148.26C113.52 141.37 115.23 138.18 121.09 134.17C124.07 132.13 125.46 131.87 132.05 132.17C148.25 132.88 160.49 142.95 178.81 170.64C186.39 182.09 195.00 195.84 195.00 196.49C195.00 197.34 193.63 197.06 191.00 195.67ZM367.23 193.75C368.04 192.51 371.33 187.22 374.55 182.00C388.39 159.57 402.56 142.73 411.90 137.65C430.48 127.54 447.08 131.63 447.41 146.40C447.57 153.71 446.04 154.92 420.75 167.43C407.96 173.76 390.75 182.76 382.50 187.45C374.25 192.13 367.11 195.97 366.63 195.98C366.16 195.99 366.43 194.99 367.23 193.75ZM277.79 102.75C276.92 102.06 274.20 97.90 271.74 93.50C262.28 76.57 257.33 61.98 258.40 54.14C259.60 45.29 267.01 35.59 275.75 31.45C283.52 27.76 292.32 31.66 297.44 41.07C303.52 52.24 301.47 65.65 290.26 87.94C283.22 101.92 280.64 104.99 277.79 102.75Z"/></svg> Hanamy</a><button class="burger" type="button" id="burger" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div><div class="drawer" id="drawer" hidden><a class="solo" href="talk.html">Talk</a><h6>Platform</h6><a href="models.html">Console</a><a href="index.html#curiosity">Playground</a><a href="index.html#curiosity">Render</a><a href="models.html">Models</a><h6>Tsubomi</h6><a href="talk.html">Talk to Tsubomi</a><a href="docs.html#tsubomi">Agent briefs</a><a href="docs.html#cli">CLI documentation</a><h6>Community</h6><a href="staking.html">Commons</a><a href="staking.html#mip">Roadmap</a><a href="staking.html#ledger">Ledger</a><a class="solo" href="staking.html">Rewards</a><a class="solo" href="docs.html">Docs</a><a class="solo" href="staking.html">Your account</a></div>
+<div class="railbar"><a class="brand" href="index.html"><svg width="26" height="26" viewBox="0 0 560 560" fill="currentColor" aria-hidden="true"><path d="M273.74 527.34C267.50 522.90 258.41 509.40 251.96 495.00C249.81 490.20 249.51 488.11 249.56 478.50C249.62 466.18 251.13 460.93 258.03 449.00C262.97 440.48 273.77 426.24 277.28 423.63C279.80 421.76 280.28 421.71 282.47 423.04C285.31 424.76 294.30 435.77 300.39 445.00C311.76 462.21 313.75 479.34 306.48 497.25C303.50 504.58 294.77 517.77 288.27 524.75C282.51 530.93 279.53 531.46 273.74 527.34ZM270.50 393.60C259.38 390.07 251.58 383.51 247.01 373.86C241.96 363.17 242.17 350.96 247.55 342.77C248.90 340.72 250.00 338.23 250.00 337.25C250.00 335.00 242.81 322.31 236.44 313.32C229.96 304.16 215.22 289.70 205.73 283.19C188.41 271.30 168.01 263.91 147.00 261.91C126.61 259.98 122.13 258.61 115.70 252.37C110.19 247.02 110.63 244.79 118.75 236.81C126.73 228.96 129.68 227.59 145.34 224.50C151.85 223.21 157.25 222.01 157.34 221.83C160.89 214.64 165.69 210.32 171.63 208.96C176.87 207.75 186.97 209.45 193.81 212.69C199.80 215.52 210.70 225.65 215.71 233.02C220.96 240.75 228.66 255.91 234.50 270.00C244.76 294.78 250.22 306.18 251.31 305.09C253.19 303.21 253.40 284.11 251.61 277.11C247.95 262.85 238.49 242.79 223.75 218.05C219.97 211.70 214.80 202.34 212.27 197.27C208.23 189.16 207.61 187.05 207.21 180.00C206.67 170.72 208.53 164.30 212.71 161.01C215.75 158.62 219.24 158.47 224.91 160.47C228.75 161.82 229.21 161.79 230.92 160.08C231.94 159.06 233.72 155.68 234.89 152.57C238.27 143.53 240.87 139.06 245.84 133.71C254.73 124.15 265.02 119.16 277.63 118.29C297.84 116.90 316.28 129.24 324.06 149.34C329.10 162.35 329.75 162.91 337.20 160.43C348.52 156.67 354.50 163.57 352.06 177.59C349.68 191.24 343.37 206.15 332.00 225.00C315.84 251.80 310.36 268.48 309.35 294.00L308.78 308.50L313.72 298.50C316.44 293.00 319.49 286.25 320.48 283.50C323.23 275.93 332.88 254.34 336.79 247.00C342.11 237.01 349.75 227.25 356.77 221.46C376.08 205.53 393.27 204.37 401.52 218.44L404.05 222.75L413.27 224.41C429.06 227.25 434.34 229.45 441.58 236.22C446.52 240.85 448.00 242.87 448.00 245.04C448.00 248.75 444.32 252.96 438.14 256.32C433.11 259.07 430.36 259.58 407.96 261.94C385.29 264.33 361.01 275.16 343.89 290.54C333.50 299.87 322.31 314.57 313.55 330.41C310.46 335.98 309.94 337.64 310.88 338.91C317.87 348.45 319.04 360.68 313.99 371.37C305.50 389.34 286.95 398.82 270.50 393.60ZM191.00 195.67C189.62 194.94 182.48 190.84 175.12 186.55C167.77 182.27 152.74 174.52 141.73 169.35C130.72 164.17 119.86 158.69 117.60 157.17C113.54 154.42 113.50 154.33 113.51 148.26C113.52 141.37 115.23 138.18 121.09 134.17C124.07 132.13 125.46 131.87 132.05 132.17C148.25 132.88 160.49 142.95 178.81 170.64C186.39 182.09 195.00 195.84 195.00 196.49C195.00 197.34 193.63 197.06 191.00 195.67ZM367.23 193.75C368.04 192.51 371.33 187.22 374.55 182.00C388.39 159.57 402.56 142.73 411.90 137.65C430.48 127.54 447.08 131.63 447.41 146.40C447.57 153.71 446.04 154.92 420.75 167.43C407.96 173.76 390.75 182.76 382.50 187.45C374.25 192.13 367.11 195.97 366.63 195.98C366.16 195.99 366.43 194.99 367.23 193.75ZM277.79 102.75C276.92 102.06 274.20 97.90 271.74 93.50C262.28 76.57 257.33 61.98 258.40 54.14C259.60 45.29 267.01 35.59 275.75 31.45C283.52 27.76 292.32 31.66 297.44 41.07C303.52 52.24 301.47 65.65 290.26 87.94C283.22 101.92 280.64 104.99 277.79 102.75Z"/></svg> Hanamy</a><button class="burger" type="button" id="burger" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div><div class="drawer" id="drawer" hidden><a class="solo" href="index.html">Talk</a><h6>Platform</h6><a href="story.html">The idea</a><a href="models.html">Models</a><a href="story.html#curiosity">Compare two</a><a href="docs.html#cli">CLI documentation</a><h6>Community</h6><a href="staking.html">Commons</a><a href="staking.html#mip">Roadmap</a><a href="staking.html#ledger">Ledger</a><a class="solo" href="staking.html">Rewards</a><a class="solo" href="docs.html">Docs</a><a class="solo" href="staking.html">Your account</a></div>
 
-<section class="hero">
-  <div class="frame">
-    <picture>
-      <source media="(max-width: 760px)" srcset="media/hero-tall.webp">
-      <img id="heroimg" src="media/hero-wide.webp"
-           alt="Cherry trees in full blossom over the vermilion halls of a Japanese temple">
-    </picture>
-    <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
-    <canvas id="petals" aria-hidden="true"></canvas>
-    <div class="over"><div class="wrap">
-      <h1>Say anything.<br>It keeps nothing.</h1>
-      <div class="vanish" id="vanish">
-        <label class="sr" for="vanish-in">Type something to watch it disappear</label>
-        <input type="text" id="vanish-in" autocomplete="off" spellcheck="false"
-               placeholder="type something here…">
-        <p class="vanish-note" id="vanish-note">and stop typing</p>
-      </div>
-      <p class="hero-lede">Talk to it about whatever you like. There is no thread, no history and no account: come back tomorrow and it will not know you were here.</p>
-      <div class="cta">
-        <a class="btn pale" href="talk.html">Talk to Tsubomi <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-        <a class="btn on-dark" href="docs.html">Learn More <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-      </div>
-    </div></div>
-  </div>
-</section>
+<div class="talk">
+  <header class="talk-top">
+    <div class="who">
+      <span class="dot"></span>
+      <b>Hanamy</b>
+      <select id="t-model" aria-label="Model"></select>
+    </div>
+    <div class="far">
+      <span class="sub" id="t-count"></span>
+      <button class="btn line sm" type="button" id="t-clear">Clear the screen</button>
+    </div>
+  </header>
 
-<section class="band dark"><div class="wrap">
-  <div class="split">
-    <div class="stack">
-      <h2>From your first question<br>to your next big idea.</h2>
-      <h3 style="margin-top:18px">Your tools. Your models.<br>Your way to build.</h3>
-      <p>Connect your apps and tools with a revocable client key. Choose your models and manage
-        access in one place.</p>
-      <div class="cta" style="display:flex;gap:12px;flex-wrap:wrap">
-        <a class="btn pale" href="models.html">Explore the platform <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-      </div>
-      <a class="link" style="color:var(--on-dark)" href="docs.html">Read the documentation <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-    </div>
-    <div class="dia">
-      <div class="node">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>
-        Your app <span style="margin-left:auto"></span>
-        <span style="width:7px;height:7px;border-radius:50%;background:var(--blossom)"></span>
-      </div>
-      <div class="wire"></div>
-      <div class="node key">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="12" r="3.2"/><path d="M11 12h9M17 12v3"/></svg>
-        Client key
-        <span class="ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 13l4 4 10-10"/></svg> Active</span>
-      </div>
-      <div class="wire"></div>
-      <div class="fan">
-        <div class="leaf">For code</div>
-        <div class="leaf mid">Your choice</div>
-        <div class="leaf">For ideas</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="split" style="margin-top:100px">
-    <div class="stack">
-      <h2>An idea is enough<br>to get started.</h2>
-      <p>Talk it through with Tsubomi. Build an agent brief with a
-        mission, research skills, and a character of its own.</p>
-      <a class="btn pale" href="docs.html#tsubomi">Meet Tsubomi <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-    </div>
-    <div class="chat">
-      <div class="me">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-        <div><b style="font-weight:600">You</b><br>Compare the task we&#39;re working on across 7 relevant models</div>
-      </div>
-      <div class="cols">
-        <div class="col" style="height:58px">Model 1<br>Starts from the core constraint</div>
-        <div class="col" style="height:74px">Model 2<br>Asks what the reader already knows</div>
-        <div class="col" style="height:92px">Model 3<br>Answers, then names what it assumed</div>
-        <div class="col" style="height:70px">Model 4<br>Replies in one paragraph, no preamble</div>
-        <div class="col" style="height:84px">Model 5<br>Walks the mechanism step by step</div>
-      </div>
-    </div>
-  </div>
-</div></section>
-
-<section class="band light" id="curiosity"><div class="wrap">
-  <h2 style="max-width:18ch">Ask it anything.<br>Then watch it go.</h2>
-  <div class="split" style="margin-top:56px">
-    <div>
-      <div class="rows">
-        <a href="#curiosity"><span class="t">Compare responses</span><svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-        <div class="row"><span class="t" style="color:var(--ink-3)">Create something visual</span></div>
-      </div>
-      <p class="lede" style="margin-top:26px">Ask two models at once and read both answers side
-        by side. Send again and the last exchange is gone. Not hidden, not archived. Gone.
-        Neither model is told it ever happened.</p>
-      <a class="link" style="margin-top:22px" href="models.html">Open Dispatch <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-    </div>
-    <div class="panel">
-      <div class="split tight" style="gap:22px">
-        <div class="field">
-          <label for="modelA">Model A</label>
-          <span class="prov" id="provA">&nbsp;</span>
-          <select id="modelA"></select>
+  <div class="thread" id="t-thread">
+    <div class="empty" id="t-empty">
+      <picture class="empty-photo">
+        <source media="(max-width: 760px)" srcset="media/hero-tall.webp">
+        <img src="media/hero-wide.webp" alt="">
+      </picture>
+      <div class="empty-in">
+        <div class="empty-mark"><svg width="42" height="42" viewBox="0 0 560 560" fill="currentColor" aria-hidden="true"><path d="M273.74 527.34C267.50 522.90 258.41 509.40 251.96 495.00C249.81 490.20 249.51 488.11 249.56 478.50C249.62 466.18 251.13 460.93 258.03 449.00C262.97 440.48 273.77 426.24 277.28 423.63C279.80 421.76 280.28 421.71 282.47 423.04C285.31 424.76 294.30 435.77 300.39 445.00C311.76 462.21 313.75 479.34 306.48 497.25C303.50 504.58 294.77 517.77 288.27 524.75C282.51 530.93 279.53 531.46 273.74 527.34ZM270.50 393.60C259.38 390.07 251.58 383.51 247.01 373.86C241.96 363.17 242.17 350.96 247.55 342.77C248.90 340.72 250.00 338.23 250.00 337.25C250.00 335.00 242.81 322.31 236.44 313.32C229.96 304.16 215.22 289.70 205.73 283.19C188.41 271.30 168.01 263.91 147.00 261.91C126.61 259.98 122.13 258.61 115.70 252.37C110.19 247.02 110.63 244.79 118.75 236.81C126.73 228.96 129.68 227.59 145.34 224.50C151.85 223.21 157.25 222.01 157.34 221.83C160.89 214.64 165.69 210.32 171.63 208.96C176.87 207.75 186.97 209.45 193.81 212.69C199.80 215.52 210.70 225.65 215.71 233.02C220.96 240.75 228.66 255.91 234.50 270.00C244.76 294.78 250.22 306.18 251.31 305.09C253.19 303.21 253.40 284.11 251.61 277.11C247.95 262.85 238.49 242.79 223.75 218.05C219.97 211.70 214.80 202.34 212.27 197.27C208.23 189.16 207.61 187.05 207.21 180.00C206.67 170.72 208.53 164.30 212.71 161.01C215.75 158.62 219.24 158.47 224.91 160.47C228.75 161.82 229.21 161.79 230.92 160.08C231.94 159.06 233.72 155.68 234.89 152.57C238.27 143.53 240.87 139.06 245.84 133.71C254.73 124.15 265.02 119.16 277.63 118.29C297.84 116.90 316.28 129.24 324.06 149.34C329.10 162.35 329.75 162.91 337.20 160.43C348.52 156.67 354.50 163.57 352.06 177.59C349.68 191.24 343.37 206.15 332.00 225.00C315.84 251.80 310.36 268.48 309.35 294.00L308.78 308.50L313.72 298.50C316.44 293.00 319.49 286.25 320.48 283.50C323.23 275.93 332.88 254.34 336.79 247.00C342.11 237.01 349.75 227.25 356.77 221.46C376.08 205.53 393.27 204.37 401.52 218.44L404.05 222.75L413.27 224.41C429.06 227.25 434.34 229.45 441.58 236.22C446.52 240.85 448.00 242.87 448.00 245.04C448.00 248.75 444.32 252.96 438.14 256.32C433.11 259.07 430.36 259.58 407.96 261.94C385.29 264.33 361.01 275.16 343.89 290.54C333.50 299.87 322.31 314.57 313.55 330.41C310.46 335.98 309.94 337.64 310.88 338.91C317.87 348.45 319.04 360.68 313.99 371.37C305.50 389.34 286.95 398.82 270.50 393.60ZM191.00 195.67C189.62 194.94 182.48 190.84 175.12 186.55C167.77 182.27 152.74 174.52 141.73 169.35C130.72 164.17 119.86 158.69 117.60 157.17C113.54 154.42 113.50 154.33 113.51 148.26C113.52 141.37 115.23 138.18 121.09 134.17C124.07 132.13 125.46 131.87 132.05 132.17C148.25 132.88 160.49 142.95 178.81 170.64C186.39 182.09 195.00 195.84 195.00 196.49C195.00 197.34 193.63 197.06 191.00 195.67ZM367.23 193.75C368.04 192.51 371.33 187.22 374.55 182.00C388.39 159.57 402.56 142.73 411.90 137.65C430.48 127.54 447.08 131.63 447.41 146.40C447.57 153.71 446.04 154.92 420.75 167.43C407.96 173.76 390.75 182.76 382.50 187.45C374.25 192.13 367.11 195.97 366.63 195.98C366.16 195.99 366.43 194.99 367.23 193.75ZM277.79 102.75C276.92 102.06 274.20 97.90 271.74 93.50C262.28 76.57 257.33 61.98 258.40 54.14C259.60 45.29 267.01 35.59 275.75 31.45C283.52 27.76 292.32 31.66 297.44 41.07C303.52 52.24 301.47 65.65 290.26 87.94C283.22 101.92 280.64 104.99 277.79 102.75Z"/></svg></div>
+        <h1>Say anything.<br>It keeps nothing.</h1>
+        <p>Ask it whatever you like and attach what you want. It answers once and forgets:
+          no thread, no history, no account. Come back tomorrow and it will not know you
+          were here.</p>
+        <div class="seeds">
+          <button type="button">Explain a bonding curve to a trader in three sentences.</button>
+          <button type="button">Read this CSV and tell me what is odd about it.</button>
+          <button type="button">Rewrite this paragraph so it stops sounding like a brochure.</button>
         </div>
-        <div class="field">
-          <label for="modelB">Model B</label>
-          <span class="prov" id="provB">&nbsp;</span>
-          <select id="modelB"></select>
-        </div>
-      </div>
-      <div class="field" style="margin-top:22px">
-        <label for="compare-q">What are you curious about?</label>
-        <textarea id="compare-q" placeholder="Ask a question. Explore two perspectives."></textarea>
-      </div>
-      <div class="foot">
-        <span class="sub">Free to try. No wallet needed.</span>
-        <span class="far"><button class="btn line" type="button" id="compare-go">Compare responses <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></button></span>
-      </div>
-      <p class="sub" id="compare-msg" hidden style="margin-top:14px"></p>
-
-      <div class="receipt" id="receipt" hidden>
-        <div class="receipt-head">
-          <b>What left this page</b>
-          <span class="far sub" id="receipt-when"></span>
-        </div>
-        <pre id="receipt-body"></pre>
-        <p class="sub">That is the whole request, printed from the same object that was sent.
-          There is no <code>messages</code> history in it because none is kept: every send
-          starts from an empty conversation.</p>
-      </div>
-
-      <div class="wire-up" id="wire" hidden>
-        <p class="sub" style="margin-bottom:12px">Point this at any OpenAI-compatible endpoint.
-          The key is kept in this browser only. It is never sent anywhere but the endpoint you
-          name here.</p>
-        <div class="split tight" style="gap:16px">
-          <div class="field"><label for="w-base">Base URL</label>
-            <input type="text" id="w-base" placeholder="https://api.openai.com/v1"></div>
-          <div class="field"><label for="w-key">API key</label>
-            <input type="password" id="w-key" placeholder="sk-…" autocomplete="off"></div>
-        </div>
-        <div class="foot">
-          <button class="btn fill sm" type="button" id="w-save">Save and load models</button>
-          <button class="btn line sm" type="button" id="w-clear">Forget</button>
-          <span class="sub" id="w-state" style="margin-left:auto"></span>
-        </div>
-      </div>
-      <p style="margin-top:12px"><button class="link" type="button" id="w-toggle"
-        style="background:none;border:0;padding:0;cursor:pointer;font-size:13px">Use your own
-        endpoint</button></p>
-
-      <div class="answers" id="answers" hidden>
-        <div class="ans"><h4 id="ans-a-name">Model A</h4><div class="body" id="ans-a"></div>
-          <div class="meta" id="ans-a-meta"></div></div>
-        <div class="ans"><h4 id="ans-b-name">Model B</h4><div class="body" id="ans-b"></div>
-          <div class="meta" id="ans-b-meta"></div></div>
+        <a class="link empty-link" href="story.html">Why it forgets <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
       </div>
     </div>
   </div>
-</div></section>
 
-<section class="band blush" id="kept"><div class="wrap">
-  <div class="split">
-    <div class="stack">
-      <span class="kicker">The whole of it</span>
-      <h2>What this page<br>keeps about you.</h2>
-      <p class="lede">Two things, both yours, both on this device only, and neither of them
-        anything you said. The list on the right is read out of your browser when the page
-        loads. It is not a promise, it is the actual contents.</p>
-      <p class="sub">A conversation is never one of them. Nothing you type is written to disk,
-        sent anywhere but the endpoint you named, or carried into the next request.</p>
-    </div>
-    <div class="panel">
-      <div class="kept-rows" id="kept-rows"></div>
-      <div class="foot">
-        <span class="sub" id="kept-note"></span>
-        <span class="far"><button class="btn line sm" type="button" id="kept-forget">Forget all of it</button></span>
+  <div class="composer-wrap">
+    <p class="cut"><span>Nothing above this line is sent</span></p>
+    <form class="composer" id="t-form">
+      <div class="files" id="t-files" hidden></div>
+      <textarea id="t-input" rows="1" placeholder="Ask anything. It will not remember."
+                aria-label="Your message"></textarea>
+      <div class="composer-bar">
+        <label class="attach" tabindex="0">
+          <input type="file" id="t-file" multiple hidden
+                 accept=".txt,.md,.csv,.json,.js,.ts,.py,.html,.css,.yml,.yaml,.log,image/*">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+            <path d="M20 11.5l-8.4 8.4a4.6 4.6 0 0 1-6.5-6.5l8.6-8.6a3.1 3.1 0 0 1 4.4 4.4
+                     l-8.5 8.5a1.6 1.6 0 0 1-2.2-2.2l7.8-7.8"/></svg>
+          Attach
+        </label>
+        <span class="sub" id="t-hint">Enter sends, Shift+Enter makes a new line</span>
+        <button class="btn fill sm" type="submit" id="t-send">Send</button>
       </div>
-    </div>
+    </form>
+    <p class="sub t-foot" id="t-foot"></p>
   </div>
-  <p class="note" style="margin-top:34px">Hanamy keeps nothing. What the endpoint you point it
-    at does with a request once it arrives is that endpoint's business, and no page can promise
-    otherwise, so check its retention policy rather than ours.</p>
-</div></section>
-
-<section class="plate">
-  <img src="media/grove.webp" alt="A path running under cherry trees in full blossom">
-  <div class="plate-in"><div class="wrap">
-    <p class="kicker">Hanamy · 花見</p>
-    <h2>The blossom lasts<br>about a week.</h2>
-    <p>Hanami is going out to look at it anyway, knowing that. Everything you type here is
-      the same: it does its work, and then it is gone. No thread to scroll back through,
-      nothing to delete later, because there is nothing to delete.</p>
-  </div></div>
-</section>
-
-<section class="band dark"><div class="wrap">
-  <div class="split">
-    <div class="stack">
-      <h2>Shared access.<br>More ways forward.</h2>
-      <p>Hanamy makes AI easier to explore and use. Start with a free web comparison, then
-        connect a wallet to create client keys for the shared inference pool.</p>
-      <p>Access follows wallet-scoped fair-use limits. Explore the catalog,
-        see how the pool is used, and help shape what we build next.</p>
-      <a class="btn pale" href="models.html">Explore the models <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-    </div>
-    <div class="biglist">
-      <a href="docs.html#limits"><span><span class="t">Understand your access</span>
-        <span class="d">Guides, setup, and fair-use limits</span></span><svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-      <a href="staking.html#ledger"><span><span class="t">Follow the shared pool</span>
-        <span class="d">Published usage and pool reporting</span></span><svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-      <a href="staking.html#mip"><span><span class="t">Have a say in what comes next</span>
-        <span class="d">Roadmap, proposals, and community</span></span><svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-    </div>
-  </div>
-</div></section>
-
-<section class="band light"><div class="wrap">
-  <h2 style="max-width:12ch">So many ways<br>to make it yours.</h2>
-  <div class="cta" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:36px">
-    <a class="btn fill" href="#curiosity">Start exploring <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-    <a class="btn line" href="docs.html">Read the docs <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
-  </div>
-</div></section>
-<script src="art.js"></script>
-<script src="vanish.js"></script>
 </div>
-</div>
-<footer class="foot"><div class="wrap">
-  <div class="foot-grid">
-    <div>
-      <div class="brand"><svg width="26" height="26" viewBox="0 0 560 560" fill="currentColor" aria-hidden="true"><path d="M273.74 527.34C267.50 522.90 258.41 509.40 251.96 495.00C249.81 490.20 249.51 488.11 249.56 478.50C249.62 466.18 251.13 460.93 258.03 449.00C262.97 440.48 273.77 426.24 277.28 423.63C279.80 421.76 280.28 421.71 282.47 423.04C285.31 424.76 294.30 435.77 300.39 445.00C311.76 462.21 313.75 479.34 306.48 497.25C303.50 504.58 294.77 517.77 288.27 524.75C282.51 530.93 279.53 531.46 273.74 527.34ZM270.50 393.60C259.38 390.07 251.58 383.51 247.01 373.86C241.96 363.17 242.17 350.96 247.55 342.77C248.90 340.72 250.00 338.23 250.00 337.25C250.00 335.00 242.81 322.31 236.44 313.32C229.96 304.16 215.22 289.70 205.73 283.19C188.41 271.30 168.01 263.91 147.00 261.91C126.61 259.98 122.13 258.61 115.70 252.37C110.19 247.02 110.63 244.79 118.75 236.81C126.73 228.96 129.68 227.59 145.34 224.50C151.85 223.21 157.25 222.01 157.34 221.83C160.89 214.64 165.69 210.32 171.63 208.96C176.87 207.75 186.97 209.45 193.81 212.69C199.80 215.52 210.70 225.65 215.71 233.02C220.96 240.75 228.66 255.91 234.50 270.00C244.76 294.78 250.22 306.18 251.31 305.09C253.19 303.21 253.40 284.11 251.61 277.11C247.95 262.85 238.49 242.79 223.75 218.05C219.97 211.70 214.80 202.34 212.27 197.27C208.23 189.16 207.61 187.05 207.21 180.00C206.67 170.72 208.53 164.30 212.71 161.01C215.75 158.62 219.24 158.47 224.91 160.47C228.75 161.82 229.21 161.79 230.92 160.08C231.94 159.06 233.72 155.68 234.89 152.57C238.27 143.53 240.87 139.06 245.84 133.71C254.73 124.15 265.02 119.16 277.63 118.29C297.84 116.90 316.28 129.24 324.06 149.34C329.10 162.35 329.75 162.91 337.20 160.43C348.52 156.67 354.50 163.57 352.06 177.59C349.68 191.24 343.37 206.15 332.00 225.00C315.84 251.80 310.36 268.48 309.35 294.00L308.78 308.50L313.72 298.50C316.44 293.00 319.49 286.25 320.48 283.50C323.23 275.93 332.88 254.34 336.79 247.00C342.11 237.01 349.75 227.25 356.77 221.46C376.08 205.53 393.27 204.37 401.52 218.44L404.05 222.75L413.27 224.41C429.06 227.25 434.34 229.45 441.58 236.22C446.52 240.85 448.00 242.87 448.00 245.04C448.00 248.75 444.32 252.96 438.14 256.32C433.11 259.07 430.36 259.58 407.96 261.94C385.29 264.33 361.01 275.16 343.89 290.54C333.50 299.87 322.31 314.57 313.55 330.41C310.46 335.98 309.94 337.64 310.88 338.91C317.87 348.45 319.04 360.68 313.99 371.37C305.50 389.34 286.95 398.82 270.50 393.60ZM191.00 195.67C189.62 194.94 182.48 190.84 175.12 186.55C167.77 182.27 152.74 174.52 141.73 169.35C130.72 164.17 119.86 158.69 117.60 157.17C113.54 154.42 113.50 154.33 113.51 148.26C113.52 141.37 115.23 138.18 121.09 134.17C124.07 132.13 125.46 131.87 132.05 132.17C148.25 132.88 160.49 142.95 178.81 170.64C186.39 182.09 195.00 195.84 195.00 196.49C195.00 197.34 193.63 197.06 191.00 195.67ZM367.23 193.75C368.04 192.51 371.33 187.22 374.55 182.00C388.39 159.57 402.56 142.73 411.90 137.65C430.48 127.54 447.08 131.63 447.41 146.40C447.57 153.71 446.04 154.92 420.75 167.43C407.96 173.76 390.75 182.76 382.50 187.45C374.25 192.13 367.11 195.97 366.63 195.98C366.16 195.99 366.43 194.99 367.23 193.75ZM277.79 102.75C276.92 102.06 274.20 97.90 271.74 93.50C262.28 76.57 257.33 61.98 258.40 54.14C259.60 45.29 267.01 35.59 275.75 31.45C283.52 27.76 292.32 31.66 297.44 41.07C303.52 52.24 301.47 65.65 290.26 87.94C283.22 101.92 280.64 104.99 277.79 102.75Z"/></svg> Hanamy</div>
-      <p class="foot-line">Nothing is kept.</p>
-      <a class="x" href="https://x.com/" target="_blank" rel="noopener"
-         aria-label="Hanamy on X"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow on X</span></a>
-    </div>
-    <div><h4>Platform</h4><ul>
-      <li><a href="models.html">Console</a></li>
-      <li><a href="index.html#compare">Playground</a></li>
-      <li><a href="index.html#compare">Render</a></li>
-      <li><a href="models.html">Models</a></li>
-    </ul></div>
-    <div><h4>Build</h4><ul>
-      <li><a href="docs.html">Tsubomi</a></li>
-      <li><a href="docs.html#cli">CLI documentation</a></li>
-      <li><a href="docs.html#keys">API keys</a></li>
-    </ul></div>
-    <div><h4>Community</h4><ul>
-      <li><a href="staking.html">Commons</a></li>
-      <li><a href="staking.html#mip">Roadmap</a></li>
-      <li><a href="staking.html#ledger">Ledger</a></li>
-    </ul></div>
-    <div><h4>Resources</h4><ul>
-      <li><a href="docs.html">Documentation</a></li>
-      <li><a href="docs.html#notes">Field Notes</a></li>
-      <li><a href="staking.html">Your account</a></li>
-    </ul></div>
-  </div>
-
-  <dl class="spec">
-    <div><dt>Interface</dt><dd>OpenAI-compatible /v1</dd></div>
-    <div><dt>Base URL</dt><dd>api.hanamy.dev/v1</dd></div>
-    <div><dt>Auth</dt><dd>Bearer · wallet-scoped</dd></div>
-    <div><dt>Streaming</dt><dd>SSE · text/event-stream</dd></div>
-    <div><dt>Chain</dt><dd>Robinhood Chain · 4663</dd></div>
-    <div><dt>Settlement</dt><dd>WETH</dd></div>
-    <div><dt>Token</dt><dd>$HANAMY</dd></div>
-    <div><dt>Limits</dt><dd>per wallet · burst-tolerant</dd></div>
-  </dl>
-
-  <div class="rule">
-    <span>&copy; <span data-year>2026</span> Hanamy</span>
-    <span class="mid">Nothing is kept.</span>
-    <a href="#" id="totop">Back to top &nbsp;&uarr;</a>
-  </div>
-</div></footer>
+{SHELL_END}
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="talk.js"></script>
 </body>
 </html>

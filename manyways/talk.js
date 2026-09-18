@@ -270,9 +270,10 @@
   $("#t-clear").addEventListener("click", () => {
     thread.innerHTML = "";
     const empty = document.createElement("div");
-    empty.className = "empty";
+    empty.className = "empty blank";
     empty.id = "t-empty";
-    empty.innerHTML = `<h1>Blank again.</h1><p>Nothing was saved on the way out.</p>`;
+    empty.innerHTML = `<div class="empty-in"><h1>Blank again.</h1>
+      <p>Nothing was saved on the way out.</p></div>`;
     thread.appendChild(empty);
     files = []; paintFiles();
     foot();

@@ -17,21 +17,43 @@
                    border-radius: 7px; background-color: var(--blush); }
 .talk-top .far { margin-left: auto; display: flex; align-items: center; gap: 14px; }
 
-.thread { flex: 1; min-height: 0; overflow-y: auto; padding: 26px 24px 8px;
+.thread { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 24px 8px;
           scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { .thread { scroll-behavior: auto; } }
 .thread-in { max-width: 760px; margin-inline: auto; display: grid; gap: 26px; }
 
-/* the opening state, which is also what it looks like after Clear */
-.empty { max-width: 640px; margin: min(9vh, 90px) auto 0; text-align: center; }
-.empty-mark { color: var(--blossom); display: flex; justify-content: center; }
-.empty h1 { font-size: clamp(30px, 4.4vw, 44px); margin-top: 18px; }
-.empty p { color: var(--ink-2); margin-top: 14px; font-size: 16px; }
-.seeds { display: grid; gap: 9px; margin-top: 28px; text-align: left; }
-.seeds button { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
-                padding: 13px 16px; font-size: 14px; color: var(--ink-2); cursor: pointer;
+/* The opening state carries the photograph, because this is the first thing
+   anyone sees now. It is a state, not a hero: the moment there is a turn on
+   screen it is removed and the thread gets a plain ground to read on. */
+.empty { position: relative; min-height: min(60vh, 520px); display: flex;
+         align-items: center; border-radius: 14px; overflow: hidden;
+         background: var(--bark-2); }
+.empty-photo, .empty-photo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.empty-photo img { object-fit: cover; object-position: 58% 34%; }
+.empty::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, rgba(48,18,30,.90) 0%, rgba(48,18,30,.72) 32%,
+                              rgba(48,18,30,.26) 60%, rgba(48,18,30,.04) 78%); }
+.empty-in { position: relative; z-index: 2; padding: 36px clamp(22px, 3.6vw, 48px);
+            max-width: 54ch; }
+.empty-mark { color: var(--blossom); }
+.empty h1 { font-size: clamp(28px, 3.9vw, 46px); line-height: 1.05; color: var(--on-photo);
+            margin-top: 14px; }
+.empty p { color: rgba(255,244,247,.84); margin-top: 13px; font-size: 15.5px; max-width: 48ch; }
+.seeds { display: grid; gap: 7px; margin-top: 20px; }
+.seeds button { text-align: left; background: rgba(255,244,247,.10); color: var(--on-photo);
+                border: 1px solid rgba(255,244,247,.22); border-radius: 10px;
+                padding: 10px 14px; font-size: 13.5px; cursor: pointer;
+                backdrop-filter: blur(3px);
                 transition: background .15s ease, border-color .15s ease; }
-.seeds button:hover { background: var(--blush); border-color: var(--line-2); color: var(--ink); }
+.seeds button:hover { background: rgba(255,244,247,.18); border-color: rgba(255,244,247,.4); }
+.empty-link { margin-top: 18px; color: var(--blossom); }
+/* After Clear there is no photograph to lean on, so the same block reads as
+   a quiet line instead of a second front door. */
+.empty.blank { min-height: 0; background: none; padding: min(14vh, 120px) 0; }
+.empty.blank::after { display: none; }
+.empty.blank .empty-in { max-width: none; text-align: center; padding: 0; }
+.empty.blank h1 { color: var(--ink); font-size: clamp(26px, 3.4vw, 38px); }
+.empty.blank p { color: var(--ink-2); margin-inline: auto; }
 
 .turn { display: grid; gap: 10px; }
 .turn .role { display: flex; align-items: center; gap: 9px; font-size: 12.5px; font-weight: 600;

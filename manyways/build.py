@@ -64,16 +64,12 @@ def head(title, desc, extra=""):
 
 MENUS = {
     "Platform": [
-        ("Console", "models.html", "The register, and what each model costs"),
-        ("Playground", "index.html#curiosity", "One prompt, two models, side by side"),
-        ("Render", "index.html#curiosity", "Turn an answer into something to look at"),
+        ("The idea", "story.html", "Why it forgets, and what that buys you"),
         ("Models", "models.html", "Everything reachable through the endpoint"),
-    ],
-    "Tsubomi": [
-        ("Talk to Tsubomi", "talk.html", "One question, one answer, no thread"),
-        ("Agent briefs", "docs.html#tsubomi", "Mission, research skills, a character"),
+        ("Compare two", "story.html#curiosity", "One prompt, two models, side by side"),
         ("CLI documentation", "docs.html#cli", "The same key, in your terminal"),
     ],
+
     "Community": [
         ("Commons", "staking.html", "Where the pool is discussed"),
         ("Roadmap", "staking.html#mip", "Proposals, and what is being built"),
@@ -94,7 +90,7 @@ ICON = {
                  '<path d="M3.7 6.8l8.3 4.2 8.3-4.2"/><path d="M12 11v10.4"/>'
                  '<path d="M7.85 4.7l8.3 4.2"/>'),
     # an arrow, fletched: the assistant that sends the prompt out
-    "Tsubomi": ('<path d="M2.9 12h13.4"/><path d="M13.2 7.4l4.8 4.6-4.8 4.6"/>'
+    "Hanamy": ('<path d="M2.9 12h13.4"/><path d="M13.2 7.4l4.8 4.6-4.8 4.6"/>'
                 # The feathers sit ON the shaft, with the tail running past
                 # them. Put their vertex at the tail instead and the icon
                 # becomes a chevron, or a second arrowhead.
@@ -126,7 +122,7 @@ def svg(name, size=20):
             f'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
             f'stroke-linejoin="round" aria-hidden="true">{ICON[name]}</svg>')
 
-NAV = [("Talk", "talk.html"), ("Platform", None), ("Tsubomi", None), ("Community", None),
+NAV = [("Talk", "index.html"), ("Platform", None), ("Community", None),
        ("Rewards", "staking.html"), ("Docs", "docs.html")]
 
 def rail(active=""):
@@ -206,7 +202,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
       <li><a href="models.html">Models</a></li>
     </ul></div>
     <div><h4>Build</h4><ul>
-      <li><a href="docs.html">Tsubomi</a></li>
+      <li><a href="docs.html">Hanamy</a></li>
       <li><a href="docs.html#cli">CLI documentation</a></li>
       <li><a href="docs.html#keys">API keys</a></li>
     </ul></div>
@@ -246,7 +242,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 """
 
 # ---------------------------------------------------------------- index
-index = head("Hanamy · Say anything, it keeps nothing",
+story = head("Hanamy · Say anything, it keeps nothing",
              "An AI that keeps nothing. Say anything, attach a file, get an answer, and "
              "nothing is stored, threaded or remembered.",
              '') + top("platform") + f"""
@@ -269,7 +265,7 @@ index = head("Hanamy · Say anything, it keeps nothing",
       </div>
       <p class="hero-lede">Talk to it about whatever you like. There is no thread, no history and no account: come back tomorrow and it will not know you were here.</p>
       <div class="cta">
-        <a class="btn pale" href="talk.html">Talk to Tsubomi {AR}</a>
+        <a class="btn pale" href="index.html">Open the chat {AR}</a>
         <a class="btn on-dark" href="docs.html">Learn More {AR}</a>
       </div>
     </div></div>
@@ -312,9 +308,9 @@ index = head("Hanamy · Say anything, it keeps nothing",
   <div class="split" style="margin-top:100px">
     <div class="stack">
       <h2>An idea is enough<br>to get started.</h2>
-      <p>Talk it through with Tsubomi. Build an agent brief with a
+      <p>Talk it through with Hanamy. Build an agent brief with a
         mission, research skills, and a character of its own.</p>
-      <a class="btn pale" href="docs.html#tsubomi">Meet Tsubomi {AR}</a>
+      <a class="btn pale" href="docs.html#hanamy">Meet Hanamy {AR}</a>
     </div>
     <div class="chat">
       <div class="me">
@@ -540,7 +536,7 @@ def side():
     return f"""<aside class="side">
   <div class="toggle">
     <button type="button" aria-pressed="true">Hanamy</button>
-    <button type="button" aria-pressed="false">Tsubomi</button>
+    <button type="button" aria-pressed="false">Hanamy</button>
   </div>
   <nav>{a("Hanamy platform overview", "#")}</nav>
   <h5>Start here</h5>
@@ -796,7 +792,7 @@ staking = head("Hanamy · Staking access",
 
 
 # ----------------------------------------------------------------- talk
-talk = head("Hanamy · Talk to Tsubomi",
+index = head("Hanamy · Say anything",
             "A chat that keeps nothing: attach a file, ask anything, and nothing above the "
             "line is ever sent.",
             '<link rel="stylesheet" href="talk.css">') + top("talk") + f"""
@@ -804,7 +800,7 @@ talk = head("Hanamy · Talk to Tsubomi",
   <header class="talk-top">
     <div class="who">
       <span class="dot"></span>
-      <b>Tsubomi</b>
+      <b>Hanamy</b>
       <select id="t-model" aria-label="Model"></select>
     </div>
     <div class="far">
@@ -815,14 +811,22 @@ talk = head("Hanamy · Talk to Tsubomi",
 
   <div class="thread" id="t-thread">
     <div class="empty" id="t-empty">
-      <div class="empty-mark">{mark(46)}</div>
-      <h1>Ask it anything.</h1>
-      <p>It answers once, then forgets. There is no thread behind this and nothing above the
-        composer is ever sent, so each question stands on its own.</p>
-      <div class="seeds">
-        <button type="button">Explain a bonding curve to a trader in three sentences.</button>
-        <button type="button">Read this CSV and tell me what is odd about it.</button>
-        <button type="button">Rewrite this paragraph so it stops sounding like a brochure.</button>
+      <picture class="empty-photo">
+        <source media="(max-width: 760px)" srcset="media/hero-tall.webp">
+        <img src="media/hero-wide.webp" alt="">
+      </picture>
+      <div class="empty-in">
+        <div class="empty-mark">{mark(42)}</div>
+        <h1>Say anything.<br>It keeps nothing.</h1>
+        <p>Ask it whatever you like and attach what you want. It answers once and forgets:
+          no thread, no history, no account. Come back tomorrow and it will not know you
+          were here.</p>
+        <div class="seeds">
+          <button type="button">Explain a bonding curve to a trader in three sentences.</button>
+          <button type="button">Read this CSV and tell me what is odd about it.</button>
+          <button type="button">Rewrite this paragraph so it stops sounding like a brochure.</button>
+        </div>
+        <a class="link empty-link" href="story.html">Why it forgets {AR}</a>
       </div>
     </div>
   </div>
@@ -859,7 +863,7 @@ talk = head("Hanamy · Talk to Tsubomi",
 """
 
 here = pathlib.Path(__file__).parent
-for name, doc in (("index.html", index), ("models.html", models),
-                  ("docs.html", docs), ("staking.html", staking), ("talk.html", talk)):
+for name, doc in (("index.html", index), ("story.html", story), ("models.html", models),
+                  ("docs.html", docs), ("staking.html", staking)):
     (here / name).write_text(doc, encoding="utf-8")
     print(name, len(doc), "bytes")

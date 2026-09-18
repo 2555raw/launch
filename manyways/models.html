@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manyways · The model register</title>
+<meta name="description" content="Every model reachable through the shared pool, with its context window and what a million tokens costs in each direction.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><ellipse cx="12" cy="6" rx="2.7" ry="4.3"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(72 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(144 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(216 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(288 12 12)"/></g><circle cx="12" cy="12" r="1.5" fill="#47202e" opacity=".35"/></svg> Manyways</a>
+  <nav class="tnav" aria-label="Main">
+    <a href="models.html">Platform<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></a>
+    <button type="button">Blossom<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button type="button">Community<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    <a href="staking.html">Rewards</a>
+    <a href="docs.html">Docs</a>
+  </nav>
+  <div class="far">
+    <button class="who" type="button" aria-label="Your account">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
+    </button>
+    <a class="btn pale" href="staking.html">Get started</a>
+  </div>
+</div></header>
+
+<section class="band light" style="padding-bottom:0"><div class="wrap">
+  <p class="crumb"><a href="index.html">Manyways</a> / Platform / Models</p>
+  <h1 style="font-size:clamp(38px,5vw,62px)">Every model,<br>in one register.</h1>
+  <p class="lede" style="margin-top:22px">What is reachable through the endpoint right now, what it
+    costs, and how much context it will hold. Model names here are the strings you pass in
+    <code style="font-family:var(--mono);font-size:.85em">"model"</code> — they work as written.</p>
+</div></section>
+
+<section class="band light" style="padding-top:48px"><div class="wrap">
+  <div class="filters" id="filters"></div>
+  <div class="sheet">
+    <table>
+      <thead><tr>
+        <th scope="col">Model</th><th scope="col">Lab</th>
+        <th scope="col" class="r">Context</th>
+        <th scope="col" class="r">In / 1M</th>
+        <th scope="col" class="r">Out / 1M</th>
+        <th scope="col">Status</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="sub" id="tnote" style="margin-top:16px"></p>
+</div></section>
+
+<section class="band dark"><div class="wrap">
+  <div class="split">
+    <div class="stack">
+      <h2>One endpoint,<br>every name above.</h2>
+      <p>Change the base URL and the key. The request body, the streaming format and the tool calls
+        stay exactly as your SDK already writes them.</p>
+      <a class="btn pale" href="docs.html">Read the quickstart <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
+    </div>
+    <div class="code">
+      <div class="bar"><span>quickstart.sh</span><span class="far">
+        <button type="button" data-copy="#snippet" aria-label="Copy">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5H6a2 2 0 0 0-2 2v9"/></svg>
+        </button></span></div>
+<pre id="snippet"><span class="c"># one endpoint, every model in the register</span>
+curl https://api.manyways.dev/v1/chat/completions \
+  -H <span class="s">"Authorization: Bearer $MW_CLIENT_KEY"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{
+    "model": "claude-opus-5",
+    "messages": [{"role":"user","content":"say hi"}],
+    "stream": true
+  }'</span></pre>
+    </div>
+  </div>
+</div></section>
+<footer class="foot"><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <div class="brand"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><ellipse cx="12" cy="6" rx="2.7" ry="4.3"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(72 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(144 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(216 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(288 12 12)"/></g><circle cx="12" cy="12" r="1.5" fill="#47202e" opacity=".35"/></svg> Manyways</div>
+    </div>
+    <div><h4>Platform</h4><ul>
+      <li><a href="models.html">Console</a></li>
+      <li><a href="index.html#compare">Playground</a></li>
+      <li><a href="index.html#compare">Render</a></li>
+      <li><a href="models.html">Models</a></li>
+    </ul></div>
+    <div><h4>Build</h4><ul>
+      <li><a href="docs.html">Blossom</a></li>
+      <li><a href="docs.html#cli">CLI documentation</a></li>
+      <li><a href="docs.html#keys">API keys</a></li>
+    </ul></div>
+    <div><h4>Community</h4><ul>
+      <li><a href="staking.html">Commons</a></li>
+      <li><a href="staking.html#mip">Roadmap</a></li>
+      <li><a href="staking.html#ledger">Ledger</a></li>
+    </ul></div>
+    <div><h4>Resources</h4><ul>
+      <li><a href="docs.html">Documentation</a></li>
+      <li><a href="docs.html#notes">Field Notes</a></li>
+      <li><a href="staking.html">Your account</a></li>
+    </ul></div>
+  </div>
+
+  <dl class="spec">
+    <div><dt>Interface</dt><dd>OpenAI-compatible /v1</dd></div>
+    <div><dt>Base URL</dt><dd>api.manyways.dev/v1</dd></div>
+    <div><dt>Auth</dt><dd>Bearer · wallet-scoped</dd></div>
+    <div><dt>Streaming</dt><dd>SSE · text/event-stream</dd></div>
+    <div><dt>Chain</dt><dd>Robinhood Chain · 4663</dd></div>
+    <div><dt>Settlement</dt><dd>WETH</dd></div>
+    <div><dt>Token</dt><dd>$MANY</dd></div>
+    <div><dt>Limits</dt><dd>per wallet · burst-tolerant</dd></div>
+  </dl>
+
+  <div class="rule">
+    <span>&copy; <span data-year>2026</span> Manyways</span>
+    <span class="mid">Every model. Your way.</span>
+    <a href="#" id="totop">Back to top &nbsp;&uarr;</a>
+  </div>
+</div></footer>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

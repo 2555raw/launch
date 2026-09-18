@@ -4,7 +4,6 @@
    the one-vault-per-stock grid, a dark closing band and the footer.
    Everything sits in the 1160px container the header uses. */
 
-.hm-nav { background: var(--card); border-bottom: 1px solid var(--line); }
 .hm-nav-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: var(--nav); display: flex; align-items: center; gap: 22px;

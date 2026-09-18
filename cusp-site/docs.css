@@ -7,7 +7,6 @@
    small on purpose — 10px eyebrows, 12.5px body — which is what the reference
    does and what makes the page read as documentation rather than marketing. */
 
-.dx-nav { background: var(--card); border-bottom: 1px solid var(--line); }
 .dx-nav-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: var(--nav); display: flex; align-items: center; gap: 22px;

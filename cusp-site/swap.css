@@ -11,7 +11,6 @@
 
 /* ---------- header ---------- */
 
-.tr-nav { background: var(--card); border-bottom: 1px solid var(--line); }
 .tr-nav-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: 66px; display: flex; align-items: center; gap: 22px;

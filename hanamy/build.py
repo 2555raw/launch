@@ -233,7 +233,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
     <div><dt>Streaming</dt><dd>SSE · text/event-stream</dd></div>
     <div><dt>Chain</dt><dd>Robinhood Chain · 4663</dd></div>
     <div><dt>Settlement</dt><dd>WETH</dd></div>
-    <div><dt>Token</dt><dd>$HANAMY</dd></div>
+    <div><dt>Token</dt><dd>$HANAMY <span id="foot-ca"></span></dd></div>
     <div><dt>Limits</dt><dd>per wallet · burst-tolerant</dd></div>
   </dl>
 
@@ -243,6 +243,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
     <a href="#" id="totop">Back to top &nbsp;&uarr;</a>
   </div>
 </div></footer>
+<script src="ca.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
@@ -737,6 +738,7 @@ mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gem
   </main>
 </div>
 </div>
+<script src="ca.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
@@ -820,7 +822,14 @@ index = head("Hanamy · Say anything",
       <select id="t-model" aria-label="Model"></select>
     </div>
     <div class="far">
-      <span class="sub" id="t-count"></span>
+      <button class="ca" type="button" id="ca" aria-label="Copy the contract address">
+        <span class="tag">CA</span>
+        <span class="addr" id="ca-addr">pending</span>
+        <svg class="cp" width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <rect x="9" y="9" width="11" height="11" rx="2"/>
+          <path d="M15 5H6a2 2 0 0 0-2 2v9"/></svg>
+      </button>
       <button class="btn line sm" type="button" id="t-endpoint"
               aria-expanded="false" aria-controls="t-wire">Endpoint</button>
       <button class="btn line sm" type="button" id="t-clear">Clear the screen</button>
@@ -891,6 +900,7 @@ index = head("Hanamy · Say anything",
   </div>
 </div>
 """ + SHELL_END + f"""
+<script src="ca.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="talk.js"></script>

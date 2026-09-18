@@ -35,6 +35,44 @@
   const MARK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"' +
     ' aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>';
 
+  /* ---- the contract address -------------------------------------------
+     Shown large and copied by clicking. Until one is published it says
+     pending and does nothing, rather than offering an empty clipboard. */
+  const caBtn = $("#ca"), caAddr = $("#ca-addr");
+  if (caBtn) {
+    const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
+    const ca = (window.SITE_CA || "").trim();
+    const foot = $("#foot-ca");
+    if (!ca) {
+      caBtn.classList.add("pending");
+      caAddr.textContent = "pending";
+      caBtn.setAttribute("aria-label", "The contract address is not published yet");
+    } else {
+      caAddr.textContent = short(ca);
+      caAddr.title = ca;
+      if (foot) foot.textContent = short(ca);
+      caBtn.addEventListener("click", async () => {
+        let ok = false;
+        try { await navigator.clipboard.writeText(ca); ok = true; }
+        catch (e) {
+          // the Clipboard API is blocked in plenty of embeds; fall back
+          // rather than leaving the button silently dead
+          const ta = document.createElement("textarea");
+          ta.value = ca; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { ok = document.execCommand("copy"); } catch (e2) {}
+          ta.remove();
+        }
+        caBtn.classList.add("done");
+        caAddr.textContent = ok ? "copied" : "press Ctrl+C";
+        setTimeout(() => {
+          caBtn.classList.remove("done");
+          caAddr.textContent = short(ca);
+        }, 1500);
+      });
+    }
+  }
+
   /* ---- the endpoint --------------------------------------------------
      Set from here, because this page is the front door. Stored under the
      same key the rest of the site uses, so setting it in one place sets
@@ -226,8 +264,6 @@
       (n ? `${n} exchange${n === 1 ? "" : "s"} on screen, none of it sent with the next one. ` : "") +
       (held ? `${held} file${held === 1 ? "" : "s"} attached to this message only. ` : "") +
       "Reload and the screen is blank again.");
-    const c = $("#t-count");
-    if (c) c.textContent = n ? `${n} on screen · 0 remembered` : "nothing on screen";
   }
   const note = (m, bad) => foot(m, bad);
 

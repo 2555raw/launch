@@ -130,3 +130,25 @@
 .needs-endpoint .composer { border-color: var(--rose); }
 
 #t-why a { color: var(--rose); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------------- the contract address ----------------
+   The one string on the site where a wrong character costs somebody real
+   money, so it is large, monospaced, and copied by clicking rather than
+   by selecting and hoping. */
+.ca { display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+      background: var(--card); border: 1px solid var(--line-2); border-radius: 999px;
+      padding: 5px 12px 5px 6px; color: var(--ink);
+      transition: border-color .15s ease, background .15s ease; }
+.ca:hover { border-color: var(--rose); background: var(--blush); }
+.ca .tag { background: var(--petal); color: var(--ink); font: 700 11px/1 var(--sans);
+           letter-spacing: .12em; padding: 7px 10px; border-radius: 999px; }
+.ca .addr { font: 500 15px/1 var(--mono); letter-spacing: -.01em; }
+.ca .cp { color: var(--ink-3); }
+.ca:hover .cp { color: var(--rose); }
+.ca.pending .addr { color: var(--ink-3); font-style: normal; }
+.ca.pending { cursor: default; }
+.ca.pending:hover { border-color: var(--line-2); background: var(--card); }
+.ca.done { border-color: var(--rose); }
+.ca.done .addr, .ca.done .cp { color: var(--rose); }
+@media (max-width: 860px) { .ca .addr { font-size: 13px; } }
+@media (max-width: 620px) { .ca .cp { display: none; } }

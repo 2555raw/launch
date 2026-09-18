@@ -6,7 +6,13 @@
   "scripts": {
     "start": "node server.js",
     "build": "python3 build.py",
-    "serve": "node server.js"
+    "serve": "node server.js",
+    "ca": "node scripts/set-ca.js"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "js-sha3": "^0.13.0"
+  }
 }

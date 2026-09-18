@@ -171,7 +171,11 @@ http.createServer((req, res) => {
     }
     res.writeHead(200, {
       "content-type": TYPES[path.extname(file)] || "application/octet-stream",
-      "cache-control": path.extname(file) === ".html" ? "no-cache" : "public, max-age=300",
+      /* ca.js holds the published contract address and has to be right the
+         minute it changes, so it is never cached. Everything else but the
+         pages can sit in a cache for a few minutes. */
+      "cache-control": (path.extname(file) === ".html" || path.basename(file) === "ca.js")
+        ? "no-cache" : "public, max-age=300",
     });
     res.end(body);
   });

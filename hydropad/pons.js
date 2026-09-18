@@ -292,6 +292,28 @@ const PonsAdapter = {
   MAX_LOGS: 600,
   BATCH: 12,
 
+  /* A call that never answers is the failure mode a public RPC actually has:
+   * not an error, which every read here already handles, but silence. The scan
+   * checked its deadline between calls, so one silent call left the table on
+   * "Reading the chain…" for as long as the tab stayed open. Every await in the
+   * scan goes through this, and a call that overruns is treated as a call that
+   * failed. */
+  CALL_MS: 7000,
+
+  within(promise, fallback) {
+    let timer;
+    return Promise.race([
+      Promise.resolve(promise).catch(e => {
+        console.warn("pons: call failed", e.shortMessage || e.message);
+        return fallback;
+      }),
+      new Promise(res => { timer = setTimeout(() => {
+        console.warn("pons: call timed out after", this.CALL_MS, "ms");
+        res(fallback);
+      }, this.CALL_MS); }),
+    ]).finally(() => clearTimeout(timer));
+  },
+
   /* Tokens on this chain already known to be ours, so a second visit does not
    * pay for the scan again. */
   knownKey() { return `hydropad.pons.known.${this.chain.chainId}`; },
@@ -323,16 +345,15 @@ const PonsAdapter = {
       if (seen.has(k.token.toLowerCase())) continue;
       seen.add(k.token.toLowerCase());
       this.cache.set(k.token.toLowerCase(), { curve: k.curve, source: k.source });
-      try { out.push(await this.pairing(k.token, { curve: k.curve, source: k.source })); }
-      catch (e) { console.warn("pons: known token unreadable", k.token, e.shortMessage || e.message); }
+      const p = await this.within(this.pairing(k.token, { curve: k.curve, source: k.source }), null);
+      if (p) out.push(p);
       if (out.length >= limit) return out;
     }
 
     const deadline = Date.now() + this.BUDGET_MS;
     const f = this.factory();
-    let head;
-    try { head = await this.provider().getBlockNumber(); }
-    catch (e) { console.warn("pons: no head", e.shortMessage || e.message); return out; }
+    const head = await this.within(this.provider().getBlockNumber(), null);
+    if (head === null) return out;
 
     const floor = Math.max(this.START_BLOCK[Number(this.chain.chainId)] || 0, head - this.MAX_SCAN);
     let to = head;
@@ -340,19 +361,14 @@ const PonsAdapter = {
 
     while (to > floor && out.length < limit && inspected < this.MAX_LOGS && Date.now() < deadline) {
       const from = Math.max(floor, to - this.CHUNK);
-      let logs = [];
-      try {
-        logs = await f.queryFilter(f.filters.TokenLaunched(), from, to);
-      } catch (e) {
-        console.warn("pons: log range refused", from, to, e.shortMessage || e.message);
-      }
+      const logs = (await this.within(f.queryFilter(f.filters.TokenLaunched(), from, to), [])).slice();
       logs.reverse();
 
       for (let i = 0; i < logs.length && out.length < limit; i += this.BATCH) {
         if (Date.now() > deadline || inspected >= this.MAX_LOGS) break;
         const slice = logs.slice(i, i + this.BATCH);
         inspected += slice.length;
-        const found = await Promise.all(slice.map(l => this.fromLaunchLog(l).catch(() => null)));
+        const found = await Promise.all(slice.map(l => this.within(this.fromLaunchLog(l), null)));
         for (const p of found) {
           if (p && !seen.has(p.token.toLowerCase())) { seen.add(p.token.toLowerCase()); out.push(p); }
         }

@@ -126,6 +126,25 @@ function compile() {
     if (!/Pons/.test(note)) throw new Error('the field does not say whose it is: ' + note);
   });
 
+  await step('the preview card quotes Pons\' terms, not our own launcher\'s', async () => {
+    /* All four numbers were the own launcher's, hardcoded: a launch fee of
+     * None beside a form quoting Pons' real one, and a trade fee going to a
+     * vault Pons does not have. */
+    const boxes = await p.locator('.pv-boxes > div').evaluateAll(
+      els => els.map(e => e.textContent.replace(/\s+/g, ' ').trim()));
+    const card = boxes.join(' | ');
+    if (/None/.test(card)) throw new Error('still quoting a free launch: ' + card);
+    if (/to your vault/.test(card)) throw new Error('still quoting our own vault: ' + card);
+    if (!/Launch fee ?0\.0005/.test(card)) throw new Error('wrong fee: ' + card);
+    if (!/1\.00% on the curve/.test(card)) throw new Error('wrong trade fee: ' + card);
+    if (!/30(\.0)? ETH raised/.test(card)) throw new Error('wrong graduation: ' + card);
+    /* And a price off a fresh curve is readable rather than an exponent. */
+    const price = boxes.find(b => /Opening price/.test(b)) || '';
+    if (/e-\d/.test(price)) throw new Error('the price is in exponent notation: ' + price);
+    if (!/gwei|ETH/.test(price)) throw new Error('the price carries no unit: ' + price);
+    console.log('  ', card);
+  });
+
   await step('the launch goes through Pons and pays the fee exactly', async () => {
     const before = await provider.getBalance(at);
     await p.fill('#f-name', 'Dead Pool');

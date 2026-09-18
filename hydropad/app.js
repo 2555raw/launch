@@ -34,6 +34,23 @@ function tokens(wei) {
 const level = v => `${Math.round(v * 100)}%`;
 const shortAddr = a => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
+/* A price off a fresh curve is a billionth of an ETH, and toExponential turned
+ * that into "1.20e-9 ETH" — technically right and unreadable, the kind of
+ * number that makes a page look like a debug view. Below a thousandth of an
+ * ETH it is quoted in gwei, which is what a number that size is for. */
+function priceText(wei, ticker = "ETH") {
+  if (wei === 0n) return `0 ${ticker}`;
+  const eth = Number(ethers.formatEther(wei));
+  if (eth >= 0.001) {
+    return `${eth.toLocaleString("en-US", { maximumSignificantDigits: 4 })} ${ticker}`;
+  }
+  const gwei = Number(ethers.formatUnits(wei, "gwei"));
+  if (gwei >= 0.001) {
+    return `${gwei.toLocaleString("en-US", { maximumSignificantDigits: 4 })} gwei`;
+  }
+  return `${wei.toString()} wei`;
+}
+
 function ago(ts) {
   const s = Math.max(1, Date.now() / 1000 - ts);
   if (s < 60) return `${Math.floor(s)}s ago`;
@@ -1123,6 +1140,24 @@ const PAGES = {
      * closed, and asking the chain is the only way to know, so it is resolved
      * in the background and the form repaints when the answer lands. */
     const route = { at: null, value: null };
+    /* Pons' own terms, read once per account and reused by the fee line, the
+     * supply box and the preview card rather than fetched three times. */
+    let ponsTerms = null;
+    let ponsTermsFor = null;
+
+    /* One read per account. When it lands, everything that quoted "reading…"
+     * is redrawn from it rather than each caller fetching its own copy. */
+    function loadPonsTerms() {
+      const key = `${Chain.chainId}:${Chain.account || ""}`;
+      if (ponsTermsFor === key) return;
+      ponsTermsFor = key;
+      PONS.terms(Chain.provider, Chain.chainId, Chain.account)
+        .then(t => { ponsTerms = t; renderWallets(); paint(); })
+        .catch(e => {
+          ponsTerms = null;
+          console.warn("pons: terms unreadable", e.shortMessage || e.message);
+        });
+    }
     async function resolveRoute() {
       const key = `${Chain.chainId}|${Chain.account}`;
       if (route.at === key) return route.value;
@@ -1199,7 +1234,31 @@ const PAGES = {
 
     /* The coin as it will exist, redrawn on every keystroke: the plate of the
      * source it is bound to, and the four numbers the contract will enforce. */
+    /* The four numbers in the card are the terms of whichever launchpad this
+     * launch is going through. They were the own launcher's, hardcoded, on
+     * both routes — so a launch through Pons showed a launch fee of None
+     * beside a form quoting Pons' real one, and a trade fee going to a vault
+     * Pons does not have. Read once per route and redrawn when they land. */
+    function routeTerms() {
+      if (route.value !== "pons") {
+        return {
+          fee: "None",
+          trade: "3% to your vault",
+          graduates: `${eth(CURVE.TARGET, 1)} raised`,
+        };
+      }
+      if (!ponsTerms) {
+        return { fee: "reading…", trade: "reading…", graduates: "reading…" };
+      }
+      return {
+        fee: `${ethers.formatEther(ponsTerms.launchFee)} ${info().ticker}`,
+        trade: `${(ponsTerms.config.curveFeeBps / 100).toFixed(2)}% on the curve`,
+        graduates: `${eth(ponsTerms.config.graduationThreshold, 1)} raised`,
+      };
+    }
+
     function paint() {
+      const terms = routeTerms();
       const w = byTicker(form.source.value) || WATER[0];
       const sym = (form.symbol.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
       const name = form.name.value.trim();
@@ -1229,10 +1288,10 @@ const PAGES = {
             <span class="pill mono">${esc(w.t)}</span>
           </div>
           <div class="pv-boxes">
-            <div><span>Launch fee</span><b>None</b></div>
-            <div><span>Trade fee</span><b>3% to your vault</b></div>
-            <div><span>Opening price</span><b>${Number(ethers.formatEther(opening)).toExponential(2)} ${esc(info().ticker)}</b></div>
-            <div><span>Graduates at</span><b>${eth(CURVE.TARGET, 1)} raised</b></div>
+            <div><span>Launch fee</span><b>${esc(terms.fee)}</b></div>
+            <div><span>Trade fee</span><b>${esc(terms.trade)}</b></div>
+            <div><span>Opening price</span><b>${esc(priceText(opening, info().ticker))}</b></div>
+            <div><span>Graduates at</span><b>${esc(terms.graduates)}</b></div>
           </div>
           <ol class="pv-steps">
             <li><span>1</span>Sign the launch transaction</li>
@@ -1311,36 +1370,28 @@ const PAGES = {
        * stops taking input. */
       const supply = $("f-supply");
       const supplyNote = $("f-supply-note");
-      if (supply) {
-        if (route.value === "pons") {
+      const cost = $("f-cost");
+
+      if (route.value === "pons") {
+        if (supply) {
           supply.readOnly = true;
           supply.dataset.pons = "1";
           if (supplyNote) supplyNote.textContent = "Set by Pons' launch config.";
-          PONS.terms(Chain.provider, Chain.chainId, Chain.account)
-            .then(t => {
-              if (supply.dataset.pons !== "1") return;
-              supply.value = Math.round(Number(ethers.formatEther(t.config.supply)));
-            })
-            .catch(() => {});
-        } else if (supply.dataset.pons === "1") {
+        }
+        loadPonsTerms();
+        if (ponsTerms) {
+          if (supply) supply.value = Math.round(Number(ethers.formatEther(ponsTerms.config.supply)));
+          if (cost) cost.textContent = `Launch fee ${ethers.formatEther(ponsTerms.launchFee)} ETH, plus gas.`;
+        } else if (cost) {
+          cost.textContent = "Reading the launch fee…";
+        }
+      } else {
+        if (supply && supply.dataset.pons === "1") {
           supply.readOnly = false;
           delete supply.dataset.pons;
           if (supplyNote) supplyNote.textContent = "";
         }
-      }
-
-      /* What the launch itself costs, read off Pons rather than guessed. Our own
-       * launcher charges nothing, so on that route it is gas alone. */
-      const cost = $("f-cost");
-      if (cost) {
-        if (route.value === "pons") {
-          cost.textContent = "Reading the launch fee…";
-          PONS.terms(Chain.provider, Chain.chainId, Chain.account)
-            .then(t => { cost.textContent = `Launch fee ${ethers.formatEther(t.launchFee)} ETH, plus gas.`; })
-            .catch(() => { cost.textContent = "Plus gas."; });
-        } else {
-          cost.textContent = "Launch fee none, plus gas.";
-        }
+        if (cost) cost.textContent = "Launch fee none, plus gas.";
       }
       if (btn) {
         btn.disabled = stuck || wrongChain;

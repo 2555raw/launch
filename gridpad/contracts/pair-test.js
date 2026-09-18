@@ -88,7 +88,12 @@ function compileMock() {
   console.log(`\nmock Pons at ${at}  ·  chain ${chainId}  ·  gate shut, ${me.slice(0, 8)}… whitelisted\n`);
   console.log("the register\n");
 
-  ok(PLANTS.length >= 100, "the register has something in it", `${PLANTS.length} plants`);
+  /* Seven a class is the shape, not an accident of filtering: a register
+     somebody can come to know rather than one they have to search. */
+  eq(PLANTS.length, 28, "twenty-eight stations in the register");
+  for (const c of ["Hydro", "Wind", "Solar", "Geothermal"]) {
+    eq(PLANTS.filter(p => p.c === c).length, 7, `seven of them are ${c.toLowerCase()}`);
+  }
   ok(PLANTS.every(p => p.url), "every plant carries the URL of the body that published it");
   ok(PLANTS.every(p => Array.isArray(p.g) && p.g.length === 2), "and coordinates");
   ok(PLANTS.every(p => p.mw > 0), "and a capacity");

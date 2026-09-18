@@ -1,8 +1,8 @@
 {
-  "name": "manyways",
+  "name": "hanamy",
   "version": "1.0.0",
   "private": true,
-  "description": "Every model, one key, one endpoint — a cherry-blossom front end.",
+  "description": "Every model, one look. A shared inference pool behind one key.",
   "scripts": {
     "start": "node server.js",
     "build": "python3 build.py",

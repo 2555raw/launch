@@ -52,4 +52,4 @@ http.createServer((req, res) => {
     });
     res.end(body);
   });
-}).listen(PORT, () => console.log(`Manyways on :${PORT}`));
+}).listen(PORT, () => console.log(`Hanamy on :${PORT}`));

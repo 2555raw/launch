@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="FONTS">
+<style>
+  :root { --bark:#47202e; --on:#fff4f7; --on2:#e7c3d0; --petal:#fbdfe4;
+          --serif:"Shippori Mincho B1",serif; --sans:"Zen Kaku Gothic Antique",sans-serif;
+          --brush:"Yuji Syuku",serif; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bark); }
+  .plate { position:relative; overflow:hidden; background:var(--bark); color:var(--on); }
+  .plate img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .scrim { position:absolute; inset:0; }
+  .in { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; }
+  .mark { display:flex; align-items:center; gap:var(--gap); }
+  .mark svg { flex:none; color:var(--petal); }
+  .word { font-family:var(--brush); line-height:1; }
+  .kana { font-family:var(--serif); color:var(--on2); letter-spacing:.14em; }
+  h1 { font-family:var(--serif); font-weight:500; line-height:1.03; letter-spacing:-.015em; }
+  p { font-family:var(--sans); color:var(--on2); }
+  .rule { height:1px; background:rgba(255,238,243,.28); }
+</style></head><body>
+<div class="plate" id="plate">
+  <img src="../media/grove.webp" alt="">
+  <div class="scrim" id="scrim"></div>
+  <div class="in" id="in">
+    <div class="mark">
+      <svg width="SZ" height="SZ" viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor">
+        <ellipse cx="12" cy="6" rx="2.7" ry="4.3"/>
+        <ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(72 12 12)"/>
+        <ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(144 12 12)"/>
+        <ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(216 12 12)"/>
+        <ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(288 12 12)"/>
+      </g><circle cx="12" cy="12" r="1.5" fill="#47202e" opacity=".35"/></svg>
+      <span class="word" id="word">Hanamy</span>
+      <span class="kana" id="kana">花見</span>
+    </div>
+    <div class="rule" id="rule"></div>
+    <h1 id="h1">Every model.<br>One look.</h1>
+    <p id="p">Compare every frontier model side by side. Looking is free.</p>
+  </div>
+</div>
+</body></html>

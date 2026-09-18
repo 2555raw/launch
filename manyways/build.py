@@ -25,6 +25,15 @@ def head(title, desc, extra=""):
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{title}</title>
 <meta name="description" content="{desc}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:image" content="media/card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="media/card.jpg">
+<meta name="theme-color" content="#47202e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Kaku+Gothic+Antique:wght@400;500;700&family=M+PLUS+1+Code:wght@400;500&family=Yuji+Syuku&display=swap">
@@ -73,7 +82,7 @@ def rail(active=""):
     """The whole navigation, as a rail. An icon with a group opens the same
     panel the bar used to; an icon without one is a plain link."""
     out = [f'<a class="mark" href="index.html">{MARK}'
-           f'<span class="lbl wordmark">Hanami</span></a>']
+           f'<span class="lbl wordmark">Hanamy</span></a>']
     for label, href in NAV:
         on = ' on' if label.lower() == active else ''
         if href is None:
@@ -108,7 +117,7 @@ def drawer():
         else:
             d += f'<a class="solo" href="{href}">{label}</a>'
     d += '<a class="solo" href="staking.html">Your account</a>'
-    return (f'<div class="railbar"><a class="brand" href="index.html">{MARK} Hanami</a>'
+    return (f'<div class="railbar"><a class="brand" href="index.html">{MARK} Hanamy</a>'
             f'<button class="burger" type="button" id="burger" aria-expanded="false" '
             f'aria-controls="drawer" aria-label="Menu">'
             f'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
@@ -125,7 +134,7 @@ SHELL_END = "</div>\n</div>\n"
 FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
   <div class="foot-grid">
     <div>
-      <div class="brand">{MARK} Hanami</div>
+      <div class="brand">{MARK} Hanamy</div>
     </div>
     <div><h4>Platform</h4><ul>
       <li><a href="models.html">Console</a></li>
@@ -152,7 +161,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 
   <dl class="spec">
     <div><dt>Interface</dt><dd>OpenAI-compatible /v1</dd></div>
-    <div><dt>Base URL</dt><dd>api.hanami.dev/v1</dd></div>
+    <div><dt>Base URL</dt><dd>api.hanamy.dev/v1</dd></div>
     <div><dt>Auth</dt><dd>Bearer · wallet-scoped</dd></div>
     <div><dt>Streaming</dt><dd>SSE · text/event-stream</dd></div>
     <div><dt>Chain</dt><dd>Robinhood Chain · 4663</dd></div>
@@ -162,7 +171,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
   </dl>
 
   <div class="rule">
-    <span>&copy; <span data-year>2026</span> Hanami</span>
+    <span>&copy; <span data-year>2026</span> Hanamy</span>
     <span class="mid">Looking is free.</span>
     <a href="#" id="totop">Back to top &nbsp;&uarr;</a>
   </div>
@@ -174,7 +183,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 """
 
 # ---------------------------------------------------------------- index
-index = head("Hanami · Every model, one look",
+index = head("Hanamy · Every model, one look",
              "Explore every model, compare answers side by side, and build with the ones you "
              "choose — one wallet-scoped key, one endpoint.",
              '') + top("index") + f"""
@@ -188,7 +197,7 @@ index = head("Hanami · Every model, one look",
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
       <h1>Every model.<br>One look.</h1>
-      <p>Put one prompt in front of every frontier model and read the answers side by side. Hanami is going out to look at the blossom — looking costs nothing.</p>
+      <p>Put one prompt in front of every frontier model and read the answers side by side. Hanamy is going out to look at the blossom — looking costs nothing.</p>
       <div class="cta">
         <a class="btn pale" href="#curiosity">Ask Tsubomi {AR}</a>
         <a class="btn on-dark" href="docs.html">Learn More {AR}</a>
@@ -321,7 +330,7 @@ index = head("Hanami · Every model, one look",
 <section class="plate">
   <img src="media/grove.webp" alt="A path running under cherry trees in full blossom">
   <div class="plate-in"><div class="wrap">
-    <p class="kicker">Hanami · 花見</p>
+    <p class="kicker">Hanamy · 花見</p>
     <h2>Going out to look<br>at the blossom.</h2>
     <p>That is what the word means, and what the free half of this is: you walk the row, you
       look, you decide. Nobody asks for a key at the gate.</p>
@@ -332,7 +341,7 @@ index = head("Hanami · Every model, one look",
   <div class="split">
     <div class="stack">
       <h2>Shared access.<br>More ways forward.</h2>
-      <p>Hanami makes AI easier to explore and use. Start with a free web comparison, then
+      <p>Hanamy makes AI easier to explore and use. Start with a free web comparison, then
         connect a wallet to create client keys for the shared inference pool.</p>
       <p>Access follows wallet-scoped fair-use limits. Explore the catalog,
         see how the pool is used, and help shape what we build next.</p>
@@ -360,11 +369,11 @@ index = head("Hanami · Every model, one look",
 """ + FOOT
 
 # --------------------------------------------------------------- models
-models = head("Hanami · The model register",
+models = head("Hanamy · The model register",
               "Every model reachable through the shared pool, with its context window and what a "
               "million tokens costs in each direction.") + top("models") + f"""
 <section class="band light" style="padding-bottom:0"><div class="wrap">
-  <p class="crumb"><a href="index.html">Hanami</a> / Platform / Models</p>
+  <p class="crumb"><a href="index.html">Hanamy</a> / Platform / Models</p>
   <h1 style="font-size:clamp(38px,5vw,62px)">Every model,<br>in one register.</h1>
   <p class="lede" style="margin-top:22px">What is reachable through the endpoint right now, what it
     costs, and how much context it will hold. Model names here are the strings you pass in
@@ -402,7 +411,7 @@ models = head("Hanami · The model register",
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5H6a2 2 0 0 0-2 2v9"/></svg>
         </button></span></div>
 <pre id="snippet"><span class="c"># one endpoint, every model in the register</span>
-curl https://api.hanami.dev/v1/chat/completions \\
+curl https://api.hanamy.dev/v1/chat/completions \\
   -H <span class="s">"Authorization: Bearer $MW_CLIENT_KEY"</span> \\
   -H <span class="s">"Content-Type: application/json"</span> \\
   -d <span class="s">'{{
@@ -422,19 +431,19 @@ def side():
         return '<a href="%s"%s>%s</a>' % (href, cls, t)
     return f"""<aside class="side">
   <div class="toggle">
-    <button type="button" aria-pressed="true">Hanami</button>
+    <button type="button" aria-pressed="true">Hanamy</button>
     <button type="button" aria-pressed="false">Tsubomi</button>
   </div>
-  <nav>{a("Hanami platform overview", "#")}</nav>
+  <nav>{a("Hanamy platform overview", "#")}</nav>
   <h5>Start here</h5>
   <nav>
-    {a("What is the Hanami platform?", "#", True)}
+    {a("What is the Hanamy platform?", "#", True)}
     {a("Get connected", "#keys")}
-    {a("Why we&#39;re building Hanami", "#notes")}
+    {a("Why we&#39;re building Hanamy", "#notes")}
   </nav>
   <h5>Work in your terminal</h5>
   <nav>
-    {a("Hanami CLI", "#cli")}
+    {a("Hanamy CLI", "#cli")}
     {a("OpenCode", "#cli")}
     {a("A deliberate local workflow", "#cli")}
   </nav>
@@ -457,7 +466,7 @@ TAB = [
   ("Client key", "tp1", "A credential for one client.",
    "Your wallet identifies the member. A revocable client key authenticates the application and "
    "carries its saved defaults.",
-   "Client key", "Authorization: Bearer $HANAMI_API_KEY"),
+   "Client key", "Authorization: Bearer $HANAMY_API_KEY"),
   ("Quiver", "tp2", "A limit that travels with the key.",
    "A quiver caps what one key may spend and reach: models allowed, tokens per day, requests per "
    "minute. Revoking the key revokes the quiver with it.",
@@ -492,8 +501,8 @@ tabs_panels = "".join(f"""
   </div>
 </div>""" for i, t in enumerate(TAB))
 
-docs = head("Hanami · Documentation",
-            "The Hanami API, CLI and controls in one developer workflow.") + f"""
+docs = head("Hanamy · Documentation",
+            "The Hanamy API, CLI and controls in one developer workflow.") + f"""
 <div class="docs">
 {rail("docs")}
 {drawer()}
@@ -508,25 +517,25 @@ docs = head("Hanami · Documentation",
     </div>
   </div>
   <main class="doc">
-    <p class="crumb"><a href="docs.html">Docs</a> / <a href="docs.html">Hanami platform</a> / Start here</p>
-    <h1>What is the Hanami platform?</h1>
-    <p class="tagline">The Hanami API, CLI and controls in one developer workflow.</p>
+    <p class="crumb"><a href="docs.html">Docs</a> / <a href="docs.html">Hanamy platform</a> / Start here</p>
+    <h1>What is the Hanamy platform?</h1>
+    <p class="tagline">The Hanamy API, CLI and controls in one developer workflow.</p>
     <p><button class="link" type="button" style="background:none;border:0;cursor:pointer;padding:0"
        data-copy="#md" data-label="Copy as Markdown">Copy as Markdown</button></p>
-    <span id="md" hidden># What is the Hanami platform?
+    <span id="md" hidden># What is the Hanamy platform?
 
-Hanami is the model routing platform. Explore models, compare responses, or connect directly
+Hanamy is the model routing platform. Explore models, compare responses, or connect directly
 from your own tools. Client keys connect the work to your wallet; quivers and routing give you
 control over how requests are allowed and routed.</span>
     <hr>
-    <p>Hanami is the model routing platform. Explore models, compare responses, or connect
+    <p>Hanamy is the model routing platform. Explore models, compare responses, or connect
       directly from your own tools. Use the <a class="in" href="#cli">CLI</a> in your local
       workspace or send requests from your application. <a class="in" href="#keys">Client keys</a>
       connect the work to your wallet; limits and routing give you control over how requests are
       allowed and routed.</p>
 
     <h2 id="first">Choose your interface</h2>
-    <p>The <a class="in" href="#cli">Hanami CLI</a> provides a terminal client with streamed
+    <p>The <a class="in" href="#cli">Hanamy CLI</a> provides a terminal client with streamed
       responses, local file tools and explicit approval for writes and commands. The
       <a class="in" href="models.html">Responses API</a> lets your application own the interface,
       conversation state and tool execution.</p>
@@ -559,7 +568,7 @@ control over how requests are allowed and routed.</span>
     <p><a class="btn line" href="models.html">Open the platform {AR}</a></p>
 
     <h2 id="cli">Work in your terminal</h2>
-    <p>The CLI reads the same client key from <code>HANAMI_API_KEY</code> and streams to stdout,
+    <p>The CLI reads the same client key from <code>HANAMY_API_KEY</code> and streams to stdout,
       so it composes with the tools you already have.</p>
     <div class="code">
       <div class="bar"><span>terminal</span></div>
@@ -577,7 +586,7 @@ mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gem
       production without a second account, a second invoice and a second key per lab.</p>
 
     <div class="docnav">
-      <div><span>&larr; Back to</span><b>Hanami platform overview</b></div>
+      <div><span>&larr; Back to</span><b>Hanamy platform overview</b></div>
       <div class="far"><span>Next &rarr;</span><b>Get connected</b></div>
     </div>
   </main>
@@ -590,7 +599,7 @@ mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gem
 """
 
 # -------------------------------------------------------------- staking
-staking = head("Hanami · Staking access",
+staking = head("Hanamy · Staking access",
                "Choose a refundable allocation. Keep it active for 30 days to qualify for early "
                "enrollment in designated releases.") + top("staking") + f"""
 <section class="band light"><div class="wrap">

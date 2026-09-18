@@ -442,6 +442,76 @@ function toPairing(p) {
   };
 }
 
+/* ---------------- launches as they happen ----------------
+ *
+ * The tables read the chain once, when a page opens, and then sat there: a
+ * coin launched a minute later did not appear until somebody reloaded. This
+ * watches for the event instead, and it watches cheaply — one call per tick
+ * asking whether anything has been launched since the last block it looked at,
+ * and only when something has does it tell the page to read again.
+ *
+ * It stops while the tab is hidden. A background tab polling a public RPC
+ * every twenty seconds for an hour is a good way to get rate limited.
+ */
+Chain.watchLaunches = function watchLaunches(onNew, everyMs = 20000) {
+  let seen = null;
+  let stopped = false;
+  let timer = null;
+
+  const sources = () => {
+    const out = [];
+    if (this.viaPons()) {
+      try {
+        const f = PONS.factory(this.provider, this.chainId);
+        out.push({ c: f, filter: f.filters.TokenLaunched() });
+      } catch (_) {}
+    }
+    if (this.launcher) {
+      try {
+        const c = this.contract();
+        if (c.filters.Launched) out.push({ c, filter: c.filters.Launched() });
+      } catch (_) {}
+    }
+    return out;
+  };
+
+  const tick = async () => {
+    if (stopped || document.hidden || this.offline) return;
+    let head;
+    try { head = await this.provider.getBlockNumber(); }
+    catch (_) { return; }
+    if (seen === null) { seen = head; return; }
+    if (head <= seen) return;
+
+    const from = seen + 1;
+    seen = head;
+    for (const { c, filter } of sources()) {
+      let logs = [];
+      try { logs = await c.queryFilter(filter, from, head); }
+      catch (_) { continue; }
+      if (logs.length) { onNew(logs.length); return; }
+    }
+  };
+
+  const schedule = () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => { await tick(); if (!stopped) schedule(); }, everyMs);
+  };
+
+  /* A tab coming back to the front has usually missed something, so it asks
+   * straight away rather than waiting out the rest of the interval. */
+  const onShow = () => { if (!document.hidden) tick(); };
+  document.addEventListener("visibilitychange", onShow);
+  tick();
+  schedule();
+
+  return () => {
+    stopped = true;
+    clearTimeout(timer);
+    document.removeEventListener("visibilitychange", onShow);
+  };
+};
+
 /* Curve constants, mirrored from the contract for display. */
 const CURVE = {
   FEE_BPS: 300n,

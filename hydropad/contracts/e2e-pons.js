@@ -80,7 +80,12 @@ function compile() {
   /* Aim this browser at the mock, the way a test is allowed to and a visitor
    * on Robinhood Chain is not. */
   await p.addInitScript(([c, a]) => {
-    try { localStorage.setItem(`hydropad.pons.factory.${c}`, a); } catch (e) {}
+    try {
+      localStorage.setItem(`hydropad.pons.factory.${c}`, a);
+      /* The watcher ticks every twenty seconds in a browser. Nothing here can
+       * wait that long per assertion. */
+      localStorage.setItem('hydropad.watch.ms', '1500');
+    } catch (e) {}
   }, [CHAIN, at]);
 
   const umd = path.join(__dirname, '..', 'node_modules', 'ethers', 'dist', 'ethers.umd.min.js');
@@ -234,6 +239,35 @@ function compile() {
     await p.goto(base + 'launches.html', { waitUntil: 'networkidle' });
     await p.waitForFunction(t => document.querySelector('#launch-rows')?.textContent.includes('POOL'),
       token, { timeout: 45000 });
+  });
+
+  await step('somebody else launching shows up without a reload', async () => {
+    /* Launched straight from another account, the way a stranger would: the
+     * page is not told, it has to notice. */
+    const stranger = await provider.getSigner(await accounts[2].getAddress());
+    const asStranger = factory.connect(stranger);
+    const economics = await factory.previewLaunchEconomics(0, ethers.ZeroAddress);
+    await (await factory.setWhitelisted(await stranger.getAddress(), true)).wait();
+
+    const before = await p.locator('#launch-rows tr').count();
+    await (await asStranger.launchToken({
+      name: 'Glacier Pool',
+      symbol: 'GLACE',
+      logo: '',
+      description: 'Paired to Vatnajökull, Iceland (ICE). [hydropad:1:ICE]',
+      socials: { twitter: '', telegram: '', discord: '', website: '', farcaster: '' },
+      creatorFeeRecipient: await stranger.getAddress(),
+      creatorTaxBps: 0,
+      buybackEnabled: true,
+      expectedEconomics: economics,
+      salt: ethers.hexlify(ethers.randomBytes(32)),
+    }, 0, ethers.ZeroAddress, { value: LAUNCH_FEE })).wait();
+
+    await p.waitForFunction(
+      n => document.querySelectorAll('#launch-rows tr').length > n
+        && document.querySelector('#launch-rows').textContent.includes('GLACE'),
+      before, { timeout: 60000 });
+    console.log('   the table grew from', before, 'rows on its own');
   });
 
   await step('the header carries the address', async () => {

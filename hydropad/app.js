@@ -1040,7 +1040,7 @@ const PAGES = {
     setText("stat-classes-pairable", `${classes.length} pairable`);
     countUp($("stat-level"), Math.round(avg * 100), "%");
     setText("stat-chain", Chain.chainInfo().name);
-    setText("recent-foot", `Read from the launcher contract on ${Chain.chainInfo().name}.`);
+    setText("recent-foot", `Read off ${Chain.viaPons() ? "Pons" : "the launcher contract"} on ${Chain.chainInfo().name}, as it lands.`);
     renderTape();
     renderSites();
 
@@ -1080,6 +1080,9 @@ const PAGES = {
         : `Nothing has been launched on ${esc(Chain.chainInfo().name)} yet.`} <a href="launch.html" style="color:var(--accent)">Be the first to pair a source</a>.`);
       return;
     }
+    setText("l-source", Chain.viaPons()
+      ? `from Pons on ${Chain.chainInfo().name}, as it lands`
+      : `from the launcher on ${Chain.chainInfo().name}, as it lands`);
     host.innerHTML = emptyRow(8, "Reading the chain…");
     launchRows(100).then(({ list, html }) => {
       host.innerHTML = html || emptyRow(8, `Nothing launched on ${esc(Chain.chainInfo().name)} yet. <a href="launch.html" style="color:var(--accent)">Pair a source</a>.`);
@@ -1779,6 +1782,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderBanners();
   wireRouter();
   render();
+
+  /* A launch by somebody else, while this page is open, lands in the tables
+   * without a reload. One watcher for the session; the pages it feeds are
+   * whichever are on screen when it fires. */
+  /* Twenty seconds in a browser. A test that has to see a launch land cannot
+   * wait that long for every assertion, so it may ask for a shorter tick. */
+  function watchInterval() {
+    try {
+      const v = Number(localStorage.getItem("hydropad.watch.ms"));
+      if (v >= 500 && v <= 120000) return v;
+    } catch (_) {}
+    return 20000;
+  }
+
+  let reading = false;
+  Chain.watchLaunches(async n => {
+    if (reading) return;
+    reading = true;
+    try {
+      sidePairings = null;
+      loadSideLaunches();
+      render();
+      toast(n === 1 ? "A new coin was just launched." : `${n} new coins were just launched.`);
+    } finally { reading = false; }
+  }, watchInterval());
 
   /* Pairings that land after the first paint (the in-page chain opens its seeds
    * behind the page) redraw whatever is on screen. */

@@ -23,6 +23,92 @@
   </div>
 </div></header>
 <main class="wrap"><div id="token-view" class="tok"></div></main>
+<footer class="foot"><div class="wrap">
+  <div class="foot-in">
+    <div class="plate">
+      <div class="frame"><span class="corners"></span>
+        <!-- the mark as a construction: its grid, its centre lines, its box -->
+        <svg width="132" height="132" viewBox="0 0 120 120" role="img"
+             aria-label="The Gridpad mark drawn on its construction grid">
+          <defs><pattern id="g10" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M10 0H0V10" fill="none" stroke="currentColor" stroke-width=".6" opacity=".55"/>
+          </pattern></defs>
+          <g color="var(--ink-3)">
+            <rect x="12" y="12" width="96" height="96" fill="url(#g10)"/>
+            <rect x="12" y="12" width="96" height="96" fill="none" stroke="currentColor"
+                  stroke-width=".9" stroke-dasharray="3 3" opacity=".95"/>
+            <path d="M60 2v116M2 60h116" stroke="currentColor" stroke-width=".8"
+                  stroke-dasharray="7 4" opacity=".8"/>
+            <circle cx="60" cy="60" r="42" fill="none" stroke="currentColor" stroke-width=".8"
+                    stroke-dasharray="4 4" opacity=".7"/>
+            <path d="M12 8h96M12 112h96" stroke="currentColor" stroke-width=".8" opacity=".6"/>
+            <path d="M12 5v6M108 5v6M12 109v6M108 109v6" stroke="currentColor" stroke-width=".8" opacity=".6"/>
+            <text x="60" y="6" text-anchor="middle" font-size="5.5" fill="currentColor"
+                  font-family="monospace" opacity=".8">96</text>
+          </g>
+          <path d="M67 20 30.5 66.5h21L48 100l38.5-46.5h-22L67 20Z"
+                fill="var(--volt)" stroke="var(--go)" stroke-width="2.4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="wordmark">gridpad</p>
+      <p class="cap">Fig. 1 · Bolt mark<br>96 × 96 units on a 10-unit grid</p>
+    </div>
+
+    <div>
+      <h4>The site</h4>
+      <ul>
+        <li><a href="index.html">Register</a></li>
+        <li><a href="launch.html">Launch a coin</a></li>
+        <li><a href="launches.html">Launches</a></li>
+        <li><a href="docs.html">Docs</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Where the data comes from</h4>
+      <ul>
+        <li><a href="https://datasets.wri.org/dataset/globalpowerplantdatabase" target="_blank"
+               rel="noopener">Global Power Plant Database<span class="out">&#8599;</span></a></li>
+        <li><a href="https://github.com/wri/global-power-plant-database" target="_blank"
+               rel="noopener">Its source and method<span class="out">&#8599;</span></a></li>
+        <li><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank"
+               rel="noopener">The licence, CC BY 4.0<span class="out">&#8599;</span></a></li>
+        <li><a href="docs.html#register">How the register is built</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>The chain</h4>
+      <ul>
+        <li><a href="https://robinhoodchain.blockscout.com" target="_blank"
+               rel="noopener">Robinhood Chain explorer<span class="out">&#8599;</span></a></li>
+        <li><a href="https://robinhoodchain.blockscout.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e"
+               target="_blank" rel="noopener">Pons V2 factory<span class="out">&#8599;</span></a></li>
+        <li><a href="https://github.com/ponsdotdev/ponsfamily" target="_blank"
+               rel="noopener">Pons contracts<span class="out">&#8599;</span></a></li>
+        <li><a href="docs.html#network">Add the network</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Read this first</h4>
+      <ul>
+        <li><a href="docs.html#chain">What goes on chain</a></li>
+        <li><a href="docs.html#not">What a pairing is not</a></li>
+        <li><a href="docs.html#fees">Creator fees</a></li>
+        <li><span class="live"><i></i>Reading the chain live</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="foot-rule"><div class="wrap foot-base">
+  <span>Figures from the Global Power Plant Database v1.3.0, World Resources Institute, CC BY&nbsp;4.0.</span>
+  <span>Naming a station is not owning one.</span>
+  <span class="far">GRIDPAD</span>
+</div></div>
+</footer>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
 <script src="data.js"></script>
 <script src="pons.js"></script>

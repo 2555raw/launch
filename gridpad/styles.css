@@ -283,3 +283,68 @@ tbody tr:hover { background: #fafbf9; }
 
 @media (max-width: 980px) { .lay { grid-template-columns: 1fr; } .pv { position: static; } .trade { grid-template-columns: 1fr; } }
 @media (max-width: 620px) { .two { grid-template-columns: 1fr; } }
+
+/* ---------------- the drawing-board footer ----------------
+ *
+ * The page is a register of engineering, so the furniture is drafting
+ * furniture: dashed uprights carried down from the band, crop marks at the
+ * corners of the plate, and the mark itself shown as a construction rather
+ * than a logo — on its grid, with its centre lines and its bounding box, the
+ * way it would arrive in a spec sheet.
+ */
+.foot { border-top: 1px dashed var(--line-2); margin-top: 54px; position: relative; }
+.foot::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(90deg,
+    transparent 0 121px, var(--line-2) 121px 122px);
+  opacity: .55;
+  -webkit-mask-image: linear-gradient(180deg, #000 0 72%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0 72%, transparent 100%);
+}
+.foot-in { position: relative; display: grid; grid-template-columns: 250px repeat(4, 1fr);
+           gap: 0; padding: 34px 0 30px; }
+.foot-in > * { padding: 0 22px; border-left: 1px dashed var(--line-2); }
+.foot-in > *:first-child { border-left: 0; padding-left: 0; }
+
+/* the plate the mark is drawn on */
+.plate { position: relative; }
+.plate .frame { position: relative; border: 1px dashed var(--line-2); padding: 20px;
+                display: grid; place-items: center; background: transparent; }
+.plate .frame::before, .plate .frame::after {
+  content: ""; position: absolute; width: 7px; height: 7px; border: 1px solid var(--ink-3);
+  border-radius: 50%; background: var(--paper);
+}
+.plate .frame::before { top: -4px; left: -4px; }
+.plate .frame::after { top: -4px; right: -4px; }
+.plate .corners::before, .plate .corners::after {
+  content: ""; position: absolute; width: 7px; height: 7px; border: 1px solid var(--ink-3);
+  border-radius: 50%; background: var(--paper); bottom: -4px;
+}
+.plate .corners::before { left: -4px; } .plate .corners::after { right: -4px; }
+.plate .wordmark { margin-top: 14px; text-align: center; font-weight: 800; font-size: 26px;
+                   letter-spacing: -.03em; color: var(--ok); }
+.plate .cap { margin-top: 12px; text-align: center; font: 500 9.5px/1.6 var(--mono);
+              letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+
+.foot h4 { font: 600 10px/1 var(--mono); letter-spacing: .18em; text-transform: uppercase;
+           color: var(--ink-3); margin-bottom: 14px; }
+.foot ul { list-style: none; display: grid; gap: 9px; }
+.foot a { font-size: 12.5px; color: var(--ink-2); letter-spacing: .01em; }
+.foot a:hover { color: var(--ink); }
+.foot a .out { color: var(--ink-3); font-size: 10px; margin-left: 3px; }
+.foot .live { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; color: var(--ink); }
+.foot .live i { width: 7px; height: 7px; border-radius: 2px; background: var(--ok); }
+
+.foot-rule { border-top: 1px dashed var(--line-2); position: relative; }
+.foot-base { position: relative; display: flex; gap: 20px; flex-wrap: wrap; align-items: baseline;
+             padding: 18px 0 40px; font-size: 11.5px; color: var(--ink-3); }
+.foot-base .far { margin-left: auto; font-family: var(--mono); letter-spacing: .06em; }
+
+@media (max-width: 1000px) {
+  .foot-in { grid-template-columns: 1fr 1fr; }
+  .foot-in > * { padding: 0 16px 22px; }
+  .foot-in > *:nth-child(odd) { border-left: 0; padding-left: 0; }
+  .plate { grid-column: 1 / -1; max-width: 250px; }
+}
+@media (max-width: 560px) { .foot-in { grid-template-columns: 1fr; }
+  .foot-in > * { border-left: 0; padding-left: 0; } }

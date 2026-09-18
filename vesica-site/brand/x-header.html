@@ -9,357 +9,175 @@
      crop. Not linked from the site — it exists to be screenshotted.
 
      The content is the site's: six vaults from the list with their real
-     figures, the two status pills, the headline. What is staged here is only
-     the material — the room they float in is glass. -->
+     figures, the two status pills, the headline. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#EDEEF2; --card:#EEEEEE; --line:#D6D6D6; --line-2:#DFDFDF;
-    --band:#3D3B4F; --ink:#3D3B4F; --muted:#82828D; --dim:#A9A8AF;
-    --accent:#6E5D0D; --accent-ink:#5C4E08; --accent-fill:#F2EAA0;
-    --accent-soft:#FBF7DA; --accent-glow:#EFD95E; --grid:#E4E5EA;
+    --bg:#F2F3F6; --line:#E3E4EA; --band:#3D3B4F; --ink:#3D3B4F;
+    --muted:#82828D; --dim:#A9A8AF; --grid:#E8E9EE;
+    --accent:#6E5D0D; --accent-ink:#5C4E08; --accent-fill:#F2EAA0; --accent-glow:#EFD95E;
     --font:'Schibsted Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
   }
   * { box-sizing:border-box; margin:0; }
   body { width:1500px; height:500px; overflow:hidden; font-family:var(--font); color:var(--ink); }
 
+  /* A bright, almost flat room. The reference keeps its ground quiet and
+     lets the cards be the whole picture, so the grid is the only texture and
+     everything else is atmosphere. */
   .hd {
     position:relative; width:1500px; height:500px; overflow:hidden;
     background:
-      linear-gradient(to right, var(--grid) 0 1px, transparent 1px) 0 0 / 32px 32px,
-      linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px) 0 0 / 32px 32px,
-      radial-gradient(120% 140% at 22% 8%,  #FFFFFF 0%, #F4F6FB 34%, #EDEFF6 62%, #E9EAF1 100%);
-    perspective:1500px; perspective-origin:50% 46%;
+      linear-gradient(to right, var(--grid) 0 1px, transparent 1px) 0 0 / 34px 34px,
+      linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px) 0 0 / 34px 34px,
+      radial-gradient(120% 150% at 50% 22%, #FFFFFF 0%, #FAFBFD 40%, #F3F4F8 74%, #EFF0F5 100%);
+    perspective:1600px; perspective-origin:50% 46%;
     transform-style:preserve-3d;
   }
 
-  /* ---- the far bodies ----
-     Big, soft, out of focus: the glass the whole scene is standing inside.
-     They are the depth, and they are meant to stay unreadable. */
+  /* far bodies: soft enough to be light rather than shapes */
   .body {
-    position:absolute; display:block; border-radius:46% 54% 60% 40% / 52% 44% 56% 48%;
-    background:
-      radial-gradient(58% 54% at 30% 26%, rgba(255,255,255,1) 0%, rgba(255,255,255,.55) 22%,
-        rgba(var(--t),var(--a)) 54%, rgba(var(--t),calc(var(--a) * .35)) 78%, rgba(var(--t),0) 100%),
-      radial-gradient(50% 62% at 76% 78%, rgba(146,156,196,.34) 0%, rgba(146,156,196,.10) 46%, rgba(var(--t),0) 74%);
-    pointer-events:none;
+    position:absolute; display:block; pointer-events:none;
+    border-radius:48% 52% 58% 42% / 54% 46% 54% 46%;
+    background:radial-gradient(58% 54% at 34% 30%,
+      rgba(255,255,255,.90) 0%, rgba(var(--t),var(--a)) 52%, rgba(var(--t),0) 100%);
   }
 
-  /* ---- the mid ground ----
-     A thick-bordered ellipse turned out of plane reads as a tube of glass;
-     the caustics are the bright lines light draws coming through one. */
-  .glass { position:absolute; inset:-130px; transform-style:preserve-3d; pointer-events:none; }
-  .rb {
-    position:absolute; display:block; border-radius:50%; border-style:solid;
-    box-shadow:
-      inset 0 0 70px rgba(255,255,255,.90),
-      inset 0 0 0 2px rgba(255,255,255,.85),
-      0 0 80px rgba(255,255,255,.55);
-  }
-  .ca {
-    position:absolute; display:block; border-radius:999px;
-    background:linear-gradient(90deg,
-      rgba(255,255,255,0), rgba(232,242,255,.92) 26%,
-      rgba(255,255,255,1) 50%, rgba(238,230,255,.88) 74%, rgba(255,255,255,0));
-  }
-
-  .pane {
-    position:absolute; border-radius:56px; pointer-events:none;
-    background:linear-gradient(140deg, rgba(255,255,255,.60), rgba(214,228,255,.22) 46%, rgba(255,255,255,.44));
-    box-shadow:
-      inset 0 0 0 3px rgba(255,255,255,.75),
-      inset 0 14px 40px rgba(255,255,255,.75),
-      0 0 70px rgba(255,255,255,.45);
-  }
-  .shade {
-    position:absolute; border-radius:50%; pointer-events:none;
-    background:radial-gradient(closest-side, rgba(126,134,176,.46), rgba(126,134,176,0));
-  }
-
-  /* a warm centre, small, so the yellow the content carries has something to
-     sit in without the room turning yellow */
-  .warm {
-    position:absolute; left:380px; top:120px; width:760px; height:300px;
-    border-radius:50%; filter:blur(110px); pointer-events:none;
-    background:rgba(255,238,168,.42);
-  }
-  .cool {
-    position:absolute; left:960px; top:-90px; width:620px; height:420px;
-    border-radius:50%; filter:blur(110px); pointer-events:none;
-    background:rgba(206,196,255,.40);
-  }
-  .cool2 {
-    position:absolute; left:-160px; top:180px; width:560px; height:380px;
-    border-radius:50%; filter:blur(110px); pointer-events:none;
-    background:rgba(198,220,255,.46);
-  }
-
-  /* ---- the mark, in the glass ---- */
-  .field { position:absolute; inset:0; transform-style:preserve-3d; pointer-events:none; }
-  .sh {
-    position:absolute; display:block;
-    -webkit-mask:url(../mark.svg) center / contain no-repeat;
-    mask:url(../mark.svg) center / contain no-repeat;
-  }
-
-  /* ---- beads ---- */
+  /* a few glass beads, most of them out of focus — the depth, understated */
   .bead {
     position:absolute; border-radius:50%; pointer-events:none;
-    background:
-      radial-gradient(circle at 36% 30%,
-        rgba(255,255,255,.96) 0%, rgba(255,255,255,.34) 13%,
-        rgba(255,255,255,.04) 34%, rgba(176,182,214,.10) 60%,
-        rgba(226,238,255,.62) 86%, rgba(232,220,255,.36) 94%, rgba(255,255,255,.10) 100%),
-      conic-gradient(from 210deg,
-        rgba(214,228,255,.30), rgba(228,214,255,.18), rgba(255,244,196,.16),
-        rgba(206,246,255,.14), rgba(214,228,255,.30));
+    background:radial-gradient(circle at 36% 30%,
+      rgba(255,255,255,.96) 0%, rgba(255,255,255,.32) 14%,
+      rgba(255,255,255,.04) 36%, rgba(176,182,214,.09) 62%,
+      rgba(230,240,255,.55) 88%, rgba(255,255,255,.10) 100%);
     box-shadow:
-      inset -2px -4px 15px rgba(104,108,150,.26),
-      inset 3px 4px 13px rgba(255,255,255,.80),
-      0 12px 26px rgba(56,58,86,.12);
-    backdrop-filter:blur(7px) saturate(1.5) brightness(1.04);
+      inset -2px -3px 12px rgba(104,108,150,.20),
+      inset 2px 3px 10px rgba(255,255,255,.80),
+      0 10px 22px rgba(56,58,86,.09);
+    backdrop-filter:blur(5px) saturate(1.3) brightness(1.03);
   }
 
   /* ---- the vault slabs ----
-     A thin sheet of glass set in a bevel. The bevel and the pane filter what
-     is behind them differently -- the bevel barely blurs and brightens hard,
-     the pane blurs and barely brightens -- which is what a real edge does and
-     is what stops this reading as one flat transparency over everything. */
+     The reference's cards are clean white panes: a hairline, a soft realistic
+     shadow, a lit top edge, and nothing else competing with what is printed
+     on them. So the heavy bevel goes. What is left is a thin rim, a high-white
+     pane that still lets the ground through, and a shadow whose depth follows
+     how far forward the card sits. */
   .card {
-    position:absolute; z-index:5; border-radius:24px; padding:8px;
-    background:linear-gradient(150deg,
-      rgba(255,255,255,.26) 0%, rgba(255,255,255,.09) 48%, rgba(255,255,255,.20) 100%);
-    backdrop-filter:blur(2px) saturate(1.5) brightness(1.16);
+    position:absolute; z-index:5; border-radius:18px;
+    background:linear-gradient(152deg,
+      rgba(255,255,255,.94) 0%, rgba(255,255,255,.80) 52%, rgba(255,255,255,.88) 100%);
+    border:1px solid rgba(255,255,255,.92);
+    outline:1px solid rgba(206,210,226,.55); outline-offset:-1px;
+    backdrop-filter:blur(14px) saturate(1.25) brightness(1.03);
   }
   .card::before {
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    background:linear-gradient(120deg,
-      rgba(255,255,255,.66) 0%, rgba(255,255,255,0) 17%,
-      rgba(255,255,255,0) 73%, rgba(255,255,255,.38) 100%);
+    background:linear-gradient(122deg,
+      rgba(255,255,255,.75) 0%, rgba(255,255,255,0) 16%,
+      rgba(255,255,255,0) 78%, rgba(255,255,255,.34) 100%);
   }
-  /* the hairline where the edge splits the light: cool through the middle,
-     warm at the ends */
-  .card::after {
-    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    padding:1px;
-    background:linear-gradient(125deg,
-      rgba(255,248,214,.95) 0%, rgba(255,255,255,.92) 24%,
-      rgba(214,230,255,.80) 48%, rgba(228,214,255,.72) 68%,
-      rgba(255,250,222,.92) 100%);
-    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    mask-composite:exclude;
-  }
-  .vc { width:322px; }
-  .face {
-    position:relative; z-index:1; border-radius:17px; padding:13px 15px 14px;
-    background:rgba(255,255,255,.34);
-    backdrop-filter:blur(13px) saturate(1.2) brightness(1.02);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.80), inset 0 -1px 0 rgba(255,255,255,.42);
-  }
+  .vc { width:322px; padding:15px 17px 16px; }
+  .vc > * { position:relative; z-index:1; }
   .vc-row { display:flex; align-items:center; gap:10px; }
   .vc-ic {
     width:36px; height:36px; flex:none; border-radius:11px;
     display:grid; place-items:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 4px rgba(56,58,86,.10);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 4px rgba(56,58,86,.09);
   }
   .vc-ic svg { width:19px; height:19px; fill:currentColor; }
   .vc-id { display:flex; flex-direction:column; min-width:0; }
   .vc-id b { font-size:14.5px; font-weight:700; letter-spacing:-.02em; white-space:nowrap; }
   .vc-id span { font-size:9.8px; color:var(--muted); margin-top:1px; white-space:nowrap; }
   .vc-px { margin-left:auto; font-size:17.5px; font-weight:600; letter-spacing:-.03em; color:var(--accent); }
-  .vc-lab { display:block; margin-top:13px; font-size:9.8px; color:var(--muted); }
+  .vc-lab {
+    display:block; margin-top:14px; font-family:var(--mono); font-size:8.5px;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--dim);
+  }
   .vc-bar {
-    position:relative; margin-top:6px; height:5px; border-radius:999px;
-    background:rgba(104,108,150,.18); overflow:hidden;
+    position:relative; margin-top:7px; height:5px; border-radius:999px;
+    background:rgba(104,108,150,.15); overflow:hidden;
   }
   .vc-bar i { display:block; height:100%; border-radius:999px;
               background:linear-gradient(90deg, var(--accent-fill), var(--accent-glow)); }
-  .vc-pct { display:block; text-align:right; margin-top:5px; font-size:9.8px; color:var(--dim); }
+  .vc-pct { display:block; text-align:right; margin-top:6px;
+             font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--dim); }
 
-  .v1 { left:14px; top:196px; transform:translateZ(46px) rotateX(6deg) rotateY(-17deg) rotateZ(-3deg);
+  .v1 { left:14px; top:196px; transform:translateZ(46px) rotateX(5deg) rotateY(-15deg) rotateZ(-2.6deg);
     box-shadow:
-      1.0px 0.7px 0 #FFFFFF,
-      2.0px 1.4px 0 #FFFCF1,
-      3.0px 2.1px 0 #FFFAE2,
-      4.0px 2.8px 0 #FFF7D4,
-      5.0px 3.5px 0 #FCF3D6,
-      6.0px 4.2px 0 #F7EDE4,
-      7.0px 4.9px 0 #F2E8F2,
-      8.0px 5.6px 0 #E6DFEB,
-      9.0px 6.3px 0 #D9D6E4,
-      10.0px 7.0px 0 #D9D6E4,
-      11.0px 7.7px 0 #D9D6E4,
-      0 34px 58px rgba(61,59,79,.15),
-      0 8px 18px rgba(61,59,79,.08),
-      inset 1px 1px 0 rgba(255,255,255,.94),
-      inset -1px -1px 0 rgba(255,255,255,.55); }
-  .v2 { left:268px; top:8px; transform:translateZ(86px) rotateX(9deg) rotateY(-14deg) rotateZ(-2deg);
+      0 18px 47px rgba(56,58,86,.13),
+      0 6px 18px rgba(56,58,86,.07),
+      inset 0 1px 0 rgba(255,255,255,.95); }
+  .v2 { left:268px; top:8px; transform:translateZ(86px) rotateX(7deg) rotateY(-12deg) rotateZ(-1.8deg);
     box-shadow:
-      1.0px 0.7px 0 #FFFFFF,
-      2.0px 1.4px 0 #FFFDF2,
-      3.0px 2.2px 0 #FFFAE5,
-      4.0px 2.9px 0 #FFF8D8,
-      5.0px 3.6px 0 #FEF5D1,
-      6.0px 4.3px 0 #F9F0DE,
-      7.0px 5.0px 0 #F5EBEA,
-      8.0px 5.8px 0 #EDE5EF,
-      9.0px 6.5px 0 #E2DDE9,
-      10.0px 7.2px 0 #D9D6E4,
-      11.0px 7.9px 0 #D9D6E4,
-      12.0px 8.6px 0 #D9D6E4,
-      0 34px 58px rgba(61,59,79,.15),
-      0 8px 18px rgba(61,59,79,.08),
-      inset 1px 1px 0 rgba(255,255,255,.94),
-      inset -1px -1px 0 rgba(255,255,255,.55); }
-  .v3 { left:512px; bottom:14px; transform:translateZ(24px) rotateX(-9deg) rotateY(3deg) rotateZ(1.4deg); filter:blur(0.35px);
+      0 22px 57px rgba(56,58,86,.13),
+      0 7px 22px rgba(56,58,86,.07),
+      inset 0 1px 0 rgba(255,255,255,.95); }
+  .v3 { left:512px; bottom:14px; transform:translateZ(24px) rotateX(-7deg) rotateY(3deg) rotateZ(1.2deg);
     box-shadow:
-      0.9px -0.7px 0 #FFFFFF,
-      1.8px -1.4px 0 #FFFCEF,
-      2.7px -2.1px 0 #FFF9DF,
-      3.6px -2.8px 0 #FFF6CF,
-      4.5px -3.5px 0 #FAF0DC,
-      5.4px -4.2px 0 #F4EAEC,
-      6.3px -4.9px 0 #EAE2ED,
-      7.2px -5.6px 0 #DCD8E6,
-      8.1px -6.3px 0 #D9D6E4,
-      9.0px -7.0px 0 #D9D6E4,
-      0 34px 58px rgba(61,59,79,.15),
-      0 8px 18px rgba(61,59,79,.08),
-      inset 1px 1px 0 rgba(255,255,255,.94),
-      inset -1px -1px 0 rgba(255,255,255,.55); }
-  .v4 { right:118px; top:8px; transform:translateZ(74px) rotateX(8deg) rotateY(16deg) rotateZ(2deg);
+      0 16px 42px rgba(56,58,86,.13),
+      0 5px 16px rgba(56,58,86,.07),
+      inset 0 1px 0 rgba(255,255,255,.95); }
+  .v4 { right:118px; top:8px; transform:translateZ(74px) rotateX(6deg) rotateY(14deg) rotateZ(1.8deg);
     box-shadow:
-      -1.0px 0.7px 0 #FFFFFF,
-      -2.0px 1.4px 0 #FFFCF1,
-      -3.0px 2.1px 0 #FFFAE2,
-      -4.0px 2.8px 0 #FFF7D4,
-      -5.0px 3.5px 0 #FCF3D6,
-      -6.0px 4.2px 0 #F7EDE4,
-      -7.0px 4.9px 0 #F2E8F2,
-      -8.0px 5.6px 0 #E6DFEB,
-      -9.0px 6.3px 0 #D9D6E4,
-      -10.0px 7.0px 0 #D9D6E4,
-      -11.0px 7.7px 0 #D9D6E4,
-      0 34px 58px rgba(61,59,79,.15),
-      0 8px 18px rgba(61,59,79,.08),
-      inset 1px 1px 0 rgba(255,255,255,.94),
-      inset -1px -1px 0 rgba(255,255,255,.55); }
-  .v5 { right:24px; top:166px; transform:translateZ(36px) rotateX(5deg) rotateY(19deg) rotateZ(-2.4deg); filter:blur(0.3px);
+      0 22px 57px rgba(56,58,86,.13),
+      0 7px 22px rgba(56,58,86,.07),
+      inset 0 1px 0 rgba(255,255,255,.95); }
+  .v5 { right:24px; top:166px; transform:translateZ(36px) rotateX(4deg) rotateY(16deg) rotateZ(-2deg);
     box-shadow:
-      -1.0px 0.7px 0 #FFFFFF,
-      -2.0px 1.4px 0 #FFFCF1,
-      -3.0px 2.0px 0 #FFFAE2,
-      -4.0px 2.7px 0 #FFF7D4,
-      -5.0px 3.4px 0 #FCF3D6,
-      -6.0px 4.1px 0 #F7EDE4,
-      -7.0px 4.8px 0 #F2E8F2,
-      -8.0px 5.4px 0 #E6DFEB,
-      -9.0px 6.1px 0 #D9D6E4,
-      -10.0px 6.8px 0 #D9D6E4,
-      -11.0px 7.5px 0 #D9D6E4,
-      0 34px 58px rgba(61,59,79,.15),
-      0 8px 18px rgba(61,59,79,.08),
-      inset 1px 1px 0 rgba(255,255,255,.94),
-      inset -1px -1px 0 rgba(255,255,255,.55); }
-  .v6 { right:186px; bottom:16px; transform:translateZ(-18px) rotateX(-11deg) rotateY(12deg) rotateZ(-1.4deg); filter:blur(0.7px);
+      0 18px 47px rgba(56,58,86,.13),
+      0 6px 18px rgba(56,58,86,.07),
+      inset 0 1px 0 rgba(255,255,255,.95); }
+  .v6 { right:186px; bottom:16px; transform:translateZ(-18px) rotateX(-9deg) rotateY(11deg) rotateZ(-1.2deg);
     box-shadow:
-      -0.9px -0.8px 0 #FFFFFF,
-      -1.8px -1.6px 0 #FFFCED,
-      -2.7px -2.3px 0 #FFF8DB,
-      -3.6px -3.1px 0 #FDF4D3,
-      -4.5px -3.9px 0 #F7EDE4,
-      -5.4px -4.7px 0 #EFE6F0,
-      -6.3px -5.5px 0 #DFDAE8,
-      -7.2px -6.2px 0 #D9D6E4,
-      -8.1px -7.0px 0 #D9D6E4,
-      0 34px 58px rgba(61,59,79,.15),
-      0 8px 18px rgba(61,59,79,.08),
-      inset 1px 1px 0 rgba(255,255,255,.94),
-      inset -1px -1px 0 rgba(255,255,255,.55); }
+      0 14px 36px rgba(56,58,86,.13),
+      0 4px 14px rgba(56,58,86,.07),
+      inset 0 1px 0 rgba(255,255,255,.95); }
 
   .say {
     position:absolute; left:0; right:0; top:214px; text-align:center; z-index:6;
     font-size:42px; font-weight:600; letter-spacing:-.035em; line-height:1.1;
-    text-shadow:0 1px 0 rgba(255,255,255,.75);
   }
   .say em { font-style:normal; color:var(--accent); box-shadow:inset 0 -.26em 0 var(--accent-fill); }
   .sub {
     position:absolute; left:0; right:0; top:276px; text-align:center; z-index:6;
     font-size:16.5px; color:var(--muted); letter-spacing:-.005em;
-    text-shadow:0 1px 0 rgba(255,255,255,.75);
   }
 
+  /* the reference's small labels are mono, uppercase and tracked out — same
+     words, that treatment */
   .pill {
     position:absolute; z-index:6; display:inline-flex; align-items:center; gap:8px;
-    padding:9px 15px 9px 11px; border-radius:999px;
-    background:linear-gradient(145deg, rgba(255,255,255,.40), rgba(255,255,255,.18));
-    border:1px solid rgba(255,255,255,.80);
-    backdrop-filter:blur(10px) saturate(1.5) brightness(1.10);
-    font-size:12.5px; font-weight:500; color:var(--ink); white-space:nowrap;
-    box-shadow:
-      0.8px 0.6px 0 rgba(255,255,255,.95), 1.6px 1.2px 0 rgba(236,243,255,.85),
-      2.4px 1.8px 0 rgba(224,232,250,.75), 3.2px 2.4px 0 rgba(208,214,236,.65),
-      0 20px 34px rgba(56,58,86,.13),
-      inset 1px 1px 0 rgba(255,255,255,.95),
-      inset -1px -1px 0 rgba(255,255,255,.50);
+    padding:9px 16px 9px 12px; border-radius:999px;
+    background:rgba(255,255,255,.92);
+    border:1px solid rgba(255,255,255,.95);
+    outline:1px solid rgba(206,210,226,.55); outline-offset:-1px;
+    backdrop-filter:blur(12px) saturate(1.2);
+    font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.11em;
+    text-transform:uppercase; color:var(--ink); white-space:nowrap;
+    box-shadow:0 14px 28px rgba(56,58,86,.11), 0 3px 8px rgba(56,58,86,.06),
+               inset 0 1px 0 rgba(255,255,255,.95);
   }
   .pill .dot { width:7px; height:7px; border-radius:50%; background:#2F9E7A; flex:none;
                box-shadow:0 0 0 3px rgba(47,158,122,.16); }
-  .pill .mk { width:15px; height:15px; flex:none; background:var(--band);
+  .pill .mk { width:14px; height:14px; flex:none; background:var(--band);
               -webkit-mask:url(../mark.svg) center / contain no-repeat;
               mask:url(../mark.svg) center / contain no-repeat; }
-  .q1 { left:640px; top:38px; transform:translateZ(100px) rotateY(-8deg) rotateZ(-1.6deg); }
-  .q2 { right:430px; top:128px; transform:translateZ(92px) rotateY(8deg) rotateZ(1.4deg); }
+  .q1 { left:640px; top:38px; transform:translateZ(100px) rotateY(-7deg) rotateZ(-1.2deg); }
+  .q2 { right:430px; top:128px; transform:translateZ(92px) rotateY(7deg) rotateZ(1deg); }
 
-  /* the room falls off at the edges, so nothing out there competes */
   .vig {
     position:absolute; inset:0; z-index:7; pointer-events:none;
-    background:radial-gradient(130% 120% at 50% 46%,
-      rgba(255,255,255,0) 58%, rgba(238,240,248,.26) 86%, rgba(230,233,243,.44) 100%);
+    background:radial-gradient(135% 125% at 50% 44%,
+      rgba(255,255,255,0) 60%, rgba(238,240,247,.22) 88%, rgba(230,233,243,.38) 100%);
   }
 </style>
 </head>
 <body>
 <div class="hd">
-  <i class="body" style="left:-300px;top:-260px;width:1100px;height:820px;filter:blur(58px);--t:214,228,255;--a:0.52;transform:rotate(-22deg)"></i><i class="body" style="left:700px;top:-320px;width:1160px;height:900px;filter:blur(72px);--t:255,255,255;--a:0.6;transform:rotate(26deg)"></i><i class="body" style="left:-220px;top:120px;width:900px;height:700px;filter:blur(66px);--t:224,212,255;--a:0.44;transform:rotate(38deg)"></i><i class="body" style="left:900px;top:140px;width:980px;height:760px;filter:blur(54px);--t:236,246,255;--a:0.5;transform:rotate(-30deg)"></i><i class="body" style="left:260px;top:-60px;width:820px;height:640px;filter:blur(78px);--t:255,244,214;--a:0.3;transform:rotate(12deg)"></i><i class="body" style="left:420px;top:200px;width:1080px;height:560px;filter:blur(62px);--t:255,255,255;--a:0.46;transform:rotate(-14deg)"></i>
-  <i class="shade" style="left:-180px;top:240px;width:620px;height:340px;filter:blur(80px);opacity:0.5"></i><i class="shade" style="left:1020px;top:250px;width:560px;height:320px;filter:blur(86px);opacity:0.42"></i><i class="shade" style="left:330px;top:-160px;width:540px;height:300px;filter:blur(92px);opacity:0.34"></i><i class="shade" style="left:700px;top:330px;width:700px;height:260px;filter:blur(88px);opacity:0.3"></i>
-  <div class="cool2"></div>
-  <div class="warm"></div>
-  <div class="cool"></div>
-
-  <i class="pane" style="left:-240px;top:-120px;width:640px;height:520px;filter:blur(26px);transform:rotate(-16deg)"></i><i class="pane" style="left:1080px;top:60px;width:600px;height:520px;filter:blur(30px);transform:rotate(14deg)"></i><i class="pane" style="left:420px;top:-200px;width:520px;height:420px;filter:blur(34px);transform:rotate(8deg)"></i>
-
-  <div class="field">
-      <i class="sh" style="left:1293px;top:-131px;width:200px;height:354px;background:#DCE6FA;opacity:0.226;filter:blur(5.9px);mix-blend-mode:screen;transform:translateZ(-22px) rotateX(55deg) rotateY(-5deg) rotateZ(-69deg) scale(0.58,0.80)"></i>
-      <i class="sh" style="left:97px;top:271px;width:357px;height:412px;background:#C8D6F2;opacity:0.227;filter:blur(6.6px);mix-blend-mode:multiply;transform:translateZ(-280px) rotateX(-16deg) rotateY(-61deg) rotateZ(-43deg) scale(1.24,0.47)"></i>
-      <i class="sh" style="left:1288px;top:-77px;width:420px;height:364px;background:#DCE6FA;opacity:0.365;filter:blur(9.4px);mix-blend-mode:screen;transform:translateZ(-252px) rotateX(-58deg) rotateY(-19deg) rotateZ(-62deg) scale(2.00,1.25)"></i>
-      <i class="sh" style="left:1333px;top:369px;width:197px;height:175px;background:#FFE9F6;opacity:0.201;filter:blur(6.9px);mix-blend-mode:multiply;transform:translateZ(-299px) rotateX(-32deg) rotateY(20deg) rotateZ(3deg) scale(1.20,1.80)"></i>
-      <i class="sh" style="left:590px;top:447px;width:351px;height:346px;background:#C8D6F2;opacity:0.151;filter:blur(8.6px);mix-blend-mode:multiply;transform:translateZ(-206px) rotateX(-49deg) rotateY(24deg) rotateZ(55deg) scale(1.98,1.27)"></i>
-      <i class="sh" style="left:510px;top:423px;width:211px;height:364px;background:#FFE9F6;opacity:0.219;filter:blur(11.7px);mix-blend-mode:multiply;transform:translateZ(-265px) rotateX(52deg) rotateY(-42deg) rotateZ(90deg) scale(1.10,1.12)"></i>
-      <i class="sh" style="left:1418px;top:77px;width:309px;height:298px;background:#FFE9F6;opacity:0.221;filter:blur(6.0px);mix-blend-mode:multiply;transform:translateZ(-71px) rotateX(-54deg) rotateY(51deg) rotateZ(-30deg) scale(1.43,1.19)"></i>
-      <i class="sh" style="left:63px;top:312px;width:315px;height:247px;background:#FFE9F6;opacity:0.101;filter:blur(7.0px);mix-blend-mode:multiply;transform:translateZ(-187px) rotateX(-2deg) rotateY(-12deg) rotateZ(-45deg) scale(1.88,1.78)"></i>
-      <i class="sh" style="left:244px;top:-97px;width:327px;height:156px;background:#DCE6FA;opacity:0.168;filter:blur(3.2px);mix-blend-mode:screen;transform:translateZ(-213px) rotateX(-6deg) rotateY(-19deg) rotateZ(57deg) scale(0.83,0.82)"></i>
-      <i class="sh" style="left:249px;top:-148px;width:325px;height:182px;background:#BFCDEA;opacity:0.119;filter:blur(3.7px);mix-blend-mode:multiply;transform:translateZ(-296px) rotateX(52deg) rotateY(-28deg) rotateZ(68deg) scale(0.98,1.63)"></i>
-      <i class="sh" style="left:-1px;top:160px;width:316px;height:286px;background:#C8D6F2;opacity:0.376;filter:blur(9.1px);mix-blend-mode:screen;transform:translateZ(-233px) rotateX(-4deg) rotateY(-59deg) rotateZ(-4deg) scale(0.93,1.28)"></i>
-      <i class="sh" style="left:715px;top:-49px;width:313px;height:208px;background:#FFE9F6;opacity:0.155;filter:blur(1.8px);mix-blend-mode:multiply;transform:translateZ(-40px) rotateX(24deg) rotateY(-40deg) rotateZ(15deg) scale(1.37,1.44)"></i>
-      <i class="sh" style="left:666px;top:56px;width:219px;height:166px;background:#D2C8F0;opacity:0.115;filter:blur(3.6px);mix-blend-mode:multiply;transform:translateZ(-67px) rotateX(-3deg) rotateY(-70deg) rotateZ(30deg) scale(1.90,1.36)"></i>
-      <i class="sh" style="left:102px;top:95px;width:184px;height:391px;background:#FFF3C6;opacity:0.243;filter:blur(10.7px);mix-blend-mode:screen;transform:translateZ(-357px) rotateX(-19deg) rotateY(-24deg) rotateZ(-49deg) scale(1.72,1.33)"></i>
-      <i class="sh" style="left:419px;top:-147px;width:181px;height:366px;background:#FFE9F6;opacity:0.295;filter:blur(8.5px);mix-blend-mode:screen;transform:translateZ(-145px) rotateX(40deg) rotateY(-50deg) rotateZ(39deg) scale(0.96,1.32)"></i>
-      <i class="sh" style="left:983px;top:280px;width:188px;height:334px;background:#FFE9F6;opacity:0.280;filter:blur(5.1px);mix-blend-mode:screen;transform:translateZ(-326px) rotateX(20deg) rotateY(9deg) rotateZ(27deg) scale(1.86,0.83)"></i>
-      <i class="sh" style="left:1063px;top:-102px;width:302px;height:347px;background:#FFF3C6;opacity:0.226;filter:blur(10.1px);mix-blend-mode:multiply;transform:translateZ(-33px) rotateX(11deg) rotateY(-6deg) rotateZ(-44deg) scale(1.48,0.66)"></i>
-      <i class="sh" style="left:1047px;top:-46px;width:163px;height:356px;background:#C8D6F2;opacity:0.116;filter:blur(5.5px);mix-blend-mode:multiply;transform:translateZ(-158px) rotateX(-6deg) rotateY(21deg) rotateZ(-50deg) scale(1.96,1.15)"></i>
-  </div>
-
-  <div class="glass">
-      
-<i class="rb" style="left:-260px;top:-300px;width:980px;height:760px;border-width:70px;border-color:rgba(255,255,255,0.46);filter:blur(14px);transform:translateZ(-176px) rotateX(-52deg) rotateY(34deg) rotateZ(-18deg)"></i>      <i class="rb" style="left:640px;top:-420px;width:1180px;height:900px;border-width:88px;border-color:rgba(226,238,255,0.40);filter:blur(22px);transform:translateZ(-92px) rotateX(38deg) rotateY(-46deg) rotateZ(26deg)"></i>      <i class="rb" style="left:-420px;top:120px;width:860px;height:620px;border-width:56px;border-color:rgba(230,218,255,0.34);filter:blur(30px);transform:translateZ(-299px) rotateX(26deg) rotateY(52deg) rotateZ(-40deg)"></i>      <i class="rb" style="left:880px;top:120px;width:900px;height:680px;border-width:62px;border-color:rgba(255,255,255,0.48);filter:blur(9px);transform:translateZ(-106px) rotateX(-30deg) rotateY(-38deg) rotateZ(34deg)"></i>      <i class="rb" style="left:180px;top:-180px;width:700px;height:560px;border-width:42px;border-color:rgba(255,248,222,0.26);filter:blur(34px);transform:translateZ(-254px) rotateX(44deg) rotateY(28deg) rotateZ(-62deg)"></i>      <i class="rb" style="left:380px;top:180px;width:1020px;height:520px;border-width:52px;border-color:rgba(240,247,255,0.40);filter:blur(17px);transform:translateZ(-129px) rotateX(-20deg) rotateY(40deg) rotateZ(12deg)"></i>      <i class="rb" style="left:-160px;top:-60px;width:520px;height:520px;border-width:36px;border-color:rgba(255,255,255,0.54);filter:blur(5px);transform:translateZ(-115px) rotateX(18deg) rotateY(-56deg) rotateZ(48deg)"></i>      <i class="rb" style="left:1020px;top:-140px;width:620px;height:600px;border-width:40px;border-color:rgba(242,236,255,0.44);filter:blur(7px);transform:translateZ(-231px) rotateX(-40deg) rotateY(30deg) rotateZ(-22deg)"></i>      <i class="ca" style="left:668px;top:-20px;width:683px;height:20px;opacity:0.55;filter:blur(10.2px);transform:rotate(-41deg)"></i>      <i class="ca" style="left:422px;top:406px;width:559px;height:5px;opacity:0.59;filter:blur(5.1px);transform:rotate(40deg)"></i>      <i class="ca" style="left:668px;top:143px;width:459px;height:13px;opacity:0.37;filter:blur(10.3px);transform:rotate(-1deg)"></i>      <i class="ca" style="left:301px;top:446px;width:264px;height:15px;opacity:0.62;filter:blur(5.4px);transform:rotate(-65deg)"></i>      <i class="ca" style="left:376px;top:374px;width:382px;height:12px;opacity:0.30;filter:blur(7.9px);transform:rotate(43deg)"></i>      <i class="ca" style="left:1154px;top:60px;width:301px;height:8px;opacity:0.43;filter:blur(8.9px);transform:rotate(-70deg)"></i>      <i class="ca" style="left:-60px;top:270px;width:548px;height:13px;opacity:0.57;filter:blur(7.3px);transform:rotate(-69deg)"></i>      <i class="ca" style="left:1280px;top:135px;width:694px;height:5px;opacity:0.59;filter:blur(8.1px);transform:rotate(-59deg)"></i>      <i class="ca" style="left:610px;top:49px;width:712px;height:17px;opacity:0.36;filter:blur(3.6px);transform:rotate(-39deg)"></i>      <i class="ca" style="left:1094px;top:318px;width:534px;height:11px;opacity:0.61;filter:blur(8.2px);transform:rotate(-17deg)"></i>      <i class="ca" style="left:1036px;top:309px;width:245px;height:19px;opacity:0.60;filter:blur(11.7px);transform:rotate(-38deg)"></i>      <i class="ca" style="left:341px;top:362px;width:499px;height:5px;opacity:0.43;filter:blur(10.2px);transform:rotate(44deg)"></i>      <i class="ca" style="left:608px;top:369px;width:448px;height:5px;opacity:0.39;filter:blur(5.1px);transform:rotate(-17deg)"></i>      <i class="ca" style="left:399px;top:143px;width:573px;height:14px;opacity:0.30;filter:blur(3.3px);transform:rotate(-42deg)"></i>      <i class="ca" style="left:556px;top:85px;width:555px;height:11px;opacity:0.46;filter:blur(6.4px);transform:rotate(20deg)"></i>      <i class="ca" style="left:826px;top:190px;width:460px;height:5px;opacity:0.31;filter:blur(11.0px);transform:rotate(-41deg)"></i>
-  </div>
-
-    
-<i class="bead" style="left:178px;top:66px;width:60px;height:60px;filter:blur(0px);transform:translateZ(60px)"></i>    <i class="bead" style="left:612px;top:178px;width:40px;height:40px;filter:blur(0.5px);transform:translateZ(40px)"></i>    <i class="bead" style="left:902px;top:84px;width:72px;height:72px;filter:blur(0px);transform:translateZ(70px)"></i>    <i class="bead" style="left:452px;top:404px;width:56px;height:56px;filter:blur(6px);transform:translateZ(-140px)"></i>    <i class="bead" style="left:1104px;top:336px;width:48px;height:48px;filter:blur(1px);transform:translateZ(30px)"></i>    <i class="bead" style="left:1376px;top:190px;width:88px;height:88px;filter:blur(9px);transform:translateZ(-200px)"></i>    <i class="bead" style="left:748px;top:452px;width:34px;height:34px;filter:blur(0.4px);transform:translateZ(50px)"></i>    <i class="bead" style="left:52px;top:408px;width:52px;height:52px;filter:blur(11px);transform:translateZ(-240px)"></i>
+  <i class="body" style="left:-280px;top:-200px;width:900px;height:700px;filter:blur(96px);--t:214,226,255;--a:0.34"></i><i class="body" style="left:860px;top:-240px;width:960px;height:760px;filter:blur(104px);--t:226,218,255;--a:0.3"></i><i class="body" style="left:300px;top:190px;width:900px;height:460px;filter:blur(110px);--t:255,242,198;--a:0.26"></i><i class="body" style="left:-120px;top:190px;width:620px;height:420px;filter:blur(96px);--t:216,232,255;--a:0.26"></i><i class="body" style="left:1060px;top:180px;width:620px;height:420px;filter:blur(100px);--t:224,236,255;--a:0.28"></i>
+  <i class="bead" style="left:206px;top:64px;width:52px;height:52px;filter:blur(0px)"></i><i class="bead" style="left:930px;top:92px;width:40px;height:40px;filter:blur(0.4px)"></i><i class="bead" style="left:1338px;top:206px;width:60px;height:60px;filter:blur(3px)"></i><i class="bead" style="left:470px;top:404px;width:44px;height:44px;filter:blur(5px)"></i><i class="bead" style="left:76px;top:398px;width:36px;height:36px;filter:blur(7px)"></i>
 
   <div class="card vc v1">
     <div class="face">
@@ -435,11 +253,13 @@
   </div>
 
 
+
   <span class="pill q1"><i class="mk"></i>20 vaults, one per stock</span>
   <span class="pill q2"><span class="dot"></span>Robinhood Chain · live</span>
 
   <p class="say">A vault paired to <em>every stock</em></p>
   <p class="sub">20 named vaults. One position each. Fees split onchain.</p>
+
 
   <div class="vig"></div>
 </div>

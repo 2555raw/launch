@@ -517,3 +517,11 @@ if ('IntersectionObserver' in window) {
 
 load();
 paint();
+
+/* the partner row borrows the same brand marks the list uses */
+document.querySelectorAll('.pr-ic[data-logo]').forEach(el => {
+  const l = LOGOS[el.dataset.logo];
+  if (!l) return;
+  el.style.color = l.c;
+  el.innerHTML = `<svg viewBox="${l.vb}" fill="currentColor"><path d="${l.p}"${l.evenodd ? ' fill-rule="evenodd"' : ''}/></svg>`;
+});

@@ -48,7 +48,7 @@
 
 
 /* the wireframe form */
-.hm-form { position: absolute; right: -70px; top: 20px; width: min(54vw, 760px); color: #C9C8CE; pointer-events: none; }
+.hm-form { position: absolute; right: -40px; top: -16px; width: min(50vw, 690px); color: #C9C8CE; pointer-events: none; }
 .hm-form svg { width: 100%; height: auto; }
 
 /* ---------- one vault per stock ---------- */
@@ -70,14 +70,14 @@
 .hm-cta { background: var(--band); color: var(--on-band); }
 .hm-cta-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 54px 24px 58px;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 40px; align-items: center;
+  display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.25fr); gap: 34px; align-items: center;
 }
 .hm-cta h2 { margin: 0 0 22px; font-size: 32px; line-height: 1.18; font-weight: 600; letter-spacing: -.03em; color: var(--yellow); max-width: 20ch; }
 .hm-cta .hm-fine { color: var(--on-band-2); }
 .hm-cta .hm-fine a { color: var(--on-band); }
 .hm-cta-dia { color: var(--band-2); }
 /* uncapped, this filled a phone's whole width and left the band mostly air */
-.hm-cta-dia svg { width: 100%; max-width: 600px; height: auto; margin: 0 auto; }
+.hm-cta-dia svg { width: 100%; max-width: 780px; height: auto; margin: 0 auto; }
 
 .hm-figs {
   margin: 0 0 20px; display: grid; grid-template-columns: repeat(3, auto); gap: 30px;

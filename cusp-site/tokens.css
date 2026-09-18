@@ -252,3 +252,79 @@ img, svg { display: block; }
   .cs-nav .cs-btn-line, .dx-nav-right .btn-line, .tr-nav-right .btn-line { display: none; }
   .nav-x { width: 28px; height: 28px; }
 }
+
+/* ---------- nav dropdowns ---------- */
+
+.mnu { position: relative; }
+.mnu-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border: 0; border-radius: 999px; background: transparent;
+  font-family: inherit; font-size: 13.5px; font-weight: 500; color: var(--muted); cursor: pointer;
+  transition: color .15s;
+}
+.mnu-btn:hover, .mnu.on .mnu-btn { color: var(--ink); }
+.mnu-chev { transition: transform .18s; }
+.mnu.on .mnu-chev { transform: rotate(180deg); }
+.mnu-pop {
+  position: absolute; top: calc(100% + 12px); left: 50%; z-index: 60;
+  transform: translateX(-50%) translateY(-4px);
+  min-width: 196px; padding: 6px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--card);
+  box-shadow: 0 16px 34px rgba(61, 59, 79, .13);
+  opacity: 0; visibility: hidden;
+  transition: opacity .16s, transform .16s, visibility .16s;
+}
+.mnu.on .mnu-pop { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+.mnu-pop a { display: block; padding: 8px 11px; border-radius: 9px; font-size: 13px; color: var(--muted); }
+.mnu-pop a:hover { background: var(--accent-soft); color: var(--ink); }
+
+.nav-lang {
+  display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px;
+  border-radius: 999px; color: var(--muted); font-size: 12.5px; font-weight: 600; cursor: default;
+}
+.nav-lang:hover { color: var(--ink); }
+@media (max-width: 860px) { .nav-lang { display: none; } }
+
+/* ---------- the footer's brand plate ----------
+   A construction drawing: the mark pixelated on a grid, inside dashed guides
+   with corner ticks, the way a spec sheet shows a logo. */
+
+.ft-cols { grid-template-columns: minmax(0, .95fr) repeat(4, minmax(0, 1fr)); }
+.ft-brand { padding: 26px 22px 36px; border-left: 1px dashed var(--line); }
+.ft-plate {
+  position: relative; aspect-ratio: 1; max-width: 190px; margin: 0 auto 14px;
+  display: grid; place-items: center;
+  border: 1px dashed var(--line);
+}
+/* the inner guides */
+.ft-plate::before {
+  content: ""; position: absolute; inset: 14%;
+  border: 1px dashed var(--line); border-radius: 50%;
+}
+.ft-plate::after {
+  content: ""; position: absolute; inset: 14%;
+  background:
+    linear-gradient(to right, var(--line) 0 1px, transparent 1px) 50% 0 / 1px 100% no-repeat,
+    linear-gradient(to bottom, var(--line) 0 1px, transparent 1px) 0 50% / 100% 1px no-repeat;
+}
+.ft-px {
+  position: relative; z-index: 1; width: 64%; aspect-ratio: 30 / 23;
+  color: var(--accent-fill); background: currentColor;
+  -webkit-mask: url(mark-pixel.svg) center / contain no-repeat;
+  mask: url(mark-pixel.svg) center / contain no-repeat;
+}
+.ft-word {
+  display: block; text-align: center;
+  font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: var(--accent);
+}
+.ft-cap {
+  display: block; text-align: center; margin-top: 8px;
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--dim);
+}
+
+@media (max-width: 860px) {
+  .ft-cols { grid-template-columns: 1fr 1fr; }
+  .ft-brand { grid-column: 1 / -1; border-right: 1px dashed var(--line); border-bottom: 1px dashed var(--line); }
+  .ft-plate { max-width: 150px; }
+}
+@media (max-width: 560px) { .ft-cols { grid-template-columns: 1fr; } }

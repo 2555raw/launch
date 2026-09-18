@@ -40,6 +40,12 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
     // back layers are faint, the face is solid
     const front = i / (DEPTH - 1);
     u.setAttribute('opacity', (0.05 + 0.5 * Math.pow(front, 2.4)).toFixed(3));
+    // the deepest layers carry a faint pastel trail, so the solid has an edge
+    // rather than a second colour: eight layers, none of them over a fifth opaque
+    if (i < 8) {
+      u.setAttribute('fill', '#F2EAA0');
+      u.setAttribute('opacity', (0.07 + 0.11 * (i / 7)).toFixed(3));
+    }
     g.appendChild(u);
     layers.push(u);
   }

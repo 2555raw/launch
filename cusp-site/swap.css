@@ -53,7 +53,7 @@
   font-size: 12px; font-weight: 700; letter-spacing: .085em; text-transform: uppercase;
   color: #9E9BB4;
 }
-.tr-eyebrow span { color: #AEE9C8; }
+.tr-eyebrow span { color: var(--accent-lift); }
 .tr-band h1 {
   margin: 0 0 14px;
   font-size: 38px; line-height: 1.1; font-weight: 600; letter-spacing: -.025em;

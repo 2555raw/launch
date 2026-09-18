@@ -22,17 +22,35 @@
     </a>
 
     <nav class="cs-tabs" id="tabs" aria-label="Sections">
-      <a href="index.html">Home</a>
-      <a class="on" href="#list">Vaults</a>
-      <a href="#how">How it works</a>
-      <a href="#fees">Fees</a>
-      <a href="#safeguards">Safeguards</a>
-      <a href="#faq">FAQ</a>
-      <a href="swap.html">Swap</a>
-      <a href="docs.html">Docs</a>
+        <a class="on" href="vaults.html#list">Vaults</a>
+        <a href="swap.html">Swap</a>
+        <a href="docs.html">Docs</a>
+        <div class="mnu">
+          <button class="mnu-btn" type="button" aria-expanded="false">Products<svg class="mnu-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+          <div class="mnu-pop">
+            <a href="vaults.html#list">Vaults</a>
+            <a href="swap.html">Swap</a>
+            <a href="vaults.html#fees">Fees</a>
+            <a href="vaults.html#safeguards">Safeguards</a>
+            <a href="docs.html#contracts">Contracts</a>
+          </div>
+        </div>
+        <div class="mnu">
+          <button class="mnu-btn" type="button" aria-expanded="false">Resources<svg class="mnu-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+          <div class="mnu-pop">
+            <a href="docs.html">Documentation</a>
+            <a href="vaults.html#how">How it works</a>
+            <a href="docs.html#roadmap">Roadmap</a>
+            <a href="docs.html#faq">FAQ</a>
+            <a href="risk.html">Risk disclosure</a>
+            <a href="terms.html">Terms of use</a>
+            <a href="privacy.html">Privacy</a>
+          </div>
+        </div>
     </nav>
 
     <div class="cs-nav-right">
+                <span class="nav-lang" title="English"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>EN</span>
         <span class="nav-x" title="@cusp — soon" aria-label="X, coming soon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.53 3h3.2l-6.99 7.99L22 21h-6.44l-5.04-6.6L4.75 21H1.54l7.48-8.55L2 3h6.6l4.56 6.03zm-1.12 16.1h1.77L7.68 4.8H5.78z"/></svg></span>
 
       <button class="cs-btn cs-btn-line" id="connect" type="button">Connect wallet</button>
@@ -209,29 +227,36 @@
       </div>
     </section>
 
-    <section class="cs-band" id="safeguards">
-      <div class="cs-band-label">
-        <span class="cs-label">03 — Safeguards</span>
-        <h2>What stops<br>a bad day</h2>
-        <p>Each vault is capped, pausable and auditable on its own.</p>
+    <section class="pr" id="safeguards">
+      <div class="pr-head">
+        <div>
+          <h2>Protected by default.</h2>
+          <p>Oracle checks, caps and a guardian pause on every product. Built for people who read the contracts.</p>
+        </div>
+        <a class="pr-more" href="#how">Read the safeguards <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5"/></svg></a>
       </div>
-      <div class="cs-cards">
-        <article class="cs-card">
-          <h3>Stale feeds wait</h3>
-          <p>Chainlink price and sequencer feeds must be fresh before any rebalance or borrow. When they are not, deposits and rebalances wait instead of guessing. Redemptions stay open the whole time.</p>
-        </article>
-        <article class="cs-card">
-          <h3>One vault, one blast radius</h3>
-          <p>Vaults, markets and strategies are separate contracts with separate caps. A vault that has to be paused is paused alone; nothing else in the protocol stops.</p>
-        </article>
-        <article class="cs-card">
-          <h3>Caps, not hope</h3>
-          <p>Every vault carries a hard deposit cap. When it fills, deposits close until the cap is raised in the open — the capacity bar on each row is that cap.</p>
-        </article>
-        <article class="cs-card">
-          <h3>Verified, byte for byte</h3>
-          <p>Every contract is verified on Blockscout against the reviewed deployment, so the code you read is the code holding the position.</p>
-        </article>
+
+      <div class="pr-tick"></div>
+
+      <div class="pr-cards">
+        <article class="pr-card"><h3>Chainlink oracle checks</h3><p>Price and sequencer feeds must be fresh before any rebalance or borrow.</p></article>
+        <article class="pr-card"><h3>Caps and a guardian pause</h3><p>Vaults, markets and strategies are each capped, pausable and separately auditable.</p></article>
+        <article class="pr-card"><h3>Verified onchain</h3><p>Every contract is verified on Blockscout against the reviewed deployment.</p></article>
+      </div>
+
+      <div class="pr-partners">
+        <div class="pr-p"><span class="pr-ic" data-logo="HOOD"></span><span class="pr-pt"><b>Robinhood Chain</b><span>An Arbitrum-stack L2 where the canonical Stock Tokens and USDG settle.</span></span></div>
+        <div class="pr-p"><span class="pr-ic" style="color:#E0479E"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3 3.4 5.4 6 5.4 9.2A5.4 5.4 0 016.6 12C6.6 9 9 6.4 12 3z" fill="currentColor"/></svg></span><span class="pr-pt"><b>Uniswap pools</b><span>V3 and V4 pools hold each vault's concentrated position.</span></span></div>
+        <div class="pr-p"><span class="pr-ic" style="color:#2A5ADA"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l8.1 4.7v9.4L12 21.4l-8.1-4.7V7.3z" fill="currentColor"/></svg></span><span class="pr-pt"><b>Chainlink feeds</b><span>Price and sequencer feeds gate every rebalance, deposit and borrow.</span></span></div>
+        <div class="pr-p"><span class="pr-ic" style="color:#1FA971"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="11" font-weight="700" fill="#EEEEEE" font-family="system-ui,sans-serif">G</text></svg></span><span class="pr-pt"><b>USDG</b><span>Every vault and market is denominated in the Global Dollar.</span></span></div>
+      </div>
+
+      <div class="pr-dotted"><span>Strategies</span></div>
+
+      <div class="pr-strat">
+        <p>Two managed strategies — a basket of the highest-earning vaults and a delta-neutral position — are in review and take no deposits yet.</p>
+        <a class="pr-more" href="docs.html#roadmap">Preview strategies
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5"/></svg></a>
       </div>
     </section>
 
@@ -298,6 +323,13 @@
       </div>
     </div>
     <div class="ft-cols">
+      <div class="ft-brand">
+        <div class="ft-plate" aria-hidden="true">
+          <span class="ft-px"></span>
+        </div>
+        <b class="ft-word">cusp</b>
+        <span class="ft-cap">Fig. 1 — two arcs, two cusps</span>
+      </div>
       <div class="ft-col">
         <span class="k">Products</span>
         <a href="vaults.html#list">Vaults</a>
@@ -332,7 +364,6 @@
         <a href="terms.html#what">What is a mock</a>
       </div>
     </div>
-    <div class="ft-sign"><span class="ft-mk" aria-hidden="true"></span></div>
     <div class="ft-cubes" aria-hidden="true"></div>
   </footer>
 </div>
@@ -371,5 +402,6 @@
 <script src="wallet.js"></script>
 <script src="logos.js"></script>
 <script src="app.js"></script>
+<script src="nav.js"></script>
 </body>
 </html>

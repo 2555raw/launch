@@ -9,7 +9,7 @@
   padding: 34px max(24px, calc((100vw - var(--wrap-head)) / 2 + 24px)) 38px;
 }
 .cs-legal-head .cs-label { color: #9E9BB4; margin-bottom: 12px; }
-.cs-legal-head .cs-label b { color: #AEE9C8; font-weight: 600; }
+.cs-legal-head .cs-label b { color: var(--accent-lift); font-weight: 600; }
 .cs-legal-head h1 { margin: 0 0 12px; font-size: 38px; line-height: 1.08; font-weight: 600; letter-spacing: -.03em; }
 .cs-legal-head .cs-lede { margin: 0; font-size: 15px; line-height: 1.55; color: var(--on-band-2); max-width: 56ch; }
 

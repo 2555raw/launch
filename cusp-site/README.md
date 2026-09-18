@@ -1,0 +1,118 @@
+# Cusp — vaults page
+
+Static page for **Cusp**, a fictional protocol running managed liquidity vaults for
+tokenized stocks: deposit USDG, the vault keeps one concentrated position per
+USDG / Stock Token pool centred on the oracle price, and the trading fees compound
+inside the vault.
+
+It is a design study built after `usevertex.xyz/vaults` — same kind of page and the
+same mechanics, rebuilt from scratch with its own name, palette, mark and layout.
+Not a copy of their markup: the original could not be loaded from this environment,
+so nothing was lifted from it.
+
+No build step, no dependencies. Plain HTML, CSS and vanilla JS.
+
+## Structure
+
+```
+index.html   chain strip, nav, page head, filter toolbar, vault list, mechanics,
+             fee split, safeguards, FAQ, closing call, footer, deposit drawer
+styles.css   the design system (palette, type, layout) and the responsive rules
+app.js       the VAULTS data, list rendering, search / filter / sort, the deposit
+             drawer, theme, menu and the scroll entrance
+```
+
+## Run it
+
+Open `index.html` directly, or serve the folder:
+
+```bash
+python3 -m http.server 8000     # then open http://localhost:8000
+```
+
+Deploy by dropping the folder on any static host (Netlify, Vercel, GitHub Pages, S3,
+Cloudflare Pages).
+
+## Design
+
+**One accent, and it is a calm warm magenta.** `#DA6A98` — hue 336, held back from
+neon on purpose. It only ever means money: fee APR, the primary action, the
+compounding 70% of the fee split, the live figures, the vault tickers. Nothing else
+on the page is allowed to be magenta, which is what keeps it readable as a signal.
+
+**The ground is pulled from the same hue, not from grey.** `#100D12` is a
+plum-neutral black, and every card, line and muted text steps up from it on that
+same family. With no competing colour in the page, the magenta never has to fight
+anything.
+
+Status is the single exception, and it is deliberately quiet: a sage dot for *in
+range*, amber for *rebalancing*, rose for *paused*. They are dots, not a second
+accent.
+
+| Token | Dark | Light | Role |
+| --- | --- | --- | --- |
+| `--bg` / `--bg-alt` | `#100D12` / `#15111A` | `#FAF6F8` / `#F2EBF0` | page ground and the alternating bands |
+| `--card` / `--card-hi` / `--surface` | `#1A151F` / `#211A27` / `#2A2231` | `#FFFFFF` / `#FCF6FA` / `#F0E6EE` | rows, hover state, tracks |
+| `--ink` / `--prose` / `--muted` / `--dim` | `#F6F0F4` / `#D3C7D1` / `#A0929E` / `#776B76` | `#1F1720` / `#4A3C48` / `#6F6069` / `#92838C` | headings, body copy, secondary, micro-labels |
+| `--line` / `--line-hi` | `#241E2A` / `#362D3E` | `#EADFE7` / `#D9C7D4` | borders and hover borders |
+| `--accent-fill` | `#DA6A98` | `#DA6A98` | button and bar fills, in both themes |
+| `--accent` | `#DA6A98` | `#A83B6C` | accent **text**: APR, figures, links |
+| `--ok` / `--warn` / `--down` | `#86C7A4` / `#E2B172` / `#DD8189` | `#3E8A65` / `#9A6A1C` / `#B04C55` | in range, rebalancing, paused and negative moves |
+
+The two accent tokens exist for contrast, not for taste. Dark ink on `#DA6A98`
+clears 5.5:1, so the fill stays the same in both themes; but `#DA6A98` as small text
+on the near-white ground only reaches about 2.9:1, so accent type in the light theme
+drops to `#A83B6C`.
+
+Tokens live on `:root`, not on `.cs` — the deposit drawer and its scrim sit outside
+that wrapper and need the same palette.
+
+Type: **Inter** for everything, **JetBrains Mono** for every figure, address and
+label. Micro-labels use `.cs-label` — 10.5px mono, uppercase, `0.16em` tracking.
+
+## Layout
+
+The page is deliberately off-centre. The head runs two columns — copy on the left,
+four figures stacked on the right — instead of a centred hero. The nav keeps the
+brand at the left edge, floats the sections in a pill in the middle and puts the
+wallet at the right. Below the list, every band is label-left / content-right, with
+the label sticky so it holds while the content scrolls past it. The alt bands are
+full-bleed but their content still lines up with the 1200px container, via
+`padding-inline: calc(var(--gut) + max(0px, (100vw - var(--wrap)) / 2))`.
+
+## The mark
+
+A cusp: two strokes meeting at a point, with the point itself called out as a dot.
+One path, one circle, `currentColor`, no fills to theme — it works at 24px in the
+nav and at 32px as the favicon, which is the same SVG inlined in a `data:` URI.
+
+## Interactive parts (`app.js`)
+
+- **The list** — `VAULTS` is the only source of truth. Search matches ticker or
+  name, the chips filter by state (`new` is anything under 30 days), the select
+  sorts by APR, TVL, 24h fees or ticker. Rows are `<details>`, so expanding one
+  needs no script; the deposit button inside the `<summary>` stops its own click so
+  the row does not toggle under it.
+- **Deposit drawer** — opens on a row's button, derives everything from the same
+  `VAULTS` entry, closes on the scrim, the ✕ or Escape.
+- **Theme** — dark by default, with a switch and `localStorage` memory, wrapped in
+  `try/catch` so a browser that blocks storage still renders.
+- **Nav** — the burger drops the sections below the bar under 1080px; an
+  `IntersectionObserver` marks the active one.
+
+## Animation
+
+One entrance on scroll (`.cs-rise`), driven by an `IntersectionObserver` and scoped
+to the `.cs-js` class the script adds — with no JS, or with
+`prefers-reduced-motion`, the page renders complete on the first paint. Nothing
+loops.
+
+## Before going live
+
+- **Every figure is sample data.** The ten vaults, the TVL, the APRs, the depositor
+  counts and the contract addresses are invented; the footer says so.
+- The tickers are real companies used as placeholder pool names. Anything shipping
+  for real needs its own list and the legal review that comes with tokenized equity.
+- "Connect wallet", the deposit button and the footer links are inert.
+- The fee split (70 / 20 / 10) and the name **Cusp** are placeholders — swap both
+  before this is anything but a mock.

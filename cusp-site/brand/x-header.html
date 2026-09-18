@@ -76,14 +76,17 @@
      the card sits. */
   .card {
     position:absolute; z-index:5;
-    background:linear-gradient(150deg, rgba(252,252,252,.94), rgba(238,238,238,.82));
+    background:linear-gradient(152deg, rgba(255,255,255,.97) 0%, rgba(247,247,248,.93) 38%, rgba(232,232,235,.84) 100%);
     border:1px solid rgba(255,255,255,.85);
     outline:1px solid var(--line); outline-offset:-1px;
     border-radius:16px; padding:14px 16px 15px;
     backdrop-filter:blur(7px) saturate(1.15);
+    /* the drop and the lit inner edge are shared; each card adds its own
+       slab edge below, because which side the cut shows on depends on which
+       way that card is turned */
     box-shadow:
-      0 40px 70px rgba(61,59,79,.17),
-      0 8px 18px rgba(61,59,79,.08),
+      0 44px 74px rgba(61,59,79,.20),
+      0 10px 20px rgba(61,59,79,.09),
       inset 0 1px 0 rgba(255,255,255,.9);
   }
   .k { display:block; font-family:var(--mono); font-size:9px; letter-spacing:.18em;
@@ -142,6 +145,72 @@
   .pill .mk { width:16px; height:16px; background:var(--band);
               -webkit-mask:url(../mark.svg) center / contain no-repeat;
               mask:url(../mark.svg) center / contain no-repeat; }
+
+  /* ---- the slab edges ---- */
+  /* turned left-edge-in, so the cut shows down the right */
+  .vault {
+    box-shadow:
+      1.0px 0.7px 0 #E2E1E7,
+      2.0px 1.4px 0 #E0DFE5,
+      3.0px 2.2px 0 #DDDCE3,
+      4.0px 2.9px 0 #DBDAE1,
+      5.0px 3.6px 0 #D9D8DF,
+      6.0px 4.3px 0 #D7D6DD,
+      7.0px 5.0px 0 #D4D3DB,
+      8.0px 5.8px 0 #D2D1D9,
+      9.0px 6.5px 0 #D0CFD7,
+      10.0px 7.2px 0 #CDCCD5,
+      11.0px 7.9px 0 #CBCAD3,
+      12.0px 8.6px 0 #C9C8D1,
+      13.0px 9.4px 0 #C7C6CF,
+      14.0px 10.1px 0 #C4C3CD,
+      15.0px 10.8px 0 #C2C1CB,
+      0 44px 74px rgba(61,59,79,.20),
+      0 10px 20px rgba(61,59,79,.09),
+      inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  /* turned the other way: the cut is down the left */
+  .quote {
+    box-shadow:
+      -1.0px 0.7px 0 #E2E1E7,
+      -2.0px 1.4px 0 #DFDEE5,
+      -3.0px 2.0px 0 #DDDCE2,
+      -4.0px 2.7px 0 #DAD9E0,
+      -5.0px 3.4px 0 #D7D6DE,
+      -6.0px 4.1px 0 #D5D4DB,
+      -7.0px 4.8px 0 #D2D1D9,
+      -8.0px 5.4px 0 #CFCED7,
+      -9.0px 6.1px 0 #CDCCD4,
+      -10.0px 6.8px 0 #CAC9D2,
+      -11.0px 7.5px 0 #C7C6D0,
+      -12.0px 8.2px 0 #C5C4CD,
+      -13.0px 8.8px 0 #C2C1CB,
+      0 44px 74px rgba(61,59,79,.20),
+      0 10px 20px rgba(61,59,79,.09),
+      inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  /* leaning up from below, so the cut runs up and left */
+  .split {
+    box-shadow:
+      -0.9px -0.8px 0 #E2E1E7,
+      -1.8px -1.6px 0 #DFDEE4,
+      -2.7px -2.3px 0 #DCDBE2,
+      -3.6px -3.1px 0 #D9D8DF,
+      -4.5px -3.9px 0 #D6D5DD,
+      -5.4px -4.7px 0 #D3D2DA,
+      -6.3px -5.5px 0 #D1D0D8,
+      -7.2px -6.2px 0 #CECDD5,
+      -8.1px -7.0px 0 #CBCAD3,
+      -9.0px -7.8px 0 #C8C7D0,
+      -9.9px -8.6px 0 #C5C4CE,
+      -10.8px -9.4px 0 #C2C1CB,
+      0 44px 74px rgba(61,59,79,.20),
+      0 10px 20px rgba(61,59,79,.09),
+      inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  .pill.p1 { box-shadow: 0.8px 0.6px 0 #E2E1E7, 1.6px 1.2px 0 #DDDCE2, 2.4px 1.8px 0 #D7D6DE, 3.2px 2.4px 0 #D2D1D9, 4.0px 3.0px 0 #CDCCD4, 4.8px 3.6px 0 #C7C6D0, 5.6px 4.2px 0 #C2C1CB, 0 20px 34px rgba(61,59,79,.15), inset 0 1px 0 rgba(255,255,255,.9); }
+  .pill.p2 { box-shadow: 0.7px 0.6px 0 #E2E1E7, 1.4px 1.2px 0 #DCDBE1, 2.1px 1.8px 0 #D5D4DC, 2.8px 2.4px 0 #CFCED6, 3.5px 3.0px 0 #C8C7D1, 4.2px 3.6px 0 #C2C1CB, 0 18px 30px rgba(61,59,79,.14), inset 0 1px 0 rgba(255,255,255,.9); }
+  .pill.p3 { box-shadow: -0.7px 0.6px 0 #E2E1E7, -1.4px 1.2px 0 #DCDBE1, -2.1px 1.8px 0 #D5D4DC, -2.8px 2.4px 0 #CFCED6, -3.5px 3.0px 0 #C8C7D1, -4.2px 3.6px 0 #C2C1CB, 0 16px 28px rgba(61,59,79,.13), inset 0 1px 0 rgba(255,255,255,.9); }
 </style>
 </head>
 <body>

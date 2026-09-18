@@ -100,66 +100,74 @@
   }
 
   /* ---- the vault slabs ----
-     Real glass, not card stock: the fill is mostly transparent and the
-     backdrop filter is what makes it legible, so the field genuinely shows
-     through. A lit rim runs the top-left inside edge and a cool one the
-     bottom-right, the cut edge ramps from a white rim through a cool body
-     into shadow, and ::before lays a specular sweep across the face. */
+     Built the way the reference's are: a thick rounded bevel around a clear
+     pane. The outer element IS the bevel -- its padding is the bevel's width
+     -- and .face is the pane set into it, which is why the rim reads as a
+     solid piece of glass with a face let into it rather than a card with a
+     border. The bevel carries the shine, the pane carries the blur. */
   .card {
-    position:absolute; z-index:5; border-radius:20px;
+    position:absolute; z-index:5; border-radius:27px; padding:12px;
     background:linear-gradient(145deg,
-      rgba(255,255,255,.42) 0%, rgba(255,255,255,.20) 46%, rgba(255,255,255,.34) 100%);
-    border:0;
-    backdrop-filter:blur(22px) saturate(1.75) brightness(1.08);
+      rgba(255,255,255,.98) 0%, rgba(255,255,255,.74) 24%, rgba(255,255,255,.44) 52%,
+      rgba(255,255,255,.74) 78%, rgba(255,255,255,.96) 100%);
+    backdrop-filter:blur(11px) saturate(1.6) brightness(1.07);
   }
   .card::before {
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
     background:
       linear-gradient(118deg,
-        rgba(255,255,255,.80) 0%, rgba(255,255,255,0) 22%,
-        rgba(255,255,255,0) 68%, rgba(255,255,255,.40) 100%),
+        rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 20%,
+        rgba(255,255,255,0) 66%, rgba(255,255,255,.62) 100%),
       linear-gradient(72deg,
-        rgba(255,244,182,.20) 0%, rgba(255,214,248,.09) 33%,
-        rgba(200,231,255,.09) 57%, rgba(255,246,196,.17) 100%);
+        rgba(255,244,182,.22) 0%, rgba(255,214,248,.10) 33%,
+        rgba(200,231,255,.10) 57%, rgba(255,246,196,.20) 100%);
   }
   /* the rim is where a thick edge splits the light hardest, so it carries the
      spectrum outright -- yellow at both ends, because that one is the brand's */
   .card::after {
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    padding:1.6px;
+    padding:1.8px;
     background:linear-gradient(125deg,
-      rgba(255,246,180,.98) 0%, rgba(255,255,255,.92) 17%,
-      rgba(255,212,246,.72) 37%, rgba(202,230,255,.68) 56%,
-      rgba(255,255,255,.88) 74%, rgba(255,238,160,.98) 100%);
+      rgba(255,246,180,.98) 0%, rgba(255,255,255,.95) 17%,
+      rgba(255,212,246,.75) 37%, rgba(202,230,255,.70) 56%,
+      rgba(255,255,255,.92) 74%, rgba(255,238,160,.98) 100%);
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     mask-composite:exclude;
   }
-  .vc { width:304px; padding:15px 17px 14px; }
-  .vc > * { position:relative; z-index:1; }
-  .vc-row { display:flex; align-items:center; gap:11px; }
-  .vc-ic {
-    width:36px; height:36px; flex:none; border-radius:50%;
-    background:rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.9);
-    box-shadow:0 2px 6px rgba(61,59,79,.10), inset 0 1px 0 rgba(255,255,255,1);
-    display:grid; place-items:center;
+  .vc { width:322px; }
+  .face {
+    position:relative; z-index:1; border-radius:17px; padding:15px 17px 16px;
+    background:rgba(255,255,255,.30);
+    backdrop-filter:blur(17px) saturate(1.5) brightness(1.03);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.88),
+      inset 0 -1px 0 rgba(255,255,255,.55),
+      0 1px 3px rgba(92,90,124,.14);
   }
-  .vc-ic svg { width:18px; height:18px; fill:currentColor; }
+  .vc-row { display:flex; align-items:center; gap:12px; }
+  .vc-ic {
+    width:46px; height:46px; flex:none; border-radius:14px;
+    display:grid; place-items:center;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 2px 6px rgba(61,59,79,.10);
+  }
+  .vc-ic svg { width:24px; height:24px; fill:currentColor; }
   .vc-id { display:flex; flex-direction:column; min-width:0; }
-  .vc-id b { font-size:17px; font-weight:700; letter-spacing:-.025em; }
-  .vc-id span { font-size:11.5px; color:var(--muted); margin-top:1px; }
-  .vc-px { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; }
-  .vc-px b { font-size:21px; font-weight:600; letter-spacing:-.03em; color:var(--accent); }
-  .vc-px span { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em;
-                text-transform:uppercase; color:var(--dim); margin-top:2px; }
-  .vc-foot { display:flex; align-items:center; gap:12px; margin-top:12px; }
-  .vc-tags { display:flex; gap:6px; flex:none; }
-  .tag { padding:3px 9px; border-radius:999px; font-size:11px; font-weight:600; white-space:nowrap;
-         box-shadow:inset 0 1px 0 rgba(255,255,255,.6); }
-  .tag-cap { background:var(--accent-fill); color:var(--accent-ink); }
-  .vc-spark { flex:1 1 auto; height:26px; min-width:0; opacity:.92; }
+  .vc-id b { font-size:19px; font-weight:700; letter-spacing:-.03em; white-space:nowrap; }
+  .vc-id span { font-size:11.5px; color:var(--muted); margin-top:2px; white-space:nowrap; }
+  .vc-px { margin-left:auto; font-size:23px; font-weight:600; letter-spacing:-.03em; color:var(--accent); }
+  .vc-lab { display:block; margin-top:15px; font-size:11.5px; color:var(--muted); }
+  .vc-bar {
+    position:relative; margin-top:8px; height:8px; border-radius:999px;
+    background:rgba(120,118,150,.16); overflow:hidden;
+    box-shadow:inset 0 1px 2px rgba(92,90,124,.16);
+  }
+  .vc-bar i { display:block; height:100%; border-radius:999px;
+              background:linear-gradient(90deg, var(--accent-fill), var(--accent-glow)); }
+  .vc-bar span { display:none; }
+  .vc-pct { display:block; text-align:right; margin-top:7px; font-size:11.5px; color:var(--dim); }
 
-  .v1 { left:40px; top:166px; transform:translateZ(46px) rotateX(6deg) rotateY(-17deg) rotateZ(-3deg);
+  .v1 { left:14px; top:196px; transform:translateZ(46px) rotateX(6deg) rotateY(-17deg) rotateZ(-3deg);
     box-shadow:
       1.0px 0.7px 0 #FFFFFF,
       2.0px 1.4px 0 #FFF6C1,
@@ -176,11 +184,11 @@
       13.0px 9.1px 0 #A9A6BE,
       14.0px 9.8px 0 #A9A6BE,
       15.0px 10.5px 0 #A9A6BE,
-      0 46px 78px rgba(61,59,79,.17),
+      0 44px 74px rgba(61,59,79,.17),
       0 12px 24px rgba(61,59,79,.09),
-      inset 1.5px 1.5px 0 rgba(255,255,255,.92),
-      inset -1.5px -1.5px 0 rgba(150,140,175,.16); }
-  .v2 { left:262px; top:32px; transform:translateZ(86px) rotateX(9deg) rotateY(-14deg) rotateZ(-2deg);
+      inset 2px 2px 0 rgba(255,255,255,.96),
+      inset -2px -2px 0 rgba(150,140,175,.18); }
+  .v2 { left:268px; top:8px; transform:translateZ(86px) rotateX(9deg) rotateY(-14deg) rotateZ(-2deg);
     box-shadow:
       1.0px 0.7px 0 #FFFFFF,
       2.0px 1.4px 0 #FFF6C5,
@@ -198,11 +206,11 @@
       14.0px 10.1px 0 #A9A6BE,
       15.0px 10.8px 0 #A9A6BE,
       16.0px 11.5px 0 #A9A6BE,
-      0 46px 78px rgba(61,59,79,.17),
+      0 44px 74px rgba(61,59,79,.17),
       0 12px 24px rgba(61,59,79,.09),
-      inset 1.5px 1.5px 0 rgba(255,255,255,.92),
-      inset -1.5px -1.5px 0 rgba(150,140,175,.16); }
-  .v3 { left:520px; bottom:40px; transform:translateZ(24px) rotateX(-9deg) rotateY(3deg) rotateZ(1.4deg); filter:blur(0.35px);
+      inset 2px 2px 0 rgba(255,255,255,.96),
+      inset -2px -2px 0 rgba(150,140,175,.18); }
+  .v3 { left:512px; bottom:14px; transform:translateZ(24px) rotateX(-9deg) rotateY(3deg) rotateZ(1.4deg); filter:blur(0.35px);
     box-shadow:
       0.9px -0.7px 0 #FFFFFF,
       1.8px -1.4px 0 #FFF4B6,
@@ -217,11 +225,11 @@
       9.9px -7.7px 0 #AAA8C0,
       10.8px -8.4px 0 #A9A6BE,
       11.7px -9.1px 0 #A9A6BE,
-      0 46px 78px rgba(61,59,79,.17),
+      0 44px 74px rgba(61,59,79,.17),
       0 12px 24px rgba(61,59,79,.09),
-      inset 1.5px 1.5px 0 rgba(255,255,255,.92),
-      inset -1.5px -1.5px 0 rgba(150,140,175,.16); }
-  .v4 { right:128px; top:30px; transform:translateZ(74px) rotateX(8deg) rotateY(16deg) rotateZ(2deg);
+      inset 2px 2px 0 rgba(255,255,255,.96),
+      inset -2px -2px 0 rgba(150,140,175,.18); }
+  .v4 { right:118px; top:8px; transform:translateZ(74px) rotateX(8deg) rotateY(16deg) rotateZ(2deg);
     box-shadow:
       -1.0px 0.7px 0 #FFFFFF,
       -2.0px 1.4px 0 #FFF6C1,
@@ -238,11 +246,11 @@
       -13.0px 9.1px 0 #A9A6BE,
       -14.0px 9.8px 0 #A9A6BE,
       -15.0px 10.5px 0 #A9A6BE,
-      0 46px 78px rgba(61,59,79,.17),
+      0 44px 74px rgba(61,59,79,.17),
       0 12px 24px rgba(61,59,79,.09),
-      inset 1.5px 1.5px 0 rgba(255,255,255,.92),
-      inset -1.5px -1.5px 0 rgba(150,140,175,.16); }
-  .v5 { right:34px; top:178px; transform:translateZ(36px) rotateX(5deg) rotateY(19deg) rotateZ(-2.4deg); filter:blur(0.3px);
+      inset 2px 2px 0 rgba(255,255,255,.96),
+      inset -2px -2px 0 rgba(150,140,175,.18); }
+  .v5 { right:24px; top:166px; transform:translateZ(36px) rotateX(5deg) rotateY(19deg) rotateZ(-2.4deg); filter:blur(0.3px);
     box-shadow:
       -1.0px 0.7px 0 #FFFFFF,
       -2.0px 1.4px 0 #FFF5BC,
@@ -258,11 +266,11 @@
       -12.0px 8.2px 0 #A9A6BE,
       -13.0px 8.8px 0 #A9A6BE,
       -14.0px 9.5px 0 #A9A6BE,
-      0 46px 78px rgba(61,59,79,.17),
+      0 44px 74px rgba(61,59,79,.17),
       0 12px 24px rgba(61,59,79,.09),
-      inset 1.5px 1.5px 0 rgba(255,255,255,.92),
-      inset -1.5px -1.5px 0 rgba(150,140,175,.16); }
-  .v6 { right:196px; bottom:42px; transform:translateZ(-18px) rotateX(-11deg) rotateY(12deg) rotateZ(-1.4deg); filter:blur(0.7px);
+      inset 2px 2px 0 rgba(255,255,255,.96),
+      inset -2px -2px 0 rgba(150,140,175,.18); }
+  .v6 { right:186px; bottom:16px; transform:translateZ(-18px) rotateX(-11deg) rotateY(12deg) rotateZ(-1.4deg); filter:blur(0.7px);
     box-shadow:
       -0.9px -0.8px 0 #FFFFFF,
       -1.8px -1.6px 0 #FFF3B0,
@@ -276,10 +284,10 @@
       -9.0px -7.8px 0 #AEADC6,
       -9.9px -8.6px 0 #A9A6BE,
       -10.8px -9.4px 0 #A9A6BE,
-      0 46px 78px rgba(61,59,79,.17),
+      0 44px 74px rgba(61,59,79,.17),
       0 12px 24px rgba(61,59,79,.09),
-      inset 1.5px 1.5px 0 rgba(255,255,255,.92),
-      inset -1.5px -1.5px 0 rgba(150,140,175,.16); }
+      inset 2px 2px 0 rgba(255,255,255,.96),
+      inset -2px -2px 0 rgba(150,140,175,.18); }
 
   .say {
     position:absolute; left:0; right:0; top:214px; text-align:center; z-index:6;
@@ -312,8 +320,8 @@
   .pill .mk { width:15px; height:15px; flex:none; background:var(--band);
               -webkit-mask:url(../mark.svg) center / contain no-repeat;
               mask:url(../mark.svg) center / contain no-repeat; }
-  .q1 { left:296px; bottom:104px; transform:translateZ(100px) rotateY(-8deg) rotateZ(-1.6deg); }
-  .q2 { right:470px; top:120px; transform:translateZ(92px) rotateY(8deg) rotateZ(1.4deg); }
+  .q1 { left:640px; top:38px; transform:translateZ(100px) rotateY(-8deg) rotateZ(-1.6deg); }
+  .q2 { right:430px; top:128px; transform:translateZ(92px) rotateY(8deg) rotateZ(1.4deg); }
 </style>
 </head>
 <body>
@@ -442,90 +450,77 @@
     <i class="bead" style="left:58px;top:404px;width:50px;height:50px;filter:blur(1.8px)"></i>
 
   <div class="card vc v1">
-    <div class="vc-row">
-      <span class="vc-ic" style="color:#D9232E"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.095 2.572h5.827v18.856H9.096zM0 2.572h5.825v18.856H.001zm18.174 0v18.854H24V8.33z"/></svg></span>
-      <span class="vc-id"><b>xMSTR</b><span>MicroStrategy</span></span>
-      <span class="vc-px"><b>34.9%</b><span>fee APR · 24h</span></span>
-    </div>
-    <div class="vc-foot">
-      <span class="vc-tags">
-        <span class="tag tag-cap">57% of cap</span>
-        <span class="tag" style="background:#EEF5F0;color:#2F7D5B">+3.18%</span>
-      </span>
-      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,14.9 5.1,14.2 10.2,15.0 15.4,13.8 20.5,12.4 25.6,15.7 30.7,19.5 35.8,16.3 41.0,18.0 46.1,19.9 51.2,15.5 56.3,15.4 61.4,12.3 66.6,12.2 71.7,10.7 76.8,13.3 81.9,11.9 87.0,8.5 92.2,8.0 97.3,5.7 102.4,4.0 107.5,7.3 112.6,4.8 117.8,3.7 122.9,5.1 128.0,8.7" fill="none" stroke="#2F7D5B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <div class="face">
+      <div class="vc-row">
+        <span class="vc-ic" style="background:#FBE9EA;color:#D9232E"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.095 2.572h5.827v18.856H9.096zM0 2.572h5.825v18.856H.001zm18.174 0v18.854H24V8.33z"/></svg></span>
+        <span class="vc-id"><b>xMSTR</b><span>MicroStrategy</span></span>
+        <b class="vc-px">34.9%</b>
+      </div>
+      <span class="vc-lab">Capacity</span>
+      <div class="vc-bar"><i style="width:57%"></i></div>
+      <span class="vc-pct">57%</span>
     </div>
   </div>
   <div class="card vc v2">
-    <div class="vc-row">
-      <span class="vc-ic" style="color:#76B900"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.948 8.798v-1.43a6.7 6.7 0 0 1 .424-.018c3.922-.124 6.493 3.374 6.493 3.374s-2.774 3.851-5.75 3.851c-.398 0-.787-.062-1.158-.185v-4.346c1.528.185 1.837.857 2.747 2.385l2.04-1.714s-1.492-1.952-4-1.952a6.016 6.016 0 0 0-.796.035m0-4.735v2.138l.424-.027c5.45-.185 9.01 4.47 9.01 4.47s-4.08 4.964-8.33 4.964c-.37 0-.733-.035-1.095-.097v1.325c.3.035.61.062.91.062 3.957 0 6.82-2.023 9.593-4.408.459.371 2.34 1.263 2.73 1.652-2.633 2.208-8.772 3.984-12.253 3.984-.335 0-.653-.018-.971-.053v1.864H24V4.063zm0 10.326v1.131c-3.657-.654-4.673-4.46-4.673-4.46s1.758-1.944 4.673-2.262v1.237H8.94c-1.528-.186-2.73 1.245-2.73 1.245s.68 2.412 2.739 3.11M2.456 10.9s2.164-3.197 6.5-3.533V6.201C4.153 6.59 0 10.653 0 10.653s2.35 6.802 8.948 7.42v-1.237c-4.84-.6-6.492-5.936-6.492-5.936z"/></svg></span>
-      <span class="vc-id"><b>xNVDA</b><span>NVIDIA</span></span>
-      <span class="vc-px"><b>31.4%</b><span>fee APR · 24h</span></span>
-    </div>
-    <div class="vc-foot">
-      <span class="vc-tags">
-        <span class="tag tag-cap">82% of cap</span>
-        <span class="tag" style="background:#EEF5F0;color:#2F7D5B">+1.82%</span>
-      </span>
-      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,14.2 5.1,16.7 10.2,15.2 15.4,18.4 20.5,17.8 25.6,18.6 30.7,22.0 35.8,21.6 41.0,23.9 46.1,23.9 51.2,23.9 56.3,23.9 61.4,23.9 66.6,20.9 71.7,23.7 76.8,23.9 81.9,22.5 87.0,18.5 92.2,17.6 97.3,18.1 102.4,13.8 107.5,17.3 112.6,14.0 117.8,15.4 122.9,18.1 128.0,21.0" fill="none" stroke="#2F7D5B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <div class="face">
+      <div class="vc-row">
+        <span class="vc-ic" style="background:#F1F7E8;color:#76B900"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.948 8.798v-1.43a6.7 6.7 0 0 1 .424-.018c3.922-.124 6.493 3.374 6.493 3.374s-2.774 3.851-5.75 3.851c-.398 0-.787-.062-1.158-.185v-4.346c1.528.185 1.837.857 2.747 2.385l2.04-1.714s-1.492-1.952-4-1.952a6.016 6.016 0 0 0-.796.035m0-4.735v2.138l.424-.027c5.45-.185 9.01 4.47 9.01 4.47s-4.08 4.964-8.33 4.964c-.37 0-.733-.035-1.095-.097v1.325c.3.035.61.062.91.062 3.957 0 6.82-2.023 9.593-4.408.459.371 2.34 1.263 2.73 1.652-2.633 2.208-8.772 3.984-12.253 3.984-.335 0-.653-.018-.971-.053v1.864H24V4.063zm0 10.326v1.131c-3.657-.654-4.673-4.46-4.673-4.46s1.758-1.944 4.673-2.262v1.237H8.94c-1.528-.186-2.73 1.245-2.73 1.245s.68 2.412 2.739 3.11M2.456 10.9s2.164-3.197 6.5-3.533V6.201C4.153 6.59 0 10.653 0 10.653s2.35 6.802 8.948 7.42v-1.237c-4.84-.6-6.492-5.936-6.492-5.936z"/></svg></span>
+        <span class="vc-id"><b>xNVDA</b><span>NVIDIA</span></span>
+        <b class="vc-px">31.4%</b>
+      </div>
+      <span class="vc-lab">Capacity</span>
+      <div class="vc-bar"><i style="width:82%"></i></div>
+      <span class="vc-pct">82%</span>
     </div>
   </div>
   <div class="card vc v3">
-    <div class="vc-row">
-      <span class="vc-ic" style="color:#101113"><svg viewBox="0 0 24 24"><text x="12" y="15.4" text-anchor="middle" font-family="inherit" font-size="9.5" font-weight="700" letter-spacing="-.04em" fill="currentColor">GME</text></svg></span>
-      <span class="vc-id"><b>xGME</b><span>GameStop</span></span>
-      <span class="vc-px"><b>29.7%</b><span>fee APR · 24h</span></span>
-    </div>
-    <div class="vc-foot">
-      <span class="vc-tags">
-        <span class="tag tag-cap">33% of cap</span>
-        <span class="tag" style="background:#F6EDE9;color:#B4802A">-3.26%</span>
-      </span>
-      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,13.7 5.1,13.5 10.2,10.3 15.4,10.9 20.5,11.2 25.6,10.7 30.7,13.7 35.8,13.9 41.0,13.1 46.1,11.0 51.2,14.7 56.3,16.6 61.4,20.3 66.6,18.1 71.7,16.8 76.8,20.9 81.9,17.2 87.0,13.7 92.2,12.7 97.3,12.0 102.4,15.2 107.5,19.5 112.6,19.6 117.8,23.6 122.9,23.9 128.0,23.9" fill="none" stroke="#B4802A" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <div class="face">
+      <div class="vc-row">
+        <span class="vc-ic" style="background:#ECECEF;color:#101113"><svg viewBox="0 0 24 24"><text x="12" y="15.4" text-anchor="middle" font-family="inherit" font-size="9.5" font-weight="700" letter-spacing="-.04em" fill="currentColor">GME</text></svg></span>
+        <span class="vc-id"><b>xGME</b><span>GameStop</span></span>
+        <b class="vc-px">29.7%</b>
+      </div>
+      <span class="vc-lab">Capacity</span>
+      <div class="vc-bar"><i style="width:33%"></i></div>
+      <span class="vc-pct">33%</span>
     </div>
   </div>
   <div class="card vc v4">
-    <div class="vc-row">
-      <span class="vc-ic" style="color:#CC0000"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438-.146-1.439-1.154-1.79-4.354-1.79L12 24 8.619 5.034c-3.18 0-4.188.354-4.335 1.792 0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34L12 5.362l-.004.002H12v-.002zm0-3.899c3.415-.03 7.326.528 11.328 2.28.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0 8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46v.003z"/></svg></span>
-      <span class="vc-id"><b>xTSLA</b><span>Tesla</span></span>
-      <span class="vc-px"><b>27.8%</b><span>fee APR · 24h</span></span>
-    </div>
-    <div class="vc-foot">
-      <span class="vc-tags">
-        <span class="tag tag-cap">71% of cap</span>
-        <span class="tag" style="background:#F6EDE9;color:#B4802A">-2.35%</span>
-      </span>
-      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,12.3 5.1,10.6 10.2,8.4 15.4,5.1 20.5,3.4 25.6,2.1 30.7,6.3 35.8,6.9 41.0,3.5 46.1,2.6 51.2,2.1 56.3,5.6 61.4,6.2 66.6,8.6 71.7,8.5 76.8,8.2 81.9,12.6 87.0,15.3 92.2,17.4 97.3,14.3 102.4,12.4 107.5,15.5 112.6,13.4 117.8,16.7 122.9,16.0 128.0,19.4" fill="none" stroke="#B4802A" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <div class="face">
+      <div class="vc-row">
+        <span class="vc-ic" style="background:#FBEDED;color:#CC0000"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438-.146-1.439-1.154-1.79-4.354-1.79L12 24 8.619 5.034c-3.18 0-4.188.354-4.335 1.792 0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34L12 5.362l-.004.002H12v-.002zm0-3.899c3.415-.03 7.326.528 11.328 2.28.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0 8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46v.003z"/></svg></span>
+        <span class="vc-id"><b>xTSLA</b><span>Tesla</span></span>
+        <b class="vc-px">27.8%</b>
+      </div>
+      <span class="vc-lab">Capacity</span>
+      <div class="vc-bar"><i style="width:71%"></i></div>
+      <span class="vc-pct">71%</span>
     </div>
   </div>
   <div class="card vc v5">
-    <div class="vc-row">
-      <span class="vc-ic" style="color:#ED1C24"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.324 9.137l1.559 1.56h2.556v2.557L24 14.814V9.137zM2 9.52l-2 4.96h1.309l.37-.982H3.9l.408.982h1.338L3.432 9.52zm4.209 0v4.955h1.238v-3.092l1.338 1.562h.188l1.338-1.556v3.091h1.238V9.52H10.47l-1.592 1.845L7.287 9.52zm6.283 0v4.96h2.057c1.979 0 2.88-1.046 2.88-2.472 0-1.36-.937-2.488-2.747-2.488zm1.237.91h.792c1.17 0 1.63.711 1.63 1.57 0 .728-.372 1.572-1.616 1.572h-.806zm-10.985.273l.791 1.932H2.008zm17.137.307l-1.604 1.603v2.25h2.246l1.604-1.607h-2.246z"/></svg></span>
-      <span class="vc-id"><b>xAMD</b><span>AMD</span></span>
-      <span class="vc-px"><b>26.3%</b><span>fee APR · 24h</span></span>
-    </div>
-    <div class="vc-foot">
-      <span class="vc-tags">
-        <span class="tag tag-cap">59% of cap</span>
-        <span class="tag" style="background:#EEF5F0;color:#2F7D5B">+2.41%</span>
-      </span>
-      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,14.7 5.1,12.8 10.2,11.0 15.4,7.8 20.5,10.1 25.6,12.0 30.7,14.6 35.8,16.6 41.0,14.3 46.1,17.1 51.2,16.5 56.3,18.6 61.4,20.0 66.6,20.3 71.7,17.1 76.8,15.9 81.9,19.7 87.0,21.2 92.2,23.8 97.3,20.4 102.4,17.5 107.5,14.7 112.6,11.7 117.8,9.3 122.9,5.3 128.0,2.5" fill="none" stroke="#2F7D5B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <div class="face">
+      <div class="vc-row">
+        <span class="vc-ic" style="background:#FCEAEB;color:#ED1C24"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.324 9.137l1.559 1.56h2.556v2.557L24 14.814V9.137zM2 9.52l-2 4.96h1.309l.37-.982H3.9l.408.982h1.338L3.432 9.52zm4.209 0v4.955h1.238v-3.092l1.338 1.562h.188l1.338-1.556v3.091h1.238V9.52H10.47l-1.592 1.845L7.287 9.52zm6.283 0v4.96h2.057c1.979 0 2.88-1.046 2.88-2.472 0-1.36-.937-2.488-2.747-2.488zm1.237.91h.792c1.17 0 1.63.711 1.63 1.57 0 .728-.372 1.572-1.616 1.572h-.806zm-10.985.273l.791 1.932H2.008zm17.137.307l-1.604 1.603v2.25h2.246l1.604-1.607h-2.246z"/></svg></span>
+        <span class="vc-id"><b>xAMD</b><span>AMD</span></span>
+        <b class="vc-px">26.3%</b>
+      </div>
+      <span class="vc-lab">Capacity</span>
+      <div class="vc-bar"><i style="width:59%"></i></div>
+      <span class="vc-pct">59%</span>
     </div>
   </div>
   <div class="card vc v6">
-    <div class="vc-row">
-      <span class="vc-ic" style="color:#7E9E00"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.84 24h.53c.096 0 .192-.048.224-.128C7.591 13.696 11.94 8.656 14.67 5.638c.112-.128.064-.225-.096-.225h-4.88a.55.55 0 0 0-.45.225L5.746 9.972c-.514.642-.642 1.236-.642 2.086v4.43c-1.14 3.194-1.862 5.361-2.392 7.32-.032.125.016.192.129.192M20.447.646c-.754-.802-4.157-.834-5.73-.224a3 3 0 0 0-.786.465 41 41 0 0 0-3.323 3.178c-.112.113-.064.225.097.225h5.409c.497 0 .786.289.786.786v6.1c0 .16.128.208.225.064l3.258-4.254c.53-.69.69-.898.835-1.861.192-1.413.08-3.58-.77-4.479m-6.982 16.18 2.231-3.676a.7.7 0 0 0 .064-.29V6.73c0-.16-.112-.225-.224-.097-3.355 3.74-5.971 7.672-8.395 12.407-.06.12.016.225.16.177l5.009-1.54c.565-.174.882-.402 1.155-.852"/></svg></span>
-      <span class="vc-id"><b>xHOOD</b><span>Robinhood</span></span>
-      <span class="vc-px"><b>24.6%</b><span>fee APR · 24h</span></span>
-    </div>
-    <div class="vc-foot">
-      <span class="vc-tags">
-        <span class="tag tag-cap">75% of cap</span>
-        <span class="tag" style="background:#EEF5F0;color:#2F7D5B">+0.94%</span>
-      </span>
-      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,12.5 5.1,9.6 10.2,5.5 15.4,6.9 20.5,4.4 25.6,2.4 30.7,2.1 35.8,5.0 41.0,8.6 46.1,9.3 51.2,6.9 56.3,8.7 61.4,8.3 66.6,9.6 71.7,6.4 76.8,2.3 81.9,2.9 87.0,2.1 92.2,5.4 97.3,2.5 102.4,2.1 107.5,4.7 112.6,2.7 117.8,2.1 122.9,2.1 128.0,4.2" fill="none" stroke="#2F7D5B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <div class="face">
+      <div class="vc-row">
+        <span class="vc-ic" style="background:#EFF6E4;color:#7E9E00"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.84 24h.53c.096 0 .192-.048.224-.128C7.591 13.696 11.94 8.656 14.67 5.638c.112-.128.064-.225-.096-.225h-4.88a.55.55 0 0 0-.45.225L5.746 9.972c-.514.642-.642 1.236-.642 2.086v4.43c-1.14 3.194-1.862 5.361-2.392 7.32-.032.125.016.192.129.192M20.447.646c-.754-.802-4.157-.834-5.73-.224a3 3 0 0 0-.786.465 41 41 0 0 0-3.323 3.178c-.112.113-.064.225.097.225h5.409c.497 0 .786.289.786.786v6.1c0 .16.128.208.225.064l3.258-4.254c.53-.69.69-.898.835-1.861.192-1.413.08-3.58-.77-4.479m-6.982 16.18 2.231-3.676a.7.7 0 0 0 .064-.29V6.73c0-.16-.112-.225-.224-.097-3.355 3.74-5.971 7.672-8.395 12.407-.06.12.016.225.16.177l5.009-1.54c.565-.174.882-.402 1.155-.852"/></svg></span>
+        <span class="vc-id"><b>xHOOD</b><span>Robinhood</span></span>
+        <b class="vc-px">24.6%</b>
+      </div>
+      <span class="vc-lab">Capacity</span>
+      <div class="vc-bar"><i style="width:75%"></i></div>
+      <span class="vc-pct">75%</span>
     </div>
   </div>
-
 
   <span class="pill q1"><i class="mk"></i>20 vaults, one per stock</span>
   <span class="pill q2"><span class="dot"></span>Robinhood Chain · live</span>

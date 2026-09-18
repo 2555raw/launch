@@ -176,7 +176,7 @@ index = head("Manyways · Every model. Your way.",
              '') + top("index") + f"""
 <section class="hero">
   <div class="frame">
-    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in sherwood below Mount Fuji at dusk">
+    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in blossom below Mount Fuji at dusk">
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
       <h1>Every model.<br>Your way.</h1>

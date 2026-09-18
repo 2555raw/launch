@@ -5,9 +5,13 @@
    navy #3D3B4F does double duty as the band and as the ink.
 
    Three accents, each with its own ground:
-     green  #1C9A69  on light — eyebrows, figures, links
-     mint   #C5FFD6  on dark  — figures and primary buttons
+     blue   #2C5FB0  on light — eyebrows, figures, links, solid buttons
+     soft   #DCE6F8  on light — badges and the tinted cards
+     lift   #93B6F2  on dark  — figures and buttons on the navy band
      pink   #FFCFFE  on dark  — titles and secondary buttons
+
+   The token names still say green and mint; the values are blue. Renaming
+   them across five stylesheets would have been churn for no behaviour.
 
    Light only, like the reference. */
 
@@ -27,13 +31,14 @@
   --dim: #A9A8AF;
   --faint: #C3C3C7;
 
-  --green: #1C9A69;
-  --green-deep: #14714A;
-  --mint: #C5FFD6;
-  --mint-pill: #CAEDE0;
-  --mint-line: #A9E3C4;
+  --green: #2C5FB0;        /* the accent, on light */
+  --green-deep: #1F4585;   /* the accent, as ink on a tinted fill */
+  --mint: #2C5FB0;         /* a solid accent fill */
+  --mint-pill: #DCE6F8;    /* a tinted accent fill */
+  --mint-line: #B6C9EC;
+  --blue-lift: #93B6F2;    /* the accent where it has to read on the navy */
   --pink: #FFCFFE;
-  --on-mint: #3D3B4F;      /* ink for anything sitting on mint or pink */
+  --on-mint: #FFFFFF;      /* ink on a solid accent fill */
   --yellow: #E9FF70;       /* the CTA headline — the one value I could not sample */
 
   --on-band: #E9E9E9;
@@ -78,9 +83,12 @@ img, svg { display: block; }
 .cs-btn-fill, .tr-btn-dark, .btn-dark { background: var(--band); color: #FFFFFF; }
 .cs-btn-fill:hover, .tr-btn-dark:hover, .btn-dark:hover { background: var(--band-hi); }
 .btn-pink { background: var(--pink); color: var(--band); }
+/* on the navy band a solid accent disappears, so it lightens instead */
+.hm-cta .btn-mint, .cs-close .cs-btn-fill, .cs-head .cs-btn-fill { background: var(--blue-lift); color: var(--band); }
+.hm-cta .btn-mint:hover, .cs-close .cs-btn-fill:hover, .cs-head .cs-btn-fill:hover { background: #A8C6F6; }
 .btn-pink:hover { background: #FFDCFE; }
-.btn-mint { background: var(--mint); color: var(--band); }
-.btn-mint:hover { background: #D6FFE3; }
+.btn-mint { background: var(--mint); color: var(--on-mint); }
+.btn-mint:hover { background: #24518F; }
 .cs-btn-line, .btn-line { background: transparent; color: var(--ink); border-color: var(--line); }
 .cs-btn-line:hover, .btn-line:hover { border-color: #BEBEBE; }
 .cs-btn:disabled, .tr-btn:disabled, .btn:disabled { opacity: .45; cursor: not-allowed; }

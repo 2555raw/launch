@@ -10,7 +10,9 @@
   height: var(--nav); display: flex; align-items: center; gap: 22px;
 }
 .hm-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
-.hm-mark { width: 24px; height: 24px; color: var(--band); }
+/* a span is inline by default, so outside the nav's flex it ignored its
+   own width and the svg grew to the container. */
+.hm-mark { display: block; width: 24px; height: 24px; color: var(--band); flex: none; }
 .hm-mark svg { width: 100%; height: 100%; }
 .hm-links { margin: 0 auto; display: flex; align-items: center; gap: 2px; }
 .hm-links a { padding: 6px 12px; border-radius: 999px; font-size: 13.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
@@ -48,15 +50,6 @@
 .hm-fine { font-size: 11px; line-height: 1.6; color: var(--muted); max-width: 44ch; margin: 0 0 16px; }
 .hm-fine a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 
-.hm-ca {
-  display: flex; align-items: center; gap: 10px; max-width: 460px;
-  border: 1px solid var(--line); border-radius: 999px; background: var(--card);
-  padding: 6px 12px 6px 6px;
-}
-.hm-ca i { display: inline-grid; place-items: center; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--mint); color: var(--on-mint); font-size: 9.5px; font-weight: 700; font-style: normal; letter-spacing: .04em; }
-.hm-ca code { flex: 1; min-width: 0; font-family: var(--mono); font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hm-ca button { border: 0; background: transparent; color: var(--dim); cursor: pointer; padding: 0; }
-.hm-ca button:hover { color: var(--green); }
 
 /* the wireframe form */
 .hm-form { position: absolute; right: 8px; top: 96px; width: min(46vw, 580px); color: var(--line); pointer-events: none; }
@@ -87,7 +80,15 @@
 .hm-cta .hm-fine { color: var(--on-band-2); }
 .hm-cta .hm-fine a { color: var(--on-band); }
 .hm-cta-dia { color: var(--band-2); }
-.hm-cta-dia svg { width: 100%; height: auto; }
+/* uncapped, this filled a phone's whole width and left the band mostly air */
+.hm-cta-dia svg { width: 100%; max-width: 430px; height: auto; margin: 0 auto; }
+
+.hm-figs {
+  margin: 0 0 20px; display: grid; grid-template-columns: repeat(3, auto); gap: 30px;
+  justify-content: start;
+}
+.hm-figs dt { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-2); }
+.hm-figs dd { margin: 6px 0 0; font-size: 22px; font-weight: 600; letter-spacing: -.025em; color: var(--on-band); }
 
 /* ---------- footer ---------- */
 
@@ -113,7 +114,8 @@
   .hm-stocks { grid-template-columns: repeat(3, 1fr); }
   .hm-stock:nth-child(5n) { border-right: 1px solid var(--line); }
   .hm-stock:nth-child(3n) { border-right: 0; }
-  .hm-cta-in { grid-template-columns: 1fr; }
+  .hm-cta-in { grid-template-columns: minmax(0, 1fr); }
+  .hm-figs { gap: 22px; }
   .hm-foot-in { grid-template-columns: 1fr 1fr; }
   .hm-foot-brand { border-right: 0; grid-column: 1 / -1; }
 }
@@ -125,7 +127,5 @@
   .hm-stock:nth-child(2n) { border-right: 0; }
 }
 
-/* the same chip, nav-sized */
-.hm-ca-sm { padding: 4px 10px 4px 4px; max-width: none; }
-.hm-ca-sm code { font-size: 10.5px; }
-@media (max-width: 800px) { .hm-ca-sm { display: none; } }
+
+@media (max-width: 620px) { .hm-figs { grid-template-columns: repeat(2, auto); row-gap: 16px; } }

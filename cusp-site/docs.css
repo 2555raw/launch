@@ -18,7 +18,7 @@
 .dx-links { margin: 0 auto; display: flex; align-items: center; gap: 2px; }
 .dx-links a { padding: 6px 12px; border-radius: 999px; font-size: 13.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
 .dx-links a:hover { color: var(--ink); }
-.dx-links a.on { background: var(--mint); color: var(--band); font-weight: 600; }
+.dx-links a.on { background: var(--mint); color: var(--on-mint); font-weight: 600; }
 .dx-nav-right { display: flex; align-items: center; gap: 9px; }
 .dx-chip {
   display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px 0 5px;
@@ -93,7 +93,7 @@
 
 /* the fee split */
 .dx-pct { font-size: 27px; font-weight: 600; letter-spacing: -.03em; color: var(--green); margin-bottom: 26px; }
-.dx-card-dark .dx-pct { color: var(--mint); }
+.dx-card-dark .dx-pct { color: var(--blue-lift); }
 .dx-flow {
   margin-top: 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--card);
   padding: 13px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
@@ -110,7 +110,7 @@
 .dx-panel-fig b { font-size: 40px; font-weight: 600; letter-spacing: -.03em; color: var(--pink); line-height: 1; }
 .dx-panel-fig span { margin-top: 10px; font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-2); }
 .dx-panel-c h3 { margin: 0 0 7px; font-size: 12.5px; font-weight: 600; color: var(--pink); display: flex; align-items: flex-start; gap: 8px; }
-.dx-panel-c h3 svg { flex: none; color: var(--mint); margin-top: 1px; }
+.dx-panel-c h3 svg { flex: none; color: var(--blue-lift); margin-top: 1px; }
 .dx-panel-c p { margin: 0; font-size: 11px; line-height: 1.6; color: var(--on-band-2); }
 .dx-panel-c:nth-child(2), .dx-panel-c:nth-child(3) { border-bottom: 1px solid var(--band-2); }
 .dx-panel-c:nth-child(3), .dx-panel-c:nth-child(5) { border-left: 1px solid var(--band-2); }
@@ -135,7 +135,7 @@
 .dx-code pre { margin: 0; padding: 12px 14px 14px; overflow-x: auto; }
 .dx-code code { font-family: var(--mono); font-size: 10px; line-height: 1.7; color: var(--on-band); white-space: pre; }
 .dx-code .c { color: #9391B9; }
-.dx-code .s { color: var(--mint); }
+.dx-code .s { color: var(--blue-lift); }
 .dx-code .n { color: var(--pink); }
 
 /* the roadmap */

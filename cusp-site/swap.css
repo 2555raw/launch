@@ -27,7 +27,7 @@
   transition: color .15s, background .15s;
 }
 .tr-links a:hover { color: var(--ink); }
-.tr-links a.on { background: var(--mint-pill); color: #16301F; font-weight: 600; }
+.tr-links a.on { background: var(--mint-pill); color: var(--green-deep); font-weight: 600; }
 
 .tr-nav-right { display: flex; align-items: center; gap: 10px; }
 .tr-chip {
@@ -37,7 +37,7 @@
 }
 .tr-chip-tag {
   display: inline-grid; place-items: center; height: 22px; padding: 0 7px; border-radius: 999px;
-  background: var(--mint); color: #16301F; font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+  background: var(--mint); color: var(--on-mint); font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
 }
 .tr-chip button { border: 0; background: transparent; color: var(--dim); cursor: pointer; padding: 0; }
 .tr-chip button:hover { color: var(--green); }
@@ -75,9 +75,9 @@
 .tr-mode-i { grid-area: i; align-self: center; color: var(--muted); }
 .tr-mode b { grid-area: t; font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; }
 .tr-mode span:last-child { grid-area: s; font-size: 11.5px; color: var(--dim); margin-top: 2px; }
-.tr-mode.on { background: var(--mint); border-color: var(--mint-line); }
-.tr-mode.on .tr-mode-i, .tr-mode.on .tr-mode-n { color: #2C6047; }
-.tr-mode.on span:last-child { color: #3C6E55; }
+.tr-mode.on { background: var(--mint-pill); border-color: var(--mint-line); }
+.tr-mode.on .tr-mode-i, .tr-mode.on .tr-mode-n { color: var(--green-deep); }
+.tr-mode.on span:last-child { color: var(--green-deep); }
 .tr-mode:disabled { cursor: default; opacity: 1; }
 .tr-mode:disabled b, .tr-mode:disabled span:last-child { color: var(--dim); }
 

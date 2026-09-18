@@ -16,7 +16,7 @@
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: 66px; display: flex; align-items: center; gap: 22px;
 }
-.tr-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 21.9px; font-weight: 600; letter-spacing: -.02em; }
+.tr-brand { display: inline-flex; align-items: center; gap: 7px; font-size: 21.9px; font-weight: 600; letter-spacing: -.02em; }
 
 .tr-links { margin: 0 auto; display: flex; align-items: center; gap: 4px; }
 .tr-links a {

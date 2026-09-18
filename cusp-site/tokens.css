@@ -229,7 +229,7 @@ img, svg { display: block; }
   -webkit-mask: url(mark.svg) center / contain no-repeat;
   mask: url(mark.svg) center / contain no-repeat;
 }
-.brand-mk { width: 26px; height: 26px; color: var(--band); }
+.brand-mk { width: 36px; height: 36px; color: var(--band); }
 .ft-mk { width: 96px; height: 96px; color: var(--band); }
 .ft-sign { display: grid; place-items: center; padding: 30px 24px 26px; border-top: 1px dashed var(--line); }
 
@@ -329,13 +329,13 @@ img, svg { display: block; }
 .hm-ca {
   position: relative; z-index: 1;
   display: flex; align-items: center; gap: 12px;
-  max-width: 62ch; margin-top: 20px; padding: 9px 12px;
+  max-width: 62ch; margin-top: 22px; padding: 11px 14px;
   border: 1px solid var(--line); border-radius: 999px; background: var(--card);
 }
 .hm-ca b {
   flex: none; padding: 4px 11px; border-radius: 999px;
   background: var(--accent-fill); color: var(--accent-ink);
-  font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: .1em;
+  font-family: var(--mono); font-size: 12.8px; font-weight: 700; letter-spacing: .1em;
 }
 /* the address will sit here; until then the slot is a ruled line, the same
    construction language the footer plate speaks */

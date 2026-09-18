@@ -9,7 +9,7 @@
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: var(--nav); display: flex; align-items: center; gap: 22px;
 }
-.hm-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 20.9px; font-weight: 600; letter-spacing: -.02em; }
+.hm-brand { display: inline-flex; align-items: center; gap: 7px; font-size: 20.9px; font-weight: 600; letter-spacing: -.02em; }
 .hm-links { margin: 0 auto; display: flex; align-items: center; gap: 2px; }
 .hm-links a { padding: 6px 12px; border-radius: 999px; font-size: 15.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
 .hm-links a:hover { color: var(--ink); }
@@ -41,14 +41,16 @@
   font-size: clamp(42px, 8vw, 126px); line-height: 1.02; font-weight: 600; letter-spacing: -.05em;
 }
 .hm-hero-copy { position: relative; z-index: 1; max-width: 64ch; }
-.hm-hero-copy p { margin: 0 0 22px; font-size: 20.3px; line-height: 1.5; color: var(--ink); letter-spacing: -.01em; }
-.hm-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 18px; }
-.hm-fine { font-size: 13.9px; line-height: 1.55; color: var(--muted); max-width: 62ch; margin: 0; }
+.hm-hero-copy p { margin: 0 0 24px; font-size: 22.8px; line-height: 1.5; color: var(--ink); letter-spacing: -.01em; }
+.hm-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+/* the hero's pair carry the block, so they sit a size above the site default */
+.hm-hero-copy .btn { height: 42px; padding: 0 20px; font-size: 15.5px; }
+.hm-fine { font-size: 15.6px; line-height: 1.55; color: var(--muted); max-width: 62ch; margin: 0; }
 .hm-fine a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 
 
 /* the wireframe form */
-.hm-form { position: absolute; right: -6px; top: -34px; width: min(50vw, 720px); color: #C9C8CE; pointer-events: none; }
+.hm-form { position: absolute; right: -6px; top: -34px; width: min(52vw, 800px); color: #C9C8CE; pointer-events: none; }
 .hm-form svg { width: 100%; height: auto; }
 
 /* ---------- one vault per stock ---------- */

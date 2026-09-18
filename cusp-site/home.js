@@ -34,8 +34,9 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   const TUMBLE = 1.6;      // turns about the horizontal axis per turn about the vertical
   const EASE = 0.46;       // how hard it dwells face-on and snaps through edge-on
   const YSQUASH = 0.5;     // the stack spreads less vertically than sideways
-  const DRIFT_X = 5.5;     // how far it wanders, in viewBox units
-  const DRIFT_Y = 5.0;
+  const ROLL = 0.55;       // turns in the picture plane per turn about the vertical
+  const DRIFT_X = 8.0;     // how far it wanders, in viewBox units
+  const DRIFT_Y = 7.0;
 
   const layers = [];
   for (let i = 0; i < DEPTH; i++) {
@@ -54,20 +55,26 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
     layers.push(u);
   }
 
-  /* Two rotations at once, and both of them go all the way round — neither
-     swings back at 180°. Turned at a constant rate each would spend as long
-     edge-on as facing you, and edge-on this mark is a bar, so each angle is
-     eased first: θ − k·sin2θ runs at about a sixth speed through the
-     orientations where the logo reads and at nearly twice speed through the
-     two where it does not. Same full revolution, most of it recognisable.
+  /* All three axes, each going all the way round.
 
-     The two run at different rates (1 : 1.6), so the pair never repeats a
-     pose and it reads as a tumble rather than a turntable. Where an axis does
-     pass edge-on the face is floored at 0.08 and you are left looking at the
-     stack itself, which is what a tumbling slab looks like.
+     Yaw turns it about the vertical, pitch about the horizontal. Turned at a
+     constant rate either would spend as long edge-on as facing you, and
+     edge-on this mark is a bar, so both angles are eased first: θ − k·sin2θ
+     runs at about a sixth speed through the orientations where the logo
+     reads and at nearly twice speed through the two where it does not. Same
+     full revolution, most of it recognisable. Where an axis does pass edge-on
+     the face is floored at 0.08 and you are left looking at the stack itself,
+     which is what a tumbling slab looks like.
 
-     On top of the two rotations the whole group wanders: one slow diagonal
-     and a faster bob against it, which traces a lopsided figure of eight
+     Roll is the third, and it is the one that makes it read as turning every
+     way rather than nodding in two: it spins the whole thing in the plane of
+     the screen, which is where the diagonals come from. It needs no easing,
+     because a rolled logo is still a legible logo — so it turns at a steady
+     rate and carries the extrusion round with it.
+
+     The three run at 1 : 1.6 : 0.55, so no two of them line up twice and the
+     pose never repeats. On top of them the whole group wanders: one slow
+     diagonal and a faster bob against it, tracing a lopsided figure of eight
      instead of a straight line back and forth. */
   const spin = a => a - EASE * Math.sin(2 * a);
   const squash = a => { const c = Math.cos(a); return Math.sign(c || 1) * Math.max(Math.abs(c), 0.08); };
@@ -84,7 +91,9 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
 
     const wx = DRIFT_X * Math.sin(t * 0.64);
     const wy = DRIFT_Y * Math.sin(t * 0.64 + 1.05) + 2.2 * Math.sin(t * 1.7);
-    g.setAttribute('transform', `translate(${wx.toFixed(3)} ${wy.toFixed(3)})`);
+    const roll = (t * ROLL * 180 / Math.PI) % 360;
+    g.setAttribute('transform',
+      `translate(${wx.toFixed(3)} ${wy.toFixed(3)}) rotate(${roll.toFixed(2)} 50 50)`);
 
     layers.forEach((u, i) => {
       const z = (DEPTH - 1 - i);          // 0 at the front

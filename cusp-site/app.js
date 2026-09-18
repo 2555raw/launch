@@ -454,6 +454,12 @@ function paint() {
   if (current && drawer.classList.contains('on')) fillDrawer();
 }
 
+/* a link can ask for one vault: vaults.html?v=NVDA */
+try {
+  const want = new URLSearchParams(location.search).get('v');
+  if (want && VAULTS.some(v => v.t === want)) q.value = want;
+} catch (_) {}
+
 q.addEventListener('input', renderList);
 sort.addEventListener('change', renderList);
 chips.addEventListener('click', e => {

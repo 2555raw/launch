@@ -9,9 +9,9 @@
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: var(--nav); display: flex; align-items: center; gap: 22px;
 }
-.hm-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
+.hm-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 19.5px; font-weight: 600; letter-spacing: -.02em; }
 .hm-links { margin: 0 auto; display: flex; align-items: center; gap: 2px; }
-.hm-links a { padding: 6px 12px; border-radius: 999px; font-size: 13.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
+.hm-links a { padding: 6px 12px; border-radius: 999px; font-size: 14.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
 .hm-links a:hover { color: var(--ink); }
 .hm-links a.on { background: var(--accent-fill); color: var(--on-accent); font-weight: 600; }
 .hm-nav-right { display: flex; align-items: center; gap: 9px; }
@@ -41,9 +41,9 @@
   font-size: 68px; line-height: 1.04; font-weight: 600; letter-spacing: -.045em;
 }
 .hm-hero-copy { position: relative; z-index: 1; max-width: 44ch; padding-top: 150px; }
-.hm-hero-copy p { margin: 0 0 22px; font-size: 15px; line-height: 1.6; color: var(--ink); }
+.hm-hero-copy p { margin: 0 0 22px; font-size: 16px; line-height: 1.6; color: var(--ink); }
 .hm-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 18px; }
-.hm-fine { font-size: 11px; line-height: 1.6; color: var(--muted); max-width: 44ch; margin: 0 0 16px; }
+.hm-fine { font-size: 12px; line-height: 1.6; color: var(--muted); max-width: 44ch; margin: 0 0 16px; }
 .hm-fine a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 
 
@@ -60,7 +60,7 @@
   display: grid; grid-template-columns: repeat(5, 1fr);
   border-left: 1px solid var(--line); border-right: 1px solid var(--line);
 }
-.hm-stock { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 13px; }
+.hm-stock { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 14px; }
 .hm-stock:nth-child(5n) { border-right: 0; }
 .hm-stock span { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; }
 .hm-stock svg { width: 15px; height: 15px; fill: currentColor; }
@@ -83,17 +83,17 @@
   margin: 0 0 20px; display: grid; grid-template-columns: repeat(3, auto); gap: 30px;
   justify-content: start;
 }
-.hm-figs dt { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-2); }
-.hm-figs dd { margin: 6px 0 0; font-size: 22px; font-weight: 600; letter-spacing: -.025em; color: var(--on-band); }
+.hm-figs dt { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-2); }
+.hm-figs dd { margin: 6px 0 0; font-size: 24px; font-weight: 600; letter-spacing: -.025em; color: var(--on-band); }
 
 /* ---------- footer ---------- */
 
 .hm-foot { border-top: 1px solid var(--line); background: var(--card); }
 .hm-foot-in { max-width: var(--wrap-head); margin: 0 auto; padding: 34px 24px 26px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
 .hm-foot-in .k { margin-bottom: 11px; }
-.hm-foot-in a { display: block; padding: 4px 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.hm-foot-in a { display: block; padding: 4px 0; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .hm-foot-in a:hover { color: var(--accent); }
-.hm-fine-foot { max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px 30px; font-size: 10.5px; line-height: 1.6; color: var(--dim); }
+.hm-fine-foot { max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px 30px; font-size: 11.5px; line-height: 1.6; color: var(--dim); }
 
 /* ---------- responsive ---------- */
 
@@ -127,10 +127,10 @@
 .fg-hit { fill: transparent; }
 .fg-a { fill: var(--pink); }
 .fg-b { fill: var(--accent-lift); }
-.fg-t { font-size: 9.5px; font-weight: 600; fill: var(--on-band); }
-.fg-s { font-size: 8px; fill: var(--on-band-2); }
-.fg-c { font-size: 8.5px; letter-spacing: .14em; fill: var(--on-band-2); font-weight: 600; }
-.fg-c2 { letter-spacing: 0; font-weight: 400; font-size: 8px; fill: var(--band-2); }
+.fg-t { font-size: 10.5px; font-weight: 600; fill: var(--on-band); }
+.fg-s { font-size: 8.5px; fill: var(--on-band-2); }
+.fg-c { font-size: 9px; letter-spacing: .14em; fill: var(--on-band-2); font-weight: 600; }
+.fg-c2 { letter-spacing: 0; font-weight: 400; font-size: 8.5px; fill: var(--band-2); }
 
 .fg-node { cursor: default; }
 .fg-node .fg-a, .fg-node .fg-b, .fg-node .fg-t, .fg-node .fg-s { transition: fill .18s, opacity .18s; }

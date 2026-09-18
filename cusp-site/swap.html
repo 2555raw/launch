@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Swap — Cusp</title>
+  <meta name="description" content="Compare live aggregators on Robinhood Chain and take the best of four routes. Limit orders and TWAP are next.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233D3B4E'/%3E%3Cg transform='translate(16 16) scale(.82) translate(-16 -16)'%3E%3Cpath d='M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z' fill='none' stroke='%23AEE9C8' stroke-width='2.9' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='2.9' fill='%23AEE9C8'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap">
+  <link rel="stylesheet" href="swap.css">
+</head>
+<body>
+<div class="tr">
+
+  <header class="tr-nav">
+    <div class="tr-nav-in">
+      <a class="tr-brand" href="index.html">
+        <span class="tr-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+            <circle cx="16" cy="16" r="2.4" fill="currentColor"/>
+          </svg>
+        </span>
+        Cusp
+      </a>
+
+      <nav class="tr-links" aria-label="Sections">
+        <a href="index.html#list">Vaults</a>
+        <a href="index.html#fees">Fees</a>
+        <a class="on" href="swap.html">Swap</a>
+        <a href="index.html#contracts">Contracts</a>
+        <a href="risk.html">Risk</a>
+      </nav>
+
+      <div class="tr-nav-right">
+        <div class="tr-chip" id="chip" hidden>
+          <span class="tr-chip-tag">CU</span>
+          <b id="chip-addr">0x0000…0000</b>
+          <button id="chip-copy" type="button" aria-label="Copy the address">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5.5A2.5 2.5 0 017.5 3H15"/></svg>
+          </button>
+        </div>
+        <button class="tr-btn tr-btn-dark tr-btn-sm" id="connect" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2"/></svg>
+          Connect wallet
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="tr-band">
+    <div class="tr-band-in">
+      <div class="tr-band-copy">
+        <p class="tr-eyebrow"><span>Cusp trade</span> · Robinhood Chain</p>
+        <h1>Trade any token,<br><em>your way</em>.</h1>
+        <p class="tr-lede">Compare live aggregators, wait for a target price, or spread execution across a schedule.</p>
+      </div>
+      <div class="tr-modes">
+        <button class="tr-mode on" type="button">
+          <span class="tr-mode-n">01</span>
+          <span class="tr-mode-i" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></span>
+          <b>Swap</b>
+          <span>Best of four routes</span>
+        </button>
+        <button class="tr-mode" type="button" disabled>
+          <span class="tr-mode-n">02</span>
+          <span class="tr-mode-i" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="7.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></span>
+          <b>Limit</b>
+          <span>Coming soon</span>
+        </button>
+        <button class="tr-mode" type="button" disabled>
+          <span class="tr-mode-n">03</span>
+          <span class="tr-mode-i" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.2 1.6M9 2.5h6"/></svg></span>
+          <b>TWAP</b>
+          <span>Coming soon</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="tr-hatch" aria-hidden="true"></div>
+
+  <main class="tr-main">
+    <div class="tr-cols">
+
+      <section class="tr-card tr-swap">
+        <div class="tr-card-top">
+          <div>
+            <h2>Swap</h2>
+            <p>Best price across four <a href="index.html#list">Robinhood Chain</a> aggregators.</p>
+          </div>
+          <span class="tr-ready"><i></i>Ready</span>
+        </div>
+
+        <span class="tr-k">You pay</span>
+        <div class="tr-field">
+          <input id="pay" type="number" min="0" step="any" placeholder="0.00" inputmode="decimal" aria-label="Amount to pay">
+          <div class="tr-tok">
+            <select id="pay-tok" aria-label="Token to pay"></select>
+            <span class="tr-tok-face" id="pay-face"></span>
+          </div>
+        </div>
+        <div class="tr-bal">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2"/></svg>
+          <span id="pay-bal">Connect to see balance</span>
+          <button class="tr-max" id="max" type="button" hidden>Max</button>
+        </div>
+
+        <button class="tr-flip" id="flip" type="button" aria-label="Flip the pair">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6.5 13.5L12 19l5.5-5.5"/></svg>
+        </button>
+
+        <span class="tr-k">You receive</span>
+        <div class="tr-field">
+          <output id="get" class="tr-out">—</output>
+          <div class="tr-tok">
+            <select id="get-tok" aria-label="Token to receive"></select>
+            <span class="tr-tok-face" id="get-face"></span>
+          </div>
+        </div>
+
+        <div class="tr-slip">
+          <span>Slippage tolerance</span>
+          <div class="tr-slip-pills" id="slip">
+            <button data-s="0.1" type="button">0.1%</button>
+            <button class="on" data-s="0.5" type="button">0.5%</button>
+            <button data-s="1" type="button">1.0%</button>
+            <label class="tr-slip-own"><input id="slip-own" type="number" min="0.01" max="50" step="0.1" value="0.5" aria-label="Custom slippage"><span>%</span></label>
+          </div>
+        </div>
+
+        <dl class="tr-sum">
+          <div><dt>Minimum received</dt><dd id="s-min">—</dd></div>
+          <div><dt>Rate</dt><dd id="s-rate">—</dd></div>
+          <div><dt>Selected route</dt><dd id="s-route">Comparing aggregators</dd></div>
+        </dl>
+
+        <button class="tr-btn tr-btn-dark tr-btn-wide" id="go" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2"/></svg>
+          Connect wallet
+        </button>
+      </section>
+
+      <section class="tr-card tr-routes">
+        <div class="tr-card-top">
+          <div>
+            <span class="tr-k">Route competition</span>
+            <h2>Compare every quote</h2>
+          </div>
+          <span class="tr-count" id="count">4 providers</span>
+        </div>
+        <button class="tr-refresh" id="refresh" type="button">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 11-2.6-5.9M20 4v4h-4"/></svg>
+          Refresh
+        </button>
+
+        <div class="tr-stage" id="stage">
+          <div class="tr-faces" id="faces"></div>
+          <p class="tr-stage-h" id="stage-h">Four providers. One best price.</p>
+          <p class="tr-stage-p" id="stage-p">Enter an amount to compare what you'll receive.</p>
+        </div>
+
+        <div class="tr-quotes" id="quotes"></div>
+
+        <p class="tr-fine">Quotes include the protocol fee. Network fees are separate.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="tr-foot">
+    <div class="tr-foot-in">
+      <div><span class="tr-k">Products</span><a href="index.html#list">Vaults</a><a href="swap.html">Swap</a><a href="index.html#fees">Fees</a></div>
+      <div><span class="tr-k">Platform</span><a href="index.html#how">Mechanics</a><a href="index.html#safeguards">Safeguards</a><a href="index.html#contracts">Contracts</a></div>
+      <div><span class="tr-k">Resources</span><a href="index.html#faq">FAQ</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a></div>
+      <div><span class="tr-k">Support</span><a href="risk.html">Risk disclosure</a><a href="index.html#top">Status</a><a href="index.html#top">Contact</a></div>
+    </div>
+    <p class="tr-disclaimer">
+      A design mock. Every price, route and provider on this page is invented, the
+      wallet is play money in your browser, and no chain is touched. Nothing here is
+      an offer or financial advice.
+    </p>
+  </footer>
+</div>
+
+<div class="tr-toasts" id="toasts" aria-live="polite"></div>
+<script src="wallet.js"></script>
+<script src="logos.js"></script>
+<script src="swap.js"></script>
+</body>
+</html>

@@ -18,13 +18,18 @@ No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 index.html    chain strip, nav, page head, your positions, filter toolbar, vault
               list, mechanics, fee split, safeguards, FAQ, contracts, footer,
               deposit drawer
+swap.html     the swap page: dark band, the route competition, the swap card
 terms.html    terms of use
 risk.html     risk disclosure
 privacy.html  privacy notice
 styles.css    the design system (palette, type, layout) and the responsive rules
 legal.css     the reading column the three legal pages add on top of it
-app.js        the VAULTS data, the demo wallet, deposits and redemptions, list
-              rendering, search / filter / sort, the drawer, theme and the menu
+swap.css      the swap page's own design system — it shares nothing with the above
+wallet.js     the demo wallet, shared by every page
+logos.js      the brand marks, shared by the vault list and the token pickers
+app.js        the VAULTS data, deposits and redemptions, list rendering,
+              search / filter / sort, the drawer, theme and the menu
+swap.js       the tokens, the four aggregators, quoting and the swap itself
 legal.js      theme, menu and the contents list for the legal pages
 ```
 
@@ -115,9 +120,15 @@ magenta. The accent is money, and a brand mark is not money.
 
 ## The Cusp mark
 
-A cusp: two strokes meeting at a point, with the point itself called out as a dot.
-One path, one circle, `currentColor`, no fills to theme — it works at 24px in the
-nav and at 32px as the favicon, which is the same SVG inlined in a `data:` URI.
+A lens: two arcs meeting at a point top and bottom, with a dot at the centre. Those
+two meeting points are the cusps — there is not a straight line anywhere in it, and
+the favicon sits on a circle rather than a rounded square, so nothing about the mark
+is square.
+
+One path, one circle, `currentColor`, no fills to theme. It holds at 76px, at 24px
+in the nav and at 16px, and the favicon is the same SVG inlined in a `data:` URI.
+
+It replaced an angular chevron, which read as rigid next to a palette this soft.
 
 ## Interactive parts (`app.js`)
 
@@ -149,6 +160,29 @@ nav and at 32px as the favicon, which is the same SVG inlined in a `data:` URI.
   `try/catch` so a browser that blocks storage still renders.
 - **Nav** — the burger drops the sections below the bar under 1080px; an
   `IntersectionObserver` marks the active one.
+
+## The swap page
+
+`swap.html` deliberately does **not** share the design system above. It follows
+`usevertex.xyz/trade/swap`, which is the page it was asked to follow: the warm grey
+ground, the dark band with its dashed grid, the hatched strip under it, the mint
+accent, the white cards, and the two content widths — 1160px for the header, 900px
+for everything else.
+
+Type is **Schibsted Grotesk**, the closest thing on Google Fonts to the grotesque
+that page uses; the real one could not be read, because the site is unreachable from
+where this was built. Sizes are in px because they were measured off a screenshot,
+and rounding them into rems would have lost the thing being matched.
+
+What is *not* borrowed is the branding. The name, the mark and the four aggregators
+are this project's own — Kestrel, Zeroth, Nordway and Lattice are invented, because
+naming real routers would claim integrations that do not exist.
+
+It works the same way the vault page does. Pick a pair, type an amount, and four
+routers quote it with their own spread, their own gas and a little jitter, so
+**Refresh** means something. The best one wins, drives the minimum received at your
+slippage, and the swap moves the shared demo wallet's balances — swap ETH for USDG
+here and the vaults page sees the USDG.
 
 ## The legal pages
 

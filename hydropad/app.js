@@ -418,58 +418,60 @@ async function loadSideLaunches() {
   }
 }
 
-/* ---------------- the address of the last coin launched ---------------- */
+/* ---------------- Hydropad's own contract address ---------------- */
 
-/* A launch hands back an address and then the page moves on, and the address
- * is the one thing nobody can reconstruct: it is what gets pasted into a
- * wallet, an explorer, a group chat. So it stays in the header, one click from
- * the clipboard, until the next launch replaces it. Kept per chain, because an
- * address from the testnet means nothing on mainnet. */
-const CA_KEY = id => `hydropad.lastca.${id}`;
+/* One address, the same for every visitor: the site's own token, not whatever
+ * the browser in front of it happened to launch.
+ *
+ * It was the latter for a while, remembered per browser out of localStorage,
+ * which meant the header showed one thing to the person who had just launched
+ * and something else to everyone who came to copy the CA — and for a launchpad
+ * the CA in the header is the one number that has to be the same for all of
+ * them. Until there is one to publish, the slot says so.
+ *
+ * To publish it: put the address here and the header carries it everywhere,
+ * with the explorer link and the copy button, on every page. Nothing else to
+ * change.
+ */
+const SITE_CA = {
+  /* 4663 is Robinhood Chain. Add the address as a string once the token is
+     launched; anything that is not an address is treated as not set. */
+  address: "",
+  chainId: 4663,
+  explorer: "https://robinhoodchain.blockscout.com",
+};
 
-function rememberLaunch(chainId, token, symbol) {
-  try {
-    localStorage.setItem(CA_KEY(chainId), JSON.stringify({ token, symbol, at: Date.now() }));
-  } catch (_) {}
-  renderLastCa();
-}
-
-function lastLaunch() {
-  if (!Chain.chainId) return null;
-  try {
-    const raw = localStorage.getItem(CA_KEY(Chain.chainId));
-    const v = raw ? JSON.parse(raw) : null;
-    return v && v.token ? v : null;
-  } catch (_) { return null; }
+function siteCa() {
+  const a = SITE_CA.address;
+  return a && typeof ethers !== "undefined" && ethers.isAddress(a) ? ethers.getAddress(a) : null;
 }
 
 function renderLastCa() {
   const host = $("last-ca");
   if (!host) return;
-  const last = lastLaunch();
+  const addr = siteCa();
   host.hidden = false;
 
-  /* Before the first launch the slot stays, saying what it is waiting for:
-   * somewhere to put the address is worth more than an empty header, and a
-   * visitor who has never launched still learns where it will appear. */
-  if (!last) {
+  /* No token yet. The slot stays rather than leaving a hole in the header: it
+   * is where the address will be, and saying so is worth more than an empty
+   * strip of chrome. */
+  if (!addr) {
     host.classList.add("waiting");
     host.innerHTML = `<span class="ca-tag">CA</span><span class="ca-addr mono">pending</span>`;
     return;
   }
 
-  const explorer = Chain.chainInfo().explorer;
   host.classList.remove("waiting");
   host.innerHTML = `
     <span class="ca-tag">CA</span>
-    <a class="ca-addr mono" href="token.html?addr=${esc(last.token)}"
-       title="${esc(last.token)}">${shortAddr(last.token)}</a>
-    <button class="ca-copy" type="button" data-copy="${esc(last.token)}" title="Copy the address">
+    <a class="ca-addr mono" href="${esc(SITE_CA.explorer)}/token/${esc(addr)}"
+       target="_blank" rel="noopener" title="${esc(addr)}">${shortAddr(addr)}</a>
+    <button class="ca-copy" type="button" data-copy="${esc(addr)}" title="Copy the address">
       <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-1a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h1"/></svg>
       <span class="sr">Copy the contract address</span>
     </button>
-    ${explorer ? `<a class="ca-out" href="${esc(explorer)}/address/${esc(last.token)}" target="_blank"
-       rel="noopener" title="Open in the explorer">↗</a>` : ""}`;
+    <a class="ca-out" href="${esc(SITE_CA.explorer)}/token/${esc(addr)}" target="_blank"
+       rel="noopener" title="Open in the explorer">↗</a>`;
 }
 
 /* One listener for the page, so it survives every redraw of the slot. */
@@ -1466,7 +1468,6 @@ const PAGES = {
           place: w ? (w.l ? `${w.n}, ${w.l}` : w.n) : null,
           note: w && w.g ? `At ${coordText(w.g)}.` : null,
         });
-        rememberLaunch(Chain.chainId, token, symbol);
         await navigate(`token.html?addr=${token}&new=1`);
       } catch (err) {
         btn.disabled = false;

@@ -270,9 +270,10 @@ function compile() {
     console.log('   the table grew from', before, 'rows on its own');
   });
 
-  await step('the header carries the address', async () => {
+  await step('the header does not fill itself from this visitor\'s launch', async () => {
     const shown = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
-    if (!shown.includes(token.slice(0, 6))) throw new Error('the slot reads ' + shown);
+    if (shown.includes(token.slice(0, 6))) throw new Error('the launch leaked into the header: ' + shown);
+    if (shown !== 'CApending') throw new Error('expected pending, read ' + shown);
   });
 
   await p.screenshot({ path: 'e2e-pons.png', fullPage: false });

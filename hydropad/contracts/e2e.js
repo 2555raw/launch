@@ -113,25 +113,34 @@ const log = [];
   console.log('   launcher:', launcher);
   const tokenAddr = new URL(p.url()).searchParams.get('addr');
   console.log('   token:', tokenAddr);
-  await step('the header keeps the address, and the button copies it', async () => {
-    await p.waitForFunction(() => !/pending/.test(document.querySelector('#last-ca')?.textContent || ''),
-      null, { timeout: 15000 });
+  await step("the header carries Hydropad's own CA, not the visitor's launch", async () => {
+    /* It used to fill itself from whatever this browser had just launched, so
+     * the person who launched saw one address and everyone who came to copy
+     * the CA saw another. It is one published address now, the same for every
+     * visitor, and a launch does not touch it. */
     const shown = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
-    if (!shown.includes(tokenAddr.slice(0, 6))) throw new Error('not this token: ' + shown);
-    if (!shown.includes(tokenAddr.slice(-4))) throw new Error('not the whole tail: ' + shown);
+    if (shown.includes(tokenAddr.slice(0, 6))) {
+      throw new Error('the launch leaked into the header: ' + shown);
+    }
+    if (shown !== 'CApending') throw new Error('with no CA published it should read pending: ' + shown);
 
-    /* The address, not the shortened version of it, is what has to land on the
-     * clipboard: an elided address is useless to paste anywhere. */
+    /* And when there is one, the whole slot works off it: link, copy, explorer.
+     * Set here the way the build sets it, rather than trusted to be right. */
     await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    const published = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+    await p.evaluate(a => { SITE_CA.address = a; renderLastCa(); }, published);
+    const filled = (await p.textContent('#last-ca')).replace(/\s+/g, ' ').trim();
+    if (!filled.includes('0x5FbD')) throw new Error('the published CA is not shown: ' + filled);
+
+    /* The whole address has to land on the clipboard: an elided one is
+     * useless to paste anywhere. */
     await p.click('#last-ca .ca-copy');
     const copied = await p.evaluate(() => navigator.clipboard.readText());
-    if (copied !== tokenAddr) throw new Error(`clipboard holds ${copied}, not ${tokenAddr}`);
+    if (copied !== published) throw new Error(`clipboard holds ${copied}, not ${published}`);
 
-    /* It outlives the page it was launched from: the slot is chrome, and a
-     * reload rebuilds it from what the launch put away. */
-    await p.goto(base + 'sources.html', { waitUntil: 'networkidle' });
-    await p.waitForFunction(a => (document.querySelector('#last-ca')?.textContent || '').includes(a.slice(0, 6)),
-      tokenAddr, { timeout: 15000 });
+    const href = await p.getAttribute('#last-ca .ca-out', 'href');
+    if (!href || !href.includes(published)) throw new Error('the explorer link points at ' + href);
+
     await p.goto(base + 'token.html?addr=' + tokenAddr, { waitUntil: 'networkidle' });
   });
 

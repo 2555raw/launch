@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gridpad</title>
+<meta name="description" content="A launchpad where every coin is bound to a named renewable power station — its capacity, its coordinates and the body that published them, written into the contract.">
+<link rel="stylesheet" href="styles.css">
+</head><body>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M13.4 1.8 4.2 13.4h5.3L9 22.2l9.8-11.8h-5.5l.1-8.6Z" fill="#c9f24e" stroke="#23342e" stroke-width="1.1" stroke-linejoin="round"/>
+    </svg>gridpad</a>
+  <nav class="nav">
+    <a href="index.html" class="on">Register</a>
+    <a href="launch.html">Launch</a>
+    <a href="launches.html">Launches</a>
+    <a href="docs.html">Docs</a>
+  </nav>
+  <div class="bar-right">
+    <span class="ca" id="ca"></span>
+    <button class="btn dark" type="button" id="connect">Connect wallet</button>
+  </div>
+</div></header>
+
+<section class="band"><div class="wrap">
+  <p class="eyebrow">The register</p>
+  <div class="lede-row">
+    <h1>Bind a coin to <span class="volt">something</span> <em>that runs.</em></h1>
+    <p class="aside">Twenty-eight renewable power stations. Each pairing is written into the
+    token's own contract, with the body that published the figures linked on every row.</p>
+  </div>
+  <dl class="stats" id="stats"></dl>
+</div></section>
+<div class="seam"></div>
+
+<main class="wrap">
+  <div class="controls">
+    <div class="search">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.6"/>
+        <path d="m10.6 10.6 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input id="q" type="search" placeholder="Search a station, a country, a ticker" autocomplete="off">
+    </div>
+    <span class="pick"><label for="f-class">Class</label>
+      <select id="f-class"><option>Any</option><option>Hydro</option><option>Wind</option>
+        <option>Solar</option><option>Geothermal</option></select></span>
+    <span class="pick"><label for="f-sort">Sort</label>
+      <select id="f-sort"><option value="mw">Capacity</option><option value="n">Name</option>
+        <option value="l">Country</option><option value="y">Year</option></select></span>
+    <span class="far" id="count"></span>
+  </div>
+
+  <div class="sheet">
+    <table>
+      <thead><tr>
+        <th>Station</th>
+        <th class="hide-s">Class</th>
+        <th class="r">Capacity</th>
+        <th class="hide-l">Against the largest</th>
+        <th class="hide-l">Operator</th>
+        <th>Published by</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="note" id="note"></p>
+</main>
+
+<script src="data.js"></script>
+<script src="ui.js"></script>
+</body></html>

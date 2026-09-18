@@ -6,16 +6,20 @@
 <!-- 1500 x 500, the size X serves a profile header at. The avatar and the
      account name sit over the bottom-left, so that corner is left empty; the
      line stays on the centre line, which is the part that survives every
-     crop. Not linked from the site — it exists to be screenshotted. -->
+     crop. Not linked from the site — it exists to be screenshotted.
+
+     The content is the site's: six vaults from the list with their real
+     figures, the two status pills, the headline. What is staged here is only
+     the material — the room they float in is glass. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#E9E9E9; --card:#EEEEEE; --line:#D6D6D6; --line-2:#DFDFDF;
+    --bg:#EDEEF2; --card:#EEEEEE; --line:#D6D6D6; --line-2:#DFDFDF;
     --band:#3D3B4F; --ink:#3D3B4F; --muted:#82828D; --dim:#A9A8AF;
     --accent:#6E5D0D; --accent-ink:#5C4E08; --accent-fill:#F2EAA0;
-    --accent-soft:#FBF7DA; --accent-glow:#EFD95E; --grid:#DEDEDE;
+    --accent-soft:#FBF7DA; --accent-glow:#EFD95E; --grid:#E4E5EA;
     --font:'Schibsted Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
   }
   * { box-sizing:border-box; margin:0; }
@@ -23,52 +27,76 @@
 
   .hd {
     position:relative; width:1500px; height:500px; overflow:hidden;
-    background-color:var(--bg);
-    background-image:
-      linear-gradient(to right, var(--grid) 0 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px);
-    background-size:32px 32px;
+    background:
+      linear-gradient(to right, var(--grid) 0 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px) 0 0 / 32px 32px,
+      radial-gradient(120% 140% at 22% 8%,  #FFFFFF 0%, #F4F6FB 34%, #EDEFF6 62%, #E9EAF1 100%);
     perspective:1500px; perspective-origin:50% 46%;
     transform-style:preserve-3d;
   }
 
-  /* ---- the washes the light comes from ---- */
-  .glow { position:absolute; border-radius:50%; filter:blur(100px); pointer-events:none; }
-  .g1 { width:900px; height:480px; left:190px; top:90px;  background:rgba(246,236,150,.50); }
-  .g2 { width:560px; height:400px; left:1040px; top:-80px; background:rgba(255,197,250,.34); }
-  .g3 { width:500px; height:340px; left:-160px; top:170px; background:rgba(255,255,255,.55); }
-  .g4 { width:620px; height:300px; left:500px; top:310px;  background:rgba(198,216,255,.42); }
-  .g5 { width:380px; height:380px; left:880px; top:-70px;  background:rgba(255,255,255,.48); }
-  .g6 { width:460px; height:320px; left:1180px; top:250px; background:rgba(186,255,226,.30); }
-  .g7 { width:420px; height:300px; left:40px;  top:-90px;  background:rgba(214,196,255,.30); }
-  .g8 { width:700px; height:260px; left:420px; top:150px;  background:rgba(255,246,190,.40); }
+  /* ---- the far bodies ----
+     Big, soft, out of focus: the glass the whole scene is standing inside.
+     They are the depth, and they are meant to stay unreadable. */
+  .body {
+    position:absolute; display:block; border-radius:46% 54% 60% 40% / 52% 44% 56% 48%;
+    background:
+      radial-gradient(58% 54% at 30% 26%, rgba(255,255,255,1) 0%, rgba(255,255,255,.55) 22%,
+        rgba(var(--t),var(--a)) 54%, rgba(var(--t),calc(var(--a) * .35)) 78%, rgba(var(--t),0) 100%),
+      radial-gradient(50% 62% at 76% 78%, rgba(146,156,196,.34) 0%, rgba(146,156,196,.10) 46%, rgba(var(--t),0) 74%);
+    pointer-events:none;
+  }
 
-
-  /* ---- the glass scene ----
-     A thick-bordered ellipse turned out of plane reads as a tube of glass; a
-     handful at different scales, tints and blurs is the refractive field the
-     reference is built on. The caustics are the bright lines light draws as
-     it comes through. */
-  .glass { position:absolute; inset:-120px; transform-style:preserve-3d; pointer-events:none; }
+  /* ---- the mid ground ----
+     A thick-bordered ellipse turned out of plane reads as a tube of glass;
+     the caustics are the bright lines light draws coming through one. */
+  .glass { position:absolute; inset:-130px; transform-style:preserve-3d; pointer-events:none; }
   .rb {
     position:absolute; display:block; border-radius:50%; border-style:solid;
     box-shadow:
-      inset 0 0 60px rgba(255,255,255,.92),
+      inset 0 0 70px rgba(255,255,255,.90),
       inset 0 0 0 2px rgba(255,255,255,.85),
-      0 0 70px rgba(255,255,255,.60);
+      0 0 80px rgba(255,255,255,.55);
   }
   .ca {
     position:absolute; display:block; border-radius:999px;
     background:linear-gradient(90deg,
-      rgba(255,255,255,0), rgba(255,252,222,.95) 30%,
-      rgba(255,255,255,1) 52%, rgba(255,232,250,.85) 74%, rgba(255,255,255,0));
+      rgba(255,255,255,0), rgba(232,242,255,.92) 26%,
+      rgba(255,255,255,1) 50%, rgba(238,230,255,.88) 74%, rgba(255,255,255,0));
   }
 
-  /* ---- the mark, shattered through the depth of the frame ----
-     Copies of the one path, each at its own z, its own pair of out-of-plane
-     rotations and its own uneven scale. The dark ones multiply and give the
-     field its structure; the bright ones screen, and those are the refracted
-     light. Blur stands in for depth of field. */
+  .pane {
+    position:absolute; border-radius:56px; pointer-events:none;
+    background:linear-gradient(140deg, rgba(255,255,255,.60), rgba(214,228,255,.22) 46%, rgba(255,255,255,.44));
+    box-shadow:
+      inset 0 0 0 3px rgba(255,255,255,.75),
+      inset 0 14px 40px rgba(255,255,255,.75),
+      0 0 70px rgba(255,255,255,.45);
+  }
+  .shade {
+    position:absolute; border-radius:50%; pointer-events:none;
+    background:radial-gradient(closest-side, rgba(126,134,176,.46), rgba(126,134,176,0));
+  }
+
+  /* a warm centre, small, so the yellow the content carries has something to
+     sit in without the room turning yellow */
+  .warm {
+    position:absolute; left:380px; top:120px; width:760px; height:300px;
+    border-radius:50%; filter:blur(110px); pointer-events:none;
+    background:rgba(255,238,168,.42);
+  }
+  .cool {
+    position:absolute; left:960px; top:-90px; width:620px; height:420px;
+    border-radius:50%; filter:blur(110px); pointer-events:none;
+    background:rgba(206,196,255,.40);
+  }
+  .cool2 {
+    position:absolute; left:-160px; top:180px; width:560px; height:380px;
+    border-radius:50%; filter:blur(110px); pointer-events:none;
+    background:rgba(198,220,255,.46);
+  }
+
+  /* ---- the mark, in the glass ---- */
   .field { position:absolute; inset:0; transform-style:preserve-3d; pointer-events:none; }
   .sh {
     position:absolute; display:block;
@@ -76,72 +104,66 @@
     mask:url(../mark.svg) center / contain no-repeat;
   }
 
-  /* ---- glass beads ----
-     Each is one sphere: a bright spot where the light enters, a dark crescent
-     on the far side from the light bending through, and a rim that catches it
-     again on the way out. */
+  /* ---- beads ---- */
   .bead {
     position:absolute; border-radius:50%; pointer-events:none;
-    /* hollow, not milky: the middle is nearly clear so the field reads
-       straight through, and the sphere is made of its highlight and its rim */
     background:
       radial-gradient(circle at 36% 30%,
         rgba(255,255,255,.96) 0%, rgba(255,255,255,.34) 13%,
-        rgba(255,255,255,.04) 34%, rgba(176,174,204,.08) 60%,
-        rgba(255,251,205,.62) 86%, rgba(255,214,246,.34) 94%, rgba(255,255,255,.10) 100%),
+        rgba(255,255,255,.04) 34%, rgba(176,182,214,.10) 60%,
+        rgba(226,238,255,.62) 86%, rgba(232,220,255,.36) 94%, rgba(255,255,255,.10) 100%),
       conic-gradient(from 210deg,
-        rgba(255,240,150,.30), rgba(255,208,244,.16), rgba(190,226,255,.18),
-        rgba(198,255,228,.12), rgba(255,240,150,.30));
+        rgba(214,228,255,.30), rgba(228,214,255,.18), rgba(255,244,196,.16),
+        rgba(206,246,255,.14), rgba(214,228,255,.30));
     box-shadow:
-      inset -2px -4px 15px rgba(116,114,152,.24),
-      inset 3px 4px 13px rgba(255,255,255,.75),
-      0 12px 24px rgba(61,59,79,.10);
+      inset -2px -4px 15px rgba(104,108,150,.26),
+      inset 3px 4px 13px rgba(255,255,255,.80),
+      0 12px 26px rgba(56,58,86,.12);
     backdrop-filter:blur(7px) saturate(1.5) brightness(1.04);
   }
 
   /* ---- the vault slabs ----
-     A thin sheet of glass, which means the scene behind has to stay visible
-     through the whole card and not just around it. The fill is under a fifth
-     white on the bevel and a third on the pane, the blur is light enough that
-     what is behind still reads as itself, and the bevel is a rim of light
-     rather than a white band: its brightness is the two inset lines on its
-     outer edge, not a fill. */
+     A thin sheet of glass set in a bevel. The bevel and the pane filter what
+     is behind them differently -- the bevel barely blurs and brightens hard,
+     the pane blurs and barely brightens -- which is what a real edge does and
+     is what stops this reading as one flat transparency over everything. */
   .card {
     position:absolute; z-index:5; border-radius:24px; padding:8px;
     background:linear-gradient(150deg,
-      rgba(255,255,255,.24) 0%, rgba(255,255,255,.09) 48%, rgba(255,255,255,.19) 100%);
-    backdrop-filter:blur(4px) saturate(1.35) brightness(1.10);
+      rgba(255,255,255,.26) 0%, rgba(255,255,255,.09) 48%, rgba(255,255,255,.20) 100%);
+    backdrop-filter:blur(2px) saturate(1.5) brightness(1.16);
   }
   .card::before {
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
     background:linear-gradient(120deg,
-      rgba(255,255,255,.60) 0%, rgba(255,255,255,0) 17%,
-      rgba(255,255,255,0) 73%, rgba(255,255,255,.34) 100%);
+      rgba(255,255,255,.66) 0%, rgba(255,255,255,0) 17%,
+      rgba(255,255,255,0) 73%, rgba(255,255,255,.38) 100%);
   }
-  /* a hairline, warm at one end and cool at the other — the edge splits the
-     light, but it is an edge, not an outline */
+  /* the hairline where the edge splits the light: cool through the middle,
+     warm at the ends */
   .card::after {
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
     padding:1px;
     background:linear-gradient(125deg,
-      rgba(255,250,218,.95) 0%, rgba(255,255,255,.88) 28%,
-      rgba(238,245,255,.66) 60%, rgba(255,247,210,.92) 100%);
+      rgba(255,248,214,.95) 0%, rgba(255,255,255,.92) 24%,
+      rgba(214,230,255,.80) 48%, rgba(228,214,255,.72) 68%,
+      rgba(255,250,222,.92) 100%);
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     mask-composite:exclude;
   }
   .vc { width:322px; }
   .face {
-    position:relative; z-index:1; border-radius:16px; padding:13px 15px 14px;
+    position:relative; z-index:1; border-radius:17px; padding:13px 15px 14px;
     background:rgba(255,255,255,.34);
-    backdrop-filter:blur(9px) saturate(1.25) brightness(1.04);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.74), inset 0 -1px 0 rgba(255,255,255,.40);
+    backdrop-filter:blur(13px) saturate(1.2) brightness(1.02);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.80), inset 0 -1px 0 rgba(255,255,255,.42);
   }
   .vc-row { display:flex; align-items:center; gap:10px; }
   .vc-ic {
     width:36px; height:36px; flex:none; border-radius:11px;
     display:grid; place-items:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 4px rgba(61,59,79,.09);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 4px rgba(56,58,86,.10);
   }
   .vc-ic svg { width:19px; height:19px; fill:currentColor; }
   .vc-id { display:flex; flex-direction:column; min-width:0; }
@@ -151,7 +173,7 @@
   .vc-lab { display:block; margin-top:13px; font-size:9.8px; color:var(--muted); }
   .vc-bar {
     position:relative; margin-top:6px; height:5px; border-radius:999px;
-    background:rgba(120,118,150,.18); overflow:hidden;
+    background:rgba(104,108,150,.18); overflow:hidden;
   }
   .vc-bar i { display:block; height:100%; border-radius:999px;
               background:linear-gradient(90deg, var(--accent-fill), var(--accent-glow)); }
@@ -261,28 +283,28 @@
   .say {
     position:absolute; left:0; right:0; top:214px; text-align:center; z-index:6;
     font-size:42px; font-weight:600; letter-spacing:-.035em; line-height:1.1;
-    text-shadow:0 1px 0 rgba(255,255,255,.7);
+    text-shadow:0 1px 0 rgba(255,255,255,.75);
   }
   .say em { font-style:normal; color:var(--accent); box-shadow:inset 0 -.26em 0 var(--accent-fill); }
   .sub {
     position:absolute; left:0; right:0; top:276px; text-align:center; z-index:6;
     font-size:16.5px; color:var(--muted); letter-spacing:-.005em;
-    text-shadow:0 1px 0 rgba(255,255,255,.7);
+    text-shadow:0 1px 0 rgba(255,255,255,.75);
   }
 
   .pill {
     position:absolute; z-index:6; display:inline-flex; align-items:center; gap:8px;
     padding:9px 15px 9px 11px; border-radius:999px;
-    background:linear-gradient(145deg, rgba(255,255,255,.48), rgba(255,255,255,.24));
-    border:1px solid rgba(255,248,200,.80);
-    backdrop-filter:blur(18px) saturate(1.7) brightness(1.07);
+    background:linear-gradient(145deg, rgba(255,255,255,.40), rgba(255,255,255,.18));
+    border:1px solid rgba(255,255,255,.80);
+    backdrop-filter:blur(10px) saturate(1.5) brightness(1.10);
     font-size:12.5px; font-weight:500; color:var(--ink); white-space:nowrap;
     box-shadow:
-      0.8px 0.6px 0 #FFFFFF, 1.6px 1.2px 0 #FFF3B6, 2.4px 1.8px 0 #FFDCF2,
-      3.2px 2.4px 0 #CFE3FF, 4.0px 3.0px 0 #B3B1C3,
-      0 22px 36px rgba(61,59,79,.14),
-      inset 1.5px 1.5px 0 rgba(255,255,255,.96),
-      inset -1.5px -1.5px 0 rgba(138,136,162,.18);
+      0.8px 0.6px 0 rgba(255,255,255,.95), 1.6px 1.2px 0 rgba(236,243,255,.85),
+      2.4px 1.8px 0 rgba(224,232,250,.75), 3.2px 2.4px 0 rgba(208,214,236,.65),
+      0 20px 34px rgba(56,58,86,.13),
+      inset 1px 1px 0 rgba(255,255,255,.95),
+      inset -1px -1px 0 rgba(255,255,255,.50);
   }
   .pill .dot { width:7px; height:7px; border-radius:50%; background:#2F9E7A; flex:none;
                box-shadow:0 0 0 3px rgba(47,158,122,.16); }
@@ -291,132 +313,53 @@
               mask:url(../mark.svg) center / contain no-repeat; }
   .q1 { left:640px; top:38px; transform:translateZ(100px) rotateY(-8deg) rotateZ(-1.6deg); }
   .q2 { right:430px; top:128px; transform:translateZ(92px) rotateY(8deg) rotateZ(1.4deg); }
+
+  /* the room falls off at the edges, so nothing out there competes */
+  .vig {
+    position:absolute; inset:0; z-index:7; pointer-events:none;
+    background:radial-gradient(130% 120% at 50% 46%,
+      rgba(255,255,255,0) 58%, rgba(238,240,248,.26) 86%, rgba(230,233,243,.44) 100%);
+  }
 </style>
 </head>
 <body>
 <div class="hd">
-  <div class="glow g3"></div>
-  <div class="glow g1"></div>
-  <div class="glow g4"></div>
-  <div class="glow g2"></div>
-  <div class="glow g5"></div>
-  <div class="glow g6"></div>
-  <div class="glow g7"></div>
-  <div class="glow g8"></div>
+  <i class="body" style="left:-300px;top:-260px;width:1100px;height:820px;filter:blur(58px);--t:214,228,255;--a:0.52;transform:rotate(-22deg)"></i><i class="body" style="left:700px;top:-320px;width:1160px;height:900px;filter:blur(72px);--t:255,255,255;--a:0.6;transform:rotate(26deg)"></i><i class="body" style="left:-220px;top:120px;width:900px;height:700px;filter:blur(66px);--t:224,212,255;--a:0.44;transform:rotate(38deg)"></i><i class="body" style="left:900px;top:140px;width:980px;height:760px;filter:blur(54px);--t:236,246,255;--a:0.5;transform:rotate(-30deg)"></i><i class="body" style="left:260px;top:-60px;width:820px;height:640px;filter:blur(78px);--t:255,244,214;--a:0.3;transform:rotate(12deg)"></i><i class="body" style="left:420px;top:200px;width:1080px;height:560px;filter:blur(62px);--t:255,255,255;--a:0.46;transform:rotate(-14deg)"></i>
+  <i class="shade" style="left:-180px;top:240px;width:620px;height:340px;filter:blur(80px);opacity:0.5"></i><i class="shade" style="left:1020px;top:250px;width:560px;height:320px;filter:blur(86px);opacity:0.42"></i><i class="shade" style="left:330px;top:-160px;width:540px;height:300px;filter:blur(92px);opacity:0.34"></i><i class="shade" style="left:700px;top:330px;width:700px;height:260px;filter:blur(88px);opacity:0.3"></i>
+  <div class="cool2"></div>
+  <div class="warm"></div>
+  <div class="cool"></div>
 
-  <div class="glass">
-      <i class="rb" style="left:-260px;top:-300px;width:980px;height:760px;border-width:74px;border-color:rgba(255,252,226,0.62);filter:blur(2px);transform:translateZ(-191px) rotateX(-52deg) rotateY(34deg) rotateZ(-18deg)"></i>
-      <i class="rb" style="left:640px;top:-420px;width:1180px;height:900px;border-width:92px;border-color:rgba(255,255,255,0.50);filter:blur(6px);transform:translateZ(-154px) rotateX(38deg) rotateY(-46deg) rotateZ(26deg)"></i>
-      <i class="rb" style="left:-420px;top:120px;width:860px;height:620px;border-width:58px;border-color:rgba(255,240,250,0.44);filter:blur(10px);transform:translateZ(-219px) rotateX(26deg) rotateY(52deg) rotateZ(-40deg)"></i>
-      <i class="rb" style="left:880px;top:120px;width:900px;height:680px;border-width:66px;border-color:rgba(250,252,255,0.52);filter:blur(4px);transform:translateZ(-197px) rotateX(-30deg) rotateY(-38deg) rotateZ(34deg)"></i>
-      <i class="rb" style="left:180px;top:-180px;width:700px;height:560px;border-width:44px;border-color:rgba(255,250,214,0.38);filter:blur(14px);transform:translateZ(-222px) rotateX(44deg) rotateY(28deg) rotateZ(-62deg)"></i>
-      <i class="rb" style="left:380px;top:180px;width:1020px;height:520px;border-width:54px;border-color:rgba(255,255,255,0.46);filter:blur(8px);transform:translateZ(-262px) rotateX(-20deg) rotateY(40deg) rotateZ(12deg)"></i>
-      <i class="rb" style="left:-160px;top:-60px;width:520px;height:520px;border-width:38px;border-color:rgba(255,253,232,0.58);filter:blur(1px);transform:translateZ(-171px) rotateX(18deg) rotateY(-56deg) rotateZ(48deg)"></i>
-      <i class="rb" style="left:1020px;top:-140px;width:620px;height:600px;border-width:42px;border-color:rgba(255,246,252,0.55);filter:blur(3px);transform:translateZ(-77px) rotateX(-40deg) rotateY(30deg) rotateZ(-22deg)"></i>
-      <i class="ca" style="left:998px;top:432px;width:483px;height:10px;opacity:0.30;filter:blur(4.5px);transform:rotate(57deg)"></i>
-      <i class="ca" style="left:898px;top:317px;width:416px;height:12px;opacity:0.37;filter:blur(4.9px);transform:rotate(-48deg)"></i>
-      <i class="ca" style="left:821px;top:129px;width:506px;height:23px;opacity:0.39;filter:blur(2.6px);transform:rotate(-19deg)"></i>
-      <i class="ca" style="left:1302px;top:-2px;width:688px;height:25px;opacity:0.34;filter:blur(9.2px);transform:rotate(-16deg)"></i>
-      <i class="ca" style="left:54px;top:392px;width:576px;height:8px;opacity:0.63;filter:blur(10.3px);transform:rotate(67deg)"></i>
-      <i class="ca" style="left:770px;top:44px;width:349px;height:14px;opacity:0.44;filter:blur(6.8px);transform:rotate(33deg)"></i>
-      <i class="ca" style="left:1032px;top:403px;width:493px;height:13px;opacity:0.46;filter:blur(3.2px);transform:rotate(28deg)"></i>
-      <i class="ca" style="left:-34px;top:427px;width:253px;height:7px;opacity:0.55;filter:blur(8.7px);transform:rotate(40deg)"></i>
-      <i class="ca" style="left:892px;top:420px;width:360px;height:14px;opacity:0.32;filter:blur(6.2px);transform:rotate(-46deg)"></i>
-      <i class="ca" style="left:947px;top:14px;width:390px;height:15px;opacity:0.31;filter:blur(6.4px);transform:rotate(20deg)"></i>
-      <i class="ca" style="left:-139px;top:-17px;width:665px;height:24px;opacity:0.62;filter:blur(3.3px);transform:rotate(-64deg)"></i>
-      <i class="ca" style="left:40px;top:397px;width:248px;height:13px;opacity:0.35;filter:blur(5.5px);transform:rotate(51deg)"></i>
-      <i class="ca" style="left:350px;top:187px;width:345px;height:10px;opacity:0.38;filter:blur(9.5px);transform:rotate(-29deg)"></i>
-      <i class="ca" style="left:-89px;top:-29px;width:408px;height:10px;opacity:0.68;filter:blur(4.1px);transform:rotate(58deg)"></i>
-  </div>
+  <i class="pane" style="left:-240px;top:-120px;width:640px;height:520px;filter:blur(26px);transform:rotate(-16deg)"></i><i class="pane" style="left:1080px;top:60px;width:600px;height:520px;filter:blur(30px);transform:rotate(14deg)"></i><i class="pane" style="left:420px;top:-200px;width:520px;height:420px;filter:blur(34px);transform:rotate(8deg)"></i>
 
   <div class="field">
-      <i class="sh" style="left:-140px;top:-80px;width:540px;height:540px;background:#C6C5CE;opacity:0.040;filter:blur(9.0px);mix-blend-mode:multiply;transform:translateZ(-300px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-137px;top:-78px;width:540px;height:540px;background:#C6C5CE;opacity:0.051;filter:blur(8.2px);mix-blend-mode:multiply;transform:translateZ(-274px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-134px;top:-77px;width:540px;height:540px;background:#C6C5CE;opacity:0.062;filter:blur(7.4px);mix-blend-mode:multiply;transform:translateZ(-248px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-131px;top:-75px;width:540px;height:540px;background:#C6C5CE;opacity:0.073;filter:blur(6.5px);mix-blend-mode:multiply;transform:translateZ(-222px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-128px;top:-74px;width:540px;height:540px;background:#C6C5CE;opacity:0.084;filter:blur(5.7px);mix-blend-mode:multiply;transform:translateZ(-196px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-125px;top:-72px;width:540px;height:540px;background:#C6C5CE;opacity:0.095;filter:blur(4.9px);mix-blend-mode:multiply;transform:translateZ(-170px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-122px;top:-70px;width:540px;height:540px;background:#C6C5CE;opacity:0.105;filter:blur(4.1px);mix-blend-mode:multiply;transform:translateZ(-144px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-119px;top:-69px;width:540px;height:540px;background:#C6C5CE;opacity:0.116;filter:blur(3.3px);mix-blend-mode:multiply;transform:translateZ(-118px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-116px;top:-67px;width:540px;height:540px;background:#C6C5CE;opacity:0.127;filter:blur(2.5px);mix-blend-mode:multiply;transform:translateZ(-92px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-113px;top:-66px;width:540px;height:540px;background:#C6C5CE;opacity:0.138;filter:blur(1.6px);mix-blend-mode:multiply;transform:translateZ(-66px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-110px;top:-64px;width:540px;height:540px;background:#C6C5CE;opacity:0.149;filter:blur(0.8px);mix-blend-mode:multiply;transform:translateZ(-40px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:-107px;top:-62px;width:540px;height:540px;background:#C6C5CE;opacity:0.160;filter:blur(0.0px);mix-blend-mode:multiply;transform:translateZ(-14px) rotateX(-28deg) rotateY(38deg) rotateZ(-18deg) scale(1.35,0.85)"></i>
-      <i class="sh" style="left:1080px;top:160px;width:480px;height:480px;background:#BFBEC9;opacity:0.035;filter:blur(9.0px);mix-blend-mode:multiply;transform:translateZ(-300px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1077px;top:162px;width:480px;height:480px;background:#BFBEC9;opacity:0.045;filter:blur(8.2px);mix-blend-mode:multiply;transform:translateZ(-274px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1074px;top:164px;width:480px;height:480px;background:#BFBEC9;opacity:0.054;filter:blur(7.4px);mix-blend-mode:multiply;transform:translateZ(-248px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1072px;top:166px;width:480px;height:480px;background:#BFBEC9;opacity:0.064;filter:blur(6.5px);mix-blend-mode:multiply;transform:translateZ(-222px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1069px;top:168px;width:480px;height:480px;background:#BFBEC9;opacity:0.073;filter:blur(5.7px);mix-blend-mode:multiply;transform:translateZ(-196px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1066px;top:170px;width:480px;height:480px;background:#BFBEC9;opacity:0.083;filter:blur(4.9px);mix-blend-mode:multiply;transform:translateZ(-170px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1063px;top:171px;width:480px;height:480px;background:#BFBEC9;opacity:0.092;filter:blur(4.1px);mix-blend-mode:multiply;transform:translateZ(-144px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1060px;top:173px;width:480px;height:480px;background:#BFBEC9;opacity:0.102;filter:blur(3.3px);mix-blend-mode:multiply;transform:translateZ(-118px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1058px;top:175px;width:480px;height:480px;background:#BFBEC9;opacity:0.111;filter:blur(2.5px);mix-blend-mode:multiply;transform:translateZ(-92px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1055px;top:177px;width:480px;height:480px;background:#BFBEC9;opacity:0.121;filter:blur(1.6px);mix-blend-mode:multiply;transform:translateZ(-66px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1052px;top:179px;width:480px;height:480px;background:#BFBEC9;opacity:0.130;filter:blur(0.8px);mix-blend-mode:multiply;transform:translateZ(-40px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:1049px;top:181px;width:480px;height:480px;background:#BFBEC9;opacity:0.140;filter:blur(0.0px);mix-blend-mode:multiply;transform:translateZ(-14px) rotateX(22deg) rotateY(-42deg) rotateZ(24deg) scale(0.85,1.45)"></i>
-      <i class="sh" style="left:470px;top:-170px;width:430px;height:430px;background:#FFF3B0;opacity:0.105;filter:blur(9.0px);mix-blend-mode:screen;transform:translateZ(-300px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:472px;top:-167px;width:430px;height:430px;background:#FFF3B0;opacity:0.140;filter:blur(8.0px);mix-blend-mode:screen;transform:translateZ(-274px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:474px;top:-165px;width:430px;height:430px;background:#FFF3B0;opacity:0.175;filter:blur(7.0px);mix-blend-mode:screen;transform:translateZ(-248px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:477px;top:-162px;width:430px;height:430px;background:#FFF3B0;opacity:0.210;filter:blur(6.0px);mix-blend-mode:screen;transform:translateZ(-222px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:479px;top:-160px;width:430px;height:430px;background:#FFF3B0;opacity:0.245;filter:blur(5.0px);mix-blend-mode:screen;transform:translateZ(-196px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:481px;top:-157px;width:430px;height:430px;background:#FFF3B0;opacity:0.280;filter:blur(4.0px);mix-blend-mode:screen;transform:translateZ(-170px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:483px;top:-154px;width:430px;height:430px;background:#FFF3B0;opacity:0.315;filter:blur(3.0px);mix-blend-mode:screen;transform:translateZ(-144px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:485px;top:-152px;width:430px;height:430px;background:#FFF3B0;opacity:0.350;filter:blur(2.0px);mix-blend-mode:screen;transform:translateZ(-118px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:488px;top:-149px;width:430px;height:430px;background:#FFF3B0;opacity:0.385;filter:blur(1.0px);mix-blend-mode:screen;transform:translateZ(-92px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:490px;top:-147px;width:430px;height:430px;background:#FFF3B0;opacity:0.420;filter:blur(0.0px);mix-blend-mode:screen;transform:translateZ(-66px) rotateX(-40deg) rotateY(-20deg) rotateZ(62deg) scale(1.7,0.7)"></i>
-      <i class="sh" style="left:740px;top:290px;width:450px;height:450px;background:#FFD9FD;opacity:0.085;filter:blur(9.0px);mix-blend-mode:screen;transform:translateZ(-300px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:738px;top:288px;width:450px;height:450px;background:#FFD9FD;opacity:0.113;filter:blur(8.0px);mix-blend-mode:screen;transform:translateZ(-274px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:735px;top:286px;width:450px;height:450px;background:#FFD9FD;opacity:0.142;filter:blur(7.0px);mix-blend-mode:screen;transform:translateZ(-248px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:733px;top:284px;width:450px;height:450px;background:#FFD9FD;opacity:0.170;filter:blur(6.0px);mix-blend-mode:screen;transform:translateZ(-222px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:730px;top:282px;width:450px;height:450px;background:#FFD9FD;opacity:0.198;filter:blur(5.0px);mix-blend-mode:screen;transform:translateZ(-196px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:728px;top:280px;width:450px;height:450px;background:#FFD9FD;opacity:0.227;filter:blur(4.0px);mix-blend-mode:screen;transform:translateZ(-170px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:726px;top:277px;width:450px;height:450px;background:#FFD9FD;opacity:0.255;filter:blur(3.0px);mix-blend-mode:screen;transform:translateZ(-144px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:723px;top:275px;width:450px;height:450px;background:#FFD9FD;opacity:0.283;filter:blur(2.0px);mix-blend-mode:screen;transform:translateZ(-118px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:721px;top:273px;width:450px;height:450px;background:#FFD9FD;opacity:0.312;filter:blur(1.0px);mix-blend-mode:screen;transform:translateZ(-92px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:718px;top:271px;width:450px;height:450px;background:#FFD9FD;opacity:0.340;filter:blur(0.0px);mix-blend-mode:screen;transform:translateZ(-66px) rotateX(34deg) rotateY(30deg) rotateZ(-48deg) scale(0.7,1.6)"></i>
-      <i class="sh" style="left:180px;top:120px;width:500px;height:500px;background:#FFFFFF;opacity:0.125;filter:blur(9.0px);mix-blend-mode:screen;transform:translateZ(-300px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:177px;top:122px;width:500px;height:500px;background:#FFFFFF;opacity:0.163;filter:blur(8.1px);mix-blend-mode:screen;transform:translateZ(-274px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:175px;top:124px;width:500px;height:500px;background:#FFFFFF;opacity:0.200;filter:blur(7.2px);mix-blend-mode:screen;transform:translateZ(-248px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:172px;top:127px;width:500px;height:500px;background:#FFFFFF;opacity:0.237;filter:blur(6.3px);mix-blend-mode:screen;transform:translateZ(-222px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:170px;top:129px;width:500px;height:500px;background:#FFFFFF;opacity:0.275;filter:blur(5.4px);mix-blend-mode:screen;transform:translateZ(-196px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:167px;top:131px;width:500px;height:500px;background:#FFFFFF;opacity:0.312;filter:blur(4.5px);mix-blend-mode:screen;transform:translateZ(-170px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:164px;top:133px;width:500px;height:500px;background:#FFFFFF;opacity:0.350;filter:blur(3.6px);mix-blend-mode:screen;transform:translateZ(-144px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:162px;top:135px;width:500px;height:500px;background:#FFFFFF;opacity:0.387;filter:blur(2.7px);mix-blend-mode:screen;transform:translateZ(-118px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:159px;top:138px;width:500px;height:500px;background:#FFFFFF;opacity:0.425;filter:blur(1.8px);mix-blend-mode:screen;transform:translateZ(-92px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:157px;top:140px;width:500px;height:500px;background:#FFFFFF;opacity:0.463;filter:blur(0.9px);mix-blend-mode:screen;transform:translateZ(-66px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:154px;top:142px;width:500px;height:500px;background:#FFFFFF;opacity:0.500;filter:blur(0.0px);mix-blend-mode:screen;transform:translateZ(-40px) rotateX(18deg) rotateY(52deg) rotateZ(-72deg) scale(1.5,0.8)"></i>
-      <i class="sh" style="left:909px;top:364px;width:162px;height:224px;background:#FFF1E2;opacity:0.499;filter:blur(3.4px);mix-blend-mode:screen;transform:translateZ(-87px) rotateX(61deg) rotateY(40deg) rotateZ(-29deg) scale(0.50,0.54)"></i>
-      <i class="sh" style="left:80px;top:300px;width:115px;height:361px;background:#FFE9FE;opacity:0.367;filter:blur(2.0px);mix-blend-mode:screen;transform:translateZ(-198px) rotateX(32deg) rotateY(59deg) rotateZ(73deg) scale(0.62,0.91)"></i>
-      <i class="sh" style="left:478px;top:134px;width:344px;height:182px;background:#FFF1E2;opacity:0.399;filter:blur(6.8px);mix-blend-mode:screen;transform:translateZ(-192px) rotateX(29deg) rotateY(46deg) rotateZ(18deg) scale(0.65,1.69)"></i>
-      <i class="sh" style="left:118px;top:275px;width:369px;height:361px;background:#E7F0FF;opacity:0.593;filter:blur(2.1px);mix-blend-mode:screen;transform:translateZ(-165px) rotateX(58deg) rotateY(59deg) rotateZ(42deg) scale(1.79,1.24)"></i>
-      <i class="sh" style="left:-20px;top:375px;width:162px;height:329px;background:#B6B5C1;opacity:0.061;filter:blur(7.1px);mix-blend-mode:multiply;transform:translateZ(55px) rotateX(-33deg) rotateY(44deg) rotateZ(82deg) scale(1.25,1.75)"></i>
-      <i class="sh" style="left:997px;top:97px;width:396px;height:315px;background:#D3D2DA;opacity:0.130;filter:blur(4.4px);mix-blend-mode:multiply;transform:translateZ(-49px) rotateX(64deg) rotateY(50deg) rotateZ(12deg) scale(1.19,0.84)"></i>
-      <i class="sh" style="left:-53px;top:-7px;width:344px;height:377px;background:#E7F0FF;opacity:0.415;filter:blur(1.6px);mix-blend-mode:screen;transform:translateZ(-26px) rotateX(60deg) rotateY(47deg) rotateZ(40deg) scale(1.73,1.13)"></i>
-      <i class="sh" style="left:1239px;top:-126px;width:258px;height:272px;background:#E7F0FF;opacity:0.593;filter:blur(0.8px);mix-blend-mode:screen;transform:translateZ(-28px) rotateX(2deg) rotateY(43deg) rotateZ(-44deg) scale(2.05,1.62)"></i>
-      <i class="sh" style="left:11px;top:112px;width:365px;height:299px;background:#FFFFFF;opacity:0.362;filter:blur(6.9px);mix-blend-mode:screen;transform:translateZ(-306px) rotateX(51deg) rotateY(-69deg) rotateZ(-67deg) scale(0.50,1.25)"></i>
-      <i class="sh" style="left:50px;top:43px;width:236px;height:171px;background:#D3D2DA;opacity:0.054;filter:blur(4.4px);mix-blend-mode:multiply;transform:translateZ(-243px) rotateX(27deg) rotateY(-33deg) rotateZ(-89deg) scale(1.00,1.25)"></i>
-      <i class="sh" style="left:887px;top:-22px;width:389px;height:224px;background:#B6B5C1;opacity:0.097;filter:blur(7.7px);mix-blend-mode:multiply;transform:translateZ(68px) rotateX(10deg) rotateY(-51deg) rotateZ(16deg) scale(1.57,1.76)"></i>
-      <i class="sh" style="left:1080px;top:153px;width:369px;height:320px;background:#B6B5C1;opacity:0.115;filter:blur(4.2px);mix-blend-mode:multiply;transform:translateZ(-280px) rotateX(32deg) rotateY(-69deg) rotateZ(-63deg) scale(1.12,0.53)"></i>
-      <i class="sh" style="left:1203px;top:201px;width:123px;height:123px;background:#D3D2DA;opacity:0.088;filter:blur(5.5px);mix-blend-mode:multiply;transform:translateZ(-150px) rotateX(19deg) rotateY(-41deg) rotateZ(37deg) scale(2.02,1.24)"></i>
-      <i class="sh" style="left:195px;top:445px;width:376px;height:215px;background:#B6B5C1;opacity:0.100;filter:blur(3.7px);mix-blend-mode:multiply;transform:translateZ(-261px) rotateX(-47deg) rotateY(68deg) rotateZ(12deg) scale(0.55,1.35)"></i>
-      <i class="sh" style="left:1207px;top:397px;width:134px;height:341px;background:#FFF8D8;opacity:0.455;filter:blur(5.4px);mix-blend-mode:screen;transform:translateZ(-370px) rotateX(-31deg) rotateY(63deg) rotateZ(-35deg) scale(1.76,1.16)"></i>
-      <i class="sh" style="left:208px;top:30px;width:309px;height:249px;background:#B6B5C1;opacity:0.093;filter:blur(6.9px);mix-blend-mode:multiply;transform:translateZ(-184px) rotateX(14deg) rotateY(-25deg) rotateZ(-2deg) scale(0.78,1.08)"></i>
-      <i class="sh" style="left:731px;top:134px;width:349px;height:200px;background:#B6B5C1;opacity:0.092;filter:blur(3.6px);mix-blend-mode:multiply;transform:translateZ(-111px) rotateX(6deg) rotateY(-48deg) rotateZ(-36deg) scale(0.87,1.78)"></i>
-      <i class="sh" style="left:1202px;top:178px;width:318px;height:389px;background:#D3D2DA;opacity:0.065;filter:blur(0.2px);mix-blend-mode:multiply;transform:translateZ(53px) rotateX(-24deg) rotateY(18deg) rotateZ(53deg) scale(1.60,1.55)"></i>
-      <i class="sh" style="left:1151px;top:127px;width:394px;height:400px;background:#FFF8D8;opacity:0.482;filter:blur(4.5px);mix-blend-mode:screen;transform:translateZ(-37px) rotateX(-31deg) rotateY(-47deg) rotateZ(-23deg) scale(0.65,1.04)"></i>
-      <i class="sh" style="left:3px;top:204px;width:204px;height:164px;background:#FFF1E2;opacity:0.400;filter:blur(4.7px);mix-blend-mode:screen;transform:translateZ(-348px) rotateX(10deg) rotateY(8deg) rotateZ(-49deg) scale(0.92,0.51)"></i>
-      <i class="sh" style="left:406px;top:264px;width:117px;height:139px;background:#FFFFFF;opacity:0.375;filter:blur(2.5px);mix-blend-mode:screen;transform:translateZ(-332px) rotateX(25deg) rotateY(8deg) rotateZ(26deg) scale(1.47,1.36)"></i>
-      <i class="sh" style="left:707px;top:163px;width:220px;height:346px;background:#E7F0FF;opacity:0.613;filter:blur(7.0px);mix-blend-mode:screen;transform:translateZ(-29px) rotateX(31deg) rotateY(56deg) rotateZ(84deg) scale(2.06,0.78)"></i>
+      <i class="sh" style="left:1293px;top:-131px;width:200px;height:354px;background:#DCE6FA;opacity:0.226;filter:blur(5.9px);mix-blend-mode:screen;transform:translateZ(-22px) rotateX(55deg) rotateY(-5deg) rotateZ(-69deg) scale(0.58,0.80)"></i>
+      <i class="sh" style="left:97px;top:271px;width:357px;height:412px;background:#C8D6F2;opacity:0.227;filter:blur(6.6px);mix-blend-mode:multiply;transform:translateZ(-280px) rotateX(-16deg) rotateY(-61deg) rotateZ(-43deg) scale(1.24,0.47)"></i>
+      <i class="sh" style="left:1288px;top:-77px;width:420px;height:364px;background:#DCE6FA;opacity:0.365;filter:blur(9.4px);mix-blend-mode:screen;transform:translateZ(-252px) rotateX(-58deg) rotateY(-19deg) rotateZ(-62deg) scale(2.00,1.25)"></i>
+      <i class="sh" style="left:1333px;top:369px;width:197px;height:175px;background:#FFE9F6;opacity:0.201;filter:blur(6.9px);mix-blend-mode:multiply;transform:translateZ(-299px) rotateX(-32deg) rotateY(20deg) rotateZ(3deg) scale(1.20,1.80)"></i>
+      <i class="sh" style="left:590px;top:447px;width:351px;height:346px;background:#C8D6F2;opacity:0.151;filter:blur(8.6px);mix-blend-mode:multiply;transform:translateZ(-206px) rotateX(-49deg) rotateY(24deg) rotateZ(55deg) scale(1.98,1.27)"></i>
+      <i class="sh" style="left:510px;top:423px;width:211px;height:364px;background:#FFE9F6;opacity:0.219;filter:blur(11.7px);mix-blend-mode:multiply;transform:translateZ(-265px) rotateX(52deg) rotateY(-42deg) rotateZ(90deg) scale(1.10,1.12)"></i>
+      <i class="sh" style="left:1418px;top:77px;width:309px;height:298px;background:#FFE9F6;opacity:0.221;filter:blur(6.0px);mix-blend-mode:multiply;transform:translateZ(-71px) rotateX(-54deg) rotateY(51deg) rotateZ(-30deg) scale(1.43,1.19)"></i>
+      <i class="sh" style="left:63px;top:312px;width:315px;height:247px;background:#FFE9F6;opacity:0.101;filter:blur(7.0px);mix-blend-mode:multiply;transform:translateZ(-187px) rotateX(-2deg) rotateY(-12deg) rotateZ(-45deg) scale(1.88,1.78)"></i>
+      <i class="sh" style="left:244px;top:-97px;width:327px;height:156px;background:#DCE6FA;opacity:0.168;filter:blur(3.2px);mix-blend-mode:screen;transform:translateZ(-213px) rotateX(-6deg) rotateY(-19deg) rotateZ(57deg) scale(0.83,0.82)"></i>
+      <i class="sh" style="left:249px;top:-148px;width:325px;height:182px;background:#BFCDEA;opacity:0.119;filter:blur(3.7px);mix-blend-mode:multiply;transform:translateZ(-296px) rotateX(52deg) rotateY(-28deg) rotateZ(68deg) scale(0.98,1.63)"></i>
+      <i class="sh" style="left:-1px;top:160px;width:316px;height:286px;background:#C8D6F2;opacity:0.376;filter:blur(9.1px);mix-blend-mode:screen;transform:translateZ(-233px) rotateX(-4deg) rotateY(-59deg) rotateZ(-4deg) scale(0.93,1.28)"></i>
+      <i class="sh" style="left:715px;top:-49px;width:313px;height:208px;background:#FFE9F6;opacity:0.155;filter:blur(1.8px);mix-blend-mode:multiply;transform:translateZ(-40px) rotateX(24deg) rotateY(-40deg) rotateZ(15deg) scale(1.37,1.44)"></i>
+      <i class="sh" style="left:666px;top:56px;width:219px;height:166px;background:#D2C8F0;opacity:0.115;filter:blur(3.6px);mix-blend-mode:multiply;transform:translateZ(-67px) rotateX(-3deg) rotateY(-70deg) rotateZ(30deg) scale(1.90,1.36)"></i>
+      <i class="sh" style="left:102px;top:95px;width:184px;height:391px;background:#FFF3C6;opacity:0.243;filter:blur(10.7px);mix-blend-mode:screen;transform:translateZ(-357px) rotateX(-19deg) rotateY(-24deg) rotateZ(-49deg) scale(1.72,1.33)"></i>
+      <i class="sh" style="left:419px;top:-147px;width:181px;height:366px;background:#FFE9F6;opacity:0.295;filter:blur(8.5px);mix-blend-mode:screen;transform:translateZ(-145px) rotateX(40deg) rotateY(-50deg) rotateZ(39deg) scale(0.96,1.32)"></i>
+      <i class="sh" style="left:983px;top:280px;width:188px;height:334px;background:#FFE9F6;opacity:0.280;filter:blur(5.1px);mix-blend-mode:screen;transform:translateZ(-326px) rotateX(20deg) rotateY(9deg) rotateZ(27deg) scale(1.86,0.83)"></i>
+      <i class="sh" style="left:1063px;top:-102px;width:302px;height:347px;background:#FFF3C6;opacity:0.226;filter:blur(10.1px);mix-blend-mode:multiply;transform:translateZ(-33px) rotateX(11deg) rotateY(-6deg) rotateZ(-44deg) scale(1.48,0.66)"></i>
+      <i class="sh" style="left:1047px;top:-46px;width:163px;height:356px;background:#C8D6F2;opacity:0.116;filter:blur(5.5px);mix-blend-mode:multiply;transform:translateZ(-158px) rotateX(-6deg) rotateY(21deg) rotateZ(-50deg) scale(1.96,1.15)"></i>
   </div>
 
-    <i class="bead" style="left:196px;top:72px;width:68px;height:68px;filter:blur(0px)"></i>
-    <i class="bead" style="left:612px;top:168px;width:44px;height:44px;filter:blur(0.6px)"></i>
-    <i class="bead" style="left:900px;top:88px;width:80px;height:80px;filter:blur(0px)"></i>
-    <i class="bead" style="left:452px;top:396px;width:60px;height:60px;filter:blur(1.4px)"></i>
-    <i class="bead" style="left:1096px;top:330px;width:52px;height:52px;filter:blur(0px)"></i>
-    <i class="bead" style="left:1372px;top:186px;width:92px;height:92px;filter:blur(2.2px)"></i>
-    <i class="bead" style="left:742px;top:452px;width:38px;height:38px;filter:blur(0.5px)"></i>
-    <i class="bead" style="left:58px;top:404px;width:50px;height:50px;filter:blur(1.8px)"></i>
+  <div class="glass">
+      
+<i class="rb" style="left:-260px;top:-300px;width:980px;height:760px;border-width:70px;border-color:rgba(255,255,255,0.46);filter:blur(14px);transform:translateZ(-176px) rotateX(-52deg) rotateY(34deg) rotateZ(-18deg)"></i>      <i class="rb" style="left:640px;top:-420px;width:1180px;height:900px;border-width:88px;border-color:rgba(226,238,255,0.40);filter:blur(22px);transform:translateZ(-92px) rotateX(38deg) rotateY(-46deg) rotateZ(26deg)"></i>      <i class="rb" style="left:-420px;top:120px;width:860px;height:620px;border-width:56px;border-color:rgba(230,218,255,0.34);filter:blur(30px);transform:translateZ(-299px) rotateX(26deg) rotateY(52deg) rotateZ(-40deg)"></i>      <i class="rb" style="left:880px;top:120px;width:900px;height:680px;border-width:62px;border-color:rgba(255,255,255,0.48);filter:blur(9px);transform:translateZ(-106px) rotateX(-30deg) rotateY(-38deg) rotateZ(34deg)"></i>      <i class="rb" style="left:180px;top:-180px;width:700px;height:560px;border-width:42px;border-color:rgba(255,248,222,0.26);filter:blur(34px);transform:translateZ(-254px) rotateX(44deg) rotateY(28deg) rotateZ(-62deg)"></i>      <i class="rb" style="left:380px;top:180px;width:1020px;height:520px;border-width:52px;border-color:rgba(240,247,255,0.40);filter:blur(17px);transform:translateZ(-129px) rotateX(-20deg) rotateY(40deg) rotateZ(12deg)"></i>      <i class="rb" style="left:-160px;top:-60px;width:520px;height:520px;border-width:36px;border-color:rgba(255,255,255,0.54);filter:blur(5px);transform:translateZ(-115px) rotateX(18deg) rotateY(-56deg) rotateZ(48deg)"></i>      <i class="rb" style="left:1020px;top:-140px;width:620px;height:600px;border-width:40px;border-color:rgba(242,236,255,0.44);filter:blur(7px);transform:translateZ(-231px) rotateX(-40deg) rotateY(30deg) rotateZ(-22deg)"></i>      <i class="ca" style="left:668px;top:-20px;width:683px;height:20px;opacity:0.55;filter:blur(10.2px);transform:rotate(-41deg)"></i>      <i class="ca" style="left:422px;top:406px;width:559px;height:5px;opacity:0.59;filter:blur(5.1px);transform:rotate(40deg)"></i>      <i class="ca" style="left:668px;top:143px;width:459px;height:13px;opacity:0.37;filter:blur(10.3px);transform:rotate(-1deg)"></i>      <i class="ca" style="left:301px;top:446px;width:264px;height:15px;opacity:0.62;filter:blur(5.4px);transform:rotate(-65deg)"></i>      <i class="ca" style="left:376px;top:374px;width:382px;height:12px;opacity:0.30;filter:blur(7.9px);transform:rotate(43deg)"></i>      <i class="ca" style="left:1154px;top:60px;width:301px;height:8px;opacity:0.43;filter:blur(8.9px);transform:rotate(-70deg)"></i>      <i class="ca" style="left:-60px;top:270px;width:548px;height:13px;opacity:0.57;filter:blur(7.3px);transform:rotate(-69deg)"></i>      <i class="ca" style="left:1280px;top:135px;width:694px;height:5px;opacity:0.59;filter:blur(8.1px);transform:rotate(-59deg)"></i>      <i class="ca" style="left:610px;top:49px;width:712px;height:17px;opacity:0.36;filter:blur(3.6px);transform:rotate(-39deg)"></i>      <i class="ca" style="left:1094px;top:318px;width:534px;height:11px;opacity:0.61;filter:blur(8.2px);transform:rotate(-17deg)"></i>      <i class="ca" style="left:1036px;top:309px;width:245px;height:19px;opacity:0.60;filter:blur(11.7px);transform:rotate(-38deg)"></i>      <i class="ca" style="left:341px;top:362px;width:499px;height:5px;opacity:0.43;filter:blur(10.2px);transform:rotate(44deg)"></i>      <i class="ca" style="left:608px;top:369px;width:448px;height:5px;opacity:0.39;filter:blur(5.1px);transform:rotate(-17deg)"></i>      <i class="ca" style="left:399px;top:143px;width:573px;height:14px;opacity:0.30;filter:blur(3.3px);transform:rotate(-42deg)"></i>      <i class="ca" style="left:556px;top:85px;width:555px;height:11px;opacity:0.46;filter:blur(6.4px);transform:rotate(20deg)"></i>      <i class="ca" style="left:826px;top:190px;width:460px;height:5px;opacity:0.31;filter:blur(11.0px);transform:rotate(-41deg)"></i>
+  </div>
+
+    
+<i class="bead" style="left:178px;top:66px;width:60px;height:60px;filter:blur(0px);transform:translateZ(60px)"></i>    <i class="bead" style="left:612px;top:178px;width:40px;height:40px;filter:blur(0.5px);transform:translateZ(40px)"></i>    <i class="bead" style="left:902px;top:84px;width:72px;height:72px;filter:blur(0px);transform:translateZ(70px)"></i>    <i class="bead" style="left:452px;top:404px;width:56px;height:56px;filter:blur(6px);transform:translateZ(-140px)"></i>    <i class="bead" style="left:1104px;top:336px;width:48px;height:48px;filter:blur(1px);transform:translateZ(30px)"></i>    <i class="bead" style="left:1376px;top:190px;width:88px;height:88px;filter:blur(9px);transform:translateZ(-200px)"></i>    <i class="bead" style="left:748px;top:452px;width:34px;height:34px;filter:blur(0.4px);transform:translateZ(50px)"></i>    <i class="bead" style="left:52px;top:408px;width:52px;height:52px;filter:blur(11px);transform:translateZ(-240px)"></i>
 
   <div class="card vc v1">
     <div class="face">
@@ -491,11 +434,14 @@
     </div>
   </div>
 
+
   <span class="pill q1"><i class="mk"></i>20 vaults, one per stock</span>
   <span class="pill q2"><span class="dot"></span>Robinhood Chain · live</span>
 
   <p class="say">A vault paired to <em>every stock</em></p>
   <p class="sub">20 named vaults. One position each. Fees split onchain.</p>
+
+  <div class="vig"></div>
 </div>
 </body>
 </html>

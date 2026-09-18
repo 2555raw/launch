@@ -8,7 +8,7 @@
      reaches the corners. The mark itself is untouched: same path, same ink.
      Not linked from the site — it exists to be screenshotted. -->
 <style>
-  :root { --band:#3D3B4F; --bg:#E9E9E9; --grid:#DEDEDE; }
+  :root { --band:#3D3B4F; --bg:#EDEEF2; --grid:#E4E5EA; }
   * { box-sizing:border-box; margin:0; }
   body { width:400px; height:400px; overflow:hidden; }
 
@@ -24,12 +24,12 @@
   }
 
   .glow { position:absolute; border-radius:50%; filter:blur(54px); pointer-events:none; }
-  .g1 { width:320px; height:250px; left:40px;  top:60px;  background:rgba(246,236,150,.62); }
-  .g2 { width:220px; height:180px; left:250px; top:-40px; background:rgba(255,197,250,.36); }
+  .g1 { width:320px; height:250px; left:40px;  top:60px;  background:rgba(255,238,168,.40); }
+  .g2 { width:220px; height:180px; left:250px; top:-40px; background:rgba(206,196,255,.46); }
   .g3 { width:200px; height:160px; left:-60px; top:150px; background:rgba(255,255,255,.60); }
-  .g4 { width:260px; height:140px; left:70px;  top:250px; background:rgba(198,216,255,.44); }
-  .g5 { width:190px; height:190px; left:230px; top:220px; background:rgba(186,255,226,.32); }
-  .g6 { width:170px; height:150px; left:-30px; top:-40px; background:rgba(214,196,255,.32); }
+  .g4 { width:260px; height:140px; left:70px;  top:250px; background:rgba(198,220,255,.56); }
+  .g5 { width:190px; height:190px; left:230px; top:220px; background:rgba(214,230,255,.42); }
+  .g6 { width:170px; height:150px; left:-30px; top:-40px; background:rgba(218,206,255,.44); }
 
   /* the same glass scene as the header, at a quarter the size */
   .glass { position:absolute; inset:-70px; transform-style:preserve-3d; pointer-events:none; }
@@ -43,8 +43,8 @@
   .ca {
     position:absolute; display:block; border-radius:999px;
     background:linear-gradient(90deg,
-      rgba(255,255,255,0), rgba(255,252,222,.95) 30%,
-      rgba(255,255,255,1) 52%, rgba(255,232,250,.85) 74%, rgba(255,255,255,0));
+      rgba(255,255,255,0), rgba(232,242,255,.92) 26%,
+      rgba(255,255,255,1) 52%, rgba(238,230,255,.88) 74%, rgba(255,255,255,0));
   }
   .bead {
     position:absolute; border-radius:50%; pointer-events:none;
@@ -52,10 +52,10 @@
       radial-gradient(circle at 36% 30%,
         rgba(255,255,255,.96) 0%, rgba(255,255,255,.34) 13%,
         rgba(255,255,255,.04) 34%, rgba(176,174,204,.08) 60%,
-        rgba(255,251,205,.62) 86%, rgba(255,214,246,.34) 94%, rgba(255,255,255,.10) 100%),
+        rgba(226,238,255,.62) 86%, rgba(232,220,255,.36) 94%, rgba(255,255,255,.10) 100%),
       conic-gradient(from 210deg,
-        rgba(255,240,150,.30), rgba(255,208,244,.16), rgba(190,226,255,.18),
-        rgba(198,255,228,.12), rgba(255,240,150,.30));
+        rgba(214,228,255,.30), rgba(228,214,255,.18), rgba(255,244,196,.16),
+        rgba(206,246,255,.14), rgba(214,228,255,.30));
     box-shadow:
       inset -2px -3px 10px rgba(116,114,152,.24),
       inset 2px 3px 9px rgba(255,255,255,.75),
@@ -85,12 +85,12 @@
   <div class="glow g6"></div>
 
   <div class="glass">
-      <i class="rb" style="left:-150px;top:-170px;width:560px;height:440px;border-width:44px;border-color:rgba(255,252,226,0.62);filter:blur(1px);transform:translateZ(-58px) rotateX(-52deg) rotateY(34deg) rotateZ(-18deg)"></i>
-      <i class="rb" style="left:180px;top:-210px;width:600px;height:470px;border-width:52px;border-color:rgba(255,255,255,0.50);filter:blur(4px);transform:translateZ(-67px) rotateX(38deg) rotateY(-46deg) rotateZ(26deg)"></i>
-      <i class="rb" style="left:-210px;top:70px;width:500px;height:380px;border-width:34px;border-color:rgba(255,240,250,0.44);filter:blur(7px);transform:translateZ(-184px) rotateX(26deg) rotateY(52deg) rotateZ(-40deg)"></i>
-      <i class="rb" style="left:150px;top:110px;width:520px;height:400px;border-width:38px;border-color:rgba(250,252,255,0.52);filter:blur(2px);transform:translateZ(-40px) rotateX(-30deg) rotateY(-38deg) rotateZ(34deg)"></i>
-      <i class="rb" style="left:40px;top:-90px;width:380px;height:320px;border-width:26px;border-color:rgba(255,250,214,0.38);filter:blur(9px);transform:translateZ(-187px) rotateX(44deg) rotateY(28deg) rotateZ(-62deg)"></i>
-      <i class="rb" style="left:-80px;top:150px;width:560px;height:300px;border-width:32px;border-color:rgba(255,255,255,0.46);filter:blur(5px);transform:translateZ(-109px) rotateX(-20deg) rotateY(40deg) rotateZ(12deg)"></i>
+      <i class="rb" style="left:-150px;top:-170px;width:560px;height:440px;border-width:44px;border-color:rgba(196,214,255,0.62);filter:blur(1px);transform:translateZ(-58px) rotateX(-52deg) rotateY(34deg) rotateZ(-18deg)"></i>
+      <i class="rb" style="left:180px;top:-210px;width:600px;height:470px;border-width:52px;border-color:rgba(232,242,255,0.50);filter:blur(4px);transform:translateZ(-67px) rotateX(38deg) rotateY(-46deg) rotateZ(26deg)"></i>
+      <i class="rb" style="left:-210px;top:70px;width:500px;height:380px;border-width:34px;border-color:rgba(212,196,255,0.44);filter:blur(7px);transform:translateZ(-184px) rotateX(26deg) rotateY(52deg) rotateZ(-40deg)"></i>
+      <i class="rb" style="left:150px;top:110px;width:520px;height:400px;border-width:38px;border-color:rgba(224,236,255,0.52);filter:blur(2px);transform:translateZ(-40px) rotateX(-30deg) rotateY(-38deg) rotateZ(34deg)"></i>
+      <i class="rb" style="left:40px;top:-90px;width:380px;height:320px;border-width:26px;border-color:rgba(255,238,186,0.38);filter:blur(9px);transform:translateZ(-187px) rotateX(44deg) rotateY(28deg) rotateZ(-62deg)"></i>
+      <i class="rb" style="left:-80px;top:150px;width:560px;height:300px;border-width:32px;border-color:rgba(232,242,255,0.46);filter:blur(5px);transform:translateZ(-109px) rotateX(-20deg) rotateY(40deg) rotateZ(12deg)"></i>
       <i class="ca" style="left:116px;top:27px;width:310px;height:12px;opacity:0.61;filter:blur(2.4px);transform:rotate(38deg)"></i>
       <i class="ca" style="left:54px;top:325px;width:133px;height:4px;opacity:0.46;filter:blur(3.8px);transform:rotate(-40deg)"></i>
       <i class="ca" style="left:321px;top:287px;width:223px;height:4px;opacity:0.45;filter:blur(1.5px);transform:rotate(-9deg)"></i>

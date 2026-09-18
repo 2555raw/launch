@@ -139,12 +139,16 @@ const log = [];
 
     /* The whole address has to land on the clipboard: an elided one is
      * useless to paste anywhere. */
-    await p.click('#last-ca .ca-copy');
+    await p.click('#last-ca .ca-hit');          // the address itself is the button
     const copied = await p.evaluate(() => navigator.clipboard.readText());
     if (copied !== published) throw new Error(`clipboard holds ${copied}, not ${published}`);
 
     const href = await p.getAttribute('#last-ca .ca-out', 'href');
     if (!href || !href.includes(published)) throw new Error('the explorer link points at ' + href);
+
+    /* Clicking it says so on the pill, not only in a toast somewhere else. */
+    const said = await p.textContent('#last-ca .ca-addr');
+    if (!/Copied/.test(said)) throw new Error('the pill did not confirm: ' + said);
 
     await p.goto(base + 'token.html?addr=' + tokenAddr, { waitUntil: 'networkidle' });
   });

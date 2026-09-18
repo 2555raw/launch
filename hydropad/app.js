@@ -466,12 +466,18 @@ function renderLastCa() {
   }
 
   host.classList.remove("waiting");
+  /* The address itself copies. A contract address in a header is there to be
+   * taken, not read, and making the visitor find a 20px button beside it to do
+   * the one thing they came for is the whole slot failing at its job. The
+   * arrow still goes to the explorer, for the people who want to look. */
   host.innerHTML = `
-    <span class="ca-tag">CA</span>
-    <a class="ca-addr mono" href="${esc(SITE_CA.explorer)}/token/${esc(addr)}"
-       target="_blank" rel="noopener" title="${esc(addr)}">${shortAddr(addr)}</a>
-    <button class="ca-copy" type="button" data-copy="${esc(addr)}" title="Copy the address">
-      <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-1a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h1"/></svg>
+    <button class="ca-hit" type="button" data-copy="${esc(addr)}"
+            title="Click to copy ${esc(addr)}">
+      <span class="ca-tag">CA</span>
+      <span class="ca-addr mono">${shortAddr(addr)}</span>
+      <span class="ca-copy" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="12" height="12"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-1a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h1"/></svg>
+      </span>
       <span class="sr">Copy the contract address</span>
     </button>
     <a class="ca-out" href="${esc(SITE_CA.explorer)}/token/${esc(addr)}" target="_blank"
@@ -495,7 +501,18 @@ function wireCopy() {
       try { document.execCommand("copy"); } catch (__) {}
       f.remove();
     }
+    /* Say it on the thing that was clicked, not only in a toast at the other
+     * end of the page: the eye is already here. */
     btn.classList.add("done");
+    const label = btn.querySelector(".ca-addr");
+    if (label && !label.dataset.was) {
+      label.dataset.was = label.textContent;
+      label.textContent = "Copied";
+      setTimeout(() => {
+        label.textContent = label.dataset.was;
+        delete label.dataset.was;
+      }, 1200);
+    }
     setTimeout(() => btn.classList.remove("done"), 1200);
     toast(`Copied ${text}`);
   });

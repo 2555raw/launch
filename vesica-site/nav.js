@@ -129,20 +129,32 @@
     close(m);
   };
 
+  /* Hover and click were fighting each other. With one menu open, moving onto
+     the next button opened it on pointerenter; the click that followed then
+     found it already open and closed the lot. So the hover records which menu
+     it opened, and the click that arrives on that same menu lets it be —
+     a second click on it still closes it, which is what a second click means. */
+  let hoverOpened = null;
+
   all.forEach(m => {
     const btn = m.querySelector('.mnu-btn');
     btn.addEventListener('click', e => {
       e.stopPropagation();
+      if (hoverOpened === m) { hoverOpened = null; return; }
       m.classList.contains('on') ? close(null) : open(m);
     });
     // once one is open, moving along the bar swaps between them
     m.addEventListener('pointerenter', () => {
-      if (all.some(x => x.classList.contains('on'))) open(m);
+      if (m.classList.contains('on')) return;
+      if (all.some(x => x.classList.contains('on'))) { hoverOpened = m; open(m); }
     });
   });
 
-  document.addEventListener('click', () => close(null));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(null); });
+  const forget = () => { hoverOpened = null; };
+  document.addEventListener('pointerdown', e => { if (!e.target.closest('.mnu')) forget(); });
+
+  document.addEventListener('click', () => { forget(); close(null); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { forget(); close(null); } });
 })();
 
 /* ---------- the cube field lights under the pointer ----------

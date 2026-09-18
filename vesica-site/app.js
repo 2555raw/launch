@@ -91,13 +91,23 @@ function disconnect() {
 
 /* ---------- moving money ---------- */
 
+/* Max writes a rounded figure into the field, and toFixed rounds rather than
+   truncates: about half the time it produces a number a hair LARGER than the
+   balance it is meant to be all of. Max now floors, so it cannot overshoot,
+   and the guards carry a tolerance the size of the last place either figure
+   is written to, so a hand-typed "all of it" is accepted too. */
+const DUST = 1e-4;        // shares, written to four places
+const DUST_USDG = 0.01;   // money, written to two
+const floorTo = (x, dp) => Math.floor(x * 10 ** dp) / 10 ** dp;
+
 function depositInto(v, amt) {
   if (!wallet) return toast('Connect the demo wallet first.');
   if (v.state === 'paused') return toast('Deposits into this vault are paused.');
   if (!(amt > 0)) return toast('Enter an amount above zero.');
-  if (amt > wallet.usdg) return toast('That is more than the ' + money(wallet.usdg) + ' in the wallet.');
+  if (amt > wallet.usdg + DUST_USDG) return toast('That is more than the ' + money(wallet.usdg) + ' in the wallet.');
   const room = v.cap - v.tvl;
-  if (amt > room) return toast('Only ' + usd(room) + ' left under this vault\'s cap.');
+  if (amt > room + DUST_USDG) return toast('Only ' + usd(room) + ' left under this vault\'s cap.');
+  amt = Math.min(amt, wallet.usdg, room);
 
   if (!held(v.t)) v.depositors += 1;
   wallet.usdg -= amt;
@@ -106,8 +116,6 @@ function depositInto(v, amt) {
   save(); paint();
   toast('Deposited ' + money(amt) + ' into USDG / x' + v.t + '.');
 }
-
-const DUST = 1e-4;   // Max is a rounded string, so anything under this is all of it
 
 function withdrawFrom(v, shares, quiet) {
   if (!wallet) return;
@@ -343,10 +351,10 @@ function fillDrawer() {
 
   if (!wallet) { go.disabled = true; go.textContent = 'Connect a wallet to ' + mode; return; }
   if (mode === 'deposit') {
-    go.disabled = pausedDeposit || !(n > 0) || n > wallet.usdg || n > room;
+    go.disabled = pausedDeposit || !(n > 0) || n > wallet.usdg + DUST_USDG || n > room + DUST_USDG;
     go.textContent = pausedDeposit ? 'Deposits are paused' : 'Deposit ' + money(n) + ' USDG';
   } else {
-    go.disabled = !(n > 0) || n > have + 1e-9;
+    go.disabled = !(n > 0) || n > have + DUST;
     go.textContent = 'Redeem ' + (n || 0).toFixed(4) + ' c' + v.t;
   }
 }
@@ -357,7 +365,7 @@ function setMode(next) {
   const v = current;
   amount.value = next === 'deposit'
     ? Math.min(1000, wallet ? wallet.usdg : 1000)
-    : (v ? +held(v.t).toFixed(4) : 0);
+    : (v ? floorTo(held(v.t), 4) : 0);
   amount.step = next === 'deposit' ? '100' : '0.0001';
   fillDrawer();
 }
@@ -386,8 +394,8 @@ seg.addEventListener('click', e => {
 document.getElementById('d-max').addEventListener('click', () => {
   if (!wallet || !current) return;
   amount.value = mode === 'deposit'
-    ? +Math.min(wallet.usdg, Math.max(current.cap - current.tvl, 0)).toFixed(2)
-    : +held(current.t).toFixed(4);
+    ? floorTo(Math.min(wallet.usdg, Math.max(current.cap - current.tvl, 0)), 2)
+    : floorTo(held(current.t), 4);
   fillDrawer();
 });
 go.addEventListener('click', () => {

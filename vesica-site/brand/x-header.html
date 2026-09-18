@@ -53,9 +53,9 @@
   .rb {
     position:absolute; display:block; border-radius:50%; border-style:solid;
     box-shadow:
-      inset 0 0 60px rgba(255,255,255,.75),
+      inset 0 0 60px rgba(255,255,255,.92),
       inset 0 0 0 2px rgba(255,255,255,.85),
-      0 0 70px rgba(255,255,255,.45);
+      0 0 70px rgba(255,255,255,.60);
   }
   .ca {
     position:absolute; display:block; border-radius:999px;
@@ -100,194 +100,163 @@
   }
 
   /* ---- the vault slabs ----
-     Built the way the reference's are: a thick rounded bevel around a clear
-     pane. The outer element IS the bevel -- its padding is the bevel's width
-     -- and .face is the pane set into it, which is why the rim reads as a
-     solid piece of glass with a face let into it rather than a card with a
-     border. The bevel carries the shine, the pane carries the blur. */
+     A thin sheet of glass, which means the scene behind has to stay visible
+     through the whole card and not just around it. The fill is under a fifth
+     white on the bevel and a third on the pane, the blur is light enough that
+     what is behind still reads as itself, and the bevel is a rim of light
+     rather than a white band: its brightness is the two inset lines on its
+     outer edge, not a fill. */
   .card {
-    position:absolute; z-index:5; border-radius:27px; padding:12px;
-    background:linear-gradient(145deg,
-      rgba(255,255,255,.98) 0%, rgba(255,255,255,.74) 24%, rgba(255,255,255,.44) 52%,
-      rgba(255,255,255,.74) 78%, rgba(255,255,255,.96) 100%);
-    backdrop-filter:blur(11px) saturate(1.6) brightness(1.07);
+    position:absolute; z-index:5; border-radius:24px; padding:8px;
+    background:linear-gradient(150deg,
+      rgba(255,255,255,.24) 0%, rgba(255,255,255,.09) 48%, rgba(255,255,255,.19) 100%);
+    backdrop-filter:blur(4px) saturate(1.35) brightness(1.10);
   }
   .card::before {
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    background:
-      linear-gradient(118deg,
-        rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 20%,
-        rgba(255,255,255,0) 66%, rgba(255,255,255,.62) 100%),
-      linear-gradient(72deg,
-        rgba(255,244,182,.22) 0%, rgba(255,214,248,.10) 33%,
-        rgba(200,231,255,.10) 57%, rgba(255,246,196,.20) 100%);
+    background:linear-gradient(120deg,
+      rgba(255,255,255,.60) 0%, rgba(255,255,255,0) 17%,
+      rgba(255,255,255,0) 73%, rgba(255,255,255,.34) 100%);
   }
-  /* the rim is where a thick edge splits the light hardest, so it carries the
-     spectrum outright -- yellow at both ends, because that one is the brand's */
+  /* a hairline, warm at one end and cool at the other — the edge splits the
+     light, but it is an edge, not an outline */
   .card::after {
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    padding:1.8px;
+    padding:1px;
     background:linear-gradient(125deg,
-      rgba(255,246,180,.98) 0%, rgba(255,255,255,.95) 17%,
-      rgba(255,212,246,.75) 37%, rgba(202,230,255,.70) 56%,
-      rgba(255,255,255,.92) 74%, rgba(255,238,160,.98) 100%);
+      rgba(255,250,218,.95) 0%, rgba(255,255,255,.88) 28%,
+      rgba(238,245,255,.66) 60%, rgba(255,247,210,.92) 100%);
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     mask-composite:exclude;
   }
   .vc { width:322px; }
   .face {
-    position:relative; z-index:1; border-radius:17px; padding:15px 17px 16px;
-    background:rgba(255,255,255,.30);
-    backdrop-filter:blur(17px) saturate(1.5) brightness(1.03);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.88),
-      inset 0 -1px 0 rgba(255,255,255,.55),
-      0 1px 3px rgba(92,90,124,.14);
+    position:relative; z-index:1; border-radius:16px; padding:13px 15px 14px;
+    background:rgba(255,255,255,.34);
+    backdrop-filter:blur(9px) saturate(1.25) brightness(1.04);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.74), inset 0 -1px 0 rgba(255,255,255,.40);
   }
-  .vc-row { display:flex; align-items:center; gap:12px; }
+  .vc-row { display:flex; align-items:center; gap:10px; }
   .vc-ic {
-    width:46px; height:46px; flex:none; border-radius:14px;
+    width:36px; height:36px; flex:none; border-radius:11px;
     display:grid; place-items:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 2px 6px rgba(61,59,79,.10);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 4px rgba(61,59,79,.09);
   }
-  .vc-ic svg { width:24px; height:24px; fill:currentColor; }
+  .vc-ic svg { width:19px; height:19px; fill:currentColor; }
   .vc-id { display:flex; flex-direction:column; min-width:0; }
-  .vc-id b { font-size:19px; font-weight:700; letter-spacing:-.03em; white-space:nowrap; }
-  .vc-id span { font-size:11.5px; color:var(--muted); margin-top:2px; white-space:nowrap; }
-  .vc-px { margin-left:auto; font-size:23px; font-weight:600; letter-spacing:-.03em; color:var(--accent); }
-  .vc-lab { display:block; margin-top:15px; font-size:11.5px; color:var(--muted); }
+  .vc-id b { font-size:14.5px; font-weight:700; letter-spacing:-.02em; white-space:nowrap; }
+  .vc-id span { font-size:9.8px; color:var(--muted); margin-top:1px; white-space:nowrap; }
+  .vc-px { margin-left:auto; font-size:17.5px; font-weight:600; letter-spacing:-.03em; color:var(--accent); }
+  .vc-lab { display:block; margin-top:13px; font-size:9.8px; color:var(--muted); }
   .vc-bar {
-    position:relative; margin-top:8px; height:8px; border-radius:999px;
-    background:rgba(120,118,150,.16); overflow:hidden;
-    box-shadow:inset 0 1px 2px rgba(92,90,124,.16);
+    position:relative; margin-top:6px; height:5px; border-radius:999px;
+    background:rgba(120,118,150,.18); overflow:hidden;
   }
   .vc-bar i { display:block; height:100%; border-radius:999px;
               background:linear-gradient(90deg, var(--accent-fill), var(--accent-glow)); }
-  .vc-bar span { display:none; }
-  .vc-pct { display:block; text-align:right; margin-top:7px; font-size:11.5px; color:var(--dim); }
+  .vc-pct { display:block; text-align:right; margin-top:5px; font-size:9.8px; color:var(--dim); }
 
   .v1 { left:14px; top:196px; transform:translateZ(46px) rotateX(6deg) rotateY(-17deg) rotateZ(-3deg);
     box-shadow:
       1.0px 0.7px 0 #FFFFFF,
-      2.0px 1.4px 0 #FFF6C1,
-      3.0px 2.1px 0 #FFEFB1,
-      4.0px 2.8px 0 #FFE9C0,
-      5.0px 3.5px 0 #FFE4CF,
-      6.0px 4.2px 0 #FFDEDE,
-      7.0px 4.9px 0 #FFD9EE,
-      8.0px 5.6px 0 #F2DBF4,
-      9.0px 6.3px 0 #E2DFF9,
-      10.0px 7.0px 0 #D3E2FE,
-      11.0px 7.7px 0 #C4D1EB,
-      12.0px 8.4px 0 #B4B8D2,
-      13.0px 9.1px 0 #A9A6BE,
-      14.0px 9.8px 0 #A9A6BE,
-      15.0px 10.5px 0 #A9A6BE,
-      0 44px 74px rgba(61,59,79,.17),
-      0 12px 24px rgba(61,59,79,.09),
-      inset 2px 2px 0 rgba(255,255,255,.96),
-      inset -2px -2px 0 rgba(150,140,175,.18); }
+      2.0px 1.4px 0 #FFFCF1,
+      3.0px 2.1px 0 #FFFAE2,
+      4.0px 2.8px 0 #FFF7D4,
+      5.0px 3.5px 0 #FCF3D6,
+      6.0px 4.2px 0 #F7EDE4,
+      7.0px 4.9px 0 #F2E8F2,
+      8.0px 5.6px 0 #E6DFEB,
+      9.0px 6.3px 0 #D9D6E4,
+      10.0px 7.0px 0 #D9D6E4,
+      11.0px 7.7px 0 #D9D6E4,
+      0 34px 58px rgba(61,59,79,.15),
+      0 8px 18px rgba(61,59,79,.08),
+      inset 1px 1px 0 rgba(255,255,255,.94),
+      inset -1px -1px 0 rgba(255,255,255,.55); }
   .v2 { left:268px; top:8px; transform:translateZ(86px) rotateX(9deg) rotateY(-14deg) rotateZ(-2deg);
     box-shadow:
       1.0px 0.7px 0 #FFFFFF,
-      2.0px 1.4px 0 #FFF6C5,
-      3.0px 2.2px 0 #FFEFAF,
-      4.0px 2.9px 0 #FFEABD,
-      5.0px 3.6px 0 #FFE5CB,
-      6.0px 4.3px 0 #FFE0D9,
-      7.0px 5.0px 0 #FFDBE8,
-      8.0px 5.8px 0 #F9D9F2,
-      9.0px 6.5px 0 #EBDDF6,
-      10.0px 7.2px 0 #DCE0FB,
-      11.0px 7.9px 0 #CEE1FD,
-      12.0px 8.6px 0 #C0CAE5,
-      13.0px 9.4px 0 #B1B4CC,
-      14.0px 10.1px 0 #A9A6BE,
-      15.0px 10.8px 0 #A9A6BE,
-      16.0px 11.5px 0 #A9A6BE,
-      0 44px 74px rgba(61,59,79,.17),
-      0 12px 24px rgba(61,59,79,.09),
-      inset 2px 2px 0 rgba(255,255,255,.96),
-      inset -2px -2px 0 rgba(150,140,175,.18); }
+      2.0px 1.4px 0 #FFFDF2,
+      3.0px 2.2px 0 #FFFAE5,
+      4.0px 2.9px 0 #FFF8D8,
+      5.0px 3.6px 0 #FEF5D1,
+      6.0px 4.3px 0 #F9F0DE,
+      7.0px 5.0px 0 #F5EBEA,
+      8.0px 5.8px 0 #EDE5EF,
+      9.0px 6.5px 0 #E2DDE9,
+      10.0px 7.2px 0 #D9D6E4,
+      11.0px 7.9px 0 #D9D6E4,
+      12.0px 8.6px 0 #D9D6E4,
+      0 34px 58px rgba(61,59,79,.15),
+      0 8px 18px rgba(61,59,79,.08),
+      inset 1px 1px 0 rgba(255,255,255,.94),
+      inset -1px -1px 0 rgba(255,255,255,.55); }
   .v3 { left:512px; bottom:14px; transform:translateZ(24px) rotateX(-9deg) rotateY(3deg) rotateZ(1.4deg); filter:blur(0.35px);
     box-shadow:
       0.9px -0.7px 0 #FFFFFF,
-      1.8px -1.4px 0 #FFF4B6,
-      2.7px -2.1px 0 #FFEDB6,
-      3.6px -2.8px 0 #FFE7C8,
-      4.5px -3.5px 0 #FFE0D9,
-      5.4px -4.2px 0 #FFDAEB,
-      6.3px -4.9px 0 #F2DBF4,
-      7.2px -5.6px 0 #E0DFFA,
-      8.1px -6.3px 0 #CEE1FD,
-      9.0px -7.0px 0 #BCC5DF,
-      9.9px -7.7px 0 #AAA8C0,
-      10.8px -8.4px 0 #A9A6BE,
-      11.7px -9.1px 0 #A9A6BE,
-      0 44px 74px rgba(61,59,79,.17),
-      0 12px 24px rgba(61,59,79,.09),
-      inset 2px 2px 0 rgba(255,255,255,.96),
-      inset -2px -2px 0 rgba(150,140,175,.18); }
+      1.8px -1.4px 0 #FFFCEF,
+      2.7px -2.1px 0 #FFF9DF,
+      3.6px -2.8px 0 #FFF6CF,
+      4.5px -3.5px 0 #FAF0DC,
+      5.4px -4.2px 0 #F4EAEC,
+      6.3px -4.9px 0 #EAE2ED,
+      7.2px -5.6px 0 #DCD8E6,
+      8.1px -6.3px 0 #D9D6E4,
+      9.0px -7.0px 0 #D9D6E4,
+      0 34px 58px rgba(61,59,79,.15),
+      0 8px 18px rgba(61,59,79,.08),
+      inset 1px 1px 0 rgba(255,255,255,.94),
+      inset -1px -1px 0 rgba(255,255,255,.55); }
   .v4 { right:118px; top:8px; transform:translateZ(74px) rotateX(8deg) rotateY(16deg) rotateZ(2deg);
     box-shadow:
       -1.0px 0.7px 0 #FFFFFF,
-      -2.0px 1.4px 0 #FFF6C1,
-      -3.0px 2.1px 0 #FFEFB1,
-      -4.0px 2.8px 0 #FFE9C0,
-      -5.0px 3.5px 0 #FFE4CF,
-      -6.0px 4.2px 0 #FFDEDE,
-      -7.0px 4.9px 0 #FFD9EE,
-      -8.0px 5.6px 0 #F2DBF4,
-      -9.0px 6.3px 0 #E2DFF9,
-      -10.0px 7.0px 0 #D3E2FE,
-      -11.0px 7.7px 0 #C4D1EB,
-      -12.0px 8.4px 0 #B4B8D2,
-      -13.0px 9.1px 0 #A9A6BE,
-      -14.0px 9.8px 0 #A9A6BE,
-      -15.0px 10.5px 0 #A9A6BE,
-      0 44px 74px rgba(61,59,79,.17),
-      0 12px 24px rgba(61,59,79,.09),
-      inset 2px 2px 0 rgba(255,255,255,.96),
-      inset -2px -2px 0 rgba(150,140,175,.18); }
+      -2.0px 1.4px 0 #FFFCF1,
+      -3.0px 2.1px 0 #FFFAE2,
+      -4.0px 2.8px 0 #FFF7D4,
+      -5.0px 3.5px 0 #FCF3D6,
+      -6.0px 4.2px 0 #F7EDE4,
+      -7.0px 4.9px 0 #F2E8F2,
+      -8.0px 5.6px 0 #E6DFEB,
+      -9.0px 6.3px 0 #D9D6E4,
+      -10.0px 7.0px 0 #D9D6E4,
+      -11.0px 7.7px 0 #D9D6E4,
+      0 34px 58px rgba(61,59,79,.15),
+      0 8px 18px rgba(61,59,79,.08),
+      inset 1px 1px 0 rgba(255,255,255,.94),
+      inset -1px -1px 0 rgba(255,255,255,.55); }
   .v5 { right:24px; top:166px; transform:translateZ(36px) rotateX(5deg) rotateY(19deg) rotateZ(-2.4deg); filter:blur(0.3px);
     box-shadow:
       -1.0px 0.7px 0 #FFFFFF,
-      -2.0px 1.4px 0 #FFF5BC,
-      -3.0px 2.0px 0 #FFEEB3,
-      -4.0px 2.7px 0 #FFE8C4,
-      -5.0px 3.4px 0 #FFE2D4,
-      -6.0px 4.1px 0 #FFDCE4,
-      -7.0px 4.8px 0 #FAD9F1,
-      -8.0px 5.4px 0 #EADDF7,
-      -9.0px 6.1px 0 #D9E1FC,
-      -10.0px 6.8px 0 #C8D8F3,
-      -11.0px 7.5px 0 #B8BED8,
-      -12.0px 8.2px 0 #A9A6BE,
-      -13.0px 8.8px 0 #A9A6BE,
-      -14.0px 9.5px 0 #A9A6BE,
-      0 44px 74px rgba(61,59,79,.17),
-      0 12px 24px rgba(61,59,79,.09),
-      inset 2px 2px 0 rgba(255,255,255,.96),
-      inset -2px -2px 0 rgba(150,140,175,.18); }
+      -2.0px 1.4px 0 #FFFCF1,
+      -3.0px 2.0px 0 #FFFAE2,
+      -4.0px 2.7px 0 #FFF7D4,
+      -5.0px 3.4px 0 #FCF3D6,
+      -6.0px 4.1px 0 #F7EDE4,
+      -7.0px 4.8px 0 #F2E8F2,
+      -8.0px 5.4px 0 #E6DFEB,
+      -9.0px 6.1px 0 #D9D6E4,
+      -10.0px 6.8px 0 #D9D6E4,
+      -11.0px 7.5px 0 #D9D6E4,
+      0 34px 58px rgba(61,59,79,.15),
+      0 8px 18px rgba(61,59,79,.08),
+      inset 1px 1px 0 rgba(255,255,255,.94),
+      inset -1px -1px 0 rgba(255,255,255,.55); }
   .v6 { right:186px; bottom:16px; transform:translateZ(-18px) rotateX(-11deg) rotateY(12deg) rotateZ(-1.4deg); filter:blur(0.7px);
     box-shadow:
       -0.9px -0.8px 0 #FFFFFF,
-      -1.8px -1.6px 0 #FFF3B0,
-      -2.7px -2.3px 0 #FFECB9,
-      -3.6px -3.1px 0 #FFE5CD,
-      -4.5px -3.9px 0 #FFDEE0,
-      -5.4px -4.7px 0 #FCD9F1,
-      -6.3px -5.5px 0 #E8DDF7,
-      -7.2px -6.2px 0 #D4E2FD,
-      -8.1px -7.0px 0 #C1CCE7,
-      -9.0px -7.8px 0 #AEADC6,
-      -9.9px -8.6px 0 #A9A6BE,
-      -10.8px -9.4px 0 #A9A6BE,
-      0 44px 74px rgba(61,59,79,.17),
-      0 12px 24px rgba(61,59,79,.09),
-      inset 2px 2px 0 rgba(255,255,255,.96),
-      inset -2px -2px 0 rgba(150,140,175,.18); }
+      -1.8px -1.6px 0 #FFFCED,
+      -2.7px -2.3px 0 #FFF8DB,
+      -3.6px -3.1px 0 #FDF4D3,
+      -4.5px -3.9px 0 #F7EDE4,
+      -5.4px -4.7px 0 #EFE6F0,
+      -6.3px -5.5px 0 #DFDAE8,
+      -7.2px -6.2px 0 #D9D6E4,
+      -8.1px -7.0px 0 #D9D6E4,
+      0 34px 58px rgba(61,59,79,.15),
+      0 8px 18px rgba(61,59,79,.08),
+      inset 1px 1px 0 rgba(255,255,255,.94),
+      inset -1px -1px 0 rgba(255,255,255,.55); }
 
   .say {
     position:absolute; left:0; right:0; top:214px; text-align:center; z-index:6;

@@ -1,0 +1,42 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gridpad Register</title>
+<meta name="description" content="Twenty-eight named renewable power stations a coin can be paired to, each with the capacity, coordinates and the body that published them.">
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<header class="top"><div class="wrap" style="display:flex;align-items:center;gap:16px">
+  <a class="brand" href="index.html">
+    <svg class="spark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M13.5 2 4.5 13.2h5.2L9 22l9.6-11.6h-5.4L13.5 2Z" fill="#5fd0b4"/>
+    </svg>gridpad</a>
+  <span class="crumb">gridpad <i>/</i> <b>register</b></span>
+</div></header>
+
+<main class="wrap">
+  <div class="head">
+    <p class="eyebrow">The register</p>
+    <h1>Twenty-eight power stations<br>a coin can be bound to</h1>
+    <p class="lede">Seven each of hydro, wind, solar and geothermal. Every one is a real
+    installation with a capacity, a set of coordinates and a public body that published
+    them — and that body is linked on every row, so the pairing is something you can check
+    rather than something you have to take.</p>
+    <dl class="facts" id="facts"></dl>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="card">
+    <table>
+      <thead><tr>
+        <th>Ticker</th><th>Station</th><th class="hide-s">Capacity</th>
+        <th class="hide-s">Operator</th><th>Published by</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="foot-note" id="attrib"></p>
+</main>
+
+<script src="data.js"></script>
+<script src="register.js"></script>
+</body></html>

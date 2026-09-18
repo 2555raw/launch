@@ -34,9 +34,25 @@ ATTRIBUTION = ("Global Power Plant Database v1.3.0, World Resources Institute, "
                "CC BY 4.0 — https://datasets.wri.org/dataset/globalpowerplantdatabase")
 
 CLASSES = ("Hydro", "Wind", "Solar", "Geothermal")
-FLOOR = {"Hydro": 500, "Wind": 200, "Solar": 150, "Geothermal": 30}   # MW
-WANT = {"Hydro": 45, "Wind": 35, "Solar": 35, "Geothermal": 25}
-PER_COUNTRY_CLASS, PER_COUNTRY = 4, 9
+FLOOR = {"Hydro": 1000, "Wind": 300, "Solar": 250, "Geothermal": 100}   # MW
+# Seven a class, twenty-eight in all: a register somebody can come to know,
+# rather than one they have to search. The floors below are what earns a slot.
+WANT = {"Hydro": 7, "Wind": 7, "Solar": 7, "Geothermal": 7}
+# Seven slots a class: two from one country would be a third of it.
+PER_COUNTRY_CLASS, PER_COUNTRY = 2, 3
+
+# Twenty-eight slots is short enough that being recognised matters as much as
+# being checkable. Ranking purely on verifiability filled the hydro class with
+# "HPP Portile de Fier I" and left out Three Gorges and Itaipu, which are the
+# two power stations a stranger can actually picture. These get a slot if they
+# are in the data and clear the floor; everything else is earned by score.
+# Hand-picked, and said out loud rather than dressed up as an algorithm.
+MARQUEE = [
+    "three gorges", "itaipu", "simon bolivar", "tucuru", "grand coulee", "longyangxia",
+    "gansu wind", "hornsea", "london array", "walney", "whitelee", "horns rev",
+    "noor ouarzazate", "kamuthi", "quaid-e-azam", "cestas",
+    "geysers", "hellishei", "olkaria i", "cerro prieto", "wairakei",
+]
 
 AUTHORITY = re.compile(
     r"Energy Information Administration|Renewable Energy Planning Database|Open Power System Data"
@@ -113,11 +129,25 @@ def main(path):
 
     out, per_cc, per_c = [], collections.Counter(), collections.Counter()
     have = collections.Counter()
+
+    def take(r):
+        f, c = r["primary_fuel"], r["country_long"]
+        out.append(r); have[f] += 1; per_cc[(c, f)] += 1; per_c[c] += 1
+
+    # The named ones first, biggest match wins where a name appears twice.
+    for want in MARQUEE:
+        hits = [r for r in cand if want in r["name"].lower()]
+        if not hits: continue
+        r = max(hits, key=lambda r: num(r["capacity_mw"]))
+        if have[r["primary_fuel"]] < WANT[r["primary_fuel"]] and r not in out:
+            take(r)
+
+    # Then the rest on score, under the caps.
     for r in cand:
         f, c = r["primary_fuel"], r["country_long"]
-        if have[f] >= WANT[f] or per_cc[(c, f)] >= PER_COUNTRY_CLASS or per_c[c] >= PER_COUNTRY:
-            continue
-        out.append(r); have[f] += 1; per_cc[(c, f)] += 1; per_c[c] += 1
+        if r in out or have[f] >= WANT[f]: continue
+        if per_cc[(c, f)] >= PER_COUNTRY_CLASS or per_c[c] >= PER_COUNTRY: continue
+        take(r)
 
     taken, reg = set(), []
     for r in out:

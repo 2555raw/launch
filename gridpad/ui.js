@@ -74,13 +74,14 @@ function row(p) {
       <b>${esc(p.n)}</b>
       <span class="pair">${esc(p.t)} · ${esc(place(p))}</span>
     </span></span></td>
+    <td class="hide-l pair" style="white-space:nowrap">${coords(p.g)}</td>
     <td class="hide-s"><span class="chip"><span class="dot" style="background:${TINT[p.c]}"></span>${p.c}</span></td>
     <td class="r num">${mw(p.mw)}${p.y ? `<div class="pair" style="text-align:right">since ${p.y}</div>` : ""}</td>
     <td class="hide-l"><span class="rail"><span class="end">0</span>
       <span class="track"><i style="left:${at}%;background:${TINT[p.c]}"></i></span>
       <span class="end">${(BIGGEST / 1000).toFixed(1)} GW</span></span></td>
-    <td class="hide-l" style="font-size:12.5px;color:var(--ink-2)">${
-      p.o ? esc(p.o) : '<span style="color:var(--ink-3)">not recorded</span>'}</td>
+    <td class="hide-l op"${p.o ? ` title="${esc(p.o)}"` : ""}><span>${
+      p.o ? esc(p.o) : '<span style="color:var(--ink-3)">not recorded</span>'}</span></td>
     <td><a class="src" href="${esc(p.url)}" target="_blank" rel="noopener nofollow"
       title="Capacity and coordinates as published by ${esc(p.src)}. Opens the source.">
       ${TICK}Source <span class="host">${esc(host(p))}</span>${OUT}</a></td>

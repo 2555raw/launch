@@ -63,15 +63,88 @@
     backdrop-filter:blur(5px) saturate(1.5) brightness(1.04);
   }
 
-  /* the mark, unchanged: 54% of the frame, centred, and well inside the
-     circle X will crop this to */
-  .mk {
-    position:absolute; left:50%; top:50%; width:216px; height:216px;
-    transform:translate(-50%, -50%);
-    background:var(--band);
+  /* ---- the mark in liquid crystal ----
+     The same path, seven times, each copy masked to it and each doing one
+     job a piece of glass does. Nothing here is a filter laid over a picture
+     of the logo: the shape is cut out of the scene and the scene is what
+     fills it.
+
+       shade    the soft shadow the body casts
+       focus    and the warm spot the light concentrates under it
+       refract  what is behind, bent -- a backdrop blur, scaled a touch so it
+                is displaced rather than merely softened
+       body     the glass itself: cool, barely there, just enough that the
+                silhouette still reads on a light ground
+       disp     the rim, split into its colours by drop-shadows a pixel and a
+                half either side, warm one way and cool the other
+       spec     the sweep of the light across the face
+       hot      and the point where it enters */
+
+  .lg { position:absolute; left:50%; top:50%; width:228px; height:228px;
+        transform:translate(-50%, -50%); }
+  .lg i {
+    position:absolute; inset:0; display:block;
     -webkit-mask:url(../mark.svg) center / contain no-repeat;
     mask:url(../mark.svg) center / contain no-repeat;
-    filter:drop-shadow(0 6px 18px rgba(61,59,79,.22));
+  }
+
+  /* a thin glyph cannot take much offset: past four or five pixels the
+     shadow stops being a shadow and becomes a second logo */
+  .lg-shade {
+    background:rgba(72,76,112,.40);
+    transform:translate(1px, 5px) scale(1.01);
+    filter:blur(9px);
+  }
+  .lg-focus {
+    background:rgba(255,226,140,.70);
+    transform:translate(-1px, 6px) scale(.99);
+    filter:blur(11px);
+    mix-blend-mode:multiply;
+    opacity:.55;
+  }
+  .lg-refract {
+    backdrop-filter:blur(7px) saturate(1.75) brightness(1.05);
+    transform:scale(1.015);
+  }
+  .lg-body {
+    background:linear-gradient(148deg,
+      rgba(255,255,255,.34) 0%, rgba(198,214,248,.24) 30%,
+      rgba(214,198,246,.22) 58%, rgba(226,240,255,.26) 82%, rgba(255,255,255,.32) 100%);
+    box-shadow:none;
+  }
+  /* the silhouette has to survive a light ground, so a little of the ink
+     stays in the glass rather than none of it */
+  .lg-tint {
+    background:linear-gradient(150deg,
+      rgba(46,45,66,.93) 0%, rgba(56,56,84,.70) 34%,
+      rgba(50,52,82,.76) 66%, rgba(42,42,64,.95) 100%);
+  }
+  .lg-disp {
+    background:rgba(255,255,255,.02);
+    filter:
+      drop-shadow(2px 0 0 rgba(255,168,232,.95))
+      drop-shadow(-2px 0 0 rgba(130,186,255,.95))
+      drop-shadow(0 -1.8px 0 rgba(255,238,150,.90))
+      drop-shadow(0 1.8px 0 rgba(168,210,255,.80));
+  }
+  .lg-rim {
+    background:rgba(255,255,255,.04);
+    filter:
+      drop-shadow(0 -1.2px 0 rgba(255,255,255,1))
+      drop-shadow(-1.2px 0 0 rgba(255,255,255,.95))
+      drop-shadow(0 1.8px 1px rgba(70,74,112,.60));
+  }
+  .lg-spec {
+    background:linear-gradient(124deg,
+      rgba(255,255,255,.95) 0%, rgba(255,255,255,.30) 11%,
+      rgba(255,255,255,0) 28%, rgba(255,255,255,0) 70%,
+      rgba(255,255,255,.26) 86%, rgba(255,255,255,.80) 100%);
+    mix-blend-mode:screen;
+  }
+  .lg-hot {
+    background:radial-gradient(38% 34% at 33% 24%,
+      rgba(255,255,255,1) 0%, rgba(255,255,255,.55) 38%, rgba(255,255,255,0) 72%);
+    mix-blend-mode:screen;
   }
 </style>
 </head>
@@ -109,7 +182,17 @@
     <i class="bead" style="left:62px;top:300px;width:28px;height:28px;filter:blur(0.4px)"></i>
     <i class="bead" style="left:198px;top:16px;width:24px;height:24px;filter:blur(0px)"></i>
 
-  <i class="mk"></i>
+  <div class="lg" aria-hidden="true">
+    <i class="lg-shade"></i>
+    <i class="lg-focus"></i>
+    <i class="lg-refract"></i>
+    <i class="lg-body"></i>
+    <i class="lg-tint"></i>
+    <i class="lg-rim"></i>
+    <i class="lg-disp"></i>
+    <i class="lg-spec"></i>
+    <i class="lg-hot"></i>
+  </div>
 </div>
 </body>
 </html>

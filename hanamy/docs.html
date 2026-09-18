@@ -219,6 +219,14 @@ mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gem
         and key you chose so you need not retype them. The register page lists them by reading
         your browser, and the button beside the list clears them.</li>
     </ul>
+    <h3>The hosted endpoint</h3>
+    <p>A deployment can carry one key of its own, set as <code>HANAMY_KEY</code> (and
+      <code>HANAMY_UPSTREAM</code> if the provider is not OpenAI). The browser never sees it:
+      requests go to this site's <code>/v1</code>, which adds the key and forwards them. Nothing
+      that passes through is written down, and the rate limit that protects the key counts
+      addresses in memory, so those counts die with the process. Without that variable the site
+      still works and simply asks each visitor for an endpoint of their own.</p>
+
     <p><b>The limit, stated plainly.</b> This page keeps nothing. What happens to a request
       after it reaches the endpoint you named is that endpoint's business: most providers log
       requests for some period, and no front end can promise otherwise. If that matters, read

@@ -19,9 +19,15 @@
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (m) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
-  const cfg = () => {
+  // What this page will call. A key the visitor set wins; otherwise the
+  // deployment's own endpoint, if it has one. Its key lives on the server
+  // and never reaches the browser, so there is nothing here to send.
+  let hosted = false;
+  const saved = () => {
     try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; }
   };
+  const cfg = () => saved() || (hosted ? { base: "/v1", hosted: true } : null);
+  const auth = (c) => c.hosted ? {} : { Authorization: "Bearer " + c.key };
   const kb = (n) => n < 1024 ? n + " B"
                   : n < 1024 * 1024 ? (n / 1024).toFixed(0) + " KB"
                   : (n / 1048576).toFixed(1) + " MB";
@@ -49,12 +55,18 @@
     if (open) inBase.focus();
   }
   function wireLabel() {
+    const own = saved();
     const c = cfg();
-    wireBtn.textContent = c ? "Endpoint set" : "Endpoint";
+    wireBtn.textContent = own ? "Your endpoint" : (hosted ? "Endpoint" : "Set an endpoint");
     document.body.classList.toggle("needs-endpoint", !c);
-    if (c && wireState) wireState.textContent = "Pointing at " + c.base + ". The key is in this browser only.";
-    if (!c && wireState) wireState.textContent = "";
-    if (c) inBase.value = c.base;
+    if (!wireState) return;
+    wireState.textContent = own
+      ? "Pointing at " + own.base + ". The key is in this browser only."
+      : hosted
+        ? "Using this site's own endpoint. Its key sits on the server, not in your browser, " +
+          "and nothing you send is written down. You can point this somewhere else below."
+        : "";
+    if (own) inBase.value = own.base;
   }
 
   wireBtn.addEventListener("click", () => showWire(wire.hidden));
@@ -92,8 +104,7 @@
     const c = cfg();
     if (!c) return 0;
     try {
-      const res = await fetch(c.base.replace(/\/$/, "") + "/models",
-        { headers: { Authorization: "Bearer " + c.key } });
+      const res = await fetch(c.base.replace(/\/$/, "") + "/models", { headers: auth(c) });
       if (!res.ok) return 0;
       const j = await res.json();
       const ids = (j.data || j.models || []).map((m) => m.id).filter(Boolean).sort();
@@ -263,7 +274,7 @@
     try {
       const res = await fetch(c.base.replace(/\/$/, "") + "/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key },
+        headers: Object.assign({ "Content-Type": "application/json" }, auth(c)),
         body: JSON.stringify(body)
       });
       const type = res.headers.get("content-type") || "";
@@ -331,6 +342,14 @@
     files = []; paintFiles();
     foot();
   });
+
+  // Ask the deployment whether it has a key of its own before deciding
+  // that there is nowhere to send anything.
+  fetch("/hosted", { cache: "no-store" })
+    .then((r) => r.ok ? r.json() : null)
+    .then((j) => { hosted = Boolean(j && j.hosted); })
+    .catch(() => { hosted = false; })
+    .then(() => { wireLabel(); pullModels(); foot(); });
 
   wireLabel();
   foot();

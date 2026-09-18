@@ -256,9 +256,23 @@
     const msg = $("#compare-msg"), out = $("#answers");
     const wire = $("#wire"), inBase = $("#w-base"), inKey = $("#w-key"), state = $("#w-state");
 
-    const load = () => {
+    // A key the visitor set wins; otherwise the deployment's own endpoint,
+    // whose key sits on the server and never reaches this page.
+    let hosted = false;
+    const savedCfg = () => {
       try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; }
     };
+    const load = () => savedCfg() || (hosted ? { base: "/v1", hosted: true } : null);
+    const authFor = (c) => c.hosted ? {} : { Authorization: "Bearer " + c.key };
+    fetch("/hosted", { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((j) => { hosted = Boolean(j && j.hosted); })
+      .catch(() => { hosted = false; })
+      .then(() => {
+        if (hosted && !savedCfg() && state)
+          state.textContent = "Using this site's own endpoint. You can point it elsewhere here.";
+        syncLab();
+      });
     const save = (v) => {
       try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); }
       catch (e) { /* private window: the session still works, it just won't persist */ }
@@ -287,7 +301,8 @@
       const lab = (sel, el) => {
         if (!el) return;
         const m = (window.MODELS || []).find((x) => x.id === sel.value);
-        el.textContent = live ? (new URL(load().base).host) : (m ? m.lab : "");
+        const c = load();
+        el.textContent = live && c && !c.hosted ? new URL(c.base).host : (m ? m.lab : "");
       };
       lab(selA, $("#provA")); lab(selB, $("#provB"));
     }
@@ -319,7 +334,7 @@
 
     async function pullModels(base, key) {
       const res = await fetch(base.replace(/\/$/, "") + "/models",
-        { headers: { Authorization: "Bearer " + key } });
+        { headers: key ? { Authorization: "Bearer " + key } : {} });
       if (!res.ok) throw new Error("HTTP " + res.status + " from /models");
       const j = await res.json();
       const ids = (j.data || j.models || []).map((m) => m.id).filter(Boolean).sort();
@@ -370,7 +385,8 @@
       if (onBody) onBody(body);
       const res = await fetch(base.replace(/\/$/, "") + "/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+        headers: Object.assign({ "Content-Type": "application/json" },
+                               key ? { Authorization: "Bearer " + key } : {}),
         body: JSON.stringify(body)
       });
       const type = res.headers.get("content-type") || "";
@@ -442,7 +458,7 @@
       go.disabled = true;
       await Promise.all(pairs.map(async ([sel, body, , meta]) => {
         try {
-          const r = await ask(cfg.base, cfg.key, sel.value, q,
+          const r = await ask(cfg.base, cfg.hosted ? "" : cfg.key, sel.value, q,
                               (so_far) => { $(body).textContent = so_far; },
                               (sent) => {
             if (!receipt) return;

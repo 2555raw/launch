@@ -4,3 +4,7 @@ node_modules/
 e2e-*.png
 *.png
 !**/media/**/*.png
+# Brand artwork ships too: the headers and the marks are deliverables, not
+# screenshots. Without this line they live only on whatever machine made
+# them, which is how a logo goes missing.
+!**/brand/**/*.png

@@ -51,8 +51,22 @@
 
   <div class="wire" id="t-wire" hidden>
     <div class="wire-in">
-      <p class="sub">Hanamy has no server of its own. Point it at any OpenAI-compatible
-        endpoint and the key stays in this browser, sent nowhere but there.</p>
+      <div class="wire-why" id="t-why">
+        <p><b>Hanamy is the interface, not the model.</b> The answers come from an AI provider,
+          and every provider charges for them, so a key has to come from somewhere. Two ways:</p>
+        <ol>
+          <li><b>Your own key, here.</b> Get one from
+            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI</a>,
+            <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">OpenRouter</a>
+            or anything else that speaks the OpenAI format, paste it below and press Save. It stays
+            in this browser and is sent nowhere but the endpoint you name.</li>
+          <li><b>One key for everybody.</b> Whoever runs this deployment sets
+            <code>HANAMY_KEY</code> on the server. Then nobody is asked for anything, and the key
+            never reaches any browser. This copy does not have one.</li>
+        </ol>
+      </div>
+      <p class="sub" id="t-why-hosted" hidden>This site carries its own key, so you need nothing.
+        You can still point it somewhere else below; that setting stays in this browser.</p>
       <div class="wire-row">
         <label class="field"><span>Base URL</span>
           <input type="text" id="t-base" placeholder="https://api.openai.com/v1"></label>

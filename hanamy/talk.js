@@ -58,6 +58,10 @@
     const own = saved();
     const c = cfg();
     wireBtn.textContent = own ? "Your endpoint" : (hosted ? "Endpoint" : "Set an endpoint");
+    const why = document.getElementById("t-why");
+    const whyHosted = document.getElementById("t-why-hosted");
+    if (why) why.hidden = Boolean(hosted || own);
+    if (whyHosted) whyHosted.hidden = !(hosted && !own);
     document.body.classList.toggle("needs-endpoint", !c);
     if (!wireState) return;
     wireState.textContent = own
@@ -246,7 +250,8 @@
   async function send(text) {
     const c = cfg();
     if (!c) {
-      note("Nowhere to send this yet. Set an endpoint above and it will go.", true);
+      note("There is no model behind this yet. Hanamy is the interface; the answers come from " +
+           "an AI provider, and one needs a key. Add one above and this will go.", true);
       showWire(true);
       return;
     }

@@ -858,7 +858,6 @@ index = head("Hanamy · Say anything",
   </div>
 
   <div class="composer-wrap">
-    <p class="cut"><span>Nothing above this line is sent</span></p>
     <form class="composer" id="t-form">
       <div class="files" id="t-files" hidden></div>
       <textarea id="t-input" rows="1" placeholder="Ask anything. It will not remember."

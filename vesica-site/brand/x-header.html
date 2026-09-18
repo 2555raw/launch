@@ -8,83 +8,119 @@
      line stays on the centre line, which is the part that survives every
      crop. Not linked from the site — it exists to be screenshotted.
 
-     The content is the site's: six vaults from the list with their real
-     figures, the two status pills, the headline. -->
+     Same room as the avatar, at three and three-quarter times the size, and
+     the slabs are made of the same material the mark on the avatar is. The
+     content is the site's: six vaults from the list with their real figures,
+     the two status pills, the headline. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#F2F3F6; --line:#E3E4EA; --band:#3D3B4F; --ink:#3D3B4F;
-    --muted:#82828D; --dim:#A9A8AF; --grid:#E8E9EE;
+    --bg:#EDEEF2; --line:#E3E4EA; --band:#3D3B4F; --ink:#3D3B4F;
+    --muted:#6F7086; --dim:#9394A6; --grid:#E4E5EA;
     --accent:#6E5D0D; --accent-ink:#5C4E08; --accent-fill:#F2EAA0; --accent-glow:#EFD95E;
     --font:'Schibsted Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
   }
   * { box-sizing:border-box; margin:0; }
   body { width:1500px; height:500px; overflow:hidden; font-family:var(--font); color:var(--ink); }
 
-  /* A bright, almost flat room. The reference keeps its ground quiet and
-     lets the cards be the whole picture, so the grid is the only texture and
-     everything else is atmosphere. */
   .hd {
     position:relative; width:1500px; height:500px; overflow:hidden;
     background:
-      linear-gradient(to right, var(--grid) 0 1px, transparent 1px) 0 0 / 34px 34px,
-      linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px) 0 0 / 34px 34px,
-      radial-gradient(120% 150% at 50% 22%, #FFFFFF 0%, #FAFBFD 40%, #F3F4F8 74%, #EFF0F5 100%);
-    perspective:1600px; perspective-origin:50% 46%;
+      linear-gradient(to right, var(--grid) 0 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px) 0 0 / 32px 32px,
+      radial-gradient(130% 150% at 46% 30%, #FFFFFF 0%, #F7F9FD 38%, #EFF1F7 72%, #EAECF3 100%);
+    perspective:1500px; perspective-origin:50% 46%;
     transform-style:preserve-3d;
   }
 
-  /* far bodies: soft enough to be light rather than shapes */
-  .body {
-    position:absolute; display:block; pointer-events:none;
-    border-radius:48% 52% 58% 42% / 54% 46% 54% 46%;
-    background:radial-gradient(58% 54% at 34% 30%,
-      rgba(255,255,255,.90) 0%, rgba(var(--t),var(--a)) 52%, rgba(var(--t),0) 100%);
-  }
+  .glow { position:absolute; border-radius:50%; filter:blur(104px); pointer-events:none; }
+  .g1 { width:900px; height:470px; left:300px; top:110px; background:rgba(255,238,168,.52); }
+  .g2 { width:620px; height:420px; left:960px; top:-90px; background:rgba(206,196,255,.44); }
+  .g3 { width:560px; height:380px; left:-160px; top:180px; background:rgba(198,220,255,.50); }
+  .g4 { width:640px; height:340px; left:560px; top:300px; background:rgba(214,230,255,.44); }
+  .g5 { width:460px; height:360px; left:1120px; top:210px; background:rgba(218,206,255,.40); }
 
-  /* a few glass beads, most of them out of focus — the depth, understated */
+  /* the room: thick-bordered ellipses turned out of plane read as tubes of
+     glass, and the caustics are the lines light draws coming through one */
+  .glass { position:absolute; inset:-180px; transform-style:preserve-3d; pointer-events:none; }
+  .rb {
+    position:absolute; display:block; border-radius:50%; border-style:solid;
+    box-shadow:
+      inset 0 0 90px rgba(255,255,255,.92),
+      inset 0 0 0 2px rgba(255,255,255,.85),
+      0 0 100px rgba(255,255,255,.58);
+  }
+  .ca {
+    position:absolute; display:block; border-radius:999px;
+    background:linear-gradient(90deg,
+      rgba(255,255,255,0), rgba(232,242,255,.92) 26%,
+      rgba(255,255,255,1) 50%, rgba(238,230,255,.88) 74%, rgba(255,255,255,0));
+  }
   .bead {
     position:absolute; border-radius:50%; pointer-events:none;
-    background:radial-gradient(circle at 36% 30%,
-      rgba(255,255,255,.96) 0%, rgba(255,255,255,.32) 14%,
-      rgba(255,255,255,.04) 36%, rgba(176,182,214,.09) 62%,
-      rgba(230,240,255,.55) 88%, rgba(255,255,255,.10) 100%);
+    background:
+      radial-gradient(circle at 36% 30%,
+        rgba(255,255,255,.96) 0%, rgba(255,255,255,.34) 13%,
+        rgba(255,255,255,.04) 34%, rgba(176,182,214,.10) 60%,
+        rgba(226,238,255,.62) 86%, rgba(232,220,255,.36) 94%, rgba(255,255,255,.10) 100%),
+      conic-gradient(from 210deg,
+        rgba(214,228,255,.30), rgba(228,214,255,.18), rgba(255,244,196,.16),
+        rgba(206,246,255,.14), rgba(214,228,255,.30));
     box-shadow:
-      inset -2px -3px 12px rgba(104,108,150,.20),
-      inset 2px 3px 10px rgba(255,255,255,.80),
-      0 10px 22px rgba(56,58,86,.09);
-    backdrop-filter:blur(5px) saturate(1.3) brightness(1.03);
+      inset -2px -4px 15px rgba(104,108,150,.26),
+      inset 3px 4px 13px rgba(255,255,255,.80),
+      0 12px 26px rgba(56,58,86,.12);
+    backdrop-filter:blur(7px) saturate(1.5) brightness(1.04);
   }
 
-  /* ---- the vault slabs ----
-     The reference's cards are clean white panes: a hairline, a soft realistic
-     shadow, a lit top edge, and nothing else competing with what is printed
-     on them. So the heavy bevel goes. What is left is a thin rim, a high-white
-     pane that still lets the ground through, and a shadow whose depth follows
-     how far forward the card sits. */
+  /* ---- the slabs, in the material the avatar's mark is made of ----
+     Same seven jobs, done with a rounded rectangle instead of a mask: the
+     shadow and the warm spot the light concentrates under the body; a
+     backdrop blur, so what is behind is bent rather than covered; a cool
+     body barely there; the rim, and the colours that rim splits the light
+     into, thrown a couple of pixels either side, warm one way and cool the
+     other; and the sweep of light across the face. */
   .card {
-    position:absolute; z-index:5; border-radius:18px;
-    background:linear-gradient(152deg,
-      rgba(255,255,255,.94) 0%, rgba(255,255,255,.80) 52%, rgba(255,255,255,.88) 100%);
-    border:1px solid rgba(255,255,255,.92);
-    outline:1px solid rgba(206,210,226,.55); outline-offset:-1px;
-    backdrop-filter:blur(14px) saturate(1.25) brightness(1.03);
+    position:absolute; z-index:5; border-radius:24px; padding:9px;
+    background:linear-gradient(148deg,
+      rgba(255,255,255,.40) 0%, rgba(198,214,248,.22) 34%,
+      rgba(214,198,246,.20) 64%, rgba(255,255,255,.36) 100%);
+    backdrop-filter:blur(8px) saturate(1.85) brightness(1.07);
   }
   .card::before {
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    background:linear-gradient(122deg,
-      rgba(255,255,255,.75) 0%, rgba(255,255,255,0) 16%,
-      rgba(255,255,255,0) 78%, rgba(255,255,255,.34) 100%);
+    background:linear-gradient(124deg,
+      rgba(255,255,255,.95) 0%, rgba(255,255,255,.30) 12%,
+      rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%,
+      rgba(255,255,255,.28) 87%, rgba(255,255,255,.82) 100%);
   }
-  .vc { width:322px; padding:15px 17px 16px; }
-  .vc > * { position:relative; z-index:1; }
+  .card::after {
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    padding:1.4px;
+    background:linear-gradient(125deg,
+      rgba(255,238,150,.98) 0%, rgba(255,255,255,.96) 22%,
+      rgba(255,168,232,.80) 42%, rgba(130,186,255,.84) 62%,
+      rgba(255,255,255,.94) 80%, rgba(255,240,164,.98) 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite:exclude;
+  }
+  .vc { width:322px; }
+  /* the pane the text sits on: enough of it to read against, no more */
+  .face {
+    position:relative; z-index:1; border-radius:17px; padding:13px 15px 14px;
+    background:linear-gradient(150deg, rgba(255,255,255,.62), rgba(255,255,255,.44));
+    backdrop-filter:blur(15px) saturate(1.3) brightness(1.04);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.92), inset 0 -1px 0 rgba(255,255,255,.55),
+               0 1px 3px rgba(72,76,112,.14);
+  }
   .vc-row { display:flex; align-items:center; gap:10px; }
   .vc-ic {
     width:36px; height:36px; flex:none; border-radius:11px;
     display:grid; place-items:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 4px rgba(56,58,86,.09);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.95), 0 1px 4px rgba(72,76,112,.12);
   }
   .vc-ic svg { width:19px; height:19px; fill:currentColor; }
   .vc-id { display:flex; flex-direction:column; min-width:0; }
@@ -97,67 +133,58 @@
   }
   .vc-bar {
     position:relative; margin-top:7px; height:5px; border-radius:999px;
-    background:rgba(104,108,150,.15); overflow:hidden;
+    background:rgba(96,100,140,.20); overflow:hidden;
   }
   .vc-bar i { display:block; height:100%; border-radius:999px;
               background:linear-gradient(90deg, var(--accent-fill), var(--accent-glow)); }
   .vc-pct { display:block; text-align:right; margin-top:6px;
              font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--dim); }
 
-  .v1 { left:14px; top:196px; transform:translateZ(46px) rotateX(5deg) rotateY(-15deg) rotateZ(-2.6deg);
+  /* every slab: the same edge, and under it a shadow with a warm core --
+     the light a piece of glass concentrates on what it is lying over */
+  .card {
     box-shadow:
-      0 18px 47px rgba(56,58,86,.13),
-      0 6px 18px rgba(56,58,86,.07),
-      inset 0 1px 0 rgba(255,255,255,.95); }
-  .v2 { left:268px; top:8px; transform:translateZ(86px) rotateX(7deg) rotateY(-12deg) rotateZ(-1.8deg);
-    box-shadow:
-      0 22px 57px rgba(56,58,86,.13),
-      0 7px 22px rgba(56,58,86,.07),
-      inset 0 1px 0 rgba(255,255,255,.95); }
-  .v3 { left:512px; bottom:14px; transform:translateZ(24px) rotateX(-7deg) rotateY(3deg) rotateZ(1.2deg);
-    box-shadow:
-      0 16px 42px rgba(56,58,86,.13),
-      0 5px 16px rgba(56,58,86,.07),
-      inset 0 1px 0 rgba(255,255,255,.95); }
-  .v4 { right:118px; top:8px; transform:translateZ(74px) rotateX(6deg) rotateY(14deg) rotateZ(1.8deg);
-    box-shadow:
-      0 22px 57px rgba(56,58,86,.13),
-      0 7px 22px rgba(56,58,86,.07),
-      inset 0 1px 0 rgba(255,255,255,.95); }
-  .v5 { right:24px; top:166px; transform:translateZ(36px) rotateX(4deg) rotateY(16deg) rotateZ(-2deg);
-    box-shadow:
-      0 18px 47px rgba(56,58,86,.13),
-      0 6px 18px rgba(56,58,86,.07),
-      inset 0 1px 0 rgba(255,255,255,.95); }
-  .v6 { right:186px; bottom:16px; transform:translateZ(-18px) rotateX(-9deg) rotateY(11deg) rotateZ(-1.2deg);
-    box-shadow:
-      0 14px 36px rgba(56,58,86,.13),
-      0 4px 14px rgba(56,58,86,.07),
-      inset 0 1px 0 rgba(255,255,255,.95); }
+      2px 0 0 rgba(255,168,232,.50),
+      -2px 0 0 rgba(130,186,255,.50),
+      0 -1.6px 0 rgba(255,238,150,.55),
+      0 1.6px 0 rgba(168,210,255,.45),
+      inset 1.4px 1.4px 0 rgba(255,255,255,1),
+      inset -1.4px -1.4px 0 rgba(255,255,255,.58),
+      0 18px 30px rgba(255,226,140,.28),
+      0 30px 56px rgba(72,76,112,.20),
+      0 7px 16px rgba(72,76,112,.10);
+  }
+  .v1 { left:14px; top:196px;  transform:translateZ(46px) rotateX(6deg) rotateY(-15deg) rotateZ(-2.6deg); }
+  .v2 { left:268px; top:8px;   transform:translateZ(86px) rotateX(8deg) rotateY(-13deg) rotateZ(-1.8deg); }
+  .v3 { left:512px; bottom:14px; transform:translateZ(24px) rotateX(-8deg) rotateY(3deg) rotateZ(1.2deg); }
+  .v4 { right:118px; top:8px;  transform:translateZ(74px) rotateX(7deg) rotateY(15deg) rotateZ(1.8deg); }
+  .v5 { right:24px; top:166px; transform:translateZ(36px) rotateX(5deg) rotateY(17deg) rotateZ(-2deg); }
+  .v6 { right:186px; bottom:16px; transform:translateZ(-18px) rotateX(-10deg) rotateY(12deg) rotateZ(-1.2deg); filter:blur(.5px); }
 
   .say {
     position:absolute; left:0; right:0; top:214px; text-align:center; z-index:6;
     font-size:42px; font-weight:600; letter-spacing:-.035em; line-height:1.1;
+    text-shadow:0 1px 0 rgba(255,255,255,.8);
   }
   .say em { font-style:normal; color:var(--accent); box-shadow:inset 0 -.26em 0 var(--accent-fill); }
   .sub {
     position:absolute; left:0; right:0; top:276px; text-align:center; z-index:6;
     font-size:16.5px; color:var(--muted); letter-spacing:-.005em;
+    text-shadow:0 1px 0 rgba(255,255,255,.8);
   }
 
-  /* the reference's small labels are mono, uppercase and tracked out — same
-     words, that treatment */
   .pill {
     position:absolute; z-index:6; display:inline-flex; align-items:center; gap:8px;
     padding:9px 16px 9px 12px; border-radius:999px;
-    background:rgba(255,255,255,.92);
-    border:1px solid rgba(255,255,255,.95);
-    outline:1px solid rgba(206,210,226,.55); outline-offset:-1px;
-    backdrop-filter:blur(12px) saturate(1.2);
+    background:linear-gradient(148deg, rgba(255,255,255,.60), rgba(255,255,255,.36));
+    backdrop-filter:blur(12px) saturate(1.7) brightness(1.07);
     font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.11em;
     text-transform:uppercase; color:var(--ink); white-space:nowrap;
-    box-shadow:0 14px 28px rgba(56,58,86,.11), 0 3px 8px rgba(56,58,86,.06),
-               inset 0 1px 0 rgba(255,255,255,.95);
+    box-shadow:
+      1.6px 0 0 rgba(255,168,232,.45), -1.6px 0 0 rgba(130,186,255,.45),
+      inset 1.2px 1.2px 0 rgba(255,255,255,1), inset -1.2px -1.2px 0 rgba(255,255,255,.55),
+      0 12px 22px rgba(255,226,140,.22),
+      0 20px 34px rgba(72,76,112,.16);
   }
   .pill .dot { width:7px; height:7px; border-radius:50%; background:#2F9E7A; flex:none;
                box-shadow:0 0 0 3px rgba(47,158,122,.16); }
@@ -170,14 +197,50 @@
   .vig {
     position:absolute; inset:0; z-index:7; pointer-events:none;
     background:radial-gradient(135% 125% at 50% 44%,
-      rgba(255,255,255,0) 60%, rgba(238,240,247,.22) 88%, rgba(230,233,243,.38) 100%);
+      rgba(255,255,255,0) 60%, rgba(238,240,247,.20) 88%, rgba(230,233,243,.36) 100%);
   }
 </style>
 </head>
 <body>
 <div class="hd">
-  <i class="body" style="left:-280px;top:-200px;width:900px;height:700px;filter:blur(96px);--t:214,226,255;--a:0.34"></i><i class="body" style="left:860px;top:-240px;width:960px;height:760px;filter:blur(104px);--t:226,218,255;--a:0.3"></i><i class="body" style="left:300px;top:190px;width:900px;height:460px;filter:blur(110px);--t:255,242,198;--a:0.26"></i><i class="body" style="left:-120px;top:190px;width:620px;height:420px;filter:blur(96px);--t:216,232,255;--a:0.26"></i><i class="body" style="left:1060px;top:180px;width:620px;height:420px;filter:blur(100px);--t:224,236,255;--a:0.28"></i>
-  <i class="bead" style="left:206px;top:64px;width:52px;height:52px;filter:blur(0px)"></i><i class="bead" style="left:930px;top:92px;width:40px;height:40px;filter:blur(0.4px)"></i><i class="bead" style="left:1338px;top:206px;width:60px;height:60px;filter:blur(3px)"></i><i class="bead" style="left:470px;top:404px;width:44px;height:44px;filter:blur(5px)"></i><i class="bead" style="left:76px;top:398px;width:36px;height:36px;filter:blur(7px)"></i>
+  <div class="glow g3"></div>
+  <div class="glow g1"></div>
+  <div class="glow g4"></div>
+  <div class="glow g2"></div>
+  <div class="glow g5"></div>
+
+  <div class="glass">
+      <i class="rb" style="left:-560px;top:-420px;width:1560px;height:1180px;border-width:96px;border-color:rgba(196,214,255,0.62);filter:blur(4px);transform:translateZ(-302px) rotateX(-52deg) rotateY(34deg) rotateZ(-18deg)"></i>
+      <i class="rb" style="left:620px;top:-540px;width:1680px;height:1300px;border-width:120px;border-color:rgba(206,220,255,0.58);filter:blur(14px);transform:translateZ(-166px) rotateX(38deg) rotateY(-46deg) rotateZ(26deg)"></i>
+      <i class="rb" style="left:-720px;top:180px;width:1400px;height:1020px;border-width:84px;border-color:rgba(212,196,255,0.54);filter:blur(26px);transform:translateZ(-191px) rotateX(26deg) rotateY(52deg) rotateZ(-40deg)"></i>
+      <i class="rb" style="left:540px;top:300px;width:1460px;height:1080px;border-width:100px;border-color:rgba(224,236,255,0.60);filter:blur(10px);transform:translateZ(-286px) rotateX(-30deg) rotateY(-38deg) rotateZ(34deg)"></i>
+      <i class="rb" style="left:100px;top:-260px;width:1060px;height:880px;border-width:66px;border-color:rgba(255,238,186,0.46);filter:blur(32px);transform:translateZ(-192px) rotateX(44deg) rotateY(28deg) rotateZ(-62deg)"></i>
+      <i class="rb" style="left:-260px;top:420px;width:1560px;height:820px;border-width:88px;border-color:rgba(214,228,255,0.56);filter:blur(18px);transform:translateZ(-58px) rotateX(-20deg) rotateY(40deg) rotateZ(12deg)"></i>
+      <i class="ca" style="left:-50px;top:195px;width:811px;height:16px;opacity:0.47;filter:blur(7.9px);transform:rotate(-51deg)"></i>
+      <i class="ca" style="left:945px;top:374px;width:485px;height:19px;opacity:0.68;filter:blur(5.9px);transform:rotate(-13deg)"></i>
+      <i class="ca" style="left:346px;top:423px;width:388px;height:14px;opacity:0.44;filter:blur(5.9px);transform:rotate(26deg)"></i>
+      <i class="ca" style="left:919px;top:452px;width:544px;height:10px;opacity:0.48;filter:blur(10.5px);transform:rotate(31deg)"></i>
+      <i class="ca" style="left:1140px;top:446px;width:262px;height:11px;opacity:0.63;filter:blur(2.1px);transform:rotate(54deg)"></i>
+      <i class="ca" style="left:1101px;top:432px;width:545px;height:6px;opacity:0.54;filter:blur(5.5px);transform:rotate(-10deg)"></i>
+      <i class="ca" style="left:578px;top:448px;width:554px;height:14px;opacity:0.51;filter:blur(9.2px);transform:rotate(60deg)"></i>
+      <i class="ca" style="left:432px;top:362px;width:320px;height:14px;opacity:0.70;filter:blur(10.7px);transform:rotate(42deg)"></i>
+      <i class="ca" style="left:79px;top:116px;width:767px;height:8px;opacity:0.35;filter:blur(7.2px);transform:rotate(-35deg)"></i>
+      <i class="ca" style="left:1190px;top:283px;width:591px;height:17px;opacity:0.45;filter:blur(7.3px);transform:rotate(8deg)"></i>
+      <i class="ca" style="left:1225px;top:48px;width:522px;height:8px;opacity:0.53;filter:blur(7.1px);transform:rotate(38deg)"></i>
+      <i class="ca" style="left:215px;top:93px;width:751px;height:11px;opacity:0.40;filter:blur(3.9px);transform:rotate(-12deg)"></i>
+      <i class="ca" style="left:-141px;top:188px;width:751px;height:11px;opacity:0.51;filter:blur(4.3px);transform:rotate(-55deg)"></i>
+      <i class="ca" style="left:110px;top:24px;width:373px;height:21px;opacity:0.72;filter:blur(3.7px);transform:rotate(52deg)"></i>
+      <i class="ca" style="left:992px;top:262px;width:498px;height:15px;opacity:0.45;filter:blur(9.1px);transform:rotate(57deg)"></i>
+  </div>
+
+    <i class="bead" style="left:172px;top:58px;width:64px;height:64px;filter:blur(0px)"></i>
+    <i class="bead" style="left:614px;top:176px;width:42px;height:42px;filter:blur(0.6px)"></i>
+    <i class="bead" style="left:898px;top:80px;width:76px;height:76px;filter:blur(0px)"></i>
+    <i class="bead" style="left:452px;top:398px;width:56px;height:56px;filter:blur(6px)"></i>
+    <i class="bead" style="left:1102px;top:332px;width:50px;height:50px;filter:blur(1px)"></i>
+    <i class="bead" style="left:1374px;top:188px;width:92px;height:92px;filter:blur(9px)"></i>
+    <i class="bead" style="left:746px;top:450px;width:36px;height:36px;filter:blur(0.5px)"></i>
+    <i class="bead" style="left:48px;top:402px;width:54px;height:54px;filter:blur(11px)"></i>
 
   <div class="card vc v1">
     <div class="face">
@@ -254,11 +317,13 @@
 
 
 
+
   <span class="pill q1"><i class="mk"></i>20 vaults, one per stock</span>
   <span class="pill q2"><span class="dot"></span>Robinhood Chain · live</span>
 
   <p class="say">A vault paired to <em>every stock</em></p>
   <p class="sub">20 named vaults. One position each. Fees split onchain.</p>
+
 
 
   <div class="vig"></div>

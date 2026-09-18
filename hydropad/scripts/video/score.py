@@ -24,6 +24,10 @@ BAR = BEAT * 4             # 1.92
 DUR = 46.47
 N = int(DUR * SR)
 CUTS = [2.37, 5.27, 7.87, 10.23, 11.70, 15.00, 20.50, 28.87, 30.20, 32.03, 33.53, 35.03]
+# A transition on all twelve put a whoosh and a bang across 48% of the running
+# time: the track never settled because it was always going somewhere. Only the
+# four places the film actually turns get one.
+TURNS = [7.87, 20.50, 28.87, 35.03]
 
 L = np.zeros(N); R = np.zeros(N)
 # the sustained parts go to their own bus 
@@ -87,13 +91,16 @@ def sub(f, beats, gain=1.0):
 
 def clap(gain=1.0):
     n = int(0.3*SR); t = np.arange(n)/SR
-    body = hp(rng.normal(0, 1, n), 1100)
+    body = lp(hp(rng.normal(0, 1, n), 900), 6500)
     e = np.exp(-t*24) + 0.5*np.exp(-t*7)
-    return body * e * 0.42 * gain
+    return body * e * 0.3 * gain
 
 def hat(open_=False, gain=1.0):
-    n = int((0.18 if open_ else 0.055)*SR); t = np.arange(n)/SR
-    return hp(rng.normal(0, 1, n), 7000) * np.exp(-t*(16 if open_ else 62)) * 0.2 * gain
+    """Band-limited rather than bright: a hat hissing up at 7k and above was a
+    fifth of the whole mix's energy, which is what made it sound like tape."""
+    n = int((0.15 if open_ else 0.05)*SR); t = np.arange(n)/SR
+    x = lp(hp(rng.normal(0, 1, n), 3800), 9000)
+    return x * np.exp(-t*(18 if open_ else 70)) * 0.085 * gain
 
 def pluck(f, beats=1.0, gain=1.0):
     n = int(beats*BEAT*SR); t = np.arange(n)/SR
@@ -107,13 +114,15 @@ def pad(freqs, seconds, gain=1.0, cut=1500):
         for d in (-0.14, 0.0, 0.16):
             x += sine(f*(1+d/100), n, rng.random()*6.28)
     x /= len(freqs)*3
-    return lp(x, cut) * env(n, .55, seconds*.5, .85, .8) * 0.5 * gain
+    # A long attack and an almost flat sustain, so consecutive chords cross
+    # into each other instead of pumping once every two bars.
+    return lp(x, cut) * env(n, .9, seconds*.35, .95, 1.1) * 0.55 * gain
 
 def riser(seconds, gain=1.0):
     n = int(seconds*SR); t = np.arange(n)/SR
     x = rng.normal(0, 1, n)
-    x = hp(x, 400) * (t/seconds)**2
-    return x * 0.16 * gain
+    x = lp(hp(x, 500), 5200) * (t/seconds)**2
+    return x * 0.12 * gain
 
 def impact(gain=1.0):
     n = int(1.2*SR); t = np.arange(n)/SR
@@ -146,14 +155,16 @@ while t < DUR:
     ch = PROG[ci % 4]
     secs = min(BAR*2, DUR - t)
     s = section(t)
-    g = {"intro": .5, "build": .7, "groove": .8, "full": .85,
-         "break": 1.0, "rise": .9, "final": .85, "out": .6}[s]
-    cut = 900 if s in ("intro", "break") else 2200
+    g = {"intro": .30, "build": .45, "groove": .62, "full": .70,
+         "break": .82, "rise": .68, "final": .72, "out": .45}[s]
+    cut = 520 if s in ("intro", "break") else 950
     add(None if False else L, 0, np.zeros(0))       # keep the helper honest
     p = pad(TRIAD[ch], secs, g, cut)
     add(PL, t, p, 0.5, -0.25); add(PR, t, p, 0.5, 0.25)
     # a sub under every chord
-    sb = sub(ROOT[ch]/2, secs/BEAT, 0.55 if s != "break" else 0.3)
+    sb = sub(ROOT[ch]/2, secs/BEAT,
+             {"intro": .16, "build": .30, "groove": .48, "full": .55,
+              "break": .18, "rise": .50, "final": .55, "out": .25}[s])
     add(PL, t, sb, 1.0); add(PR, t, sb, 1.0)
     t += secs; ci += 1
 
@@ -168,37 +179,34 @@ while beat < DUR:
         if b % 4 == 2:
             c = clap(.9 if s in ("full", "final") else .6)
             add(L, beat, c, 1, -.15); add(R, beat, c, 1, .15)
-        if s in ("groove", "full", "final", "rise"):
+        if s in ("groove", "full", "final", "rise") and b % 2 == 1:
             h = hat(b % 8 == 7)
             add(L, beat, h, 1, .3); add(R, beat, h, 1, -.3)
-            add(L, beat + BEAT/2, hat(False, .6), 1, -.3)
-            add(R, beat + BEAT/2, hat(False, .6), 1, .3)
     elif s == "break" and b % 8 == 0:
         add(L, beat, kick(.45), 1, 0); add(R, beat, kick(.45), 1, 0); KICKS.append(beat)
     beat += BEAT
 
 # a plucked line, one note per beat, sitting above everything
-notes = [0, 2, 4, 2, 5, 4, 2, 0]
-beat, i = 2.37, 0
-while beat < 44.6:
+# A bar of eight half-beats; None is a rest, and most of them are rests. A note
+# on every beat for forty-two seconds is a ringtone, not a melody.
+PHRASE = [0, None, 2, None, None, 4, None, 2,
+          None, 4, None, None, 5, None, 4, None]
+beat, i = 7.87, 0
+while beat < 44.0:
     s = section(beat)
-    if s not in ("intro", "out"):
-        g = {"build": .5, "groove": .75, "full": .8, "break": .45,
-             "rise": .8, "final": .85}[s]
-        f = SCALE[notes[i % len(notes)]]
-        if s == "break": f /= 2                      # an octave down, to settle
-        pk = pluck(f, 1.0, g)
-        add(L, beat, pk, 1, -.2 if i % 2 else .2)
-        add(R, beat, pk, 1, .2 if i % 2 else -.2)
-    beat += BEAT; i += 1
+    n = PHRASE[i % len(PHRASE)]
+    if n is not None and s in ("groove", "full", "rise", "final"):
+        g = {"groove": .5, "full": .55, "rise": .5, "final": .6}[s]
+        pk = pluck(SCALE[n] / 2, 1.0, g)             # an octave down: less glassy
+        add(L, beat, pk, 1, -.25 if i % 2 else .25)
+        add(R, beat, pk, 1, .25 if i % 2 else -.25)
+    beat += BEAT / 2; i += 1
 
 # the cuts themselves: a riser into each one and something to land on
-for c in CUTS:
-    if c - 0.9 > 0:
-        r = riser(0.9, .8 if c in (20.50, 28.87, 35.03) else .45)
-        add(L, c - 0.9, r, 1, -.4); add(R, c - 0.9, r, 1, .4)
-    big = c in (7.87, 20.50, 28.87, 35.03)
-    im = impact(1.0 if big else 0.5)
+for c in TURNS:
+    r = riser(0.7, .34)
+    add(L, c - 0.7, r, 1, -.4); add(R, c - 0.7, r, 1, .4)
+    im = impact(0.8)
     add(L, c, im, 1, 0); add(R, c, im, 1, 0)
 
 # and the last one, on the end card

@@ -288,7 +288,14 @@ const PonsAdapter = {
   /* How long a scan may take before it gives back whatever it has. A page that
    * says "reading the chain" forever is worse than one that says "nothing
    * here yet" in a few seconds. */
-  BUDGET_MS: 9000,
+  /* Two numbers, not one. The scan used to run its whole budget before the
+   * table drew anything, so a chain with no Hydropad launches on it — which is
+   * every chain until the first one — showed "Reading the chain…" for twenty
+   * seconds and then "nothing yet". FIRST_MS is how long the page waits before
+   * it draws what it has; the scan keeps going after that and hands over more
+   * as it finds it. */
+  FIRST_MS: 2500,
+  BUDGET_MS: 12000,
   MAX_LOGS: 600,
   BATCH: 12,
 
@@ -298,7 +305,7 @@ const PonsAdapter = {
    * "Reading the chain…" for as long as the tab stayed open. Every await in the
    * scan goes through this, and a call that overruns is treated as a call that
    * failed. */
-  CALL_MS: 7000,
+  CALL_MS: 5000,
 
   within(promise, fallback) {
     let timer;
@@ -336,9 +343,12 @@ const PonsAdapter = {
    * batches rather than one after another. Whatever is known already is shown
    * first and costs nothing.
    */
-  async pairings(limit = 50) {
+  async pairings(limit = 50, onPartial = null) {
     const out = [];
     const seen = new Set();
+    /* Everything found so far, handed over as it is found. A copy, because the
+     * caller is going to hold on to it while this keeps pushing. */
+    const offer = () => { if (onPartial) { try { onPartial(out.slice()); } catch (_) {} } };
 
     /* Anything this browser has already established is ours. */
     for (const k of this.known()) {
@@ -346,7 +356,7 @@ const PonsAdapter = {
       seen.add(k.token.toLowerCase());
       this.cache.set(k.token.toLowerCase(), { curve: k.curve, source: k.source });
       const p = await this.within(this.pairing(k.token, { curve: k.curve, source: k.source }), null);
-      if (p) out.push(p);
+      if (p) { out.push(p); offer(); }
       if (out.length >= limit) return out;
     }
 
@@ -369,9 +379,13 @@ const PonsAdapter = {
         const slice = logs.slice(i, i + this.BATCH);
         inspected += slice.length;
         const found = await Promise.all(slice.map(l => this.within(this.fromLaunchLog(l), null)));
+        let added = false;
         for (const p of found) {
-          if (p && !seen.has(p.token.toLowerCase())) { seen.add(p.token.toLowerCase()); out.push(p); }
+          if (p && !seen.has(p.token.toLowerCase())) {
+            seen.add(p.token.toLowerCase()); out.push(p); added = true;
+          }
         }
+        if (added) offer();
       }
       to = from - 1;
     }

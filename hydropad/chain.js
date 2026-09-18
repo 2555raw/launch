@@ -208,10 +208,31 @@ const Chain = {
     return (await this.pons().canLaunch()) ? "pons" : "own";
   },
 
+  /* A read that never answers is the failure an RPC actually has: not an
+   * error, which every caller here already handles, but silence. One of those
+   * behind a table leaves it on "Reading the chain…" for as long as the tab
+   * stays open, which is what the sidebar was doing. Every read a page waits
+   * on goes through this, and one that overruns counts as one that failed. */
+  READ_MS: 9000,
+
+  within(promise, fallback) {
+    let timer;
+    return Promise.race([
+      Promise.resolve(promise).catch(e => {
+        console.warn("chain: read failed", e.shortMessage || e.message);
+        return fallback;
+      }),
+      new Promise(res => { timer = setTimeout(() => {
+        console.warn("chain: read timed out after", this.READ_MS, "ms");
+        res(fallback);
+      }, this.READ_MS); }),
+    ]).finally(() => clearTimeout(timer));
+  },
+
   /* Reads go wherever the token actually lives. A chain can hold both. */
   async routeFor(token) {
     if (!this.viaPons()) return "own";
-    return (await this.pons().knows(token)) ? "pons" : "own";
+    return (await this.within(this.pons().knows(token), false)) ? "pons" : "own";
   },
 
   chainInfo() {
@@ -306,15 +327,17 @@ const Chain = {
   /* A chain can hold coins opened both ways: through Pons, and through a
    * launcher of ours somebody put there when Pons would not take them. Read
    * both and merge, newest first. */
-  async pairings(limit = 50) {
+  /* onPartial, when given, is called with whatever has been found so far, as
+   * often as the scan finds more. A page can draw rows while the scan is still
+   * running instead of holding a spinner until it finishes. */
+  async pairings(limit = 50, onPartial = null) {
     const lots = [];
     if (this.viaPons()) {
-      try { lots.push(await this.pons().pairings(limit)); }
-      catch (e) { console.warn("pons: could not list", e.shortMessage || e.message); }
+      lots.push(await this.within(this.pons().pairings(limit, onPartial), []));
     }
     if (this.launcher) {
-      try { lots.push((await this.contract().listPairings(0, limit)).map(toPairing)); }
-      catch (e) { console.warn("launcher: could not list", e.shortMessage || e.message); }
+      const rows = await this.within(this.contract().listPairings(0, limit), []);
+      lots.push(rows.map(toPairing));
     }
     if (lots.length === 1) return lots[0];
     return lots.flat().sort((a, b) => b.launchedAt - a.launchedAt).slice(0, limit);
@@ -327,11 +350,14 @@ const Chain = {
   },
 
   async tokenMeta(address) {
-    if (await this.routeFor(address) === "pons") return this.pons().tokenMeta(address);
+    if (await this.routeFor(address) === "pons") {
+      return this.within(this.pons().tokenMeta(address), unreadable(address));
+    }
     const t = this.token(address);
-    const [name, symbol, source, totalSupply] = await Promise.all([
-      t.name(), t.symbol(), t.source(), t.totalSupply(),
-    ]);
+    const read = this.within(Promise.all([t.name(), t.symbol(), t.source(), t.totalSupply()]), null);
+    const got = await read;
+    if (!got) return unreadable(address);
+    const [name, symbol, source, totalSupply] = got;
     return { address, name, symbol, source, totalSupply };
   },
 
@@ -511,6 +537,13 @@ Chain.watchLaunches = function watchLaunches(onNew, everyMs = 20000) {
     document.removeEventListener("visibilitychange", onShow);
   };
 };
+
+/* A token the chain would not describe in time. Every caller wants a row, not
+ * an exception: a table that draws one line as "unreadable" is better than a
+ * table that draws nothing. */
+function unreadable(address) {
+  return { address, name: "Unreadable", symbol: "?", source: "", totalSupply: 0n };
+}
 
 /* Curve constants, mirrored from the contract for display. */
 const CURVE = {

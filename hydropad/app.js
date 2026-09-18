@@ -406,7 +406,11 @@ async function loadSideLaunches() {
   if (!$("side-launches")) return;
   renderSideLaunches(null);
   try {
-    sidePairings = await Chain.pairings(6);
+    /* Draw the first thing found rather than holding "Reading the chain…" for
+     * the whole scan; the symbols fill in when the full list lands. */
+    sidePairings = await Chain.pairings(6, rows => {
+      if (rows.length) renderSideLaunches(rows);
+    });
     /* The symbol is on the token, not on the pairing. */
     await Promise.all(sidePairings.slice(0, 3).map(async p => {
       try { p.symbol = (await Chain.tokenMeta(p.token)).symbol; } catch (_) {}
@@ -808,8 +812,9 @@ function sourceRows(list, withAction = true) {
 
 /* ---------------- launches table ---------------- */
 
-async function launchRows(limit) {
-  const list = await Chain.pairings(limit);
+/* The rows for a list of pairings. Split out so a partial list mid-scan draws
+ * exactly as the final one does. */
+async function rowsFor(list) {
   if (!list.length) return { list, html: "", metas: [] };
   const metas = await Promise.all(list.map(p => Chain.tokenMeta(p.token).catch(() => null)));
   const html = list.map((p, i) => {
@@ -833,6 +838,29 @@ async function launchRows(limit) {
     </tr>`;
   }).join("");
   return { list, html, metas };
+}
+
+/* onPartial draws what the scan has while it keeps looking. On a chain with no
+ * Hydropad launches on it the scan runs to exhaustion, which is exactly the
+ * case where a table that waits for the end sits on "Reading the chain…" for
+ * twenty seconds and then admits there is nothing. */
+/* A scan that finds nothing has to look at the whole window before it can say
+ * so, and on the busiest launchpad on the chain that is not instant. Rather
+ * than hold one word for all of it, the table says what it is doing. */
+function scanning(host, cols = 8) {
+  host.innerHTML = emptyRow(cols, "Reading the chain…");
+  const t = setTimeout(() => {
+    host.innerHTML = emptyRow(cols,
+      "Nothing paired yet in the last few thousand blocks. Still looking further back…");
+  }, 3000);
+  return () => clearTimeout(t);
+}
+
+async function launchRows(limit, onPartial = null) {
+  const list = await Chain.pairings(limit, onPartial
+    ? rows => { rowsFor(rows).then(onPartial).catch(() => {}); }
+    : null);
+  return rowsFor(list);
 }
 
 function emptyRow(cols, msg) {
@@ -1060,13 +1088,15 @@ const PAGES = {
       setText("stat-launches", "0");
       return;
     }
-    host.innerHTML = emptyRow(8, "Reading the chain…");
-    launchRows(8).then(async ({ list, html, metas }) => {
+    const done = scanning(host);
+    const draw = ({ html }) => { if (html) { done(); host.innerHTML = html; } };
+    launchRows(8, draw).then(async ({ list, html, metas }) => {
+      done();
       host.innerHTML = html || emptyRow(8, `Nothing launched on ${esc(Chain.chainInfo().name)} yet. <a href="launch.html" style="color:var(--accent)">Pair a source</a>.`);
       setText("stat-launches", `${list.length} live`);
       renderCurve(list, metas);
       await renderFeed(list, metas).catch(e => console.warn("feed", e));
-    }).catch(e => { host.innerHTML = emptyRow(8, esc(errText(e))); });
+    }).catch(e => { done(); host.innerHTML = emptyRow(8, esc(errText(e))); });
   },
 
   launches() {
@@ -1085,15 +1115,17 @@ const PAGES = {
     setText("l-source", Chain.viaPons()
       ? `from Pons on ${Chain.chainInfo().name}, as it lands`
       : `from the launcher on ${Chain.chainInfo().name}, as it lands`);
-    host.innerHTML = emptyRow(8, "Reading the chain…");
-    launchRows(100).then(({ list, html }) => {
+    const done = scanning(host);
+    const draw = ({ html }) => { if (html) { done(); host.innerHTML = html; } };
+    launchRows(100, draw).then(({ list, html }) => {
+      done();
       host.innerHTML = html || emptyRow(8, `Nothing launched on ${esc(Chain.chainInfo().name)} yet. <a href="launch.html" style="color:var(--accent)">Pair a source</a>.`);
       setText("launch-count", `${list.length} ${list.length === 1 ? "launch" : "launches"}`);
       setText("l-count", list.length);
       setText("l-paired", new Set(list.map(p => p.source)).size);
       setText("l-graduated", list.filter(p => p.graduated).length);
       setText("l-latest", list.length ? ago(list[0].launchedAt) : "...");
-    }).catch(e => { host.innerHTML = emptyRow(8, esc(errText(e))); });
+    }).catch(e => { done(); host.innerHTML = emptyRow(8, esc(errText(e))); });
   },
 
   sources() {

@@ -95,6 +95,22 @@ function compile() {
       : route.continue());
   await p.route('https://fonts.googleapis.com/**', route => route.fulfill({ contentType: 'text/css', body: '' }));
 
+  await step('an empty chain lands on a real answer instead of a spinner', async () => {
+    /* Nothing has been launched on this factory yet, which is the case the
+     * table handled worst: a scan that finds nothing has to look at the whole
+     * window before it can say so, and the page held one word for all of it.
+     * The failure it is guarding against is worse than slow — a read that
+     * never answers left "Reading the chain…" there for as long as the tab
+     * stayed open. */
+    await p.goto(base + 'launches.html', { waitUntil: 'networkidle' });
+    await p.waitForFunction(
+      () => !/Reading the chain/.test(document.querySelector('#launch-rows')?.textContent || ''),
+      null, { timeout: 30000 });
+    const said = (await p.textContent('#launch-rows')).replace(/\s+/g, ' ').trim();
+    if (!/Nothing/.test(said)) throw new Error('the empty table reads: ' + said);
+    console.log('  ', said.slice(0, 72));
+  });
+
   await step('the page routes this chain through Pons', async () => {
     await p.goto(base + 'launch.html', { waitUntil: 'networkidle' });
     const via = await p.evaluate(() => Chain.viaPons());

@@ -255,22 +255,60 @@
       if (window.MODELS) fill(MODELS.filter((m) => m.s === "live"));
     });
 
-    /* ---- the call ---- */
-    async function ask(base, key, model, prompt) {
+    /* ---- the call ----
+       Streamed, so an answer arrives as it is written rather than landing
+       in one lump after ten seconds of nothing. An endpoint that will not
+       stream still works: if the body is not an event stream we read it as
+       one JSON response. */
+    async function ask(base, key, model, prompt, onChunk) {
       const t0 = performance.now();
+      let first = 0;
       const res = await fetch(base.replace(/\/$/, "") + "/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
-        body: JSON.stringify({ model: model, messages: [{ role: "user", content: prompt }] })
+        body: JSON.stringify({
+          model: model, messages: [{ role: "user", content: prompt }], stream: true
+        })
       });
-      const ms = Math.round(performance.now() - t0);
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        const m = (j.error && (j.error.message || j.error.code)) || ("HTTP " + res.status);
-        throw Object.assign(new Error(m), { ms: ms });
+      const type = res.headers.get("content-type") || "";
+
+      if (!res.ok || !type.includes("event-stream") || !res.body) {
+        const j = await res.json().catch(() => ({}));
+        const ms = Math.round(performance.now() - t0);
+        if (!res.ok) {
+          const m = (j.error && (j.error.message || j.error.code)) || ("HTTP " + res.status);
+          throw Object.assign(new Error(m), { ms: ms });
+        }
+        const c = j.choices && j.choices[0] && j.choices[0].message;
+        const text = (c && c.content) || "(empty answer)";
+        onChunk(text);
+        return { text: text, ms: ms, first: ms, usage: j.usage || null, streamed: false };
       }
-      const c = j.choices && j.choices[0] && j.choices[0].message;
-      return { text: (c && c.content) || "(empty answer)", ms: ms, usage: j.usage || null };
+
+      const reader = res.body.getReader(), dec = new TextDecoder();
+      let buf = "", text = "", usage = null;
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop();                       // keep the partial line
+        for (const line of lines) {
+          if (!line.startsWith("data:")) continue;
+          const payload = line.slice(5).trim();
+          if (!payload || payload === "[DONE]") continue;
+          let j; try { j = JSON.parse(payload); } catch (e) { continue; }
+          if (j.usage) usage = j.usage;
+          const d = j.choices && j.choices[0] && j.choices[0].delta;
+          const piece = d && d.content;
+          if (!piece) continue;
+          if (!first) first = Math.round(performance.now() - t0);
+          text += piece;
+          onChunk(text);
+        }
+      }
+      return { text: text || "(empty answer)", ms: Math.round(performance.now() - t0),
+               first: first, usage: usage, streamed: true };
     }
 
     const go = $("#compare-go");
@@ -297,11 +335,13 @@
       go.disabled = true;
       await Promise.all(pairs.map(async ([sel, body, , meta]) => {
         try {
-          const r = await ask(cfg.base, cfg.key, sel.value, q);
+          const r = await ask(cfg.base, cfg.key, sel.value, q,
+                              (so_far) => { $(body).textContent = so_far; });
           $(body).textContent = r.text;
-          $(meta).textContent = r.ms + " ms" + (r.usage
-            ? " · " + (r.usage.prompt_tokens || 0) + " in / " + (r.usage.completion_tokens || 0) + " out"
-            : "");
+          $(meta).textContent = (r.first ? r.first + " ms to first token · " : "") +
+            r.ms + " ms total" + (r.usage
+              ? " · " + (r.usage.prompt_tokens || 0) + " in / " + (r.usage.completion_tokens || 0) + " out"
+              : "");
         } catch (e) {
           $(body).textContent = e.message;
           $(body).classList.add("bad");

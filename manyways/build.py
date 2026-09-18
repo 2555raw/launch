@@ -27,7 +27,7 @@ def head(title, desc, extra=""):
 <meta name="description" content="{desc}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Kurenaido&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Kaku+Gothic+Antique:wght@400;500;700&family=M+PLUS+1+Code:wght@400;500&family=Yuji+Syuku&display=swap">
 <link rel="stylesheet" href="styles.css">
 {extra}</head>
 <body>
@@ -40,9 +40,9 @@ MENUS = {
         ("Render", "index.html#curiosity", "Turn an answer into something to look at"),
         ("Models", "models.html", "Everything reachable through the endpoint"),
     ],
-    "Sherwood": [
-        ("Meet Sherwood", "docs.html#sherwood", "Talk an idea into an agent brief"),
-        ("Agent briefs", "docs.html#sherwood", "Mission, research skills, a character"),
+    "Tsubomi": [
+        ("Meet Tsubomi", "docs.html#tsubomi", "Talk an idea into an agent brief"),
+        ("Agent briefs", "docs.html#tsubomi", "Mission, research skills, a character"),
         ("CLI documentation", "docs.html#cli", "The same key, in your terminal"),
     ],
     "Community": [
@@ -54,7 +54,7 @@ MENUS = {
 
 ICON = {
     "Platform":  '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>',
-    "Sherwood":  '<path d="M12 21V9"/><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 12c0-3-2-5-5-5 0 3 2 5 5 5z"/>',
+    "Tsubomi":  '<path d="M12 21V9"/><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 12c0-3-2-5-5-5 0 3 2 5 5 5z"/>',
     "Community": '<circle cx="9" cy="9" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 6.5a3 3 0 0 1 0 5.8M17.5 20a6 6 0 0 0-3-5.2"/>',
     "Rewards":   '<path d="M12 4l2.3 4.7 5.2.8-3.7 3.6.9 5.1-4.7-2.4-4.7 2.4.9-5.1L4.5 9.5l5.2-.8z"/>',
     "Docs":      '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/>',
@@ -66,13 +66,14 @@ def svg(name, size=20):
             f'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
             f'stroke-linejoin="round" aria-hidden="true">{ICON[name]}</svg>')
 
-NAV = [("Platform", None), ("Sherwood", None), ("Community", None),
+NAV = [("Platform", None), ("Tsubomi", None), ("Community", None),
        ("Rewards", "staking.html"), ("Docs", "docs.html")]
 
 def rail(active=""):
     """The whole navigation, as a rail. An icon with a group opens the same
     panel the bar used to; an icon without one is a plain link."""
-    out = [f'<a class="mark" href="index.html" aria-label="Manyways home">{MARK}</a>']
+    out = [f'<a class="mark" href="index.html">{MARK}'
+           f'<span class="lbl wordmark">Hanami</span></a>']
     for label, href in NAV:
         on = ' on' if label.lower() == active else ''
         if href is None:
@@ -82,16 +83,19 @@ def rail(active=""):
                 for t, h, d in MENUS[label])
             out.append(
                 f'<div class="menu"><button type="button" class="ri{on}" aria-haspopup="true" '
-                f'aria-expanded="false" aria-controls="m-{mid}" aria-label="{label}" '
-                f'data-tip="{label}">{svg(label)}</button>'
+                f'aria-expanded="false" aria-controls="m-{mid}">{svg(label)}'
+                f'<span class="lbl">{label}</span>'
+                f'<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" '
+                f'stroke="currentColor" stroke-width="2.2" stroke-linecap="round" '
+                f'aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>'
                 f'<div class="pop" id="m-{mid}" role="menu" hidden>'
                 f'<h6>{label}</h6>{items}</div></div>')
         else:
-            out.append(f'<a class="ri{on}" href="{href}" aria-label="{label}" '
-                       f'data-tip="{label}">{svg(label)}</a>')
+            out.append(f'<a class="ri{on}" href="{href}">{svg(label)}'
+                       f'<span class="lbl">{label}</span></a>')
     out.append('<span class="gap"></span>')
-    out.append(f'<a class="ri" href="staking.html" aria-label="Your account" '
-               f'data-tip="Your account">{svg("Account")}</a>')
+    out.append(f'<a class="ri" href="staking.html">{svg("Account")}'
+               f'<span class="lbl">Your account</span></a>')
     return '<nav class="rail" aria-label="Main">' + "".join(out) + '</nav>'
 
 def drawer():
@@ -104,7 +108,7 @@ def drawer():
         else:
             d += f'<a class="solo" href="{href}">{label}</a>'
     d += '<a class="solo" href="staking.html">Your account</a>'
-    return (f'<div class="railbar"><a class="brand" href="index.html">{MARK} Manyways</a>'
+    return (f'<div class="railbar"><a class="brand" href="index.html">{MARK} Hanami</a>'
             f'<button class="burger" type="button" id="burger" aria-expanded="false" '
             f'aria-controls="drawer" aria-label="Menu">'
             f'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
@@ -121,7 +125,7 @@ SHELL_END = "</div>\n</div>\n"
 FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
   <div class="foot-grid">
     <div>
-      <div class="brand">{MARK} Manyways</div>
+      <div class="brand">{MARK} Hanami</div>
     </div>
     <div><h4>Platform</h4><ul>
       <li><a href="models.html">Console</a></li>
@@ -130,7 +134,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
       <li><a href="models.html">Models</a></li>
     </ul></div>
     <div><h4>Build</h4><ul>
-      <li><a href="docs.html">Sherwood</a></li>
+      <li><a href="docs.html">Tsubomi</a></li>
       <li><a href="docs.html#cli">CLI documentation</a></li>
       <li><a href="docs.html#keys">API keys</a></li>
     </ul></div>
@@ -148,18 +152,18 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 
   <dl class="spec">
     <div><dt>Interface</dt><dd>OpenAI-compatible /v1</dd></div>
-    <div><dt>Base URL</dt><dd>api.manyways.dev/v1</dd></div>
+    <div><dt>Base URL</dt><dd>api.hanami.dev/v1</dd></div>
     <div><dt>Auth</dt><dd>Bearer · wallet-scoped</dd></div>
     <div><dt>Streaming</dt><dd>SSE · text/event-stream</dd></div>
     <div><dt>Chain</dt><dd>Robinhood Chain · 4663</dd></div>
     <div><dt>Settlement</dt><dd>WETH</dd></div>
-    <div><dt>Token</dt><dd>$MANY</dd></div>
+    <div><dt>Token</dt><dd>$HANA</dd></div>
     <div><dt>Limits</dt><dd>per wallet · burst-tolerant</dd></div>
   </dl>
 
   <div class="rule">
-    <span>&copy; <span data-year>2026</span> Manyways</span>
-    <span class="mid">Every model. Your way.</span>
+    <span>&copy; <span data-year>2026</span> Hanami</span>
+    <span class="mid">Looking is free.</span>
     <a href="#" id="totop">Back to top &nbsp;&uarr;</a>
   </div>
 </div></footer>
@@ -170,7 +174,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 """
 
 # ---------------------------------------------------------------- index
-index = head("Manyways · Every model. Your way.",
+index = head("Hanami · Every model, one look",
              "Explore every model, compare answers side by side, and build with the ones you "
              "choose — one wallet-scoped key, one endpoint.",
              '') + top("index") + f"""
@@ -183,10 +187,10 @@ index = head("Manyways · Every model. Your way.",
     </picture>
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
-      <h1>Every model.<br>Your way.</h1>
-      <p>A place to explore AI, bring ideas to life, and build with the models you choose.</p>
+      <h1>Every model.<br>One look.</h1>
+      <p>Put one prompt in front of every frontier model and read the answers side by side. Hanami is going out to look at the blossom — looking costs nothing.</p>
       <div class="cta">
-        <a class="btn pale" href="#curiosity">Ask Sherwood {AR}</a>
+        <a class="btn pale" href="#curiosity">Ask Tsubomi {AR}</a>
         <a class="btn on-dark" href="docs.html">Learn More {AR}</a>
       </div>
     </div></div>
@@ -229,9 +233,9 @@ index = head("Manyways · Every model. Your way.",
   <div class="split" style="margin-top:100px">
     <div class="stack">
       <h2>An idea is enough<br>to get started.</h2>
-      <p>Talk it through with Sherwood. Build an agent brief with a
+      <p>Talk it through with Tsubomi. Build an agent brief with a
         mission, research skills, and a character of its own.</p>
-      <a class="btn pale" href="docs.html#sherwood">Meet Sherwood {AR}</a>
+      <a class="btn pale" href="docs.html#tsubomi">Meet Tsubomi {AR}</a>
     </div>
     <div class="chat">
       <div class="me">
@@ -314,11 +318,21 @@ index = head("Manyways · Every model. Your way.",
   </div>
 </div></section>
 
+<section class="plate">
+  <img src="media/grove.webp" alt="A path running under cherry trees in full blossom">
+  <div class="plate-in"><div class="wrap">
+    <p class="kicker">Hanami · 花見</p>
+    <h2>Going out to look<br>at the blossom.</h2>
+    <p>That is what the word means, and what the free half of this is: you walk the row, you
+      look, you decide. Nobody asks for a key at the gate.</p>
+  </div></div>
+</section>
+
 <section class="band dark"><div class="wrap">
   <div class="split">
     <div class="stack">
       <h2>Shared access.<br>More ways forward.</h2>
-      <p>Manyways makes AI easier to explore and use. Start with a free web comparison, then
+      <p>Hanami makes AI easier to explore and use. Start with a free web comparison, then
         connect a wallet to create client keys for the shared inference pool.</p>
       <p>Access follows wallet-scoped fair-use limits. Explore the catalog,
         see how the pool is used, and help shape what we build next.</p>
@@ -346,11 +360,11 @@ index = head("Manyways · Every model. Your way.",
 """ + FOOT
 
 # --------------------------------------------------------------- models
-models = head("Manyways · The model register",
+models = head("Hanami · The model register",
               "Every model reachable through the shared pool, with its context window and what a "
               "million tokens costs in each direction.") + top("models") + f"""
 <section class="band light" style="padding-bottom:0"><div class="wrap">
-  <p class="crumb"><a href="index.html">Manyways</a> / Platform / Models</p>
+  <p class="crumb"><a href="index.html">Hanami</a> / Platform / Models</p>
   <h1 style="font-size:clamp(38px,5vw,62px)">Every model,<br>in one register.</h1>
   <p class="lede" style="margin-top:22px">What is reachable through the endpoint right now, what it
     costs, and how much context it will hold. Model names here are the strings you pass in
@@ -388,7 +402,7 @@ models = head("Manyways · The model register",
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5H6a2 2 0 0 0-2 2v9"/></svg>
         </button></span></div>
 <pre id="snippet"><span class="c"># one endpoint, every model in the register</span>
-curl https://api.manyways.dev/v1/chat/completions \\
+curl https://api.hanami.dev/v1/chat/completions \\
   -H <span class="s">"Authorization: Bearer $MW_CLIENT_KEY"</span> \\
   -H <span class="s">"Content-Type: application/json"</span> \\
   -d <span class="s">'{{
@@ -408,19 +422,19 @@ def side():
         return '<a href="%s"%s>%s</a>' % (href, cls, t)
     return f"""<aside class="side">
   <div class="toggle">
-    <button type="button" aria-pressed="true">Manyways</button>
-    <button type="button" aria-pressed="false">Sherwood</button>
+    <button type="button" aria-pressed="true">Hanami</button>
+    <button type="button" aria-pressed="false">Tsubomi</button>
   </div>
-  <nav>{a("Manyways platform overview", "#")}</nav>
+  <nav>{a("Hanami platform overview", "#")}</nav>
   <h5>Start here</h5>
   <nav>
-    {a("What is the Manyways platform?", "#", True)}
+    {a("What is the Hanami platform?", "#", True)}
     {a("Get connected", "#keys")}
-    {a("Why we&#39;re building Manyways", "#notes")}
+    {a("Why we&#39;re building Hanami", "#notes")}
   </nav>
   <h5>Work in your terminal</h5>
   <nav>
-    {a("Manyways CLI", "#cli")}
+    {a("Hanami CLI", "#cli")}
     {a("OpenCode", "#cli")}
     {a("A deliberate local workflow", "#cli")}
   </nav>
@@ -443,7 +457,7 @@ TAB = [
   ("Client key", "tp1", "A credential for one client.",
    "Your wallet identifies the member. A revocable client key authenticates the application and "
    "carries its saved defaults.",
-   "Client key", "Authorization: Bearer $MANYWAYS_API_KEY"),
+   "Client key", "Authorization: Bearer $HANAMI_API_KEY"),
   ("Quiver", "tp2", "A limit that travels with the key.",
    "A quiver caps what one key may spend and reach: models allowed, tokens per day, requests per "
    "minute. Revoking the key revokes the quiver with it.",
@@ -478,8 +492,8 @@ tabs_panels = "".join(f"""
   </div>
 </div>""" for i, t in enumerate(TAB))
 
-docs = head("Manyways · Documentation",
-            "The Manyways API, CLI and controls in one developer workflow.") + f"""
+docs = head("Hanami · Documentation",
+            "The Hanami API, CLI and controls in one developer workflow.") + f"""
 <div class="docs">
 {rail("docs")}
 {drawer()}
@@ -494,25 +508,25 @@ docs = head("Manyways · Documentation",
     </div>
   </div>
   <main class="doc">
-    <p class="crumb"><a href="docs.html">Docs</a> / <a href="docs.html">Manyways platform</a> / Start here</p>
-    <h1>What is the Manyways platform?</h1>
-    <p class="tagline">The Manyways API, CLI and controls in one developer workflow.</p>
+    <p class="crumb"><a href="docs.html">Docs</a> / <a href="docs.html">Hanami platform</a> / Start here</p>
+    <h1>What is the Hanami platform?</h1>
+    <p class="tagline">The Hanami API, CLI and controls in one developer workflow.</p>
     <p><button class="link" type="button" style="background:none;border:0;cursor:pointer;padding:0"
        data-copy="#md" data-label="Copy as Markdown">Copy as Markdown</button></p>
-    <span id="md" hidden># What is the Manyways platform?
+    <span id="md" hidden># What is the Hanami platform?
 
-Manyways is the model routing platform. Explore models, compare responses, or connect directly
+Hanami is the model routing platform. Explore models, compare responses, or connect directly
 from your own tools. Client keys connect the work to your wallet; quivers and routing give you
 control over how requests are allowed and routed.</span>
     <hr>
-    <p>Manyways is the model routing platform. Explore models, compare responses, or connect
+    <p>Hanami is the model routing platform. Explore models, compare responses, or connect
       directly from your own tools. Use the <a class="in" href="#cli">CLI</a> in your local
       workspace or send requests from your application. <a class="in" href="#keys">Client keys</a>
       connect the work to your wallet; limits and routing give you control over how requests are
       allowed and routed.</p>
 
     <h2 id="first">Choose your interface</h2>
-    <p>The <a class="in" href="#cli">Manyways CLI</a> provides a terminal client with streamed
+    <p>The <a class="in" href="#cli">Hanami CLI</a> provides a terminal client with streamed
       responses, local file tools and explicit approval for writes and commands. The
       <a class="in" href="models.html">Responses API</a> lets your application own the interface,
       conversation state and tool execution.</p>
@@ -545,7 +559,7 @@ control over how requests are allowed and routed.</span>
     <p><a class="btn line" href="models.html">Open the platform {AR}</a></p>
 
     <h2 id="cli">Work in your terminal</h2>
-    <p>The CLI reads the same client key from <code>MANYWAYS_API_KEY</code> and streams to stdout,
+    <p>The CLI reads the same client key from <code>HANAMI_API_KEY</code> and streams to stdout,
       so it composes with the tools you already have.</p>
     <div class="code">
       <div class="bar"><span>terminal</span></div>
@@ -563,7 +577,7 @@ mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gem
       production without a second account, a second invoice and a second key per lab.</p>
 
     <div class="docnav">
-      <div><span>&larr; Back to</span><b>Manyways platform overview</b></div>
+      <div><span>&larr; Back to</span><b>Hanami platform overview</b></div>
       <div class="far"><span>Next &rarr;</span><b>Get connected</b></div>
     </div>
   </main>
@@ -576,7 +590,7 @@ mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gem
 """
 
 # -------------------------------------------------------------- staking
-staking = head("Manyways · Staking access",
+staking = head("Hanami · Staking access",
                "Choose a refundable allocation. Keep it active for 30 days to qualify for early "
                "enrollment in designated releases.") + top("staking") + f"""
 <section class="band light"><div class="wrap">
@@ -587,7 +601,7 @@ staking = head("Manyways · Staking access",
   <div class="callout" style="margin-top:44px" id="mip">
     <div class="split tight">
       <div>
-        <h3 style="font-size:24px">Help shape $MANY product access</h3>
+        <h3 style="font-size:24px">Help shape $HANA product access</h3>
         <p class="lede" style="margin-top:12px">MIP-007 proposes holding and staking tiers with
           larger inference allowances and more product capacity. Existing staking terms apply until
           changes are implemented.</p>
@@ -609,7 +623,7 @@ staking = head("Manyways · Staking access",
       <hr style="border:0;border-top:1px solid var(--line);margin:32px 0">
       <h2 style="font-size:34px">Private Strategy</h2>
       <div style="margin-top:22px">
-        <div class="kv"><span>Stake required</span><b>100,000 MANY</b></div>
+        <div class="kv"><span>Stake required</span><b>100,000 HANA</b></div>
         <div class="kv"><span>Staking slots remaining</span><b>12 of 20</b></div>
         <div class="kv"><span>Enrollment</span><b>Public enrollment</b></div>
       </div>
@@ -617,7 +631,7 @@ staking = head("Manyways · Staking access",
         wallets. Each wallet can hold one position in this pool. Slots awaiting withdrawal remain
         occupied until the tokens are withdrawn.</p>
       <p style="margin-top:26px"><button class="btn line" type="button" disabled
-        style="opacity:.55;cursor:not-allowed">Approve and stake 100,000 MANY</button></p>
+        style="opacity:.55;cursor:not-allowed">Approve and stake 100,000 HANA</button></p>
       <p class="sub" style="margin-top:22px;font-family:var(--mono);font-size:12.5px" id="ledger">
         Balances at finalized block 66,390,984.<br>
         Contract: 0x019660b1e6fe3e8c6f524b2facc28d37c0ca1275</p>

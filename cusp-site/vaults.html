@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vaults — Cusp</title>
+  <meta name="description" content="Cusp runs managed liquidity vaults for tokenized stocks. Deposit USDG, the vault keeps one concentrated position centred on the oracle price, and the trading fees compound inside the vault.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233D3B4F'/%3E%3Cg transform='translate(16 16) scale(.82) translate(-16 -16)'%3E%3Cpath d='M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z' fill='none' stroke='%23C5FFD6' stroke-width='2.9' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='2.9' fill='%23C5FFD6'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="cs" id="top">
+
+  <!-- chain strip: the figures that decide whether the vaults can act at all -->
+  <div class="cs-strip">
+    <div class="cs-strip-in">
+      <span><i class="cs-dot"></i>Robinhood Chain <b>live</b></span>
+      <span>Oracle <b>fresh · 14s</b></span>
+      <span>Sequencer <b>up</b></span>
+      <span>Block <b>#28,411,903</b></span>
+      <span>Gas <b>0.004 gwei</b></span>
+      <span>USDG <b>$1.0000</b></span>
+    </div>
+  </div>
+
+  <header class="cs-nav">
+    <a class="cs-brand" href="index.html">
+      <span class="cs-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+          <circle cx="16" cy="16" r="2.4" fill="currentColor"/>
+        </svg>
+      </span>
+      Cusp
+    </a>
+
+    <nav class="cs-tabs" id="tabs" aria-label="Sections">
+      <a href="index.html">Home</a>
+      <a class="on" href="#list">Vaults</a>
+      <a href="#how">How it works</a>
+      <a href="#fees">Fees</a>
+      <a href="#safeguards">Safeguards</a>
+      <a href="#faq">FAQ</a>
+      <a href="swap.html">Swap</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+
+    <div class="cs-nav-right">
+      <button class="cs-btn cs-btn-line" id="connect" type="button">Connect wallet</button>
+      <div class="cs-chip" id="chip" hidden>
+        <button class="cs-chip-main" id="chip-main" type="button" aria-expanded="false">
+          <span class="cs-chip-av" id="chip-av" aria-hidden="true"></span>
+          <b id="chip-addr">0x0000…0000</b>
+        </button>
+        <button class="cs-chip-copy" id="chip-copy" type="button" aria-label="Copy the address">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5.5A2.5 2.5 0 017.5 3H15"/></svg>
+        </button>
+        <div class="cs-pop" id="pop" hidden>
+          <div class="cs-pop-row"><span>USDG balance</span><b id="pop-usdg">—</b></div>
+          <div class="cs-pop-row"><span>Deposited</span><b id="pop-dep">—</b></div>
+          <div class="cs-pop-row"><span>Vaults held</span><b id="pop-n">—</b></div>
+          <button class="cs-pop-btn" id="pop-reset" type="button">Reset the demo wallet</button>
+          <button class="cs-pop-btn" id="pop-disc" type="button">Disconnect</button>
+        </div>
+      </div>
+      <button class="cs-icon cs-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- page head: copy on the left, the four figures stacked on the right -->
+    <section class="cs-head dashed">
+      <div class="cs-head-copy">
+        <span class="cs-label"><b>Cusp vaults</b> · Managed liquidity · ERC-4626</span>
+        <h1>Vaults for<br>tokenized stocks.</h1>
+        <p class="cs-lede">
+          Deposit USDG and the vault does the rest: one concentrated position per
+          USDG / Stock Token pool, kept centred on the Chainlink price, with the
+          trading fees compounding inside the vault instead of landing in your wallet.
+        </p>
+        <div class="cs-head-actions">
+          <a class="cs-btn cs-btn-fill" href="#list">Browse the vaults</a>
+          <a class="cs-btn cs-btn-line" href="#how">How a vault works</a>
+        </div>
+        <p class="cs-note">
+          Shares are not principal-protected. Their value moves with the Stock Token
+          price and with the fees the position earns.
+        </p>
+      </div>
+
+      <aside class="cs-head-stats" aria-label="Protocol figures">
+        <div class="cs-tile">
+          <span class="cs-label">Total value locked</span>
+          <strong class="cs-fig" id="k-tvl">—</strong>
+          <span class="cs-sub cs-up">+3.1% · 7d</span>
+        </div>
+        <div class="cs-tile">
+          <span class="cs-label">Fees · 24h</span>
+          <strong class="cs-fig" id="k-fees">—</strong>
+          <span class="cs-sub">70% compounded back in</span>
+        </div>
+        <div class="cs-tile">
+          <span class="cs-label">Vaults live</span>
+          <strong class="cs-fig" id="k-n">—</strong>
+          <span class="cs-sub" id="k-n-sub">—</span>
+        </div>
+        <div class="cs-tile cs-tile-accent">
+          <span class="cs-label">Median fee APR</span>
+          <strong class="cs-fig" id="k-apr">—</strong>
+          <span class="cs-sub">24h observation, not a forecast</span>
+        </div>
+      </aside>
+    </section>
+
+    <div class="hatch" aria-hidden="true"></div>
+
+    <!-- only rendered once the demo wallet holds something -->
+    <section class="cs-mine" id="mine" hidden>
+      <div class="cs-mine-head">
+        <span class="cs-label">Your positions</span>
+        <button class="cs-mine-clear" id="mine-clear" type="button">Withdraw everything</button>
+      </div>
+      <div class="cs-mine-rows" id="mine-rows"></div>
+    </section>
+
+    <!-- toolbar sticks under the nav so the filters stay reachable down the list -->
+    <section class="cs-toolbar" id="list">
+      <div class="cs-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.4-3.4"/></svg>
+        <input id="q" type="search" placeholder="Search a ticker or a name" aria-label="Search vaults" autocomplete="off">
+      </div>
+      <div class="cs-chips" id="chips" role="group" aria-label="Filter vaults">
+        <button class="on" data-filter="all" type="button">All</button>
+        <button data-filter="range" type="button">In range</button>
+        <button data-filter="rebalancing" type="button">Rebalancing</button>
+        <button data-filter="new" type="button">New</button>
+        <button data-filter="paused" type="button">Paused</button>
+      </div>
+      <label class="cs-sort">
+        <span class="cs-label">Sort</span>
+        <select id="sort" aria-label="Sort vaults">
+          <option value="apr">Fee APR</option>
+          <option value="tvl">TVL</option>
+          <option value="fees">Fees · 24h</option>
+          <option value="name">Ticker</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="cs-list-wrap">
+      <div class="cs-thead" aria-hidden="true">
+        <span>Vault</span>
+        <span class="cs-r">Fee APR · 24h</span>
+        <span class="cs-r">TVL</span>
+        <span class="cs-r">Oracle price</span>
+        <span>Range</span>
+        <span>Capacity</span>
+        <span></span>
+      </div>
+      <div id="rows" class="cs-rows"></div>
+      <p class="cs-empty" id="empty" hidden>No vault matches that. Clear the search or pick another filter.</p>
+      <noscript><p class="cs-empty">The vault list is rendered by <code>app.js</code>. The rest of the page reads fine without it.</p></noscript>
+      <p class="cs-listnote">
+        Fee APR is measured over the last 24 hours of trading in the pool and annualised.
+        It is an observation of what already happened, not a rate the vault promises.
+      </p>
+    </section>
+
+    <!-- from here down: label on the left, content on the right -->
+    <section class="cs-band" id="how">
+      <div class="cs-band-label">
+        <span class="cs-label">01 — Mechanics</span>
+        <h2>What the vault<br>actually does</h2>
+        <p>Four steps, and only the first one is yours.</p>
+      </div>
+      <ol class="cs-steps">
+        <li>
+          <span class="cs-step-n">1</span>
+          <h3>You deposit USDG</h3>
+          <p>The router swaps half of it into the Stock Token and joins the pool in a single transaction. Whatever is left over goes straight back to your wallet.</p>
+        </li>
+        <li>
+          <span class="cs-step-n">2</span>
+          <h3>You get vault shares</h3>
+          <p>A plain ERC-4626 share. It is your claim on the position, it moves with the Stock Token price, and it is the thing you redeem later.</p>
+        </li>
+        <li>
+          <span class="cs-step-n">3</span>
+          <h3>The position stays centred</h3>
+          <p>Liquidity sits in a tight band around the oracle price. Once the market walks out of that band, a rebalance is queued and checked against fresh feeds before it runs.</p>
+        </li>
+        <li>
+          <span class="cs-step-n">4</span>
+          <h3>Fees compound in place</h3>
+          <p>Trading fees are collected and folded back into the position, so the share price rises rather than paying anything out. Redeem whenever you want.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="cs-band cs-band-alt" id="fees">
+      <div class="cs-band-label">
+        <span class="cs-label">02 — Fees</span>
+        <h2>Where the<br>fees land</h2>
+        <p>Every fee the position earns is split the same way, on every collection.</p>
+      </div>
+      <div class="cs-split">
+        <div class="cs-bar" role="img" aria-label="70% compounds into the position, 20% buys back and burns CUSP, 10% to the treasury">
+          <span style="width:70%"></span><span style="width:20%"></span><span style="width:10%"></span>
+        </div>
+        <ul class="cs-split-keys">
+          <li><i class="k1"></i><b>70%</b> compounds back into the position — this is the part that lifts the share price.</li>
+          <li><i class="k2"></i><b>20%</b> buys back CUSP on the open market and burns it.</li>
+          <li><i class="k3"></i><b>10%</b> goes to the protocol treasury: audits, oracles, keepers.</li>
+        </ul>
+        <p class="cs-note">
+          There is no deposit fee, no management fee and no lock-up. The only cost of
+          leaving is the gas and the pool's own swap fee on the way out.
+        </p>
+      </div>
+    </section>
+
+    <section class="cs-band" id="safeguards">
+      <div class="cs-band-label">
+        <span class="cs-label">03 — Safeguards</span>
+        <h2>What stops<br>a bad day</h2>
+        <p>Each vault is capped, pausable and auditable on its own.</p>
+      </div>
+      <div class="cs-cards">
+        <article class="cs-card">
+          <h3>Stale feeds wait</h3>
+          <p>Chainlink price and sequencer feeds must be fresh before any rebalance or borrow. When they are not, deposits and rebalances wait instead of guessing. Redemptions stay open the whole time.</p>
+        </article>
+        <article class="cs-card">
+          <h3>One vault, one blast radius</h3>
+          <p>Vaults, markets and strategies are separate contracts with separate caps. A vault that has to be paused is paused alone; nothing else in the protocol stops.</p>
+        </article>
+        <article class="cs-card">
+          <h3>Caps, not hope</h3>
+          <p>Every vault carries a hard deposit cap. When it fills, deposits close until the cap is raised in the open — the capacity bar on each row is that cap.</p>
+        </article>
+        <article class="cs-card">
+          <h3>Verified, byte for byte</h3>
+          <p>Every contract is verified on Blockscout against the reviewed deployment, so the code you read is the code holding the position.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="cs-band cs-band-alt" id="faq">
+      <div class="cs-band-label">
+        <span class="cs-label">04 — Questions</span>
+        <h2>Before you<br>deposit</h2>
+        <p>The five that matter most.</p>
+      </div>
+      <div class="cs-faq">
+        <details open>
+          <summary>Is my principal protected?</summary>
+          <p>No. A vault share is a claim on a liquidity position, so its value moves with the Stock Token price and with the fees the position earns. If the stock falls, the share falls with it — the fees soften that, they do not cancel it.</p>
+        </details>
+        <details>
+          <summary>What does “in range” mean on a row?</summary>
+          <p>That the oracle price is inside the band where the vault's liquidity sits, which is the only state in which the position earns fees. “Rebalancing” means the price has walked out and a re-centre is queued behind a fresh-feed check.</p>
+        </details>
+        <details>
+          <summary>When can I withdraw?</summary>
+          <p>Any block. Redeeming burns your shares, pulls your slice of the position and returns USDG. Redemptions are deliberately the last thing a pause or a stale feed touches.</p>
+        </details>
+        <details>
+          <summary>Why does the APR keep moving?</summary>
+          <p>Because it is a 24-hour observation, annualised. It follows how much was actually traded in that pool yesterday, and a quiet day drops it as fast as a busy one lifts it.</p>
+        </details>
+        <details>
+          <summary>What am I depositing, exactly?</summary>
+          <p>USDG, and only USDG. The router handles the swap into the Stock Token and the join in one transaction, and returns the dust.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="cs-band" id="contracts">
+      <div class="cs-band-label">
+        <span class="cs-label">05 — Addresses</span>
+        <h2>The contracts<br>behind all this</h2>
+        <p>Core deployments. Per-vault addresses sit inside each row of the list.</p>
+      </div>
+      <div class="cs-contracts" id="contracts-list"></div>
+    </section>
+
+    <section class="cs-close">
+      <div class="cs-close-in">
+        <h2>Pick a vault and start with one deposit.</h2>
+        <p>Ten pools live, one asset to bring, no lock-up on the way out.</p>
+        <div class="cs-head-actions">
+          <a class="cs-btn cs-btn-fill" href="#list">Browse the vaults</a>
+          <a class="cs-btn cs-btn-line" href="#how">Read the mechanics</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="cs-foot">
+    <div class="cs-foot-in">
+      <div class="cs-foot-brand">
+        <a class="cs-brand" href="index.html">
+          <span class="cs-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+              <circle cx="16" cy="16" r="2.4" fill="currentColor"/>
+            </svg>
+          </span>
+          Cusp
+        </a>
+        <p>Managed liquidity vaults for tokenized stocks.</p>
+      </div>
+      <div class="cs-foot-cols">
+        <div><span class="cs-label">Protocol</span><a href="#list">Vaults</a><a href="#fees">Fees</a><a href="#safeguards">Safeguards</a></div>
+        <div><span class="cs-label">Build</span><a href="#how">Mechanics</a><a href="#faq">FAQ</a><a href="#contracts">Contracts</a></div>
+        <div><span class="cs-label">Legal</span><a href="terms.html">Terms</a><a href="risk.html">Risk</a><a href="privacy.html">Privacy</a></div>
+      </div>
+    </div>
+    <p class="cs-disclaimer">
+      Every figure on this page is sample data for a design mock — the vaults, the
+      TVL, the APRs and the addresses are invented. Company names and logos are the
+      trademarks of their owners and identify the stock behind a pool, nothing more.
+      Nothing here is an offer or financial advice.
+    </p>
+  </footer>
+</div>
+
+<!-- deposit drawer -->
+<div class="cs-scrim" id="scrim" hidden></div>
+<aside class="cs-drawer" id="drawer" aria-hidden="true" aria-label="Deposit">
+  <header>
+    <div>
+      <span class="cs-label">Deposit into</span>
+      <h3 id="d-name">—</h3>
+    </div>
+    <button class="cs-icon" id="d-close" type="button" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+  <div class="cs-seg" id="d-seg" role="group" aria-label="Deposit or withdraw">
+    <button class="on" data-mode="deposit" type="button">Deposit</button>
+    <button data-mode="withdraw" type="button">Withdraw</button>
+  </div>
+  <label class="cs-field">
+    <span class="cs-label" id="d-field-k">You deposit</span>
+    <div class="cs-input">
+      <input id="d-amount" type="number" min="0" step="100" value="1000" inputmode="decimal">
+      <span id="d-unit">USDG</span>
+      <button class="cs-max" id="d-max" type="button">Max</button>
+    </div>
+    <span class="cs-avail" id="d-avail">—</span>
+  </label>
+  <dl class="cs-kv" id="d-kv"></dl>
+  <button class="cs-btn cs-btn-fill cs-btn-wide" id="d-go" type="button" disabled>Connect a wallet to deposit</button>
+  <p class="cs-note">A demo wallet with play money: balances and positions live in this browser only, nothing is signed and no chain is touched. Share price moves with the Stock Token; the dust from the swap returns to your wallet.</p>
+</aside>
+
+<div class="cs-toasts" id="toasts" aria-live="polite"></div>
+<script src="wallet.js"></script>
+<script src="logos.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

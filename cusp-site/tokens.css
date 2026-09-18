@@ -32,6 +32,8 @@
   --mint: #C5FFD6;
   --mint-pill: #CAEDE0;
   --pink: #FFCFFE;
+  --on-mint: #3D3B4F;      /* ink for anything sitting on mint or pink */
+  --yellow: #E9FF70;       /* the CTA headline — the one value I could not sample */
 
   --on-band: #E9E9E9;
   --on-band-2: #A9A8AF;

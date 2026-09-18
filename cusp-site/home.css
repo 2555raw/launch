@@ -1,0 +1,122 @@
+/* Cusp — the home page.
+   The reference's landing page: a very large headline on the light ground, a
+   wireframe form to its right, the dashed grid running the full height, then
+   the one-vault-per-stock grid, a dark closing band and the footer.
+   Everything sits in the 1160px container the header uses. */
+
+.hm-nav { background: var(--card); border-bottom: 1px solid var(--line); }
+.hm-nav-in {
+  max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
+  height: var(--nav); display: flex; align-items: center; gap: 22px;
+}
+.hm-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
+.hm-mark { width: 24px; height: 24px; color: var(--band); }
+.hm-mark svg { width: 100%; height: 100%; }
+.hm-links { margin: 0 auto; display: flex; align-items: center; gap: 2px; }
+.hm-links a { padding: 6px 12px; border-radius: 999px; font-size: 13.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
+.hm-links a:hover { color: var(--ink); }
+.hm-links a.on { background: var(--mint); color: var(--on-mint); font-weight: 600; }
+.hm-nav-right { display: flex; align-items: center; gap: 9px; }
+
+/* ---------- hero ---------- */
+
+.hm-hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+/* the dashed rules run the whole height of the light ground, as they do there */
+.hm-hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(to right, var(--dash) 0 1px, transparent 1px 120px);
+  -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 11px);
+  mask-image: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 11px);
+  opacity: .8;
+}
+.hm-hero-in {
+  position: relative; max-width: var(--wrap-head); margin: 0 auto; padding: 56px 24px 46px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .82fr); gap: 40px; align-items: start;
+}
+.hm-hero h1 {
+  grid-column: 1 / -1;
+  margin: 0 0 300px;
+  font-size: 72px; line-height: 1.02; font-weight: 600; letter-spacing: -.04em;
+}
+.hm-hero-copy { grid-column: 1; max-width: 46ch; margin-top: -280px; }
+.hm-hero-copy p { margin: 0 0 22px; font-size: 15px; line-height: 1.6; color: var(--ink); }
+.hm-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 18px; }
+.hm-fine { font-size: 11px; line-height: 1.6; color: var(--muted); max-width: 44ch; margin: 0 0 16px; }
+.hm-fine a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+
+.hm-ca {
+  display: flex; align-items: center; gap: 10px; max-width: 460px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--card);
+  padding: 6px 12px 6px 6px;
+}
+.hm-ca i { display: inline-grid; place-items: center; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--mint); color: var(--on-mint); font-size: 9.5px; font-weight: 700; font-style: normal; letter-spacing: .04em; }
+.hm-ca code { flex: 1; min-width: 0; font-family: var(--mono); font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hm-ca button { border: 0; background: transparent; color: var(--dim); cursor: pointer; padding: 0; }
+.hm-ca button:hover { color: var(--green); }
+
+/* the wireframe form */
+.hm-form { grid-column: 2; grid-row: 2; justify-self: end; margin-top: -420px; width: min(100%, 520px); color: var(--line); }
+.hm-form svg { width: 100%; height: auto; }
+
+/* ---------- one vault per stock ---------- */
+
+.hm-strip { text-align: center; padding: 13px 24px; border-bottom: 1px solid var(--line); }
+.hm-strip .k { color: var(--green); }
+.hm-stocks {
+  max-width: var(--wrap-head); margin: 0 auto;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+}
+.hm-stock { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 13px; }
+.hm-stock:nth-child(5n) { border-right: 0; }
+.hm-stock span { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; }
+.hm-stock svg { width: 15px; height: 15px; fill: currentColor; }
+
+/* ---------- closing band ---------- */
+
+.hm-cta { background: var(--band); color: var(--on-band); }
+.hm-cta-in {
+  max-width: var(--wrap-head); margin: 0 auto; padding: 54px 24px 58px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); gap: 40px; align-items: center;
+}
+.hm-cta h2 { margin: 0 0 22px; font-size: 32px; line-height: 1.18; font-weight: 600; letter-spacing: -.03em; color: var(--yellow); max-width: 20ch; }
+.hm-cta .hm-fine { color: var(--on-band-2); }
+.hm-cta .hm-fine a { color: var(--on-band); }
+.hm-cta-dia { color: var(--band-2); }
+.hm-cta-dia svg { width: 100%; height: auto; }
+
+/* ---------- footer ---------- */
+
+.hm-foot { border-top: 1px solid var(--line); background: var(--card); }
+.hm-foot-in { max-width: var(--wrap-head); margin: 0 auto; padding: 34px 24px 26px; display: grid; grid-template-columns: minmax(0, .9fr) repeat(4, minmax(0, 1fr)); gap: 24px; }
+.hm-foot-brand { border-right: 1px solid var(--line); padding-right: 24px; }
+.hm-foot-brand .hm-mark { width: 54px; height: 54px; color: var(--green); margin-bottom: 12px; }
+.hm-foot-brand b { display: block; font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+.hm-foot-brand p { margin: 8px 0 0; font-size: 10.5px; line-height: 1.6; color: var(--dim); }
+.hm-foot-in .k { margin-bottom: 11px; }
+.hm-foot-in a { display: block; padding: 4px 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.hm-foot-in a:hover { color: var(--green); }
+.hm-fine-foot { max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px 30px; font-size: 10.5px; line-height: 1.6; color: var(--dim); }
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1000px) {
+  .hm-links { display: none; }
+  .hm-hero-in { grid-template-columns: 1fr; gap: 26px; }
+  .hm-hero h1 { margin-bottom: 20px; font-size: 52px; max-width: none; }
+  .hm-hero-copy { grid-column: 1; margin-top: 0; }
+  .hm-form { grid-column: 1; grid-row: auto; margin-top: 0; justify-self: center; width: min(100%, 380px); }
+  .hm-stocks { grid-template-columns: repeat(3, 1fr); }
+  .hm-stock:nth-child(5n) { border-right: 1px solid var(--line); }
+  .hm-stock:nth-child(3n) { border-right: 0; }
+  .hm-cta-in { grid-template-columns: 1fr; }
+  .hm-foot-in { grid-template-columns: 1fr 1fr; }
+  .hm-foot-brand { border-right: 0; grid-column: 1 / -1; }
+}
+@media (max-width: 620px) {
+  .hm-hero-in, .hm-nav-in, .hm-foot-in, .hm-fine-foot, .hm-cta-in { padding-left: 16px; padding-right: 16px; }
+  .hm-hero h1 { font-size: 38px; }
+  .hm-stocks { grid-template-columns: 1fr 1fr; }
+  .hm-stock:nth-child(3n) { border-right: 1px solid var(--line); }
+  .hm-stock:nth-child(2n) { border-right: 0; }
+}

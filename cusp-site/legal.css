@@ -10,8 +10,8 @@
 }
 .cs-legal-head .cs-label { color: #9E9BB4; margin-bottom: 12px; }
 .cs-legal-head .cs-label b { color: var(--accent-lift); font-weight: 600; }
-.cs-legal-head h1 { margin: 0 0 12px; font-size: 38px; line-height: 1.08; font-weight: 600; letter-spacing: -.03em; }
-.cs-legal-head .cs-lede { margin: 0; font-size: 15px; line-height: 1.55; color: var(--on-band-2); max-width: 56ch; }
+.cs-legal-head h1 { margin: 0 0 12px; font-size: 40.7px; line-height: 1.08; font-weight: 600; letter-spacing: -.03em; }
+.cs-legal-head .cs-lede { margin: 0; font-size: 16.1px; line-height: 1.55; color: var(--on-band-2); max-width: 56ch; }
 
 .cs-legal {
   max-width: var(--wrap-head); margin: 0 auto; padding: 44px 24px 70px;
@@ -23,31 +23,31 @@
 .cs-legal-toc ol { list-style: none; margin: 0 0 16px; padding: 0; border-left: 1px solid var(--line); }
 .cs-legal-toc a {
   display: block; padding: 7px 0 7px 14px; margin-left: -1px;
-  border-left: 1px solid transparent; font-size: 14px; line-height: 1.4; color: var(--muted);
+  border-left: 1px solid transparent; font-size: 15px; line-height: 1.4; color: var(--muted);
   transition: color .15s, border-color .15s;
 }
 .cs-legal-toc a:hover { color: var(--ink); }
 .cs-legal-toc a.on { color: var(--accent-ink); border-left-color: var(--accent); font-weight: 600; }
-.cs-updated { font-size: 11.5px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); }
+.cs-updated { font-size: 12.3px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); }
 
 .cs-mock {
   border: 1px solid var(--accent-line); background: var(--accent-soft); border-radius: var(--r);
   padding: 14px 16px; margin: 0 0 32px;
-  font-size: 14px; line-height: 1.6; color: var(--accent-ink); max-width: 70ch;
+  font-size: 15px; line-height: 1.6; color: var(--accent-ink); max-width: 70ch;
 }
 .cs-mock b { color: var(--on-accent); }
 
-.cs-prose h2 { margin: 38px 0 11px; font-size: 20.5px; letter-spacing: -.02em; font-weight: 600; scroll-margin-top: 22px; }
+.cs-prose h2 { margin: 38px 0 11px; font-size: 21.9px; letter-spacing: -.02em; font-weight: 600; scroll-margin-top: 22px; }
 .cs-prose h2:first-of-type { margin-top: 0; }
-.cs-prose p, .cs-prose li { font-size: 15.5px; line-height: 1.72; color: var(--muted); max-width: 68ch; }
+.cs-prose p, .cs-prose li { font-size: 16.6px; line-height: 1.72; color: var(--muted); max-width: 68ch; }
 .cs-prose p { margin: 0 0 14px; }
 .cs-prose ul { margin: 0 0 14px; padding-left: 20px; }
 .cs-prose li { margin-bottom: 8px; }
 .cs-prose strong { color: var(--ink); font-weight: 600; }
 .cs-prose a { color: var(--accent); font-weight: 500; }
 .cs-prose a:hover { text-decoration: underline; }
-.cs-prose code { background: var(--card); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; font-size: 13.5px; }
-.cs-end { margin-top: 38px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--dim) !important; font-size: 14px !important; }
+.cs-prose code { background: var(--card); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; font-size: 14.4px; }
+.cs-end { margin-top: 38px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--dim) !important; font-size: 15px !important; }
 
 @media (max-width: 1080px) {
   .cs-legal { grid-template-columns: 1fr; gap: 28px; padding-top: 34px; }
@@ -56,6 +56,6 @@
 }
 @media (max-width: 720px) {
   .cs-legal, .cs-legal-head { padding-left: 16px; padding-right: 16px; }
-  .cs-legal-head h1 { font-size: 30px; }
+  .cs-legal-head h1 { font-size: 32.1px; }
 }
 @media (max-width: 560px) { .cs-legal-toc ol { columns: 1; } }

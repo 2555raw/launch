@@ -31,7 +31,12 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   const DEPTH = 26;        // layers from back to front
   const STEP = 0.9;        // how far apart they sit, in viewBox units
   const YAW = 34 * Math.PI / 180;
-  const PERIOD = 14000;
+  const PERIOD = 14000;    // one yaw sweep, left to right and back
+  const TUMBLE = 1.6;      // somersaults per yaw sweep — the pitch never reverses
+  const EASE = 0.46;       // how hard it dwells face-on and snaps through edge-on
+  const YSQUASH = 0.5;     // the stack spreads less vertically than sideways
+  const DRIFT_X = 5.5;     // how far it wanders, in viewBox units
+  const DRIFT_Y = 5.0;
 
   const layers = [];
   for (let i = 0; i < DEPTH; i++) {
@@ -50,15 +55,44 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
     layers.push(u);
   }
 
+  /* Two rotations at once. The yaw still swings ±34° and comes back, so the
+     face is never edge-on sideways and the silhouette stays readable. The
+     pitch, by contrast, never reverses: it runs all the way round, which is
+     what makes it read as a somersault rather than a nod. Halfway through one
+     the slab is edge-on and you are looking at the stack itself — that moment
+     is the tumble, so it is kept, only floored at 0.06 so it stays a sliver
+     rather than collapsing to nothing.
+
+     On top of the two rotations the whole group wanders: one slow diagonal
+     and a faster bob against it, which traces a lopsided figure of eight
+     instead of a straight line back and forth. */
   function place(t) {
     const yaw = YAW * Math.sin(t);
-    const tilt = 0.06 * Math.sin(t * 0.7);
-    const sx = Math.cos(yaw), dx = Math.sin(yaw) * STEP, dy = tilt * STEP;
+
+    /* A somersault turned at a constant rate spends as long edge-on as it
+       does facing you, and edge-on the mark is a bar. So the angle is eased:
+       θ − k·sin2θ runs at about a sixth speed through the two orientations
+       where the logo reads and at nearly twice speed through the two where it
+       does not. Same full revolution, most of it spent recognisable. */
+    const raw = t * TUMBLE;
+    const pitch = raw - EASE * Math.sin(2 * raw);
+
+    const sx = Math.cos(yaw);
+    const cp = Math.cos(pitch);
+    const sy = Math.sign(cp || 1) * Math.max(Math.abs(cp), 0.06);
+
+    const dx = Math.sin(yaw) * STEP;
+    const dy = Math.sin(pitch) * STEP * YSQUASH;
+
+    const wx = DRIFT_X * Math.sin(t * 0.64);
+    const wy = DRIFT_Y * Math.sin(t * 0.64 + 1.05) + 2.2 * Math.sin(t * 1.7);
+    g.setAttribute('transform', `translate(${wx.toFixed(3)} ${wy.toFixed(3)})`);
+
     layers.forEach((u, i) => {
       const z = (DEPTH - 1 - i);          // 0 at the front
       u.setAttribute('transform',
         `translate(${(dx * z).toFixed(3)} ${(dy * z).toFixed(3)}) ` +
-        `translate(50 50) scale(${sx.toFixed(4)} ${(1 - Math.abs(tilt) * 0.5).toFixed(4)}) translate(-50 -50)`);
+        `translate(50 50) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(-50 -50)`);
     });
   }
 

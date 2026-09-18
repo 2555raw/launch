@@ -42,6 +42,7 @@
   --accent-soft: #FBF7DA;
   --accent-line: #E6DC94;
   --accent-lift: #F2EAA0;
+  --accent-glow: #EFD95E;   /* the pastel, pushed up where it has to read against grey */
   --pink: #FFCFFE;
   --on-accent: #3D3B4F;    /* the fill is pale, so its ink is the navy */
   --yellow: #F2EAA0;       /* the closing headline: the same pastel, not a second one */
@@ -56,8 +57,8 @@
 
   --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --wrap: 800px;
-  --wrap-head: 1160px;
+  --wrap: 940px;
+  --wrap-head: 1340px;
   --nav: 66px;
   --r: 10px;
 }
@@ -78,7 +79,7 @@ img, svg { display: block; }
 
 .cs-label, .tr-k, .k {
   display: block;
-  font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  font-size: 11.8px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
   color: var(--dim);
 }
 
@@ -86,7 +87,7 @@ img, svg { display: block; }
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   height: 36px; padding: 0 16px;
   border: 1px solid transparent; border-radius: 999px; cursor: pointer;
-  font-family: inherit; font-size: 14px; font-weight: 600; white-space: nowrap;
+  font-family: inherit; font-size: 15px; font-weight: 600; white-space: nowrap;
   transition: background .15s, border-color .15s, color .15s, opacity .15s;
 }
 .cs-btn-fill, .tr-btn-dark, .btn-dark { background: var(--band); color: #FFFFFF; }
@@ -101,8 +102,8 @@ img, svg { display: block; }
 .cs-btn-line, .btn-line { background: transparent; color: var(--ink); border-color: var(--line); }
 .cs-btn-line:hover, .btn-line:hover { border-color: #BEBEBE; }
 .cs-btn:disabled, .tr-btn:disabled, .btn:disabled { opacity: .45; cursor: not-allowed; }
-.cs-btn-wide, .tr-btn-wide { width: 100%; height: 44px; font-size: 15px; }
-.tr-btn-sm { height: 32px; padding: 0 13px; font-size: 13.5px; }
+.cs-btn-wide, .tr-btn-wide { width: 100%; height: 44px; font-size: 16.1px; }
+.tr-btn-sm { height: 32px; padding: 0 13px; font-size: 14.4px; }
 
 /* the dashed grid that runs behind the dark bands */
 .dashed { position: relative; overflow: hidden; }
@@ -130,7 +131,7 @@ img, svg { display: block; }
   width: min(420px, calc(100vw - 32px));
 }
 .cs-toast, .tr-toast {
-  font-family: var(--font); font-size: 14px; color: var(--on-band);
+  font-family: var(--font); font-size: 15px; color: var(--on-band);
   border-radius: 10px; background: var(--band); padding: 11px 15px;
   box-shadow: 0 14px 30px rgba(61, 59, 79, .24);
   animation: toast-in .2s ease both;
@@ -150,7 +151,7 @@ img, svg { display: block; }
 .ft-bar-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: 38px; display: flex; align-items: center; gap: 26px;
-  font-size: 12px; color: var(--dim); white-space: nowrap;
+  font-size: 12.8px; color: var(--dim); white-space: nowrap;
 }
 .ft-bar-in b { color: var(--muted); font-weight: 600; }
 .ft-dot { width: 6px; height: 6px; border-radius: 50%; background: #1FA971; display: inline-block; margin-right: 8px; vertical-align: 1px; }
@@ -164,7 +165,7 @@ img, svg { display: block; }
 .ft-col .k { margin-bottom: 15px; }
 .ft-col a {
   display: block; padding: 5px 0;
-  font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase;
+  font-size: 13.4px; letter-spacing: .04em; text-transform: uppercase;
   color: var(--muted); transition: color .15s;
 }
 .ft-col a:hover { color: var(--ink); }
@@ -177,9 +178,36 @@ img, svg { display: block; }
 
 .ft-cubes { border-top: 1px dashed var(--line); overflow: hidden; line-height: 0; }
 .ft-cubes svg { width: 100%; height: 300px; display: block; }
-/* each cube is one <use>, so it can light on its own */
-.ft-cubes .cube { color: #D9D9D9; transition: color .14s; }
-.ft-cubes .cube.on { color: var(--accent-fill); }
+
+/* Each cube carries three faces, its edges and one motif, and the motif
+   cycles: the mark on every other cube, a circle, a square, a ring, a
+   diamond, a frame between them. The mark used to be knocked out in the card
+   colour, which on this grey left it all but invisible — it is the navy ink
+   at low opacity now, so the logo is what you read first and the geometry is
+   the rhythm around it. */
+
+.ft-cubes .cube { color: #CFCFD6; transition: color .16s, filter .16s; }
+/* an opaque silhouette under the faces, so the cubes behind do not
+   bleed through the translucent shading and muddle the motifs */
+.ft-cubes .sil { fill: var(--bg); }
+.ft-cubes .fc { fill: currentColor; }
+.ft-cubes .ft { opacity: .42; }
+.ft-cubes .fl { opacity: .88; }
+.ft-cubes .fr { opacity: .66; }
+.ft-cubes .ed { fill: none; stroke: var(--card); stroke-width: .8; }
+
+.ft-cubes .mo   { transition: opacity .16s; }
+.ft-cubes .mo-f { fill: var(--ink); opacity: .46; }
+.ft-cubes .mo-s { fill: none; stroke: var(--ink); stroke-width: 1.5; opacity: .24; }
+
+/* lit: a stronger pastel than the flat fill, with a short glow so the cube
+   lifts off the wall, and the motif brought right up in contrast */
+.ft-cubes .cube.on { color: var(--accent-glow); filter: drop-shadow(0 0 7px rgba(239, 217, 94, .75)); }
+.ft-cubes .cube.on .ft { opacity: .92; }
+.ft-cubes .cube.on .fl { opacity: 1; }
+.ft-cubes .cube.on .fr { opacity: .97; }
+.ft-cubes .cube.on .mo-f { opacity: .78; }
+.ft-cubes .cube.on .mo-s { opacity: .66; stroke-width: 1.8; }
 
 @media (max-width: 860px) {
   .ft-cols { grid-template-columns: 1fr 1fr; }
@@ -258,7 +286,7 @@ img, svg { display: block; }
 .mnu-btn {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 6px 12px; border: 0; border-radius: 999px; background: transparent;
-  font-family: inherit; font-size: 13.5px; font-weight: 500; color: var(--muted); cursor: pointer;
+  font-family: inherit; font-size: 14.4px; font-weight: 500; color: var(--muted); cursor: pointer;
   transition: color .15s;
 }
 .mnu-btn:hover, .mnu.on .mnu-btn { color: var(--ink); }
@@ -274,24 +302,84 @@ img, svg { display: block; }
   transition: opacity .16s, transform .16s, visibility .16s;
 }
 .mnu.on .mnu-pop { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-.mnu-pop a { display: block; padding: 8px 11px; border-radius: 9px; font-size: 13px; color: var(--muted); }
+.mnu-pop a { display: block; padding: 8px 11px; border-radius: 9px; font-size: 13.9px; color: var(--muted); }
 .mnu-pop a:hover { background: var(--accent-soft); color: var(--ink); }
 
 .nav-lang {
   display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px;
-  border-radius: 999px; color: var(--muted); font-size: 12.5px; font-weight: 600; cursor: default;
+  border-radius: 999px; color: var(--muted); font-size: 13.4px; font-weight: 600; cursor: default;
 }
 .nav-lang:hover { color: var(--ink); }
 @media (max-width: 860px) { .nav-lang { display: none; } }
+
+/* ---------- the nav's quick trade ---------- */
+
+.qt-pop { width: 274px; padding: 14px; cursor: default; }
+.qt-h {
+  margin: 0 0 10px; font-family: var(--mono); font-size: 9.9px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--dim);
+}
+.qt-row { border: 1px solid var(--line); border-radius: 11px; background: var(--bg); padding: 9px 11px; }
+.qt-lab { display: block; font-size: 11.8px; color: var(--muted); margin-bottom: 3px; }
+.qt-field { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.qt-field input, .qt-out {
+  min-width: 0; border: 0; background: transparent; padding: 0;
+  font-family: inherit; font-size: 19.3px; font-weight: 600; letter-spacing: -.02em; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.qt-field input:focus { outline: 0; }
+.qt-field input::-webkit-outer-spin-button,
+.qt-field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.qt-field input[type=number] { -moz-appearance: textfield; }
+.qt-field select {
+  flex: none; border: 1px solid var(--line); border-radius: 999px; background: var(--card);
+  padding: 4px 8px; font-family: inherit; font-size: 12.8px; font-weight: 600; color: var(--ink); cursor: pointer;
+}
+.qt-flip {
+  display: grid; place-items: center; width: 26px; height: 26px; margin: -9px auto; position: relative; z-index: 1;
+  border: 1px solid var(--line); border-radius: 50%; background: var(--card);
+  color: var(--muted); cursor: pointer; transition: color .15s, background .15s;
+}
+.qt-flip:hover { color: var(--accent-ink); background: var(--accent-soft); }
+.qt-route { margin: 10px 0 0; font-size: 12.3px; color: var(--muted); }
+.qt-route.on { color: var(--accent-ink); }
+.qt-route b { font-weight: 600; }
+.qt-go {
+  display: block; margin-top: 11px; padding: 9px 12px; border-radius: 999px;
+  background: var(--band); color: var(--on-band);
+  font-size: 13.9px; font-weight: 600; text-align: center;
+}
+.qt-go:hover { background: var(--band-2); }
+
+/* ---------- a nav link, pressed ----------
+   Four navs grew separately on four pages, so the ring is declared once here
+   for all of them. :focus-visible covers the keyboard, :active the pointer —
+   the ring shows while the mouse is down, which is the moment the reader is
+   asking "did that register?". */
+
+.hm-links a, .dx-links a, .tr-links a, .cs-tabs a, .mnu-btn, .nav-lang, .mnu-pop a {
+  outline: 0;
+  transition: color .15s, background .15s, box-shadow .12s;
+}
+.hm-links a:focus-visible, .dx-links a:focus-visible, .tr-links a:focus-visible,
+.cs-tabs a:focus-visible, .mnu-btn:focus-visible, .nav-lang:focus-visible, .mnu-pop a:focus-visible,
+.hm-links a:active, .dx-links a:active, .tr-links a:active,
+.cs-tabs a:active, .mnu-btn:active, .nav-lang:active, .mnu-pop a:active {
+  box-shadow: 0 0 0 2px var(--accent-fill), 0 0 0 3px var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+/* the open menu keeps the ring, so the button and its panel read as one thing */
+.mnu.on > .mnu-btn { box-shadow: 0 0 0 2px var(--accent-fill), 0 0 0 3px var(--accent-line); background: var(--accent-soft); }
 
 /* ---------- the footer's brand plate ----------
    A construction drawing: the mark pixelated on a grid, inside dashed guides
    with corner ticks, the way a spec sheet shows a logo. */
 
-.ft-cols { grid-template-columns: minmax(0, .95fr) repeat(4, minmax(0, 1fr)); }
-.ft-brand { padding: 26px 22px 36px; border-left: 1px dashed var(--line); }
+.ft-cols { grid-template-columns: minmax(0, 1.3fr) repeat(4, minmax(0, 1fr)); }
+.ft-brand { padding: 30px 24px 42px; border-left: 1px dashed var(--line); }
 .ft-plate {
-  position: relative; aspect-ratio: 1; max-width: 190px; margin: 0 auto 14px;
+  position: relative; aspect-ratio: 1; max-width: 258px; margin: 0 auto 16px;
   display: grid; place-items: center;
   border: 1px dashed var(--line);
 }
@@ -307,23 +395,23 @@ img, svg { display: block; }
     linear-gradient(to bottom, var(--line) 0 1px, transparent 1px) 0 50% / 100% 1px no-repeat;
 }
 .ft-px {
-  position: relative; z-index: 1; width: 64%; aspect-ratio: 30 / 23;
+  position: relative; z-index: 1; width: 82%; aspect-ratio: 30 / 23;
   color: var(--accent-fill); background: currentColor;
   -webkit-mask: url(mark-pixel.svg) center / contain no-repeat;
   mask: url(mark-pixel.svg) center / contain no-repeat;
 }
 .ft-word {
   display: block; text-align: center;
-  font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: var(--accent);
+  font-size: 33.2px; font-weight: 700; letter-spacing: -.03em; color: var(--accent);
 }
 .ft-cap {
   display: block; text-align: center; margin-top: 8px;
-  font-family: var(--mono); font-size: 8.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--dim);
+  font-family: var(--mono); font-size: 11.2px; letter-spacing: .18em; text-transform: uppercase; color: var(--dim);
 }
 
 @media (max-width: 860px) {
   .ft-cols { grid-template-columns: 1fr 1fr; }
   .ft-brand { grid-column: 1 / -1; border-right: 1px dashed var(--line); border-bottom: 1px dashed var(--line); }
-  .ft-plate { max-width: 150px; }
+  .ft-plate { max-width: 210px; }
 }
 @media (max-width: 560px) { .ft-cols { grid-template-columns: 1fr; } }

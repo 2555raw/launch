@@ -108,7 +108,19 @@ function compile() {
       null, { timeout: 30000 });
     const said = (await p.textContent('#launch-rows')).replace(/\s+/g, ' ').trim();
     if (!/Nothing/.test(said)) throw new Error('the empty table reads: ' + said);
-    console.log('  ', said.slice(0, 72));
+
+    /* The numbers above it have to land too. "..." is what a figure looks like
+     * while it is still loading, and three of the four resolved while Latest
+     * kept it — so the row read as stuck when it was simply empty. */
+    const facts = await p.locator('.factbar dd').evaluateAll(
+      els => els.map(e => e.textContent.replace(/\s+/g, ' ').trim()));
+    if (facts.some(f => f === '...' || f.startsWith('...'))) {
+      throw new Error('a figure is still loading: ' + facts.join(' | '));
+    }
+    if (!facts.some(f => /pairable/.test(f))) {
+      throw new Error('the pairable count was written over: ' + facts.join(' | '));
+    }
+    console.log('  ', said.slice(0, 48), '·', facts.join(' | '));
   });
 
   await step('the page routes this chain through Pons', async () => {
@@ -283,7 +295,17 @@ function compile() {
       n => document.querySelectorAll('#launch-rows tr').length > n
         && document.querySelector('#launch-rows').textContent.includes('GLACE'),
       before, { timeout: 60000 });
+
+    /* And the sidebar, which is the thing on screen on every page: it said
+     * "Nothing paired yet" and kept saying it while the table filled. */
+    await p.waitForFunction(
+      () => {
+        const el = document.querySelector('#side-launches');
+        return el && !/Nothing paired yet|Reading the chain/.test(el.textContent);
+      }, null, { timeout: 60000 });
+    const side = (await p.textContent('#side-launches')).replace(/\s+/g, ' ').trim();
     console.log('   the table grew from', before, 'rows on its own');
+    console.log('   sidebar:', side.slice(0, 72));
   });
 
   await step('the header does not fill itself from this visitor\'s launch', async () => {

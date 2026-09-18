@@ -1078,7 +1078,7 @@ const PAGES = {
     if (!host) return;
     if (Chain.offline) {
       host.innerHTML = emptyRow(8, "No node reachable from this browser.");
-      setText("stat-launches", "...");
+      setText("stat-launches", "unknown");
       return;
     }
     if (!Chain.ready()) {
@@ -1123,8 +1123,15 @@ const PAGES = {
       setText("launch-count", `${list.length} ${list.length === 1 ? "launch" : "launches"}`);
       setText("l-count", list.length);
       setText("l-paired", new Set(list.map(p => p.source)).size);
+      /* The count under it is how many sources can be paired at all, not how
+         many are in the register: six of the thirty-two are plants or have no
+         coordinates, and neither can be paired. */
+      setText("l-paired-of", `of ${WATER.filter(PAIRABLE).length} pairable`);
       setText("l-graduated", list.filter(p => p.graduated).length);
-      setText("l-latest", list.length ? ago(list[0].launchedAt) : "...");
+      /* "..." is what a number looks like while it is still loading. With
+         nothing launched there is nothing still to come, and saying so beats
+         leaving the row looking stuck. */
+      setText("l-latest", list.length ? ago(list[0].launchedAt) : "Nothing yet");
     }).catch(e => { done(); host.innerHTML = emptyRow(8, esc(errText(e))); });
   },
 

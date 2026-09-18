@@ -48,7 +48,7 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
     // the deepest layers carry a faint pastel trail, so the solid has an edge
     // rather than a second colour: eight layers, none of them over a fifth opaque
     if (i < 8) {
-      u.setAttribute('fill', '#F7E3E5');
+      u.setAttribute('fill', '#F2EAA0');
       u.setAttribute('opacity', (0.07 + 0.11 * (i / 7)).toFixed(3));
     }
     g.appendChild(u);

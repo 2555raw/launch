@@ -6,10 +6,10 @@
    Every grey here carries the same pink bias, on purpose.
    ------------------------------------------------------------------ */
 :root {
-  --snow:    #fffafb;   /* page ground */
-  --blush:   #fdeff3;   /* alternate band / cards on snow */
-  --petal:   #fbdde6;   /* fills, rules on light */
-  --card:    #ffffff;
+  --snow:    #fffdf7;   /* page ground — a warm white, not a cool one */
+  --blush:   #fcf4ee;   /* alternate band / cards on snow */
+  --petal:   #fbdfe4;   /* fills, rules on light */
+  --card:    #fffefb;
   --bark:    #47202e;   /* the dark band */
   --bark-2:  #3a1826;   /* deeper, for the rail */
   --ink:     #47202e;
@@ -25,9 +25,13 @@
   --blossom: #f7a8c0;   /* the flush at the base of a petal */
   --r: 7px;
   --shell: 1240px;
-  --serif: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
-  --sans: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Zen Old Mincho is a mincho — the Japanese answer to a serif, cut with
+     the same brush logic as the trees this page is about. Zen Kaku Gothic
+     New is its gothic companion, so display and UI come from one family's
+     hand rather than two unrelated ones. */
+  --serif: "Zen Old Mincho", ui-serif, Georgia, "Times New Roman", serif;
+  --sans: "Zen Kaku Gothic New", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Zen Kurenaido", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 /* Committed to one world — a cherry in daylight — so an explicit dark
    scheme would be a different tree. Everything is painted regardless,
@@ -46,6 +50,14 @@ p { margin: 0; }
 .wrap { width: min(var(--shell), 100% - 64px); margin-inline: auto; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 :focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; border-radius: 4px; }
+/* Selected text — what you see the instant before you copy — comes up in
+   blossom rather than the browser's blue. Stated twice: one rule with an
+   unknown pseudo-element in it is dropped whole by every engine. */
+::selection { background: #fbd3e0; color: var(--ink); text-shadow: none; }
+::-moz-selection { background: #fbd3e0; color: var(--ink); text-shadow: none; }
+.band.dark ::selection, .rail ::selection, .railbar ::selection, .drawer ::selection,
+.hero ::selection { background: #f7a8c0; color: #3a1826; }
+.band.dark ::-moz-selection { background: #f7a8c0; color: #3a1826; }
 
 /* ---------------- buttons ---------------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 12px;
@@ -155,7 +167,7 @@ h3 { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.14; }
    headline sits in the same place either way. */
 .hero .frame { background: var(--bark-2); height: clamp(420px, 56vh, 620px); }
 .hero canvas, .hero img { display: block; width: 100%; height: 100%;
-                          object-fit: cover; object-position: 62% 50%; }
+                          object-fit: cover; object-position: 58% 34%; }
 .hero img[hidden] { display: none; }
 .hero .over { position: absolute; inset: 0; display: flex; align-items: center; }
 .hero .over .wrap { width: min(var(--shell), 100% - 64px); }

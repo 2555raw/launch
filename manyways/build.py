@@ -27,7 +27,7 @@ def head(title, desc, extra=""):
 <meta name="description" content="{desc}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Kurenaido&display=swap">
 <link rel="stylesheet" href="styles.css">
 {extra}</head>
 <body>
@@ -176,7 +176,11 @@ index = head("Manyways · Every model. Your way.",
              '') + top("index") + f"""
 <section class="hero">
   <div class="frame">
-    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in blossom below Mount Fuji at dusk">
+    <picture>
+      <source media="(max-width: 760px)" srcset="media/hero-tall.webp">
+      <img id="heroimg" src="media/hero-wide.webp"
+           alt="Cherry trees in full blossom over the vermilion halls of a Japanese temple">
+    </picture>
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
       <h1>Every model.<br>Your way.</h1>

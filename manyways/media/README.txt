@@ -1,4 +1,4 @@
-hero.jpg — the photograph behind the headline on the home page.
+hero-wide.webp / hero-tall.webp — the photographs behind the headline.
 
 Drop the file in here with exactly that name and it takes over the hero on
 the next load; if it is missing, the page falls back to the drawn grove in

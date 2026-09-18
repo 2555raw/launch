@@ -89,7 +89,8 @@ function paint() {
 
   const go = $('go');
   if (!wallet) { go.disabled = false; go.lastChild.textContent = ' Connect wallet'; }
-  else if (!(amt > 0)) { go.disabled = true; go.lastChild.textContent = ' Enter an amount'; }
+  // below one unit of what the field can show, the button would read "Swap 0 ETH"
+  else if (!(amt >= 10 ** -TOKENS[pay].dp)) { go.disabled = true; go.lastChild.textContent = ' Enter an amount'; }
   else if (amt > bal) { go.disabled = true; go.lastChild.textContent = ' Not enough ' + pay; }
   else { go.disabled = false; go.lastChild.textContent = ' Swap ' + fmt(amt, TOKENS[pay].dp) + ' ' + pay; }
 

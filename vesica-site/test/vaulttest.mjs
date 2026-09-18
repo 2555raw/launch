@@ -68,10 +68,9 @@ const w1 = await wallet();
 console.log('   after depositing 5,000:', 'USDG', w1.usdg, '| positions', Object.keys(w1.pos).join(','));
 ok('USDG fell by exactly 5,000', Math.abs((w0.usdg - w1.usdg) - 5000) < 1e-6);
 ok('a position was opened', Object.keys(w1.pos).length === 1);
-// the drawer deliberately stays open after a deposit, reset for another one
-ok('the drawer stays open, reset for another deposit',
-   (await p.locator('#drawer').isVisible()) && (await p.locator('#d-amount').inputValue()) !== '5000');
-await p.click('#d-close'); await p.waitForTimeout(300);
+// the drawer closes once the deposit goes through, so a second click on a
+// button that has already spent cannot spend again
+ok('the drawer closes on a completed deposit', !(await p.locator('#drawer').isVisible()));
 ok('the position shows in "mine"', await p.locator('#mine').isVisible());
 console.log('   mine:', (await p.locator('#mine-rows').innerText()).replace(/\n+/g, ' | ').slice(0, 120));
 
@@ -87,6 +86,7 @@ console.log('   segment now:', (await p.locator('#d-seg .on').textContent()).tri
 await p.click('#d-max'); await p.waitForTimeout(200);
 console.log('   max shares', await p.locator('#d-amount').inputValue());
 await p.click('#d-go'); await p.waitForTimeout(600);
+ok('and on a completed redemption', !(await p.locator('#drawer').isVisible()));
 const w2 = await wallet();
 console.log('   after redeeming it all: USDG', w2.usdg.toFixed(2), '| positions', Object.keys(w2.pos).length);
 ok('the position closed with no dust', Object.keys(w2.pos).length === 0);

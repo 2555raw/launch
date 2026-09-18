@@ -124,7 +124,7 @@ const floorTo = (x, dp) => Math.floor(x * 10 ** dp) / 10 ** dp;
 function depositInto(v, amt) {
   if (!wallet) return toast('Connect the demo wallet first.');
   if (v.state === 'paused') return toast('Deposits into this vault are paused.');
-  if (!(amt > 0)) return toast('Enter an amount above zero.');
+  if (!(amt >= DUST_USDG)) return toast('The smallest deposit is one cent.');
   if (amt > wallet.usdg + DUST_USDG) return toast('That is more than the ' + money(wallet.usdg) + ' in the wallet.');
   const room = v.cap - v.tvl;
   if (amt > room + DUST_USDG) return toast('Only ' + usd(room) + ' left under this vault\'s cap.');
@@ -136,12 +136,13 @@ function depositInto(v, amt) {
   v.tvl += amt;
   save(); paint();
   toast('Deposited ' + money(amt) + ' into USDG / x' + v.t + '.');
+  return true;
 }
 
 function withdrawFrom(v, shares, quiet) {
-  if (!wallet) return;
+  if (!wallet) return false;
   const have = held(v.t);
-  if (!(shares > 0)) return toast('Enter an amount above zero.');
+  if (!(shares >= DUST)) return toast('That is too small to redeem.');
   let sh = Math.min(shares, have);
   if (have - sh < DUST) sh = have;
   const back = sh * v.px;
@@ -151,6 +152,7 @@ function withdrawFrom(v, shares, quiet) {
   else wallet.pos[v.t] = have - sh;
   save(); paint();
   if (!quiet) toast('Redeemed ' + money(back) + ' from USDG / x' + v.t + '.');
+  return true;
 }
 
 function withdrawAll() {
@@ -379,10 +381,10 @@ function fillDrawer() {
 
   if (!wallet) { go.disabled = true; go.textContent = 'Connect a wallet to ' + mode; return; }
   if (mode === 'deposit') {
-    go.disabled = pausedDeposit || !(n > 0) || n > wallet.usdg + DUST_USDG || n > room + DUST_USDG;
+    go.disabled = pausedDeposit || !(n >= DUST_USDG) || n > wallet.usdg + DUST_USDG || n > room + DUST_USDG;
     go.textContent = pausedDeposit ? 'Deposits are paused' : 'Deposit ' + money(n) + ' USDG';
   } else {
-    go.disabled = !(n > 0) || n > have + DUST;
+    go.disabled = !(n >= DUST) || n > have + DUST;
     go.textContent = 'Redeem ' + (n || 0).toFixed(4) + ' c' + v.t;
   }
 }
@@ -427,9 +429,15 @@ document.getElementById('d-max').addEventListener('click', () => {
   fillDrawer();
 });
 go.addEventListener('click', () => {
+  /* The drawer being open is the real precondition, not the button's disabled
+     flag: the deposit repaints the drawer on its way out, which re-enables the
+     button, and a second click from the same burst would spend again. */
+  if (!drawer.classList.contains('on') || go.disabled) return;
   const n = Number(amount.value) || 0;
-  if (mode === 'deposit') depositInto(current, n); else withdrawFrom(current, n);
-  setMode(mode);
+  go.disabled = true;
+  const done = mode === 'deposit' ? depositInto(current, n) : withdrawFrom(current, n);
+  if (done) { closeDrawer(); return; }   // it went through: show them the position, not the form again
+  setMode(mode);                      // it was refused: leave the form up with the reason
 });
 amount.addEventListener('input', fillDrawer);
 scrim.addEventListener('click', closeDrawer);
@@ -472,6 +480,7 @@ function toast(msg) {
   el.textContent = msg;
   toasts.appendChild(el);
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 3200);
+  return false;                       // every `return toast(...)` above is a refusal
 }
 
 function copy(text, msg) {

@@ -3,20 +3,20 @@
 definition here so the four pages cannot drift apart."""
 import pathlib, re
 
-PETAL = ("M12 12c-2.5-1.6-3.4-5-2-7.8l2 2 2-2c1.4 2.8.5 6.2-2 7.8z")
-MARK = ('<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">'
-        '<g fill="currentColor">'
-        + "".join('<path d="%s"%s/>' % (PETAL, "" if i == 0 else
-                  ' transform="rotate(%d 12 12)"' % (i * 72))
-                  for i in range(5))
-        + '</g>'
-        '<circle cx="12" cy="12" r="1.15" fill="currentColor" opacity=".45"/>'
-        '<circle cx="12" cy="9.6" r=".5" fill="currentColor" opacity=".55"/>'
-        '<circle cx="14.3" cy="11.3" r=".5" fill="currentColor" opacity=".55"/>'
-        '<circle cx="13.4" cy="13.9" r=".5" fill="currentColor" opacity=".55"/>'
-        '<circle cx="10.6" cy="13.9" r=".5" fill="currentColor" opacity=".55"/>'
-        '<circle cx="9.7" cy="11.3" r=".5" fill="currentColor" opacity=".55"/>'
-        '</svg>')
+# The mark, traced from the artwork by brand/trace.py into one path. It is
+# read from the file rather than pasted here, so the drawing has exactly one
+# home, and it takes currentColor so it is pink on the page and petal on the
+# rail without a second export.
+_MARK_SVG = (pathlib.Path(__file__).parent / "brand" / "mark.svg").read_text()
+_MARK_D = re.search(r'd="([^"]+)"', _MARK_SVG).group(1)
+_MARK_VB = re.search(r'viewBox="([^"]+)"', _MARK_SVG).group(1)
+
+def mark(size=26):
+    return (f'<svg width="{size}" height="{size}" viewBox="{_MARK_VB}" '
+            f'fill="currentColor" aria-hidden="true"><path d="{_MARK_D}"/></svg>')
+
+MARK = mark()
+
 AR = ('<svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" '
       'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">'
       '<path d="M5 12h13M12 5l7 7-7 7"/></svg>')

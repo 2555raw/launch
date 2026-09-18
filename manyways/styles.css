@@ -101,7 +101,7 @@ p { margin: 0; }
 .rail:hover, .rail:focus-within { width: 214px; }
 .rail .mark { display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 7px;
               color: var(--petal); margin-bottom: 14px; border-radius: 10px; }
-.rail .mark svg { flex: none; }
+.rail .mark svg { flex: none; width: 30px; height: 30px; margin: 0 -2px; }
 .rail .wordmark { font-family: var(--brush); font-size: 19px; color: var(--on-dark); }
 .rail .ri { position: relative; display: flex; align-items: center; gap: 12px; height: 38px;
             padding: 0 7px; border-radius: 9px; color: var(--on-dark-3); background: none;

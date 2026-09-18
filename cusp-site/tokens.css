@@ -51,6 +51,8 @@
   --on-band-2: #A9A8AF;
   --band-line: rgba(233, 233, 233, .16);
   --dash: #D6D6D6;
+  --grid: #DEDEDE;         /* the graph paper the page sits on */
+  --grid-step: 32px;
 
   --warn: #B4802A;
   --down: #C24B45;
@@ -65,8 +67,19 @@
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { background: var(--bg); color-scheme: light; scroll-behavior: smooth; overflow-x: hidden; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+/* The ground is graph paper, as it is there: a fine grid on both axes, put on
+   <html> rather than a fixed pseudo-element so that anything with a
+   background of its own — a card, the navy band, the footer — simply covers
+   it, which is exactly where the reference stops drawing it too. */
+html {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(to right, var(--grid) 0 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px);
+  background-size: var(--grid-step) var(--grid-step);
+  color-scheme: light; scroll-behavior: smooth; overflow-x: hidden;
+}
+body { margin: 0; background: transparent; color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto; } }
@@ -142,7 +155,7 @@ img, svg { display: block; }
 
 /* ---------- the footer, at the bottom of every page ---------- */
 
-.ft { border-top: 1px dashed var(--line); background: var(--bg); }
+.ft { border-top: 1px dashed var(--line); background: transparent; }
 
 /* the chain figures used to sit above the nav; they belong next to the
    View status link that points at them */

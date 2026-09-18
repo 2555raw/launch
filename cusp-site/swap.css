@@ -82,7 +82,7 @@
 
 /* ---------- the two cards ---------- */
 
-.tr-main { background: var(--bg); padding: 42px 24px 60px; }
+.tr-main { background: transparent; padding: 42px 24px 60px; }
 .tr-cols {
   max-width: var(--wrap-swap); margin: 0 auto;
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.07fr); gap: 20px; align-items: start;

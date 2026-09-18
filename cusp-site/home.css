@@ -22,10 +22,11 @@
 /* the dashed rules run the whole height of the light ground, as they do there */
 .hm-hero::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image: repeating-linear-gradient(to right, var(--dash) 0 1px, transparent 1px 120px);
+  background-image: repeating-linear-gradient(to right, var(--dash) 0 1px, transparent 1px 128px);
   -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 11px);
   mask-image: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 11px);
-  opacity: .8;
+  /* quieter than it was: the graph paper behind it now carries the rhythm */
+  opacity: .45;
 }
 /* The form is absolutely placed rather than pushed around with negative
    margins: it has to sit behind the headline's right edge and stay there at
@@ -55,8 +56,16 @@
 
 /* ---------- one vault per stock ---------- */
 
-.hm-strip { text-align: center; padding: 18px 24px; border-bottom: 1px solid var(--line); background: var(--bg); }
-.hm-strip .k { color: var(--accent-glow); }
+.hm-strip { text-align: center; padding: 18px 24px; border-bottom: 1px solid var(--line); background: transparent; }
+/* the eyebrow reads in ink and carries the accent as a rule under it, which
+   is legible on this grey in a way pastel type on pastel grey never was */
+.hm-strip .k {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-glow);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 5px;
+}
 .hm-stocks {
   max-width: var(--wrap-head); margin: 0 auto;
   display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));

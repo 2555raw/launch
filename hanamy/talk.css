@@ -104,6 +104,10 @@
 @media (max-width: 760px) {
   .talk { height: auto; min-height: 100vh; }
   .talk-top { padding: 10px 16px; flex-wrap: wrap; }
+  /* The count and the two buttons together are wider than a phone, so the
+     count takes its own line rather than pushing the page sideways. */
+  .talk-top .far { flex-wrap: wrap; justify-content: flex-end; min-width: 0; gap: 8px; }
+  .talk-top .far .sub { width: 100%; text-align: right; }
   .thread { padding: 18px 16px 4px; }
   .composer-wrap { padding: 0 16px 14px;
                    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }

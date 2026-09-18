@@ -164,8 +164,8 @@ def rail(active=""):
             for k, t in (("legacy", "Legacy"), ("night", "Night"), ("light", "Light")))
         + '</div>')
     out.append('<span class="gap" aria-hidden="true"><span class="kana">\u82b1\u898b</span></span>')
-    out.append(f'<a class="ri x" href="https://x.com/" target="_blank" rel="noopener">'
-               f'{X_MARK}<span class="lbl">Hanamy on X</span></a>')
+    out.append(f'<a class="ri x" href="https://x.com/useHanamy" target="_blank" rel="noopener">'
+               f'{X_MARK}<span class="lbl">@useHanamy</span></a>')
     out.append(f'<a class="ri" href="staking.html">{svg("Account")}'
                f'<span class="lbl">Your account</span></a>')
     return '<nav class="rail" aria-label="Main">' + "".join(out) + '</nav>'
@@ -180,7 +180,7 @@ def drawer():
         else:
             d += f'<a class="solo" href="{href}">{label}</a>'
     d += '<a class="solo" href="staking.html">Your account</a>'
-    d += '<a class="solo" href="https://x.com/" target="_blank" rel="noopener">Hanamy on X</a>'
+    d += '<a class="solo" href="https://x.com/useHanamy" target="_blank" rel="noopener">@useHanamy</a>'
     return (f'<div class="railbar"><a class="brand" href="index.html">{MARK} Hanamy</a>'
             f'<button class="burger" type="button" id="burger" aria-expanded="false" '
             f'aria-controls="drawer" aria-label="Menu">'
@@ -200,8 +200,8 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
     <div>
       <div class="brand">{MARK} Hanamy</div>
       <p class="foot-line">Nothing is kept.</p>
-      <a class="x" href="https://x.com/" target="_blank" rel="noopener"
-         aria-label="Hanamy on X"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow on X</span></a>
+      <a class="x" href="https://x.com/useHanamy" target="_blank" rel="noopener"
+         aria-label="Hanamy on X, @useHanamy"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>@useHanamy</span></a>
     </div>
     <div><h4>Platform</h4><ul>
       <li><a href="models.html">Console</a></li>

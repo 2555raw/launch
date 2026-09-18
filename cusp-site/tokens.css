@@ -175,7 +175,9 @@ img, svg { display: block; }
 }
 .ft-col { padding: 26px 22px 36px; border-left: 1px dashed var(--line); }
 .ft-col:last-child { border-right: 1px dashed var(--line); }
-.ft-col .k { margin-bottom: 15px; }
+/* the four column headings carry the accent — weight 700 rather than 600,
+   because a pastel on this grey needs the extra stroke to hold at 11.8px */
+.ft-col .k { margin-bottom: 15px; color: var(--accent-glow); font-weight: 700; }
 .ft-col a {
   display: block; padding: 5px 0;
   font-size: 13.4px; letter-spacing: .04em; text-transform: uppercase;

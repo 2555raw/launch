@@ -30,6 +30,7 @@ open where you run it.
 | `menus.mjs` | the nav dropdowns: open, close, switch between them, a click outside, Escape. |
 | `misc.mjs` | the docs TOC and its scroll spy, a contracts row opening its vault and prefilling the search, the quick trade quoting from a page that is not the desk, the legal pages' contents lists, the footer's status bar and cube field. |
 | `wallettest.mjs` | the wallet's two halves, against a stubbed EIP-1193 provider that throws on any method but the three read-only ones: with no wallet it falls back to the demo exactly as before; with one that approves it takes the real address, the real network and the real native balance while the play money stays play money; with one that declines it carries on; and the swap desk does the same. Nothing is ever signed or sent, and the stub proves it by refusing to answer anything else. |
+| `abuse.mjs` | the same desk handled badly: negative, zero, blank, `1e9`, `Infinity` and sub-cent amounts in both money fields; the wallet overdrawn; eight clicks in one burst on Deposit and on Swap; regex characters and a `<script>` tag in the search box. Money moves only for an amount that is real, affordable and at least a cent, no press spends twice, and nothing is injected. It found all three faults fixed in the commit that added it. |
 | `allinks.mjs` | every `href` on every page resolves to something that exists — 189 targets. |
 | `sweep.mjs` | at 1919 and 390: no horizontal scroll, and no text the colour of its own background. |
 

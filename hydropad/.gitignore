@@ -6,3 +6,7 @@ node_modules/
 e2e-*.png
 *.png
 !media/**/*.png
+
+# Frames are an intermediate: scripts/video/render.js regenerates them from
+# scene.html, and 1394 PNGs do not belong in a repository.
+scripts/video/frames/

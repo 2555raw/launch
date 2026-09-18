@@ -247,8 +247,8 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 
 # ---------------------------------------------------------------- index
 index = head("Hanamy · Say anything, it keeps nothing",
-             "Explore every model, compare answers side by side, and build with the ones you "
-             "choose, with one wallet-scoped key and one endpoint.",
+             "An AI that keeps nothing. Say anything, attach a file, get an answer, and "
+             "nothing is stored, threaded or remembered.",
              '') + top("platform") + f"""
 <section class="hero">
   <div class="frame">

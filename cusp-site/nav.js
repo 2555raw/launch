@@ -34,3 +34,21 @@
   document.addEventListener('click', () => close(null));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') close(null); });
 })();
+
+/* ---------- the cube field lights under the pointer ----------
+   :hover on an SVG <use> does not match here — the same quirk the fee loop
+   hit — so the highlight is delegated from the svg and set as a class. */
+
+(function lightTheCubes() {
+  const field = document.querySelector('.ft-cubes svg');
+  if (!field) return;
+  let lit = null;
+  const clear = () => { if (lit) { lit.classList.remove('on'); lit = null; } };
+  field.addEventListener('pointermove', e => {
+    const u = e.target.closest ? e.target.closest('.cube') : null;
+    if (u === lit) return;
+    clear();
+    if (u) { u.classList.add('on'); lit = u; }
+  });
+  field.addEventListener('pointerleave', clear);
+})();

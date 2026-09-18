@@ -175,18 +175,17 @@ img, svg { display: block; }
 /* green because it means operational, not because it is an accent */
 .ft-status i { width: 8px; height: 8px; flex: none; background: #1FA971; }
 
-.ft-cubes {
-  height: 168px; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line);
-  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27120%27%20height%3D%27104%27%20viewBox%3D%270%200%20120%20104%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23DCDCDC%27%20stroke-width%3D%271%27%3E%3Cpath%20d%3D%27M30%2022l22-12%2022%2012-22%2012z%27%2F%3E%3Cpath%20d%3D%27M30%2022v24l22%2012V34z%27%2F%3E%3Cpath%20d%3D%27M74%2022v24L52%2058V34z%27%2F%3E%3Cpath%20d%3D%27M90%2066l22-12%2022%2012-22%2012z%27%20transform%3D%27translate%28-60%200%29%27%2F%3E%3Cpath%20d%3D%27M90%2066v24l22%2012V78z%27%20transform%3D%27translate%28-60%200%29%27%2F%3E%3Cpath%20d%3D%27M134%2066v24l-22%2012V78z%27%20transform%3D%27translate%28-60%200%29%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
-  background-size: 120px 104px;
-  opacity: .75;
-}
+.ft-cubes { border-top: 1px dashed var(--line); overflow: hidden; line-height: 0; }
+.ft-cubes svg { width: 100%; height: 300px; display: block; }
+/* each cube is one <use>, so it can light on its own */
+.ft-cubes .cube { color: #D9D9D9; transition: color .14s; }
+.ft-cubes .cube.on { color: var(--accent-fill); }
 
 @media (max-width: 860px) {
   .ft-cols { grid-template-columns: 1fr 1fr; }
   .ft-col:nth-child(2n) { border-right: 1px dashed var(--line); }
   .ft-col:nth-child(-n+2) { border-bottom: 1px dashed var(--line); }
-  .ft-cubes { height: 120px; }
+  .ft-cubes svg { height: 190px; }
 }
 @media (max-width: 560px) {
   .ft-cols { grid-template-columns: 1fr; padding-left: 16px; padding-right: 16px; }

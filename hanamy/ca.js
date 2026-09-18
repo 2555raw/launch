@@ -4,4 +4,4 @@
  * it and refuses anything that is not an address, rather than editing this
  * by hand and finding out later that a character was dropped.
  */
-window.SITE_CA = "";
+window.SITE_CA = "0xA8050AF8Dc4470DF8dA07543b75F1d8872d4AB47";

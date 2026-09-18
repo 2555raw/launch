@@ -6,28 +6,14 @@
 
 .cs { min-height: 100%; }
 
-/* ---------- chain strip ---------- */
-
-.cs-strip { border-bottom: 1px solid var(--line); background: var(--card); overflow-x: auto; scrollbar-width: none; }
-.cs-strip::-webkit-scrollbar { display: none; }
-.cs-strip-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px;
   height: 34px; display: flex; align-items: center; gap: 24px;
   font-size: 12.5px; color: var(--dim); white-space: nowrap;
 }
-.cs-strip-in b { color: var(--muted); font-weight: 600; }
 .cs-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 7px; vertical-align: 1px; }
 
 /* ---------- nav ---------- */
 
-.cs-nav { position: relative; z-index: 40; background: var(--card); border-bottom: 1px solid var(--line); }
-.cs-nav::after { content: none; }
-.cs-nav > * { position: relative; }
-.cs-nav {
-  max-width: none; height: var(--nav);
-  display: flex; align-items: center; gap: 22px;
-  padding: 0 max(24px, calc((100vw - var(--wrap-head)) / 2 + 24px));
-}
 .cs-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 20.5px; font-weight: 600; letter-spacing: -.02em; }
 
 .cs-tabs { margin: 0 auto; display: flex; align-items: center; gap: 4px; }

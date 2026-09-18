@@ -15,7 +15,8 @@
     "extend": "python3 scripts/extend.py",
     "deploy": "node scripts/deploy.js",
     "e2e:pons": "node contracts/e2e-pons.js",
-    "e2e:all": "node contracts/e2e.js && node contracts/e2e-pons.js"
+    "e2e:all": "node contracts/e2e.js && node contracts/e2e-pons.js",
+    "ca": "node scripts/set-ca.js"
   },
   "devDependencies": {
     "ethers": "^6.13.4",

@@ -22,9 +22,10 @@ swap.html     the swap page: dark band, the route competition, the swap card
 terms.html    terms of use
 risk.html     risk disclosure
 privacy.html  privacy notice
-styles.css    the design system (palette, type, layout) and the responsive rules
+tokens.css    the palette, the type and the shared primitives — loaded first everywhere
+styles.css    the vaults page's layout
 legal.css     the reading column the three legal pages add on top of it
-swap.css      the swap page's own design system — it shares nothing with the above
+swap.css      the swap page's own furniture
 wallet.js     the demo wallet, shared by every page
 logos.js      the brand marks, shared by the vault list and the token pickers
 app.js        the VAULTS data, deposits and redemptions, list rendering,
@@ -48,40 +49,43 @@ Cloudflare Pages).
 
 ## Design
 
-**One accent, and it is a calm warm magenta.** `#DA6A98` — hue 336, held back from
-neon on purpose. It only ever means money: fee APR, the primary action, the
-compounding 70% of the fee split, the live figures, the vault tickers. Nothing else
-on the page is allowed to be magenta, which is what keeps it readable as a signal.
+One palette for the whole site, in `tokens.css`, modelled on `usevertex.xyz`: a
+warm grey ground, a dark navy band across the top of every page, white cards,
+and mint as the state colour. Nothing below `tokens.css` redefines a colour, so
+changing one there changes it everywhere.
 
-**The ground is pulled from the same hue, not from grey.** `#100D12` is a
-plum-neutral black, and every card, line and muted text steps up from it on that
-same family. With no competing colour in the page, the magenta never has to fight
-anything.
+**Two accents, and they never swap jobs.** Dark navy `#3D3B4E` is the primary
+action — the button you press, the band, the toast. Mint `#C6F3DA` and its green
+`#1D9E68` are the live state — what is selected, active, best, in range. A
+deposit button is navy; the filter you picked is mint; the APR you are earning is
+green.
 
-Status is the single exception, and it is deliberately quiet: a sage dot for *in
-range*, amber for *rebalancing*, rose for *paused*. They are dots, not a second
-accent.
+| Token | Value | Role |
+| --- | --- | --- |
+| `--band` / `--band-hi` | `#3D3B4E` / `#4A4860` | the dark band, primary buttons, toasts |
+| `--bg` / `--head` | `#ECECEA` / `#F5F5F3` | the page ground and the lighter bands |
+| `--card` | `#FFFFFF` | rows, cards, inputs |
+| `--ink` / `--muted` / `--dim` | `#2B2937` / `#6E6D79` / `#9A98A4` | headings, body copy, micro-labels |
+| `--line` / `--line-2` | `#E3E3DF` / `#EEEEEA` | borders, and the lighter rules inside a card |
+| `--mint` / `--mint-line` / `--mint-pill` | `#C6F3DA` / `#96E0B8` / `#ADEFC9` | selected, active, held, best |
+| `--green` / `--green-deep` | `#1D9E68` / `#14714A` | accent text: APR, links, the winning route |
+| `--warn` / `--down` | `#B4802A` / `#C24B45` | rebalancing, paused, a price that fell |
 
-| Token | Dark | Light | Role |
-| --- | --- | --- | --- |
-| `--bg` / `--bg-alt` | `#100D12` / `#15111A` | `#FAF6F8` / `#F2EBF0` | page ground and the alternating bands |
-| `--card` / `--card-hi` / `--surface` | `#1A151F` / `#211A27` / `#2A2231` | `#FFFFFF` / `#FCF6FA` / `#F0E6EE` | rows, hover state, tracks |
-| `--ink` / `--prose` / `--muted` / `--dim` | `#F6F0F4` / `#D3C7D1` / `#A0929E` / `#776B76` | `#1F1720` / `#4A3C48` / `#6F6069` / `#92838C` | headings, body copy, secondary, micro-labels |
-| `--line` / `--line-hi` | `#241E2A` / `#362D3E` | `#EADFE7` / `#D9C7D4` | borders and hover borders |
-| `--accent-fill` | `#DA6A98` | `#DA6A98` | button and bar fills, in both themes |
-| `--accent` | `#DA6A98` | `#A83B6C` | accent **text**: APR, figures, links |
-| `--ok` / `--warn` / `--down` | `#86C7A4` / `#E2B172` / `#DD8189` | `#3E8A65` / `#9A6A1C` / `#B04C55` | in range, rebalancing, paused and negative moves |
+**Light only.** The site this follows has no dark theme, so neither does this one;
+the switch that used to be in the nav is gone rather than left switching between
+two palettes that no longer exist.
 
-The two accent tokens exist for contrast, not for taste. Dark ink on `#DA6A98`
-clears 5.5:1, so the fill stays the same in both themes; but `#DA6A98` as small text
-on the near-white ground only reaches about 2.9:1, so accent type in the light theme
-drops to `#A83B6C`.
+Type is **Schibsted Grotesk** throughout, the closest thing on Google Fonts to the
+grotesque the reference uses — the real one could not be read, the site being
+unreachable from where this was built. There is no monospace anywhere: figures are
+set in the same family, as they are on the reference.
 
-Tokens live on `:root`, not on `.cs` — the deposit drawer and its scrim sit outside
-that wrapper and need the same palette.
+Figures are *not* tabular. This family gives the comma a full-width slot under
+`font-variant-numeric: tabular-nums`, and `$29 , 555` is worse than a column that
+sits a pixel off.
 
-Type: **Inter** for everything, **JetBrains Mono** for every figure, address and
-label. Micro-labels use `.cs-label` — 10.5px mono, uppercase, `0.16em` tracking.
+Sizes are in px because they were measured off screenshots of the reference, and
+rounding them into rems would have lost the thing being matched.
 
 ## Layout
 
@@ -156,23 +160,15 @@ It replaced an angular chevron, which read as rigid next to a palette this soft.
 - **Deposit drawer** — two modes, deposit and withdraw, with a Max that fills in the
   balance, the room under the cap or the whole position. Closes on the scrim, the ✕
   or Escape.
-- **Theme** — dark by default, with a switch and `localStorage` memory, wrapped in
-  `try/catch` so a browser that blocks storage still renders.
 - **Nav** — the burger drops the sections below the bar under 1080px; an
   `IntersectionObserver` marks the active one.
 
 ## The swap page
 
-`swap.html` deliberately does **not** share the design system above. It follows
-`usevertex.xyz/trade/swap`, which is the page it was asked to follow: the warm grey
-ground, the dark band with its dashed grid, the hatched strip under it, the mint
-accent, the white cards, and the two content widths — 1160px for the header, 900px
-for everything else.
-
-Type is **Schibsted Grotesk**, the closest thing on Google Fonts to the grotesque
-that page uses; the real one could not be read, because the site is unreachable from
-where this was built. Sizes are in px because they were measured off a screenshot,
-and rounding them into rems would have lost the thing being matched.
+`swap.html` follows `usevertex.xyz/trade/swap` closely: the dark band with its
+dashed grid, the hatched strip under it, the three mode tiles, the swap card and
+the route competition beside it, and the two content widths — 1160px for the
+header, 900px for the cards.
 
 What is *not* borrowed is the branding. The name, the mark and the four aggregators
 are this project's own — Kestrel, Zeroth, Nordway and Lattice are invented, because

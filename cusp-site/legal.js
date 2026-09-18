@@ -1,18 +1,6 @@
-/* Cusp — the legal pages: theme, the mobile menu and the contents list.
+/* Cusp — the legal pages: the mobile menu and the contents list.
    The vaults page's app.js is about vaults and would throw here, so these pages
    carry their own small script instead. */
-
-const root = document.documentElement;
-try {
-  const saved = localStorage.getItem('cusp-theme');
-  if (saved) root.dataset.theme = saved;
-} catch (_) { /* storage blocked — dark stays */ }
-
-document.getElementById('theme').addEventListener('click', () => {
-  const next = root.dataset.theme === 'light' ? 'dark' : 'light';
-  root.dataset.theme = next;
-  try { localStorage.setItem('cusp-theme', next); } catch (_) {}
-});
 
 const nav = document.querySelector('.cs-nav');
 const burger = document.getElementById('burger');

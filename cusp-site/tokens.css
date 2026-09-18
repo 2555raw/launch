@@ -1,0 +1,108 @@
+/* Cusp — the one place the palette and the type live.
+   Modelled on usevertex.xyz: a warm grey ground, a dark navy band across the
+   top of every page, white cards, and mint as the state colour. Every page
+   loads this first and then its own sheet on top; nothing below redefines a
+   colour, so changing one here changes it everywhere.
+
+   The two accents do different jobs and never swap:
+     dark navy  the primary action — the button you press
+     mint/green the live state — what is selected, active, best, in range
+
+   Light only. The site it follows has no dark theme, and neither does this. */
+
+:root {
+  --band: #3D3B4E;
+  --band-hi: #4A4860;
+  --bg: #ECECEA;
+  --head: #F5F5F3;
+  --card: #FFFFFF;
+  --ink: #2B2937;
+  --muted: #6E6D79;
+  --dim: #9A98A4;
+  --line: #E3E3DF;
+  --line-2: #EEEEEA;
+  --mint: #C6F3DA;
+  --mint-line: #96E0B8;
+  --mint-pill: #ADEFC9;
+  --on-mint: #16301F;
+  --green: #1D9E68;
+  --green-deep: #14714A;
+  --warn: #B4802A;
+  --down: #C24B45;
+  --on-band: #FFFFFF;
+  --on-band-2: #C3C2CE;
+  --band-line: rgba(255, 255, 255, .15);
+  --dash: rgba(43, 41, 55, .10);
+
+  --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --wrap: 900px;
+  --wrap-head: 1160px;
+  --nav: 66px;
+  --r: 12px;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--bg); color-scheme: light; scroll-behavior: smooth; overflow-x: hidden; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+img, svg { display: block; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto; } }
+
+/* No tabular figures anywhere: this family gives the comma a full-width slot
+   under them, and "$29 , 555" is worse than a column that is a pixel off. */
+
+/* ---------- primitives every page uses ---------- */
+
+.cs-label, .tr-k {
+  display: block;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--dim);
+}
+
+.cs-btn, .tr-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 38px; padding: 0 16px;
+  border: 1px solid transparent; border-radius: 9px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 600; white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.cs-btn-fill, .tr-btn-dark { background: var(--band); color: #fff; }
+.cs-btn-fill:hover, .tr-btn-dark:hover { background: var(--band-hi); }
+.cs-btn-line { background: var(--card); color: var(--ink); border-color: var(--line); }
+.cs-btn-line:hover { border-color: #D4D3CD; }
+.cs-btn:disabled, .tr-btn:disabled { opacity: .45; cursor: not-allowed; }
+.cs-btn-wide, .tr-btn-wide { width: 100%; height: 46px; font-size: 14.5px; }
+.tr-btn-sm { height: 34px; padding: 0 14px; font-size: 13px; }
+
+/* the dashed grid that runs down the dark band and the footer */
+.dashed { position: relative; overflow: hidden; }
+.dashed::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(to right, var(--band-line) 0 1px, transparent 1px 120px);
+  -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 11px);
+  mask-image: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 11px);
+}
+.dashed > * { position: relative; }
+
+/* the hatched strip that closes the band off */
+.hatch {
+  height: 30px; border-bottom: 1px solid var(--line);
+  background: repeating-linear-gradient(45deg, var(--line) 0 1px, transparent 1px 7px), var(--head);
+}
+
+/* ---------- toasts ---------- */
+
+.cs-toasts, .tr-toasts {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 70;
+  display: grid; gap: 8px; justify-items: center; pointer-events: none;
+  width: min(420px, calc(100vw - 32px));
+}
+.cs-toast, .tr-toast {
+  font-family: var(--font); font-size: 13px; color: #fff;
+  border-radius: 10px; background: var(--band); padding: 11px 15px;
+  box-shadow: 0 14px 30px rgba(43, 41, 55, .22);
+  animation: toast-in .2s ease both;
+}
+.cs-toast.out, .tr-toast.out { opacity: 0; transform: translateY(6px); transition: opacity .3s, transform .3s; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }

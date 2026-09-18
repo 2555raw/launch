@@ -1,65 +1,13 @@
 /* Cusp — the swap page.
-   A different design language from the vaults page on purpose: the light warm
-   grey ground, the dark band across the top, the mint accent and the dashed
-   grid are modelled on usevertex.xyz/trade/swap, which is the page this one was
-   asked to follow. Type is Schibsted Grotesk, the closest match on Google Fonts
-   to the grotesque that page uses — swap the family here and it changes
-   everywhere.
-   Sizes are in px because they were read off a screenshot, and rounding them
-   into rems would have lost the thing being matched. */
+   Colours, type and the shared primitives come from tokens.css. What is here is
+   this page's own furniture: the dark band, the swap card and the route
+   competition. Sizes are in px because they were read off a screenshot of the
+   page this one follows, and rounding them into rems would have lost the thing
+   being matched. */
 
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html { background: #ECECEA; color-scheme: light; }
-body { margin: 0; background: #ECECEA; }
-a { color: inherit; text-decoration: none; }
-svg { display: block; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+.tr { min-height: 100%; }
 
-.tr {
-  --band: #3D3B4E;
-  --bg: #ECECEA;
-  --head: #F5F5F3;
-  --card: #FFFFFF;
-  --ink: #2B2937;
-  --muted: #6E6D79;
-  --dim: #9A98A4;
-  --line: #E3E3DF;
-  --line-2: #EEEEEA;
-  --mint: #C6F3DA;
-  --mint-line: #96E0B8;
-  --mint-pill: #ADEFC9;
-  --green: #1D9E68;
-  --on-band: #FFFFFF;
-  --on-band-2: #C3C2CE;
-  --band-line: rgba(255, 255, 255, .15);
-  --dash: rgba(43, 41, 55, .10);
 
-  --wrap: 900px;
-  --wrap-head: 1160px;
-
-  font-family: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
-}
-
-.tr-k {
-  display: block;
-  font-size: 10.5px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
-  color: var(--dim);
-}
-
-.tr-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  border: 1px solid transparent; border-radius: 9px; cursor: pointer;
-  font-family: inherit; font-size: 14px; font-weight: 600;
-  transition: background .15s, border-color .15s, opacity .15s;
-}
-.tr-btn-dark { background: var(--band); color: #fff; }
-.tr-btn-dark:hover { background: #4A4860; }
-.tr-btn-sm { height: 34px; padding: 0 14px; font-size: 13px; }
-.tr-btn-wide { width: 100%; height: 46px; font-size: 14.5px; }
-.tr-btn:disabled { opacity: .45; cursor: not-allowed; }
 
 /* ---------- header ---------- */
 
@@ -96,14 +44,7 @@ svg { display: block; }
 
 /* ---------- the dark band ---------- */
 
-.tr-band { position: relative; background: var(--band); overflow: hidden; }
-.tr-band::before {
-  content: ""; position: absolute; inset: 0;
-  background-image: repeating-linear-gradient(to right, var(--band-line) 0 1px, transparent 1px 120px);
-  -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 11px);
-  mask-image: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 11px);
-  pointer-events: none;
-}
+.tr-band { background: var(--band); }
 .tr-band-in {
   /* + the padding, so the content box is exactly --wrap and lines up with .tr-cols */
   position: relative; max-width: calc(var(--wrap) + 48px); margin: 0 auto; padding: 32px 24px 44px;
@@ -140,13 +81,6 @@ svg { display: block; }
 .tr-mode:disabled { cursor: default; opacity: 1; }
 .tr-mode:disabled b, .tr-mode:disabled span:last-child { color: var(--dim); }
 
-/* the hatched strip under the band */
-.tr-hatch {
-  height: 30px; border-bottom: 1px solid var(--line);
-  background:
-    repeating-linear-gradient(45deg, var(--line) 0 1px, transparent 1px 7px),
-    var(--head);
-}
 
 /* ---------- the two cards ---------- */
 

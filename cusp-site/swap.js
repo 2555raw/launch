@@ -254,7 +254,7 @@ function sync() {
 
 function toast(msg) {
   const el = document.createElement('div');
-  el.className = 'tr-toast';
+  el.className = "tr-toast";
   el.textContent = msg;
   $('toasts').appendChild(el);
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 3400);

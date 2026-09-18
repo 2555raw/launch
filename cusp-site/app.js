@@ -464,20 +464,6 @@ chips.addEventListener('click', e => {
   renderList();
 });
 
-/* ---------- theme ---------- */
-
-const root = document.documentElement;
-try {
-  const saved = localStorage.getItem('cusp-theme');
-  if (saved) root.dataset.theme = saved;
-} catch (_) { /* storage blocked — dark stays */ }
-
-document.getElementById('theme').addEventListener('click', () => {
-  const next = root.dataset.theme === 'light' ? 'dark' : 'light';
-  root.dataset.theme = next;
-  try { localStorage.setItem('cusp-theme', next); } catch (_) {}
-});
-
 /* ---------- menu and active tab ---------- */
 
 const nav = document.querySelector('.cs-nav');

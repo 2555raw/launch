@@ -90,32 +90,45 @@ p { margin: 0; }
    edge on every page, the way the documentation already had it. An icon
    that stands for a group opens its panel beside it; the rest are links.
    ------------------------------------------------------------------ */
-.shell { display: grid; grid-template-columns: 64px minmax(0, 1fr); min-height: 100vh; }
+.shell { display: grid; grid-template-columns: 58px minmax(0, 1fr); min-height: 100vh; }
 .shell > .col { min-width: 0; }
 .rail { background: var(--bark); display: flex; flex-direction: column; align-items: stretch;
-        gap: 4px; padding: 14px 12px 18px; position: sticky; top: 0; height: 100vh;
-        width: 64px; z-index: 60; transition: width .2s cubic-bezier(.2,.8,.3,1); }
+        gap: 2px; padding: 14px 10px 16px; position: sticky; top: 0; height: 100vh;
+        width: 58px; z-index: 60; transition: width .2s cubic-bezier(.2,.8,.3,1); }
 /* Collapsed it is a column of icons; hovered or tabbed into, it widens over
-   the page and every icon says its name. An icon on its own names nothing,
+   the page and every item says its name. An icon on its own names nothing,
    and a tooltip only tells you after you have already guessed. */
-.rail:hover, .rail:focus-within { width: 216px; }
-.rail .mark { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px;
-              color: var(--petal); margin-bottom: 12px; border-radius: 10px; }
+.rail:hover, .rail:focus-within { width: 214px; }
+.rail .mark { display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 7px;
+              color: var(--petal); margin-bottom: 14px; border-radius: 10px; }
 .rail .mark svg { flex: none; }
 .rail .wordmark { font-family: var(--brush); font-size: 19px; color: var(--on-dark); }
-.rail .ri { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px;
-            border-radius: 10px; color: var(--on-dark-3); background: none; border: 0;
-            cursor: pointer; width: 100%; text-align: left; font: inherit;
+.rail .ri { position: relative; display: flex; align-items: center; gap: 12px; height: 38px;
+            padding: 0 7px; border-radius: 9px; color: var(--on-dark-3); background: none;
+            border: 0; cursor: pointer; width: 100%; text-align: left; font: inherit;
             transition: color .16s ease, background .16s ease; }
 .rail .ri svg:first-child { flex: none; }
-.rail .ri:hover, .rail .ri.on, .rail .ri[aria-expanded="true"] {
-  color: var(--on-dark); background: rgba(255,238,243,.13); }
+.rail .ri:hover, .rail .ri[aria-expanded="true"] {
+  color: var(--on-dark); background: rgba(255,238,243,.11); }
+/* Where you are. Without this the navigation never answers the first
+   question anyone asks it. */
+.rail .ri.on { color: var(--on-dark); background: rgba(255,238,243,.14); font-weight: 600; }
+.rail .ri.on::before { content: ""; position: absolute; left: -7px; top: 8px; bottom: 8px;
+                       width: 2.5px; border-radius: 0 3px 3px 0; background: var(--blossom); }
 .rail .lbl { font-size: 14.5px; font-weight: 500; white-space: nowrap;
              opacity: 0; transition: opacity .16s ease; }
+.rail .ri.on .lbl { font-weight: 600; }
 .rail:hover .lbl, .rail:focus-within .lbl { opacity: 1; }
 .rail .ri .cv { margin-left: auto; opacity: 0; transition: opacity .16s ease; }
-.rail:hover .ri .cv, .rail:focus-within .ri .cv { opacity: .55; }
-.rail .gap { margin-top: auto; }
+.rail:hover .ri .cv, .rail:focus-within .ri .cv { opacity: .5; }
+/* The product sits above the rule, the reference below it. */
+.rail .sep { height: 1px; margin: 9px 7px; background: rgba(255,238,243,.14); }
+/* The kanji sits at the foot of the column, just above the account, so the
+   empty middle reads as breathing room rather than as something missing. */
+.rail .gap { flex: 1; display: flex; align-items: flex-end; justify-content: center;
+             padding-bottom: 16px; min-height: 40px; }
+.rail .kana { font-family: var(--serif); font-size: 15px; letter-spacing: .34em;
+              color: rgba(255,238,243,.20); writing-mode: vertical-rl; user-select: none; }
 .rail .menu { position: relative; }
 
 /* the flyout opens beside the rail, in the light palette */
@@ -313,7 +326,7 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
                                      background: var(--blush); }
 
 /* ---------------- docs shell ---------------- */
-.docs { display: grid; grid-template-columns: 64px 300px minmax(0, 1fr); min-height: 100vh; }
+.docs { display: grid; grid-template-columns: 58px 300px minmax(0, 1fr); min-height: 100vh; }
 .side { border-right: 1px solid var(--line); padding: 26px 26px 60px; background: var(--snow); }
 .toggle { display: inline-flex; padding: 4px; background: var(--blush); border-radius: 9px;
           margin-bottom: 22px; }
@@ -389,7 +402,7 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
 
 /* ---------------- responsive ---------------- */
 @media (max-width: 1100px) {
-  .docs { grid-template-columns: 64px minmax(0, 1fr); }
+  .docs { grid-template-columns: 58px minmax(0, 1fr); }
   .side { display: none; }
   .docs > .railbar, .docs > .drawer { grid-column: 1 / -1; }
   .doc, .docbar { padding-inline: 32px; }

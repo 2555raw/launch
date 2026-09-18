@@ -3,14 +3,20 @@
 definition here so the four pages cannot drift apart."""
 import pathlib, re
 
+PETAL = ("M12 12c-2.5-1.6-3.4-5-2-7.8l2 2 2-2c1.4 2.8.5 6.2-2 7.8z")
 MARK = ('<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">'
         '<g fill="currentColor">'
-        '<ellipse cx="12" cy="6" rx="2.7" ry="4.3"/>'
-        '<ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(72 12 12)"/>'
-        '<ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(144 12 12)"/>'
-        '<ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(216 12 12)"/>'
-        '<ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(288 12 12)"/>'
-        '</g><circle cx="12" cy="12" r="1.5" fill="#47202e" opacity=".35"/></svg>')
+        + "".join('<path d="%s"%s/>' % (PETAL, "" if i == 0 else
+                  ' transform="rotate(%d 12 12)"' % (i * 72))
+                  for i in range(5))
+        + '</g>'
+        '<circle cx="12" cy="12" r="1.15" fill="currentColor" opacity=".45"/>'
+        '<circle cx="12" cy="9.6" r=".5" fill="currentColor" opacity=".55"/>'
+        '<circle cx="14.3" cy="11.3" r=".5" fill="currentColor" opacity=".55"/>'
+        '<circle cx="13.4" cy="13.9" r=".5" fill="currentColor" opacity=".55"/>'
+        '<circle cx="10.6" cy="13.9" r=".5" fill="currentColor" opacity=".55"/>'
+        '<circle cx="9.7" cy="11.3" r=".5" fill="currentColor" opacity=".55"/>'
+        '</svg>')
 AR = ('<svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" '
       'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">'
       '<path d="M5 12h13M12 5l7 7-7 7"/></svg>')
@@ -100,9 +106,11 @@ def rail(active=""):
                 f'<div class="pop" id="m-{mid}" role="menu" hidden>'
                 f'<h6>{label}</h6>{items}</div></div>')
         else:
-            out.append(f'<a class="ri{on}" href="{href}">{svg(label)}'
+            cur = ' aria-current="page"' if on else ''
+            out.append(f'<a class="ri{on}" href="{href}"{cur}>{svg(label)}'
                        f'<span class="lbl">{label}</span></a>')
-    out.append('<span class="gap"></span>')
+    out.append('<span class="sep"></span>')
+    out.append('<span class="gap" aria-hidden="true"><span class="kana">\u82b1\u898b</span></span>')
     out.append(f'<a class="ri" href="staking.html">{svg("Account")}'
                f'<span class="lbl">Your account</span></a>')
     return '<nav class="rail" aria-label="Main">' + "".join(out) + '</nav>'
@@ -186,7 +194,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 index = head("Hanamy · Every model, one look",
              "Explore every model, compare answers side by side, and build with the ones you "
              "choose — one wallet-scoped key, one endpoint.",
-             '') + top("index") + f"""
+             '') + top("platform") + f"""
 <section class="hero">
   <div class="frame">
     <picture>
@@ -371,7 +379,7 @@ index = head("Hanamy · Every model, one look",
 # --------------------------------------------------------------- models
 models = head("Hanamy · The model register",
               "Every model reachable through the shared pool, with its context window and what a "
-              "million tokens costs in each direction.") + top("models") + f"""
+              "million tokens costs in each direction.") + top("platform") + f"""
 <section class="band light" style="padding-bottom:0"><div class="wrap">
   <p class="crumb"><a href="index.html">Hanamy</a> / Platform / Models</p>
   <h1 style="font-size:clamp(38px,5vw,62px)">Every model,<br>in one register.</h1>
@@ -601,7 +609,7 @@ mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gem
 # -------------------------------------------------------------- staking
 staking = head("Hanamy · Staking access",
                "Choose a refundable allocation. Keep it active for 30 days to qualify for early "
-               "enrollment in designated releases.") + top("staking") + f"""
+               "enrollment in designated releases.") + top("rewards") + f"""
 <section class="band light"><div class="wrap">
   <h1 style="font-size:clamp(40px,5.4vw,66px)">Staking access</h1>
   <p class="lede" style="margin-top:20px">Choose a refundable allocation. Keep it active for 30 days

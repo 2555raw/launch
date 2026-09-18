@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <title>Cusp — X header</title>
 <!-- 1500 x 500, the size X serves a profile header at. The avatar sits over
-     the bottom-left, so that corner is left empty; the headline stays on the
-     centre line, which is the part that survives every crop. This page is not
-     linked from the site — it exists to be screenshotted. -->
+     the bottom-left, so that corner is left empty; the line stays on the
+     centre line, which is the part that survives every crop. Not linked from
+     the site — it exists to be screenshotted. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -33,10 +33,10 @@
   }
 
   /* ---- the mark, shattered through the depth of the frame ----
-     Thirty copies of the one path, each at its own z, its own pair of
-     out-of-plane rotations and its own uneven scale, so none of them is the
-     logo straight on and all of them are unmistakably it. Blur stands in for
-     depth of field: the far ones are soft, the near ones sharp. */
+     Copies of the one path, each at its own z, its own pair of out-of-plane
+     rotations and its own uneven scale, so none of them is the logo straight
+     on and all of them are unmistakably it. Blur stands in for depth of
+     field: the far ones are soft, the near ones sharp. */
   .field { position:absolute; inset:0; transform-style:preserve-3d; pointer-events:none; }
   .sh {
     position:absolute; display:block;
@@ -45,152 +45,160 @@
     mix-blend-mode:multiply;
   }
 
-  /* two soft washes, so the ground is not flat grey across 1500px */
   .glow { position:absolute; border-radius:50%; filter:blur(95px); pointer-events:none; }
   .g1 { width:820px; height:440px; left:230px; top:110px; background:rgba(242,234,160,.5); }
   .g2 { width:540px; height:380px; left:1060px; top:-70px; background:rgba(255,207,254,.26); }
   .g3 { width:480px; height:330px; left:-130px; top:170px; background:rgba(238,238,238,.85); }
 
-  /* ---- the lockup, top left ---- */
-  .lock { position:absolute; left:52px; top:44px; display:flex; align-items:center; gap:9px; z-index:6; }
-  .lock i { display:block; width:40px; height:40px; background:var(--band);
+  .lock { position:absolute; left:52px; top:40px; display:flex; align-items:center; gap:9px; z-index:7; }
+  .lock i { display:block; width:34px; height:34px; background:var(--band);
             -webkit-mask:url(../mark.svg) center / contain no-repeat;
             mask:url(../mark.svg) center / contain no-repeat; }
-  .lock b { font-size:29px; font-weight:600; letter-spacing:-.025em; }
+  .lock b { font-size:24px; font-weight:600; letter-spacing:-.025em; }
 
-  /* ---- the line, on the centre line ---- */
   .say {
-    position:absolute; left:0; right:0; top:224px; text-align:center; z-index:6;
-    font-size:46px; font-weight:600; letter-spacing:-.035em; line-height:1.1;
+    position:absolute; left:0; right:0; top:214px; text-align:center; z-index:6;
+    font-size:42px; font-weight:600; letter-spacing:-.035em; line-height:1.1;
   }
-  .say u { text-decoration:none; box-shadow:inset 0 -.28em 0 var(--accent-fill); }
+  .say em { font-style:normal; color:var(--accent); box-shadow:inset 0 -.26em 0 var(--accent-fill); }
   .sub {
-    position:absolute; left:0; right:0; top:296px; text-align:center; z-index:6;
-    font-family:var(--mono); font-size:12.5px; letter-spacing:.2em;
-    text-transform:uppercase; color:var(--dim);
+    position:absolute; left:0; right:0; top:276px; text-align:center; z-index:6;
+    font-size:16.5px; color:var(--muted); letter-spacing:-.005em;
   }
 
-  /* ---- the floating cards, each on its own plane ----
-     Glass rather than solid: a translucent fill over the field, a blurred
-     backdrop, a lit top edge and a shadow whose spread follows how far back
-     the card sits. */
+  /* ---- the vault slabs ----
+     Glass rather than card stock: a translucent fill over the field behind,
+     a blurred backdrop, a lit top edge. Each one also carries a cut edge — a
+     stack of one-pixel steps shading from the lit face into the dark of the
+     side — and which side it shows on follows how that slab is turned, so
+     the geometry agrees with itself. */
   .card {
     position:absolute; z-index:5;
     background:linear-gradient(152deg, rgba(255,255,255,.97) 0%, rgba(247,247,248,.93) 38%, rgba(232,232,235,.84) 100%);
     border:1px solid rgba(255,255,255,.85);
     outline:1px solid var(--line); outline-offset:-1px;
-    border-radius:16px; padding:14px 16px 15px;
-    backdrop-filter:blur(7px) saturate(1.15);
-    /* the drop and the lit inner edge are shared; each card adds its own
-       slab edge below, because which side the cut shows on depends on which
-       way that card is turned */
-    box-shadow:
-      0 44px 74px rgba(61,59,79,.20),
-      0 10px 20px rgba(61,59,79,.09),
-      inset 0 1px 0 rgba(255,255,255,.9);
+    border-radius:16px; backdrop-filter:blur(7px) saturate(1.15);
   }
-  .k { display:block; font-family:var(--mono); font-size:9px; letter-spacing:.18em;
-       text-transform:uppercase; color:var(--dim); }
-
-  /* a vault row, top left — tilted away at the top, nearest the reader */
-  .vault { left:196px; top:52px; width:334px;
-           transform:translateZ(70px) rotateX(9deg) rotateY(-14deg) rotateZ(-2.4deg); }
-  .vault .row { display:flex; align-items:center; gap:11px; }
-  .vault .ic { width:34px; height:34px; flex:none; border-radius:50%; background:#F1F7E8;
-               display:grid; place-items:center; color:#76B900; }
-  .vault .ic svg { width:17px; height:17px; fill:currentColor; }
-  .vault .txt { display:flex; flex-direction:column; min-width:0; }
-  .vault .nm { display:block; font-size:16px; font-weight:600; letter-spacing:-.015em; }
-  .vault .sb { display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
-  .vault .apr { margin-left:auto; text-align:right; }
-  .vault .apr b { display:block; font-size:22px; font-weight:600; letter-spacing:-.025em; color:var(--accent); }
-  .vault .bar { margin-top:14px; height:4px; border-radius:999px; background:#E0E0E0; overflow:hidden; }
-  .vault .bar i { display:block; height:100%; width:82%; background:var(--accent-glow); }
-  .vault .cap { display:flex; justify-content:space-between; margin-top:8px; font-size:10.5px; color:var(--dim); }
-
-  /* a quote, top right — turned the other way, set further back */
-  .quote { right:150px; top:44px; width:318px;
-           transform:translateZ(20px) rotateX(7deg) rotateY(15deg) rotateZ(2deg); }
-  .leg { display:flex; align-items:baseline; gap:8px; margin-top:5px; }
-  .leg b { font-size:23px; font-weight:600; letter-spacing:-.025em; }
-  .leg span { font-size:13px; font-weight:600; color:var(--muted); }
-  .arw { margin:9px 0 7px; height:1px; background:repeating-linear-gradient(to right,var(--line) 0 5px,transparent 5px 10px); }
-  .best { margin-top:11px; font-size:11.5px; color:var(--accent-ink); }
-  .best b { font-weight:700; }
-
-  /* the split, bottom right — furthest back, leaning up from below */
-  .split { right:96px; bottom:40px; width:296px;
-           transform:translateZ(-40px) rotateX(-11deg) rotateY(13deg) rotateZ(-1.6deg); }
-  .split .bars { display:flex; gap:3px; margin-top:9px; }
-  .split .bars i { height:9px; border-radius:3px; }
-  .split dl { display:flex; gap:16px; margin-top:9px; }
-  .split dt { font-size:10px; color:var(--dim); }
-  .split dd { margin:1px 0 0; font-size:13.5px; font-weight:600; letter-spacing:-.02em; }
-
-  /* the pills, on their own shallow planes */
-  .pill {
-    position:absolute; z-index:5; display:inline-flex; align-items:center; gap:8px;
-    padding:8px 14px 8px 10px; border-radius:999px;
-    background:linear-gradient(150deg, rgba(252,252,252,.95), rgba(238,238,238,.86));
-    border:1px solid rgba(255,255,255,.85); outline:1px solid var(--line); outline-offset:-1px;
-    backdrop-filter:blur(6px);
-    box-shadow:0 18px 34px rgba(61,59,79,.13), inset 0 1px 0 rgba(255,255,255,.9);
-    font-size:12.5px; font-weight:500; color:var(--ink); white-space:nowrap;
+  .vc { width:304px; padding:13px 15px 12px; }
+  .vc-row { display:flex; align-items:center; gap:11px; }
+  .vc-ic {
+    width:36px; height:36px; flex:none; border-radius:50%;
+    background:rgba(255,255,255,.85); border:1px solid var(--line-2);
+    display:grid; place-items:center;
   }
-  .pill i { width:16px; height:16px; border-radius:50%; flex:none; display:grid; place-items:center; }
-  .pill .dot { width:7px; height:7px; border-radius:50%; background:#2F9E7A; }
-  .p1 { left:560px; top:120px; transform:translateZ(90px) rotateY(-9deg) rotateZ(-1.6deg); }
-  .p2 { left:436px; bottom:120px; transform:translateZ(46px) rotateY(-5deg) rotateZ(1.8deg); }
-  .p3 { left:812px; bottom:72px; transform:translateZ(-14px) rotateY(8deg) rotateZ(-1.2deg); }
-  .pill .mk { width:16px; height:16px; background:var(--band);
-              -webkit-mask:url(../mark.svg) center / contain no-repeat;
-              mask:url(../mark.svg) center / contain no-repeat; }
+  .vc-ic svg { width:18px; height:18px; fill:currentColor; }
+  .vc-id { display:flex; flex-direction:column; min-width:0; }
+  .vc-id b { font-size:17px; font-weight:700; letter-spacing:-.025em; }
+  .vc-id span { font-size:11.5px; color:var(--muted); margin-top:1px; }
+  .vc-px { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; }
+  .vc-px b { font-size:21px; font-weight:600; letter-spacing:-.03em; color:var(--accent); }
+  .vc-px span { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em;
+                text-transform:uppercase; color:var(--dim); margin-top:2px; }
+  .vc-foot { display:flex; align-items:center; gap:12px; margin-top:11px; }
+  .vc-tags { display:flex; gap:6px; flex:none; }
+  .tag { padding:3px 9px; border-radius:999px; font-size:11px; font-weight:600; white-space:nowrap; }
+  .tag-cap { background:var(--accent-fill); color:var(--accent-ink); }
+  .vc-spark { flex:1 1 auto; height:26px; min-width:0; opacity:.9; }
 
-  /* ---- the slab edges ---- */
-  /* turned left-edge-in, so the cut shows down the right */
-  .vault {
+  .v1 { left:40px; top:166px; transform:translateZ(46px) rotateX(6deg) rotateY(-17deg) rotateZ(-3deg);
     box-shadow:
       1.0px 0.7px 0 #E2E1E7,
       2.0px 1.4px 0 #E0DFE5,
-      3.0px 2.2px 0 #DDDCE3,
-      4.0px 2.9px 0 #DBDAE1,
-      5.0px 3.6px 0 #D9D8DF,
-      6.0px 4.3px 0 #D7D6DD,
-      7.0px 5.0px 0 #D4D3DB,
-      8.0px 5.8px 0 #D2D1D9,
-      9.0px 6.5px 0 #D0CFD7,
-      10.0px 7.2px 0 #CDCCD5,
-      11.0px 7.9px 0 #CBCAD3,
-      12.0px 8.6px 0 #C9C8D1,
-      13.0px 9.4px 0 #C7C6CF,
-      14.0px 10.1px 0 #C4C3CD,
-      15.0px 10.8px 0 #C2C1CB,
-      0 44px 74px rgba(61,59,79,.20),
+      3.0px 2.1px 0 #DDDCE3,
+      4.0px 2.8px 0 #DBDAE1,
+      5.0px 3.5px 0 #D9D8DF,
+      6.0px 4.2px 0 #D7D6DD,
+      7.0px 4.9px 0 #D4D3DB,
+      8.0px 5.6px 0 #D2D1D9,
+      9.0px 6.3px 0 #D0CFD7,
+      10.0px 7.0px 0 #CDCCD5,
+      11.0px 7.7px 0 #CBCAD3,
+      12.0px 8.4px 0 #C9C8D1,
+      13.0px 9.1px 0 #C7C6CF,
+      14.0px 9.8px 0 #C4C3CD,
+      15.0px 10.5px 0 #C2C1CB,
+      0 46px 76px rgba(61,59,79,.20),
       0 10px 20px rgba(61,59,79,.09),
-      inset 0 1px 0 rgba(255,255,255,.9);
-  }
-  /* turned the other way: the cut is down the left */
-  .quote {
+      inset 0 1px 0 rgba(255,255,255,.92); }
+  .v2 { left:262px; top:32px; transform:translateZ(86px) rotateX(9deg) rotateY(-14deg) rotateZ(-2deg);
+    box-shadow:
+      1.0px 0.7px 0 #E2E1E7,
+      2.0px 1.4px 0 #E0DFE5,
+      3.0px 2.2px 0 #DEDDE3,
+      4.0px 2.9px 0 #DCDBE1,
+      5.0px 3.6px 0 #D9D8E0,
+      6.0px 4.3px 0 #D7D6DE,
+      7.0px 5.0px 0 #D5D4DC,
+      8.0px 5.8px 0 #D3D2DA,
+      9.0px 6.5px 0 #D1D0D8,
+      10.0px 7.2px 0 #CFCED6,
+      11.0px 7.9px 0 #CDCCD4,
+      12.0px 8.6px 0 #CBCAD2,
+      13.0px 9.4px 0 #C8C7D1,
+      14.0px 10.1px 0 #C6C5CF,
+      15.0px 10.8px 0 #C4C3CD,
+      16.0px 11.5px 0 #C2C1CB,
+      0 46px 76px rgba(61,59,79,.20),
+      0 10px 20px rgba(61,59,79,.09),
+      inset 0 1px 0 rgba(255,255,255,.92); }
+  .v3 { left:520px; bottom:40px; transform:translateZ(24px) rotateX(-9deg) rotateY(3deg) rotateZ(1.4deg);
+    box-shadow:
+      0.9px -0.7px 0 #E2E1E7,
+      1.8px -1.4px 0 #DFDEE5,
+      2.7px -2.1px 0 #DDDCE2,
+      3.6px -2.8px 0 #DAD9E0,
+      4.5px -3.5px 0 #D7D6DE,
+      5.4px -4.2px 0 #D5D4DB,
+      6.3px -4.9px 0 #D2D1D9,
+      7.2px -5.6px 0 #CFCED7,
+      8.1px -6.3px 0 #CDCCD4,
+      9.0px -7.0px 0 #CAC9D2,
+      9.9px -7.7px 0 #C7C6D0,
+      10.8px -8.4px 0 #C5C4CD,
+      11.7px -9.1px 0 #C2C1CB,
+      0 46px 76px rgba(61,59,79,.20),
+      0 10px 20px rgba(61,59,79,.09),
+      inset 0 1px 0 rgba(255,255,255,.92); }
+  .v4 { right:128px; top:30px; transform:translateZ(74px) rotateX(8deg) rotateY(16deg) rotateZ(2deg);
     box-shadow:
       -1.0px 0.7px 0 #E2E1E7,
-      -2.0px 1.4px 0 #DFDEE5,
-      -3.0px 2.0px 0 #DDDCE2,
-      -4.0px 2.7px 0 #DAD9E0,
-      -5.0px 3.4px 0 #D7D6DE,
-      -6.0px 4.1px 0 #D5D4DB,
-      -7.0px 4.8px 0 #D2D1D9,
-      -8.0px 5.4px 0 #CFCED7,
-      -9.0px 6.1px 0 #CDCCD4,
-      -10.0px 6.8px 0 #CAC9D2,
-      -11.0px 7.5px 0 #C7C6D0,
-      -12.0px 8.2px 0 #C5C4CD,
-      -13.0px 8.8px 0 #C2C1CB,
-      0 44px 74px rgba(61,59,79,.20),
+      -2.0px 1.4px 0 #E0DFE5,
+      -3.0px 2.1px 0 #DDDCE3,
+      -4.0px 2.8px 0 #DBDAE1,
+      -5.0px 3.5px 0 #D9D8DF,
+      -6.0px 4.2px 0 #D7D6DD,
+      -7.0px 4.9px 0 #D4D3DB,
+      -8.0px 5.6px 0 #D2D1D9,
+      -9.0px 6.3px 0 #D0CFD7,
+      -10.0px 7.0px 0 #CDCCD5,
+      -11.0px 7.7px 0 #CBCAD3,
+      -12.0px 8.4px 0 #C9C8D1,
+      -13.0px 9.1px 0 #C7C6CF,
+      -14.0px 9.8px 0 #C4C3CD,
+      -15.0px 10.5px 0 #C2C1CB,
+      0 46px 76px rgba(61,59,79,.20),
       0 10px 20px rgba(61,59,79,.09),
-      inset 0 1px 0 rgba(255,255,255,.9);
-  }
-  /* leaning up from below, so the cut runs up and left */
-  .split {
+      inset 0 1px 0 rgba(255,255,255,.92); }
+  .v5 { right:34px; top:178px; transform:translateZ(36px) rotateX(5deg) rotateY(19deg) rotateZ(-2.4deg);
+    box-shadow:
+      -1.0px 0.7px 0 #E2E1E7,
+      -2.0px 1.4px 0 #E0DFE5,
+      -3.0px 2.0px 0 #DDDCE3,
+      -4.0px 2.7px 0 #DBDAE1,
+      -5.0px 3.4px 0 #D8D7DE,
+      -6.0px 4.1px 0 #D6D5DC,
+      -7.0px 4.8px 0 #D3D2DA,
+      -8.0px 5.4px 0 #D1D0D8,
+      -9.0px 6.1px 0 #CECDD6,
+      -10.0px 6.8px 0 #CCCBD4,
+      -11.0px 7.5px 0 #C9C8D1,
+      -12.0px 8.2px 0 #C7C6CF,
+      -13.0px 8.8px 0 #C4C3CD,
+      -14.0px 9.5px 0 #C2C1CB,
+      0 46px 76px rgba(61,59,79,.20),
+      0 10px 20px rgba(61,59,79,.09),
+      inset 0 1px 0 rgba(255,255,255,.92); }
+  .v6 { right:196px; bottom:42px; transform:translateZ(-18px) rotateX(-11deg) rotateY(12deg) rotateZ(-1.4deg);
     box-shadow:
       -0.9px -0.8px 0 #E2E1E7,
       -1.8px -1.6px 0 #DFDEE4,
@@ -204,13 +212,27 @@
       -9.0px -7.8px 0 #C8C7D0,
       -9.9px -8.6px 0 #C5C4CE,
       -10.8px -9.4px 0 #C2C1CB,
-      0 44px 74px rgba(61,59,79,.20),
+      0 46px 76px rgba(61,59,79,.20),
       0 10px 20px rgba(61,59,79,.09),
-      inset 0 1px 0 rgba(255,255,255,.9);
+      inset 0 1px 0 rgba(255,255,255,.92); }
+
+  .pill {
+    position:absolute; z-index:6; display:inline-flex; align-items:center; gap:8px;
+    padding:8px 14px 8px 10px; border-radius:999px;
+    background:linear-gradient(150deg, rgba(255,255,255,.96), rgba(238,238,238,.88));
+    border:1px solid rgba(255,255,255,.85); outline:1px solid var(--line); outline-offset:-1px;
+    backdrop-filter:blur(6px);
+    font-size:12.5px; font-weight:500; color:var(--ink); white-space:nowrap;
+    box-shadow:0.8px 0.6px 0 #E2E1E7, 1.6px 1.2px 0 #DAD9E0, 2.4px 1.8px 0 #D2D1D9,
+               3.2px 2.4px 0 #CBCAD3, 4.0px 3.0px 0 #C2C1CB,
+               0 20px 34px rgba(61,59,79,.15), inset 0 1px 0 rgba(255,255,255,.9);
   }
-  .pill.p1 { box-shadow: 0.8px 0.6px 0 #E2E1E7, 1.6px 1.2px 0 #DDDCE2, 2.4px 1.8px 0 #D7D6DE, 3.2px 2.4px 0 #D2D1D9, 4.0px 3.0px 0 #CDCCD4, 4.8px 3.6px 0 #C7C6D0, 5.6px 4.2px 0 #C2C1CB, 0 20px 34px rgba(61,59,79,.15), inset 0 1px 0 rgba(255,255,255,.9); }
-  .pill.p2 { box-shadow: 0.7px 0.6px 0 #E2E1E7, 1.4px 1.2px 0 #DCDBE1, 2.1px 1.8px 0 #D5D4DC, 2.8px 2.4px 0 #CFCED6, 3.5px 3.0px 0 #C8C7D1, 4.2px 3.6px 0 #C2C1CB, 0 18px 30px rgba(61,59,79,.14), inset 0 1px 0 rgba(255,255,255,.9); }
-  .pill.p3 { box-shadow: -0.7px 0.6px 0 #E2E1E7, -1.4px 1.2px 0 #DCDBE1, -2.1px 1.8px 0 #D5D4DC, -2.8px 2.4px 0 #CFCED6, -3.5px 3.0px 0 #C8C7D1, -4.2px 3.6px 0 #C2C1CB, 0 16px 28px rgba(61,59,79,.13), inset 0 1px 0 rgba(255,255,255,.9); }
+  .pill .dot { width:7px; height:7px; border-radius:50%; background:#2F9E7A; flex:none; }
+  .pill .mk { width:15px; height:15px; flex:none; background:var(--band);
+              -webkit-mask:url(../mark.svg) center / contain no-repeat;
+              mask:url(../mark.svg) center / contain no-repeat; }
+  .q1 { left:296px; bottom:104px; transform:translateZ(100px) rotateY(-8deg) rotateZ(-1.6deg); }
+  .q2 { right:470px; top:120px; transform:translateZ(92px) rotateY(8deg) rotateZ(1.4deg); }
 </style>
 </head>
 <body>
@@ -288,48 +310,96 @@
 
   <div class="lock"><i></i><b>Cusp</b></div>
 
-  <div class="card vault">
-    <span class="k">Fee APR · 24h</span>
-    <div class="row" style="margin-top:8px">
-      <span class="ic"><svg viewBox="0 0 24 24"><path d="M8.948 8.798v-1.43a6.7 6.7 0 0 1 .424-.018c3.922-.124 6.493 3.374 6.493 3.374s-2.774 3.851-5.75 3.851c-.398 0-.787-.062-1.158-.185v-4.346c1.528.185 1.837.857 2.747 2.385l2.04-1.714s-1.492-1.952-4-1.952a6.016 6.016 0 0 0-.796.035m0-4.735v2.138l.424-.027c5.45-.185 9.01 4.47 9.01 4.47s-4.08 4.964-8.33 4.964c-.37 0-.733-.035-1.095-.097v1.325c.3.035.61.062.91.062 3.957 0 6.82-2.023 9.593-4.408.459.371 2.34 1.263 2.73 1.652-2.633 2.208-8.772 3.984-12.253 3.984-.335 0-.653-.018-.971-.053v1.864H24V4.063zm0 10.326v1.131c-3.657-.654-4.673-4.46-4.673-4.46s1.758-1.944 4.673-2.262v1.237H8.94c-1.528-.186-2.73 1.245-2.73 1.245s.68 2.412 2.739 3.11M2.456 10.9s2.164-3.197 6.5-3.533V6.201C4.153 6.59 0 10.653 0 10.653s2.35 6.802 8.948 7.42v-1.237c-4.84-.6-6.492-5.936-6.492-5.936z"/></svg></span>
-      <span class="txt">
-        <span class="nm">USDG / xNVDA</span>
-        <span class="sb">NVIDIA · 0.30% pool</span>
+  <div class="card vc v1">
+    <div class="vc-row">
+      <span class="vc-ic" style="color:#D9232E"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.095 2.572h5.827v18.856H9.096zM0 2.572h5.825v18.856H.001zm18.174 0v18.854H24V8.33z"/></svg></span>
+      <span class="vc-id"><b>xMSTR</b><span>MicroStrategy</span></span>
+      <span class="vc-px"><b>34.9%</b><span>fee APR · 24h</span></span>
+    </div>
+    <div class="vc-foot">
+      <span class="vc-tags">
+        <span class="tag tag-cap">57% of cap</span>
+        <span class="tag" style="background:#EEF5F0;color:#2F7D5B">+3.18%</span>
       </span>
-      <span class="apr"><b>31.4%</b></span>
+      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,14.9 5.1,14.2 10.2,15.0 15.4,13.8 20.5,12.4 25.6,15.7 30.7,19.5 35.8,16.3 41.0,18.0 46.1,19.9 51.2,15.5 56.3,15.4 61.4,12.3 66.6,12.2 71.7,10.7 76.8,13.3 81.9,11.9 87.0,8.5 92.2,8.0 97.3,5.7 102.4,4.0 107.5,7.3 112.6,4.8 117.8,3.7 122.9,5.1 128.0,8.7" fill="none" stroke="#2F7D5B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
     </div>
-    <div class="bar"><i></i></div>
-    <div class="cap"><span>$9.82M deposited</span><span>$12.00M cap</span></div>
   </div>
-
-  <div class="card quote">
-    <span class="k">Best of four routes</span>
-    <div class="leg"><b>1</b><span>ETH</span></div>
-    <div class="arw"></div>
-    <div class="leg"><b>2,486.54</b><span>USDG</span></div>
-    <div class="best">Best route <b>Kestrel</b> · protocol fee 8 bps</div>
-  </div>
-
-  <div class="card split">
-    <span class="k">Every trading fee</span>
-    <div class="bars">
-      <i style="flex:70;background:var(--accent-glow)"></i>
-      <i style="flex:20;background:#C9C8CE"></i>
-      <i style="flex:10;background:#E0DFE4"></i>
+  <div class="card vc v2">
+    <div class="vc-row">
+      <span class="vc-ic" style="color:#76B900"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.948 8.798v-1.43a6.7 6.7 0 0 1 .424-.018c3.922-.124 6.493 3.374 6.493 3.374s-2.774 3.851-5.75 3.851c-.398 0-.787-.062-1.158-.185v-4.346c1.528.185 1.837.857 2.747 2.385l2.04-1.714s-1.492-1.952-4-1.952a6.016 6.016 0 0 0-.796.035m0-4.735v2.138l.424-.027c5.45-.185 9.01 4.47 9.01 4.47s-4.08 4.964-8.33 4.964c-.37 0-.733-.035-1.095-.097v1.325c.3.035.61.062.91.062 3.957 0 6.82-2.023 9.593-4.408.459.371 2.34 1.263 2.73 1.652-2.633 2.208-8.772 3.984-12.253 3.984-.335 0-.653-.018-.971-.053v1.864H24V4.063zm0 10.326v1.131c-3.657-.654-4.673-4.46-4.673-4.46s1.758-1.944 4.673-2.262v1.237H8.94c-1.528-.186-2.73 1.245-2.73 1.245s.68 2.412 2.739 3.11M2.456 10.9s2.164-3.197 6.5-3.533V6.201C4.153 6.59 0 10.653 0 10.653s2.35 6.802 8.948 7.42v-1.237c-4.84-.6-6.492-5.936-6.492-5.936z"/></svg></span>
+      <span class="vc-id"><b>xNVDA</b><span>NVIDIA</span></span>
+      <span class="vc-px"><b>31.4%</b><span>fee APR · 24h</span></span>
     </div>
-    <dl>
-      <div><dt>Back to the vault</dt><dd>70%</dd></div>
-      <div><dt>Depositors</dt><dd>20%</dd></div>
-      <div><dt>Protocol</dt><dd>10%</dd></div>
-    </dl>
+    <div class="vc-foot">
+      <span class="vc-tags">
+        <span class="tag tag-cap">82% of cap</span>
+        <span class="tag" style="background:#EEF5F0;color:#2F7D5B">+1.82%</span>
+      </span>
+      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,14.2 5.1,16.7 10.2,15.2 15.4,18.4 20.5,17.8 25.6,18.6 30.7,22.0 35.8,21.6 41.0,23.9 46.1,23.9 51.2,23.9 56.3,23.9 61.4,23.9 66.6,20.9 71.7,23.7 76.8,23.9 81.9,22.5 87.0,18.5 92.2,17.6 97.3,18.1 102.4,13.8 107.5,17.3 112.6,14.0 117.8,15.4 122.9,18.1 128.0,21.0" fill="none" stroke="#2F7D5B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+  <div class="card vc v3">
+    <div class="vc-row">
+      <span class="vc-ic" style="color:#101113"><svg viewBox="0 0 24 24"><text x="12" y="15.4" text-anchor="middle" font-family="inherit" font-size="9.5" font-weight="700" letter-spacing="-.04em" fill="currentColor">GME</text></svg></span>
+      <span class="vc-id"><b>xGME</b><span>GameStop</span></span>
+      <span class="vc-px"><b>29.7%</b><span>fee APR · 24h</span></span>
+    </div>
+    <div class="vc-foot">
+      <span class="vc-tags">
+        <span class="tag tag-cap">33% of cap</span>
+        <span class="tag" style="background:#F6EDE9;color:#B4802A">-3.26%</span>
+      </span>
+      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,13.7 5.1,13.5 10.2,10.3 15.4,10.9 20.5,11.2 25.6,10.7 30.7,13.7 35.8,13.9 41.0,13.1 46.1,11.0 51.2,14.7 56.3,16.6 61.4,20.3 66.6,18.1 71.7,16.8 76.8,20.9 81.9,17.2 87.0,13.7 92.2,12.7 97.3,12.0 102.4,15.2 107.5,19.5 112.6,19.6 117.8,23.6 122.9,23.9 128.0,23.9" fill="none" stroke="#B4802A" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+  <div class="card vc v4">
+    <div class="vc-row">
+      <span class="vc-ic" style="color:#CC0000"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438-.146-1.439-1.154-1.79-4.354-1.79L12 24 8.619 5.034c-3.18 0-4.188.354-4.335 1.792 0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34L12 5.362l-.004.002H12v-.002zm0-3.899c3.415-.03 7.326.528 11.328 2.28.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0 8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46v.003z"/></svg></span>
+      <span class="vc-id"><b>xTSLA</b><span>Tesla</span></span>
+      <span class="vc-px"><b>27.8%</b><span>fee APR · 24h</span></span>
+    </div>
+    <div class="vc-foot">
+      <span class="vc-tags">
+        <span class="tag tag-cap">71% of cap</span>
+        <span class="tag" style="background:#F6EDE9;color:#B4802A">-2.35%</span>
+      </span>
+      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,12.3 5.1,10.6 10.2,8.4 15.4,5.1 20.5,3.4 25.6,2.1 30.7,6.3 35.8,6.9 41.0,3.5 46.1,2.6 51.2,2.1 56.3,5.6 61.4,6.2 66.6,8.6 71.7,8.5 76.8,8.2 81.9,12.6 87.0,15.3 92.2,17.4 97.3,14.3 102.4,12.4 107.5,15.5 112.6,13.4 117.8,16.7 122.9,16.0 128.0,19.4" fill="none" stroke="#B4802A" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+  <div class="card vc v5">
+    <div class="vc-row">
+      <span class="vc-ic" style="color:#ED1C24"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.324 9.137l1.559 1.56h2.556v2.557L24 14.814V9.137zM2 9.52l-2 4.96h1.309l.37-.982H3.9l.408.982h1.338L3.432 9.52zm4.209 0v4.955h1.238v-3.092l1.338 1.562h.188l1.338-1.556v3.091h1.238V9.52H10.47l-1.592 1.845L7.287 9.52zm6.283 0v4.96h2.057c1.979 0 2.88-1.046 2.88-2.472 0-1.36-.937-2.488-2.747-2.488zm1.237.91h.792c1.17 0 1.63.711 1.63 1.57 0 .728-.372 1.572-1.616 1.572h-.806zm-10.985.273l.791 1.932H2.008zm17.137.307l-1.604 1.603v2.25h2.246l1.604-1.607h-2.246z"/></svg></span>
+      <span class="vc-id"><b>xAMD</b><span>AMD</span></span>
+      <span class="vc-px"><b>26.3%</b><span>fee APR · 24h</span></span>
+    </div>
+    <div class="vc-foot">
+      <span class="vc-tags">
+        <span class="tag tag-cap">59% of cap</span>
+        <span class="tag" style="background:#EEF5F0;color:#2F7D5B">+2.41%</span>
+      </span>
+      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,14.7 5.1,12.8 10.2,11.0 15.4,7.8 20.5,10.1 25.6,12.0 30.7,14.6 35.8,16.6 41.0,14.3 46.1,17.1 51.2,16.5 56.3,18.6 61.4,20.0 66.6,20.3 71.7,17.1 76.8,15.9 81.9,19.7 87.0,21.2 92.2,23.8 97.3,20.4 102.4,17.5 107.5,14.7 112.6,11.7 117.8,9.3 122.9,5.3 128.0,2.5" fill="none" stroke="#2F7D5B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+  <div class="card vc v6">
+    <div class="vc-row">
+      <span class="vc-ic" style="color:#7E9E00"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.84 24h.53c.096 0 .192-.048.224-.128C7.591 13.696 11.94 8.656 14.67 5.638c.112-.128.064-.225-.096-.225h-4.88a.55.55 0 0 0-.45.225L5.746 9.972c-.514.642-.642 1.236-.642 2.086v4.43c-1.14 3.194-1.862 5.361-2.392 7.32-.032.125.016.192.129.192M20.447.646c-.754-.802-4.157-.834-5.73-.224a3 3 0 0 0-.786.465 41 41 0 0 0-3.323 3.178c-.112.113-.064.225.097.225h5.409c.497 0 .786.289.786.786v6.1c0 .16.128.208.225.064l3.258-4.254c.53-.69.69-.898.835-1.861.192-1.413.08-3.58-.77-4.479m-6.982 16.18 2.231-3.676a.7.7 0 0 0 .064-.29V6.73c0-.16-.112-.225-.224-.097-3.355 3.74-5.971 7.672-8.395 12.407-.06.12.016.225.16.177l5.009-1.54c.565-.174.882-.402 1.155-.852"/></svg></span>
+      <span class="vc-id"><b>xHOOD</b><span>Robinhood</span></span>
+      <span class="vc-px"><b>24.6%</b><span>fee APR · 24h</span></span>
+    </div>
+    <div class="vc-foot">
+      <span class="vc-tags">
+        <span class="tag tag-cap">75% of cap</span>
+        <span class="tag" style="background:#EEF5F0;color:#2F7D5B">+0.94%</span>
+      </span>
+      <svg class="vc-spark" viewBox="0 0 128 26" preserveAspectRatio="none"><polyline points="0.0,12.5 5.1,9.6 10.2,5.5 15.4,6.9 20.5,4.4 25.6,2.4 30.7,2.1 35.8,5.0 41.0,8.6 46.1,9.3 51.2,6.9 56.3,8.7 61.4,8.3 66.6,9.6 71.7,6.4 76.8,2.3 81.9,2.9 87.0,2.1 92.2,5.4 97.3,2.5 102.4,2.1 107.5,4.7 112.6,2.7 117.8,2.1 122.9,2.1 128.0,4.2" fill="none" stroke="#2F7D5B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    </div>
   </div>
 
-  <span class="pill p1"><i class="mk"></i>20 vaults, one per stock</span>
-  <span class="pill p2"><i><span class="dot"></span></i>Robinhood Chain · live</span>
-  <span class="pill p3"><i><span class="dot" style="background:#B4802A"></span></i>Chainlink price, checked for staleness</span>
+  <span class="pill q1"><i class="mk"></i>20 vaults, one per stock</span>
+  <span class="pill q2"><span class="dot"></span>Robinhood Chain · live</span>
 
-  <p class="say">One vault per stock. <u>Fees split onchain.</u></p>
-  <p class="sub">Managed liquidity for tokenized stocks</p>
+  <p class="say">A vault paired to <em>every stock</em></p>
+  <p class="sub">20 named vaults. One position each. Fees split onchain.</p>
 </div>
 </body>
 </html>

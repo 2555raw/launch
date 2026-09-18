@@ -38,12 +38,12 @@
 .hm-hero h1 {
   position: relative; z-index: 1;
   margin: 0 0 40px;
-  font-size: 68px; line-height: 1.04; font-weight: 600; letter-spacing: -.045em;
+  font-size: 86px; line-height: 1.02; font-weight: 600; letter-spacing: -.048em;
 }
-.hm-hero-copy { position: relative; z-index: 1; max-width: 44ch; padding-top: 150px; }
-.hm-hero-copy p { margin: 0 0 22px; font-size: 16px; line-height: 1.6; color: var(--ink); }
+.hm-hero-copy { position: relative; z-index: 1; max-width: 40ch; padding-top: 140px; }
+.hm-hero-copy p { margin: 0 0 24px; font-size: 21px; line-height: 1.5; color: var(--ink); letter-spacing: -.01em; }
 .hm-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 18px; }
-.hm-fine { font-size: 12px; line-height: 1.6; color: var(--muted); max-width: 44ch; margin: 0 0 16px; }
+.hm-fine { font-size: 14px; line-height: 1.6; color: var(--muted); max-width: 46ch; margin: 0 0 16px; }
 .hm-fine a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 
 
@@ -53,16 +53,16 @@
 
 /* ---------- one vault per stock ---------- */
 
-.hm-strip { text-align: center; padding: 13px 24px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.hm-strip { text-align: center; padding: 18px 24px; border-bottom: 1px solid var(--line); background: var(--bg); }
 .hm-strip .k { color: var(--accent); }
 .hm-stocks {
   max-width: var(--wrap-head); margin: 0 auto;
   display: grid; grid-template-columns: repeat(5, 1fr);
   border-left: 1px solid var(--line); border-right: 1px solid var(--line);
 }
-.hm-stock { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 14px; }
+.hm-stock { display: flex; align-items: center; gap: 13px; padding: 22px 22px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 17px; }
 .hm-stock:nth-child(5n) { border-right: 0; }
-.hm-stock span { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; }
+.hm-stock span { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; }
 .hm-stock svg { width: 15px; height: 15px; fill: currentColor; }
 
 /* ---------- closing band ---------- */
@@ -70,14 +70,14 @@
 .hm-cta { background: var(--band); color: var(--on-band); }
 .hm-cta-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 54px 24px 58px;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); gap: 40px; align-items: center;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 40px; align-items: center;
 }
 .hm-cta h2 { margin: 0 0 22px; font-size: 32px; line-height: 1.18; font-weight: 600; letter-spacing: -.03em; color: var(--yellow); max-width: 20ch; }
 .hm-cta .hm-fine { color: var(--on-band-2); }
 .hm-cta .hm-fine a { color: var(--on-band); }
 .hm-cta-dia { color: var(--band-2); }
 /* uncapped, this filled a phone's whole width and left the band mostly air */
-.hm-cta-dia svg { width: 100%; max-width: 430px; height: auto; margin: 0 auto; }
+.hm-cta-dia svg { width: 100%; max-width: 600px; height: auto; margin: 0 auto; }
 
 .hm-figs {
   margin: 0 0 20px; display: grid; grid-template-columns: repeat(3, auto); gap: 30px;
@@ -100,7 +100,7 @@
 @media (max-width: 1000px) {
   .hm-links { display: none; }
   .hm-hero-in { min-height: 0; }
-  .hm-hero h1 { margin-bottom: 22px; font-size: 52px; }
+  .hm-hero h1 { margin-bottom: 22px; font-size: 56px; }
   .hm-hero-copy { padding-top: 0; }
   .hm-form { position: static; width: min(100%, 380px); margin: 30px auto 0; }
   .hm-stocks { grid-template-columns: repeat(3, 1fr); }
@@ -128,9 +128,9 @@
 .fg-a { fill: var(--pink); }
 .fg-b { fill: var(--accent-lift); }
 .fg-t { font-size: 10.5px; font-weight: 600; fill: var(--on-band); }
-.fg-s { font-size: 8.5px; fill: var(--on-band-2); }
-.fg-c { font-size: 9px; letter-spacing: .14em; fill: var(--on-band-2); font-weight: 600; }
-.fg-c2 { letter-spacing: 0; font-weight: 400; font-size: 8.5px; fill: var(--band-2); }
+.fg-s { font-size: 7px; fill: var(--on-band-2); }
+.fg-c { font-size: 7.4px; letter-spacing: .14em; fill: var(--on-band-2); font-weight: 600; }
+.fg-c2 { letter-spacing: 0; font-weight: 400; font-size: 7px; fill: var(--band-2); }
 
 .fg-node { cursor: default; }
 .fg-node .fg-a, .fg-node .fg-b, .fg-node .fg-t, .fg-node .fg-s { transition: fill .18s, opacity .18s; }

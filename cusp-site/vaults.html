@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Vaults — Cusp</title>
   <meta name="description" content="Cusp runs managed liquidity vaults for tokenized stocks. Deposit USDG, the vault keeps one concentrated position centred on the oracle price, and the trading fees compound inside the vault.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20rx%3D%2722%27%20fill%3D%27%233D3B4F%27%2F%3E%3Cg%20fill%3D%27%23F2EAA0%27%20transform%3D%27translate%2850%2050%29%20scale%28.86%29%20translate%28-50%20-50%29%27%3E%3Cpath%20d%3D%27M50%2014%20C51.6%2028%2052.2%2038%2052.6%2044%20C52%2046.4%2051.2%2048.3%2050.4%2049.2%20C54%2047.4%2058.6%2044%2061.6%2039.4%20C64.4%2035%2064.6%2030.4%2061.6%2028.6%20C59.2%2027.2%2057.4%2028.4%2057.8%2030.6%20C58.6%2028.8%2061%2029%2062.4%2031.2%20C64.6%2034.6%2066.4%2039.6%2069.6%2043.6%20C72.6%2047.2%2078%2048.8%2084%2049.2%20C90%2049.5%2094%2049.8%2098%2050%20L50%2050%20Z%27%20transform%3D%27translate%2850%2050%29%20%20translate%28-50%20-50%29%27%2F%3E%3Cpath%20d%3D%27M50%2014%20C51.6%2028%2052.2%2038%2052.6%2044%20C52%2046.4%2051.2%2048.3%2050.4%2049.2%20C54%2047.4%2058.6%2044%2061.6%2039.4%20C64.4%2035%2064.6%2030.4%2061.6%2028.6%20C59.2%2027.2%2057.4%2028.4%2057.8%2030.6%20C58.6%2028.8%2061%2029%2062.4%2031.2%20C64.6%2034.6%2066.4%2039.6%2069.6%2043.6%20C72.6%2047.2%2078%2048.8%2084%2049.2%20C90%2049.5%2094%2049.8%2098%2050%20L50%2050%20Z%27%20transform%3D%27translate%2850%2050%29%20scale%28-1%2C1%29%20translate%28-50%20-50%29%27%2F%3E%3Cpath%20d%3D%27M50%2014%20C51.6%2028%2052.2%2038%2052.6%2044%20C52%2046.4%2051.2%2048.3%2050.4%2049.2%20C54%2047.4%2058.6%2044%2061.6%2039.4%20C64.4%2035%2064.6%2030.4%2061.6%2028.6%20C59.2%2027.2%2057.4%2028.4%2057.8%2030.6%20C58.6%2028.8%2061%2029%2062.4%2031.2%20C64.6%2034.6%2066.4%2039.6%2069.6%2043.6%20C72.6%2047.2%2078%2048.8%2084%2049.2%20C90%2049.5%2094%2049.8%2098%2050%20L50%2050%20Z%27%20transform%3D%27translate%2850%2050%29%20scale%281%2C-1%29%20translate%28-50%20-50%29%27%2F%3E%3Cpath%20d%3D%27M50%2014%20C51.6%2028%2052.2%2038%2052.6%2044%20C52%2046.4%2051.2%2048.3%2050.4%2049.2%20C54%2047.4%2058.6%2044%2061.6%2039.4%20C64.4%2035%2064.6%2030.4%2061.6%2028.6%20C59.2%2027.2%2057.4%2028.4%2057.8%2030.6%20C58.6%2028.8%2061%2029%2062.4%2031.2%20C64.6%2034.6%2066.4%2039.6%2069.6%2043.6%20C72.6%2047.2%2078%2048.8%2084%2049.2%20C90%2049.5%2094%2049.8%2098%2050%20L50%2050%20Z%27%20transform%3D%27translate%2850%2050%29%20scale%28-1%2C-1%29%20translate%28-50%20-50%29%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+  <link rel="icon" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap">
@@ -17,7 +17,7 @@
 
   <header class="cs-nav">
     <a class="cs-brand" href="index.html">
-        <span class="brand-mk" aria-hidden="true"><svg viewBox="0 0 100 100" fill="currentColor"><path d="M50 14 C51.6 28 52.2 38 52.6 44 C52 46.4 51.2 48.3 50.4 49.2 C54 47.4 58.6 44 61.6 39.4 C64.4 35 64.6 30.4 61.6 28.6 C59.2 27.2 57.4 28.4 57.8 30.6 C58.6 28.8 61 29 62.4 31.2 C64.6 34.6 66.4 39.6 69.6 43.6 C72.6 47.2 78 48.8 84 49.2 C90 49.5 94 49.8 98 50 L50 50 Z" transform="translate(50 50)  translate(-50 -50)"/><path d="M50 14 C51.6 28 52.2 38 52.6 44 C52 46.4 51.2 48.3 50.4 49.2 C54 47.4 58.6 44 61.6 39.4 C64.4 35 64.6 30.4 61.6 28.6 C59.2 27.2 57.4 28.4 57.8 30.6 C58.6 28.8 61 29 62.4 31.2 C64.6 34.6 66.4 39.6 69.6 43.6 C72.6 47.2 78 48.8 84 49.2 C90 49.5 94 49.8 98 50 L50 50 Z" transform="translate(50 50) scale(-1,1) translate(-50 -50)"/><path d="M50 14 C51.6 28 52.2 38 52.6 44 C52 46.4 51.2 48.3 50.4 49.2 C54 47.4 58.6 44 61.6 39.4 C64.4 35 64.6 30.4 61.6 28.6 C59.2 27.2 57.4 28.4 57.8 30.6 C58.6 28.8 61 29 62.4 31.2 C64.6 34.6 66.4 39.6 69.6 43.6 C72.6 47.2 78 48.8 84 49.2 C90 49.5 94 49.8 98 50 L50 50 Z" transform="translate(50 50) scale(1,-1) translate(-50 -50)"/><path d="M50 14 C51.6 28 52.2 38 52.6 44 C52 46.4 51.2 48.3 50.4 49.2 C54 47.4 58.6 44 61.6 39.4 C64.4 35 64.6 30.4 61.6 28.6 C59.2 27.2 57.4 28.4 57.8 30.6 C58.6 28.8 61 29 62.4 31.2 C64.6 34.6 66.4 39.6 69.6 43.6 C72.6 47.2 78 48.8 84 49.2 C90 49.5 94 49.8 98 50 L50 50 Z" transform="translate(50 50) scale(-1,-1) translate(-50 -50)"/></svg></span>
+        <span class="brand-mk" aria-hidden="true"></span>
         Cusp
     </a>
 
@@ -158,35 +158,33 @@
       </p>
     </section>
 
-    <!-- from here down: label on the left, content on the right -->
-    <section class="cs-band" id="how">
-      <div class="cs-band-label">
-        <span class="cs-label">01 — Mechanics</span>
-        <h2>What the vault<br>actually does</h2>
-        <p>Four steps, and only the first one is yours.</p>
+    <section class="hw" id="how">
+      <div class="hw-in">
+        <span class="hw-tag">[ Vaults ]</span>
+        <h2>How Cusp vaults earn</h2>
+        <p class="hw-lede">Each vault holds one concentrated liquidity position for a single USDG / Stock Token pool, keeps it centred on the Chainlink price, and lets the trading fees compound inside the vault.</p>
       </div>
-      <ol class="cs-steps">
-        <li>
-          <span class="cs-step-n">1</span>
-          <h3>You deposit USDG</h3>
-          <p>The router swaps half of it into the Stock Token and joins the pool in a single transaction. Whatever is left over goes straight back to your wallet.</p>
-        </li>
-        <li>
-          <span class="cs-step-n">2</span>
-          <h3>You get vault shares</h3>
-          <p>A plain ERC-4626 share. It is your claim on the position, it moves with the Stock Token price, and it is the thing you redeem later.</p>
-        </li>
-        <li>
-          <span class="cs-step-n">3</span>
-          <h3>The position stays centred</h3>
-          <p>Liquidity sits in a tight band around the oracle price. Once the market walks out of that band, a rebalance is queued and checked against fresh feeds before it runs.</p>
-        </li>
-        <li>
-          <span class="cs-step-n">4</span>
-          <h3>Fees compound in place</h3>
-          <p>Trading fees are collected and folded back into the position, so the share price rises rather than paying anything out. Redeem whenever you want.</p>
-        </li>
-      </ol>
+      <div class="hw-rule"><span>How it works</span></div>
+      <div class="hw-cards">
+        <article class="hw-card">
+          <div class="hw-fig"><svg viewBox="0 0 260 150" fill="none"><path d="M62 75 C90 75 96 46 122 46" stroke="#6E6C82" stroke-dasharray="3 3" fill="none"/><path d="M62 75 C90 75 96 104 122 104" stroke="#6E6C82" stroke-dasharray="3 3" fill="none"/><text x="92" y="40" text-anchor="middle" font-size="6.6" font-family="ui-monospace,monospace" fill="#C9E8FF">SWAP 50%</text><text x="92" y="122" text-anchor="middle" font-size="6.6" font-family="ui-monospace,monospace" fill="#C9E8FF">KEEP 50%</text><g><rect x="20" y="67" width="42" height="16" rx="3" fill="#C9E8FF"/><text x="41.0" y="78.2" text-anchor="middle" font-size="7.2" font-family="ui-monospace,monospace" letter-spacing="0.6" fill="#3D3B4F">USDG</text></g><g><rect x="122" y="38" width="44" height="16" rx="3" fill="#FFCFFE"/><text x="144.0" y="49.2" text-anchor="middle" font-size="7.2" font-family="ui-monospace,monospace" letter-spacing="0.6" fill="#3D3B4F">STOCK</text></g><g><rect x="122" y="96" width="44" height="16" rx="3" fill="#F2EAA0"/><text x="144.0" y="107.2" text-anchor="middle" font-size="7.2" font-family="ui-monospace,monospace" letter-spacing="0.6" fill="#3D3B4F">USDG</text></g><path d="M166 46 C192 46 196 62 200 75" stroke="#9C9AB4" fill="none"/><path d="M166 104 C192 104 196 88 200 75" stroke="#9C9AB4" fill="none"/><circle cx="214" cy="75" r="15" stroke="#9C9AB4" fill="none"/><ellipse cx="214" cy="75" rx="6" ry="15" stroke="#9C9AB4" fill="none"/><path d="M199 75h30" stroke="#9C9AB4"/><text x="214" y="104" text-anchor="middle" font-size="6.6" font-family="ui-monospace,monospace" fill="#9C9AB4">POOL</text></svg></div>
+          <span class="hw-step">Step 01</span>
+          <h3>Deposit USDG</h3>
+          <p>The router swaps half into the Stock Token and joins the pool in one transaction. Leftovers return to your wallet.</p>
+        </article>
+        <article class="hw-card">
+          <div class="hw-fig"><svg viewBox="0 0 260 150" fill="none"><rect x="32" y="112" width="9" height="6" rx="1.5" fill="#565472"/><rect x="45" y="109" width="9" height="9" rx="1.5" fill="#565472"/><rect x="58" y="104" width="9" height="14" rx="1.5" fill="#565472"/><rect x="71" y="97" width="9" height="21" rx="1.5" fill="#565472"/><rect x="84" y="84" width="9" height="34" rx="1.5" fill="#C9E8FF"/><rect x="97" y="66" width="9" height="52" rx="1.5" fill="#C9E8FF"/><rect x="110" y="54" width="9" height="64" rx="1.5" fill="#C9E8FF"/><rect x="123" y="46" width="9" height="72" rx="1.5" fill="#C9E8FF"/><rect x="136" y="54" width="9" height="64" rx="1.5" fill="#C9E8FF"/><rect x="149" y="66" width="9" height="52" rx="1.5" fill="#C9E8FF"/><rect x="162" y="84" width="9" height="34" rx="1.5" fill="#C9E8FF"/><rect x="175" y="97" width="9" height="21" rx="1.5" fill="#565472"/><rect x="188" y="104" width="9" height="14" rx="1.5" fill="#565472"/><rect x="201" y="109" width="9" height="9" rx="1.5" fill="#565472"/><rect x="214" y="112" width="9" height="6" rx="1.5" fill="#565472"/><rect x="83" y="34" width="99" height="84" stroke="#F2EAA0" stroke-dasharray="3 3" fill="none"/><path d="M132.5 30v88" stroke="#FFCFFE"/><text x="132.5" y="26" text-anchor="middle" font-size="6.6" font-family="ui-monospace,monospace" fill="#FFCFFE">ORACLE</text><text x="86" y="130" font-size="6.4" font-family="ui-monospace,monospace" fill="#9C9AB4">LOWER</text><text x="182" y="130" text-anchor="end" font-size="6.4" font-family="ui-monospace,monospace" fill="#9C9AB4">UPPER</text><text x="230" y="112" text-anchor="end" font-size="6.4" font-family="ui-monospace,monospace" fill="#9C9AB4">LIQUIDITY</text></svg></div>
+          <span class="hw-step">Step 02</span>
+          <h3>The keeper holds the range</h3>
+          <p>Liquidity stays concentrated around the oracle price; out of range, a rebalance is queued and checked against fresh feeds.</p>
+        </article>
+        <article class="hw-card">
+          <div class="hw-fig"><svg viewBox="0 0 260 150" fill="none"><ellipse cx="150" cy="75" rx="16" ry="34" stroke="#6E6C82" fill="none" transform="rotate(0 150 75)"/><ellipse cx="150" cy="75" rx="19" ry="34" stroke="#6E6C82" fill="none" transform="rotate(15 150 75)"/><ellipse cx="150" cy="75" rx="22" ry="34" stroke="#6E6C82" fill="none" transform="rotate(30 150 75)"/><ellipse cx="150" cy="75" rx="25" ry="34" stroke="#6E6C82" fill="none" transform="rotate(45 150 75)"/><ellipse cx="150" cy="75" rx="28" ry="34" stroke="#6E6C82" fill="none" transform="rotate(60 150 75)"/><ellipse cx="150" cy="75" rx="31" ry="34" stroke="#6E6C82" fill="none" transform="rotate(75 150 75)"/><ellipse cx="150" cy="75" rx="34" ry="34" stroke="#6E6C82" fill="none" transform="rotate(90 150 75)"/><ellipse cx="150" cy="75" rx="31" ry="34" stroke="#6E6C82" fill="none" transform="rotate(105 150 75)"/><ellipse cx="150" cy="75" rx="28" ry="34" stroke="#6E6C82" fill="none" transform="rotate(120 150 75)"/><ellipse cx="150" cy="75" rx="25" ry="34" stroke="#6E6C82" fill="none" transform="rotate(135 150 75)"/><ellipse cx="150" cy="75" rx="22" ry="34" stroke="#6E6C82" fill="none" transform="rotate(150 150 75)"/><ellipse cx="150" cy="75" rx="19" ry="34" stroke="#6E6C82" fill="none" transform="rotate(165 150 75)"/><circle cx="150" cy="75" r="2.6" fill="#C9E8FF"/><text x="150" y="68" text-anchor="middle" font-size="6.4" font-family="ui-monospace,monospace" fill="#9C9AB4">CLAIMED FEES</text><path d="M150 75 L58 42" stroke="#6E6C82" stroke-dasharray="3 3" fill="none"/><path d="M150 75 L58 116" stroke="#6E6C82" stroke-dasharray="3 3" fill="none"/><path d="M150 75 L236 116" stroke="#6E6C82" stroke-dasharray="3 3" fill="none"/><g><rect x="22" y="33" width="56" height="18" rx="3" fill="#C9E8FF"/><text x="50.0" y="45.2" text-anchor="middle" font-size="7.2" font-family="ui-monospace,monospace" letter-spacing="0.6" fill="#3D3B4F">70%</text></g><g><rect x="22" y="107" width="56" height="18" rx="3" fill="#FFCFFE"/><text x="50.0" y="119.2" text-anchor="middle" font-size="7.2" font-family="ui-monospace,monospace" letter-spacing="0.6" fill="#3D3B4F">10%</text></g><g><rect x="182" y="107" width="56" height="18" rx="3" fill="#F2EAA0"/><text x="210.0" y="119.2" text-anchor="middle" font-size="7.2" font-family="ui-monospace,monospace" letter-spacing="0.6" fill="#3D3B4F">20%</text></g></svg></div>
+          <span class="hw-step">Step 03</span>
+          <h3>Fees are claimed and split</h3>
+          <p>70% compounds into the position, 20% is reserved to buy back and burn the Cusp token and 10% goes to the protocol treasury.</p>
+        </article>
+      </div>
     </section>
 
     <section class="cs-band cs-band-alt" id="fees">
@@ -334,7 +332,7 @@
         <a href="terms.html#what">What is a mock</a>
       </div>
     </div>
-    <div class="ft-sign"><span class="ft-mk" aria-hidden="true"><svg viewBox="0 0 100 100" fill="currentColor"><path d="M50 14 C51.6 28 52.2 38 52.6 44 C52 46.4 51.2 48.3 50.4 49.2 C54 47.4 58.6 44 61.6 39.4 C64.4 35 64.6 30.4 61.6 28.6 C59.2 27.2 57.4 28.4 57.8 30.6 C58.6 28.8 61 29 62.4 31.2 C64.6 34.6 66.4 39.6 69.6 43.6 C72.6 47.2 78 48.8 84 49.2 C90 49.5 94 49.8 98 50 L50 50 Z" transform="translate(50 50)  translate(-50 -50)"/><path d="M50 14 C51.6 28 52.2 38 52.6 44 C52 46.4 51.2 48.3 50.4 49.2 C54 47.4 58.6 44 61.6 39.4 C64.4 35 64.6 30.4 61.6 28.6 C59.2 27.2 57.4 28.4 57.8 30.6 C58.6 28.8 61 29 62.4 31.2 C64.6 34.6 66.4 39.6 69.6 43.6 C72.6 47.2 78 48.8 84 49.2 C90 49.5 94 49.8 98 50 L50 50 Z" transform="translate(50 50) scale(-1,1) translate(-50 -50)"/><path d="M50 14 C51.6 28 52.2 38 52.6 44 C52 46.4 51.2 48.3 50.4 49.2 C54 47.4 58.6 44 61.6 39.4 C64.4 35 64.6 30.4 61.6 28.6 C59.2 27.2 57.4 28.4 57.8 30.6 C58.6 28.8 61 29 62.4 31.2 C64.6 34.6 66.4 39.6 69.6 43.6 C72.6 47.2 78 48.8 84 49.2 C90 49.5 94 49.8 98 50 L50 50 Z" transform="translate(50 50) scale(1,-1) translate(-50 -50)"/><path d="M50 14 C51.6 28 52.2 38 52.6 44 C52 46.4 51.2 48.3 50.4 49.2 C54 47.4 58.6 44 61.6 39.4 C64.4 35 64.6 30.4 61.6 28.6 C59.2 27.2 57.4 28.4 57.8 30.6 C58.6 28.8 61 29 62.4 31.2 C64.6 34.6 66.4 39.6 69.6 43.6 C72.6 47.2 78 48.8 84 49.2 C90 49.5 94 49.8 98 50 L50 50 Z" transform="translate(50 50) scale(-1,-1) translate(-50 -50)"/></svg></span></div>
+    <div class="ft-sign"><span class="ft-mk" aria-hidden="true"></span></div>
     <div class="ft-cubes" aria-hidden="true"></div>
   </footer>
 </div>

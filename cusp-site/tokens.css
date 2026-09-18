@@ -195,11 +195,16 @@ img, svg { display: block; }
 
 /* ---------- the mark ---------- */
 
-.brand-mk { display: block; width: 22px; height: 22px; flex: none; color: var(--band); }
-.brand-mk svg { width: 100%; height: 100%; }
+/* The mark is one 9 KB path, so it lives in mark.svg and is masked rather
+   than inlined fourteen times across the site. currentColor still paints it. */
+.brand-mk, .ft-mk {
+  display: block; flex: none; background: currentColor;
+  -webkit-mask: url(mark.svg) center / contain no-repeat;
+  mask: url(mark.svg) center / contain no-repeat;
+}
+.brand-mk { width: 26px; height: 26px; color: var(--band); }
+.ft-mk { width: 96px; height: 96px; color: var(--band); }
 .ft-sign { display: grid; place-items: center; padding: 30px 24px 26px; border-top: 1px dashed var(--line); }
-.ft-mk { display: block; width: 86px; height: 86px; color: var(--band); }
-.ft-mk svg { width: 100%; height: 100%; }
 
 /* ---------- the bar floats and follows ----------
    Four pages grew four navs; this is the one treatment they share. The outer

@@ -9,59 +9,59 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   dot.innerHTML = `<svg viewBox="${l.vb}" fill="currentColor"><path d="${l.p}"${l.evenodd ? ' fill-rule="evenodd"' : ''}/></svg>`;
 });
 
-/* ---------- the wireframe form turns ----------
-   The form is 46 ellipses sharing a centre, each rotated a little further and
-   each with its own width: narrow at the two ends, widest in the middle. That
-   bulge is what reads as the near side of the shape, so sweeping it around the
-   family — rather than rotating the whole svg, which would only spin a flat
-   drawing — is what makes it look like the form is turning.
+/* ---------- the mark, turned into a solid ----------
+   The hero form is the mark itself, swept around its vertical axis: thirty
+   copies of the same path, each squashed horizontally by the cosine of its
+   angle, which is what a profile looks like once it has been rotated in
+   space. Advancing the phase turns the whole solid.
+
+   One <defs> path and thirty <use> elements, because the traced mark is 9 KB
+   and thirty copies of it in the DOM would not be.
 
    It stops when it is off screen or the tab is hidden, and it never starts if
    the reader asked for less motion. */
 
-(function turnTheForm() {
+(function turnTheMark() {
   const svg = document.querySelector('.hm-form svg');
-  if (!svg) return;
+  const g = document.getElementById('spin');
+  if (!svg || !g) return;
+
+  const N = 30, PERIOD = 22000;
+  const layers = [];
+  for (let i = 0; i < N; i++) {
+    const u = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    u.setAttribute('href', '#cuspmark');
+    g.appendChild(u);
+    layers.push(u);
+  }
+
+  const place = p => layers.forEach((u, i) => {
+    const a = Math.PI * i / N + p;
+    const sx = Math.cos(a);
+    u.setAttribute('transform', `translate(50 50) scale(${sx.toFixed(4)} 1) translate(-50 -50)`);
+    u.setAttribute('opacity', (0.25 + 0.55 * Math.abs(Math.sin(a))).toFixed(3));
+  });
+
+  place(0);
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const rings = [...svg.querySelectorAll('ellipse')];
-  if (rings.length < 4) return;
-
-  const N = rings.length;
-  const MIN = 50, SPAN = 150;          // the widths the still form was drawn with
-  const PERIOD = 19000;                // one full turn, in ms
-
   let running = false, raf = 0, t0 = 0, phase = 0;
-
   function draw(now) {
     if (!t0) t0 = now;
-    const p = phase + ((now - t0) / PERIOD) * Math.PI;
-    for (let i = 0; i < N; i++) {
-      const t = i / (N - 1);
-      rings[i].setAttribute('rx', (MIN + SPAN * (1 - Math.abs(Math.cos(Math.PI * t + p)))).toFixed(1));
-    }
+    place(phase + ((now - t0) / PERIOD) * Math.PI * 2);
     raf = requestAnimationFrame(draw);
   }
-
-  function start() {
-    if (running) return;
-    running = true; t0 = 0;
-    raf = requestAnimationFrame(draw);
-  }
-
+  function start() { if (!running) { running = true; t0 = 0; raf = requestAnimationFrame(draw); } }
   function stop() {
     if (!running) return;
     running = false;
     cancelAnimationFrame(raf);
-    // keep where it stopped, so coming back does not jump
-    phase = (phase + (performance.now() - t0) / PERIOD * Math.PI) % Math.PI;
+    phase = (phase + (performance.now() - t0) / PERIOD * Math.PI * 2) % (Math.PI * 2);
   }
 
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop()))
-      .observe(svg);
+    new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop())).observe(svg);
   } else start();
-
   document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
 })();
 

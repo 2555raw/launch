@@ -8,9 +8,13 @@
 
   $$("[data-year]").forEach((e) => (e.textContent = new Date().getFullYear()));
 
+  // Anything that writes to storage calls this, or the audit below goes
+  // stale and starts describing a browser that no longer exists.
+  let refreshKept = () => {};
+
   /* ---- the rail flyouts ----------------------------------------------
      Click opens and closes. With a real pointer, running down the rail
-     moves the open panel with the cursor — which needs its own "the rail
+     moves the open panel with the cursor, which needs its own "the rail
      is active" flag, because mouseleave on one icon fires before
      mouseenter on the next. */
   const menus = $$(".rail .menu");
@@ -82,8 +86,73 @@
       document.documentElement.setAttribute("data-mode", b.dataset.mode);
       try { localStorage.setItem(MODE_KEY, b.dataset.mode); } catch (e) { /* private window */ }
       paint();
+      refreshKept();
     }));
     paint();
+  }
+
+  /* ---- what this page is holding ------------------------------------
+     Read out of the browser rather than described. Everything under this
+     origin is listed, named or not, so an unexpected key would show up
+     here instead of being quietly left out of a reassuring paragraph. */
+  const keptBox = $("#kept-rows");
+  if (keptBox) {
+    const KNOWN = {
+      "hanamy.mode": ["Colour mode", "which of the three palettes you picked"],
+      "hanamy.endpoint": ["Endpoint and key", "the API you pointed this at, so you need not retype it"]
+    };
+    const redact = (k, v) => {
+      if (k !== "hanamy.endpoint") return v.length > 40 ? v.slice(0, 40) + "…" : v;
+      try {
+        const j = JSON.parse(v);
+        return j.base + " · key held, not shown";
+      } catch (e) { return "held, not shown"; }
+    };
+
+    function audit() {
+      let keys = [];
+      let reachable = true;
+      try { keys = Object.keys(localStorage); } catch (e) { reachable = false; }
+      try { keys = keys.concat(Object.keys(sessionStorage).map((k) => k + " (session)")); }
+      catch (e) {}
+
+      if (!reachable) {
+        keptBox.innerHTML = '<div class="kept-row none"><b>Storage is blocked in this ' +
+          'browser, so nothing can be kept at all.</b></div>';
+      } else if (!keys.length) {
+        keptBox.innerHTML = '<div class="kept-row none"><b>Nothing. This page is holding ' +
+          'no data about you at all.</b></div>';
+      } else {
+        keptBox.innerHTML = keys.map((k) => {
+          const bare = k.replace(" (session)", "");
+          const meta = KNOWN[bare];
+          let v = "";
+          try { v = localStorage.getItem(bare) || sessionStorage.getItem(bare) || ""; }
+          catch (e) {}
+          return `<div class="kept-row"><span><b>${esc(meta ? meta[0] : bare)}</b><br>
+            <span class="what">${esc(meta ? meta[1] : "not set by this page")}</span></span>
+            <span class="val">${esc(redact(bare, v))}</span></div>`;
+        }).join("");
+      }
+      const note = $("#kept-note");
+      if (note) note.textContent = reachable
+        ? keys.length + (keys.length === 1 ? " item, on this device only."
+                                           : " items, on this device only.")
+        : "Nothing can be written here.";
+    }
+
+    refreshKept = audit;
+    audit();
+    const forget = $("#kept-forget");
+    if (forget) forget.addEventListener("click", () => {
+      try { localStorage.clear(); } catch (e) {}
+      try { sessionStorage.clear(); } catch (e) {}
+      document.documentElement.removeAttribute("data-mode");
+      audit();
+      const modeBox2 = $(".modes");
+      if (modeBox2) $$("button", modeBox2).forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.mode === "legacy")));
+    });
   }
 
   /* ---- the drawer, for screens too narrow for the rail --------------- */
@@ -183,7 +252,7 @@
      before you click, that it has nothing to call. */
   const selA = $("#modelA"), selB = $("#modelB");
   if (selA && selB) {
-    const KEY = "mw.endpoint";
+    const KEY = "hanamy.endpoint";
     const msg = $("#compare-msg"), out = $("#answers");
     const wire = $("#wire"), inBase = $("#w-base"), inKey = $("#w-key"), state = $("#w-state");
 
@@ -268,6 +337,7 @@
         save({ base: base, key: key });
         live = ids; fill(ids);
         state.textContent = ids.length + " models loaded.";
+        refreshKept();
         say("");
       } catch (e) {
         state.textContent = "";
@@ -277,6 +347,7 @@
     });
     if ($("#w-clear")) $("#w-clear").addEventListener("click", () => {
       save(null); live = null; inKey.value = ""; state.textContent = "Forgotten.";
+      refreshKept();
       if (window.MODELS) fill(MODELS.filter((m) => m.s === "live"));
     });
 
@@ -285,15 +356,22 @@
        in one lump after ten seconds of nothing. An endpoint that will not
        stream still works: if the body is not an event stream we read it as
        one JSON response. */
-    async function ask(base, key, model, prompt, onChunk) {
+    // One turn, every time. The conversation array is built here from the
+    // single message and nothing else. There is no history variable in this
+    // file to append to, which is the whole product.
+    function bodyFor(model, prompt) {
+      return { model: model, messages: [{ role: "user", content: prompt }], stream: true };
+    }
+
+    async function ask(base, key, model, prompt, onChunk, onBody) {
       const t0 = performance.now();
       let first = 0;
+      const body = bodyFor(model, prompt);
+      if (onBody) onBody(body);
       const res = await fetch(base.replace(/\/$/, "") + "/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
-        body: JSON.stringify({
-          model: model, messages: [{ role: "user", content: prompt }], stream: true
-        })
+        body: JSON.stringify(body)
       });
       const type = res.headers.get("content-type") || "";
 
@@ -343,13 +421,17 @@
       const cfg = load();
       if (!cfg) {
         wire.hidden = false;
-        say("Nothing to call yet — name an OpenAI-compatible endpoint and key below. " +
+        say("Nothing to call yet. Name an OpenAI-compatible endpoint and key below. " +
             "They stay in this browser.");
         inBase.focus();
         return;
       }
       say("");
       out.hidden = false;
+      // The previous exchange goes before the next one starts. Not hidden,
+      // not kept in a variable for later. Overwritten.
+      const receipt = $("#receipt"), rbody = $("#receipt-body"), rwhen = $("#receipt-when");
+      if (receipt) { receipt.hidden = true; rbody.textContent = ""; }
       const pairs = [[selA, "#ans-a", "#ans-a-name", "#ans-a-meta"],
                      [selB, "#ans-b", "#ans-b-name", "#ans-b-meta"]];
       pairs.forEach(([sel, body, name, meta]) => {
@@ -361,7 +443,15 @@
       await Promise.all(pairs.map(async ([sel, body, , meta]) => {
         try {
           const r = await ask(cfg.base, cfg.key, sel.value, q,
-                              (so_far) => { $(body).textContent = so_far; });
+                              (so_far) => { $(body).textContent = so_far; },
+                              (sent) => {
+            if (!receipt) return;
+            receipt.hidden = false;
+            rwhen.textContent = new Date().toLocaleTimeString();
+            // both calls print; the second appends, so you see each one
+            rbody.textContent += (rbody.textContent ? "\n\n" : "") +
+              JSON.stringify(sent, null, 2);
+          });
           $(body).textContent = r.text;
           $(meta).textContent = (r.first ? r.first + " ms to first token · " : "") +
             r.ms + " ms total" + (r.usage

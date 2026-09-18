@@ -85,11 +85,11 @@ MENUS = {
 # turns to mush, and these have to stay crisp at every size and take the
 # stroke weight of the set. One grid (24), one weight, one joint style.
 ICON = {
-    # a package — what the platform hands you
+    # a package, which is what the platform hands you
     "Platform": ('<path d="M12 2.6l8.3 4.2v10.4L12 21.4l-8.3-4.2V6.8z"/>'
                  '<path d="M3.7 6.8l8.3 4.2 8.3-4.2"/><path d="M12 11v10.4"/>'
                  '<path d="M7.85 4.7l8.3 4.2"/>'),
-    # an arrow, fletched — the assistant that sends the prompt out
+    # an arrow, fletched: the assistant that sends the prompt out
     "Tsubomi": ('<path d="M2.9 12h13.4"/><path d="M13.2 7.4l4.8 4.6-4.8 4.6"/>'
                 # The feathers sit ON the shaft, with the tail running past
                 # them. Put their vertex at the tail instead and the icon
@@ -191,7 +191,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
   <div class="foot-grid">
     <div>
       <div class="brand">{MARK} Hanamy</div>
-      <p class="foot-line">Looking is free.</p>
+      <p class="foot-line">Nothing is kept.</p>
       <a class="x" href="https://x.com/" target="_blank" rel="noopener"
          aria-label="Hanamy on X"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow on X</span></a>
     </div>
@@ -231,7 +231,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 
   <div class="rule">
     <span>&copy; <span data-year>2026</span> Hanamy</span>
-    <span class="mid">Looking is free.</span>
+    <span class="mid">Nothing is kept.</span>
     <a href="#" id="totop">Back to top &nbsp;&uarr;</a>
   </div>
 </div></footer>
@@ -242,9 +242,9 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 """
 
 # ---------------------------------------------------------------- index
-index = head("Hanamy · Every model, one look",
+index = head("Hanamy · Say anything, it keeps nothing",
              "Explore every model, compare answers side by side, and build with the ones you "
-             "choose — one wallet-scoped key, one endpoint.",
+             "choose, with one wallet-scoped key and one endpoint.",
              '') + top("platform") + f"""
 <section class="hero">
   <div class="frame">
@@ -255,8 +255,8 @@ index = head("Hanamy · Every model, one look",
     </picture>
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
-      <h1>Every model.<br>One look.</h1>
-      <p>Put one prompt in front of every frontier model and read the answers side by side. Hanamy is going out to look at the blossom — looking costs nothing.</p>
+      <h1>Say anything.<br>It keeps nothing.</h1>
+      <p>Talk to it about whatever you like. There is no thread, no history and no account: come back tomorrow and it will not know you were here.</p>
       <div class="cta">
         <a class="btn pale" href="#curiosity">Ask Tsubomi {AR}</a>
         <a class="btn on-dark" href="docs.html">Learn More {AR}</a>
@@ -322,15 +322,16 @@ index = head("Hanamy · Every model, one look",
 </div></section>
 
 <section class="band light" id="curiosity"><div class="wrap">
-  <h2 style="max-width:18ch">Follow your curiosity.<br>See where it takes you.</h2>
+  <h2 style="max-width:18ch">Ask it anything.<br>Then watch it go.</h2>
   <div class="split" style="margin-top:56px">
     <div>
       <div class="rows">
         <a href="#curiosity"><span class="t">Compare responses</span>{AR}</a>
         <div class="row"><span class="t" style="color:var(--ink-3)">Create something visual</span></div>
       </div>
-      <p class="lede" style="margin-top:26px">Send one prompt to two models you choose. Read their
-        answers side by side and decide what works for you.</p>
+      <p class="lede" style="margin-top:26px">Ask two models at once and read both answers side
+        by side. Send again and the last exchange is gone. Not hidden, not archived. Gone.
+        Neither model is told it ever happened.</p>
       <a class="link" style="margin-top:22px" href="models.html">Open Dispatch {AR}</a>
     </div>
     <div class="panel">
@@ -356,9 +357,20 @@ index = head("Hanamy · Every model, one look",
       </div>
       <p class="sub" id="compare-msg" hidden style="margin-top:14px"></p>
 
+      <div class="receipt" id="receipt" hidden>
+        <div class="receipt-head">
+          <b>What left this page</b>
+          <span class="far sub" id="receipt-when"></span>
+        </div>
+        <pre id="receipt-body"></pre>
+        <p class="sub">That is the whole request, printed from the same object that was sent.
+          There is no <code>messages</code> history in it because none is kept: every send
+          starts from an empty conversation.</p>
+      </div>
+
       <div class="wire-up" id="wire" hidden>
         <p class="sub" style="margin-bottom:12px">Point this at any OpenAI-compatible endpoint.
-          The key is kept in this browser only — it is never sent anywhere but the endpoint you
+          The key is kept in this browser only. It is never sent anywhere but the endpoint you
           name here.</p>
         <div class="split tight" style="gap:16px">
           <div class="field"><label for="w-base">Base URL</label>
@@ -386,13 +398,38 @@ index = head("Hanamy · Every model, one look",
   </div>
 </div></section>
 
+<section class="band blush" id="kept"><div class="wrap">
+  <div class="split">
+    <div class="stack">
+      <span class="kicker">The whole of it</span>
+      <h2>What this page<br>keeps about you.</h2>
+      <p class="lede">Two things, both yours, both on this device only, and neither of them
+        anything you said. The list on the right is read out of your browser when the page
+        loads. It is not a promise, it is the actual contents.</p>
+      <p class="sub">A conversation is never one of them. Nothing you type is written to disk,
+        sent anywhere but the endpoint you named, or carried into the next request.</p>
+    </div>
+    <div class="panel">
+      <div class="kept-rows" id="kept-rows"></div>
+      <div class="foot">
+        <span class="sub" id="kept-note"></span>
+        <span class="far"><button class="btn line sm" type="button" id="kept-forget">Forget all of it</button></span>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:34px">Hanamy keeps nothing. What the endpoint you point it
+    at does with a request once it arrives is that endpoint's business, and no page can promise
+    otherwise, so check its retention policy rather than ours.</p>
+</div></section>
+
 <section class="plate">
   <img src="media/grove.webp" alt="A path running under cherry trees in full blossom">
   <div class="plate-in"><div class="wrap">
     <p class="kicker">Hanamy · 花見</p>
-    <h2>Going out to look<br>at the blossom.</h2>
-    <p>That is what the word means, and what the free half of this is: you walk the row, you
-      look, you decide. Nobody asks for a key at the gate.</p>
+    <h2>The blossom lasts<br>about a week.</h2>
+    <p>Hanami is going out to look at it anyway, knowing that. Everything you type here is
+      the same: it does its work, and then it is gone. No thread to scroll back through,
+      nothing to delete later, because there is nothing to delete.</p>
   </div></div>
 </section>
 
@@ -436,7 +473,7 @@ models = head("Hanamy · The model register",
   <h1 style="font-size:clamp(38px,5vw,62px)">Every model,<br>in one register.</h1>
   <p class="lede" style="margin-top:22px">What is reachable through the endpoint right now, what it
     costs, and how much context it will hold. Model names here are the strings you pass in
-    <code style="font-family:var(--mono);font-size:.85em">"model"</code> — they work as written.</p>
+    <code style="font-family:var(--mono);font-size:.85em">"model"</code>, and they work as written.</p>
 </div></section>
 
 <section class="band light" style="padding-top:48px"><div class="wrap">
@@ -517,6 +554,7 @@ def side():
   <h5>Control your requests</h5>
   <nav>
     {a("Client keys &amp; limits", "#limits")}
+    {a("What is not kept", "#memory")}
     {a("Errors", "#limits")}
   </nav>
 </aside>"""
@@ -532,7 +570,7 @@ TAB = [
    "Quiver", "x-mw-quiver: daily_tokens=2_000_000; rpm=60"),
   ("Model", "tp3", "The name is the routing decision.",
    "The string you pass in \"model\" is resolved against the register. Nothing is substituted "
-   "behind your back — if a model is queued rather than live, the call fails loudly.",
+   "behind your back. If a model is queued rather than live, the call fails loudly.",
    "Model", '"model": "claude-opus-5"'),
   ("Receipt", "tp4", "What the request actually cost.",
    "Every response carries a usage block: tokens in, tokens out, the model that served it and the "
@@ -617,7 +655,7 @@ control over how requests are allowed and routed.</span>
       and its usage. Keep the first request small enough that a failure is easy to understand.
       Expand the task after the connection and controls are working.</p>
     <ul>
-      <li>Rate limits are counted against the <b>wallet</b>, not the key — a second key does not buy
+      <li>Rate limits are counted against the <b>wallet</b>, not the key, so a second key does not buy
         a second allowance.</li>
       <li>A sustained overrun returns <code>429</code> with a <code>retry-after</code> you should
         actually honour.</li>
@@ -637,6 +675,30 @@ mw models <span class="k">--json</span> | jq <span class="s">'.[] | select(.stat
 <span class="c"># one prompt, two models, side by side</span>
 mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gemini-3-pro <span class="s">"explain a bonding curve"</span></pre>
     </div>
+
+    <h2 id="memory">What is not kept</h2>
+    <p>There is no conversation object in this front end. Each send builds a request from the
+      one message in the box and nothing else, so the array that reaches the endpoint has
+      exactly one entry in it. Send again and the previous exchange is overwritten in the
+      page, not filed away. The receipt under the panel prints the request from the same
+      object that was posted, so you can read what left rather than take our word for it.</p>
+    <ul>
+      <li><b>No history.</b> Nothing you type is written to <code>localStorage</code>,
+        <code>sessionStorage</code>, IndexedDB, a cookie or a server of ours.</li>
+      <li><b>No thread.</b> The model is never told there was an earlier turn, because there
+        is no earlier turn to tell it about.</li>
+      <li><b>No account.</b> There is nothing to log into, so there is nothing to attach a
+        transcript to.</li>
+      <li><b>Two things are kept</b>, both on your device: your colour mode, and the endpoint
+        and key you chose so you need not retype them. The register page lists them by reading
+        your browser, and the button beside the list clears them.</li>
+    </ul>
+    <p><b>The limit, stated plainly.</b> This page keeps nothing. What happens to a request
+      after it reaches the endpoint you named is that endpoint's business: most providers log
+      requests for some period, and no front end can promise otherwise. If that matters, read
+      the retention policy of the API you point this at. The guarantee here stops at the
+      edge of the browser, and anyone who tells you their web page can extend it further is
+      selling something.</p>
 
     <h2 id="notes">Why this exists</h2>
     <p>Model choice is an operational decision, not a matter of taste, and it is made badly when the

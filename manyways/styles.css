@@ -2,7 +2,7 @@
    Sakura. Where the reference sets forest green on beige, this sets
    bark on blossom: the light ground is the white at a petal's edge
    with the pink it picks up where petals overlap, and the dark bands
-   are the plum-black of a cherry trunk in rain — not a neutral dark.
+   are the plum-black of a cherry trunk in rain: not a neutral dark.
    Every grey here carries the same pink bias, on purpose.
    ------------------------------------------------------------------ */
 /* ------------------------------------------------------------------
@@ -10,9 +10,9 @@
    tokens and never a literal, which is why a mode is a block of colours
    here and nothing else anywhere.
 
-   legacy — light pink over wood: warm paper, walnut ink, walnut bands
-   night  — matte black and dark grey, with the pink taken down to suit
-   light  — white and pale pink, the bands pink rather than dark
+   legacy: light pink over wood: warm paper, walnut ink, walnut bands
+   night: matte black and dark grey, with the pink taken down to suit
+   light: white and pale pink, the bands pink rather than dark
    ------------------------------------------------------------------ */
 :root, :root[data-mode="legacy"] {
   --snow:    #fdf8f2;   /* warm paper */
@@ -64,7 +64,7 @@
   --petal:   #fbdfe8;
   --card:    #ffffff;
   /* The bands are pale pink here rather than dark, so the whole page
-     stays white and pink — which means the text on them goes dark, and
+     stays white and pink: which means the text on them goes dark, and
      it does, because they read the same two tokens. */
   --bark:    #fbe4ec;
   --bark-2:  #f7d8e3;
@@ -109,7 +109,7 @@ p { margin: 0; }
 .wrap { width: min(var(--shell), 100% - 64px); margin-inline: auto; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 :focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; border-radius: 4px; }
-/* Selected text — what you see the instant before you copy — comes up in
+/* Selected text: what you see the instant before you copy: comes up in
    blossom rather than the browser's blue. Stated twice: one rule with an
    unknown pseudo-element in it is dropped whole by every engine. */
 ::selection { background: var(--select); color: var(--ink); text-shadow: none; }
@@ -208,8 +208,7 @@ p { margin: 0; }
 .burger { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px;
           border: 0; background: none; color: var(--on-dark); cursor: pointer; }
 .burger:hover { background: color-mix(in srgb, var(--on-dark) 12%, transparent); }
-/* Hidden at rail widths by the cascade, shown by the media query below —
-   and only when the burger has actually opened it. */
+/* Hidden at rail widths by the cascade, shown by the media query below: and only when the burger has actually opened it. */
 .drawer { display: none; background: var(--bark-2); padding: 12px 20px 22px; }
 .drawer h6 { margin: 16px 0 4px; font: 700 11px/1 var(--sans); letter-spacing: .12em;
              text-transform: uppercase; color: var(--on-dark-3); }
@@ -550,7 +549,7 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
 .modes button[aria-pressed="true"] .sw { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--on-dark) 50%, transparent),
                                                      0 0 0 2px var(--blossom); }
 .modes .lbl { font-size: 13.5px; }
-/* Each swatch shows its own palette, not the one in use — otherwise the
+/* Each swatch shows its own palette, not the one in use: otherwise the
    three read identically and choose nothing. */
 .sw-legacy { background: linear-gradient(135deg, #fdf8f2 50%, #4a3326 50%); }
 .sw-night  { background: linear-gradient(135deg, #1a1a1c 50%, #cf6d8d 50%); }
@@ -563,3 +562,24 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
            font-size: 13.5px; font-weight: 600; color: var(--ink);
            transition: background .16s ease, border-color .16s ease; }
 .foot .x:hover { background: var(--blush); border-color: var(--ink-3); }
+
+/* ---------------- the receipt, and the storage audit ---------------- */
+.receipt { margin-top: 18px; border: 1px solid var(--line); border-radius: 9px;
+           overflow: hidden; background: var(--blush); }
+.receipt-head { display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+                border-bottom: 1px solid var(--line); font-size: 13px; }
+.receipt-head .far { margin-left: auto; }
+.receipt pre { margin: 0; padding: 14px; overflow-x: auto; font: 400 12.5px/1.65 var(--mono);
+               color: var(--ink-2); max-height: 260px; }
+.receipt .sub { padding: 0 14px 14px; }
+.receipt code { font: 500 12px var(--mono); color: var(--rose); }
+
+.kept-rows { display: grid; }
+.kept-row { display: flex; align-items: baseline; gap: 14px; padding: 13px 0;
+            border-bottom: 1px solid var(--line); }
+.kept-row:first-child { padding-top: 0; }
+.kept-row b { font-size: 14px; font-weight: 600; }
+.kept-row .what { font: 500 12px/1.5 var(--mono); color: var(--ink-3); }
+.kept-row .val { margin-left: auto; font: 500 12.5px var(--mono); color: var(--ink-2);
+                 text-align: right; max-width: 46%; overflow-wrap: anywhere; }
+.kept-row.none b { color: var(--ink-3); font-weight: 500; }

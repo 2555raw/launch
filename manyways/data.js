@@ -1,4 +1,4 @@
-/* The register. Placeholder figures for the mock — swap for whatever the
+/* The register. Placeholder figures for the mock. Swap for whatever the
    pool actually charges before this goes anywhere near a customer. */
 window.LABS = {
   Anthropic: "#c9557d", OpenAI: "#7a9d6b", Google: "#c98a4b",

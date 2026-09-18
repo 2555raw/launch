@@ -62,6 +62,7 @@
   <h5>Control your requests</h5>
   <nav>
     <a href="#limits">Client keys &amp; limits</a>
+    <a href="#memory">What is not kept</a>
     <a href="#limits">Errors</a>
   </nav>
 </aside>
@@ -139,7 +140,7 @@ control over how requests are allowed and routed.</span>
   <div class="split tight" style="margin-top:26px">
     <div>
       <h3 style="font-size:23px">The name is the routing decision.</h3>
-      <p>The string you pass in "model" is resolved against the register. Nothing is substituted behind your back — if a model is queued rather than live, the call fails loudly.</p>
+      <p>The string you pass in "model" is resolved against the register. Nothing is substituted behind your back. If a model is queued rather than live, the call fails loudly.</p>
       <a class="link" style="margin-top:18px" href="#keys">Read the guide <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
     </div>
     <div class="code">
@@ -180,7 +181,7 @@ control over how requests are allowed and routed.</span>
       and its usage. Keep the first request small enough that a failure is easy to understand.
       Expand the task after the connection and controls are working.</p>
     <ul>
-      <li>Rate limits are counted against the <b>wallet</b>, not the key — a second key does not buy
+      <li>Rate limits are counted against the <b>wallet</b>, not the key, so a second key does not buy
         a second allowance.</li>
       <li>A sustained overrun returns <code>429</code> with a <code>retry-after</code> you should
         actually honour.</li>
@@ -200,6 +201,30 @@ mw models <span class="k">--json</span> | jq <span class="s">'.[] | select(.stat
 <span class="c"># one prompt, two models, side by side</span>
 mw compare <span class="k">-a</span> claude-opus-5 <span class="k">-b</span> gemini-3-pro <span class="s">"explain a bonding curve"</span></pre>
     </div>
+
+    <h2 id="memory">What is not kept</h2>
+    <p>There is no conversation object in this front end. Each send builds a request from the
+      one message in the box and nothing else, so the array that reaches the endpoint has
+      exactly one entry in it. Send again and the previous exchange is overwritten in the
+      page, not filed away. The receipt under the panel prints the request from the same
+      object that was posted, so you can read what left rather than take our word for it.</p>
+    <ul>
+      <li><b>No history.</b> Nothing you type is written to <code>localStorage</code>,
+        <code>sessionStorage</code>, IndexedDB, a cookie or a server of ours.</li>
+      <li><b>No thread.</b> The model is never told there was an earlier turn, because there
+        is no earlier turn to tell it about.</li>
+      <li><b>No account.</b> There is nothing to log into, so there is nothing to attach a
+        transcript to.</li>
+      <li><b>Two things are kept</b>, both on your device: your colour mode, and the endpoint
+        and key you chose so you need not retype them. The register page lists them by reading
+        your browser, and the button beside the list clears them.</li>
+    </ul>
+    <p><b>The limit, stated plainly.</b> This page keeps nothing. What happens to a request
+      after it reaches the endpoint you named is that endpoint's business: most providers log
+      requests for some period, and no front end can promise otherwise. If that matters, read
+      the retention policy of the API you point this at. The guarantee here stops at the
+      edge of the browser, and anyone who tells you their web page can extend it further is
+      selling something.</p>
 
     <h2 id="notes">Why this exists</h2>
     <p>Model choice is an operational decision, not a matter of taste, and it is made badly when the

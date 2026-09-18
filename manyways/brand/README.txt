@@ -9,10 +9,10 @@ advertises and cannot drift away from it. Re-render after any brand change:
 (the first argument is only needed where fonts.googleapis.com is blocked;
 pass the live URL otherwise.)
 
-  header-x.png       1500x500   — X / Twitter profile header
-  header-og.png      1200x630   — link preview, the standard card size
-  header-wide.png    2400x800   — a wide banner, for a page or a slide
-  header-square.png  1200x1200  — Instagram, or anywhere square
+  header-x.png       1500x500: X / Twitter profile header
+  header-og.png      1200x630: link preview, the standard card size
+  header-wide.png    2400x800: a wide banner, for a page or a slide
+  header-square.png  1200x1200: Instagram, or anywhere square
 
 media/card.jpg is header-og.png compressed, and is what the pages link to
 in their og:image. That tag is a relative path: make it an absolute URL

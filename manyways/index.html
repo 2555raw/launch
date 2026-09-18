@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hanamy · Every model, one look</title>
-<meta name="description" content="Explore every model, compare answers side by side, and build with the ones you choose — one wallet-scoped key, one endpoint.">
+<title>Hanamy · Say anything, it keeps nothing</title>
+<meta name="description" content="Explore every model, compare answers side by side, and build with the ones you choose, with one wallet-scoped key and one endpoint.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Hanamy · Every model, one look">
-<meta property="og:description" content="Explore every model, compare answers side by side, and build with the ones you choose — one wallet-scoped key, one endpoint.">
+<meta property="og:title" content="Hanamy · Say anything, it keeps nothing">
+<meta property="og:description" content="Explore every model, compare answers side by side, and build with the ones you choose, with one wallet-scoped key and one endpoint.">
 <meta property="og:image" content="media/card.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Hanamy · Every model, one look">
-<meta name="twitter:description" content="Explore every model, compare answers side by side, and build with the ones you choose — one wallet-scoped key, one endpoint.">
+<meta name="twitter:title" content="Hanamy · Say anything, it keeps nothing">
+<meta name="twitter:description" content="Explore every model, compare answers side by side, and build with the ones you choose, with one wallet-scoped key and one endpoint.">
 <meta name="twitter:image" content="media/card.jpg">
 <meta name="theme-color" content="#47202e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,8 +43,8 @@
     </picture>
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
-      <h1>Every model.<br>One look.</h1>
-      <p>Put one prompt in front of every frontier model and read the answers side by side. Hanamy is going out to look at the blossom — looking costs nothing.</p>
+      <h1>Say anything.<br>It keeps nothing.</h1>
+      <p>Talk to it about whatever you like. There is no thread, no history and no account: come back tomorrow and it will not know you were here.</p>
       <div class="cta">
         <a class="btn pale" href="#curiosity">Ask Tsubomi <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
         <a class="btn on-dark" href="docs.html">Learn More <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
@@ -110,15 +110,16 @@
 </div></section>
 
 <section class="band light" id="curiosity"><div class="wrap">
-  <h2 style="max-width:18ch">Follow your curiosity.<br>See where it takes you.</h2>
+  <h2 style="max-width:18ch">Ask it anything.<br>Then watch it go.</h2>
   <div class="split" style="margin-top:56px">
     <div>
       <div class="rows">
         <a href="#curiosity"><span class="t">Compare responses</span><svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
         <div class="row"><span class="t" style="color:var(--ink-3)">Create something visual</span></div>
       </div>
-      <p class="lede" style="margin-top:26px">Send one prompt to two models you choose. Read their
-        answers side by side and decide what works for you.</p>
+      <p class="lede" style="margin-top:26px">Ask two models at once and read both answers side
+        by side. Send again and the last exchange is gone. Not hidden, not archived. Gone.
+        Neither model is told it ever happened.</p>
       <a class="link" style="margin-top:22px" href="models.html">Open Dispatch <svg class="ar" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></a>
     </div>
     <div class="panel">
@@ -144,9 +145,20 @@
       </div>
       <p class="sub" id="compare-msg" hidden style="margin-top:14px"></p>
 
+      <div class="receipt" id="receipt" hidden>
+        <div class="receipt-head">
+          <b>What left this page</b>
+          <span class="far sub" id="receipt-when"></span>
+        </div>
+        <pre id="receipt-body"></pre>
+        <p class="sub">That is the whole request, printed from the same object that was sent.
+          There is no <code>messages</code> history in it because none is kept: every send
+          starts from an empty conversation.</p>
+      </div>
+
       <div class="wire-up" id="wire" hidden>
         <p class="sub" style="margin-bottom:12px">Point this at any OpenAI-compatible endpoint.
-          The key is kept in this browser only — it is never sent anywhere but the endpoint you
+          The key is kept in this browser only. It is never sent anywhere but the endpoint you
           name here.</p>
         <div class="split tight" style="gap:16px">
           <div class="field"><label for="w-base">Base URL</label>
@@ -174,13 +186,38 @@
   </div>
 </div></section>
 
+<section class="band blush" id="kept"><div class="wrap">
+  <div class="split">
+    <div class="stack">
+      <span class="kicker">The whole of it</span>
+      <h2>What this page<br>keeps about you.</h2>
+      <p class="lede">Two things, both yours, both on this device only, and neither of them
+        anything you said. The list on the right is read out of your browser when the page
+        loads. It is not a promise, it is the actual contents.</p>
+      <p class="sub">A conversation is never one of them. Nothing you type is written to disk,
+        sent anywhere but the endpoint you named, or carried into the next request.</p>
+    </div>
+    <div class="panel">
+      <div class="kept-rows" id="kept-rows"></div>
+      <div class="foot">
+        <span class="sub" id="kept-note"></span>
+        <span class="far"><button class="btn line sm" type="button" id="kept-forget">Forget all of it</button></span>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:34px">Hanamy keeps nothing. What the endpoint you point it
+    at does with a request once it arrives is that endpoint's business, and no page can promise
+    otherwise, so check its retention policy rather than ours.</p>
+</div></section>
+
 <section class="plate">
   <img src="media/grove.webp" alt="A path running under cherry trees in full blossom">
   <div class="plate-in"><div class="wrap">
     <p class="kicker">Hanamy · 花見</p>
-    <h2>Going out to look<br>at the blossom.</h2>
-    <p>That is what the word means, and what the free half of this is: you walk the row, you
-      look, you decide. Nobody asks for a key at the gate.</p>
+    <h2>The blossom lasts<br>about a week.</h2>
+    <p>Hanami is going out to look at it anyway, knowing that. Everything you type here is
+      the same: it does its work, and then it is gone. No thread to scroll back through,
+      nothing to delete later, because there is nothing to delete.</p>
   </div></div>
 </section>
 
@@ -219,7 +256,7 @@
   <div class="foot-grid">
     <div>
       <div class="brand"><svg width="26" height="26" viewBox="0 0 560 560" fill="currentColor" aria-hidden="true"><path d="M273.74 527.34C267.50 522.90 258.41 509.40 251.96 495.00C249.81 490.20 249.51 488.11 249.56 478.50C249.62 466.18 251.13 460.93 258.03 449.00C262.97 440.48 273.77 426.24 277.28 423.63C279.80 421.76 280.28 421.71 282.47 423.04C285.31 424.76 294.30 435.77 300.39 445.00C311.76 462.21 313.75 479.34 306.48 497.25C303.50 504.58 294.77 517.77 288.27 524.75C282.51 530.93 279.53 531.46 273.74 527.34ZM270.50 393.60C259.38 390.07 251.58 383.51 247.01 373.86C241.96 363.17 242.17 350.96 247.55 342.77C248.90 340.72 250.00 338.23 250.00 337.25C250.00 335.00 242.81 322.31 236.44 313.32C229.96 304.16 215.22 289.70 205.73 283.19C188.41 271.30 168.01 263.91 147.00 261.91C126.61 259.98 122.13 258.61 115.70 252.37C110.19 247.02 110.63 244.79 118.75 236.81C126.73 228.96 129.68 227.59 145.34 224.50C151.85 223.21 157.25 222.01 157.34 221.83C160.89 214.64 165.69 210.32 171.63 208.96C176.87 207.75 186.97 209.45 193.81 212.69C199.80 215.52 210.70 225.65 215.71 233.02C220.96 240.75 228.66 255.91 234.50 270.00C244.76 294.78 250.22 306.18 251.31 305.09C253.19 303.21 253.40 284.11 251.61 277.11C247.95 262.85 238.49 242.79 223.75 218.05C219.97 211.70 214.80 202.34 212.27 197.27C208.23 189.16 207.61 187.05 207.21 180.00C206.67 170.72 208.53 164.30 212.71 161.01C215.75 158.62 219.24 158.47 224.91 160.47C228.75 161.82 229.21 161.79 230.92 160.08C231.94 159.06 233.72 155.68 234.89 152.57C238.27 143.53 240.87 139.06 245.84 133.71C254.73 124.15 265.02 119.16 277.63 118.29C297.84 116.90 316.28 129.24 324.06 149.34C329.10 162.35 329.75 162.91 337.20 160.43C348.52 156.67 354.50 163.57 352.06 177.59C349.68 191.24 343.37 206.15 332.00 225.00C315.84 251.80 310.36 268.48 309.35 294.00L308.78 308.50L313.72 298.50C316.44 293.00 319.49 286.25 320.48 283.50C323.23 275.93 332.88 254.34 336.79 247.00C342.11 237.01 349.75 227.25 356.77 221.46C376.08 205.53 393.27 204.37 401.52 218.44L404.05 222.75L413.27 224.41C429.06 227.25 434.34 229.45 441.58 236.22C446.52 240.85 448.00 242.87 448.00 245.04C448.00 248.75 444.32 252.96 438.14 256.32C433.11 259.07 430.36 259.58 407.96 261.94C385.29 264.33 361.01 275.16 343.89 290.54C333.50 299.87 322.31 314.57 313.55 330.41C310.46 335.98 309.94 337.64 310.88 338.91C317.87 348.45 319.04 360.68 313.99 371.37C305.50 389.34 286.95 398.82 270.50 393.60ZM191.00 195.67C189.62 194.94 182.48 190.84 175.12 186.55C167.77 182.27 152.74 174.52 141.73 169.35C130.72 164.17 119.86 158.69 117.60 157.17C113.54 154.42 113.50 154.33 113.51 148.26C113.52 141.37 115.23 138.18 121.09 134.17C124.07 132.13 125.46 131.87 132.05 132.17C148.25 132.88 160.49 142.95 178.81 170.64C186.39 182.09 195.00 195.84 195.00 196.49C195.00 197.34 193.63 197.06 191.00 195.67ZM367.23 193.75C368.04 192.51 371.33 187.22 374.55 182.00C388.39 159.57 402.56 142.73 411.90 137.65C430.48 127.54 447.08 131.63 447.41 146.40C447.57 153.71 446.04 154.92 420.75 167.43C407.96 173.76 390.75 182.76 382.50 187.45C374.25 192.13 367.11 195.97 366.63 195.98C366.16 195.99 366.43 194.99 367.23 193.75ZM277.79 102.75C276.92 102.06 274.20 97.90 271.74 93.50C262.28 76.57 257.33 61.98 258.40 54.14C259.60 45.29 267.01 35.59 275.75 31.45C283.52 27.76 292.32 31.66 297.44 41.07C303.52 52.24 301.47 65.65 290.26 87.94C283.22 101.92 280.64 104.99 277.79 102.75Z"/></svg> Hanamy</div>
-      <p class="foot-line">Looking is free.</p>
+      <p class="foot-line">Nothing is kept.</p>
       <a class="x" href="https://x.com/" target="_blank" rel="noopener"
          aria-label="Hanamy on X"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow on X</span></a>
     </div>
@@ -259,7 +296,7 @@
 
   <div class="rule">
     <span>&copy; <span data-year>2026</span> Hanamy</span>
-    <span class="mid">Looking is free.</span>
+    <span class="mid">Nothing is kept.</span>
     <a href="#" id="totop">Back to top &nbsp;&uarr;</a>
   </div>
 </div></footer>

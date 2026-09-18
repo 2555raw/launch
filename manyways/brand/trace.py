@@ -2,7 +2,7 @@
 """Traces the mark from a flat raster into one SVG path.
 
 The result takes currentColor, so the mark is whatever colour the thing
-around it is — pink on the page, petal on the dark rail — instead of a
+around it is: pink on the page, petal on the dark rail: instead of a
 recoloured PNG that has to be re-exported every time the palette moves.
 """
 import sys, numpy as np, potrace

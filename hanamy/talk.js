@@ -96,12 +96,37 @@
 
   /* ---- the model list ------------------------------------------------ */
   const sel = $("#t-model");
+
+  /* Which one to land on. Alphabetical order picks whatever sorts first,
+     and on some providers that is a specialist: Groq's list starts with
+     allam-2-7b, an Arabic-language model, so the chat answered in Arabic
+     to an English question. Prefer a general-purpose model by name and
+     fall back to the first only when nothing is recognised. */
+  const PREFER = [
+    "llama-3.3-70b", "llama-4", "llama-3.1-70b", "gpt-5", "gpt-4",
+    "claude-", "gemini-2", "gemini-", "qwen", "mixtral", "mistral",
+    "deepseek", "gemma", "llama"
+  ];
+  const AVOID = /guard|whisper|tts|embed|moderation|allam|vision-preview/i;
+
+  function bestOf(ids) {
+    const usable = ids.filter((id) => !AVOID.test(id));
+    for (const want of PREFER) {
+      const hit = usable.find((id) => id.toLowerCase().includes(want));
+      if (hit) return hit;
+    }
+    return usable[0] || ids[0];
+  }
+
   function fillModels(ids) {
+    const keep = sel.value;
     sel.innerHTML = ids.map((m) => {
       const id = typeof m === "string" ? m : m.id;
       const label = typeof m === "string" ? m : (m.n || m.id);
       return `<option value="${esc(id)}">${esc(label)}</option>`;
     }).join("");
+    const plain = ids.map((m) => (typeof m === "string" ? m : m.id));
+    sel.value = plain.includes(keep) ? keep : bestOf(plain);
   }
   if (window.MODELS) fillModels(MODELS.filter((m) => m.s === "live"));
   async function pullModels() {
@@ -270,7 +295,7 @@
     input.value = ""; grow();
 
     const el = addTurn("them",
-      `<div class="role"><span class="mk">${MARK}</span>Tsubomi</div>` +
+      `<div class="role"><span class="mk">${MARK}</span>Hanamy</div>` +
       `<div class="bubble">…</div><div class="meta"></div>`);
     const bubble = $(".bubble", el), meta = $(".meta", el);
     const t0 = performance.now();

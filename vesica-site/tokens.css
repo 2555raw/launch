@@ -51,6 +51,7 @@
   --on-band-2: #A9A8AF;
   --band-line: rgba(233, 233, 233, .16);
   --dash: #D6D6D6;
+  --edge: #23222F;         /* the drawn edge: the ink, one step darker */
   --grid: #DEDEDE;         /* the graph paper the page sits on */
   --grid-step: 32px;
 
@@ -261,7 +262,7 @@ img, svg { display: block; }
   max-width: var(--wrap-head); margin: 0 auto;
   height: 56px; padding: 0 10px 0 18px;
   display: flex; align-items: center; gap: 20px;
-  border: 1px solid var(--line); border-radius: 999px;
+  border: 1px solid var(--edge); border-radius: 999px;
   /* translucent, so the page reads through it as it passes under */
   background: color-mix(in srgb, var(--card) 74%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(1.5);
@@ -431,7 +432,7 @@ img, svg { display: block; }
 .nav-ca {
   display: inline-flex; align-items: center; flex: none;
   height: 28px; padding: 0 4px 0 4px;
-  border: 1px solid var(--line); border-radius: 999px; background: var(--bg);
+  border: 1px solid var(--edge); border-radius: 999px; background: var(--bg);
 }
 .nav-ca b {
   display: block; padding: 3px 8px; border-radius: 999px;
@@ -444,7 +445,7 @@ img, svg { display: block; }
   position: relative; z-index: 1;
   display: flex; align-items: center; gap: 12px;
   max-width: 62ch; margin-top: 22px; padding: 11px 14px;
-  border: 1px solid var(--line); border-radius: 999px; background: var(--card);
+  border: 1px solid var(--edge); border-radius: 999px; background: var(--card);
 }
 .hm-ca b {
   flex: none; padding: 4px 11px; border-radius: 999px;
@@ -455,7 +456,7 @@ img, svg { display: block; }
    construction language the footer plate speaks */
 .hm-ca-slot {
   flex: 1 1 auto; height: 1px;
-  background: repeating-linear-gradient(to right, var(--line) 0 6px, transparent 6px 12px);
+  background: repeating-linear-gradient(to right, var(--edge) 0 6px, transparent 6px 12px);
 }
 
 /* ---------- the nav's quick trade ---------- */

@@ -1,0 +1,13 @@
+{
+  "name": "vesica-tests",
+  "private": true,
+  "type": "module",
+  "description": "Browser checks for the Vesica site. They drive the real pages; nothing is stubbed.",
+  "scripts": {
+    "serve": "cd .. && python3 -m http.server 8931",
+    "test": "node invariants.mjs && node invariants2.mjs && node roundtrip.mjs && node swaptest.mjs && node vaulttest.mjs && node menus.mjs && node misc.mjs && node wallettest.mjs && node allinks.mjs && node sweep.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.0"
+  }
+}

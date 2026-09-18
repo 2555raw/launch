@@ -3,10 +3,16 @@
 Every file here drives the real pages in a real browser. None of them stubs
 anything: the assertions are against what the page computed and printed.
 
-Serve the site and run them:
+Install once, serve the site, then run them:
 
-    cd .. && python3 -m http.server 8931 &
-    node test/invariants.mjs
+    npm install                       # playwright-core, and a browser
+    npm run serve &                   # the site on 127.0.0.1:8931
+    npm test                          # all ten, in order
+    node invariants.mjs               # or one at a time
+
+`npm install` pulls playwright-core but not a browser. Point it at one you
+have with `PLAYWRIGHT_BROWSERS_PATH`, or change the `executablePath` at the
+top of each file; they all launch Chromium the same way.
 
 `fontroute.mjs` fulfils Google Fonts from a local mirror, because this
 browser cannot verify the egress proxy's certificate and a silent fallback to

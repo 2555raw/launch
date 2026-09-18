@@ -183,6 +183,9 @@ p { margin: 0; }
    empty middle reads as breathing room rather than as something missing. */
 .rail .gap { flex: 1; display: flex; align-items: flex-end; justify-content: center;
              padding-bottom: 16px; min-height: 40px; }
+/* The X mark is drawn as a solid glyph, so it needs a touch less room than
+   the stroked icons beside it to sit on the same optical line. */
+.rail .ri.x svg { margin: 0 1px; }
 .rail .kana { font-family: var(--serif); font-size: 15px; letter-spacing: .34em;
               color: color-mix(in srgb, var(--on-dark) 20%, transparent); writing-mode: vertical-rl; user-select: none; }
 .rail .menu { position: relative; }

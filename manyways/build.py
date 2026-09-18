@@ -117,6 +117,11 @@ ICON = {
               '<path d="M8.6 15.6V8.4l3.4 4 3.4-4v7.2"/>'),
 }
 
+X_MARK = ('<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" '
+          'aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17'
+          'l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 '
+          '17.52h1.833L7.084 4.126H5.117z"/></svg>')
+
 def svg(name, size=20):
     return (f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
             f'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
@@ -159,6 +164,8 @@ def rail(active=""):
             for k, t in (("legacy", "Legacy"), ("night", "Night"), ("light", "Light")))
         + '</div>')
     out.append('<span class="gap" aria-hidden="true"><span class="kana">\u82b1\u898b</span></span>')
+    out.append(f'<a class="ri x" href="https://x.com/" target="_blank" rel="noopener">'
+               f'{X_MARK}<span class="lbl">Hanamy on X</span></a>')
     out.append(f'<a class="ri" href="staking.html">{svg("Account")}'
                f'<span class="lbl">Your account</span></a>')
     return '<nav class="rail" aria-label="Main">' + "".join(out) + '</nav>'
@@ -173,6 +180,7 @@ def drawer():
         else:
             d += f'<a class="solo" href="{href}">{label}</a>'
     d += '<a class="solo" href="staking.html">Your account</a>'
+    d += '<a class="solo" href="https://x.com/" target="_blank" rel="noopener">Hanamy on X</a>'
     return (f'<div class="railbar"><a class="brand" href="index.html">{MARK} Hanamy</a>'
             f'<button class="burger" type="button" id="burger" aria-expanded="false" '
             f'aria-controls="drawer" aria-label="Menu">'

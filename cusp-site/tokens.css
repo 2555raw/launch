@@ -57,8 +57,8 @@
 
   --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --wrap: 940px;
-  --wrap-head: 1340px;
+  --wrap: 1020px;
+  --wrap-head: 1460px;
   --nav: 66px;
   --r: 10px;
 }
@@ -312,6 +312,38 @@ img, svg { display: block; }
 .nav-lang:hover { color: var(--ink); }
 @media (max-width: 860px) { .nav-lang { display: none; } }
 
+/* ---------- the contract address, held open ---------- */
+
+.nav-ca {
+  display: inline-flex; align-items: center; flex: none;
+  height: 28px; padding: 0 4px 0 4px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--bg);
+}
+.nav-ca b {
+  display: block; padding: 3px 8px; border-radius: 999px;
+  background: var(--accent-fill); color: var(--accent-ink);
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .1em;
+}
+@media (max-width: 1020px) { .nav-ca { display: none; } }
+
+.hm-ca {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 12px;
+  max-width: 62ch; margin-top: 20px; padding: 9px 12px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--card);
+}
+.hm-ca b {
+  flex: none; padding: 4px 11px; border-radius: 999px;
+  background: var(--accent-fill); color: var(--accent-ink);
+  font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: .1em;
+}
+/* the address will sit here; until then the slot is a ruled line, the same
+   construction language the footer plate speaks */
+.hm-ca-slot {
+  flex: 1 1 auto; height: 1px;
+  background: repeating-linear-gradient(to right, var(--line) 0 6px, transparent 6px 12px);
+}
+
 /* ---------- the nav's quick trade ---------- */
 
 .qt-pop { width: 274px; padding: 14px; cursor: default; }
@@ -381,22 +413,18 @@ img, svg { display: block; }
 .ft-plate {
   position: relative; aspect-ratio: 1; max-width: 258px; margin: 0 auto 16px;
   display: grid; place-items: center;
-  border: 1px dashed var(--line);
 }
-/* the inner guides */
-.ft-plate::before {
-  content: ""; position: absolute; inset: 14%;
-  border: 1px dashed var(--line); border-radius: 50%;
-}
-.ft-plate::after {
-  content: ""; position: absolute; inset: 14%;
-  background:
-    linear-gradient(to right, var(--line) 0 1px, transparent 1px) 50% 0 / 1px 100% no-repeat,
-    linear-gradient(to bottom, var(--line) 0 1px, transparent 1px) 0 50% / 100% 1px no-repeat;
-}
+/* the construction, drawn rather than faked with pseudo-elements: there is
+   more of it now than a border and a circle can carry */
+.ft-guide { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ft-guide .gd { fill: none; stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 4; }
+.ft-guide .gs { fill: none; stroke: var(--line-2); stroke-width: 1; }
+.ft-guide .gl { fill: none; stroke: var(--line-2); stroke-width: .7; }
+.ft-guide .gt { fill: none; stroke: var(--line); stroke-width: 1; }
+.ft-guide .gp { fill: var(--line); }
 .ft-px {
-  position: relative; z-index: 1; width: 82%; aspect-ratio: 30 / 23;
-  color: var(--accent-fill); background: currentColor;
+  position: relative; z-index: 1; width: 68%; aspect-ratio: 30 / 23;
+  color: var(--accent-glow); background: currentColor;
   -webkit-mask: url(mark-pixel.svg) center / contain no-repeat;
   mask: url(mark-pixel.svg) center / contain no-repeat;
 }

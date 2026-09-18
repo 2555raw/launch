@@ -33,17 +33,17 @@
    first time the copy changes length. */
 .hm-hero-in {
   position: relative; max-width: var(--wrap-head); margin: 0 auto; padding: 54px 24px 58px;
-  min-height: 560px;
+  min-height: 620px;
 }
 .hm-hero h1 {
   position: relative; z-index: 1;
   margin: 0 0 22px;
-  font-size: 92px; line-height: 1.02; font-weight: 600; letter-spacing: -.048em;
+  font-size: clamp(42px, 8vw, 126px); line-height: 1.02; font-weight: 600; letter-spacing: -.05em;
 }
-.hm-hero-copy { position: relative; z-index: 1; max-width: 46ch; }
+.hm-hero-copy { position: relative; z-index: 1; max-width: 64ch; }
 .hm-hero-copy p { margin: 0 0 22px; font-size: 20.3px; line-height: 1.5; color: var(--ink); letter-spacing: -.01em; }
 .hm-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 18px; }
-.hm-fine { font-size: 13.9px; line-height: 1.55; color: var(--muted); max-width: 44ch; margin: 0; }
+.hm-fine { font-size: 13.9px; line-height: 1.55; color: var(--muted); max-width: 62ch; margin: 0; }
 .hm-fine a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 
 
@@ -54,16 +54,19 @@
 /* ---------- one vault per stock ---------- */
 
 .hm-strip { text-align: center; padding: 18px 24px; border-bottom: 1px solid var(--line); background: var(--bg); }
-.hm-strip .k { color: var(--accent); }
+.hm-strip .k { color: var(--accent-glow); }
 .hm-stocks {
   max-width: var(--wrap-head); margin: 0 auto;
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
   border-left: 1px solid var(--line); border-right: 1px solid var(--line);
 }
-.hm-stock { display: flex; align-items: center; gap: 13px; padding: 22px 22px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 18.2px; }
+.hm-stock { display: flex; align-items: center; gap: 13px; padding: 22px 22px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 18.2px;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hm-stock:nth-child(5n) { border-right: 0; }
 .hm-stock span { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; }
 .hm-stock svg { width: 15px; height: 15px; fill: currentColor; }
+/* a ticker needs the room a glyph does not */
+.hm-stock svg.mk-t { width: 26px; height: 26px; }
 
 /* ---------- closing band ---------- */
 
@@ -103,7 +106,7 @@
   .hm-hero h1 { margin-bottom: 22px; font-size: 59.9px; }
   .hm-hero-copy { padding-top: 0; }
   .hm-form { position: static; width: min(100%, 420px); margin: 26px auto 0; }
-  .hm-stocks { grid-template-columns: repeat(3, 1fr); }
+  .hm-stocks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .hm-stock:nth-child(5n) { border-right: 1px solid var(--line); }
   .hm-stock:nth-child(3n) { border-right: 0; }
   .hm-cta-in { grid-template-columns: minmax(0, 1fr); }
@@ -113,7 +116,7 @@
 @media (max-width: 620px) {
   .hm-hero-in, .hm-nav-in, .hm-foot-in, .hm-fine-foot, .hm-cta-in { padding-left: 16px; padding-right: 16px; }
   .hm-hero h1 { font-size: 40.7px; }
-  .hm-stocks { grid-template-columns: 1fr 1fr; }
+  .hm-stocks { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .hm-stock:nth-child(3n) { border-right: 1px solid var(--line); }
   .hm-stock:nth-child(2n) { border-right: 0; }
 }

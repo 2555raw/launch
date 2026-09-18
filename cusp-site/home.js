@@ -6,18 +6,18 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   const dot = el.querySelector('span');
   dot.style.background = '#EEEEEE';
   dot.style.color = l.c === '#000000' ? '#3D3B4F' : l.c;
-  dot.innerHTML = `<svg viewBox="${l.vb}" fill="currentColor"><path d="${l.p}"${l.evenodd ? ' fill-rule="evenodd"' : ''}/></svg>`;
+  dot.innerHTML = markSvg(l);
 });
 
 /* ---------- the mark, given thickness ----------
    Sweeping the mark all the way round turned it into a blob: at most angles
    the silhouette was gone. So it is extruded instead — the same path stacked
-   back along a depth axis, front face opaque — and the yaw is limited to ±34°
-   so the face never edges out and you are always looking at the logo.
+   back along a depth axis, front face opaque — and the turn is eased so that
+   most of it is spent in the orientations where the logo still reads.
 
-   Rotating a slab about its vertical axis does two things at once: the face
-   narrows by cos(yaw), and the stack shifts sideways by sin(yaw). Doing both
-   is what makes it read as a solid rather than a squashed drawing.
+   Rotating a slab about an axis does two things at once: the face narrows by
+   cos(angle), and the stack shifts along it by sin(angle). Doing both is what
+   makes it read as a solid rather than a squashed drawing.
 
    One <defs> path and 26 <use> layers, because the traced mark is 9 KB.
    It stops when it is off screen or the tab is hidden, and it never moves if
@@ -30,9 +30,8 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
 
   const DEPTH = 26;        // layers from back to front
   const STEP = 0.9;        // how far apart they sit, in viewBox units
-  const YAW = 34 * Math.PI / 180;
-  const PERIOD = 14000;    // one yaw sweep, left to right and back
-  const TUMBLE = 1.6;      // somersaults per yaw sweep — the pitch never reverses
+  const PERIOD = 14000;    // one full turn about the vertical axis
+  const TUMBLE = 1.6;      // turns about the horizontal axis per turn about the vertical
   const EASE = 0.46;       // how hard it dwells face-on and snaps through edge-on
   const YSQUASH = 0.5;     // the stack spreads less vertically than sideways
   const DRIFT_X = 5.5;     // how far it wanders, in viewBox units
@@ -55,31 +54,30 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
     layers.push(u);
   }
 
-  /* Two rotations at once. The yaw still swings ±34° and comes back, so the
-     face is never edge-on sideways and the silhouette stays readable. The
-     pitch, by contrast, never reverses: it runs all the way round, which is
-     what makes it read as a somersault rather than a nod. Halfway through one
-     the slab is edge-on and you are looking at the stack itself — that moment
-     is the tumble, so it is kept, only floored at 0.06 so it stays a sliver
-     rather than collapsing to nothing.
+  /* Two rotations at once, and both of them go all the way round — neither
+     swings back at 180°. Turned at a constant rate each would spend as long
+     edge-on as facing you, and edge-on this mark is a bar, so each angle is
+     eased first: θ − k·sin2θ runs at about a sixth speed through the
+     orientations where the logo reads and at nearly twice speed through the
+     two where it does not. Same full revolution, most of it recognisable.
+
+     The two run at different rates (1 : 1.6), so the pair never repeats a
+     pose and it reads as a tumble rather than a turntable. Where an axis does
+     pass edge-on the face is floored at 0.08 and you are left looking at the
+     stack itself, which is what a tumbling slab looks like.
 
      On top of the two rotations the whole group wanders: one slow diagonal
      and a faster bob against it, which traces a lopsided figure of eight
      instead of a straight line back and forth. */
+  const spin = a => a - EASE * Math.sin(2 * a);
+  const squash = a => { const c = Math.cos(a); return Math.sign(c || 1) * Math.max(Math.abs(c), 0.08); };
+
   function place(t) {
-    const yaw = YAW * Math.sin(t);
+    const yaw = spin(t);
+    const pitch = spin(t * TUMBLE);
 
-    /* A somersault turned at a constant rate spends as long edge-on as it
-       does facing you, and edge-on the mark is a bar. So the angle is eased:
-       θ − k·sin2θ runs at about a sixth speed through the two orientations
-       where the logo reads and at nearly twice speed through the two where it
-       does not. Same full revolution, most of it spent recognisable. */
-    const raw = t * TUMBLE;
-    const pitch = raw - EASE * Math.sin(2 * raw);
-
-    const sx = Math.cos(yaw);
-    const cp = Math.cos(pitch);
-    const sy = Math.sign(cp || 1) * Math.max(Math.abs(cp), 0.06);
+    const sx = squash(yaw);
+    const sy = squash(pitch);
 
     const dx = Math.sin(yaw) * STEP;
     const dy = Math.sin(pitch) * STEP * YSQUASH;

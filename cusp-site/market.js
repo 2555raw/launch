@@ -13,18 +13,47 @@ const GLYPH = {
   USDG: '<svg viewBox="0 0 24 24"><text x="12" y="16.5" text-anchor="middle" font-family="inherit" font-size="12" font-weight="700" fill="currentColor">G</text></svg>',
 };
 
+/* The marks are invented; the prices are not. These are the real quotes of
+   18 September 2026, and they are only the floor: on load the table asks
+   CoinGecko for the live USD price of the three crypto legs and writes the
+   answers back over them. If that call is blocked or slow the numbers below
+   stand, so the desk always quotes something real rather than nothing.
+   USDG is a dollar stablecoin and is held at 1.0000 either way. */
 const TOKENS = {
-  ETH:   { name: 'Ether',         px: 3420.18, dp: 4, c: '#5A6BC4', on: '#fff' },
+  ETH:   { name: 'Ether',         px: 2491.95, dp: 4, c: '#5A6BC4', on: '#fff', cg: 'ethereum' },
   USDG:  { name: 'Global Dollar', px: 1.0000,  dp: 2, c: '#1D9E68', on: '#fff' },
-  WBTC:  { name: 'Wrapped BTC',   px: 96480.5, dp: 6, c: '#E08A2B', on: '#fff' },
-  xNVDA: { name: 'NVIDIA token',  px: 182.44,  dp: 4, c: '#F1F7E8', on: '#76B900', logo: 'NVDA' },
-  xTSLA: { name: 'Tesla token',   px: 271.06,  dp: 4, c: '#FBEDED', on: '#CC0000', logo: 'TSLA' },
+  WBTC:  { name: 'Wrapped BTC',   px: 76706.69, dp: 6, c: '#E08A2B', on: '#fff', cg: 'wrapped-bitcoin' },
+  xNVDA: { name: 'NVIDIA token',  px: 219.44,  dp: 4, c: '#F1F7E8', on: '#76B900', logo: 'NVDA' },
+  xTSLA: { name: 'Tesla token',   px: 360.01,  dp: 4, c: '#FBEDED', on: '#CC0000', logo: 'TSLA' },
 };
+
+/* Anything that shows a price listens here, because the live numbers land
+   after the first paint. */
+const priceWatchers = [];
+function onPrices(fn) { priceWatchers.push(fn); }
+
+(function livePrices() {
+  const ids = Object.values(TOKENS).map(t => t.cg).filter(Boolean);
+  if (!ids.length || typeof fetch !== 'function') return;
+  const url = 'https://api.coingecko.com/api/v3/simple/price?ids=' +
+              ids.join(',') + '&vs_currencies=usd';
+  fetch(url, { mode: 'cors' })
+    .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then(d => {
+      let moved = false;
+      Object.values(TOKENS).forEach(t => {
+        const px = t.cg && d[t.cg] && d[t.cg].usd;
+        if (px > 0) { t.px = px; moved = true; }
+      });
+      if (moved) priceWatchers.forEach(fn => { try { fn(); } catch (e) {} });
+    })
+    .catch(() => {});      // the quotes above are real enough to stand on
+})();
 
 function tokenMark(sym) {
   const t = TOKENS[sym];
   const inner = t.logo && typeof LOGOS !== 'undefined' && LOGOS[t.logo]
-    ? `<svg viewBox="${LOGOS[t.logo].vb}" fill="currentColor"><path d="${LOGOS[t.logo].p}"/></svg>`
+    ? markSvg(LOGOS[t.logo])
     : (GLYPH[sym] || '');
   return `<span class="tr-tok-ic" style="background:${t.c};color:${t.on}">${inner}</span>`;
 }

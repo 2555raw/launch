@@ -172,6 +172,7 @@
   border: 1px solid var(--line); background: var(--card); color: var(--brand, var(--ink));   /* app.js sets --brand per row */
 }
 .cs-ticker svg { width: 18px; height: 18px; fill: currentColor; }
+.cs-ticker svg.mk-t { width: 30px; height: 30px; }
 .cs-vault-t { min-width: 0; }
 .cs-vault-t b { display: block; font-size: 16.1px; font-weight: 600; letter-spacing: -.01em; }
 .cs-vault-t span { display: block; font-size: 13.4px; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

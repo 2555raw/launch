@@ -2,6 +2,22 @@
    Everything here runs on all seven pages, because all seven share the bar
    and the footer. */
 
+/* ---------- the contract address, not yet ----------
+   The token is not deployed, so there is nothing to print and nothing to
+   copy. The chip and the bar hold the place at both ends of the page and say
+   only CA: when the address exists it goes in beside it and the rest of the
+   layout does not move. */
+
+(function caPlaceholder() {
+  const lang = document.querySelector('.nav-lang');
+  if (!lang || document.querySelector('.nav-ca')) return;
+  const chip = document.createElement('span');
+  chip.className = 'nav-ca';
+  chip.title = 'Contract address — at launch';
+  chip.innerHTML = '<b>CA</b>';
+  lang.parentElement.insertBefore(chip, lang);
+})();
+
 /* ---------- the quick trade, hung off the nav ----------
    The swap desk is a page away from wherever the reader is standing, so the
    pair and the size can be set here and carried over in the query. It quotes

@@ -64,9 +64,8 @@ def head(title, desc, extra=""):
 
 MENUS = {
     "Platform": [
-        ("The idea", "story.html", "Why it forgets, and what that buys you"),
+        ("The idea", "index.html", "Why it forgets, and what that buys you"),
         ("Models", "models.html", "Everything reachable through the endpoint"),
-        ("Compare two", "story.html#curiosity", "One prompt, two models, side by side"),
         ("CLI documentation", "docs.html#cli", "The same key, in your terminal"),
     ],
 
@@ -127,7 +126,7 @@ def svg(name, size=20):
             f'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
             f'stroke-linejoin="round" aria-hidden="true">{ICON[name]}</svg>')
 
-NAV = [("Talk", "index.html"), ("Platform", None), ("Community", None),
+NAV = [("Platform", None), ("Community", None),
        ("Rewards", "staking.html"), ("Docs", "docs.html")]
 
 def rail(active=""):
@@ -250,7 +249,7 @@ FOOT = f"""{SHELL_END}<footer class="foot"><div class="wrap">
 """
 
 # ---------------------------------------------------------------- index
-story = head("Hanamy · Say anything, it keeps nothing",
+index = head("Hanamy · Say anything, it keeps nothing",
              "An AI that keeps nothing. Say anything, attach a file, get an answer, and "
              "nothing is stored, threaded or remembered.",
              '') + top("platform") + f"""
@@ -273,7 +272,7 @@ story = head("Hanamy · Say anything, it keeps nothing",
       </div>
       <p class="hero-lede">Talk to it about whatever you like. There is no thread, no history and no account: come back tomorrow and it will not know you were here.</p>
       <div class="cta">
-        <a class="btn pale" href="index.html">Open the chat {AR}</a>
+        <a class="btn pale" href="models.html">See the register {AR}</a>
         <a class="btn on-dark" href="docs.html">Learn More {AR}</a>
       </div>
     </div></div>
@@ -331,83 +330,6 @@ story = head("Hanamy · Say anything, it keeps nothing",
         <div class="col" style="height:92px">Model 3<br>Answers, then names what it assumed</div>
         <div class="col" style="height:70px">Model 4<br>Replies in one paragraph, no preamble</div>
         <div class="col" style="height:84px">Model 5<br>Walks the mechanism step by step</div>
-      </div>
-    </div>
-  </div>
-</div></section>
-
-<section class="band light" id="curiosity"><div class="wrap">
-  <h2 style="max-width:18ch">Ask it anything.<br>Then watch it go.</h2>
-  <div class="split" style="margin-top:56px">
-    <div>
-      <div class="rows">
-        <a href="#curiosity"><span class="t">Compare responses</span>{AR}</a>
-        <div class="row"><span class="t" style="color:var(--ink-3)">Create something visual</span></div>
-      </div>
-      <p class="lede" style="margin-top:26px">Ask two models at once and read both answers side
-        by side. Send again and the last exchange is gone. Not hidden, not archived. Gone.
-        Neither model is told it ever happened.</p>
-      <a class="link" style="margin-top:22px" href="models.html">Open Dispatch {AR}</a>
-    </div>
-    <div class="panel">
-      <div class="split tight" style="gap:22px">
-        <div class="field">
-          <label for="modelA">Model A</label>
-          <span class="prov" id="provA">&nbsp;</span>
-          <select id="modelA"></select>
-        </div>
-        <div class="field">
-          <label for="modelB">Model B</label>
-          <span class="prov" id="provB">&nbsp;</span>
-          <select id="modelB"></select>
-        </div>
-      </div>
-      <div class="field" style="margin-top:22px">
-        <label for="compare-q">What are you curious about?</label>
-        <textarea id="compare-q" placeholder="Ask a question. Explore two perspectives."></textarea>
-      </div>
-      <div class="foot">
-        <span class="sub">Free to try. No wallet needed.</span>
-        <span class="far"><button class="btn line" type="button" id="compare-go">Compare responses {AR}</button></span>
-      </div>
-      <p class="sub" id="compare-msg" hidden style="margin-top:14px"></p>
-
-      <div class="receipt" id="receipt" hidden>
-        <div class="receipt-head">
-          <b>What left this page</b>
-          <span class="far sub" id="receipt-when"></span>
-        </div>
-        <pre id="receipt-body"></pre>
-        <p class="sub">That is the whole request, printed from the same object that was sent.
-          There is no <code>messages</code> history in it because none is kept: every send
-          starts from an empty conversation.</p>
-      </div>
-
-      <div class="wire-up" id="wire" hidden>
-        <p class="sub" style="margin-bottom:12px">Point this at any OpenAI-compatible endpoint.
-          The key is kept in this browser only. It is never sent anywhere but the endpoint you
-          name here.</p>
-        <div class="split tight" style="gap:16px">
-          <div class="field"><label for="w-base">Base URL</label>
-            <input type="text" id="w-base" placeholder="https://api.openai.com/v1"></div>
-          <div class="field"><label for="w-key">API key</label>
-            <input type="password" id="w-key" placeholder="sk-…" autocomplete="off"></div>
-        </div>
-        <div class="foot">
-          <button class="btn fill sm" type="button" id="w-save">Save and load models</button>
-          <button class="btn line sm" type="button" id="w-clear">Forget</button>
-          <span class="sub" id="w-state" style="margin-left:auto"></span>
-        </div>
-      </div>
-      <p style="margin-top:12px"><button class="link" type="button" id="w-toggle"
-        style="background:none;border:0;padding:0;cursor:pointer;font-size:13px">Use your own
-        endpoint</button></p>
-
-      <div class="answers" id="answers" hidden>
-        <div class="ans"><h4 id="ans-a-name">Model A</h4><div class="body" id="ans-a"></div>
-          <div class="meta" id="ans-a-meta"></div></div>
-        <div class="ans"><h4 id="ans-b-name">Model B</h4><div class="body" id="ans-b"></div>
-          <div class="meta" id="ans-b-meta"></div></div>
       </div>
     </div>
   </div>
@@ -472,7 +394,7 @@ story = head("Hanamy · Say anything, it keeps nothing",
 <section class="band light"><div class="wrap">
   <h2 style="max-width:12ch">So many ways<br>to make it yours.</h2>
   <div class="cta" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:36px">
-    <a class="btn fill" href="#curiosity">Start exploring {AR}</a>
+    <a class="btn fill" href="models.html">See the register {AR}</a>
     <a class="btn line" href="docs.html">Read the docs {AR}</a>
   </div>
 </div></section>
@@ -808,7 +730,7 @@ staking = head("Hanamy · Staking access",
 
 
 # ----------------------------------------------------------------- talk
-index = head("Hanamy · Say anything",
+talk = head("Hanamy · Say anything",
             "A chat that keeps nothing: attach a file, ask anything, and nothing above the "
             "line is ever sent.",
             '<link rel="stylesheet" href="talk.css">') + top("talk") + f"""
@@ -898,7 +820,7 @@ index = head("Hanamy · Say anything",
 """
 
 here = pathlib.Path(__file__).parent
-for name, doc in (("index.html", index), ("story.html", story), ("models.html", models),
+for name, doc in (("index.html", index), ("models.html", models),
                   ("docs.html", docs), ("staking.html", staking)):
     (here / name).write_text(doc, encoding="utf-8")
     print(name, len(doc), "bytes")

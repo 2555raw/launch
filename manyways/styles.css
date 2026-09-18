@@ -80,9 +80,38 @@ p { margin: 0; }
 .tnav > * { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
             border-radius: var(--r); font-size: 14.5px; font-weight: 500;
             color: var(--on-dark); background: none; border: 0; cursor: pointer; }
-.tnav > *:hover { background: rgba(255,238,243,.10); }
-.tnav .cv { opacity: .6; }
-.top .far { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.tnav > * { position: relative; }
+.tnav > *:hover, .tnav .menu > button:hover { background: rgba(255,238,243,.10); }
+.tnav .cv { opacity: .6; transition: transform .18s ease; }
+.tnav .menu { padding: 0; }
+.tnav .menu > button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+                       border-radius: var(--r); font-size: 14.5px; font-weight: 500;
+                       color: var(--on-dark); background: none; border: 0; cursor: pointer; }
+.tnav .menu > button[aria-expanded="true"] { background: rgba(255,238,243,.14); }
+.tnav .menu > button[aria-expanded="true"] .cv { transform: rotate(180deg); }
+
+/* The panel opens on the bar, so it is painted in the light palette — the
+   bar is the only dark thing above it. */
+.pop { position: absolute; top: calc(100% + 10px); left: 0; z-index: 70;
+       min-width: 310px; padding: 8px; background: var(--card); color: var(--ink);
+       border: 1px solid var(--line); border-radius: 11px;
+       box-shadow: 0 2px 6px rgba(46,18,32,.10), 0 26px 60px rgba(46,18,32,.26); }
+.pop a { display: block; padding: 11px 13px; border-radius: 8px; }
+.pop a:hover, .pop a:focus-visible { background: var(--blush); }
+.pop a b { display: block; font-size: 14.5px; font-weight: 600; }
+.pop a span { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+
+/* The drawer: the same links flattened, for a screen with no hover. */
+.burger { display: none; }
+.drawer { border-top: 1px solid var(--dark-line); background: var(--bark-2); }
+.drawer .wrap { padding: 14px 0 22px; display: grid; gap: 2px; }
+.drawer h6 { margin: 16px 0 4px; font: 700 11px/1 var(--sans); letter-spacing: .12em;
+             text-transform: uppercase; color: var(--on-dark-3); }
+.drawer a { padding: 11px 12px; border-radius: var(--r); font-size: 15.5px;
+            color: var(--on-dark-2); }
+.drawer a.solo { font-weight: 600; color: var(--on-dark); }
+.drawer a:hover { background: rgba(255,238,243,.10); color: var(--on-dark); }
+.top .far { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .top .who { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
             border: 0; background: none; cursor: pointer; }
 .top .who:hover { background: rgba(255,238,243,.10); }
@@ -108,7 +137,13 @@ h3 { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.14; }
   background: linear-gradient(100deg, rgba(48,18,30,.80) 0%, rgba(48,18,30,.55) 26%,
                               rgba(48,18,30,.12) 52%, rgba(48,18,30,0) 70%); }
 .hero .over { z-index: 2; }
-.hero canvas { display: block; width: 100%; height: clamp(420px, 56vh, 620px); }
+/* The frame holds whichever of the two lands: the photograph if it is
+   there, the drawn grove if it is not. Both fill the same box, so the
+   headline sits in the same place either way. */
+.hero .frame { background: var(--bark-2); height: clamp(420px, 56vh, 620px); }
+.hero canvas, .hero img { display: block; width: 100%; height: 100%;
+                          object-fit: cover; object-position: 62% 50%; }
+.hero img[hidden] { display: none; }
 .hero .over { position: absolute; inset: 0; display: flex; align-items: center; }
 .hero .over .wrap { width: min(var(--shell), 100% - 64px); }
 .hero h1 { color: var(--on-dark); max-width: 14ch; }
@@ -335,6 +370,7 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
 }
 @media (max-width: 800px) {
   .tnav { display: none; }
+  .burger { display: grid; }
   .wrap { width: calc(100% - 40px); }
   .hero canvas { height: 440px; }
 }
@@ -349,6 +385,12 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
           padding: 8px 12px; overflow-x: auto; }
   .rail .gap { margin-top: 0; margin-left: auto; }
   .doc, .docbar { padding-inline: 20px; }
+}
+@media (max-width: 520px) {
+  /* The bar runs out of room here: the account lives in the drawer, and
+     the burger is the only control that has to stay reachable. */
+  .top .who:not(.burger) { display: none; }
+  .brand { font-size: 19px; margin-right: 10px; }
 }
 @media (max-width: 460px) {
   .wrap { width: calc(100% - 32px); }

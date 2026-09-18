@@ -8,6 +8,73 @@
 
   $$("[data-year]").forEach((e) => (e.textContent = new Date().getFullYear()));
 
+  /* ---- the bar menus ------------------------------------------------
+     Click opens and closes. On a device with a real pointer, hovering
+     across the bar moves the open menu with the cursor, which is what a
+     menu bar is expected to do; touch gets click only. */
+  const menus = $$(".tnav .menu");
+  if (menus.length) {
+    const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    let open = null;
+
+    function show(m) {
+      if (open === m) return;
+      if (open) hide();
+      open = m;
+      const btn = $("button", m), pop = $(".pop", m);
+      btn.setAttribute("aria-expanded", "true");
+      pop.hidden = false;
+      // Keep the panel on screen: flip it to the right edge if it would
+      // run past the viewport.
+      pop.style.left = "0"; pop.style.right = "auto";
+      const r = pop.getBoundingClientRect();
+      if (r.right > innerWidth - 12) { pop.style.left = "auto"; pop.style.right = "0"; }
+    }
+    function hide() {
+      if (!open) return;
+      $("button", open).setAttribute("aria-expanded", "false");
+      $(".pop", open).hidden = true;
+      open = null;
+    }
+
+    // Leaving one menu fires before entering the next, so "is the bar
+    // active" has to be its own flag — reading it off the open panel
+    // closes the bar halfway across it.
+    let armed = false;
+    menus.forEach((m) => {
+      const btn = $("button", m);
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (open === m) { hide(); armed = false; }
+        else { armed = true; show(m); }
+      });
+      if (fine) m.addEventListener("mouseenter", () => { if (armed) show(m); });
+      m.addEventListener("focusout", (e) => {
+        if (open === m && !m.contains(e.relatedTarget)) { hide(); armed = false; }
+      });
+    });
+    const bar = $(".tnav");
+    if (fine && bar) bar.addEventListener("mouseleave", (e) => {
+      if (!bar.contains(e.relatedTarget)) { hide(); armed = false; }
+    });
+    document.addEventListener("click", () => { hide(); armed = false; });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !open) return;
+      const btn = $("button", open);
+      hide(); armed = false; btn.focus();
+    });
+  }
+
+  /* ---- the drawer, for screens with no room for a bar ---------------- */
+  const burger = $("#burger"), drawer = $("#drawer");
+  if (burger && drawer) {
+    burger.addEventListener("click", () => {
+      const now = burger.getAttribute("aria-expanded") !== "true";
+      burger.setAttribute("aria-expanded", String(now));
+      drawer.hidden = !now;
+    });
+  }
+
   /* ---- copy buttons ------------------------------------------------ */
   $$("[data-copy]").forEach((b) => {
     b.addEventListener("click", async () => {

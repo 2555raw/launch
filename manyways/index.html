@@ -13,24 +13,25 @@
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="index.html"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><ellipse cx="12" cy="6" rx="2.7" ry="4.3"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(72 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(144 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(216 12 12)"/><ellipse cx="12" cy="6" rx="2.7" ry="4.3" transform="rotate(288 12 12)"/></g><circle cx="12" cy="12" r="1.5" fill="#47202e" opacity=".35"/></svg> Manyways</a>
-  <nav class="tnav" aria-label="Main">
-    <a href="models.html">Platform<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></a>
-    <button type="button">Blossom<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
-    <button type="button">Community<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
-    <a href="staking.html">Rewards</a>
-    <a href="docs.html">Docs</a>
-  </nav>
+  <nav class="tnav" aria-label="Main"><div class="menu"><button type="button" aria-expanded="false" aria-controls="m-platform" aria-haspopup="true">Platform<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="pop" id="m-platform" role="menu" hidden><a href="models.html" role="menuitem"><b>Console</b><span>The register, and what each model costs</span></a><a href="index.html#curiosity" role="menuitem"><b>Playground</b><span>One prompt, two models, side by side</span></a><a href="index.html#curiosity" role="menuitem"><b>Render</b><span>Turn an answer into something to look at</span></a><a href="models.html" role="menuitem"><b>Models</b><span>Everything reachable through the endpoint</span></a></div></div><div class="menu"><button type="button" aria-expanded="false" aria-controls="m-blossom" aria-haspopup="true">Blossom<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="pop" id="m-blossom" role="menu" hidden><a href="docs.html#blossom" role="menuitem"><b>Meet Blossom</b><span>Talk an idea into an agent brief</span></a><a href="docs.html#blossom" role="menuitem"><b>Agent briefs</b><span>Mission, research skills, a character</span></a><a href="docs.html#cli" role="menuitem"><b>CLI documentation</b><span>The same key, in your terminal</span></a></div></div><div class="menu"><button type="button" aria-expanded="false" aria-controls="m-community" aria-haspopup="true">Community<svg class="cv" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="pop" id="m-community" role="menu" hidden><a href="staking.html" role="menuitem"><b>Commons</b><span>Where the pool is discussed</span></a><a href="staking.html#mip" role="menuitem"><b>Roadmap</b><span>Proposals, and what is being built</span></a><a href="staking.html#ledger" role="menuitem"><b>Ledger</b><span>Published usage and pool reporting</span></a></div></div><a href="staking.html">Rewards</a><a href="docs.html">Docs</a></nav>
   <div class="far">
     <button class="who" type="button" aria-label="Your account">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
     </button>
     <a class="btn pale" href="staking.html">Get started</a>
+    <button class="who burger" type="button" id="burger" aria-expanded="false"
+            aria-controls="drawer" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
   </div>
-</div></header>
+</div>
+<div class="drawer" id="drawer" hidden><div class="wrap"><h6>Platform</h6><a href="models.html">Console</a><a href="index.html#curiosity">Playground</a><a href="index.html#curiosity">Render</a><a href="models.html">Models</a><h6>Blossom</h6><a href="docs.html#blossom">Meet Blossom</a><a href="docs.html#blossom">Agent briefs</a><a href="docs.html#cli">CLI documentation</a><h6>Community</h6><a href="staking.html">Commons</a><a href="staking.html#mip">Roadmap</a><a href="staking.html#ledger">Ledger</a><a class="solo" href="staking.html">Rewards</a><a class="solo" href="docs.html">Docs</a></div></div>
+</header>
 
 <section class="hero">
   <div class="frame">
-    <canvas id="grove" aria-label="An engraving of a cherry grove over a river"></canvas>
+    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in blossom below Mount Fuji at dusk">
+    <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
       <h1>Every model.<br>Your way.</h1>
       <p>A place to explore AI, bring ideas to life, and build with the models you choose.</p>

@@ -33,27 +33,65 @@ def head(title, desc, extra=""):
 <body>
 """
 
+MENUS = {
+    "Platform": [
+        ("Console", "models.html", "The register, and what each model costs"),
+        ("Playground", "index.html#curiosity", "One prompt, two models, side by side"),
+        ("Render", "index.html#curiosity", "Turn an answer into something to look at"),
+        ("Models", "models.html", "Everything reachable through the endpoint"),
+    ],
+    "Blossom": [
+        ("Meet Blossom", "docs.html#blossom", "Talk an idea into an agent brief"),
+        ("Agent briefs", "docs.html#blossom", "Mission, research skills, a character"),
+        ("CLI documentation", "docs.html#cli", "The same key, in your terminal"),
+    ],
+    "Community": [
+        ("Commons", "staking.html", "Where the pool is discussed"),
+        ("Roadmap", "staking.html#mip", "Proposals, and what is being built"),
+        ("Ledger", "staking.html#ledger", "Published usage and pool reporting"),
+    ],
+}
+
+def menu(label):
+    items = "".join(
+        f'<a href="{h}" role="menuitem"><b>{t}</b><span>{d}</span></a>'
+        for t, h, d in MENUS[label])
+    mid = label.lower()
+    return (f'<div class="menu">'
+            f'<button type="button" aria-expanded="false" aria-controls="m-{mid}" '
+            f'aria-haspopup="true">{label}{CV}</button>'
+            f'<div class="pop" id="m-{mid}" role="menu" hidden>{items}</div>'
+            f'</div>')
+
 def top(active=""):
-    def item(label, href, caret=False):
-        tag = "a" if href else "button"
-        attr = f' href="{href}"' if href else ' type="button"'
-        return f'<{tag}{attr}>{label}{CV if caret else ""}</{tag}>'
+    flat = [("Platform", None), ("Blossom", None), ("Community", None),
+            ("Rewards", "staking.html"), ("Docs", "docs.html")]
+    desk = "".join(menu(t) if h is None else f'<a href="{h}">{t}</a>' for t, h in flat)
+    # The same links, flattened, for the drawer — a phone has no hover and no
+    # room for a second level.
+    drawer = ""
+    for t, h in flat:
+        if h is None:
+            drawer += f'<h6>{t}</h6>' + "".join(
+                f'<a href="{u}">{n}</a>' for n, u, _ in MENUS[t])
+        else:
+            drawer += f'<a class="solo" href="{h}">{t}</a>'
     return f"""<header class="top"><div class="wrap">
   <a class="brand" href="index.html">{MARK} Manyways</a>
-  <nav class="tnav" aria-label="Main">
-    {item("Platform", "models.html", True)}
-    {item("Blossom", "", True)}
-    {item("Community", "", True)}
-    {item("Rewards", "staking.html")}
-    {item("Docs", "docs.html")}
-  </nav>
+  <nav class="tnav" aria-label="Main">{desk}</nav>
   <div class="far">
     <button class="who" type="button" aria-label="Your account">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
     </button>
     <a class="btn pale" href="staking.html">Get started</a>
+    <button class="who burger" type="button" id="burger" aria-expanded="false"
+            aria-controls="drawer" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
   </div>
-</div></header>
+</div>
+<div class="drawer" id="drawer" hidden><div class="wrap">{drawer}</div></div>
+</header>
 """
 
 FOOT = f"""<footer class="foot"><div class="wrap">
@@ -114,7 +152,8 @@ index = head("Manyways · Every model. Your way.",
              '') + top("index") + f"""
 <section class="hero">
   <div class="frame">
-    <canvas id="grove" aria-label="An engraving of a cherry grove over a river"></canvas>
+    <img id="heroimg" src="media/hero.jpg" alt="Cherry trees in blossom below Mount Fuji at dusk">
+    <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
     <div class="over"><div class="wrap">
       <h1>Every model.<br>Your way.</h1>
       <p>A place to explore AI, bring ideas to life, and build with the models you choose.</p>

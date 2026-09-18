@@ -7,6 +7,7 @@
 (function () {
   const c = document.getElementById("grove");
   if (!c) return;
+  const img = document.getElementById("heroimg");
 
   // A tiny deterministic PRNG. The scene must not reshuffle on resize.
   function rng(seed) {
@@ -160,6 +161,17 @@
     void INK;
   }
 
-  draw();
-  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 160); });
+  let t;
+  function start() {
+    if (img) img.hidden = true;
+    c.hidden = false;
+    draw();
+    addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 160); });
+  }
+
+  // The engraving is the fallback, not the default: it is printed only if
+  // the photograph is missing or fails to load.
+  if (!img) start();
+  else if (img.complete) { if (!img.naturalWidth) start(); }
+  else { img.addEventListener("error", start, { once: true }); }
 })();

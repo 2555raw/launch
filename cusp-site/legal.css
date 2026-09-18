@@ -1,0 +1,55 @@
+/* Cusp — the legal pages
+   Same shell as the vaults page: same nav, same footer, same tokens. What is
+   different is the reading column — a sticky contents list on the left, prose on
+   the right, which is the same label-left / content-right rhythm the sections on
+   the vaults page use. */
+
+.cs-legal {
+  max-width: var(--wrap); margin: 0 auto; padding: 54px var(--gut) 76px;
+  display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.9fr); gap: 56px;
+}
+
+.cs-legal-toc { position: sticky; top: calc(var(--nav) + 26px); align-self: start; }
+.cs-legal-toc > .cs-label { margin-bottom: 14px; }
+.cs-legal-toc ol { list-style: none; margin: 0 0 18px; padding: 0; border-left: 1px solid var(--line); }
+.cs-legal-toc a {
+  display: block; padding: 7px 0 7px 14px; margin-left: -1px;
+  border-left: 1px solid transparent; font-size: 13px; line-height: 1.4; color: var(--muted);
+  transition: color .15s, border-color .15s;
+}
+.cs-legal-toc a:hover { color: var(--ink); }
+.cs-legal-toc a.on { color: var(--accent); border-left-color: var(--accent); }
+.cs-updated { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+
+.cs-mock {
+  border: 1px solid var(--accent-line); background: var(--accent-soft);
+  border-radius: var(--r); padding: 14px 16px; margin: 0 0 34px;
+  font-size: 13px; line-height: 1.6; color: var(--prose); max-width: 70ch;
+}
+.cs-mock b { color: var(--ink); }
+
+.cs-prose h1 { margin: 0 0 14px; font-size: clamp(30px, 4vw, 44px); line-height: 1.05; letter-spacing: -.035em; }
+.cs-prose .cs-lede { margin: 0 0 8px; font-size: 16px; line-height: 1.6; color: var(--prose); max-width: 56ch; }
+.cs-prose h2 {
+  margin: 42px 0 12px; font-size: 19px; letter-spacing: -.02em;
+  scroll-margin-top: calc(var(--nav) + 22px);
+}
+.cs-prose p, .cs-prose li { font-size: 14.5px; line-height: 1.72; color: var(--prose); max-width: 68ch; }
+.cs-prose p { margin: 0 0 14px; }
+.cs-prose ul { margin: 0 0 14px; padding-left: 20px; }
+.cs-prose li { margin-bottom: 8px; }
+.cs-prose strong { color: var(--ink); font-weight: 600; }
+.cs-prose a { color: var(--accent); }
+.cs-prose a:hover { text-decoration: underline; }
+.cs-prose code {
+  font-family: var(--mono); font-size: 12.5px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px;
+}
+.cs-end { margin-top: 42px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--dim) !important; font-size: 13px !important; }
+
+@media (max-width: 1080px) {
+  .cs-legal { grid-template-columns: 1fr; gap: 30px; padding-top: 40px; }
+  .cs-legal-toc { position: static; }
+  .cs-legal-toc ol { columns: 2; column-gap: 26px; }
+}
+@media (max-width: 560px) { .cs-legal-toc ol { columns: 1; } }

@@ -50,7 +50,23 @@
         <svg class="cs-i-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
         <svg class="cs-i-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg>
       </button>
-      <button class="cs-btn cs-btn-line" type="button">Connect wallet</button>
+      <button class="cs-btn cs-btn-line" id="connect" type="button">Connect wallet</button>
+      <div class="cs-chip" id="chip" hidden>
+        <button class="cs-chip-main" id="chip-main" type="button" aria-expanded="false">
+          <span class="cs-chip-av" id="chip-av" aria-hidden="true"></span>
+          <b id="chip-addr">0x0000…0000</b>
+        </button>
+        <button class="cs-chip-copy" id="chip-copy" type="button" aria-label="Copy the address">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5.5A2.5 2.5 0 017.5 3H15"/></svg>
+        </button>
+        <div class="cs-pop" id="pop" hidden>
+          <div class="cs-pop-row"><span>USDG balance</span><b id="pop-usdg">—</b></div>
+          <div class="cs-pop-row"><span>Deposited</span><b id="pop-dep">—</b></div>
+          <div class="cs-pop-row"><span>Vaults held</span><b id="pop-n">—</b></div>
+          <button class="cs-pop-btn" id="pop-reset" type="button">Reset the demo wallet</button>
+          <button class="cs-pop-btn" id="pop-disc" type="button">Disconnect</button>
+        </div>
+      </div>
       <button class="cs-icon cs-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
@@ -82,25 +98,34 @@
       <aside class="cs-head-stats" aria-label="Protocol figures">
         <div class="cs-tile">
           <span class="cs-label">Total value locked</span>
-          <strong class="cs-fig">$48.62M</strong>
+          <strong class="cs-fig" id="k-tvl">—</strong>
           <span class="cs-sub cs-up">+3.1% · 7d</span>
         </div>
         <div class="cs-tile">
           <span class="cs-label">Fees · 24h</span>
-          <strong class="cs-fig">$61,480</strong>
+          <strong class="cs-fig" id="k-fees">—</strong>
           <span class="cs-sub">70% compounded back in</span>
         </div>
         <div class="cs-tile">
           <span class="cs-label">Vaults live</span>
-          <strong class="cs-fig">10</strong>
-          <span class="cs-sub">9 in range · 1 rebalancing</span>
+          <strong class="cs-fig" id="k-n">—</strong>
+          <span class="cs-sub" id="k-n-sub">—</span>
         </div>
         <div class="cs-tile cs-tile-accent">
           <span class="cs-label">Median fee APR</span>
-          <strong class="cs-fig">18.4%</strong>
+          <strong class="cs-fig" id="k-apr">—</strong>
           <span class="cs-sub">24h observation, not a forecast</span>
         </div>
       </aside>
+    </section>
+
+    <!-- only rendered once the demo wallet holds something -->
+    <section class="cs-mine" id="mine" hidden>
+      <div class="cs-mine-head">
+        <span class="cs-label">Your positions</span>
+        <button class="cs-mine-clear" id="mine-clear" type="button">Withdraw everything</button>
+      </div>
+      <div class="cs-mine-rows" id="mine-rows"></div>
     </section>
 
     <!-- toolbar sticks under the nav so the filters stay reachable down the list -->
@@ -255,6 +280,15 @@
       </div>
     </section>
 
+    <section class="cs-band" id="contracts">
+      <div class="cs-band-label">
+        <span class="cs-label">05 — Addresses</span>
+        <h2>The contracts<br>behind all this</h2>
+        <p>Core deployments. Per-vault addresses sit inside each row of the list.</p>
+      </div>
+      <div class="cs-contracts" id="contracts-list"></div>
+    </section>
+
     <section class="cs-close">
       <div class="cs-close-in">
         <h2>Pick a vault and start with one deposit.</h2>
@@ -283,8 +317,8 @@
       </div>
       <div class="cs-foot-cols">
         <div><span class="cs-label">Protocol</span><a href="#list">Vaults</a><a href="#fees">Fees</a><a href="#safeguards">Safeguards</a></div>
-        <div><span class="cs-label">Build</span><a href="#how">Mechanics</a><a href="#faq">FAQ</a><a href="#top">Contracts</a></div>
-        <div><span class="cs-label">Legal</span><a href="#top">Terms</a><a href="#top">Risk</a><a href="#top">Privacy</a></div>
+        <div><span class="cs-label">Build</span><a href="#how">Mechanics</a><a href="#faq">FAQ</a><a href="#contracts">Contracts</a></div>
+        <div><span class="cs-label">Legal</span><a href="terms.html">Terms</a><a href="risk.html">Risk</a><a href="privacy.html">Privacy</a></div>
       </div>
     </div>
     <p class="cs-disclaimer">
@@ -308,23 +342,25 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </header>
+  <div class="cs-seg" id="d-seg" role="group" aria-label="Deposit or withdraw">
+    <button class="on" data-mode="deposit" type="button">Deposit</button>
+    <button data-mode="withdraw" type="button">Withdraw</button>
+  </div>
   <label class="cs-field">
-    <span class="cs-label">You deposit</span>
+    <span class="cs-label" id="d-field-k">You deposit</span>
     <div class="cs-input">
       <input id="d-amount" type="number" min="0" step="100" value="1000" inputmode="decimal">
-      <span>USDG</span>
+      <span id="d-unit">USDG</span>
+      <button class="cs-max" id="d-max" type="button">Max</button>
     </div>
+    <span class="cs-avail" id="d-avail">—</span>
   </label>
-  <dl class="cs-kv">
-    <div><dt>Swapped into the Stock Token</dt><dd id="d-half">—</dd></div>
-    <div><dt>Shares, roughly</dt><dd id="d-shares">—</dd></div>
-    <div><dt>Fee APR · 24h</dt><dd id="d-apr">—</dd></div>
-    <div><dt>Room left under the cap</dt><dd id="d-room">—</dd></div>
-  </dl>
-  <button class="cs-btn cs-btn-fill cs-btn-wide" type="button" disabled>Connect a wallet to deposit</button>
-  <p class="cs-note">Estimates only, from sample data. Share price moves with the Stock Token; the dust from the swap returns to your wallet.</p>
+  <dl class="cs-kv" id="d-kv"></dl>
+  <button class="cs-btn cs-btn-fill cs-btn-wide" id="d-go" type="button" disabled>Connect a wallet to deposit</button>
+  <p class="cs-note">A demo wallet with play money: balances and positions live in this browser only, nothing is signed and no chain is touched. Share price moves with the Stock Token; the dust from the swap returns to your wallet.</p>
 </aside>
 
+<div class="cs-toasts" id="toasts" aria-live="polite"></div>
 <script src="app.js"></script>
 </body>
 </html>

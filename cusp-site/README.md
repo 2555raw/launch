@@ -15,12 +15,20 @@ No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 ## Structure
 
 ```
-index.html   chain strip, nav, page head, filter toolbar, vault list, mechanics,
-             fee split, safeguards, FAQ, closing call, footer, deposit drawer
-styles.css   the design system (palette, type, layout) and the responsive rules
-app.js       the VAULTS data, list rendering, search / filter / sort, the deposit
-             drawer, theme, menu and the scroll entrance
+index.html    chain strip, nav, page head, your positions, filter toolbar, vault
+              list, mechanics, fee split, safeguards, FAQ, contracts, footer,
+              deposit drawer
+terms.html    terms of use
+risk.html     risk disclosure
+privacy.html  privacy notice
+styles.css    the design system (palette, type, layout) and the responsive rules
+legal.css     the reading column the three legal pages add on top of it
+app.js        the VAULTS data, the demo wallet, deposits and redemptions, list
+              rendering, search / filter / sort, the drawer, theme and the menu
+legal.js      theme, menu and the contents list for the legal pages
 ```
+
+Every link on every page lands somewhere real — there are no `#` placeholders left.
 
 ## Run it
 
@@ -113,17 +121,49 @@ nav and at 32px as the favicon, which is the same SVG inlined in a `data:` URI.
 
 ## Interactive parts (`app.js`)
 
-- **The list** — `VAULTS` is the only source of truth. Search matches ticker or
-  name, the chips filter by state (`new` is anything under 30 days), the select
-  sorts by APR, TVL, 24h fees or ticker. Rows are `<details>`, so expanding one
-  needs no script; the deposit button inside the `<summary>` stops its own click so
-  the row does not toggle under it.
-- **Deposit drawer** — opens on a row's button, derives everything from the same
-  `VAULTS` entry, closes on the scrim, the ✕ or Escape.
+- **The list** — `VAULTS` is the only source of truth, and every figure on the page
+  is derived from it: the four tiles at the top, the rows, the drawer. Search
+  matches ticker or name, the chips filter by state (`new` is anything under 30
+  days), the select sorts by APR, TVL, 24h fees or ticker. Rows are `<details>`, so
+  expanding one needs no script; the buttons inside a `<summary>` stop their own
+  click so the row does not toggle under them.
+- **The demo wallet** — *play money, kept in this browser.* Connect and you get a
+  random address and 25,000 USDG that exist nowhere else; nothing is signed and no
+  chain is touched. The chip copies the address, and its menu shows the balance,
+  what is deposited and how many vaults you hold, with a reset and a disconnect.
+- **Deposits and redemptions actually move** — a deposit takes USDG off the
+  balance, mints shares at the vault's share price, lifts that vault's TVL and its
+  depositor count, and shows up as a badge on the row and a card under *Your
+  positions*. Redeeming reverses all of it. The totals at the top of the page move
+  with each one, because they are computed rather than typed.
+- **The rules hold in the mock too** — a deposit is refused past the balance or past
+  the vault's cap, a paused vault takes no deposits, and **a paused vault still
+  redeems**, which is exactly what the FAQ and the terms promise. Share price is
+  `1 + apr × age / 365`, so it is at least consistent with the vault it belongs to.
+- **State survives a reload** — positions live in `localStorage` under `cusp-demo`,
+  and the TVL each one sits in is rebuilt from them on load, so nothing drifts.
+- **Deposit drawer** — two modes, deposit and withdraw, with a Max that fills in the
+  balance, the room under the cap or the whole position. Closes on the scrim, the ✕
+  or Escape.
 - **Theme** — dark by default, with a switch and `localStorage` memory, wrapped in
   `try/catch` so a browser that blocks storage still renders.
 - **Nav** — the burger drops the sections below the bar under 1080px; an
   `IntersectionObserver` marks the active one.
+
+## The legal pages
+
+Three of them: **terms**, **risk** and **privacy**. Same shell as the vaults page —
+same nav, same footer, same tokens — with a sticky contents list on the left and the
+prose on the right, which is the label-left / content-right rhythm the vaults page
+already uses for its sections.
+
+The copy is placeholder, and every page says so in a banner at the top: Cusp is not
+a real protocol and none of this has been near a lawyer. It is written to show what
+belongs on each page rather than to be lifted. Two parts are accurate about *this*
+build and worth keeping: the privacy page's account of what is stored (`cusp-theme`,
+`cusp-demo`, nothing else, no cookies, no analytics) and its note that Google Fonts
+is the one external request the site makes — which is the thing to fix, by
+self-hosting the two fonts, before any real launch.
 
 ## Animation
 

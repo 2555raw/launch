@@ -1,7 +1,20 @@
-/* The demo wallet, shared by every page.
-   Play money kept in this browser: a random address, a USDG balance and a few
-   token balances. Nothing is signed, no chain is touched, and no address here
-   belongs to anyone. It exists so the pages can be used rather than looked at. */
+/* The wallet, shared by every page.
+
+   Two halves, and the line between them matters.
+
+   The REAL half: if the browser has an injected EIP-1193 wallet, connecting
+   asks it for an account and reads, from the chain, the address, the network
+   and the native balance. Those three figures are true.
+
+   The PLAY half: everything else. USDG, the vault shares, the stock tokens —
+   none of those contracts exist on any chain, so their balances are invented
+   and kept in this browser. Depositing, redeeming and swapping move those
+   invented numbers and nothing else.
+
+   What this file never does, in either half: request a signature, request a
+   transaction, or ask for a private key. There is no eth_sendTransaction and
+   no personal_sign anywhere in this site, and there is nothing deployed for
+   one to be sent to. */
 
 const WALLET_KEY = 'vesica-demo';
 const SEED_USDG = 25000;
@@ -34,8 +47,40 @@ function walletSave() {
   try { localStorage.setItem(WALLET_KEY, JSON.stringify(wallet)); } catch (_) {}
 }
 
-function walletConnect() {
-  wallet = { addr: newAddress(), usdg: SEED_USDG, bal: { ...SEED_BAL }, pos: {} };
+const CHAINS = {
+  '0x1': 'Ethereum', '0xa': 'Optimism', '0x38': 'BNB Chain', '0x89': 'Polygon',
+  '0xa4b1': 'Arbitrum One', '0x2105': 'Base', '0xaa36a7': 'Sepolia',
+};
+
+const hasInjectedWallet = () =>
+  typeof window !== 'undefined' && !!window.ethereum && typeof window.ethereum.request === 'function';
+
+/* Read-only, all three of these: eth_requestAccounts asks permission, the
+   other two ask questions. None of them moves anything. */
+async function readChain() {
+  const [addr] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  if (!addr) throw new Error('no account');
+  const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+  let native = 0;
+  try {
+    const wei = await window.ethereum.request({ method: 'eth_getBalance', params: [addr, 'latest'] });
+    native = Number(BigInt(wei)) / 1e18;
+  } catch (_) { /* some wallets refuse this; the address and chain still stand */ }
+  return { addr, chainId, chain: CHAINS[chainId] || ('chain ' + parseInt(chainId, 16)), native };
+}
+
+/* Resolves to the wallet either way. `real` says whether the address on it is
+   a real one, which is the only thing the pages should branch on. */
+async function walletConnect() {
+  let real = null;
+  if (hasInjectedWallet()) {
+    try { real = await readChain(); }
+    catch (_) { real = null; }          // declined, locked, or no account: fall back
+  }
+  wallet = real
+    ? { addr: real.addr, real: true, chainId: real.chainId, chain: real.chain,
+        native: real.native, usdg: SEED_USDG, bal: { ...SEED_BAL }, pos: {} }
+    : { addr: newAddress(), real: false, usdg: SEED_USDG, bal: { ...SEED_BAL }, pos: {} };
   walletSave();
   return wallet;
 }

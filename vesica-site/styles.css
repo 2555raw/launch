@@ -51,6 +51,12 @@
   border: 1px solid var(--line); border-radius: 12px; background: var(--card);
   padding: 6px; box-shadow: 0 18px 40px rgba(43, 41, 55, .14);
 }
+.cs-pop-what {
+  margin: 0 0 10px; font-family: var(--mono); font-size: 9px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--dim);
+}
+.cs-pop-what.on { color: var(--accent-ink); }
+
 .cs-pop-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 10px; font-size: 14.4px; color: var(--muted); }
 .cs-pop-row b { font-weight: 600; color: var(--ink); }
 .cs-pop-btn {

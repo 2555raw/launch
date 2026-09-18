@@ -23,6 +23,7 @@ open where you run it.
 | `vaulttest.mjs` | the list: twenty rows, search, the five filters, sorting, the stats header, connect, the drawer's two sides, the position row, a paused vault refusing deposits, the contracts list. |
 | `menus.mjs` | the nav dropdowns: open, close, switch between them, a click outside, Escape. |
 | `misc.mjs` | the docs TOC and its scroll spy, a contracts row opening its vault and prefilling the search, the quick trade quoting from a page that is not the desk, the legal pages' contents lists, the footer's status bar and cube field. |
+| `wallettest.mjs` | the wallet's two halves, against a stubbed EIP-1193 provider that throws on any method but the three read-only ones: with no wallet it falls back to the demo exactly as before; with one that approves it takes the real address, the real network and the real native balance while the play money stays play money; with one that declines it carries on; and the swap desk does the same. Nothing is ever signed or sent, and the stub proves it by refusing to answer anything else. |
 | `allinks.mjs` | every `href` on every page resolves to something that exists — 189 targets. |
 | `sweep.mjs` | at 1919 and 390: no horizontal scroll, and no text the colour of its own background. |
 

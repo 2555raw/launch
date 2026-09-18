@@ -121,10 +121,13 @@ function renderChip() {
   if (on) $('chip-addr').textContent = shortAddr(wallet.addr);
 }
 
-$('connect').addEventListener('click', () => {
-  walletConnect();
+$('connect').addEventListener('click', async () => {
+  await walletConnect();
   paint();
-  toast('Demo wallet connected: ' + fmt(SEED_BAL.ETH, 4) + ' ETH and ' + usd(SEED_USDG) + ' USDG of play money.');
+  toast(wallet.real
+    ? 'Connected ' + shortAddr(wallet.addr) + ' on ' + wallet.chain +
+      '. The balances here are play money — nothing is signed.'
+    : 'Demo wallet connected: ' + fmt(SEED_BAL.ETH, 4) + ' ETH and ' + usd(SEED_USDG) + ' USDG of play money.');
 });
 
 $('chip-copy').addEventListener('click', () => {
@@ -184,7 +187,7 @@ $('refresh').addEventListener('click', () => {
 });
 
 $('go').addEventListener('click', () => {
-  if (!wallet) { walletConnect(); paint(); toast('Demo wallet connected with play money.'); return; }
+  if (!wallet) { walletConnect().then(() => { paint(); toast('Wallet connected. The balances here are play money.'); }); return; }
   swap();
 });
 

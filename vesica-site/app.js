@@ -90,10 +90,13 @@ function load() {
 
 const save = walletSave;
 
-function connect() {
-  walletConnect();
+async function connect() {
+  const w = await walletConnect();
   paint();
-  toast('Demo wallet connected with ' + money(SEED_USDG) + ' USDG of play money.');
+  toast(w.real
+    ? 'Connected ' + shortAddr(w.addr) + ' on ' + w.chain +
+      '. Balances and positions below are play money — nothing is signed.'
+    : 'Demo wallet connected with ' + money(SEED_USDG) + ' USDG of play money.');
 }
 
 function disconnect() {
@@ -311,6 +314,13 @@ function renderWallet() {
   document.getElementById('pop-usdg').textContent = money(wallet.usdg);
   document.getElementById('pop-dep').textContent = dollars(deposited());
   document.getElementById('pop-n').textContent = String(Object.keys(wallet.pos).length);
+  /* the one line that keeps the two halves apart: a real address on a real
+     chain, above balances that are not real and never were */
+  const what = document.getElementById('pop-what');
+  what.textContent = wallet.real
+    ? 'Your wallet on ' + wallet.chain + ' · balances below are play money'
+    : 'Demo wallet · play money';
+  what.classList.toggle('on', !!wallet.real);
 }
 
 connectBtn.addEventListener('click', connect);

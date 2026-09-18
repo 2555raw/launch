@@ -790,6 +790,96 @@ function wireChainActions() {
     }
   });
 
+  /* ---------------- what a creator is owed ----------------
+   *
+   * Read first, act second, and say which of the two places the money is in:
+   * a balance that looks like nothing is usually a curve nobody has swept
+   * rather than a token that earned nothing.
+   */
+  let feeState = null;
+
+  on("fee-check", async e => {
+    const btn = e.currentTarget;
+    const out = $("fee-readout");
+    const acts = $("fee-acts");
+    const say = lines => { out.hidden = false; out.textContent = lines.join("\n"); };
+    const token = ($("fee-token").value || "").trim();
+
+    acts.hidden = true;
+    if (!ethers.isAddress(token)) return say(["Paste the token's contract address first."]);
+    if (!Chain.viaPons()) {
+      return say([`Pons is not on ${Chain.chainInfo().name}. Fees are read on Robinhood Chain.`]);
+    }
+    btn.disabled = true;
+    const was = btn.textContent;
+    btn.textContent = "Reading…";
+    try {
+      const f = await Chain.pons().fees(ethers.getAddress(token));
+      feeState = f;
+      const eth = w => `${ethers.formatEther(w)} ETH`;
+      say([
+        `token          ${f.token}`,
+        `curve          ${f.curve}`,
+        `escrow         ${f.escrow}`,
+        ``,
+        `fee recipient  ${f.recipient}`,
+        `deployer       ${f.deployer}`,
+        `creator tax    ${f.creatorTaxBps} bps${f.creatorTaxBps === 0 ? "  (none was set at launch)" : ""}`,
+        `buyback        ${f.buybackEnabled ? "on — part of the creator share buys back and locks tokens"
+                                           : "off"}`,
+        `graduated      ${f.graduated ? "yes — the curve is closed" : "no"}`,
+        ``,
+        `on the curve   ${eth(f.unswept)}   (needs a sweep before it can be claimed)`,
+        `in escrow      ${eth(f.claimable)}   (for ${shortAddr(f.recipient)})`,
+        Chain.account ? `your balance   ${eth(f.yours)}   (for ${shortAddr(Chain.account)})`
+                      : `your balance   — connect a wallet to ask`,
+        ``,
+        f.yours > 0n ? "You can claim now."
+          : f.unswept > 0n ? (f.canSweep ? "Nothing to claim yet. Sweep the curve first."
+                                         : "Fees are waiting on the curve, but only the deployer or Pons' operator can sweep.")
+          : "Nothing owed at the moment.",
+      ]);
+      acts.hidden = !(f.yours > 0n || (f.unswept > 0n && f.canSweep));
+      $("fee-claim").disabled = !(f.yours > 0n);
+      $("fee-sweep").disabled = !(f.unswept > 0n && f.canSweep);
+    } catch (err) {
+      feeState = null;
+      say([`failed: ${errText(err)}`]);
+    } finally {
+      btn.disabled = false; btn.textContent = was;
+    }
+  });
+
+  on("fee-sweep", async e => {
+    if (!feeState) return;
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    const was = btn.textContent;
+    btn.textContent = "Confirm in your wallet…";
+    try {
+      /* With buybacks on, the sweep swaps part of the creator share for tokens
+       * and refuses a zero floor rather than taking any price it is given. A
+       * 1 wei floor is the loosest one it will accept. */
+      await Chain.pons().sweep(feeState.token, feeState.buybackEnabled ? 1n : 0n);
+      toast("Swept. Check again to see it in the escrow.");
+    } catch (err) {
+      toast(errText(err));
+    } finally { btn.disabled = false; btn.textContent = was; }
+  });
+
+  on("fee-claim", async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    const was = btn.textContent;
+    btn.textContent = "Confirm in your wallet…";
+    try {
+      await Chain.pons().claimFees();
+      toast("Claimed.");
+    } catch (err) {
+      toast(errText(err));
+    } finally { btn.disabled = false; btn.textContent = was; }
+  });
+
   on("set-launcher", () => {
     const addr = prompt("Launcher address on this network:", Chain.launcher || "");
     if (addr === null) return;

@@ -166,6 +166,21 @@
           <pre class="readout" id="pons-readout" hidden></pre>
           <p class="desk-note">The check only reads: it asks the factory what it is, whether it would
           take a launch from your address, and on what terms. Nothing is signed and nothing is spent.</p>
+
+          <h4 style="margin-top:34px">Creator fees</h4>
+          <p class="desk-note">Fees accrue on the curve and only pay out once somebody sweeps them
+          into Pons' escrow. The sweep is not a privileged call: the protocol's operator can make it,
+          and so can the token's deployer, so a creator never has to wait on Pons to be paid.</p>
+          <div class="chain-acts">
+            <input id="fee-token" class="mono" placeholder="0x… token address"
+                   style="flex:1 1 320px;min-width:0" autocomplete="off" spellcheck="false">
+            <button class="btn accent sm" type="button" id="fee-check">Check fees</button>
+          </div>
+          <pre class="readout" id="fee-readout" hidden></pre>
+          <div class="chain-acts" id="fee-acts" hidden>
+            <button class="btn alt sm" type="button" id="fee-sweep">Sweep the curve</button>
+            <button class="btn accent sm" type="button" id="fee-claim">Claim from escrow</button>
+          </div>
         </div>
       </div>
     </div>

@@ -49,6 +49,10 @@ const PONS = {
     "function canLaunch(address launcher) view returns (bool)",
     "function getLaunchedToken(address token) view returns (tuple(address token, address curve, address deployer, address creatorFeeRecipient, address pairToken, uint256 graduationThreshold, uint24 poolFee, int24 tickSpacing, uint16 creatorTaxBps, bool buybackEnabled, uint8 phase, uint256 sweptQuote, uint256 sweptTokens, uint256 sweptAt, bool exists))",
     "function launchToken(tuple(string name, string symbol, string logo, string description, tuple(string twitter, string telegram, string discord, string website, string farcaster) socials, address creatorFeeRecipient, uint16 creatorTaxBps, bool buybackEnabled, bytes32 expectedEconomics, bytes32 salt) params, uint256 launchConfigId, address pairToken) payable returns (address token, address curve)",
+    /* Where creator fees are held once a curve has been swept. The factory
+       knows it, so nothing here has to hardcode an address that can move. */
+    "function feeEscrow() view returns (address)",
+    "function transferCreatorFeeRecipient(address token, address newRecipient)",
     "event TokenLaunched(address indexed token, address indexed curve, address indexed deployer, address pairToken, uint256 launchConfigId, uint256 graduationThreshold)",
   ],
 
@@ -63,6 +67,15 @@ const PONS = {
     "function sellableTokens() view returns (uint256)",
     "function buy(uint256 quoteIn, uint256 minTokensOut, address recipient) payable returns (uint256 tokensOut)",
     "function sell(uint256 tokensIn, uint256 minQuoteOut, address recipient) returns (uint256 quoteOut)",
+    /* Fees sit on the curve until somebody sweeps them into the escrow. The
+       protocol's sweep operator can, and so can the token's deployer — which
+       means a creator never has to wait on anyone to get paid. */
+    "function sweepFees(uint256 minBuybackTokensOut)",
+    "function creatorTaxBalance() view returns (uint256)",
+    "function creatorTaxBps() view returns (uint256)",
+    "function creatorFeeRecipient() view returns (address)",
+    "function deployer() view returns (address)",
+    "function graduated() view returns (bool)",
     "event CurveBuy(address indexed buyer, address indexed recipient, uint256 quoteIn, uint256 tokensOut, uint256 fee, uint256 tax)",
     "event CurveSell(address indexed seller, address indexed recipient, uint256 tokensIn, uint256 quoteOut, uint256 fee, uint256 tax)",
   ],
@@ -85,6 +98,7 @@ const PONS = {
   ESCROW_ABI: [
     "function balanceOf(address recipient) view returns (uint256)",
     "function claim() returns (uint256 amount)",
+    "function claim(uint256 amount) returns (uint256)",
   ],
 
   /* A factory this browser has been pointed at by hand, for a test network.
@@ -153,6 +167,14 @@ const PONS = {
   },
 
   curve(address, runner) { return new ethers.Contract(address, this.CURVE_ABI, runner); },
+
+  /* The escrow, read off the factory rather than written down here: the
+   * protocol can move it, and an address baked into this build would then be
+   * quietly wrong at exactly the moment somebody tries to get paid. */
+  async escrow(runner, chainId) {
+    const at = await this.factory(runner, chainId).feeEscrow();
+    return new ethers.Contract(at, this.ESCROW_ABI, runner);
+  },
   token(address, runner) { return new ethers.Contract(address, this.TOKEN_ABI, runner); },
 
   /* Which launch config to open against. The protocol owner adds and disables
@@ -592,6 +614,72 @@ const PonsAdapter = {
       }
     }
     return { token, curve, hash: rc.hash, firstBuy };
+  },
+
+  /* ---------------- what a creator is owed, and getting it ----------------
+   *
+   * Two places money sits. On the curve, as fees that have accrued since the
+   * last sweep; and in Pons' escrow, once swept. Only the escrow pays out, so
+   * a balance that looks like nothing is often a curve nobody has swept.
+   *
+   * The sweep is not a privileged call for the creator: PonsV2BondingCurve
+   * lets the protocol's sweep operator OR the token's deployer call it, so
+   * nobody has to wait on Pons to be paid.
+   */
+  async fees(token) {
+    const p = this.provider();
+    const who = this.chain.account;
+    const f = this.factory();
+    const rec = await f.getLaunchedToken(token);
+    if (!rec.exists) throw new Error("Pons has no record of that token.");
+
+    const curve = PONS.curve(rec.curve, p);
+    const escrow = await PONS.escrow(p, this.chain.chainId);
+
+    const [onCurve, taxBps, recipient, graduated, inEscrow, yours] = await Promise.all([
+      curve.creatorTaxBalance().catch(() => 0n),
+      curve.creatorTaxBps().catch(() => 0n),
+      curve.creatorFeeRecipient().catch(() => rec.creatorFeeRecipient),
+      curve.graduated().catch(() => false),
+      escrow.balanceOf(rec.creatorFeeRecipient).catch(() => 0n),
+      who ? escrow.balanceOf(who).catch(() => 0n) : Promise.resolve(0n),
+    ]);
+
+    return {
+      token, curve: rec.curve, escrow: await escrow.getAddress(),
+      recipient, deployer: rec.deployer, graduated,
+      creatorTaxBps: Number(taxBps),
+      buybackEnabled: rec.buybackEnabled,
+      /* Held on the curve, waiting for a sweep. */
+      unswept: onCurve,
+      /* Already in the escrow, claimable now. */
+      claimable: inEscrow,
+      /* What the connected wallet in particular can claim. */
+      yours,
+      /* Whether this wallet is the one the fees are pointed at. */
+      isRecipient: !!who && who.toLowerCase() === String(recipient).toLowerCase(),
+      canSweep: !!who && who.toLowerCase() === String(rec.deployer).toLowerCase(),
+    };
+  },
+
+  /* Move what has accrued on the curve into the escrow. minBuybackTokensOut is
+   * a slippage floor for the buyback leg, and is only consulted when the launch
+   * enabled buybacks — which is why zero is refused there rather than silently
+   * accepting any price. */
+  async sweep(token, minBuybackTokensOut = 0n) {
+    const f = this.factory();
+    const rec = await f.getLaunchedToken(token);
+    if (!rec.exists) throw new Error("Pons has no record of that token.");
+    const curve = PONS.curve(rec.curve, this.chain.requireSigner());
+    const tx = await curve.sweepFees(minBuybackTokensOut);
+    return tx.wait();
+  },
+
+  /* Take everything the escrow holds for this wallet. */
+  async claimFees() {
+    const escrow = await PONS.escrow(this.chain.requireSigner(), this.chain.chainId);
+    const tx = await escrow["claim()"]();
+    return tx.wait();
   },
 
   async buy(token, ethWei, minTokensOut = 0n) {

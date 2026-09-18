@@ -235,19 +235,27 @@
 .cs-steps h3 { margin: 0 0 8px; font-size: 17.1px; letter-spacing: -.015em; font-weight: 600; }
 .cs-steps p { margin: 0; font-size: 15.5px; line-height: 1.62; color: var(--muted); }
 
+.cs-mine-clock {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--dim); margin-right: auto; margin-left: 14px;
+}
+@media (max-width: 760px) { .cs-mine-clock { display: none; } }
+
 .cs-split { align-self: start; }
 .cs-bar { display: flex; gap: 3px; height: 42px; margin-bottom: 20px; }
 .cs-bar span { border-radius: 8px; }
-.cs-bar span:nth-child(1) { background: var(--accent); }
-.cs-bar span:nth-child(2) { background: var(--accent-line); }
-.cs-bar span:nth-child(3) { background: var(--accent-soft); }
+/* three shades of the one accent read as one muddy olive at this size; the
+   split is clearer when each share is its own colour */
+.cs-bar span:nth-child(1) { background: var(--accent-glow); }
+.cs-bar span:nth-child(2) { background: var(--band); }
+.cs-bar span:nth-child(3) { background: #C6C5D2; }
 .cs-split-keys { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 12px; }
 .cs-split-keys li { display: flex; align-items: baseline; gap: 11px; font-size: 15.5px; line-height: 1.6; color: var(--muted); }
 .cs-split-keys i { width: 9px; height: 9px; border-radius: 3px; flex: none; transform: translateY(1px); }
 .cs-split-keys b { color: var(--ink); }
-.cs-split-keys .k1 { background: var(--accent); }
-.cs-split-keys .k2 { background: var(--accent-line); }
-.cs-split-keys .k3 { background: var(--accent-soft); }
+.cs-split-keys .k1 { background: var(--accent-glow); }
+.cs-split-keys .k2 { background: var(--band); }
+.cs-split-keys .k3 { background: #C6C5D2; }
 
 .cs-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-self: start; }
 .cs-card { border: 1px solid var(--line); border-radius: var(--r); background: var(--card); padding: 20px; }

@@ -28,7 +28,25 @@ const VAULTS = [
 
 // the share price a vault would have after its life at its own APR — it is what
 // turns a USDG amount into shares and back again
-VAULTS.forEach(v => { v.px = +(1 + (v.apr / 100) * (v.age / 365)).toFixed(4); });
+VAULTS.forEach(v => { v.px = +(1 + (v.apr / 100) * (v.age / 365)).toFixed(4); v.px0 = v.px; });
+
+/* The page says the fees compound into the position and that the share price
+   is where that shows, so it had better move. On a real clock it does not:
+   at 31% APR the fourth decimal turns over about once a minute, which is
+   indistinguishable from nothing to anyone looking at it. So the demo runs a
+   compressed clock — a second here is an hour in the vault — and says so on
+   the page rather than hiding it. A paused vault earns nothing, which is the
+   point of pausing it. */
+const HOURS_PER_SECOND = 1;
+const OPENED = Date.now();
+
+function accrue() {
+  const hours = (Date.now() - OPENED) / 1000 * HOURS_PER_SECOND;
+  VAULTS.forEach(v => {
+    if (v.state === 'paused') return;
+    v.px = +(v.px0 * (1 + (v.apr / 100) * (hours / 8760))).toFixed(6);
+  });
+}
 
 const STATE_TEXT = { range: 'In range', rebalancing: 'Rebalancing', paused: 'Paused' };
 
@@ -125,7 +143,7 @@ function withdrawFrom(v, shares, quiet) {
   if (have - sh < DUST) sh = have;
   const back = sh * v.px;
   wallet.usdg += back;
-  v.tvl -= back;
+  v.tvl = Math.max(v.tvl - back, 0);
   if (sh >= have) { delete wallet.pos[v.t]; v.depositors -= 1; }
   else wallet.pos[v.t] = have - sh;
   save(); paint();
@@ -535,4 +553,14 @@ if ('IntersectionObserver' in window) {
 
 load();
 paint();
+
+/* Only the pieces the share price actually touches are repainted on the tick.
+   Rebuilding the list would collapse an open row and fight anyone typing in
+   the search box, and the rows do not show the share price anyway. */
+setInterval(() => {
+  accrue();
+  renderMine();
+  renderStats();
+  if (drawer.classList.contains('on')) fillDrawer();
+}, 1200);
 

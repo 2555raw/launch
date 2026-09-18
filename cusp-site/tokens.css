@@ -5,13 +5,18 @@
    navy #3D3B4F does double duty as the band and as the ink.
 
    Three accents, each with its own ground:
-     blue   #2C5FB0  on light — eyebrows, figures, links, solid buttons
-     soft   #DCE6F8  on light — badges and the tinted cards
-     lift   #93B6F2  on dark  — figures and buttons on the navy band
-     pink   #FFCFFE  on dark  — titles and secondary buttons
+   The accent is a pastel yellow. It cannot be text on a light ground, so it
+   works as a fill and a darker relative carries the type:
 
-   The token names still say green and mint; the values are blue. Renaming
-   them across five stylesheets would have been churn for no behaviour.
+     --accent-fill  #F2EAA0  pills, buttons, tiles, badges — navy ink on top
+     --accent-soft  #FBF7DA  the tinted card and the quieter badges
+     --accent-lift  #F2EAA0  the same pastel, where it sits on the navy band
+     --accent       #6E5D0D  accent type on the light ground
+     --accent-ink   #5C4E08  type on a tinted fill
+     --pink         #FFCFFE  the second accent, dark grounds only
+
+   The tokens are named for their job now, not for a colour. They have been
+   green and blue already, and each rename through a colour name cost a bug.
 
    Light only, like the reference. */
 
@@ -31,15 +36,15 @@
   --dim: #A9A8AF;
   --faint: #C3C3C7;
 
-  --green: #2C5FB0;        /* the accent, on light */
-  --green-deep: #1F4585;   /* the accent, as ink on a tinted fill */
-  --mint: #2C5FB0;         /* a solid accent fill */
-  --mint-pill: #DCE6F8;    /* a tinted accent fill */
-  --mint-line: #B6C9EC;
-  --blue-lift: #93B6F2;    /* the accent where it has to read on the navy */
+  --accent: #6E5D0D;
+  --accent-ink: #5C4E08;
+  --accent-fill: #F2EAA0;
+  --accent-soft: #FBF7DA;
+  --accent-line: #E6DC94;
+  --accent-lift: #F2EAA0;
   --pink: #FFCFFE;
-  --on-mint: #FFFFFF;      /* ink on a solid accent fill */
-  --yellow: #E9FF70;       /* the CTA headline — the one value I could not sample */
+  --on-accent: #3D3B4F;    /* the fill is pale, so its ink is the navy */
+  --yellow: #F2EAA0;       /* the closing headline: the same pastel, not a second one */
 
   --on-band: #E9E9E9;
   --on-band-2: #A9A8AF;
@@ -84,10 +89,10 @@ img, svg { display: block; }
 .cs-btn-fill:hover, .tr-btn-dark:hover, .btn-dark:hover { background: var(--band-hi); }
 .btn-pink { background: var(--pink); color: var(--band); }
 /* on the navy band a solid accent disappears, so it lightens instead */
-.hm-cta .btn-mint, .cs-close .cs-btn-fill, .cs-head .cs-btn-fill { background: var(--blue-lift); color: var(--band); }
-.hm-cta .btn-mint:hover, .cs-close .cs-btn-fill:hover, .cs-head .cs-btn-fill:hover { background: #A8C6F6; }
+.hm-cta .btn-mint, .cs-close .cs-btn-fill, .cs-head .cs-btn-fill { background: var(--accent-lift); color: var(--band); }
+.hm-cta .btn-mint:hover, .cs-close .cs-btn-fill:hover, .cs-head .cs-btn-fill:hover { background: #F7F2BC; }
 .btn-pink:hover { background: #FFDCFE; }
-.btn-mint { background: var(--mint); color: var(--on-mint); }
+.btn-mint { background: var(--accent-fill); color: var(--on-accent); }
 .btn-mint:hover { background: #24518F; }
 .cs-btn-line, .btn-line { background: transparent; color: var(--ink); border-color: var(--line); }
 .cs-btn-line:hover, .btn-line:hover { border-color: #BEBEBE; }

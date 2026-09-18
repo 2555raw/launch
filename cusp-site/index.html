@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cusp — one vault per stock</title>
   <meta name="description" content="Managed liquidity vaults for tokenized stocks on Robinhood Chain. Deposit USDG, the vault runs the position, and you share in the trading fees.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233D3B4F'/%3E%3Cg transform='translate(16 16) scale(.82) translate(-16 -16)'%3E%3Cpath d='M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z' fill='none' stroke='%2393B6F2' stroke-width='2.9' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='2.9' fill='%2393B6F2'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233D3B4F'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='system-ui,sans-serif' font-size='17' font-weight='700' fill='%2393B6F2'%3EC%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -17,12 +17,6 @@
   <header class="hm-nav">
     <div class="hm-nav-in">
       <a class="hm-brand" href="index.html">
-        <span class="hm-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none">
-          <path d="M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-          <circle cx="16" cy="16" r="2.4" fill="currentColor"/>
-        </svg>
-        </span>
         Cusp
       </a>
       <nav class="hm-links" aria-label="Sections">
@@ -93,20 +87,12 @@
           Fee APR is a 24h observation, not a forecast. <a href="docs.html#contracts">Verify the contracts</a>
         </p>
       </div>
-      <div class="hm-cta-dia"><svg viewBox="0 0 480 300" fill="none" aria-hidden="true"><line x1="240" y1="45" x2="370" y2="98" stroke="currentColor" stroke-dasharray="3 4"/><line x1="370" y1="98" x2="370" y2="202" stroke="currentColor" stroke-dasharray="3 4"/><line x1="370" y1="202" x2="240" y2="255" stroke="currentColor" stroke-dasharray="3 4"/><line x1="240" y1="255" x2="110" y2="202" stroke="currentColor" stroke-dasharray="3 4"/><line x1="110" y1="202" x2="110" y2="97" stroke="currentColor" stroke-dasharray="3 4"/><line x1="110" y1="97" x2="240" y2="45" stroke="currentColor" stroke-dasharray="3 4"/><g transform="translate(218 33)"><rect width="44" height="7" rx="2" fill="#FFCFFE"/><rect y="9" width="44" height="7" rx="2" fill="#93B6F2"/><text x="22" y="30" text-anchor="middle" font-size="7" letter-spacing="1.2" fill="currentColor">FEES</text></g><g transform="translate(348 86)"><rect width="44" height="7" rx="2" fill="#FFCFFE"/><rect y="9" width="44" height="7" rx="2" fill="#93B6F2"/><text x="22" y="30" text-anchor="middle" font-size="7" letter-spacing="1.2" fill="currentColor">FEES</text></g><g transform="translate(348 190)"><rect width="44" height="7" rx="2" fill="#FFCFFE"/><rect y="9" width="44" height="7" rx="2" fill="#93B6F2"/><text x="22" y="30" text-anchor="middle" font-size="7" letter-spacing="1.2" fill="currentColor">FEES</text></g><g transform="translate(218 243)"><rect width="44" height="7" rx="2" fill="#FFCFFE"/><rect y="9" width="44" height="7" rx="2" fill="#93B6F2"/><text x="22" y="30" text-anchor="middle" font-size="7" letter-spacing="1.2" fill="currentColor">FEES</text></g><g transform="translate(88 190)"><rect width="44" height="7" rx="2" fill="#FFCFFE"/><rect y="9" width="44" height="7" rx="2" fill="#93B6F2"/><text x="22" y="30" text-anchor="middle" font-size="7" letter-spacing="1.2" fill="currentColor">FEES</text></g><g transform="translate(88 85)"><rect width="44" height="7" rx="2" fill="#FFCFFE"/><rect y="9" width="44" height="7" rx="2" fill="#93B6F2"/><text x="22" y="30" text-anchor="middle" font-size="7" letter-spacing="1.2" fill="currentColor">FEES</text></g><g transform="translate(218 33)"><rect width="44" height="7" rx="2" fill="#FFCFFE"/><rect y="9" width="44" height="7" rx="2" fill="#93B6F2"/><text x="22" y="30" text-anchor="middle" font-size="7" letter-spacing="1.2" fill="currentColor">FEES</text></g></svg></div>
+      <div class="hm-cta-dia"><svg viewBox="0 0 480 330" fill="none" role="img" aria-label="Trading fees split 70/20/10, the buyback burns CUSP, and the share price rises"><g class="fg-edges"><line x1="240" y1="42" x2="383" y2="101"/><line x1="383" y1="101" x2="383" y2="219"/><line x1="383" y1="219" x2="240" y2="278"/><line x1="240" y1="278" x2="97" y2="219"/><line x1="97" y1="219" x2="97" y2="101"/><line x1="97" y1="101" x2="240" y2="42"/></g><g class="fg-node" transform="translate(240 42)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">Trading fees</text><text class="fg-s" text-anchor="middle" y="20">every swap in the pool</text></g><g class="fg-node" transform="translate(383 101)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">70% compounds</text><text class="fg-s" text-anchor="middle" y="20">back into the position</text></g><g class="fg-node" transform="translate(383 219)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">20% buys back</text><text class="fg-s" text-anchor="middle" y="20">CUSP on the open market</text></g><g class="fg-node" transform="translate(240 278)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">Burned</text><text class="fg-s" text-anchor="middle" y="20">supply goes down</text></g><g class="fg-node" transform="translate(97 219)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">10% treasury</text><text class="fg-s" text-anchor="middle" y="20">audits, oracles, keepers</text></g><g class="fg-node" transform="translate(97 101)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">Share price</text><text class="fg-s" text-anchor="middle" y="20">rises, and round again</text></g><text class="fg-c" x="240" y="158" text-anchor="middle">THE LOOP</text><text class="fg-c fg-c2" x="240" y="171" text-anchor="middle">hover a step</text></svg></div>
     </div>
   </section>
 
   <footer class="hm-foot">
     <div class="hm-foot-in">
-      <div class="hm-foot-brand">
-        <span class="hm-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none">
-          <path d="M16 4c6 4 9 7.5 9 12s-3 8-9 12c-6-4-9-7.5-9-12s3-8 9-12z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-          <circle cx="16" cy="16" r="2.4" fill="currentColor"/>
-        </svg></span>
-        <b>cusp</b>
-        <p>Fig. 1 — two arcs, two cusps</p>
-      </div>
       <div><span class="k">Products</span><a href="vaults.html#list">Vaults</a><a href="swap.html">Swap</a><a href="vaults.html#fees">Fees</a></div>
       <div><span class="k">Platform</span><a href="docs.html">Docs</a><a href="vaults.html#how">Mechanics</a><a href="vaults.html#safeguards">Safeguards</a></div>
       <div><span class="k">Resources</span><a href="docs.html#contracts">Contracts</a><a href="docs.html#roadmap">Roadmap</a><a href="docs.html#faq">FAQ</a></div>

@@ -13,19 +13,17 @@
   height: var(--nav); display: flex; align-items: center; gap: 22px;
 }
 .dx-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
-.dx-mark { width: 24px; height: 24px; color: var(--band); }
-.dx-mark svg { width: 100%; height: 100%; }
 .dx-links { margin: 0 auto; display: flex; align-items: center; gap: 2px; }
 .dx-links a { padding: 6px 12px; border-radius: 999px; font-size: 13.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
 .dx-links a:hover { color: var(--ink); }
-.dx-links a.on { background: var(--mint); color: var(--on-mint); font-weight: 600; }
+.dx-links a.on { background: var(--accent-fill); color: var(--on-accent); font-weight: 600; }
 .dx-nav-right { display: flex; align-items: center; gap: 9px; }
 .dx-chip {
   display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px 0 5px;
   border: 1px solid var(--line); border-radius: 999px; background: var(--card);
   font-size: 12px; font-weight: 500; color: var(--muted);
 }
-.dx-chip i { display: inline-grid; place-items: center; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--mint); color: var(--band); font-size: 9.5px; font-weight: 700; font-style: normal; letter-spacing: .04em; }
+.dx-chip i { display: inline-grid; place-items: center; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--accent-fill); color: var(--band); font-size: 9.5px; font-weight: 700; font-style: normal; letter-spacing: .04em; }
 
 /* ---------- the page block ---------- */
 
@@ -45,7 +43,7 @@
   transition: color .15s, border-color .15s;
 }
 .dx-toc a:hover { color: var(--ink); }
-.dx-toc a.on { color: var(--green); border-left-color: var(--green); font-weight: 600; }
+.dx-toc a.on { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
 .dx-toc a em { font-style: normal; font-size: 9px; vertical-align: 1px; }
 
 .dx-main { min-width: 0; }
@@ -54,7 +52,7 @@
 
 .dx-top { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 30px; }
 .dx-hero h1 { margin: 0 0 16px; font-size: 40px; line-height: 1.12; font-weight: 600; letter-spacing: -.03em; }
-.dx-hero h1 em { font-style: italic; color: var(--green); }
+.dx-hero h1 em { font-style: italic; color: var(--accent); }
 .dx-hero p { margin: 0 0 22px; font-size: 13px; line-height: 1.62; color: var(--muted); max-width: 62ch; }
 .dx-actions { display: flex; flex-wrap: wrap; gap: 9px; }
 
@@ -62,11 +60,11 @@
 
 .dx-sec { padding: 40px 0; }
 .dx-sec + .dx-sec { border-top: 1px solid var(--line); }
-.dx-sec > .k:first-child { color: var(--green); margin-bottom: 16px; }
+.dx-sec > .k:first-child { color: var(--accent); margin-bottom: 16px; }
 .dx-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .92fr); gap: 38px; align-items: start; margin-bottom: 26px; }
 .dx-head h2 { margin: 0; font-size: 30px; line-height: 1.16; font-weight: 600; letter-spacing: -.03em; }
 .dx-head p { margin: 0; font-size: 12.5px; line-height: 1.62; color: var(--muted); }
-.dx-head p a { color: var(--green); font-weight: 500; }
+.dx-head p a { color: var(--accent); font-weight: 500; }
 .dx-head p a:hover { text-decoration: underline; }
 
 /* ---------- cards ---------- */
@@ -78,7 +76,7 @@
 .dx-grid-4 .dx-card + .dx-card { border-left: 1px solid var(--line); }
 .dx-grid-3 { grid-template-columns: repeat(3, 1fr); }
 .dx-card { border: 1px solid var(--line); border-radius: var(--r); background: var(--card); padding: 16px 16px 18px; }
-.dx-card-ic { color: var(--green); margin-bottom: 34px; }
+.dx-card-ic { color: var(--accent); margin-bottom: 34px; }
 .dx-card-n {
   display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
   border: 1px solid var(--line); background: var(--bg); color: var(--muted);
@@ -86,20 +84,20 @@
 }
 .dx-card h3 { margin: 0 0 7px; font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; }
 .dx-card p { margin: 0; font-size: 11.5px; line-height: 1.6; color: var(--muted); }
-.dx-card p a { color: var(--green); }
+.dx-card p a { color: var(--accent); }
 .dx-card-dark { background: var(--band); border-color: var(--band); }
 .dx-card-dark h3 { color: var(--pink); }
 .dx-card-dark p { color: var(--on-band-2); }
 
 /* the fee split */
-.dx-pct { font-size: 27px; font-weight: 600; letter-spacing: -.03em; color: var(--green); margin-bottom: 26px; }
-.dx-card-dark .dx-pct { color: var(--blue-lift); }
+.dx-pct { font-size: 27px; font-weight: 600; letter-spacing: -.03em; color: var(--accent); margin-bottom: 26px; }
+.dx-card-dark .dx-pct { color: var(--accent-lift); }
 .dx-flow {
   margin-top: 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--card);
   padding: 13px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
 }
 .dx-flow span { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
-.dx-flow svg { color: var(--green); flex: none; }
+.dx-flow svg { color: var(--accent); flex: none; }
 .dx-flow i { color: var(--faint); font-style: normal; }
 
 /* the chainlink panel */
@@ -110,7 +108,7 @@
 .dx-panel-fig b { font-size: 40px; font-weight: 600; letter-spacing: -.03em; color: var(--pink); line-height: 1; }
 .dx-panel-fig span { margin-top: 10px; font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-2); }
 .dx-panel-c h3 { margin: 0 0 7px; font-size: 12.5px; font-weight: 600; color: var(--pink); display: flex; align-items: flex-start; gap: 8px; }
-.dx-panel-c h3 svg { flex: none; color: var(--blue-lift); margin-top: 1px; }
+.dx-panel-c h3 svg { flex: none; color: var(--accent-lift); margin-top: 1px; }
 .dx-panel-c p { margin: 0; font-size: 11px; line-height: 1.6; color: var(--on-band-2); }
 .dx-panel-c:nth-child(2), .dx-panel-c:nth-child(3) { border-bottom: 1px solid var(--band-2); }
 .dx-panel-c:nth-child(3), .dx-panel-c:nth-child(5) { border-left: 1px solid var(--band-2); }
@@ -125,7 +123,7 @@
 .dx-tr code a { color: inherit; }
 .dx-ok {
   justify-self: end; display: inline-flex; align-items: center; gap: 5px;
-  height: 20px; padding: 0 9px; border-radius: 999px; background: var(--mint-pill); color: var(--green-deep);
+  height: 20px; padding: 0 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink);
   font-size: 10px; font-weight: 600;
 }
 
@@ -135,7 +133,7 @@
 .dx-code pre { margin: 0; padding: 12px 14px 14px; overflow-x: auto; }
 .dx-code code { font-family: var(--mono); font-size: 10px; line-height: 1.7; color: var(--on-band); white-space: pre; }
 .dx-code .c { color: #9391B9; }
-.dx-code .s { color: var(--blue-lift); }
+.dx-code .s { color: var(--accent-lift); }
 .dx-code .n { color: var(--pink); }
 
 /* the roadmap */
@@ -144,8 +142,8 @@
 .dx-road li::before { content: ""; position: absolute; left: 15px; top: 34px; bottom: 0; width: 1px; background: var(--line); }
 .dx-road li:last-child { padding-bottom: 0; }
 .dx-road li:last-child::before { display: none; }
-.dx-road-ic { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); display: grid; place-items: center; color: var(--green); }
-.dx-road .k { color: var(--green); margin-bottom: 5px; }
+.dx-road-ic { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); display: grid; place-items: center; color: var(--accent); }
+.dx-road .k { color: var(--accent); margin-bottom: 5px; }
 .dx-road h3 { margin: 0 0 6px; font-size: 15px; font-weight: 600; letter-spacing: -.015em; }
 .dx-road p { margin: 0; font-size: 11.5px; line-height: 1.6; color: var(--muted); max-width: 62ch; }
 
@@ -168,7 +166,7 @@
 .dx-foot-in { max-width: var(--wrap-head); margin: 0 auto; padding: 32px 24px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
 .dx-foot-in .k { margin-bottom: 11px; }
 .dx-foot-in a { display: block; padding: 4px 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
-.dx-foot-in a:hover { color: var(--green); }
+.dx-foot-in a:hover { color: var(--accent); }
 .dx-fine { max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px 30px; font-size: 10.5px; line-height: 1.6; color: var(--dim); }
 
 /* ---------- responsive ---------- */

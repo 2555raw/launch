@@ -10,14 +10,10 @@
   height: var(--nav); display: flex; align-items: center; gap: 22px;
 }
 .hm-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
-/* a span is inline by default, so outside the nav's flex it ignored its
-   own width and the svg grew to the container. */
-.hm-mark { display: block; width: 24px; height: 24px; color: var(--band); flex: none; }
-.hm-mark svg { width: 100%; height: 100%; }
 .hm-links { margin: 0 auto; display: flex; align-items: center; gap: 2px; }
 .hm-links a { padding: 6px 12px; border-radius: 999px; font-size: 13.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
 .hm-links a:hover { color: var(--ink); }
-.hm-links a.on { background: var(--mint); color: var(--on-mint); font-weight: 600; }
+.hm-links a.on { background: var(--accent-fill); color: var(--on-accent); font-weight: 600; }
 .hm-nav-right { display: flex; align-items: center; gap: 9px; }
 
 /* ---------- hero ---------- */
@@ -58,7 +54,7 @@
 /* ---------- one vault per stock ---------- */
 
 .hm-strip { text-align: center; padding: 13px 24px; border-bottom: 1px solid var(--line); background: var(--bg); }
-.hm-strip .k { color: var(--green); }
+.hm-strip .k { color: var(--accent); }
 .hm-stocks {
   max-width: var(--wrap-head); margin: 0 auto;
   display: grid; grid-template-columns: repeat(5, 1fr);
@@ -93,14 +89,10 @@
 /* ---------- footer ---------- */
 
 .hm-foot { border-top: 1px solid var(--line); background: var(--card); }
-.hm-foot-in { max-width: var(--wrap-head); margin: 0 auto; padding: 34px 24px 26px; display: grid; grid-template-columns: minmax(0, .9fr) repeat(4, minmax(0, 1fr)); gap: 24px; }
-.hm-foot-brand { border-right: 1px solid var(--line); padding-right: 24px; }
-.hm-foot-brand .hm-mark { width: 54px; height: 54px; color: var(--green); margin-bottom: 12px; }
-.hm-foot-brand b { display: block; font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
-.hm-foot-brand p { margin: 8px 0 0; font-size: 10.5px; line-height: 1.6; color: var(--dim); }
+.hm-foot-in { max-width: var(--wrap-head); margin: 0 auto; padding: 34px 24px 26px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
 .hm-foot-in .k { margin-bottom: 11px; }
 .hm-foot-in a { display: block; padding: 4px 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
-.hm-foot-in a:hover { color: var(--green); }
+.hm-foot-in a:hover { color: var(--accent); }
 .hm-fine-foot { max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px 30px; font-size: 10.5px; line-height: 1.6; color: var(--dim); }
 
 /* ---------- responsive ---------- */
@@ -117,8 +109,7 @@
   .hm-cta-in { grid-template-columns: minmax(0, 1fr); }
   .hm-figs { gap: 22px; }
   .hm-foot-in { grid-template-columns: 1fr 1fr; }
-  .hm-foot-brand { border-right: 0; grid-column: 1 / -1; }
-}
+  }
 @media (max-width: 620px) {
   .hm-hero-in, .hm-nav-in, .hm-foot-in, .hm-fine-foot, .hm-cta-in { padding-left: 16px; padding-right: 16px; }
   .hm-hero h1 { font-size: 38px; }
@@ -129,3 +120,26 @@
 
 
 @media (max-width: 620px) { .hm-figs { grid-template-columns: repeat(2, auto); row-gap: 16px; } }
+
+/* ---------- the fee loop ---------- */
+
+.hm-cta-dia .fg-edges line { stroke: var(--band-2); stroke-dasharray: 3 4; }
+.fg-hit { fill: transparent; }
+.fg-a { fill: var(--pink); }
+.fg-b { fill: var(--accent-lift); }
+.fg-t { font-size: 9.5px; font-weight: 600; fill: var(--on-band); }
+.fg-s { font-size: 8px; fill: var(--on-band-2); }
+.fg-c { font-size: 8.5px; letter-spacing: .14em; fill: var(--on-band-2); font-weight: 600; }
+.fg-c2 { letter-spacing: 0; font-weight: 400; font-size: 8px; fill: var(--band-2); }
+
+.fg-node { cursor: default; }
+.fg-node .fg-a, .fg-node .fg-b, .fg-node .fg-t, .fg-node .fg-s { transition: fill .18s, opacity .18s; }
+/* Driven by a class rather than :hover — :hover on an SVG <g> does not match
+   in Chrome when the pointer is over a child <text>, which is most of the
+   node's area. The script sets .on from pointer events on the group. */
+.fg-node { opacity: 1; transition: opacity .18s; }
+.hm-cta-dia.dim .fg-node { opacity: .34; }
+.hm-cta-dia.dim .fg-node.on { opacity: 1; }
+.fg-node.on .fg-s { fill: var(--on-band); }
+.fg-node.on .fg-a { fill: #FFE3FE; }
+.fg-node.on .fg-b { fill: #F8F3C4; }

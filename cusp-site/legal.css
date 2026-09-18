@@ -27,15 +27,15 @@
   transition: color .15s, border-color .15s;
 }
 .cs-legal-toc a:hover { color: var(--ink); }
-.cs-legal-toc a.on { color: var(--green-deep); border-left-color: var(--green); font-weight: 600; }
+.cs-legal-toc a.on { color: var(--accent-ink); border-left-color: var(--accent); font-weight: 600; }
 .cs-updated { font-size: 10.5px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); }
 
 .cs-mock {
-  border: 1px solid var(--mint-line); background: var(--mint-pill); border-radius: var(--r);
+  border: 1px solid var(--accent-line); background: var(--accent-soft); border-radius: var(--r);
   padding: 14px 16px; margin: 0 0 32px;
-  font-size: 13px; line-height: 1.6; color: var(--green-deep); max-width: 70ch;
+  font-size: 13px; line-height: 1.6; color: var(--accent-ink); max-width: 70ch;
 }
-.cs-mock b { color: var(--on-mint); }
+.cs-mock b { color: var(--on-accent); }
 
 .cs-prose h2 { margin: 38px 0 11px; font-size: 19px; letter-spacing: -.02em; font-weight: 600; scroll-margin-top: 22px; }
 .cs-prose h2:first-of-type { margin-top: 0; }
@@ -44,7 +44,7 @@
 .cs-prose ul { margin: 0 0 14px; padding-left: 20px; }
 .cs-prose li { margin-bottom: 8px; }
 .cs-prose strong { color: var(--ink); font-weight: 600; }
-.cs-prose a { color: var(--green); font-weight: 500; }
+.cs-prose a { color: var(--accent); font-weight: 500; }
 .cs-prose a:hover { text-decoration: underline; }
 .cs-prose code { background: var(--card); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; font-size: 12.5px; }
 .cs-end { margin-top: 38px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--dim) !important; font-size: 13px !important; }

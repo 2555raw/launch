@@ -16,7 +16,7 @@
   font-size: 11.5px; color: var(--dim); white-space: nowrap;
 }
 .cs-strip-in b { color: var(--muted); font-weight: 600; }
-.cs-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 7px; vertical-align: 1px; }
+.cs-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 7px; vertical-align: 1px; }
 
 /* ---------- nav ---------- */
 
@@ -29,8 +29,6 @@
   padding: 0 max(24px, calc((100vw - var(--wrap-head)) / 2 + 24px));
 }
 .cs-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
-.cs-mark { width: 26px; height: 26px; color: var(--band); }
-.cs-mark svg { width: 100%; height: 100%; }
 
 .cs-tabs { margin: 0 auto; display: flex; align-items: center; gap: 4px; }
 .cs-tabs a {
@@ -39,7 +37,7 @@
   transition: color .15s, background .15s;
 }
 .cs-tabs a:hover { color: var(--ink); }
-.cs-tabs a.on { background: var(--mint-pill); color: var(--green-deep); font-weight: 600; }
+.cs-tabs a.on { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
 .cs-nav-right { display: flex; align-items: center; gap: 10px; }
 .cs-icon.cs-burger { display: none; }
 .cs-icon {
@@ -60,7 +58,7 @@
   font-family: inherit; font-size: 12.5px; font-weight: 500;
 }
 .cs-chip-copy { color: var(--dim); padding-left: 2px; padding-right: 9px; }
-.cs-chip-copy:hover { color: var(--green); }
+.cs-chip-copy:hover { color: var(--accent); }
 .cs-chip-av { width: 18px; height: 18px; border-radius: 50%; flex: none; }
 .cs-pop {
   position: absolute; top: calc(100% + 8px); right: 0; width: 236px; z-index: 50;
@@ -102,29 +100,29 @@
 .cs-tile { border: 1px solid transparent; border-radius: 10px; background: var(--card); padding: 14px 15px 15px; color: var(--ink); }
 .cs-tile .cs-fig { display: block; font-size: 24px; font-weight: 600; letter-spacing: -.025em; margin: 9px 0 4px; }
 .cs-tile .cs-sub { font-size: 11.5px; color: var(--dim); line-height: 1.45; display: block; }
-.cs-tile-accent { background: var(--mint-pill); border-color: var(--mint-line); }
-.cs-tile-accent .cs-label { color: var(--green-deep); }
-.cs-tile-accent .cs-fig { color: var(--green-deep); }
-.cs-tile-accent .cs-sub { color: var(--green-deep); }
-.cs-up { color: var(--green); }
+.cs-tile-accent { background: var(--accent-soft); border-color: var(--accent-line); }
+.cs-tile-accent .cs-label { color: var(--accent-ink); }
+.cs-tile-accent .cs-fig { color: var(--accent-ink); }
+.cs-tile-accent .cs-sub { color: var(--accent-ink); }
+.cs-up { color: var(--accent); }
 .cs-r { text-align: right; }
 
 /* ---------- your positions ---------- */
 
 .cs-mine { max-width: var(--wrap-head); margin: 26px auto 0; padding: 0 24px; }
 .cs-mine-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 10px; }
-.cs-mine-clear { border: 0; background: transparent; color: var(--green); font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 0; }
+.cs-mine-clear { border: 0; background: transparent; color: var(--accent); font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 0; }
 .cs-mine-clear:hover { text-decoration: underline; }
 .cs-mine-rows { display: grid; gap: 8px; }
 .cs-mine-row {
   display: grid; grid-template-columns: 36px minmax(0, 1fr) 120px 90px 108px; gap: 14px; align-items: center;
-  border: 1px solid var(--mint-line); border-radius: var(--r); background: var(--mint-pill); padding: 12px 16px;
+  border: 1px solid var(--accent-line); border-radius: var(--r); background: var(--accent-soft); padding: 12px 16px;
 }
 .cs-mine-t b { display: block; font-size: 14px; font-weight: 600; }
-.cs-mine-t span { display: block; font-size: 11px; color: var(--green-deep); margin-top: 2px; }
+.cs-mine-t span { display: block; font-size: 11px; color: var(--accent-ink); margin-top: 2px; }
 .cs-mine-v { font-size: 15px; font-weight: 600; text-align: right; }
-.cs-mine-apr { font-size: 13px; color: var(--green-deep); text-align: right; font-weight: 600; }
-.cs-mine-row .cs-btn { height: 32px; font-size: 12.5px; background: var(--card); border-color: var(--mint-line); }
+.cs-mine-apr { font-size: 13px; color: var(--accent-ink); text-align: right; font-weight: 600; }
+.cs-mine-row .cs-btn { height: 32px; font-size: 12.5px; background: var(--card); border-color: var(--accent-line); }
 
 /* ---------- toolbar ---------- */
 
@@ -153,7 +151,7 @@
   transition: color .15s, border-color .15s, background .15s;
 }
 .cs-chips button:hover { color: var(--ink); }
-.cs-chips button.on { background: var(--mint-pill); border-color: var(--mint-line); color: var(--green-deep); font-weight: 600; }
+.cs-chips button.on { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent-ink); font-weight: 600; }
 .cs-sort { display: flex; align-items: center; gap: 9px; margin-left: auto; }
 .cs-sort select {
   height: 36px; padding: 0 10px; border-radius: 9px;
@@ -177,7 +175,7 @@
 
 .cs-row { border: 1px solid var(--line); border-radius: var(--r); background: var(--card); transition: border-color .15s, box-shadow .15s; }
 .cs-row:hover { border-color: #D4D3CD; }
-.cs-row[open] { border-color: var(--mint-line); }
+.cs-row[open] { border-color: var(--accent-line); }
 .cs-row > summary { padding: 14px 16px; cursor: pointer; list-style: none; }
 .cs-row > summary::-webkit-details-marker { display: none; }
 
@@ -193,23 +191,23 @@
 .cs-vault-t span { display: block; font-size: 11.5px; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cs-held {
   margin-left: auto; padding: 4px 9px; border-radius: 999px;
-  background: var(--mint); color: var(--on-mint);
+  background: var(--accent-fill); color: var(--on-accent);
   font-size: 11px; font-weight: 700; white-space: nowrap;
 }
 
-.cs-apr { font-size: 15px; font-weight: 600; color: var(--green); text-align: right; }
+.cs-apr { font-size: 15px; font-weight: 600; color: var(--accent); text-align: right; }
 .cs-num { font-size: 13.5px; text-align: right; font-weight: 500; }
 .cs-num i { display: block; font-style: normal; font-size: 11px; color: var(--dim); margin-top: 3px; font-weight: 400; }
 
 .cs-state { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
 .cs-state i { width: 6px; height: 6px; border-radius: 50%; flex: none; }
-.cs-state.range i { background: var(--green); }
+.cs-state.range i { background: var(--accent); }
 .cs-state.rebalancing i { background: var(--warn); }
 .cs-state.paused i { background: var(--down); }
 
 .cs-cap { display: block; }
 .cs-cap-bar { display: block; height: 5px; border-radius: 3px; background: var(--line-2); overflow: hidden; }
-.cs-cap-bar span { display: block; height: 100%; background: var(--green); border-radius: 3px; }
+.cs-cap-bar span { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
 .cs-cap-t { font-size: 10.5px; color: var(--dim); margin-top: 6px; display: block; }
 .cs-row-act { display: flex; justify-content: flex-end; }
 .cs-row-act .cs-btn { height: 34px; padding: 0 14px; font-size: 13px; }
@@ -219,7 +217,7 @@
 .cs-detail b { font-size: 13px; font-weight: 600; color: var(--ink); }
 .cs-detail p { margin: 6px 0 0; font-size: 12px; color: var(--dim); line-height: 1.55; }
 .cs-addr { word-break: break-all; font-size: 12px; color: var(--muted) !important; font-weight: 500 !important; }
-.cs-linkbtn { border: 0; background: transparent; padding: 0; color: var(--green); font-family: inherit; font-size: inherit; font-weight: 600; cursor: pointer; }
+.cs-linkbtn { border: 0; background: transparent; padding: 0; color: var(--accent); font-family: inherit; font-size: inherit; font-weight: 600; cursor: pointer; }
 .cs-linkbtn:hover { text-decoration: underline; }
 
 .cs-empty { text-align: center; color: var(--dim); font-size: 13.5px; padding: 34px 0; }
@@ -245,7 +243,7 @@
 .cs-steps li { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; }
 .cs-step-n {
   display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px;
-  background: var(--mint-pill); color: var(--green-deep); font-size: 12px; font-weight: 700; margin-bottom: 13px;
+  background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 700; margin-bottom: 13px;
 }
 .cs-steps h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: -.015em; font-weight: 600; }
 .cs-steps p { margin: 0; font-size: 13.5px; line-height: 1.62; color: var(--muted); }
@@ -253,16 +251,16 @@
 .cs-split { align-self: start; }
 .cs-bar { display: flex; gap: 3px; height: 42px; margin-bottom: 20px; }
 .cs-bar span { border-radius: 8px; }
-.cs-bar span:nth-child(1) { background: var(--green); }
-.cs-bar span:nth-child(2) { background: var(--mint-line); }
-.cs-bar span:nth-child(3) { background: var(--mint-pill); }
+.cs-bar span:nth-child(1) { background: var(--accent); }
+.cs-bar span:nth-child(2) { background: var(--accent-line); }
+.cs-bar span:nth-child(3) { background: var(--accent-soft); }
 .cs-split-keys { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 12px; }
 .cs-split-keys li { display: flex; align-items: baseline; gap: 11px; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
 .cs-split-keys i { width: 9px; height: 9px; border-radius: 3px; flex: none; transform: translateY(1px); }
 .cs-split-keys b { color: var(--ink); }
-.cs-split-keys .k1 { background: var(--green); }
-.cs-split-keys .k2 { background: var(--mint-line); }
-.cs-split-keys .k3 { background: var(--mint-pill); }
+.cs-split-keys .k1 { background: var(--accent); }
+.cs-split-keys .k2 { background: var(--accent-line); }
+.cs-split-keys .k3 { background: var(--accent-soft); }
 
 .cs-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-self: start; }
 .cs-card { border: 1px solid var(--line); border-radius: var(--r); background: var(--card); padding: 20px; }
@@ -277,7 +275,7 @@
   font-size: 15px; font-weight: 600; letter-spacing: -.015em;
 }
 .cs-faq summary::-webkit-details-marker { display: none; }
-.cs-faq summary::after { content: "+"; font-size: 17px; color: var(--green); flex: none; }
+.cs-faq summary::after { content: "+"; font-size: 17px; color: var(--accent); flex: none; }
 .cs-faq details[open] summary::after { content: "–"; }
 .cs-faq p { margin: -2px 0 18px; font-size: 13.5px; line-height: 1.68; color: var(--muted); max-width: 72ch; }
 
@@ -311,13 +309,11 @@
 }
 .cs-foot-in {
   max-width: var(--wrap-head); margin: 0 auto; padding: 38px 24px 26px;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 40px;
 }
-.cs-foot-brand p { margin: 12px 0 0; font-size: 13px; color: var(--muted); max-width: 32ch; line-height: 1.6; }
-.cs-foot-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.cs-foot-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: var(--wrap-head); }
 .cs-foot-cols .cs-label { margin-bottom: 12px; }
 .cs-foot-cols a { display: block; font-size: 13px; color: var(--muted); padding: 5px 0; }
-.cs-foot-cols a:hover { color: var(--green); }
+.cs-foot-cols a:hover { color: var(--accent); }
 .cs-disclaimer { max-width: var(--wrap-head); margin: 0 auto; padding: 0 24px 34px; font-size: 11px; color: var(--dim); line-height: 1.6; }
 
 /* ---------- drawer ---------- */
@@ -352,7 +348,7 @@
   border-radius: 7px; height: 26px; padding: 0 9px; cursor: pointer;
   font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
 }
-.cs-max:hover { color: var(--green); border-color: var(--mint-line); }
+.cs-max:hover { color: var(--accent); border-color: var(--accent-line); }
 .cs-avail { display: block; margin-top: 8px; font-size: 11px; color: var(--dim); }
 .cs-kv { margin: 0; border: 1px solid var(--line); border-radius: 11px; overflow: hidden; }
 .cs-kv > div { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 14px; }

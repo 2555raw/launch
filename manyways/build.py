@@ -70,7 +70,7 @@ MENUS = {
         ("Models", "models.html", "Everything reachable through the endpoint"),
     ],
     "Tsubomi": [
-        ("Meet Tsubomi", "docs.html#tsubomi", "Talk an idea into an agent brief"),
+        ("Talk to Tsubomi", "talk.html", "One question, one answer, no thread"),
         ("Agent briefs", "docs.html#tsubomi", "Mission, research skills, a character"),
         ("CLI documentation", "docs.html#cli", "The same key, in your terminal"),
     ],
@@ -86,6 +86,10 @@ MENUS = {
 # stroke weight of the set. One grid (24), one weight, one joint style.
 ICON = {
     # a package, which is what the platform hands you
+    # a speech bubble with the petal notch of the mark cut into its tail
+    "Talk": ('<path d="M20.4 12.2c0 4.2-3.8 7.6-8.4 7.6-1.1 0-2.2-.2-3.2-.6L4 20.6l1.5-4.1'
+             'c-1.2-1.3-1.9-3-1.9-4.9 0-4.2 3.8-7.6 8.4-7.6s8.4 3.4 8.4 7.6z"/>'
+             '<path d="M9.4 11.6c.8-.5 1.7-1.6 2.6-3.2.9 1.6 1.8 2.7 2.6 3.2"/>'),
     "Platform": ('<path d="M12 2.6l8.3 4.2v10.4L12 21.4l-8.3-4.2V6.8z"/>'
                  '<path d="M3.7 6.8l8.3 4.2 8.3-4.2"/><path d="M12 11v10.4"/>'
                  '<path d="M7.85 4.7l8.3 4.2"/>'),
@@ -122,7 +126,7 @@ def svg(name, size=20):
             f'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
             f'stroke-linejoin="round" aria-hidden="true">{ICON[name]}</svg>')
 
-NAV = [("Platform", None), ("Tsubomi", None), ("Community", None),
+NAV = [("Talk", "talk.html"), ("Platform", None), ("Tsubomi", None), ("Community", None),
        ("Rewards", "staking.html"), ("Docs", "docs.html")]
 
 def rail(active=""):
@@ -254,11 +258,18 @@ index = head("Hanamy · Say anything, it keeps nothing",
            alt="Cherry trees in full blossom over the vermilion halls of a Japanese temple">
     </picture>
     <canvas id="grove" hidden aria-label="An engraving of a cherry grove over a river"></canvas>
+    <canvas id="petals" aria-hidden="true"></canvas>
     <div class="over"><div class="wrap">
       <h1>Say anything.<br>It keeps nothing.</h1>
-      <p>Talk to it about whatever you like. There is no thread, no history and no account: come back tomorrow and it will not know you were here.</p>
+      <div class="vanish" id="vanish">
+        <label class="sr" for="vanish-in">Type something to watch it disappear</label>
+        <input type="text" id="vanish-in" autocomplete="off" spellcheck="false"
+               placeholder="type something here…">
+        <p class="vanish-note" id="vanish-note">and stop typing</p>
+      </div>
+      <p class="hero-lede">Talk to it about whatever you like. There is no thread, no history and no account: come back tomorrow and it will not know you were here.</p>
       <div class="cta">
-        <a class="btn pale" href="#curiosity">Ask Tsubomi {AR}</a>
+        <a class="btn pale" href="talk.html">Talk to Tsubomi {AR}</a>
         <a class="btn on-dark" href="docs.html">Learn More {AR}</a>
       </div>
     </div></div>
@@ -462,6 +473,7 @@ index = head("Hanamy · Say anything, it keeps nothing",
   </div>
 </div></section>
 <script src="art.js"></script>
+<script src="vanish.js"></script>
 """ + FOOT
 
 # --------------------------------------------------------------- models
@@ -782,8 +794,72 @@ staking = head("Hanamy · Staking access",
 </div></section>
 """ + FOOT
 
+
+# ----------------------------------------------------------------- talk
+talk = head("Hanamy · Talk to Tsubomi",
+            "A chat that keeps nothing: attach a file, ask anything, and nothing above the "
+            "line is ever sent.",
+            '<link rel="stylesheet" href="talk.css">') + top("talk") + f"""
+<div class="talk">
+  <header class="talk-top">
+    <div class="who">
+      <span class="dot"></span>
+      <b>Tsubomi</b>
+      <select id="t-model" aria-label="Model"></select>
+    </div>
+    <div class="far">
+      <span class="sub" id="t-count"></span>
+      <button class="btn line sm" type="button" id="t-clear">Clear the screen</button>
+    </div>
+  </header>
+
+  <div class="thread" id="t-thread">
+    <div class="empty" id="t-empty">
+      <div class="empty-mark">{mark(46)}</div>
+      <h1>Ask it anything.</h1>
+      <p>It answers once, then forgets. There is no thread behind this and nothing above the
+        composer is ever sent, so each question stands on its own.</p>
+      <div class="seeds">
+        <button type="button">Explain a bonding curve to a trader in three sentences.</button>
+        <button type="button">Read this CSV and tell me what is odd about it.</button>
+        <button type="button">Rewrite this paragraph so it stops sounding like a brochure.</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="composer-wrap">
+    <p class="cut"><span>Nothing above this line is sent</span></p>
+    <form class="composer" id="t-form">
+      <div class="files" id="t-files" hidden></div>
+      <textarea id="t-input" rows="1" placeholder="Ask anything. It will not remember."
+                aria-label="Your message"></textarea>
+      <div class="composer-bar">
+        <label class="attach" tabindex="0">
+          <input type="file" id="t-file" multiple hidden
+                 accept=".txt,.md,.csv,.json,.js,.ts,.py,.html,.css,.yml,.yaml,.log,image/*">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+            <path d="M20 11.5l-8.4 8.4a4.6 4.6 0 0 1-6.5-6.5l8.6-8.6a3.1 3.1 0 0 1 4.4 4.4
+                     l-8.5 8.5a1.6 1.6 0 0 1-2.2-2.2l7.8-7.8"/></svg>
+          Attach
+        </label>
+        <span class="sub" id="t-hint">Enter sends, Shift+Enter makes a new line</span>
+        <button class="btn fill sm" type="submit" id="t-send">Send</button>
+      </div>
+    </form>
+    <p class="sub t-foot" id="t-foot"></p>
+  </div>
+</div>
+{{SHELL_END}}
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="talk.js"></script>
+</body>
+</html>
+"""
+
 here = pathlib.Path(__file__).parent
 for name, doc in (("index.html", index), ("models.html", models),
-                  ("docs.html", docs), ("staking.html", staking)):
+                  ("docs.html", docs), ("staking.html", staking), ("talk.html", talk)):
     (here / name).write_text(doc, encoding="utf-8")
     print(name, len(doc), "bytes")

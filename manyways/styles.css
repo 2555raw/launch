@@ -75,8 +75,8 @@
   --line:    rgba(64, 34, 46, .12);
   --line-2:  rgba(64, 34, 46, .20);
   --on-dark:   #40222e;
-  --on-dark-2: #7a5361;
-  --on-dark-3: #a2808e;
+  --on-dark-2: #70495a;
+  --on-dark-3: #86596a;
   --dark-line: rgba(64, 34, 46, .16);
   --blossom: #e2749a;
   --select:  #fbd3e0;
@@ -236,13 +236,13 @@ h3 { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.14; }
 .col > .hero:first-of-type { padding-top: 14px; }
 .hero .frame { position: relative; overflow: hidden; }
 .hero .frame::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(100deg, rgba(48,18,30,.80) 0%, rgba(48,18,30,.55) 26%,
-                              rgba(48,18,30,.12) 52%, rgba(48,18,30,0) 70%); }
+  background: linear-gradient(100deg, rgba(48,18,30,.88) 0%, rgba(48,18,30,.68) 30%,
+                              rgba(48,18,30,.22) 58%, rgba(48,18,30,.02) 76%); }
 .hero .over { z-index: 2; }
 /* The frame holds whichever of the two lands: the photograph if it is
    there, the drawn grove if it is not. Both fill the same box, so the
    headline sits in the same place either way. */
-.hero .frame { background: var(--bark-2); height: clamp(420px, 56vh, 620px); }
+.hero .frame { background: var(--bark-2); height: clamp(560px, 76vh, 820px); }
 .hero canvas, .hero img { display: block; width: 100%; height: 100%;
                           object-fit: cover; object-position: 58% 34%; }
 .hero img[hidden] { display: none; }
@@ -583,3 +583,30 @@ td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabula
 .kept-row .val { margin-left: auto; font: 500 12.5px var(--mono); color: var(--ink-2);
                  text-align: right; max-width: 46%; overflow-wrap: anywhere; }
 .kept-row.none b { color: var(--ink-3); font-weight: 500; }
+
+/* ---------------- the hero's demonstration ----------------
+   You type a line into the photograph and, when you stop, it comes apart
+   into blossom and blows away. The page could say "nothing is kept" in a
+   paragraph; this lets you do it to yourself, which is the only version
+   anyone believes. It is a decoration over a hero that reads perfectly
+   without it, and it does not run at all under prefers-reduced-motion.
+   -------------------------------------------------------------------- */
+.vanish { position: relative; margin-top: 34px; max-width: 30ch; }
+/* The petals fly over the whole photograph, not over the field they came
+   from: penned into the input's own box they cannot travel far enough to
+   read as blowing away. */
+.hero .frame #petals { position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%;
+                       pointer-events: none; }
+.vanish input { width: 100%; background: transparent; border: 0;
+                border-bottom: 1px solid rgba(255,244,247,.34); border-radius: 0;
+                color: var(--on-photo); font-family: var(--serif); font-weight: 500;
+                font-size: clamp(22px, 2.7vw, 30px); line-height: 1.3; padding: 6px 2px 10px;
+                caret-color: var(--blossom); }
+.vanish input::placeholder { color: rgba(255,244,247,.46); }
+.vanish input:focus { outline: none; border-bottom-color: var(--blossom); }
+.vanish-note { margin-top: 10px; font: 500 11.5px/1 var(--sans); letter-spacing: .12em;
+               text-transform: uppercase; color: rgba(255,244,247,.6);
+               transition: color .3s ease; }
+.vanish-note.gone { color: var(--blossom); }
+@media (prefers-reduced-motion: reduce) { .vanish canvas { display: none; } }
+@media (max-width: 760px) { .vanish { max-width: none; } }

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MARBLE ROYALE</title>
+<meta name="description" content="A marble race every five minutes. Connect your wallet, get a marble, and the first one down takes the creator fees from those five minutes.">
+<meta property="og:title" content="MARBLE ROYALE">
+<meta property="og:description" content="Every five minutes, one marble takes the fees.">
+<meta name="theme-color" content="#07070c">
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-phase="lobby">
+
+<header class="top">
+  <div class="brand">
+    <span class="brand__dot"></span>
+    <span class="brand__name" id="coinName">MARBLE ROYALE</span>
+    <span class="brand__ticker" id="coinTicker"></span>
+  </div>
+
+  <div class="clock" id="clockBox">
+    <span class="clock__label" data-i18n="phase.lobby" id="phaseLabel">NEXT RACE IN</span>
+    <span class="clock__time" id="clock">--:--</span>
+  </div>
+
+  <div class="pot" title="creator fees collected in this round">
+    <span class="pot__label" data-i18n="pot.label">POT THIS ROUND</span>
+    <span class="pot__value"><b id="potValue">—</b> <span id="potUnit">SOL</span></span>
+  </div>
+
+  <div class="tools">
+    <button class="btn btn--ghost" id="soundBtn" title="sound" aria-label="sound">♪</button>
+    <button class="btn btn--ghost" id="langBtn">ES</button>
+    <button class="btn btn--go" id="connectBtn" data-i18n="btn.connect">CONNECT WALLET</button>
+  </div>
+</header>
+
+<main>
+  <section class="stage">
+    <canvas id="stage" aria-label="marble race"></canvas>
+
+    <div class="stage__hud">
+      <div class="hud__pill" id="hudPlayers">0 <span data-i18n="hud.racing">racing</span></div>
+      <div class="hud__pill" id="hudWatching">0 <span data-i18n="hud.watching">watching</span></div>
+      <div class="hud__pill hud__pill--me" id="hudMe" hidden></div>
+    </div>
+
+    <div class="banner" id="banner" hidden></div>
+
+    <div class="winner" id="winnerCard" hidden>
+      <div class="winner__crown">🏆</div>
+      <div class="winner__title" data-i18n="winner.title">WINNER</div>
+      <button class="winner__addr" id="winnerAddr" title="copy"></button>
+      <div class="winner__pot"><b id="winnerPot">—</b> <span data-i18n="winner.takes">to the wallet above</span></div>
+      <div class="winner__note" id="winnerNote" data-i18n="winner.note">Paid by hand from the creator wallet.</div>
+      <div class="winner__you" id="winnerYou" hidden data-i18n="winner.you">THAT IS YOU</div>
+    </div>
+
+    <div class="stage__bar">
+      <div class="status" id="status" data-i18n="status.watch">Watching. Connect a wallet to get a marble.</div>
+      <div class="actions">
+        <label class="auto" id="autoWrap" hidden>
+          <input type="checkbox" id="autoJoin"> <span data-i18n="btn.auto">auto-join every race</span>
+        </label>
+        <button class="btn btn--go btn--join" id="joinBtn" disabled data-i18n="btn.join">JOIN THIS RACE</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <nav class="tabs" role="tablist">
+      <button class="tab is-on" data-panel="live" data-i18n="tab.live">LIVE</button>
+      <button class="tab" data-panel="chat" data-i18n="tab.chat">CHAT</button>
+      <button class="tab" data-panel="winners" data-i18n="tab.winners">WINNERS</button>
+      <button class="tab" data-panel="top" data-i18n="tab.top">TOP</button>
+    </nav>
+
+    <div class="panel is-on" id="panel-live">
+      <div class="panel__head">
+        <span data-i18n="live.head">THE FIELD</span>
+        <span id="fieldCount" class="muted"></span>
+      </div>
+      <ol class="field" id="field"></ol>
+      <p class="hint" data-i18n="live.hint">Tap a marble to cheer it on.</p>
+    </div>
+
+    <div class="panel" id="panel-chat">
+      <div class="chat" id="chat"></div>
+      <form class="chatbar" id="chatForm">
+        <input id="chatInput" maxlength="140" autocomplete="off" data-i18n-ph="chat.ph" placeholder="say something">
+        <button class="btn btn--go" type="submit">→</button>
+      </form>
+    </div>
+
+    <div class="panel" id="panel-winners">
+      <div class="panel__head">
+        <span data-i18n="winners.head">PAST WINNERS</span>
+        <a class="muted" href="/verify" target="_blank" rel="noopener" data-i18n="winners.verify">verify</a>
+      </div>
+      <ul class="winners" id="winners"></ul>
+    </div>
+
+    <div class="panel" id="panel-top">
+      <div class="panel__head"><span data-i18n="top.head">MOST WINS</span></div>
+      <ol class="top" id="topList"></ol>
+    </div>
+  </aside>
+</main>
+
+<footer class="foot">
+  <div class="foot__how">
+    <b data-i18n="how.head">HOW IT WORKS</b>
+    <span data-i18n="how.body">A race starts every five minutes, on the clock. Connect your wallet, press join, and one marble on the track is yours. The first marble across the line takes the creator fees collected during those five minutes, paid by hand to the wallet shown on screen.</span>
+  </div>
+  <div class="foot__fair">
+    <b data-i18n="fair.head">PROVABLY FAIR</b>
+    <span data-i18n="fair.body">Before anyone joins, the server publishes a hash of the seed it will use. When the field closes, the seed itself is published. The seed decides the course and every bounce, so anyone can replay the race and check the winner.</span>
+    <code id="commitLine" class="commit"></code>
+  </div>
+  <div class="foot__links" id="links"></div>
+</footer>
+
+<script src="shared/race.js"></script>
+<script src="i18n.js"></script>
+<script src="wallet.js"></script>
+<script src="render.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

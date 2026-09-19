@@ -1,0 +1,385 @@
+/* MARBLE ROYALE - the server.
+
+   One process: it serves the page, keeps the five minute clock, plays each race
+   out the moment the field closes, and pushes what happens to every open browser
+   over a single event stream. No framework and no database, because it needs
+   neither: the whole state of the game is one round in memory and a JSON file of
+   results on disk.
+
+   What it never does is hold a key or move money. It reads a balance to say what
+   a round is worth and it shows you the winner's address; paying that address is
+   yours to do, from your own wallet, with your own hands. */
+
+'use strict';
+
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+const store = require('./lib/store');
+const solana = require('./lib/solana');
+const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, FEE_WALLET } = require('./lib/round');
+const b58 = require('./lib/base58');
+
+const PORT = Number(process.env.PORT) || 8080;
+const ADMIN_KEY = process.env.ADMIN_KEY || '';
+const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+const TOKEN_MINT = process.env.TOKEN_MINT || '';
+const MIN_TOKENS = Math.max(0, Number(process.env.MIN_TOKENS) || 0);
+const PUBLIC = path.join(__dirname, 'public');
+
+const CONFIG = {
+  coin: process.env.COIN_NAME || 'MARBLE ROYALE',
+  ticker: process.env.COIN_TICKER || '',
+  mint: TOKEN_MINT,
+  minTokens: MIN_TOKENS,
+  feeWallet: FEE_WALLET,
+  roundMs: ROUND_MS,
+  lobbyMs: LOBBY_MS,
+  maxPlayers: MAX_PLAYERS,
+  links: {
+    buy: process.env.LINK_BUY || '',
+    x: process.env.LINK_X || '',
+    telegram: process.env.LINK_TG || ''
+  },
+  payoutNote: process.env.PAYOUT_NOTE || ''
+};
+
+const rounds = new Rounds();
+store.load();
+
+/* ---- helpers ------------------------------------------------------------- */
+
+const json = (res, code, body) => {
+  const s = JSON.stringify(body);
+  res.writeHead(code, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+  res.end(s);
+};
+
+function readBody(req, limit = 4096) {
+  return new Promise((resolve) => {
+    let data = '', over = false;
+    req.on('data', (c) => {
+      if (over) return;
+      data += c;
+      if (data.length > limit) { over = true; resolve(null); req.destroy(); }
+    });
+    req.on('end', () => { if (!over) { try { resolve(JSON.parse(data || '{}')); } catch { resolve(null); } } });
+    req.on('error', () => resolve(null));
+  });
+}
+
+const ipOf = (req) => (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '?';
+
+/* A bucket per caller per action: enough to keep a script from flooding the
+   chat or hammering the RPC, and invisible to anyone playing normally. The
+   limits are deliberately loose on the wallet routes, because a whole Telegram
+   group coming through one mobile carrier looks like one address from here.
+   What actually stops a flood of fake entries is the signature, and MIN_TOKENS
+   if you set it. */
+const buckets = new Map();
+function allow(key, perMinute, burst) {
+  const now = Date.now();
+  let b = buckets.get(key);
+  if (!b) { b = { tokens: burst, at: now }; buckets.set(key, b); }
+  b.tokens = Math.min(burst, b.tokens + ((now - b.at) / 60000) * perMinute);
+  b.at = now;
+  if (b.tokens < 1) return false;
+  b.tokens -= 1;
+  return true;
+}
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, b] of buckets) if (now - b.at > 600000) buckets.delete(k);
+}, 300000).unref();
+
+/* ---- who you are --------------------------------------------------------- */
+
+/* A wallet proves itself once by signing a sentence, and gets a token that
+   lasts a day. Without this anyone could type someone else's address and be
+   paid for their marble. */
+
+const nonces = new Map();
+setInterval(() => {
+  const now = Date.now();
+  for (const [n, v] of nonces) if (v.exp < now) nonces.delete(n);
+}, 60000).unref();
+
+const TOKEN_TTL = 24 * 3600 * 1000;
+
+function mintToken(address) {
+  const exp = Date.now() + TOKEN_TTL;
+  const body = address + '.' + exp;
+  const mac = crypto.createHmac('sha256', SESSION_SECRET).update(body).digest('base64url').slice(0, 32);
+  return body + '.' + mac;
+}
+
+function readToken(token) {
+  if (typeof token !== 'string' || token.length > 200) return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [address, exp, mac] = parts;
+  const want = crypto.createHmac('sha256', SESSION_SECRET).update(address + '.' + exp).digest('base64url').slice(0, 32);
+  if (mac.length !== want.length || !crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(want))) return null;
+  if (Number(exp) < Date.now()) return null;
+  return address;
+}
+
+/* The token gate, when there is one. Answers are cached for a minute so a room
+   full of people does not turn into a room full of RPC calls. */
+const holdings = new Map();
+async function holdsEnough(address) {
+  if (!MIN_TOKENS || !TOKEN_MINT) return { ok: true };
+  const hit = holdings.get(address);
+  if (hit && Date.now() - hit.at < 60000) return { ok: hit.amount >= MIN_TOKENS, amount: hit.amount };
+  const amount = await solana.tokenBalance(address, TOKEN_MINT);
+  holdings.set(address, { amount, at: Date.now() });
+  return { ok: amount >= MIN_TOKENS, amount };
+}
+
+/* ---- the event stream ---------------------------------------------------- */
+
+const clients = new Set();
+const chatLog = [];
+
+function send(res, event, data) {
+  try { res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n'); } catch { /* gone */ }
+}
+function broadcast(event, data) {
+  for (const res of clients) send(res, event, data);
+}
+
+for (const ev of ['phase', 'join', 'start', 'result', 'pot']) {
+  rounds.on(ev, (data) => broadcast(ev, data));
+}
+
+setInterval(() => {
+  const r = rounds.publicRound();
+  broadcast('tick', { now: Date.now(), phase: r && r.phase, count: r ? r.count : 0, id: r && r.id, watching: clients.size });
+}, 1000).unref();
+
+/* The fee wallet is read on a slow loop during the lobby, so the pot people see
+   climbs while they wait. */
+setInterval(() => { rounds.pollPot().catch(() => {}); }, 30000).unref();
+
+function snapshot() {
+  return {
+    now: Date.now(),
+    config: CONFIG,
+    round: rounds.publicRound(),
+    recent: store.recent(12).map(publicResult),
+    top: store.top(10),
+    chat: chatLog.slice(-40),
+    watching: clients.size
+  };
+}
+
+const publicResult = (r) => ({
+  id: r.id, startAt: r.startAt, winner: r.winner, pot: r.pot,
+  players: (r.players || []).length, seconds: r.seconds,
+  paid: !!r.paid, tx: r.tx || '', seed: r.seed, commit: r.commit, secret: r.secret
+});
+
+/* ---- static files -------------------------------------------------------- */
+
+const TYPES = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8'
+};
+
+function serveFile(res, rel) {
+  const file = path.join(PUBLIC, rel);
+  if (!file.startsWith(PUBLIC)) { res.writeHead(403).end('no'); return; }
+  fs.readFile(file, (err, buf) => {
+    if (err) { res.writeHead(404, { 'content-type': 'text/plain' }).end('not found'); return; }
+    res.writeHead(200, {
+      'content-type': TYPES[path.extname(file)] || 'application/octet-stream',
+      'cache-control': /\.(html)$/.test(file) ? 'no-cache' : 'public, max-age=300'
+    });
+    res.end(buf);
+  });
+}
+
+/* ---- routes -------------------------------------------------------------- */
+
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url, 'http://x');
+  const p = url.pathname;
+  const ip = ipOf(req);
+
+  if (req.method === 'OPTIONS') { res.writeHead(204).end(); return; }
+
+  /* --- stream --- */
+  if (p === '/api/stream') {
+    res.writeHead(200, {
+      'content-type': 'text/event-stream; charset=utf-8',
+      'cache-control': 'no-cache, no-transform',
+      connection: 'keep-alive',
+      'x-accel-buffering': 'no'
+    });
+    res.write('retry: 3000\n\n');
+    clients.add(res);
+    send(res, 'state', snapshot());
+    const ka = setInterval(() => { try { res.write(': ka\n\n'); } catch {} }, 20000);
+    req.on('close', () => { clearInterval(ka); clients.delete(res); });
+    return;
+  }
+
+  if (p === '/api/state') return json(res, 200, snapshot());
+
+  if (p === '/api/history') {
+    const n = Math.min(200, Math.max(1, Number(url.searchParams.get('n')) || 50));
+    return json(res, 200, { rounds: store.recent(n).map(publicResult), top: store.top(25) });
+  }
+
+  if (p === '/api/round') {
+    const r = store.findRound(url.searchParams.get('id') || '');
+    if (!r) return json(res, 404, { error: 'unknown round' });
+    return json(res, 200, { round: { ...publicResult(r), order: r.order, field: r.players } });
+  }
+
+  /* --- signing in --- */
+  if (p === '/api/nonce') {
+    const address = (url.searchParams.get('address') || '').trim();
+    if (!b58.isAddress(address)) return json(res, 400, { error: 'that is not a Solana address' });
+    if (!allow('nonce:' + ip, 150, 50)) return json(res, 429, { error: 'slow down' });
+    const nonce = crypto.randomBytes(12).toString('hex');
+    nonces.set(nonce, { address, exp: Date.now() + 300000 });
+    const message =
+      'MARBLE ROYALE\n' +
+      'Sign in to race your marble.\n' +
+      'This proves the wallet is yours. It moves nothing and costs nothing.\n' +
+      'wallet: ' + address + '\n' +
+      'nonce: ' + nonce;
+    return json(res, 200, { nonce, message });
+  }
+
+  if (p === '/api/auth' && req.method === 'POST') {
+    if (!allow('auth:' + ip, 90, 40)) return json(res, 429, { error: 'slow down' });
+    const body = await readBody(req);
+    if (!body) return json(res, 400, { error: 'bad request' });
+    const { address, nonce, signature } = body;
+    const entry = nonces.get(nonce);
+    if (!entry || entry.address !== address) return json(res, 400, { error: 'that sign-in expired, try again' });
+    nonces.delete(nonce);
+    const message =
+      'MARBLE ROYALE\n' +
+      'Sign in to race your marble.\n' +
+      'This proves the wallet is yours. It moves nothing and costs nothing.\n' +
+      'wallet: ' + address + '\n' +
+      'nonce: ' + nonce;
+    if (!solana.verifySignature(address, message, signature)) return json(res, 401, { error: 'signature did not check out' });
+    return json(res, 200, { token: mintToken(address), address, stats: store.statsFor(address) });
+  }
+
+  /* --- playing --- */
+  if (p === '/api/join' && req.method === 'POST') {
+    if (!allow('join:' + ip, 150, 50)) return json(res, 429, { error: 'slow down' });
+    const body = await readBody(req);
+    const address = body && readToken(body.token);
+    if (!address) return json(res, 401, { error: 'sign in again' });
+
+    const gate = await holdsEnough(address);
+    if (!gate.ok) {
+      return json(res, 403, {
+        error: 'holders only',
+        need: MIN_TOKENS, have: gate.amount || 0, mint: TOKEN_MINT
+      });
+    }
+    const out = rounds.join(address);
+    if (out.error === 'closed') return json(res, 409, { error: 'this race is already closed - you are in the next one' });
+    if (out.error === 'full') return json(res, 409, { error: 'this race is full', queued: out.queued });
+    if (out.error === 'already') return json(res, 200, { ok: true, already: true, round: rounds.publicRound().id });
+    if (out.error) return json(res, 503, { error: 'starting up, try again' });
+    return json(res, 200, { ok: true, count: out.count, round: rounds.publicRound().id });
+  }
+
+  if (p === '/api/chat' && req.method === 'POST') {
+    const body = await readBody(req, 2048);
+    const address = body && readToken(body.token);
+    if (!address) return json(res, 401, { error: 'sign in to chat' });
+    if (!allow('chat:' + address, 20, 4)) return json(res, 429, { error: 'easy on the chat' });
+    const text = String(body.text || '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 140);
+    if (!text) return json(res, 400, { error: 'say something' });
+    const msg = { from: address, text, at: Date.now() };
+    chatLog.push(msg);
+    if (chatLog.length > 200) chatLog.shift();
+    broadcast('chat', msg);
+    return json(res, 200, { ok: true });
+  }
+
+  if (p === '/api/cheer' && req.method === 'POST') {
+    const body = await readBody(req, 512);
+    const address = body && readToken(body.token);
+    if (!address) return json(res, 401, { error: 'sign in to cheer' });
+    if (!allow('cheer:' + address, 60, 8)) return json(res, 429, { error: 'easy there' });
+    const target = String(body.target || '');
+    if (!b58.isAddress(target)) return json(res, 400, { error: 'no such marble' });
+    /* Cheers are confetti. They are deliberately not part of the physics: if a
+       cheer could move a marble, the race would be a popularity contest and the
+       replay in your browser would stop matching the result. */
+    broadcast('cheer', { from: address, target, at: Date.now() });
+    return json(res, 200, { ok: true });
+  }
+
+  /* --- admin --- */
+  if (p.startsWith('/api/admin/')) {
+    const key = req.headers['x-admin-key'] || url.searchParams.get('key') || '';
+    if (!ADMIN_KEY || key.length !== ADMIN_KEY.length ||
+        !crypto.timingSafeEqual(Buffer.from(String(key)), Buffer.from(ADMIN_KEY))) {
+      return json(res, 401, { error: 'no' });
+    }
+    if (p === '/api/admin/rounds') {
+      const n = Math.min(500, Math.max(1, Number(url.searchParams.get('n')) || 100));
+      return json(res, 200, { rounds: store.recent(n), unpaid: store.unpaid().length, feeWallet: FEE_WALLET });
+    }
+    if (p === '/api/admin/paid' && req.method === 'POST') {
+      const body = await readBody(req);
+      const r = store.markPaid(body && body.id, body && body.tx);
+      if (!r) return json(res, 404, { error: 'unknown round' });
+      return json(res, 200, { ok: true, round: r });
+    }
+    if (p === '/api/admin/pot' && req.method === 'POST') {
+      const body = await readBody(req);
+      const sol = Number(body && body.pot);
+      if (!isFinite(sol) || sol < 0) return json(res, 400, { error: 'bad amount' });
+      const r = store.setPot(body.id, sol);
+      if (!r) return json(res, 404, { error: 'unknown round' });
+      broadcast('pot', { roundId: r.id, pot: sol, final: true });
+      return json(res, 200, { ok: true, round: r });
+    }
+    if (p === '/api/admin/rounds.csv') {
+      const rows = [['round', 'time_utc', 'winner_wallet', 'pot_sol', 'players', 'paid', 'tx']];
+      for (const r of store.recent(500)) {
+        rows.push([r.id, new Date(r.startAt).toISOString(), r.winner || '',
+          r.pot === null || r.pot === undefined ? '' : r.pot,
+          (r.players || []).length, r.paid ? 'yes' : 'no', r.tx || '']);
+      }
+      const csv = rows.map((r) => r.map((c) => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+      res.writeHead(200, {
+        'content-type': 'text/csv; charset=utf-8',
+        'content-disposition': 'attachment; filename="marble-royale-rounds.csv"'
+      });
+      return res.end(csv);
+    }
+    return json(res, 404, { error: 'no such admin route' });
+  }
+
+  /* --- pages --- */
+  if (p === '/' ) return serveFile(res, 'index.html');
+  if (p === '/admin') return serveFile(res, 'admin.html');
+  if (p === '/verify') return serveFile(res, 'verify.html');
+  if (p === '/health') return json(res, 200, { ok: true, round: rounds.publicRound()?.id, watching: clients.size });
+  return serveFile(res, p.replace(/^\/+/, ''));
+});
+
+server.listen(PORT, () => {
+  rounds.start();
+  console.log('MARBLE ROYALE on :' + PORT +
+    ' | round ' + Math.round(ROUND_MS / 1000) + 's' +
+    ' | fee wallet ' + (FEE_WALLET || 'not set') +
+    ' | admin ' + (ADMIN_KEY ? 'on' : 'OFF (set ADMIN_KEY)'));
+});

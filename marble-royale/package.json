@@ -1,0 +1,13 @@
+{
+  "name": "marble-royale",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MARBLE ROYALE - a marble race every five minutes; the winner takes that window's creator fees.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/engine.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MARBLE ROYALE - verify a race</title>
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { display: block; padding: 18px clamp(12px, 4vw, 40px); max-width: 860px; margin: 0 auto; }
+  h1 { font-family: var(--mono); font-size: 18px; letter-spacing: .16em; }
+  p { color: var(--dim); font-size: 13px; line-height: 1.7; }
+  .pick { display: flex; gap: 8px; margin: 18px 0; flex-wrap: wrap; }
+  select, input { background: #0b0b13; border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; min-width: 220px; }
+  .out { font-family: var(--mono); font-size: 12px; line-height: 1.9; background: #0d0d16; border: 1px solid var(--line); border-radius: 12px; padding: 14px; white-space: pre-wrap; word-break: break-all; }
+  .ok { color: var(--win); } .no { color: var(--hot); }
+  a { color: var(--go); }
+</style>
+</head>
+<body>
+  <h1>VERIFY A RACE</h1>
+  <p>Before a single wallet joins, the server publishes <b>sha256(secret)</b>. It cannot change the secret after that without the hash changing. When the field closes it publishes the secret itself, and the race seed is <b>sha256(secret + "|" + the list of players)</b> - so the seed depends on a secret fixed before anyone joined and on a field nobody can edit afterwards.</p>
+  <p>This page re-runs the whole thing in your browser with the same engine the server used, and tells you whether the winner it announced is the winner the seed produces.</p>
+
+  <div class="pick">
+    <select id="round"></select>
+    <button class="btn btn--go" id="run">CHECK</button>
+  </div>
+  <div class="out" id="out">pick a round</div>
+  <p><a href="/">← back to the race</a></p>
+
+<script src="shared/race.js"></script>
+<script>
+(async function () {
+  const out = document.getElementById('out');
+  const sel = document.getElementById('round');
+
+  const sha256 = async (text) => {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const history = await fetch('/api/history?n=100').then((r) => r.json());
+  for (const r of history.rounds) {
+    if (!r.winner) continue;
+    const o = document.createElement('option');
+    o.value = r.id;
+    o.textContent = new Date(r.startAt).toLocaleString() + '  ·  ' + r.winner.slice(0, 8) + '…';
+    sel.appendChild(o);
+  }
+  if (!sel.children.length) out.textContent = 'no finished races yet';
+
+  document.getElementById('run').addEventListener('click', async () => {
+    out.textContent = 'checking…';
+    const data = await fetch('/api/round?id=' + encodeURIComponent(sel.value)).then((r) => r.json());
+    if (data.error) { out.textContent = data.error; return; }
+    const r = data.round;
+    const lines = [];
+
+    const commit = await sha256(r.secret);
+    const commitOk = commit === r.commit;
+    lines.push('published hash   ' + r.commit);
+    lines.push('sha256(secret)   ' + commit + (commitOk ? '   ✓ match' : '   ✗ MISMATCH'));
+
+    const seedHex = (await sha256(r.secret + '|' + r.field.join(','))).slice(0, 8);
+    const seed = parseInt(seedHex, 16) >>> 0;
+    const seedOk = seed === r.seed;
+    lines.push('');
+    lines.push('field            ' + r.field.length + ' wallets');
+    lines.push('seed announced   ' + r.seed);
+    lines.push('seed recomputed  ' + seed + (seedOk ? '   ✓ match' : '   ✗ MISMATCH'));
+
+    const replay = RACE.runToEnd(seed, r.field.map((id) => ({ id })));
+    const winOk = replay.order[0].id === r.winner;
+    lines.push('');
+    lines.push('winner announced ' + r.winner);
+    lines.push('winner replayed  ' + replay.order[0].id + (winOk ? '   ✓ match' : '   ✗ MISMATCH'));
+    lines.push('time             ' + replay.order[0].time.toFixed(3) + 's');
+
+    out.innerHTML = '';
+    const pre = document.createElement('div');
+    pre.textContent = lines.join('\n');
+    const verdict = document.createElement('div');
+    verdict.className = commitOk && seedOk && winOk ? 'ok' : 'no';
+    verdict.textContent = '\n' + (commitOk && seedOk && winOk
+      ? 'This race checks out.'
+      : 'Something does not line up. Do not trust this round.');
+    out.append(pre, verdict);
+  });
+})();
+</script>
+</body>
+</html>

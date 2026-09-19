@@ -51,11 +51,11 @@
     if (face && window.RENDER && RENDER.drawFace) {
       ctx.save();
       ctx.translate(128, 128);
-      RENDER.drawFace(ctx, 0, 0, 78, face);
+      RENDER.drawFace(ctx, 0, 0, 96, face);
       ctx.restore();
       ctx.save();
       ctx.translate(384, 128);
-      RENDER.drawFace(ctx, 0, 0, 78, face);
+      RENDER.drawFace(ctx, 0, 0, 96, face);
       ctx.restore();
     }
     const tex = new THREE.CanvasTexture(cv);

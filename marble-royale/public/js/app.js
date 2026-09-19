@@ -1014,20 +1014,23 @@
      world underneath; its place follows the stage element on every frame. */
   function buildFloaters() {
     const host = $('#floaters');
+    /* The eight best known coins, each on the marble it suits, turned so the
+       symbol faces the reader. Depth comes from size and a whisper of blur. */
     const spots = [
-      { x: 9, y: 16, s: 96, f: 'btc', m: 'metal', c: '#ffd36e', b: 0 }, { x: 3, y: 58, s: 72, f: 'doge', m: 'glass', c: '#ff7a1a', b: 2 },
-      { x: 86, y: 12, s: 84, f: 'eth', m: 'chrome', c: '#b98bff', b: 0 }, { x: 90, y: 56, s: 110, f: 'sol', m: 'holo', c: '#6ee7ff', b: 1.5 },
-      { x: 14, y: 38, s: 56, f: 'pepe', m: 'neon', c: '#7dff9b', b: 3 }, { x: 93, y: 34, s: 64, f: 'hood', m: 'galaxy', c: '#ff5ea8', b: 0 },
-      { x: 24, y: 4, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 70, y: 2, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
+      { x: 9, y: 16, s: 104, f: 'btc', m: 'metal', c: '#f7931a', b: 0 }, { x: 3, y: 58, s: 78, f: 'doge', m: 'glass', c: '#c2a633', b: 0.8 },
+      { x: 86, y: 12, s: 88, f: 'eth', m: 'chrome', c: '#8c8cf0', c2: '#627eea', b: 0 }, { x: 90, y: 56, s: 112, f: 'sol', m: 'holo', c: '#9945ff', b: 0.6 },
+      { x: 14, y: 38, s: 64, f: 'xrp', m: 'glass', c: '#2b3a55', b: 1 }, { x: 93, y: 34, s: 70, f: 'bnb', m: 'metal', c: '#f3ba2f', b: 0 },
+      { x: 24, y: 4, s: 60, f: 'usdt', m: 'neon', c: '#26a17b', b: 1 }, { x: 70, y: 2, s: 66, f: 'ada', m: 'glass', c: '#0d3b8e', b: 0 }
     ];
+    const FACING = [0.35, 0.15, 0.6, 0.25, 0.5, 0.2, 0.4, 0.3];
     spots.forEach((sp, i) => {
-      const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s, (i % 5) * 0.5 - 1);
+      const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s, FACING[i]);
       cv.className = 'floater';
       cv.dataset.spot = String(i);
       cv.style.left = sp.x + '%'; cv.style.top = sp.y + '%';
       cv.style.width = cv.style.height = sp.s + 'px';
       cv.style.filter = sp.b ? 'blur(' + sp.b + 'px)' : '';
-      cv.style.opacity = sp.b ? String(0.75 - sp.b * 0.08) : '1';
+      cv.style.opacity = sp.b ? String(0.92 - sp.b * 0.08) : '1';
       cv.dataset.m = sp.m; cv.dataset.c = sp.c; cv.dataset.f = sp.f; cv.dataset.s = String(sp.s);
       cv.style.animationDelay = (-i * 1.3) + 's';
       cv.style.animationDuration = (7 + (i % 4) * 1.5) + 's';
@@ -1041,7 +1044,7 @@
     spots.forEach((old, i) => {
       const m = { material: old.dataset.m, color: old.dataset.c, face: old.dataset.f };
       if (!m.material) return;
-      const cv = marbleCanvas(m, Number(old.dataset.s), (i % 5) * 0.5 - 1);
+      const cv = marbleCanvas(m, Number(old.dataset.s), [0.35, 0.15, 0.6, 0.25, 0.5, 0.2, 0.4, 0.3][i % 8]);
       for (const a of ['className', 'style']) cv[a] = old[a];
       cv.style.cssText = old.style.cssText;
       Object.assign(cv.dataset, old.dataset);

@@ -454,6 +454,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .race__track em { font-style: normal; display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
 .race__track b { display: block; font-size: 15px; font-weight: 700; }
 .race__track.is-tbd b { color: var(--dim); font-weight: 500; }
+.race__stats b.race__tbd { color: var(--dim); font-weight: 500; font-family: var(--disp); font-size: 13.5px; }
 .race__track.is-tbd::before { content: '?'; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 8px; background: var(--glass2); border: 1px dashed var(--line2); font-family: var(--mono); color: var(--dim); flex: none; }
 
 /* ---- the poll ------------------------------------------------------------- */

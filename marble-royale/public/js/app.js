@@ -590,12 +590,15 @@
       const card = document.createElement('article');
       card.className = 'race glass' + (s.open ? ' race--open' : '') + (s.mega ? ' race--mega' : '');
       card.dataset.start = s.raceAt;
-      const pot = i === 0 && r ? usd(r.pot) : (s.mega ? '$25.00' : '$4 – $7.50');
+      /* Only the open race has a pot to show. A queued race's pot is the
+         fees that come in while its queue is open, so it cannot be known
+         yet; a mega race is the one fixed figure. */
+      const pot = i === 0 && r ? usd(r.pot) : (s.mega ? '$25.00' : 'Fills with fees');
       const track = s.mode ? modeInfo(s.mode).name : 'Decided by vote';
       card.innerHTML =
         '<div class="race__no"><b>RACE #' + pad(s.number) + '</b>' + (s.mega ? '<span class="pill pill--mega">MEGA</span>' : (s.open ? '<span class="pill pill--phase">OPEN</span>' : '<span class="pill">QUEUED</span>')) + '</div>' +
         '<div class="race__track' + (s.mode ? '' : ' is-tbd') + '"><em>TRACK</em><b></b></div>' +
-        '<div class="race__stats"><div><em>PLAYERS</em><b>' + s.count + ' / ' + s.max + '</b></div><div><em>ENTRY</em><b>FREE</b></div><div><em>PRIZE</em><b class="gold">' + pot + '</b></div><div><em>STARTING IN</em><b class="race__in">' + fmt(s.raceAt - serverNow()) + '</b></div></div>' +
+        '<div class="race__stats"><div><em>PLAYERS</em><b>' + s.count + ' / ' + s.max + '</b></div><div><em>ENTRY</em><b>FREE</b></div><div><em>PRIZE</em><b class="' + (i === 0 || s.mega ? 'gold' : 'race__tbd') + '">' + pot + '</b></div><div><em>STARTING IN</em><b class="race__in">' + fmt(s.raceAt - serverNow()) + '</b></div></div>' +
         '<div class="race__bar"><i style="width:' + Math.min(100, (s.count / s.max) * 100) + '%"></i></div>';
       card.querySelector('.race__track b').textContent = track;
       if (s.mode) card.querySelector('.race__track').prepend(modePic(s.mode, undefined, 96, 54));

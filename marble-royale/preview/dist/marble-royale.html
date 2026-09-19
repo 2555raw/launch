@@ -221,11 +221,14 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 /* Each coin arrives from deep in the page, small and faint, and grows as it
    comes forward to its place; then it drifts. The wrapper flies, the coin
    inside floats, so the two motions never fight. */
-.fl { position: absolute; transform-style: preserve-3d; animation: arrive 1.5s cubic-bezier(.2, .8, .2, 1) both; }
+.fl { position: absolute; opacity: 0; transform-style: preserve-3d; will-change: transform, opacity; backface-visibility: hidden; }
+/* nothing moves until the marbles are the real ones: the page waits for the
+   renders, then every coin arrives in one clean pass */
+.floaters.is-in .fl { animation: arrive 1.6s cubic-bezier(.16, .84, .24, 1) both; }
 .floater { display: block; width: 100%; height: 100%; border-radius: 50%; animation: floaty 8s ease-in-out infinite; filter: drop-shadow(0 18px 24px rgba(23, 32, 56, .25)); }
-@keyframes arrive { from { transform: translate3d(0, 40px, -1400px) scale(.4); opacity: 0; } 60% { opacity: 1; } to { transform: translate3d(0, 0, 0) scale(1); opacity: 1; } }
+@keyframes arrive { from { transform: translate3d(0, 30px, -600px) scale(.6); opacity: 0; } 45% { opacity: 1; } to { transform: translate3d(0, 0, 0) scale(1); opacity: 1; } }
 @keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-18px) rotate(5deg); } }
-@media (prefers-reduced-motion: reduce) { .fl { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .fl, .floaters.is-in .fl { animation: none; opacity: 1; } }
 .hero__cta { justify-content: center; }
 #commitLine { word-break: break-all; font-size: 12px; }
 .trust { list-style: none; margin: 56px auto 0; padding: 22px 0 0; max-width: 1180px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; text-align: left; border-top: 1px solid var(--line); position: relative; z-index: 2; }
@@ -542,15 +545,15 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 /* ---- the dock ------------------------------------------------------------- */
 
 .dock {
-  position: fixed; left: 14px; top: 50%; transform: translateY(-50%); z-index: 20;
+  position: fixed; left: 14px; top: calc(86px + env(safe-area-inset-top, 0px)); z-index: 20;
   display: flex; flex-direction: column; align-items: stretch; gap: 4px; padding: 8px;
   width: 92px;
   background: var(--pillbg); border: 1px solid var(--pillline); border-radius: 26px;
   backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3);
   box-shadow: var(--shadow);
-  max-height: calc(100vh - 140px); overflow: auto; scrollbar-width: none;
+  max-height: calc(100vh - 110px); overflow: auto; scrollbar-width: none;
 }
-body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; pointer-events: none; transform: translate(-20px, -50%); }
+body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; pointer-events: none; transform: translateX(-20px); }
 .dock { transition: opacity .25s ease, transform .25s ease; }
 .dock__it {
   display: grid; justify-items: center; row-gap: 3px;
@@ -571,6 +574,20 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
 @keyframes blink { 50% { opacity: .35; } }
 .screen--home, .screen--lobby, .screen--launch, .screen--fair { padding-bottom: 40px; }
 @media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--fair, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
+
+/* ---- the notice on arrival ------------------------------------------------- */
+
+.notice {
+  position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 45;
+  width: min(420px, calc(100vw - 36px)); padding: 16px 18px; display: grid; gap: 10px;
+  animation: rise .4s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.notice b { font-size: 15px; }
+.notice p { margin: 0; font-size: 13px; color: var(--ink2); line-height: 1.5; }
+.notice__row { display: flex; gap: 8px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+.notice__row .dim { margin-right: auto; font-size: 11.5px; }
+body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: none; }
+@media (max-width: 640px) { .notice { right: 10px; left: 10px; width: auto; bottom: calc(78px + env(safe-area-inset-bottom, 0px)); } }
 
 /* ---- rewards -------------------------------------------------------------- */
 
@@ -1227,6 +1244,17 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
       </div>
     </div>
     <div class="modal__row"><button class="btn btn--accent" data-close>Done</button></div>
+  </div>
+</div>
+
+<!-- ---------- the notice on arrival ---------- -->
+<div class="notice glass" id="notice" hidden role="dialog" aria-label="about this site">
+  <b>Before you race</b>
+  <p>Marble Royale is a game, not gambling: entry is free, nothing is wagered, and prizes are sent by the creator by hand to the winning address. Your keys never leave your wallet. The site keeps only your own preferences in this browser (theme, marble, login) and sets no tracking cookies.</p>
+  <div class="notice__row">
+    <span class="dim">Not financial advice. Play for fun.</span>
+    <a class="btn btn--glass" href="#" data-go="fair" data-notice-ok>How it's fair</a>
+    <button class="btn btn--accent" id="noticeOk">Got it</button>
   </div>
 </div>
 
@@ -5737,6 +5765,8 @@ window.MR_TYPES = true;
       w.appendChild(cv);
       host.appendChild(w);
     });
+    /* if the renders never come (no WebGL), the flat coins arrive instead */
+    setTimeout(() => host.classList.add('is-in'), 3500);
   }
   /* Once three is up, every flat marble on the page becomes a real one. */
   function upgradeMarbles() {
@@ -5751,6 +5781,8 @@ window.MR_TYPES = true;
       Object.assign(cv.dataset, old.dataset);
       old.replaceWith(cv);
     });
+    /* the real marbles are in place: now they arrive */
+    requestAnimationFrame(() => $('#floaters').classList.add('is-in'));
     pickersKey = '';
     paintYou();
     paintLobby();
@@ -5775,6 +5807,24 @@ window.MR_TYPES = true;
       veil.dataset.hole = '1';
     } else veil.dataset.hole = '';
   }
+
+  /* ---- the notice on arrival ------------------------------------------------------ */
+
+  /* A short word on arrival: a game, not gambling; nothing wagered; your keys
+     stay yours; only your own preferences are kept, no tracking. Shown once
+     per browser; dismissed for good with Got it. */
+  function showNotice() {
+    let seen = false;
+    try { seen = localStorage.getItem('mr.notice') === 'ok'; } catch {}
+    if (seen) return;
+    $('#notice').hidden = false;
+  }
+  function closeNotice() {
+    $('#notice').hidden = true;
+    try { localStorage.setItem('mr.notice', 'ok'); } catch {}
+  }
+  $('#noticeOk').addEventListener('click', closeNotice);
+  $$('[data-notice-ok]').forEach((a) => a.addEventListener('click', closeNotice));
 
   /* ---- the dock ---------------------------------------------------------------- */
 
@@ -6087,6 +6137,7 @@ window.MR_TYPES = true;
     };
     if (window.THREE) start(); else addEventListener('three-ready', start, { once: true });
     setScreen('home');
+    showNotice();
     connectStream();
     requestAnimationFrame(frame);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) lastTs = 0; });

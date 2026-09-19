@@ -1049,6 +1049,8 @@
       w.appendChild(cv);
       host.appendChild(w);
     });
+    /* if the renders never come (no WebGL), the flat coins arrive instead */
+    setTimeout(() => host.classList.add('is-in'), 3500);
   }
   /* Once three is up, every flat marble on the page becomes a real one. */
   function upgradeMarbles() {
@@ -1063,6 +1065,8 @@
       Object.assign(cv.dataset, old.dataset);
       old.replaceWith(cv);
     });
+    /* the real marbles are in place: now they arrive */
+    requestAnimationFrame(() => $('#floaters').classList.add('is-in'));
     pickersKey = '';
     paintYou();
     paintLobby();
@@ -1087,6 +1091,24 @@
       veil.dataset.hole = '1';
     } else veil.dataset.hole = '';
   }
+
+  /* ---- the notice on arrival ------------------------------------------------------ */
+
+  /* A short word on arrival: a game, not gambling; nothing wagered; your keys
+     stay yours; only your own preferences are kept, no tracking. Shown once
+     per browser; dismissed for good with Got it. */
+  function showNotice() {
+    let seen = false;
+    try { seen = localStorage.getItem('mr.notice') === 'ok'; } catch {}
+    if (seen) return;
+    $('#notice').hidden = false;
+  }
+  function closeNotice() {
+    $('#notice').hidden = true;
+    try { localStorage.setItem('mr.notice', 'ok'); } catch {}
+  }
+  $('#noticeOk').addEventListener('click', closeNotice);
+  $$('[data-notice-ok]').forEach((a) => a.addEventListener('click', closeNotice));
 
   /* ---- the dock ---------------------------------------------------------------- */
 
@@ -1399,6 +1421,7 @@
     };
     if (window.THREE) start(); else addEventListener('three-ready', start, { once: true });
     setScreen('home');
+    showNotice();
     connectStream();
     requestAnimationFrame(frame);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) lastTs = 0; });

@@ -43,7 +43,7 @@
     joined: false,
     watching: 0,
     cheerCounts: new Map(),
-    skin: { color: '#6ee7ff', face: 'smile' },
+    skin: { color: '#e3a94e', face: 'doge' },
     mode: 'idle',          // idle | preview | race | done
     raceStartAt: 0,
     official: null
@@ -560,7 +560,7 @@
   function loadSkin() {
     try {
       const raw = JSON.parse(localStorage.getItem('mr.skin') || 'null');
-      if (raw && raw.color && raw.face) S.skin = raw;
+      if (raw && raw.color && raw.face && RENDER.FACES.includes(raw.face)) S.skin = raw;
     } catch {}
   }
 
@@ -578,7 +578,7 @@
     ctx.beginPath();
     ctx.arc(w / 2, h / 2, r, 0, 6.283);
     ctx.fill();
-    if (S.skin.face !== 'none') RENDER.drawFace(ctx, w / 2, h / 2, r, S.skin.face);
+    RENDER.drawFace(ctx, w / 2, h / 2, r, S.skin.face);
   }
 
   function pickSkin(part, value) {
@@ -589,8 +589,8 @@
   }
 
   function buildPickers() {
-    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.',
-                    doge: 'doge', pepe: 'pepe', eth: 'ETH', sol: 'SOL', btc: 'BTC', bnb: 'BNB' };
+    const names = { doge: 'DOGE', shib: 'SHIB', pepe: 'PEPE', bonk: 'BONK', wif: 'WIF', btc: 'BTC', eth: 'ETH',
+                    sol: 'SOL', bnb: 'BNB', xrp: 'XRP', usdt: 'USDT', usdc: 'USDC', ada: 'ADA', avax: 'AVAX' };
     for (const c of SKINS) {
       const b = document.createElement('button');
       b.className = 'sw' + (c === S.skin.color ? ' on' : '');
@@ -610,7 +610,7 @@
       const ctx = cv.getContext('2d');
       ctx.fillStyle = RENDER.SKIN_COLORS[f] || '#39415a';
       ctx.beginPath(); ctx.arc(19, 19, 14, 0, 6.283); ctx.fill();
-      if (f !== 'none') RENDER.drawFace(ctx, 19, 19, 14, f);
+      RENDER.drawFace(ctx, 19, 19, 14, f);
       const label = document.createElement('span');
       label.textContent = names[f] || f;
       b.append(cv, label);

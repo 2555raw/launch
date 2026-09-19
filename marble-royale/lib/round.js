@@ -39,7 +39,12 @@ const FEE_WALLET = process.env.FEE_WALLET || '';
    stays where it is. Whoever runs the game picks the number and it is on screen,
    because a pot nobody can check is a pot nobody believes. */
 const POT_PCT = Math.min(100, Math.max(0, Number(process.env.POT_PCT) || 20));
-const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead', 'doge', 'pepe', 'eth', 'sol', 'btc', 'bnb'];
+/* Every MEGA_EVERY_MS (the hour and the half hour by default) the round is a
+   mega race and the winner takes MEGA_PCT of the fees instead. The round says
+   so from the moment it opens, so the page can badge it. */
+const MEGA_EVERY_MS = Math.max(ROUND_MS, Number(process.env.MEGA_EVERY_MS) || 1800000);
+const MEGA_PCT = Math.min(100, Math.max(0, Number(process.env.MEGA_PCT) || 50));
+const FACES = ['doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 const startOf = (t) => Math.floor(t / ROUND_MS) * ROUND_MS;
@@ -74,6 +79,7 @@ class Rounds extends EventEmitter {
       lockAt: startAt + LOBBY_MS,
       endAt: startAt + ROUND_MS,
       phase: 'lobby',
+      mega: startAt % MEGA_EVERY_MS === 0,
       secret,
       commit: sha256(secret),
       seed: null,
@@ -124,9 +130,10 @@ class Rounds extends EventEmitter {
     const grossUsd = await chain.weiToUsd(grossWei);
     r.grossEth = chain.toEth(grossWei);
     r.gross = grossUsd;
-    r.pot = grossUsd === null ? null : Math.round(grossUsd * POT_PCT) / 100;
+    const pct = r.mega ? MEGA_PCT : POT_PCT;
+    r.pot = grossUsd === null ? null : Math.round(grossUsd * pct) / 100;
     r.potFinal = final;
-    this.emit('pot', { roundId: r.id, pot: r.pot, gross: r.gross, grossEth: r.grossEth, pct: POT_PCT, final });
+    this.emit('pot', { roundId: r.id, pot: r.pot, gross: r.gross, grossEth: r.grossEth, pct, mega: r.mega, final });
   }
 
   lock() {
@@ -197,7 +204,8 @@ class Rounds extends EventEmitter {
       pot: r.pot,
       gross: r.gross,
       grossEth: r.grossEth,
-      potPct: POT_PCT,
+      potPct: r.mega ? MEGA_PCT : POT_PCT,
+      mega: r.mega,
       paid: false,
       tx: ''
     });
@@ -207,7 +215,8 @@ class Rounds extends EventEmitter {
       winner: r.winner,
       pot: r.pot,
       gross: r.gross,
-      pct: POT_PCT,
+      pct: r.mega ? MEGA_PCT : POT_PCT,
+      mega: r.mega,
       seconds: r.seconds,
       order: r.order.slice(0, 10),
       secret: r.secret,
@@ -272,6 +281,7 @@ class Rounds extends EventEmitter {
     return {
       id: r.id,
       phase: r.phase,
+      mega: r.mega,
       startAt: r.startAt,
       lockAt: r.lockAt,
       raceAt: r.raceAt,
@@ -281,7 +291,7 @@ class Rounds extends EventEmitter {
       secret: r.phase === 'result' || r.phase === 'racing' ? r.secret : null,
       pot: r.pot,
       gross: r.gross,
-      potPct: POT_PCT,
+      potPct: r.mega ? MEGA_PCT : POT_PCT,
       potFinal: r.potFinal,
       players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face })),
       count: r.players.length,
@@ -303,7 +313,7 @@ function faceOf(address) {
   address = String(address).toLowerCase();
   let h = 5381;
   for (let i = 0; i < address.length; i++) h = (Math.imul(h, 33) ^ address.charCodeAt(i)) >>> 0;
-  return FACES[1 + (h % (FACES.length - 1))];
+  return FACES[h % FACES.length];
 }
 
 /* A marble's colour is its address, so a wallet that picks nothing still has a
@@ -322,4 +332,4 @@ function colorOf(address) {
   return 'hsl(' + hue + ' ' + sat + '% ' + lit + '%)';
 }
 
-module.exports = { Rounds, ROUND_MS, LOBBY_MS, LOCK_MS, RACE_MAX_MS, RESULT_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, FACES, colorOf, faceOf, cleanColor, sha256 };
+module.exports = { Rounds, ROUND_MS, LOBBY_MS, LOCK_MS, RACE_MAX_MS, RESULT_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES, colorOf, faceOf, cleanColor, sha256 };

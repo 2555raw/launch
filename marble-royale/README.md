@@ -91,6 +91,8 @@ All optional except where noted.
 | `MIN_TOKENS` | hold at least this many to race. `0` (default) lets anyone in |
 | `FEE_WALLET` | the wallet creator fees arrive in, for the pot figure |
 | `POT_PCT` | the share of those fees the winner takes, as a percentage (default 20). It is shown on screen and stored with every round |
+| `MEGA_EVERY_MS` | how often a round is a mega race (default 1800000, the hour and the half hour) |
+| `MEGA_PCT` | the winner's share on a mega race (default 50) |
 | `ETH_RPC` | JSON-RPC endpoint (default `https://cloudflare-eth.com`, which is rate limited - use your own for anything busy) |
 | `ETH_USD_FEED` | Chainlink ETH/USD aggregator (default is mainnet's; set it for Base or another chain) |
 | `ETH_USD` | a fixed ETH price in dollars, if you would rather not read a feed |

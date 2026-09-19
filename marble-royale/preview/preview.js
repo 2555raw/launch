@@ -24,6 +24,9 @@
   const $ = (s) => document.querySelector(s);
   const ROUND_MS = 300000;
   const LOBBY_MS = 240000;
+  const MEGA_EVERY = 1800000;      // a mega race on the hour and the half hour
+  const MEGA_POT = 25;
+  const isMega = (start) => start % MEGA_EVERY === 0;
   const HEX = '0123456789abcdef';
   const SKINS = ['#6ee7ff', '#7dff9b', '#ffd36e', '#ff5ea8', '#b98bff', '#ff8a4c',
                  '#4cd9ff', '#ff5252', '#9dff4c', '#ffffff'];
@@ -38,7 +41,7 @@
     resultUntil: 0,
     players: [],
     me: null,
-    skin: { color: SKINS[0], face: 'smile' },
+    skin: { color: '#e3a94e', face: 'doge' },
     queued: false,
     race: null,
     preview: null,
@@ -67,7 +70,7 @@
   const faceOf = (address) => {
     let h = 5381;
     for (let i = 0; i < address.length; i++) h = (Math.imul(h, 33) ^ address.charCodeAt(i)) >>> 0;
-    return RENDER.FACES[1 + (h % (RENDER.FACES.length - 1))];
+    return RENDER.FACES[h % RENDER.FACES.length];
   };
 
   function toast(text) {
@@ -90,8 +93,8 @@
     if (S.players.some((p) => p.address === address)) return;
     const p = {
       address, mine: !!mine,
-      color: mine ? S.skin.color : colorOf(address),
-      face: mine ? S.skin.face : faceOf(address)
+      face: mine ? S.skin.face : faceOf(address),
+      color: mine ? S.skin.color : (RENDER.SKIN_COLORS[faceOf(address)] || colorOf(address))
     };
     S.players.push(p);
     if (S.preview && S.phase === 'lobby') {
@@ -158,7 +161,7 @@
   function loadSkin() {
     try {
       const raw = JSON.parse(localStorage.getItem('mr.skin') || 'null');
-      if (raw && raw.color && raw.face) S.skin = raw;
+      if (raw && raw.color && raw.face && RENDER.FACES.includes(raw.face)) S.skin = raw;
     } catch {}
   }
   function saveSkin() {
@@ -192,7 +195,7 @@
     ctx.beginPath();
     ctx.arc(w / 2, h / 2, r, 0, 6.283);
     ctx.fill();
-    if (S.skin.face !== 'none') RENDER.drawFace(ctx, w / 2, h / 2, r, S.skin.face);
+    RENDER.drawFace(ctx, w / 2, h / 2, r, S.skin.face);
   }
 
   function buildPickers() {
@@ -212,8 +215,8 @@
       sw.appendChild(b);
     }
     const fc = $('#faces');
-    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.',
-                    doge: 'doge', pepe: 'pepe', eth: 'ETH', sol: 'SOL', btc: 'BTC', bnb: 'BNB' };
+    const names = { doge: 'DOGE', shib: 'SHIB', pepe: 'PEPE', bonk: 'BONK', wif: 'WIF', btc: 'BTC', eth: 'ETH',
+                    sol: 'SOL', bnb: 'BNB', xrp: 'XRP', usdt: 'USDT', usdc: 'USDC', ada: 'ADA', avax: 'AVAX' };
     for (const f of RENDER.FACES) {
       const b = document.createElement('button');
       b.className = 'fc';
@@ -222,7 +225,7 @@
       const ctx = c.getContext('2d');
       ctx.fillStyle = RENDER.SKIN_COLORS[f] || '#39415a';
       ctx.beginPath(); ctx.arc(23, 23, 17, 0, 6.283); ctx.fill();
-      if (f !== 'none') RENDER.drawFace(ctx, 23, 23, 17, f);
+      RENDER.drawFace(ctx, 23, 23, 17, f);
       const label = document.createElement('span');
       label.textContent = names[f] || f;
       b.append(c, label);
@@ -259,10 +262,16 @@
        target is drawn per round, the per-second rate follows from how long
        the queue is open, and every tick jitters so it lands like trades do. */
     S.pot = 0;
-    S.potPerSec = (1 / 60) * (0.85 + Math.random() * 0.3);
+    /* A normal race collects three to seven dollars; the one on the hour and
+       the half hour is the mega race and collects twenty-five. The rate is set
+       so the jar is full when the race is due. */
+    S.mega = isMega(S.roundStart);
+    S.potTarget = S.mega ? MEGA_POT : 3 + Math.random() * 4;
+    S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
     S.potAcc = 0;
-    /* the jar reads full at about what a queue of this length collects */
-    S.potTarget = Math.max(1.5, S.potPerSec * ((S.roundStart + LOBBY_MS - Date.now()) / 1000) * 1.05);
+    document.body.dataset.mega = S.mega ? '1' : '0';
+    $('#megaBadge').hidden = !S.mega;
+    $('#megaHud').hidden = !S.mega;
     S.potState = 'filling';
     paintPot();
     S.preview = RACE.createRace(((Date.now() / ROUND_MS) | 0) >>> 0,
@@ -285,7 +294,7 @@
     S.startedAt = performance.now();
     S.potState = 'locked';
     paintPot();
-    banner('GO!');
+    banner(S.mega ? 'MEGA RACE · GO!' : 'GO!');
     paintQueueBtn();
     say();
   }
@@ -299,10 +308,10 @@
     /* An EIP-681 link: a wallet on the creator's phone or the extension opens
        a send to this address with nothing else filled in. */
     $('#winSend').href = 'ethereum:' + winner.id;
-    $('#winPay').textContent = usd(S.pot) + ' · ' + COIN.potPct + '% of the fees';
+    $('#winPay').textContent = usd(S.pot) + (S.mega ? ' · MEGA RACE' : ' · ' + COIN.potPct + '% of the fees');
     $('#winYou').hidden = winner.id !== S.me;
     RENDER.celebrate(winner.id);
-    S.past.unshift({ at: Date.now(), winner: winner.id, pot: S.pot, n: S.players.length });
+    S.past.unshift({ at: Date.now(), winner: winner.id, pot: S.pot, n: S.players.length, mega: S.mega });
     S.past.length = Math.min(S.past.length, 12);
     S.resultUntil = Date.now() + 12000;
     savePast();
@@ -385,7 +394,7 @@
       const row = document.createElement('div'); row.className = 'row';
       const when = document.createElement('span');
       when.textContent = new Date(r.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
-        ' · ' + r.n + ' marbles';
+        ' · ' + r.n + ' marbles' + (r.mega ? ' · MEGA' : '');
       const amt = document.createElement('span');
       amt.style.color = 'var(--gold)';
       amt.textContent = usd(r.pot);
@@ -454,9 +463,15 @@
     clock(ts);
   }
 
-  let lastTick = 0;
+  let lastTick = 0, lastMegaSec = -1;
   function clock(ts) {
     const now = Date.now();
+    const megaSec = Math.floor(now / 1000);
+    if (megaSec !== lastMegaSec) {
+      lastMegaSec = megaSec;
+      const next = Math.ceil((now + 1) / MEGA_EVERY) * MEGA_EVERY;
+      $('#megaIn').textContent = fmt(next - now);
+    }
     if (S.phase === 'lobby') {
       const left = Math.max(0, S.roundStart + LOBBY_MS - now);
       $('#clockLabel').textContent = 'Next race in';
@@ -469,7 +484,7 @@
         const trade = Math.random() < 0.004;
         let add = 0;
         if (S.potAcc >= 0.01) { add = Math.floor(S.potAcc * 100) / 100; S.potAcc -= add; }
-        if (trade) add += 0.1 + Math.random() * 0.25;
+        if (trade) add += (S.mega ? 0.5 : 0.1) + Math.random() * (S.mega ? 1.2 : 0.25);
         if (add > 0) {
           S.pot = Math.round((S.pot + add) * 100) / 100;
           paintPot();
@@ -497,7 +512,7 @@
     $('#potBig').textContent = usd(S.pot);
     $('#pot').textContent = usd(S.pot);
     $('#potbox').dataset.state = S.potState;
-    $('#potState').textContent = {
+    $('#potState').textContent = (S.mega ? 'MEGA RACE · ' : '') + {
       filling: 'Filling with fees while the queue is open',
       locked: 'Locked for the race',
       draining: 'Paid out to the winner'
@@ -592,13 +607,59 @@
     paint();
   }
 
+  /* ---- the marbles drifting round the headline --------------------------- */
+
+  /* Seven coin marbles, drawn with the same routine the track uses, scattered
+     round the hero the way a shop scatters its wares. Purely decorative: they
+     never touch the race. */
+  function floaters() {
+    const host = $('#floaters');
+    if (!host) return;
+    /* Kept to the margins, well clear of the headline, the copy and the trust
+       row: the two near ones high in the corners, the far ones lower down. */
+    const spots = [
+      { f: 'doge', x: 7, y: 12, r: 34, far: false, d: 0 },
+      { f: 'btc', x: 82, y: 10, r: 40, far: false, d: 1.2 },
+      { f: 'pepe', x: 3, y: 50, r: 30, far: true, d: 0.8 },
+      { f: 'eth', x: 89, y: 44, r: 30, far: true, d: 2.3 },
+      { f: 'sol', x: 85, y: 68, r: 34, far: false, d: 3.1 },
+      { f: 'wif', x: 12, y: 34, r: 22, far: true, d: 2.7 }
+    ];
+    for (const sp of spots) {
+      const el = document.createElement('div');
+      el.className = 'fl ' + (sp.far ? 'fl--far' : 'fl--near');
+      el.style.left = sp.x + '%';
+      el.style.top = sp.y + '%';
+      el.style.animationDelay = (-sp.d) + 's';
+      el.style.animationDuration = (6 + sp.d) + 's';
+      const cv = document.createElement('canvas');
+      const size = sp.r * 2 + 12;
+      cv.width = size * 2; cv.height = size * 2;
+      cv.style.width = size + 'px'; cv.style.height = size + 'px';
+      const ctx = cv.getContext('2d');
+      ctx.scale(2, 2);
+      const c = RENDER.SKIN_COLORS[sp.f];
+      const g = ctx.createRadialGradient(size / 2 - sp.r * 0.38, size / 2 - sp.r * 0.42, sp.r * 0.1, size / 2, size / 2, sp.r);
+      g.addColorStop(0, '#ffffff'); g.addColorStop(0.22, c); g.addColorStop(0.78, c); g.addColorStop(1, 'rgba(0,0,0,.55)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(size / 2, size / 2, sp.r, 0, 6.283); ctx.fill();
+      RENDER.drawFace(ctx, size / 2, size / 2, sp.r, sp.f);
+      ctx.fillStyle = 'rgba(255,255,255,.9)';
+      ctx.beginPath(); ctx.arc(size / 2 - sp.r * 0.42, size / 2 - sp.r * 0.45, sp.r * 0.14, 0, 6.283); ctx.fill();
+      const label = document.createElement('b');
+      label.textContent = sp.f.toUpperCase();
+      el.append(cv, label);
+      host.appendChild(el);
+    }
+  }
+
   /* ---- what the coin fills in later -------------------------------------- */
 
   function applyCoin() {
     $('#ticker').textContent = COIN.ticker ? (COIN.ticker.startsWith('$') ? COIN.ticker : '$' + COIN.ticker) : '';
     const val = $('#caVal');
     if (COIN.ca) {
-      val.textContent = COIN.ca;
+      val.textContent = short(COIN.ca);
       $('#caBtn').title = 'copy ' + COIN.ca;
       $('#footCa').textContent = COIN.ca;
     } else {
@@ -609,8 +670,11 @@
     if (COIN.x) {
       x.href = COIN.x;
       $('#xHandle').textContent = COIN.x.replace(/^https?:\/\/(x|twitter)\.com\//i, '@');
+    } else {
+      x.removeAttribute('href');
+      x.style.opacity = '.4';
     }
-    for (const id of ['#pctA', '#pctB', '#pctC']) $(id).textContent = COIN.potPct + '%';
+    for (const id of ['#pctA', '#pctB', '#pctC']) if ($(id)) $(id).textContent = COIN.potPct + '%';
   }
 
   /* The sidebar follows the reading position, and closes itself once a link on
@@ -618,14 +682,10 @@
   function wireNav() {
     const links = [...document.querySelectorAll('.nl')];
     const nav = $('#nav');
-    for (const a of links) {
-      a.addEventListener('click', () => nav.classList.remove('open'));
-    }
-    $('#navToggle').addEventListener('click', () => nav.classList.toggle('open'));
+    for (const a of links) a.addEventListener('click', () => nav.classList.remove('open'));
+    $('#navToggle').addEventListener('click', (e) => { e.stopPropagation(); nav.classList.toggle('open'); });
     document.addEventListener('click', (e) => {
-      if (nav.classList.contains('open') && !nav.contains(e.target) && e.target.id !== 'navToggle') {
-        nav.classList.remove('open');
-      }
+      if (nav.classList.contains('open') && !nav.contains(e.target)) nav.classList.remove('open');
     });
     const targets = links
       .map((a) => ({ a, el: document.querySelector(a.getAttribute('href')) }))
@@ -653,6 +713,7 @@
   applyCoin();
   wireNav();
   wireLaunch();
+  floaters();
   openLobby();
   addBots(17);
   paintPot();

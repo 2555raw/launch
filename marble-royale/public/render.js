@@ -434,10 +434,14 @@
   /* Faces, drawn rather than typed: a marble is about ten pixels across on a
      laptop, where a glyph turns to mush but two dots and a curve still read as
      a face. Everything scales off the radius so it holds at any zoom. */
-  const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead',
-                 'doge', 'pepe', 'eth', 'sol', 'btc', 'bnb'];
-  /* The coin skins come with a colour of their own; picking one sets it. */
-  const SKIN_COLORS = { doge: '#e3a94e', pepe: '#4fb35a', eth: '#5b6785', sol: '#1d1a2e', btc: '#f7931a', bnb: '#f3ba2f' };
+  /* Every marble is a coin people know. Each skin comes with its colour, and
+     picking one sets it; the colour can still be changed afterwards. */
+  const FACES = ['doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
+  const SKIN_COLORS = {
+    doge: '#e3a94e', shib: '#e8462e', pepe: '#4fb35a', bonk: '#f5a524', wif: '#c9a06a',
+    btc: '#f7931a', eth: '#5b6785', sol: '#1d1a2e', bnb: '#f3ba2f', xrp: '#2b3138',
+    usdt: '#26a17b', usdc: '#2775ca', ada: '#1a4fc4', avax: '#e84142'
+  };
 
   function drawFace(ctx, x, y, r, face) {
     const ink = 'rgba(8,8,14,.92)';
@@ -487,8 +491,10 @@
       ctx.moveTo(x - r * 0.3, y + r * 0.44); ctx.lineTo(x + r * 0.3, y + r * 0.44);
       ctx.stroke();
     }
-    else if (face === 'doge') {
-      /* ears, a squint, a nose and a lighter muzzle */
+    else if (face === 'doge' || face === 'shib' || face === 'bonk' || face === 'wif') {
+      shiba(ctx, x, y, r, face);
+    }
+    else if (face === 'never') {
       ctx.fillStyle = 'rgba(120,70,20,.9)';
       ctx.beginPath(); ctx.moveTo(x - r * 0.72, y - r * 0.35); ctx.lineTo(x - r * 0.55, y - r * 1.02); ctx.lineTo(x - r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
       ctx.beginPath(); ctx.moveTo(x + r * 0.72, y - r * 0.35); ctx.lineTo(x + r * 0.55, y - r * 1.02); ctx.lineTo(x + r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
@@ -539,6 +545,50 @@
       ctx.save(); ctx.translate(x, y + r * 0.04); ctx.rotate(0.22); ctx.fillText('B', 0, 0); ctx.restore();
       ctx.fillRect(x - r * 0.16, y - r * 0.68, r * 0.09, r * 0.2); ctx.fillRect(x + r * 0.02, y - r * 0.68, r * 0.09, r * 0.2);
       ctx.fillRect(x - r * 0.16, y + r * 0.5, r * 0.09, r * 0.2); ctx.fillRect(x + r * 0.02, y + r * 0.5, r * 0.09, r * 0.2);
+    } else if (face === 'xrp') {
+      /* two arcs meeting at the middle, top and bottom */
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = Math.max(1.4, r * 0.2);
+      ctx.beginPath(); ctx.moveTo(x - r * 0.55, y - r * 0.55); ctx.quadraticCurveTo(x - r * 0.25, y, x, y); ctx.quadraticCurveTo(x + r * 0.25, y, x + r * 0.55, y - r * 0.55); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - r * 0.55, y + r * 0.6); ctx.quadraticCurveTo(x - r * 0.25, y + r * 0.05, x, y + r * 0.05); ctx.quadraticCurveTo(x + r * 0.25, y + r * 0.05, x + r * 0.55, y + r * 0.6); ctx.stroke();
+    } else if (face === 'usdt') {
+      /* a T with a wide crossbar */
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - r * 0.62, y - r * 0.6, r * 1.24, r * 0.22);
+      ctx.fillRect(x - r * 0.12, y - r * 0.6, r * 0.24, r * 1.25);
+      ctx.beginPath(); ctx.ellipse(x, y - r * 0.1, r * 0.55, r * 0.16, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle = SKIN_COLORS.usdt;
+      ctx.beginPath(); ctx.ellipse(x, y - r * 0.1, r * 0.4, r * 0.08, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - r * 0.12, y - r * 0.3, r * 0.24, r * 0.95);
+    } else if (face === 'usdc') {
+      /* the ring with a gap top and bottom, and the dollar */
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = Math.max(1.2, r * 0.14);
+      ctx.beginPath(); ctx.arc(x, y, r * 0.66, 0.35, 2.79); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, r * 0.66, 3.49, 5.93); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.font = '700 ' + (r * 0.95) + 'px ui-sans-serif, system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('$', x, y + r * 0.04);
+    } else if (face === 'ada') {
+      /* a dot in the middle and a ring of six around it */
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(x, y, r * 0.16, 0, 6.283); ctx.fill();
+      for (let i = 0; i < 6; i++) {
+        const a = i * 1.0472;
+        ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.5, y + Math.sin(a) * r * 0.5, r * 0.11, 0, 6.283); ctx.fill();
+      }
+      for (let i = 0; i < 6; i++) {
+        const a = i * 1.0472 + 0.5236;
+        ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.78, y + Math.sin(a) * r * 0.78, r * 0.07, 0, 6.283); ctx.fill();
+      }
+    } else if (face === 'avax') {
+      /* the mountain: a triangle with a notch cut from its foot */
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.moveTo(x, y - r * 0.7); ctx.lineTo(x + r * 0.72, y + r * 0.55); ctx.lineTo(x - r * 0.72, y + r * 0.55); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = SKIN_COLORS.avax;
+      ctx.beginPath(); ctx.moveTo(x, y - r * 0.05); ctx.lineTo(x + r * 0.3, y + r * 0.55); ctx.lineTo(x - r * 0.3, y + r * 0.55); ctx.closePath(); ctx.fill();
     } else if (face === 'bnb') {
       /* a diamond of four small diamonds around a fifth */
       ctx.fillStyle = 'rgba(40,30,0,.85)';
@@ -546,6 +596,45 @@
       d(x, y, r * 0.2); d(x, y - r * 0.5, r * 0.18); d(x, y + r * 0.5, r * 0.18); d(x - r * 0.5, y, r * 0.18); d(x + r * 0.5, y, r * 0.18);
     }
     ctx.restore();
+  }
+
+  /* The dog coins share one face: ears, a squint, a nose and a muzzle. Each
+     one adds its own thing - shib's red fur and white brow, bonk's tongue,
+     wif's knitted hat. */
+  function shiba(ctx, x, y, r, which) {
+    const ink = 'rgba(8,8,14,.92)';
+    const ex = r * 0.36, ey = -r * 0.14;
+    const fur = which === 'shib' ? 'rgba(150,40,20,.9)' : (which === 'wif' ? 'rgba(140,90,40,.9)' : 'rgba(120,70,20,.9)');
+    ctx.fillStyle = fur;
+    ctx.beginPath(); ctx.moveTo(x - r * 0.72, y - r * 0.35); ctx.lineTo(x - r * 0.55, y - r * 1.02); ctx.lineTo(x - r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x + r * 0.72, y - r * 0.35); ctx.lineTo(x + r * 0.55, y - r * 1.02); ctx.lineTo(x + r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
+    if (which === 'wif') {
+      /* the pink hat, pulled down over the ears */
+      ctx.fillStyle = '#f19cc2';
+      ctx.beginPath(); ctx.ellipse(x, y - r * 0.62, r * 0.82, r * 0.5, 0, 3.1416, 6.283); ctx.fill();
+      ctx.fillStyle = '#f7c3da';
+      ctx.fillRect(x - r * 0.82, y - r * 0.66, r * 1.64, r * 0.16);
+      ctx.beginPath(); ctx.arc(x, y - r * 1.1, r * 0.13, 0, 6.283); ctx.fill();
+    }
+    if (which === 'shib') {
+      ctx.fillStyle = 'rgba(255,255,255,.7)';
+      ctx.beginPath(); ctx.ellipse(x, y - r * 0.02, r * 0.5, r * 0.28, 0, 0, 6.283); ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255,240,210,.85)';
+    ctx.beginPath(); ctx.ellipse(x, y + r * 0.3, r * 0.42, r * 0.32, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = ink;
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = Math.max(1, r * 0.15);
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.ellipse(x - ex, y + ey, r * 0.15, r * 0.1, -0.3, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x + ex, y + ey, r * 0.15, r * 0.1, 0.3, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y + r * 0.18, r * 0.12, 0, 6.283); ctx.fill();
+    if (which === 'bonk') {
+      ctx.fillStyle = '#e0506a';
+      ctx.beginPath(); ctx.ellipse(x + r * 0.1, y + r * 0.5, r * 0.14, r * 0.2, 0, 0, 6.283); ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.arc(x, y + r * 0.32, r * 0.22, 0.4, 2.74); ctx.stroke();
+    }
   }
 
   function paint(ctx, dt) {

@@ -19,7 +19,7 @@ const crypto = require('crypto');
 
 const store = require('./lib/store');
 const chain = require('./lib/chain');
-const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, FACES } = require('./lib/round');
+const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES } = require('./lib/round');
 
 const PORT = Number(process.env.PORT) || 8080;
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
@@ -38,6 +38,8 @@ const CONFIG = {
   explorer: process.env.EXPLORER || 'https://etherscan.io',
   currency: 'USD',
   potPct: POT_PCT,
+  megaPct: MEGA_PCT,
+  megaEveryMs: MEGA_EVERY_MS,
   faces: FACES,
   roundMs: ROUND_MS,
   lobbyMs: LOBBY_MS,

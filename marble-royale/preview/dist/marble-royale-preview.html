@@ -1,174 +1,167 @@
 <title>Marble Royale</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
   :root {
-    --bg: #0c0b10; --bg2: #100f15; --panel: #14131a; --panel2: #1a1921;
-    --line: #23222c; --line2: #2e2d3910;
-    --edge: #2f2e3a;
-    --ink: #f2efe9; --ink2: #bdb8b0; --dim: #837e8a;
-    --go: #ff8a3d; --go2: #e6722a; --goInk: #1a0d04;
-    --hot: #ff4d6d; --gold: #ffc857; --win: #6fe3a1;
+    --bg: #f5f7ff; --bg2: #eaf0ff;
+    --card: #ffffff; --card2: #f3f6ff;
+    --line: #e1e7f6; --edge: #ccd6ee;
+    --ink: #172038; --ink2: #3f4a68; --dim: #7a85a3;
+    --go: #ff7a1a; --go2: #e86a0f; --goSoft: #ffe9d8; --goInk: #7a3200;
+    --gold: #d98f00; --hot: #e11d48; --win: #15a34a;
+    --shadow: 0 14px 40px -18px rgba(23,32,56,.28);
     --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    --disp: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --side: 258px;
-    --gut: clamp(16px, 4vw, 44px);
+    --disp: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --gut: clamp(16px, 5vw, 64px);
   }
-  /* One committed look: a dark console app. The page paints its own ground and
-     every colour, so it holds on either host theme. */
+  /* One committed look: a bright, airy page with the dark track as the one
+     screen on it. It paints its own ground and every colour, so it holds on
+     either host theme. */
   * { box-sizing: border-box; }
-  /* Anything the browser would paint its own blue - selected text, sliders,
-     checkboxes, the tap flash on a phone - takes the accent instead. */
-  ::selection { background: var(--go); color: var(--goInk); }
-  ::-moz-selection { background: var(--go); color: var(--goInk); }
-  html { accent-color: var(--go); -webkit-tap-highlight-color: rgba(255,138,61,.25); }
+  ::selection { background: var(--go); color: #fff; }
+  ::-moz-selection { background: var(--go); color: #fff; }
+  html { accent-color: var(--go); -webkit-tap-highlight-color: rgba(255,122,26,.2); scroll-behavior: smooth; }
   :focus-visible { outline: 2px solid var(--go); outline-offset: 2px; }
   body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font-family: var(--disp); font-size: 15px; line-height: 1.6;
+    margin: 0; color: var(--ink); font-family: var(--disp); font-size: 16px; line-height: 1.6;
+    background: linear-gradient(180deg, #ffffff 0%, #eef3ff 38%, #f5f7ff 100%);
     -webkit-font-smoothing: antialiased;
   }
-  button, input { font: inherit; color: inherit; }
+  button, input, select { font: inherit; color: inherit; }
   a { color: inherit; }
-  code { font-family: var(--mono); font-size: .9em; color: var(--go); }
+  code { font-family: var(--mono); font-size: .9em; color: var(--goInk); background: var(--goSoft); padding: 1px 5px; border-radius: 6px; }
   h1, h2, h3, h4 { text-wrap: balance; }
+  .dim { color: var(--dim); }
 
-  .shell { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: 100dvh; }
+  /* ---- floating nav ------------------------------------------------------ */
 
-  /* ---- sidebar ----------------------------------------------------------- */
-
-  .nav {
-    position: sticky; top: 0; align-self: start; height: 100dvh;
-    display: flex; flex-direction: column; gap: 6px;
-    background: var(--panel); border-right: 1px solid var(--line);
-    padding: 16px 12px calc(14px + env(safe-area-inset-bottom, 0px));
-  }
-  .nav__brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
-  .nav__brand b { font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
-  .mark {
-    width: 26px; height: 26px; border-radius: 9px; flex: none;
-    background: radial-gradient(circle at 33% 30%, #fff8ee, var(--go) 45%, #7a3410 100%);
-    box-shadow: 0 0 18px -2px rgba(255,138,61,.5);
-  }
-  .nav__links { display: flex; flex-direction: column; gap: 2px; overflow: auto; }
-  .nav__label {
-    font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim);
-    padding: 16px 10px 6px;
-  }
-  .nl {
-    display: flex; align-items: center; gap: 11px;
-    padding: 9px 10px; border-radius: 9px; text-decoration: none;
-    color: var(--ink2); font-size: 14.5px; font-weight: 500;
-  }
-  .nl:hover { background: #1b1a22; color: var(--ink); }
-  .nl.is-on { background: #1d1b24; color: var(--ink); }
-  .nl.is-on .ic { color: var(--go); }
-  .ic {
-    width: 16px; height: 16px; flex: none; color: var(--dim);
-    background: currentColor;
-    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-    -webkit-mask-size: contain; mask-size: contain;
-  }
-  /* Small glyphs as masks, so they take the link's colour and ship with the file. */
-  .ic--home { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 3 3 10v11h6v-6h6v6h6V10z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 3 3 10v11h6v-6h6v6h6V10z'/%3E%3C/svg%3E"); }
-  .ic--race { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23000'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23000'/%3E%3C/svg%3E"); }
-  .ic--steps { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M3 5h6v4H3zM9 11h6v4H9zM15 17h6v4h-6z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M3 5h6v4H3zM9 11h6v4H9zM15 17h6v4h-6z'/%3E%3C/svg%3E"); }
-  .ic--dot { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='8' fill='%23000'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='8' fill='%23000'/%3E%3C/svg%3E"); }
-  .ic--coin { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m1 4v1.2a3 3 0 0 1 .6 5.7l-2.2.8a1 1 0 0 0 .3 1.9H15v2h-2v1.2h-2V17a3 3 0 0 1-.6-5.7l2.2-.8a1 1 0 0 0-.3-1.9H9V6h2V4.8h2z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m1 4v1.2a3 3 0 0 1 .6 5.7l-2.2.8a1 1 0 0 0 .3 1.9H15v2h-2v1.2h-2V17a3 3 0 0 1-.6-5.7l2.2-.8a1 1 0 0 0-.3-1.9H9V6h2V4.8h2z'/%3E%3C/svg%3E"); }
-  .ic--check { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E"); }
-  .ic--log { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M4 5h16v3H4zm0 5h16v3H4zm0 5h10v3H4z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M4 5h16v3H4zm0 5h16v3H4zm0 5h10v3H4z'/%3E%3C/svg%3E"); }
-  .ic--code { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='m9 7-6 5 6 5 1.4-1.6L6 12l4.4-3.4zm6 0-1.4 1.6L18 12l-4.4 3.4L15 17l6-5z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='m9 7-6 5 6 5 1.4-1.6L6 12l4.4-3.4zm6 0-1.4 1.6L18 12l-4.4 3.4L15 17l6-5z'/%3E%3C/svg%3E"); }
-  .ic--rocket { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M14 3c3 0 7 1 7 7 0 2-1 4-3 6l-2 2-2-2-2 2-2-2-3 3H4v-3l3-3-2-2 2-2-2-2 2-2c2-2 4-3 7-3zm1 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M14 3c3 0 7 1 7 7 0 2-1 4-3 6l-2 2-2-2-2 2-2-2-3 3H4v-3l3-3-2-2 2-2-2-2 2-2c2-2 4-3 7-3zm1 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'/%3E%3C/svg%3E"); }
-  .ic--warn { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2 1 21h22zm0 6 1 7h-2zm-1 9h2v2h-2z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2 1 21h22zm0 6 1 7h-2zm-1 9h2v2h-2z'/%3E%3C/svg%3E"); }
-
-  .nav__foot { margin-top: auto; display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
-  .side-link {
-    display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;
-    background: none; border: 0; padding: 7px 8px; border-radius: 9px; text-decoration: none;
-  }
-  .side-link:hover { background: #1b1a22; }
-  .side-link__ic {
-    width: 28px; height: 28px; flex: none; border-radius: 50%;
-    border: 1px solid var(--edge); display: grid; place-items: center;
-    font-family: var(--mono); font-size: 12px; color: var(--dim);
-  }
-  .side-link b { display: block; font-size: 12.5px; font-weight: 600; }
-  .side-link em {
-    display: block; font-style: normal; font-family: var(--mono);
-    font-size: 10.5px; color: var(--dim); word-break: break-all;
-  }
-
-  /* ---- top bar ----------------------------------------------------------- */
-
-  .main { min-width: 0; display: flex; flex-direction: column; }
   .bar {
-    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 12;
-    display: flex; align-items: center; gap: 14px;
-    padding: 11px var(--gut);
-    background: rgba(12,11,16,.9); backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--line);
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 14px var(--gut) 0;
   }
-  .menu { display: none; background: none; border: 1px solid var(--edge); border-radius: 9px; padding: 6px 11px; cursor: pointer; }
-  .ticker {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px;
-    background: #121118; font-family: var(--mono); font-size: 12px;
+  .pill {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.82); backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,.9); border-radius: 999px; padding: 6px 8px;
+    box-shadow: var(--shadow);
   }
-  .ticker__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--go); box-shadow: 0 0 10px var(--go); }
-  .ticker__label { color: var(--dim); }
-  .ticker__sep { color: var(--edge); }
-  .ticker b { font-variant-numeric: tabular-nums; }
-  .gold { color: var(--gold); }
-  body[data-phase="racing"] .ticker__dot { background: var(--hot); box-shadow: 0 0 10px var(--hot); }
-  body[data-phase="result"] .ticker__dot { background: var(--win); box-shadow: 0 0 10px var(--win); }
-  .bar__right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-  .brand__tick { font-family: var(--mono); font-size: 12px; color: var(--go); }
+  .pill--nav { padding-left: 12px; }
+  .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; margin-right: 10px; }
+  .brand b { font-size: 18px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; }
+  .brand__tick { font-family: var(--mono); font-size: 12px; color: var(--goInk); background: var(--goSoft); border-radius: 999px; padding: 2px 8px; }
+  .brand__tick:empty { display: none; }
+  .mark {
+    width: 24px; height: 24px; border-radius: 50%; flex: none;
+    background: radial-gradient(circle at 34% 30%, #fff, var(--go) 46%, #8a3a08 100%);
+    box-shadow: 0 6px 14px -6px rgba(255,122,26,.7);
+  }
+  .links { display: flex; gap: 2px; }
+  .nl {
+    padding: 8px 12px; border-radius: 999px; text-decoration: none; font-weight: 500;
+    color: var(--ink2); font-size: 15px; position: relative;
+  }
+  .nl:hover { color: var(--ink); background: #f0f3fb; }
+  .nl.is-on { color: var(--ink); }
+  .nl.is-on::after {
+    content: ""; position: absolute; left: 12px; right: 12px; bottom: 4px; height: 2px;
+    border-radius: 2px; background: var(--go);
+  }
+  .menu { display: none; background: none; border: 0; font-size: 22px; padding: 4px 8px; cursor: pointer; }
+  .xbtn {
+    display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 999px;
+    color: var(--ink2); text-decoration: none;
+  }
+  .xbtn:hover { background: #f0f3fb; color: var(--ink); }
 
   .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-    border: 1px solid var(--edge); background: #18171f; border-radius: 10px;
-    padding: 9px 15px; font-size: 13.5px; font-weight: 600; cursor: pointer;
-    text-decoration: none; color: var(--ink); white-space: nowrap;
-    transition: background .15s ease, border-color .15s ease, transform .07s ease;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 1px solid transparent; border-radius: 999px; padding: 9px 16px;
+    font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none;
+    white-space: nowrap; transition: transform .07s ease, background .15s ease, box-shadow .15s ease;
   }
-  .btn:hover { background: #201f28; border-color: #3d3b49; }
   .btn:active { transform: translateY(1px); }
-  .btn:focus-visible { outline: 2px solid var(--go); outline-offset: 2px; }
-  .btn--accent {
-    background: var(--go); color: var(--goInk); border-color: transparent;
-    box-shadow: 0 8px 24px -12px rgba(255,138,61,.9);
-  }
-  .btn--accent:hover { background: #ffa05e; border-color: transparent; }
-  .btn--lg { padding: 12px 20px; font-size: 15px; }
-  .btn--wide { width: 100%; }
+  .btn--soft { background: #eef2fb; color: var(--ink); }
+  .btn--soft:hover { background: #e3e9f7; }
+  .btn--accent { background: var(--go); color: #fff; box-shadow: 0 10px 24px -10px rgba(255,122,26,.8); }
+  .btn--accent:hover { background: var(--go2); }
+  .btn--dark { background: #23293f; color: #fff; }
+  .btn--dark:hover { background: #303851; }
+  .btn--lg { padding: 13px 22px; font-size: 16px; }
   .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
-
+  .btn__mark { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff, #ffd2ad 50%, #b34f0a 100%); }
 
   /* ---- hero -------------------------------------------------------------- */
 
-  .hero { padding: clamp(40px, 7vw, 82px) var(--gut) clamp(32px, 5vw, 56px); text-align: center; }
-  .pill {
-    display: inline-flex; align-items: center; gap: 8px;
-    border: 1px solid var(--edge); border-radius: 999px; padding: 6px 14px;
-    font-size: 12.5px; color: var(--ink2); background: #14131a;
-  }
-  .pill b { color: var(--go); }
-  .pill .arr { color: var(--dim); }
+  .hero { position: relative; padding: clamp(56px, 9vw, 110px) var(--gut) clamp(28px, 4vw, 48px); text-align: center; overflow: hidden; }
+  .hero__in { position: relative; z-index: 2; max-width: 780px; margin: 0 auto; }
   .hero h1 {
-    font-size: clamp(32px, 6.4vw, 62px); font-weight: 800; line-height: 1.06;
-    letter-spacing: -.02em; margin: 20px auto 16px; max-width: 16ch;
+    font-size: clamp(44px, 8.6vw, 104px); font-weight: 800; line-height: .98;
+    letter-spacing: -.035em; margin: 22px 0 18px; color: #1a2140;
   }
-  .hero h1 .accent { color: var(--go); }
-  .hero > p { margin: 0 auto; max-width: 58ch; color: var(--ink2); font-size: clamp(15px, 1.7vw, 17px); }
-  .hero__cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+  .hero > .hero__in > p { margin: 0 auto; max-width: 56ch; color: var(--ink2); font-size: clamp(17px, 2vw, 22px); line-height: 1.45; }
+  .hero__cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
 
-  /* ---- the pot ----------------------------------------------------------- */
+  .ticker {
+    display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink2); box-shadow: var(--shadow);
+  }
+  .ticker__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--go); box-shadow: 0 0 10px var(--go); }
+  .ticker b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ticker__sep { color: var(--edge); }
+  .gold { color: var(--gold) !important; }
+  body[data-phase="racing"] .ticker__dot { background: var(--hot); box-shadow: 0 0 10px var(--hot); }
+  body[data-phase="result"] .ticker__dot { background: var(--win); box-shadow: 0 0 10px var(--win); }
 
+  /* the marbles that drift around the headline */
+  .floaters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .fl {
+    position: absolute; display: flex; align-items: center; gap: 10px;
+    animation: drift 7s ease-in-out infinite; will-change: transform;
+  }
+  .fl canvas { display: block; filter: drop-shadow(0 18px 22px rgba(23,32,56,.28)); }
+  .fl b {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em; color: var(--ink2);
+    background: rgba(255,255,255,.75); border: 1px solid rgba(255,255,255,.9); border-radius: 999px; padding: 3px 9px;
+    box-shadow: var(--shadow);
+  }
+  .fl--far { filter: blur(2px); opacity: .7; }
+  .fl--near { filter: blur(0); }
+  @keyframes drift { 50% { transform: translateY(-16px) rotate(4deg); } }
+
+  .trust {
+    list-style: none; margin: clamp(40px, 6vw, 70px) auto 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0;
+    max-width: 1100px; text-align: left; position: relative; z-index: 2;
+  }
+  .trust li { display: flex; gap: 10px; padding: 6px 18px; border-left: 1px solid var(--line); }
+  .trust li:first-child { border-left: 0; }
+  .trust i {
+    font-style: normal; flex: none; width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 12px; font-weight: 700;
+    color: var(--go); background: var(--goSoft); margin-top: 2px;
+  }
+  .trust b { display: block; font-size: 14.5px; font-weight: 600; }
+  .trust span { font-size: 13px; color: var(--dim); line-height: 1.4; }
+
+  /* ---- sections ---------------------------------------------------------- */
+
+  .sec { padding: clamp(36px, 5vw, 64px) var(--gut); max-width: 1180px; margin: 0 auto; }
+  .sec--pot { padding-top: 10px; }
+  .sec__head { max-width: 64ch; margin-bottom: 26px; }
+  .kicker { font-family: var(--mono); font-size: 10.5px; letter-spacing: .2em; color: var(--go); font-weight: 700; }
+  .sec__head h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.025em; margin: 8px 0 8px; color: #1a2140; }
+  .sec__head p { margin: 0; color: var(--ink2); font-size: 17px; }
+  .fine { color: var(--dim); font-size: 14px; margin: 18px 0 0; max-width: 72ch; }
+  .card-w { background: var(--card); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+
+  /* the pot */
   .potbox {
-    margin: 40px auto 0; max-width: 760px;
-    display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 22px; align-items: center;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px;
-    text-align: left;
+    margin: 0 auto; max-width: 860px;
+    display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 26px; align-items: center;
+    background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px 28px;
+    box-shadow: var(--shadow); text-align: left;
   }
   .jar { position: relative; width: 150px; height: 170px; }
   .jarsvg { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -183,734 +176,588 @@
     animation: fall .8s cubic-bezier(.4, 0, .9, .6) forwards;
   }
   @keyframes fall { to { transform: translateY(135px) scale(.5); opacity: 0; } }
-  .lock {
-    position: absolute; right: 6px; top: 34px; font-size: 18px;
-    opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease;
-    filter: drop-shadow(0 2px 6px #000);
-  }
+  .lock { position: absolute; right: 6px; top: 34px; font-size: 18px; opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease; }
   .potbox[data-state="locked"] .lock { opacity: 1; transform: none; }
   .potbox__info { display: grid; gap: 6px; }
-  .potbox__amt { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .potbox__amt { font-size: clamp(34px, 5vw, 52px); font-weight: 800; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
   .potbox__amt b { color: var(--gold); }
   .potbox__meta { font-family: var(--mono); font-size: 12px; color: var(--dim); }
   .potbox[data-state="locked"] .potbox__meta { color: var(--gold); }
   .potbox[data-state="draining"] .potbox__meta { color: var(--win); }
-  .potbar { height: 6px; border-radius: 999px; background: #221f28; overflow: hidden; margin-top: 2px; }
-  .potbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #d9a13a, #ffe39a); transition: width .5s ease; }
-  .potbox__note { margin: 4px 0 0; font-size: 13px; color: var(--dim); max-width: 52ch; }
-  .potbox__note b { color: var(--ink); font-weight: 600; }
-  @media (max-width: 560px) {
-    .potbox { grid-template-columns: 1fr; justify-items: center; text-align: center; }
-    .potbox__note { max-width: none; }
+  .potbar { height: 8px; border-radius: 999px; background: #edf1fa; overflow: hidden; margin-top: 4px; }
+  .potbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #e59a1a, #ffd76a); transition: width .5s ease; }
+  .potbox__note { margin: 6px 0 0; font-size: 14px; color: var(--ink2); max-width: 58ch; }
+  .potbox__note b { color: var(--ink); font-weight: 700; }
+  .potbox__mega { font-family: var(--mono); font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .potbox__mega b { color: var(--gold); font-variant-numeric: tabular-nums; }
+  body[data-mega="1"] .potbox { border-color: rgba(217,143,0,.45); box-shadow: 0 20px 60px -24px rgba(217,143,0,.6); }
+  .mega, .hud__mega {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; font-weight: 700;
+    color: #fff; background: linear-gradient(90deg, var(--gold), var(--go));
+    border-radius: 999px; padding: 3px 8px; animation: shine 1.4s ease-in-out infinite;
   }
-  @media (prefers-reduced-motion: reduce) { .wave, .drop { animation: none; } }
+  @keyframes shine { 50% { filter: brightness(1.2); } }
 
-  .stats {
-    margin: 30px auto 0; max-width: 900px;
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px;
-    background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
-  }
-  .stats > div { background: var(--panel); padding: 16px 18px; text-align: left; }
-  .stats dt { font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; color: var(--dim); }
-  .stats dd { margin: 5px 0 0; font-size: 19px; font-weight: 700; }
-  .stats dd span { color: var(--go); }
-
-  /* ---- sections ---------------------------------------------------------- */
-
-  .sec { padding: clamp(34px, 5vw, 58px) var(--gut); border-top: 1px solid var(--line); }
-  .sec__head { max-width: 62ch; margin-bottom: 26px; }
-  .kicker { font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--go); }
-  .sec__head h2 { font-size: clamp(22px, 3.2vw, 31px); font-weight: 700; letter-spacing: -.015em; margin: 10px 0 8px; }
-  .sec__head p { margin: 0; color: var(--ink2); }
-  .fine { color: var(--dim); font-size: 13.5px; margin: 18px 0 0; max-width: 72ch; }
-
-  /* the cabinet */
+  /* the cabinet: the one dark thing on the page */
   .cabinet {
     display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 1px;
     grid-template-rows: clamp(400px, 60dvh, 660px);
-    background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+    background: #1b2133; border: 1px solid #1b2133; border-radius: 24px; overflow: hidden;
+    box-shadow: 0 30px 70px -30px rgba(23,32,56,.6);
   }
-  .stage { position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; background: var(--bg2); min-height: 0; }
+  .stage { position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; background: #0c0c14; min-height: 0; }
   #stage { display: block; width: 100%; height: 100%; }
   .scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(255,255,255,.02) 0 1px, transparent 1px 3px); }
-  .hud { position: absolute; top: 10px; left: 12px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
+  .hud { position: absolute; top: 12px; left: 14px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
   .hud span {
-    font-family: var(--mono); font-size: 10.5px; color: var(--dim);
-    background: rgba(12,11,16,.78); border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px;
+    font-family: var(--mono); font-size: 10.5px; color: #aeb6cc;
+    background: rgba(10,12,20,.75); border: 1px solid #2a3147; border-radius: 999px; padding: 4px 9px;
   }
-  .hud .live { color: var(--hot); display: inline-flex; align-items: center; gap: 5px; }
-  .hud .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--hot); animation: pulse 1.6s infinite; }
+  .hud .live { color: #ff5ea8; display: inline-flex; align-items: center; gap: 5px; }
+  .hud .live i { width: 6px; height: 6px; border-radius: 50%; background: #ff5ea8; animation: pulse 1.6s infinite; }
+  .hud span.hud__mega { color: #fff; border-color: transparent; }
   @keyframes pulse { 50% { opacity: .25; } }
-
   .banner {
     position: absolute; left: 50%; top: 13%; transform: translateX(-50%);
-    font-family: var(--mono); font-weight: 700; letter-spacing: .1em;
+    font-family: var(--mono); font-weight: 700; letter-spacing: .1em; color: #fff;
     font-size: clamp(22px, 5vw, 40px); pointer-events: none;
-    text-shadow: 0 0 26px rgba(255,138,61,.6); animation: pop .4s cubic-bezier(.2,1.6,.4,1);
+    text-shadow: 0 0 26px rgba(255,122,26,.7); animation: pop .4s cubic-bezier(.2,1.6,.4,1);
   }
   @keyframes pop { from { transform: translateX(-50%) scale(.6); opacity: 0; } }
-
   .card {
     position: absolute; left: 50%; transform: translateX(-50%); bottom: 76px;
-    width: min(430px, calc(100% - 24px)); text-align: center;
-    background: rgba(14,13,18,.96); border: 1px solid rgba(111,227,161,.5);
-    border-radius: 16px; padding: 15px;
-    box-shadow: 0 26px 60px -22px #000, 0 0 44px -14px rgba(111,227,161,.3);
+    width: min(440px, calc(100% - 24px)); text-align: center; color: var(--ink);
+    background: rgba(255,255,255,.97); border: 1px solid rgba(21,163,74,.4);
+    border-radius: 20px; padding: 16px; box-shadow: 0 26px 60px -22px rgba(0,0,0,.6);
     animation: pop .45s cubic-bezier(.2,1.5,.4,1);
   }
   .card__cup { font-size: 24px; }
-  .card em { font-style: normal; font-family: var(--mono); font-size: 11px; letter-spacing: .3em; color: var(--win); }
+  .card em { font-style: normal; font-family: var(--mono); font-size: 11px; letter-spacing: .24em; color: var(--win); font-weight: 700; }
   .addr {
     display: block; width: 100%; margin: 9px 0 7px; padding: 10px;
     font-family: var(--mono); font-size: clamp(11px, 2.2vw, 13.5px); word-break: break-all;
-    background: #0c0b10; border: 1px dashed #3a3846; border-radius: 10px; cursor: copy; color: var(--ink);
+    background: #f3f6ff; border: 1px dashed var(--edge); border-radius: 12px; cursor: copy; color: var(--ink);
   }
   .addr:hover { border-color: var(--win); }
-  .pay { font-family: var(--mono); font-size: 12.5px; color: var(--gold); }
+  .pay { font-family: var(--mono); font-size: 12.5px; color: var(--gold); font-weight: 700; }
   .card__actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
-  .card__actions .btn { padding: 8px 12px; font-size: 12.5px; }
-  .card .sub { color: var(--dim); font-size: 11.5px; margin-top: 8px; line-height: 1.5; }
-  .card .sub.win { color: var(--win); }
-
+  .card__actions .btn { padding: 8px 14px; font-size: 13.5px; }
+  .card .sub { color: var(--dim); font-size: 12px; margin-top: 8px; line-height: 1.5; }
+  .card .sub.win { color: var(--win); font-weight: 600; }
   .stage__bar {
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    padding: 11px 14px; border-top: 1px solid var(--line); background: #0e0d13;
+    padding: 12px 14px; border-top: 1px solid #1b2133; background: #0f1119;
   }
-  .stage__bar p { flex: 1 1 200px; margin: 0; font-size: 13.5px; color: var(--dim); }
-  .stage__bar p b { color: var(--ink); font-weight: 600; }
-
-  .queue { background: var(--panel); display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
+  .stage__bar p { flex: 1 1 200px; margin: 0; font-size: 14px; color: #aeb6cc; }
+  .stage__bar p b { color: #fff; font-weight: 600; }
+  .queue { background: #12141d; display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; color: #e6e9f2; }
   .queue h3 {
-    margin: 0; padding: 12px 13px; border-bottom: 1px solid var(--line);
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; color: var(--dim);
+    margin: 0; padding: 13px 14px; border-bottom: 1px solid #1b2133;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; color: #8b93ad;
     font-weight: 400; display: flex; justify-content: space-between;
   }
-  .queue h3 span { color: var(--ink); }
+  .queue h3 span { color: #fff; }
   .field { margin: 0; padding: 8px; list-style: none; overflow: auto; display: flex; flex-direction: column; gap: 4px; }
   .field li {
     display: grid; grid-template-columns: 24px 12px 1fr auto; align-items: center; gap: 8px;
-    font-family: var(--mono); font-size: 11.5px; padding: 6px 8px; border-radius: 8px;
-    background: #121118; border: 1px solid transparent;
+    font-family: var(--mono); font-size: 11.5px; padding: 6px 8px; border-radius: 10px;
+    background: #181b27; border: 1px solid transparent;
   }
-  .field li.me { border-color: rgba(255,138,61,.5); background: #0a1520; }
-  .field li.lead { border-color: rgba(255,200,87,.45); background: #1a160c; }
+  .field li.me { border-color: rgba(255,122,26,.6); background: #26201a; }
+  .field li.lead { border-color: rgba(255,200,87,.45); background: #241f12; }
   .field li.out { opacity: .5; }
-  .field .n { color: var(--dim); text-align: right; font-variant-numeric: tabular-nums; }
+  .field .n { color: #8b93ad; text-align: right; font-variant-numeric: tabular-nums; }
   .field .dot { width: 11px; height: 11px; border-radius: 50%; }
   .field .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .field .t { color: var(--win); font-size: 10.5px; }
+  .field .t { color: #6fe3a1; font-size: 10.5px; }
 
-  /* steps, cards, tables */
-  .steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; gap: 2px; max-width: 80ch; }
+  /* steps, cards, accordions, tables */
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; gap: 12px; max-width: 900px; }
   .steps li {
-    display: grid; grid-template-columns: 38px 1fr; gap: 16px; align-items: start;
-    padding: 16px 0; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start;
+    padding: 20px 22px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
   }
   .steps li::before {
     counter-increment: s; content: counter(s, decimal-leading-zero);
-    font-family: var(--mono); font-size: 12px; color: var(--go); padding-top: 3px;
+    font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--go);
+    background: var(--goSoft); border-radius: 999px; width: 40px; height: 28px; display: grid; place-items: center;
   }
-  /* The number, the title and the text are three grid items; the text has to
-     be told to sit under the title, or it lands in the number's column and
-     wraps one word to a line. */
-  .steps b { display: block; font-size: 16px; margin-bottom: 4px; grid-column: 2; }
-  .steps span { color: var(--ink2); grid-column: 2; }
+  .steps b { display: block; font-size: 18px; font-weight: 700; margin-bottom: 4px; grid-column: 2; }
+  .steps span { color: var(--ink2); grid-column: 2; font-size: 15px; }
 
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 14px; }
-  .cd { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
-  .cd--hot { border-color: rgba(255,138,61,.4); background: #1c150f; }
-  .cd__tag {
-    display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 8px;
-    background: #241d18; color: var(--go); font-family: var(--mono); font-size: 11px;
-  }
-  .cd h4 { margin: 12px 0 6px; font-size: 16.5px; font-weight: 700; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 16px; }
+  .cd { padding: 22px; }
+  .cd--hot { border-color: rgba(255,122,26,.45); background: linear-gradient(180deg, #fff7f0, #fff); }
+  .cd__tag { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 10px; background: var(--goSoft); color: var(--goInk); font-family: var(--mono); font-size: 12px; font-weight: 700; }
+  .cd h4 { margin: 12px 0 6px; font-size: 19px; font-weight: 700; }
   .cd h4 span { color: var(--go); }
-  .cd p { margin: 0; color: var(--ink2); font-size: 14px; }
+  .cd p { margin: 0; color: var(--ink2); font-size: 15px; }
 
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
-
-  .accs { max-width: 80ch; }
-  .accs details { border-bottom: 1px solid var(--line); }
-  .accs details:first-child { border-top: 1px solid var(--line); }
+  .accs { max-width: 900px; margin-top: 22px; display: grid; gap: 10px; }
+  .accs details { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
   summary {
     display: flex; align-items: center; gap: 12px; cursor: pointer; list-style: none;
-    padding: 15px 2px; font-family: var(--mono); font-size: 13px;
+    padding: 16px 20px; font-weight: 600; font-size: 16px;
   }
   summary::-webkit-details-marker { display: none; }
   summary .tag {
-    font-size: 9px; letter-spacing: .14em; color: var(--go); flex: none;
-    border: 1px solid var(--edge); border-radius: 999px; padding: 3px 8px;
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; font-weight: 700; color: var(--goInk);
+    background: var(--goSoft); border-radius: 999px; padding: 4px 9px; flex: none;
   }
-  summary .arrow { margin-left: auto; color: var(--dim); transition: transform .2s ease; }
-  details[open] > summary { color: var(--go); }
+  summary .arrow { margin-left: auto; color: var(--dim); transition: transform .2s ease; font-size: 20px; }
   details[open] > summary .arrow { transform: rotate(90deg); }
-  summary:focus-visible { outline: 2px solid var(--go); outline-offset: -2px; }
-  .body { padding: 0 2px 20px; max-width: 74ch; }
+  summary:focus-visible { outline: 2px solid var(--go); outline-offset: -2px; border-radius: 18px; }
+  .body { padding: 0 20px 20px; max-width: 76ch; }
   .body p { margin: 0 0 12px; color: var(--ink2); }
   .body p:last-child { margin-bottom: 0; }
 
-  .spec { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0 34px; max-width: 900px; }
-  .spec > div {
-    display: flex; align-items: baseline; gap: 10px; padding: 11px 0;
-    border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12.5px;
-  }
+  .spec { margin: 0; padding: 10px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0 34px; max-width: 960px; }
+  .spec > div { display: flex; align-items: baseline; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12.5px; }
+  .spec > div:nth-child(-n+2) { border-top: 0; }
   .spec dt { color: var(--dim); white-space: nowrap; }
   .spec dd { margin: 0 0 0 auto; text-align: right; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
 
-  .warn { border: 1px solid #4a2030; background: #1a0e13; border-radius: 14px; padding: 18px; margin-bottom: 18px; max-width: 80ch; }
+  .warn { border: 1px solid rgba(225,29,72,.35); background: #fff3f6; border-radius: 18px; padding: 20px 22px; margin-bottom: 18px; max-width: 900px; }
   .warn b { display: block; font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--hot); margin-bottom: 7px; }
-  .warn p { margin: 0; color: #f2d2e0; }
-  .rules { list-style: none; margin: 0; padding: 0; max-width: 84ch; }
-  .rules li {
-    display: grid; grid-template-columns: 20px 1fr; gap: 13px; align-items: start;
-    padding: 13px 0; border-top: 1px solid var(--line); color: var(--ink2); font-size: 14.5px;
-  }
-  .rules li i { font-style: normal; color: var(--win); }
+  .warn p { margin: 0; color: var(--ink2); }
+  .rules { list-style: none; margin: 0; padding: 0; max-width: 900px; display: grid; gap: 0; }
+  .rules li { display: grid; grid-template-columns: 24px 1fr; gap: 13px; align-items: start; padding: 14px 4px; border-top: 1px solid var(--line); color: var(--ink2); font-size: 15px; }
+  .rules li i { font-style: normal; color: var(--win); font-weight: 700; }
   .rules li.no i { color: var(--hot); }
   .rules b { color: var(--ink); }
 
-  .past { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; max-width: 760px; }
-  .past li { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 11px 13px; font-family: var(--mono); font-size: 12px; }
+  .past { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-width: 760px; }
+  .past li { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-family: var(--mono); font-size: 12px; box-shadow: var(--shadow); }
   .past .row { display: flex; justify-content: space-between; gap: 10px; color: var(--dim); }
-  .past .a { color: var(--go); word-break: break-all; cursor: copy; margin-top: 4px; }
+  .past .a { color: var(--goInk); word-break: break-all; cursor: copy; margin-top: 4px; }
 
   /* the customiser */
-  .skin { display: flex; gap: 26px; flex-wrap: wrap; align-items: flex-start; }
-  .skin__prev { display: grid; justify-items: center; gap: 7px; background: #121118; border: 1px solid var(--line); border-radius: 14px; padding: 14px 20px; }
+  .skin { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; padding: 22px; }
+  .skin__prev { display: grid; justify-items: center; gap: 7px; background: var(--card2); border: 1px solid var(--line); border-radius: 18px; padding: 14px 20px; }
   .skin__prev span { font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
   .skin__pick { flex: 1 1 320px; display: grid; gap: 18px; align-content: start; }
   .pickrow { display: grid; gap: 9px; }
-  .pickrow em { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em; color: var(--dim); }
+  .pickrow em { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em; color: var(--dim); font-weight: 700; }
   .swatches, .faces { display: flex; gap: 9px; flex-wrap: wrap; }
-  .sw { width: 34px; height: 34px; border-radius: 50%; padding: 0; cursor: pointer; border: 2px solid transparent; box-shadow: inset 0 0 0 1px rgba(0,0,0,.35); }
-  .sw.on { border-color: var(--ink); transform: scale(1.06); }
-  .sw:focus-visible, .fc:focus-visible { outline: 2px solid var(--go); outline-offset: 2px; }
-  .fc { display: grid; justify-items: center; gap: 3px; cursor: pointer; padding: 7px 9px; background: #121118; border: 1px solid var(--line); border-radius: 11px; }
-  .fc span { font-family: var(--mono); font-size: 9.5px; color: var(--dim); }
-  .fc.on { border-color: var(--go); }
-  .fc.on span { color: var(--go); }
+  .sw { width: 32px; height: 32px; border-radius: 50%; padding: 0; cursor: pointer; border: 2px solid transparent; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+  .sw.on { border-color: var(--ink); transform: scale(1.08); }
+  .fc { display: grid; justify-items: center; gap: 3px; cursor: pointer; padding: 7px 9px; background: var(--card2); border: 1px solid var(--line); border-radius: 14px; }
+  .fc span { font-family: var(--mono); font-size: 9.5px; color: var(--dim); font-weight: 700; }
+  .fc.on { border-color: var(--go); background: var(--goSoft); }
+  .fc.on span { color: var(--goInk); }
 
-  .foot {
-    margin-top: auto; padding: 20px var(--gut) calc(26px + env(safe-area-inset-bottom, 0px));
-    border-top: 1px solid var(--line);
-    display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
-    font-family: var(--mono); font-size: 11px; color: var(--dim);
+  /* the launchpad */
+  .launch { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 22px; align-items: start; }
+  .launch__form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; padding: 22px; }
+  .fld { display: grid; gap: 6px; min-width: 0; }
+  .fld--wide { grid-column: 1 / -1; }
+  .fld > span { font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim); font-weight: 700; }
+  .fld input, .fld select { width: 100%; background: var(--card2); border: 1px solid var(--edge); border-radius: 12px; padding: 10px 12px; color: var(--ink); font-size: 15px; }
+  .fld input:focus, .fld select:focus { outline: none; border-color: var(--go); box-shadow: 0 0 0 3px var(--goSoft); }
+  .fld input[type="file"] { padding: 8px; font-size: 13px; color: var(--dim); }
+  .fld input[type="range"] { padding: 0; border: 0; background: none; }
+  .range { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+  .range b { font-family: var(--mono); font-size: 12px; color: var(--goInk); white-space: nowrap; }
+  .launch__cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 4px; }
+  .launch__note { font-size: 13px; color: var(--dim); max-width: 40ch; }
+  .launch__card { position: sticky; top: 90px; padding: 20px; display: grid; gap: 14px; }
+  .launch__card[data-empty="1"] { opacity: .8; }
+  .tk { display: flex; gap: 12px; align-items: center; }
+  .tk__img { width: 56px; height: 56px; border-radius: 16px; flex: none; overflow: hidden; background: var(--card2); border: 1px solid var(--edge); display: grid; place-items: center; font-family: var(--mono); color: var(--dim); font-weight: 700; }
+  .tk__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tk__head b { display: block; font-size: 18px; font-weight: 700; }
+  .tk__head em { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--goInk); }
+  .tk__desc { margin: 0; color: var(--ink2); font-size: 14.5px; }
+  .tk__stats { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tk__stats > div { background: var(--card2); border-radius: 12px; padding: 9px 11px; }
+  .tk__stats dt { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; color: var(--dim); }
+  .tk__stats dd { margin: 3px 0 0; font-weight: 700; font-size: 14.5px; }
+  .tk__foot { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
+  .tk__state { border: 1px solid var(--edge); border-radius: 999px; padding: 3px 8px; color: var(--goInk); letter-spacing: .12em; font-weight: 700; }
+
+  /* footer */
+  .foot { padding: 30px var(--gut) calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .foot__in {
+    max-width: 1180px; margin: 0 auto; display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    padding-top: 22px; border-top: 1px solid var(--line); font-size: 14px; color: var(--dim);
   }
+  .foot__in .brand b { font-size: 15px; }
+  .foot__ca { display: inline-flex; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; cursor: copy; color: var(--ink2); }
+  .foot__ca em { font-style: normal; font-size: 9.5px; letter-spacing: .14em; color: var(--dim); font-weight: 700; }
+  .foot__ca:hover { border-color: var(--go); }
 
   .toast {
-    position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-    transform: translateX(-50%); z-index: 40;
-    background: #1a1921; border: 1px solid var(--win); border-radius: 10px;
-    padding: 10px 16px; font-size: 13.5px; color: #d9ffe3; box-shadow: 0 18px 44px -18px #000;
+    position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 40;
+    background: #1a2140; color: #fff; border-radius: 999px; padding: 10px 18px; font-size: 14px; box-shadow: 0 18px 44px -18px #000;
   }
 
   /* ---- narrow ------------------------------------------------------------ */
 
-  @media (max-width: 1000px) {
-    .shell { grid-template-columns: 1fr; }
-    .nav {
-      position: fixed; inset: 0 auto 0 0; width: 272px; z-index: 30;
-      transform: translateX(-110%); visibility: hidden;
-      transition: transform .22s ease, visibility 0s linear .22s;
-      box-shadow: 30px 0 60px -30px #000;
-    }
-    .nav.open { transform: none; visibility: visible; transition: transform .22s ease; }
-    .menu { display: inline-flex; }
+  @media (max-width: 1040px) {
+    .links { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; flex-direction: column; gap: 2px;
+      background: rgba(255,255,255,.96); border: 1px solid var(--line); border-radius: 22px; padding: 10px; box-shadow: var(--shadow); }
+    .pill--nav { position: relative; flex: 1; justify-content: space-between; }
+    .pill--nav.open .links { display: flex; }
+    .menu { display: inline-block; }
+    .nl.is-on::after { display: none; }
+    .nl.is-on { background: var(--goSoft); color: var(--goInk); }
+    .pill--actions .btn--soft { display: none; }
+    .pill--actions { flex: none; }
+    .pill--actions .btn { padding: 8px 12px; font-size: 14px; }
+    .brand__tick { display: none; }
+    .fl:nth-child(n+3) { display: none; }
+    .fl { transform: scale(.7); }
     .cabinet { grid-template-columns: 1fr; grid-template-rows: clamp(340px, 52dvh, 520px) 240px; }
-    .ticker { font-size: 11px; padding: 6px 11px; gap: 6px; }
-    .hero { text-align: left; }
-    .hero h1 { margin-left: 0; margin-right: 0; }
-    .hero > p { margin-left: 0; }
-    .hero__cta { justify-content: flex-start; }
+    .launch { grid-template-columns: 1fr; }
+    .launch__card { position: static; }
+    .potbox { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .potbox__note { max-width: none; }
+    .trust li { border-left: 0; padding-left: 0; }
+    .fl b { display: none; }
     .card { bottom: auto; top: 16%; }
   }
   @media (max-width: 560px) {
-    .bar__right .brand__tick { display: none; }
-    .ticker__sep { display: none; }
+    .launch__form { grid-template-columns: 1fr; }
+    .ticker__sep, .ticker .ticker__label:nth-of-type(2) { display: none; }
+    .hero { padding-top: 40px; }
+    .bar { padding-top: 10px; }
+    .brand b { font-size: 16px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .banner, .card { animation: none; }
-    .hud .live i { animation: none; }
-    .nav { transition: none; }
+    .hud .live i, .fl, .wave, .drop, .mega, .hud__mega { animation: none; }
+    html { scroll-behavior: auto; }
   }
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-
-  /* ---- the launchpad ----------------------------------------------------- */
-
-  .launch { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 22px; align-items: start; }
-  .launch__form {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px;
-  }
-  .fld { display: grid; gap: 6px; min-width: 0; }
-  .fld--wide { grid-column: 1 / -1; }
-  .fld > span { font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
-  .fld input, .fld select {
-    width: 100%; background: #0f0e14; border: 1px solid var(--edge); border-radius: 10px;
-    padding: 10px 12px; color: var(--ink); font-size: 14px;
-  }
-  .fld input:focus, .fld select:focus { outline: none; border-color: var(--go); }
-  .fld input[type="file"] { padding: 8px; font-size: 12.5px; color: var(--dim); }
-  .fld input[type="range"] { padding: 0; accent-color: var(--go); }
-  .range { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
-  .range b { font-family: var(--mono); font-size: 12px; color: var(--go); white-space: nowrap; }
-  .launch__cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 4px; }
-  .launch__note { font-size: 12.5px; color: var(--dim); max-width: 40ch; }
-
-  .launch__card {
-    position: sticky; top: 74px;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px;
-    display: grid; gap: 14px;
-  }
-  .launch__card[data-empty="1"] { opacity: .75; }
-  .tk { display: flex; gap: 12px; align-items: center; }
-  .tk__img {
-    width: 56px; height: 56px; border-radius: 14px; flex: none; overflow: hidden;
-    background: #1c1a23; border: 1px solid var(--edge); display: grid; place-items: center;
-    font-family: var(--mono); color: var(--dim);
-  }
-  .tk__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .tk__head b { display: block; font-size: 17px; font-weight: 700; }
-  .tk__head em { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--go); }
-  .tk__desc { margin: 0; color: var(--ink2); font-size: 14px; }
-  .tk__stats { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .tk__stats > div { background: #0f0e14; border-radius: 10px; padding: 9px 11px; }
-  .tk__stats dt { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; color: var(--dim); }
-  .tk__stats dd { margin: 3px 0 0; font-weight: 700; font-size: 14px; }
-  .tk__foot { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
-  .tk__state { border: 1px solid var(--edge); border-radius: 999px; padding: 3px 8px; color: var(--gold); letter-spacing: .12em; }
-
-  @media (max-width: 1000px) {
-    .launch { grid-template-columns: 1fr; }
-    .launch__card { position: static; }
-  }
-  @media (max-width: 560px) { .launch__form { grid-template-columns: 1fr; } }
 </style>
 
-<div class="shell">
-
-  <!-- ---------- sidebar ---------- -->
-  <aside class="nav" id="nav">
-    <div class="nav__brand">
-      <span class="mark"></span>
-      <b>Marble Royale</b>
+<!-- ---------- floating nav ---------- -->
+<header class="bar" id="top">
+  <nav class="pill pill--nav" id="nav">
+    <a class="brand" href="#top"><span class="mark"></span><b>Marble Royale</b><span class="brand__tick" id="ticker"></span></a>
+    <button class="menu" id="navToggle" aria-label="menu">≡</button>
+    <div class="links">
+      <a class="nl is-on" href="#race">Race</a>
+      <a class="nl" href="#how">Join</a>
+      <a class="nl" href="#launch">Launch</a>
+      <a class="nl" href="#marble">Marble</a>
+      <a class="nl" href="#fair">Fair</a>
+      <a class="nl" href="#winners">Winners</a>
+      <a class="nl" href="#risk">Guide</a>
     </div>
-
-    <nav class="nav__links">
-      <a class="nl is-on" href="#top"><i class="ic ic--home"></i>Home</a>
-      <a class="nl" href="#race"><i class="ic ic--race"></i>Live race</a>
-
-      <span class="nav__label">Get in</span>
-      <a class="nl" href="#how"><i class="ic ic--steps"></i>How to join</a>
-      <a class="nl" href="#launch"><i class="ic ic--rocket"></i>Launch a token</a>
-      <a class="nl" href="#marble"><i class="ic ic--dot"></i>Your marble</a>
-      <a class="nl" href="#pot"><i class="ic ic--coin"></i>The pot</a>
-
-      <span class="nav__label">Transparency</span>
-      <a class="nl" href="#fair"><i class="ic ic--check"></i>Provably fair</a>
-      <a class="nl" href="#winners"><i class="ic ic--log"></i>Winners</a>
-      <a class="nl" href="#spec"><i class="ic ic--code"></i>Spec</a>
-      <a class="nl" href="#risk"><i class="ic ic--warn"></i>Read this first</a>
-    </nav>
-
-    <div class="nav__foot">
-      <button class="btn btn--accent btn--wide" id="queueBtn" disabled>Join the queue</button>
-      <a class="btn btn--wide" href="#launch">Launch a token</a>
-      <button class="side-link" id="caBtn">
-        <span class="side-link__ic">$</span>
-        <span>
-          <b>Contract address</b>
-          <em id="caVal">not live yet</em>
-        </span>
-      </button>
-      <a class="side-link" id="xLink" href="#" target="_blank" rel="noopener">
-        <span class="side-link__ic">
-          <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </span>
-        <span>
-          <b>Marble Royale</b>
-          <em id="xHandle">on X soon</em>
-        </span>
-      </a>
-    </div>
-  </aside>
-
-  <!-- ---------- main ---------- -->
-  <div class="main" id="top">
-
-    <header class="bar">
-      <button class="menu" id="navToggle" aria-label="menu">≡</button>
-
-      <div class="ticker">
-        <span class="ticker__dot"></span>
-        <span class="ticker__label" id="clockLabel">Next race in</span>
-        <b id="clock">--:--</b>
-        <span class="ticker__sep">·</span>
-        <span class="ticker__label">pot</span>
-        <b class="gold" id="pot">$0.00</b>
-       
-      </div>
-
-      <div class="bar__right">
-        <span class="brand__tick" id="ticker"></span>
-        <button class="btn btn--accent" id="joinBtn">Connect wallet</button>
-      </div>
-    </header>
-
-
-    <!-- hero -->
-    <section class="hero">
-      <div class="pill">A coin earns fees <span class="arr">→</span> <b>one marble takes them</b></div>
-      <h1>Every few minutes, one marble<br><span class="accent">wins the fees</span></h1>
-      <p>Connect a wallet, join the queue, and a marble on the track is yours. The first one down the course wins, and the winner's address goes on screen so the fees that the coin earned in those minutes can be sent straight to it.</p>
-      <div class="hero__cta">
-        <a class="btn btn--accent btn--lg" href="#race">Watch a race</a>
-        <a class="btn btn--lg" href="#launch">Launch your own</a>
-      </div>
-      <div class="potbox" id="potbox" data-state="filling">
-        <div class="jar" id="jar">
-          <svg viewBox="0 0 120 150" class="jarsvg" aria-hidden="true">
-            <defs>
-              <clipPath id="jarClip"><path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z"/></clipPath>
-              <linearGradient id="gold" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0" stop-color="#ffe39a"/><stop offset="1" stop-color="#d9a13a"/>
-              </linearGradient>
-            </defs>
-            <g clip-path="url(#jarClip)">
-              <rect id="liquid" x="22" y="134" width="76" height="0" fill="url(#gold)"/>
-              <ellipse id="liquidTop" class="wave" cx="60" cy="134" rx="38" ry="4" fill="#fff1c9" opacity=".95"/>
-            </g>
-            <path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z" fill="none" stroke="#4a4856" stroke-width="3"/>
-            <path d="M30 46v66" stroke="rgba(255,255,255,.12)" stroke-width="4" stroke-linecap="round"/>
-            <rect x="30" y="20" width="60" height="14" rx="3" fill="#1e1c25" stroke="#4a4856" stroke-width="3"/>
-            <rect x="26" y="11" width="68" height="11" rx="4" fill="#2c2a35"/>
-          </svg>
-          <div class="drops" id="drops"></div>
-          <div class="lock" id="lock">🔒</div>
-        </div>
-        <div class="potbox__info">
-          <span class="kicker">POT FOR THIS RACE</span>
-          <div class="potbox__amt"><b id="potBig">$0.00</b></div>
-          <div class="potbox__meta"><span id="potState">Filling with fees</span></div>
-          <div class="potbar"><i id="potFill"></i></div>
-          <p class="potbox__note">Every trade on the coin adds to it, shown in dollars at the current ETH price. It locks the moment the race starts, and empties when the winner is paid. <b id="pctC">20%</b> goes to the winning marble.</p>
-        </div>
-      </div>
-
-      <dl class="stats">
-        <div><dt>Race every</dt><dd>~5 min</dd></div>
-        <div><dt>Cost to enter</dt><dd>Free</dd></div>
-        <div><dt>Winner takes</dt><dd><span id="pctA">20%</span> of fees</dd></div>
-        <div><dt>Marbles per race</dt><dd>up to 250</dd></div>
-      </dl>
-    </section>
-
-    <!-- the race -->
-    <section class="sec" id="race">
-      <div class="sec__head">
-        <span class="kicker">LIVE RACE</span>
-        <h2>The track</h2>
-        <p>The same race runs in every browser at the same moment. Tap <b>Race now</b> if you do not want to wait for the clock.</p>
-      </div>
-
-      <div class="cabinet">
-        <div class="stage">
-          <canvas id="stage" aria-label="marble race"></canvas>
-          <div class="scan" aria-hidden="true"></div>
-          <div class="hud">
-            <span class="live"><i></i>LIVE</span>
-            <span id="hudCount">0 queued</span>
-            <span id="hudPhase">fires with the coin's fees</span>
-          </div>
-          <div class="banner" id="banner" hidden></div>
-
-          <div class="card" id="card" hidden>
-            <div class="card__cup">🏆</div>
-            <em>1ST PLACE · THE ONLY WINNER</em>
-            <button class="addr" id="winAddr" title="copy the winner's Ethereum address"></button>
-            <div class="pay" id="winPay"></div>
-            <div class="card__actions">
-              <button class="btn" id="winCopy">Copy address</button>
-              <a class="btn btn--accent" id="winSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
-            </div>
-            <div class="sub">Only first place is paid. This is the Ethereum address the creator sends the pot to, from their own wallet.</div>
-            <div class="sub win" id="winYou" hidden>That one is yours.</div>
-          </div>
-
-          <div class="stage__bar">
-            <p id="status"></p>
-            <button class="btn" id="botBtn">+12 marbles</button>
-            <button class="btn btn--accent" id="runBtn">Race now</button>
-          </div>
-        </div>
-
-        <div class="queue">
-          <h3>In the queue <span id="count">0</span></h3>
-          <ol class="field" id="field"></ol>
-        </div>
-      </div>
-    </section>
-
-    <!-- how to join -->
-    <section class="sec" id="how">
-      <div class="sec__head">
-        <span class="kicker">GET IN</span>
-        <h2>How to join a race</h2>
-        <p>No account, no password, no email. Your wallet is your login, and entering costs nothing.</p>
-      </div>
-      <ol class="steps">
-        <li>
-          <b>Open the page with your wallet</b>
-          <span>Any Ethereum wallet: MetaMask, Rabby, Coinbase Wallet or Trust Wallet. On a desktop the extension is enough. On a phone, open this page inside your wallet's own browser. From plain Safari or Chrome there is nothing to connect to.</span>
-        </li>
-        <li>
-          <b>Connect and sign the message</b>
-          <span>Your wallet shows a short text with your address and a one-time number. Signing text is not a transaction: it moves no funds, grants no allowance over your tokens and costs no gas. It only proves the wallet is yours, so nobody can enter under someone else's address.</span>
-        </li>
-        <li>
-          <b>Join the queue</b>
-          <span>One button, one marble. The queue closes a few seconds before the start; if you are late you are simply in the next race. One marble per wallet per race, and auto-join keeps you in every race without touching anything.</span>
-        </li>
-        <li>
-          <b>Watch, and get paid if you win</b>
-          <span>The winning address appears in full on screen and stays in the log, so anyone can check afterwards that the payment was made.</span>
-        </li>
-      </ol>
-    </section>
-
-    <!-- launchpad -->
-    <section class="sec" id="launch">
-      <div class="sec__head">
-        <span class="kicker">LAUNCHPAD</span>
-        <h2>Launch a marble token of your own</h2>
-        <p>Playing is free. Launching is for anyone who wants their own coin with a race attached: fill this in, and your token gets its own track, its own queue and its own pot fed by its own trades.</p>
-      </div>
-
-      <div class="launch">
-        <form class="launch__form" id="launchForm" autocomplete="off">
-          <label class="fld">
-            <span>Token name</span>
-            <input id="lfName" maxlength="32" placeholder="Rolling Thunder" required>
-          </label>
-          <label class="fld">
-            <span>Ticker</span>
-            <input id="lfTicker" maxlength="8" placeholder="THUNDER" required>
-          </label>
-          <label class="fld fld--wide">
-            <span>One line about it</span>
-            <input id="lfDesc" maxlength="120" placeholder="Every five minutes one marble takes the fees.">
-          </label>
-          <label class="fld">
-            <span>Image</span>
-            <input id="lfImage" type="file" accept="image/*">
-          </label>
-          <label class="fld">
-            <span>Race every</span>
-            <select id="lfEvery">
-              <option value="5">5 minutes</option>
-              <option value="10">10 minutes</option>
-              <option value="15">15 minutes</option>
-              <option value="30">30 minutes</option>
-            </select>
-          </label>
-          <label class="fld">
-            <span>Winner's share of fees</span>
-            <div class="range">
-              <input id="lfShare" type="range" min="5" max="100" step="5" value="20">
-              <b id="lfShareOut">20%</b>
-            </div>
-          </label>
-          <label class="fld">
-            <span>Marbles for holders only</span>
-            <div class="range">
-              <input id="lfMin" type="number" min="0" step="1" value="0" placeholder="0">
-              <b>min. tokens</b>
-            </div>
-          </label>
-          <div class="fld fld--wide launch__cta">
-            <button class="btn btn--accent btn--lg" type="submit">Preview my token</button>
-            <span class="launch__note">Deploys as an ERC-20 on Ethereum when the launchpad goes live. Nothing is sent yet.</span>
-          </div>
-        </form>
-
-        <div class="launch__card" id="launchCard" data-empty="1">
-          <div class="tk">
-            <div class="tk__img" id="tkImg"><span>?</span></div>
-            <div class="tk__head">
-              <b id="tkName">Your token</b>
-              <em id="tkTicker">$TICKER</em>
-            </div>
-          </div>
-          <p class="tk__desc" id="tkDesc">Fill the form and your token page appears here.</p>
-          <dl class="tk__stats">
-            <div><dt>Race every</dt><dd id="tkEvery">5 min</dd></div>
-            <div><dt>Winner takes</dt><dd id="tkShare">20%</dd></div>
-            <div><dt>To race</dt><dd id="tkMin">anyone</dd></div>
-            <div><dt>Chain</dt><dd>Ethereum</dd></div>
-          </dl>
-          <div class="tk__foot">
-            <span class="tk__state" id="tkState">draft</span>
-            <span class="tk__ca">CA assigned at launch</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="accs" style="margin-top:22px">
-        <details>
-          <summary><span class="tag">HOW</span>What launching does<span class="arrow">›</span></summary>
-          <div class="body">
-            <p>Your wallet deploys the token through the launchpad contract, which sets the creator-fee split at deploy time: a slice of every trade goes to the token's fee wallet, and that wallet is what the races draw their pot from. You keep the rest of the creator fees as with any launch.</p>
-            <p>The moment the token exists it gets its own page here: same track, same physics, same provably fair seed, but its own queue and its own pot. Holders of your token race for your token's fees. You set the cadence and the winner's share above, and you can change them later from your creator panel.</p>
-          </div>
-        </details>
-        <details>
-          <summary><span class="tag">COST</span>What it costs<span class="arrow">›</span></summary>
-          <div class="body">
-            <p>Gas for the deployment, paid by your wallet, and the launchpad's own cut of the creator fees, which is fixed at launch and shown on this form before you sign anything. There is no listing fee and nothing to buy up front.</p>
-          </div>
-        </details>
-        <details>
-          <summary><span class="tag">PAYOUT</span>Who pays the winners<span class="arrow">›</span></summary>
-          <div class="body">
-            <p>For a launched token the winner's share is set aside by the fee contract itself, so it does not rely on anyone remembering to send it. The winning address and the amount are on the token's page and in the log, and the payout transaction is linked when it goes out.</p>
-          </div>
-        </details>
-      </div>
-    </section>
-
-    <!-- your marble -->
-    <section class="sec" id="marble">
-      <div class="sec__head">
-        <span class="kicker">YOUR MARBLE</span>
-        <h2>Make it yours</h2>
-        <p>Pick a colour and a face. It is saved in this browser and follows you into every race, so people recognise you on the track and in the queue.</p>
-      </div>
-      <div class="panel skin">
-        <div class="skin__prev">
-          <canvas id="skinPrev" width="150" height="150" aria-label="your marble"></canvas>
-          <span id="skinWho">no wallet yet</span>
-        </div>
-        <div class="skin__pick">
-          <div class="pickrow"><em>COLOUR</em><div class="swatches" id="swatches"></div></div>
-          <div class="pickrow"><em>FACE</em><div class="faces" id="faces"></div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- the pot -->
-    <section class="sec" id="pot-sec">
-      <div class="sec__head">
-        <span class="kicker">THE POT</span>
-        <h2>Where the money comes from</h2>
-        <p>The coin earns creator fees every time somebody buys or sells. The more the coin moves, the more fees land, and that is what the winner takes a share of.</p>
-      </div>
-      <div class="cards" id="pot">
-        <article class="cd">
-          <span class="cd__tag">1</span>
-          <h4>Fees pile up</h4>
-          <p>Every trade on the coin sends creator fees, in ETH, to one wallet. A busy five minutes fills it; a quiet five minutes barely moves it.</p>
-        </article>
-        <article class="cd">
-          <span class="cd__tag">2</span>
-          <h4>A race is called</h4>
-          <p>Roughly every five minutes, on the clock, and more often when the coin is moving. The pot on screen is what came in during that window, in dollars at the ETH price of the moment.</p>
-        </article>
-        <article class="cd cd--hot">
-          <span class="cd__tag">3</span>
-          <h4>The winner takes <span id="pctB">20%</span></h4>
-          <p>The creator sends that share to the winning address by hand. The percentage is theirs to set and it is always written on screen.</p>
-        </article>
-      </div>
-      <p class="fine">There is no smart contract paying anyone automatically. A person sends it, which is worth knowing before you play. The notice further down says so plainly.</p>
-    </section>
-
-    <!-- fair -->
-    <section class="sec" id="fair">
-      <div class="sec__head">
-        <span class="kicker">PROVABLY FAIR</span>
-        <h2>Why it cannot be rigged</h2>
-        <p>Whoever picks the seed picks the winner, so the seed is nailed down before anyone knows who is playing.</p>
-      </div>
-      <div class="accs">
-        <details open>
-          <summary><span class="tag">STEP 1</span>Before anyone joins<span class="arrow">›</span></summary>
-          <div class="body"><p>The server draws a secret at random and publishes only <code>sha256(secret)</code>. That hash is on screen from the first second of the round and it cannot be taken back.</p></div>
-        </details>
-        <details>
-          <summary><span class="tag">STEP 2</span>When the queue closes<span class="arrow">›</span></summary>
-          <div class="body"><p>The seed is <code>sha256(secret + the list of wallets)</code>, and the secret itself is published alongside it. The field is fixed at that moment, so it cannot be edited to suit the seed.</p></div>
-        </details>
-        <details>
-          <summary><span class="tag">STEP 3</span>After the race<span class="arrow">›</span></summary>
-          <div class="body"><p>Anyone can check that the hash from the start really is the hash of that secret, and replay the whole race in their own browser from the seed. If the winner does not match, the server lied and it shows.</p></div>
-        </details>
-        <details>
-          <summary><span class="tag">ALSO</span>Starting slots and cheering<span class="arrow">›</span></summary>
-          <div class="body"><p>Starting positions are shuffled with the same seed, so joining early buys you nothing. Cheers are confetti: if they could nudge a marble, the race would stop being the same race in every browser.</p></div>
-        </details>
-      </div>
-    </section>
-
-    <!-- winners -->
-    <section class="sec" id="winners">
-      <div class="sec__head">
-        <span class="kicker">LOG</span>
-        <h2>Winners from this session</h2>
-        <p>Once it is live this is the public record: every round, the winning wallet, the amount and whether it has been paid.</p>
-      </div>
-      <ul class="past" id="past"></ul>
-    </section>
-
-    <!-- spec -->
-    <section class="sec" id="spec">
-      <div class="sec__head">
-        <span class="kicker">SPEC</span>
-        <h2>Under the hood</h2>
-      </div>
-      <dl class="spec">
-        <div><dt>Engine</dt><dd>deterministic, fixed 60 Hz step</dd></div>
-        <div><dt>Seed</dt><dd>sha256, committed up front</dd></div>
-        <div><dt>Course</dt><dd>8 drawn sections, ~9,000 units</dd></div>
-        <div><dt>Marbles per race</dt><dd>up to 250</dd></div>
-        <div><dt>Chain</dt><dd>Ethereum</dd></div>
-        <div><dt>Identity</dt><dd>a signed message (EIP-191)</dd></div>
-        <div><dt>Transport</dt><dd>one server-sent event stream</dd></div>
-        <div><dt>Dependencies</dt><dd>none, Node 18+</dd></div>
-        <div><dt>Pot</dt><dd>ETH fees, shown in USD</dd></div>
-        <div><dt>Keys on the server</dt><dd>none: it reads balances</dd></div>
-      </dl>
-      <p class="fine">The physics avoids everything a browser is free to round its own way: no <code>Math.random</code>, no <code>Math.sin</code>, a fixed step and a fixed order. That is why the server can play the race out in milliseconds, keep the result, and your browser can replay it in real time and land on the same winner.</p>
-    </section>
-
-    <!-- risk -->
-    <section class="sec" id="risk">
-      <div class="sec__head">
-        <span class="kicker">READ THIS FIRST</span>
-        <h2>What you are getting into</h2>
-      </div>
-      <div class="warn">
-        <b>THE IMPORTANT PART</b>
-        <p>Connecting your wallet and signing the message <strong>does not move your money and gives nobody any allowance over your tokens</strong>. Nobody here will ever ask for your seed phrase or private key. Anyone who does is robbing you.</p>
-      </div>
-      <ul class="rules">
-        <li><i>✓</i><span><b>What connecting does:</b> the site reads your public address, the same one anyone can see in an explorer, and asks for a text signature to check it is yours. Free, and not a transaction.</span></li>
-        <li><i>✓</i><span><b>What it never does:</b> request token approvals, open transactions, touch your funds or store any key. The server holds no wallets. It reads public balances and nothing else.</span></li>
-        <li><i>✓</i><span><b>Entering is free.</b> There is nothing to pay, nothing is staked, and you cannot lose money by racing a marble.</span></li>
-        <li class="no"><i>!</i><span><b>Paying out is manual and voluntary.</b> The creator sends it from their own wallet, at the percentage they choose. This site shows who won; it cannot force anyone to pay or refund anything.</span></li>
-        <li class="no"><i>!</i><span><b>This is chance, not skill.</b> The result comes out of a physics simulation with a random seed. Nobody rolls better than anyone else, and winning before does not help.</span></li>
-        <li class="no"><i>!</i><span><b>A marble is free, and that has a limit:</b> nothing stops one person entering with several wallets except requiring a minimum token balance to play.</span></li>
-        <li class="no"><i>!</i><span><b>None of this is financial advice.</b> A memecoin can lose all of its value in minutes. Only take part with what you can afford to lose, and only if you are old enough where you live.</span></li>
-        <li class="no"><i>!</i><span><b>This page is a preview.</b> The marbles you see are demonstrations and the pot is an invented number, there to show how it looks.</span></li>
-      </ul>
-    </section>
-
-    <footer class="foot">
-      <span>Marble Royale · preview build</span>
-      <span id="footCa">CA not live yet</span>
-    </footer>
+  </nav>
+  <div class="pill pill--actions">
+    <a class="xbtn" id="xLink" href="#" target="_blank" rel="noopener" aria-label="X">
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <button class="btn btn--soft" id="joinBtn">Connect wallet</button>
+    <button class="btn btn--accent" id="queueBtn" disabled>Join the queue</button>
   </div>
-</div>
+</header>
+
+<!-- ---------- hero ---------- -->
+<section class="hero">
+  <div class="floaters" id="floaters" aria-hidden="true"></div>
+  <div class="hero__in">
+    <div class="ticker">
+      <span class="ticker__dot"></span>
+      <span class="ticker__label" id="clockLabel">Next race in</span>
+      <b id="clock">--:--</b>
+      <span class="ticker__sep">·</span>
+      <span class="ticker__label">pot</span>
+      <b class="gold" id="pot">$0.00</b>
+      <span class="mega" id="megaBadge" hidden>MEGA RACE</span>
+    </div>
+    <h1>One marble<br>wins the fees.</h1>
+    <p>Every five minutes a race. Connect a wallet, join the queue, and a marble on the track is yours. First one down the course takes a share of the fees the coin earned in those minutes, sent straight to the winning address.</p>
+    <div class="hero__cta">
+      <a class="btn btn--accent btn--lg" href="#race"><span class="btn__mark"></span>Watch a race</a>
+      <a class="btn btn--soft btn--lg" href="#launch">Launch a coin</a>
+    </div>
+  </div>
+
+  <ul class="trust">
+    <li><i>✓</i><div><b>Provably fair</b><span>the seed's hash is published before anyone joins</span></div></li>
+    <li><i>$</i><div><b>Free to enter</b><span>a marble costs nothing, ever</span></div></li>
+    <li><i>1</i><div><b>One winner</b><span>first place only, paid to their address</span></div></li>
+    <li><i>⚡</i><div><b>Mega race</b><span>on the hour and the half hour, a $25 pot</span></div></li>
+    <li><i>⌀</i><div><b>No custody</b><span>we never hold your keys or your coin</span></div></li>
+  </ul>
+</section>
+
+<!-- ---------- pot ---------- -->
+<section class="sec sec--pot">
+  <div class="potbox" id="potbox" data-state="filling">
+    <div class="jar" id="jar">
+      <svg viewBox="0 0 120 150" class="jarsvg" aria-hidden="true">
+        <defs>
+          <clipPath id="jarClip"><path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z"/></clipPath>
+          <linearGradient id="gold" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#ffd76a"/><stop offset="1" stop-color="#e59a1a"/>
+          </linearGradient>
+        </defs>
+        <g clip-path="url(#jarClip)">
+          <rect id="liquid" x="22" y="134" width="76" height="0" fill="url(#gold)"/>
+          <ellipse id="liquidTop" class="wave" cx="60" cy="134" rx="38" ry="4" fill="#fff0bf" opacity=".95"/>
+        </g>
+        <path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z" fill="rgba(255,255,255,.35)" stroke="#aeb9d6" stroke-width="3"/>
+        <path d="M30 46v66" stroke="rgba(255,255,255,.7)" stroke-width="4" stroke-linecap="round"/>
+        <rect x="30" y="20" width="60" height="14" rx="3" fill="#dfe6f7" stroke="#aeb9d6" stroke-width="3"/>
+        <rect x="26" y="11" width="68" height="11" rx="4" fill="#c9d3ea"/>
+      </svg>
+      <div class="drops" id="drops"></div>
+      <div class="lock" id="lock">🔒</div>
+    </div>
+    <div class="potbox__info">
+      <span class="kicker">POT FOR THIS RACE</span>
+      <div class="potbox__amt"><b id="potBig">$0.00</b></div>
+      <div class="potbox__meta"><span id="potState">Filling with fees while the queue is open</span></div>
+      <div class="potbar"><i id="potFill"></i></div>
+      <p class="potbox__note">Every trade on the coin adds to it, in dollars at the current ETH price. It locks the moment the race starts and empties when the winner is paid. A normal race pays <b>$3 to $7</b>; on the hour and the half hour it is a <b>MEGA RACE</b> worth <b>$25</b>.</p>
+      <div class="potbox__mega">Next mega race in <b id="megaIn">--:--</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- the race ---------- -->
+<section class="sec" id="race">
+  <div class="sec__head">
+    <span class="kicker">LIVE RACE</span>
+    <h2>The track</h2>
+    <p>The same race runs in every browser at the same moment, on a track drawn fresh for it. Tap <b>Race now</b> if you do not want to wait for the clock.</p>
+  </div>
+
+  <div class="cabinet">
+    <div class="stage">
+      <canvas id="stage" aria-label="marble race"></canvas>
+      <div class="scan" aria-hidden="true"></div>
+      <div class="hud">
+        <span class="live"><i></i>LIVE</span>
+        <span id="hudCount">0 queued</span>
+        <span id="hudPhase">a new track every race</span>
+        <span class="hud__mega" id="megaHud" hidden>MEGA RACE · $25</span>
+      </div>
+      <div class="banner" id="banner" hidden></div>
+
+      <div class="card" id="card" hidden>
+        <div class="card__cup">🏆</div>
+        <em>1ST PLACE · THE ONLY WINNER</em>
+        <button class="addr" id="winAddr" title="copy the winner's Ethereum address"></button>
+        <div class="pay" id="winPay"></div>
+        <div class="card__actions">
+          <button class="btn btn--dark" id="winCopy">Copy address</button>
+          <a class="btn btn--accent" id="winSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
+        </div>
+        <div class="sub">Only first place is paid. This is the Ethereum address the creator sends the pot to, from their own wallet.</div>
+        <div class="sub win" id="winYou" hidden>That one is yours.</div>
+      </div>
+
+      <div class="stage__bar">
+        <p id="status"></p>
+        <button class="btn btn--dark" id="botBtn">+12 marbles</button>
+        <button class="btn btn--accent" id="runBtn">Race now</button>
+      </div>
+    </div>
+
+    <div class="queue">
+      <h3>In the queue <span id="count">0</span></h3>
+      <ol class="field" id="field"></ol>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- how to join ---------- -->
+<section class="sec" id="how">
+  <div class="sec__head">
+    <span class="kicker">JOIN</span>
+    <h2>How to join a race</h2>
+    <p>No account, no password, no email. Your wallet is your login, and entering costs nothing.</p>
+  </div>
+  <ol class="steps">
+    <li><b>Open the page with your wallet</b><span>Any Ethereum wallet: MetaMask, Rabby, Coinbase Wallet or Trust Wallet. On a desktop the extension is enough. On a phone, open this page inside your wallet's own browser. From plain Safari or Chrome there is nothing to connect to.</span></li>
+    <li><b>Connect and sign the message</b><span>Your wallet shows a short text with your address and a one-time number. Signing text is not a transaction: it moves no funds, grants no allowance over your tokens and costs no gas. It only proves the wallet is yours, so nobody can enter under someone else's address.</span></li>
+    <li><b>Join the queue</b><span>One button, one marble. The queue closes a few seconds before the start; if you are late you are simply in the next race. One marble per wallet per race, and auto-join keeps you in every race without touching anything.</span></li>
+    <li><b>Watch, and get paid if you win</b><span>The winning address appears in full on screen and stays in the log, so anyone can check afterwards that the payment was made.</span></li>
+  </ol>
+</section>
+
+<!-- ---------- launchpad ---------- -->
+<section class="sec" id="launch">
+  <div class="sec__head">
+    <span class="kicker">LAUNCHPAD</span>
+    <h2>Launch a marble coin of your own</h2>
+    <p>Playing is free. Launching is for anyone who wants their own coin with a race attached: fill this in, and your coin gets its own track, its own queue and its own pot fed by its own trades.</p>
+  </div>
+
+  <div class="launch">
+    <form class="launch__form card-w" id="launchForm" autocomplete="off">
+      <label class="fld"><span>Coin name</span><input id="lfName" maxlength="32" placeholder="Rolling Thunder" required></label>
+      <label class="fld"><span>Ticker</span><input id="lfTicker" maxlength="8" placeholder="THUNDER" required></label>
+      <label class="fld fld--wide"><span>One line about it</span><input id="lfDesc" maxlength="120" placeholder="Every five minutes one marble takes the fees."></label>
+      <label class="fld"><span>Image</span><input id="lfImage" type="file" accept="image/*"></label>
+      <label class="fld"><span>Race every</span>
+        <select id="lfEvery"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select>
+      </label>
+      <label class="fld"><span>Winner's share of fees</span>
+        <div class="range"><input id="lfShare" type="range" min="5" max="100" step="5" value="20"><b id="lfShareOut">20%</b></div>
+      </label>
+      <label class="fld"><span>Marbles for holders only</span>
+        <div class="range"><input id="lfMin" type="number" min="0" step="1" value="0" placeholder="0"><b>min. tokens</b></div>
+      </label>
+      <div class="fld fld--wide launch__cta">
+        <button class="btn btn--accent btn--lg" type="submit">Preview my coin</button>
+        <span class="launch__note">Deploys as an ERC-20 on Ethereum when the launchpad goes live. Nothing is sent yet.</span>
+      </div>
+    </form>
+
+    <div class="launch__card card-w" id="launchCard" data-empty="1">
+      <div class="tk">
+        <div class="tk__img" id="tkImg"><span>?</span></div>
+        <div class="tk__head"><b id="tkName">Your coin</b><em id="tkTicker">$TICKER</em></div>
+      </div>
+      <p class="tk__desc" id="tkDesc">Fill the form and your coin page appears here.</p>
+      <dl class="tk__stats">
+        <div><dt>Race every</dt><dd id="tkEvery">5 min</dd></div>
+        <div><dt>Winner takes</dt><dd id="tkShare">20%</dd></div>
+        <div><dt>To race</dt><dd id="tkMin">anyone</dd></div>
+        <div><dt>Chain</dt><dd>Ethereum</dd></div>
+      </dl>
+      <div class="tk__foot"><span class="tk__state" id="tkState">draft</span><span class="tk__ca">CA assigned at launch</span></div>
+    </div>
+  </div>
+
+  <div class="accs">
+    <details>
+      <summary><span class="tag">HOW</span>What launching does<span class="arrow">›</span></summary>
+      <div class="body">
+        <p>Your wallet deploys the coin through the launchpad contract, which sets the creator-fee split at deploy time: a slice of every trade goes to the coin's fee wallet, and that wallet is what the races draw their pot from. You keep the rest of the creator fees as with any launch.</p>
+        <p>The moment the coin exists it gets its own page here: same track, same physics, same provably fair seed, but its own queue and its own pot. Holders of your coin race for your coin's fees. You set the cadence and the winner's share above, and you can change them later from your creator panel.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="tag">COST</span>What it costs<span class="arrow">›</span></summary>
+      <div class="body"><p>Gas for the deployment, paid by your wallet, and the launchpad's own cut of the creator fees, fixed at launch and shown on this form before you sign anything. There is no listing fee and nothing to buy up front.</p></div>
+    </details>
+    <details>
+      <summary><span class="tag">PAYOUT</span>Who pays the winners<span class="arrow">›</span></summary>
+      <div class="body"><p>For a launched coin the winner's share is set aside by the fee contract itself, so it does not rely on anyone remembering to send it. The winning address and the amount are on the coin's page and in the log, and the payout transaction is linked when it goes out.</p></div>
+    </details>
+  </div>
+</section>
+
+<!-- ---------- your marble ---------- -->
+<section class="sec" id="marble">
+  <div class="sec__head">
+    <span class="kicker">YOUR MARBLE</span>
+    <h2>Pick your coin</h2>
+    <p>Every marble is a coin people know. Pick one and a colour; it is saved in this browser and follows you into every race, so people recognise you on the track and in the queue.</p>
+  </div>
+  <div class="card-w skin">
+    <div class="skin__prev">
+      <canvas id="skinPrev" width="150" height="150" aria-label="your marble"></canvas>
+      <span id="skinWho">no wallet yet</span>
+    </div>
+    <div class="skin__pick">
+      <div class="pickrow"><em>COIN</em><div class="faces" id="faces"></div></div>
+      <div class="pickrow"><em>COLOUR</em><div class="swatches" id="swatches"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- pot explained ---------- -->
+<section class="sec" id="pot">
+  <div class="sec__head">
+    <span class="kicker">THE POT</span>
+    <h2>Where the money comes from</h2>
+    <p>The coin earns creator fees every time somebody buys or sells. The more the coin moves, the more fees land, and that is what the winner takes a share of.</p>
+  </div>
+  <div class="cards">
+    <article class="cd card-w"><span class="cd__tag">1</span><h4>Fees pile up</h4><p>Every trade on the coin sends creator fees, in ETH, to one wallet. A busy five minutes fills it; a quiet five minutes barely moves it.</p></article>
+    <article class="cd card-w"><span class="cd__tag">2</span><h4>A race is called</h4><p>Every five minutes, on the clock, on a track drawn fresh for that race. The pot is what came in during that window, in dollars at the ETH price of the moment: three to seven dollars on a normal race. On the hour and the half hour it is a mega race with a $25 pot.</p></article>
+    <article class="cd card-w cd--hot"><span class="cd__tag">3</span><h4>The winner takes <span id="pctB">20%</span></h4><p>The creator sends that share to the winning address by hand. The percentage is theirs to set and it is always written on screen.</p></article>
+  </div>
+  <p class="fine">There is no smart contract paying anyone automatically. A person sends it, which is worth knowing before you play. The guide further down says so plainly.</p>
+</section>
+
+<!-- ---------- fair ---------- -->
+<section class="sec" id="fair">
+  <div class="sec__head">
+    <span class="kicker">PROVABLY FAIR</span>
+    <h2>Why it cannot be rigged</h2>
+    <p>Whoever picks the seed picks the winner, so the seed is nailed down before anyone knows who is playing.</p>
+  </div>
+  <div class="accs">
+    <details open>
+      <summary><span class="tag">STEP 1</span>Before anyone joins<span class="arrow">›</span></summary>
+      <div class="body"><p>The server draws a secret at random and publishes only <code>sha256(secret)</code>. That hash is on screen from the first second of the round and it cannot be taken back.</p></div>
+    </details>
+    <details>
+      <summary><span class="tag">STEP 2</span>When the queue closes<span class="arrow">›</span></summary>
+      <div class="body"><p>The seed is <code>sha256(secret + the list of wallets)</code>, and the secret itself is published alongside it. The field is fixed at that moment, so it cannot be edited to suit the seed.</p></div>
+    </details>
+    <details>
+      <summary><span class="tag">STEP 3</span>After the race<span class="arrow">›</span></summary>
+      <div class="body"><p>Anyone can check that the hash from the start really is the hash of that secret, and replay the whole race in their own browser from the seed. If the winner does not match, the server lied and it shows.</p></div>
+    </details>
+    <details>
+      <summary><span class="tag">ALSO</span>Starting slots and cheering<span class="arrow">›</span></summary>
+      <div class="body"><p>Starting positions are shuffled with the same seed, so joining early buys you nothing. Cheers are confetti: if they could nudge a marble, the race would stop being the same race in every browser.</p></div>
+    </details>
+  </div>
+</section>
+
+<!-- ---------- winners ---------- -->
+<section class="sec" id="winners">
+  <div class="sec__head">
+    <span class="kicker">LOG</span>
+    <h2>Winners from this session</h2>
+    <p>Once it is live this is the public record: every round, the winning wallet, the amount and whether it has been paid.</p>
+  </div>
+  <ul class="past" id="past"></ul>
+</section>
+
+<!-- ---------- spec ---------- -->
+<section class="sec" id="spec">
+  <div class="sec__head"><span class="kicker">SPEC</span><h2>Under the hood</h2></div>
+  <dl class="spec card-w">
+    <div><dt>Engine</dt><dd>deterministic, fixed 60 Hz step</dd></div>
+    <div><dt>Seed</dt><dd>sha256, committed up front</dd></div>
+    <div><dt>Course</dt><dd>7 to 9 drawn sections, 10 kinds</dd></div>
+    <div><dt>Marbles per race</dt><dd>up to 250</dd></div>
+    <div><dt>Chain</dt><dd>Ethereum</dd></div>
+    <div><dt>Identity</dt><dd>a signed message (EIP-191)</dd></div>
+    <div><dt>Pot</dt><dd>ETH fees, shown in USD</dd></div>
+    <div><dt>Keys on the server</dt><dd>none: it reads balances</dd></div>
+  </dl>
+  <p class="fine">The physics avoids everything a browser is free to round its own way: no <code>Math.random</code>, no <code>Math.sin</code>, a fixed step and a fixed order. That is why the server can play the race out in milliseconds, keep the result, and your browser can replay it in real time and land on the same winner.</p>
+</section>
+
+<!-- ---------- guide ---------- -->
+<section class="sec" id="risk">
+  <div class="sec__head"><span class="kicker">GUIDE</span><h2>What you are getting into</h2></div>
+  <div class="warn">
+    <b>THE IMPORTANT PART</b>
+    <p>Connecting your wallet and signing the message <strong>does not move your money and gives nobody any allowance over your tokens</strong>. Nobody here will ever ask for your seed phrase or private key. Anyone who does is robbing you.</p>
+  </div>
+  <ul class="rules">
+    <li><i>✓</i><span><b>What connecting does:</b> the site reads your public address, the same one anyone can see in an explorer, and asks for a text signature to check it is yours. Free, and not a transaction.</span></li>
+    <li><i>✓</i><span><b>What it never does:</b> request token approvals, open transactions, touch your funds or store any key. The server holds no wallets. It reads public balances and nothing else.</span></li>
+    <li><i>✓</i><span><b>Entering is free.</b> There is nothing to pay, nothing is staked, and you cannot lose money by racing a marble.</span></li>
+    <li class="no"><i>!</i><span><b>Paying out is manual and voluntary.</b> The creator sends it from their own wallet, at the percentage they choose. This site shows who won; it cannot force anyone to pay or refund anything.</span></li>
+    <li class="no"><i>!</i><span><b>This is chance, not skill.</b> The result comes out of a physics simulation with a random seed. Nobody rolls better than anyone else, and winning before does not help.</span></li>
+    <li class="no"><i>!</i><span><b>A marble is free, and that has a limit:</b> nothing stops one person entering with several wallets except requiring a minimum token balance to play.</span></li>
+    <li class="no"><i>!</i><span><b>None of this is financial advice.</b> A memecoin can lose all of its value in minutes. Only take part with what you can afford to lose, and only if you are old enough where you live.</span></li>
+    <li class="no"><i>!</i><span><b>This page is a preview.</b> The marbles you see are demonstrations and the pot is an invented number, there to show how it looks.</span></li>
+  </ul>
+</section>
+
+<footer class="foot">
+  <div class="foot__in">
+    <span class="brand"><span class="mark"></span><b>Marble Royale</b></span>
+    <button class="foot__ca" id="caBtn" title="copy the contract address"><em>CA</em><span id="caVal">not live yet</span></button>
+    <span id="xHandle" class="dim">on X soon</span>
+    <span id="footCa" hidden></span>
+  </div>
+</footer>
 
 <script>
 /* MARBLE ROYALE - the race itself.
@@ -1916,10 +1763,14 @@
   /* Faces, drawn rather than typed: a marble is about ten pixels across on a
      laptop, where a glyph turns to mush but two dots and a curve still read as
      a face. Everything scales off the radius so it holds at any zoom. */
-  const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead',
-                 'doge', 'pepe', 'eth', 'sol', 'btc', 'bnb'];
-  /* The coin skins come with a colour of their own; picking one sets it. */
-  const SKIN_COLORS = { doge: '#e3a94e', pepe: '#4fb35a', eth: '#5b6785', sol: '#1d1a2e', btc: '#f7931a', bnb: '#f3ba2f' };
+  /* Every marble is a coin people know. Each skin comes with its colour, and
+     picking one sets it; the colour can still be changed afterwards. */
+  const FACES = ['doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
+  const SKIN_COLORS = {
+    doge: '#e3a94e', shib: '#e8462e', pepe: '#4fb35a', bonk: '#f5a524', wif: '#c9a06a',
+    btc: '#f7931a', eth: '#5b6785', sol: '#1d1a2e', bnb: '#f3ba2f', xrp: '#2b3138',
+    usdt: '#26a17b', usdc: '#2775ca', ada: '#1a4fc4', avax: '#e84142'
+  };
 
   function drawFace(ctx, x, y, r, face) {
     const ink = 'rgba(8,8,14,.92)';
@@ -1969,8 +1820,10 @@
       ctx.moveTo(x - r * 0.3, y + r * 0.44); ctx.lineTo(x + r * 0.3, y + r * 0.44);
       ctx.stroke();
     }
-    else if (face === 'doge') {
-      /* ears, a squint, a nose and a lighter muzzle */
+    else if (face === 'doge' || face === 'shib' || face === 'bonk' || face === 'wif') {
+      shiba(ctx, x, y, r, face);
+    }
+    else if (face === 'never') {
       ctx.fillStyle = 'rgba(120,70,20,.9)';
       ctx.beginPath(); ctx.moveTo(x - r * 0.72, y - r * 0.35); ctx.lineTo(x - r * 0.55, y - r * 1.02); ctx.lineTo(x - r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
       ctx.beginPath(); ctx.moveTo(x + r * 0.72, y - r * 0.35); ctx.lineTo(x + r * 0.55, y - r * 1.02); ctx.lineTo(x + r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
@@ -2021,6 +1874,50 @@
       ctx.save(); ctx.translate(x, y + r * 0.04); ctx.rotate(0.22); ctx.fillText('B', 0, 0); ctx.restore();
       ctx.fillRect(x - r * 0.16, y - r * 0.68, r * 0.09, r * 0.2); ctx.fillRect(x + r * 0.02, y - r * 0.68, r * 0.09, r * 0.2);
       ctx.fillRect(x - r * 0.16, y + r * 0.5, r * 0.09, r * 0.2); ctx.fillRect(x + r * 0.02, y + r * 0.5, r * 0.09, r * 0.2);
+    } else if (face === 'xrp') {
+      /* two arcs meeting at the middle, top and bottom */
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = Math.max(1.4, r * 0.2);
+      ctx.beginPath(); ctx.moveTo(x - r * 0.55, y - r * 0.55); ctx.quadraticCurveTo(x - r * 0.25, y, x, y); ctx.quadraticCurveTo(x + r * 0.25, y, x + r * 0.55, y - r * 0.55); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - r * 0.55, y + r * 0.6); ctx.quadraticCurveTo(x - r * 0.25, y + r * 0.05, x, y + r * 0.05); ctx.quadraticCurveTo(x + r * 0.25, y + r * 0.05, x + r * 0.55, y + r * 0.6); ctx.stroke();
+    } else if (face === 'usdt') {
+      /* a T with a wide crossbar */
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - r * 0.62, y - r * 0.6, r * 1.24, r * 0.22);
+      ctx.fillRect(x - r * 0.12, y - r * 0.6, r * 0.24, r * 1.25);
+      ctx.beginPath(); ctx.ellipse(x, y - r * 0.1, r * 0.55, r * 0.16, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle = SKIN_COLORS.usdt;
+      ctx.beginPath(); ctx.ellipse(x, y - r * 0.1, r * 0.4, r * 0.08, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - r * 0.12, y - r * 0.3, r * 0.24, r * 0.95);
+    } else if (face === 'usdc') {
+      /* the ring with a gap top and bottom, and the dollar */
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = Math.max(1.2, r * 0.14);
+      ctx.beginPath(); ctx.arc(x, y, r * 0.66, 0.35, 2.79); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, r * 0.66, 3.49, 5.93); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.font = '700 ' + (r * 0.95) + 'px ui-sans-serif, system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('$', x, y + r * 0.04);
+    } else if (face === 'ada') {
+      /* a dot in the middle and a ring of six around it */
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(x, y, r * 0.16, 0, 6.283); ctx.fill();
+      for (let i = 0; i < 6; i++) {
+        const a = i * 1.0472;
+        ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.5, y + Math.sin(a) * r * 0.5, r * 0.11, 0, 6.283); ctx.fill();
+      }
+      for (let i = 0; i < 6; i++) {
+        const a = i * 1.0472 + 0.5236;
+        ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.78, y + Math.sin(a) * r * 0.78, r * 0.07, 0, 6.283); ctx.fill();
+      }
+    } else if (face === 'avax') {
+      /* the mountain: a triangle with a notch cut from its foot */
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.moveTo(x, y - r * 0.7); ctx.lineTo(x + r * 0.72, y + r * 0.55); ctx.lineTo(x - r * 0.72, y + r * 0.55); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = SKIN_COLORS.avax;
+      ctx.beginPath(); ctx.moveTo(x, y - r * 0.05); ctx.lineTo(x + r * 0.3, y + r * 0.55); ctx.lineTo(x - r * 0.3, y + r * 0.55); ctx.closePath(); ctx.fill();
     } else if (face === 'bnb') {
       /* a diamond of four small diamonds around a fifth */
       ctx.fillStyle = 'rgba(40,30,0,.85)';
@@ -2028,6 +1925,45 @@
       d(x, y, r * 0.2); d(x, y - r * 0.5, r * 0.18); d(x, y + r * 0.5, r * 0.18); d(x - r * 0.5, y, r * 0.18); d(x + r * 0.5, y, r * 0.18);
     }
     ctx.restore();
+  }
+
+  /* The dog coins share one face: ears, a squint, a nose and a muzzle. Each
+     one adds its own thing - shib's red fur and white brow, bonk's tongue,
+     wif's knitted hat. */
+  function shiba(ctx, x, y, r, which) {
+    const ink = 'rgba(8,8,14,.92)';
+    const ex = r * 0.36, ey = -r * 0.14;
+    const fur = which === 'shib' ? 'rgba(150,40,20,.9)' : (which === 'wif' ? 'rgba(140,90,40,.9)' : 'rgba(120,70,20,.9)');
+    ctx.fillStyle = fur;
+    ctx.beginPath(); ctx.moveTo(x - r * 0.72, y - r * 0.35); ctx.lineTo(x - r * 0.55, y - r * 1.02); ctx.lineTo(x - r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x + r * 0.72, y - r * 0.35); ctx.lineTo(x + r * 0.55, y - r * 1.02); ctx.lineTo(x + r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
+    if (which === 'wif') {
+      /* the pink hat, pulled down over the ears */
+      ctx.fillStyle = '#f19cc2';
+      ctx.beginPath(); ctx.ellipse(x, y - r * 0.62, r * 0.82, r * 0.5, 0, 3.1416, 6.283); ctx.fill();
+      ctx.fillStyle = '#f7c3da';
+      ctx.fillRect(x - r * 0.82, y - r * 0.66, r * 1.64, r * 0.16);
+      ctx.beginPath(); ctx.arc(x, y - r * 1.1, r * 0.13, 0, 6.283); ctx.fill();
+    }
+    if (which === 'shib') {
+      ctx.fillStyle = 'rgba(255,255,255,.7)';
+      ctx.beginPath(); ctx.ellipse(x, y - r * 0.02, r * 0.5, r * 0.28, 0, 0, 6.283); ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255,240,210,.85)';
+    ctx.beginPath(); ctx.ellipse(x, y + r * 0.3, r * 0.42, r * 0.32, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = ink;
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = Math.max(1, r * 0.15);
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.ellipse(x - ex, y + ey, r * 0.15, r * 0.1, -0.3, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x + ex, y + ey, r * 0.15, r * 0.1, 0.3, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y + r * 0.18, r * 0.12, 0, 6.283); ctx.fill();
+    if (which === 'bonk') {
+      ctx.fillStyle = '#e0506a';
+      ctx.beginPath(); ctx.ellipse(x + r * 0.1, y + r * 0.5, r * 0.14, r * 0.2, 0, 0, 6.283); ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.arc(x, y + r * 0.32, r * 0.22, 0.4, 2.74); ctx.stroke();
+    }
   }
 
   function paint(ctx, dt) {
@@ -2130,6 +2066,9 @@
   const $ = (s) => document.querySelector(s);
   const ROUND_MS = 300000;
   const LOBBY_MS = 240000;
+  const MEGA_EVERY = 1800000;      // a mega race on the hour and the half hour
+  const MEGA_POT = 25;
+  const isMega = (start) => start % MEGA_EVERY === 0;
   const HEX = '0123456789abcdef';
   const SKINS = ['#6ee7ff', '#7dff9b', '#ffd36e', '#ff5ea8', '#b98bff', '#ff8a4c',
                  '#4cd9ff', '#ff5252', '#9dff4c', '#ffffff'];
@@ -2144,7 +2083,7 @@
     resultUntil: 0,
     players: [],
     me: null,
-    skin: { color: SKINS[0], face: 'smile' },
+    skin: { color: '#e3a94e', face: 'doge' },
     queued: false,
     race: null,
     preview: null,
@@ -2173,7 +2112,7 @@
   const faceOf = (address) => {
     let h = 5381;
     for (let i = 0; i < address.length; i++) h = (Math.imul(h, 33) ^ address.charCodeAt(i)) >>> 0;
-    return RENDER.FACES[1 + (h % (RENDER.FACES.length - 1))];
+    return RENDER.FACES[h % RENDER.FACES.length];
   };
 
   function toast(text) {
@@ -2196,8 +2135,8 @@
     if (S.players.some((p) => p.address === address)) return;
     const p = {
       address, mine: !!mine,
-      color: mine ? S.skin.color : colorOf(address),
-      face: mine ? S.skin.face : faceOf(address)
+      face: mine ? S.skin.face : faceOf(address),
+      color: mine ? S.skin.color : (RENDER.SKIN_COLORS[faceOf(address)] || colorOf(address))
     };
     S.players.push(p);
     if (S.preview && S.phase === 'lobby') {
@@ -2264,7 +2203,7 @@
   function loadSkin() {
     try {
       const raw = JSON.parse(localStorage.getItem('mr.skin') || 'null');
-      if (raw && raw.color && raw.face) S.skin = raw;
+      if (raw && raw.color && raw.face && RENDER.FACES.includes(raw.face)) S.skin = raw;
     } catch {}
   }
   function saveSkin() {
@@ -2298,7 +2237,7 @@
     ctx.beginPath();
     ctx.arc(w / 2, h / 2, r, 0, 6.283);
     ctx.fill();
-    if (S.skin.face !== 'none') RENDER.drawFace(ctx, w / 2, h / 2, r, S.skin.face);
+    RENDER.drawFace(ctx, w / 2, h / 2, r, S.skin.face);
   }
 
   function buildPickers() {
@@ -2318,8 +2257,8 @@
       sw.appendChild(b);
     }
     const fc = $('#faces');
-    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.',
-                    doge: 'doge', pepe: 'pepe', eth: 'ETH', sol: 'SOL', btc: 'BTC', bnb: 'BNB' };
+    const names = { doge: 'DOGE', shib: 'SHIB', pepe: 'PEPE', bonk: 'BONK', wif: 'WIF', btc: 'BTC', eth: 'ETH',
+                    sol: 'SOL', bnb: 'BNB', xrp: 'XRP', usdt: 'USDT', usdc: 'USDC', ada: 'ADA', avax: 'AVAX' };
     for (const f of RENDER.FACES) {
       const b = document.createElement('button');
       b.className = 'fc';
@@ -2328,7 +2267,7 @@
       const ctx = c.getContext('2d');
       ctx.fillStyle = RENDER.SKIN_COLORS[f] || '#39415a';
       ctx.beginPath(); ctx.arc(23, 23, 17, 0, 6.283); ctx.fill();
-      if (f !== 'none') RENDER.drawFace(ctx, 23, 23, 17, f);
+      RENDER.drawFace(ctx, 23, 23, 17, f);
       const label = document.createElement('span');
       label.textContent = names[f] || f;
       b.append(c, label);
@@ -2365,10 +2304,16 @@
        target is drawn per round, the per-second rate follows from how long
        the queue is open, and every tick jitters so it lands like trades do. */
     S.pot = 0;
-    S.potPerSec = (1 / 60) * (0.85 + Math.random() * 0.3);
+    /* A normal race collects three to seven dollars; the one on the hour and
+       the half hour is the mega race and collects twenty-five. The rate is set
+       so the jar is full when the race is due. */
+    S.mega = isMega(S.roundStart);
+    S.potTarget = S.mega ? MEGA_POT : 3 + Math.random() * 4;
+    S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
     S.potAcc = 0;
-    /* the jar reads full at about what a queue of this length collects */
-    S.potTarget = Math.max(1.5, S.potPerSec * ((S.roundStart + LOBBY_MS - Date.now()) / 1000) * 1.05);
+    document.body.dataset.mega = S.mega ? '1' : '0';
+    $('#megaBadge').hidden = !S.mega;
+    $('#megaHud').hidden = !S.mega;
     S.potState = 'filling';
     paintPot();
     S.preview = RACE.createRace(((Date.now() / ROUND_MS) | 0) >>> 0,
@@ -2391,7 +2336,7 @@
     S.startedAt = performance.now();
     S.potState = 'locked';
     paintPot();
-    banner('GO!');
+    banner(S.mega ? 'MEGA RACE · GO!' : 'GO!');
     paintQueueBtn();
     say();
   }
@@ -2405,10 +2350,10 @@
     /* An EIP-681 link: a wallet on the creator's phone or the extension opens
        a send to this address with nothing else filled in. */
     $('#winSend').href = 'ethereum:' + winner.id;
-    $('#winPay').textContent = usd(S.pot) + ' · ' + COIN.potPct + '% of the fees';
+    $('#winPay').textContent = usd(S.pot) + (S.mega ? ' · MEGA RACE' : ' · ' + COIN.potPct + '% of the fees');
     $('#winYou').hidden = winner.id !== S.me;
     RENDER.celebrate(winner.id);
-    S.past.unshift({ at: Date.now(), winner: winner.id, pot: S.pot, n: S.players.length });
+    S.past.unshift({ at: Date.now(), winner: winner.id, pot: S.pot, n: S.players.length, mega: S.mega });
     S.past.length = Math.min(S.past.length, 12);
     S.resultUntil = Date.now() + 12000;
     savePast();
@@ -2491,7 +2436,7 @@
       const row = document.createElement('div'); row.className = 'row';
       const when = document.createElement('span');
       when.textContent = new Date(r.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
-        ' · ' + r.n + ' marbles';
+        ' · ' + r.n + ' marbles' + (r.mega ? ' · MEGA' : '');
       const amt = document.createElement('span');
       amt.style.color = 'var(--gold)';
       amt.textContent = usd(r.pot);
@@ -2560,9 +2505,15 @@
     clock(ts);
   }
 
-  let lastTick = 0;
+  let lastTick = 0, lastMegaSec = -1;
   function clock(ts) {
     const now = Date.now();
+    const megaSec = Math.floor(now / 1000);
+    if (megaSec !== lastMegaSec) {
+      lastMegaSec = megaSec;
+      const next = Math.ceil((now + 1) / MEGA_EVERY) * MEGA_EVERY;
+      $('#megaIn').textContent = fmt(next - now);
+    }
     if (S.phase === 'lobby') {
       const left = Math.max(0, S.roundStart + LOBBY_MS - now);
       $('#clockLabel').textContent = 'Next race in';
@@ -2575,7 +2526,7 @@
         const trade = Math.random() < 0.004;
         let add = 0;
         if (S.potAcc >= 0.01) { add = Math.floor(S.potAcc * 100) / 100; S.potAcc -= add; }
-        if (trade) add += 0.1 + Math.random() * 0.25;
+        if (trade) add += (S.mega ? 0.5 : 0.1) + Math.random() * (S.mega ? 1.2 : 0.25);
         if (add > 0) {
           S.pot = Math.round((S.pot + add) * 100) / 100;
           paintPot();
@@ -2603,7 +2554,7 @@
     $('#potBig').textContent = usd(S.pot);
     $('#pot').textContent = usd(S.pot);
     $('#potbox').dataset.state = S.potState;
-    $('#potState').textContent = {
+    $('#potState').textContent = (S.mega ? 'MEGA RACE · ' : '') + {
       filling: 'Filling with fees while the queue is open',
       locked: 'Locked for the race',
       draining: 'Paid out to the winner'
@@ -2698,13 +2649,59 @@
     paint();
   }
 
+  /* ---- the marbles drifting round the headline --------------------------- */
+
+  /* Seven coin marbles, drawn with the same routine the track uses, scattered
+     round the hero the way a shop scatters its wares. Purely decorative: they
+     never touch the race. */
+  function floaters() {
+    const host = $('#floaters');
+    if (!host) return;
+    /* Kept to the margins, well clear of the headline, the copy and the trust
+       row: the two near ones high in the corners, the far ones lower down. */
+    const spots = [
+      { f: 'doge', x: 7, y: 12, r: 34, far: false, d: 0 },
+      { f: 'btc', x: 82, y: 10, r: 40, far: false, d: 1.2 },
+      { f: 'pepe', x: 3, y: 50, r: 30, far: true, d: 0.8 },
+      { f: 'eth', x: 89, y: 44, r: 30, far: true, d: 2.3 },
+      { f: 'sol', x: 85, y: 68, r: 34, far: false, d: 3.1 },
+      { f: 'wif', x: 12, y: 34, r: 22, far: true, d: 2.7 }
+    ];
+    for (const sp of spots) {
+      const el = document.createElement('div');
+      el.className = 'fl ' + (sp.far ? 'fl--far' : 'fl--near');
+      el.style.left = sp.x + '%';
+      el.style.top = sp.y + '%';
+      el.style.animationDelay = (-sp.d) + 's';
+      el.style.animationDuration = (6 + sp.d) + 's';
+      const cv = document.createElement('canvas');
+      const size = sp.r * 2 + 12;
+      cv.width = size * 2; cv.height = size * 2;
+      cv.style.width = size + 'px'; cv.style.height = size + 'px';
+      const ctx = cv.getContext('2d');
+      ctx.scale(2, 2);
+      const c = RENDER.SKIN_COLORS[sp.f];
+      const g = ctx.createRadialGradient(size / 2 - sp.r * 0.38, size / 2 - sp.r * 0.42, sp.r * 0.1, size / 2, size / 2, sp.r);
+      g.addColorStop(0, '#ffffff'); g.addColorStop(0.22, c); g.addColorStop(0.78, c); g.addColorStop(1, 'rgba(0,0,0,.55)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(size / 2, size / 2, sp.r, 0, 6.283); ctx.fill();
+      RENDER.drawFace(ctx, size / 2, size / 2, sp.r, sp.f);
+      ctx.fillStyle = 'rgba(255,255,255,.9)';
+      ctx.beginPath(); ctx.arc(size / 2 - sp.r * 0.42, size / 2 - sp.r * 0.45, sp.r * 0.14, 0, 6.283); ctx.fill();
+      const label = document.createElement('b');
+      label.textContent = sp.f.toUpperCase();
+      el.append(cv, label);
+      host.appendChild(el);
+    }
+  }
+
   /* ---- what the coin fills in later -------------------------------------- */
 
   function applyCoin() {
     $('#ticker').textContent = COIN.ticker ? (COIN.ticker.startsWith('$') ? COIN.ticker : '$' + COIN.ticker) : '';
     const val = $('#caVal');
     if (COIN.ca) {
-      val.textContent = COIN.ca;
+      val.textContent = short(COIN.ca);
       $('#caBtn').title = 'copy ' + COIN.ca;
       $('#footCa').textContent = COIN.ca;
     } else {
@@ -2715,8 +2712,11 @@
     if (COIN.x) {
       x.href = COIN.x;
       $('#xHandle').textContent = COIN.x.replace(/^https?:\/\/(x|twitter)\.com\//i, '@');
+    } else {
+      x.removeAttribute('href');
+      x.style.opacity = '.4';
     }
-    for (const id of ['#pctA', '#pctB', '#pctC']) $(id).textContent = COIN.potPct + '%';
+    for (const id of ['#pctA', '#pctB', '#pctC']) if ($(id)) $(id).textContent = COIN.potPct + '%';
   }
 
   /* The sidebar follows the reading position, and closes itself once a link on
@@ -2724,14 +2724,10 @@
   function wireNav() {
     const links = [...document.querySelectorAll('.nl')];
     const nav = $('#nav');
-    for (const a of links) {
-      a.addEventListener('click', () => nav.classList.remove('open'));
-    }
-    $('#navToggle').addEventListener('click', () => nav.classList.toggle('open'));
+    for (const a of links) a.addEventListener('click', () => nav.classList.remove('open'));
+    $('#navToggle').addEventListener('click', (e) => { e.stopPropagation(); nav.classList.toggle('open'); });
     document.addEventListener('click', (e) => {
-      if (nav.classList.contains('open') && !nav.contains(e.target) && e.target.id !== 'navToggle') {
-        nav.classList.remove('open');
-      }
+      if (nav.classList.contains('open') && !nav.contains(e.target)) nav.classList.remove('open');
     });
     const targets = links
       .map((a) => ({ a, el: document.querySelector(a.getAttribute('href')) }))
@@ -2759,6 +2755,7 @@
   applyCoin();
   wireNav();
   wireLaunch();
+  floaters();
   openLobby();
   addBots(17);
   paintPot();

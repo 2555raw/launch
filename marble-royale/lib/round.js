@@ -35,6 +35,10 @@ const LOCK_MS = 5000;
 const LOBBY_MS = ROUND_MS - RESULT_MS - RACE_MAX_MS - LOCK_MS;
 const MAX_PLAYERS = Math.max(2, Number(process.env.MAX_PLAYERS) || 250);
 const FEE_WALLET = process.env.FEE_WALLET || '';
+/* With no fee wallet to read and demo mode on, the pot is acted: it climbs a
+   cent at a time to a few dollars over the queue, twenty-five on a mega race,
+   and every figure it sends is marked demo so the page can say so. */
+const DEMO_POT = process.env.DEMO_MODE === '1' && !FEE_WALLET;
 /* What the winner takes out of the fees that came in during the round. The rest
    stays where it is. Whoever runs the game picks the number and it is on screen,
    because a pot nobody can check is a pot nobody believes. */
@@ -44,6 +48,7 @@ const POT_PCT = Math.min(100, Math.max(0, Number(process.env.POT_PCT) || 20));
    so from the moment it opens, so the page can badge it. */
 const MEGA_EVERY_MS = Math.max(ROUND_MS, Number(process.env.MEGA_EVERY_MS) || 1800000);
 const MEGA_PCT = Math.min(100, Math.max(0, Number(process.env.MEGA_PCT) || 50));
+const MATERIALS = ['glass', 'metal', 'holo', 'neon', 'chrome', 'clear', 'lava', 'galaxy'];
 const FACES = ['hood', 'doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
@@ -74,6 +79,7 @@ class Rounds extends EventEmitter {
     const secret = crypto.randomBytes(32).toString('hex');
     const r = this.round = {
       id: 'R' + startAt,
+      number: store.nextNumber(),
       startAt,
       raceAt: startAt + LOBBY_MS + LOCK_MS,
       lockAt: startAt + LOBBY_MS,
@@ -89,6 +95,7 @@ class Rounds extends EventEmitter {
       winner: null,
       seconds: 0,
       pot: null,
+      potDemo: false,
       gross: null,
       grossEth: null,
       baseline: null,
@@ -101,7 +108,23 @@ class Rounds extends EventEmitter {
 
     this.emit('phase', this.publicRound());
     this.readBaseline();
+    if (DEMO_POT) {
+      r.pot = 0;
+      r.potDemo = true;
+      r.potTarget = r.mega ? 25 : 3 + Math.random() * 4;
+      clearInterval(this.demoTimer);
+      this.demoTimer = setInterval(() => this.demoTick(), 1000);
+    }
     this.at(r.lockAt, () => this.lock());
+  }
+
+  demoTick() {
+    const r = this.round;
+    if (!r || !DEMO_POT || r.phase !== 'lobby') return;
+    const secs = Math.max(20, (r.lockAt - r.startAt) / 1000);
+    const step = (r.potTarget / secs) * (0.5 + Math.random());
+    r.pot = Math.min(r.potTarget, Math.round((r.pot + step) * 100) / 100);
+    this.emit('pot', { roundId: r.id, pot: r.pot, gross: null, grossEth: null, pct: 100, mega: r.mega, demo: true, final: false });
   }
 
   async readBaseline() {
@@ -177,7 +200,7 @@ class Rounds extends EventEmitter {
       secret: r.secret,
       commit: r.commit,
       startAt: r.raceAt,
-      players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face }))
+      players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name }))
     });
 
     const showFor = Math.min(RACE_MAX_MS - 500, Math.ceil(outcome.seconds * 1000) + 1400);
@@ -192,6 +215,7 @@ class Rounds extends EventEmitter {
 
     store.addRound({
       id: r.id,
+      number: r.number,
       startAt: r.startAt,
       raceAt: r.raceAt,
       seed: r.seed,
@@ -212,6 +236,7 @@ class Rounds extends EventEmitter {
 
     this.emit('result', {
       roundId: r.id,
+      number: r.number,
       winner: r.winner,
       pot: r.pot,
       gross: r.gross,
@@ -265,12 +290,38 @@ class Rounds extends EventEmitter {
       address,
       joinedAt: Date.now(),
       color: cleanColor(skin && skin.color) || colorOf(address),
-      face: FACES.includes(skin && skin.face) ? skin.face : faceOf(address)
+      face: FACES.includes(skin && skin.face) ? skin.face : faceOf(address),
+      material: MATERIALS.includes(skin && skin.material) ? skin.material : materialOf(address),
+      name: cleanName(skin && skin.name)
     };
     r.players.push(player);
     r.index.set(address, player);
     if (!fromWaitlist) this.emit('join', { roundId: r.id, player, count: r.players.length });
     return { player, count: r.players.length };
+  }
+
+  /* The rounds ahead, on the clock, with the mega ones flagged: what the
+     race list on the page shows. Numbers past the current one are what they
+     will be, since numbers only go up by one per round. */
+  schedule(n) {
+    const r = this.round;
+    if (!r) return [];
+    const out = [];
+    for (let i = 0; i < (n || 4); i++) {
+      const startAt = r.startAt + i * ROUND_MS;
+      out.push({
+        id: 'R' + startAt,
+        number: r.number + i,
+        startAt,
+        raceAt: startAt + LOBBY_MS + LOCK_MS,
+        lockAt: startAt + LOBBY_MS,
+        mega: startAt % MEGA_EVERY_MS === 0,
+        open: i === 0 && r.phase === 'lobby',
+        count: i === 0 ? r.players.length : this.waitlist.length,
+        max: MAX_PLAYERS
+      });
+    }
+    return out;
   }
 
   /* ---- what the browser is told ----------------------------------------- */
@@ -280,6 +331,7 @@ class Rounds extends EventEmitter {
     if (!r) return null;
     return {
       id: r.id,
+      number: r.number,
       phase: r.phase,
       mega: r.mega,
       startAt: r.startAt,
@@ -290,10 +342,11 @@ class Rounds extends EventEmitter {
       seed: r.phase === 'lobby' || r.phase === 'locked' && !r.seed ? null : r.seed,
       secret: r.phase === 'result' || r.phase === 'racing' ? r.secret : null,
       pot: r.pot,
+      potDemo: !!r.potDemo,
       gross: r.gross,
       potPct: r.mega ? MEGA_PCT : POT_PCT,
       potFinal: r.potFinal,
-      players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face })),
+      players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name })),
       count: r.players.length,
       max: MAX_PLAYERS,
       winner: r.phase === 'result' ? r.winner : null,
@@ -307,6 +360,20 @@ class Rounds extends EventEmitter {
    colour and a face from the list, or the ones the address would have had. */
 function cleanColor(value) {
   return typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
+}
+
+function materialOf(address) {
+  let h = 7;
+  for (let i = 0; i < address.length; i++) h = (Math.imul(h, 31) + address.charCodeAt(i)) >>> 0;
+  return MATERIALS[h % MATERIALS.length];
+}
+
+/* A display name is letters, digits and a few marks, up to sixteen of them,
+   or nothing: the short address then stands in. */
+function cleanName(value) {
+  if (typeof value !== 'string') return '';
+  const v = value.replace(/[^\w .\-]/g, '').trim().slice(0, 16);
+  return v;
 }
 
 function faceOf(address) {
@@ -332,4 +399,4 @@ function colorOf(address) {
   return 'hsl(' + hue + ' ' + sat + '% ' + lit + '%)';
 }
 
-module.exports = { Rounds, ROUND_MS, LOBBY_MS, LOCK_MS, RACE_MAX_MS, RESULT_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES, colorOf, faceOf, cleanColor, sha256 };
+module.exports = { Rounds, ROUND_MS, LOBBY_MS, LOCK_MS, RACE_MAX_MS, RESULT_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES, MATERIALS, colorOf, faceOf, cleanColor, sha256 };

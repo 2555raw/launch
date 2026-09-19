@@ -25,6 +25,10 @@ const PORT = Number(process.env.PORT) || 8080;
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 const TOKEN_MINT = process.env.TOKEN_MINT || '';
+/* Demo mode hands out demo wallets: a random address and a session, no
+   signature, so the game can be tried with nothing installed. Everything a
+   demo wallet does is marked demo; it never reaches a chain. Off unless asked. */
+const DEMO_MODE = process.env.DEMO_MODE === '1';
 const MIN_TOKENS = Math.max(0, Number(process.env.MIN_TOKENS) || 0);
 const PUBLIC = path.join(__dirname, 'public');
 
@@ -39,6 +43,8 @@ const CONFIG = {
   currency: 'USD',
   potPct: POT_PCT,
   megaPct: MEGA_PCT,
+  demoMode: DEMO_MODE,
+  entry: process.env.ENTRY_LABEL || 'FREE',
   megaEveryMs: MEGA_EVERY_MS,
   faces: FACES,
   roundMs: ROUND_MS,
@@ -174,6 +180,7 @@ function snapshot() {
     now: Date.now(),
     config: CONFIG,
     round: rounds.publicRound(),
+    schedule: rounds.schedule(4),
     recent: store.recent(12).map(publicResult),
     top: store.top(10),
     chat: chatLog.slice(-40),
@@ -182,7 +189,8 @@ function snapshot() {
 }
 
 const publicResult = (r) => ({
-  id: r.id, startAt: r.startAt, winner: r.winner, pot: r.pot, gross: r.gross,
+  id: r.id, number: r.number, startAt: r.startAt, winner: r.winner, pot: r.pot, gross: r.gross, mega: !!r.mega,
+  podium: (r.order || []).slice(0, 3),
   players: (r.players || []).length, seconds: r.seconds,
   paid: !!r.paid, tx: r.tx || '', seed: r.seed, commit: r.commit, secret: r.secret
 });
@@ -235,6 +243,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (p === '/api/state') return json(res, 200, snapshot());
+  if (p === '/api/schedule') return json(res, 200, { now: Date.now(), schedule: rounds.schedule(4) });
 
   if (p === '/api/history') {
     const n = Math.min(200, Math.max(1, Number(url.searchParams.get('n')) || 50));
@@ -267,6 +276,11 @@ const server = http.createServer(async (req, res) => {
     if (!allow('auth:' + ip, 90, 40)) return json(res, 429, { error: 'slow down' });
     const body = await readBody(req);
     if (!body) return json(res, 400, { error: 'bad request' });
+    if (body.demo) {
+      if (!DEMO_MODE) return json(res, 403, { error: 'demo wallets are off on this server' });
+      const address = chain.normalize('0x' + crypto.randomBytes(20).toString('hex'));
+      return json(res, 200, { token: mintToken(address), address, demo: true, stats: store.statsFor(address) });
+    }
     const address = chain.normalize(body.address);
     const { nonce, signature } = body;
     const entry = nonces.get(nonce);
@@ -298,7 +312,9 @@ const server = http.createServer(async (req, res) => {
     }
     const out = rounds.join(address, false, {
       color: body.color,
-      face: body.face
+      face: body.face,
+      material: body.material,
+      name: body.name
     });
     if (out.error === 'closed') return json(res, 409, { error: 'this race is already closed - you are in the next one' });
     if (out.error === 'full') return json(res, 409, { error: 'this race is full', queued: out.queued });

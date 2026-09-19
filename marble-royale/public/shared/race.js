@@ -90,6 +90,12 @@
 
     const seg = (x1, y1, x2, y2, r, b) =>
       statics.push({ x1, y1, x2, y2, r: r || 9, b: b === undefined ? WALL_BOUNCE : b });
+    /* A boost pad is a rail that also shoves anything touching it along its
+       own length, the way a conveyor would. Pure arithmetic, so it replays. */
+    const pad = (x1, y1, x2, y2, power) => {
+      const dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy);
+      statics.push({ x1, y1, x2, y2, r: 10, b: 0.2, boost: power, bx: dx / L, by: dy / L });
+    };
     const peg = (x, y0, r, b) =>
       statics.push({ x1: x, y1: y0, x2: x, y2: y0, r: r || 15, b: b === undefined ? 0.45 : b });
     const pick = (n) => Math.floor(rnd() * n);
@@ -114,7 +120,7 @@
        ten kinds, with the height and the details of each one drawn too, so no
        two courses are alike. */
     const KINDS = ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers',
-                   'funnel', 'stairs', 'plinko', 'flippers'];
+                   'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'];
     let last = -1;
     const sections = [];
     const count = 7 + pick(3);
@@ -232,6 +238,35 @@
             peg(px, y + 100 + r0 * ((h - 180) / rows), 8 + pick(2) * 2, 0.5);
           }
         }
+      } else if (kind === 'jump') {
+        /* A ramp that dips, then a kicker that throws marbles over a gap onto
+           the landing ramp. Between the dip and the kicker there is a slot a
+           marble's width across: a fast one flies over it and takes the
+           kicker, a slow one drops through it onto the catch ramp below and
+           loses a second. No pocket at the bottom of the dip, ever. */
+        const fromLeft = pick(2) === 0;
+        const y0 = y + 80;
+        const lip = 320 + pick(3) * 30;
+        const gapW = 190 + pick(3) * 30;
+        const m = fromLeft ? 1 : -1;                    // mirror
+        const X = (v) => fromLeft ? v : WIDTH - v;
+        seg(X(-40), y0, X(lip - 130), y0 + 222, 12);
+        seg(X(lip - 62), y0 + 246, X(lip), y0 + 200, 12);
+        /* The landing ramp stops short of the far wall: a ramp that meets a
+           wall at its low end is a pocket, so the field pours off its end
+           instead. The catch ramp under the slot does the same. */
+        seg(X(lip + gapW), y0 + 250, X(WIDTH - 230), y0 + 420, 12);
+        seg(X(lip - 160), y0 + 470, X(lip + gapW + 60), y0 + 580, 11);
+        peg(WIDTH / 2 + (pick(3) - 1) * 150 * m, y0 + 720, 18);
+      } else if (kind === 'boost') {
+        /* Two boost rails, one each side, and a wall of pegs between them so
+           the field has to pick a side. */
+        const y0 = y + 90;
+        pad(-40, y0, 360, y0 + 300, 420);
+        pad(WIDTH + 40, y0 + 140, WIDTH - 360, y0 + 440, 420);
+        for (let i = 0; i < 4; i++) peg(WIDTH / 2 + (i % 2 ? 40 : -40), y0 + 380 + i * 110, 14);
+        pad(-40, y0 + 560, 420, y0 + 720, 380);
+        peg(WIDTH - 150, y0 + 640, 18);
       } else { /* flippers */
         for (let s = 0; s < 3; s++) {
           movers.push({
@@ -499,6 +534,11 @@
     if (d < 0.0001) { nx = 0; ny = -1; d = 0.0001; } else { nx /= d; ny /= d; }
     b.x += nx * (rad - d);
     b.y += ny * (rad - d);
+    if (s.boost) {
+      /* along the pad, capped so a marble already flying is not flung */
+      const along = b.vx * s.bx + b.vy * s.by;
+      if (along < s.boost * 2.2) { b.vx += s.bx * s.boost * DT * 6; b.vy += s.by * s.boost * DT * 6; }
+    }
     const rvx = b.vx - (ovx || 0), rvy = b.vy - (ovy || 0);
     const vn = rvx * nx + rvy * ny;
     if (vn < 0) {
@@ -546,6 +586,9 @@
     return st.balls[n];
   }
 
+  /* How far down the course a marble has got, 0..1, by its best depth. */
+  const progress = (st, b) => Math.max(0, Math.min(1, (b.done ? st.course.finishY : b.best) / st.course.finishY));
+
   /* Plays the race out with no rendering. This is what the server calls. */
   function runToEnd(seed, marbles) {
     const st = createRace(seed, marbles);
@@ -560,6 +603,6 @@
   return {
     WIDTH, R, DT, MAX_SECONDS, BAND,
     mulberry32, dsin, dcos,
-    makeCourse, moverSegments, createRace, addBall, step, runToEnd
+    makeCourse, moverSegments, createRace, addBall, step, runToEnd, progress
   };
 });

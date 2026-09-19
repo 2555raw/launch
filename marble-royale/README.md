@@ -99,6 +99,8 @@ All optional except where noted.
 | `ETH_USD` | a fixed ETH price in dollars, if you would rather not read a feed |
 | `EXPLORER` | where transaction links go (default etherscan.io; set the chain's own explorer) |
 | `ADMIN_KEY` | **set this**, or /admin is off |
+| `DEMO_MODE` | `1` hands out demo wallets and, with no fee wallet, acts the pot. Off by default |
+| `ENTRY_LABEL` | what the lobby shows for entry (default FREE) |
 | `SESSION_SECRET` | keeps sign-ins valid across restarts; random each boot if unset |
 | `DATA_DIR` | where results are written (default `./data`) |
 | `ROUND_MS` | round length in ms (default 300000) |
@@ -134,37 +136,68 @@ Anywhere that runs Node 18+ works the same after `npm install`. There is nothing
 ## Layout
 
 ```
-server.js            http, the event stream, the api, the admin routes
-lib/round.js         the five minute clock, the commit-reveal, the field
-lib/store.js         results on disk
-lib/chain.js         signature checks, balances, the ETH/USD price, token holdings
-public/shared/race.js  the physics - the one file the server and the browser share
-public/render.js     the canvas
-public/app.js        the page: stream, wallet, chat, cheers
-public/verify.html   replay any past race and check the winner
-public/admin.html    the payout desk
+server.js                 http, the event stream, the api, the admin routes
+lib/round.js              the five minute clock, the commit-reveal, the field, the schedule
+lib/store.js              results on disk, race numbers
+lib/chain.js              signature checks, balances, the ETH/USD price, token holdings
+
+public/shared/race.js     the physics - the one file the server and the browser share
+public/render.js          2D drawing: coin faces, the verify page, the pickers
+public/js/types.js        the shapes that cross module boundaries (JSDoc)
+public/js/store.js        four stores: game, ui, wallet, chain
+public/js/game/scene.js   the 3D world: track, marbles, particles, bloom (three.js)
+public/js/game/camera.js  the camera director: idle, overview, gate, follow, battle, finish, victory
+public/js/game/skins.js   marble materials: glass, metal, holo, neon, chrome, clear, lava, galaxy
+public/js/game/audio.js   the sound manager, synth cues until files are dropped in
+public/js/web3/wallet.js  MetaMask, Phantom (EVM), EIP-6963 wallets, demo wallets
+public/js/web3/contracts.js  joinRace / getRace / … with a demo backend and an on-chain stub
+public/js/app.js          the screens: home, lobby, countdown, race HUD, results
+public/js/standalone.js   the game with no server, for the one-file preview
+public/vendor/three/      three.js and the post-processing passes it needs
+public/verify.html        replay any past race and check the winner
+public/admin.html         the payout desk
+preview/build-app.js      builds preview/dist/marble-royale.html, the one-file game
 ```
 
 `public/shared/race.js` runs on both sides, which is the whole trick: the server
 plays the race out in a few milliseconds and keeps the result, and every browser
-replays the same race in real time. That only holds because the engine avoids
-anything a JavaScript engine is free to round differently - no `Math.random`, no
-`Math.sin`, a fixed timestep. The rules are written at the top of that file; if
-you change it, read them first. The result people are paid on always comes from
-the server, so a browser that disagreed would only be showing the wrong picture,
-not paying the wrong wallet.
+replays the same race in real time - in 3D, but the 3D only ever reads the
+engine. That only holds because the engine avoids anything a JavaScript engine
+is free to round differently - no `Math.random`, no `Math.sin`, a fixed
+timestep. The rules are written at the top of that file; if you change it, read
+them first. The result people are paid on always comes from the server, so a
+browser that disagreed would only be showing the wrong picture, not paying the
+wrong wallet.
 
-## The preview page
+## The game
 
-`preview/` builds a single self-contained HTML file: the real engine and the
-real renderer, inlined byte for byte, around a page that races on its own with
-demonstration marbles. It is for showing people what the game looks like when
-there is nowhere to run the server yet - it has no wallets to verify, no shared
-field, no seed commitment and no fees.
+The world is one WebGL canvas and every screen is glass over it. The flow is
+home → connect → lobby → join → countdown → race → results → race again, and the
+page moves itself along: the countdown pulls you onto the track, the result
+brings up the podium.
 
-```
-node preview/build.js      # -> preview/dist/marble-royale-preview.html
-```
-
-Open the file anywhere, or publish it. Anything it shows on the track is what
-the real site shows, because it is the same code.
+- **Wallets.** MetaMask, Phantom's Ethereum side and anything announcing itself
+  through EIP-6963. Signing in is a `personal_sign`, never a transaction. With
+  `DEMO_MODE=1` the server also hands out demo wallets - a random address and a
+  session, nothing on any chain - so the game can be tried with nothing
+  installed. Everything a demo wallet does is labelled demo.
+- **Marbles.** Eight materials, fifteen coin faces, ten colours and a name up to
+  sixteen characters, chosen in the lobby and sent with the join. The server
+  checks every field and everyone sees what you picked.
+- **The pot.** Read off the fee wallet and priced in dollars, as before. With
+  no fee wallet and demo mode on, it is acted: it climbs a cent at a time to a
+  few dollars over the queue, twenty-five on a mega race, and every figure is
+  marked demo.
+- **The contract.** `CONTRACTS.race` exposes joinRace, getRace,
+  getRaceParticipants, getRaceState, getRaceResults and claimPrize. The demo
+  backend is the server; the on-chain backend is named, typed and throws until a
+  contract address is configured. A join is a small transaction state machine
+  the lobby shows honestly: waiting for wallet → confirm → pending →
+  confirmed or failed, with "demo, nothing on-chain" appended when that is
+  what it is.
+- **Sound.** `SOUND.play('go')` and friends; every cue is synthesised until a
+  file is loaded with `SOUND.load(name, url)`.
+- **The one-file preview.** `node preview/build-app.js` inlines the whole game
+  into `preview/dist/marble-royale.html` with the server stood in for by
+  `standalone.js`: a round every five minutes, bots in the field, a demo pot,
+  three.js from a CDN. It says on the page that it is a preview build.

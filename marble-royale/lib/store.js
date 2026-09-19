@@ -16,7 +16,7 @@ const DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const FILE = path.join(DIR, 'rounds.json');
 const KEEP = 500;                 // rounds kept in the file and in memory
 
-let state = { rounds: [], stats: {} };
+let state = { rounds: [], stats: {}, counter: 0 };
 let writing = false, again = false;
 
 function load() {
@@ -24,7 +24,7 @@ function load() {
     const raw = fs.readFileSync(FILE, 'utf8');
     const parsed = JSON.parse(raw);
     if (parsed && Array.isArray(parsed.rounds)) {
-      state = { rounds: parsed.rounds, stats: parsed.stats || {} };
+      state = { rounds: parsed.rounds, stats: parsed.stats || {}, counter: parsed.counter || parsed.rounds.length };
     }
   } catch (err) {
     if (err.code !== 'ENOENT') console.error('[store] could not read ' + FILE + ':', err.message);
@@ -70,6 +70,15 @@ function addRound(round) {
 
 const findRound = (id) => state.rounds.find((r) => r.id === id) || null;
 
+/* Rounds are numbered for people - RACE #0248 - and the number only ever
+   goes up, whatever happens to the file of results. */
+function nextNumber() {
+  state.counter = (state.counter || 0) + 1;
+  save();
+  return state.counter;
+}
+const currentNumber = () => state.counter || 0;
+
 function markPaid(id, signature) {
   const r = findRound(id);
   if (!r) return null;
@@ -102,4 +111,4 @@ function top(n) {
 
 const unpaid = () => state.rounds.filter((r) => r.winner && !r.paid);
 
-module.exports = { load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, FILE };
+module.exports = { load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, nextNumber, currentNumber, FILE };

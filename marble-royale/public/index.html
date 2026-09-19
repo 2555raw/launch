@@ -4,147 +4,284 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MARBLE ROYALE</title>
-<meta name="description" content="A marble race every five minutes. Connect your wallet, get a marble, and the first one down takes the creator fees from those five minutes.">
+<meta name="description" content="Race your marble. Win the pot. A provably fair marble race every five minutes on Robinhood Chain.">
 <meta property="og:title" content="MARBLE ROYALE">
-<meta property="og:description" content="Every five minutes, one marble takes the fees.">
-<meta name="theme-color" content="#07070c">
+<meta property="og:description" content="Race your marble. Win the pot.">
+<meta name="theme-color" content="#07070b">
 <link rel="icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="styles.css">
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
 </head>
-<body data-phase="lobby">
+<body data-screen="home" data-phase="lobby">
 
+<canvas id="gl" aria-label="the race"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
+
+<!-- ---------- top bar ---------- -->
 <header class="top">
-  <div class="brand">
-    <span class="brand__dot"></span>
-    <span class="brand__name" id="coinName">MARBLE ROYALE</span>
-    <span class="brand__ticker" id="coinTicker"></span>
+  <a class="brand" href="#" data-go="home">
+    <span class="brand__mark"></span>
+    <span class="brand__name">MARBLE<b>ROYALE</b></span>
+  </a>
+  <div class="top__race" id="topRace">
+    <span class="mono" id="topRaceNo">RACE #----</span>
+    <span class="pill pill--phase" id="topPhase">LOBBY</span>
   </div>
-
-  <div class="clock" id="clockBox">
-    <span class="clock__label" data-i18n="phase.lobby" id="phaseLabel">NEXT RACE IN</span>
-    <span class="clock__time" id="clock">--:--</span>
-  </div>
-
-  <div class="pot" title="creator fees collected in this round">
-    <span class="pot__label" data-i18n="pot.label">POT THIS ROUND</span>
-    <span class="pot__value"><b id="potValue">—</b> <span id="potUnit">SOL</span></span>
-  </div>
-
-  <div class="tools">
-    <button class="btn btn--ca" id="caBtn" hidden title="copy the contract address">
-      <span class="ca__k">CA</span><span class="ca__v" id="caVal"></span>
-    </button>
-    <a class="btn btn--icon" id="xLink" hidden target="_blank" rel="noopener" aria-label="X">
-      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-    </a>
-    <button class="btn btn--ghost" id="soundBtn" title="sound" aria-label="sound">♪</button>
-    <button class="btn btn--ghost" id="langBtn">ES</button>
-    <button class="btn btn--go" id="connectBtn" data-i18n="btn.connect">CONNECT WALLET</button>
+  <div class="top__right">
+    <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
+    <button class="btn btn--ghost btn--icon" id="soundBtn" title="sound" aria-label="sound">♪</button>
+    <button class="btn btn--accent" id="walletBtn"><span class="btn__dot"></span><span id="walletLabel">Connect wallet</span></button>
   </div>
 </header>
 
-<main>
-  <section class="stage">
-    <canvas id="stage" aria-label="marble race"></canvas>
+<main id="screens">
 
-    <div class="stage__hud">
-      <div class="hud__pill" id="hudPlayers">0 <span data-i18n="hud.racing">racing</span></div>
-      <div class="hud__pill" id="hudWatching">0 <span data-i18n="hud.watching">watching</span></div>
-      <div class="hud__pill hud__pill--me" id="hudMe" hidden></div>
+  <!-- ---------- HOME ---------- -->
+  <section class="screen screen--home" id="s-home">
+    <div class="hero">
+      <div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 5 MINUTES</div>
+      <h1>RACE YOUR<br>MARBLE.<br><span>WIN THE POT.</span></h1>
+      <p>Connect a wallet, drop a marble on the track, and watch it fight two hundred others down a course drawn fresh every race. First one over the line takes the whole pot.</p>
+      <div class="hero__cta">
+        <button class="btn btn--accent btn--xl" id="heroJoin"><span class="btn__dot"></span>Join the next race</button>
+        <button class="btn btn--glass btn--xl" data-go="lobby">Watch the lobby</button>
+      </div>
+      <ol class="flow" aria-label="how it works">
+        <li><b>01</b>Connect</li><li><b>02</b>Join</li><li><b>03</b>Watch</li><li><b>04</b>Win</li>
+      </ol>
     </div>
 
-    <div class="banner" id="banner" hidden></div>
-
-    <div class="winner" id="winnerCard" hidden>
-      <div class="winner__crown">🏆</div>
-      <div class="winner__title" data-i18n="winner.title">WINNER</div>
-      <button class="winner__addr" id="winnerAddr" title="copy"></button>
-      <div class="winner__pot"><b id="winnerPot">—</b> <span data-i18n="winner.takes">to the wallet above</span></div>
-      <div class="winner__note" id="winnerNote" data-i18n="winner.note">Paid by hand from the creator wallet.</div>
-      <div class="winner__you" id="winnerYou" hidden data-i18n="winner.you">THAT IS YOU</div>
+    <div class="livebar glass" id="livebar">
+      <div class="livebar__cell"><em>NEXT RACE</em><b class="mono" id="lbNo">#----</b></div>
+      <div class="livebar__cell"><em id="lbClockLabel">STARTING IN</em><b class="mono big" id="lbClock">--:--</b></div>
+      <div class="livebar__cell"><em>PRIZE POOL</em><b class="mono gold" id="lbPot">$0.00</b></div>
+      <div class="livebar__cell"><em>PLAYERS</em><b class="mono" id="lbPlayers">0 / 250</b></div>
+      <div class="livebar__cell livebar__cell--cta"><button class="btn btn--accent" data-go="lobby">Enter lobby →</button></div>
     </div>
 
-    <div class="stage__bar">
-      <div class="status" id="status" data-i18n="status.watch">Watching. Connect a wallet to get a marble.</div>
-      <div class="actions">
-        <button class="btn" id="skinBtn" data-i18n="btn.skin">MY MARBLE</button>
-        <label class="auto" id="autoWrap" hidden>
-          <input type="checkbox" id="autoJoin"> <span data-i18n="btn.auto">auto-join every race</span>
-        </label>
-        <button class="btn btn--go btn--join" id="joinBtn" disabled data-i18n="btn.join">JOIN THIS RACE</button>
+    <section class="block">
+      <div class="block__head">
+        <span class="kicker kicker--plain">RACES</span>
+        <h2>Upcoming races</h2>
+        <p>One race at a time, on the clock. Join the open one; anything after it fills from the queue.</p>
+      </div>
+      <div class="races" id="raceCards"></div>
+    </section>
+
+    <section class="block block--split">
+      <div class="glass panel">
+        <span class="kicker kicker--plain">HOW IT WORKS</span>
+        <ol class="steps">
+          <li><b>Connect a wallet</b><span>MetaMask, Phantom or any EVM wallet. Signing in is a message, never a transaction. A demo wallet is one tap away if you just want to look.</span></li>
+          <li><b>Join the race</b><span>Pick a marble, pick a name, press join. One marble per wallet. The queue closes five seconds before the gate opens.</span></li>
+          <li><b>Watch it run</b><span>The camera chases the leaders down a track of ramps, spinners, jumps and boost pads. Every browser sees the same race at the same moment.</span></li>
+          <li><b>Win the pot</b><span>First over the line takes the whole prize pool, paid to the winning address. The result and the address stay in the log.</span></li>
+        </ol>
+      </div>
+      <div class="glass panel">
+        <span class="kicker kicker--plain">PROVABLY FAIR</span>
+        <h3>The seed is fixed before anyone joins</h3>
+        <p>The server publishes <code>sha256(secret)</code> when a race opens. When the queue closes, the seed is <code>sha256(secret + the field)</code> and the secret is revealed. Anyone can replay the race from the seed and check the winner.</p>
+        <p class="mono dim" id="commitLine"></p>
+        <a class="btn btn--glass" href="/verify" target="_blank" rel="noopener">Verify a past race</a>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <div class="foot__l">
+        <span class="brand__name small">MARBLE<b>ROYALE</b></span>
+        <span class="dim">A game first. Your keys never leave your wallet. The pot is sent by the creator to the winning address.</span>
+      </div>
+      <div class="foot__r" id="footLinks">
+        <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
+        <a class="pill" id="xLink" hidden target="_blank" rel="noopener">X</a>
+        <a class="pill" href="/verify" target="_blank" rel="noopener">Verify</a>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ---------- LOBBY ---------- -->
+  <section class="screen screen--lobby" id="s-lobby" hidden>
+    <div class="lobby">
+      <div class="lobby__head glass">
+        <div class="stat stat--race"><em>RACE</em><b class="mono" id="loNo">#----</b><span class="pill pill--mega" id="loMega" hidden>MEGA RACE</span></div>
+        <div class="stat"><em>ENTRY</em><b class="mono" id="loEntry">FREE</b></div>
+        <div class="stat"><em>PRIZE POOL</em><b class="mono gold" id="loPot">$0.00</b></div>
+        <div class="stat"><em>PLAYERS</em><b class="mono" id="loPlayers">0 / 250</b></div>
+        <div class="stat stat--clock"><em id="loClockLabel">STARTING IN</em><b class="mono big" id="loClock">--:--</b></div>
+      </div>
+
+      <div class="lobby__body">
+        <aside class="lobby__you glass">
+          <span class="kicker kicker--plain">YOUR MARBLE</span>
+          <div class="you">
+            <canvas id="youPrev" width="140" height="140" aria-label="your marble"></canvas>
+            <div class="you__meta">
+              <b class="mono" id="youName">—</b>
+              <span class="mono dim" id="youAddr">connect a wallet</span>
+              <span class="dim" id="youMat">glass</span>
+            </div>
+          </div>
+          <div class="you__actions">
+            <button class="btn btn--glass" id="skinBtn">Customise</button>
+            <button class="btn btn--accent btn--wide" id="joinBtn" disabled>Connect to join</button>
+          </div>
+          <div class="tx" id="txLine" hidden><i></i><span id="txText"></span></div>
+          <label class="auto"><input type="checkbox" id="autoJoin"> auto-join every race</label>
+          <p class="dim small">Entry is free. Joining signs nothing on-chain; the server locks your marble into the field.</p>
+        </aside>
+
+        <div class="lobby__field glass">
+          <div class="lobby__fieldhead">
+            <span class="kicker kicker--plain">PLAYERS</span>
+            <span class="mono dim" id="fieldCount">0 joined</span>
+          </div>
+          <div class="grid" id="playerGrid"></div>
+          <div class="empty" id="fieldEmpty">Nobody on the grid yet. Be the first.</div>
+        </div>
+
+        <aside class="lobby__feed glass">
+          <span class="kicker kicker--plain">FEED</span>
+          <ul class="feed" id="feed"></ul>
+          <form class="chatbar" id="chatForm">
+            <input id="chatInput" maxlength="140" autocomplete="off" placeholder="say something">
+            <button class="btn btn--accent btn--icon" type="submit">→</button>
+          </form>
+        </aside>
       </div>
     </div>
   </section>
 
-  <aside class="side">
-    <nav class="tabs" role="tablist">
-      <button class="tab is-on" data-panel="live" data-i18n="tab.live">LIVE</button>
-      <button class="tab" data-panel="chat" data-i18n="tab.chat">CHAT</button>
-      <button class="tab" data-panel="winners" data-i18n="tab.winners">WINNERS</button>
-      <button class="tab" data-panel="top" data-i18n="tab.top">TOP</button>
-    </nav>
+  <!-- ---------- COUNTDOWN ---------- -->
+  <section class="screen screen--count" id="s-count" hidden>
+    <div class="count" id="countNum">3</div>
+    <div class="count__sub mono" id="countSub">GATE OPENS</div>
+  </section>
 
-    <div class="panel is-on" id="panel-live">
-      <div class="panel__head">
-        <span data-i18n="live.head">THE FIELD</span>
-        <span id="fieldCount" class="muted"></span>
-      </div>
-      <ol class="field" id="field"></ol>
-      <p class="hint" data-i18n="live.hint">Tap a marble to cheer it on.</p>
+  <!-- ---------- RACE HUD ---------- -->
+  <section class="screen screen--race" id="s-race" hidden>
+    <div class="hud hud--tl">
+      <span class="mono" id="hudNo">RACE #----</span>
+      <span class="pill pill--live"><i></i>LIVE</span>
+      <span class="mono dim" id="hudTime">00.0</span>
     </div>
+    <ol class="hud hud--board mono" id="board"></ol>
+    <div class="hud hud--me glass" id="hudMe" hidden>
+      <div><em>YOUR POSITION</em><b class="mono" id="mePos">#—</b></div>
+      <div><em>DISTANCE</em><b class="mono" id="meDist">0%</b></div>
+      <div class="bar"><i id="meBar"></i></div>
+    </div>
+    <div class="hud hud--cam">
+      <button class="cam is-on" data-cam="auto">AUTO</button>
+      <button class="cam" data-cam="follow">LEADER</button>
+      <button class="cam" data-cam="battle">BATTLE</button>
+      <button class="cam" data-cam="finish">FINISH</button>
+    </div>
+    <div class="hud hud--track mono" id="hudTrack"></div>
+  </section>
 
-    <div class="panel" id="panel-skin">
-      <div class="panel__head"><span data-i18n="skin.head">YOUR MARBLE</span></div>
-      <div class="skin">
-        <canvas id="skinPrev" width="132" height="132" aria-label="your marble"></canvas>
-        <div class="skin__rows">
-          <div class="pickrow"><em data-i18n="skin.color">COLOUR</em><div class="swatches" id="swatches"></div></div>
-          <div class="pickrow"><em data-i18n="skin.face">FACE</em><div class="faces" id="faces"></div></div>
+  <!-- ---------- RESULTS ---------- -->
+  <section class="screen screen--results" id="s-results" hidden>
+    <div class="results glass">
+      <div class="results__cup">🏆</div>
+      <div class="kicker kicker--plain">RACE COMPLETE · <span id="resNo">#----</span></div>
+      <ol class="podium" id="podium"></ol>
+      <div class="results__you" id="resYou" hidden><em>YOUR RESULT</em><b class="mono" id="resYouPos">—</b></div>
+      <div class="results__pay">
+        <em>PAID TO</em>
+        <button class="addr mono" id="resAddr" title="copy"></button>
+        <div class="results__payrow">
+          <button class="btn btn--glass" id="resCopy">Copy address</button>
+          <a class="btn btn--accent" id="resSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
         </div>
+        <span class="dim small">The creator sends the whole pot to first place. <a href="/verify" target="_blank" rel="noopener">Verify this race</a>.</span>
       </div>
-      <p class="hint" data-i18n="skin.hint">Saved in this browser and used in every race.</p>
-    </div>
-
-    <div class="panel" id="panel-chat">
-      <div class="chat" id="chat"></div>
-      <form class="chatbar" id="chatForm">
-        <input id="chatInput" maxlength="140" autocomplete="off" data-i18n-ph="chat.ph" placeholder="say something">
-        <button class="btn btn--go" type="submit">→</button>
-      </form>
-    </div>
-
-    <div class="panel" id="panel-winners">
-      <div class="panel__head">
-        <span data-i18n="winners.head">PAST WINNERS</span>
-        <a class="muted" href="/verify" target="_blank" rel="noopener" data-i18n="winners.verify">verify</a>
+      <div class="results__cta">
+        <button class="btn btn--accent btn--xl" id="raceAgain">Race again</button>
+        <button class="btn btn--glass btn--xl" data-go="lobby">Back to lobby</button>
       </div>
-      <ul class="winners" id="winners"></ul>
     </div>
-
-    <div class="panel" id="panel-top">
-      <div class="panel__head"><span data-i18n="top.head">MOST WINS</span></div>
-      <ol class="top" id="topList"></ol>
-    </div>
-  </aside>
+  </section>
 </main>
 
-<footer class="foot">
-  <div class="foot__how">
-    <b data-i18n="how.head">HOW IT WORKS</b>
-    <span data-i18n="how.body">A race starts every five minutes, on the clock. Connect your wallet, press join, and one marble on the track is yours. The first marble across the line takes the creator fees collected during those five minutes, paid by hand to the wallet shown on screen.</span>
+<!-- ---------- wallet modal ---------- -->
+<div class="modal" id="m-wallet" hidden>
+  <div class="modal__card glass">
+    <div class="modal__head"><b>Connect a wallet</b><button class="x" data-close>×</button></div>
+    <p class="dim">Pick a wallet. You will be asked to sign a short message that proves it is yours. It costs nothing and moves nothing.</p>
+    <div class="wallets" id="walletList"></div>
+    <div class="modal__demo" id="demoRow" hidden>
+      <span class="dim">No wallet? Try the game with a demo wallet. Nothing it does touches a chain.</span>
+      <button class="btn btn--glass" id="demoBtn">Use a demo wallet</button>
+    </div>
+    <p class="dim small" id="walletHint"></p>
   </div>
-  <div class="foot__fair">
-    <b data-i18n="fair.head">PROVABLY FAIR</b>
-    <span data-i18n="fair.body">Before anyone joins, the server publishes a hash of the seed it will use. When the field closes, the seed itself is published. The seed decides the course and every bounce, so anyone can replay the race and check the winner.</span>
-    <code id="commitLine" class="commit"></code>
-  </div>
-  <div class="foot__links" id="links"></div>
-</footer>
+</div>
 
+<!-- ---------- account modal ---------- -->
+<div class="modal" id="m-account" hidden>
+  <div class="modal__card glass">
+    <div class="modal__head"><b>Wallet</b><button class="x" data-close>×</button></div>
+    <div class="account">
+      <span class="account__kind" id="accKind"></span>
+      <b class="mono" id="accAddr"></b>
+      <span class="pill" id="accNet"></span>
+      <span class="pill pill--demo" id="accDemo" hidden>DEMO · nothing on-chain</span>
+      <div class="account__stats mono dim" id="accStats"></div>
+    </div>
+    <div class="modal__row">
+      <button class="btn btn--glass" id="accCopy">Copy address</button>
+      <button class="btn btn--danger" id="accDisconnect">Disconnect</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- marble modal ---------- -->
+<div class="modal" id="m-skin" hidden>
+  <div class="modal__card modal__card--wide glass">
+    <div class="modal__head"><b>Your marble</b><button class="x" data-close>×</button></div>
+    <div class="skin">
+      <div class="skin__prev">
+        <canvas id="skinPrev" width="180" height="180"></canvas>
+        <input class="name mono" id="skinName" maxlength="16" placeholder="DEGEN_42">
+        <span class="dim small">Name floats above your marble. Leave it blank for your address.</span>
+      </div>
+      <div class="skin__pick">
+        <div class="pickrow"><em>MATERIAL</em><div class="mats" id="mats"></div></div>
+        <div class="pickrow"><em>COIN</em><div class="faces" id="faces"></div></div>
+        <div class="pickrow"><em>COLOUR</em><div class="swatches" id="swatches"></div></div>
+      </div>
+    </div>
+    <div class="modal__row"><button class="btn btn--accent" data-close>Done</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from './vendor/three/postprocessing/EffectComposer.js';
+import { RenderPass } from './vendor/three/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from './vendor/three/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from './vendor/three/postprocessing/OutputPass.js';
+import { RoomEnvironment } from './vendor/three/RoomEnvironment.js';
+window.THREE = THREE;
+window.THREE_FX = { EffectComposer, RenderPass, UnrealBloomPass, OutputPass, RoomEnvironment };
+window.dispatchEvent(new Event('three-ready'));
+</script>
 <script src="shared/race.js"></script>
-<script src="i18n.js"></script>
-<script src="wallet.js"></script>
 <script src="render.js"></script>
-<script src="app.js"></script>
+<script src="js/types.js"></script>
+<script src="js/store.js"></script>
+<script src="js/game/audio.js"></script>
+<script src="js/game/skins.js"></script>
+<script src="js/game/camera.js"></script>
+<script src="js/game/scene.js"></script>
+<script src="js/web3/wallet.js"></script>
+<script src="js/web3/contracts.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

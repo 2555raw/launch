@@ -1,0 +1,84 @@
+<title>Marble Royale</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/*{{CSS}}*/
+</style>
+
+<div class="wrap">
+  <p class="note">
+    <b>VISTA PREVIA</b>
+    <span>Esta página es el juego con su motor real, pero jugando sola: las canicas son de demostración, el bote es inventado y nadie cobra nada. El juego de verdad, con carteras firmadas, fees de la coin y pago al ganador, está en <code>marble-royale/</code> y necesita un servidor.</span>
+  </p>
+
+  <header class="top">
+    <div class="brand"><i></i><span>MARBLE ROYALE</span></div>
+    <div class="meter clock">
+      <em id="clockLabel">PRÓXIMA EN</em>
+      <b id="clock">--:--</b>
+    </div>
+    <div class="meter pot">
+      <em>BOTE DE LA RONDA<span class="chip">demo</span></em>
+      <b><span id="pot">0,000</span> SOL</b>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">
+      <button class="btn" id="botBtn">+12 CANICAS</button>
+      <button class="btn go" id="joinBtn">ENTRAR CON MI CARTERA</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage">
+      <canvas id="stage" aria-label="carrera de canicas"></canvas>
+      <div class="hud"><span id="hudCount">0 compitiendo</span><span id="hudPhase">una carrera cada 5 min</span></div>
+      <div class="banner" id="banner" hidden></div>
+
+      <div class="card" id="card" hidden>
+        <div style="font-size:24px">🏆</div>
+        <em>GANADOR</em>
+        <button class="addr" id="winAddr" title="copiar"></button>
+        <div class="pay" id="winPay"></div>
+        <div class="sub">En el juego real esta es la cartera a la que envías las fees de esos cinco minutos, a mano, desde la cartera del creador.</div>
+        <div class="sub" id="winYou" hidden style="color:var(--win)">Esa eres tú.</div>
+      </div>
+
+      <div class="bar">
+        <p id="status"></p>
+        <button class="btn go" id="runBtn">CORRER AHORA</button>
+      </div>
+    </section>
+
+    <aside class="side">
+      <h2><span>LA PARRILLA</span><span id="count"></span></h2>
+      <ol class="field" id="field"></ol>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <div>
+      <b>CÓMO FUNCIONA</b>
+      Cada cinco minutos, en punto, sale una carrera. Quien conecta su cartera tiene una canica en la pista.
+      La primera en cruzar la meta gana y su dirección sale en pantalla, para que le pagues las fees de creador
+      de esos cinco minutos.
+    </div>
+    <div>
+      <b>QUÉ FALTA AQUÍ</b>
+      La firma de la cartera que impide entrar con la dirección de otro, la parrilla compartida entre todos,
+      la semilla comprometida antes de que entre nadie y la lectura de las fees en la cadena. Todo eso es servidor.
+    </div>
+    <div>
+      <b>GANADORES DE ESTA SESIÓN</b>
+      <ul class="past" id="past" style="padding-left:0"></ul>
+    </div>
+  </footer>
+</div>
+
+<script>
+/*{{ENGINE}}*/
+</script>
+<script>
+/*{{RENDER}}*/
+</script>
+<script>
+/*{{APP}}*/
+</script>

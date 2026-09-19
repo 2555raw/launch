@@ -134,3 +134,18 @@ anything a JavaScript engine is free to round differently - no `Math.random`, no
 you change it, read them first. The result people are paid on always comes from
 the server, so a browser that disagreed would only be showing the wrong picture,
 not paying the wrong wallet.
+
+## The preview page
+
+`preview/` builds a single self-contained HTML file: the real engine and the
+real renderer, inlined byte for byte, around a page that races on its own with
+demonstration marbles. It is for showing people what the game looks like when
+there is nowhere to run the server yet - it has no wallets to verify, no shared
+field, no seed commitment and no fees.
+
+```
+node preview/build.js      # -> preview/dist/marble-royale-preview.html
+```
+
+Open the file anywhere, or publish it. Anything it shows on the track is what
+the real site shows, because it is the same code.

@@ -99,8 +99,37 @@
     };
   }
 
+  /* ---- the launchpad ------------------------------------------------------ */
+
+  /* A launch is a token with races of its own. Today it is a draft kept in the
+     browser; deploying it is one transaction to the launchpad contract, and
+     until that contract has an address the deploy call fails with the truth
+     rather than a fake receipt. */
+  const LAUNCH_ABI = [
+    'function createToken(string name, string symbol, string uri, uint32 raceEvery, uint16 winnerShareBps, uint256 minHold) payable returns (address token)'
+  ];
+  let launchpadAddress = '';
+  const launchpad = {
+    abi: LAUNCH_ABI,
+    get address() { return launchpadAddress; },
+    get live() { return !!launchpadAddress; },
+    async createToken(session, spec) {
+      const tx = newTx('launch');
+      if (!launchpadAddress) {
+        tx.status = 'failed'; tx.error = 'The launchpad contract is not live on this network yet. Your launch is saved as a draft.';
+        emitTx(tx);
+        return { tx, res: { error: tx.error, draft: true } };
+      }
+      tx.status = 'waiting_wallet'; emitTx(tx);
+      tx.status = 'failed'; tx.error = 'Deploying is not wired to a wallet in this build.'; emitTx(tx);
+      return { tx, res: { error: tx.error } };
+    }
+  };
+
   let active = demo;
   window.CONTRACTS = {
+    get launchpad() { return launchpad; },
+    useLaunchpad(address) { launchpadAddress = address || ''; },
     get mode() { return active.mode; },
     get race() { return active; },
     useDemo() { active = demo; },

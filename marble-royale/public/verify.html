@@ -67,10 +67,11 @@
     const seedOk = seed === r.seed;
     lines.push('');
     lines.push('field            ' + r.field.length + ' wallets');
+    lines.push('mode             ' + (r.mode || 'classic'));
     lines.push('seed announced   ' + r.seed);
     lines.push('seed recomputed  ' + seed + (seedOk ? '   ✓ match' : '   ✗ MISMATCH'));
 
-    const replay = RACE.runToEnd(seed, r.field.map((id) => ({ id })));
+    const replay = RACE.runToEnd(seed, r.field.map((id) => ({ id })), r.mode || 'classic');
     const winOk = replay.order[0].id === r.winner;
     lines.push('');
     lines.push('winner announced ' + r.winner);

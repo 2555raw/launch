@@ -40,7 +40,8 @@
       modal: null,         // 'wallet' | null
       toast: null,
       cameraMode: 'auto',
-      sound: true,
+      sound: false,
+      voted: null,         // the mode this wallet voted for on the open poll
       feed: []             // "0xA83… joined" lines for the lobby
     }),
     wallet: createStore({

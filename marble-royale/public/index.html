@@ -44,7 +44,7 @@
     <div class="hero">
       <div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 5 MINUTES</div>
       <h1>RACE YOUR<br>MARBLE.<br><span>WIN THE POT.</span></h1>
-      <p>Connect a wallet, drop a marble on the track, and watch it fight two hundred others down a course drawn fresh every race. First one over the line takes the whole pot.</p>
+      <p>Connect a wallet, drop a marble on the track, and watch it fight up to fifty others down a course drawn fresh every race, in a mode the crowd voted for. First one over the line takes the whole pot.</p>
       <div class="hero__cta">
         <button class="btn btn--accent btn--xl" id="heroJoin"><span class="btn__dot"></span>Join the next race</button>
         <button class="btn btn--glass btn--xl" data-go="lobby">Watch the lobby</button>
@@ -57,8 +57,24 @@
     <div class="livebar glass" id="livebar">
       <div class="livebar__cell"><em>NEXT RACE</em><b class="mono" id="lbNo">#----</b></div>
       <div class="livebar__cell"><em id="lbClockLabel">STARTING IN</em><b class="mono big" id="lbClock">--:--</b></div>
-      <div class="livebar__cell"><em>PRIZE POOL</em><b class="mono gold" id="lbPot">$0.00</b></div>
-      <div class="livebar__cell"><em>PLAYERS</em><b class="mono" id="lbPlayers">0 / 250</b></div>
+      <div class="livebar__cell livebar__cell--pot"><div class="jar" id="jarHome" data-state="filling">
+  <svg viewBox="0 0 120 150" aria-hidden="true">
+    <defs>
+      <clipPath id="jhClip"><path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z"/></clipPath>
+      <linearGradient id="jhGold" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffd76a"/><stop offset="1" stop-color="#e58a12"/></linearGradient>
+    </defs>
+    <g clip-path="url(#jhClip)">
+      <rect class="jar__liquid" x="22" y="134" width="76" height="0" fill="url(#jhGold)"/>
+      <ellipse class="jar__top" cx="60" cy="134" rx="38" ry="4" fill="#fff0bf" opacity=".95"/>
+    </g>
+    <path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z" fill="rgba(255,255,255,.04)" stroke="#4a4f66" stroke-width="3"/>
+    <path d="M30 46v66" stroke="rgba(255,255,255,.14)" stroke-width="4" stroke-linecap="round"/>
+    <rect x="30" y="20" width="60" height="14" rx="3" fill="#232637" stroke="#4a4f66" stroke-width="3"/>
+    <rect x="26" y="11" width="68" height="11" rx="4" fill="#33374a"/>
+  </svg>
+  <span class="jar__lock">🔒</span>
+</div><div><em>PRIZE POOL</em><b class="mono gold" id="lbPot">$0.00</b><span class="jar__state mono" id="lbPotState">filling</span></div></div>
+      <div class="livebar__cell"><em>PLAYERS</em><b class="mono" id="lbPlayers">0 / 30</b></div>
       <div class="livebar__cell livebar__cell--cta"><button class="btn btn--accent" data-go="lobby">Enter lobby →</button></div>
     </div>
 
@@ -66,9 +82,18 @@
       <div class="block__head">
         <span class="kicker kicker--plain">RACES</span>
         <h2>Upcoming races</h2>
-        <p>One race at a time, on the clock. Join the open one; anything after it fills from the queue.</p>
+        <p>One race at a time, on the clock. You join each race yourself, from its lobby, while the queue is open.</p>
       </div>
       <div class="races" id="raceCards"></div>
+    </section>
+
+    <section class="block" id="modes">
+      <div class="block__head">
+        <span class="kicker kicker--plain">GAME MODES</span>
+        <h2>Eight tracks. The crowd picks the next one.</h2>
+        <p>Every race draws a fresh course from its seed inside one of eight modes. When a race ends, the results screen puts two modes to a vote and the winner is the next track. Each picture below is drawn from the course generator itself, not an illustration.</p>
+      </div>
+      <div class="modes" id="modesGrid"></div>
     </section>
 
     <section class="block block--split">
@@ -76,9 +101,10 @@
         <span class="kicker kicker--plain">HOW IT WORKS</span>
         <ol class="steps">
           <li><b>Connect a wallet</b><span>MetaMask, Phantom or any EVM wallet. Signing in is a message, never a transaction. A demo wallet is one tap away if you just want to look.</span></li>
-          <li><b>Join the race</b><span>Pick a marble, pick a name, press join. One marble per wallet. The queue closes five seconds before the gate opens.</span></li>
+          <li><b>Join the race</b><span>Pick a marble, pick a name, press join. One marble per wallet, one race at a time: nobody is entered into a race they did not join.</span></li>
           <li><b>Watch it run</b><span>The camera chases the leaders down a track of ramps, spinners, jumps and boost pads. Every browser sees the same race at the same moment.</span></li>
           <li><b>Win the pot</b><span>First over the line takes the whole prize pool, paid to the winning address. The result and the address stay in the log.</span></li>
+          <li><b>Vote the next track</b><span>Two modes go up on the results screen. One vote per wallet; the winner is the next race's track, and the lobby shows it with a picture.</span></li>
         </ol>
       </div>
       <div class="glass panel">
@@ -98,6 +124,7 @@
       <div class="foot__r" id="footLinks">
         <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
         <a class="pill" id="xLink" hidden target="_blank" rel="noopener">X</a>
+        <a class="pill" href="#" data-go="launch">Launchpad</a>
         <a class="pill" href="/verify" target="_blank" rel="noopener">Verify</a>
       </div>
     </footer>
@@ -109,9 +136,40 @@
       <div class="lobby__head glass">
         <div class="stat stat--race"><em>RACE</em><b class="mono" id="loNo">#----</b><span class="pill pill--mega" id="loMega" hidden>MEGA RACE</span></div>
         <div class="stat"><em>ENTRY</em><b class="mono" id="loEntry">FREE</b></div>
-        <div class="stat"><em>PRIZE POOL</em><b class="mono gold" id="loPot">$0.00</b></div>
-        <div class="stat"><em>PLAYERS</em><b class="mono" id="loPlayers">0 / 250</b></div>
+        <div class="stat stat--pot"><div class="jar" id="jarLobby" data-state="filling">
+  <svg viewBox="0 0 120 150" aria-hidden="true">
+    <defs>
+      <clipPath id="jlClip"><path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z"/></clipPath>
+      <linearGradient id="jlGold" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffd76a"/><stop offset="1" stop-color="#e58a12"/></linearGradient>
+    </defs>
+    <g clip-path="url(#jlClip)">
+      <rect class="jar__liquid" x="22" y="134" width="76" height="0" fill="url(#jlGold)"/>
+      <ellipse class="jar__top" cx="60" cy="134" rx="38" ry="4" fill="#fff0bf" opacity=".95"/>
+    </g>
+    <path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z" fill="rgba(255,255,255,.04)" stroke="#4a4f66" stroke-width="3"/>
+    <path d="M30 46v66" stroke="rgba(255,255,255,.14)" stroke-width="4" stroke-linecap="round"/>
+    <rect x="30" y="20" width="60" height="14" rx="3" fill="#232637" stroke="#4a4f66" stroke-width="3"/>
+    <rect x="26" y="11" width="68" height="11" rx="4" fill="#33374a"/>
+  </svg>
+  <span class="jar__lock">🔒</span>
+</div><div><em>PRIZE POOL</em><b class="mono gold" id="loPot">$0.00</b><span class="jar__state mono" id="loPotState">filling</span></div></div>
+        <div class="stat"><em>PLAYERS</em><b class="mono" id="loPlayers">0 / 30</b></div>
         <div class="stat stat--clock"><em id="loClockLabel">STARTING IN</em><b class="mono big" id="loClock">--:--</b></div>
+      </div>
+
+      <div class="lobby__mode glass" id="loMode">
+        <div class="mode__pic" id="loModeImg"></div>
+        <div class="mode__meta">
+          <span class="kicker kicker--plain">THIS RACE · TRACK</span>
+          <b id="loModeName">Classic</b>
+          <p id="loModeBlurb"></p>
+          <span class="mono dim small" id="loModeBy"></span>
+        </div>
+        <div class="mode__phys mono">
+          <span><em>GRAVITY</em><b id="loModeG">1.0×</b></span>
+          <span><em>BOUNCE</em><b id="loModeB">1.0×</b></span>
+          <span><em>SECTIONS</em><b id="loModeS">7–9</b></span>
+        </div>
       </div>
 
       <div class="lobby__body">
@@ -130,7 +188,6 @@
             <button class="btn btn--accent btn--wide" id="joinBtn" disabled>Connect to join</button>
           </div>
           <div class="tx" id="txLine" hidden><i></i><span id="txText"></span></div>
-          <label class="auto"><input type="checkbox" id="autoJoin"> auto-join every race</label>
           <p class="dim small">Entry is free. Joining signs nothing on-chain; the server locks your marble into the field.</p>
         </aside>
 
@@ -199,13 +256,109 @@
         </div>
         <span class="dim small">The creator sends the whole pot to first place. <a href="/verify" target="_blank" rel="noopener">Verify this race</a>.</span>
       </div>
+      <div class="poll" id="poll" hidden>
+        <div class="poll__head"><span class="kicker kicker--plain">VOTE THE NEXT TRACK</span><span class="mono dim" id="pollClock"></span></div>
+        <div class="poll__opts" id="pollOpts"></div>
+        <div class="poll__done" id="pollDone" hidden><em>NEXT RACE</em><b id="pollWinner"></b><span class="dim small" id="pollWhy"></span></div>
+      </div>
       <div class="results__cta">
         <button class="btn btn--accent btn--xl" id="raceAgain">Race again</button>
         <button class="btn btn--glass btn--xl" data-go="lobby">Back to lobby</button>
       </div>
     </div>
   </section>
+  <!-- ---------- LAUNCHPAD ---------- -->
+  <section class="screen screen--launch" id="s-launch" hidden>
+    <div class="launch">
+      <div class="launch__head">
+        <span class="kicker kicker--plain">LAUNCHPAD</span>
+        <h2>Launch your own marble token.</h2>
+        <p>Give a coin races of its own: a name, a marble, a race cadence and a share of its fees for the winners. The pad builds the race page; the token deploys on Robinhood Chain when the launchpad contract goes live. Nothing here spends anything today, and it says so.</p>
+      </div>
+      <div class="launch__body">
+        <form class="launch__form glass" id="launchForm" autocomplete="off">
+          <label><span>Token name</span><input id="lpName" maxlength="24" placeholder="Marble Doge" required></label>
+          <label><span>Ticker</span><input id="lpTicker" maxlength="8" placeholder="MDOGE" required></label>
+          <label class="wide"><span>One line about it</span><input id="lpDesc" maxlength="120" placeholder="The marble that never loses."></label>
+          <label><span>Marble</span><select id="lpFace"></select></label>
+          <label><span>Colour</span><input type="color" id="lpColor" value="#ff7a1a"></label>
+          <label><span>Race every</span><select id="lpEvery"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select></label>
+          <label><span>Winner's share of fees · <b class="mono" id="lpShareVal">100%</b></span><input type="range" id="lpShare" min="10" max="100" step="5" value="100"></label>
+          <label><span>Holders only from</span><input type="number" id="lpMin" min="0" step="1000" value="0"><small class="dim">tokens needed to race. 0 lets anyone in.</small></label>
+          <label><span>Image URL <small class="dim">optional</small></span><input id="lpImg" placeholder="https://…/logo.png"></label>
+          <div class="launch__actions wide">
+            <button class="btn btn--accent btn--xl" type="submit" id="lpSave">Save this launch</button>
+            <button class="btn btn--glass btn--xl" type="button" id="lpDeploy">Deploy on-chain</button>
+          </div>
+          <p class="dim small wide">Saved launches live in this browser. Deploy is one transaction from your own wallet, and it only works once the launchpad contract is live: until then it tells you so instead of pretending.</p>
+          <div class="tx wide" id="lpTx" hidden><i></i><span id="lpTxText"></span></div>
+        </form>
+        <aside class="launch__prev">
+          <div class="lcard glass" id="lpCard">
+            <div class="lcard__top">
+              <canvas id="lpMarble" width="120" height="120" aria-label="the token's marble"></canvas>
+              <div class="lcard__name"><b id="lpCardName">Marble Doge</b><span class="mono dim" id="lpCardTicker">$MDOGE</span></div>
+              <span class="pill pill--phase">PREVIEW</span>
+            </div>
+            <p id="lpCardDesc" class="dim">The marble that never loses.</p>
+            <div class="lcard__stats mono">
+              <div><em>RACE EVERY</em><b id="lpCardEvery">5 MIN</b></div>
+              <div><em>WINNER TAKES</em><b class="gold" id="lpCardShare">100%</b></div>
+              <div><em>HOLDERS ONLY</em><b id="lpCardMin">NO</b></div>
+              <div><em>CHAIN</em><b>ROBINHOOD</b></div>
+            </div>
+            <div class="lcard__status mono dim" id="lpCardStatus">DRAFT · NOT DEPLOYED</div>
+          </div>
+          <div class="glass panel">
+            <span class="kicker kicker--plain">YOUR LAUNCHES</span>
+            <ul class="launches" id="lpList"></ul>
+            <div class="empty" id="lpEmpty">Nothing saved yet. Fill in the form.</div>
+          </div>
+        </aside>
+      </div>
+      <div class="block block--split launch__how">
+        <div class="glass panel">
+          <span class="kicker kicker--plain">HOW A LAUNCH WORKS</span>
+          <ol class="steps">
+            <li><b>Describe the token</b><span>Name, ticker, a marble and a colour. That marble is the token's mascot on its own race page.</span></li>
+            <li><b>Set the race</b><span>How often it races, how much of its fees the winner takes, and whether you must hold it to race.</span></li>
+            <li><b>Deploy</b><span>When the launchpad contract is live on Robinhood Chain, deploy sends one transaction from your wallet. Until then the launch stays a draft, and the page never pretends otherwise.</span></li>
+            <li><b>Race</b><span>Your token gets a race page like this one: same engine, same fairness, its own pot.</span></li>
+          </ol>
+        </div>
+        <div class="glass panel">
+          <span class="kicker kicker--plain">WHAT THE PAD NEVER DOES</span>
+          <h3>Your keys stay in your wallet</h3>
+          <p>The launchpad never asks for a private key or a seed phrase, never signs on your behalf, and never shows a transaction that did not happen. Deploying is one transaction you approve in your own wallet, the same as any other.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
+
+<!-- ---------- the dock ---------- -->
+<nav class="dock" id="dock" aria-label="taskbar">
+  <button class="dock__it is-on" data-dock="home"><i>⌂</i><span>Home</span></button>
+  <button class="dock__it dock__it--race" data-dock="lobby"><i class="dock__live"></i><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
+  <button class="dock__it" data-dock="modes"><i>◫</i><span>Modes</span></button>
+  <button class="dock__it" data-dock="launch"><i>🚀</i><span>Launch</span></button>
+  <button class="dock__it" data-dock="winners"><i>🏆</i><span>Winners</span></button>
+  <button class="dock__it" data-dock="wallet"><i>◈</i><span id="dockWallet">Wallet</span></button>
+  <div class="dock__stat mono"><em>POT</em><b class="gold" id="dockPot">$0.00</b></div>
+  <div class="dock__stat mono dock__clock"><em id="dockClockLabel">STARTS IN</em><b id="dockClock">--:--</b></div>
+</nav>
+
+<!-- ---------- winners modal ---------- -->
+<div class="modal" id="m-winners" hidden>
+  <div class="modal__card modal__card--wide glass">
+    <div class="modal__head"><b>Winners</b><button class="x" data-close>×</button></div>
+    <div class="winners">
+      <div><span class="kicker kicker--plain">LAST RACES</span><ul class="wlist mono" id="winList"></ul><div class="empty" id="winEmpty">No race has finished yet.</div></div>
+      <div><span class="kicker kicker--plain">MOST WINS</span><ul class="wlist mono" id="topList"></ul></div>
+    </div>
+    <p class="dim small">Every race is in the log with its seed and secret. <a href="/verify" target="_blank" rel="noopener">Verify any of them</a>.</p>
+  </div>
+</div>
 
 <!-- ---------- wallet modal ---------- -->
 <div class="modal" id="m-wallet" hidden>

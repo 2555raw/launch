@@ -4,14 +4,18 @@
    ever asks for a name. Today each name is a small synthesised sound; drop a
    file in with load(name, url) and the same call plays the file instead.
    Nothing plays until the first tap, because browsers insist and because a
-   page that starts making noise on its own deserves to be closed. */
+   page that starts making noise on its own deserves to be closed. Sound is off
+   by default and there is no music: the note in the top bar turns the cues
+   on, and the choice is remembered. */
 
 (function () {
   'use strict';
 
   let ctx = null;
-  let on = true;
-  try { on = localStorage.getItem('mr.sound') !== 'off'; } catch {}
+  /* Silent until someone turns it on. There is no background music and there
+     never will be: the cues are short, and only for things that happened. */
+  let on = false;
+  try { on = localStorage.getItem('mr.sound') === 'on'; } catch {}
   const buffers = new Map();
   let master = null;
 

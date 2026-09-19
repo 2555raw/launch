@@ -76,6 +76,28 @@
  */
 
 /**
+ * @typedef {Object} GameMode
+ * @property {string} id            classic | plinko | boost | spin | funnel | drop | ice | maze
+ * @property {string} name
+ * @property {string} blurb         one paragraph that explains it
+ * @property {number} gravity       multiplier on the engine's gravity
+ * @property {number} bounce        multiplier on every surface's restitution
+ */
+
+/**
+ * The vote on the results screen: two modes, never the one just raced, and
+ * the winner once it closes.
+ * @typedef {Object} ModePoll
+ * @property {string} roundId
+ * @property {string} a
+ * @property {string} b
+ * @property {Object<string, number>} votes
+ * @property {number} total
+ * @property {number} closesAt      server time
+ * @property {string|null} winner
+ */
+
+/**
  * @typedef {Object} RaceResult
  * @property {string} raceId
  * @property {number} number

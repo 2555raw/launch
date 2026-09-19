@@ -24,10 +24,38 @@ everyone sees the same countdown wherever they are.
 | lobby | 3m 45s | connect a wallet, press join, watch marbles drop into the hopper |
 | locked | 5s | the field is closed and the seed is published |
 | racing | up to 45s | the race, the same one in every browser |
-| result | the rest | the winner, and the wallet to pay |
+| result | the rest | the winner, the wallet to pay, and a vote on the next track |
 
 Set `ROUND_MS` to change the cycle (minimum 90 seconds - useful for testing,
 not for a live coin).
+
+The grid opens at thirty places. Once twenty-four are taken it grows to fifty
+for that race, so a busy night is not a queue and a quiet one still looks like
+a race. Anyone turned away from a full grid is put in the next race.
+
+## Game modes
+
+Every race draws a fresh course from its seed inside one of eight modes. A mode
+is which sections the course may use, how many, and a nudge to gravity and
+bounce; two races in the same mode are never the same track.
+
+| mode | what it is |
+|---|---|
+| Classic | everything: pegs, ramps, spinners, jumps, boost pads, 7 to 9 sections |
+| Plinko Hell | walls of pins and bumpers, nothing else; extra bounce |
+| Boost Alley | boost rails and kickers all the way down; heavier |
+| Spin Cycle | spinning arms, flippers and sliding pistons |
+| Funnel Run | throats, wedges and steps; the pack squeezes through gaps |
+| Mega Drop | few sections, 1.35× gravity, big jumps; over in a flash |
+| Ice Rink | 1.3× bounce; bumpers throw marbles across the track |
+| The Maze | switchbacks and steps with no straight fall; the longest course |
+
+When a race ends, the results screen puts two modes to a vote (never the one
+just raced). One vote per wallet; the poll closes two seconds before the next
+lobby opens and the winner is the next track. A tie is a coin toss. The lobby
+shows the track with a picture drawn from the course generator, and the home
+page explains all eight. The mode is public before the seed exists, so it
+changes nothing about the fairness scheme below.
 
 ## Marbles
 
@@ -104,7 +132,8 @@ All optional except where noted.
 | `SESSION_SECRET` | keeps sign-ins valid across restarts; random each boot if unset |
 | `DATA_DIR` | where results are written (default `./data`) |
 | `ROUND_MS` | round length in ms (default 300000) |
-| `MAX_PLAYERS` | marbles per race (default 250); anyone turned away is put in the next race automatically |
+| `MAX_PLAYERS` | places on the grid when a race opens (default 30) |
+| `MAX_PLAYERS_HIGH` | what the grid grows to once it is 80% full (default 50); anyone turned away is put in the next race |
 | `LINK_BUY`, `LINK_X`, `LINK_TG` | buttons in the footer |
 | `PAYOUT_NOTE` | a line under the winner's address, e.g. "paid within the hour" |
 
@@ -195,7 +224,22 @@ brings up the podium.
   the lobby shows honestly: waiting for wallet → confirm → pending →
   confirmed or failed, with "demo, nothing on-chain" appended when that is
   what it is.
-- **Sound.** `SOUND.play('go')` and friends; every cue is synthesised until a
+- **Physics.** Marbles roll rather than skate: restitution fades out below a
+  closing speed so a marble settles onto a ramp, a rolling ball takes five
+  sevenths of the pull a sliding one would, drag grows with speed, and marble
+  on marble is a glass clack with a little friction. All of it is still plain
+  arithmetic, so the replay in every browser matches the server's result.
+- **The dock.** A taskbar along the bottom: Home, Race (with the phase and
+  clock), Modes, Launch, Winners, Wallet, and the pot. It steps aside for the
+  countdown and the race.
+- **The launchpad.** A screen for launching a token with races of its own:
+  name, ticker, marble, colour, race cadence, winner's share and a holder
+  minimum, with a live preview card. Launches are saved in the browser as
+  drafts. `CONTRACTS.launchpad.createToken` is the deploy call; until a
+  launchpad contract address is configured with `CONTRACTS.useLaunchpad`, it
+  fails with the truth rather than a fake receipt.
+- **Sound.** Off by default and there is no music. The note in the top bar
+  turns the cues on; `SOUND.play('go')` and friends are synthesised until a
   file is loaded with `SOUND.load(name, url)`.
 - **The one-file preview.** `node preview/build-app.js` inlines the whole game
   into `preview/dist/marble-royale.html` with the server stood in for by

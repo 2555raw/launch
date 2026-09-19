@@ -33,7 +33,15 @@ const RESULT_MS = 25000;
 const RACE_MAX_MS = (RACE.MAX_SECONDS + 5) * 1000;
 const LOCK_MS = 5000;
 const LOBBY_MS = ROUND_MS - RESULT_MS - RACE_MAX_MS - LOCK_MS;
-const MAX_PLAYERS = Math.max(2, Number(process.env.MAX_PLAYERS) || 250);
+/* The grid opens at thirty places. Once it is most of the way full it grows
+   to fifty for that race, so a busy night is not a queue; a quiet one still
+   looks like a race and not an empty hall. */
+const MAX_PLAYERS = Math.max(2, Number(process.env.MAX_PLAYERS) || 30);
+const MAX_PLAYERS_HIGH = Math.max(MAX_PLAYERS, Number(process.env.MAX_PLAYERS_HIGH) || 50);
+const GROW_AT = Math.ceil(MAX_PLAYERS * 0.8);
+/* How long before the next round opens the poll closes, so the page has a
+   moment to say which track won before the lobby for it appears. */
+const POLL_CLOSE_MS = 2000;
 const FEE_WALLET = process.env.FEE_WALLET || '';
 /* With no fee wallet to read and demo mode on, the pot is acted: it climbs a
    cent at a time to a few dollars over the queue, twenty-five on a mega race,
@@ -60,6 +68,11 @@ class Rounds extends EventEmitter {
     this.round = null;
     this.waitlist = [];      // addresses that arrived at a full race
     this.timer = null;
+    this.pollTimer = null;
+    /* The mode the next round races in, decided by the poll on the results
+       screen of the round before. The first round of a fresh process is a
+       classic. */
+    this.nextMode = null;
   }
 
   start() {
@@ -86,6 +99,10 @@ class Rounds extends EventEmitter {
       endAt: startAt + ROUND_MS,
       phase: 'lobby',
       mega: startAt % MEGA_EVERY_MS === 0,
+      mode: RACE.MODE_IDS.includes(this.nextMode) ? this.nextMode : 'classic',
+      modeBy: RACE.MODE_IDS.includes(this.nextMode) ? 'vote' : 'default',
+      max: MAX_PLAYERS,
+      poll: null,
       secret,
       commit: sha256(secret),
       seed: null,
@@ -103,7 +120,7 @@ class Rounds extends EventEmitter {
     };
 
     /* Anyone turned away from a full race walks straight into this one. */
-    const queued = this.waitlist.splice(0, MAX_PLAYERS);
+    const queued = this.waitlist.splice(0, MAX_PLAYERS_HIGH);
     for (const addr of queued) this.join(addr, true);
 
     this.emit('phase', this.publicRound());
@@ -111,7 +128,7 @@ class Rounds extends EventEmitter {
     if (DEMO_POT) {
       r.pot = 0;
       r.potDemo = true;
-      r.potTarget = r.mega ? 25 : 3 + Math.random() * 4;
+      r.potTarget = r.mega ? 25 : 4 + Math.random() * 3.5;
       clearInterval(this.demoTimer);
       this.demoTimer = setInterval(() => this.demoTick(), 1000);
     }
@@ -124,7 +141,7 @@ class Rounds extends EventEmitter {
     const secs = Math.max(20, (r.lockAt - r.startAt) / 1000);
     const step = (r.potTarget / secs) * (0.5 + Math.random());
     r.pot = Math.min(r.potTarget, Math.round((r.pot + step) * 100) / 100);
-    this.emit('pot', { roundId: r.id, pot: r.pot, gross: null, grossEth: null, pct: 100, mega: r.mega, demo: true, final: false });
+    this.emit('pot', { roundId: r.id, pot: r.pot, potFull: r.potTarget, gross: null, grossEth: null, pct: 100, mega: r.mega, demo: true, final: false });
   }
 
   async readBaseline() {
@@ -156,7 +173,7 @@ class Rounds extends EventEmitter {
     const pct = r.mega ? MEGA_PCT : POT_PCT;
     r.pot = grossUsd === null ? null : Math.round(grossUsd * pct) / 100;
     r.potFinal = final;
-    this.emit('pot', { roundId: r.id, pot: r.pot, gross: r.gross, grossEth: r.grossEth, pct, mega: r.mega, final });
+    this.emit('pot', { roundId: r.id, pot: r.pot, potFull: this.potFull(r), gross: r.gross, grossEth: r.grossEth, pct, mega: r.mega, final });
   }
 
   lock() {
@@ -187,7 +204,7 @@ class Rounds extends EventEmitter {
 
     r.phase = 'racing';
     const marbles = r.players.map((p) => ({ id: p.address }));
-    const outcome = RACE.runToEnd(r.seed, marbles);
+    const outcome = RACE.runToEnd(r.seed, marbles, r.mode);
     r.order = outcome.order;
     r.seconds = outcome.seconds;
     r.winner = outcome.order[0].id;
@@ -200,6 +217,7 @@ class Rounds extends EventEmitter {
       secret: r.secret,
       commit: r.commit,
       startAt: r.raceAt,
+      mode: r.mode,
       players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name }))
     });
 
@@ -230,13 +248,17 @@ class Rounds extends EventEmitter {
       grossEth: r.grossEth,
       potPct: r.mega ? MEGA_PCT : POT_PCT,
       mega: r.mega,
+      mode: r.mode,
       paid: false,
       tx: ''
     });
 
+    this.openPoll(r);
     this.emit('result', {
       roundId: r.id,
       number: r.number,
+      mode: r.mode,
+      poll: this.publicPoll(r),
       winner: r.winner,
       pot: r.pot,
       gross: r.gross,
@@ -256,6 +278,7 @@ class Rounds extends EventEmitter {
   async close() {
     const r = this.round;
     if (!r) return;
+    this.closePoll(r);
     if (FEE_WALLET && r.baseline !== null) {
       const wei = await chain.balance(FEE_WALLET);
       if (wei !== null) {
@@ -275,6 +298,51 @@ class Rounds extends EventEmitter {
     this.timer = setTimeout(fn, wait);
   }
 
+  /* ---- the poll --------------------------------------------------------- */
+
+  /* Two tracks, never the one just raced, go up on the results screen; the
+     one with more votes is the next round's mode. A tie is a coin toss, so
+     the mode always moves on. The poll is a preference, not part of the
+     fairness scheme: the seed is committed after the mode is public. */
+  openPoll(r) {
+    const pool = RACE.MODE_IDS.filter((m) => m !== r.mode);
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
+    r.poll = { a: pool[0], b: pool[1], votes: { [pool[0]]: 0, [pool[1]]: 0 }, voters: new Map(), closesAt: r.endAt - POLL_CLOSE_MS, winner: null };
+    clearTimeout(this.pollTimer);
+    this.pollTimer = setTimeout(() => this.closePoll(r), Math.max(0, r.poll.closesAt - Date.now()));
+  }
+
+  closePoll(r) {
+    const p = r && r.poll;
+    if (!p || p.winner) return;
+    const va = p.votes[p.a], vb = p.votes[p.b];
+    p.winner = va > vb ? p.a : vb > va ? p.b : (Math.random() < 0.5 ? p.a : p.b);
+    this.nextMode = p.winner;
+    this.emit('poll', this.publicPoll(r));
+  }
+
+  vote(address, choice) {
+    const r = this.round;
+    const p = r && r.poll;
+    if (!p || r.phase !== 'result') return { error: 'no poll is open' };
+    if (p.winner || Date.now() >= p.closesAt) return { error: 'the poll has closed' };
+    if (choice !== p.a && choice !== p.b) return { error: 'that track is not on the poll' };
+    const before = p.voters.get(address);
+    if (before === choice) return { ok: true, poll: this.publicPoll(r) };
+    if (before) p.votes[before]--;
+    p.voters.set(address, choice);
+    p.votes[choice]++;
+    const out = this.publicPoll(r);
+    this.emit('poll', out);
+    return { ok: true, poll: out };
+  }
+
+  publicPoll(r) {
+    const p = r && r.poll;
+    if (!p) return null;
+    return { roundId: r.id, a: p.a, b: p.b, votes: { [p.a]: p.votes[p.a], [p.b]: p.votes[p.b] }, total: p.votes[p.a] + p.votes[p.b], closesAt: p.closesAt, winner: p.winner };
+  }
+
   /* ---- joining ---------------------------------------------------------- */
 
   join(address, fromWaitlist, skin) {
@@ -282,7 +350,7 @@ class Rounds extends EventEmitter {
     if (!r) return { error: 'starting' };
     if (r.phase !== 'lobby') return { error: 'closed' };
     if (r.index.has(address)) return { error: 'already', player: r.index.get(address) };
-    if (r.players.length >= MAX_PLAYERS) {
+    if (r.players.length >= r.max) {
       if (!this.waitlist.includes(address)) this.waitlist.push(address);
       return { error: 'full', queued: this.waitlist.indexOf(address) + 1 };
     }
@@ -296,8 +364,21 @@ class Rounds extends EventEmitter {
     };
     r.players.push(player);
     r.index.set(address, player);
-    if (!fromWaitlist) this.emit('join', { roundId: r.id, player, count: r.players.length });
-    return { player, count: r.players.length };
+    if (r.max < MAX_PLAYERS_HIGH && r.players.length >= GROW_AT) {
+      r.max = MAX_PLAYERS_HIGH;
+      this.emit('cap', { roundId: r.id, max: r.max, count: r.players.length });
+    }
+    if (!fromWaitlist) this.emit('join', { roundId: r.id, player, count: r.players.length, max: r.max });
+    return { player, count: r.players.length, max: r.max };
+  }
+
+  /* What a full jar is: the acted target in demo mode, otherwise the larger of
+     the expected take and the best of the last few real pots. */
+  potFull(r) {
+    if (r.potTarget) return r.potTarget;
+    let best = r.mega ? 25 : 7.5;
+    for (const past of store.recent(12)) if (past.pot > best) best = past.pot;
+    return best;
   }
 
   /* The rounds ahead, on the clock, with the mega ones flagged: what the
@@ -318,7 +399,11 @@ class Rounds extends EventEmitter {
         mega: startAt % MEGA_EVERY_MS === 0,
         open: i === 0 && r.phase === 'lobby',
         count: i === 0 ? r.players.length : this.waitlist.length,
-        max: MAX_PLAYERS
+        max: i === 0 ? r.max : MAX_PLAYERS,
+        /* This round's mode is known; the next one's is known once its poll
+           has closed; the ones after are decided by polls not yet held. */
+        mode: i === 0 ? r.mode : i === 1 && r.poll && r.poll.winner ? r.poll.winner : null,
+        modeBy: i === 0 ? r.modeBy : i === 1 && r.poll && r.poll.winner ? 'vote' : 'poll'
       });
     }
     return out;
@@ -334,6 +419,9 @@ class Rounds extends EventEmitter {
       number: r.number,
       phase: r.phase,
       mega: r.mega,
+      mode: r.mode,
+      modeBy: r.modeBy,
+      poll: this.publicPoll(r),
       startAt: r.startAt,
       lockAt: r.lockAt,
       raceAt: r.raceAt,
@@ -342,13 +430,14 @@ class Rounds extends EventEmitter {
       seed: r.phase === 'lobby' || r.phase === 'locked' && !r.seed ? null : r.seed,
       secret: r.phase === 'result' || r.phase === 'racing' ? r.secret : null,
       pot: r.pot,
+      potFull: this.potFull(r),
       potDemo: !!r.potDemo,
       gross: r.gross,
       potPct: r.mega ? MEGA_PCT : POT_PCT,
       potFinal: r.potFinal,
       players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name })),
       count: r.players.length,
-      max: MAX_PLAYERS,
+      max: r.max,
       winner: r.phase === 'result' ? r.winner : null,
       order: r.phase === 'result' && r.order ? r.order.slice(0, 10) : null,
       seconds: r.seconds
@@ -399,4 +488,4 @@ function colorOf(address) {
   return 'hsl(' + hue + ' ' + sat + '% ' + lit + '%)';
 }
 
-module.exports = { Rounds, ROUND_MS, LOBBY_MS, LOCK_MS, RACE_MAX_MS, RESULT_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES, MATERIALS, colorOf, faceOf, cleanColor, sha256 };
+module.exports = { Rounds, ROUND_MS, LOBBY_MS, LOCK_MS, RACE_MAX_MS, RESULT_MS, MAX_PLAYERS, MAX_PLAYERS_HIGH, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES, MATERIALS, colorOf, faceOf, cleanColor, sha256 };

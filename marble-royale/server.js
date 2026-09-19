@@ -19,7 +19,8 @@ const crypto = require('crypto');
 
 const store = require('./lib/store');
 const chain = require('./lib/chain');
-const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES } = require('./lib/round');
+const RACE = require('./public/shared/race.js');
+const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, MAX_PLAYERS_HIGH, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES } = require('./lib/round');
 
 const PORT = Number(process.env.PORT) || 8080;
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
@@ -50,6 +51,8 @@ const CONFIG = {
   roundMs: ROUND_MS,
   lobbyMs: LOBBY_MS,
   maxPlayers: MAX_PLAYERS,
+  maxPlayersHigh: MAX_PLAYERS_HIGH,
+  modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })),
   links: {
     buy: process.env.LINK_BUY || '',
     x: process.env.LINK_X || '',
@@ -162,7 +165,7 @@ function broadcast(event, data) {
   for (const res of clients) send(res, event, data);
 }
 
-for (const ev of ['phase', 'join', 'start', 'result', 'pot']) {
+for (const ev of ['phase', 'join', 'start', 'result', 'pot', 'poll', 'cap']) {
   rounds.on(ev, (data) => broadcast(ev, data));
 }
 
@@ -189,7 +192,7 @@ function snapshot() {
 }
 
 const publicResult = (r) => ({
-  id: r.id, number: r.number, startAt: r.startAt, winner: r.winner, pot: r.pot, gross: r.gross, mega: !!r.mega,
+  id: r.id, number: r.number, startAt: r.startAt, winner: r.winner, pot: r.pot, gross: r.gross, mega: !!r.mega, mode: r.mode || 'classic',
   podium: (r.order || []).slice(0, 3),
   players: (r.players || []).length, seconds: r.seconds,
   paid: !!r.paid, tx: r.tx || '', seed: r.seed, commit: r.commit, secret: r.secret
@@ -335,6 +338,18 @@ const server = http.createServer(async (req, res) => {
     if (chatLog.length > 200) chatLog.shift();
     broadcast('chat', msg);
     return json(res, 200, { ok: true });
+  }
+
+  /* One vote per wallet on the results screen: which of the two tracks the
+     next race runs on. Changing your mind moves the vote. */
+  if (p === '/api/vote' && req.method === 'POST') {
+    const body = await readBody(req, 512);
+    const address = body && readToken(body.token);
+    if (!address) return json(res, 401, { error: 'sign in to vote' });
+    if (!allow('vote:' + address, 30, 6)) return json(res, 429, { error: 'easy there' });
+    const out = rounds.vote(address, String(body.choice || ''));
+    if (out.error) return json(res, 409, out);
+    return json(res, 200, out);
   }
 
   if (p === '/api/cheer' && req.method === 'POST') {

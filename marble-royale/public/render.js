@@ -719,5 +719,90 @@
     ctx.restore();
   }
 
-  window.RENDER = { init, resize, setRace, addPlayer, draw, cheer, celebrate, drawFace, FACES, SKIN_COLORS, THEMES, get camera() { return cam; }, get state() { return race; } };
+  /* ---- a picture of a mode -------------------------------------------- */
+
+  /* The first stretch of a course drawn in a mode, laid on its side so it
+     fits a card, the way a track map would. It is drawn from the engine's own
+     geometry, so it is the truth about the mode and not an illustration of
+     it: the same seed gives the same picture everywhere. Cached. */
+  const thumbs = new Map();
+  function thumbnail(modeId, seed, w, h) {
+    w = w || 360; h = h || 200;
+    const key = modeId + ':' + (seed >>> 0) + ':' + w + 'x' + h;
+    if (thumbs.has(key)) return thumbs.get(key);
+    const cv = document.createElement('canvas');
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    cv.style.width = w + 'px'; cv.style.height = h + 'px';
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const c = RACE.makeCourse(seed >>> 0, modeId);
+    const t = THEMES[(c.theme || 0) % THEMES.length];
+
+    const bg = ctx.createLinearGradient(0, 0, w, h);
+    bg.addColorStop(0, '#12121c'); bg.addColorStop(1, '#07070b');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(255,255,255,.035)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x < w; x += 24) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+    for (let y = 0; y < h; y += 24) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
+    ctx.stroke();
+
+    /* course x runs down the card, course y runs along it */
+    const y0 = 600, scale = (h * 0.84) / W, span = w / scale;
+    const y1 = y0 + span;
+    ctx.save();
+    ctx.translate(0, h * 0.08);
+    ctx.transform(0, scale, scale, 0, -y0 * scale, 0);
+    const minW = 2.2 / scale;
+    const inWin = (s) => Math.max(s.y1, s.y2) > y0 - 60 && Math.min(s.y1, s.y2) < y1 + 60;
+    const stroke = (s, extra) => {
+      ctx.lineWidth = Math.max(minW, s.r * 2) + (extra || 0);
+      ctx.beginPath(); ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2); ctx.stroke();
+    };
+    ctx.lineCap = 'round';
+    ctx.fillStyle = 'rgba(0,0,0,.4)';
+    ctx.fillRect(-60, y0 - 100, 60, span + 200); ctx.fillRect(W, y0 - 100, 60, span + 200);
+    ctx.strokeStyle = t.glow;
+    for (const s of c.statics) if (inWin(s)) stroke(s, 10 / scale * 0.6);
+    for (const s of c.statics) {
+      if (!inWin(s)) continue;
+      const isPeg = s.x1 === s.x2 && s.y1 === s.y2;
+      ctx.strokeStyle = s.boost ? '#ffc857' : isPeg ? t.peg : t.rail;
+      stroke(s, 0);
+    }
+    const list = [];
+    for (const m of c.movers) if (m.kind !== 'gate' && m.y > y0 - 200 && m.y < y1 + 200) RACE.moverSegments(m, 0.4, list, false);
+    ctx.strokeStyle = t.moverGlow;
+    for (const s of list) stroke(s, 10 / scale * 0.6);
+    ctx.strokeStyle = t.mover;
+    for (const s of list) stroke(s, 0);
+    if (c.finishY < y1 + 40) {
+      ctx.fillStyle = '#7dff9b'; ctx.fillRect(0, c.finishY - 6 / scale, W, 6 / scale);
+    }
+    /* a few marbles at the top of the window, for scale and for the eye */
+    const rnd = RACE.mulberry32(seed ^ 0x51ed27);
+    for (let i = 0; i < 9; i++) {
+      const x = 140 + rnd() * (W - 280), y = y0 + 30 + rnd() * 220;
+      ctx.fillStyle = i === 0 ? '#ff7a1a' : ['#6ee7ff', '#7dff9b', '#ffd36e', '#ff5ea8', '#b98bff', '#ffffff', '#ff8a4c', '#4cd9ff'][i % 8];
+      ctx.beginPath(); ctx.arc(x, y, Math.max(3.2 / scale, RACE.R), 0, 6.283); ctx.fill();
+    }
+    ctx.restore();
+
+    /* direction of travel, and a fade at the far end */
+    const fade = ctx.createLinearGradient(w - 70, 0, w, 0);
+    fade.addColorStop(0, 'rgba(7,7,11,0)'); fade.addColorStop(1, 'rgba(7,7,11,.9)');
+    ctx.fillStyle = fade; ctx.fillRect(w - 70, 0, 70, h);
+    ctx.strokeStyle = 'rgba(255,122,26,.9)'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let i = 0; i < 3; i++) {
+      const x = w - 34 + i * 9, y = h / 2;
+      ctx.globalAlpha = 0.35 + i * 0.3;
+      ctx.beginPath(); ctx.moveTo(x - 5, y - 7); ctx.lineTo(x, y); ctx.lineTo(x - 5, y + 7); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    thumbs.set(key, cv);
+    return cv;
+  }
+
+  window.RENDER = { init, resize, setRace, addPlayer, draw, cheer, celebrate, drawFace, thumbnail, FACES, SKIN_COLORS, THEMES, get camera() { return cam; }, get state() { return race; } };
 })();

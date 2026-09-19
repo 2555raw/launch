@@ -36,8 +36,15 @@
   const GRAVITY = 880;
   const MAX_SPEED = 1350;
   const WALL_BOUNCE = 0.34;
-  const BALL_BOUNCE = 0.16;
-  const AIR = 0.9992;        // a whisper of drag, so nothing runs away
+  const BALL_BOUNCE = 0.46;  // glass on glass clacks; a marble is not a beanbag
+  const AIR = 0.9994;        // a whisper of drag, so nothing runs away
+  const DRAG2 = 0.0000022;   // and a little more the faster it goes
+  /* Below this closing speed a hit is a landing, not a bounce: the restitution
+     fades out so a marble settles onto a ramp and rolls instead of buzzing. */
+  const SOFT_HIT = 150;
+  /* A solid ball rolling down a slope picks up only five sevenths of the pull
+     a sliding block would; the rest goes into making it spin. */
+  const ROLL = 2 / 7;
   const MAX_SECONDS = 40;    // hard ceiling on a race
   const RUSH_AT = 26;        // gravity starts climbing here, so races end
 
@@ -73,6 +80,33 @@
   }
   function dcos(x) { return dsin(x + 1.5707963267948966); }
 
+  /* ---- game modes -------------------------------------------------------- */
+
+  /* A mode is which sections a course may draw from, how many, and a nudge to
+     the physics. Every mode still draws a fresh course from the seed, so two
+     races in the same mode are never the same track. The mode is public before
+     the seed exists, so it changes nothing about the fairness scheme. */
+  const MODES = {
+    classic:  { name: 'Classic',      pool: ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers', 'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'], count: [7, 9], gravity: 1, bounce: 1,
+                blurb: 'Everything the course can throw at you: pegs, ramps, spinners, jumps and boost pads, seven to nine sections drawn fresh.' },
+    plinko:   { name: 'Plinko Hell',  pool: ['plinko', 'pegs', 'bumpers', 'plinko', 'pegs'], count: [8, 9], gravity: 1, bounce: 1.15,
+                blurb: 'Walls of pins and bumpers, nothing else. The field spreads out and mixes; luck does the rest.' },
+    boost:    { name: 'Boost Alley',  pool: ['boost', 'jump', 'zigzag', 'boost', 'stairs', 'jump'], count: [6, 8], gravity: 1.1, bounce: 0.9,
+                blurb: 'Boost rails and kickers all the way down. Hit the pads and fly the gaps; miss and drop to the catch ramps.' },
+    spin:     { name: 'Spin Cycle',   pool: ['spinners', 'flippers', 'pistons', 'spinners', 'flippers', 'split'], count: [7, 8], gravity: 1, bounce: 1,
+                blurb: 'Spinning arms, fast flippers and sliding pistons. Timing is everything and nobody controls it.' },
+    funnel:   { name: 'Funnel Run',   pool: ['funnel', 'split', 'stairs', 'funnel', 'zigzag'], count: [7, 8], gravity: 1, bounce: 0.95,
+                blurb: 'Throats, wedges and steps. The pack squeezes through one gap after another; a good line is a long lead.' },
+    drop:     { name: 'Mega Drop',    pool: ['jump', 'stairs', 'bumpers', 'jump', 'pegs'], count: [5, 6], gravity: 1.35, bounce: 1.05,
+                blurb: 'Fewer sections, steeper fall, bigger jumps. Over in a flash and hard on the marbles.' },
+    ice:      { name: 'Ice Rink',     pool: ['bumpers', 'zigzag', 'split', 'bumpers', 'pistons', 'boost'], count: [7, 8], gravity: 0.9, bounce: 1.3,
+                blurb: 'Everything bounces. Bumpers throw marbles across the track and back; the leader changes twenty times.' },
+    maze:     { name: 'The Maze',     pool: ['zigzag', 'stairs', 'split', 'funnel', 'stairs', 'zigzag'], count: [8, 9], gravity: 0.95, bounce: 0.9,
+                blurb: 'Ramps and steps and switchbacks with no straight fall anywhere. The longest course; patience wins it.' }
+  };
+  const MODE_IDS = Object.keys(MODES);
+  const modeOf = (id) => MODES[id] || MODES.classic;
+
   /* ---- course ------------------------------------------------------------ */
 
   /* A course is a list of static shapes (capsules and pegs), a list of movers
@@ -82,7 +116,8 @@
 
   const BAND = 220;
 
-  function makeCourse(seed) {
+  function makeCourse(seed, modeId) {
+    const mode = modeOf(modeId);
     const rnd = mulberry32(seed ^ 0x9e3779b9);
     const statics = [];
     const movers = [];
@@ -119,24 +154,28 @@
     /* Seven to nine sections, never the same kind twice in a row, drawn from
        ten kinds, with the height and the details of each one drawn too, so no
        two courses are alike. */
-    const KINDS = ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers',
-                   'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'];
-    let last = -1;
+    const KINDS = mode.pool;
+    let last = '';
     const sections = [];
-    const count = 7 + pick(3);
+    const count = mode.count[0] + pick(mode.count[1] - mode.count[0] + 1);
     for (let i = 0; i < count; i++) {
-      let k = pick(KINDS.length);
-      if (k === last) k = (k + 1 + pick(KINDS.length - 1)) % KINDS.length;
+      let k = KINDS[pick(KINDS.length)];
+      let guard = 0;
+      while (k === last && guard++ < 6) k = KINDS[pick(KINDS.length)];
       last = k;
-      sections.push(KINDS[k]);
+      sections.push(k);
     }
 
+    const walls = [];
     for (const kind of sections) {
       const h = 820 + pick(3) * 80;
-      /* Side walls for the whole section, leaning in a little. */
+      /* Side walls for the whole section, leaning in a little. The clamp in
+         step() follows them, so a marble thrown hard enough to pass through
+         one is still put back on the course side of it. */
       const lean = 14 + pick(3) * 8;
       seg(30, y - 30, 30 + lean, y + h + 30, 12);
       seg(WIDTH - 30, y - 30, WIDTH - 30 - lean, y + h + 30, 12);
+      walls.push({ y0: y - 30, y1: y + h + 30, lean });
 
       if (kind === 'pegs') {
         const rows = 5 + pick(2), gapx = 90 + pick(3) * 10;
@@ -144,7 +183,9 @@
           const off = (r0 % 2) * (gapx / 2);
           for (let c = 0; c < 10; c++) {
             const px = 105 + off + c * gapx;
-            if (px > WIDTH - 80) continue;
+            /* A peg by the wall leaves a slot narrower than a marble between
+               the two, and a marble in a slot is a marble that stays there. */
+            if (px < 130 || px > WIDTH - 130) continue;
             peg(px, y + 110 + r0 * ((h - 200) / rows), 13 + pick(4) * 3);
           }
         }
@@ -173,7 +214,7 @@
             speed: (1.2 + pick(6) * 0.22) * (pick(2) ? 1 : -1),
             phase: rnd() * TAU
           });
-          peg(s % 2 ? 120 : WIDTH - 120, y + 300 + s * ((h - 260) / 3), 16);
+          peg(s % 2 ? 135 : WIDTH - 135, y + 300 + s * ((h - 260) / 3), 16);
         }
       } else if (kind === 'pistons') {
         for (let s = 0; s < 3; s++) {
@@ -188,7 +229,7 @@
             speed: 0.8 + pick(6) * 0.2,
             phase: rnd() * TAU
           });
-          peg(s % 2 ? 110 : WIDTH - 110, y + 300 + s * ((h - 240) / 3), 16);
+          peg(s % 2 ? 135 : WIDTH - 135, y + 300 + s * ((h - 240) / 3), 16);
         }
       } else if (kind === 'split') {
         const n = 3, room = (h - 100) / n;
@@ -203,7 +244,7 @@
       } else if (kind === 'bumpers') {
         const n = 7 + pick(3);
         for (let s = 0; s < n; s++) {
-          peg(130 + pick(8) * 95, y + 110 + s * ((h - 220) / n), 20 + pick(4) * 6, 0.72);
+          peg(160 + pick(8) * 95, y + 110 + s * ((h - 220) / n), 20 + pick(4) * 6, 0.72);
         }
       } else if (kind === 'funnel') {
         /* Two walls closing to a throat, then a peg to split the stream. */
@@ -214,8 +255,11 @@
         seg(WIDTH / 2 - throat / 2, yt, WIDTH / 2 - throat / 2, yt + 90, 13);
         seg(WIDTH / 2 + throat / 2, yt, WIDTH / 2 + throat / 2, yt + 90, 13);
         peg(WIDTH / 2 + (pick(3) - 1) * 60, yt + 260, 20);
-        peg(WIDTH / 2 - 220, yt + 380, 16);
-        peg(WIDTH / 2 + 220, yt + 380, 16);
+        /* The two wide pegs stay inside this section: one that reaches into
+           the next section's first ramp makes a slot under itself. */
+        const yp = Math.min(yt + 380, y + h - 130);
+        peg(WIDTH / 2 - 220, yp, 16);
+        peg(WIDTH / 2 + 220, yp, 16);
       } else if (kind === 'stairs') {
         /* Short steep steps, alternating sides, each inside its own band. */
         const n = 5, room = (h - 120) / n;
@@ -234,7 +278,7 @@
           const off = (r0 % 2) * (gapx / 2);
           for (let c = 0; c < 14; c++) {
             const px = 90 + off + c * gapx;
-            if (px > WIDTH - 70) continue;
+            if (px < 115 || px > WIDTH - 115) continue;
             peg(px, y + 100 + r0 * ((h - 180) / rows), 8 + pick(2) * 2, 0.5);
           }
         }
@@ -307,7 +351,7 @@
       for (let i = lo; i <= hi; i++) bands[i].push(s);
     }
 
-    return { statics, movers, bands, bandCount, gate, finishY, height, sections, theme, width: WIDTH };
+    return { statics, movers, bands, bandCount, gate, finishY, height, sections, walls, theme, width: WIDTH, mode: MODE_IDS.includes(modeId) ? modeId : 'classic' };
   }
 
   /* Where a mover is at time t, as a capsule (and how fast it is travelling, so
@@ -349,7 +393,9 @@
      needs an id; anything else (colour, label) is decoration and lives on the
      client. */
   function createRace(seed, marbles, opts) {
-    const course = makeCourse(seed);
+    const modeId = opts && opts.mode;
+    const course = makeCourse(seed, modeId);
+    const mode = modeOf(modeId);
     const hold = !!(opts && opts.hold);
     const rnd = mulberry32((seed ^ 0x85ebca6b) >>> 0);
     const n = marbles.length;
@@ -374,12 +420,13 @@
       balls.push({
         id: marbles[i].id, i,
         x, y, px: x, py: y, vx: 0, vy: 0,
-        best: y, stuck: 0, kicks: 0, place: 0, time: 0, done: false, spin: 0
+        best: y, stuck: 0, kicks: 0, place: 0, time: 0, done: false, spin: 0, contact: 0
       });
     }
 
     return {
       seed, course, balls, t: 0, step: 0, hold,
+      gravity: GRAVITY * mode.gravity, bounce: mode.bounce,
       finished: [], over: false, leader: null
     };
   }
@@ -389,7 +436,8 @@
   function step(st) {
     if (st.over) return st;
     const c = st.course, balls = st.balls, t = st.t;
-    const g = t > RUSH_AT ? GRAVITY * Math.min(3, 1 + (t - RUSH_AT) * 0.16) : GRAVITY;
+    const G0 = st.gravity || GRAVITY;
+    const g = t > RUSH_AT ? G0 * Math.min(3, 1 + (t - RUSH_AT) * 0.16) : G0;
     /* movers, once per step */
     const dyn = [];
     for (const m of c.movers) moverSegments(m, t, dyn, st.hold);
@@ -408,15 +456,20 @@
       }
       b.px = b.x; b.py = b.y;
       b.vy += g * DT;
-      b.vx *= AIR; b.vy *= AIR;
       const sp2 = b.vx * b.vx + b.vy * b.vy;
+      const sp = Math.sqrt(sp2);
+      const air = AIR - sp * DRAG2;
+      b.vx *= air; b.vy *= air;
       if (sp2 > MAX_SPEED * MAX_SPEED) {
-        const k = MAX_SPEED / Math.sqrt(sp2);
+        const k = MAX_SPEED / sp;
         b.vx *= k; b.vy *= k;
       }
       b.x += b.vx * DT;
       b.y += b.vy * DT;
+      b.spin *= 0.996;
+      b.contact = 0;
     }
+    const gdt = g * DT;
 
     /* statics and movers */
     for (let i = 0; i < balls.length; i++) {
@@ -428,17 +481,25 @@
         const list = c.bands[k];
         for (let j = 0; j < list.length; j++) {
           const s = list[j];
-          hitCapsule(b, s, 0, 0);
+          hitCapsule(b, s, 0, 0, st.bounce || 1, gdt);
         }
       }
       for (let j = 0; j < dyn.length; j++) {
         const s = dyn[j];
         if (b.y < s.y1 - 260 || b.y > s.y1 + 260) continue;
-        hitCapsule(b, s, s.vx, s.vy);
+        hitCapsule(b, s, s.vx, s.vy, st.bounce || 1, gdt);
       }
-      /* outer walls, as a clamp - cheaper and impossible to tunnel through */
-      if (b.x < R) { b.x = R; if (b.vx < 0) b.vx = -b.vx * WALL_BOUNCE; }
-      if (b.x > WIDTH - R) { b.x = WIDTH - R; if (b.vx > 0) b.vx = -b.vx * WALL_BOUNCE; }
+      /* The side walls again, as a clamp: cheaper than a capsule and
+         impossible to tunnel through, which matters for a marble a bumper has
+         thrown at top speed. Inside a section the clamp leans with the wall. */
+      let edge = R;
+      const ws = c.walls;
+      for (let w = 0; w < ws.length; w++) {
+        const wl = ws[w];
+        if (b.y >= wl.y0 && b.y <= wl.y1) { edge = 30 + 12 + R + wl.lean * ((b.y - wl.y0) / (wl.y1 - wl.y0)); break; }
+      }
+      if (b.x < edge) { b.x = edge; if (b.vx < 0) b.vx = -b.vx * WALL_BOUNCE; }
+      if (b.x > WIDTH - edge) { b.x = WIDTH - edge; if (b.vx > 0) b.vx = -b.vx * WALL_BOUNCE; }
     }
 
     /* marble on marble, through a hash grid */
@@ -517,7 +578,7 @@
     return st;
   }
 
-  function hitCapsule(b, s, ovx, ovy) {
+  function hitCapsule(b, s, ovx, ovy, bounce, gdt) {
     const dx = s.x2 - s.x1, dy = s.y2 - s.y1;
     const L2 = dx * dx + dy * dy;
     let u = 0;
@@ -542,15 +603,34 @@
     const rvx = b.vx - (ovx || 0), rvy = b.vy - (ovy || 0);
     const vn = rvx * nx + rvy * ny;
     if (vn < 0) {
-      const j = -(1 + s.b) * vn;
+      /* A hard hit bounces; a soft one lands. Restitution fades with the
+         closing speed, the way a real marble stops hopping and starts rolling. */
+      const closing = -vn;
+      const e = s.b * (bounce || 1) * (closing < SOFT_HIT ? closing / SOFT_HIT : 1);
+      const j = -(1 + e) * vn;
       b.vx += nx * j; b.vy += ny * j;
-      /* Friction along the surface, so marbles roll off ramps instead of
-         skating, and the roll it produces: the spin is the tangential speed
-         over the radius, signed by which way round the surface is. It is only
-         ever drawn, never fed back into the motion. */
       const tx = rvx - nx * vn, ty = rvy - ny * vn;
-      b.vx -= tx * 0.012; b.vy -= ty * 0.012;
-      b.spin = (tx * -ny + ty * nx) / R;
+      if (closing < SOFT_HIT && gdt) {
+        /* Rolling contact. Two sevenths of this step's gravity along the
+           surface goes into spin rather than speed, and rolling resistance
+           takes a little more, so a marble rolls off a ramp at a marble's
+           pace instead of skating off it like a puck. */
+        const tl = Math.sqrt(tx * tx + ty * ty);
+        if (tl > 0.001) {
+          const ux = tx / tl, uy = ty / tl;
+          const pull = gdt * uy;                 // gravity's share along the slope
+          b.vx -= ux * (pull * ROLL + tl * 0.004);
+          b.vy -= uy * (pull * ROLL + tl * 0.004);
+        }
+        b.contact = 1;
+      } else {
+        /* A skid: sliding friction while the marble is still bouncing. */
+        b.vx -= tx * 0.02; b.vy -= ty * 0.02;
+      }
+      /* The roll, for the eye: the surface speed over the radius, signed by
+         which way round the surface is. It is only ever drawn, never fed back
+         into the motion. */
+      b.spin += ((tx * -ny + ty * nx) / R - b.spin) * 0.5;
     }
   }
 
@@ -564,11 +644,24 @@
     const push = (rad - d) * 0.5;
     a.x -= nx * push; a.y -= ny * push;
     b.x += nx * push; b.y += ny * push;
-    const vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+    const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
+    const vn = rvx * nx + rvy * ny;
     if (vn >= 0) return;
-    const j = -(1 + BALL_BOUNCE) * vn * 0.5;
+    /* Equal masses: each takes half the impulse. A gentle nudge is nearly
+       inelastic (the pack holds together on a ramp); a real hit clacks. */
+    const closing = -vn;
+    const e = BALL_BOUNCE * (closing < SOFT_HIT ? closing / SOFT_HIT : 1);
+    const j = -(1 + e) * vn * 0.5;
     a.vx -= nx * j; a.vy -= ny * j;
     b.vx += nx * j; b.vy += ny * j;
+    /* A touch of friction between the two, so a marble rubbing past another
+       drags on it and the spins react, which is what makes a pack look alive. */
+    const tx = rvx - nx * vn, ty = rvy - ny * vn;
+    a.vx += tx * 0.03; a.vy += ty * 0.03;
+    b.vx -= tx * 0.03; b.vy -= ty * 0.03;
+    const rub = (tx * -ny + ty * nx) / R;
+    a.spin += (rub - a.spin) * 0.08;
+    b.spin += (-rub - b.spin) * 0.08;
   }
 
   /* Drops one more marble into a held race. The lobby uses it so a marble falls
@@ -581,7 +674,7 @@
     const y = -40 - ((h >>> 10) % 60);
     st.balls.push({
       id, i: n, x, y, px: x, py: y, vx: (((h >>> 16) % 100) - 50) * 1.2, vy: 60,
-      best: y, stuck: 0, kicks: 0, place: 0, time: 0, done: false
+      best: y, stuck: 0, kicks: 0, place: 0, time: 0, done: false, spin: 0, contact: 0
     });
     return st.balls[n];
   }
@@ -590,8 +683,8 @@
   const progress = (st, b) => Math.max(0, Math.min(1, (b.done ? st.course.finishY : b.best) / st.course.finishY));
 
   /* Plays the race out with no rendering. This is what the server calls. */
-  function runToEnd(seed, marbles) {
-    const st = createRace(seed, marbles);
+  function runToEnd(seed, marbles, modeId) {
+    const st = createRace(seed, marbles, { mode: modeId });
     let guard = 0;
     while (!st.over && guard++ < MAX_SECONDS * 60 + 10) step(st);
     return {
@@ -603,6 +696,7 @@
   return {
     WIDTH, R, DT, MAX_SECONDS, BAND,
     mulberry32, dsin, dcos,
+    MODES, MODE_IDS, modeOf,
     makeCourse, moverSegments, createRace, addBall, step, runToEnd, progress
   };
 });

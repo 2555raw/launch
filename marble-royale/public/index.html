@@ -121,6 +121,21 @@
       </div>
     </section>
 
+    <section class="block block--ca" id="tokenBar" hidden>
+      <div class="ca glass">
+        <div class="ca__left">
+          <span class="kicker kicker--plain">THE TOKEN</span>
+          <b class="ca__addr mono" id="caFull"></b>
+          <span class="dim small" id="caChain">Robinhood Chain</span>
+        </div>
+        <div class="ca__acts">
+          <button class="btn btn--accent" type="button" id="caCopy"><svg class="ic"><use href="#i-check"/></svg> Copy CA</button>
+          <a class="btn btn--glass" id="caExplorer" target="_blank" rel="noopener">Explorer</a>
+          <a class="btn btn--glass" id="caPons" target="_blank" rel="noopener">Trade on Pons</a>
+          <a class="btn btn--glass" id="caBuy" target="_blank" rel="noopener" hidden>Buy</a>
+        </div>
+      </div>
+    </section>
     <section class="block" id="homeLaunches" hidden>
       <div class="block__head block__head--row">
         <div><span class="kicker kicker--plain">LAUNCHED HERE</span><h2>Latest tokens from the pad</h2></div>
@@ -266,6 +281,7 @@
 
   <!-- ---------- COUNTDOWN ---------- -->
   <section class="screen screen--count" id="s-count" hidden>
+    <button class="hud__back hud__back--count" id="countBack" type="button" title="Back to the site"><svg class="ic"><use href="#i-arrow"/></svg><span>Back</span></button>
     <div class="count" id="countNum">3</div>
     <div class="count__sub mono" id="countSub">GATE OPENS</div>
   </section>
@@ -273,6 +289,7 @@
   <!-- ---------- RACE HUD ---------- -->
   <section class="screen screen--race" id="s-race" hidden>
     <div class="hud hud--tl">
+      <button class="hud__back" id="raceBack" type="button" title="Back to the site; the race keeps running"><svg class="ic"><use href="#i-arrow"/></svg><span>Back</span></button>
       <span class="mono" id="hudNo">RACE #----</span>
       <span class="pill pill--live"><i></i>LIVE</span>
       <span class="mono dim" id="hudTime">00.0</span>

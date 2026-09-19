@@ -179,10 +179,25 @@ setInterval(() => {
    climbs while they wait. */
 setInterval(() => { rounds.pollPot().catch(() => {}); }, 30000).unref();
 
+/* The live config: what the environment set, with anything the creator has
+   since saved from the console on top. */
+function config() {
+  const st = store.settings();
+  return Object.assign({}, CONFIG, {
+    mint: st.mint || CONFIG.mint,
+    ticker: st.ticker || CONFIG.ticker,
+    links: Object.assign({}, CONFIG.links, {
+      buy: st.buy || CONFIG.links.buy,
+      x: st.x || CONFIG.links.x,
+      telegram: st.telegram || CONFIG.links.telegram
+    })
+  });
+}
+
 function snapshot() {
   return {
     now: Date.now(),
-    config: CONFIG,
+    config: config(),
     round: rounds.publicRound(),
     schedule: rounds.schedule(4),
     recent: store.recent(12).map(publicResult),
@@ -424,6 +439,23 @@ const server = http.createServer(async (req, res) => {
       broadcast('paid', { round: publicResult(r), rewards: store.paid(10).map(publicResult), paidTotal: store.paidTotal() });
       return json(res, 200, { ok: true, round: r });
     }
+    /* The token's contract address, pasted by the creator once the token
+       exists. Every open page hears it at once; nothing here is on-chain. */
+    if (p === '/api/admin/token' && req.method === 'POST') {
+      const body = await readBody(req, 2048);
+      const mint = String((body && body.mint) || '').trim();
+      if (mint && !/^0x[0-9a-fA-F]{40}$/.test(mint)) return json(res, 400, { error: 'that is not a contract address on this chain' });
+      const link = (v) => { const u = String(v || '').trim(); return !u || /^https?:\/\//i.test(u) ? u : 'https://' + u; };
+      const saved = store.setSettings({
+        mint,
+        ticker: String((body && body.ticker) || '').trim().toUpperCase().replace(/[^A-Z0-9$]/g, '').slice(0, 12),
+        buy: link(body && body.buy), x: link(body && body.x), telegram: link(body && body.telegram)
+      });
+      broadcast('config', config());
+      return json(res, 200, { ok: true, settings: saved });
+    }
+    if (p === '/api/admin/settings') return json(res, 200, { settings: store.settings() });
+
     if (p === '/api/admin/pot' && req.method === 'POST') {
       const body = await readBody(req);
       const sol = Number(body && body.pot);

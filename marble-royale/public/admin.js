@@ -18,10 +18,27 @@
   const short = (a) => a.slice(0, 6) + '…' + a.slice(-6);
   const when = (ms) => new Date(ms).toLocaleString();
 
+  /* The contract address the site shows. Saved on the server, not here. */
+  async function loadToken() {
+    const st = (await api('settings')).settings || {};
+    $('#tkMint').value = st.mint || ''; $('#tkTicker').value = st.ticker || '';
+    $('#tkBuy').value = st.buy || ''; $('#tkX').value = st.x || ''; $('#tkTg').value = st.telegram || '';
+  }
+  $('#tkSave').addEventListener('click', async () => {
+    key = $('#key').value.trim(); localStorage.setItem('mr.admin', key);
+    const out = $('#tkOut'); out.textContent = 'saving…';
+    const r = await api('token', { method: 'POST', body: JSON.stringify({
+      mint: $('#tkMint').value.trim(), ticker: $('#tkTicker').value.trim(),
+      buy: $('#tkBuy').value.trim(), x: $('#tkX').value.trim(), telegram: $('#tkTg').value.trim()
+    }) });
+    out.textContent = r.error ? 'not saved: ' + r.error : (r.settings && r.settings.mint ? 'live on the site: ' + r.settings.mint : 'taken down from the site');
+  });
+
   async function load() {
     key = $('#key').value.trim();
     localStorage.setItem('mr.admin', key);
     $('#csv').href = '/api/admin/rounds.csv?key=' + encodeURIComponent(key);
+    loadToken().catch(() => {});
     const data = await api('rounds?n=200');
     if (data.error) { rows.innerHTML = '<tr><td colspan=7>' + data.error + '</td></tr>'; return; }
 

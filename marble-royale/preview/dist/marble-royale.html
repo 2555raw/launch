@@ -378,6 +378,17 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--race { position: fixed; inset: 0; pointer-events: none; }
 .hud { position: absolute; pointer-events: auto; }
+.hud__back {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px 7px 10px; border-radius: 999px;
+  background: rgba(7, 7, 11, .62); border: 1px solid var(--line); color: var(--ink);
+  font-family: var(--disp); font-weight: 700; font-size: 12.5px; cursor: pointer;
+  backdrop-filter: blur(10px); transition: background .15s ease, transform .15s ease;
+}
+.hud__back:hover { background: rgba(7, 7, 11, .85); transform: translateX(-2px); }
+.hud__back .ic { width: 15px; height: 15px; transform: scaleX(-1); }
+.hud__back--count {
+  position: absolute; top: calc(22px + env(safe-area-inset-top, 0px)); left: var(--gut); z-index: 3;
+}
 .hud--tl { top: calc(22px + env(safe-area-inset-top, 0px)); left: var(--gut); display: flex; align-items: center; gap: 10px; font-size: 13px; }
 .hud--board {
   top: calc(22px + env(safe-area-inset-top, 0px)); right: var(--gut); list-style: none; margin: 0; padding: 8px;
@@ -819,6 +830,14 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .tok__buy { font-size: 11px; color: var(--win); font-family: var(--mono); grid-column: 1 / -1; }
 .tok--new { animation: fadeup .6s ease both; }
 
+/* the token's contract address, once the creator has one */
+.ca { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; padding: 18px 20px; border-radius: var(--r); }
+.ca__left { display: grid; gap: 3px; min-width: 0; }
+.ca__addr { font-size: 15px; word-break: break-all; }
+.ca__acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.ca__acts .ic { width: 15px; height: 15px; }
+@media (max-width: 640px) { .ca__acts .btn { flex: 1 1 auto; justify-content: center; } }
+
 </style>
 <script>(function(){var t='black';try{t=localStorage.getItem('mr.theme')||'black';}catch(e){}if(t==='black'||t==='white')document.documentElement.dataset.theme=t;})();</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js"}}</script>
@@ -928,6 +947,21 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
       </div>
     </section>
 
+    <section class="block block--ca" id="tokenBar" hidden>
+      <div class="ca glass">
+        <div class="ca__left">
+          <span class="kicker kicker--plain">THE TOKEN</span>
+          <b class="ca__addr mono" id="caFull"></b>
+          <span class="dim small" id="caChain">Robinhood Chain</span>
+        </div>
+        <div class="ca__acts">
+          <button class="btn btn--accent" type="button" id="caCopy"><svg class="ic"><use href="#i-check"/></svg> Copy CA</button>
+          <a class="btn btn--glass" id="caExplorer" target="_blank" rel="noopener">Explorer</a>
+          <a class="btn btn--glass" id="caPons" target="_blank" rel="noopener">Trade on Pons</a>
+          <a class="btn btn--glass" id="caBuy" target="_blank" rel="noopener" hidden>Buy</a>
+        </div>
+      </div>
+    </section>
     <section class="block" id="homeLaunches" hidden>
       <div class="block__head block__head--row">
         <div><span class="kicker kicker--plain">LAUNCHED HERE</span><h2>Latest tokens from the pad</h2></div>
@@ -1073,6 +1107,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 
   <!-- ---------- COUNTDOWN ---------- -->
   <section class="screen screen--count" id="s-count" hidden>
+    <button class="hud__back hud__back--count" id="countBack" type="button" title="Back to the site"><svg class="ic"><use href="#i-arrow"/></svg><span>Back</span></button>
     <div class="count" id="countNum">3</div>
     <div class="count__sub mono" id="countSub">GATE OPENS</div>
   </section>
@@ -1080,6 +1115,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   <!-- ---------- RACE HUD ---------- -->
   <section class="screen screen--race" id="s-race" hidden>
     <div class="hud hud--tl">
+      <button class="hud__back" id="raceBack" type="button" title="Back to the site; the race keeps running"><svg class="ic"><use href="#i-arrow"/></svg><span>Back</span></button>
       <span class="mono" id="hudNo">RACE #----</span>
       <span class="pill pill--live"><i></i>LIVE</span>
       <span class="mono dim" id="hudTime">00.0</span>
@@ -5022,6 +5058,31 @@ window.MR_TYPES = true;
   /* ---- screens ----------------------------------------------------------- */
 
   const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch', 'fair'];
+  /* The race fills the window and the dock steps aside for it, so the HUD
+     carries its own way back. The race itself keeps running behind the page. */
+  function bindBack() {
+    for (const id of ['#raceBack', '#countBack']) $(id).addEventListener('click', () => { setScreen('home'); SOUND.play('ui'); });
+  }
+
+  /* The token's contract address, pasted by the creator in the console. It
+     shows on the page the moment it is saved, for everyone watching. */
+  function paintToken(c) {
+    const mint = (c && c.mint) || '';
+    const bar = $('#tokenBar'), pill = $('#caBtn');
+    bar.hidden = !mint; pill.hidden = !mint;
+    if (!mint) return;
+    const ex = (c.explorer || 'https://robinhoodchain.blockscout.com').replace(/\/$/, '');
+    $('#caFull').textContent = mint;
+    $('#caChain').textContent = (c.ticker ? c.ticker.replace(/^\$?/, '$') + ' · ' : '') + (c.chain || 'Robinhood Chain');
+    $('#caExplorer').href = ex + '/token/' + mint;
+    $('#caPons').href = 'https://ponsfamily.com/launchpad?search=' + mint;
+    $('#caCopy').onclick = () => copy(mint, 'Contract address');
+    const buy = $('#caBuy');
+    if (c.links && c.links.buy) { buy.hidden = false; buy.href = c.links.buy; } else buy.hidden = true;
+    $('#caVal').textContent = short(mint); pill.title = mint;
+    pill.onclick = () => copy(mint, 'Contract address');
+  }
+
   function setScreen(name) {
     if (!SCREENS.includes(name)) return;
     ui.set({ screen: name });
@@ -5174,6 +5235,7 @@ window.MR_TYPES = true;
     es.addEventListener('chat', (e) => feed(JSON.parse(e.data)));
     es.addEventListener('skin', (e) => onSkin(JSON.parse(e.data)));
     es.addEventListener('launch', (e) => onLaunch(JSON.parse(e.data)));
+    es.addEventListener('config', (e) => { const c = JSON.parse(e.data); game.set({ config: c }); applyConfig(c); });
     es.addEventListener('cheer', (e) => { const d = JSON.parse(e.data); if (SCENE.ready) SCENE.cheer(d.target); });
     es.addEventListener('tick', (e) => {
       const d = JSON.parse(e.data);
@@ -5203,7 +5265,7 @@ window.MR_TYPES = true;
   function applyConfig(c) {
     if (!c) return;
     $('#loEntry').textContent = c.entry || 'FREE';
-    if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
+    paintToken(c);
     if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; $('#dockX').href = c.links.x; }
     document.title = (c.coin || 'MARBLERUSH') + ' · race your marble';
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
@@ -6574,6 +6636,7 @@ window.MR_TYPES = true;
   function boot() {
     loadSkin();
     buildPickers();
+    bindBack();
     buildLaunchpad();
     buildFloaters();
     setTheme(themeName());

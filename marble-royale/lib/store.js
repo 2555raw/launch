@@ -16,7 +16,7 @@ const DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const FILE = path.join(DIR, 'rounds.json');
 const KEEP = 500;                 // rounds kept in the file and in memory
 
-let state = { rounds: [], stats: {}, counter: 0, launches: [] };
+let state = { rounds: [], stats: {}, counter: 0, launches: [], settings: {} };
 let writing = false, again = false;
 
 function load() {
@@ -24,7 +24,7 @@ function load() {
     const raw = fs.readFileSync(FILE, 'utf8');
     const parsed = JSON.parse(raw);
     if (parsed && Array.isArray(parsed.rounds)) {
-      state = { rounds: parsed.rounds, stats: parsed.stats || {}, counter: parsed.counter || parsed.rounds.length, launches: Array.isArray(parsed.launches) ? parsed.launches : [] };
+      state = { rounds: parsed.rounds, stats: parsed.stats || {}, counter: parsed.counter || parsed.rounds.length, launches: Array.isArray(parsed.launches) ? parsed.launches : [], settings: (parsed.settings && typeof parsed.settings === 'object') ? parsed.settings : {} };
     }
   } catch (err) {
     if (err.code !== 'ENOENT') console.error('[store] could not read ' + FILE + ':', err.message);
@@ -122,6 +122,17 @@ function paidTotal() {
   return Math.round(t * 100) / 100;
 }
 
+/* What the creator sets from the console while the site is running: the
+   token's contract address and the links that go with it. Kept in the same
+   file as the results so a redeploy does not lose them. */
+function settings() { return Object.assign({}, state.settings); }
+function setSettings(patch) {
+  state.settings = Object.assign({}, state.settings, patch);
+  for (const k of Object.keys(state.settings)) if (state.settings[k] === '' || state.settings[k] === null) delete state.settings[k];
+  save();
+  return settings();
+}
+
 /* Tokens launched through the site, newest first; one entry per token. */
 function addLaunch(l) {
   state.launches = (state.launches || []).filter((x) => x.token.toLowerCase() !== l.token.toLowerCase());
@@ -132,4 +143,4 @@ function addLaunch(l) {
 }
 function launches(n) { return (state.launches || []).slice(0, n || 24); }
 
-module.exports = { addLaunch, launches, load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };
+module.exports = { settings, setSettings, addLaunch, launches, load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };

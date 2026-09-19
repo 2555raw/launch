@@ -25,6 +25,11 @@
   .pill.due { color: var(--gold); border-color: rgba(255,211,110,.4); }
   td input { background: #0b0b13; border: 1px solid var(--line); border-radius: 7px; padding: 6px; width: 150px; }
   .row-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .tokenbox { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 22px; }
+  .tokenbox h2 { font-size: 13px; letter-spacing: .12em; margin: 0 0 8px; }
+  .tokenbox__row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .tokenbox input { background: #0b0b13; border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; color: inherit; font: inherit; }
+  .tokenbox #tkMint { flex: 1 1 380px; }
   .note { color: var(--dim); font-size: 12px; line-height: 1.6; max-width: 62ch; margin-bottom: 20px; }
 </style>
 </head>
@@ -38,6 +43,24 @@
     <a class="btn" id="csv" href="#">CSV</a>
     <button class="btn" id="forget">forget key</button>
   </div>
+
+  <section class="tokenbox">
+    <h2>TOKEN · CONTRACT ADDRESS</h2>
+    <p class="note">Paste the contract address once the token exists. It shows on the site straight away, for everyone watching, with buttons to copy it and to open it on the explorer and on Pons. Leave it empty to take it down again. Nothing here touches the chain.</p>
+    <div class="tokenbox__row">
+      <input id="tkMint" placeholder="0x… contract address" autocomplete="off" spellcheck="false">
+      <input id="tkTicker" placeholder="TICKER" autocomplete="off">
+    </div>
+    <div class="tokenbox__row">
+      <input id="tkBuy" placeholder="buy link (optional)" autocomplete="off">
+      <input id="tkX" placeholder="x.com link (optional)" autocomplete="off">
+      <input id="tkTg" placeholder="telegram link (optional)" autocomplete="off">
+    </div>
+    <div class="tokenbox__row">
+      <button class="btn btn--go" id="tkSave">SAVE</button>
+      <span id="tkOut" class="note" style="margin:0"></span>
+    </div>
+  </section>
 
   <div class="sum" id="sum"></div>
   <table>

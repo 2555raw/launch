@@ -43,6 +43,31 @@
   /* ---- screens ----------------------------------------------------------- */
 
   const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch', 'fair'];
+  /* The race fills the window and the dock steps aside for it, so the HUD
+     carries its own way back. The race itself keeps running behind the page. */
+  function bindBack() {
+    for (const id of ['#raceBack', '#countBack']) $(id).addEventListener('click', () => { setScreen('home'); SOUND.play('ui'); });
+  }
+
+  /* The token's contract address, pasted by the creator in the console. It
+     shows on the page the moment it is saved, for everyone watching. */
+  function paintToken(c) {
+    const mint = (c && c.mint) || '';
+    const bar = $('#tokenBar'), pill = $('#caBtn');
+    bar.hidden = !mint; pill.hidden = !mint;
+    if (!mint) return;
+    const ex = (c.explorer || 'https://robinhoodchain.blockscout.com').replace(/\/$/, '');
+    $('#caFull').textContent = mint;
+    $('#caChain').textContent = (c.ticker ? c.ticker.replace(/^\$?/, '$') + ' · ' : '') + (c.chain || 'Robinhood Chain');
+    $('#caExplorer').href = ex + '/token/' + mint;
+    $('#caPons').href = 'https://ponsfamily.com/launchpad?search=' + mint;
+    $('#caCopy').onclick = () => copy(mint, 'Contract address');
+    const buy = $('#caBuy');
+    if (c.links && c.links.buy) { buy.hidden = false; buy.href = c.links.buy; } else buy.hidden = true;
+    $('#caVal').textContent = short(mint); pill.title = mint;
+    pill.onclick = () => copy(mint, 'Contract address');
+  }
+
   function setScreen(name) {
     if (!SCREENS.includes(name)) return;
     ui.set({ screen: name });
@@ -195,6 +220,7 @@
     es.addEventListener('chat', (e) => feed(JSON.parse(e.data)));
     es.addEventListener('skin', (e) => onSkin(JSON.parse(e.data)));
     es.addEventListener('launch', (e) => onLaunch(JSON.parse(e.data)));
+    es.addEventListener('config', (e) => { const c = JSON.parse(e.data); game.set({ config: c }); applyConfig(c); });
     es.addEventListener('cheer', (e) => { const d = JSON.parse(e.data); if (SCENE.ready) SCENE.cheer(d.target); });
     es.addEventListener('tick', (e) => {
       const d = JSON.parse(e.data);
@@ -224,7 +250,7 @@
   function applyConfig(c) {
     if (!c) return;
     $('#loEntry').textContent = c.entry || 'FREE';
-    if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
+    paintToken(c);
     if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; $('#dockX').href = c.links.x; }
     document.title = (c.coin || 'MARBLERUSH') + ' · race your marble';
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
@@ -1595,6 +1621,7 @@
   function boot() {
     loadSkin();
     buildPickers();
+    bindBack();
     buildLaunchpad();
     buildFloaters();
     setTheme(themeName());

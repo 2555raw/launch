@@ -369,6 +369,17 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--race { position: fixed; inset: 0; pointer-events: none; }
 .hud { position: absolute; pointer-events: auto; }
+.hud__back {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px 7px 10px; border-radius: 999px;
+  background: rgba(7, 7, 11, .62); border: 1px solid var(--line); color: var(--ink);
+  font-family: var(--disp); font-weight: 700; font-size: 12.5px; cursor: pointer;
+  backdrop-filter: blur(10px); transition: background .15s ease, transform .15s ease;
+}
+.hud__back:hover { background: rgba(7, 7, 11, .85); transform: translateX(-2px); }
+.hud__back .ic { width: 15px; height: 15px; transform: scaleX(-1); }
+.hud__back--count {
+  position: absolute; top: calc(22px + env(safe-area-inset-top, 0px)); left: var(--gut); z-index: 3;
+}
 .hud--tl { top: calc(22px + env(safe-area-inset-top, 0px)); left: var(--gut); display: flex; align-items: center; gap: 10px; font-size: 13px; }
 .hud--board {
   top: calc(22px + env(safe-area-inset-top, 0px)); right: var(--gut); list-style: none; margin: 0; padding: 8px;
@@ -809,3 +820,11 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .tok__links a:hover, .tok__links button:hover { background: var(--soft); }
 .tok__buy { font-size: 11px; color: var(--win); font-family: var(--mono); grid-column: 1 / -1; }
 .tok--new { animation: fadeup .6s ease both; }
+
+/* the token's contract address, once the creator has one */
+.ca { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; padding: 18px 20px; border-radius: var(--r); }
+.ca__left { display: grid; gap: 3px; min-width: 0; }
+.ca__addr { font-size: 15px; word-break: break-all; }
+.ca__acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.ca__acts .ic { width: 15px; height: 15px; }
+@media (max-width: 640px) { .ca__acts .btn { flex: 1 1 auto; justify-content: center; } }

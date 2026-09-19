@@ -388,6 +388,7 @@
     $('#commitLine').textContent = r.commit ? 'seed commit · ' + r.commit : '';
     $('#hudTrack').textContent = current ? (modeInfo(current.course.mode).name.toUpperCase() + ' · ' + RENDER.THEMES[(current.course.theme || 0) % RENDER.THEMES.length].name.toUpperCase() + ' · ' + current.course.sections.length + ' SECTIONS') : '';
     $('#dockPot').textContent = usd(r.pot);
+    $('#dockNo').textContent = 'RACE ' + no;
   }
 
   /* ---- modes ------------------------------------------------------------- */
@@ -1077,8 +1078,10 @@
     /* the dock shows once the home page is scrolled down to the track, and
        always on the other screens */
     const dock = $('#dock');
-    const wantDock = screen !== 'home' || window.scrollY > Math.max(240, innerHeight * 0.55);
+    const down = window.scrollY > (screen === 'home' ? Math.max(240, innerHeight * 0.45) : 120);
+    const wantDock = screen !== 'home' || down;
     if (wantDock !== dock.classList.contains('is-shown')) dock.classList.toggle('is-shown', wantDock);
+    if (down !== document.body.classList.contains('is-scrolled')) document.body.classList.toggle('is-scrolled', down);
     if (screen === 'home') {
       const st = $('#stage');
       const r = st.getBoundingClientRect();
@@ -1122,13 +1125,13 @@
      itself, which are the one time the whole screen is the track. */
   function paintDock() {
     const screen = ui.get().screen;
-    const on = { home: 'home', lobby: 'lobby', results: 'lobby', race: 'lobby', count: 'lobby', launch: 'launch' }[screen];
+    const on = { home: 'home', lobby: 'lobby', results: 'lobby', race: 'lobby', count: 'lobby', launch: 'launch', fair: 'fair' }[screen];
     $$('.dock__it').forEach((b) => b.classList.toggle('is-on', b.dataset.dock === on));
   }
   $$('.dock__it').forEach((b) => b.addEventListener('click', () => {
     SOUND.wake();
     const go = b.dataset.dock;
-    if (go === 'home' || go === 'lobby' || go === 'launch') {
+    if (go === 'home' || go === 'lobby' || go === 'launch' || go === 'fair') {
       const r = game.get().race;
       if (go === 'lobby' && r && r.phase === 'racing') setScreen('race');
       else if (go === 'lobby' && r && r.phase === 'result' && r.winner) showResults({ winner: r.winner, order: r.order, pot: r.pot, number: r.number, mega: r.mega, mode: r.mode });

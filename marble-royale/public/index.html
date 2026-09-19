@@ -448,12 +448,20 @@
 
 <!-- ---------- the dock ---------- -->
 <nav class="dock" id="dock" aria-label="taskbar">
+  <a class="dock__brand" href="#" data-go="home" title="MarbleRush"><span class="brand__mark"></span></a>
+  <div class="dock__race mono" id="dockNo">#----</div>
   <button class="dock__it is-on" data-dock="home"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
   <button class="dock__it dock__it--race" data-dock="lobby"><svg class="ic"><use href="#i-flag"/></svg><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
   <button class="dock__it" data-dock="modes"><svg class="ic"><use href="#i-grid"/></svg><span>Modes</span></button>
   <button class="dock__it" data-dock="launch"><svg class="ic"><use href="#i-rocket"/></svg><span>Launch</span></button>
   <button class="dock__it" data-dock="winners"><svg class="ic"><use href="#i-trophy"/></svg><span>Winners</span></button>
-  <button class="dock__it" data-dock="wallet"><svg class="ic"><use href="#i-wallet"/></svg><span id="dockWallet">Wallet</span></button>
+  <button class="dock__it" data-dock="fair"><svg class="ic"><use href="#i-shield"/></svg><span>Fair</span></button>
+  <button class="dock__it dock__it--wallet" data-dock="wallet"><svg class="ic"><use href="#i-wallet"/></svg><span id="dockWallet">Wallet</span></button>
+  <div class="dock__themes" role="group" aria-label="colour theme">
+    <button class="theme is-on" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
+    <button class="theme" data-theme="black" title="Black" aria-label="Black theme"></button>
+    <button class="theme" data-theme="white" title="White" aria-label="White theme"></button>
+  </div>
   <div class="dock__stat mono"><em>POT</em><b class="gold" id="dockPot">$0.00</b></div>
   <div class="dock__stat mono dock__clock"><em id="dockClockLabel">STARTS IN</em><b id="dockClock">--:--</b></div>
 </nav>

@@ -29,10 +29,10 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   if (!svg || !g) return;
 
   const DEPTH = 26;        // layers from back to front
-  const STEP = 0.9;        // how far apart they sit, in viewBox units
+  const STEP = 0.72;       // how far apart they sit, in viewBox units
   const PERIOD = 14000;    // one full turn about the vertical axis
-  const TUMBLE = 1.6;      // turns about the horizontal axis per turn about the vertical
-  const EASE = 0.46;       // how hard it dwells face-on and snaps through edge-on
+  const TUMBLE = 0.63;     // the pitch swing against the yaw swing, deliberately not a round ratio
+  const EASE = 0.56;       // how hard it dwells face-on and snaps through edge-on
   const YSQUASH = 0.5;     // the stack spreads less vertically than sideways
   const ROLL = 0.55;       // turns in the picture plane per turn about the vertical
   const DRIFT_X = 8.0;     // how far it wanders, in viewBox units
@@ -76,8 +76,38 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
      pose never repeats. On top of them the whole group wanders: one slow
      diagonal and a faster bob against it, tracing a lopsided figure of eight
      instead of a straight line back and forth. */
-  const spin = a => a - EASE * Math.sin(2 * a);
-  const squash = a => { const c = Math.cos(a); return Math.sign(c || 1) * Math.max(Math.abs(c), 0.08); };
+  /* It used to turn all the way round on both axes, eased so that most of the
+     revolution was spent in the readable orientations. The trouble is that
+     "most" still leaves the rest, and the rest is a translucent stack seen
+     nearly edge-on, which is a smear however it is eased. These layers are
+     barely opaque; they only add up to a shape while they are stacked behind
+     one another.
+
+     So it no longer goes round. Both axes swing through a bounded arc either
+     side of face-on, far enough to read as a solid turning in space and never
+     far enough to lose the silhouette. Roll still goes all the way round,
+     because a logo turned in the plane of the screen is still a logo. */
+  const SWING = 0.92;                       // radians either side of face-on, about 53 degrees
+  const spin = a => SWING * Math.sin(a - EASE * Math.sin(2 * a) * 0.5);
+  /* The floor is what stops the mark becoming a scratch. Each layer is a copy
+     of a shape with holes in it; as the face narrows the copies turn into
+     slivers while the gap between them stays at STEP, so below about a
+     quarter the stack stops reading as one object and opens into a streak.
+     It used to be 0.08, which is thin enough to pass through that state
+     several times a minute. 0.30 stopped it collapsing into a line but left
+     the worst poses faint and shapeless, because these layers are barely
+     opaque and spreading them thins the silhouette out of existence. 0.46
+     keeps the turn well clear of that, and STEP came down with it so the
+     layers overlap more when they do lean away: the ink concentrates instead
+     of smearing, and face-on is unchanged.
+
+     The two rates above matter for the same reason. TUMBLE was 1.6, so pitch
+     crossed edge-on more than once per turn of yaw and the two often arrived
+     there together, which is the worst case: narrow in both directions at the
+     same time. At 0.8 they meet there half as often, and the stronger easing
+     moves it through faster when they do. */
+  const FLOOR = 0.46;
+  const squash = a => { const c = Math.cos(a); return Math.sign(c || 1) * Math.max(Math.abs(c), FLOOR); };
 
   function place(t) {
     const yaw = spin(t);

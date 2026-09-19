@@ -235,7 +235,8 @@ h1, h2, h3, h4, p { margin: 0; }
 .merchants .col { display: grid; gap: 12px; }
 .merchants .col:nth-child(2) { padding-top: 14px; }
 .mer { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--card-hi); border: 1px solid var(--line); }
-.mer .ab { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--surface); font-size: 12px; color: var(--muted); flex: none; }
+.mer .ab { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: #fff; flex: none; overflow: hidden; }
+.mer .ab svg { display: block; }
 .mer .name { flex: 1; min-width: 0; }
 .mer .name b { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mer .name span { font-size: 11px; color: var(--dim); }

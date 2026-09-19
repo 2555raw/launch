@@ -136,7 +136,7 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacit
   background: radial-gradient(circle at 34% 30%, #fff, var(--go) 46%, #8a3a08 100%);
   box-shadow: 0 6px 14px -6px rgba(255, 122, 26, .7);
 }
-.brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; }
+.brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; color: var(--go); }
 .brand__name b { color: var(--go); font-weight: 800; }
 .brand__name.small { font-size: 15px; }
 .top__links { display: flex; gap: 2px; }

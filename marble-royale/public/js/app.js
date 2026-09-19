@@ -1,4 +1,4 @@
-/* MARBLE ROYALE - the app.
+/* MARBLEPAD - the app.
 
    Everything the browser does, wired together: the event stream from the
    server, the clock kept in step with it, the race engine run at sixty steps
@@ -221,7 +221,7 @@
     $('#loEntry').textContent = c.entry || 'FREE';
     if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
     if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; }
-    document.title = (c.coin || 'MARBLE ROYALE') + ' · race your marble';
+    document.title = (c.coin || 'MARBLEPAD') + ' · race your marble';
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
   }
 

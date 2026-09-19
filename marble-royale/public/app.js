@@ -29,7 +29,9 @@
     chat: $('#chat'), chatForm: $('#chatForm'), chatInput: $('#chatInput'),
     winners: $('#winners'), topList: $('#topList'),
     hudPlayers: $('#hudPlayers'), hudWatching: $('#hudWatching'), hudMe: $('#hudMe'),
-    commit: $('#commitLine'), links: $('#links')
+    commit: $('#commitLine'), links: $('#links'),
+    caBtn: $('#caBtn'), caVal: $('#caVal'), xLink: $('#xLink'), potPct: $('#potPct'),
+    skinBtn: $('#skinBtn'), skinPrev: $('#skinPrev'), swatches: $('#swatches'), faces: $('#faces')
   };
 
   const S = {
@@ -41,6 +43,7 @@
     joined: false,
     watching: 0,
     cheerCounts: new Map(),
+    skin: { color: '#6ee7ff', face: 'smile' },
     mode: 'idle',          // idle | preview | race | done
     raceStartAt: 0,
     official: null
@@ -159,6 +162,13 @@
     document.title = c.coin + ' - MARBLE ROYALE';
     el.ticker.textContent = c.ticker ? '$' + c.ticker.replace(/^\$/, '') : '';
     el.potUnit.textContent = 'SOL';
+    if (c.potPct) el.potPct.textContent = '· ' + c.potPct + '% ' + t('pot.share');
+    if (c.mint) {
+      el.caBtn.hidden = false;
+      el.caVal.textContent = c.mint.slice(0, 4) + '…' + c.mint.slice(-4);
+      el.caBtn.title = c.mint;
+    }
+    if (c.links.x) { el.xLink.hidden = false; el.xLink.href = c.links.x; }
     if (c.payoutNote) el.winnerNote.textContent = c.payoutNote;
     const links = [];
     if (c.links.buy) links.push(['BUY', c.links.buy]);
@@ -224,7 +234,7 @@
     if (S.mode === 'preview' && preview) {
       RACE.addBall(preview, d.player.address);
       previewStirred();
-      RENDER.addPlayer(d.player.address, d.player.color, !!(S.me && d.player.address === S.me.address));
+      RENDER.addPlayer(d.player.address, d.player.color, !!(S.me && d.player.address === S.me.address), d.player.face);
     }
     if (S.me && d.player.address === S.me.address) { S.joined = true; SND.join(); }
     renderField();
@@ -270,7 +280,8 @@
     el.winner.hidden = false;
     el.winnerAddr.textContent = d.winner;
     el.winnerPot.textContent = (d.pot === null || d.pot === undefined)
-      ? t('winner.pending') : fmtSol(d.pot) + ' SOL';
+      ? t('winner.pending')
+      : fmtSol(d.pot) + ' SOL' + (S.cfg && S.cfg.potPct ? ' · ' + S.cfg.potPct + '%' : '');
     const mine = !!(S.me && d.winner === S.me.address);
     el.winnerYou.hidden = !mine;
     banner('');
@@ -311,7 +322,7 @@
     for (const p of round.players) {
       if (!preview.balls.some((b) => b.id === p.address)) {
         RACE.addBall(preview, p.address);
-        RENDER.addPlayer(p.address, p.color, !!(S.me && p.address === S.me.address));
+        RENDER.addPlayer(p.address, p.color, !!(S.me && p.address === S.me.address), p.face);
         previewStirred();
       }
     }
@@ -534,6 +545,78 @@
     return 'hsl(' + (h % 360) + ' ' + (62 + (h >>> 9) % 26) + '% ' + (52 + (h >>> 17) % 14) + '%)';
   }
 
+  /* ---- your marble ------------------------------------------------------- */
+
+  /* Ten colours and the faces the renderer knows how to draw. The choice lives
+     in this browser and rides along with the join, so everyone sees the marble
+     you picked. */
+  const SKINS = ['#6ee7ff', '#7dff9b', '#ffd36e', '#ff5ea8', '#b98bff', '#ff8a4c',
+                 '#4cd9ff', '#ff5252', '#9dff4c', '#ffffff'];
+
+  function loadSkin() {
+    try {
+      const raw = JSON.parse(localStorage.getItem('mr.skin') || 'null');
+      if (raw && raw.color && raw.face) S.skin = raw;
+    } catch {}
+  }
+
+  function drawSkin() {
+    const cv = el.skinPrev;
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    const w = cv.width, h = cv.height, r = 46;
+    ctx.clearRect(0, 0, w, h);
+    const g = ctx.createRadialGradient(w / 2 - r * 0.35, h / 2 - r * 0.4, r * 0.15, w / 2, h / 2, r);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(0.28, S.skin.color);
+    g.addColorStop(1, 'rgba(0,0,0,.55)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, r, 0, 6.283);
+    ctx.fill();
+    if (S.skin.face !== 'none') RENDER.drawFace(ctx, w / 2, h / 2, r, S.skin.face);
+  }
+
+  function pickSkin(part, value) {
+    S.skin[part] = value;
+    try { localStorage.setItem('mr.skin', JSON.stringify(S.skin)); } catch {}
+    drawSkin();
+    if (S.me) RENDER.addPlayer(S.me.address, S.skin.color, true, S.skin.face);
+  }
+
+  function buildPickers() {
+    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.' };
+    for (const c of SKINS) {
+      const b = document.createElement('button');
+      b.className = 'sw' + (c === S.skin.color ? ' on' : '');
+      b.style.background = c;
+      b.setAttribute('aria-label', 'colour ' + c);
+      b.addEventListener('click', () => {
+        for (const x of el.swatches.children) x.classList.toggle('on', x === b);
+        pickSkin('color', c);
+      });
+      el.swatches.appendChild(b);
+    }
+    for (const f of RENDER.FACES) {
+      const b = document.createElement('button');
+      b.className = 'fc' + (f === S.skin.face ? ' on' : '');
+      const cv = document.createElement('canvas');
+      cv.width = 38; cv.height = 38;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#39415a';
+      ctx.beginPath(); ctx.arc(19, 19, 14, 0, 6.283); ctx.fill();
+      if (f !== 'none') RENDER.drawFace(ctx, 19, 19, 14, f);
+      const label = document.createElement('span');
+      label.textContent = names[f] || f;
+      b.append(cv, label);
+      b.addEventListener('click', () => {
+        for (const x of el.faces.children) x.classList.toggle('on', x === b);
+        pickSkin('face', f);
+      });
+      el.faces.appendChild(b);
+    }
+  }
+
   /* ---- wallet ------------------------------------------------------------ */
 
   async function connect() {
@@ -592,7 +675,7 @@
     const res = await fetch('/api/join', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ token: S.me.token })
+      body: JSON.stringify({ token: S.me.token, color: S.skin.color, face: S.skin.face })
     }).then((r) => r.json()).catch(() => ({ error: 'network' }));
 
     if (res.ok) {
@@ -639,10 +722,20 @@
     el.join.textContent = S.joined ? t('btn.joined') : t('btn.join');
   }
 
+  /* The marble picker has no tab of its own - it opens from the button beside
+     join, and closes back to whichever tab you were on. */
+  function showPanel(name) {
+    document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('is-on', x.dataset.panel === name));
+    document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('is-on', p.id === 'panel-' + name));
+  }
+
   /* ---- wiring ------------------------------------------------------------ */
 
   function boot() {
     I18N.apply();
+    loadSkin();
+    buildPickers();
+    drawSkin();
     el.lang.textContent = I18N.other();
     el.sound.style.opacity = SND.on ? 1 : 0.4;
     RENDER.init(el.canvas);
@@ -669,11 +762,9 @@
     el.sound.addEventListener('click', () => { el.sound.style.opacity = SND.toggle() ? 1 : 0.4; });
     el.winnerAddr.addEventListener('click', () => copy(el.winnerAddr.textContent));
 
+    el.skinBtn.addEventListener('click', () => showPanel('skin'));
     document.querySelectorAll('.tab').forEach((tab) => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('is-on', x === tab));
-        document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('is-on', p.id === 'panel-' + tab.dataset.panel));
-      });
+      tab.addEventListener('click', () => showPanel(tab.dataset.panel));
     });
 
     el.chatForm.addEventListener('submit', async (e) => {

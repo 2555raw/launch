@@ -18,7 +18,10 @@ let out = read(path.join(here, 'page.html'));
 const put = (mark, body) => {
   const token = '/*{{' + mark + '}}*/';
   if (!out.includes(token)) throw new Error('page.html has no ' + token);
-  out = out.replace(token, body);
+  /* A function replacer, never a string: a source file that contains $' or $&
+     would otherwise have those two characters expanded by String.replace and
+     the inlined script would not parse. */
+  out = out.replace(token, () => body);
 };
 
 put('CSS', read(path.join(here, 'preview.css')));

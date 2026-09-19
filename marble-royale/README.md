@@ -27,6 +27,13 @@ everyone sees the same countdown wherever they are.
 Set `ROUND_MS` to change the cycle (minimum 90 seconds - useful for testing,
 not for a live coin).
 
+## Marbles
+
+Every wallet gets a marble in its own colour, derived from the address so it is
+the same every race. Anyone can pick a colour and a face instead (MY MARBLE,
+next to the join button); the choice is kept in that browser and sent along
+with each join, checked on the server, and shown to everyone.
+
 ## Fair, and checkable by anyone
 
 The seed decides the course, the starting slots and every bounce, so whoever
@@ -62,7 +69,8 @@ person's job:
 
 **The pot.** Set `FEE_WALLET` to the wallet your creator fees land in. The
 server reads its balance when a round opens and again when it closes, and the
-difference is what that round earned. Move money out of that wallet mid-round
+difference is what that round earned; the winner's pot is `POT_PCT` of that
+(20% unless you say otherwise), and both figures are kept. Move money out of that wallet mid-round
 and the figure for that round will read low - use a wallet that only collects,
 and sweep it between rounds if you must. With no `FEE_WALLET` set, the pot shows
 as `—` and you type the amount for each round on the admin page.
@@ -78,6 +86,7 @@ All optional except where noted.
 | `TOKEN_MINT` | your coin's mint address |
 | `MIN_TOKENS` | hold at least this many to race. `0` (default) lets anyone in |
 | `FEE_WALLET` | the wallet creator fees arrive in, for the pot figure |
+| `POT_PCT` | the share of those fees the winner takes, as a percentage (default 20). It is shown on screen and stored with every round |
 | `SOLANA_RPC` | RPC endpoint (default is the public one, which is rate limited - use your own for anything busy) |
 | `ADMIN_KEY` | **set this**, or /admin is off |
 | `SESSION_SECRET` | keeps sign-ins valid across restarts; random each boot if unset |

@@ -35,6 +35,11 @@ const LOCK_MS = 5000;
 const LOBBY_MS = ROUND_MS - RESULT_MS - RACE_MAX_MS - LOCK_MS;
 const MAX_PLAYERS = Math.max(2, Number(process.env.MAX_PLAYERS) || 250);
 const FEE_WALLET = process.env.FEE_WALLET || '';
+/* What the winner takes out of the fees that came in during the round. The rest
+   stays where it is. Whoever runs the game picks the number and it is on screen,
+   because a pot nobody can check is a pot nobody believes. */
+const POT_PCT = Math.min(100, Math.max(0, Number(process.env.POT_PCT) || 20));
+const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead'];
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 const startOf = (t) => Math.floor(t / ROUND_MS) * ROUND_MS;
@@ -72,12 +77,13 @@ class Rounds extends EventEmitter {
       secret,
       commit: sha256(secret),
       seed: null,
-      players: [],            // [{address, joinedAt, color}]
+      players: [],            // [{address, joinedAt, color, face}]
       index: new Map(),
       order: null,
       winner: null,
       seconds: 0,
       pot: null,
+      gross: null,
       baseline: null,
       potFinal: false
     };
@@ -107,10 +113,12 @@ class Rounds extends EventEmitter {
     if (!FEE_WALLET || r.baseline === null) return;
     const lamports = await solana.balance(FEE_WALLET);
     if (this.round !== r || lamports === null) return;
-    const sol = solana.toSol(Math.max(0, lamports - r.baseline));
+    const gross = Math.max(0, lamports - r.baseline);
+    const sol = solana.toSol(gross * (POT_PCT / 100));
     if (r.pot !== sol) {
+      r.gross = solana.toSol(gross);
       r.pot = sol;
-      this.emit('pot', { roundId: r.id, pot: sol, final: r.potFinal });
+      this.emit('pot', { roundId: r.id, pot: sol, gross: r.gross, pct: POT_PCT, final: r.potFinal });
     }
   }
 
@@ -155,7 +163,7 @@ class Rounds extends EventEmitter {
       secret: r.secret,
       commit: r.commit,
       startAt: r.raceAt,
-      players: r.players.map((p) => ({ address: p.address, color: p.color }))
+      players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face }))
     });
 
     const showFor = Math.min(RACE_MAX_MS - 500, Math.ceil(outcome.seconds * 1000) + 1400);
@@ -180,6 +188,8 @@ class Rounds extends EventEmitter {
       order: r.order.slice(0, 20),
       seconds: r.seconds,
       pot: r.pot,
+      gross: r.gross,
+      potPct: POT_PCT,
       paid: false,
       tx: ''
     });
@@ -188,6 +198,8 @@ class Rounds extends EventEmitter {
       roundId: r.id,
       winner: r.winner,
       pot: r.pot,
+      gross: r.gross,
+      pct: POT_PCT,
       seconds: r.seconds,
       order: r.order.slice(0, 10),
       secret: r.secret,
@@ -205,11 +217,13 @@ class Rounds extends EventEmitter {
     if (FEE_WALLET && r.baseline !== null) {
       const lamports = await solana.balance(FEE_WALLET);
       if (lamports !== null) {
-        r.pot = solana.toSol(Math.max(0, lamports - r.baseline));
+        const gross = Math.max(0, lamports - r.baseline);
+        r.gross = solana.toSol(gross);
+        r.pot = solana.toSol(gross * (POT_PCT / 100));
         r.potFinal = true;
         const saved = store.findRound(r.id);
         if (saved && !saved.potManual) { saved.pot = r.pot; store.save(); }
-        this.emit('pot', { roundId: r.id, pot: r.pot, final: true });
+        this.emit('pot', { roundId: r.id, pot: r.pot, gross: r.gross, pct: POT_PCT, final: true });
       }
     }
     this.open(startOf(Date.now()));
@@ -225,7 +239,7 @@ class Rounds extends EventEmitter {
 
   /* ---- joining ---------------------------------------------------------- */
 
-  join(address, fromWaitlist) {
+  join(address, fromWaitlist, skin) {
     const r = this.round;
     if (!r) return { error: 'starting' };
     if (r.phase !== 'lobby') return { error: 'closed' };
@@ -234,7 +248,12 @@ class Rounds extends EventEmitter {
       if (!this.waitlist.includes(address)) this.waitlist.push(address);
       return { error: 'full', queued: this.waitlist.indexOf(address) + 1 };
     }
-    const player = { address, joinedAt: Date.now(), color: colorOf(address) };
+    const player = {
+      address,
+      joinedAt: Date.now(),
+      color: cleanColor(skin && skin.color) || colorOf(address),
+      face: FACES.includes(skin && skin.face) ? skin.face : faceOf(address)
+    };
     r.players.push(player);
     r.index.set(address, player);
     if (!fromWaitlist) this.emit('join', { roundId: r.id, player, count: r.players.length });
@@ -257,8 +276,10 @@ class Rounds extends EventEmitter {
       seed: r.phase === 'lobby' || r.phase === 'locked' && !r.seed ? null : r.seed,
       secret: r.phase === 'result' || r.phase === 'racing' ? r.secret : null,
       pot: r.pot,
+      gross: r.gross,
+      potPct: POT_PCT,
       potFinal: r.potFinal,
-      players: r.players.map((p) => ({ address: p.address, color: p.color })),
+      players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face })),
       count: r.players.length,
       max: MAX_PLAYERS,
       winner: r.phase === 'result' ? r.winner : null,
@@ -268,8 +289,20 @@ class Rounds extends EventEmitter {
   }
 }
 
-/* A marble's colour is its address, so the same wallet is the same colour in
-   every race and people recognise each other. */
+/* A skin arrives from a browser, so it is checked rather than trusted: a hex
+   colour and a face from the list, or the ones the address would have had. */
+function cleanColor(value) {
+  return typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
+}
+
+function faceOf(address) {
+  let h = 5381;
+  for (let i = 0; i < address.length; i++) h = (Math.imul(h, 33) ^ address.charCodeAt(i)) >>> 0;
+  return FACES[1 + (h % (FACES.length - 1))];
+}
+
+/* A marble's colour is its address, so a wallet that picks nothing still has a
+   colour of its own, the same one in every race. */
 function colorOf(address) {
   let h = 2166136261;
   for (let i = 0; i < address.length; i++) {
@@ -283,4 +316,4 @@ function colorOf(address) {
   return 'hsl(' + hue + ' ' + sat + '% ' + lit + '%)';
 }
 
-module.exports = { Rounds, ROUND_MS, LOBBY_MS, LOCK_MS, RACE_MAX_MS, RESULT_MS, MAX_PLAYERS, FEE_WALLET, colorOf, sha256 };
+module.exports = { Rounds, ROUND_MS, LOBBY_MS, LOCK_MS, RACE_MAX_MS, RESULT_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, FACES, colorOf, faceOf, cleanColor, sha256 };

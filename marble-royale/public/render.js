@@ -57,6 +57,7 @@
     for (const p of players) {
       meta.set(p.address, {
         color: p.color || '#6ee7ff',
+        face: p.face || 'none',
         isMe: p.address === myAddress,
         short: p.address.slice(0, 4) + '…' + p.address.slice(-4)
       });
@@ -67,8 +68,8 @@
     cam.started = false;
   }
 
-  const addPlayer = (address, color, isMe) => meta.set(address, {
-    color: color || '#6ee7ff', isMe,
+  const addPlayer = (address, color, isMe, face) => meta.set(address, {
+    color: color || '#6ee7ff', face: face || 'none', isMe,
     short: address.slice(0, 4) + '…' + address.slice(-4)
   });
 
@@ -321,6 +322,7 @@
       ctx.beginPath();
       ctx.arc(b.x, b.y, R, 0, 6.283);
       ctx.fill();
+      if (m.face && m.face !== 'none') drawFace(ctx, b.x, b.y, R, m.face);
 
       const racing = race.t > 0 && !race.hold;
       if (m.isMe || (racing && b === lead)) {
@@ -337,6 +339,62 @@
       }
       ctx.restore();
     }
+  }
+
+  /* Faces, drawn rather than typed: a marble is about ten pixels across on a
+     laptop, where a glyph turns to mush but two dots and a curve still read as
+     a face. Everything scales off the radius so it holds at any zoom. */
+  const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead'];
+
+  function drawFace(ctx, x, y, r, face) {
+    const ink = 'rgba(8,8,14,.92)';
+    const ex = r * 0.36, ey = -r * 0.14;
+    ctx.save();
+    ctx.fillStyle = ink;
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = Math.max(1, r * 0.15);
+    ctx.lineCap = 'round';
+
+    const dot = (dx) => { ctx.beginPath(); ctx.arc(x + dx, y + ey, r * 0.14, 0, 6.283); ctx.fill(); };
+    const mouth = (down, wide) => {
+      ctx.beginPath();
+      ctx.arc(x, y + r * (down ? 0.12 : 0.42), r * (wide ? 0.46 : 0.38),
+        down ? 0.35 : 3.49, down ? 2.79 : 5.93);
+      ctx.stroke();
+    };
+
+    if (face === 'smile') { dot(-ex); dot(ex); mouth(true, false); }
+    else if (face === 'grin') {
+      dot(-ex); dot(ex);
+      ctx.beginPath();
+      ctx.arc(x, y + r * 0.1, r * 0.48, 0.25, 2.89);
+      ctx.fill();
+    } else if (face === 'wink') {
+      dot(ex);
+      ctx.beginPath();
+      ctx.moveTo(x - ex - r * 0.16, y + ey); ctx.lineTo(x - ex + r * 0.16, y + ey);
+      ctx.stroke();
+      mouth(true, false);
+    } else if (face === 'cool') {
+      ctx.fillRect(x - r * 0.58, y + ey - r * 0.16, r * 1.16, r * 0.3);
+      mouth(true, false);
+    } else if (face === 'angry') {
+      ctx.beginPath();
+      ctx.moveTo(x - ex - r * 0.2, y + ey - r * 0.26); ctx.lineTo(x - ex + r * 0.2, y + ey + r * 0.02);
+      ctx.moveTo(x + ex + r * 0.2, y + ey - r * 0.26); ctx.lineTo(x + ex - r * 0.2, y + ey + r * 0.02);
+      ctx.stroke();
+      mouth(false, false);
+    } else if (face === 'dead') {
+      const k = r * 0.17;
+      ctx.beginPath();
+      ctx.moveTo(x - ex - k, y + ey - k); ctx.lineTo(x - ex + k, y + ey + k);
+      ctx.moveTo(x - ex + k, y + ey - k); ctx.lineTo(x - ex - k, y + ey + k);
+      ctx.moveTo(x + ex - k, y + ey - k); ctx.lineTo(x + ex + k, y + ey + k);
+      ctx.moveTo(x + ex + k, y + ey - k); ctx.lineTo(x + ex - k, y + ey + k);
+      ctx.moveTo(x - r * 0.3, y + r * 0.44); ctx.lineTo(x + r * 0.3, y + r * 0.44);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   function paint(ctx, dt) {
@@ -408,5 +466,5 @@
     ctx.restore();
   }
 
-  window.RENDER = { init, resize, setRace, addPlayer, draw, cheer, celebrate, get camera() { return cam; }, get state() { return race; } };
+  window.RENDER = { init, resize, setRace, addPlayer, draw, cheer, celebrate, drawFace, FACES, get camera() { return cam; }, get state() { return race; } };
 })();

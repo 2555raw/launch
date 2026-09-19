@@ -1,76 +1,298 @@
 <title>Marble Royale</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
 /*{{CSS}}*/
 </style>
 
-<div class="wrap">
-  <p class="note">
-    <b>VISTA PREVIA</b>
-    <span>Esta página es el juego con su motor real, pero jugando sola: las canicas son de demostración, el bote es inventado y nadie cobra nada. El juego de verdad, con carteras firmadas, fees de la coin y pago al ganador, está en <code>marble-royale/</code> y necesita un servidor.</span>
-  </p>
+<div class="shell">
 
-  <header class="top">
-    <div class="brand"><i></i><span>MARBLE ROYALE</span></div>
-    <div class="meter clock">
-      <em id="clockLabel">PRÓXIMA EN</em>
-      <b id="clock">--:--</b>
+  <!-- ---------- sidebar ---------- -->
+  <aside class="nav" id="nav">
+    <div class="nav__brand">
+      <span class="mark"></span>
+      <b>Marble Royale</b>
     </div>
-    <div class="meter pot">
-      <em>BOTE DE LA RONDA<span class="chip">demo</span></em>
-      <b><span id="pot">0,000</span> SOL</b>
-    </div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap">
-      <button class="btn" id="botBtn">+12 CANICAS</button>
-      <button class="btn go" id="joinBtn">ENTRAR CON MI CARTERA</button>
-    </div>
-  </header>
 
-  <main>
-    <section class="stage">
-      <canvas id="stage" aria-label="carrera de canicas"></canvas>
-      <div class="hud"><span id="hudCount">0 compitiendo</span><span id="hudPhase">una carrera cada 5 min</span></div>
-      <div class="banner" id="banner" hidden></div>
+    <nav class="nav__links">
+      <a class="nl is-on" href="#top"><i class="ic ic--home"></i>Home</a>
+      <a class="nl" href="#race"><i class="ic ic--race"></i>Live race</a>
 
-      <div class="card" id="card" hidden>
-        <div style="font-size:24px">🏆</div>
-        <em>GANADOR</em>
-        <button class="addr" id="winAddr" title="copiar"></button>
-        <div class="pay" id="winPay"></div>
-        <div class="sub">En el juego real esta es la cartera a la que envías las fees de esos cinco minutos, a mano, desde la cartera del creador.</div>
-        <div class="sub" id="winYou" hidden style="color:var(--win)">Esa eres tú.</div>
+      <span class="nav__label">Get in</span>
+      <a class="nl" href="#how"><i class="ic ic--steps"></i>How to join</a>
+      <a class="nl" href="#marble"><i class="ic ic--dot"></i>Your marble</a>
+      <a class="nl" href="#pot"><i class="ic ic--coin"></i>The pot</a>
+
+      <span class="nav__label">Transparency</span>
+      <a class="nl" href="#fair"><i class="ic ic--check"></i>Provably fair</a>
+      <a class="nl" href="#winners"><i class="ic ic--log"></i>Winners</a>
+      <a class="nl" href="#spec"><i class="ic ic--code"></i>Spec</a>
+      <a class="nl" href="#risk"><i class="ic ic--warn"></i>Read this first</a>
+    </nav>
+
+    <div class="nav__foot">
+      <button class="btn btn--accent btn--wide" id="queueBtn" disabled>Join the queue</button>
+      <button class="side-link" id="caBtn">
+        <span class="side-link__ic">$</span>
+        <span>
+          <b>Contract address</b>
+          <em id="caVal">not live yet</em>
+        </span>
+      </button>
+      <a class="side-link" id="xLink" href="#" target="_blank" rel="noopener">
+        <span class="side-link__ic">
+          <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </span>
+        <span>
+          <b>Marble Royale</b>
+          <em id="xHandle">on X soon</em>
+        </span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ---------- main ---------- -->
+  <div class="main" id="top">
+
+    <header class="bar">
+      <button class="menu" id="navToggle" aria-label="menu">≡</button>
+
+      <div class="ticker">
+        <span class="ticker__dot"></span>
+        <span class="ticker__label" id="clockLabel">Next race in</span>
+        <b id="clock">--:--</b>
+        <span class="ticker__sep">·</span>
+        <span class="ticker__label">pot</span>
+        <b class="gold"><span id="pot">0.000</span> SOL</b>
+        <span class="tag tag--demo">demo</span>
       </div>
 
-      <div class="bar">
-        <p id="status"></p>
-        <button class="btn go" id="runBtn">CORRER AHORA</button>
+      <div class="bar__right">
+        <span class="brand__tick" id="ticker"></span>
+        <button class="btn btn--accent" id="joinBtn">Connect wallet</button>
+      </div>
+    </header>
+
+    <div class="notice">
+      <b>PREVIEW</b>
+      <span>The track, the physics and the marbles are the real ones. The server is not: these marbles are demonstrations, the pot is a made-up number and nobody gets paid. Everything below is how it works once it is live.</span>
+    </div>
+
+    <!-- hero -->
+    <section class="hero">
+      <div class="pill">A coin earns fees <span class="arr">→</span> <b>one marble takes them</b></div>
+      <h1>Every few minutes, one marble<br><span class="accent">wins the fees</span></h1>
+      <p>Connect a wallet, join the queue, and a marble on the track is yours. The first one down the course wins, and the winner's address goes on screen so the fees that the coin earned in those minutes can be sent straight to it.</p>
+      <div class="hero__cta">
+        <a class="btn btn--accent btn--lg" href="#race">Watch a race</a>
+        <a class="btn btn--lg" href="#how">How it works</a>
+      </div>
+      <dl class="stats">
+        <div><dt>Race every</dt><dd>~5 min</dd></div>
+        <div><dt>Cost to enter</dt><dd>Free</dd></div>
+        <div><dt>Winner takes</dt><dd><span id="pctA">20%</span> of fees</dd></div>
+        <div><dt>Marbles per race</dt><dd>up to 250</dd></div>
+      </dl>
+    </section>
+
+    <!-- the race -->
+    <section class="sec" id="race">
+      <div class="sec__head">
+        <span class="kicker">LIVE RACE</span>
+        <h2>The track</h2>
+        <p>The same race runs in every browser at the same moment. Tap <b>Race now</b> if you do not want to wait for the clock.</p>
+      </div>
+
+      <div class="cabinet">
+        <div class="stage">
+          <canvas id="stage" aria-label="marble race"></canvas>
+          <div class="scan" aria-hidden="true"></div>
+          <div class="hud">
+            <span class="live"><i></i>LIVE</span>
+            <span id="hudCount">0 queued</span>
+            <span id="hudPhase">fires with the coin's fees</span>
+          </div>
+          <div class="banner" id="banner" hidden></div>
+
+          <div class="card" id="card" hidden>
+            <div class="card__cup">🏆</div>
+            <em>WINNER</em>
+            <button class="addr" id="winAddr" title="copy"></button>
+            <div class="pay" id="winPay"></div>
+            <div class="sub">This is the wallet the creator sends their share of the fees to, by hand, from their own wallet.</div>
+            <div class="sub win" id="winYou" hidden>That one is yours.</div>
+          </div>
+
+          <div class="stage__bar">
+            <p id="status"></p>
+            <button class="btn" id="botBtn">+12 marbles</button>
+            <button class="btn btn--accent" id="runBtn">Race now</button>
+          </div>
+        </div>
+
+        <div class="queue">
+          <h3>In the queue <span id="count">0</span></h3>
+          <ol class="field" id="field"></ol>
+        </div>
       </div>
     </section>
 
-    <aside class="side">
-      <h2><span>LA PARRILLA</span><span id="count"></span></h2>
-      <ol class="field" id="field"></ol>
-    </aside>
-  </main>
+    <!-- how to join -->
+    <section class="sec" id="how">
+      <div class="sec__head">
+        <span class="kicker">GET IN</span>
+        <h2>How to join a race</h2>
+        <p>No account, no password, no email. Your wallet is your login, and entering costs nothing.</p>
+      </div>
+      <ol class="steps">
+        <li>
+          <b>Open the page with your wallet</b>
+          <span>On a desktop the extension is enough: Phantom, Solflare or Backpack on Solana, MetaMask or Rabby on Ethereum. On a phone, open this page inside your wallet's own browser — from plain Safari or Chrome there is nothing to connect to.</span>
+        </li>
+        <li>
+          <b>Connect and sign the message</b>
+          <span>Your wallet shows a short text with your address and a one-time number. Signing text is not a transaction: it moves no funds, grants no allowance over your tokens and costs no gas. It only proves the wallet is yours, so nobody can enter under someone else's address.</span>
+        </li>
+        <li>
+          <b>Join the queue</b>
+          <span>One button, one marble. The queue closes a few seconds before the start; if you are late you are simply in the next race. One marble per wallet per race, and auto-join keeps you in every race without touching anything.</span>
+        </li>
+        <li>
+          <b>Watch, and get paid if you win</b>
+          <span>The winning address appears in full on screen and stays in the log, so anyone can check afterwards that the payment was made.</span>
+        </li>
+      </ol>
+    </section>
 
-  <footer class="foot">
-    <div>
-      <b>CÓMO FUNCIONA</b>
-      Cada cinco minutos, en punto, sale una carrera. Quien conecta su cartera tiene una canica en la pista.
-      La primera en cruzar la meta gana y su dirección sale en pantalla, para que le pagues las fees de creador
-      de esos cinco minutos.
-    </div>
-    <div>
-      <b>QUÉ FALTA AQUÍ</b>
-      La firma de la cartera que impide entrar con la dirección de otro, la parrilla compartida entre todos,
-      la semilla comprometida antes de que entre nadie y la lectura de las fees en la cadena. Todo eso es servidor.
-    </div>
-    <div>
-      <b>GANADORES DE ESTA SESIÓN</b>
-      <ul class="past" id="past" style="padding-left:0"></ul>
-    </div>
-  </footer>
+    <!-- your marble -->
+    <section class="sec" id="marble">
+      <div class="sec__head">
+        <span class="kicker">YOUR MARBLE</span>
+        <h2>Make it yours</h2>
+        <p>Pick a colour and a face. It is saved in this browser and follows you into every race, so people recognise you on the track and in the queue.</p>
+      </div>
+      <div class="panel skin">
+        <div class="skin__prev">
+          <canvas id="skinPrev" width="150" height="150" aria-label="your marble"></canvas>
+          <span id="skinWho">no wallet yet</span>
+        </div>
+        <div class="skin__pick">
+          <div class="pickrow"><em>COLOUR</em><div class="swatches" id="swatches"></div></div>
+          <div class="pickrow"><em>FACE</em><div class="faces" id="faces"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- the pot -->
+    <section class="sec" id="pot-sec">
+      <div class="sec__head">
+        <span class="kicker">THE POT</span>
+        <h2>Where the money comes from</h2>
+        <p>The coin earns creator fees every time somebody buys or sells. The more the coin moves, the more fees land, and that is what the winner takes a share of.</p>
+      </div>
+      <div class="cards" id="pot">
+        <article class="cd">
+          <span class="cd__tag">1</span>
+          <h4>Fees pile up</h4>
+          <p>Every trade on the coin sends creator fees to one wallet. A busy five minutes fills it; a quiet five minutes barely moves it.</p>
+        </article>
+        <article class="cd">
+          <span class="cd__tag">2</span>
+          <h4>A race is called</h4>
+          <p>Roughly every five minutes, on the clock, and more often when the coin is moving. The pot on screen is what came in during that window.</p>
+        </article>
+        <article class="cd cd--hot">
+          <span class="cd__tag">3</span>
+          <h4>The winner takes <span id="pctB">20%</span></h4>
+          <p>The creator sends that share to the winning address by hand. The percentage is theirs to set and it is always written on screen.</p>
+        </article>
+      </div>
+      <p class="fine">There is no smart contract paying anyone automatically. A person sends it, which is worth knowing before you play — the notice further down says so plainly.</p>
+    </section>
+
+    <!-- fair -->
+    <section class="sec" id="fair">
+      <div class="sec__head">
+        <span class="kicker">PROVABLY FAIR</span>
+        <h2>Why it cannot be rigged</h2>
+        <p>Whoever picks the seed picks the winner, so the seed is nailed down before anyone knows who is playing.</p>
+      </div>
+      <div class="accs">
+        <details open>
+          <summary><span class="tag">STEP 1</span>Before anyone joins<span class="arrow">›</span></summary>
+          <div class="body"><p>The server draws a secret at random and publishes only <code>sha256(secret)</code>. That hash is on screen from the first second of the round and it cannot be taken back.</p></div>
+        </details>
+        <details>
+          <summary><span class="tag">STEP 2</span>When the queue closes<span class="arrow">›</span></summary>
+          <div class="body"><p>The seed is <code>sha256(secret + the list of wallets)</code>, and the secret itself is published alongside it. The field is fixed at that moment, so it cannot be edited to suit the seed.</p></div>
+        </details>
+        <details>
+          <summary><span class="tag">STEP 3</span>After the race<span class="arrow">›</span></summary>
+          <div class="body"><p>Anyone can check that the hash from the start really is the hash of that secret, and replay the whole race in their own browser from the seed. If the winner does not match, the server lied and it shows.</p></div>
+        </details>
+        <details>
+          <summary><span class="tag">ALSO</span>Starting slots and cheering<span class="arrow">›</span></summary>
+          <div class="body"><p>Starting positions are shuffled with the same seed, so joining early buys you nothing. Cheers are confetti: if they could nudge a marble, the race would stop being the same race in every browser.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <!-- winners -->
+    <section class="sec" id="winners">
+      <div class="sec__head">
+        <span class="kicker">LOG</span>
+        <h2>Winners from this session</h2>
+        <p>Once it is live this is the public record: every round, the winning wallet, the amount and whether it has been paid.</p>
+      </div>
+      <ul class="past" id="past"></ul>
+    </section>
+
+    <!-- spec -->
+    <section class="sec" id="spec">
+      <div class="sec__head">
+        <span class="kicker">SPEC</span>
+        <h2>Under the hood</h2>
+      </div>
+      <dl class="spec">
+        <div><dt>Engine</dt><dd>deterministic, fixed 60 Hz step</dd></div>
+        <div><dt>Seed</dt><dd>sha256, committed up front</dd></div>
+        <div><dt>Course</dt><dd>8 drawn sections, ~9,000 units</dd></div>
+        <div><dt>Marbles per race</dt><dd>up to 250</dd></div>
+        <div><dt>Identity</dt><dd>a signature from your wallet</dd></div>
+        <div><dt>Transport</dt><dd>one server-sent event stream</dd></div>
+        <div><dt>Dependencies</dt><dd>none, Node 18+</dd></div>
+        <div><dt>Keys on the server</dt><dd>none: it reads balances</dd></div>
+      </dl>
+      <p class="fine">The physics avoids everything a browser is free to round its own way: no <code>Math.random</code>, no <code>Math.sin</code>, a fixed step and a fixed order. That is why the server can play the race out in milliseconds, keep the result, and your browser can replay it in real time and land on the same winner.</p>
+    </section>
+
+    <!-- risk -->
+    <section class="sec" id="risk">
+      <div class="sec__head">
+        <span class="kicker">READ THIS FIRST</span>
+        <h2>What you are getting into</h2>
+      </div>
+      <div class="warn">
+        <b>THE IMPORTANT PART</b>
+        <p>Connecting your wallet and signing the message <strong>does not move your money and gives nobody any allowance over your tokens</strong>. Nobody here will ever ask for your seed phrase or private key. Anyone who does is robbing you.</p>
+      </div>
+      <ul class="rules">
+        <li><i>✓</i><span><b>What connecting does:</b> the site reads your public address, the same one anyone can see in an explorer, and asks for a text signature to check it is yours. Free, and not a transaction.</span></li>
+        <li><i>✓</i><span><b>What it never does:</b> request token approvals, open transactions, touch your funds or store any key. The server holds no wallets — it reads public balances and nothing else.</span></li>
+        <li><i>✓</i><span><b>Entering is free.</b> There is nothing to pay, nothing is staked, and you cannot lose money by racing a marble.</span></li>
+        <li class="no"><i>!</i><span><b>Paying out is manual and voluntary.</b> The creator sends it from their own wallet, at the percentage they choose. This site shows who won; it cannot force anyone to pay or refund anything.</span></li>
+        <li class="no"><i>!</i><span><b>This is chance, not skill.</b> The result comes out of a physics simulation with a random seed. Nobody rolls better than anyone else, and winning before does not help.</span></li>
+        <li class="no"><i>!</i><span><b>A marble is free, and that has a limit:</b> nothing stops one person entering with several wallets except requiring a minimum token balance to play.</span></li>
+        <li class="no"><i>!</i><span><b>None of this is financial advice.</b> A memecoin can lose all of its value in minutes. Only take part with what you can afford to lose, and only if you are old enough where you live.</span></li>
+        <li class="no"><i>!</i><span><b>This page is a preview.</b> The marbles you see are demonstrations and the pot is an invented number, there to show how it looks.</span></li>
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <span>Marble Royale · preview build</span>
+      <span id="footCa">CA not live yet</span>
+    </footer>
+  </div>
 </div>
 
 <script>

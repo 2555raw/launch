@@ -19,7 +19,7 @@ const crypto = require('crypto');
 
 const store = require('./lib/store');
 const solana = require('./lib/solana');
-const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, FEE_WALLET } = require('./lib/round');
+const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, FACES } = require('./lib/round');
 const b58 = require('./lib/base58');
 
 const PORT = Number(process.env.PORT) || 8080;
@@ -35,6 +35,8 @@ const CONFIG = {
   mint: TOKEN_MINT,
   minTokens: MIN_TOKENS,
   feeWallet: FEE_WALLET,
+  potPct: POT_PCT,
+  faces: FACES,
   roundMs: ROUND_MS,
   lobbyMs: LOBBY_MS,
   maxPlayers: MAX_PLAYERS,
@@ -289,7 +291,10 @@ const server = http.createServer(async (req, res) => {
         need: MIN_TOKENS, have: gate.amount || 0, mint: TOKEN_MINT
       });
     }
-    const out = rounds.join(address);
+    const out = rounds.join(address, false, {
+      color: body.color,
+      face: body.face
+    });
     if (out.error === 'closed') return json(res, 409, { error: 'this race is already closed - you are in the next one' });
     if (out.error === 'full') return json(res, 409, { error: 'this race is full', queued: out.queued });
     if (out.error === 'already') return json(res, 200, { ok: true, already: true, round: rounds.publicRound().id });

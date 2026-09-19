@@ -31,6 +31,12 @@
   </div>
 
   <div class="tools">
+    <button class="btn btn--ca" id="caBtn" hidden title="copy the contract address">
+      <span class="ca__k">CA</span><span class="ca__v" id="caVal"></span>
+    </button>
+    <a class="btn btn--icon" id="xLink" hidden target="_blank" rel="noopener" aria-label="X">
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
     <button class="btn btn--ghost" id="soundBtn" title="sound" aria-label="sound">♪</button>
     <button class="btn btn--ghost" id="langBtn">ES</button>
     <button class="btn btn--go" id="connectBtn" data-i18n="btn.connect">CONNECT WALLET</button>
@@ -61,6 +67,7 @@
     <div class="stage__bar">
       <div class="status" id="status" data-i18n="status.watch">Watching. Connect a wallet to get a marble.</div>
       <div class="actions">
+        <button class="btn" id="skinBtn" data-i18n="btn.skin">MY MARBLE</button>
         <label class="auto" id="autoWrap" hidden>
           <input type="checkbox" id="autoJoin"> <span data-i18n="btn.auto">auto-join every race</span>
         </label>
@@ -84,6 +91,18 @@
       </div>
       <ol class="field" id="field"></ol>
       <p class="hint" data-i18n="live.hint">Tap a marble to cheer it on.</p>
+    </div>
+
+    <div class="panel" id="panel-skin">
+      <div class="panel__head"><span data-i18n="skin.head">YOUR MARBLE</span></div>
+      <div class="skin">
+        <canvas id="skinPrev" width="132" height="132" aria-label="your marble"></canvas>
+        <div class="skin__rows">
+          <div class="pickrow"><em data-i18n="skin.color">COLOUR</em><div class="swatches" id="swatches"></div></div>
+          <div class="pickrow"><em data-i18n="skin.face">FACE</em><div class="faces" id="faces"></div></div>
+        </div>
+      </div>
+      <p class="hint" data-i18n="skin.hint">Saved in this browser and used in every race.</p>
     </div>
 
     <div class="panel" id="panel-chat">

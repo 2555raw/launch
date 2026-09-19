@@ -1,14 +1,14 @@
 # We published the tests instead of the TVL
 
-Every pre-launch DeFi site looks the same. A number at the top — total value
-locked, eight figures, two decimal places — a row of logos, a countdown, and a
-contract address with a green tick beside it.
+Every DeFi site looks the same before it launches. A number at the top: total
+value locked, eight figures, two decimal places. Then a row of logos, a
+countdown, and a contract address with a green tick beside it.
 
 Ours looked like that too, until we read our own page.
 
-The tick said "Verified". The address under it was generated from a string. Not
-fetched from a chain, not a deployment that had been paused — generated, in
-JavaScript, from the word "vesica" and a ticker. Three of them were not even the
+The tick said "Verified". The address under it was generated from a string. It
+had not been fetched from a chain. It was not a deployment that had been paused.
+It was generated, in JavaScript, from the word "vesica" and a ticker. Three of them were not even the
 right length. An Ethereum address is twenty bytes; ours were twelve. Paste one
 into a block explorer and it tells you the address is invalid.
 
@@ -24,11 +24,11 @@ So we took a different approach to the launch page.
 The contract table says **not deployed**, on every row, because nothing is
 deployed. There is one file in the repository that holds the chain ID and the
 addresses. While it is empty, every page says so. When it is filled in, the same
-cells become links into Blockscout — and not before.
+cells become links into Blockscout, and not one moment sooner.
 
 The address validator rejects anything that is not twenty hex bytes, and rejects
-the zero address, so a half-finished config cannot put a broken link in front of
-anyone.
+the zero address, so a config filled in halfway cannot put a broken link in
+front of anyone.
 
 Instead of a TVL figure, the site has a page showing the test output.
 
@@ -36,7 +36,7 @@ Instead of a TVL figure, the site has a page showing the test output.
 
 The contracts exist. They are an ERC-4626 vault, a Chainlink gate in front of
 it, and a concentrated Uniswap V3 position behind it. 131 assertions run against
-them on a real EVM — not a simulation of the pool, but Uniswap's own shipped
+them on a real EVM. Not a simulation of the pool: Uniswap's own shipped
 bytecode, deployed by Uniswap's own factory, because a mock of a pool only ever
 proves that your strategy agrees with your idea of Uniswap.
 
@@ -56,8 +56,8 @@ matters. A pool's spot price is whatever the previous line of the same
 transaction left behind, and a flash loan can leave behind anything. Vaults that
 priced themselves off spot have been emptied more times than every other bug in
 this category combined. In our test an attacker moves a real Uniswap pool by
-8.6% and the vault's valuation does not shift by one wei — then the oracle
-moves, and it does.
+8.6% and the vault's valuation does not shift by one wei. Then the oracle moves,
+and it does.
 
 ## What is not built
 
@@ -70,7 +70,7 @@ equities these vaults would hold are issued by regulated entities with transfer
 restrictions. No amount of Solidity answers that question.
 
 We also ran an adversarial pass over our own contracts and published what it
-found — including three places where a comment claimed a property the code did
+found, including three places where a comment claimed a property the code did
 not hold. That pass is not an audit, and we say so on the page: the same hand
 wrote the contracts and the tests. If we reasoned something wrong while writing
 them, we will probably reason it the same way while reviewing them. An audit is

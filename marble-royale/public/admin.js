@@ -32,7 +32,7 @@
     for (const [label, value] of [
       ['ROUNDS', withWinner.length],
       ['TO PAY', owed.length],
-      ['SOL OWED', Math.round(owedSol * 10000) / 10000],
+      ['USD OWED', Math.round(owedSol * 100) / 100],
       ['FEE WALLET', data.feeWallet ? short(data.feeWallet) : 'not set']
     ]) {
       const d = document.createElement('div');
@@ -62,7 +62,7 @@
     const pot = document.createElement('input');
     pot.value = r.pot === null || r.pot === undefined ? '' : r.pot;
     pot.style.width = '90px';
-    pot.title = 'SOL to pay - edit to correct it';
+    pot.title = 'USD to pay - edit to correct it';
     pot.addEventListener('change', async () => {
       const res = await api('pot', { method: 'POST', body: JSON.stringify({ id: r.id, pot: Number(pot.value) }) });
       if (res.error) alert(res.error);
@@ -80,7 +80,7 @@
     if (r.paid) {
       const tx = document.createElement('span');
       tx.className = 'addr'; tx.textContent = r.tx ? short(r.tx) : '(no signature)';
-      if (r.tx) tx.addEventListener('click', () => window.open('https://solscan.io/tx/' + r.tx, '_blank'));
+      if (r.tx) tx.addEventListener('click', () => window.open('https://etherscan.io/tx/' + r.tx, '_blank'));
       wrap.appendChild(tx);
     } else {
       const sig = document.createElement('input');

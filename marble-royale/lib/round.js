@@ -26,7 +26,7 @@ const crypto = require('crypto');
 const { EventEmitter } = require('events');
 const RACE = require('../public/shared/race.js');
 const store = require('./store');
-const solana = require('./solana');
+const chain = require('./chain');
 
 const ROUND_MS = Math.max(90000, Number(process.env.ROUND_MS) || 300000);
 const RESULT_MS = 25000;
@@ -84,6 +84,7 @@ class Rounds extends EventEmitter {
       seconds: 0,
       pot: null,
       gross: null,
+      grossEth: null,
       baseline: null,
       potFinal: false
     };
@@ -100,9 +101,9 @@ class Rounds extends EventEmitter {
   async readBaseline() {
     if (!FEE_WALLET) return;
     const r = this.round;
-    const lamports = await solana.balance(FEE_WALLET);
-    if (this.round === r && lamports !== null) {
-      r.baseline = lamports;
+    const wei = await chain.balance(FEE_WALLET);
+    if (this.round === r && wei !== null) {
+      r.baseline = wei;
       this.pollPot();
     }
   }
@@ -111,15 +112,21 @@ class Rounds extends EventEmitter {
   async pollPot() {
     const r = this.round;
     if (!FEE_WALLET || r.baseline === null) return;
-    const lamports = await solana.balance(FEE_WALLET);
-    if (this.round !== r || lamports === null) return;
-    const gross = Math.max(0, lamports - r.baseline);
-    const sol = solana.toSol(gross * (POT_PCT / 100));
-    if (r.pot !== sol) {
-      r.gross = solana.toSol(gross);
-      r.pot = sol;
-      this.emit('pot', { roundId: r.id, pot: sol, gross: r.gross, pct: POT_PCT, final: r.potFinal });
-    }
+    const wei = await chain.balance(FEE_WALLET);
+    if (this.round !== r || wei === null) return;
+    await this.settlePot(r, wei, false);
+  }
+
+  /* Fees are in wei; what people see is dollars. Both are kept: the gross ETH
+     figure for the record, and the winner's share in USD at today's price. */
+  async settlePot(r, wei, final) {
+    const grossWei = wei > r.baseline ? wei - r.baseline : 0n;
+    const grossUsd = await chain.weiToUsd(grossWei);
+    r.grossEth = chain.toEth(grossWei);
+    r.gross = grossUsd;
+    r.pot = grossUsd === null ? null : Math.round(grossUsd * POT_PCT) / 100;
+    r.potFinal = final;
+    this.emit('pot', { roundId: r.id, pot: r.pot, gross: r.gross, grossEth: r.grossEth, pct: POT_PCT, final });
   }
 
   lock() {
@@ -189,6 +196,7 @@ class Rounds extends EventEmitter {
       seconds: r.seconds,
       pot: r.pot,
       gross: r.gross,
+      grossEth: r.grossEth,
       potPct: POT_PCT,
       paid: false,
       tx: ''
@@ -215,15 +223,11 @@ class Rounds extends EventEmitter {
     const r = this.round;
     if (!r) return;
     if (FEE_WALLET && r.baseline !== null) {
-      const lamports = await solana.balance(FEE_WALLET);
-      if (lamports !== null) {
-        const gross = Math.max(0, lamports - r.baseline);
-        r.gross = solana.toSol(gross);
-        r.pot = solana.toSol(gross * (POT_PCT / 100));
-        r.potFinal = true;
+      const wei = await chain.balance(FEE_WALLET);
+      if (wei !== null) {
+        await this.settlePot(r, wei, true);
         const saved = store.findRound(r.id);
-        if (saved && !saved.potManual) { saved.pot = r.pot; store.save(); }
-        this.emit('pot', { roundId: r.id, pot: r.pot, gross: r.gross, pct: POT_PCT, final: true });
+        if (saved && !saved.potManual) { saved.pot = r.pot; saved.gross = r.gross; saved.grossEth = r.grossEth; store.save(); }
       }
     }
     this.open(startOf(Date.now()));
@@ -296,6 +300,7 @@ function cleanColor(value) {
 }
 
 function faceOf(address) {
+  address = String(address).toLowerCase();
   let h = 5381;
   for (let i = 0; i < address.length; i++) h = (Math.imul(h, 33) ^ address.charCodeAt(i)) >>> 0;
   return FACES[1 + (h % (FACES.length - 1))];
@@ -304,6 +309,7 @@ function faceOf(address) {
 /* A marble's colour is its address, so a wallet that picks nothing still has a
    colour of its own, the same one in every race. */
 function colorOf(address) {
+  address = String(address).toLowerCase();
   let h = 2166136261;
   for (let i = 0; i < address.length; i++) {
     h ^= address.charCodeAt(i);

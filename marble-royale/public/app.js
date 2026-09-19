@@ -50,7 +50,8 @@
   };
 
   const serverNow = () => Date.now() + S.offset;
-  const short = (a) => (a ? a.slice(0, 4) + '…' + a.slice(-4) : '');
+  const same = (a, b) => !!a && !!b && a.toLowerCase() === b.toLowerCase();
+  const short = (a) => (a ? a.slice(0, 6) + '…' + a.slice(-4) : '');
   const t = (k, v) => window.I18N.t(k, v);
 
   /* ---- sound ------------------------------------------------------------- */
@@ -161,7 +162,7 @@
     el.coin.textContent = c.coin;
     document.title = c.coin + ' - MARBLE ROYALE';
     el.ticker.textContent = c.ticker ? '$' + c.ticker.replace(/^\$/, '') : '';
-    el.potUnit.textContent = 'SOL';
+    el.potUnit.textContent = '';
     if (c.potPct) el.potPct.textContent = '· ' + c.potPct + '% ' + t('pot.share');
     if (c.mint) {
       el.caBtn.hidden = false;
@@ -196,7 +197,7 @@
       S.cheerCounts = new Map();
       el.winner.hidden = true;
     }
-    if (round.players.some((p) => S.me && p.address === S.me.address)) S.joined = true;
+    if (round.players.some((p) => S.me && same(p.address, S.me.address))) S.joined = true;
 
     el.commit.textContent = round.commit ? 'seed commit ' + round.commit.slice(0, 32) + '…' : '';
 
@@ -236,7 +237,7 @@
       previewStirred();
       RENDER.addPlayer(d.player.address, d.player.color, !!(S.me && d.player.address === S.me.address), d.player.face);
     }
-    if (S.me && d.player.address === S.me.address) { S.joined = true; SND.join(); }
+    if (S.me && same(d.player.address, S.me.address)) { S.joined = true; SND.join(); }
     renderField();
     paintStatus();
   }
@@ -271,7 +272,7 @@
     el.pot.textContent = fmtSol(d.pot);
     if (S.official && S.official.roundId === d.roundId) {
       S.official.pot = d.pot;
-      el.winnerPot.textContent = fmtSol(d.pot) + ' SOL';
+      el.winnerPot.textContent = fmtSol(d.pot);
     }
   }
 
@@ -281,8 +282,8 @@
     el.winnerAddr.textContent = d.winner;
     el.winnerPot.textContent = (d.pot === null || d.pot === undefined)
       ? t('winner.pending')
-      : fmtSol(d.pot) + ' SOL' + (S.cfg && S.cfg.potPct ? ' · ' + S.cfg.potPct + '%' : '');
-    const mine = !!(S.me && d.winner === S.me.address);
+      : fmtSol(d.pot) + (S.cfg && S.cfg.potPct ? ' · ' + S.cfg.potPct + '%' : '');
+    const mine = !!(S.me && same(d.winner, S.me.address));
     el.winnerYou.hidden = !mine;
     banner('');
     RENDER.celebrate(d.winner);
@@ -409,7 +410,9 @@
     const s = Math.floor(ms / 1000);
     return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   };
-  const fmtSol = (v) => (v === null || v === undefined ? '—' : (Math.round(v * 10000) / 10000).toString());
+  /* The pot is dollars: fees arrive in ETH and are priced when they are read. */
+  const fmtSol = (v) => (v === null || v === undefined ? '—' :
+    '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
   /* ---- panels ------------------------------------------------------------ */
 
@@ -489,7 +492,7 @@
       const when = document.createElement('span'); when.className = 'muted';
       when.textContent = new Date(r.startAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const amt = document.createElement('span'); amt.className = 'amt';
-      amt.textContent = fmtSol(r.pot) + ' SOL';
+      amt.textContent = fmtSol(r.pot);
       top.append(when, amt);
       const addr = document.createElement('div'); addr.className = 'addr';
       addr.textContent = r.winner;
@@ -539,6 +542,7 @@
 
   /* Same hash the server uses, so a wallet is the same colour everywhere. */
   function colorOf(address) {
+    address = String(address).toLowerCase();
     let h = 2166136261;
     for (let i = 0; i < address.length; i++) { h ^= address.charCodeAt(i); h = Math.imul(h, 16777619); }
     h = h >>> 0;
@@ -627,7 +631,7 @@
       const nonceRes = await fetch('/api/nonce?address=' + encodeURIComponent(w.address)).then((r) => r.json());
       if (nonceRes.error) return toast(nonceRes.error, 'bad');
       toast(t('toast.signin'));
-      const signature = await WALLET.signMessage(w.provider, nonceRes.message);
+      const signature = await WALLET.signMessage(w.provider, nonceRes.message, w.address);
       const auth = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },

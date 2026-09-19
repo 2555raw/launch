@@ -72,6 +72,7 @@
   .ic--check { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E"); }
   .ic--log { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M4 5h16v3H4zm0 5h16v3H4zm0 5h10v3H4z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M4 5h16v3H4zm0 5h16v3H4zm0 5h10v3H4z'/%3E%3C/svg%3E"); }
   .ic--code { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='m9 7-6 5 6 5 1.4-1.6L6 12l4.4-3.4zm6 0-1.4 1.6L18 12l-4.4 3.4L15 17l6-5z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='m9 7-6 5 6 5 1.4-1.6L6 12l4.4-3.4zm6 0-1.4 1.6L18 12l-4.4 3.4L15 17l6-5z'/%3E%3C/svg%3E"); }
+  .ic--rocket { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M14 3c3 0 7 1 7 7 0 2-1 4-3 6l-2 2-2-2-2 2-2-2-3 3H4v-3l3-3-2-2 2-2-2-2 2-2c2-2 4-3 7-3zm1 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M14 3c3 0 7 1 7 7 0 2-1 4-3 6l-2 2-2-2-2 2-2-2-3 3H4v-3l3-3-2-2 2-2-2-2 2-2c2-2 4-3 7-3zm1 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'/%3E%3C/svg%3E"); }
   .ic--warn { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2 1 21h22zm0 6 1 7h-2zm-1 9h2v2h-2z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2 1 21h22zm0 6 1 7h-2zm-1 9h2v2h-2z'/%3E%3C/svg%3E"); }
 
   .nav__foot { margin-top: auto; display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
@@ -426,6 +427,57 @@
   }
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  /* ---- the launchpad ----------------------------------------------------- */
+
+  .launch { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 22px; align-items: start; }
+  .launch__form {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px;
+  }
+  .fld { display: grid; gap: 6px; min-width: 0; }
+  .fld--wide { grid-column: 1 / -1; }
+  .fld > span { font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
+  .fld input, .fld select {
+    width: 100%; background: #0a0d15; border: 1px solid var(--edge); border-radius: 10px;
+    padding: 10px 12px; color: var(--ink); font-size: 14px;
+  }
+  .fld input:focus, .fld select:focus { outline: none; border-color: var(--go); }
+  .fld input[type="file"] { padding: 8px; font-size: 12.5px; color: var(--dim); }
+  .fld input[type="range"] { padding: 0; accent-color: var(--go); }
+  .range { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+  .range b { font-family: var(--mono); font-size: 12px; color: var(--go); white-space: nowrap; }
+  .launch__cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 4px; }
+  .launch__note { font-size: 12.5px; color: var(--dim); max-width: 40ch; }
+
+  .launch__card {
+    position: sticky; top: 74px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px;
+    display: grid; gap: 14px;
+  }
+  .launch__card[data-empty="1"] { opacity: .75; }
+  .tk { display: flex; gap: 12px; align-items: center; }
+  .tk__img {
+    width: 56px; height: 56px; border-radius: 14px; flex: none; overflow: hidden;
+    background: #141a27; border: 1px solid var(--edge); display: grid; place-items: center;
+    font-family: var(--mono); color: var(--dim);
+  }
+  .tk__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tk__head b { display: block; font-size: 17px; font-weight: 700; }
+  .tk__head em { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--go); }
+  .tk__desc { margin: 0; color: var(--ink2); font-size: 14px; }
+  .tk__stats { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tk__stats > div { background: #0a0d15; border-radius: 10px; padding: 9px 11px; }
+  .tk__stats dt { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; color: var(--dim); }
+  .tk__stats dd { margin: 3px 0 0; font-weight: 700; font-size: 14px; }
+  .tk__foot { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
+  .tk__state { border: 1px solid var(--edge); border-radius: 999px; padding: 3px 8px; color: var(--gold); letter-spacing: .12em; }
+
+  @media (max-width: 1000px) {
+    .launch { grid-template-columns: 1fr; }
+    .launch__card { position: static; }
+  }
+  @media (max-width: 560px) { .launch__form { grid-template-columns: 1fr; } }
 </style>
 
 <div class="shell">
@@ -443,6 +495,7 @@
 
       <span class="nav__label">Get in</span>
       <a class="nl" href="#how"><i class="ic ic--steps"></i>How to join</a>
+      <a class="nl" href="#launch"><i class="ic ic--rocket"></i>Launch a token</a>
       <a class="nl" href="#marble"><i class="ic ic--dot"></i>Your marble</a>
       <a class="nl" href="#pot"><i class="ic ic--coin"></i>The pot</a>
 
@@ -455,6 +508,7 @@
 
     <div class="nav__foot">
       <button class="btn btn--accent btn--wide" id="queueBtn" disabled>Join the queue</button>
+      <a class="btn btn--wide" href="#launch">Launch a token</a>
       <button class="side-link" id="caBtn">
         <span class="side-link__ic">$</span>
         <span>
@@ -504,7 +558,7 @@
       <p>Connect a wallet, join the queue, and a marble on the track is yours. The first one down the course wins, and the winner's address goes on screen so the fees that the coin earned in those minutes can be sent straight to it.</p>
       <div class="hero__cta">
         <a class="btn btn--accent btn--lg" href="#race">Watch a race</a>
-        <a class="btn btn--lg" href="#how">How it works</a>
+        <a class="btn btn--lg" href="#launch">Launch your own</a>
       </div>
       <div class="potbox" id="potbox" data-state="filling">
         <div class="jar" id="jar">
@@ -611,6 +665,106 @@
           <span>The winning address appears in full on screen and stays in the log, so anyone can check afterwards that the payment was made.</span>
         </li>
       </ol>
+    </section>
+
+    <!-- launchpad -->
+    <section class="sec" id="launch">
+      <div class="sec__head">
+        <span class="kicker">LAUNCHPAD</span>
+        <h2>Launch a marble token of your own</h2>
+        <p>Playing is free. Launching is for anyone who wants their own coin with a race attached: fill this in, and your token gets its own track, its own queue and its own pot fed by its own trades.</p>
+      </div>
+
+      <div class="launch">
+        <form class="launch__form" id="launchForm" autocomplete="off">
+          <label class="fld">
+            <span>Token name</span>
+            <input id="lfName" maxlength="32" placeholder="Rolling Thunder" required>
+          </label>
+          <label class="fld">
+            <span>Ticker</span>
+            <input id="lfTicker" maxlength="8" placeholder="THUNDER" required>
+          </label>
+          <label class="fld fld--wide">
+            <span>One line about it</span>
+            <input id="lfDesc" maxlength="120" placeholder="Every five minutes one marble takes the fees.">
+          </label>
+          <label class="fld">
+            <span>Image</span>
+            <input id="lfImage" type="file" accept="image/*">
+          </label>
+          <label class="fld">
+            <span>Race every</span>
+            <select id="lfEvery">
+              <option value="5">5 minutes</option>
+              <option value="10">10 minutes</option>
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes</option>
+            </select>
+          </label>
+          <label class="fld">
+            <span>Winner's share of fees</span>
+            <div class="range">
+              <input id="lfShare" type="range" min="5" max="100" step="5" value="20">
+              <b id="lfShareOut">20%</b>
+            </div>
+          </label>
+          <label class="fld">
+            <span>Marbles for holders only</span>
+            <div class="range">
+              <input id="lfMin" type="number" min="0" step="1" value="0" placeholder="0">
+              <b>min. tokens</b>
+            </div>
+          </label>
+          <div class="fld fld--wide launch__cta">
+            <button class="btn btn--accent btn--lg" type="submit">Preview my token</button>
+            <span class="launch__note">Deploys as an ERC-20 on Ethereum when the launchpad goes live. Nothing is sent yet.</span>
+          </div>
+        </form>
+
+        <div class="launch__card" id="launchCard" data-empty="1">
+          <div class="tk">
+            <div class="tk__img" id="tkImg"><span>?</span></div>
+            <div class="tk__head">
+              <b id="tkName">Your token</b>
+              <em id="tkTicker">$TICKER</em>
+            </div>
+          </div>
+          <p class="tk__desc" id="tkDesc">Fill the form and your token page appears here.</p>
+          <dl class="tk__stats">
+            <div><dt>Race every</dt><dd id="tkEvery">5 min</dd></div>
+            <div><dt>Winner takes</dt><dd id="tkShare">20%</dd></div>
+            <div><dt>To race</dt><dd id="tkMin">anyone</dd></div>
+            <div><dt>Chain</dt><dd>Ethereum</dd></div>
+          </dl>
+          <div class="tk__foot">
+            <span class="tk__state" id="tkState">draft</span>
+            <span class="tk__ca">CA assigned at launch</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="accs" style="margin-top:22px">
+        <details>
+          <summary><span class="tag">HOW</span>What launching does<span class="arrow">›</span></summary>
+          <div class="body">
+            <p>Your wallet deploys the token through the launchpad contract, which sets the creator-fee split at deploy time: a slice of every trade goes to the token's fee wallet, and that wallet is what the races draw their pot from. You keep the rest of the creator fees as with any launch.</p>
+            <p>The moment the token exists it gets its own page here: same track, same physics, same provably fair seed, but its own queue and its own pot. Holders of your token race for your token's fees. You set the cadence and the winner's share above, and you can change them later from your creator panel.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span class="tag">COST</span>What it costs<span class="arrow">›</span></summary>
+          <div class="body">
+            <p>Gas for the deployment, paid by your wallet, and the launchpad's own cut of the creator fees, which is fixed at launch and shown on this form before you sign anything. There is no listing fee and nothing to buy up front.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span class="tag">PAYOUT</span>Who pays the winners<span class="arrow">›</span></summary>
+          <div class="body">
+            <p>For a launched token the winner's share is set aside by the fee contract itself, so it does not rely on anyone remembering to send it. The winning address and the amount are on the token's page and in the log, and the payout transaction is linked when it goes out.</p>
+          </div>
+        </details>
+      </div>
     </section>
 
     <!-- your marble -->
@@ -1976,8 +2130,10 @@
        target is drawn per round, the per-second rate follows from how long
        the queue is open, and every tick jitters so it lands like trades do. */
     S.pot = 0;
-    S.potTarget = 40 + Math.random() * 140;
-    S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
+    S.potPerSec = (1 / 60) * (0.85 + Math.random() * 0.3);
+    S.potAcc = 0;
+    /* the jar reads full at about what a queue of this length collects */
+    S.potTarget = Math.max(1.5, S.potPerSec * ((S.roundStart + LOBBY_MS - Date.now()) / 1000) * 1.05);
     S.potState = 'filling';
     paintPot();
     S.preview = RACE.createRace(((Date.now() / ROUND_MS) | 0) >>> 0,
@@ -2173,15 +2329,20 @@
       const left = Math.max(0, S.roundStart + LOBBY_MS - now);
       $('#clockLabel').textContent = 'Next race in';
       $('#clock').textContent = fmt(left);
-      /* The pot ticks up in cents, ten times a second, so the figure is always
-         moving; once in a while a trade lands that is worth a coin falling. */
+      /* About a dollar a minute, arriving a cent at a time, with the odd small
+         trade on top that is worth a coin dropping in. */
       if (S.potState === 'filling' && now - lastTick >= 100) {
         lastTick = now;
-        const trade = Math.random() < 0.012;
-        const add = trade ? 0.3 + Math.random() * 0.6 : S.potPerSec * 0.1 * (0.5 + Math.random());
-        S.pot = Math.min(S.potTarget * 1.15, Math.round((S.pot + add) * 100) / 100);
-        paintPot();
-        if (trade) drop();
+        S.potAcc += S.potPerSec * 0.1;
+        const trade = Math.random() < 0.004;
+        let add = 0;
+        if (S.potAcc >= 0.01) { add = Math.floor(S.potAcc * 100) / 100; S.potAcc -= add; }
+        if (trade) add += 0.1 + Math.random() * 0.25;
+        if (add > 0) {
+          S.pot = Math.round((S.pot + add) * 100) / 100;
+          paintPot();
+          if (trade) drop();
+        }
       }
       if (left === 0) startRace();
     } else if (S.phase === 'racing') {
@@ -2239,6 +2400,65 @@
     const s = Math.floor(ms / 1000);
     return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   };
+
+  /* ---- the launchpad ----------------------------------------------------- */
+
+  /* The form fills the token card as you type and keeps the draft in this
+     browser. Deploying is the launchpad contract's job once it is live; here
+     the button only shows what the token's page would look like. */
+  function wireLaunch() {
+    const f = $('#launchForm');
+    if (!f) return;
+    const q = (id) => $('#' + id);
+    let image = '';
+
+    const paint = () => {
+      const name = q('lfName').value.trim(), tick = q('lfTicker').value.trim().toUpperCase().replace(/^\$/, '');
+      q('tkName').textContent = name || 'Your token';
+      q('tkTicker').textContent = '$' + (tick || 'TICKER');
+      q('tkDesc').textContent = q('lfDesc').value.trim() || (name ? 'Every ' + q('lfEvery').value + ' minutes one marble takes the fees of $' + tick + '.' : 'Fill the form and your token page appears here.');
+      q('tkEvery').textContent = q('lfEvery').value + ' min';
+      q('tkShare').textContent = q('lfShare').value + '%';
+      q('lfShareOut').textContent = q('lfShare').value + '%';
+      const min = Number(q('lfMin').value) || 0;
+      q('tkMin').textContent = min > 0 ? min.toLocaleString('en-US') + '+ $' + (tick || 'TICKER') : 'anyone';
+      const img = q('tkImg');
+      img.innerHTML = '';
+      if (image) { const el = document.createElement('img'); el.src = image; el.alt = ''; img.appendChild(el); }
+      else { const sp = document.createElement('span'); sp.textContent = (tick || '?').slice(0, 2); img.appendChild(sp); }
+      q('launchCard').dataset.empty = name || tick ? '0' : '1';
+      try {
+        localStorage.setItem('mr.launch', JSON.stringify({
+          name, tick, desc: q('lfDesc').value, every: q('lfEvery').value, share: q('lfShare').value, min: q('lfMin').value
+        }));
+      } catch {}
+    };
+
+    try {
+      const d = JSON.parse(localStorage.getItem('mr.launch') || 'null');
+      if (d) {
+        q('lfName').value = d.name || ''; q('lfTicker').value = d.tick || ''; q('lfDesc').value = d.desc || '';
+        q('lfEvery').value = d.every || '5'; q('lfShare').value = d.share || '20'; q('lfMin').value = d.min || '0';
+      }
+    } catch {}
+
+    for (const id of ['lfName', 'lfTicker', 'lfDesc', 'lfEvery', 'lfShare', 'lfMin']) q(id).addEventListener('input', paint);
+    q('lfImage').addEventListener('change', () => {
+      const file = q('lfImage').files && q('lfImage').files[0];
+      if (!file) return;
+      const r = new FileReader();
+      r.onload = () => { image = String(r.result); paint(); };
+      r.readAsDataURL(file);
+    });
+    f.addEventListener('submit', (e) => {
+      e.preventDefault();
+      paint();
+      q('tkState').textContent = 'previewed';
+      q('launchCard').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      toast('That is your token page. Deploying opens when the launchpad is live.');
+    });
+    paint();
+  }
 
   /* ---- what the coin fills in later -------------------------------------- */
 
@@ -2300,6 +2520,7 @@
   drawSkin();
   applyCoin();
   wireNav();
+  wireLaunch();
   openLobby();
   addBots(17);
   paintPot();

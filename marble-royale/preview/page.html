@@ -20,6 +20,7 @@
 
       <span class="nav__label">Get in</span>
       <a class="nl" href="#how"><i class="ic ic--steps"></i>How to join</a>
+      <a class="nl" href="#launch"><i class="ic ic--rocket"></i>Launch a token</a>
       <a class="nl" href="#marble"><i class="ic ic--dot"></i>Your marble</a>
       <a class="nl" href="#pot"><i class="ic ic--coin"></i>The pot</a>
 
@@ -32,6 +33,7 @@
 
     <div class="nav__foot">
       <button class="btn btn--accent btn--wide" id="queueBtn" disabled>Join the queue</button>
+      <a class="btn btn--wide" href="#launch">Launch a token</a>
       <button class="side-link" id="caBtn">
         <span class="side-link__ic">$</span>
         <span>
@@ -81,7 +83,7 @@
       <p>Connect a wallet, join the queue, and a marble on the track is yours. The first one down the course wins, and the winner's address goes on screen so the fees that the coin earned in those minutes can be sent straight to it.</p>
       <div class="hero__cta">
         <a class="btn btn--accent btn--lg" href="#race">Watch a race</a>
-        <a class="btn btn--lg" href="#how">How it works</a>
+        <a class="btn btn--lg" href="#launch">Launch your own</a>
       </div>
       <div class="potbox" id="potbox" data-state="filling">
         <div class="jar" id="jar">
@@ -188,6 +190,106 @@
           <span>The winning address appears in full on screen and stays in the log, so anyone can check afterwards that the payment was made.</span>
         </li>
       </ol>
+    </section>
+
+    <!-- launchpad -->
+    <section class="sec" id="launch">
+      <div class="sec__head">
+        <span class="kicker">LAUNCHPAD</span>
+        <h2>Launch a marble token of your own</h2>
+        <p>Playing is free. Launching is for anyone who wants their own coin with a race attached: fill this in, and your token gets its own track, its own queue and its own pot fed by its own trades.</p>
+      </div>
+
+      <div class="launch">
+        <form class="launch__form" id="launchForm" autocomplete="off">
+          <label class="fld">
+            <span>Token name</span>
+            <input id="lfName" maxlength="32" placeholder="Rolling Thunder" required>
+          </label>
+          <label class="fld">
+            <span>Ticker</span>
+            <input id="lfTicker" maxlength="8" placeholder="THUNDER" required>
+          </label>
+          <label class="fld fld--wide">
+            <span>One line about it</span>
+            <input id="lfDesc" maxlength="120" placeholder="Every five minutes one marble takes the fees.">
+          </label>
+          <label class="fld">
+            <span>Image</span>
+            <input id="lfImage" type="file" accept="image/*">
+          </label>
+          <label class="fld">
+            <span>Race every</span>
+            <select id="lfEvery">
+              <option value="5">5 minutes</option>
+              <option value="10">10 minutes</option>
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes</option>
+            </select>
+          </label>
+          <label class="fld">
+            <span>Winner's share of fees</span>
+            <div class="range">
+              <input id="lfShare" type="range" min="5" max="100" step="5" value="20">
+              <b id="lfShareOut">20%</b>
+            </div>
+          </label>
+          <label class="fld">
+            <span>Marbles for holders only</span>
+            <div class="range">
+              <input id="lfMin" type="number" min="0" step="1" value="0" placeholder="0">
+              <b>min. tokens</b>
+            </div>
+          </label>
+          <div class="fld fld--wide launch__cta">
+            <button class="btn btn--accent btn--lg" type="submit">Preview my token</button>
+            <span class="launch__note">Deploys as an ERC-20 on Ethereum when the launchpad goes live. Nothing is sent yet.</span>
+          </div>
+        </form>
+
+        <div class="launch__card" id="launchCard" data-empty="1">
+          <div class="tk">
+            <div class="tk__img" id="tkImg"><span>?</span></div>
+            <div class="tk__head">
+              <b id="tkName">Your token</b>
+              <em id="tkTicker">$TICKER</em>
+            </div>
+          </div>
+          <p class="tk__desc" id="tkDesc">Fill the form and your token page appears here.</p>
+          <dl class="tk__stats">
+            <div><dt>Race every</dt><dd id="tkEvery">5 min</dd></div>
+            <div><dt>Winner takes</dt><dd id="tkShare">20%</dd></div>
+            <div><dt>To race</dt><dd id="tkMin">anyone</dd></div>
+            <div><dt>Chain</dt><dd>Ethereum</dd></div>
+          </dl>
+          <div class="tk__foot">
+            <span class="tk__state" id="tkState">draft</span>
+            <span class="tk__ca">CA assigned at launch</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="accs" style="margin-top:22px">
+        <details>
+          <summary><span class="tag">HOW</span>What launching does<span class="arrow">›</span></summary>
+          <div class="body">
+            <p>Your wallet deploys the token through the launchpad contract, which sets the creator-fee split at deploy time: a slice of every trade goes to the token's fee wallet, and that wallet is what the races draw their pot from. You keep the rest of the creator fees as with any launch.</p>
+            <p>The moment the token exists it gets its own page here: same track, same physics, same provably fair seed, but its own queue and its own pot. Holders of your token race for your token's fees. You set the cadence and the winner's share above, and you can change them later from your creator panel.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span class="tag">COST</span>What it costs<span class="arrow">›</span></summary>
+          <div class="body">
+            <p>Gas for the deployment, paid by your wallet, and the launchpad's own cut of the creator fees, which is fixed at launch and shown on this form before you sign anything. There is no listing fee and nothing to buy up front.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span class="tag">PAYOUT</span>Who pays the winners<span class="arrow">›</span></summary>
+          <div class="body">
+            <p>For a launched token the winner's share is set aside by the fee contract itself, so it does not rely on anyone remembering to send it. The winning address and the amount are on the token's page and in the log, and the payout transaction is linked when it goes out.</p>
+          </div>
+        </details>
+      </div>
     </section>
 
     <!-- your marble -->

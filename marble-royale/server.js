@@ -18,9 +18,8 @@ const path = require('path');
 const crypto = require('crypto');
 
 const store = require('./lib/store');
-const solana = require('./lib/solana');
+const chain = require('./lib/chain');
 const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, FEE_WALLET, POT_PCT, FACES } = require('./lib/round');
-const b58 = require('./lib/base58');
 
 const PORT = Number(process.env.PORT) || 8080;
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
@@ -35,6 +34,9 @@ const CONFIG = {
   mint: TOKEN_MINT,
   minTokens: MIN_TOKENS,
   feeWallet: FEE_WALLET,
+  chain: process.env.CHAIN_NAME || 'Ethereum',
+  explorer: process.env.EXPLORER || 'https://etherscan.io',
+  currency: 'USD',
   potPct: POT_PCT,
   faces: FACES,
   roundMs: ROUND_MS,
@@ -135,7 +137,7 @@ async function holdsEnough(address) {
   if (!MIN_TOKENS || !TOKEN_MINT) return { ok: true };
   const hit = holdings.get(address);
   if (hit && Date.now() - hit.at < 60000) return { ok: hit.amount >= MIN_TOKENS, amount: hit.amount };
-  const amount = await solana.tokenBalance(address, TOKEN_MINT);
+  const amount = await chain.tokenBalance(address, TOKEN_MINT);
   holdings.set(address, { amount, at: Date.now() });
   return { ok: amount >= MIN_TOKENS, amount };
 }
@@ -178,7 +180,7 @@ function snapshot() {
 }
 
 const publicResult = (r) => ({
-  id: r.id, startAt: r.startAt, winner: r.winner, pot: r.pot,
+  id: r.id, startAt: r.startAt, winner: r.winner, pot: r.pot, gross: r.gross,
   players: (r.players || []).length, seconds: r.seconds,
   paid: !!r.paid, tx: r.tx || '', seed: r.seed, commit: r.commit, secret: r.secret
 });
@@ -245,8 +247,8 @@ const server = http.createServer(async (req, res) => {
 
   /* --- signing in --- */
   if (p === '/api/nonce') {
-    const address = (url.searchParams.get('address') || '').trim();
-    if (!b58.isAddress(address)) return json(res, 400, { error: 'that is not a Solana address' });
+    const address = chain.normalize((url.searchParams.get('address') || '').trim());
+    if (!address) return json(res, 400, { error: 'that is not an Ethereum address' });
     if (!allow('nonce:' + ip, 150, 50)) return json(res, 429, { error: 'slow down' });
     const nonce = crypto.randomBytes(12).toString('hex');
     nonces.set(nonce, { address, exp: Date.now() + 300000 });
@@ -263,7 +265,8 @@ const server = http.createServer(async (req, res) => {
     if (!allow('auth:' + ip, 90, 40)) return json(res, 429, { error: 'slow down' });
     const body = await readBody(req);
     if (!body) return json(res, 400, { error: 'bad request' });
-    const { address, nonce, signature } = body;
+    const address = chain.normalize(body.address);
+    const { nonce, signature } = body;
     const entry = nonces.get(nonce);
     if (!entry || entry.address !== address) return json(res, 400, { error: 'that sign-in expired, try again' });
     nonces.delete(nonce);
@@ -273,7 +276,7 @@ const server = http.createServer(async (req, res) => {
       'This proves the wallet is yours. It moves nothing and costs nothing.\n' +
       'wallet: ' + address + '\n' +
       'nonce: ' + nonce;
-    if (!solana.verifySignature(address, message, signature)) return json(res, 401, { error: 'signature did not check out' });
+    if (!chain.verifySignature(address, message, signature)) return json(res, 401, { error: 'signature did not check out' });
     return json(res, 200, { token: mintToken(address), address, stats: store.statsFor(address) });
   }
 
@@ -321,8 +324,8 @@ const server = http.createServer(async (req, res) => {
     const address = body && readToken(body.token);
     if (!address) return json(res, 401, { error: 'sign in to cheer' });
     if (!allow('cheer:' + address, 60, 8)) return json(res, 429, { error: 'easy there' });
-    const target = String(body.target || '');
-    if (!b58.isAddress(target)) return json(res, 400, { error: 'no such marble' });
+    const target = chain.normalize(body.target);
+    if (!target) return json(res, 400, { error: 'no such marble' });
     /* Cheers are confetti. They are deliberately not part of the physics: if a
        cheer could move a marble, the race would be a popularity contest and the
        replay in your browser would stop matching the result. */
@@ -357,10 +360,12 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { ok: true, round: r });
     }
     if (p === '/api/admin/rounds.csv') {
-      const rows = [['round', 'time_utc', 'winner_wallet', 'pot_sol', 'players', 'paid', 'tx']];
+      const rows = [['round', 'time_utc', 'winner_wallet', 'pot_usd', 'fees_usd', 'fees_eth', 'players', 'paid', 'tx']];
       for (const r of store.recent(500)) {
         rows.push([r.id, new Date(r.startAt).toISOString(), r.winner || '',
           r.pot === null || r.pot === undefined ? '' : r.pot,
+          r.gross === null || r.gross === undefined ? '' : r.gross,
+          r.grossEth === null || r.grossEth === undefined ? '' : r.grossEth,
           (r.players || []).length, r.paid ? 'yes' : 'no', r.tx || '']);
       }
       const csv = rows.map((r) => r.map((c) => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
@@ -385,6 +390,6 @@ server.listen(PORT, () => {
   rounds.start();
   console.log('MARBLE ROYALE on :' + PORT +
     ' | round ' + Math.round(ROUND_MS / 1000) + 's' +
-    ' | fee wallet ' + (FEE_WALLET || 'not set') +
+    ' | fee wallet ' + (FEE_WALLET || 'not set') + ' | rpc ' + chain.RPC +
     ' | admin ' + (ADMIN_KEY ? 'on' : 'OFF (set ADMIN_KEY)'));
 });

@@ -10,15 +10,15 @@
 'use strict';
 
 const assert = require('assert');
-const crypto = require('crypto');
 const RACE = require('../public/shared/race.js');
-const solana = require('../lib/solana');
-const b58 = require('../lib/base58');
 
 let passed = 0;
+const queue = [];
 function ok(name, fn) {
-  try { fn(); console.log('  ok   ' + name); passed++; }
-  catch (err) { console.log('  FAIL ' + name + '\n       ' + err.message); process.exitCode = 1; }
+  queue.push(async () => {
+    try { await fn(); console.log('  ok   ' + name); passed++; }
+    catch (err) { console.log('  FAIL ' + name + '\n       ' + err.message); process.exitCode = 1; }
+  });
 }
 
 const field = (n, tag) => [...Array(n)].map((_, i) => ({ id: (tag || 'w') + i }));
@@ -91,35 +91,42 @@ ok('no marble is ever left with a broken position', () => {
 
 console.log('\nwallets');
 
-const key = crypto.generateKeyPairSync('ed25519');
-const address = b58.encode(key.publicKey.export({ format: 'der', type: 'spki' }).slice(12));
+const { ethers } = require('ethers');
+const chain = require('../lib/chain');
+const wallet = ethers.Wallet.createRandom();
 const message = 'MARBLE ROYALE\nsign in\nnonce: abc';
-const signature = b58.encode(crypto.sign(null, Buffer.from(message), key.privateKey));
 
-ok('a real signature is accepted', () => {
-  assert.strictEqual(solana.verifySignature(address, message, signature), true);
+ok('a real signature is accepted', async () => {
+  const signature = await wallet.signMessage(message);
+  assert.strictEqual(chain.verifySignature(wallet.address, message, signature), true);
+  assert.strictEqual(chain.verifySignature(wallet.address.toLowerCase(), message, signature), true);
 });
 
-ok('a signature for another message is refused', () => {
-  assert.strictEqual(solana.verifySignature(address, message + ' ', signature), false);
+ok('a signature for another message is refused', async () => {
+  const signature = await wallet.signMessage(message);
+  assert.strictEqual(chain.verifySignature(wallet.address, message + ' ', signature), false);
 });
 
-ok('someone else\'s address cannot be claimed', () => {
-  const other = b58.encode(crypto.generateKeyPairSync('ed25519').publicKey.export({ format: 'der', type: 'spki' }).slice(12));
-  assert.strictEqual(solana.verifySignature(other, message, signature), false);
+ok('someone else\'s address cannot be claimed', async () => {
+  const signature = await wallet.signMessage(message);
+  assert.strictEqual(chain.verifySignature(ethers.Wallet.createRandom().address, message, signature), false);
 });
 
-ok('rubbish in is refused rather than thrown', () => {
-  for (const bad of ['', 'not base58 !!', '0OIl', address.slice(0, 10), null, undefined, 42]) {
-    assert.strictEqual(solana.verifySignature(bad, message, signature), false);
-    assert.strictEqual(solana.verifySignature(address, message, bad), false);
+ok('rubbish in is refused rather than thrown', async () => {
+  const signature = await wallet.signMessage(message);
+  for (const bad of ['', '0x12', 'not an address', null, undefined, 42]) {
+    assert.strictEqual(chain.verifySignature(bad, message, signature), false);
+    assert.strictEqual(chain.verifySignature(wallet.address, message, bad), false);
   }
 });
 
-ok('addresses survive a round trip through base58', () => {
-  assert.strictEqual(b58.encode(b58.decode(address)), address);
-  assert.strictEqual(b58.isAddress(address), true);
-  assert.strictEqual(b58.isAddress('short'), false);
+ok('addresses come out checksummed, or not at all', () => {
+  assert.strictEqual(chain.normalize(wallet.address.toLowerCase()), wallet.address);
+  assert.strictEqual(chain.normalize('So11111111111111111111111111111111111111112'), null);
+  assert.strictEqual(chain.isAddress(wallet.address), true);
 });
 
-console.log('\n' + passed + ' checks passed\n');
+(async () => {
+  for (const run of queue) await run();
+  console.log('\n' + passed + ' checks passed\n');
+})();

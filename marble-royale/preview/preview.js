@@ -254,8 +254,10 @@
        target is drawn per round, the per-second rate follows from how long
        the queue is open, and every tick jitters so it lands like trades do. */
     S.pot = 0;
-    S.potTarget = 40 + Math.random() * 140;
-    S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
+    S.potPerSec = (1 / 60) * (0.85 + Math.random() * 0.3);
+    S.potAcc = 0;
+    /* the jar reads full at about what a queue of this length collects */
+    S.potTarget = Math.max(1.5, S.potPerSec * ((S.roundStart + LOBBY_MS - Date.now()) / 1000) * 1.05);
     S.potState = 'filling';
     paintPot();
     S.preview = RACE.createRace(((Date.now() / ROUND_MS) | 0) >>> 0,
@@ -451,15 +453,20 @@
       const left = Math.max(0, S.roundStart + LOBBY_MS - now);
       $('#clockLabel').textContent = 'Next race in';
       $('#clock').textContent = fmt(left);
-      /* The pot ticks up in cents, ten times a second, so the figure is always
-         moving; once in a while a trade lands that is worth a coin falling. */
+      /* About a dollar a minute, arriving a cent at a time, with the odd small
+         trade on top that is worth a coin dropping in. */
       if (S.potState === 'filling' && now - lastTick >= 100) {
         lastTick = now;
-        const trade = Math.random() < 0.012;
-        const add = trade ? 0.3 + Math.random() * 0.6 : S.potPerSec * 0.1 * (0.5 + Math.random());
-        S.pot = Math.min(S.potTarget * 1.15, Math.round((S.pot + add) * 100) / 100);
-        paintPot();
-        if (trade) drop();
+        S.potAcc += S.potPerSec * 0.1;
+        const trade = Math.random() < 0.004;
+        let add = 0;
+        if (S.potAcc >= 0.01) { add = Math.floor(S.potAcc * 100) / 100; S.potAcc -= add; }
+        if (trade) add += 0.1 + Math.random() * 0.25;
+        if (add > 0) {
+          S.pot = Math.round((S.pot + add) * 100) / 100;
+          paintPot();
+          if (trade) drop();
+        }
       }
       if (left === 0) startRace();
     } else if (S.phase === 'racing') {
@@ -517,6 +524,65 @@
     const s = Math.floor(ms / 1000);
     return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   };
+
+  /* ---- the launchpad ----------------------------------------------------- */
+
+  /* The form fills the token card as you type and keeps the draft in this
+     browser. Deploying is the launchpad contract's job once it is live; here
+     the button only shows what the token's page would look like. */
+  function wireLaunch() {
+    const f = $('#launchForm');
+    if (!f) return;
+    const q = (id) => $('#' + id);
+    let image = '';
+
+    const paint = () => {
+      const name = q('lfName').value.trim(), tick = q('lfTicker').value.trim().toUpperCase().replace(/^\$/, '');
+      q('tkName').textContent = name || 'Your token';
+      q('tkTicker').textContent = '$' + (tick || 'TICKER');
+      q('tkDesc').textContent = q('lfDesc').value.trim() || (name ? 'Every ' + q('lfEvery').value + ' minutes one marble takes the fees of $' + tick + '.' : 'Fill the form and your token page appears here.');
+      q('tkEvery').textContent = q('lfEvery').value + ' min';
+      q('tkShare').textContent = q('lfShare').value + '%';
+      q('lfShareOut').textContent = q('lfShare').value + '%';
+      const min = Number(q('lfMin').value) || 0;
+      q('tkMin').textContent = min > 0 ? min.toLocaleString('en-US') + '+ $' + (tick || 'TICKER') : 'anyone';
+      const img = q('tkImg');
+      img.innerHTML = '';
+      if (image) { const el = document.createElement('img'); el.src = image; el.alt = ''; img.appendChild(el); }
+      else { const sp = document.createElement('span'); sp.textContent = (tick || '?').slice(0, 2); img.appendChild(sp); }
+      q('launchCard').dataset.empty = name || tick ? '0' : '1';
+      try {
+        localStorage.setItem('mr.launch', JSON.stringify({
+          name, tick, desc: q('lfDesc').value, every: q('lfEvery').value, share: q('lfShare').value, min: q('lfMin').value
+        }));
+      } catch {}
+    };
+
+    try {
+      const d = JSON.parse(localStorage.getItem('mr.launch') || 'null');
+      if (d) {
+        q('lfName').value = d.name || ''; q('lfTicker').value = d.tick || ''; q('lfDesc').value = d.desc || '';
+        q('lfEvery').value = d.every || '5'; q('lfShare').value = d.share || '20'; q('lfMin').value = d.min || '0';
+      }
+    } catch {}
+
+    for (const id of ['lfName', 'lfTicker', 'lfDesc', 'lfEvery', 'lfShare', 'lfMin']) q(id).addEventListener('input', paint);
+    q('lfImage').addEventListener('change', () => {
+      const file = q('lfImage').files && q('lfImage').files[0];
+      if (!file) return;
+      const r = new FileReader();
+      r.onload = () => { image = String(r.result); paint(); };
+      r.readAsDataURL(file);
+    });
+    f.addEventListener('submit', (e) => {
+      e.preventDefault();
+      paint();
+      q('tkState').textContent = 'previewed';
+      q('launchCard').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      toast('That is your token page. Deploying opens when the launchpad is live.');
+    });
+    paint();
+  }
 
   /* ---- what the coin fills in later -------------------------------------- */
 
@@ -578,6 +644,7 @@
   drawSkin();
   applyCoin();
   wireNav();
+  wireLaunch();
   openLobby();
   addBots(17);
   paintPot();

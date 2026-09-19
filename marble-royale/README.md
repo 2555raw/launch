@@ -1,12 +1,14 @@
 # MARBLE ROYALE
 
-A marble race every five minutes, on the clock. Anyone with a Solana wallet
-connects, presses join, and one marble on the track is theirs. The first marble
-across the line wins, and the winner's wallet address is put on screen so the
-creator fees collected during those five minutes can be sent to it.
+A marble race every five minutes, on the clock. Anyone with an Ethereum wallet
+connects, joins the queue, and one marble on the track is theirs. The first
+marble across the line wins, and the winner's wallet address is put on screen so
+a share of the creator fees collected during those five minutes can be sent to
+it. The pot is shown in dollars.
 
-The site is one Node process with no dependencies, no build step and no
-database. It never holds a private key and never moves money.
+The site is one Node process with one dependency (ethers, for signatures and
+the RPC), no build step and no database. It never holds a private key and never
+moves money.
 
 ```
 npm start            # http://localhost:8080
@@ -68,9 +70,11 @@ person's job:
   WINNERS panel, where anyone can copy it and check you paid.
 
 **The pot.** Set `FEE_WALLET` to the wallet your creator fees land in. The
-server reads its balance when a round opens and again when it closes, and the
-difference is what that round earned; the winner's pot is `POT_PCT` of that
-(20% unless you say otherwise), and both figures are kept. Move money out of that wallet mid-round
+server reads its ETH balance when a round opens and again when it closes, and
+the difference is what that round earned. It is priced in dollars from the
+Chainlink ETH/USD feed over the same RPC; the winner's pot is `POT_PCT` of that
+(20% unless you say otherwise), and the ETH figure, the dollar figure and the
+share are all kept with the round. Move money out of that wallet mid-round
 and the figure for that round will read low - use a wallet that only collects,
 and sweep it between rounds if you must. With no `FEE_WALLET` set, the pot shows
 as `—` and you type the amount for each round on the admin page.
@@ -83,11 +87,14 @@ All optional except where noted.
 |---|---|
 | `PORT` | port to listen on (default 8080) |
 | `COIN_NAME`, `COIN_TICKER` | what the header says |
-| `TOKEN_MINT` | your coin's mint address |
+| `TOKEN_MINT` | your coin's contract address (shown as the CA, and used by the holder gate) |
 | `MIN_TOKENS` | hold at least this many to race. `0` (default) lets anyone in |
 | `FEE_WALLET` | the wallet creator fees arrive in, for the pot figure |
 | `POT_PCT` | the share of those fees the winner takes, as a percentage (default 20). It is shown on screen and stored with every round |
-| `SOLANA_RPC` | RPC endpoint (default is the public one, which is rate limited - use your own for anything busy) |
+| `ETH_RPC` | JSON-RPC endpoint (default `https://cloudflare-eth.com`, which is rate limited - use your own for anything busy) |
+| `ETH_USD_FEED` | Chainlink ETH/USD aggregator (default is mainnet's; set it for Base or another chain) |
+| `ETH_USD` | a fixed ETH price in dollars, if you would rather not read a feed |
+| `CHAIN_NAME`, `EXPLORER` | what the page calls the chain and where transaction links go (default Ethereum, etherscan.io) |
 | `ADMIN_KEY` | **set this**, or /admin is off |
 | `SESSION_SECRET` | keeps sign-ins valid across restarts; random each boot if unset |
 | `DATA_DIR` | where results are written (default `./data`) |
@@ -103,13 +110,14 @@ service at this folder, it runs `npm start` and listens on `$PORT`. Add a volume
 mounted somewhere like `/data` and set `DATA_DIR=/data` so results survive a
 redeploy, and set `SESSION_SECRET` so nobody has to sign in again after one.
 
-Anywhere that runs Node 18+ works the same. There is nothing to build.
+Anywhere that runs Node 18+ works the same after `npm install`. There is nothing to build.
 
 ## What stops someone gaming it
 
-- **Entering someone else's wallet.** You cannot. Joining requires a signature
-  from the wallet, checked against the address, so the marble that wins belongs
-  to whoever can sign for it.
+- **Entering someone else's wallet.** You cannot. Joining requires a signed
+  message (EIP-191 `personal_sign`) from the wallet, and the server recovers the
+  signer and compares it with the address, so the marble that wins belongs to
+  whoever can sign for it.
 - **Entering twice.** One marble per address per race.
 - **Betting on the winner.** The seed does not exist until the field is closed,
   and the field is closed before anyone can act on it.
@@ -126,8 +134,7 @@ Anywhere that runs Node 18+ works the same. There is nothing to build.
 server.js            http, the event stream, the api, the admin routes
 lib/round.js         the five minute clock, the commit-reveal, the field
 lib/store.js         results on disk
-lib/solana.js        signature checks and balance reads
-lib/base58.js        addresses in and out of bytes
+lib/chain.js         signature checks, balances, the ETH/USD price, token holdings
 public/shared/race.js  the physics - the one file the server and the browser share
 public/render.js     the canvas
 public/app.js        the page: stream, wallet, chat, cheers

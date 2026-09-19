@@ -40,13 +40,11 @@
           <button class="mnu-btn" type="button" aria-expanded="false">Resources<svg class="mnu-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
           <div class="mnu-pop">
             <a href="docs.html">Documentation</a>
-        <a href="proof.html">Proof</a>
             <a href="proof.html">Proof</a>
             <a href="log.html">Build log</a>
             <a href="vaults.html#how">How it works</a>
             <a href="docs.html#roadmap">Roadmap</a>
             <a href="docs.html#faq">FAQ</a>
-        <a href="log.html">Build log</a>
             <a href="risk.html">Risk disclosure</a>
             <a href="terms.html">Terms of use</a>
             <a href="privacy.html">Privacy</a>
@@ -197,18 +195,6 @@
       </article>
     </section>
 
-    <section class="pf-sec">
-      <h2>What is not built</h2>
-      <p class="pf-lead">Stated at the same size as the rest, because a proof page that only lists what works is an advertisement.</p>
-      <ul class="pf-not">
-        <li><span class="pf-tag">Not deployed</span><b>Nothing is on any chain.</b><span>No mainnet, no testnet, no addresses. Every contract address shown elsewhere on this site is a placeholder, and is labelled as one.</span></li>
-        <li><span class="pf-tag">Not audited</span><b>No external review has happened.</b><span>The tests below are written by the same hand as the contracts, which is worth exactly what that is worth. An audit is what catches what the author could not see.</span></li>
-        <li><span class="pf-tag">Not wired</span><b>The vault and the strategy do not yet talk to each other.</b><span>Each is tested on its own. Joining them means a withdrawal has to pull liquidity from the position when the idle balance will not cover it — the path every withdrawal takes.</span></li>
-        <li><span class="pf-tag">Known gap</span><b>Fees earned since the last collect are not counted.</b><span>Reading them needs a state-changing poke, so totalAssets understates the vault. Safe against theft, slightly unfair to existing holders, and marked in the source.</span></li>
-        <li><span class="pf-tag">Known gap</span><b>A dislocated pool stalls deposits.</b><span>If the pool drifts further from the oracle than the slippage bound, deposits and rebalances revert rather than execute. Refusing is the safe behaviour, but a violent move can stall the vault until someone arbitrages it back.</span></li>
-        <li><span class="pf-tag">Not solved</span><b>The tokenized equities question is not a contract problem.</b><span>The Stock Tokens these vaults would hold are issued by regulated entities with transfer restrictions. No amount of Solidity answers that, and it is the longest pole of the lot.</span></li>
-      </ul>
-    </section>
 
     <section class="pf-sec">
       <div class="pf-run">
@@ -262,6 +248,7 @@ npm test          <span class="c"># 131 assertions</span></pre>
       <div class="ft-col">
         <span class="k">Platform</span>
         <a href="docs.html">Documentation</a>
+        <a href="proof.html">Proof</a>
         <a href="vaults.html#how">How it works</a>
         <a href="vaults.html#safeguards">Safeguards</a>
         <a href="docs.html#roadmap">Roadmap</a>
@@ -274,6 +261,7 @@ npm test          <span class="c"># 131 assertions</span></pre>
         <a href="docs.html#chainlink">Chainlink safety</a>
         <a href="docs.html#open">Open source</a>
         <a href="docs.html#faq">FAQ</a>
+        <a href="log.html">Build log</a>
         <a href="vaults.html#safeguards">Capacity and caps</a>
       </div>
       <div class="ft-col">

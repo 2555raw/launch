@@ -30,10 +30,24 @@ const TYPES = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
-/* Markup is revalidated on every request so a deploy is visible immediately;
-   everything else is content-addressed by name and can sit in a cache. */
-const cacheFor = ext =>
-  ext === '.html' ? 'no-cache' : 'public, max-age=86400';
+/* Everything revalidates, nothing is trusted blind.
+
+   This used to hold markup at `no-cache` and everything else for a day, on
+   the reasoning that only the HTML changes between deploys. That was wrong
+   twice over. The scripts and stylesheets are not content-addressed — there
+   is no hash in `home.js` — so a deploy that changes one reaches nobody who
+   has already visited until their day is up. Worse, fresh HTML then runs
+   against a stale script, which is how a page half-updates.
+
+   `no-cache` does not mean do not store it; it means ask first. Paired with
+   an ETag the answer is usually a 304 with no body, so the bandwidth saving
+   survives and the correctness comes back. */
+const cacheFor = () => 'no-cache';
+
+/* Weak, because it is derived from the file's size and mtime rather than its
+   bytes: enough to tell two deploys apart without hashing every file on
+   every request. */
+const etagFor = st => `W/"${st.size.toString(36)}-${Math.floor(st.mtimeMs).toString(36)}"`;
 
 async function resolve(urlPath) {
   // strip the query, decode, and refuse anything that climbs out of ROOT
@@ -45,14 +59,14 @@ async function resolve(urlPath) {
   try {
     const s = await stat(full);
     if (s.isDirectory()) return resolve(p.replace(/\/?$/, '/'));
-    return { full, size: s.size };
+    return { full, size: s.size, etag: etagFor(s) };
   } catch {
     // a bare name is allowed to mean the page: /docs serves docs.html
     if (!extname(full)) {
       try {
         const alt = full + '.html';
         const s = await stat(alt);
-        if (s.isFile()) return { full: alt, size: s.size };
+        if (s.isFile()) return { full: alt, size: s.size, etag: etagFor(s) };
       } catch { /* falls through to the 404 */ }
     }
     return null;
@@ -78,10 +92,18 @@ const server = createServer(async (req, res) => {
   }
 
   const ext = extname(hit.full).toLowerCase();
+
+  // it already has this exact file: say so and send nothing
+  if (req.headers['if-none-match'] === hit.etag) {
+    res.writeHead(304, { 'etag': hit.etag, 'cache-control': cacheFor() });
+    return res.end();
+  }
+
   res.writeHead(200, {
     'content-type': TYPES[ext] || 'application/octet-stream',
     'content-length': hit.size,
-    'cache-control': cacheFor(ext),
+    'cache-control': cacheFor(),
+    'etag': hit.etag,
     'x-content-type-options': 'nosniff',
     'referrer-policy': 'strict-origin-when-cross-origin',
   });

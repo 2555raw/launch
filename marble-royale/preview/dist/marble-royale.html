@@ -551,16 +551,13 @@ body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; po
   font-weight: 600; font-size: 11.5px; line-height: 1.1; text-align: center;
 }
 .dock__it .ic { width: 20px; height: 20px; }
-.dock__flag { position: relative; display: block; height: 22px; }
-.dock__flag .dock__live { position: absolute; right: -8px; top: -2px; margin: 0; width: 8px !important; height: 8px; }
 .dock__it span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dock__it em { font-style: normal; font-size: 8.5px; letter-spacing: .14em; color: var(--dim); }
+body[data-phase="racing"] .dock__it--race em { color: var(--hot); }
+body[data-phase="result"] .dock__it--race em { color: var(--go); }
 .dock__it:hover { background: var(--glass2); color: var(--ink); }
 .dock__it.is-on { background: var(--goSoft); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(255, 122, 26, .45); }
 .dock__it.is-on i { color: var(--go); }
-.dock__live { width: 10px !important; height: 10px; border-radius: 50%; background: var(--win); box-shadow: 0 0 10px var(--win); }
-body[data-phase="racing"] .dock__live { background: var(--hot); box-shadow: 0 0 10px var(--hot); animation: blink 1s infinite; }
-body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .dock__stat { display: grid; justify-items: center; text-align: center; padding: 8px 4px 4px; border-top: 1px solid var(--line); margin-top: 4px; }
 .dock__stat em { font-style: normal; font-size: 8.5px; letter-spacing: .16em; color: var(--dim); }
 .dock__stat b { font-size: 13px; font-weight: 700; }
@@ -1135,7 +1132,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 <!-- ---------- the dock ---------- -->
 <nav class="dock" id="dock" aria-label="taskbar">
   <button class="dock__it is-on" data-dock="home"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
-  <button class="dock__it dock__it--race" data-dock="lobby"><span class="dock__flag"><svg class="ic"><use href="#i-flag"/></svg><i class="dock__live"></i></span><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
+  <button class="dock__it dock__it--race" data-dock="lobby"><svg class="ic"><use href="#i-flag"/></svg><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
   <button class="dock__it" data-dock="modes"><svg class="ic"><use href="#i-grid"/></svg><span>Modes</span></button>
   <button class="dock__it" data-dock="launch"><svg class="ic"><use href="#i-rocket"/></svg><span>Launch</span></button>
   <button class="dock__it" data-dock="winners"><svg class="ic"><use href="#i-trophy"/></svg><span>Winners</span></button>
@@ -3125,7 +3122,7 @@ window.MR_TYPES = true;
     let m;
     switch (material) {
       case 'metal':
-        m = new THREE.MeshStandardMaterial({ map, metalness: 0.85, roughness: 0.32 }); break;
+        m = new THREE.MeshStandardMaterial({ map, metalness: 0.9, roughness: 0.28, envMapIntensity: 1.3 }); break;
       case 'chrome':
         m = new THREE.MeshStandardMaterial({ map, metalness: 1, roughness: 0.08, envMapIntensity: 1.6 }); break;
       case 'holo':
@@ -3139,7 +3136,7 @@ window.MR_TYPES = true;
       case 'galaxy':
         m = new THREE.MeshStandardMaterial({ map, emissive: new THREE.Color('#5a3bff'), emissiveMap: map, emissiveIntensity: 0.35, roughness: 0.4, metalness: 0.2 }); break;
       default: /* glass */
-        m = new THREE.MeshPhysicalMaterial({ map, roughness: 0.08, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, reflectivity: 0.8 });
+        m = new THREE.MeshPhysicalMaterial({ map, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04, reflectivity: 0.9, ior: 1.5, envMapIntensity: 1.2, specularIntensity: 1 });
     }
     cache.set(key, m);
     return m;
@@ -3171,7 +3168,64 @@ window.MR_TYPES = true;
     return cv;
   }
 
-  window.SKINS = { MATERIALS, marbleMaterial, faceTexture, materialOf, swatch, toHex,
+  /* ---- a marble, photographed ------------------------------------------ */
+
+  /* A real render of one marble on a transparent background, for the page:
+     the hero's floating coins, the pickers, the player cards, the podium.
+     It uses a small renderer of its own with its own room to reflect, so
+     the picture has the same glass and chrome the race has. Cached per
+     recipe and size; falls back to the flat swatch where there is no WebGL. */
+  const shots = new Map();
+  let studio = null;
+  function openStudio() {
+    const THREE = window.THREE, FX = window.THREE_FX;
+    if (studio || !THREE) return studio;
+    try {
+      const canvas = document.createElement('canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, premultipliedAlpha: true });
+      renderer.setClearColor(0x000000, 0);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      const scene = new THREE.Scene();
+      if (FX && FX.RoomEnvironment) {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmrem.fromScene(new FX.RoomEnvironment(), 0.04).texture;
+        pmrem.dispose();
+      }
+      const key = new THREE.DirectionalLight('#fff4e6', 2.2); key.position.set(-2.5, 3.5, 3);
+      const rim = new THREE.DirectionalLight('#9fc4ff', 1.2); rim.position.set(3, 1.5, -2.5);
+      scene.add(key, rim, new THREE.AmbientLight('#ffffff', 0.35));
+      const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 20);
+      camera.position.set(0, 0.35, 4.6);
+      camera.lookAt(0, 0, 0);
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), null);
+      scene.add(mesh);
+      studio = { renderer, scene, camera, mesh, canvas };
+    } catch (err) { studio = null; }
+    return studio;
+  }
+  function render(spec, size, tilt) {
+    const material = MATERIALS.includes(spec.material) ? spec.material : 'glass';
+    const color = toHex(spec.color || '#ff7a1a');
+    const key = material + ':' + color + ':' + (spec.face || '') + ':' + size + ':' + (tilt || 0);
+    if (shots.has(key)) return shots.get(key);
+    const st = openStudio();
+    if (!st) return null;
+    const THREE = window.THREE;
+    const px = Math.min(512, Math.round(size * Math.min(2, window.devicePixelRatio || 1)));
+    st.renderer.setSize(px, px, false);
+    st.mesh.material = marbleMaterial(THREE, { material, color, face: spec.face });
+    st.mesh.rotation.set(0.15, -0.55 + (tilt || 0), 0.1);
+    st.renderer.render(st.scene, st.camera);
+    const out = document.createElement('canvas');
+    out.width = out.height = px;
+    out.getContext('2d').drawImage(st.canvas, 0, 0);
+    shots.set(key, out);
+    return out;
+  }
+
+  window.SKINS = { MATERIALS, marbleMaterial, faceTexture, materialOf, swatch, render, toHex,
     LABELS: { glass: 'Glass', metal: 'Metal', holo: 'Holographic', neon: 'Neon', chrome: 'Chrome', clear: 'Clear', lava: 'Lava', galaxy: 'Galaxy' } };
 })();
 
@@ -4367,7 +4421,7 @@ window.MR_TYPES = true;
 (function () {
   'use strict';
 
-  const ROUND_MS = 300000, LOBBY_MS = 195000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const ROUND_MS = 300000, LOBBY_MS = 160000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
   const MEGA_EVERY = 1800000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
@@ -4561,7 +4615,7 @@ window.MR_TYPES = true;
      by answering the nonce route with a note, and app.js sends whatever the
      wallet returns; a wallet asked to sign that note is fine too. */
   open(Math.floor(now() / ROUND_MS) * ROUND_MS);
-  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 100000; at(round.raceAt, race); emit('phase', pub()); } } };
+  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 135000; at(round.raceAt, race); emit('phase', pub()); } } };
 })();
 
 </script>
@@ -5114,6 +5168,8 @@ window.MR_TYPES = true;
       $('#pollWinner').textContent = m.name;
       const va = p.votes[p.a] || 0, vb = p.votes[p.b] || 0;
       $('#pollWhy').textContent = va === vb ? 'a tie, settled by a coin toss · the lobby opens in a moment' : 'won the vote ' + Math.max(va, vb) + ' to ' + Math.min(va, vb) + ' · the lobby opens in a moment';
+    } else {
+      $('#pollClock').textContent = 'closes in ' + fmt(p.closesAt - serverNow());
       $('#pollClock').textContent = 'closed';
     }
   }
@@ -5181,11 +5237,14 @@ window.MR_TYPES = true;
     });
   }
 
-  const cardCanvas = new Map();
-  function marbleCanvas(p, size) {
+  /* A marble for the page: a real render when the studio is open, the flat
+     swatch until then. Either way a canvas of the size asked for. */
+  function marbleCanvas(p, size, tilt) {
+    const shot = window.THREE ? SKINS.render({ material: p.material || 'glass', color: p.color || '#ff7a1a', face: p.face }, size, tilt) : null;
     const cv = document.createElement('canvas');
     cv.width = cv.height = size * 2;
     const ctx = cv.getContext('2d');
+    if (shot) { ctx.drawImage(shot, 0, 0, size * 2, size * 2); return cv; }
     ctx.scale(2, 2);
     const base = SKINS.swatch(p.material || 'glass', p.color || '#ff7a1a');
     ctx.drawImage(base, 0, 0, size, size);
@@ -5487,11 +5546,14 @@ window.MR_TYPES = true;
     for (const id of ['#youPrev', '#skinPrev']) {
       const cv = $(id); const size = cv.width / 2; const ctx = cv.getContext('2d');
       ctx.clearRect(0, 0, cv.width, cv.height);
+      const shot = window.THREE ? SKINS.render({ material: skin.material, color: skin.color, face: skin.face }, size * 0.9) : null;
+      if (shot) { ctx.drawImage(shot, size * 0.1, size * 0.1, size * 1.8, size * 1.8); continue; }
       ctx.save(); ctx.scale(2, 2);
       ctx.drawImage(SKINS.swatch(skin.material, skin.color), size * 0.1, size * 0.1, size * 0.8, size * 0.8);
       RENDER.drawFace(ctx, size / 2, size / 2, size * 0.33, skin.face);
       ctx.restore();
     }
+    paintPickers();
     $('#youName').textContent = skin.name || (w.address ? short(w.address) : '—');
     $('#youAddr').textContent = w.address ? w.address : 'connect a wallet';
     $('#youMat').textContent = SKINS.LABELS[skin.material] + ' · ' + skin.face.toUpperCase();
@@ -5499,6 +5561,18 @@ window.MR_TYPES = true;
     $$('.mt').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.material));
     $$('.fc').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.face));
     $$('.sw').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.color));
+  }
+  /* The pickers show each material in your colour with your coin, and each
+     coin in its own colour, rendered like the marble itself. They redraw
+     when the choice changes, so a material swatch always wears your coin. */
+  let pickersKey = '';
+  function paintPickers() {
+    const skin = ui.get().skin;
+    const key = skin.color + ':' + skin.face + ':' + skin.material + ':' + (window.THREE ? 3 : 2);
+    if (pickersKey === key) return;
+    pickersKey = key;
+    $$('.mt').forEach((b) => { b.querySelector('canvas').replaceWith(marbleCanvas({ material: b.dataset.v, color: skin.color, face: skin.face }, 40)); });
+    $$('.fc').forEach((b) => { b.querySelector('canvas').replaceWith(marbleCanvas({ material: 'glass', color: RENDER.SKIN_COLORS[b.dataset.v] || skin.color, face: b.dataset.v }, 40)); });
   }
   function buildPickers() {
     const mats = $('#mats');
@@ -5569,16 +5643,35 @@ window.MR_TYPES = true;
       { x: 24, y: 4, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 70, y: 2, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
     ];
     spots.forEach((sp, i) => {
-      const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s);
+      const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s, (i % 5) * 0.5 - 1);
       cv.className = 'floater';
+      cv.dataset.spot = String(i);
       cv.style.left = sp.x + '%'; cv.style.top = sp.y + '%';
       cv.style.width = cv.style.height = sp.s + 'px';
       cv.style.filter = sp.b ? 'blur(' + sp.b + 'px)' : '';
       cv.style.opacity = sp.b ? String(0.75 - sp.b * 0.08) : '1';
+      cv.dataset.m = sp.m; cv.dataset.c = sp.c; cv.dataset.f = sp.f; cv.dataset.s = String(sp.s);
       cv.style.animationDelay = (-i * 1.3) + 's';
       cv.style.animationDuration = (7 + (i % 4) * 1.5) + 's';
       host.appendChild(cv);
     });
+  }
+  /* Once three is up, every flat marble on the page becomes a real one. */
+  function upgradeMarbles() {
+    if (!window.THREE) return;
+    const spots = $$('.floater');
+    spots.forEach((old, i) => {
+      const m = { material: old.dataset.m, color: old.dataset.c, face: old.dataset.f };
+      if (!m.material) return;
+      const cv = marbleCanvas(m, Number(old.dataset.s), (i % 5) * 0.5 - 1);
+      for (const a of ['className', 'style']) cv[a] = old[a];
+      cv.style.cssText = old.style.cssText;
+      Object.assign(cv.dataset, old.dataset);
+      old.replaceWith(cv);
+    });
+    pickersKey = '';
+    paintYou();
+    paintLobby();
   }
   function placeStage() {
     const veil = $('.veil');
@@ -5873,6 +5966,7 @@ window.MR_TYPES = true;
       if (current) SCENE.setRace(current, game.get().race ? playersOf(game.get().race) : [], wallet.get().address);
       applyBackdrop();
       queueUpgrade();
+      upgradeMarbles();
     };
     if (window.THREE) start(); else addEventListener('three-ready', start, { once: true });
     setScreen('home');

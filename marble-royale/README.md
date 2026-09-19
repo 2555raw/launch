@@ -21,10 +21,10 @@ everyone sees the same countdown wherever they are.
 
 | phase | length | what happens |
 |---|---|---|
-| lobby | 3m 15s | connect a wallet, press join, watch marbles drop into the hopper |
+| lobby | 2m 40s | connect a wallet, press join, watch marbles drop into the hopper |
 | locked | 5s | the field is closed and the seed is published |
 | racing | up to 75s | the race, the same one in every browser; the winner is home in about 32 seconds on average |
-| result | the rest | the winner, the wallet to pay, and a vote on the next track |
+| result | 60s | the winner, the wallet to pay, and a vote on the next track |
 
 Set `ROUND_MS` to change the cycle (minimum 90 seconds - useful for testing,
 not for a live coin).

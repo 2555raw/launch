@@ -29,7 +29,9 @@ const store = require('./store');
 const chain = require('./chain');
 
 const ROUND_MS = Math.max(90000, Number(process.env.ROUND_MS) || 300000);
-const RESULT_MS = 25000;
+/* A minute after the race: the podium, the address to pay, and the vote on
+   the next track. */
+const RESULT_MS = 60000;
 const RACE_MAX_MS = (RACE.MAX_SECONDS + 5) * 1000;
 const LOCK_MS = 5000;
 const LOBBY_MS = ROUND_MS - RESULT_MS - RACE_MAX_MS - LOCK_MS;

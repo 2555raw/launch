@@ -546,6 +546,8 @@
       $('#pollWinner').textContent = m.name;
       const va = p.votes[p.a] || 0, vb = p.votes[p.b] || 0;
       $('#pollWhy').textContent = va === vb ? 'a tie, settled by a coin toss · the lobby opens in a moment' : 'won the vote ' + Math.max(va, vb) + ' to ' + Math.min(va, vb) + ' · the lobby opens in a moment';
+    } else {
+      $('#pollClock').textContent = 'closes in ' + fmt(p.closesAt - serverNow());
       $('#pollClock').textContent = 'closed';
     }
   }
@@ -613,11 +615,14 @@
     });
   }
 
-  const cardCanvas = new Map();
-  function marbleCanvas(p, size) {
+  /* A marble for the page: a real render when the studio is open, the flat
+     swatch until then. Either way a canvas of the size asked for. */
+  function marbleCanvas(p, size, tilt) {
+    const shot = window.THREE ? SKINS.render({ material: p.material || 'glass', color: p.color || '#ff7a1a', face: p.face }, size, tilt) : null;
     const cv = document.createElement('canvas');
     cv.width = cv.height = size * 2;
     const ctx = cv.getContext('2d');
+    if (shot) { ctx.drawImage(shot, 0, 0, size * 2, size * 2); return cv; }
     ctx.scale(2, 2);
     const base = SKINS.swatch(p.material || 'glass', p.color || '#ff7a1a');
     ctx.drawImage(base, 0, 0, size, size);
@@ -919,11 +924,14 @@
     for (const id of ['#youPrev', '#skinPrev']) {
       const cv = $(id); const size = cv.width / 2; const ctx = cv.getContext('2d');
       ctx.clearRect(0, 0, cv.width, cv.height);
+      const shot = window.THREE ? SKINS.render({ material: skin.material, color: skin.color, face: skin.face }, size * 0.9) : null;
+      if (shot) { ctx.drawImage(shot, size * 0.1, size * 0.1, size * 1.8, size * 1.8); continue; }
       ctx.save(); ctx.scale(2, 2);
       ctx.drawImage(SKINS.swatch(skin.material, skin.color), size * 0.1, size * 0.1, size * 0.8, size * 0.8);
       RENDER.drawFace(ctx, size / 2, size / 2, size * 0.33, skin.face);
       ctx.restore();
     }
+    paintPickers();
     $('#youName').textContent = skin.name || (w.address ? short(w.address) : '—');
     $('#youAddr').textContent = w.address ? w.address : 'connect a wallet';
     $('#youMat').textContent = SKINS.LABELS[skin.material] + ' · ' + skin.face.toUpperCase();
@@ -931,6 +939,18 @@
     $$('.mt').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.material));
     $$('.fc').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.face));
     $$('.sw').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.color));
+  }
+  /* The pickers show each material in your colour with your coin, and each
+     coin in its own colour, rendered like the marble itself. They redraw
+     when the choice changes, so a material swatch always wears your coin. */
+  let pickersKey = '';
+  function paintPickers() {
+    const skin = ui.get().skin;
+    const key = skin.color + ':' + skin.face + ':' + skin.material + ':' + (window.THREE ? 3 : 2);
+    if (pickersKey === key) return;
+    pickersKey = key;
+    $$('.mt').forEach((b) => { b.querySelector('canvas').replaceWith(marbleCanvas({ material: b.dataset.v, color: skin.color, face: skin.face }, 40)); });
+    $$('.fc').forEach((b) => { b.querySelector('canvas').replaceWith(marbleCanvas({ material: 'glass', color: RENDER.SKIN_COLORS[b.dataset.v] || skin.color, face: b.dataset.v }, 40)); });
   }
   function buildPickers() {
     const mats = $('#mats');
@@ -1001,16 +1021,35 @@
       { x: 24, y: 4, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 70, y: 2, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
     ];
     spots.forEach((sp, i) => {
-      const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s);
+      const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s, (i % 5) * 0.5 - 1);
       cv.className = 'floater';
+      cv.dataset.spot = String(i);
       cv.style.left = sp.x + '%'; cv.style.top = sp.y + '%';
       cv.style.width = cv.style.height = sp.s + 'px';
       cv.style.filter = sp.b ? 'blur(' + sp.b + 'px)' : '';
       cv.style.opacity = sp.b ? String(0.75 - sp.b * 0.08) : '1';
+      cv.dataset.m = sp.m; cv.dataset.c = sp.c; cv.dataset.f = sp.f; cv.dataset.s = String(sp.s);
       cv.style.animationDelay = (-i * 1.3) + 's';
       cv.style.animationDuration = (7 + (i % 4) * 1.5) + 's';
       host.appendChild(cv);
     });
+  }
+  /* Once three is up, every flat marble on the page becomes a real one. */
+  function upgradeMarbles() {
+    if (!window.THREE) return;
+    const spots = $$('.floater');
+    spots.forEach((old, i) => {
+      const m = { material: old.dataset.m, color: old.dataset.c, face: old.dataset.f };
+      if (!m.material) return;
+      const cv = marbleCanvas(m, Number(old.dataset.s), (i % 5) * 0.5 - 1);
+      for (const a of ['className', 'style']) cv[a] = old[a];
+      cv.style.cssText = old.style.cssText;
+      Object.assign(cv.dataset, old.dataset);
+      old.replaceWith(cv);
+    });
+    pickersKey = '';
+    paintYou();
+    paintLobby();
   }
   function placeStage() {
     const veil = $('.veil');
@@ -1305,6 +1344,7 @@
       if (current) SCENE.setRace(current, game.get().race ? playersOf(game.get().race) : [], wallet.get().address);
       applyBackdrop();
       queueUpgrade();
+      upgradeMarbles();
     };
     if (window.THREE) start(); else addEventListener('three-ready', start, { once: true });
     setScreen('home');

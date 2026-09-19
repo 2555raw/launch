@@ -88,7 +88,7 @@
     let m;
     switch (material) {
       case 'metal':
-        m = new THREE.MeshStandardMaterial({ map, metalness: 0.85, roughness: 0.32 }); break;
+        m = new THREE.MeshStandardMaterial({ map, metalness: 0.9, roughness: 0.28, envMapIntensity: 1.3 }); break;
       case 'chrome':
         m = new THREE.MeshStandardMaterial({ map, metalness: 1, roughness: 0.08, envMapIntensity: 1.6 }); break;
       case 'holo':
@@ -102,7 +102,7 @@
       case 'galaxy':
         m = new THREE.MeshStandardMaterial({ map, emissive: new THREE.Color('#5a3bff'), emissiveMap: map, emissiveIntensity: 0.35, roughness: 0.4, metalness: 0.2 }); break;
       default: /* glass */
-        m = new THREE.MeshPhysicalMaterial({ map, roughness: 0.08, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, reflectivity: 0.8 });
+        m = new THREE.MeshPhysicalMaterial({ map, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04, reflectivity: 0.9, ior: 1.5, envMapIntensity: 1.2, specularIntensity: 1 });
     }
     cache.set(key, m);
     return m;
@@ -134,6 +134,63 @@
     return cv;
   }
 
-  window.SKINS = { MATERIALS, marbleMaterial, faceTexture, materialOf, swatch, toHex,
+  /* ---- a marble, photographed ------------------------------------------ */
+
+  /* A real render of one marble on a transparent background, for the page:
+     the hero's floating coins, the pickers, the player cards, the podium.
+     It uses a small renderer of its own with its own room to reflect, so
+     the picture has the same glass and chrome the race has. Cached per
+     recipe and size; falls back to the flat swatch where there is no WebGL. */
+  const shots = new Map();
+  let studio = null;
+  function openStudio() {
+    const THREE = window.THREE, FX = window.THREE_FX;
+    if (studio || !THREE) return studio;
+    try {
+      const canvas = document.createElement('canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, premultipliedAlpha: true });
+      renderer.setClearColor(0x000000, 0);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      const scene = new THREE.Scene();
+      if (FX && FX.RoomEnvironment) {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmrem.fromScene(new FX.RoomEnvironment(), 0.04).texture;
+        pmrem.dispose();
+      }
+      const key = new THREE.DirectionalLight('#fff4e6', 2.2); key.position.set(-2.5, 3.5, 3);
+      const rim = new THREE.DirectionalLight('#9fc4ff', 1.2); rim.position.set(3, 1.5, -2.5);
+      scene.add(key, rim, new THREE.AmbientLight('#ffffff', 0.35));
+      const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 20);
+      camera.position.set(0, 0.35, 4.6);
+      camera.lookAt(0, 0, 0);
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), null);
+      scene.add(mesh);
+      studio = { renderer, scene, camera, mesh, canvas };
+    } catch (err) { studio = null; }
+    return studio;
+  }
+  function render(spec, size, tilt) {
+    const material = MATERIALS.includes(spec.material) ? spec.material : 'glass';
+    const color = toHex(spec.color || '#ff7a1a');
+    const key = material + ':' + color + ':' + (spec.face || '') + ':' + size + ':' + (tilt || 0);
+    if (shots.has(key)) return shots.get(key);
+    const st = openStudio();
+    if (!st) return null;
+    const THREE = window.THREE;
+    const px = Math.min(512, Math.round(size * Math.min(2, window.devicePixelRatio || 1)));
+    st.renderer.setSize(px, px, false);
+    st.mesh.material = marbleMaterial(THREE, { material, color, face: spec.face });
+    st.mesh.rotation.set(0.15, -0.55 + (tilt || 0), 0.1);
+    st.renderer.render(st.scene, st.camera);
+    const out = document.createElement('canvas');
+    out.width = out.height = px;
+    out.getContext('2d').drawImage(st.canvas, 0, 0);
+    shots.set(key, out);
+    return out;
+  }
+
+  window.SKINS = { MATERIALS, marbleMaterial, faceTexture, materialOf, swatch, render, toHex,
     LABELS: { glass: 'Glass', metal: 'Metal', holo: 'Holographic', neon: 'Neon', chrome: 'Chrome', clear: 'Clear', lava: 'Lava', galaxy: 'Galaxy' } };
 })();

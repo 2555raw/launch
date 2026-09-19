@@ -542,16 +542,13 @@ body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; po
   font-weight: 600; font-size: 11.5px; line-height: 1.1; text-align: center;
 }
 .dock__it .ic { width: 20px; height: 20px; }
-.dock__flag { position: relative; display: block; height: 22px; }
-.dock__flag .dock__live { position: absolute; right: -8px; top: -2px; margin: 0; width: 8px !important; height: 8px; }
 .dock__it span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dock__it em { font-style: normal; font-size: 8.5px; letter-spacing: .14em; color: var(--dim); }
+body[data-phase="racing"] .dock__it--race em { color: var(--hot); }
+body[data-phase="result"] .dock__it--race em { color: var(--go); }
 .dock__it:hover { background: var(--glass2); color: var(--ink); }
 .dock__it.is-on { background: var(--goSoft); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(255, 122, 26, .45); }
 .dock__it.is-on i { color: var(--go); }
-.dock__live { width: 10px !important; height: 10px; border-radius: 50%; background: var(--win); box-shadow: 0 0 10px var(--win); }
-body[data-phase="racing"] .dock__live { background: var(--hot); box-shadow: 0 0 10px var(--hot); animation: blink 1s infinite; }
-body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .dock__stat { display: grid; justify-items: center; text-align: center; padding: 8px 4px 4px; border-top: 1px solid var(--line); margin-top: 4px; }
 .dock__stat em { font-style: normal; font-size: 8.5px; letter-spacing: .16em; color: var(--dim); }
 .dock__stat b { font-size: 13px; font-weight: 700; }

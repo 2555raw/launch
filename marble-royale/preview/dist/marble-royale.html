@@ -3,39 +3,55 @@
 <meta name="description" content="Race your marble. Win the pot. A provably fair marble race every five minutes on Robinhood Chain.">
 <meta property="og:title" content="MARBLE ROYALE">
 <meta property="og:description" content="Race your marble. Win the pot.">
-<meta name="theme-color" content="#07070b">
+<meta name="theme-color" content="#f5f7ff">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
 /* MARBLE ROYALE - the look.
 
-   The race is the page: one WebGL canvas fills the window and every screen is
-   glass laid over it. Black, warm greys, one orange, and a gold reserved for
-   money. Archivo for words, JetBrains Mono for anything that is a number or an
+   A bright, airy page in the manner of Keel: a pale blue-white ground, a
+   floating pill of a nav, a headline in navy at a hundred pixels, white cards
+   with soft shadows, and coin marbles drifting round the title. One WebGL
+   canvas sits under everything; between races it shows through a soft window
+   in the page's veil, and when the gate opens the veil lifts and the race is a
+   dark stage that fills the screen. One orange, and a gold reserved for money.
+   Outfit for words, JetBrains Mono for anything that is a number or an
    address. */
 
 :root {
+  --bg: #f5f7ff; --bg2: #eaf0ff;
+  --glass: #ffffff; --glass2: #f3f6ff; --soft: #e9eefb;
+  --line: #e1e7f6; --line2: #ccd6ee;
+  --ink: #172038; --ink2: #3f4a68; --dim: #7a85a3;
+  --go: #ff7a1a; --go2: #e66a10; --goSoft: #ffe9d8; --goInk: #7a3200;
+  --gold: #d98f00; --win: #15a34a; --hot: #e11d48; --cyan: #0ea5e9;
+  --shadow: 0 18px 50px -22px rgba(23, 32, 56, .28), 0 2px 6px -2px rgba(23, 32, 56, .08);
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --disp: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gut: clamp(16px, 4vw, 48px);
+  --r: 22px;
+}
+/* The race and the countdown are the dark stage. */
+body[data-screen="race"], body[data-screen="count"] {
   --bg: #07070b; --bg2: #0c0c12;
-  --glass: rgba(13, 13, 20, .72); --glass2: rgba(20, 20, 30, .78);
+  --glass: rgba(13, 13, 20, .72); --glass2: rgba(20, 20, 30, .78); --soft: rgba(255, 255, 255, .08);
   --line: rgba(255, 255, 255, .08); --line2: rgba(255, 255, 255, .16);
   --ink: #f2efe9; --ink2: #c9c4bb; --dim: #8a8797;
-  --go: #ff7a1a; --go2: #e66a10; --goSoft: rgba(255, 122, 26, .16); --goInk: #1a0d04;
+  --goSoft: rgba(255, 122, 26, .16); --goInk: #ffb36b;
   --gold: #ffc857; --win: #6fe3a1; --hot: #ff4d6d; --cyan: #6ee7ff;
-  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --disp: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --gut: clamp(16px, 4vw, 48px);
-  --r: 18px;
+  --shadow: 0 30px 80px -40px rgba(0, 0, 0, .9);
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
-  font-family: var(--disp); font-size: 15px; line-height: 1.55;
+  font-family: var(--disp); font-size: 15.5px; line-height: 1.55;
   -webkit-font-smoothing: antialiased; overflow-x: hidden;
 }
+h1, h2, h3 { text-wrap: balance; }
 button, input { font: inherit; color: inherit; }
 a { color: inherit; }
-code { font-family: var(--mono); font-size: .9em; color: #ffb36b; }
+code { font-family: var(--mono); font-size: .9em; color: var(--goInk); background: var(--goSoft); padding: 1px 5px; border-radius: 6px; }
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .dim { color: var(--dim); }
 .gold { color: var(--gold) !important; }
@@ -47,48 +63,77 @@ code { font-family: var(--mono); font-size: .9em; color: #ffb36b; }
 /* ---- the world behind everything --------------------------------------- */
 
 #gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
-.vignette {
+/* The veil: the page's pale ground over the world, with a soft window where
+   the page wants the world seen. It lifts for the countdown and the race. */
+.veil {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 12% 20%, rgba(190, 205, 255, .55), transparent 70%),
+    radial-gradient(50% 45% at 88% 12%, rgba(215, 205, 255, .5), transparent 70%),
+    radial-gradient(60% 40% at 50% 100%, rgba(200, 220, 255, .55), transparent 70%),
+    linear-gradient(180deg, #ffffff 0%, #eef3ff 45%, #f5f7ff 100%);
+  transition: opacity .35s ease;
+  --hx: 50vw; --hy: 60vh; --hw: 0px; --hh: 0px;
+}
+.veil[data-hole="1"] {
+  -webkit-mask-image: radial-gradient(ellipse var(--hw) var(--hh) at var(--hx) var(--hy), transparent 0 58%, #000 100%);
+  mask-image: radial-gradient(ellipse var(--hw) var(--hh) at var(--hx) var(--hy), transparent 0 58%, #000 100%);
+}
+body[data-screen="race"] .veil, body[data-screen="count"] .veil { opacity: 0; }
+.vignette {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .35s ease;
   background: radial-gradient(120% 90% at 50% 40%, transparent 45%, rgba(0, 0, 0, .55) 100%);
 }
-.noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .05;
+body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacity: 1; }
+.noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E"); }
 
 /* ---- top bar ------------------------------------------------------------ */
 
 .top {
   position: fixed; top: 0; left: 0; right: 0; z-index: 20;
-  display: flex; align-items: center; gap: 14px;
-  padding: calc(10px + env(safe-area-inset-top, 0px)) var(--gut) 10px;
-  background: linear-gradient(180deg, rgba(7, 7, 11, .9), rgba(7, 7, 11, 0));
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) var(--gut) 0;
   pointer-events: none;
 }
 .top > * { pointer-events: auto; }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.brand__mark {
-  width: 26px; height: 26px; border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #fff, var(--go) 46%, #6a2a06 100%);
-  box-shadow: 0 0 22px -2px rgba(255, 122, 26, .8);
+.top__left, .top__right {
+  display: flex; align-items: center; gap: 4px; padding: 6px 8px;
+  background: rgba(255, 255, 255, .8); border: 1px solid rgba(255, 255, 255, .95); border-radius: 999px;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: var(--shadow);
 }
-.brand__name { font-weight: 900; letter-spacing: .06em; font-size: 15px; }
-.brand__name b { color: var(--go); font-weight: 900; }
-.brand__name.small { font-size: 13px; }
-.top__race { display: flex; align-items: center; gap: 8px; margin-left: 6px; font-size: 12.5px; color: var(--ink2); }
-.top__right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+body[data-screen="race"] .top__left, body[data-screen="race"] .top__right, body[data-screen="count"] .top__left, body[data-screen="count"] .top__right {
+  background: rgba(9, 9, 14, .7); border-color: var(--line2);
+}
+.top__left { padding-left: 14px; }
+.brand { display: flex; align-items: center; gap: 9px; text-decoration: none; margin-right: 8px; }
+.brand__mark {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #fff, var(--go) 46%, #8a3a08 100%);
+  box-shadow: 0 6px 14px -6px rgba(255, 122, 26, .7);
+}
+.brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; }
+.brand__name b { color: var(--go); font-weight: 800; }
+.brand__name.small { font-size: 15px; }
+.top__links { display: flex; gap: 2px; }
+.top__links a { padding: 7px 11px; border-radius: 999px; text-decoration: none; font-weight: 500; font-size: 14.5px; color: var(--ink2); }
+.top__links a:hover { color: var(--ink); background: var(--goSoft); }
+.top__race { display: flex; align-items: center; gap: 8px; margin-left: 8px; padding-left: 12px; border-left: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+.top__right { gap: 6px; }
 
 .pill {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; font-weight: 700;
   border: 1px solid var(--line2); border-radius: 999px; padding: 4px 10px;
-  background: rgba(10, 10, 16, .6); text-decoration: none; cursor: default; color: var(--ink2);
+  background: var(--glass2); text-decoration: none; cursor: default; color: var(--ink2);
 }
-.pill--phase { color: var(--go); border-color: rgba(255, 122, 26, .4); }
+.pill--phase { color: var(--go); border-color: rgba(255, 122, 26, .4); background: var(--goSoft); }
 body[data-phase="racing"] .pill--phase { color: var(--hot); border-color: rgba(255, 77, 109, .5); }
 body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(111, 227, 161, .5); }
 .pill--net i { width: 7px; height: 7px; border-radius: 50%; background: var(--win); box-shadow: 0 0 8px var(--win); }
 .pill--live { color: var(--hot); border-color: rgba(255, 77, 109, .5); }
 .pill--live i, .kicker .live { width: 7px; height: 7px; border-radius: 50%; background: var(--hot); box-shadow: 0 0 8px var(--hot); animation: pulse 1.4s infinite; display: inline-block; }
-.pill--mega { color: #1a0d04; background: linear-gradient(90deg, var(--gold), var(--go)); border-color: transparent; animation: shine 1.4s ease-in-out infinite; }
+.pill--mega { color: #fff; background: linear-gradient(90deg, #e59a1a, var(--go)); border-color: transparent; animation: shine 1.4s ease-in-out infinite; }
 .pill--demo { color: var(--gold); border-color: rgba(255, 200, 87, .45); }
 .pill--ca { cursor: copy; }
 .pill--ca em { font-style: normal; color: var(--dim); }
@@ -97,33 +142,35 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  border: 1px solid var(--line2); border-radius: 12px; padding: 10px 16px;
-  font-weight: 700; font-size: 14px; cursor: pointer; text-decoration: none; white-space: nowrap;
-  background: rgba(20, 20, 30, .7); color: var(--ink);
+  border: 1px solid var(--line2); border-radius: 999px; padding: 10px 18px;
+  font-weight: 600; font-size: 14.5px; cursor: pointer; text-decoration: none; white-space: nowrap;
+  background: var(--glass); color: var(--ink);
   transition: transform .08s ease, background .15s ease, border-color .15s ease, box-shadow .2s ease;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 16px -10px rgba(23, 32, 56, .3);
 }
-.btn:hover { background: rgba(32, 32, 46, .85); border-color: rgba(255, 255, 255, .28); }
+.btn:hover { background: var(--glass2); border-color: var(--dim); }
 .btn:active { transform: translateY(1px) scale(.99); }
 .btn--accent {
   background: linear-gradient(180deg, #ff8f3a, var(--go2)); color: #fff; border-color: rgba(255, 170, 100, .5);
   box-shadow: 0 10px 30px -12px rgba(255, 122, 26, .9), inset 0 1px 0 rgba(255, 255, 255, .25);
 }
 .btn--accent:hover { background: linear-gradient(180deg, #ff9d52, #f5731a); box-shadow: 0 14px 34px -12px rgba(255, 122, 26, 1); }
-.btn--glass { background: rgba(255, 255, 255, .06); }
-.btn--ghost { background: transparent; border-color: transparent; color: var(--dim); }
-.btn--danger { border-color: rgba(255, 77, 109, .5); color: #ffb3c1; }
+.btn--glass { background: var(--glass); }
+.btn--soft { background: #e4ebff; border-color: #d5deff; color: #1f3fb8; }
+.btn--soft:hover { background: #d9e3ff; }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--dim); box-shadow: none; }
+.btn--danger { border-color: rgba(225, 29, 72, .4); color: var(--hot); }
 .btn--icon { padding: 10px 12px; }
-.btn--xl { padding: 15px 24px; font-size: 16px; border-radius: 14px; }
+.btn--xl { padding: 15px 26px; font-size: 16.5px; }
 .btn--wide { width: 100%; }
 .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 .btn__dot { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff, #ffd2ad 55%, #a54a08 100%); }
 
 .glass {
   background: var(--glass); border: 1px solid var(--line); border-radius: var(--r);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 30px 80px -40px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .06);
+  box-shadow: var(--shadow);
 }
+body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .kicker { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .2em; font-weight: 700; color: var(--go); }
 .kicker--plain { color: var(--go); margin-bottom: 8px; }
 
@@ -134,18 +181,28 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
 
 /* home scrolls over the world */
 .screen--home { padding-top: calc(74px + env(safe-area-inset-top, 0px)); }
-.hero { padding: clamp(40px, 8vw, 110px) var(--gut) 40px; max-width: 1180px; margin: 0 auto; }
+.hero { position: relative; padding: clamp(50px, 8vw, 110px) var(--gut) 30px; max-width: 1240px; margin: 0 auto; text-align: center; }
+.hero__in { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; display: grid; justify-items: center; }
+.floaters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.floater { position: absolute; border-radius: 50%; animation: floaty 8s ease-in-out infinite; filter: drop-shadow(0 18px 24px rgba(23, 32, 56, .25)); }
+@keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-18px) rotate(5deg); } }
+.hero__cta { justify-content: center; }
+.trust { list-style: none; margin: 56px auto 0; padding: 22px 0 0; max-width: 1180px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; text-align: left; border-top: 1px solid var(--line); position: relative; z-index: 2; }
+.trust li { display: flex; gap: 10px; align-items: flex-start; padding: 0 12px; border-left: 1px solid var(--line); }
+.trust li:first-child { border-left: 0; }
+.trust i { font-style: normal; color: var(--go); font-weight: 700; flex: none; padding-top: 1px; }
+.trust b { display: block; font-size: 14px; font-weight: 600; }
+.trust span { font-size: 12px; color: var(--dim); line-height: 1.4; }
+.stagewrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--gut); }
+.stage { position: relative; height: clamp(260px, 42vw, 460px); border-radius: 28px; }
+.stage__tag { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: .2em; color: var(--ink2); background: rgba(255, 255, 255, .85); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
 .hero h1 {
-  font-size: clamp(46px, 9.5vw, 128px); font-weight: 900; line-height: .92; letter-spacing: -.03em;
-  margin: 18px 0 20px; text-shadow: 0 20px 60px rgba(0, 0, 0, .7);
+  font-size: clamp(50px, 9.6vw, 132px); font-weight: 700; line-height: .95; letter-spacing: -.045em;
+  margin: 18px 0 22px; color: var(--ink);
 }
 .hero h1 span { color: var(--go); }
-.hero p { max-width: 54ch; font-size: clamp(16px, 1.9vw, 20px); color: var(--ink2); margin: 0 0 26px; text-shadow: 0 2px 20px rgba(0, 0, 0, .8); }
+.hero p { max-width: 54ch; font-size: clamp(17px, 2vw, 22px); color: var(--ink2); margin: 0 0 28px; line-height: 1.45; }
 .hero__cta { display: flex; gap: 12px; flex-wrap: wrap; }
-.flow { list-style: none; margin: 30px 0 0; padding: 0; display: flex; gap: 22px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; letter-spacing: .14em; color: var(--ink2); }
-.flow li { display: flex; align-items: center; gap: 8px; }
-.flow li b { color: var(--go); font-weight: 700; }
-.flow li:not(:last-child)::after { content: "→"; color: var(--dim); margin-left: 12px; }
 
 .livebar {
   margin: 0 var(--gut); max-width: 1180px; margin-left: auto; margin-right: auto;
@@ -160,7 +217,8 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
 
 .block { max-width: 1180px; margin: 0 auto; padding: clamp(40px, 6vw, 80px) var(--gut) 0; }
 .block__head { max-width: 62ch; margin-bottom: 22px; }
-.block__head h2, .panel h3 { font-size: clamp(26px, 3.6vw, 40px); font-weight: 800; letter-spacing: -.02em; margin: 8px 0 8px; }
+.block__head h2, .panel h3 { font-size: clamp(28px, 4vw, 48px); font-weight: 700; letter-spacing: -.035em; margin: 8px 0 8px; }
+.panel h3 { font-size: clamp(22px, 2.4vw, 28px); }
 .block__head p { margin: 0; color: var(--ink2); }
 .block--split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .panel { padding: 24px; }
@@ -173,14 +231,14 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
   transition: transform .15s ease, border-color .15s ease;
 }
 .race:hover { transform: translateY(-2px); border-color: rgba(255, 122, 26, .45); }
-.race--open { border-color: rgba(255, 122, 26, .5); box-shadow: 0 0 60px -20px rgba(255, 122, 26, .6); }
+.race--open { border-color: rgba(255, 122, 26, .55); box-shadow: 0 24px 50px -24px rgba(255, 122, 26, .5); }
 .race--mega { border-color: rgba(255, 200, 87, .6); }
 .race__no { display: flex; justify-content: space-between; align-items: center; }
 .race__no b { font-family: var(--mono); font-size: 18px; font-weight: 700; }
 .race__stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
 .race__stats div em { font-style: normal; display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
 .race__stats div b { font-family: var(--mono); font-size: 15px; }
-.race__bar { height: 5px; border-radius: 999px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.race__bar { height: 5px; border-radius: 999px; background: var(--soft); overflow: hidden; }
 .race__bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--go2), #ffb36b); transition: width .5s ease; }
 .race .btn { width: 100%; }
 
@@ -209,7 +267,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .lobby__body { display: grid; grid-template-columns: 300px minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
 .lobby__you, .lobby__feed, .lobby__field { padding: 18px; }
 .you { display: flex; gap: 14px; align-items: center; }
-.you canvas { border-radius: 16px; background: rgba(0, 0, 0, .35); flex: none; }
+.you canvas { border-radius: 16px; background: var(--soft); flex: none; }
 .you__meta { display: grid; gap: 3px; min-width: 0; }
 .you__meta b { font-size: 16px; }
 .you__meta span { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -223,7 +281,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; max-height: 62vh; overflow: auto; padding-right: 4px; }
 .pc {
   display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center;
-  padding: 9px 10px; border-radius: 12px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
+  padding: 9px 10px; border-radius: 12px; background: var(--glass2); border: 1px solid var(--line);
   animation: rise .35s cubic-bezier(.2, 1.4, .4, 1) both;
 }
 .pc canvas { width: 34px; height: 34px; border-radius: 50%; }
@@ -238,7 +296,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .feed li b { font-family: var(--mono); font-size: 11.5px; color: var(--go); }
 .feed li.sys { color: var(--dim); font-family: var(--mono); font-size: 11px; }
 .chatbar { display: grid; grid-template-columns: 1fr auto; gap: 6px; margin-top: 10px; }
-.chatbar input { background: rgba(0, 0, 0, .35); border: 1px solid var(--line2); border-radius: 12px; padding: 9px 12px; min-width: 0; }
+.chatbar input { background: var(--soft); border: 1px solid var(--line2); border-radius: 12px; padding: 9px 12px; min-width: 0; }
 .chatbar input:focus { outline: none; border-color: var(--go); }
 
 /* ---- countdown ---------------------------------------------------------- */
@@ -257,9 +315,9 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--race { position: fixed; inset: 0; pointer-events: none; }
 .hud { position: absolute; pointer-events: auto; }
-.hud--tl { top: calc(64px + env(safe-area-inset-top, 0px)); left: var(--gut); display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.hud--tl { top: calc(86px + env(safe-area-inset-top, 0px)); left: var(--gut); display: flex; align-items: center; gap: 10px; font-size: 13px; }
 .hud--board {
-  top: calc(64px + env(safe-area-inset-top, 0px)); right: var(--gut); list-style: none; margin: 0; padding: 8px;
+  top: calc(86px + env(safe-area-inset-top, 0px)); right: var(--gut); list-style: none; margin: 0; padding: 8px;
   display: grid; gap: 3px; min-width: 190px; font-size: 12px;
   background: rgba(7, 7, 11, .55); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(10px);
 }
@@ -271,7 +329,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .hud--me { left: var(--gut); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); padding: 12px 16px; display: grid; grid-template-columns: auto auto; gap: 6px 22px; min-width: 240px; }
 .hud--me em { display: block; font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em; color: var(--dim); }
 .hud--me b { font-size: 24px; font-weight: 700; color: var(--go); }
-.hud--me .bar { grid-column: 1 / -1; height: 5px; border-radius: 999px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.hud--me .bar { grid-column: 1 / -1; height: 5px; border-radius: 999px; background: var(--soft); overflow: hidden; }
 .hud--me .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--go2), #ffb36b); transition: width .3s ease; }
 .hud--cam { right: var(--gut); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 4px; padding: 4px; background: rgba(7, 7, 11, .55); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(10px); }
 .cam { background: none; border: 0; border-radius: 9px; padding: 7px 10px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; color: var(--dim); cursor: pointer; }
@@ -282,10 +340,10 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--results { display: grid; place-items: center; padding: calc(80px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .results { width: min(560px, 100%); padding: 28px; text-align: center; display: grid; gap: 16px; animation: rise .5s cubic-bezier(.2, 1.4, .4, 1) both; }
-.results__cup { font-size: 46px; filter: drop-shadow(0 0 30px rgba(255, 200, 87, .8)); }
+.results__cup { font-size: 46px; filter: drop-shadow(0 12px 24px rgba(217, 143, 0, .35)); }
 .podium { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; }
-.podium li { display: grid; grid-template-columns: 44px 36px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line); }
-.podium li:first-child { background: linear-gradient(90deg, rgba(255, 200, 87, .18), rgba(255, 122, 26, .08)); border-color: rgba(255, 200, 87, .5); }
+.podium li { display: grid; grid-template-columns: 44px 36px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); }
+.podium li:first-child { background: linear-gradient(90deg, #fff3d6, #ffe9d8); border-color: #f2c86b; }
 .podium .place { font-family: var(--mono); font-weight: 700; font-size: 16px; color: var(--gold); }
 .podium li:not(:first-child) .place { color: var(--dim); }
 .podium canvas { width: 36px; height: 36px; border-radius: 50%; }
@@ -298,14 +356,14 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .results__you b { font-size: 34px; color: var(--go); }
 .results__pay { display: grid; gap: 8px; justify-items: center; }
 .results__pay em { font-style: normal; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--dim); }
-.addr { background: rgba(0, 0, 0, .35); border: 1px dashed var(--line2); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; word-break: break-all; cursor: copy; width: 100%; }
+.addr { background: var(--soft); border: 1px dashed var(--line2); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; word-break: break-all; cursor: copy; width: 100%; }
 .addr:hover { border-color: var(--win); }
 .results__payrow { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .results__cta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 /* ---- modals ------------------------------------------------------------- */
 
-.modal { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .55); backdrop-filter: blur(6px); animation: fade .18s ease; }
+.modal { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 16px; background: rgba(23, 32, 56, .38); backdrop-filter: blur(8px); animation: fade .18s ease; }
 @keyframes fade { from { opacity: 0; } }
 .modal__card { width: min(440px, 100%); padding: 22px; display: grid; gap: 14px; animation: rise .3s cubic-bezier(.2, 1.4, .4, 1); }
 .modal__card--wide { width: min(720px, 100%); }
@@ -315,10 +373,10 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .wallets { display: grid; gap: 8px; }
 .wl {
   display: grid; grid-template-columns: 38px 1fr auto; gap: 12px; align-items: center;
-  padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .05); border: 1px solid var(--line); cursor: pointer; text-align: left;
+  padding: 10px 12px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); cursor: pointer; text-align: left;
 }
 .wl:hover { border-color: rgba(255, 122, 26, .5); background: var(--goSoft); }
-.wl img, .wl .ic { width: 38px; height: 38px; border-radius: 10px; background: #1b1b26; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; color: var(--go); }
+.wl img, .wl .ic { width: 38px; height: 38px; border-radius: 10px; background: var(--goSoft); display: grid; place-items: center; font-family: var(--mono); font-weight: 700; color: var(--go); }
 .wl b { display: block; font-size: 14.5px; }
 .wl span { font-size: 11.5px; color: var(--dim); }
 .wl .go { color: var(--go); font-family: var(--mono); font-size: 12px; }
@@ -331,25 +389,25 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .skin { display: grid; grid-template-columns: 200px 1fr; gap: 22px; }
 .skin__prev { display: grid; gap: 8px; justify-items: center; }
-.skin__prev canvas { border-radius: 20px; background: rgba(0, 0, 0, .35); }
-.name { width: 100%; background: rgba(0, 0, 0, .35); border: 1px solid var(--line2); border-radius: 10px; padding: 8px 10px; text-align: center; letter-spacing: .06em; }
+.skin__prev canvas { border-radius: 20px; background: var(--soft); }
+.name { width: 100%; background: var(--soft); border: 1px solid var(--line2); border-radius: 10px; padding: 8px 10px; text-align: center; letter-spacing: .06em; }
 .name:focus { outline: none; border-color: var(--go); }
 .skin__pick { display: grid; gap: 14px; align-content: start; }
 .pickrow { display: grid; gap: 7px; }
 .pickrow em { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .2em; color: var(--dim); }
 .mats, .faces, .swatches { display: flex; gap: 7px; flex-wrap: wrap; }
-.mt, .fc { display: grid; justify-items: center; gap: 3px; padding: 6px 8px; border-radius: 12px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line); cursor: pointer; }
+.mt, .fc { display: grid; justify-items: center; gap: 3px; padding: 6px 8px; border-radius: 12px; background: var(--glass2); border: 1px solid var(--line); cursor: pointer; }
 .mt canvas, .fc canvas { width: 40px; height: 40px; border-radius: 50%; }
 .mt span, .fc span { font-family: var(--mono); font-size: 9px; color: var(--dim); }
 .mt.on, .fc.on { border-color: var(--go); background: var(--goSoft); }
 .mt.on span, .fc.on span { color: var(--go); }
 .sw { width: 28px; height: 28px; border-radius: 50%; padding: 0; border: 2px solid transparent; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .4); }
-.sw.on { border-color: #fff; transform: scale(1.1); }
+.sw.on { border-color: var(--ink); transform: scale(1.1); }
 
 .toast {
-  position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60;
-  padding: 10px 16px; border-radius: 12px; background: rgba(20, 20, 30, .92); border: 1px solid var(--line2); font-size: 13.5px;
-  box-shadow: 0 20px 50px -20px #000; animation: rise .25s ease; max-width: calc(100% - 32px);
+  position: fixed; left: 50%; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60;
+  padding: 10px 16px; border-radius: 999px; background: var(--ink); color: #fff; border: 1px solid var(--ink); font-size: 13.5px;
+  box-shadow: 0 20px 50px -20px rgba(23, 32, 56, .6); animation: rise .25s ease; max-width: calc(100% - 32px);
 }
 .toast.good { border-color: var(--win); }
 .toast.bad { border-color: var(--hot); }
@@ -361,7 +419,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
 .modecard { padding: 10px; display: grid; gap: 10px; transition: transform .2s ease, border-color .2s ease; }
 .modecard:hover { transform: translateY(-2px); border-color: rgba(255, 122, 26, .4); }
-.modecard.is-now { border-color: rgba(255, 122, 26, .7); box-shadow: 0 0 60px -20px rgba(255, 122, 26, .6); }
+.modecard.is-now { border-color: rgba(255, 122, 26, .7); box-shadow: 0 24px 50px -24px rgba(255, 122, 26, .5); }
 .modecard.is-next { border-color: rgba(255, 200, 87, .6); }
 .modecard__body { display: grid; gap: 8px; padding: 2px 6px 6px; }
 .modecard__top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -384,7 +442,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .race__track em { font-style: normal; display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
 .race__track b { display: block; font-size: 15px; font-weight: 700; }
 .race__track.is-tbd b { color: var(--dim); font-weight: 500; }
-.race__track.is-tbd::before { content: '?'; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 8px; background: rgba(255, 255, 255, .05); border: 1px dashed var(--line2); font-family: var(--mono); color: var(--dim); flex: none; }
+.race__track.is-tbd::before { content: '?'; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 8px; background: var(--glass2); border: 1px dashed var(--line2); font-family: var(--mono); color: var(--dim); flex: none; }
 
 /* ---- the poll ------------------------------------------------------------- */
 
@@ -394,7 +452,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .poll__opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .pollopt {
   display: grid; gap: 10px; padding: 8px; text-align: left; cursor: pointer;
-  background: rgba(255, 255, 255, .03); border: 1px solid var(--line2); border-radius: 14px;
+  background: var(--glass2); border: 1px solid var(--line2); border-radius: 14px;
   transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 .pollopt:hover:not(:disabled) { transform: translateY(-2px); border-color: rgba(255, 122, 26, .5); }
@@ -407,7 +465,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .pollopt__meta p { margin: 0; color: var(--ink2); font-size: 12.5px; line-height: 1.45; min-height: 3.6em; }
 .pollopt__meta span { font-size: 11px; color: var(--dim); }
 .pollopt__meta em { font-style: normal; color: var(--ink); }
-.pollopt__bar { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.pollopt__bar { height: 6px; border-radius: 999px; background: var(--soft); overflow: hidden; }
 .pollopt__bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--go2), #ffb36b); transition: width .4s ease; }
 .pollopt.is-winner .pollopt__bar i { background: linear-gradient(90deg, #e58a12, var(--gold)); }
 .pollopt.is-mine .pollopt__meta b::after { content: ' · your vote'; font-size: 11px; color: var(--go); font-weight: 600; }
@@ -420,22 +478,22 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .dock {
   position: fixed; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 20;
   display: flex; align-items: stretch; gap: 2px; padding: 5px;
-  background: rgba(9, 9, 14, .78); border: 1px solid var(--line2); border-radius: 18px;
+  background: rgba(255, 255, 255, .82); border: 1px solid rgba(255, 255, 255, .95); border-radius: 999px;
   backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3);
-  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .06);
+  box-shadow: var(--shadow);
   max-width: calc(100vw - 24px);
 }
 body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; pointer-events: none; transform: translate(-50%, 20px); }
 .dock { transition: opacity .25s ease, transform .25s ease; }
 .dock__it {
   display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; align-items: center; column-gap: 8px;
-  padding: 7px 12px; border: 0; border-radius: 12px; background: transparent; cursor: pointer; color: var(--ink2);
+  padding: 7px 12px; border: 0; border-radius: 999px; background: transparent; cursor: pointer; color: var(--ink2);
   font-weight: 600; font-size: 13px; line-height: 1.1; text-align: left;
 }
 .dock__it i { grid-row: 1 / span 2; font-style: normal; font-size: 16px; width: 20px; text-align: center; opacity: .9; }
 .dock__it span { grid-column: 2; }
 .dock__it em { grid-column: 2; font-style: normal; font-size: 9.5px; letter-spacing: .14em; color: var(--dim); }
-.dock__it:hover { background: rgba(255, 255, 255, .06); color: var(--ink); }
+.dock__it:hover { background: var(--glass2); color: var(--ink); }
 .dock__it.is-on { background: var(--goSoft); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(255, 122, 26, .45); }
 .dock__it.is-on i { color: var(--go); }
 .dock__live { width: 9px !important; height: 9px; border-radius: 50%; background: var(--win); box-shadow: 0 0 10px var(--win); margin: 0 auto; }
@@ -451,7 +509,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 
 .winners { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
 .wlist { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; font-size: 12px; }
-.wlist li { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: baseline; padding: 6px 8px; border-radius: 8px; background: rgba(255, 255, 255, .03); }
+.wlist li { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: baseline; padding: 6px 8px; border-radius: 8px; background: var(--glass2); }
 .wlist li .no { color: var(--dim); font-size: 11px; }
 .wlist li .who { color: var(--ink); cursor: pointer; }
 .wlist li .st { grid-column: 2 / -1; color: var(--dim); font-size: 10.5px; }
@@ -463,7 +521,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 .screen--launch { padding: calc(74px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .launch { max-width: 1180px; margin: 0 auto; display: grid; gap: 22px; }
 .launch__head { max-width: 62ch; }
-.launch__head h2 { font-size: clamp(30px, 4.6vw, 52px); font-weight: 900; letter-spacing: -.03em; margin: 8px 0 10px; }
+.launch__head h2 { font-size: clamp(34px, 5vw, 64px); font-weight: 700; letter-spacing: -.04em; margin: 8px 0 10px; }
 .launch__head p { margin: 0; color: var(--ink2); }
 .launch__body { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: start; }
 .launch__form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; padding: 22px; }
@@ -472,10 +530,10 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 .launch__form label small { font-size: 11.5px; }
 .launch__form .wide, .launch__form .launch__actions { grid-column: 1 / -1; }
 .launch__form input, .launch__form select {
-  width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line2); background: rgba(255, 255, 255, .04); color: var(--ink); font-size: 14px;
+  width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line2); background: var(--glass); color: var(--ink); font-size: 14px;
 }
 .launch__form input:focus, .launch__form select:focus { outline: none; border-color: var(--go); box-shadow: 0 0 0 3px rgba(255, 122, 26, .2); }
-.launch__form select option { background: #14141c; }
+.launch__form select option { background: #fff; }
 .launch__form input[type="color"] { padding: 4px; height: 42px; cursor: pointer; }
 .launch__form input[type="range"] { padding: 0; accent-color: var(--go); height: 42px; background: transparent; border: 0; }
 .launch__actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -491,8 +549,8 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 .lcard__stats b { font-size: 15px; }
 .lcard__status { font-size: 10.5px; letter-spacing: .16em; padding-top: 10px; border-top: 1px solid var(--line); }
 .launches { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
-.launches li { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, .03); cursor: pointer; }
-.launches li:hover { background: rgba(255, 255, 255, .06); }
+.launches li { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 8px; border-radius: 10px; background: var(--glass2); cursor: pointer; }
+.launches li:hover { background: var(--soft); }
 .launches li canvas { width: 30px; height: 30px; border-radius: 50%; }
 .launches li b { display: block; font-size: 13px; }
 .launches li span { display: block; font-size: 10.5px; }
@@ -513,12 +571,19 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
   .grid { max-height: none; }
 }
 @media (max-width: 1000px) {
+  .trust { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .trust li { border-left: 0; padding: 0; }
+  .top__links { display: none; }
   .lobby__mode { grid-template-columns: 1fr; }
   .lobby__mode .mode__img { width: 100%; }
   .launch__body { grid-template-columns: 1fr; }
   .winners { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
+  .trust { grid-template-columns: 1fr; }
+  .floater { display: none; }
+  .floater:nth-child(-n+4) { display: block; transform: scale(.6); }
+  .top__race { display: none; }
   .poll__opts { grid-template-columns: 1fr; }
   .launch__form { grid-template-columns: 1fr; }
   .dock { gap: 0; padding: 4px; border-radius: 16px; }
@@ -571,18 +636,28 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 <script>document.body.dataset.screen="home";document.body.dataset.phase="lobby";</script>
 
 <canvas id="gl" aria-label="the race"></canvas>
+<div class="veil" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
 <div class="noise" aria-hidden="true"></div>
 
 <!-- ---------- top bar ---------- -->
 <header class="top">
-  <a class="brand" href="#" data-go="home">
-    <span class="brand__mark"></span>
-    <span class="brand__name">MARBLE<b>ROYALE</b></span>
-  </a>
-  <div class="top__race" id="topRace">
-    <span class="mono" id="topRaceNo">RACE #----</span>
-    <span class="pill pill--phase" id="topPhase">LOBBY</span>
+  <div class="top__left">
+    <a class="brand" href="#" data-go="home">
+      <span class="brand__mark"></span>
+      <span class="brand__name">Marble<b>Royale</b></span>
+    </a>
+    <nav class="top__links">
+      <a href="#" data-go="home">Race</a>
+      <a href="#" data-go="lobby">Lobby</a>
+      <a href="#" data-goto="modes">Modes</a>
+      <a href="#" data-go="launch">Launch</a>
+      <a href="/verify" target="_blank" rel="noopener">Fair</a>
+    </nav>
+    <div class="top__race" id="topRace">
+      <span class="mono" id="topRaceNo">RACE #----</span>
+      <span class="pill pill--phase" id="topPhase">LOBBY</span>
+    </div>
   </div>
   <div class="top__right">
     <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
@@ -596,16 +671,27 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
   <!-- ---------- HOME ---------- -->
   <section class="screen screen--home" id="s-home">
     <div class="hero">
-      <div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 5 MINUTES</div>
-      <h1>RACE YOUR<br>MARBLE.<br><span>WIN THE POT.</span></h1>
-      <p>Connect a wallet, drop a marble on the track, and watch it fight up to fifty others down a course drawn fresh every race, in a mode the crowd voted for. First one over the line takes the whole pot.</p>
-      <div class="hero__cta">
-        <button class="btn btn--accent btn--xl" id="heroJoin"><span class="btn__dot"></span>Join the next race</button>
-        <button class="btn btn--glass btn--xl" data-go="lobby">Watch the lobby</button>
+      <div class="floaters" id="floaters" aria-hidden="true"></div>
+      <div class="hero__in">
+        <div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 5 MINUTES</div>
+        <h1>Race your marble.<br><span>Win the pot.</span></h1>
+        <p>Connect a wallet, drop a marble on the track, and watch it fight up to fifty others down a course drawn fresh every race, in a mode the crowd voted for. First one over the line takes the whole pot.</p>
+        <div class="hero__cta">
+          <button class="btn btn--accent btn--xl" id="heroJoin"><span class="btn__dot"></span>Join the next race</button>
+          <button class="btn btn--soft btn--xl" data-go="lobby">Watch the lobby</button>
+        </div>
       </div>
-      <ol class="flow" aria-label="how it works">
-        <li><b>01</b>Connect</li><li><b>02</b>Join</li><li><b>03</b>Watch</li><li><b>04</b>Win</li>
-      </ol>
+      <ul class="trust" aria-label="what to trust">
+        <li><i>✓</i><div><b>Free to race</b><span>one marble per wallet, no entry fee</span></div></li>
+        <li><i>⚿</i><div><b>Seed committed first</b><span>the hash is out before anyone joins</span></div></li>
+        <li><i>◎</i><div><b>Whole pot to first</b><span>paid to the winning address</span></div></li>
+        <li><i>◫</i><div><b>Eight tracks</b><span>the crowd votes the next one</span></div></li>
+        <li><i>✕</i><div><b>No custody</b><span>your keys never leave your wallet</span></div></li>
+      </ul>
+    </div>
+
+    <div class="stagewrap">
+      <div class="stage" id="stage"><span class="stage__tag mono"><i class="live"></i>LIVE FROM THE LOBBY</span></div>
     </div>
 
     <div class="livebar glass" id="livebar">
@@ -672,7 +758,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 
     <footer class="foot">
       <div class="foot__l">
-        <span class="brand__name small">MARBLE<b>ROYALE</b></span>
+        <span class="brand__name small">Marble<b>Royale</b></span>
         <span class="dim">A game first. Your keys never leave your wallet. The pot is sent by the creator to the winning address.</span>
       </div>
       <div class="foot__r" id="footLinks">
@@ -1015,7 +1101,7 @@ window.dispatchEvent(new Event('three-ready'));
   const WIDTH = 1000;        // course width in course units
   const R = 13;              // marble radius
   const DT = 1 / 60;         // fixed physics step
-  const GRAVITY = 880;
+  const GRAVITY = 500;
   const MAX_SPEED = 1350;
   const WALL_BOUNCE = 0.34;
   const BALL_BOUNCE = 0.46;  // glass on glass clacks; a marble is not a beanbag
@@ -1027,8 +1113,8 @@ window.dispatchEvent(new Event('three-ready'));
   /* A solid ball rolling down a slope picks up only five sevenths of the pull
      a sliding block would; the rest goes into making it spin. */
   const ROLL = 2 / 7;
-  const MAX_SECONDS = 40;    // hard ceiling on a race
-  const RUSH_AT = 26;        // gravity starts climbing here, so races end
+  const MAX_SECONDS = 60;    // hard ceiling on a race
+  const RUSH_AT = 40;        // gravity starts climbing here, so races end
 
   /* ---- deterministic arithmetic ------------------------------------------ */
 
@@ -1069,21 +1155,21 @@ window.dispatchEvent(new Event('three-ready'));
      races in the same mode are never the same track. The mode is public before
      the seed exists, so it changes nothing about the fairness scheme. */
   const MODES = {
-    classic:  { name: 'Classic',      pool: ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers', 'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'], count: [7, 9], gravity: 1, bounce: 1,
-                blurb: 'Everything the course can throw at you: pegs, ramps, spinners, jumps and boost pads, seven to nine sections drawn fresh.' },
-    plinko:   { name: 'Plinko Hell',  pool: ['plinko', 'pegs', 'bumpers', 'plinko', 'pegs'], count: [8, 9], gravity: 1, bounce: 1.15,
+    classic:  { name: 'Classic',      pool: ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers', 'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'], count: [11, 13], gravity: 1, bounce: 1,
+                blurb: 'Everything the course can throw at you: pegs, ramps, spinners, jumps and boost pads, eleven to thirteen sections drawn fresh.' },
+    plinko:   { name: 'Plinko Hell',  pool: ['plinko', 'pegs', 'bumpers', 'plinko', 'pegs'], count: [11, 12], gravity: 1, bounce: 1.15,
                 blurb: 'Walls of pins and bumpers, nothing else. The field spreads out and mixes; luck does the rest.' },
-    boost:    { name: 'Boost Alley',  pool: ['boost', 'jump', 'zigzag', 'boost', 'stairs', 'jump'], count: [6, 8], gravity: 1.1, bounce: 0.9,
+    boost:    { name: 'Boost Alley',  pool: ['boost', 'jump', 'zigzag', 'boost', 'stairs', 'jump'], count: [10, 12], gravity: 1.1, bounce: 0.9,
                 blurb: 'Boost rails and kickers all the way down. Hit the pads and fly the gaps; miss and drop to the catch ramps.' },
-    spin:     { name: 'Spin Cycle',   pool: ['spinners', 'flippers', 'pistons', 'spinners', 'flippers', 'split'], count: [7, 8], gravity: 1, bounce: 1,
+    spin:     { name: 'Spin Cycle',   pool: ['spinners', 'flippers', 'pistons', 'spinners', 'flippers', 'split'], count: [11, 12], gravity: 1, bounce: 1,
                 blurb: 'Spinning arms, fast flippers and sliding pistons. Timing is everything and nobody controls it.' },
-    funnel:   { name: 'Funnel Run',   pool: ['funnel', 'split', 'stairs', 'funnel', 'zigzag'], count: [7, 8], gravity: 1, bounce: 0.95,
+    funnel:   { name: 'Funnel Run',   pool: ['funnel', 'split', 'stairs', 'funnel', 'zigzag'], count: [11, 12], gravity: 1, bounce: 0.95,
                 blurb: 'Throats, wedges and steps. The pack squeezes through one gap after another; a good line is a long lead.' },
-    drop:     { name: 'Mega Drop',    pool: ['jump', 'stairs', 'bumpers', 'jump', 'pegs'], count: [5, 6], gravity: 1.35, bounce: 1.05,
+    drop:     { name: 'Mega Drop',    pool: ['jump', 'stairs', 'bumpers', 'jump', 'pegs'], count: [9, 10], gravity: 1.35, bounce: 1.05,
                 blurb: 'Fewer sections, steeper fall, bigger jumps. Over in a flash and hard on the marbles.' },
-    ice:      { name: 'Ice Rink',     pool: ['bumpers', 'zigzag', 'split', 'bumpers', 'pistons', 'boost'], count: [7, 8], gravity: 0.9, bounce: 1.3,
+    ice:      { name: 'Ice Rink',     pool: ['bumpers', 'zigzag', 'split', 'bumpers', 'pistons', 'boost'], count: [11, 12], gravity: 0.9, bounce: 1.3,
                 blurb: 'Everything bounces. Bumpers throw marbles across the track and back; the leader changes twenty times.' },
-    maze:     { name: 'The Maze',     pool: ['zigzag', 'stairs', 'split', 'funnel', 'stairs', 'zigzag'], count: [8, 9], gravity: 0.95, bounce: 0.9,
+    maze:     { name: 'The Maze',     pool: ['zigzag', 'stairs', 'split', 'funnel', 'stairs', 'zigzag'], count: [11, 12], gravity: 0.95, bounce: 0.9,
                 blurb: 'Ramps and steps and switchbacks with no straight fall anywhere. The longest course; patience wins it.' }
   };
   const MODE_IDS = Object.keys(MODES);
@@ -3294,7 +3380,8 @@ window.MR_TYPES = true;
 
     /* the arena: a wide dark apron either side, and light pylons down the
        course so there is depth to read speed against */
-    const apron = new THREE.Mesh(new THREE.PlaneGeometry(80, height * K + 40), new THREE.MeshStandardMaterial({ color: '#08080d', roughness: 0.9, metalness: 0.1 }));
+    const apron = new THREE.Mesh(new THREE.PlaneGeometry(80, height * K + 40), new THREE.MeshStandardMaterial({ color: S.backdrop === 'light' ? '#dfe6f7' : '#08080d', roughness: 0.9, metalness: 0.1 }));
+    S.apronMat = apron.material;
     const am = W(500, height / 2, -R * 1.6);
     apron.position.set(am.x, am.y, am.z);
     apron.quaternion.copy(floor.quaternion);
@@ -3715,7 +3802,127 @@ window.MR_TYPES = true;
     if (count) { S.confetti.instanceMatrix.needsUpdate = true; if (S.confetti.instanceColor) S.confetti.instanceColor.needsUpdate = true; }
   }
 
-  window.SCENE = { init, resize, setRace, addPlayer, sync, render, celebrate, cheer, burst, get ready() { return S.ready; }, get camera() { return S.camera; } };
+  /* ---- the backdrop ------------------------------------------------------ */
+
+  /* The page is bright and the race is a dark stage. Between races the world
+     sits on a pale ground under a pale sky, the way a product is shot; when
+     the gate opens the lights go down. */
+  function setBackdrop(kind) {
+    const THREE = window.THREE;
+    if (!S.ready || S.backdrop === kind) return;
+    S.backdrop = kind;
+    const light = kind === 'light';
+    S.scene.background.set(light ? '#eef2fc' : '#07070b');
+    S.scene.fog.color.set(light ? '#eef2fc' : '#07070b');
+    S.scene.fog.density = light ? 0.016 : 0.022;
+    if (S.apronMat) S.apronMat.color.set(light ? '#dfe6f7' : '#08080d');
+    S.lights.hemi.color.set(light ? '#ffffff' : '#3a2a1a');
+    S.lights.hemi.groundColor.set(light ? '#c9d3ea' : '#05050a');
+    S.lights.hemi.intensity = light ? 1.1 : 0.6;
+    S.lights.fill.intensity = light ? 0.9 : 0.5;
+    if (S.bloom) S.bloom.strength = light ? 0.2 : 0.55;
+  }
+
+  /* ---- a photograph of a mode ---------------------------------------- */
+
+  /* Builds a course in a mode, drops a field of marbles a few seconds into a
+     race on it, and photographs it from a three-quarter angle with the same
+     renderer, lights and materials as the game: the picture on a mode card is
+     the game, not a drawing of it. Returns a 2D canvas, or null before the
+     scene exists. The course is built with the real builder and thrown away
+     afterwards. */
+  function snapshot(modeId, seed, w, h, secs) {
+    const THREE = window.THREE;
+    if (!S.ready) return null;
+    w = w || 320; h = h || 180;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+    /* the builder writes into S; hand it a clean slate and take it back after */
+    const saved = { trackGroup: S.trackGroup, moverMeshes: S.moverMeshes, gateLights: S.gateLights, boostMats: S.boostMats, course: S.course, apronMat: S.apronMat, backdrop: S.backdrop };
+    S.trackGroup = null;
+    S.backdrop = 'dark';
+    const marbles = [];
+    for (let i = 0; i < 16; i++) marbles.push({ id: 'p' + i });
+    const st = RACE.createRace(seed >>> 0, marbles, { mode: modeId });
+    const steps = Math.round((secs || 3.4) * 60);
+    for (let i = 0; i < steps && !st.over; i++) RACE.step(st);
+    buildCourse(st.course);
+    const g = S.trackGroup;
+    S.scene.remove(g);
+    Object.assign(S, saved);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#07070b');
+    scene.fog = new THREE.FogExp2('#07070b', 0.03);
+    scene.environment = S.scene.environment;
+    scene.add(g);
+    /* the movers as they stand a few seconds in */
+    const dyn = [];
+    for (const m of st.course.movers) RACE.moverSegments(m, st.t, dyn, false);
+
+    const colors = ['#ff7a1a', '#6ee7ff', '#7dff9b', '#ffd36e', '#ff5ea8', '#b98bff', '#ffffff', '#ff8a4c'];
+    const faces = ['doge', 'pepe', 'btc', 'eth', 'sol', 'hood', 'shib', 'bonk', 'wif', 'usdc', 'bnb', 'xrp', 'ada', 'avax', 'usdt', 'doge'];
+    const mats = ['glass', 'metal', 'holo', 'neon', 'chrome', 'clear', 'lava', 'galaxy'];
+    const own = [];
+    let lead = st.balls[0];
+    for (const b of st.balls) if (!b.done && b.y > lead.y) lead = b;
+    st.balls.forEach((b, i) => {
+      const mat = SKINS.marbleMaterial(THREE, { material: mats[i % 8], color: colors[i % 8], face: faces[i % faces.length] });
+      own.push(mat);
+      const mesh = new THREE.Mesh(S.sphereGeo, mat);
+      const p = W(b.x, b.y, R);
+      mesh.position.set(p.x, p.y, p.z);
+      mesh.rotation.set(b.y * 0.01, b.x * 0.01, 0);
+      scene.add(mesh);
+      const shadow = new THREE.Mesh(new THREE.PlaneGeometry(R * 3.2, R * 3.2), new THREE.MeshBasicMaterial({ map: S.shadowTex, transparent: true, depthWrite: false }));
+      const up = UP();
+      shadow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(up.x, up.y, up.z));
+      const sp = W(b.x, b.y, 0.006);
+      shadow.position.set(sp.x, sp.y, sp.z);
+      scene.add(shadow);
+      own.push(shadow.geometry, shadow.material);
+    });
+
+    /* a three-quarter shot from up and to the right, looking down the track
+       past the leader, so the next few sections read as a place */
+    const focusY = Math.max(900, Math.min(lead.y + 420, st.course.finishY - 900));
+    const look = W(480, focusY, 0.1);
+    const eye = W(1010, focusY - 820, 0);
+    const up = UP();
+    const cam = new THREE.PerspectiveCamera(50, w / h, 0.1, 200);
+    cam.position.set(eye.x + up.x * 3.4, eye.y + up.y * 3.4, eye.z + up.z * 3.4);
+    cam.up.set(up.x, up.y, up.z);
+    cam.lookAt(look.x, look.y, look.z);
+    /* lit like a product shot: a strong warm key, a cool rim, bright ambient */
+    const key = new THREE.DirectionalLight('#ffe2c4', 2.6);
+    key.position.set(cam.position.x - 6, cam.position.y + 9, cam.position.z + 2);
+    key.target.position.set(look.x, look.y, look.z);
+    key.target.updateMatrixWorld();
+    const fill = new THREE.DirectionalLight('#8fb4ff', 1.1);
+    fill.position.set(cam.position.x + 9, cam.position.y + 3, cam.position.z - 8);
+    scene.add(key, fill, new THREE.HemisphereLight('#6a5a4a', '#101018', 1.4), new THREE.AmbientLight('#ffffff', 0.35));
+
+    /* render on the page's own canvas at the card's size, copy it out, and
+       put the canvas back the way it was before the next frame */
+    const rend = S.renderer;
+    const exposure = rend.toneMappingExposure;
+    rend.toneMappingExposure = 1.45;
+    rend.setSize(w, h, false);
+    rend.render(scene, cam);
+    rend.toneMappingExposure = exposure;
+    const out = document.createElement('canvas');
+    out.width = Math.round(w * dpr); out.height = Math.round(h * dpr);
+    out.style.width = w + 'px'; out.style.height = h + 'px';
+    out.getContext('2d').drawImage(S.canvas, 0, 0, out.width, out.height);
+    rend.setSize(S.w, S.h, false);
+    if (S.composer) S.composer.setSize(S.w, S.h);
+
+    disposeGroup(g);
+    for (const o of own) { if (o.dispose) o.dispose(); if (o.map && o.map.dispose) o.map.dispose(); }
+    return out;
+  }
+
+  window.SCENE = { init, resize, setRace, addPlayer, sync, render, celebrate, cheer, burst, snapshot, setBackdrop, get ready() { return S.ready; }, get camera() { return S.camera; }, get backdrop() { return S.backdrop; } };
 })();
 
 </script>
@@ -3999,7 +4206,7 @@ window.MR_TYPES = true;
 (function () {
   'use strict';
 
-  const ROUND_MS = 300000, LOBBY_MS = 225000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const ROUND_MS = 300000, LOBBY_MS = 205000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
   const MEGA_EVERY = 1800000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
@@ -4061,7 +4268,7 @@ window.MR_TYPES = true;
     const out = RACE.runToEnd(round.seed, round.players.map((p) => ({ id: p.address })), round.mode);
     round.order = out.order; round.seconds = out.seconds; round.winner = out.order[0].id;
     emit('start', { roundId: round.id, seed: round.seed, secret: round.secret, commit: round.commit, startAt: round.raceAt, mode: round.mode, players: round.players.map(pubPlayer) });
-    setTimeout(result, Math.min(44500, Math.ceil(out.seconds * 1000) + 1400));
+    setTimeout(result, Math.min(64500, Math.ceil(out.seconds * 1000) + 1400));
   }
   function result() {
     if (!round || round.phase !== 'racing') return;
@@ -4184,7 +4391,7 @@ window.MR_TYPES = true;
      by answering the nonce route with a note, and app.js sends whatever the
      wallet returns; a wallet asked to sign that note is fine too. */
   open(Math.floor(now() / ROUND_MS) * ROUND_MS);
-  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 70000; at(round.raceAt, race); emit('phase', pub()); } } };
+  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 90000; at(round.raceAt, race); emit('phase', pub()); } } };
 })();
 
 </script>
@@ -4243,9 +4450,11 @@ window.MR_TYPES = true;
     else if (name === 'race') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
     else CAMERA.setMode('auto');
     if (name !== 'home') window.scrollTo(0, 0);
+    if (SCENE.ready) SCENE.setBackdrop(name === 'race' || name === 'count' ? 'dark' : 'light');
     paintDock();
   }
   $$('[data-go]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); SOUND.wake(); setScreen(b.dataset.go); }));
+  $$('[data-goto]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); setScreen('home'); requestAnimationFrame(() => $('#' + b.dataset.goto).scrollIntoView({ behavior: 'smooth', block: 'start' })); }));
 
   function openModal(id) { $('#' + id).hidden = false; ui.set({ modal: id }); }
   function closeModals() { $$('.modal').forEach((m) => { m.hidden = true; }); ui.set({ modal: null }); }
@@ -4344,6 +4553,7 @@ window.MR_TYPES = true;
 
     if (SCENE.ready) { SCENE.sync(dt, { countdown: cd, camDt: Math.min(0.5, real) }); SCENE.render(); }
     paintClock();
+    placeStage();
     if (ui.get().screen === 'race') paintHud();
   }
 
@@ -4580,11 +4790,44 @@ window.MR_TYPES = true;
     return list.find((m) => m.id === id) || (RACE.MODES[id] ? Object.assign({ id }, RACE.MODES[id]) : { id: 'classic', name: 'Classic', blurb: '', gravity: 1, bounce: 1 });
   }
   const modeSections = (id) => { const m = RACE.MODES[id] || RACE.MODES.classic; return m.count[0] + '–' + m.count[1]; };
+  /* A mode's picture is a photograph of the game: the scene builds a course
+     in that mode and renders it with the real materials and lights. Until the
+     scene exists the card carries a flat map drawn from the same geometry,
+     and the photographs replace the maps one at a time, so the page never
+     stalls on them. */
+  const picCache = new Map();
   function modePic(id, seed, w, h) {
-    const cv = RENDER.thumbnail(id, seed === undefined ? MODE_SEEDS[id] || 1 : seed, w || 320, h || 180);
     const el = document.createElement('div'); el.className = 'mode__img';
-    el.appendChild(cv.cloneNode ? cloneCanvas(cv) : cv);
+    el.dataset.mode = id; el.dataset.seed = String(seed === undefined ? MODE_SEEDS[id] || 1 : seed);
+    el.dataset.w = String(w || 320); el.dataset.h = String(h || 180);
+    fillPic(el);
+    queueUpgrade();
     return el;
+  }
+  function fillPic(el) {
+    const id = el.dataset.mode, seed = Number(el.dataset.seed) >>> 0, w = Number(el.dataset.w), h = Number(el.dataset.h);
+    const key = id + ':' + seed + ':' + w + 'x' + h;
+    let cv = picCache.get(key);
+    if (!cv && SCENE.ready && SCENE.snapshot) {
+      try { cv = SCENE.snapshot(id, seed, Math.max(w, 480), Math.max(h, 270)); } catch (err) { cv = null; }
+      if (cv) picCache.set(key, cv);
+    }
+    if (cv) delete el.dataset.flat;
+    else { cv = RENDER.thumbnail(id, seed, w, h); el.dataset.flat = '1'; }
+    el.innerHTML = '';
+    el.appendChild(cloneCanvas(cv));
+  }
+  let upgrading = false;
+  function queueUpgrade() {
+    if (upgrading) return;
+    upgrading = true;
+    const tick = () => {
+      const next = document.querySelector('.mode__img[data-flat]');
+      if (!next || !SCENE.ready || !SCENE.snapshot) { upgrading = false; return; }
+      fillPic(next);
+      setTimeout(tick, 60);
+    };
+    setTimeout(tick, 200);
   }
   function cloneCanvas(cv) {
     const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; c.style.width = cv.style.width; c.style.height = cv.style.height;
@@ -5110,6 +5353,53 @@ window.MR_TYPES = true;
     $('#skinBtn').addEventListener('click', () => { SOUND.wake(); openModal('m-skin'); });
   }
 
+  /* ---- the hero's floating coins and the window onto the track ---------------- */
+
+  /* Coin marbles drift round the headline, drawn with the same routine the
+     pickers use, so they are the marbles that race. A few are blurred, for
+     depth. Below the fold a soft window in the page's veil shows the live
+     world underneath; its place follows the stage element on every frame. */
+  function buildFloaters() {
+    const host = $('#floaters');
+    const spots = [
+      { x: 8, y: 14, s: 96, f: 'btc', m: 'metal', c: '#ffd36e', b: 0 }, { x: 18, y: 62, s: 72, f: 'doge', m: 'glass', c: '#ff7a1a', b: 2 },
+      { x: 84, y: 10, s: 84, f: 'eth', m: 'chrome', c: '#b98bff', b: 0 }, { x: 90, y: 58, s: 110, f: 'sol', m: 'holo', c: '#6ee7ff', b: 1.5 },
+      { x: 4, y: 40, s: 56, f: 'pepe', m: 'neon', c: '#7dff9b', b: 3 }, { x: 74, y: 78, s: 64, f: 'hood', m: 'galaxy', c: '#ff5ea8', b: 0 },
+      { x: 28, y: 6, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 62, y: 4, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
+    ];
+    spots.forEach((sp, i) => {
+      const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s);
+      cv.className = 'floater';
+      cv.style.left = sp.x + '%'; cv.style.top = sp.y + '%';
+      cv.style.width = cv.style.height = sp.s + 'px';
+      cv.style.filter = sp.b ? 'blur(' + sp.b + 'px)' : '';
+      cv.style.opacity = sp.b ? String(0.75 - sp.b * 0.08) : '1';
+      cv.style.animationDelay = (-i * 1.3) + 's';
+      cv.style.animationDuration = (7 + (i % 4) * 1.5) + 's';
+      host.appendChild(cv);
+    });
+  }
+  function placeStage() {
+    const veil = $('.veil');
+    const screen = ui.get().screen;
+    if (screen === 'home') {
+      const st = $('#stage');
+      const r = st.getBoundingClientRect();
+      const vis = r.bottom > 0 && r.top < innerHeight;
+      veil.style.setProperty('--hx', (r.left + r.width / 2) + 'px');
+      veil.style.setProperty('--hy', (r.top + r.height / 2) + 'px');
+      veil.style.setProperty('--hw', (r.width * 0.56) + 'px');
+      veil.style.setProperty('--hh', (r.height * 0.56) + 'px');
+      veil.dataset.hole = vis ? '1' : '';
+    } else if (screen === 'results' || screen === 'lobby') {
+      veil.style.setProperty('--hx', (innerWidth * 0.82) + 'px');
+      veil.style.setProperty('--hy', (innerHeight * 0.55) + 'px');
+      veil.style.setProperty('--hw', (innerWidth * 0.24) + 'px');
+      veil.style.setProperty('--hh', (innerHeight * 0.36) + 'px');
+      veil.dataset.hole = '1';
+    } else veil.dataset.hole = '';
+  }
+
   /* ---- the dock ---------------------------------------------------------------- */
 
   /* A taskbar along the bottom: every screen one tap away, the race's phase
@@ -5277,6 +5567,7 @@ window.MR_TYPES = true;
     loadSkin();
     buildPickers();
     buildLaunchpad();
+    buildFloaters();
     paintYou();
     $('#soundBtn').style.opacity = SOUND.on ? 1 : 0.4;
     try {
@@ -5287,6 +5578,8 @@ window.MR_TYPES = true;
     const start = () => {
       SCENE.init($('#gl'));
       if (current) SCENE.setRace(current, game.get().race ? playersOf(game.get().race) : [], wallet.get().address);
+      SCENE.setBackdrop(ui.get().screen === 'race' || ui.get().screen === 'count' ? 'dark' : 'light');
+      queueUpgrade();
     };
     if (window.THREE) start(); else addEventListener('three-ready', start, { once: true });
     setScreen('home');

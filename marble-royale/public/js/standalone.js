@@ -14,7 +14,7 @@
 (function () {
   'use strict';
 
-  const ROUND_MS = 300000, LOBBY_MS = 225000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const ROUND_MS = 300000, LOBBY_MS = 205000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
   const MEGA_EVERY = 1800000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
@@ -76,7 +76,7 @@
     const out = RACE.runToEnd(round.seed, round.players.map((p) => ({ id: p.address })), round.mode);
     round.order = out.order; round.seconds = out.seconds; round.winner = out.order[0].id;
     emit('start', { roundId: round.id, seed: round.seed, secret: round.secret, commit: round.commit, startAt: round.raceAt, mode: round.mode, players: round.players.map(pubPlayer) });
-    setTimeout(result, Math.min(44500, Math.ceil(out.seconds * 1000) + 1400));
+    setTimeout(result, Math.min(64500, Math.ceil(out.seconds * 1000) + 1400));
   }
   function result() {
     if (!round || round.phase !== 'racing') return;
@@ -199,5 +199,5 @@
      by answering the nonce route with a note, and app.js sends whatever the
      wallet returns; a wallet asked to sign that note is fine too. */
   open(Math.floor(now() / ROUND_MS) * ROUND_MS);
-  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 70000; at(round.raceAt, race); emit('phase', pub()); } } };
+  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 90000; at(round.raceAt, race); emit('phase', pub()); } } };
 })();

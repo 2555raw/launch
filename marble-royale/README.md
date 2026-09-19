@@ -21,9 +21,9 @@ everyone sees the same countdown wherever they are.
 
 | phase | length | what happens |
 |---|---|---|
-| lobby | 3m 45s | connect a wallet, press join, watch marbles drop into the hopper |
+| lobby | 3m 25s | connect a wallet, press join, watch marbles drop into the hopper |
 | locked | 5s | the field is closed and the seed is published |
-| racing | up to 45s | the race, the same one in every browser |
+| racing | up to 65s | the race, the same one in every browser; the winner is usually home in 20 to 40 |
 | result | the rest | the winner, the wallet to pay, and a vote on the next track |
 
 Set `ROUND_MS` to change the cycle (minimum 90 seconds - useful for testing,
@@ -41,7 +41,7 @@ bounce; two races in the same mode are never the same track.
 
 | mode | what it is |
 |---|---|
-| Classic | everything: pegs, ramps, spinners, jumps, boost pads, 7 to 9 sections |
+| Classic | everything: pegs, ramps, spinners, jumps, boost pads, 11 to 13 sections |
 | Plinko Hell | walls of pins and bumpers, nothing else; extra bounce |
 | Boost Alley | boost rails and kickers all the way down; heavier |
 | Spin Cycle | spinning arms, flippers and sliding pistons |

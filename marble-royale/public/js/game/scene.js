@@ -175,7 +175,8 @@
 
     /* the arena: a wide dark apron either side, and light pylons down the
        course so there is depth to read speed against */
-    const apron = new THREE.Mesh(new THREE.PlaneGeometry(80, height * K + 40), new THREE.MeshStandardMaterial({ color: '#08080d', roughness: 0.9, metalness: 0.1 }));
+    const apron = new THREE.Mesh(new THREE.PlaneGeometry(80, height * K + 40), new THREE.MeshStandardMaterial({ color: S.backdrop === 'light' ? '#dfe6f7' : '#08080d', roughness: 0.9, metalness: 0.1 }));
+    S.apronMat = apron.material;
     const am = W(500, height / 2, -R * 1.6);
     apron.position.set(am.x, am.y, am.z);
     apron.quaternion.copy(floor.quaternion);
@@ -596,5 +597,125 @@
     if (count) { S.confetti.instanceMatrix.needsUpdate = true; if (S.confetti.instanceColor) S.confetti.instanceColor.needsUpdate = true; }
   }
 
-  window.SCENE = { init, resize, setRace, addPlayer, sync, render, celebrate, cheer, burst, get ready() { return S.ready; }, get camera() { return S.camera; } };
+  /* ---- the backdrop ------------------------------------------------------ */
+
+  /* The page is bright and the race is a dark stage. Between races the world
+     sits on a pale ground under a pale sky, the way a product is shot; when
+     the gate opens the lights go down. */
+  function setBackdrop(kind) {
+    const THREE = window.THREE;
+    if (!S.ready || S.backdrop === kind) return;
+    S.backdrop = kind;
+    const light = kind === 'light';
+    S.scene.background.set(light ? '#eef2fc' : '#07070b');
+    S.scene.fog.color.set(light ? '#eef2fc' : '#07070b');
+    S.scene.fog.density = light ? 0.016 : 0.022;
+    if (S.apronMat) S.apronMat.color.set(light ? '#dfe6f7' : '#08080d');
+    S.lights.hemi.color.set(light ? '#ffffff' : '#3a2a1a');
+    S.lights.hemi.groundColor.set(light ? '#c9d3ea' : '#05050a');
+    S.lights.hemi.intensity = light ? 1.1 : 0.6;
+    S.lights.fill.intensity = light ? 0.9 : 0.5;
+    if (S.bloom) S.bloom.strength = light ? 0.2 : 0.55;
+  }
+
+  /* ---- a photograph of a mode ---------------------------------------- */
+
+  /* Builds a course in a mode, drops a field of marbles a few seconds into a
+     race on it, and photographs it from a three-quarter angle with the same
+     renderer, lights and materials as the game: the picture on a mode card is
+     the game, not a drawing of it. Returns a 2D canvas, or null before the
+     scene exists. The course is built with the real builder and thrown away
+     afterwards. */
+  function snapshot(modeId, seed, w, h, secs) {
+    const THREE = window.THREE;
+    if (!S.ready) return null;
+    w = w || 320; h = h || 180;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+    /* the builder writes into S; hand it a clean slate and take it back after */
+    const saved = { trackGroup: S.trackGroup, moverMeshes: S.moverMeshes, gateLights: S.gateLights, boostMats: S.boostMats, course: S.course, apronMat: S.apronMat, backdrop: S.backdrop };
+    S.trackGroup = null;
+    S.backdrop = 'dark';
+    const marbles = [];
+    for (let i = 0; i < 16; i++) marbles.push({ id: 'p' + i });
+    const st = RACE.createRace(seed >>> 0, marbles, { mode: modeId });
+    const steps = Math.round((secs || 3.4) * 60);
+    for (let i = 0; i < steps && !st.over; i++) RACE.step(st);
+    buildCourse(st.course);
+    const g = S.trackGroup;
+    S.scene.remove(g);
+    Object.assign(S, saved);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#07070b');
+    scene.fog = new THREE.FogExp2('#07070b', 0.03);
+    scene.environment = S.scene.environment;
+    scene.add(g);
+    /* the movers as they stand a few seconds in */
+    const dyn = [];
+    for (const m of st.course.movers) RACE.moverSegments(m, st.t, dyn, false);
+
+    const colors = ['#ff7a1a', '#6ee7ff', '#7dff9b', '#ffd36e', '#ff5ea8', '#b98bff', '#ffffff', '#ff8a4c'];
+    const faces = ['doge', 'pepe', 'btc', 'eth', 'sol', 'hood', 'shib', 'bonk', 'wif', 'usdc', 'bnb', 'xrp', 'ada', 'avax', 'usdt', 'doge'];
+    const mats = ['glass', 'metal', 'holo', 'neon', 'chrome', 'clear', 'lava', 'galaxy'];
+    const own = [];
+    let lead = st.balls[0];
+    for (const b of st.balls) if (!b.done && b.y > lead.y) lead = b;
+    st.balls.forEach((b, i) => {
+      const mat = SKINS.marbleMaterial(THREE, { material: mats[i % 8], color: colors[i % 8], face: faces[i % faces.length] });
+      own.push(mat);
+      const mesh = new THREE.Mesh(S.sphereGeo, mat);
+      const p = W(b.x, b.y, R);
+      mesh.position.set(p.x, p.y, p.z);
+      mesh.rotation.set(b.y * 0.01, b.x * 0.01, 0);
+      scene.add(mesh);
+      const shadow = new THREE.Mesh(new THREE.PlaneGeometry(R * 3.2, R * 3.2), new THREE.MeshBasicMaterial({ map: S.shadowTex, transparent: true, depthWrite: false }));
+      const up = UP();
+      shadow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(up.x, up.y, up.z));
+      const sp = W(b.x, b.y, 0.006);
+      shadow.position.set(sp.x, sp.y, sp.z);
+      scene.add(shadow);
+      own.push(shadow.geometry, shadow.material);
+    });
+
+    /* a three-quarter shot from up and to the right, looking down the track
+       past the leader, so the next few sections read as a place */
+    const focusY = Math.max(900, Math.min(lead.y + 420, st.course.finishY - 900));
+    const look = W(480, focusY, 0.1);
+    const eye = W(1010, focusY - 820, 0);
+    const up = UP();
+    const cam = new THREE.PerspectiveCamera(50, w / h, 0.1, 200);
+    cam.position.set(eye.x + up.x * 3.4, eye.y + up.y * 3.4, eye.z + up.z * 3.4);
+    cam.up.set(up.x, up.y, up.z);
+    cam.lookAt(look.x, look.y, look.z);
+    /* lit like a product shot: a strong warm key, a cool rim, bright ambient */
+    const key = new THREE.DirectionalLight('#ffe2c4', 2.6);
+    key.position.set(cam.position.x - 6, cam.position.y + 9, cam.position.z + 2);
+    key.target.position.set(look.x, look.y, look.z);
+    key.target.updateMatrixWorld();
+    const fill = new THREE.DirectionalLight('#8fb4ff', 1.1);
+    fill.position.set(cam.position.x + 9, cam.position.y + 3, cam.position.z - 8);
+    scene.add(key, fill, new THREE.HemisphereLight('#6a5a4a', '#101018', 1.4), new THREE.AmbientLight('#ffffff', 0.35));
+
+    /* render on the page's own canvas at the card's size, copy it out, and
+       put the canvas back the way it was before the next frame */
+    const rend = S.renderer;
+    const exposure = rend.toneMappingExposure;
+    rend.toneMappingExposure = 1.45;
+    rend.setSize(w, h, false);
+    rend.render(scene, cam);
+    rend.toneMappingExposure = exposure;
+    const out = document.createElement('canvas');
+    out.width = Math.round(w * dpr); out.height = Math.round(h * dpr);
+    out.style.width = w + 'px'; out.style.height = h + 'px';
+    out.getContext('2d').drawImage(S.canvas, 0, 0, out.width, out.height);
+    rend.setSize(S.w, S.h, false);
+    if (S.composer) S.composer.setSize(S.w, S.h);
+
+    disposeGroup(g);
+    for (const o of own) { if (o.dispose) o.dispose(); if (o.map && o.map.dispose) o.map.dispose(); }
+    return out;
+  }
+
+  window.SCENE = { init, resize, setRace, addPlayer, sync, render, celebrate, cheer, burst, snapshot, setBackdrop, get ready() { return S.ready; }, get camera() { return S.camera; }, get backdrop() { return S.backdrop; } };
 })();

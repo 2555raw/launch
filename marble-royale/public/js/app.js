@@ -52,9 +52,11 @@
     else if (name === 'race') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
     else CAMERA.setMode('auto');
     if (name !== 'home') window.scrollTo(0, 0);
+    if (SCENE.ready) SCENE.setBackdrop(name === 'race' || name === 'count' ? 'dark' : 'light');
     paintDock();
   }
   $$('[data-go]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); SOUND.wake(); setScreen(b.dataset.go); }));
+  $$('[data-goto]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); setScreen('home'); requestAnimationFrame(() => $('#' + b.dataset.goto).scrollIntoView({ behavior: 'smooth', block: 'start' })); }));
 
   function openModal(id) { $('#' + id).hidden = false; ui.set({ modal: id }); }
   function closeModals() { $$('.modal').forEach((m) => { m.hidden = true; }); ui.set({ modal: null }); }
@@ -153,6 +155,7 @@
 
     if (SCENE.ready) { SCENE.sync(dt, { countdown: cd, camDt: Math.min(0.5, real) }); SCENE.render(); }
     paintClock();
+    placeStage();
     if (ui.get().screen === 'race') paintHud();
   }
 
@@ -389,11 +392,44 @@
     return list.find((m) => m.id === id) || (RACE.MODES[id] ? Object.assign({ id }, RACE.MODES[id]) : { id: 'classic', name: 'Classic', blurb: '', gravity: 1, bounce: 1 });
   }
   const modeSections = (id) => { const m = RACE.MODES[id] || RACE.MODES.classic; return m.count[0] + '–' + m.count[1]; };
+  /* A mode's picture is a photograph of the game: the scene builds a course
+     in that mode and renders it with the real materials and lights. Until the
+     scene exists the card carries a flat map drawn from the same geometry,
+     and the photographs replace the maps one at a time, so the page never
+     stalls on them. */
+  const picCache = new Map();
   function modePic(id, seed, w, h) {
-    const cv = RENDER.thumbnail(id, seed === undefined ? MODE_SEEDS[id] || 1 : seed, w || 320, h || 180);
     const el = document.createElement('div'); el.className = 'mode__img';
-    el.appendChild(cv.cloneNode ? cloneCanvas(cv) : cv);
+    el.dataset.mode = id; el.dataset.seed = String(seed === undefined ? MODE_SEEDS[id] || 1 : seed);
+    el.dataset.w = String(w || 320); el.dataset.h = String(h || 180);
+    fillPic(el);
+    queueUpgrade();
     return el;
+  }
+  function fillPic(el) {
+    const id = el.dataset.mode, seed = Number(el.dataset.seed) >>> 0, w = Number(el.dataset.w), h = Number(el.dataset.h);
+    const key = id + ':' + seed + ':' + w + 'x' + h;
+    let cv = picCache.get(key);
+    if (!cv && SCENE.ready && SCENE.snapshot) {
+      try { cv = SCENE.snapshot(id, seed, Math.max(w, 480), Math.max(h, 270)); } catch (err) { cv = null; }
+      if (cv) picCache.set(key, cv);
+    }
+    if (cv) delete el.dataset.flat;
+    else { cv = RENDER.thumbnail(id, seed, w, h); el.dataset.flat = '1'; }
+    el.innerHTML = '';
+    el.appendChild(cloneCanvas(cv));
+  }
+  let upgrading = false;
+  function queueUpgrade() {
+    if (upgrading) return;
+    upgrading = true;
+    const tick = () => {
+      const next = document.querySelector('.mode__img[data-flat]');
+      if (!next || !SCENE.ready || !SCENE.snapshot) { upgrading = false; return; }
+      fillPic(next);
+      setTimeout(tick, 60);
+    };
+    setTimeout(tick, 200);
   }
   function cloneCanvas(cv) {
     const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; c.style.width = cv.style.width; c.style.height = cv.style.height;
@@ -919,6 +955,53 @@
     $('#skinBtn').addEventListener('click', () => { SOUND.wake(); openModal('m-skin'); });
   }
 
+  /* ---- the hero's floating coins and the window onto the track ---------------- */
+
+  /* Coin marbles drift round the headline, drawn with the same routine the
+     pickers use, so they are the marbles that race. A few are blurred, for
+     depth. Below the fold a soft window in the page's veil shows the live
+     world underneath; its place follows the stage element on every frame. */
+  function buildFloaters() {
+    const host = $('#floaters');
+    const spots = [
+      { x: 8, y: 14, s: 96, f: 'btc', m: 'metal', c: '#ffd36e', b: 0 }, { x: 18, y: 62, s: 72, f: 'doge', m: 'glass', c: '#ff7a1a', b: 2 },
+      { x: 84, y: 10, s: 84, f: 'eth', m: 'chrome', c: '#b98bff', b: 0 }, { x: 90, y: 58, s: 110, f: 'sol', m: 'holo', c: '#6ee7ff', b: 1.5 },
+      { x: 4, y: 40, s: 56, f: 'pepe', m: 'neon', c: '#7dff9b', b: 3 }, { x: 74, y: 78, s: 64, f: 'hood', m: 'galaxy', c: '#ff5ea8', b: 0 },
+      { x: 28, y: 6, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 62, y: 4, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
+    ];
+    spots.forEach((sp, i) => {
+      const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s);
+      cv.className = 'floater';
+      cv.style.left = sp.x + '%'; cv.style.top = sp.y + '%';
+      cv.style.width = cv.style.height = sp.s + 'px';
+      cv.style.filter = sp.b ? 'blur(' + sp.b + 'px)' : '';
+      cv.style.opacity = sp.b ? String(0.75 - sp.b * 0.08) : '1';
+      cv.style.animationDelay = (-i * 1.3) + 's';
+      cv.style.animationDuration = (7 + (i % 4) * 1.5) + 's';
+      host.appendChild(cv);
+    });
+  }
+  function placeStage() {
+    const veil = $('.veil');
+    const screen = ui.get().screen;
+    if (screen === 'home') {
+      const st = $('#stage');
+      const r = st.getBoundingClientRect();
+      const vis = r.bottom > 0 && r.top < innerHeight;
+      veil.style.setProperty('--hx', (r.left + r.width / 2) + 'px');
+      veil.style.setProperty('--hy', (r.top + r.height / 2) + 'px');
+      veil.style.setProperty('--hw', (r.width * 0.56) + 'px');
+      veil.style.setProperty('--hh', (r.height * 0.56) + 'px');
+      veil.dataset.hole = vis ? '1' : '';
+    } else if (screen === 'results' || screen === 'lobby') {
+      veil.style.setProperty('--hx', (innerWidth * 0.82) + 'px');
+      veil.style.setProperty('--hy', (innerHeight * 0.55) + 'px');
+      veil.style.setProperty('--hw', (innerWidth * 0.24) + 'px');
+      veil.style.setProperty('--hh', (innerHeight * 0.36) + 'px');
+      veil.dataset.hole = '1';
+    } else veil.dataset.hole = '';
+  }
+
   /* ---- the dock ---------------------------------------------------------------- */
 
   /* A taskbar along the bottom: every screen one tap away, the race's phase
@@ -1086,6 +1169,7 @@
     loadSkin();
     buildPickers();
     buildLaunchpad();
+    buildFloaters();
     paintYou();
     $('#soundBtn').style.opacity = SOUND.on ? 1 : 0.4;
     try {
@@ -1096,6 +1180,8 @@
     const start = () => {
       SCENE.init($('#gl'));
       if (current) SCENE.setRace(current, game.get().race ? playersOf(game.get().race) : [], wallet.get().address);
+      SCENE.setBackdrop(ui.get().screen === 'race' || ui.get().screen === 'count' ? 'dark' : 'light');
+      queueUpgrade();
     };
     if (window.THREE) start(); else addEventListener('three-ready', start, { once: true });
     setScreen('home');

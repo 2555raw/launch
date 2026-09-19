@@ -7,28 +7,38 @@
 <meta name="description" content="Race your marble. Win the pot. A provably fair marble race every five minutes on Robinhood Chain.">
 <meta property="og:title" content="MARBLE ROYALE">
 <meta property="og:description" content="Race your marble. Win the pot.">
-<meta name="theme-color" content="#07070b">
+<meta name="theme-color" content="#f5f7ff">
 <link rel="icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="styles.css">
 <script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
 </head>
 <body data-screen="home" data-phase="lobby">
 
 <canvas id="gl" aria-label="the race"></canvas>
+<div class="veil" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
 <div class="noise" aria-hidden="true"></div>
 
 <!-- ---------- top bar ---------- -->
 <header class="top">
-  <a class="brand" href="#" data-go="home">
-    <span class="brand__mark"></span>
-    <span class="brand__name">MARBLE<b>ROYALE</b></span>
-  </a>
-  <div class="top__race" id="topRace">
-    <span class="mono" id="topRaceNo">RACE #----</span>
-    <span class="pill pill--phase" id="topPhase">LOBBY</span>
+  <div class="top__left">
+    <a class="brand" href="#" data-go="home">
+      <span class="brand__mark"></span>
+      <span class="brand__name">Marble<b>Royale</b></span>
+    </a>
+    <nav class="top__links">
+      <a href="#" data-go="home">Race</a>
+      <a href="#" data-go="lobby">Lobby</a>
+      <a href="#" data-goto="modes">Modes</a>
+      <a href="#" data-go="launch">Launch</a>
+      <a href="/verify" target="_blank" rel="noopener">Fair</a>
+    </nav>
+    <div class="top__race" id="topRace">
+      <span class="mono" id="topRaceNo">RACE #----</span>
+      <span class="pill pill--phase" id="topPhase">LOBBY</span>
+    </div>
   </div>
   <div class="top__right">
     <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
@@ -42,16 +52,27 @@
   <!-- ---------- HOME ---------- -->
   <section class="screen screen--home" id="s-home">
     <div class="hero">
-      <div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 5 MINUTES</div>
-      <h1>RACE YOUR<br>MARBLE.<br><span>WIN THE POT.</span></h1>
-      <p>Connect a wallet, drop a marble on the track, and watch it fight up to fifty others down a course drawn fresh every race, in a mode the crowd voted for. First one over the line takes the whole pot.</p>
-      <div class="hero__cta">
-        <button class="btn btn--accent btn--xl" id="heroJoin"><span class="btn__dot"></span>Join the next race</button>
-        <button class="btn btn--glass btn--xl" data-go="lobby">Watch the lobby</button>
+      <div class="floaters" id="floaters" aria-hidden="true"></div>
+      <div class="hero__in">
+        <div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 5 MINUTES</div>
+        <h1>Race your marble.<br><span>Win the pot.</span></h1>
+        <p>Connect a wallet, drop a marble on the track, and watch it fight up to fifty others down a course drawn fresh every race, in a mode the crowd voted for. First one over the line takes the whole pot.</p>
+        <div class="hero__cta">
+          <button class="btn btn--accent btn--xl" id="heroJoin"><span class="btn__dot"></span>Join the next race</button>
+          <button class="btn btn--soft btn--xl" data-go="lobby">Watch the lobby</button>
+        </div>
       </div>
-      <ol class="flow" aria-label="how it works">
-        <li><b>01</b>Connect</li><li><b>02</b>Join</li><li><b>03</b>Watch</li><li><b>04</b>Win</li>
-      </ol>
+      <ul class="trust" aria-label="what to trust">
+        <li><i>✓</i><div><b>Free to race</b><span>one marble per wallet, no entry fee</span></div></li>
+        <li><i>⚿</i><div><b>Seed committed first</b><span>the hash is out before anyone joins</span></div></li>
+        <li><i>◎</i><div><b>Whole pot to first</b><span>paid to the winning address</span></div></li>
+        <li><i>◫</i><div><b>Eight tracks</b><span>the crowd votes the next one</span></div></li>
+        <li><i>✕</i><div><b>No custody</b><span>your keys never leave your wallet</span></div></li>
+      </ul>
+    </div>
+
+    <div class="stagewrap">
+      <div class="stage" id="stage"><span class="stage__tag mono"><i class="live"></i>LIVE FROM THE LOBBY</span></div>
     </div>
 
     <div class="livebar glass" id="livebar">
@@ -118,7 +139,7 @@
 
     <footer class="foot">
       <div class="foot__l">
-        <span class="brand__name small">MARBLE<b>ROYALE</b></span>
+        <span class="brand__name small">Marble<b>Royale</b></span>
         <span class="dim">A game first. Your keys never leave your wallet. The pot is sent by the creator to the winning address.</span>
       </div>
       <div class="foot__r" id="footLinks">

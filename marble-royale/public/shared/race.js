@@ -33,7 +33,7 @@
   const WIDTH = 1000;        // course width in course units
   const R = 13;              // marble radius
   const DT = 1 / 60;         // fixed physics step
-  const GRAVITY = 880;
+  const GRAVITY = 500;
   const MAX_SPEED = 1350;
   const WALL_BOUNCE = 0.34;
   const BALL_BOUNCE = 0.46;  // glass on glass clacks; a marble is not a beanbag
@@ -45,8 +45,8 @@
   /* A solid ball rolling down a slope picks up only five sevenths of the pull
      a sliding block would; the rest goes into making it spin. */
   const ROLL = 2 / 7;
-  const MAX_SECONDS = 40;    // hard ceiling on a race
-  const RUSH_AT = 26;        // gravity starts climbing here, so races end
+  const MAX_SECONDS = 60;    // hard ceiling on a race
+  const RUSH_AT = 40;        // gravity starts climbing here, so races end
 
   /* ---- deterministic arithmetic ------------------------------------------ */
 
@@ -87,21 +87,21 @@
      races in the same mode are never the same track. The mode is public before
      the seed exists, so it changes nothing about the fairness scheme. */
   const MODES = {
-    classic:  { name: 'Classic',      pool: ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers', 'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'], count: [7, 9], gravity: 1, bounce: 1,
-                blurb: 'Everything the course can throw at you: pegs, ramps, spinners, jumps and boost pads, seven to nine sections drawn fresh.' },
-    plinko:   { name: 'Plinko Hell',  pool: ['plinko', 'pegs', 'bumpers', 'plinko', 'pegs'], count: [8, 9], gravity: 1, bounce: 1.15,
+    classic:  { name: 'Classic',      pool: ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers', 'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'], count: [11, 13], gravity: 1, bounce: 1,
+                blurb: 'Everything the course can throw at you: pegs, ramps, spinners, jumps and boost pads, eleven to thirteen sections drawn fresh.' },
+    plinko:   { name: 'Plinko Hell',  pool: ['plinko', 'pegs', 'bumpers', 'plinko', 'pegs'], count: [11, 12], gravity: 1, bounce: 1.15,
                 blurb: 'Walls of pins and bumpers, nothing else. The field spreads out and mixes; luck does the rest.' },
-    boost:    { name: 'Boost Alley',  pool: ['boost', 'jump', 'zigzag', 'boost', 'stairs', 'jump'], count: [6, 8], gravity: 1.1, bounce: 0.9,
+    boost:    { name: 'Boost Alley',  pool: ['boost', 'jump', 'zigzag', 'boost', 'stairs', 'jump'], count: [10, 12], gravity: 1.1, bounce: 0.9,
                 blurb: 'Boost rails and kickers all the way down. Hit the pads and fly the gaps; miss and drop to the catch ramps.' },
-    spin:     { name: 'Spin Cycle',   pool: ['spinners', 'flippers', 'pistons', 'spinners', 'flippers', 'split'], count: [7, 8], gravity: 1, bounce: 1,
+    spin:     { name: 'Spin Cycle',   pool: ['spinners', 'flippers', 'pistons', 'spinners', 'flippers', 'split'], count: [11, 12], gravity: 1, bounce: 1,
                 blurb: 'Spinning arms, fast flippers and sliding pistons. Timing is everything and nobody controls it.' },
-    funnel:   { name: 'Funnel Run',   pool: ['funnel', 'split', 'stairs', 'funnel', 'zigzag'], count: [7, 8], gravity: 1, bounce: 0.95,
+    funnel:   { name: 'Funnel Run',   pool: ['funnel', 'split', 'stairs', 'funnel', 'zigzag'], count: [11, 12], gravity: 1, bounce: 0.95,
                 blurb: 'Throats, wedges and steps. The pack squeezes through one gap after another; a good line is a long lead.' },
-    drop:     { name: 'Mega Drop',    pool: ['jump', 'stairs', 'bumpers', 'jump', 'pegs'], count: [5, 6], gravity: 1.35, bounce: 1.05,
+    drop:     { name: 'Mega Drop',    pool: ['jump', 'stairs', 'bumpers', 'jump', 'pegs'], count: [9, 10], gravity: 1.35, bounce: 1.05,
                 blurb: 'Fewer sections, steeper fall, bigger jumps. Over in a flash and hard on the marbles.' },
-    ice:      { name: 'Ice Rink',     pool: ['bumpers', 'zigzag', 'split', 'bumpers', 'pistons', 'boost'], count: [7, 8], gravity: 0.9, bounce: 1.3,
+    ice:      { name: 'Ice Rink',     pool: ['bumpers', 'zigzag', 'split', 'bumpers', 'pistons', 'boost'], count: [11, 12], gravity: 0.9, bounce: 1.3,
                 blurb: 'Everything bounces. Bumpers throw marbles across the track and back; the leader changes twenty times.' },
-    maze:     { name: 'The Maze',     pool: ['zigzag', 'stairs', 'split', 'funnel', 'stairs', 'zigzag'], count: [8, 9], gravity: 0.95, bounce: 0.9,
+    maze:     { name: 'The Maze',     pool: ['zigzag', 'stairs', 'split', 'funnel', 'stairs', 'zigzag'], count: [11, 12], gravity: 0.95, bounce: 0.9,
                 blurb: 'Ramps and steps and switchbacks with no straight fall anywhere. The longest course; patience wins it.' }
   };
   const MODE_IDS = Object.keys(MODES);

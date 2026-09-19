@@ -22,8 +22,12 @@ proof.html     the seven live checks, fees sitting in the escrow, the contracts 
 docs.html      how it works, finding your PYUSD address, what can go wrong, contracts
 styles.css     the design system (palette, type, shell, cards) and the responsive rules
 app.js         stamps the sidebar and top bar on every page; theme, Ctrl K search,
-               the calculator, the demo forms, the scroll reveal
+               the calculator, the wallet button, the scroll reveal
+chain.js       the chain layer: JSON-RPC client, keccak-256, ABI encoder and decoder,
+               wallet helpers, Blockscout lookups. No dependencies, no keys. window.PL
+live.js        launch, link, proof and fees talking to the chain through chain.js
 favicon.svg    the link mark
+assets/        the merchant marks that are images
 ```
 
 ## Run it
@@ -52,9 +56,26 @@ A near-black app shell: a fixed sidebar, a top bar with search, and one reading 
 Type: **Inter** for everything, **JetBrains Mono** for addresses, figures and labels. The
 light palette deepens the orange so small accent text still clears 4.5:1 on the paper ground.
 
-## Honest limits
+## What is real and what is not
 
-The site has no backend. The fees and proof pages show the snapshot the reference was taken
-from; the launch and link forms validate the address and stop there, and "Connect wallet"
-asks the browser wallet for an account if one is installed. Wiring those up to Pons and the
-payout worker is the next version.
+Everything on chain happens from the visitor's browser, with no server in between.
+
+- **Launch** checks that Robinhood Chain (4663) answers and that the factory has code, reads
+  the factory ABI from Blockscout, picks the function that takes a name and an address,
+  maps the form onto its arguments (name, ticker, fee recipient, USDG as the pair), shows
+  the exact call, then hands it to the wallet. The wallet switches to Robinhood Chain if
+  it has to. If the factory is not verified on Blockscout, the page says so and stops.
+- **Link** reads the token, finds the factory's fee recipient setter and getter, shows the
+  current recipient, and sends the change from the connected wallet.
+- **Live proof** runs seven checks against the two chains, Across and Blockscout, and
+  lists USDG arriving in the escrow.
+- **Fees** reads the platform address's USDG balance and every transfer into it.
+
+What does not exist: the payout worker. Nothing here claims fees from the escrow, bridges
+them or sends PYUSD. A launch made here points its fees at the address you typed, and that
+address is paid directly by the Pons escrow only if someone claims. The function matching
+is by name and signature, so read the call the page shows before you sign it.
+
+The factory and escrow addresses came from the reference screenshots and have not been
+verified from this environment, which cannot reach the chain. The page verifies them at
+runtime and refuses to build a transaction if they do not check out.

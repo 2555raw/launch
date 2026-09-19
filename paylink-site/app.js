@@ -151,27 +151,6 @@
     render();
   }
 
-  /* ---------- demo forms ---------- */
-
-  const isAddr = (s) => /^0x[0-9a-fA-F]{40}$/.test(s.trim());
-  const lookup = $('#lookup');
-  if (lookup) {
-    lookup.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const v = $('#token-addr').value;
-      toast(isAddr(v) ? 'Reading the Pons factory for ' + v.slice(0, 6) + '…' + v.slice(-4) : 'That is not an Ethereum address');
-    });
-  }
-  const launch = $('#launch-form');
-  if (launch) {
-    launch.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const pay = $('#pay-addr').value;
-      if (!isAddr(pay)) { toast('The PayPal address has to be an Ethereum address'); $('#pay-addr').focus(); return; }
-      toast('Connect a wallet to sign the launch');
-    });
-  }
-
   /* ---------- explore search ---------- */
 
   const params = new URLSearchParams(location.search);

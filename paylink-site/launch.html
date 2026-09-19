@@ -16,17 +16,18 @@
 <main class="main">
   <section class="page wrap">
     <h1 class="h1" style="font-size:clamp(32px,4vw,44px)">Launch a token</h1>
-    <p class="lead">Fill in the token and the PayPal address that should be paid. You sign once, from your wallet, and the launch goes to Pons with the fee recipient already set. The Pons launch fee is the only cost.</p>
+    <p class="lead">Fill in the token and the PayPal address that should be paid. You sign once, from your wallet, and the launch goes to Pons with the fee recipient already set. Before anything is signed, this page checks the chain, reads the factory contract from the explorer and shows you the exact call.</p>
     <form class="form" id="launch-form">
       <div class="field"><label for="t-name">Token name</label><input class="input" id="t-name" placeholder="PayPal Coin" required maxlength="40"></div>
       <div class="field"><label for="t-ticker">Ticker</label><input class="input mono" id="t-ticker" placeholder="PAYPAL" required maxlength="10" style="text-transform:uppercase"></div>
       <div class="field"><label for="pay-addr">PayPal PYUSD address</label><input class="input mono" id="pay-addr" placeholder="0x…" required autocomplete="off" spellcheck="false"><p class="help">Yours or theirs. In the app: Crypto, PYUSD, Receive, choose Ethereum, copy. It must be the Ethereum network, not Solana.</p></div>
       <div class="field"><label for="t-desc">Description</label><input class="input" id="t-desc" placeholder="What the coin is for, in a line" maxlength="140"></div>
-      <div class="actions"><button class="btn btn-accent btn-lg" type="submit">Launch on Pons</button><a class="btn btn-ghost btn-lg" href="link.html">Already launched? Link it</a></div>
+      <div class="actions"><button class="btn btn-accent btn-lg" type="submit" id="launch-btn">Launch on Pons</button><a class="btn btn-ghost btn-lg" href="link.html">Already launched? Link it</a></div>
     </form>
+    <div class="steps" id="launch-steps"></div>
     <div class="card" style="margin-top:44px;max-width:576px">
       <h3 class="h3">What happens after you sign</h3>
-      <p class="p">The token is paired with USDG and its creator fee recipient is an address PayLink controls, one per launch. Every few minutes the fees are claimed, 80% is bridged and swapped into PYUSD and sent to the address above, and 20% is forwarded as USDG to the <a href="fees.html" style="color:var(--accent)">published platform address</a>. You can point the fees back to yourself at any time with one call to the Pons factory.</p>
+      <p class="p">The token is paired with USDG and its creator fee recipient is the PayPal address you typed, set directly in the Pons factory. Creator fees accrue in the Pons escrow under that address. You can point them anywhere else at any time with one call to the factory, from the <a href="link.html" style="color:var(--accent)">Link a token</a> page. The automatic bridge to PYUSD is not running yet, so what reaches PayPal today is whatever that address claims and moves itself; the <a href="proof.html" style="color:var(--accent)">proof page</a> shows the live state of every piece.</p>
     </div>
   </section>
   <footer class="foot"><div class="wrap">
@@ -37,5 +38,7 @@
 </main>
 </div>
 <script src="app.js"></script>
+<script src="chain.js"></script>
+<script src="live.js"></script>
 </body>
 </html>

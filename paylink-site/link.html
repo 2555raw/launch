@@ -19,10 +19,13 @@
     <p class="lead">Point an existing Pons token's creator fees at PayLink. You sign one transaction from the wallet that currently receives the fees, and you can point them back whenever you like.</p>
     <form class="field" id="lookup" style="max-width:576px">
       <label for="token-addr">Token address</label>
-      <div class="row"><input class="input" id="token-addr" placeholder="0x…" autocomplete="off" spellcheck="false"><button class="btn btn-dark" type="submit">Look up</button></div>
+      <div class="row"><input class="input" id="token-addr" placeholder="0x…" autocomplete="off" spellcheck="false"><button class="btn btn-dark" type="submit" id="link-btn">Look up</button></div>
       <p class="help">We read it straight off the Pons factory. Nothing is saved until you sign.</p>
+      <label for="link-pay" style="display:block;font-size:14px;font-weight:600;margin:22px 0 8px">PayPal PYUSD address the fees should reach</label>
+      <input class="input" id="link-pay" placeholder="0x…" autocomplete="off" spellcheck="false" style="width:100%">
+      <p class="help">Look up first with only the token. Add this and look up again to sign.</p>
     </form>
-    <div style="min-height:320px"></div>
+    <div class="steps" id="link-steps"></div>
   </section>
   <footer class="foot"><div class="wrap">
     <div class="links"><a href="launch.html">Launch</a><a href="link.html">Link a token</a><a href="explore.html">Explore</a><a href="proof.html">Live proof</a><a href="fees.html">Fees</a><a href="docs.html">Docs</a><a href="https://x.com/PayLinkRH" target="_blank" rel="noopener">𝕏 @PayLinkRH</a></div>
@@ -32,5 +35,7 @@
 </main>
 </div>
 <script src="app.js"></script>
+<script src="chain.js"></script>
+<script src="live.js"></script>
 </body>
 </html>

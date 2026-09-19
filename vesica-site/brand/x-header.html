@@ -1,358 +1,134 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Vesica — X header</title>
-<!-- 1500 x 500, the size X serves a profile header at. The avatar and the
-     account name sit over the bottom-left, so that corner is left empty; the
-     line stays on the centre line, which is the part that survives every crop.
-     Not linked from the site — it exists to be screenshotted.
-
-     The content is the site's: six vaults from the list with their real
-     figures, the two status pills, the headline. Everything else here is
-     staging — the room, the material and the light. -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-  :root {
-    --bg:#EDEEF2; --band:#3D3B4F; --ink:#34334A;
-    --muted:#6B6C82; --dim:#8E90A4; --grid:#E4E5EA;
-    --accent:#6E5D0D; --accent-fill:#F2EAA0; --accent-glow:#EFD95E;
-    --font:'Schibsted Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
-  }
-  * { box-sizing:border-box; margin:0; }
-  body { width:1500px; height:500px; overflow:hidden; font-family:var(--font); color:var(--ink); }
+  /* X header: 1500 x 500.
+     Two things drive the layout. The avatar sits over the bottom-left — a
+     circle of about 180px hanging off the edge — so that corner is left empty
+     on purpose. And narrow screens crop the header inward from both sides, so
+     nothing that has to be read sits in the outer 260px. */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1500px; height:500px; overflow:hidden;
+         font-family:'Schibsted Grotesk',system-ui,sans-serif;
+         background:#E9E9E9; position:relative; }
 
-  .hd {
-    position:relative; width:1500px; height:500px; overflow:hidden;
-    background:
-      linear-gradient(to right, var(--grid) 0 1px, transparent 1px) 0 0 / 32px 32px,
-      linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px) 0 0 / 32px 32px,
-      radial-gradient(130% 150% at 42% 24%, #FFFFFF 0%, #F7F9FD 36%, #EFF1F7 70%, #E9EBF3 100%);
-    perspective:1400px; perspective-origin:50% 46%;
-    transform-style:preserve-3d;
-  }
+  /* the same graph paper the site sits on */
+  .paper { position:absolute; inset:0;
+    background-image:
+      linear-gradient(to right, #DEDEDE 0 1px, transparent 1px),
+      linear-gradient(to bottom, #DEDEDE 0 1px, transparent 1px);
+    background-size:32px 32px; }
 
-  /* ---- the key light and the washes ---- */
-  .glow { position:absolute; border-radius:50%; filter:blur(104px); pointer-events:none; }
-  .key { width:900px; height:640px; left:120px; top:-280px; background:rgba(255,255,255,.70); }
-  .g1  { width:900px; height:470px; left:300px; top:120px;  background:rgba(255,238,168,.50); }
-  .g2  { width:640px; height:430px; left:940px; top:-100px; background:rgba(206,196,255,.44); }
-  .g3  { width:580px; height:390px; left:-180px; top:190px; background:rgba(198,220,255,.50); }
-  .g4  { width:660px; height:350px; left:540px; top:310px;  background:rgba(168,196,246,.44); }
-  .g5  { width:480px; height:370px; left:1120px; top:210px; background:rgba(218,206,255,.40); }
+  /* the vesica: two circles of equal radius through each other's centre */
+  .ground { position:absolute; right:250px; top:50%; transform:translateY(-50%);
+             width:560px; height:560px; opacity:.85; }
 
-  /* ---- the bodies of liquid glass ----
-     Large organic forms crossing the scene: a translucent fill with a bright
-     crest where the light runs along the top of the swell, a cool trough
-     under it, and a rim that catches the light all the way round. They blur
-     progressively, which is the depth of field. */
-  .flow { position:absolute; inset:-200px; pointer-events:none; }
-  .form {
-    position:absolute; display:block;
-    background:
-      radial-gradient(58% 50% at 28% 20%, rgba(255,255,255,1) 0%, rgba(255,255,255,.62) 20%, rgba(255,255,255,0) 56%),
-      radial-gradient(64% 54% at 74% 82%, rgba(var(--h),.78) 0%, rgba(var(--h),.34) 46%, rgba(var(--h),0) 78%),
-      linear-gradient(148deg,
-        rgba(255,255,255,.90) 0%, rgba(var(--h),.30) 26%,
-        rgba(var(--h),.58) 58%, rgba(255,255,255,.80) 86%, rgba(var(--h),.28) 100%);
-    box-shadow:
-      inset 0 0 0 2.5px rgba(255,255,255,.92),
-      inset 0 34px 70px rgba(255,255,255,.95),
-      inset 0 -44px 96px rgba(var(--h),.72),
-      inset 30px 0 80px rgba(255,255,255,.55),
-      0 0 100px rgba(255,255,255,.30);
-  }
-  .ca {
-    position:absolute; display:block; border-radius:999px;
-    background:linear-gradient(90deg,
-      rgba(255,255,255,0), rgba(182,208,248,.92) 26%,
-      rgba(255,255,255,1) 50%, rgba(238,230,255,.88) 74%, rgba(255,255,255,0));
-  }
-  .bead {
-    position:absolute; border-radius:50%; pointer-events:none;
-    background:
-      radial-gradient(circle at 36% 30%,
-        rgba(255,255,255,.96) 0%, rgba(255,255,255,.34) 13%,
-        rgba(255,255,255,.04) 34%, rgba(176,182,214,.10) 60%,
-        rgba(226,238,255,.62) 86%, rgba(232,220,255,.36) 94%, rgba(255,255,255,.10) 100%),
-      conic-gradient(from 210deg,
-        rgba(214,228,255,.30), rgba(228,214,255,.18), rgba(255,244,196,.16),
-        rgba(206,246,255,.14), rgba(214,228,255,.30));
-    box-shadow:
-      inset -2px -4px 15px rgba(104,108,150,.26),
-      inset 3px 4px 13px rgba(255,255,255,.80),
-      0 12px 26px rgba(56,58,86,.12);
-    backdrop-filter:blur(7px) saturate(1.5) brightness(1.04);
-  }
+  .mark { position:absolute; right:180px; top:50%; transform:translateY(-50%) rotate(-13deg);
+           width:520px; height:520px;
+           /* the blur closes the steps between layers where the mark's own
+              spikes are thinner than the gap; the shadow sits it on the page */
+           filter:blur(.7px) drop-shadow(0 18px 34px rgba(61,59,79,.16)); }
 
-  /* ---- the slabs ----
-     Real thickness, not a shadow pretending: seventeen copies of the same
-     rounded rectangle stepped back along z inside a preserve-3d parent, going
-     from a cool grey at the back to white at the front. A box-shadow stack
-     only reads from one direction; this one turns with the card, which is why
-     the six of them can face six different ways. */
-  .slab {
-    position:absolute; z-index:5; width:322px;
-    transform-style:preserve-3d;
-    filter:drop-shadow(0 22px 26px rgba(255,226,140,.26))
-           drop-shadow(0 34px 52px rgba(66,70,108,.22));
-  }
-  .lyr {
-    position:absolute; inset:0; display:block; border-radius:24px;
-    pointer-events:none;
-  }
-  .card {
-    position:relative; border-radius:24px; padding:9px;
-    background:linear-gradient(148deg,
-      rgba(255,255,255,.52) 0%, rgba(198,214,248,.26) 34%,
-      rgba(214,198,246,.24) 64%, rgba(255,255,255,.46) 100%);
-    backdrop-filter:blur(9px) saturate(1.9) brightness(1.08);
-    box-shadow:
-      2px 0 0 rgba(255,168,232,.50), -2px 0 0 rgba(130,186,255,.50),
-      0 -1.6px 0 rgba(255,238,150,.55), 0 1.6px 0 rgba(168,210,255,.45),
-      inset 1.6px 1.6px 0 rgba(255,255,255,1),
-      inset -1.6px -1.6px 0 rgba(255,255,255,.60);
-  }
-  .card::before {
-    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    background:linear-gradient(124deg,
-      rgba(255,255,255,.96) 0%, rgba(255,255,255,.32) 12%,
-      rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%,
-      rgba(255,255,255,.30) 87%, rgba(255,255,255,.84) 100%);
-  }
-  .card::after {
-    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    padding:1.4px;
-    background:linear-gradient(125deg,
-      rgba(255,238,150,.98) 0%, rgba(255,255,255,.96) 22%,
-      rgba(255,168,232,.82) 42%, rgba(130,186,255,.86) 62%,
-      rgba(255,255,255,.94) 80%, rgba(255,240,164,.98) 100%);
-    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    mask-composite:exclude;
-  }
-  .face {
-    position:relative; z-index:1; border-radius:17px; padding:13px 15px 14px;
-    background:linear-gradient(150deg, rgba(255,255,255,.80), rgba(255,255,255,.62));
-    backdrop-filter:blur(16px) saturate(1.3) brightness(1.05);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.6),
-               0 1px 3px rgba(72,76,112,.16);
-  }
-  .vc-row { display:flex; align-items:center; gap:10px; }
-  .vc-ic {
-    width:36px; height:36px; flex:none; border-radius:11px;
-    display:grid; place-items:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.95), 0 1px 4px rgba(72,76,112,.14);
-  }
-  .vc-ic svg { width:19px; height:19px; fill:currentColor; }
-  .vc-id { display:flex; flex-direction:column; min-width:0; }
-  .vc-id b { font-size:14.5px; font-weight:700; letter-spacing:-.02em; white-space:nowrap; }
-  .vc-id span { font-size:9.8px; color:var(--muted); margin-top:1px; white-space:nowrap; }
-  .vc-px { margin-left:auto; font-size:17.5px; font-weight:600; letter-spacing:-.03em; color:var(--accent); }
-  .vc-lab {
-    display:block; margin-top:14px; font-family:var(--mono); font-size:8.5px;
-    letter-spacing:.16em; text-transform:uppercase; color:var(--dim);
-  }
-  .vc-bar {
-    position:relative; margin-top:7px; height:5px; border-radius:999px;
-    background:rgba(96,100,140,.22); overflow:hidden;
-  }
-  .vc-bar i { display:block; height:100%; border-radius:999px;
-              background:linear-gradient(90deg, var(--accent-fill), var(--accent-glow)); }
-  .vc-pct { display:block; text-align:right; margin-top:6px;
-             font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--dim); }
+  .copy { position:absolute; left:104px; top:78px; }
+  .lock { display:flex; align-items:center; gap:19px; }
+  .lock .m { width:56px; height:56px; color:#3D3B4F; }
+  .word { font-size:66px; font-weight:700; letter-spacing:-.045em; color:#3D3B4F; line-height:1; }
+  .line { margin-top:26px; font-size:31px; font-weight:600; letter-spacing:-.028em;
+           color:#3D3B4F; line-height:1.22; }
+  .line em { font-style:normal; background:#F2EAA0; padding:0 8px; border-radius:4px; }
+  .sub { margin-top:16px; font-family:'JetBrains Mono',monospace; font-size:14.5px;
+          letter-spacing:.17em; text-transform:uppercase; color:#82828D; }
 
-  .slab.v1 { left:14px; top:196px; transform:translateZ(40px) rotateX(7deg) rotateY(-17deg) rotateZ(-2.6deg);  }
-  .slab.v2 { left:268px; top:8px; transform:translateZ(96px) rotateX(9deg) rotateY(-14deg) rotateZ(-1.8deg);  }
-  .slab.v3 { left:512px; bottom:14px; transform:translateZ(16px) rotateX(-9deg) rotateY(4deg) rotateZ(1.2deg);  }
-  .slab.v4 { right:118px; top:8px; transform:translateZ(80px) rotateX(8deg) rotateY(16deg) rotateZ(1.8deg);  }
-  .slab.v5 { right:24px; top:166px; transform:translateZ(30px) rotateX(6deg) rotateY(19deg) rotateZ(-2deg); filter:blur(.4px); }
-  .slab.v6 { right:186px; bottom:16px; transform:translateZ(-26px) rotateX(-11deg) rotateY(13deg) rotateZ(-1.2deg); filter:blur(1.1px); }
-
-  .say {
-    position:absolute; left:0; right:0; top:214px; text-align:center; z-index:6;
-    font-size:42px; font-weight:600; letter-spacing:-.035em; line-height:1.1;
-    text-shadow:0 1px 0 rgba(255,255,255,.85);
-  }
-  .say em { font-style:normal; color:var(--accent); box-shadow:inset 0 -.26em 0 var(--accent-fill); }
-  .sub {
-    position:absolute; left:0; right:0; top:276px; text-align:center; z-index:6;
-    font-size:16.5px; color:var(--muted); letter-spacing:-.005em;
-    text-shadow:0 1px 0 rgba(255,255,255,.85);
-  }
-
-  .pill {
-    position:absolute; z-index:6; display:inline-flex; align-items:center; gap:8px;
-    padding:9px 16px 9px 12px; border-radius:999px;
-    background:linear-gradient(148deg, rgba(255,255,255,.70), rgba(255,255,255,.46));
-    backdrop-filter:blur(13px) saturate(1.7) brightness(1.08);
-    font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.11em;
-    text-transform:uppercase; color:var(--ink); white-space:nowrap;
-    box-shadow:
-      1.6px 0 0 rgba(255,168,232,.45), -1.6px 0 0 rgba(130,186,255,.45),
-      inset 1.2px 1.2px 0 rgba(255,255,255,1), inset -1.2px -1.2px 0 rgba(255,255,255,.58),
-      0 12px 22px rgba(255,226,140,.24),
-      0 22px 36px rgba(66,70,108,.18);
-  }
-  .pill .dot { width:7px; height:7px; border-radius:50%; background:#2F9E7A; flex:none;
-               box-shadow:0 0 0 3px rgba(47,158,122,.16); }
-  .pill .mk { width:14px; height:14px; flex:none; background:var(--band);
-              -webkit-mask:url(../mark.svg) center / contain no-repeat;
-              mask:url(../mark.svg) center / contain no-repeat; }
-  .q1 { left:640px; top:38px; transform:translateZ(110px) rotateY(-7deg) rotateZ(-1.2deg); }
-  .q2 { right:430px; top:128px; transform:translateZ(100px) rotateY(7deg) rotateZ(1deg); }
-
-  .lift { width:1400px; height:520px; left:50px; top:70px; background:rgba(255,255,255,.34); }
-
-  .vig {
-    position:absolute; inset:0; z-index:7; pointer-events:none;
-    background:radial-gradient(135% 125% at 50% 44%,
-      rgba(255,255,255,0) 58%, rgba(236,239,247,.24) 87%, rgba(228,232,243,.42) 100%);
-  }
-</style>
-</head>
+  /* the strip along the bottom, clear of the avatar */
+  /* Not bottom-left: that is the avatar's corner. X hangs a circle of about
+     200px over it, half below the edge, so anything down there is covered on
+     every profile that has a picture. The chips sit under the copy instead. */
+  .strip { margin-top:22px; display:flex; gap:12px; }
+  .chip { font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.1em;
+           text-transform:uppercase; color:#3D3B4F;
+           border:1px solid #23222F; border-radius:999px; padding:6px 15px; background:#E9E9E9; }
+  .chip.fill { background:#F2EAA0; border-color:#E6DC94; }
+</style></head>
 <body>
-<div class="hd">
-  <div class="glow g3"></div>
-  <div class="glow g1"></div>
-  <div class="glow g4"></div>
-  <div class="glow g2"></div>
-  <div class="glow g5"></div>
+  <div class="paper"></div>
 
-  <div class="flow">
-      <i class="form" style="left:-420px;top:-300px;width:1180px;height:760px;border-radius:58% 42% 38% 62% / 46% 58% 42% 54%;transform:rotate(-14deg);filter:blur(3px);opacity:0.92;--h:168,196,246"></i>
-      <i class="form" style="left:560px;top:-420px;width:1320px;height:900px;border-radius:42% 58% 62% 38% / 56% 44% 56% 44%;transform:rotate(18deg);filter:blur(6px);opacity:0.86;--h:186,172,242"></i>
-      <i class="form" style="left:-260px;top:180px;width:1080px;height:620px;border-radius:60% 40% 44% 56% / 38% 62% 38% 62%;transform:rotate(-7deg);filter:blur(10px);opacity:0.74;--h:156,190,244"></i>
-      <i class="form" style="left:820px;top:180px;width:1000px;height:640px;border-radius:44% 56% 58% 42% / 60% 40% 60% 40%;transform:rotate(11deg);filter:blur(8px);opacity:0.78;--h:182,208,248"></i>
-      <i class="form" style="left:180px;top:-140px;width:920px;height:560px;border-radius:52% 48% 40% 60% / 44% 56% 44% 56%;transform:rotate(-22deg);filter:blur(16px);opacity:0.62;--h:250,224,132"></i>
-      <i class="form" style="left:380px;top:250px;width:1180px;height:520px;border-radius:46% 54% 56% 44% / 52% 48% 52% 48%;transform:rotate(6deg);filter:blur(13px);opacity:0.66;--h:170,200,246"></i>
-      <i class="ca" style="left:284px;top:-67px;width:602px;height:13px;opacity:0.44;filter:blur(2.1px);transform:rotate(17deg)"></i>
-      <i class="ca" style="left:65px;top:157px;width:283px;height:20px;opacity:0.48;filter:blur(3.8px);transform:rotate(-33deg)"></i>
-      <i class="ca" style="left:120px;top:88px;width:376px;height:5px;opacity:0.76;filter:blur(2.9px);transform:rotate(-42deg)"></i>
-      <i class="ca" style="left:-53px;top:267px;width:324px;height:12px;opacity:0.62;filter:blur(4.7px);transform:rotate(40deg)"></i>
-      <i class="ca" style="left:449px;top:75px;width:323px;height:14px;opacity:0.38;filter:blur(5.1px);transform:rotate(56deg)"></i>
-      <i class="ca" style="left:1029px;top:-56px;width:452px;height:16px;opacity:0.70;filter:blur(5.3px);transform:rotate(17deg)"></i>
-      <i class="ca" style="left:440px;top:206px;width:668px;height:19px;opacity:0.47;filter:blur(9.5px);transform:rotate(-30deg)"></i>
-      <i class="ca" style="left:233px;top:104px;width:497px;height:17px;opacity:0.47;filter:blur(3.3px);transform:rotate(-51deg)"></i>
-      <i class="ca" style="left:274px;top:455px;width:333px;height:9px;opacity:0.52;filter:blur(3.1px);transform:rotate(-27deg)"></i>
-      <i class="ca" style="left:752px;top:282px;width:599px;height:17px;opacity:0.66;filter:blur(11.8px);transform:rotate(-68deg)"></i>
-      <i class="ca" style="left:1339px;top:254px;width:347px;height:20px;opacity:0.48;filter:blur(5.1px);transform:rotate(53deg)"></i>
-      <i class="ca" style="left:1373px;top:140px;width:564px;height:5px;opacity:0.53;filter:blur(10.2px);transform:rotate(-22deg)"></i>
-      <i class="ca" style="left:623px;top:49px;width:688px;height:15px;opacity:0.65;filter:blur(2.1px);transform:rotate(-27deg)"></i>
-      <i class="ca" style="left:1139px;top:259px;width:478px;height:10px;opacity:0.53;filter:blur(4.8px);transform:rotate(34deg)"></i>
-      <i class="ca" style="left:902px;top:240px;width:366px;height:16px;opacity:0.39;filter:blur(4.9px);transform:rotate(-28deg)"></i>
-      <i class="ca" style="left:-56px;top:66px;width:613px;height:13px;opacity:0.80;filter:blur(6.8px);transform:rotate(31deg)"></i>
-  </div>
+  <svg class="ground" viewBox="0 0 100 100" aria-hidden="true">
+    <defs>
+      <radialGradient id="g" cx="50%" cy="46%" r="62%">
+        <stop offset="0%"   stop-color="#F2EAA0" stop-opacity=".55"/>
+        <stop offset="54%"  stop-color="#D8D7DF" stop-opacity=".40"/>
+        <stop offset="100%" stop-color="#D8D7DF" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <path fill="url(#g)" d="M50 17.1 A38 38 0 0 1 50 82.9 A38 38 0 0 1 50 17.1 Z"/>
+    <path fill="none" stroke="#BEBDC7" stroke-width=".55" opacity=".75"
+          d="M50 17.1 A38 38 0 0 1 50 82.9 A38 38 0 0 1 50 17.1 Z"/>
+  </svg>
 
-  <div class="glow key"></div>
-  <div class="glow lift"></div>
+  <svg class="mark" viewBox="-14 -14 128 128" aria-hidden="true">
+    <defs><path id="vm" d="M49.74 88.25C49.65 88.11 49.54 87.61 49.49 87.10C49.44 86.60 49.33 85.87 49.25 85.48C49.17 85.09 49.07 84.42 49.03 84.00C49.00 83.58 48.90 82.98 48.82 82.67C48.75 82.36 48.65 81.72 48.62 81.24C48.58 80.76 48.49 80.12 48.41 79.81C48.34 79.50 48.25 78.90 48.21 78.48C48.17 78.05 48.06 77.23 47.95 76.64C47.85 76.05 47.73 75.17 47.70 74.69C47.66 74.22 47.57 73.53 47.50 73.16C47.42 72.79 47.33 72.03 47.30 71.47C47.26 70.91 47.18 69.97 47.12 69.38C47.04 68.52 47.05 67.88 47.18 66.24C47.27 65.10 47.39 63.95 47.45 63.68C47.50 63.41 47.59 62.87 47.65 62.47C47.70 62.08 47.84 61.23 47.95 60.58C48.25 58.83 48.47 56.94 48.47 56.12C48.47 55.25 48.17 53.93 47.87 53.42C47.63 53.02 46.93 52.40 46.71 52.40C46.63 52.40 46.41 52.31 46.20 52.21C46.00 52.10 45.66 51.98 45.44 51.94C45.22 51.90 44.81 51.81 44.53 51.73C44.25 51.65 43.49 51.53 42.84 51.48C42.20 51.42 41.16 51.33 40.54 51.28C39.92 51.22 38.87 51.18 38.19 51.18C36.79 51.18 31.77 51.54 31.08 51.69C30.83 51.75 30.26 51.85 29.81 51.93C29.36 52.00 28.90 52.11 28.78 52.16C28.67 52.22 28.43 52.30 28.25 52.34C28.06 52.37 27.67 52.55 27.37 52.74C26.28 53.44 25.87 54.61 26.12 56.29C26.27 57.27 26.52 57.88 27.15 58.84C28.18 60.43 29.37 61.38 31.43 62.26C32.36 62.66 35.47 62.71 36.81 62.35C37.12 62.26 37.54 62.16 37.74 62.12C38.12 62.05 39.20 61.65 39.47 61.49C39.55 61.44 39.74 61.35 39.88 61.29C40.42 61.05 41.18 60.63 41.67 60.29C42.27 59.87 43.55 58.77 43.74 58.51C43.82 58.41 43.94 58.33 44.02 58.33C44.27 58.33 44.19 58.80 43.85 59.43C43.67 59.75 43.44 60.17 43.34 60.36C43.25 60.54 43.11 60.77 43.03 60.85C42.96 60.94 42.85 61.09 42.80 61.19C42.11 62.35 40.65 63.91 39.44 64.77C38.74 65.28 37.37 66.00 37.12 66.00C37.02 66.00 36.71 66.11 36.44 66.23C35.96 66.45 35.82 66.46 33.44 66.46C31.06 66.46 30.89 66.45 30.21 66.21C28.79 65.73 27.47 64.95 26.38 63.96C26.28 63.87 26.07 63.69 25.91 63.55C25.34 63.05 22.20 59.71 21.11 58.44C19.56 56.63 17.93 55.29 16.00 54.24C14.94 53.66 14.88 53.63 14.76 53.63C14.70 53.63 14.59 53.56 14.52 53.48C14.45 53.40 14.23 53.30 14.02 53.26C13.82 53.23 13.58 53.14 13.50 53.06C13.41 52.99 13.21 52.90 13.04 52.86C12.87 52.82 12.55 52.70 12.32 52.60C11.76 52.35 11.00 52.10 10.28 51.94C9.94 51.86 9.57 51.75 9.46 51.70C9.35 51.64 8.95 51.53 8.59 51.45C8.22 51.36 7.74 51.24 7.52 51.19C6.37 50.89 2.47 50.29 1.06 50.19C0.21 50.13 -0.12 50.04 0.02 49.89C0.05 49.87 0.63 49.80 1.33 49.74C2.03 49.68 2.88 49.56 3.22 49.48C3.56 49.40 4.04 49.34 4.29 49.34C4.55 49.34 5.15 49.25 5.62 49.14C6.10 49.03 6.72 48.89 7.00 48.84C7.72 48.71 8.89 48.43 9.25 48.30C9.42 48.24 9.84 48.12 10.18 48.05C10.52 47.97 10.94 47.84 11.10 47.75C11.27 47.67 11.49 47.60 11.61 47.60C11.72 47.60 11.95 47.52 12.12 47.43C12.29 47.34 12.64 47.20 12.90 47.12C13.17 47.04 13.41 46.93 13.45 46.88C13.48 46.82 13.58 46.78 13.67 46.78C13.82 46.78 15.73 45.87 16.31 45.53C17.48 44.83 18.10 44.42 18.46 44.11C19.48 43.22 20.09 42.59 22.11 40.39C25.10 37.12 25.27 36.95 26.25 36.10C27.10 35.34 28.41 34.41 28.60 34.41C28.66 34.41 28.81 34.32 28.95 34.22C29.08 34.11 29.35 33.99 29.55 33.95C29.75 33.91 30.05 33.82 30.21 33.74C30.60 33.57 32.34 33.38 33.52 33.39C34.71 33.39 36.17 33.56 36.54 33.75C36.71 33.83 36.91 33.90 37.00 33.90C37.19 33.90 38.16 34.36 38.55 34.64C38.68 34.74 38.86 34.82 38.94 34.82C39.43 34.82 42.24 37.71 42.88 38.85C43.11 39.27 43.26 39.51 43.53 39.90C43.66 40.08 43.76 40.27 43.76 40.33C43.76 40.39 43.85 40.59 43.97 40.77C44.17 41.10 44.25 41.67 44.09 41.67C44.04 41.67 43.85 41.50 43.66 41.30C43.18 40.80 41.95 39.80 41.53 39.56C41.15 39.35 40.99 39.25 40.59 38.99C40.45 38.90 40.22 38.79 40.08 38.75C39.94 38.71 39.76 38.62 39.67 38.54C39.22 38.15 36.76 37.52 35.13 37.37C33.61 37.23 32.00 37.37 31.39 37.69C31.20 37.80 30.96 37.88 30.86 37.88C30.77 37.88 30.66 37.93 30.63 37.98C30.60 38.03 30.37 38.17 30.13 38.28C29.64 38.52 28.29 39.61 27.89 40.09C27.46 40.60 26.72 41.72 26.64 41.98C26.60 42.12 26.48 42.39 26.38 42.59C25.94 43.43 25.95 45.41 26.39 46.15C26.79 46.81 27.53 47.43 28.07 47.55C28.24 47.59 28.65 47.70 28.99 47.81C31.16 48.48 37.76 48.92 41.21 48.62C44.96 48.30 46.58 47.86 47.51 46.92C47.98 46.44 48.05 46.31 48.25 45.52C48.59 44.16 48.51 42.50 47.95 39.37C47.84 38.75 47.75 38.10 47.75 37.93C47.75 37.77 47.66 37.26 47.56 36.81C47.33 35.85 47.10 33.39 47.09 31.80C47.08 30.50 47.28 28.07 47.49 26.89C47.57 26.44 47.69 25.54 47.75 24.90C47.80 24.25 47.92 23.40 48.00 23.01C48.09 22.61 48.16 22.11 48.16 21.88C48.16 21.66 48.24 21.10 48.32 20.65C48.40 20.20 48.51 19.45 48.57 18.97C48.62 18.49 48.76 17.52 48.88 16.82C49.39 13.75 49.48 13.16 49.54 12.58C49.63 11.64 49.69 11.49 49.94 11.52C50.11 11.55 50.17 11.65 50.22 12.07C50.26 12.35 50.34 12.92 50.40 13.34C50.49 14.07 50.57 14.57 51.02 17.38C51.13 18.06 51.25 18.92 51.28 19.31C51.32 19.69 51.39 20.14 51.44 20.31C51.49 20.49 51.58 21.09 51.64 21.66C51.70 22.23 51.81 23.02 51.89 23.42C51.97 23.81 52.09 24.69 52.14 25.37C52.20 26.04 52.29 26.73 52.35 26.90C52.44 27.18 52.62 29.28 52.73 31.27C52.79 32.33 52.51 35.79 52.29 36.76C52.21 37.12 52.10 37.77 52.05 38.19C52.00 38.61 51.89 39.35 51.80 39.83C51.58 41.08 51.33 43.18 51.33 43.87C51.33 44.69 51.70 46.17 52.00 46.59C52.32 47.02 53.04 47.60 53.26 47.60C53.35 47.60 53.57 47.68 53.74 47.79C53.91 47.89 54.23 48.00 54.46 48.03C54.68 48.06 55.13 48.15 55.47 48.24C56.32 48.47 58.25 48.63 60.75 48.69C64.26 48.78 68.97 48.36 70.86 47.79C71.22 47.68 71.59 47.59 71.66 47.60C71.99 47.60 73.31 46.59 73.31 46.33C73.31 46.28 73.38 46.16 73.46 46.07C73.72 45.78 73.85 44.60 73.71 43.67C73.65 43.22 73.54 42.73 73.46 42.59C73.39 42.45 73.20 42.06 73.04 41.72C72.66 40.92 71.94 40.02 71.09 39.28C70.42 38.70 69.15 37.88 68.92 37.88C68.85 37.88 68.61 37.80 68.37 37.69C67.31 37.21 64.18 37.20 62.66 37.68C62.30 37.79 61.94 37.88 61.84 37.88C61.67 37.88 61.25 38.05 60.28 38.50C60.05 38.61 59.75 38.74 59.61 38.81C59.47 38.87 59.19 39.02 58.99 39.14C58.64 39.36 58.50 39.45 57.67 39.99C57.47 40.12 57.00 40.53 56.62 40.91C55.95 41.56 55.62 41.69 55.62 41.31C55.62 41.19 56.35 39.83 56.88 38.96C57.85 37.38 59.86 35.34 61.04 34.74C61.18 34.67 61.60 34.45 61.96 34.25C62.33 34.06 62.71 33.90 62.81 33.90C62.91 33.90 63.13 33.83 63.29 33.74C63.92 33.42 66.35 33.29 68.18 33.49C69.10 33.59 70.29 33.89 70.65 34.11C70.74 34.16 71.04 34.31 71.32 34.45C72.08 34.83 73.51 35.95 74.57 37.00C74.93 37.37 76.87 39.47 78.31 41.05C79.62 42.50 81.25 44.09 81.75 44.41C81.97 44.55 82.21 44.73 82.29 44.80C82.37 44.88 82.49 44.94 82.56 44.94C82.63 44.94 82.76 45.01 82.84 45.11C82.91 45.20 83.11 45.34 83.28 45.42C83.45 45.50 84.07 45.81 84.65 46.12C85.23 46.43 85.76 46.68 85.83 46.68C85.89 46.68 86.12 46.77 86.33 46.88C86.54 46.99 86.76 47.09 86.84 47.09C86.91 47.09 87.19 47.20 87.47 47.34C87.76 47.48 88.09 47.59 88.22 47.59C88.35 47.60 88.60 47.67 88.78 47.76C88.96 47.86 89.36 47.99 89.67 48.06C89.98 48.14 90.83 48.36 91.56 48.56C92.30 48.76 93.03 48.92 93.20 48.92C93.37 48.93 93.85 49.02 94.27 49.13C94.70 49.24 95.23 49.33 95.47 49.33C95.70 49.33 96.19 49.40 96.54 49.48C96.90 49.57 97.79 49.68 98.52 49.75C100.59 49.92 100.48 50.05 98.06 50.26C97.35 50.32 96.62 50.41 96.42 50.46C96.22 50.50 95.76 50.57 95.40 50.61C95.03 50.64 94.34 50.76 93.87 50.87C93.39 50.98 92.77 51.11 92.48 51.17C91.51 51.36 90.33 51.66 90.13 51.76C90.02 51.82 89.72 51.90 89.47 51.94C89.22 51.98 88.92 52.07 88.80 52.14C88.69 52.21 88.46 52.30 88.29 52.34C87.66 52.49 86.19 53.08 84.76 53.76C83.79 54.23 83.43 54.44 82.16 55.25C81.41 55.73 80.19 56.79 79.59 57.48C79.26 57.86 78.77 58.40 78.51 58.69C78.25 58.97 77.91 59.34 77.76 59.51C73.40 64.32 72.20 65.31 69.58 66.21C68.90 66.45 68.75 66.46 66.36 66.46C64.00 66.46 63.82 66.44 63.31 66.23C63.02 66.10 62.69 66.00 62.60 66.00C62.50 66.00 62.31 65.91 62.17 65.80C62.03 65.69 61.84 65.60 61.75 65.60C61.43 65.59 59.94 64.49 58.99 63.55C57.99 62.55 56.95 61.27 56.95 61.03C56.95 60.95 56.91 60.89 56.85 60.89C56.80 60.89 56.67 60.72 56.56 60.51C56.46 60.30 56.20 59.81 56.00 59.44C55.62 58.75 55.52 58.33 55.74 58.33C55.80 58.33 56.25 58.69 56.73 59.13C57.80 60.10 58.56 60.61 59.71 61.17C61.07 61.81 61.53 61.99 62.68 62.28C63.64 62.52 63.95 62.55 65.70 62.56C67.50 62.57 67.67 62.56 68.14 62.35C68.41 62.22 68.70 62.12 68.79 62.12C69.17 62.12 70.95 60.88 71.65 60.13C73.27 58.40 74.02 56.44 73.71 54.69C73.51 53.55 72.59 52.54 71.56 52.33C71.38 52.30 71.11 52.21 70.97 52.13C70.82 52.06 70.59 51.99 70.45 51.99C70.31 51.99 69.76 51.90 69.22 51.78C68.13 51.55 63.45 51.18 61.71 51.18C60.64 51.18 59.55 51.25 57.00 51.48C55.84 51.58 54.23 51.92 53.78 52.14C53.64 52.22 53.37 52.33 53.17 52.39C52.76 52.53 52.42 52.81 52.01 53.36C51.70 53.77 51.33 55.22 51.33 56.02C51.33 56.69 51.73 60.07 51.89 60.69C51.97 60.99 52.06 61.57 52.10 61.96C52.14 62.36 52.23 62.93 52.31 63.24C52.50 64.03 52.79 67.84 52.73 68.76C52.55 71.29 52.44 72.55 52.35 73.00C52.29 73.28 52.18 74.13 52.10 74.89C52.02 75.66 51.88 76.65 51.80 77.10C51.71 77.55 51.64 78.12 51.64 78.37C51.64 78.63 51.57 79.11 51.49 79.45C51.41 79.79 51.29 80.55 51.23 81.13C51.17 81.71 51.08 82.36 51.03 82.56C50.97 82.76 50.86 83.45 50.78 84.10C50.69 84.75 50.55 85.61 50.47 86.02C50.38 86.44 50.31 86.96 50.31 87.18C50.31 87.68 50.11 88.50 49.99 88.50C49.94 88.50 49.83 88.38 49.74 88.25Z"/></defs>
+      <use href="#vm" fill="#6e6d7a" transform="translate(18.00 -9.90)"/>
+      <use href="#vm" fill="#6f6e7b" transform="translate(17.60 -9.68)"/>
+      <use href="#vm" fill="#706f7c" transform="translate(17.20 -9.46)"/>
+      <use href="#vm" fill="#72717e" transform="translate(16.80 -9.24)"/>
+      <use href="#vm" fill="#74737f" transform="translate(16.40 -9.02)"/>
+      <use href="#vm" fill="#767581" transform="translate(16.00 -8.80)"/>
+      <use href="#vm" fill="#787783" transform="translate(15.60 -8.58)"/>
+      <use href="#vm" fill="#7a7985" transform="translate(15.20 -8.36)"/>
+      <use href="#vm" fill="#7c7b87" transform="translate(14.80 -8.14)"/>
+      <use href="#vm" fill="#7f7e89" transform="translate(14.40 -7.92)"/>
+      <use href="#vm" fill="#81808c" transform="translate(14.00 -7.70)"/>
+      <use href="#vm" fill="#83828e" transform="translate(13.60 -7.48)"/>
+      <use href="#vm" fill="#868590" transform="translate(13.20 -7.26)"/>
+      <use href="#vm" fill="#898893" transform="translate(12.80 -7.04)"/>
+      <use href="#vm" fill="#8b8a95" transform="translate(12.40 -6.82)"/>
+      <use href="#vm" fill="#8e8d98" transform="translate(12.00 -6.60)"/>
+      <use href="#vm" fill="#91909b" transform="translate(11.60 -6.38)"/>
+      <use href="#vm" fill="#94939d" transform="translate(11.20 -6.16)"/>
+      <use href="#vm" fill="#9796a0" transform="translate(10.80 -5.94)"/>
+      <use href="#vm" fill="#9a99a3" transform="translate(10.40 -5.72)"/>
+      <use href="#vm" fill="#9d9ca6" transform="translate(10.00 -5.50)"/>
+      <use href="#vm" fill="#a09fa8" transform="translate(9.60 -5.28)"/>
+      <use href="#vm" fill="#a3a2ab" transform="translate(9.20 -5.06)"/>
+      <use href="#vm" fill="#a6a5ae" transform="translate(8.80 -4.84)"/>
+      <use href="#vm" fill="#a9a8b1" transform="translate(8.40 -4.62)"/>
+      <use href="#vm" fill="#acabb4" transform="translate(8.00 -4.40)"/>
+      <use href="#vm" fill="#b0afb7" transform="translate(7.60 -4.18)"/>
+      <use href="#vm" fill="#b3b2ba" transform="translate(7.20 -3.96)"/>
+      <use href="#vm" fill="#b6b5bd" transform="translate(6.80 -3.74)"/>
+      <use href="#vm" fill="#bab9c1" transform="translate(6.40 -3.52)"/>
+      <use href="#vm" fill="#bdbcc4" transform="translate(6.00 -3.30)"/>
+      <use href="#vm" fill="#c1c0c7" transform="translate(5.60 -3.08)"/>
+      <use href="#vm" fill="#c4c3ca" transform="translate(5.20 -2.86)"/>
+      <use href="#vm" fill="#c8c7ce" transform="translate(4.80 -2.64)"/>
+      <use href="#vm" fill="#cbcad1" transform="translate(4.40 -2.42)"/>
+      <use href="#vm" fill="#cfced4" transform="translate(4.00 -2.20)"/>
+      <use href="#vm" fill="#d2d1d8" transform="translate(3.60 -1.98)"/>
+      <use href="#vm" fill="#d6d5db" transform="translate(3.20 -1.76)"/>
+      <use href="#vm" fill="#dad9de" transform="translate(2.80 -1.54)"/>
+      <use href="#vm" fill="#dddce2" transform="translate(2.40 -1.32)"/>
+      <use href="#vm" fill="#e1e0e5" transform="translate(2.00 -1.10)"/>
+      <use href="#vm" fill="#e5e4e9" transform="translate(1.60 -0.88)"/>
+      <use href="#vm" fill="#e9e8ec" transform="translate(1.20 -0.66)"/>
+      <use href="#vm" fill="#ecebf0" transform="translate(0.80 -0.44)"/>
+      <use href="#vm" fill="#f0eff3" transform="translate(0.40 -0.22)"/>
+      <use href="#vm" fill="#f4f3f7" transform="translate(0.00 0.00)"/>
+  </svg>
 
-    <i class="bead" style="left:172px;top:58px;width:64px;height:64px;filter:blur(0px)"></i>
-    <i class="bead" style="left:614px;top:176px;width:42px;height:42px;filter:blur(0.5px)"></i>
-    <i class="bead" style="left:898px;top:80px;width:76px;height:76px;filter:blur(0px)"></i>
-    <i class="bead" style="left:452px;top:398px;width:56px;height:56px;filter:blur(6px)"></i>
-    <i class="bead" style="left:1102px;top:332px;width:50px;height:50px;filter:blur(1px)"></i>
-    <i class="bead" style="left:1374px;top:188px;width:92px;height:92px;filter:blur(9px)"></i>
-    <i class="bead" style="left:746px;top:450px;width:36px;height:36px;filter:blur(0.4px)"></i>
-    <i class="bead" style="left:48px;top:402px;width:54px;height:54px;filter:blur(11px)"></i>
-
-  <div class="slab v1"><i class="lyr" style="transform:translateZ(-24.65px);background:#A9ABC4;opacity:0.38"></i><i class="lyr" style="transform:translateZ(-23.20px);background:#B7B9CE;opacity:0.41"></i><i class="lyr" style="transform:translateZ(-21.75px);background:#BFC1D3;opacity:0.44"></i><i class="lyr" style="transform:translateZ(-20.30px);background:#C6C7D8;opacity:0.47"></i><i class="lyr" style="transform:translateZ(-18.85px);background:#CCCDDC;opacity:0.50"></i><i class="lyr" style="transform:translateZ(-17.40px);background:#D1D2E0;opacity:0.53"></i><i class="lyr" style="transform:translateZ(-15.95px);background:#D6D7E3;opacity:0.56"></i><i class="lyr" style="transform:translateZ(-14.50px);background:#DBDCE6;opacity:0.59"></i><i class="lyr" style="transform:translateZ(-13.05px);background:#E0E1EA;opacity:0.62"></i><i class="lyr" style="transform:translateZ(-11.60px);background:#E4E5ED;opacity:0.65"></i><i class="lyr" style="transform:translateZ(-10.15px);background:#E8E9EF;opacity:0.68"></i><i class="lyr" style="transform:translateZ(-8.70px);background:#ECEDF2;opacity:0.71"></i><i class="lyr" style="transform:translateZ(-7.25px);background:#F0F1F5;opacity:0.74"></i><i class="lyr" style="transform:translateZ(-5.80px);background:#F4F4F8;opacity:0.77"></i><i class="lyr" style="transform:translateZ(-4.35px);background:#F8F8FA;opacity:0.80"></i><i class="lyr" style="transform:translateZ(-2.90px);background:#FBFCFD;opacity:0.83"></i><i class="lyr" style="transform:translateZ(-1.45px);background:#FFFFFF;opacity:0.86"></i>
-    <div class="card vc">
-    <div class="face">
-      <div class="vc-row">
-        <span class="vc-ic" style="background:#FBE9EA;color:#D9232E"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.095 2.572h5.827v18.856H9.096zM0 2.572h5.825v18.856H.001zm18.174 0v18.854H24V8.33z"/></svg></span>
-        <span class="vc-id"><b>xMSTR</b><span>MicroStrategy</span></span>
-        <b class="vc-px">34.9%</b>
-      </div>
-      <span class="vc-lab">Capacity</span>
-      <div class="vc-bar"><i style="width:57%"></i></div>
-      <span class="vc-pct">57%</span>
+  <div class="copy">
+    <div class="lock">
+      <svg class="m" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+        <use href="#vm"/>
+      </svg>
+      <span class="word">Vesica</span>
     </div>
-    </div>
-  </div>
-  <div class="slab v2"><i class="lyr" style="transform:translateZ(-24.65px);background:#A9ABC4;opacity:0.38"></i><i class="lyr" style="transform:translateZ(-23.20px);background:#B7B9CE;opacity:0.41"></i><i class="lyr" style="transform:translateZ(-21.75px);background:#BFC1D3;opacity:0.44"></i><i class="lyr" style="transform:translateZ(-20.30px);background:#C6C7D8;opacity:0.47"></i><i class="lyr" style="transform:translateZ(-18.85px);background:#CCCDDC;opacity:0.50"></i><i class="lyr" style="transform:translateZ(-17.40px);background:#D1D2E0;opacity:0.53"></i><i class="lyr" style="transform:translateZ(-15.95px);background:#D6D7E3;opacity:0.56"></i><i class="lyr" style="transform:translateZ(-14.50px);background:#DBDCE6;opacity:0.59"></i><i class="lyr" style="transform:translateZ(-13.05px);background:#E0E1EA;opacity:0.62"></i><i class="lyr" style="transform:translateZ(-11.60px);background:#E4E5ED;opacity:0.65"></i><i class="lyr" style="transform:translateZ(-10.15px);background:#E8E9EF;opacity:0.68"></i><i class="lyr" style="transform:translateZ(-8.70px);background:#ECEDF2;opacity:0.71"></i><i class="lyr" style="transform:translateZ(-7.25px);background:#F0F1F5;opacity:0.74"></i><i class="lyr" style="transform:translateZ(-5.80px);background:#F4F4F8;opacity:0.77"></i><i class="lyr" style="transform:translateZ(-4.35px);background:#F8F8FA;opacity:0.80"></i><i class="lyr" style="transform:translateZ(-2.90px);background:#FBFCFD;opacity:0.83"></i><i class="lyr" style="transform:translateZ(-1.45px);background:#FFFFFF;opacity:0.86"></i>
-    <div class="card vc">
-    <div class="face">
-      <div class="vc-row">
-        <span class="vc-ic" style="background:#F1F7E8;color:#76B900"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.948 8.798v-1.43a6.7 6.7 0 0 1 .424-.018c3.922-.124 6.493 3.374 6.493 3.374s-2.774 3.851-5.75 3.851c-.398 0-.787-.062-1.158-.185v-4.346c1.528.185 1.837.857 2.747 2.385l2.04-1.714s-1.492-1.952-4-1.952a6.016 6.016 0 0 0-.796.035m0-4.735v2.138l.424-.027c5.45-.185 9.01 4.47 9.01 4.47s-4.08 4.964-8.33 4.964c-.37 0-.733-.035-1.095-.097v1.325c.3.035.61.062.91.062 3.957 0 6.82-2.023 9.593-4.408.459.371 2.34 1.263 2.73 1.652-2.633 2.208-8.772 3.984-12.253 3.984-.335 0-.653-.018-.971-.053v1.864H24V4.063zm0 10.326v1.131c-3.657-.654-4.673-4.46-4.673-4.46s1.758-1.944 4.673-2.262v1.237H8.94c-1.528-.186-2.73 1.245-2.73 1.245s.68 2.412 2.739 3.11M2.456 10.9s2.164-3.197 6.5-3.533V6.201C4.153 6.59 0 10.653 0 10.653s2.35 6.802 8.948 7.42v-1.237c-4.84-.6-6.492-5.936-6.492-5.936z"/></svg></span>
-        <span class="vc-id"><b>xNVDA</b><span>NVIDIA</span></span>
-        <b class="vc-px">31.4%</b>
-      </div>
-      <span class="vc-lab">Capacity</span>
-      <div class="vc-bar"><i style="width:82%"></i></div>
-      <span class="vc-pct">82%</span>
-    </div>
-    </div>
-  </div>
-  <div class="slab v3"><i class="lyr" style="transform:translateZ(-24.65px);background:#A9ABC4;opacity:0.38"></i><i class="lyr" style="transform:translateZ(-23.20px);background:#B7B9CE;opacity:0.41"></i><i class="lyr" style="transform:translateZ(-21.75px);background:#BFC1D3;opacity:0.44"></i><i class="lyr" style="transform:translateZ(-20.30px);background:#C6C7D8;opacity:0.47"></i><i class="lyr" style="transform:translateZ(-18.85px);background:#CCCDDC;opacity:0.50"></i><i class="lyr" style="transform:translateZ(-17.40px);background:#D1D2E0;opacity:0.53"></i><i class="lyr" style="transform:translateZ(-15.95px);background:#D6D7E3;opacity:0.56"></i><i class="lyr" style="transform:translateZ(-14.50px);background:#DBDCE6;opacity:0.59"></i><i class="lyr" style="transform:translateZ(-13.05px);background:#E0E1EA;opacity:0.62"></i><i class="lyr" style="transform:translateZ(-11.60px);background:#E4E5ED;opacity:0.65"></i><i class="lyr" style="transform:translateZ(-10.15px);background:#E8E9EF;opacity:0.68"></i><i class="lyr" style="transform:translateZ(-8.70px);background:#ECEDF2;opacity:0.71"></i><i class="lyr" style="transform:translateZ(-7.25px);background:#F0F1F5;opacity:0.74"></i><i class="lyr" style="transform:translateZ(-5.80px);background:#F4F4F8;opacity:0.77"></i><i class="lyr" style="transform:translateZ(-4.35px);background:#F8F8FA;opacity:0.80"></i><i class="lyr" style="transform:translateZ(-2.90px);background:#FBFCFD;opacity:0.83"></i><i class="lyr" style="transform:translateZ(-1.45px);background:#FFFFFF;opacity:0.86"></i>
-    <div class="card vc">
-    <div class="face">
-      <div class="vc-row">
-        <span class="vc-ic" style="background:#ECECEF;color:#101113"><svg viewBox="0 0 24 24"><text x="12" y="15.4" text-anchor="middle" font-family="inherit" font-size="9.5" font-weight="700" letter-spacing="-.04em" fill="currentColor">GME</text></svg></span>
-        <span class="vc-id"><b>xGME</b><span>GameStop</span></span>
-        <b class="vc-px">29.7%</b>
-      </div>
-      <span class="vc-lab">Capacity</span>
-      <div class="vc-bar"><i style="width:33%"></i></div>
-      <span class="vc-pct">33%</span>
-    </div>
-    </div>
-  </div>
-  <div class="slab v4"><i class="lyr" style="transform:translateZ(-24.65px);background:#A9ABC4;opacity:0.38"></i><i class="lyr" style="transform:translateZ(-23.20px);background:#B7B9CE;opacity:0.41"></i><i class="lyr" style="transform:translateZ(-21.75px);background:#BFC1D3;opacity:0.44"></i><i class="lyr" style="transform:translateZ(-20.30px);background:#C6C7D8;opacity:0.47"></i><i class="lyr" style="transform:translateZ(-18.85px);background:#CCCDDC;opacity:0.50"></i><i class="lyr" style="transform:translateZ(-17.40px);background:#D1D2E0;opacity:0.53"></i><i class="lyr" style="transform:translateZ(-15.95px);background:#D6D7E3;opacity:0.56"></i><i class="lyr" style="transform:translateZ(-14.50px);background:#DBDCE6;opacity:0.59"></i><i class="lyr" style="transform:translateZ(-13.05px);background:#E0E1EA;opacity:0.62"></i><i class="lyr" style="transform:translateZ(-11.60px);background:#E4E5ED;opacity:0.65"></i><i class="lyr" style="transform:translateZ(-10.15px);background:#E8E9EF;opacity:0.68"></i><i class="lyr" style="transform:translateZ(-8.70px);background:#ECEDF2;opacity:0.71"></i><i class="lyr" style="transform:translateZ(-7.25px);background:#F0F1F5;opacity:0.74"></i><i class="lyr" style="transform:translateZ(-5.80px);background:#F4F4F8;opacity:0.77"></i><i class="lyr" style="transform:translateZ(-4.35px);background:#F8F8FA;opacity:0.80"></i><i class="lyr" style="transform:translateZ(-2.90px);background:#FBFCFD;opacity:0.83"></i><i class="lyr" style="transform:translateZ(-1.45px);background:#FFFFFF;opacity:0.86"></i>
-    <div class="card vc">
-    <div class="face">
-      <div class="vc-row">
-        <span class="vc-ic" style="background:#FBEDED;color:#CC0000"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438-.146-1.439-1.154-1.79-4.354-1.79L12 24 8.619 5.034c-3.18 0-4.188.354-4.335 1.792 0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34L12 5.362l-.004.002H12v-.002zm0-3.899c3.415-.03 7.326.528 11.328 2.28.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0 8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46v.003z"/></svg></span>
-        <span class="vc-id"><b>xTSLA</b><span>Tesla</span></span>
-        <b class="vc-px">27.8%</b>
-      </div>
-      <span class="vc-lab">Capacity</span>
-      <div class="vc-bar"><i style="width:71%"></i></div>
-      <span class="vc-pct">71%</span>
-    </div>
-    </div>
-  </div>
-  <div class="slab v5"><i class="lyr" style="transform:translateZ(-24.65px);background:#A9ABC4;opacity:0.38"></i><i class="lyr" style="transform:translateZ(-23.20px);background:#B7B9CE;opacity:0.41"></i><i class="lyr" style="transform:translateZ(-21.75px);background:#BFC1D3;opacity:0.44"></i><i class="lyr" style="transform:translateZ(-20.30px);background:#C6C7D8;opacity:0.47"></i><i class="lyr" style="transform:translateZ(-18.85px);background:#CCCDDC;opacity:0.50"></i><i class="lyr" style="transform:translateZ(-17.40px);background:#D1D2E0;opacity:0.53"></i><i class="lyr" style="transform:translateZ(-15.95px);background:#D6D7E3;opacity:0.56"></i><i class="lyr" style="transform:translateZ(-14.50px);background:#DBDCE6;opacity:0.59"></i><i class="lyr" style="transform:translateZ(-13.05px);background:#E0E1EA;opacity:0.62"></i><i class="lyr" style="transform:translateZ(-11.60px);background:#E4E5ED;opacity:0.65"></i><i class="lyr" style="transform:translateZ(-10.15px);background:#E8E9EF;opacity:0.68"></i><i class="lyr" style="transform:translateZ(-8.70px);background:#ECEDF2;opacity:0.71"></i><i class="lyr" style="transform:translateZ(-7.25px);background:#F0F1F5;opacity:0.74"></i><i class="lyr" style="transform:translateZ(-5.80px);background:#F4F4F8;opacity:0.77"></i><i class="lyr" style="transform:translateZ(-4.35px);background:#F8F8FA;opacity:0.80"></i><i class="lyr" style="transform:translateZ(-2.90px);background:#FBFCFD;opacity:0.83"></i><i class="lyr" style="transform:translateZ(-1.45px);background:#FFFFFF;opacity:0.86"></i>
-    <div class="card vc">
-    <div class="face">
-      <div class="vc-row">
-        <span class="vc-ic" style="background:#FCEAEB;color:#ED1C24"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.324 9.137l1.559 1.56h2.556v2.557L24 14.814V9.137zM2 9.52l-2 4.96h1.309l.37-.982H3.9l.408.982h1.338L3.432 9.52zm4.209 0v4.955h1.238v-3.092l1.338 1.562h.188l1.338-1.556v3.091h1.238V9.52H10.47l-1.592 1.845L7.287 9.52zm6.283 0v4.96h2.057c1.979 0 2.88-1.046 2.88-2.472 0-1.36-.937-2.488-2.747-2.488zm1.237.91h.792c1.17 0 1.63.711 1.63 1.57 0 .728-.372 1.572-1.616 1.572h-.806zm-10.985.273l.791 1.932H2.008zm17.137.307l-1.604 1.603v2.25h2.246l1.604-1.607h-2.246z"/></svg></span>
-        <span class="vc-id"><b>xAMD</b><span>AMD</span></span>
-        <b class="vc-px">26.3%</b>
-      </div>
-      <span class="vc-lab">Capacity</span>
-      <div class="vc-bar"><i style="width:59%"></i></div>
-      <span class="vc-pct">59%</span>
-    </div>
-    </div>
-  </div>
-  <div class="slab v6"><i class="lyr" style="transform:translateZ(-24.65px);background:#A9ABC4;opacity:0.38"></i><i class="lyr" style="transform:translateZ(-23.20px);background:#B7B9CE;opacity:0.41"></i><i class="lyr" style="transform:translateZ(-21.75px);background:#BFC1D3;opacity:0.44"></i><i class="lyr" style="transform:translateZ(-20.30px);background:#C6C7D8;opacity:0.47"></i><i class="lyr" style="transform:translateZ(-18.85px);background:#CCCDDC;opacity:0.50"></i><i class="lyr" style="transform:translateZ(-17.40px);background:#D1D2E0;opacity:0.53"></i><i class="lyr" style="transform:translateZ(-15.95px);background:#D6D7E3;opacity:0.56"></i><i class="lyr" style="transform:translateZ(-14.50px);background:#DBDCE6;opacity:0.59"></i><i class="lyr" style="transform:translateZ(-13.05px);background:#E0E1EA;opacity:0.62"></i><i class="lyr" style="transform:translateZ(-11.60px);background:#E4E5ED;opacity:0.65"></i><i class="lyr" style="transform:translateZ(-10.15px);background:#E8E9EF;opacity:0.68"></i><i class="lyr" style="transform:translateZ(-8.70px);background:#ECEDF2;opacity:0.71"></i><i class="lyr" style="transform:translateZ(-7.25px);background:#F0F1F5;opacity:0.74"></i><i class="lyr" style="transform:translateZ(-5.80px);background:#F4F4F8;opacity:0.77"></i><i class="lyr" style="transform:translateZ(-4.35px);background:#F8F8FA;opacity:0.80"></i><i class="lyr" style="transform:translateZ(-2.90px);background:#FBFCFD;opacity:0.83"></i><i class="lyr" style="transform:translateZ(-1.45px);background:#FFFFFF;opacity:0.86"></i>
-    <div class="card vc">
-    <div class="face">
-      <div class="vc-row">
-        <span class="vc-ic" style="background:#EFF6E4;color:#7E9E00"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.84 24h.53c.096 0 .192-.048.224-.128C7.591 13.696 11.94 8.656 14.67 5.638c.112-.128.064-.225-.096-.225h-4.88a.55.55 0 0 0-.45.225L5.746 9.972c-.514.642-.642 1.236-.642 2.086v4.43c-1.14 3.194-1.862 5.361-2.392 7.32-.032.125.016.192.129.192M20.447.646c-.754-.802-4.157-.834-5.73-.224a3 3 0 0 0-.786.465 41 41 0 0 0-3.323 3.178c-.112.113-.064.225.097.225h5.409c.497 0 .786.289.786.786v6.1c0 .16.128.208.225.064l3.258-4.254c.53-.69.69-.898.835-1.861.192-1.413.08-3.58-.77-4.479m-6.982 16.18 2.231-3.676a.7.7 0 0 0 .064-.29V6.73c0-.16-.112-.225-.224-.097-3.355 3.74-5.971 7.672-8.395 12.407-.06.12.016.225.16.177l5.009-1.54c.565-.174.882-.402 1.155-.852"/></svg></span>
-        <span class="vc-id"><b>xHOOD</b><span>Robinhood</span></span>
-        <b class="vc-px">24.6%</b>
-      </div>
-      <span class="vc-lab">Capacity</span>
-      <div class="vc-bar"><i style="width:75%"></i></div>
-      <span class="vc-pct">75%</span>
-    </div>
+    <div class="line">One vault per stock.<br><em>Fees split onchain.</em></div>
+    <div class="sub">Managed liquidity · Robinhood Chain</div>
+    <div class="strip">
+      <span class="chip fill">20 vaults</span>
+      <span class="chip">70 / 20 / 10</span>
+      <span class="chip">ERC-4626</span>
     </div>
   </div>
 
-  <span class="pill q1"><i class="mk"></i>20 vaults, one per stock</span>
-  <span class="pill q2"><span class="dot"></span>Robinhood Chain · live</span>
-
-  <p class="say">A vault paired to <em>every stock</em></p>
-  <p class="sub">20 named vaults. One position each. Fees split onchain.</p>
-
-
-
-
-  <div class="vig"></div>
-</div>
-</body>
-</html>
+</body></html>

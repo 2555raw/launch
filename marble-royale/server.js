@@ -186,13 +186,15 @@ function snapshot() {
     schedule: rounds.schedule(4),
     recent: store.recent(12).map(publicResult),
     top: store.top(10),
+    rewards: store.paid(10).map(publicResult),
+    paidTotal: store.paidTotal(),
     chat: chatLog.slice(-40),
     watching: clients.size
   };
 }
 
 const publicResult = (r) => ({
-  id: r.id, number: r.number, startAt: r.startAt, winner: r.winner, pot: r.pot, gross: r.gross, mega: !!r.mega, mode: r.mode || 'classic',
+  id: r.id, number: r.number, startAt: r.startAt, winner: r.winner, pot: r.pot, gross: r.gross, mega: !!r.mega, mode: r.mode || 'classic', paidAt: r.paidAt || null,
   podium: (r.order || []).slice(0, 3),
   players: (r.players || []).length, seconds: r.seconds,
   paid: !!r.paid, tx: r.tx || '', seed: r.seed, commit: r.commit, secret: r.secret
@@ -250,7 +252,7 @@ const server = http.createServer(async (req, res) => {
 
   if (p === '/api/history') {
     const n = Math.min(200, Math.max(1, Number(url.searchParams.get('n')) || 50));
-    return json(res, 200, { rounds: store.recent(n).map(publicResult), top: store.top(25) });
+    return json(res, 200, { rounds: store.recent(n).map(publicResult), top: store.top(25), rewards: store.paid(10).map(publicResult), paidTotal: store.paidTotal() });
   }
 
   if (p === '/api/round') {
@@ -381,6 +383,8 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       const r = store.markPaid(body && body.id, body && body.tx);
       if (!r) return json(res, 404, { error: 'unknown round' });
+      /* every open page hears that the winner was paid */
+      broadcast('paid', { round: publicResult(r), rewards: store.paid(10).map(publicResult), paidTotal: store.paidTotal() });
       return json(res, 200, { ok: true, round: r });
     }
     if (p === '/api/admin/pot' && req.method === 'POST') {

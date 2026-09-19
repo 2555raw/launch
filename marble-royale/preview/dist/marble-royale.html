@@ -151,7 +151,7 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacit
 .top__links { display: flex; gap: 2px; }
 .top__links a { padding: 7px 11px; border-radius: 999px; text-decoration: none; font-weight: 500; font-size: 14.5px; color: var(--ink2); }
 .top__links a:hover { color: var(--ink); background: var(--goSoft); }
-.top__race { display: flex; align-items: center; gap: 8px; margin-left: 8px; padding-left: 12px; border-left: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+.top__race { display: flex; align-items: center; gap: 8px; margin-right: 8px; padding: 0 12px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 12px; color: var(--dim); }
 .top__right { gap: 6px; }
 
 .pill {
@@ -217,8 +217,15 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .hero { position: relative; padding: clamp(50px, 8vw, 110px) var(--gut) 30px; max-width: 1240px; margin: 0 auto; text-align: center; }
 .hero__in { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; display: grid; justify-items: center; }
 .floaters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.floater { position: absolute; border-radius: 50%; animation: floaty 8s ease-in-out infinite; filter: drop-shadow(0 18px 24px rgba(23, 32, 56, .25)); }
+.floaters { perspective: 900px; perspective-origin: 50% 40%; }
+/* Each coin arrives from deep in the page, small and faint, and grows as it
+   comes forward to its place; then it drifts. The wrapper flies, the coin
+   inside floats, so the two motions never fight. */
+.fl { position: absolute; transform-style: preserve-3d; animation: arrive 1.5s cubic-bezier(.2, .8, .2, 1) both; }
+.floater { display: block; width: 100%; height: 100%; border-radius: 50%; animation: floaty 8s ease-in-out infinite; filter: drop-shadow(0 18px 24px rgba(23, 32, 56, .25)); }
+@keyframes arrive { from { transform: translate3d(0, 40px, -1400px) scale(.4); opacity: 0; } 60% { opacity: 1; } to { transform: translate3d(0, 0, 0) scale(1); opacity: 1; } }
 @keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-18px) rotate(5deg); } }
+@media (prefers-reduced-motion: reduce) { .fl { animation: none; } }
 .hero__cta { justify-content: center; }
 #commitLine { word-break: break-all; font-size: 12px; }
 .trust { list-style: none; margin: 56px auto 0; padding: 22px 0 0; max-width: 1180px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; text-align: left; border-top: 1px solid var(--line); position: relative; z-index: 2; }
@@ -565,6 +572,16 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
 .screen--home, .screen--lobby, .screen--launch, .screen--fair { padding-bottom: 40px; }
 @media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--fair, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
 
+/* ---- rewards -------------------------------------------------------------- */
+
+.rewards__total { display: grid; gap: 2px; padding: 12px 18px; text-align: right; }
+.rewards__total em { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em; color: var(--dim); }
+.rewards__total b { font-size: 24px; }
+#rewardsTable .table__row { grid-template-columns: 1fr 1.6fr 1fr 1.2fr 1.4fr; }
+.table__row a { color: var(--go); text-decoration: none; }
+.table__row a:hover { text-decoration: underline; }
+@media (max-width: 1000px) { #rewardsTable .table__row { grid-template-columns: 1fr 1.6fr 1fr; } #rewardsTable .table__row > :nth-child(4), #rewardsTable .table__row > :nth-child(5) { display: none; } }
+
 /* ---- winners -------------------------------------------------------------- */
 
 .winners { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
@@ -656,8 +673,8 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
 @media (max-width: 640px) {
   .foot__grid { grid-template-columns: 1fr; }
   .trust { grid-template-columns: 1fr; }
-  .floater { display: none; }
-  .floater:nth-child(-n+4) { display: block; transform: scale(.6); }
+  .fl { display: none; }
+  .fl:nth-child(-n+4) { display: block; transform: scale(.6); }
   .top__race { display: none; }
   .poll__opts { grid-template-columns: 1fr; }
   .launch__form { grid-template-columns: 1fr; }
@@ -740,6 +757,10 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
       <span class="brand__mark"></span>
       <span class="brand__name">Marble<b>Royale</b></span>
     </a>
+    <div class="top__race" id="topRace">
+      <span class="mono" id="topRaceNo">RACE #----</span>
+      <span class="pill pill--phase" id="topPhase">LOBBY</span>
+    </div>
     <nav class="top__links">
       <a href="#" data-go="home">Race</a>
       <a href="#" data-go="lobby">Lobby</a>
@@ -747,10 +768,6 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
       <a href="#" data-go="launch">Launch</a>
       <a href="#" data-go="fair">Fair</a>
     </nav>
-    <div class="top__race" id="topRace">
-      <span class="mono" id="topRaceNo">RACE #----</span>
-      <span class="pill pill--phase" id="topPhase">LOBBY</span>
-    </div>
   </div>
   <div class="top__right">
     <div class="themes" role="group" aria-label="colour theme">
@@ -845,6 +862,18 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
       </div>
     </section>
 
+    <section class="block" id="rewards">
+      <div class="block__head block__head--row">
+        <div><span class="kicker kicker--plain">REWARDS</span><h2>Paid to the winners</h2></div>
+        <div class="rewards__total glass"><em>PAID OUT SO FAR</em><b class="mono gold" id="paidTotal">$0.00</b></div>
+      </div>
+      <div class="glass table" id="rewardsTable">
+        <div class="table__row table__head mono"><span>RACE</span><span>WINNER</span><span>REWARD</span><span>PAID</span><span>TRANSACTION</span></div>
+        <div id="rewardRows"></div>
+        <div class="empty" id="rewardsEmpty">No reward paid yet. When the creator pays a winner it shows up here, with the transaction.</div>
+      </div>
+    </section>
+
     <section class="block block--split">
       <div class="glass panel">
         <span class="kicker kicker--plain">HOW IT WORKS</span>
@@ -875,7 +904,7 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
             <a class="pill" id="xLink" hidden target="_blank" rel="noopener"><svg class="ic"><use href="#i-x"/></svg> Follow</a>
           </div>
         </div>
-        <div class="foot__col"><b>Play</b><a href="#" data-go="lobby">Lobby</a><a href="#" data-goto="modes">Game modes</a><a href="#" data-goto="results">Latest races</a><a href="#" data-dock="winners">Winners</a></div>
+        <div class="foot__col"><b>Play</b><a href="#" data-go="lobby">Lobby</a><a href="#" data-goto="modes">Game modes</a><a href="#" data-goto="results">Latest races</a><a href="#" data-goto="rewards">Rewards</a><a href="#" data-dock="winners">Winners</a></div>
         <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="#" data-go="fair">Verify a race</a></div>
         <div class="foot__col"><b>Trust</b><span class="dim">Seed committed before the field closes. Replay any race from its seed. No custody, no private keys, nothing signed but a login message.</span></div>
       </div>
@@ -1159,10 +1188,6 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
     <div class="modal__head"><b>Connect a wallet</b><button class="x" data-close>×</button></div>
     <p class="dim">Pick a wallet. You will be asked to sign a short message that proves it is yours. It costs nothing and moves nothing.</p>
     <div class="wallets" id="walletList"></div>
-    <div class="modal__demo" id="demoRow" hidden>
-      <span class="dim">No wallet? Try the game with a demo wallet. Nothing it does touches a chain.</span>
-      <button class="btn btn--glass" id="demoBtn">Use a demo wallet</button>
-    </div>
     <p class="dim small" id="walletHint"></p>
   </div>
 </div>
@@ -3480,7 +3505,7 @@ window.MR_TYPES = true;
 
     /* light: a warm key from up-left, a cool fill, and a room map for the
        glass and chrome to have something to reflect */
-    const key = new THREE.DirectionalLight('#ffe2c4', 1.6);
+    const key = new THREE.DirectionalLight('#ffe2c4', 1.35);
     key.position.set(-6, 12, 6);
     const fill = new THREE.DirectionalLight('#8fb4ff', 0.5);
     fill.position.set(8, 4, -6);
@@ -3546,7 +3571,7 @@ window.MR_TYPES = true;
     if (!S.composer) {
       S.composer = new FX.EffectComposer(S.renderer);
       S.composer.addPass(new FX.RenderPass(S.scene, S.camera));
-      S.bloom = new FX.UnrealBloomPass(new THREE.Vector2(S.w, S.h), 0.55, 0.5, 0.82);
+      S.bloom = new FX.UnrealBloomPass(new THREE.Vector2(S.w, S.h), 0.32, 0.45, 0.9);
       S.composer.addPass(S.bloom);
       S.composer.addPass(new FX.OutputPass());
     }
@@ -3599,7 +3624,7 @@ window.MR_TYPES = true;
     const floorTex = gridTexture(THREE);
     floorTex.repeat.set(5, height / 200);
     floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
-    const floorMat = new THREE.MeshStandardMaterial({ color: '#181a26', map: floorTex, roughness: 0.28, metalness: 0.55, emissive: '#2a1a0a', emissiveMap: floorTex, emissiveIntensity: 0.55 });
+    const floorMat = new THREE.MeshStandardMaterial({ color: '#181a26', map: floorTex, roughness: 0.62, metalness: 0.25, emissive: '#2a1a0a', emissiveMap: floorTex, emissiveIntensity: 0.45 });
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(11.2, height * K + 6), floorMat);
     const mid = W(500, height / 2, -R * 1.05);
     floor.position.set(mid.x, mid.y, mid.z);
@@ -3775,13 +3800,20 @@ window.MR_TYPES = true;
     ctx.font = '700 34px ui-monospace, SFMono-Regular, Menlo, monospace';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const w = Math.min(248, ctx.measureText(text).width + 28);
-    ctx.fillStyle = 'rgba(8,8,14,.72)';
+    ctx.fillStyle = 'rgba(8,8,14,.86)';
     roundRect(ctx, 128 - w / 2, 8, w, 48, 12); ctx.fill();
+    ctx.strokeStyle = color === '#ffd36e' ? 'rgba(255,211,110,.9)' : 'rgba(255,255,255,.22)'; ctx.lineWidth = 2;
+    roundRect(ctx, 128 - w / 2 + 1, 9, w - 2, 46, 11); ctx.stroke();
     ctx.fillStyle = color; ctx.fillText(text, 128, 33);
-    if (sub) { ctx.font = '600 22px ui-monospace, monospace'; ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillText(sub, 128, 76); }
+    if (sub) { ctx.font = '700 22px ui-monospace, monospace'; ctx.fillStyle = color === '#ffd36e' ? '#ffd36e' : 'rgba(255,255,255,.8)'; ctx.fillText(sub, 128, 76); }
     const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
-    sp.scale.set(scale, scale * (sub ? 0.375 : 0.25), 1);
+    /* Labels keep their size on screen whatever the distance, so a name at
+       the far end of the track reads as well as one under the camera. The
+       fixed positions (FINISH) keep world size. */
+    const fixed = !!at;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, sizeAttenuation: fixed }));
+    if (fixed) sp.scale.set(scale, scale * (sub ? 0.375 : 0.25), 1);
+    else { const k = scale * 0.14; sp.scale.set(k, k * (sub ? 0.375 : 0.25), 1); }
     if (at) sp.position.set(at.x, at.y, at.z);
     sp.renderOrder = 10;
     return sp;
@@ -3918,8 +3950,12 @@ window.MR_TYPES = true;
       const sp = W(b.done ? 140 + ((b.place - 1) % 10) * 80 : b.x, b.done ? st.course.finishY + 90 + Math.floor((b.place - 1) / 10) * 44 : b.y, -R * 0.96);
       m.shadow.position.set(sp.x, sp.y, sp.z);
       const racing = !hold && st.t > 0;
-      const wantLabel = racing && (!b.done || b.place <= 3);
-      const isLead = wantLabel && !b.done && b.id === leadId;
+      const isLead = racing && !b.done && b.id === leadId;
+      /* names within reach of the camera, and always the leader and you */
+      const dcx = p.x - S.camera.position.x, dcy = p.y - S.camera.position.y, dcz = p.z - S.camera.position.z;
+      const near = dcx * dcx + dcy * dcy + dcz * dcz < 30 * 30;
+      /* in the lobby every marble in the hopper wears its name as well */
+      const wantLabel = hold ? near : racing && (isLead || m.you || (b.done ? b.place <= 3 : near));
       if (isLead && !m.labelLead) {
         m.labelLead = textSprite(THREE, m.name, '#ffd36e', 1.1, null, 'LEADER');
         m.labelLead.visible = false;
@@ -4065,7 +4101,7 @@ window.MR_TYPES = true;
     S.lights.hemi.groundColor.set(light ? '#c9d3ea' : '#05050a');
     S.lights.hemi.intensity = light ? 1.1 : 0.6;
     S.lights.fill.intensity = light ? 0.9 : 0.5;
-    if (S.bloom) S.bloom.strength = light ? 0.2 : 0.55;
+    if (S.bloom) S.bloom.strength = light ? 0.15 : 0.32;
   }
 
   /* ---- a photograph of a mode ---------------------------------------- */
@@ -4595,7 +4631,7 @@ window.MR_TYPES = true;
   }
   const config = { coin: 'MARBLE ROYALE', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://etherscan.io', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
     maxPlayers: MAX, maxPlayersHigh: MAX_HIGH, modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })) };
-  const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
+  const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
 
   /* ---- the shims -------------------------------------------------------- */
 
@@ -4610,7 +4646,7 @@ window.MR_TYPES = true;
     const q = new URLSearchParams(u.split('?')[1] || '');
     if (path === '/api/state') return reply(200, snapshot());
     if (path === '/api/schedule') return reply(200, { now: now(), schedule: schedule() });
-    if (path === '/api/history') return reply(200, { rounds: store.rounds.slice(0, 50), top: [] });
+    if (path === '/api/history') return reply(200, { rounds: store.rounds.slice(0, 50), top: [], rewards: [], paidTotal: 0 });
     if (path === '/api/round') { const r = store.rounds.find((x) => x.id === q.get('id')); return r ? reply(200, { round: Object.assign({}, r, { field: r.players }) }) : reply(404, { error: 'unknown round' }); }
     if (path === '/api/nonce') return reply(200, { nonce: 'standalone', message: 'MARBLE ROYALE standalone: no server, nothing to sign.' });
     if (path === '/api/auth') {
@@ -4841,6 +4877,7 @@ window.MR_TYPES = true;
     es.addEventListener('pot', (e) => onPot(JSON.parse(e.data)));
     es.addEventListener('poll', (e) => onPoll(JSON.parse(e.data)));
     es.addEventListener('cap', (e) => onCap(JSON.parse(e.data)));
+    es.addEventListener('paid', (e) => onPaid(JSON.parse(e.data)));
     es.addEventListener('chat', (e) => feed(JSON.parse(e.data)));
     es.addEventListener('cheer', (e) => { const d = JSON.parse(e.data); if (SCENE.ready) SCENE.cheer(d.target); });
     es.addEventListener('tick', (e) => {
@@ -4856,7 +4893,7 @@ window.MR_TYPES = true;
   }
 
   function onState(s) {
-    game.set({ config: s.config, offset: s.now - Date.now(), watching: s.watching, recent: s.recent, top: s.top, schedule: s.schedule || [] });
+    game.set({ config: s.config, offset: s.now - Date.now(), watching: s.watching, recent: s.recent, top: s.top, schedule: s.schedule || [], rewards: s.rewards || [], paidTotal: s.paidTotal || 0 });
     applyConfig(s.config);
     paintModes();
     $('#feed').innerHTML = '';
@@ -4864,11 +4901,11 @@ window.MR_TYPES = true;
     onPhase(s.round);
     paintRaces();
     paintRecent();
+    paintRewards();
   }
 
   function applyConfig(c) {
     if (!c) return;
-    $('#demoRow').hidden = !c.demoMode;
     $('#loEntry').textContent = c.entry || 'FREE';
     if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
     if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; }
@@ -4977,7 +5014,7 @@ window.MR_TYPES = true;
     setTimeout(() => { showResults(d); paintPoll(); }, 1400);
     SOUND.play('finish');
     if (SCENE.ready) SCENE.celebrate(d.winner);
-    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top }); paintRecent(); if (ui.get().screen === 'fair') paintFair(); }).catch(() => {});
+    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top, rewards: h.rewards || [], paidTotal: h.paidTotal || 0 }); paintRecent(); paintRewards(); if (ui.get().screen === 'fair') paintFair(); }).catch(() => {});
   }
 
   function onPot(d) {
@@ -5475,7 +5512,8 @@ window.MR_TYPES = true;
     closeModals();
     toast('Demo wallet ready. Nothing it does touches a chain.', 'good');
   }
-  $('#demoBtn').addEventListener('click', connectDemo);
+  /* No demo wallet on the page: a wallet is a wallet. The server keeps the
+     demo route for its own tests, reachable from the console only. */
 
   function signedIn(w) {
     wallet.set({ address: w.address, token: w.token, kind: w.kind, label: w.label, chainId: w.chainId, network: w.network, demo: !!w.demo, connecting: false, error: null, stats: w.stats || null });
@@ -5683,17 +5721,21 @@ window.MR_TYPES = true;
     ];
     const FACING = [0.35, 0.15, 0.6, 0.25, 0.5, 0.2, 0.4, 0.3];
     spots.forEach((sp, i) => {
+      const w = document.createElement('span');
+      w.className = 'fl';
+      w.style.left = sp.x + '%'; w.style.top = sp.y + '%';
+      w.style.width = w.style.height = sp.s + 'px';
+      w.style.animationDelay = (0.1 + i * 0.12) + 's';
       const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s, FACING[i]);
       cv.className = 'floater';
       cv.dataset.spot = String(i);
-      cv.style.left = sp.x + '%'; cv.style.top = sp.y + '%';
-      cv.style.width = cv.style.height = sp.s + 'px';
       cv.style.filter = sp.b ? 'blur(' + sp.b + 'px)' : '';
       cv.style.opacity = sp.b ? String(0.92 - sp.b * 0.08) : '1';
       cv.dataset.m = sp.m; cv.dataset.c = sp.c; cv.dataset.f = sp.f; cv.dataset.s = String(sp.s);
       cv.style.animationDelay = (-i * 1.3) + 's';
       cv.style.animationDuration = (7 + (i % 4) * 1.5) + 's';
-      host.appendChild(cv);
+      w.appendChild(cv);
+      host.appendChild(w);
     });
   }
   /* Once three is up, every flat marble on the page becomes a real one. */
@@ -5704,7 +5746,7 @@ window.MR_TYPES = true;
       const m = { material: old.dataset.m, color: old.dataset.c, face: old.dataset.f };
       if (!m.material) return;
       const cv = marbleCanvas(m, Number(old.dataset.s), [0.35, 0.15, 0.6, 0.25, 0.5, 0.2, 0.4, 0.3][i % 8]);
-      for (const a of ['className', 'style']) cv[a] = old[a];
+      cv.className = old.className;
       cv.style.cssText = old.style.cssText;
       Object.assign(cv.dataset, old.dataset);
       old.replaceWith(cv);
@@ -5758,6 +5800,41 @@ window.MR_TYPES = true;
     } else if (go === 'winners') openWinners();
     else if (go === 'wallet') openWallet();
   }));
+
+  /* ---- rewards: what the creator has paid ------------------------------------- */
+
+  function paintRewards() {
+    const list = game.get().rewards || [];
+    const host = $('#rewardRows');
+    if (!host) return;
+    host.innerHTML = '';
+    $('#rewardsEmpty').hidden = list.length > 0;
+    $('#paidTotal').textContent = usd(game.get().paidTotal || 0);
+    const explorer = (game.get().config && game.get().config.explorer) || 'https://etherscan.io';
+    for (const x of list) {
+      const row = document.createElement('div');
+      row.className = 'table__row';
+      row.innerHTML = '<span class="mono"></span><span class="mono who"></span><span class="mono gold"></span><span class="mono"></span><span class="mono"></span>';
+      const c = row.children;
+      c[0].textContent = '#' + pad(x.number || 0) + (x.mega ? ' · MEGA' : '');
+      c[1].textContent = short(x.winner); c[1].title = x.winner;
+      c[2].textContent = x.pot === null || x.pot === undefined ? 'the pot' : usd(x.pot);
+      c[3].textContent = x.paidAt ? new Date(x.paidAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'paid';
+      if (x.tx && /^0x[0-9a-f]{64}$/i.test(x.tx)) { const a = document.createElement('a'); a.href = explorer.replace(/\/$/, '') + '/tx/' + x.tx; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.tx.slice(0, 10) + '…' + x.tx.slice(-6); c[4].appendChild(a); }
+      else c[4].textContent = x.tx ? String(x.tx).slice(0, 18) : 'by hand';
+      row.addEventListener('click', () => copy(x.winner, "Winner's address"));
+      host.appendChild(row);
+    }
+  }
+  function onPaid(d) {
+    game.set({ rewards: d.rewards || [], paidTotal: d.paidTotal || 0 });
+    const recent = (game.get().recent || []).map((x) => (x.id === d.round.id ? d.round : x));
+    game.set({ recent });
+    paintRewards(); paintRecent();
+    const me = wallet.get().address;
+    if (same(d.round.winner, me)) { SOUND.play('win'); toast('Your reward for race #' + pad(d.round.number || 0) + ' was paid: ' + usd(d.round.pot), 'good'); }
+    else toast('Race #' + pad(d.round.number || 0) + ' paid: ' + usd(d.round.pot) + ' to ' + short(d.round.winner), 'good');
+  }
 
   /* ---- latest races on the home page ------------------------------------------- */
 
@@ -6016,7 +6093,7 @@ window.MR_TYPES = true;
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  window.MR = { setScreen, join, vote, openWinners, get current() { return current; }, get mode() { return mode; } };
+  window.MR = { setScreen, join, vote, openWinners, connectDemo, get current() { return current; }, get mode() { return mode; } };
 })();
 
 </script>

@@ -45,6 +45,10 @@
       <span class="brand__mark"></span>
       <span class="brand__name">Marble<b>Royale</b></span>
     </a>
+    <div class="top__race" id="topRace">
+      <span class="mono" id="topRaceNo">RACE #----</span>
+      <span class="pill pill--phase" id="topPhase">LOBBY</span>
+    </div>
     <nav class="top__links">
       <a href="#" data-go="home">Race</a>
       <a href="#" data-go="lobby">Lobby</a>
@@ -52,10 +56,6 @@
       <a href="#" data-go="launch">Launch</a>
       <a href="#" data-go="fair">Fair</a>
     </nav>
-    <div class="top__race" id="topRace">
-      <span class="mono" id="topRaceNo">RACE #----</span>
-      <span class="pill pill--phase" id="topPhase">LOBBY</span>
-    </div>
   </div>
   <div class="top__right">
     <div class="themes" role="group" aria-label="colour theme">
@@ -150,6 +150,18 @@
       </div>
     </section>
 
+    <section class="block" id="rewards">
+      <div class="block__head block__head--row">
+        <div><span class="kicker kicker--plain">REWARDS</span><h2>Paid to the winners</h2></div>
+        <div class="rewards__total glass"><em>PAID OUT SO FAR</em><b class="mono gold" id="paidTotal">$0.00</b></div>
+      </div>
+      <div class="glass table" id="rewardsTable">
+        <div class="table__row table__head mono"><span>RACE</span><span>WINNER</span><span>REWARD</span><span>PAID</span><span>TRANSACTION</span></div>
+        <div id="rewardRows"></div>
+        <div class="empty" id="rewardsEmpty">No reward paid yet. When the creator pays a winner it shows up here, with the transaction.</div>
+      </div>
+    </section>
+
     <section class="block block--split">
       <div class="glass panel">
         <span class="kicker kicker--plain">HOW IT WORKS</span>
@@ -180,7 +192,7 @@
             <a class="pill" id="xLink" hidden target="_blank" rel="noopener"><svg class="ic"><use href="#i-x"/></svg> Follow</a>
           </div>
         </div>
-        <div class="foot__col"><b>Play</b><a href="#" data-go="lobby">Lobby</a><a href="#" data-goto="modes">Game modes</a><a href="#" data-goto="results">Latest races</a><a href="#" data-dock="winners">Winners</a></div>
+        <div class="foot__col"><b>Play</b><a href="#" data-go="lobby">Lobby</a><a href="#" data-goto="modes">Game modes</a><a href="#" data-goto="results">Latest races</a><a href="#" data-goto="rewards">Rewards</a><a href="#" data-dock="winners">Winners</a></div>
         <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="#" data-go="fair">Verify a race</a><a href="/admin" target="_blank" rel="noopener" id="adminLink">Creator console</a></div>
         <div class="foot__col"><b>Trust</b><span class="dim">Seed committed before the field closes. Replay any race from its seed. No custody, no private keys, nothing signed but a login message.</span></div>
       </div>
@@ -464,10 +476,6 @@
     <div class="modal__head"><b>Connect a wallet</b><button class="x" data-close>×</button></div>
     <p class="dim">Pick a wallet. You will be asked to sign a short message that proves it is yours. It costs nothing and moves nothing.</p>
     <div class="wallets" id="walletList"></div>
-    <div class="modal__demo" id="demoRow" hidden>
-      <span class="dim">No wallet? Try the game with a demo wallet. Nothing it does touches a chain.</span>
-      <button class="btn btn--glass" id="demoBtn">Use a demo wallet</button>
-    </div>
     <p class="dim small" id="walletHint"></p>
   </div>
 </div>

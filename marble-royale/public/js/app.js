@@ -189,6 +189,7 @@
     es.addEventListener('pot', (e) => onPot(JSON.parse(e.data)));
     es.addEventListener('poll', (e) => onPoll(JSON.parse(e.data)));
     es.addEventListener('cap', (e) => onCap(JSON.parse(e.data)));
+    es.addEventListener('paid', (e) => onPaid(JSON.parse(e.data)));
     es.addEventListener('chat', (e) => feed(JSON.parse(e.data)));
     es.addEventListener('cheer', (e) => { const d = JSON.parse(e.data); if (SCENE.ready) SCENE.cheer(d.target); });
     es.addEventListener('tick', (e) => {
@@ -204,7 +205,7 @@
   }
 
   function onState(s) {
-    game.set({ config: s.config, offset: s.now - Date.now(), watching: s.watching, recent: s.recent, top: s.top, schedule: s.schedule || [] });
+    game.set({ config: s.config, offset: s.now - Date.now(), watching: s.watching, recent: s.recent, top: s.top, schedule: s.schedule || [], rewards: s.rewards || [], paidTotal: s.paidTotal || 0 });
     applyConfig(s.config);
     paintModes();
     $('#feed').innerHTML = '';
@@ -212,11 +213,11 @@
     onPhase(s.round);
     paintRaces();
     paintRecent();
+    paintRewards();
   }
 
   function applyConfig(c) {
     if (!c) return;
-    $('#demoRow').hidden = !c.demoMode;
     $('#loEntry').textContent = c.entry || 'FREE';
     if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
     if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; }
@@ -325,7 +326,7 @@
     setTimeout(() => { showResults(d); paintPoll(); }, 1400);
     SOUND.play('finish');
     if (SCENE.ready) SCENE.celebrate(d.winner);
-    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top }); paintRecent(); if (ui.get().screen === 'fair') paintFair(); }).catch(() => {});
+    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top, rewards: h.rewards || [], paidTotal: h.paidTotal || 0 }); paintRecent(); paintRewards(); if (ui.get().screen === 'fair') paintFair(); }).catch(() => {});
   }
 
   function onPot(d) {
@@ -823,7 +824,8 @@
     closeModals();
     toast('Demo wallet ready. Nothing it does touches a chain.', 'good');
   }
-  $('#demoBtn').addEventListener('click', connectDemo);
+  /* No demo wallet on the page: a wallet is a wallet. The server keeps the
+     demo route for its own tests, reachable from the console only. */
 
   function signedIn(w) {
     wallet.set({ address: w.address, token: w.token, kind: w.kind, label: w.label, chainId: w.chainId, network: w.network, demo: !!w.demo, connecting: false, error: null, stats: w.stats || null });
@@ -1031,17 +1033,21 @@
     ];
     const FACING = [0.35, 0.15, 0.6, 0.25, 0.5, 0.2, 0.4, 0.3];
     spots.forEach((sp, i) => {
+      const w = document.createElement('span');
+      w.className = 'fl';
+      w.style.left = sp.x + '%'; w.style.top = sp.y + '%';
+      w.style.width = w.style.height = sp.s + 'px';
+      w.style.animationDelay = (0.1 + i * 0.12) + 's';
       const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s, FACING[i]);
       cv.className = 'floater';
       cv.dataset.spot = String(i);
-      cv.style.left = sp.x + '%'; cv.style.top = sp.y + '%';
-      cv.style.width = cv.style.height = sp.s + 'px';
       cv.style.filter = sp.b ? 'blur(' + sp.b + 'px)' : '';
       cv.style.opacity = sp.b ? String(0.92 - sp.b * 0.08) : '1';
       cv.dataset.m = sp.m; cv.dataset.c = sp.c; cv.dataset.f = sp.f; cv.dataset.s = String(sp.s);
       cv.style.animationDelay = (-i * 1.3) + 's';
       cv.style.animationDuration = (7 + (i % 4) * 1.5) + 's';
-      host.appendChild(cv);
+      w.appendChild(cv);
+      host.appendChild(w);
     });
   }
   /* Once three is up, every flat marble on the page becomes a real one. */
@@ -1052,7 +1058,7 @@
       const m = { material: old.dataset.m, color: old.dataset.c, face: old.dataset.f };
       if (!m.material) return;
       const cv = marbleCanvas(m, Number(old.dataset.s), [0.35, 0.15, 0.6, 0.25, 0.5, 0.2, 0.4, 0.3][i % 8]);
-      for (const a of ['className', 'style']) cv[a] = old[a];
+      cv.className = old.className;
       cv.style.cssText = old.style.cssText;
       Object.assign(cv.dataset, old.dataset);
       old.replaceWith(cv);
@@ -1106,6 +1112,41 @@
     } else if (go === 'winners') openWinners();
     else if (go === 'wallet') openWallet();
   }));
+
+  /* ---- rewards: what the creator has paid ------------------------------------- */
+
+  function paintRewards() {
+    const list = game.get().rewards || [];
+    const host = $('#rewardRows');
+    if (!host) return;
+    host.innerHTML = '';
+    $('#rewardsEmpty').hidden = list.length > 0;
+    $('#paidTotal').textContent = usd(game.get().paidTotal || 0);
+    const explorer = (game.get().config && game.get().config.explorer) || 'https://etherscan.io';
+    for (const x of list) {
+      const row = document.createElement('div');
+      row.className = 'table__row';
+      row.innerHTML = '<span class="mono"></span><span class="mono who"></span><span class="mono gold"></span><span class="mono"></span><span class="mono"></span>';
+      const c = row.children;
+      c[0].textContent = '#' + pad(x.number || 0) + (x.mega ? ' · MEGA' : '');
+      c[1].textContent = short(x.winner); c[1].title = x.winner;
+      c[2].textContent = x.pot === null || x.pot === undefined ? 'the pot' : usd(x.pot);
+      c[3].textContent = x.paidAt ? new Date(x.paidAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'paid';
+      if (x.tx && /^0x[0-9a-f]{64}$/i.test(x.tx)) { const a = document.createElement('a'); a.href = explorer.replace(/\/$/, '') + '/tx/' + x.tx; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.tx.slice(0, 10) + '…' + x.tx.slice(-6); c[4].appendChild(a); }
+      else c[4].textContent = x.tx ? String(x.tx).slice(0, 18) : 'by hand';
+      row.addEventListener('click', () => copy(x.winner, "Winner's address"));
+      host.appendChild(row);
+    }
+  }
+  function onPaid(d) {
+    game.set({ rewards: d.rewards || [], paidTotal: d.paidTotal || 0 });
+    const recent = (game.get().recent || []).map((x) => (x.id === d.round.id ? d.round : x));
+    game.set({ recent });
+    paintRewards(); paintRecent();
+    const me = wallet.get().address;
+    if (same(d.round.winner, me)) { SOUND.play('win'); toast('Your reward for race #' + pad(d.round.number || 0) + ' was paid: ' + usd(d.round.pot), 'good'); }
+    else toast('Race #' + pad(d.round.number || 0) + ' paid: ' + usd(d.round.pot) + ' to ' + short(d.round.winner), 'good');
+  }
 
   /* ---- latest races on the home page ------------------------------------------- */
 
@@ -1364,5 +1405,5 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  window.MR = { setScreen, join, vote, openWinners, get current() { return current; }, get mode() { return mode; } };
+  window.MR = { setScreen, join, vote, openWinners, connectDemo, get current() { return current; }, get mode() { return mode; } };
 })();

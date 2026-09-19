@@ -47,7 +47,7 @@
 
     /* light: a warm key from up-left, a cool fill, and a room map for the
        glass and chrome to have something to reflect */
-    const key = new THREE.DirectionalLight('#ffe2c4', 1.6);
+    const key = new THREE.DirectionalLight('#ffe2c4', 1.35);
     key.position.set(-6, 12, 6);
     const fill = new THREE.DirectionalLight('#8fb4ff', 0.5);
     fill.position.set(8, 4, -6);
@@ -113,7 +113,7 @@
     if (!S.composer) {
       S.composer = new FX.EffectComposer(S.renderer);
       S.composer.addPass(new FX.RenderPass(S.scene, S.camera));
-      S.bloom = new FX.UnrealBloomPass(new THREE.Vector2(S.w, S.h), 0.55, 0.5, 0.82);
+      S.bloom = new FX.UnrealBloomPass(new THREE.Vector2(S.w, S.h), 0.32, 0.45, 0.9);
       S.composer.addPass(S.bloom);
       S.composer.addPass(new FX.OutputPass());
     }
@@ -166,7 +166,7 @@
     const floorTex = gridTexture(THREE);
     floorTex.repeat.set(5, height / 200);
     floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
-    const floorMat = new THREE.MeshStandardMaterial({ color: '#181a26', map: floorTex, roughness: 0.28, metalness: 0.55, emissive: '#2a1a0a', emissiveMap: floorTex, emissiveIntensity: 0.55 });
+    const floorMat = new THREE.MeshStandardMaterial({ color: '#181a26', map: floorTex, roughness: 0.62, metalness: 0.25, emissive: '#2a1a0a', emissiveMap: floorTex, emissiveIntensity: 0.45 });
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(11.2, height * K + 6), floorMat);
     const mid = W(500, height / 2, -R * 1.05);
     floor.position.set(mid.x, mid.y, mid.z);
@@ -342,13 +342,20 @@
     ctx.font = '700 34px ui-monospace, SFMono-Regular, Menlo, monospace';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const w = Math.min(248, ctx.measureText(text).width + 28);
-    ctx.fillStyle = 'rgba(8,8,14,.72)';
+    ctx.fillStyle = 'rgba(8,8,14,.86)';
     roundRect(ctx, 128 - w / 2, 8, w, 48, 12); ctx.fill();
+    ctx.strokeStyle = color === '#ffd36e' ? 'rgba(255,211,110,.9)' : 'rgba(255,255,255,.22)'; ctx.lineWidth = 2;
+    roundRect(ctx, 128 - w / 2 + 1, 9, w - 2, 46, 11); ctx.stroke();
     ctx.fillStyle = color; ctx.fillText(text, 128, 33);
-    if (sub) { ctx.font = '600 22px ui-monospace, monospace'; ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillText(sub, 128, 76); }
+    if (sub) { ctx.font = '700 22px ui-monospace, monospace'; ctx.fillStyle = color === '#ffd36e' ? '#ffd36e' : 'rgba(255,255,255,.8)'; ctx.fillText(sub, 128, 76); }
     const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
-    sp.scale.set(scale, scale * (sub ? 0.375 : 0.25), 1);
+    /* Labels keep their size on screen whatever the distance, so a name at
+       the far end of the track reads as well as one under the camera. The
+       fixed positions (FINISH) keep world size. */
+    const fixed = !!at;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, sizeAttenuation: fixed }));
+    if (fixed) sp.scale.set(scale, scale * (sub ? 0.375 : 0.25), 1);
+    else { const k = scale * 0.14; sp.scale.set(k, k * (sub ? 0.375 : 0.25), 1); }
     if (at) sp.position.set(at.x, at.y, at.z);
     sp.renderOrder = 10;
     return sp;
@@ -485,8 +492,12 @@
       const sp = W(b.done ? 140 + ((b.place - 1) % 10) * 80 : b.x, b.done ? st.course.finishY + 90 + Math.floor((b.place - 1) / 10) * 44 : b.y, -R * 0.96);
       m.shadow.position.set(sp.x, sp.y, sp.z);
       const racing = !hold && st.t > 0;
-      const wantLabel = racing && (!b.done || b.place <= 3);
-      const isLead = wantLabel && !b.done && b.id === leadId;
+      const isLead = racing && !b.done && b.id === leadId;
+      /* names within reach of the camera, and always the leader and you */
+      const dcx = p.x - S.camera.position.x, dcy = p.y - S.camera.position.y, dcz = p.z - S.camera.position.z;
+      const near = dcx * dcx + dcy * dcy + dcz * dcz < 30 * 30;
+      /* in the lobby every marble in the hopper wears its name as well */
+      const wantLabel = hold ? near : racing && (isLead || m.you || (b.done ? b.place <= 3 : near));
       if (isLead && !m.labelLead) {
         m.labelLead = textSprite(THREE, m.name, '#ffd36e', 1.1, null, 'LEADER');
         m.labelLead.visible = false;
@@ -632,7 +643,7 @@
     S.lights.hemi.groundColor.set(light ? '#c9d3ea' : '#05050a');
     S.lights.hemi.intensity = light ? 1.1 : 0.6;
     S.lights.fill.intensity = light ? 0.9 : 0.5;
-    if (S.bloom) S.bloom.strength = light ? 0.2 : 0.55;
+    if (S.bloom) S.bloom.strength = light ? 0.15 : 0.32;
   }
 
   /* ---- a photograph of a mode ---------------------------------------- */

@@ -142,7 +142,7 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacit
 .top__links { display: flex; gap: 2px; }
 .top__links a { padding: 7px 11px; border-radius: 999px; text-decoration: none; font-weight: 500; font-size: 14.5px; color: var(--ink2); }
 .top__links a:hover { color: var(--ink); background: var(--goSoft); }
-.top__race { display: flex; align-items: center; gap: 8px; margin-left: 8px; padding-left: 12px; border-left: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+.top__race { display: flex; align-items: center; gap: 8px; margin-right: 8px; padding: 0 12px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 12px; color: var(--dim); }
 .top__right { gap: 6px; }
 
 .pill {
@@ -208,8 +208,15 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .hero { position: relative; padding: clamp(50px, 8vw, 110px) var(--gut) 30px; max-width: 1240px; margin: 0 auto; text-align: center; }
 .hero__in { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; display: grid; justify-items: center; }
 .floaters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.floater { position: absolute; border-radius: 50%; animation: floaty 8s ease-in-out infinite; filter: drop-shadow(0 18px 24px rgba(23, 32, 56, .25)); }
+.floaters { perspective: 900px; perspective-origin: 50% 40%; }
+/* Each coin arrives from deep in the page, small and faint, and grows as it
+   comes forward to its place; then it drifts. The wrapper flies, the coin
+   inside floats, so the two motions never fight. */
+.fl { position: absolute; transform-style: preserve-3d; animation: arrive 1.5s cubic-bezier(.2, .8, .2, 1) both; }
+.floater { display: block; width: 100%; height: 100%; border-radius: 50%; animation: floaty 8s ease-in-out infinite; filter: drop-shadow(0 18px 24px rgba(23, 32, 56, .25)); }
+@keyframes arrive { from { transform: translate3d(0, 40px, -1400px) scale(.4); opacity: 0; } 60% { opacity: 1; } to { transform: translate3d(0, 0, 0) scale(1); opacity: 1; } }
 @keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-18px) rotate(5deg); } }
+@media (prefers-reduced-motion: reduce) { .fl { animation: none; } }
 .hero__cta { justify-content: center; }
 #commitLine { word-break: break-all; font-size: 12px; }
 .trust { list-style: none; margin: 56px auto 0; padding: 22px 0 0; max-width: 1180px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; text-align: left; border-top: 1px solid var(--line); position: relative; z-index: 2; }
@@ -556,6 +563,16 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
 .screen--home, .screen--lobby, .screen--launch, .screen--fair { padding-bottom: 40px; }
 @media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--fair, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
 
+/* ---- rewards -------------------------------------------------------------- */
+
+.rewards__total { display: grid; gap: 2px; padding: 12px 18px; text-align: right; }
+.rewards__total em { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em; color: var(--dim); }
+.rewards__total b { font-size: 24px; }
+#rewardsTable .table__row { grid-template-columns: 1fr 1.6fr 1fr 1.2fr 1.4fr; }
+.table__row a { color: var(--go); text-decoration: none; }
+.table__row a:hover { text-decoration: underline; }
+@media (max-width: 1000px) { #rewardsTable .table__row { grid-template-columns: 1fr 1.6fr 1fr; } #rewardsTable .table__row > :nth-child(4), #rewardsTable .table__row > :nth-child(5) { display: none; } }
+
 /* ---- winners -------------------------------------------------------------- */
 
 .winners { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
@@ -647,8 +664,8 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
 @media (max-width: 640px) {
   .foot__grid { grid-template-columns: 1fr; }
   .trust { grid-template-columns: 1fr; }
-  .floater { display: none; }
-  .floater:nth-child(-n+4) { display: block; transform: scale(.6); }
+  .fl { display: none; }
+  .fl:nth-child(-n+4) { display: block; transform: scale(.6); }
   .top__race { display: none; }
   .poll__opts { grid-template-columns: 1fr; }
   .launch__form { grid-template-columns: 1fr; }

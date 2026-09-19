@@ -111,4 +111,15 @@ function top(n) {
 
 const unpaid = () => state.rounds.filter((r) => r.winner && !r.paid);
 
-module.exports = { load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, nextNumber, currentNumber, FILE };
+/* The rewards: rounds the creator has marked paid, newest first, and what
+   they add up to. What the page's Rewards list shows. */
+function paid(n) {
+  return recent(500).filter((r) => r.paid && r.winner).sort((a, b) => (b.paidAt || b.startAt) - (a.paidAt || a.startAt)).slice(0, n || 10);
+}
+function paidTotal() {
+  let t = 0;
+  for (const r of recent(5000)) if (r.paid && r.pot) t += Number(r.pot) || 0;
+  return Math.round(t * 100) / 100;
+}
+
+module.exports = { load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };

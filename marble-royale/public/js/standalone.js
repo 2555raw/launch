@@ -158,7 +158,7 @@
   }
   const config = { coin: 'MARBLE ROYALE', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://etherscan.io', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
     maxPlayers: MAX, maxPlayersHigh: MAX_HIGH, modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })) };
-  const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
+  const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
 
   /* ---- the shims -------------------------------------------------------- */
 
@@ -173,7 +173,7 @@
     const q = new URLSearchParams(u.split('?')[1] || '');
     if (path === '/api/state') return reply(200, snapshot());
     if (path === '/api/schedule') return reply(200, { now: now(), schedule: schedule() });
-    if (path === '/api/history') return reply(200, { rounds: store.rounds.slice(0, 50), top: [] });
+    if (path === '/api/history') return reply(200, { rounds: store.rounds.slice(0, 50), top: [], rewards: [], paidTotal: 0 });
     if (path === '/api/round') { const r = store.rounds.find((x) => x.id === q.get('id')); return r ? reply(200, { round: Object.assign({}, r, { field: r.players }) }) : reply(404, { error: 'unknown round' }); }
     if (path === '/api/nonce') return reply(200, { nonce: 'standalone', message: 'MARBLE ROYALE standalone: no server, nothing to sign.' });
     if (path === '/api/auth') {

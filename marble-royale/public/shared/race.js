@@ -33,7 +33,7 @@
   const WIDTH = 1000;        // course width in course units
   const R = 13;              // marble radius
   const DT = 1 / 60;         // fixed physics step
-  const GRAVITY = 1000;
+  const GRAVITY = 880;
   const MAX_SPEED = 1350;
   const WALL_BOUNCE = 0.34;
   const BALL_BOUNCE = 0.16;
@@ -94,24 +94,31 @@
       statics.push({ x1: x, y1: y0, x2: x, y2: y0, r: r || 15, b: b === undefined ? 0.45 : b });
     const pick = (n) => Math.floor(rnd() * n);
 
-    /* The hopper: everyone waits behind a gate that lifts at t=0. Its walls
-       run past the frame on both sides, because a capsule that stops exactly
-       where another one starts leaves a notch a marble can sit in forever. Every
-       ramp below does the same for the same reason. */
+    /* The hopper: everyone waits behind a gate that slides open at t=0. Its
+       walls run past the frame on both sides, because a capsule that stops
+       exactly where another one starts leaves a notch a marble can sit in
+       forever. Every ramp below does the same for the same reason. */
     const HOPPER = 520;
     seg(40, -200, 40, HOPPER - 150, 10);
     seg(WIDTH - 40, -200, WIDTH - 40, HOPPER - 150, 10);
     seg(20, HOPPER - 170, WIDTH / 2 - 170, HOPPER + 10, 10);
     seg(WIDTH - 20, HOPPER - 170, WIDTH / 2 + 170, HOPPER + 10, 10);
-    const gate = { x1: WIDTH / 2 - 190, y1: HOPPER + 8, x2: WIDTH / 2 + 190, y2: HOPPER + 8, r: 10, b: 0.1, gate: true };
-    statics.push(gate);
+    const gate = { kind: 'gate', x: WIDTH / 2, y: HOPPER + 8, half: 190, r: 10, open: 0.9 };
+    movers.push(gate);
     y = HOPPER + 90;
 
-    /* Eight sections, never the same kind twice in a row. */
-    const KINDS = ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers'];
+    /* Each course has a look of its own and a name people can refer to. */
+    const theme = pick(5);
+
+    /* Seven to nine sections, never the same kind twice in a row, drawn from
+       ten kinds, with the height and the details of each one drawn too, so no
+       two courses are alike. */
+    const KINDS = ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers',
+                   'funnel', 'stairs', 'plinko', 'flippers'];
     let last = -1;
     const sections = [];
-    for (let i = 0; i < 8; i++) {
+    const count = 7 + pick(3);
+    for (let i = 0; i < count; i++) {
       let k = pick(KINDS.length);
       if (k === last) k = (k + 1 + pick(KINDS.length - 1)) % KINDS.length;
       last = k;
@@ -119,77 +126,126 @@
     }
 
     for (const kind of sections) {
-      const h = 960;
+      const h = 820 + pick(3) * 80;
       /* Side walls for the whole section, leaning in a little. */
       const lean = 14 + pick(3) * 8;
       seg(30, y - 30, 30 + lean, y + h + 30, 12);
       seg(WIDTH - 30, y - 30, WIDTH - 30 - lean, y + h + 30, 12);
 
       if (kind === 'pegs') {
-        for (let r0 = 0; r0 < 6; r0++) {
-          const off = (r0 % 2) * 55;
-          for (let c = 0; c < 9; c++) {
-            const px = 105 + off + c * 100;
+        const rows = 5 + pick(2), gapx = 90 + pick(3) * 10;
+        for (let r0 = 0; r0 < rows; r0++) {
+          const off = (r0 % 2) * (gapx / 2);
+          for (let c = 0; c < 10; c++) {
+            const px = 105 + off + c * gapx;
             if (px > WIDTH - 80) continue;
-            peg(px, y + 110 + r0 * 145, 14 + pick(3) * 3);
+            peg(px, y + 110 + r0 * ((h - 200) / rows), 13 + pick(4) * 3);
           }
         }
       } else if (kind === 'zigzag') {
-        /* Ramps at about 25 degrees, each one starting outside the wall it
-           comes out of and ending at a gap the field has to pour through. */
-        for (let s = 0; s < 3; s++) {
-          const fromLeft = s % 2 === 0;
-          const y0 = y + 120 + s * 300;
-          const gap = 250 + pick(3) * 30;
-          if (fromLeft) seg(-40, y0, WIDTH - gap, y0 + 330, 11);
-          else seg(WIDTH + 40, y0, gap, y0 + 330, 11);
-          peg(fromLeft ? WIDTH - gap / 2 : gap / 2, y0 + 430, 17);
+        /* Two long ramps at a real marble-run pitch, each sized to the room it
+           has so neither can cross the other and close a pocket. */
+        const n = 2, room = (h - 100) / n;
+        for (let s = 0; s < n; s++) {
+          const fromLeft = (s + pick(1)) % 2 === 0;
+          const y0 = y + 50 + s * room;
+          const gap = 230 + pick(4) * 30;
+          const drop = room * 0.72;
+          if (fromLeft) seg(-40, y0, WIDTH - gap, y0 + drop, 11);
+          else seg(WIDTH + 40, y0, gap, y0 + drop, 11);
+          peg(fromLeft ? WIDTH - gap / 2 : gap / 2, y0 + drop + room * 0.2, 15 + pick(3) * 3);
         }
       } else if (kind === 'spinners') {
         for (let s = 0; s < 3; s++) {
           movers.push({
             kind: 'spinner',
             x: 260 + pick(2) * 240 + (s % 2) * 240,
-            y: y + 190 + s * 300,
-            len: 150 + pick(3) * 25,
+            y: y + 190 + s * ((h - 260) / 3),
+            len: 140 + pick(4) * 25,
             r: 13,
             arms: 2 + (pick(3) === 0 ? 1 : 0),
-            speed: (1.3 + pick(5) * 0.22) * (pick(2) ? 1 : -1),
+            speed: (1.2 + pick(6) * 0.22) * (pick(2) ? 1 : -1),
             phase: rnd() * TAU
           });
-          peg(s % 2 ? 120 : WIDTH - 120, y + 300 + s * 300, 16);
+          peg(s % 2 ? 120 : WIDTH - 120, y + 300 + s * ((h - 260) / 3), 16);
         }
       } else if (kind === 'pistons') {
-        /* Tilted, so a marble that lands on one rolls off instead of riding it. */
         for (let s = 0; s < 3; s++) {
           movers.push({
             kind: 'piston',
             x: WIDTH / 2,
-            y: y + 180 + s * 300,
-            half: 150 + pick(3) * 30,
+            y: y + 180 + s * ((h - 240) / 3),
+            half: 140 + pick(4) * 30,
             tilt: (pick(2) ? 1 : -1) * (60 + pick(3) * 15),
             r: 18,
-            amp: 190 + pick(4) * 30,
-            speed: 0.9 + pick(5) * 0.2,
+            amp: 180 + pick(5) * 30,
+            speed: 0.8 + pick(6) * 0.2,
             phase: rnd() * TAU
           });
-          peg(s % 2 ? 110 : WIDTH - 110, y + 300 + s * 300, 16);
+          peg(s % 2 ? 110 : WIDTH - 110, y + 300 + s * ((h - 240) / 3), 16);
         }
       } else if (kind === 'split') {
-        /* A wedge at 45 degrees. The two arms meet a few units apart rather than
-           at one point: a marble can still balance up there, and the shove below
-           is what gets it down. */
-        for (let s = 0; s < 3; s++) {
-          const y0 = y + 130 + s * 300;
+        const n = 3, room = (h - 100) / n;
+        for (let s = 0; s < n; s++) {
+          const y0 = y + 60 + s * room;
           const cx = WIDTH / 2 + (pick(3) - 1) * 110;
-          seg(cx - 4, y0, cx - 250, y0 + 250, 12);
-          seg(cx + 4, y0, cx + 250, y0 + 250, 12);
-          peg(cx, y0 + 330, 18);
+          const arm = Math.min(250, room * 0.62);
+          seg(cx - 4, y0, cx - arm, y0 + arm, 12);
+          seg(cx + 4, y0, cx + arm, y0 + arm, 12);
+          peg(cx, y0 + room * 0.9, 18);
         }
-      } else { /* bumpers */
-        for (let s = 0; s < 8; s++) {
-          peg(130 + pick(8) * 95, y + 110 + s * 105, 22 + pick(3) * 6, 0.72);
+      } else if (kind === 'bumpers') {
+        const n = 7 + pick(3);
+        for (let s = 0; s < n; s++) {
+          peg(130 + pick(8) * 95, y + 110 + s * ((h - 220) / n), 20 + pick(4) * 6, 0.72);
         }
+      } else if (kind === 'funnel') {
+        /* Two walls closing to a throat, then a peg to split the stream. */
+        const throat = 220 + pick(4) * 30;
+        const yt = y + 420 + pick(3) * 60;
+        seg(-40, y + 90, WIDTH / 2 - throat / 2, yt, 13);
+        seg(WIDTH + 40, y + 90, WIDTH / 2 + throat / 2, yt, 13);
+        seg(WIDTH / 2 - throat / 2, yt, WIDTH / 2 - throat / 2, yt + 90, 13);
+        seg(WIDTH / 2 + throat / 2, yt, WIDTH / 2 + throat / 2, yt + 90, 13);
+        peg(WIDTH / 2 + (pick(3) - 1) * 60, yt + 260, 20);
+        peg(WIDTH / 2 - 220, yt + 380, 16);
+        peg(WIDTH / 2 + 220, yt + 380, 16);
+      } else if (kind === 'stairs') {
+        /* Short steep steps, alternating sides, each inside its own band. */
+        const n = 5, room = (h - 120) / n;
+        for (let s = 0; s < n; s++) {
+          const fromLeft = s % 2 === 0;
+          const y0 = y + 60 + s * room;
+          const len = 300 + pick(3) * 40;
+          const drop = room * 0.7;
+          if (fromLeft) seg(-40, y0, len, y0 + drop, 11);
+          else seg(WIDTH + 40, y0, WIDTH - len, y0 + drop, 11);
+        }
+      } else if (kind === 'plinko') {
+        /* Dense small pegs: the field spreads out and mixes. */
+        const rows = 8, gapx = 70;
+        for (let r0 = 0; r0 < rows; r0++) {
+          const off = (r0 % 2) * (gapx / 2);
+          for (let c = 0; c < 14; c++) {
+            const px = 90 + off + c * gapx;
+            if (px > WIDTH - 70) continue;
+            peg(px, y + 100 + r0 * ((h - 180) / rows), 8 + pick(2) * 2, 0.5);
+          }
+        }
+      } else { /* flippers */
+        for (let s = 0; s < 3; s++) {
+          movers.push({
+            kind: 'spinner',
+            x: 200 + pick(3) * 300,
+            y: y + 170 + s * ((h - 240) / 3),
+            len: 90 + pick(3) * 15,
+            r: 12,
+            arms: 1,
+            speed: (2 + pick(3) * 0.4) * (pick(2) ? 1 : -1),
+            phase: rnd() * TAU
+          });
+        }
+        peg(WIDTH / 2, y + h - 140, 18);
       }
       y += h;
     }
@@ -216,13 +272,22 @@
       for (let i = lo; i <= hi; i++) bands[i].push(s);
     }
 
-    return { statics, movers, bands, bandCount, gate, finishY, height, sections, width: WIDTH };
+    return { statics, movers, bands, bandCount, gate, finishY, height, sections, theme, width: WIDTH };
   }
 
   /* Where a mover is at time t, as a capsule (and how fast it is travelling, so
      it can throw a marble rather than let it pass through). */
-  function moverSegments(m, t, out) {
-    if (m.kind === 'spinner') {
+  function moverSegments(m, t, out, hold) {
+    if (m.kind === 'gate') {
+      /* Shut until the start, then it slides out to the right over m.open
+         seconds. Its speed goes with it so it flicks the last marbles rather
+         than passing through them. */
+      const k = hold || t <= 0 ? 0 : Math.min(1, t / m.open);
+      const ease = k * k * (3 - 2 * k);
+      const dx = ease * (m.half * 2 + 60);
+      const vx = k > 0 && k < 1 ? ((m.half * 2 + 60) * 6 * k * (1 - k)) / m.open : 0;
+      out.push({ x1: m.x - m.half + dx, y1: m.y, x2: m.x + m.half + dx, y2: m.y, r: m.r, b: 0.1, vx, vy: 0, gate: true });
+    } else if (m.kind === 'spinner') {
       const a = m.phase + m.speed * t;
       for (let i = 0; i < m.arms; i++) {
         const ang = a + (PI * i) / m.arms;
@@ -274,7 +339,7 @@
       balls.push({
         id: marbles[i].id, i,
         x, y, px: x, py: y, vx: 0, vy: 0,
-        best: y, stuck: 0, kicks: 0, place: 0, time: 0, done: false
+        best: y, stuck: 0, kicks: 0, place: 0, time: 0, done: false, spin: 0
       });
     }
 
@@ -290,11 +355,9 @@
     if (st.over) return st;
     const c = st.course, balls = st.balls, t = st.t;
     const g = t > RUSH_AT ? GRAVITY * Math.min(3, 1 + (t - RUSH_AT) * 0.16) : GRAVITY;
-    const gateOpen = t > 0 && !st.hold;
-
     /* movers, once per step */
     const dyn = [];
-    for (const m of c.movers) moverSegments(m, t, dyn);
+    for (const m of c.movers) moverSegments(m, t, dyn, st.hold);
 
     /* integrate */
     for (let i = 0; i < balls.length; i++) {
@@ -330,7 +393,6 @@
         const list = c.bands[k];
         for (let j = 0; j < list.length; j++) {
           const s = list[j];
-          if (s.gate && gateOpen) continue;
           hitCapsule(b, s, 0, 0);
         }
       }
@@ -442,9 +504,13 @@
     if (vn < 0) {
       const j = -(1 + s.b) * vn;
       b.vx += nx * j; b.vy += ny * j;
-      /* a touch of friction along the surface, so marbles roll off ramps */
+      /* Friction along the surface, so marbles roll off ramps instead of
+         skating, and the roll it produces: the spin is the tangential speed
+         over the radius, signed by which way round the surface is. It is only
+         ever drawn, never fed back into the motion. */
       const tx = rvx - nx * vn, ty = rvy - ny * vn;
-      b.vx -= tx * 0.035; b.vy -= ty * 0.035;
+      b.vx -= tx * 0.012; b.vy -= ty * 0.012;
+      b.spin = (tx * -ny + ty * nx) / R;
     }
   }
 

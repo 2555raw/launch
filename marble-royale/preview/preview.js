@@ -291,6 +291,9 @@
     const winner = S.race.finished[0];
     $('#card').hidden = false;
     $('#winAddr').textContent = winner.id;
+    /* An EIP-681 link: a wallet on the creator's phone or the extension opens
+       a send to this address with nothing else filled in. */
+    $('#winSend').href = 'ethereum:' + winner.id;
     $('#winPay').textContent = usd(S.pot) + ' · ' + COIN.potPct + '% of the fees';
     $('#winYou').hidden = winner.id !== S.me;
     RENDER.celebrate(winner.id);
@@ -654,6 +657,7 @@
   $('#botBtn').addEventListener('click', () => { addBots(12); stir(); toast('12 more marbles in the queue'); });
   $('#runBtn').addEventListener('click', startRace);
   $('#winAddr').addEventListener('click', () => copy($('#winAddr').textContent));
+  $('#winCopy').addEventListener('click', () => copy($('#winAddr').textContent, "Winner's address"));
   $('#caBtn').addEventListener('click', () => copy(COIN.ca, 'Contract address'));
   $('#stage').addEventListener('click', () => { if (S.phase === 'lobby') stir(); });
 

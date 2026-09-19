@@ -98,10 +98,10 @@
               <rect id="liquid" x="22" y="134" width="76" height="0" fill="url(#gold)"/>
               <ellipse id="liquidTop" class="wave" cx="60" cy="134" rx="38" ry="4" fill="#fff1c9" opacity=".95"/>
             </g>
-            <path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z" fill="none" stroke="#3b4a66" stroke-width="3"/>
+            <path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z" fill="none" stroke="#4a4856" stroke-width="3"/>
             <path d="M30 46v66" stroke="rgba(255,255,255,.12)" stroke-width="4" stroke-linecap="round"/>
-            <rect x="30" y="20" width="60" height="14" rx="3" fill="#1b2334" stroke="#3b4a66" stroke-width="3"/>
-            <rect x="26" y="11" width="68" height="11" rx="4" fill="#2a3449"/>
+            <rect x="30" y="20" width="60" height="14" rx="3" fill="#1e1c25" stroke="#4a4856" stroke-width="3"/>
+            <rect x="26" y="11" width="68" height="11" rx="4" fill="#2c2a35"/>
           </svg>
           <div class="drops" id="drops"></div>
           <div class="lock" id="lock">🔒</div>
@@ -144,10 +144,14 @@
 
           <div class="card" id="card" hidden>
             <div class="card__cup">🏆</div>
-            <em>WINNER</em>
-            <button class="addr" id="winAddr" title="copy"></button>
+            <em>1ST PLACE · THE ONLY WINNER</em>
+            <button class="addr" id="winAddr" title="copy the winner's Ethereum address"></button>
             <div class="pay" id="winPay"></div>
-            <div class="sub">This is the wallet the creator sends their share of the fees to, by hand, from their own wallet.</div>
+            <div class="card__actions">
+              <button class="btn" id="winCopy">Copy address</button>
+              <a class="btn btn--accent" id="winSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
+            </div>
+            <div class="sub">Only first place is paid. This is the Ethereum address the creator sends the pot to, from their own wallet.</div>
             <div class="sub win" id="winYou" hidden>That one is yours.</div>
           </div>
 

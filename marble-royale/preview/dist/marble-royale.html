@@ -1,7 +1,7 @@
 
-<title>MARBLEPAD</title>
+<title>MARBLERUSH</title>
 <meta name="description" content="Race your marble. Win the pot. A provably fair marble race every five minutes on Robinhood Chain.">
-<meta property="og:title" content="MARBLEPAD">
+<meta property="og:title" content="MARBLERUSH">
 <meta property="og:description" content="Race your marble. Win the pot.">
 <meta name="theme-color" content="#f5f7ff">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -145,7 +145,7 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacit
   background: radial-gradient(circle at 34% 30%, #fff, var(--go) 46%, #8a3a08 100%);
   box-shadow: 0 6px 14px -6px rgba(255, 122, 26, .7);
 }
-.brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; color: var(--go); }
+.brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; color: var(--ink); }
 .brand__name b { color: var(--go); font-weight: 800; }
 .brand__name.small { font-size: 15px; }
 .top__links { display: flex; gap: 2px; }
@@ -553,8 +553,13 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
   box-shadow: var(--shadow);
   max-height: calc(100vh - 110px); overflow: auto; scrollbar-width: none;
 }
-body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; pointer-events: none; transform: translateX(-20px); }
-.dock { transition: opacity .25s ease, transform .25s ease; }
+/* On the home page the dock waits until you scroll down to the track, then
+   springs in from the left; on every other screen it is there from the
+   start. It steps aside for the countdown and the race. */
+.dock { opacity: 0; pointer-events: none; transform: translateX(-28px) scale(.94); transition: opacity .25s ease, transform .25s ease; }
+.dock.is-shown { opacity: 1; pointer-events: auto; transform: none; animation: dockin .7s cubic-bezier(.2, 1.5, .4, 1) both; }
+@keyframes dockin { from { transform: translateX(-60px) scale(.8); opacity: 0; } 60% { transform: translateX(6px) scale(1.03); opacity: 1; } to { transform: none; opacity: 1; } }
+body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0 !important; pointer-events: none !important; transform: translateX(-20px) !important; animation: none !important; }
 .dock__it {
   display: grid; justify-items: center; row-gap: 3px;
   padding: 9px 4px 8px; border: 0; border-radius: 18px; background: transparent; cursor: pointer; color: var(--ink2);
@@ -696,7 +701,9 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   .poll__opts { grid-template-columns: 1fr; }
   .launch__form { grid-template-columns: 1fr; }
   .dock { left: 50%; top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); flex-direction: row; width: auto; max-width: calc(100vw - 20px); gap: 0; padding: 4px; border-radius: 999px; max-height: none; }
-  body[data-screen="race"] .dock, body[data-screen="count"] .dock { transform: translate(-50%, 20px); }
+  .dock { transform: translate(-50%, 20px); }
+  .dock.is-shown { transform: translateX(-50%); animation: none; }
+  body[data-screen="race"] .dock, body[data-screen="count"] .dock { transform: translate(-50%, 20px) !important; }
   .dock__it { padding: 6px 8px; font-size: 10px; border-radius: 999px; }
   .dock__it em { display: none; }
   .dock__stat { display: none; }
@@ -772,7 +779,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   <div class="top__left">
     <a class="brand" href="#" data-go="home">
       <span class="brand__mark"></span>
-      <span class="brand__name">Marble<b>Pad</b></span>
+      <span class="brand__name">Marble<b>Rush</b></span>
     </a>
     <div class="top__race" id="topRace">
       <span class="mono" id="topRaceNo">RACE #----</span>
@@ -914,7 +921,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
     <footer class="foot">
       <div class="foot__grid">
         <div class="foot__brand">
-          <a class="brand" href="#" data-go="home"><span class="brand__mark"></span><span class="brand__name small">Marble<b>Pad</b></span></a>
+          <a class="brand" href="#" data-go="home"><span class="brand__mark"></span><span class="brand__name small">Marble<b>Rush</b></span></a>
           <p class="dim">A provably fair marble race every five minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
           <div class="foot__links" id="footLinks">
             <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
@@ -925,7 +932,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
         <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="#" data-go="fair">Verify a race</a></div>
         <div class="foot__col"><b>Trust</b><span class="dim">Seed committed before the field closes. Replay any race from its seed. No custody, no private keys, nothing signed but a login message.</span></div>
       </div>
-      <div class="foot__line dim"><span>© 2026 MarblePad · Robinhood Chain</span><span>A game, not financial advice. Entry is free; prizes are sent by the creator by hand.</span></div>
+      <div class="foot__line dim"><span>© 2026 MarbleRush · Robinhood Chain</span><span>A game, not financial advice. Entry is free; prizes are sent by the creator by hand.</span></div>
     </footer>
   </section>
 
@@ -1250,7 +1257,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 <!-- ---------- the notice on arrival ---------- -->
 <div class="notice glass" id="notice" hidden role="dialog" aria-label="about this site">
   <b>Before you race</b>
-  <p>MarblePad is a game, not gambling: entry is free, nothing is wagered, and prizes are sent by the creator by hand to the winning address. Your keys never leave your wallet. The site keeps only your own preferences in this browser (theme, marble, login) and sets no tracking cookies.</p>
+  <p>MarbleRush is a game, not gambling: entry is free, nothing is wagered, and prizes are sent by the creator by hand to the winning address. Your keys never leave your wallet. The site keeps only your own preferences in this browser (theme, marble, login) and sets no tracking cookies.</p>
   <div class="notice__row">
     <span class="dim">Not financial advice. Play for fun.</span>
     <a class="btn btn--glass" href="#" data-go="fair" data-notice-ok>How it's fair</a>
@@ -4657,7 +4664,7 @@ window.MR_TYPES = true;
     for (let i = 0; i < 4; i++) { const s = round.startAt + i * ROUND_MS; const w = round.poll && round.poll.winner; out.push({ id: 'R' + s, number: round.number + i, startAt: s, lockAt: s + LOBBY_MS, raceAt: s + LOBBY_MS + LOCK_MS, mega: s % MEGA_EVERY === 0, open: i === 0 && round.phase === 'lobby', count: i === 0 ? round.players.length : 0, max: i === 0 ? round.max : MAX, mode: i === 0 ? round.mode : i === 1 && w ? w : null, modeBy: i === 0 ? round.modeBy : i === 1 && w ? 'vote' : 'poll' }); }
     return out;
   }
-  const config = { coin: 'MARBLEPAD', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://etherscan.io', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
+  const config = { coin: 'MARBLERUSH', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://etherscan.io', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
     maxPlayers: MAX, maxPlayersHigh: MAX_HIGH, modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })) };
   const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
 
@@ -4676,7 +4683,7 @@ window.MR_TYPES = true;
     if (path === '/api/schedule') return reply(200, { now: now(), schedule: schedule() });
     if (path === '/api/history') return reply(200, { rounds: store.rounds.slice(0, 50), top: [], rewards: [], paidTotal: 0 });
     if (path === '/api/round') { const r = store.rounds.find((x) => x.id === q.get('id')); return r ? reply(200, { round: Object.assign({}, r, { field: r.players }) }) : reply(404, { error: 'unknown round' }); }
-    if (path === '/api/nonce') return reply(200, { nonce: 'standalone', message: 'MARBLEPAD standalone: no server, nothing to sign.' });
+    if (path === '/api/nonce') return reply(200, { nonce: 'standalone', message: 'MARBLERUSH standalone: no server, nothing to sign.' });
     if (path === '/api/auth') {
       /* a real wallet's address is taken at its word here: there is no server
          to check a signature, and nothing here is worth forging */
@@ -4714,7 +4721,7 @@ window.MR_TYPES = true;
 
 </script>
 <script>
-/* MARBLEPAD - the app.
+/* MARBLERUSH - the app.
 
    Everything the browser does, wired together: the event stream from the
    server, the clock kept in step with it, the race engine run at sixty steps
@@ -4937,7 +4944,7 @@ window.MR_TYPES = true;
     $('#loEntry').textContent = c.entry || 'FREE';
     if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
     if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; }
-    document.title = (c.coin || 'MARBLEPAD') + ' · race your marble';
+    document.title = (c.coin || 'MARBLERUSH') + ' · race your marble';
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
   }
 
@@ -5790,6 +5797,11 @@ window.MR_TYPES = true;
   function placeStage() {
     const veil = $('.veil');
     const screen = ui.get().screen;
+    /* the dock shows once the home page is scrolled down to the track, and
+       always on the other screens */
+    const dock = $('#dock');
+    const wantDock = screen !== 'home' || window.scrollY > Math.max(240, innerHeight * 0.55);
+    if (wantDock !== dock.classList.contains('is-shown')) dock.classList.toggle('is-shown', wantDock);
     if (screen === 'home') {
       const st = $('#stage');
       const r = st.getBoundingClientRect();

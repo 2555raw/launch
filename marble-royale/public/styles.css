@@ -136,7 +136,7 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacit
   background: radial-gradient(circle at 34% 30%, #fff, var(--go) 46%, #8a3a08 100%);
   box-shadow: 0 6px 14px -6px rgba(255, 122, 26, .7);
 }
-.brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; color: var(--go); }
+.brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; color: var(--ink); }
 .brand__name b { color: var(--go); font-weight: 800; }
 .brand__name.small { font-size: 15px; }
 .top__links { display: flex; gap: 2px; }
@@ -544,8 +544,13 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
   box-shadow: var(--shadow);
   max-height: calc(100vh - 110px); overflow: auto; scrollbar-width: none;
 }
-body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; pointer-events: none; transform: translateX(-20px); }
-.dock { transition: opacity .25s ease, transform .25s ease; }
+/* On the home page the dock waits until you scroll down to the track, then
+   springs in from the left; on every other screen it is there from the
+   start. It steps aside for the countdown and the race. */
+.dock { opacity: 0; pointer-events: none; transform: translateX(-28px) scale(.94); transition: opacity .25s ease, transform .25s ease; }
+.dock.is-shown { opacity: 1; pointer-events: auto; transform: none; animation: dockin .7s cubic-bezier(.2, 1.5, .4, 1) both; }
+@keyframes dockin { from { transform: translateX(-60px) scale(.8); opacity: 0; } 60% { transform: translateX(6px) scale(1.03); opacity: 1; } to { transform: none; opacity: 1; } }
+body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0 !important; pointer-events: none !important; transform: translateX(-20px) !important; animation: none !important; }
 .dock__it {
   display: grid; justify-items: center; row-gap: 3px;
   padding: 9px 4px 8px; border: 0; border-radius: 18px; background: transparent; cursor: pointer; color: var(--ink2);
@@ -687,7 +692,9 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   .poll__opts { grid-template-columns: 1fr; }
   .launch__form { grid-template-columns: 1fr; }
   .dock { left: 50%; top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); flex-direction: row; width: auto; max-width: calc(100vw - 20px); gap: 0; padding: 4px; border-radius: 999px; max-height: none; }
-  body[data-screen="race"] .dock, body[data-screen="count"] .dock { transform: translate(-50%, 20px); }
+  .dock { transform: translate(-50%, 20px); }
+  .dock.is-shown { transform: translateX(-50%); animation: none; }
+  body[data-screen="race"] .dock, body[data-screen="count"] .dock { transform: translate(-50%, 20px) !important; }
   .dock__it { padding: 6px 8px; font-size: 10px; border-radius: 999px; }
   .dock__it em { display: none; }
   .dock__stat { display: none; }

@@ -1,4 +1,4 @@
-/* MARBLEPAD - the server.
+/* MARBLERUSH - the server.
 
    One process: it serves the page, keeps the five minute clock, plays each race
    out the moment the field closes, and pushes what happens to every open browser
@@ -34,7 +34,7 @@ const MIN_TOKENS = Math.max(0, Number(process.env.MIN_TOKENS) || 0);
 const PUBLIC = path.join(__dirname, 'public');
 
 const CONFIG = {
-  coin: process.env.COIN_NAME || 'MARBLEPAD',
+  coin: process.env.COIN_NAME || 'MARBLERUSH',
   ticker: process.env.COIN_TICKER || '',
   mint: TOKEN_MINT,
   minTokens: MIN_TOKENS,
@@ -269,7 +269,7 @@ const server = http.createServer(async (req, res) => {
     const nonce = crypto.randomBytes(12).toString('hex');
     nonces.set(nonce, { address, exp: Date.now() + 300000 });
     const message =
-      'MARBLEPAD\n' +
+      'MARBLERUSH\n' +
       'Sign in to race your marble.\n' +
       'This proves the wallet is yours. It moves nothing and costs nothing.\n' +
       'wallet: ' + address + '\n' +
@@ -292,7 +292,7 @@ const server = http.createServer(async (req, res) => {
     if (!entry || entry.address !== address) return json(res, 400, { error: 'that sign-in expired, try again' });
     nonces.delete(nonce);
     const message =
-      'MARBLEPAD\n' +
+      'MARBLERUSH\n' +
       'Sign in to race your marble.\n' +
       'This proves the wallet is yours. It moves nothing and costs nothing.\n' +
       'wallet: ' + address + '\n' +
@@ -425,7 +425,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   rounds.start();
-  console.log('MARBLEPAD on :' + PORT +
+  console.log('MARBLERUSH on :' + PORT +
     ' | round ' + Math.round(ROUND_MS / 1000) + 's' +
     ' | fee wallet ' + (FEE_WALLET || 'not set') + ' | rpc ' + chain.RPC +
     ' | admin ' + (ADMIN_KEY ? 'on' : 'OFF (set ADMIN_KEY)'));

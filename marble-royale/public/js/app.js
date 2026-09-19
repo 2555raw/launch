@@ -1,4 +1,4 @@
-/* MARBLEPAD - the app.
+/* MARBLERUSH - the app.
 
    Everything the browser does, wired together: the event stream from the
    server, the clock kept in step with it, the race engine run at sixty steps
@@ -221,7 +221,7 @@
     $('#loEntry').textContent = c.entry || 'FREE';
     if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
     if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; }
-    document.title = (c.coin || 'MARBLEPAD') + ' · race your marble';
+    document.title = (c.coin || 'MARBLERUSH') + ' · race your marble';
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
   }
 
@@ -1074,6 +1074,11 @@
   function placeStage() {
     const veil = $('.veil');
     const screen = ui.get().screen;
+    /* the dock shows once the home page is scrolled down to the track, and
+       always on the other screens */
+    const dock = $('#dock');
+    const wantDock = screen !== 'home' || window.scrollY > Math.max(240, innerHeight * 0.55);
+    if (wantDock !== dock.classList.contains('is-shown')) dock.classList.toggle('is-shown', wantDock);
     if (screen === 'home') {
       const st = $('#stage');
       const r = st.getBoundingClientRect();

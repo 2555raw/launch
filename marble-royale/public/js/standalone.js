@@ -156,7 +156,7 @@
     for (let i = 0; i < 4; i++) { const s = round.startAt + i * ROUND_MS; const w = round.poll && round.poll.winner; out.push({ id: 'R' + s, number: round.number + i, startAt: s, lockAt: s + LOBBY_MS, raceAt: s + LOBBY_MS + LOCK_MS, mega: s % MEGA_EVERY === 0, open: i === 0 && round.phase === 'lobby', count: i === 0 ? round.players.length : 0, max: i === 0 ? round.max : MAX, mode: i === 0 ? round.mode : i === 1 && w ? w : null, modeBy: i === 0 ? round.modeBy : i === 1 && w ? 'vote' : 'poll' }); }
     return out;
   }
-  const config = { coin: 'MARBLEPAD', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://etherscan.io', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
+  const config = { coin: 'MARBLERUSH', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://etherscan.io', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
     maxPlayers: MAX, maxPlayersHigh: MAX_HIGH, modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })) };
   const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
 
@@ -175,7 +175,7 @@
     if (path === '/api/schedule') return reply(200, { now: now(), schedule: schedule() });
     if (path === '/api/history') return reply(200, { rounds: store.rounds.slice(0, 50), top: [], rewards: [], paidTotal: 0 });
     if (path === '/api/round') { const r = store.rounds.find((x) => x.id === q.get('id')); return r ? reply(200, { round: Object.assign({}, r, { field: r.players }) }) : reply(404, { error: 'unknown round' }); }
-    if (path === '/api/nonce') return reply(200, { nonce: 'standalone', message: 'MARBLEPAD standalone: no server, nothing to sign.' });
+    if (path === '/api/nonce') return reply(200, { nonce: 'standalone', message: 'MARBLERUSH standalone: no server, nothing to sign.' });
     if (path === '/api/auth') {
       /* a real wallet's address is taken at its word here: there is no server
          to check a signature, and nothing here is worth forging */

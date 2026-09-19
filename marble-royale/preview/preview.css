@@ -162,8 +162,51 @@
   .hero > p { margin: 0 auto; max-width: 58ch; color: var(--ink2); font-size: clamp(15px, 1.7vw, 17px); }
   .hero__cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
 
+  /* ---- the pot ----------------------------------------------------------- */
+
+  .potbox {
+    margin: 40px auto 0; max-width: 760px;
+    display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 22px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px;
+    text-align: left;
+  }
+  .jar { position: relative; width: 150px; height: 170px; }
+  .jarsvg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .potbox[data-state="locked"] .jarsvg path:nth-of-type(2) { stroke: var(--gold); }
+  .wave { animation: slosh 2.4s ease-in-out infinite; }
+  @keyframes slosh { 50% { transform: translateX(2px) scaleY(1.25); } }
+  .potbox[data-state="locked"] .wave, .potbox[data-state="draining"] .wave { animation: none; }
+  .drops { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .drop {
+    position: absolute; top: -8px; width: 9px; height: 9px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff6d6, #e6b84a 60%, #9a7320);
+    animation: fall .8s cubic-bezier(.4, 0, .9, .6) forwards;
+  }
+  @keyframes fall { to { transform: translateY(135px) scale(.5); opacity: 0; } }
+  .lock {
+    position: absolute; right: 6px; top: 34px; font-size: 18px;
+    opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease;
+    filter: drop-shadow(0 2px 6px #000);
+  }
+  .potbox[data-state="locked"] .lock { opacity: 1; transform: none; }
+  .potbox__info { display: grid; gap: 6px; }
+  .potbox__amt { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .potbox__amt b { color: var(--gold); }
+  .potbox__meta { font-family: var(--mono); font-size: 12px; color: var(--dim); }
+  .potbox[data-state="locked"] .potbox__meta { color: var(--gold); }
+  .potbox[data-state="draining"] .potbox__meta { color: var(--win); }
+  .potbar { height: 6px; border-radius: 999px; background: #161c2a; overflow: hidden; margin-top: 2px; }
+  .potbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #d9a13a, #ffe39a); transition: width .5s ease; }
+  .potbox__note { margin: 4px 0 0; font-size: 13px; color: var(--dim); max-width: 52ch; }
+  .potbox__note b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 560px) {
+    .potbox { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .potbox__note { max-width: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .wave, .drop { animation: none; } }
+
   .stats {
-    margin: 44px auto 0; max-width: 900px;
+    margin: 30px auto 0; max-width: 900px;
     display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px;
     background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
   }

@@ -87,6 +87,36 @@
         <a class="btn btn--accent btn--lg" href="#race">Watch a race</a>
         <a class="btn btn--lg" href="#how">How it works</a>
       </div>
+      <div class="potbox" id="potbox" data-state="filling">
+        <div class="jar" id="jar">
+          <svg viewBox="0 0 120 150" class="jarsvg" aria-hidden="true">
+            <defs>
+              <clipPath id="jarClip"><path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z"/></clipPath>
+              <linearGradient id="gold" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#ffe39a"/><stop offset="1" stop-color="#d9a13a"/>
+              </linearGradient>
+            </defs>
+            <g clip-path="url(#jarClip)">
+              <rect id="liquid" x="22" y="134" width="76" height="0" fill="url(#gold)"/>
+              <ellipse id="liquidTop" class="wave" cx="60" cy="134" rx="38" ry="4" fill="#fff1c9" opacity=".95"/>
+            </g>
+            <path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z" fill="none" stroke="#3b4a66" stroke-width="3"/>
+            <path d="M30 46v66" stroke="rgba(255,255,255,.12)" stroke-width="4" stroke-linecap="round"/>
+            <rect x="30" y="20" width="60" height="14" rx="3" fill="#1b2334" stroke="#3b4a66" stroke-width="3"/>
+            <rect x="26" y="11" width="68" height="11" rx="4" fill="#2a3449"/>
+          </svg>
+          <div class="drops" id="drops"></div>
+          <div class="lock" id="lock">🔒</div>
+        </div>
+        <div class="potbox__info">
+          <span class="kicker">POT FOR THIS RACE</span>
+          <div class="potbox__amt"><b id="potBig">0.000</b> SOL <span class="tag tag--demo">demo</span></div>
+          <div class="potbox__meta"><span id="potState">Filling with fees</span></div>
+          <div class="potbar"><i id="potFill"></i></div>
+          <p class="potbox__note">Every trade on the coin adds to it. It locks the moment the race starts, and empties when the winner is paid. <b id="pctC">20%</b> goes to the winning marble.</p>
+        </div>
+      </div>
+
       <dl class="stats">
         <div><dt>Race every</dt><dd>~5 min</dd></div>
         <div><dt>Cost to enter</dt><dd>Free</dd></div>
@@ -147,7 +177,7 @@
       <ol class="steps">
         <li>
           <b>Open the page with your wallet</b>
-          <span>On a desktop the extension is enough: Phantom, Solflare or Backpack on Solana, MetaMask or Rabby on Ethereum. On a phone, open this page inside your wallet's own browser — from plain Safari or Chrome there is nothing to connect to.</span>
+          <span>On a desktop the extension is enough: Phantom, Solflare or Backpack on Solana, MetaMask or Rabby on Ethereum. On a phone, open this page inside your wallet's own browser. From plain Safari or Chrome there is nothing to connect to.</span>
         </li>
         <li>
           <b>Connect and sign the message</b>
@@ -207,7 +237,7 @@
           <p>The creator sends that share to the winning address by hand. The percentage is theirs to set and it is always written on screen.</p>
         </article>
       </div>
-      <p class="fine">There is no smart contract paying anyone automatically. A person sends it, which is worth knowing before you play — the notice further down says so plainly.</p>
+      <p class="fine">There is no smart contract paying anyone automatically. A person sends it, which is worth knowing before you play. The notice further down says so plainly.</p>
     </section>
 
     <!-- fair -->
@@ -278,7 +308,7 @@
       </div>
       <ul class="rules">
         <li><i>✓</i><span><b>What connecting does:</b> the site reads your public address, the same one anyone can see in an explorer, and asks for a text signature to check it is yours. Free, and not a transaction.</span></li>
-        <li><i>✓</i><span><b>What it never does:</b> request token approvals, open transactions, touch your funds or store any key. The server holds no wallets — it reads public balances and nothing else.</span></li>
+        <li><i>✓</i><span><b>What it never does:</b> request token approvals, open transactions, touch your funds or store any key. The server holds no wallets. It reads public balances and nothing else.</span></li>
         <li><i>✓</i><span><b>Entering is free.</b> There is nothing to pay, nothing is staked, and you cannot lose money by racing a marble.</span></li>
         <li class="no"><i>!</i><span><b>Paying out is manual and voluntary.</b> The creator sends it from their own wallet, at the percentage they choose. This site shows who won; it cannot force anyone to pay or refund anything.</span></li>
         <li class="no"><i>!</i><span><b>This is chance, not skill.</b> The result comes out of a physics simulation with a random seed. Nobody rolls better than anyone else, and winning before does not help.</span></li>

@@ -166,8 +166,51 @@
   .hero > p { margin: 0 auto; max-width: 58ch; color: var(--ink2); font-size: clamp(15px, 1.7vw, 17px); }
   .hero__cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
 
+  /* ---- the pot ----------------------------------------------------------- */
+
+  .potbox {
+    margin: 40px auto 0; max-width: 760px;
+    display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 22px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px;
+    text-align: left;
+  }
+  .jar { position: relative; width: 150px; height: 170px; }
+  .jarsvg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .potbox[data-state="locked"] .jarsvg path:nth-of-type(2) { stroke: var(--gold); }
+  .wave { animation: slosh 2.4s ease-in-out infinite; }
+  @keyframes slosh { 50% { transform: translateX(2px) scaleY(1.25); } }
+  .potbox[data-state="locked"] .wave, .potbox[data-state="draining"] .wave { animation: none; }
+  .drops { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .drop {
+    position: absolute; top: -8px; width: 9px; height: 9px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff6d6, #e6b84a 60%, #9a7320);
+    animation: fall .8s cubic-bezier(.4, 0, .9, .6) forwards;
+  }
+  @keyframes fall { to { transform: translateY(135px) scale(.5); opacity: 0; } }
+  .lock {
+    position: absolute; right: 6px; top: 34px; font-size: 18px;
+    opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease;
+    filter: drop-shadow(0 2px 6px #000);
+  }
+  .potbox[data-state="locked"] .lock { opacity: 1; transform: none; }
+  .potbox__info { display: grid; gap: 6px; }
+  .potbox__amt { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .potbox__amt b { color: var(--gold); }
+  .potbox__meta { font-family: var(--mono); font-size: 12px; color: var(--dim); }
+  .potbox[data-state="locked"] .potbox__meta { color: var(--gold); }
+  .potbox[data-state="draining"] .potbox__meta { color: var(--win); }
+  .potbar { height: 6px; border-radius: 999px; background: #161c2a; overflow: hidden; margin-top: 2px; }
+  .potbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #d9a13a, #ffe39a); transition: width .5s ease; }
+  .potbox__note { margin: 4px 0 0; font-size: 13px; color: var(--dim); max-width: 52ch; }
+  .potbox__note b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 560px) {
+    .potbox { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .potbox__note { max-width: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .wave, .drop { animation: none; } }
+
   .stats {
-    margin: 44px auto 0; max-width: 900px;
+    margin: 30px auto 0; max-width: 900px;
     display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px;
     background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
   }
@@ -478,6 +521,36 @@
         <a class="btn btn--accent btn--lg" href="#race">Watch a race</a>
         <a class="btn btn--lg" href="#how">How it works</a>
       </div>
+      <div class="potbox" id="potbox" data-state="filling">
+        <div class="jar" id="jar">
+          <svg viewBox="0 0 120 150" class="jarsvg" aria-hidden="true">
+            <defs>
+              <clipPath id="jarClip"><path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z"/></clipPath>
+              <linearGradient id="gold" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#ffe39a"/><stop offset="1" stop-color="#d9a13a"/>
+              </linearGradient>
+            </defs>
+            <g clip-path="url(#jarClip)">
+              <rect id="liquid" x="22" y="134" width="76" height="0" fill="url(#gold)"/>
+              <ellipse id="liquidTop" class="wave" cx="60" cy="134" rx="38" ry="4" fill="#fff1c9" opacity=".95"/>
+            </g>
+            <path d="M22 34h76v88a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12z" fill="none" stroke="#3b4a66" stroke-width="3"/>
+            <path d="M30 46v66" stroke="rgba(255,255,255,.12)" stroke-width="4" stroke-linecap="round"/>
+            <rect x="30" y="20" width="60" height="14" rx="3" fill="#1b2334" stroke="#3b4a66" stroke-width="3"/>
+            <rect x="26" y="11" width="68" height="11" rx="4" fill="#2a3449"/>
+          </svg>
+          <div class="drops" id="drops"></div>
+          <div class="lock" id="lock">🔒</div>
+        </div>
+        <div class="potbox__info">
+          <span class="kicker">POT FOR THIS RACE</span>
+          <div class="potbox__amt"><b id="potBig">0.000</b> SOL <span class="tag tag--demo">demo</span></div>
+          <div class="potbox__meta"><span id="potState">Filling with fees</span></div>
+          <div class="potbar"><i id="potFill"></i></div>
+          <p class="potbox__note">Every trade on the coin adds to it. It locks the moment the race starts, and empties when the winner is paid. <b id="pctC">20%</b> goes to the winning marble.</p>
+        </div>
+      </div>
+
       <dl class="stats">
         <div><dt>Race every</dt><dd>~5 min</dd></div>
         <div><dt>Cost to enter</dt><dd>Free</dd></div>
@@ -538,7 +611,7 @@
       <ol class="steps">
         <li>
           <b>Open the page with your wallet</b>
-          <span>On a desktop the extension is enough: Phantom, Solflare or Backpack on Solana, MetaMask or Rabby on Ethereum. On a phone, open this page inside your wallet's own browser — from plain Safari or Chrome there is nothing to connect to.</span>
+          <span>On a desktop the extension is enough: Phantom, Solflare or Backpack on Solana, MetaMask or Rabby on Ethereum. On a phone, open this page inside your wallet's own browser. From plain Safari or Chrome there is nothing to connect to.</span>
         </li>
         <li>
           <b>Connect and sign the message</b>
@@ -598,7 +671,7 @@
           <p>The creator sends that share to the winning address by hand. The percentage is theirs to set and it is always written on screen.</p>
         </article>
       </div>
-      <p class="fine">There is no smart contract paying anyone automatically. A person sends it, which is worth knowing before you play — the notice further down says so plainly.</p>
+      <p class="fine">There is no smart contract paying anyone automatically. A person sends it, which is worth knowing before you play. The notice further down says so plainly.</p>
     </section>
 
     <!-- fair -->
@@ -669,7 +742,7 @@
       </div>
       <ul class="rules">
         <li><i>✓</i><span><b>What connecting does:</b> the site reads your public address, the same one anyone can see in an explorer, and asks for a text signature to check it is yours. Free, and not a transaction.</span></li>
-        <li><i>✓</i><span><b>What it never does:</b> request token approvals, open transactions, touch your funds or store any key. The server holds no wallets — it reads public balances and nothing else.</span></li>
+        <li><i>✓</i><span><b>What it never does:</b> request token approvals, open transactions, touch your funds or store any key. The server holds no wallets. It reads public balances and nothing else.</span></li>
         <li><i>✓</i><span><b>Entering is free.</b> There is nothing to pay, nothing is staked, and you cannot lose money by racing a marble.</span></li>
         <li class="no"><i>!</i><span><b>Paying out is manual and voluntary.</b> The creator sends it from their own wallet, at the percentage they choose. This site shows who won; it cannot force anyone to pay or refund anything.</span></li>
         <li class="no"><i>!</i><span><b>This is chance, not skill.</b> The result comes out of a physics simulation with a random seed. Nobody rolls better than anyone else, and winning before does not help.</span></li>
@@ -1911,6 +1984,14 @@
     S.race = null;
     $('#card').hidden = true;
     document.body.dataset.phase = 'lobby';
+    /* The jar fills from empty and is about full when the race is due: the
+       target is drawn per round, the per-second rate follows from how long
+       the queue is open, and every tick jitters so it lands like trades do. */
+    S.pot = 0;
+    S.potTarget = 0.3 + Math.random() * 0.9;
+    S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
+    S.potState = 'filling';
+    paintPot();
     S.preview = RACE.createRace(((Date.now() / ROUND_MS) | 0) >>> 0,
       S.players.map((p) => ({ id: p.address })), { hold: true });
     RENDER.setRace(S.preview, S.players, S.me);
@@ -1929,6 +2010,8 @@
       S.players.map((p) => ({ id: p.address })));
     RENDER.setRace(S.race, S.players, S.me);
     S.startedAt = performance.now();
+    S.potState = 'locked';
+    paintPot();
     banner('GO!');
     paintQueueBtn();
     say();
@@ -1949,8 +2032,8 @@
     savePast();
     renderPast();
     renderField();
-    S.pot = 0.12 + Math.random() * 0.6;
     S.queued = false;
+    setTimeout(drainPot, 2200);
     say();
     setTimeout(() => { if (S.phase === 'result') openLobby(); }, 12000);
   }
@@ -2103,7 +2186,15 @@
       $('#clockLabel').textContent = 'Next race in';
       $('#clock').textContent = fmt(left);
       const sec = Math.floor(now / 1000);
-      if (sec !== lastSecond) { lastSecond = sec; S.pot += 0.0004; $('#pot').textContent = sol(S.pot); }
+      if (sec !== lastSecond && S.potState === 'filling') {
+        lastSecond = sec;
+        /* most seconds a trickle, now and then a trade worth seeing */
+        const bump = Math.random() < 0.06 ? 4 : 0.35 + Math.random() * 1.3;
+        const add = S.potPerSec * bump;
+        S.pot = Math.min(S.potTarget * 1.15, S.pot + add);
+        paintPot();
+        if (bump > 1) drop();
+      }
       if (left === 0) startRace();
     } else if (S.phase === 'racing') {
       $('#clockLabel').textContent = 'Racing';
@@ -2112,6 +2203,48 @@
       $('#clockLabel').textContent = 'New queue in';
       $('#clock').textContent = fmt(Math.max(0, S.resultUntil - now));
     }
+  }
+
+  /* The jar, the bar, the big figure and the ticker all read from S.pot. */
+  function paintPot() {
+    const level = Math.max(0, Math.min(1, S.pot / S.potTarget));
+    const liquid = $('#liquid'), top = $('#liquidTop');
+    liquid.setAttribute('y', (134 - 100 * level).toFixed(1));
+    liquid.setAttribute('height', (100 * level).toFixed(1));
+    top.setAttribute('cy', (134 - 100 * level).toFixed(1));
+    $('#potFill').style.width = (level * 100).toFixed(1) + '%';
+    $('#potBig').textContent = sol(S.pot);
+    $('#pot').textContent = sol(S.pot);
+    $('#potbox').dataset.state = S.potState;
+    $('#potState').textContent = {
+      filling: 'Filling with fees while the queue is open',
+      locked: 'Locked for the race',
+      draining: 'Paid out to the winner'
+    }[S.potState];
+  }
+
+  function drop() {
+    const box = $('#drops');
+    if (box.children.length > 6) return;
+    const d = document.createElement('i');
+    d.className = 'drop';
+    d.style.left = (44 + Math.random() * 52) + 'px';
+    box.appendChild(d);
+    setTimeout(() => d.remove(), 900);
+  }
+
+  /* After the winner is announced the jar empties over a second or so, and
+     the next queue starts it again from nothing. */
+  function drainPot() {
+    S.potState = 'draining';
+    const from = S.pot, t0 = performance.now();
+    const tick = (ts) => {
+      const k = Math.min(1, (ts - t0) / 1200);
+      S.pot = from * (1 - k * k);
+      paintPot();
+      if (k < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   const fmt = (ms) => {
@@ -2137,7 +2270,7 @@
       x.href = COIN.x;
       $('#xHandle').textContent = COIN.x.replace(/^https?:\/\/(x|twitter)\.com\//i, '@');
     }
-    for (const id of ['#pctA', '#pctB']) $(id).textContent = COIN.potPct + '%';
+    for (const id of ['#pctA', '#pctB', '#pctC']) $(id).textContent = COIN.potPct + '%';
   }
 
   /* The sidebar follows the reading position, and closes itself once a link on
@@ -2181,7 +2314,7 @@
   wireNav();
   openLobby();
   addBots(17);
-  $('#pot').textContent = sol(S.pot);
+  paintPot();
 
   $('#joinBtn').addEventListener('click', () => { if (S.me) copy(S.me, 'Your address'); else connect(); });
   $('#queueBtn').addEventListener('click', queueUp);

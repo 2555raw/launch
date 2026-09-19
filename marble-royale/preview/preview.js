@@ -249,6 +249,14 @@
     S.race = null;
     $('#card').hidden = true;
     document.body.dataset.phase = 'lobby';
+    /* The jar fills from empty and is about full when the race is due: the
+       target is drawn per round, the per-second rate follows from how long
+       the queue is open, and every tick jitters so it lands like trades do. */
+    S.pot = 0;
+    S.potTarget = 0.3 + Math.random() * 0.9;
+    S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
+    S.potState = 'filling';
+    paintPot();
     S.preview = RACE.createRace(((Date.now() / ROUND_MS) | 0) >>> 0,
       S.players.map((p) => ({ id: p.address })), { hold: true });
     RENDER.setRace(S.preview, S.players, S.me);
@@ -267,6 +275,8 @@
       S.players.map((p) => ({ id: p.address })));
     RENDER.setRace(S.race, S.players, S.me);
     S.startedAt = performance.now();
+    S.potState = 'locked';
+    paintPot();
     banner('GO!');
     paintQueueBtn();
     say();
@@ -287,8 +297,8 @@
     savePast();
     renderPast();
     renderField();
-    S.pot = 0.12 + Math.random() * 0.6;
     S.queued = false;
+    setTimeout(drainPot, 2200);
     say();
     setTimeout(() => { if (S.phase === 'result') openLobby(); }, 12000);
   }
@@ -441,7 +451,15 @@
       $('#clockLabel').textContent = 'Next race in';
       $('#clock').textContent = fmt(left);
       const sec = Math.floor(now / 1000);
-      if (sec !== lastSecond) { lastSecond = sec; S.pot += 0.0004; $('#pot').textContent = sol(S.pot); }
+      if (sec !== lastSecond && S.potState === 'filling') {
+        lastSecond = sec;
+        /* most seconds a trickle, now and then a trade worth seeing */
+        const bump = Math.random() < 0.06 ? 4 : 0.35 + Math.random() * 1.3;
+        const add = S.potPerSec * bump;
+        S.pot = Math.min(S.potTarget * 1.15, S.pot + add);
+        paintPot();
+        if (bump > 1) drop();
+      }
       if (left === 0) startRace();
     } else if (S.phase === 'racing') {
       $('#clockLabel').textContent = 'Racing';
@@ -450,6 +468,48 @@
       $('#clockLabel').textContent = 'New queue in';
       $('#clock').textContent = fmt(Math.max(0, S.resultUntil - now));
     }
+  }
+
+  /* The jar, the bar, the big figure and the ticker all read from S.pot. */
+  function paintPot() {
+    const level = Math.max(0, Math.min(1, S.pot / S.potTarget));
+    const liquid = $('#liquid'), top = $('#liquidTop');
+    liquid.setAttribute('y', (134 - 100 * level).toFixed(1));
+    liquid.setAttribute('height', (100 * level).toFixed(1));
+    top.setAttribute('cy', (134 - 100 * level).toFixed(1));
+    $('#potFill').style.width = (level * 100).toFixed(1) + '%';
+    $('#potBig').textContent = sol(S.pot);
+    $('#pot').textContent = sol(S.pot);
+    $('#potbox').dataset.state = S.potState;
+    $('#potState').textContent = {
+      filling: 'Filling with fees while the queue is open',
+      locked: 'Locked for the race',
+      draining: 'Paid out to the winner'
+    }[S.potState];
+  }
+
+  function drop() {
+    const box = $('#drops');
+    if (box.children.length > 6) return;
+    const d = document.createElement('i');
+    d.className = 'drop';
+    d.style.left = (44 + Math.random() * 52) + 'px';
+    box.appendChild(d);
+    setTimeout(() => d.remove(), 900);
+  }
+
+  /* After the winner is announced the jar empties over a second or so, and
+     the next queue starts it again from nothing. */
+  function drainPot() {
+    S.potState = 'draining';
+    const from = S.pot, t0 = performance.now();
+    const tick = (ts) => {
+      const k = Math.min(1, (ts - t0) / 1200);
+      S.pot = from * (1 - k * k);
+      paintPot();
+      if (k < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   const fmt = (ms) => {
@@ -475,7 +535,7 @@
       x.href = COIN.x;
       $('#xHandle').textContent = COIN.x.replace(/^https?:\/\/(x|twitter)\.com\//i, '@');
     }
-    for (const id of ['#pctA', '#pctB']) $(id).textContent = COIN.potPct + '%';
+    for (const id of ['#pctA', '#pctB', '#pctC']) $(id).textContent = COIN.potPct + '%';
   }
 
   /* The sidebar follows the reading position, and closes itself once a link on
@@ -519,7 +579,7 @@
   wireNav();
   openLobby();
   addBots(17);
-  $('#pot').textContent = sol(S.pot);
+  paintPot();
 
   $('#joinBtn').addEventListener('click', () => { if (S.me) copy(S.me, 'Your address'); else connect(); });
   $('#queueBtn').addEventListener('click', queueUp);

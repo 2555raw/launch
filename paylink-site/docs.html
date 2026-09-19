@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PayLink · How it works</title>
-<meta name="description" content="How PayLink routes creator fees from Pons tokens into a PayPal or Venmo balance.">
+<meta name="description" content="How PayLink routes creator fees from Pons tokens into a PayPal balance.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +16,7 @@
 <main class="main">
   <section class="page wrap"><div class="docs">
     <h1 class="h1" style="font-size:clamp(32px,4vw,44px)">How it works</h1>
-    <p class="p" style="margin-top:16px">PayLink routes creator fees from Pons tokens into a PayPal or Venmo balance. That balance does not have to be yours: a coin can be launched on someone else's behalf and they are paid without ever holding a wallet. It deploys no smart contracts of its own and uses no payment processor, combining four things that already exist: the Pons fee escrow, the Across bridge, a Curve pool, and the fact that PayPal accepts its own stablecoin from any wallet.</p>
+    <p class="p" style="margin-top:16px">PayLink routes creator fees from Pons tokens into a PayPal balance. That balance does not have to be yours: a coin can be launched on someone else's behalf and they are paid without ever holding a wallet. It deploys no smart contracts of its own and uses no payment processor, combining four things that already exist: the Pons fee escrow, the Across bridge, a Curve pool, and the fact that PayPal accepts its own stablecoin from any wallet.</p>
 
     <h3 class="h3">1. The fee address</h3>
     <p class="p">Every Pons launch names a creator fee recipient. Fees accrue inside the Pons escrow under that address, denominated in whatever asset the token trades against. PayLink gives you an address it controls, one per link, derived from a single key. Because the escrow tracks balances per address, the balance under your address is exactly your fees. Nothing is pooled.</p>
@@ -28,7 +28,7 @@
     <p class="p">USDG is bridged to USDC on Ethereum through Across, then swapped to PYUSD on Curve. Both legs are public and permissionless. This keeps a PYUSD float on Ethereum that payouts draw from, which means a slow bridge never delays your payout.</p>
 
     <h3 class="h3">4. Getting paid</h3>
-    <p class="p">When your balance passes $5, the next run sends PYUSD to the address you gave. Inside PayPal or Venmo it appears under crypto as PYUSD and converts to your dollar balance one to one. A transfer that fails is credited straight back to you and retried.</p>
+    <p class="p">When your balance passes $5, the next run sends PYUSD to the address you gave. Inside PayPal it appears under crypto as PYUSD and converts to your dollar balance one to one. A transfer that fails is credited straight back to you and retried.</p>
 
     <h3 class="h3">5. The platform share</h3>
     <p class="p">The remaining 20% is forwarded as USDG to a single published address, listed on the <a href="fees.html">fees page</a> along with every transfer that has ever gone to it. There is no treasury to audit and no platform token involved.</p>
@@ -36,8 +36,7 @@
     <h3 class="h3">Finding your PYUSD address</h3>
     <div class="card">
       <p class="p"><b>PayPal</b> — Finances, then Crypto, then PYUSD, then Receive. Choose Ethereum and copy.</p>
-      <p class="p"><b>Venmo</b> — Crypto, then PYUSD, then Receive. Choose Ethereum and copy.</p>
-      <p class="p small">Crypto has to be enabled and your identity verified inside the app first. Venmo can receive PYUSD from outside wallets but cannot send it back out, so move it to PayPal if you ever want it on-chain again.</p>
+      <p class="p small">Crypto has to be enabled and your identity verified inside the app first.</p>
     </div>
 
     <h3 class="h3">What can go wrong</h3>
@@ -46,7 +45,7 @@
       <div class="card"><h4 class="h3"><i>!</i>A wrong address loses the money</h4><p class="p">PYUSD must go to an Ethereum address. If you copy a Solana address, or any address you do not control, it cannot be recovered by us or anyone.</p></div>
       <div class="card"><h4 class="h3"><i>!</i>Only USDG pairs are paid out</h4><p class="p">A token paired with ETH accrues fees in ETH, which PayLink does not convert yet. Those fees stay in the Pons escrow, claimable by you at any time.</p></div>
       <div class="card"><h4 class="h3"><i>!</i>Outages pause payouts, they do not lose money</h4><p class="p">If the bridge or the pool is down, the float stops being replenished and payouts wait. Your balance is in the ledger the whole time.</p></div>
-      <div class="card"><h4 class="h3"><i>!</i>This is taxable income</h4><p class="p">PayLink issues no tax forms. PayPal and Venmo apply their own rules to crypto you receive. That is between you and them.</p></div>
+      <div class="card"><h4 class="h3"><i>!</i>This is taxable income</h4><p class="p">PayLink issues no tax forms. PayPal applies its own rules to crypto you receive. That is between you and them.</p></div>
     </div>
 
     <h2 class="h2">Contracts</h2>
@@ -64,7 +63,7 @@
   </div></section>
   <footer class="foot"><div class="wrap">
     <div class="links"><a href="launch.html">Launch</a><a href="link.html">Link a token</a><a href="explore.html">Explore</a><a href="proof.html">Live proof</a><a href="fees.html">Fees</a><a href="docs.html">Docs</a><a href="https://x.com/PayLinkRH" target="_blank" rel="noopener">𝕏 @PayLinkRH</a></div>
-    <p class="p">PayLink Money is not affiliated with PayPal, Venmo, Paxos, Pons or Robinhood. PYUSD is issued by Paxos. Receiving it requires a PayPal or Venmo account with crypto enabled.</p>
+    <p class="p">PayLink Money is not affiliated with PayPal, Paxos, Pons or Robinhood. PYUSD is issued by Paxos. Receiving it requires a PayPal account with crypto enabled.</p>
     <p class="p">Fees are held by the platform between being claimed and being paid out. Every claim, swap, bridge and payout is a public transaction. Nothing here is financial, tax or legal advice.</p>
   </div></footer>
 </main>

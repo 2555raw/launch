@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PayLink · Launch a token</title>
-<meta name="description" content="Launch a coin on Pons with its creator fees already pointed at a PayPal or Venmo address.">
+<meta name="description" content="Launch a coin on Pons with its creator fees already pointed at a PayPal address.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,9 +18,9 @@
     <h1 class="h1" style="font-size:clamp(32px,4vw,44px)">Launch a token</h1>
     <p class="lead">Fill in the token and the PayPal address that should be paid. You sign once, from your wallet, and the launch goes to Pons with the fee recipient already set. The Pons launch fee is the only cost.</p>
     <form class="form" id="launch-form">
-      <div class="field"><label for="t-name">Token name</label><input class="input" id="t-name" placeholder="Venmo Coin" required maxlength="40"></div>
-      <div class="field"><label for="t-ticker">Ticker</label><input class="input mono" id="t-ticker" placeholder="VENMO" required maxlength="10" style="text-transform:uppercase"></div>
-      <div class="field"><label for="pay-addr">PayPal or Venmo PYUSD address</label><input class="input mono" id="pay-addr" placeholder="0x…" required autocomplete="off" spellcheck="false"><p class="help">Yours or theirs. In the app: Crypto, PYUSD, Receive, choose Ethereum, copy. It must be the Ethereum network, not Solana.</p></div>
+      <div class="field"><label for="t-name">Token name</label><input class="input" id="t-name" placeholder="PayPal Coin" required maxlength="40"></div>
+      <div class="field"><label for="t-ticker">Ticker</label><input class="input mono" id="t-ticker" placeholder="PAYPAL" required maxlength="10" style="text-transform:uppercase"></div>
+      <div class="field"><label for="pay-addr">PayPal PYUSD address</label><input class="input mono" id="pay-addr" placeholder="0x…" required autocomplete="off" spellcheck="false"><p class="help">Yours or theirs. In the app: Crypto, PYUSD, Receive, choose Ethereum, copy. It must be the Ethereum network, not Solana.</p></div>
       <div class="field"><label for="t-desc">Description</label><input class="input" id="t-desc" placeholder="What the coin is for, in a line" maxlength="140"></div>
       <div class="actions"><button class="btn btn-accent btn-lg" type="submit">Launch on Pons</button><a class="btn btn-ghost btn-lg" href="link.html">Already launched? Link it</a></div>
     </form>
@@ -31,7 +31,7 @@
   </section>
   <footer class="foot"><div class="wrap">
     <div class="links"><a href="launch.html">Launch</a><a href="link.html">Link a token</a><a href="explore.html">Explore</a><a href="proof.html">Live proof</a><a href="fees.html">Fees</a><a href="docs.html">Docs</a><a href="https://x.com/PayLinkRH" target="_blank" rel="noopener">𝕏 @PayLinkRH</a></div>
-    <p class="p">PayLink Money is not affiliated with PayPal, Venmo, Paxos, Pons or Robinhood. PYUSD is issued by Paxos. Receiving it requires a PayPal or Venmo account with crypto enabled.</p>
+    <p class="p">PayLink Money is not affiliated with PayPal, Paxos, Pons or Robinhood. PYUSD is issued by Paxos. Receiving it requires a PayPal account with crypto enabled.</p>
     <p class="p">Fees are held by the platform between being claimed and being paid out. Every claim, swap, bridge and payout is a public transaction. Nothing here is financial, tax or legal advice.</p>
   </div></footer>
 </main>

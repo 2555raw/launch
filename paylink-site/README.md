@@ -1,7 +1,7 @@
 # PayLink, version 1.1
 
-Static site for **PayLink**: launch a coin on Pons and point its creator fees at any PayPal or
-Venmo address. Every trade pays real dollars into that account, and the person getting paid
+Static site for **PayLink**: launch a coin on Pons and point its creator fees at any PayPal
+address. Every trade pays real dollars into that account, and the person getting paid
 never holds a wallet.
 
 Rebuilt from the reference screenshots, page for page, with one change: the accent is orange

@@ -110,10 +110,6 @@
   .gold { color: var(--gold); }
   body[data-phase="racing"] .ticker__dot { background: var(--hot); box-shadow: 0 0 10px var(--hot); }
   body[data-phase="result"] .ticker__dot { background: var(--win); box-shadow: 0 0 10px var(--win); }
-  .tag--demo {
-    font-family: var(--mono); font-size: 9px; letter-spacing: .1em; color: var(--gold);
-    border: 1px solid #3a2c12; border-radius: 999px; padding: 1px 6px;
-  }
   .bar__right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
   .brand__tick { font-family: var(--mono); font-size: 12px; color: var(--go); }
 
@@ -417,7 +413,7 @@
   }
   @media (max-width: 560px) {
     .bar__right .brand__tick { display: none; }
-    .ticker__sep, .ticker .tag--demo { display: none; }
+    .ticker__sep { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .banner, .card { animation: none; }

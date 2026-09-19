@@ -16,15 +16,15 @@
 
   const COIN = {
     ticker: '',        // '$MARBLE'
-    ca: '',            // contract address: 0x… en Ethereum, base58 en Solana
-    x: '',             // https://x.com/tu_cuenta
-    potPct: 20         // el % de las fees que se lleva el ganador
+    ca: '',            // the token's contract address on Ethereum, 0x…
+    x: '',             // https://x.com/your_account
+    potPct: 20         // the share of the fees the winner takes
   };
 
   const $ = (s) => document.querySelector(s);
   const ROUND_MS = 300000;
   const LOBBY_MS = 240000;
-  const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  const HEX = '0123456789abcdef';
   const SKINS = ['#6ee7ff', '#7dff9b', '#ffd36e', '#ff5ea8', '#b98bff', '#ff8a4c',
                  '#4cd9ff', '#ff5252', '#9dff4c', '#ffffff'];
 
@@ -47,13 +47,15 @@
     past: []
   };
 
-  const short = (a) => (a.length > 12 ? a.slice(0, 4) + '…' + a.slice(-4) : a);
-  const sol = (v) => v.toFixed(3);
+  const short = (a) => (a.length > 12 ? a.slice(0, 6) + '…' + a.slice(-4) : a);
+  /* Dollars, the way the pot is shown: the fees are in ETH on the chain and are
+     converted at the current price when it is live. */
+  const usd = (v) => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   /* Demonstration wallets: the right shape, belonging to nobody. */
   function fakeAddress() {
-    let s = '';
-    for (let i = 0; i < 44; i++) s += B58[(Math.random() * B58.length) | 0];
+    let s = '0x';
+    for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0];
     return s;
   }
   function colorOf(address) {
@@ -117,22 +119,21 @@
     b.textContent = S.queued ? 'In the queue ✓' : 'Join the queue';
   }
 
-  /* Solana first, because the app is built for it, then Ethereum, and a
-     demonstration wallet when the browser has neither. */
+  /* An Ethereum wallet first, since that is where the coin lives; a Solana one
+     if that is all the browser has; a demonstration address with neither. */
   async function connect() {
-    const sol = window.phantom?.solana || (window.solflare?.isSolflare ? window.solflare : null) ||
-                window.backpack?.solana || window.solana;
+    if (window.ethereum && window.ethereum.request) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (accounts && accounts[0]) return signedIn(accounts[0], 'Ethereum');
+      } catch { return toast('You cancelled the connection'); }
+    }
+    const sol = window.phantom?.solana || window.solana;
     if (sol && sol.connect) {
       try {
         const res = await sol.connect();
         const key = (res && res.publicKey) || sol.publicKey;
         if (key) return signedIn(key.toString(), 'Solana');
-      } catch { return toast('You cancelled the connection'); }
-    }
-    if (window.ethereum && window.ethereum.request) {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts && accounts[0]) return signedIn(accounts[0], 'Ethereum');
       } catch { return toast('You cancelled the connection'); }
     }
     signedIn(fakeAddress(), 'demo');
@@ -253,7 +254,7 @@
        target is drawn per round, the per-second rate follows from how long
        the queue is open, and every tick jitters so it lands like trades do. */
     S.pot = 0;
-    S.potTarget = 0.3 + Math.random() * 0.9;
+    S.potTarget = 60 + Math.random() * 520;
     S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
     S.potState = 'filling';
     paintPot();
@@ -288,7 +289,7 @@
     const winner = S.race.finished[0];
     $('#card').hidden = false;
     $('#winAddr').textContent = winner.id;
-    $('#winPay').textContent = sol(S.pot) + ' SOL · ' + COIN.potPct + '% of the fees';
+    $('#winPay').textContent = usd(S.pot) + ' · ' + COIN.potPct + '% of the fees';
     $('#winYou').hidden = winner.id !== S.me;
     RENDER.celebrate(winner.id);
     S.past.unshift({ at: Date.now(), winner: winner.id, pot: S.pot, n: S.players.length });
@@ -377,7 +378,7 @@
         ' · ' + r.n + ' marbles';
       const amt = document.createElement('span');
       amt.style.color = 'var(--gold)';
-      amt.textContent = sol(r.pot) + ' SOL';
+      amt.textContent = usd(r.pot);
       row.append(when, amt);
       const a = document.createElement('div'); a.className = 'a';
       a.textContent = r.winner;
@@ -478,8 +479,8 @@
     liquid.setAttribute('height', (100 * level).toFixed(1));
     top.setAttribute('cy', (134 - 100 * level).toFixed(1));
     $('#potFill').style.width = (level * 100).toFixed(1) + '%';
-    $('#potBig').textContent = sol(S.pot);
-    $('#pot').textContent = sol(S.pot);
+    $('#potBig').textContent = usd(S.pot);
+    $('#pot').textContent = usd(S.pot);
     $('#potbox').dataset.state = S.potState;
     $('#potState').textContent = {
       filling: 'Filling with fees while the queue is open',

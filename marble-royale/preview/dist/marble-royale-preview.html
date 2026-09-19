@@ -114,10 +114,6 @@
   .gold { color: var(--gold); }
   body[data-phase="racing"] .ticker__dot { background: var(--hot); box-shadow: 0 0 10px var(--hot); }
   body[data-phase="result"] .ticker__dot { background: var(--win); box-shadow: 0 0 10px var(--win); }
-  .tag--demo {
-    font-family: var(--mono); font-size: 9px; letter-spacing: .1em; color: var(--gold);
-    border: 1px solid #3a2c12; border-radius: 999px; padding: 1px 6px;
-  }
   .bar__right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
   .brand__tick { font-family: var(--mono); font-size: 12px; color: var(--go); }
 
@@ -421,7 +417,7 @@
   }
   @media (max-width: 560px) {
     .bar__right .brand__tick { display: none; }
-    .ticker__sep, .ticker .tag--demo { display: none; }
+    .ticker__sep { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .banner, .card { animation: none; }
@@ -490,8 +486,8 @@
         <b id="clock">--:--</b>
         <span class="ticker__sep">·</span>
         <span class="ticker__label">pot</span>
-        <b class="gold"><span id="pot">0.000</span> SOL</b>
-        <span class="tag tag--demo">demo</span>
+        <b class="gold" id="pot">$0.00</b>
+       
       </div>
 
       <div class="bar__right">
@@ -533,10 +529,10 @@
         </div>
         <div class="potbox__info">
           <span class="kicker">POT FOR THIS RACE</span>
-          <div class="potbox__amt"><b id="potBig">0.000</b> SOL <span class="tag tag--demo">demo</span></div>
+          <div class="potbox__amt"><b id="potBig">$0.00</b></div>
           <div class="potbox__meta"><span id="potState">Filling with fees</span></div>
           <div class="potbar"><i id="potFill"></i></div>
-          <p class="potbox__note">Every trade on the coin adds to it. It locks the moment the race starts, and empties when the winner is paid. <b id="pctC">20%</b> goes to the winning marble.</p>
+          <p class="potbox__note">Every trade on the coin adds to it, shown in dollars at the current ETH price. It locks the moment the race starts, and empties when the winner is paid. <b id="pctC">20%</b> goes to the winning marble.</p>
         </div>
       </div>
 
@@ -600,7 +596,7 @@
       <ol class="steps">
         <li>
           <b>Open the page with your wallet</b>
-          <span>On a desktop the extension is enough: Phantom, Solflare or Backpack on Solana, MetaMask or Rabby on Ethereum. On a phone, open this page inside your wallet's own browser. From plain Safari or Chrome there is nothing to connect to.</span>
+          <span>Any Ethereum wallet: MetaMask, Rabby, Coinbase Wallet or Trust Wallet. On a desktop the extension is enough. On a phone, open this page inside your wallet's own browser. From plain Safari or Chrome there is nothing to connect to.</span>
         </li>
         <li>
           <b>Connect and sign the message</b>
@@ -647,12 +643,12 @@
         <article class="cd">
           <span class="cd__tag">1</span>
           <h4>Fees pile up</h4>
-          <p>Every trade on the coin sends creator fees to one wallet. A busy five minutes fills it; a quiet five minutes barely moves it.</p>
+          <p>Every trade on the coin sends creator fees, in ETH, to one wallet. A busy five minutes fills it; a quiet five minutes barely moves it.</p>
         </article>
         <article class="cd">
           <span class="cd__tag">2</span>
           <h4>A race is called</h4>
-          <p>Roughly every five minutes, on the clock, and more often when the coin is moving. The pot on screen is what came in during that window.</p>
+          <p>Roughly every five minutes, on the clock, and more often when the coin is moving. The pot on screen is what came in during that window, in dollars at the ETH price of the moment.</p>
         </article>
         <article class="cd cd--hot">
           <span class="cd__tag">3</span>
@@ -711,9 +707,11 @@
         <div><dt>Seed</dt><dd>sha256, committed up front</dd></div>
         <div><dt>Course</dt><dd>8 drawn sections, ~9,000 units</dd></div>
         <div><dt>Marbles per race</dt><dd>up to 250</dd></div>
-        <div><dt>Identity</dt><dd>a signature from your wallet</dd></div>
+        <div><dt>Chain</dt><dd>Ethereum</dd></div>
+        <div><dt>Identity</dt><dd>a signed message (EIP-191)</dd></div>
         <div><dt>Transport</dt><dd>one server-sent event stream</dd></div>
         <div><dt>Dependencies</dt><dd>none, Node 18+</dd></div>
+        <div><dt>Pot</dt><dd>ETH fees, shown in USD</dd></div>
         <div><dt>Keys on the server</dt><dd>none: it reads balances</dd></div>
       </dl>
       <p class="fine">The physics avoids everything a browser is free to round its own way: no <code>Math.random</code>, no <code>Math.sin</code>, a fixed step and a fixed order. That is why the server can play the race out in milliseconds, keep the result, and your browser can replay it in real time and land on the same winner.</p>
@@ -1740,15 +1738,15 @@
 
   const COIN = {
     ticker: '',        // '$MARBLE'
-    ca: '',            // contract address: 0x… en Ethereum, base58 en Solana
-    x: '',             // https://x.com/tu_cuenta
-    potPct: 20         // el % de las fees que se lleva el ganador
+    ca: '',            // the token's contract address on Ethereum, 0x…
+    x: '',             // https://x.com/your_account
+    potPct: 20         // the share of the fees the winner takes
   };
 
   const $ = (s) => document.querySelector(s);
   const ROUND_MS = 300000;
   const LOBBY_MS = 240000;
-  const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  const HEX = '0123456789abcdef';
   const SKINS = ['#6ee7ff', '#7dff9b', '#ffd36e', '#ff5ea8', '#b98bff', '#ff8a4c',
                  '#4cd9ff', '#ff5252', '#9dff4c', '#ffffff'];
 
@@ -1771,13 +1769,15 @@
     past: []
   };
 
-  const short = (a) => (a.length > 12 ? a.slice(0, 4) + '…' + a.slice(-4) : a);
-  const sol = (v) => v.toFixed(3);
+  const short = (a) => (a.length > 12 ? a.slice(0, 6) + '…' + a.slice(-4) : a);
+  /* Dollars, the way the pot is shown: the fees are in ETH on the chain and are
+     converted at the current price when it is live. */
+  const usd = (v) => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   /* Demonstration wallets: the right shape, belonging to nobody. */
   function fakeAddress() {
-    let s = '';
-    for (let i = 0; i < 44; i++) s += B58[(Math.random() * B58.length) | 0];
+    let s = '0x';
+    for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0];
     return s;
   }
   function colorOf(address) {
@@ -1841,22 +1841,21 @@
     b.textContent = S.queued ? 'In the queue ✓' : 'Join the queue';
   }
 
-  /* Solana first, because the app is built for it, then Ethereum, and a
-     demonstration wallet when the browser has neither. */
+  /* An Ethereum wallet first, since that is where the coin lives; a Solana one
+     if that is all the browser has; a demonstration address with neither. */
   async function connect() {
-    const sol = window.phantom?.solana || (window.solflare?.isSolflare ? window.solflare : null) ||
-                window.backpack?.solana || window.solana;
+    if (window.ethereum && window.ethereum.request) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (accounts && accounts[0]) return signedIn(accounts[0], 'Ethereum');
+      } catch { return toast('You cancelled the connection'); }
+    }
+    const sol = window.phantom?.solana || window.solana;
     if (sol && sol.connect) {
       try {
         const res = await sol.connect();
         const key = (res && res.publicKey) || sol.publicKey;
         if (key) return signedIn(key.toString(), 'Solana');
-      } catch { return toast('You cancelled the connection'); }
-    }
-    if (window.ethereum && window.ethereum.request) {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts && accounts[0]) return signedIn(accounts[0], 'Ethereum');
       } catch { return toast('You cancelled the connection'); }
     }
     signedIn(fakeAddress(), 'demo');
@@ -1977,7 +1976,7 @@
        target is drawn per round, the per-second rate follows from how long
        the queue is open, and every tick jitters so it lands like trades do. */
     S.pot = 0;
-    S.potTarget = 0.3 + Math.random() * 0.9;
+    S.potTarget = 60 + Math.random() * 520;
     S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
     S.potState = 'filling';
     paintPot();
@@ -2012,7 +2011,7 @@
     const winner = S.race.finished[0];
     $('#card').hidden = false;
     $('#winAddr').textContent = winner.id;
-    $('#winPay').textContent = sol(S.pot) + ' SOL · ' + COIN.potPct + '% of the fees';
+    $('#winPay').textContent = usd(S.pot) + ' · ' + COIN.potPct + '% of the fees';
     $('#winYou').hidden = winner.id !== S.me;
     RENDER.celebrate(winner.id);
     S.past.unshift({ at: Date.now(), winner: winner.id, pot: S.pot, n: S.players.length });
@@ -2101,7 +2100,7 @@
         ' · ' + r.n + ' marbles';
       const amt = document.createElement('span');
       amt.style.color = 'var(--gold)';
-      amt.textContent = sol(r.pot) + ' SOL';
+      amt.textContent = usd(r.pot);
       row.append(when, amt);
       const a = document.createElement('div'); a.className = 'a';
       a.textContent = r.winner;
@@ -2202,8 +2201,8 @@
     liquid.setAttribute('height', (100 * level).toFixed(1));
     top.setAttribute('cy', (134 - 100 * level).toFixed(1));
     $('#potFill').style.width = (level * 100).toFixed(1) + '%';
-    $('#potBig').textContent = sol(S.pot);
-    $('#pot').textContent = sol(S.pot);
+    $('#potBig').textContent = usd(S.pot);
+    $('#pot').textContent = usd(S.pot);
     $('#potbox').dataset.state = S.potState;
     $('#potState').textContent = {
       filling: 'Filling with fees while the queue is open',

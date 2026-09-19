@@ -63,8 +63,8 @@
         <b id="clock">--:--</b>
         <span class="ticker__sep">·</span>
         <span class="ticker__label">pot</span>
-        <b class="gold"><span id="pot">0.000</span> SOL</b>
-        <span class="tag tag--demo">demo</span>
+        <b class="gold" id="pot">$0.00</b>
+       
       </div>
 
       <div class="bar__right">
@@ -106,10 +106,10 @@
         </div>
         <div class="potbox__info">
           <span class="kicker">POT FOR THIS RACE</span>
-          <div class="potbox__amt"><b id="potBig">0.000</b> SOL <span class="tag tag--demo">demo</span></div>
+          <div class="potbox__amt"><b id="potBig">$0.00</b></div>
           <div class="potbox__meta"><span id="potState">Filling with fees</span></div>
           <div class="potbar"><i id="potFill"></i></div>
-          <p class="potbox__note">Every trade on the coin adds to it. It locks the moment the race starts, and empties when the winner is paid. <b id="pctC">20%</b> goes to the winning marble.</p>
+          <p class="potbox__note">Every trade on the coin adds to it, shown in dollars at the current ETH price. It locks the moment the race starts, and empties when the winner is paid. <b id="pctC">20%</b> goes to the winning marble.</p>
         </div>
       </div>
 
@@ -173,7 +173,7 @@
       <ol class="steps">
         <li>
           <b>Open the page with your wallet</b>
-          <span>On a desktop the extension is enough: Phantom, Solflare or Backpack on Solana, MetaMask or Rabby on Ethereum. On a phone, open this page inside your wallet's own browser. From plain Safari or Chrome there is nothing to connect to.</span>
+          <span>Any Ethereum wallet: MetaMask, Rabby, Coinbase Wallet or Trust Wallet. On a desktop the extension is enough. On a phone, open this page inside your wallet's own browser. From plain Safari or Chrome there is nothing to connect to.</span>
         </li>
         <li>
           <b>Connect and sign the message</b>
@@ -220,12 +220,12 @@
         <article class="cd">
           <span class="cd__tag">1</span>
           <h4>Fees pile up</h4>
-          <p>Every trade on the coin sends creator fees to one wallet. A busy five minutes fills it; a quiet five minutes barely moves it.</p>
+          <p>Every trade on the coin sends creator fees, in ETH, to one wallet. A busy five minutes fills it; a quiet five minutes barely moves it.</p>
         </article>
         <article class="cd">
           <span class="cd__tag">2</span>
           <h4>A race is called</h4>
-          <p>Roughly every five minutes, on the clock, and more often when the coin is moving. The pot on screen is what came in during that window.</p>
+          <p>Roughly every five minutes, on the clock, and more often when the coin is moving. The pot on screen is what came in during that window, in dollars at the ETH price of the moment.</p>
         </article>
         <article class="cd cd--hot">
           <span class="cd__tag">3</span>
@@ -284,9 +284,11 @@
         <div><dt>Seed</dt><dd>sha256, committed up front</dd></div>
         <div><dt>Course</dt><dd>8 drawn sections, ~9,000 units</dd></div>
         <div><dt>Marbles per race</dt><dd>up to 250</dd></div>
-        <div><dt>Identity</dt><dd>a signature from your wallet</dd></div>
+        <div><dt>Chain</dt><dd>Ethereum</dd></div>
+        <div><dt>Identity</dt><dd>a signed message (EIP-191)</dd></div>
         <div><dt>Transport</dt><dd>one server-sent event stream</dd></div>
         <div><dt>Dependencies</dt><dd>none, Node 18+</dd></div>
+        <div><dt>Pot</dt><dd>ETH fees, shown in USD</dd></div>
         <div><dt>Keys on the server</dt><dd>none: it reads balances</dd></div>
       </dl>
       <p class="fine">The physics avoids everything a browser is free to round its own way: no <code>Math.random</code>, no <code>Math.sin</code>, a fixed step and a fixed order. That is why the server can play the race out in milliseconds, keep the result, and your browser can replay it in real time and land on the same winner.</p>

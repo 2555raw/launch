@@ -1976,7 +1976,7 @@
        target is drawn per round, the per-second rate follows from how long
        the queue is open, and every tick jitters so it lands like trades do. */
     S.pot = 0;
-    S.potTarget = 60 + Math.random() * 520;
+    S.potTarget = 40 + Math.random() * 140;
     S.potPerSec = S.potTarget / Math.max(30, (S.roundStart + LOBBY_MS - Date.now()) / 1000);
     S.potState = 'filling';
     paintPot();
@@ -2166,22 +2166,22 @@
     clock(ts);
   }
 
-  let lastSecond = -1;
+  let lastTick = 0;
   function clock(ts) {
     const now = Date.now();
     if (S.phase === 'lobby') {
       const left = Math.max(0, S.roundStart + LOBBY_MS - now);
       $('#clockLabel').textContent = 'Next race in';
       $('#clock').textContent = fmt(left);
-      const sec = Math.floor(now / 1000);
-      if (sec !== lastSecond && S.potState === 'filling') {
-        lastSecond = sec;
-        /* most seconds a trickle, now and then a trade worth seeing */
-        const bump = Math.random() < 0.06 ? 4 : 0.35 + Math.random() * 1.3;
-        const add = S.potPerSec * bump;
-        S.pot = Math.min(S.potTarget * 1.15, S.pot + add);
+      /* The pot ticks up in cents, ten times a second, so the figure is always
+         moving; once in a while a trade lands that is worth a coin falling. */
+      if (S.potState === 'filling' && now - lastTick >= 100) {
+        lastTick = now;
+        const trade = Math.random() < 0.012;
+        const add = trade ? 0.3 + Math.random() * 0.6 : S.potPerSec * 0.1 * (0.5 + Math.random());
+        S.pot = Math.min(S.potTarget * 1.15, Math.round((S.pot + add) * 100) / 100);
         paintPot();
-        if (bump > 1) drop();
+        if (trade) drop();
       }
       if (left === 0) startRace();
     } else if (S.phase === 'racing') {

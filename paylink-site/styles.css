@@ -224,6 +224,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .tokens { flex: 1; display: grid; align-content: start; gap: 10px; padding-top: 14px; }
 .tok { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--card-hi); border: 1px solid var(--line); }
 .tok .logo { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; font-weight: 700; font-size: 15px; flex: none; }
+.tok .logo.pp { background: #fff; }
 .tok .name { flex: 1; min-width: 0; }
 .tok .name b { display: block; font-size: 14px; font-weight: 600; }
 .tok .name span { font-family: var(--mono); font-size: 11px; color: var(--dim); text-transform: uppercase; }

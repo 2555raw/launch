@@ -43,11 +43,26 @@ const read = () => p.evaluate(() => {
 
 const REAL = '0xA8050AF8Dc4470DF8dA07543b75F1d8872d4AB47';
 
-console.log('— before there is one —');
+console.log('— what the site is actually configured with —');
 await p.goto(`${BASE}/index.html`, { waitUntil: 'networkidle' });
 await p.waitForTimeout(600);
+const shipped = await p.evaluate(() => ({ a: TOKEN.address, chain: TOKEN.chainId }));
+console.log(`   token.js carries ${JSON.stringify(shipped.a)} on chain ${shipped.chain}`);
 let s = await read();
 ok(s.nav && s.hero, 'both slots are on the page');
+ok(!!s.nav.live === !!s.hero.live, 'and they agree about whether there is an address',
+   `chip ${s.nav.live}, bar ${s.hero.live}`);
+if (shipped.a) {
+  ok(s.hero.addr === shipped.a, 'the bar shows the configured address', s.hero.addr);
+  ok(/^0x[0-9a-fA-F]{40}$/.test(shipped.a), 'which is twenty hex bytes');
+  ok(shipped.a !== shipped.a.toLowerCase(), 'and is checksummed, so a mistyped copy is detectable');
+}
+
+/* The pre-launch state is set here rather than assumed, so this suite keeps
+   testing both halves once an address has actually been configured. */
+console.log('\n— with no address —');
+await p.evaluate(() => { TOKEN.address = null; paintAllCA(); });
+s = await read();
 ok(!s.nav.live && !s.hero.live, 'neither claims to have an address');
 ok(!s.nav.copy && !s.hero.copy, 'there is nothing to copy');
 ok(s.nav.text === 'CA' && s.hero.text === 'CA', 'both read exactly "CA"', JSON.stringify([s.nav.text, s.hero.text]));

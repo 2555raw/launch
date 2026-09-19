@@ -18,7 +18,7 @@
    of anyone. */
 
 const TOKEN = {
-  address: null,          // '0x…' — 20 bytes, or null before launch
+  address: "0x8A21cB20f30a922A6bAA5Cd03caf862556c98d27",   // checksummed on the way in
   chainId: 4663,          // Robinhood Chain; 46630 is its testnet
   symbol: 'VESICA',
 };

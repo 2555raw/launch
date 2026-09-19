@@ -208,6 +208,7 @@
     for (const m of s.chat || []) feed(m, true);
     onPhase(s.round);
     paintRaces();
+    paintRecent();
   }
 
   function applyConfig(c) {
@@ -321,7 +322,7 @@
     setTimeout(() => { showResults(d); paintPoll(); }, 1400);
     SOUND.play('finish');
     if (SCENE.ready) SCENE.celebrate(d.winner);
-    fetch('/api/history?n=12').then((x) => x.json()).then((h) => game.set({ recent: h.rounds, top: h.top })).catch(() => {});
+    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top }); paintRecent(); }).catch(() => {});
   }
 
   function onPot(d) {
@@ -374,8 +375,9 @@
     $('#topRaceNo').textContent = 'RACE ' + no;
     $('#topPhase').textContent = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
     $('#lbNo').textContent = no; $('#loNo').textContent = no; $('#hudNo').textContent = 'RACE ' + no;
-    const potText = usd(r.pot) + (r.potDemo ? ' ·demo' : '');
+    const potText = usd(r.pot);
     $('#lbPot').textContent = potText; $('#loPot').textContent = potText;
+    $('#lbDemo').hidden = !r.potDemo; $('#loDemo').hidden = !r.potDemo;
     paintPot();
     $('#lbPlayers').textContent = r.players.length + ' / ' + r.max; $('#loPlayers').textContent = r.players.length + ' / ' + r.max;
     $('#loMega').hidden = !r.mega;
@@ -964,10 +966,10 @@
   function buildFloaters() {
     const host = $('#floaters');
     const spots = [
-      { x: 8, y: 14, s: 96, f: 'btc', m: 'metal', c: '#ffd36e', b: 0 }, { x: 18, y: 62, s: 72, f: 'doge', m: 'glass', c: '#ff7a1a', b: 2 },
-      { x: 84, y: 10, s: 84, f: 'eth', m: 'chrome', c: '#b98bff', b: 0 }, { x: 90, y: 58, s: 110, f: 'sol', m: 'holo', c: '#6ee7ff', b: 1.5 },
-      { x: 4, y: 40, s: 56, f: 'pepe', m: 'neon', c: '#7dff9b', b: 3 }, { x: 74, y: 78, s: 64, f: 'hood', m: 'galaxy', c: '#ff5ea8', b: 0 },
-      { x: 28, y: 6, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 62, y: 4, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
+      { x: 9, y: 16, s: 96, f: 'btc', m: 'metal', c: '#ffd36e', b: 0 }, { x: 3, y: 58, s: 72, f: 'doge', m: 'glass', c: '#ff7a1a', b: 2 },
+      { x: 86, y: 12, s: 84, f: 'eth', m: 'chrome', c: '#b98bff', b: 0 }, { x: 90, y: 56, s: 110, f: 'sol', m: 'holo', c: '#6ee7ff', b: 1.5 },
+      { x: 14, y: 38, s: 56, f: 'pepe', m: 'neon', c: '#7dff9b', b: 3 }, { x: 93, y: 34, s: 64, f: 'hood', m: 'galaxy', c: '#ff5ea8', b: 0 },
+      { x: 24, y: 4, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 70, y: 2, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
     ];
     spots.forEach((sp, i) => {
       const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s);
@@ -1026,6 +1028,32 @@
     } else if (go === 'winners') openWinners();
     else if (go === 'wallet') openWallet();
   }));
+
+  /* ---- latest races on the home page ------------------------------------------- */
+
+  function paintRecent() {
+    const recent = (game.get().recent || []).slice(0, 8);
+    const host = $('#recentRows');
+    if (!host) return;
+    host.innerHTML = '';
+    $('#recentEmpty').hidden = recent.length > 0;
+    for (const x of recent) {
+      const row = document.createElement('div');
+      row.className = 'table__row';
+      row.innerHTML = '<span class="mono"></span><span></span><span class="mono who"></span><span class="mono"></span><span class="mono gold"></span><span></span>';
+      const c = row.children;
+      c[0].textContent = '#' + pad(x.number || 0) + (x.mega ? ' · MEGA' : '');
+      c[1].textContent = modeInfo(x.mode || 'classic').name;
+      c[2].textContent = x.winner ? short(x.winner) : 'no winner'; c[2].title = x.winner || '';
+      c[3].textContent = x.podium && x.podium[0] ? x.podium[0].time.toFixed(2) + 's' : (x.seconds ? x.seconds.toFixed(1) + 's' : '—');
+      c[4].textContent = x.pot === null || x.pot === undefined ? '—' : usd(x.pot);
+      const st = document.createElement('i'); st.className = 'tag ' + (x.paid ? 'tag--paid' : 'tag--due'); st.textContent = x.paid ? 'PAID' : 'TO PAY';
+      c[5].appendChild(st);
+      if (x.winner) row.addEventListener('click', () => copy(x.winner, "Winner's address"));
+      host.appendChild(row);
+    }
+  }
+  $$('[data-dock="winners"]:not(.dock__it)').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); openWinners(); }));
 
   /* ---- winners ------------------------------------------------------------------ */
 
@@ -1160,7 +1188,8 @@
     ui.set({ cameraMode: b.dataset.cam });
     CAMERA.setMode(b.dataset.cam);
   }));
-  $('#soundBtn').addEventListener('click', () => { $('#soundBtn').style.opacity = SOUND.toggle() ? 1 : 0.4; });
+  /* No sound button on the page: cues stay off unless someone turns them on
+     from the console with SOUND.toggle(), and there is no music. */
   $('#gl').addEventListener('click', () => { if (mode === 'preview') stir(); });
 
   /* ---- boot ------------------------------------------------------------------ */
@@ -1171,7 +1200,6 @@
     buildLaunchpad();
     buildFloaters();
     paintYou();
-    $('#soundBtn').style.opacity = SOUND.on ? 1 : 0.4;
     try {
       const saved = JSON.parse(localStorage.getItem('mr.session') || 'null');
       if (saved && saved.address && saved.token) signedIn(saved);

@@ -49,6 +49,11 @@ body {
   -webkit-font-smoothing: antialiased; overflow-x: hidden;
 }
 h1, h2, h3 { text-wrap: balance; }
+.ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; vertical-align: -3px; }
+.tag { display: inline-block; font-family: var(--mono); font-style: normal; font-size: 9px; letter-spacing: .14em; font-weight: 700; padding: 2px 6px; border-radius: 999px; vertical-align: middle; }
+.tag--demo { color: var(--gold); background: #fff3d6; margin-left: 4px; }
+.tag--paid { color: var(--win); background: #dff7e8; }
+.tag--due { color: var(--goInk); background: var(--goSoft); }
 button, input { font: inherit; color: inherit; }
 a { color: inherit; }
 code { font-family: var(--mono); font-size: .9em; color: var(--goInk); background: var(--goSoft); padding: 1px 5px; border-radius: 6px; }
@@ -187,19 +192,21 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .floater { position: absolute; border-radius: 50%; animation: floaty 8s ease-in-out infinite; filter: drop-shadow(0 18px 24px rgba(23, 32, 56, .25)); }
 @keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-18px) rotate(5deg); } }
 .hero__cta { justify-content: center; }
+#commitLine { word-break: break-all; font-size: 12px; }
 .trust { list-style: none; margin: 56px auto 0; padding: 22px 0 0; max-width: 1180px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; text-align: left; border-top: 1px solid var(--line); position: relative; z-index: 2; }
 .trust li { display: flex; gap: 10px; align-items: flex-start; padding: 0 12px; border-left: 1px solid var(--line); }
 .trust li:first-child { border-left: 0; }
-.trust i { font-style: normal; color: var(--go); font-weight: 700; flex: none; padding-top: 1px; }
+.trust .ic { color: var(--go); margin-top: 1px; }
 .trust b { display: block; font-size: 14px; font-weight: 600; }
 .trust span { font-size: 12px; color: var(--dim); line-height: 1.4; }
 .stagewrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--gut); }
 .stage { position: relative; height: clamp(260px, 42vw, 460px); border-radius: 28px; }
 .stage__tag { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: .2em; color: var(--ink2); background: rgba(255, 255, 255, .85); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
 .hero h1 {
-  font-size: clamp(50px, 9.6vw, 132px); font-weight: 700; line-height: .95; letter-spacing: -.045em;
-  margin: 18px 0 22px; color: var(--ink);
+  font-size: clamp(44px, 7vw, 98px); font-weight: 700; line-height: .96; letter-spacing: -.045em;
+  margin: 18px 0 22px; color: var(--ink); white-space: nowrap;
 }
+@media (max-width: 760px) { .hero h1 { white-space: normal; } }
 .hero h1 span { color: var(--go); }
 .hero p { max-width: 54ch; font-size: clamp(17px, 2vw, 22px); color: var(--ink2); margin: 0 0 28px; line-height: 1.45; }
 .hero__cta { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -217,6 +224,13 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 
 .block { max-width: 1180px; margin: 0 auto; padding: clamp(40px, 6vw, 80px) var(--gut) 0; }
 .block__head { max-width: 62ch; margin-bottom: 22px; }
+.block__head--row { max-width: none; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.block__head--row h2 { margin-bottom: 0; }
+.table { padding: 6px; }
+.table__row { display: grid; grid-template-columns: 1.1fr 1.2fr 1.4fr .8fr .9fr .8fr; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 14px; font-size: 13.5px; }
+.table__row:not(.table__head):hover { background: var(--glass2); cursor: pointer; }
+.table__head { font-size: 9.5px; letter-spacing: .18em; color: var(--dim); }
+.table__row .who { color: var(--ink); }
 .block__head h2, .panel h3 { font-size: clamp(28px, 4vw, 48px); font-weight: 700; letter-spacing: -.035em; margin: 8px 0 8px; }
 .panel h3 { font-size: clamp(22px, 2.4vw, 28px); }
 .block__head p { margin: 0; color: var(--ink2); }
@@ -248,9 +262,15 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .steps b { display: block; font-size: 15.5px; grid-column: 2; }
 .steps span { color: var(--ink2); grid-column: 2; font-size: 14px; }
 
-.foot { max-width: 1180px; margin: 40px auto 0; padding: 26px var(--gut) calc(40px + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; border-top: 1px solid var(--line); font-size: 13px; }
-.foot__l { display: grid; gap: 4px; max-width: 60ch; }
-.foot__r { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.foot { max-width: 1180px; margin: 60px auto 0; padding: 34px var(--gut) calc(30px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); font-size: 13.5px; }
+.foot__grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.3fr; gap: 28px; }
+.foot__brand p { margin: 12px 0 14px; max-width: 44ch; }
+.foot__links { display: flex; gap: 8px; flex-wrap: wrap; }
+.foot__col { display: grid; gap: 8px; align-content: start; }
+.foot__col b { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+.foot__col a { text-decoration: none; color: var(--ink2); }
+.foot__col a:hover { color: var(--go); }
+.foot__line { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; }
 
 /* ---- lobby -------------------------------------------------------------- */
 
@@ -340,7 +360,8 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--results { display: grid; place-items: center; padding: calc(80px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .results { width: min(560px, 100%); padding: 28px; text-align: center; display: grid; gap: 16px; animation: rise .5s cubic-bezier(.2, 1.4, .4, 1) both; }
-.results__cup { font-size: 46px; filter: drop-shadow(0 12px 24px rgba(217, 143, 0, .35)); }
+.results__cup { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: linear-gradient(180deg, #fff3d6, #ffe0a8); color: var(--gold); box-shadow: 0 14px 30px -14px rgba(217, 143, 0, .6); }
+.results__cup .ic { width: 30px; height: 30px; }
 .podium { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; }
 .podium li { display: grid; grid-template-columns: 44px 36px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); }
 .podium li:first-child { background: linear-gradient(90deg, #fff3d6, #ffe9d8); border-color: #f2c86b; }
@@ -405,7 +426,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .sw.on { border-color: var(--ink); transform: scale(1.1); }
 
 .toast {
-  position: fixed; left: 50%; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60;
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60;
   padding: 10px 16px; border-radius: 999px; background: var(--ink); color: #fff; border: 1px solid var(--ink); font-size: 13.5px;
   box-shadow: 0 20px 50px -20px rgba(23, 32, 56, .6); animation: rise .25s ease; max-width: calc(100% - 32px);
 }
@@ -476,34 +497,38 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 /* ---- the dock ------------------------------------------------------------- */
 
 .dock {
-  position: fixed; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 20;
-  display: flex; align-items: stretch; gap: 2px; padding: 5px;
-  background: rgba(255, 255, 255, .82); border: 1px solid rgba(255, 255, 255, .95); border-radius: 999px;
+  position: fixed; left: 14px; top: 50%; transform: translateY(-50%); z-index: 20;
+  display: flex; flex-direction: column; align-items: stretch; gap: 4px; padding: 8px;
+  width: 92px;
+  background: rgba(255, 255, 255, .82); border: 1px solid rgba(255, 255, 255, .95); border-radius: 26px;
   backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3);
   box-shadow: var(--shadow);
-  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 140px); overflow: auto; scrollbar-width: none;
 }
-body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; pointer-events: none; transform: translate(-50%, 20px); }
+body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0; pointer-events: none; transform: translate(-20px, -50%); }
 .dock { transition: opacity .25s ease, transform .25s ease; }
 .dock__it {
-  display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; align-items: center; column-gap: 8px;
-  padding: 7px 12px; border: 0; border-radius: 999px; background: transparent; cursor: pointer; color: var(--ink2);
-  font-weight: 600; font-size: 13px; line-height: 1.1; text-align: left;
+  display: grid; justify-items: center; row-gap: 3px;
+  padding: 9px 4px 8px; border: 0; border-radius: 18px; background: transparent; cursor: pointer; color: var(--ink2);
+  font-weight: 600; font-size: 11.5px; line-height: 1.1; text-align: center;
 }
-.dock__it i { grid-row: 1 / span 2; font-style: normal; font-size: 16px; width: 20px; text-align: center; opacity: .9; }
-.dock__it span { grid-column: 2; }
-.dock__it em { grid-column: 2; font-style: normal; font-size: 9.5px; letter-spacing: .14em; color: var(--dim); }
+.dock__it .ic { width: 20px; height: 20px; }
+.dock__flag { position: relative; display: block; height: 22px; }
+.dock__flag .dock__live { position: absolute; right: -8px; top: -2px; margin: 0; width: 8px !important; height: 8px; }
+.dock__it span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dock__it em { font-style: normal; font-size: 8.5px; letter-spacing: .14em; color: var(--dim); }
 .dock__it:hover { background: var(--glass2); color: var(--ink); }
 .dock__it.is-on { background: var(--goSoft); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(255, 122, 26, .45); }
 .dock__it.is-on i { color: var(--go); }
-.dock__live { width: 9px !important; height: 9px; border-radius: 50%; background: var(--win); box-shadow: 0 0 10px var(--win); margin: 0 auto; }
+.dock__live { width: 10px !important; height: 10px; border-radius: 50%; background: var(--win); box-shadow: 0 0 10px var(--win); }
 body[data-phase="racing"] .dock__live { background: var(--hot); box-shadow: 0 0 10px var(--hot); animation: blink 1s infinite; }
 body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
-.dock__stat { display: grid; align-content: center; padding: 4px 12px; border-left: 1px solid var(--line); margin-left: 4px; }
-.dock__stat em { font-style: normal; font-size: 9px; letter-spacing: .18em; color: var(--dim); }
-.dock__stat b { font-size: 14px; font-weight: 700; }
+.dock__stat { display: grid; justify-items: center; text-align: center; padding: 8px 4px 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+.dock__stat em { font-style: normal; font-size: 8.5px; letter-spacing: .16em; color: var(--dim); }
+.dock__stat b { font-size: 13px; font-weight: 700; }
 @keyframes blink { 50% { opacity: .35; } }
-.screen--home, .screen--lobby, .screen--launch { padding-bottom: 96px; }
+.screen--home, .screen--lobby, .screen--launch { padding-bottom: 40px; }
+@media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
 
 /* ---- winners -------------------------------------------------------------- */
 
@@ -571,6 +596,9 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
   .grid { max-height: none; }
 }
 @media (max-width: 1000px) {
+  .foot__grid { grid-template-columns: 1fr 1fr; }
+  .table__row { grid-template-columns: 1fr 1fr 1.4fr .8fr; }
+  .table__row > :nth-child(5), .table__row > :nth-child(6) { display: none; }
   .trust { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .trust li { border-left: 0; padding: 0; }
   .top__links { display: none; }
@@ -580,18 +608,19 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
   .winners { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
+  .foot__grid { grid-template-columns: 1fr; }
   .trust { grid-template-columns: 1fr; }
   .floater { display: none; }
   .floater:nth-child(-n+4) { display: block; transform: scale(.6); }
   .top__race { display: none; }
   .poll__opts { grid-template-columns: 1fr; }
   .launch__form { grid-template-columns: 1fr; }
-  .dock { gap: 0; padding: 4px; border-radius: 16px; }
-  .dock__it { padding: 6px 8px; grid-template-columns: auto; grid-template-rows: auto auto; justify-items: center; row-gap: 2px; font-size: 10px; }
-  .dock__it i { grid-row: 1; }
-  .dock__it span, .dock__it em { grid-column: 1; }
+  .dock { left: 50%; top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); flex-direction: row; width: auto; max-width: calc(100vw - 20px); gap: 0; padding: 4px; border-radius: 999px; max-height: none; }
+  body[data-screen="race"] .dock, body[data-screen="count"] .dock { transform: translate(-50%, 20px); }
+  .dock__it { padding: 6px 8px; font-size: 10px; border-radius: 999px; }
   .dock__it em { display: none; }
   .dock__stat { display: none; }
+  .screen--home, .screen--lobby, .screen--launch { padding-bottom: 90px; }
   .dock__it[data-dock="wallet"] span { max-width: 56px; overflow: hidden; text-overflow: ellipsis; }
   .top { gap: 8px; }
   .top__race { display: none; }
@@ -623,7 +652,8 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 @keyframes slosh { 50% { transform: translateX(2px) scaleY(1.25); } }
 .jar[data-state="locked"] .jar__top, .jar[data-state="paid"] .jar__top { animation: none; }
 .jar[data-state="locked"] svg path:nth-of-type(2) { stroke: var(--gold); }
-.jar__lock { position: absolute; right: -4px; top: 14px; font-size: 14px; opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease; }
+.jar__lock { position: absolute; right: -6px; top: 12px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease; }
+.jar__lock .ic { width: 12px; height: 12px; }
 .jar[data-state="locked"] .jar__lock { opacity: 1; transform: none; }
 .jar__state { font-size: 9.5px; letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
 .jar[data-state="locked"] + div .jar__state { color: var(--gold); }
@@ -634,6 +664,22 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js"}}</script>
 <script>document.body.dataset.screen="home";document.body.dataset.phase="lobby";</script>
+<svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M5 15c-1.5 1.5-2 5-2 5s3.5-.5 5-2"/><path d="M9 15l-2-2 2.5-5A9 9 0 0 1 21 3a9 9 0 0 1-5 11.5L11 17z"/><circle cx="15" cy="9" r="1.6"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 14v3M8 21h8M10 17h4v4"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14h2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 7"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 4 8 4-8 4-8-4z"/><path d="m4 12 8 4 8-4M4 16l8 4 8-4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16 9a4 4 0 0 1 0 6"/></symbol>
+</svg>
 
 <canvas id="gl" aria-label="the race"></canvas>
 <div class="veil" aria-hidden="true"></div>
@@ -661,7 +707,6 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
   </div>
   <div class="top__right">
     <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
-    <button class="btn btn--ghost btn--icon" id="soundBtn" title="sound" aria-label="sound">♪</button>
     <button class="btn btn--accent" id="walletBtn"><span class="btn__dot"></span><span id="walletLabel">Connect wallet</span></button>
   </div>
 </header>
@@ -682,11 +727,11 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
         </div>
       </div>
       <ul class="trust" aria-label="what to trust">
-        <li><i>✓</i><div><b>Free to race</b><span>one marble per wallet, no entry fee</span></div></li>
-        <li><i>⚿</i><div><b>Seed committed first</b><span>the hash is out before anyone joins</span></div></li>
-        <li><i>◎</i><div><b>Whole pot to first</b><span>paid to the winning address</span></div></li>
-        <li><i>◫</i><div><b>Eight tracks</b><span>the crowd votes the next one</span></div></li>
-        <li><i>✕</i><div><b>No custody</b><span>your keys never leave your wallet</span></div></li>
+        <li><svg class="ic"><use href="#i-check"/></svg><div><b>Free to race</b><span>one marble per wallet, no entry fee</span></div></li>
+        <li><svg class="ic"><use href="#i-lock"/></svg><div><b>Seed committed first</b><span>the hash is out before anyone joins</span></div></li>
+        <li><svg class="ic"><use href="#i-target"/></svg><div><b>Whole pot to first</b><span>paid to the winning address</span></div></li>
+        <li><svg class="ic"><use href="#i-layers"/></svg><div><b>Eight tracks</b><span>the crowd votes the next one</span></div></li>
+        <li><svg class="ic"><use href="#i-shield"/></svg><div><b>No custody</b><span>your keys never leave your wallet</span></div></li>
       </ul>
     </div>
 
@@ -712,10 +757,10 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
     <rect x="30" y="20" width="60" height="14" rx="3" fill="#232637" stroke="#4a4f66" stroke-width="3"/>
     <rect x="26" y="11" width="68" height="11" rx="4" fill="#33374a"/>
   </svg>
-  <span class="jar__lock">🔒</span>
-</div><div><em>PRIZE POOL</em><b class="mono gold" id="lbPot">$0.00</b><span class="jar__state mono" id="lbPotState">filling</span></div></div>
+  <span class="jar__lock"><svg class="ic"><use href="#i-lock"/></svg></span>
+</div><div><em>PRIZE POOL <i class="tag tag--demo" id="lbDemo" hidden>DEMO</i></em><b class="mono gold" id="lbPot">$0.00</b><span class="jar__state mono" id="lbPotState">filling</span></div></div>
       <div class="livebar__cell"><em>PLAYERS</em><b class="mono" id="lbPlayers">0 / 30</b></div>
-      <div class="livebar__cell livebar__cell--cta"><button class="btn btn--accent" data-go="lobby">Enter lobby →</button></div>
+      <div class="livebar__cell livebar__cell--cta"><button class="btn btn--accent" data-go="lobby">Enter lobby <svg class="ic"><use href="#i-arrow"/></svg></button></div>
     </div>
 
     <section class="block">
@@ -734,6 +779,18 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
         <p>Every race draws a fresh course from its seed inside one of eight modes. When a race ends, the results screen puts two modes to a vote and the winner is the next track. Each picture below is drawn from the course generator itself, not an illustration.</p>
       </div>
       <div class="modes" id="modesGrid"></div>
+    </section>
+
+    <section class="block" id="results">
+      <div class="block__head block__head--row">
+        <div><span class="kicker kicker--plain">RESULTS</span><h2>Latest races</h2></div>
+        <button class="btn btn--glass" data-dock="winners" id="allWinners">All winners</button>
+      </div>
+      <div class="glass table" id="recentTable">
+        <div class="table__row table__head mono"><span>RACE</span><span>TRACK</span><span>WINNER</span><span>TIME</span><span>POT</span><span>STATUS</span></div>
+        <div id="recentRows"></div>
+        <div class="empty" id="recentEmpty">The first race of this session has not finished yet.</div>
+      </div>
     </section>
 
     <section class="block block--split">
@@ -757,16 +814,20 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
     </section>
 
     <footer class="foot">
-      <div class="foot__l">
-        <span class="brand__name small">Marble<b>Royale</b></span>
-        <span class="dim">A game first. Your keys never leave your wallet. The pot is sent by the creator to the winning address.</span>
+      <div class="foot__grid">
+        <div class="foot__brand">
+          <a class="brand" href="#" data-go="home"><span class="brand__mark"></span><span class="brand__name small">Marble<b>Royale</b></span></a>
+          <p class="dim">A provably fair marble race every five minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
+          <div class="foot__links" id="footLinks">
+            <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
+            <a class="pill" id="xLink" hidden target="_blank" rel="noopener"><svg class="ic"><use href="#i-x"/></svg> Follow</a>
+          </div>
+        </div>
+        <div class="foot__col"><b>Play</b><a href="#" data-go="lobby">Lobby</a><a href="#" data-goto="modes">Game modes</a><a href="#" data-goto="results">Latest races</a><a href="#" data-dock="winners">Winners</a></div>
+        <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="/verify" target="_blank" rel="noopener">Verify a race</a><a href="/admin" target="_blank" rel="noopener">Creator console</a></div>
+        <div class="foot__col"><b>Trust</b><span class="dim">Seed committed before the field closes. Replay any race from its seed. No custody, no private keys, nothing signed but a login message.</span></div>
       </div>
-      <div class="foot__r" id="footLinks">
-        <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
-        <a class="pill" id="xLink" hidden target="_blank" rel="noopener">X</a>
-        <a class="pill" href="#" data-go="launch">Launchpad</a>
-        <a class="pill" href="/verify" target="_blank" rel="noopener">Verify</a>
-      </div>
+      <div class="foot__line dim"><span>© 2026 Marble Royale · Robinhood Chain</span><span>A game, not financial advice. Entry is free; prizes are sent by the creator by hand.</span></div>
     </footer>
   </section>
 
@@ -791,8 +852,8 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
     <rect x="30" y="20" width="60" height="14" rx="3" fill="#232637" stroke="#4a4f66" stroke-width="3"/>
     <rect x="26" y="11" width="68" height="11" rx="4" fill="#33374a"/>
   </svg>
-  <span class="jar__lock">🔒</span>
-</div><div><em>PRIZE POOL</em><b class="mono gold" id="loPot">$0.00</b><span class="jar__state mono" id="loPotState">filling</span></div></div>
+  <span class="jar__lock"><svg class="ic"><use href="#i-lock"/></svg></span>
+</div><div><em>PRIZE POOL <i class="tag tag--demo" id="loDemo" hidden>DEMO</i></em><b class="mono gold" id="loPot">$0.00</b><span class="jar__state mono" id="loPotState">filling</span></div></div>
         <div class="stat"><em>PLAYERS</em><b class="mono" id="loPlayers">0 / 30</b></div>
         <div class="stat stat--clock"><em id="loClockLabel">STARTING IN</em><b class="mono big" id="loClock">--:--</b></div>
       </div>
@@ -845,7 +906,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
           <ul class="feed" id="feed"></ul>
           <form class="chatbar" id="chatForm">
             <input id="chatInput" maxlength="140" autocomplete="off" placeholder="say something">
-            <button class="btn btn--accent btn--icon" type="submit">→</button>
+            <button class="btn btn--accent btn--icon" type="submit" aria-label="send"><svg class="ic"><use href="#i-arrow"/></svg></button>
           </form>
         </aside>
       </div>
@@ -883,7 +944,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
   <!-- ---------- RESULTS ---------- -->
   <section class="screen screen--results" id="s-results" hidden>
     <div class="results glass">
-      <div class="results__cup">🏆</div>
+      <div class="results__cup"><svg class="ic"><use href="#i-trophy"/></svg></div>
       <div class="kicker kicker--plain">RACE COMPLETE · <span id="resNo">#----</span></div>
       <ol class="podium" id="podium"></ol>
       <div class="results__you" id="resYou" hidden><em>YOUR RESULT</em><b class="mono" id="resYouPos">—</b></div>
@@ -978,12 +1039,12 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 
 <!-- ---------- the dock ---------- -->
 <nav class="dock" id="dock" aria-label="taskbar">
-  <button class="dock__it is-on" data-dock="home"><i>⌂</i><span>Home</span></button>
-  <button class="dock__it dock__it--race" data-dock="lobby"><i class="dock__live"></i><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
-  <button class="dock__it" data-dock="modes"><i>◫</i><span>Modes</span></button>
-  <button class="dock__it" data-dock="launch"><i>🚀</i><span>Launch</span></button>
-  <button class="dock__it" data-dock="winners"><i>🏆</i><span>Winners</span></button>
-  <button class="dock__it" data-dock="wallet"><i>◈</i><span id="dockWallet">Wallet</span></button>
+  <button class="dock__it is-on" data-dock="home"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
+  <button class="dock__it dock__it--race" data-dock="lobby"><span class="dock__flag"><svg class="ic"><use href="#i-flag"/></svg><i class="dock__live"></i></span><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
+  <button class="dock__it" data-dock="modes"><svg class="ic"><use href="#i-grid"/></svg><span>Modes</span></button>
+  <button class="dock__it" data-dock="launch"><svg class="ic"><use href="#i-rocket"/></svg><span>Launch</span></button>
+  <button class="dock__it" data-dock="winners"><svg class="ic"><use href="#i-trophy"/></svg><span>Winners</span></button>
+  <button class="dock__it" data-dock="wallet"><svg class="ic"><use href="#i-wallet"/></svg><span id="dockWallet">Wallet</span></button>
   <div class="dock__stat mono"><em>POT</em><b class="gold" id="dockPot">$0.00</b></div>
   <div class="dock__stat mono dock__clock"><em id="dockClockLabel">STARTS IN</em><b id="dockClock">--:--</b></div>
 </nav>
@@ -4606,6 +4667,7 @@ window.MR_TYPES = true;
     for (const m of s.chat || []) feed(m, true);
     onPhase(s.round);
     paintRaces();
+    paintRecent();
   }
 
   function applyConfig(c) {
@@ -4719,7 +4781,7 @@ window.MR_TYPES = true;
     setTimeout(() => { showResults(d); paintPoll(); }, 1400);
     SOUND.play('finish');
     if (SCENE.ready) SCENE.celebrate(d.winner);
-    fetch('/api/history?n=12').then((x) => x.json()).then((h) => game.set({ recent: h.rounds, top: h.top })).catch(() => {});
+    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top }); paintRecent(); }).catch(() => {});
   }
 
   function onPot(d) {
@@ -4772,8 +4834,9 @@ window.MR_TYPES = true;
     $('#topRaceNo').textContent = 'RACE ' + no;
     $('#topPhase').textContent = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
     $('#lbNo').textContent = no; $('#loNo').textContent = no; $('#hudNo').textContent = 'RACE ' + no;
-    const potText = usd(r.pot) + (r.potDemo ? ' ·demo' : '');
+    const potText = usd(r.pot);
     $('#lbPot').textContent = potText; $('#loPot').textContent = potText;
+    $('#lbDemo').hidden = !r.potDemo; $('#loDemo').hidden = !r.potDemo;
     paintPot();
     $('#lbPlayers').textContent = r.players.length + ' / ' + r.max; $('#loPlayers').textContent = r.players.length + ' / ' + r.max;
     $('#loMega').hidden = !r.mega;
@@ -5362,10 +5425,10 @@ window.MR_TYPES = true;
   function buildFloaters() {
     const host = $('#floaters');
     const spots = [
-      { x: 8, y: 14, s: 96, f: 'btc', m: 'metal', c: '#ffd36e', b: 0 }, { x: 18, y: 62, s: 72, f: 'doge', m: 'glass', c: '#ff7a1a', b: 2 },
-      { x: 84, y: 10, s: 84, f: 'eth', m: 'chrome', c: '#b98bff', b: 0 }, { x: 90, y: 58, s: 110, f: 'sol', m: 'holo', c: '#6ee7ff', b: 1.5 },
-      { x: 4, y: 40, s: 56, f: 'pepe', m: 'neon', c: '#7dff9b', b: 3 }, { x: 74, y: 78, s: 64, f: 'hood', m: 'galaxy', c: '#ff5ea8', b: 0 },
-      { x: 28, y: 6, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 62, y: 4, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
+      { x: 9, y: 16, s: 96, f: 'btc', m: 'metal', c: '#ffd36e', b: 0 }, { x: 3, y: 58, s: 72, f: 'doge', m: 'glass', c: '#ff7a1a', b: 2 },
+      { x: 86, y: 12, s: 84, f: 'eth', m: 'chrome', c: '#b98bff', b: 0 }, { x: 90, y: 56, s: 110, f: 'sol', m: 'holo', c: '#6ee7ff', b: 1.5 },
+      { x: 14, y: 38, s: 56, f: 'pepe', m: 'neon', c: '#7dff9b', b: 3 }, { x: 93, y: 34, s: 64, f: 'hood', m: 'galaxy', c: '#ff5ea8', b: 0 },
+      { x: 24, y: 4, s: 52, f: 'usdc', m: 'clear', c: '#4cd9ff', b: 2.5 }, { x: 70, y: 2, s: 60, f: 'shib', m: 'lava', c: '#ff8a4c', b: 0 }
     ];
     spots.forEach((sp, i) => {
       const cv = marbleCanvas({ material: sp.m, color: sp.c, face: sp.f }, sp.s);
@@ -5424,6 +5487,32 @@ window.MR_TYPES = true;
     } else if (go === 'winners') openWinners();
     else if (go === 'wallet') openWallet();
   }));
+
+  /* ---- latest races on the home page ------------------------------------------- */
+
+  function paintRecent() {
+    const recent = (game.get().recent || []).slice(0, 8);
+    const host = $('#recentRows');
+    if (!host) return;
+    host.innerHTML = '';
+    $('#recentEmpty').hidden = recent.length > 0;
+    for (const x of recent) {
+      const row = document.createElement('div');
+      row.className = 'table__row';
+      row.innerHTML = '<span class="mono"></span><span></span><span class="mono who"></span><span class="mono"></span><span class="mono gold"></span><span></span>';
+      const c = row.children;
+      c[0].textContent = '#' + pad(x.number || 0) + (x.mega ? ' · MEGA' : '');
+      c[1].textContent = modeInfo(x.mode || 'classic').name;
+      c[2].textContent = x.winner ? short(x.winner) : 'no winner'; c[2].title = x.winner || '';
+      c[3].textContent = x.podium && x.podium[0] ? x.podium[0].time.toFixed(2) + 's' : (x.seconds ? x.seconds.toFixed(1) + 's' : '—');
+      c[4].textContent = x.pot === null || x.pot === undefined ? '—' : usd(x.pot);
+      const st = document.createElement('i'); st.className = 'tag ' + (x.paid ? 'tag--paid' : 'tag--due'); st.textContent = x.paid ? 'PAID' : 'TO PAY';
+      c[5].appendChild(st);
+      if (x.winner) row.addEventListener('click', () => copy(x.winner, "Winner's address"));
+      host.appendChild(row);
+    }
+  }
+  $$('[data-dock="winners"]:not(.dock__it)').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); openWinners(); }));
 
   /* ---- winners ------------------------------------------------------------------ */
 
@@ -5558,7 +5647,8 @@ window.MR_TYPES = true;
     ui.set({ cameraMode: b.dataset.cam });
     CAMERA.setMode(b.dataset.cam);
   }));
-  $('#soundBtn').addEventListener('click', () => { $('#soundBtn').style.opacity = SOUND.toggle() ? 1 : 0.4; });
+  /* No sound button on the page: cues stay off unless someone turns them on
+     from the console with SOUND.toggle(), and there is no music. */
   $('#gl').addEventListener('click', () => { if (mode === 'preview') stir(); });
 
   /* ---- boot ------------------------------------------------------------------ */
@@ -5569,7 +5659,6 @@ window.MR_TYPES = true;
     buildLaunchpad();
     buildFloaters();
     paintYou();
-    $('#soundBtn').style.opacity = SOUND.on ? 1 : 0.4;
     try {
       const saved = JSON.parse(localStorage.getItem('mr.session') || 'null');
       if (saved && saved.address && saved.token) signedIn(saved);

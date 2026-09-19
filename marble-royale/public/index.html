@@ -15,6 +15,22 @@
 <script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
 </head>
 <body data-screen="home" data-phase="lobby">
+<svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M5 15c-1.5 1.5-2 5-2 5s3.5-.5 5-2"/><path d="M9 15l-2-2 2.5-5A9 9 0 0 1 21 3a9 9 0 0 1-5 11.5L11 17z"/><circle cx="15" cy="9" r="1.6"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 14v3M8 21h8M10 17h4v4"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14h2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 7"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 4 8 4-8 4-8-4z"/><path d="m4 12 8 4 8-4M4 16l8 4 8-4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16 9a4 4 0 0 1 0 6"/></symbol>
+</svg>
 
 <canvas id="gl" aria-label="the race"></canvas>
 <div class="veil" aria-hidden="true"></div>
@@ -42,7 +58,6 @@
   </div>
   <div class="top__right">
     <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
-    <button class="btn btn--ghost btn--icon" id="soundBtn" title="sound" aria-label="sound">♪</button>
     <button class="btn btn--accent" id="walletBtn"><span class="btn__dot"></span><span id="walletLabel">Connect wallet</span></button>
   </div>
 </header>
@@ -63,11 +78,11 @@
         </div>
       </div>
       <ul class="trust" aria-label="what to trust">
-        <li><i>✓</i><div><b>Free to race</b><span>one marble per wallet, no entry fee</span></div></li>
-        <li><i>⚿</i><div><b>Seed committed first</b><span>the hash is out before anyone joins</span></div></li>
-        <li><i>◎</i><div><b>Whole pot to first</b><span>paid to the winning address</span></div></li>
-        <li><i>◫</i><div><b>Eight tracks</b><span>the crowd votes the next one</span></div></li>
-        <li><i>✕</i><div><b>No custody</b><span>your keys never leave your wallet</span></div></li>
+        <li><svg class="ic"><use href="#i-check"/></svg><div><b>Free to race</b><span>one marble per wallet, no entry fee</span></div></li>
+        <li><svg class="ic"><use href="#i-lock"/></svg><div><b>Seed committed first</b><span>the hash is out before anyone joins</span></div></li>
+        <li><svg class="ic"><use href="#i-target"/></svg><div><b>Whole pot to first</b><span>paid to the winning address</span></div></li>
+        <li><svg class="ic"><use href="#i-layers"/></svg><div><b>Eight tracks</b><span>the crowd votes the next one</span></div></li>
+        <li><svg class="ic"><use href="#i-shield"/></svg><div><b>No custody</b><span>your keys never leave your wallet</span></div></li>
       </ul>
     </div>
 
@@ -93,10 +108,10 @@
     <rect x="30" y="20" width="60" height="14" rx="3" fill="#232637" stroke="#4a4f66" stroke-width="3"/>
     <rect x="26" y="11" width="68" height="11" rx="4" fill="#33374a"/>
   </svg>
-  <span class="jar__lock">🔒</span>
-</div><div><em>PRIZE POOL</em><b class="mono gold" id="lbPot">$0.00</b><span class="jar__state mono" id="lbPotState">filling</span></div></div>
+  <span class="jar__lock"><svg class="ic"><use href="#i-lock"/></svg></span>
+</div><div><em>PRIZE POOL <i class="tag tag--demo" id="lbDemo" hidden>DEMO</i></em><b class="mono gold" id="lbPot">$0.00</b><span class="jar__state mono" id="lbPotState">filling</span></div></div>
       <div class="livebar__cell"><em>PLAYERS</em><b class="mono" id="lbPlayers">0 / 30</b></div>
-      <div class="livebar__cell livebar__cell--cta"><button class="btn btn--accent" data-go="lobby">Enter lobby →</button></div>
+      <div class="livebar__cell livebar__cell--cta"><button class="btn btn--accent" data-go="lobby">Enter lobby <svg class="ic"><use href="#i-arrow"/></svg></button></div>
     </div>
 
     <section class="block">
@@ -115,6 +130,18 @@
         <p>Every race draws a fresh course from its seed inside one of eight modes. When a race ends, the results screen puts two modes to a vote and the winner is the next track. Each picture below is drawn from the course generator itself, not an illustration.</p>
       </div>
       <div class="modes" id="modesGrid"></div>
+    </section>
+
+    <section class="block" id="results">
+      <div class="block__head block__head--row">
+        <div><span class="kicker kicker--plain">RESULTS</span><h2>Latest races</h2></div>
+        <button class="btn btn--glass" data-dock="winners" id="allWinners">All winners</button>
+      </div>
+      <div class="glass table" id="recentTable">
+        <div class="table__row table__head mono"><span>RACE</span><span>TRACK</span><span>WINNER</span><span>TIME</span><span>POT</span><span>STATUS</span></div>
+        <div id="recentRows"></div>
+        <div class="empty" id="recentEmpty">The first race of this session has not finished yet.</div>
+      </div>
     </section>
 
     <section class="block block--split">
@@ -138,16 +165,20 @@
     </section>
 
     <footer class="foot">
-      <div class="foot__l">
-        <span class="brand__name small">Marble<b>Royale</b></span>
-        <span class="dim">A game first. Your keys never leave your wallet. The pot is sent by the creator to the winning address.</span>
+      <div class="foot__grid">
+        <div class="foot__brand">
+          <a class="brand" href="#" data-go="home"><span class="brand__mark"></span><span class="brand__name small">Marble<b>Royale</b></span></a>
+          <p class="dim">A provably fair marble race every five minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
+          <div class="foot__links" id="footLinks">
+            <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
+            <a class="pill" id="xLink" hidden target="_blank" rel="noopener"><svg class="ic"><use href="#i-x"/></svg> Follow</a>
+          </div>
+        </div>
+        <div class="foot__col"><b>Play</b><a href="#" data-go="lobby">Lobby</a><a href="#" data-goto="modes">Game modes</a><a href="#" data-goto="results">Latest races</a><a href="#" data-dock="winners">Winners</a></div>
+        <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="/verify" target="_blank" rel="noopener">Verify a race</a><a href="/admin" target="_blank" rel="noopener">Creator console</a></div>
+        <div class="foot__col"><b>Trust</b><span class="dim">Seed committed before the field closes. Replay any race from its seed. No custody, no private keys, nothing signed but a login message.</span></div>
       </div>
-      <div class="foot__r" id="footLinks">
-        <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
-        <a class="pill" id="xLink" hidden target="_blank" rel="noopener">X</a>
-        <a class="pill" href="#" data-go="launch">Launchpad</a>
-        <a class="pill" href="/verify" target="_blank" rel="noopener">Verify</a>
-      </div>
+      <div class="foot__line dim"><span>© 2026 Marble Royale · Robinhood Chain</span><span>A game, not financial advice. Entry is free; prizes are sent by the creator by hand.</span></div>
     </footer>
   </section>
 
@@ -172,8 +203,8 @@
     <rect x="30" y="20" width="60" height="14" rx="3" fill="#232637" stroke="#4a4f66" stroke-width="3"/>
     <rect x="26" y="11" width="68" height="11" rx="4" fill="#33374a"/>
   </svg>
-  <span class="jar__lock">🔒</span>
-</div><div><em>PRIZE POOL</em><b class="mono gold" id="loPot">$0.00</b><span class="jar__state mono" id="loPotState">filling</span></div></div>
+  <span class="jar__lock"><svg class="ic"><use href="#i-lock"/></svg></span>
+</div><div><em>PRIZE POOL <i class="tag tag--demo" id="loDemo" hidden>DEMO</i></em><b class="mono gold" id="loPot">$0.00</b><span class="jar__state mono" id="loPotState">filling</span></div></div>
         <div class="stat"><em>PLAYERS</em><b class="mono" id="loPlayers">0 / 30</b></div>
         <div class="stat stat--clock"><em id="loClockLabel">STARTING IN</em><b class="mono big" id="loClock">--:--</b></div>
       </div>
@@ -226,7 +257,7 @@
           <ul class="feed" id="feed"></ul>
           <form class="chatbar" id="chatForm">
             <input id="chatInput" maxlength="140" autocomplete="off" placeholder="say something">
-            <button class="btn btn--accent btn--icon" type="submit">→</button>
+            <button class="btn btn--accent btn--icon" type="submit" aria-label="send"><svg class="ic"><use href="#i-arrow"/></svg></button>
           </form>
         </aside>
       </div>
@@ -264,7 +295,7 @@
   <!-- ---------- RESULTS ---------- -->
   <section class="screen screen--results" id="s-results" hidden>
     <div class="results glass">
-      <div class="results__cup">🏆</div>
+      <div class="results__cup"><svg class="ic"><use href="#i-trophy"/></svg></div>
       <div class="kicker kicker--plain">RACE COMPLETE · <span id="resNo">#----</span></div>
       <ol class="podium" id="podium"></ol>
       <div class="results__you" id="resYou" hidden><em>YOUR RESULT</em><b class="mono" id="resYouPos">—</b></div>
@@ -359,12 +390,12 @@
 
 <!-- ---------- the dock ---------- -->
 <nav class="dock" id="dock" aria-label="taskbar">
-  <button class="dock__it is-on" data-dock="home"><i>⌂</i><span>Home</span></button>
-  <button class="dock__it dock__it--race" data-dock="lobby"><i class="dock__live"></i><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
-  <button class="dock__it" data-dock="modes"><i>◫</i><span>Modes</span></button>
-  <button class="dock__it" data-dock="launch"><i>🚀</i><span>Launch</span></button>
-  <button class="dock__it" data-dock="winners"><i>🏆</i><span>Winners</span></button>
-  <button class="dock__it" data-dock="wallet"><i>◈</i><span id="dockWallet">Wallet</span></button>
+  <button class="dock__it is-on" data-dock="home"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
+  <button class="dock__it dock__it--race" data-dock="lobby"><span class="dock__flag"><svg class="ic"><use href="#i-flag"/></svg><i class="dock__live"></i></span><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
+  <button class="dock__it" data-dock="modes"><svg class="ic"><use href="#i-grid"/></svg><span>Modes</span></button>
+  <button class="dock__it" data-dock="launch"><svg class="ic"><use href="#i-rocket"/></svg><span>Launch</span></button>
+  <button class="dock__it" data-dock="winners"><svg class="ic"><use href="#i-trophy"/></svg><span>Winners</span></button>
+  <button class="dock__it" data-dock="wallet"><svg class="ic"><use href="#i-wallet"/></svg><span id="dockWallet">Wallet</span></button>
   <div class="dock__stat mono"><em>POT</em><b class="gold" id="dockPot">$0.00</b></div>
   <div class="dock__stat mono dock__clock"><em id="dockClockLabel">STARTS IN</em><b id="dockClock">--:--</b></div>
 </nav>

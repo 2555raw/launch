@@ -589,7 +589,8 @@
   }
 
   function buildPickers() {
-    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.' };
+    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.',
+                    doge: 'doge', pepe: 'pepe', eth: 'ETH', sol: 'SOL', btc: 'BTC', bnb: 'BNB' };
     for (const c of SKINS) {
       const b = document.createElement('button');
       b.className = 'sw' + (c === S.skin.color ? ' on' : '');
@@ -607,7 +608,7 @@
       const cv = document.createElement('canvas');
       cv.width = 38; cv.height = 38;
       const ctx = cv.getContext('2d');
-      ctx.fillStyle = '#39415a';
+      ctx.fillStyle = RENDER.SKIN_COLORS[f] || '#39415a';
       ctx.beginPath(); ctx.arc(19, 19, 14, 0, 6.283); ctx.fill();
       if (f !== 'none') RENDER.drawFace(ctx, 19, 19, 14, f);
       const label = document.createElement('span');
@@ -615,6 +616,10 @@
       b.append(cv, label);
       b.addEventListener('click', () => {
         for (const x of el.faces.children) x.classList.toggle('on', x === b);
+        if (RENDER.SKIN_COLORS[f]) {
+          for (const x of el.swatches.children) x.classList.remove('on');
+          pickSkin('color', RENDER.SKIN_COLORS[f]);
+        }
         pickSkin('face', f);
       });
       el.faces.appendChild(b);

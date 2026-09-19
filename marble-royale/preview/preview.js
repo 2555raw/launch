@@ -212,14 +212,15 @@
       sw.appendChild(b);
     }
     const fc = $('#faces');
-    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.' };
+    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.',
+                    doge: 'doge', pepe: 'pepe', eth: 'ETH', sol: 'SOL', btc: 'BTC', bnb: 'BNB' };
     for (const f of RENDER.FACES) {
       const b = document.createElement('button');
       b.className = 'fc';
       const c = document.createElement('canvas');
       c.width = 46; c.height = 46;
       const ctx = c.getContext('2d');
-      ctx.fillStyle = '#39415a';
+      ctx.fillStyle = RENDER.SKIN_COLORS[f] || '#39415a';
       ctx.beginPath(); ctx.arc(23, 23, 17, 0, 6.283); ctx.fill();
       if (f !== 'none') RENDER.drawFace(ctx, 23, 23, 17, f);
       const label = document.createElement('span');
@@ -227,6 +228,10 @@
       b.append(c, label);
       b.addEventListener('click', () => {
         S.skin.face = f;
+        if (RENDER.SKIN_COLORS[f]) {
+          S.skin.color = RENDER.SKIN_COLORS[f];
+          for (const c of sw.children) c.classList.toggle('on', c.title === S.skin.color);
+        }
         markOn(fc, b);
         applySkin();
       });

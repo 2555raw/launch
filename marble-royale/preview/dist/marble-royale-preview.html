@@ -1910,7 +1910,10 @@
   /* Faces, drawn rather than typed: a marble is about ten pixels across on a
      laptop, where a glyph turns to mush but two dots and a curve still read as
      a face. Everything scales off the radius so it holds at any zoom. */
-  const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead'];
+  const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead',
+                 'doge', 'pepe', 'eth', 'sol', 'btc', 'bnb'];
+  /* The coin skins come with a colour of their own; picking one sets it. */
+  const SKIN_COLORS = { doge: '#e3a94e', pepe: '#4fb35a', eth: '#5b6785', sol: '#1d1a2e', btc: '#f7931a', bnb: '#f3ba2f' };
 
   function drawFace(ctx, x, y, r, face) {
     const ink = 'rgba(8,8,14,.92)';
@@ -1959,6 +1962,64 @@
       ctx.moveTo(x + ex + k, y + ey - k); ctx.lineTo(x + ex - k, y + ey + k);
       ctx.moveTo(x - r * 0.3, y + r * 0.44); ctx.lineTo(x + r * 0.3, y + r * 0.44);
       ctx.stroke();
+    }
+    else if (face === 'doge') {
+      /* ears, a squint, a nose and a lighter muzzle */
+      ctx.fillStyle = 'rgba(120,70,20,.9)';
+      ctx.beginPath(); ctx.moveTo(x - r * 0.72, y - r * 0.35); ctx.lineTo(x - r * 0.55, y - r * 1.02); ctx.lineTo(x - r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x + r * 0.72, y - r * 0.35); ctx.lineTo(x + r * 0.55, y - r * 1.02); ctx.lineTo(x + r * 0.2, y - r * 0.62); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,240,210,.85)';
+      ctx.beginPath(); ctx.ellipse(x, y + r * 0.3, r * 0.42, r * 0.32, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle = ink;
+      ctx.beginPath(); ctx.ellipse(x - ex, y + ey, r * 0.15, r * 0.1, -0.3, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(x + ex, y + ey, r * 0.15, r * 0.1, 0.3, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y + r * 0.18, r * 0.12, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y + r * 0.32, r * 0.22, 0.4, 2.74); ctx.stroke();
+    } else if (face === 'pepe') {
+      /* two big eyes up top and a wide flat mouth */
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.ellipse(x - r * 0.34, y - r * 0.3, r * 0.3, r * 0.22, 0, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(x + r * 0.34, y - r * 0.3, r * 0.3, r * 0.22, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle = ink;
+      ctx.beginPath(); ctx.arc(x - r * 0.28, y - r * 0.28, r * 0.11, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + r * 0.4, y - r * 0.28, r * 0.11, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = 'rgba(160,40,60,.9)';
+      ctx.lineWidth = Math.max(1.2, r * 0.17);
+      ctx.beginPath(); ctx.moveTo(x - r * 0.55, y + r * 0.42); ctx.quadraticCurveTo(x, y + r * 0.58, x + r * 0.55, y + r * 0.4); ctx.stroke();
+    } else if (face === 'eth') {
+      /* the two-triangle diamond, lit on the left */
+      ctx.fillStyle = 'rgba(255,255,255,.92)';
+      ctx.beginPath(); ctx.moveTo(x, y - r * 0.72); ctx.lineTo(x + r * 0.46, y + r * 0.02); ctx.lineTo(x, y + r * 0.26); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.6)';
+      ctx.beginPath(); ctx.moveTo(x, y - r * 0.72); ctx.lineTo(x - r * 0.46, y + r * 0.02); ctx.lineTo(x, y + r * 0.26); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.92)';
+      ctx.beginPath(); ctx.moveTo(x, y + r * 0.38); ctx.lineTo(x + r * 0.46, y + r * 0.12); ctx.lineTo(x, y + r * 0.76); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.6)';
+      ctx.beginPath(); ctx.moveTo(x, y + r * 0.38); ctx.lineTo(x - r * 0.46, y + r * 0.12); ctx.lineTo(x, y + r * 0.76); ctx.closePath(); ctx.fill();
+    } else if (face === 'sol') {
+      /* three slanted bars, purple to green */
+      const g = ctx.createLinearGradient(x - r * 0.5, y + r * 0.5, x + r * 0.5, y - r * 0.5);
+      g.addColorStop(0, '#9945ff'); g.addColorStop(1, '#14f195');
+      ctx.fillStyle = g;
+      for (let i = -1; i <= 1; i++) {
+        const yy = y + i * r * 0.36, sh = i === 0 ? -r * 0.14 : r * 0.14;
+        ctx.beginPath();
+        ctx.moveTo(x - r * 0.5 + sh, yy - r * 0.11); ctx.lineTo(x + r * 0.5 + sh, yy - r * 0.11);
+        ctx.lineTo(x + r * 0.5 - sh, yy + r * 0.11); ctx.lineTo(x - r * 0.5 - sh, yy + r * 0.11);
+        ctx.closePath(); ctx.fill();
+      }
+    } else if (face === 'btc') {
+      ctx.fillStyle = '#fff';
+      ctx.font = '700 ' + (r * 1.25) + 'px ui-sans-serif, system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.save(); ctx.translate(x, y + r * 0.04); ctx.rotate(0.22); ctx.fillText('B', 0, 0); ctx.restore();
+      ctx.fillRect(x - r * 0.16, y - r * 0.68, r * 0.09, r * 0.2); ctx.fillRect(x + r * 0.02, y - r * 0.68, r * 0.09, r * 0.2);
+      ctx.fillRect(x - r * 0.16, y + r * 0.5, r * 0.09, r * 0.2); ctx.fillRect(x + r * 0.02, y + r * 0.5, r * 0.09, r * 0.2);
+    } else if (face === 'bnb') {
+      /* a diamond of four small diamonds around a fifth */
+      ctx.fillStyle = 'rgba(40,30,0,.85)';
+      const d = (cx, cy, k) => { ctx.beginPath(); ctx.moveTo(cx, cy - k); ctx.lineTo(cx + k, cy); ctx.lineTo(cx, cy + k); ctx.lineTo(cx - k, cy); ctx.closePath(); ctx.fill(); };
+      d(x, y, r * 0.2); d(x, y - r * 0.5, r * 0.18); d(x, y + r * 0.5, r * 0.18); d(x - r * 0.5, y, r * 0.18); d(x + r * 0.5, y, r * 0.18);
     }
     ctx.restore();
   }
@@ -2033,7 +2094,7 @@
     ctx.restore();
   }
 
-  window.RENDER = { init, resize, setRace, addPlayer, draw, cheer, celebrate, drawFace, FACES, THEMES, get camera() { return cam; }, get state() { return race; } };
+  window.RENDER = { init, resize, setRace, addPlayer, draw, cheer, celebrate, drawFace, FACES, SKIN_COLORS, THEMES, get camera() { return cam; }, get state() { return race; } };
 })();
 </script>
 <script>
@@ -2251,14 +2312,15 @@
       sw.appendChild(b);
     }
     const fc = $('#faces');
-    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.' };
+    const names = { none: 'plain', smile: 'smile', grin: 'grin', wink: 'wink', cool: 'shades', angry: 'angry', dead: 'k.o.',
+                    doge: 'doge', pepe: 'pepe', eth: 'ETH', sol: 'SOL', btc: 'BTC', bnb: 'BNB' };
     for (const f of RENDER.FACES) {
       const b = document.createElement('button');
       b.className = 'fc';
       const c = document.createElement('canvas');
       c.width = 46; c.height = 46;
       const ctx = c.getContext('2d');
-      ctx.fillStyle = '#39415a';
+      ctx.fillStyle = RENDER.SKIN_COLORS[f] || '#39415a';
       ctx.beginPath(); ctx.arc(23, 23, 17, 0, 6.283); ctx.fill();
       if (f !== 'none') RENDER.drawFace(ctx, 23, 23, 17, f);
       const label = document.createElement('span');
@@ -2266,6 +2328,10 @@
       b.append(c, label);
       b.addEventListener('click', () => {
         S.skin.face = f;
+        if (RENDER.SKIN_COLORS[f]) {
+          S.skin.color = RENDER.SKIN_COLORS[f];
+          for (const c of sw.children) c.classList.toggle('on', c.title === S.skin.color);
+        }
         markOn(fc, b);
         applySkin();
       });

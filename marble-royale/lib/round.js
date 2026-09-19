@@ -39,7 +39,7 @@ const FEE_WALLET = process.env.FEE_WALLET || '';
    stays where it is. Whoever runs the game picks the number and it is on screen,
    because a pot nobody can check is a pot nobody believes. */
 const POT_PCT = Math.min(100, Math.max(0, Number(process.env.POT_PCT) || 20));
-const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead'];
+const FACES = ['none', 'smile', 'grin', 'wink', 'cool', 'angry', 'dead', 'doge', 'pepe', 'eth', 'sol', 'btc', 'bnb'];
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 const startOf = (t) => Math.floor(t / ROUND_MS) * ROUND_MS;

@@ -125,7 +125,7 @@ All optional except where noted.
 | `CHAIN_NAME` | what the page calls the chain (default Robinhood Chain) |
 | `ETH_USD_FEED` | Chainlink ETH/USD aggregator on that chain (default is mainnet's). If the chain has no feed yet, set `ETH_USD` instead |
 | `ETH_USD` | a fixed ETH price in dollars, if you would rather not read a feed |
-| `EXPLORER` | where transaction links go (default etherscan.io; set the chain's own explorer) |
+| `EXPLORER` | where transaction links go (default the Robinhood Chain explorer, `https://robinhoodchain.blockscout.com`) |
 | `ADMIN_KEY` | **set this**, or /admin is off |
 | `DEMO_MODE` | `1` hands out demo wallets and, with no fee wallet, acts the pot. Off by default |
 | `ENTRY_LABEL` | what the lobby shows for entry (default FREE) |
@@ -136,6 +136,8 @@ All optional except where noted.
 | `MAX_PLAYERS_HIGH` | what the grid grows to once it is 80% full (default 50); anyone turned away is put in the next race |
 | `LINK_BUY`, `LINK_X`, `LINK_TG` | buttons in the footer |
 | `PAYOUT_NOTE` | a line under the winner's address, e.g. "paid within the hour" |
+| `ROBINHOOD_RPC` | the Robinhood Chain RPC the server uses to check launch receipts for the launch board (default the public `https://rpc.mainnet.chain.robinhood.com`) |
+| `PONS_FACTORY` | overrides the Pons V2 factory address the launch board trusts |
 
 ## Deploying
 
@@ -242,9 +244,20 @@ brings up the podium.
   creator fee recipient, waits for the receipt and reads the token and curve
   addresses from the `TokenLaunched` event. The token shows on Pons, on the
   Robinhood Chain explorer and on the terminals that watch the factory.
-  Nothing is faked: a failed transaction shows as failed. Launches you made
-  are listed under the form with explorer and Pons links. ethers v6 is
-  vendored at `public/vendor/ethers/`.
+  Nothing is faked: a failed transaction shows as failed. An optional
+  opening buy is a second transaction from the same wallet to the new
+  token's bonding curve (`buy(quoteIn, minTokensOut, recipient)` with the
+  ETH as value): that curve is the token's liquidity from the first block,
+  the buy seeds it, and Pons exempts the launcher from its launch-window
+  snipe tax. Launches you made are listed under the form with explorer and
+  Pons links. ethers v6 is vendored at `public/vendor/ethers/`.
+- **Everyone's launches.** After a confirmed launch the browser reports the
+  hash to `POST /api/launch`; the server fetches the receipt from Robinhood
+  Chain (`ROBINHOOD_RPC`, default the public RPC) and lists the token only
+  if the Pons factory's `TokenLaunched` log is there for that wallet. The
+  board lives on the Launch screen ("Everyone's launches") with the four
+  latest on Home; new ones arrive live through the `launch` event. In demo
+  mode a report is taken as given so the screen can be exercised.
 - **Names on the field.** The lobby has a name box under your marble; the
   name (or the short wallet when it is blank) is what the chat, the 3D
   labels, the results table and the feed show. `POST /api/skin` restyles a

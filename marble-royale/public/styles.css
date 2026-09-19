@@ -188,6 +188,8 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
 .btn--xl { padding: 15px 26px; font-size: 16.5px; }
 .btn--wide { width: 100%; }
 .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.btn--joined, .btn--joined:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--win) 88%, #fff), var(--win)); border-color: transparent; color: #04110a; cursor: default; opacity: 1; box-shadow: 0 12px 30px -14px color-mix(in srgb, var(--win) 80%, transparent); }
+.btn--joined .ic { width: 16px; height: 16px; stroke: currentColor; }
 .btn__dot { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff, #ffd2ad 55%, #a54a08 100%); }
 
 .glass {
@@ -788,3 +790,20 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .jar[data-state="paid"] + div .jar__state { color: var(--win); }
 .livebar__cell--pot b, .stat--pot b { line-height: 1.05; }
 @media (prefers-reduced-motion: reduce) { .jar__top { animation: none; } }
+
+/* everyone's launches: a grid of token cards */
+.community { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.community--row { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.tok { display: grid; grid-template-columns: 46px 1fr; gap: 12px; padding: 14px; border-radius: 16px; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); align-content: start; }
+.tok__pic { width: 46px; height: 46px; border-radius: 50%; overflow: hidden; background: var(--glass2); display: grid; place-items: center; }
+.tok__pic img, .tok__pic canvas { width: 46px; height: 46px; object-fit: cover; border-radius: 50%; }
+.tok__name { font-weight: 800; font-size: 15px; line-height: 1.2; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.tok__name em { font-style: normal; color: var(--go); font-family: var(--mono); font-size: 12px; }
+.tok__by { font-size: 11px; color: var(--dim); font-family: var(--mono); margin-top: 2px; }
+.tok__desc { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tok__links { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
+.tok__links a, .tok__links button { font-size: 11.5px; padding: 6px 10px; border-radius: 999px; background: var(--glass2); border: 1px solid var(--line); color: var(--ink); text-decoration: none; cursor: pointer; font-family: var(--disp); }
+.tok__links a.pons { background: var(--go); color: #fff; border-color: transparent; }
+.tok__links a:hover, .tok__links button:hover { background: var(--soft); }
+.tok__buy { font-size: 11px; color: var(--win); font-family: var(--mono); grid-column: 1 / -1; }
+.tok--new { animation: fadeup .6s ease both; }

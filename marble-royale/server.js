@@ -18,6 +18,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const store = require('./lib/store');
+const launches = require('./lib/launches');
 const chain = require('./lib/chain');
 const RACE = require('./public/shared/race.js');
 const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, MAX_PLAYERS_HIGH, FEE_WALLET, POT_PCT, MEGA_PCT, MEGA_EVERY_MS, FACES } = require('./lib/round');
@@ -188,6 +189,7 @@ function snapshot() {
     top: store.top(10),
     rewards: store.paid(10).map(publicResult),
     paidTotal: store.paidTotal(),
+    launches: store.launches(24),
     chat: chatLog.slice(-40),
     watching: clients.size
   };
@@ -339,6 +341,29 @@ const server = http.createServer(async (req, res) => {
     if (out.error) return json(res, 409, out);
     return json(res, 200, { ok: true, player: out.player });
   }
+
+  /* A token someone launched through the Launch screen. The chain is the
+     judge: the receipt of the reported hash has to carry the Pons factory's
+     TokenLaunched log for this wallet. */
+  if (p === '/api/launch' && req.method === 'POST') {
+    const body = await readBody(req, 4096);
+    const address = body && readToken(body.token);
+    if (!address) return json(res, 401, { error: 'sign in again' });
+    if (!allow('launch:' + address, 6, 6)) return json(res, 429, { error: 'easy there' });
+    let chain;
+    if (DEMO_MODE && body.demo) {
+      chain = { token: String(body.tokenAddress || ''), curve: String(body.curve || ''), deployer: address };
+      if (!/^0x[0-9a-fA-F]{40}$/.test(chain.token)) return json(res, 400, { error: 'no token address' });
+    } else {
+      chain = await launches.verify(body.hash, address);
+      if (chain.error) return json(res, chain.retry ? 503 : 400, { error: chain.error });
+    }
+    const rec = store.addLaunch(launches.record(body, chain, address));
+    broadcast('launch', { launch: rec, launches: store.launches(24) });
+    return json(res, 200, { ok: true, launch: rec });
+  }
+
+  if (p === '/api/launches') return json(res, 200, { launches: store.launches(100) });
 
   if (p === '/api/chat' && req.method === 'POST') {
     const body = await readBody(req, 2048);

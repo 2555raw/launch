@@ -16,7 +16,7 @@ const DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const FILE = path.join(DIR, 'rounds.json');
 const KEEP = 500;                 // rounds kept in the file and in memory
 
-let state = { rounds: [], stats: {}, counter: 0 };
+let state = { rounds: [], stats: {}, counter: 0, launches: [] };
 let writing = false, again = false;
 
 function load() {
@@ -24,7 +24,7 @@ function load() {
     const raw = fs.readFileSync(FILE, 'utf8');
     const parsed = JSON.parse(raw);
     if (parsed && Array.isArray(parsed.rounds)) {
-      state = { rounds: parsed.rounds, stats: parsed.stats || {}, counter: parsed.counter || parsed.rounds.length };
+      state = { rounds: parsed.rounds, stats: parsed.stats || {}, counter: parsed.counter || parsed.rounds.length, launches: Array.isArray(parsed.launches) ? parsed.launches : [] };
     }
   } catch (err) {
     if (err.code !== 'ENOENT') console.error('[store] could not read ' + FILE + ':', err.message);
@@ -122,4 +122,14 @@ function paidTotal() {
   return Math.round(t * 100) / 100;
 }
 
-module.exports = { load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };
+/* Tokens launched through the site, newest first; one entry per token. */
+function addLaunch(l) {
+  state.launches = (state.launches || []).filter((x) => x.token.toLowerCase() !== l.token.toLowerCase());
+  state.launches.unshift(l);
+  if (state.launches.length > 300) state.launches.length = 300;
+  save();
+  return l;
+}
+function launches(n) { return (state.launches || []).slice(0, n || 24); }
+
+module.exports = { addLaunch, launches, load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };

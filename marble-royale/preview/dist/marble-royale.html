@@ -197,6 +197,8 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
 .btn--xl { padding: 15px 26px; font-size: 16.5px; }
 .btn--wide { width: 100%; }
 .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.btn--joined, .btn--joined:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--win) 88%, #fff), var(--win)); border-color: transparent; color: #04110a; cursor: default; opacity: 1; box-shadow: 0 12px 30px -14px color-mix(in srgb, var(--win) 80%, transparent); }
+.btn--joined .ic { width: 16px; height: 16px; stroke: currentColor; }
 .btn__dot { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff, #ffd2ad 55%, #a54a08 100%); }
 
 .glass {
@@ -798,6 +800,23 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .livebar__cell--pot b, .stat--pot b { line-height: 1.05; }
 @media (prefers-reduced-motion: reduce) { .jar__top { animation: none; } }
 
+/* everyone's launches: a grid of token cards */
+.community { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.community--row { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.tok { display: grid; grid-template-columns: 46px 1fr; gap: 12px; padding: 14px; border-radius: 16px; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); align-content: start; }
+.tok__pic { width: 46px; height: 46px; border-radius: 50%; overflow: hidden; background: var(--glass2); display: grid; place-items: center; }
+.tok__pic img, .tok__pic canvas { width: 46px; height: 46px; object-fit: cover; border-radius: 50%; }
+.tok__name { font-weight: 800; font-size: 15px; line-height: 1.2; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.tok__name em { font-style: normal; color: var(--go); font-family: var(--mono); font-size: 12px; }
+.tok__by { font-size: 11px; color: var(--dim); font-family: var(--mono); margin-top: 2px; }
+.tok__desc { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tok__links { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
+.tok__links a, .tok__links button { font-size: 11.5px; padding: 6px 10px; border-radius: 999px; background: var(--glass2); border: 1px solid var(--line); color: var(--ink); text-decoration: none; cursor: pointer; font-family: var(--disp); }
+.tok__links a.pons { background: var(--go); color: #fff; border-color: transparent; }
+.tok__links a:hover, .tok__links button:hover { background: var(--soft); }
+.tok__buy { font-size: 11px; color: var(--win); font-family: var(--mono); grid-column: 1 / -1; }
+.tok--new { animation: fadeup .6s ease both; }
+
 </style>
 <script>(function(){var t='black';try{t=localStorage.getItem('mr.theme')||'black';}catch(e){}if(t==='black'||t==='white')document.documentElement.dataset.theme=t;})();</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js"}}</script>
@@ -907,6 +926,13 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
       </div>
     </section>
 
+    <section class="block" id="homeLaunches" hidden>
+      <div class="block__head block__head--row">
+        <div><span class="kicker kicker--plain">LAUNCHED HERE</span><h2>Latest tokens from the pad</h2></div>
+        <a class="btn btn--glass" href="#launch" data-go="launch">All launches</a>
+      </div>
+      <div class="community community--row" id="homeLaunchGrid"></div>
+    </section>
     <section class="block" id="rewards">
       <div class="block__head block__head--row">
         <div><span class="kicker kicker--plain">REWARDS</span><h2>Paid to the winners</h2></div>
@@ -1149,7 +1175,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
       </div>
       <div class="launch__body">
         <form class="launch__form glass" id="launchForm" autocomplete="off">
-          <div class="wide launch__pons"><span class="kicker kicker--plain">LAUNCHES THROUGH PONS · ROBINHOOD CHAIN</span><span class="dim small">One transaction from your wallet to the Pons V2 factory. Fixed supply of 1,000,000,000, straight into a bonding curve; tradeable from the first block. Fee: <b class="mono" id="lpFee">quoted by Pons when you launch</b> + gas.</span></div>
+          <div class="wide launch__pons"><span class="kicker kicker--plain">LAUNCHES THROUGH PONS · ROBINHOOD CHAIN</span><span class="dim small">Your wallet calls the Pons V2 factory. Fixed supply of 1,000,000,000, straight into a Pons bonding curve, which is the token's liquidity from the first block; when the curve fills, Pons graduates it into a locked Uniswap V4 pool on its own. Fee: <b class="mono" id="lpFee">quoted by Pons when you launch</b> + gas.</span></div>
           <label><span>Token name</span><input id="lpName" maxlength="32" placeholder="Marble Doge" required></label>
           <label><span>Ticker</span><input id="lpTicker" maxlength="10" placeholder="MDOGE" required></label>
           <label class="wide"><span>Description</span><input id="lpDesc" maxlength="200" placeholder="The marble that never loses."></label>
@@ -1159,16 +1185,18 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
           <label><span>Telegram <small class="dim">optional</small></span><input id="lpTelegram" placeholder="https://t.me/…"></label>
           <label><span>Website <small class="dim">optional</small></span><input id="lpWebsite" placeholder="https://…"></label>
           <label><span>Colour</span><input type="color" id="lpColor" value="#ff7a1a"></label>
+          <label><span>Opening buy <small class="dim">ETH, optional</small></span><input id="lpBuy" inputmode="decimal" placeholder="0.00" pattern="[0-9]*[.,]?[0-9]*"></label>
           <label class="wide launch__check"><input type="checkbox" id="lpBuyback" checked><span><b>Buyback &amp; lock</b> <small class="dim">a share of trading fees buys the token back and locks it in the Pons vault; you can switch it later</small></span></label>
           <div class="launch__actions wide">
             <button class="btn btn--accent btn--xl" type="button" id="lpDeploy"><svg class="ic"><use href="#i-rocket"/></svg> Launch on Pons</button>
             <button class="btn btn--glass btn--xl" type="submit" id="lpSave">Save draft</button>
           </div>
-          <p class="dim small wide">You pay the Pons launch fee and gas from your own wallet, on Robinhood Chain; the wallet switches network if it has to. The token appears on Pons, on the Robinhood Chain explorer and on the terminals that watch the Pons factory. 70% of its trading fees go to your wallet by Pons' own rules. Nothing here ever sees your keys.</p>
+          <p class="dim small wide">You pay the Pons launch fee and gas from your own wallet, on Robinhood Chain; the wallet switches network if it has to. An opening buy is a second transaction right after: your ETH goes into the token's curve as its first liquidity and the tokens come to your wallet, free of the launch-window snipe tax Pons charges everyone else. The token appears on Pons, on the Robinhood Chain explorer and on the terminals that watch the Pons factory. 70% of its trading fees go to your wallet by Pons' own rules. Nothing here ever sees your keys.</p>
           <div class="tx wide" id="lpTx" hidden><i></i><span id="lpTxText"></span></div>
           <div class="launch__done glass wide" id="lpDone" hidden>
             <span class="kicker kicker--plain">LIVE ON ROBINHOOD CHAIN</span>
             <b class="mono" id="lpDoneToken"></b>
+            <span class="dim small" id="lpDoneBuy" hidden></span>
             <div class="launch__links"><a class="btn btn--glass" id="lpLinkTx" target="_blank" rel="noopener">Transaction</a><a class="btn btn--glass" id="lpLinkToken" target="_blank" rel="noopener">Explorer</a><a class="btn btn--accent" id="lpLinkPons" target="_blank" rel="noopener">Open on Pons</a><button class="btn btn--glass" type="button" id="lpCopy">Copy CA</button></div>
           </div>
         </form>
@@ -1195,6 +1223,14 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
           </div>
         </aside>
       </div>
+      <section class="block" id="community">
+        <div class="block__head block__head--row">
+          <div><span class="kicker kicker--plain">LAUNCHED HERE</span><h2>Everyone's launches</h2></div>
+          <div class="rewards__total glass"><em>TOKENS LAUNCHED</em><b class="mono gold" id="communityCount">0</b></div>
+        </div>
+        <div class="community" id="communityGrid"></div>
+        <div class="empty glass" id="communityEmpty">No token launched through MarbleRush yet. Yours could be the first.</div>
+      </section>
       <div class="block block--split launch__how">
         <div class="glass panel">
           <span class="kicker kicker--plain">HOW A LAUNCH WORKS</span>
@@ -4556,7 +4592,14 @@ window.MR_TYPES = true;
       'event TokenLaunched(address indexed token,address indexed curve,address indexed deployer,address pairToken,uint256 launchConfigId,uint256 graduationThreshold)'
     ],
     /* the live factory's selector for that launchToken; checked before sending */
-    selector: '0xf35abbcf'
+    selector: '0xf35abbcf',
+    /* the bonding curve every launch trades on until it graduates */
+    curveAbi: [
+      'function buy(uint256 quoteIn,uint256 minTokensOut,address recipient) payable returns (uint256 tokensOut)',
+      'function graduated() view returns (bool)',
+      'function getReserves() view returns (uint256 quoteReserve_, uint256 tokenReserve_)'
+    ],
+    erc20Abi: ['event Transfer(address indexed from,address indexed to,uint256 value)']
   };
 
   const rejected = (err) => /reject|denied|cancel/i.test(String(err && (err.message || err)));
@@ -4592,6 +4635,45 @@ window.MR_TYPES = true;
      * spec: { name, ticker, desc, image, twitter, telegram, website, buyback }
      * Resolves { tx, res } where res is { token, curve, hash, links } on success.
      */
+    /**
+     * The creator's opening buy on the new token's Pons bonding curve: the
+     * curve is the token's liquidity from the first block, and this seeds it
+     * from the launcher's own wallet. Pons exempts the launcher from its
+     * launch-window snipe tax. wei is the ETH to spend, as a bigint.
+     */
+    async openingBuy(session, curve, token, wei) {
+      const tx = newTx('buy');
+      const provider = window.WALLET && WALLET.provider;
+      const ethers = window.ethers;
+      const fail = (msg) => { tx.status = 'failed'; tx.error = msg; emitTx(tx); return { tx, res: { error: msg } }; };
+      if (!ethers || !provider || session.demo) return fail('The opening buy needs a real wallet.');
+      if (!curve || !token) return fail('No curve to buy on.');
+      tx.status = 'waiting_wallet'; tx.wei = wei; emitTx(tx);
+      try {
+        await onRobinhood(provider);
+        const bp = new ethers.BrowserProvider(provider);
+        const signer = await bp.getSigner();
+        const me = await signer.getAddress();
+        const c = new ethers.Contract(curve, PONS.curveAbi, signer);
+        const done = await c.graduated().catch(() => false);
+        if (done) return fail('The curve already graduated; trade it on Pons instead.');
+        tx.status = 'confirm'; emitTx(tx);
+        const sent = await c.buy(wei, 0n, me, { value: wei });
+        tx.status = 'pending'; tx.hash = sent.hash; emitTx(tx);
+        const receipt = await sent.wait();
+        if (receipt.status !== 1) return fail('The buy reverted; nothing was spent beyond gas. ' + PONS.explorer + '/tx/' + sent.hash);
+        const erc = new ethers.Interface(PONS.erc20Abi);
+        let tokens = 0n;
+        for (const log of receipt.logs) {
+          if (log.address.toLowerCase() !== token.toLowerCase()) continue;
+          try { const ev = erc.parseLog({ topics: [...log.topics], data: log.data }); if (ev && ev.name === 'Transfer' && ev.args.to.toLowerCase() === me.toLowerCase()) tokens += ev.args.value; } catch { /* not a Transfer */ }
+        }
+        tx.status = 'confirmed'; tx.tokens = tokens; emitTx(tx);
+        return { tx, res: { hash: sent.hash, wei: wei.toString(), tokens: tokens.toString(), link: PONS.explorer + '/tx/' + sent.hash } };
+      } catch (err) {
+        return fail(rejected(err) ? 'You cancelled the buy in the wallet. The token is live without it.' : (err && (err.shortMessage || err.message)) || 'The buy did not go through.');
+      }
+    },
     async createToken(session, spec) {
       const tx = newTx('launch');
       const provider = window.WALLET && WALLET.provider;
@@ -4656,7 +4738,8 @@ window.MR_TYPES = true;
     labels: {
       idle: 'Ready', waiting_wallet: 'Waiting for wallet', confirm: 'Confirm in your wallet',
       pending: 'Pending', confirmed: 'Confirmed', failed: 'Failed'
-    }
+    },
+    kinds: { launch: 'launch on Pons', buy: 'opening buy on the curve' }
   };
 })();
 
@@ -4822,7 +4905,7 @@ window.MR_TYPES = true;
   }
   const config = { coin: 'MARBLERUSH', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://robinhoodchain.blockscout.com', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
     maxPlayers: MAX, maxPlayersHigh: MAX_HIGH, modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })) };
-  const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
+  const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, launches: store.launches || [], chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
 
   /* ---- the shims -------------------------------------------------------- */
 
@@ -4862,6 +4945,8 @@ window.MR_TYPES = true;
       emit('skin', { roundId: round.id, player: pubPlayer(pl) });
       return reply(200, { ok: true, player: pubPlayer(pl) });
     }
+    if (path === '/api/launch') { if (!who) return reply(401, { error: 'sign in again' }); if (!/^0x[0-9a-fA-F]{40}$/.test(String(body.tokenAddress || ''))) return reply(400, { error: 'no token address' }); const l = { id: 'T' + now().toString(36), at: now(), token: body.tokenAddress, curve: body.curve || '', deployer: who, hash: body.hash || '', name: String(body.name || 'Token').slice(0, 32), ticker: String(body.ticker || 'TOKEN').toUpperCase().slice(0, 10), desc: String(body.desc || '').slice(0, 200), image: String(body.image || ''), twitter: String(body.twitter || ''), telegram: String(body.telegram || ''), website: String(body.website || ''), color: body.color || '#ff7a1a', face: body.face || '', buyHash: body.buyHash || '', buyWei: body.buyWei || '' }; store.launches = [l].concat((store.launches || []).filter((x) => x.token !== l.token)).slice(0, 100); emit('launch', { launch: l, launches: store.launches.slice(0, 24) }); return reply(200, { ok: true, launch: l }); }
+    if (path === '/api/launches') return reply(200, { launches: store.launches || [] });
     if (path === '/api/chat') { if (!who) return reply(401, { error: 'sign in to chat' }); const pl = round && round.players.find((x) => x.address === who); const m = { from: who, name: (pl && pl.name) || '', text: String(body.text || '').slice(0, 140), at: now() }; store.chat.push(m); emit('chat', m); return reply(200, { ok: true }); }
     if (path === '/api/vote') { if (!who) return reply(401, { error: 'sign in to vote' }); const r = vote(who, String(body.choice || '')); return reply(r.error ? 409 : 200, r); }
     if (path === '/api/cheer') { if (!who) return reply(401, { error: 'sign in to cheer' }); emit('cheer', { from: who, target: body.target, at: now() }); return reply(200, { ok: true }); }
@@ -5085,6 +5170,7 @@ window.MR_TYPES = true;
     es.addEventListener('paid', (e) => onPaid(JSON.parse(e.data)));
     es.addEventListener('chat', (e) => feed(JSON.parse(e.data)));
     es.addEventListener('skin', (e) => onSkin(JSON.parse(e.data)));
+    es.addEventListener('launch', (e) => onLaunch(JSON.parse(e.data)));
     es.addEventListener('cheer', (e) => { const d = JSON.parse(e.data); if (SCENE.ready) SCENE.cheer(d.target); });
     es.addEventListener('tick', (e) => {
       const d = JSON.parse(e.data);
@@ -5099,7 +5185,8 @@ window.MR_TYPES = true;
   }
 
   function onState(s) {
-    game.set({ config: s.config, offset: s.now - Date.now(), watching: s.watching, recent: s.recent, top: s.top, schedule: s.schedule || [], rewards: s.rewards || [], paidTotal: s.paidTotal || 0 });
+    game.set({ config: s.config, offset: s.now - Date.now(), watching: s.watching, recent: s.recent, top: s.top, schedule: s.schedule || [], rewards: s.rewards || [], paidTotal: s.paidTotal || 0, launches: s.launches || [] });
+    paintCommunity();
     applyConfig(s.config);
     paintModes();
     $('#feed').innerHTML = '';
@@ -5565,9 +5652,11 @@ window.MR_TYPES = true;
     const w = wallet.get();
     const btn = $('#joinBtn');
     const joined = ui.get().joined;
+    btn.classList.toggle('btn--joined', !!(w.address && joined));
     if (!w.address) { btn.disabled = false; btn.textContent = 'Connect to join'; btn.onclick = () => openWallet(); return; }
     btn.onclick = () => join();
-    if (joined) { btn.disabled = true; btn.textContent = "You're in ✓"; }
+    /* joined is a state of its own, not a disabled button: full colour, a check */
+    if (joined) { btn.disabled = false; btn.onclick = null; btn.innerHTML = '<svg class="ic"><use href="#i-check"/></svg> You\'re in · race #' + pad((r && r.number) || 0); }
     else if (r && r.phase === 'lobby') { btn.disabled = false; btn.textContent = 'Join race #' + pad(r.number || 0); }
     else { btn.disabled = true; btn.textContent = 'Queue closed · next race'; }
   }
@@ -6258,7 +6347,8 @@ window.MR_TYPES = true;
     twitter: $('#lpTwitter').value.trim().slice(0, 200),
     telegram: $('#lpTelegram').value.trim().slice(0, 200),
     website: $('#lpWebsite').value.trim().slice(0, 200),
-    buyback: $('#lpBuyback').checked
+    buyback: $('#lpBuyback').checked,
+    buyEth: $('#lpBuy').value.trim().replace(',', '.')
   });
   function paintLaunchPreview() {
     const f = lpField();
@@ -6297,6 +6387,65 @@ window.MR_TYPES = true;
       ul.appendChild(li);
     }
   }
+  /* ---- everyone's launches --------------------------------------------------- */
+  const ago = (t) => { const m = Math.max(0, Math.round((Date.now() - t) / 60000)); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; };
+  function tokenCard(l, fresh) {
+    const el = document.createElement('article'); el.className = 'tok' + (fresh ? ' tok--new' : '');
+    const pic = document.createElement('div'); pic.className = 'tok__pic';
+    if (l.image && /^https?:\/\//i.test(l.image)) { const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer'; img.src = l.image; img.onerror = () => { img.remove(); pic.appendChild(marbleCanvas({ material: 'glass', color: l.color, face: l.face || 'doge' }, 46)); }; pic.appendChild(img); }
+    else pic.appendChild(marbleCanvas({ material: 'glass', color: l.color, face: l.face || 'doge' }, 46));
+    const head = document.createElement('div');
+    const nm = document.createElement('div'); nm.className = 'tok__name'; nm.textContent = l.name + ' '; const em = document.createElement('em'); em.textContent = '$' + l.ticker; nm.appendChild(em);
+    const by = document.createElement('div'); by.className = 'tok__by'; by.textContent = 'by ' + short(l.deployer) + ' · ' + ago(l.at); by.title = l.deployer;
+    head.append(nm, by);
+    el.append(pic, head);
+    if (l.desc) { const d = document.createElement('p'); d.className = 'tok__desc'; d.textContent = l.desc; el.appendChild(d); }
+    if (l.buyWei && window.ethers) { const b = document.createElement('div'); b.className = 'tok__buy'; b.textContent = 'creator opening buy ' + ethers.formatEther(l.buyWei) + ' ETH'; el.appendChild(b); }
+    const links = document.createElement('div'); links.className = 'tok__links';
+    const mk = (text, href, cls) => { const a = document.createElement('a'); a.textContent = text; a.href = href; a.target = '_blank'; a.rel = 'noopener'; if (cls) a.className = cls; return a; };
+    links.appendChild(mk('Pons', (CONTRACTS.launchpad.pons.site || 'https://ponsfamily.com') + '/launchpad?search=' + l.token, 'pons'));
+    links.appendChild(mk('Explorer', explorerOf() + '/token/' + l.token));
+    if (l.hash) links.appendChild(mk('Launch tx', explorerOf() + '/tx/' + l.hash));
+    if (l.twitter) links.appendChild(mk('X', l.twitter));
+    if (l.telegram) links.appendChild(mk('Telegram', l.telegram));
+    if (l.website) links.appendChild(mk('Site', l.website));
+    const cp = document.createElement('button'); cp.type = 'button'; cp.textContent = 'Copy CA'; cp.addEventListener('click', () => copy(l.token, 'Contract address')); links.appendChild(cp);
+    el.appendChild(links);
+    return el;
+  }
+  function paintCommunity(freshId) {
+    const list = game.get().launches || [];
+    const grid = $('#communityGrid'); grid.innerHTML = '';
+    for (const l of list) grid.appendChild(tokenCard(l, l.id === freshId));
+    $('#communityEmpty').hidden = list.length > 0;
+    $('#communityCount').textContent = String(list.length);
+    const home = $('#homeLaunchGrid'); home.innerHTML = '';
+    for (const l of list.slice(0, 4)) home.appendChild(tokenCard(l, l.id === freshId));
+    $('#homeLaunches').hidden = list.length === 0;
+  }
+  function onLaunch(d) {
+    game.set({ launches: d.launches || [] });
+    paintCommunity(d.launch && d.launch.id);
+    if (!same(d.launch && d.launch.deployer, wallet.get().address)) toast('New token on the pad: ' + d.launch.name + ' $' + d.launch.ticker + ' by ' + short(d.launch.deployer), 'good');
+  }
+  /* Tells the server about a confirmed launch so it lands on everyone's board;
+     the server checks the receipt on the chain before listing it. */
+  async function reportLaunch(rec) {
+    const w = wallet.get();
+    if (!w.token) return;
+    const body = { token: w.token, hash: rec.hash, tokenAddress: rec.token, curve: rec.curve, name: rec.name, ticker: rec.ticker, desc: rec.desc, image: rec.image, twitter: rec.twitter, telegram: rec.telegram, website: rec.website, color: rec.color, face: rec.face, buyHash: rec.buyHash || '', buyWei: rec.buyWei || '', demo: !!w.demo };
+    for (let i = 0; i < 4; i++) {
+      try {
+        const r = await fetch('/api/launch', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        const out = await r.json();
+        if (r.ok) return out;
+        if (r.status !== 503) { toast('Not listed on the board: ' + (out.error || r.status), 'bad'); return null; }
+      } catch { /* network; try again */ }
+      await new Promise((res) => setTimeout(res, 4000 * (i + 1)));
+    }
+    toast('The board could not confirm the launch on the chain yet; it will be listed when it can.', 'bad');
+    return null;
+  }
   function fillLaunch(l) {
     $('#lpName').value = l.name; $('#lpTicker').value = l.ticker; $('#lpDesc').value = l.desc || ''; $('#lpFace').value = l.face || 'doge'; $('#lpColor').value = l.color || '#ff7a1a';
     $('#lpImg').value = l.image || ''; $('#lpTwitter').value = l.twitter || ''; $('#lpTelegram').value = l.telegram || ''; $('#lpWebsite').value = l.website || ''; $('#lpBuyback').checked = l.buyback !== false;
@@ -6309,6 +6458,18 @@ window.MR_TYPES = true;
     $('#lpLinkTx').href = explorerOf() + '/tx/' + l.hash;
     $('#lpLinkToken').href = explorerOf() + '/token/' + l.token;
     $('#lpLinkPons').href = (CONTRACTS.launchpad.pons.site || 'https://ponsfamily.com') + '/launchpad?search=' + l.token;
+    const buy = $('#lpDoneBuy');
+    if (l.buyHash) {
+      buy.hidden = false;
+      const eth = window.ethers && l.buyWei ? ethers.formatEther(l.buyWei) : '?';
+      const toks = window.ethers && l.buyTokens ? Number(ethers.formatUnits(l.buyTokens, 18)).toLocaleString('en-US', { maximumFractionDigits: 0 }) : null;
+      buy.textContent = '';
+      buy.append('Opening buy: ');
+      const b = document.createElement('b'); b.className = 'mono'; b.textContent = eth + ' ETH'; buy.append(b);
+      if (toks) buy.append(' → ' + toks + ' ' + (l.ticker || ''));
+      const a = document.createElement('a'); a.href = explorerOf() + '/tx/' + l.buyHash; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'transaction';
+      buy.append(' · ', a);
+    } else buy.hidden = true;
     $('#lpCardStatus').textContent = 'LIVE · ' + short(l.token) + ' · ROBINHOOD CHAIN';
     $('#lpCopy').onclick = () => copy(l.token, 'Contract address');
   }
@@ -6325,6 +6486,7 @@ window.MR_TYPES = true;
     } catch { el.textContent = 'quoted by Pons when you launch'; }
   }
   function buildLaunchpad() {
+    $('#homeLaunches [data-go="launch"]').addEventListener('click', (e) => { e.preventDefault(); setScreen('launch'); setTimeout(() => $('#community').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); });
     const sel = $('#lpFace');
     for (const f of RENDER.FACES) { const o = document.createElement('option'); o.value = f; o.textContent = f.toUpperCase(); sel.appendChild(o); }
     sel.value = 'doge';
@@ -6353,11 +6515,17 @@ window.MR_TYPES = true;
       if (!f.name || !f.ticker) return toast('A launch needs a name and a ticker', 'bad');
       launching = true; $('#lpDeploy').disabled = true;
       const line = $('#lpTx');
+      let buyWei = 0n;
+      if (f.buyEth) {
+        try { buyWei = ethers.parseEther(f.buyEth); } catch { buyWei = -1n; }
+        if (buyWei < 0n) { launching = false; $('#lpDeploy').disabled = false; return toast('The opening buy has to be an amount of ETH, like 0.05', 'bad'); }
+      }
       const off = CONTRACTS.onTx((tx) => {
-        if (tx.kind !== 'launch') return;
+        if (tx.kind !== 'launch' && tx.kind !== 'buy') return;
         line.hidden = false; line.dataset.status = tx.status;
-        const fee = tx.fee !== undefined && window.ethers ? ' · fee ' + ethers.formatEther(tx.fee) + ' ETH' : '';
-        $('#lpTxText').textContent = CONTRACTS.labels[tx.status] + ' · launch on Pons' + fee + (tx.hash ? ' · ' + tx.hash.slice(0, 12) + '…' : '') + (tx.error ? ' · ' + tx.error : '');
+        const fee = tx.kind === 'launch' && tx.fee !== undefined && window.ethers ? ' · fee ' + ethers.formatEther(tx.fee) + ' ETH' : '';
+        const amt = tx.kind === 'buy' && tx.wei !== undefined && window.ethers ? ' · ' + ethers.formatEther(tx.wei) + ' ETH' : '';
+        $('#lpTxText').textContent = CONTRACTS.labels[tx.status] + ' · ' + CONTRACTS.kinds[tx.kind] + fee + amt + (tx.hash ? ' · ' + tx.hash.slice(0, 12) + '…' : '') + (tx.error ? ' · ' + tx.error : '');
       });
       try {
         const { tx, res } = await CONTRACTS.launchpad.createToken(w, f);
@@ -6368,6 +6536,16 @@ window.MR_TYPES = true;
           saveLaunches(list); paintLaunches(); showLaunched(rec);
           SOUND.play('win');
           toast('Launched on Pons: ' + short(res.token), 'good');
+          /* the opening buy: a second transaction on the new curve */
+          if (buyWei > 0n && res.curve) {
+            const b = await CONTRACTS.launchpad.openingBuy(w, res.curve, res.token, buyWei);
+            if (b.tx.status === 'confirmed') {
+              rec.buyHash = b.res.hash; rec.buyWei = b.res.wei; rec.buyTokens = b.res.tokens;
+              saveLaunches(list); showLaunched(rec);
+              toast('Opening buy in: ' + ethers.formatEther(buyWei) + ' ETH on the curve', 'good');
+            } else SOUND.play('error');
+          }
+          reportLaunch(rec);
         } else if (tx.status === 'confirmed') {
           toast('The transaction went through but no TokenLaunched event was found; check it on the explorer.', 'bad');
         } else SOUND.play('error');
@@ -6418,7 +6596,7 @@ window.MR_TYPES = true;
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  window.MR = { setScreen, join, vote, openWinners, connectDemo, get current() { return current; }, get mode() { return mode; } };
+  window.MR = { setScreen, join, vote, openWinners, connectDemo, connectWith, get current() { return current; }, get mode() { return mode; } };
 })();
 
 </script>

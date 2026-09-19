@@ -121,6 +121,13 @@
       </div>
     </section>
 
+    <section class="block" id="homeLaunches" hidden>
+      <div class="block__head block__head--row">
+        <div><span class="kicker kicker--plain">LAUNCHED HERE</span><h2>Latest tokens from the pad</h2></div>
+        <a class="btn btn--glass" href="#launch" data-go="launch">All launches</a>
+      </div>
+      <div class="community community--row" id="homeLaunchGrid"></div>
+    </section>
     <section class="block" id="rewards">
       <div class="block__head block__head--row">
         <div><span class="kicker kicker--plain">REWARDS</span><h2>Paid to the winners</h2></div>
@@ -363,7 +370,7 @@
       </div>
       <div class="launch__body">
         <form class="launch__form glass" id="launchForm" autocomplete="off">
-          <div class="wide launch__pons"><span class="kicker kicker--plain">LAUNCHES THROUGH PONS · ROBINHOOD CHAIN</span><span class="dim small">One transaction from your wallet to the Pons V2 factory. Fixed supply of 1,000,000,000, straight into a bonding curve; tradeable from the first block. Fee: <b class="mono" id="lpFee">quoted by Pons when you launch</b> + gas.</span></div>
+          <div class="wide launch__pons"><span class="kicker kicker--plain">LAUNCHES THROUGH PONS · ROBINHOOD CHAIN</span><span class="dim small">Your wallet calls the Pons V2 factory. Fixed supply of 1,000,000,000, straight into a Pons bonding curve, which is the token's liquidity from the first block; when the curve fills, Pons graduates it into a locked Uniswap V4 pool on its own. Fee: <b class="mono" id="lpFee">quoted by Pons when you launch</b> + gas.</span></div>
           <label><span>Token name</span><input id="lpName" maxlength="32" placeholder="Marble Doge" required></label>
           <label><span>Ticker</span><input id="lpTicker" maxlength="10" placeholder="MDOGE" required></label>
           <label class="wide"><span>Description</span><input id="lpDesc" maxlength="200" placeholder="The marble that never loses."></label>
@@ -373,16 +380,18 @@
           <label><span>Telegram <small class="dim">optional</small></span><input id="lpTelegram" placeholder="https://t.me/…"></label>
           <label><span>Website <small class="dim">optional</small></span><input id="lpWebsite" placeholder="https://…"></label>
           <label><span>Colour</span><input type="color" id="lpColor" value="#ff7a1a"></label>
+          <label><span>Opening buy <small class="dim">ETH, optional</small></span><input id="lpBuy" inputmode="decimal" placeholder="0.00" pattern="[0-9]*[.,]?[0-9]*"></label>
           <label class="wide launch__check"><input type="checkbox" id="lpBuyback" checked><span><b>Buyback &amp; lock</b> <small class="dim">a share of trading fees buys the token back and locks it in the Pons vault; you can switch it later</small></span></label>
           <div class="launch__actions wide">
             <button class="btn btn--accent btn--xl" type="button" id="lpDeploy"><svg class="ic"><use href="#i-rocket"/></svg> Launch on Pons</button>
             <button class="btn btn--glass btn--xl" type="submit" id="lpSave">Save draft</button>
           </div>
-          <p class="dim small wide">You pay the Pons launch fee and gas from your own wallet, on Robinhood Chain; the wallet switches network if it has to. The token appears on Pons, on the Robinhood Chain explorer and on the terminals that watch the Pons factory. 70% of its trading fees go to your wallet by Pons' own rules. Nothing here ever sees your keys.</p>
+          <p class="dim small wide">You pay the Pons launch fee and gas from your own wallet, on Robinhood Chain; the wallet switches network if it has to. An opening buy is a second transaction right after: your ETH goes into the token's curve as its first liquidity and the tokens come to your wallet, free of the launch-window snipe tax Pons charges everyone else. The token appears on Pons, on the Robinhood Chain explorer and on the terminals that watch the Pons factory. 70% of its trading fees go to your wallet by Pons' own rules. Nothing here ever sees your keys.</p>
           <div class="tx wide" id="lpTx" hidden><i></i><span id="lpTxText"></span></div>
           <div class="launch__done glass wide" id="lpDone" hidden>
             <span class="kicker kicker--plain">LIVE ON ROBINHOOD CHAIN</span>
             <b class="mono" id="lpDoneToken"></b>
+            <span class="dim small" id="lpDoneBuy" hidden></span>
             <div class="launch__links"><a class="btn btn--glass" id="lpLinkTx" target="_blank" rel="noopener">Transaction</a><a class="btn btn--glass" id="lpLinkToken" target="_blank" rel="noopener">Explorer</a><a class="btn btn--accent" id="lpLinkPons" target="_blank" rel="noopener">Open on Pons</a><button class="btn btn--glass" type="button" id="lpCopy">Copy CA</button></div>
           </div>
         </form>
@@ -409,6 +418,14 @@
           </div>
         </aside>
       </div>
+      <section class="block" id="community">
+        <div class="block__head block__head--row">
+          <div><span class="kicker kicker--plain">LAUNCHED HERE</span><h2>Everyone's launches</h2></div>
+          <div class="rewards__total glass"><em>TOKENS LAUNCHED</em><b class="mono gold" id="communityCount">0</b></div>
+        </div>
+        <div class="community" id="communityGrid"></div>
+        <div class="empty glass" id="communityEmpty">No token launched through MarbleRush yet. Yours could be the first.</div>
+      </section>
       <div class="block block--split launch__how">
         <div class="glass panel">
           <span class="kicker kicker--plain">HOW A LAUNCH WORKS</span>

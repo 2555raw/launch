@@ -125,7 +125,14 @@
       'event TokenLaunched(address indexed token,address indexed curve,address indexed deployer,address pairToken,uint256 launchConfigId,uint256 graduationThreshold)'
     ],
     /* the live factory's selector for that launchToken; checked before sending */
-    selector: '0xf35abbcf'
+    selector: '0xf35abbcf',
+    /* the bonding curve every launch trades on until it graduates */
+    curveAbi: [
+      'function buy(uint256 quoteIn,uint256 minTokensOut,address recipient) payable returns (uint256 tokensOut)',
+      'function graduated() view returns (bool)',
+      'function getReserves() view returns (uint256 quoteReserve_, uint256 tokenReserve_)'
+    ],
+    erc20Abi: ['event Transfer(address indexed from,address indexed to,uint256 value)']
   };
 
   const rejected = (err) => /reject|denied|cancel/i.test(String(err && (err.message || err)));
@@ -161,6 +168,45 @@
      * spec: { name, ticker, desc, image, twitter, telegram, website, buyback }
      * Resolves { tx, res } where res is { token, curve, hash, links } on success.
      */
+    /**
+     * The creator's opening buy on the new token's Pons bonding curve: the
+     * curve is the token's liquidity from the first block, and this seeds it
+     * from the launcher's own wallet. Pons exempts the launcher from its
+     * launch-window snipe tax. wei is the ETH to spend, as a bigint.
+     */
+    async openingBuy(session, curve, token, wei) {
+      const tx = newTx('buy');
+      const provider = window.WALLET && WALLET.provider;
+      const ethers = window.ethers;
+      const fail = (msg) => { tx.status = 'failed'; tx.error = msg; emitTx(tx); return { tx, res: { error: msg } }; };
+      if (!ethers || !provider || session.demo) return fail('The opening buy needs a real wallet.');
+      if (!curve || !token) return fail('No curve to buy on.');
+      tx.status = 'waiting_wallet'; tx.wei = wei; emitTx(tx);
+      try {
+        await onRobinhood(provider);
+        const bp = new ethers.BrowserProvider(provider);
+        const signer = await bp.getSigner();
+        const me = await signer.getAddress();
+        const c = new ethers.Contract(curve, PONS.curveAbi, signer);
+        const done = await c.graduated().catch(() => false);
+        if (done) return fail('The curve already graduated; trade it on Pons instead.');
+        tx.status = 'confirm'; emitTx(tx);
+        const sent = await c.buy(wei, 0n, me, { value: wei });
+        tx.status = 'pending'; tx.hash = sent.hash; emitTx(tx);
+        const receipt = await sent.wait();
+        if (receipt.status !== 1) return fail('The buy reverted; nothing was spent beyond gas. ' + PONS.explorer + '/tx/' + sent.hash);
+        const erc = new ethers.Interface(PONS.erc20Abi);
+        let tokens = 0n;
+        for (const log of receipt.logs) {
+          if (log.address.toLowerCase() !== token.toLowerCase()) continue;
+          try { const ev = erc.parseLog({ topics: [...log.topics], data: log.data }); if (ev && ev.name === 'Transfer' && ev.args.to.toLowerCase() === me.toLowerCase()) tokens += ev.args.value; } catch { /* not a Transfer */ }
+        }
+        tx.status = 'confirmed'; tx.tokens = tokens; emitTx(tx);
+        return { tx, res: { hash: sent.hash, wei: wei.toString(), tokens: tokens.toString(), link: PONS.explorer + '/tx/' + sent.hash } };
+      } catch (err) {
+        return fail(rejected(err) ? 'You cancelled the buy in the wallet. The token is live without it.' : (err && (err.shortMessage || err.message)) || 'The buy did not go through.');
+      }
+    },
     async createToken(session, spec) {
       const tx = newTx('launch');
       const provider = window.WALLET && WALLET.provider;
@@ -225,6 +271,7 @@
     labels: {
       idle: 'Ready', waiting_wallet: 'Waiting for wallet', confirm: 'Confirm in your wallet',
       pending: 'Pending', confirmed: 'Confirmed', failed: 'Failed'
-    }
+    },
+    kinds: { launch: 'launch on Pons', buy: 'opening buy on the curve' }
   };
 })();

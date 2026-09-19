@@ -194,6 +194,7 @@
     es.addEventListener('paid', (e) => onPaid(JSON.parse(e.data)));
     es.addEventListener('chat', (e) => feed(JSON.parse(e.data)));
     es.addEventListener('skin', (e) => onSkin(JSON.parse(e.data)));
+    es.addEventListener('launch', (e) => onLaunch(JSON.parse(e.data)));
     es.addEventListener('cheer', (e) => { const d = JSON.parse(e.data); if (SCENE.ready) SCENE.cheer(d.target); });
     es.addEventListener('tick', (e) => {
       const d = JSON.parse(e.data);
@@ -208,7 +209,8 @@
   }
 
   function onState(s) {
-    game.set({ config: s.config, offset: s.now - Date.now(), watching: s.watching, recent: s.recent, top: s.top, schedule: s.schedule || [], rewards: s.rewards || [], paidTotal: s.paidTotal || 0 });
+    game.set({ config: s.config, offset: s.now - Date.now(), watching: s.watching, recent: s.recent, top: s.top, schedule: s.schedule || [], rewards: s.rewards || [], paidTotal: s.paidTotal || 0, launches: s.launches || [] });
+    paintCommunity();
     applyConfig(s.config);
     paintModes();
     $('#feed').innerHTML = '';
@@ -674,9 +676,11 @@
     const w = wallet.get();
     const btn = $('#joinBtn');
     const joined = ui.get().joined;
+    btn.classList.toggle('btn--joined', !!(w.address && joined));
     if (!w.address) { btn.disabled = false; btn.textContent = 'Connect to join'; btn.onclick = () => openWallet(); return; }
     btn.onclick = () => join();
-    if (joined) { btn.disabled = true; btn.textContent = "You're in ✓"; }
+    /* joined is a state of its own, not a disabled button: full colour, a check */
+    if (joined) { btn.disabled = false; btn.onclick = null; btn.innerHTML = '<svg class="ic"><use href="#i-check"/></svg> You\'re in · race #' + pad((r && r.number) || 0); }
     else if (r && r.phase === 'lobby') { btn.disabled = false; btn.textContent = 'Join race #' + pad(r.number || 0); }
     else { btn.disabled = true; btn.textContent = 'Queue closed · next race'; }
   }
@@ -1367,7 +1371,8 @@
     twitter: $('#lpTwitter').value.trim().slice(0, 200),
     telegram: $('#lpTelegram').value.trim().slice(0, 200),
     website: $('#lpWebsite').value.trim().slice(0, 200),
-    buyback: $('#lpBuyback').checked
+    buyback: $('#lpBuyback').checked,
+    buyEth: $('#lpBuy').value.trim().replace(',', '.')
   });
   function paintLaunchPreview() {
     const f = lpField();
@@ -1406,6 +1411,65 @@
       ul.appendChild(li);
     }
   }
+  /* ---- everyone's launches --------------------------------------------------- */
+  const ago = (t) => { const m = Math.max(0, Math.round((Date.now() - t) / 60000)); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; };
+  function tokenCard(l, fresh) {
+    const el = document.createElement('article'); el.className = 'tok' + (fresh ? ' tok--new' : '');
+    const pic = document.createElement('div'); pic.className = 'tok__pic';
+    if (l.image && /^https?:\/\//i.test(l.image)) { const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer'; img.src = l.image; img.onerror = () => { img.remove(); pic.appendChild(marbleCanvas({ material: 'glass', color: l.color, face: l.face || 'doge' }, 46)); }; pic.appendChild(img); }
+    else pic.appendChild(marbleCanvas({ material: 'glass', color: l.color, face: l.face || 'doge' }, 46));
+    const head = document.createElement('div');
+    const nm = document.createElement('div'); nm.className = 'tok__name'; nm.textContent = l.name + ' '; const em = document.createElement('em'); em.textContent = '$' + l.ticker; nm.appendChild(em);
+    const by = document.createElement('div'); by.className = 'tok__by'; by.textContent = 'by ' + short(l.deployer) + ' · ' + ago(l.at); by.title = l.deployer;
+    head.append(nm, by);
+    el.append(pic, head);
+    if (l.desc) { const d = document.createElement('p'); d.className = 'tok__desc'; d.textContent = l.desc; el.appendChild(d); }
+    if (l.buyWei && window.ethers) { const b = document.createElement('div'); b.className = 'tok__buy'; b.textContent = 'creator opening buy ' + ethers.formatEther(l.buyWei) + ' ETH'; el.appendChild(b); }
+    const links = document.createElement('div'); links.className = 'tok__links';
+    const mk = (text, href, cls) => { const a = document.createElement('a'); a.textContent = text; a.href = href; a.target = '_blank'; a.rel = 'noopener'; if (cls) a.className = cls; return a; };
+    links.appendChild(mk('Pons', (CONTRACTS.launchpad.pons.site || 'https://ponsfamily.com') + '/launchpad?search=' + l.token, 'pons'));
+    links.appendChild(mk('Explorer', explorerOf() + '/token/' + l.token));
+    if (l.hash) links.appendChild(mk('Launch tx', explorerOf() + '/tx/' + l.hash));
+    if (l.twitter) links.appendChild(mk('X', l.twitter));
+    if (l.telegram) links.appendChild(mk('Telegram', l.telegram));
+    if (l.website) links.appendChild(mk('Site', l.website));
+    const cp = document.createElement('button'); cp.type = 'button'; cp.textContent = 'Copy CA'; cp.addEventListener('click', () => copy(l.token, 'Contract address')); links.appendChild(cp);
+    el.appendChild(links);
+    return el;
+  }
+  function paintCommunity(freshId) {
+    const list = game.get().launches || [];
+    const grid = $('#communityGrid'); grid.innerHTML = '';
+    for (const l of list) grid.appendChild(tokenCard(l, l.id === freshId));
+    $('#communityEmpty').hidden = list.length > 0;
+    $('#communityCount').textContent = String(list.length);
+    const home = $('#homeLaunchGrid'); home.innerHTML = '';
+    for (const l of list.slice(0, 4)) home.appendChild(tokenCard(l, l.id === freshId));
+    $('#homeLaunches').hidden = list.length === 0;
+  }
+  function onLaunch(d) {
+    game.set({ launches: d.launches || [] });
+    paintCommunity(d.launch && d.launch.id);
+    if (!same(d.launch && d.launch.deployer, wallet.get().address)) toast('New token on the pad: ' + d.launch.name + ' $' + d.launch.ticker + ' by ' + short(d.launch.deployer), 'good');
+  }
+  /* Tells the server about a confirmed launch so it lands on everyone's board;
+     the server checks the receipt on the chain before listing it. */
+  async function reportLaunch(rec) {
+    const w = wallet.get();
+    if (!w.token) return;
+    const body = { token: w.token, hash: rec.hash, tokenAddress: rec.token, curve: rec.curve, name: rec.name, ticker: rec.ticker, desc: rec.desc, image: rec.image, twitter: rec.twitter, telegram: rec.telegram, website: rec.website, color: rec.color, face: rec.face, buyHash: rec.buyHash || '', buyWei: rec.buyWei || '', demo: !!w.demo };
+    for (let i = 0; i < 4; i++) {
+      try {
+        const r = await fetch('/api/launch', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        const out = await r.json();
+        if (r.ok) return out;
+        if (r.status !== 503) { toast('Not listed on the board: ' + (out.error || r.status), 'bad'); return null; }
+      } catch { /* network; try again */ }
+      await new Promise((res) => setTimeout(res, 4000 * (i + 1)));
+    }
+    toast('The board could not confirm the launch on the chain yet; it will be listed when it can.', 'bad');
+    return null;
+  }
   function fillLaunch(l) {
     $('#lpName').value = l.name; $('#lpTicker').value = l.ticker; $('#lpDesc').value = l.desc || ''; $('#lpFace').value = l.face || 'doge'; $('#lpColor').value = l.color || '#ff7a1a';
     $('#lpImg').value = l.image || ''; $('#lpTwitter').value = l.twitter || ''; $('#lpTelegram').value = l.telegram || ''; $('#lpWebsite').value = l.website || ''; $('#lpBuyback').checked = l.buyback !== false;
@@ -1418,6 +1482,18 @@
     $('#lpLinkTx').href = explorerOf() + '/tx/' + l.hash;
     $('#lpLinkToken').href = explorerOf() + '/token/' + l.token;
     $('#lpLinkPons').href = (CONTRACTS.launchpad.pons.site || 'https://ponsfamily.com') + '/launchpad?search=' + l.token;
+    const buy = $('#lpDoneBuy');
+    if (l.buyHash) {
+      buy.hidden = false;
+      const eth = window.ethers && l.buyWei ? ethers.formatEther(l.buyWei) : '?';
+      const toks = window.ethers && l.buyTokens ? Number(ethers.formatUnits(l.buyTokens, 18)).toLocaleString('en-US', { maximumFractionDigits: 0 }) : null;
+      buy.textContent = '';
+      buy.append('Opening buy: ');
+      const b = document.createElement('b'); b.className = 'mono'; b.textContent = eth + ' ETH'; buy.append(b);
+      if (toks) buy.append(' → ' + toks + ' ' + (l.ticker || ''));
+      const a = document.createElement('a'); a.href = explorerOf() + '/tx/' + l.buyHash; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'transaction';
+      buy.append(' · ', a);
+    } else buy.hidden = true;
     $('#lpCardStatus').textContent = 'LIVE · ' + short(l.token) + ' · ROBINHOOD CHAIN';
     $('#lpCopy').onclick = () => copy(l.token, 'Contract address');
   }
@@ -1434,6 +1510,7 @@
     } catch { el.textContent = 'quoted by Pons when you launch'; }
   }
   function buildLaunchpad() {
+    $('#homeLaunches [data-go="launch"]').addEventListener('click', (e) => { e.preventDefault(); setScreen('launch'); setTimeout(() => $('#community').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); });
     const sel = $('#lpFace');
     for (const f of RENDER.FACES) { const o = document.createElement('option'); o.value = f; o.textContent = f.toUpperCase(); sel.appendChild(o); }
     sel.value = 'doge';
@@ -1462,11 +1539,17 @@
       if (!f.name || !f.ticker) return toast('A launch needs a name and a ticker', 'bad');
       launching = true; $('#lpDeploy').disabled = true;
       const line = $('#lpTx');
+      let buyWei = 0n;
+      if (f.buyEth) {
+        try { buyWei = ethers.parseEther(f.buyEth); } catch { buyWei = -1n; }
+        if (buyWei < 0n) { launching = false; $('#lpDeploy').disabled = false; return toast('The opening buy has to be an amount of ETH, like 0.05', 'bad'); }
+      }
       const off = CONTRACTS.onTx((tx) => {
-        if (tx.kind !== 'launch') return;
+        if (tx.kind !== 'launch' && tx.kind !== 'buy') return;
         line.hidden = false; line.dataset.status = tx.status;
-        const fee = tx.fee !== undefined && window.ethers ? ' · fee ' + ethers.formatEther(tx.fee) + ' ETH' : '';
-        $('#lpTxText').textContent = CONTRACTS.labels[tx.status] + ' · launch on Pons' + fee + (tx.hash ? ' · ' + tx.hash.slice(0, 12) + '…' : '') + (tx.error ? ' · ' + tx.error : '');
+        const fee = tx.kind === 'launch' && tx.fee !== undefined && window.ethers ? ' · fee ' + ethers.formatEther(tx.fee) + ' ETH' : '';
+        const amt = tx.kind === 'buy' && tx.wei !== undefined && window.ethers ? ' · ' + ethers.formatEther(tx.wei) + ' ETH' : '';
+        $('#lpTxText').textContent = CONTRACTS.labels[tx.status] + ' · ' + CONTRACTS.kinds[tx.kind] + fee + amt + (tx.hash ? ' · ' + tx.hash.slice(0, 12) + '…' : '') + (tx.error ? ' · ' + tx.error : '');
       });
       try {
         const { tx, res } = await CONTRACTS.launchpad.createToken(w, f);
@@ -1477,6 +1560,16 @@
           saveLaunches(list); paintLaunches(); showLaunched(rec);
           SOUND.play('win');
           toast('Launched on Pons: ' + short(res.token), 'good');
+          /* the opening buy: a second transaction on the new curve */
+          if (buyWei > 0n && res.curve) {
+            const b = await CONTRACTS.launchpad.openingBuy(w, res.curve, res.token, buyWei);
+            if (b.tx.status === 'confirmed') {
+              rec.buyHash = b.res.hash; rec.buyWei = b.res.wei; rec.buyTokens = b.res.tokens;
+              saveLaunches(list); showLaunched(rec);
+              toast('Opening buy in: ' + ethers.formatEther(buyWei) + ' ETH on the curve', 'good');
+            } else SOUND.play('error');
+          }
+          reportLaunch(rec);
         } else if (tx.status === 'confirmed') {
           toast('The transaction went through but no TokenLaunched event was found; check it on the explorer.', 'bad');
         } else SOUND.play('error');
@@ -1527,5 +1620,5 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  window.MR = { setScreen, join, vote, openWinners, connectDemo, get current() { return current; }, get mode() { return mode; } };
+  window.MR = { setScreen, join, vote, openWinners, connectDemo, connectWith, get current() { return current; }, get mode() { return mode; } };
 })();

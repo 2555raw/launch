@@ -158,7 +158,7 @@
   }
   const config = { coin: 'MARBLERUSH', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://robinhoodchain.blockscout.com', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
     maxPlayers: MAX, maxPlayersHigh: MAX_HIGH, modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })) };
-  const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
+  const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, launches: store.launches || [], chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
 
   /* ---- the shims -------------------------------------------------------- */
 
@@ -198,6 +198,8 @@
       emit('skin', { roundId: round.id, player: pubPlayer(pl) });
       return reply(200, { ok: true, player: pubPlayer(pl) });
     }
+    if (path === '/api/launch') { if (!who) return reply(401, { error: 'sign in again' }); if (!/^0x[0-9a-fA-F]{40}$/.test(String(body.tokenAddress || ''))) return reply(400, { error: 'no token address' }); const l = { id: 'T' + now().toString(36), at: now(), token: body.tokenAddress, curve: body.curve || '', deployer: who, hash: body.hash || '', name: String(body.name || 'Token').slice(0, 32), ticker: String(body.ticker || 'TOKEN').toUpperCase().slice(0, 10), desc: String(body.desc || '').slice(0, 200), image: String(body.image || ''), twitter: String(body.twitter || ''), telegram: String(body.telegram || ''), website: String(body.website || ''), color: body.color || '#ff7a1a', face: body.face || '', buyHash: body.buyHash || '', buyWei: body.buyWei || '' }; store.launches = [l].concat((store.launches || []).filter((x) => x.token !== l.token)).slice(0, 100); emit('launch', { launch: l, launches: store.launches.slice(0, 24) }); return reply(200, { ok: true, launch: l }); }
+    if (path === '/api/launches') return reply(200, { launches: store.launches || [] });
     if (path === '/api/chat') { if (!who) return reply(401, { error: 'sign in to chat' }); const pl = round && round.players.find((x) => x.address === who); const m = { from: who, name: (pl && pl.name) || '', text: String(body.text || '').slice(0, 140), at: now() }; store.chat.push(m); emit('chat', m); return reply(200, { ok: true }); }
     if (path === '/api/vote') { if (!who) return reply(401, { error: 'sign in to vote' }); const r = vote(who, String(body.choice || '')); return reply(r.error ? 409 : 200, r); }
     if (path === '/api/cheer') { if (!who) return reply(401, { error: 'sign in to cheer' }); emit('cheer', { from: who, target: body.target, at: now() }); return reply(200, { ok: true }); }

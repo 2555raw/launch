@@ -105,7 +105,7 @@
     if (SCENE.ready) SCENE.setRace(current, players, wallet.get().address);
   }
   function replayFinished(round) {
-    if (round.seed === null || round.seed === undefined || !round.players.length) return;
+    if (round.seed === null || round.seed === undefined || !round.players.length) return false;
     const players = playersOf(round);
     current = RACE.createRace(round.seed, players.map((p) => ({ id: p.address })), { mode: round.mode });
     let guard = 0;
@@ -113,6 +113,7 @@
     for (let i = 0; i < 60; i++) RACE.step(current);
     mode = 'done';
     if (SCENE.ready) SCENE.setRace(current, players, wallet.get().address);
+    return true;
   }
 
   function previewBusy(ts) {
@@ -248,7 +249,9 @@
       if (mode !== 'race' && round.seed !== null) startLive({ seed: round.seed, startAt: round.raceAt, players: round.players });
       if (ui.get().screen !== 'race') setScreen('race');
     } else if (round.phase === 'result') {
-      if (fresh || mode === 'idle' || mode === 'preview') replayFinished(round);
+      /* a race nobody joined has nothing to replay; the world still needs a
+         track in it, so the round's own course stands there, gate shut */
+      if ((fresh || mode === 'idle' || mode === 'preview') && !replayFinished(round)) startPreview(round);
       if (round.winner && !['results', 'home', 'launch', 'fair'].includes(ui.get().screen)) showResults({ winner: round.winner, order: round.order, pot: round.pot, number: round.number, mega: round.mega, mode: round.mode });
     }
     paintStatic();
@@ -355,7 +358,7 @@
       jar.querySelector('.jar__liquid').setAttribute('height', (100 * level).toFixed(1));
       jar.querySelector('.jar__top').setAttribute('cy', (134 - 100 * level).toFixed(1));
     }
-    const text = { filling: 'filling', locked: 'locked for the race', paid: 'paid to the winner' }[state];
+    const text = state === 'paid' && !r.winner ? 'no race · nobody joined' : { filling: 'filling', locked: 'locked for the race', paid: 'paid to the winner' }[state];
     $('#lbPotState').textContent = text; $('#loPotState').textContent = text;
   }
   function drainPot(r) {
@@ -379,7 +382,8 @@
     const phase = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
     $('#dockPhase').textContent = phase; $('#mPhase').textContent = phase; $('#mNo').textContent = no;
     $('#lbNo').textContent = no; $('#loNo').textContent = no; $('#hudNo').textContent = 'RACE ' + no;
-    const potText = usd(r.pot);
+    /* no reading yet is a pot of nothing, not a blank */
+    const potText = usd(r.pot === null || r.pot === undefined ? 0 : r.pot);
     $('#lbPot').textContent = potText; $('#loPot').textContent = potText;
     $('#lbDemo').hidden = !r.potDemo; $('#loDemo').hidden = !r.potDemo;
     paintPot();
@@ -387,7 +391,7 @@
     $('#loMega').hidden = !r.mega;
     $('#commitLine').textContent = r.commit ? 'seed commit · ' + r.commit : '';
     $('#hudTrack').textContent = current ? (modeInfo(current.course.mode).name.toUpperCase() + ' · ' + RENDER.THEMES[(current.course.theme || 0) % RENDER.THEMES.length].name.toUpperCase() + ' · ' + current.course.sections.length + ' SECTIONS') : '';
-    $('#dockPot').textContent = usd(r.pot);
+    $('#dockPot').textContent = usd(r.pot === null || r.pot === undefined ? 0 : r.pot);
     $('#dockNo').textContent = no;
   }
 

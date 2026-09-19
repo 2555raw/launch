@@ -541,7 +541,9 @@
          direction, until it is falling again. The shove is integer arithmetic on
          the marble's index and the step number, so it is the same shove in every
          browser. */
-      if (b.stuck > 72) {
+      /* Never while the gate is shut: a marble waiting in the hopper is not
+         stuck, and a shove there would throw it over the wall. */
+      if (b.stuck > 72 && !st.hold) {
         b.stuck = 36;
         b.kicks = (b.kicks || 0) + 1;
         const k = b.kicks < 5 ? b.kicks : 5;

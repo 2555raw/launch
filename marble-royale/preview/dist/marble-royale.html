@@ -1762,7 +1762,9 @@ window.dispatchEvent(new Event('three-ready'));
          direction, until it is falling again. The shove is integer arithmetic on
          the marble's index and the step number, so it is the same shove in every
          browser. */
-      if (b.stuck > 72) {
+      /* Never while the gate is shut: a marble waiting in the hopper is not
+         stuck, and a shove there would throw it over the wall. */
+      if (b.stuck > 72 && !st.hold) {
         b.stuck = 36;
         b.kicks = (b.kicks || 0) + 1;
         const k = b.kicks < 5 ? b.kicks : 5;
@@ -3300,6 +3302,7 @@ window.MR_TYPES = true;
       const won = state.finished.length > 0 && (state.t - state.finished[0].time) > 1.4;
       if (state.over || won) mode = 'victory';
       else if (!racing) mode = state.hold ? 'overview' : 'gate';
+      else if (state.t < 5) { mode = 'launch'; cam.lastCut = cam.t; }
       else {
         const lead = state.leader;
         /* battle when a close second is within a few marbles; finish as the
@@ -3315,7 +3318,7 @@ window.MR_TYPES = true;
            camera reads as cutting between shots rather than dithering */
         const held = cam.t - cam.lastCut;
         if (want !== cam.mode && (want === 'finish' ? held > 0.3 : (cam.mode === 'battle' ? held > 3 : held > 2))) { mode = want; cam.lastCut = cam.t; }
-        else mode = cam.mode === 'idle' || cam.mode === 'overview' || cam.mode === 'gate' ? want : cam.mode;
+        else mode = cam.mode === 'idle' || cam.mode === 'overview' || cam.mode === 'gate' || cam.mode === 'launch' ? want : cam.mode;
       }
       cam.mode = mode;
     }
@@ -3341,9 +3344,24 @@ window.MR_TYPES = true;
         break;
       }
       case 'gate': {
-        target = world(500, 470, 0.2);
-        pos = add(world(500 + Math.sin(cam.t * 0.6) * 120, -260, 0), UP, 3.0);
-        fov = 44; rate = 1.8; lookRate = 2.2;
+        /* the countdown: high behind the hopper, the gate and the whole
+           field in frame, drifting a little so the wait is not a freeze */
+        target = world(500, 520, 0.1);
+        pos = add(world(500 + Math.sin(cam.t * 0.4) * 90, -520, 0), UP, 4.6);
+        fov = 48; rate = 1.6; lookRate = 2.0;
+        break;
+      }
+      case 'launch': {
+        /* the first seconds: the same high shot, now sliding down the
+           course with the pack so the whole field is seen leaving the gate
+           before the camera cuts in close on the leader */
+        let sx = 0, sy = 0, n = 0;
+        for (const b of state.balls) if (!b.done) { sx += b.x; sy += b.y; n++; }
+        const px = n ? sx / n : 500, py = n ? sy / n : 500;
+        const k = Math.min(1, state.t / 5);
+        target = world(px * 0.5 + 250, py + 260, 0);
+        pos = add(world(px * 0.3 + 350, py - 760 + k * 260, 0), UP, 4.6 - k * 1.6);
+        fov = 50 + k * 8; rate = 2.2; lookRate = 3.0;
         break;
       }
       case 'follow': {
@@ -3358,9 +3376,9 @@ window.MR_TYPES = true;
         /* low and off to one side of the pair, so the fight fills the frame */
         const x = lead ? lead.x : 500, y = lead ? lead.y : 500;
         const side = x > 500 ? -1 : 1;
-        target = world(x, y + 110, 0.05);
-        pos = add(world(x + side * 300, y - 260, 0), UP, 1.7);
-        fov = 46; rate = 3; lookRate = 4.2;
+        target = world(x, y + 140, 0.05);
+        pos = add(world(x + side * 240, y - 300, 0), UP, 2.4);
+        fov = 48; rate = 3; lookRate = 4.2;
         break;
       }
       case 'finish': {
@@ -3794,7 +3812,7 @@ window.MR_TYPES = true;
     S.race = state;
     S.me = me || null;
     if (!S.course || S.course !== state.course) buildCourse(state.course);
-    for (const m of S.marbles.values()) { S.scene.remove(m.mesh); S.scene.remove(m.shadow); if (m.label) S.scene.remove(m.label); if (m.halo) S.scene.remove(m.halo); }
+    for (const m of S.marbles.values()) { S.scene.remove(m.mesh); S.scene.remove(m.shadow); if (m.label) S.scene.remove(m.label); if (m.labelLead) S.scene.remove(m.labelLead); if (m.halo) S.scene.remove(m.halo); }
     S.marbles.clear();
     S.players.clear();
     S.spinAngle.clear();
@@ -3819,7 +3837,7 @@ window.MR_TYPES = true;
     S.scene.add(shadow);
     const you = address === S.me;
     const name = p.name || (address.startsWith('0x') ? address.slice(0, 5) + '…' + address.slice(-3) : address.slice(0, 4) + '…' + address.slice(-3));
-    const label = textSprite(THREE, name, you ? '#ffb36b' : '#ffffff', 1.05, null, you ? 'YOU' : null);
+    const label = textSprite(THREE, name, you ? '#ffb36b' : '#ffffff', 0.9, null, you ? 'YOU' : null);
     label.visible = false;
     S.scene.add(label);
     S.marbles.set(address, { mesh, shadow, label, you, name });
@@ -3873,8 +3891,9 @@ window.MR_TYPES = true;
     const ranked = [];
     for (const b of st.balls) if (!b.done) ranked.push(b);
     ranked.sort((p, q) => q.y - p.y);
-    const showLabel = new Set();
-    for (let i = 0; i < Math.min(8, ranked.length); i++) showLabel.add(ranked[i].id);
+    /* Every marble on the course carries its name during the race; the one
+       in front carries it in gold. Held (lobby) marbles carry none. */
+    const leadId = ranked.length ? ranked[0].id : null;
 
     for (const b of st.balls) {
       const m = S.marbles.get(b.id);
@@ -3898,9 +3917,20 @@ window.MR_TYPES = true;
       m.shadow.visible = true;
       const sp = W(b.done ? 140 + ((b.place - 1) % 10) * 80 : b.x, b.done ? st.course.finishY + 90 + Math.floor((b.place - 1) / 10) * 44 : b.y, -R * 0.96);
       m.shadow.position.set(sp.x, sp.y, sp.z);
-      const wantLabel = (m.you || showLabel.has(b.id) || (b.done && b.place <= 3)) && !hold;
-      m.label.visible = wantLabel;
-      if (wantLabel) m.label.position.set(p.x + up.x * R * 3.2, p.y + up.y * R * 3.2, p.z + up.z * R * 3.2);
+      const racing = !hold && st.t > 0;
+      const wantLabel = racing && (!b.done || b.place <= 3);
+      const isLead = wantLabel && !b.done && b.id === leadId;
+      if (isLead && !m.labelLead) {
+        m.labelLead = textSprite(THREE, m.name, '#ffd36e', 1.1, null, 'LEADER');
+        m.labelLead.visible = false;
+        S.scene.add(m.labelLead);
+      }
+      m.label.visible = wantLabel && !isLead;
+      if (m.labelLead) m.labelLead.visible = isLead;
+      if (wantLabel) {
+        const lab = isLead ? m.labelLead : m.label;
+        lab.position.set(p.x + up.x * R * 3.2, p.y + up.y * R * 3.2, p.z + up.z * R * 3.2);
+      }
       if (b.done && b.place === 1 && !m.crowned) {
         m.crowned = true;
         const halo = new THREE.Mesh(new THREE.TorusGeometry(R * 1.9, R * 0.16, 8, 32), new THREE.MeshBasicMaterial({ color: '#ffd36e' }));
@@ -4792,7 +4822,9 @@ window.MR_TYPES = true;
       if (cd <= 0) { num.textContent = 'GO!'; num.classList.add('go'); $('#countSub').textContent = 'THE GATE IS OPEN'; }
       else { num.textContent = String(cd); num.classList.remove('go'); $('#countSub').textContent = 'GATE OPENS'; SOUND.play('count'); }
       num.style.animation = 'none'; void num.offsetWidth; num.style.animation = '';
-      if (ui.get().screen === 'lobby' || ui.get().screen === 'home') setScreen('race');
+      /* the switch to the race screen hides every other screen, the count
+         included, so it is shown again after */
+      if (ui.get().screen === 'lobby' || ui.get().screen === 'home') { setScreen('race'); el.hidden = false; }
       if (cd > 0) CAMERA.shake(0.02);
     }
   }
@@ -5048,13 +5080,18 @@ window.MR_TYPES = true;
   function queueUpgrade() {
     if (upgrading) return;
     upgrading = true;
+    /* One picture per idle moment, and none at all while the race or the
+       countdown is on screen: a render there would steal the frame. */
+    const later = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 120));
     const tick = () => {
+      const screen = ui.get().screen;
+      if (screen === 'race' || screen === 'count') { setTimeout(tick, 1500); return; }
       const next = document.querySelector('.mode__img[data-flat]');
       if (!next || !SCENE.ready || !SCENE.snapshot) { upgrading = false; return; }
       fillPic(next);
-      setTimeout(tick, 60);
+      later(tick);
     };
-    setTimeout(tick, 200);
+    later(tick);
   }
   function cloneCanvas(cv) {
     const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; c.style.width = cv.style.width; c.style.height = cv.style.height;

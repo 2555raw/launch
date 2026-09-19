@@ -379,7 +379,7 @@
     S.race = state;
     S.me = me || null;
     if (!S.course || S.course !== state.course) buildCourse(state.course);
-    for (const m of S.marbles.values()) { S.scene.remove(m.mesh); S.scene.remove(m.shadow); if (m.label) S.scene.remove(m.label); if (m.halo) S.scene.remove(m.halo); }
+    for (const m of S.marbles.values()) { S.scene.remove(m.mesh); S.scene.remove(m.shadow); if (m.label) S.scene.remove(m.label); if (m.labelLead) S.scene.remove(m.labelLead); if (m.halo) S.scene.remove(m.halo); }
     S.marbles.clear();
     S.players.clear();
     S.spinAngle.clear();
@@ -404,7 +404,7 @@
     S.scene.add(shadow);
     const you = address === S.me;
     const name = p.name || (address.startsWith('0x') ? address.slice(0, 5) + '…' + address.slice(-3) : address.slice(0, 4) + '…' + address.slice(-3));
-    const label = textSprite(THREE, name, you ? '#ffb36b' : '#ffffff', 1.05, null, you ? 'YOU' : null);
+    const label = textSprite(THREE, name, you ? '#ffb36b' : '#ffffff', 0.9, null, you ? 'YOU' : null);
     label.visible = false;
     S.scene.add(label);
     S.marbles.set(address, { mesh, shadow, label, you, name });
@@ -458,8 +458,9 @@
     const ranked = [];
     for (const b of st.balls) if (!b.done) ranked.push(b);
     ranked.sort((p, q) => q.y - p.y);
-    const showLabel = new Set();
-    for (let i = 0; i < Math.min(8, ranked.length); i++) showLabel.add(ranked[i].id);
+    /* Every marble on the course carries its name during the race; the one
+       in front carries it in gold. Held (lobby) marbles carry none. */
+    const leadId = ranked.length ? ranked[0].id : null;
 
     for (const b of st.balls) {
       const m = S.marbles.get(b.id);
@@ -483,9 +484,20 @@
       m.shadow.visible = true;
       const sp = W(b.done ? 140 + ((b.place - 1) % 10) * 80 : b.x, b.done ? st.course.finishY + 90 + Math.floor((b.place - 1) / 10) * 44 : b.y, -R * 0.96);
       m.shadow.position.set(sp.x, sp.y, sp.z);
-      const wantLabel = (m.you || showLabel.has(b.id) || (b.done && b.place <= 3)) && !hold;
-      m.label.visible = wantLabel;
-      if (wantLabel) m.label.position.set(p.x + up.x * R * 3.2, p.y + up.y * R * 3.2, p.z + up.z * R * 3.2);
+      const racing = !hold && st.t > 0;
+      const wantLabel = racing && (!b.done || b.place <= 3);
+      const isLead = wantLabel && !b.done && b.id === leadId;
+      if (isLead && !m.labelLead) {
+        m.labelLead = textSprite(THREE, m.name, '#ffd36e', 1.1, null, 'LEADER');
+        m.labelLead.visible = false;
+        S.scene.add(m.labelLead);
+      }
+      m.label.visible = wantLabel && !isLead;
+      if (m.labelLead) m.labelLead.visible = isLead;
+      if (wantLabel) {
+        const lab = isLead ? m.labelLead : m.label;
+        lab.position.set(p.x + up.x * R * 3.2, p.y + up.y * R * 3.2, p.z + up.z * R * 3.2);
+      }
       if (b.done && b.place === 1 && !m.crowned) {
         m.crowned = true;
         const halo = new THREE.Mesh(new THREE.TorusGeometry(R * 1.9, R * 0.16, 8, 32), new THREE.MeshBasicMaterial({ color: '#ffd36e' }));

@@ -67,6 +67,7 @@
       const won = state.finished.length > 0 && (state.t - state.finished[0].time) > 1.4;
       if (state.over || won) mode = 'victory';
       else if (!racing) mode = state.hold ? 'overview' : 'gate';
+      else if (state.t < 5) { mode = 'launch'; cam.lastCut = cam.t; }
       else {
         const lead = state.leader;
         /* battle when a close second is within a few marbles; finish as the
@@ -82,7 +83,7 @@
            camera reads as cutting between shots rather than dithering */
         const held = cam.t - cam.lastCut;
         if (want !== cam.mode && (want === 'finish' ? held > 0.3 : (cam.mode === 'battle' ? held > 3 : held > 2))) { mode = want; cam.lastCut = cam.t; }
-        else mode = cam.mode === 'idle' || cam.mode === 'overview' || cam.mode === 'gate' ? want : cam.mode;
+        else mode = cam.mode === 'idle' || cam.mode === 'overview' || cam.mode === 'gate' || cam.mode === 'launch' ? want : cam.mode;
       }
       cam.mode = mode;
     }
@@ -108,9 +109,24 @@
         break;
       }
       case 'gate': {
-        target = world(500, 470, 0.2);
-        pos = add(world(500 + Math.sin(cam.t * 0.6) * 120, -260, 0), UP, 3.0);
-        fov = 44; rate = 1.8; lookRate = 2.2;
+        /* the countdown: high behind the hopper, the gate and the whole
+           field in frame, drifting a little so the wait is not a freeze */
+        target = world(500, 520, 0.1);
+        pos = add(world(500 + Math.sin(cam.t * 0.4) * 90, -520, 0), UP, 4.6);
+        fov = 48; rate = 1.6; lookRate = 2.0;
+        break;
+      }
+      case 'launch': {
+        /* the first seconds: the same high shot, now sliding down the
+           course with the pack so the whole field is seen leaving the gate
+           before the camera cuts in close on the leader */
+        let sx = 0, sy = 0, n = 0;
+        for (const b of state.balls) if (!b.done) { sx += b.x; sy += b.y; n++; }
+        const px = n ? sx / n : 500, py = n ? sy / n : 500;
+        const k = Math.min(1, state.t / 5);
+        target = world(px * 0.5 + 250, py + 260, 0);
+        pos = add(world(px * 0.3 + 350, py - 760 + k * 260, 0), UP, 4.6 - k * 1.6);
+        fov = 50 + k * 8; rate = 2.2; lookRate = 3.0;
         break;
       }
       case 'follow': {
@@ -125,9 +141,9 @@
         /* low and off to one side of the pair, so the fight fills the frame */
         const x = lead ? lead.x : 500, y = lead ? lead.y : 500;
         const side = x > 500 ? -1 : 1;
-        target = world(x, y + 110, 0.05);
-        pos = add(world(x + side * 300, y - 260, 0), UP, 1.7);
-        fov = 46; rate = 3; lookRate = 4.2;
+        target = world(x, y + 140, 0.05);
+        pos = add(world(x + side * 240, y - 300, 0), UP, 2.4);
+        fov = 48; rate = 3; lookRate = 4.2;
         break;
       }
       case 'finish': {

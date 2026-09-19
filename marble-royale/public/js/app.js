@@ -170,7 +170,9 @@
       if (cd <= 0) { num.textContent = 'GO!'; num.classList.add('go'); $('#countSub').textContent = 'THE GATE IS OPEN'; }
       else { num.textContent = String(cd); num.classList.remove('go'); $('#countSub').textContent = 'GATE OPENS'; SOUND.play('count'); }
       num.style.animation = 'none'; void num.offsetWidth; num.style.animation = '';
-      if (ui.get().screen === 'lobby' || ui.get().screen === 'home') setScreen('race');
+      /* the switch to the race screen hides every other screen, the count
+         included, so it is shown again after */
+      if (ui.get().screen === 'lobby' || ui.get().screen === 'home') { setScreen('race'); el.hidden = false; }
       if (cd > 0) CAMERA.shake(0.02);
     }
   }
@@ -426,13 +428,18 @@
   function queueUpgrade() {
     if (upgrading) return;
     upgrading = true;
+    /* One picture per idle moment, and none at all while the race or the
+       countdown is on screen: a render there would steal the frame. */
+    const later = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 120));
     const tick = () => {
+      const screen = ui.get().screen;
+      if (screen === 'race' || screen === 'count') { setTimeout(tick, 1500); return; }
       const next = document.querySelector('.mode__img[data-flat]');
       if (!next || !SCENE.ready || !SCENE.snapshot) { upgrading = false; return; }
       fillPic(next);
-      setTimeout(tick, 60);
+      later(tick);
     };
-    setTimeout(tick, 200);
+    later(tick);
   }
   function cloneCanvas(cv) {
     const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; c.style.width = cv.style.width; c.style.height = cv.style.height;

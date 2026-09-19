@@ -10,6 +10,7 @@ import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { join, extname, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFile } from 'node:fs/promises';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const PORT = Number(process.env.PORT) || 8080;
@@ -73,6 +74,28 @@ async function resolve(urlPath) {
   }
 }
 
+/* The contract address can arrive from the environment instead of from a
+   commit. TOKEN_CA is substituted into token.js as it is served, so it can be
+   published from the host's dashboard and is live on the next request. It is
+   validated here as well as in the browser: an environment holding half an
+   address should leave the site in its pre-launch state, not ship a broken
+   link. */
+const ENV_CA = (() => {
+  const v = (process.env.TOKEN_CA || '').trim();
+  return /^0x[0-9a-fA-F]{40}$/.test(v) && !/^0x0+$/.test(v) ? v : null;
+})();
+const ENV_CHAIN = Number(process.env.TOKEN_CHAIN) || null;
+if (ENV_CA) console.log(`token address from the environment: ${ENV_CA}`);
+
+async function tokenScript() {
+  let js = await readFile(join(ROOT, 'token.js'), 'utf8');
+  if (ENV_CA) js = js.replace('address: null,', `address: ${JSON.stringify(ENV_CA)},`);
+  if (ENV_CHAIN && (ENV_CHAIN === 4663 || ENV_CHAIN === 46630)) {
+    js = js.replace(/chainId: \d+,/, `chainId: ${ENV_CHAIN},`);
+  }
+  return js;
+}
+
 const server = createServer(async (req, res) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { 'allow': 'GET, HEAD' });
@@ -92,6 +115,19 @@ const server = createServer(async (req, res) => {
   }
 
   const ext = extname(hit.full).toLowerCase();
+
+  // token.js is rewritten on the way out when the environment carries an
+  // address, so it is sent from memory rather than streamed off disk
+  if (ENV_CA && hit.full.endsWith(`${sep}token.js`)) {
+    const body = Buffer.from(await tokenScript(), 'utf8');
+    res.writeHead(200, {
+      'content-type': TYPES['.js'],
+      'content-length': body.length,
+      'cache-control': 'no-cache',
+      'x-content-type-options': 'nosniff',
+    });
+    return req.method === 'HEAD' ? res.end() : res.end(body);
+  }
 
   // it already has this exact file: say so and send nothing
   if (req.headers['if-none-match'] === hit.etag) {

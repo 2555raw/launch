@@ -8,14 +8,16 @@
    only CA: when the address exists it goes in beside it and the rest of the
    layout does not move. */
 
-(function caPlaceholder() {
+(function caSlot() {
   const lang = document.querySelector('.nav-lang');
   if (!lang || document.querySelector('.nav-ca')) return;
   const chip = document.createElement('span');
   chip.className = 'nav-ca';
-  chip.title = 'Contract address — at launch';
   chip.innerHTML = '<b>CA</b>';
   lang.parentElement.insertBefore(chip, lang);
+  // token.js decides what goes in it, here and in the hero bar alike; this
+  // only makes sure the slot exists before it looks.
+  if (typeof paintAllCA === 'function') paintAllCA();
 })();
 
 /* ---------- the quick trade, hung off the nav ----------

@@ -997,7 +997,8 @@
      in the browser; the world under the page takes the theme's sky, and the
      race itself is always the dark stage. */
   const THEMES = { legacy: { sky: '#eef2fc', apron: '#dfe6f7', dark: false }, white: { sky: '#f6f6f8', apron: '#e9e9ee', dark: false }, black: { sky: '#07070b', apron: '#08080d', dark: true } };
-  function themeName() { const t = document.documentElement.dataset.theme; return THEMES[t] ? t : 'legacy'; }
+  /* Black is the default; Legacy (blue) and White are the choices. */
+  function themeName() { const t = document.documentElement.dataset.theme; return THEMES[t] ? t : 'black'; }
   function applyBackdrop() {
     if (!SCENE.ready) return;
     const t = THEMES[themeName()];
@@ -1006,7 +1007,7 @@
     SCENE.setBackdrop(dark ? 'dark' : 'light', dark ? { sky: '#07070b', apron: '#08080d' } : { sky: t.sky, apron: t.apron });
   }
   function setTheme(name) {
-    if (!THEMES[name]) name = 'legacy';
+    if (!THEMES[name]) name = 'black';
     if (name === 'legacy') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = name;
     try { localStorage.setItem('mr.theme', name); } catch {}
     $$('.theme').forEach((b) => b.classList.toggle('is-on', b.dataset.theme === name));

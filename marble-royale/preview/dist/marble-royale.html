@@ -3,7 +3,7 @@
 <meta name="description" content="Race your marble. Win the pot. A provably fair marble race every five minutes on Robinhood Chain.">
 <meta property="og:title" content="MARBLERUSH">
 <meta property="og:description" content="Race your marble. Win the pot.">
-<meta name="theme-color" content="#f5f7ff">
+<meta name="theme-color" content="#07070b">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
@@ -762,7 +762,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 @media (prefers-reduced-motion: reduce) { .jar__top { animation: none; } }
 
 </style>
-<script>try{var t=localStorage.getItem('mr.theme');if(t==='black'||t==='white')document.documentElement.dataset.theme=t;}catch(e){}</script>
+<script>(function(){var t='black';try{t=localStorage.getItem('mr.theme')||'black';}catch(e){}if(t==='black'||t==='white')document.documentElement.dataset.theme=t;})();</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js"}}</script>
 <script>document.body.dataset.screen="home";document.body.dataset.phase="lobby";</script>
 <svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -808,8 +808,8 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   </div>
   <div class="top__right">
     <div class="themes" role="group" aria-label="colour theme">
-      <button class="theme is-on" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
-      <button class="theme" data-theme="black" title="Black" aria-label="Black theme"></button>
+      <button class="theme" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
+      <button class="theme is-on" data-theme="black" title="Black" aria-label="Black theme"></button>
       <button class="theme" data-theme="white" title="White" aria-label="White theme"></button>
     </div>
     <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
@@ -1207,8 +1207,8 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   <button class="dock__it" data-dock="fair"><svg class="ic"><use href="#i-shield"/></svg><span>Fair</span></button>
   <button class="dock__it dock__it--wallet" data-dock="wallet"><svg class="ic"><use href="#i-wallet"/></svg><span id="dockWallet">Wallet</span></button>
   <div class="dock__themes" role="group" aria-label="colour theme">
-    <button class="theme is-on" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
-    <button class="theme" data-theme="black" title="Black" aria-label="Black theme"></button>
+    <button class="theme" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
+    <button class="theme is-on" data-theme="black" title="Black" aria-label="Black theme"></button>
     <button class="theme" data-theme="white" title="White" aria-label="White theme"></button>
   </div>
   <div class="dock__stat mono"><em>POT</em><b class="gold" id="dockPot">$0.00</b></div>
@@ -5741,7 +5741,8 @@ window.MR_TYPES = true;
      in the browser; the world under the page takes the theme's sky, and the
      race itself is always the dark stage. */
   const THEMES = { legacy: { sky: '#eef2fc', apron: '#dfe6f7', dark: false }, white: { sky: '#f6f6f8', apron: '#e9e9ee', dark: false }, black: { sky: '#07070b', apron: '#08080d', dark: true } };
-  function themeName() { const t = document.documentElement.dataset.theme; return THEMES[t] ? t : 'legacy'; }
+  /* Black is the default; Legacy (blue) and White are the choices. */
+  function themeName() { const t = document.documentElement.dataset.theme; return THEMES[t] ? t : 'black'; }
   function applyBackdrop() {
     if (!SCENE.ready) return;
     const t = THEMES[themeName()];
@@ -5750,7 +5751,7 @@ window.MR_TYPES = true;
     SCENE.setBackdrop(dark ? 'dark' : 'light', dark ? { sky: '#07070b', apron: '#08080d' } : { sky: t.sky, apron: t.apron });
   }
   function setTheme(name) {
-    if (!THEMES[name]) name = 'legacy';
+    if (!THEMES[name]) name = 'black';
     if (name === 'legacy') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = name;
     try { localStorage.setItem('mr.theme', name); } catch {}
     $$('.theme').forEach((b) => b.classList.toggle('is-on', b.dataset.theme === name));

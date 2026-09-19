@@ -125,7 +125,8 @@
   let countdownShown = -1;
   function frame(ts) {
     requestAnimationFrame(frame);
-    const dt = Math.min(0.05, lastTs ? (ts - lastTs) / 1000 : 0.016);
+    const real = lastTs ? (ts - lastTs) / 1000 : 0.016;
+    const dt = Math.min(0.05, real);
     lastTs = ts;
     const r = game.get().race;
 
@@ -149,7 +150,7 @@
     }
     countdown(cd);
 
-    if (SCENE.ready) { SCENE.sync(dt, { countdown: cd }); SCENE.render(); }
+    if (SCENE.ready) { SCENE.sync(dt, { countdown: cd, camDt: Math.min(0.5, real) }); SCENE.render(); }
     paintClock();
     if (ui.get().screen === 'race') paintHud();
   }

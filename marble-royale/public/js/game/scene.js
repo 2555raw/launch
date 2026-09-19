@@ -506,8 +506,8 @@
 
     updateParticles(dt);
 
-    /* camera */
-    const c = CAMERA.decide(st, dt);
+    /* camera, on the real elapsed time rather than the clamped physics step */
+    const c = CAMERA.decide(st, (opts && opts.camDt) || dt);
     S.camera.position.set(c.pos.x, c.pos.y, c.pos.z);
     S.camera.lookAt(c.look.x, c.look.y, c.look.z);
     if (Math.abs(S.camera.fov - c.fov) > 0.05) { S.camera.fov = c.fov; S.camera.updateProjectionMatrix(); }

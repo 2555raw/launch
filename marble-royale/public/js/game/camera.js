@@ -118,7 +118,7 @@
         const x = lead ? lead.x : 500, y = lead ? lead.y : 500;
         target = world(x * 0.5 + 250, y + 260, 0);
         pos = add(world(x * 0.6 + 200, y - 340, 0), UP, 2.5);
-        fov = 60; rate = 2.8; lookRate = 3.6;
+        fov = 60; rate = 3.6; lookRate = 4.4;
         break;
       }
       case 'battle': {
@@ -155,7 +155,10 @@
     }
 
     cam.wantPos = pos; cam.wantLook = target; cam.wantFov = fov;
-    const a = Math.min(1, dt * rate), b = Math.min(1, dt * lookRate);
+    /* exponential smoothing on the real elapsed time, so a slow frame moves
+       the camera as far as a fast one would have in the same time and the
+       shot never trails the leader on a struggling machine */
+    const a = 1 - Math.exp(-dt * rate), b = 1 - Math.exp(-dt * lookRate);
     cam.pos = v(lerp(cam.pos.x, pos.x, a), lerp(cam.pos.y, pos.y, a), lerp(cam.pos.z, pos.z, a));
     cam.look = v(lerp(cam.look.x, target.x, b), lerp(cam.look.y, target.y, b), lerp(cam.look.z, target.z, b));
     cam.fov = lerp(cam.fov, fov, Math.min(1, dt * 2));

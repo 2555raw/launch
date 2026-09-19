@@ -175,7 +175,7 @@
 
     /* the arena: a wide dark apron either side, and light pylons down the
        course so there is depth to read speed against */
-    const apron = new THREE.Mesh(new THREE.PlaneGeometry(80, height * K + 40), new THREE.MeshStandardMaterial({ color: S.backdrop === 'light' ? '#dfe6f7' : '#08080d', roughness: 0.9, metalness: 0.1 }));
+    const apron = new THREE.Mesh(new THREE.PlaneGeometry(80, height * K + 40), new THREE.MeshStandardMaterial({ color: S.pal ? S.pal.apron : (S.backdrop === 'light' ? '#dfe6f7' : '#08080d'), roughness: 0.9, metalness: 0.1 }));
     S.apronMat = apron.material;
     const am = W(500, height / 2, -R * 1.6);
     apron.position.set(am.x, am.y, am.z);
@@ -602,15 +602,20 @@
   /* The page is bright and the race is a dark stage. Between races the world
      sits on a pale ground under a pale sky, the way a product is shot; when
      the gate opens the lights go down. */
-  function setBackdrop(kind) {
+  function setBackdrop(kind, pal) {
     const THREE = window.THREE;
-    if (!S.ready || S.backdrop === kind) return;
+    const sky = (pal && pal.sky) || (kind === 'light' ? '#eef2fc' : '#07070b');
+    const apron = (pal && pal.apron) || (kind === 'light' ? '#dfe6f7' : '#08080d');
+    const key = kind + sky + apron;
+    if (!S.ready || S.backdropKey === key) return;
     S.backdrop = kind;
+    S.backdropKey = key;
+    S.pal = { sky, apron };
     const light = kind === 'light';
-    S.scene.background.set(light ? '#eef2fc' : '#07070b');
-    S.scene.fog.color.set(light ? '#eef2fc' : '#07070b');
+    S.scene.background.set(sky);
+    S.scene.fog.color.set(sky);
     S.scene.fog.density = light ? 0.016 : 0.022;
-    if (S.apronMat) S.apronMat.color.set(light ? '#dfe6f7' : '#08080d');
+    if (S.apronMat) S.apronMat.color.set(apron);
     S.lights.hemi.color.set(light ? '#ffffff' : '#3a2a1a');
     S.lights.hemi.groundColor.set(light ? '#c9d3ea' : '#05050a');
     S.lights.hemi.intensity = light ? 1.1 : 0.6;
@@ -633,9 +638,9 @@
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
     /* the builder writes into S; hand it a clean slate and take it back after */
-    const saved = { trackGroup: S.trackGroup, moverMeshes: S.moverMeshes, gateLights: S.gateLights, boostMats: S.boostMats, course: S.course, apronMat: S.apronMat, backdrop: S.backdrop };
+    const saved = { trackGroup: S.trackGroup, moverMeshes: S.moverMeshes, gateLights: S.gateLights, boostMats: S.boostMats, course: S.course, apronMat: S.apronMat, backdrop: S.backdrop, pal: S.pal };
     S.trackGroup = null;
-    S.backdrop = 'dark';
+    S.backdrop = 'dark'; S.pal = null;
     const marbles = [];
     for (let i = 0; i < 16; i++) marbles.push({ id: 'p' + i });
     const st = RACE.createRace(seed >>> 0, marbles, { mode: modeId });

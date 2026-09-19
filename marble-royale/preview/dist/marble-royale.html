@@ -19,19 +19,53 @@
    address. */
 
 :root {
+  /* Legacy: the blue one. Black and White override these on <html data-theme>. */
   --bg: #f5f7ff; --bg2: #eaf0ff;
   --glass: #ffffff; --glass2: #f3f6ff; --soft: #e9eefb;
   --line: #e1e7f6; --line2: #ccd6ee;
   --ink: #172038; --ink2: #3f4a68; --dim: #7a85a3;
   --go: #ff7a1a; --go2: #e66a10; --goSoft: #ffe9d8; --goInk: #7a3200;
   --gold: #d98f00; --win: #15a34a; --hot: #e11d48; --cyan: #0ea5e9;
+  --pillbg: rgba(255, 255, 255, .82); --pillline: rgba(255, 255, 255, .95);
+  --softBtn: #e4ebff; --softBtn2: #d9e3ff; --softLine: #d5deff; --softInk: #1f3fb8;
+  --onInk: #ffffff;
+  --veil: radial-gradient(60% 50% at 12% 20%, rgba(190, 205, 255, .55), transparent 70%), radial-gradient(50% 45% at 88% 12%, rgba(215, 205, 255, .5), transparent 70%), radial-gradient(60% 40% at 50% 100%, rgba(200, 220, 255, .55), transparent 70%), linear-gradient(180deg, #ffffff 0%, #eef3ff 45%, #f5f7ff 100%);
+  --sky: #eef2fc; --apron: #dfe6f7;
   --shadow: 0 18px 50px -22px rgba(23, 32, 56, .28), 0 2px 6px -2px rgba(23, 32, 56, .08);
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --disp: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
   --gut: clamp(16px, 4vw, 48px);
   --r: 22px;
 }
-/* The race and the countdown are the dark stage. */
+html[data-theme="white"] {
+  --bg: #ffffff; --bg2: #f7f7f8;
+  --glass: #ffffff; --glass2: #f5f5f7; --soft: #ededf0;
+  --line: #e6e6ea; --line2: #d4d4da;
+  --ink: #111114; --ink2: #3d3d46; --dim: #80808c;
+  --goSoft: #ffe9d8; --goInk: #7a3200;
+  --gold: #c98400; --win: #15a34a; --hot: #e11d48;
+  --pillbg: rgba(255, 255, 255, .9); --pillline: #e6e6ea;
+  --softBtn: #f0f0f3; --softBtn2: #e6e6ea; --softLine: #dcdce2; --softInk: #111114;
+  --onInk: #ffffff;
+  --veil: linear-gradient(180deg, #ffffff 0%, #fafafb 100%);
+  --sky: #f6f6f8; --apron: #e9e9ee;
+  --shadow: 0 14px 40px -22px rgba(0, 0, 0, .18), 0 1px 3px rgba(0, 0, 0, .05);
+}
+html[data-theme="black"] {
+  --bg: #07070b; --bg2: #0c0c12;
+  --glass: #101016; --glass2: #17171f; --soft: rgba(255, 255, 255, .07);
+  --line: rgba(255, 255, 255, .09); --line2: rgba(255, 255, 255, .17);
+  --ink: #f2efe9; --ink2: #c9c4bb; --dim: #8a8797;
+  --goSoft: rgba(255, 122, 26, .16); --goInk: #ffb36b;
+  --gold: #ffc857; --win: #6fe3a1; --hot: #ff4d6d; --cyan: #6ee7ff;
+  --pillbg: rgba(12, 12, 18, .82); --pillline: rgba(255, 255, 255, .12);
+  --softBtn: rgba(255, 255, 255, .07); --softBtn2: rgba(255, 255, 255, .12); --softLine: rgba(255, 255, 255, .14); --softInk: #f2efe9;
+  --onInk: #07070b;
+  --veil: radial-gradient(50% 40% at 15% 10%, rgba(255, 122, 26, .12), transparent 70%), radial-gradient(45% 40% at 85% 90%, rgba(255, 200, 87, .08), transparent 70%), linear-gradient(180deg, #0a0a10 0%, #07070b 100%);
+  --sky: #07070b; --apron: #08080d;
+  --shadow: 0 30px 80px -40px rgba(0, 0, 0, .9);
+}
+/* The race and the countdown are the dark stage, whatever the theme. */
 body[data-screen="race"], body[data-screen="count"] {
   --bg: #07070b; --bg2: #0c0c12;
   --glass: rgba(13, 13, 20, .72); --glass2: rgba(20, 20, 30, .78); --soft: rgba(255, 255, 255, .08);
@@ -39,6 +73,7 @@ body[data-screen="race"], body[data-screen="count"] {
   --ink: #f2efe9; --ink2: #c9c4bb; --dim: #8a8797;
   --goSoft: rgba(255, 122, 26, .16); --goInk: #ffb36b;
   --gold: #ffc857; --win: #6fe3a1; --hot: #ff4d6d; --cyan: #6ee7ff;
+  --pillbg: rgba(9, 9, 14, .7); --pillline: rgba(255, 255, 255, .16); --onInk: #07070b;
   --shadow: 0 30px 80px -40px rgba(0, 0, 0, .9);
 }
 * { box-sizing: border-box; }
@@ -51,8 +86,8 @@ body {
 h1, h2, h3 { text-wrap: balance; }
 .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; vertical-align: -3px; }
 .tag { display: inline-block; font-family: var(--mono); font-style: normal; font-size: 9px; letter-spacing: .14em; font-weight: 700; padding: 2px 6px; border-radius: 999px; vertical-align: middle; }
-.tag--demo { color: var(--gold); background: #fff3d6; margin-left: 4px; }
-.tag--paid { color: var(--win); background: #dff7e8; }
+.tag--demo { color: var(--gold); background: color-mix(in srgb, var(--gold) 16%, transparent); margin-left: 4px; }
+.tag--paid { color: var(--win); background: color-mix(in srgb, var(--win) 16%, transparent); }
 .tag--due { color: var(--goInk); background: var(--goSoft); }
 button, input { font: inherit; color: inherit; }
 a { color: inherit; }
@@ -72,11 +107,7 @@ code { font-family: var(--mono); font-size: .9em; color: var(--goInk); backgroun
    the page wants the world seen. It lifts for the countdown and the race. */
 .veil {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
-  background:
-    radial-gradient(60% 50% at 12% 20%, rgba(190, 205, 255, .55), transparent 70%),
-    radial-gradient(50% 45% at 88% 12%, rgba(215, 205, 255, .5), transparent 70%),
-    radial-gradient(60% 40% at 50% 100%, rgba(200, 220, 255, .55), transparent 70%),
-    linear-gradient(180deg, #ffffff 0%, #eef3ff 45%, #f5f7ff 100%);
+  background: var(--veil);
   transition: opacity .35s ease;
   --hx: 50vw; --hy: 60vh; --hw: 0px; --hh: 0px;
 }
@@ -104,11 +135,8 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacit
 .top > * { pointer-events: auto; }
 .top__left, .top__right {
   display: flex; align-items: center; gap: 4px; padding: 6px 8px;
-  background: rgba(255, 255, 255, .8); border: 1px solid rgba(255, 255, 255, .95); border-radius: 999px;
+  background: var(--pillbg); border: 1px solid var(--pillline); border-radius: 999px;
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: var(--shadow);
-}
-body[data-screen="race"] .top__left, body[data-screen="race"] .top__right, body[data-screen="count"] .top__left, body[data-screen="count"] .top__right {
-  background: rgba(9, 9, 14, .7); border-color: var(--line2);
 }
 .top__left { padding-left: 14px; }
 .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; margin-right: 8px; }
@@ -161,8 +189,8 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
 }
 .btn--accent:hover { background: linear-gradient(180deg, #ff9d52, #f5731a); box-shadow: 0 14px 34px -12px rgba(255, 122, 26, 1); }
 .btn--glass { background: var(--glass); }
-.btn--soft { background: #e4ebff; border-color: #d5deff; color: #1f3fb8; }
-.btn--soft:hover { background: #d9e3ff; }
+.btn--soft { background: var(--softBtn); border-color: var(--softLine); color: var(--softInk); }
+.btn--soft:hover { background: var(--softBtn2); }
 .btn--ghost { background: transparent; border-color: transparent; color: var(--dim); box-shadow: none; }
 .btn--danger { border-color: rgba(225, 29, 72, .4); color: var(--hot); }
 .btn--icon { padding: 10px 12px; }
@@ -201,7 +229,7 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .trust span { font-size: 12px; color: var(--dim); line-height: 1.4; }
 .stagewrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--gut); }
 .stage { position: relative; height: clamp(260px, 42vw, 460px); border-radius: 28px; }
-.stage__tag { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: .2em; color: var(--ink2); background: rgba(255, 255, 255, .85); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
+.stage__tag { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: .2em; color: var(--ink2); background: var(--pillbg); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
 .hero h1 {
   font-size: clamp(44px, 7vw, 98px); font-weight: 700; line-height: .96; letter-spacing: -.045em;
   margin: 18px 0 22px; color: var(--ink); white-space: nowrap;
@@ -360,11 +388,11 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--results { display: grid; place-items: center; padding: calc(80px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .results { width: min(560px, 100%); padding: 28px; text-align: center; display: grid; gap: 16px; animation: rise .5s cubic-bezier(.2, 1.4, .4, 1) both; }
-.results__cup { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: linear-gradient(180deg, #fff3d6, #ffe0a8); color: var(--gold); box-shadow: 0 14px 30px -14px rgba(217, 143, 0, .6); }
+.results__cup { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: color-mix(in srgb, var(--gold) 22%, var(--glass)); color: var(--gold); box-shadow: 0 14px 30px -14px rgba(217, 143, 0, .6); }
 .results__cup .ic { width: 30px; height: 30px; }
 .podium { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; }
 .podium li { display: grid; grid-template-columns: 44px 36px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); }
-.podium li:first-child { background: linear-gradient(90deg, #fff3d6, #ffe9d8); border-color: #f2c86b; }
+.podium li:first-child { background: color-mix(in srgb, var(--gold) 14%, var(--glass)); border-color: color-mix(in srgb, var(--gold) 55%, transparent); }
 .podium .place { font-family: var(--mono); font-weight: 700; font-size: 16px; color: var(--gold); }
 .podium li:not(:first-child) .place { color: var(--dim); }
 .podium canvas { width: 36px; height: 36px; border-radius: 50%; }
@@ -427,7 +455,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .toast {
   position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60;
-  padding: 10px 16px; border-radius: 999px; background: var(--ink); color: #fff; border: 1px solid var(--ink); font-size: 13.5px;
+  padding: 10px 16px; border-radius: 999px; background: var(--ink); color: var(--onInk); border: 1px solid var(--ink); font-size: 13.5px;
   box-shadow: 0 20px 50px -20px rgba(23, 32, 56, .6); animation: rise .25s ease; max-width: calc(100% - 32px);
 }
 .toast.good { border-color: var(--win); }
@@ -495,13 +523,22 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .poll__done em { font-style: normal; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--dim); }
 .poll__done b { font-size: 26px; font-weight: 800; color: var(--gold); }
 
+/* ---- themes --------------------------------------------------------------- */
+
+.themes { display: flex; gap: 4px; padding: 3px; margin-right: 4px; border-radius: 999px; background: var(--soft); }
+.theme { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+.theme[data-theme="legacy"] { background: linear-gradient(135deg, #dfe7ff, #7f9dff); }
+.theme[data-theme="black"] { background: linear-gradient(135deg, #2a2a36, #07070b); }
+.theme[data-theme="white"] { background: linear-gradient(135deg, #ffffff, #e2e2e8); }
+.theme.is-on { border-color: var(--go); }
+
 /* ---- the dock ------------------------------------------------------------- */
 
 .dock {
   position: fixed; left: 14px; top: 50%; transform: translateY(-50%); z-index: 20;
   display: flex; flex-direction: column; align-items: stretch; gap: 4px; padding: 8px;
   width: 92px;
-  background: rgba(255, 255, 255, .82); border: 1px solid rgba(255, 255, 255, .95); border-radius: 26px;
+  background: var(--pillbg); border: 1px solid var(--pillline); border-radius: 26px;
   backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3);
   box-shadow: var(--shadow);
   max-height: calc(100vh - 140px); overflow: auto; scrollbar-width: none;
@@ -528,8 +565,8 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 .dock__stat em { font-style: normal; font-size: 8.5px; letter-spacing: .16em; color: var(--dim); }
 .dock__stat b { font-size: 13px; font-weight: 700; }
 @keyframes blink { 50% { opacity: .35; } }
-.screen--home, .screen--lobby, .screen--launch { padding-bottom: 40px; }
-@media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
+.screen--home, .screen--lobby, .screen--launch, .screen--fair { padding-bottom: 40px; }
+@media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--fair, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
 
 /* ---- winners -------------------------------------------------------------- */
 
@@ -541,6 +578,17 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 .wlist li .st { grid-column: 2 / -1; color: var(--dim); font-size: 10.5px; }
 .wlist li .pot { text-align: right; }
 .wlist li.dim { padding: 10px 0; }
+
+/* ---- fair ----------------------------------------------------------------- */
+
+.fair__how .steps { margin-top: 12px; }
+.fair__pick { display: flex; gap: 8px; margin: 10px 0; }
+.fair__select { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 999px; border: 1px solid var(--line2); background: var(--glass); color: var(--ink); font-size: 14px; }
+.fair__out { margin: 0; padding: 14px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); font-size: 11.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; color: var(--ink2); min-height: 120px; }
+.fair__verdict { margin-top: 10px; padding: 12px 14px; border-radius: 14px; font-weight: 700; }
+.fair__verdict.ok { color: var(--win); background: color-mix(in srgb, var(--win) 14%, transparent); }
+.fair__verdict.no { color: var(--hot); background: color-mix(in srgb, var(--hot) 14%, transparent); }
+.screen--fair { padding-bottom: 40px; }
 
 /* ---- the launchpad -------------------------------------------------------- */
 
@@ -559,7 +607,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
   width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line2); background: var(--glass); color: var(--ink); font-size: 14px;
 }
 .launch__form input:focus, .launch__form select:focus { outline: none; border-color: var(--go); box-shadow: 0 0 0 3px rgba(255, 122, 26, .2); }
-.launch__form select option { background: #fff; }
+.launch__form select option { background: var(--glass); }
 .launch__form input[type="color"] { padding: 4px; height: 42px; cursor: pointer; }
 .launch__form input[type="range"] { padding: 0; accent-color: var(--go); height: 42px; background: transparent; border: 0; }
 .launch__actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -653,7 +701,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 @keyframes slosh { 50% { transform: translateX(2px) scaleY(1.25); } }
 .jar[data-state="locked"] .jar__top, .jar[data-state="paid"] .jar__top { animation: none; }
 .jar[data-state="locked"] svg path:nth-of-type(2) { stroke: var(--gold); }
-.jar__lock { position: absolute; right: -6px; top: 12px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease; }
+.jar__lock { position: absolute; right: -6px; top: 12px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--onInk); opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease; }
 .jar__lock .ic { width: 12px; height: 12px; }
 .jar[data-state="locked"] .jar__lock { opacity: 1; transform: none; }
 .jar__state { font-size: 9.5px; letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
@@ -663,6 +711,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 @media (prefers-reduced-motion: reduce) { .jar__top { animation: none; } }
 
 </style>
+<script>try{var t=localStorage.getItem('mr.theme');if(t==='black'||t==='white')document.documentElement.dataset.theme=t;}catch(e){}</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js"}}</script>
 <script>document.body.dataset.screen="home";document.body.dataset.phase="lobby";</script>
 <svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -699,7 +748,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
       <a href="#" data-go="lobby">Lobby</a>
       <a href="#" data-goto="modes">Modes</a>
       <a href="#" data-go="launch">Launch</a>
-      <a href="/verify" target="_blank" rel="noopener">Fair</a>
+      <a href="#" data-go="fair">Fair</a>
     </nav>
     <div class="top__race" id="topRace">
       <span class="mono" id="topRaceNo">RACE #----</span>
@@ -707,6 +756,11 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
     </div>
   </div>
   <div class="top__right">
+    <div class="themes" role="group" aria-label="colour theme">
+      <button class="theme is-on" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
+      <button class="theme" data-theme="black" title="Black" aria-label="Black theme"></button>
+      <button class="theme" data-theme="white" title="White" aria-label="White theme"></button>
+    </div>
     <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
     <button class="btn btn--accent" id="walletBtn"><span class="btn__dot"></span><span id="walletLabel">Connect wallet</span></button>
   </div>
@@ -810,7 +864,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
         <h3>The seed is fixed before anyone joins</h3>
         <p>The server publishes <code>sha256(secret)</code> when a race opens. When the queue closes, the seed is <code>sha256(secret + the field)</code> and the secret is revealed. Anyone can replay the race from the seed and check the winner.</p>
         <p class="mono dim" id="commitLine"></p>
-        <a class="btn btn--glass" href="/verify" target="_blank" rel="noopener">Verify a past race</a>
+        <a class="btn btn--glass" href="#" data-go="fair">Verify a past race</a>
       </div>
     </section>
 
@@ -825,7 +879,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
           </div>
         </div>
         <div class="foot__col"><b>Play</b><a href="#" data-go="lobby">Lobby</a><a href="#" data-goto="modes">Game modes</a><a href="#" data-goto="results">Latest races</a><a href="#" data-dock="winners">Winners</a></div>
-        <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="/verify" target="_blank" rel="noopener">Verify a race</a><a href="/admin" target="_blank" rel="noopener">Creator console</a></div>
+        <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="#" data-go="fair">Verify a race</a></div>
         <div class="foot__col"><b>Trust</b><span class="dim">Seed committed before the field closes. Replay any race from its seed. No custody, no private keys, nothing signed but a login message.</span></div>
       </div>
       <div class="foot__line dim"><span>© 2026 Marble Royale · Robinhood Chain</span><span>A game, not financial advice. Entry is free; prizes are sent by the creator by hand.</span></div>
@@ -956,7 +1010,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
           <button class="btn btn--glass" id="resCopy">Copy address</button>
           <a class="btn btn--accent" id="resSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
         </div>
-        <span class="dim small">The creator sends the whole pot to first place. <a href="/verify" target="_blank" rel="noopener">Verify this race</a>.</span>
+        <span class="dim small">The creator sends the whole pot to first place. <a href="#" data-go="fair" data-verify-last>Verify this race</a>.</span>
       </div>
       <div class="poll" id="poll" hidden>
         <div class="poll__head"><span class="kicker kicker--plain">VOTE THE NEXT TRACK</span><span class="mono dim" id="pollClock"></span></div>
@@ -969,6 +1023,46 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
       </div>
     </div>
   </section>
+  <!-- ---------- FAIR ---------- -->
+  <section class="screen screen--launch screen--fair" id="s-fair" hidden>
+    <div class="launch">
+      <div class="launch__head">
+        <span class="kicker kicker--plain">PROVABLY FAIR</span>
+        <h2>Nobody picks the winner. Not even us.</h2>
+        <p>Every race is decided by a seed that nobody can choose, and every race can be replayed by anyone, on any computer, to check that the marble that was paid is the marble that won.</p>
+      </div>
+      <div class="launch__body">
+        <div class="glass panel fair__how">
+          <span class="kicker kicker--plain">HOW THE SEED IS MADE</span>
+          <ol class="steps">
+            <li><b>A secret, before anyone joins</b><span>When a race opens the server draws a random secret and publishes only its hash, <code>sha256(secret)</code>. The hash is on the lobby the whole time. The secret cannot change afterwards without the hash changing.</span></li>
+            <li><b>The field closes, the seed is fixed</b><span>When the queue closes, the seed is <code>sha256(secret + "|" + the list of players)</code>. It depends on a secret fixed before anyone joined and on a field nobody can edit afterwards, so the server cannot look at who joined and pick a seed where its own wallet wins.</span></li>
+            <li><b>The secret is revealed</b><span>The moment the race starts the secret is published with the seed. Anyone can hash it and compare it with the promise made at the start.</span></li>
+            <li><b>The race is replayed everywhere</b><span>The same engine runs on the server and in every browser, using only arithmetic that every computer does identically. Given the seed and the field, the course, the start slots and every bounce come out the same, so the winner does too.</span></li>
+          </ol>
+          <p class="dim small">The game mode is chosen by vote before the seed exists, so it changes nothing about this. Cheers are confetti: they are deliberately not part of the physics.</p>
+        </div>
+        <aside class="launch__prev">
+          <div class="glass panel">
+            <span class="kicker kicker--plain">VERIFY A RACE</span>
+            <p class="dim small">Pick a finished race. Your browser fetches its record, checks the hash, recomputes the seed and replays the race from it.</p>
+            <div class="fair__pick">
+              <select id="fairPick" class="fair__select"></select>
+              <button class="btn btn--accent" id="fairRun">Verify</button>
+            </div>
+            <pre class="fair__out mono" id="fairOut">Pick a race and press Verify.</pre>
+            <div class="fair__verdict" id="fairVerdict" hidden></div>
+          </div>
+          <div class="glass panel">
+            <span class="kicker kicker--plain">THIS RACE</span>
+            <p class="mono dim small" id="fairCommit">seed commit · —</p>
+            <p class="dim small">The hash above was published when the current race opened. When it ends you will be able to verify it here.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
   <!-- ---------- LAUNCHPAD ---------- -->
   <section class="screen screen--launch" id="s-launch" hidden>
     <div class="launch">
@@ -1058,7 +1152,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
       <div><span class="kicker kicker--plain">LAST RACES</span><ul class="wlist mono" id="winList"></ul><div class="empty" id="winEmpty">No race has finished yet.</div></div>
       <div><span class="kicker kicker--plain">MOST WINS</span><ul class="wlist mono" id="topList"></ul></div>
     </div>
-    <p class="dim small">Every race is in the log with its seed and secret. <a href="/verify" target="_blank" rel="noopener">Verify any of them</a>.</p>
+    <p class="dim small">Every race is in the log with its seed and secret. <a href="#" data-go="fair" data-close>Verify any of them</a>.</p>
   </div>
 </div>
 
@@ -1163,7 +1257,7 @@ window.dispatchEvent(new Event('three-ready'));
   const WIDTH = 1000;        // course width in course units
   const R = 13;              // marble radius
   const DT = 1 / 60;         // fixed physics step
-  const GRAVITY = 500;
+  const GRAVITY = 430;
   const MAX_SPEED = 1350;
   const WALL_BOUNCE = 0.34;
   const BALL_BOUNCE = 0.46;  // glass on glass clacks; a marble is not a beanbag
@@ -1175,8 +1269,8 @@ window.dispatchEvent(new Event('three-ready'));
   /* A solid ball rolling down a slope picks up only five sevenths of the pull
      a sliding block would; the rest goes into making it spin. */
   const ROLL = 2 / 7;
-  const MAX_SECONDS = 60;    // hard ceiling on a race
-  const RUSH_AT = 40;        // gravity starts climbing here, so races end
+  const MAX_SECONDS = 70;    // hard ceiling on a race
+  const RUSH_AT = 48;        // gravity starts climbing here, so races end
 
   /* ---- deterministic arithmetic ------------------------------------------ */
 
@@ -1217,21 +1311,21 @@ window.dispatchEvent(new Event('three-ready'));
      races in the same mode are never the same track. The mode is public before
      the seed exists, so it changes nothing about the fairness scheme. */
   const MODES = {
-    classic:  { name: 'Classic',      pool: ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers', 'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'], count: [11, 13], gravity: 1, bounce: 1,
-                blurb: 'Everything the course can throw at you: pegs, ramps, spinners, jumps and boost pads, eleven to thirteen sections drawn fresh.' },
-    plinko:   { name: 'Plinko Hell',  pool: ['plinko', 'pegs', 'bumpers', 'plinko', 'pegs'], count: [11, 12], gravity: 1, bounce: 1.15,
+    classic:  { name: 'Classic',      pool: ['pegs', 'zigzag', 'spinners', 'pistons', 'split', 'bumpers', 'funnel', 'stairs', 'plinko', 'flippers', 'jump', 'boost'], count: [12, 14], gravity: 1, bounce: 1,
+                blurb: 'Everything the course can throw at you: pegs, ramps, spinners, jumps and boost pads, twelve to fourteen sections drawn fresh.' },
+    plinko:   { name: 'Plinko Hell',  pool: ['plinko', 'pegs', 'bumpers', 'plinko', 'pegs'], count: [13, 14], gravity: 0.85, bounce: 1.15,
                 blurb: 'Walls of pins and bumpers, nothing else. The field spreads out and mixes; luck does the rest.' },
     boost:    { name: 'Boost Alley',  pool: ['boost', 'jump', 'zigzag', 'boost', 'stairs', 'jump'], count: [10, 12], gravity: 1.1, bounce: 0.9,
                 blurb: 'Boost rails and kickers all the way down. Hit the pads and fly the gaps; miss and drop to the catch ramps.' },
-    spin:     { name: 'Spin Cycle',   pool: ['spinners', 'flippers', 'pistons', 'spinners', 'flippers', 'split'], count: [11, 12], gravity: 1, bounce: 1,
+    spin:     { name: 'Spin Cycle',   pool: ['spinners', 'flippers', 'pistons', 'spinners', 'flippers', 'split'], count: [15, 16], gravity: 0.8, bounce: 1,
                 blurb: 'Spinning arms, fast flippers and sliding pistons. Timing is everything and nobody controls it.' },
     funnel:   { name: 'Funnel Run',   pool: ['funnel', 'split', 'stairs', 'funnel', 'zigzag'], count: [11, 12], gravity: 1, bounce: 0.95,
                 blurb: 'Throats, wedges and steps. The pack squeezes through one gap after another; a good line is a long lead.' },
-    drop:     { name: 'Mega Drop',    pool: ['jump', 'stairs', 'bumpers', 'jump', 'pegs'], count: [9, 10], gravity: 1.35, bounce: 1.05,
-                blurb: 'Fewer sections, steeper fall, bigger jumps. Over in a flash and hard on the marbles.' },
-    ice:      { name: 'Ice Rink',     pool: ['bumpers', 'zigzag', 'split', 'bumpers', 'pistons', 'boost'], count: [11, 12], gravity: 0.9, bounce: 1.3,
+    drop:     { name: 'Mega Drop',    pool: ['jump', 'stairs', 'bumpers', 'jump', 'pegs'], count: [13, 14], gravity: 1.05, bounce: 1.05,
+                blurb: 'Steeper fall, bigger jumps, pegs and bumpers between. Fast through the air and hard on the marbles.' },
+    ice:      { name: 'Ice Rink',     pool: ['bumpers', 'zigzag', 'split', 'bumpers', 'pistons', 'boost'], count: [12, 13], gravity: 0.9, bounce: 1.3,
                 blurb: 'Everything bounces. Bumpers throw marbles across the track and back; the leader changes twenty times.' },
-    maze:     { name: 'The Maze',     pool: ['zigzag', 'stairs', 'split', 'funnel', 'stairs', 'zigzag'], count: [11, 12], gravity: 0.95, bounce: 0.9,
+    maze:     { name: 'The Maze',     pool: ['zigzag', 'stairs', 'split', 'funnel', 'stairs', 'zigzag'], count: [10, 11], gravity: 1.05, bounce: 0.9,
                 blurb: 'Ramps and steps and switchbacks with no straight fall anywhere. The longest course; patience wins it.' }
   };
   const MODE_IDS = Object.keys(MODES);
@@ -1567,7 +1661,7 @@ window.dispatchEvent(new Event('three-ready'));
     if (st.over) return st;
     const c = st.course, balls = st.balls, t = st.t;
     const G0 = st.gravity || GRAVITY;
-    const g = t > RUSH_AT ? G0 * Math.min(3, 1 + (t - RUSH_AT) * 0.16) : G0;
+    const g = t > RUSH_AT ? G0 * Math.min(3.5, 1 + (t - RUSH_AT) * 0.3) : G0;
     /* movers, once per step */
     const dyn = [];
     for (const m of c.movers) moverSegments(m, t, dyn, st.hold);
@@ -3442,7 +3536,7 @@ window.MR_TYPES = true;
 
     /* the arena: a wide dark apron either side, and light pylons down the
        course so there is depth to read speed against */
-    const apron = new THREE.Mesh(new THREE.PlaneGeometry(80, height * K + 40), new THREE.MeshStandardMaterial({ color: S.backdrop === 'light' ? '#dfe6f7' : '#08080d', roughness: 0.9, metalness: 0.1 }));
+    const apron = new THREE.Mesh(new THREE.PlaneGeometry(80, height * K + 40), new THREE.MeshStandardMaterial({ color: S.pal ? S.pal.apron : (S.backdrop === 'light' ? '#dfe6f7' : '#08080d'), roughness: 0.9, metalness: 0.1 }));
     S.apronMat = apron.material;
     const am = W(500, height / 2, -R * 1.6);
     apron.position.set(am.x, am.y, am.z);
@@ -3869,15 +3963,20 @@ window.MR_TYPES = true;
   /* The page is bright and the race is a dark stage. Between races the world
      sits on a pale ground under a pale sky, the way a product is shot; when
      the gate opens the lights go down. */
-  function setBackdrop(kind) {
+  function setBackdrop(kind, pal) {
     const THREE = window.THREE;
-    if (!S.ready || S.backdrop === kind) return;
+    const sky = (pal && pal.sky) || (kind === 'light' ? '#eef2fc' : '#07070b');
+    const apron = (pal && pal.apron) || (kind === 'light' ? '#dfe6f7' : '#08080d');
+    const key = kind + sky + apron;
+    if (!S.ready || S.backdropKey === key) return;
     S.backdrop = kind;
+    S.backdropKey = key;
+    S.pal = { sky, apron };
     const light = kind === 'light';
-    S.scene.background.set(light ? '#eef2fc' : '#07070b');
-    S.scene.fog.color.set(light ? '#eef2fc' : '#07070b');
+    S.scene.background.set(sky);
+    S.scene.fog.color.set(sky);
     S.scene.fog.density = light ? 0.016 : 0.022;
-    if (S.apronMat) S.apronMat.color.set(light ? '#dfe6f7' : '#08080d');
+    if (S.apronMat) S.apronMat.color.set(apron);
     S.lights.hemi.color.set(light ? '#ffffff' : '#3a2a1a');
     S.lights.hemi.groundColor.set(light ? '#c9d3ea' : '#05050a');
     S.lights.hemi.intensity = light ? 1.1 : 0.6;
@@ -3900,9 +3999,9 @@ window.MR_TYPES = true;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
     /* the builder writes into S; hand it a clean slate and take it back after */
-    const saved = { trackGroup: S.trackGroup, moverMeshes: S.moverMeshes, gateLights: S.gateLights, boostMats: S.boostMats, course: S.course, apronMat: S.apronMat, backdrop: S.backdrop };
+    const saved = { trackGroup: S.trackGroup, moverMeshes: S.moverMeshes, gateLights: S.gateLights, boostMats: S.boostMats, course: S.course, apronMat: S.apronMat, backdrop: S.backdrop, pal: S.pal };
     S.trackGroup = null;
-    S.backdrop = 'dark';
+    S.backdrop = 'dark'; S.pal = null;
     const marbles = [];
     for (let i = 0; i < 16; i++) marbles.push({ id: 'p' + i });
     const st = RACE.createRace(seed >>> 0, marbles, { mode: modeId });
@@ -4268,14 +4367,16 @@ window.MR_TYPES = true;
 (function () {
   'use strict';
 
-  const ROUND_MS = 300000, LOBBY_MS = 205000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const ROUND_MS = 300000, LOBBY_MS = 195000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
   const MEGA_EVERY = 1800000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
   const NAMES = ['DEGEN', 'APE', 'WHALE', 'CHAD', 'PAPERHANDS', 'DIAMOND', 'GM', 'WAGMI', 'MOON', 'BAGS', 'ALPHA', 'REKT', 'FOMO', 'HODL', 'SER', 'FREN'];
   const listeners = new Set();
   const emit = (event, data) => { for (const fn of listeners) fn(event, data); };
-  const sha = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16).padStart(8, '0').repeat(8); };
+  /* Real SHA-256, so the page's own verifier passes on a standalone race
+     the same way it does on a served one. */
+  const sha = async (s) => { const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join(''); };
 
   const store = { counter: 0, rounds: [], chat: [] };
   let round = null, timer = null, potTimer = null, botTimer = null, pollTimer = null, voteTimer = null;
@@ -4291,11 +4392,13 @@ window.MR_TYPES = true;
     const secret = rndAddr() + rndAddr();
     round = {
       id: 'R' + startAt, number: ++store.counter, startAt, lockAt: startAt + LOBBY_MS, raceAt: startAt + LOBBY_MS + LOCK_MS, endAt: startAt + ROUND_MS,
-      phase: 'lobby', mega: startAt % MEGA_EVERY === 0, secret, commit: sha(secret), seed: null, players: [], order: null, winner: null, seconds: 0,
+      phase: 'lobby', mega: startAt % MEGA_EVERY === 0, secret, commit: '', seed: null, players: [], order: null, winner: null, seconds: 0,
       pot: 0, potDemo: true, potTarget: 0, max: MAX,
       mode: RACE.MODE_IDS.includes(nextMode) ? nextMode : 'classic', modeBy: RACE.MODE_IDS.includes(nextMode) ? 'vote' : 'default', poll: null
     };
     round.potTarget = round.mega ? 25 : 4 + Math.random() * 3.5;
+    const me = round;
+    sha(secret).then((h) => { if (round === me) { me.commit = h; emit('phase', pub()); } });
     emit('phase', pub());
     /* bots drift in over the queue */
     clearInterval(botTimer);
@@ -4319,18 +4422,23 @@ window.MR_TYPES = true;
   function lock() {
     if (!round || round.phase !== 'lobby') return;
     round.phase = 'locked';
-    round.seed = parseInt(sha(round.secret + '|' + round.players.map((p) => p.address).join(',')).slice(0, 8), 16) >>> 0;
-    emit('phase', pub());
+    const me = round;
+    sha(me.secret + '|' + me.players.map((p) => p.address).join(',')).then((h) => {
+      if (round !== me) return;
+      me.seed = parseInt(h.slice(0, 8), 16) >>> 0;
+      emit('phase', pub());
+    });
     at(round.raceAt, race);
   }
   function race() {
     if (!round || round.phase !== 'locked') return;
+    if (round.seed === null) { setTimeout(race, 20); return; }
     if (!round.players.length) { round.phase = 'result'; round.order = []; emit('phase', pub()); at(round.endAt, close); return; }
     round.phase = 'racing';
     const out = RACE.runToEnd(round.seed, round.players.map((p) => ({ id: p.address })), round.mode);
     round.order = out.order; round.seconds = out.seconds; round.winner = out.order[0].id;
     emit('start', { roundId: round.id, seed: round.seed, secret: round.secret, commit: round.commit, startAt: round.raceAt, mode: round.mode, players: round.players.map(pubPlayer) });
-    setTimeout(result, Math.min(64500, Math.ceil(out.seconds * 1000) + 1400));
+    setTimeout(result, Math.min(74500, Math.ceil(out.seconds * 1000) + 1400));
   }
   function result() {
     if (!round || round.phase !== 'racing') return;
@@ -4453,7 +4561,7 @@ window.MR_TYPES = true;
      by answering the nonce route with a note, and app.js sends whatever the
      wallet returns; a wallet asked to sign that note is fine too. */
   open(Math.floor(now() / ROUND_MS) * ROUND_MS);
-  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 90000; at(round.raceAt, race); emit('phase', pub()); } } };
+  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 100000; at(round.raceAt, race); emit('phase', pub()); } } };
 })();
 
 </script>
@@ -4502,17 +4610,18 @@ window.MR_TYPES = true;
 
   /* ---- screens ----------------------------------------------------------- */
 
-  const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch'];
+  const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch', 'fair'];
   function setScreen(name) {
     if (!SCREENS.includes(name)) return;
     ui.set({ screen: name });
     for (const s of SCREENS) $('#s-' + s).hidden = s !== name;
     document.body.dataset.screen = name;
-    if (name === 'home' || name === 'launch') { CAMERA.setMode('idle'); window.scrollTo(0, 0); }
+    if (name === 'home' || name === 'launch' || name === 'fair') { CAMERA.setMode('idle'); window.scrollTo(0, 0); }
+    if (name === 'fair') paintFair();
     else if (name === 'race') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
     else CAMERA.setMode('auto');
     if (name !== 'home') window.scrollTo(0, 0);
-    if (SCENE.ready) SCENE.setBackdrop(name === 'race' || name === 'count' ? 'dark' : 'light');
+    applyBackdrop();
     paintDock();
   }
   $$('[data-go]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); SOUND.wake(); setScreen(b.dataset.go); }));
@@ -4705,7 +4814,7 @@ window.MR_TYPES = true;
       if (ui.get().screen !== 'race') setScreen('race');
     } else if (round.phase === 'result') {
       if (fresh || mode === 'idle' || mode === 'preview') replayFinished(round);
-      if (round.winner && ui.get().screen !== 'results' && ui.get().screen !== 'home' && ui.get().screen !== 'launch') showResults({ winner: round.winner, order: round.order, pot: round.pot, number: round.number, mega: round.mega, mode: round.mode });
+      if (round.winner && !['results', 'home', 'launch', 'fair'].includes(ui.get().screen)) showResults({ winner: round.winner, order: round.order, pot: round.pot, number: round.number, mega: round.mega, mode: round.mode });
     }
     paintStatic();
     paintLobby();
@@ -4782,7 +4891,7 @@ window.MR_TYPES = true;
     setTimeout(() => { showResults(d); paintPoll(); }, 1400);
     SOUND.play('finish');
     if (SCENE.ready) SCENE.celebrate(d.winner);
-    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top }); paintRecent(); }).catch(() => {});
+    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top }); paintRecent(); if (ui.get().screen === 'fair') paintFair(); }).catch(() => {});
   }
 
   function onPot(d) {
@@ -5420,6 +5529,31 @@ window.MR_TYPES = true;
     $('#skinBtn').addEventListener('click', () => { SOUND.wake(); openModal('m-skin'); });
   }
 
+  /* ---- themes -------------------------------------------------------------------- */
+
+  /* Three looks: Legacy (the blue one), Black and White. The choice is kept
+     in the browser; the world under the page takes the theme's sky, and the
+     race itself is always the dark stage. */
+  const THEMES = { legacy: { sky: '#eef2fc', apron: '#dfe6f7', dark: false }, white: { sky: '#f6f6f8', apron: '#e9e9ee', dark: false }, black: { sky: '#07070b', apron: '#08080d', dark: true } };
+  function themeName() { const t = document.documentElement.dataset.theme; return THEMES[t] ? t : 'legacy'; }
+  function applyBackdrop() {
+    if (!SCENE.ready) return;
+    const t = THEMES[themeName()];
+    const screen = ui.get().screen;
+    const dark = t.dark || screen === 'race' || screen === 'count';
+    SCENE.setBackdrop(dark ? 'dark' : 'light', dark ? { sky: '#07070b', apron: '#08080d' } : { sky: t.sky, apron: t.apron });
+  }
+  function setTheme(name) {
+    if (!THEMES[name]) name = 'legacy';
+    if (name === 'legacy') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = name;
+    try { localStorage.setItem('mr.theme', name); } catch {}
+    $$('.theme').forEach((b) => b.classList.toggle('is-on', b.dataset.theme === name));
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = name === 'black' ? '#07070b' : name === 'white' ? '#ffffff' : '#f5f7ff';
+    applyBackdrop();
+  }
+  $$('.theme').forEach((b) => b.addEventListener('click', () => { SOUND.wake(); setTheme(b.dataset.theme); }));
+
   /* ---- the hero's floating coins and the window onto the track ---------------- */
 
   /* Coin marbles drift round the headline, drawn with the same routine the
@@ -5549,6 +5683,71 @@ window.MR_TYPES = true;
     openModal('m-winners');
   }
 
+  /* ---- fair: verify a race in the page ------------------------------------------- */
+
+  /* The same check /verify does, inside the page, so the one-file build and
+     a phone have it too: hash the secret, recompute the seed from the field,
+     replay the race in its mode, compare the winner with the one paid. */
+  const sha256 = async (text) => {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  };
+  function paintFair() {
+    const r = game.get().race;
+    $('#fairCommit').textContent = 'seed commit · ' + (r && r.commit ? r.commit : '—');
+    const sel = $('#fairPick');
+    const recent = (game.get().recent || []).filter((x) => x.winner);
+    const had = sel.value;
+    sel.innerHTML = '';
+    if (!recent.length) { const o = document.createElement('option'); o.value = ''; o.textContent = 'no finished race yet'; sel.appendChild(o); return; }
+    for (const x of recent) {
+      const o = document.createElement('option'); o.value = x.id;
+      o.textContent = 'Race #' + pad(x.number || 0) + ' · ' + modeInfo(x.mode || 'classic').name + ' · ' + short(x.winner);
+      sel.appendChild(o);
+    }
+    if (had && recent.some((x) => x.id === had)) sel.value = had;
+  }
+  async function verifyRace(id) {
+    const out = $('#fairOut'), verdict = $('#fairVerdict');
+    verdict.hidden = true;
+    if (!id) { out.textContent = 'No finished race to verify yet.'; return; }
+    out.textContent = 'fetching the record…';
+    const res = await fetch('/api/round?id=' + encodeURIComponent(id)).then((x) => x.json()).catch(() => ({ error: 'network' }));
+    if (res.error || !res.round) { out.textContent = 'Could not fetch that race: ' + (res.error || 'unknown'); return; }
+    const r = res.round;
+    if (!r.secret) { out.textContent = 'That race has no secret yet: it has not finished.'; return; }
+    const lines = [];
+    const commit = await sha256(r.secret);
+    const commitOk = commit === r.commit;
+    lines.push('race             #' + pad(r.number || 0) + ' · ' + modeInfo(r.mode || 'classic').name);
+    lines.push('published hash   ' + r.commit);
+    lines.push('sha256(secret)   ' + commit + (commitOk ? '   ✓ match' : '   ✗ MISMATCH'));
+    const field = r.field || r.players || [];
+    const seed = parseInt((await sha256(r.secret + '|' + field.join(','))).slice(0, 8), 16) >>> 0;
+    const seedOk = seed === r.seed;
+    lines.push('');
+    lines.push('field            ' + field.length + ' wallets');
+    lines.push('seed announced   ' + r.seed);
+    lines.push('seed recomputed  ' + seed + (seedOk ? '   ✓ match' : '   ✗ MISMATCH'));
+    out.textContent = lines.join('\n') + '\n\nreplaying the race…';
+    await new Promise((f) => setTimeout(f, 30));
+    const replay = RACE.runToEnd(seed, field.map((a) => ({ id: a })), r.mode || 'classic');
+    const winOk = replay.order[0].id === r.winner;
+    lines.push('');
+    lines.push('winner announced ' + r.winner);
+    lines.push('winner replayed  ' + replay.order[0].id + (winOk ? '   ✓ match' : '   ✗ MISMATCH'));
+    lines.push('time             ' + replay.order[0].time.toFixed(3) + 's');
+    out.textContent = lines.join('\n');
+    const ok = commitOk && seedOk && winOk;
+    verdict.hidden = false; verdict.className = 'fair__verdict ' + (ok ? 'ok' : 'no');
+    verdict.textContent = ok ? 'This race checks out: the marble that was paid is the marble that won.' : 'Something does not line up. Do not trust this round.';
+  }
+  $('#fairRun').addEventListener('click', () => { SOUND.wake(); verifyRace($('#fairPick').value); });
+  $$('[data-verify-last]').forEach((a) => a.addEventListener('click', () => {
+    const r = game.get().race;
+    setTimeout(() => { if (r) { const sel = $('#fairPick'); if ([...sel.options].some((o) => o.value === r.id)) { sel.value = r.id; verifyRace(r.id); } } }, 50);
+  }));
+
   /* ---- the launchpad -------------------------------------------------------------- */
 
   /* A launch is a draft of a token with races of its own, kept in this
@@ -5662,6 +5861,7 @@ window.MR_TYPES = true;
     buildPickers();
     buildLaunchpad();
     buildFloaters();
+    setTheme(themeName());
     paintYou();
     try {
       const saved = JSON.parse(localStorage.getItem('mr.session') || 'null');
@@ -5671,7 +5871,7 @@ window.MR_TYPES = true;
     const start = () => {
       SCENE.init($('#gl'));
       if (current) SCENE.setRace(current, game.get().race ? playersOf(game.get().race) : [], wallet.get().address);
-      SCENE.setBackdrop(ui.get().screen === 'race' || ui.get().screen === 'count' ? 'dark' : 'light');
+      applyBackdrop();
       queueUpgrade();
     };
     if (window.THREE) start(); else addEventListener('three-ready', start, { once: true });

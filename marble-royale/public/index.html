@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('mr.theme');if(t==='black'||t==='white')document.documentElement.dataset.theme=t;}catch(e){}</script>
 <script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
 </head>
 <body data-screen="home" data-phase="lobby">
@@ -49,7 +50,7 @@
       <a href="#" data-go="lobby">Lobby</a>
       <a href="#" data-goto="modes">Modes</a>
       <a href="#" data-go="launch">Launch</a>
-      <a href="/verify" target="_blank" rel="noopener">Fair</a>
+      <a href="#" data-go="fair">Fair</a>
     </nav>
     <div class="top__race" id="topRace">
       <span class="mono" id="topRaceNo">RACE #----</span>
@@ -57,6 +58,11 @@
     </div>
   </div>
   <div class="top__right">
+    <div class="themes" role="group" aria-label="colour theme">
+      <button class="theme is-on" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
+      <button class="theme" data-theme="black" title="Black" aria-label="Black theme"></button>
+      <button class="theme" data-theme="white" title="White" aria-label="White theme"></button>
+    </div>
     <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
     <button class="btn btn--accent" id="walletBtn"><span class="btn__dot"></span><span id="walletLabel">Connect wallet</span></button>
   </div>
@@ -160,7 +166,7 @@
         <h3>The seed is fixed before anyone joins</h3>
         <p>The server publishes <code>sha256(secret)</code> when a race opens. When the queue closes, the seed is <code>sha256(secret + the field)</code> and the secret is revealed. Anyone can replay the race from the seed and check the winner.</p>
         <p class="mono dim" id="commitLine"></p>
-        <a class="btn btn--glass" href="/verify" target="_blank" rel="noopener">Verify a past race</a>
+        <a class="btn btn--glass" href="#" data-go="fair">Verify a past race</a>
       </div>
     </section>
 
@@ -175,7 +181,7 @@
           </div>
         </div>
         <div class="foot__col"><b>Play</b><a href="#" data-go="lobby">Lobby</a><a href="#" data-goto="modes">Game modes</a><a href="#" data-goto="results">Latest races</a><a href="#" data-dock="winners">Winners</a></div>
-        <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="/verify" target="_blank" rel="noopener">Verify a race</a><a href="/admin" target="_blank" rel="noopener">Creator console</a></div>
+        <div class="foot__col"><b>Build</b><a href="#" data-go="launch">Launchpad</a><a href="#" data-go="fair">Verify a race</a><a href="/admin" target="_blank" rel="noopener" id="adminLink">Creator console</a></div>
         <div class="foot__col"><b>Trust</b><span class="dim">Seed committed before the field closes. Replay any race from its seed. No custody, no private keys, nothing signed but a login message.</span></div>
       </div>
       <div class="foot__line dim"><span>© 2026 Marble Royale · Robinhood Chain</span><span>A game, not financial advice. Entry is free; prizes are sent by the creator by hand.</span></div>
@@ -306,7 +312,7 @@
           <button class="btn btn--glass" id="resCopy">Copy address</button>
           <a class="btn btn--accent" id="resSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
         </div>
-        <span class="dim small">The creator sends the whole pot to first place. <a href="/verify" target="_blank" rel="noopener">Verify this race</a>.</span>
+        <span class="dim small">The creator sends the whole pot to first place. <a href="#" data-go="fair" data-verify-last>Verify this race</a>.</span>
       </div>
       <div class="poll" id="poll" hidden>
         <div class="poll__head"><span class="kicker kicker--plain">VOTE THE NEXT TRACK</span><span class="mono dim" id="pollClock"></span></div>
@@ -319,6 +325,46 @@
       </div>
     </div>
   </section>
+  <!-- ---------- FAIR ---------- -->
+  <section class="screen screen--launch screen--fair" id="s-fair" hidden>
+    <div class="launch">
+      <div class="launch__head">
+        <span class="kicker kicker--plain">PROVABLY FAIR</span>
+        <h2>Nobody picks the winner. Not even us.</h2>
+        <p>Every race is decided by a seed that nobody can choose, and every race can be replayed by anyone, on any computer, to check that the marble that was paid is the marble that won.</p>
+      </div>
+      <div class="launch__body">
+        <div class="glass panel fair__how">
+          <span class="kicker kicker--plain">HOW THE SEED IS MADE</span>
+          <ol class="steps">
+            <li><b>A secret, before anyone joins</b><span>When a race opens the server draws a random secret and publishes only its hash, <code>sha256(secret)</code>. The hash is on the lobby the whole time. The secret cannot change afterwards without the hash changing.</span></li>
+            <li><b>The field closes, the seed is fixed</b><span>When the queue closes, the seed is <code>sha256(secret + "|" + the list of players)</code>. It depends on a secret fixed before anyone joined and on a field nobody can edit afterwards, so the server cannot look at who joined and pick a seed where its own wallet wins.</span></li>
+            <li><b>The secret is revealed</b><span>The moment the race starts the secret is published with the seed. Anyone can hash it and compare it with the promise made at the start.</span></li>
+            <li><b>The race is replayed everywhere</b><span>The same engine runs on the server and in every browser, using only arithmetic that every computer does identically. Given the seed and the field, the course, the start slots and every bounce come out the same, so the winner does too.</span></li>
+          </ol>
+          <p class="dim small">The game mode is chosen by vote before the seed exists, so it changes nothing about this. Cheers are confetti: they are deliberately not part of the physics.</p>
+        </div>
+        <aside class="launch__prev">
+          <div class="glass panel">
+            <span class="kicker kicker--plain">VERIFY A RACE</span>
+            <p class="dim small">Pick a finished race. Your browser fetches its record, checks the hash, recomputes the seed and replays the race from it.</p>
+            <div class="fair__pick">
+              <select id="fairPick" class="fair__select"></select>
+              <button class="btn btn--accent" id="fairRun">Verify</button>
+            </div>
+            <pre class="fair__out mono" id="fairOut">Pick a race and press Verify.</pre>
+            <div class="fair__verdict" id="fairVerdict" hidden></div>
+          </div>
+          <div class="glass panel">
+            <span class="kicker kicker--plain">THIS RACE</span>
+            <p class="mono dim small" id="fairCommit">seed commit · —</p>
+            <p class="dim small">The hash above was published when the current race opened. When it ends you will be able to verify it here.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
   <!-- ---------- LAUNCHPAD ---------- -->
   <section class="screen screen--launch" id="s-launch" hidden>
     <div class="launch">
@@ -408,7 +454,7 @@
       <div><span class="kicker kicker--plain">LAST RACES</span><ul class="wlist mono" id="winList"></ul><div class="empty" id="winEmpty">No race has finished yet.</div></div>
       <div><span class="kicker kicker--plain">MOST WINS</span><ul class="wlist mono" id="topList"></ul></div>
     </div>
-    <p class="dim small">Every race is in the log with its seed and secret. <a href="/verify" target="_blank" rel="noopener">Verify any of them</a>.</p>
+    <p class="dim small">Every race is in the log with its seed and secret. <a href="#" data-go="fair" data-close>Verify any of them</a>.</p>
   </div>
 </div>
 

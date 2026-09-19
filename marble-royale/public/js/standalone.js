@@ -14,14 +14,16 @@
 (function () {
   'use strict';
 
-  const ROUND_MS = 300000, LOBBY_MS = 205000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const ROUND_MS = 300000, LOBBY_MS = 195000, LOCK_MS = 5000, RESULT_MS = 25000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
   const MEGA_EVERY = 1800000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
   const NAMES = ['DEGEN', 'APE', 'WHALE', 'CHAD', 'PAPERHANDS', 'DIAMOND', 'GM', 'WAGMI', 'MOON', 'BAGS', 'ALPHA', 'REKT', 'FOMO', 'HODL', 'SER', 'FREN'];
   const listeners = new Set();
   const emit = (event, data) => { for (const fn of listeners) fn(event, data); };
-  const sha = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16).padStart(8, '0').repeat(8); };
+  /* Real SHA-256, so the page's own verifier passes on a standalone race
+     the same way it does on a served one. */
+  const sha = async (s) => { const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join(''); };
 
   const store = { counter: 0, rounds: [], chat: [] };
   let round = null, timer = null, potTimer = null, botTimer = null, pollTimer = null, voteTimer = null;
@@ -37,11 +39,13 @@
     const secret = rndAddr() + rndAddr();
     round = {
       id: 'R' + startAt, number: ++store.counter, startAt, lockAt: startAt + LOBBY_MS, raceAt: startAt + LOBBY_MS + LOCK_MS, endAt: startAt + ROUND_MS,
-      phase: 'lobby', mega: startAt % MEGA_EVERY === 0, secret, commit: sha(secret), seed: null, players: [], order: null, winner: null, seconds: 0,
+      phase: 'lobby', mega: startAt % MEGA_EVERY === 0, secret, commit: '', seed: null, players: [], order: null, winner: null, seconds: 0,
       pot: 0, potDemo: true, potTarget: 0, max: MAX,
       mode: RACE.MODE_IDS.includes(nextMode) ? nextMode : 'classic', modeBy: RACE.MODE_IDS.includes(nextMode) ? 'vote' : 'default', poll: null
     };
     round.potTarget = round.mega ? 25 : 4 + Math.random() * 3.5;
+    const me = round;
+    sha(secret).then((h) => { if (round === me) { me.commit = h; emit('phase', pub()); } });
     emit('phase', pub());
     /* bots drift in over the queue */
     clearInterval(botTimer);
@@ -65,18 +69,23 @@
   function lock() {
     if (!round || round.phase !== 'lobby') return;
     round.phase = 'locked';
-    round.seed = parseInt(sha(round.secret + '|' + round.players.map((p) => p.address).join(',')).slice(0, 8), 16) >>> 0;
-    emit('phase', pub());
+    const me = round;
+    sha(me.secret + '|' + me.players.map((p) => p.address).join(',')).then((h) => {
+      if (round !== me) return;
+      me.seed = parseInt(h.slice(0, 8), 16) >>> 0;
+      emit('phase', pub());
+    });
     at(round.raceAt, race);
   }
   function race() {
     if (!round || round.phase !== 'locked') return;
+    if (round.seed === null) { setTimeout(race, 20); return; }
     if (!round.players.length) { round.phase = 'result'; round.order = []; emit('phase', pub()); at(round.endAt, close); return; }
     round.phase = 'racing';
     const out = RACE.runToEnd(round.seed, round.players.map((p) => ({ id: p.address })), round.mode);
     round.order = out.order; round.seconds = out.seconds; round.winner = out.order[0].id;
     emit('start', { roundId: round.id, seed: round.seed, secret: round.secret, commit: round.commit, startAt: round.raceAt, mode: round.mode, players: round.players.map(pubPlayer) });
-    setTimeout(result, Math.min(64500, Math.ceil(out.seconds * 1000) + 1400));
+    setTimeout(result, Math.min(74500, Math.ceil(out.seconds * 1000) + 1400));
   }
   function result() {
     if (!round || round.phase !== 'racing') return;
@@ -199,5 +208,5 @@
      by answering the nonce route with a note, and app.js sends whatever the
      wallet returns; a wallet asked to sign that note is fine too. */
   open(Math.floor(now() / ROUND_MS) * ROUND_MS);
-  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 90000; at(round.raceAt, race); emit('phase', pub()); } } };
+  window.STANDALONE = { get round() { return round; }, join, raceNow() { if (round && round.phase === 'lobby') { round.lockAt = now(); lock(); round.raceAt = now() + 3200; round.endAt = round.raceAt + 100000; at(round.raceAt, race); emit('phase', pub()); } } };
 })();

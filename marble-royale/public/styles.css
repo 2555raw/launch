@@ -10,19 +10,53 @@
    address. */
 
 :root {
+  /* Legacy: the blue one. Black and White override these on <html data-theme>. */
   --bg: #f5f7ff; --bg2: #eaf0ff;
   --glass: #ffffff; --glass2: #f3f6ff; --soft: #e9eefb;
   --line: #e1e7f6; --line2: #ccd6ee;
   --ink: #172038; --ink2: #3f4a68; --dim: #7a85a3;
   --go: #ff7a1a; --go2: #e66a10; --goSoft: #ffe9d8; --goInk: #7a3200;
   --gold: #d98f00; --win: #15a34a; --hot: #e11d48; --cyan: #0ea5e9;
+  --pillbg: rgba(255, 255, 255, .82); --pillline: rgba(255, 255, 255, .95);
+  --softBtn: #e4ebff; --softBtn2: #d9e3ff; --softLine: #d5deff; --softInk: #1f3fb8;
+  --onInk: #ffffff;
+  --veil: radial-gradient(60% 50% at 12% 20%, rgba(190, 205, 255, .55), transparent 70%), radial-gradient(50% 45% at 88% 12%, rgba(215, 205, 255, .5), transparent 70%), radial-gradient(60% 40% at 50% 100%, rgba(200, 220, 255, .55), transparent 70%), linear-gradient(180deg, #ffffff 0%, #eef3ff 45%, #f5f7ff 100%);
+  --sky: #eef2fc; --apron: #dfe6f7;
   --shadow: 0 18px 50px -22px rgba(23, 32, 56, .28), 0 2px 6px -2px rgba(23, 32, 56, .08);
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --disp: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
   --gut: clamp(16px, 4vw, 48px);
   --r: 22px;
 }
-/* The race and the countdown are the dark stage. */
+html[data-theme="white"] {
+  --bg: #ffffff; --bg2: #f7f7f8;
+  --glass: #ffffff; --glass2: #f5f5f7; --soft: #ededf0;
+  --line: #e6e6ea; --line2: #d4d4da;
+  --ink: #111114; --ink2: #3d3d46; --dim: #80808c;
+  --goSoft: #ffe9d8; --goInk: #7a3200;
+  --gold: #c98400; --win: #15a34a; --hot: #e11d48;
+  --pillbg: rgba(255, 255, 255, .9); --pillline: #e6e6ea;
+  --softBtn: #f0f0f3; --softBtn2: #e6e6ea; --softLine: #dcdce2; --softInk: #111114;
+  --onInk: #ffffff;
+  --veil: linear-gradient(180deg, #ffffff 0%, #fafafb 100%);
+  --sky: #f6f6f8; --apron: #e9e9ee;
+  --shadow: 0 14px 40px -22px rgba(0, 0, 0, .18), 0 1px 3px rgba(0, 0, 0, .05);
+}
+html[data-theme="black"] {
+  --bg: #07070b; --bg2: #0c0c12;
+  --glass: #101016; --glass2: #17171f; --soft: rgba(255, 255, 255, .07);
+  --line: rgba(255, 255, 255, .09); --line2: rgba(255, 255, 255, .17);
+  --ink: #f2efe9; --ink2: #c9c4bb; --dim: #8a8797;
+  --goSoft: rgba(255, 122, 26, .16); --goInk: #ffb36b;
+  --gold: #ffc857; --win: #6fe3a1; --hot: #ff4d6d; --cyan: #6ee7ff;
+  --pillbg: rgba(12, 12, 18, .82); --pillline: rgba(255, 255, 255, .12);
+  --softBtn: rgba(255, 255, 255, .07); --softBtn2: rgba(255, 255, 255, .12); --softLine: rgba(255, 255, 255, .14); --softInk: #f2efe9;
+  --onInk: #07070b;
+  --veil: radial-gradient(50% 40% at 15% 10%, rgba(255, 122, 26, .12), transparent 70%), radial-gradient(45% 40% at 85% 90%, rgba(255, 200, 87, .08), transparent 70%), linear-gradient(180deg, #0a0a10 0%, #07070b 100%);
+  --sky: #07070b; --apron: #08080d;
+  --shadow: 0 30px 80px -40px rgba(0, 0, 0, .9);
+}
+/* The race and the countdown are the dark stage, whatever the theme. */
 body[data-screen="race"], body[data-screen="count"] {
   --bg: #07070b; --bg2: #0c0c12;
   --glass: rgba(13, 13, 20, .72); --glass2: rgba(20, 20, 30, .78); --soft: rgba(255, 255, 255, .08);
@@ -30,6 +64,7 @@ body[data-screen="race"], body[data-screen="count"] {
   --ink: #f2efe9; --ink2: #c9c4bb; --dim: #8a8797;
   --goSoft: rgba(255, 122, 26, .16); --goInk: #ffb36b;
   --gold: #ffc857; --win: #6fe3a1; --hot: #ff4d6d; --cyan: #6ee7ff;
+  --pillbg: rgba(9, 9, 14, .7); --pillline: rgba(255, 255, 255, .16); --onInk: #07070b;
   --shadow: 0 30px 80px -40px rgba(0, 0, 0, .9);
 }
 * { box-sizing: border-box; }
@@ -42,8 +77,8 @@ body {
 h1, h2, h3 { text-wrap: balance; }
 .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; vertical-align: -3px; }
 .tag { display: inline-block; font-family: var(--mono); font-style: normal; font-size: 9px; letter-spacing: .14em; font-weight: 700; padding: 2px 6px; border-radius: 999px; vertical-align: middle; }
-.tag--demo { color: var(--gold); background: #fff3d6; margin-left: 4px; }
-.tag--paid { color: var(--win); background: #dff7e8; }
+.tag--demo { color: var(--gold); background: color-mix(in srgb, var(--gold) 16%, transparent); margin-left: 4px; }
+.tag--paid { color: var(--win); background: color-mix(in srgb, var(--win) 16%, transparent); }
 .tag--due { color: var(--goInk); background: var(--goSoft); }
 button, input { font: inherit; color: inherit; }
 a { color: inherit; }
@@ -63,11 +98,7 @@ code { font-family: var(--mono); font-size: .9em; color: var(--goInk); backgroun
    the page wants the world seen. It lifts for the countdown and the race. */
 .veil {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
-  background:
-    radial-gradient(60% 50% at 12% 20%, rgba(190, 205, 255, .55), transparent 70%),
-    radial-gradient(50% 45% at 88% 12%, rgba(215, 205, 255, .5), transparent 70%),
-    radial-gradient(60% 40% at 50% 100%, rgba(200, 220, 255, .55), transparent 70%),
-    linear-gradient(180deg, #ffffff 0%, #eef3ff 45%, #f5f7ff 100%);
+  background: var(--veil);
   transition: opacity .35s ease;
   --hx: 50vw; --hy: 60vh; --hw: 0px; --hh: 0px;
 }
@@ -95,11 +126,8 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacit
 .top > * { pointer-events: auto; }
 .top__left, .top__right {
   display: flex; align-items: center; gap: 4px; padding: 6px 8px;
-  background: rgba(255, 255, 255, .8); border: 1px solid rgba(255, 255, 255, .95); border-radius: 999px;
+  background: var(--pillbg); border: 1px solid var(--pillline); border-radius: 999px;
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: var(--shadow);
-}
-body[data-screen="race"] .top__left, body[data-screen="race"] .top__right, body[data-screen="count"] .top__left, body[data-screen="count"] .top__right {
-  background: rgba(9, 9, 14, .7); border-color: var(--line2);
 }
 .top__left { padding-left: 14px; }
 .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; margin-right: 8px; }
@@ -152,8 +180,8 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
 }
 .btn--accent:hover { background: linear-gradient(180deg, #ff9d52, #f5731a); box-shadow: 0 14px 34px -12px rgba(255, 122, 26, 1); }
 .btn--glass { background: var(--glass); }
-.btn--soft { background: #e4ebff; border-color: #d5deff; color: #1f3fb8; }
-.btn--soft:hover { background: #d9e3ff; }
+.btn--soft { background: var(--softBtn); border-color: var(--softLine); color: var(--softInk); }
+.btn--soft:hover { background: var(--softBtn2); }
 .btn--ghost { background: transparent; border-color: transparent; color: var(--dim); box-shadow: none; }
 .btn--danger { border-color: rgba(225, 29, 72, .4); color: var(--hot); }
 .btn--icon { padding: 10px 12px; }
@@ -192,7 +220,7 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .trust span { font-size: 12px; color: var(--dim); line-height: 1.4; }
 .stagewrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--gut); }
 .stage { position: relative; height: clamp(260px, 42vw, 460px); border-radius: 28px; }
-.stage__tag { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: .2em; color: var(--ink2); background: rgba(255, 255, 255, .85); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
+.stage__tag { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: .2em; color: var(--ink2); background: var(--pillbg); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
 .hero h1 {
   font-size: clamp(44px, 7vw, 98px); font-weight: 700; line-height: .96; letter-spacing: -.045em;
   margin: 18px 0 22px; color: var(--ink); white-space: nowrap;
@@ -351,11 +379,11 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--results { display: grid; place-items: center; padding: calc(80px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .results { width: min(560px, 100%); padding: 28px; text-align: center; display: grid; gap: 16px; animation: rise .5s cubic-bezier(.2, 1.4, .4, 1) both; }
-.results__cup { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: linear-gradient(180deg, #fff3d6, #ffe0a8); color: var(--gold); box-shadow: 0 14px 30px -14px rgba(217, 143, 0, .6); }
+.results__cup { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: color-mix(in srgb, var(--gold) 22%, var(--glass)); color: var(--gold); box-shadow: 0 14px 30px -14px rgba(217, 143, 0, .6); }
 .results__cup .ic { width: 30px; height: 30px; }
 .podium { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; }
 .podium li { display: grid; grid-template-columns: 44px 36px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); }
-.podium li:first-child { background: linear-gradient(90deg, #fff3d6, #ffe9d8); border-color: #f2c86b; }
+.podium li:first-child { background: color-mix(in srgb, var(--gold) 14%, var(--glass)); border-color: color-mix(in srgb, var(--gold) 55%, transparent); }
 .podium .place { font-family: var(--mono); font-weight: 700; font-size: 16px; color: var(--gold); }
 .podium li:not(:first-child) .place { color: var(--dim); }
 .podium canvas { width: 36px; height: 36px; border-radius: 50%; }
@@ -418,7 +446,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .toast {
   position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60;
-  padding: 10px 16px; border-radius: 999px; background: var(--ink); color: #fff; border: 1px solid var(--ink); font-size: 13.5px;
+  padding: 10px 16px; border-radius: 999px; background: var(--ink); color: var(--onInk); border: 1px solid var(--ink); font-size: 13.5px;
   box-shadow: 0 20px 50px -20px rgba(23, 32, 56, .6); animation: rise .25s ease; max-width: calc(100% - 32px);
 }
 .toast.good { border-color: var(--win); }
@@ -486,13 +514,22 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .poll__done em { font-style: normal; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--dim); }
 .poll__done b { font-size: 26px; font-weight: 800; color: var(--gold); }
 
+/* ---- themes --------------------------------------------------------------- */
+
+.themes { display: flex; gap: 4px; padding: 3px; margin-right: 4px; border-radius: 999px; background: var(--soft); }
+.theme { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+.theme[data-theme="legacy"] { background: linear-gradient(135deg, #dfe7ff, #7f9dff); }
+.theme[data-theme="black"] { background: linear-gradient(135deg, #2a2a36, #07070b); }
+.theme[data-theme="white"] { background: linear-gradient(135deg, #ffffff, #e2e2e8); }
+.theme.is-on { border-color: var(--go); }
+
 /* ---- the dock ------------------------------------------------------------- */
 
 .dock {
   position: fixed; left: 14px; top: 50%; transform: translateY(-50%); z-index: 20;
   display: flex; flex-direction: column; align-items: stretch; gap: 4px; padding: 8px;
   width: 92px;
-  background: rgba(255, 255, 255, .82); border: 1px solid rgba(255, 255, 255, .95); border-radius: 26px;
+  background: var(--pillbg); border: 1px solid var(--pillline); border-radius: 26px;
   backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3);
   box-shadow: var(--shadow);
   max-height: calc(100vh - 140px); overflow: auto; scrollbar-width: none;
@@ -519,8 +556,8 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 .dock__stat em { font-style: normal; font-size: 8.5px; letter-spacing: .16em; color: var(--dim); }
 .dock__stat b { font-size: 13px; font-weight: 700; }
 @keyframes blink { 50% { opacity: .35; } }
-.screen--home, .screen--lobby, .screen--launch { padding-bottom: 40px; }
-@media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
+.screen--home, .screen--lobby, .screen--launch, .screen--fair { padding-bottom: 40px; }
+@media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--fair, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
 
 /* ---- winners -------------------------------------------------------------- */
 
@@ -532,6 +569,17 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 .wlist li .st { grid-column: 2 / -1; color: var(--dim); font-size: 10.5px; }
 .wlist li .pot { text-align: right; }
 .wlist li.dim { padding: 10px 0; }
+
+/* ---- fair ----------------------------------------------------------------- */
+
+.fair__how .steps { margin-top: 12px; }
+.fair__pick { display: flex; gap: 8px; margin: 10px 0; }
+.fair__select { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 999px; border: 1px solid var(--line2); background: var(--glass); color: var(--ink); font-size: 14px; }
+.fair__out { margin: 0; padding: 14px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); font-size: 11.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; color: var(--ink2); min-height: 120px; }
+.fair__verdict { margin-top: 10px; padding: 12px 14px; border-radius: 14px; font-weight: 700; }
+.fair__verdict.ok { color: var(--win); background: color-mix(in srgb, var(--win) 14%, transparent); }
+.fair__verdict.no { color: var(--hot); background: color-mix(in srgb, var(--hot) 14%, transparent); }
+.screen--fair { padding-bottom: 40px; }
 
 /* ---- the launchpad -------------------------------------------------------- */
 
@@ -550,7 +598,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
   width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line2); background: var(--glass); color: var(--ink); font-size: 14px;
 }
 .launch__form input:focus, .launch__form select:focus { outline: none; border-color: var(--go); box-shadow: 0 0 0 3px rgba(255, 122, 26, .2); }
-.launch__form select option { background: #fff; }
+.launch__form select option { background: var(--glass); }
 .launch__form input[type="color"] { padding: 4px; height: 42px; cursor: pointer; }
 .launch__form input[type="range"] { padding: 0; accent-color: var(--go); height: 42px; background: transparent; border: 0; }
 .launch__actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -644,7 +692,7 @@ body[data-phase="locked"] .dock__live { background: var(--gold); box-shadow: 0 0
 @keyframes slosh { 50% { transform: translateX(2px) scaleY(1.25); } }
 .jar[data-state="locked"] .jar__top, .jar[data-state="paid"] .jar__top { animation: none; }
 .jar[data-state="locked"] svg path:nth-of-type(2) { stroke: var(--gold); }
-.jar__lock { position: absolute; right: -6px; top: 12px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease; }
+.jar__lock { position: absolute; right: -6px; top: 12px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--onInk); opacity: 0; transform: scale(.6); transition: opacity .2s ease, transform .2s ease; }
 .jar__lock .ic { width: 12px; height: 12px; }
 .jar[data-state="locked"] .jar__lock { opacity: 1; transform: none; }
 .jar__state { font-size: 9.5px; letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }

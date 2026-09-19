@@ -42,17 +42,18 @@
 
   /* ---- screens ----------------------------------------------------------- */
 
-  const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch'];
+  const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch', 'fair'];
   function setScreen(name) {
     if (!SCREENS.includes(name)) return;
     ui.set({ screen: name });
     for (const s of SCREENS) $('#s-' + s).hidden = s !== name;
     document.body.dataset.screen = name;
-    if (name === 'home' || name === 'launch') { CAMERA.setMode('idle'); window.scrollTo(0, 0); }
+    if (name === 'home' || name === 'launch' || name === 'fair') { CAMERA.setMode('idle'); window.scrollTo(0, 0); }
+    if (name === 'fair') paintFair();
     else if (name === 'race') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
     else CAMERA.setMode('auto');
     if (name !== 'home') window.scrollTo(0, 0);
-    if (SCENE.ready) SCENE.setBackdrop(name === 'race' || name === 'count' ? 'dark' : 'light');
+    applyBackdrop();
     paintDock();
   }
   $$('[data-go]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); SOUND.wake(); setScreen(b.dataset.go); }));
@@ -245,7 +246,7 @@
       if (ui.get().screen !== 'race') setScreen('race');
     } else if (round.phase === 'result') {
       if (fresh || mode === 'idle' || mode === 'preview') replayFinished(round);
-      if (round.winner && ui.get().screen !== 'results' && ui.get().screen !== 'home' && ui.get().screen !== 'launch') showResults({ winner: round.winner, order: round.order, pot: round.pot, number: round.number, mega: round.mega, mode: round.mode });
+      if (round.winner && !['results', 'home', 'launch', 'fair'].includes(ui.get().screen)) showResults({ winner: round.winner, order: round.order, pot: round.pot, number: round.number, mega: round.mega, mode: round.mode });
     }
     paintStatic();
     paintLobby();
@@ -322,7 +323,7 @@
     setTimeout(() => { showResults(d); paintPoll(); }, 1400);
     SOUND.play('finish');
     if (SCENE.ready) SCENE.celebrate(d.winner);
-    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top }); paintRecent(); }).catch(() => {});
+    fetch('/api/history?n=12').then((x) => x.json()).then((h) => { game.set({ recent: h.rounds, top: h.top }); paintRecent(); if (ui.get().screen === 'fair') paintFair(); }).catch(() => {});
   }
 
   function onPot(d) {
@@ -960,6 +961,31 @@
     $('#skinBtn').addEventListener('click', () => { SOUND.wake(); openModal('m-skin'); });
   }
 
+  /* ---- themes -------------------------------------------------------------------- */
+
+  /* Three looks: Legacy (the blue one), Black and White. The choice is kept
+     in the browser; the world under the page takes the theme's sky, and the
+     race itself is always the dark stage. */
+  const THEMES = { legacy: { sky: '#eef2fc', apron: '#dfe6f7', dark: false }, white: { sky: '#f6f6f8', apron: '#e9e9ee', dark: false }, black: { sky: '#07070b', apron: '#08080d', dark: true } };
+  function themeName() { const t = document.documentElement.dataset.theme; return THEMES[t] ? t : 'legacy'; }
+  function applyBackdrop() {
+    if (!SCENE.ready) return;
+    const t = THEMES[themeName()];
+    const screen = ui.get().screen;
+    const dark = t.dark || screen === 'race' || screen === 'count';
+    SCENE.setBackdrop(dark ? 'dark' : 'light', dark ? { sky: '#07070b', apron: '#08080d' } : { sky: t.sky, apron: t.apron });
+  }
+  function setTheme(name) {
+    if (!THEMES[name]) name = 'legacy';
+    if (name === 'legacy') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = name;
+    try { localStorage.setItem('mr.theme', name); } catch {}
+    $$('.theme').forEach((b) => b.classList.toggle('is-on', b.dataset.theme === name));
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = name === 'black' ? '#07070b' : name === 'white' ? '#ffffff' : '#f5f7ff';
+    applyBackdrop();
+  }
+  $$('.theme').forEach((b) => b.addEventListener('click', () => { SOUND.wake(); setTheme(b.dataset.theme); }));
+
   /* ---- the hero's floating coins and the window onto the track ---------------- */
 
   /* Coin marbles drift round the headline, drawn with the same routine the
@@ -1089,6 +1115,71 @@
     openModal('m-winners');
   }
 
+  /* ---- fair: verify a race in the page ------------------------------------------- */
+
+  /* The same check /verify does, inside the page, so the one-file build and
+     a phone have it too: hash the secret, recompute the seed from the field,
+     replay the race in its mode, compare the winner with the one paid. */
+  const sha256 = async (text) => {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  };
+  function paintFair() {
+    const r = game.get().race;
+    $('#fairCommit').textContent = 'seed commit · ' + (r && r.commit ? r.commit : '—');
+    const sel = $('#fairPick');
+    const recent = (game.get().recent || []).filter((x) => x.winner);
+    const had = sel.value;
+    sel.innerHTML = '';
+    if (!recent.length) { const o = document.createElement('option'); o.value = ''; o.textContent = 'no finished race yet'; sel.appendChild(o); return; }
+    for (const x of recent) {
+      const o = document.createElement('option'); o.value = x.id;
+      o.textContent = 'Race #' + pad(x.number || 0) + ' · ' + modeInfo(x.mode || 'classic').name + ' · ' + short(x.winner);
+      sel.appendChild(o);
+    }
+    if (had && recent.some((x) => x.id === had)) sel.value = had;
+  }
+  async function verifyRace(id) {
+    const out = $('#fairOut'), verdict = $('#fairVerdict');
+    verdict.hidden = true;
+    if (!id) { out.textContent = 'No finished race to verify yet.'; return; }
+    out.textContent = 'fetching the record…';
+    const res = await fetch('/api/round?id=' + encodeURIComponent(id)).then((x) => x.json()).catch(() => ({ error: 'network' }));
+    if (res.error || !res.round) { out.textContent = 'Could not fetch that race: ' + (res.error || 'unknown'); return; }
+    const r = res.round;
+    if (!r.secret) { out.textContent = 'That race has no secret yet: it has not finished.'; return; }
+    const lines = [];
+    const commit = await sha256(r.secret);
+    const commitOk = commit === r.commit;
+    lines.push('race             #' + pad(r.number || 0) + ' · ' + modeInfo(r.mode || 'classic').name);
+    lines.push('published hash   ' + r.commit);
+    lines.push('sha256(secret)   ' + commit + (commitOk ? '   ✓ match' : '   ✗ MISMATCH'));
+    const field = r.field || r.players || [];
+    const seed = parseInt((await sha256(r.secret + '|' + field.join(','))).slice(0, 8), 16) >>> 0;
+    const seedOk = seed === r.seed;
+    lines.push('');
+    lines.push('field            ' + field.length + ' wallets');
+    lines.push('seed announced   ' + r.seed);
+    lines.push('seed recomputed  ' + seed + (seedOk ? '   ✓ match' : '   ✗ MISMATCH'));
+    out.textContent = lines.join('\n') + '\n\nreplaying the race…';
+    await new Promise((f) => setTimeout(f, 30));
+    const replay = RACE.runToEnd(seed, field.map((a) => ({ id: a })), r.mode || 'classic');
+    const winOk = replay.order[0].id === r.winner;
+    lines.push('');
+    lines.push('winner announced ' + r.winner);
+    lines.push('winner replayed  ' + replay.order[0].id + (winOk ? '   ✓ match' : '   ✗ MISMATCH'));
+    lines.push('time             ' + replay.order[0].time.toFixed(3) + 's');
+    out.textContent = lines.join('\n');
+    const ok = commitOk && seedOk && winOk;
+    verdict.hidden = false; verdict.className = 'fair__verdict ' + (ok ? 'ok' : 'no');
+    verdict.textContent = ok ? 'This race checks out: the marble that was paid is the marble that won.' : 'Something does not line up. Do not trust this round.';
+  }
+  $('#fairRun').addEventListener('click', () => { SOUND.wake(); verifyRace($('#fairPick').value); });
+  $$('[data-verify-last]').forEach((a) => a.addEventListener('click', () => {
+    const r = game.get().race;
+    setTimeout(() => { if (r) { const sel = $('#fairPick'); if ([...sel.options].some((o) => o.value === r.id)) { sel.value = r.id; verifyRace(r.id); } } }, 50);
+  }));
+
   /* ---- the launchpad -------------------------------------------------------------- */
 
   /* A launch is a draft of a token with races of its own, kept in this
@@ -1202,6 +1293,7 @@
     buildPickers();
     buildLaunchpad();
     buildFloaters();
+    setTheme(themeName());
     paintYou();
     try {
       const saved = JSON.parse(localStorage.getItem('mr.session') || 'null');
@@ -1211,7 +1303,7 @@
     const start = () => {
       SCENE.init($('#gl'));
       if (current) SCENE.setRace(current, game.get().race ? playersOf(game.get().race) : [], wallet.get().address);
-      SCENE.setBackdrop(ui.get().screen === 'race' || ui.get().screen === 'count' ? 'dark' : 'light');
+      applyBackdrop();
       queueUpgrade();
     };
     if (window.THREE) start(); else addEventListener('three-ready', start, { once: true });

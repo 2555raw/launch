@@ -121,6 +121,8 @@ All optional except where noted.
 | `POT_PCT` | the share of those fees the winner takes, as a percentage (default 20). It is shown on screen and stored with every round |
 | `MEGA_EVERY_MS` | how often a round is a mega race (default 2400000, forty minutes); the first round of each window is the mega one, so the two figures need not divide each other |
 | `MEGA_PCT` | the winner's share on a mega race (default 50) |
+| `POT_MIN`, `POT_MAX` | the band an acted pot climbs to on a normal race (default 2.7 and 5.76) |
+| `POT_MEGA` | what an acted pot climbs to on a mega race (default 20) |
 | `ETH_RPC` | JSON-RPC endpoint of the chain the coin lives on. The default is Ethereum mainnet's public one; for Robinhood Chain set its RPC URL here |
 | `CHAIN_NAME` | what the page calls the chain (default Robinhood Chain) |
 | `ETH_USD_FEED` | Chainlink ETH/USD aggregator on that chain (default is mainnet's). If the chain has no feed yet, set `ETH_USD` instead |
@@ -217,7 +219,7 @@ brings up the podium.
   checks every field and everyone sees what you picked.
 - **The pot.** Read off the fee wallet and priced in dollars, as before. With
   no fee wallet and demo mode on, it is acted: it climbs a cent at a time to a
-  few dollars over the queue, twenty-five on a mega race, and every figure is
+  few dollars over the queue, twenty on a mega race, and every figure is
   marked demo.
 - **The contract.** `CONTRACTS.race` exposes joinRace, getRace,
   getRaceParticipants, getRaceState, getRaceResults and claimPrize. The demo

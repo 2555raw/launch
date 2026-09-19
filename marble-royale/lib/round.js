@@ -49,6 +49,12 @@ const FEE_WALLET = process.env.FEE_WALLET || '';
    cent at a time to a few dollars over the queue, twenty-five on a mega race,
    and every figure it sends is marked demo so the page can say so. */
 const DEMO_POT = process.env.DEMO_MODE === '1' && !FEE_WALLET;
+/* What an acted pot climbs to: a normal race lands somewhere in this band,
+   a mega race on its own figure. Settings, so the figures can move without
+   a deploy. */
+const POT_MIN = Math.max(0, Number(process.env.POT_MIN) || 2.7);
+const POT_MAX = Math.max(POT_MIN, Number(process.env.POT_MAX) || 5.76);
+const POT_MEGA = Math.max(POT_MAX, Number(process.env.POT_MEGA) || 20);
 /* What the winner takes out of the fees that came in during the round. The rest
    stays where it is. Whoever runs the game picks the number and it is on screen,
    because a pot nobody can check is a pot nobody believes. */
@@ -140,7 +146,7 @@ class Rounds extends EventEmitter {
     if (DEMO_POT) {
       r.pot = 0;
       r.potDemo = true;
-      r.potTarget = r.mega ? 25 : 4 + Math.random() * 3.5;
+      r.potTarget = Math.round((r.mega ? POT_MEGA : POT_MIN + Math.random() * (POT_MAX - POT_MIN)) * 100) / 100;
       clearInterval(this.demoTimer);
       this.demoTimer = setInterval(() => this.demoTick(), 1000);
     }

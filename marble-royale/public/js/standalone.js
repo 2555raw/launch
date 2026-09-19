@@ -43,7 +43,7 @@
       pot: 0, potDemo: true, potTarget: 0, max: MAX,
       mode: RACE.MODE_IDS.includes(nextMode) ? nextMode : 'classic', modeBy: RACE.MODE_IDS.includes(nextMode) ? 'vote' : 'default', poll: null
     };
-    round.potTarget = round.mega ? 25 : 4 + Math.random() * 3.5;
+    round.potTarget = Math.round((round.mega ? 20 : 2.7 + Math.random() * 3.06) * 100) / 100;
     const me = round;
     sha(secret).then((h) => { if (round === me) { me.commit = h; emit('phase', pub()); } });
     emit('phase', pub());

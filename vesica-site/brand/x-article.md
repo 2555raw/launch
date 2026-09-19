@@ -90,5 +90,5 @@ already believe. One of those is evidence and the other is a picture.
 So: no TVL number, no countdown, no green ticks. The contracts, the tests that
 hold them, and an honest list of what is missing.
 
-The page is at /proof. The list of what is missing is on it, at the same size as
-the rest.
+The page is at **vesica.site/proof**. The list of what is missing is on it, at
+the same size as the rest.

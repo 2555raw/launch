@@ -2,7 +2,7 @@
 
    The app talks to its server through fetch and an EventSource. This file
    stands in for both, so the same app runs as one HTML file with nothing
-   behind it: a round machine on the five minute clock, a field of bots, a
+   behind it: a round machine on the ten minute clock, a field of bots, a
    pot that climbs a cent at a time, and a demo wallet. It answers the same
    routes with the same shapes, so app.js does not know the difference.
 
@@ -14,8 +14,8 @@
 (function () {
   'use strict';
 
-  const ROUND_MS = 300000, LOBBY_MS = 160000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
-  const MEGA_EVERY = 1800000;
+  const ROUND_MS = 600000, LOBBY_MS = 460000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const MEGA_EVERY = 3600000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
   const NAMES = ['DEGEN', 'APE', 'WHALE', 'CHAD', 'PAPERHANDS', 'DIAMOND', 'GM', 'WAGMI', 'MOON', 'BAGS', 'ALPHA', 'REKT', 'FOMO', 'HODL', 'SER', 'FREN'];

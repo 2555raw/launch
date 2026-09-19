@@ -40,8 +40,8 @@ html = html.replace('<div data-screen="home" data-phase="lobby" id="bodyattrs" h
 html = html.replace(/<a href="\/admin"[^>]*>Creator console<\/a>/, '');
 
 /* a line on the page saying what this build is */
-html = html.replace('<div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 5 MINUTES</div>',
-  '<div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 5 MINUTES</div>');
+html = html.replace('<div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 10 MINUTES</div>',
+  '<div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 10 MINUTES</div>');
 
 fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
 const out = path.join(__dirname, 'dist', 'marble-royale.html');

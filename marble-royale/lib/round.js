@@ -1,10 +1,10 @@
-/* The five minute cycle.
+/* The ten minute cycle.
 
-   Every round is pinned to the wall clock, so a round starts at :00, :05, :10
+   Every round is pinned to the wall clock, so a round starts at :00, :10, :20
    and so on and two people in different countries see the same countdown. A
    round runs through four phases:
 
-     lobby      connect a wallet, get a marble          (most of the five minutes)
+     lobby      connect a wallet, get a marble          (most of the ten minutes)
      locked     the field is closed, the seed is out    (5s)
      racing     the race everyone watches               (up to 45s)
      result     the winner and the wallet to pay        (the rest)
@@ -28,7 +28,7 @@ const RACE = require('../public/shared/race.js');
 const store = require('./store');
 const chain = require('./chain');
 
-const ROUND_MS = Math.max(90000, Number(process.env.ROUND_MS) || 300000);
+const ROUND_MS = Math.max(90000, Number(process.env.ROUND_MS) || 600000);
 /* A minute after the race: the podium, the address to pay, and the vote on
    the next track. */
 const RESULT_MS = 60000;
@@ -53,10 +53,10 @@ const DEMO_POT = process.env.DEMO_MODE === '1' && !FEE_WALLET;
    stays where it is. Whoever runs the game picks the number and it is on screen,
    because a pot nobody can check is a pot nobody believes. */
 const POT_PCT = Math.min(100, Math.max(0, Number(process.env.POT_PCT) || 20));
-/* Every MEGA_EVERY_MS (the hour and the half hour by default) the round is a
+/* Every MEGA_EVERY_MS (the hour, on the hour, by default) the round is a
    mega race and the winner takes MEGA_PCT of the fees instead. The round says
    so from the moment it opens, so the page can badge it. */
-const MEGA_EVERY_MS = Math.max(ROUND_MS, Number(process.env.MEGA_EVERY_MS) || 1800000);
+const MEGA_EVERY_MS = Math.max(ROUND_MS, Number(process.env.MEGA_EVERY_MS) || 3600000);
 const MEGA_PCT = Math.min(100, Math.max(0, Number(process.env.MEGA_PCT) || 50));
 const MATERIALS = ['glass', 'metal', 'holo', 'neon', 'chrome', 'clear', 'lava', 'galaxy'];
 const FACES = ['hood', 'doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];

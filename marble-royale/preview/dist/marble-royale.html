@@ -1,6 +1,6 @@
 
 <title>MARBLERUSH</title>
-<meta name="description" content="Race your marble. Win the pot. A provably fair marble race every five minutes on Robinhood Chain.">
+<meta name="description" content="Race your marble. Win the pot. A provably fair marble race every ten minutes on Robinhood Chain.">
 <meta property="og:title" content="MARBLERUSH">
 <meta property="og:description" content="Race your marble. Win the pot.">
 <meta name="theme-color" content="#07070b">
@@ -217,18 +217,21 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .hero { position: relative; padding: clamp(50px, 8vw, 110px) var(--gut) 30px; max-width: 1240px; margin: 0 auto; text-align: center; }
 .hero__in { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; display: grid; justify-items: center; }
 .floaters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.floaters { perspective: 900px; perspective-origin: 50% 40%; }
+.floaters { }
 /* Each coin arrives from deep in the page, small and faint, and grows as it
    comes forward to its place; then it drifts. The wrapper flies, the coin
    inside floats, so the two motions never fight. */
-.fl { position: absolute; opacity: 0; transform-style: preserve-3d; will-change: transform, opacity; backface-visibility: hidden; }
+.fl { position: absolute; opacity: 0; will-change: transform, opacity; }
 /* nothing moves until the marbles are the real ones: the page waits for the
-   renders, then every coin arrives in one clean pass */
-.floaters.is-in .fl { animation: arrive 1.6s cubic-bezier(.16, .84, .24, 1) both; }
+   renders, then every coin fades up into place, a beat apart */
+.floaters.is-in .fl { animation: arrive .9s cubic-bezier(.2, .7, .2, 1) both; }
+.hero__in { animation: fadeup .8s cubic-bezier(.2, .7, .2, 1) both; }
+.trust { animation: fadeup .8s .35s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes fadeup { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 .floater { display: block; width: 100%; height: 100%; border-radius: 50%; animation: floaty 8s ease-in-out infinite; filter: drop-shadow(0 18px 24px rgba(23, 32, 56, .25)); }
-@keyframes arrive { from { transform: translate3d(0, 30px, -600px) scale(.6); opacity: 0; } 45% { opacity: 1; } to { transform: translate3d(0, 0, 0) scale(1); opacity: 1; } }
+@keyframes arrive { from { transform: translateY(26px) scale(.82); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-18px) rotate(5deg); } }
-@media (prefers-reduced-motion: reduce) { .fl, .floaters.is-in .fl { animation: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .fl, .floaters.is-in .fl, .hero__in, .trust { animation: none; opacity: 1; } }
 .hero__cta { justify-content: center; }
 #commitLine { word-break: break-all; font-size: 12px; }
 .trust { list-style: none; margin: 56px auto 0; padding: 22px 0 0; max-width: 1180px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; text-align: left; border-top: 1px solid var(--line); position: relative; z-index: 2; }
@@ -556,9 +559,9 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 /* On the home page the dock waits until you scroll down to the track, then
    springs in from the left; on every other screen it is there from the
    start. It steps aside for the countdown and the race. */
-.dock { opacity: 0; pointer-events: none; transform: translate(-28px, -50%) scale(.94); transition: opacity .25s ease, transform .25s ease; }
-.dock.is-shown { opacity: 1; pointer-events: auto; transform: translateY(-50%); animation: dockin .7s cubic-bezier(.2, 1.5, .4, 1) both; }
-@keyframes dockin { from { transform: translate(-60px, -50%) scale(.8); opacity: 0; } 60% { transform: translate(6px, -50%) scale(1.03); opacity: 1; } to { transform: translateY(-50%); opacity: 1; } }
+.dock { opacity: 0; pointer-events: none; transform: translate(-28px, -50%); }
+.dock.is-shown { opacity: 1; pointer-events: auto; transform: translateY(-50%); animation: dockin .6s cubic-bezier(.2, .9, .3, 1) both; }
+@keyframes dockin { from { transform: translate(-40px, -50%); opacity: 0; } to { transform: translateY(-50%); opacity: 1; } }
 body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0 !important; pointer-events: none !important; transform: translate(-20px, -50%) !important; animation: none !important; }
 /* once the page is scrolled the top bar steps away: the dock has it all */
 .top { transition: opacity .25s ease, transform .25s ease; }
@@ -814,7 +817,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
     <div class="hero">
       <div class="floaters" id="floaters" aria-hidden="true"></div>
       <div class="hero__in">
-        <div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 5 MINUTES</div>
+        <div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 10 MINUTES</div>
         <h1>Race your marble.<br><span>Win the pot.</span></h1>
         <p>Connect a wallet, drop a marble on the track, and watch it fight up to fifty others down a course drawn fresh every race, in a mode the crowd voted for. First one over the line takes the whole pot.</p>
         <div class="hero__cta">
@@ -925,7 +928,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
       <div class="foot__grid">
         <div class="foot__brand">
           <a class="brand" href="#" data-go="home"><span class="brand__mark"></span><span class="brand__name small">Marble<b>Rush</b></span></a>
-          <p class="dim">A provably fair marble race every five minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
+          <p class="dim">A provably fair marble race every ten minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
           <div class="foot__links" id="footLinks">
             <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
             <a class="pill" id="xLink" hidden target="_blank" rel="noopener"><svg class="ic"><use href="#i-x"/></svg> Follow</a>
@@ -4528,7 +4531,7 @@ window.MR_TYPES = true;
 
    The app talks to its server through fetch and an EventSource. This file
    stands in for both, so the same app runs as one HTML file with nothing
-   behind it: a round machine on the five minute clock, a field of bots, a
+   behind it: a round machine on the ten minute clock, a field of bots, a
    pot that climbs a cent at a time, and a demo wallet. It answers the same
    routes with the same shapes, so app.js does not know the difference.
 
@@ -4540,8 +4543,8 @@ window.MR_TYPES = true;
 (function () {
   'use strict';
 
-  const ROUND_MS = 300000, LOBBY_MS = 160000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
-  const MEGA_EVERY = 1800000;
+  const ROUND_MS = 600000, LOBBY_MS = 460000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const MEGA_EVERY = 3600000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
   const NAMES = ['DEGEN', 'APE', 'WHALE', 'CHAD', 'PAPERHANDS', 'DIAMOND', 'GM', 'WAGMI', 'MOON', 'BAGS', 'ALPHA', 'REKT', 'FOMO', 'HODL', 'SER', 'FREN'];

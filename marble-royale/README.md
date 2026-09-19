@@ -1,6 +1,6 @@
 # MARBLE ROYALE
 
-A marble race every five minutes, on the clock. Anyone with an Ethereum wallet
+A marble race every ten minutes, on the clock. Anyone with an Ethereum wallet
 connects, joins the queue, and one marble on the track is theirs. The first
 marble across the line wins, and the winner's wallet address is put on screen so
 a share of the creator fees collected during those five minutes can be sent to
@@ -16,12 +16,12 @@ npm start            # http://localhost:8080
 
 ## How a round works
 
-Rounds are pinned to the wall clock, so a race starts at :00, :05, :10 and
+Rounds are pinned to the wall clock, so a race starts at :00, :10, :20 and
 everyone sees the same countdown wherever they are.
 
 | phase | length | what happens |
 |---|---|---|
-| lobby | 2m 40s | connect a wallet, press join, watch marbles drop into the hopper |
+| lobby | 7m 40s | connect a wallet, press join, watch marbles drop into the hopper |
 | locked | 5s | the field is closed and the seed is published |
 | racing | up to 75s | the race, the same one in every browser; the winner is home in about 32 seconds on average |
 | result | 60s | the winner, the wallet to pay, and a vote on the next track |
@@ -119,7 +119,7 @@ All optional except where noted.
 | `MIN_TOKENS` | hold at least this many to race. `0` (default) lets anyone in |
 | `FEE_WALLET` | the wallet creator fees arrive in, for the pot figure |
 | `POT_PCT` | the share of those fees the winner takes, as a percentage (default 20). It is shown on screen and stored with every round |
-| `MEGA_EVERY_MS` | how often a round is a mega race (default 1800000, the hour and the half hour) |
+| `MEGA_EVERY_MS` | how often a round is a mega race (default 1800000, the hour, on the hour) |
 | `MEGA_PCT` | the winner's share on a mega race (default 50) |
 | `ETH_RPC` | JSON-RPC endpoint of the chain the coin lives on. The default is Ethereum mainnet's public one; for Robinhood Chain set its RPC URL here |
 | `CHAIN_NAME` | what the page calls the chain (default Robinhood Chain) |
@@ -131,7 +131,7 @@ All optional except where noted.
 | `ENTRY_LABEL` | what the lobby shows for entry (default FREE) |
 | `SESSION_SECRET` | keeps sign-ins valid across restarts; random each boot if unset |
 | `DATA_DIR` | where results are written (default `./data`) |
-| `ROUND_MS` | round length in ms (default 300000) |
+| `ROUND_MS` | round length in ms (default 600000, ten minutes) |
 | `MAX_PLAYERS` | places on the grid when a race opens (default 30) |
 | `MAX_PLAYERS_HIGH` | what the grid grows to once it is 80% full (default 50); anyone turned away is put in the next race |
 | `LINK_BUY`, `LINK_X`, `LINK_TG` | buttons in the footer |
@@ -243,5 +243,5 @@ brings up the podium.
   file is loaded with `SOUND.load(name, url)`.
 - **The one-file preview.** `node preview/build-app.js` inlines the whole game
   into `preview/dist/marble-royale.html` with the server stood in for by
-  `standalone.js`: a round every five minutes, bots in the field, a demo pot,
+  `standalone.js`: a round every ten minutes, bots in the field, a demo pot,
   three.js from a CDN. It says on the page that it is a preview build.

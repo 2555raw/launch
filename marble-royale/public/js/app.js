@@ -1450,6 +1450,9 @@
     head.append(nm, by);
     el.append(pic, head);
     if (l.desc) { const d = document.createElement('p'); d.className = 'tok__desc'; d.textContent = l.desc; el.appendChild(d); }
+    const ca = document.createElement('button'); ca.type = 'button'; ca.className = 'tok__ca mono'; ca.title = 'Copy the contract address';
+    const cal = document.createElement('em'); cal.textContent = 'CA'; const cav = document.createElement('span'); cav.textContent = l.token;
+    ca.append(cal, cav); ca.addEventListener('click', () => copy(l.token, 'Contract address')); el.appendChild(ca);
     if (l.buyWei && window.ethers) { const b = document.createElement('div'); b.className = 'tok__buy'; b.textContent = 'creator opening buy ' + ethers.formatEther(l.buyWei) + ' ETH'; el.appendChild(b); }
     const links = document.createElement('div'); links.className = 'tok__links';
     const mk = (text, href, cls) => { const a = document.createElement('a'); a.textContent = text; a.href = href; a.target = '_blank'; a.rel = 'noopener'; if (cls) a.className = cls; return a; };
@@ -1496,6 +1499,27 @@
     toast('The board could not confirm the launch on the chain yet; it will be listed when it can.', 'bad');
     return null;
   }
+  /* Listing a launch that the board missed: the hash goes to the server, the
+     server reads its receipt on Robinhood Chain, and only a real Pons launch
+     from this wallet is listed. */
+  function bindAddLaunch() {
+    const out = $('#addOut'), input = $('#addHash'), btn = $('#addGo');
+    btn.addEventListener('click', async () => {
+      const w = wallet.get();
+      if (!w.token) { openWallet(); return; }
+      const hash = input.value.trim();
+      if (!/^0x[0-9a-fA-F]{64}$/.test(hash)) { out.textContent = 'That is not a transaction hash.'; return; }
+      btn.disabled = true; out.textContent = 'Reading the transaction on Robinhood Chain…';
+      try {
+        const r = await fetch('/api/launch', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: w.token, hash, name: lpField().name, ticker: lpField().ticker, desc: lpField().desc, image: lpField().image, twitter: lpField().twitter, telegram: lpField().telegram, website: lpField().website, color: lpField().color, face: lpField().face }) });
+        const d = await r.json();
+        if (r.ok) { out.textContent = 'Listed: ' + d.launch.token; input.value = ''; toast('Listed on the board', 'good'); }
+        else out.textContent = d.error || 'It could not be listed.';
+      } catch { out.textContent = 'The server did not answer; try again.'; }
+      btn.disabled = false;
+    });
+  }
+
   function fillLaunch(l) {
     $('#lpName').value = l.name; $('#lpTicker').value = l.ticker; $('#lpDesc').value = l.desc || ''; $('#lpFace').value = l.face || 'doge'; $('#lpColor').value = l.color || '#ff7a1a';
     $('#lpImg').value = l.image || ''; $('#lpTwitter').value = l.twitter || ''; $('#lpTelegram').value = l.telegram || ''; $('#lpWebsite').value = l.website || ''; $('#lpBuyback').checked = l.buyback !== false;
@@ -1536,6 +1560,7 @@
     } catch { el.textContent = 'quoted by Pons when you launch'; }
   }
   function buildLaunchpad() {
+    bindAddLaunch();
     $('#homeLaunches [data-go="launch"]').addEventListener('click', (e) => { e.preventDefault(); setScreen('launch'); setTimeout(() => $('#community').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); });
     const sel = $('#lpFace');
     for (const f of RENDER.FACES) { const o = document.createElement('option'); o.value = f; o.textContent = f.toUpperCase(); sel.appendChild(o); }

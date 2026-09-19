@@ -25,6 +25,10 @@ const CDN = 'https://cdn.jsdelivr.net/npm/three@0.170.0/';
 html = html.replace(/<script type="importmap">[\s\S]*?<\/script>/, () => '<script type="importmap">' + JSON.stringify({ imports: { three: CDN + 'build/three.module.min.js' } }) + '</script>');
 html = html.replace(/\.\/vendor\/three\/postprocessing\//g, CDN + 'examples/jsm/postprocessing/').replace(/\.\/vendor\/three\/RoomEnvironment\.js/g, CDN + 'examples/jsm/environments/RoomEnvironment.js');
 
+/* the brand mark is a file next to the css, so the one-file build carries it
+   as a data URI instead */
+html = html.replace("url('brand/mark.svg')", "url(\"data:image/svg+xml;utf8," + encodeURIComponent(read('brand/mark.svg')) + "\")");
+
 /* ethers from the CDN too, rather than half a megabyte inlined */
 html = html.replace('<script src="vendor/ethers/ethers.umd.min.js"></script>', '<script src="https://cdn.jsdelivr.net/npm/ethers@6.17.0/dist/ethers.umd.min.js"></script>');
 

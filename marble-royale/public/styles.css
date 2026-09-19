@@ -133,8 +133,8 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacit
 .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; margin-right: 8px; }
 .brand__mark {
   width: 24px; height: 24px; border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #fff, var(--go) 46%, #8a3a08 100%);
-  box-shadow: 0 6px 14px -6px rgba(255, 122, 26, .7);
+  background: url('brand/mark.svg') center / contain no-repeat;
+  box-shadow: 0 6px 14px -6px rgba(255, 122, 26, .55);
 }
 .brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; color: var(--ink); }
 .brand__name b { color: var(--go); font-weight: 800; }
@@ -325,7 +325,10 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .you__meta { display: grid; gap: 3px; min-width: 0; }
 .you__meta b { font-size: 16px; }
 .you__meta span { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.you__actions { display: grid; grid-template-columns: auto 1fr; gap: 8px; margin-top: 14px; }
+.you__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.you__actions .btn { min-width: 0; justify-content: center; white-space: nowrap; }
+.you__actions #skinBtn { flex: 0 1 auto; }
+.you__actions #joinBtn { flex: 1 1 190px; width: auto; }
 .tx { margin-top: 10px; display: flex; gap: 8px; align-items: center; font-family: var(--mono); font-size: 11.5px; color: var(--ink2); }
 .tx i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: pulse 1s infinite; }
 .tx[data-status="confirmed"] i { background: var(--win); box-shadow: 0 0 8px var(--win); animation: none; }
@@ -814,6 +817,11 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .tok__name em { font-style: normal; color: var(--go); font-family: var(--mono); font-size: 12px; }
 .tok__by { font-size: 11px; color: var(--dim); font-family: var(--mono); margin-top: 2px; }
 .tok__desc { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tok__ca { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; width: 100%; text-align: left;
+  padding: 8px 10px; border-radius: 10px; background: var(--glass2); border: 1px solid var(--line); color: var(--ink2);
+  font-size: 11px; cursor: pointer; word-break: break-all; }
+.tok__ca:hover { background: var(--soft); color: var(--ink); }
+.tok__ca em { font-style: normal; color: var(--go); letter-spacing: .12em; font-size: 9.5px; flex: none; }
 .tok__links { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
 .tok__links a, .tok__links button { font-size: 11.5px; padding: 6px 10px; border-radius: 999px; background: var(--glass2); border: 1px solid var(--line); color: var(--ink); text-decoration: none; cursor: pointer; font-family: var(--disp); }
 .tok__links a.pons { background: var(--go); color: #fff; border-color: transparent; }
@@ -828,3 +836,8 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .ca__acts { display: flex; gap: 8px; flex-wrap: wrap; }
 .ca__acts .ic { width: 15px; height: 15px; }
 @media (max-width: 640px) { .ca__acts .btn { flex: 1 1 auto; justify-content: center; } }
+
+.addlaunch { display: grid; gap: 10px; padding: 16px 18px; border-radius: var(--r); margin-top: 14px; }
+.addlaunch__head { display: grid; gap: 4px; }
+.addlaunch__row { display: flex; gap: 8px; flex-wrap: wrap; }
+.addlaunch__row input { flex: 1 1 320px; min-width: 0; padding: 11px 13px; border-radius: 12px; background: var(--glass2); border: 1px solid var(--line); color: var(--ink); font-size: 13px; }

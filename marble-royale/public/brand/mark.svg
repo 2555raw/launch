@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><rect width="1024" height="1024" rx="224" fill="#ff7a1a"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
 <defs>
 <clipPath id="ball"><circle cx="512" cy="512" r="372"/></clipPath>
 <radialGradient id="shade" cx="34%" cy="28%" r="82%"><stop offset="0%" stop-color="#ffffff" stop-opacity=".30"/><stop offset="52%" stop-color="#ffffff" stop-opacity="0"/><stop offset="100%" stop-color="#000000" stop-opacity=".34"/></radialGradient>

@@ -44,6 +44,19 @@ async function verify(hash, deployer) {
   return { error: 'that transaction is not a Pons launch' };
 }
 
+/* The token's own name and symbol, for a launch listed by hash with no form
+   behind it. A token that does not answer simply keeps the given values. */
+async function meta(token) {
+  try {
+    const c = new ethers.Contract(token, ['function name() view returns (string)', 'function symbol() view returns (string)'], rpc());
+    const [name, symbol] = await Promise.race([
+      Promise.all([c.name(), c.symbol()]),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))
+    ]);
+    return { name: String(name || ''), symbol: String(symbol || '') };
+  } catch { return {}; }
+}
+
 const clean = (s, n) => String(s || '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, n);
 const url = (s) => { const v = clean(s, 300); return /^(https?:\/\/|ipfs:\/\/)/i.test(v) ? v : ''; };
 
@@ -67,4 +80,4 @@ function record(body, chain, deployer) {
   };
 }
 
-module.exports = { verify, record, RPC, FACTORY, TOPIC };
+module.exports = { verify, meta, record, RPC, FACTORY, TOPIC };

@@ -442,6 +442,14 @@
         </div>
         <div class="community" id="communityGrid"></div>
         <div class="empty glass" id="communityEmpty">No token launched through MarbleRush yet. Yours could be the first.</div>
+        <div class="addlaunch glass">
+          <div class="addlaunch__head"><span class="kicker kicker--plain">LIST A LAUNCH</span><span class="dim small">Launched on Pons from this wallet and it is not on the board? Paste the launch transaction hash. The chain is checked before anything is listed.</span></div>
+          <div class="addlaunch__row">
+            <input class="mono" id="addHash" placeholder="0x… launch transaction hash" autocomplete="off" spellcheck="false">
+            <button class="btn btn--accent" type="button" id="addGo">List it</button>
+          </div>
+          <span class="dim small" id="addOut"></span>
+        </div>
       </section>
       <div class="block block--split launch__how">
         <div class="glass panel">

@@ -26,7 +26,9 @@ const { Rounds, ROUND_MS, LOBBY_MS, MAX_PLAYERS, MAX_PLAYERS_HIGH, FEE_WALLET, P
 const PORT = Number(process.env.PORT) || 8080;
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
-const TOKEN_MINT = process.env.TOKEN_MINT || '';
+/* TOKEN_CA and TOKEN_SYMBOL are the names people reach for first, so both
+   spellings are read. */
+const TOKEN_MINT = process.env.TOKEN_MINT || process.env.TOKEN_CA || '';
 /* Demo mode hands out demo wallets: a random address and a session, no
    signature, so the game can be tried with nothing installed. Everything a
    demo wallet does is marked demo; it never reaches a chain. Off unless asked. */
@@ -36,12 +38,12 @@ const PUBLIC = path.join(__dirname, 'public');
 
 const CONFIG = {
   coin: process.env.COIN_NAME || 'MARBLERUSH',
-  ticker: process.env.COIN_TICKER || '',
+  ticker: process.env.COIN_TICKER || process.env.TOKEN_SYMBOL || '',
   mint: TOKEN_MINT,
   minTokens: MIN_TOKENS,
   feeWallet: FEE_WALLET,
-  chain: process.env.CHAIN_NAME || 'Robinhood Chain',
-  explorer: process.env.EXPLORER || 'https://robinhoodchain.blockscout.com',
+  chain: process.env.CHAIN_NAME || process.env.TOKEN_CHAIN || 'Robinhood Chain',
+  explorer: process.env.EXPLORER || process.env.TOKEN_EXPLORER || 'https://robinhoodchain.blockscout.com',
   currency: 'USD',
   potPct: POT_PCT,
   megaPct: MEGA_PCT,
@@ -372,6 +374,12 @@ const server = http.createServer(async (req, res) => {
     } else {
       chain = await launches.verify(body.hash, address);
       if (chain.error) return json(res, chain.retry ? 503 : 400, { error: chain.error });
+    }
+    /* A launch listed from the board has no form behind it, so the token's
+       own name and symbol stand in. */
+    if (!body.name || !body.ticker) {
+      const m = await launches.meta(chain.token);
+      body = Object.assign({}, body, { name: body.name || m.name, ticker: body.ticker || m.symbol });
     }
     const rec = store.addLaunch(launches.record(body, chain, address));
     broadcast('launch', { launch: rec, launches: store.launches(24) });

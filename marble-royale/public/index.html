@@ -38,35 +38,6 @@
 <div class="vignette" aria-hidden="true"></div>
 <div class="noise" aria-hidden="true"></div>
 
-<!-- ---------- top bar ---------- -->
-<header class="top">
-  <div class="top__left">
-    <a class="brand" href="#" data-go="home">
-      <span class="brand__mark"></span>
-      <span class="brand__name">Marble<b>Rush</b></span>
-    </a>
-    <div class="top__race" id="topRace">
-      <span class="mono" id="topRaceNo">RACE #----</span>
-      <span class="pill pill--phase" id="topPhase">LOBBY</span>
-    </div>
-    <nav class="top__links">
-      <a href="#" data-go="home">Race</a>
-      <a href="#" data-go="lobby">Lobby</a>
-      <a href="#" data-goto="modes">Modes</a>
-      <a href="#" data-go="launch">Launch</a>
-      <a href="#" data-go="fair">Fair</a>
-    </nav>
-  </div>
-  <div class="top__right">
-    <div class="themes" role="group" aria-label="colour theme">
-      <button class="theme" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
-      <button class="theme is-on" data-theme="black" title="Black" aria-label="Black theme"></button>
-      <button class="theme" data-theme="white" title="White" aria-label="White theme"></button>
-    </div>
-    <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
-    <button class="btn btn--accent" id="walletBtn"><span class="btn__dot"></span><span id="walletLabel">Connect wallet</span></button>
-  </div>
-</header>
 
 <main id="screens">
 
@@ -449,7 +420,7 @@
 <!-- ---------- the dock ---------- -->
 <nav class="dock" id="dock" aria-label="taskbar">
   <a class="dock__brand" href="#" data-go="home" title="MarbleRush"><span class="brand__mark"></span></a>
-  <div class="dock__race mono" id="dockNo">#----</div>
+  <div class="dock__race mono"><span id="dockNo">#----</span><i class="pill pill--phase" id="dockPhase">LOBBY</i></div>
   <button class="dock__it is-on" data-dock="home"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
   <button class="dock__it dock__it--race" data-dock="lobby"><svg class="ic"><use href="#i-flag"/></svg><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
   <button class="dock__it" data-dock="modes"><svg class="ic"><use href="#i-grid"/></svg><span>Modes</span></button>

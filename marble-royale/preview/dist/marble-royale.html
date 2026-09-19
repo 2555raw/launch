@@ -213,7 +213,7 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .screen { min-height: 100dvh; }
 
 /* home scrolls over the world */
-.screen--home { padding-top: calc(74px + env(safe-area-inset-top, 0px)); }
+.screen--home { padding-top: calc(24px + env(safe-area-inset-top, 0px)); }
 .hero { position: relative; padding: clamp(50px, 8vw, 110px) var(--gut) 30px; max-width: 1240px; margin: 0 auto; text-align: center; }
 .hero__in { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; display: grid; justify-items: center; }
 .floaters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
@@ -312,7 +312,7 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 
 /* ---- lobby -------------------------------------------------------------- */
 
-.screen--lobby { padding: calc(74px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
+.screen--lobby { padding: calc(28px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .lobby { max-width: 1240px; margin: 0 auto; display: grid; gap: 14px; }
 .lobby__head { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1.3fr; gap: 1px; overflow: hidden; }
 .stat { padding: 16px 20px; display: grid; gap: 3px; align-content: center; border-right: 1px solid var(--line); }
@@ -373,9 +373,9 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--race { position: fixed; inset: 0; pointer-events: none; }
 .hud { position: absolute; pointer-events: auto; }
-.hud--tl { top: calc(86px + env(safe-area-inset-top, 0px)); left: var(--gut); display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.hud--tl { top: calc(22px + env(safe-area-inset-top, 0px)); left: var(--gut); display: flex; align-items: center; gap: 10px; font-size: 13px; }
 .hud--board {
-  top: calc(86px + env(safe-area-inset-top, 0px)); right: var(--gut); list-style: none; margin: 0; padding: 8px;
+  top: calc(22px + env(safe-area-inset-top, 0px)); right: var(--gut); list-style: none; margin: 0; padding: 8px;
   display: grid; gap: 3px; min-width: 190px; font-size: 12px;
   background: rgba(7, 7, 11, .55); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(10px);
 }
@@ -396,7 +396,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 /* ---- results ------------------------------------------------------------ */
 
-.screen--results { display: grid; place-items: center; padding: calc(80px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
+.screen--results { display: grid; place-items: center; padding: calc(40px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .results { width: min(560px, 100%); padding: 28px; text-align: center; display: grid; gap: 16px; animation: rise .5s cubic-bezier(.2, 1.4, .4, 1) both; }
 .results__cup { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: color-mix(in srgb, var(--gold) 22%, var(--glass)); color: var(--gold); box-shadow: 0 14px 30px -14px rgba(217, 143, 0, .6); }
 .results__cup .ic { width: 30px; height: 30px; }
@@ -566,7 +566,10 @@ body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top { opa
 body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top > * { pointer-events: none; }
 .dock__brand { display: grid; place-items: center; padding: 6px 0 2px; }
 .dock__brand .brand__mark { width: 28px; height: 28px; }
-.dock__race { text-align: center; font-size: 9.5px; letter-spacing: .12em; color: var(--dim); padding: 2px 0 6px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.dock__race { display: grid; justify-items: center; gap: 4px; text-align: center; font-size: 9.5px; letter-spacing: .12em; color: var(--dim); padding: 2px 0 8px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.dock__race .pill { font-size: 8.5px; padding: 2px 7px; }
+.dock__it--wallet.is-off { background: linear-gradient(180deg, #ff8f3a, var(--go2)); color: #fff; box-shadow: 0 10px 24px -12px rgba(255, 122, 26, .9); }
+.dock__it--wallet.is-off .ic { color: #fff; }
 .dock__themes { display: flex; justify-content: center; gap: 5px; padding: 8px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
 .dock__themes .theme { width: 16px; height: 16px; }
 .dock__it--wallet span { font-size: 10px; }
@@ -638,7 +641,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 
 /* ---- the launchpad -------------------------------------------------------- */
 
-.screen--launch { padding: calc(74px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
+.screen--launch { padding: calc(28px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .launch { max-width: 1180px; margin: 0 auto; display: grid; gap: 22px; }
 .launch__head { max-width: 62ch; }
 .launch__head h2 { font-size: clamp(34px, 5vw, 64px); font-weight: 700; letter-spacing: -.04em; margin: 8px 0 10px; }
@@ -787,35 +790,6 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 <div class="vignette" aria-hidden="true"></div>
 <div class="noise" aria-hidden="true"></div>
 
-<!-- ---------- top bar ---------- -->
-<header class="top">
-  <div class="top__left">
-    <a class="brand" href="#" data-go="home">
-      <span class="brand__mark"></span>
-      <span class="brand__name">Marble<b>Rush</b></span>
-    </a>
-    <div class="top__race" id="topRace">
-      <span class="mono" id="topRaceNo">RACE #----</span>
-      <span class="pill pill--phase" id="topPhase">LOBBY</span>
-    </div>
-    <nav class="top__links">
-      <a href="#" data-go="home">Race</a>
-      <a href="#" data-go="lobby">Lobby</a>
-      <a href="#" data-goto="modes">Modes</a>
-      <a href="#" data-go="launch">Launch</a>
-      <a href="#" data-go="fair">Fair</a>
-    </nav>
-  </div>
-  <div class="top__right">
-    <div class="themes" role="group" aria-label="colour theme">
-      <button class="theme" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
-      <button class="theme is-on" data-theme="black" title="Black" aria-label="Black theme"></button>
-      <button class="theme" data-theme="white" title="White" aria-label="White theme"></button>
-    </div>
-    <span class="pill pill--net" id="netPill" hidden><i></i><span id="netName"></span></span>
-    <button class="btn btn--accent" id="walletBtn"><span class="btn__dot"></span><span id="walletLabel">Connect wallet</span></button>
-  </div>
-</header>
 
 <main id="screens">
 
@@ -1198,7 +1172,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 <!-- ---------- the dock ---------- -->
 <nav class="dock" id="dock" aria-label="taskbar">
   <a class="dock__brand" href="#" data-go="home" title="MarbleRush"><span class="brand__mark"></span></a>
-  <div class="dock__race mono" id="dockNo">#----</div>
+  <div class="dock__race mono"><span id="dockNo">#----</span><i class="pill pill--phase" id="dockPhase">LOBBY</i></div>
   <button class="dock__it is-on" data-dock="home"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
   <button class="dock__it dock__it--race" data-dock="lobby"><svg class="ic"><use href="#i-flag"/></svg><span>Race</span><em class="mono" id="dockRace">LOBBY</em></button>
   <button class="dock__it" data-dock="modes"><svg class="ic"><use href="#i-grid"/></svg><span>Modes</span></button>
@@ -5120,8 +5094,7 @@ window.MR_TYPES = true;
     const r = game.get().race;
     if (!r) return;
     const no = '#' + pad(r.number || 0);
-    $('#topRaceNo').textContent = 'RACE ' + no;
-    $('#topPhase').textContent = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
+    $('#dockPhase').textContent = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
     $('#lbNo').textContent = no; $('#loNo').textContent = no; $('#hudNo').textContent = 'RACE ' + no;
     const potText = usd(r.pot);
     $('#lbPot').textContent = potText; $('#loPot').textContent = potText;
@@ -5132,7 +5105,7 @@ window.MR_TYPES = true;
     $('#commitLine').textContent = r.commit ? 'seed commit · ' + r.commit : '';
     $('#hudTrack').textContent = current ? (modeInfo(current.course.mode).name.toUpperCase() + ' · ' + RENDER.THEMES[(current.course.theme || 0) % RENDER.THEMES.length].name.toUpperCase() + ' · ' + current.course.sections.length + ' SECTIONS') : '';
     $('#dockPot').textContent = usd(r.pot);
-    $('#dockNo').textContent = 'RACE ' + no;
+    $('#dockNo').textContent = no;
   }
 
   /* ---- modes ------------------------------------------------------------- */
@@ -5594,24 +5567,17 @@ window.MR_TYPES = true;
 
   function paintWallet() {
     const w = wallet.get();
-    const btn = $('#walletBtn');
+    const item = $('.dock__it--wallet');
+    item.classList.toggle('is-off', !w.address);
     if (w.address) {
-      $('#walletLabel').textContent = (w.demo ? 'DEMO · ' : '') + short(w.address);
-      btn.classList.remove('btn--accent'); btn.classList.add('btn--glass');
-      $('#netPill').hidden = !w.network || w.demo; $('#netName').textContent = w.network;
       $('#accKind').textContent = w.label + (w.demo ? '' : ' · connected');
       $('#accAddr').textContent = w.address;
       $('#accNet').textContent = w.demo ? 'no network' : (w.network || 'unknown network'); $('#accNet').hidden = w.demo;
       $('#accDemo').hidden = !w.demo;
       $('#accStats').textContent = w.stats ? w.stats.wins + ' wins · ' + w.stats.races + ' races' : '';
-    } else {
-      $('#walletLabel').textContent = 'Connect wallet';
-      btn.classList.add('btn--accent'); btn.classList.remove('btn--glass');
-      $('#netPill').hidden = true;
     }
-    $('#dockWallet').textContent = w.address ? short(w.address) : 'Wallet';
+    $('#dockWallet').textContent = w.address ? short(w.address) : 'Connect';
   }
-  $('#walletBtn').addEventListener('click', openWallet);
   $('#heroJoin').addEventListener('click', () => { SOUND.wake(); if (!wallet.get().address) openWallet(); else { setScreen('lobby'); join(); } });
   $('#accCopy').addEventListener('click', () => copy(wallet.get().address, 'Your address'));
   $('#accDisconnect').addEventListener('click', signOut);
@@ -5823,10 +5789,8 @@ window.MR_TYPES = true;
     /* the dock shows once the home page is scrolled down to the track, and
        always on the other screens */
     const dock = $('#dock');
-    const down = window.scrollY > (screen === 'home' ? Math.max(240, innerHeight * 0.45) : 120);
-    const wantDock = screen !== 'home' || down;
+    const wantDock = screen !== 'race' && screen !== 'count';
     if (wantDock !== dock.classList.contains('is-shown')) dock.classList.toggle('is-shown', wantDock);
-    if (down !== document.body.classList.contains('is-scrolled')) document.body.classList.toggle('is-scrolled', down);
     if (screen === 'home') {
       const st = $('#stage');
       const r = st.getBoundingClientRect();

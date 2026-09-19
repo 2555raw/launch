@@ -204,7 +204,7 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 .screen { min-height: 100dvh; }
 
 /* home scrolls over the world */
-.screen--home { padding-top: calc(74px + env(safe-area-inset-top, 0px)); }
+.screen--home { padding-top: calc(24px + env(safe-area-inset-top, 0px)); }
 .hero { position: relative; padding: clamp(50px, 8vw, 110px) var(--gut) 30px; max-width: 1240px; margin: 0 auto; text-align: center; }
 .hero__in { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; display: grid; justify-items: center; }
 .floaters { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
@@ -303,7 +303,7 @@ body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-fil
 
 /* ---- lobby -------------------------------------------------------------- */
 
-.screen--lobby { padding: calc(74px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
+.screen--lobby { padding: calc(28px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .lobby { max-width: 1240px; margin: 0 auto; display: grid; gap: 14px; }
 .lobby__head { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1.3fr; gap: 1px; overflow: hidden; }
 .stat { padding: 16px 20px; display: grid; gap: 3px; align-content: center; border-right: 1px solid var(--line); }
@@ -364,9 +364,9 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 .screen--race { position: fixed; inset: 0; pointer-events: none; }
 .hud { position: absolute; pointer-events: auto; }
-.hud--tl { top: calc(86px + env(safe-area-inset-top, 0px)); left: var(--gut); display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.hud--tl { top: calc(22px + env(safe-area-inset-top, 0px)); left: var(--gut); display: flex; align-items: center; gap: 10px; font-size: 13px; }
 .hud--board {
-  top: calc(86px + env(safe-area-inset-top, 0px)); right: var(--gut); list-style: none; margin: 0; padding: 8px;
+  top: calc(22px + env(safe-area-inset-top, 0px)); right: var(--gut); list-style: none; margin: 0; padding: 8px;
   display: grid; gap: 3px; min-width: 190px; font-size: 12px;
   background: rgba(7, 7, 11, .55); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(10px);
 }
@@ -387,7 +387,7 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 
 /* ---- results ------------------------------------------------------------ */
 
-.screen--results { display: grid; place-items: center; padding: calc(80px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
+.screen--results { display: grid; place-items: center; padding: calc(40px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .results { width: min(560px, 100%); padding: 28px; text-align: center; display: grid; gap: 16px; animation: rise .5s cubic-bezier(.2, 1.4, .4, 1) both; }
 .results__cup { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: color-mix(in srgb, var(--gold) 22%, var(--glass)); color: var(--gold); box-shadow: 0 14px 30px -14px rgba(217, 143, 0, .6); }
 .results__cup .ic { width: 30px; height: 30px; }
@@ -557,7 +557,10 @@ body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top { opa
 body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top > * { pointer-events: none; }
 .dock__brand { display: grid; place-items: center; padding: 6px 0 2px; }
 .dock__brand .brand__mark { width: 28px; height: 28px; }
-.dock__race { text-align: center; font-size: 9.5px; letter-spacing: .12em; color: var(--dim); padding: 2px 0 6px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.dock__race { display: grid; justify-items: center; gap: 4px; text-align: center; font-size: 9.5px; letter-spacing: .12em; color: var(--dim); padding: 2px 0 8px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.dock__race .pill { font-size: 8.5px; padding: 2px 7px; }
+.dock__it--wallet.is-off { background: linear-gradient(180deg, #ff8f3a, var(--go2)); color: #fff; box-shadow: 0 10px 24px -12px rgba(255, 122, 26, .9); }
+.dock__it--wallet.is-off .ic { color: #fff; }
 .dock__themes { display: flex; justify-content: center; gap: 5px; padding: 8px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
 .dock__themes .theme { width: 16px; height: 16px; }
 .dock__it--wallet span { font-size: 10px; }
@@ -629,7 +632,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 
 /* ---- the launchpad -------------------------------------------------------- */
 
-.screen--launch { padding: calc(74px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
+.screen--launch { padding: calc(28px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .launch { max-width: 1180px; margin: 0 auto; display: grid; gap: 22px; }
 .launch__head { max-width: 62ch; }
 .launch__head h2 { font-size: clamp(34px, 5vw, 64px); font-weight: 700; letter-spacing: -.04em; margin: 8px 0 10px; }

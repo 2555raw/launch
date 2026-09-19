@@ -376,8 +376,7 @@
     const r = game.get().race;
     if (!r) return;
     const no = '#' + pad(r.number || 0);
-    $('#topRaceNo').textContent = 'RACE ' + no;
-    $('#topPhase').textContent = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
+    $('#dockPhase').textContent = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
     $('#lbNo').textContent = no; $('#loNo').textContent = no; $('#hudNo').textContent = 'RACE ' + no;
     const potText = usd(r.pot);
     $('#lbPot').textContent = potText; $('#loPot').textContent = potText;
@@ -388,7 +387,7 @@
     $('#commitLine').textContent = r.commit ? 'seed commit · ' + r.commit : '';
     $('#hudTrack').textContent = current ? (modeInfo(current.course.mode).name.toUpperCase() + ' · ' + RENDER.THEMES[(current.course.theme || 0) % RENDER.THEMES.length].name.toUpperCase() + ' · ' + current.course.sections.length + ' SECTIONS') : '';
     $('#dockPot').textContent = usd(r.pot);
-    $('#dockNo').textContent = 'RACE ' + no;
+    $('#dockNo').textContent = no;
   }
 
   /* ---- modes ------------------------------------------------------------- */
@@ -850,24 +849,17 @@
 
   function paintWallet() {
     const w = wallet.get();
-    const btn = $('#walletBtn');
+    const item = $('.dock__it--wallet');
+    item.classList.toggle('is-off', !w.address);
     if (w.address) {
-      $('#walletLabel').textContent = (w.demo ? 'DEMO · ' : '') + short(w.address);
-      btn.classList.remove('btn--accent'); btn.classList.add('btn--glass');
-      $('#netPill').hidden = !w.network || w.demo; $('#netName').textContent = w.network;
       $('#accKind').textContent = w.label + (w.demo ? '' : ' · connected');
       $('#accAddr').textContent = w.address;
       $('#accNet').textContent = w.demo ? 'no network' : (w.network || 'unknown network'); $('#accNet').hidden = w.demo;
       $('#accDemo').hidden = !w.demo;
       $('#accStats').textContent = w.stats ? w.stats.wins + ' wins · ' + w.stats.races + ' races' : '';
-    } else {
-      $('#walletLabel').textContent = 'Connect wallet';
-      btn.classList.add('btn--accent'); btn.classList.remove('btn--glass');
-      $('#netPill').hidden = true;
     }
-    $('#dockWallet').textContent = w.address ? short(w.address) : 'Wallet';
+    $('#dockWallet').textContent = w.address ? short(w.address) : 'Connect';
   }
-  $('#walletBtn').addEventListener('click', openWallet);
   $('#heroJoin').addEventListener('click', () => { SOUND.wake(); if (!wallet.get().address) openWallet(); else { setScreen('lobby'); join(); } });
   $('#accCopy').addEventListener('click', () => copy(wallet.get().address, 'Your address'));
   $('#accDisconnect').addEventListener('click', signOut);
@@ -1079,10 +1071,8 @@
     /* the dock shows once the home page is scrolled down to the track, and
        always on the other screens */
     const dock = $('#dock');
-    const down = window.scrollY > (screen === 'home' ? Math.max(240, innerHeight * 0.45) : 120);
-    const wantDock = screen !== 'home' || down;
+    const wantDock = screen !== 'race' && screen !== 'count';
     if (wantDock !== dock.classList.contains('is-shown')) dock.classList.toggle('is-shown', wantDock);
-    if (down !== document.body.classList.contains('is-scrolled')) document.body.classList.toggle('is-scrolled', down);
     if (screen === 'home') {
       const st = $('#stage');
       const r = st.getBoundingClientRect();

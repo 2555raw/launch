@@ -3,24 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vesica — one vault per stock</title>
-  <meta name="description" content="Managed liquidity vaults for tokenized stocks on Robinhood Chain. Deposit USDG, the vault runs the position, and you share in the trading fees.">
+  <title>Not found — Vesica</title>
+  <meta name="description" content="That page is not here. The vaults, the proof page and the docs are.">
   <link rel="icon" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="tokens.css">
-  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="log.css">
 </head>
-<body id="top">
+<body>
+<div class="cs" id="top">
 
-  <header class="hm-nav">
-    <div class="hm-nav-in">
-      <a class="hm-brand" href="index.html">
+  <header class="cs-nav">
+    <a class="cs-brand" href="index.html">
         <span class="brand-mk" aria-hidden="true"></span>
         Vesica
-      </a>
-      <nav class="hm-links" aria-label="Sections">
+    </a>
+
+    <nav class="cs-tabs" id="tabs" aria-label="Legal pages">
         <a href="vaults.html#list">Vaults</a>
         <a href="swap.html">Swap</a>
         <a href="docs.html">Docs</a>
@@ -50,127 +52,51 @@
             <a href="privacy.html">Privacy</a>
           </div>
         </div>
-      </nav>
-      <div class="hm-nav-right">
+    </nav>
+
+    <div class="cs-nav-right">
                 <span class="nav-lang" title="English"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>EN</span>
         <span class="nav-x" title="@vesica — soon" aria-label="X, coming soon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.53 3h3.2l-6.99 7.99L22 21h-6.44l-5.04-6.6L4.75 21H1.54l7.48-8.55L2 3h6.6l4.56 6.03zm-1.12 16.1h1.77L7.68 4.8H5.78z"/></svg></span>
 
-        <a class="btn btn-dark tr-btn-sm" href="vaults.html#list">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2"/></svg>
-          Connect wallet
-        </a>
-      </div>
+      <a class="cs-btn cs-btn-line" href="docs.html">Docs</a>
+      <a class="cs-btn cs-btn-fill" href="vaults.html#list">Vaults</a>
+      <button class="cs-icon cs-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
     </div>
   </header>
 
-  <section class="hm-hero">
-    <div class="hm-hero-in">
-      <h1>One vault per stock.<br>Fees split onchain.</h1>
-
-      <div class="hm-hero-copy">
-        <p>Managed liquidity vaults for tokenized stocks on Robinhood Chain. Deposit USDG, the vault runs the position, and you share in the trading fees.</p>
-        <div class="hm-actions">
-          <a class="btn btn-line" href="docs.html">How it works</a>
-          <a class="btn btn-mint" href="vaults.html#list">Start now</a>
-        </div>
-        <p class="hm-fine">
-          Vault shares move with the Stock Token price and are not principal-protected.
-          Fee APR is a 24h observation, not a forecast. <a href="docs.html#contracts">Verify the contracts</a>
-        </p>
-
-        <div class="hm-ca" aria-label="Contract address, at launch">
-          <b>CA</b>
-          <span class="hm-ca-slot" aria-hidden="true"></span>
-        </div>
-      </div>
-
-      <div class="hm-form" aria-hidden="true">
-        <svg viewBox="-24 -24 148 148" fill="currentColor">
-          <defs><path id="vesicamark" d="M49.74 88.25C49.65 88.11 49.54 87.61 49.49 87.10C49.44 86.60 49.33 85.87 49.25 85.48C49.17 85.09 49.07 84.42 49.03 84.00C49.00 83.58 48.90 82.98 48.82 82.67C48.75 82.36 48.65 81.72 48.62 81.24C48.58 80.76 48.49 80.12 48.41 79.81C48.34 79.50 48.25 78.90 48.21 78.48C48.17 78.05 48.06 77.23 47.95 76.64C47.85 76.05 47.73 75.17 47.70 74.69C47.66 74.22 47.57 73.53 47.50 73.16C47.42 72.79 47.33 72.03 47.30 71.47C47.26 70.91 47.18 69.97 47.12 69.38C47.04 68.52 47.05 67.88 47.18 66.24C47.27 65.10 47.39 63.95 47.45 63.68C47.50 63.41 47.59 62.87 47.65 62.47C47.70 62.08 47.84 61.23 47.95 60.58C48.25 58.83 48.47 56.94 48.47 56.12C48.47 55.25 48.17 53.93 47.87 53.42C47.63 53.02 46.93 52.40 46.71 52.40C46.63 52.40 46.41 52.31 46.20 52.21C46.00 52.10 45.66 51.98 45.44 51.94C45.22 51.90 44.81 51.81 44.53 51.73C44.25 51.65 43.49 51.53 42.84 51.48C42.20 51.42 41.16 51.33 40.54 51.28C39.92 51.22 38.87 51.18 38.19 51.18C36.79 51.18 31.77 51.54 31.08 51.69C30.83 51.75 30.26 51.85 29.81 51.93C29.36 52.00 28.90 52.11 28.78 52.16C28.67 52.22 28.43 52.30 28.25 52.34C28.06 52.37 27.67 52.55 27.37 52.74C26.28 53.44 25.87 54.61 26.12 56.29C26.27 57.27 26.52 57.88 27.15 58.84C28.18 60.43 29.37 61.38 31.43 62.26C32.36 62.66 35.47 62.71 36.81 62.35C37.12 62.26 37.54 62.16 37.74 62.12C38.12 62.05 39.20 61.65 39.47 61.49C39.55 61.44 39.74 61.35 39.88 61.29C40.42 61.05 41.18 60.63 41.67 60.29C42.27 59.87 43.55 58.77 43.74 58.51C43.82 58.41 43.94 58.33 44.02 58.33C44.27 58.33 44.19 58.80 43.85 59.43C43.67 59.75 43.44 60.17 43.34 60.36C43.25 60.54 43.11 60.77 43.03 60.85C42.96 60.94 42.85 61.09 42.80 61.19C42.11 62.35 40.65 63.91 39.44 64.77C38.74 65.28 37.37 66.00 37.12 66.00C37.02 66.00 36.71 66.11 36.44 66.23C35.96 66.45 35.82 66.46 33.44 66.46C31.06 66.46 30.89 66.45 30.21 66.21C28.79 65.73 27.47 64.95 26.38 63.96C26.28 63.87 26.07 63.69 25.91 63.55C25.34 63.05 22.20 59.71 21.11 58.44C19.56 56.63 17.93 55.29 16.00 54.24C14.94 53.66 14.88 53.63 14.76 53.63C14.70 53.63 14.59 53.56 14.52 53.48C14.45 53.40 14.23 53.30 14.02 53.26C13.82 53.23 13.58 53.14 13.50 53.06C13.41 52.99 13.21 52.90 13.04 52.86C12.87 52.82 12.55 52.70 12.32 52.60C11.76 52.35 11.00 52.10 10.28 51.94C9.94 51.86 9.57 51.75 9.46 51.70C9.35 51.64 8.95 51.53 8.59 51.45C8.22 51.36 7.74 51.24 7.52 51.19C6.37 50.89 2.47 50.29 1.06 50.19C0.21 50.13 -0.12 50.04 0.02 49.89C0.05 49.87 0.63 49.80 1.33 49.74C2.03 49.68 2.88 49.56 3.22 49.48C3.56 49.40 4.04 49.34 4.29 49.34C4.55 49.34 5.15 49.25 5.62 49.14C6.10 49.03 6.72 48.89 7.00 48.84C7.72 48.71 8.89 48.43 9.25 48.30C9.42 48.24 9.84 48.12 10.18 48.05C10.52 47.97 10.94 47.84 11.10 47.75C11.27 47.67 11.49 47.60 11.61 47.60C11.72 47.60 11.95 47.52 12.12 47.43C12.29 47.34 12.64 47.20 12.90 47.12C13.17 47.04 13.41 46.93 13.45 46.88C13.48 46.82 13.58 46.78 13.67 46.78C13.82 46.78 15.73 45.87 16.31 45.53C17.48 44.83 18.10 44.42 18.46 44.11C19.48 43.22 20.09 42.59 22.11 40.39C25.10 37.12 25.27 36.95 26.25 36.10C27.10 35.34 28.41 34.41 28.60 34.41C28.66 34.41 28.81 34.32 28.95 34.22C29.08 34.11 29.35 33.99 29.55 33.95C29.75 33.91 30.05 33.82 30.21 33.74C30.60 33.57 32.34 33.38 33.52 33.39C34.71 33.39 36.17 33.56 36.54 33.75C36.71 33.83 36.91 33.90 37.00 33.90C37.19 33.90 38.16 34.36 38.55 34.64C38.68 34.74 38.86 34.82 38.94 34.82C39.43 34.82 42.24 37.71 42.88 38.85C43.11 39.27 43.26 39.51 43.53 39.90C43.66 40.08 43.76 40.27 43.76 40.33C43.76 40.39 43.85 40.59 43.97 40.77C44.17 41.10 44.25 41.67 44.09 41.67C44.04 41.67 43.85 41.50 43.66 41.30C43.18 40.80 41.95 39.80 41.53 39.56C41.15 39.35 40.99 39.25 40.59 38.99C40.45 38.90 40.22 38.79 40.08 38.75C39.94 38.71 39.76 38.62 39.67 38.54C39.22 38.15 36.76 37.52 35.13 37.37C33.61 37.23 32.00 37.37 31.39 37.69C31.20 37.80 30.96 37.88 30.86 37.88C30.77 37.88 30.66 37.93 30.63 37.98C30.60 38.03 30.37 38.17 30.13 38.28C29.64 38.52 28.29 39.61 27.89 40.09C27.46 40.60 26.72 41.72 26.64 41.98C26.60 42.12 26.48 42.39 26.38 42.59C25.94 43.43 25.95 45.41 26.39 46.15C26.79 46.81 27.53 47.43 28.07 47.55C28.24 47.59 28.65 47.70 28.99 47.81C31.16 48.48 37.76 48.92 41.21 48.62C44.96 48.30 46.58 47.86 47.51 46.92C47.98 46.44 48.05 46.31 48.25 45.52C48.59 44.16 48.51 42.50 47.95 39.37C47.84 38.75 47.75 38.10 47.75 37.93C47.75 37.77 47.66 37.26 47.56 36.81C47.33 35.85 47.10 33.39 47.09 31.80C47.08 30.50 47.28 28.07 47.49 26.89C47.57 26.44 47.69 25.54 47.75 24.90C47.80 24.25 47.92 23.40 48.00 23.01C48.09 22.61 48.16 22.11 48.16 21.88C48.16 21.66 48.24 21.10 48.32 20.65C48.40 20.20 48.51 19.45 48.57 18.97C48.62 18.49 48.76 17.52 48.88 16.82C49.39 13.75 49.48 13.16 49.54 12.58C49.63 11.64 49.69 11.49 49.94 11.52C50.11 11.55 50.17 11.65 50.22 12.07C50.26 12.35 50.34 12.92 50.40 13.34C50.49 14.07 50.57 14.57 51.02 17.38C51.13 18.06 51.25 18.92 51.28 19.31C51.32 19.69 51.39 20.14 51.44 20.31C51.49 20.49 51.58 21.09 51.64 21.66C51.70 22.23 51.81 23.02 51.89 23.42C51.97 23.81 52.09 24.69 52.14 25.37C52.20 26.04 52.29 26.73 52.35 26.90C52.44 27.18 52.62 29.28 52.73 31.27C52.79 32.33 52.51 35.79 52.29 36.76C52.21 37.12 52.10 37.77 52.05 38.19C52.00 38.61 51.89 39.35 51.80 39.83C51.58 41.08 51.33 43.18 51.33 43.87C51.33 44.69 51.70 46.17 52.00 46.59C52.32 47.02 53.04 47.60 53.26 47.60C53.35 47.60 53.57 47.68 53.74 47.79C53.91 47.89 54.23 48.00 54.46 48.03C54.68 48.06 55.13 48.15 55.47 48.24C56.32 48.47 58.25 48.63 60.75 48.69C64.26 48.78 68.97 48.36 70.86 47.79C71.22 47.68 71.59 47.59 71.66 47.60C71.99 47.60 73.31 46.59 73.31 46.33C73.31 46.28 73.38 46.16 73.46 46.07C73.72 45.78 73.85 44.60 73.71 43.67C73.65 43.22 73.54 42.73 73.46 42.59C73.39 42.45 73.20 42.06 73.04 41.72C72.66 40.92 71.94 40.02 71.09 39.28C70.42 38.70 69.15 37.88 68.92 37.88C68.85 37.88 68.61 37.80 68.37 37.69C67.31 37.21 64.18 37.20 62.66 37.68C62.30 37.79 61.94 37.88 61.84 37.88C61.67 37.88 61.25 38.05 60.28 38.50C60.05 38.61 59.75 38.74 59.61 38.81C59.47 38.87 59.19 39.02 58.99 39.14C58.64 39.36 58.50 39.45 57.67 39.99C57.47 40.12 57.00 40.53 56.62 40.91C55.95 41.56 55.62 41.69 55.62 41.31C55.62 41.19 56.35 39.83 56.88 38.96C57.85 37.38 59.86 35.34 61.04 34.74C61.18 34.67 61.60 34.45 61.96 34.25C62.33 34.06 62.71 33.90 62.81 33.90C62.91 33.90 63.13 33.83 63.29 33.74C63.92 33.42 66.35 33.29 68.18 33.49C69.10 33.59 70.29 33.89 70.65 34.11C70.74 34.16 71.04 34.31 71.32 34.45C72.08 34.83 73.51 35.95 74.57 37.00C74.93 37.37 76.87 39.47 78.31 41.05C79.62 42.50 81.25 44.09 81.75 44.41C81.97 44.55 82.21 44.73 82.29 44.80C82.37 44.88 82.49 44.94 82.56 44.94C82.63 44.94 82.76 45.01 82.84 45.11C82.91 45.20 83.11 45.34 83.28 45.42C83.45 45.50 84.07 45.81 84.65 46.12C85.23 46.43 85.76 46.68 85.83 46.68C85.89 46.68 86.12 46.77 86.33 46.88C86.54 46.99 86.76 47.09 86.84 47.09C86.91 47.09 87.19 47.20 87.47 47.34C87.76 47.48 88.09 47.59 88.22 47.59C88.35 47.60 88.60 47.67 88.78 47.76C88.96 47.86 89.36 47.99 89.67 48.06C89.98 48.14 90.83 48.36 91.56 48.56C92.30 48.76 93.03 48.92 93.20 48.92C93.37 48.93 93.85 49.02 94.27 49.13C94.70 49.24 95.23 49.33 95.47 49.33C95.70 49.33 96.19 49.40 96.54 49.48C96.90 49.57 97.79 49.68 98.52 49.75C100.59 49.92 100.48 50.05 98.06 50.26C97.35 50.32 96.62 50.41 96.42 50.46C96.22 50.50 95.76 50.57 95.40 50.61C95.03 50.64 94.34 50.76 93.87 50.87C93.39 50.98 92.77 51.11 92.48 51.17C91.51 51.36 90.33 51.66 90.13 51.76C90.02 51.82 89.72 51.90 89.47 51.94C89.22 51.98 88.92 52.07 88.80 52.14C88.69 52.21 88.46 52.30 88.29 52.34C87.66 52.49 86.19 53.08 84.76 53.76C83.79 54.23 83.43 54.44 82.16 55.25C81.41 55.73 80.19 56.79 79.59 57.48C79.26 57.86 78.77 58.40 78.51 58.69C78.25 58.97 77.91 59.34 77.76 59.51C73.40 64.32 72.20 65.31 69.58 66.21C68.90 66.45 68.75 66.46 66.36 66.46C64.00 66.46 63.82 66.44 63.31 66.23C63.02 66.10 62.69 66.00 62.60 66.00C62.50 66.00 62.31 65.91 62.17 65.80C62.03 65.69 61.84 65.60 61.75 65.60C61.43 65.59 59.94 64.49 58.99 63.55C57.99 62.55 56.95 61.27 56.95 61.03C56.95 60.95 56.91 60.89 56.85 60.89C56.80 60.89 56.67 60.72 56.56 60.51C56.46 60.30 56.20 59.81 56.00 59.44C55.62 58.75 55.52 58.33 55.74 58.33C55.80 58.33 56.25 58.69 56.73 59.13C57.80 60.10 58.56 60.61 59.71 61.17C61.07 61.81 61.53 61.99 62.68 62.28C63.64 62.52 63.95 62.55 65.70 62.56C67.50 62.57 67.67 62.56 68.14 62.35C68.41 62.22 68.70 62.12 68.79 62.12C69.17 62.12 70.95 60.88 71.65 60.13C73.27 58.40 74.02 56.44 73.71 54.69C73.51 53.55 72.59 52.54 71.56 52.33C71.38 52.30 71.11 52.21 70.97 52.13C70.82 52.06 70.59 51.99 70.45 51.99C70.31 51.99 69.76 51.90 69.22 51.78C68.13 51.55 63.45 51.18 61.71 51.18C60.64 51.18 59.55 51.25 57.00 51.48C55.84 51.58 54.23 51.92 53.78 52.14C53.64 52.22 53.37 52.33 53.17 52.39C52.76 52.53 52.42 52.81 52.01 53.36C51.70 53.77 51.33 55.22 51.33 56.02C51.33 56.69 51.73 60.07 51.89 60.69C51.97 60.99 52.06 61.57 52.10 61.96C52.14 62.36 52.23 62.93 52.31 63.24C52.50 64.03 52.79 67.84 52.73 68.76C52.55 71.29 52.44 72.55 52.35 73.00C52.29 73.28 52.18 74.13 52.10 74.89C52.02 75.66 51.88 76.65 51.80 77.10C51.71 77.55 51.64 78.12 51.64 78.37C51.64 78.63 51.57 79.11 51.49 79.45C51.41 79.79 51.29 80.55 51.23 81.13C51.17 81.71 51.08 82.36 51.03 82.56C50.97 82.76 50.86 83.45 50.78 84.10C50.69 84.75 50.55 85.61 50.47 86.02C50.38 86.44 50.31 86.96 50.31 87.18C50.31 87.68 50.11 88.50 49.99 88.50C49.94 88.50 49.83 88.38 49.74 88.25Z"/></defs>
-          <g id="spin"></g>
-        </svg>
-      </div>
+  <section class="lg-head">
+    <div class="lg-in">
+      <span class="k">Vesica · 404</span>
+      <h1>That page is not here.</h1>
+      <p>It may have been renamed, or the link may have been wrong to begin with. Either way, nothing on this site is more than two clicks away.</p>
     </div>
   </section>
 
-  <div class="hm-strip"><span class="k">20 vaults, one per stock</span></div>
-  <div class="hm-stocks" id="stocks">
-      <div class="hm-stock" data-logo="NVDA"><span></span>NVIDIA</div>
-      <div class="hm-stock" data-logo="TSLA"><span></span>Tesla</div>
-      <div class="hm-stock" data-logo="HOOD"><span></span>Robinhood</div>
-      <div class="hm-stock" data-logo="COIN"><span></span>Coinbase</div>
-      <div class="hm-stock" data-logo="AAPL"><span></span>Apple</div>
-      <div class="hm-stock" data-logo="MSFT"><span></span>Microsoft</div>
-      <div class="hm-stock" data-logo="AMZN"><span></span>Amazon</div>
-      <div class="hm-stock" data-logo="META"><span></span>Meta</div>
-      <div class="hm-stock" data-logo="GOOGL"><span></span>Alphabet</div>
-      <div class="hm-stock" data-logo="PLTR"><span></span>Palantir</div>
-      <div class="hm-stock" data-logo="AMD"><span></span>AMD</div>
-      <div class="hm-stock" data-logo="INTC"><span></span>Intel</div>
-      <div class="hm-stock" data-logo="MU"><span></span>Micron</div>
-      <div class="hm-stock" data-logo="AVGO"><span></span>Broadcom</div>
-      <div class="hm-stock" data-logo="SNDK"><span></span>SanDisk</div>
-      <div class="hm-stock" data-logo="MSTR"><span></span>MicroStrategy</div>
-      <div class="hm-stock" data-logo="CRCL"><span></span>Circle</div>
-      <div class="hm-stock" data-logo="GME"><span></span>GameStop</div>
-      <div class="hm-stock" data-logo="QQQ"><span></span>Invesco QQQ</div>
-      <div class="hm-stock" data-logo="SPCX"><span></span>SpaceX</div>
-  </div>
-
-  <section class="pr" id="safeguards">
-    <div class="pr-head">
-    <div>
-      <h2>Protected by default.</h2>
-      <p>Oracle checks, caps and a guardian pause on every product. Built for people who read the contracts.</p>
-    </div>
-    <a class="pr-more" href="vaults.html#how">Read the safeguards <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5"/></svg></a>
-    </div>
-
-    <div class="pr-tick"></div>
-
-    <div class="pr-cards">
-    <article class="pr-card"><h3>Chainlink oracle checks</h3><p>Price and sequencer feeds must be fresh before any rebalance or borrow.</p></article>
-    <article class="pr-card"><h3>Caps and a guardian pause</h3><p>Vaults, markets and strategies are each capped, pausable and separately auditable.</p></article>
-    <article class="pr-card"><h3>Verified onchain</h3><p>Every contract is verified on Blockscout against the reviewed deployment.</p></article>
-    </div>
-
-    <div class="pr-partners">
-      <div class="pr-p"><span class="pr-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#101113"/><g transform="translate(3.6 3.6) scale(.7)"><path d="M2.84 24h.53c.096 0 .192-.048.224-.128C7.591 13.696 11.94 8.656 14.67 5.638c.112-.128.064-.225-.096-.225h-4.88a.55.55 0 0 0-.45.225L5.746 9.972c-.514.642-.642 1.236-.642 2.086v4.43c-1.14 3.194-1.862 5.361-2.392 7.32-.032.125.016.192.129.192M20.447.646c-.754-.802-4.157-.834-5.73-.224a3 3 0 0 0-.786.465 41 41 0 0 0-3.323 3.178c-.112.113-.064.225.097.225h5.409c.497 0 .786.289.786.786v6.1c0 .16.128.208.225.064l3.258-4.254c.53-.69.69-.898.835-1.861.192-1.413.08-3.58-.77-4.479m-6.982 16.18 2.231-3.676a.7.7 0 0 0 .064-.29V6.73c0-.16-.112-.225-.224-.097-3.355 3.74-5.971 7.672-8.395 12.407-.06.12.016.225.16.177l5.009-1.54c.565-.174.882-.402 1.155-.852" fill="#CCFF00"/></g></svg></span><span class="pr-pt"><b>Robinhood Chain</b><span>An Arbitrum-stack L2 where the canonical Stock Tokens and USDG settle.</span></span></div>
-      <div class="pr-p"><span class="pr-ic"><svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" fill-rule="evenodd"><circle fill="#FF007A" fill-rule="nonzero" cx="16" cy="16" r="16"/><g fill="#FFF"><path d="M12.261 5.767c-.285-.044-.297-.05-.163-.07.257-.04.865.015 1.284.114.977.233 1.866.828 2.816 1.885l.252.28.36-.057c1.52-.245 3.067-.05 4.36.547.356.164.917.491.987.576.023.026.064.199.091.383.096.637.048 1.125-.146 1.49-.106.198-.112.26-.041.43a.416.416 0 00.372.236c.322 0 .668-.52.828-1.243l.064-.287.126.143c.692.784 1.235 1.853 1.328 2.613l.025.199-.117-.18c-.2-.31-.4-.522-.658-.693-.464-.307-.955-.411-2.255-.48-1.174-.062-1.839-.162-2.497-.377-1.121-.365-1.686-.852-3.018-2.599-.591-.776-.957-1.205-1.32-1.55-.827-.786-1.639-1.198-2.678-1.36z" fill-rule="nonzero"/><path d="M22.422 7.5c.03-.52.1-.863.242-1.176.056-.124.109-.226.117-.226a.773.773 0 01-.055.204c-.103.304-.12.72-.049 1.203.09.614.142.702.79 1.365.305.311.659.703.787.872l.233.306-.233-.219c-.285-.267-.941-.79-1.086-.864-.097-.05-.112-.049-.172.01-.055.056-.067.138-.074.529-.012.608-.095 1-.296 1.39-.108.21-.125.166-.027-.073.073-.178.08-.256.08-.845 0-1.184-.141-1.468-.966-1.956a9.046 9.046 0 00-.764-.396 2.916 2.916 0 01-.374-.182c.023-.023.827.211 1.15.336.482.185.561.209.62.186.039-.015.058-.129.077-.464zm-9.607 2.025c-.579-.797-.937-2.02-.86-2.934l.024-.283.132.024c.248.045.675.204.875.326.548.333.786.772 1.027 1.898.071.33.164.703.207.83.068.203.328.678.54.987.152.222.05.327-.286.297-.514-.047-1.21-.527-1.659-1.145zm8.905 5.935c-2.707-1.09-3.66-2.036-3.66-3.632 0-.235.008-.427.017-.427.01 0 .115.077.233.172.549.44 1.164.628 2.865.876 1.001.147 1.565.265 2.085.437 1.652.548 2.674 1.66 2.918 3.174.07.44.029 1.265-.086 1.7-.09.344-.367.963-.44.987-.02.006-.04-.071-.046-.178-.028-.568-.315-1.122-.798-1.537-.549-.471-1.286-.847-3.089-1.572zm-1.9.452a4.808 4.808 0 00-.131-.572l-.07-.206.129.144c.177.2.318.454.436.794.091.259.101.336.1.757 0 .414-.011.5-.095.734a2.32 2.32 0 01-.571.908c-.495.504-1.13.782-2.048.898-.16.02-.624.054-1.033.075-1.03.054-1.707.164-2.316.378a.488.488 0 01-.174.042c-.024-.025.39-.272.733-.437.483-.233.963-.36 2.04-.539.532-.089 1.082-.196 1.221-.239 1.318-.404 1.995-1.446 1.778-2.737z" fill-rule="nonzero"/><path d="M21.06 18.116c-.36-.773-.442-1.52-.245-2.216.021-.074.055-.135.075-.135a.73.73 0 01.189.102c.166.112.498.3 1.383.782 1.105.603 1.735 1.07 2.164 1.602.375.467.607.999.719 1.647.063.367.026 1.25-.068 1.62-.297 1.166-.988 2.082-1.972 2.616a2.53 2.53 0 01-.288.143c-.014 0 .038-.133.117-.297.33-.692.369-1.366.118-2.116-.153-.459-.466-1.02-1.097-1.966-.734-1.1-.914-1.394-1.095-1.782zm-10.167 4.171c1.005-.848 2.254-1.45 3.393-1.635.49-.08 1.308-.048 1.762.068.728.186 1.38.604 1.719 1.101.33.486.473.91.62 1.852.06.372.123.745.142.83.11.488.327.879.595 1.075.425.311 1.158.33 1.878.05a.981.981 0 01.236-.074c.026.026-.336.269-.592.397a2.014 2.014 0 01-.983.238c-.66 0-1.208-.335-1.665-1.02-.09-.135-.292-.538-.45-.897-.482-1.1-.72-1.436-1.28-1.803-.489-.32-1.118-.377-1.591-.145-.622.305-.795 1.1-.35 1.603.177.2.507.373.777.406a.83.83 0 00.939-.83c0-.332-.128-.52-.448-.665-.437-.197-.907.033-.905.444.001.175.077.285.253.365.113.05.115.055.023.036-.401-.084-.495-.567-.172-.888.387-.386 1.188-.216 1.463.31.116.221.129.662.028.928-.225.595-.883.907-1.55.737-.454-.116-.639-.241-1.186-.805-.951-.98-1.32-1.17-2.692-1.384l-.263-.041.3-.253z" fill-rule="nonzero"/><path d="M6.196 3.35l.096.117c3.708 4.54 5.624 6.896 5.746 7.064.2.278.125.527-.219.723-.191.109-.585.219-.781.219-.223 0-.474-.107-.657-.28-.129-.123-.65-.901-1.853-2.768a188.53 188.53 0 00-1.712-2.633c-.049-.046-.048-.045 1.618 2.936 1.046 1.872 1.4 2.533 1.4 2.622 0 .18-.05.274-.272.522-.37.413-.535.877-.655 1.837-.134 1.077-.51 1.837-1.554 3.138-.61.762-.71.902-.865 1.209-.194.386-.247.603-.269 1.091-.023.516.022.85.18 1.343.138.432.282.718.65 1.288.318.493.501.859.501 1.002 0 .114.022.114.515.003 1.179-.266 2.136-.735 2.675-1.309.333-.355.411-.551.414-1.038.001-.318-.01-.385-.096-.568-.14-.298-.395-.546-.957-.93-.737-.504-1.051-.91-1.138-1.467-.072-.457.011-.78.419-1.634.421-.884.526-1.26.597-2.151.045-.576.108-.803.274-.985.172-.19.328-.255.755-.313.696-.095 1.139-.275 1.503-.61.316-.292.448-.573.468-.995l.016-.32-.177-.206c-.254-.296-2.355-2.614-6.304-6.956l-.106-.115-.212.165zM7.91 19.732a.566.566 0 00-.174-.746c-.228-.152-.583-.08-.583.118 0 .06.033.104.108.143.127.065.136.139.037.288-.101.152-.093.286.023.377.186.146.45.065.59-.18zm5.524-7.176c-.327.1-.644.447-.743.81-.06.221-.026.61.064.73.145.194.286.245.666.242.744-.005 1.39-.324 1.466-.723.062-.327-.223-.78-.614-.98-.202-.102-.631-.143-.839-.079zm.87.68c.115-.163.064-.34-.13-.458-.372-.227-.934-.04-.934.312 0 .174.293.365.561.365.18 0 .424-.107.503-.219z"/></g></g></svg></span><span class="pr-pt"><b>Uniswap pools</b><span>V3 and V4 pools hold each vault's concentrated position.</span></span></div>
-      <div class="pr-p"><span class="pr-ic"><svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none"><circle fill="#2A5ADA" cx="16" cy="16" r="16"/><path d="M16 6l-1.799 1.055L9.3 9.945 7.5 11v10l1.799 1.055 4.947 2.89L16.045 26l1.799-1.055 4.857-2.89L24.5 21V11l-1.799-1.055-4.902-2.89L16 6zm-4.902 12.89v-5.78L16 10.22l4.902 2.89v5.78L16 21.78l-4.902-2.89z" fill="#FFF"/></g></svg></span><span class="pr-pt"><b>Chainlink feeds</b><span>Price and sequencer feeds gate every rebalance, deposit and borrow.</span></span></div>
-      <div class="pr-p"><span class="pr-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1FA971"/><text x="12" y="16.6" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">G</text></svg></span><span class="pr-pt"><b>USDG</b><span>Every vault and market is denominated in the Global Dollar.</span></span></div>
-    </div>
-
-    <div class="pr-dotted"><span>Strategies</span></div>
-
-    <div class="pr-strat">
-    <p>Two managed strategies, a basket of the highest-earning vaults and a delta-neutral position, are in review and take no deposits yet.</p>
-    <a class="pr-more" href="docs.html#roadmap">Preview strategies
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5"/></svg></a>
-    </div>
-  </section>
-
-  <section class="hm-cta">
-    <div class="hm-cta-in">
-      <div>
-        <h2>Vesica is building the yield layer for tokenized stocks so your USDG can get back to work.</h2>
-        <div class="hm-actions">
-          <a class="btn btn-line" href="docs.html" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.3)">Read the docs</a>
-          <a class="btn btn-mint" href="vaults.html#list">Start now</a>
-        </div>
-        <dl class="hm-figs">
-          <div><dt>Vaults live</dt><dd>20</dd></div>
-          <div><dt>Total value locked</dt><dd>$48.6M</dd></div>
-          <div><dt>Fee split</dt><dd>70 / 20 / 10</dd></div>
-        </dl>
-        <p class="hm-fine">
-          Vault shares move with the Stock Token price and are not principal-protected.
-          Fee APR is a 24h observation, not a forecast. <a href="docs.html#contracts">Verify the contracts</a>
-        </p>
+  <main class="lg-body">
+    <article class="lg-entry">
+      <div class="lg-when">Vaults<span>the product</span></div>
+      <div class="lg-what">
+        <h2><a href="vaults.html#list">Twenty vaults, one per stock</a></h2>
+        <p>The list, what each one earns, and what a deposit does. <a href="swap.html">The swap desk</a> is next door.</p>
       </div>
-      <div class="hm-cta-dia"><svg viewBox="0 0 480 330" fill="none" role="img" aria-label="Trading fees split 70/20/10, the buyback burns VESICA, and the share price rises"><g class="fg-edges"><line x1="240" y1="42" x2="383" y2="101"/><line x1="383" y1="101" x2="383" y2="219"/><line x1="383" y1="219" x2="240" y2="278"/><line x1="240" y1="278" x2="97" y2="219"/><line x1="97" y1="219" x2="97" y2="101"/><line x1="97" y1="101" x2="240" y2="42"/></g><g class="fg-node" transform="translate(240 42)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">Trading fees</text><text class="fg-s" text-anchor="middle" y="20">every swap in the pool</text></g><g class="fg-node" transform="translate(383 101)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">70% compounds</text><text class="fg-s" text-anchor="middle" y="20">back into the position</text></g><g class="fg-node" transform="translate(383 219)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">20% buys back</text><text class="fg-s" text-anchor="middle" y="20">VESICA on the open market</text></g><g class="fg-node" transform="translate(240 278)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">Burned</text><text class="fg-s" text-anchor="middle" y="20">supply goes down</text></g><g class="fg-node" transform="translate(97 219)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">10% treasury</text><text class="fg-s" text-anchor="middle" y="20">audits, oracles, keepers</text></g><g class="fg-node" transform="translate(97 101)"><rect class="fg-hit" x="-64" y="-26" width="128" height="52" rx="8"/><rect class="fg-a" x="-22" y="-18" width="44" height="6" rx="3"/><rect class="fg-b" x="-22" y="-9" width="44" height="6" rx="3"/><text class="fg-t" text-anchor="middle" y="9">Share price</text><text class="fg-s" text-anchor="middle" y="20">rises, and round again</text></g><text class="fg-c" x="240" y="158" text-anchor="middle">THE LOOP</text><text class="fg-c fg-c2" x="240" y="171" text-anchor="middle">hover a step</text></svg></div>
-    </div>
-  </section>
+    </article>
+    <article class="lg-entry">
+      <div class="lg-when">Proof<span>the code</span></div>
+      <div class="lg-what">
+        <h2><a href="proof.html">The contracts, and the tests that hold them</a></h2>
+        <p>What is built, what each test proves, and — at the same size — what is not done yet.</p>
+      </div>
+    </article>
+    <article class="lg-entry">
+      <div class="lg-when">Docs<span>the detail</span></div>
+      <div class="lg-what">
+        <h2><a href="docs.html">How a vault earns, and what guards it</a></h2>
+        <p>Or <a href="log.html">the build log</a>, if you want the order it all happened in.</p>
+      </div>
+    </article>
+  </main>
 
   <footer class="ft">
     <div class="ft-bar" id="status">
@@ -241,8 +167,8 @@
     </div>
   </footer>
 
+</div>
 <script src="logos.js"></script>
-<script src="home.js"></script>
 <script src="market.js"></script>
 <script src="reveal.js"></script>
 <script src="nav.js"></script>

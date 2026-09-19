@@ -50,7 +50,7 @@
 
 
 /* the wireframe form */
-.hm-form { position: absolute; right: -6px; top: -34px; width: min(52vw, 800px); color: #C9C8CE; pointer-events: none; }
+.hm-form { position: absolute; right: -34px; top: -58px; width: min(60vw, 940px); color: #C9C8CE; pointer-events: none; opacity: .72; }
 .hm-form svg { width: 100%; height: auto; }
 
 /* ---------- one vault per stock ---------- */

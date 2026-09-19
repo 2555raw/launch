@@ -447,3 +447,18 @@
 }
 @media (max-width: 720px) { .hw { padding-left: 16px; padding-right: 16px; } }
 
+
+/* A generated address is not a verified one, and should not look like a badge. */
+.cs-ph {
+  display: inline-block; padding: 0 6px; border-radius: 999px;
+  border: 1px dashed var(--dash); color: var(--muted);
+  font-family: var(--mono); font-size: 10.4px; letter-spacing: .05em; text-transform: uppercase;
+}
+.cs-contract .cs-ph { justify-self: start; }
+
+/* the way out of a row and into the vault's own page */
+.cs-open {
+  display: inline-flex; align-items: center; gap: 7px; margin: 2px 0 18px 18px;
+  font-size: 13.6px; font-weight: 500; color: var(--accent); text-decoration: none;
+}
+.cs-open:hover { text-decoration: underline; text-underline-offset: 3px; }

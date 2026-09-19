@@ -1,6 +1,12 @@
 import { chromium } from 'playwright-core';
 import { useLocalFonts } from './fontroute.mjs';
-const PAGES = ['index.html','vaults.html','swap.html','docs.html','terms.html','risk.html','privacy.html'];
+/* Read the pages off disk rather than listing them here: a page added without
+   a line in this file used to look like a broken link everywhere it was
+   referenced, which is a false alarm that trains you to ignore the check. */
+import { readdirSync } from 'node:fs';
+const PAGES = readdirSync(new URL('..', import.meta.url))
+  .filter(f => f.endsWith('.html'))
+  .sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b)));
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
 await useLocalFonts(p);

@@ -20,10 +20,13 @@ const crows = await p.locator('#contracts a, .dx-tr a').count();
 console.log('   contract rows linking out:', crows);
 await p.locator('#contracts a, .dx-tr a').first().click(); await p.waitForTimeout(900);
 console.log('   landed:', p.url());
-ok('a contract row opens its vault', /vaults\.html\?v=/.test(p.url()));
-ok('and prefills the search', (await p.locator('#q').inputValue()).length > 0);
-console.log('   search prefilled with:', JSON.stringify(await p.locator('#q').inputValue()),
-            '-> rows', await p.locator('#rows > details:visible').count());
+// the rows now land on the vault's own page rather than on a filtered list
+ok('a contract row opens its vault', /vault\.html\?v=/.test(p.url()));
+ok('and the page is that vault', (await p.locator('#vp-title').textContent()).includes('USDG / x'));
+ok('with its figures filled', (await p.locator('#vp-apr').textContent()).trim() !== '—');
+ok('and a chart drawn', await p.locator('#vp-svg .vp-line').count() === 1);
+console.log('   landed on:', (await p.locator('#vp-title').textContent()).trim(),
+            '| APR', (await p.locator('#vp-apr').textContent()).trim());
 
 console.log('— the nav quick trade —');
 await p.goto('http://127.0.0.1:8931/docs.html', { waitUntil: 'networkidle' });

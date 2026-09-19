@@ -1,0 +1,114 @@
+/* One vault, on its own page — the thing you can actually link to.
+   The chart is the site's only plotted series, so its rules live here:
+   a 2px line, a grid that stays behind it, and the numbers in ink tokens
+   rather than in the series colour. */
+
+.vp-head { background: var(--band); color: var(--on-band); padding: 44px 0 56px; }
+.vp-in { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+.vp-back {
+  display: inline-flex; align-items: center; gap: 7px; color: var(--on-band-2);
+  font-size: 13.4px; text-decoration: none; margin-bottom: 20px;
+}
+.vp-back:hover { color: var(--on-band); }
+.vp-id { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.vp-mk {
+  width: 46px; height: 46px; border-radius: 11px; background: var(--band-hi);
+  display: grid; place-items: center; flex: none; overflow: hidden;
+}
+.vp-mk svg, .vp-mk img { width: 26px; height: 26px; }
+.vp-id h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.035em; font-weight: 700; }
+.vp-sub { margin: 8px 0 0; color: var(--on-band-2); font-size: 15px; }
+.vp-state {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--band-hi); color: var(--on-band);
+}
+.vp-state i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-lift); }
+.vp-state.is-paused i { background: var(--down); }
+
+.vp-figs {
+  max-width: var(--wrap); margin: -28px auto 0; padding: 0 24px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+}
+.vp-fig { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 15px 17px; }
+.vp-fig b { display: block; font-size: 23px; letter-spacing: -.03em; color: var(--ink); }
+.vp-fig span { display: block; margin-top: 3px; font-size: 12.4px; color: var(--muted); }
+
+.vp-body { max-width: var(--wrap); margin: 0 auto; padding: 48px 24px 72px; }
+.vp-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px;
+}
+.vp-card + .vp-card { margin-top: 16px; }
+.vp-card > h2 { margin: 0; font-size: 19px; letter-spacing: -.025em; color: var(--ink); }
+.vp-card > p.vp-note { margin: 6px 0 0; color: var(--muted); font-size: 14.2px; line-height: 1.6; max-width: 66ch; }
+
+/* ---- the chart ---- */
+.vp-chart { position: relative; margin-top: 18px; }
+.vp-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.vp-grid line { stroke: var(--line-2); stroke-width: 1; }        /* recessive, behind the data */
+.vp-axis text { font-family: var(--mono); font-size: 10px; fill: var(--dim); letter-spacing: .04em; }
+.vp-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.vp-area { fill: var(--accent); opacity: .07; }
+.vp-last { fill: var(--accent); }
+.vp-last-ring { fill: var(--card); }                              /* the 2px surface ring */
+.vp-tag {
+  font-family: var(--mono); font-size: 11px; fill: var(--ink); font-weight: 500;
+}
+/* the hover layer */
+.vp-hit { fill: transparent; cursor: crosshair; }
+.vp-cross { stroke: var(--dim); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
+.vp-dot { fill: var(--accent); stroke: var(--card); stroke-width: 2; opacity: 0; }
+.vp-tip {
+  position: absolute; pointer-events: none; opacity: 0; transform: translate(-50%, -140%);
+  background: var(--band); color: var(--on-band); border-radius: 8px; padding: 7px 10px;
+  font-size: 12.4px; line-height: 1.45; white-space: nowrap; box-shadow: 0 6px 18px rgba(0,0,0,.18);
+  transition: opacity .12s;
+}
+.vp-tip b { font-family: var(--mono); font-weight: 500; }
+.vp-tip span { display: block; color: var(--on-band-2); font-size: 11px; font-family: var(--mono); }
+
+/* the table view, so the series is never colour-and-shape alone */
+.vp-table { margin-top: 16px; }
+.vp-table summary {
+  cursor: pointer; font-size: 13.4px; color: var(--muted); list-style: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.vp-table summary::-webkit-details-marker { display: none; }
+.vp-table summary::before { content: '▸'; font-size: 10px; }
+.vp-table[open] summary::before { content: '▾'; }
+.vp-table table { width: 100%; margin-top: 12px; border-collapse: collapse; font-size: 13px; }
+.vp-table th, .vp-table td {
+  text-align: right; padding: 6px 8px; border-bottom: 1px dashed var(--dash);
+  font-family: var(--mono); color: var(--ink);
+}
+.vp-table th { color: var(--muted); font-weight: 500; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.vp-table td:first-child, .vp-table th:first-child { text-align: left; }
+
+/* ---- the band ---- */
+.vp-band-fig { margin-top: 16px; }
+.vp-band-fig svg { display: block; width: 100%; height: auto; }
+.vp-rail { stroke: var(--line-2); stroke-width: 6; stroke-linecap: round; }
+.vp-in-band { stroke: var(--accent-fill); stroke-width: 6; stroke-linecap: round; }
+.vp-oracle { stroke: var(--band); stroke-width: 2; }
+.vp-band-t { font-family: var(--mono); font-size: 10.5px; fill: var(--dim); }
+.vp-band-k { font-family: var(--mono); font-size: 11px; fill: var(--ink); }
+
+.vp-kv { margin-top: 16px; border-top: 1px dashed var(--dash); }
+.vp-kv div {
+  display: flex; justify-content: space-between; gap: 16px; align-items: baseline;
+  padding: 11px 0; border-bottom: 1px dashed var(--dash);
+}
+.vp-kv dt { color: var(--muted); font-size: 14px; }
+.vp-kv dd { margin: 0; font-family: var(--mono); font-size: 13.4px; color: var(--ink); }
+.vp-kv dd.vp-ph { color: var(--muted); }
+
+.vp-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+
+.vp-miss {
+  margin-top: 16px; border: 1px solid #ECC7C3; background: #FBEFEE; border-radius: 12px;
+  padding: 14px 16px; font-size: 14px; color: #7A2B22; line-height: 1.6;
+}
+.vp-miss b { display: block; margin-bottom: 3px; }
+.vp-miss a { color: inherit; }
+
+@media (max-width: 860px) { .vp-figs { grid-template-columns: repeat(2, 1fr); } }

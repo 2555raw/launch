@@ -1,0 +1,11 @@
+{
+  "name": "vesica-site",
+  "private": true,
+  "type": "module",
+  "description": "The Vesica site: static HTML, CSS and vanilla JS, and the small server that hands it over.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  }
+}

@@ -128,6 +128,14 @@ a.dx-tr:hover code { color: var(--ink); }
   height: 20px; padding: 0 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink);
   font-size: 11.8px; font-weight: 600;
 }
+/* Not a badge. These addresses are generated for the mock, so the label says
+   so and is styled to look like an absence rather than an achievement. */
+.dx-ph {
+  justify-self: end; display: inline-flex; align-items: center;
+  height: 20px; padding: 0 9px; border-radius: 999px;
+  background: transparent; border: 1px dashed var(--dash); color: var(--muted);
+  font-family: var(--mono); font-size: 10.6px; letter-spacing: .06em; text-transform: uppercase;
+}
 
 /* code blocks */
 .dx-code { border-radius: var(--r); background: var(--band); overflow: hidden; }
@@ -189,7 +197,7 @@ a.dx-tr:hover code { color: var(--ink); }
   .dx-panel-fig { grid-row: auto; border-right: 0; border-bottom: 1px solid var(--band-2); }
   .dx-panel-c:nth-child(3), .dx-panel-c:nth-child(5) { border-left: 0; }
   .dx-th, .dx-tr { grid-template-columns: 70px minmax(0, 1fr); }
-  .dx-th span:last-child, .dx-ok { grid-column: 2; justify-self: start; }
+  .dx-th span:last-child, .dx-ok, .dx-ph { grid-column: 2; justify-self: start; }
   .dx-toc ol { columns: 1; }
   .dx-foot-in { grid-template-columns: 1fr 1fr; }
 }

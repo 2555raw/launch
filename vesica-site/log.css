@@ -1,0 +1,45 @@
+/* The build log. Pre-launch, the work is the content — so this page is a list
+   of what was built and what it cost, taken from the repository rather than
+   written for it. */
+
+.lg-head { background: var(--band); color: var(--on-band); padding: 48px 0 54px; }
+.lg-in { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+.lg-head .k { color: var(--accent-lift); }
+.lg-head h1 { margin: 13px 0 0; font-size: clamp(30px, 4.4vw, 46px); letter-spacing: -.035em; line-height: 1.06; }
+.lg-head p { margin: 14px 0 0; max-width: 58ch; color: var(--on-band-2); font-size: 16.5px; line-height: 1.6; }
+
+.lg-body { max-width: var(--wrap); margin: 0 auto; padding: 46px 24px 72px; }
+
+.lg-entry { display: grid; grid-template-columns: 132px 1fr; gap: 26px; padding: 26px 0; border-bottom: 1px dashed var(--dash); }
+.lg-entry:first-child { padding-top: 0; }
+.lg-entry:last-child { border-bottom: 0; }
+.lg-when {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent); padding-top: 4px;
+}
+.lg-when span { display: block; margin-top: 5px; color: var(--dim); letter-spacing: .04em; text-transform: none; }
+.lg-what h2 { margin: 0; font-size: 20px; letter-spacing: -.025em; color: var(--ink); }
+.lg-what > p { margin: 9px 0 0; color: var(--muted); font-size: 15px; line-height: 1.65; max-width: 68ch; }
+
+.lg-commits { margin: 14px 0 0; padding: 0; list-style: none; }
+.lg-commits li {
+  display: flex; gap: 10px; align-items: baseline; padding: 5px 0;
+  font-size: 14px; color: var(--ink);
+}
+.lg-commits code {
+  font-family: var(--mono); font-size: 11.6px; color: var(--dim); flex: none;
+  background: var(--card); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px;
+}
+
+.lg-cost {
+  margin-top: 13px; padding: 11px 14px; border-radius: 10px;
+  background: var(--accent-soft); border: 1px solid var(--accent-line);
+  font-size: 14px; color: var(--accent-ink); line-height: 1.6;
+}
+.lg-cost b { font-weight: 600; }
+
+@media (max-width: 720px) {
+  .lg-entry { grid-template-columns: 1fr; gap: 10px; }
+  .lg-when { padding-top: 0; }
+  .lg-when span { display: inline; margin-left: 8px; }
+}

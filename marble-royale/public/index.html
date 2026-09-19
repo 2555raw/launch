@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MARBLERUSH</title>
-<meta name="description" content="Race your marble. Win the pot. A provably fair marble race every ten minutes on Robinhood Chain.">
+<meta name="description" content="Race your marble. Win the pot. A provably fair marble race every six minutes on Robinhood Chain.">
 <meta property="og:title" content="MARBLERUSH">
 <meta property="og:description" content="Race your marble. Win the pot.">
 <meta name="theme-color" content="#07070b">
@@ -46,7 +46,7 @@
     <div class="hero">
       <div class="floaters" id="floaters" aria-hidden="true"></div>
       <div class="hero__in">
-        <div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 10 MINUTES</div>
+        <div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 6 MINUTES</div>
         <h1>Race your marble.<br><span>Win the pot.</span></h1>
         <p>Connect a wallet, drop a marble on the track, and watch it fight up to fifty others down a course drawn fresh every race, in a mode the crowd voted for. First one over the line takes the whole pot.</p>
         <div class="hero__cta">
@@ -144,7 +144,7 @@
       <div class="glass panel">
         <span class="kicker kicker--plain">HOW IT WORKS</span>
         <ol class="steps">
-          <li><b>Connect a wallet</b><span>MetaMask, Phantom or any EVM wallet. Signing in is a message, never a transaction. A demo wallet is one tap away if you just want to look.</span></li>
+          <li><b>Connect a wallet</b><span>MetaMask, Phantom or any EVM wallet. Signing in is a message, never a transaction; you can watch every race without connecting at all.</span></li>
           <li><b>Join the race</b><span>Pick a marble, pick a name, press join. One marble per wallet, one race at a time: nobody is entered into a race they did not join.</span></li>
           <li><b>Watch it run</b><span>The camera chases the leaders down a track of ramps, spinners, jumps and boost pads. Every browser sees the same race at the same moment.</span></li>
           <li><b>Win the pot</b><span>First over the line takes the whole prize pool, paid to the winning address. The result and the address stay in the log.</span></li>
@@ -164,7 +164,7 @@
       <div class="foot__grid">
         <div class="foot__brand">
           <a class="brand" href="#" data-go="home"><span class="brand__mark"></span><span class="brand__name small">Marble<b>Rush</b></span></a>
-          <p class="dim">A provably fair marble race every ten minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
+          <p class="dim">A provably fair marble race every six minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
           <div class="foot__links" id="footLinks">
             <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
             <a class="pill" id="xLink" hidden target="_blank" rel="noopener"><svg class="ic"><use href="#i-x"/></svg> Follow</a>
@@ -464,6 +464,7 @@
   <button class="dock__it" data-dock="winners"><svg class="ic"><use href="#i-trophy"/></svg><span>Winners</span></button>
   <button class="dock__it" data-dock="fair"><svg class="ic"><use href="#i-shield"/></svg><span>Fair</span></button>
   <button class="dock__it dock__it--wallet" data-dock="wallet"><svg class="ic"><use href="#i-wallet"/></svg><span id="dockWallet">Wallet</span></button>
+  <a class="dock__it dock__it--x" id="dockX" href="https://x.com/" target="_blank" rel="noopener" title="MarbleRush on X"><svg class="ic"><use href="#i-x"/></svg><span>Follow</span></a>
   <div class="dock__themes" role="group" aria-label="colour theme">
     <button class="theme" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
     <button class="theme is-on" data-theme="black" title="Black" aria-label="Black theme"></button>

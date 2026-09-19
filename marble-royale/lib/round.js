@@ -4,7 +4,7 @@
    and so on and two people in different countries see the same countdown. A
    round runs through four phases:
 
-     lobby      connect a wallet, get a marble          (most of the ten minutes)
+     lobby      connect a wallet, get a marble          (most of the six minutes)
      locked     the field is closed, the seed is out    (5s)
      racing     the race everyone watches               (up to 45s)
      result     the winner and the wallet to pay        (the rest)
@@ -28,7 +28,7 @@ const RACE = require('../public/shared/race.js');
 const store = require('./store');
 const chain = require('./chain');
 
-const ROUND_MS = Math.max(90000, Number(process.env.ROUND_MS) || 600000);
+const ROUND_MS = Math.max(90000, Number(process.env.ROUND_MS) || 360000);
 /* A minute after the race: the podium, the address to pay, and the vote on
    the next track. */
 const RESULT_MS = 60000;
@@ -56,7 +56,14 @@ const POT_PCT = Math.min(100, Math.max(0, Number(process.env.POT_PCT) || 20));
 /* Every MEGA_EVERY_MS (the hour, on the hour, by default) the round is a
    mega race and the winner takes MEGA_PCT of the fees instead. The round says
    so from the moment it opens, so the page can badge it. */
-const MEGA_EVERY_MS = Math.max(ROUND_MS, Number(process.env.MEGA_EVERY_MS) || 3600000);
+const MEGA_EVERY_MS = Math.max(ROUND_MS, Number(process.env.MEGA_EVERY_MS) || 2400000);
+
+/* The mega race is the first round of each MEGA_EVERY_MS window rather than
+   the round that lands exactly on a multiple of it: the two figures are set
+   independently, and a plain modulo would only ever fire when one divides the
+   other (six minute rounds and a forty minute mega would meet every two
+   hours instead). */
+const isMega = (startAt) => Math.floor(startAt / MEGA_EVERY_MS) !== Math.floor((startAt - ROUND_MS) / MEGA_EVERY_MS);
 const MEGA_PCT = Math.min(100, Math.max(0, Number(process.env.MEGA_PCT) || 50));
 const MATERIALS = ['glass', 'metal', 'holo', 'neon', 'chrome', 'clear', 'lava', 'galaxy'];
 const FACES = ['hood', 'doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
@@ -103,7 +110,7 @@ class Rounds extends EventEmitter {
       lockAt: startAt + LOBBY_MS,
       endAt: startAt + ROUND_MS,
       phase: 'lobby',
-      mega: startAt % MEGA_EVERY_MS === 0,
+      mega: isMega(startAt),
       mode: RACE.MODE_IDS.includes(this.nextMode) ? this.nextMode : 'classic',
       modeBy: RACE.MODE_IDS.includes(this.nextMode) ? 'vote' : 'default',
       max: MAX_PLAYERS,
@@ -425,7 +432,7 @@ class Rounds extends EventEmitter {
         startAt,
         raceAt: startAt + LOBBY_MS + LOCK_MS,
         lockAt: startAt + LOBBY_MS,
-        mega: startAt % MEGA_EVERY_MS === 0,
+        mega: isMega(startAt),
         open: i === 0 && r.phase === 'lobby',
         count: i === 0 ? r.players.length : this.waitlist.length,
         max: i === 0 ? r.max : MAX_PLAYERS,

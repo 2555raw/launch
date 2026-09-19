@@ -1,6 +1,6 @@
 
 <title>MARBLERUSH</title>
-<meta name="description" content="Race your marble. Win the pot. A provably fair marble race every ten minutes on Robinhood Chain.">
+<meta name="description" content="Race your marble. Win the pot. A provably fair marble race every six minutes on Robinhood Chain.">
 <meta property="og:title" content="MARBLERUSH">
 <meta property="og:description" content="Race your marble. Win the pot.">
 <meta name="theme-color" content="#07070b">
@@ -578,6 +578,8 @@ body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top > * {
 .dock__themes { display: flex; justify-content: center; gap: 5px; padding: 8px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
 .dock__themes .theme { width: 16px; height: 16px; }
 .dock__it--wallet span { font-size: 10px; }
+.dock__it--x { text-decoration: none; }
+.dock__it--x .ic { stroke: none; fill: currentColor; }
 .dock__it {
   display: grid; justify-items: center; row-gap: 3px;
   padding: 9px 4px 8px; border: 0; border-radius: 18px; background: transparent; cursor: pointer; color: var(--ink2);
@@ -820,7 +822,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 </style>
 <script>(function(){var t='black';try{t=localStorage.getItem('mr.theme')||'black';}catch(e){}if(t==='black'||t==='white')document.documentElement.dataset.theme=t;})();</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js"}}</script>
-<script>document.body.dataset.screen="home";document.body.dataset.phase="lobby";</script>
+<script>(function(){function set(){document.body.dataset.screen="home";document.body.dataset.phase="lobby";}if(document.body)set();else document.addEventListener("DOMContentLoaded",set,{once:true});})();</script>
 <svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
   <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
@@ -851,7 +853,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
     <div class="hero">
       <div class="floaters" id="floaters" aria-hidden="true"></div>
       <div class="hero__in">
-        <div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 10 MINUTES</div>
+        <div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 6 MINUTES</div>
         <h1>Race your marble.<br><span>Win the pot.</span></h1>
         <p>Connect a wallet, drop a marble on the track, and watch it fight up to fifty others down a course drawn fresh every race, in a mode the crowd voted for. First one over the line takes the whole pot.</p>
         <div class="hero__cta">
@@ -949,7 +951,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
       <div class="glass panel">
         <span class="kicker kicker--plain">HOW IT WORKS</span>
         <ol class="steps">
-          <li><b>Connect a wallet</b><span>MetaMask, Phantom or any EVM wallet. Signing in is a message, never a transaction. A demo wallet is one tap away if you just want to look.</span></li>
+          <li><b>Connect a wallet</b><span>MetaMask, Phantom or any EVM wallet. Signing in is a message, never a transaction; you can watch every race without connecting at all.</span></li>
           <li><b>Join the race</b><span>Pick a marble, pick a name, press join. One marble per wallet, one race at a time: nobody is entered into a race they did not join.</span></li>
           <li><b>Watch it run</b><span>The camera chases the leaders down a track of ramps, spinners, jumps and boost pads. Every browser sees the same race at the same moment.</span></li>
           <li><b>Win the pot</b><span>First over the line takes the whole prize pool, paid to the winning address. The result and the address stay in the log.</span></li>
@@ -969,7 +971,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
       <div class="foot__grid">
         <div class="foot__brand">
           <a class="brand" href="#" data-go="home"><span class="brand__mark"></span><span class="brand__name small">Marble<b>Rush</b></span></a>
-          <p class="dim">A provably fair marble race every ten minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
+          <p class="dim">A provably fair marble race every six minutes on Robinhood Chain. Free to play; the whole pot goes to first place, sent by the creator to the winning address.</p>
           <div class="foot__links" id="footLinks">
             <button class="pill pill--ca" id="caBtn" hidden><em>CA</em><span id="caVal"></span></button>
             <a class="pill" id="xLink" hidden target="_blank" rel="noopener"><svg class="ic"><use href="#i-x"/></svg> Follow</a>
@@ -1269,6 +1271,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   <button class="dock__it" data-dock="winners"><svg class="ic"><use href="#i-trophy"/></svg><span>Winners</span></button>
   <button class="dock__it" data-dock="fair"><svg class="ic"><use href="#i-shield"/></svg><span>Fair</span></button>
   <button class="dock__it dock__it--wallet" data-dock="wallet"><svg class="ic"><use href="#i-wallet"/></svg><span id="dockWallet">Wallet</span></button>
+  <a class="dock__it dock__it--x" id="dockX" href="https://x.com/" target="_blank" rel="noopener" title="MarbleRush on X"><svg class="ic"><use href="#i-x"/></svg><span>Follow</span></a>
   <div class="dock__themes" role="group" aria-label="colour theme">
     <button class="theme" data-theme="legacy" title="Legacy · blue" aria-label="Legacy theme"></button>
     <button class="theme is-on" data-theme="black" title="Black" aria-label="Black theme"></button>
@@ -4761,8 +4764,8 @@ window.MR_TYPES = true;
 (function () {
   'use strict';
 
-  const ROUND_MS = 600000, LOBBY_MS = 460000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
-  const MEGA_EVERY = 3600000;
+  const ROUND_MS = 360000, LOBBY_MS = 220000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const MEGA_EVERY = 2400000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
   const NAMES = ['DEGEN', 'APE', 'WHALE', 'CHAD', 'PAPERHANDS', 'DIAMOND', 'GM', 'WAGMI', 'MOON', 'BAGS', 'ALPHA', 'REKT', 'FOMO', 'HODL', 'SER', 'FREN'];
@@ -4786,7 +4789,7 @@ window.MR_TYPES = true;
     const secret = rndAddr() + rndAddr();
     round = {
       id: 'R' + startAt, number: ++store.counter, startAt, lockAt: startAt + LOBBY_MS, raceAt: startAt + LOBBY_MS + LOCK_MS, endAt: startAt + ROUND_MS,
-      phase: 'lobby', mega: startAt % MEGA_EVERY === 0, secret, commit: '', seed: null, players: [], order: null, winner: null, seconds: 0,
+      phase: 'lobby', mega: Math.floor(startAt / MEGA_EVERY) !== Math.floor((startAt - ROUND_MS) / MEGA_EVERY), secret, commit: '', seed: null, players: [], order: null, winner: null, seconds: 0,
       pot: 0, potDemo: true, potTarget: 0, max: MAX,
       mode: RACE.MODE_IDS.includes(nextMode) ? nextMode : 'classic', modeBy: RACE.MODE_IDS.includes(nextMode) ? 'vote' : 'default', poll: null
     };
@@ -5201,7 +5204,7 @@ window.MR_TYPES = true;
     if (!c) return;
     $('#loEntry').textContent = c.entry || 'FREE';
     if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
-    if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; }
+    if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; $('#dockX').href = c.links.x; }
     document.title = (c.coin || 'MARBLERUSH') + ' · race your marble';
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
   }
@@ -5799,7 +5802,7 @@ window.MR_TYPES = true;
       b.addEventListener('click', () => connectWith(e));
       host.appendChild(b);
     }
-    $('#walletHint').textContent = list.length ? '' : (WALLET.isMobile() ? 'No wallet found in this browser. Open this page inside MetaMask or Phantom.' : 'No wallet found. Install MetaMask or Phantom, or use the demo wallet.');
+    $('#walletHint').textContent = list.length ? '' : (WALLET.isMobile() ? 'No wallet found in this browser. Open this page inside MetaMask or Phantom.' : 'No wallet found. Install MetaMask, Phantom or any EVM wallet, then reload this page.');
     if (!list.length && WALLET.isMobile()) {
       const a = document.createElement('a'); a.className = 'btn btn--glass'; a.href = WALLET.deepLink('metamask'); a.textContent = 'Open in MetaMask';
       host.appendChild(a);

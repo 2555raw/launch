@@ -225,7 +225,7 @@
     if (!c) return;
     $('#loEntry').textContent = c.entry || 'FREE';
     if (c.mint) { $('#caBtn').hidden = false; $('#caVal').textContent = short(c.mint); $('#caBtn').title = c.mint; $('#caBtn').onclick = () => copy(c.mint, 'Contract address'); }
-    if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; }
+    if (c.links && c.links.x) { $('#xLink').hidden = false; $('#xLink').href = c.links.x; $('#dockX').href = c.links.x; }
     document.title = (c.coin || 'MARBLERUSH') + ' · race your marble';
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
   }
@@ -823,7 +823,7 @@
       b.addEventListener('click', () => connectWith(e));
       host.appendChild(b);
     }
-    $('#walletHint').textContent = list.length ? '' : (WALLET.isMobile() ? 'No wallet found in this browser. Open this page inside MetaMask or Phantom.' : 'No wallet found. Install MetaMask or Phantom, or use the demo wallet.');
+    $('#walletHint').textContent = list.length ? '' : (WALLET.isMobile() ? 'No wallet found in this browser. Open this page inside MetaMask or Phantom.' : 'No wallet found. Install MetaMask, Phantom or any EVM wallet, then reload this page.');
     if (!list.length && WALLET.isMobile()) {
       const a = document.createElement('a'); a.className = 'btn btn--glass'; a.href = WALLET.deepLink('metamask'); a.textContent = 'Open in MetaMask';
       host.appendChild(a);

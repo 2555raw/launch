@@ -38,14 +38,16 @@ html = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => {
 
 /* the body's data attributes go on a script that sets them, since the
    skeleton owns the body tag */
-html = html.replace('<div data-screen="home" data-phase="lobby" id="bodyattrs" hidden></div>', '<script>document.body.dataset.screen="home";document.body.dataset.phase="lobby";</script>');
+html = html.replace('<div data-screen="home" data-phase="lobby" id="bodyattrs" hidden></div>',
+  '<script>(function(){function set(){document.body.dataset.screen="home";document.body.dataset.phase="lobby";}' +
+  'if(document.body)set();else document.addEventListener("DOMContentLoaded",set,{once:true});})();</script>');
 
 /* there is no server behind the one-file build, so no creator console */
 html = html.replace(/<a href="\/admin"[^>]*>Creator console<\/a>/, '');
 
 /* a line on the page saying what this build is */
-html = html.replace('<div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 10 MINUTES</div>',
-  '<div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 10 MINUTES</div>');
+html = html.replace('<div class="kicker"><i class="live"></i>LIVE ON ROBINHOOD CHAIN · A RACE EVERY 6 MINUTES</div>',
+  '<div class="kicker"><i class="live"></i>PREVIEW BUILD · BOTS IN THE FIELD · A RACE EVERY 6 MINUTES</div>');
 
 fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
 const out = path.join(__dirname, 'dist', 'marble-royale.html');

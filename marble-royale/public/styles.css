@@ -569,6 +569,8 @@ body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top > * {
 .dock__themes { display: flex; justify-content: center; gap: 5px; padding: 8px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
 .dock__themes .theme { width: 16px; height: 16px; }
 .dock__it--wallet span { font-size: 10px; }
+.dock__it--x { text-decoration: none; }
+.dock__it--x .ic { stroke: none; fill: currentColor; }
 .dock__it {
   display: grid; justify-items: center; row-gap: 3px;
   padding: 9px 4px 8px; border: 0; border-radius: 18px; background: transparent; cursor: pointer; color: var(--ink2);

@@ -14,8 +14,8 @@
 (function () {
   'use strict';
 
-  const ROUND_MS = 600000, LOBBY_MS = 460000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
-  const MEGA_EVERY = 3600000;
+  const ROUND_MS = 360000, LOBBY_MS = 220000, LOCK_MS = 5000, RESULT_MS = 60000, MAX = 30, MAX_HIGH = 50, GROW_AT = 24;
+  const MEGA_EVERY = 2400000;
   const HEX = '0123456789abcdef';
   const rndAddr = () => { let s = '0x'; for (let i = 0; i < 40; i++) s += HEX[(Math.random() * 16) | 0]; return s; };
   const NAMES = ['DEGEN', 'APE', 'WHALE', 'CHAD', 'PAPERHANDS', 'DIAMOND', 'GM', 'WAGMI', 'MOON', 'BAGS', 'ALPHA', 'REKT', 'FOMO', 'HODL', 'SER', 'FREN'];
@@ -39,7 +39,7 @@
     const secret = rndAddr() + rndAddr();
     round = {
       id: 'R' + startAt, number: ++store.counter, startAt, lockAt: startAt + LOBBY_MS, raceAt: startAt + LOBBY_MS + LOCK_MS, endAt: startAt + ROUND_MS,
-      phase: 'lobby', mega: startAt % MEGA_EVERY === 0, secret, commit: '', seed: null, players: [], order: null, winner: null, seconds: 0,
+      phase: 'lobby', mega: Math.floor(startAt / MEGA_EVERY) !== Math.floor((startAt - ROUND_MS) / MEGA_EVERY), secret, commit: '', seed: null, players: [], order: null, winner: null, seconds: 0,
       pot: 0, potDemo: true, potTarget: 0, max: MAX,
       mode: RACE.MODE_IDS.includes(nextMode) ? nextMode : 'classic', modeBy: RACE.MODE_IDS.includes(nextMode) ? 'vote' : 'default', poll: null
     };

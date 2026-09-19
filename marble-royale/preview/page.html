@@ -43,7 +43,7 @@
       <span class="mega" id="megaBadge" hidden>MEGA RACE</span>
     </div>
     <h1>One marble<br>wins the fees.</h1>
-    <p>Every five minutes a race on Robinhood Chain. Connect a wallet, join the queue, and a marble on the track is yours. First one down the course takes a share of the fees the coin earned in those minutes, sent straight to the winning address.</p>
+    <p>Every five minutes a race on Robinhood Chain. Connect a wallet, join the queue, and a marble on the track is yours. First one down the course takes the whole pot of fees the coin earned in those minutes, sent straight to the winning address.</p>
     <div class="hero__cta">
       <a class="btn btn--accent btn--lg" href="#race"><span class="btn__mark"></span>Watch a race</a>
       <a class="btn btn--soft btn--lg" href="#launch">Launch a coin</a>
@@ -53,7 +53,7 @@
   <ul class="trust">
     <li><i>✓</i><div><b>Provably fair</b><span>the seed's hash is published before anyone joins</span></div></li>
     <li><i>$</i><div><b>Free to enter</b><span>a marble costs nothing, ever</span></div></li>
-    <li><i>1</i><div><b>One winner</b><span>first place only, paid to their address</span></div></li>
+    <li><i>1</i><div><b>One winner, whole pot</b><span>first place takes everything in the jar</span></div></li>
     <li><i>⚡</i><div><b>Mega race every 30 min</b><span>twice an hour the pot jumps to $25</span></div></li>
     <li><i>⌀</i><div><b>On Robinhood Chain</b><span>an Ethereum wallet is all you need; we never hold your keys</span></div></li>
   </ul>
@@ -87,7 +87,7 @@
       <div class="potbox__amt"><b id="potBig">$0.00</b></div>
       <div class="potbox__meta"><span id="potState">Filling with fees while the queue is open</span></div>
       <div class="potbar"><i id="potFill"></i></div>
-      <p class="potbox__note">Every trade on the coin adds to it, in dollars at the current ETH price. It locks the moment the race starts and empties when the winner is paid. A normal race pays <b>$3 to $7</b>; on the hour and the half hour it is a <b>MEGA RACE</b> worth <b>$25</b>.</p>
+      <p class="potbox__note">Every trade on the coin adds to it, in dollars at the current ETH price. It locks the moment the race starts and empties when the winner is paid. The winner takes <b>the whole pot</b>, exactly as shown. A normal race pays <b>$3 to $7</b>; on the hour and the half hour it is a <b>MEGA RACE</b> worth <b>$25</b>.</p>
       <div class="potbox__mega">Next mega race in <b id="megaIn">--:--</b></div>
     </div>
   </div>
@@ -122,7 +122,7 @@
           <button class="btn btn--dark" id="winCopy">Copy address</button>
           <a class="btn btn--accent" id="winSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
         </div>
-        <div class="sub">Only first place is paid. This is the address on Robinhood Chain the creator sends the pot to, from their own wallet.</div>
+        <div class="sub">Only first place is paid, and it gets the whole pot. This is the address on Robinhood Chain the creator sends it to, from their own wallet.</div>
         <div class="sub win" id="winYou" hidden>That one is yours.</div>
       </div>
 
@@ -173,7 +173,7 @@
         <select id="lfEvery"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select>
       </label>
       <label class="fld"><span>Winner's share of fees</span>
-        <div class="range"><input id="lfShare" type="range" min="5" max="100" step="5" value="20"><b id="lfShareOut">20%</b></div>
+        <div class="range"><input id="lfShare" type="range" min="5" max="100" step="5" value="100"><b id="lfShareOut">100%</b></div>
       </label>
       <label class="fld"><span>Marbles for holders only</span>
         <div class="range"><input id="lfMin" type="number" min="0" step="1" value="0" placeholder="0"><b>min. tokens</b></div>
@@ -192,7 +192,7 @@
       <p class="tk__desc" id="tkDesc">Fill the form and your coin page appears here.</p>
       <dl class="tk__stats">
         <div><dt>Race every</dt><dd id="tkEvery">5 min</dd></div>
-        <div><dt>Winner takes</dt><dd id="tkShare">20%</dd></div>
+        <div><dt>Winner takes</dt><dd id="tkShare">100%</dd></div>
         <div><dt>To race</dt><dd id="tkMin">anyone</dd></div>
         <div><dt>Chain</dt><dd>Robinhood Chain</dd></div>
       </dl>
@@ -243,12 +243,12 @@
   <div class="sec__head">
     <span class="kicker">THE POT</span>
     <h2>Where the money comes from</h2>
-    <p>The coin earns creator fees every time somebody buys or sells. The more the coin moves, the more fees land, and that is what the winner takes a share of.</p>
+    <p>The coin earns creator fees every time somebody buys or sells. The more the coin moves, the more fees land in the jar, and the winner takes the jar.</p>
   </div>
   <div class="cards">
     <article class="cd card-w"><span class="cd__tag">1</span><h4>Fees pile up</h4><p>Every trade on the coin sends creator fees, in ETH on Robinhood Chain, to one wallet. A busy five minutes fills it; a quiet five minutes barely moves it.</p></article>
     <article class="cd card-w"><span class="cd__tag">2</span><h4>A race is called</h4><p>Every five minutes, on the clock, on a track drawn fresh for that race. The pot is what came in during that window, in dollars at the ETH price of the moment: three to seven dollars on a normal race. On the hour and the half hour it is a mega race with a $25 pot.</p></article>
-    <article class="cd card-w cd--hot"><span class="cd__tag">3</span><h4>The winner takes <span id="pctB">20%</span></h4><p>The creator sends that share to the winning address by hand. The percentage is theirs to set and it is always written on screen.</p></article>
+    <article class="cd card-w cd--hot"><span class="cd__tag">3</span><h4>The winner takes <span>all of it</span></h4><p>Whatever the jar shows when the race starts goes to the winning address, sent by the creator from their own wallet. No cut, no rounding down.</p></article>
   </div>
   <p class="fine">There is no smart contract paying anyone automatically. A person sends it, which is worth knowing before you play. The guide further down says so plainly.</p>
 </section>
@@ -317,7 +317,7 @@
     <li><i>✓</i><span><b>What connecting does:</b> the site reads your public address, the same one anyone can see in an explorer, and asks for a text signature to check it is yours. Free, and not a transaction.</span></li>
     <li><i>✓</i><span><b>What it never does:</b> request token approvals, open transactions, touch your funds or store any key. The server holds no wallets. It reads public balances and nothing else.</span></li>
     <li><i>✓</i><span><b>Entering is free.</b> There is nothing to pay, nothing is staked, and you cannot lose money by racing a marble.</span></li>
-    <li class="no"><i>!</i><span><b>Paying out is manual and voluntary.</b> The creator sends it from their own wallet, at the percentage they choose. This site shows who won; it cannot force anyone to pay or refund anything.</span></li>
+    <li class="no"><i>!</i><span><b>Paying out is manual and voluntary.</b> The creator sends the pot from their own wallet. This site shows who won and how much; it cannot force anyone to pay or refund anything.</span></li>
     <li class="no"><i>!</i><span><b>This is chance, not skill.</b> The result comes out of a physics simulation with a random seed. Nobody rolls better than anyone else, and winning before does not help.</span></li>
     <li class="no"><i>!</i><span><b>A marble is free, and that has a limit:</b> nothing stops one person entering with several wallets except requiring a minimum token balance to play.</span></li>
     <li class="no"><i>!</i><span><b>None of this is financial advice.</b> A memecoin can lose all of its value in minutes. Only take part with what you can afford to lose, and only if you are old enough where you live.</span></li>

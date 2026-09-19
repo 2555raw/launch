@@ -18,7 +18,7 @@
     ticker: '',        // '$MARBLE'
     ca: '',            // the token's contract address on Ethereum, 0x…
     x: '',             // https://x.com/your_account
-    potPct: 20         // the share of the fees the winner takes
+    potPct: 100        // the winner takes the whole pot
   };
 
   const $ = (s) => document.querySelector(s);
@@ -285,6 +285,12 @@
 
   function startRace() {
     if (S.phase === 'racing' || !S.players.length) return;
+    /* Racing early, the jar completes to what the window would have collected,
+       so a race called by hand pays what a race on the clock pays. */
+    if (S.potState === 'filling' && S.pot < S.potTarget) {
+      S.pot = Math.round(S.potTarget * 100) / 100;
+      S.potAcc = 0;
+    }
     S.phase = 'racing';
     document.body.dataset.phase = 'racing';
     $('#card').hidden = true;
@@ -308,7 +314,7 @@
     /* An EIP-681 link: a wallet on the creator's phone or the extension opens
        a send to this address with nothing else filled in. */
     $('#winSend').href = 'ethereum:' + winner.id;
-    $('#winPay').textContent = usd(S.pot) + (S.mega ? ' · MEGA RACE' : ' · ' + COIN.potPct + '% of the fees');
+    $('#winPay').textContent = usd(S.pot) + (S.mega ? ' · MEGA RACE · the whole pot' : ' · the whole pot');
     $('#winYou').hidden = winner.id !== S.me;
     RENDER.celebrate(winner.id);
     S.past.unshift({ at: Date.now(), winner: winner.id, pot: S.pot, n: S.players.length, mega: S.mega });
@@ -585,7 +591,7 @@
       const d = JSON.parse(localStorage.getItem('mr.launch') || 'null');
       if (d) {
         q('lfName').value = d.name || ''; q('lfTicker').value = d.tick || ''; q('lfDesc').value = d.desc || '';
-        q('lfEvery').value = d.every || '5'; q('lfShare').value = d.share || '20'; q('lfMin').value = d.min || '0';
+        q('lfEvery').value = d.every || '5'; q('lfShare').value = d.share || '100'; q('lfMin').value = d.min || '0';
       }
     } catch {}
 
@@ -674,7 +680,7 @@
       x.removeAttribute('href');
       x.style.opacity = '.4';
     }
-    for (const id of ['#pctA', '#pctB', '#pctC']) if ($(id)) $(id).textContent = COIN.potPct + '%';
+
   }
 
   /* The sidebar follows the reading position, and closes itself once a link on

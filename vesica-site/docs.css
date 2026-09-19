@@ -201,3 +201,13 @@ a.dx-tr:hover code { color: var(--ink); }
   .dx-toc ol { columns: 1; }
   .dx-foot-in { grid-template-columns: 1fr 1fr; }
 }
+
+/* A path to a real file in the repository, not a link: there is no public
+   mirror to point at yet, and an arrow that promises source and delivers a
+   scroll is worse than no arrow. */
+.dx-path {
+  display: inline-block; margin-top: 2px;
+  font-family: var(--mono); font-size: 11.6px; color: var(--accent-ink);
+  background: var(--accent-soft); border: 1px solid var(--accent-line);
+  border-radius: 5px; padding: 1px 6px;
+}

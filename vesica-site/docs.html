@@ -184,38 +184,41 @@
       <section class="dx-sec" id="open">
         <span class="k">06 · Open source</span>
         <div class="dx-head">
-          <h2>The whole site, in the open.</h2>
-          <p>Vesica is published under the MIT license. Every figure on the site is a chain read you can run yourself, and the code that makes those reads sits in one repository: the vault quotes, the router calls and the verification script. The vault contracts are the protocol's, verified above; what is open here is everything between the chain and your screen.</p>
+          <h2>The code, and what holds it.</h2>
+          <p>Two directories: the contracts, and the site that talks to them. No build step and no framework — the site is HTML, CSS and plain JavaScript, so what a browser runs is what is written. <a href="proof.html">The proof page</a> carries the test output in full, including what is not built yet.</p>
         </div>
         <div class="dx-grid">
-          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5l7.5-4 7.5 4v7l-7.5 4-7.5-4z"/><path d="M4.5 8.5l7.5 4 7.5-4M12 12.5v7"/></svg></span><h3>Chain reads</h3><p>One read-only client with fallback endpoints, the vault state reader and the snapshot service that refreshes every 15 seconds. <a href="#open">src/lib/managed-vault.ts ↗</a></p></article>
-          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h9a3 3 0 013 3v2a3 3 0 003 3h1M4 16h5"/><circle cx="19" cy="8" r="2"/><circle cx="6" cy="16" r="2"/></svg></span><h3>Deposits and withdrawals</h3><p>How a USDG budget becomes a router deposit, and how a redemption is quoted and simulated before you sign. <a href="#open">src/components/strategies ↗</a></p></article>
-          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.4-3 7.6-7.5 9-4.5-1.4-7.5-4.6-7.5-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></span><h3>Verification</h3><p>The script behind /verify: contract wiring, fee counters, simulated deposits and withdrawals through state overrides, site and API checks. <a href="#open">scripts/verify.ts ↗</a></p></article>
-          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0114 0M8.5 12a3.5 3.5 0 017 0"/><circle cx="12" cy="17.5" r="1.6"/></svg></span><h3>Intelligence rules</h3><p>The signals, the alerts, the brief and the seven guided answers are plain functions over the snapshot. No model is needed to run them. <a href="#open">src/server/intelligence.ts ↗</a></p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5l7.5-4 7.5 4v7l-7.5 4-7.5-4z"/><path d="M4.5 8.5l7.5 4 7.5-4M12 12.5v7"/></svg></span><h3>The contracts</h3><p>The ERC-4626 vault, the Chainlink gate that stands in front of it, and the concentrated Uniswap position behind it. <code class="dx-path">vesica-contracts/src/</code></p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.4-3 7.6-7.5 9-4.5-1.4-7.5-4.6-7.5-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></span><h3>What holds them</h3><p>131 assertions on a real EVM, named after the promises rather than the functions, so a failure says which promise broke. <code class="dx-path">vesica-contracts/test/</code></p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h9a3 3 0 013 3v2a3 3 0 003 3h1M4 16h5"/><circle cx="19" cy="8" r="2"/><circle cx="6" cy="16" r="2"/></svg></span><h3>The desk</h3><p>The vault list, the deposit drawer, the swap routing and the wallet connection — plain JavaScript, no build step. <code class="dx-path">vesica-site/*.js</code></p></article>
+          <article class="dx-card"><span class="dx-card-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0114 0M8.5 12a3.5 3.5 0 017 0"/><circle cx="12" cy="17.5" r="1.6"/></svg></span><h3>What holds the site</h3><p>Eleven browser suites driving the real pages: the deposit arithmetic, every link, and the money fields handled badly. <code class="dx-path">vesica-site/test/</code></p></article>
         </div>
         <div class="dx-grid" style="margin-top:10px">
           <div class="dx-code">
-            <span class="k">scripts/verify.ts · the fee split, checked against the vault counters</span>
-            <pre><code><span class="c">const</span> [g0, g1, p0, p1, b0, b1] = <span class="c">await</span> Promise.all([
-  read(<span class="s">"grossFees"</span>, 0n), read(<span class="s">"grossFees"</span>, 1n),
-  read(<span class="s">"protocolFees"</span>, 0n), read(<span class="s">"protocolFees"</span>, 1n),
-  read(<span class="s">"buybackFees"</span>, 0n), read(<span class="s">"buybackFees"</span>, 1n),
-]);
-<span class="c">const</span> buyback  = pct(b0, g0);   <span class="c">// 20%</span>
-<span class="c">const</span> treasury = pct(p0, g0);   <span class="c">// 10%</span>
-<span class="c">const</span> ok = Math.abs(buyback - CLAIM.buyback) &lt;= <span class="n">0.5</span>
-        &amp;&amp; Math.abs(treasury - CLAIM.treasury) &lt;= <span class="n">0.5</span>;</code></pre>
+            <span class="k">VesicaVault.sol · the split, and why the 70% is not sent anywhere</span>
+            <pre><code>toBuyback  = received.mulDiv(BUYBACK_BPS,  BPS, Floor);
+toTreasury = received.mulDiv(TREASURY_BPS, BPS, Floor);
+compounded = received - toBuyback - toTreasury;
+
+token.safeTransfer(buyback,  toBuyback);
+token.safeTransfer(treasury, toTreasury);
+
+<span class="c">// `compounded` is already here. Leaving it is the</span>
+<span class="c">// point: it raises totalAssets against an</span>
+<span class="c">// unchanged share count.</span></code></pre>
           </div>
           <div class="dx-code">
-            <span class="k">src/server/intelligence.ts · where a price sits in its range</span>
-            <pre><code><span class="c">const</span> rangePosition = (price - lower) / (upper - lower);
-<span class="c">if</span> (inRange === <span class="n">false</span>) flags.push(<span class="s">"out of range"</span>);
-<span class="c">else if</span> (rangePosition &lt; <span class="n">0.15</span> || rangePosition &gt; <span class="n">0.85</span>)
-  flags.push(rangePosition &lt; <span class="n">0.15</span> ? <span class="s">"near lower bound"</span> : <span class="s">"near upper bound"</span>);
-<span class="c">if</span> (oracleAgeSeconds &gt; <span class="n">26</span> * <span class="n">3600</span>) flags.push(<span class="s">"oracle stale"</span>);</code></pre>
+            <span class="k">VesicaStrategy.sol · the oracle prices it, the pool only executes</span>
+            <pre><code><span class="c">function</span> totalAssets() <span class="c">public view</span> {
+  <span class="c">uint160</span> sqrtOracle = oracleSqrtPriceX96();
+  (amount0, amount1) = _positionAmounts(sqrtOracle);
+
+  <span class="c">// never pool.slot0(): spot is whatever the</span>
+  <span class="c">// previous line of the same transaction left</span>
+  <span class="c">// behind, and a flash loan can leave behind</span>
+  <span class="c">// anything.</span></code></pre>
           </div>
-        </div>
-      </section>
+        </section>
 
       <section class="dx-sec" id="roadmap">
         <span class="k">07 · Roadmap</span>

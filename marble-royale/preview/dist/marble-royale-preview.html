@@ -17,6 +17,12 @@
   /* One committed look: a dark console app. The page paints its own ground and
      every colour, so it holds on either host theme. */
   * { box-sizing: border-box; }
+  /* Anything the browser would paint its own blue - selected text, sliders,
+     checkboxes, the tap flash on a phone - takes the accent instead. */
+  ::selection { background: var(--go); color: var(--goInk); }
+  ::-moz-selection { background: var(--go); color: var(--goInk); }
+  html { accent-color: var(--go); -webkit-tap-highlight-color: rgba(255,138,61,.25); }
+  :focus-visible { outline: 2px solid var(--go); outline-offset: 2px; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
     font-family: var(--disp); font-size: 15px; line-height: 1.6;

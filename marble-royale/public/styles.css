@@ -584,6 +584,22 @@ body[data-phase="result"] .dock__it--race em { color: var(--go); }
 .screen--home, .screen--lobby, .screen--launch, .screen--fair { padding-bottom: 40px; }
 @media (min-width: 1001px) { .screen--home, .screen--lobby, .screen--launch, .screen--fair, .screen--results { padding-left: calc(var(--gut) + 96px); } .stagewrap, .block, .foot, .launch, .lobby { max-width: min(1180px, calc(100vw - 96px - 2 * var(--gut))); } }
 
+/* ---- the phone's top strip -------------------------------------------------- */
+
+.mtop { display: none; }
+@media (max-width: 1000px) {
+  .mtop {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+    background: var(--pillbg); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  }
+  .mtop .brand__name { font-size: 16px; }
+  .mtop__race { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--dim); }
+  body[data-screen="race"] .mtop, body[data-screen="count"] .mtop { display: none; }
+  .screen--home, .screen--lobby, .screen--launch, .screen--fair, .screen--results { padding-top: calc(70px + env(safe-area-inset-top, 0px)); }
+}
+
 /* ---- the notice on arrival ------------------------------------------------- */
 
 .notice {

@@ -376,7 +376,8 @@
     const r = game.get().race;
     if (!r) return;
     const no = '#' + pad(r.number || 0);
-    $('#dockPhase').textContent = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
+    const phase = { lobby: 'LOBBY', locked: 'LOCKED', racing: 'LIVE', result: 'RESULT' }[r.phase] || r.phase.toUpperCase();
+    $('#dockPhase').textContent = phase; $('#mPhase').textContent = phase; $('#mNo').textContent = no;
     $('#lbNo').textContent = no; $('#loNo').textContent = no; $('#hudNo').textContent = 'RACE ' + no;
     const potText = usd(r.pot);
     $('#lbPot').textContent = potText; $('#loPot').textContent = potText;

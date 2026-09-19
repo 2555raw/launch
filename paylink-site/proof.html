@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PayLink · Does the plumbing actually work?</title>
+<meta name="description" content="Live checks against mainnet: the Pons escrow, the Across bridge, a Curve pool and PYUSD itself.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="proof">
+<div class="pl">
+<main class="main">
+  <section class="page wrap">
+    <span class="pill chip">Live proof</span>
+    <h1 class="h1" style="font-size:clamp(32px,4vw,44px)">Does the plumbing actually work?</h1>
+    <p class="lead">PayLink depends on four things it does not own: the Pons fee escrow, the Across bridge, a Curve pool and PYUSD itself. This page queries all of them against mainnet, not against our own records. Answers are held for up to 30 seconds so a crowd of visitors cannot get the public RPC rate limited. 7 of 7 checks passing.</p>
+
+    <h2 class="h2" style="margin-top:48px">The payout path, verified</h2>
+    <div class="card checks rv" style="margin-top:20px">
+      <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><div class="body"><b>Robinhood Chain is reachable</b><span>chain id 4663, at block 66,572,243</span></div></div>
+      <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><div class="body"><b>USDG is an approved Pons pair token</b><span>launches can be paired with USDG, so fees accrue in dollars</span></div><a class="verify" href="https://explorer.robinhoodchain.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e" target="_blank" rel="noopener">verify ↗</a></div>
+      <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><div class="body"><b>Pons fee escrow matches the address we claim from</b><span>factory points at 0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e</span></div><a class="verify" href="https://explorer.robinhoodchain.com/address/0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e" target="_blank" rel="noopener">verify ↗</a></div>
+      <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><div class="body"><b>Real USDG launches are readable end to end</b><span>110 launches in the last 6,000 blocks, including 4 paired with USDG</span></div><a class="verify" href="https://explorer.robinhoodchain.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e" target="_blank" rel="noopener">verify ↗</a></div>
+      <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><div class="body"><b>Across will bridge USDG to Ethereum USDC</b><span>100.00 USDG quotes 99.89 USDC, filling in about 3s</span></div><a class="verify" href="https://app.across.to/" target="_blank" rel="noopener">verify ↗</a></div>
+      <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><div class="body"><b>Curve prices USDC into PYUSD near par</b><span>1,000.00 USDC quotes 999.73 PYUSD</span></div><a class="verify" href="https://etherscan.io/address/0x383E6b4437b59fff47B619CBA855CA29342A8559" target="_blank" rel="noopener">verify ↗</a></div>
+      <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><div class="body"><b>PYUSD is live on Ethereum</b><span>PYUSD, 6 decimals, the token PayPal and Venmo accept from any wallet</span></div><a class="verify" href="https://etherscan.io/token/0x6c3ea9036406852006290770BEdFcAbA0e23A0e8" target="_blank" rel="noopener">verify ↗</a></div>
+    </div>
+
+    <h2 class="h2" style="margin-top:56px">Real fees, sitting in the Pons escrow right now</h2>
+    <p class="lead">The last few USDG launches on Pons, whoever launched them. For each one, the creator fee balance the escrow reads before it claims, and exactly what would have been paid out had that creator pointed their fee recipient here.</p>
+    <div class="card tcard rv" style="margin-top:20px">
+      <table class="table">
+        <thead><tr><th>Token</th><th class="c">Creator fee recipient</th><th class="r">Unclaimed</th></tr></thead>
+        <tbody>
+          <tr><td>0x5d0Ed8…3280Ae</td><td class="dim c">0x3e2418…929C23</td><td class="r">$0.00</td></tr>
+          <tr><td>0x9Bb074…99b407</td><td class="dim c">0x1B263e…d2FAf3</td><td class="r">$1.63</td></tr>
+          <tr><td>0x69269A…2eeE97</td><td class="dim c">0xb02d01…c62076</td><td class="r">$1.35</td></tr>
+          <tr><td>0x823aF4…153031</td><td class="dim c">0x5D96c1…2761Bb</td><td class="r">$3.77</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="h2" style="margin-top:56px">Contracts PayLink touches</h2>
+    <p class="lead">PayLink deploys nothing. These are all contracts other people wrote and audited. Every one is public.</p>
+    <div class="grid-2" style="margin-top:20px">
+      <a class="card contract rv" href="https://explorer.robinhoodchain.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e" target="_blank" rel="noopener"><span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><h3 class="h3">Pons factory</h3><p class="d">Where launches are recorded and fee recipients are transferred</p><div class="a">0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e</div></a>
+      <a class="card contract rv" href="https://explorer.robinhoodchain.com/address/0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e" target="_blank" rel="noopener"><span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><h3 class="h3">Pons fee escrow</h3><p class="d">Holds creator fees until claimed</p><div class="a">0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e</div></a>
+      <a class="card contract rv" href="https://explorer.robinhoodchain.com/token/0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168" target="_blank" rel="noopener"><span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><h3 class="h3">USDG</h3><p class="d">Global Dollar by Paxos, the pairing asset fees accrue in</p><div class="a">0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168</div></a>
+      <a class="card contract rv" href="https://etherscan.io/token/0x6c3ea9036406852006290770BEdFcAbA0e23A0e8" target="_blank" rel="noopener"><span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><h3 class="h3">PYUSD</h3><p class="d">PayPal's dollar on Ethereum, what recipients receive</p><div class="a">0x6c3ea9036406852006290770BEdFcAbA0e23A0e8</div></a>
+      <a class="card contract rv" href="https://etherscan.io/address/0x383E6b4437b59fff47B619CBA855CA29342A8559" target="_blank" rel="noopener"><span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><h3 class="h3">Curve PYUSD/USDC</h3><p class="d">Converts bridged USDC into PYUSD</p><div class="a">0x383E6b4437b59fff47B619CBA855CA29342A8559</div></a>
+      <a class="card contract rv" href="https://explorer.robinhoodchain.com/address/0x782899412Cd27071A40D0C3aAa2536eD75B9854E" target="_blank" rel="noopener"><span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><h3 class="h3">Platform address</h3><p class="d">Where PayLink's 20% share is forwarded, as USDG</p><div class="a">0x782899412Cd27071A40D0C3aAa2536eD75B9854E</div></a>
+    </div>
+    <p class="snap">Snapshot taken Fri, 18 Sep 2026 22:11:36 GMT, at most 30 seconds old.</p>
+  </section>
+  <footer class="foot"><div class="wrap">
+    <div class="links"><a href="launch.html">Launch</a><a href="link.html">Link a token</a><a href="explore.html">Explore</a><a href="proof.html">Live proof</a><a href="fees.html">Fees</a><a href="docs.html">Docs</a><a href="https://x.com/PayLinkRH" target="_blank" rel="noopener">𝕏 @PayLinkRH</a></div>
+    <p class="p">PayLink Money is not affiliated with PayPal, Venmo, Paxos, Pons or Robinhood. PYUSD is issued by Paxos. Receiving it requires a PayPal or Venmo account with crypto enabled.</p>
+    <p class="p">Fees are held by the platform between being claimed and being paid out. Every claim, swap, bridge and payout is a public transaction. Nothing here is financial, tax or legal advice.</p>
+  </div></footer>
+</main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

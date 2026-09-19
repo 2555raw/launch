@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PayLink · Link a token you already launched</title>
+<meta name="description" content="Point an existing Pons token's creator fees at PayLink with one signature.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="link">
+<div class="pl">
+<main class="main">
+  <section class="page wrap">
+    <h1 class="h1" style="font-size:clamp(32px,4vw,44px)">Link a token you already launched</h1>
+    <p class="lead">Point an existing Pons token's creator fees at PayLink. You sign one transaction from the wallet that currently receives the fees, and you can point them back whenever you like.</p>
+    <form class="field" id="lookup" style="max-width:576px">
+      <label for="token-addr">Token address</label>
+      <div class="row"><input class="input" id="token-addr" placeholder="0x…" autocomplete="off" spellcheck="false"><button class="btn btn-dark" type="submit">Look up</button></div>
+      <p class="help">We read it straight off the Pons factory. Nothing is saved until you sign.</p>
+    </form>
+    <div style="min-height:320px"></div>
+  </section>
+  <footer class="foot"><div class="wrap">
+    <div class="links"><a href="launch.html">Launch</a><a href="link.html">Link a token</a><a href="explore.html">Explore</a><a href="proof.html">Live proof</a><a href="fees.html">Fees</a><a href="docs.html">Docs</a><a href="https://x.com/PayLinkRH" target="_blank" rel="noopener">𝕏 @PayLinkRH</a></div>
+    <p class="p">PayLink Money is not affiliated with PayPal, Venmo, Paxos, Pons or Robinhood. PYUSD is issued by Paxos. Receiving it requires a PayPal or Venmo account with crypto enabled.</p>
+    <p class="p">Fees are held by the platform between being claimed and being paid out. Every claim, swap, bridge and payout is a public transaction. Nothing here is financial, tax or legal advice.</p>
+  </div></footer>
+</main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

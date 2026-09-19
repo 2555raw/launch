@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PayLink · Explore</title>
+<meta name="description" content="Every token routed through PayLink, with what it has paid out so far.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="explore">
+<div class="pl">
+<main class="main">
+  <section class="page wrap">
+    <h1 class="h1" style="font-size:clamp(32px,4vw,44px)">Explore</h1>
+    <p class="lead">Every token whose fees are routed through PayLink, and what each one has paid out so far. The fees sitting in the Pons escrow for tokens that are not linked yet are on the <a href="proof.html" style="color:var(--accent)">proof page</a>.</p>
+    <div class="field" style="max-width:576px"><label for="filter">Filter</label><input class="input" id="filter" placeholder="Name, ticker or address" autocomplete="off" style="font-family:var(--font);width:100%"></div>
+    <div class="card tcard rv" style="margin-top:24px">
+      <table class="table">
+        <thead><tr><th>Token</th><th>Ticker</th><th class="c">Paid to</th><th class="r">Paid out</th></tr></thead>
+        <tbody id="explore-rows">
+          <tr><td style="font-family:var(--font);font-weight:600">venmo</td><td>VENMO</td><td class="dim c">PayPal · Ethereum</td><td class="r" style="color:var(--accent)">$0.00</td></tr>
+        </tbody>
+      </table>
+      <div class="empty" id="explore-empty" hidden>No token matches that.</div>
+    </div>
+    <p class="snap">One token linked so far. Payouts appear here once a balance passes $5.00.</p>
+  </section>
+  <footer class="foot"><div class="wrap">
+    <div class="links"><a href="launch.html">Launch</a><a href="link.html">Link a token</a><a href="explore.html">Explore</a><a href="proof.html">Live proof</a><a href="fees.html">Fees</a><a href="docs.html">Docs</a><a href="https://x.com/PayLinkRH" target="_blank" rel="noopener">𝕏 @PayLinkRH</a></div>
+    <p class="p">PayLink Money is not affiliated with PayPal, Venmo, Paxos, Pons or Robinhood. PYUSD is issued by Paxos. Receiving it requires a PayPal or Venmo account with crypto enabled.</p>
+    <p class="p">Fees are held by the platform between being claimed and being paid out. Every claim, swap, bridge and payout is a public transaction. Nothing here is financial, tax or legal advice.</p>
+  </div></footer>
+</main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

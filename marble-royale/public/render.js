@@ -436,9 +436,9 @@
      a face. Everything scales off the radius so it holds at any zoom. */
   /* Every marble is a coin people know. Each skin comes with its colour, and
      picking one sets it; the colour can still be changed afterwards. */
-  const FACES = ['doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
+  const FACES = ['hood', 'doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
   const SKIN_COLORS = {
-    doge: '#e3a94e', shib: '#e8462e', pepe: '#4fb35a', bonk: '#f5a524', wif: '#c9a06a',
+    hood: '#00c805', doge: '#e3a94e', shib: '#e8462e', pepe: '#4fb35a', bonk: '#f5a524', wif: '#c9a06a',
     btc: '#f7931a', eth: '#5b6785', sol: '#1d1a2e', bnb: '#f3ba2f', xrp: '#2b3138',
     usdt: '#26a17b', usdc: '#2775ca', ada: '#1a4fc4', avax: '#e84142'
   };
@@ -545,6 +545,18 @@
       ctx.save(); ctx.translate(x, y + r * 0.04); ctx.rotate(0.22); ctx.fillText('B', 0, 0); ctx.restore();
       ctx.fillRect(x - r * 0.16, y - r * 0.68, r * 0.09, r * 0.2); ctx.fillRect(x + r * 0.02, y - r * 0.68, r * 0.09, r * 0.2);
       ctx.fillRect(x - r * 0.16, y + r * 0.5, r * 0.09, r * 0.2); ctx.fillRect(x + r * 0.02, y + r * 0.5, r * 0.09, r * 0.2);
+    } else if (face === 'hood') {
+      /* a feather: one curved quill with a soft blade either side */
+      ctx.fillStyle = 'rgba(255,255,255,.95)';
+      ctx.beginPath();
+      ctx.moveTo(x + r * 0.42, y - r * 0.66);
+      ctx.quadraticCurveTo(x - r * 0.55, y - r * 0.2, x - r * 0.38, y + r * 0.62);
+      ctx.quadraticCurveTo(x + r * 0.05, y + r * 0.2, x + r * 0.42, y - r * 0.66);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,120,10,.7)';
+      ctx.lineWidth = Math.max(1, r * 0.1);
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x + r * 0.34, y - r * 0.56); ctx.quadraticCurveTo(x - r * 0.1, y - r * 0.05, x - r * 0.34, y + r * 0.58); ctx.stroke();
     } else if (face === 'xrp') {
       /* two arcs meeting at the middle, top and bottom */
       ctx.strokeStyle = '#fff';

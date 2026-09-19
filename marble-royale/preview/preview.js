@@ -128,7 +128,7 @@
     if (window.ethereum && window.ethereum.request) {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts && accounts[0]) return signedIn(accounts[0], 'Ethereum');
+        if (accounts && accounts[0]) return signedIn(accounts[0], 'Robinhood Chain');
       } catch { return toast('You cancelled the connection'); }
     }
     const sol = window.phantom?.solana || window.solana;
@@ -215,7 +215,7 @@
       sw.appendChild(b);
     }
     const fc = $('#faces');
-    const names = { doge: 'DOGE', shib: 'SHIB', pepe: 'PEPE', bonk: 'BONK', wif: 'WIF', btc: 'BTC', eth: 'ETH',
+    const names = { hood: 'HOOD', doge: 'DOGE', shib: 'SHIB', pepe: 'PEPE', bonk: 'BONK', wif: 'WIF', btc: 'BTC', eth: 'ETH',
                     sol: 'SOL', bnb: 'BNB', xrp: 'XRP', usdt: 'USDT', usdc: 'USDC', ada: 'ADA', avax: 'AVAX' };
     for (const f of RENDER.FACES) {
       const b = document.createElement('button');
@@ -618,10 +618,10 @@
     /* Kept to the margins, well clear of the headline, the copy and the trust
        row: the two near ones high in the corners, the far ones lower down. */
     const spots = [
-      { f: 'doge', x: 7, y: 12, r: 34, far: false, d: 0 },
+      { f: 'doge', x: 7, y: 12, r: 34, far: true, d: 0 },
       { f: 'btc', x: 82, y: 10, r: 40, far: false, d: 1.2 },
       { f: 'pepe', x: 3, y: 50, r: 30, far: true, d: 0.8 },
-      { f: 'eth', x: 89, y: 44, r: 30, far: true, d: 2.3 },
+      { f: 'hood', x: 89, y: 44, r: 34, far: false, d: 2.3 },
       { f: 'sol', x: 85, y: 68, r: 34, far: false, d: 3.1 },
       { f: 'wif', x: 12, y: 34, r: 22, far: true, d: 2.7 }
     ];

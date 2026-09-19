@@ -589,7 +589,7 @@
   }
 
   function buildPickers() {
-    const names = { doge: 'DOGE', shib: 'SHIB', pepe: 'PEPE', bonk: 'BONK', wif: 'WIF', btc: 'BTC', eth: 'ETH',
+    const names = { hood: 'HOOD', doge: 'DOGE', shib: 'SHIB', pepe: 'PEPE', bonk: 'BONK', wif: 'WIF', btc: 'BTC', eth: 'ETH',
                     sol: 'SOL', bnb: 'BNB', xrp: 'XRP', usdt: 'USDT', usdc: 'USDC', ada: 'ADA', avax: 'AVAX' };
     for (const c of SKINS) {
       const b = document.createElement('button');

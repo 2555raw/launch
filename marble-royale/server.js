@@ -34,7 +34,7 @@ const CONFIG = {
   mint: TOKEN_MINT,
   minTokens: MIN_TOKENS,
   feeWallet: FEE_WALLET,
-  chain: process.env.CHAIN_NAME || 'Ethereum',
+  chain: process.env.CHAIN_NAME || 'Robinhood Chain',
   explorer: process.env.EXPLORER || 'https://etherscan.io',
   currency: 'USD',
   potPct: POT_PCT,

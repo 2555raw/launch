@@ -93,10 +93,11 @@ All optional except where noted.
 | `POT_PCT` | the share of those fees the winner takes, as a percentage (default 20). It is shown on screen and stored with every round |
 | `MEGA_EVERY_MS` | how often a round is a mega race (default 1800000, the hour and the half hour) |
 | `MEGA_PCT` | the winner's share on a mega race (default 50) |
-| `ETH_RPC` | JSON-RPC endpoint (default `https://cloudflare-eth.com`, which is rate limited - use your own for anything busy) |
-| `ETH_USD_FEED` | Chainlink ETH/USD aggregator (default is mainnet's; set it for Base or another chain) |
+| `ETH_RPC` | JSON-RPC endpoint of the chain the coin lives on. The default is Ethereum mainnet's public one; for Robinhood Chain set its RPC URL here |
+| `CHAIN_NAME` | what the page calls the chain (default Robinhood Chain) |
+| `ETH_USD_FEED` | Chainlink ETH/USD aggregator on that chain (default is mainnet's). If the chain has no feed yet, set `ETH_USD` instead |
 | `ETH_USD` | a fixed ETH price in dollars, if you would rather not read a feed |
-| `CHAIN_NAME`, `EXPLORER` | what the page calls the chain and where transaction links go (default Ethereum, etherscan.io) |
+| `EXPLORER` | where transaction links go (default etherscan.io; set the chain's own explorer) |
 | `ADMIN_KEY` | **set this**, or /admin is off |
 | `SESSION_SECRET` | keeps sign-ins valid across restarts; random each boot if unset |
 | `DATA_DIR` | where results are written (default `./data`) |

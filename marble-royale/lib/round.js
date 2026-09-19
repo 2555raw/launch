@@ -44,7 +44,7 @@ const POT_PCT = Math.min(100, Math.max(0, Number(process.env.POT_PCT) || 20));
    so from the moment it opens, so the page can badge it. */
 const MEGA_EVERY_MS = Math.max(ROUND_MS, Number(process.env.MEGA_EVERY_MS) || 1800000);
 const MEGA_PCT = Math.min(100, Math.max(0, Number(process.env.MEGA_PCT) || 50));
-const FACES = ['doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
+const FACES = ['hood', 'doge', 'shib', 'pepe', 'bonk', 'wif', 'btc', 'eth', 'sol', 'bnb', 'xrp', 'usdt', 'usdc', 'ada', 'avax'];
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 const startOf = (t) => Math.floor(t / ROUND_MS) * ROUND_MS;

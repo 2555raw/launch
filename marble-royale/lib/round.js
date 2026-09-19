@@ -75,6 +75,9 @@ class Rounds extends EventEmitter {
        screen of the round before. The first round of a fresh process is a
        classic. */
     this.nextMode = null;
+    /* the last name each wallet raced under, so the chat can use it after
+       the race is over and the field is gone */
+    this.names = new Map();
   }
 
   start() {
@@ -366,12 +369,36 @@ class Rounds extends EventEmitter {
     };
     r.players.push(player);
     r.index.set(address, player);
+    if (player.name) this.names.set(address, player.name);
     if (r.max < MAX_PLAYERS_HIGH && r.players.length >= GROW_AT) {
       r.max = MAX_PLAYERS_HIGH;
       this.emit('cap', { roundId: r.id, max: r.max, count: r.players.length });
     }
     if (!fromWaitlist) this.emit('join', { roundId: r.id, player, count: r.players.length, max: r.max });
     return { player, count: r.players.length, max: r.max };
+  }
+
+  /* A change of look or name while the queue is open. The address and the
+     place in the field stay; only the decoration moves. */
+  restyle(address, skin) {
+    const r = this.round;
+    if (!r || r.phase !== 'lobby') return { error: 'the queue is closed; the look is fixed for this race' };
+    const player = r.index.get(address);
+    if (!player) return { error: 'not in this race' };
+    player.color = cleanColor(skin && skin.color) || player.color;
+    player.face = FACES.includes(skin && skin.face) ? skin.face : player.face;
+    player.material = MATERIALS.includes(skin && skin.material) ? skin.material : player.material;
+    player.name = cleanName(skin && skin.name);
+    if (player.name) this.names.set(address, player.name); else this.names.delete(address);
+    const pub = { address: player.address, color: player.color, face: player.face, material: player.material, name: player.name };
+    this.emit('skin', { roundId: r.id, player: pub });
+    return { player: pub };
+  }
+
+  nameOf(address) {
+    const r = this.round;
+    const p = r && r.index.get(address);
+    return (p && p.name) || this.names.get(address) || '';
   }
 
   /* What a full jar is: the acted target in demo mode, otherwise the larger of

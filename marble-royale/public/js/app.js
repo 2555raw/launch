@@ -50,6 +50,7 @@
     document.body.dataset.screen = name;
     if (name === 'home' || name === 'launch' || name === 'fair') { CAMERA.setMode('idle'); window.scrollTo(0, 0); }
     if (name === 'fair') paintFair();
+    if (name === 'launch') paintLaunchFee();
     else if (name === 'race') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
     else CAMERA.setMode('auto');
     if (name !== 'home') window.scrollTo(0, 0);
@@ -192,6 +193,7 @@
     es.addEventListener('cap', (e) => onCap(JSON.parse(e.data)));
     es.addEventListener('paid', (e) => onPaid(JSON.parse(e.data)));
     es.addEventListener('chat', (e) => feed(JSON.parse(e.data)));
+    es.addEventListener('skin', (e) => onSkin(JSON.parse(e.data)));
     es.addEventListener('cheer', (e) => { const d = JSON.parse(e.data); if (SCENE.ready) SCENE.cheer(d.target); });
     es.addEventListener('tick', (e) => {
       const d = JSON.parse(e.data);
@@ -324,6 +326,7 @@
     ui.set({ voted: null });
     document.body.dataset.phase = 'result';
     game.set({ result: d });
+    if (d.winner) { const wp = r && r.players.find((x) => same(x.address, d.winner)); feed({ sys: true, text: 'WINNER · ' + (wp && wp.name ? wp.name + ' · ' : '') + d.winner + (d.pot !== null && d.pot !== undefined ? ' · ' + usd(d.pot) : '') }); }
     paintStatic();
     if (r) drainPot(r);
     setTimeout(() => { showResults(d); paintPoll(); }, 1400);
@@ -739,7 +742,25 @@
     if (mine >= 0) { $('#resYouPos').textContent = '#' + (mine + 1) + (mine === 0 ? ' · YOU WON' : ''); if (mine === 0) { SOUND.play('win'); toast('You won! The pot goes to your address.', 'good'); } }
     $('#resAddr').textContent = d.winner || '';
     $('#resSend').href = 'ethereum:' + (d.winner || '');
+    paintResultPaid();
     setScreen('results');
+  }
+
+  /* If the race on the results screen has been paid, say so, with the
+     transaction anyone can open on the explorer. */
+  function paintResultPaid() {
+    const r = game.get().race;
+    const rec = r && (game.get().recent || []).find((x) => x.id === r.id);
+    const el = $('#resPaid');
+    if (!rec || !rec.paid) { el.hidden = true; return; }
+    el.hidden = false;
+    const explorer = ((game.get().config && game.get().config.explorer) || 'https://robinhoodchain.blockscout.com').replace(/\/$/, '');
+    const tx = rec.tx && /^0x[0-9a-f]{64}$/i.test(rec.tx) ? rec.tx : '';
+    el.innerHTML = '';
+    const tag = document.createElement('i'); tag.className = 'tag tag--paid'; tag.textContent = 'PAID';
+    el.appendChild(tag);
+    if (tx) { const a = document.createElement('a'); a.href = explorer + '/tx/' + tx; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'transaction ' + tx.slice(0, 10) + '…' + tx.slice(-6); el.appendChild(a); }
+    else el.appendChild(document.createTextNode(' by the creator' + (rec.tx ? ' · ' + String(rec.tx).slice(0, 40) : '')));
   }
 
   /* ---- feed & chat --------------------------------------------------------- */
@@ -747,7 +768,13 @@
   function feed(m, quiet) {
     const li = document.createElement('li');
     if (m.sys) { li.className = 'sys'; li.textContent = m.text; }
-    else { const b = document.createElement('b'); b.textContent = short(m.from) + ' '; li.append(b, document.createTextNode(m.text)); }
+    else {
+      const r = game.get().race;
+      const p = r && r.players.find((x) => same(x.address, m.from));
+      const who = m.name || (p && p.name) || short(m.from);
+      const b = document.createElement('b'); b.textContent = who + ' '; b.title = m.from;
+      li.append(b, document.createTextNode(m.text));
+    }
     const ul = $('#feed');
     ul.appendChild(li);
     while (ul.children.length > 80) ul.firstChild.remove();
@@ -924,6 +951,30 @@
     try { localStorage.setItem('mr.skin', JSON.stringify(skin)); } catch {}
     paintYou();
     if (SCENE.ready && wallet.get().address) SCENE.addPlayer({ address: wallet.get().address, color: skin.color, face: skin.face, material: skin.material, name: skin.name });
+    pushSkin();
+  }
+  /* Once you are in the field, a change of look or name goes to the server
+     so everyone's lobby, race and chat show it; sent a moment after the last
+     keystroke rather than on every one. */
+  let pushT = null;
+  function pushSkin() {
+    const w = wallet.get(), r = game.get().race;
+    if (!w.token || !ui.get().joined || !r || r.phase !== 'lobby') return;
+    clearTimeout(pushT);
+    pushT = setTimeout(async () => {
+      const skin = ui.get().skin;
+      const res = await fetch('/api/skin', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: w.token, color: skin.color, face: skin.face, material: skin.material, name: skin.name }) }).then((x) => x.json()).catch(() => ({ error: 'network' }));
+      if (res && res.player) onSkin({ roundId: r.id, player: res.player });
+    }, 500);
+  }
+  function onSkin(d) {
+    const r = game.get().race;
+    if (!r || d.roundId !== r.id) return;
+    const p = r.players.find((x) => x.address === d.player.address);
+    if (p) Object.assign(p, d.player); else return;
+    game.set({ race: r });
+    if (SCENE.ready) SCENE.addPlayer(d.player);
+    paintLobby();
   }
   function paintYou() {
     const skin = ui.get().skin;
@@ -943,6 +994,7 @@
     $('#youAddr').textContent = w.address ? w.address : 'connect a wallet';
     $('#youMat').textContent = SKINS.LABELS[skin.material] + ' · ' + skin.face.toUpperCase();
     $('#skinName').value = skin.name || '';
+    if (document.activeElement !== $('#youNameInput')) $('#youNameInput').value = skin.name || '';
     $$('.mt').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.material));
     $$('.fc').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.face));
     $$('.sw').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.color));
@@ -985,6 +1037,7 @@
       sw.appendChild(b);
     }
     $('#skinName').addEventListener('input', () => saveSkin({ name: $('#skinName').value.replace(/[^\w .\-]/g, '').slice(0, 16) }));
+    $('#youNameInput').addEventListener('input', () => saveSkin({ name: $('#youNameInput').value.replace(/[^\w .\-]/g, '').slice(0, 16) }));
     $('#skinBtn').addEventListener('click', () => { SOUND.wake(); openModal('m-skin'); });
   }
 
@@ -1168,7 +1221,7 @@
     game.set({ rewards: d.rewards || [], paidTotal: d.paidTotal || 0 });
     const recent = (game.get().recent || []).map((x) => (x.id === d.round.id ? d.round : x));
     game.set({ recent });
-    paintRewards(); paintRecent();
+    paintRewards(); paintRecent(); paintResultPaid();
     const me = wallet.get().address;
     if (same(d.round.winner, me)) { SOUND.play('win'); toast('Your reward for race #' + pad(d.round.number || 0) + ' was paid: ' + usd(d.round.pot), 'good'); }
     else toast('Race #' + pad(d.round.number || 0) + ' paid: ' + usd(d.round.pot) + ' to ' + short(d.round.winner), 'good');
@@ -1303,27 +1356,24 @@
      truth about there being no contract yet rather than inventing a receipt. */
   const LAUNCH_KEY = 'mr.launches';
   const loadLaunches = () => { try { return JSON.parse(localStorage.getItem(LAUNCH_KEY) || '[]'); } catch { return []; } };
-  const saveLaunches = (list) => { try { localStorage.setItem(LAUNCH_KEY, JSON.stringify(list.slice(0, 20))); } catch {} };
+  const saveLaunches = (list) => { try { localStorage.setItem(LAUNCH_KEY, JSON.stringify(list.slice(0, 30))); } catch {} };
   const lpField = () => ({
-    name: $('#lpName').value.trim().slice(0, 24),
-    ticker: $('#lpTicker').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8),
-    desc: $('#lpDesc').value.trim().slice(0, 120),
+    name: $('#lpName').value.trim().slice(0, 32),
+    ticker: $('#lpTicker').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10),
+    desc: $('#lpDesc').value.trim().slice(0, 200),
     face: $('#lpFace').value,
     color: $('#lpColor').value,
-    every: Number($('#lpEvery').value) || 5,
-    share: Number($('#lpShare').value) || 100,
-    min: Math.max(0, Number($('#lpMin').value) || 0),
-    image: $('#lpImg').value.trim().slice(0, 300)
+    image: $('#lpImg').value.trim().slice(0, 300),
+    twitter: $('#lpTwitter').value.trim().slice(0, 200),
+    telegram: $('#lpTelegram').value.trim().slice(0, 200),
+    website: $('#lpWebsite').value.trim().slice(0, 200),
+    buyback: $('#lpBuyback').checked
   });
   function paintLaunchPreview() {
     const f = lpField();
-    $('#lpShareVal').textContent = f.share + '%';
     $('#lpCardName').textContent = f.name || 'Your token';
     $('#lpCardTicker').textContent = '$' + (f.ticker || 'TICKER');
-    $('#lpCardDesc').textContent = f.desc || 'One line about it goes here.';
-    $('#lpCardEvery').textContent = f.every + ' MIN';
-    $('#lpCardShare').textContent = f.share + '%';
-    $('#lpCardMin').textContent = f.min ? f.min.toLocaleString('en-US') + '+' : 'NO';
+    $('#lpCardDesc').textContent = f.desc || 'A line about it goes here.';
     const cv = $('#lpMarble'); const ctx = cv.getContext('2d'); const size = 60;
     ctx.clearRect(0, 0, cv.width, cv.height);
     ctx.save(); ctx.scale(2, 2);
@@ -1335,6 +1385,7 @@
     } else RENDER.drawFace(ctx, size / 2, size / 2, size * 0.34, f.face);
     ctx.restore();
   }
+  const explorerOf = () => (CONTRACTS.launchpad && CONTRACTS.launchpad.pons && CONTRACTS.launchpad.pons.explorer) || 'https://robinhoodchain.blockscout.com';
   function paintLaunches() {
     const list = loadLaunches();
     const ul = $('#lpList'); ul.innerHTML = '';
@@ -1344,9 +1395,11 @@
       const cv = marbleCanvas({ material: 'glass', color: l.color, face: l.face }, 30);
       const meta = document.createElement('div');
       const b = document.createElement('b'); b.textContent = l.name + ' · $' + l.ticker;
-      const sp = document.createElement('span'); sp.className = 'mono dim'; sp.textContent = 'every ' + l.every + ' min · winner ' + l.share + '% · ' + (l.deployed ? 'deployed' : 'draft, not deployed');
+      const sp = document.createElement('span'); sp.className = 'mono dim';
+      if (l.token) { const a = document.createElement('a'); a.href = explorerOf() + '/token/' + l.token; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'live · ' + short(l.token); a.addEventListener('click', (e) => e.stopPropagation()); sp.appendChild(a); }
+      else sp.textContent = 'draft · not launched';
       meta.append(b, sp);
-      const x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.title = 'remove';
+      const x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.title = 'remove from this list';
       x.addEventListener('click', () => { saveLaunches(loadLaunches().filter((q) => q.id !== l.id)); paintLaunches(); });
       li.append(cv, meta, x);
       li.addEventListener('click', (e) => { if (e.target === x) return; fillLaunch(l); });
@@ -1354,9 +1407,31 @@
     }
   }
   function fillLaunch(l) {
-    $('#lpName').value = l.name; $('#lpTicker').value = l.ticker; $('#lpDesc').value = l.desc || ''; $('#lpFace').value = l.face; $('#lpColor').value = l.color;
-    $('#lpEvery').value = String(l.every); $('#lpShare').value = String(l.share); $('#lpMin').value = String(l.min || 0); $('#lpImg').value = l.image || '';
+    $('#lpName').value = l.name; $('#lpTicker').value = l.ticker; $('#lpDesc').value = l.desc || ''; $('#lpFace').value = l.face || 'doge'; $('#lpColor').value = l.color || '#ff7a1a';
+    $('#lpImg').value = l.image || ''; $('#lpTwitter').value = l.twitter || ''; $('#lpTelegram').value = l.telegram || ''; $('#lpWebsite').value = l.website || ''; $('#lpBuyback').checked = l.buyback !== false;
+    if (l.token) showLaunched(l); else $('#lpDone').hidden = true;
     paintLaunchPreview();
+  }
+  function showLaunched(l) {
+    $('#lpDone').hidden = false;
+    $('#lpDoneToken').textContent = l.token;
+    $('#lpLinkTx').href = explorerOf() + '/tx/' + l.hash;
+    $('#lpLinkToken').href = explorerOf() + '/token/' + l.token;
+    $('#lpLinkPons').href = (CONTRACTS.launchpad.pons.site || 'https://ponsfamily.com') + '/launchpad?search=' + l.token;
+    $('#lpCardStatus').textContent = 'LIVE · ' + short(l.token) + ' · ROBINHOOD CHAIN';
+    $('#lpCopy').onclick = () => copy(l.token, 'Contract address');
+  }
+  /* The fee Pons quotes right now, shown before anyone presses launch. */
+  async function paintLaunchFee() {
+    const el = $('#lpFee');
+    const provider = WALLET.provider;
+    if (!provider || !window.ethers || wallet.get().demo) { el.textContent = 'quoted by Pons when you launch'; return; }
+    try {
+      const chainId = parseInt(await provider.request({ method: 'eth_chainId' }), 16);
+      if (chainId !== CONTRACTS.launchpad.pons.chainId) { el.textContent = 'quoted by Pons on Robinhood Chain (your wallet switches when you launch)'; return; }
+      const fee = await CONTRACTS.launchpad.fee(provider);
+      el.textContent = ethers.formatEther(fee) + ' ETH';
+    } catch { el.textContent = 'quoted by Pons when you launch'; }
   }
   function buildLaunchpad() {
     const sel = $('#lpFace');
@@ -1368,24 +1443,44 @@
       const f = lpField();
       if (!f.name || !f.ticker) return toast('A launch needs a name and a ticker', 'bad');
       const list = loadLaunches();
-      const id = 'L' + Date.now().toString(36);
-      list.unshift(Object.assign({ id, at: Date.now(), deployed: false, owner: wallet.get().address || null }, f));
+      list.unshift(Object.assign({ id: 'L' + Date.now().toString(36), at: Date.now(), owner: wallet.get().address || null }, f));
       saveLaunches(list);
       paintLaunches();
       SOUND.play('join');
-      toast('Saved as a draft. It deploys when the launchpad contract is live.', 'good');
-      $('#lpCardStatus').textContent = 'DRAFT · SAVED · NOT DEPLOYED';
+      toast('Draft saved in this browser. Launch it whenever you are ready.', 'good');
+      $('#lpCardStatus').textContent = 'DRAFT · SAVED · NOT LAUNCHED';
     });
+    /* Launch: one transaction from the wallet to Pons. The states on the
+       line under the form are the real ones; nothing is shown that did not
+       happen, and the address and links come from the receipt. */
+    let launching = false;
     $('#lpDeploy').addEventListener('click', async () => {
+      if (launching) return;
       const w = wallet.get();
       if (!w.token) return openWallet();
       const f = lpField();
       if (!f.name || !f.ticker) return toast('A launch needs a name and a ticker', 'bad');
-      const { tx } = await CONTRACTS.launchpad.createToken(w, f);
+      launching = true; $('#lpDeploy').disabled = true;
       const line = $('#lpTx');
-      line.hidden = false; line.dataset.status = tx.status;
-      $('#lpTxText').textContent = CONTRACTS.labels[tx.status] + ' · deploy' + (tx.error ? ' · ' + tx.error : '');
-      if (tx.status === 'failed') SOUND.play('error');
+      const off = CONTRACTS.onTx((tx) => {
+        if (tx.kind !== 'launch') return;
+        line.hidden = false; line.dataset.status = tx.status;
+        const fee = tx.fee !== undefined && window.ethers ? ' · fee ' + ethers.formatEther(tx.fee) + ' ETH' : '';
+        $('#lpTxText').textContent = CONTRACTS.labels[tx.status] + ' · launch on Pons' + fee + (tx.hash ? ' · ' + tx.hash.slice(0, 12) + '…' : '') + (tx.error ? ' · ' + tx.error : '');
+      });
+      try {
+        const { tx, res } = await CONTRACTS.launchpad.createToken(w, f);
+        if (tx.status === 'confirmed' && res && res.token) {
+          const list = loadLaunches();
+          const rec = Object.assign({ id: 'L' + Date.now().toString(36), at: Date.now(), owner: w.address, token: res.token, curve: res.curve, hash: res.hash, feeWei: res.feeWei }, f);
+          list.unshift(rec);
+          saveLaunches(list); paintLaunches(); showLaunched(rec);
+          SOUND.play('win');
+          toast('Launched on Pons: ' + short(res.token), 'good');
+        } else if (tx.status === 'confirmed') {
+          toast('The transaction went through but no TokenLaunched event was found; check it on the explorer.', 'bad');
+        } else SOUND.play('error');
+      } finally { off(); launching = false; $('#lpDeploy').disabled = false; }
     });
     paintLaunchPreview();
     paintLaunches();

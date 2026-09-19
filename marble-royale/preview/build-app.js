@@ -25,8 +25,12 @@ const CDN = 'https://cdn.jsdelivr.net/npm/three@0.170.0/';
 html = html.replace(/<script type="importmap">[\s\S]*?<\/script>/, () => '<script type="importmap">' + JSON.stringify({ imports: { three: CDN + 'build/three.module.min.js' } }) + '</script>');
 html = html.replace(/\.\/vendor\/three\/postprocessing\//g, CDN + 'examples/jsm/postprocessing/').replace(/\.\/vendor\/three\/RoomEnvironment\.js/g, CDN + 'examples/jsm/environments/RoomEnvironment.js');
 
+/* ethers from the CDN too, rather than half a megabyte inlined */
+html = html.replace('<script src="vendor/ethers/ethers.umd.min.js"></script>', '<script src="https://cdn.jsdelivr.net/npm/ethers@6.17.0/dist/ethers.umd.min.js"></script>');
+
 /* every classic script inlined, standalone.js slotted in before app.js */
 html = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => {
+  if (/^https?:/.test(src)) return m;
   const body = read(src).replace(/<\/script>/g, '<\\/script>');
   const pre = src === 'js/app.js' ? '<script>\n' + read('js/standalone.js').replace(/<\/script>/g, '<\\/script>') + '\n</script>\n' : '';
   return pre + '<script>\n' + body + '\n</script>';

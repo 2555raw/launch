@@ -660,6 +660,21 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 
 /* ---- the launchpad -------------------------------------------------------- */
 
+.launch__pons { display: grid; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); }
+.launch__check { display: flex !important; gap: 10px; align-items: flex-start; }
+.launch__check input { width: auto !important; margin-top: 4px; accent-color: var(--go); }
+.launch__check span { text-transform: none !important; letter-spacing: 0 !important; font-family: var(--disp) !important; font-size: 13.5px !important; color: var(--ink2) !important; }
+.launch__done { display: grid; gap: 10px; padding: 16px 18px; border-color: color-mix(in srgb, var(--win) 45%, transparent); }
+.launch__done b { word-break: break-all; font-size: 13px; }
+.launch__links { display: flex; gap: 8px; flex-wrap: wrap; }
+.you__name { display: grid; gap: 6px; margin: 8px 0 10px; }
+.you__name > span { font-family: var(--mono); font-size: 10px; letter-spacing: .16em; color: var(--go); }
+.you__name > span em { display: block; font-style: normal; letter-spacing: 0; text-transform: none; font-family: var(--disp); font-size: 12px; color: var(--dim); margin-top: 2px; }
+.you__name input { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line2); background: var(--glass2); color: var(--ink); font-size: 14px; }
+.you__name input:focus { outline: none; border-color: var(--go); box-shadow: 0 0 0 3px rgba(255, 122, 26, .2); }
+.results__paid { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; color: var(--win); }
+.results__paid a { color: var(--go); }
+
 .screen--launch { padding: calc(28px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .launch { max-width: 1180px; margin: 0 auto; display: grid; gap: 22px; }
 .launch__head { max-width: 62ch; }
@@ -995,8 +1010,12 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
               <span class="dim" id="youMat">glass</span>
             </div>
           </div>
+          <label class="you__name">
+            <span>YOUR NAME <em>shown in the race, the chat and the results</em></span>
+            <input class="mono" id="youNameInput" maxlength="16" placeholder="leave blank to show your wallet" autocomplete="off">
+          </label>
           <div class="you__actions">
-            <button class="btn btn--glass" id="skinBtn">Customise</button>
+            <button class="btn btn--soft" id="skinBtn"><svg class="ic"><use href="#i-grid"/></svg> Customise marble</button>
             <button class="btn btn--accent btn--wide" id="joinBtn" disabled>Connect to join</button>
           </div>
           <div class="tx" id="txLine" hidden><i></i><span id="txText"></span></div>
@@ -1066,6 +1085,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
           <button class="btn btn--glass" id="resCopy">Copy address</button>
           <a class="btn btn--accent" id="resSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
         </div>
+        <span class="results__paid mono" id="resPaid" hidden></span>
         <span class="dim small">The creator sends the whole pot to first place. <a href="#" data-go="fair" data-verify-last>Verify this race</a>.</span>
       </div>
       <div class="poll" id="poll" hidden>
@@ -1125,25 +1145,32 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
       <div class="launch__head">
         <span class="kicker kicker--plain">LAUNCHPAD</span>
         <h2>Launch your own marble token.</h2>
-        <p>Give a coin races of its own: a name, a marble, a race cadence and a share of its fees for the winners. The pad builds the race page; the token deploys on Robinhood Chain when the launchpad contract goes live. Nothing here spends anything today, and it says so.</p>
+        <p>Launch a real token on Robinhood Chain through Pons, the chain's launchpad, from your own wallet: a name, a ticker, a picture, and one transaction. It trades from the first block and shows up on Pons, the explorer and the terminals that watch the Pons factory.</p>
       </div>
       <div class="launch__body">
         <form class="launch__form glass" id="launchForm" autocomplete="off">
-          <label><span>Token name</span><input id="lpName" maxlength="24" placeholder="Marble Doge" required></label>
-          <label><span>Ticker</span><input id="lpTicker" maxlength="8" placeholder="MDOGE" required></label>
-          <label class="wide"><span>One line about it</span><input id="lpDesc" maxlength="120" placeholder="The marble that never loses."></label>
-          <label><span>Marble</span><select id="lpFace"></select></label>
+          <div class="wide launch__pons"><span class="kicker kicker--plain">LAUNCHES THROUGH PONS · ROBINHOOD CHAIN</span><span class="dim small">One transaction from your wallet to the Pons V2 factory. Fixed supply of 1,000,000,000, straight into a bonding curve; tradeable from the first block. Fee: <b class="mono" id="lpFee">quoted by Pons when you launch</b> + gas.</span></div>
+          <label><span>Token name</span><input id="lpName" maxlength="32" placeholder="Marble Doge" required></label>
+          <label><span>Ticker</span><input id="lpTicker" maxlength="10" placeholder="MDOGE" required></label>
+          <label class="wide"><span>Description</span><input id="lpDesc" maxlength="200" placeholder="The marble that never loses."></label>
+          <label><span>Image URL <small class="dim">optional, https or ipfs</small></span><input id="lpImg" placeholder="https://…/logo.png"></label>
+          <label><span>Marble on the race page</span><select id="lpFace"></select></label>
+          <label><span>X / Twitter <small class="dim">optional</small></span><input id="lpTwitter" placeholder="https://x.com/…"></label>
+          <label><span>Telegram <small class="dim">optional</small></span><input id="lpTelegram" placeholder="https://t.me/…"></label>
+          <label><span>Website <small class="dim">optional</small></span><input id="lpWebsite" placeholder="https://…"></label>
           <label><span>Colour</span><input type="color" id="lpColor" value="#ff7a1a"></label>
-          <label><span>Race every</span><select id="lpEvery"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select></label>
-          <label><span>Winner's share of fees · <b class="mono" id="lpShareVal">100%</b></span><input type="range" id="lpShare" min="10" max="100" step="5" value="100"></label>
-          <label><span>Holders only from</span><input type="number" id="lpMin" min="0" step="1000" value="0"><small class="dim">tokens needed to race. 0 lets anyone in.</small></label>
-          <label><span>Image URL <small class="dim">optional</small></span><input id="lpImg" placeholder="https://…/logo.png"></label>
+          <label class="wide launch__check"><input type="checkbox" id="lpBuyback" checked><span><b>Buyback &amp; lock</b> <small class="dim">a share of trading fees buys the token back and locks it in the Pons vault; you can switch it later</small></span></label>
           <div class="launch__actions wide">
-            <button class="btn btn--accent btn--xl" type="submit" id="lpSave">Save this launch</button>
-            <button class="btn btn--glass btn--xl" type="button" id="lpDeploy">Deploy on-chain</button>
+            <button class="btn btn--accent btn--xl" type="button" id="lpDeploy"><svg class="ic"><use href="#i-rocket"/></svg> Launch on Pons</button>
+            <button class="btn btn--glass btn--xl" type="submit" id="lpSave">Save draft</button>
           </div>
-          <p class="dim small wide">Saved launches live in this browser. Deploy is one transaction from your own wallet, and it only works once the launchpad contract is live: until then it tells you so instead of pretending.</p>
+          <p class="dim small wide">You pay the Pons launch fee and gas from your own wallet, on Robinhood Chain; the wallet switches network if it has to. The token appears on Pons, on the Robinhood Chain explorer and on the terminals that watch the Pons factory. 70% of its trading fees go to your wallet by Pons' own rules. Nothing here ever sees your keys.</p>
           <div class="tx wide" id="lpTx" hidden><i></i><span id="lpTxText"></span></div>
+          <div class="launch__done glass wide" id="lpDone" hidden>
+            <span class="kicker kicker--plain">LIVE ON ROBINHOOD CHAIN</span>
+            <b class="mono" id="lpDoneToken"></b>
+            <div class="launch__links"><a class="btn btn--glass" id="lpLinkTx" target="_blank" rel="noopener">Transaction</a><a class="btn btn--glass" id="lpLinkToken" target="_blank" rel="noopener">Explorer</a><a class="btn btn--accent" id="lpLinkPons" target="_blank" rel="noopener">Open on Pons</a><button class="btn btn--glass" type="button" id="lpCopy">Copy CA</button></div>
+          </div>
         </form>
         <aside class="launch__prev">
           <div class="lcard glass" id="lpCard">
@@ -1154,9 +1181,9 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
             </div>
             <p id="lpCardDesc" class="dim">The marble that never loses.</p>
             <div class="lcard__stats mono">
-              <div><em>RACE EVERY</em><b id="lpCardEvery">5 MIN</b></div>
-              <div><em>WINNER TAKES</em><b class="gold" id="lpCardShare">100%</b></div>
-              <div><em>HOLDERS ONLY</em><b id="lpCardMin">NO</b></div>
+              <div><em>SUPPLY</em><b>1,000,000,000</b></div>
+              <div><em>CREATOR FEE SHARE</em><b class="gold">70%</b></div>
+              <div><em>LAUNCHPAD</em><b>PONS V2</b></div>
               <div><em>CHAIN</em><b>ROBINHOOD</b></div>
             </div>
             <div class="lcard__status mono dim" id="lpCardStatus">DRAFT · NOT DEPLOYED</div>
@@ -1172,16 +1199,16 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
         <div class="glass panel">
           <span class="kicker kicker--plain">HOW A LAUNCH WORKS</span>
           <ol class="steps">
-            <li><b>Describe the token</b><span>Name, ticker, a marble and a colour. That marble is the token's mascot on its own race page.</span></li>
-            <li><b>Set the race</b><span>How often it races, how much of its fees the winner takes, and whether you must hold it to race.</span></li>
-            <li><b>Deploy</b><span>When the launchpad contract is live on Robinhood Chain, deploy sends one transaction from your wallet. Until then the launch stays a draft, and the page never pretends otherwise.</span></li>
-            <li><b>Race</b><span>Your token gets a race page like this one: same engine, same fairness, its own pot.</span></li>
+            <li><b>Describe the token</b><span>Name, ticker, a description, a picture and your links. That is what goes on-chain, in the launch call itself.</span></li>
+            <li><b>Launch on Pons</b><span>Your wallet switches to Robinhood Chain if it has to, quotes the Pons launch fee, and sends one transaction to the Pons V2 factory. The token and its bonding curve are deployed in that transaction.</span></li>
+            <li><b>Check it anywhere</b><span>The page shows the contract address, the transaction and links to the explorer and Pons. Terminals that index Pons launches list it on their own.</span></li>
+            <li><b>Earn from trades</b><span>Every trade pays a fee and 70% of it goes to the wallet that launched, by Pons' own rules. Buyback &amp; lock, if on, turns part of it into a locked position.</span></li>
           </ol>
         </div>
         <div class="glass panel">
           <span class="kicker kicker--plain">WHAT THE PAD NEVER DOES</span>
           <h3>Your keys stay in your wallet</h3>
-          <p>The launchpad never asks for a private key or a seed phrase, never signs on your behalf, and never shows a transaction that did not happen. Deploying is one transaction you approve in your own wallet, the same as any other.</p>
+          <p>The launchpad never asks for a private key or a seed phrase, never signs on your behalf, and never shows a transaction that did not happen. Launching is one transaction you approve in your own wallet, paid from your own balance, and every result on this page is read back from the receipt.</p>
         </div>
       </div>
     </div>
@@ -3924,18 +3951,38 @@ window.MR_TYPES = true;
     shadow.renderOrder = 1;
     S.scene.add(shadow);
     const you = address === S.me;
-    const name = p.name || (address.startsWith('0x') ? address.slice(0, 5) + '…' + address.slice(-3) : address.slice(0, 4) + '…' + address.slice(-3));
+    const name = labelName(p);
     const label = textSprite(THREE, name, you ? '#ffb36b' : '#ffffff', 0.9, null, you ? 'YOU' : null);
     label.visible = false;
     S.scene.add(label);
-    S.marbles.set(address, { mesh, shadow, label, you, name });
+    S.marbles.set(address, { mesh, shadow, label, you, name, skin: (p.material || '') + '|' + (p.color || '') + '|' + (p.face || '') });
   }
 
   /* the lobby adds marbles one at a time */
   function addPlayer(p) {
     if (!S.ready || !S.race) return;
+    const THREE = window.THREE;
     S.players.set(p.address, p);
-    if (!S.marbles.has(p.address)) addMarble(p.address);
+    const address = p.address, m = S.marbles.get(address);
+    if (!m) return addMarble(address);
+    /* a player who renamed or restyled in the lobby: fresh label, fresh skin */
+    const name = labelName(p);
+    if (name !== m.name) {
+      S.scene.remove(m.label); m.label.material.map.dispose(); m.label.material.dispose();
+      m.label = textSprite(THREE, name, m.you ? '#ffb36b' : '#ffffff', 0.9, null, m.you ? 'YOU' : null);
+      m.label.visible = false; S.scene.add(m.label); m.name = name;
+      if (m.labelLead) { S.scene.remove(m.labelLead); m.labelLead = null; }
+    }
+    const skin = (p.material || '') + '|' + (p.color || '') + '|' + (p.face || '');
+    if (skin !== m.skin) {
+      /* materials are cached by SKINS, so the old one is simply let go */
+      m.mesh.material = SKINS.marbleMaterial(THREE, { material: p.material || SKINS.materialOf(address), color: p.color, face: p.face });
+      m.skin = skin;
+    }
+  }
+  function labelName(p) {
+    const address = p.address;
+    return p.name || (address.startsWith('0x') ? address.slice(0, 5) + '…' + address.slice(-3) : address.slice(0, 4) + '…' + address.slice(-3));
   }
 
   /* ---- per frame --------------------------------------------------------- */
@@ -4259,10 +4306,11 @@ window.MR_TYPES = true;
     return out;
   }
 
-  window.SCENE = { init, resize, setRace, addPlayer, sync, render, celebrate, cheer, burst, snapshot, setBackdrop, get ready() { return S.ready; }, get camera() { return S.camera; }, get backdrop() { return S.backdrop; } };
+  window.SCENE = { init, resize, setRace, addPlayer, sync, render, celebrate, cheer, burst, snapshot, setBackdrop, get ready() { return S.ready; }, get camera() { return S.camera; }, get backdrop() { return S.backdrop; }, labelTexts() { return [...S.marbles.values()].map((m) => m.name).join(', '); } };
 })();
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.17.0/dist/ethers.umd.min.js"></script>
 <script>
 /* Wallets.
 
@@ -4482,37 +4530,124 @@ window.MR_TYPES = true;
     };
   }
 
-  /* ---- the launchpad ------------------------------------------------------ */
+  /* ---- the launchpad: Pons on Robinhood Chain ------------------------------ */
 
-  /* A launch is a token with races of its own. Today it is a draft kept in the
-     browser; deploying it is one transaction to the launchpad contract, and
-     until that contract has an address the deploy call fails with the truth
-     rather than a fake receipt. */
-  const LAUNCH_ABI = [
-    'function createToken(string name, string symbol, string uri, uint32 raceEvery, uint16 winnerShareBps, uint256 minHold) payable returns (address token)'
-  ];
-  let launchpadAddress = '';
+  /* A launch is a real token on Robinhood Chain, made through Pons, the
+     chain's launchpad: one transaction from the creator's own wallet to the
+     Pons V2 factory, paying the launch fee the factory quotes. The token
+     mints its whole supply into a bonding curve and trades from the first
+     block; Pons, the explorers and the trading terminals that watch the Pons
+     factory pick it up on their own. Nothing here holds a key. */
+  const PONS = {
+    chainId: 4663,
+    chainHex: '0x1237',
+    chainName: 'Robinhood Chain',
+    rpc: 'https://rpc.mainnet.chain.robinhood.com',
+    explorer: 'https://robinhoodchain.blockscout.com',
+    site: 'https://ponsfamily.com',
+    factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
+    launchConfigId: 0,
+    pairToken: '0x0000000000000000000000000000000000000000',   // native ETH
+    abi: [
+      'function launchFee() view returns (uint256)',
+      'function launchEnabled() view returns (bool)',
+      'function canLaunch(address) view returns (bool)',
+      'function launchToken((string name,string symbol,string logo,string description,(string twitter,string telegram,string discord,string website,string farcaster) socials,address creatorFeeRecipient,uint16 creatorTaxBps,bool buybackEnabled,bytes32 expectedEconomics,bytes32 salt) params,uint256 launchConfigId,address pairToken) payable returns (address token, address curve)',
+      'event TokenLaunched(address indexed token,address indexed curve,address indexed deployer,address pairToken,uint256 launchConfigId,uint256 graduationThreshold)'
+    ],
+    /* the live factory's selector for that launchToken; checked before sending */
+    selector: '0xf35abbcf'
+  };
+
+  const rejected = (err) => /reject|denied|cancel/i.test(String(err && (err.message || err)));
+
+  /* The wallet on Robinhood Chain, added if the wallet does not know it. */
+  async function onRobinhood(provider) {
+    const have = parseInt(await provider.request({ method: 'eth_chainId' }), 16);
+    if (have === PONS.chainId) return;
+    try {
+      await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: PONS.chainHex }] });
+    } catch (err) {
+      if (err && (err.code === 4902 || /unrecognized|not added|4902/i.test(String(err.message)))) {
+        await provider.request({ method: 'wallet_addEthereumChain', params: [{
+          chainId: PONS.chainHex, chainName: PONS.chainName, rpcUrls: [PONS.rpc],
+          nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, blockExplorerUrls: [PONS.explorer]
+        }] });
+      } else throw err;
+    }
+  }
+
   const launchpad = {
-    abi: LAUNCH_ABI,
-    get address() { return launchpadAddress; },
-    get live() { return !!launchpadAddress; },
+    pons: PONS,
+    get live() { return !!window.ethers; },
+    /** The fee Pons charges right now, in wei, read from the factory. */
+    async fee(provider) {
+      const ethers = window.ethers;
+      const bp = new ethers.BrowserProvider(provider);
+      const factory = new ethers.Contract(PONS.factory, PONS.abi, bp);
+      return factory.launchFee();
+    },
+    /**
+     * Launches spec as a token on Pons from the connected wallet.
+     * spec: { name, ticker, desc, image, twitter, telegram, website, buyback }
+     * Resolves { tx, res } where res is { token, curve, hash, links } on success.
+     */
     async createToken(session, spec) {
       const tx = newTx('launch');
-      if (!launchpadAddress) {
-        tx.status = 'failed'; tx.error = 'The launchpad contract is not live on this network yet. Your launch is saved as a draft.';
-        emitTx(tx);
-        return { tx, res: { error: tx.error, draft: true } };
-      }
+      const provider = window.WALLET && WALLET.provider;
+      const ethers = window.ethers;
+      const fail = (msg) => { tx.status = 'failed'; tx.error = msg; emitTx(tx); return { tx, res: { error: msg } }; };
+      if (!ethers) return fail('The chain library did not load; reload the page.');
+      if (!provider || session.demo) return fail('Launching needs a real wallet (MetaMask, Phantom or any EVM wallet). A demo wallet cannot pay the launch fee.');
+      if (!spec.name || !spec.ticker) return fail('A launch needs a name and a ticker.');
       tx.status = 'waiting_wallet'; emitTx(tx);
-      tx.status = 'failed'; tx.error = 'Deploying is not wired to a wallet in this build.'; emitTx(tx);
-      return { tx, res: { error: tx.error } };
+      try {
+        await onRobinhood(provider);
+        const bp = new ethers.BrowserProvider(provider);
+        const signer = await bp.getSigner();
+        const me = await signer.getAddress();
+        const factory = new ethers.Contract(PONS.factory, PONS.abi, signer);
+        const fn = factory.interface.getFunction('launchToken');
+        if (fn.selector !== PONS.selector) return fail('The launch call does not match the Pons factory; not sending.');
+        const [fee, enabled, can] = await Promise.all([factory.launchFee(), factory.launchEnabled().catch(() => true), factory.canLaunch(me).catch(() => true)]);
+        if (!enabled) return fail('Pons has launches paused right now.');
+        if (!can) return fail('This wallet is not allowed to launch on Pons right now.');
+        const params = {
+          name: String(spec.name).slice(0, 64),
+          symbol: String(spec.ticker).toUpperCase().slice(0, 16),
+          logo: String(spec.image || ''),
+          description: String(spec.desc || ''),
+          socials: { twitter: String(spec.twitter || ''), telegram: String(spec.telegram || ''), discord: '', website: String(spec.website || ''), farcaster: '' },
+          creatorFeeRecipient: me,
+          creatorTaxBps: 0,
+          buybackEnabled: !!spec.buyback,
+          expectedEconomics: ethers.ZeroHash,
+          salt: ethers.hexlify(ethers.randomBytes(32))
+        };
+        tx.status = 'confirm'; tx.fee = fee; emitTx(tx);
+        const sent = await factory.launchToken(params, PONS.launchConfigId, PONS.pairToken, { value: fee });
+        tx.status = 'pending'; tx.hash = sent.hash; emitTx(tx);
+        const receipt = await sent.wait();
+        let token = null, curve = null;
+        for (const log of receipt.logs) {
+          try { const parsed = factory.interface.parseLog({ topics: [...log.topics], data: log.data }); if (parsed && parsed.name === 'TokenLaunched') { token = parsed.args.token; curve = parsed.args.curve; } } catch { /* another contract's log */ }
+        }
+        if (receipt.status !== 1) return fail('The launch transaction reverted. Nothing was deployed; the fee was not taken. ' + PONS.explorer + '/tx/' + sent.hash);
+        tx.status = 'confirmed'; emitTx(tx);
+        return { tx, res: { token, curve, hash: sent.hash, deployer: me, feeWei: fee.toString(), links: {
+          tx: PONS.explorer + '/tx/' + sent.hash,
+          token: token ? PONS.explorer + '/token/' + token : null,
+          pons: token ? PONS.site + '/launchpad?search=' + token : PONS.site
+        } } };
+      } catch (err) {
+        return fail(rejected(err) ? 'You cancelled in the wallet. Nothing was sent.' : (err && (err.shortMessage || err.message)) || 'The launch did not go through.');
+      }
     }
   };
 
   let active = demo;
   window.CONTRACTS = {
     get launchpad() { return launchpad; },
-    useLaunchpad(address) { launchpadAddress = address || ''; },
     get mode() { return active.mode; },
     get race() { return active; },
     useDemo() { active = demo; },
@@ -4685,7 +4820,7 @@ window.MR_TYPES = true;
     for (let i = 0; i < 4; i++) { const s = round.startAt + i * ROUND_MS; const w = round.poll && round.poll.winner; out.push({ id: 'R' + s, number: round.number + i, startAt: s, lockAt: s + LOBBY_MS, raceAt: s + LOBBY_MS + LOCK_MS, mega: s % MEGA_EVERY === 0, open: i === 0 && round.phase === 'lobby', count: i === 0 ? round.players.length : 0, max: i === 0 ? round.max : MAX, mode: i === 0 ? round.mode : i === 1 && w ? w : null, modeBy: i === 0 ? round.modeBy : i === 1 && w ? 'vote' : 'poll' }); }
     return out;
   }
-  const config = { coin: 'MARBLERUSH', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://etherscan.io', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
+  const config = { coin: 'MARBLERUSH', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://robinhoodchain.blockscout.com', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
     maxPlayers: MAX, maxPlayersHigh: MAX_HIGH, modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })) };
   const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
 
@@ -4715,7 +4850,19 @@ window.MR_TYPES = true;
     }
     const who = tokens.get(body.token);
     if (path === '/api/join') { if (!who) return reply(401, { error: 'sign in again' }); const r = join(who, body); return reply(r.error ? 409 : 200, r); }
-    if (path === '/api/chat') { if (!who) return reply(401, { error: 'sign in to chat' }); const m = { from: who, text: String(body.text || '').slice(0, 140), at: now() }; store.chat.push(m); emit('chat', m); return reply(200, { ok: true }); }
+    if (path === '/api/skin') {
+      if (!who) return reply(401, { error: 'sign in again' });
+      if (!round || round.phase !== 'lobby') return reply(409, { error: 'the queue is closed; the look is fixed for this race' });
+      const pl = round.players.find((x) => x.address === who);
+      if (!pl) return reply(409, { error: 'not in this race' });
+      if (/^#[0-9a-f]{6}$/i.test(body.color || '')) pl.color = body.color;
+      if (RENDER.FACES.includes(body.face)) pl.face = body.face;
+      if (SKINS.MATERIALS.includes(body.material)) pl.material = body.material;
+      pl.name = String(body.name || '').replace(/[^\w .\-]/g, '').slice(0, 16);
+      emit('skin', { roundId: round.id, player: pubPlayer(pl) });
+      return reply(200, { ok: true, player: pubPlayer(pl) });
+    }
+    if (path === '/api/chat') { if (!who) return reply(401, { error: 'sign in to chat' }); const pl = round && round.players.find((x) => x.address === who); const m = { from: who, name: (pl && pl.name) || '', text: String(body.text || '').slice(0, 140), at: now() }; store.chat.push(m); emit('chat', m); return reply(200, { ok: true }); }
     if (path === '/api/vote') { if (!who) return reply(401, { error: 'sign in to vote' }); const r = vote(who, String(body.choice || '')); return reply(r.error ? 409 : 200, r); }
     if (path === '/api/cheer') { if (!who) return reply(401, { error: 'sign in to cheer' }); emit('cheer', { from: who, target: body.target, at: now() }); return reply(200, { ok: true }); }
     return reply(404, { error: 'no such route' });
@@ -4794,6 +4941,7 @@ window.MR_TYPES = true;
     document.body.dataset.screen = name;
     if (name === 'home' || name === 'launch' || name === 'fair') { CAMERA.setMode('idle'); window.scrollTo(0, 0); }
     if (name === 'fair') paintFair();
+    if (name === 'launch') paintLaunchFee();
     else if (name === 'race') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
     else CAMERA.setMode('auto');
     if (name !== 'home') window.scrollTo(0, 0);
@@ -4936,6 +5084,7 @@ window.MR_TYPES = true;
     es.addEventListener('cap', (e) => onCap(JSON.parse(e.data)));
     es.addEventListener('paid', (e) => onPaid(JSON.parse(e.data)));
     es.addEventListener('chat', (e) => feed(JSON.parse(e.data)));
+    es.addEventListener('skin', (e) => onSkin(JSON.parse(e.data)));
     es.addEventListener('cheer', (e) => { const d = JSON.parse(e.data); if (SCENE.ready) SCENE.cheer(d.target); });
     es.addEventListener('tick', (e) => {
       const d = JSON.parse(e.data);
@@ -5068,6 +5217,7 @@ window.MR_TYPES = true;
     ui.set({ voted: null });
     document.body.dataset.phase = 'result';
     game.set({ result: d });
+    if (d.winner) { const wp = r && r.players.find((x) => same(x.address, d.winner)); feed({ sys: true, text: 'WINNER · ' + (wp && wp.name ? wp.name + ' · ' : '') + d.winner + (d.pot !== null && d.pot !== undefined ? ' · ' + usd(d.pot) : '') }); }
     paintStatic();
     if (r) drainPot(r);
     setTimeout(() => { showResults(d); paintPoll(); }, 1400);
@@ -5483,7 +5633,25 @@ window.MR_TYPES = true;
     if (mine >= 0) { $('#resYouPos').textContent = '#' + (mine + 1) + (mine === 0 ? ' · YOU WON' : ''); if (mine === 0) { SOUND.play('win'); toast('You won! The pot goes to your address.', 'good'); } }
     $('#resAddr').textContent = d.winner || '';
     $('#resSend').href = 'ethereum:' + (d.winner || '');
+    paintResultPaid();
     setScreen('results');
+  }
+
+  /* If the race on the results screen has been paid, say so, with the
+     transaction anyone can open on the explorer. */
+  function paintResultPaid() {
+    const r = game.get().race;
+    const rec = r && (game.get().recent || []).find((x) => x.id === r.id);
+    const el = $('#resPaid');
+    if (!rec || !rec.paid) { el.hidden = true; return; }
+    el.hidden = false;
+    const explorer = ((game.get().config && game.get().config.explorer) || 'https://robinhoodchain.blockscout.com').replace(/\/$/, '');
+    const tx = rec.tx && /^0x[0-9a-f]{64}$/i.test(rec.tx) ? rec.tx : '';
+    el.innerHTML = '';
+    const tag = document.createElement('i'); tag.className = 'tag tag--paid'; tag.textContent = 'PAID';
+    el.appendChild(tag);
+    if (tx) { const a = document.createElement('a'); a.href = explorer + '/tx/' + tx; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'transaction ' + tx.slice(0, 10) + '…' + tx.slice(-6); el.appendChild(a); }
+    else el.appendChild(document.createTextNode(' by the creator' + (rec.tx ? ' · ' + String(rec.tx).slice(0, 40) : '')));
   }
 
   /* ---- feed & chat --------------------------------------------------------- */
@@ -5491,7 +5659,13 @@ window.MR_TYPES = true;
   function feed(m, quiet) {
     const li = document.createElement('li');
     if (m.sys) { li.className = 'sys'; li.textContent = m.text; }
-    else { const b = document.createElement('b'); b.textContent = short(m.from) + ' '; li.append(b, document.createTextNode(m.text)); }
+    else {
+      const r = game.get().race;
+      const p = r && r.players.find((x) => same(x.address, m.from));
+      const who = m.name || (p && p.name) || short(m.from);
+      const b = document.createElement('b'); b.textContent = who + ' '; b.title = m.from;
+      li.append(b, document.createTextNode(m.text));
+    }
     const ul = $('#feed');
     ul.appendChild(li);
     while (ul.children.length > 80) ul.firstChild.remove();
@@ -5668,6 +5842,30 @@ window.MR_TYPES = true;
     try { localStorage.setItem('mr.skin', JSON.stringify(skin)); } catch {}
     paintYou();
     if (SCENE.ready && wallet.get().address) SCENE.addPlayer({ address: wallet.get().address, color: skin.color, face: skin.face, material: skin.material, name: skin.name });
+    pushSkin();
+  }
+  /* Once you are in the field, a change of look or name goes to the server
+     so everyone's lobby, race and chat show it; sent a moment after the last
+     keystroke rather than on every one. */
+  let pushT = null;
+  function pushSkin() {
+    const w = wallet.get(), r = game.get().race;
+    if (!w.token || !ui.get().joined || !r || r.phase !== 'lobby') return;
+    clearTimeout(pushT);
+    pushT = setTimeout(async () => {
+      const skin = ui.get().skin;
+      const res = await fetch('/api/skin', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: w.token, color: skin.color, face: skin.face, material: skin.material, name: skin.name }) }).then((x) => x.json()).catch(() => ({ error: 'network' }));
+      if (res && res.player) onSkin({ roundId: r.id, player: res.player });
+    }, 500);
+  }
+  function onSkin(d) {
+    const r = game.get().race;
+    if (!r || d.roundId !== r.id) return;
+    const p = r.players.find((x) => x.address === d.player.address);
+    if (p) Object.assign(p, d.player); else return;
+    game.set({ race: r });
+    if (SCENE.ready) SCENE.addPlayer(d.player);
+    paintLobby();
   }
   function paintYou() {
     const skin = ui.get().skin;
@@ -5687,6 +5885,7 @@ window.MR_TYPES = true;
     $('#youAddr').textContent = w.address ? w.address : 'connect a wallet';
     $('#youMat').textContent = SKINS.LABELS[skin.material] + ' · ' + skin.face.toUpperCase();
     $('#skinName').value = skin.name || '';
+    if (document.activeElement !== $('#youNameInput')) $('#youNameInput').value = skin.name || '';
     $$('.mt').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.material));
     $$('.fc').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.face));
     $$('.sw').forEach((b) => b.classList.toggle('on', b.dataset.v === skin.color));
@@ -5729,6 +5928,7 @@ window.MR_TYPES = true;
       sw.appendChild(b);
     }
     $('#skinName').addEventListener('input', () => saveSkin({ name: $('#skinName').value.replace(/[^\w .\-]/g, '').slice(0, 16) }));
+    $('#youNameInput').addEventListener('input', () => saveSkin({ name: $('#youNameInput').value.replace(/[^\w .\-]/g, '').slice(0, 16) }));
     $('#skinBtn').addEventListener('click', () => { SOUND.wake(); openModal('m-skin'); });
   }
 
@@ -5912,7 +6112,7 @@ window.MR_TYPES = true;
     game.set({ rewards: d.rewards || [], paidTotal: d.paidTotal || 0 });
     const recent = (game.get().recent || []).map((x) => (x.id === d.round.id ? d.round : x));
     game.set({ recent });
-    paintRewards(); paintRecent();
+    paintRewards(); paintRecent(); paintResultPaid();
     const me = wallet.get().address;
     if (same(d.round.winner, me)) { SOUND.play('win'); toast('Your reward for race #' + pad(d.round.number || 0) + ' was paid: ' + usd(d.round.pot), 'good'); }
     else toast('Race #' + pad(d.round.number || 0) + ' paid: ' + usd(d.round.pot) + ' to ' + short(d.round.winner), 'good');
@@ -6047,27 +6247,24 @@ window.MR_TYPES = true;
      truth about there being no contract yet rather than inventing a receipt. */
   const LAUNCH_KEY = 'mr.launches';
   const loadLaunches = () => { try { return JSON.parse(localStorage.getItem(LAUNCH_KEY) || '[]'); } catch { return []; } };
-  const saveLaunches = (list) => { try { localStorage.setItem(LAUNCH_KEY, JSON.stringify(list.slice(0, 20))); } catch {} };
+  const saveLaunches = (list) => { try { localStorage.setItem(LAUNCH_KEY, JSON.stringify(list.slice(0, 30))); } catch {} };
   const lpField = () => ({
-    name: $('#lpName').value.trim().slice(0, 24),
-    ticker: $('#lpTicker').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8),
-    desc: $('#lpDesc').value.trim().slice(0, 120),
+    name: $('#lpName').value.trim().slice(0, 32),
+    ticker: $('#lpTicker').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10),
+    desc: $('#lpDesc').value.trim().slice(0, 200),
     face: $('#lpFace').value,
     color: $('#lpColor').value,
-    every: Number($('#lpEvery').value) || 5,
-    share: Number($('#lpShare').value) || 100,
-    min: Math.max(0, Number($('#lpMin').value) || 0),
-    image: $('#lpImg').value.trim().slice(0, 300)
+    image: $('#lpImg').value.trim().slice(0, 300),
+    twitter: $('#lpTwitter').value.trim().slice(0, 200),
+    telegram: $('#lpTelegram').value.trim().slice(0, 200),
+    website: $('#lpWebsite').value.trim().slice(0, 200),
+    buyback: $('#lpBuyback').checked
   });
   function paintLaunchPreview() {
     const f = lpField();
-    $('#lpShareVal').textContent = f.share + '%';
     $('#lpCardName').textContent = f.name || 'Your token';
     $('#lpCardTicker').textContent = '$' + (f.ticker || 'TICKER');
-    $('#lpCardDesc').textContent = f.desc || 'One line about it goes here.';
-    $('#lpCardEvery').textContent = f.every + ' MIN';
-    $('#lpCardShare').textContent = f.share + '%';
-    $('#lpCardMin').textContent = f.min ? f.min.toLocaleString('en-US') + '+' : 'NO';
+    $('#lpCardDesc').textContent = f.desc || 'A line about it goes here.';
     const cv = $('#lpMarble'); const ctx = cv.getContext('2d'); const size = 60;
     ctx.clearRect(0, 0, cv.width, cv.height);
     ctx.save(); ctx.scale(2, 2);
@@ -6079,6 +6276,7 @@ window.MR_TYPES = true;
     } else RENDER.drawFace(ctx, size / 2, size / 2, size * 0.34, f.face);
     ctx.restore();
   }
+  const explorerOf = () => (CONTRACTS.launchpad && CONTRACTS.launchpad.pons && CONTRACTS.launchpad.pons.explorer) || 'https://robinhoodchain.blockscout.com';
   function paintLaunches() {
     const list = loadLaunches();
     const ul = $('#lpList'); ul.innerHTML = '';
@@ -6088,9 +6286,11 @@ window.MR_TYPES = true;
       const cv = marbleCanvas({ material: 'glass', color: l.color, face: l.face }, 30);
       const meta = document.createElement('div');
       const b = document.createElement('b'); b.textContent = l.name + ' · $' + l.ticker;
-      const sp = document.createElement('span'); sp.className = 'mono dim'; sp.textContent = 'every ' + l.every + ' min · winner ' + l.share + '% · ' + (l.deployed ? 'deployed' : 'draft, not deployed');
+      const sp = document.createElement('span'); sp.className = 'mono dim';
+      if (l.token) { const a = document.createElement('a'); a.href = explorerOf() + '/token/' + l.token; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'live · ' + short(l.token); a.addEventListener('click', (e) => e.stopPropagation()); sp.appendChild(a); }
+      else sp.textContent = 'draft · not launched';
       meta.append(b, sp);
-      const x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.title = 'remove';
+      const x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.title = 'remove from this list';
       x.addEventListener('click', () => { saveLaunches(loadLaunches().filter((q) => q.id !== l.id)); paintLaunches(); });
       li.append(cv, meta, x);
       li.addEventListener('click', (e) => { if (e.target === x) return; fillLaunch(l); });
@@ -6098,9 +6298,31 @@ window.MR_TYPES = true;
     }
   }
   function fillLaunch(l) {
-    $('#lpName').value = l.name; $('#lpTicker').value = l.ticker; $('#lpDesc').value = l.desc || ''; $('#lpFace').value = l.face; $('#lpColor').value = l.color;
-    $('#lpEvery').value = String(l.every); $('#lpShare').value = String(l.share); $('#lpMin').value = String(l.min || 0); $('#lpImg').value = l.image || '';
+    $('#lpName').value = l.name; $('#lpTicker').value = l.ticker; $('#lpDesc').value = l.desc || ''; $('#lpFace').value = l.face || 'doge'; $('#lpColor').value = l.color || '#ff7a1a';
+    $('#lpImg').value = l.image || ''; $('#lpTwitter').value = l.twitter || ''; $('#lpTelegram').value = l.telegram || ''; $('#lpWebsite').value = l.website || ''; $('#lpBuyback').checked = l.buyback !== false;
+    if (l.token) showLaunched(l); else $('#lpDone').hidden = true;
     paintLaunchPreview();
+  }
+  function showLaunched(l) {
+    $('#lpDone').hidden = false;
+    $('#lpDoneToken').textContent = l.token;
+    $('#lpLinkTx').href = explorerOf() + '/tx/' + l.hash;
+    $('#lpLinkToken').href = explorerOf() + '/token/' + l.token;
+    $('#lpLinkPons').href = (CONTRACTS.launchpad.pons.site || 'https://ponsfamily.com') + '/launchpad?search=' + l.token;
+    $('#lpCardStatus').textContent = 'LIVE · ' + short(l.token) + ' · ROBINHOOD CHAIN';
+    $('#lpCopy').onclick = () => copy(l.token, 'Contract address');
+  }
+  /* The fee Pons quotes right now, shown before anyone presses launch. */
+  async function paintLaunchFee() {
+    const el = $('#lpFee');
+    const provider = WALLET.provider;
+    if (!provider || !window.ethers || wallet.get().demo) { el.textContent = 'quoted by Pons when you launch'; return; }
+    try {
+      const chainId = parseInt(await provider.request({ method: 'eth_chainId' }), 16);
+      if (chainId !== CONTRACTS.launchpad.pons.chainId) { el.textContent = 'quoted by Pons on Robinhood Chain (your wallet switches when you launch)'; return; }
+      const fee = await CONTRACTS.launchpad.fee(provider);
+      el.textContent = ethers.formatEther(fee) + ' ETH';
+    } catch { el.textContent = 'quoted by Pons when you launch'; }
   }
   function buildLaunchpad() {
     const sel = $('#lpFace');
@@ -6112,24 +6334,44 @@ window.MR_TYPES = true;
       const f = lpField();
       if (!f.name || !f.ticker) return toast('A launch needs a name and a ticker', 'bad');
       const list = loadLaunches();
-      const id = 'L' + Date.now().toString(36);
-      list.unshift(Object.assign({ id, at: Date.now(), deployed: false, owner: wallet.get().address || null }, f));
+      list.unshift(Object.assign({ id: 'L' + Date.now().toString(36), at: Date.now(), owner: wallet.get().address || null }, f));
       saveLaunches(list);
       paintLaunches();
       SOUND.play('join');
-      toast('Saved as a draft. It deploys when the launchpad contract is live.', 'good');
-      $('#lpCardStatus').textContent = 'DRAFT · SAVED · NOT DEPLOYED';
+      toast('Draft saved in this browser. Launch it whenever you are ready.', 'good');
+      $('#lpCardStatus').textContent = 'DRAFT · SAVED · NOT LAUNCHED';
     });
+    /* Launch: one transaction from the wallet to Pons. The states on the
+       line under the form are the real ones; nothing is shown that did not
+       happen, and the address and links come from the receipt. */
+    let launching = false;
     $('#lpDeploy').addEventListener('click', async () => {
+      if (launching) return;
       const w = wallet.get();
       if (!w.token) return openWallet();
       const f = lpField();
       if (!f.name || !f.ticker) return toast('A launch needs a name and a ticker', 'bad');
-      const { tx } = await CONTRACTS.launchpad.createToken(w, f);
+      launching = true; $('#lpDeploy').disabled = true;
       const line = $('#lpTx');
-      line.hidden = false; line.dataset.status = tx.status;
-      $('#lpTxText').textContent = CONTRACTS.labels[tx.status] + ' · deploy' + (tx.error ? ' · ' + tx.error : '');
-      if (tx.status === 'failed') SOUND.play('error');
+      const off = CONTRACTS.onTx((tx) => {
+        if (tx.kind !== 'launch') return;
+        line.hidden = false; line.dataset.status = tx.status;
+        const fee = tx.fee !== undefined && window.ethers ? ' · fee ' + ethers.formatEther(tx.fee) + ' ETH' : '';
+        $('#lpTxText').textContent = CONTRACTS.labels[tx.status] + ' · launch on Pons' + fee + (tx.hash ? ' · ' + tx.hash.slice(0, 12) + '…' : '') + (tx.error ? ' · ' + tx.error : '');
+      });
+      try {
+        const { tx, res } = await CONTRACTS.launchpad.createToken(w, f);
+        if (tx.status === 'confirmed' && res && res.token) {
+          const list = loadLaunches();
+          const rec = Object.assign({ id: 'L' + Date.now().toString(36), at: Date.now(), owner: w.address, token: res.token, curve: res.curve, hash: res.hash, feeWei: res.feeWei }, f);
+          list.unshift(rec);
+          saveLaunches(list); paintLaunches(); showLaunched(rec);
+          SOUND.play('win');
+          toast('Launched on Pons: ' + short(res.token), 'good');
+        } else if (tx.status === 'confirmed') {
+          toast('The transaction went through but no TokenLaunched event was found; check it on the explorer.', 'bad');
+        } else SOUND.play('error');
+      } finally { off(); launching = false; $('#lpDeploy').disabled = false; }
     });
     paintLaunchPreview();
     paintLaunches();

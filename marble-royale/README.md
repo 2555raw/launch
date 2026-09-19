@@ -232,12 +232,26 @@ brings up the podium.
 - **The dock.** A taskbar along the bottom: Home, Race (with the phase and
   clock), Modes, Launch, Winners, Wallet, and the pot. It steps aside for the
   countdown and the race.
-- **The launchpad.** A screen for launching a token with races of its own:
-  name, ticker, marble, colour, race cadence, winner's share and a holder
-  minimum, with a live preview card. Launches are saved in the browser as
-  drafts. `CONTRACTS.launchpad.createToken` is the deploy call; until a
-  launchpad contract address is configured with `CONTRACTS.useLaunchpad`, it
-  fails with the truth rather than a fake receipt.
+- **The launchpad.** A real launch through Pons on Robinhood Chain (chain id
+  4663). The form takes name, ticker, description, logo URL, socials, the
+  marble the token wears on the race page and a buyback toggle, with a live
+  preview card. `CONTRACTS.launchpad.createToken` switches the wallet to
+  Robinhood Chain, reads `launchFee()` from the Pons V2 factory
+  (`0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e`), calls `launchToken` with
+  the fee as value, native ETH as the pair and the launcher's wallet as the
+  creator fee recipient, waits for the receipt and reads the token and curve
+  addresses from the `TokenLaunched` event. The token shows on Pons, on the
+  Robinhood Chain explorer and on the terminals that watch the factory.
+  Nothing is faked: a failed transaction shows as failed. Launches you made
+  are listed under the form with explorer and Pons links. ethers v6 is
+  vendored at `public/vendor/ethers/`.
+- **Names on the field.** The lobby has a name box under your marble; the
+  name (or the short wallet when it is blank) is what the chat, the 3D
+  labels, the results table and the feed show. `POST /api/skin` restyles a
+  joined marble while the lobby is open and the `skin` event carries it to
+  everyone. When the creator marks a race paid with a transaction hash, the
+  results screen shows a PAID tag linking that hash on the explorer, next to
+  the winner's full address.
 - **Sound.** Off by default and there is no music. The note in the top bar
   turns the cues on; `SOUND.play('go')` and friends are synthesised until a
   file is loaded with `SOUND.load(name, url)`.

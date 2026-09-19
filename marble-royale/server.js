@@ -40,7 +40,7 @@ const CONFIG = {
   minTokens: MIN_TOKENS,
   feeWallet: FEE_WALLET,
   chain: process.env.CHAIN_NAME || 'Robinhood Chain',
-  explorer: process.env.EXPLORER || 'https://etherscan.io',
+  explorer: process.env.EXPLORER || 'https://robinhoodchain.blockscout.com',
   currency: 'USD',
   potPct: POT_PCT,
   megaPct: MEGA_PCT,
@@ -165,7 +165,7 @@ function broadcast(event, data) {
   for (const res of clients) send(res, event, data);
 }
 
-for (const ev of ['phase', 'join', 'start', 'result', 'pot', 'poll', 'cap']) {
+for (const ev of ['phase', 'join', 'start', 'result', 'pot', 'poll', 'cap', 'skin']) {
   rounds.on(ev, (data) => broadcast(ev, data));
 }
 
@@ -328,6 +328,18 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { ok: true, count: out.count, round: rounds.publicRound().id });
   }
 
+  /* A marble's look and name can change while the queue is open; everyone
+     sees the change at once. */
+  if (p === '/api/skin' && req.method === 'POST') {
+    const body = await readBody(req);
+    const address = body && readToken(body.token);
+    if (!address) return json(res, 401, { error: 'sign in again' });
+    if (!allow('skin:' + address, 30, 8)) return json(res, 429, { error: 'easy there' });
+    const out = rounds.restyle(address, { color: body.color, face: body.face, material: body.material, name: body.name });
+    if (out.error) return json(res, 409, out);
+    return json(res, 200, { ok: true, player: out.player });
+  }
+
   if (p === '/api/chat' && req.method === 'POST') {
     const body = await readBody(req, 2048);
     const address = body && readToken(body.token);
@@ -335,7 +347,7 @@ const server = http.createServer(async (req, res) => {
     if (!allow('chat:' + address, 20, 4)) return json(res, 429, { error: 'easy on the chat' });
     const text = String(body.text || '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 140);
     if (!text) return json(res, 400, { error: 'say something' });
-    const msg = { from: address, text, at: Date.now() };
+    const msg = { from: address, name: rounds.nameOf(address), text, at: Date.now() };
     chatLog.push(msg);
     if (chatLog.length > 200) chatLog.shift();
     broadcast('chat', msg);

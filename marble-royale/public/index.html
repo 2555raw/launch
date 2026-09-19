@@ -224,8 +224,12 @@
               <span class="dim" id="youMat">glass</span>
             </div>
           </div>
+          <label class="you__name">
+            <span>YOUR NAME <em>shown in the race, the chat and the results</em></span>
+            <input class="mono" id="youNameInput" maxlength="16" placeholder="leave blank to show your wallet" autocomplete="off">
+          </label>
           <div class="you__actions">
-            <button class="btn btn--glass" id="skinBtn">Customise</button>
+            <button class="btn btn--soft" id="skinBtn"><svg class="ic"><use href="#i-grid"/></svg> Customise marble</button>
             <button class="btn btn--accent btn--wide" id="joinBtn" disabled>Connect to join</button>
           </div>
           <div class="tx" id="txLine" hidden><i></i><span id="txText"></span></div>
@@ -295,6 +299,7 @@
           <button class="btn btn--glass" id="resCopy">Copy address</button>
           <a class="btn btn--accent" id="resSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
         </div>
+        <span class="results__paid mono" id="resPaid" hidden></span>
         <span class="dim small">The creator sends the whole pot to first place. <a href="#" data-go="fair" data-verify-last>Verify this race</a>.</span>
       </div>
       <div class="poll" id="poll" hidden>
@@ -354,25 +359,32 @@
       <div class="launch__head">
         <span class="kicker kicker--plain">LAUNCHPAD</span>
         <h2>Launch your own marble token.</h2>
-        <p>Give a coin races of its own: a name, a marble, a race cadence and a share of its fees for the winners. The pad builds the race page; the token deploys on Robinhood Chain when the launchpad contract goes live. Nothing here spends anything today, and it says so.</p>
+        <p>Launch a real token on Robinhood Chain through Pons, the chain's launchpad, from your own wallet: a name, a ticker, a picture, and one transaction. It trades from the first block and shows up on Pons, the explorer and the terminals that watch the Pons factory.</p>
       </div>
       <div class="launch__body">
         <form class="launch__form glass" id="launchForm" autocomplete="off">
-          <label><span>Token name</span><input id="lpName" maxlength="24" placeholder="Marble Doge" required></label>
-          <label><span>Ticker</span><input id="lpTicker" maxlength="8" placeholder="MDOGE" required></label>
-          <label class="wide"><span>One line about it</span><input id="lpDesc" maxlength="120" placeholder="The marble that never loses."></label>
-          <label><span>Marble</span><select id="lpFace"></select></label>
+          <div class="wide launch__pons"><span class="kicker kicker--plain">LAUNCHES THROUGH PONS · ROBINHOOD CHAIN</span><span class="dim small">One transaction from your wallet to the Pons V2 factory. Fixed supply of 1,000,000,000, straight into a bonding curve; tradeable from the first block. Fee: <b class="mono" id="lpFee">quoted by Pons when you launch</b> + gas.</span></div>
+          <label><span>Token name</span><input id="lpName" maxlength="32" placeholder="Marble Doge" required></label>
+          <label><span>Ticker</span><input id="lpTicker" maxlength="10" placeholder="MDOGE" required></label>
+          <label class="wide"><span>Description</span><input id="lpDesc" maxlength="200" placeholder="The marble that never loses."></label>
+          <label><span>Image URL <small class="dim">optional, https or ipfs</small></span><input id="lpImg" placeholder="https://…/logo.png"></label>
+          <label><span>Marble on the race page</span><select id="lpFace"></select></label>
+          <label><span>X / Twitter <small class="dim">optional</small></span><input id="lpTwitter" placeholder="https://x.com/…"></label>
+          <label><span>Telegram <small class="dim">optional</small></span><input id="lpTelegram" placeholder="https://t.me/…"></label>
+          <label><span>Website <small class="dim">optional</small></span><input id="lpWebsite" placeholder="https://…"></label>
           <label><span>Colour</span><input type="color" id="lpColor" value="#ff7a1a"></label>
-          <label><span>Race every</span><select id="lpEvery"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select></label>
-          <label><span>Winner's share of fees · <b class="mono" id="lpShareVal">100%</b></span><input type="range" id="lpShare" min="10" max="100" step="5" value="100"></label>
-          <label><span>Holders only from</span><input type="number" id="lpMin" min="0" step="1000" value="0"><small class="dim">tokens needed to race. 0 lets anyone in.</small></label>
-          <label><span>Image URL <small class="dim">optional</small></span><input id="lpImg" placeholder="https://…/logo.png"></label>
+          <label class="wide launch__check"><input type="checkbox" id="lpBuyback" checked><span><b>Buyback &amp; lock</b> <small class="dim">a share of trading fees buys the token back and locks it in the Pons vault; you can switch it later</small></span></label>
           <div class="launch__actions wide">
-            <button class="btn btn--accent btn--xl" type="submit" id="lpSave">Save this launch</button>
-            <button class="btn btn--glass btn--xl" type="button" id="lpDeploy">Deploy on-chain</button>
+            <button class="btn btn--accent btn--xl" type="button" id="lpDeploy"><svg class="ic"><use href="#i-rocket"/></svg> Launch on Pons</button>
+            <button class="btn btn--glass btn--xl" type="submit" id="lpSave">Save draft</button>
           </div>
-          <p class="dim small wide">Saved launches live in this browser. Deploy is one transaction from your own wallet, and it only works once the launchpad contract is live: until then it tells you so instead of pretending.</p>
+          <p class="dim small wide">You pay the Pons launch fee and gas from your own wallet, on Robinhood Chain; the wallet switches network if it has to. The token appears on Pons, on the Robinhood Chain explorer and on the terminals that watch the Pons factory. 70% of its trading fees go to your wallet by Pons' own rules. Nothing here ever sees your keys.</p>
           <div class="tx wide" id="lpTx" hidden><i></i><span id="lpTxText"></span></div>
+          <div class="launch__done glass wide" id="lpDone" hidden>
+            <span class="kicker kicker--plain">LIVE ON ROBINHOOD CHAIN</span>
+            <b class="mono" id="lpDoneToken"></b>
+            <div class="launch__links"><a class="btn btn--glass" id="lpLinkTx" target="_blank" rel="noopener">Transaction</a><a class="btn btn--glass" id="lpLinkToken" target="_blank" rel="noopener">Explorer</a><a class="btn btn--accent" id="lpLinkPons" target="_blank" rel="noopener">Open on Pons</a><button class="btn btn--glass" type="button" id="lpCopy">Copy CA</button></div>
+          </div>
         </form>
         <aside class="launch__prev">
           <div class="lcard glass" id="lpCard">
@@ -383,9 +395,9 @@
             </div>
             <p id="lpCardDesc" class="dim">The marble that never loses.</p>
             <div class="lcard__stats mono">
-              <div><em>RACE EVERY</em><b id="lpCardEvery">5 MIN</b></div>
-              <div><em>WINNER TAKES</em><b class="gold" id="lpCardShare">100%</b></div>
-              <div><em>HOLDERS ONLY</em><b id="lpCardMin">NO</b></div>
+              <div><em>SUPPLY</em><b>1,000,000,000</b></div>
+              <div><em>CREATOR FEE SHARE</em><b class="gold">70%</b></div>
+              <div><em>LAUNCHPAD</em><b>PONS V2</b></div>
               <div><em>CHAIN</em><b>ROBINHOOD</b></div>
             </div>
             <div class="lcard__status mono dim" id="lpCardStatus">DRAFT · NOT DEPLOYED</div>
@@ -401,16 +413,16 @@
         <div class="glass panel">
           <span class="kicker kicker--plain">HOW A LAUNCH WORKS</span>
           <ol class="steps">
-            <li><b>Describe the token</b><span>Name, ticker, a marble and a colour. That marble is the token's mascot on its own race page.</span></li>
-            <li><b>Set the race</b><span>How often it races, how much of its fees the winner takes, and whether you must hold it to race.</span></li>
-            <li><b>Deploy</b><span>When the launchpad contract is live on Robinhood Chain, deploy sends one transaction from your wallet. Until then the launch stays a draft, and the page never pretends otherwise.</span></li>
-            <li><b>Race</b><span>Your token gets a race page like this one: same engine, same fairness, its own pot.</span></li>
+            <li><b>Describe the token</b><span>Name, ticker, a description, a picture and your links. That is what goes on-chain, in the launch call itself.</span></li>
+            <li><b>Launch on Pons</b><span>Your wallet switches to Robinhood Chain if it has to, quotes the Pons launch fee, and sends one transaction to the Pons V2 factory. The token and its bonding curve are deployed in that transaction.</span></li>
+            <li><b>Check it anywhere</b><span>The page shows the contract address, the transaction and links to the explorer and Pons. Terminals that index Pons launches list it on their own.</span></li>
+            <li><b>Earn from trades</b><span>Every trade pays a fee and 70% of it goes to the wallet that launched, by Pons' own rules. Buyback &amp; lock, if on, turns part of it into a locked position.</span></li>
           </ol>
         </div>
         <div class="glass panel">
           <span class="kicker kicker--plain">WHAT THE PAD NEVER DOES</span>
           <h3>Your keys stay in your wallet</h3>
-          <p>The launchpad never asks for a private key or a seed phrase, never signs on your behalf, and never shows a transaction that did not happen. Deploying is one transaction you approve in your own wallet, the same as any other.</p>
+          <p>The launchpad never asks for a private key or a seed phrase, never signs on your behalf, and never shows a transaction that did not happen. Launching is one transaction you approve in your own wallet, paid from your own balance, and every result on this page is read back from the receipt.</p>
         </div>
       </div>
     </div>
@@ -536,6 +548,7 @@ window.dispatchEvent(new Event('three-ready'));
 <script src="js/game/skins.js"></script>
 <script src="js/game/camera.js"></script>
 <script src="js/game/scene.js"></script>
+<script src="vendor/ethers/ethers.umd.min.js"></script>
 <script src="js/web3/wallet.js"></script>
 <script src="js/web3/contracts.js"></script>
 <script src="js/app.js"></script>

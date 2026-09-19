@@ -410,18 +410,38 @@
     shadow.renderOrder = 1;
     S.scene.add(shadow);
     const you = address === S.me;
-    const name = p.name || (address.startsWith('0x') ? address.slice(0, 5) + '…' + address.slice(-3) : address.slice(0, 4) + '…' + address.slice(-3));
+    const name = labelName(p);
     const label = textSprite(THREE, name, you ? '#ffb36b' : '#ffffff', 0.9, null, you ? 'YOU' : null);
     label.visible = false;
     S.scene.add(label);
-    S.marbles.set(address, { mesh, shadow, label, you, name });
+    S.marbles.set(address, { mesh, shadow, label, you, name, skin: (p.material || '') + '|' + (p.color || '') + '|' + (p.face || '') });
   }
 
   /* the lobby adds marbles one at a time */
   function addPlayer(p) {
     if (!S.ready || !S.race) return;
+    const THREE = window.THREE;
     S.players.set(p.address, p);
-    if (!S.marbles.has(p.address)) addMarble(p.address);
+    const address = p.address, m = S.marbles.get(address);
+    if (!m) return addMarble(address);
+    /* a player who renamed or restyled in the lobby: fresh label, fresh skin */
+    const name = labelName(p);
+    if (name !== m.name) {
+      S.scene.remove(m.label); m.label.material.map.dispose(); m.label.material.dispose();
+      m.label = textSprite(THREE, name, m.you ? '#ffb36b' : '#ffffff', 0.9, null, m.you ? 'YOU' : null);
+      m.label.visible = false; S.scene.add(m.label); m.name = name;
+      if (m.labelLead) { S.scene.remove(m.labelLead); m.labelLead = null; }
+    }
+    const skin = (p.material || '') + '|' + (p.color || '') + '|' + (p.face || '');
+    if (skin !== m.skin) {
+      /* materials are cached by SKINS, so the old one is simply let go */
+      m.mesh.material = SKINS.marbleMaterial(THREE, { material: p.material || SKINS.materialOf(address), color: p.color, face: p.face });
+      m.skin = skin;
+    }
+  }
+  function labelName(p) {
+    const address = p.address;
+    return p.name || (address.startsWith('0x') ? address.slice(0, 5) + '…' + address.slice(-3) : address.slice(0, 4) + '…' + address.slice(-3));
   }
 
   /* ---- per frame --------------------------------------------------------- */
@@ -745,5 +765,5 @@
     return out;
   }
 
-  window.SCENE = { init, resize, setRace, addPlayer, sync, render, celebrate, cheer, burst, snapshot, setBackdrop, get ready() { return S.ready; }, get camera() { return S.camera; }, get backdrop() { return S.backdrop; } };
+  window.SCENE = { init, resize, setRace, addPlayer, sync, render, celebrate, cheer, burst, snapshot, setBackdrop, get ready() { return S.ready; }, get camera() { return S.camera; }, get backdrop() { return S.backdrop; }, labelTexts() { return [...S.marbles.values()].map((m) => m.name).join(', '); } };
 })();

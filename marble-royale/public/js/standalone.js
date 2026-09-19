@@ -156,7 +156,7 @@
     for (let i = 0; i < 4; i++) { const s = round.startAt + i * ROUND_MS; const w = round.poll && round.poll.winner; out.push({ id: 'R' + s, number: round.number + i, startAt: s, lockAt: s + LOBBY_MS, raceAt: s + LOBBY_MS + LOCK_MS, mega: s % MEGA_EVERY === 0, open: i === 0 && round.phase === 'lobby', count: i === 0 ? round.players.length : 0, max: i === 0 ? round.max : MAX, mode: i === 0 ? round.mode : i === 1 && w ? w : null, modeBy: i === 0 ? round.modeBy : i === 1 && w ? 'vote' : 'poll' }); }
     return out;
   }
-  const config = { coin: 'MARBLERUSH', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://etherscan.io', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
+  const config = { coin: 'MARBLERUSH', ticker: '', mint: '', chain: 'Robinhood Chain', explorer: 'https://robinhoodchain.blockscout.com', currency: 'USD', potPct: 100, megaPct: 100, demoMode: true, entry: 'FREE', links: { buy: '', x: '', telegram: '' }, payoutNote: '', standalone: true, faces: RENDER.FACES,
     maxPlayers: MAX, maxPlayersHigh: MAX_HIGH, modes: RACE.MODE_IDS.map((id) => ({ id, name: RACE.MODES[id].name, blurb: RACE.MODES[id].blurb, gravity: RACE.MODES[id].gravity, bounce: RACE.MODES[id].bounce })) };
   const snapshot = () => ({ now: now(), config, round: pub(), schedule: schedule(), recent: store.rounds.slice(0, 12), top: [], rewards: [], paidTotal: 0, chat: store.chat.slice(-40), watching: 1 + (round ? round.players.length : 0) });
 
@@ -186,7 +186,19 @@
     }
     const who = tokens.get(body.token);
     if (path === '/api/join') { if (!who) return reply(401, { error: 'sign in again' }); const r = join(who, body); return reply(r.error ? 409 : 200, r); }
-    if (path === '/api/chat') { if (!who) return reply(401, { error: 'sign in to chat' }); const m = { from: who, text: String(body.text || '').slice(0, 140), at: now() }; store.chat.push(m); emit('chat', m); return reply(200, { ok: true }); }
+    if (path === '/api/skin') {
+      if (!who) return reply(401, { error: 'sign in again' });
+      if (!round || round.phase !== 'lobby') return reply(409, { error: 'the queue is closed; the look is fixed for this race' });
+      const pl = round.players.find((x) => x.address === who);
+      if (!pl) return reply(409, { error: 'not in this race' });
+      if (/^#[0-9a-f]{6}$/i.test(body.color || '')) pl.color = body.color;
+      if (RENDER.FACES.includes(body.face)) pl.face = body.face;
+      if (SKINS.MATERIALS.includes(body.material)) pl.material = body.material;
+      pl.name = String(body.name || '').replace(/[^\w .\-]/g, '').slice(0, 16);
+      emit('skin', { roundId: round.id, player: pubPlayer(pl) });
+      return reply(200, { ok: true, player: pubPlayer(pl) });
+    }
+    if (path === '/api/chat') { if (!who) return reply(401, { error: 'sign in to chat' }); const pl = round && round.players.find((x) => x.address === who); const m = { from: who, name: (pl && pl.name) || '', text: String(body.text || '').slice(0, 140), at: now() }; store.chat.push(m); emit('chat', m); return reply(200, { ok: true }); }
     if (path === '/api/vote') { if (!who) return reply(401, { error: 'sign in to vote' }); const r = vote(who, String(body.choice || '')); return reply(r.error ? 409 : 200, r); }
     if (path === '/api/cheer') { if (!who) return reply(401, { error: 'sign in to cheer' }); emit('cheer', { from: who, target: body.target, at: now() }); return reply(200, { ok: true }); }
     return reply(404, { error: 'no such route' });

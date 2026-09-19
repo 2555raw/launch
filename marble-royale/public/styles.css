@@ -651,6 +651,21 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 
 /* ---- the launchpad -------------------------------------------------------- */
 
+.launch__pons { display: grid; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--glass2); border: 1px solid var(--line); }
+.launch__check { display: flex !important; gap: 10px; align-items: flex-start; }
+.launch__check input { width: auto !important; margin-top: 4px; accent-color: var(--go); }
+.launch__check span { text-transform: none !important; letter-spacing: 0 !important; font-family: var(--disp) !important; font-size: 13.5px !important; color: var(--ink2) !important; }
+.launch__done { display: grid; gap: 10px; padding: 16px 18px; border-color: color-mix(in srgb, var(--win) 45%, transparent); }
+.launch__done b { word-break: break-all; font-size: 13px; }
+.launch__links { display: flex; gap: 8px; flex-wrap: wrap; }
+.you__name { display: grid; gap: 6px; margin: 8px 0 10px; }
+.you__name > span { font-family: var(--mono); font-size: 10px; letter-spacing: .16em; color: var(--go); }
+.you__name > span em { display: block; font-style: normal; letter-spacing: 0; text-transform: none; font-family: var(--disp); font-size: 12px; color: var(--dim); margin-top: 2px; }
+.you__name input { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line2); background: var(--glass2); color: var(--ink); font-size: 14px; }
+.you__name input:focus { outline: none; border-color: var(--go); box-shadow: 0 0 0 3px rgba(255, 122, 26, .2); }
+.results__paid { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; color: var(--win); }
+.results__paid a { color: var(--go); }
+
 .screen--launch { padding: calc(28px + env(safe-area-inset-top, 0px)) var(--gut) 40px; }
 .launch { max-width: 1180px; margin: 0 auto; display: grid; gap: 22px; }
 .launch__head { max-width: 62ch; }

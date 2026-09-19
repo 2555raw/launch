@@ -99,37 +99,124 @@
     };
   }
 
-  /* ---- the launchpad ------------------------------------------------------ */
+  /* ---- the launchpad: Pons on Robinhood Chain ------------------------------ */
 
-  /* A launch is a token with races of its own. Today it is a draft kept in the
-     browser; deploying it is one transaction to the launchpad contract, and
-     until that contract has an address the deploy call fails with the truth
-     rather than a fake receipt. */
-  const LAUNCH_ABI = [
-    'function createToken(string name, string symbol, string uri, uint32 raceEvery, uint16 winnerShareBps, uint256 minHold) payable returns (address token)'
-  ];
-  let launchpadAddress = '';
+  /* A launch is a real token on Robinhood Chain, made through Pons, the
+     chain's launchpad: one transaction from the creator's own wallet to the
+     Pons V2 factory, paying the launch fee the factory quotes. The token
+     mints its whole supply into a bonding curve and trades from the first
+     block; Pons, the explorers and the trading terminals that watch the Pons
+     factory pick it up on their own. Nothing here holds a key. */
+  const PONS = {
+    chainId: 4663,
+    chainHex: '0x1237',
+    chainName: 'Robinhood Chain',
+    rpc: 'https://rpc.mainnet.chain.robinhood.com',
+    explorer: 'https://robinhoodchain.blockscout.com',
+    site: 'https://ponsfamily.com',
+    factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
+    launchConfigId: 0,
+    pairToken: '0x0000000000000000000000000000000000000000',   // native ETH
+    abi: [
+      'function launchFee() view returns (uint256)',
+      'function launchEnabled() view returns (bool)',
+      'function canLaunch(address) view returns (bool)',
+      'function launchToken((string name,string symbol,string logo,string description,(string twitter,string telegram,string discord,string website,string farcaster) socials,address creatorFeeRecipient,uint16 creatorTaxBps,bool buybackEnabled,bytes32 expectedEconomics,bytes32 salt) params,uint256 launchConfigId,address pairToken) payable returns (address token, address curve)',
+      'event TokenLaunched(address indexed token,address indexed curve,address indexed deployer,address pairToken,uint256 launchConfigId,uint256 graduationThreshold)'
+    ],
+    /* the live factory's selector for that launchToken; checked before sending */
+    selector: '0xf35abbcf'
+  };
+
+  const rejected = (err) => /reject|denied|cancel/i.test(String(err && (err.message || err)));
+
+  /* The wallet on Robinhood Chain, added if the wallet does not know it. */
+  async function onRobinhood(provider) {
+    const have = parseInt(await provider.request({ method: 'eth_chainId' }), 16);
+    if (have === PONS.chainId) return;
+    try {
+      await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: PONS.chainHex }] });
+    } catch (err) {
+      if (err && (err.code === 4902 || /unrecognized|not added|4902/i.test(String(err.message)))) {
+        await provider.request({ method: 'wallet_addEthereumChain', params: [{
+          chainId: PONS.chainHex, chainName: PONS.chainName, rpcUrls: [PONS.rpc],
+          nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, blockExplorerUrls: [PONS.explorer]
+        }] });
+      } else throw err;
+    }
+  }
+
   const launchpad = {
-    abi: LAUNCH_ABI,
-    get address() { return launchpadAddress; },
-    get live() { return !!launchpadAddress; },
+    pons: PONS,
+    get live() { return !!window.ethers; },
+    /** The fee Pons charges right now, in wei, read from the factory. */
+    async fee(provider) {
+      const ethers = window.ethers;
+      const bp = new ethers.BrowserProvider(provider);
+      const factory = new ethers.Contract(PONS.factory, PONS.abi, bp);
+      return factory.launchFee();
+    },
+    /**
+     * Launches spec as a token on Pons from the connected wallet.
+     * spec: { name, ticker, desc, image, twitter, telegram, website, buyback }
+     * Resolves { tx, res } where res is { token, curve, hash, links } on success.
+     */
     async createToken(session, spec) {
       const tx = newTx('launch');
-      if (!launchpadAddress) {
-        tx.status = 'failed'; tx.error = 'The launchpad contract is not live on this network yet. Your launch is saved as a draft.';
-        emitTx(tx);
-        return { tx, res: { error: tx.error, draft: true } };
-      }
+      const provider = window.WALLET && WALLET.provider;
+      const ethers = window.ethers;
+      const fail = (msg) => { tx.status = 'failed'; tx.error = msg; emitTx(tx); return { tx, res: { error: msg } }; };
+      if (!ethers) return fail('The chain library did not load; reload the page.');
+      if (!provider || session.demo) return fail('Launching needs a real wallet (MetaMask, Phantom or any EVM wallet). A demo wallet cannot pay the launch fee.');
+      if (!spec.name || !spec.ticker) return fail('A launch needs a name and a ticker.');
       tx.status = 'waiting_wallet'; emitTx(tx);
-      tx.status = 'failed'; tx.error = 'Deploying is not wired to a wallet in this build.'; emitTx(tx);
-      return { tx, res: { error: tx.error } };
+      try {
+        await onRobinhood(provider);
+        const bp = new ethers.BrowserProvider(provider);
+        const signer = await bp.getSigner();
+        const me = await signer.getAddress();
+        const factory = new ethers.Contract(PONS.factory, PONS.abi, signer);
+        const fn = factory.interface.getFunction('launchToken');
+        if (fn.selector !== PONS.selector) return fail('The launch call does not match the Pons factory; not sending.');
+        const [fee, enabled, can] = await Promise.all([factory.launchFee(), factory.launchEnabled().catch(() => true), factory.canLaunch(me).catch(() => true)]);
+        if (!enabled) return fail('Pons has launches paused right now.');
+        if (!can) return fail('This wallet is not allowed to launch on Pons right now.');
+        const params = {
+          name: String(spec.name).slice(0, 64),
+          symbol: String(spec.ticker).toUpperCase().slice(0, 16),
+          logo: String(spec.image || ''),
+          description: String(spec.desc || ''),
+          socials: { twitter: String(spec.twitter || ''), telegram: String(spec.telegram || ''), discord: '', website: String(spec.website || ''), farcaster: '' },
+          creatorFeeRecipient: me,
+          creatorTaxBps: 0,
+          buybackEnabled: !!spec.buyback,
+          expectedEconomics: ethers.ZeroHash,
+          salt: ethers.hexlify(ethers.randomBytes(32))
+        };
+        tx.status = 'confirm'; tx.fee = fee; emitTx(tx);
+        const sent = await factory.launchToken(params, PONS.launchConfigId, PONS.pairToken, { value: fee });
+        tx.status = 'pending'; tx.hash = sent.hash; emitTx(tx);
+        const receipt = await sent.wait();
+        let token = null, curve = null;
+        for (const log of receipt.logs) {
+          try { const parsed = factory.interface.parseLog({ topics: [...log.topics], data: log.data }); if (parsed && parsed.name === 'TokenLaunched') { token = parsed.args.token; curve = parsed.args.curve; } } catch { /* another contract's log */ }
+        }
+        if (receipt.status !== 1) return fail('The launch transaction reverted. Nothing was deployed; the fee was not taken. ' + PONS.explorer + '/tx/' + sent.hash);
+        tx.status = 'confirmed'; emitTx(tx);
+        return { tx, res: { token, curve, hash: sent.hash, deployer: me, feeWei: fee.toString(), links: {
+          tx: PONS.explorer + '/tx/' + sent.hash,
+          token: token ? PONS.explorer + '/token/' + token : null,
+          pons: token ? PONS.site + '/launchpad?search=' + token : PONS.site
+        } } };
+      } catch (err) {
+        return fail(rejected(err) ? 'You cancelled in the wallet. Nothing was sent.' : (err && (err.shortMessage || err.message)) || 'The launch did not go through.');
+      }
     }
   };
 
   let active = demo;
   window.CONTRACTS = {
     get launchpad() { return launchpad; },
-    useLaunchpad(address) { launchpadAddress = address || ''; },
     get mode() { return active.mode; },
     get race() { return active; },
     useDemo() { active = demo; },

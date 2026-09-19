@@ -69,11 +69,12 @@ function render() {
     ['Capacity', `${usd(V.tvl)} / ${usd(V.cap)}`],
     ['Last rebalance', V.reb],
     ['Pool fee tier', V.tier.toFixed(2) + '%'],
-    ['Vault contract', addr(V.t), true],
-    ['Oracle feed', addr(V.t + 'feed'), true],
-  ].map(([k, v, ph]) =>
-    `<div><dt>${k}</dt><dd${ph ? ' class="vp-ph" title="Placeholder — nothing is deployed"' : ''}>${v}</dd></div>`
-  ).join('');
+    ['Vault contract', addressCell(V.t)],
+    ['Oracle feed', addressCell(V.t + '-feed')],
+  ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+
+  const note = $('vp-deploy');
+  if (note) note.textContent = deploymentNote();
 
   const go = $('vp-go');
   if (V.state === 'paused') { go.textContent = 'Deposits are paused'; go.classList.add('is-off'); go.removeAttribute('href'); }

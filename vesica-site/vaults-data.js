@@ -67,5 +67,8 @@ const dollars = n => '$' + n.toLocaleString('en-US', {
 
 const money = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const pct = n => n.toFixed(1) + '%';
-const addr = t => '0x' + [...('vesica' + t)].map(c => c.charCodeAt(0).toString(16)).join('') + 'a41d';
+/* The address generator that used to live here produced strings of 24 to 32
+   hex characters — an address is 40 — so nothing it returned was even a
+   well-formed address. Addresses now come from deployments.js, or the page
+   says there is no address. */
 

@@ -66,5 +66,42 @@ await p.mouse.move(sv.x + sv.width * .45, Math.min(sv.y + sv.height * 0.5, 960),
 await p.waitForTimeout(250);
 ok('a cube lights under the pointer', await p.locator('.ft-cubes .cube.on').count() === 1);
 
+/* ---------- the globals each page actually got ----------
+   deployments.js once declared a top-level `const CHAINS`, which wallet.js
+   already had. Two of those is a SyntaxError, and a SyntaxError in a plain
+   <script> takes the whole file out of the page without stopping anything
+   else — the first sign was a ReferenceError three files away. This checks
+   that every page which needs the deployment helpers actually has them. */
+
+console.log('— the deployment helpers reached every page that needs them —');
+for (const [page, names] of [
+  ['vaults.html', ['VAULTS', 'addressCell', 'isDeployed', 'deploymentNote']],
+  ['vault.html?v=NVDA', ['VAULTS', 'addressCell', 'deploymentNote']],
+  ['docs.html', ['VAULTS', 'addressCell', 'isDeployed', 'deploymentNote']],
+]) {
+  await p.goto('http://127.0.0.1:8931/' + page, { waitUntil: 'networkidle' });
+  await p.waitForTimeout(500);
+  /* Not window[n]: a top-level `const` is not a property of window, only
+     `var` and function declarations are. VAULTS and isDeployed are consts, so
+     checking window would call them missing while the page uses them happily.
+     `typeof` in page scope is the question actually being asked. */
+  const missing = await p.evaluate(ns => ns.filter(n => {
+    try { return eval('typeof ' + n) === 'undefined'; } catch (_) { return true; }
+  }), names);
+  ok(`${page.padEnd(20)} has ${names.length} of them`, missing.length === 0);
+  if (missing.length) console.log('      missing:', missing.join(', '));
+}
+
+console.log('— and no address on the page pretends to be one —');
+await p.goto('http://127.0.0.1:8931/docs.html', { waitUntil: 'networkidle' });
+await p.waitForTimeout(600);
+const shown = await p.evaluate(() =>
+  [...document.querySelectorAll('#dx-contracts .ct-addr, #dx-contracts .ct-none')]
+    .map(e => e.textContent.trim()));
+console.log('   contract cells:', shown.length, '·', JSON.stringify(shown[0] || ''));
+const malformed = shown.filter(t => t.startsWith('0x') && !/^0x[0-9a-fA-F]{40}$/.test(t.replace(/….*$/, '')));
+ok('no cell shows a string that is not a valid address', malformed.length === 0);
+ok('ten rows are rendered', shown.length === 10);
+
 console.log('\nerrors:', errs.length ? errs : 'none');
 await b.close();

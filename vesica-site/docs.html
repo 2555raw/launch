@@ -162,21 +162,10 @@
         <span class="k">05 · Smart contracts</span>
         <div class="dx-head">
           <h2>Verify, don't trust.</h2>
-          <p>The ten user-facing vault contracts. Each row opens that vault in the list; in a real deployment the address would open in Robinhood Chain Blockscout, with its matching source through Sourcify.</p>
+          <p>The ten user-facing vault contracts. <span id="dx-deploy-note"></span></p>
         </div>
         <div class="dx-th k"><span>Vault</span><span>Contract address</span><span>Source</span></div>
-        <div class="dx-table">
-        <a class="dx-tr" href="vault.html?v=NVDA" title="Open the NVIDIA vault"><b>NVDA</b><code>0xd48f999937cd0122794c282c357c87d999b77a7f</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=TSLA" title="Open the Tesla vault"><b>TSLA</b><code>0xd82dcac32e50386211e1dc4e273209b3306cb263</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=HOOD" title="Open the Robinhood Markets vault"><b>HOOD</b><code>0xb859fb1ef223c8ba667087b3269e42bf28092cf1</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=COIN" title="Open the Coinbase Global vault"><b>COIN</b><code>0x8beee26c887f9c2c6b883792f59c3c7095f54b38</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=AAPL" title="Open the Apple vault"><b>AAPL</b><code>0xab246ddb0ac6bdfe64999dfffc468616a83c5bda</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=MSFT" title="Open the Microsoft vault"><b>MSFT</b><code>0x989f8dedee6fd8edc00fd25ec4b804af42e07d0d</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=AMZN" title="Open the Amazon vault"><b>AMZN</b><code>0x3f81f66e999363a21c8a753a982ecd2251de6cbf</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=META" title="Open the Meta Platforms vault"><b>META</b><code>0xb392cc6142a9b0544ead3abdfbc1e8b0ddf6cfd7</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=GOOGL" title="Open the Alphabet vault"><b>GOOGL</b><code>0x281f03e4944389f3289d8121ba66cdea468c50d3</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        <a class="dx-tr" href="vault.html?v=PLTR" title="Open the Palantir vault"><b>PLTR</b><code>0x541d62e6649a2f6778190412ca8438f9aeb8c2be</code><span class="dx-ph" title="Nothing is deployed — see the proof page">Placeholder</span></a>
-        </div>
+        <div class="dx-table" id="dx-contracts"></div>
       </section>
 
       <section class="dx-sec" id="open">
@@ -317,6 +306,8 @@ token.safeTransfer(treasury, toTreasury);
     </div>
   </footer>
 
+<script src="vaults-data.js"></script>
+<script src="deployments.js"></script>
 <script src="docs.js"></script>
 <script src="market.js"></script>
 <script src="reveal.js"></script>

@@ -189,8 +189,8 @@ function renderList() {
         </div>
         <div>
           <span class="cs-label">Vault contract</span>
-          <b class="cs-addr">${addr(v.t)}</b>
-          <p><button class="cs-linkbtn" data-copy="${addr(v.t)}" type="button">Copy address</button> · <span class="cs-ph">placeholder</span>, nothing is deployed.</p>
+          <b class="cs-addr">${addressCell(v.t)}</b>
+          <p>${isDeployed(v.t) ? 'Open it on Blockscout to match the source.' : 'Nothing is deployed on any network yet.'}</p>
         </div>
       </div>
       <a class="cs-open" href="vault.html?v=${v.t}">Open the full page for this vault
@@ -404,9 +404,7 @@ const CONTRACTS = [
 document.getElementById('contracts-list').innerHTML = CONTRACTS.map(([k, seed]) => `
   <div class="cs-contract">
     <span class="cs-label">${k}</span>
-    <b class="cs-addr">${addr(seed)}</b>
-    <span class="cs-ph" title="Nothing is deployed — see the proof page">Placeholder</span>
-    <button class="cs-linkbtn" data-copy="${addr(seed)}" type="button">Copy</button>
+    <b class="cs-addr">${addressCell(seed)}</b>
   </div>`).join('');
 
 /* ---------- toasts and the clipboard ---------- */

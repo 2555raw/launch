@@ -24,3 +24,23 @@ addEventListener('scroll', () => {
 }, { passive: true });
 addEventListener('hashchange', markRead);
 markRead();
+
+
+/* ---------- the contracts table ----------
+   Rendered rather than written into the markup, so there is exactly one place
+   that decides whether an address exists: deployments.js. A row with no
+   deployment says so; it does not show a number that looks like one. */
+
+(function contractsTable() {
+  const host = document.getElementById('dx-contracts');
+  const note = document.getElementById('dx-deploy-note');
+  if (note) note.textContent = deploymentNote();
+  if (!host || typeof VAULTS === 'undefined') return;
+
+  host.innerHTML = VAULTS.slice(0, 10).map(v => `
+    <a class="dx-tr" href="vault.html?v=${v.t}" title="Open the ${v.name} vault">
+      <b>${v.t}</b>
+      <span class="dx-addr">${addressCell(v.t)}</span>
+      <span class="${isDeployed(v.t) ? 'dx-ok' : 'dx-ph'}">${isDeployed(v.t) ? 'Verified' : 'Not deployed'}</span>
+    </a>`).join('');
+})();

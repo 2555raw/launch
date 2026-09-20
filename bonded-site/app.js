@@ -514,9 +514,7 @@
     reeds.forEach(([l, h, r], i) => { const d = document.createElement('i'); d.className = 'bd-reed' + (i % 3 === 1 ? ' is-leaf' : ''); d.style.cssText = `--l:${l}%; --h:${h}px; --r:${r}deg; --d:${(4 + rnd() * 3).toFixed(1)}s`; el.appendChild(d); });
     // motes of pollen
     for (let k = 0; k < (small ? 8 : 18); k++) { const m = document.createElement('i'); m.className = 'bd-mote'; m.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(rnd() * 100).toFixed(1)}%; --d:${(14 + rnd() * 16).toFixed(1)}s; --dl:${(-rnd() * 20).toFixed(1)}s; --mx:${((rnd() - .5) * 220).toFixed(0)}px; --my:${((rnd() - .5) * 160).toFixed(0)}px`; el.appendChild(m); }
-    // night: the moon and its reflection, and fireflies that drift and blink
-    const moon = document.createElement('i'); moon.className = 'bd-moon'; el.appendChild(moon);
-    const moonRef = document.createElement('i'); moonRef.className = 'bd-moon-ref'; el.appendChild(moonRef);
+    // night: fireflies that drift and blink
     const fireflies = document.createElement('div'); fireflies.className = 'bd-fireflies';
     for (let k = 0; k < (small ? 14 : 28); k++) { const f = document.createElement('i'); f.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(8 + rnd() * 88).toFixed(1)}%; --d:${(6 + rnd() * 9).toFixed(1)}s; --b:${(1.6 + rnd() * 2.4).toFixed(1)}s; --dl:${(-rnd() * 12).toFixed(1)}s; --mx:${((rnd() - .5) * 140).toFixed(0)}px; --my:${((rnd() - .5) * 90).toFixed(0)}px; --s:${(3 + rnd() * 3).toFixed(1)}px`; fireflies.appendChild(f); }
     el.appendChild(fireflies);
@@ -579,27 +577,63 @@
         <circle cx="160" cy="65.5" r="1.6" fill="#111"/><circle cx="160" cy="74.5" r="1.6" fill="#111"/>
       </svg>`;
       // the crocodile, from above: only the back, the head and the eyes break the surface
-      const CROC_SVG = `<svg viewBox="0 0 260 140" aria-hidden="true">
+      const CROC_SVG = `<svg viewBox="0 0 320 140" aria-hidden="true">
         <defs>
-          <linearGradient id="bd-crocBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B4D2E"/><stop offset=".5" stop-color="#2B3A22"/><stop offset="1" stop-color="#1C2717"/></linearGradient>
-          <radialGradient id="bd-crocHead" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#465A36"/><stop offset="1" stop-color="#24301D"/></radialGradient>
+          <linearGradient id="bd-crocSkin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4E5F38"/><stop offset=".35" stop-color="#3A4A2B"/><stop offset=".7" stop-color="#2A3720"/><stop offset="1" stop-color="#1B2516"/></linearGradient>
+          <linearGradient id="bd-crocSpine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2A3720"/><stop offset=".5" stop-color="#55673F"/><stop offset="1" stop-color="#2A3720"/></linearGradient>
+          <radialGradient id="bd-crocEye" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#F4DA6E"/><stop offset=".6" stop-color="#C79A2C"/><stop offset="1" stop-color="#6B4E12"/></radialGradient>
+          <pattern id="bd-crocScale" width="9" height="7" patternUnits="userSpaceOnUse"><path d="M0 7 a4.5 4.5 0 0 1 9 0 M-4.5 3.5 a4.5 4.5 0 0 1 9 0 M4.5 3.5 a4.5 4.5 0 0 1 9 0" fill="none" stroke="rgba(0,0,0,.28)" stroke-width=".9"/></pattern>
+          <filter id="bd-crocBlur"><feGaussianBlur stdDeviation="1.2"/></filter>
         </defs>
-        <g class="bd-croc-wakeg"><path class="bd-croc-wake" d="M40 70 L-60 34"/><path class="bd-croc-wake" d="M40 70 L-60 106"/><path class="bd-croc-wake2" d="M30 70 L-80 46"/><path class="bd-croc-wake2" d="M30 70 L-80 94"/></g>
-        <path class="bd-croc-water" d="M0 70 C40 50 200 50 250 70 C200 90 40 90 0 70 Z"/>
-        <g class="bd-croc-tail"><path d="M70 62 C50 58 28 60 4 70 C28 80 50 82 70 78 Z" fill="url(#bd-crocBack)" stroke="rgba(0,0,0,.35)"/><path d="M14 70 L24 64 M24 70 L34 63 M34 70 L44 62 M44 70 L54 62 M14 70 L24 76 M24 70 L34 77 M34 70 L44 78 M44 70 L54 78" stroke="rgba(0,0,0,.35)" stroke-width="1.2" fill="none"/></g>
-        <path d="M68 56 C96 44 140 44 172 56 C180 62 180 78 172 84 C140 96 96 96 68 84 C60 78 60 62 68 56 Z" fill="url(#bd-crocBack)" stroke="rgba(0,0,0,.4)"/>
-        <g stroke="rgba(0,0,0,.4)" stroke-width="1" fill="rgba(0,0,0,.18)">
-          <path d="M80 60 l10 -4 l10 4 l-10 4 Z"/><path d="M104 58 l10 -4 l10 4 l-10 4 Z"/><path d="M128 58 l10 -4 l10 4 l-10 4 Z"/><path d="M152 60 l10 -4 l10 4 l-10 4 Z"/>
-          <path d="M80 80 l10 -4 l10 4 l-10 4 Z"/><path d="M104 82 l10 -4 l10 4 l-10 4 Z"/><path d="M128 82 l10 -4 l10 4 l-10 4 Z"/><path d="M152 80 l10 -4 l10 4 l-10 4 Z"/>
-          <path d="M92 70 l10 -4 l10 4 l-10 4 Z"/><path d="M116 70 l10 -4 l10 4 l-10 4 Z"/><path d="M140 70 l10 -4 l10 4 l-10 4 Z"/>
+        <!-- wake and the water it pushes -->
+        <g class="bd-croc-wakeg"><path class="bd-croc-wake" d="M40 70 L-70 30"/><path class="bd-croc-wake" d="M40 70 L-70 110"/><path class="bd-croc-wake2" d="M30 70 L-90 44"/><path class="bd-croc-wake2" d="M30 70 L-90 96"/></g>
+        <path class="bd-croc-water" d="M0 70 C50 44 250 44 316 70 C250 96 50 96 0 70 Z"/>
+        <!-- legs, under the surface, paddling -->
+        <g class="bd-croc-legs" filter="url(#bd-crocBlur)" opacity=".75">
+          <path class="bd-croc-leg bd-croc-leg-fl" d="M172 58 C182 44 196 40 204 46 C198 52 188 56 178 60 Z" fill="#2A3720"/><path d="M204 46 L212 38 L206 46 L214 44 L207 49 L213 52 Z" fill="#22301B"/>
+          <path class="bd-croc-leg bd-croc-leg-fr" d="M172 82 C182 96 196 100 204 94 C198 88 188 84 178 80 Z" fill="#2A3720"/><path d="M204 94 L212 102 L206 94 L214 96 L207 91 L213 88 Z" fill="#22301B"/>
+          <path class="bd-croc-leg bd-croc-leg-bl" d="M106 56 C110 42 124 36 134 42 C128 50 118 56 110 60 Z" fill="#2A3720"/><path d="M134 42 L142 34 L136 42 L144 40 L137 45 L143 48 Z" fill="#22301B"/>
+          <path class="bd-croc-leg bd-croc-leg-br" d="M106 84 C110 98 124 104 134 98 C128 90 118 84 110 80 Z" fill="#2A3720"/><path d="M134 98 L142 106 L136 98 L144 100 L137 95 L143 92 Z" fill="#22301B"/>
         </g>
-        <path class="bd-croc-head" d="M170 58 C196 52 230 56 254 66 C258 68 258 72 254 74 C230 84 196 88 170 82 Z" fill="url(#bd-crocHead)" stroke="rgba(0,0,0,.45)"/>
-        <path d="M200 60 L252 66 M200 80 L252 74" stroke="rgba(0,0,0,.3)" fill="none"/>
-        <g stroke="rgba(0,0,0,.45)" fill="rgba(0,0,0,.2)"><path d="M186 60 l6 -3 l6 3 l-6 3 Z"/><path d="M186 80 l6 -3 l6 3 l-6 3 Z"/></g>
-        <ellipse cx="190" cy="56" rx="7" ry="5" fill="#3E5231" stroke="rgba(0,0,0,.45)"/><ellipse cx="190" cy="84" rx="7" ry="5" fill="#3E5231" stroke="rgba(0,0,0,.45)"/>
-        <ellipse class="bd-croc-eye" cx="190" cy="56" rx="3.6" ry="2.6"/><ellipse class="bd-croc-eye" cx="190" cy="84" rx="3.6" ry="2.6"/>
-        <ellipse cx="190" cy="56" rx="1" ry="2.4" fill="#0A0A0A"/><ellipse cx="190" cy="84" rx="1" ry="2.4" fill="#0A0A0A"/>
-        <circle cx="248" cy="67" r="1.4" fill="rgba(0,0,0,.6)"/><circle cx="248" cy="73" r="1.4" fill="rgba(0,0,0,.6)"/>
+        <!-- tail: long, banded, sweeping -->
+        <g class="bd-croc-tail">
+          <path d="M100 60 C76 56 46 60 4 70 C46 80 76 84 100 80 Z" fill="url(#bd-crocSkin)" stroke="rgba(0,0,0,.45)"/>
+          <path d="M100 60 C76 56 46 60 4 70 C46 80 76 84 100 80 Z" fill="url(#bd-crocScale)" opacity=".7"/>
+          <g stroke="rgba(0,0,0,.4)" stroke-width="1" fill="none"><path d="M88 60 L88 80 M74 59 L74 81 M60 61 L60 79 M46 63 L46 77 M32 65 L32 75 M18 67 L18 73"/></g>
+          <g fill="#33422A" stroke="rgba(0,0,0,.45)" stroke-width=".8"><path d="M92 60 l4 -6 l4 6 Z"/><path d="M78 59 l4 -6 l4 6 Z"/><path d="M64 61 l4 -6 l4 6 Z"/><path d="M50 63 l3 -5 l3 5 Z"/><path d="M36 65 l3 -4 l3 4 Z"/></g>
+          <g fill="#33422A" stroke="rgba(0,0,0,.45)" stroke-width=".8"><path d="M92 80 l4 6 l4 -6 Z"/><path d="M78 81 l4 6 l4 -6 Z"/><path d="M64 79 l4 6 l4 -6 Z"/><path d="M50 77 l3 5 l3 -5 Z"/><path d="M36 75 l3 4 l3 -4 Z"/></g>
+        </g>
+        <!-- body -->
+        <path d="M96 54 C126 42 166 40 196 50 C206 56 206 84 196 90 C166 100 126 98 96 86 C88 80 88 60 96 54 Z" fill="url(#bd-crocSkin)" stroke="rgba(0,0,0,.5)"/>
+        <path d="M96 54 C126 42 166 40 196 50 C206 56 206 84 196 90 C166 100 126 98 96 86 C88 80 88 60 96 54 Z" fill="url(#bd-crocScale)" opacity=".7"/>
+        <path d="M104 52 C130 46 164 46 192 54" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"/>
+        <!-- double row of dorsal scutes and the spine -->
+        <path d="M96 70 L200 70" stroke="url(#bd-crocSpine)" stroke-width="5" stroke-linecap="round"/>
+        <g fill="#41522F" stroke="rgba(0,0,0,.5)" stroke-width=".9">
+          <path d="M100 62 l6 -7 l6 7 Z"/><path d="M114 60 l6 -7 l6 7 Z"/><path d="M128 59 l6 -7 l6 7 Z"/><path d="M142 59 l6 -7 l6 7 Z"/><path d="M156 60 l6 -7 l6 7 Z"/><path d="M170 62 l6 -7 l6 7 Z"/><path d="M184 65 l5 -6 l5 6 Z"/>
+          <path d="M100 78 l6 7 l6 -7 Z"/><path d="M114 80 l6 7 l6 -7 Z"/><path d="M128 81 l6 7 l6 -7 Z"/><path d="M142 81 l6 7 l6 -7 Z"/><path d="M156 80 l6 7 l6 -7 Z"/><path d="M170 78 l6 7 l6 -7 Z"/><path d="M184 75 l5 6 l5 -6 Z"/>
+          <path d="M108 70 l5 -4 l5 4 l-5 4 Z"/><path d="M124 70 l5 -4 l5 4 l-5 4 Z"/><path d="M140 70 l5 -4 l5 4 l-5 4 Z"/><path d="M156 70 l5 -4 l5 4 l-5 4 Z"/><path d="M172 70 l5 -4 l5 4 l-5 4 Z"/>
+        </g>
+        <!-- head: long snout, brow ridges, nostrils, teeth -->
+        <g class="bd-croc-head">
+          <path d="M196 52 C216 46 240 48 262 54 C286 58 304 63 314 68 C316 69 316 71 314 72 C304 77 286 82 262 86 C240 92 216 94 196 88 Z" fill="url(#bd-crocSkin)" stroke="rgba(0,0,0,.5)"/>
+          <path d="M196 52 C216 46 240 48 262 54 C286 58 304 63 314 68 C316 69 316 71 314 72 C304 77 286 82 262 86 C240 92 216 94 196 88 Z" fill="url(#bd-crocScale)" opacity=".5"/>
+          <path d="M228 58 C250 56 280 60 306 67" fill="none" stroke="rgba(0,0,0,.35)"/><path d="M228 82 C250 84 280 80 306 73" fill="none" stroke="rgba(0,0,0,.35)"/>
+          <path d="M240 56 C262 56 290 61 310 68" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="2"/>
+          <!-- teeth along the jaw line -->
+          <g fill="#EDE6D2" stroke="rgba(0,0,0,.3)" stroke-width=".5"><path d="M244 57 l2 -4 l2 4 Z"/><path d="M256 58 l2 -4 l2 4 Z"/><path d="M268 60 l2 -4 l2 4 Z"/><path d="M280 62 l2 -4 l2 4 Z"/><path d="M292 64 l2 -3 l2 3 Z"/><path d="M302 66 l1.5 -3 l1.5 3 Z"/>
+          <path d="M244 83 l2 4 l2 -4 Z"/><path d="M256 82 l2 4 l2 -4 Z"/><path d="M268 80 l2 4 l2 -4 Z"/><path d="M280 78 l2 4 l2 -4 Z"/><path d="M292 76 l2 3 l2 -3 Z"/><path d="M302 74 l1.5 3 l1.5 -3 Z"/></g>
+          <!-- brow ridges and eyes -->
+          <path d="M204 56 C210 48 222 47 230 52 C224 54 214 56 204 60 Z" fill="#41522F" stroke="rgba(0,0,0,.5)"/>
+          <path d="M204 84 C210 92 222 93 230 88 C224 86 214 84 204 80 Z" fill="#41522F" stroke="rgba(0,0,0,.5)"/>
+          <ellipse cx="216" cy="55" rx="5.5" ry="4" fill="url(#bd-crocEye)" stroke="rgba(0,0,0,.6)"/><ellipse cx="216" cy="55" rx="1.1" ry="3.4" fill="#0A0A0A"/><circle cx="214" cy="53.6" r=".9" fill="#fff" opacity=".8"/>
+          <ellipse cx="216" cy="85" rx="5.5" ry="4" fill="url(#bd-crocEye)" stroke="rgba(0,0,0,.6)"/><ellipse cx="216" cy="85" rx="1.1" ry="3.4" fill="#0A0A0A"/><circle cx="214" cy="83.6" r=".9" fill="#fff" opacity=".8"/>
+          <!-- nostrils on the raised tip -->
+          <ellipse cx="304" cy="70" rx="7" ry="4.5" fill="#41522F" stroke="rgba(0,0,0,.4)"/>
+          <ellipse cx="305" cy="67.6" rx="1.5" ry="1" fill="rgba(0,0,0,.7)"/><ellipse cx="305" cy="72.4" rx="1.5" ry="1" fill="rgba(0,0,0,.7)"/>
+        </g>
+        <!-- the surface, over the low parts of the body -->
+        <path class="bd-croc-surface" d="M0 70 C50 44 250 44 316 70 C250 96 50 96 0 70 Z"/>
       </svg>`;
       const isNightNow = () => document.documentElement.classList.contains('is-night');
       let skin = null;

@@ -42,7 +42,7 @@
 
   /* ---- screens ----------------------------------------------------------- */
 
-  const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch', 'fair'];
+  const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch', 'fair', 'replay'];
   /* The race fills the window and the dock steps aside for it, so the HUD
      carries its own way back. The race itself keeps running behind the page. */
   function bindBack() {
@@ -76,7 +76,7 @@
     if (name === 'home' || name === 'launch' || name === 'fair') { CAMERA.setMode('idle'); window.scrollTo(0, 0); }
     if (name === 'fair') paintFair();
     if (name === 'launch') paintLaunchFee();
-    else if (name === 'race') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
+    else if (name === 'race' || name === 'replay') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
     else CAMERA.setMode('auto');
     if (name !== 'home') window.scrollTo(0, 0);
     applyBackdrop();
@@ -103,6 +103,93 @@
   function playersOf(round) {
     const me = wallet.get().address;
     return round.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name, you: same(p.address, me) }));
+  }
+
+  /* ---- watching a race again, from a link ------------------------------------
+     A finished race is its seed and its field, so anyone with the number can
+     watch exactly the race that happened. Nothing here asks the server for a
+     frame: the same engine the server ran replays it in the page. */
+  let replayFrom = 0, replayEnded = false, replayRound = null;
+
+  const raceLink = (no) => location.origin + location.pathname + '?race=' + pad(no);
+
+  function startReplay(round) {
+    if (round.seed === null || round.seed === undefined) { toast('That race has no seed yet', 'bad'); return false; }
+    const players = playersOf(round);
+    if (!players.length) { toast('That race had nobody in it', 'bad'); return false; }
+    replayRound = round;
+    current = RACE.createRace(round.seed, players.map((p) => ({ id: p.address })), { mode: round.mode });
+    mode = 'replay';
+    replayFrom = performance.now();
+    replayEnded = false;
+    $('#rpCard').hidden = true;
+    $('#rpNo').textContent = 'RACE #' + pad(round.number || 0);
+    if (SCENE.ready) SCENE.setRace(current, players, wallet.get().address);
+    setScreen('replay');
+    return true;
+  }
+
+  function paintReplayHud() {
+    if (!current) return;
+    $('#rpTime').textContent = current.t.toFixed(1) + 's';
+    $('#rpTrack').textContent = modeInfo(current.course.mode).name.toUpperCase() + ' · ' + current.course.sections.length + ' SECTIONS';
+    const balls = [...current.balls].sort((a, b) => {
+      if (a.done && b.done) return a.place - b.place;
+      if (a.done) return -1; if (b.done) return 1;
+      return b.y - a.y;
+    }).slice(0, 8);
+    const board = $('#rpBoard');
+    if (board.children.length !== balls.length) { board.innerHTML = ''; for (let i = 0; i < balls.length; i++) { const li = document.createElement('li'); li.innerHTML = '<span></span><i></i><b></b><span class="t"></span>'; board.appendChild(li); } }
+    balls.forEach((b, i) => {
+      const li = board.children[i];
+      const p = (replayRound && replayRound.field ? null : null) || (playersOf(replayRound).find((x) => same(x.address, b.id)) || {});
+      li.children[0].textContent = (i + 1) + '.';
+      li.children[1].style.background = p.color || '#ff7a1a';
+      li.children[2].textContent = p.name || short(b.id);
+      li.children[3].textContent = b.done ? b.time.toFixed(2) + 's' : '';
+      li.classList.toggle('is-you', same(b.id, wallet.get().address));
+    });
+  }
+
+  function showReplayCard() {
+    const r = replayRound; if (!r) return;
+    const winner = (current.balls.find((b) => b.place === 1) || {}).id || r.winner;
+    $('#rpCardNo').textContent = '#' + pad(r.number || 0);
+    $('#rpCardMode').textContent = modeInfo(r.mode).name.toUpperCase();
+    $('#rpWinner').textContent = winner || '—';
+    $('#rpWinner').title = winner || '';
+    $('#rpPot').textContent = r.pot === null || r.pot === undefined ? '$0.00' : usd(r.pot);
+    $('#rpSecs').textContent = (r.seconds || (current.balls.find((b) => b.place === 1) || {}).time || 0).toFixed(2) + 's';
+    $('#rpField').textContent = String(playersOf(r).length);
+    $('#rpCard').hidden = false;
+  }
+
+  /* Opens the race a link asks for, by number. */
+  async function openRace(no) {
+    try {
+      const d = await fetch('/api/round?no=' + encodeURIComponent(no)).then((x) => x.json());
+      if (d.error || !d.round) { toast('Race #' + pad(no) + ' is not in the log', 'bad'); return false; }
+      const field = (d.round.field || []).map((p) => (typeof p === 'string' ? { address: p } : p));
+      const round = Object.assign({}, d.round, { players: field });
+      return startReplay(round);
+    } catch { toast('Could not load that race', 'bad'); return false; }
+  }
+
+  async function leaveReplay(to) {
+    mode = 'idle';
+    replayRound = null;
+    setScreen(to);
+    history.replaceState(null, '', location.pathname);
+    try { const s = await fetch('/api/state').then((r) => r.json()); onState(s); } catch { /* the stream will catch up */ }
+  }
+
+  function bindReplay() {
+    $('#replayBack').addEventListener('click', () => leaveReplay('home'));
+    $('#rpAgain').addEventListener('click', () => { if (replayRound) startReplay(replayRound); });
+    $('#rpShare').addEventListener('click', () => { if (replayRound) copy(raceLink(replayRound.number), 'Link to this race'); });
+    $('#rpVerify').addEventListener('click', () => { if (replayRound) { setScreen('fair'); const sel = $('#fairPick'); if (sel) { sel.value = replayRound.id; sel.dispatchEvent(new Event('change')); } } });
+    $('#rpJoin').addEventListener('click', () => leaveReplay('lobby'));
+    $('#resShare').addEventListener('click', () => { const r = (game.get().recent || [])[0]; if (r) copy(raceLink(r.number), 'Link to this race'); else toast('No finished race yet', 'bad'); });
   }
 
   function startPreview(round) {
@@ -165,6 +252,11 @@
       const due = (serverNow() - raceStartAt) / 1000;
       let guard = 0;
       while (current.t < due && !current.over && guard++ < 200) RACE.step(current);
+    } else if (mode === 'replay' && current) {
+      const due = (ts - replayFrom) / 1000;
+      let guard = 0;
+      while (current.t < due && !current.over && guard++ < 200) RACE.step(current);
+      if (current.over && !replayEnded) { replayEnded = true; setTimeout(showReplayCard, 900); }
     } else if (mode === 'done' && current) {
       acc += dt; let guard = 0;
       while (acc >= RACE.DT && guard++ < 4) { RACE.step(current); acc -= RACE.DT; }
@@ -185,6 +277,7 @@
     paintClock();
     placeStage();
     if (ui.get().screen === 'race') paintHud();
+    if (ui.get().screen === 'replay') paintReplayHud();
   }
 
   function countdown(cd) {
@@ -256,6 +349,11 @@
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
   }
 
+  /* While a replay is on screen it owns the world: the live round keeps its
+     state up to date but does not take the marbles back until the replay is
+     left, and leaving it resyncs from the server. */
+  const watchingReplay = () => ui.get().screen === 'replay';
+
   function onPhase(round) {
     if (!round) return;
     const prev = game.get().race;
@@ -271,6 +369,8 @@
       /* a new round means a new schedule: the track it races on is now known */
       if (prev) fetch('/api/schedule').then((x) => x.json()).then((sc) => { game.set({ schedule: sc.schedule || [] }); paintRaces(); }).catch(() => {});
     }
+
+    if (watchingReplay()) { paintStatic(); paintLobby(); paintRaces(); paintMode(); paintPoll(); paintModes(); return; }
 
     if (round.phase === 'lobby' || (round.phase === 'locked' && mode !== 'race')) {
       if (fresh || mode === 'idle' || mode === 'done') startPreview(round); else syncPreview(round);
@@ -335,6 +435,7 @@
   function onStart(d) {
     const r = game.get().race;
     if (!r) return;
+    if (watchingReplay()) { r.phase = 'racing'; game.set({ race: r }); return; }
     r.phase = 'racing';
     game.set({ race: r });
     document.body.dataset.phase = 'racing';
@@ -354,6 +455,7 @@
     ui.set({ voted: null });
     document.body.dataset.phase = 'result';
     game.set({ result: d });
+    if (watchingReplay()) { paintStatic(); paintRecent(); return; }
     if (d.winner) { const wp = r && r.players.find((x) => same(x.address, d.winner)); feed({ sys: true, text: 'WINNER · ' + (wp && wp.name ? wp.name + ' · ' : '') + d.winner + (d.pot !== null && d.pot !== undefined ? ' · ' + usd(d.pot) : '') }); }
     paintStatic();
     if (r) drainPot(r);
@@ -470,7 +572,7 @@
     const later = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 120));
     const tick = () => {
       const screen = ui.get().screen;
-      if (screen === 'race' || screen === 'count') { setTimeout(tick, 1500); return; }
+      if (screen === 'race' || screen === 'count' || screen === 'replay') { setTimeout(tick, 1500); return; }
       const next = document.querySelector('.mode__img[data-flat]');
       if (!next || !SCENE.ready || !SCENE.snapshot) { upgrading = false; return; }
       fillPic(next);
@@ -771,7 +873,6 @@
     $('#resYou').hidden = mine < 0;
     if (mine >= 0) { $('#resYouPos').textContent = '#' + (mine + 1) + (mine === 0 ? ' · YOU WON' : ''); if (mine === 0) { SOUND.play('win'); toast('You won! The pot goes to your address.', 'good'); } }
     $('#resAddr').textContent = d.winner || '';
-    $('#resSend').href = 'ethereum:' + (d.winner || '');
     paintResultPaid();
     setScreen('results');
   }
@@ -1083,7 +1184,7 @@
     if (!SCENE.ready) return;
     const t = THEMES[themeName()];
     const screen = ui.get().screen;
-    const dark = t.dark || screen === 'race' || screen === 'count';
+    const dark = t.dark || screen === 'race' || screen === 'count' || screen === 'replay';
     SCENE.setBackdrop(dark ? 'dark' : 'light', dark ? { sky: '#07070b', apron: '#08080d' } : { sky: t.sky, apron: t.apron });
   }
   function setTheme(name) {
@@ -1159,7 +1260,7 @@
     /* the dock shows once the home page is scrolled down to the track, and
        always on the other screens */
     const dock = $('#dock');
-    const wantDock = screen !== 'race' && screen !== 'count';
+    const wantDock = screen !== 'race' && screen !== 'count' && screen !== 'replay';
     if (wantDock !== dock.classList.contains('is-shown')) dock.classList.toggle('is-shown', wantDock);
     if (screen === 'home') {
       const st = $('#stage');
@@ -1277,6 +1378,13 @@
       c[4].textContent = x.pot === null || x.pot === undefined ? '—' : usd(x.pot);
       const st = document.createElement('i'); st.className = 'tag ' + (x.paid ? 'tag--paid' : 'tag--due'); st.textContent = x.paid ? 'PAID' : 'TO PAY';
       c[5].appendChild(st);
+      /* the row is the way back into that race: watch it, or take its link */
+      const acts = document.createElement('span'); acts.className = 'row__acts';
+      const watch = document.createElement('button'); watch.type = 'button'; watch.className = 'row__act'; watch.textContent = 'Watch';
+      watch.addEventListener('click', (e) => { e.stopPropagation(); MR.openRace(x.number); });
+      const link = document.createElement('button'); link.type = 'button'; link.className = 'row__act'; link.textContent = 'Link';
+      link.addEventListener('click', (e) => { e.stopPropagation(); copy(raceLink(x.number), 'Link to this race'); });
+      acts.append(watch, link); c[5].appendChild(acts);
       if (x.winner) row.addEventListener('click', () => copy(x.winner, "Winner's address"));
       host.appendChild(row);
     }
@@ -1647,6 +1755,7 @@
     loadSkin();
     buildPickers();
     bindBack();
+    bindReplay();
     buildLaunchpad();
     buildFloaters();
     setTheme(themeName());
@@ -1667,10 +1776,16 @@
     setScreen('home');
     showNotice();
     connectStream();
+    /* a link that names a race opens straight into it */
+    const asked = new URLSearchParams(location.search).get('race');
+    if (asked) {
+      const go = () => openRace(asked.replace(/[^0-9]/g, ''));
+      if (SCENE.ready) go(); else addEventListener('three-ready', () => setTimeout(go, 200), { once: true });
+    }
     requestAnimationFrame(frame);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) lastTs = 0; });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  window.MR = { setScreen, join, vote, openWinners, connectDemo, connectWith, get current() { return current; }, get mode() { return mode; } };
+  window.MR = { setScreen, join, vote, openWinners, connectDemo, connectWith, openRace, raceLink, get current() { return current; }, get mode() { return mode; } };
 })();

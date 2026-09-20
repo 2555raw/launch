@@ -48,13 +48,16 @@ const FEE_WALLET = process.env.FEE_WALLET || '';
 /* With no fee wallet to read and demo mode on, the pot is acted: it climbs a
    cent at a time to a few dollars over the queue, twenty-five on a mega race,
    and every figure it sends is marked demo so the page can say so. */
-const DEMO_POT = process.env.DEMO_MODE === '1' && !FEE_WALLET;
+const DEMO_MODE = process.env.DEMO_MODE === '1';
+const DEMO_POT = DEMO_MODE && !FEE_WALLET;
 /* What an acted pot climbs to: a normal race lands somewhere in this band,
    a mega race on its own figure. Settings, so the figures can move without
    a deploy. */
 const POT_MIN = Math.max(0, Number(process.env.POT_MIN) || 2.7);
 const POT_MAX = Math.max(POT_MIN, Number(process.env.POT_MAX) || 5.76);
 const POT_MEGA = Math.max(POT_MAX, Number(process.env.POT_MEGA) || 20);
+/* What the jar holds before the first player: the floor the pot starts from. */
+const POT_BASE = Math.max(0, Number(process.env.POT_BASE) || 0.5);
 /* What the winner takes out of the fees that came in during the round. The rest
    stays where it is. Whoever runs the game picks the number and it is on screen,
    because a pot nobody can check is a pot nobody believes. */
@@ -143,12 +146,16 @@ class Rounds extends EventEmitter {
 
     this.emit('phase', this.publicRound());
     this.readBaseline();
-    if (DEMO_POT) {
-      r.pot = 0;
-      r.potDemo = true;
+    if (!FEE_WALLET) {
+      /* No fee wallet to read: the pot is the creator's promise, it starts at
+         the floor and climbs with the field. */
       r.potTarget = Math.round((r.mega ? POT_MEGA : POT_MIN + Math.random() * (POT_MAX - POT_MIN)) * 100) / 100;
-      clearInterval(this.demoTimer);
-      this.demoTimer = setInterval(() => this.demoTick(), 1000);
+      r.potDemo = DEMO_MODE;
+      r.pot = this.fieldPot(r);
+      if (DEMO_POT) {
+        clearInterval(this.demoTimer);
+        this.demoTimer = setInterval(() => this.demoTick(), 1000);
+      }
     }
     this.at(r.lockAt, () => this.lock());
   }
@@ -156,6 +163,7 @@ class Rounds extends EventEmitter {
   demoTick() {
     const r = this.round;
     if (!r || !DEMO_POT || r.phase !== 'lobby') return;
+    r.pot = Math.max(r.pot, this.fieldPot(r));
     const secs = Math.max(20, (r.lockAt - r.startAt) / 1000);
     const step = (r.potTarget / secs) * (0.5 + Math.random());
     r.pot = Math.min(r.potTarget, Math.round((r.pot + step) * 100) / 100);
@@ -258,7 +266,7 @@ class Rounds extends EventEmitter {
       commit: r.commit,
       secret: r.secret,
       winner: r.winner,
-      players: r.players.map((p) => p.address),
+      players: r.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name || '' })),
       order: r.order.slice(0, 20),
       seconds: r.seconds,
       pot: r.pot,
@@ -387,6 +395,13 @@ class Rounds extends EventEmitter {
       r.max = MAX_PLAYERS_HIGH;
       this.emit('cap', { roundId: r.id, max: r.max, count: r.players.length });
     }
+    if (!FEE_WALLET) {
+      const next = this.fieldPot(r);
+      if (next !== r.pot) {
+        r.pot = next;
+        this.emit('pot', { roundId: r.id, pot: r.pot, potFull: this.potFull(r), gross: null, grossEth: null, pct: 100, mega: r.mega, demo: !!r.potDemo, final: false });
+      }
+    }
     if (!fromWaitlist) this.emit('join', { roundId: r.id, player, count: r.players.length, max: r.max });
     return { player, count: r.players.length, max: r.max };
   }
@@ -412,6 +427,17 @@ class Rounds extends EventEmitter {
     const r = this.round;
     const p = r && r.index.get(address);
     return (p && p.name) || this.names.get(address) || '';
+  }
+
+  /* With no fee wallet to read, the pot is what the creator has promised the
+     winner, and that promise grows with the field: the floor while the queue
+     is empty, climbing in a straight line to the full figure when the grid is
+     full. Every player who joins moves it, which is what the jar shows. */
+  fieldPot(r) {
+    const cap = r.mega ? POT_MEGA : (r.potTarget || POT_MAX);
+    const per = Math.max(0, cap - POT_BASE) / Math.max(1, r.max || MAX_PLAYERS);
+    const n = r.players.length;
+    return Math.round(Math.min(cap, POT_BASE + per * n) * 100) / 100;
   }
 
   /* What a full jar is: the acted target in demo mode, otherwise the larger of

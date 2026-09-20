@@ -275,7 +275,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (p === '/api/round') {
-    const r = store.findRound(url.searchParams.get('id') || '');
+    const no = url.searchParams.get('no');
+    const r = no ? store.findByNumber(no) : store.findRound(url.searchParams.get('id') || '');
     if (!r) return json(res, 404, { error: 'unknown round' });
     return json(res, 200, { round: { ...publicResult(r), order: r.order, field: r.players } });
   }

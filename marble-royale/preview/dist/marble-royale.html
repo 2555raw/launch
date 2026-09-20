@@ -66,7 +66,7 @@ html[data-theme="black"] {
   --shadow: 0 30px 80px -40px rgba(0, 0, 0, .9);
 }
 /* The race and the countdown are the dark stage, whatever the theme. */
-body[data-screen="race"], body[data-screen="count"] {
+body[data-screen="race"], body[data-screen="count"], body[data-screen="replay"] {
   --bg: #07070b; --bg2: #0c0c12;
   --glass: rgba(13, 13, 20, .72); --glass2: rgba(20, 20, 30, .78); --soft: rgba(255, 255, 255, .08);
   --line: rgba(255, 255, 255, .08); --line2: rgba(255, 255, 255, .16);
@@ -115,12 +115,12 @@ code { font-family: var(--mono); font-size: .9em; color: var(--goInk); backgroun
   -webkit-mask-image: radial-gradient(ellipse var(--hw) var(--hh) at var(--hx) var(--hy), transparent 0 58%, #000 100%);
   mask-image: radial-gradient(ellipse var(--hw) var(--hh) at var(--hx) var(--hy), transparent 0 58%, #000 100%);
 }
-body[data-screen="race"] .veil, body[data-screen="count"] .veil { opacity: 0; }
+body[data-screen="race"] .veil, body[data-screen="count"] .veil, body[data-screen="replay"] .veil { opacity: 0; }
 .vignette {
   position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .35s ease;
   background: radial-gradient(120% 90% at 50% 40%, transparent 45%, rgba(0, 0, 0, .55) 100%);
 }
-body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacity: 1; }
+body[data-screen="race"] .vignette, body[data-screen="count"] .vignette, body[data-screen="replay"] .vignette { opacity: 1; }
 .noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E"); }
 
@@ -205,7 +205,7 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
   background: var(--glass); border: 1px solid var(--line); border-radius: var(--r);
   box-shadow: var(--shadow);
 }
-body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+body[data-screen="race"] .glass, body[data-screen="count"] .glass, body[data-screen="replay"] .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .kicker { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .2em; font-weight: 700; color: var(--go); }
 .kicker--plain { color: var(--go); margin-bottom: 8px; }
 
@@ -578,10 +578,10 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .dock { opacity: 0; pointer-events: none; transform: translate(-28px, -50%); }
 .dock.is-shown { opacity: 1; pointer-events: auto; transform: translateY(-50%); animation: dockin .6s cubic-bezier(.2, .9, .3, 1) both; }
 @keyframes dockin { from { transform: translate(-40px, -50%); opacity: 0; } to { transform: translateY(-50%); opacity: 1; } }
-body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0 !important; pointer-events: none !important; transform: translate(-20px, -50%) !important; animation: none !important; }
+body[data-screen="race"] .dock, body[data-screen="count"] .dock, body[data-screen="replay"] .dock { opacity: 0 !important; pointer-events: none !important; transform: translate(-20px, -50%) !important; animation: none !important; }
 /* once the page is scrolled the top bar steps away: the dock has it all */
 .top { transition: opacity .25s ease, transform .25s ease; }
-body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top { opacity: 0; transform: translateY(-16px); pointer-events: none; }
+body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]):not([data-screen="replay"]) .top { opacity: 0; transform: translateY(-16px); pointer-events: none; }
 body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top > * { pointer-events: none; }
 .dock__brand { display: grid; place-items: center; padding: 6px 0 2px; }
 .dock__brand .brand__mark { width: 28px; height: 28px; }
@@ -768,9 +768,9 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   .dock { left: 50%; top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); flex-direction: row; width: auto; max-width: calc(100vw - 20px); gap: 0; padding: 4px; border-radius: 999px; max-height: none; }
   .dock { transform: translate(-50%, 20px); }
   .dock.is-shown { transform: translateX(-50%); animation: none; }
-  body[data-screen="race"] .dock, body[data-screen="count"] .dock { transform: translate(-50%, 20px) !important; }
+  body[data-screen="race"] .dock, body[data-screen="count"] .dock, body[data-screen="replay"] .dock { transform: translate(-50%, 20px) !important; }
   .dock__brand, .dock__race, .dock__themes { display: none; }
-  body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top { opacity: 1; transform: none; pointer-events: auto; }
+  body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]):not([data-screen="replay"]) .top { opacity: 1; transform: none; pointer-events: auto; }
   body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top > * { pointer-events: auto; }
   .dock__it { padding: 6px 8px; font-size: 10px; border-radius: 999px; }
   .dock__it em { display: none; }
@@ -850,6 +850,28 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .addlaunch__head { display: grid; gap: 4px; }
 .addlaunch__row { display: flex; gap: 8px; flex-wrap: wrap; }
 .addlaunch__row input { flex: 1 1 320px; min-width: 0; padding: 11px 13px; border-radius: 12px; background: var(--glass2); border: 1px solid var(--line); color: var(--ink); font-size: 13px; }
+
+/* watching a race again, from a link */
+.pill--replay { color: var(--go); border-color: color-mix(in srgb, var(--go) 45%, transparent); }
+.screen--replay .hud--tl { gap: 8px; }
+.replay__card {
+  position: absolute; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  display: grid; gap: 12px; padding: 18px 22px; border-radius: var(--r); width: min(560px, calc(100vw - 32px));
+  pointer-events: auto; animation: fadeup .5s ease both;
+}
+.replay__win { display: grid; gap: 3px; }
+.replay__win em { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
+.replay__win b { font-size: 14px; word-break: break-all; }
+.replay__facts { display: flex; gap: 22px; flex-wrap: wrap; }
+.replay__facts em { font-style: normal; display: block; font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
+.replay__facts b { font-size: 16px; }
+.replay__acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.replay__acts .btn { flex: 1 1 auto; justify-content: center; font-size: 13px; padding: 9px 14px; }
+.row__acts { display: inline-flex; gap: 6px; margin-left: 10px; }
+.row__act { background: var(--glass2); border: 1px solid var(--line); color: var(--ink2); border-radius: 999px; padding: 3px 10px; font-size: 10.5px; font-family: var(--disp); cursor: pointer; }
+.row__act:hover { background: var(--soft); color: var(--ink); }
+.btn--share { margin-left: 10px; font-size: 12.5px; padding: 7px 14px; }
+.btn--share .ic { width: 13px; height: 13px; fill: currentColor; stroke: none; }
 
 </style>
 <script>(function(){var t='black';try{t=localStorage.getItem('mr.theme')||'black';}catch(e){}if(t==='black'||t==='white')document.documentElement.dataset.theme=t;})();</script>
@@ -1148,6 +1170,39 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
     <div class="hud hud--track mono" id="hudTrack"></div>
   </section>
 
+  <!-- ---------- REPLAY ---------- -->
+  <section class="screen screen--race screen--replay" id="s-replay" hidden>
+    <div class="hud hud--tl">
+      <button class="hud__back" id="replayBack" type="button" title="Back to the site"><svg class="ic"><use href="#i-arrow"/></svg><span>Back</span></button>
+      <span class="mono" id="rpNo">RACE #----</span>
+      <span class="pill pill--replay">REPLAY</span>
+      <span class="mono dim" id="rpTime">00.0</span>
+    </div>
+    <ol class="hud hud--board mono" id="rpBoard"></ol>
+    <div class="hud hud--cam">
+      <button class="cam is-on" data-cam="auto">AUTO</button>
+      <button class="cam" data-cam="follow">LEADER</button>
+      <button class="cam" data-cam="battle">BATTLE</button>
+      <button class="cam" data-cam="finish">FINISH</button>
+    </div>
+    <div class="hud hud--track mono" id="rpTrack"></div>
+    <div class="replay__card glass" id="rpCard" hidden>
+      <span class="kicker kicker--plain">RACE <b id="rpCardNo">#----</b> · <span id="rpCardMode">CLASSIC</span></span>
+      <div class="replay__win"><em>WON BY</em><b class="mono" id="rpWinner"></b></div>
+      <div class="replay__facts mono">
+        <div><em>POT</em><b class="gold" id="rpPot">$0.00</b></div>
+        <div><em>TIME</em><b id="rpSecs">0.00s</b></div>
+        <div><em>FIELD</em><b id="rpField">0</b></div>
+      </div>
+      <div class="replay__acts">
+        <button class="btn btn--accent" type="button" id="rpAgain">Watch again</button>
+        <button class="btn btn--glass" type="button" id="rpShare">Copy link</button>
+        <button class="btn btn--glass" type="button" id="rpVerify">Verify this race</button>
+        <button class="btn btn--soft" type="button" id="rpJoin">Join the next race</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ---------- RESULTS ---------- -->
   <section class="screen screen--results" id="s-results" hidden>
     <div class="results glass">
@@ -1160,9 +1215,9 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
         <button class="addr mono" id="resAddr" title="copy"></button>
         <div class="results__payrow">
           <button class="btn btn--glass" id="resCopy">Copy address</button>
-          <a class="btn btn--accent" id="resSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
         </div>
         <span class="results__paid mono" id="resPaid" hidden></span>
+        <button class="btn btn--glass btn--share" type="button" id="resShare"><svg class="ic"><use href="#i-x"/></svg> Share this race</button>
         <span class="dim small">The creator sends the whole pot to first place. <a href="#" data-go="fair" data-verify-last>Verify this race</a>.</span>
       </div>
       <div class="poll" id="poll" hidden>
@@ -4897,7 +4952,7 @@ window.MR_TYPES = true;
   function result() {
     if (!round || round.phase !== 'racing') return;
     round.phase = 'result';
-    store.rounds.unshift({ id: round.id, number: round.number, startAt: round.startAt, winner: round.winner, pot: round.pot, players: round.players.map((p) => p.address), order: round.order.slice(0, 20), seconds: round.seconds, seed: round.seed, commit: round.commit, secret: round.secret, mega: round.mega, mode: round.mode, paid: false, tx: '' });
+    store.rounds.unshift({ id: round.id, number: round.number, startAt: round.startAt, winner: round.winner, pot: round.pot, players: round.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name || "" })), order: round.order.slice(0, 20), seconds: round.seconds, seed: round.seed, commit: round.commit, secret: round.secret, mega: round.mega, mode: round.mode, paid: false, tx: '' });
     openPoll();
     emit('result', { roundId: round.id, number: round.number, winner: round.winner, pot: round.pot, seconds: round.seconds, order: round.order.slice(0, 10), secret: round.secret, commit: round.commit, seed: round.seed, mega: round.mega, mode: round.mode, poll: pubPoll() });
     at(round.endAt, close);
@@ -4981,7 +5036,7 @@ window.MR_TYPES = true;
     if (path === '/api/state') return reply(200, snapshot());
     if (path === '/api/schedule') return reply(200, { now: now(), schedule: schedule() });
     if (path === '/api/history') return reply(200, { rounds: store.rounds.slice(0, 50), top: [], rewards: [], paidTotal: 0 });
-    if (path === '/api/round') { const r = store.rounds.find((x) => x.id === q.get('id')); return r ? reply(200, { round: Object.assign({}, r, { field: r.players }) }) : reply(404, { error: 'unknown round' }); }
+    if (path === '/api/round') { const no = q.get('no'); const r = no ? store.rounds.find((x) => Number(x.number) === Number(no)) : store.rounds.find((x) => x.id === q.get('id')); return r ? reply(200, { round: Object.assign({}, r, { field: r.players }) }) : reply(404, { error: 'unknown round' }); }
     if (path === '/api/nonce') return reply(200, { nonce: 'standalone', message: 'MARBLERUSH standalone: no server, nothing to sign.' });
     if (path === '/api/auth') {
       /* a real wallet's address is taken at its word here: there is no server
@@ -5078,7 +5133,7 @@ window.MR_TYPES = true;
 
   /* ---- screens ----------------------------------------------------------- */
 
-  const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch', 'fair'];
+  const SCREENS = ['home', 'lobby', 'count', 'race', 'results', 'launch', 'fair', 'replay'];
   /* The race fills the window and the dock steps aside for it, so the HUD
      carries its own way back. The race itself keeps running behind the page. */
   function bindBack() {
@@ -5112,7 +5167,7 @@ window.MR_TYPES = true;
     if (name === 'home' || name === 'launch' || name === 'fair') { CAMERA.setMode('idle'); window.scrollTo(0, 0); }
     if (name === 'fair') paintFair();
     if (name === 'launch') paintLaunchFee();
-    else if (name === 'race') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
+    else if (name === 'race' || name === 'replay') CAMERA.setMode(ui.get().cameraMode === 'auto' ? 'auto' : ui.get().cameraMode);
     else CAMERA.setMode('auto');
     if (name !== 'home') window.scrollTo(0, 0);
     applyBackdrop();
@@ -5139,6 +5194,93 @@ window.MR_TYPES = true;
   function playersOf(round) {
     const me = wallet.get().address;
     return round.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name, you: same(p.address, me) }));
+  }
+
+  /* ---- watching a race again, from a link ------------------------------------
+     A finished race is its seed and its field, so anyone with the number can
+     watch exactly the race that happened. Nothing here asks the server for a
+     frame: the same engine the server ran replays it in the page. */
+  let replayFrom = 0, replayEnded = false, replayRound = null;
+
+  const raceLink = (no) => location.origin + location.pathname + '?race=' + pad(no);
+
+  function startReplay(round) {
+    if (round.seed === null || round.seed === undefined) { toast('That race has no seed yet', 'bad'); return false; }
+    const players = playersOf(round);
+    if (!players.length) { toast('That race had nobody in it', 'bad'); return false; }
+    replayRound = round;
+    current = RACE.createRace(round.seed, players.map((p) => ({ id: p.address })), { mode: round.mode });
+    mode = 'replay';
+    replayFrom = performance.now();
+    replayEnded = false;
+    $('#rpCard').hidden = true;
+    $('#rpNo').textContent = 'RACE #' + pad(round.number || 0);
+    if (SCENE.ready) SCENE.setRace(current, players, wallet.get().address);
+    setScreen('replay');
+    return true;
+  }
+
+  function paintReplayHud() {
+    if (!current) return;
+    $('#rpTime').textContent = current.t.toFixed(1) + 's';
+    $('#rpTrack').textContent = modeInfo(current.course.mode).name.toUpperCase() + ' · ' + current.course.sections.length + ' SECTIONS';
+    const balls = [...current.balls].sort((a, b) => {
+      if (a.done && b.done) return a.place - b.place;
+      if (a.done) return -1; if (b.done) return 1;
+      return b.y - a.y;
+    }).slice(0, 8);
+    const board = $('#rpBoard');
+    if (board.children.length !== balls.length) { board.innerHTML = ''; for (let i = 0; i < balls.length; i++) { const li = document.createElement('li'); li.innerHTML = '<span></span><i></i><b></b><span class="t"></span>'; board.appendChild(li); } }
+    balls.forEach((b, i) => {
+      const li = board.children[i];
+      const p = (replayRound && replayRound.field ? null : null) || (playersOf(replayRound).find((x) => same(x.address, b.id)) || {});
+      li.children[0].textContent = (i + 1) + '.';
+      li.children[1].style.background = p.color || '#ff7a1a';
+      li.children[2].textContent = p.name || short(b.id);
+      li.children[3].textContent = b.done ? b.time.toFixed(2) + 's' : '';
+      li.classList.toggle('is-you', same(b.id, wallet.get().address));
+    });
+  }
+
+  function showReplayCard() {
+    const r = replayRound; if (!r) return;
+    const winner = (current.balls.find((b) => b.place === 1) || {}).id || r.winner;
+    $('#rpCardNo').textContent = '#' + pad(r.number || 0);
+    $('#rpCardMode').textContent = modeInfo(r.mode).name.toUpperCase();
+    $('#rpWinner').textContent = winner || '—';
+    $('#rpWinner').title = winner || '';
+    $('#rpPot').textContent = r.pot === null || r.pot === undefined ? '$0.00' : usd(r.pot);
+    $('#rpSecs').textContent = (r.seconds || (current.balls.find((b) => b.place === 1) || {}).time || 0).toFixed(2) + 's';
+    $('#rpField').textContent = String(playersOf(r).length);
+    $('#rpCard').hidden = false;
+  }
+
+  /* Opens the race a link asks for, by number. */
+  async function openRace(no) {
+    try {
+      const d = await fetch('/api/round?no=' + encodeURIComponent(no)).then((x) => x.json());
+      if (d.error || !d.round) { toast('Race #' + pad(no) + ' is not in the log', 'bad'); return false; }
+      const field = (d.round.field || []).map((p) => (typeof p === 'string' ? { address: p } : p));
+      const round = Object.assign({}, d.round, { players: field });
+      return startReplay(round);
+    } catch { toast('Could not load that race', 'bad'); return false; }
+  }
+
+  async function leaveReplay(to) {
+    mode = 'idle';
+    replayRound = null;
+    setScreen(to);
+    history.replaceState(null, '', location.pathname);
+    try { const s = await fetch('/api/state').then((r) => r.json()); onState(s); } catch { /* the stream will catch up */ }
+  }
+
+  function bindReplay() {
+    $('#replayBack').addEventListener('click', () => leaveReplay('home'));
+    $('#rpAgain').addEventListener('click', () => { if (replayRound) startReplay(replayRound); });
+    $('#rpShare').addEventListener('click', () => { if (replayRound) copy(raceLink(replayRound.number), 'Link to this race'); });
+    $('#rpVerify').addEventListener('click', () => { if (replayRound) { setScreen('fair'); const sel = $('#fairPick'); if (sel) { sel.value = replayRound.id; sel.dispatchEvent(new Event('change')); } } });
+    $('#rpJoin').addEventListener('click', () => leaveReplay('lobby'));
+    $('#resShare').addEventListener('click', () => { const r = (game.get().recent || [])[0]; if (r) copy(raceLink(r.number), 'Link to this race'); else toast('No finished race yet', 'bad'); });
   }
 
   function startPreview(round) {
@@ -5201,6 +5343,11 @@ window.MR_TYPES = true;
       const due = (serverNow() - raceStartAt) / 1000;
       let guard = 0;
       while (current.t < due && !current.over && guard++ < 200) RACE.step(current);
+    } else if (mode === 'replay' && current) {
+      const due = (ts - replayFrom) / 1000;
+      let guard = 0;
+      while (current.t < due && !current.over && guard++ < 200) RACE.step(current);
+      if (current.over && !replayEnded) { replayEnded = true; setTimeout(showReplayCard, 900); }
     } else if (mode === 'done' && current) {
       acc += dt; let guard = 0;
       while (acc >= RACE.DT && guard++ < 4) { RACE.step(current); acc -= RACE.DT; }
@@ -5221,6 +5368,7 @@ window.MR_TYPES = true;
     paintClock();
     placeStage();
     if (ui.get().screen === 'race') paintHud();
+    if (ui.get().screen === 'replay') paintReplayHud();
   }
 
   function countdown(cd) {
@@ -5292,6 +5440,11 @@ window.MR_TYPES = true;
     chain.set({ network: c.chain || 'Robinhood Chain', mode: 'demo' });
   }
 
+  /* While a replay is on screen it owns the world: the live round keeps its
+     state up to date but does not take the marbles back until the replay is
+     left, and leaving it resyncs from the server. */
+  const watchingReplay = () => ui.get().screen === 'replay';
+
   function onPhase(round) {
     if (!round) return;
     const prev = game.get().race;
@@ -5307,6 +5460,8 @@ window.MR_TYPES = true;
       /* a new round means a new schedule: the track it races on is now known */
       if (prev) fetch('/api/schedule').then((x) => x.json()).then((sc) => { game.set({ schedule: sc.schedule || [] }); paintRaces(); }).catch(() => {});
     }
+
+    if (watchingReplay()) { paintStatic(); paintLobby(); paintRaces(); paintMode(); paintPoll(); paintModes(); return; }
 
     if (round.phase === 'lobby' || (round.phase === 'locked' && mode !== 'race')) {
       if (fresh || mode === 'idle' || mode === 'done') startPreview(round); else syncPreview(round);
@@ -5371,6 +5526,7 @@ window.MR_TYPES = true;
   function onStart(d) {
     const r = game.get().race;
     if (!r) return;
+    if (watchingReplay()) { r.phase = 'racing'; game.set({ race: r }); return; }
     r.phase = 'racing';
     game.set({ race: r });
     document.body.dataset.phase = 'racing';
@@ -5390,6 +5546,7 @@ window.MR_TYPES = true;
     ui.set({ voted: null });
     document.body.dataset.phase = 'result';
     game.set({ result: d });
+    if (watchingReplay()) { paintStatic(); paintRecent(); return; }
     if (d.winner) { const wp = r && r.players.find((x) => same(x.address, d.winner)); feed({ sys: true, text: 'WINNER · ' + (wp && wp.name ? wp.name + ' · ' : '') + d.winner + (d.pot !== null && d.pot !== undefined ? ' · ' + usd(d.pot) : '') }); }
     paintStatic();
     if (r) drainPot(r);
@@ -5506,7 +5663,7 @@ window.MR_TYPES = true;
     const later = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 120));
     const tick = () => {
       const screen = ui.get().screen;
-      if (screen === 'race' || screen === 'count') { setTimeout(tick, 1500); return; }
+      if (screen === 'race' || screen === 'count' || screen === 'replay') { setTimeout(tick, 1500); return; }
       const next = document.querySelector('.mode__img[data-flat]');
       if (!next || !SCENE.ready || !SCENE.snapshot) { upgrading = false; return; }
       fillPic(next);
@@ -5807,7 +5964,6 @@ window.MR_TYPES = true;
     $('#resYou').hidden = mine < 0;
     if (mine >= 0) { $('#resYouPos').textContent = '#' + (mine + 1) + (mine === 0 ? ' · YOU WON' : ''); if (mine === 0) { SOUND.play('win'); toast('You won! The pot goes to your address.', 'good'); } }
     $('#resAddr').textContent = d.winner || '';
-    $('#resSend').href = 'ethereum:' + (d.winner || '');
     paintResultPaid();
     setScreen('results');
   }
@@ -6119,7 +6275,7 @@ window.MR_TYPES = true;
     if (!SCENE.ready) return;
     const t = THEMES[themeName()];
     const screen = ui.get().screen;
-    const dark = t.dark || screen === 'race' || screen === 'count';
+    const dark = t.dark || screen === 'race' || screen === 'count' || screen === 'replay';
     SCENE.setBackdrop(dark ? 'dark' : 'light', dark ? { sky: '#07070b', apron: '#08080d' } : { sky: t.sky, apron: t.apron });
   }
   function setTheme(name) {
@@ -6195,7 +6351,7 @@ window.MR_TYPES = true;
     /* the dock shows once the home page is scrolled down to the track, and
        always on the other screens */
     const dock = $('#dock');
-    const wantDock = screen !== 'race' && screen !== 'count';
+    const wantDock = screen !== 'race' && screen !== 'count' && screen !== 'replay';
     if (wantDock !== dock.classList.contains('is-shown')) dock.classList.toggle('is-shown', wantDock);
     if (screen === 'home') {
       const st = $('#stage');
@@ -6313,6 +6469,13 @@ window.MR_TYPES = true;
       c[4].textContent = x.pot === null || x.pot === undefined ? '—' : usd(x.pot);
       const st = document.createElement('i'); st.className = 'tag ' + (x.paid ? 'tag--paid' : 'tag--due'); st.textContent = x.paid ? 'PAID' : 'TO PAY';
       c[5].appendChild(st);
+      /* the row is the way back into that race: watch it, or take its link */
+      const acts = document.createElement('span'); acts.className = 'row__acts';
+      const watch = document.createElement('button'); watch.type = 'button'; watch.className = 'row__act'; watch.textContent = 'Watch';
+      watch.addEventListener('click', (e) => { e.stopPropagation(); MR.openRace(x.number); });
+      const link = document.createElement('button'); link.type = 'button'; link.className = 'row__act'; link.textContent = 'Link';
+      link.addEventListener('click', (e) => { e.stopPropagation(); copy(raceLink(x.number), 'Link to this race'); });
+      acts.append(watch, link); c[5].appendChild(acts);
       if (x.winner) row.addEventListener('click', () => copy(x.winner, "Winner's address"));
       host.appendChild(row);
     }
@@ -6683,6 +6846,7 @@ window.MR_TYPES = true;
     loadSkin();
     buildPickers();
     bindBack();
+    bindReplay();
     buildLaunchpad();
     buildFloaters();
     setTheme(themeName());
@@ -6703,12 +6867,18 @@ window.MR_TYPES = true;
     setScreen('home');
     showNotice();
     connectStream();
+    /* a link that names a race opens straight into it */
+    const asked = new URLSearchParams(location.search).get('race');
+    if (asked) {
+      const go = () => openRace(asked.replace(/[^0-9]/g, ''));
+      if (SCENE.ready) go(); else addEventListener('three-ready', () => setTimeout(go, 200), { once: true });
+    }
     requestAnimationFrame(frame);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) lastTs = 0; });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  window.MR = { setScreen, join, vote, openWinners, connectDemo, connectWith, get current() { return current; }, get mode() { return mode; } };
+  window.MR = { setScreen, join, vote, openWinners, connectDemo, connectWith, openRace, raceLink, get current() { return current; }, get mode() { return mode; } };
 })();
 
 </script>

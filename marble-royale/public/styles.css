@@ -57,7 +57,7 @@ html[data-theme="black"] {
   --shadow: 0 30px 80px -40px rgba(0, 0, 0, .9);
 }
 /* The race and the countdown are the dark stage, whatever the theme. */
-body[data-screen="race"], body[data-screen="count"] {
+body[data-screen="race"], body[data-screen="count"], body[data-screen="replay"] {
   --bg: #07070b; --bg2: #0c0c12;
   --glass: rgba(13, 13, 20, .72); --glass2: rgba(20, 20, 30, .78); --soft: rgba(255, 255, 255, .08);
   --line: rgba(255, 255, 255, .08); --line2: rgba(255, 255, 255, .16);
@@ -106,12 +106,12 @@ code { font-family: var(--mono); font-size: .9em; color: var(--goInk); backgroun
   -webkit-mask-image: radial-gradient(ellipse var(--hw) var(--hh) at var(--hx) var(--hy), transparent 0 58%, #000 100%);
   mask-image: radial-gradient(ellipse var(--hw) var(--hh) at var(--hx) var(--hy), transparent 0 58%, #000 100%);
 }
-body[data-screen="race"] .veil, body[data-screen="count"] .veil { opacity: 0; }
+body[data-screen="race"] .veil, body[data-screen="count"] .veil, body[data-screen="replay"] .veil { opacity: 0; }
 .vignette {
   position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .35s ease;
   background: radial-gradient(120% 90% at 50% 40%, transparent 45%, rgba(0, 0, 0, .55) 100%);
 }
-body[data-screen="race"] .vignette, body[data-screen="count"] .vignette { opacity: 1; }
+body[data-screen="race"] .vignette, body[data-screen="count"] .vignette, body[data-screen="replay"] .vignette { opacity: 1; }
 .noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E"); }
 
@@ -196,7 +196,7 @@ body[data-phase="result"] .pill--phase { color: var(--win); border-color: rgba(1
   background: var(--glass); border: 1px solid var(--line); border-radius: var(--r);
   box-shadow: var(--shadow);
 }
-body[data-screen="race"] .glass, body[data-screen="count"] .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+body[data-screen="race"] .glass, body[data-screen="count"] .glass, body[data-screen="replay"] .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .kicker { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .2em; font-weight: 700; color: var(--go); }
 .kicker--plain { color: var(--go); margin-bottom: 8px; }
 
@@ -569,10 +569,10 @@ body[data-phase="locked"] .stat--clock b.big { color: var(--gold); }
 .dock { opacity: 0; pointer-events: none; transform: translate(-28px, -50%); }
 .dock.is-shown { opacity: 1; pointer-events: auto; transform: translateY(-50%); animation: dockin .6s cubic-bezier(.2, .9, .3, 1) both; }
 @keyframes dockin { from { transform: translate(-40px, -50%); opacity: 0; } to { transform: translateY(-50%); opacity: 1; } }
-body[data-screen="race"] .dock, body[data-screen="count"] .dock { opacity: 0 !important; pointer-events: none !important; transform: translate(-20px, -50%) !important; animation: none !important; }
+body[data-screen="race"] .dock, body[data-screen="count"] .dock, body[data-screen="replay"] .dock { opacity: 0 !important; pointer-events: none !important; transform: translate(-20px, -50%) !important; animation: none !important; }
 /* once the page is scrolled the top bar steps away: the dock has it all */
 .top { transition: opacity .25s ease, transform .25s ease; }
-body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top { opacity: 0; transform: translateY(-16px); pointer-events: none; }
+body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]):not([data-screen="replay"]) .top { opacity: 0; transform: translateY(-16px); pointer-events: none; }
 body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top > * { pointer-events: none; }
 .dock__brand { display: grid; place-items: center; padding: 6px 0 2px; }
 .dock__brand .brand__mark { width: 28px; height: 28px; }
@@ -759,9 +759,9 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
   .dock { left: 50%; top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); flex-direction: row; width: auto; max-width: calc(100vw - 20px); gap: 0; padding: 4px; border-radius: 999px; max-height: none; }
   .dock { transform: translate(-50%, 20px); }
   .dock.is-shown { transform: translateX(-50%); animation: none; }
-  body[data-screen="race"] .dock, body[data-screen="count"] .dock { transform: translate(-50%, 20px) !important; }
+  body[data-screen="race"] .dock, body[data-screen="count"] .dock, body[data-screen="replay"] .dock { transform: translate(-50%, 20px) !important; }
   .dock__brand, .dock__race, .dock__themes { display: none; }
-  body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top { opacity: 1; transform: none; pointer-events: auto; }
+  body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]):not([data-screen="replay"]) .top { opacity: 1; transform: none; pointer-events: auto; }
   body.is-scrolled:not([data-screen="race"]):not([data-screen="count"]) .top > * { pointer-events: auto; }
   .dock__it { padding: 6px 8px; font-size: 10px; border-radius: 999px; }
   .dock__it em { display: none; }
@@ -841,3 +841,25 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .addlaunch__head { display: grid; gap: 4px; }
 .addlaunch__row { display: flex; gap: 8px; flex-wrap: wrap; }
 .addlaunch__row input { flex: 1 1 320px; min-width: 0; padding: 11px 13px; border-radius: 12px; background: var(--glass2); border: 1px solid var(--line); color: var(--ink); font-size: 13px; }
+
+/* watching a race again, from a link */
+.pill--replay { color: var(--go); border-color: color-mix(in srgb, var(--go) 45%, transparent); }
+.screen--replay .hud--tl { gap: 8px; }
+.replay__card {
+  position: absolute; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  display: grid; gap: 12px; padding: 18px 22px; border-radius: var(--r); width: min(560px, calc(100vw - 32px));
+  pointer-events: auto; animation: fadeup .5s ease both;
+}
+.replay__win { display: grid; gap: 3px; }
+.replay__win em { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
+.replay__win b { font-size: 14px; word-break: break-all; }
+.replay__facts { display: flex; gap: 22px; flex-wrap: wrap; }
+.replay__facts em { font-style: normal; display: block; font-size: 9.5px; letter-spacing: .16em; color: var(--dim); }
+.replay__facts b { font-size: 16px; }
+.replay__acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.replay__acts .btn { flex: 1 1 auto; justify-content: center; font-size: 13px; padding: 9px 14px; }
+.row__acts { display: inline-flex; gap: 6px; margin-left: 10px; }
+.row__act { background: var(--glass2); border: 1px solid var(--line); color: var(--ink2); border-radius: 999px; padding: 3px 10px; font-size: 10.5px; font-family: var(--disp); cursor: pointer; }
+.row__act:hover { background: var(--soft); color: var(--ink); }
+.btn--share { margin-left: 10px; font-size: 12.5px; padding: 7px 14px; }
+.btn--share .ic { width: 13px; height: 13px; fill: currentColor; stroke: none; }

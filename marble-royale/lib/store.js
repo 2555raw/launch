@@ -60,7 +60,10 @@ function addRound(round) {
     s.wins++;
     state.stats[round.winner] = s;
   }
-  for (const addr of round.players || []) {
+  /* a field is a list of players now and was a list of addresses before */
+  for (const p of round.players || []) {
+    const addr = typeof p === 'string' ? p : p && p.address;
+    if (!addr) continue;
     const s = state.stats[addr] || { wins: 0, races: 0 };
     s.races++;
     state.stats[addr] = s;
@@ -69,6 +72,8 @@ function addRound(round) {
 }
 
 const findRound = (id) => state.rounds.find((r) => r.id === id) || null;
+/* Race numbers are what people read and share, so a round can be found by one. */
+const findByNumber = (n) => state.rounds.find((r) => Number(r.number) === Number(n)) || null;
 
 /* Rounds are numbered for people - RACE #0248 - and the number only ever
    goes up, whatever happens to the file of results. */
@@ -143,4 +148,4 @@ function addLaunch(l) {
 }
 function launches(n) { return (state.launches || []).slice(0, n || 24); }
 
-module.exports = { settings, setSettings, addLaunch, launches, load, save, addRound, findRound, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };
+module.exports = { settings, setSettings, addLaunch, launches, load, save, addRound, findRound, findByNumber, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };

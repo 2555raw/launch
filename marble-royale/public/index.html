@@ -309,6 +309,39 @@
     <div class="hud hud--track mono" id="hudTrack"></div>
   </section>
 
+  <!-- ---------- REPLAY ---------- -->
+  <section class="screen screen--race screen--replay" id="s-replay" hidden>
+    <div class="hud hud--tl">
+      <button class="hud__back" id="replayBack" type="button" title="Back to the site"><svg class="ic"><use href="#i-arrow"/></svg><span>Back</span></button>
+      <span class="mono" id="rpNo">RACE #----</span>
+      <span class="pill pill--replay">REPLAY</span>
+      <span class="mono dim" id="rpTime">00.0</span>
+    </div>
+    <ol class="hud hud--board mono" id="rpBoard"></ol>
+    <div class="hud hud--cam">
+      <button class="cam is-on" data-cam="auto">AUTO</button>
+      <button class="cam" data-cam="follow">LEADER</button>
+      <button class="cam" data-cam="battle">BATTLE</button>
+      <button class="cam" data-cam="finish">FINISH</button>
+    </div>
+    <div class="hud hud--track mono" id="rpTrack"></div>
+    <div class="replay__card glass" id="rpCard" hidden>
+      <span class="kicker kicker--plain">RACE <b id="rpCardNo">#----</b> · <span id="rpCardMode">CLASSIC</span></span>
+      <div class="replay__win"><em>WON BY</em><b class="mono" id="rpWinner"></b></div>
+      <div class="replay__facts mono">
+        <div><em>POT</em><b class="gold" id="rpPot">$0.00</b></div>
+        <div><em>TIME</em><b id="rpSecs">0.00s</b></div>
+        <div><em>FIELD</em><b id="rpField">0</b></div>
+      </div>
+      <div class="replay__acts">
+        <button class="btn btn--accent" type="button" id="rpAgain">Watch again</button>
+        <button class="btn btn--glass" type="button" id="rpShare">Copy link</button>
+        <button class="btn btn--glass" type="button" id="rpVerify">Verify this race</button>
+        <button class="btn btn--soft" type="button" id="rpJoin">Join the next race</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ---------- RESULTS ---------- -->
   <section class="screen screen--results" id="s-results" hidden>
     <div class="results glass">
@@ -321,9 +354,9 @@
         <button class="addr mono" id="resAddr" title="copy"></button>
         <div class="results__payrow">
           <button class="btn btn--glass" id="resCopy">Copy address</button>
-          <a class="btn btn--accent" id="resSend" href="#" target="_blank" rel="noopener">Send from my wallet</a>
         </div>
         <span class="results__paid mono" id="resPaid" hidden></span>
+        <button class="btn btn--glass btn--share" type="button" id="resShare"><svg class="ic"><use href="#i-x"/></svg> Share this race</button>
         <span class="dim small">The creator sends the whole pot to first place. <a href="#" data-go="fair" data-verify-last>Verify this race</a>.</span>
       </div>
       <div class="poll" id="poll" hidden>

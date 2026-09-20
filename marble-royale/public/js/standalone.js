@@ -90,7 +90,7 @@
   function result() {
     if (!round || round.phase !== 'racing') return;
     round.phase = 'result';
-    store.rounds.unshift({ id: round.id, number: round.number, startAt: round.startAt, winner: round.winner, pot: round.pot, players: round.players.map((p) => p.address), order: round.order.slice(0, 20), seconds: round.seconds, seed: round.seed, commit: round.commit, secret: round.secret, mega: round.mega, mode: round.mode, paid: false, tx: '' });
+    store.rounds.unshift({ id: round.id, number: round.number, startAt: round.startAt, winner: round.winner, pot: round.pot, players: round.players.map((p) => ({ address: p.address, color: p.color, face: p.face, material: p.material, name: p.name || "" })), order: round.order.slice(0, 20), seconds: round.seconds, seed: round.seed, commit: round.commit, secret: round.secret, mega: round.mega, mode: round.mode, paid: false, tx: '' });
     openPoll();
     emit('result', { roundId: round.id, number: round.number, winner: round.winner, pot: round.pot, seconds: round.seconds, order: round.order.slice(0, 10), secret: round.secret, commit: round.commit, seed: round.seed, mega: round.mega, mode: round.mode, poll: pubPoll() });
     at(round.endAt, close);
@@ -174,7 +174,7 @@
     if (path === '/api/state') return reply(200, snapshot());
     if (path === '/api/schedule') return reply(200, { now: now(), schedule: schedule() });
     if (path === '/api/history') return reply(200, { rounds: store.rounds.slice(0, 50), top: [], rewards: [], paidTotal: 0 });
-    if (path === '/api/round') { const r = store.rounds.find((x) => x.id === q.get('id')); return r ? reply(200, { round: Object.assign({}, r, { field: r.players }) }) : reply(404, { error: 'unknown round' }); }
+    if (path === '/api/round') { const no = q.get('no'); const r = no ? store.rounds.find((x) => Number(x.number) === Number(no)) : store.rounds.find((x) => x.id === q.get('id')); return r ? reply(200, { round: Object.assign({}, r, { field: r.players }) }) : reply(404, { error: 'unknown round' }); }
     if (path === '/api/nonce') return reply(200, { nonce: 'standalone', message: 'MARBLERUSH standalone: no server, nothing to sign.' });
     if (path === '/api/auth') {
       /* a real wallet's address is taken at its word here: there is no server

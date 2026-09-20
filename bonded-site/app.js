@@ -37,18 +37,18 @@
      `color` is the fish; tickers, never logos.
      ===================================================================== */
   const STOCKS = [
-    { sym: 'NVDA',  name: 'NVIDIA',      price: 178.20, z: 1,  color: '#5FB53A' },
-    { sym: 'TSLA',  name: 'Tesla',       price: 412.85, z: 2,  color: '#D8352E' },
-    { sym: 'AAPL',  name: 'Apple',       price: 236.10, z: 3,  color: '#7A8794' },
-    { sym: 'MSFT',  name: 'Microsoft',   price: 512.40, z: 4,  color: '#2F7FD8' },
-    { sym: 'AMZN',  name: 'Amazon',      price: 231.60, z: 5,  color: '#F0962A' },
-    { sym: 'GOOGL', name: 'Alphabet',    price: 244.30, z: 6,  color: '#E8B43A' },
-    { sym: 'META',  name: 'Meta',        price: 744.90, z: 7,  color: '#1F6FEA' },
-    { sym: 'SPY',   name: 'S&P 500 ETF', price: 661.20, z: 8,  color: '#28496B' },
-    { sym: 'COIN',  name: 'Coinbase',    price: 318.70, z: 9,  color: '#3C5BF5' },
-    { sym: 'HOOD',  name: 'Robinhood',   price: 118.40, z: 10, color: '#1FBF6C' },
-    { sym: 'MSTR',  name: 'Strategy',    price: 341.20, z: 11, color: '#E3622A' },
-    { sym: 'PLTR',  name: 'Palantir',    price: 172.30, z: 12, color: '#3A3F4A' },
+    { sym: 'NVDA',  name: 'NVIDIA',      price: 178.20, z: 1,  color: '#76B900' },
+    { sym: 'TSLA',  name: 'Tesla',       price: 412.85, z: 2,  color: '#CC0000' },
+    { sym: 'AAPL',  name: 'Apple',       price: 236.10, z: 3,  color: '#A3ADB8' },
+    { sym: 'MSFT',  name: 'Microsoft',   price: 512.40, z: 4,  color: '#0078D4' },
+    { sym: 'AMZN',  name: 'Amazon',      price: 231.60, z: 5,  color: '#FF9900' },
+    { sym: 'GOOGL', name: 'Alphabet',    price: 244.30, z: 6,  color: '#4285F4' },
+    { sym: 'META',  name: 'Meta',        price: 744.90, z: 7,  color: '#0467DF' },
+    { sym: 'SPY',   name: 'S&P 500 ETF', price: 661.20, z: 8,  color: '#1F3A5F' },
+    { sym: 'COIN',  name: 'Coinbase',    price: 318.70, z: 9,  color: '#0052FF' },
+    { sym: 'HOOD',  name: 'Robinhood',   price: 118.40, z: 10, color: '#CCFF00' },
+    { sym: 'MSTR',  name: 'Strategy',    price: 341.20, z: 11, color: '#D9232E' },
+    { sym: 'PLTR',  name: 'Palantir',    price: 172.30, z: 12, color: '#2B2F36' },
   ];
 
   // name, ticker, stock, market cap USD, 24h volume USD, 24h change %, holders, age hours, one line
@@ -72,6 +72,21 @@
     ['Azure Sky',          'AZURE', 'MSFT',  350_000,   73_000,    -1.4,  510,  27,  'Cloud coverage, all day.'],
     ['Two Day Shipping',   'SHIP',  'AMZN',  1_260_000, 356_000,   8.8,   1920, 44,  'It arrives before you remember ordering it.'],
   ];
+  const LOGOS = {
+    NVDA: { fill: '#76B900', svg: '<path d="M8.948 8.798v-1.43a6.7 6.7 0 0 1 .424-.018c3.922-.124 6.493 3.374 6.493 3.374s-2.774 3.851-5.75 3.851c-.398 0-.787-.062-1.158-.185v-4.346c1.528.185 1.837.857 2.747 2.385l2.04-1.714s-1.492-1.952-4-1.952a6.016 6.016 0 0 0-.796.035m0-4.735v2.138l.424-.027c5.45-.185 9.01 4.47 9.01 4.47s-4.08 4.964-8.33 4.964c-.37 0-.733-.035-1.095-.097v1.325c.3.035.61.062.91.062 3.957 0 6.82-2.023 9.593-4.408.459.371 2.34 1.263 2.73 1.652-2.633 2.208-8.772 3.984-12.253 3.984-.335 0-.653-.018-.971-.053v1.864H24V4.063zm0 10.326v1.131c-3.657-.654-4.673-4.46-4.673-4.46s1.758-1.944 4.673-2.262v1.237H8.94c-1.528-.186-2.73 1.245-2.73 1.245s.68 2.412 2.739 3.11M2.456 10.9s2.164-3.197 6.5-3.533V6.201C4.153 6.59 0 10.653 0 10.653s2.35 6.802 8.948 7.42v-1.237c-4.84-.6-6.492-5.936-6.492-5.936z"/>' },
+    TSLA: { fill: '#CC0000', svg: '<path d="M12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438-.146-1.439-1.154-1.79-4.354-1.79L12 24 8.619 5.034c-3.18 0-4.188.354-4.335 1.792 0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34L12 5.362l-.004.002H12v-.002zm0-3.899c3.415-.03 7.326.528 11.328 2.28.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0 8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46v.003z"/>' },
+    AAPL: { fill: '#111111', svg: '<path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>' },
+    GOOGL: { fill: '#4285F4', svg: '<path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>' },
+    META: { fill: '#0467DF', svg: '<path d="M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a6.624 6.624 0 0 0 .265.86 5.297 5.297 0 0 0 .371.761c.696 1.159 1.818 1.927 3.593 1.927 1.497 0 2.633-.671 3.965-2.444.76-1.012 1.144-1.626 2.663-4.32l.756-1.339.186-.325c.061.1.121.196.183.3l2.152 3.595c.724 1.21 1.665 2.556 2.47 3.314 1.046.987 1.992 1.22 3.06 1.22 1.075 0 1.876-.355 2.455-.843a3.743 3.743 0 0 0 .81-.973c.542-.939.861-2.127.861-3.745 0-2.72-.681-5.357-2.084-7.45-1.282-1.912-2.957-2.93-4.716-2.93-1.047 0-2.088.467-3.053 1.308-.652.57-1.257 1.29-1.82 2.05-.69-.875-1.335-1.547-1.958-2.056-1.182-.966-2.315-1.303-3.454-1.303zm10.16 2.053c1.147 0 2.188.758 2.992 1.999 1.132 1.748 1.647 4.195 1.647 6.4 0 1.548-.368 2.9-1.839 2.9-.58 0-1.027-.23-1.664-1.004-.496-.601-1.343-1.878-2.832-4.358l-.617-1.028a44.908 44.908 0 0 0-1.255-1.98c.07-.109.141-.224.211-.327 1.12-1.667 2.118-2.602 3.358-2.602zm-10.201.553c1.265 0 2.058.791 2.675 1.446.307.327.737.871 1.234 1.579l-1.02 1.566c-.757 1.163-1.882 3.017-2.837 4.338-1.191 1.649-1.81 1.817-2.486 1.817-.524 0-1.038-.237-1.383-.794-.263-.426-.464-1.13-.464-2.046 0-2.221.63-4.535 1.66-6.088.454-.687.964-1.226 1.533-1.533a2.264 2.264 0 0 1 1.088-.285z"/>' },
+    COIN: { fill: '#0052FF', svg: '<path d="M4.844 11.053c-.872 0-1.553.662-1.553 1.548s.664 1.542 1.553 1.542c.889 0 1.564-.667 1.564-1.547 0-.875-.664-1.543-1.564-1.543zm.006 2.452c-.497 0-.86-.386-.86-.904 0-.523.357-.909.854-.909.502 0 .866.392.866.91 0 .517-.364.903-.86.903zm1.749-1.778h.433v2.36h.693V11.11H6.599zm-5.052-.035c.364 0 .653.224.762.558h.734c-.133-.713-.722-1.197-1.49-1.197-.872 0-1.553.662-1.553 1.548 0 .887.664 1.543 1.553 1.543.75 0 1.351-.484 1.484-1.203h-.728a.78.78 0 01-.756.564c-.502 0-.855-.386-.855-.904 0-.523.347-.909.85-.909zm18.215.622l-.508-.075c-.242-.035-.415-.115-.415-.305 0-.207.225-.31.53-.31.336 0 .55.143.595.379h.67c-.075-.599-.537-.95-1.247-.95-.733 0-1.218.375-1.218.904 0 .506.317.8.958.892l.508.075c.249.034.387.132.387.316 0 .236-.242.334-.577.334-.41 0-.641-.167-.676-.42h-.681c.064.581.52.99 1.35.99.757 0 1.26-.346 1.26-.938 0-.53-.364-.806-.936-.892zM7.378 9.885a.429.429 0 00-.444.437c0 .254.19.438.444.438a.429.429 0 00.445-.438.429.429 0 00-.445-.437zm10.167 2.245c0-.645-.392-1.076-1.224-1.076-.785 0-1.224.397-1.31 1.007h.687c.035-.236.22-.432.612-.432.352 0 .525.155.525.345 0 .248-.317.311-.71.351-.531.058-1.19.242-1.19.933 0 .535.4.88 1.034.88.497 0 .809-.207.965-.535.023.293.242.483.548.483h.404v-.616h-.34v-1.34zm-.68.748c0 .397-.347.69-.769.69-.26 0-.48-.11-.48-.34 0-.293.353-.373.676-.408.312-.028.485-.097.572-.23zm-3.679-1.825c-.386 0-.71.162-.94.432V9.856h-.693v4.23h.68v-.391c.232.282.56.449.953.449.832 0 1.461-.656 1.461-1.543 0-.886-.64-1.548-1.46-1.548zm-.103 2.452c-.497 0-.86-.386-.86-.904 0-.517.369-.909.865-.909.503 0 .855.386.855.91 0 .517-.364.903-.86.903zm-3.187-2.452c-.45 0-.745.184-.919.443v-.385H8.29v2.975h.693v-1.617c0-.455.289-.777.716-.777.398 0 .647.282.647.69v1.704h.692v-1.755c0-.748-.386-1.278-1.142-1.278zM24 12.503c0-.851-.624-1.45-1.46-1.45-.89 0-1.542.668-1.542 1.548 0 .927.698 1.543 1.553 1.543.722 0 1.287-.426 1.432-1.03h-.722c-.104.264-.358.414-.699.414-.445 0-.78-.276-.854-.76H24v-.264zm-2.252-.23c.11-.414.422-.615.78-.615.392 0 .693.224.762.615Z"/>' },
+    HOOD: { fill: '#1B1F14', svg: '<path d="M2.84 24h.53c.096 0 .192-.048.224-.128C7.591 13.696 11.94 8.656 14.67 5.638c.112-.128.064-.225-.096-.225h-4.88a.55.55 0 0 0-.45.225L5.746 9.972c-.514.642-.642 1.236-.642 2.086v4.43c-1.14 3.194-1.862 5.361-2.392 7.32-.032.125.016.192.129.192M20.447.646c-.754-.802-4.157-.834-5.73-.224a3 3 0 0 0-.786.465 41 41 0 0 0-3.323 3.178c-.112.113-.064.225.097.225h5.409c.497 0 .786.289.786.786v6.1c0 .16.128.208.225.064l3.258-4.254c.53-.69.69-.898.835-1.861.192-1.413.08-3.58-.77-4.479m-6.982 16.18 2.231-3.676a.7.7 0 0 0 .064-.29V6.73c0-.16-.112-.225-.224-.097-3.355 3.74-5.971 7.672-8.395 12.407-.06.12.016.225.16.177l5.009-1.54c.565-.174.882-.402 1.155-.852"/>' },
+    PLTR: { fill: '#101113', svg: '<path d="M20.147 18L12 21.178 3.853 18 2.5 20.343 12 24l9.5-3.657L20.147 18zM12 0a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zm0 16.078a6.568 6.568 0 1 1 0-13.136 6.568 6.568 0 0 1 0 13.136z"/>' },
+    MSTR: { fill: '#D9232E', svg: '<path d="M9.095 2.572h5.827v18.856H9.096zM0 2.572h5.825v18.856H.001zm18.174 0v18.854H24V8.33z"/>' },
+    AMZN: { fill: '#111111', svg: '<text x="12" y="15" font-family="Arial Black, Arial, sans-serif" font-size="17" font-weight="900" text-anchor="middle" fill="#111">a</text><path d="M3.2 16.6c4.6 3.6 12 3.9 17.6.6" fill="none" stroke="#FF9900" stroke-width="2.2" stroke-linecap="round"/><path d="M19.4 16.2l2.2 1.1-2.4.9" fill="none" stroke="#FF9900" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' },
+    MSFT: { fill: '#0078D4', svg: '<rect x="1.5" y="1.5" width="10" height="10" fill="#F25022"/><rect x="12.5" y="1.5" width="10" height="10" fill="#7FBA00"/><rect x="1.5" y="12.5" width="10" height="10" fill="#00A4EF"/><rect x="12.5" y="12.5" width="10" height="10" fill="#FFB900"/>' },
+    SPY: { fill: '#B22222', svg: '<text x="12" y="15.5" font-family="Inter, Arial, sans-serif" font-size="10.5" font-weight="800" text-anchor="middle" fill="#B22222">S&amp;P</text>' },
+  };
+
   const WORDS_A = ['Turbo', 'Quiet', 'Golden', 'Night', 'Pocket', 'Orbital', 'Velvet', 'Lucky', 'Deep', 'Paper'];
   const WORDS_B = ['Margin', 'Dividend', 'Quarter', 'Rally', 'Ticker', 'Halving', 'Guidance', 'Buyback', 'Beta', 'Float'];
 
@@ -401,16 +416,28 @@
     const scene = $('#scene'), pondEl = $('#pond'), label = $('#fish-label'), hero = $('#hero');
     if (!scene) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const FISH_SVG = (s) => `<svg viewBox="-2 -6 104 68" aria-hidden="true">
-      <path class="bd-fish-fin" d="M16 28 L0 8 L7 28 L0 48 Z"/>
-      <path class="bd-fish-fin" d="M38 10 Q52 -6 68 10 Z"/>
-      <path class="bd-fish-fin" d="M46 46 Q56 58 66 46 Z"/>
-      <ellipse class="bd-fish-body" cx="52" cy="28" rx="40" ry="20"/>
-      <path class="bd-fish-shade" d="M18 34 Q52 54 88 32 Q58 46 18 34 Z"/>
-      <ellipse class="bd-fish-light" cx="46" cy="19" rx="22" ry="6"/>
-      <circle class="bd-fish-eye" cx="80" cy="24" r="4.6"/><circle class="bd-fish-pupil" cx="81.5" cy="24" r="2.3"/>
-      <text x="50" y="29" class="bd-fish-sym">${s.sym}</text>
-    </svg>`;
+    const FISH_SVG = (s) => {
+      const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
+      return `<svg viewBox="-4 -8 128 80" aria-hidden="true">
+        <g class="bd-fish-tail">
+          <path class="bd-fish-fin" d="M26 32 C16 22, 8 12, 0 6 C7 18, 7 46, 0 58 C8 52, 16 42, 26 32 Z"/>
+          <path class="bd-fish-finline" d="M5 12 L20 29 M5 52 L20 35 M4 32 L18 32"/>
+        </g>
+        <path class="bd-fish-fin" d="M44 15 C54 -2, 80 -2, 96 15 Z"/>
+        <path class="bd-fish-finline" d="M56 12 L58 3 M68 11 L70 1 M82 12 L86 4"/>
+        <path class="bd-fish-fin" d="M52 50 C58 61, 74 62, 84 51 Z"/>
+        <ellipse class="bd-fish-body" cx="66" cy="32" rx="46" ry="21"/>
+        <ellipse class="bd-fish-scales" cx="66" cy="32" rx="46" ry="21"/>
+        <path class="bd-fish-belly" d="M24 38 C40 54, 94 54, 110 36 C94 44, 40 44, 24 38 Z"/>
+        <path class="bd-fish-shade" d="M22 40 C42 56, 96 56, 112 38 C98 50, 40 50, 22 40 Z"/>
+        <ellipse class="bd-fish-light" cx="58" cy="21" rx="30" ry="6"/>
+        <path class="bd-fish-pect bd-fish-fin" d="M64 38 C70 48, 84 50, 90 41 C82 41, 72 39, 64 38 Z"/>
+        <path class="bd-fish-gill" d="M93 19 C86 27, 86 37, 93 45"/>
+        <circle class="bd-fish-eye" cx="100" cy="27" r="5.2"/><circle class="bd-fish-pupil" cx="101.2" cy="27" r="2.8"/><circle cx="99.3" cy="25.4" r="1.2" fill="#fff"/>
+        <path d="M109 35 q3 .5 2.6 3" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.4" stroke-linecap="round"/>
+        <g class="bd-fish-badge" transform="translate(46 13)"><circle cx="19" cy="19" r="19" fill="#fff"/><g transform="translate(6.5 6.5) scale(1.04)" fill="${logo.fill}">${logo.svg}</g></g>
+      </svg>`;
+    };
 
     let W = 0, H = 0, bands = [], surfaceY = 0, paused = false, running = true, selected = null, hovered = null;
     const fish = STOCKS.map((s, i) => {
@@ -425,7 +452,7 @@
       W = scene.clientWidth; H = scene.clientHeight;
       bands = $$('[data-fall]', scene).map(el => ({ x0: el.offsetLeft, x1: el.offsetLeft + el.offsetWidth }));
       surfaceY = pondEl.offsetTop + 26;
-      const base = clamp(W / 14, 66, 104);
+      const base = clamp(W / 10.5, 84, 150);
       fish.forEach(f => { f.size = base * (0.85 + ((f.i * 7) % 5) * 0.08); f.w = f.size; f.h = f.size * 0.62; });
     };
     const bandX = f => { const b = bands[f.i % bands.length] || { x0: W * .1, x1: W * .3 }; return b.x0 + Math.random() * Math.max(10, b.x1 - b.x0 - f.w); };
@@ -437,7 +464,7 @@
       f.y = clamp(f.y, surfaceY + 6, H - f.h - 58);
     };
     const splash = (x, y) => {
-      const r = document.createElement('i'); r.className = 'bd-ripple'; r.style.left = x + 'px'; r.style.top = y + 'px'; scene.appendChild(r); setTimeout(() => r.remove(), 1200);
+      for (let k = 0; k < 2; k++) { const r = document.createElement('i'); r.className = 'bd-ripple'; r.style.left = x + 'px'; r.style.top = y + 'px'; r.style.animationDelay = (k * .18) + 's'; scene.appendChild(r); setTimeout(() => r.remove(), 1600); }
       for (let k = 0; k < 7; k++) {
         const d = document.createElement('i'); d.className = 'bd-splash'; d.style.left = x + 'px'; d.style.top = y + 'px';
         d.style.setProperty('--dx', ((Math.random() - .5) * 70) + 'px'); d.style.setProperty('--dy', (-30 - Math.random() * 50) + 'px');
@@ -456,7 +483,7 @@
       f.el.style.setProperty('--x', f.x.toFixed(1) + 'px'); f.el.style.setProperty('--y', f.y.toFixed(1) + 'px');
       f.el.style.setProperty('--rot', f.rot.toFixed(1) + 'deg'); f.el.style.setProperty('--face', f.face); f.el.style.setProperty('--op', f.op);
       f.el.style.setProperty('--s', f.w + 'px');
-      f.el.classList.toggle('is-swim', f.state === 'swim');
+      f.el.classList.toggle('is-swim', f.state === 'swim'); f.el.classList.toggle('is-fall', f.state === 'fall');
     };
     const placeLabel = f => {
       if (!f) { label.classList.remove('is-on'); return; }
@@ -539,7 +566,7 @@
     const motionBtn = $('#motion');
     motionBtn?.addEventListener('click', () => {
       paused = !paused; motionBtn.textContent = paused ? 'Resume motion' : 'Pause motion';
-      $$('[data-fall]', scene).forEach(el => el.classList.toggle('is-paused', paused)); pondEl.classList.toggle('is-paused', paused);
+      scene.classList.toggle('is-paused', paused);
     });
     $('#reset')?.addEventListener('click', () => { selected = null; fish.forEach(o => o.el.classList.remove('is-bonded')); placeLabel(null); init(); $$('[data-hero-stock-name]').forEach(el => el.textContent = 'NVIDIA'); const l = $('#hero-launch'); if (l) l.href = 'launch.html'; });
 
@@ -549,6 +576,13 @@
     document.addEventListener('visibilitychange', () => { if (!document.hidden && !running) { running = true; last = performance.now(); requestAnimationFrame(step); } });
     addEventListener('resize', () => { const oldW = W; measure(); fish.forEach(f => { f.x = f.x / (oldW || W) * W; render(f); }); });
 
+    // the pond is never still: a soft ring somewhere every second or so
+    if (!reduced) setInterval(() => {
+      if (paused || !running || document.hidden) return;
+      const r = document.createElement('i'); r.className = 'bd-ring';
+      r.style.left = (W * (.06 + Math.random() * .88)) + 'px'; r.style.top = (surfaceY + 10 + Math.random() * Math.max(10, H - surfaceY - 80)) + 'px';
+      scene.appendChild(r); setTimeout(() => r.remove(), 2700);
+    }, 1100);
     init();
     if (!reduced) requestAnimationFrame(step);
     return { select: sym => { const f = fish.find(o => o.s.sym === sym); if (f) select(f); } };

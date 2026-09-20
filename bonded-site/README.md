@@ -44,8 +44,10 @@ The layout is the one that works for this category: a huge centred headline, one
 the contract address under it, two floating navigation pills, and a scene around the copy that
 people can play with. The scene is where Bonded differs.
 
-**Fish instead of balloons.** Each tokenized stock is a fish, in its own colour, with its ticker on
-its side. Two waterfalls run down the sides of the hero into a pond along the bottom. A fish falls
+**Fish instead of balloons.** Each tokenized stock is a fish, in its company's colour, with the
+company's logo on its side. Behind it: a sky with sun rays and drifting clouds, two cliffs, and the
+water itself in layers (a sheet, two speeds of streaks, a lip at the top, mist and spray where it
+lands), warped by an SVG turbulence filter so it never repeats exactly. Two waterfalls run down the sides of the hero into a pond along the bottom. A fish falls
 down one of the falls, lands with a splash, swims slowly for about six seconds, sinks, and comes
 back over the top to fall again. Grab one with the mouse or a finger: drop it in the pond and it
 swims, drop it in the air and it falls. Click one and the headline reprices in that stock and the
@@ -63,8 +65,12 @@ A pale sky, always. (A dark token set is kept in the stylesheet under `html[data
 - **Ion cyan `#5DE1FF` is the new token**: the token side, "new" badges, links, the active step.
 - The primary button is ink, like the reference sites.
 - Green and red are reserved for market direction and for Buy / Sell.
-- Each fish carries a colour that reads as its company without using its logo. Tickers are not
-  trademarks; logos are.
+- Each fish is painted in its company's colour (NVIDIA green, Tesla red, Amazon orange, Robinhood
+  lime, and so on) and carries the company's real logo on a white badge. Nine of the marks come from
+  the `simple-icons` package, embedded as paths in `LOGOS` in `app.js`; Amazon, Microsoft and the
+  S&P are drawn by hand there. **These are registered trademarks.** Using them on a launchpad is a
+  choice the owner of the site makes, not the site; swap a badge for its ticker by deleting its
+  `LOGOS` entry.
 
 | Token | Light | Dark (unused) | Role |
 | --- | --- | --- | --- |

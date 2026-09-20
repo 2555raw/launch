@@ -40,7 +40,9 @@ http.createServer((req, res) => {
     }
     res.writeHead(200, {
       'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream',
-      'cache-control': path.extname(file) === '.html' ? 'no-cache' : 'public, max-age=3600'
+      /* the page, its styles and its script are revalidated on every load, so a
+         deploy is live the moment it lands; pictures and fonts keep their cache */
+      'cache-control': ['.html', '.css', '.js'].includes(path.extname(file)) ? 'no-cache' : 'public, max-age=3600'
     });
     res.end(body);
   });

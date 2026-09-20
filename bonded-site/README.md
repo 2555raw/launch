@@ -23,9 +23,13 @@ playground.html  My playground: your launches, creator fees, and your positions
 docs.html        the docs: bonds, launching, trading, fees, what is locked, contracts, integrate
 styles.css       the design system (palette, type, layout, the scene) and the responsive rules
 app.js           CONFIG, sample data, the adapter, the falls, and the behaviour of every page
-server.js        a dependency-free static server for Railway (PORT, /health, extensionless paths)
+server.js        a dependency-free static server for Railway (PORT, /health, extensionless paths,
+                 no-cache on html/css/js so a deploy is live at once)
 package.json     the start script Railway runs
 ```
+
+The pages load `styles.css?v=N` and `app.js?v=N`. Bump `N` in all eight pages when you change
+either file, so browsers that cached the old copy pick up the new one.
 
 ## Run it
 

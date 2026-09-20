@@ -17,7 +17,7 @@ let html = read('index.html');
 /* the publish skeleton supplies doctype, html, head and body */
 html = html.replace(/^<!doctype html>\s*<html[^>]*>\s*<head>/i, '').replace(/<\/head>\s*<body([^>]*)>/i, '<div$1 id="bodyattrs" hidden></div>').replace(/<\/body>\s*<\/html>\s*$/i, '');
 html = html.replace(/<meta charset="utf-8">\s*/i, '').replace(/<meta name="viewport"[^>]*>\s*/i, '');
-html = html.replace(/<link rel="icon"[^>]*>\s*/i, '');
+html = html.replace(/<link rel="icon"[^>]*>\s*/i, '').replace(/<link rel="apple-touch-icon"[^>]*>\s*/i, '');
 html = html.replace('<link rel="stylesheet" href="styles.css">', () => '<style>\n' + read('styles.css') + '\n</style>');
 
 /* three from jsdelivr: the CDN the page may load scripts from */
@@ -27,7 +27,7 @@ html = html.replace(/\.\/vendor\/three\/postprocessing\//g, CDN + 'examples/jsm/
 
 /* the brand mark is a file next to the css, so the one-file build carries it
    as a data URI instead */
-html = html.replace("url('brand/mark.svg')", "url(\"data:image/svg+xml;utf8," + encodeURIComponent(read('brand/mark.svg')) + "\")");
+html = html.replace("url('brand/mark.png')", "url(\"data:image/png;base64," + fs.readFileSync(path.join(pub, 'brand/mark.png')).toString('base64') + "\")");
 
 /* ethers from the CDN too, rather than half a megabyte inlined */
 html = html.replace('<script src="vendor/ethers/ethers.umd.min.js"></script>', '<script src="https://cdn.jsdelivr.net/npm/ethers@6.17.0/dist/ethers.umd.min.js"></script>');

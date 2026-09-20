@@ -133,7 +133,7 @@ body[data-screen="race"] .vignette, body[data-screen="count"] .vignette, body[da
 .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; margin-right: 8px; }
 .brand__mark {
   width: 24px; height: 24px; border-radius: 50%;
-  background: url('brand/mark.svg') center / contain no-repeat;
+  background: url('brand/mark.png') center / cover no-repeat;
   box-shadow: 0 6px 14px -6px rgba(255, 122, 26, .55);
 }
 .brand__name { font-weight: 800; letter-spacing: -.01em; font-size: 18px; color: var(--ink); }

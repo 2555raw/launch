@@ -534,45 +534,60 @@
     }
     const nearestFly = (x, y, r) => { let best = null, bd = r; for (const f of flies) { if (f.eaten) continue; const d = Math.hypot(f.x - x, f.y - y); if (d < bd) { bd = d; best = f; } } return best; };
     const eat = f => { f.eaten = performance.now() / 1000 + 4 + Math.random() * 6; f.el.classList.add('is-eaten'); };
-    /* the swan: comes in from one side, glides across the middle, leaves by another, and a while later comes back */
+    /* the swan: comes in from one side, glides across the middle steering round the frogs, leaves by another side, comes back later */
+    const swanState = { on: false, x: -999, y: -999, a: 0 };
     if (!reduced) {
       const swan = document.createElement('i'); swan.className = 'bd-swan';
-      swan.innerHTML = `<svg viewBox="0 0 160 120" aria-hidden="true">
-        <defs><radialGradient id="bd-swanBody" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#fff"/><stop offset=".7" stop-color="#EEF1F3"/><stop offset="1" stop-color="#C9D1D8"/></radialGradient></defs>
-        <ellipse class="bd-swan-wake" cx="60" cy="60" rx="70" ry="30"/>
-        <path class="bd-swan-wing bd-swan-wing-l" d="M40 52 C30 30 60 18 96 30 C80 36 64 44 56 58 Z"/>
-        <path class="bd-swan-wing bd-swan-wing-r" d="M40 68 C30 90 60 102 96 90 C80 84 64 76 56 62 Z"/>
-        <path d="M14 60 C14 40 36 34 62 36 C86 38 100 48 104 60 C100 72 86 82 62 84 C36 86 14 80 14 60 Z" fill="url(#bd-swanBody)" stroke="rgba(0,0,0,.14)"/>
-        <path d="M18 60 C22 50 40 44 60 46 C48 50 34 54 18 60 Z" fill="rgba(255,255,255,.9)"/>
-        <path d="M100 58 C112 52 128 50 138 56 C142 58 142 62 138 64 C128 70 112 68 100 62 Z" fill="#F4F6F8" stroke="rgba(0,0,0,.14)"/>
-        <ellipse cx="139" cy="60" rx="9" ry="7.5" fill="#F7F9FA" stroke="rgba(0,0,0,.16)"/>
-        <path d="M146 60 L160 58 L160 62 Z" fill="#F0932B"/><path d="M146 58 L152 60 L146 62 Z" fill="#111"/>
-        <circle cx="140" cy="56.5" r="1.3" fill="#111"/><circle cx="140" cy="63.5" r="1.3" fill="#111"/>
-        <path d="M10 60 C4 54 4 66 10 60 Z" fill="#DDE3E8"/>
+      swan.innerHTML = `<svg viewBox="0 0 200 140" aria-hidden="true">
+        <defs>
+          <radialGradient id="bd-swanBody" cx="42%" cy="38%" r="70%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#F3F5F7"/><stop offset="1" stop-color="#C7CFD6"/></radialGradient>
+          <linearGradient id="bd-swanWing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DDE3E8"/></linearGradient>
+        </defs>
+        <g class="bd-swan-wakeg"><path class="bd-swan-wake" d="M60 70 L-40 30"/><path class="bd-swan-wake" d="M60 70 L-40 110"/><path class="bd-swan-wake2" d="M50 70 L-60 40"/><path class="bd-swan-wake2" d="M50 70 L-60 100"/></g>
+        <path class="bd-swan-tail" d="M22 70 L4 60 L12 70 L4 80 Z" fill="#E6EAEE" stroke="rgba(0,0,0,.12)"/>
+        <g class="bd-swan-wing bd-swan-wing-l"><path d="M44 62 C36 40 62 22 102 30 C118 34 126 40 128 48 C110 44 90 48 74 56 C66 60 56 64 44 62 Z" fill="url(#bd-swanWing)" stroke="rgba(0,0,0,.12)"/><path d="M60 52 C72 42 92 38 112 40 M56 58 C70 48 92 44 118 46" fill="none" stroke="rgba(0,0,0,.08)"/></g>
+        <g class="bd-swan-wing bd-swan-wing-r"><path d="M44 78 C36 100 62 118 102 110 C118 106 126 100 128 92 C110 96 90 92 74 84 C66 80 56 76 44 78 Z" fill="url(#bd-swanWing)" stroke="rgba(0,0,0,.12)"/><path d="M60 88 C72 98 92 102 112 100 M56 82 C70 92 92 96 118 94" fill="none" stroke="rgba(0,0,0,.08)"/></g>
+        <path d="M18 70 C18 48 44 40 72 42 C100 44 118 54 124 70 C118 86 100 96 72 98 C44 100 18 92 18 70 Z" fill="url(#bd-swanBody)" stroke="rgba(0,0,0,.14)"/>
+        <path d="M26 68 C32 56 50 50 70 52 C54 56 40 60 26 68 Z" fill="rgba(255,255,255,.95)"/>
+        <path class="bd-swan-neck" d="M118 64 C134 56 146 52 154 58 C162 64 158 74 150 76 C142 78 132 76 118 76 Z" fill="#F3F5F7" stroke="rgba(0,0,0,.14)"/>
+        <path d="M122 66 C134 60 146 58 152 62" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2"/>
+        <ellipse cx="160" cy="70" rx="12" ry="9.5" fill="#F7F9FA" stroke="rgba(0,0,0,.16)"/>
+        <path d="M168 66 C176 64 188 66 196 70 C188 74 176 76 168 74 Z" fill="#F08A24" stroke="rgba(0,0,0,.18)"/>
+        <path d="M168 66 C170 68 170 72 168 74 C164 73 162 71 162 70 C162 69 164 67 168 66 Z" fill="#1A1A1A"/>
+        <path d="M194 70 L199 69 L199 71 Z" fill="#111"/>
+        <circle cx="160" cy="65.5" r="1.6" fill="#111"/><circle cx="160" cy="74.5" r="1.6" fill="#111"/>
       </svg>`;
       el.appendChild(swan);
-      let sw = { on: false, t: 0, next: 5 + Math.random() * 6, x: 0, y: 0, vx: 0, vy: 0, a: 0, dur: 0 };
+      let sw = { on: false, t: 0, next: 5 + Math.random() * 6 };
       const setOff = () => {
-        const W = innerWidth, H = innerHeight, side = Math.floor(Math.random() * 2);
-        const fromLeft = side === 0; const y0 = H * (.3 + Math.random() * .4), y1 = H * (.3 + Math.random() * .4);
-        sw = { on: true, t: 0, x: fromLeft ? -180 : W + 180, y: y0, x1: fromLeft ? W + 180 : -180, y1, dur: 26 + Math.random() * 10, next: 0 };
-        sw.a = Math.atan2(sw.y1 - sw.y, sw.x1 - sw.x); swan.classList.add('is-on');
+        const W = innerWidth, H = innerHeight, fromLeft = Math.random() < .5;
+        sw = { on: true, x: fromLeft ? -200 : W + 200, y: H * (.3 + Math.random() * .4), tx: fromLeft ? W + 200 : -200, ty: H * (.3 + Math.random() * .4), speed: 34 + Math.random() * 12, a: 0, next: 0 };
+        sw.a = Math.atan2(sw.ty - sw.y, sw.tx - sw.x); swan.classList.add('is-on');
       };
+      const wrap = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
       let last = performance.now();
       const step = now => {
         const dt = paused || document.hidden ? 0 : Math.min(.05, (now - last) / 1000); last = now;
         if (!sw.on) { sw.next -= dt; if (sw.next <= 0) setOff(); }
-        else {
-          sw.t += dt / sw.dur; const e = sw.t;
-          const x = sw.x + (sw.x1 - sw.x) * e, y = sw.y + (sw.y1 - sw.y) * e + Math.sin(sw.t * 6) * 10;
-          swan.style.setProperty('--x', x.toFixed(1) + 'px'); swan.style.setProperty('--y', y.toFixed(1) + 'px'); swan.style.setProperty('--rot', (sw.a * 180 / Math.PI).toFixed(1) + 'deg');
-          if (sw.t >= 1) { sw = { on: false, next: 14 + Math.random() * 16 }; swan.classList.remove('is-on'); }
+        else if (dt) {
+          // head for the exit, but steer round any frog ahead
+          let want = Math.atan2(sw.ty - sw.y, sw.tx - sw.x);
+          for (const r of swanState.obstacles ? swanState.obstacles() : []) {
+            const dx = r.x - sw.x, dy = r.y - sw.y, d = Math.hypot(dx, dy);
+            if (d < 170 && d > 1) { const rel = wrap(Math.atan2(dy, dx) - sw.a); if (Math.abs(rel) < 1.2) want -= Math.sign(rel || 1) * (1 - d / 170) * 1.1; }
+          }
+          sw.a += wrap(want - sw.a) * Math.min(1, 1.4 * dt);
+          sw.x += Math.cos(sw.a) * sw.speed * dt; sw.y += Math.sin(sw.a) * sw.speed * dt + Math.sin(now / 900) * 6 * dt;
+          swanState.on = true; swanState.x = sw.x; swanState.y = sw.y; swanState.a = sw.a;
+          swan.style.setProperty('--x', sw.x.toFixed(1) + 'px'); swan.style.setProperty('--y', sw.y.toFixed(1) + 'px'); swan.style.setProperty('--rot', (sw.a * 180 / Math.PI).toFixed(1) + 'deg');
+          const gone = sw.x < -260 || sw.x > innerWidth + 260 || sw.y < -260 || sw.y > innerHeight + 260;
+          if (gone) { sw = { on: false, next: 14 + Math.random() * 16 }; swanState.on = false; swan.classList.remove('is-on'); }
         }
         requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
     }
-    return { el, flies, nearestFly, eat, pause: v => { paused = v; el.classList.toggle('is-paused', v); }, pads: () => $$('[data-pad]', el) };
+    return { el, flies, nearestFly, eat, swan: swanState, pause: v => { paused = v; el.classList.toggle('is-paused', v); }, pads: () => $$('[data-pad]', el) };
   })();
 
 
@@ -762,6 +777,14 @@
         splashAt(scene, f.x - Math.cos(f.a) * f.size * .25, f.y - Math.sin(f.a) * f.size * .25, .6);
       }, 150);
     };
+    if (lake) lake.swan.obstacles = () => { const sr = scene.getBoundingClientRect(); return frogs.map(f => ({ x: f.x + sr.left, y: f.y + sr.top })); };
+    const flee = f => {
+      // hop away from the swan, a longer hop than usual
+      const sr = scene.getBoundingClientRect(); const sx = lake.swan.x - sr.left, sy = lake.swan.y - sr.top;
+      const ang = Math.atan2(f.y - sy, f.x - sx) + (Math.random() - .5) * .8;
+      for (let k = 0; k < 12; k++) { const d = 110 + Math.random() * 60, x = f.x + Math.cos(ang + (k % 2 ? .4 : -.4) * Math.floor(k / 2)) * d, y = f.y + Math.sin(ang + (k % 2 ? .4 : -.4) * Math.floor(k / 2)) * d; if (inside(x, y, f.size * .5) && !inRect(x, y, avoid, 50)) return { x, y }; }
+      return null;
+    };
     const init = () => {
       measure();
       frogs.forEach(f => { const p = randomSpot(f); f.x = p.x; f.y = p.y; f.a = Math.random() * Math.PI * 2; f.state = 'idle'; f.h = 0; f.wait = Math.random() * 2.5; f.el.classList.remove('is-hop', 'is-land'); render(f); });
@@ -784,6 +807,7 @@
         if (f.state === 'drag') { render(f); continue; }
         if (f.state === 'idle' && dt) {
           f.wait -= dt;
+          if (lake?.swan.on) { const sr = scene.getBoundingClientRect(); if (Math.hypot(lake.swan.x - sr.left - f.x, lake.swan.y - sr.top - f.y) < 150) { const to = flee(f); if (to) { f.from = { x: f.x, y: f.y }; f.to = to; f.t = 0; f.a = Math.atan2(to.y - f.y, to.x - f.x); f.dur = .42; f.el.style.setProperty('--dur', '.42s'); f.state = 'hop'; f.el.classList.remove('is-land'); f.el.classList.add('is-hop'); splashAt(scene, f.x, f.y, .5); render(f); continue; } } }
           if (lake && (!f.cool || now > f.cool)) {
             const sr = scene.getBoundingClientRect(); const fly = lake.nearestFly(f.x + sr.left, f.y + sr.top, f.size * 1.9);
             if (fly) { f.cool = now + 2200; const tx = fly.x - sr.left, ty = fly.y - sr.top; f.a = Math.atan2(ty - f.y, tx - f.x); f.wait = Math.max(f.wait, .9); render(f); tongue(scene, f.x + Math.cos(f.a) * f.size * .4, f.y + Math.sin(f.a) * f.size * .4, tx, ty, () => { lake.eat(fly); f.el.classList.add('is-gulp'); setTimeout(() => f.el.classList.remove('is-gulp'), 400); }); }

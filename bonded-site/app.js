@@ -352,7 +352,7 @@
   // menu
   const burger = $('#burger'), links = $('#navlinks');
   burger?.addEventListener('click', () => { const open = links.classList.toggle('is-open'); burger.setAttribute('aria-expanded', String(open)); });
-  document.addEventListener('click', e => { if (links?.classList.contains('is-open') && !e.target.closest('.bd-pill-left')) links.classList.remove('is-open'); });
+  document.addEventListener('click', e => { if (links?.classList.contains('is-open') && !e.target.closest('.bd-pill')) links.classList.remove('is-open'); });
 
   // anchor navigation
   const navH = () => 90;

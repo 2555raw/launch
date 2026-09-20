@@ -426,9 +426,9 @@
     for (let k = 0; k < (small ? 2 : 4); k++) { const m = document.createElement('i'); m.className = 'bd-lake-cloud'; m.style.cssText = `--w:${(26 + rnd() * 22).toFixed(0)}vw; --t:${(rnd() * 80).toFixed(0)}%; --d:${(90 + rnd() * 70).toFixed(0)}s; --dl:${(-rnd() * 120).toFixed(0)}s`; el.appendChild(m); }
     // lily pads, the same spread on every page
     const padSVG = (flower) => `<svg viewBox="0 0 100 100">
-      <path d="M50 50 L98.07 36.22 A50 50 0 1 1 98.07 63.78 Z" fill="url(#bd-padg)" stroke="rgba(0,0,0,.22)" stroke-width=".8"/>
+      <path d="M50 50 L98.07 36.22 A50 50 0 1 0 98.07 63.78 Z" fill="url(#bd-padg)" stroke="rgba(0,0,0,.22)" stroke-width=".8"/>
       <g stroke="rgba(0,0,0,.18)" stroke-width=".9" fill="none">${[...Array(12)].map((_, i) => { const t = -160 + i * 29; if (t > -18 && t < 18) return ''; const r = t * Math.PI / 180; return `<path d="M50 50 Q${(50 + Math.cos(r - .12) * 28).toFixed(1)} ${(50 + Math.sin(r - .12) * 28).toFixed(1)} ${(50 + Math.cos(r) * 46).toFixed(1)} ${(50 + Math.sin(r) * 46).toFixed(1)}"/>`; }).join('')}</g>
-      <path d="M50 50 L98.07 36.22 A50 50 0 1 1 98.07 63.78 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" style="mix-blend-mode:screen"/>
+      <path d="M50 50 L98.07 36.22 A50 50 0 1 0 98.07 63.78 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" style="mix-blend-mode:screen"/>
       ${flower ? `<g class="bd-lotus" transform="translate(38 40) scale(.55)">${[...Array(8)].map((_, i) => `<ellipse cx="50" cy="26" rx="11" ry="26" fill="url(#bd-petal)" stroke="rgba(0,0,0,.12)" stroke-width=".8" transform="rotate(${i * 45} 50 50)"/>`).join('')}${[...Array(6)].map((_, i) => `<ellipse cx="50" cy="32" rx="8" ry="19" fill="url(#bd-petal)" transform="rotate(${22 + i * 60} 50 50)"/>`).join('')}<circle cx="50" cy="50" r="9" fill="#F6D35A"/><circle cx="50" cy="50" r="5" fill="#E7B62D"/></g>` : ''}
     </svg>`;
     const spots = small ? [[12, 30, 1], [88, 22, 0], [10, 78, 1], [86, 70, 1], [50, 92, 0]] : [[8, 18, 1], [26, 78, 0], [14, 52, 1], [90, 16, 0], [78, 62, 1], [94, 88, 1], [50, 94, 0], [64, 8, 1], [38, 30, 0]];

@@ -48,8 +48,12 @@ The layout is the one that works for this category: a huge centred headline, one
 two floating navigation pills, and a scene around the copy that
 people can play with. The scene is where Bonded differs.
 
-**Frogs on white.** The hero is plain white with a couple of lily pads, and each tokenized stock
-is a frog, seen from above, painted in its company's colour with the company's logo on its back.
+**A lake behind everything.** A fixed layer under every page draws the water: layered gradients
+for depth, two drifting sheets of caustic light, a shimmer warped by an SVG turbulence filter, sun
+glare, motes on the surface, a ring somewhere every second or so, and lily pads with pink flowers
+that drift and turn. Content that is not the hero rides on a translucent white sheet over it.
+Each tokenized stock is a frog, seen from above, painted in its company's colour with the
+company's logo on its back.
 The frogs never stop: each one sits for a moment, picks a spot (sometimes a lily pad), turns to
 face it, hops there in an arc (it grows and its shadow drops away at the top of the jump, legs
 kick out, it squashes on landing), and sits again. They keep out of the copy in the middle and
@@ -59,14 +63,15 @@ scene, `Reset` reshuffles it.
 
 ## Design
 
-White, always. (A dark token set is kept in the stylesheet under `html[data-theme="dark"]`, unused; there is no switch.) Two roles keep their colours across the whole site:
+A white sheet over blue water, always. (A dark token set is kept in the stylesheet under `html[data-theme="dark"]`, unused; there is no switch.) Two roles keep their colours across the whole site:
 
 - **Gold `#F0B35B` is the stock**: the stock tags, the active tile, the "Trade" button, the stock
   side of every quote.
 - **Ion cyan `#5DE1FF` is the new token**: the token side, "new" badges, links, the active step.
 - The primary button is ink, like the reference sites.
 - Green and red are reserved for market direction and for Buy / Sell.
-- The ground is white, everywhere. Cards sit on it with a hairline border.
+- The ground is the lake. Sections and other pages sit on a translucent white sheet (`.bd-sheet`,
+  `main` on the other pages) with a blur behind it, so the water shows at the edges.
 - Each frog is painted in its company's colour (NVIDIA green, Tesla red, Amazon orange, Robinhood
   lime, and so on) and carries the company's real logo on a white badge on its back. Nine of the marks come from
   the `simple-icons` package, embedded as paths in `LOGOS` in `app.js`; Amazon, Microsoft and the
@@ -137,6 +142,9 @@ data to reset it.
   one time in five on a lily pad. Leg kicks, the landing squash, blinking and the throat are CSS
   animations keyed to the state classes. The loop pauses when the hero is off screen or the tab is
   hidden; under `prefers-reduced-motion` the frogs sit still, still clickable.
+- **The lake** (`lake`): built by the script on every page and prepended to `.bd`, so the eight
+  pages share it without markup. Pad positions come from a fixed seed, so moving between pages does
+  not reshuffle them. `Pause motion` in the hero pauses the lake too.
 - **Quality pass**: `/impeccable` (a project skill in `.claude/skills/impeccable/`) parses the
   scripts, cross-checks ids and links, and drives every page and the launch → trade → playground
   loop in Chromium. Run it before a deploy.

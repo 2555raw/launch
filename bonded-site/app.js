@@ -407,6 +407,49 @@
   const page = document.body.dataset.page;
 
   /* =====================================================================
+     THE LAKE — behind every page. Water, moving light, drifting lily pads
+     with pink flowers, rings now and then. The hero's frogs sit on top.
+     ===================================================================== */
+  const lake = (() => {
+    const root = $('.bd'); if (!root) return null;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const el = document.createElement('div'); el.className = 'bd-lake'; el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = `<i class="bd-lake-water"></i><i class="bd-lake-caustics"></i><i class="bd-lake-caustics bd-lake-caustics2"></i><i class="bd-lake-shimmer"></i><i class="bd-lake-glare"></i><i class="bd-lake-depth"></i>
+      <svg width="0" height="0" style="position:absolute"><defs><filter id="bd-water" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="7" result="n"><animate attributeName="baseFrequency" values="0.006 0.012;0.008 0.015;0.006 0.012" dur="14s" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="28" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>`;
+    // lily pads: the same spread on every page, so moving between pages does not reshuffle the lake
+    let seed = 20260920; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    const small = innerWidth < 900;
+    const spots = small ? [[12, 30], [88, 22], [10, 78], [86, 70], [50, 92]] : [[8, 18], [26, 78], [14, 52], [90, 16], [78, 62], [94, 88], [50, 94], [64, 8], [38, 30]];
+    for (const [l, t] of spots) {
+      const p = document.createElement('i'); p.className = 'bd-lily'; p.setAttribute('data-pad', '');
+      const s = (small ? 70 : 100) + rnd() * (small ? 50 : 120);
+      p.style.cssText = `--s:${s.toFixed(0)}px; --l:${l}%; --t:${t}%; --r:${(rnd() * 360).toFixed(0)}deg; --d:${(9 + rnd() * 8).toFixed(1)}s; --dx:${((rnd() - .5) * 40).toFixed(0)}px; --dy:${((rnd() - .5) * 30).toFixed(0)}px`;
+      el.appendChild(p);
+    }
+    // motes of pollen drifting on the surface
+    for (let k = 0; k < (small ? 8 : 18); k++) {
+      const m = document.createElement('i'); m.className = 'bd-mote';
+      m.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(rnd() * 100).toFixed(1)}%; --d:${(14 + rnd() * 16).toFixed(1)}s; --dl:${(-rnd() * 20).toFixed(1)}s; --mx:${((rnd() - .5) * 220).toFixed(0)}px; --my:${((rnd() - .5) * 160).toFixed(0)}px`;
+      el.appendChild(m);
+    }
+    root.prepend(el);
+    let paused = false;
+    if (!reduced) setInterval(() => {
+      if (paused || document.hidden) return;
+      const r = document.createElement('i'); r.className = 'bd-ring';
+      r.style.left = (Math.random() * 100) + '%'; r.style.top = (Math.random() * 100) + '%';
+      el.appendChild(r); setTimeout(() => r.remove(), 3300);
+    }, 1300);
+    return { el, pause: v => { paused = v; el.classList.toggle('is-paused', v); }, pads: () => $$('[data-pad]', el) };
+  })();
+
+  // the home page: everything after the hero rides on one translucent sheet
+  if (document.body.dataset.page === 'home') {
+    const main = $('.bd > main'); const hero = $('#hero');
+    if (main && hero) { const sheet = document.createElement('div'); sheet.className = 'bd-sheet'; while (hero.nextElementSibling) sheet.appendChild(hero.nextElementSibling); main.appendChild(sheet); }
+  }
+
+  /* =====================================================================
      THE FROGS — the hero scene. Each frog is a stock. It sits, picks a
      spot, turns to face it, hops there in an arc, lands, sits again. It
      keeps out of the copy in the middle and inside the hero. Grab one and
@@ -450,7 +493,8 @@
       frogs.forEach(f => { f.size = base * (0.86 + ((f.i * 7) % 5) * 0.07); });
       const r = copy.getBoundingClientRect(), sr = scene.getBoundingClientRect();
       avoid = { x: r.left - sr.left, y: r.top - sr.top, w: r.width, h: r.height };
-      pads = $$('[data-pad]', scene).map(p => ({ x: p.offsetLeft + p.offsetWidth / 2, y: p.offsetTop + p.offsetHeight / 2 }));
+      const sr2 = scene.getBoundingClientRect();
+      pads = (lake ? lake.pads() : []).map(p => { const r = p.getBoundingClientRect(); return { x: r.left + r.width / 2 - sr2.left, y: r.top + r.height / 2 - sr2.top }; }).filter(p => p.y > top + 40 && p.y < bottom - 40 && p.x > 40 && p.x < W - 40);
     };
     const inRect = (x, y, r, pad) => r && x > r.x - pad && x < r.x + r.w + pad && y > r.y - pad && y < r.y + r.h + pad;
     const inside = (x, y, m) => x > m && x < W - m && y > top + m && y < bottom - m;
@@ -554,7 +598,7 @@
 
     // controls
     const motionBtn = $('#motion');
-    motionBtn?.addEventListener('click', () => { paused = !paused; motionBtn.textContent = paused ? 'Resume motion' : 'Pause motion'; scene.classList.toggle('is-paused', paused); });
+    motionBtn?.addEventListener('click', () => { paused = !paused; motionBtn.textContent = paused ? 'Resume motion' : 'Pause motion'; scene.classList.toggle('is-paused', paused); lake?.pause(paused); });
     $('#reset')?.addEventListener('click', () => { selected = null; frogs.forEach(o => o.el.classList.remove('is-bonded')); placeLabel(null); init(); $$('[data-hero-stock-name]').forEach(el => el.textContent = 'NVIDIA'); const l = $('#hero-launch'); if (l) l.href = 'launch.html'; });
 
     // save work when the hero is off screen or the tab is hidden

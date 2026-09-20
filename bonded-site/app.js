@@ -809,7 +809,7 @@
     const illus = {
       pick: `<div class="bd-illus-pick">${['TSLA', 'NVDA', 'AAPL', 'SPY'].map(sym => `<div class="bd-pick ${sym === 'NVDA' ? 'is-on' : ''}">${pic(sym)}<small>${sym}</small></div>`).join('')}</div>`,
       name: `<div class="bd-illus-name">${pic('TSLA')}<div><b>Robotaxi Season<i></i></b><span>$ROBO · in TSLA</span><em>1B fixed · no owner</em></div></div>`,
-      bond: `<div class="bd-illus-bond">${pic('TSLA')}<div class="bd-bondline"></div><div class="bd-coin">$ROBO</div><span class="bd-livechip">LIVE</span></div>`,
+      bond: (() => { const demo = { ticker: 'ROBO', stock: 'TSLA', mcap: 1_840_000, change: 38.4 }; return `<div class="bd-illus-bond">${pic('TSLA')}<div class="bd-bondline"></div><div class="bd-minicard"><span class="bd-livechip">LIVE</span><b>Robotaxi Season</b><span>$ROBO / TSLA</span><em>0.0₅445 TSLA<i>+38.4%</i></em>${sparkline(demo, 140, 26)}</div></div>`; })(),
     };
     $$('[data-illus]').forEach(el => { el.innerHTML = illus[el.dataset.illus] || ''; });
     const pairsGrid = $('#pairs-grid');
@@ -1149,7 +1149,7 @@
       sel.addEventListener('change', () => { form.stock = sel.value; paint(); });
       paint();
     });
-    const fields = { name: '#f-name', ticker: '#f-ticker', desc: '#f-desc', image: '#f-image', buy: '#f-buy', x: '#f-x', site: '#f-site' };
+    const fields = { name: '#f-name', ticker: '#f-ticker', buy: '#f-buy' };
     Object.entries(fields).forEach(([k, s]) => $(s).addEventListener('input', e => {
       form[k] = k === 'ticker' ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '') : e.target.value;
       if (k === 'ticker') e.target.value = form[k];
@@ -1157,18 +1157,17 @@
     }));
     const validate = () => {
       const err = $('#f-error'); const problems = [];
-      if (form.name.trim().length < 2) problems.push('Give the coin a name (2 to 32 characters).');
+      if (form.name.trim().length < 2) problems.push('Give the coin a name (2 to 40 characters).');
       if (form.ticker.length < 2 || form.ticker.length > 8) problems.push('The ticker needs 2 to 8 letters or digits.');
       if (form.ticker && STOCKS.some(s => s.sym === form.ticker)) problems.push('That ticker is a stock symbol; pick another.');
       if (form.ticker && findPair(form.ticker)) problems.push('That ticker is already bonded; pick another.');
       if (form.buy && Number(form.buy) < 0) problems.push('The first buy cannot be negative.');
-      if (form.image && !/^https?:\/\//.test(form.image)) problems.push('The image needs a full https URL.');
       err.hidden = !problems.length; err.textContent = problems.join(' ');
       if (problems.length) err.scrollIntoView({ block: 'center', behavior: 'smooth' });
       return !problems.length;
     };
     const deployBtn = $('#deploy'), callout = $('#wallet-callout');
-    const paintDeploy = () => { deployBtn.textContent = wallet ? 'Bond it' : 'Connect wallet to bond'; callout.classList.toggle('is-connected', !!wallet); };
+    const paintDeploy = () => { deployBtn.textContent = wallet ? 'Launch the pair ↗' : 'Connect wallet to launch'; deployBtn.classList.toggle('is-idle', !wallet); callout.classList.toggle('is-connected', !!wallet); };
     document.addEventListener('bonded:wallet', paintDeploy); paintDeploy();
     deployBtn.addEventListener('click', async () => {
       const err = $('#tx-error'); err.hidden = true;

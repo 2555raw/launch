@@ -40,13 +40,20 @@
   </main>
   <footer class="bd-footer">
     <div class="bd-wrap">
-      <div class="bd-footer-grid">
-        <div>© <span data-year></span> Bonded · not financial advice · tokenized stocks are issued by third parties</div>
-        <div class="bd-footer-links">
-          <a href="board.html">Pairs</a><a href="launch.html">Launch</a><a href="stocks.html">Stocks</a><a href="docs.html">Docs</a><a data-cfg-href="xUrl" href="#">X</a><a data-cfg-href="factoryUrl" href="#">Contract</a>
+      <p class="bd-footer-risk">Trading memecoins can lose you the entire amount you put in. Tokenized stocks are issued by third parties. Nothing here is financial advice.</p>
+      <div class="bd-footer-main">
+        <div class="bd-footer-brand">
+          <a class="bd-brand" href="index.html"><span class="bd-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><line x1="11" y1="16" x2="21" y2="16" stroke="#5DE1FF" stroke-width="3" stroke-linecap="round"/><circle cx="10" cy="16" r="6" fill="#F0B35B"/><circle cx="23" cy="16" r="4" fill="#5DE1FF"/></svg></span>Bonded</a>
+          <p>A little pair. A big leap.</p>
         </div>
+        <nav class="bd-footer-links">
+          <a href="board.html">The pairs</a><a href="launch.html">Launch a pair</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">Questions</a><a href="docs.html">Docs</a><a data-cfg-href="xUrl" href="#">X</a>
+        </nav>
       </div>
-      <p class="bd-footer-note">CA <span data-cfg="token">—</span> · figures come from the adapter in app.js; sample data until it is wired to the chain.</p>
+      <div class="bd-footer-bottom">
+        <span>© <span data-year></span> Bonded · A little pair. A big leap.</span>
+        <span>Protocol live · <span data-cfg="chain">—</span> · <span data-stat="pairs">—</span> pairs bonded · sample data until wired to the chain</span>
+      </div>
     </div>
   </footer>
   <div class="bd-toast" id="toast" role="status"></div>

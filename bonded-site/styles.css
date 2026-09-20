@@ -262,7 +262,7 @@ html[data-theme="dark"] .bd {
 }
 .bd-hero h1 .bd-swap { color: var(--gold-text); white-space: nowrap; }
 .bd-hero h1 .bd-not { color: var(--dim); white-space: nowrap; text-decoration: line-through; text-decoration-thickness: 3px; text-decoration-color: var(--down); }
-.bd-hero-sub { font-size: 19px; line-height: 1.5; color: var(--prose); max-width: 560px; margin: 0 auto 28px; }
+.bd-hero-sub { font-size: 19px; line-height: 1.5; color: #1C222B; max-width: 560px; margin: 0 auto 28px; }
 .bd-hero-sub em { font-style: normal; color: var(--ion-text); }
 .bd-hero-cta { display: flex; flex-direction: column; gap: 14px; align-items: center; justify-content: center; }
 .bd-hero-cta .bd-btn-lg { height: 54px; padding: 0 30px; font-size: 15px; }
@@ -365,9 +365,9 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 .bd-section-alt { background: var(--bg-alt); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .bd-head { max-width: 640px; margin-bottom: 40px; }
 .bd-head .bd-label, .bd-page-head .bd-label, .bd-head-row .bd-label, .bd-live-head + .bd-label, .bd-mine h3 { }
-.bd-head > .bd-label, .bd-page-head .bd-label { display: inline-block; padding: 4px 9px; border-radius: 7px; background: rgba(255,255,255,.82); color: #4A5565; }
+.bd-head > .bd-label, .bd-page-head .bd-label { display: inline-block; padding: 4px 9px; border-radius: 7px; background: rgba(255,255,255,.82); color: #2B3441; }
 .bd-head h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; line-height: 1.05; font-size: clamp(30px, 4vw, 46px); margin: 12px 0 14px; }
-.bd-head p { font-size: 16px; line-height: 1.6; color: var(--prose); margin: 0; }
+.bd-head p { font-size: 16px; line-height: 1.6; color: #1C222B; margin: 0; }
 .bd-head-row { display: flex; align-items: end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; }
 .bd-head-row .bd-head { margin-bottom: 0; }
 
@@ -395,14 +395,18 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 @keyframes bdCaret { 50% { opacity: 0; } }
 .bd-illus-name span { display: block; font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); margin-top: 3px; white-space: nowrap; }
 .bd-illus-name em { display: block; font-style: normal; font-family: var(--font-mono); font-size: 10px; color: var(--gold-text); margin-top: 6px; white-space: nowrap; }
-/* step 3: frog and coin bonded, locked */
+/* step 3: the frog bonded to its new pair, live on the board */
 .bd-illus-bond { position: relative; display: flex; align-items: center; gap: 0; }
-.bd-illus-bond .bd-frogpic { width: 96px !important; height: 96px !important; transform: rotate(-8deg) !important; }
-.bd-illus-bond .bd-bondline { width: 74px; height: 8px; border-radius: 4px; background: var(--bond); position: relative; }
-.bd-illus-bond .bd-bondline::after { content: "LOCKED"; position: absolute; left: 50%; top: -30px; transform: translateX(-50%); padding: 3px 8px; border-radius: 999px; background: var(--ink); color: #fff; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; }
-.bd-illus-bond .bd-coin { width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--on-ion);
-  background: radial-gradient(circle at 36% 30%, #CFF6FF, #5DE1FF 46%, #0E6E88 100%); box-shadow: 0 10px 20px rgba(14,110,136,.3), inset 0 0 0 3px rgba(255,255,255,.35); }
-.bd-illus-bond .bd-livechip { position: absolute; right: -14px; top: -6px; padding: 4px 8px; border-radius: 999px; background: var(--up); color: #04150F; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; }
+.bd-illus-bond .bd-frogpic { width: 84px !important; height: 84px !important; transform: rotate(-8deg) !important; }
+.bd-illus-bond .bd-bondline { width: 40px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #CC0000, #78AB9A); position: relative; flex: none; }
+.bd-illus-bond .bd-bondline::after { content: "LOCKED"; position: absolute; left: 50%; top: -26px; transform: translateX(-50%); padding: 3px 7px; border-radius: 999px; background: var(--ink); color: #fff; font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; white-space: nowrap; }
+.bd-illus-bond .bd-minicard { width: 156px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; box-shadow: 0 14px 30px rgba(19,23,32,.12); position: relative; }
+.bd-illus-bond .bd-minicard b { display: block; font-family: var(--font-display); font-size: 13.5px; padding-right: 54px; }
+.bd-illus-bond .bd-minicard span { display: block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em; color: var(--muted); margin-top: 2px; }
+.bd-illus-bond .bd-minicard em { display: block; font-style: normal; font-family: var(--font-mono); font-size: 11px; margin-top: 6px; color: var(--ink); }
+.bd-illus-bond .bd-minicard em i { font-style: normal; color: var(--up); margin-left: 6px; }
+.bd-illus-bond .bd-minicard .bd-spark { height: 26px; margin-top: 6px; }
+.bd-illus-bond .bd-livechip { position: absolute; right: 10px; top: 10px; padding: 4px 8px; border-radius: 999px; background: var(--up); color: #04150F; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; }
 .bd-illus-bond .bd-livechip::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #04150F; margin-right: 5px; vertical-align: 1px; animation: bdBlinkDot 1.2s ease-in-out infinite; }
 @keyframes bdBlinkDot { 50% { opacity: .2; } }
 
@@ -505,17 +509,11 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 .bd-close-card h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; font-size: clamp(30px, 4vw, 48px); margin: 0 0 12px; line-height: 1.05; }
 .bd-close-card p { color: var(--prose); font-size: 16px; margin: 0 auto 26px; max-width: 520px; }
 
-/* footer */
-.bd-footer { border-top: 1px solid var(--line); padding: 36px 0 44px; color: var(--muted); font-size: 13px; }
-.bd-footer-grid { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: center; }
-.bd-footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
-.bd-footer-links a:hover { color: var(--ink); }
-.bd-footer-note { margin-top: 20px; font-family: var(--font-mono); font-size: 11.5px; color: var(--dim); }
 
 /* ---------- board page ---------- */
 .bd-page-head { padding: 44px 0 20px; }
 .bd-page-head h1 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; font-size: clamp(30px, 4vw, 44px); margin: 10px 0 8px; }
-.bd-page-head p { color: var(--prose); margin: 0; font-size: 15.5px; }
+.bd-page-head p { color: #1C222B; margin: 0; font-size: 15.5px; }
 .bd-toolbar {
   position: sticky; top: var(--nav-h); z-index: 30; padding: 12px 0; background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line);
@@ -896,7 +894,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 .bd-section-alt { border-top: 0; border-bottom: 0; background: transparent; }
 .bd-toolbar { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; border-bottom: 0; }
 .bd-proof { padding-top: 40px; }
-.bd-footer { border-top: 1px solid var(--line); background: transparent; }
+
 .bd-faq details { background: rgba(255,255,255,.82); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; margin-bottom: 8px; }
 .bd-faq details p { margin-top: -4px; }
 .bd-docs-body { padding: 8px 0; }
@@ -942,3 +940,21 @@ input::selection, textarea::selection { background: #78AB9A; color: #FFFFFF; }
 .bd-summary .bd-review-row b { font-family: var(--font-body); font-size: 14px; font-weight: 600; }
 .bd-preview-card .bd-paircard { width: 100%; box-shadow: 0 8px 30px rgba(19,23,32,.05); }
 @media (max-width: 1080px) { .bd-preview { order: -1; } .bd-preview-art { height: 210px; } }
+
+/* footer, after the reference: a risk line, the brand and the links, then the small print */
+.bd-footer { padding: 40px 0 44px; color: #1C222B; font-size: 14px; background: transparent; }
+.bd-footer-risk { margin: 0 0 56px; font-size: 13px; color: #1C222B; max-width: 720px; }
+.bd-footer-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; padding: 34px 0; border-top: 1px solid rgba(255,255,255,.35); }
+.bd-footer-brand .bd-brand { font-size: 22px; }
+.bd-footer-brand p { margin: 12px 0 0; color: #1C222B; }
+.bd-footer-links { display: grid; grid-template-columns: repeat(5, auto); gap: 14px 28px; justify-content: end; }
+.bd-footer-links a { font-size: 14px; font-weight: 500; color: #131720; }
+.bd-footer-links a:hover { text-decoration: underline; }
+.bd-footer-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.35); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: #1C222B; }
+@media (max-width: 900px) {
+  .bd-footer-main { flex-direction: column; }
+  .bd-footer-links { grid-template-columns: 1fr 1fr; justify-content: start; }
+  .bd-footer-risk { margin-bottom: 32px; }
+}
+.bd-btn-block { width: 100%; justify-content: center; margin-top: 18px; height: 54px; }
+.bd-btn-block.is-idle { background: #8B95A7; }

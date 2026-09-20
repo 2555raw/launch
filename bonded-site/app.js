@@ -595,10 +595,12 @@
      ===================================================================== */
   if (lake && page !== 'home' && !matchMedia('(prefers-reduced-motion: reduce)').matches) (() => {
     const layer = lake.el, small = innerWidth < 900;
-    const N = small ? 5 : 9;
+    const N = small ? 6 : 12;
     const list = [];
+    // every little frog is a different stock: shuffle the list, deal them out
+    const deck = STOCKS.slice(); for (let i = deck.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [deck[i], deck[k]] = [deck[k], deck[i]]; }
     for (let i = 0; i < N; i++) {
-      const s = STOCKS[(i * 5) % STOCKS.length];
+      const s = deck[i % deck.length];
       const el = document.createElement('i'); el.className = 'bd-frog';
       el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .9) + 's'); el.innerHTML = FROG_SVG(s);
       layer.appendChild(el);
@@ -612,9 +614,9 @@
     const hop = f => {
       const W = innerWidth, H = innerHeight, m = 30;
       for (let k = 0; k < 20; k++) {
-        const d = 50 + Math.random() * 170, ang = Math.random() * 6.28, x = f.x + Math.cos(ang) * d, y = f.y + Math.sin(ang) * d;
+        const d = 30 + Math.random() * 70, ang = Math.random() * 6.28, x = f.x + Math.cos(ang) * d, y = f.y + Math.sin(ang) * d;
         if (x < m || x > W - m || y < 100 || y > H - m) continue;
-        f.from = { x: f.x, y: f.y }; f.to = { x, y }; f.t = 0; f.a = Math.atan2(y - f.y, x - f.x); f.dur = .45 + d / 500;
+        f.from = { x: f.x, y: f.y }; f.to = { x, y }; f.t = 0; f.a = Math.atan2(y - f.y, x - f.x); f.dur = .28 + d / 500;
         f.el.style.setProperty('--dur', f.dur + 's'); f.state = 'hop'; f.el.classList.add('is-hop'); splashAt(layer, f.x, f.y, .35); return;
       }
       f.x = innerWidth * Math.random(); f.y = 120 + Math.random() * (innerHeight - 160); f.wait = 1;
@@ -677,8 +679,8 @@
       const m = f.size * .5;
       for (let k = 0; k < 40; k++) {
         let x, y;
-        if (pads.length && Math.random() < .22) { const p = pads[Math.floor(Math.random() * pads.length)]; x = p.x + (Math.random() - .5) * 30; y = p.y + (Math.random() - .5) * 30; }
-        else { const d = 90 + Math.random() * 220, ang = Math.random() * Math.PI * 2; x = f.x + Math.cos(ang) * d; y = f.y + Math.sin(ang) * d; }
+        // short hops only: a frog moves a body length or two, never across the pond
+        const d = 40 + Math.random() * 90, ang = Math.random() * Math.PI * 2; x = f.x + Math.cos(ang) * d; y = f.y + Math.sin(ang) * d;
         if (!inside(x, y, m) || inRect(x, y, avoid, 50) || !clearPath(f.x, f.y, x, y)) continue;
         if (frogs.some(o => o !== f && Math.hypot(o.x - x, o.y - y) < f.size * .8)) continue;
         return { x, y };
@@ -690,7 +692,7 @@
       const r = document.createElement('i'); r.className = 'bd-ripple'; r.style.left = x + 'px'; r.style.top = y + 'px'; scene.appendChild(r); setTimeout(() => r.remove(), 1100);
       for (let k = 0; k < 5; k++) { const d = document.createElement('i'); d.className = 'bd-dust'; d.style.left = x + 'px'; d.style.top = y + 'px'; const ang = Math.random() * Math.PI * 2, dist = 14 + Math.random() * 22; d.style.setProperty('--dx', (Math.cos(ang) * dist) + 'px'); d.style.setProperty('--dy', (Math.sin(ang) * dist) + 'px'); scene.appendChild(d); setTimeout(() => d.remove(), 700); }
     };
-    const sit = (f, wait) => { f.state = 'idle'; f.h = 0; f.wait = wait ?? (0.7 + Math.random() * 2.4); f.el.classList.remove('is-hop'); f.el.classList.add('is-land'); setTimeout(() => f.el.classList.remove('is-land'), 520); };
+    const sit = (f, wait) => { f.state = 'idle'; f.h = 0; f.wait = wait ?? (1.8 + Math.random() * 4.5); f.el.classList.remove('is-hop'); f.el.classList.add('is-land'); setTimeout(() => f.el.classList.remove('is-land'), 520); };
     const hop = f => {
       const to = pickTarget(f); if (!to) { f.wait = .8; return; }
       // crouch first, then push off
@@ -699,7 +701,7 @@
         if (f.state !== 'crouch') return;
         f.el.classList.remove('is-crouch');
         f.from = { x: f.x, y: f.y }; f.to = to; f.t = 0;
-        const dist = Math.hypot(to.x - f.x, to.y - f.y); f.dur = clamp(.42 + dist / 600, .45, .95); f.el.style.setProperty('--dur', f.dur + 's');
+        const dist = Math.hypot(to.x - f.x, to.y - f.y); f.dur = clamp(.28 + dist / 500, .3, .5); f.el.style.setProperty('--dur', f.dur + 's');
         f.state = 'hop'; f.el.classList.remove('is-land'); f.el.classList.add('is-hop');
         splashAt(scene, f.x - Math.cos(f.a) * f.size * .25, f.y - Math.sin(f.a) * f.size * .25, .6);
       }, 150);

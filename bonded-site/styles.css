@@ -59,7 +59,7 @@ button { font: inherit; color: inherit; }
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --wrap: 1180px;
   --r: 14px;
-  --nav-h: 84px;
+  --nav-h: 96px;
 
   font-family: var(--font-body);
   background: transparent;
@@ -150,22 +150,25 @@ html[data-theme="dark"] .bd {
 /* ---------- nav: one wide floating pill ---------- */
 .bd-nav { position: sticky; top: 0; z-index: 40; height: var(--nav-h); display: flex; align-items: center; justify-content: center; padding: 0 20px; pointer-events: none; }
 .bd-pill {
-  pointer-events: auto; width: min(1380px, 100%); display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 8px 0 24px; border-radius: 999px;
+  pointer-events: auto; width: min(1380px, 100%); display: flex; align-items: center; gap: 12px; height: 72px; padding: 0 12px 0 28px; border-radius: 999px;
   background: color-mix(in srgb, var(--card) 86%, transparent); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(255,255,255,.7); box-shadow: 0 12px 34px rgba(10,30,25,.14);
 }
-.bd-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -.01em; flex: none; }
+.bd-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -.01em; flex: none; }
 .bd-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--ink); display: grid; place-items: center; }
 .bd-mark svg { width: 20px; height: 20px; }
-.bd-nav-links { flex: 1; display: flex; justify-content: center; gap: 2px; font-size: 13.5px; color: var(--muted); min-width: 0; }
-.bd-nav-links a { cursor: pointer; padding: 8px 11px; border-radius: 999px; transition: color .15s, background .15s; white-space: nowrap; }
-.bd-nav-links a:hover, .bd-nav-links a.is-active { color: var(--ink); background: var(--surface); }
+.bd-nav-links { flex: 1; display: flex; justify-content: center; gap: 6px; font-size: 14px; color: var(--muted); min-width: 0; }
+.bd-nav-links a { position: relative; cursor: pointer; padding: 10px 12px; border-radius: 999px; transition: color .15s; white-space: nowrap; }
+.bd-nav-links a:hover { color: var(--ink); }
+.bd-nav-links a.is-active { color: var(--ink); }
+.bd-nav-links a.is-active::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 3px; height: 2px; border-radius: 1px; background: #3F8E78; }
 .bd-nav-right { display: flex; align-items: center; gap: 6px; flex: none; }
 .bd-nav-ghost { padding: 8px 12px; border-radius: 999px; font-size: 13.5px; color: var(--muted); border: 0; background: none; cursor: pointer; white-space: nowrap; }
 .bd-nav-ghost:hover { color: var(--ink); }
 .bd-burger { display: none; }
 .bd-wallet { font-family: var(--font-mono); font-size: 12.5px; }
 .bd-btn-dark { background: var(--ink); color: var(--bg); border-color: transparent; }
+.bd-pill .bd-btn-dark { height: 48px; padding: 0 22px; font-size: 14px; }
 .bd-btn-dark:hover { box-shadow: 0 10px 30px rgba(19,23,32,.22); }
 .bd-btn-dark i { font-style: normal; font-size: 11px; opacity: .7; margin-left: 2px; }
 
@@ -615,12 +618,14 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
   .bd-preview { position: static; }
 }
 @media (max-width: 900px) {
-  .bd-nav { padding: 0 10px; --nav-h: 72px; }
-  .bd-pill { height: 52px; padding: 0 6px 0 14px; gap: 6px; }
+  .bd-nav { padding: 0 10px; --nav-h: 76px; }
+  .bd-pill { height: 56px; padding: 0 6px 0 14px; gap: 6px; }
   .bd-brand { font-size: 16px; }
   .bd-nav-links { display: none; position: absolute; top: calc(var(--nav-h) - 6px); left: 10px; right: 10px; padding: 10px; flex-direction: column; gap: 2px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 20px 40px rgba(19,23,32,.14); }
   .bd-nav-links.is-open { display: flex; }
   .bd-nav-links a { padding: 10px 12px; }
+  .bd-nav-links a.is-active { background: var(--surface); }
+  .bd-nav-links a.is-active::after { display: none; }
   .bd-only-sm { display: block; }
   .bd-nav-links button.bd-only-sm { border: 0; background: var(--surface); border-radius: 10px; padding: 10px 12px; text-align: left; color: var(--ink); font-size: 14px; margin-top: 4px; cursor: pointer; }
   .bd-burger { display: inline-flex; border: 0; background: none; }

@@ -31,135 +31,96 @@
     <section class="bd-page-head">
       <div class="bd-wrap">
         <span class="bd-label">Launch</span>
-        <h1>Bond a new token to a stock.</h1>
-        <p>Three steps, one signature. Creation fee <b class="bd-mono" data-cfg="fee">—</b> on <span data-cfg="chain">—</span>.</p>
+        <h1>Bond a new coin to a stock.</h1>
+        <p>Pick the frog, name the coin, sign once. The pool opens the moment the transaction lands. Creation fee <b class="bd-mono" data-cfg="fee">—</b> on <span data-cfg="chain">—</span>.</p>
       </div>
     </section>
 
     <div class="bd-wrap bd-launch">
-      <div>
-        <div class="bd-stepper" id="stepper">
-          <span class="is-active">01 · Stock</span>
-          <span>02 · Token</span>
-          <span>03 · Review &amp; bond</span>
+      <form class="bd-panel bd-form" id="launch-form" novalidate>
+        <div class="bd-field">
+          <label for="f-name">Coin name</label>
+          <input class="bd-input" id="f-name" maxlength="32" placeholder="Robotaxi Season" autocomplete="off">
+          <small>Up to 32 characters. This is what people will read on the board.</small>
         </div>
-
-        <!-- step 1: the stock -->
-        <div class="bd-panel" data-step="1">
-          <h2>Pick the stock</h2>
-          <p>The tokenized share your token will be quoted in and traded against. This cannot be changed after deploy.</p>
-          <div class="bd-elements" id="launch-elements"></div>
-          <div class="bd-panel-actions">
-            <span></span>
-            <button class="bd-btn bd-btn-primary" type="button" data-next>Continue →</button>
+        <div class="bd-field">
+          <label for="f-ticker">Ticker</label>
+          <div class="bd-input-wrap">
+            <input class="bd-input" id="f-ticker" maxlength="8" placeholder="ROBO" autocomplete="off" style="text-transform:uppercase">
+            <span class="bd-suffix" id="f-ticker-pair">/ —</span>
           </div>
+          <small>Letters and numbers, 2 to 8.</small>
         </div>
-
-        <!-- step 2: the token -->
-        <div class="bd-panel" data-step="2" hidden>
-          <h2>Name your token</h2>
-          <p>Fixed supply, no mint, no owner. What you type here goes on chain as is.</p>
-          <div class="bd-field-row">
-            <div class="bd-field">
-              <label for="f-name">Name</label>
-              <input class="bd-input" id="f-name" maxlength="32" placeholder="Robotaxi Season" autocomplete="off">
-            </div>
-            <div class="bd-field">
-              <label for="f-ticker">Ticker</label>
-              <div class="bd-input-wrap">
-                <input class="bd-input" id="f-ticker" maxlength="8" placeholder="ROBO" autocomplete="off" style="text-transform:uppercase">
-                <span class="bd-suffix" id="f-ticker-pair">/ —</span>
-              </div>
-            </div>
+        <div class="bd-field">
+          <label for="f-stock">Stock</label>
+          <select class="bd-input bd-select-input" id="f-stock"></select>
+          <small>The tokenized share your coin is priced in and traded against. Chosen once, at launch, and held for the life of the pair.</small>
+        </div>
+        <div class="bd-field">
+          <label for="f-desc">One line about it</label>
+          <textarea class="bd-input" id="f-desc" maxlength="240" placeholder="The coin for everyone who thinks the robotaxi is the whole thesis."></textarea>
+        </div>
+        <div class="bd-field">
+          <label for="f-image">Image URL</label>
+          <input class="bd-input" id="f-image" placeholder="https://…/logo.png" autocomplete="off">
+          <small>Square, 512px or larger. Optional.</small>
+        </div>
+        <div class="bd-field">
+          <label for="f-buy">Your first buy</label>
+          <div class="bd-input-wrap">
+            <input class="bd-input" id="f-buy" type="number" min="0" step="0.001" placeholder="0">
+            <span class="bd-suffix" id="f-buy-unit">—</span>
+          </div>
+          <small>Optional. A first buy rides in the same transaction, so nobody gets in before you.</small>
+        </div>
+        <div class="bd-field-row">
+          <div class="bd-field">
+            <label for="f-x">X / Twitter</label>
+            <input class="bd-input" id="f-x" placeholder="https://x.com/…" autocomplete="off">
           </div>
           <div class="bd-field">
-            <label for="f-desc">One line about it</label>
-            <textarea class="bd-input" id="f-desc" maxlength="240" placeholder="The coin for everyone who thinks the robotaxi is the whole thesis."></textarea>
-          </div>
-          <div class="bd-field-row">
-            <div class="bd-field">
-              <label for="f-image">Image URL</label>
-              <input class="bd-input" id="f-image" placeholder="https://…/logo.png" autocomplete="off">
-              <small>Square, 512px or larger. Stored with the token metadata.</small>
-            </div>
-            <div class="bd-field">
-              <label for="f-buy">First buy (optional)</label>
-              <div class="bd-input-wrap">
-                <input class="bd-input" id="f-buy" type="number" min="0" step="0.001" placeholder="0.00">
-                <span class="bd-suffix" id="f-buy-unit">—</span>
-              </div>
-              <small>Buy in the same transaction so nobody gets in before you.</small>
-            </div>
-          </div>
-          <div class="bd-field-row">
-            <div class="bd-field">
-              <label for="f-x">X / Twitter (optional)</label>
-              <input class="bd-input" id="f-x" placeholder="https://x.com/…" autocomplete="off">
-            </div>
-            <div class="bd-field">
-              <label for="f-site">Website (optional)</label>
-              <input class="bd-input" id="f-site" placeholder="https://…" autocomplete="off">
-            </div>
-          </div>
-          <div class="bd-error" id="f-error" hidden></div>
-          <div class="bd-panel-actions">
-            <button class="bd-btn bd-btn-ghost" type="button" data-prev>← Back</button>
-            <button class="bd-btn bd-btn-primary" type="button" data-next>Review →</button>
+            <label for="f-site">Website</label>
+            <input class="bd-input" id="f-site" placeholder="https://…" autocomplete="off">
           </div>
         </div>
-
-        <!-- step 3: review -->
-        <div class="bd-panel" data-step="3" hidden>
-          <h2>Review and bond</h2>
-          <p>This is what the transaction will do. Once it is mined nothing here can be changed.</p>
-          <div class="bd-review" id="review"></div>
-          <div class="bd-callout"><b>The liquidity is locked for good.</b> Neither you nor Bonded can withdraw the pool. Ownership of the token is renounced in the same transaction.</div>
-          <div class="bd-error" id="tx-error" hidden></div>
-          <div class="bd-panel-actions">
-            <button class="bd-btn bd-btn-ghost" type="button" data-prev>← Back</button>
-            <button class="bd-btn bd-btn-primary" type="button" id="deploy">Connect wallet to bond</button>
-          </div>
+        <div class="bd-error" id="f-error" hidden></div>
+        <div class="bd-error" id="tx-error" hidden></div>
+        <div class="bd-callout bd-callout-wallet" id="wallet-callout">
+          <b>Connect a wallet to launch.</b> It signs one transaction: deploy the coin, open the pool against the stock, lock the liquidity, and your first buy if you set one.
+          <div style="margin-top:12px"><button class="bd-btn bd-btn-ghost bd-btn-sm bd-wallet" type="button">Connect wallet</button></div>
         </div>
-
-        <!-- done -->
-        <div class="bd-panel bd-success" data-step="4" hidden>
-          <div class="bd-success-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-          <h2>Bonded.</h2>
-          <p>Your pair is live and on the board. Share the link; the first buyers are usually the people who saw it first.</p>
-          <div class="bd-review" id="done"></div>
-          <div class="bd-hero-cta" style="justify-content:center">
-            <a class="bd-btn bd-btn-primary" href="board.html">See it on the board</a>
-            <a class="bd-btn bd-btn-ghost" id="done-tx" href="#" target="_blank" rel="noopener">Transaction ↗</a>
-          </div>
+        <div class="bd-panel-actions" style="justify-content:flex-end">
+          <button class="bd-btn bd-btn-primary bd-btn-lg" type="button" id="deploy">Bond it</button>
         </div>
-      </div>
+      </form>
 
-      <!-- live preview -->
       <aside class="bd-preview">
-        <div class="bd-preview-mol" aria-hidden="true">
-          <svg viewBox="0 0 380 200">
-            <defs>
-              <radialGradient id="gGold" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#FFE0A8"/><stop offset=".45" stop-color="#F0B35B"/><stop offset="1" stop-color="#8A5A14"/></radialGradient>
-              <radialGradient id="gIon" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#CFF6FF"/><stop offset=".45" stop-color="#5DE1FF"/><stop offset="1" stop-color="#0E6E88"/></radialGradient>
-              <linearGradient id="gBond" x1="0" x2="1"><stop offset="0" stop-color="#F0B35B"/><stop offset="1" stop-color="#5DE1FF"/></linearGradient>
-            </defs>
-            <line class="bd-bond-glow bd-pulse" x1="160" y1="100" x2="250" y2="100"/>
-            <line class="bd-bond-line" x1="160" y1="100" x2="250" y2="100"/>
-            <circle class="bd-atom-stock" cx="110" cy="100" r="58"/>
-            <text class="bd-atom-text" x="110" y="96" font-size="24" fill="#1A1204" data-hero-stock>—</text>
-            <text class="bd-atom-sub" x="110" y="120" font-size="9" fill="#1A1204" data-hero-stock-name></text>
-            <circle class="bd-atom-coin" cx="286" cy="100" r="36"/>
-            <text class="bd-atom-text" x="286" y="100" font-size="14" fill="#04141A" data-hero-coin>?</text>
-            <g class="bd-spin" style="--ox:110px; --oy:100px; --dur:12s"><circle class="bd-electron-gold" cx="110" cy="30" r="4"/></g>
-            <g class="bd-spin bd-spin-rev" style="--ox:286px; --oy:100px; --dur:7s"><circle class="bd-electron" cx="286" cy="52" r="3.5"/></g>
-          </svg>
+        <div class="bd-preview-art" id="preview-art"></div>
+        <div class="bd-summary">
+          <span class="bd-label">Launch summary</span>
+          <h2 id="sum-name">Your coin</h2>
+          <div class="bd-summary-sub" id="sum-sub">TICKER · PRICED IN —</div>
+          <div class="bd-review" id="review"></div>
         </div>
-        <div class="bd-paircard" id="preview-card"></div>
-        <p class="bd-preview-note">This is how the pair will look on the board. Price and figures are illustrative until the first trade.</p>
+        <div class="bd-preview-card" id="preview-card"></div>
       </aside>
     </div>
 
+    <!-- done -->
+    <div class="bd-wrap" id="done-wrap" hidden>
+      <div class="bd-panel bd-success">
+        <div class="bd-success-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h2>Bonded.</h2>
+        <p>Your pair is live and on the board. Share the link; the first buyers are usually the people who saw it first.</p>
+        <div class="bd-review" id="done"></div>
+        <div class="bd-hero-cta bd-hero-cta-row" style="justify-content:center">
+          <a class="bd-btn bd-btn-primary" id="done-open" href="board.html">Open the pair</a>
+          <a class="bd-btn bd-btn-ghost" id="done-tx" href="#" target="_blank" rel="noopener">Transaction ↗</a>
+        </div>
+      </div>
+    </div>
   </main>
+
   <footer class="bd-footer">
     <div class="bd-wrap">
       <div class="bd-footer-grid">

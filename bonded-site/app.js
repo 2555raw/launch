@@ -81,7 +81,7 @@
     AAPL: { fill: '#111111', mark: 'light', svg: '<path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>' },
     GOOGL: { fill: '#4285F4', mark: 'color', svg: '<path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/>' },
     META: { fill: '#0467DF', mark: 'light', svg: '<path d="M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a6.624 6.624 0 0 0 .265.86 5.297 5.297 0 0 0 .371.761c.696 1.159 1.818 1.927 3.593 1.927 1.497 0 2.633-.671 3.965-2.444.76-1.012 1.144-1.626 2.663-4.32l.756-1.339.186-.325c.061.1.121.196.183.3l2.152 3.595c.724 1.21 1.665 2.556 2.47 3.314 1.046.987 1.992 1.22 3.06 1.22 1.075 0 1.876-.355 2.455-.843a3.743 3.743 0 0 0 .81-.973c.542-.939.861-2.127.861-3.745 0-2.72-.681-5.357-2.084-7.45-1.282-1.912-2.957-2.93-4.716-2.93-1.047 0-2.088.467-3.053 1.308-.652.57-1.257 1.29-1.82 2.05-.69-.875-1.335-1.547-1.958-2.056-1.182-.966-2.315-1.303-3.454-1.303zm10.16 2.053c1.147 0 2.188.758 2.992 1.999 1.132 1.748 1.647 4.195 1.647 6.4 0 1.548-.368 2.9-1.839 2.9-.58 0-1.027-.23-1.664-1.004-.496-.601-1.343-1.878-2.832-4.358l-.617-1.028a44.908 44.908 0 0 0-1.255-1.98c.07-.109.141-.224.211-.327 1.12-1.667 2.118-2.602 3.358-2.602zm-10.201.553c1.265 0 2.058.791 2.675 1.446.307.327.737.871 1.234 1.579l-1.02 1.566c-.757 1.163-1.882 3.017-2.837 4.338-1.191 1.649-1.81 1.817-2.486 1.817-.524 0-1.038-.237-1.383-.794-.263-.426-.464-1.13-.464-2.046 0-2.221.63-4.535 1.66-6.088.454-.687.964-1.226 1.533-1.533a2.264 2.264 0 0 1 1.088-.285z"/>' },
-    COIN: { fill: '#0052FF', mark: 'light', svg: '<path d="M4.844 11.053c-.872 0-1.553.662-1.553 1.548s.664 1.542 1.553 1.542c.889 0 1.564-.667 1.564-1.547 0-.875-.664-1.543-1.564-1.543zm.006 2.452c-.497 0-.86-.386-.86-.904 0-.523.357-.909.854-.909.502 0 .866.392.866.91 0 .517-.364.903-.86.903zm1.749-1.778h.433v2.36h.693V11.11H6.599zm-5.052-.035c.364 0 .653.224.762.558h.734c-.133-.713-.722-1.197-1.49-1.197-.872 0-1.553.662-1.553 1.548 0 .887.664 1.543 1.553 1.543.75 0 1.351-.484 1.484-1.203h-.728a.78.78 0 01-.756.564c-.502 0-.855-.386-.855-.904 0-.523.347-.909.85-.909zm18.215.622l-.508-.075c-.242-.035-.415-.115-.415-.305 0-.207.225-.31.53-.31.336 0 .55.143.595.379h.67c-.075-.599-.537-.95-1.247-.95-.733 0-1.218.375-1.218.904 0 .506.317.8.958.892l.508.075c.249.034.387.132.387.316 0 .236-.242.334-.577.334-.41 0-.641-.167-.676-.42h-.681c.064.581.52.99 1.35.99.757 0 1.26-.346 1.26-.938 0-.53-.364-.806-.936-.892zM7.378 9.885a.429.429 0 00-.444.437c0 .254.19.438.444.438a.429.429 0 00.445-.438.429.429 0 00-.445-.437zm10.167 2.245c0-.645-.392-1.076-1.224-1.076-.785 0-1.224.397-1.31 1.007h.687c.035-.236.22-.432.612-.432.352 0 .525.155.525.345 0 .248-.317.311-.71.351-.531.058-1.19.242-1.19.933 0 .535.4.88 1.034.88.497 0 .809-.207.965-.535.023.293.242.483.548.483h.404v-.616h-.34v-1.34zm-.68.748c0 .397-.347.69-.769.69-.26 0-.48-.11-.48-.34 0-.293.353-.373.676-.408.312-.028.485-.097.572-.23zm-3.679-1.825c-.386 0-.71.162-.94.432V9.856h-.693v4.23h.68v-.391c.232.282.56.449.953.449.832 0 1.461-.656 1.461-1.543 0-.886-.64-1.548-1.46-1.548zm-.103 2.452c-.497 0-.86-.386-.86-.904 0-.517.369-.909.865-.909.503 0 .855.386.855.91 0 .517-.364.903-.86.903zm-3.187-2.452c-.45 0-.745.184-.919.443v-.385H8.29v2.975h.693v-1.617c0-.455.289-.777.716-.777.398 0 .647.282.647.69v1.704h.692v-1.755c0-.748-.386-1.278-1.142-1.278zM24 12.503c0-.851-.624-1.45-1.46-1.45-.89 0-1.542.668-1.542 1.548 0 .927.698 1.543 1.553 1.543.722 0 1.287-.426 1.432-1.03h-.722c-.104.264-.358.414-.699.414-.445 0-.78-.276-.854-.76H24v-.264zm-2.252-.23c.11-.414.422-.615.78-.615.392 0 .693.224.762.615Z"/>' },
+    COIN: { fill: '#FFFFFF', mark: 'light', svg: '<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13zm-2.4-8.1h4.8v3.2H9.6z" fill-rule="evenodd"/>' },
     HOOD: { fill: '#1B1F14', mark: 'dark', svg: '<path d="M2.84 24h.53c.096 0 .192-.048.224-.128C7.591 13.696 11.94 8.656 14.67 5.638c.112-.128.064-.225-.096-.225h-4.88a.55.55 0 0 0-.45.225L5.746 9.972c-.514.642-.642 1.236-.642 2.086v4.43c-1.14 3.194-1.862 5.361-2.392 7.32-.032.125.016.192.129.192M20.447.646c-.754-.802-4.157-.834-5.73-.224a3 3 0 0 0-.786.465 41 41 0 0 0-3.323 3.178c-.112.113-.064.225.097.225h5.409c.497 0 .786.289.786.786v6.1c0 .16.128.208.225.064l3.258-4.254c.53-.69.69-.898.835-1.861.192-1.413.08-3.58-.77-4.479m-6.982 16.18 2.231-3.676a.7.7 0 0 0 .064-.29V6.73c0-.16-.112-.225-.224-.097-3.355 3.74-5.971 7.672-8.395 12.407-.06.12.016.225.16.177l5.009-1.54c.565-.174.882-.402 1.155-.852"/>' },
     PLTR: { fill: '#101113', mark: 'light', svg: '<path d="M20.147 18L12 21.178 3.853 18 2.5 20.343 12 24l9.5-3.657L20.147 18zM12 0a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zm0 16.078a6.568 6.568 0 1 1 0-13.136 6.568 6.568 0 0 1 0 13.136z"/>' },
     MSTR: { fill: '#D9232E', mark: 'light', svg: '<path d="M9.095 2.572h5.827v18.856H9.096zM0 2.572h5.825v18.856H.001zm18.174 0v18.854H24V8.33z"/>' },
@@ -1116,66 +1116,61 @@
   if (page === 'launch') {
     const params = new URLSearchParams(location.search);
     const form = { stock: params.get('stock') || 'NVDA', name: '', ticker: '', desc: '', image: '', buy: '', x: '', site: '' };
-    const panels = $$('[data-step]'), steps = $$('#stepper span');
-    const grid = $('#launch-elements'), preview = $('#preview-card');
-    let step = 1;
+    const art = $('#preview-art'), card = $('#preview-card'), review = $('#review'), sel = $('#f-stock');
 
     const previewPair = () => ({
-      name: form.name || 'Your token', ticker: form.ticker || 'TKN', stock: form.stock, image: /^https?:\/\//.test(form.image) ? form.image : '',
+      name: form.name || 'Your coin', ticker: form.ticker || 'TKN', stock: form.stock, image: /^https?:\/\//.test(form.image) ? form.image : '',
       mcap: 25_000 + (form.buy ? Number(form.buy) * stockOf(form.stock).price * 12 : 0), volume: 0, change: 0, holders: 1, createdAt: Date.now(),
     });
-    const paintPreview = () => {
+    const rows = () => {
       const st = stockOf(form.stock);
-      $$('[data-hero-stock]').forEach(el => el.textContent = st.sym); $$('[data-hero-stock-name]').forEach(el => el.textContent = st.name.toUpperCase());
-      $$('[data-hero-coin]').forEach(el => el.textContent = form.ticker || '?');
-      preview.innerHTML = pairCard(previewPair());
-      $('#f-ticker-pair').textContent = '/ ' + st.sym; $('#f-buy-unit').textContent = st.sym;
+      return [
+        ['Stock', `${st.sym} · ${esc(st.name)}`], ['Priced in', `${st.sym} per coin`],
+        ['Supply', '1.00B · fixed'], ['Liquidity', 'locked at launch'], ['Ownership', 'renounced'],
+        ['First buy', form.buy ? `${Number(form.buy)} ${st.sym}` : 'none'],
+        ['Swap fee', `${CONFIG.swapFee} · ${CONFIG.creatorShare} to you`], ['Creation fee', CONFIG.fee], ['Chain', CONFIG.chain],
+      ];
     };
-    const show = n => {
-      step = n;
-      panels.forEach(p => p.hidden = Number(p.dataset.step) !== n);
-      steps.forEach((s, i) => { s.classList.toggle('is-done', i + 1 < n); s.classList.toggle('is-active', i + 1 === n); });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    const paint = () => {
+      const st = stockOf(form.stock);
+      art.style.setProperty('--sc', st.color);
+      art.innerHTML = `<i class="bd-frog bd-frogpic" style="--c:${st.color}">${FROG_SVG(st)}</i><span class="bd-preview-ticker">${esc(form.ticker || 'TICKER')} · ${st.sym}</span>`;
+      $('#sum-name').textContent = form.name || 'Your coin';
+      $('#sum-sub').textContent = `${form.ticker || 'TICKER'} · priced in ${st.name}`;
+      review.innerHTML = rows().map(([k, v]) => `<div class="bd-review-row"><span>${k}</span><b>${v}</b></div>`).join('');
+      card.innerHTML = `<div class="bd-paircard">${pairCard(previewPair())}</div>`;
+      $('#f-ticker-pair').textContent = '/ ' + st.sym; $('#f-buy-unit').textContent = st.sym;
     };
     adapter.stocks().then(stocks => {
       if (!stocks.some(s => s.sym === form.stock)) form.stock = stocks[0].sym;
-      grid.innerHTML = stocks.map(s => elementTile(s, s.sym === form.stock)).join('');
-      grid.addEventListener('click', e => { const b = e.target.closest('[data-sym]'); if (!b) return; form.stock = b.dataset.sym; $$('.bd-element', grid).forEach(x => x.classList.toggle('is-active', x === b)); paintPreview(); });
-      paintPreview();
+      sel.innerHTML = stocks.map(s => `<option value="${s.sym}" ${s.sym === form.stock ? 'selected' : ''}>${s.sym} — ${esc(s.name)} · $${s.price.toFixed(2)}</option>`).join('');
+      sel.addEventListener('change', () => { form.stock = sel.value; paint(); });
+      paint();
     });
     const fields = { name: '#f-name', ticker: '#f-ticker', desc: '#f-desc', image: '#f-image', buy: '#f-buy', x: '#f-x', site: '#f-site' };
-    Object.entries(fields).forEach(([k, sel]) => $(sel).addEventListener('input', e => {
+    Object.entries(fields).forEach(([k, s]) => $(s).addEventListener('input', e => {
       form[k] = k === 'ticker' ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '') : e.target.value;
       if (k === 'ticker') e.target.value = form[k];
-      paintPreview();
+      paint();
     }));
     const validate = () => {
       const err = $('#f-error'); const problems = [];
-      if (form.name.trim().length < 2) problems.push('Give the token a name (2 to 32 characters).');
+      if (form.name.trim().length < 2) problems.push('Give the coin a name (2 to 32 characters).');
       if (form.ticker.length < 2 || form.ticker.length > 8) problems.push('The ticker needs 2 to 8 letters or digits.');
       if (form.ticker && STOCKS.some(s => s.sym === form.ticker)) problems.push('That ticker is a stock symbol; pick another.');
       if (form.ticker && findPair(form.ticker)) problems.push('That ticker is already bonded; pick another.');
       if (form.buy && Number(form.buy) < 0) problems.push('The first buy cannot be negative.');
       if (form.image && !/^https?:\/\//.test(form.image)) problems.push('The image needs a full https URL.');
       err.hidden = !problems.length; err.textContent = problems.join(' ');
+      if (problems.length) err.scrollIntoView({ block: 'center', behavior: 'smooth' });
       return !problems.length;
     };
-    const reviewRows = () => {
-      const st = stockOf(form.stock);
-      return [
-        ['Token', `${esc(form.name)} ($${esc(form.ticker)})`], ['Bonded to', `${st.sym} · ${esc(st.name)}`],
-        ['Supply', CONFIG.supply.toLocaleString('en-US') + ' · fixed, no mint'], ['Pool', `${esc(form.ticker)} / ${st.sym} · liquidity locked`],
-        ['Ownership', 'renounced at deploy'], ['Swap fee', `${CONFIG.swapFee} · ${CONFIG.creatorShare} to you`],
-        ['First buy', form.buy ? `${Number(form.buy)} ${st.sym}` : 'none'], ['Creation fee', CONFIG.fee], ['Chain', CONFIG.chain],
-      ].map(([k, v]) => `<div class="bd-review-row"><span>${k}</span><b>${v}</b></div>`).join('');
-    };
-    $$('[data-next]').forEach(b => b.addEventListener('click', () => { if (step === 2 && !validate()) return; if (step === 2) $('#review').innerHTML = reviewRows(); show(step + 1); }));
-    $$('[data-prev]').forEach(b => b.addEventListener('click', () => show(step - 1)));
-    const deployBtn = $('#deploy');
-    const paintDeploy = () => { deployBtn.textContent = wallet ? 'Bond it' : 'Connect wallet to bond'; };
+    const deployBtn = $('#deploy'), callout = $('#wallet-callout');
+    const paintDeploy = () => { deployBtn.textContent = wallet ? 'Bond it' : 'Connect wallet to bond'; callout.classList.toggle('is-connected', !!wallet); };
     document.addEventListener('bonded:wallet', paintDeploy); paintDeploy();
     deployBtn.addEventListener('click', async () => {
       const err = $('#tx-error'); err.hidden = true;
+      if (!validate()) return;
       if (!wallet && !(await connect())) { err.hidden = false; err.textContent = 'No wallet connected.'; return; }
       deployBtn.disabled = true; deployBtn.textContent = 'Waiting for signature…';
       try {
@@ -1183,9 +1178,9 @@
         const st = stockOf(form.stock);
         $('#done').innerHTML = [['Pair', `${esc(form.ticker)} / ${st.sym}`], ['Token', res.tokenAddress], ['Pool', res.pairAddress], ['Transaction', res.txHash.slice(0, 18) + '…']]
           .map(([k, v]) => `<div class="bd-review-row"><span>${k}</span><b>${v}</b></div>`).join('');
-        $('#done-tx').href = `${CONFIG.explorer}/tx/${res.txHash}`;
-        const see = $('[data-step="4"] a[href="board.html"]'); if (see) { see.href = 'pair.html?t=' + encodeURIComponent(form.ticker); see.textContent = 'Open the pair'; }
-        show(4);
+        $('#done-tx').href = `${CONFIG.explorer}/tx/${res.txHash}`; $('#done-open').href = 'pair.html?t=' + encodeURIComponent(form.ticker);
+        $('.bd-launch').hidden = true; $('#done-wrap').hidden = false; window.scrollTo({ top: 0, behavior: 'smooth' });
+        toast(`$${form.ticker} is bonded to ${st.sym}`);
       } catch (e) { err.hidden = false; err.textContent = e?.message || 'The transaction was rejected.'; }
       finally { deployBtn.disabled = false; paintDeploy(); }
     });

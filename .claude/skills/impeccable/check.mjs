@@ -106,9 +106,9 @@ try {
       const errs = []; pg.on('pageerror', e => errs.push(e.message));
       const T = 'IMP' + Math.floor(Math.random() * 900 + 100);
       await pg.goto(`${base}/launch.html?stock=TSLA`, { waitUntil: 'networkidle' });
-      await pg.click('[data-step="1"] [data-next]'); await pg.fill('#f-name', 'Impeccable Run'); await pg.fill('#f-ticker', T); await pg.fill('#f-buy', '0.2');
-      await pg.click('[data-step="2"] [data-next]'); await pg.click('#deploy'); await pg.waitForSelector('[data-step="4"]:not([hidden])', { timeout: 9000 });
-      await pg.click('[data-step="4"] .bd-btn-primary'); await pg.waitForLoadState('networkidle'); await pg.waitForTimeout(400);
+      await pg.fill('#f-name', 'Impeccable Run'); await pg.fill('#f-ticker', T); await pg.fill('#f-buy', '0.2');
+      await pg.click('#deploy'); await pg.waitForSelector('#done-wrap:not([hidden])', { timeout: 9000 });
+      await pg.click('#done-open'); await pg.waitForLoadState('networkidle'); await pg.waitForTimeout(400);
       const title = await pg.textContent('.bd-pp-title'); if (!title.includes('Impeccable Run')) note('after launching, the pair page does not show the new pair');
       const hold0 = await pg.textContent('#hold'); if (!/\d/.test(hold0) || hold0.startsWith('0 ')) note('the first buy left no position');
       await pg.fill('#amt', '0.05'); await pg.waitForTimeout(150); await pg.click('#go'); await pg.waitForTimeout(1300);

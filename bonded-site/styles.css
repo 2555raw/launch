@@ -560,7 +560,7 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 .bd-board-cards { display: none; }
 
 /* ---------- launch page ---------- */
-.bd-launch { padding: 20px 0 90px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start; }
+.bd-launch { padding: 20px 0 90px; display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 28px; align-items: start; }
 .bd-stepper { display: flex; gap: 8px; margin-bottom: 28px; }
 .bd-stepper span { flex: 1; padding: 10px 0 0; border-top: 2px solid var(--line-hi); font-family: var(--font-mono); font-size: 11.5px; color: var(--dim); letter-spacing: .06em; }
 .bd-stepper span.is-done { border-color: var(--gold); color: var(--gold-text); }
@@ -918,3 +918,27 @@ input::selection, textarea::selection { background: #78AB9A; color: #FFFFFF; }
 .bd-docs-body h2 { border-top-color: var(--line); }
 .bd-note { background: rgba(120,171,154,.14); border-color: rgba(120,171,154,.5); }
 @media (max-width: 900px) { .bd-docs-body { padding: 22px 18px 28px; } }
+
+/* launch page: one form, the frog and the summary beside it */
+.bd-form { padding: 32px 34px 30px; }
+.bd-form .bd-field { margin-bottom: 20px; }
+.bd-form .bd-field label { font-size: 13.5px; }
+.bd-form .bd-input { height: 50px; background: var(--card-hi); }
+.bd-form .bd-input:focus { background: #fff; }
+.bd-select-input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7688' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 16px center !important; padding-right: 40px; }
+.bd-callout-wallet { background: var(--card-hi); border: 1px solid var(--line); border-left: 3px solid #78AB9A; }
+.bd-callout-wallet b { color: var(--ink); }
+.bd-callout-wallet.is-connected { display: none; }
+.bd-preview { display: grid; gap: 16px; }
+.bd-preview-art { position: relative; height: 250px; border-radius: 22px; border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(ellipse 55% 60% at 50% 58%, color-mix(in srgb, var(--sc, #78AB9A) 42%, #fff), transparent 72%), linear-gradient(180deg, #FFFFFF, #F3F7F5); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+.bd-preview-art .bd-frogpic { width: 170px !important; height: 170px !important; }
+.bd-preview-art .bd-preview-ticker { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; color: var(--muted); text-transform: uppercase; }
+.bd-summary { padding: 22px 24px 8px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+.bd-summary h2 { font-family: var(--font-display); font-size: 26px; font-weight: 500; letter-spacing: -.01em; margin: 10px 0 4px; }
+.bd-summary-sub { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.bd-summary .bd-review { border: 0; border-radius: 0; }
+.bd-summary .bd-review-row { background: transparent; padding: 13px 0; font-size: 14px; }
+.bd-summary .bd-review-row b { font-family: var(--font-body); font-size: 14px; font-weight: 600; }
+.bd-preview-card .bd-paircard { width: 100%; box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+@media (max-width: 1080px) { .bd-preview { order: -1; } .bd-preview-art { height: 210px; } }

@@ -172,9 +172,6 @@ data to reset it.
   `subscribe` prepends events (capped at 60). "Just bonded" re-renders on each launch event.
 - **Stocks** — tiles plus a detail panel with pairs, volume, liquidity, busiest pairs, and buttons
   to launch on or filter by that stock. The URL follows the selection.
-- **Launch** — three panels, validation (name length, ticker 2 to 8 alphanumerics, not a stock
-  symbol, not already bonded, https image, non-negative first buy), live preview, wallet connect,
-  `createPair`, then a link straight to the new pair page.
 - **My playground** — connect card, then summary tiles (positions value, pairs held, launched,
   creator fees), launched pairs with a claim button, and a positions table with Trade links.
 - **Docs** — sticky sidebar with the active section marked.

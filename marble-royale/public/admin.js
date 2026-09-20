@@ -39,6 +39,7 @@
     key = $('#key').value.trim(); localStorage.setItem('mr.admin', key);
     const out = $('#rsOut');
     if (!key) { out.textContent = 'put the admin key in the box first'; return; }
+    out.textContent = 'sending a key of ' + key.length + ' characters…';
     if (!confirm('Clear every race, every stat and the numbering? The next race will be #0001. This cannot be undone.')) return;
     out.textContent = 'clearing…';
     let res, body;

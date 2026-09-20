@@ -437,7 +437,9 @@ const server = http.createServer(async (req, res) => {
     const key = req.headers['x-admin-key'] || url.searchParams.get('key') || '';
     if (!ADMIN_KEY || key.length !== ADMIN_KEY.length ||
         !crypto.timingSafeEqual(Buffer.from(String(key)), Buffer.from(ADMIN_KEY))) {
-      return json(res, 401, { error: 'no' });
+      /* the lengths, never the keys: enough to tell a stale key from a typo */
+      console.log('[admin] rejected ' + p + ' · key sent ' + String(key).length + ' chars, expected ' + ADMIN_KEY.length);
+      return json(res, 401, { error: ADMIN_KEY ? 'that key does not match the one this server was started with' : 'this server has no admin key set' });
     }
     if (p === '/api/admin/rounds') {
       const n = Math.min(500, Math.max(1, Number(url.searchParams.get('n')) || 100));

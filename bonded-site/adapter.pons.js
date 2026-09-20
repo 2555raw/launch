@@ -384,6 +384,13 @@
       const bals = await Promise.all(pairs.map(p => erc20.balanceOf(p.address, address).catch(() => 0n)));
       return pairs.map((p, i) => ({ ticker: p.ticker, amount: Number(bals[i]) / 1e18 })).filter(h => h.amount > 0);
     },
+    async balances(address) {
+      if (!address) return [];
+      await safe(ready, []);
+      const entries = Object.entries(stockTokens);
+      const bals = await Promise.all(entries.map(([, tk]) => erc20.balanceOf(tk.address, address).catch(() => 0n)));
+      return entries.map(([sym, tk], i) => ({ sym, amount: Number(bals[i]) / 10 ** tk.decimals }));
+    },
     async launched(address) {
       if (!address) return [];
       return (await safe(ready, [])).filter(p => p.creator.toLowerCase() === address.toLowerCase()).map(p => p.ticker);

@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Docs — LilyPad</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="LilyPad">
+  <meta property="og:title" content="Docs — LilyPad"><meta property="og:description" content="How LilyPad works: pairs, curves, launching, trading, fees, graduation, contracts and how to integrate.">
+  <meta property="og:image" content="/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Docs — LilyPad"><meta name="twitter:description" content="How LilyPad works: pairs, curves, launching, trading, fees, graduation, contracts and how to integrate."><meta name="twitter:image" content="/og.png">
   <meta name="description" content="How LilyPad works: pairs, curves, launching, trading, fees, graduation, contracts and how to integrate.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23131720'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,12 +21,12 @@
   <nav class="bd-nav">
     <div class="bd-pill">
       <a class="bd-brand" href="index.html">LilyPad</a>
-      <div class="bd-nav-links" id="navlinks"><a href="board.html">Pairs</a><a href="launch.html">Launch</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">FAQ</a><a href="docs.html" class="is-active">Docs</a><button type="button" class="bd-wallet bd-only-sm">Connect wallet</button></div>
+      <div class="bd-nav-links" id="navlinks"><a href="board.html">Pairs</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">FAQ</a><a href="docs.html" class="is-active">Docs</a><button type="button" class="bd-wallet bd-only-sm">Connect wallet</button></div>
       <div class="bd-nav-right">
         <a class="bd-nav-icon" data-cfg-href="xUrl" href="#" target="_blank" rel="noopener" aria-label="LilyPad on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
         <button class="bd-nav-icon bd-nav-night" type="button" aria-label="Night on the pond" aria-pressed="false"><svg class="bd-ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg><svg class="bd-ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
         <button class="bd-nav-ghost bd-wallet" id="wallet" type="button">Connect wallet</button>
-        <a class="bd-btn bd-btn-dark" href="board.html">Open the pad <i>↗</i></a>
+        <a class="bd-btn bd-btn-dark" href="launch.html">Launch a coin</a>
         <button class="bd-icon-btn bd-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
@@ -40,6 +45,7 @@
         <a data-scroll="d-fees">Fees</a>
         <a data-scroll="d-safety">What holds</a>
         <a data-scroll="d-contracts">Contracts</a>
+        <a data-scroll="d-tokens">Stock tokens</a>
         <a data-scroll="d-integrate">Integrate</a>
         <a data-scroll="d-pons">Live on Pons</a>
         <a data-scroll="d-risk">Risks</a>
@@ -105,6 +111,10 @@
         </table>
         <p>The factory is the open <strong>Pons V2 LaunchFactory</strong> on Robinhood Chain (chain id 4663). It emits <code>TokenLaunched(token, curve, deployer, pairToken, launchConfigId, graduationThreshold)</code> on every launch; <code>pairToken</code> is the stock the coin is paired with. Each coin gets its own bonding curve, which emits <code>CurveBuy</code> and <code>CurveSell</code> for trades and hands over to Uniswap v4 once it graduates.</p>
 
+        <h2 id="d-tokens">Stock tokens</h2>
+        <p>Several tokens on Robinhood Chain use the same ticker; only the ones issued by Robinhood are approved as quote assets by the factory. The official list is at <a class="bd-link" href="https://docs.robinhood.com/chain/contracts/" target="_blank" rel="noopener">docs.robinhood.com/chain/contracts</a>. When the live adapter is on, the tokens it has verified with <code>approvedPairTokens()</code> appear here, linked to the explorer.</p>
+        <table id="stock-tokens"><thead><tr><th>Stock</th><th>Token</th><th>Factory</th></tr></thead><tbody><tr><td colspan="3">Appears when the live adapter is on (<code>?pons=1</code>).</td></tr></tbody></table>
+
         <h2 id="d-integrate">Integrate</h2>
         <p>The site reads everything through one adapter object. To point it at a live deployment, define <code>window.BONDED_ADAPTER</code> before <code>app.js</code> loads, with these methods:</p>
         <pre><code>window.BONDED_ADAPTER = {
@@ -148,13 +158,14 @@
           <p>A little pair. A big leap.</p>
         </div>
         <nav class="bd-footer-links">
-          <a href="board.html">The pairs</a><a href="launch.html">Launch a pair</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">Questions</a><a href="docs.html">Docs</a>
+          <a href="board.html">The pairs</a><a href="launch.html">Launch a pair</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">Questions</a><a href="live.html">Live feed</a><a href="docs.html">Docs</a>
         </nav>
       </div>
       <div class="bd-footer-bottom">
         <span>© <span data-year></span> LilyPad · A little pair. A big leap.</span>
         <button class="bd-night" id="night" type="button" aria-pressed="false"><i></i><span>Night on the pond</span></button>
-        <span>Protocol live · <span data-cfg="chain">—</span> · <span data-stat="pairs">—</span> pairs live</span>
+        <button class="bd-lang" id="lang" type="button" aria-label="Cambiar a español">ES</button>
+        <span><span data-cfg="chain">—</span> · Pons V2 factory<span class="bd-demo" data-demo>Demo data · not connected</span></span>
       </div>
     </div>
   </footer>
@@ -164,6 +175,7 @@
 <script src="pons/keccak.js?v=7"></script>
 <script src="pons/abi.js?v=7"></script>
 <script src="adapter.pons.js?v=7"></script>
+<script src="lang.es.js?v=7"></script>
 <script src="app.js?v=7"></script>
 </body>
 </html>

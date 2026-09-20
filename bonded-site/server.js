@@ -35,8 +35,24 @@ http.createServer((req, res) => {
   fs.readFile(file, (err, body) => {
     if (err) {
       res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
-      res.end('404 — nothing bonded here');
+      res.end('404 — nothing on this pad');
       return;
+    }
+    if (path.extname(file) === '.html') {
+      /* share cards need absolute URLs, and a pair page should be titled after its coin */
+      const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
+      const proto = req.headers['x-forwarded-proto'] || 'https';
+      let html = body.toString('utf8').replace(/content="\/og\.png"/g, `content="${proto}://${host}/og.png"`);
+      const t = new URL(req.url, 'http://x').searchParams.get('t');
+      if (path.basename(file) === 'pair.html' && t && /^[A-Za-z0-9]{1,12}$/.test(t)) {
+        const ticker = t.toUpperCase();
+        const title = `$${ticker} on LilyPad`;
+        const desc = `Trade $${ticker}, a coin paired with a tokenized stock on Robinhood Chain.`;
+        html = html.replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
+          .replace(/(property="og:title" content=")[^"]*/, `$1${title}`).replace(/(name="twitter:title" content=")[^"]*/, `$1${title}`)
+          .replace(/(property="og:description" content=")[^"]*/, `$1${desc}`).replace(/(name="twitter:description" content=")[^"]*/, `$1${desc}`);
+      }
+      body = Buffer.from(html, 'utf8');
     }
     res.writeHead(200, {
       'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream',

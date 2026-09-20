@@ -118,6 +118,9 @@
   };
   const LAUNCHED = store.get('bonded-launched', []);          // pairs created in this browser
   const HOLDINGS = store.get('bonded-holdings', {});          // ticker → token amount
+  const STOCKBAL = store.get('bonded-stockbal') || {};
+  const stockBal = sym => STOCKBAL[sym] ?? (0.2 + (hash(sym + 'b') % 900) / 1000);
+  const moveStock = (sym, d) => { STOCKBAL[sym] = Math.max(0, stockBal(sym) + d); store.set('bonded-stockbal', STOCKBAL); };
   const PAIRS = [...LAUNCHED, ...SEED_PAIRS.map(p => mkPair(p))];
   const findPair = t => PAIRS.find(p => p.ticker === t);
 
@@ -173,7 +176,7 @@
         address: res.tokenAddress, creator: payload.creator, image: payload.image || '', x: payload.x || '', site: payload.site || '', mine: true,
       });
       LAUNCHED.unshift(p); PAIRS.unshift(p); store.set('bonded-launched', LAUNCHED);
-      if (buyUsd > 0) { HOLDINGS[p.ticker] = (HOLDINGS[p.ticker] || 0) + Number(payload.buy) / priceShares(p) * 0.98; store.set('bonded-holdings', HOLDINGS); }
+      if (buyUsd > 0) { HOLDINGS[p.ticker] = (HOLDINGS[p.ticker] || 0) + Number(payload.buy) / priceShares(p) * 0.98; store.set('bonded-holdings', HOLDINGS); moveStock(payload.stock, -Number(payload.buy)); }
       emit({ kind: 'launch', pair: p, wallet: payload.creator, ts: Date.now() });
       return res;
     },
@@ -191,8 +194,8 @@
       await wait(900);
       const p = findPair(ticker); const q = await this.quote({ ticker, side, amount });
       const st = stockOf(p.stock);
-      if (side === 'buy') { HOLDINGS[ticker] = (HOLDINGS[ticker] || 0) + q.out; p.mcap *= 1 + q.priceImpact * 2; p.volume += amount * st.price; }
-      else { HOLDINGS[ticker] = Math.max(0, (HOLDINGS[ticker] || 0) - amount); p.mcap *= 1 - q.priceImpact * 2; p.volume += q.out * st.price; }
+      if (side === 'buy') { HOLDINGS[ticker] = (HOLDINGS[ticker] || 0) + q.out; p.mcap *= 1 + q.priceImpact * 2; p.volume += amount * st.price; moveStock(p.stock, -amount); }
+      else { HOLDINGS[ticker] = Math.max(0, (HOLDINGS[ticker] || 0) - amount); p.mcap *= 1 - q.priceImpact * 2; p.volume += q.out * st.price; moveStock(p.stock, q.out); }
       p.holders += side === 'buy' ? 1 : 0;
       store.set('bonded-holdings', HOLDINGS);
       const trade = { side, amountStock: side === 'buy' ? amount : q.out, amountToken: side === 'buy' ? q.out : amount, price: priceShares(p), wallet, ts: Date.now(), tx: '0x' + hash(ticker + Date.now()).toString(16).padStart(8, '0').repeat(8) };
@@ -200,6 +203,7 @@
       return { txHash: trade.tx, trade };
     },
     async holdings() { return Object.entries(HOLDINGS).filter(([, a]) => a > 0).map(([ticker, amount]) => ({ ticker, amount })); },
+    async balances() { return STOCKS.map(s => ({ sym: s.sym, amount: stockBal(s.sym) })); },
     async launched() { return LAUNCHED.map(p => p.ticker); },
     subscribe(fn) {
       listeners.add(fn);
@@ -230,6 +234,7 @@
   };
 
   const adapter = window.BONDED_ADAPTER || mockAdapter;
+  if (!adapter.balances) adapter.balances = async () => [];
   window.Bonded = { config: CONFIG, adapter, stocks: STOCKS, pairs: PAIRS };
 
   /* =====================================================================
@@ -312,7 +317,7 @@
   const badge = p => {
     const ageH = (Date.now() - p.createdAt) / 3600e3;
     if (ageH < 6) return '<span class="bd-badge bd-badge-new">new</span>';
-    if (p.volume / p.mcap > .3) return '<span class="bd-badge bd-badge-hot">hot</span>';
+    if (p.volume / p.mcap > .3) return '<span class="bd-badge bd-badge-hot" title="Hot: 24h volume above 30% of market cap">hot</span>';
     return '';
   };
   const pairHref = p => 'pair.html?t=' + encodeURIComponent(p.ticker);
@@ -437,11 +442,42 @@
     $$('[data-stat]').forEach(el => { if (map[el.dataset.stat]) el.textContent = map[el.dataset.stat]; });
   }).catch(() => {});
 
+  if (CONFIG.xUrl === '#') $$('[data-cfg-href="xUrl"]').forEach(a => a.remove());
+
+  // language: lang.es.js maps English strings to Spanish; the switch lives in the footer
+  const LANG_KEY = 'bonded-lang';
+  let currentLang = 'en';
+  try { currentLang = localStorage.getItem(LANG_KEY) === 'es' ? 'es' : 'en'; } catch (_) {}
+  const normText = x => x.replace(/<(\w+)[^>]*>/g, '<$1>').replace(/<span>[^<]*<\/span>/g, '<span></span>').replace(/\s+/g, ' ').trim();
+  let esByKey = null;
+  const originals = new WeakMap();
+  const t = str => (currentLang === 'es' && window.LILYPAD_ES && window.LILYPAD_ES[str]) || str;
+  const INLINE = new Set(['EM', 'B', 'A', 'SPAN', 'CODE', 'I', 'BR', 'STRONG', 'U', 'SMALL']);
+  const applyLang = () => {
+    if (!esByKey) { esByKey = {}; for (const [k, v] of Object.entries(window.LILYPAD_ES || {})) esByKey[normText(k)] = v; }
+    const dict = esByKey;
+    document.documentElement.lang = currentLang;
+    $$('h1, h2, h3, p, summary, small, li, label, a, button, th, td, span.bd-label, span.bd-eyebrow, span.bd-step-n, .bd-hero-foot div').forEach(el => {
+      if (el.closest('svg, code, pre, .bd-frog, #scene')) return;
+      if ([...el.children].some(c => !INLINE.has(c.tagName))) return;
+      if (!originals.has(el)) originals.set(el, el.innerHTML);
+      const en = originals.get(el); const key = normText(en);
+      if (currentLang === 'es') { if (dict[key]) el.innerHTML = dict[key]; }
+      else if (el.innerHTML !== en) el.innerHTML = en;
+    });
+    $$('[data-cfg-href]').forEach(el => { const v = CONFIG[el.dataset.cfgHref]; if (v) el.href = v; });
+    $$('[data-cfg]').forEach(el => { const v = CONFIG[el.dataset.cfg]; if (v != null) el.textContent = v; });
+    const btn = $('#lang'); if (btn) { btn.textContent = currentLang === 'es' ? 'EN' : 'ES'; btn.setAttribute('aria-label', currentLang === 'es' ? 'Switch to English' : 'Cambiar a español'); }
+    document.dispatchEvent(new CustomEvent('bonded:lang', { detail: currentLang }));
+  };
+  applyLang();
+  $('#lang')?.addEventListener('click', () => { currentLang = currentLang === 'es' ? 'en' : 'es'; try { localStorage.setItem(LANG_KEY, currentLang); } catch (_) {} applyLang(); });
+
   // wallet (remembered for the tab so it survives page changes)
   let wallet = null;
   const walletBtns = $$('.bd-wallet');
   const setWallet = w => {
-    wallet = w; walletBtns.forEach(b => b.textContent = w ? shortAddr(w.address) : 'Connect wallet');
+    wallet = w; walletBtns.forEach(b => { b.textContent = w ? shortAddr(w.address) : t('Connect wallet'); b.title = w ? `${w.address} · ${CONFIG.chain}` : ''; });
     try { w ? sessionStorage.setItem('bonded-wallet', JSON.stringify(w)) : sessionStorage.removeItem('bonded-wallet'); } catch (_) {}
     document.dispatchEvent(new CustomEvent('bonded:wallet', { detail: w }));
   };
@@ -459,8 +495,10 @@
     const root = $('.bd'); if (!root) return null;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const small = innerWidth < 900;
+    const lite = reduced || small || (navigator.hardwareConcurrency || 8) <= 4 || !!(navigator.connection && navigator.connection.saveData);
+    if (lite) document.documentElement.classList.add('is-lite');
     const el = document.createElement('div'); el.className = 'bd-lake'; el.setAttribute('aria-hidden', 'true');
-    const anim = !reduced && !small;
+    const anim = !lite;
     el.innerHTML = `<i class="bd-lake-water"></i>
       <svg class="bd-lake-svg" aria-hidden="true">
         <defs>
@@ -520,7 +558,7 @@
     for (let k = 0; k < (small ? 8 : 18); k++) { const m = document.createElement('i'); m.className = 'bd-mote'; m.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(rnd() * 100).toFixed(1)}%; --d:${(14 + rnd() * 16).toFixed(1)}s; --dl:${(-rnd() * 20).toFixed(1)}s; --mx:${((rnd() - .5) * 220).toFixed(0)}px; --my:${((rnd() - .5) * 160).toFixed(0)}px`; el.appendChild(m); }
     // night: fireflies that drift and blink
     const fireflies = document.createElement('div'); fireflies.className = 'bd-fireflies';
-    for (let k = 0; k < (small ? 20 : 40); k++) { const f = document.createElement('i'); f.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(8 + rnd() * 88).toFixed(1)}%; --d:${(6 + rnd() * 9).toFixed(1)}s; --b:${(1.6 + rnd() * 2.4).toFixed(1)}s; --dl:${(-rnd() * 12).toFixed(1)}s; --mx:${((rnd() - .5) * 140).toFixed(0)}px; --my:${((rnd() - .5) * 90).toFixed(0)}px; --s:${(3 + rnd() * 3).toFixed(1)}px`; fireflies.appendChild(f); }
+    for (let k = 0; k < (lite ? (small ? 14 : 22) : 40); k++) { const f = document.createElement('i'); f.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(8 + rnd() * 88).toFixed(1)}%; --d:${(6 + rnd() * 9).toFixed(1)}s; --b:${(1.6 + rnd() * 2.4).toFixed(1)}s; --dl:${(-rnd() * 12).toFixed(1)}s; --mx:${((rnd() - .5) * 140).toFixed(0)}px; --my:${((rnd() - .5) * 90).toFixed(0)}px; --s:${(3 + rnd() * 3).toFixed(1)}px`; fireflies.appendChild(f); }
     el.appendChild(fireflies);
     root.prepend(el);
     let paused = false;
@@ -905,7 +943,7 @@
     };
     const placeLabel = f => {
       if (!f) { label.classList.remove('is-on'); return; }
-      label.innerHTML = `<b>${f.s.sym}</b> · ${esc(f.s.name)} · $${f.s.price.toFixed(2)} · Pair it ↗`;
+      label.innerHTML = `<i class="bd-fl-dot" style="background:${f.s.color}"></i><b>${f.s.sym}</b><span>${esc(f.s.name)}</span><em>$${f.s.price.toFixed(2)}</em><u>Pair it →</u>`;
       label.style.left = f.x + 'px'; label.style.top = (f.y - f.size / 2 - 36) + 'px'; label.classList.add('is-on');
     };
 
@@ -999,7 +1037,7 @@
     const pic = sym => { const s = stockOf(sym); return `<i class="bd-frog bd-frogpic" style="--c:${s.color}">${FROG_SVG(s)}</i>`; };
     const illus = {
       pick: `<div class="bd-illus-pick">${['TSLA', 'NVDA', 'AAPL', 'SPY'].map(sym => `<div class="bd-pick ${sym === 'NVDA' ? 'is-on' : ''}">${pic(sym)}<small>${sym}</small></div>`).join('')}</div>`,
-      name: `<div class="bd-illus-name">${pic('TSLA')}<div><b>Robotaxi Season<i></i></b><span>$ROBO · in TSLA</span><em>1B fixed · no owner</em></div></div>`,
+      name: `<div class="bd-illus-name">${pic('TSLA')}<div><b>Robotaxi Season<i></i></b><span>$ROBO · in TSLA</span><em>1B · quoted in TSLA</em></div></div>`,
       bond: (() => { const demo = { ticker: 'ROBO', stock: 'TSLA', mcap: 1_840_000, change: 38.4 }; return `<div class="bd-illus-bond">${pic('TSLA')}<div class="bd-bondline"></div><div class="bd-minicard"><span class="bd-livechip">LIVE</span><b>Robotaxi Season</b><span>$ROBO / TSLA</span><em>0.0₅445 TSLA<i>+38.4%</i></em>${sparkline(demo, 140, 26)}</div></div>`; })(),
     };
     $$('[data-illus]').forEach(el => { el.innerHTML = illus[el.dataset.illus] || ''; });
@@ -1017,6 +1055,12 @@
      PAIRS BOARD
      ===================================================================== */
   if (page === 'board') {
+    const TAB_NOTES = { all: 'Every pair on the pond.', new: 'Newest launches first.', hot: 'Trending: 24h volume above 25% of market cap.', top: 'Top: market cap above $1M.' };
+    const tabnote = document.createElement('p'); tabnote.className = 'bd-tabnote'; tabnote.id = 'tabnote';
+    const tin = $('.bd-toolbar-in'); if (tin) tin.insertAdjacentElement('afterend', tabnote);
+    const paintNote = () => { tabnote.textContent = TAB_NOTES[state.tab] || ''; };
+    const tabEls = $$('#tabs [data-tab]'); const NOTE_TITLES = { new: 'Newest launches first', hot: '24h volume above 25% of market cap', top: 'Market cap above $1M' };
+    tabEls.forEach(b => { if (NOTE_TITLES[b.dataset.tab]) b.title = NOTE_TITLES[b.dataset.tab]; });
     const rows = $('#rows'), cards = $('#cards'), empty = $('#empty'), chips = $('#stock-chips'), search = $('#search'), sortSel = $('#sort');
     const params = new URLSearchParams(location.search);
     const state = { tab: 'all', stock: params.get('stock') || 'all', q: params.get('q') || '', sort: 'volume', dir: -1 };
@@ -1029,7 +1073,7 @@
         (state.stock === 'all' || p.stock === state.stock) &&
         (!q || p.name.toLowerCase().includes(q) || p.ticker.toLowerCase().includes(q) || p.stock.toLowerCase().includes(q)));
       if (state.tab === 'new') list = list.filter(p => Date.now() - p.createdAt < 24 * 3600e3);
-      if (state.tab === 'hot') list = list.filter(p => p.volume / p.mcap > .25);
+      paintNote(); if (state.tab === 'hot') list = list.filter(p => p.volume / p.mcap > .25);
       if (state.tab === 'top') list = list.filter(p => p.mcap > 1e6);
       const key = { name: p => p.name.toLowerCase(), stock: p => p.stock, price: priceUsd, change: p => p.change, mcap: p => p.mcap, volume: p => p.volume, holders: p => p.holders, age: p => p.createdAt }[state.sort];
       list.sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * state.dir; });
@@ -1109,6 +1153,7 @@
       <td class="is-num" style="color:var(--dim)">${fmtTime(t.ts)}</td>
     </tr>`;
 
+    let paintBal = () => {};
     adapter.pair(ticker).then(p => {
       if (!p) { root.innerHTML = `<div class="bd-empty" style="grid-column:1/-1">No pair called ${esc(ticker || '')}. <a class="bd-link" href="board.html">Back to the pairs</a>.</div>`; return; }
       const st = stockOf(p.stock);
@@ -1164,8 +1209,10 @@
         </div>
         <aside class="bd-trade" id="trade">
           <div class="bd-tabs"><button class="bd-tab is-buy is-active" data-side="buy">Buy</button><button class="bd-tab is-sell" data-side="sell">Sell</button></div>
+          <div class="bd-netline"><i></i>${CONFIG.chain}</div>
           <div class="bd-amount">
             <label><span id="amt-label">You pay</span><a id="amt-max">max</a></label>
+            <small class="bd-bal" id="amt-bal"></small>
             <div class="bd-amount-row"><input id="amt" type="number" min="0" step="any" placeholder="0.00" inputmode="decimal"><span class="bd-unit" id="amt-unit">${st.sym}</span></div>
           </div>
           <div class="bd-quick" id="quick"></div>
@@ -1194,10 +1241,10 @@
 
       // trade panel
       let side = 'buy', amount = 0, quote = null, holding = 0;
-      const refreshHolding = async () => { holding = (await adapter.holdings(wallet?.address)).find(h => h.ticker === p.ticker)?.amount || 0; $('#hold').textContent = `${fmtNum(holding)} $${p.ticker} ≈ ${fmtNum(holding * priceShares(p))} ${st.sym}`; };
+      const refreshHolding = async () => { holding = (await adapter.holdings(wallet?.address)).find(h => h.ticker === p.ticker)?.amount || 0; $('#hold').textContent = `${fmtNum(holding)} $${p.ticker} ≈ ${fmtNum(holding * priceShares(p))} ${st.sym}`; paintBal(); };
       const paintSide = () => {
         $$('#trade .bd-tab').forEach(t => t.classList.toggle('is-active', t.dataset.side === side));
-        $('#amt-label').textContent = side === 'buy' ? 'You pay' : 'You sell'; $('#amt-unit').textContent = side === 'buy' ? st.sym : p.ticker; $('#amt-unit').classList.toggle('is-coin', side === 'sell');
+        $('#amt-label').textContent = side === 'buy' ? 'You pay' : 'You sell'; paintBal(); $('#amt-unit').textContent = side === 'buy' ? st.sym : p.ticker; $('#amt-unit').classList.toggle('is-coin', side === 'sell');
         $('#out-unit').textContent = side === 'buy' ? p.ticker : st.sym; $('#out-unit').classList.toggle('is-coin', side === 'buy');
         $('#quick').innerHTML = side === 'buy' ? ['0.01', '0.05', '0.1', '0.5'].map(v => `<button data-v="${v}">${v} ${st.sym}</button>`).join('') : ['25', '50', '75', '100'].map(v => `<button data-pct="${v}">${v}%</button>`).join('');
         const go = $('#go'); go.className = 'bd-btn ' + (side === 'buy' ? 'bd-btn-buy' : 'bd-btn-sell');
@@ -1218,7 +1265,21 @@
         const q = e.target.closest('#quick button'); if (q) { const v = q.dataset.v ? Number(q.dataset.v) : holding * Number(q.dataset.pct) / 100; $('#amt').value = v ? +v.toFixed(6) : ''; amount = v || 0; paintQuote(); }
       });
       $('#amt').addEventListener('input', e => { amount = Math.max(0, Number(e.target.value) || 0); paintQuote(); });
-      $('#amt-max').addEventListener('click', () => { if (side === 'sell') { $('#amt').value = +holding.toFixed(6); amount = holding; paintQuote(); } });
+      // the stock balance under "You pay"; max fills it on the buy side and the position on the sell side
+      let stockBal = 0;
+      paintBal = () => { $('#amt-bal').textContent = wallet ? (side === 'buy' ? `Balance ${fmtNum(stockBal)} ${st.sym}` : `Balance ${fmtNum(holding)} $${p.ticker}`) : ''; };
+      const refreshBalance = async () => { if (!wallet) { paintBal(); return; } const b = (await adapter.balances(wallet.address).catch(() => [])).find(x => x.sym === st.sym); stockBal = b ? b.amount : 0; paintBal(); };
+      refreshBalance(); document.addEventListener('bonded:wallet', refreshBalance);
+      $('#amt-max').addEventListener('click', () => {
+        if (side === 'sell') { $('#amt').value = +holding.toFixed(6); amount = holding; paintQuote(); }
+        else if (stockBal > 0) { $('#amt').value = +stockBal.toFixed(6); amount = stockBal; paintQuote(); }
+      });
+      // on a phone, a fixed bar keeps buying one tap away; it hides while the panel itself is on screen
+      const bar = document.createElement('div'); bar.className = 'bd-tradebar';
+      bar.innerHTML = `<div class="bd-tradebar-price"><b>${fmtShares(priceShares(p))}</b><span>${st.sym}</span></div><button type="button" class="is-buy" data-side="buy">Buy $${esc(p.ticker)}</button><button type="button" class="is-sell" data-side="sell">Sell</button>`;
+      document.body.appendChild(bar); document.body.classList.add('has-tradebar');
+      bar.addEventListener('click', e => { const b = e.target.closest('[data-side]'); if (!b) return; const tab = $(`.bd-trade .bd-tab[data-side="${b.dataset.side}"]`); if (tab) tab.click(); $('#trade').scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(() => $('#amt').focus({ preventScroll: true }), 500); });
+      if ('IntersectionObserver' in window) new IntersectionObserver(([en]) => bar.classList.toggle('is-hidden', en.isIntersecting), { threshold: .25 }).observe($('#trade'));
       $('#go').addEventListener('click', async () => {
         const err = $('#t-error'); err.hidden = true;
         if (!wallet && !(await connect())) return;
@@ -1227,6 +1288,7 @@
         const go = $('#go'); go.disabled = true; go.textContent = 'Waiting for signature…';
         try {
           const res = await adapter.swap({ ticker: p.ticker, side, amount, wallet: wallet.address });
+          refreshBalance();
           const tr = res.trade; $('#trades').insertAdjacentHTML('afterbegin', tradeRow(tr, st, p, true));
           toast(side === 'buy' ? `Bought ${fmtNum(tr.amountToken)} $${p.ticker} for ${fmtNum(tr.amountStock)} ${st.sym}` : `Sold ${fmtNum(tr.amountToken)} $${p.ticker} for ${fmtNum(tr.amountStock)} ${st.sym}`);
           $('#pp-price').innerHTML = `${fmtShares(priceShares(p))} <span class="bd-gold">${st.sym}</span>`; $('#pp-mcap').textContent = fmtUsd(p.mcap); $('#pp-vol').textContent = fmtUsd(p.volume); $('#pp-holders').textContent = fmtNum(p.holders);
@@ -1285,7 +1347,7 @@
         <div class="bd-sd-stats">
           <div class="bd-stat"><span class="bd-label">Pairs</span><b>${s.pairs}</b></div>
           <div class="bd-stat"><span class="bd-label">24h volume</span><b>${fmtUsd(vol * 3.6)}</b></div>
-          <div class="bd-stat"><span class="bd-label">Liquidity in ${s.sym}</span><b>${fmtUsd(liq * 4.2)}</b></div>
+          <div class="bd-stat"><span class="bd-label">Liquidity (USD)</span><b>${fmtUsd(liq * 4.2)}</b></div>
           <div class="bd-stat"><span class="bd-label">Quoted as</span><b class="bd-small">${s.sym} per token</b></div>
         </div>
         <div class="bd-hero-cta bd-hero-cta-row" style="flex-direction:row;justify-content:flex-start;margin-bottom:16px">
@@ -1387,7 +1449,7 @@
     const root = $('#mine');
     const paint = async () => {
       if (!wallet) {
-        root.innerHTML = `<div class="bd-mine-connect"><h2>Connect to see your playground.</h2><p>Your launches, your positions and the fees you have earned.</p><button class="bd-btn bd-btn-primary" id="mine-connect" type="button">Connect wallet</button></div>`;
+        root.innerHTML = `<div class="bd-mine-connect"><h2>Connect to see your playground.</h2><p>Your launches and your positions, in one place.</p><button class="bd-btn bd-btn-primary" id="mine-connect" type="button">Connect wallet</button></div>`;
         $('#mine-connect').addEventListener('click', connect); return;
       }
       const [pairs, launchedT, holdings] = await Promise.all([adapter.pairs(), adapter.launched(wallet.address), adapter.holdings(wallet.address)]);
@@ -1419,6 +1481,10 @@
      DOCS — active section in the sidebar
      ===================================================================== */
   if (page === 'docs') {
+    if (adapter.pons) adapter.ready().then(() => {
+      const rows = Object.entries(adapter.stockTokens).map(([sym, tk]) => `<tr><td>${esc(sym)}</td><td><a class="bd-link" href="${CONFIG.explorer}/token/${tk.address}" target="_blank" rel="noopener"><code>${tk.address}</code></a></td><td>approved</td></tr>`).join('');
+      if (rows) $('#stock-tokens tbody').innerHTML = rows;
+    }).catch(() => {});
     const side = $$('#docs-side a[data-scroll]');
     const io = new IntersectionObserver(entries => entries.forEach(en => { if (en.isIntersecting) side.forEach(a => a.classList.toggle('is-active', a.dataset.scroll === en.target.id)); }), { rootMargin: '-20% 0px -70% 0px' });
     side.forEach(a => { const t = document.getElementById(a.dataset.scroll); if (t) io.observe(t); });

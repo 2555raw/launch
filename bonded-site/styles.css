@@ -960,7 +960,7 @@ input::selection, textarea::selection { background: #78AB9A; color: #FFFFFF; }
 .bd-summary .bd-review-row { background: transparent; padding: 13px 0; font-size: 14px; }
 .bd-summary .bd-review-row b { font-family: var(--font-body); font-size: 14px; font-weight: 600; }
 .bd-preview-card .bd-paircard { width: 100%; box-shadow: 0 8px 30px rgba(19,23,32,.05); }
-@media (max-width: 1080px) { .bd-preview { order: -1; } .bd-preview-art { height: 210px; } }
+@media (max-width: 1080px) { .bd-preview-art { height: 210px; } }
 
 /* footer, after the reference: air, the name and the links, a hairline, the small print */
 .bd-footer { padding: 120px 0 56px; color: #1C222B; font-size: 14px; background: transparent; }
@@ -1215,3 +1215,61 @@ html.is-pons [data-demo] { display: none; }
 html.is-night .bd-trades-wrap { background: rgba(14, 26, 22, .92); border-color: rgba(255,255,255,.08); }
 html.is-night .bd-trades th { color: #93A39B; }
 html.is-night .bd-trades td { color: #E8F0EB; }
+
+/* ---- the second critique ---- */
+/* pair page on a phone: one column, nothing clipped, a buy bar that is always at hand */
+@media (max-width: 900px) { .bd-pairpage { grid-template-columns: minmax(0, 1fr) !important; } .bd-pairpage > * { min-width: 0; } }
+@media (max-width: 600px) { .bd-stats { grid-template-columns: 1fr; } .bd-pp-title { font-size: 22px; } }
+.bd-tradebar { display: none; }
+@media (max-width: 900px) {
+  .bd-tradebar { display: flex; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 60; align-items: center; gap: 8px; padding: 10px 10px 10px 14px; border-radius: 16px; background: #fff; border: 1px solid var(--line); box-shadow: 0 14px 40px rgba(20, 60, 40, .22); transition: transform .25s ease, opacity .25s ease; }
+  .bd-tradebar.is-hidden { transform: translateY(120%); opacity: 0; pointer-events: none; }
+  .bd-tradebar-price { margin-right: auto; display: flex; flex-direction: column; line-height: 1.1; }
+  .bd-tradebar-price b { font-family: var(--font-mono); font-size: 15px; font-weight: 600; }
+  .bd-tradebar-price span { font-family: var(--font-mono); font-size: 10.5px; color: #5B6670; letter-spacing: .08em; }
+  .bd-tradebar button { height: 40px; padding: 0 16px; border-radius: 12px; border: 0; font: 600 14px var(--font-body); cursor: pointer; }
+  .bd-tradebar .is-buy { background: #1E7A56; color: #fff; }
+  .bd-tradebar .is-sell { background: #F3F5F4; color: #131720; }
+  body.has-tradebar { padding-bottom: 84px; }
+  html.is-night .bd-tradebar { background: rgba(14, 26, 22, .96); border-color: rgba(255,255,255,.1); }
+  html.is-night .bd-tradebar .is-sell { background: rgba(255,255,255,.08); color: #E8F0EB; }
+  html.is-night .bd-tradebar-price b { color: #E8F0EB; }
+}
+/* balance and network in the trade panel */
+.bd-bal { display: block; margin-top: 4px; font-family: var(--font-mono); font-size: 11px; color: #5B6670; min-height: 14px; }
+.bd-netline { display: flex; align-items: center; gap: 6px; margin: -6px 0 12px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #5B6670; }
+.bd-netline i { width: 7px; height: 7px; border-radius: 50%; background: #1E7A56; box-shadow: 0 0 0 3px rgba(30,122,86,.18); }
+/* launch on a phone: the form first */
+@media (max-width: 1080px) { .bd-launch { grid-template-columns: 1fr; } .bd-preview { order: 1; } }
+/* board on a phone: filters in one row you can swipe */
+@media (max-width: 700px) {
+  .bd-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px 2px; width: calc(100% + 32px); }
+  .bd-chips::-webkit-scrollbar { display: none; }
+  .bd-chip { flex: 0 0 auto; }
+  .bd-toolbar-in { gap: 8px; }
+  .bd-search { flex: 1 1 140px; }
+}
+.bd-tabnote { margin: 8px 0 0; font-size: 12.5px; color: #4A5560; }
+html.is-night .bd-tabnote { color: #93A39B; }
+/* what the badges mean is one hover away */
+.bd-badge[title] { cursor: help; }
+/* honesty pill and language switch in the footer */
+.bd-demo { display: inline-block; margin-left: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(214, 150, 40, .16); color: #7A4F0A; font-size: 10px; letter-spacing: .08em; }
+html.is-night .bd-demo { background: rgba(214, 150, 40, .2); color: #F0C078; }
+.bd-lang { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; font: 600 11px var(--font-mono); letter-spacing: .1em; color: #131720; cursor: pointer; }
+html.is-night .bd-lang { background: rgba(255,255,255,.06); color: #E8F0EB; border-color: rgba(255,255,255,.12); }
+/* the frog tooltip in the hero is a card, not a debug line */
+.bd-fish-label { background: #fff !important; color: #131720 !important; border-radius: 12px !important; padding: 8px 12px !important; font: 12.5px/1.2 var(--font-body) !important; letter-spacing: 0 !important; text-transform: none !important; box-shadow: 0 10px 28px rgba(20, 60, 40, .2) !important; border: 1px solid rgba(0,0,0,.06) !important; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.bd-fish-label .bd-fl-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.bd-fish-label b { font-weight: 700; }
+.bd-fish-label span { color: #4A5560; }
+.bd-fish-label em { font-style: normal; font-family: var(--font-mono); font-size: 12px; }
+.bd-fish-label u { text-decoration: none; color: #1E7A56; font-weight: 600; }
+html.is-night .bd-fish-label { background: rgba(14, 26, 22, .96) !important; color: #E8F0EB !important; border-color: rgba(255,255,255,.1) !important; }
+html.is-night .bd-fish-label span { color: #93A39B; }
+/* lite mode: weak devices and reduced motion get a flat pond without SVG filters */
+html.is-lite .bd-caustic-a, html.is-lite .bd-caustic-b { display: none; }
+html.is-lite .bd-lake-mote, html.is-lite .bd-lake-cloud, html.is-lite .bd-lake-shimmer { display: none; }
+
+/* lite mode: no SVG filters on .bd-lake-shimmer */
+html.is-lite .bd-lake-shimmer { filter: none !important; }

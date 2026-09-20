@@ -946,23 +946,20 @@ input::selection, textarea::selection { background: #78AB9A; color: #FFFFFF; }
 .bd-preview-card .bd-paircard { width: 100%; box-shadow: 0 8px 30px rgba(19,23,32,.05); }
 @media (max-width: 1080px) { .bd-preview { order: -1; } .bd-preview-art { height: 210px; } }
 
-/* footer, after the reference: a risk line, the brand and the links, then the small print */
-.bd-footer { padding: 40px 0 44px; color: #1C222B; font-size: 14px; background: transparent; }
-.bd-footer-risk { margin: 0 0 56px; font-size: 13px; color: #1C222B; max-width: 720px; }
-.bd-footer-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; padding: 34px 0; border-top: 1px solid rgba(255,255,255,.35); }
-.bd-footer-brand .bd-brand { font-size: 22px; }
-.bd-footer-brand p { margin: 12px 0 0; color: #1C222B; }
-.bd-footer-links { display: grid; grid-template-columns: repeat(5, auto); gap: 14px 28px; justify-content: end; }
+/* footer, after the reference: air, the name and the links, a hairline, the small print */
+.bd-footer { padding: 120px 0 56px; color: #1C222B; font-size: 14px; background: transparent; }
+.bd-footer-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; padding: 0 0 44px; }
+.bd-footer-name { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -.01em; color: #131720; }
+.bd-footer-brand p { margin: 14px 0 0; color: #1C222B; }
+.bd-footer-links { display: grid; grid-template-columns: repeat(5, auto); gap: 16px 32px; justify-content: end; }
 .bd-footer-links a { font-size: 14px; font-weight: 500; color: #131720; }
 .bd-footer-links a:hover { text-decoration: underline; }
 .bd-footer-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.35); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: #1C222B; }
 @media (max-width: 900px) {
+  .bd-footer { padding-top: 72px; }
   .bd-footer-main { flex-direction: column; }
   .bd-footer-links { grid-template-columns: 1fr 1fr; justify-content: start; }
-  .bd-footer-risk { margin-bottom: 32px; }
 }
-.bd-btn-block { width: 100%; justify-content: center; margin-top: 18px; height: 54px; }
-.bd-btn-block.is-idle { background: #8B95A7; }
 
 /* the swan */
 .bd-swan { position: absolute; left: 0; top: 0; width: 200px; height: 150px; margin: -75px 0 0 -100px; transform: translate3d(var(--x, -400px), var(--y, -400px), 0) rotate(var(--rot, 0deg)); will-change: transform; opacity: 0; transition: opacity 1.2s; pointer-events: none; z-index: 2; }

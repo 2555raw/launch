@@ -1010,8 +1010,8 @@ input::selection, textarea::selection { background: #78AB9A; color: #FFFFFF; }
 .bd-cabar-chain { height: 26px; padding: 0 12px 0 10px; border-radius: 999px; background: #0F3D2E; color: #DFF6EA; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
 .bd-cabar-chain b { font-weight: 700; }
 .bd-cabar-chain .bd-dot { width: 6px; height: 6px; box-shadow: 0 0 8px var(--up); }
-body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav-h) + 96px); padding-bottom: 120px; }
-.bd-page-head { padding-top: 48px; }
+body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav-h) + 8px); padding-bottom: 200px; }
+.bd-page-head { padding-top: 36px; }
 /* the hero in the reference's type and spacing */
 .bd-hero h1 { font-family: 'Poppins', var(--font-display); font-weight: 700; letter-spacing: -.045em; line-height: .96; font-size: clamp(48px, 8.6vw, 124px); }
 .bd-eyebrow { font-family: 'Poppins', var(--font-body); font-weight: 500; font-size: 10.5px; letter-spacing: .24em; color: #3A4353; }
@@ -1031,8 +1031,7 @@ body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav
 .bd-bridge h2 { font-family: 'Poppins', var(--font-body); font-weight: 400; font-size: clamp(28px, 3.6vw, 48px); line-height: 1.2; letter-spacing: -.02em; color: #131720; max-width: 920px; margin: 18px auto 0; }
 .bd-bridge h2 em { font-style: normal; color: #2F86C4; }
 @media (max-width: 900px) {
-  .bd-cabar { display: none; }
-  body[data-page="home"] .bd-hero { padding-top: 104px; }
+  body[data-page="home"] .bd-hero { padding-top: 96px; padding-bottom: 40vh; }
   .bd-page-head { padding-top: 36px; }
   .bd-hero-foot { padding: 0 16px; }
   .bd-bridge { padding: 56px 0 8px; }

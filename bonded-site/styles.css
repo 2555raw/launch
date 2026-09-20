@@ -897,7 +897,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 /* content sits straight on the lake: white cards, no sheet */
 .bd > main, .bd-footer { position: relative; z-index: 1; }
 .bd-section-alt { border-top: 0; border-bottom: 0; background: transparent; }
-.bd-toolbar { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; border-bottom: 0; }
+.bd-toolbar { background: linear-gradient(180deg, rgba(120,171,154,.9) 0%, rgba(120,171,154,.78) 70%, rgba(120,171,154,0) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 0; border-bottom: 0; padding-bottom: 22px; }
 .bd-proof { padding-top: 40px; }
 
 .bd-faq details { background: rgba(255,255,255,.82); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; margin-bottom: 8px; }

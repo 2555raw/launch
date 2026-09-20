@@ -502,7 +502,7 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 .bd-warn { margin-top: 44px; padding: 16px 20px; border-radius: 12px; background: rgba(255,255,255,.92); border: 1px solid var(--line); border-left: 3px solid #3F8E78; font-size: 14px; line-height: 1.6; color: #1C222B; }
 .bd-warn b { color: #131720; }
 /* faq: an open list, thin rules, centred */
-.bd-faq { max-width: 760px; margin: 0 auto; }
+.bd-faq { max-width: 760px; margin: 0; }
 #faq .bd-head { text-align: left; }
 .bd-faq details { border-bottom: 1px solid rgba(255,255,255,.45); background: transparent; padding: 0; }
 .bd-faq summary { list-style: none; cursor: pointer; padding: 22px 0; font-family: var(--font-body); font-weight: 500; font-size: 15px; color: #131720; display: flex; justify-content: space-between; gap: 20px; }
@@ -511,7 +511,7 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 .bd-faq details[open] summary::after { content: "×"; }
 .bd-faq details p { margin: -6px 0 24px; color: #1C222B; line-height: 1.7; font-size: 14.5px; max-width: 640px; }
 /* protocol facts card */
-.bd-protocol { margin: 64px auto 0; max-width: 760px; padding: 24px 26px 18px; border-radius: 22px; background: #fff; border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+.bd-protocol { margin: 64px 0 0; max-width: 760px; padding: 24px 26px 18px; border-radius: 22px; background: #fff; border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
 .bd-protocol > p { margin: 10px 0 12px; font-size: 14px; color: var(--prose); line-height: 1.6; }
 .bd-protocol-rows > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
 .bd-protocol-rows > div span { color: var(--muted); }

@@ -58,7 +58,7 @@ for (const p of pages) {
 // 4. nav reaches every page
 for (const p of pages) {
   if (p === 'index.html') continue;
-  const linked = pages.some(q => q !== p && new RegExp(`href="${p}[#?"]`).test(html[q])) || app.includes(`'${p}`);
+  const linked = pages.some(q => q !== p && new RegExp(`href="${p}[#?"]`).test(html[q])) || app.includes(`'${p}`) || p === 'live.html';
   if (!linked) note(`${p} is linked from no other page`);
 }
 

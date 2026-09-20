@@ -17,6 +17,8 @@ launch.html  the three-step launch: pick the stock, name the token, review and s
              preview of the pair card; reads ?stock= from the URL
 styles.css   the design system (palette, type, layout) and the responsive rules, shared by all three
 app.js       CONFIG, sample data, the adapter, and the behaviour of the three pages
+server.js    a dependency-free static server for Railway (PORT, /health, extensionless /board and /launch)
+package.json the start script Railway runs
 ```
 
 ## Run it
@@ -28,7 +30,7 @@ python3 -m http.server 8000     # then open http://localhost:8000
 ```
 
 Deploy by dropping the folder on any static host (Netlify, Vercel, GitHub Pages, S3, Cloudflare
-Pages, Railway static).
+Pages), or on Railway with this folder as the root directory: it runs `node server.js`.
 
 ## The idea
 

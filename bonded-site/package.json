@@ -1,0 +1,12 @@
+{
+  "name": "bonded-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bonded — a launchpad where new tokens are bonded to tokenized stocks.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

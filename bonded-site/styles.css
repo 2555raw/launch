@@ -1036,3 +1036,8 @@ body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav
   .bd-hero-foot { padding: 0 16px; }
   .bd-bridge { padding: 56px 0 8px; }
 }
+
+/* the launch button: full width, grey until a wallet is connected, black after */
+.bd-form .bd-btn-block { width: 100%; justify-content: center; margin-top: 18px; height: 54px; border-radius: 999px; font-family: 'Poppins', var(--font-body); font-weight: 600; font-size: 14px; }
+.bd-form .bd-btn-block.is-idle { background: #8B95A7; color: #fff; box-shadow: none; }
+.bd-form .bd-btn-block.is-idle:hover { transform: none; }

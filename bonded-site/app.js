@@ -16,18 +16,18 @@
      CONFIG — the protocol facts the pages print. Fill these in.
      ===================================================================== */
   const CONFIG = {
-    chain: 'Base',
-    chainId: '8453',
-    explorer: 'https://basescan.org',
-    fee: '0.002 ETH',
+    chain: 'Robinhood Chain',
+    chainId: '4663',
+    explorer: 'https://robinhoodchain.blockscout.com',
+    fee: 'Pons launch fee (read on-chain)',
     swapFee: '1.0%',
     swapFeeRate: 0.01,
     creatorShare: '50%',
     creatorShareRate: 0.5,
-    factory: '0x0000000000000000000000000000000000000000',
+    factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',   // Pons V2 LaunchFactory
     token: '0x0000000000000000000000000000000000000000',
     lockUrl: '#',
-    factoryUrl: '#',
+    factoryUrl: 'https://robinhoodchain.blockscout.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
     docsUrl: 'docs.html',
     xUrl: '#',
     supply: 1_000_000_000,

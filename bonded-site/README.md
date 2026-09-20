@@ -131,6 +131,41 @@ The mock `connect()` already calls `window.ethereum.request({ method: 'eth_reque
 when a wallet extension is present, and falls back to a demo address otherwise. The connection is
 remembered for the tab in `sessionStorage`, so it survives page changes.
 
+**3. Or switch on the Pons adapter that is already there.** `adapter.pons.js` implements the whole
+contract against the open Pons V2 LaunchFactory on Robinhood Chain (chain 4663, factory
+`0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e`), with `pons/keccak.js` and `pons/abi.js` as its only
+helpers (no viem, no ethers). It is off by default; `?pons=1` on any page turns it on for that
+browser, `?pons=0` turns it off. What it does:
+
+- `createPair` → `launchToken(TokenParams, launchConfigId, stockToken, [])` with `launchFee()` as
+  value and `previewLaunchEconomics(configId, stockToken)` as `expectedEconomics`; then it reads the
+  `TokenLaunched` log from the receipt and **throws unless `pairToken` equals the stock you chose**.
+  An optional first buy is `approve` + `curve.buy(quoteIn, minOut, you)` in that stock.
+- `quote` / `swap` → `getReserves()` + `feeBps()` math, `curve.buy` / `curve.sell` with a 3%
+  slippage floor; graduated curves are refused (trade them on Uniswap v4).
+- `pairs` / `pair` / `stats` / `launched` → indexed from `TokenLaunched` events (last 120k blocks,
+  10k per `eth_getLogs`), keeping only launches whose quote token is a stock Bonded lists;
+  `trades` and `series` from `CurveBuy` / `CurveSell`; `holdings` from `balanceOf`.
+- Stock tokens come from `window.BONDED_STOCK_TOKENS = { TSLA: '0x…' }` if you define it before the
+  scripts, otherwise from the quote tokens seen on recent launches. Every address must pass
+  `approvedPairTokens()` or it is dropped. Prices in USD still come from `STOCKS` (or
+  `window.BONDED_PRICES`), so plug a price feed there.
+
+Verify it against the chain before trusting it with money:
+
+```bash
+node scripts/verify-pons.mjs                                  # discover and check everything
+node scripts/verify-pons.mjs --from 0xYourWallet              # also simulate launchToken as you
+node scripts/verify-pons.mjs --stocks TSLA=0x…,NVDA=0x…       # check the official addresses
+```
+
+It needs Node 18+ and a network that can reach `rpc.mainnet.chain.robinhood.com`. It exits 0 only
+when the chain id is 4663, the factory has code and launches are enabled, at least one real launch
+quoted in a stock token is found, a live curve reports `pairToken()` equal to that stock, and a
+simulated `launchToken()` with that stock as quote is accepted. Both the adapter and the script
+were exercised end to end against a local fake node that mirrors the Pons ABI; the live chain was
+not reachable from the machine that wrote them, so run the script yourself first.
+
 **What the mock remembers.** Pairs you launch and positions you buy are kept in `localStorage`
 (`bonded-launched`, `bonded-holdings`), so the whole loop works in a browser without a chain:
 launch → the pair page → buy and sell → My playground → the board and the live feed. Clear site
@@ -181,7 +216,10 @@ Selecting text highlights in the pond's green (`::selection`).
 
 - **Every number is sample data**: stats, stock prices, pairs, trades, the live feed, creator fees.
   The footer says so until the adapter is wired.
-- `CONFIG` is placeholder: zero addresses, `#` links, `Base` as the chain and `0.002 ETH` as the fee.
+- `CONFIG` points at Robinhood Chain and the Pons V2 factory, but the protocol-token address, the
+  lock link and the fee text are still placeholders; the demo adapter is the default until `?pons=1`.
+- Official stock token addresses live at docs.robinhood.com/chain/contracts. Same-ticker fakes
+  exist, so pin the official ones in `BONDED_STOCK_TOKENS` rather than trusting discovery.
 - The trust claims (liquidity locked with no withdraw path, fixed supply, no mint, ownership
   renounced, verified source) describe the intended contract. Confirm each one against the deployed
   factory before publishing; delete any that does not hold. The docs page repeats them.

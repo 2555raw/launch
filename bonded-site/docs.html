@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body data-page="docs">
 <div class="bd" id="top">
@@ -41,6 +41,7 @@
         <a data-scroll="d-safety">What is locked</a>
         <a data-scroll="d-contracts">Contracts</a>
         <a data-scroll="d-integrate">Integrate</a>
+        <a data-scroll="d-pons">Live on Pons</a>
         <a data-scroll="d-risk">Risks</a>
       </aside>
       <article class="bd-docs-body">
@@ -98,7 +99,7 @@
           <tr><td>Factory</td><td><code data-cfg="factory">—</code></td></tr>
           <tr><td>Protocol token</td><td><code data-cfg="token">—</code></td></tr>
         </table>
-        <p>Events emitted by the factory: <code>PairBonded(token, stock, pool, creator)</code> on every launch, and the pool's own swap events for trades.</p>
+        <p>The factory is the open <strong>Pons V2 LaunchFactory</strong> on Robinhood Chain (chain id 4663). It emits <code>TokenLaunched(token, curve, deployer, pairToken, launchConfigId, graduationThreshold)</code> on every launch; <code>pairToken</code> is the stock the coin is bonded to. Each coin gets its own bonding curve, which emits <code>CurveBuy</code> and <code>CurveSell</code> for trades and hands over to Uniswap v4 once it graduates.</p>
 
         <h2 id="d-integrate">Integrate</h2>
         <p>The site reads everything through one adapter object. To point it at a live deployment, define <code>window.BONDED_ADAPTER</code> before <code>app.js</code> loads, with these methods:</p>
@@ -116,6 +117,12 @@
   subscribe(onEvent)        { /* onEvent({ kind: 'launch'|'buy'|'sell', ... }) */ return unsubscribe; },
 };</code></pre>
         <p>Amounts are in the stock token for buys and in the token for sells. <code>series</code> is an array of prices in shares per token, oldest first.</p>
+
+        <h3 id="d-pons">Live on Pons</h3>
+        <p>The site ships with that adapter written: <code>adapter.pons.js</code> talks to the Pons V2 factory with no libraries. It is off by default; open any page with <code>?pons=1</code> to switch it on for the browser (and <code>?pons=0</code> to switch it off). With it on, <em>Launch</em> calls <code>launchToken(params, launchConfigId, stockToken, [])</code> with the factory's <code>launchFee()</code> attached and <code>previewLaunchEconomics()</code> as the economics digest, waits for the receipt, reads <code>TokenLaunched</code> and refuses to continue unless <code>pairToken</code> is the stock you picked. The first buy is a real <code>curve.buy()</code> paid in that stock. Trading on a pair page is <code>curve.buy()</code> / <code>curve.sell()</code> with a 3% slippage floor; quotes come from <code>getReserves()</code> and <code>feeBps()</code>.</p>
+        <p>The adapter discovers stock tokens from recent launches on the factory and only keeps the ones that pass <code>approvedPairTokens()</code>. To pin the official ones, define them before the scripts load:</p>
+        <pre><code>&lt;script&gt;window.BONDED_STOCK_TOKENS = { TSLA: '0x…', NVDA: '0x…' };&lt;/script&gt;</code></pre>
+        <p>Before trusting any of it with money, run <code>node scripts/verify-pons.mjs</code> from a machine that can reach <code>rpc.mainnet.chain.robinhood.com</code>. It checks the chain id and factory code, reads <code>launchEnabled()</code>, <code>launchFee()</code> and every launch config, tallies the quote tokens of real launches, opens a live curve per stock to confirm <code>pairToken()</code>, and simulates <code>launchToken()</code> with a stock as quote. Pass <code>--from 0xYourWallet</code> to simulate as yourself and <code>--stocks TSLA=0x…</code> to check your own addresses.</p>
 
         <h2 id="d-risk">Risks</h2>
         <ul>
@@ -149,6 +156,9 @@
   <div class="bd-toast" id="toast" role="status"></div>
 
 </div>
-<script src="app.js?v=6"></script>
+<script src="pons/keccak.js?v=7"></script>
+<script src="pons/abi.js?v=7"></script>
+<script src="adapter.pons.js?v=7"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

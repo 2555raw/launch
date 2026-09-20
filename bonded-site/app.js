@@ -1259,7 +1259,7 @@
       return !problems.length;
     };
     const deployBtn = $('#deploy'), callout = $('#wallet-callout');
-    const paintDeploy = () => { deployBtn.textContent = wallet ? 'Launch the pair ↗' : 'Connect wallet to launch'; deployBtn.classList.toggle('is-idle', !wallet); callout.classList.toggle('is-connected', !!wallet); };
+    const paintDeploy = () => { const w = !!wallet; deployBtn.textContent = w ? 'Launch the pair ↗' : 'Connect wallet to launch'; deployBtn.classList.toggle('is-idle', !w); callout.classList.toggle('is-connected', w); };
     document.addEventListener('bonded:wallet', paintDeploy); paintDeploy();
     deployBtn.addEventListener('click', async () => {
       const err = $('#tx-error'); err.hidden = true;

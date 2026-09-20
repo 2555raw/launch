@@ -154,7 +154,7 @@ html[data-theme="dark"] .bd {
   pointer-events: none;
 }
 /* wide screens: the brand pill sits dead centre, the wallet pill keeps the right edge */
-@media (min-width: 1280px) {
+@media (min-width: 1600px) {
   .bd-nav { justify-content: center; }
   .bd-pill-right { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
 }

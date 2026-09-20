@@ -17,6 +17,7 @@
      ===================================================================== */
   const CONFIG = {
     chain: 'Base',
+    chainId: '8453',
     explorer: 'https://basescan.org',
     fee: '0.002 ETH',
     swapFee: '1.0%',
@@ -902,6 +903,7 @@
       bond: (() => { const demo = { ticker: 'ROBO', stock: 'TSLA', mcap: 1_840_000, change: 38.4 }; return `<div class="bd-illus-bond">${pic('TSLA')}<div class="bd-bondline"></div><div class="bd-minicard"><span class="bd-livechip">LIVE</span><b>Robotaxi Season</b><span>$ROBO / TSLA</span><em>0.0₅445 TSLA<i>+38.4%</i></em>${sparkline(demo, 140, 26)}</div></div>`; })(),
     };
     $$('[data-illus]').forEach(el => { el.innerHTML = illus[el.dataset.illus] || ''; });
+    $$('[data-bridge-frog]').forEach(el => { el.innerHTML = pic('NVDA'); });
     const pairsGrid = $('#pairs-grid');
     adapter.pairs().then(pairs => {
       // one pair per big name, the busiest on each stock

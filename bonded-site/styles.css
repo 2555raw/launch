@@ -60,6 +60,7 @@ button { font: inherit; color: inherit; }
   --wrap: 1180px;
   --r: 14px;
   --nav-h: 82px;
+  --cabar-h: 56px;
 
   font-family: var(--font-body);
   background: transparent;
@@ -996,3 +997,43 @@ input::selection, textarea::selection { background: #78AB9A; color: #FFFFFF; }
 .bd-avatar-frog { background: color-mix(in srgb, var(--c) 22%, #fff) !important; overflow: hidden; }
 .bd-avatar-frog .bd-frogpic { width: 132% !important; height: 132% !important; margin: -16%; transform: rotate(-20deg) !important; filter: none; }
 .bd-avatar-frog .bd-frogpic svg { filter: drop-shadow(1px 2px 2px rgba(19,23,32,.25)); }
+
+/* the contract bar under the navigation, after the reference */
+.bd-cabar { position: sticky; top: calc(var(--nav-h) - 14px); z-index: 39; display: flex; justify-content: center; padding: 0 20px; pointer-events: none; font-family: 'Poppins', var(--font-body); }
+.bd-cabar-in { pointer-events: auto; width: min(944px, 100%); height: 42px; display: flex; align-items: center; gap: 12px; padding: 0 10px 0 16px; border-radius: 999px; background: #fff; box-shadow: 0 10px 30px rgba(10,30,25,.14); font-size: 11px; }
+.bd-cabar-sym { font-weight: 700; color: #131720; }
+.bd-cabar-k { font-weight: 600; font-size: 9.5px; letter-spacing: .12em; color: #6B7688; }
+.bd-cabar-addr { font-family: var(--font-mono); font-size: 10.5px; color: #131720; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.bd-cabar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; flex: none; }
+.bd-cabar-copy { height: 26px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: #fff; font: inherit; font-weight: 600; font-size: 11px; color: #131720; cursor: pointer; }
+.bd-cabar-copy:hover { border-color: var(--line-hi); }
+.bd-cabar-chain { height: 26px; padding: 0 12px 0 10px; border-radius: 999px; background: #0F3D2E; color: #DFF6EA; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.bd-cabar-chain b { font-weight: 700; }
+.bd-cabar-chain .bd-dot { width: 6px; height: 6px; box-shadow: 0 0 8px var(--up); }
+body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav-h) + 96px); padding-bottom: 120px; }
+.bd-page-head { padding-top: 48px; }
+/* the hero in the reference's type and spacing */
+.bd-hero h1 { font-family: 'Poppins', var(--font-display); font-weight: 700; letter-spacing: -.045em; line-height: .96; font-size: clamp(48px, 8.6vw, 124px); }
+.bd-eyebrow { font-family: 'Poppins', var(--font-body); font-weight: 500; font-size: 10.5px; letter-spacing: .24em; color: #3A4353; }
+.bd-hero-sub { font-family: 'Poppins', var(--font-body); font-weight: 400; font-size: 17px; color: #1C222B; }
+.bd-hero-sub em { color: #2F86C4; }
+.bd-hero-cta .bd-btn-lg { height: 48px; padding: 0 26px; font-family: 'Poppins', var(--font-body); font-weight: 600; font-size: 13.5px; }
+.bd-explore { font-family: 'Poppins', var(--font-body); font-weight: 500; font-size: 12.5px; }
+.bd-hero-foot { font-family: 'Poppins', var(--font-body); font-size: 10.5px; letter-spacing: .04em; color: #2B3441; bottom: 26px; padding: 0 60px; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+.bd-hero-foot > div, .bd-hero-foot > a { padding: 0; border-radius: 0; background: transparent; backdrop-filter: none; }
+.bd-hero-foot button { color: #2B3441; font-family: inherit; }
+.bd-hero-foot .bd-scroll { text-transform: uppercase; letter-spacing: .14em; font-size: 9.5px; }
+/* the bridge */
+.bd-bridge { padding: 96px 0 24px; text-align: center; }
+.bd-bridge-frog { display: inline-block; width: 64px; height: 64px; margin-bottom: 8px; opacity: .85; }
+.bd-bridge-frog .bd-frogpic { width: 64px !important; height: 64px !important; transform: rotate(-16deg) !important; }
+.bd-bridge .bd-label { display: inline-block; background: transparent; padding: 0; color: #2B3441; font-family: 'Poppins', var(--font-body); font-weight: 500; letter-spacing: .24em; font-size: 10.5px; }
+.bd-bridge h2 { font-family: 'Poppins', var(--font-body); font-weight: 400; font-size: clamp(28px, 3.6vw, 48px); line-height: 1.2; letter-spacing: -.02em; color: #131720; max-width: 920px; margin: 18px auto 0; }
+.bd-bridge h2 em { font-style: normal; color: #2F86C4; }
+@media (max-width: 900px) {
+  .bd-cabar { display: none; }
+  body[data-page="home"] .bd-hero { padding-top: 104px; }
+  .bd-page-head { padding-top: 36px; }
+  .bd-hero-foot { padding: 0 16px; }
+  .bd-bridge { padding: 56px 0 8px; }
+}

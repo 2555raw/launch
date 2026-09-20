@@ -43,8 +43,9 @@ Pages), or on Railway with this folder as the root directory: it runs `node serv
 
 ## The idea
 
-The layout is the one that works for this category: a huge centred headline, one black button,
-two floating navigation pills, and a scene behind the whole page that people can play with, the
+The layout is the one that works for this category: a huge centred headline in Poppins, one black
+button, the floating navigation pill with the contract bar under it (ticker, address, Copy, the
+chain chip), a one-line bridge ("A coin can start with a joke…") into the pairs, and a scene behind the whole page that people can play with, the
 way Levity floats its sky and small balloons through the entire scroll.
 
 **A pond behind everything.** A fixed layer under every page draws a green pond: layered water,

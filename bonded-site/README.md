@@ -48,28 +48,26 @@ The layout is the one that works for this category: a huge centred headline, one
 the contract address under it, two floating navigation pills, and a scene around the copy that
 people can play with. The scene is where Bonded differs.
 
-**A pond, seen from above.** The hero is a pond with a pebble bank and lily pads, and each
-tokenized stock is a fish swimming in it, painted in its company's colour with the company's logo
-on its back. The fish wander on their own, turn slowly, keep out of the copy in the middle and away
-from the bank, and leave the odd ring on the surface. Grab one with the mouse or a finger and drop
-it anywhere in the water: it splashes and swims on in the direction you threw it. Click one and the
-headline reprices in that stock and the launch button carries it. `Pause motion` freezes the pond,
-`Reset` reshuffles it.
-
-A balloon pops and floats away; a fish keeps swimming. That is the whole pitch.
+**Frogs on white.** The hero is plain white with a couple of lily pads, and each tokenized stock
+is a frog, seen from above, painted in its company's colour with the company's logo on its back.
+The frogs never stop: each one sits for a moment, picks a spot (sometimes a lily pad), turns to
+face it, hops there in an arc (it grows and its shadow drops away at the top of the jump, legs
+kick out, it squashes on landing), and sits again. They keep out of the copy in the middle and
+inside the hero. Grab one with the mouse or a finger and drop it anywhere; click one and the
+headline reprices in that stock and the launch button carries it. `Pause motion` freezes the
+scene, `Reset` reshuffles it.
 
 ## Design
 
-A pale sky, always. (A dark token set is kept in the stylesheet under `html[data-theme="dark"]`, unused; there is no switch.) Two roles keep their colours across the whole site:
+White, always. (A dark token set is kept in the stylesheet under `html[data-theme="dark"]`, unused; there is no switch.) Two roles keep their colours across the whole site:
 
 - **Gold `#F0B35B` is the stock**: the stock tags, the active tile, the "Trade" button, the stock
   side of every quote.
 - **Ion cyan `#5DE1FF` is the new token**: the token side, "new" badges, links, the active step.
 - The primary button is ink, like the reference sites.
 - Green and red are reserved for market direction and for Buy / Sell.
-- The pond is turquoise water over a pebble bank (`--water`, `.bd-rim`), with caustic light drawn
-  as two drifting layers of soft rings, and lily pads that sit above the fish.
-- Each fish is painted in its company's colour (NVIDIA green, Tesla red, Amazon orange, Robinhood
+- The ground is white, everywhere. Cards sit on it with a hairline border.
+- Each frog is painted in its company's colour (NVIDIA green, Tesla red, Amazon orange, Robinhood
   lime, and so on) and carries the company's real logo on a white badge on its back. Nine of the marks come from
   the `simple-icons` package, embedded as paths in `LOGOS` in `app.js`; Amazon, Microsoft and the
   S&P are drawn by hand there. **These are registered trademarks.** Using them on a launchpad is a
@@ -78,8 +76,8 @@ A pale sky, always. (A dark token set is kept in the stylesheet under `html[data
 
 | Token | Light | Dark (unused) | Role |
 | --- | --- | --- | --- |
-| `--bg` / `--bg-alt` | `#EEF5FC` / `#E3EEF9` | `#0A0C10` / `#0E1117` | page ground and bands |
-| `--card` / `--surface` | `#FFFFFF` / `#E6EEF7` | `#12161E` / `#1D232F` | cards, tracks |
+| `--bg` / `--bg-alt` | `#FFFFFF` / `#F6F8FB` | `#0A0C10` / `#0E1117` | page ground and bands |
+| `--card` / `--surface` | `#FFFFFF` / `#EEF2F7` | `#12161E` / `#1D232F` | cards, tracks |
 | `--ink` / `--prose` / `--muted` / `--dim` | `#131720` / `#3A4353` / `#6B7688` / `#98A2B3` | `#F2F5F9` / `#C3CAD6` / `#8B95A7` / `#5F6878` | text levels |
 | `--gold-text` / `--ion-text` | `#9A6410` / `#0083A6` | `#F0B35B` / `#5DE1FF` | the two roles as small text |
 
@@ -132,12 +130,16 @@ data to reset it.
 
 ## Interactive parts (`app.js`)
 
-- **The pond** (`pond()`): a `requestAnimationFrame` loop over the twelve fish. Each has a heading,
-  a speed and a drifting turn rate; a steering pass adds a pull back to the middle near the bank, a
-  push out of the copy's rectangle, and a little spacing from the other fish. Position and heading
-  are written as CSS custom properties, transforms do the rest, and the logo badge counter-rotates
-  so it stays upright. The loop pauses when the hero is off screen or the tab is hidden; under
-  `prefers-reduced-motion` the fish sit still, still clickable.
+- **The frogs** (`frogs()`): a `requestAnimationFrame` loop over the twelve frogs. Each is idle
+  (a countdown), hopping (an eased move from A to B with height `sin(πt)`, written to `--h`, which
+  scales the frog up and pushes its shadow out) or being dragged. Targets are picked inside the
+  hero, outside the copy's rectangle, with a clear straight path, not on top of another frog, and
+  one time in five on a lily pad. Leg kicks, the landing squash, blinking and the throat are CSS
+  animations keyed to the state classes. The loop pauses when the hero is off screen or the tab is
+  hidden; under `prefers-reduced-motion` the frogs sit still, still clickable.
+- **Quality pass**: `/impeccable` (a project skill in `.claude/skills/impeccable/`) parses the
+  scripts, cross-checks ids and links, and drives every page and the launch → trade → playground
+  loop in Chromium. Run it before a deploy.
 - **Navigation** — two pills; the left one drops its links below on mobile. `data-scroll="<id>"`
   scrolls with the nav height taken out; hash links from other pages land correctly.
 - **Pairs board** — filters compose: tab × stock chip × search, then sort. Column headers sort and

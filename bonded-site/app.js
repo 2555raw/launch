@@ -2,7 +2,7 @@
    No dependencies. Everything the pages show comes through one adapter
    (`Bonded.adapter`), so wiring the real protocol means replacing that
    object, not touching the pages. See README → "Wiring the chain".
-   Sections: config · sample data · adapter · helpers · chrome · the pond
+   Sections: config · sample data · adapter · helpers · chrome · the frogs
    (hero scene) · home · pairs board · pair page · live · stocks · launch ·
    my playground · docs. */
 
@@ -407,122 +407,105 @@
   const page = document.body.dataset.page;
 
   /* =====================================================================
-     THE POND — the hero scene, seen from above. Each fish is a stock. It
-     swims slowly, turns on its own, keeps out of the copy in the middle
-     and away from the bank. Grab one and drop it anywhere in the water;
-     click one to pick its stock.
+     THE FROGS — the hero scene. Each frog is a stock. It sits, picks a
+     spot, turns to face it, hops there in an arc, lands, sits again. It
+     keeps out of the copy in the middle and inside the hero. Grab one and
+     drop it anywhere; click one to pick its stock.
      ===================================================================== */
-  function pond() {
+  function frogs() {
     const scene = $('#scene'), label = $('#fish-label'), hero = $('#hero'), copy = $('.bd-hero-in');
     if (!scene) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const FISH_SVG = (s) => {
+    const FROG_SVG = (s) => {
       const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
-      return `<svg viewBox="-4 -6 128 72" aria-hidden="true">
-        <g class="bd-fish-tail"><path class="bd-fish-fin" d="M26 30 C16 20, 8 10, 0 4 C6 14, 8 46, 0 56 C8 50, 16 40, 26 30 Z"/><path class="bd-fish-finline" d="M5 10 L20 27 M5 50 L20 33"/></g>
-        <path class="bd-fish-pl bd-fish-fin" d="M70 22 C74 8, 92 4, 98 12 C92 16, 82 20, 70 22 Z"/>
-        <path class="bd-fish-pr bd-fish-fin" d="M70 38 C74 52, 92 56, 98 48 C92 44, 82 40, 70 38 Z"/>
-        <path class="bd-fish-body" d="M24 30 C34 6, 96 4, 118 30 C96 56, 34 54, 24 30 Z"/>
-        <path class="bd-fish-scales" d="M24 30 C34 6, 96 4, 118 30 C96 56, 34 54, 24 30 Z"/>
-        <path class="bd-fish-shade" d="M28 36 C50 52, 96 50, 114 34 C96 44, 50 46, 28 36 Z"/>
-        <path class="bd-fish-light" d="M34 20 C52 10, 92 10, 108 22 C90 16, 52 16, 34 20 Z"/>
-        <path class="bd-fish-spine" d="M32 30 C56 26, 92 26, 110 30"/>
-        <circle class="bd-fish-eye" cx="104" cy="23" r="2.4"/><circle class="bd-fish-eye" cx="104" cy="37" r="2.4"/>
-        <g class="bd-fish-badge" transform="translate(44 12)"><circle cx="18" cy="18" r="18" fill="#fff"/><g transform="translate(6 6) scale(1)" fill="${logo.fill}">${logo.svg}</g></g>
+      return `<svg viewBox="0 0 100 100" aria-hidden="true">
+        <g class="bd-frog-hind bd-frog-hind-l"><path class="bd-frog-leg" d="M30 40 C14 30, 6 36, 10 46 C14 54, 26 52, 34 46 Z"/><path class="bd-frog-toe" d="M10 46 L2 40 L7 47 L1 47 L8 50 L3 55 L11 50 Z"/></g>
+        <g class="bd-frog-hind bd-frog-hind-r"><path class="bd-frog-leg" d="M30 60 C14 70, 6 64, 10 54 C14 46, 26 48, 34 54 Z"/><path class="bd-frog-toe" d="M10 54 L2 60 L7 53 L1 53 L8 50 L3 45 L11 50 Z"/></g>
+        <g class="bd-frog-fore bd-frog-fore-l"><path class="bd-frog-leg" d="M64 36 C70 28, 80 26, 84 30 C80 34, 74 38, 66 40 Z"/><path class="bd-frog-toe" d="M84 30 L92 26 L86 32 L93 32 L85 34 Z"/></g>
+        <g class="bd-frog-fore bd-frog-fore-r"><path class="bd-frog-leg" d="M64 64 C70 72, 80 74, 84 70 C80 66, 74 62, 66 60 Z"/><path class="bd-frog-toe" d="M84 70 L92 74 L86 68 L93 68 L85 66 Z"/></g>
+        <path class="bd-frog-body" d="M20 50 C20 30, 40 24, 56 26 C74 26, 88 36, 90 50 C88 64, 74 74, 56 74 C40 76, 20 70, 20 50 Z"/>
+        <path class="bd-frog-back" d="M28 44 C36 32, 60 30, 78 40 C62 36, 40 38, 28 44 Z"/>
+        <circle class="bd-frog-spot" cx="34" cy="60" r="3"/><circle class="bd-frog-spot" cx="66" cy="36" r="2.4"/><circle class="bd-frog-spot" cx="64" cy="66" r="2.8"/>
+        <ellipse class="bd-frog-throat" cx="82" cy="50" rx="6" ry="7"/>
+        <g><circle class="bd-frog-eye" cx="74" cy="34" r="7.5"/><circle class="bd-frog-iris" cx="75" cy="34" r="4.6"/><ellipse class="bd-frog-pupil" cx="75.6" cy="34" rx="1.8" ry="3.4"/><circle cx="73.4" cy="32" r="1.2" fill="#fff"/><rect class="bd-frog-lid" x="66.5" y="26.5" width="15" height="15" rx="7.5"/></g>
+        <g><circle class="bd-frog-eye" cx="74" cy="66" r="7.5"/><circle class="bd-frog-iris" cx="75" cy="66" r="4.6"/><ellipse class="bd-frog-pupil" cx="75.6" cy="66" rx="1.8" ry="3.4"/><circle cx="73.4" cy="64" r="1.2" fill="#fff"/><rect class="bd-frog-lid" x="66.5" y="58.5" width="15" height="15" rx="7.5"/></g>
+        <circle cx="87" cy="46" r="1.1" fill="rgba(0,0,0,.45)"/><circle cx="87" cy="54" r="1.1" fill="rgba(0,0,0,.45)"/>
+        <path d="M82 42 Q90 50 82 58" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="1.2"/>
+        <g class="bd-frog-badge" transform="translate(30 36)"><circle cx="14" cy="14" r="14" fill="#fff"/><g transform="translate(4.6 4.6) scale(0.78)" fill="${logo.fill}">${logo.svg}</g></g>
       </svg>`;
     };
 
-    let W = 0, H = 0, cx = 0, cy = 0, rx = 0, ry = 0, top = 0, avoid = null, paused = false, running = true, selected = null, hovered = null;
-    const fish = STOCKS.map((s, i) => {
+    let W = 0, H = 0, top = 0, bottom = 0, avoid = null, pads = [], paused = false, running = true, selected = null, hovered = null;
+    const frogs = STOCKS.map((s, i) => {
       const el = document.createElement('button');
-      el.className = 'bd-fish'; el.type = 'button'; el.setAttribute('aria-label', s.sym + ' · ' + s.name);
-      el.style.setProperty('--c', s.color); el.style.setProperty('--wag', (0.55 + (i % 4) * 0.08) + 's'); el.innerHTML = FISH_SVG(s);
+      el.className = 'bd-frog'; el.type = 'button'; el.setAttribute('aria-label', s.sym + ' · ' + s.name);
+      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .7) + 's'); el.innerHTML = FROG_SVG(s);
       scene.appendChild(el);
-      return { s, el, i, x: 0, y: 0, a: 0, turn: 0, v: 0, op: 1, state: 'swim', t: Math.random() * 10, phase: Math.random() * 6.28, w: 0, h: 0, wakeAt: 0 };
+      return { s, el, i, x: 0, y: 0, a: 0, h: 0, op: 1, state: 'idle', wait: 0, from: null, to: null, t: 0, dur: .6, size: 0 };
     });
 
     const measure = () => {
-      W = scene.clientWidth; H = scene.clientHeight; cx = W / 2; cy = H / 2;
-      // the water is the inner 65% of the farthest-corner ellipse (see .bd-rim's mask)
-      rx = 0.65 * Math.SQRT1_2 * W; ry = 0.65 * Math.SQRT1_2 * H;
-      top = 84;
-      const base = clamp(W / 11, 78, 128);
-      fish.forEach(f => { f.w = base * (0.86 + ((f.i * 7) % 5) * 0.07); f.h = f.w * .5; });
+      W = scene.clientWidth; H = scene.clientHeight; top = 92; bottom = H - 70;
+      const base = clamp(W / 13, 66, 112);
+      frogs.forEach(f => { f.size = base * (0.86 + ((f.i * 7) % 5) * 0.07); });
       const r = copy.getBoundingClientRect(), sr = scene.getBoundingClientRect();
       avoid = { x: r.left - sr.left, y: r.top - sr.top, w: r.width, h: r.height };
-    };
-    const inWater = (x, y, m = 0) => ((x - cx) / (rx - m)) ** 2 + ((y - cy) / (ry - m)) ** 2 < 1 && y > top;
-    const randomSpot = f => {
-      for (let k = 0; k < 60; k++) {
-        const x = cx + (Math.random() * 2 - 1) * rx * .9, y = cy + (Math.random() * 2 - 1) * ry * .9;
-        if (inWater(x, y, f.w * .6) && !inRect(x, y, avoid, 100)) return { x, y };
-      }
-      return { x: cx + rx * .6, y: cy + ry * .6 };
+      pads = $$('[data-pad]', scene).map(p => ({ x: p.offsetLeft + p.offsetWidth / 2, y: p.offsetTop + p.offsetHeight / 2 }));
     };
     const inRect = (x, y, r, pad) => r && x > r.x - pad && x < r.x + r.w + pad && y > r.y - pad && y < r.y + r.h + pad;
-    const startSwim = (f, a) => { f.state = 'swim'; f.a = a ?? Math.random() * Math.PI * 2; f.v = 16 + Math.random() * 16; f.turn = 0; f.op = 1; };
-    const ring = (x, y, cls = 'bd-ripple', ttl = 1400) => { const r = document.createElement('i'); r.className = cls; r.style.left = x + 'px'; r.style.top = y + 'px'; scene.appendChild(r); setTimeout(() => r.remove(), ttl); };
-    const splash = (x, y) => {
-      ring(x, y); setTimeout(() => ring(x, y), 180);
-      for (let k = 0; k < 8; k++) {
-        const d = document.createElement('i'); d.className = 'bd-splash'; d.style.left = x + 'px'; d.style.top = y + 'px';
-        const ang = Math.random() * Math.PI * 2, dist = 24 + Math.random() * 40;
-        d.style.setProperty('--dx', (Math.cos(ang) * dist) + 'px'); d.style.setProperty('--dy', (Math.sin(ang) * dist) + 'px');
-        scene.appendChild(d); setTimeout(() => d.remove(), 800);
+    const inside = (x, y, m) => x > m && x < W - m && y > top + m && y < bottom - m;
+    const clearPath = (ax, ay, bx, by) => { for (let k = 0; k <= 8; k++) { const t = k / 8; if (inRect(ax + (bx - ax) * t, ay + (by - ay) * t, avoid, 30)) return false; } return true; };
+    const pickTarget = f => {
+      const m = f.size * .5;
+      for (let k = 0; k < 40; k++) {
+        let x, y;
+        if (pads.length && Math.random() < .22) { const p = pads[Math.floor(Math.random() * pads.length)]; x = p.x + (Math.random() - .5) * 30; y = p.y + (Math.random() - .5) * 30; }
+        else { const d = 90 + Math.random() * 220, ang = Math.random() * Math.PI * 2; x = f.x + Math.cos(ang) * d; y = f.y + Math.sin(ang) * d; }
+        if (!inside(x, y, m) || inRect(x, y, avoid, 50) || !clearPath(f.x, f.y, x, y)) continue;
+        if (frogs.some(o => o !== f && Math.hypot(o.x - x, o.y - y) < f.size * .8)) continue;
+        return { x, y };
       }
+      return null;
+    };
+    const randomSpot = f => { for (let k = 0; k < 80; k++) { const x = 40 + Math.random() * (W - 80), y = top + 40 + Math.random() * (bottom - top - 80); if (!inRect(x, y, avoid, 50) && !frogs.some(o => o !== f && Math.hypot(o.x - x, o.y - y) < f.size * .8)) return { x, y }; } return { x: 60, y: bottom - 60 }; };
+    const mark = (x, y) => {
+      const r = document.createElement('i'); r.className = 'bd-ripple'; r.style.left = x + 'px'; r.style.top = y + 'px'; scene.appendChild(r); setTimeout(() => r.remove(), 1100);
+      for (let k = 0; k < 5; k++) { const d = document.createElement('i'); d.className = 'bd-dust'; d.style.left = x + 'px'; d.style.top = y + 'px'; const ang = Math.random() * Math.PI * 2, dist = 14 + Math.random() * 22; d.style.setProperty('--dx', (Math.cos(ang) * dist) + 'px'); d.style.setProperty('--dy', (Math.sin(ang) * dist) + 'px'); scene.appendChild(d); setTimeout(() => d.remove(), 700); }
+    };
+    const sit = (f, wait) => { f.state = 'idle'; f.h = 0; f.wait = wait ?? (0.7 + Math.random() * 2.4); f.el.classList.remove('is-hop'); f.el.classList.add('is-land'); setTimeout(() => f.el.classList.remove('is-land'), 340); };
+    const hop = f => {
+      const to = pickTarget(f); if (!to) { f.wait = .8; return; }
+      f.from = { x: f.x, y: f.y }; f.to = to; f.t = 0; f.a = Math.atan2(to.y - f.y, to.x - f.x);
+      const dist = Math.hypot(to.x - f.x, to.y - f.y); f.dur = clamp(.42 + dist / 600, .45, .95); f.el.style.setProperty('--dur', f.dur + 's');
+      f.state = 'hop'; f.el.classList.remove('is-land'); f.el.classList.add('is-hop');
     };
     const init = () => {
       measure();
-      fish.forEach(f => { const p = randomSpot(f); f.x = p.x; f.y = p.y; f.t = Math.random() * 10; startSwim(f); render(f); });
+      frogs.forEach(f => { const p = randomSpot(f); f.x = p.x; f.y = p.y; f.a = Math.random() * Math.PI * 2; f.state = 'idle'; f.h = 0; f.wait = Math.random() * 2.5; f.el.classList.remove('is-hop', 'is-land'); render(f); });
     };
     const render = f => {
-      f.el.style.setProperty('--x', (f.x - f.w / 2).toFixed(1) + 'px'); f.el.style.setProperty('--y', (f.y - f.h / 2).toFixed(1) + 'px');
-      f.el.style.setProperty('--rot', (f.a * 180 / Math.PI + Math.sin(f.t * 2.2 + f.phase) * 2.5).toFixed(1) + 'deg');
-      f.el.style.setProperty('--op', f.op); f.el.style.setProperty('--s', f.w + 'px');
+      f.el.style.setProperty('--x', (f.x - f.size / 2).toFixed(1) + 'px'); f.el.style.setProperty('--y', (f.y - f.size / 2).toFixed(1) + 'px');
+      f.el.style.setProperty('--rot', (f.a * 180 / Math.PI).toFixed(1) + 'deg'); f.el.style.setProperty('--h', f.h.toFixed(3));
+      f.el.style.setProperty('--op', f.op); f.el.style.setProperty('--s', f.size + 'px');
     };
     const placeLabel = f => {
       if (!f) { label.classList.remove('is-on'); return; }
       label.innerHTML = `<b>${f.s.sym}</b> · ${esc(f.s.name)} · $${f.s.price.toFixed(2)} · Pair it ↗`;
-      label.style.left = f.x + 'px'; label.style.top = (f.y - f.h / 2 - 38) + 'px'; label.classList.add('is-on');
+      label.style.left = f.x + 'px'; label.style.top = (f.y - f.size / 2 - 36) + 'px'; label.classList.add('is-on');
     };
-    // steer: a target heading and how urgently to turn towards it
-    const steer = f => {
-      let tx = 0, ty = 0, urgency = 0;
-      const m = f.w * .7;
-      const e = ((f.x - cx) / (rx - m)) ** 2 + ((f.y - cy) / (ry - m)) ** 2;
-      if (e > .72 || f.y < top + f.h) { tx += cx - f.x; ty += cy - f.y; urgency = Math.max(urgency, (e - .72) * 6 + (f.y < top + f.h ? 2 : 0)); }
-      if (avoid && inRect(f.x, f.y, avoid, 96)) {
-        const ax = avoid.x + avoid.w / 2, ay = avoid.y + avoid.h / 2;
-        const dx = f.x - ax, dy = f.y - ay;
-        // leave by the shortest side, harder the deeper in
-        const sx = (avoid.w / 2 + 96 - Math.abs(dx)), sy = (avoid.h / 2 + 96 - Math.abs(dy));
-        if (sx < sy) { tx += Math.sign(dx || 1) * 300; } else { ty += Math.sign(dy || 1) * 300; }
-        urgency = Math.max(urgency, 3 + Math.min(sx, sy) / 30);
-      }
-      // the others: keep a little distance
-      for (const o of fish) { if (o === f || o.state === 'drag') continue; const dx = f.x - o.x, dy = f.y - o.y, d = Math.hypot(dx, dy); if (d < f.w * .9 && d > 0) { tx += dx / d * 60; ty += dy / d * 60; urgency = Math.max(urgency, .8); } }
-      if (!urgency) return null;
-      return { a: Math.atan2(ty, tx), k: urgency };
-    };
-    const wrapAngle = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 
     let last = performance.now();
     const step = now => {
       const dt = paused ? 0 : Math.min(.05, (now - last) / 1000); last = now;
-      for (const f of fish) {
+      for (const f of frogs) {
         if (f.state === 'drag') { render(f); continue; }
-        f.t += dt;
-        if (f.state === 'swim' && dt) {
-          // wander: the turn rate drifts, then eases back to straight
-          f.turn += (Math.random() - .5) * 1.6 * dt; f.turn *= (1 - .8 * dt); f.turn = clamp(f.turn, -.7, .7);
-          f.a += f.turn * dt;
-          const s = steer(f);
-          if (s) f.a += clamp(wrapAngle(s.a - f.a), -1, 1) * s.k * dt;
-          f.v += (Math.random() - .5) * 8 * dt; f.v = clamp(f.v, 12, 34);
-          f.x += Math.cos(f.a) * f.v * dt; f.y += Math.sin(f.a) * f.v * dt;
-          if (!inWater(f.x, f.y, f.w * .45)) { f.x += (cx - f.x) * .02; f.y += (cy - f.y) * .02; }
-          if (avoid && inRect(f.x, f.y, avoid, 10)) { const ax = avoid.x + avoid.w / 2, ay = avoid.y + avoid.h / 2; const dx = f.x - ax, dy = f.y - ay; if (Math.abs(dx) / avoid.w > Math.abs(dy) / avoid.h) f.x += Math.sign(dx || 1) * 40 * dt; else f.y += Math.sign(dy || 1) * 40 * dt; }
-          if (f.t > f.wakeAt) { f.wakeAt = f.t + 2.5 + Math.random() * 4; ring(f.x + Math.cos(f.a) * f.w * .45, f.y + Math.sin(f.a) * f.w * .45, 'bd-wake', 1700); }
+        if (f.state === 'idle' && dt) { f.wait -= dt; if (f.wait <= 0 && !reduced) hop(f); }
+        else if (f.state === 'hop' && dt) {
+          f.t = Math.min(1, f.t + dt / f.dur);
+          const e = f.t < .5 ? 2 * f.t * f.t : 1 - Math.pow(-2 * f.t + 2, 2) / 2;   // ease in-out
+          f.x = f.from.x + (f.to.x - f.from.x) * e; f.y = f.from.y + (f.to.y - f.from.y) * e;
+          f.h = Math.sin(Math.PI * f.t);
+          if (f.t >= 1) { f.x = f.to.x; f.y = f.to.y; mark(f.x, f.y); sit(f); }
         }
         render(f);
       }
@@ -532,26 +515,26 @@
 
     // pointer: grab, carry, drop, click
     let drag = null;
-    fish.forEach(f => {
+    frogs.forEach(f => {
       f.el.addEventListener('pointerdown', e => {
         e.preventDefault(); f.el.setPointerCapture(e.pointerId);
-        drag = { f, sx: e.clientX, sy: e.clientY, ox: e.clientX - f.x, oy: e.clientY - f.y, moved: false, lx: e.clientX, ly: e.clientY, vx: 0, vy: 0 };
+        drag = { f, sx: e.clientX, sy: e.clientY, ox: e.clientX - f.x, oy: e.clientY - f.y, moved: false, vx: 0, vy: 0 };
       });
       f.el.addEventListener('pointermove', e => {
         if (!drag || drag.f !== f) return;
-        if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) { drag.moved = true; f.state = 'drag'; f.el.classList.add('is-drag'); ring(f.x, f.y); }
+        if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) { drag.moved = true; f.state = 'drag'; f.h = .9; f.el.classList.remove('is-hop', 'is-land'); f.el.classList.add('is-drag'); }
         if (!drag.moved) return;
         const nx = clamp(e.clientX - drag.ox, 10, W - 10), ny = clamp(e.clientY - drag.oy, 10, H - 10);
         drag.vx = nx - f.x; drag.vy = ny - f.y; f.x = nx; f.y = ny;
-        if (Math.hypot(drag.vx, drag.vy) > 1.5) f.a += wrapAngle(Math.atan2(drag.vy, drag.vx) - f.a) * .25;
+        if (Math.hypot(drag.vx, drag.vy) > 1.5) f.a = Math.atan2(drag.vy, drag.vx);
         render(f);
       });
       const release = () => {
         if (!drag || drag.f !== f) return;
         f.el.classList.remove('is-drag');
         if (drag.moved) {
-          if (!inWater(f.x, f.y, f.w * .4)) { const p = randomSpot(f); const ex = f.x, ey = f.y; f.x = p.x; f.y = p.y; ring(ex, ey, 'bd-wake', 1700); }
-          splash(f.x, f.y); startSwim(f, Math.atan2(drag.vy, drag.vx) || f.a); f.v = 30;
+          if (!inside(f.x, f.y, 20)) { const p = randomSpot(f); f.x = p.x; f.y = p.y; }
+          mark(f.x, f.y); sit(f, .4 + Math.random());
         } else select(f);
         drag = null;
       };
@@ -561,42 +544,35 @@
     });
 
     const select = f => {
-      selected = f; fish.forEach(o => o.el.classList.toggle('is-bonded', o === f));
+      selected = f; frogs.forEach(o => o.el.classList.toggle('is-bonded', o === f));
       $$('[data-hero-stock-name]').forEach(el => el.textContent = f.s.name);
       $$('[data-hero-stock]').forEach(el => el.textContent = f.s.sym);
       const launch = $('#hero-launch'); if (launch) launch.href = 'launch.html?stock=' + f.s.sym;
       $$('#elements-grid .bd-element').forEach(b => b.classList.toggle('is-active', b.dataset.sym === f.s.sym));
-      ring(f.x, f.y);
-      placeLabel(f);
+      mark(f.x, f.y); placeLabel(f);
     };
 
     // controls
     const motionBtn = $('#motion');
     motionBtn?.addEventListener('click', () => { paused = !paused; motionBtn.textContent = paused ? 'Resume motion' : 'Pause motion'; scene.classList.toggle('is-paused', paused); });
-    $('#reset')?.addEventListener('click', () => { selected = null; fish.forEach(o => o.el.classList.remove('is-bonded')); placeLabel(null); init(); $$('[data-hero-stock-name]').forEach(el => el.textContent = 'NVIDIA'); const l = $('#hero-launch'); if (l) l.href = 'launch.html'; });
+    $('#reset')?.addEventListener('click', () => { selected = null; frogs.forEach(o => o.el.classList.remove('is-bonded')); placeLabel(null); init(); $$('[data-hero-stock-name]').forEach(el => el.textContent = 'NVIDIA'); const l = $('#hero-launch'); if (l) l.href = 'launch.html'; });
 
     // save work when the hero is off screen or the tab is hidden
     const io = new IntersectionObserver(([en]) => { const on = en.isIntersecting && !document.hidden; if (on && !running) { running = true; last = performance.now(); requestAnimationFrame(step); } if (!on) running = false; });
     io.observe(hero);
     document.addEventListener('visibilitychange', () => { if (!document.hidden && !running) { running = true; last = performance.now(); requestAnimationFrame(step); } });
-    addEventListener('resize', () => { const oW = W || 1, oH = H || 1; measure(); fish.forEach(f => { f.x = f.x / oW * W; f.y = f.y / oH * H; render(f); }); });
-
-    // the surface is never still
-    if (!reduced) setInterval(() => {
-      if (paused || !running || document.hidden) return;
-      for (let k = 0; k < 40; k++) { const x = cx + (Math.random() * 2 - 1) * rx * .95, y = cy + (Math.random() * 2 - 1) * ry * .95; if (inWater(x, y, 20)) { ring(x, y, 'bd-ring', 2900); break; } }
-    }, 900);
+    addEventListener('resize', () => { const oW = W || 1, oH = H || 1; measure(); frogs.forEach(f => { f.x = f.x / oW * W; f.y = f.y / oH * H; render(f); }); });
 
     init();
     if (!reduced) requestAnimationFrame(step);
-    return { select: sym => { const f = fish.find(o => o.s.sym === sym); if (f) select(f); } };
+    return { select: sym => { const f = frogs.find(o => o.s.sym === sym); if (f) select(f); } };
   }
 
   /* =====================================================================
      HOME
      ===================================================================== */
   if (page === 'home') {
-    const scene = pond();
+    const scene = frogs();
     const grid = $('#elements-grid'), pairsGrid = $('#pairs-grid');
     adapter.stocks().then(stocks => {
       grid.innerHTML = stocks.map(s => elementTile(s, s.sym === 'NVDA')).join('');

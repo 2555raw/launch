@@ -7,21 +7,21 @@
    switch. */
 
 * { box-sizing: border-box; }
-html { color-scheme: light; background: #EEF5FC; scroll-behavior: smooth; }
+html { color-scheme: light; background: #FFFFFF; scroll-behavior: smooth; }
 html[data-theme="dark"] { color-scheme: dark; background: #0A0C10; }
-body { margin: 0; background: #EEF5FC; color: #131720; }
+body { margin: 0; background: #FFFFFF; color: #131720; }
 html[data-theme="dark"] body { background: #0A0C10; color: #F2F5F9; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; }
 button { font: inherit; color: inherit; }
 
 .bd {
-  /* ground: a pale sky */
-  --bg: #EEF5FC;
-  --bg-alt: #E3EEF9;
+  /* ground: white */
+  --bg: #FFFFFF;
+  --bg-alt: #F6F8FB;
   --card: #FFFFFF;
-  --card-hi: #F7FAFE;
-  --surface: #E6EEF7;
+  --card-hi: #F7F9FC;
+  --surface: #EEF2F7;
   /* ink */
   --ink: #131720;
   --prose: #3A4353;
@@ -175,106 +175,82 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .bd-btn-dark:hover { box-shadow: 0 10px 30px rgba(19,23,32,.22); }
 .bd-btn-dark i { font-style: normal; font-size: 11px; opacity: .7; margin-left: 2px; }
 
-/* ---------- hero: the pond, seen from above ---------- */
+/* ---------- hero: a white pond with frogs ---------- */
 .bd-hero {
   position: relative; min-height: calc(100vh - var(--nav-h)); margin-top: calc(var(--nav-h) * -1); padding: calc(var(--nav-h) + 40px) 0 120px;
-  display: flex; align-items: center; overflow: hidden; background: #CDBFAE;
+  display: flex; align-items: center; overflow: hidden; background: #FFFFFF;
 }
 .bd-scene { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
 .bd-scene > i { position: absolute; display: block; }
-/* water */
-.bd-water { inset: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 50% 46%, rgba(255,255,255,.28), transparent 70%),
-    radial-gradient(ellipse 40% 45% at 16% 78%, #2F7FB4, transparent 70%),
-    radial-gradient(ellipse 40% 40% at 86% 22%, #3B93C8, transparent 70%),
-    radial-gradient(ellipse 30% 30% at 78% 84%, #2C78AE, transparent 70%),
-    linear-gradient(180deg, #78C4E8, #58ADDC 55%, #4A9FD2); }
-.bd-caustics { inset: -12%; opacity: .34; mix-blend-mode: screen; filter: blur(1.4px);
-  background:
-    radial-gradient(ellipse 52% 44% at 50% 50%, rgba(255,255,255,0) 0 62%, rgba(255,255,255,.75) 68% 74%, rgba(255,255,255,0) 82%) 0 0 / 86px 74px,
-    radial-gradient(ellipse 46% 52% at 50% 50%, rgba(255,255,255,0) 0 60%, rgba(255,255,255,.6) 67% 72%, rgba(255,255,255,0) 80%) 41px 33px / 98px 88px; }
-.bd-caustics2 { opacity: .26; filter: blur(2px);
-  background:
-    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,255,255,0) 0 60%, rgba(255,255,255,.8) 67% 71%, rgba(255,255,255,0) 80%) 20px 8px / 64px 58px,
-    radial-gradient(ellipse 48% 44% at 50% 50%, rgba(255,255,255,0) 0 64%, rgba(255,255,255,.5) 70% 75%, rgba(255,255,255,0) 84%) 0 0 / 150px 132px; }
-.bd-glint { inset: 0; mix-blend-mode: screen; opacity: .8;
-  background: radial-gradient(ellipse 30% 14% at 72% 26%, rgba(255,255,255,.7), transparent 70%), radial-gradient(ellipse 22% 10% at 28% 64%, rgba(255,255,255,.45), transparent 70%); }
-/* the bank: a darker wet band, then pebbles, only outside the pond's ellipse */
-.bd-edge { inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 0 60%, rgba(12,52,86,.40) 64.5%, rgba(12,52,86,.15) 66%, transparent 68%); }
-.bd-rim { inset: 0;
-  background:
-    radial-gradient(circle, #CFC4B3 0 32%, #B8AC99 38%, transparent 42%) 0 0 / 58px 50px,
-    radial-gradient(circle, #B4A896 0 28%, #9F927F 34%, transparent 38%) 29px 25px / 58px 50px,
-    radial-gradient(circle, #DED4C4 0 20%, transparent 26%) 14px 36px / 58px 50px,
-    #C4B7A5;
-  mask-image: radial-gradient(ellipse at 50% 50%, transparent 0 65%, #000 66.5%); -webkit-mask-image: radial-gradient(ellipse at 50% 50%, transparent 0 65%, #000 66.5%);
-  box-shadow: inset 0 0 80px rgba(0,0,0,.18); }
-.bd-rim::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 0 64%, rgba(0,0,0,.28) 66.5%, transparent 71%); }
 /* lily pads */
-.bd-lily { z-index: 3; pointer-events: none; width: var(--s); height: var(--s); left: var(--l); top: var(--t); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: 50%;
-  background: radial-gradient(circle at 42% 38%, #8CCB70, #5DA64A 55%, #3F8236 100%);
+.bd-lily { width: var(--s); height: var(--s); left: var(--l); top: var(--t); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 42% 38%, #9AD67E, #62AE4E 55%, #468B3B 100%);
   clip-path: polygon(50% 50%, 100% 36%, 100% 0, 0 0, 0 100%, 100% 100%, 100% 64%);
-  box-shadow: 0 10px 16px rgba(10,40,60,.35), inset 0 -6px 12px rgba(0,0,0,.15);
+  box-shadow: 0 14px 22px rgba(19,23,32,.16), inset 0 -6px 12px rgba(0,0,0,.14);
   transform: rotate(var(--r)); }
-.bd-lily::before { content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: .5;
+.bd-lily::before { content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: .45;
   background: repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg 17deg, rgba(0,0,0,.18) 17deg 19deg, transparent 19deg 36deg); }
 .bd-lily.has-flower::after { content: ""; position: absolute; left: 22%; top: 20%; width: 34%; height: 34%; border-radius: 50%;
   background: radial-gradient(circle at 50% 50%, #FFF3A8 0 22%, #F9A8C9 24% 55%, #E96FA6 100%);
-  box-shadow: 0 0 0 4px rgba(255,255,255,.35), 0 4px 10px rgba(0,0,0,.25); }
-/* rings and splashes on the surface */
-.bd-ripple { position: absolute; width: 56px; height: 56px; border-radius: 50%; border: 2px solid rgba(255,255,255,.9); transform: translate(-50%, -50%) scale(.2); opacity: .95; pointer-events: none; animation: bdRipple 1.3s ease-out forwards; }
-.bd-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.75); transform: translate(-50%, -50%) scale(.15); opacity: .8; pointer-events: none; animation: bdRipple 2.8s ease-out forwards; }
-.bd-wake { position: absolute; width: 26px; height: 26px; border-radius: 50%; border: 1.2px solid rgba(255,255,255,.55); transform: translate(-50%, -50%) scale(.2); opacity: .6; pointer-events: none; animation: bdRipple 1.6s ease-out forwards; }
-@keyframes bdRipple { to { transform: translate(-50%, -50%) scale(3); opacity: 0; } }
-.bd-splash { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #fff; pointer-events: none; animation: bdSplash .75s ease-out forwards; }
+  box-shadow: 0 0 0 4px rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.2); }
+/* landing marks */
+.bd-ripple { position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(19,23,32,.18); transform: translate(-50%, -50%) scale(.2); opacity: .9; pointer-events: none; animation: bdRipple 1s ease-out forwards; }
+.bd-dust { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(19,23,32,.22); pointer-events: none; animation: bdSplash .6s ease-out forwards; }
+@keyframes bdRipple { to { transform: translate(-50%, -50%) scale(2.6); opacity: 0; } }
 @keyframes bdSplash { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
-  .bd-caustics { animation: bdCaustics 11s ease-in-out infinite alternate; }
-  .bd-caustics2 { animation: bdCaustics 14s ease-in-out infinite alternate-reverse; }
-  .bd-glint { animation: bdGlint 6s ease-in-out infinite alternate; }
   .bd-lily { animation: bdBob var(--d) ease-in-out infinite alternate; }
-  .is-paused > i, .is-paused .bd-ripple, .is-paused .bd-ring, .is-paused .bd-wake { animation-play-state: paused !important; }
+  .is-paused > i, .is-paused .bd-ripple, .is-paused .bd-dust, .is-paused .bd-frog * { animation-play-state: paused !important; }
 }
-@keyframes bdCaustics { to { transform: translate(-2.5%, 2%) scale(1.05); } }
-@keyframes bdGlint { to { transform: translateX(3%); opacity: .55; } }
-@keyframes bdBob { to { transform: rotate(calc(var(--r) + 6deg)) translate(6px, 3px); } }
-/* the fish, seen from above: a spindle, two pectoral fins, a forked tail, the logo on its back */
-.bd-fish {
-  position: absolute; left: 0; top: 0; width: var(--s, 110px); height: calc(var(--s, 110px) * .5); border: 0; background: none; padding: 0;
+@keyframes bdBob { to { transform: rotate(calc(var(--r) + 5deg)) translate(4px, 2px); } }
+/* the frog, seen from above, facing +x */
+.bd-frog {
+  position: absolute; left: 0; top: 0; width: var(--s, 110px); height: var(--s, 110px); border: 0; background: none; padding: 0;
   cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
-  transform: translate3d(var(--x), var(--y), 0) rotate(var(--rot, 0deg)); transform-origin: 50% 50%;
-  will-change: transform; opacity: var(--op, 1); transition: opacity .5s, filter .25s;
-  filter: drop-shadow(5px 9px 6px rgba(8,40,70,.35)) saturate(.95);
+  transform: translate3d(var(--x), var(--y), 0) rotate(var(--rot, 0deg)) scale(calc(1 + var(--h, 0) * .38)); transform-origin: 50% 50%;
+  will-change: transform; opacity: var(--op, 1); transition: opacity .4s;
+  filter: drop-shadow(calc(2px + var(--h, 0) * 16px) calc(5px + var(--h, 0) * 22px) calc(3px + var(--h, 0) * 8px) rgba(19,23,32,calc(.28 - var(--h, 0) * .1)));
 }
-.bd-fish svg { width: 100%; height: 100%; overflow: visible; }
-.bd-fish .bd-fish-body { fill: var(--c); stroke: rgba(0,0,0,.25); stroke-width: 1; }
-.bd-fish .bd-fish-scales { fill: url(#bd-scales); opacity: .6; }
-.bd-fish .bd-fish-spine { fill: none; stroke: rgba(0,0,0,.22); stroke-width: 3; stroke-linecap: round; }
-.bd-fish .bd-fish-light { fill: rgba(255,255,255,.34); }
-.bd-fish .bd-fish-shade { fill: rgba(0,0,0,.16); }
-.bd-fish .bd-fish-fin { fill: color-mix(in srgb, var(--c) 70%, #000 30%); stroke: rgba(0,0,0,.2); stroke-width: .8; }
-.bd-fish .bd-fish-finline { fill: none; stroke: rgba(255,255,255,.35); stroke-width: 1.1; }
-.bd-fish .bd-fish-eye { fill: #0B0D10; }
-.bd-fish .bd-fish-badge { transform: rotate(calc(var(--rot, 0deg) * -1)); transform-box: fill-box; transform-origin: center; }
-.bd-fish .bd-fish-badge circle { filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
-.bd-fish.is-drag { cursor: grabbing; z-index: 6; transition: none; filter: drop-shadow(16px 26px 14px rgba(8,40,70,.45)) saturate(1.05) brightness(1.04); }
-.bd-fish.is-drag svg { transform: scale(1.12); }
-.bd-fish.is-bonded .bd-fish-body { stroke: #fff; stroke-width: 3; }
-.bd-fish.is-bonded { filter: drop-shadow(0 0 12px rgba(255,255,255,.95)) drop-shadow(5px 9px 6px rgba(8,40,70,.35)); }
+.bd-frog svg { width: 100%; height: 100%; overflow: visible; }
+.bd-frog .bd-frog-body { fill: var(--c); stroke: rgba(0,0,0,.28); stroke-width: 1; }
+.bd-frog .bd-frog-leg { fill: color-mix(in srgb, var(--c) 78%, #000 22%); stroke: rgba(0,0,0,.28); stroke-width: 1; }
+.bd-frog .bd-frog-toe { fill: color-mix(in srgb, var(--c) 70%, #000 30%); }
+.bd-frog .bd-frog-back { fill: rgba(255,255,255,.22); }
+.bd-frog .bd-frog-spot { fill: rgba(0,0,0,.14); }
+.bd-frog .bd-frog-eye { fill: color-mix(in srgb, var(--c) 60%, #000 40%); stroke: rgba(0,0,0,.3); stroke-width: .8; }
+.bd-frog .bd-frog-iris { fill: #F6D35A; } .bd-frog .bd-frog-pupil { fill: #0B0D10; }
+.bd-frog .bd-frog-badge { transform: rotate(calc(var(--rot, 0deg) * -1)); transform-box: fill-box; transform-origin: center; }
+.bd-frog .bd-frog-badge circle { filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+.bd-frog .bd-frog-throat { fill: rgba(255,255,255,.35); transform-box: fill-box; transform-origin: center; }
+.bd-frog .bd-frog-lid { fill: var(--c); transform-box: fill-box; transform-origin: center top; transform: scaleY(0); }
+.bd-frog .bd-frog-hind { transform-box: fill-box; }
+.bd-frog .bd-frog-hind-l { transform-origin: 90% 90%; } .bd-frog .bd-frog-hind-r { transform-origin: 90% 10%; }
+.bd-frog .bd-frog-fore { transform-box: fill-box; }
+.bd-frog .bd-frog-fore-l { transform-origin: 20% 90%; } .bd-frog .bd-frog-fore-r { transform-origin: 20% 10%; }
 @media (prefers-reduced-motion: no-preference) {
-  .bd-fish .bd-fish-tail { transform-origin: 26px 30px; animation: bdWag var(--wag, .7s) ease-in-out infinite alternate; }
-  .bd-fish .bd-fish-pl { transform-origin: 70px 24px; animation: bdFlapL 1s ease-in-out infinite alternate; }
-  .bd-fish .bd-fish-pr { transform-origin: 70px 36px; animation: bdFlapR 1s ease-in-out infinite alternate; }
-  .bd-fish.is-drag .bd-fish-tail { animation-duration: .14s; }
+  .bd-frog .bd-frog-throat { animation: bdThroat 1.6s ease-in-out infinite alternate; }
+  .bd-frog .bd-frog-lid { animation: bdBlink 5s ease-in-out infinite; animation-delay: var(--blink, 0s); }
+  .bd-frog.is-hop .bd-frog-hind-l { animation: bdKickL var(--dur, .6s) ease-out; }
+  .bd-frog.is-hop .bd-frog-hind-r { animation: bdKickR var(--dur, .6s) ease-out; }
+  .bd-frog.is-hop .bd-frog-fore-l { animation: bdReachL var(--dur, .6s) ease-out; }
+  .bd-frog.is-hop .bd-frog-fore-r { animation: bdReachR var(--dur, .6s) ease-out; }
+  .bd-frog.is-land svg { animation: bdSquash .32s ease-out; }
+  .bd-frog.is-drag .bd-frog-hind-l, .bd-frog.is-drag .bd-frog-hind-r { animation: bdDangle .7s ease-in-out infinite alternate; }
 }
-@keyframes bdWag { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
-@keyframes bdFlapL { from { transform: rotate(-10deg); } to { transform: rotate(8deg); } }
-@keyframes bdFlapR { from { transform: rotate(10deg); } to { transform: rotate(-8deg); } }
+@keyframes bdThroat { to { transform: scale(1.18); } }
+@keyframes bdBlink { 0%, 92%, 100% { transform: scaleY(0); } 95%, 97% { transform: scaleY(1); } }
+@keyframes bdKickL { 0% { transform: rotate(0) scale(1); } 30% { transform: rotate(38deg) scale(1.5, 1); } 100% { transform: rotate(0) scale(1); } }
+@keyframes bdKickR { 0% { transform: rotate(0) scale(1); } 30% { transform: rotate(-38deg) scale(1.5, 1); } 100% { transform: rotate(0) scale(1); } }
+@keyframes bdReachL { 0% { transform: rotate(0); } 40% { transform: rotate(-30deg) translateX(6px); } 100% { transform: rotate(0); } }
+@keyframes bdReachR { 0% { transform: rotate(0); } 40% { transform: rotate(30deg) translateX(6px); } 100% { transform: rotate(0); } }
+@keyframes bdSquash { 0% { transform: scale(1.12, .86); } 60% { transform: scale(.96, 1.05); } 100% { transform: none; } }
+@keyframes bdDangle { from { transform: rotate(8deg); } to { transform: rotate(-8deg); } }
+.bd-frog.is-drag { cursor: grabbing; z-index: 6; }
+.bd-frog.is-bonded .bd-frog-body { stroke: #131720; stroke-width: 2.4; }
 .bd-fish-label { position: absolute; z-index: 4; padding: 5px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-hi); font-family: var(--font-mono); font-size: 11px; color: var(--muted); pointer-events: none; opacity: 0; transform: translate(-50%, 0); transition: opacity .15s; white-space: nowrap; box-shadow: 0 8px 20px rgba(19,23,32,.12); }
 .bd-fish-label.is-on { opacity: 1; }
-.bd-hero-in::before { content: ""; position: absolute; inset: -8% -12%; z-index: -1; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.82), rgba(255,255,255,.5) 50%, transparent 72%); pointer-events: none; }
-.bd-hero-foot > div, .bd-hero-foot > a { padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.7); backdrop-filter: blur(6px); }
+.bd-hero-in::before { content: ""; position: absolute; inset: -8% -12%; z-index: -1; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,1), rgba(255,255,255,.9) 45%, transparent 72%); pointer-events: none; }
+.bd-hero-foot > div, .bd-hero-foot > a { padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.85); }
 
 .bd-hero-in { position: relative; z-index: 2; text-align: center; max-width: 860px; margin: 0 auto; pointer-events: none; }
 .bd-hero-in > * { pointer-events: auto; }
@@ -779,8 +755,10 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 }
 @media (max-width: 900px) {
   .bd-hero { min-height: 100vh; padding: 104px 0 40vh; align-items: flex-start; }
-  .bd-lily { display: none; }
-  .bd-lily:nth-of-type(1), .bd-lily:nth-of-type(3) { display: block; --s: 80px; }
+  .bd-lily { --s: 90px !important; }
+  .bd-lily:nth-of-type(1) { --l: 14%; --t: 64%; }
+  .bd-lily:nth-of-type(2) { --l: 86%; --t: 84%; }
+  .bd-lily:nth-of-type(3) { --l: 82%; --t: 60%; }
   .bd-hero-foot { font-size: 10px; padding: 0 16px; bottom: 14px; }
   .bd-hero-foot .bd-scroll, .bd-hero-foot > div:nth-child(2) { display: none; }
   .bd-hero h1 { font-size: clamp(44px, 13vw, 60px); }

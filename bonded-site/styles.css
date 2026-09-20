@@ -1041,3 +1041,10 @@ body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav
 .bd-form .bd-btn-block { width: 100%; justify-content: center; margin-top: 18px; height: 54px; border-radius: 999px; font-family: 'Poppins', var(--font-body); font-weight: 600; font-size: 14px; }
 .bd-form .bd-btn-block.is-idle { background: #8B95A7; color: #fff; box-shadow: none; }
 .bd-form .bd-btn-block.is-idle:hover { transform: none; }
+
+/* the hero's bottom line reads on the water */
+.bd-hero-foot { color: #FFFFFF; font-size: 12px; font-weight: 500; text-shadow: 0 1px 3px rgba(10,40,30,.55), 0 0 12px rgba(10,40,30,.35); }
+.bd-hero-foot button, .bd-hero-foot a { color: #FFFFFF; }
+.bd-hero-foot button:hover, .bd-hero-foot a:hover { color: #FFFFFF; text-decoration: underline; }
+.bd-hero-foot .bd-sep { opacity: .7; }
+.bd-hero-foot .bd-scroll { font-size: 10.5px; }

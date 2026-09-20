@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bonded — launch a token that trades in a stock, not in ETH</title>
+  <meta name="description" content="Bonded pairs your new token with a tokenized stock from its first block. One pool, liquidity locked at deploy, price quoted in the share everyone already watches.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A0C10'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="home">
+<div class="bd" id="top">
+
+  <!-- status strip: figures come from CONFIG / the adapter; see README -->
+  <div class="bd-strip">
+    <div class="bd-wrap bd-strip-in" id="strip">
+      <span><i class="bd-dot"></i>Protocol <b>live</b></span>
+      <span>Pairs bonded <b data-stat="pairs">—</b></span>
+      <span>24h volume <b data-stat="volume">—</b></span>
+      <span>Liquidity locked <b data-stat="locked">—</b></span>
+      <span>Chain <b data-cfg="chain">—</b></span>
+      <span>Creation fee <b data-cfg="fee">—</b></span>
+    </div>
+  </div>
+
+  <nav class="bd-nav">
+    <a class="bd-brand" href="index.html">
+      <span class="bd-mark">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <line x1="11" y1="16" x2="21" y2="16" stroke="#5DE1FF" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="10" cy="16" r="6" fill="#F0B35B"/>
+          <circle cx="23" cy="16" r="4" fill="#5DE1FF"/>
+        </svg>
+      </span>
+      Bonded
+    </a>
+    <div class="bd-nav-links" id="navlinks">
+      <a href="board.html">Board</a>
+      <a data-scroll="how">How it works</a>
+      <a data-scroll="elements">Stocks</a>
+      <a data-scroll="pairs">Live pairs</a>
+      <a data-scroll="trust">Verify</a>
+      <a data-scroll="faq">FAQ</a>
+      <a href="#docs">Docs</a>
+    </div>
+    <div class="bd-nav-right">
+      <button class="bd-icon-btn bd-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="bd-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
+      <button class="bd-btn bd-btn-ghost bd-btn-sm bd-wallet bd-hide-sm" id="wallet" type="button">Connect wallet</button>
+      <a class="bd-btn bd-btn-primary bd-btn-sm" href="launch.html">Launch a pair</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- hero -->
+    <section class="bd-hero">
+      <div class="bd-wrap bd-hero-grid">
+        <div>
+          <span class="bd-eyebrow"><i class="bd-dot"></i>Launchpad · tokens quoted in tokenized stocks</span>
+          <h1>Launch a token that trades in <span class="bd-swap" data-hero-stock>NVDA</span>, <span class="bd-not">not ETH</span>.</h1>
+          <p class="bd-hero-sub">
+            Bonded pairs your new coin with a tokenized stock from its first block. One pool,
+            liquidity locked at deploy, and a price quoted in the share everyone already watches.
+          </p>
+          <div class="bd-hero-cta">
+            <a class="bd-btn bd-btn-primary" href="launch.html">Launch a pair</a>
+            <a class="bd-btn bd-btn-ghost" href="board.html">See live pairs →</a>
+          </div>
+          <p class="bd-hero-note">Creation fee <b data-cfg="fee">—</b> · <b data-cfg="chain">—</b> · liquidity locked the moment you deploy</p>
+        </div>
+
+        <!-- the molecule: stock atom, coin atom, one bond -->
+        <div class="bd-molecule" aria-hidden="true">
+          <svg viewBox="0 0 520 400">
+            <defs>
+              <radialGradient id="gGold" cx="38%" cy="32%" r="75%">
+                <stop offset="0" stop-color="#FFE0A8"/><stop offset=".45" stop-color="#F0B35B"/><stop offset="1" stop-color="#8A5A14"/>
+              </radialGradient>
+              <radialGradient id="gIon" cx="38%" cy="32%" r="75%">
+                <stop offset="0" stop-color="#CFF6FF"/><stop offset=".45" stop-color="#5DE1FF"/><stop offset="1" stop-color="#0E6E88"/>
+              </radialGradient>
+              <linearGradient id="gBond" x1="0" x2="1"><stop offset="0" stop-color="#F0B35B"/><stop offset="1" stop-color="#5DE1FF"/></linearGradient>
+            </defs>
+            <!-- orbits -->
+            <ellipse class="bd-orbit" cx="190" cy="150" rx="150" ry="150"/>
+            <ellipse class="bd-orbit" cx="190" cy="150" rx="118" ry="118"/>
+            <ellipse class="bd-orbit" cx="400" cy="150" rx="78" ry="78"/>
+            <!-- bond -->
+            <line class="bd-bond-glow bd-pulse" x1="245" y1="150" x2="352" y2="150"/>
+            <line class="bd-bond-line" x1="245" y1="150" x2="352" y2="150"/>
+            <!-- stock atom -->
+            <circle class="bd-atom-stock" cx="190" cy="150" r="86"/>
+            <text class="bd-atom-text" x="190" y="142" font-size="38" fill="#1A1204" data-hero-stock>NVDA</text>
+            <text class="bd-atom-sub" x="190" y="176" fill="#1A1204" data-hero-stock-name>NVIDIA</text>
+            <!-- coin atom -->
+            <circle class="bd-atom-coin" cx="400" cy="150" r="46"/>
+            <text class="bd-atom-text" x="400" y="146" font-size="18" fill="#04141A" data-hero-coin>YOURS</text>
+            <text class="bd-atom-sub" x="400" y="166" font-size="9" fill="#04141A">NEW TOKEN</text>
+            <!-- electrons -->
+            <g class="bd-spin" style="--ox:190px; --oy:150px; --dur:16s"><circle class="bd-electron-gold" cx="190" cy="0" r="5"/></g>
+            <g class="bd-spin bd-spin-rev" style="--ox:190px; --oy:150px; --dur:11s"><circle class="bd-electron-gold" cx="72" cy="150" r="4"/></g>
+            <g class="bd-spin" style="--ox:400px; --oy:150px; --dur:7s"><circle class="bd-electron" cx="400" cy="72" r="4.5"/></g>
+            <g class="bd-spin bd-spin-rev" style="--ox:400px; --oy:150px; --dur:9s"><circle class="bd-electron" cx="478" cy="150" r="3.5"/></g>
+          </svg>
+
+          <!-- the pair card: what a bonded token looks like on the board -->
+          <div class="bd-paircard" id="hero-card"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- proof -->
+    <section class="bd-proof">
+      <div class="bd-wrap">
+        <div class="bd-proof-grid bd-rise">
+          <div class="bd-proof-item"><span class="bd-label">Pairs bonded</span><b data-stat="pairs">—</b><small>since launch</small></div>
+          <div class="bd-proof-item"><span class="bd-label">24h volume</span><b data-stat="volume">—</b><small>across all pairs</small></div>
+          <div class="bd-proof-item"><span class="bd-label">Liquidity locked</span><b data-stat="locked">—</b><small>cannot be withdrawn</small></div>
+          <div class="bd-proof-item"><span class="bd-label">Chain</span><b data-cfg="chain">—</b><small>verified contracts</small></div>
+          <div class="bd-proof-item"><span class="bd-label">Creation fee</span><b data-cfg="fee">—</b><small>no other fee to launch</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- how it works -->
+    <section class="bd-section" id="how">
+      <div class="bd-wrap">
+        <div class="bd-head bd-rise">
+          <span class="bd-label">How it works</span>
+          <h2>Three steps. One transaction.</h2>
+          <p>You pick the stock, you name the token, Bonded builds the pool and locks it. Trading opens the same block.</p>
+        </div>
+        <div class="bd-steps">
+          <div class="bd-step bd-rise">
+            <div class="bd-step-fig">
+              <svg viewBox="0 0 300 92">
+                <g font-family="JetBrains Mono, monospace" font-size="11" fill="currentColor" opacity=".55">
+                  <rect x="4" y="16" width="62" height="60" rx="8" fill="none" stroke="currentColor" opacity=".35"/><text x="14" y="42" font-size="16" font-weight="700">TSLA</text>
+                  <rect x="76" y="16" width="62" height="60" rx="8" fill="#F0B35B" opacity="1"/><text x="86" y="42" font-size="16" font-weight="700" fill="#1A1204" opacity="1">NVDA</text>
+                  <rect x="148" y="16" width="62" height="60" rx="8" fill="none" stroke="currentColor" opacity=".35"/><text x="158" y="42" font-size="16" font-weight="700">AAPL</text>
+                  <rect x="220" y="16" width="62" height="60" rx="8" fill="none" stroke="currentColor" opacity=".35"/><text x="230" y="42" font-size="16" font-weight="700">SPY</text>
+                </g>
+              </svg>
+            </div>
+            <span class="bd-step-n">01</span>
+            <h3>Pick the stock</h3>
+            <p>Choose the tokenized share your coin will be quoted in. That is the other side of your pool and the unit every price is shown in.</p>
+          </div>
+          <div class="bd-step bd-rise">
+            <div class="bd-step-fig">
+              <svg viewBox="0 0 300 92">
+                <rect x="4" y="18" width="292" height="56" rx="12" fill="none" stroke="currentColor" opacity=".3"/>
+                <rect x="16" y="30" width="32" height="32" rx="9" fill="#5DE1FF"/>
+                <text x="24" y="52" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="700" fill="#04141A">RB</text>
+                <text x="60" y="44" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="currentColor">Robotaxi Season</text>
+                <text x="60" y="62" font-family="JetBrains Mono, monospace" font-size="11" fill="currentColor" opacity=".6">$ROBO / TSLA</text>
+                <text x="238" y="52" font-family="JetBrains Mono, monospace" font-size="11" fill="#5DE1FF">1B supply</text>
+              </svg>
+            </div>
+            <span class="bd-step-n">02</span>
+            <h3>Name your token</h3>
+            <p>Name, ticker, image, a line about it. Fixed supply, no mint, no owner keys. Optionally buy first so you are not front-run.</p>
+          </div>
+          <div class="bd-step bd-rise">
+            <div class="bd-step-fig">
+              <svg viewBox="0 0 300 92">
+                <line x1="100" y1="46" x2="200" y2="46" stroke="url(#gBond)" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="88" cy="46" r="30" fill="#F0B35B"/><text x="88" y="50" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="700" fill="#1A1204">TSLA</text>
+                <circle cx="212" cy="46" r="22" fill="#5DE1FF"/><text x="212" y="50" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="11" font-weight="700" fill="#04141A">ROBO</text>
+                <g transform="translate(150 20)"><rect x="-22" y="-12" width="44" height="18" rx="9" fill="currentColor" opacity=".12"/><text x="0" y="1" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="currentColor">LOCKED</text></g>
+              </svg>
+            </div>
+            <span class="bd-step-n">03</span>
+            <h3>Bond it</h3>
+            <p>One transaction deploys the token, seeds the pool against the stock and locks the liquidity for good. Your pair is live and on the board.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- why a stock -->
+    <section class="bd-section bd-section-alt">
+      <div class="bd-wrap">
+        <div class="bd-head bd-rise">
+          <span class="bd-label">Why bond to a stock</span>
+          <h2>A price you can reason about, a story that writes itself.</h2>
+          <p>ETH pairs make every new coin a leveraged bet on ETH. Bonding to a stock swaps that beta for something people already follow.</p>
+        </div>
+        <div class="bd-why">
+          <div class="bd-why-card bd-rise">
+            <div class="bd-why-ic"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div>
+            <h3>The narrative is built in</h3>
+            <p>A coin bonded to TSLA is a Tesla coin the moment it exists. Earnings, launches, headlines: the stock brings the attention, your token rides it.</p>
+          </div>
+          <div class="bd-why-card bd-rise">
+            <div class="bd-why-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9h10M7 13h6"/></svg></div>
+            <h3>Quoted in a unit people know</h3>
+            <p>Prices read as fractions of a share, not of a gas token. Holders can tell in a glance whether the coin moved or the whole market did.</p>
+          </div>
+          <div class="bd-why-card bd-rise">
+            <div class="bd-why-ic"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+            <h3>Liquidity that cannot leave</h3>
+            <p>The pool is locked at deploy and the contract has no owner. Nobody, including you, can pull the stock out from under holders.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- the table of elements -->
+    <section class="bd-section" id="elements">
+      <div class="bd-wrap">
+        <div class="bd-head-row bd-rise">
+          <div class="bd-head">
+            <span class="bd-label">The table</span>
+            <h2>Pick your element.</h2>
+            <p>Every stock Bonded supports, with its live price and how many pairs are already bonded to it. Click one to see it in the hero.</p>
+          </div>
+          <a class="bd-btn bd-btn-ghost bd-btn-sm" href="launch.html">Launch with this stock →</a>
+        </div>
+        <div class="bd-elements bd-rise" id="elements-grid"></div>
+        <p class="bd-elements-note">Stocks are tokenized shares issued on <span data-cfg="chain">—</span>. Bonded quotes prices in the token, and shows the USD reference next to it.</p>
+      </div>
+    </section>
+
+    <!-- live pairs -->
+    <section class="bd-section bd-section-alt" id="pairs">
+      <div class="bd-wrap">
+        <div class="bd-head-row bd-rise">
+          <div class="bd-head">
+            <span class="bd-label">Live pairs</span>
+            <h2>What just got bonded.</h2>
+            <p>The newest and busiest pairs right now. The full board has filters, search and every pair ever launched.</p>
+          </div>
+          <a class="bd-btn bd-btn-ghost bd-btn-sm" href="board.html">Open the board →</a>
+        </div>
+        <div class="bd-pairs bd-rise" id="pairs-grid"></div>
+      </div>
+    </section>
+
+    <!-- trust -->
+    <section class="bd-section" id="trust">
+      <div class="bd-wrap">
+        <div class="bd-head bd-rise">
+          <span class="bd-label">Verify it yourself</span>
+          <h2>What holds without trusting us.</h2>
+          <p>Everything a careful buyer checks before the first trade, answered on chain and linked here.</p>
+        </div>
+        <div class="bd-trust">
+          <div class="bd-checks bd-rise">
+            <div class="bd-check">
+              <div class="bd-check-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+              <div><b>Liquidity locked at deploy</b><p>The pool position is held by the protocol with no withdraw path. <a data-cfg-href="lockUrl" href="#">Lock contract ↗</a></p></div>
+            </div>
+            <div class="bd-check">
+              <div class="bd-check-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+              <div><b>Fixed supply, no mint</b><p>Every token is deployed from the same verified template. No mint function, no blacklist, no pausable transfers.</p></div>
+            </div>
+            <div class="bd-check">
+              <div class="bd-check-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+              <div><b>No owner keys</b><p>Ownership is renounced in the deploy transaction. The creator has the same rights as any other holder.</p></div>
+            </div>
+            <div class="bd-check">
+              <div class="bd-check-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+              <div><b>Verified source</b><p>The factory and the token template are verified on the explorer. <a data-cfg-href="factoryUrl" href="#">Factory contract ↗</a></p></div>
+            </div>
+          </div>
+          <div class="bd-contract bd-rise">
+            <span class="bd-label">Protocol</span>
+            <div class="bd-contract-row"><span>Chain</span><b data-cfg="chain">—</b></div>
+            <div class="bd-contract-row"><span>Factory</span><code data-cfg="factory">—</code><button class="bd-copy" type="button" data-copy="factory">copy</button></div>
+            <div class="bd-contract-row"><span>Creation fee</span><b data-cfg="fee">—</b></div>
+            <div class="bd-contract-row"><span>Swap fee</span><b data-cfg="swapFee">—</b></div>
+            <div class="bd-contract-row"><span>Creator share of swap fee</span><b data-cfg="creatorShare">—</b></div>
+            <div class="bd-contract-row"><span>Protocol token</span><code data-cfg="token">—</code><button class="bd-copy" type="button" data-copy="token">copy</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="bd-section bd-section-alt" id="faq">
+      <div class="bd-wrap">
+        <div class="bd-head bd-rise">
+          <span class="bd-label">FAQ</span>
+          <h2>Questions people ask before the first bond.</h2>
+        </div>
+        <div class="bd-faq bd-rise">
+          <details open>
+            <summary>What does "bonded to a stock" actually mean?</summary>
+            <p>Your token's only liquidity pool has a tokenized stock on the other side instead of ETH or a stablecoin. Buying your token means paying in that stock; the price is a number of shares per token. Nothing is pegged: the token trades freely, it is just quoted and settled in the share.</p>
+          </details>
+          <details>
+            <summary>Do I need to own the stock to launch?</summary>
+            <p>No. You pay the creation fee and, if you want, an optional first buy. Bonded seeds the pool from the token supply; the stock side fills as people buy in.</p>
+          </details>
+          <details>
+            <summary>Can I remove the liquidity later?</summary>
+            <p>No, and neither can we. The pool position is locked at deploy with no withdraw function. That is the whole point of a bond.</p>
+          </details>
+          <details>
+            <summary>What do creators earn?</summary>
+            <p>A share of the swap fee on every trade in the pair, for as long as it trades. The exact split is listed in the Verify section above and in the docs.</p>
+          </details>
+          <details>
+            <summary>What happens when the stock market is closed?</summary>
+            <p>Tokenized stocks trade on chain around the clock; their price follows the underlying and can drift while the market is shut. Your pair keeps trading, quoted in that token, at whatever the pool says.</p>
+          </details>
+          <details>
+            <summary>Is this an offer of securities?</summary>
+            <p>Bonded does not issue stocks. It builds pools between tokens you create and tokenized shares issued by third parties on <span data-cfg="chain">—</span>. Read the docs and your local rules before launching or trading.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- closing -->
+    <section class="bd-close" id="docs">
+      <div class="bd-wrap">
+        <div class="bd-close-card bd-rise">
+          <h2>Your idea, bonded to <span class="bd-gold" data-hero-stock>NVDA</span>.</h2>
+          <p>Pick a stock, name the coin, sign once. Locked liquidity and a live pair in the same block.</p>
+          <div class="bd-hero-cta" style="justify-content:center">
+            <a class="bd-btn bd-btn-primary" href="launch.html">Launch a pair</a>
+            <a class="bd-btn bd-btn-ghost" data-cfg-href="docsUrl" href="#">Read the docs</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bd-footer">
+    <div class="bd-wrap">
+      <div class="bd-footer-grid">
+        <div>© <span data-year></span> Bonded · not financial advice · tokenized stocks are issued by third parties</div>
+        <div class="bd-footer-links">
+          <a href="board.html">Board</a>
+          <a href="launch.html">Launch</a>
+          <a data-cfg-href="docsUrl" href="#">Docs</a>
+          <a data-cfg-href="xUrl" href="#">X</a>
+          <a data-cfg-href="factoryUrl" href="#">Contract</a>
+        </div>
+      </div>
+      <p class="bd-footer-note">CA <span data-cfg="token">—</span> · figures on this page are read from the adapter in app.js; sample data until it is wired to the chain.</p>
+    </div>
+  </footer>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

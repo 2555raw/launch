@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Launch a pair — Bonded</title>
+  <meta name="description" content="Pick a tokenized stock, name your token, sign once. Bonded deploys the token, seeds the pool against the stock and locks the liquidity in the same transaction.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A0C10'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="launch">
+<div class="bd" id="top">
+
+  <nav class="bd-nav">
+    <a class="bd-brand" href="index.html">
+      <span class="bd-mark">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <line x1="11" y1="16" x2="21" y2="16" stroke="#5DE1FF" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="10" cy="16" r="6" fill="#F0B35B"/>
+          <circle cx="23" cy="16" r="4" fill="#5DE1FF"/>
+        </svg>
+      </span>
+      Bonded
+    </a>
+    <div class="bd-nav-links" id="navlinks">
+      <a href="board.html">Board</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#elements">Stocks</a>
+      <a href="index.html#trust">Verify</a>
+      <a href="index.html#faq">FAQ</a>
+      <a data-cfg-href="docsUrl" href="#">Docs</a>
+    </div>
+    <div class="bd-nav-right">
+      <button class="bd-icon-btn bd-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="bd-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
+      <button class="bd-btn bd-btn-ghost bd-btn-sm bd-wallet" id="wallet" type="button">Connect wallet</button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="bd-page-head">
+      <div class="bd-wrap">
+        <span class="bd-label">Launch</span>
+        <h1>Bond a new token to a stock.</h1>
+        <p>Three steps, one signature. Creation fee <b class="bd-mono" data-cfg="fee">—</b> on <span data-cfg="chain">—</span>.</p>
+      </div>
+    </section>
+
+    <div class="bd-wrap bd-launch">
+      <div>
+        <div class="bd-stepper" id="stepper">
+          <span class="is-active">01 · Stock</span>
+          <span>02 · Token</span>
+          <span>03 · Review &amp; bond</span>
+        </div>
+
+        <!-- step 1: the stock -->
+        <div class="bd-panel" data-step="1">
+          <h2>Pick the stock</h2>
+          <p>The tokenized share your token will be quoted in and traded against. This cannot be changed after deploy.</p>
+          <div class="bd-elements" id="launch-elements"></div>
+          <div class="bd-panel-actions">
+            <span></span>
+            <button class="bd-btn bd-btn-primary" type="button" data-next>Continue →</button>
+          </div>
+        </div>
+
+        <!-- step 2: the token -->
+        <div class="bd-panel" data-step="2" hidden>
+          <h2>Name your token</h2>
+          <p>Fixed supply, no mint, no owner. What you type here goes on chain as is.</p>
+          <div class="bd-field-row">
+            <div class="bd-field">
+              <label for="f-name">Name</label>
+              <input class="bd-input" id="f-name" maxlength="32" placeholder="Robotaxi Season" autocomplete="off">
+            </div>
+            <div class="bd-field">
+              <label for="f-ticker">Ticker</label>
+              <div class="bd-input-wrap">
+                <input class="bd-input" id="f-ticker" maxlength="8" placeholder="ROBO" autocomplete="off" style="text-transform:uppercase">
+                <span class="bd-suffix" id="f-ticker-pair">/ —</span>
+              </div>
+            </div>
+          </div>
+          <div class="bd-field">
+            <label for="f-desc">One line about it</label>
+            <textarea class="bd-input" id="f-desc" maxlength="240" placeholder="The coin for everyone who thinks the robotaxi is the whole thesis."></textarea>
+          </div>
+          <div class="bd-field-row">
+            <div class="bd-field">
+              <label for="f-image">Image URL</label>
+              <input class="bd-input" id="f-image" placeholder="https://…/logo.png" autocomplete="off">
+              <small>Square, 512px or larger. Stored with the token metadata.</small>
+            </div>
+            <div class="bd-field">
+              <label for="f-buy">First buy (optional)</label>
+              <div class="bd-input-wrap">
+                <input class="bd-input" id="f-buy" type="number" min="0" step="0.001" placeholder="0.00">
+                <span class="bd-suffix" id="f-buy-unit">—</span>
+              </div>
+              <small>Buy in the same transaction so nobody gets in before you.</small>
+            </div>
+          </div>
+          <div class="bd-field-row">
+            <div class="bd-field">
+              <label for="f-x">X / Twitter (optional)</label>
+              <input class="bd-input" id="f-x" placeholder="https://x.com/…" autocomplete="off">
+            </div>
+            <div class="bd-field">
+              <label for="f-site">Website (optional)</label>
+              <input class="bd-input" id="f-site" placeholder="https://…" autocomplete="off">
+            </div>
+          </div>
+          <div class="bd-error" id="f-error" hidden></div>
+          <div class="bd-panel-actions">
+            <button class="bd-btn bd-btn-ghost" type="button" data-prev>← Back</button>
+            <button class="bd-btn bd-btn-primary" type="button" data-next>Review →</button>
+          </div>
+        </div>
+
+        <!-- step 3: review -->
+        <div class="bd-panel" data-step="3" hidden>
+          <h2>Review and bond</h2>
+          <p>This is what the transaction will do. Once it is mined nothing here can be changed.</p>
+          <div class="bd-review" id="review"></div>
+          <div class="bd-callout"><b>The liquidity is locked for good.</b> Neither you nor Bonded can withdraw the pool. Ownership of the token is renounced in the same transaction.</div>
+          <div class="bd-error" id="tx-error" hidden></div>
+          <div class="bd-panel-actions">
+            <button class="bd-btn bd-btn-ghost" type="button" data-prev>← Back</button>
+            <button class="bd-btn bd-btn-primary" type="button" id="deploy">Connect wallet to bond</button>
+          </div>
+        </div>
+
+        <!-- done -->
+        <div class="bd-panel bd-success" data-step="4" hidden>
+          <div class="bd-success-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+          <h2>Bonded.</h2>
+          <p>Your pair is live and on the board. Share the link; the first buyers are usually the people who saw it first.</p>
+          <div class="bd-review" id="done"></div>
+          <div class="bd-hero-cta" style="justify-content:center">
+            <a class="bd-btn bd-btn-primary" href="board.html">See it on the board</a>
+            <a class="bd-btn bd-btn-ghost" id="done-tx" href="#" target="_blank" rel="noopener">Transaction ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- live preview -->
+      <aside class="bd-preview">
+        <div class="bd-preview-mol" aria-hidden="true">
+          <svg viewBox="0 0 380 200">
+            <defs>
+              <radialGradient id="gGold" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#FFE0A8"/><stop offset=".45" stop-color="#F0B35B"/><stop offset="1" stop-color="#8A5A14"/></radialGradient>
+              <radialGradient id="gIon" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#CFF6FF"/><stop offset=".45" stop-color="#5DE1FF"/><stop offset="1" stop-color="#0E6E88"/></radialGradient>
+              <linearGradient id="gBond" x1="0" x2="1"><stop offset="0" stop-color="#F0B35B"/><stop offset="1" stop-color="#5DE1FF"/></linearGradient>
+            </defs>
+            <line class="bd-bond-glow bd-pulse" x1="160" y1="100" x2="250" y2="100"/>
+            <line class="bd-bond-line" x1="160" y1="100" x2="250" y2="100"/>
+            <circle class="bd-atom-stock" cx="110" cy="100" r="58"/>
+            <text class="bd-atom-text" x="110" y="96" font-size="24" fill="#1A1204" data-hero-stock>—</text>
+            <text class="bd-atom-sub" x="110" y="120" font-size="9" fill="#1A1204" data-hero-stock-name></text>
+            <circle class="bd-atom-coin" cx="286" cy="100" r="36"/>
+            <text class="bd-atom-text" x="286" y="100" font-size="14" fill="#04141A" data-hero-coin>?</text>
+            <g class="bd-spin" style="--ox:110px; --oy:100px; --dur:12s"><circle class="bd-electron-gold" cx="110" cy="30" r="4"/></g>
+            <g class="bd-spin bd-spin-rev" style="--ox:286px; --oy:100px; --dur:7s"><circle class="bd-electron" cx="286" cy="52" r="3.5"/></g>
+          </svg>
+        </div>
+        <div class="bd-paircard" id="preview-card"></div>
+        <p class="bd-preview-note">This is how the pair will look on the board. Price and figures are illustrative until the first trade.</p>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="bd-footer">
+    <div class="bd-wrap">
+      <div class="bd-footer-grid">
+        <div>© <span data-year></span> Bonded · not financial advice · tokenized stocks are issued by third parties</div>
+        <div class="bd-footer-links">
+          <a href="index.html">Home</a>
+          <a href="board.html">Board</a>
+          <a data-cfg-href="docsUrl" href="#">Docs</a>
+          <a data-cfg-href="factoryUrl" href="#">Contract</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

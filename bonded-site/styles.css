@@ -819,7 +819,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 .bd-pairs-1 { grid-template-columns: 1fr; }
 .bd-hero-cta-row { flex-direction: row; flex-wrap: wrap; }
 .bd-fish text { transform: scaleX(var(--face, 1)); transform-box: fill-box; transform-origin: center; }
-.bd-page-head { padding-top: 24px; }
+.bd-page-head { padding-top: 36px; }
 
 /* ---------- the lake: behind every page ---------- */
 .bd-lake { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }

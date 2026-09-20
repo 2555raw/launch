@@ -89,8 +89,8 @@ Green water under white cards, always. (A dark token set is kept in the styleshe
 | `--ink` / `--prose` / `--muted` / `--dim` | `#131720` / `#3A4353` / `#6B7688` / `#98A2B3` | `#F2F5F9` / `#C3CAD6` / `#8B95A7` / `#5F6878` | text levels |
 | `--gold-text` / `--ion-text` | `#9A6410` / `#0083A6` | `#F0B35B` / `#5DE1FF` | the two roles as small text |
 
-Type: **Space Grotesk** for display, **Inter** for body, **JetBrains Mono** for figures, tickers and
-labels. Prices are shares per token with the leading zeros compressed (`0.0₅42` = `0.0000042`), and
+Type: **Poppins** for the navigation bar and the footer name (after the reference), **Space Grotesk**
+for display, **Inter** for body, **JetBrains Mono** for figures, tickers and labels. Prices are shares per token with the leading zeros compressed (`0.0₅42` = `0.0000042`), and
 the USD reference next to them.
 
 ## Wiring the chain

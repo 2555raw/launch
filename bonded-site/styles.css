@@ -756,9 +756,9 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 @media (max-width: 900px) {
   .bd-hero { min-height: 100vh; padding: 104px 0 40vh; align-items: flex-start; }
   .bd-lily { --s: 90px !important; }
-  .bd-lily:nth-of-type(1) { --l: 14%; --t: 64%; }
-  .bd-lily:nth-of-type(2) { --l: 86%; --t: 84%; }
-  .bd-lily:nth-of-type(3) { --l: 82%; --t: 60%; }
+  .bd-lily:nth-of-type(1) { --l: 14% !important; --t: 64% !important; }
+  .bd-lily:nth-of-type(2) { --l: 86% !important; --t: 84% !important; }
+  .bd-lily:nth-of-type(3) { --l: 82% !important; --t: 60% !important; }
   .bd-hero-foot { font-size: 10px; padding: 0 16px; bottom: 14px; }
   .bd-hero-foot .bd-scroll, .bd-hero-foot > div:nth-child(2) { display: none; }
   .bd-hero h1 { font-size: clamp(44px, 13vw, 60px); }

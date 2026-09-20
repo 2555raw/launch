@@ -143,8 +143,8 @@ browser, `?pons=0` turns it off. What it does:
   An optional first buy is `approve` + `curve.buy(quoteIn, minOut, you)` in that stock.
 - `quote` / `swap` → `getReserves()` + `feeBps()` math, `curve.buy` / `curve.sell` with a 3%
   slippage floor; graduated curves are refused (trade them on Uniswap v4).
-- `pairs` / `pair` / `stats` / `launched` → indexed from `TokenLaunched` events (last 120k blocks,
-  10k per `eth_getLogs`), keeping only launches whose quote token is a stock Bonded lists;
+- `pairs` / `pair` / `stats` / `launched` → indexed from `TokenLaunched` events (last 400k blocks,
+  10k per `eth_getLogs`, six in flight; tune `window.BONDED_PONS = { lookbackBlocks, chunk, parallel }`), keeping only launches whose quote token is a stock Bonded lists;
   `trades` and `series` from `CurveBuy` / `CurveSell`; `holdings` from `balanceOf`.
 - Stock tokens come from `window.BONDED_STOCK_TOKENS = { TSLA: '0x…' }` if you define it before the
   scripts, otherwise from the quote tokens seen on recent launches. Every address must pass

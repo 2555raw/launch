@@ -6,7 +6,7 @@
      node scripts/verify-pons.mjs --stocks TSLA=0x…,NVDA=0x…   # check your own addresses
      node scripts/verify-pons.mjs --from 0xYourWallet   # also simulate launchToken as you
      node scripts/verify-pons.mjs --rpc https://…       # another RPC
-     node scripts/verify-pons.mjs --lookback 200000     # more blocks of history
+     node scripts/verify-pons.mjs --lookback 2000000    # more blocks of history
 
    What it does, in order:
      1. eth_chainId is 4663 and the factory has code.
@@ -29,7 +29,7 @@ const A = globalThis.bdAbi;
 const args = Object.fromEntries(process.argv.slice(2).map((a, i, all) => a.startsWith('--') ? [a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : '1'] : []).filter(Boolean));
 const RPC = args.rpc || 'https://rpc.mainnet.chain.robinhood.com';
 const FACTORY = (args.factory || '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e').toLowerCase();
-const LOOKBACK = Number(args.lookback || 120_000);
+const LOOKBACK = Number(args.lookback || 400_000);
 const CHUNK = Number(args.chunk || 10_000);
 const given = Object.fromEntries((args.stocks || '').split(',').filter(Boolean).map(kv => kv.split('=')).map(([k, v]) => [k.toUpperCase(), v.toLowerCase()]));
 
@@ -77,9 +77,12 @@ config ? ok(`using launch config ${config.id}`) : bad('no enabled launch config'
 // 3. launches and their quote tokens
 console.log(`\n3. Launches (last ${LOOKBACK.toLocaleString()} blocks)`);
 const head = parseInt(await rpc('eth_blockNumber'), 16);
+const windows = [];
+for (let a = Math.max(0, head - LOOKBACK); a <= head; a += CHUNK) windows.push([a, Math.min(head, a + CHUNK - 1)]);
 const logs = [];
-for (let a = Math.max(0, head - LOOKBACK); a <= head; a += CHUNK) {
-  logs.push(...await rpc('eth_getLogs', [{ address: FACTORY, topics: [T_LAUNCHED], fromBlock: A.hex(a), toBlock: A.hex(Math.min(head, a + CHUNK - 1)) }]));
+for (let i = 0; i < windows.length; i += 6) {
+  const parts = await Promise.all(windows.slice(i, i + 6).map(([a, b]) => rpc('eth_getLogs', [{ address: FACTORY, topics: [T_LAUNCHED], fromBlock: A.hex(a), toBlock: A.hex(b) }])));
+  logs.push(...parts.flat());
 }
 const launches = logs.map(l => {
   const [pairToken, launchConfigId] = A.decodeTuple(['address', 'uint256', 'uint256'], A.strip(l.data));

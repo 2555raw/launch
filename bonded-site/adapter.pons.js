@@ -32,8 +32,9 @@
     launchConfigId: null,      // null = first enabled config
     creatorTaxBps: 0,
     slippageBps: 300,
-    lookbackBlocks: 120_000,   // how far back to index launches
+    lookbackBlocks: 400_000,   // how far back to index launches (Robinhood Chain blocks are fast)
     chunk: 10_000,             // eth_getLogs window
+    parallel: 6,               // concurrent RPC requests while indexing
     pollMs: 12_000,
   }, window.BONDED_PONS || {});
 
@@ -47,6 +48,12 @@
   const T_SELL = A.topic('CurveSell', ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256']);
 
   const rpc = A.makeRpc(PONS.rpc);
+  // map with a concurrency cap, so indexing does not fire hundreds of requests at once
+  async function pmap(items, fn, n = PONS.parallel) {
+    const out = new Array(items.length); let i = 0;
+    await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => { while (i < items.length) { const k = i++; out[k] = await fn(items[k], k); } }));
+    return out;
+  }
   const call = async (to, name, types, args, outTypes, extra = {}) => {
     const data = A.encodeCall(name, types, args);
     const res = await rpc('eth_call', [{ to, data, ...extra }, 'latest']);
@@ -147,24 +154,29 @@
   }
 
   async function getLogsRange(filter, from, to) {
-    const out = [];
-    for (let a = from; a <= to; a += PONS.chunk) {
-      const b = Math.min(to, a + PONS.chunk - 1);
-      out.push(...await rpc('eth_getLogs', [{ ...filter, fromBlock: A.hex(a), toBlock: A.hex(b) }]));
-    }
-    return out;
+    const windows = [];
+    for (let a = from; a <= to; a += PONS.chunk) windows.push([a, Math.min(to, a + PONS.chunk - 1)]);
+    const parts = await pmap(windows, ([a, b]) => rpc('eth_getLogs', [{ ...filter, fromBlock: A.hex(a), toBlock: A.hex(b) }]));
+    return parts.flat();
+  }
+  const blockTimes = {};
+  async function timestampsFor(blockHexes) {
+    const missing = [...new Set(blockHexes)].filter(b => !blockTimes[b]);
+    await pmap(missing, async b => { blockTimes[b] = parseInt((await rpc('eth_getBlockByNumber', [b, false])).timestamp, 16) * 1000; });
+    return blockTimes;
   }
 
   async function hydrate(l) {
     const sym = byToken[l.pairToken.toLowerCase()];
     if (!sym) return null;
-    const [name, ticker, { q, t }, block] = await Promise.all([erc20.name(l.token), erc20.symbol(l.token), curve.reserves(l.curve), rpc('eth_getBlockByNumber', [A.hex(l.block), false])]);
+    const [name, ticker, { q, t }] = await Promise.all([erc20.name(l.token), erc20.symbol(l.token), curve.reserves(l.curve)]);
+    const times = await timestampsFor([A.hex(l.block)]);
     const st = stockTokens[sym];
     const priceInShares = Number(q) / 10 ** st.decimals / (Number(t) / 1e18 || 1);
     const supply = 1e9;
     return {
       name, ticker, stock: sym, desc: '', image: '', x: '', site: '',
-      address: l.token, curve: l.curve, creator: l.deployer, createdAt: parseInt(block.timestamp, 16) * 1000,
+      address: l.token, curve: l.curve, creator: l.deployer, createdAt: times[A.hex(l.block)],
       mcap: priceInShares * supply * priceOf(sym), volume: 0, change: 0, holders: 1,
       launch: l,
     };
@@ -180,7 +192,7 @@
     const seen = new Set(launches.map(l => l.pairToken.toLowerCase()));
     for (const a of seen) if (byToken[a] === undefined) await registerStock(null, a);
     // ETH/USDG/cbBTC are approved too but are not stocks; only keep symbols Bonded knows or that look like tickers
-    const pairs = (await Promise.all(launches.map(hydrate))).filter(Boolean);
+    const pairs = (await pmap(launches, hydrate)).filter(Boolean);
     index.launches = pairs.sort((a, b) => b.createdAt - a.createdAt);
     index.lastBlock = head;
     return index.launches;
@@ -192,16 +204,16 @@
 
   async function tradesOf(p, fromBlock) {
     const head = parseInt(await rpc('eth_blockNumber'), 16);
-    const logs = await getLogsRange({ address: p.curve, topics: [[T_BUY, T_SELL]] }, fromBlock ?? Math.max(p.launch.block, head - PONS.lookbackBlocks), head);
+    const all = await getLogsRange({ address: p.curve, topics: [[T_BUY, T_SELL]] }, fromBlock ?? Math.max(p.launch.block, head - PONS.lookbackBlocks), head);
+    const logs = all.slice(-300);   // the tape keeps the last 300 trades, each with its real block time
     const st = stockTokens[p.stock];
-    const blocks = {};
-    await Promise.all([...new Set(logs.map(l => l.blockNumber))].slice(-60).map(async b => { blocks[b] = parseInt((await rpc('eth_getBlockByNumber', [b, false])).timestamp, 16) * 1000; }));
+    const blocks = await timestampsFor(logs.map(l => l.blockNumber));
     return logs.map(l => {
       const buy = l.topics[0] === T_BUY;
       const [inAmt, outAmt] = A.decodeTuple(['uint256', 'uint256', 'uint256', 'uint256'], A.strip(l.data));
       const amountStock = Number(buy ? inAmt : outAmt) / 10 ** st.decimals;
       const amountToken = Number(buy ? outAmt : inAmt) / 1e18;
-      return { side: buy ? 'buy' : 'sell', amountStock, amountToken, price: amountToken ? amountStock / amountToken : 0, wallet: '0x' + l.topics[1].slice(26), ts: blocks[l.blockNumber] || Date.now(), tx: l.transactionHash, block: parseInt(l.blockNumber, 16) };
+      return { side: buy ? 'buy' : 'sell', amountStock, amountToken, price: amountToken ? amountStock / amountToken : 0, wallet: '0x' + l.topics[1].slice(26), ts: blocks[l.blockNumber], tx: l.transactionHash, block: parseInt(l.blockNumber, 16) };
     });
   }
 
@@ -262,7 +274,9 @@
         [payload.x || '', '', '', payload.site || '', ''],
         account, PONS.creatorTaxBps, false, economics, salt,
       ];
-      const data = A.encodeCall('launchToken', LAUNCH_TYPES, [params, configId, st.address, []]);
+      // the creator's own first buy should not pay the launch-window snipe tax
+      const exemptions = Number(payload.buy) > 0 ? [account] : [];
+      const data = A.encodeCall('launchToken', LAUNCH_TYPES, [params, configId, st.address, exemptions]);
       const receipt = await sendTx({ to: PONS.factory, data, value: A.hex(fee) });
       const log = receipt.logs.find(l => l.address.toLowerCase() === PONS.factory.toLowerCase() && l.topics[0] === T_LAUNCHED);
       if (!log) throw new Error('Launch mined but no TokenLaunched event found: ' + receipt.transactionHash);

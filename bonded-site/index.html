@@ -163,38 +163,68 @@
       </div>
     </section>
 
-    <!-- faq -->
-    <section class="bd-section bd-section-alt" id="faq">
+    <!-- before you trade -->
+    <section class="bd-section" id="before">
       <div class="bd-wrap">
         <div class="bd-head bd-rise">
-          <span class="bd-label">FAQ</span>
-          <h2>Questions people ask before the first bond.</h2>
+          <span class="bd-label">Before you trade</span>
+          <h2>What a bonded coin is, and is not</h2>
+          <p>Three things worth reading before any transaction. None of them are hidden in a footer, and none of them change once a pair is open.</p>
+        </div>
+        <div class="bd-points bd-rise">
+          <div class="bd-point"><span class="bd-point-n">01</span><div><h3>It is not a share.</h3><p>A coin bonded to NVDA is priced in NVDA and trades against it. It does not give you NVIDIA stock, dividends or votes. The stock is the other side of the pool, nothing more.</p></div></div>
+          <div class="bd-point"><span class="bd-point-n">02</span><div><h3>The stock is permanent.</h3><p>A pair cannot be re-bonded after launch. Pick the stock your buyers actually follow, because that decision outlives every other one you make.</p></div></div>
+          <div class="bd-point"><span class="bd-point-n">03</span><div><h3>Locked liquidity is not value.</h3><p>The pool cannot be pulled, by you or by us. That protects holders from a rug; it does not make a coin worth anything. Treat the price as a live reading, not a forecast.</p></div></div>
+        </div>
+        <div class="bd-warn bd-rise"><b>Trading memecoins can lose you the entire amount you put in.</b> A locked pool keeps the liquidity in place; it does not keep a coin valuable. Nothing here is advice, and nothing here is insured.</div>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="bd-section" id="faq">
+      <div class="bd-wrap">
+        <div class="bd-head bd-rise">
+          <span class="bd-label">A few things you might wonder</span>
+          <h2>Questions</h2>
         </div>
         <div class="bd-faq bd-rise">
           <details open>
-            <summary>What does "bonded to a stock" actually mean?</summary>
-            <p>Your token's only liquidity pool has a tokenized stock on the other side instead of ETH or a stablecoin. Buying your token means paying in that stock; the price is a number of shares per token. Nothing is pegged: the token trades freely, it is just quoted and settled in the share.</p>
+            <summary>What is a pair here?</summary>
+            <p>A coin, bonded to the stock it is priced in. You pick the stock at launch; the coin's price is quoted in that stock and every trade settles in it too, rather than being converted through ETH first.</p>
           </details>
           <details>
             <summary>Do I need to own the stock to launch?</summary>
-            <p>No. You pay the creation fee and, if you want, an optional first buy. Bonded seeds the pool from the token supply; the stock side fills as people buy in.</p>
+            <p>No. You pay the creation fee and, if you want, an optional first buy. Bonded seeds the pool from the coin supply; the stock side fills as people buy in.</p>
           </details>
           <details>
             <summary>Can I remove the liquidity later?</summary>
-            <p>No, and neither can we. The pool position is locked at deploy with no withdraw function. That is the whole point of a bond.</p>
+            <p>No, and neither can we. The pool position is locked at launch with no withdraw function. That is the whole point of a bond.</p>
           </details>
           <details>
             <summary>What do creators earn?</summary>
-            <p>A share of the swap fee on every trade in the pair, for as long as it trades. The exact split is listed in the Verify section above and in the docs.</p>
+            <p>A share of the swap fee on every trade in the pair, for as long as it trades. The exact split is listed in the Verify section and in the docs.</p>
           </details>
           <details>
             <summary>What happens when the stock market is closed?</summary>
             <p>Tokenized stocks trade on chain around the clock; their price follows the underlying and can drift while the market is shut. Your pair keeps trading, quoted in that token, at whatever the pool says.</p>
           </details>
           <details>
-            <summary>Is this an offer of securities?</summary>
-            <p>Bonded does not issue stocks. It builds pools between tokens you create and tokenized shares issued by third parties on <span data-cfg="chain">—</span>. Read the docs and your local rules before launching or trading.</p>
+            <summary>Is any of this real?</summary>
+            <p>The pairs on this site are sample data until the adapter is wired to the chain. Bonded does not issue stocks; it builds pools between coins you create and tokenized shares issued by third parties on <span data-cfg="chain">—</span>. Read the docs and your local rules before launching or trading.</p>
           </details>
+        </div>
+        <div class="bd-protocol bd-rise">
+          <span class="bd-label">Protocol facts · what a pair is made of</span>
+          <p>Every pair is one coin and one pool, created in the same transaction. These numbers are the same for every pair and do not change after launch.</p>
+          <div class="bd-protocol-rows">
+            <div><span>Supply</span><b>1,000,000,000 · fixed</b></div>
+            <div><span>Liquidity</span><b>Locked at launch, no withdraw path</b></div>
+            <div><span>Ownership</span><b>Renounced in the deploy transaction</b></div>
+            <div><span>Swap fee</span><b><span data-cfg="swapFee">—</span> · <span data-cfg="creatorShare">—</span> to the creator</b></div>
+            <div><span>Creation fee</span><b data-cfg="fee">—</b></div>
+            <div><span>Chain</span><b data-cfg="chain">—</b></div>
+          </div>
+          <div class="bd-protocol-foot"><i class="bd-dot"></i>Protocol live · <span data-stat="pairs">—</span> pairs bonded · sample data until wired to the chain</div>
         </div>
       </div>
     </section>

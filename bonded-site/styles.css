@@ -493,14 +493,32 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 .bd-contract-row code { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bd-copy { font-family: var(--font-mono); font-size: 11px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line-hi); background: var(--surface); cursor: pointer; }
 
-/* faq */
-.bd-faq { max-width: 760px; }
-.bd-faq details { border-bottom: 1px solid var(--line); }
-.bd-faq summary { list-style: none; cursor: pointer; padding: 20px 0; font-family: var(--font-display); font-size: 18px; letter-spacing: -.01em; display: flex; justify-content: space-between; gap: 20px; }
+/* before you trade */
+.bd-points { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 64px; max-width: 960px; }
+.bd-point { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+.bd-point-n { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: #131720; padding-top: 5px; }
+.bd-point h3 { font-family: var(--font-display); font-size: 18px; font-weight: 500; margin: 0 0 8px; letter-spacing: -.01em; }
+.bd-point p { margin: 0; font-size: 14.5px; line-height: 1.65; color: #1C222B; max-width: 380px; }
+.bd-warn { margin-top: 44px; padding: 16px 20px; border-radius: 12px; background: rgba(255,255,255,.92); border: 1px solid var(--line); border-left: 3px solid #3F8E78; font-size: 14px; line-height: 1.6; color: #1C222B; }
+.bd-warn b { color: #131720; }
+/* faq: an open list, thin rules, centred */
+.bd-faq { max-width: 760px; margin: 0 auto; }
+#faq .bd-head { text-align: left; }
+.bd-faq details { border-bottom: 1px solid rgba(255,255,255,.45); background: transparent; padding: 0; }
+.bd-faq summary { list-style: none; cursor: pointer; padding: 22px 0; font-family: var(--font-body); font-weight: 500; font-size: 15px; color: #131720; display: flex; justify-content: space-between; gap: 20px; }
 .bd-faq summary::-webkit-details-marker { display: none; }
-.bd-faq summary::after { content: "+"; font-family: var(--font-mono); color: var(--dim); font-size: 20px; line-height: 1; }
-.bd-faq details[open] summary::after { content: "–"; }
-.bd-faq details p { margin: -6px 0 22px; color: var(--prose); line-height: 1.65; font-size: 15px; max-width: 680px; }
+.bd-faq summary::after { content: "+"; font-family: var(--font-mono); color: #2B3441; font-size: 18px; line-height: 1; }
+.bd-faq details[open] summary::after { content: "×"; }
+.bd-faq details p { margin: -6px 0 24px; color: #1C222B; line-height: 1.7; font-size: 14.5px; max-width: 640px; }
+/* protocol facts card */
+.bd-protocol { margin: 64px auto 0; max-width: 760px; padding: 24px 26px 18px; border-radius: 22px; background: #fff; border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+.bd-protocol > p { margin: 10px 0 12px; font-size: 14px; color: var(--prose); line-height: 1.6; }
+.bd-protocol-rows > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.bd-protocol-rows > div span { color: var(--muted); }
+.bd-protocol-rows > div b { font-weight: 500; text-align: right; }
+.bd-protocol-foot { margin-top: 14px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.bd-protocol-foot .bd-dot { margin-right: 8px; }
+@media (max-width: 900px) { .bd-points { grid-template-columns: 1fr; } }
 
 /* closing */
 .bd-close { padding: 40px 0 96px; }
@@ -900,8 +918,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 .bd-toolbar { background: linear-gradient(180deg, rgba(120,171,154,.9) 0%, rgba(120,171,154,.78) 70%, rgba(120,171,154,0) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 0; border-bottom: 0; padding-bottom: 22px; }
 .bd-proof { padding-top: 40px; }
 
-.bd-faq details { background: rgba(255,255,255,.82); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; margin-bottom: 8px; }
-.bd-faq details p { margin-top: -4px; }
+
 .bd-docs-body { padding: 8px 0; }
 .bd-close-card { box-shadow: 0 20px 60px rgba(19,23,32,.06); }
 .bd-step, .bd-why-card, .bd-pair, .bd-element, .bd-check, .bd-contract, .bd-proof-grid, .bd-stat, .bd-panel, .bd-chart, .bd-trade, .bd-about, .bd-feed-item, .bd-stock-detail, .bd-paircard, .bd-mine-connect, .bd-close-card { box-shadow: 0 8px 30px rgba(19,23,32,.05); }

@@ -373,6 +373,21 @@
   $$('[data-scroll]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); links?.classList.remove('is-open'); scrollToId(el.dataset.scroll); }));
   if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) setTimeout(() => window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - navH() }), 60); }
 
+  // on the home, the green line follows the section on screen (How it works, FAQ); over the hero nothing is lit
+  if (document.body.dataset.page === 'home' && 'IntersectionObserver' in window) {
+    const hashLinks = $$('.bd-nav-links a[href^="index.html#"]');
+    const alias = { before: 'faq' };
+    const targets = hashLinks.map(a => document.getElementById(a.getAttribute('href').split('#')[1])).filter(Boolean).concat(Object.keys(alias).map(id => document.getElementById(id)).filter(Boolean));
+    const io = new IntersectionObserver(entries => entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const id = alias[en.target.id] || en.target.id;
+      hashLinks.forEach(a => a.classList.toggle('is-active', a.getAttribute('href').endsWith('#' + id)));
+    }), { rootMargin: '-30% 0px -60% 0px' });
+    targets.forEach(t => io.observe(t));
+    const hero = document.getElementById('hero');
+    if (hero) new IntersectionObserver(([en]) => { if (en.isIntersecting) hashLinks.forEach(a => a.classList.remove('is-active')); }, { rootMargin: '-30% 0px -60% 0px' }).observe(hero);
+  }
+
   // reveal
   const rises = $$('.bd-rise');
   if ('IntersectionObserver' in window && rises.length) {

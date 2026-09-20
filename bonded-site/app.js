@@ -2,7 +2,7 @@
    No dependencies. Everything the pages show comes through one adapter
    (`Bonded.adapter`), so wiring the real protocol means replacing that
    object, not touching the pages. See README → "Wiring the chain".
-   Sections: config · sample data · adapter · helpers · chrome · the falls
+   Sections: config · sample data · adapter · helpers · chrome · the pond
    (hero scene) · home · pairs board · pair page · live · stocks · launch ·
    my playground · docs. */
 
@@ -407,89 +407,104 @@
   const page = document.body.dataset.page;
 
   /* =====================================================================
-     THE FALLS — the hero scene. Each fish is a stock. It falls down one of
-     the two falls, lands in the pond, swims slowly for about six seconds,
-     sinks, and comes back over the top. Grab one: drop it in the pond and
-     it swims; drop it in the air and it falls again. Click one to pick it.
+     THE POND — the hero scene, seen from above. Each fish is a stock. It
+     swims slowly, turns on its own, keeps out of the copy in the middle
+     and away from the bank. Grab one and drop it anywhere in the water;
+     click one to pick its stock.
      ===================================================================== */
-  function falls() {
-    const scene = $('#scene'), pondEl = $('#pond'), label = $('#fish-label'), hero = $('#hero');
+  function pond() {
+    const scene = $('#scene'), label = $('#fish-label'), hero = $('#hero'), copy = $('.bd-hero-in');
     if (!scene) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const FISH_SVG = (s) => {
       const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
-      return `<svg viewBox="-4 -8 128 80" aria-hidden="true">
-        <g class="bd-fish-tail">
-          <path class="bd-fish-fin" d="M26 32 C16 22, 8 12, 0 6 C7 18, 7 46, 0 58 C8 52, 16 42, 26 32 Z"/>
-          <path class="bd-fish-finline" d="M5 12 L20 29 M5 52 L20 35 M4 32 L18 32"/>
-        </g>
-        <path class="bd-fish-fin" d="M44 15 C54 -2, 80 -2, 96 15 Z"/>
-        <path class="bd-fish-finline" d="M56 12 L58 3 M68 11 L70 1 M82 12 L86 4"/>
-        <path class="bd-fish-fin" d="M52 50 C58 61, 74 62, 84 51 Z"/>
-        <ellipse class="bd-fish-body" cx="66" cy="32" rx="46" ry="21"/>
-        <ellipse class="bd-fish-scales" cx="66" cy="32" rx="46" ry="21"/>
-        <path class="bd-fish-belly" d="M24 38 C40 54, 94 54, 110 36 C94 44, 40 44, 24 38 Z"/>
-        <path class="bd-fish-shade" d="M22 40 C42 56, 96 56, 112 38 C98 50, 40 50, 22 40 Z"/>
-        <ellipse class="bd-fish-light" cx="58" cy="21" rx="30" ry="6"/>
-        <path class="bd-fish-pect bd-fish-fin" d="M64 38 C70 48, 84 50, 90 41 C82 41, 72 39, 64 38 Z"/>
-        <path class="bd-fish-gill" d="M93 19 C86 27, 86 37, 93 45"/>
-        <circle class="bd-fish-eye" cx="100" cy="27" r="5.2"/><circle class="bd-fish-pupil" cx="101.2" cy="27" r="2.8"/><circle cx="99.3" cy="25.4" r="1.2" fill="#fff"/>
-        <path d="M109 35 q3 .5 2.6 3" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.4" stroke-linecap="round"/>
-        <g class="bd-fish-badge" transform="translate(46 13)"><circle cx="19" cy="19" r="19" fill="#fff"/><g transform="translate(6.5 6.5) scale(1.04)" fill="${logo.fill}">${logo.svg}</g></g>
+      return `<svg viewBox="-4 -6 128 72" aria-hidden="true">
+        <g class="bd-fish-tail"><path class="bd-fish-fin" d="M26 30 C16 20, 8 10, 0 4 C6 14, 8 46, 0 56 C8 50, 16 40, 26 30 Z"/><path class="bd-fish-finline" d="M5 10 L20 27 M5 50 L20 33"/></g>
+        <path class="bd-fish-pl bd-fish-fin" d="M70 22 C74 8, 92 4, 98 12 C92 16, 82 20, 70 22 Z"/>
+        <path class="bd-fish-pr bd-fish-fin" d="M70 38 C74 52, 92 56, 98 48 C92 44, 82 40, 70 38 Z"/>
+        <path class="bd-fish-body" d="M24 30 C34 6, 96 4, 118 30 C96 56, 34 54, 24 30 Z"/>
+        <path class="bd-fish-scales" d="M24 30 C34 6, 96 4, 118 30 C96 56, 34 54, 24 30 Z"/>
+        <path class="bd-fish-shade" d="M28 36 C50 52, 96 50, 114 34 C96 44, 50 46, 28 36 Z"/>
+        <path class="bd-fish-light" d="M34 20 C52 10, 92 10, 108 22 C90 16, 52 16, 34 20 Z"/>
+        <path class="bd-fish-spine" d="M32 30 C56 26, 92 26, 110 30"/>
+        <circle class="bd-fish-eye" cx="104" cy="23" r="2.4"/><circle class="bd-fish-eye" cx="104" cy="37" r="2.4"/>
+        <g class="bd-fish-badge" transform="translate(44 12)"><circle cx="18" cy="18" r="18" fill="#fff"/><g transform="translate(6 6) scale(1)" fill="${logo.fill}">${logo.svg}</g></g>
       </svg>`;
     };
 
-    let W = 0, H = 0, bands = [], surfaceY = 0, paused = false, running = true, selected = null, hovered = null;
+    let W = 0, H = 0, cx = 0, cy = 0, rx = 0, ry = 0, top = 0, avoid = null, paused = false, running = true, selected = null, hovered = null;
     const fish = STOCKS.map((s, i) => {
       const el = document.createElement('button');
       el.className = 'bd-fish'; el.type = 'button'; el.setAttribute('aria-label', s.sym + ' · ' + s.name);
-      el.style.setProperty('--c', s.color); el.innerHTML = FISH_SVG(s);
+      el.style.setProperty('--c', s.color); el.style.setProperty('--wag', (0.55 + (i % 4) * 0.08) + 's'); el.innerHTML = FISH_SVG(s);
       scene.appendChild(el);
-      return { s, el, i, x: 0, y: 0, vx: 0, vy: 0, rot: 0, face: 1, op: 1, state: 'fall', t: Math.random() * 10, phase: Math.random() * 6.28, size: 0, w: 0, h: 0, baseX: 0, until: 0 };
+      return { s, el, i, x: 0, y: 0, a: 0, turn: 0, v: 0, op: 1, state: 'swim', t: Math.random() * 10, phase: Math.random() * 6.28, w: 0, h: 0, wakeAt: 0 };
     });
 
     const measure = () => {
-      W = scene.clientWidth; H = scene.clientHeight;
-      bands = $$('[data-fall]', scene).map(el => ({ x0: el.offsetLeft, x1: el.offsetLeft + el.offsetWidth }));
-      surfaceY = pondEl.offsetTop + 26;
-      const base = clamp(W / 10.5, 84, 150);
-      fish.forEach(f => { f.size = base * (0.85 + ((f.i * 7) % 5) * 0.08); f.w = f.size; f.h = f.size * 0.62; });
+      W = scene.clientWidth; H = scene.clientHeight; cx = W / 2; cy = H / 2;
+      // the water is the inner 65% of the farthest-corner ellipse (see .bd-rim's mask)
+      rx = 0.65 * Math.SQRT1_2 * W; ry = 0.65 * Math.SQRT1_2 * H;
+      top = 84;
+      const base = clamp(W / 11, 78, 128);
+      fish.forEach(f => { f.w = base * (0.86 + ((f.i * 7) % 5) * 0.07); f.h = f.w * .5; });
+      const r = copy.getBoundingClientRect(), sr = scene.getBoundingClientRect();
+      avoid = { x: r.left - sr.left, y: r.top - sr.top, w: r.width, h: r.height };
     };
-    const bandX = f => { const b = bands[f.i % bands.length] || { x0: W * .1, x1: W * .3 }; return b.x0 + Math.random() * Math.max(10, b.x1 - b.x0 - f.w); };
-    const respawn = (f, high = true) => { f.state = 'fall'; f.baseX = bandX(f); f.x = f.baseX; f.y = -f.h - (high ? Math.random() * H * 1.2 : Math.random() * H * .4); f.vy = 0; f.face = 1; f.rot = 90; f.op = 1; };
-    const startSwim = f => {
-      f.state = 'swim'; f.vy = 0; f.rot = 0; f.op = 1;
-      const speed = 14 + Math.random() * 16; f.vx = (Math.random() < .5 ? -1 : 1) * speed; f.face = f.vx > 0 ? 1 : -1;
-      f.until = f.t + 6 + Math.random() * 2.5;
-      f.y = clamp(f.y, surfaceY + 6, H - f.h - 58);
+    const inWater = (x, y, m = 0) => ((x - cx) / (rx - m)) ** 2 + ((y - cy) / (ry - m)) ** 2 < 1 && y > top;
+    const randomSpot = f => {
+      for (let k = 0; k < 60; k++) {
+        const x = cx + (Math.random() * 2 - 1) * rx * .9, y = cy + (Math.random() * 2 - 1) * ry * .9;
+        if (inWater(x, y, f.w * .6) && !inRect(x, y, avoid, 100)) return { x, y };
+      }
+      return { x: cx + rx * .6, y: cy + ry * .6 };
     };
+    const inRect = (x, y, r, pad) => r && x > r.x - pad && x < r.x + r.w + pad && y > r.y - pad && y < r.y + r.h + pad;
+    const startSwim = (f, a) => { f.state = 'swim'; f.a = a ?? Math.random() * Math.PI * 2; f.v = 16 + Math.random() * 16; f.turn = 0; f.op = 1; };
+    const ring = (x, y, cls = 'bd-ripple', ttl = 1400) => { const r = document.createElement('i'); r.className = cls; r.style.left = x + 'px'; r.style.top = y + 'px'; scene.appendChild(r); setTimeout(() => r.remove(), ttl); };
     const splash = (x, y) => {
-      for (let k = 0; k < 2; k++) { const r = document.createElement('i'); r.className = 'bd-ripple'; r.style.left = x + 'px'; r.style.top = y + 'px'; r.style.animationDelay = (k * .18) + 's'; scene.appendChild(r); setTimeout(() => r.remove(), 1600); }
-      for (let k = 0; k < 7; k++) {
+      ring(x, y); setTimeout(() => ring(x, y), 180);
+      for (let k = 0; k < 8; k++) {
         const d = document.createElement('i'); d.className = 'bd-splash'; d.style.left = x + 'px'; d.style.top = y + 'px';
-        d.style.setProperty('--dx', ((Math.random() - .5) * 70) + 'px'); d.style.setProperty('--dy', (-30 - Math.random() * 50) + 'px');
+        const ang = Math.random() * Math.PI * 2, dist = 24 + Math.random() * 40;
+        d.style.setProperty('--dx', (Math.cos(ang) * dist) + 'px'); d.style.setProperty('--dy', (Math.sin(ang) * dist) + 'px');
         scene.appendChild(d); setTimeout(() => d.remove(), 800);
       }
     };
     const init = () => {
       measure();
-      fish.forEach((f, i) => {
-        if (reduced || i % 2) { f.x = W * .06 + Math.random() * (W * .88 - f.w); f.y = surfaceY + 10 + Math.random() * Math.max(10, H - surfaceY - f.h - 70); f.t = 0; startSwim(f); f.until = f.t + 2 + Math.random() * 6; }
-        else respawn(f, true);
-        render(f);
-      });
+      fish.forEach(f => { const p = randomSpot(f); f.x = p.x; f.y = p.y; f.t = Math.random() * 10; startSwim(f); render(f); });
     };
     const render = f => {
-      f.el.style.setProperty('--x', f.x.toFixed(1) + 'px'); f.el.style.setProperty('--y', f.y.toFixed(1) + 'px');
-      f.el.style.setProperty('--rot', f.rot.toFixed(1) + 'deg'); f.el.style.setProperty('--face', f.face); f.el.style.setProperty('--op', f.op);
-      f.el.style.setProperty('--s', f.w + 'px');
-      f.el.classList.toggle('is-swim', f.state === 'swim'); f.el.classList.toggle('is-fall', f.state === 'fall');
+      f.el.style.setProperty('--x', (f.x - f.w / 2).toFixed(1) + 'px'); f.el.style.setProperty('--y', (f.y - f.h / 2).toFixed(1) + 'px');
+      f.el.style.setProperty('--rot', (f.a * 180 / Math.PI + Math.sin(f.t * 2.2 + f.phase) * 2.5).toFixed(1) + 'deg');
+      f.el.style.setProperty('--op', f.op); f.el.style.setProperty('--s', f.w + 'px');
     };
     const placeLabel = f => {
       if (!f) { label.classList.remove('is-on'); return; }
-      label.innerHTML = `<b>${f.s.sym}</b> · $${f.s.price.toFixed(2)} · Pair it ↗`;
-      label.style.left = (f.x + f.w / 2) + 'px'; label.style.top = (f.y - 34) + 'px'; label.classList.add('is-on');
+      label.innerHTML = `<b>${f.s.sym}</b> · ${esc(f.s.name)} · $${f.s.price.toFixed(2)} · Pair it ↗`;
+      label.style.left = f.x + 'px'; label.style.top = (f.y - f.h / 2 - 38) + 'px'; label.classList.add('is-on');
     };
+    // steer: a target heading and how urgently to turn towards it
+    const steer = f => {
+      let tx = 0, ty = 0, urgency = 0;
+      const m = f.w * .7;
+      const e = ((f.x - cx) / (rx - m)) ** 2 + ((f.y - cy) / (ry - m)) ** 2;
+      if (e > .72 || f.y < top + f.h) { tx += cx - f.x; ty += cy - f.y; urgency = Math.max(urgency, (e - .72) * 6 + (f.y < top + f.h ? 2 : 0)); }
+      if (avoid && inRect(f.x, f.y, avoid, 96)) {
+        const ax = avoid.x + avoid.w / 2, ay = avoid.y + avoid.h / 2;
+        const dx = f.x - ax, dy = f.y - ay;
+        // leave by the shortest side, harder the deeper in
+        const sx = (avoid.w / 2 + 96 - Math.abs(dx)), sy = (avoid.h / 2 + 96 - Math.abs(dy));
+        if (sx < sy) { tx += Math.sign(dx || 1) * 300; } else { ty += Math.sign(dy || 1) * 300; }
+        urgency = Math.max(urgency, 3 + Math.min(sx, sy) / 30);
+      }
+      // the others: keep a little distance
+      for (const o of fish) { if (o === f || o.state === 'drag') continue; const dx = f.x - o.x, dy = f.y - o.y, d = Math.hypot(dx, dy); if (d < f.w * .9 && d > 0) { tx += dx / d * 60; ty += dy / d * 60; urgency = Math.max(urgency, .8); } }
+      if (!urgency) return null;
+      return { a: Math.atan2(ty, tx), k: urgency };
+    };
+    const wrapAngle = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 
     let last = performance.now();
     const step = now => {
@@ -497,24 +512,17 @@
       for (const f of fish) {
         if (f.state === 'drag') { render(f); continue; }
         f.t += dt;
-        if (f.state === 'fall') {
-          f.vy = Math.min(f.vy + 700 * dt, 760); f.y += f.vy * dt;
-          f.x = f.baseX + Math.sin(f.t * 5 + f.phase) * 9; f.rot = 90 + Math.sin(f.t * 9) * 9; f.face = 1;
-          if (f.y + f.h * .5 >= surfaceY) { splash(f.x + f.w / 2, surfaceY); startSwim(f); }
-        } else if (f.state === 'swim') {
-          f.vx += (Math.random() - .5) * 14 * dt;
-          const sp = Math.abs(f.vx); if (sp < 12) f.vx = 12 * Math.sign(f.vx || 1); if (sp > 34) f.vx = 34 * Math.sign(f.vx);
-          f.x += f.vx * dt; f.y += Math.sin(f.t * 1.4 + f.phase) * 7 * dt;
-          const minX = W * .02, maxX = W * .98 - f.w;
-          if (f.x < minX) { f.x = minX; f.vx = Math.abs(f.vx); } if (f.x > maxX) { f.x = maxX; f.vx = -Math.abs(f.vx); }
-          f.y = clamp(f.y, surfaceY + 4, H - f.h - 58);
-          f.face = f.vx > 0 ? 1 : -1; f.rot = Math.sin(f.t * 1.4 + f.phase) * 4;
-          if (!reduced && f.t >= f.until) { f.state = 'sink'; f.until = f.t + .6; }
-        } else if (f.state === 'sink') {
-          f.op = Math.max(0, (f.until - f.t) / .6); f.y += 12 * dt;
-          if (f.t >= f.until) { respawn(f, false); f.op = 0; f.state = 'rise'; f.until = f.t + .4; }
-        } else if (f.state === 'rise') {
-          f.op = Math.min(1, 1 - (f.until - f.t) / .4); if (f.t >= f.until) { f.state = 'fall'; f.op = 1; }
+        if (f.state === 'swim' && dt) {
+          // wander: the turn rate drifts, then eases back to straight
+          f.turn += (Math.random() - .5) * 1.6 * dt; f.turn *= (1 - .8 * dt); f.turn = clamp(f.turn, -.7, .7);
+          f.a += f.turn * dt;
+          const s = steer(f);
+          if (s) f.a += clamp(wrapAngle(s.a - f.a), -1, 1) * s.k * dt;
+          f.v += (Math.random() - .5) * 8 * dt; f.v = clamp(f.v, 12, 34);
+          f.x += Math.cos(f.a) * f.v * dt; f.y += Math.sin(f.a) * f.v * dt;
+          if (!inWater(f.x, f.y, f.w * .45)) { f.x += (cx - f.x) * .02; f.y += (cy - f.y) * .02; }
+          if (avoid && inRect(f.x, f.y, avoid, 10)) { const ax = avoid.x + avoid.w / 2, ay = avoid.y + avoid.h / 2; const dx = f.x - ax, dy = f.y - ay; if (Math.abs(dx) / avoid.w > Math.abs(dy) / avoid.h) f.x += Math.sign(dx || 1) * 40 * dt; else f.y += Math.sign(dy || 1) * 40 * dt; }
+          if (f.t > f.wakeAt) { f.wakeAt = f.t + 2.5 + Math.random() * 4; ring(f.x + Math.cos(f.a) * f.w * .45, f.y + Math.sin(f.a) * f.w * .45, 'bd-wake', 1700); }
         }
         render(f);
       }
@@ -522,27 +530,28 @@
       if (running && !reduced) requestAnimationFrame(step);
     };
 
-    // pointer: grab, drag, drop, click
+    // pointer: grab, carry, drop, click
     let drag = null;
     fish.forEach(f => {
       f.el.addEventListener('pointerdown', e => {
         e.preventDefault(); f.el.setPointerCapture(e.pointerId);
-        drag = { f, sx: e.clientX, sy: e.clientY, ox: e.clientX - f.x, oy: e.clientY - f.y, moved: false, prev: f.state, lastX: e.clientX };
+        drag = { f, sx: e.clientX, sy: e.clientY, ox: e.clientX - f.x, oy: e.clientY - f.y, moved: false, lx: e.clientX, ly: e.clientY, vx: 0, vy: 0 };
       });
       f.el.addEventListener('pointermove', e => {
         if (!drag || drag.f !== f) return;
-        if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) { drag.moved = true; f.state = 'drag'; f.el.classList.add('is-drag'); f.rot = 0; f.op = 1; }
+        if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) { drag.moved = true; f.state = 'drag'; f.el.classList.add('is-drag'); ring(f.x, f.y); }
         if (!drag.moved) return;
-        f.x = clamp(e.clientX - drag.ox, -f.w * .3, W - f.w * .7); f.y = clamp(e.clientY - drag.oy, -f.h, H - f.h * .5);
-        const dx = e.clientX - drag.lastX; if (Math.abs(dx) > 1) f.face = dx > 0 ? 1 : -1; drag.lastX = e.clientX;
+        const nx = clamp(e.clientX - drag.ox, 10, W - 10), ny = clamp(e.clientY - drag.oy, 10, H - 10);
+        drag.vx = nx - f.x; drag.vy = ny - f.y; f.x = nx; f.y = ny;
+        if (Math.hypot(drag.vx, drag.vy) > 1.5) f.a += wrapAngle(Math.atan2(drag.vy, drag.vx) - f.a) * .25;
         render(f);
       });
-      const release = e => {
+      const release = () => {
         if (!drag || drag.f !== f) return;
         f.el.classList.remove('is-drag');
         if (drag.moved) {
-          if (f.y + f.h * .5 >= surfaceY) { f.t = 0; startSwim(f); }
-          else { f.state = 'fall'; f.baseX = f.x; f.vy = 0; f.rot = 90; }
+          if (!inWater(f.x, f.y, f.w * .4)) { const p = randomSpot(f); const ex = f.x, ey = f.y; f.x = p.x; f.y = p.y; ring(ex, ey, 'bd-wake', 1700); }
+          splash(f.x, f.y); startSwim(f, Math.atan2(drag.vy, drag.vx) || f.a); f.v = 30;
         } else select(f);
         drag = null;
       };
@@ -557,32 +566,27 @@
       $$('[data-hero-stock]').forEach(el => el.textContent = f.s.sym);
       const launch = $('#hero-launch'); if (launch) launch.href = 'launch.html?stock=' + f.s.sym;
       $$('#elements-grid .bd-element').forEach(b => b.classList.toggle('is-active', b.dataset.sym === f.s.sym));
-      document.dispatchEvent(new CustomEvent('bonded:stock', { detail: f.s.sym }));
+      ring(f.x, f.y);
       placeLabel(f);
     };
-    label.addEventListener('click', () => { if (selected) location.href = 'launch.html?stock=' + selected.s.sym; });
 
     // controls
     const motionBtn = $('#motion');
-    motionBtn?.addEventListener('click', () => {
-      paused = !paused; motionBtn.textContent = paused ? 'Resume motion' : 'Pause motion';
-      scene.classList.toggle('is-paused', paused);
-    });
+    motionBtn?.addEventListener('click', () => { paused = !paused; motionBtn.textContent = paused ? 'Resume motion' : 'Pause motion'; scene.classList.toggle('is-paused', paused); });
     $('#reset')?.addEventListener('click', () => { selected = null; fish.forEach(o => o.el.classList.remove('is-bonded')); placeLabel(null); init(); $$('[data-hero-stock-name]').forEach(el => el.textContent = 'NVIDIA'); const l = $('#hero-launch'); if (l) l.href = 'launch.html'; });
 
     // save work when the hero is off screen or the tab is hidden
     const io = new IntersectionObserver(([en]) => { const on = en.isIntersecting && !document.hidden; if (on && !running) { running = true; last = performance.now(); requestAnimationFrame(step); } if (!on) running = false; });
     io.observe(hero);
     document.addEventListener('visibilitychange', () => { if (!document.hidden && !running) { running = true; last = performance.now(); requestAnimationFrame(step); } });
-    addEventListener('resize', () => { const oldW = W; measure(); fish.forEach(f => { f.x = f.x / (oldW || W) * W; render(f); }); });
+    addEventListener('resize', () => { const oW = W || 1, oH = H || 1; measure(); fish.forEach(f => { f.x = f.x / oW * W; f.y = f.y / oH * H; render(f); }); });
 
-    // the pond is never still: a soft ring somewhere every second or so
+    // the surface is never still
     if (!reduced) setInterval(() => {
       if (paused || !running || document.hidden) return;
-      const r = document.createElement('i'); r.className = 'bd-ring';
-      r.style.left = (W * (.06 + Math.random() * .88)) + 'px'; r.style.top = (surfaceY + 10 + Math.random() * Math.max(10, H - surfaceY - 80)) + 'px';
-      scene.appendChild(r); setTimeout(() => r.remove(), 2700);
-    }, 1100);
+      for (let k = 0; k < 40; k++) { const x = cx + (Math.random() * 2 - 1) * rx * .95, y = cy + (Math.random() * 2 - 1) * ry * .95; if (inWater(x, y, 20)) { ring(x, y, 'bd-ring', 2900); break; } }
+    }, 900);
+
     init();
     if (!reduced) requestAnimationFrame(step);
     return { select: sym => { const f = fish.find(o => o.s.sym === sym); if (f) select(f); } };
@@ -592,7 +596,7 @@
      HOME
      ===================================================================== */
   if (page === 'home') {
-    const scene = falls();
+    const scene = pond();
     const grid = $('#elements-grid'), pairsGrid = $('#pairs-grid');
     adapter.stocks().then(stocks => {
       grid.innerHTML = stocks.map(s => elementTile(s, s.sym === 'NVDA')).join('');

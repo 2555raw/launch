@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pairs — every pair bonded on Bonded</title>
-  <meta name="description" content="Every token launched on Bonded, quoted in the stock it is bonded to. Filter by stock, sort by volume, market cap or age.">
+  <title>Pair — Bonded</title>
+  <meta name="description" content="A pair on Bonded: price in its stock, chart, trades and the trade panel.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23131720'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="board">
+<body data-page="pair">
 <div class="bd" id="top">
   <nav class="bd-nav">
     <div class="bd-pill bd-pill-left">
@@ -29,60 +29,9 @@
   </nav>
 
   <main>
-    <section class="bd-page-head">
-      <div class="bd-wrap">
-        <span class="bd-label">Pairs</span>
-        <h1>Every pair, quoted in its stock.</h1>
-        <p>Prices are shares per token. The USD figure next to each one is the reference at the stock's last on-chain price.</p>
-      </div>
-    </section>
-
-    <div class="bd-toolbar">
-      <div class="bd-wrap bd-toolbar-in">
-        <div class="bd-tabs" id="tabs">
-          <button class="bd-tab is-active" data-tab="all" type="button">All</button>
-          <button class="bd-tab" data-tab="new" type="button">New</button>
-          <button class="bd-tab" data-tab="hot" type="button">Trending</button>
-          <button class="bd-tab" data-tab="top" type="button">Top</button>
-        </div>
-        <div class="bd-chips" id="stock-chips"></div>
-        <label class="bd-search">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-          <input id="search" type="search" placeholder="Search name, ticker or stock" autocomplete="off">
-        </label>
-        <select class="bd-select" id="sort" aria-label="Sort by">
-          <option value="volume">Sort: 24h volume</option>
-          <option value="mcap">Sort: market cap</option>
-          <option value="change">Sort: 24h change</option>
-          <option value="age">Sort: newest</option>
-          <option value="holders">Sort: holders</option>
-        </select>
-      </div>
+    <div class="bd-wrap">
+      <div class="bd-pairpage" id="pp"></div>
     </div>
-
-    <section class="bd-board">
-      <div class="bd-wrap">
-        <table class="bd-table" id="table">
-          <thead>
-            <tr>
-              <th data-sort="name">Pair</th>
-              <th data-sort="stock">Bonded to</th>
-              <th class="is-num" data-sort="price">Price</th>
-              <th class="is-num" data-sort="change">24h</th>
-              <th></th>
-              <th class="is-num" data-sort="mcap">Mcap</th>
-              <th class="is-num" data-sort="volume">Volume 24h</th>
-              <th class="is-num" data-sort="holders">Holders</th>
-              <th class="is-num" data-sort="age">Age</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-        <div class="bd-board-cards" id="cards"></div>
-        <div class="bd-empty" id="empty" hidden>No pair matches that. Try another stock or clear the search.</div>
-      </div>
-    </section>
 
   </main>
   <footer class="bd-footer">

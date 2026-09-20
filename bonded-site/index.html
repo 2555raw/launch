@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bonded — launch a token that trades in a stock, not in ETH</title>
+  <title>Bonded — coins paired with stocks</title>
   <meta name="description" content="Bonded pairs your new token with a tokenized stock from its first block. One pool, liquidity locked at deploy, price quoted in the share everyone already watches.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A0C10'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23131720'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -13,110 +13,49 @@
 </head>
 <body data-page="home">
 <div class="bd" id="top">
-
-  <!-- status strip: figures come from CONFIG / the adapter; see README -->
-  <div class="bd-strip">
-    <div class="bd-wrap bd-strip-in" id="strip">
-      <span><i class="bd-dot"></i>Protocol <b>live</b></span>
-      <span>Pairs bonded <b data-stat="pairs">—</b></span>
-      <span>24h volume <b data-stat="volume">—</b></span>
-      <span>Liquidity locked <b data-stat="locked">—</b></span>
-      <span>Chain <b data-cfg="chain">—</b></span>
-      <span>Creation fee <b data-cfg="fee">—</b></span>
-    </div>
-  </div>
-
   <nav class="bd-nav">
-    <a class="bd-brand" href="index.html">
-      <span class="bd-mark">
-        <svg viewBox="0 0 32 32" aria-hidden="true">
-          <line x1="11" y1="16" x2="21" y2="16" stroke="#5DE1FF" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="10" cy="16" r="6" fill="#F0B35B"/>
-          <circle cx="23" cy="16" r="4" fill="#5DE1FF"/>
-        </svg>
-      </span>
-      Bonded
-    </a>
-    <div class="bd-nav-links" id="navlinks">
-      <a href="board.html">Board</a>
-      <a data-scroll="how">How it works</a>
-      <a data-scroll="elements">Stocks</a>
-      <a data-scroll="pairs">Live pairs</a>
-      <a data-scroll="trust">Verify</a>
-      <a data-scroll="faq">FAQ</a>
-      <a href="#docs">Docs</a>
-    </div>
-    <div class="bd-nav-right">
+    <div class="bd-pill bd-pill-left">
+      <a class="bd-brand" href="index.html"><span class="bd-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><line x1="11" y1="16" x2="21" y2="16" stroke="#5DE1FF" stroke-width="3" stroke-linecap="round"/><circle cx="10" cy="16" r="6" fill="#F0B35B"/><circle cx="23" cy="16" r="4" fill="#5DE1FF"/></svg></span>Bonded</a>
+      <div class="bd-nav-links" id="navlinks"><a href="board.html">Pairs</a><a href="live.html">Live launches</a><a href="launch.html">Launch</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="index.html#faq">FAQ</a><a href="docs.html">Docs</a><a href="playground.html" class="bd-only-sm">My playground</a><button type="button" class="bd-wallet bd-only-sm">Connect wallet</button></div>
       <button class="bd-icon-btn bd-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
-      <button class="bd-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
-      <button class="bd-btn bd-btn-ghost bd-btn-sm bd-wallet bd-hide-sm" id="wallet" type="button">Connect wallet</button>
-      <a class="bd-btn bd-btn-primary bd-btn-sm" href="launch.html">Launch a pair</a>
+    </div>
+    <div class="bd-pill bd-pill-right">
+      <button class="bd-nav-ghost bd-wallet" id="wallet" type="button">Connect wallet</button>
+      <a class="bd-nav-ghost" href="playground.html">My playground</a>
+      <a class="bd-btn bd-btn-dark bd-btn-sm" href="board.html">Open the pad <i>↗</i></a>
     </div>
   </nav>
 
   <main>
-
-    <!-- hero -->
-    <section class="bd-hero">
-      <div class="bd-wrap bd-hero-grid">
-        <div>
-          <span class="bd-eyebrow"><i class="bd-dot"></i>Launchpad · tokens quoted in tokenized stocks</span>
-          <h1>Launch a token that trades in <span class="bd-swap" data-hero-stock>NVDA</span>, <span class="bd-not">not ETH</span>.</h1>
-          <p class="bd-hero-sub">
-            Bonded pairs your new coin with a tokenized stock from its first block. One pool,
-            liquidity locked at deploy, and a price quoted in the share everyone already watches.
-          </p>
-          <div class="bd-hero-cta">
-            <a class="bd-btn bd-btn-primary" href="launch.html">Launch a pair</a>
-            <a class="bd-btn bd-btn-ghost" href="board.html">See live pairs →</a>
-          </div>
-          <p class="bd-hero-note">Creation fee <b data-cfg="fee">—</b> · <b data-cfg="chain">—</b> · liquidity locked the moment you deploy</p>
+    <!-- hero: the falls. Fish are the stocks; they fall, land in the pond, swim, and go round again. -->
+    <section class="bd-hero" id="hero">
+      <div class="bd-scene" id="scene" aria-hidden="true">
+        <div class="bd-fall" data-fall style="--x:5%; --w:20%"></div>
+        <div class="bd-fall" data-fall style="--x:75%; --w:20%"></div>
+        <div class="bd-pond" id="pond"></div>
+        <div class="bd-fish-label" id="fish-label"></div>
+      </div>
+      <div class="bd-wrap bd-hero-in">
+        <span class="bd-eyebrow">A little pair. A lot of current.</span>
+        <h1>Coins paired<br>with stocks</h1>
+        <p class="bd-hero-sub">Your next big idea. Priced in <em data-hero-stock-name>NVIDIA</em>.</p>
+        <div class="bd-hero-cta">
+          <a class="bd-btn bd-btn-primary bd-btn-lg" id="hero-launch" href="launch.html">Launch a pair <i style="font-style:normal;font-size:12px;opacity:.7;margin-left:4px">↗</i></a>
+          <a class="bd-explore" href="board.html">Explore the pairs &nbsp;→</a>
         </div>
-
-        <!-- the molecule: stock atom, coin atom, one bond -->
-        <div class="bd-molecule" aria-hidden="true">
-          <svg viewBox="0 0 520 400">
-            <defs>
-              <radialGradient id="gGold" cx="38%" cy="32%" r="75%">
-                <stop offset="0" stop-color="#FFE0A8"/><stop offset=".45" stop-color="#F0B35B"/><stop offset="1" stop-color="#8A5A14"/>
-              </radialGradient>
-              <radialGradient id="gIon" cx="38%" cy="32%" r="75%">
-                <stop offset="0" stop-color="#CFF6FF"/><stop offset=".45" stop-color="#5DE1FF"/><stop offset="1" stop-color="#0E6E88"/>
-              </radialGradient>
-              <linearGradient id="gBond" x1="0" x2="1"><stop offset="0" stop-color="#F0B35B"/><stop offset="1" stop-color="#5DE1FF"/></linearGradient>
-            </defs>
-            <!-- orbits -->
-            <ellipse class="bd-orbit" cx="190" cy="150" rx="150" ry="150"/>
-            <ellipse class="bd-orbit" cx="190" cy="150" rx="118" ry="118"/>
-            <ellipse class="bd-orbit" cx="400" cy="150" rx="78" ry="78"/>
-            <!-- bond -->
-            <line class="bd-bond-glow bd-pulse" x1="245" y1="150" x2="352" y2="150"/>
-            <line class="bd-bond-line" x1="245" y1="150" x2="352" y2="150"/>
-            <!-- stock atom -->
-            <circle class="bd-atom-stock" cx="190" cy="150" r="86"/>
-            <text class="bd-atom-text" x="190" y="142" font-size="38" fill="#1A1204" data-hero-stock>NVDA</text>
-            <text class="bd-atom-sub" x="190" y="176" fill="#1A1204" data-hero-stock-name>NVIDIA</text>
-            <!-- coin atom -->
-            <circle class="bd-atom-coin" cx="400" cy="150" r="46"/>
-            <text class="bd-atom-text" x="400" y="146" font-size="18" fill="#04141A" data-hero-coin>YOURS</text>
-            <text class="bd-atom-sub" x="400" y="166" font-size="9" fill="#04141A">NEW TOKEN</text>
-            <!-- electrons -->
-            <g class="bd-spin" style="--ox:190px; --oy:150px; --dur:16s"><circle class="bd-electron-gold" cx="190" cy="0" r="5"/></g>
-            <g class="bd-spin bd-spin-rev" style="--ox:190px; --oy:150px; --dur:11s"><circle class="bd-electron-gold" cx="72" cy="150" r="4"/></g>
-            <g class="bd-spin" style="--ox:400px; --oy:150px; --dur:7s"><circle class="bd-electron" cx="400" cy="72" r="4.5"/></g>
-            <g class="bd-spin bd-spin-rev" style="--ox:400px; --oy:150px; --dur:9s"><circle class="bd-electron" cx="478" cy="150" r="3.5"/></g>
-          </svg>
-
-          <!-- the pair card: what a bonded token looks like on the board -->
-          <div class="bd-paircard" id="hero-card"></div>
-        </div>
+        <div class="bd-ca"><span>CA:</span><code data-cfg="token">—</code><button class="bd-copy" type="button" data-copy="token">copy</button></div>
+      </div>
+      <div class="bd-hero-foot">
+        <div><button type="button" id="motion">Pause motion</button><span class="bd-sep">/</span><button type="button" id="reset">Reset</button></div>
+        <div>✦&nbsp; Grab a fish. Find your pair.</div>
+        <a class="bd-scroll" data-scroll="proof">Scroll to explore &nbsp;↓</a>
       </div>
     </section>
 
     <!-- proof -->
-    <section class="bd-proof">
+    <section class="bd-proof" id="proof">
       <div class="bd-wrap">
         <div class="bd-proof-grid bd-rise">
           <div class="bd-proof-item"><span class="bd-label">Pairs bonded</span><b data-stat="pairs">—</b><small>since launch</small></div>
@@ -219,9 +158,9 @@
           <div class="bd-head">
             <span class="bd-label">The table</span>
             <h2>Pick your element.</h2>
-            <p>Every stock Bonded supports, with its live price and how many pairs are already bonded to it. Click one to see it in the hero.</p>
+            <p>Every stock you can bond to, with its live price and how many pairs already swim with it. Click one to see it in the hero.</p>
           </div>
-          <a class="bd-btn bd-btn-ghost bd-btn-sm" href="launch.html">Launch with this stock →</a>
+          <a class="bd-btn bd-btn-ghost bd-btn-sm" href="stocks.html">All stocks →</a>
         </div>
         <div class="bd-elements bd-rise" id="elements-grid"></div>
         <p class="bd-elements-note">Stocks are tokenized shares issued on <span data-cfg="chain">—</span>. Bonded quotes prices in the token, and shows the USD reference next to it.</p>
@@ -237,7 +176,7 @@
             <h2>What just got bonded.</h2>
             <p>The newest and busiest pairs right now. The full board has filters, search and every pair ever launched.</p>
           </div>
-          <a class="bd-btn bd-btn-ghost bd-btn-sm" href="board.html">Open the board →</a>
+          <a class="bd-btn bd-btn-ghost bd-btn-sm" href="board.html">All pairs →</a>
         </div>
         <div class="bd-pairs bd-rise" id="pairs-grid"></div>
       </div>
@@ -325,31 +264,28 @@
         <div class="bd-close-card bd-rise">
           <h2>Your idea, bonded to <span class="bd-gold" data-hero-stock>NVDA</span>.</h2>
           <p>Pick a stock, name the coin, sign once. Locked liquidity and a live pair in the same block.</p>
-          <div class="bd-hero-cta" style="justify-content:center">
+          <div class="bd-hero-cta bd-hero-cta-row">
             <a class="bd-btn bd-btn-primary" href="launch.html">Launch a pair</a>
-            <a class="bd-btn bd-btn-ghost" data-cfg-href="docsUrl" href="#">Read the docs</a>
+            <a class="bd-btn bd-btn-ghost" href="docs.html">Read the docs</a>
           </div>
         </div>
       </div>
     </section>
 
-  </main>
 
+  </main>
   <footer class="bd-footer">
     <div class="bd-wrap">
       <div class="bd-footer-grid">
         <div>© <span data-year></span> Bonded · not financial advice · tokenized stocks are issued by third parties</div>
         <div class="bd-footer-links">
-          <a href="board.html">Board</a>
-          <a href="launch.html">Launch</a>
-          <a data-cfg-href="docsUrl" href="#">Docs</a>
-          <a data-cfg-href="xUrl" href="#">X</a>
-          <a data-cfg-href="factoryUrl" href="#">Contract</a>
+          <a href="board.html">Pairs</a><a href="live.html">Live</a><a href="launch.html">Launch</a><a href="stocks.html">Stocks</a><a href="docs.html">Docs</a><a data-cfg-href="xUrl" href="#">X</a><a data-cfg-href="factoryUrl" href="#">Contract</a>
         </div>
       </div>
-      <p class="bd-footer-note">CA <span data-cfg="token">—</span> · figures on this page are read from the adapter in app.js; sample data until it is wired to the chain.</p>
+      <p class="bd-footer-note">CA <span data-cfg="token">—</span> · figures come from the adapter in app.js; sample data until it is wired to the chain.</p>
     </div>
   </footer>
+  <div class="bd-toast" id="toast" role="status"></div>
 
 </div>
 <script src="app.js"></script>

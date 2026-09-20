@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docs — Bonded</title>
+  <meta name="description" content="How Bonded works: bonds, launching, trading, fees, what is locked, contracts and how to integrate.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23131720'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="docs">
+<div class="bd" id="top">
+  <nav class="bd-nav">
+    <div class="bd-pill bd-pill-left">
+      <a class="bd-brand" href="index.html"><span class="bd-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><line x1="11" y1="16" x2="21" y2="16" stroke="#5DE1FF" stroke-width="3" stroke-linecap="round"/><circle cx="10" cy="16" r="6" fill="#F0B35B"/><circle cx="23" cy="16" r="4" fill="#5DE1FF"/></svg></span>Bonded</a>
+      <div class="bd-nav-links" id="navlinks"><a href="board.html">Pairs</a><a href="live.html">Live launches</a><a href="launch.html">Launch</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="index.html#faq">FAQ</a><a href="docs.html" class="is-active">Docs</a><a href="playground.html" class="bd-only-sm">My playground</a><button type="button" class="bd-wallet bd-only-sm">Connect wallet</button></div>
+      <button class="bd-icon-btn bd-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="bd-pill bd-pill-right">
+      <button class="bd-nav-ghost bd-wallet" id="wallet" type="button">Connect wallet</button>
+      <a class="bd-nav-ghost" href="playground.html">My playground</a>
+      <a class="bd-btn bd-btn-dark bd-btn-sm" href="board.html">Open the pad <i>↗</i></a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="bd-wrap bd-docs">
+      <aside class="bd-docs-side" id="docs-side">
+        <span class="bd-label">Docs</span>
+        <a data-scroll="d-overview">Overview</a>
+        <a data-scroll="d-bond">How a bond works</a>
+        <a data-scroll="d-launch">Launching</a>
+        <a data-scroll="d-trade">Trading</a>
+        <a data-scroll="d-fees">Fees</a>
+        <a data-scroll="d-safety">What is locked</a>
+        <a data-scroll="d-contracts">Contracts</a>
+        <a data-scroll="d-integrate">Integrate</a>
+        <a data-scroll="d-risk">Risks</a>
+      </aside>
+      <article class="bd-docs-body">
+        <h1 id="d-overview">Bonded docs</h1>
+        <p class="bd-lede">Bonded is a launchpad where a new token is paired with a tokenized stock instead of ETH. One pool, created and locked in the same transaction as the token, with prices quoted in the share.</p>
+        <p>This page is the reference for creators and traders. Addresses and the integration contract are in the <b>Contracts</b> and <b>Integrate</b> sections.</p>
+
+        <h2 id="d-bond">How a bond works</h2>
+        <p>Every token launched on Bonded has exactly one liquidity pool, and the other side of that pool is a tokenized stock: NVDA, TSLA, SPY and the rest of the list on the <a class="bd-link" href="stocks.html">Stocks</a> page. We call the pair a <b>bond</b>.</p>
+        <ul>
+          <li><b>Buying</b> the token means paying in the stock token. <b>Selling</b> returns stock tokens.</li>
+          <li>The <b>price</b> is a number of shares per token. The USD figure next to it is a reference computed from the stock's last on-chain price; it is not what the pool settles in.</li>
+          <li>Nothing is pegged. The token trades freely against the stock; if the stock moves and the token does not, the USD reference moves with the stock.</li>
+        </ul>
+        <div class="bd-note">A coin bonded to TSLA is quoted in TSLA. When Tesla reports earnings, that pair moves in dollar terms even if nobody trades it.</div>
+
+        <h2 id="d-launch">Launching</h2>
+        <ol>
+          <li><b>Pick the stock.</b> Permanent. It sets the quote unit and the other side of the pool.</li>
+          <li><b>Name the token.</b> Name, ticker (2 to 8 alphanumerics, never a stock symbol), a line of description, an image URL, optional links.</li>
+          <li><b>Optional first buy.</b> An amount of the stock token spent in the deploy transaction, so the creator holds a position before anyone else can.</li>
+          <li><b>Sign.</b> One transaction: deploy the token from the verified template, seed the pool with the full supply on the token side, lock the position, renounce ownership, and execute the first buy if any.</li>
+        </ol>
+        <p>Supply is fixed at <code>1,000,000,000</code>. There is no mint function, no blacklist, no pausable transfers and no owner after deploy.</p>
+
+        <h2 id="d-trade">Trading</h2>
+        <p>Open any pair from the <a class="bd-link" href="board.html">Pairs</a> board. The trade panel takes an amount of the stock token to buy, or an amount of the token to sell, and shows the quote, the price impact and the fee before you sign.</p>
+        <ul>
+          <li>You need the stock token in your wallet to buy.</li>
+          <li>Slippage tolerance defaults to 1%. Thin pairs can move more than that between quote and execution; the transaction reverts if they do.</li>
+          <li>Trades on Bonded pairs are ordinary swaps; any router that knows the pool can trade them.</li>
+        </ul>
+
+        <h2 id="d-fees">Fees</h2>
+        <table>
+          <tr><th>Fee</th><th>Amount</th><th>Who receives it</th></tr>
+          <tr><td>Creation</td><td><span data-cfg="fee">—</span></td><td>Protocol</td></tr>
+          <tr><td>Swap</td><td><span data-cfg="swapFee">—</span> of each trade</td><td><span data-cfg="creatorShare">—</span> to the creator, the rest to the protocol</td></tr>
+          <tr><td>Selling or transferring</td><td>none</td><td>—</td></tr>
+        </table>
+        <p>Creator fees accrue per trade and can be claimed at any time from <a class="bd-link" href="playground.html">My playground</a>.</p>
+
+        <h2 id="d-safety">What is locked</h2>
+        <ul>
+          <li><b>Liquidity.</b> The pool position is held by the protocol lock with no withdraw path. Nobody can pull the stock out of a pair.</li>
+          <li><b>Supply.</b> Fixed at deploy. No mint.</li>
+          <li><b>Ownership.</b> Renounced in the deploy transaction. The creator has the same rights as any holder plus the fee share.</li>
+          <li><b>Code.</b> The factory and the token template are verified on the explorer; every token is a copy of the same template.</li>
+        </ul>
+
+        <h2 id="d-contracts">Contracts</h2>
+        <table>
+          <tr><th>Contract</th><th>Address</th></tr>
+          <tr><td>Chain</td><td><span data-cfg="chain">—</span></td></tr>
+          <tr><td>Factory</td><td><code data-cfg="factory">—</code></td></tr>
+          <tr><td>Protocol token</td><td><code data-cfg="token">—</code></td></tr>
+        </table>
+        <p>Events emitted by the factory: <code>PairBonded(token, stock, pool, creator)</code> on every launch, and the pool's own swap events for trades.</p>
+
+        <h2 id="d-integrate">Integrate</h2>
+        <p>The site reads everything through one adapter object. To point it at a live deployment, define <code>window.BONDED_ADAPTER</code> before <code>app.js</code> loads, with these methods:</p>
+        <pre><code>window.BONDED_ADAPTER = {
+  async stats()             { return { pairs, volumeUsd, lockedUsd }; },
+  async stocks()            { return [{ sym, name, price, pairs }]; },
+  async pairs()             { return [{ name, ticker, stock, mcap, volume, change, holders, createdAt, address, desc, creator }]; },
+  async pair(ticker)        { return { ...pair, liquidityUsd, series, trades }; },
+  async connect()           { return { address }; },
+  async createPair(payload) { return { txHash, tokenAddress, pairAddress }; },
+  async quote({ ticker, side, amount }) { return { out, priceImpact, fee }; },
+  async swap({ ticker, side, amount, minOut }) { return { txHash }; },
+  async holdings(address)   { return [{ ticker, amount }]; },
+  async launched(address)   { return [ticker]; },
+  subscribe(onEvent)        { /* onEvent({ kind: 'launch'|'buy'|'sell', ... }) */ return unsubscribe; },
+};</code></pre>
+        <p>Amounts are in the stock token for buys and in the token for sells. <code>series</code> is an array of prices in shares per token, oldest first.</p>
+
+        <h2 id="d-risk">Risks</h2>
+        <ul>
+          <li>Tokenized stocks are issued by third parties. Bonded does not issue them, custody them or guarantee their peg to the underlying.</li>
+          <li>Tokens launched here are created by their creators. Locked liquidity does not make a token valuable; it only means the pool cannot be pulled.</li>
+          <li>Stock tokens trade on chain around the clock. Their price can drift from the underlying while markets are closed.</li>
+          <li>Nothing on this site is financial advice. Read your local rules before launching or trading.</li>
+        </ul>
+      </article>
+    </div>
+
+  </main>
+  <footer class="bd-footer">
+    <div class="bd-wrap">
+      <div class="bd-footer-grid">
+        <div>© <span data-year></span> Bonded · not financial advice · tokenized stocks are issued by third parties</div>
+        <div class="bd-footer-links">
+          <a href="board.html">Pairs</a><a href="live.html">Live</a><a href="launch.html">Launch</a><a href="stocks.html">Stocks</a><a href="docs.html">Docs</a><a data-cfg-href="xUrl" href="#">X</a><a data-cfg-href="factoryUrl" href="#">Contract</a>
+        </div>
+      </div>
+      <p class="bd-footer-note">CA <span data-cfg="token">—</span> · figures come from the adapter in app.js; sample data until it is wired to the chain.</p>
+    </div>
+  </footer>
+  <div class="bd-toast" id="toast" role="status"></div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

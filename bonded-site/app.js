@@ -363,6 +363,16 @@
   // one theme: the pale sky. The dark tokens stay in the stylesheet for later.
   document.documentElement.setAttribute('data-theme', 'light');
 
+  // night on the pond: a switch in the footer, remembered
+  const nightBtn = $('#night');
+  const applyNight = on => {
+    document.documentElement.classList.toggle('is-night', on);
+    if (nightBtn) { nightBtn.setAttribute('aria-pressed', String(on)); nightBtn.querySelector('span').textContent = on ? 'Day on the pond' : 'Night on the pond'; }
+    document.dispatchEvent(new CustomEvent('bonded:night', { detail: on }));
+  };
+  applyNight(store.get('bonded-night', false) === true);
+  nightBtn?.addEventListener('click', () => { const on = !document.documentElement.classList.contains('is-night'); applyNight(on); store.set('bonded-night', on); });
+
   // menu
   const burger = $('#burger'), links = $('#navlinks');
   burger?.addEventListener('click', () => { const open = links.classList.toggle('is-open'); burger.setAttribute('aria-expanded', String(open)); });
@@ -502,6 +512,12 @@
     reeds.forEach(([l, h, r], i) => { const d = document.createElement('i'); d.className = 'bd-reed' + (i % 3 === 1 ? ' is-leaf' : ''); d.style.cssText = `--l:${l}%; --h:${h}px; --r:${r}deg; --d:${(4 + rnd() * 3).toFixed(1)}s`; el.appendChild(d); });
     // motes of pollen
     for (let k = 0; k < (small ? 8 : 18); k++) { const m = document.createElement('i'); m.className = 'bd-mote'; m.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(rnd() * 100).toFixed(1)}%; --d:${(14 + rnd() * 16).toFixed(1)}s; --dl:${(-rnd() * 20).toFixed(1)}s; --mx:${((rnd() - .5) * 220).toFixed(0)}px; --my:${((rnd() - .5) * 160).toFixed(0)}px`; el.appendChild(m); }
+    // night: the moon and its reflection, and fireflies that drift and blink
+    const moon = document.createElement('i'); moon.className = 'bd-moon'; el.appendChild(moon);
+    const moonRef = document.createElement('i'); moonRef.className = 'bd-moon-ref'; el.appendChild(moonRef);
+    const fireflies = document.createElement('div'); fireflies.className = 'bd-fireflies';
+    for (let k = 0; k < (small ? 14 : 28); k++) { const f = document.createElement('i'); f.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(8 + rnd() * 88).toFixed(1)}%; --d:${(6 + rnd() * 9).toFixed(1)}s; --b:${(1.6 + rnd() * 2.4).toFixed(1)}s; --dl:${(-rnd() * 12).toFixed(1)}s; --mx:${((rnd() - .5) * 140).toFixed(0)}px; --my:${((rnd() - .5) * 90).toFixed(0)}px; --s:${(3 + rnd() * 3).toFixed(1)}px`; fireflies.appendChild(f); }
+    el.appendChild(fireflies);
     root.prepend(el);
     let paused = false;
     if (!reduced) setInterval(() => {
@@ -576,7 +592,9 @@
       let last = performance.now();
       const step = now => {
         const dt = paused || document.hidden ? 0 : Math.min(.05, (now - last) / 1000); last = now;
-        if (!sw.on) { sw.next -= dt; if (sw.next <= 0) setOff(); }
+        const night = document.documentElement.classList.contains('is-night');
+        if (!sw.on) { if (!night) { sw.next -= dt; if (sw.next <= 0) setOff(); } }
+        else if (night) { sw = { on: false, next: 6 + Math.random() * 6 }; swanState.on = false; swan.classList.remove('is-on'); }
         else if (dt) {
           // head for the next waypoint (the last one is the exit), but steer round any frog ahead
           const tgt = sw.pts[sw.i]; if (sw.i < sw.pts.length - 1 && Math.hypot(tgt.x - sw.x, tgt.y - sw.y) < 60) sw.i++;

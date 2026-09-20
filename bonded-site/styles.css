@@ -1048,3 +1048,82 @@ body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav
 .bd-hero-foot button:hover, .bd-hero-foot a:hover { color: #FFFFFF; text-decoration: underline; }
 .bd-hero-foot .bd-sep { opacity: .7; }
 .bd-hero-foot .bd-scroll { font-size: 10.5px; }
+
+/* ---------- night on the pond ---------- */
+.bd-night { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,.45); background: rgba(255,255,255,.18); color: inherit; font: inherit; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; padding: 6px 12px 6px 8px; border-radius: 999px; cursor: pointer; }
+.bd-night i { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FFF6C8, #F2D66B 60%, #C9A93A); box-shadow: 0 0 8px rgba(255,230,140,.6); transition: background .3s, box-shadow .3s; }
+.bd-night:hover { border-color: rgba(255,255,255,.8); }
+html.is-night .bd-night { border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.08); }
+html.is-night .bd-night i { background: radial-gradient(circle at 60% 40%, #F6F7FF, #C9D2FF 55%, #7E8AC9); box-shadow: 0 0 10px rgba(200,210,255,.7); }
+/* moon and fireflies exist only at night */
+.bd-moon, .bd-moon-ref, .bd-fireflies { display: none; }
+html.is-night .bd-moon, html.is-night .bd-moon-ref, html.is-night .bd-fireflies { display: block; }
+.bd-moon { position: absolute; right: 9%; top: 7%; width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #FFFDF2, #F1EBD2 55%, #C9C2A4); box-shadow: 0 0 40px rgba(255,250,220,.55), 0 0 120px rgba(255,250,220,.25); }
+.bd-moon::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 30% 60%, rgba(0,0,0,.08) 0 6px, transparent 7px), radial-gradient(circle at 62% 30%, rgba(0,0,0,.07) 0 9px, transparent 10px), radial-gradient(circle at 70% 70%, rgba(0,0,0,.06) 0 5px, transparent 6px); }
+.bd-moon-ref { position: absolute; right: 6%; top: 24%; width: 170px; height: 62%; pointer-events: none; opacity: .5; filter: blur(3px);
+  background: repeating-linear-gradient(180deg, rgba(255,250,220,.55) 0 3px, transparent 3px 14px); mask-image: linear-gradient(180deg, rgba(0,0,0,.9), transparent 90%), radial-gradient(ellipse 50% 100% at 50% 0%, #000, transparent 70%); -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), transparent 90%); -webkit-mask-composite: source-in; mask-composite: intersect; animation: bdMoonRef 5s ease-in-out infinite alternate; }
+@keyframes bdMoonRef { to { transform: translateX(6px) scaleY(1.03); opacity: .4; } }
+.bd-fireflies { position: absolute; inset: 0; pointer-events: none; }
+.bd-fireflies i { position: absolute; width: var(--s); height: var(--s); border-radius: 50%; background: #F8FFB0; box-shadow: 0 0 6px 2px rgba(240,255,150,.8), 0 0 18px 6px rgba(200,255,120,.35); animation: bdFlyDrift var(--d) ease-in-out infinite alternate, bdFlyBlink var(--b) ease-in-out infinite; animation-delay: var(--dl), var(--dl); }
+@keyframes bdFlyDrift { to { transform: translate(var(--mx), var(--my)); } }
+@keyframes bdFlyBlink { 0%, 100% { opacity: 0; } 35%, 55% { opacity: 1; } }
+/* the water at night */
+html.is-night { background: #0B1D1C; }
+html.is-night body { background: #0B1D1C; }
+html.is-night .bd-lake-water { background:
+    radial-gradient(ellipse 60% 40% at 50% 6%, rgba(255,255,255,.06), transparent 70%),
+    radial-gradient(ellipse 42% 36% at 10% 84%, #0A1F22, transparent 70%),
+    radial-gradient(ellipse 40% 34% at 88% 26%, #1C3D3F, transparent 70%),
+    radial-gradient(ellipse 34% 28% at 74% 88%, #0A1B1E, transparent 70%),
+    radial-gradient(ellipse 30% 26% at 28% 40%, #133133, transparent 70%),
+    linear-gradient(180deg, #17393A 0%, #0F2A2C 42%, #0A1E20 100%); }
+html.is-night .bd-lake-svg .bd-murk { opacity: .7; }
+html.is-night .bd-lake-svg .bd-caustic-a { opacity: .16; }
+html.is-night .bd-lake-svg .bd-caustic-b { opacity: .1; }
+html.is-night .bd-lake-glare { opacity: .18; }
+html.is-night .bd-lake-cloud { opacity: .12; }
+html.is-night .bd-lake-depth { background: radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0,0,0,.55) 100%); }
+html.is-night .bd-lily svg { filter: brightness(.55) saturate(.8); }
+html.is-night .bd-weed { opacity: .5; filter: brightness(.6); }
+html.is-night .bd-reed { opacity: .6; filter: brightness(.55); }
+html.is-night .bd-lake .bd-ring, html.is-night .bd-ripple, html.is-night .bd-crown, html.is-night .bd-drop { border-color: rgba(220,240,255,.45); }
+html.is-night .bd-lake .bd-mote { opacity: .35; }
+html.is-night .bd-swan svg { filter: drop-shadow(0 0 14px rgba(255,255,255,.35)) drop-shadow(6px 12px 10px rgba(0,0,0,.5)); }
+/* frogs at night: darker skins, glowing eyes */
+html.is-night .bd-frog .bd-frog-body, html.is-night .bd-frog .bd-frog-leg, html.is-night .bd-frog .bd-frog-leg2, html.is-night .bd-frog .bd-frog-toe { filter: brightness(.7); }
+html.is-night .bd-frog .bd-frog-iris { fill: #FFE86A; filter: drop-shadow(0 0 4px #FFE86A) drop-shadow(0 0 9px rgba(255,232,106,.7)); }
+html.is-night .bd-frog .bd-frog-pupil { fill: #1A1400; }
+html.is-night .bd-frog .bd-frog-mark { opacity: .9; }
+/* the interface at night */
+html.is-night .bd { --ink: #EEF3F2; --prose: #C6D2D0; --muted: #8FA5A2; --dim: #6C817E; --line: #24403F; --line-hi: #335654; --card: #10282A; --card-hi: #143234; --surface: #1A393B; --bg: #0B1D1C; --bg-alt: #0E2426; }
+html.is-night .bd-pill { background: rgba(10,30,30,.66); border-color: rgba(255,255,255,.14); box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+html.is-night .bd-brand, html.is-night .bd-nav-links a.is-active, html.is-night .bd-nav-links a:hover, html.is-night .bd-nav-ghost:hover { color: #F2F7F6; }
+html.is-night .bd-nav-links, html.is-night .bd-nav-ghost { color: #B7C8C5; }
+html.is-night .bd-nav-links a.is-active::after { background: #6FD3B4; }
+html.is-night .bd-btn-dark, html.is-night .bd-btn-primary { background: #F2F7F6; color: #0B1D1C; }
+html.is-night .bd-hero h1, html.is-night .bd-head h2, html.is-night .bd-page-head h1, html.is-night .bd-bridge h2, html.is-night .bd-point h3, html.is-night .bd-faq summary, html.is-night .bd-footer-name, html.is-night .bd-footer-links a { color: #F2F7F6; }
+html.is-night .bd-hero-sub, html.is-night .bd-head p, html.is-night .bd-page-head p, html.is-night .bd-point p, html.is-night .bd-faq details p, html.is-night .bd-footer, html.is-night .bd-footer-brand p, html.is-night .bd-footer-bottom, html.is-night .bd-eyebrow, html.is-night .bd-bridge .bd-label { color: #C6D2D0; }
+html.is-night .bd-hero-sub em, html.is-night .bd-bridge h2 em { color: #7FC4F0; }
+html.is-night .bd-head > .bd-label, html.is-night .bd-page-head .bd-label { background: rgba(255,255,255,.1); color: #C6D2D0; }
+html.is-night .bd-point-n { color: #F2F7F6; }
+html.is-night .bd-faq details { border-bottom-color: rgba(255,255,255,.14); }
+html.is-night .bd-faq summary::after { color: #C6D2D0; }
+html.is-night .bd-explore { color: #F2F7F6; }
+html.is-night .bd-footer-main, html.is-night .bd-footer-bottom { border-color: rgba(255,255,255,.14); }
+html.is-night .bd-pair, html.is-night .bd-step, html.is-night .bd-why-card, html.is-night .bd-protocol, html.is-night .bd-check, html.is-night .bd-contract, html.is-night .bd-panel, html.is-night .bd-chart, html.is-night .bd-trade, html.is-night .bd-about, html.is-night .bd-feed-item, html.is-night .bd-stock-detail, html.is-night .bd-element, html.is-night .bd-docs-body, html.is-night .bd-docs-side, html.is-night .bd-summary, html.is-night .bd-preview-art, html.is-night .bd-paircard, html.is-night .bd-mine-connect, html.is-night .bd-stat, html.is-night .bd-table td, html.is-night .bd-tabs, html.is-night .bd-chip, html.is-night .bd-search, html.is-night .bd-select, html.is-night .bd-form .bd-input, html.is-night .bd-callout-wallet, html.is-night .bd-illus-name, html.is-night .bd-illus-bond .bd-minicard { background: var(--card); border-color: var(--line); color: var(--ink); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+html.is-night .bd-pair-art, html.is-night .bd-preview-art { background: radial-gradient(ellipse 52% 60% at 50% 58%, color-mix(in srgb, var(--sc, #78AB9A) 30%, #10282A), transparent 72%), linear-gradient(180deg, #143234, #10282A); }
+html.is-night .bd-step-fig { background: linear-gradient(180deg, #143234, #10282A); border-bottom-color: var(--line); }
+html.is-night .bd-pair-name, html.is-night .bd-pair-title, html.is-night .bd-step h3, html.is-night .bd-why-card h3, html.is-night .bd-pp-title, html.is-night .bd-summary h2, html.is-night .bd-trades td, html.is-night .bd-protocol-rows > div b, html.is-night .bd-review-row b, html.is-night .bd-check b, html.is-night .bd-docs-body h1, html.is-night .bd-docs-body h2, html.is-night .bd-docs-body h3, html.is-night .bd-el-sym, html.is-night .bd-cell-pair b, html.is-night .bd-cell-price b, html.is-night .bd-amount input, html.is-night .bd-form .bd-input, html.is-night .bd-field label, html.is-night .bd-illus-name b, html.is-night .bd-illus-bond .bd-minicard b, html.is-night .bd-illus-bond .bd-minicard em { color: var(--ink); }
+html.is-night .bd-pair-bar { background: #1A393B; }
+html.is-night .bd-pair-pill { border-color: #6FD3B4; color: #9FE3CC; background: rgba(111,211,180,.1); }
+html.is-night .bd-toolbar { background: linear-gradient(180deg, rgba(11,29,28,.92) 0%, rgba(11,29,28,.8) 70%, rgba(11,29,28,0) 100%); }
+html.is-night .bd-tab.is-active, html.is-night .bd-chip.is-active { background: var(--surface); color: var(--ink); border-color: var(--line-hi); }
+html.is-night .bd-table tr:hover td { background: var(--card-hi); }
+html.is-night .bd-protocol-rows > div, html.is-night .bd-review-row, html.is-night .bd-contract-row, html.is-night .bd-trades td, html.is-night .bd-trades th, html.is-night .bd-pair-foot, html.is-night .bd-docs-body h2, html.is-night .bd-docs-body th, html.is-night .bd-docs-body td { border-color: var(--line); }
+html.is-night .bd-review-row { background: var(--card-hi); }
+html.is-night .bd-docs-body p, html.is-night .bd-docs-body li, html.is-night .bd-docs-body td, html.is-night .bd-protocol > p, html.is-night .bd-about, html.is-night .bd-step p, html.is-night .bd-why-card p, html.is-night .bd-check p, html.is-night .bd-field small, html.is-night .bd-callout-wallet { color: var(--prose); }
+html.is-night .bd-docs-body code, html.is-night .bd-docs-body pre { background: var(--card-hi); border-color: var(--line); color: var(--ink); }
+html.is-night .bd-note { background: rgba(111,211,180,.12); border-color: rgba(111,211,180,.4); color: var(--prose); }
+html.is-night .bd-hero-foot { color: #E6F0EE; }
+html.is-night ::selection { background: #2F6B5C; color: #fff; }
+html.is-night .bd-swan { display: none; }

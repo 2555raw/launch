@@ -84,6 +84,18 @@ function nextNumber() {
 }
 const currentNumber = () => state.counter || 0;
 
+/* Clearing the race log: the rounds, the per-wallet stats and the numbering
+   go, the launches and the creator's settings stay. Used once, deliberately,
+   from the creator console; there is no undo. */
+function resetRounds() {
+  const had = state.rounds.length;
+  state.rounds = [];
+  state.stats = {};
+  state.counter = 0;
+  save();
+  return had;
+}
+
 function markPaid(id, signature) {
   const r = findRound(id);
   if (!r) return null;
@@ -148,4 +160,4 @@ function addLaunch(l) {
 }
 function launches(n) { return (state.launches || []).slice(0, n || 24); }
 
-module.exports = { settings, setSettings, addLaunch, launches, load, save, addRound, findRound, findByNumber, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };
+module.exports = { resetRounds, settings, setSettings, addLaunch, launches, load, save, addRound, findRound, findByNumber, markPaid, setPot, recent, statsFor, top, unpaid, paid, paidTotal, nextNumber, currentNumber, FILE };

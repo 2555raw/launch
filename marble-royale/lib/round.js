@@ -429,6 +429,16 @@ class Rounds extends EventEmitter {
     return { player, count: r.players.length, max: r.max };
   }
 
+  /* After the log is cleared the round on the clock keeps running, but it is
+     race one again. */
+  renumber() {
+    const r = this.round;
+    if (!r) return null;
+    r.number = store.nextNumber();
+    this.emit('phase', this.publicRound());
+    return r.number;
+  }
+
   /* A change of look or name while the queue is open. The address and the
      place in the field stay; only the decoration moves. */
   restyle(address, skin) {

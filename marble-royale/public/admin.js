@@ -34,6 +34,17 @@
     out.textContent = r.error ? 'not saved: ' + r.error : (r.settings && r.settings.mint ? 'live on the site: ' + r.settings.mint : 'taken down from the site');
   });
 
+  /* Clearing the log: asked twice, because it cannot be undone. */
+  $('#rsGo').addEventListener('click', async () => {
+    key = $('#key').value.trim(); localStorage.setItem('mr.admin', key);
+    const out = $('#rsOut');
+    if (!confirm('Clear every race, every stat and the numbering? The next race will be #0001. This cannot be undone.')) return;
+    out.textContent = 'clearing…';
+    const r = await api('reset', { method: 'POST', body: JSON.stringify({ confirm: 'RESET' }) });
+    out.textContent = r.error ? 'not cleared: ' + r.error : 'cleared ' + r.cleared + ' races · the race on the clock is now #' + String(r.number).padStart(4, '0');
+    if (!r.error) load();
+  });
+
   async function load() {
     key = $('#key').value.trim();
     localStorage.setItem('mr.admin', key);

@@ -465,6 +465,18 @@ const server = http.createServer(async (req, res) => {
     }
     if (p === '/api/admin/settings') return json(res, 200, { settings: store.settings() });
 
+    /* Clears the race log and starts the numbering again. The launches and
+       the token settings are untouched. There is no undo. */
+    if (p === '/api/admin/reset' && req.method === 'POST') {
+      const body = await readBody(req, 512);
+      if (!body || body.confirm !== 'RESET') return json(res, 400, { error: 'send confirm: "RESET"' });
+      const had = store.resetRounds();
+      const number = rounds.renumber();
+      broadcast('reset', { cleared: had, number });
+      broadcast('state', snapshot());
+      return json(res, 200, { ok: true, cleared: had, number });
+    }
+
     if (p === '/api/admin/pot' && req.method === 'POST') {
       const body = await readBody(req);
       const sol = Number(body && body.pot);

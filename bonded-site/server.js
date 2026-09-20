@@ -1,4 +1,4 @@
-/* Serves the Bonded site as static files.
+/* Serves the LilyPad site as static files.
  *
  * No dependencies: read the file off disk, hand it back with the right content
  * type, send index.html for the root and answer /health for Railway. Railway
@@ -46,4 +46,4 @@ http.createServer((req, res) => {
     });
     res.end(body);
   });
-}).listen(PORT, () => console.log(`Bonded on :${PORT}`));
+}).listen(PORT, () => console.log(`LilyPad on :${PORT}`));

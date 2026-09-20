@@ -1,7 +1,7 @@
-# Bonded — site
+# LilyPad — site
 
-Static site for **Bonded**, a launchpad where a new token is paired ("bonded") with a tokenized
-stock from its first block: one pool, liquidity locked at deploy, price quoted in the share instead
+Static site for **LilyPad**, a launchpad where a new token is paired with a tokenized
+stock from its first block: a bonding curve quoted in the share that graduates to Uniswap v4, instead
 of in ETH. Same mechanics as the stock-paired launchpads already out there (pairpop, Levity, PAIR);
 different face, and every screen those sites have.
 
@@ -19,7 +19,7 @@ live.html        Live launches: a real-time feed of launches, buys and sells, pl
 stocks.html      Stocks: every stock you can bond to, with a detail panel per stock; reads ?s=
 launch.html      the three-step launch: pick the stock, name the token, review and sign
 playground.html  My playground: your launches, creator fees, and your positions
-docs.html        the docs: bonds, launching, trading, fees, what is locked, contracts, integrate
+docs.html        the docs: pairs, launching, trading, fees, what holds, contracts, integrate
 styles.css       the design system (palette, type, layout, the scene) and the responsive rules
 app.js           CONFIG, sample data, the adapter, the falls, and the behaviour of every page
 server.js        a dependency-free static server for Railway (PORT, /health, extensionless paths,
@@ -95,7 +95,7 @@ the USD reference next to them.
 
 ## Wiring the chain
 
-The pages never touch data directly. Everything goes through `Bonded.adapter` and `CONFIG`, both
+The pages never touch data directly. Everything goes through `LilyPad.adapter` and `CONFIG`, both
 at the top of `app.js`.
 
 **1. Fill in `CONFIG`:** chain, explorer base URL, creation fee, swap fee and creator share (as text
@@ -144,7 +144,7 @@ browser, `?pons=0` turns it off. What it does:
 - `quote` / `swap` → `getReserves()` + `feeBps()` math, `curve.buy` / `curve.sell` with a 3%
   slippage floor; graduated curves are refused (trade them on Uniswap v4).
 - `pairs` / `pair` / `stats` / `launched` → indexed from `TokenLaunched` events (last 400k blocks,
-  10k per `eth_getLogs`, six in flight; tune `window.BONDED_PONS = { lookbackBlocks, chunk, parallel }`), keeping only launches whose quote token is a stock Bonded lists;
+  10k per `eth_getLogs`, six in flight; tune `window.BONDED_PONS = { lookbackBlocks, chunk, parallel }`), keeping only launches whose quote token is a stock LilyPad lists;
   `trades` and `series` from `CurveBuy` / `CurveSell`; `holdings` from `balanceOf`.
 - Stock tokens come from `window.BONDED_STOCK_TOKENS = { TSLA: '0x…' }` if you define it before the
   scripts, otherwise from the quote tokens seen on recent launches. Every address must pass
@@ -195,7 +195,7 @@ data to reset it.
   supply held, and the 24h line with its change. Used on the home ("Pick a pair", right under the
   hero), the board on phones, live launches and the playground.
 - **How it works** — three steps illustrated with the frogs themselves (`illus` in the home block):
-  four frogs with one chosen, the coin's card being typed, a frog bonded to a coin under LOCKED.
+  four frogs with one chosen, the coin's card being typed, a frog paired with a coin under LOCKED.
 - **Pairs board** — filters compose: tab × stock chip × search, then sort. Column headers sort and
   flip on a second click. Rows open the pair page. New launches from the feed appear live.
 - **Pair page** — chart from `series`, trades from `trades` plus live ones from `subscribe`, and the
@@ -220,10 +220,10 @@ Selecting text highlights in the pond's green (`::selection`).
   lock link and the fee text are still placeholders; the demo adapter is the default until `?pons=1`.
 - Official stock token addresses live at docs.robinhood.com/chain/contracts. Same-ticker fakes
   exist, so pin the official ones in `BONDED_STOCK_TOKENS` rather than trusting discovery.
-- The trust claims (liquidity locked with no withdraw path, fixed supply, no mint, ownership
-  renounced, verified source) describe the intended contract. Confirm each one against the deployed
-  factory before publishing; delete any that does not hold. The docs page repeats them.
+- The trust claims describe Pons V2 as its interface documents it: the stock is the curve's quote
+  asset, supply is minted once, graduation to Uniswap v4 is automatic at a per-stock threshold,
+  creator tax is set per launch. Confirm each against the deployed factory before publishing.
 - The FAQ and docs notes on securities are plain-language notes, not legal advice.
-- The name is still open. "Bonded" was chosen for the chemical-bond metaphor of the first draft;
+- The name is still open. "LilyPad" was chosen for the chemical-bond metaphor of the first draft;
   with the falls and the fish, names in the water family (Pond, Shoal, Koi, Cascade) fit the scene
   better. Check domain and trademark collisions in crypto before committing to any of them.

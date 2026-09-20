@@ -1016,7 +1016,7 @@ body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav
 .bd-hero h1 { font-family: 'Poppins', var(--font-display); font-weight: 700; letter-spacing: -.045em; line-height: .96; font-size: clamp(48px, 8.6vw, 124px); }
 .bd-eyebrow { font-family: 'Poppins', var(--font-body); font-weight: 500; font-size: 10.5px; letter-spacing: .24em; color: #3A4353; }
 .bd-hero-sub { font-family: 'Poppins', var(--font-body); font-weight: 400; font-size: 17px; color: #1C222B; }
-.bd-hero-sub em { color: #2F86C4; }
+.bd-hero-sub em { color: #1E7A56; font-weight: 600; }
 .bd-hero-cta .bd-btn-lg { height: 48px; padding: 0 26px; font-family: 'Poppins', var(--font-body); font-weight: 600; font-size: 13.5px; }
 .bd-explore { font-family: 'Poppins', var(--font-body); font-weight: 500; font-size: 12.5px; }
 .bd-hero-foot { font-family: 'Poppins', var(--font-body); font-size: 10.5px; letter-spacing: .04em; color: #2B3441; bottom: 26px; padding: 0 60px; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
@@ -1029,7 +1029,7 @@ body[data-page="home"] .bd-hero { min-height: 100vh; padding-top: calc(var(--nav
 .bd-bridge-frog .bd-frogpic { width: 64px !important; height: 64px !important; transform: rotate(-16deg) !important; }
 .bd-bridge .bd-label { display: inline-block; background: transparent; padding: 0; color: #2B3441; font-family: 'Poppins', var(--font-body); font-weight: 500; letter-spacing: .24em; font-size: 10.5px; }
 .bd-bridge h2 { font-family: 'Poppins', var(--font-body); font-weight: 400; font-size: clamp(28px, 3.6vw, 48px); line-height: 1.2; letter-spacing: -.02em; color: #131720; max-width: 920px; margin: 18px auto 0; }
-.bd-bridge h2 em { font-style: normal; color: #2F86C4; }
+.bd-bridge h2 em { font-style: normal; color: #1E7A56; }
 @media (max-width: 900px) {
   body[data-page="home"] .bd-hero { padding-top: 96px; padding-bottom: 40vh; }
   .bd-page-head { padding-top: 36px; }
@@ -1103,7 +1103,7 @@ html.is-night .bd-nav-links a.is-active::after { background: #6FD3B4; }
 html.is-night .bd-btn-dark, html.is-night .bd-btn-primary { background: #F2F7F6; color: #0B1D1C; }
 html.is-night .bd-hero h1, html.is-night .bd-head h2, html.is-night .bd-page-head h1, html.is-night .bd-bridge h2, html.is-night .bd-point h3, html.is-night .bd-faq summary, html.is-night .bd-footer-name, html.is-night .bd-footer-links a { color: #F2F7F6; }
 html.is-night .bd-hero-sub, html.is-night .bd-head p, html.is-night .bd-page-head p, html.is-night .bd-point p, html.is-night .bd-faq details p, html.is-night .bd-footer, html.is-night .bd-footer-brand p, html.is-night .bd-footer-bottom, html.is-night .bd-eyebrow, html.is-night .bd-bridge .bd-label { color: #C6D2D0; }
-html.is-night .bd-hero-sub em, html.is-night .bd-bridge h2 em { color: #7FC4F0; }
+html.is-night .bd-hero-sub em, html.is-night .bd-bridge h2 em { color: #8FD9B6; }
 html.is-night .bd-head > .bd-label, html.is-night .bd-page-head .bd-label { background: rgba(255,255,255,.1); color: #C6D2D0; }
 html.is-night .bd-point-n { color: #F2F7F6; }
 html.is-night .bd-faq details { border-bottom-color: rgba(255,255,255,.14); }
@@ -1204,3 +1204,14 @@ html.is-night .bd-toolbar { background: transparent !important; }
 
 /* live on Pons: the demo disclaimers go away */
 html.is-pons [data-demo] { display: none; }
+
+/* the trade tape sits on a card, like everything else that has to be read */
+.bd-trades-wrap { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 6px 10px 2px; box-shadow: 0 10px 30px rgba(20, 60, 40, .10); }
+.bd-trades th { color: #4A5560; }
+.bd-trades td { color: #1C222B; }
+.bd-trades td.bd-dim, .bd-trades td .bd-dim { color: #5B6670; }
+.bd-trades td.bd-up { color: #1E7A56; font-weight: 600; }
+.bd-trades td.bd-down { color: #B4232C; font-weight: 600; }
+html.is-night .bd-trades-wrap { background: rgba(14, 26, 22, .92); border-color: rgba(255,255,255,.08); }
+html.is-night .bd-trades th { color: #93A39B; }
+html.is-night .bd-trades td { color: #E8F0EB; }

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Docs — Bonded</title>
-  <meta name="description" content="How Bonded works: bonds, launching, trading, fees, what is locked, contracts and how to integrate.">
+  <title>Docs — LilyPad</title>
+  <meta name="description" content="How LilyPad works: pairs, curves, launching, trading, fees, graduation, contracts and how to integrate.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23131720'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,10 +15,10 @@
 <div class="bd" id="top">
   <nav class="bd-nav">
     <div class="bd-pill">
-      <a class="bd-brand" href="index.html">Bonded</a>
+      <a class="bd-brand" href="index.html">LilyPad</a>
       <div class="bd-nav-links" id="navlinks"><a href="board.html">Pairs</a><a href="launch.html">Launch</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">FAQ</a><a href="docs.html" class="is-active">Docs</a><button type="button" class="bd-wallet bd-only-sm">Connect wallet</button></div>
       <div class="bd-nav-right">
-        <a class="bd-nav-icon" data-cfg-href="xUrl" href="#" target="_blank" rel="noopener" aria-label="Bonded on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+        <a class="bd-nav-icon" data-cfg-href="xUrl" href="#" target="_blank" rel="noopener" aria-label="LilyPad on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
         <button class="bd-nav-icon bd-nav-night" type="button" aria-label="Night on the pond" aria-pressed="false"><svg class="bd-ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg><svg class="bd-ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
         <button class="bd-nav-ghost bd-wallet" id="wallet" type="button">Connect wallet</button>
         <a class="bd-btn bd-btn-dark" href="board.html">Open the pad <i>↗</i></a>
@@ -34,62 +34,66 @@
       <aside class="bd-docs-side" id="docs-side">
         <span class="bd-label">Docs</span>
         <a data-scroll="d-overview">Overview</a>
-        <a data-scroll="d-bond">How a bond works</a>
+        <a data-scroll="d-bond">How a pair works</a>
         <a data-scroll="d-launch">Launching</a>
         <a data-scroll="d-trade">Trading</a>
         <a data-scroll="d-fees">Fees</a>
-        <a data-scroll="d-safety">What is locked</a>
+        <a data-scroll="d-safety">What holds</a>
         <a data-scroll="d-contracts">Contracts</a>
         <a data-scroll="d-integrate">Integrate</a>
         <a data-scroll="d-pons">Live on Pons</a>
         <a data-scroll="d-risk">Risks</a>
       </aside>
       <article class="bd-docs-body">
-        <h1 id="d-overview">Bonded docs</h1>
-        <p class="bd-lede">Bonded is a launchpad where a new token is paired with a tokenized stock instead of ETH. One pool, created and locked in the same transaction as the token, with prices quoted in the share.</p>
+        <h1 id="d-overview">LilyPad docs</h1>
+        <p class="bd-lede">LilyPad is a launchpad where a new token is paired with a tokenized stock instead of ETH. Each token starts on a bonding curve quoted in the share and graduates to a Uniswap v4 pool once the curve has raised the stock's threshold. The curves and the factory are the public Pons V2 contracts on Robinhood Chain; LilyPad is the front end.</p>
         <p>This page is the reference for creators and traders. Addresses and the integration contract are in the <b>Contracts</b> and <b>Integrate</b> sections.</p>
 
-        <h2 id="d-bond">How a bond works</h2>
-        <p>Every token launched on Bonded has exactly one liquidity pool, and the other side of that pool is a tokenized stock: NVDA, TSLA, SPY and the rest of the list on the <a class="bd-link" href="stocks.html">Stocks</a> page. We call the pair a <b>bond</b>.</p>
+        <h2 id="d-bond">How a pair works</h2>
+        <p>Every token launched on LilyPad has exactly one bonding curve, and the curve's quote asset is a tokenized stock: NVDA, TSLA, SPY and the rest of the list on the <a class="bd-link" href="stocks.html">Stocks</a> page. We call the token and its stock a <b>pair</b>.</p>
         <ul>
           <li><b>Buying</b> the token means paying in the stock token. <b>Selling</b> returns stock tokens.</li>
           <li>The <b>price</b> is a number of shares per token. The USD figure next to it is a reference computed from the stock's last on-chain price; it is not what the pool settles in.</li>
           <li>Nothing is pegged. The token trades freely against the stock; if the stock moves and the token does not, the USD reference moves with the stock.</li>
+          <li>The curve is constant-product with a phantom quote reserve set per stock by the factory, so the first buy has a price instead of zero. <code>getReserves()</code> on the curve gives the live numbers.</li>
+          <li>When the curve holds its <b>graduation threshold</b> of the stock, it seeds a Uniswap v4 pool with what it raised and the remaining tokens, and closes. From then on the pair trades on Uniswap.</li>
         </ul>
-        <div class="bd-note">A coin bonded to TSLA is quoted in TSLA. When Tesla reports earnings, that pair moves in dollar terms even if nobody trades it.</div>
+        <div class="bd-note">A coin paired with TSLA is quoted in TSLA. When Tesla reports earnings, that pair moves in dollar terms even if nobody trades it.</div>
 
         <h2 id="d-launch">Launching</h2>
         <ol>
-          <li><b>Pick the stock.</b> Permanent. It sets the quote unit and the other side of the pool.</li>
+          <li><b>Pick the stock.</b> Permanent. It sets the quote unit and the asset the curve holds.</li>
           <li><b>Name the token.</b> Name, ticker (2 to 8 alphanumerics, never a stock symbol), a line of description, an image URL, optional links.</li>
-          <li><b>Optional first buy.</b> An amount of the stock token spent in the deploy transaction, so the creator holds a position before anyone else can.</li>
-          <li><b>Sign.</b> One transaction: deploy the token from the verified template, seed the pool with the full supply on the token side, lock the position, renounce ownership, and execute the first buy if any.</li>
+          <li><b>Optional first buy.</b> An amount of the stock token spent on the new curve. Through the LilyPad launcher it lands in the same transaction as the launch (one approval of the stock, then one launch); calling the factory directly it is a second transaction. The creator is exempt from the launch-window snipe tax either way.</li>
+          <li><b>Sign.</b> The factory deploys the token, mints the supply into a new curve quoted in your stock, and emits <code>TokenLaunched</code>. The pair is tradable in the same block.</li>
         </ol>
-        <p>Supply is fixed at <code>1,000,000,000</code>. There is no mint function, no blacklist, no pausable transfers and no owner after deploy.</p>
+        <p>Supply is <code>1,000,000,000</code>, minted once by the factory. The creation fee is the factory's <code>launchFee()</code>, paid in ETH.</p>
 
         <h2 id="d-trade">Trading</h2>
         <p>Open any pair from the <a class="bd-link" href="board.html">Pairs</a> board. The trade panel takes an amount of the stock token to buy, or an amount of the token to sell, and shows the quote, the price impact and the fee before you sign.</p>
         <ul>
           <li>You need the stock token in your wallet to buy.</li>
-          <li>Slippage tolerance defaults to 1%. Thin pairs can move more than that between quote and execution; the transaction reverts if they do.</li>
-          <li>Trades on Bonded pairs are ordinary swaps; any router that knows the pool can trade them.</li>
+          <li>Slippage tolerance defaults to 3% on live curves. Young curves also charge a snipe tax on buys in the first minutes, which the quote does not include; the transaction reverts if the floor is not met.</li>
+          <li>Trades on a curve are <code>buy()</code> / <code>sell()</code> on that curve; anyone can call them. After graduation the pair is an ordinary Uniswap v4 pool.</li>
         </ul>
 
         <h2 id="d-fees">Fees</h2>
         <table>
           <tr><th>Fee</th><th>Amount</th><th>Who receives it</th></tr>
-          <tr><td>Creation</td><td><span data-cfg="fee">—</span></td><td>Protocol</td></tr>
-          <tr><td>Swap</td><td><span data-cfg="swapFee">—</span> of each trade</td><td><span data-cfg="creatorShare">—</span> to the creator, the rest to the protocol</td></tr>
-          <tr><td>Selling or transferring</td><td>none</td><td>—</td></tr>
+          <tr><td>Creation</td><td><span data-cfg="fee">—</span></td><td>Pons</td></tr>
+          <tr><td>Curve fee</td><td><span data-cfg="swapFee">—</span> of each curve trade</td><td>Pons, per the launch config</td></tr>
+          <tr><td>Creator tax</td><td><span data-cfg="creatorTax">—</span>, set per launch up to the factory's maximum</td><td>The creator, via the fee escrow</td></tr>
+          <tr><td>Snipe tax</td><td>on buys in the launch window, decaying</td><td>The curve; the creator's own first buy is exempt</td></tr>
+          <tr><td>Transferring</td><td>none</td><td>—</td></tr>
         </table>
-        <p>Creator fees accrue per trade and can be claimed at any time from <a class="bd-link" href="playground.html">My playground</a>.</p>
+        <p>Creator tax accrues per trade in the Pons fee escrow and is claimed from there.</p>
 
-        <h2 id="d-safety">What is locked</h2>
+        <h2 id="d-safety">What holds</h2>
         <ul>
-          <li><b>Liquidity.</b> The pool position is held by the protocol lock with no withdraw path. Nobody can pull the stock out of a pair.</li>
-          <li><b>Supply.</b> Fixed at deploy. No mint.</li>
-          <li><b>Ownership.</b> Renounced in the deploy transaction. The creator has the same rights as any holder plus the fee share.</li>
-          <li><b>Code.</b> The factory and the token template are verified on the explorer; every token is a copy of the same template.</li>
+          <li><b>The stock stays in the curve.</b> Buys pay it in, sells take it out, and at graduation it seeds the Uniswap v4 pool. There is no withdraw function for the creator or for LilyPad.</li>
+          <li><b>Supply.</b> Minted once by the factory. No owner is left who could mint more.</li>
+          <li><b>Graduation.</b> Automatic, at a threshold the factory sets per stock and that every pair shows.</li>
+          <li><b>Code.</b> The factory and the curves are the public Pons V2 contracts, verified on the explorer. LilyPad's only contract is the launcher that bundles the first buy, published in this repository.</li>
         </ul>
 
         <h2 id="d-contracts">Contracts</h2>
@@ -97,9 +101,9 @@
           <tr><th>Contract</th><th>Address</th></tr>
           <tr><td>Chain</td><td><span data-cfg="chain">—</span></td></tr>
           <tr><td>Factory</td><td><code data-cfg="factory">—</code></td></tr>
-          <tr><td>Protocol token</td><td><code data-cfg="token">—</code></td></tr>
+          <tr><td>Launcher (first buy in the launch tx)</td><td><code data-cfg="launcher">—</code></td></tr>
         </table>
-        <p>The factory is the open <strong>Pons V2 LaunchFactory</strong> on Robinhood Chain (chain id 4663). It emits <code>TokenLaunched(token, curve, deployer, pairToken, launchConfigId, graduationThreshold)</code> on every launch; <code>pairToken</code> is the stock the coin is bonded to. Each coin gets its own bonding curve, which emits <code>CurveBuy</code> and <code>CurveSell</code> for trades and hands over to Uniswap v4 once it graduates.</p>
+        <p>The factory is the open <strong>Pons V2 LaunchFactory</strong> on Robinhood Chain (chain id 4663). It emits <code>TokenLaunched(token, curve, deployer, pairToken, launchConfigId, graduationThreshold)</code> on every launch; <code>pairToken</code> is the stock the coin is paired with. Each coin gets its own bonding curve, which emits <code>CurveBuy</code> and <code>CurveSell</code> for trades and hands over to Uniswap v4 once it graduates.</p>
 
         <h2 id="d-integrate">Integrate</h2>
         <p>The site reads everything through one adapter object. To point it at a live deployment, define <code>window.BONDED_ADAPTER</code> before <code>app.js</code> loads, with these methods:</p>
@@ -126,8 +130,9 @@
 
         <h2 id="d-risk">Risks</h2>
         <ul>
-          <li>Tokenized stocks are issued by third parties. Bonded does not issue them, custody them or guarantee their peg to the underlying.</li>
-          <li>Tokens launched here are created by their creators. Locked liquidity does not make a token valuable; it only means the pool cannot be pulled.</li>
+          <li>Tokenized stocks are issued by third parties. LilyPad does not issue them, custody them or guarantee their peg to the underlying.</li>
+          <li>Tokens launched here are created by their creators. A curve that cannot be pulled does not make a token valuable; it only means the stock in it goes where the formula says.</li>
+          <li>Robinhood's stock tokens are issued for eligible customers in the European Union and are geo-restricted. If you cannot hold the stock token, you cannot trade the pair.</li>
           <li>Stock tokens trade on chain around the clock. Their price can drift from the underlying while markets are closed.</li>
           <li>Nothing on this site is financial advice. Read your local rules before launching or trading.</li>
         </ul>
@@ -139,7 +144,7 @@
     <div class="bd-wrap">
       <div class="bd-footer-main">
         <div class="bd-footer-brand">
-          <a class="bd-footer-name" href="index.html">Bonded</a>
+          <a class="bd-footer-name" href="index.html">LilyPad</a>
           <p>A little pair. A big leap.</p>
         </div>
         <nav class="bd-footer-links">
@@ -147,9 +152,9 @@
         </nav>
       </div>
       <div class="bd-footer-bottom">
-        <span>© <span data-year></span> Bonded · A little pair. A big leap.</span>
+        <span>© <span data-year></span> LilyPad · A little pair. A big leap.</span>
         <button class="bd-night" id="night" type="button" aria-pressed="false"><i></i><span>Night on the pond</span></button>
-        <span>Protocol live · <span data-cfg="chain">—</span> · <span data-stat="pairs">—</span> pairs bonded</span>
+        <span>Protocol live · <span data-cfg="chain">—</span> · <span data-stat="pairs">—</span> pairs live</span>
       </div>
     </div>
   </footer>

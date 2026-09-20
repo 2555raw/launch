@@ -29,6 +29,7 @@
     rpc: 'https://rpc.mainnet.chain.robinhood.com',
     explorer: 'https://robinhoodchain.blockscout.com',
     factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
+    launcher: null,            // LilyPadLauncher address (contracts/), bundles the first buy into the launch tx
     launchConfigId: null,      // null = first enabled config
     creatorTaxBps: 0,
     slippageBps: 300,          // shown on the pair page; snipe tax on young curves can exceed 1%
@@ -43,6 +44,10 @@
   const TOKEN_PARAMS = { tuple: ['string', 'string', 'string', 'string', SOCIALS, 'address', 'uint16', 'bool', 'bytes32', 'bytes32'] };
   const LAUNCH_CONFIG = { tuple: ['uint256', 'uint256', 'uint256', 'uint256', 'uint24', 'int24', 'bool'] };
   const LAUNCH_TYPES = [TOKEN_PARAMS, 'uint256', 'address', 'address[]'];
+  const LAUNCHER_TYPES = [TOKEN_PARAMS, 'uint256', 'address', 'address[]', 'uint256', 'uint256'];
+  const T_LAUNCHER = A.topic('Launched', ['address', 'address', 'address', 'address', 'uint256', 'uint256']);
+  const launcherAddr = () => PONS.launcher ? String(PONS.launcher).toLowerCase() : null;
+  const creators = {};   // token(lower) -> human creator, when the launch went through the launcher
   const T_LAUNCHED = A.topic('TokenLaunched', ['address', 'address', 'address', 'address', 'uint256', 'uint256']);
   const T_BUY = A.topic('CurveBuy', ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256']);
   const T_SELL = A.topic('CurveSell', ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256']);
@@ -176,17 +181,24 @@
     const supply = 1e9;
     return {
       name, ticker, stock: sym, desc: '', image: '', x: '', site: '',
-      address: l.token, curve: l.curve, creator: l.deployer, createdAt: times[A.hex(l.block)],
+      address: l.token, curve: l.curve, creator: creators[l.token.toLowerCase()] || l.deployer, createdAt: times[A.hex(l.block)],
       mcap: priceInShares * supply * priceOf(sym), volume: 0, change: 0, holders: 1,
       launch: l,
     };
   }
 
+  // the launcher's Launched(user, token, curve, …) tells us who the human behind a launch is
+  async function noteLauncherLogs(from, to) {
+    if (!launcherAddr()) return;
+    const logs = await getLogsRange({ address: launcherAddr(), topics: [T_LAUNCHER] }, from, to).catch(() => []);
+    for (const l of logs) creators['0x' + l.topics[2].slice(26)] = '0x' + l.topics[1].slice(26);
+  }
   async function buildIndex() {
     const head = parseInt(await rpc('eth_blockNumber'), 16);
     const from = Math.max(0, head - PONS.lookbackBlocks);
     const logs = await getLogsRange({ address: PONS.factory, topics: [T_LAUNCHED] }, from, head);
     const launches = logs.map(parseLaunched);
+    await noteLauncherLogs(from, head);
     // stock tokens: the ones passed in, then any quote token seen on the factory
     for (const [sym, addr] of Object.entries(window.BONDED_STOCK_TOKENS || {})) await registerStock(sym, addr);
     const seen = new Set(launches.map(l => l.pairToken.toLowerCase()));
@@ -243,6 +255,8 @@
       p.volume = recent.reduce((s, x) => s + x.amountStock * priceOf(p.stock), 0);
       p.change = recent.length ? (now / recent[0].price - 1) * 100 : 0;
       p.holders = new Set(trades.filter(x => x.side === 'buy').map(x => x.wallet)).size || 1;
+      p.graduated = await curve.graduated(p.curve).catch(() => false);
+      p.threshold = Number(p.launch.graduationThreshold) / 10 ** st.decimals;
       // 168 hourly points carried forward from the trade tape, ending at the live price
       const series = []; let px = trades[0]?.price || now, k = 0;
       for (let h = 167; h >= 0; h--) { const cut = Date.now() - h * 3600e3; while (k < trades.length && trades[k].ts <= cut) px = trades[k++].price; series.push(px); }
@@ -275,28 +289,49 @@
         account, PONS.creatorTaxBps, false, economics, salt,
       ];
       // the creator's own first buy should not pay the launch-window snipe tax
-      const exemptions = Number(payload.buy) > 0 ? [account] : [];
-      const data = A.encodeCall('launchToken', LAUNCH_TYPES, [params, configId, st.address, exemptions]);
-      const receipt = await sendTx({ to: PONS.factory, data, value: A.hex(fee) });
+      const buying = Number(payload.buy) > 0;
+      const viaLauncher = buying && !!launcherAddr();
+      const exemptions = buying ? (viaLauncher ? [account, launcherAddr()] : [account]) : [];
+      let quoteIn = 0n, minOut = 0n;
+      if (buying) {
+        quoteIn = A.toUnits(payload.buy, st.decimals);
+        // price the first buy from the launch config's phantom reserve: the curve does not exist yet
+        const cfg = await factory.config(configId);
+        const [phantom] = await factory.pairEconomics(st.address);
+        const feeBps = cfg.curveFeeBps;
+        const net = quoteIn - quoteIn * feeBps / 10000n;
+        const out = net * cfg.supply / (phantom + net);
+        minOut = out - out * BigInt(PONS.slippageBps) / 10000n;
+      }
+      let receipt;
+      if (viaLauncher) {
+        // one approval of the stock to the launcher, then one transaction that launches and buys
+        await approveIfNeeded(st.address, launcherAddr(), quoteIn);
+        const data = A.encodeCall('launch', LAUNCHER_TYPES, [params, configId, st.address, exemptions, quoteIn, minOut]);
+        receipt = await sendTx({ to: launcherAddr(), data, value: A.hex(fee) });
+      } else {
+        const data = A.encodeCall('launchToken', LAUNCH_TYPES, [params, configId, st.address, exemptions]);
+        receipt = await sendTx({ to: PONS.factory, data, value: A.hex(fee) });
+      }
       const log = receipt.logs.find(l => l.address.toLowerCase() === PONS.factory.toLowerCase() && l.topics[0] === T_LAUNCHED);
       if (!log) throw new Error('Launch mined but no TokenLaunched event found: ' + receipt.transactionHash);
       const l = parseLaunched(log);
       // the proof of the pairing: the curve's quote asset is the stock the creator chose
       if (l.pairToken.toLowerCase() !== st.address) throw new Error(`Pairing mismatch: curve quote is ${l.pairToken}, expected ${payload.stock} ${st.address}`);
+      if (viaLauncher) creators[l.token.toLowerCase()] = account;
       const pair = await hydrate(l);
       Object.assign(pair, { desc: payload.desc || '', image: payload.image || '', x: payload.x || '', site: payload.site || '', mine: true });
       if (!index.launches.some(x => x.address.toLowerCase() === pair.address.toLowerCase())) index.launches.unshift(pair);
       emit({ kind: 'launch', pair, wallet: account, ts: Date.now() });
-      // first buy, in shares of the stock, straight into the new curve
-      if (Number(payload.buy) > 0) {
-        const quoteIn = A.toUnits(payload.buy, st.decimals);
+      // without the launcher, the first buy is a second transaction straight into the new curve
+      if (buying && !viaLauncher) {
         const { q, t } = await curve.reserves(l.curve);
         const feeBps = await curve.feeBps(l.curve);
         const net = quoteIn - quoteIn * feeBps / 10000n;
         const out = net * t / (q + net);
-        const minOut = out - out * BigInt(PONS.slippageBps) / 10000n;
+        const floor = out - out * BigInt(PONS.slippageBps) / 10000n;
         await approveIfNeeded(st.address, l.curve, quoteIn);
-        await sendTx({ to: l.curve, data: A.encodeCall('buy', ['uint256', 'uint256', 'address'], [quoteIn, minOut, account]) });
+        await sendTx({ to: l.curve, data: A.encodeCall('buy', ['uint256', 'uint256', 'address'], [quoteIn, floor, account]) });
       }
       return { txHash: receipt.transactionHash, tokenAddress: l.token, pairAddress: l.curve, launch: l };
     },
@@ -363,6 +398,7 @@
             if (head > index.lastBlock) {
               const from = index.lastBlock + 1;
               const launched = await getLogsRange({ address: PONS.factory, topics: [T_LAUNCHED] }, from, head);
+              if (launched.length) await noteLauncherLogs(from, head);
               for (const log of launched) {
                 const l = parseLaunched(log);
                 if (byToken[l.pairToken.toLowerCase()] === undefined) await registerStock(null, l.pairToken);
@@ -393,5 +429,5 @@
 
   window.BONDED_ADAPTER = adapter;
   document.documentElement.classList.add('is-pons');
-  console.info(`Bonded: live on Pons V2 · ${PONS.chainName} (${PONS.chainId}) · factory ${PONS.factory}`);
+  console.info(`LilyPad: live on Pons V2 · ${PONS.chainName} (${PONS.chainId}) · factory ${PONS.factory}`);
 })();

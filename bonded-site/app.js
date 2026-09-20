@@ -1,6 +1,6 @@
-/* Bonded — page behaviour.
+/* LilyPad — page behaviour.
    No dependencies. Everything the pages show comes through one adapter
-   (`Bonded.adapter`), so wiring the real protocol means replacing that
+   (`window.Bonded.adapter`), so wiring the real protocol means replacing that
    object, not touching the pages. See README → "Wiring the chain".
    Sections: config · sample data · adapter · helpers · chrome · the frogs
    (hero scene) · home · pairs board · pair page · live · stocks · launch ·
@@ -24,12 +24,14 @@
     slippageBps: 100,
     swapFee: '1.0%',
     swapFeeRate: 0.01,
-    creatorShare: '50%',
-    creatorShareRate: 0.5,
+    creatorShare: '0%',
+    creatorShareRate: 0,
+    creatorTax: '0% by default',
     factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',   // Pons V2 LaunchFactory
     token: '0x0000000000000000000000000000000000000000',
     lockUrl: '#',
     factoryUrl: 'https://robinhoodchain.blockscout.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
+    launcher: (window.BONDED_PONS && window.BONDED_PONS.launcher) || 'not deployed yet · first buy goes as a second transaction',
     docsUrl: 'docs.html',
     xUrl: '#',
     supply: 1_000_000_000,
@@ -63,11 +65,11 @@
     ['Blackwell Bros',     'BWELL', 'NVDA',  4_210_000, 1_380_000, 12.1,  5120, 31,  'Every chip has a family. This is the loud one.'],
     ['Jensen Jacket',      'JACKET','NVDA',  920_000,   284_000,   -8.6,  1430, 52,  'Leather, never cotton.'],
     ['Vision Pro Max',     'VISION','AAPL',  610_000,   141_000,   4.2,   880,  9,   'Spatial computing, priced in AAPL.'],
-    ['Copilot Cult',       'CPLT',  'MSFT',  1_120_000, 310_000,   22.7,  1760, 18,  'The assistant that never sleeps, bonded to the company that never sells.'],
+    ['Copilot Cult',       'CPLT',  'MSFT',  1_120_000, 310_000,   22.7,  1760, 18,  'The assistant that never sleeps, paired with the company that never sells.'],
     ['Prime Day Every Day','PRIME', 'AMZN',  380_000,   92_000,    -3.1,  540,  3,   'Two-day shipping for your portfolio.'],
     ['Gemini Twins',       'TWINS', 'GOOGL', 2_060_000, 744_000,   15.9,  2980, 40,  'Two models, one ticker.'],
     ['Zuck Chain',         'ZUCK',  'META',  1_470_000, 402_000,   -12.4, 2210, 77,  'Metaverse survivors club.'],
-    ['Index Enjoyer',      'INDEX', 'SPY',   3_320_000, 866_000,   2.8,   6100, 120, 'Boring on purpose. Bonded to the S&P.'],
+    ['Index Enjoyer',      'INDEX', 'SPY',   3_320_000, 866_000,   2.8,   6100, 120, 'Boring on purpose. Paired with the S&P.'],
     ['Base Camp',          'CAMP',  'COIN',  760_000,   198_000,   47.3,  1010, 2,   'Home of the chain, home of the coin.'],
     ['Retail Army',        'RETAIL','HOOD',  540_000,   166_000,   9.5,   790,  14,  'Confetti optional.'],
     ['Saylor Says',        'SAYS',  'MSTR',  1_980_000, 528_000,   -5.7,  2660, 61,  'There is no second best.'],
@@ -301,7 +303,7 @@
     const line = xy.map(([x, y]) => x.toFixed(1) + ',' + y.toFixed(1)).join(' ');
     return `<svg class="bd-spark ${p.change < 0 ? 'is-down' : ''}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polygon class="bd-spark-fill" points="0,${h} ${line} ${w},${h}"/><polyline points="${line}"/></svg>`;
   }
-  // a pair's avatar is the frog of the stock it is bonded to (or the creator's image when given)
+  // a pair's avatar is the frog of the stock it is paired with (or the creator's image when given)
   const avatar = (p, extra = '') => {
     if (p.image) return `<span class="bd-avatar ${extra}" style="background:url('${esc(p.image)}') center/cover"></span>`;
     const st = stockOf(p.stock);
@@ -518,7 +520,7 @@
     for (let k = 0; k < (small ? 8 : 18); k++) { const m = document.createElement('i'); m.className = 'bd-mote'; m.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(rnd() * 100).toFixed(1)}%; --d:${(14 + rnd() * 16).toFixed(1)}s; --dl:${(-rnd() * 20).toFixed(1)}s; --mx:${((rnd() - .5) * 220).toFixed(0)}px; --my:${((rnd() - .5) * 160).toFixed(0)}px`; el.appendChild(m); }
     // night: fireflies that drift and blink
     const fireflies = document.createElement('div'); fireflies.className = 'bd-fireflies';
-    for (let k = 0; k < (small ? 14 : 28); k++) { const f = document.createElement('i'); f.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(8 + rnd() * 88).toFixed(1)}%; --d:${(6 + rnd() * 9).toFixed(1)}s; --b:${(1.6 + rnd() * 2.4).toFixed(1)}s; --dl:${(-rnd() * 12).toFixed(1)}s; --mx:${((rnd() - .5) * 140).toFixed(0)}px; --my:${((rnd() - .5) * 90).toFixed(0)}px; --s:${(3 + rnd() * 3).toFixed(1)}px`; fireflies.appendChild(f); }
+    for (let k = 0; k < (small ? 20 : 40); k++) { const f = document.createElement('i'); f.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(8 + rnd() * 88).toFixed(1)}%; --d:${(6 + rnd() * 9).toFixed(1)}s; --b:${(1.6 + rnd() * 2.4).toFixed(1)}s; --dl:${(-rnd() * 12).toFixed(1)}s; --mx:${((rnd() - .5) * 140).toFixed(0)}px; --my:${((rnd() - .5) * 90).toFixed(0)}px; --s:${(3 + rnd() * 3).toFixed(1)}px`; fireflies.appendChild(f); }
     el.appendChild(fireflies);
     root.prepend(el);
     let paused = false;
@@ -1110,7 +1112,7 @@
     adapter.pair(ticker).then(p => {
       if (!p) { root.innerHTML = `<div class="bd-empty" style="grid-column:1/-1">No pair called ${esc(ticker || '')}. <a class="bd-link" href="board.html">Back to the pairs</a>.</div>`; return; }
       const st = stockOf(p.stock);
-      document.title = `$${p.ticker} / ${st.sym} — Bonded`;
+      document.title = `$${p.ticker} / ${st.sym} — LilyPad`;
       let range = '24h';
       const seriesFor = r => r === '1h' ? p.series.slice(-8) : r === '24h' ? p.series.slice(-24) : p.series;
       const rangeChange = r => { const s = seriesFor(r); return (s[s.length - 1] / s[0] - 1) * 100; };
@@ -1134,13 +1136,13 @@
           </div>
           <div class="bd-stats">
             <div class="bd-stat"><span class="bd-label">Market cap</span><b id="pp-mcap">${fmtUsd(p.mcap)}</b></div>
-            <div class="bd-stat"><span class="bd-label">Liquidity</span><b>${fmtUsd(p.liquidityUsd)} · locked</b></div>
+            <div class="bd-stat"><span class="bd-label">In the curve</span><b>${fmtUsd(p.liquidityUsd)}${p.graduated ? ' · graduated' : ''}</b></div>
             <div class="bd-stat"><span class="bd-label">24h volume</span><b id="pp-vol">${fmtUsd(p.volume)}</b></div>
             <div class="bd-stat"><span class="bd-label">Holders</span><b id="pp-holders">${fmtNum(p.holders)}</b></div>
             <div class="bd-stat"><span class="bd-label">Token</span><b class="bd-small">${shortAddr(p.address)} <button class="bd-copy" data-copy="x" data-copy-text="${p.address}">copy</button></b></div>
-            <div class="bd-stat"><span class="bd-label">Pool</span><b class="bd-small">${shortAddr('0x' + p.address.slice(6) + '0f0f')} <button class="bd-copy" data-copy="x" data-copy-text="0x${p.address.slice(6)}0f0f">copy</button></b></div>
+            <div class="bd-stat"><span class="bd-label">Curve</span><b class="bd-small">${shortAddr(p.curve || '0x' + p.address.slice(6) + '0f0f')} <button class="bd-copy" data-copy="x" data-copy-text="${p.curve || '0x' + p.address.slice(6) + '0f0f'}">copy</button></b></div>
             <div class="bd-stat"><span class="bd-label">Supply</span><b class="bd-small">${CONFIG.supply.toLocaleString('en-US')} · fixed</b></div>
-            <div class="bd-stat"><span class="bd-label">Ownership</span><b class="bd-small">renounced</b></div>
+            <div class="bd-stat"><span class="bd-label">Status</span><b class="bd-small">${p.graduated ? 'Graduated · Uniswap v4' : p.threshold ? `On the curve · graduates at ${fmtNum(p.threshold)} ${st.sym}` : 'On the curve'}</b></div>
           </div>
           <div class="bd-pp-section">
             <h3>About</h3>
@@ -1156,7 +1158,7 @@
           </div>
           <div class="bd-pp-section">
             <h3>Trades</h3>
-            <div style="overflow-x:auto"><table class="bd-trades"><thead><tr><th>Side</th><th class="is-num">${st.sym}</th><th class="is-num">${esc(p.ticker)}</th><th class="is-num">Price</th><th>Wallet</th><th class="is-num">Time</th></tr></thead>
+            <div class="bd-trades-wrap" style="overflow-x:auto"><table class="bd-trades"><thead><tr><th>Side</th><th class="is-num">${st.sym}</th><th class="is-num">${esc(p.ticker)}</th><th class="is-num">Price</th><th>Wallet</th><th class="is-num">Time</th></tr></thead>
             <tbody id="trades">${p.trades.map(t => tradeRow(t, st, p, false)).join('')}</tbody></table></div>
           </div>
         </div>
@@ -1309,6 +1311,7 @@
     const params = new URLSearchParams(location.search);
     const form = { stock: params.get('stock') || 'NVDA', name: '', ticker: '', desc: '', image: '', buy: '', x: '', site: '' };
     const art = $('#preview-art'), card = $('#preview-card'), review = $('#review'), sel = $('#f-stock');
+    if (adapter.pons && !adapter.pons.launcher) $('#f-buy-note').textContent = 'Optional. Sent right after the launch as a second transaction from your wallet: one approval of the stock, then the buy.';
 
     const previewPair = () => ({
       name: form.name || 'Your coin', ticker: form.ticker || 'TKN', stock: form.stock, image: /^https?:\/\//.test(form.image) ? form.image : '',
@@ -1318,9 +1321,9 @@
       const st = stockOf(form.stock);
       return [
         ['Stock', `${st.sym} · ${esc(st.name)}`], ['Priced in', `${st.sym} per coin`],
-        ['Supply', '1.00B · fixed'], ['Liquidity', 'locked at launch'], ['Ownership', 'renounced'],
+        ['Supply', '1.00B · minted once'], ['Curve', `quoted in ${st.sym} · graduates to Uniswap v4`], ['Creator tax', CONFIG.creatorTax],
         ['First buy', form.buy ? `${Number(form.buy)} ${st.sym}` : 'none'],
-        ['Swap fee', `${CONFIG.swapFee} · ${CONFIG.creatorShare} to you`], ['Creation fee', CONFIG.fee], ['Chain', CONFIG.chain],
+        ['Curve fee', CONFIG.swapFee], ['Creation fee', CONFIG.fee], ['Chain', CONFIG.chain],
       ];
     };
     const paint = () => {
@@ -1350,7 +1353,7 @@
       if (form.name.trim().length < 2) problems.push('Give the coin a name (2 to 40 characters).');
       if (form.ticker.length < 2 || form.ticker.length > 8) problems.push('The ticker needs 2 to 8 letters or digits.');
       if (form.ticker && STOCKS.some(s => s.sym === form.ticker)) problems.push('That ticker is a stock symbol; pick another.');
-      if (form.ticker && findPair(form.ticker)) problems.push('That ticker is already bonded; pick another.');
+      if (form.ticker && findPair(form.ticker)) problems.push('That ticker is already on the pond; pick another.');
       if (form.buy && Number(form.buy) < 0) problems.push('The first buy cannot be negative.');
       err.hidden = !problems.length; err.textContent = problems.join(' ');
       if (problems.length) err.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -1371,7 +1374,7 @@
           .map(([k, v]) => `<div class="bd-review-row"><span>${k}</span><b>${v}</b></div>`).join('');
         $('#done-tx').href = `${CONFIG.explorer}/tx/${res.txHash}`; $('#done-open').href = 'pair.html?t=' + encodeURIComponent(form.ticker);
         $('.bd-launch').hidden = true; $('#done-wrap').hidden = false; window.scrollTo({ top: 0, behavior: 'smooth' });
-        toast(`$${form.ticker} is bonded to ${st.sym}`);
+        toast(`$${form.ticker} is live, paired with ${st.sym}`);
       } catch (e) { err.hidden = false; err.textContent = e?.message || 'The transaction was rejected.'; }
       finally { deployBtn.disabled = false; paintDeploy(); }
     });
@@ -1403,7 +1406,7 @@
         ${launched.length ? `<div class="bd-pairs">${launched.map(pairTile).join('')}</div><div style="margin-top:12px"><button class="bd-btn bd-btn-ghost bd-btn-sm" id="claim" type="button">Claim ${fmtUsd(fees)} in fees</button></div>`
           : `<div class="bd-mine-empty">Nothing launched from ${shortAddr(wallet.address)} yet.<br><a class="bd-btn bd-btn-primary bd-btn-sm" href="launch.html">Launch a pair</a></div>`}
         <h3>Positions</h3>
-        ${positions.length ? `<div style="overflow-x:auto"><table class="bd-trades"><thead><tr><th>Pair</th><th class="is-num">Amount</th><th class="is-num">Value in stock</th><th class="is-num">Value</th><th class="is-num">24h</th><th></th></tr></thead><tbody>
+        ${positions.length ? `<div class="bd-trades-wrap" style="overflow-x:auto"><table class="bd-trades"><thead><tr><th>Pair</th><th class="is-num">Amount</th><th class="is-num">Value in stock</th><th class="is-num">Value</th><th class="is-num">24h</th><th></th></tr></thead><tbody>
           ${positions.map(({ p, amount }) => { const st = stockOf(p.stock); return `<tr><td style="font-family:var(--font-body)"><div class="bd-cell-pair">${avatar(p)}<div><b>${esc(p.name)}</b><span>$${esc(p.ticker)} / ${st.sym}</span></div></div></td><td class="is-num">${fmtNum(amount)}</td><td class="is-num">${fmtNum(amount * priceShares(p))} ${st.sym}</td><td class="is-num">${fmtUsd(amount * priceUsd(p))}</td><td class="is-num ${p.change >= 0 ? 'bd-up' : 'bd-down'}">${fmtPct(p.change)}</td><td class="is-num"><a class="bd-btn bd-btn-xs bd-btn-gold" href="${pairHref(p)}">Trade</a></td></tr>`; }).join('')}
         </tbody></table></div>`
           : `<div class="bd-mine-empty">No positions yet. Buy into a pair and it shows up here.<br><a class="bd-btn bd-btn-ghost bd-btn-sm" href="board.html">Explore the pairs</a></div>`}`;

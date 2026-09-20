@@ -5,6 +5,7 @@
      node scripts/verify-pons.mjs                       # discover + check everything
      node scripts/verify-pons.mjs --stocks TSLA=0x…,NVDA=0x…   # check your own addresses
      node scripts/verify-pons.mjs --from 0xYourWallet   # also simulate launchToken as you
+     node scripts/verify-pons.mjs --launcher 0x…        # check the deployed LilyPadLauncher may launch
      node scripts/verify-pons.mjs --rpc https://…       # another RPC
      node scripts/verify-pons.mjs --lookback 2000000    # more blocks of history
 
@@ -125,6 +126,15 @@ for (const [addr, l] of Object.entries(sample).slice(0, 12)) {
     const paired = pairToken.toLowerCase() === addr && token.toLowerCase() === l.token.toLowerCase();
     (paired ? ok : bad)(`$${tsym} ↔ ${q.sym}: curve ${l.curve} pairToken()=${pairToken.slice(0, 10)}… reserves ${fmt(qr, q.dec)} ${q.sym} / ${fmt(tr, 18)} tokens · fee ${Number(feeBps) / 100}% · ${grad ? 'graduated' : 'on curve'}`);
   } catch (e) { bad(`curve ${l.curve}: ${A.revertReason(e)}`); }
+}
+
+// 4b. who may launch: your wallet and, if you deployed it, the LilyPad launcher
+if (args.from || args.launcher) {
+  console.log('\n4b. canLaunch');
+  for (const [label, who] of [['--from', args.from], ['--launcher', args.launcher]].filter(x => x[1])) {
+    const [can] = await call(FACTORY, 'canLaunch', ['address'], [who], ['bool']).catch(() => [null]);
+    can === null ? bad(`canLaunch(${who}) reverted`) : (can ? ok : bad)(`canLaunch(${label} ${who}) = ${can}${!can && label === '--launcher' ? ' — a shared launcher would be blocked; launch on the factory directly' : ''}`);
+  }
 }
 
 // 5. simulate a launch paired with a stock

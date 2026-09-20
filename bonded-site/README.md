@@ -10,8 +10,7 @@ No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 ## Structure
 
 ```
-index.html       the landing: the pond (hero), pick a pair, how it works, why a stock, the stocks
-                 table, verify, FAQ, closing call
+index.html       the landing: the pond (hero), pick a pair, how it works, why a stock, verify, FAQ
 board.html       Pairs: every pair, with tabs (all / new / trending / top), stock chips, search and
                  sort; table on desktop, cards on mobile; reads ?stock= and ?q=
 pair.html        one pair: price in its stock, chart (1H / 24H / 7D), stats, about, live trades,

@@ -10,8 +10,8 @@ No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 ## Structure
 
 ```
-index.html       the landing: the falls (hero), proof strip, how it works, why a stock, the stocks
-                 table, live pairs, verify, FAQ, closing call
+index.html       the landing: the pond (hero), pick a pair, how it works, why a stock, the stocks
+                 table, verify, FAQ, closing call
 board.html       Pairs: every pair, with tabs (all / new / trending / top), stock chips, search and
                  sort; table on desktop, cards on mobile; reads ?stock= and ?q=
 pair.html        one pair: price in its stock, chart (1H / 24H / 7D), stats, about, live trades,
@@ -155,9 +155,13 @@ data to reset it.
   loop in Chromium. Run it before a deploy.
 - **Navigation** — two pills; the left one drops its links below on mobile. `data-scroll="<id>"`
   scrolls with the nav height taken out; hash links from other pages land correctly.
-- **Pair cards** (`pairTile`) — the stock's frog, large and still, on a panel tinted in its colour;
-  name, ticker and change; price in the stock, market cap and age. Used on the home, the board on
-  phones, live launches and the playground.
+- **Pair cards** (`pairTile`) — the reference's card shape with the frog kept: the stock's frog on a
+  pale panel with its colour glowing behind it, ticker and age in the corners; name with an "On the
+  board" pill, "TICKER · priced in <stock>", a bar with the price in the stock and the share of
+  supply held, and the 24h line with its change. Used on the home ("Pick a pair", right under the
+  hero), the board on phones, live launches and the playground.
+- **How it works** — three steps illustrated with the frogs themselves (`illus` in the home block):
+  four frogs with one chosen, the coin's card being typed, a frog bonded to a coin under LOCKED.
 - **Pairs board** — filters compose: tab × stock chip × search, then sort. Column headers sort and
   flip on a second click. Rows open the pair page. New launches from the feed appear live.
 - **Pair page** — chart from `series`, trades from `trades` plus live ones from `subscribe`, and the

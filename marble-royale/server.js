@@ -235,7 +235,10 @@ function serveFile(res, rel) {
     if (err) { res.writeHead(404, { 'content-type': 'text/plain' }).end('not found'); return; }
     res.writeHead(200, {
       'content-type': TYPES[path.extname(file)] || 'application/octet-stream',
-      'cache-control': /\.(html)$/.test(file) ? 'no-cache' : 'public, max-age=300'
+      /* the page, its script and its styles are checked on every load, so a
+         deploy is never hidden behind a stale copy; pictures and fonts keep
+         their long cache */
+      'cache-control': /\.(html|js|css)$/.test(file) ? 'no-cache' : 'public, max-age=300'
     });
     res.end(buf);
   });

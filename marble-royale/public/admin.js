@@ -38,11 +38,17 @@
   $('#rsGo').addEventListener('click', async () => {
     key = $('#key').value.trim(); localStorage.setItem('mr.admin', key);
     const out = $('#rsOut');
+    if (!key) { out.textContent = 'put the admin key in the box first'; return; }
     if (!confirm('Clear every race, every stat and the numbering? The next race will be #0001. This cannot be undone.')) return;
     out.textContent = 'clearing…';
-    const r = await api('reset', { method: 'POST', body: JSON.stringify({ confirm: 'RESET' }) });
-    out.textContent = r.error ? 'not cleared: ' + r.error : 'cleared ' + r.cleared + ' races · the race on the clock is now #' + String(r.number).padStart(4, '0');
-    if (!r.error) load();
+    let res, body;
+    try {
+      res = await fetch('/api/admin/reset', { method: 'POST', headers: { 'content-type': 'application/json', 'x-admin-key': key }, body: JSON.stringify({ confirm: 'RESET' }) });
+      body = await res.json();
+    } catch (e) { out.textContent = 'the server did not answer: ' + e.message; return; }
+    if (!res.ok || body.error) { out.textContent = 'not cleared (' + res.status + '): ' + (body.error || 'unknown'); return; }
+    await load();
+    out.textContent = 'cleared ' + body.cleared + ' races · the race on the clock is now #' + String(body.number).padStart(4, '0');
   });
 
   async function load() {
@@ -51,6 +57,10 @@
     $('#csv').href = '/api/admin/rounds.csv?key=' + encodeURIComponent(key);
     loadToken().catch(() => {});
     const data = await api('rounds?n=200');
+    try {
+      const st = await fetch('/api/state').then((r) => r.json());
+      $('#rsOut').textContent = 'log: ' + (st.recent || []).length + ' finished races · race on the clock #' + String(st.round.number).padStart(4, '0');
+    } catch (e) { /* the box just stays as it was */ }
     if (data.error) { rows.innerHTML = '<tr><td colspan=7>' + data.error + '</td></tr>'; return; }
 
     const withWinner = data.rounds.filter((r) => r.winner);

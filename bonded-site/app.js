@@ -415,12 +415,38 @@
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const small = innerWidth < 900;
     const el = document.createElement('div'); el.className = 'bd-lake'; el.setAttribute('aria-hidden', 'true');
-    el.innerHTML = `<i class="bd-lake-water"></i><i class="bd-lake-caustics"></i><i class="bd-lake-caustics bd-lake-caustics2"></i><i class="bd-lake-shimmer"></i><i class="bd-lake-glare"></i><i class="bd-lake-depth"></i>
-      <svg width="0" height="0" style="position:absolute"><defs>
-        <filter id="bd-water" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="7" result="n"><animate attributeName="baseFrequency" values="0.006 0.012;0.008 0.015;0.006 0.012" dur="14s" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="28" xChannelSelector="R" yChannelSelector="G"/></filter>
-        <radialGradient id="bd-padg" cx="42%" cy="38%" r="70%"><stop offset="0" stop-color="#9FD27F"/><stop offset=".55" stop-color="#5FA34B"/><stop offset="1" stop-color="#3B7A34"/></radialGradient>
-        <radialGradient id="bd-petal" cx="50%" cy="85%" r="80%"><stop offset="0" stop-color="#FFE3EE"/><stop offset=".6" stop-color="#F7A3C4"/><stop offset="1" stop-color="#E56A9E"/></radialGradient>
-      </defs></svg>`;
+    const anim = !reduced && !small;
+    el.innerHTML = `<i class="bd-lake-water"></i>
+      <svg class="bd-lake-svg" aria-hidden="true">
+        <defs>
+          <filter id="bd-murk" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.0032 0.0045" numOctaves="3" seed="9" result="n"/>
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.10  0 0 0 0 0.34  0 0 0 0 0.27  0 0 0 1.4 -0.45"/>
+            <feGaussianBlur stdDeviation="6"/>
+          </filter>
+          <filter id="bd-caustic" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="turbulence" baseFrequency="0.011 0.014" numOctaves="2" seed="4" result="t">
+              ${anim ? '<animate attributeName="baseFrequency" values="0.011 0.014;0.0125 0.0158;0.011 0.014" dur="16s" repeatCount="indefinite"/>' : ''}
+            </feTurbulence>
+            <feColorMatrix in="t" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 0.94  0 0 0 9 -4.2"/>
+            <feGaussianBlur stdDeviation="0.7"/>
+          </filter>
+          <filter id="bd-caustic2" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="turbulence" baseFrequency="0.02 0.024" numOctaves="2" seed="11" result="t">
+              ${anim ? '<animate attributeName="baseFrequency" values="0.02 0.024;0.0215 0.026;0.02 0.024" dur="11s" repeatCount="indefinite"/>' : ''}
+            </feTurbulence>
+            <feColorMatrix in="t" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 7 -3.6"/>
+            <feGaussianBlur stdDeviation="0.9"/>
+          </filter>
+          <filter id="bd-water" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="28" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <radialGradient id="bd-padg" cx="42%" cy="38%" r="70%"><stop offset="0" stop-color="#9FD27F"/><stop offset=".55" stop-color="#5FA34B"/><stop offset="1" stop-color="#3B7A34"/></radialGradient>
+          <radialGradient id="bd-petal" cx="50%" cy="85%" r="80%"><stop offset="0" stop-color="#FFE3EE"/><stop offset=".6" stop-color="#F7A3C4"/><stop offset="1" stop-color="#E56A9E"/></radialGradient>
+        </defs>
+        <rect class="bd-murk" x="0" y="0" width="100%" height="100%" fill="#000" filter="url(#bd-murk)"/>
+        <g class="bd-caustic-a">${anim ? '<animateTransform attributeName="transform" type="translate" values="0 0;-60 -30;0 0" dur="26s" repeatCount="indefinite"/>' : ''}<rect x="-80" y="-80" width="120%" height="120%" fill="#fff" filter="url(#bd-caustic)" style="width:calc(100% + 160px);height:calc(100% + 160px)"/></g>
+        <g class="bd-caustic-b">${anim ? '<animateTransform attributeName="transform" type="translate" values="0 0;50 40;0 0" dur="19s" repeatCount="indefinite"/>' : ''}<rect x="-80" y="-80" width="120%" height="120%" fill="#fff" filter="url(#bd-caustic2)" style="width:calc(100% + 160px);height:calc(100% + 160px)"/></g>
+      </svg>
+      <i class="bd-lake-glare"></i><i class="bd-lake-depth"></i>`;
     let seed = 20260920; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
     // cloud reflections
     for (let k = 0; k < (small ? 2 : 4); k++) { const m = document.createElement('i'); m.className = 'bd-lake-cloud'; m.style.cssText = `--w:${(26 + rnd() * 22).toFixed(0)}vw; --t:${(rnd() * 80).toFixed(0)}%; --d:${(90 + rnd() * 70).toFixed(0)}s; --dl:${(-rnd() * 120).toFixed(0)}s`; el.appendChild(m); }
@@ -455,7 +481,7 @@
     /* flies: they buzz around a slowly drifting point, in viewport coordinates */
     const flies = [];
     if (!reduced) {
-      for (let k = 0; k < (small ? 3 : 6); k++) {
+      for (let k = 0; k < (document.body.dataset.page === 'home' ? (small ? 6 : 12) : (small ? 3 : 6)); k++) {
         const f = document.createElement('i'); f.className = 'bd-fly'; el.appendChild(f);
         flies.push({ el: f, cx: Math.random() * innerWidth, cy: 120 + Math.random() * (innerHeight - 200), x: 0, y: 0, p1: Math.random() * 6, p2: Math.random() * 6, vx: 0, vy: 0, eaten: 0 });
       }
@@ -490,39 +516,55 @@
   };
 
   // the frog, seen from above, facing +x: shared by the hero and the lake
-  const FROG_SVG = (s) => {
-    const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
-    return `<svg viewBox="0 0 100 100" aria-hidden="true">
-      <g class="bd-frog-hind bd-frog-hind-l"><path class="bd-frog-leg" d="M30 40 C14 30, 6 36, 10 46 C14 54, 26 52, 34 46 Z"/><path class="bd-frog-toe" d="M10 46 L2 40 L7 47 L1 47 L8 50 L3 55 L11 50 Z"/></g>
-      <g class="bd-frog-hind bd-frog-hind-r"><path class="bd-frog-leg" d="M30 60 C14 70, 6 64, 10 54 C14 46, 26 48, 34 54 Z"/><path class="bd-frog-toe" d="M10 54 L2 60 L7 53 L1 53 L8 50 L3 45 L11 50 Z"/></g>
-      <g class="bd-frog-fore bd-frog-fore-l"><path class="bd-frog-leg" d="M64 36 C70 28, 80 26, 84 30 C80 34, 74 38, 66 40 Z"/><path class="bd-frog-toe" d="M84 30 L92 26 L86 32 L93 32 L85 34 Z"/></g>
-      <g class="bd-frog-fore bd-frog-fore-r"><path class="bd-frog-leg" d="M64 64 C70 72, 80 74, 84 70 C80 66, 74 62, 66 60 Z"/><path class="bd-frog-toe" d="M84 70 L92 74 L86 68 L93 68 L85 66 Z"/></g>
-      <path class="bd-frog-body" d="M20 50 C20 30, 40 24, 56 26 C74 26, 88 36, 90 50 C88 64, 74 74, 56 74 C40 76, 20 70, 20 50 Z"/>
-      <path class="bd-frog-back" d="M28 44 C36 32, 60 30, 78 40 C62 36, 40 38, 28 44 Z"/>
-      <circle class="bd-frog-spot" cx="34" cy="60" r="3"/><circle class="bd-frog-spot" cx="66" cy="36" r="2.4"/><circle class="bd-frog-spot" cx="64" cy="66" r="2.8"/>
-      <ellipse class="bd-frog-throat" cx="82" cy="50" rx="6" ry="7"/>
-      <g><circle class="bd-frog-eye" cx="74" cy="34" r="7.5"/><circle class="bd-frog-iris" cx="75" cy="34" r="4.6"/><ellipse class="bd-frog-pupil" cx="75.6" cy="34" rx="1.8" ry="3.4"/><circle cx="73.4" cy="32" r="1.2" fill="#fff"/><rect class="bd-frog-lid" x="66.5" y="26.5" width="15" height="15" rx="7.5"/></g>
-      <g><circle class="bd-frog-eye" cx="74" cy="66" r="7.5"/><circle class="bd-frog-iris" cx="75" cy="66" r="4.6"/><ellipse class="bd-frog-pupil" cx="75.6" cy="66" rx="1.8" ry="3.4"/><circle cx="73.4" cy="64" r="1.2" fill="#fff"/><rect class="bd-frog-lid" x="66.5" y="58.5" width="15" height="15" rx="7.5"/></g>
-      <circle cx="87" cy="46" r="1.1" fill="rgba(0,0,0,.45)"/><circle cx="87" cy="54" r="1.1" fill="rgba(0,0,0,.45)"/>
-      <path d="M82 42 Q90 50 82 58" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="1.2"/>
-      <g class="bd-frog-badge" transform="translate(30 36)"><circle cx="14" cy="14" r="14" fill="#fff"/><g transform="translate(4.6 4.6) scale(0.78)" fill="${logo.fill}">${logo.svg}</g></g>
+  const FROG_SVG = (s) => `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <g class="bd-frog-hind bd-frog-hind-l">
+        <ellipse class="bd-frog-leg" cx="27" cy="35" rx="15" ry="8" transform="rotate(-26 27 35)"/>
+        <ellipse class="bd-frog-leg2" cx="15" cy="42" rx="12" ry="5.2" transform="rotate(34 15 42)"/>
+        <path class="bd-frog-toe" d="M8 48 L0 40 L2 41.5 L-1 47 L2 48.5 L0 56 L4 51 L7 57 Z"/>
+      </g>
+      <g class="bd-frog-hind bd-frog-hind-r">
+        <ellipse class="bd-frog-leg" cx="27" cy="65" rx="15" ry="8" transform="rotate(26 27 65)"/>
+        <ellipse class="bd-frog-leg2" cx="15" cy="58" rx="12" ry="5.2" transform="rotate(-34 15 58)"/>
+        <path class="bd-frog-toe" d="M8 52 L0 60 L2 58.5 L-1 53 L2 51.5 L0 44 L4 49 L7 43 Z"/>
+      </g>
+      <g class="bd-frog-fore bd-frog-fore-l">
+        <ellipse class="bd-frog-leg" cx="70" cy="33" rx="10" ry="4.6" transform="rotate(-38 70 33)"/>
+        <path class="bd-frog-toe" d="M77 26 L83 18 L80 24 L88 22 L81 27 L88 30 L80 29 Z"/>
+      </g>
+      <g class="bd-frog-fore bd-frog-fore-r">
+        <ellipse class="bd-frog-leg" cx="70" cy="67" rx="10" ry="4.6" transform="rotate(38 70 67)"/>
+        <path class="bd-frog-toe" d="M77 74 L83 82 L80 76 L88 78 L81 73 L88 70 L80 71 Z"/>
+      </g>
+      <path class="bd-frog-body" d="M20 50 C20 36 30 26 46 25 C64 24 84 32 91 50 C84 68 64 76 46 75 C30 74 20 64 20 50 Z"/>
+      <path class="bd-frog-back" d="M30 44 C44 32 66 31 84 42 C66 38 44 39 30 44 Z"/>
+      <path class="bd-frog-stripe" d="M26 42 C44 35 66 35 88 43"/><path class="bd-frog-stripe" d="M26 58 C44 65 66 65 88 57"/>
+      <path class="bd-frog-side" d="M22 50 C24 42 30 34 40 30 C34 38 32 44 32 50 C32 56 34 62 40 70 C30 66 24 58 22 50 Z"/>
+      <circle class="bd-frog-spot" cx="36" cy="50" r="3.2"/><circle class="bd-frog-spot" cx="48" cy="40" r="2.2"/><circle class="bd-frog-spot" cx="50" cy="61" r="2.6"/><circle class="bd-frog-spot" cx="62" cy="50" r="2"/><circle class="bd-frog-spot" cx="42" cy="66" r="1.6"/><circle class="bd-frog-spot" cx="58" cy="35" r="1.5"/>
+      <ellipse class="bd-frog-throat" cx="83" cy="50" rx="6" ry="6.5"/>
+      <g><ellipse class="bd-frog-eye" cx="75" cy="33" rx="8.6" ry="7.6"/><circle class="bd-frog-iris" cx="76" cy="33.4" r="5.2"/><ellipse class="bd-frog-pupil" cx="76.6" cy="33.4" rx="1.7" ry="3.8"/><circle cx="73.6" cy="30.6" r="1.5" fill="#fff"/><path class="bd-frog-lidline" d="M67 30 Q75 24.5 83 30"/><rect class="bd-frog-lid" x="66.4" y="25.4" width="17.2" height="15.2" rx="8"/></g>
+      <g><ellipse class="bd-frog-eye" cx="75" cy="67" rx="8.6" ry="7.6"/><circle class="bd-frog-iris" cx="76" cy="66.6" r="5.2"/><ellipse class="bd-frog-pupil" cx="76.6" cy="66.6" rx="1.7" ry="3.8"/><circle cx="73.6" cy="63.8" r="1.5" fill="#fff"/><path class="bd-frog-lidline" d="M67 70 Q75 75.5 83 70"/><rect class="bd-frog-lid" x="66.4" y="59.4" width="17.2" height="15.2" rx="8"/></g>
+      <circle cx="88" cy="46.5" r="1.2" fill="rgba(0,0,0,.5)"/><circle cx="88" cy="53.5" r="1.2" fill="rgba(0,0,0,.5)"/>
+      <path d="M83 43 Q91.5 50 83 57" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/>
     </svg>`;
+  // the plate behind a frog: its company's logo, large, so the frog reads as that stock at a glance
+  const PLATE = (s) => {
+    const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
+    return `<i class="bd-frog-plate" style="--pc:${s.color}"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="${logo.fill}">${logo.svg}</g></svg></i>`;
   };
-
 
   /* =====================================================================
      THE LITTLE FROGS — small ones that hop about on the lake behind every
      page, the way the reference sites float small balloons through the
      whole scroll. Not interactive; they only keep the water alive.
      ===================================================================== */
-  if (lake && !matchMedia('(prefers-reduced-motion: reduce)').matches) (() => {
+  if (lake && page !== 'home' && !matchMedia('(prefers-reduced-motion: reduce)').matches) (() => {
     const layer = lake.el, small = innerWidth < 900;
     const N = small ? 5 : 9;
     const list = [];
     for (let i = 0; i < N; i++) {
       const s = STOCKS[(i * 5) % STOCKS.length];
       const el = document.createElement('i'); el.className = 'bd-frog';
-      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .9) + 's'); el.innerHTML = FROG_SVG(s);
+      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .9) + 's'); el.innerHTML = PLATE(s) + FROG_SVG(s);
       layer.appendChild(el);
       const size = (small ? 30 : 38) + Math.random() * (small ? 16 : 24);
       list.push({ el, size, x: Math.random() * innerWidth, y: Math.random() * innerHeight, a: Math.random() * 6.28, h: 0, state: 'idle', wait: Math.random() * 4, from: null, to: null, t: 0, dur: .6 });
@@ -578,7 +620,7 @@
     const frogs = STOCKS.map((s, i) => {
       const el = document.createElement('button');
       el.className = 'bd-frog'; el.type = 'button'; el.setAttribute('aria-label', s.sym + ' · ' + s.name);
-      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .7) + 's'); el.innerHTML = FROG_SVG(s);
+      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .7) + 's'); el.innerHTML = PLATE(s) + FROG_SVG(s);
       scene.appendChild(el);
       return { s, el, i, x: 0, y: 0, a: 0, h: 0, op: 1, state: 'idle', wait: 0, from: null, to: null, t: 0, dur: .6, size: 0 };
     });

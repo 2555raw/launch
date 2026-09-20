@@ -7,9 +7,9 @@
    switch. */
 
 * { box-sizing: border-box; }
-html { color-scheme: light; background: #7FB7A6; scroll-behavior: smooth; }
+html { color-scheme: light; background: #78AB9A; scroll-behavior: smooth; }
 html[data-theme="dark"] { color-scheme: dark; background: #0A0C10; }
-body { margin: 0; background: #7FB7A6; color: #131720; }
+body { margin: 0; background: #78AB9A; color: #131720; }
 html[data-theme="dark"] body { background: #0A0C10; color: #F2F5F9; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; }
@@ -204,25 +204,30 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 @keyframes bdDrift { to { transform: translateX(180vw); } }
 @keyframes bdSway { from { transform: rotate(calc(var(--r, 0deg) - 2.5deg)); } to { transform: rotate(calc(var(--r, 0deg) + 2.5deg)); } }
 @keyframes bdLotus { to { transform: scale(1.06) rotate(4deg); } }
-/* the frog, seen from above, facing +x */
+/* the frog, seen from above, facing +x, sitting on its company's plate */
 .bd-frog {
   position: absolute; left: 0; top: 0; width: var(--s, 110px); height: var(--s, 110px); border: 0; background: none; padding: 0;
   cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
   transform: translate3d(var(--x), var(--y), 0) rotate(var(--rot, 0deg)) scale(calc(1 + var(--h, 0) * .38)); transform-origin: 50% 50%;
   will-change: transform; opacity: var(--op, 1); transition: opacity .4s;
-  filter: drop-shadow(calc(2px + var(--h, 0) * 16px) calc(5px + var(--h, 0) * 22px) calc(3px + var(--h, 0) * 8px) rgba(19,23,32,calc(.28 - var(--h, 0) * .1)));
 }
-.bd-frog svg { width: 100%; height: 100%; overflow: visible; }
-.bd-frog .bd-frog-body { fill: var(--c); stroke: rgba(0,0,0,.28); stroke-width: 1; }
-.bd-frog .bd-frog-leg { fill: color-mix(in srgb, var(--c) 78%, #000 22%); stroke: rgba(0,0,0,.28); stroke-width: 1; }
-.bd-frog .bd-frog-toe { fill: color-mix(in srgb, var(--c) 70%, #000 30%); }
-.bd-frog .bd-frog-back { fill: rgba(255,255,255,.22); }
-.bd-frog .bd-frog-spot { fill: rgba(0,0,0,.14); }
-.bd-frog .bd-frog-eye { fill: color-mix(in srgb, var(--c) 60%, #000 40%); stroke: rgba(0,0,0,.3); stroke-width: .8; }
-.bd-frog .bd-frog-iris { fill: #F6D35A; } .bd-frog .bd-frog-pupil { fill: #0B0D10; }
-.bd-frog .bd-frog-badge { transform: rotate(calc(var(--rot, 0deg) * -1)); transform-box: fill-box; transform-origin: center; }
-.bd-frog .bd-frog-badge circle { filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
-.bd-frog .bd-frog-throat { fill: rgba(255,255,255,.35); transform-box: fill-box; transform-origin: center; }
+.bd-frog svg { position: relative; width: 70%; height: 70%; margin: 15%; overflow: visible;
+  filter: drop-shadow(calc(2px + var(--h, 0) * 16px) calc(5px + var(--h, 0) * 22px) calc(3px + var(--h, 0) * 8px) rgba(10,30,25,calc(.38 - var(--h, 0) * .1))); }
+.bd-frog-plate { position: absolute; inset: 0; border-radius: 50%; background: #fff; border: 3px solid var(--pc); box-shadow: 0 6px 16px rgba(10,30,25,.25), inset 0 0 0 2px rgba(255,255,255,.9);
+  display: grid; place-items: center; transform: rotate(calc(var(--rot, 0deg) * -1)) scale(calc(1 / (1 + var(--h, 0) * .38))); opacity: .97; overflow: hidden; }
+.bd-frog-plate svg { position: static; width: 80%; height: 80%; margin: 0; filter: none; opacity: .9; }
+.bd-frog .bd-frog-body { fill: var(--c); stroke: rgba(0,0,0,.32); stroke-width: 1; }
+.bd-frog .bd-frog-leg { fill: color-mix(in srgb, var(--c) 82%, #000 18%); stroke: rgba(0,0,0,.3); stroke-width: .9; }
+.bd-frog .bd-frog-leg2 { fill: color-mix(in srgb, var(--c) 72%, #000 28%); stroke: rgba(0,0,0,.3); stroke-width: .9; }
+.bd-frog .bd-frog-toe { fill: color-mix(in srgb, var(--c) 64%, #000 36%); stroke: rgba(0,0,0,.25); stroke-width: .6; stroke-linejoin: round; }
+.bd-frog .bd-frog-back { fill: rgba(255,255,255,.26); }
+.bd-frog .bd-frog-side { fill: rgba(0,0,0,.12); }
+.bd-frog .bd-frog-stripe { fill: none; stroke: rgba(255,255,255,.35); stroke-width: 1.6; stroke-linecap: round; }
+.bd-frog .bd-frog-spot { fill: rgba(0,0,0,.18); }
+.bd-frog .bd-frog-eye { fill: color-mix(in srgb, var(--c) 58%, #000 42%); stroke: rgba(0,0,0,.35); stroke-width: .9; }
+.bd-frog .bd-frog-iris { fill: #E9C447; } .bd-frog .bd-frog-pupil { fill: #0B0D10; }
+.bd-frog .bd-frog-lidline { fill: none; stroke: rgba(0,0,0,.3); stroke-width: 1; }
+.bd-frog .bd-frog-throat { fill: rgba(255,255,255,.32); transform-box: fill-box; transform-origin: center; }
 .bd-frog .bd-frog-lid { fill: var(--c); transform-box: fill-box; transform-origin: center top; transform: scaleY(0); }
 .bd-frog .bd-frog-hind { transform-box: fill-box; }
 .bd-frog .bd-frog-hind-l { transform-origin: 90% 90%; } .bd-frog .bd-frog-hind-r { transform-origin: 90% 10%; }
@@ -247,7 +252,7 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 @keyframes bdSquash { 0% { transform: scale(1.12, .86); } 60% { transform: scale(.96, 1.05); } 100% { transform: none; } }
 @keyframes bdDangle { from { transform: rotate(8deg); } to { transform: rotate(-8deg); } }
 .bd-frog.is-drag { cursor: grabbing; z-index: 6; }
-.bd-frog.is-bonded .bd-frog-body { stroke: #131720; stroke-width: 2.4; }
+.bd-frog.is-bonded .bd-frog-plate { box-shadow: 0 0 0 4px rgba(19,23,32,.85), 0 6px 16px rgba(10,30,25,.25); }
 .bd-fish-label { position: absolute; z-index: 4; padding: 5px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-hi); font-family: var(--font-mono); font-size: 11px; color: var(--muted); pointer-events: none; opacity: 0; transform: translate(-50%, 0); transition: opacity .15s; white-space: nowrap; box-shadow: 0 8px 20px rgba(19,23,32,.12); }
 .bd-fish-label.is-on { opacity: 1; }
 .bd-hero-foot > div, .bd-hero-foot > a { padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.88); backdrop-filter: blur(6px); }
@@ -786,12 +791,16 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 .bd-lake > i { position: absolute; display: block; }
 .bd-lake-water { inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 50% 8%, rgba(255,255,255,.28), transparent 70%),
-    radial-gradient(ellipse 42% 36% at 10% 84%, #3E7D6C, transparent 70%),
-    radial-gradient(ellipse 40% 34% at 88% 26%, #9ED2C0, transparent 70%),
-    radial-gradient(ellipse 34% 28% at 74% 88%, #35705F, transparent 70%),
-    radial-gradient(ellipse 30% 26% at 28% 40%, #6FAE9B, transparent 70%),
-    linear-gradient(180deg, #A9D7C8 0%, #7FB7A6 42%, #5E9D8A 100%); }
+    radial-gradient(ellipse 60% 40% at 50% 6%, rgba(255,255,255,.22), transparent 70%),
+    radial-gradient(ellipse 42% 36% at 10% 84%, #3F6E60, transparent 70%),
+    radial-gradient(ellipse 40% 34% at 88% 26%, #93C2B0, transparent 70%),
+    radial-gradient(ellipse 34% 28% at 74% 88%, #355F53, transparent 70%),
+    radial-gradient(ellipse 30% 26% at 28% 40%, #6A9D8C, transparent 70%),
+    linear-gradient(180deg, #9CC7B7 0%, #78AB9A 42%, #567F72 100%); }
+.bd-lake-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bd-lake-svg .bd-murk { opacity: .55; }
+.bd-lake-svg .bd-caustic-a { opacity: .38; mix-blend-mode: screen; }
+.bd-lake-svg .bd-caustic-b { opacity: .22; mix-blend-mode: screen; }
 .bd-lake-caustics { inset: -12%; opacity: .34; mix-blend-mode: screen; filter: blur(1.2px);
   background:
     radial-gradient(ellipse 52% 44% at 50% 50%, rgba(255,255,255,0) 0 62%, rgba(255,255,255,.85) 68% 74%, rgba(255,255,255,0) 82%) 0 0 / 96px 82px,
@@ -804,7 +813,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
   background:
     repeating-linear-gradient(176deg, transparent 0 46px, rgba(255,255,255,.16) 46px 52px, transparent 52px 118px),
     repeating-linear-gradient(94deg, transparent 0 80px, rgba(255,255,255,.09) 80px 86px, transparent 86px 190px); }
-.bd-lake-glare { inset: 0; mix-blend-mode: screen; opacity: .85;
+.bd-lake-glare { inset: 0; mix-blend-mode: screen; opacity: .6;
   background: radial-gradient(ellipse 34% 16% at 76% 12%, rgba(255,255,255,.8), transparent 70%), radial-gradient(ellipse 22% 10% at 24% 58%, rgba(255,255,255,.4), transparent 70%); }
 .bd-lake-depth { inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(20,60,50,.35) 100%); }
 /* reflections of clouds, drifting */
@@ -831,7 +840,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 /* the tongue */
 .bd-tongue { position: absolute; height: 7px; margin-top: -3.5px; border-radius: 4px; background: linear-gradient(90deg, #E2497F, #F27AA5); transform-origin: 0 50%; pointer-events: none; z-index: 7; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
 .bd-tongue::after { content: ""; position: absolute; right: -4px; top: -2.5px; width: 12px; height: 12px; border-radius: 50%; background: #F27AA5; }
-.bd-frog.is-gulp svg { animation: bdGulp .36s ease-out; }
+.bd-frog.is-gulp svg:not(.bd-frog-plate svg) { animation: bdGulp .36s ease-out; }
 @keyframes bdGulp { 0% { transform: scale(1); } 35% { transform: scale(1.14, .92); } 70% { transform: scale(.96, 1.06); } 100% { transform: none; } }
 .bd-lake .bd-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.6); transform: translate(-50%, -50%) scale(.15); opacity: .8; animation: bdLakeRing 3.2s ease-out forwards; }
 @keyframes bdLakeRing { to { transform: translate(-50%, -50%) scale(3.2); opacity: 0; } }
@@ -859,4 +868,4 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 .bd-close-card { box-shadow: 0 20px 60px rgba(19,23,32,.06); }
 .bd-step, .bd-why-card, .bd-pair, .bd-element, .bd-check, .bd-contract, .bd-proof-grid, .bd-stat, .bd-panel, .bd-chart, .bd-trade, .bd-about, .bd-feed-item, .bd-stock-detail, .bd-paircard, .bd-mine-connect, .bd-close-card { box-shadow: 0 8px 30px rgba(19,23,32,.05); }
 /* the little frogs that live on the lake, behind everything, on every page */
-.bd-lake .bd-frog { pointer-events: none; opacity: .92; }
+.bd-lake .bd-frog { pointer-events: none; opacity: .95; }

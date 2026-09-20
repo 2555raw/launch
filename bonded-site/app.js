@@ -780,7 +780,6 @@
       $$('[data-hero-stock-name]').forEach(el => el.textContent = f.s.name);
       $$('[data-hero-stock]').forEach(el => el.textContent = f.s.sym);
       const launch = $('#hero-launch'); if (launch) launch.href = 'launch.html?stock=' + f.s.sym;
-      $$('#elements-grid .bd-element').forEach(b => b.classList.toggle('is-active', b.dataset.sym === f.s.sym));
       splashAt(scene, f.x, f.y, .6); placeLabel(f);
     };
 
@@ -813,11 +812,7 @@
       bond: `<div class="bd-illus-bond">${pic('TSLA')}<div class="bd-bondline"></div><div class="bd-coin">$ROBO</div><span class="bd-livechip">LIVE</span></div>`,
     };
     $$('[data-illus]').forEach(el => { el.innerHTML = illus[el.dataset.illus] || ''; });
-    const grid = $('#elements-grid'), pairsGrid = $('#pairs-grid');
-    adapter.stocks().then(stocks => {
-      grid.innerHTML = stocks.map(s => elementTile(s, s.sym === 'NVDA')).join('');
-      grid.addEventListener('click', e => { const b = e.target.closest('[data-sym]'); if (!b) return; scene?.select(b.dataset.sym); scrollToId('hero'); });
-    });
+    const pairsGrid = $('#pairs-grid');
     adapter.pairs().then(pairs => {
       const pick = pairs.slice().sort((a, b) => (b.volume / b.mcap) - (a.volume / a.mcap)).slice(0, 6);
       pairsGrid.innerHTML = pick.map(pairTile).join('');

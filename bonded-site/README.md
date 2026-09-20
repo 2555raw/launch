@@ -45,7 +45,7 @@ Pages), or on Railway with this folder as the root directory: it runs `node serv
 ## The idea
 
 The layout is the one that works for this category: a huge centred headline, one black button,
-the contract address under it, two floating navigation pills, and a scene around the copy that
+two floating navigation pills, and a scene around the copy that
 people can play with. The scene is where Bonded differs.
 
 **Frogs on white.** The hero is plain white with a couple of lily pads, and each tokenized stock

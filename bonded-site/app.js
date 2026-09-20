@@ -323,16 +323,20 @@
   }
   function pairTile(p) {
     const st = stockOf(p.stock);
+    const pct = clamp(Math.round(8 + Math.log10(Math.max(1, p.mcap / 1e4)) * 18), 5, 95);
     return `<a class="bd-pair" href="${pairHref(p)}">
       <div class="bd-pair-art" style="--sc:${st.color}">
-        <span class="bd-pair-corner">${p.mine ? 'Your pair' : 'Bonded pair'}</span>
+        <span class="bd-pair-corner">${st.sym}</span>
         <i class="bd-frog bd-frogpic" style="--c:${st.color}">${FROG_SVG(st)}</i>
-        <span class="bd-pair-corner is-right">${st.sym}</span>
+        <span class="bd-pair-corner is-right">${fmtAge(p.createdAt)} ago</span>
       </div>
       <div class="bd-pair-body">
-        <div class="bd-pair-title"><span class="bd-pair-name">${esc(p.name)} ${badge(p)}</span><span class="bd-pair-arrow">↗</span></div>
-        <div class="bd-pair-ticker">$${esc(p.ticker)} <b class="${p.change >= 0 ? 'bd-up' : 'bd-down'}">${fmtPct(p.change)}</b></div>
-        <div class="bd-pair-foot"><span>${st.sym} · ${fmtShares(priceShares(p))} ${st.sym}</span><span>${fmtUsd(p.mcap)} · ${fmtAge(p.createdAt)} ago</span></div>
+        <div class="bd-pair-title"><span class="bd-pair-name">${esc(p.name)}</span><span class="bd-pair-pill">${p.mine ? 'Yours' : 'On the board'}</span></div>
+        <div class="bd-pair-sub">${esc(p.ticker)} · Priced in ${esc(st.name)}</div>
+        <div class="bd-pair-bar"><i style="width:${pct}%"></i></div>
+        <div class="bd-pair-bar-labels"><span>${fmtShares(priceShares(p))} ${st.sym}</span><span>${pct}% of supply held</span></div>
+        <div class="bd-pair-sparklabel"><span>Price in ${st.sym} · 24h</span><b class="${p.change >= 0 ? 'bd-up' : 'bd-down'}">${fmtPct(p.change)}</b></div>
+        ${sparkline(p, 260, 52)}
       </div>
     </a>`;
   }
@@ -801,6 +805,14 @@
      ===================================================================== */
   if (page === 'home') {
     const scene = frogs();
+    // how it works, illustrated with the frogs
+    const pic = sym => { const s = stockOf(sym); return `<i class="bd-frog bd-frogpic" style="--c:${s.color}">${FROG_SVG(s)}</i>`; };
+    const illus = {
+      pick: `<div class="bd-illus-pick">${['TSLA', 'NVDA', 'AAPL', 'SPY'].map(sym => `<div class="bd-pick ${sym === 'NVDA' ? 'is-on' : ''}">${pic(sym)}<small>${sym}</small></div>`).join('')}</div>`,
+      name: `<div class="bd-illus-name">${pic('TSLA')}<div><b>Robotaxi Season<i></i></b><span>$ROBO · in TSLA</span><em>1B fixed · no owner</em></div></div>`,
+      bond: `<div class="bd-illus-bond">${pic('TSLA')}<div class="bd-bondline"></div><div class="bd-coin">$ROBO</div><span class="bd-livechip">LIVE</span></div>`,
+    };
+    $$('[data-illus]').forEach(el => { el.innerHTML = illus[el.dataset.illus] || ''; });
     const grid = $('#elements-grid'), pairsGrid = $('#pairs-grid');
     adapter.stocks().then(stocks => {
       grid.innerHTML = stocks.map(s => elementTile(s, s.sym === 'NVDA')).join('');

@@ -64,70 +64,32 @@
       </div>
     </section>
 
-    <!-- proof -->
-    <section class="bd-proof" id="proof">
-      <div class="bd-wrap">
-        <div class="bd-proof-grid bd-rise">
-          <div class="bd-proof-item"><span class="bd-label">Pairs bonded</span><b data-stat="pairs">—</b><small>since launch</small></div>
-          <div class="bd-proof-item"><span class="bd-label">24h volume</span><b data-stat="volume">—</b><small>across all pairs</small></div>
-          <div class="bd-proof-item"><span class="bd-label">Liquidity locked</span><b data-stat="locked">—</b><small>cannot be withdrawn</small></div>
-          <div class="bd-proof-item"><span class="bd-label">Chain</span><b data-cfg="chain">—</b><small>verified contracts</small></div>
-          <div class="bd-proof-item"><span class="bd-label">Creation fee</span><b data-cfg="fee">—</b><small>no other fee to launch</small></div>
-        </div>
-      </div>
-    </section>
-
     <!-- how it works -->
     <section class="bd-section" id="how">
       <div class="bd-wrap">
         <div class="bd-head bd-rise">
           <span class="bd-label">How it works</span>
-          <h2>Three steps. One transaction.</h2>
-          <p>You pick the stock, you name the token, Bonded builds the pool and locks it. Trading opens the same block.</p>
+          <h2>Pick a frog. Name your coin. Bond them.</h2>
+          <p>Every stock on the pond is a frog. Your coin rides on one of them: it is priced in that stock, trades against that stock, and the pool between the two is locked from the first block. Three steps, one signature.</p>
         </div>
         <div class="bd-steps">
           <div class="bd-step bd-rise">
-            <div class="bd-step-fig">
-              <svg viewBox="0 0 300 92">
-                <g font-family="JetBrains Mono, monospace" font-size="11" fill="currentColor" opacity=".55">
-                  <rect x="4" y="16" width="62" height="60" rx="8" fill="none" stroke="currentColor" opacity=".35"/><text x="14" y="42" font-size="16" font-weight="700">TSLA</text>
-                  <rect x="76" y="16" width="62" height="60" rx="8" fill="#F0B35B" opacity="1"/><text x="86" y="42" font-size="16" font-weight="700" fill="#1A1204" opacity="1">NVDA</text>
-                  <rect x="148" y="16" width="62" height="60" rx="8" fill="none" stroke="currentColor" opacity=".35"/><text x="158" y="42" font-size="16" font-weight="700">AAPL</text>
-                  <rect x="220" y="16" width="62" height="60" rx="8" fill="none" stroke="currentColor" opacity=".35"/><text x="230" y="42" font-size="16" font-weight="700">SPY</text>
-                </g>
-              </svg>
-            </div>
-            <span class="bd-step-n">01</span>
+            <div class="bd-step-fig" data-illus="pick"></div>
+            <span class="bd-step-n">Step 1</span>
             <h3>Pick the stock</h3>
-            <p>Choose the tokenized share your coin will be quoted in. That is the other side of your pool and the unit every price is shown in.</p>
+            <p>Choose the frog your coin will ride: NVIDIA, Tesla, Apple, the S&amp;P 500 and the rest. From that moment your coin is quoted in that share, not in ETH.</p>
           </div>
           <div class="bd-step bd-rise">
-            <div class="bd-step-fig">
-              <svg viewBox="0 0 300 92">
-                <rect x="4" y="18" width="292" height="56" rx="12" fill="none" stroke="currentColor" opacity=".3"/>
-                <rect x="16" y="30" width="32" height="32" rx="9" fill="#5DE1FF"/>
-                <text x="24" y="52" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="700" fill="#04141A">RB</text>
-                <text x="60" y="44" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="currentColor">Robotaxi Season</text>
-                <text x="60" y="62" font-family="JetBrains Mono, monospace" font-size="11" fill="currentColor" opacity=".6">$ROBO / TSLA</text>
-                <text x="238" y="52" font-family="JetBrains Mono, monospace" font-size="11" fill="#5DE1FF">1B supply</text>
-              </svg>
-            </div>
-            <span class="bd-step-n">02</span>
-            <h3>Name your token</h3>
-            <p>Name, ticker, image, a line about it. Fixed supply, no mint, no owner keys. Optionally buy first so you are not front-run.</p>
+            <div class="bd-step-fig" data-illus="name"></div>
+            <span class="bd-step-n">Step 2</span>
+            <h3>Name your coin</h3>
+            <p>A name, a ticker, a picture and a line about it. One billion supply, fixed. No mint, no owner keys. Buy first if you want to be the first holder.</p>
           </div>
           <div class="bd-step bd-rise">
-            <div class="bd-step-fig">
-              <svg viewBox="0 0 300 92">
-                <line x1="100" y1="46" x2="200" y2="46" stroke="url(#gBond)" stroke-width="8" stroke-linecap="round"/>
-                <circle cx="88" cy="46" r="30" fill="#F0B35B"/><text x="88" y="50" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="700" fill="#1A1204">TSLA</text>
-                <circle cx="212" cy="46" r="22" fill="#5DE1FF"/><text x="212" y="50" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="11" font-weight="700" fill="#04141A">ROBO</text>
-                <g transform="translate(150 20)"><rect x="-22" y="-12" width="44" height="18" rx="9" fill="currentColor" opacity=".12"/><text x="0" y="1" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="currentColor">LOCKED</text></g>
-              </svg>
-            </div>
-            <span class="bd-step-n">03</span>
-            <h3>Bond it</h3>
-            <p>One transaction deploys the token, seeds the pool against the stock and locks the liquidity for good. Your pair is live and on the board.</p>
+            <div class="bd-step-fig" data-illus="bond"></div>
+            <span class="bd-step-n">Step 3</span>
+            <h3>Bond and trade</h3>
+            <p>One signature deploys your coin, opens the pool against the stock and locks the liquidity for good. Your pair is live on the board the same second, ready to trade.</p>
           </div>
         </div>
       </div>

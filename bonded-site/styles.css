@@ -1142,3 +1142,34 @@ html.is-night .bd-nav-icon:hover { color: #F2F7F6; background: rgba(255,255,255,
 
 /* the moon and its reflection belong to the night only */
 html:not(.is-night) .bd-moon, html:not(.is-night) .bd-moon-ref, html:not(.is-night) .bd-fireflies { display: none !important; }
+
+/* night, darker; flies give way to fireflies; no eye glow */
+html.is-night { background: #04100F; }
+html.is-night body { background: #04100F; }
+html.is-night .bd-lake-water { background:
+    radial-gradient(ellipse 60% 40% at 50% 6%, rgba(255,255,255,.03), transparent 70%),
+    radial-gradient(ellipse 42% 36% at 10% 84%, #041213, transparent 70%),
+    radial-gradient(ellipse 40% 34% at 88% 26%, #0E2426, transparent 70%),
+    radial-gradient(ellipse 34% 28% at 74% 88%, #030E10, transparent 70%),
+    radial-gradient(ellipse 30% 26% at 28% 40%, #0A1E20, transparent 70%),
+    linear-gradient(180deg, #0C2324 0%, #071819 42%, #04100F 100%); }
+html.is-night .bd-lake-svg .bd-murk { opacity: .85; }
+html.is-night .bd-lake-svg .bd-caustic-a { opacity: .08; }
+html.is-night .bd-lake-svg .bd-caustic-b { opacity: .05; }
+html.is-night .bd-lake-glare { opacity: .08; }
+html.is-night .bd-lake-cloud { opacity: .05; }
+html.is-night .bd-lake-shimmer { opacity: .15; }
+html.is-night .bd-lake-depth { background: radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0,0,0,.7) 100%); }
+html.is-night .bd-lily svg { filter: brightness(.38) saturate(.7); }
+html.is-night .bd-weed { opacity: .3; filter: brightness(.4); }
+html.is-night .bd-reed { opacity: .45; filter: brightness(.4); }
+html.is-night .bd-lake .bd-mote { opacity: .15; }
+html.is-night .bd-frog .bd-frog-body, html.is-night .bd-frog .bd-frog-leg, html.is-night .bd-frog .bd-frog-leg2, html.is-night .bd-frog .bd-frog-toe { filter: brightness(.6); }
+html.is-night .bd-frog .bd-frog-iris { fill: #C9A93A; filter: none; }
+html.is-night .bd-frog .bd-frog-pupil { fill: #0B0D10; }
+html.is-night .bd-fly { display: none; }
+html.is-night .bd-fireflies i { background: #F4FFAE; box-shadow: 0 0 5px 2px rgba(240,255,150,.85), 0 0 16px 6px rgba(200,255,120,.35); }
+html.is-night .bd { --card: #0A1F20; --card-hi: #0D2628; --surface: #122C2E; --line: #1B3536; --line-hi: #27494A; --bg: #04100F; --bg-alt: #071819; }
+html.is-night .bd-pill { background: rgba(4,16,15,.72); }
+html.is-night .bd-toolbar { background: linear-gradient(180deg, rgba(4,16,15,.94) 0%, rgba(4,16,15,.82) 70%, rgba(4,16,15,0) 100%); }
+html.is-night .bd-moon { box-shadow: 0 0 40px rgba(255,250,220,.4), 0 0 120px rgba(255,250,220,.15); }

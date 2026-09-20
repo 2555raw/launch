@@ -551,8 +551,10 @@
       };
       requestAnimationFrame(step);
     }
-    const nearestFly = (x, y, r) => { let best = null, bd = r; for (const f of flies) { if (f.eaten) continue; const d = Math.hypot(f.x - x, f.y - y); if (d < bd) { bd = d; best = f; } } return best; };
-    const eat = f => { f.eaten = performance.now() / 1000 + 4 + Math.random() * 6; f.el.classList.add('is-eaten'); };
+    // by night the flies are gone and the frogs catch fireflies instead; a caught one goes dark for a while
+    const fireflyList = () => document.documentElement.classList.contains('is-night') ? [...fireflies.children].map(el => { if (el._eaten && performance.now() / 1000 > el._eaten) { el._eaten = 0; el.style.visibility = ''; } const r = el.getBoundingClientRect(); return { el, x: r.left + r.width / 2, y: r.top + r.height / 2, eaten: el._eaten, firefly: true }; }) : flies;
+    const nearestFly = (x, y, r) => { const list = fireflyList(); const reach = list === flies ? r : r * .55; let best = null, bd = reach; for (const f of list) { if (f.eaten) continue; const d = Math.hypot(f.x - x, f.y - y); if (d < bd) { bd = d; best = f; } } return best; };
+    const eat = f => { if (f.firefly) { f.el._eaten = performance.now() / 1000 + 2.5 + Math.random() * 3; f.el.style.visibility = 'hidden'; return; } f.eaten = performance.now() / 1000 + 4 + Math.random() * 6; f.el.classList.add('is-eaten'); };
     /* the swan: comes in from one side, glides across the middle steering round the frogs, leaves by another side, comes back later */
     const swanState = { on: false, x: -999, y: -999, a: 0 };
     if (!reduced) {

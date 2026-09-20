@@ -909,3 +909,12 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 ::selection { background: #78AB9A; color: #FFFFFF; }
 ::-moz-selection { background: #78AB9A; color: #FFFFFF; }
 input::selection, textarea::selection { background: #78AB9A; color: #FFFFFF; }
+
+/* docs sit on white cards, like everything else on the pond */
+.bd-docs-side { padding: 12px 10px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+.bd-docs-side a { color: var(--prose); }
+.bd-docs-side a:hover, .bd-docs-side a.is-active { background: var(--surface); }
+.bd-docs-body { max-width: none; padding: 32px 40px 40px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+.bd-docs-body h2 { border-top-color: var(--line); }
+.bd-note { background: rgba(120,171,154,.14); border-color: rgba(120,171,154,.5); }
+@media (max-width: 900px) { .bd-docs-body { padding: 22px 18px 28px; } }

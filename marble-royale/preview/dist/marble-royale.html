@@ -803,6 +803,7 @@ body[data-screen="race"] .notice, body[data-screen="count"] .notice { display: n
 .livebar__cell--pot > div, .stat--pot > div { display: grid; gap: 3px; }
 .jar { position: relative; width: 56px; height: 70px; }
 .jar svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .5)); }
+.jar__liquid, .jar__top { transition: y .6s cubic-bezier(.25,.8,.3,1), height .6s cubic-bezier(.25,.8,.3,1), cy .6s cubic-bezier(.25,.8,.3,1); }
 .jar__top { animation: slosh 2.4s ease-in-out infinite; transform-origin: 60px 134px; }
 @keyframes slosh { 50% { transform: translateX(2px) scaleY(1.25); } }
 .jar[data-state="locked"] .jar__top, .jar[data-state="paid"] .jar__top { animation: none; }
@@ -5573,7 +5574,10 @@ window.MR_TYPES = true;
     let state = 'filling';
     if (r.phase === 'racing' || r.phase === 'locked') state = 'locked';
     if (r.phase === 'result') { state = 'paid'; if (drain && drain.id === r.id) pot = drain.pot; }
-    const level = Math.max(0, Math.min(1, pot / full));
+    /* a jar with something in it shows something: the first drops are worth
+       seeing, so the level starts at a visible sliver rather than nothing */
+    const raw = full > 0 ? pot / full : 0;
+    const level = pot > 0 && state !== 'paid' ? Math.max(0.08, Math.min(1, raw)) : Math.max(0, Math.min(1, raw));
     for (const id of ['#jarHome', '#jarLobby']) {
       const jar = $(id);
       if (!jar) continue;

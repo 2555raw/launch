@@ -87,6 +87,7 @@ class Rounds extends EventEmitter {
     this.waitlist = [];      // addresses that arrived at a full race
     this.timer = null;
     this.pollTimer = null;
+    this.potTimer = null;   // the jar filling while the queue is open
     /* The mode the next round races in, decided by the poll on the results
        screen of the round before. The first round of a fresh process is a
        classic. */
@@ -152,12 +153,25 @@ class Rounds extends EventEmitter {
       r.potTarget = Math.round((r.mega ? POT_MEGA : POT_MIN + Math.random() * (POT_MAX - POT_MIN)) * 100) / 100;
       r.potDemo = DEMO_MODE;
       r.pot = this.fieldPot(r);
+      clearInterval(this.potTimer);
+      this.potTimer = setInterval(() => this.potTick(), 2000);
       if (DEMO_POT) {
         clearInterval(this.demoTimer);
         this.demoTimer = setInterval(() => this.demoTick(), 1000);
       }
     }
     this.at(r.lockAt, () => this.lock());
+  }
+
+  /* The jar filling on its own, twice a second's worth of patience apart. */
+  potTick() {
+    const r = this.round;
+    if (!r || FEE_WALLET) return clearInterval(this.potTimer);
+    if (r.phase !== 'lobby') return;
+    const next = Math.max(r.pot || 0, this.fieldPot(r));
+    if (next === r.pot) return;
+    r.pot = next;
+    this.emit('pot', { roundId: r.id, pot: r.pot, potFull: this.potFull(r), gross: null, grossEth: null, pct: 100, mega: r.mega, demo: !!r.potDemo, final: false });
   }
 
   demoTick() {
@@ -206,6 +220,15 @@ class Rounds extends EventEmitter {
     const r = this.round;
     if (!r || r.phase !== 'lobby') return;
     r.phase = 'locked';
+    /* the jar is full at the gate and stops there */
+    clearInterval(this.potTimer);
+    if (!FEE_WALLET) {
+      const cap = r.mega ? POT_MEGA : (r.potTarget || POT_MAX);
+      if (r.players.length && r.pot < cap) {
+        r.pot = cap;
+        this.emit('pot', { roundId: r.id, pot: r.pot, potFull: this.potFull(r), gross: null, grossEth: null, pct: 100, mega: r.mega, demo: !!r.potDemo, final: true });
+      }
+    }
 
     /* The field is fixed here, in join order, and the seed follows from it. */
     const field = r.players.map((p) => p.address);
@@ -396,7 +419,7 @@ class Rounds extends EventEmitter {
       this.emit('cap', { roundId: r.id, max: r.max, count: r.players.length });
     }
     if (!FEE_WALLET) {
-      const next = this.fieldPot(r);
+      const next = Math.max(r.pot || 0, this.fieldPot(r));
       if (next !== r.pot) {
         r.pot = next;
         this.emit('pot', { roundId: r.id, pot: r.pot, potFull: this.potFull(r), gross: null, grossEth: null, pct: 100, mega: r.mega, demo: !!r.potDemo, final: false });
@@ -435,9 +458,14 @@ class Rounds extends EventEmitter {
      full. Every player who joins moves it, which is what the jar shows. */
   fieldPot(r) {
     const cap = r.mega ? POT_MEGA : (r.potTarget || POT_MAX);
-    const per = Math.max(0, cap - POT_BASE) / Math.max(1, r.max || MAX_PLAYERS);
-    const n = r.players.length;
-    return Math.round(Math.min(cap, POT_BASE + per * n) * 100) / 100;
+    const room = Math.max(0, cap - POT_BASE);
+    /* Two things fill the jar: the field, and the clock running down to the
+       gate. A full grid on its own gets there, and so does a patient queue;
+       either way it is full when the gate closes, never past it. */
+    const field = Math.min(1, r.players.length / Math.max(1, r.max || MAX_PLAYERS));
+    const clock = Math.max(0, Math.min(1, (Date.now() - r.startAt) / Math.max(1, r.lockAt - r.startAt)));
+    const filled = Math.min(1, field * 0.6 + clock * 0.4);
+    return Math.round(Math.min(cap, POT_BASE + room * filled) * 100) / 100;
   }
 
   /* What a full jar is: the acted target in demo mode, otherwise the larger of

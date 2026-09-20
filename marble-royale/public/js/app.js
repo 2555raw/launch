@@ -482,7 +482,10 @@
     let state = 'filling';
     if (r.phase === 'racing' || r.phase === 'locked') state = 'locked';
     if (r.phase === 'result') { state = 'paid'; if (drain && drain.id === r.id) pot = drain.pot; }
-    const level = Math.max(0, Math.min(1, pot / full));
+    /* a jar with something in it shows something: the first drops are worth
+       seeing, so the level starts at a visible sliver rather than nothing */
+    const raw = full > 0 ? pot / full : 0;
+    const level = pot > 0 && state !== 'paid' ? Math.max(0.08, Math.min(1, raw)) : Math.max(0, Math.min(1, raw));
     for (const id of ['#jarHome', '#jarLobby']) {
       const jar = $(id);
       if (!jar) continue;

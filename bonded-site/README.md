@@ -45,33 +45,34 @@ Pages), or on Railway with this folder as the root directory: it runs `node serv
 ## The idea
 
 The layout is the one that works for this category: a huge centred headline, one black button,
-two floating navigation pills, and a scene around the copy that
-people can play with. The scene is where Bonded differs.
+two floating navigation pills, and a scene behind the whole page that people can play with, the
+way Levity floats its sky and small balloons through the entire scroll.
 
-**A lake behind everything, in white.** A fixed layer under every page draws the water in pale
-greys on white: faint gradients for depth, two drifting sheets of caustic light, a shimmer warped by an SVG turbulence filter, sun
-glare, motes on the surface, a ring somewhere every second or so, and lily pads with pink flowers
-that drift and turn. Content that is not the hero rides on a translucent white sheet over it.
-Each tokenized stock is a frog, seen from above, painted in its company's colour with the
-company's logo on its back.
-The frogs never stop: each one sits for a moment, picks a spot (sometimes a lily pad), turns to
-face it, hops there in an arc (it grows and its shadow drops away at the top of the jump, legs
-kick out, it squashes on landing), and sits again. They keep out of the copy in the middle and
-inside the hero. Grab one with the mouse or a finger and drop it anywhere; click one and the
-headline reprices in that stock and the launch button carries it. `Pause motion` freezes the
-scene, `Reset` reshuffles it.
+**A pond behind everything.** A fixed layer under every page draws a green pond: layered water,
+two drifting sheets of caustic light, a shimmer warped by an SVG turbulence filter, cloud
+reflections crossing slowly, reeds swaying on both banks, lily pads (SVG, veined, some with a pink
+lotus) that drift and turn, duckweed around them, motes on the surface and a ring somewhere every
+second or so. Content sits straight on it in white cards.
+
+**Frogs, and flies.** Each tokenized stock is a frog, seen from above, in its company's colour with
+the logo on its back. The twelve big ones live in the hero: they sit, pick a spot (one time in five
+a lily pad), turn, hop in an arc, squash on landing, keep out of the copy, and can be grabbed and
+dropped anywhere; click one and the headline reprices in that stock. Small ones hop about on the
+pond behind every page. Flies buzz over the water, and any frog with a fly in reach shoots its
+tongue out, eats it and gulps; the fly comes back somewhere else a few seconds later.
+`Pause motion` freezes the whole pond, `Reset` reshuffles the hero.
 
 ## Design
 
-White water, always. (A dark token set is kept in the stylesheet under `html[data-theme="dark"]`, unused; there is no switch.) Two roles keep their colours across the whole site:
+Green water under white cards, always. (A dark token set is kept in the stylesheet under `html[data-theme="dark"]`, unused; there is no switch.) Two roles keep their colours across the whole site:
 
 - **Gold `#F0B35B` is the stock**: the stock tags, the active tile, the "Trade" button, the stock
   side of every quote.
 - **Ion cyan `#5DE1FF` is the new token**: the token side, "new" badges, links, the active step.
 - The primary button is ink, like the reference sites.
 - Green and red are reserved for market direction and for Buy / Sell.
-- The ground is the lake. Sections and other pages sit on a translucent white sheet (`.bd-sheet`,
-  `main` on the other pages) with a blur behind it, so the water shows at the edges.
+- The ground is the pond, in greens (`#A9D7C8` → `#5E9D8A`), never blue. Cards are white with a
+  soft shadow; section labels get a white pill so they read on the water.
 - Each frog is painted in its company's colour (NVIDIA green, Tesla red, Amazon orange, Robinhood
   lime, and so on) and carries the company's real logo on a white badge on its back. Nine of the marks come from
   the `simple-icons` package, embedded as paths in `LOGOS` in `app.js`; Amazon, Microsoft and the
@@ -142,9 +143,10 @@ data to reset it.
   one time in five on a lily pad. Leg kicks, the landing squash, blinking and the throat are CSS
   animations keyed to the state classes. The loop pauses when the hero is off screen or the tab is
   hidden; under `prefers-reduced-motion` the frogs sit still, still clickable.
-- **The lake** (`lake`): built by the script on every page and prepended to `.bd`, so the eight
+- **The pond** (`lake`): built by the script on every page and prepended to `.bd`, so the eight
   pages share it without markup. Pad positions come from a fixed seed, so moving between pages does
-  not reshuffle them. `Pause motion` in the hero pauses the lake too.
+  not reshuffle them. It owns the flies (`lake.flies`, `lake.nearestFly`, `lake.eat`) and the little
+  frogs; `tongue()` draws a strike in any container. `Pause motion` in the hero pauses it all.
 - **Quality pass**: `/impeccable` (a project skill in `.claude/skills/impeccable/`) parses the
   scripts, cross-checks ids and links, and drives every page and the launch → trade → playground
   loop in Chromium. Run it before a deploy.

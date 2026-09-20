@@ -413,41 +413,156 @@
   const lake = (() => {
     const root = $('.bd'); if (!root) return null;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const small = innerWidth < 900;
     const el = document.createElement('div'); el.className = 'bd-lake'; el.setAttribute('aria-hidden', 'true');
     el.innerHTML = `<i class="bd-lake-water"></i><i class="bd-lake-caustics"></i><i class="bd-lake-caustics bd-lake-caustics2"></i><i class="bd-lake-shimmer"></i><i class="bd-lake-glare"></i><i class="bd-lake-depth"></i>
-      <svg width="0" height="0" style="position:absolute"><defs><filter id="bd-water" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="7" result="n"><animate attributeName="baseFrequency" values="0.006 0.012;0.008 0.015;0.006 0.012" dur="14s" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="28" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>`;
-    // lily pads: the same spread on every page, so moving between pages does not reshuffle the lake
+      <svg width="0" height="0" style="position:absolute"><defs>
+        <filter id="bd-water" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="7" result="n"><animate attributeName="baseFrequency" values="0.006 0.012;0.008 0.015;0.006 0.012" dur="14s" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="28" xChannelSelector="R" yChannelSelector="G"/></filter>
+        <radialGradient id="bd-padg" cx="42%" cy="38%" r="70%"><stop offset="0" stop-color="#9FD27F"/><stop offset=".55" stop-color="#5FA34B"/><stop offset="1" stop-color="#3B7A34"/></radialGradient>
+        <radialGradient id="bd-petal" cx="50%" cy="85%" r="80%"><stop offset="0" stop-color="#FFE3EE"/><stop offset=".6" stop-color="#F7A3C4"/><stop offset="1" stop-color="#E56A9E"/></radialGradient>
+      </defs></svg>`;
     let seed = 20260920; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-    const small = innerWidth < 900;
-    const spots = small ? [[12, 30], [88, 22], [10, 78], [86, 70], [50, 92]] : [[8, 18], [26, 78], [14, 52], [90, 16], [78, 62], [94, 88], [50, 94], [64, 8], [38, 30]];
-    for (const [l, t] of spots) {
-      const p = document.createElement('i'); p.className = 'bd-lily'; p.setAttribute('data-pad', '');
+    // cloud reflections
+    for (let k = 0; k < (small ? 2 : 4); k++) { const m = document.createElement('i'); m.className = 'bd-lake-cloud'; m.style.cssText = `--w:${(26 + rnd() * 22).toFixed(0)}vw; --t:${(rnd() * 80).toFixed(0)}%; --d:${(90 + rnd() * 70).toFixed(0)}s; --dl:${(-rnd() * 120).toFixed(0)}s`; el.appendChild(m); }
+    // lily pads, the same spread on every page
+    const padSVG = (flower) => `<svg viewBox="0 0 100 100">
+      <path d="M50 50 L98.07 36.22 A50 50 0 1 1 98.07 63.78 Z" fill="url(#bd-padg)" stroke="rgba(0,0,0,.22)" stroke-width=".8"/>
+      <g stroke="rgba(0,0,0,.18)" stroke-width=".9" fill="none">${[...Array(12)].map((_, i) => { const t = -160 + i * 29; if (t > -18 && t < 18) return ''; const r = t * Math.PI / 180; return `<path d="M50 50 Q${(50 + Math.cos(r - .12) * 28).toFixed(1)} ${(50 + Math.sin(r - .12) * 28).toFixed(1)} ${(50 + Math.cos(r) * 46).toFixed(1)} ${(50 + Math.sin(r) * 46).toFixed(1)}"/>`; }).join('')}</g>
+      <path d="M50 50 L98.07 36.22 A50 50 0 1 1 98.07 63.78 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" style="mix-blend-mode:screen"/>
+      ${flower ? `<g class="bd-lotus" transform="translate(38 40) scale(.55)">${[...Array(8)].map((_, i) => `<ellipse cx="50" cy="26" rx="11" ry="26" fill="url(#bd-petal)" stroke="rgba(0,0,0,.12)" stroke-width=".8" transform="rotate(${i * 45} 50 50)"/>`).join('')}${[...Array(6)].map((_, i) => `<ellipse cx="50" cy="32" rx="8" ry="19" fill="url(#bd-petal)" transform="rotate(${22 + i * 60} 50 50)"/>`).join('')}<circle cx="50" cy="50" r="9" fill="#F6D35A"/><circle cx="50" cy="50" r="5" fill="#E7B62D"/></g>` : ''}
+    </svg>`;
+    const spots = small ? [[12, 30, 1], [88, 22, 0], [10, 78, 1], [86, 70, 1], [50, 92, 0]] : [[8, 18, 1], [26, 78, 0], [14, 52, 1], [90, 16, 0], [78, 62, 1], [94, 88, 1], [50, 94, 0], [64, 8, 1], [38, 30, 0]];
+    for (const [l, t, flower] of spots) {
+      const p = document.createElement('i'); p.className = 'bd-lily'; p.setAttribute('data-pad', ''); p.innerHTML = padSVG(flower);
       const s = (small ? 70 : 100) + rnd() * (small ? 50 : 120);
       p.style.cssText = `--s:${s.toFixed(0)}px; --l:${l}%; --t:${t}%; --r:${(rnd() * 360).toFixed(0)}deg; --d:${(9 + rnd() * 8).toFixed(1)}s; --dx:${((rnd() - .5) * 40).toFixed(0)}px; --dy:${((rnd() - .5) * 30).toFixed(0)}px`;
       el.appendChild(p);
+      for (let k = 0; k < 3; k++) { const w = document.createElement('i'); w.className = 'bd-weed'; w.style.cssText = `left:calc(${l}% + ${((rnd() - .5) * s * 1.6).toFixed(0)}px); top:calc(${t}% + ${((rnd() - .5) * s * 1.6).toFixed(0)}px)`; el.appendChild(w); }
     }
-    // motes of pollen drifting on the surface
-    for (let k = 0; k < (small ? 8 : 18); k++) {
-      const m = document.createElement('i'); m.className = 'bd-mote';
-      m.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(rnd() * 100).toFixed(1)}%; --d:${(14 + rnd() * 16).toFixed(1)}s; --dl:${(-rnd() * 20).toFixed(1)}s; --mx:${((rnd() - .5) * 220).toFixed(0)}px; --my:${((rnd() - .5) * 160).toFixed(0)}px`;
-      el.appendChild(m);
-    }
+    // reeds along both banks
+    const reeds = small ? [[2, 160, -4], [5, 120, 3], [93, 150, 2], [97, 110, -3]] : [[1, 240, -5], [3, 190, 2], [5.5, 280, -2], [8, 150, 4], [92, 210, 3], [94.5, 270, -3], [97, 170, 5], [99, 230, -2]];
+    reeds.forEach(([l, h, r], i) => { const d = document.createElement('i'); d.className = 'bd-reed' + (i % 3 === 1 ? ' is-leaf' : ''); d.style.cssText = `--l:${l}%; --h:${h}px; --r:${r}deg; --d:${(4 + rnd() * 3).toFixed(1)}s`; el.appendChild(d); });
+    // motes of pollen
+    for (let k = 0; k < (small ? 8 : 18); k++) { const m = document.createElement('i'); m.className = 'bd-mote'; m.style.cssText = `left:${(rnd() * 100).toFixed(1)}%; top:${(rnd() * 100).toFixed(1)}%; --d:${(14 + rnd() * 16).toFixed(1)}s; --dl:${(-rnd() * 20).toFixed(1)}s; --mx:${((rnd() - .5) * 220).toFixed(0)}px; --my:${((rnd() - .5) * 160).toFixed(0)}px`; el.appendChild(m); }
     root.prepend(el);
     let paused = false;
     if (!reduced) setInterval(() => {
       if (paused || document.hidden) return;
-      const r = document.createElement('i'); r.className = 'bd-ring';
-      r.style.left = (Math.random() * 100) + '%'; r.style.top = (Math.random() * 100) + '%';
+      const r = document.createElement('i'); r.className = 'bd-ring'; r.style.left = (Math.random() * 100) + '%'; r.style.top = (Math.random() * 100) + '%';
       el.appendChild(r); setTimeout(() => r.remove(), 3300);
     }, 1300);
-    return { el, pause: v => { paused = v; el.classList.toggle('is-paused', v); }, pads: () => $$('[data-pad]', el) };
+
+    /* flies: they buzz around a slowly drifting point, in viewport coordinates */
+    const flies = [];
+    if (!reduced) {
+      for (let k = 0; k < (small ? 3 : 6); k++) {
+        const f = document.createElement('i'); f.className = 'bd-fly'; el.appendChild(f);
+        flies.push({ el: f, cx: Math.random() * innerWidth, cy: 120 + Math.random() * (innerHeight - 200), x: 0, y: 0, p1: Math.random() * 6, p2: Math.random() * 6, vx: 0, vy: 0, eaten: 0 });
+      }
+      let last = performance.now();
+      const step = now => {
+        const dt = paused || document.hidden ? 0 : Math.min(.05, (now - last) / 1000); last = now; const t = now / 1000;
+        for (const f of flies) {
+          if (f.eaten) { if (t > f.eaten) { f.eaten = 0; f.cx = Math.random() * innerWidth; f.cy = 120 + Math.random() * (innerHeight - 200); f.el.classList.remove('is-eaten'); } else continue; }
+          f.vx += (Math.random() - .5) * 60 * dt; f.vy += (Math.random() - .5) * 60 * dt; f.vx *= .98; f.vy *= .98;
+          f.cx += f.vx * dt; f.cy += f.vy * dt;
+          if (f.cx < 20 || f.cx > innerWidth - 20) f.vx *= -1; if (f.cy < 110 || f.cy > innerHeight - 30) f.vy *= -1;
+          f.cx = clamp(f.cx, 20, innerWidth - 20); f.cy = clamp(f.cy, 110, innerHeight - 30);
+          f.x = f.cx + Math.sin(t * 7 + f.p1) * 14 + Math.sin(t * 13 + f.p2) * 5; f.y = f.cy + Math.cos(t * 9 + f.p2) * 10 + Math.sin(t * 17 + f.p1) * 4;
+          f.el.style.setProperty('--x', f.x.toFixed(1) + 'px'); f.el.style.setProperty('--y', f.y.toFixed(1) + 'px');
+        }
+        requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    const nearestFly = (x, y, r) => { let best = null, bd = r; for (const f of flies) { if (f.eaten) continue; const d = Math.hypot(f.x - x, f.y - y); if (d < bd) { bd = d; best = f; } } return best; };
+    const eat = f => { f.eaten = performance.now() / 1000 + 4 + Math.random() * 6; f.el.classList.add('is-eaten'); };
+    return { el, flies, nearestFly, eat, pause: v => { paused = v; el.classList.toggle('is-paused', v); }, pads: () => $$('[data-pad]', el) };
   })();
 
-  // the home page: everything after the hero rides on one translucent sheet
-  if (document.body.dataset.page === 'home') {
-    const main = $('.bd > main'); const hero = $('#hero');
-    if (main && hero) { const sheet = document.createElement('div'); sheet.className = 'bd-sheet'; while (hero.nextElementSibling) sheet.appendChild(hero.nextElementSibling); main.appendChild(sheet); }
-  }
+  /* a frog shoots its tongue from its mouth to a point, in its own container's coordinates */
+  const tongue = (container, mx, my, tx, ty, done) => {
+    const d = Math.hypot(tx - mx, ty - my), ang = Math.atan2(ty - my, tx - mx) * 180 / Math.PI;
+    const t = document.createElement('i'); t.className = 'bd-tongue'; t.style.cssText = `left:${mx}px; top:${my}px; width:${d}px; transform: rotate(${ang}deg) scaleX(0)`;
+    container.appendChild(t);
+    const anim = t.animate([{ transform: `rotate(${ang}deg) scaleX(0)` }, { transform: `rotate(${ang}deg) scaleX(1)`, offset: .45 }, { transform: `rotate(${ang}deg) scaleX(1)`, offset: .6 }, { transform: `rotate(${ang}deg) scaleX(0)` }], { duration: 320, easing: 'ease-out' });
+    setTimeout(done, 150); anim.onfinish = () => t.remove();
+  };
+
+  // the frog, seen from above, facing +x: shared by the hero and the lake
+  const FROG_SVG = (s) => {
+    const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <g class="bd-frog-hind bd-frog-hind-l"><path class="bd-frog-leg" d="M30 40 C14 30, 6 36, 10 46 C14 54, 26 52, 34 46 Z"/><path class="bd-frog-toe" d="M10 46 L2 40 L7 47 L1 47 L8 50 L3 55 L11 50 Z"/></g>
+      <g class="bd-frog-hind bd-frog-hind-r"><path class="bd-frog-leg" d="M30 60 C14 70, 6 64, 10 54 C14 46, 26 48, 34 54 Z"/><path class="bd-frog-toe" d="M10 54 L2 60 L7 53 L1 53 L8 50 L3 45 L11 50 Z"/></g>
+      <g class="bd-frog-fore bd-frog-fore-l"><path class="bd-frog-leg" d="M64 36 C70 28, 80 26, 84 30 C80 34, 74 38, 66 40 Z"/><path class="bd-frog-toe" d="M84 30 L92 26 L86 32 L93 32 L85 34 Z"/></g>
+      <g class="bd-frog-fore bd-frog-fore-r"><path class="bd-frog-leg" d="M64 64 C70 72, 80 74, 84 70 C80 66, 74 62, 66 60 Z"/><path class="bd-frog-toe" d="M84 70 L92 74 L86 68 L93 68 L85 66 Z"/></g>
+      <path class="bd-frog-body" d="M20 50 C20 30, 40 24, 56 26 C74 26, 88 36, 90 50 C88 64, 74 74, 56 74 C40 76, 20 70, 20 50 Z"/>
+      <path class="bd-frog-back" d="M28 44 C36 32, 60 30, 78 40 C62 36, 40 38, 28 44 Z"/>
+      <circle class="bd-frog-spot" cx="34" cy="60" r="3"/><circle class="bd-frog-spot" cx="66" cy="36" r="2.4"/><circle class="bd-frog-spot" cx="64" cy="66" r="2.8"/>
+      <ellipse class="bd-frog-throat" cx="82" cy="50" rx="6" ry="7"/>
+      <g><circle class="bd-frog-eye" cx="74" cy="34" r="7.5"/><circle class="bd-frog-iris" cx="75" cy="34" r="4.6"/><ellipse class="bd-frog-pupil" cx="75.6" cy="34" rx="1.8" ry="3.4"/><circle cx="73.4" cy="32" r="1.2" fill="#fff"/><rect class="bd-frog-lid" x="66.5" y="26.5" width="15" height="15" rx="7.5"/></g>
+      <g><circle class="bd-frog-eye" cx="74" cy="66" r="7.5"/><circle class="bd-frog-iris" cx="75" cy="66" r="4.6"/><ellipse class="bd-frog-pupil" cx="75.6" cy="66" rx="1.8" ry="3.4"/><circle cx="73.4" cy="64" r="1.2" fill="#fff"/><rect class="bd-frog-lid" x="66.5" y="58.5" width="15" height="15" rx="7.5"/></g>
+      <circle cx="87" cy="46" r="1.1" fill="rgba(0,0,0,.45)"/><circle cx="87" cy="54" r="1.1" fill="rgba(0,0,0,.45)"/>
+      <path d="M82 42 Q90 50 82 58" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="1.2"/>
+      <g class="bd-frog-badge" transform="translate(30 36)"><circle cx="14" cy="14" r="14" fill="#fff"/><g transform="translate(4.6 4.6) scale(0.78)" fill="${logo.fill}">${logo.svg}</g></g>
+    </svg>`;
+  };
+
+
+  /* =====================================================================
+     THE LITTLE FROGS — small ones that hop about on the lake behind every
+     page, the way the reference sites float small balloons through the
+     whole scroll. Not interactive; they only keep the water alive.
+     ===================================================================== */
+  if (lake && !matchMedia('(prefers-reduced-motion: reduce)').matches) (() => {
+    const layer = lake.el, small = innerWidth < 900;
+    const N = small ? 5 : 9;
+    const list = [];
+    for (let i = 0; i < N; i++) {
+      const s = STOCKS[(i * 5) % STOCKS.length];
+      const el = document.createElement('i'); el.className = 'bd-frog';
+      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .9) + 's'); el.innerHTML = FROG_SVG(s);
+      layer.appendChild(el);
+      const size = (small ? 30 : 38) + Math.random() * (small ? 16 : 24);
+      list.push({ el, size, x: Math.random() * innerWidth, y: Math.random() * innerHeight, a: Math.random() * 6.28, h: 0, state: 'idle', wait: Math.random() * 4, from: null, to: null, t: 0, dur: .6 });
+    }
+    const render = f => {
+      f.el.style.setProperty('--x', (f.x - f.size / 2).toFixed(1) + 'px'); f.el.style.setProperty('--y', (f.y - f.size / 2).toFixed(1) + 'px');
+      f.el.style.setProperty('--rot', (f.a * 180 / Math.PI).toFixed(1) + 'deg'); f.el.style.setProperty('--h', f.h.toFixed(3)); f.el.style.setProperty('--s', f.size + 'px');
+    };
+    const hop = f => {
+      const W = innerWidth, H = innerHeight, m = 30;
+      for (let k = 0; k < 20; k++) {
+        const d = 50 + Math.random() * 170, ang = Math.random() * 6.28, x = f.x + Math.cos(ang) * d, y = f.y + Math.sin(ang) * d;
+        if (x < m || x > W - m || y < 100 || y > H - m) continue;
+        f.from = { x: f.x, y: f.y }; f.to = { x, y }; f.t = 0; f.a = Math.atan2(y - f.y, x - f.x); f.dur = .45 + d / 500;
+        f.el.style.setProperty('--dur', f.dur + 's'); f.state = 'hop'; f.el.classList.add('is-hop'); return;
+      }
+      f.x = innerWidth * Math.random(); f.y = 120 + Math.random() * (innerHeight - 160); f.wait = 1;
+    };
+    let last = performance.now();
+    const step = now => {
+      const paused = layer.classList.contains('is-paused') || document.hidden;
+      const dt = paused ? 0 : Math.min(.05, (now - last) / 1000); last = now;
+      for (const f of list) {
+        if (f.state === 'idle') {
+          f.wait -= dt;
+          if (dt && (!f.cool || now > f.cool)) { const fly = lake.nearestFly(f.x, f.y, f.size * 2.6); if (fly) { f.cool = now + 2500; f.a = Math.atan2(fly.y - f.y, fly.x - f.x); f.wait = Math.max(f.wait, .8); render(f); tongue(layer, f.x + Math.cos(f.a) * f.size * .4, f.y + Math.sin(f.a) * f.size * .4, fly.x, fly.y, () => { lake.eat(fly); f.el.classList.add('is-gulp'); setTimeout(() => f.el.classList.remove('is-gulp'), 400); }); } }
+          if (f.wait <= 0) hop(f);
+        }
+        else if (f.state === 'hop' && dt) {
+          f.t = Math.min(1, f.t + dt / f.dur);
+          const e = f.t < .5 ? 2 * f.t * f.t : 1 - Math.pow(-2 * f.t + 2, 2) / 2;
+          f.x = f.from.x + (f.to.x - f.from.x) * e; f.y = f.from.y + (f.to.y - f.from.y) * e; f.h = Math.sin(Math.PI * f.t);
+          if (f.t >= 1) { f.h = 0; f.state = 'idle'; f.wait = 1.5 + Math.random() * 5; f.el.classList.remove('is-hop'); f.el.classList.add('is-land'); setTimeout(() => f.el.classList.remove('is-land'), 340); }
+        }
+        render(f);
+      }
+      requestAnimationFrame(step);
+    };
+    list.forEach(render); requestAnimationFrame(step);
+  })();
 
   /* =====================================================================
      THE FROGS — the hero scene. Each frog is a stock. It sits, picks a
@@ -459,25 +574,6 @@
     const scene = $('#scene'), label = $('#fish-label'), hero = $('#hero'), copy = $('.bd-hero-in');
     if (!scene) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const FROG_SVG = (s) => {
-      const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
-      return `<svg viewBox="0 0 100 100" aria-hidden="true">
-        <g class="bd-frog-hind bd-frog-hind-l"><path class="bd-frog-leg" d="M30 40 C14 30, 6 36, 10 46 C14 54, 26 52, 34 46 Z"/><path class="bd-frog-toe" d="M10 46 L2 40 L7 47 L1 47 L8 50 L3 55 L11 50 Z"/></g>
-        <g class="bd-frog-hind bd-frog-hind-r"><path class="bd-frog-leg" d="M30 60 C14 70, 6 64, 10 54 C14 46, 26 48, 34 54 Z"/><path class="bd-frog-toe" d="M10 54 L2 60 L7 53 L1 53 L8 50 L3 45 L11 50 Z"/></g>
-        <g class="bd-frog-fore bd-frog-fore-l"><path class="bd-frog-leg" d="M64 36 C70 28, 80 26, 84 30 C80 34, 74 38, 66 40 Z"/><path class="bd-frog-toe" d="M84 30 L92 26 L86 32 L93 32 L85 34 Z"/></g>
-        <g class="bd-frog-fore bd-frog-fore-r"><path class="bd-frog-leg" d="M64 64 C70 72, 80 74, 84 70 C80 66, 74 62, 66 60 Z"/><path class="bd-frog-toe" d="M84 70 L92 74 L86 68 L93 68 L85 66 Z"/></g>
-        <path class="bd-frog-body" d="M20 50 C20 30, 40 24, 56 26 C74 26, 88 36, 90 50 C88 64, 74 74, 56 74 C40 76, 20 70, 20 50 Z"/>
-        <path class="bd-frog-back" d="M28 44 C36 32, 60 30, 78 40 C62 36, 40 38, 28 44 Z"/>
-        <circle class="bd-frog-spot" cx="34" cy="60" r="3"/><circle class="bd-frog-spot" cx="66" cy="36" r="2.4"/><circle class="bd-frog-spot" cx="64" cy="66" r="2.8"/>
-        <ellipse class="bd-frog-throat" cx="82" cy="50" rx="6" ry="7"/>
-        <g><circle class="bd-frog-eye" cx="74" cy="34" r="7.5"/><circle class="bd-frog-iris" cx="75" cy="34" r="4.6"/><ellipse class="bd-frog-pupil" cx="75.6" cy="34" rx="1.8" ry="3.4"/><circle cx="73.4" cy="32" r="1.2" fill="#fff"/><rect class="bd-frog-lid" x="66.5" y="26.5" width="15" height="15" rx="7.5"/></g>
-        <g><circle class="bd-frog-eye" cx="74" cy="66" r="7.5"/><circle class="bd-frog-iris" cx="75" cy="66" r="4.6"/><ellipse class="bd-frog-pupil" cx="75.6" cy="66" rx="1.8" ry="3.4"/><circle cx="73.4" cy="64" r="1.2" fill="#fff"/><rect class="bd-frog-lid" x="66.5" y="58.5" width="15" height="15" rx="7.5"/></g>
-        <circle cx="87" cy="46" r="1.1" fill="rgba(0,0,0,.45)"/><circle cx="87" cy="54" r="1.1" fill="rgba(0,0,0,.45)"/>
-        <path d="M82 42 Q90 50 82 58" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="1.2"/>
-        <g class="bd-frog-badge" transform="translate(30 36)"><circle cx="14" cy="14" r="14" fill="#fff"/><g transform="translate(4.6 4.6) scale(0.78)" fill="${logo.fill}">${logo.svg}</g></g>
-      </svg>`;
-    };
-
     let W = 0, H = 0, top = 0, bottom = 0, avoid = null, pads = [], paused = false, running = true, selected = null, hovered = null;
     const frogs = STOCKS.map((s, i) => {
       const el = document.createElement('button');
@@ -543,7 +639,14 @@
       const dt = paused ? 0 : Math.min(.05, (now - last) / 1000); last = now;
       for (const f of frogs) {
         if (f.state === 'drag') { render(f); continue; }
-        if (f.state === 'idle' && dt) { f.wait -= dt; if (f.wait <= 0 && !reduced) hop(f); }
+        if (f.state === 'idle' && dt) {
+          f.wait -= dt;
+          if (lake && (!f.cool || now > f.cool)) {
+            const sr = scene.getBoundingClientRect(); const fly = lake.nearestFly(f.x + sr.left, f.y + sr.top, f.size * 1.9);
+            if (fly) { f.cool = now + 2200; const tx = fly.x - sr.left, ty = fly.y - sr.top; f.a = Math.atan2(ty - f.y, tx - f.x); f.wait = Math.max(f.wait, .9); render(f); tongue(scene, f.x + Math.cos(f.a) * f.size * .4, f.y + Math.sin(f.a) * f.size * .4, tx, ty, () => { lake.eat(fly); f.el.classList.add('is-gulp'); setTimeout(() => f.el.classList.remove('is-gulp'), 400); }); }
+          }
+          if (f.wait <= 0 && !reduced) hop(f);
+        }
         else if (f.state === 'hop' && dt) {
           f.t = Math.min(1, f.t + dt / f.dur);
           const e = f.t < .5 ? 2 * f.t * f.t : 1 - Math.pow(-2 * f.t + 2, 2) / 2;   // ease in-out

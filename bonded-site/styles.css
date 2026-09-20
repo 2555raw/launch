@@ -7,9 +7,9 @@
    switch. */
 
 * { box-sizing: border-box; }
-html { color-scheme: light; background: #FFFFFF; scroll-behavior: smooth; }
+html { color-scheme: light; background: #7FB7A6; scroll-behavior: smooth; }
 html[data-theme="dark"] { color-scheme: dark; background: #0A0C10; }
-body { margin: 0; background: #FFFFFF; color: #131720; }
+body { margin: 0; background: #7FB7A6; color: #131720; }
 html[data-theme="dark"] body { background: #0A0C10; color: #F2F5F9; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; }
@@ -188,26 +188,22 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .bd-scene { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
 .bd-scene > i { position: absolute; display: block; }
 /* lily pads (drawn by the lake layer; the hero only borrows the class) */
-.bd-lily { position: absolute; width: var(--s); height: var(--s); left: var(--l); top: var(--t); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle at 42% 38%, #A4DB8A, #6DB55A 55%, #4E9442 100%);
-  clip-path: polygon(50% 50%, 100% 36%, 100% 0, 0 0, 0 100%, 100% 100%, 100% 64%);
-  box-shadow: 0 14px 22px rgba(19,23,32,.16), inset 0 -6px 12px rgba(0,0,0,.14);
-  transform: rotate(var(--r)); }
-.bd-lily::before { content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: .45;
-  background: repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg 17deg, rgba(0,0,0,.18) 17deg 19deg, transparent 19deg 36deg); }
-.bd-lily::after { content: ""; position: absolute; left: 22%; top: 20%; width: 34%; height: 34%; border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, #FFF3A8 0 22%, #F9A8C9 24% 55%, #E96FA6 100%);
-  box-shadow: 0 0 0 4px rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.2); }
 /* landing marks */
-.bd-ripple { position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(19,23,32,.2); transform: translate(-50%, -50%) scale(.2); opacity: .9; pointer-events: none; animation: bdRipple 1s ease-out forwards; }
-.bd-dust { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(19,23,32,.25); pointer-events: none; animation: bdSplash .6s ease-out forwards; }
+.bd-ripple { position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,.85); transform: translate(-50%, -50%) scale(.2); opacity: .9; pointer-events: none; animation: bdRipple 1s ease-out forwards; }
+.bd-dust { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.9); pointer-events: none; animation: bdSplash .6s ease-out forwards; }
 @keyframes bdRipple { to { transform: translate(-50%, -50%) scale(2.6); opacity: 0; } }
 @keyframes bdSplash { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   .bd-lily { animation: bdDriftPad var(--d) ease-in-out infinite alternate; }
+  .bd-lake-cloud { animation: bdDrift var(--d) linear infinite; animation-delay: var(--dl); }
+  .bd-reed { animation: bdSway var(--d, 5s) ease-in-out infinite alternate; }
+  .bd-lily .bd-lotus { animation: bdLotus 6s ease-in-out infinite alternate; }
   .is-paused > i, .is-paused .bd-ripple, .is-paused .bd-dust, .is-paused .bd-frog * { animation-play-state: paused !important; }
 }
 @keyframes bdDriftPad { to { transform: rotate(calc(var(--r) + 7deg)) translate(var(--dx, 14px), var(--dy, 8px)); } }
+@keyframes bdDrift { to { transform: translateX(180vw); } }
+@keyframes bdSway { from { transform: rotate(calc(var(--r, 0deg) - 2.5deg)); } to { transform: rotate(calc(var(--r, 0deg) + 2.5deg)); } }
+@keyframes bdLotus { to { transform: scale(1.06) rotate(4deg); } }
 /* the frog, seen from above, facing +x */
 .bd-frog {
   position: absolute; left: 0; top: 0; width: var(--s, 110px); height: var(--s, 110px); border: 0; background: none; padding: 0;
@@ -368,6 +364,8 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 .bd-section { padding: 88px 0; }
 .bd-section-alt { background: var(--bg-alt); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .bd-head { max-width: 640px; margin-bottom: 40px; }
+.bd-head .bd-label, .bd-page-head .bd-label, .bd-head-row .bd-label, .bd-live-head + .bd-label, .bd-mine h3 { }
+.bd-head > .bd-label, .bd-page-head .bd-label { display: inline-block; padding: 4px 9px; border-radius: 7px; background: rgba(255,255,255,.82); color: #4A5565; }
 .bd-head h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; line-height: 1.05; font-size: clamp(30px, 4vw, 46px); margin: 12px 0 14px; }
 .bd-head p { font-size: 16px; line-height: 1.6; color: var(--prose); margin: 0; }
 .bd-head-row { display: flex; align-items: end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; }
@@ -760,7 +758,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 }
 @media (max-width: 900px) {
   .bd-hero { min-height: 100vh; padding: 104px 0 40vh; align-items: flex-start; }
-  .bd-lake-shimmer { display: none; }
+  .bd-lake-shimmer, .bd-lake-cloud { display: none; }
   .bd-hero-foot { font-size: 10px; padding: 0 16px; bottom: 14px; }
   .bd-hero-foot .bd-scroll, .bd-hero-foot > div:nth-child(2) { display: none; }
   .bd-hero h1 { font-size: clamp(44px, 13vw, 60px); }
@@ -789,28 +787,56 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 .bd-lake > i { position: absolute; display: block; }
 .bd-lake-water { inset: 0;
   background:
-    radial-gradient(ellipse 40% 40% at 12% 86%, #EEF2F5, transparent 70%),
-    radial-gradient(ellipse 45% 40% at 90% 30%, #F3F6F8, transparent 70%),
-    radial-gradient(ellipse 36% 30% at 72% 90%, #ECF0F3, transparent 70%),
-    linear-gradient(180deg, #FFFFFF 0%, #FAFBFC 45%, #F4F6F8 100%); }
-.bd-lake-caustics { inset: -12%; opacity: .42; filter: blur(1.4px);
+    radial-gradient(ellipse 60% 40% at 50% 8%, rgba(255,255,255,.28), transparent 70%),
+    radial-gradient(ellipse 42% 36% at 10% 84%, #3E7D6C, transparent 70%),
+    radial-gradient(ellipse 40% 34% at 88% 26%, #9ED2C0, transparent 70%),
+    radial-gradient(ellipse 34% 28% at 74% 88%, #35705F, transparent 70%),
+    radial-gradient(ellipse 30% 26% at 28% 40%, #6FAE9B, transparent 70%),
+    linear-gradient(180deg, #A9D7C8 0%, #7FB7A6 42%, #5E9D8A 100%); }
+.bd-lake-caustics { inset: -12%; opacity: .34; mix-blend-mode: screen; filter: blur(1.2px);
   background:
-    radial-gradient(ellipse 52% 44% at 50% 50%, rgba(120,135,150,0) 0 62%, rgba(120,135,150,.22) 68% 74%, rgba(120,135,150,0) 82%) 0 0 / 96px 82px,
-    radial-gradient(ellipse 46% 52% at 50% 50%, rgba(120,135,150,0) 0 60%, rgba(120,135,150,.16) 67% 72%, rgba(120,135,150,0) 80%) 47px 39px / 110px 96px; }
-.bd-lake-caustics2 { opacity: .3; filter: blur(2.2px);
+    radial-gradient(ellipse 52% 44% at 50% 50%, rgba(255,255,255,0) 0 62%, rgba(255,255,255,.85) 68% 74%, rgba(255,255,255,0) 82%) 0 0 / 96px 82px,
+    radial-gradient(ellipse 46% 52% at 50% 50%, rgba(255,255,255,0) 0 60%, rgba(255,255,255,.6) 67% 72%, rgba(255,255,255,0) 80%) 47px 39px / 110px 96px; }
+.bd-lake-caustics2 { opacity: .22; filter: blur(2.2px);
   background:
-    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(120,135,150,0) 0 60%, rgba(120,135,150,.24) 67% 71%, rgba(120,135,150,0) 80%) 22px 10px / 70px 62px,
-    radial-gradient(ellipse 48% 44% at 50% 50%, rgba(120,135,150,0) 0 64%, rgba(120,135,150,.14) 70% 75%, rgba(120,135,150,0) 84%) 0 0 / 170px 150px; }
-.bd-lake-shimmer { inset: -6%; opacity: .5; filter: url(#bd-water);
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,255,255,0) 0 60%, rgba(255,255,255,.9) 67% 71%, rgba(255,255,255,0) 80%) 22px 10px / 70px 62px,
+    radial-gradient(ellipse 48% 44% at 50% 50%, rgba(255,255,255,0) 0 64%, rgba(255,255,255,.5) 70% 75%, rgba(255,255,255,0) 84%) 0 0 / 170px 150px; }
+.bd-lake-shimmer { inset: -6%; opacity: .5; mix-blend-mode: screen; filter: url(#bd-water);
   background:
-    repeating-linear-gradient(176deg, transparent 0 46px, rgba(120,135,150,.08) 46px 52px, transparent 52px 118px),
-    repeating-linear-gradient(94deg, transparent 0 80px, rgba(120,135,150,.05) 80px 86px, transparent 86px 190px); }
-.bd-lake-glare { inset: 0; opacity: .9;
-  background: radial-gradient(ellipse 34% 16% at 76% 12%, rgba(255,255,255,1), transparent 70%), radial-gradient(ellipse 22% 10% at 24% 58%, rgba(255,255,255,.9), transparent 70%); }
-.bd-lake-depth { inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 60%, rgba(90,110,130,.08) 100%); }
-.bd-lake .bd-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid rgba(120,135,150,.35); transform: translate(-50%, -50%) scale(.15); opacity: .8; animation: bdLakeRing 3.2s ease-out forwards; }
+    repeating-linear-gradient(176deg, transparent 0 46px, rgba(255,255,255,.16) 46px 52px, transparent 52px 118px),
+    repeating-linear-gradient(94deg, transparent 0 80px, rgba(255,255,255,.09) 80px 86px, transparent 86px 190px); }
+.bd-lake-glare { inset: 0; mix-blend-mode: screen; opacity: .85;
+  background: radial-gradient(ellipse 34% 16% at 76% 12%, rgba(255,255,255,.8), transparent 70%), radial-gradient(ellipse 22% 10% at 24% 58%, rgba(255,255,255,.4), transparent 70%); }
+.bd-lake-depth { inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(20,60,50,.35) 100%); }
+/* reflections of clouds, drifting */
+.bd-lake-cloud { width: var(--w); height: calc(var(--w) * .28); top: var(--t); left: -40vw; border-radius: 50%; filter: blur(22px); opacity: .55;
+  background: rgba(255,255,255,.9); box-shadow: calc(var(--w) * .2) calc(var(--w) * .06) 0 -10px rgba(255,255,255,.8), calc(var(--w) * -.18) calc(var(--w) * .05) 0 -12px rgba(255,255,255,.75); }
+/* duckweed */
+.bd-weed { width: 7px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #B9E08C, #6FAE45 70%); box-shadow: 9px 3px 0 -1px #7CB84E, -7px 5px 0 -2px #8CC45A, 3px 10px 0 -2px #6FAE45; opacity: .9; }
+/* reeds at the banks */
+.bd-reed { bottom: -10px; left: var(--l); width: 8px; height: var(--h); transform-origin: 50% 100%; transform: rotate(var(--r, 0deg)); opacity: .85; }
+.bd-reed::before { content: ""; position: absolute; left: 3px; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: linear-gradient(180deg, #7FA25A, #4B7A3C 60%, #2F5A2C); }
+.bd-reed::after { content: ""; position: absolute; left: -1px; top: 6%; width: 10px; height: 20%; border-radius: 5px; background: linear-gradient(180deg, #7A4A2A, #5A3620); box-shadow: 0 2px 4px rgba(0,0,0,.25); }
+.bd-reed.is-leaf::after { display: none; }
+.bd-reed.is-leaf::before { width: 5px; left: 2px; border-radius: 50% 50% 0 0 / 100% 100% 0 0; background: linear-gradient(180deg, #8FB56A, #4B7A3C 60%, #2F5A2C); }
+/* lily pads: an SVG each, some with a lotus */
+.bd-lily { position: absolute; width: var(--s); height: var(--s); left: var(--l); top: var(--t); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); pointer-events: none; transform: rotate(var(--r)); filter: drop-shadow(0 8px 10px rgba(10,40,30,.35)); }
+.bd-lily svg { width: 100%; height: 100%; overflow: visible; }
+.bd-lily .bd-lotus { transform-box: fill-box; transform-origin: center; }
+/* flies */
+.bd-fly { position: absolute; width: 10px; height: 8px; transform: translate3d(var(--x), var(--y), 0); will-change: transform; transition: opacity .25s; }
+.bd-fly::before { content: ""; position: absolute; left: 2px; top: 2px; width: 6px; height: 4px; border-radius: 50%; background: #1D2229; }
+.bd-fly::after { content: ""; position: absolute; left: 0; top: -2px; width: 10px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.55); transform-origin: 50% 100%; animation: bdWings .08s linear infinite alternate; }
+@keyframes bdWings { from { transform: scaleX(.7) rotate(-14deg); } to { transform: scaleX(1) rotate(16deg); } }
+.bd-fly.is-eaten { opacity: 0; }
+/* the tongue */
+.bd-tongue { position: absolute; height: 7px; margin-top: -3.5px; border-radius: 4px; background: linear-gradient(90deg, #E2497F, #F27AA5); transform-origin: 0 50%; pointer-events: none; z-index: 7; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.bd-tongue::after { content: ""; position: absolute; right: -4px; top: -2.5px; width: 12px; height: 12px; border-radius: 50%; background: #F27AA5; }
+.bd-frog.is-gulp svg { animation: bdGulp .36s ease-out; }
+@keyframes bdGulp { 0% { transform: scale(1); } 35% { transform: scale(1.14, .92); } 70% { transform: scale(.96, 1.06); } 100% { transform: none; } }
+.bd-lake .bd-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.6); transform: translate(-50%, -50%) scale(.15); opacity: .8; animation: bdLakeRing 3.2s ease-out forwards; }
 @keyframes bdLakeRing { to { transform: translate(-50%, -50%) scale(3.2); opacity: 0; } }
-.bd-lake .bd-mote { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(120,135,150,.35); animation: bdMote var(--d) linear infinite; animation-delay: var(--dl); }
+.bd-lake .bd-mote { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.7); animation: bdMote var(--d) linear infinite; animation-delay: var(--dl); }
 @keyframes bdMote { from { transform: translate(0, 0); opacity: 0; } 10% { opacity: .8; } 90% { opacity: .6; } to { transform: translate(var(--mx), var(--my)); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   .bd-lake-caustics { animation: bdCaustics 12s ease-in-out infinite alternate; }
@@ -822,16 +848,16 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 @keyframes bdCaustics { to { transform: translate(-2.5%, 2%) scale(1.05); } }
 @keyframes bdGlint { to { transform: translateX(3%); opacity: .55; } }
 @keyframes bdShimmer { to { transform: translate(1.5%, -1%); } }
-/* everything that is not the hero sits on a translucent sheet over the lake */
+/* content sits straight on the lake: white cards, no sheet */
 .bd > main, .bd-footer, .bd-nav { position: relative; z-index: 1; }
-.bd-sheet { background: rgba(255,255,255,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 28px 28px 0 0; margin: 0 16px; box-shadow: 0 -16px 50px rgba(19,23,32,.06), 0 0 0 1px var(--line); overflow: hidden; }
-.bd-sheet + .bd-footer, .bd-sheet .bd-footer { margin: 0 16px; }
-body:not([data-page="home"]) .bd > main { background: rgba(255,255,255,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 28px; margin: 12px 16px 0; box-shadow: 0 16px 50px rgba(19,23,32,.06), 0 0 0 1px var(--line); overflow: hidden; padding-bottom: 8px; }
-.bd-footer { background: rgba(255,255,255,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin: 12px 16px 16px; border-radius: 24px; border-top: 0; box-shadow: 0 0 0 1px var(--line); }
-.bd-section-alt { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(246,248,251,.9); }
-.bd-toolbar { background: rgba(255,255,255,.92); }
+.bd-section-alt { border-top: 0; border-bottom: 0; background: transparent; }
+.bd-toolbar { background: rgba(255,255,255,.86); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 0 0 18px 18px; border-bottom: 1px solid var(--line); }
 .bd-proof { padding-top: 40px; }
-@media (max-width: 900px) {
-  .bd-sheet, body:not([data-page="home"]) .bd > main { margin-left: 8px; margin-right: 8px; border-radius: 20px 20px 0 0; }
-  .bd-footer { margin: 8px; }
-}
+.bd-footer { border-top: 1px solid var(--line); background: transparent; }
+.bd-faq details { background: rgba(255,255,255,.82); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; margin-bottom: 8px; }
+.bd-faq details p { margin-top: -4px; }
+.bd-docs-body { padding: 8px 0; }
+.bd-close-card { box-shadow: 0 20px 60px rgba(19,23,32,.06); }
+.bd-step, .bd-why-card, .bd-pair, .bd-element, .bd-check, .bd-contract, .bd-proof-grid, .bd-stat, .bd-panel, .bd-chart, .bd-trade, .bd-about, .bd-feed-item, .bd-stock-detail, .bd-paircard, .bd-mine-connect, .bd-close-card { box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+/* the little frogs that live on the lake, behind everything, on every page */
+.bd-lake .bd-frog { pointer-events: none; opacity: .92; }

@@ -559,7 +559,7 @@
     const swanState = { on: false, x: -999, y: -999, a: 0 };
     if (!reduced) {
       const swan = document.createElement('i'); swan.className = 'bd-swan';
-      swan.innerHTML = `<svg viewBox="0 0 200 140" aria-hidden="true">
+      const SWAN_SVG = `<svg viewBox="0 0 200 140" aria-hidden="true">
         <defs>
           <radialGradient id="bd-swanBody" cx="42%" cy="38%" r="70%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#F3F5F7"/><stop offset="1" stop-color="#C7CFD6"/></radialGradient>
           <linearGradient id="bd-swanWing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DDE3E8"/></linearGradient>
@@ -578,6 +578,33 @@
         <path d="M194 70 L199 69 L199 71 Z" fill="#111"/>
         <circle cx="160" cy="65.5" r="1.6" fill="#111"/><circle cx="160" cy="74.5" r="1.6" fill="#111"/>
       </svg>`;
+      // the crocodile, from above: only the back, the head and the eyes break the surface
+      const CROC_SVG = `<svg viewBox="0 0 260 140" aria-hidden="true">
+        <defs>
+          <linearGradient id="bd-crocBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B4D2E"/><stop offset=".5" stop-color="#2B3A22"/><stop offset="1" stop-color="#1C2717"/></linearGradient>
+          <radialGradient id="bd-crocHead" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#465A36"/><stop offset="1" stop-color="#24301D"/></radialGradient>
+        </defs>
+        <g class="bd-croc-wakeg"><path class="bd-croc-wake" d="M40 70 L-60 34"/><path class="bd-croc-wake" d="M40 70 L-60 106"/><path class="bd-croc-wake2" d="M30 70 L-80 46"/><path class="bd-croc-wake2" d="M30 70 L-80 94"/></g>
+        <path class="bd-croc-water" d="M0 70 C40 50 200 50 250 70 C200 90 40 90 0 70 Z"/>
+        <g class="bd-croc-tail"><path d="M70 62 C50 58 28 60 4 70 C28 80 50 82 70 78 Z" fill="url(#bd-crocBack)" stroke="rgba(0,0,0,.35)"/><path d="M14 70 L24 64 M24 70 L34 63 M34 70 L44 62 M44 70 L54 62 M14 70 L24 76 M24 70 L34 77 M34 70 L44 78 M44 70 L54 78" stroke="rgba(0,0,0,.35)" stroke-width="1.2" fill="none"/></g>
+        <path d="M68 56 C96 44 140 44 172 56 C180 62 180 78 172 84 C140 96 96 96 68 84 C60 78 60 62 68 56 Z" fill="url(#bd-crocBack)" stroke="rgba(0,0,0,.4)"/>
+        <g stroke="rgba(0,0,0,.4)" stroke-width="1" fill="rgba(0,0,0,.18)">
+          <path d="M80 60 l10 -4 l10 4 l-10 4 Z"/><path d="M104 58 l10 -4 l10 4 l-10 4 Z"/><path d="M128 58 l10 -4 l10 4 l-10 4 Z"/><path d="M152 60 l10 -4 l10 4 l-10 4 Z"/>
+          <path d="M80 80 l10 -4 l10 4 l-10 4 Z"/><path d="M104 82 l10 -4 l10 4 l-10 4 Z"/><path d="M128 82 l10 -4 l10 4 l-10 4 Z"/><path d="M152 80 l10 -4 l10 4 l-10 4 Z"/>
+          <path d="M92 70 l10 -4 l10 4 l-10 4 Z"/><path d="M116 70 l10 -4 l10 4 l-10 4 Z"/><path d="M140 70 l10 -4 l10 4 l-10 4 Z"/>
+        </g>
+        <path class="bd-croc-head" d="M170 58 C196 52 230 56 254 66 C258 68 258 72 254 74 C230 84 196 88 170 82 Z" fill="url(#bd-crocHead)" stroke="rgba(0,0,0,.45)"/>
+        <path d="M200 60 L252 66 M200 80 L252 74" stroke="rgba(0,0,0,.3)" fill="none"/>
+        <g stroke="rgba(0,0,0,.45)" fill="rgba(0,0,0,.2)"><path d="M186 60 l6 -3 l6 3 l-6 3 Z"/><path d="M186 80 l6 -3 l6 3 l-6 3 Z"/></g>
+        <ellipse cx="190" cy="56" rx="7" ry="5" fill="#3E5231" stroke="rgba(0,0,0,.45)"/><ellipse cx="190" cy="84" rx="7" ry="5" fill="#3E5231" stroke="rgba(0,0,0,.45)"/>
+        <ellipse class="bd-croc-eye" cx="190" cy="56" rx="3.6" ry="2.6"/><ellipse class="bd-croc-eye" cx="190" cy="84" rx="3.6" ry="2.6"/>
+        <ellipse cx="190" cy="56" rx="1" ry="2.4" fill="#0A0A0A"/><ellipse cx="190" cy="84" rx="1" ry="2.4" fill="#0A0A0A"/>
+        <circle cx="248" cy="67" r="1.4" fill="rgba(0,0,0,.6)"/><circle cx="248" cy="73" r="1.4" fill="rgba(0,0,0,.6)"/>
+      </svg>`;
+      const isNightNow = () => document.documentElement.classList.contains('is-night');
+      let skin = null;
+      const dress = () => { const want = isNightNow() ? 'croc' : 'swan'; if (skin === want) return; skin = want; swan.innerHTML = want === 'croc' ? CROC_SVG : SWAN_SVG; swan.classList.toggle('is-croc', want === 'croc'); };
+      dress(); document.addEventListener('bonded:night', () => { dress(); });
       el.appendChild(swan);
       let sw = { on: false, t: 0, next: 3 + Math.random() * 4 };
       const setOff = () => {
@@ -589,29 +616,42 @@
         const n = 2 + Math.floor(Math.random() * 2); const pts = [];
         for (let k = 1; k <= n; k++) { const t = k / (n + 1); pts.push({ x: from.x + (to.x - from.x) * t + (Math.random() - .5) * W * .28, y: from.y + (to.y - from.y) * t + (Math.random() - .5) * H * .36 }); }
         pts.push(to);
-        sw = { on: true, x: from.x, y: from.y, pts, i: 0, speed: 110 + Math.random() * 40, a: Math.atan2(pts[0].y - from.y, pts[0].x - from.x), next: 0 };
+        sw = { on: true, x: from.x, y: from.y, pts, i: 0, speed: (isNightNow() ? 70 : 110) + Math.random() * 40, a: Math.atan2(pts[0].y - from.y, pts[0].x - from.x), next: 0, born: performance.now() };
         swan.classList.add('is-on');
       };
       const wrap = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
       let last = performance.now();
       const step = now => {
         const dt = paused || document.hidden ? 0 : Math.min(.05, (now - last) / 1000); last = now;
-        const night = document.documentElement.classList.contains('is-night');
-        if (!sw.on) { if (!night) { sw.next -= dt; if (sw.next <= 0) setOff(); } }
-        else if (night) { sw = { on: false, next: 6 + Math.random() * 6 }; swanState.on = false; swan.classList.remove('is-on'); }
+        const wantSkin = isNightNow() ? 'croc' : 'swan';
+        if (!sw.on) { sw.next -= dt; if (sw.next <= 0) { dress(); setOff(); } }
+        else if (skin !== wantSkin) { sw = { on: false, next: 4 + Math.random() * 4 }; swanState.on = false; swan.classList.remove('is-on'); }
         else if (dt) {
           // head for the next waypoint (the last one is the exit), but steer round any frog ahead
           const tgt = sw.pts[sw.i]; if (sw.i < sw.pts.length - 1 && Math.hypot(tgt.x - sw.x, tgt.y - sw.y) < 60) sw.i++;
           let want = Math.atan2(sw.pts[sw.i].y - sw.y, sw.pts[sw.i].x - sw.x);
-          for (const r of swanState.obstacles ? swanState.obstacles() : []) {
-            const dx = r.x - sw.x, dy = r.y - sw.y, d = Math.hypot(dx, dy);
-            if (d < 170 && d > 1) { const rel = wrap(Math.atan2(dy, dx) - sw.a); if (Math.abs(rel) < 1.2) want -= Math.sign(rel || 1) * (1 - d / 170) * 1.1; }
+          let speed = sw.speed;
+          const obs = swanState.obstacles ? swanState.obstacles() : [];
+          if (skin === 'croc') {
+            // the crocodile hunts: it turns towards the nearest frog in range and lunges when close
+            let best = null, bd = 420;
+            for (const r of obs) { const d = Math.hypot(r.x - sw.x, r.y - sw.y); if (d < bd) { bd = d; best = r; } }
+            if (best) { want = Math.atan2(best.y - sw.y, best.x - sw.x); if (bd < 220) speed = sw.speed * 1.9; }
+          } else {
+            // the swan keeps its distance
+            for (const r of obs) {
+              const dx = r.x - sw.x, dy = r.y - sw.y, d = Math.hypot(dx, dy);
+              if (d < 170 && d > 1) { const rel = wrap(Math.atan2(dy, dx) - sw.a); if (Math.abs(rel) < 1.2) want -= Math.sign(rel || 1) * (1 - d / 170) * 1.1; }
+            }
           }
-          sw.a += wrap(want - sw.a) * Math.min(1, 2.2 * dt);
-          sw.x += Math.cos(sw.a) * sw.speed * dt; sw.y += Math.sin(sw.a) * sw.speed * dt + Math.sin(now / 700) * 10 * dt;
+          sw.a += wrap(want - sw.a) * Math.min(1, (skin === 'croc' ? 1.6 : 2.2) * dt);
+          sw.x += Math.cos(sw.a) * speed * dt; sw.y += Math.sin(sw.a) * speed * dt + Math.sin(now / 700) * 10 * dt;
+          // a hunter that has wandered off the pond leaves; the crossing ends past the edges either way
+          if (skin === 'croc') { const m = 260; if (sw.x < -m || sw.x > innerWidth + m || sw.y < -m || sw.y > innerHeight + m) sw.i = sw.pts.length - 1; }
           swanState.on = true; swanState.x = sw.x; swanState.y = sw.y; swanState.a = sw.a;
           swan.style.setProperty('--x', sw.x.toFixed(1) + 'px'); swan.style.setProperty('--y', sw.y.toFixed(1) + 'px'); swan.style.setProperty('--rot', (sw.a * 180 / Math.PI).toFixed(1) + 'deg');
-          const gone = sw.x < -260 || sw.x > innerWidth + 260 || sw.y < -260 || sw.y > innerHeight + 260;
+          const tired = skin === 'croc' && performance.now() - sw.born > 40000 && (sw.x < 80 || sw.x > innerWidth - 80 || sw.y < 80 || sw.y > innerHeight - 80);
+          const gone = tired || sw.x < -260 || sw.x > innerWidth + 260 || sw.y < -260 || sw.y > innerHeight + 260;
           if (gone) { sw = { on: false, next: 8 + Math.random() * 10 }; swanState.on = false; swan.classList.remove('is-on'); }
         }
         requestAnimationFrame(step);
@@ -838,7 +878,7 @@
         if (f.state === 'drag') { render(f); continue; }
         if (f.state === 'idle' && dt) {
           f.wait -= dt;
-          if (lake?.swan.on) { const sr = scene.getBoundingClientRect(); if (Math.hypot(lake.swan.x - sr.left - f.x, lake.swan.y - sr.top - f.y) < 150) { const to = flee(f); if (to) { f.from = { x: f.x, y: f.y }; f.to = to; f.t = 0; f.a = Math.atan2(to.y - f.y, to.x - f.x); f.dur = .42; f.el.style.setProperty('--dur', '.42s'); f.state = 'hop'; f.el.classList.remove('is-land'); f.el.classList.add('is-hop'); splashAt(scene, f.x, f.y, .5); render(f); continue; } } }
+          if (lake?.swan.on) { const sr = scene.getBoundingClientRect(); if (Math.hypot(lake.swan.x - sr.left - f.x, lake.swan.y - sr.top - f.y) < (document.documentElement.classList.contains('is-night') ? 210 : 150)) { const to = flee(f); if (to) { f.from = { x: f.x, y: f.y }; f.to = to; f.t = 0; f.a = Math.atan2(to.y - f.y, to.x - f.x); f.dur = .42; f.el.style.setProperty('--dur', '.42s'); f.state = 'hop'; f.el.classList.remove('is-land'); f.el.classList.add('is-hop'); splashAt(scene, f.x, f.y, .5); render(f); continue; } } }
           if (lake && (!f.cool || now > f.cool)) {
             const sr = scene.getBoundingClientRect(); const fly = lake.nearestFly(f.x + sr.left, f.y + sr.top, f.size * 1.9);
             if (fly) { f.cool = now + 2200; const tx = fly.x - sr.left, ty = fly.y - sr.top; f.a = Math.atan2(ty - f.y, tx - f.x); f.wait = Math.max(f.wait, .9); render(f); tongue(scene, f.x + Math.cos(f.a) * f.size * .4, f.y + Math.sin(f.a) * f.size * .4, tx, ty, () => { lake.eat(fly); f.el.classList.add('is-gulp'); setTimeout(() => f.el.classList.remove('is-gulp'), 400); }); }

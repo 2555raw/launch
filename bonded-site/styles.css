@@ -1126,7 +1126,6 @@ html.is-night .bd-docs-body code, html.is-night .bd-docs-body pre { background: 
 html.is-night .bd-note { background: rgba(111,211,180,.12); border-color: rgba(111,211,180,.4); color: var(--prose); }
 html.is-night .bd-hero-foot { color: #E6F0EE; }
 html.is-night ::selection { background: #2F6B5C; color: #fff; }
-html.is-night .bd-swan { display: none; }
 
 /* icons in the nav: X and the night switch */
 .bd-nav-icon { width: 42px; height: 42px; border-radius: 50%; border: 0; background: none; display: inline-grid; place-items: center; color: #3A4353; cursor: pointer; padding: 0; transition: color .15s, background .15s; }
@@ -1173,3 +1172,16 @@ html.is-night .bd { --card: #0A1F20; --card-hi: #0D2628; --surface: #122C2E; --l
 html.is-night .bd-pill { background: rgba(4,16,15,.72); }
 html.is-night .bd-toolbar { background: linear-gradient(180deg, rgba(4,16,15,.94) 0%, rgba(4,16,15,.82) 70%, rgba(4,16,15,0) 100%); }
 html.is-night .bd-moon { box-shadow: 0 0 40px rgba(255,250,220,.4), 0 0 120px rgba(255,250,220,.15); }
+
+/* the crocodile, by night */
+.bd-swan.is-croc { width: 300px; height: 162px; margin: -81px 0 0 -150px; }
+.bd-swan.is-croc svg { filter: drop-shadow(0 6px 10px rgba(0,0,0,.6)); }
+.bd-croc-water { fill: rgba(0,0,0,.28); }
+.bd-croc-wake { fill: none; stroke: rgba(200,230,220,.35); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 6 12; animation: bdWakeFlow .9s linear infinite; }
+.bd-croc-wake2 { fill: none; stroke: rgba(200,230,220,.18); stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 4 14; animation: bdWakeFlow 1.3s linear infinite reverse; }
+.bd-croc-eye { fill: #E8C94A; filter: drop-shadow(0 0 3px rgba(232,201,74,.8)); }
+.bd-croc-tail { transform-box: fill-box; transform-origin: 100% 50%; animation: bdCrocTail 1.6s ease-in-out infinite alternate; }
+@keyframes bdCrocTail { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+.bd-croc-head { transform-box: fill-box; transform-origin: 0% 50%; animation: bdCrocHead 5s ease-in-out infinite alternate; }
+@keyframes bdCrocHead { to { transform: rotate(3deg); } }
+@media (max-width: 900px) { .bd-swan.is-croc { width: 190px; height: 103px; margin: -51px 0 0 -95px; } }

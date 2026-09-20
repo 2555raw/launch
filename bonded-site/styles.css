@@ -1139,3 +1139,6 @@ html.is-night .bd-nav-night .bd-ic-sun circle { fill: currentColor; stroke: none
 html.is-night .bd-nav-icon { color: #B7C8C5; }
 html.is-night .bd-nav-icon:hover { color: #F2F7F6; background: rgba(255,255,255,.08); }
 @media (max-width: 900px) { .bd-nav-icon { display: none; } }
+
+/* the moon and its reflection belong to the night only */
+html:not(.is-night) .bd-moon, html:not(.is-night) .bd-moon-ref, html:not(.is-night) .bd-fireflies { display: none !important; }

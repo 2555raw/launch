@@ -55,7 +55,8 @@ lotus) that drift and turn, duckweed around them, motes on the surface and a rin
 second or so. Content sits straight on it in white cards.
 
 **Frogs, and flies.** Each tokenized stock is a frog, seen from above, in its company's colour with
-the logo on its back. The twelve big ones live in the hero: they sit, pick a spot (one time in five
+the company's logo as a large mark on its back (the four-colour Google G, the Microsoft squares,
+the white Apple, and so on, the same marks the reference site puts on its balloons). The twelve big ones live in the hero: they sit, pick a spot (one time in five
 a lily pad), turn, hop in an arc, squash on landing, keep out of the copy, and can be grabbed and
 dropped anywhere; click one and the headline reprices in that stock. Small ones hop about on the
 pond behind every page. Flies buzz over the water, and any frog with a fly in reach shoots its
@@ -74,9 +75,11 @@ Green water under white cards, always. (A dark token set is kept in the styleshe
 - The ground is the pond, in greens (`#A9D7C8` → `#5E9D8A`), never blue. Cards are white with a
   soft shadow; section labels get a white pill so they read on the water.
 - Each frog is painted in its company's colour (NVIDIA green, Tesla red, Amazon orange, Robinhood
-  lime, and so on) and carries the company's real logo on a white badge on its back. Nine of the marks come from
-  the `simple-icons` package, embedded as paths in `LOGOS` in `app.js`; Amazon, Microsoft and the
-  S&P are drawn by hand there. **These are registered trademarks.** Using them on a launchpad is a
+  lime, pale grey for Google and Microsoft so their colour marks read, and so on) and carries the
+  company's logo as a mark on its back, light on dark skins and dark on light ones (`mark` in
+  `LOGOS` overrides the guess; `color` keeps a multi-colour mark as is). Twelve of the marks come
+  from the `simple-icons` package, embedded as paths in `LOGOS` in `app.js`; Google, Amazon,
+  Microsoft and the S&P are drawn by hand there. **These are registered trademarks.** Using them on a launchpad is a
   choice the owner of the site makes, not the site; swap a badge for its ticker by deleting its
   `LOGOS` entry.
 
@@ -152,6 +155,9 @@ data to reset it.
   loop in Chromium. Run it before a deploy.
 - **Navigation** — two pills; the left one drops its links below on mobile. `data-scroll="<id>"`
   scrolls with the nav height taken out; hash links from other pages land correctly.
+- **Pair cards** (`pairTile`) — the stock's frog, large and still, on a panel tinted in its colour;
+  name, ticker and change; price in the stock, market cap and age. Used on the home, the board on
+  phones, live launches and the playground.
 - **Pairs board** — filters compose: tab × stock chip × search, then sort. Column headers sort and
   flip on a second click. Rows open the pair page. New launches from the feed appear live.
 - **Pair page** — chart from `series`, trades from `trades` plus live ones from `subscribe`, and the
@@ -168,6 +174,8 @@ data to reset it.
 - **My playground** — connect card, then summary tiles (positions value, pairs held, launched,
   creator fees), launched pairs with a claim button, and a positions table with Trade links.
 - **Docs** — sticky sidebar with the active section marked.
+
+Selecting text highlights in the pond's green (`::selection`).
 
 ## Before going live
 

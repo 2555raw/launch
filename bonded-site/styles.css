@@ -147,31 +147,20 @@ html[data-theme="dark"] .bd {
   box-shadow: 0 0 10px var(--up); vertical-align: middle;
 }
 
-/* ---------- nav: two floating pills ---------- */
-.bd-nav {
-  position: sticky; top: 0; z-index: 40; height: var(--nav-h);
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 20px;
-  pointer-events: none;
-}
-/* wide screens: the brand pill sits dead centre, the wallet pill keeps the right edge */
-@media (min-width: 1600px) {
-  .bd-nav { justify-content: center; }
-  .bd-pill-right { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
-}
+/* ---------- nav: one wide floating pill ---------- */
+.bd-nav { position: sticky; top: 0; z-index: 40; height: var(--nav-h); display: flex; align-items: center; justify-content: center; padding: 0 20px; pointer-events: none; }
 .bd-pill {
-  pointer-events: auto; display: flex; align-items: center; gap: 6px; height: 56px; padding: 0 8px 0 18px; border-radius: 999px;
-  background: color-mix(in srgb, var(--card) 88%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); box-shadow: 0 10px 30px rgba(19,23,32,.08);
+  pointer-events: auto; width: min(1380px, 100%); display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 8px 0 24px; border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 86%, transparent); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,.7); box-shadow: 0 12px 34px rgba(10,30,25,.14);
 }
-html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-.bd-pill-right { padding: 0 6px 0 10px; }
-.bd-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -.01em; margin-right: 12px; }
+.bd-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -.01em; flex: none; }
 .bd-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--ink); display: grid; place-items: center; }
 .bd-mark svg { width: 20px; height: 20px; }
-.bd-nav-links { display: flex; gap: 2px; font-size: 13.5px; color: var(--muted); }
+.bd-nav-links { flex: 1; display: flex; justify-content: center; gap: 2px; font-size: 13.5px; color: var(--muted); min-width: 0; }
 .bd-nav-links a { cursor: pointer; padding: 8px 11px; border-radius: 999px; transition: color .15s, background .15s; white-space: nowrap; }
 .bd-nav-links a:hover, .bd-nav-links a.is-active { color: var(--ink); background: var(--surface); }
-.bd-nav-right { display: contents; }
+.bd-nav-right { display: flex; align-items: center; gap: 6px; flex: none; }
 .bd-nav-ghost { padding: 8px 12px; border-radius: 999px; font-size: 13.5px; color: var(--muted); border: 0; background: none; cursor: pointer; white-space: nowrap; }
 .bd-nav-ghost:hover { color: var(--ink); }
 .bd-burger { display: none; }
@@ -189,16 +178,20 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .bd-scene > i { position: absolute; display: block; }
 /* lily pads (drawn by the lake layer; the hero only borrows the class) */
 /* landing marks */
-.bd-ripple { position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,.85); transform: translate(-50%, -50%) scale(.2); opacity: .9; pointer-events: none; animation: bdRipple 1s ease-out forwards; }
+.bd-ripple { position: absolute; width: var(--sz, 46px); height: var(--sz, 46px); border-radius: 50%; border: 2px solid rgba(255,255,255,.85); box-shadow: inset 0 0 6px rgba(255,255,255,.35); transform: translate(-50%, -50%) scale(.2); opacity: .9; pointer-events: none; animation: bdRipple 1.4s ease-out forwards; }
+.bd-crown { position: absolute; width: var(--sz, 34px); height: var(--sz, 34px); border-radius: 50%; border: 5px solid rgba(255,255,255,.95); transform: translate(-50%, -50%) scale(.3); opacity: 1; pointer-events: none; filter: blur(.3px); animation: bdCrown .6s ease-out forwards; }
+@keyframes bdCrown { 40% { opacity: .95; border-width: 4px; } to { transform: translate(-50%, -50%) scale(1.6); opacity: 0; border-width: 1px; } }
+.bd-drop { position: absolute; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, rgba(255,255,255,.7)); box-shadow: 0 1px 2px rgba(0,40,30,.25); pointer-events: none; animation: bdDrop var(--d, .6s) ease-in forwards; }
+@keyframes bdDrop { 0% { transform: translate(0, 0) scale(.6); opacity: 1; } 45% { transform: translate(calc(var(--dx) * .6), calc(var(--dy) * .6 + var(--up))) scale(1); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(.5); opacity: 0; } }
 .bd-dust { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.9); pointer-events: none; animation: bdSplash .6s ease-out forwards; }
-@keyframes bdRipple { to { transform: translate(-50%, -50%) scale(2.6); opacity: 0; } }
+@keyframes bdRipple { to { transform: translate(-50%, -50%) scale(3.2); opacity: 0; } }
 @keyframes bdSplash { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   .bd-lily { animation: bdDriftPad var(--d) ease-in-out infinite alternate; }
   .bd-lake-cloud { animation: bdDrift var(--d) linear infinite; animation-delay: var(--dl); }
   .bd-reed { animation: bdSway var(--d, 5s) ease-in-out infinite alternate; }
   .bd-lily .bd-lotus { animation: bdLotus 6s ease-in-out infinite alternate; }
-  .is-paused > i, .is-paused .bd-ripple, .is-paused .bd-dust, .is-paused .bd-frog * { animation-play-state: paused !important; }
+  .is-paused > i, .is-paused .bd-ripple, .is-paused .bd-dust, .is-paused .bd-crown, .is-paused .bd-drop, .is-paused .bd-frog * { animation-play-state: paused !important; }
 }
 @keyframes bdDriftPad { to { transform: rotate(calc(var(--r) + 7deg)) translate(var(--dx, 14px), var(--dy, 8px)); } }
 @keyframes bdDrift { to { transform: translateX(180vw); } }
@@ -211,11 +204,8 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
   transform: translate3d(var(--x), var(--y), 0) rotate(var(--rot, 0deg)) scale(calc(1 + var(--h, 0) * .38)); transform-origin: 50% 50%;
   will-change: transform; opacity: var(--op, 1); transition: opacity .4s;
 }
-.bd-frog svg { position: relative; width: 70%; height: 70%; margin: 15%; overflow: visible;
+.bd-frog svg { position: relative; width: 100%; height: 100%; margin: 0; overflow: visible; transform-origin: 50% 50%;
   filter: drop-shadow(calc(2px + var(--h, 0) * 16px) calc(5px + var(--h, 0) * 22px) calc(3px + var(--h, 0) * 8px) rgba(10,30,25,calc(.38 - var(--h, 0) * .1))); }
-.bd-frog-plate { position: absolute; inset: 0; border-radius: 50%; background: #fff; border: 3px solid var(--pc); box-shadow: 0 6px 16px rgba(10,30,25,.25), inset 0 0 0 2px rgba(255,255,255,.9);
-  display: grid; place-items: center; transform: rotate(calc(var(--rot, 0deg) * -1)) scale(calc(1 / (1 + var(--h, 0) * .38))); opacity: .97; overflow: hidden; }
-.bd-frog-plate svg { position: static; width: 80%; height: 80%; margin: 0; filter: none; opacity: .9; }
 .bd-frog .bd-frog-body { fill: var(--c); stroke: rgba(0,0,0,.32); stroke-width: 1; }
 .bd-frog .bd-frog-leg { fill: color-mix(in srgb, var(--c) 82%, #000 18%); stroke: rgba(0,0,0,.3); stroke-width: .9; }
 .bd-frog .bd-frog-leg2 { fill: color-mix(in srgb, var(--c) 72%, #000 28%); stroke: rgba(0,0,0,.3); stroke-width: .9; }
@@ -240,7 +230,9 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
   .bd-frog.is-hop .bd-frog-hind-r { animation: bdKickR var(--dur, .6s) ease-out; }
   .bd-frog.is-hop .bd-frog-fore-l { animation: bdReachL var(--dur, .6s) ease-out; }
   .bd-frog.is-hop .bd-frog-fore-r { animation: bdReachR var(--dur, .6s) ease-out; }
-  .bd-frog.is-land svg { animation: bdSquash .32s ease-out; }
+  .bd-frog.is-crouch svg { animation: bdCrouch .15s ease-in forwards; }
+  .bd-frog.is-hop svg { animation: bdStretch var(--dur, .6s) ease-out; }
+  .bd-frog.is-land svg { animation: bdSquash .52s cubic-bezier(.2,.8,.3,1.2); }
   .bd-frog.is-drag .bd-frog-hind-l, .bd-frog.is-drag .bd-frog-hind-r { animation: bdDangle .7s ease-in-out infinite alternate; }
 }
 @keyframes bdThroat { to { transform: scale(1.18); } }
@@ -249,10 +241,13 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 @keyframes bdKickR { 0% { transform: rotate(0) scale(1); } 30% { transform: rotate(-38deg) scale(1.5, 1); } 100% { transform: rotate(0) scale(1); } }
 @keyframes bdReachL { 0% { transform: rotate(0); } 40% { transform: rotate(-30deg) translateX(6px); } 100% { transform: rotate(0); } }
 @keyframes bdReachR { 0% { transform: rotate(0); } 40% { transform: rotate(30deg) translateX(6px); } 100% { transform: rotate(0); } }
-@keyframes bdSquash { 0% { transform: scale(1.12, .86); } 60% { transform: scale(.96, 1.05); } 100% { transform: none; } }
+@keyframes bdSquash { 0% { transform: scale(1.22, .78); } 35% { transform: scale(.94, 1.08); } 65% { transform: scale(1.04, .97); } 100% { transform: none; } }
+@keyframes bdCrouch { to { transform: scale(.88, 1.1); } }
+@keyframes bdStretch { 0% { transform: scale(.9, 1.08); } 30% { transform: scale(1.16, .9); } 70% { transform: scale(1.06, .95); } 100% { transform: scale(1); } }
 @keyframes bdDangle { from { transform: rotate(8deg); } to { transform: rotate(-8deg); } }
 .bd-frog.is-drag { cursor: grabbing; z-index: 6; }
-.bd-frog.is-bonded .bd-frog-plate { box-shadow: 0 0 0 4px rgba(19,23,32,.85), 0 6px 16px rgba(10,30,25,.25); }
+.bd-frog.is-bonded .bd-frog-body { stroke: #fff; stroke-width: 2.6; }
+.bd-frog.is-bonded svg { filter: drop-shadow(0 0 10px rgba(255,255,255,.95)) drop-shadow(3px 6px 4px rgba(10,30,25,.35)); }
 .bd-fish-label { position: absolute; z-index: 4; padding: 5px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-hi); font-family: var(--font-mono); font-size: 11px; color: var(--muted); pointer-events: none; opacity: 0; transform: translate(-50%, 0); transition: opacity .15s; white-space: nowrap; box-shadow: 0 8px 20px rgba(19,23,32,.12); }
 .bd-fish-label.is-on { opacity: 1; }
 .bd-hero-foot > div, .bd-hero-foot > a { padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.88); backdrop-filter: blur(6px); }
@@ -583,16 +578,17 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
   .bd-preview { position: static; }
 }
 @media (max-width: 900px) {
-  .bd-nav { gap: 8px; padding: 0 12px; --nav-h: 72px; }
-  .bd-pill { height: 50px; padding: 0 6px 0 12px; }
-  .bd-brand { margin-right: 4px; font-size: 16px; }
-  .bd-nav-links { display: none; position: absolute; top: calc(var(--nav-h) - 6px); left: 12px; right: 12px; padding: 10px; flex-direction: column; gap: 2px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 20px 40px rgba(19,23,32,.14); }
+  .bd-nav { padding: 0 10px; --nav-h: 72px; }
+  .bd-pill { height: 52px; padding: 0 6px 0 14px; gap: 6px; }
+  .bd-brand { font-size: 16px; }
+  .bd-nav-links { display: none; position: absolute; top: calc(var(--nav-h) - 6px); left: 10px; right: 10px; padding: 10px; flex-direction: column; gap: 2px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 20px 40px rgba(19,23,32,.14); }
   .bd-nav-links.is-open { display: flex; }
   .bd-nav-links a { padding: 10px 12px; }
   .bd-only-sm { display: block; }
   .bd-nav-links button.bd-only-sm { border: 0; background: var(--surface); border-radius: 10px; padding: 10px 12px; text-align: left; color: var(--ink); font-size: 14px; margin-top: 4px; cursor: pointer; }
   .bd-burger { display: inline-flex; border: 0; background: none; }
   .bd-nav-ghost { display: none; }
+  .bd-nav-links { flex: none; }
   .bd-hide-sm { display: none !important; }
   .bd-hero { padding-top: 48px; }
   .bd-hero-grid { grid-template-columns: 1fr; gap: 28px; }
@@ -767,9 +763,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
   .bd-hero-foot .bd-scroll, .bd-hero-foot > div:nth-child(2) { display: none; }
   .bd-hero h1 { font-size: clamp(44px, 13vw, 60px); }
   .bd-hero-sub { font-size: 16px; }
-  .bd-pill-right .bd-btn-dark { height: 36px; padding: 0 12px; font-size: 12.5px; }
-  .bd-pill-right { padding: 0 6px; gap: 2px; }
-  .bd-pill-right .bd-icon-btn { width: 30px; }
+  .bd-nav-right .bd-btn-dark { height: 36px; padding: 0 12px; font-size: 12.5px; }
   .bd-bay { gap: 10px; padding: 8px 14px 8px 8px; }
   .bd-pp-price { margin-left: 0; text-align: left; width: 100%; }
   .bd-pp-price b { font-size: 22px; }
@@ -840,7 +834,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 /* the tongue */
 .bd-tongue { position: absolute; height: 7px; margin-top: -3.5px; border-radius: 4px; background: linear-gradient(90deg, #E2497F, #F27AA5); transform-origin: 0 50%; pointer-events: none; z-index: 7; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
 .bd-tongue::after { content: ""; position: absolute; right: -4px; top: -2.5px; width: 12px; height: 12px; border-radius: 50%; background: #F27AA5; }
-.bd-frog.is-gulp svg:not(.bd-frog-plate svg) { animation: bdGulp .36s ease-out; }
+.bd-frog.is-gulp svg { animation: bdGulp .36s ease-out; }
 @keyframes bdGulp { 0% { transform: scale(1); } 35% { transform: scale(1.14, .92); } 70% { transform: scale(.96, 1.06); } 100% { transform: none; } }
 .bd-lake .bd-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.6); transform: translate(-50%, -50%) scale(.15); opacity: .8; animation: bdLakeRing 3.2s ease-out forwards; }
 @keyframes bdLakeRing { to { transform: translate(-50%, -50%) scale(3.2); opacity: 0; } }
@@ -857,7 +851,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 @keyframes bdGlint { to { transform: translateX(3%); opacity: .55; } }
 @keyframes bdShimmer { to { transform: translate(1.5%, -1%); } }
 /* content sits straight on the lake: white cards, no sheet */
-.bd > main, .bd-footer, .bd-nav { position: relative; z-index: 1; }
+.bd > main, .bd-footer { position: relative; z-index: 1; }
 .bd-section-alt { border-top: 0; border-bottom: 0; background: transparent; }
 .bd-toolbar { background: rgba(255,255,255,.86); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 0 0 18px 18px; border-bottom: 1px solid var(--line); }
 .bd-proof { padding-top: 40px; }

@@ -506,6 +506,20 @@
     return { el, flies, nearestFly, eat, pause: v => { paused = v; el.classList.toggle('is-paused', v); }, pads: () => $$('[data-pad]', el) };
   })();
 
+
+  /* water effects, in any container: a crown, rings and droplets that fly up and fall back */
+  const splashAt = (container, x, y, big = 1) => {
+    const mk = (cls, style) => { const e = document.createElement('i'); e.className = cls; e.style.cssText = `left:${x}px; top:${y}px; ${style}`; container.appendChild(e); return e; };
+    const crown = mk('bd-crown', `--sz:${(34 * big).toFixed(0)}px`); setTimeout(() => crown.remove(), 700);
+    for (let k = 0; k < 3; k++) { const r = mk('bd-ripple', `animation-delay:${k * 140}ms; --sz:${(44 * big).toFixed(0)}px`); setTimeout(() => r.remove(), 1600 + k * 140); }
+    const n = Math.round(9 * big);
+    for (let k = 0; k < n; k++) {
+      const ang = Math.random() * Math.PI * 2, dist = (18 + Math.random() * 34) * big, up = (16 + Math.random() * 26) * big;
+      const d = mk('bd-drop', `--dx:${(Math.cos(ang) * dist).toFixed(1)}px; --dy:${(Math.sin(ang) * dist * .6).toFixed(1)}px; --up:${(-up).toFixed(1)}px; --d:${(.5 + Math.random() * .3).toFixed(2)}s; width:${(3 + Math.random() * 4 * big).toFixed(1)}px; height:${(3 + Math.random() * 4 * big).toFixed(1)}px`);
+      setTimeout(() => d.remove(), 900);
+    }
+  };
+
   /* a frog shoots its tongue from its mouth to a point, in its own container's coordinates */
   const tongue = (container, mx, my, tx, ty, done) => {
     const d = Math.hypot(tx - mx, ty - my), ang = Math.atan2(ty - my, tx - mx) * 180 / Math.PI;
@@ -516,7 +530,13 @@
   };
 
   // the frog, seen from above, facing +x: shared by the hero and the lake
-  const FROG_SVG = (s) => `<svg viewBox="0 0 100 100" aria-hidden="true">
+  const lum = hex => { const n = parseInt(hex.slice(1), 16); return (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255; };
+  const FROG_SVG = (s) => {
+    const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
+    const dark = lum(s.color) > .55;
+    const markFill = dark ? '#151A1E' : '#FFFFFF', shade = dark ? 'rgba(255,255,255,.45)' : 'rgba(0,0,0,.42)';
+    const mark = `<g class="bd-frog-mark" transform="translate(31.6 34.8) scale(1.37)" fill="${shade}">${logo.svg}</g><g class="bd-frog-mark" transform="translate(31 34) scale(1.37)" fill="${markFill}" opacity=".94">${logo.svg}</g>`;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">
       <g class="bd-frog-hind bd-frog-hind-l">
         <ellipse class="bd-frog-leg" cx="27" cy="35" rx="15" ry="8" transform="rotate(-26 27 35)"/>
         <ellipse class="bd-frog-leg2" cx="15" cy="42" rx="12" ry="5.2" transform="rotate(34 15 42)"/>
@@ -540,16 +560,13 @@
       <path class="bd-frog-stripe" d="M26 42 C44 35 66 35 88 43"/><path class="bd-frog-stripe" d="M26 58 C44 65 66 65 88 57"/>
       <path class="bd-frog-side" d="M22 50 C24 42 30 34 40 30 C34 38 32 44 32 50 C32 56 34 62 40 70 C30 66 24 58 22 50 Z"/>
       <circle class="bd-frog-spot" cx="36" cy="50" r="3.2"/><circle class="bd-frog-spot" cx="48" cy="40" r="2.2"/><circle class="bd-frog-spot" cx="50" cy="61" r="2.6"/><circle class="bd-frog-spot" cx="62" cy="50" r="2"/><circle class="bd-frog-spot" cx="42" cy="66" r="1.6"/><circle class="bd-frog-spot" cx="58" cy="35" r="1.5"/>
+      ${mark}
       <ellipse class="bd-frog-throat" cx="83" cy="50" rx="6" ry="6.5"/>
       <g><ellipse class="bd-frog-eye" cx="75" cy="33" rx="8.6" ry="7.6"/><circle class="bd-frog-iris" cx="76" cy="33.4" r="5.2"/><ellipse class="bd-frog-pupil" cx="76.6" cy="33.4" rx="1.7" ry="3.8"/><circle cx="73.6" cy="30.6" r="1.5" fill="#fff"/><path class="bd-frog-lidline" d="M67 30 Q75 24.5 83 30"/><rect class="bd-frog-lid" x="66.4" y="25.4" width="17.2" height="15.2" rx="8"/></g>
       <g><ellipse class="bd-frog-eye" cx="75" cy="67" rx="8.6" ry="7.6"/><circle class="bd-frog-iris" cx="76" cy="66.6" r="5.2"/><ellipse class="bd-frog-pupil" cx="76.6" cy="66.6" rx="1.7" ry="3.8"/><circle cx="73.6" cy="63.8" r="1.5" fill="#fff"/><path class="bd-frog-lidline" d="M67 70 Q75 75.5 83 70"/><rect class="bd-frog-lid" x="66.4" y="59.4" width="17.2" height="15.2" rx="8"/></g>
       <circle cx="88" cy="46.5" r="1.2" fill="rgba(0,0,0,.5)"/><circle cx="88" cy="53.5" r="1.2" fill="rgba(0,0,0,.5)"/>
       <path d="M83 43 Q91.5 50 83 57" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/>
     </svg>`;
-  // the plate behind a frog: its company's logo, large, so the frog reads as that stock at a glance
-  const PLATE = (s) => {
-    const logo = LOGOS[s.sym] || { fill: '#111', svg: `<text x="12" y="16" font-size="9" font-weight="800" text-anchor="middle" fill="#111">${s.sym}</text>` };
-    return `<i class="bd-frog-plate" style="--pc:${s.color}"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="${logo.fill}">${logo.svg}</g></svg></i>`;
   };
 
   /* =====================================================================
@@ -564,7 +581,7 @@
     for (let i = 0; i < N; i++) {
       const s = STOCKS[(i * 5) % STOCKS.length];
       const el = document.createElement('i'); el.className = 'bd-frog';
-      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .9) + 's'); el.innerHTML = PLATE(s) + FROG_SVG(s);
+      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .9) + 's'); el.innerHTML = FROG_SVG(s);
       layer.appendChild(el);
       const size = (small ? 30 : 38) + Math.random() * (small ? 16 : 24);
       list.push({ el, size, x: Math.random() * innerWidth, y: Math.random() * innerHeight, a: Math.random() * 6.28, h: 0, state: 'idle', wait: Math.random() * 4, from: null, to: null, t: 0, dur: .6 });
@@ -579,7 +596,7 @@
         const d = 50 + Math.random() * 170, ang = Math.random() * 6.28, x = f.x + Math.cos(ang) * d, y = f.y + Math.sin(ang) * d;
         if (x < m || x > W - m || y < 100 || y > H - m) continue;
         f.from = { x: f.x, y: f.y }; f.to = { x, y }; f.t = 0; f.a = Math.atan2(y - f.y, x - f.x); f.dur = .45 + d / 500;
-        f.el.style.setProperty('--dur', f.dur + 's'); f.state = 'hop'; f.el.classList.add('is-hop'); return;
+        f.el.style.setProperty('--dur', f.dur + 's'); f.state = 'hop'; f.el.classList.add('is-hop'); splashAt(layer, f.x, f.y, .35); return;
       }
       f.x = innerWidth * Math.random(); f.y = 120 + Math.random() * (innerHeight - 160); f.wait = 1;
     };
@@ -597,7 +614,7 @@
           f.t = Math.min(1, f.t + dt / f.dur);
           const e = f.t < .5 ? 2 * f.t * f.t : 1 - Math.pow(-2 * f.t + 2, 2) / 2;
           f.x = f.from.x + (f.to.x - f.from.x) * e; f.y = f.from.y + (f.to.y - f.from.y) * e; f.h = Math.sin(Math.PI * f.t);
-          if (f.t >= 1) { f.h = 0; f.state = 'idle'; f.wait = 1.5 + Math.random() * 5; f.el.classList.remove('is-hop'); f.el.classList.add('is-land'); setTimeout(() => f.el.classList.remove('is-land'), 340); }
+          if (f.t >= 1) { f.h = 0; f.state = 'idle'; f.wait = 1.5 + Math.random() * 5; f.el.classList.remove('is-hop'); f.el.classList.add('is-land'); setTimeout(() => f.el.classList.remove('is-land'), 520); splashAt(layer, f.x, f.y, .55); }
         }
         render(f);
       }
@@ -620,7 +637,7 @@
     const frogs = STOCKS.map((s, i) => {
       const el = document.createElement('button');
       el.className = 'bd-frog'; el.type = 'button'; el.setAttribute('aria-label', s.sym + ' · ' + s.name);
-      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .7) + 's'); el.innerHTML = PLATE(s) + FROG_SVG(s);
+      el.style.setProperty('--c', s.color); el.style.setProperty('--blink', (i * .7) + 's'); el.innerHTML = FROG_SVG(s);
       scene.appendChild(el);
       return { s, el, i, x: 0, y: 0, a: 0, h: 0, op: 1, state: 'idle', wait: 0, from: null, to: null, t: 0, dur: .6, size: 0 };
     });
@@ -654,12 +671,19 @@
       const r = document.createElement('i'); r.className = 'bd-ripple'; r.style.left = x + 'px'; r.style.top = y + 'px'; scene.appendChild(r); setTimeout(() => r.remove(), 1100);
       for (let k = 0; k < 5; k++) { const d = document.createElement('i'); d.className = 'bd-dust'; d.style.left = x + 'px'; d.style.top = y + 'px'; const ang = Math.random() * Math.PI * 2, dist = 14 + Math.random() * 22; d.style.setProperty('--dx', (Math.cos(ang) * dist) + 'px'); d.style.setProperty('--dy', (Math.sin(ang) * dist) + 'px'); scene.appendChild(d); setTimeout(() => d.remove(), 700); }
     };
-    const sit = (f, wait) => { f.state = 'idle'; f.h = 0; f.wait = wait ?? (0.7 + Math.random() * 2.4); f.el.classList.remove('is-hop'); f.el.classList.add('is-land'); setTimeout(() => f.el.classList.remove('is-land'), 340); };
+    const sit = (f, wait) => { f.state = 'idle'; f.h = 0; f.wait = wait ?? (0.7 + Math.random() * 2.4); f.el.classList.remove('is-hop'); f.el.classList.add('is-land'); setTimeout(() => f.el.classList.remove('is-land'), 520); };
     const hop = f => {
       const to = pickTarget(f); if (!to) { f.wait = .8; return; }
-      f.from = { x: f.x, y: f.y }; f.to = to; f.t = 0; f.a = Math.atan2(to.y - f.y, to.x - f.x);
-      const dist = Math.hypot(to.x - f.x, to.y - f.y); f.dur = clamp(.42 + dist / 600, .45, .95); f.el.style.setProperty('--dur', f.dur + 's');
-      f.state = 'hop'; f.el.classList.remove('is-land'); f.el.classList.add('is-hop');
+      // crouch first, then push off
+      f.state = 'crouch'; f.a = Math.atan2(to.y - f.y, to.x - f.x); f.el.classList.add('is-crouch'); render(f);
+      setTimeout(() => {
+        if (f.state !== 'crouch') return;
+        f.el.classList.remove('is-crouch');
+        f.from = { x: f.x, y: f.y }; f.to = to; f.t = 0;
+        const dist = Math.hypot(to.x - f.x, to.y - f.y); f.dur = clamp(.42 + dist / 600, .45, .95); f.el.style.setProperty('--dur', f.dur + 's');
+        f.state = 'hop'; f.el.classList.remove('is-land'); f.el.classList.add('is-hop');
+        splashAt(scene, f.x - Math.cos(f.a) * f.size * .25, f.y - Math.sin(f.a) * f.size * .25, .6);
+      }, 150);
     };
     const init = () => {
       measure();
@@ -694,7 +718,7 @@
           const e = f.t < .5 ? 2 * f.t * f.t : 1 - Math.pow(-2 * f.t + 2, 2) / 2;   // ease in-out
           f.x = f.from.x + (f.to.x - f.from.x) * e; f.y = f.from.y + (f.to.y - f.from.y) * e;
           f.h = Math.sin(Math.PI * f.t);
-          if (f.t >= 1) { f.x = f.to.x; f.y = f.to.y; mark(f.x, f.y); sit(f); }
+          if (f.t >= 1) { f.x = f.to.x; f.y = f.to.y; splashAt(scene, f.x, f.y, 1 + f.size / 160); sit(f); }
         }
         render(f);
       }
@@ -711,7 +735,7 @@
       });
       f.el.addEventListener('pointermove', e => {
         if (!drag || drag.f !== f) return;
-        if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) { drag.moved = true; f.state = 'drag'; f.h = .9; f.el.classList.remove('is-hop', 'is-land'); f.el.classList.add('is-drag'); }
+        if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) { drag.moved = true; f.state = 'drag'; f.h = .9; f.el.classList.remove('is-hop', 'is-land', 'is-crouch'); f.el.classList.add('is-drag'); splashAt(scene, f.x, f.y, .7); }
         if (!drag.moved) return;
         const nx = clamp(e.clientX - drag.ox, 10, W - 10), ny = clamp(e.clientY - drag.oy, 10, H - 10);
         drag.vx = nx - f.x; drag.vy = ny - f.y; f.x = nx; f.y = ny;
@@ -723,7 +747,7 @@
         f.el.classList.remove('is-drag');
         if (drag.moved) {
           if (!inside(f.x, f.y, 20)) { const p = randomSpot(f); f.x = p.x; f.y = p.y; }
-          mark(f.x, f.y); sit(f, .4 + Math.random());
+          splashAt(scene, f.x, f.y, 1.3); sit(f, .4 + Math.random());
         } else select(f);
         drag = null;
       };
@@ -738,7 +762,7 @@
       $$('[data-hero-stock]').forEach(el => el.textContent = f.s.sym);
       const launch = $('#hero-launch'); if (launch) launch.href = 'launch.html?stock=' + f.s.sym;
       $$('#elements-grid .bd-element').forEach(b => b.classList.toggle('is-active', b.dataset.sym === f.s.sym));
-      mark(f.x, f.y); placeLabel(f);
+      splashAt(scene, f.x, f.y, .6); placeLabel(f);
     };
 
     // controls

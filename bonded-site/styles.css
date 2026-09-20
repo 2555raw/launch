@@ -767,7 +767,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 .bd-mine-connect p { color: var(--prose); margin: 0 0 20px; }
 
 /* ---------- docs ---------- */
-.bd-docs { padding: 32px 0 90px; display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: start; }
+.bd-docs { padding: 32px 0 90px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; align-items: start; }
 .bd-docs-side { position: sticky; top: calc(var(--nav-h) + 24px); display: grid; gap: 4px; }
 .bd-docs-side a { padding: 7px 10px; border-radius: 8px; font-size: 13.5px; color: var(--muted); cursor: pointer; }
 .bd-docs-side a:hover, .bd-docs-side a.is-active { color: var(--ink); background: var(--card); }
@@ -914,7 +914,7 @@ input::selection, textarea::selection { background: #78AB9A; color: #FFFFFF; }
 .bd-docs-side { padding: 12px 10px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
 .bd-docs-side a { color: var(--prose); }
 .bd-docs-side a:hover, .bd-docs-side a.is-active { background: var(--surface); }
-.bd-docs-body { max-width: none; padding: 32px 40px 40px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
+.bd-docs-body { max-width: none; min-width: 0; padding: 32px 40px 40px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(19,23,32,.05); }
 .bd-docs-body h2 { border-top-color: var(--line); }
 .bd-note { background: rgba(120,171,154,.14); border-color: rgba(120,171,154,.5); }
 @media (max-width: 900px) { .bd-docs-body { padding: 22px 18px 28px; } }

@@ -558,11 +558,18 @@
         <circle cx="160" cy="65.5" r="1.6" fill="#111"/><circle cx="160" cy="74.5" r="1.6" fill="#111"/>
       </svg>`;
       el.appendChild(swan);
-      let sw = { on: false, t: 0, next: 5 + Math.random() * 6 };
+      let sw = { on: false, t: 0, next: 3 + Math.random() * 4 };
       const setOff = () => {
-        const W = innerWidth, H = innerHeight, fromLeft = Math.random() < .5;
-        sw = { on: true, x: fromLeft ? -200 : W + 200, y: H * (.3 + Math.random() * .4), tx: fromLeft ? W + 200 : -200, ty: H * (.3 + Math.random() * .4), speed: 34 + Math.random() * 12, a: 0, next: 0 };
-        sw.a = Math.atan2(sw.ty - sw.y, sw.tx - sw.x); swan.classList.add('is-on');
+        const W = innerWidth, H = innerHeight;
+        // an entry edge and a different exit edge, so the crossing is often a diagonal
+        const edge = () => { const s = Math.floor(Math.random() * 4); return s === 0 ? { x: -220, y: H * (.15 + Math.random() * .7) } : s === 1 ? { x: W + 220, y: H * (.15 + Math.random() * .7) } : s === 2 ? { x: W * (.15 + Math.random() * .7), y: -220 } : { x: W * (.15 + Math.random() * .7), y: H + 220 }; };
+        const from = edge(); let to = edge(); let guard = 0; while (guard++ < 8 && Math.hypot(to.x - from.x, to.y - from.y) < Math.min(W, H) * .8) to = edge();
+        // two or three waypoints through the middle: a lazy S across the pond
+        const n = 2 + Math.floor(Math.random() * 2); const pts = [];
+        for (let k = 1; k <= n; k++) { const t = k / (n + 1); pts.push({ x: from.x + (to.x - from.x) * t + (Math.random() - .5) * W * .28, y: from.y + (to.y - from.y) * t + (Math.random() - .5) * H * .36 }); }
+        pts.push(to);
+        sw = { on: true, x: from.x, y: from.y, pts, i: 0, speed: 110 + Math.random() * 40, a: Math.atan2(pts[0].y - from.y, pts[0].x - from.x), next: 0 };
+        swan.classList.add('is-on');
       };
       const wrap = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
       let last = performance.now();
@@ -570,18 +577,19 @@
         const dt = paused || document.hidden ? 0 : Math.min(.05, (now - last) / 1000); last = now;
         if (!sw.on) { sw.next -= dt; if (sw.next <= 0) setOff(); }
         else if (dt) {
-          // head for the exit, but steer round any frog ahead
-          let want = Math.atan2(sw.ty - sw.y, sw.tx - sw.x);
+          // head for the next waypoint (the last one is the exit), but steer round any frog ahead
+          const tgt = sw.pts[sw.i]; if (sw.i < sw.pts.length - 1 && Math.hypot(tgt.x - sw.x, tgt.y - sw.y) < 60) sw.i++;
+          let want = Math.atan2(sw.pts[sw.i].y - sw.y, sw.pts[sw.i].x - sw.x);
           for (const r of swanState.obstacles ? swanState.obstacles() : []) {
             const dx = r.x - sw.x, dy = r.y - sw.y, d = Math.hypot(dx, dy);
             if (d < 170 && d > 1) { const rel = wrap(Math.atan2(dy, dx) - sw.a); if (Math.abs(rel) < 1.2) want -= Math.sign(rel || 1) * (1 - d / 170) * 1.1; }
           }
-          sw.a += wrap(want - sw.a) * Math.min(1, 1.4 * dt);
-          sw.x += Math.cos(sw.a) * sw.speed * dt; sw.y += Math.sin(sw.a) * sw.speed * dt + Math.sin(now / 900) * 6 * dt;
+          sw.a += wrap(want - sw.a) * Math.min(1, 2.2 * dt);
+          sw.x += Math.cos(sw.a) * sw.speed * dt; sw.y += Math.sin(sw.a) * sw.speed * dt + Math.sin(now / 700) * 10 * dt;
           swanState.on = true; swanState.x = sw.x; swanState.y = sw.y; swanState.a = sw.a;
           swan.style.setProperty('--x', sw.x.toFixed(1) + 'px'); swan.style.setProperty('--y', sw.y.toFixed(1) + 'px'); swan.style.setProperty('--rot', (sw.a * 180 / Math.PI).toFixed(1) + 'deg');
           const gone = sw.x < -260 || sw.x > innerWidth + 260 || sw.y < -260 || sw.y > innerHeight + 260;
-          if (gone) { sw = { on: false, next: 14 + Math.random() * 16 }; swanState.on = false; swan.classList.remove('is-on'); }
+          if (gone) { sw = { on: false, next: 8 + Math.random() * 10 }; swanState.on = false; swan.classList.remove('is-on'); }
         }
         requestAnimationFrame(step);
       };

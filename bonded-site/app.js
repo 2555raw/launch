@@ -814,7 +814,9 @@
     $$('[data-illus]').forEach(el => { el.innerHTML = illus[el.dataset.illus] || ''; });
     const pairsGrid = $('#pairs-grid');
     adapter.pairs().then(pairs => {
-      const pick = pairs.slice().sort((a, b) => (b.volume / b.mcap) - (a.volume / a.mcap)).slice(0, 6);
+      // one pair per big name, the busiest on each stock
+      const pick = ['AMZN', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'GOOGL']
+        .map(sym => pairs.filter(p => p.stock === sym).sort((a, b) => b.volume - a.volume)[0]).filter(Boolean);
       pairsGrid.innerHTML = pick.map(pairTile).join('');
     });
   }

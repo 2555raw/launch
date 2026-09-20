@@ -517,33 +517,33 @@ html[data-theme="dark"] .bd-paircard { box-shadow: 0 30px 60px rgba(0,0,0,.45); 
 .bd-page-head h1 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; font-size: clamp(30px, 4vw, 44px); margin: 10px 0 8px; }
 .bd-page-head p { color: var(--prose); margin: 0; font-size: 15.5px; }
 .bd-toolbar {
-  position: sticky; top: 0; z-index: 30; padding: 12px 0; background: color-mix(in srgb, var(--bg) 88%, transparent);
+  position: sticky; top: var(--nav-h); z-index: 30; padding: 12px 0; background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line);
 }
 .bd-toolbar-in { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.bd-tabs { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
+.bd-tabs { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(19,23,32,.08); }
 .bd-tab { padding: 7px 14px; border-radius: 999px; font-size: 13px; color: var(--muted); border: 0; background: transparent; cursor: pointer; }
 .bd-tab.is-active { background: var(--surface); color: var(--ink); }
 .bd-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .bd-chip {
-  padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--card);
+  padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); box-shadow: 0 4px 14px rgba(19,23,32,.07);
   font-family: var(--font-mono); font-size: 12px; color: var(--muted); cursor: pointer;
 }
 .bd-chip.is-active { border-color: var(--gold); color: var(--gold-text); background: var(--gold-soft); }
 .bd-search {
   margin-left: auto; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px;
-  border-radius: 999px; border: 1px solid var(--line); background: var(--card); min-width: 220px;
+  border-radius: 999px; border: 1px solid var(--line); background: var(--card); min-width: 220px; box-shadow: 0 6px 20px rgba(19,23,32,.08);
 }
 .bd-search input { border: 0; background: transparent; outline: 0; color: var(--ink); font: inherit; font-size: 13.5px; width: 100%; }
 .bd-search svg { width: 14px; height: 14px; stroke: var(--dim); fill: none; stroke-width: 2; }
 .bd-select {
-  height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card);
+  height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); box-shadow: 0 6px 20px rgba(19,23,32,.08);
   color: var(--ink); font: inherit; font-size: 13px; cursor: pointer;
 }
 .bd-board { padding: 18px 0 80px; }
 .bd-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
-.bd-table th { text-align: left; padding: 6px 14px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); font-weight: 500; cursor: pointer; white-space: nowrap; }
-.bd-table th.is-sorted { color: var(--ink); }
+.bd-table th { text-align: left; padding: 6px 14px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.85); text-shadow: 0 1px 2px rgba(10,40,30,.35); font-weight: 500; cursor: pointer; white-space: nowrap; }
+.bd-table th.is-sorted { color: #fff; }
 .bd-table th.is-num, .bd-table td.is-num { text-align: right; }
 .bd-table td { padding: 12px 14px; background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 13.5px; white-space: nowrap; vertical-align: middle; }
 .bd-table td:first-child { border-left: 1px solid var(--line); border-radius: 12px 0 0 12px; }
@@ -894,7 +894,7 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 /* content sits straight on the lake: white cards, no sheet */
 .bd > main, .bd-footer { position: relative; z-index: 1; }
 .bd-section-alt { border-top: 0; border-bottom: 0; background: transparent; }
-.bd-toolbar { background: rgba(255,255,255,.86); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 0 0 18px 18px; border-bottom: 1px solid var(--line); }
+.bd-toolbar { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; border-bottom: 0; }
 .bd-proof { padding-top: 40px; }
 .bd-footer { border-top: 1px solid var(--line); background: transparent; }
 .bd-faq details { background: rgba(255,255,255,.82); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; margin-bottom: 8px; }

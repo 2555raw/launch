@@ -48,8 +48,8 @@ The layout is the one that works for this category: a huge centred headline, one
 two floating navigation pills, and a scene around the copy that
 people can play with. The scene is where Bonded differs.
 
-**A lake behind everything.** A fixed layer under every page draws the water: layered gradients
-for depth, two drifting sheets of caustic light, a shimmer warped by an SVG turbulence filter, sun
+**A lake behind everything, in white.** A fixed layer under every page draws the water in pale
+greys on white: faint gradients for depth, two drifting sheets of caustic light, a shimmer warped by an SVG turbulence filter, sun
 glare, motes on the surface, a ring somewhere every second or so, and lily pads with pink flowers
 that drift and turn. Content that is not the hero rides on a translucent white sheet over it.
 Each tokenized stock is a frog, seen from above, painted in its company's colour with the
@@ -63,7 +63,7 @@ scene, `Reset` reshuffles it.
 
 ## Design
 
-A white sheet over blue water, always. (A dark token set is kept in the stylesheet under `html[data-theme="dark"]`, unused; there is no switch.) Two roles keep their colours across the whole site:
+White water, always. (A dark token set is kept in the stylesheet under `html[data-theme="dark"]`, unused; there is no switch.) Two roles keep their colours across the whole site:
 
 - **Gold `#F0B35B` is the stock**: the stock tags, the active tile, the "Trade" button, the stock
   side of every quote.

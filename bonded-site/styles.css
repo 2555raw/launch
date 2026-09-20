@@ -7,9 +7,9 @@
    switch. */
 
 * { box-sizing: border-box; }
-html { color-scheme: light; background: #3E8FC2; scroll-behavior: smooth; }
+html { color-scheme: light; background: #FFFFFF; scroll-behavior: smooth; }
 html[data-theme="dark"] { color-scheme: dark; background: #0A0C10; }
-body { margin: 0; background: #3E8FC2; color: #131720; }
+body { margin: 0; background: #FFFFFF; color: #131720; }
 html[data-theme="dark"] body { background: #0A0C10; color: #F2F5F9; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; }
@@ -189,7 +189,7 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .bd-scene > i { position: absolute; display: block; }
 /* lily pads (drawn by the lake layer; the hero only borrows the class) */
 .bd-lily { position: absolute; width: var(--s); height: var(--s); left: var(--l); top: var(--t); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle at 42% 38%, #9AD67E, #62AE4E 55%, #468B3B 100%);
+  background: radial-gradient(circle at 42% 38%, #A4DB8A, #6DB55A 55%, #4E9442 100%);
   clip-path: polygon(50% 50%, 100% 36%, 100% 0, 0 0, 0 100%, 100% 100%, 100% 64%);
   box-shadow: 0 14px 22px rgba(19,23,32,.16), inset 0 -6px 12px rgba(0,0,0,.14);
   transform: rotate(var(--r)); }
@@ -199,8 +199,8 @@ html[data-theme="dark"] .bd-pill { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
   background: radial-gradient(circle at 50% 50%, #FFF3A8 0 22%, #F9A8C9 24% 55%, #E96FA6 100%);
   box-shadow: 0 0 0 4px rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.2); }
 /* landing marks */
-.bd-ripple { position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,.85); transform: translate(-50%, -50%) scale(.2); opacity: .9; pointer-events: none; animation: bdRipple 1s ease-out forwards; }
-.bd-dust { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.9); pointer-events: none; animation: bdSplash .6s ease-out forwards; }
+.bd-ripple { position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(19,23,32,.2); transform: translate(-50%, -50%) scale(.2); opacity: .9; pointer-events: none; animation: bdRipple 1s ease-out forwards; }
+.bd-dust { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(19,23,32,.25); pointer-events: none; animation: bdSplash .6s ease-out forwards; }
 @keyframes bdRipple { to { transform: translate(-50%, -50%) scale(2.6); opacity: 0; } }
 @keyframes bdSplash { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
@@ -789,29 +789,28 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 .bd-lake > i { position: absolute; display: block; }
 .bd-lake-water { inset: 0;
   background:
-    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255,255,255,.22), transparent 70%),
-    radial-gradient(ellipse 40% 40% at 12% 86%, #1F6698, transparent 70%),
-    radial-gradient(ellipse 45% 40% at 90% 30%, #57AEDD, transparent 70%),
-    radial-gradient(ellipse 36% 30% at 72% 90%, #1E5F90, transparent 70%),
-    linear-gradient(180deg, #5FB3DA 0%, #3E8FC2 45%, #2C74A8 100%); }
-.bd-lake-caustics { inset: -12%; opacity: .32; mix-blend-mode: screen; filter: blur(1.2px);
+    radial-gradient(ellipse 40% 40% at 12% 86%, #EEF2F5, transparent 70%),
+    radial-gradient(ellipse 45% 40% at 90% 30%, #F3F6F8, transparent 70%),
+    radial-gradient(ellipse 36% 30% at 72% 90%, #ECF0F3, transparent 70%),
+    linear-gradient(180deg, #FFFFFF 0%, #FAFBFC 45%, #F4F6F8 100%); }
+.bd-lake-caustics { inset: -12%; opacity: .42; filter: blur(1.4px);
   background:
-    radial-gradient(ellipse 52% 44% at 50% 50%, rgba(255,255,255,0) 0 62%, rgba(255,255,255,.8) 68% 74%, rgba(255,255,255,0) 82%) 0 0 / 96px 82px,
-    radial-gradient(ellipse 46% 52% at 50% 50%, rgba(255,255,255,0) 0 60%, rgba(255,255,255,.6) 67% 72%, rgba(255,255,255,0) 80%) 47px 39px / 110px 96px; }
-.bd-lake-caustics2 { opacity: .22; filter: blur(2px);
+    radial-gradient(ellipse 52% 44% at 50% 50%, rgba(120,135,150,0) 0 62%, rgba(120,135,150,.22) 68% 74%, rgba(120,135,150,0) 82%) 0 0 / 96px 82px,
+    radial-gradient(ellipse 46% 52% at 50% 50%, rgba(120,135,150,0) 0 60%, rgba(120,135,150,.16) 67% 72%, rgba(120,135,150,0) 80%) 47px 39px / 110px 96px; }
+.bd-lake-caustics2 { opacity: .3; filter: blur(2.2px);
   background:
-    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,255,255,0) 0 60%, rgba(255,255,255,.85) 67% 71%, rgba(255,255,255,0) 80%) 22px 10px / 70px 62px,
-    radial-gradient(ellipse 48% 44% at 50% 50%, rgba(255,255,255,0) 0 64%, rgba(255,255,255,.5) 70% 75%, rgba(255,255,255,0) 84%) 0 0 / 170px 150px; }
-.bd-lake-shimmer { inset: -6%; opacity: .55; mix-blend-mode: screen; filter: url(#bd-water);
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(120,135,150,0) 0 60%, rgba(120,135,150,.24) 67% 71%, rgba(120,135,150,0) 80%) 22px 10px / 70px 62px,
+    radial-gradient(ellipse 48% 44% at 50% 50%, rgba(120,135,150,0) 0 64%, rgba(120,135,150,.14) 70% 75%, rgba(120,135,150,0) 84%) 0 0 / 170px 150px; }
+.bd-lake-shimmer { inset: -6%; opacity: .5; filter: url(#bd-water);
   background:
-    repeating-linear-gradient(176deg, transparent 0 46px, rgba(255,255,255,.18) 46px 52px, transparent 52px 118px),
-    repeating-linear-gradient(94deg, transparent 0 80px, rgba(255,255,255,.10) 80px 86px, transparent 86px 190px); }
-.bd-lake-glare { inset: 0; mix-blend-mode: screen; opacity: .8;
-  background: radial-gradient(ellipse 34% 16% at 76% 12%, rgba(255,255,255,.75), transparent 70%), radial-gradient(ellipse 22% 10% at 24% 58%, rgba(255,255,255,.35), transparent 70%); }
-.bd-lake-depth { inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(10,40,70,.28) 100%); }
-.bd-lake .bd-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.75); transform: translate(-50%, -50%) scale(.15); opacity: .8; animation: bdLakeRing 3.2s ease-out forwards; }
+    repeating-linear-gradient(176deg, transparent 0 46px, rgba(120,135,150,.08) 46px 52px, transparent 52px 118px),
+    repeating-linear-gradient(94deg, transparent 0 80px, rgba(120,135,150,.05) 80px 86px, transparent 86px 190px); }
+.bd-lake-glare { inset: 0; opacity: .9;
+  background: radial-gradient(ellipse 34% 16% at 76% 12%, rgba(255,255,255,1), transparent 70%), radial-gradient(ellipse 22% 10% at 24% 58%, rgba(255,255,255,.9), transparent 70%); }
+.bd-lake-depth { inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 60%, rgba(90,110,130,.08) 100%); }
+.bd-lake .bd-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid rgba(120,135,150,.35); transform: translate(-50%, -50%) scale(.15); opacity: .8; animation: bdLakeRing 3.2s ease-out forwards; }
 @keyframes bdLakeRing { to { transform: translate(-50%, -50%) scale(3.2); opacity: 0; } }
-.bd-lake .bd-mote { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.7); animation: bdMote var(--d) linear infinite; animation-delay: var(--dl); }
+.bd-lake .bd-mote { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(120,135,150,.35); animation: bdMote var(--d) linear infinite; animation-delay: var(--dl); }
 @keyframes bdMote { from { transform: translate(0, 0); opacity: 0; } 10% { opacity: .8; } 90% { opacity: .6; } to { transform: translate(var(--mx), var(--my)); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   .bd-lake-caustics { animation: bdCaustics 12s ease-in-out infinite alternate; }
@@ -825,10 +824,10 @@ textarea.bd-input { height: auto; padding: 12px 14px; min-height: 92px; resize: 
 @keyframes bdShimmer { to { transform: translate(1.5%, -1%); } }
 /* everything that is not the hero sits on a translucent sheet over the lake */
 .bd > main, .bd-footer, .bd-nav { position: relative; z-index: 1; }
-.bd-sheet { background: rgba(255,255,255,.9); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 28px 28px 0 0; margin: 0 16px; box-shadow: 0 -20px 60px rgba(10,40,70,.18); overflow: hidden; }
+.bd-sheet { background: rgba(255,255,255,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 28px 28px 0 0; margin: 0 16px; box-shadow: 0 -16px 50px rgba(19,23,32,.06), 0 0 0 1px var(--line); overflow: hidden; }
 .bd-sheet + .bd-footer, .bd-sheet .bd-footer { margin: 0 16px; }
-body:not([data-page="home"]) .bd > main { background: rgba(255,255,255,.9); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 28px; margin: 12px 16px 0; box-shadow: 0 20px 60px rgba(10,40,70,.18); overflow: hidden; padding-bottom: 8px; }
-.bd-footer { background: rgba(255,255,255,.9); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin: 12px 16px 16px; border-radius: 24px; border-top: 0; }
+body:not([data-page="home"]) .bd > main { background: rgba(255,255,255,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 28px; margin: 12px 16px 0; box-shadow: 0 16px 50px rgba(19,23,32,.06), 0 0 0 1px var(--line); overflow: hidden; padding-bottom: 8px; }
+.bd-footer { background: rgba(255,255,255,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin: 12px 16px 16px; border-radius: 24px; border-top: 0; box-shadow: 0 0 0 1px var(--line); }
 .bd-section-alt { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(246,248,251,.9); }
 .bd-toolbar { background: rgba(255,255,255,.92); }
 .bd-proof { padding-top: 40px; }

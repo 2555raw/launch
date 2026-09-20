@@ -364,14 +364,16 @@
   document.documentElement.setAttribute('data-theme', 'light');
 
   // night on the pond: a switch in the footer, remembered
-  const nightBtn = $('#night');
+  const nightBtn = $('#night'), nightIcons = $$('.bd-nav-night');
   const applyNight = on => {
     document.documentElement.classList.toggle('is-night', on);
     if (nightBtn) { nightBtn.setAttribute('aria-pressed', String(on)); nightBtn.querySelector('span').textContent = on ? 'Day on the pond' : 'Night on the pond'; }
+    nightIcons.forEach(b => { b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-label', on ? 'Day on the pond' : 'Night on the pond'); });
     document.dispatchEvent(new CustomEvent('bonded:night', { detail: on }));
   };
   applyNight(store.get('bonded-night', false) === true);
-  nightBtn?.addEventListener('click', () => { const on = !document.documentElement.classList.contains('is-night'); applyNight(on); store.set('bonded-night', on); });
+  const flipNight = () => { const on = !document.documentElement.classList.contains('is-night'); applyNight(on); store.set('bonded-night', on); };
+  nightBtn?.addEventListener('click', flipNight); nightIcons.forEach(b => b.addEventListener('click', flipNight));
 
   // menu
   const burger = $('#burger'), links = $('#navlinks');

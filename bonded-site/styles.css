@@ -1127,3 +1127,15 @@ html.is-night .bd-note { background: rgba(111,211,180,.12); border-color: rgba(1
 html.is-night .bd-hero-foot { color: #E6F0EE; }
 html.is-night ::selection { background: #2F6B5C; color: #fff; }
 html.is-night .bd-swan { display: none; }
+
+/* icons in the nav: X and the night switch */
+.bd-nav-icon { width: 34px; height: 34px; border-radius: 50%; border: 0; background: none; display: inline-grid; place-items: center; color: #3A4353; cursor: pointer; padding: 0; transition: color .15s, background .15s; }
+.bd-nav-icon:hover { color: #131720; background: rgba(19,23,32,.06); }
+.bd-nav-icon svg { width: 16px; height: 16px; fill: currentColor; }
+.bd-nav-night .bd-ic-sun { display: none; }
+html.is-night .bd-nav-night .bd-ic-moon { display: none; }
+html.is-night .bd-nav-night .bd-ic-sun { display: block; fill: none; stroke: currentColor; }
+html.is-night .bd-nav-night .bd-ic-sun circle { fill: currentColor; stroke: none; }
+html.is-night .bd-nav-icon { color: #B7C8C5; }
+html.is-night .bd-nav-icon:hover { color: #F2F7F6; background: rgba(255,255,255,.08); }
+@media (max-width: 900px) { .bd-nav-icon { display: none; } }

@@ -31,7 +31,7 @@
     factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
     launchConfigId: null,      // null = first enabled config
     creatorTaxBps: 0,
-    slippageBps: 300,
+    slippageBps: 300,          // shown on the pair page; snipe tax on young curves can exceed 1%
     lookbackBlocks: 400_000,   // how far back to index launches (Robinhood Chain blocks are fast)
     chunk: 10_000,             // eth_getLogs window
     parallel: 6,               // concurrent RPC requests while indexing

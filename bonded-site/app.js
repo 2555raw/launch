@@ -19,7 +19,9 @@
     chain: 'Robinhood Chain',
     chainId: '4663',
     explorer: 'https://robinhoodchain.blockscout.com',
-    fee: 'Pons launch fee (read on-chain)',
+    fee: 'set by Pons',        // launchFee() is read on-chain by the live adapter
+    slippage: '1%',
+    slippageBps: 100,
     swapFee: '1.0%',
     swapFeeRate: 0.01,
     creatorShare: '50%',
@@ -1174,7 +1176,7 @@
             <div><span>Price</span><b>${fmtShares(priceShares(p))} ${st.sym}</b></div>
             <div><span>Price impact</span><b id="q-impact">—</b></div>
             <div><span>Fee (${CONFIG.swapFee})</span><b id="q-fee">—</b></div>
-            <div><span>Min. received (1% slippage)</span><b id="q-min">—</b></div>
+            <div><span>Min. received (${adapter.pons ? adapter.pons.slippageBps / 100 : CONFIG.slippageBps / 100}% slippage)</span><b id="q-min">—</b></div>
           </div>
           <button class="bd-btn bd-btn-buy" id="go" type="button">Connect wallet</button>
           <div class="bd-holding"><span>You hold</span><b id="hold">—</b></div>
@@ -1206,7 +1208,7 @@
         $('#out').value = fmtNum(quote.out);
         $('#out-usd').textContent = '≈ ' + fmtUsd(side === 'buy' ? quote.out * priceUsd(p) : quote.out * st.price);
         $('#q-impact').textContent = (quote.priceImpact * 100).toFixed(2) + '%'; $('#q-impact').className = quote.priceImpact > .05 ? 'bd-down' : '';
-        $('#q-fee').textContent = fmtNum(quote.fee) + ' ' + quote.feeUnit; $('#q-min').textContent = fmtNum(quote.out * .99) + ' ' + (side === 'buy' ? p.ticker : st.sym);
+        $('#q-fee').textContent = fmtNum(quote.fee) + ' ' + quote.feeUnit; $('#q-min').textContent = fmtNum(quote.out * (1 - (adapter.pons ? adapter.pons.slippageBps : CONFIG.slippageBps) / 10000)) + ' ' + (side === 'buy' ? p.ticker : st.sym);
         go.textContent = wallet ? (side === 'buy' ? `Buy ${fmtNum(quote.out)} $${p.ticker}` : `Sell for ${fmtNum(quote.out)} ${st.sym}`) : 'Connect wallet';
       };
       $('#trade').addEventListener('click', e => {

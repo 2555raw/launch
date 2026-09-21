@@ -1307,3 +1307,15 @@ html.is-night .bd-fees-note { color: #93A39B; }
 /* the board shows 50 rows at a time */
 .bd-more { display: block; margin: 18px auto 0; }
 .bd-more[hidden] { display: none; }
+
+/* creator fees on the playground */
+.bd-fees { margin: 22px 0 8px; padding: 18px 20px; border-radius: 18px; background: var(--card); border: 1px solid var(--line-hi); }
+.bd-fees h3 { margin: 0 0 10px; font-family: var(--font-display); font-size: 18px; }
+.bd-fee-row { display: grid; grid-template-columns: 70px 1fr 1fr auto; gap: 10px 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.bd-fee-row b { font-family: var(--font-mono); }
+.bd-fee-row strong { font-family: var(--font-mono); font-weight: 600; }
+.bd-fee-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.bd-fees-note { margin: 10px 0 0; font-size: 12.5px; color: #4A5560; }
+html.is-night .bd-fees { background: rgba(14, 26, 22, .92); border-color: rgba(255,255,255,.08); }
+html.is-night .bd-fees-note { color: #93A39B; }
+@media (max-width: 700px) { .bd-fee-row { grid-template-columns: 1fr; } .bd-fee-actions { justify-content: flex-start; } }

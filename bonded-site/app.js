@@ -321,7 +321,7 @@
     if (p.volume / p.mcap > .3) return '<span class="bd-badge bd-badge-hot" title="Hot: 24h volume above 30% of market cap">hot</span>';
     return '';
   };
-  const pairHref = p => 'pair.html?t=' + encodeURIComponent(p.ticker);
+  const pairHref = p => (adapter.pons && /^0x[0-9a-fA-F]{40}$/.test(p.address || '')) ? 'pair.html?a=' + p.address : 'pair.html?t=' + encodeURIComponent(p.ticker);
 
   function pairCard(p) {
     const st = stockOf(p.stock);
@@ -1119,7 +1119,8 @@
      ===================================================================== */
   if (page === 'pair') {
     const root = $('#pp');
-    const ticker = new URLSearchParams(location.search).get('t');
+    const qs = new URLSearchParams(location.search);
+    const ticker = qs.get('a') || qs.get('t');
     const chartSvg = (series, w = 720, h = 300) => {
       const min = Math.min(...series), max = Math.max(...series), pad = { l: 8, r: 64, t: 12, b: 24 };
       const X = i => pad.l + i / (series.length - 1) * (w - pad.l - pad.r), Y = v => pad.t + (1 - (v - min) / (max - min || 1)) * (h - pad.t - pad.b);
@@ -1142,6 +1143,7 @@
     </tr>`;
 
     let paintBal = () => {};
+    root.innerHTML = `<div class="bd-empty" style="grid-column:1/-1">Reading the curve…</div>`;
     adapter.pair(ticker).then(p => {
       if (!p) { root.innerHTML = `<div class="bd-empty" style="grid-column:1/-1">No pair called ${esc(ticker || '')}. <a class="bd-link" href="board.html">Back to the pairs</a>.</div>`; return; }
       const st = stockOf(p.stock);
@@ -1288,7 +1290,7 @@
       paintSide(); refreshHolding();
       // other people's trades on this pair land in the table too
       adapter.subscribe(ev => { if (ev.pair?.ticker === p.ticker && (ev.kind === 'buy' || ev.kind === 'sell') && ev.wallet !== wallet?.address) { $('#trades').insertAdjacentHTML('afterbegin', tradeRow(ev, st, p, true)); } });
-    });
+    }).catch(e => { console.warn('pair', e); root.innerHTML = `<div class="bd-empty" style="grid-column:1/-1">Could not load this pair: ${esc(e.message || e)}. <a class="bd-link" href="board.html">Back to the pairs</a>.</div>`; });
   }
 
   /* =====================================================================
@@ -1450,7 +1452,10 @@
         $('#mine-connect').addEventListener('click', connect); return;
       }
       const [pairs, launchedT, holdings] = await Promise.all([adapter.pairs(), adapter.launched(wallet.address), adapter.holdings(wallet.address)]);
-      const launched = launchedT.map(t => pairs.find(p => p.ticker === t)).filter(Boolean);
+      const me = String(wallet.address).toLowerCase();
+      const launched = adapter.pons
+        ? pairs.filter(p => String(p.creator).toLowerCase() === me || (isOwner(wallet) && isLilyPad(p))).sort((a, b) => b.createdAt - a.createdAt)
+        : launchedT.map(t => pairs.find(p => p.ticker === t)).filter(Boolean);
       const positions = holdings.map(h => ({ ...h, p: pairs.find(p => p.ticker === h.ticker) })).filter(x => x.p);
       const valueUsd = positions.reduce((s, x) => s + x.amount * priceUsd(x.p), 0);
       const fees = launched.reduce((s, p) => s + p.volume * CONFIG.swapFeeRate * CONFIG.creatorShareRate, 0);
@@ -1470,6 +1475,34 @@
         </tbody></table></div>`
           : `<div class="bd-mine-empty">No positions yet. Buy into a pair and it shows up here.<br><a class="bd-btn bd-btn-ghost bd-btn-sm" href="board.html">Explore the pairs</a></div>`}`;
       $('#claim')?.addEventListener('click', () => toast(`Claimed ${fmtUsd(fees)} in creator fees`));
+      if (adapter.pons && adapter.fees) paintFees(launched);
+    };
+    // live: the 2% creator tax, per stock — what is still on the curves and what the Pons escrow already holds for this wallet
+    const paintFees = async (launched) => {
+      const box = $('#fees'); if (!box) return; box.hidden = false;
+      box.innerHTML = `<h3>Creator fees</h3><p class="bd-fees-note">Reading the curves and the fee escrow…</p>`;
+      try {
+        const { escrow, stocks } = await adapter.fees(wallet.address, launched);
+        if (!stocks.length) { box.innerHTML = `<h3>Creator fees</h3><p class="bd-fees-note">Nothing accrued yet. Every trade on a coin launched here pays ${CONFIG.creatorTax}.</p>`; return; }
+        box.innerHTML = `<h3>Creator fees</h3>` + stocks.map(st => `
+          <div class="bd-fee-row">
+            <b>${esc(st.sym)}</b>
+            <span>On curves: <strong>${fmtNum(st.pending)} ${esc(st.sym)}</strong>${st.curves.length ? ` · ${st.curves.map(c => `$${esc(c.ticker)} ${fmtNum(c.amount)}`).join(', ')}` : ''}</span>
+            <span>In escrow: <strong>${st.readable ? fmtNum(st.claimable) + ' ' + esc(st.sym) : 'unreadable'}</strong></span>
+            <span class="bd-fee-actions">
+              ${st.curves.map(c => `<button class="bd-btn bd-btn-ghost bd-btn-xs" data-sweep="${c.curve}" type="button">Sweep $${esc(c.ticker)}</button>`).join('')}
+              <button class="bd-btn bd-btn-primary bd-btn-xs" data-claim="${esc(st.sym)}" type="button" ${st.claimable > 0 ? '' : 'disabled'}>Claim ${esc(st.sym)}</button>
+            </span>
+          </div>`).join('') + `<p class="bd-fees-note">Sweep moves a curve's accrued tax into the Pons fee escrow${escrow ? ` (<a class="bd-link" href="${CONFIG.explorer}/address/${escrow}" target="_blank" rel="noopener">${shortAddr(escrow)}</a>)` : ''}; Claim pays it out to this wallet.</p>`;
+        box.addEventListener('click', async e => {
+          const sw = e.target.closest('[data-sweep]'), cl = e.target.closest('[data-claim]'); if (!sw && !cl) return;
+          const btn = sw || cl; btn.disabled = true; const label = btn.textContent; btn.textContent = 'Signing…';
+          try {
+            const r = sw ? await adapter.sweep(sw.dataset.sweep) : await adapter.claim(cl.dataset.claim);
+            toast((sw ? 'Swept · ' : 'Claimed · ') + shortAddr(r.txHash)); paintFees(launched);
+          } catch (err) { toast(err.message || String(err)); btn.disabled = false; btn.textContent = label; }
+        }, { once: true });
+      } catch (e) { box.innerHTML = `<h3>Creator fees</h3><p class="bd-fees-note">Could not read the fees: ${esc(e.message || e)}</p>`; }
     };
     document.addEventListener('bonded:wallet', paint); paint();
   }

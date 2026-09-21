@@ -101,12 +101,14 @@
     config: (id) => call(PONS.factory, 'getLaunchConfig', ['uint256'], [id], [LAUNCH_CONFIG]).then(([c]) => ({ supply: c[0], curveFeeBps: c[1], phantomQuote: c[2], graduationThreshold: c[3], poolFee: c[4], tickSpacing: c[5], enabled: c[6] })),
     economics: (id, quote) => call(PONS.factory, 'previewLaunchEconomics', ['uint256', 'address'], [id, quote], ['bytes32']).then(r => r[0]),
     pairEconomics: (quote) => call(PONS.factory, 'pairTokenEconomics', ['address'], [quote], ['uint256', 'uint256', 'uint8']),
+    feeEscrow: () => call(PONS.factory, 'feeEscrow', [], [], ['address']).then(r => r[0]),
   };
   const curve = {
     reserves: (c) => call(c, 'getReserves', [], [], ['uint256', 'uint256']).then(([q, t]) => ({ q, t })),
     feeBps: (c) => call(c, 'feeBps', [], [], ['uint256']).then(r => r[0]),
     graduated: (c) => call(c, 'graduated', [], [], ['bool']).then(r => r[0]),
     launchSupply: (c) => call(c, 'launchSupply', [], [], ['uint256']).then(r => r[0]),
+    creatorTaxBalance: (c) => call(c, 'creatorTaxBalance', [], [], ['uint256']).then(r => r[0]).catch(() => 0n),
   };
   const erc20 = {
     symbol: (t) => call(t, 'symbol', [], [], ['string']).then(r => r[0]).catch(() => '?'),
@@ -335,7 +337,29 @@
   const budget = (p, ms = 700) => index.launches.length ? Promise.race([p, sleep(0)]) : Promise.race([p, sleep(ms)]);
   // the read paths degrade to empty when the RPC is unreachable, so the pages still render
   const safe = (fn, fallback) => fn().catch(e => { console.warn('pons: cannot reach the chain —', e.message); return fallback; });
-  const find = async (ticker) => (await ready()).find(p => p.ticker.toUpperCase() === String(ticker).toUpperCase());
+  const isAddress = v => /^0x[0-9a-fA-F]{40}$/.test(String(v || ''));
+  // a pair by token address (unique) or by ticker (the newest with that ticker); an address the
+  // index has never seen is looked up straight from the factory's TokenLaunched log
+  async function find(key) {
+    const k = String(key || '');
+    const byKey = list => isAddress(k) ? list.find(p => p.address.toLowerCase() === k.toLowerCase()) : list.filter(p => p.ticker.toUpperCase() === k.toUpperCase()).sort((a, b) => b.createdAt - a.createdAt)[0];
+    let p = byKey(index.launches); if (p) return p;
+    p = byKey(await safe(ready, [])); if (p || !isAddress(k)) return p || null;
+    await stocksReady().catch(() => {});
+    const head = parseInt(await rpc('eth_blockNumber'), 16);
+    const topic = '0x' + k.slice(2).toLowerCase().padStart(64, '0');
+    let logs = [];
+    for (const span of [head, 2_000_000, 400_000]) {
+      try { logs = await rpc('eth_getLogs', [{ address: PONS.factory, topics: [T_LAUNCHED, topic], fromBlock: A.hex(Math.max(0, head - span)), toBlock: A.hex(head) }]); break; } catch (_) {}
+    }
+    if (!logs.length) return null;
+    const l = parseLaunched(logs[0]);
+    if (byToken[l.pairToken.toLowerCase()] === undefined) await registerStock(null, l.pairToken);
+    const pair = await hydrate(l); if (!pair) return null;
+    if (lilypadTokens.has(pair.address.toLowerCase())) pair.lilypad = true;
+    index.launches.push(pair); saveIndex();
+    return pair;
+  }
 
   async function tradesOf(p, fromBlock) {
     const head = parseInt(await rpc('eth_blockNumber'), 16);
@@ -548,6 +572,45 @@
     async launched(address) {
       if (!address) return [];
       return (await safe(ready, [])).filter(p => p.creator.toLowerCase() === address.toLowerCase()).map(p => p.ticker);
+    },
+    // creator fees: what sits on each curve (creatorTaxBalance) and what the Pons fee escrow already holds for `address`
+    async fees(address, pairs) {
+      const escrow = await factory.feeEscrow().catch(() => null);
+      const out = [];
+      for (const [sym, tk] of Object.entries(stockTokens)) {
+        const mine = (pairs || []).filter(p => p.stock === sym);
+        const pending = await Promise.all(mine.map(p => curve.creatorTaxBalance(p.curve).then(v => ({ pair: p, amount: v }))));
+        let claimable = 0n, readable = false;
+        if (escrow) {
+          for (const sig of [['balanceOfToken', ['address', 'address'], [address, tk.address]], ['balanceOf', ['address', 'address'], [address, tk.address]], ['balanceOfToken', ['address', 'address'], [tk.address, address]]]) {
+            try { claimable = (await call(escrow, sig[0], sig[1], sig[2], ['uint256']))[0]; readable = true; break; } catch (_) {}
+          }
+        }
+        const pend = pending.reduce((a, x) => a + x.amount, 0n);
+        if (pend > 0n || claimable > 0n || mine.length) out.push({ sym, token: tk.address, decimals: tk.decimals, escrow, readable, claimable: Number(claimable) / 10 ** tk.decimals, pending: Number(pend) / 10 ** tk.decimals, curves: pending.filter(x => x.amount > 0n).map(x => ({ ticker: x.pair.ticker, curve: x.pair.curve, amount: Number(x.amount) / 10 ** tk.decimals })) });
+      }
+      return { escrow, stocks: out };
+    },
+    // move a curve's accrued fees into the escrow (anyone may call it)
+    async sweep(curveAddress) {
+      if (!account) await this.connect();
+      const receipt = await sendTx({ to: curveAddress, data: A.encodeCall('sweepFees', [], []) });
+      return { txHash: receipt.transactionHash };
+    },
+    // pull a stock's fees out of the escrow to the connected wallet; the escrow's exact signature is probed
+    async claim(sym) {
+      if (!account) await this.connect();
+      const tk = stockTokens[sym]; if (!tk) throw new Error('Unknown stock ' + sym);
+      const escrow = await factory.feeEscrow();
+      const variants = [['claimToken', ['address'], [tk.address]], ['claimToken', ['address', 'address'], [tk.address, account]], ['claim', ['address'], [tk.address]], ['claimToken', ['address', 'address'], [account, tk.address]]];
+      let data = null, last = null;
+      for (const [name, types, args] of variants) {
+        const d = A.encodeCall(name, types, args);
+        try { await simulate({ from: account, to: escrow, data: d }); data = d; break; } catch (e) { last = `${name}(${types.join(',')}): ${A.revertReason(e)}`; }
+      }
+      if (!data) throw new Error('The fee escrow refused every claim shape. Last: ' + last);
+      const receipt = await sendTx({ to: escrow, data });
+      return { txHash: receipt.transactionHash };
     },
     subscribe(fn) {
       listeners.add(fn);

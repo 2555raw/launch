@@ -10,6 +10,10 @@
    `node scripts/verify-pons.mjs` before trusting them with money. Add or replace freely. */
 window.BONDED_OWNER = '0xb5530232ee1dea37c57dc72e7abd7b551c62c3b6';
 
+/* CA: the LilyPad token's contract address. Empty until it drops; the nav shows "CA:" with a blank
+   slot, and once this is filled it shows the short address and copies the full one on click. */
+window.BONDED_CA = '';
+
 window.BONDED_STOCK_TOKENS = {
   AAPL:  '0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9',
   NVDA:  '0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC',

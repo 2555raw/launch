@@ -425,6 +425,18 @@
   };
   bindCfg();
   $$('[data-year]').forEach(el => el.textContent = new Date().getFullYear());
+  // CA pill in the nav: blank until config.js carries the address; a click copies the full address
+  const CA = String(window.BONDED_CA || '').trim();
+  $$('.bd-nav-ca').forEach(b => {
+    const v = b.querySelector('.bd-nav-ca-value');
+    b.classList.toggle('is-empty', !CA);
+    if (CA) { v.textContent = shortAddr(CA); b.title = `Copy the contract address · ${CA}`; }
+    else b.title = 'Contract address: not out yet';
+    b.addEventListener('click', async () => {
+      if (!CA) { toast('CA drops soon. Follow @useLilypadtech.'); return; }
+      await copyText(CA, null); b.classList.add('is-copied'); v.textContent = 'copied'; setTimeout(() => { b.classList.remove('is-copied'); v.textContent = shortAddr(CA); }, 1200);
+    });
+  });
   const copyText = async (text, btn) => {
     try { await navigator.clipboard.writeText(text); } catch (_) {
       const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (__) {} ta.remove();

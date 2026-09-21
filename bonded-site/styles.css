@@ -1322,3 +1322,15 @@ html.is-night .bd-fees-note { color: #93A39B; }
 
 /* the launch form really disappears once the pair is live (display: grid used to beat the hidden attribute) */
 .bd-launch[hidden] { display: none; }
+
+/* CA pill: the token's contract address, blank until it drops; a click copies it */
+.bd-nav-ca { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; border: 1px dashed rgba(58,67,83,.35); background: none; color: #3A4353; font: 500 12.5px/1 var(--font-mono, ui-monospace, monospace); letter-spacing: .02em; cursor: pointer; white-space: nowrap; transition: border-color .15s, color .15s, background .15s; }
+.bd-nav-ca:hover { border-style: solid; color: #131720; background: rgba(255,255,255,.35); }
+.bd-nav-ca-label { font-weight: 600; }
+.bd-nav-ca-value { min-width: 34px; }
+.bd-nav-ca.is-empty .bd-nav-ca-value::before { content: "\2014\2014\2014"; opacity: .35; letter-spacing: -.1em; }
+.bd-nav-ca.is-copied { border-color: #3F8E78; color: #2F6F5E; }
+html.is-night .bd-nav-ca { color: #B7C8C5; border-color: rgba(183,200,197,.4); }
+html.is-night .bd-nav-ca:hover { color: #F2F7F6; background: rgba(255,255,255,.06); }
+.bd-nav-ca.bd-only-sm { display: none; }
+@media (max-width: 900px) { .bd-nav-right > .bd-nav-ca { display: none; } .bd-nav-links .bd-nav-ca.bd-only-sm { display: inline-flex; margin-top: 6px; align-self: flex-start; } }

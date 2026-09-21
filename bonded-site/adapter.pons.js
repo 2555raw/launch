@@ -52,7 +52,24 @@
   const T_BUY = A.topic('CurveBuy', ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256']);
   const T_SELL = A.topic('CurveSell', ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256']);
 
-  const rpc = A.makeRpc(PONS.rpc);
+  // transport: the wallet when it sits on Robinhood Chain (its own RPC, no CORS, no shared rate limit),
+  // the public RPC otherwise; a network failure reads as a sentence instead of "Failed to fetch"
+  const httpRpc = A.makeRpc(PONS.rpc);
+  let walletChain = null;
+  async function rpc(method, params = []) {
+    const w = window.ethereum;
+    if (w && w.request) {
+      if (walletChain == null) {
+        try { walletChain = parseInt(await w.request({ method: 'eth_chainId' }), 16); if (w.on) w.on('chainChanged', c => { walletChain = parseInt(c, 16); }); } catch (_) { walletChain = 0; }
+      }
+      if (walletChain === PONS.chainId) return w.request({ method, params });
+    }
+    try { return await httpRpc(method, params); }
+    catch (e) {
+      if (e instanceof TypeError || /Failed to fetch|NetworkError|Load failed/i.test(e.message)) throw new Error(`Cannot reach ${PONS.rpc} from this browser. Connect a wallet set to ${PONS.chainName} (chain ${PONS.chainId}) and try again.`);
+      throw e;
+    }
+  }
   // map with a concurrency cap, so indexing does not fire hundreds of requests at once
   async function pmap(items, fn, n = PONS.parallel) {
     const out = new Array(items.length); let i = 0;
@@ -193,14 +210,21 @@
     const logs = await getLogsRange({ address: launcherAddr(), topics: [T_LAUNCHER] }, from, to).catch(() => []);
     for (const l of logs) creators['0x' + l.topics[2].slice(26)] = '0x' + l.topics[1].slice(26);
   }
+  // the configured stock tokens, checked with approvedPairTokens(): a handful of calls, independent of the index
+  let stocksPromise = null;
+  const stocksReady = () => stocksPromise || (stocksPromise = (async () => {
+    for (const [sym, addr] of Object.entries(window.BONDED_STOCK_TOKENS || {})) await registerStock(sym, addr);
+    return stockTokens;
+  })().catch(e => { stocksPromise = null; throw e; }));
+
   async function buildIndex() {
+    await stocksReady();
     const head = parseInt(await rpc('eth_blockNumber'), 16);
     const from = Math.max(0, head - PONS.lookbackBlocks);
     const logs = await getLogsRange({ address: PONS.factory, topics: [T_LAUNCHED] }, from, head);
     const launches = logs.map(parseLaunched);
     await noteLauncherLogs(from, head);
-    // stock tokens: the ones passed in, then any quote token seen on the factory
-    for (const [sym, addr] of Object.entries(window.BONDED_STOCK_TOKENS || {})) await registerStock(sym, addr);
+    // any other quote token seen on the factory
     const seen = new Set(launches.map(l => l.pairToken.toLowerCase()));
     for (const a of seen) if (byToken[a] === undefined) await registerStock(null, a);
     // ETH/USDG/cbBTC are approved too but are not stocks; only keep symbols Bonded knows or that look like tickers
@@ -234,13 +258,15 @@
 
   // ---- the adapter -----------------------------------------------------
   const adapter = {
-    pons: PONS, stockTokens, ready,
+    pons: PONS, stockTokens, ready, stocksReady,
     async stats() {
       const pairs = await safe(ready, []);
       return { pairs: pairs.length, volumeUsd: pairs.reduce((s, p) => s + p.volume, 0), lockedUsd: pairs.reduce((s, p) => s + p.mcap * 0.31, 0) };
     },
     async stocks() {
-      const pairs = await safe(ready, []);
+      await safe(stocksReady, null);
+      ready().catch(() => {});          // warm the index in the background; the list does not wait for it
+      const pairs = index.launches;
       const all = stocksMeta().map(s => ({ ...s, pairs: pairs.filter(p => p.stock === s.sym).length, change: 0, live: !!stockTokens[s.sym] }));
       // live mode only offers stocks whose token passed approvedPairTokens(); with no chain access it shows the full list, greyed by `live`
       const live = all.filter(s => s.live);
@@ -272,8 +298,10 @@
       return { address: account };
     },
     async createPair(payload) {
-      await ready();
       if (!account) await this.connect();
+      walletChain = PONS.chainId;       // connected and switched: reads go through the wallet from here
+      await stocksReady();
+      ready().catch(() => {});
       const st = stockTokens[payload.stock];
       if (!st) throw new Error(`No approved ${payload.stock} token is configured. Add it to BONDED_STOCK_TOKENS (see docs).`);
       if (!(await factory.launchEnabled())) throw new Error('Pons launches are paused right now.');

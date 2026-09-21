@@ -33,7 +33,7 @@
     factoryUrl: 'https://robinhoodchain.blockscout.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
     launcher: (window.BONDED_PONS && window.BONDED_PONS.launcher) || 'not deployed yet · first buy goes as a second transaction',
     docsUrl: 'docs.html',
-    xUrl: '#',
+    xUrl: 'https://x.com/useLilypadtech',
     supply: 1_000_000_000,
   };
 
@@ -345,7 +345,7 @@
         <span class="bd-pair-corner is-right">${fmtAge(p.createdAt)} ago</span>
       </div>
       <div class="bd-pair-body">
-        <div class="bd-pair-title"><span class="bd-pair-name">${esc(p.name)}</span><span class="bd-pair-pill">${p.mine ? 'Yours' : 'On the board'}</span></div>
+        <div class="bd-pair-title"><span class="bd-pair-name">${esc(p.name)}</span><span class="bd-pair-pill">${p.mine ? 'Yours · Trade →' : 'Trade →'}</span></div>
         <div class="bd-pair-sub">${esc(p.ticker)} · Priced in ${esc(st.name)}</div>
         <div class="bd-pair-bar"><i style="width:${pct}%"></i></div>
         <div class="bd-pair-bar-labels"><span>${fmtShares(priceShares(p))} ${st.sym}</span><span>${pct}% of supply held</span></div>

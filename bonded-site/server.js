@@ -97,7 +97,7 @@ http.createServer((req, res) => {
       'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream',
       /* the page, its styles and its script are revalidated on every load, so a
          deploy is live the moment it lands; pictures and fonts keep their cache */
-      'cache-control': path.extname(file) === '.html' ? 'no-cache' : versioned ? 'public, max-age=31536000, immutable' : 'public, max-age=3600'
+      'cache-control': versioned ? 'public, max-age=31536000, immutable' : ['.html', '.css', '.js'].includes(path.extname(file)) ? 'no-cache' : 'public, max-age=3600'
     });
     res.end(body);
   });

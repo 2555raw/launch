@@ -1,8 +1,13 @@
 /**
  * Seeds a demo dataset: two people, one merchant with an API key, balances,
- * and a short payment history. Safe to re-run; it clears the database first.
+ * and a short payment history.
  *
- *   npm run seed
+ *   npm run seed            seed once; a no-op if the database already has users
+ *   npm run seed -- --force seed again on top of what is there
+ *   npm run seed -- --fresh delete the database file first
+ *
+ * The no-op default is what makes it safe as a container start step: the server
+ * restarts without piling up a new charge and a new transfer every boot.
  */
 import { rmSync } from "fs";
 import { eq } from "drizzle-orm";
@@ -22,6 +27,12 @@ async function main() {
 
   const db = getDb();
   const password = "payence-demo-2026";
+
+  const already = db.select().from(schema.users).limit(1).all();
+  if (already.length && !process.argv.includes("--force")) {
+    console.log("Already seeded; leaving the database alone. Pass --force to seed again.");
+    return;
+  }
 
   async function user(name: string, email: string, handle: string, kycTier: number) {
     const existing = db.select().from(schema.users).where(eq(schema.users.email, email)).get();

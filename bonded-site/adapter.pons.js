@@ -191,6 +191,17 @@
   } catch (_) {}
   const saveIndex = () => { try { localStorage.setItem(CACHE_KEY, JSON.stringify({ factory: PONS.factory.toLowerCase(), lastBlock: index.lastBlock, launches: index.launches.slice(0, 400), creators }, bigOut)); } catch (_) {} };
   const announce = name => { try { document.dispatchEvent(new CustomEvent(name)); } catch (_) {} };
+  // launches made through LilyPad: the site's registry (/launches) plus this browser's own
+  const MINE_KEY = 'bonded-pons-mine';
+  const lilypadTokens = new Set();
+  try { for (const t of JSON.parse(localStorage.getItem(MINE_KEY) || '[]')) lilypadTokens.add(String(t).toLowerCase()); } catch (_) {}
+  const markLilypad = () => { for (const p of index.launches) if (lilypadTokens.has(p.address.toLowerCase())) p.lilypad = true; };
+  const registryLoaded = fetch('/launches', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).then(list => { for (const l of list) if (l && l.token) lilypadTokens.add(String(l.token).toLowerCase()); markLilypad(); announce('bonded:index'); }).catch(() => {});
+  const recordLaunch = rec => {
+    lilypadTokens.add(rec.token.toLowerCase());
+    try { localStorage.setItem(MINE_KEY, JSON.stringify([...lilypadTokens].slice(-500))); } catch (_) {}
+    fetch('/launches', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(rec) }).catch(() => {});
+  };
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   async function registerStock(sym, address) {
@@ -280,6 +291,8 @@
       index.launches = [...fresh, ...index.launches].sort((a, b) => b.createdAt - a.createdAt);
       index.lastBlock = head;
     }
+    await Promise.race([registryLoaded, sleep(800)]);
+    markLilypad();
     // reserves move; refresh the price of the most recent pairs without blocking anyone
     pmap(index.launches.slice(0, 40), async p => {
       try { const { q, t } = await curve.reserves(p.curve); if (!stockTokens[p.stock]) return; Object.assign(p, valueOf(p.stock, q, t)); } catch (_) {}
@@ -430,7 +443,8 @@
       if (l.pairToken.toLowerCase() !== st.address) throw new Error(`Pairing mismatch: curve quote is ${l.pairToken}, expected ${payload.stock} ${st.address}`);
       if (viaLauncher) creators[l.token.toLowerCase()] = account;
       const pair = await hydrate(l);
-      Object.assign(pair, { desc: payload.desc || '', image: payload.image || '', x: payload.x || '', site: payload.site || '', mine: true });
+      Object.assign(pair, { desc: payload.desc || '', image: payload.image || '', x: payload.x || '', site: payload.site || '', mine: true, lilypad: true });
+      recordLaunch({ token: l.token, curve: l.curve, creator: account, stock: payload.stock, ticker: payload.ticker, name: payload.name, tx: receipt.transactionHash, ts: Date.now() });
       if (!index.launches.some(x => x.address.toLowerCase() === pair.address.toLowerCase())) index.launches.unshift(pair);
       emit({ kind: 'launch', pair, wallet: account, ts: Date.now() });
       // without the launcher, the first buy is a second transaction straight into the new curve

@@ -1032,7 +1032,7 @@
      PAIRS BOARD
      ===================================================================== */
   if (page === 'board') {
-    const TAB_NOTES = { all: 'Every pair on the pond.', new: 'Newest launches first.', hot: 'Trending: 24h volume above 25% of market cap.', top: 'Top: market cap above $1M.' };
+    const TAB_NOTES = { lilypad: 'Coins launched from LilyPad.', all: 'Every pair on the pond: the Pons factory is shared, so this is everything paired with these stocks.', new: 'Newest launches first.', hot: 'Trending: 24h volume above 25% of market cap.', top: 'Top: market cap above $1M.' };
     const tabnote = document.createElement('p'); tabnote.className = 'bd-tabnote'; tabnote.id = 'tabnote';
     const tin = $('.bd-toolbar-in'); if (tin) tin.insertAdjacentElement('afterend', tabnote);
     const paintNote = () => { tabnote.textContent = TAB_NOTES[state.tab] || ''; };
@@ -1040,7 +1040,8 @@
     tabEls.forEach(b => { if (NOTE_TITLES[b.dataset.tab]) b.title = NOTE_TITLES[b.dataset.tab]; });
     const rows = $('#rows'), cards = $('#cards'), empty = $('#empty'), chips = $('#stock-chips'), search = $('#search'), sortSel = $('#sort');
     const params = new URLSearchParams(location.search);
-    const state = { tab: 'all', stock: params.get('stock') || 'all', q: params.get('q') || '', sort: 'volume', dir: -1 };
+    const state = { tab: params.get('tab') || (adapter.pons ? 'lilypad' : 'all'), stock: params.get('stock') || 'all', q: params.get('q') || '', sort: 'volume', dir: -1 };
+    $$('#tabs [data-tab]').forEach(b => b.classList.toggle('is-active', b.dataset.tab === state.tab));
     if (state.q) search.value = state.q;
     let all = [];
 
@@ -1049,6 +1050,7 @@
       let list = all.filter(p =>
         (state.stock === 'all' || p.stock === state.stock) &&
         (!q || p.name.toLowerCase().includes(q) || p.ticker.toLowerCase().includes(q) || p.stock.toLowerCase().includes(q)));
+      if (state.tab === 'lilypad') list = list.filter(p => p.lilypad || p.mine || (OWNER && String(p.creator).toLowerCase() === OWNER));
       if (state.tab === 'new') list = list.filter(p => Date.now() - p.createdAt < 24 * 3600e3);
       paintNote(); if (state.tab === 'hot') list = list.filter(p => p.volume / p.mcap > .25);
       if (state.tab === 'top') list = list.filter(p => p.mcap > 1e6);

@@ -53,10 +53,33 @@ const ASSET_FILES = ['styles.css', 'app.js', 'config.js', 'adapter.pons.js', 'po
 const BUILD = crypto.createHash('sha1').update(ASSET_FILES.map(f => { try { return fs.readFileSync(path.join(ROOT, f)); } catch { return ''; } }).join('')).digest('hex').slice(0, 10);
 const etagOf = st => `W/"${st.size.toString(16)}-${Math.floor(st.mtimeMs).toString(16)}"`;
 
+/* /launches remembers what was launched through this site, so the board can tell LilyPad's
+   coins from the rest of the shared Pons factory. A JSON file under DATA_DIR (mount a volume
+   there on Railway); without one it lives until the next deploy. */
+const DATA_DIR = process.env.DATA_DIR || path.join(ROOT, 'data');
+const LAUNCHES = path.join(DATA_DIR, 'launches.json');
+const isAddr = v => typeof v === 'string' && /^0x[0-9a-fA-F]{40}$/.test(v);
+function readLaunches() { try { return JSON.parse(fs.readFileSync(LAUNCHES, 'utf8')); } catch { return []; } }
+function launches(req, res) {
+  if (req.method === 'GET') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); res.end(JSON.stringify(readLaunches())); return; }
+  if (req.method !== 'POST') { res.writeHead(405).end(); return; }
+  let body = ''; req.on('data', c => { body += c; if (body.length > 4_000) req.destroy(); });
+  req.on('end', () => {
+    let r; try { r = JSON.parse(body); } catch { res.writeHead(400).end(); return; }
+    const ok = r && isAddr(r.token) && isAddr(r.curve) && isAddr(r.creator) && /^[A-Za-z0-9]{1,12}$/.test(r.stock || '') && /^[A-Za-z0-9]{1,12}$/.test(r.ticker || '') && typeof r.name === 'string' && r.name.length <= 40 && /^0x[0-9a-fA-F]{64}$/.test(r.tx || '');
+    if (!ok) { res.writeHead(400, { 'content-type': 'application/json' }); res.end('{"error":"bad launch record"}'); return; }
+    const list = readLaunches().filter(x => x.token.toLowerCase() !== r.token.toLowerCase());
+    list.push({ token: r.token, curve: r.curve, creator: r.creator, stock: r.stock, ticker: r.ticker, name: r.name, tx: r.tx, ts: Number(r.ts) || Date.now() });
+    try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(LAUNCHES, JSON.stringify(list.slice(-5000))); } catch (e) { res.writeHead(500, { 'content-type': 'application/json' }); res.end('{"error":"cannot store"}'); return; }
+    res.writeHead(200, { 'content-type': 'application/json' }); res.end('{"ok":true}');
+  });
+}
+
 http.createServer((req, res) => {
   let rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (rel === '/health') { res.writeHead(200, { 'content-type': 'text/plain' }); res.end('ok'); return; }
   if (rel === '/rpc') { proxyRpc(req, res); return; }
+  if (rel === '/launches') { launches(req, res); return; }
   if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
   /* /board and /launch without the extension */
   if (!path.extname(rel)) rel += '.html';

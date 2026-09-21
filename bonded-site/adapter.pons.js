@@ -31,7 +31,8 @@
     factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
     launcher: null,            // LilyPadLauncher address (contracts/pons/), bundles the first buy into the launch tx
     launchConfigId: null,      // null = first enabled config
-    creatorTaxBps: 0,
+    creatorTaxBps: 100,        // 1% of every curve trade, paid to feeRecipient
+    feeRecipient: null,        // defaults to BONDED_OWNER (config.js), else the launching wallet
     slippageBps: 300,          // shown on the pair page; snipe tax on young curves can exceed 1%
     lookbackBlocks: 400_000,   // how far back to index launches (Robinhood Chain blocks are fast)
     chunk: 10_000,             // eth_getLogs window
@@ -325,7 +326,7 @@
       const params = [
         payload.name, payload.ticker, payload.image || '', payload.desc || '',
         [payload.x || '', '', '', payload.site || '', ''],
-        account, PONS.creatorTaxBps, false, economics, salt,
+        (PONS.feeRecipient || window.BONDED_OWNER || account), PONS.creatorTaxBps, false, economics, salt,
       ];
       // the creator's own first buy should not pay the launch-window snipe tax
       const buying = Number(payload.buy) > 0;

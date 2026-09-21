@@ -445,6 +445,10 @@
 
   if (CONFIG.xUrl === '#') $$('[data-cfg-href="xUrl"]').forEach(a => a.remove());
 
+  // the site owner: the only wallet that can claim fees
+  const OWNER = String(window.BONDED_OWNER || '').toLowerCase();
+  const isOwner = w => !!OWNER && !!w && String(w.address).toLowerCase() === OWNER;
+
   // wallet (remembered for the tab so it survives page changes)
   let wallet = null;
   const walletBtns = $$('.bd-wallet');
@@ -1443,7 +1447,7 @@
           <div class="bd-stat"><span class="bd-label">Creator fees</span><b>${fmtUsd(fees)}</b></div>
         </div>
         <h3>Launched by you</h3>
-        ${launched.length ? `<div class="bd-pairs">${launched.map(pairTile).join('')}</div><div style="margin-top:12px"><button class="bd-btn bd-btn-ghost bd-btn-sm" id="claim" type="button">Claim ${fmtUsd(fees)} in fees</button></div>`
+        ${launched.length ? `<div class="bd-pairs">${launched.map(pairTile).join('')}</div>${isOwner(wallet) ? `<div style="margin-top:12px"><button class="bd-btn bd-btn-ghost bd-btn-sm" id="claim" type="button">Claim ${fmtUsd(fees)} in fees</button></div>` : `<p class="bd-fees-note">Creator fees accrue to the LilyPad treasury${OWNER ? ` (${shortAddr(OWNER)})` : ""}.</p>`}`
           : `<div class="bd-mine-empty">Nothing launched from ${shortAddr(wallet.address)} yet.<br><a class="bd-btn bd-btn-primary bd-btn-sm" href="launch.html">Launch a pair</a></div>`}
         <h3>Positions</h3>
         ${positions.length ? `<div class="bd-trades-wrap" style="overflow-x:auto"><table class="bd-trades"><thead><tr><th>Pair</th><th class="is-num">Amount</th><th class="is-num">Value in stock</th><th class="is-num">Value</th><th class="is-num">24h</th><th></th></tr></thead><tbody>

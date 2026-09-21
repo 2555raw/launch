@@ -1300,3 +1300,6 @@ html.is-night .bd-demo-row b { color: #F0C078; }
 .bd-callout-demo .bd-btn { margin-left: auto; }
 html.is-night .bd-callout-demo { background: rgba(214, 150, 40, .14); color: #F0D9B0; }
 html.is-night .bd-callout-demo b { color: #F0C078; }
+
+.bd-fees-note { margin: 12px 0 0; font-size: 13px; color: #4A5560; }
+html.is-night .bd-fees-note { color: #93A39B; }

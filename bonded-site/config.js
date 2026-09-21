@@ -1,8 +1,14 @@
-/* Candidate addresses of Robinhood's stock tokens on Robinhood Chain (chain 4663).
+/* LilyPad site config.
+
+   OWNER: your wallet. Only this address sees the "Claim fees" button, and on live launches the
+   creator tax is sent to it instead of to whoever launched the coin. Leave empty to hide claims.
+   Candidate addresses of Robinhood's stock tokens on Robinhood Chain (chain 4663).
    Collected from third-party write-ups, NOT verified here: the live adapter checks each one
    with the Pons factory's approvedPairTokens() before using it, and drops the rest with a
    console warning. Confirm them against docs.robinhood.com/chain/contracts and with
    `node scripts/verify-pons.mjs` before trusting them with money. Add or replace freely. */
+window.BONDED_OWNER = '';   // e.g. '0xb553…c3b6' in full
+
 window.BONDED_STOCK_TOKENS = {
   AAPL:  '0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9',
   NVDA:  '0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC',

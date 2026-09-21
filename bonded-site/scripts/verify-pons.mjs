@@ -34,7 +34,7 @@ const FACTORY = (args.factory || '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e').t
 const LOOKBACK = Number(args.lookback || 400_000);
 const CHUNK = Number(args.chunk || 10_000);
 // the site's candidate list is checked by default; --stocks adds or overrides entries
-const site = await import(path.join(here, '..', 'stock-tokens.js')).then(() => globalThis.window?.BONDED_STOCK_TOKENS || {}).catch(() => ({}));
+const site = await import(path.join(here, '..', 'config.js')).then(() => globalThis.window?.BONDED_STOCK_TOKENS || {}).catch(() => ({}));
 const given = Object.fromEntries([...Object.entries(site), ...(args.stocks || '').split(',').filter(Boolean).map(kv => kv.split('='))].map(([k, v]) => [k.toUpperCase(), v.toLowerCase()]));
 
 const rpc = A.makeRpc(RPC);

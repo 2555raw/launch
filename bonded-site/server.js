@@ -40,7 +40,7 @@ function proxyRpc(req, res) {
       u.pipe(res);
     });
     r.on('error', () => { res.writeHead(502, { 'content-type': 'application/json' }); res.end('{"error":"upstream unreachable"}'); });
-    r.setTimeout(20_000, () => r.destroy());
+    r.setTimeout(8_000, () => r.destroy());
     r.end(body);
   });
 }

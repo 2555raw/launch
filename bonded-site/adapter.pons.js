@@ -168,6 +168,17 @@
   const stockTokens = {};   // sym -> { address, decimals }
   const byToken = {};       // address(lower) -> sym
   const index = { launches: [], lastBlock: 0, ready: null };
+  // the index is remembered per browser, so a return visit paints at once and only scans new blocks
+  const CACHE_KEY = 'bonded-pons-index-v1';
+  const bigOut = (k, v) => typeof v === 'bigint' ? v.toString() + 'n' : v;
+  const bigIn = (k, v) => typeof v === 'string' && /^\d+n$/.test(v) ? BigInt(v.slice(0, -1)) : v;
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null', bigIn);
+    if (c && c.factory === PONS.factory.toLowerCase() && Array.isArray(c.launches)) { index.launches = c.launches; index.lastBlock = c.lastBlock || 0; Object.assign(creators, c.creators || {}); }
+  } catch (_) {}
+  const saveIndex = () => { try { localStorage.setItem(CACHE_KEY, JSON.stringify({ factory: PONS.factory.toLowerCase(), lastBlock: index.lastBlock, launches: index.launches.slice(0, 400), creators }, bigOut)); } catch (_) {} };
+  const announce = name => { try { document.dispatchEvent(new CustomEvent(name)); } catch (_) {} };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   async function registerStock(sym, address) {
     const a = address.toLowerCase();
@@ -228,27 +239,36 @@
   // the configured stock tokens, checked with approvedPairTokens(): a handful of calls, independent of the index
   let stocksPromise = null;
   const stocksReady = () => stocksPromise || (stocksPromise = (async () => {
-    for (const [sym, addr] of Object.entries(window.BONDED_STOCK_TOKENS || {})) await registerStock(sym, addr);
+    await pmap(Object.entries(window.BONDED_STOCK_TOKENS || {}), ([sym, addr]) => registerStock(sym, addr), 4);
+    announce('bonded:stocks');
     return stockTokens;
   })().catch(e => { stocksPromise = null; throw e; }));
 
   async function buildIndex() {
     await stocksReady();
     const head = parseInt(await rpc('eth_blockNumber'), 16);
-    const from = Math.max(0, head - PONS.lookbackBlocks);
-    const logs = await getLogsRange({ address: PONS.factory, topics: [T_LAUNCHED] }, from, head);
-    const launches = logs.map(parseLaunched);
-    await noteLauncherLogs(from, head);
-    // any other quote token seen on the factory
-    const seen = new Set(launches.map(l => l.pairToken.toLowerCase()));
-    for (const a of seen) if (byToken[a] === undefined) await registerStock(null, a);
-    // ETH/USDG/cbBTC are approved too but are not stocks; only keep symbols Bonded knows or that look like tickers
-    const pairs = (await pmap(launches, hydrate)).filter(Boolean);
-    index.launches = pairs.sort((a, b) => b.createdAt - a.createdAt);
-    index.lastBlock = head;
+    const from = index.lastBlock ? index.lastBlock + 1 : Math.max(0, head - PONS.lookbackBlocks);
+    if (from <= head) {
+      const logs = await getLogsRange({ address: PONS.factory, topics: [T_LAUNCHED] }, from, head);
+      const launches = logs.map(parseLaunched).filter(l => !index.launches.some(p => p.address.toLowerCase() === l.token.toLowerCase()));
+      await noteLauncherLogs(from, head);
+      // any other quote token seen on the factory
+      const seen = new Set(launches.map(l => l.pairToken.toLowerCase()));
+      for (const a of seen) if (byToken[a] === undefined) await registerStock(null, a);
+      const fresh = (await pmap(launches, hydrate)).filter(Boolean);
+      index.launches = [...fresh, ...index.launches].sort((a, b) => b.createdAt - a.createdAt);
+      index.lastBlock = head;
+    }
+    // reserves move; refresh the price of the most recent pairs without blocking anyone
+    pmap(index.launches.slice(0, 40), async p => {
+      try { const { q, t } = await curve.reserves(p.curve); const st = stockTokens[p.stock]; if (!st) return; p.mcap = Number(q) / 10 ** st.decimals / (Number(t) / 1e18 || 1) * 1e9 * priceOf(p.stock); } catch (_) {}
+    }, 3).then(() => { saveIndex(); announce('bonded:index'); });
+    saveIndex();
     return index.launches;
   }
-  const ready = () => index.ready || (index.ready = buildIndex().catch(e => { index.ready = null; throw e; }));
+  const ready = () => index.ready || (index.ready = buildIndex().then(r => { announce('bonded:index'); return r; }).catch(e => { index.ready = null; throw e; }));
+  // a page never waits more than this for the chain: it paints what it has and refreshes on 'bonded:index'
+  const budget = (p, ms = 2500) => Promise.race([p, sleep(ms)]);
   // the read paths degrade to empty when the RPC is unreachable, so the pages still render
   const safe = (fn, fallback) => fn().catch(e => { console.warn('pons: cannot reach the chain —', e.message); return fallback; });
   const find = async (ticker) => (await ready()).find(p => p.ticker.toUpperCase() === String(ticker).toUpperCase());
@@ -275,11 +295,11 @@
   const adapter = {
     pons: PONS, stockTokens, ready, stocksReady,
     async stats() {
-      const pairs = await safe(ready, []);
+      await budget(safe(ready, [])); const pairs = index.launches;
       return { pairs: pairs.length, volumeUsd: pairs.reduce((s, p) => s + p.volume, 0), lockedUsd: pairs.reduce((s, p) => s + p.mcap * 0.31, 0) };
     },
     async stocks() {
-      await safe(stocksReady, null);
+      await budget(safe(stocksReady, null), 2000);
       ready().catch(() => {});          // warm the index in the background; the list does not wait for it
       const pairs = index.launches;
       const all = stocksMeta().map(s => ({ ...s, pairs: pairs.filter(p => p.stock === s.sym).length, change: 0, live: !!stockTokens[s.sym] }));
@@ -287,7 +307,7 @@
       const live = all.filter(s => s.live);
       return live.length ? live : all;
     },
-    async pairs() { return (await safe(ready, [])).slice(); },
+    async pairs() { await budget(safe(ready, [])); return index.launches.slice(); },
     async pair(ticker) {
       const p = await safe(() => find(ticker), null); if (!p) return null;
       const [{ q, t }, trades] = await Promise.all([curve.reserves(p.curve), tradesOf(p)]);
@@ -331,8 +351,10 @@
       }
       const [fee, economics] = await Promise.all([factory.launchFee(), factory.economics(configId, st.address)]);
       const salt = A.toHex(crypto.getRandomValues(new Uint8Array(32)));
+      // the coin's picture: the stock's frog, served by the site, unless the creator gave an image
+      const logo = payload.image || `${location.origin}/frogs/${encodeURIComponent(payload.stock)}.png`;
       const params = [
-        payload.name, payload.ticker, payload.image || '', payload.desc || '',
+        payload.name, payload.ticker, logo, payload.desc || '',
         [payload.x || '', '', '', payload.site || '', ''],
         (PONS.feeRecipient || window.BONDED_OWNER || account), PONS.creatorTaxBps, false, economics, salt,
       ];

@@ -236,7 +236,7 @@
 
   const adapter = window.BONDED_ADAPTER || mockAdapter;
   if (!adapter.balances) adapter.balances = async () => [];
-  window.Bonded = { config: CONFIG, adapter, stocks: STOCKS, pairs: PAIRS };
+  window.Bonded = { config: CONFIG, adapter, stocks: STOCKS, pairs: PAIRS, frog: s => FROG_SVG(s) };
 
   /* =====================================================================
      helpers
@@ -1019,12 +1019,13 @@
     $$('[data-illus]').forEach(el => { el.innerHTML = illus[el.dataset.illus] || ''; });
     $$('[data-bridge-frog]').forEach(el => { el.innerHTML = pic('NVDA'); });
     const pairsGrid = $('#pairs-grid');
-    adapter.pairs().then(pairs => {
+    const loadHome = () => adapter.pairs().then(pairs => {
       // one pair per big name, the busiest on each stock
       const pick = ['AMZN', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'GOOGL']
         .map(sym => pairs.filter(p => p.stock === sym).sort((a, b) => b.volume - a.volume)[0]).filter(Boolean);
       pairsGrid.innerHTML = pick.length ? pick.map(pairTile).join('') : `<div class="bd-empty" style="grid-column:1/-1">No pairs on the pond yet. <a class="bd-link" href="launch.html">Launch the first one →</a></div>`;
     });
+    loadHome(); document.addEventListener('bonded:index', loadHome);
   }
 
   /* =====================================================================
@@ -1086,7 +1087,8 @@
         state.stock = b.dataset.stock; $$('.bd-chip', chips).forEach(c => c.classList.toggle('is-active', c === b)); render();
       });
     });
-    adapter.pairs().then(pairs => { all = pairs; render(); });
+    const loadPairs = () => adapter.pairs().then(pairs => { all = pairs; render(); });
+    loadPairs(); document.addEventListener('bonded:index', loadPairs);
     adapter.subscribe(ev => { if (ev.kind === 'launch' && !all.includes(ev.pair)) { all.unshift(ev.pair); render(); } });
 
     $('#tabs').addEventListener('click', e => {
@@ -1334,12 +1336,13 @@
         <div class="bd-sd-list" style="margin-top:8px">${mine.slice(0, 6).map(p => `<a class="bd-sd-row" href="${pairHref(p)}">${avatar(p)}<b>${esc(p.name)}</b><span>${fmtUsd(p.volume)}</span><span class="${p.change >= 0 ? 'bd-up' : 'bd-down'}">${fmtPct(p.change)}</span></a>`).join('') || '<div class="bd-empty">No pairs yet. Be the first.</div>'}</div>`;
       history.replaceState(null, '', 'stocks.html?s=' + s.sym);
     };
-    Promise.all([adapter.stocks(), adapter.pairs()]).then(([s, p]) => {
+    const loadStocks = () => Promise.all([adapter.stocks(), adapter.pairs()]).then(([s, p]) => {
       stocks = s; pairs = p;
       grid.innerHTML = stocks.map(x => elementTile(x, x.sym === current)).join('');
-      grid.addEventListener('click', e => { const b = e.target.closest('[data-sym]'); if (!b) return; current = b.dataset.sym; paint(); });
       paint();
     });
+    grid.addEventListener('click', e => { const b = e.target.closest('[data-sym]'); if (!b) return; current = b.dataset.sym; paint(); });
+    loadStocks(); document.addEventListener('bonded:index', loadStocks); document.addEventListener('bonded:stocks', loadStocks);
   }
 
   /* =====================================================================
@@ -1375,12 +1378,14 @@
       card.innerHTML = `<div class="bd-paircard">${pairCard(previewPair())}</div>`;
       $('#f-ticker-pair').textContent = '/ ' + st.sym; $('#f-buy-unit').textContent = st.sym;
     };
-    adapter.stocks().then(stocks => {
+    const loadStockSelect = () => adapter.stocks().then(stocks => {
+      if (!stocks.length) return;
       if (!stocks.some(s => s.sym === form.stock)) form.stock = stocks[0].sym;
       sel.innerHTML = stocks.map(s => `<option value="${s.sym}" ${s.sym === form.stock ? 'selected' : ''}>${s.sym} — ${esc(s.name)} · $${s.price.toFixed(2)}</option>`).join('');
-      sel.addEventListener('change', () => { form.stock = sel.value; paint(); });
       paint();
     });
+    sel.addEventListener('change', () => { form.stock = sel.value; paint(); });
+    loadStockSelect(); document.addEventListener('bonded:stocks', loadStockSelect);
     const fields = { name: '#f-name', ticker: '#f-ticker', buy: '#f-buy' };
     Object.entries(fields).forEach(([k, s]) => $(s).addEventListener('input', e => {
       form[k] = k === 'ticker' ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '') : e.target.value;

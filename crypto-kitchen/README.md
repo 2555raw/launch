@@ -1,73 +1,68 @@
-# Crypto Kitchen — site
+# Crypto Kitchen — el juego
 
-Landing page for **Crypto Kitchen**, a play-to-earn diner with its own token, `$SIZZLE`. The look
-is a mobile cooking game (Cooking City, Cooking Madness): cream panels with a toasted border,
-glossy pill buttons, gold coins, a teal counter and a plum night sky with warm lights.
+Un juego de cocina estilo **Cooking Fever / Cooking Festival** en el que los clientes pagan en
+crypto. Entran con un pedido, tú cocinas en las estaciones, emplatas en el pase y sirves; cada
+pedido completo se cobra en la moneda que lleva el cliente (USDC, DOGE, SOL, ETH o BTC) al precio
+del mercado del juego, más propina si has sido rápido.
 
-No build step, no dependencies. Plain HTML, CSS and vanilla JS.
-
-## Structure
-
-```
-index.html   the whole page: HUD/nav, hero, price ticker, menu (tokenomics), stations
-             (features), Order Rush (the game), levels (roadmap), leaderboard, how to
-             buy, FAQ, closing call and footer
-styles.css   the game palette, the chrome (panels, buttons, coins, bars) and the
-             responsive rules
-app.js       navigation, the ticker and leaderboard data, the coin counter, the
-             contract copy button and the Order Rush game
-```
-
-## Run it
-
-Open `index.html` directly, or serve the folder:
+Sin build ni dependencias: HTML, CSS y JS vanilla. Abre `index.html` o sirve la carpeta:
 
 ```bash
-python3 -m http.server 8000     # then open http://localhost:8000
+python3 -m http.server 8000     # y abre http://localhost:8000
 ```
 
-Deploy by dropping the folder on any static host.
+## Cómo se juega
 
-## Design
+1. **Bandeja** — toca el botón de una estación (o pulsa `1`–`5`) para poner un plato a cocinar en
+   un hueco libre. Cada estación hace un plato: parrilla → 🍔, freidora → 🍟, bebidas → 🥤,
+   sartén → 🥩, horno → 🍕.
+2. **Emplatar** — cuando el hueco brilla en verde, tócalo y el plato pasa al **pase**. Si lo dejas,
+   se quema (la barra se pone roja antes) y hay que tocarlo para tirarlo. Los refrescos no se
+   queman.
+3. **Servir** — toca al cliente (o la barra espaciadora) y recibe todo lo que le falte que haya en
+   el pase; o toca un plato del pase y va al primer cliente que lo pidió. Los platos que alguien
+   quiere y los clientes a los que ya puedes servir brillan en verde.
+4. **Cobrar** — con el pedido completo, el cliente paga: suma de precios × multiplicador de la
+   moneda (USDC ×1 … BTC ×1.6, las ballenas 🐋) × 2 si esa moneda está *pumpeando*, más propina
+   (30% si le queda más del 60% de paciencia, 15% si más del 30%). Si la paciencia llega a cero se
+   va sin pagar.
 
-Everything is chunky and rounded; nothing is thin, grey or flat.
+Cada nivel tiene un **objetivo en dólares** y un reloj: 1 estrella al llegar, 2 con ×1.3 y 3 con
+×1.6. `Esc` o `P` pausan; al ocultar la pestaña se pausa solo.
 
-| Token | Value | Role |
-| --- | --- | --- |
-| `--night` / `--night-2` | `#2A1245` / `#3D1C63` | the dining room: page background, arcade screen |
-| `--teal` / `--teal-deep` / `--teal-light` | `#3BC9C4` / `#1F8F8B` / `#A8F0E6` | counters: the hero counter, the teal section bands, the arcade counter |
-| `--cream` / `--cream-2` | `#FFF6E0` / `#FFE7B3` | panels and their inner lip |
-| `--toast` | `#8A4A1E` | every border and hard drop shadow |
-| `--gold` / `--gold-mid` / `--gold-deep` | `#FFD23F` / `#F5A623` / `#C77800` | coins, kickers, the ticker, the HUD |
-| `--red` / `--green` | `#F0433C` / `#4BE04A` | primary buttons (red = play/buy, green = go), the patience bar |
-| `--orange` / `--pink` / `--purple` | `#FF8A1F` / `#FF5DA2` / `#7B4DD8` | station hues, customer faces, pizza slices |
+## Estructura
 
-Type: **Lilita One** for every heading, button and figure — outlined with a `paint-order: stroke`
-stroke in the `--toast` brown, with a `text-shadow` fallback — and **Nunito** 700–900 for body copy.
+```
+index.html   las pantallas: título, mapa de niveles, juego (HUD, mercado, sala, pase,
+             cocina, overlay), tienda y cartera
+styles.css   el escenario escalado, la paleta y todo el chrome (paneles, botones,
+             monedas, estaciones, clientes) más la variante vertical
+game.js      datos (monedas, platos, estaciones, mejoras, niveles), guardado, sonido,
+             mercado, el bucle del juego, la tienda y la cartera
+```
 
-Food is emoji, on purpose: it renders everywhere without an asset folder and reads as cartoon
-at any size. The coin (`.coin`) is CSS: a radial gold disc, a dark bevel, a `$` stamped in.
+## El escenario
 
-## Order Rush (`app.js`)
+Todo el juego vive en un `.stage` de tamaño fijo — **960×640** en horizontal, **480×820** en
+vertical (`fit()` en `game.js` elige según el viewport) — que se escala con `transform` para
+encajar en la pantalla. Así la disposición es idéntica en todos los dispositivos y los toques
+funcionan igual. En vertical las estaciones pasan a dos columnas (la parrilla ocupa la fila) y
+`data-n` en `.kitchen` agranda los huecos cuando hay pocas estaciones abiertas.
 
-A 60-second shift. Customers walk up wanting one or two dishes; tap the matching station (or
-press `1`–`4`) and the dish cooks for a moment, then goes to the first customer waiting for it.
-A full order pays the dish price plus a tip that shrinks as the patience bar drains; each serve
-in a row raises the combo (×5 doubles the pay). A dish nobody is waiting for burns (−3). A
-customer whose bar empties leaves and resets the combo.
+## Datos (`game.js`)
 
-Tunables live at the top of the game block: `DISHES` (emoji, cook time, pay), `SHIFT`,
-`MAX_CUSTOMERS`, `PATIENCE`, `BURN_PENALTY`. Customers spawn faster and get less patient as the
-shift goes on.
+- `COINS` — precio base, volatilidad, multiplicador de pago y color. El mercado hace un paseo
+  aleatorio cada 2 s y cada 18–30 s una moneda *pumpea* 9 s (×2 al cobrar en ella).
+- `DISHES` / `STATIONS` — emoji, precio, estación; huecos, tiempo de cocción y tiempo hasta
+  quemarse.
+- `UPGRADES` — mejoras permanentes de la tienda (huecos, velocidad, pase, paciencia, propina);
+  `applyUpgrades()` recalcula los valores efectivos en `U`.
+- `LEVELS` — objetivo, tiempo, carta, tamaño máximo de pedido, cadencia de llegada, paciencia
+  y las monedas (repetir una la hace más frecuente). Diez niveles.
 
-The score goes into the coin counter in the HUD and the best score under the arcade; both are
-kept in `localStorage` (wrapped in `try/catch`, so a browser that blocks storage still plays).
-The clock pauses while the tab is hidden. Nothing goes on-chain.
+El guardado (`ck-game` en `localStorage`, con `try/catch`) tiene caja en dólares, cartera por
+moneda, estrellas por nivel, mejoras compradas y estadísticas. La comida es emoji a propósito:
+se ve en todas partes sin carpeta de assets. El sonido son blips de `AudioContext`, con
+interruptor en el HUD.
 
-## Before going live
-
-- **Every number is sample data**: the hero stats, the ticker prices, the APYs on the stations,
-  the leaderboard and the contract address. The footer says so.
-- The buy/chart buttons, the whitepaper, audit and social links are anchors.
-- Motion respects `prefers-reduced-motion`: the float, bob, steam, ticker and pulse loops stop,
-  and the scroll reveal renders complete on first paint.
+Nada va a una cadena real: la "crypto" es del juego y vive en el navegador.

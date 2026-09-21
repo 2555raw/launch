@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crypto Kitchen — cook orders, stack $SIZZLE</title>
+  <meta name="description" content="Crypto Kitchen is the play-to-earn diner: cook orders, serve customers and stack $SIZZLE. Tokenomics on the menu, staking on the grill, a 60-second order rush to play right here.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23F5A623'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23FFD23F' stroke='%23C77800' stroke-width='2'/%3E%3Ctext x='16' y='21' font-family='Arial Black,Arial' font-weight='900' font-size='14' text-anchor='middle' fill='%23C77800'%3E%24%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800;900&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="ck" id="top">
+
+  <!-- HUD: the game's top bar doubles as the site navigation -->
+  <header class="hud">
+    <div class="hud-in">
+      <a class="hud-chef" data-scroll="top" aria-label="Crypto Kitchen, back to top">
+        <span class="hud-avatar" aria-hidden="true">👩‍🍳</span>
+        <span class="hud-lvl">LV<b>7</b></span>
+      </a>
+      <div class="hud-xp" aria-label="Kitchen XP 65 of 110">
+        <div class="hud-xp-bar"><span style="--p:59%"></span></div>
+        <small>Kitchen XP <b>65/110</b></small>
+      </div>
+      <nav class="hud-links" id="navlinks" aria-label="Sections">
+        <a data-scroll="menu">Menu</a>
+        <a data-scroll="stations">Stations</a>
+        <a data-scroll="game">Play</a>
+        <a data-scroll="levels">Levels</a>
+        <a data-scroll="chefs">Top chefs</a>
+        <a data-scroll="faq">FAQ</a>
+        <a data-scroll="buy" class="hud-links-buy">Buy $SIZZLE</a>
+      </nav>
+      <div class="hud-right">
+        <div class="hud-coins" title="$SIZZLE earned in the order rush">
+          <i class="coin coin-sm" aria-hidden="true"></i>
+          <b id="hudCoins">0</b>
+        </div>
+        <a class="btn btn-green btn-sm" data-scroll="buy">Buy $SIZZLE</a>
+        <button class="hud-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- hero -->
+    <section class="hero">
+      <div class="wrap hero-in">
+        <div class="hero-copy">
+          <span class="tag">🔥 Now serving on Solana · Base · BNB</span>
+          <h1 class="display">Cook. Serve.<br><em>Stack coins.</em></h1>
+          <p class="lead">Crypto Kitchen is the play-to-earn diner where every order pays in <b>$SIZZLE</b>. Flip burgers, fry fries, keep the customers smiling and watch the coin counter climb.</p>
+          <div class="hero-cta">
+            <a class="btn btn-red btn-lg" data-scroll="game">▶&nbsp; Start cooking</a>
+            <a class="btn btn-cream btn-lg" data-scroll="menu">📖&nbsp; Read the recipe</a>
+          </div>
+          <ul class="hero-stats">
+            <li><b>42,690</b><span>chefs cooking</span></li>
+            <li><b>1.8M</b><span>orders served</span></li>
+            <li><b>$3.2M</b><span>paid out</span></li>
+          </ul>
+        </div>
+
+        <div class="hero-scene" aria-hidden="true">
+          <div class="ticket ticket-a"><span class="ticket-food">🍔</span><span class="ticket-name">BTC Burger</span><span class="ticket-price up">$67,420 ▲</span></div>
+          <div class="ticket ticket-b"><span class="ticket-food">🍟</span><span class="ticket-name">ETH Fries</span><span class="ticket-price up">$3,180 ▲</span></div>
+          <div class="ticket ticket-c"><span class="ticket-food">🥩</span><span class="ticket-name">SOL Steak</span><span class="ticket-price down">$142 ▼</span></div>
+          <div class="steam"><i></i><i></i><i></i></div>
+          <div class="plate">
+            <span class="plate-food">🍔</span>
+          </div>
+          <div class="counter-top"></div>
+          <i class="coin coin-float f1"></i>
+          <i class="coin coin-float f2"></i>
+          <i class="coin coin-float f3"></i>
+          <i class="coin coin-float f4"></i>
+          <span class="price-pop">+18.4%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- order ticker: the pass window, as a marquee of prices -->
+    <div class="ticker" aria-label="Menu prices, sample data">
+      <div class="ticker-track" id="ticker"></div>
+    </div>
+
+    <!-- menu = tokenomics -->
+    <section class="section" id="menu">
+      <div class="wrap">
+        <header class="section-head">
+          <span class="kicker">Today's menu</span>
+          <h2 class="display">Tokenomics, served as a pizza</h2>
+          <p>Total supply: <b>1,000,000,000 $SIZZLE</b>. One pie, five slices, no hidden mint. Liquidity is locked for 12 months and the team slice vests over 24.</p>
+        </header>
+        <div class="menu-grid">
+          <div class="pizza-wrap">
+            <div class="pizza" id="pizza" role="img" aria-label="Pizza chart: liquidity 40%, community 25%, treasury 15%, team 10%, marketing 10%">
+              <div class="pizza-cheese"></div>
+              <span class="topping t1">🍄</span><span class="topping t2">🫒</span><span class="topping t3">🌶️</span>
+              <span class="topping t4">🍄</span><span class="topping t5">🫒</span><span class="topping t6">🌶️</span>
+              <div class="pizza-center"><b>1B</b><small>supply</small></div>
+            </div>
+          </div>
+          <ol class="menu-card">
+            <li class="menu-item" style="--c:#F0433C"><span class="menu-dot"></span><span class="menu-name">🍔 Liquidity pool <small>locked · 12 months</small></span><span class="menu-lead"></span><b>40%</b></li>
+            <li class="menu-item" style="--c:#FFB020"><span class="menu-dot"></span><span class="menu-name">🍟 Community rewards <small>play-to-earn payouts</small></span><span class="menu-lead"></span><b>25%</b></li>
+            <li class="menu-item" style="--c:#37D67A"><span class="menu-dot"></span><span class="menu-name">🥗 Treasury <small>multisig, 3 of 5</small></span><span class="menu-lead"></span><b>15%</b></li>
+            <li class="menu-item" style="--c:#7B4DD8"><span class="menu-dot"></span><span class="menu-name">🥩 Team <small>vests over 24 months</small></span><span class="menu-lead"></span><b>10%</b></li>
+            <li class="menu-item" style="--c:#3BC9C4"><span class="menu-dot"></span><span class="menu-name">🥤 Marketing <small>partnerships & listings</small></span><span class="menu-lead"></span><b>10%</b></li>
+            <li class="menu-foot">Tax on every swap: <b>2%</b> — half burned, half to the tip jar (stakers).</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- stations = product features -->
+    <section class="section section-teal" id="stations">
+      <div class="wrap">
+        <header class="section-head">
+          <span class="kicker">The kitchen</span>
+          <h2 class="display">Five stations, one wallet</h2>
+          <p>Every DeFi primitive is a piece of kitchen gear. Connect once, cook everywhere.</p>
+        </header>
+        <div class="stations">
+          <article class="station-card" style="--hue:#F0433C">
+            <div class="station-pan">🔥</div>
+            <h3>The Grill <small>Staking</small></h3>
+            <p>Lock $SIZZLE, let it sizzle, flip when it's golden. Rewards drip every block.</p>
+            <div class="sizzle-bar"><span style="--p:82%"></span></div>
+            <b class="station-stat">up to 42% APY</b>
+          </article>
+          <article class="station-card" style="--hue:#7B4DD8">
+            <div class="station-pan">🌀</div>
+            <h3>The Blender <small>Swap</small></h3>
+            <p>Any token in, any token out. Routed across three chains in one smooth blend.</p>
+            <div class="sizzle-bar"><span style="--p:64%"></span></div>
+            <b class="station-stat">0.2% fee</b>
+          </article>
+          <article class="station-card" style="--hue:#FFB020">
+            <div class="station-pan">🍟</div>
+            <h3>The Fryer <small>Yield farms</small></h3>
+            <p>Drop an LP token in the basket. Shake it. Take it out crispy with extra yield.</p>
+            <div class="sizzle-bar"><span style="--p:71%"></span></div>
+            <b class="station-stat">12 farms live</b>
+          </article>
+          <article class="station-card" style="--hue:#3BC9C4">
+            <div class="station-pan">📖</div>
+            <h3>Recipe Book <small>NFT chefs</small></h3>
+            <p>5,000 chef NFTs. Each one is a playable character with its own tip multiplier.</p>
+            <div class="sizzle-bar"><span style="--p:93%"></span></div>
+            <b class="station-stat">4,650 minted</b>
+          </article>
+          <article class="station-card" style="--hue:#37D67A">
+            <div class="station-pan">🛵</div>
+            <h3>Delivery <small>Bridge</small></h3>
+            <p>Move $SIZZLE between chains in under a minute. Hot when it leaves, hot when it lands.</p>
+            <div class="sizzle-bar"><span style="--p:48%"></span></div>
+            <b class="station-stat">~45 s</b>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- the game -->
+    <section class="section" id="game">
+      <div class="wrap">
+        <header class="section-head">
+          <span class="kicker">Play right here</span>
+          <h2 class="display">Order rush</h2>
+          <p>Sixty seconds. Customers walk up with an order, you tap the right station before their patience runs out. Serve fast for bigger tips, chain serves for a combo, and every coin lands in the counter up top.</p>
+        </header>
+
+        <div class="arcade" id="arcade">
+          <div class="arcade-hud">
+            <span class="arcade-pill">⏱ <b id="gTime">60</b>s</span>
+            <span class="arcade-pill arcade-pill-gold"><i class="coin coin-xs" aria-hidden="true"></i> <b id="gScore">0</b></span>
+            <span class="arcade-pill arcade-pill-red">🔥 combo ×<b id="gCombo">1</b></span>
+            <span class="arcade-pill arcade-pill-dim">best <b id="gBest">0</b></span>
+          </div>
+
+          <div class="arcade-customers" id="customers" aria-live="polite"></div>
+
+          <div class="arcade-counter">
+            <button class="station" type="button" data-dish="burger" style="--hue:#F0433C">
+              <span class="station-key">1</span>
+              <span class="station-food">🍔</span>
+              <span class="station-name">Grill</span>
+              <span class="station-progress"><i></i></span>
+            </button>
+            <button class="station" type="button" data-dish="fries" style="--hue:#FFB020">
+              <span class="station-key">2</span>
+              <span class="station-food">🍟</span>
+              <span class="station-name">Fryer</span>
+              <span class="station-progress"><i></i></span>
+            </button>
+            <button class="station" type="button" data-dish="steak" style="--hue:#7B4DD8">
+              <span class="station-key">3</span>
+              <span class="station-food">🥩</span>
+              <span class="station-name">Pan</span>
+              <span class="station-progress"><i></i></span>
+            </button>
+            <button class="station" type="button" data-dish="soda" style="--hue:#3BC9C4">
+              <span class="station-key">4</span>
+              <span class="station-food">🥤</span>
+              <span class="station-name">Drinks</span>
+              <span class="station-progress"><i></i></span>
+            </button>
+          </div>
+
+          <div class="arcade-toast" id="gToast" aria-hidden="true"></div>
+
+          <div class="arcade-overlay" id="gOverlay">
+            <div class="arcade-panel">
+              <span class="arcade-panel-emoji" id="gPanelEmoji">👩‍🍳</span>
+              <h3 class="display" id="gPanelTitle">Ready for your shift?</h3>
+              <p id="gPanelText">Tap a station (or press 1–4) to cook the dish a customer is asking for. Cook something nobody wants and it burns.</p>
+              <button class="btn btn-green btn-lg" id="gStart" type="button">Start shift</button>
+            </div>
+          </div>
+        </div>
+        <p class="arcade-note">Coins earned here are stored in your browser only. Nothing goes on-chain from this page.</p>
+      </div>
+    </section>
+
+    <!-- levels = roadmap -->
+    <section class="section section-night" id="levels">
+      <div class="wrap">
+        <header class="section-head">
+          <span class="kicker">Roadmap</span>
+          <h2 class="display">Levels</h2>
+          <p>We ship the way you play: one level at a time, three stars or it doesn't count.</p>
+        </header>
+        <ol class="levels">
+          <li class="level done">
+            <span class="level-num">1</span>
+            <div class="level-body">
+              <span class="level-stars">★★★</span>
+              <h3>Prep station</h3>
+              <p>Token contract audited, liquidity locked, 5,000 chef NFTs minted out.</p>
+              <small>Q1 · done</small>
+            </div>
+          </li>
+          <li class="level done">
+            <span class="level-num">2</span>
+            <div class="level-body">
+              <span class="level-stars">★★★</span>
+              <h3>Grand opening</h3>
+              <p>Order Rush live on mobile and web. Staking on the Grill. First 1M orders served.</p>
+              <small>Q2 · done</small>
+            </div>
+          </li>
+          <li class="level current">
+            <span class="level-num">3</span>
+            <div class="level-body">
+              <span class="level-stars">★★<i>★</i></span>
+              <h3>Franchise</h3>
+              <p>Bridge to Base and BNB, first CEX listing, guild kitchens with shared tip jars.</p>
+              <small>Q3 · cooking now</small>
+            </div>
+          </li>
+          <li class="level locked">
+            <span class="level-num">🔒</span>
+            <div class="level-body">
+              <span class="level-stars"><i>★★★</i></span>
+              <h3>Michelin star</h3>
+              <p>Chef DAO takes the treasury. Seasonal menus voted by holders. Real-world diner pop-up.</p>
+              <small>Q4 · locked</small>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- leaderboard -->
+    <section class="section" id="chefs">
+      <div class="wrap">
+        <header class="section-head">
+          <span class="kicker">Leaderboard</span>
+          <h2 class="display">Top chefs this week</h2>
+          <p>Ranked by orders served. Tips are paid out every Sunday at midnight, kitchen time.</p>
+        </header>
+        <div class="board">
+          <table class="board-table">
+            <thead>
+              <tr><th>#</th><th>Chef</th><th>Wallet</th><th class="num">Orders</th><th class="num">Combo</th><th class="num">$SIZZLE</th></tr>
+            </thead>
+            <tbody id="board"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- how to buy -->
+    <section class="section section-teal" id="buy">
+      <div class="wrap">
+        <header class="section-head">
+          <span class="kicker">Recipe card</span>
+          <h2 class="display">How to buy $SIZZLE</h2>
+          <p>Three steps, about four minutes. No special ingredients.</p>
+        </header>
+        <ol class="recipe">
+          <li class="recipe-step">
+            <span class="recipe-num">1</span>
+            <span class="recipe-emoji">👛</span>
+            <h3>Get a wallet</h3>
+            <p>Phantom, MetaMask or Rabby. Fund it with a little SOL, ETH or BNB for gas.</p>
+          </li>
+          <li class="recipe-step">
+            <span class="recipe-num">2</span>
+            <span class="recipe-emoji">🌀</span>
+            <h3>Hit the Blender</h3>
+            <p>Open the swap, paste the contract address below and pick how much you want to cook.</p>
+          </li>
+          <li class="recipe-step">
+            <span class="recipe-num">3</span>
+            <span class="recipe-emoji">🔥</span>
+            <h3>Put it on the Grill</h3>
+            <p>Stake straight from the wallet page. Rewards start dripping on the next block.</p>
+          </li>
+        </ol>
+        <div class="contract">
+          <span class="contract-label">Contract address</span>
+          <code id="contract">SiZZ1eK1tch3nD1n3rP1ayT0EarnT0k3nAddr355xyz</code>
+          <button class="btn btn-gold btn-sm" id="copyContract" type="button">Copy</button>
+        </div>
+        <div class="buy-cta">
+          <a class="btn btn-red btn-lg" href="#buy">🍔 Buy on the Blender</a>
+          <a class="btn btn-cream btn-lg" href="#buy">📊 View the chart</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="section" id="faq">
+      <div class="wrap wrap-narrow">
+        <header class="section-head">
+          <span class="kicker">Questions</span>
+          <h2 class="display">Ask the chef</h2>
+        </header>
+        <div class="faq">
+          <details class="faq-item" open>
+            <summary>Is this a game or a token?</summary>
+            <p>Both, and that's the point. Order Rush is a real cooking game you can play in the browser or the app. $SIZZLE is what the kitchen pays you in. You can play without ever touching a wallet; the coins only leave the game when you decide to connect one.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Where do the payouts come from?</summary>
+            <p>From the community slice (25% of supply) and from the 1% of every swap that goes into the tip jar. When the community slice runs out, payouts come from tips only, so they scale with how much the kitchen is used.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Do I need a chef NFT to play?</summary>
+            <p>No. Everyone starts with the default chef. NFT chefs earn a tip multiplier (1.1× to 2×) and unlock cosmetic kitchens, but they never change how the game plays.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is the liquidity locked?</summary>
+            <p>Yes, for 12 months from launch, and the team allocation vests linearly over 24 months. Both are verifiable on-chain; the links are on the wallet page.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I lose money?</summary>
+            <p>Yes. $SIZZLE is a volatile asset and can go to zero. Play the game for fun, buy the token only with what you are comfortable burning.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- closing -->
+    <section class="closing">
+      <div class="wrap closing-in">
+        <span class="closing-emoji">👨‍🍳</span>
+        <h2 class="display">The kitchen never closes.</h2>
+        <p>42,690 chefs are cooking right now. Grab an apron.</p>
+        <div class="hero-cta">
+          <a class="btn btn-green btn-lg" data-scroll="game">▶&nbsp; Play Order Rush</a>
+          <a class="btn btn-gold btn-lg" data-scroll="buy">Buy $SIZZLE</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <div class="foot-brand">
+        <span class="foot-logo"><i class="coin coin-sm" aria-hidden="true"></i> Crypto Kitchen</span>
+        <p>A play-to-earn diner. All figures on this page are sample data for a concept site.</p>
+      </div>
+      <div class="foot-links">
+        <a href="#top">Whitepaper</a>
+        <a href="#top">Audit</a>
+        <a href="#top">Docs</a>
+        <a href="#top">X / Twitter</a>
+        <a href="#top">Telegram</a>
+        <a href="#top">Discord</a>
+      </div>
+    </div>
+    <p class="foot-legal wrap">Nothing here is financial advice. $SIZZLE is a game token with a market price; it can lose all its value. Cook responsibly.</p>
+  </footer>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

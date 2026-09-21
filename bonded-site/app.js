@@ -1319,13 +1319,13 @@
       const s = stocks.find(x => x.sym === current) || stocks[0]; if (!s) return;
       $$('.bd-element', grid).forEach(b => b.classList.toggle('is-active', b.dataset.sym === s.sym));
       const mine = pairs.filter(p => p.stock === s.sym).sort((a, b) => b.volume - a.volume);
-      const vol = mine.reduce((t, p) => t + p.volume, 0), liq = mine.reduce((t, p) => t + p.mcap * .31, 0);
+      const vol = mine.reduce((t, p) => t + p.volume, 0), liq = mine.reduce((t, p) => t + (p.liquidityUsd ?? p.mcap * .31), 0);
       detail.innerHTML = `
         <div class="bd-sd-head"><i class="bd-frog bd-frogpic bd-sd-frog" style="--c:${s.color}">${FROG_SVG(s)}</i><div><h3>${esc(s.name)}</h3><p>$${s.price.toFixed(2)} · <span class="${s.change >= 0 ? 'bd-up' : 'bd-down'}">${fmtPct(s.change)}</span> today</p></div></div>
         <div class="bd-sd-stats">
           <div class="bd-stat"><span class="bd-label">Pairs</span><b>${s.pairs}</b></div>
-          <div class="bd-stat"><span class="bd-label">24h volume</span><b>${fmtUsd(vol * 3.6)}</b></div>
-          <div class="bd-stat"><span class="bd-label">Liquidity (USD)</span><b>${fmtUsd(liq * 4.2)}</b></div>
+          <div class="bd-stat"><span class="bd-label">24h volume</span><b>${fmtUsd(adapter.pons ? vol : vol * 3.6)}</b></div>
+          <div class="bd-stat"><span class="bd-label">Liquidity (USD)</span><b>${fmtUsd(adapter.pons ? liq : liq * 4.2)}</b></div>
           <div class="bd-stat"><span class="bd-label">Quoted as</span><b class="bd-small">${s.sym} per token</b></div>
         </div>
         <div class="bd-hero-cta bd-hero-cta-row" style="flex-direction:row;justify-content:flex-start;margin-bottom:16px">

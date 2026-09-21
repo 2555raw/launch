@@ -134,11 +134,22 @@
     walletChain = null;
   }
   let account = null;
+  // eth_call for simulations: the proxy / public RPC keep the revert data that wallets strip
+  async function simulate(tx) {
+    const params = [tx, 'latest'];
+    try { return await httpRpc('eth_call', params); }
+    catch (e) {
+      const network = e instanceof TypeError || /Failed to fetch|NetworkError|Load failed|HTTP 5\d\d|HTTP 404|upstream/i.test(e.message);
+      if (!network) throw e;
+      try { return await publicHttpRpc('eth_call', params); }
+      catch (e2) { if (e2 instanceof TypeError || /Failed to fetch|NetworkError|Load failed/i.test(e2.message)) return rpc('eth_call', params); throw e2; }
+    }
+  }
   async function sendTx(tx) {
     await ensureChain();
     const from = account || (await eth().request({ method: 'eth_requestAccounts' }))[0];
     // simulate first so a revert reads as a sentence, not a wallet error code
-    try { await rpc('eth_call', [{ from, ...tx }, 'latest']); }
+    try { await simulate({ from, ...tx }); }
     catch (e) { throw new Error('Would revert: ' + A.revertReason(e)); }
     const hash = await eth().request({ method: 'eth_sendTransaction', params: [{ from, ...tx }] });
     return waitReceipt(hash);
@@ -186,11 +197,11 @@
     const a = address.toLowerCase();
     if (byToken[a] !== undefined) return byToken[a] || null;
     if (!(await factory.approved(a))) { console.warn(`pons: ${sym} ${address} is not an approved quote token, skipping`); return null; }
-    const [, , dec] = await factory.pairEconomics(a).catch(() => [0n, 0n, 18]);
+    const [phantom, , dec] = await factory.pairEconomics(a).catch(() => [0n, 0n, 18]);
     const onchainSym = await erc20.symbol(a);
     const key = sym ? sym.toUpperCase() : matchTicker(onchainSym);
     if (!key) { byToken[a] = false; return null; }   // USDG, cbBTC, ETH…: approved, but not a stock Bonded lists
-    stockTokens[key] = { address: a, decimals: Number(dec), onchainSym };
+    stockTokens[key] = { address: a, decimals: Number(dec), onchainSym, phantom };
     byToken[a] = key;
     return key;
   }
@@ -216,18 +227,25 @@
     return blockTimes;
   }
 
+  // market cap and real liquidity from a curve's reserves; an emptied (graduated) curve keeps a threshold-based value
+  function valueOf(sym, q, t) {
+    const st = stockTokens[sym]; const px = priceOf(sym);
+    const tokens = Number(t) / 1e18, quote = Number(q) / 10 ** st.decimals, phantom = Number(st.phantom || 0n) / 10 ** st.decimals;
+    const real = Math.max(0, quote - phantom);
+    if (tokens < 1_000_000) return { mcap: quote / 1e6 * 1e9 * px, liquidityUsd: real * px, graduated: true };   // curve emptied at graduation: value it at the last curve price
+    return { mcap: quote / tokens * 1e9 * px, liquidityUsd: real * px, graduated: false };
+  }
   async function hydrate(l) {
     const sym = byToken[l.pairToken.toLowerCase()];
     if (!sym) return null;
     const [name, ticker, { q, t }] = await Promise.all([erc20.name(l.token), erc20.symbol(l.token), curve.reserves(l.curve)]);
     const times = await timestampsFor([A.hex(l.block)]);
     const st = stockTokens[sym];
-    const priceInShares = Number(q) / 10 ** st.decimals / (Number(t) / 1e18 || 1);
-    const supply = 1e9;
+    const { mcap, liquidityUsd, graduated } = valueOf(sym, q, t);
     return {
       name, ticker, stock: sym, desc: '', image: '', x: '', site: '',
       address: l.token, curve: l.curve, creator: creators[l.token.toLowerCase()] || l.deployer, createdAt: times[A.hex(l.block)],
-      mcap: priceInShares * supply * priceOf(sym), volume: 0, change: 0, holders: 1,
+      mcap, liquidityUsd, graduated, volume: 0, change: 0, holders: 1,
       launch: l,
     };
   }
@@ -239,9 +257,10 @@
     for (const l of logs) creators['0x' + l.topics[2].slice(26)] = '0x' + l.topics[1].slice(26);
   }
   // the configured stock tokens, checked with approvedPairTokens(): a handful of calls, independent of the index
-  let stocksPromise = null;
+  let stocksPromise = null, stocksVerified = false;
   const stocksReady = () => stocksPromise || (stocksPromise = (async () => {
     await pmap(Object.entries(window.BONDED_STOCK_TOKENS || {}), ([sym, addr]) => registerStock(sym, addr), 4);
+    stocksVerified = true;
     announce('bonded:stocks');
     return stockTokens;
   })().catch(e => { stocksPromise = null; throw e; }));
@@ -263,7 +282,7 @@
     }
     // reserves move; refresh the price of the most recent pairs without blocking anyone
     pmap(index.launches.slice(0, 40), async p => {
-      try { const { q, t } = await curve.reserves(p.curve); const st = stockTokens[p.stock]; if (!st) return; p.mcap = Number(q) / 10 ** st.decimals / (Number(t) / 1e18 || 1) * 1e9 * priceOf(p.stock); } catch (_) {}
+      try { const { q, t } = await curve.reserves(p.curve); if (!stockTokens[p.stock]) return; Object.assign(p, valueOf(p.stock, q, t)); } catch (_) {}
     }, 3).then(() => { saveIndex(); announce('bonded:index'); });
     saveIndex();
     return index.launches;
@@ -298,16 +317,16 @@
     pons: PONS, stockTokens, ready, stocksReady,
     async stats() {
       await budget(safe(ready, [])); const pairs = index.launches;
-      return { pairs: pairs.length, volumeUsd: pairs.reduce((s, p) => s + p.volume, 0), lockedUsd: pairs.reduce((s, p) => s + p.mcap * 0.31, 0) };
+      return { pairs: pairs.length, volumeUsd: pairs.reduce((s, p) => s + p.volume, 0), lockedUsd: pairs.reduce((s, p) => s + (p.liquidityUsd ?? p.mcap * 0.31), 0) };
     },
     async stocks() {
       await budget(safe(stocksReady, null), 900);
       ready().catch(() => {});          // warm the index in the background; the list does not wait for it
       const pairs = index.launches;
       const all = stocksMeta().map(s => ({ ...s, pairs: pairs.filter(p => p.stock === s.sym).length, change: 0, live: !!stockTokens[s.sym] }));
-      // live mode only offers stocks whose token passed approvedPairTokens(); with no chain access it shows the full list, greyed by `live`
+      // only stocks whose token passed approvedPairTokens(); nothing until the factory has answered
       const live = all.filter(s => s.live);
-      return live.length ? live : all;
+      return (stocksVerified || live.length) ? live : [];
     },
     async pairs() { await budget(safe(ready, [])); return index.launches.slice(); },
     async pair(ticker) {
@@ -377,7 +396,7 @@
           for (const salt of [randomSalt(), senderSalt(), '0x' + '00'.repeat(32)]) {
             const trial = buildParams(eco, tax, salt);
             const data = A.encodeCall('launchToken', LAUNCH_TYPES, [trial, cid, st.address, exemptions]);
-            try { await rpc('eth_call', [{ from: account, to: PONS.factory, data, value: A.hex(fee) }, 'latest']); configId = cid; params = trial; break outer; }
+            try { await simulate({ from: account, to: PONS.factory, data, value: A.hex(fee) }); configId = cid; params = trial; break outer; }
             catch (e) { lastReason = `config ${cid}, creator tax ${tax} bps, salt ${salt.slice(0, 6)}…: ${A.revertReason(e)}`; }
           }
         }

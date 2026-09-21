@@ -33,7 +33,7 @@
     factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
     launcher: null,            // LilyPadLauncher address (contracts/pons/), bundles the first buy into the launch tx
     launchConfigId: null,      // null = first enabled config
-    creatorTaxBps: 100,        // 1% of every curve trade, paid to feeRecipient
+    creatorTaxBps: 200,        // 2% of every curve trade, paid to feeRecipient (capped by the factory's maxCreatorTaxBps)
     feeRecipient: null,        // defaults to BONDED_OWNER (config.js), else the launching wallet
     slippageBps: 300,          // shown on the pair page; snipe tax on young curves can exceed 1%
     lookbackBlocks: 60_000,    // how far back to index launches on the first visit; later visits scan only new blocks

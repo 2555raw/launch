@@ -1,7 +1,8 @@
 /* LilyPad site config.
 
    OWNER: your wallet. Only this address sees the "Claim fees" button, and on live launches the
-   creator tax is sent to it instead of to whoever launched the coin. Leave empty to hide claims.
+   2% creator tax on every trade is sent to it instead of to whoever launched the coin.
+   WHILE THIS IS EMPTY THE 2% GOES TO THE PERSON WHO LAUNCHES, so fill it in before sharing the site.
    Candidate addresses of Robinhood's stock tokens on Robinhood Chain (chain 4663).
    Collected from third-party write-ups, NOT verified here: the live adapter checks each one
    with the Pons factory's approvedPairTokens() before using it, and drops the rest with a

@@ -26,7 +26,7 @@
     swapFeeRate: 0.01,
     creatorShare: '0%',
     creatorShareRate: 0,
-    creatorTax: '0% by default',
+    creatorTax: '2% of every trade, to LilyPad',
     factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',   // Pons V2 LaunchFactory
     token: '0x0000000000000000000000000000000000000000',
     lockUrl: '#',

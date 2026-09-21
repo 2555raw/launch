@@ -283,9 +283,21 @@
   }
   // the configured stock tokens, checked with approvedPairTokens(): a handful of calls, independent of the index
   let stocksPromise = null, stocksVerified = false;
+  const STOCKS_KEY = 'bonded-pons-stocks-v1';
+  try {
+    const c = JSON.parse(localStorage.getItem(STOCKS_KEY) || 'null', bigIn);
+    if (c && c.factory === PONS.factory.toLowerCase() && c.tokens) { for (const [sym, tk] of Object.entries(c.tokens)) { stockTokens[sym] = tk; byToken[tk.address] = sym; } stocksVerified = Object.keys(stockTokens).length > 0; }
+  } catch (_) {}
+  const saveStocks = () => { try { localStorage.setItem(STOCKS_KEY, JSON.stringify({ factory: PONS.factory.toLowerCase(), tokens: stockTokens }, bigOut)); } catch (_) {} };
   const stocksReady = () => stocksPromise || (stocksPromise = (async () => {
-    await pmap(Object.entries(window.BONDED_STOCK_TOKENS || {}), ([sym, addr]) => registerStock(sym, addr), 4);
+    // re-check the configured list; a cached entry is trusted until the factory says otherwise
+    await pmap(Object.entries(window.BONDED_STOCK_TOKENS || {}), async ([sym, addr]) => {
+      const a = addr.toLowerCase();
+      if (byToken[a] !== undefined) { if (!(await factory.approved(a).catch(() => true))) { delete stockTokens[byToken[a]]; delete byToken[a]; } return; }
+      await registerStock(sym, addr);
+    }, 4);
     stocksVerified = true;
+    saveStocks();
     announce('bonded:stocks');
     return stockTokens;
   })().catch(e => { stocksPromise = null; throw e; }));
@@ -301,6 +313,7 @@
       // any other quote token seen on the factory
       const seen = new Set(launches.map(l => l.pairToken.toLowerCase()));
       for (const a of seen) if (byToken[a] === undefined) await registerStock(null, a);
+      saveStocks();
       const newest = launches.sort((a, b) => b.block - a.block).slice(0, PONS.maxPairs);
       const fresh = (await pmap(newest, hydrate)).filter(Boolean);
       const merged = [...fresh, ...index.launches].sort((a, b) => b.createdAt - a.createdAt);

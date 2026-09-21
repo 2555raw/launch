@@ -1036,15 +1036,15 @@
      PAIRS BOARD
      ===================================================================== */
   if (page === 'board') {
-    const TAB_NOTES = { lilypad: 'Coins launched from LilyPad.', all: 'Every pair on the pond: the Pons factory is shared, so this is everything paired with these stocks.', new: 'Newest launches first.', hot: 'Trending: 24h volume above 25% of market cap.', top: 'Top: market cap above $1M.' };
+    const TAB_NOTES = { lilypad: 'Coins launched from LilyPad.', pons: 'The 12 newest launches on the shared Pons factory, paired with these stocks.', hot: 'Trending: 24h volume above 25% of market cap.', top: 'Top: market cap above $1M.' };
     const tabnote = document.createElement('p'); tabnote.className = 'bd-tabnote'; tabnote.id = 'tabnote';
     const tin = $('.bd-toolbar-in'); if (tin) tin.insertAdjacentElement('afterend', tabnote);
     const paintNote = () => { tabnote.textContent = TAB_NOTES[state.tab] || ''; };
-    const tabEls = $$('#tabs [data-tab]'); const NOTE_TITLES = { new: 'Newest launches first', hot: '24h volume above 25% of market cap', top: 'Market cap above $1M' };
+    const tabEls = $$('#tabs [data-tab]'); const NOTE_TITLES = { lilypad: 'Launched from this site', pons: 'The 12 newest on the shared factory' };
     tabEls.forEach(b => { if (NOTE_TITLES[b.dataset.tab]) b.title = NOTE_TITLES[b.dataset.tab]; });
     const rows = $('#rows'), cards = $('#cards'), empty = $('#empty'), chips = $('#stock-chips'), search = $('#search'), sortSel = $('#sort');
     const params = new URLSearchParams(location.search);
-    const state = { tab: params.get('tab') || (adapter.pons ? 'lilypad' : 'all'), stock: params.get('stock') || 'all', q: params.get('q') || '', sort: 'volume', dir: -1 };
+    const state = { tab: params.get('tab') || 'lilypad', stock: params.get('stock') || 'all', q: params.get('q') || '', sort: 'volume', dir: -1 };
     $$('#tabs [data-tab]').forEach(b => b.classList.toggle('is-active', b.dataset.tab === state.tab));
     if (state.q) search.value = state.q;
     let all = [];
@@ -1055,9 +1055,8 @@
         (state.stock === 'all' || p.stock === state.stock) &&
         (!q || p.name.toLowerCase().includes(q) || p.ticker.toLowerCase().includes(q) || p.stock.toLowerCase().includes(q)));
       if (state.tab === 'lilypad') list = list.filter(isLilyPad);
-      if (state.tab === 'new') list = list.filter(p => Date.now() - p.createdAt < 24 * 3600e3);
-      paintNote(); if (state.tab === 'hot') list = list.filter(p => p.volume / p.mcap > .25);
-      if (state.tab === 'top') list = list.filter(p => p.mcap > 1e6);
+      if (state.tab === 'pons') list = list.filter(p => !isLilyPad(p)).sort((a, b) => b.createdAt - a.createdAt).slice(0, 12);
+      paintNote();
       const key = { name: p => p.name.toLowerCase(), stock: p => p.stock, price: priceUsd, change: p => p.change, mcap: p => p.mcap, volume: p => p.volume, holders: p => p.holders, age: p => p.createdAt }[state.sort];
       list.sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * state.dir; });
       return list;

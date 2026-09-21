@@ -1306,3 +1306,4 @@ html.is-night .bd-fees-note { color: #93A39B; }
 
 /* the board shows 50 rows at a time */
 .bd-more { display: block; margin: 18px auto 0; }
+.bd-more[hidden] { display: none; }

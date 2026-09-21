@@ -597,3 +597,165 @@ select option{background:#0b1020}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
 }
+
+/* ============================================================
+   v3 — bilingüe (中文 / EN) + capa visual extra
+   ============================================================ */
+
+/* --- selector de idioma --- */
+.lang-switch{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04)}
+.lang-btn{
+  border:none;background:transparent;color:var(--muted);cursor:pointer;font-weight:700;font-size:11.5px;
+  padding:6px 12px;border-radius:999px;transition:.25s;letter-spacing:.04em;
+}
+.lang-btn:hover{color:var(--ink)}
+.lang-btn.is-on{background:linear-gradient(120deg,var(--gold-2),var(--gold));color:#241a05;box-shadow:0 6px 18px -8px rgba(232,194,106,.9)}
+
+/* --- cinta de cotizaciones --- */
+.tape{
+  position:relative;display:flex;overflow:hidden;border-top:1px solid var(--line);
+  background:linear-gradient(90deg,rgba(255,77,94,.07),rgba(0,0,0,.35) 40%,rgba(46,204,143,.07));
+  height:34px;align-items:center;
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+}
+.tape-track{display:flex;gap:26px;padding-right:26px;white-space:nowrap;animation:tapeRun 38s linear infinite;flex:0 0 auto}
+@keyframes tapeRun{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.tape:hover .tape-track{animation-play-state:paused}
+.tape-item{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px}
+.tape-item b{color:var(--ink);font-weight:600}
+.tape-item i{font-style:normal;font-size:10px;opacity:.85}
+.tape-item .tape-arrow{font-size:9px}
+.tape-up{color:var(--up)} .tape-down{color:var(--down)}
+
+/* --- huellas flotantes de fondo --- */
+.bg-paws{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-paws span{position:absolute;font-size:22px;opacity:.05;animation:pawFloat linear infinite}
+@keyframes pawFloat{0%{transform:translateY(105vh) rotate(0);opacity:0}
+ 10%{opacity:.07}90%{opacity:.05}100%{transform:translateY(-15vh) rotate(180deg);opacity:0}}
+
+.h2-alt{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+
+/* --- termómetro de mercado --- */
+.heat{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:14px 20px;margin-bottom:16px}
+.heat-k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.heat-k b{display:block;font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);margin-top:2px}
+.heat-bar{position:relative}
+.heat-scale{display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.heat-track{
+  height:9px;border-radius:999px;position:relative;border:1px solid var(--line);
+  background:linear-gradient(90deg,var(--down),rgba(255,255,255,.22) 50%,var(--up));
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.6);
+}
+.heat-needle{
+  position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+  background:#fff;transform:translate(-50%,-50%);transition:left .8s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 0 0 3px rgba(255,255,255,.14),0 0 18px rgba(255,255,255,.65);
+}
+.heat-x{font-size:13px;font-weight:600;white-space:nowrap}
+
+/* --- gráfico principal --- */
+.market-main{display:flex;flex-direction:column;gap:14px;min-width:0}
+.focus{padding:16px 18px 12px}
+.focus-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.focus-sym{font-size:22px;font-weight:600;letter-spacing:.08em}
+.focus-name{font-size:12.5px;color:var(--muted);margin-top:2px}
+.focus-right{text-align:right}
+.focus-price{font-size:26px;font-weight:600;line-height:1;transition:color .3s}
+.focus-chg{font-size:13px;font-weight:600;margin-top:4px}
+.focus-chart{position:relative;height:220px;margin-top:10px}
+.focus-chart svg{width:100%;height:100%;display:block;overflow:visible}
+#fc-grid line{stroke:rgba(255,255,255,.055);stroke-width:1}
+#fc-dot{filter:drop-shadow(0 0 8px currentColor)}
+#fc-dot-halo{animation:dotPulse 2s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes dotPulse{0%,100%{opacity:.28;r:10}50%{opacity:.08;r:15}}
+.focus-tip{
+  position:absolute;pointer-events:none;transform:translate(-50%,-140%);
+  background:rgba(8,12,22,.96);border:1px solid var(--line-2);border-radius:9px;padding:6px 10px;
+  font-family:var(--mono);font-size:11.5px;white-space:nowrap;box-shadow:0 14px 30px -16px #000;z-index:4;
+}
+.focus-foot{display:flex;gap:22px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+.focus-foot i{font-style:normal;letter-spacing:.1em;text-transform:uppercase;font-size:9.5px}
+.focus-foot b{color:var(--ink);margin-left:5px}
+
+/* --- fichas físicas (apuesta y bote) --- */
+.stack-chip{
+  width:34px;height:34px;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);
+  border:2px dashed rgba(255,255,255,.55);font-size:9.5px;font-weight:800;color:#fff;
+  display:grid;place-items:center;box-shadow:0 3px 7px rgba(0,0,0,.6),inset 0 -2px 6px rgba(0,0,0,.4);
+  animation:chipDrop .32s cubic-bezier(.2,1.4,.4,1) backwards;
+}
+@keyframes chipDrop{0%{transform:translate(-50%,-30px) scale(.7);opacity:0}100%{transform:translateX(-50%);opacity:1}}
+.stack-chip.v10{background:radial-gradient(circle at 35% 30%,#3f7bd6,#173a78)}
+.stack-chip.v25{background:radial-gradient(circle at 35% 30%,#43c98d,#0d6b46)}
+.stack-chip.v100{background:radial-gradient(circle at 35% 30%,#3b4256,#161b27)}
+.stack-chip.v500{background:radial-gradient(circle at 35% 30%,#f0cd80,#9c6f1d);color:#2b1f05}
+
+.bet-amount{position:relative;overflow:visible}
+.bet-stack{position:absolute;left:0;right:0;bottom:calc(100% + 6px);height:52px;pointer-events:none}
+
+.pot{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pot-stack{position:relative;width:60px;height:56px}
+.pot-label{
+  font-size:11px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.45);
+  padding:4px 14px;border-radius:999px;border:1px solid var(--line-2);
+}
+.pot-label b{color:var(--gold);font-family:var(--mono)}
+.pot.paid{animation:potPay .7s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes potPay{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(110px) scale(.6);opacity:0}}
+
+/* --- rayos sobre el tapete --- */
+.felt-rays{
+  position:absolute;inset:-40% -10%;pointer-events:none;opacity:.5;
+  background:
+    conic-gradient(from 200deg at 50% 0%,
+      transparent 0deg,rgba(232,194,106,.09) 8deg,transparent 16deg,
+      transparent 28deg,rgba(255,255,255,.055) 36deg,transparent 44deg,
+      transparent 58deg,rgba(232,194,106,.07) 66deg,transparent 74deg);
+  animation:raysTurn 26s linear infinite;
+  mix-blend-mode:screen;
+}
+@keyframes raysTurn{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+/* --- teclas en los botones --- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn kbd{
+  font-family:var(--mono);font-size:9.5px;padding:2px 5px;border-radius:4px;
+  background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.18);opacity:.75;
+}
+.btn-gold kbd{background:rgba(0,0,0,.18);border-color:rgba(0,0,0,.25)}
+
+/* --- gato: pata que saluda + moneda --- */
+.cat-svg .cat-paw{transform-origin:196px 186px;animation:pawWave 2.6s ease-in-out infinite}
+@keyframes pawWave{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(16deg)}}
+.cat-svg[data-mood="happy"] .cat-paw,.cat-svg[data-mood="money"] .cat-paw{animation-duration:.7s}
+.cat-coin{
+  position:absolute;right:6px;top:6px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-size:14px;font-weight:800;color:#3a2a06;
+  background:radial-gradient(circle at 34% 30%,#ffeec4,#b8892f);
+  box-shadow:0 8px 18px -8px rgba(232,194,106,.9),inset 0 -2px 6px rgba(0,0,0,.25);
+  animation:coinSpin 5s linear infinite;
+}
+@keyframes coinSpin{0%,100%{transform:rotateY(0) translateY(0)}50%{transform:rotateY(180deg) translateY(-6px)}}
+
+/* --- inclinación 3D de las fichas de mercado --- */
+.stock{transform-style:preserve-3d;will-change:transform}
+.stock.tilt{transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-4px)}
+.stock::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.09),transparent 65%);
+}
+.stock:hover::after{opacity:1}
+
+@media (max-width:1180px){
+  .market-layout{grid-template-columns:1fr}
+  .heat{grid-template-columns:1fr;gap:10px;text-align:center}
+  .heat-k b{display:inline;margin-left:6px}
+}
+@media (max-width:620px){
+  .lang-switch{order:2;margin-left:auto}
+  .tape{height:30px}
+  .focus-chart{height:170px}
+  .focus-price{font-size:21px}
+  .heat{padding:12px 14px}
+  .btn kbd{display:none}
+}

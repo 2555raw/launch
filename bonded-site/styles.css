@@ -1293,3 +1293,10 @@ html.is-night .bd-wallets-card button { background: rgba(255,255,255,.06); borde
 /* the success panel says when a launch was only a demo */
 .bd-demo-row b { color: #7A4F0A; font-weight: 600; }
 html.is-night .bd-demo-row b { color: #F0C078; }
+
+/* the launch form says when it is only a demo */
+.bd-callout-demo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 0 0 18px; padding: 14px 16px; border-radius: 14px; background: rgba(214, 150, 40, .12); border: 1px solid rgba(214, 150, 40, .35); color: #5A3A05; font-size: 14px; line-height: 1.45; }
+.bd-callout-demo b { color: #7A4F0A; }
+.bd-callout-demo .bd-btn { margin-left: auto; }
+html.is-night .bd-callout-demo { background: rgba(214, 150, 40, .14); color: #F0D9B0; }
+html.is-night .bd-callout-demo b { color: #F0C078; }

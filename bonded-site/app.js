@@ -1346,6 +1346,7 @@
     const form = { stock: params.get('stock') || 'NVDA', name: '', ticker: '', desc: '', image: '', buy: '', x: '', site: '' };
     const art = $('#preview-art'), card = $('#preview-card'), review = $('#review'), sel = $('#f-stock');
     if (adapter.pons && !adapter.pons.launcher) $('#f-buy-note').textContent = 'Optional. Sent right after the launch as a second transaction from your wallet: one approval of the stock, then the buy.';
+    if (!adapter.pons) $('#launch-form').insertAdjacentHTML('afterbegin', `<div class="bd-callout bd-callout-demo"><b>Demo mode.</b> A launch here stays in this browser: no transaction, no real coin, nothing for explorers or terminals to find. <a class="bd-btn bd-btn-sm bd-btn-primary" href="launch.html?pons=1">Launch for real on Robinhood Chain</a></div>`);
 
     const previewPair = () => ({
       name: form.name || 'Your coin', ticker: form.ticker || 'TKN', stock: form.stock, image: /^https?:\/\//.test(form.image) ? form.image : '',

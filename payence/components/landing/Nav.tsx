@@ -1,19 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icons";
 
-const LINKS = [
-  { href: "/#how", label: "How it works" },
-  { href: "/#merchants", label: "For business" },
-  { href: "/#fees", label: "Fees" },
-  { href: "/developers", label: "Developers" },
+const SECTIONS = [
+  { href: "/#how", label: "How it works", hint: "Add stablecoins, scan, done" },
+  { href: "/#merchants", label: "For business", hint: "Take payments without a card network" },
+  { href: "/#fees", label: "Fees", hint: "Every charge on one page" },
+  { href: "/#security", label: "Security", hint: "How the money is kept safe" },
+  { href: "/#faq", label: "Questions", hint: "The ones people actually ask" },
 ];
 
+const ELSEWHERE = [
+  { href: "/developers", label: "Developers", hint: "Take payments from your own site" },
+  { href: "/developers/api", label: "API reference", hint: "Endpoints, errors, webhooks" },
+  { href: "/legal/terms", label: "Terms", hint: "" },
+  { href: "/legal/privacy", label: "Privacy", hint: "" },
+];
+
+/**
+ * The bar carries the four links there is room for and a menu that holds
+ * everything, at every width. A menu that only exists on a phone hides half the
+ * site from anyone on a laptop, and the bar has no room to grow.
+ */
 export function MarketingNav({ signedIn }: { signedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const [lifted, setLifted] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setLifted(window.scrollY > 8);
@@ -21,6 +37,28 @@ export function MarketingNav({ signedIn }: { signedIn: boolean }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Escape closes it, a click outside closes it, and focus goes back to the
+  // button that opened it.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (!panelRef.current?.contains(target) && !buttonRef.current?.contains(target)) setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [open]);
 
   return (
     <header
@@ -33,12 +71,15 @@ export function MarketingNav({ signedIn }: { signedIn: boolean }) {
           PAYENCE
         </Link>
 
-        <nav aria-label="Main" className="hidden items-center gap-8 md:flex">
-          {LINKS.map((l) => (
+        <nav aria-label="Sections" className="hidden items-center gap-8 md:flex">
+          {SECTIONS.slice(0, 3).map((l) => (
             <Link key={l.href} href={l.href} className="text-[14px] text-muted transition-colors hover:text-ink">
               {l.label}
             </Link>
           ))}
+          <Link href="/developers" className="text-[14px] text-muted transition-colors hover:text-ink">
+            Developers
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -56,42 +97,99 @@ export function MarketingNav({ signedIn }: { signedIn: boolean }) {
               </Button>
             </>
           )}
+
           <button
+            ref={buttonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            aria-controls="marketing-menu"
+            aria-controls="site-menu"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="flex h-11 w-11 items-center justify-center rounded-pill border border-hair md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-pill border border-hair transition-colors hover:border-hairStrong"
           >
-            <span className="relative block h-3 w-4" aria-hidden>
-              <span className={`absolute left-0 block h-[1.5px] w-4 bg-ink transition-transform ${open ? "top-[5px] rotate-45" : "top-0"}`} />
-              <span className={`absolute left-0 top-[5px] block h-[1.5px] w-4 bg-ink transition-opacity ${open ? "opacity-0" : ""}`} />
-              <span className={`absolute left-0 block h-[1.5px] w-4 bg-ink transition-transform ${open ? "top-[5px] -rotate-45" : "top-[10px]"}`} />
+            <span className="relative block h-3 w-[18px]" aria-hidden>
+              <span
+                className={`absolute left-0 block h-[1.5px] w-[18px] bg-ink transition-transform duration-200 ${
+                  open ? "top-[5px] rotate-45" : "top-0"
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-[5px] block h-[1.5px] w-[18px] bg-ink transition-opacity duration-200 ${
+                  open ? "opacity-0" : "opacity-100"
+                }`}
+              />
+              <span
+                className={`absolute left-0 block h-[1.5px] w-[18px] bg-ink transition-transform duration-200 ${
+                  open ? "top-[5px] -rotate-45" : "top-[11px]"
+                }`}
+              />
             </span>
           </button>
         </div>
       </div>
 
       {open && (
-        <nav id="marketing-menu" aria-label="Main" className="border-t border-hair bg-canvas md:hidden">
-          <ul className="shell py-2">
-            {LINKS.map((l) => (
-              <li key={l.href} className="border-b border-hair last:border-0">
-                <Link href={l.href} onClick={() => setOpen(false)} className="block py-4 text-[16px]">
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-            {!signedIn && (
-              <li className="py-4">
-                <Button href="/login" variant="secondary" size="md" full>
+        <div ref={panelRef} id="site-menu" className="border-t border-hair bg-canvas">
+          <div className="shell grid gap-8 py-8 md:grid-cols-[1.4fr_1fr]">
+            <nav aria-label="Sections">
+              <h2 className="text-[11px] uppercase tracking-[0.1em] text-muted">On this page</h2>
+              <ul className="mt-4 grid gap-1 sm:grid-cols-2">
+                {SECTIONS.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      onClick={() => setOpen(false)}
+                      className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-shell"
+                    >
+                      <span className="block text-[15px] font-medium">{l.label}</span>
+                      {l.hint && <span className="mt-0.5 block text-[12.5px] text-muted">{l.hint}</span>}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <div>
+              <nav aria-label="Elsewhere">
+                <h2 className="text-[11px] uppercase tracking-[0.1em] text-muted">Elsewhere</h2>
+                <ul className="mt-4 space-y-1">
+                  {ELSEWHERE.map((l) => (
+                    <li key={l.href}>
+                      <Link
+                        href={l.href}
+                        onClick={() => setOpen(false)}
+                        className="block rounded-xl px-3 py-2 text-[14.5px] transition-colors hover:bg-shell"
+                      >
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              <div className="mt-6 flex flex-wrap gap-2 sm:hidden">
+                <Button href="/login" variant="secondary" size="md">
                   Sign in
                 </Button>
-              </li>
-            )}
-          </ul>
-        </nav>
+                <Button href="/signup" size="md">
+                  Get started
+                </Button>
+              </div>
+
+              <Link
+                href="/merchant"
+                onClick={() => setOpen(false)}
+                className="mt-6 flex items-center gap-3 rounded-card border border-hair bg-surface px-4 py-3.5 transition-colors hover:border-hairStrong"
+              >
+                <Icon.store className="h-[18px] w-[18px] text-coral" />
+                <span className="min-w-0">
+                  <span className="block text-[14px] font-medium">Accept payments</span>
+                  <span className="block text-[12.5px] text-muted">Set up a merchant account</span>
+                </span>
+              </Link>
+            </div>
+          </div>
+        </div>
       )}
     </header>
   );

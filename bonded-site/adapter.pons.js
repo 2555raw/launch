@@ -270,7 +270,7 @@
   }
   const ready = () => index.ready || (index.ready = buildIndex().then(r => { announce('bonded:index'); return r; }).catch(e => { index.ready = null; throw e; }));
   // a page never waits more than this for the chain: it paints what it has and refreshes on 'bonded:index'
-  const budget = (p, ms = 700) => Promise.race([p, sleep(ms)]);
+  const budget = (p, ms = 700) => index.launches.length ? Promise.race([p, sleep(0)]) : Promise.race([p, sleep(ms)]);
   // the read paths degrade to empty when the RPC is unreachable, so the pages still render
   const safe = (fn, fallback) => fn().catch(e => { console.warn('pons: cannot reach the chain —', e.message); return fallback; });
   const find = async (ticker) => (await ready()).find(p => p.ticker.toUpperCase() === String(ticker).toUpperCase());

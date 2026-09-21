@@ -45,6 +45,14 @@ function proxyRpc(req, res) {
   });
 }
 
+/* Assets are cached hard, keyed by a version computed from their contents at start-up: the
+   HTML (never cached) is rewritten to ask for ?v=<that hash>, so a deploy is live at once and
+   an unchanged asset is never downloaded twice. */
+const crypto = require('crypto');
+const ASSET_FILES = ['styles.css', 'app.js', 'config.js', 'adapter.pons.js', 'pons/wallet.js', 'pons/keccak.js', 'pons/abi.js'];
+const BUILD = crypto.createHash('sha1').update(ASSET_FILES.map(f => { try { return fs.readFileSync(path.join(ROOT, f)); } catch { return ''; } }).join('')).digest('hex').slice(0, 10);
+const etagOf = st => `W/"${st.size.toString(16)}-${Math.floor(st.mtimeMs).toString(16)}"`;
+
 http.createServer((req, res) => {
   let rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (rel === '/health') { res.writeHead(200, { 'content-type': 'text/plain' }); res.end('ok'); return; }
@@ -56,6 +64,13 @@ http.createServer((req, res) => {
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT)) { res.writeHead(403).end('Forbidden'); return; }
 
+  const versioned = /[?&]v=/.test(req.url);
+  let st = null; try { st = fs.statSync(file); } catch (_) {}
+  if (st && path.extname(file) !== '.html') {
+    const tag = etagOf(st);
+    if (req.headers['if-none-match'] === tag) { res.writeHead(304, { etag: tag }); res.end(); return; }
+    res.setHeader('etag', tag);
+  }
   fs.readFile(file, (err, body) => {
     if (err) {
       res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
@@ -66,7 +81,7 @@ http.createServer((req, res) => {
       /* share cards need absolute URLs, and a pair page should be titled after its coin */
       const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
       const proto = req.headers['x-forwarded-proto'] || 'https';
-      let html = body.toString('utf8').replace(/content="\/og\.png"/g, `content="${proto}://${host}/og.png"`);
+      let html = body.toString('utf8').replace(/content="\/og\.png"/g, `content="${proto}://${host}/og.png"`).replace(/\?v=\d+"/g, `?v=${BUILD}"`);
       const t = new URL(req.url, 'http://x').searchParams.get('t');
       if (path.basename(file) === 'pair.html' && t && /^[A-Za-z0-9]{1,12}$/.test(t)) {
         const ticker = t.toUpperCase();
@@ -82,7 +97,7 @@ http.createServer((req, res) => {
       'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream',
       /* the page, its styles and its script are revalidated on every load, so a
          deploy is live the moment it lands; pictures and fonts keep their cache */
-      'cache-control': ['.html', '.css', '.js'].includes(path.extname(file)) ? 'no-cache' : 'public, max-age=3600'
+      'cache-control': path.extname(file) === '.html' ? 'no-cache' : versioned ? 'public, max-age=31536000, immutable' : 'public, max-age=3600'
     });
     res.end(body);
   });

@@ -542,3 +542,29 @@ html.gk-page, html.gk-page body { margin: 0; height: 100%; overflow: hidden; bac
 .gk .tray .em svg + svg { display: none; }
 .gk .stage.portrait .room { height: 190px; }
 .gk .stage.portrait .tray .em { font-size: 30px; }
+
+/* ===== materials: metal, gloss, glow ===== */
+.gk .slot { box-shadow: inset 0 3px 0 rgba(255, 255, 255, .18), inset 0 -5px 0 rgba(0, 0, 0, .4), 0 4px 0 rgba(0, 0, 0, .35); }
+.gk .station[data-id="grill"] .slots { background: linear-gradient(180deg, #4a4a4a, #151515 30%, #0d0d0d); border: 4px solid #6d6d6d; box-shadow: inset 0 2px 0 #9a9a9a, inset 0 -3px 0 #000, 0 6px 0 #2b2b2b, 0 10px 18px rgba(0, 0, 0, .45); }
+.gk .station[data-id="grill"] .slot { background: repeating-linear-gradient(90deg, #5a5a5a 0 6px, #1a1a1a 6px 11px), #1a1a1a; box-shadow: inset 0 0 14px 3px rgba(255, 110, 20, .6), inset 0 -4px 0 rgba(0, 0, 0, .5); border-color: #3a3a3a; }
+.gk .station[data-id="grill"] .slot.cooking, .gk .station[data-id="grill"] .slot.ready { box-shadow: inset 0 0 18px 5px rgba(255, 140, 30, .85), inset 0 -4px 0 rgba(0, 0, 0, .5); }
+.gk .station[data-id="pan"] .slot { background: radial-gradient(circle at 50% 45%, #5a5a5a 0 52%, #262626 54% 70%, #6f6f6f 72% 78%, #222 80%); border-color: #4a4a4a; box-shadow: inset 0 3px 0 rgba(255, 255, 255, .15), 0 5px 0 #1a1a1a, 0 10px 16px rgba(0, 0, 0, .45); }
+.gk .station[data-id="pan"] .slot::after { background: linear-gradient(180deg, #4a4a4a, #1a1a1a); border-color: #3a3a3a; }
+.gk .station[data-id="fryer"] .slot { background: repeating-linear-gradient(0deg, transparent 0 6px, rgba(0, 0, 0, .22) 6px 8px), repeating-linear-gradient(90deg, transparent 0 6px, rgba(0, 0, 0, .22) 6px 8px), linear-gradient(180deg, #E9D08C, #C9A24A 60%, #9C7A2E); border-color: #7a5a1a; box-shadow: inset 0 3px 0 rgba(255, 255, 255, .35), inset 0 -6px 0 rgba(0, 0, 0, .25), 0 5px 0 #5a3f10; }
+.gk .station[data-id="soda"] .slot { background: linear-gradient(180deg, #CDB2FF, #8A5CF0 40%, #5B32B0 85%, #3D1F80); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .55), inset 0 -8px 0 rgba(0, 0, 0, .3), 0 5px 0 #2a1560; }
+.gk .station[data-id="oven"] .slot { background: radial-gradient(ellipse at 50% 85%, #FFB347 0 18%, #FF6A00 30%, #7A2E08 62%), repeating-linear-gradient(90deg, #8b3d1a 0 10px, #6b2a10 10px 12px); box-shadow: inset 0 0 16px 4px rgba(255, 120, 0, .7), 0 5px 0 #3a1508; }
+.gk .kitchen .plate { background: radial-gradient(ellipse at 50% 40%, #FFFFFF 0 55%, #F0F0F0 56% 78%, #D2D2D2 80% 90%, #B5B5B5); box-shadow: inset 0 -6px 0 rgba(0, 0, 0, .08), inset 0 3px 0 #fff, 0 5px 0 rgba(58, 31, 15, .35), 0 9px 14px rgba(0, 0, 0, .3); }
+.gk .kitchen .plate:not(:empty) svg { filter: drop-shadow(0 3px 2px rgba(0, 0, 0, .3)); }
+.gk .slot.ready .food svg { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 3px 2px rgba(0, 0, 0, .4)); }
+.gk .slot.cooking::before, .gk .slot.ready::before { width: 18px; height: 18px; margin-left: -9px; filter: blur(3px); background: rgba(255, 255, 255, .8); }
+.gk .kitchen { background: linear-gradient(180deg, #FFE3F2 0 6px, #FF8FCB 6px 14px, #FF5FBE 14px 32px, #F23A9E 32px 60%, #B8207F 60% 64%, #7A1878 64%), linear-gradient(#F23A9E, #F23A9E); box-shadow: inset 0 8px 12px -8px rgba(255, 255, 255, .6); }
+.gk .pass { box-shadow: inset 0 3px 0 rgba(255, 255, 255, .6), inset 0 -8px 12px -8px rgba(0, 0, 0, .35); }
+.gk .tray { background: linear-gradient(180deg, #FFFFFF 0, #EAF0F6 30%, #C5CFDB 70%, #98A6B8); box-shadow: inset 0 2px 0 #fff, inset 0 -4px 0 rgba(0, 0, 0, .22), inset 0 0 0 2px rgba(255, 255, 255, .4), 0 4px 0 var(--toast), 0 8px 12px rgba(0, 0, 0, .35); }
+.gk .tray .em svg { filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .35)); }
+.gk .cust-order { background: linear-gradient(180deg, #FFFFFF, #FFF3DC); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .06), 0 4px 0 var(--toast), 0 10px 18px rgba(20, 8, 40, .4); }
+.gk .cust-order .it svg { filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .25)); }
+.gk .room::before { filter: drop-shadow(0 0 4px #FFE27A); }
+.gk .decor svg { filter: drop-shadow(0 6px 4px rgba(0, 0, 0, .35)); }
+.gk .room { height: 246px; }
+.gk .cust-pay { top: 6px; right: -18px; }
+.gk .customers { padding-top: 8px; }

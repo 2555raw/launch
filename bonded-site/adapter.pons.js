@@ -29,7 +29,7 @@
     rpc: 'https://rpc.mainnet.chain.robinhood.com',
     explorer: 'https://robinhoodchain.blockscout.com',
     factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
-    launcher: null,            // LilyPadLauncher address (contracts/), bundles the first buy into the launch tx
+    launcher: null,            // LilyPadLauncher address (contracts/pons/), bundles the first buy into the launch tx
     launchConfigId: null,      // null = first enabled config
     creatorTaxBps: 0,
     slippageBps: 300,          // shown on the pair page; snipe tax on young curves can exceed 1%

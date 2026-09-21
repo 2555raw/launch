@@ -24,7 +24,7 @@ launch(TokenParams params, uint256 launchConfigId, address pairToken,
 ## Deploy
 
 ```bash
-forge create contracts/LilyPadLauncher.sol:LilyPadLauncher \
+forge create contracts/pons/LilyPadLauncher.sol:LilyPadLauncher \
   --rpc-url https://rpc.mainnet.chain.robinhood.com \
   --private-key $PK \
   --constructor-args 0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e \

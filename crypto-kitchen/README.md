@@ -2,19 +2,19 @@
 
 Dos piezas que comparten una cartera:
 
-- **`index.html` — el launchpad.** App con barra lateral al estilo Pairex: Explorar (hero, stats,
+- **`launchpad.html` — el launchpad.** App con barra lateral al estilo Pairex: Explorar (hero, stats,
   coin oficial `SIZZLE`, mercado con búsqueda y pestañas), Dropear coin, Crear par, Exchange,
   Portfolio, Ganancias, Cocina (el juego embebido), Cotizaciones y Cómo funciona. Cada coin de
   comida nace en la *curva de la cocina* (producto constante con reservas virtuales, 1B de
   supply, 1% de comisión) y al recaudar $12,000 se **gradúa a PonsV2 o Uniswap v3**; el Exchange
   cotiza en los dos DEX y ejecuta en el mejor. Todo es simulado en el navegador (`ck-pad` en
   `localStorage`). Idiomas: inglés y chino (`?lang=en|zh` o el selector de arriba).
-- **`play.html` — el juego** (Cooking-Fever style), descrito abajo. El cash que ganas es el saldo
+- **`index.html` — el juego** (Cooking-Fever style), descrito abajo. El cash que ganas es el saldo
   de la *Kitchen Wallet* que se conecta en el launchpad; la clave `ck-game` es la misma.
 
 ```
-index.html · app.css · app.js     launchpad (i18n en app.js: I18N)
-play.html  · game.css · game.js   juego     (i18n en game.js: I18N)
+launchpad.html · app.css · app.js launchpad (i18n en app.js: I18N)
+index.html · game.css · game.js     juego     (i18n en game.js: I18N)
 ```
 
 Sin build ni dependencias. Sirve la carpeta: `python3 -m http.server 8000`.

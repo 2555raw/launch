@@ -428,3 +428,58 @@ html.gk-page, html.gk-page body { margin: 0; height: 100%; overflow: hidden; bac
 .gk .tray .em { font-size: 22px; letter-spacing: -8px; margin-right: 8px; }
 .gk .tray .price { background: var(--gold); color: var(--ink); border: 2px solid var(--toast); }
 .gk .stage.portrait .tray .em { font-size: 18px; }
+
+/* ===== closer to the reference: a street at dusk behind the counter, the
+   gear sitting straight on the pink counter, bigger everything ===== */
+.gk .screen-game { background: linear-gradient(180deg, #3B1E6E 0%, #5A2A7E 30%, #7A3C8E 55%, #2A1245 56%); }
+.gk .hud { height: 64px; }
+.gk .hud::before { width: 50px; height: 50px; font-size: 30px; border-radius: 50%; }
+.gk .market { background: rgba(20, 8, 40, .25); height: 36px; padding-top: 5px; }
+.gk .room { height: 200px; background: radial-gradient(circle at 10% 30%, rgba(255, 200, 90, .35), transparent 22%), radial-gradient(circle at 90% 25%, rgba(255, 120, 190, .35), transparent 22%), radial-gradient(circle at 50% 10%, rgba(255, 255, 255, .12), transparent 30%), repeating-linear-gradient(90deg, rgba(255, 235, 170, .10) 0 54px, transparent 54px 96px), linear-gradient(180deg, #4C2580, #7B3E93 70%, #9A4E9E); }
+.gk .room::before { top: 6px; background: radial-gradient(circle, #FFE27A 0 3.5px, transparent 4.5px) 0 8px / 30px 14px repeat-x, linear-gradient(180deg, transparent 6px, rgba(255, 226, 122, .5) 6px 8px, transparent 8px); }
+.gk .decor { position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: space-between; padding: 0 10px; font-size: 34px; line-height: 1; opacity: .9; pointer-events: none; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .25)); }
+.gk .customers { padding-bottom: 28px; gap: 18px; }
+.gk .cust { width: 160px; gap: 3px; }
+.gk .cust-order { min-width: 108px; padding: 7px 10px 8px; border-radius: 14px; box-shadow: 0 4px 0 var(--toast), 0 8px 16px rgba(20, 8, 40, .35); }
+.gk .cust-order .it { font-size: 34px; }
+.gk .cust-patience { height: 10px; }
+.gk .cust-face { width: 58px; height: 58px; font-size: 40px; margin-top: 2px; border-width: 3px; background: radial-gradient(circle at 40% 30%, #fff, #FFE1B8); }
+.gk .cust-body { order: 3; width: 74px; height: 26px; margin-top: -8px; background: linear-gradient(180deg, var(--face), color-mix(in srgb, var(--face) 70%, #000)); border: 3px solid var(--toast); border-radius: 18px 18px 6px 6px; }
+.gk .cust.can-serve .cust-face { box-shadow: inset 0 -6px 0 rgba(0, 0, 0, .15), 0 4px 0 var(--toast), 0 0 0 4px rgba(75, 224, 74, .7), 0 0 20px var(--green); }
+.gk .pass { height: 90px; }
+.gk .plate { width: 78px; height: 66px; font-size: 40px; }
+.gk .kitchen { background: linear-gradient(180deg, #FFD6EA 0 12px, #F07AB8 12px 30px, #D4569E 30px 62%, #8C3078 62% 66%, #5E2364 66%); padding: 16px 14px 12px; gap: 14px; }
+.gk .station { background: none; border: 0; box-shadow: none; padding: 0; gap: 8px; }
+.gk .station-head { font-size: 13px; background: var(--cream); border: 2px solid var(--toast); box-shadow: 0 2px 0 var(--toast); }
+.gk .slot { width: 84px; height: 92px; }
+.gk .slot .food { font-size: 48px; }
+.gk .slot .bar-track { width: 64px; height: 10px; }
+.gk .station[data-id="grill"] .slots { background: #151515; padding: 8px; border-radius: 16px; box-shadow: 0 5px 0 var(--toast), inset 0 0 0 3px #3a3a3a; }
+.gk .station[data-id="pan"] .slot { width: 90px; height: 90px; }
+.gk .station[data-id="pan"] .slot::after { right: -34px; width: 36px; height: 12px; margin-top: -6px; }
+.gk .station[data-id="pan"] .slots { gap: 38px; padding-right: 30px; }
+.gk .kitchen[data-n="2"] .slot, .gk .kitchen[data-n="3"] .slot { width: 100px; height: 108px; }
+.gk .kitchen[data-n="2"] .slot .food, .gk .kitchen[data-n="3"] .slot .food { font-size: 58px; }
+.gk .tray { padding: 8px 14px; border-radius: 12px; font-size: 17px; }
+.gk .tray .em { font-size: 26px; letter-spacing: -10px; margin-right: 12px; }
+.gk .stage.portrait .room { height: 176px; }
+.gk .stage.portrait .decor { font-size: 24px; }
+.gk .stage.portrait .cust { width: 112px; }
+.gk .stage.portrait .cust-order .it { font-size: 24px; }
+.gk .stage.portrait .cust-face { width: 50px; height: 50px; font-size: 32px; }
+.gk .stage.portrait .cust-body { width: 60px; height: 20px; }
+.gk .stage.portrait .slot, .gk .stage.portrait .kitchen[data-n="2"] .slot, .gk .stage.portrait .kitchen[data-n="3"] .slot { width: 72px; height: 80px; }
+.gk .stage.portrait .slot .food, .gk .stage.portrait .kitchen[data-n="2"] .slot .food, .gk .stage.portrait .kitchen[data-n="3"] .slot .food { font-size: 40px; }
+.gk .stage.portrait .station[data-id="pan"] .slot { width: 76px; height: 76px; }
+.gk .stage.portrait .tray { font-size: 14px; padding: 5px 10px; }
+.gk .stage.portrait .tray .em { font-size: 20px; }
+
+/* punchier colours */
+.gk .screen-game { background: linear-gradient(180deg, #3A0F7A 0%, #7A1FA8 35%, #B33BB0 55%, #2A1245 56%); }
+.gk .room { background: radial-gradient(circle at 10% 30%, rgba(255, 220, 90, .5), transparent 22%), radial-gradient(circle at 90% 25%, rgba(255, 90, 200, .5), transparent 22%), radial-gradient(circle at 50% 10%, rgba(255, 255, 255, .16), transparent 30%), repeating-linear-gradient(90deg, rgba(255, 235, 170, .12) 0 54px, transparent 54px 96px), linear-gradient(180deg, #4B1A9A, #8E2FB8 70%, #C04AC0); }
+.gk .room::after { background: repeating-linear-gradient(90deg, #FF2E9A 0 22px, #FFFFFF 22px 44px); }
+.gk .pass { background: linear-gradient(180deg, #C8FFF8 0 8px, #2EE6DC 8px 24px, #12B5AC 24px 100%); }
+.gk .kitchen { background: linear-gradient(180deg, #FFD9EF 0 12px, #FF5FBE 12px 30px, #F23A9E 30px 62%, #A61C7A 62% 66%, #6A1470 66%); }
+.gk .goal-bar i { background: linear-gradient(180deg, #FFB36B, #FF6A2A 50%, #E3401A); }
+.gk .goal-bar.met i { background: linear-gradient(180deg, #9CFF7A, #2EDB4A 50%, #1DB53C); }
+.gk .tray { background: linear-gradient(180deg, #FFFFFF, #E4ECF5 60%, #B7C6D8); }

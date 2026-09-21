@@ -1,117 +1,160 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <title>Crypto Kitchen — cocina, sirve, cobra en crypto</title>
-  <meta name="description" content="Crypto Kitchen es un juego de cocina estilo Cooking Fever: los clientes entran, tú cocinas y te pagan en BTC, ETH, SOL, DOGE o USDC. Niveles, mejoras y una cartera que crece con cada pedido.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23F5A623'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23FFD23F' stroke='%23C77800' stroke-width='2'/%3E%3Ctext x='16' y='21' font-family='Arial Black,Arial' font-weight='900' font-size='14' text-anchor='middle' fill='%23C77800'%3E%24%3C/text%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&display=swap">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crypto Kitchen</title>
+<meta name="description" content="Crypto Kitchen: the food-coin launchpad. Drop a coin, trade it on PonsV2 or Uniswap, and earn the cash in the kitchen game.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23E4461E'/%3E%3Ctext x='16' y='23' font-size='19' text-anchor='middle'%3E🍳%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="app.css">
 </head>
 <body>
-<noscript><p class="noscript">Crypto Kitchen necesita JavaScript para jugar.</p></noscript>
+<div class="app" id="app">
 
-<div class="stage" id="stage">
+  <!-- ===== sidebar ===== -->
+  <aside class="side" id="side">
+    <a class="brand" href="#explore"><span class="brand-mark">🍳</span><span class="brand-name">Crypto Kitchen</span></a>
+    <nav class="nav">
+      <a href="#explore" data-view="explore"><i>▦</i><span data-i18n="nav.explore">Explorar</span></a>
+      <a href="#launch" data-view="launch"><i>＋</i><span data-i18n="nav.launch">Dropear coin</span></a>
+      <a href="#pair" data-view="pair"><i>◎</i><span data-i18n="nav.pair">Crear par</span></a>
+      <a href="#exchange" data-view="exchange"><i>⇄</i><span data-i18n="nav.exchange">Exchange</span></a>
+      <small data-i18n="nav.you">Tú</small>
+      <a href="#portfolio" data-view="portfolio"><i>▤</i><span data-i18n="nav.portfolio">Portfolio</span></a>
+      <a href="#earnings" data-view="earnings"><i>✦</i><span data-i18n="nav.earnings">Ganancias</span></a>
+      <a href="#kitchen" data-view="kitchen" class="nav-kitchen"><i>🎮</i><span data-i18n="nav.kitchen">Cocina (juego)</span></a>
+      <small data-i18n="nav.ref">Referencia</small>
+      <a href="#rates" data-view="rates"><i>％</i><span data-i18n="nav.rates">Cotizaciones</span></a>
+      <a href="#how" data-view="how"><i>▭</i><span data-i18n="nav.how">Cómo funciona</span></a>
+    </nav>
+    <div class="side-foot"><span class="dot"></span><span data-i18n="side.chain">Kitchen Chain · testnet</span></div>
+  </aside>
 
-  <!-- ===== título ===== -->
-  <section class="screen screen-title is-on" id="s-title">
-    <div class="title-scene" aria-hidden="true">
-      <span class="title-food f1">🍔</span><span class="title-food f2">🍟</span><span class="title-food f3">🥤</span>
-      <span class="title-food f4">🥩</span><span class="title-food f5">🍕</span>
-      <i class="coin c1"></i><i class="coin c2"></i><i class="coin c3"></i>
-    </div>
-    <div class="title-card">
-      <span class="kicker">🔥 Cooking · play to earn</span>
-      <h1 class="display title-logo">Crypto<br><em>Kitchen</em></h1>
-      <p class="title-tag">Los clientes entran. Tú cocinas. Ellos pagan en crypto.</p>
-      <div class="title-btns">
-        <button class="btn btn-green btn-xl" data-go="map" type="button">▶ Jugar</button>
-        <button class="btn btn-cream" data-go="wallet" type="button">👛 Cartera</button>
-      </div>
-      <p class="title-balance">Balance: <b id="titleBalance">$0</b></p>
-    </div>
-  </section>
-
-  <!-- ===== mapa de niveles ===== -->
-  <section class="screen screen-map" id="s-map">
-    <header class="bar">
-      <button class="btn btn-cream btn-sm" data-go="title" type="button">‹ Inicio</button>
-      <h2 class="display">Niveles</h2>
-      <div class="bar-right">
-        <span class="pill pill-gold"><i class="coin coin-xs"></i> <b id="mapBalance">$0</b></span>
-        <button class="btn btn-gold btn-sm" data-go="shop" type="button">🛒 Tienda</button>
-      </div>
-    </header>
-    <div class="map-grid" id="mapGrid"></div>
-  </section>
-
-  <!-- ===== juego ===== -->
-  <section class="screen screen-game" id="s-game">
-    <header class="hud">
-      <span class="pill pill-level">Nivel <b id="hLevel">1</b></span>
-      <div class="hud-goal" aria-label="Objetivo del nivel">
-        <div class="goal-bar"><i id="hGoalFill"></i><span id="hGoalText">$0 / $60</span></div>
-      </div>
-      <span class="pill pill-time">⏱ <b id="hTime">60</b></span>
-      <span class="pill pill-gold pill-cash"><i class="coin coin-xs"></i> <b id="hCash">$0</b></span>
-      <button class="hud-btn" id="btnSound" type="button" aria-label="Sonido">🔊</button>
-      <button class="hud-btn" id="btnPause" type="button" aria-label="Pausa">⏸</button>
+  <!-- ===== main ===== -->
+  <div class="main">
+    <header class="top">
+      <button class="top-burger" id="burger" type="button" aria-label="Menu">☰</button>
+      <h1 class="top-title" id="topTitle">Explorar</h1>
+      <div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="es">español</button><button type="button" data-lang="en">english</button><button type="button" data-lang="zh">中文</button></div>
+      <button class="btn btn-dark" id="btnWallet" type="button"><span class="w-ico">▣</span><span id="walletLabel" data-i18n="wallet.connect">Conectar cartera</span></button>
     </header>
 
-    <div class="market" id="market" aria-label="Mercado"></div>
+    <main class="content" id="content">
 
-    <div class="room">
-      <div class="customers" id="customers"></div>
-    </div>
+      <!-- explore -->
+      <section class="view" data-view="explore">
+        <div class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow" data-i18n="hero.eyebrow">● Cocínalo. Dropéalo. Trádealo.</span>
+            <h2 class="hero-h"><span data-i18n="hero.h1">Coins de comida.</span><br><em data-i18n="hero.h2">Mercado global.</em></h2>
+            <p class="hero-p" data-i18n="hero.p">Descubre y lanza memecoins con nombre de plato. Cada coin nace en una curva de la cocina y se gradúa a PonsV2 o Uniswap. El cash lo ganas en el juego.</p>
+            <div class="hero-cta">
+              <a class="btn btn-dark" href="#launch"><span data-i18n="hero.launch">Dropear una coin</span> <b>+</b></a>
+              <a class="btn btn-link" href="#how"><span data-i18n="hero.how">Cómo funciona</span> <b>→</b></a>
+              <a class="btn btn-accent" href="#kitchen"><span data-i18n="hero.play">Jugar y ganar cash</span> <b>▶</b></a>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <svg class="globe" viewBox="0 0 400 400"><g fill="none" stroke="currentColor" stroke-width="1"><circle cx="200" cy="200" r="170"/><ellipse cx="200" cy="200" rx="170" ry="60"/><ellipse cx="200" cy="200" rx="170" ry="120"/><ellipse cx="200" cy="200" rx="60" ry="170"/><ellipse cx="200" cy="200" rx="120" ry="170"/><path d="M30 200h340M200 30v340"/></g></svg>
+            <div class="chip c1"><span class="chip-em">🍔</span><div><b>BURG</b><small>Burger coin</small></div></div>
+            <div class="chip c2"><span class="chip-em">🍕</span><div><b>PIZZA</b><small>Pizza coin</small></div></div>
+            <div class="chip c3"><span class="chip-em">🌮</span><div><b>TACO</b><small>Taco Tuesday</small></div></div>
+            <div class="chip c4"><span class="chip-em">🍜</span><div><b>RAMEN</b><small>Ramen coin</small></div></div>
+          </div>
+        </div>
 
-    <div class="pass">
-      <span class="pass-label">Pase</span>
-      <div class="pass-slots" id="pass"></div>
-    </div>
+        <div class="stats" id="stats"></div>
 
-    <div class="kitchen" id="kitchen"></div>
+        <div class="featured" id="featured"></div>
 
-    <div class="banner" id="banner" aria-live="polite"></div>
-    <div class="fx" id="fx" aria-hidden="true"></div>
+        <div class="market-head">
+          <div><h3 data-i18n="market.title">Explora el mercado</h3><p data-i18n="market.sub">Encuentra tu próxima coin. Empieza por un plato.</p></div>
+          <label class="search"><span>⌕</span><input id="search" type="search" data-i18n-ph="market.search" placeholder="Buscar coins, tickers o direcciones"></label>
+        </div>
+        <div class="tabs" id="tabs"><button type="button" data-sort="mcap" class="on" data-i18n="tab.mcap">Top market cap</button><button type="button" data-sort="new" data-i18n="tab.new">Nuevas</button><button type="button" data-sort="vol" data-i18n="tab.vol">Más tradeadas</button><button type="button" data-sort="curve" data-i18n="tab.curve">En la curva</button></div>
+        <div class="table-wrap"><table class="market" id="market"><thead><tr><th data-i18n="col.coin">Coin</th><th class="num" data-i18n="col.price">Precio</th><th class="num">24h</th><th class="num" data-i18n="col.mcap">Market cap</th><th data-i18n="col.status">Estado</th><th class="spark"></th></tr></thead><tbody id="marketRows"></tbody></table></div>
+      </section>
 
-    <div class="overlay" id="gOverlay">
-      <div class="card overlay-card" id="overlayCard"></div>
-    </div>
-  </section>
+      <!-- coin detail -->
+      <section class="view" data-view="coin" id="coinView"></section>
 
-  <!-- ===== tienda ===== -->
-  <section class="screen screen-shop" id="s-shop">
-    <header class="bar">
-      <button class="btn btn-cream btn-sm" data-go="map" type="button">‹ Niveles</button>
-      <h2 class="display">Tienda</h2>
-      <div class="bar-right"><span class="pill pill-gold"><i class="coin coin-xs"></i> <b id="shopBalance">$0</b></span></div>
-    </header>
-    <p class="shop-note">Las mejoras se pagan con los dólares que ganas en la cocina. Cada nivel de mejora es permanente.</p>
-    <div class="shop-grid" id="shopGrid"></div>
-  </section>
+      <!-- launch -->
+      <section class="view" data-view="launch">
+        <div class="two">
+          <form class="card form" id="launchForm">
+            <h3 data-i18n="launch.title">Dropea una coin de comida</h3>
+            <p class="muted" data-i18n="launch.sub">Elige un plato, ponle ticker y sale a la curva de la cocina. Cuando recauda $12,000 se gradúa al DEX que elijas.</p>
+            <label><span data-i18n="launch.emoji">Plato</span><div class="emoji-pick" id="emojiPick"></div></label>
+            <div class="row2">
+              <label><span data-i18n="launch.name">Nombre</span><input id="lName" required maxlength="24" placeholder="Churro coin"></label>
+              <label><span data-i18n="launch.ticker">Ticker</span><input id="lTicker" required maxlength="6" placeholder="CHURRO" style="text-transform:uppercase"></label>
+            </div>
+            <label><span data-i18n="launch.desc">Descripción</span><textarea id="lDesc" rows="3" maxlength="160" data-i18n-ph="launch.descPh" placeholder="Frito, azucarado y a la luna."></textarea></label>
+            <div class="row2">
+              <label><span data-i18n="launch.quote">Par</span><select id="lQuote"><option>USDC</option><option>ETH</option><option>SOL</option></select></label>
+              <label><span data-i18n="launch.dex">DEX de graduación</span><select id="lDex"><option value="ponsv2">PonsV2</option><option value="uniswap">Uniswap v3</option></select></label>
+            </div>
+            <label><span data-i18n="launch.buy">Compra inicial (USD)</span><input id="lBuy" type="number" min="0" step="1" value="20"></label>
+            <div class="fee-line"><span data-i18n="launch.fee">Tasa de lanzamiento</span><b>$2.00</b></div>
+            <button class="btn btn-dark btn-wide" type="submit"><span data-i18n="launch.submit">Dropear coin</span> <b>+</b></button>
+          </form>
+          <div class="card preview" id="launchPreview"></div>
+        </div>
+      </section>
 
-  <!-- ===== cartera ===== -->
-  <section class="screen screen-wallet" id="s-wallet">
-    <header class="bar">
-      <button class="btn btn-cream btn-sm" data-go="title" type="button">‹ Inicio</button>
-      <h2 class="display">Cartera</h2>
-      <div class="bar-right"><span class="pill pill-gold"><i class="coin coin-xs"></i> <b id="walletBalance">$0</b></span></div>
-    </header>
-    <div class="card wallet-card">
-      <table class="wallet-table">
-        <thead><tr><th>Moneda</th><th class="num">Cantidad</th><th class="num">Precio</th><th class="num">Valor</th></tr></thead>
-        <tbody id="walletRows"></tbody>
-      </table>
-      <p class="wallet-note">Lo que cobras a los clientes se guarda en la moneda en la que pagan. El valor sigue el mercado del juego, que se mueve solo. Todo vive en tu navegador; nada va a una cadena real.</p>
-      <div class="wallet-stats" id="walletStats"></div>
-      <button class="btn btn-red btn-sm" id="btnReset" type="button">Borrar progreso</button>
-    </div>
-  </section>
+      <!-- pair -->
+      <section class="view" data-view="pair">
+        <div class="two">
+          <form class="card form" id="pairForm">
+            <h3 data-i18n="pair.title">Crear un par</h3>
+            <p class="muted" data-i18n="pair.sub">Añade liquidez a una coin graduada en PonsV2 o Uniswap. Recibes LP y el 0.25% de cada swap del par.</p>
+            <label><span data-i18n="pair.coin">Coin</span><select id="pCoin"></select></label>
+            <div class="row2">
+              <label><span data-i18n="launch.quote">Par</span><select id="pQuote"><option>USDC</option><option>ETH</option><option>SOL</option></select></label>
+              <label><span>DEX</span><select id="pDex"><option value="ponsv2">PonsV2</option><option value="uniswap">Uniswap v3</option></select></label>
+            </div>
+            <label><span data-i18n="pair.amount">Liquidez (USD)</span><input id="pAmount" type="number" min="1" step="1" value="50"></label>
+            <button class="btn btn-dark btn-wide" type="submit" data-i18n="pair.submit">Crear par</button>
+          </form>
+          <div class="card" id="pools"></div>
+        </div>
+      </section>
 
+      <!-- exchange -->
+      <section class="view" data-view="exchange">
+        <div class="two">
+          <div class="card swap" id="swap"></div>
+          <div class="card" id="routes"></div>
+        </div>
+      </section>
+
+      <!-- portfolio -->
+      <section class="view" data-view="portfolio" id="portfolioView"></section>
+      <!-- earnings -->
+      <section class="view" data-view="earnings" id="earningsView"></section>
+
+      <!-- kitchen game -->
+      <section class="view" data-view="kitchen">
+        <div class="kitchen-head">
+          <div><h3 data-i18n="kitchen.title">La cocina</h3><p data-i18n="kitchen.sub">Los clientes pagan en crypto; lo que ganas aquí es el cash que gastas en el launchpad.</p></div>
+          <a class="btn btn-dark" href="play.html" target="_blank" rel="noopener" data-i18n="kitchen.full">Abrir a pantalla completa ↗</a>
+        </div>
+        <div class="game-frame"><iframe id="gameFrame" title="Crypto Kitchen game" loading="lazy"></iframe></div>
+      </section>
+
+      <!-- rates -->
+      <section class="view" data-view="rates" id="ratesView"></section>
+      <!-- how -->
+      <section class="view" data-view="how" id="howView"></section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" aria-live="polite"></div>
+  <div class="modal" id="modal" hidden><div class="modal-card" id="modalCard"></div></div>
 </div>
-<script src="game.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

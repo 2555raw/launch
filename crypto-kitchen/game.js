@@ -17,6 +17,114 @@
     try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* private window */ }
   }
 
+
+  // ---------- languages ----------
+  var I18N = {
+    es: {
+      'title.kicker': '🔥 Cooking · play to earn', 'title.tag': 'Los clientes entran. Tú cocinas. Ellos pagan en crypto.',
+      'btn.play': '▶ Jugar', 'btn.wallet': '👛 Cartera', 'title.balance': 'Balance:', 'title.walletWord': 'cartera',
+      'nav.home': '‹ Inicio', 'nav.levels': '‹ Niveles', 'h.levels': 'Niveles', 'h.shop': 'Tienda', 'h.wallet': 'Cartera', 'btn.shop': '🛒 Tienda',
+      'hud.level': 'Nivel', 'pass': 'Pase', 'btn.launchpad': '🚀 Launchpad',
+      'shop.note': 'Las mejoras se pagan con los dólares que ganas en la cocina. Cada nivel de mejora es permanente.', 'shop.max': 'MAX',
+      'wallet.coin': 'Moneda', 'wallet.amount': 'Cantidad', 'wallet.price': 'Precio', 'wallet.value': 'Valor',
+      'wallet.note': 'Lo que cobras a los clientes se guarda en la moneda en la que pagan. El valor sigue el mercado del juego, que se mueve solo. Todo vive en tu navegador; nada va a una cadena real.',
+      'wallet.cash': '💵 Caja:', 'wallet.wallet': '🪙 Cartera:', 'wallet.served': '🍽️ Servidos:', 'wallet.lost': '😠 Perdidos:',
+      'btn.reset': 'Borrar progreso', 'reset.confirm': '¿Borrar todo el progreso, la caja y la cartera?',
+      'dish.burger': 'Burger', 'dish.fries': 'Patatas', 'dish.soda': 'Refresco', 'dish.steak': 'Chuletón', 'dish.pizza': 'Pizza',
+      'st.grill': 'Parrilla', 'st.fryer': 'Freidora', 'st.soda': 'Bebidas', 'st.pan': 'Sartén', 'st.oven': 'Horno',
+      'upg.grillSlots': ['Parrilla grande', 'Más huecos para hamburguesas a la vez.'], 'upg.grillSpeed': ['Parrilla rápida', 'Las hamburguesas se hacen antes.'],
+      'upg.fryerSlots': ['Segunda cesta', 'Dos cestas de patatas en la freidora.'], 'upg.fryerSpeed': ['Aceite caliente', 'Las patatas fríen más rápido.'],
+      'upg.sodaSpeed': ['Grifo a presión', 'Los refrescos salen casi al instante.'], 'upg.panSlots': ['Segunda sartén', 'Dos chuletones a la vez.'],
+      'upg.passSlots': ['Pase más largo', 'Más platos esperando en el pase.'], 'upg.neon': ['Cartel de neón', 'Los clientes esperan un 20% más por nivel.'],
+      'upg.jukebox': ['Jukebox', 'Buen ambiente: +10% de propina por nivel.'],
+      'intro.level': 'Nivel {n}', 'intro.open': '¡Abrimos!', 'intro.shift': 'Turno {n}',
+      'intro.text': 'Pagan en <b>{coins}</b>. Cuanto antes sirvas, más propina; con {amt} te llevas las tres estrellas.',
+      'howto.1': 'Toca una <b>bandeja</b> para poner comida a cocinar.', 'howto.2': 'Cuando brille, tócala para pasarla al <b>pase</b>.', 'howto.3': 'Toca al <b>cliente</b> (o el plato) para servir. Si se aburre, se va.',
+      'btn.start': '▶ Empezar', 'btn.back': 'Volver',
+      'room.opening': 'Abriendo el local…', 'room.waiting': 'Esperando clientes…',
+      'msg.passFull': '¡El pase está lleno!', 'msg.nobody': 'Nadie ha pedido {dish}', 'msg.missing': 'Le falta {items}', 'msg.burnt': '¡Se ha quemado! Tócalo para tirarlo',
+      'msg.pump': '🚀 ¡{coin} está pumpeando! Los que pagan en {coin} pagan ×2', 'msg.left': 'Se fue 😠',
+      'res.win': '¡Turno cerrado!', 'res.lose': 'No llegaste…', 'res.earned': 'Ganado', 'res.goal': 'Objetivo', 'res.served': 'Servidos', 'res.nothing': 'Nada cobrado',
+      'res.lost': ['{n} cliente se fue sin pagar.', '{n} clientes se fueron sin pagar.'], 'res.burnt': ['{n} plato quemado.', '{n} platos quemados.'],
+      'res.inWallet': 'Lo cobrado ya está en tu cartera.', 'res.tryShop': 'Prueba una mejora en la tienda y repite.',
+      'btn.next': 'Siguiente ▶', 'res.done': '🏆 ¡Has completado la cocina!', 'btn.retry': '↻ Repetir', 'btn.levels': 'Niveles',
+      'pause.title': 'Pausa', 'pause.text': 'La cocina espera. Los clientes también, por una vez.', 'btn.resume': '▶ Seguir', 'btn.quit': 'Abandonar'
+    },
+    en: {
+      'title.kicker': '🔥 Cooking · play to earn', 'title.tag': 'Customers walk in. You cook. They pay in crypto.',
+      'btn.play': '▶ Play', 'btn.wallet': '👛 Wallet', 'title.balance': 'Balance:', 'title.walletWord': 'wallet',
+      'nav.home': '‹ Home', 'nav.levels': '‹ Levels', 'h.levels': 'Levels', 'h.shop': 'Shop', 'h.wallet': 'Wallet', 'btn.shop': '🛒 Shop',
+      'hud.level': 'Level', 'pass': 'Pass', 'btn.launchpad': '🚀 Launchpad',
+      'shop.note': 'Upgrades are paid with the dollars you earn in the kitchen. Every upgrade level is permanent.', 'shop.max': 'MAX',
+      'wallet.coin': 'Coin', 'wallet.amount': 'Amount', 'wallet.price': 'Price', 'wallet.value': 'Value',
+      'wallet.note': 'What customers pay is kept in the coin they pay with. Its value follows the game market, which moves on its own. Everything lives in your browser; nothing touches a real chain.',
+      'wallet.cash': '💵 Cash:', 'wallet.wallet': '🪙 Wallet:', 'wallet.served': '🍽️ Served:', 'wallet.lost': '😠 Lost:',
+      'btn.reset': 'Reset progress', 'reset.confirm': 'Erase all progress, cash and wallet?',
+      'dish.burger': 'Burger', 'dish.fries': 'Fries', 'dish.soda': 'Soda', 'dish.steak': 'Steak', 'dish.pizza': 'Pizza',
+      'st.grill': 'Grill', 'st.fryer': 'Fryer', 'st.soda': 'Drinks', 'st.pan': 'Pan', 'st.oven': 'Oven',
+      'upg.grillSlots': ['Bigger grill', 'More burgers on the grill at once.'], 'upg.grillSpeed': ['Fast grill', 'Burgers cook sooner.'],
+      'upg.fryerSlots': ['Second basket', 'Two baskets of fries in the fryer.'], 'upg.fryerSpeed': ['Hot oil', 'Fries fry faster.'],
+      'upg.sodaSpeed': ['Pressure tap', 'Sodas pour almost instantly.'], 'upg.panSlots': ['Second pan', 'Two steaks at once.'],
+      'upg.passSlots': ['Longer pass', 'More plates waiting on the pass.'], 'upg.neon': ['Neon sign', 'Customers wait 20% longer per level.'],
+      'upg.jukebox': ['Jukebox', 'Good vibes: +10% tips per level.'],
+      'intro.level': 'Level {n}', 'intro.open': 'We\'re open!', 'intro.shift': 'Shift {n}',
+      'intro.text': 'They pay in <b>{coins}</b>. The faster you serve, the bigger the tip; reach {amt} for three stars.',
+      'howto.1': 'Tap a <b>tray</b> to start cooking.', 'howto.2': 'When it glows, tap it to move it to the <b>pass</b>.', 'howto.3': 'Tap the <b>customer</b> (or the plate) to serve. If they get bored, they leave.',
+      'btn.start': '▶ Start', 'btn.back': 'Back',
+      'room.opening': 'Opening up…', 'room.waiting': 'Waiting for customers…',
+      'msg.passFull': 'The pass is full!', 'msg.nobody': 'Nobody ordered {dish}', 'msg.missing': 'Still needs {items}', 'msg.burnt': 'Burnt! Tap it to bin it',
+      'msg.pump': '🚀 {coin} is pumping! Customers paying in {coin} pay ×2', 'msg.left': 'Walked out 😠',
+      'res.win': 'Shift over!', 'res.lose': 'Not quite…', 'res.earned': 'Earned', 'res.goal': 'Goal', 'res.served': 'Served', 'res.nothing': 'Nothing earned',
+      'res.lost': ['{n} customer left without paying.', '{n} customers left without paying.'], 'res.burnt': ['{n} dish burnt.', '{n} dishes burnt.'],
+      'res.inWallet': 'The takings are already in your wallet.', 'res.tryShop': 'Try an upgrade in the shop and go again.',
+      'btn.next': 'Next ▶', 'res.done': '🏆 You\'ve completed the kitchen!', 'btn.retry': '↻ Retry', 'btn.levels': 'Levels',
+      'pause.title': 'Paused', 'pause.text': 'The kitchen waits. So do the customers, for once.', 'btn.resume': '▶ Resume', 'btn.quit': 'Quit'
+    },
+    zh: {
+      'title.kicker': '🔥 烹饪 · 边玩边赚', 'title.tag': '顾客进门，你来做菜，他们用加密货币付款。',
+      'btn.play': '▶ 开始', 'btn.wallet': '👛 钱包', 'title.balance': '余额：', 'title.walletWord': '钱包',
+      'nav.home': '‹ 首页', 'nav.levels': '‹ 关卡', 'h.levels': '关卡', 'h.shop': '商店', 'h.wallet': '钱包', 'btn.shop': '🛒 商店',
+      'hud.level': '关卡', 'pass': '出餐口', 'btn.launchpad': '🚀 发射台',
+      'shop.note': '升级用你在厨房赚到的美元支付。每一级升级都是永久的。', 'shop.max': '满级',
+      'wallet.coin': '币种', 'wallet.amount': '数量', 'wallet.price': '价格', 'wallet.value': '价值',
+      'wallet.note': '顾客付的钱会以他们所用的币种保存。价值跟随游戏内自行波动的行情。一切都只保存在你的浏览器里，不会上任何真实的链。',
+      'wallet.cash': '💵 现金：', 'wallet.wallet': '🪙 钱包：', 'wallet.served': '🍽️ 已服务：', 'wallet.lost': '😠 流失：',
+      'btn.reset': '清除进度', 'reset.confirm': '要清除全部进度、现金和钱包吗？',
+      'dish.burger': '汉堡', 'dish.fries': '薯条', 'dish.soda': '汽水', 'dish.steak': '牛排', 'dish.pizza': '披萨',
+      'st.grill': '烤架', 'st.fryer': '炸锅', 'st.soda': '饮料机', 'st.pan': '平底锅', 'st.oven': '烤箱',
+      'upg.grillSlots': ['大烤架', '同时烤更多汉堡。'], 'upg.grillSpeed': ['快速烤架', '汉堡更快烤好。'],
+      'upg.fryerSlots': ['第二个炸篮', '炸锅里可放两篮薯条。'], 'upg.fryerSpeed': ['热油', '薯条炸得更快。'],
+      'upg.sodaSpeed': ['高压龙头', '汽水几乎瞬间倒好。'], 'upg.panSlots': ['第二口锅', '同时煎两块牛排。'],
+      'upg.passSlots': ['更长的出餐口', '出餐口能放更多盘子。'], 'upg.neon': ['霓虹招牌', '每级顾客多等 20%。'],
+      'upg.jukebox': ['点唱机', '气氛好：每级小费 +10%。'],
+      'intro.level': '第 {n} 关', 'intro.open': '开业啦！', 'intro.shift': '第 {n} 班',
+      'intro.text': '他们用 <b>{coins}</b> 付款。上菜越快小费越多；赚到 {amt} 可获三星。',
+      'howto.1': '点<b>托盘</b>开始做菜。', 'howto.2': '菜发光时点它，送到<b>出餐口</b>。', 'howto.3': '点<b>顾客</b>（或盘子）上菜。等烦了他们就走。',
+      'btn.start': '▶ 开始', 'btn.back': '返回',
+      'room.opening': '正在开门…', 'room.waiting': '等待顾客…',
+      'msg.passFull': '出餐口满了！', 'msg.nobody': '没人点{dish}', 'msg.missing': '还缺 {items}', 'msg.burnt': '烧焦了！点一下扔掉',
+      'msg.pump': '🚀 {coin} 暴涨中！用 {coin} 付款的顾客付 ×2', 'msg.left': '走了 😠',
+      'res.win': '收工！', 'res.lose': '差一点…', 'res.earned': '收入', 'res.goal': '目标', 'res.served': '已服务', 'res.nothing': '没有收入',
+      'res.lost': ['{n} 位顾客没付钱就走了。', '{n} 位顾客没付钱就走了。'], 'res.burnt': ['烧焦了 {n} 份。', '烧焦了 {n} 份。'],
+      'res.inWallet': '收入已进你的钱包。', 'res.tryShop': '去商店升级一下再试。',
+      'btn.next': '下一关 ▶', 'res.done': '🏆 你通关了整个厨房！', 'btn.retry': '↻ 重玩', 'btn.levels': '关卡',
+      'pause.title': '暂停', 'pause.text': '厨房在等，顾客这次也在等。', 'btn.resume': '▶ 继续', 'btn.quit': '放弃'
+    }
+  };
+  var LANGS = ['es', 'en', 'zh'];
+  var lang = 'es';
+  function t(key, vars) {
+    var v = (I18N[lang] && I18N[lang][key] !== undefined) ? I18N[lang][key] : I18N.es[key];
+    if (typeof v === 'string' && vars) v = v.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] !== undefined ? vars[k] : m; });
+    return v;
+  }
+  function tn(key, n) { return t(key)[n === 1 ? 0 : 1].replace('{n}', n); }
+  function applyLang() {
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
+    Array.prototype.forEach.call(document.querySelectorAll('#lang button'), function (b) { b.classList.toggle('on', b.getAttribute('data-lang') === lang); });
+  }
+
   // ---------- data ----------
   var COINS = {
     USDC: { name: 'USD Coin', color: '#2775CA', price: 1.0,   vol: 0.001, mult: 1.0,  sym: '$' },
@@ -28,34 +136,34 @@
   var COIN_KEYS = Object.keys(COINS);
 
   var DISHES = {
-    burger: { em: '🍔', name: 'Burger',  price: 8,  station: 'grill' },
-    fries:  { em: '🍟', name: 'Patatas', price: 5,  station: 'fryer' },
-    soda:   { em: '🥤', name: 'Refresco', price: 3, station: 'soda' },
-    steak:  { em: '🥩', name: 'Chuletón', price: 14, station: 'pan' },
-    pizza:  { em: '🍕', name: 'Pizza',   price: 12, station: 'oven' }
+    burger: { em: '🍔',  price: 8,  station: 'grill' },
+    fries:  { em: '🍟', price: 5,  station: 'fryer' },
+    soda:   { em: '🥤', price: 3, station: 'soda' },
+    steak:  { em: '🥩', price: 14, station: 'pan' },
+    pizza:  { em: '🍕', price: 12, station: 'oven' }
   };
 
   // Every station cooks one dish. `burn` is how long a cooked dish survives on
   // the station before it burns; 0 means it never does.
   var STATIONS = {
-    grill: { name: 'Parrilla', em: '🔥', hue: '#F0433C', dish: 'burger', slots: 2, cook: 4200, burn: 5500, wide: true },
-    fryer: { name: 'Freidora', em: '🧺', hue: '#FFB020', dish: 'fries',  slots: 1, cook: 3200, burn: 6000 },
-    soda:  { name: 'Bebidas',  em: '🚰', hue: '#3BC9C4', dish: 'soda',   slots: 1, cook: 1300, burn: 0 },
-    pan:   { name: 'Sartén',   em: '🍳', hue: '#7B4DD8', dish: 'steak',  slots: 1, cook: 5600, burn: 4500 },
-    oven:  { name: 'Horno',    em: '🔥', hue: '#FF8A1F', dish: 'pizza',  slots: 1, cook: 6500, burn: 5000 }
+    grill: { raw: '🍖', em: '🔥', hue: '#F0433C', dish: 'burger', slots: 2, cook: 4200, burn: 5500, wide: true },
+    fryer: { raw: '🥔', em: '🧺', hue: '#FFB020', dish: 'fries',  slots: 1, cook: 3200, burn: 6000 },
+    soda:  { raw: '🧊', em: '🚰', hue: '#3BC9C4', dish: 'soda',   slots: 1, cook: 1300, burn: 0 },
+    pan:   { raw: '🥩', em: '🍳', hue: '#7B4DD8', dish: 'steak',  slots: 1, cook: 5600, burn: 4500 },
+    oven:  { raw: '🫓', em: '🔥', hue: '#FF8A1F', dish: 'pizza',  slots: 1, cook: 6500, burn: 5000 }
   };
 
   // Permanent upgrades, bought in the shop with earned dollars.
   var UPGRADES = [
-    { id: 'grillSlots', em: '🍔', hue: '#F0433C', name: 'Parrilla grande', desc: 'Más huecos para hamburguesas a la vez.', prices: [120, 320], apply: function (u, v) { u.grillSlots = 2 + v; } },
-    { id: 'grillSpeed', em: '⚡', hue: '#F0433C', name: 'Parrilla rápida', desc: 'Las hamburguesas se hacen antes.', prices: [90, 240], apply: function (u, v) { u.grillCook = [4200, 3300, 2500][v]; } },
-    { id: 'fryerSlots', em: '🍟', hue: '#FFB020', name: 'Segunda cesta', desc: 'Dos cestas de patatas en la freidora.', prices: [150], apply: function (u, v) { u.fryerSlots = 1 + v; } },
-    { id: 'fryerSpeed', em: '🌡️', hue: '#FFB020', name: 'Aceite caliente', desc: 'Las patatas fríen más rápido.', prices: [100], apply: function (u, v) { u.fryerCook = [3200, 2200][v]; } },
-    { id: 'sodaSpeed', em: '🥤', hue: '#3BC9C4', name: 'Grifo a presión', desc: 'Los refrescos salen casi al instante.', prices: [60], apply: function (u, v) { u.sodaCook = [1300, 500][v]; } },
-    { id: 'panSlots', em: '🥩', hue: '#7B4DD8', name: 'Segunda sartén', desc: 'Dos chuletones a la vez.', prices: [220], apply: function (u, v) { u.panSlots = 1 + v; } },
-    { id: 'passSlots', em: '🍽️', hue: '#3BC9C4', name: 'Pase más largo', desc: 'Más platos esperando en el pase.', prices: [80, 180], apply: function (u, v) { u.passSlots = 4 + v; } },
-    { id: 'neon', em: '🪩', hue: '#FF5DA2', name: 'Cartel de neón', desc: 'Los clientes esperan un 20% más por nivel.', prices: [130, 260], apply: function (u, v) { u.patience = 1 + v * 0.2; } },
-    { id: 'jukebox', em: '🎵', hue: '#7B4DD8', name: 'Jukebox', desc: 'Buen ambiente: +10% de propina por nivel.', prices: [160, 300], apply: function (u, v) { u.tip = v * 0.1; } }
+    { id: 'grillSlots', em: '🍔', hue: '#F0433C', prices: [120, 320], apply: function (u, v) { u.grillSlots = 2 + v; } },
+    { id: 'grillSpeed', em: '⚡', hue: '#F0433C', prices: [90, 240], apply: function (u, v) { u.grillCook = [4200, 3300, 2500][v]; } },
+    { id: 'fryerSlots', em: '🍟', hue: '#FFB020', prices: [150], apply: function (u, v) { u.fryerSlots = 1 + v; } },
+    { id: 'fryerSpeed', em: '🌡️', hue: '#FFB020', prices: [100], apply: function (u, v) { u.fryerCook = [3200, 2200][v]; } },
+    { id: 'sodaSpeed', em: '🥤', hue: '#3BC9C4', prices: [60], apply: function (u, v) { u.sodaCook = [1300, 500][v]; } },
+    { id: 'panSlots', em: '🥩', hue: '#7B4DD8', prices: [220], apply: function (u, v) { u.panSlots = 1 + v; } },
+    { id: 'passSlots', em: '🍽️', hue: '#3BC9C4', prices: [80, 180], apply: function (u, v) { u.passSlots = 4 + v; } },
+    { id: 'neon', em: '🪩', hue: '#FF5DA2', prices: [130, 260], apply: function (u, v) { u.patience = 1 + v * 0.2; } },
+    { id: 'jukebox', em: '🎵', hue: '#7B4DD8', prices: [160, 300], apply: function (u, v) { u.tip = v * 0.1; } }
   ];
 
   // Levels: cash goal, seconds on the clock, which dishes are on the menu,
@@ -77,9 +185,21 @@
   var FACE_COLORS = ['#FFB020', '#FF5DA2', '#3BC9C4', '#7B4DD8', '#4BE04A', '#FF8A1F'];
 
   // ---------- save ----------
-  var DEFAULT_SAVE = { cash: 0, wallet: {}, stars: [], upg: {}, served: 0, lost: 0, sound: true };
+  var DEFAULT_SAVE = { cash: 0, wallet: {}, stars: [], upg: {}, served: 0, lost: 0, sound: true, lang: '' };
   var save = load('ck-game', null) || JSON.parse(JSON.stringify(DEFAULT_SAVE));
   function persist() { store('ck-game', save); }
+  (function () {
+    var q = (location.search.match(/[?&]lang=(\w+)/) || [])[1];
+    var nav = (navigator.language || 'es').toLowerCase();
+    lang = LANGS.indexOf(q) !== -1 ? q : LANGS.indexOf(save.lang) !== -1 ? save.lang : nav.indexOf('zh') === 0 ? 'zh' : nav.indexOf('es') === 0 ? 'es' : 'en';
+    save.lang = lang;
+    applyLang();
+  })();
+  $('#lang').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-lang]');
+    if (!b) return;
+    lang = b.getAttribute('data-lang'); save.lang = lang; persist(); applyLang(); go('title');
+  });
 
   // the numbers the upgrades produce, recomputed from `save.upg`
   var U = {};
@@ -147,7 +267,7 @@
   function go(name) {
     Array.prototype.forEach.call(document.querySelectorAll('.screen'), function (s) { s.classList.remove('is-on'); });
     $('#s-' + name).classList.add('is-on');
-    if (name === 'title') $('#titleBalance').textContent = money(save.cash) + ' · cartera ' + money(walletValue());
+    if (name === 'title') $('#titleBalance').textContent = money(save.cash) + ' · ' + t('title.walletWord') + ' ' + money(walletValue());
     if (name === 'map') renderMap();
     if (name === 'shop') renderShop();
     if (name === 'wallet') renderWallet();
@@ -210,9 +330,9 @@
       var slots = '';
       for (var i = 0; i < n; i++) slots += '<div class="slot" data-i="' + i + '"><span class="food">' + dish.em + '</span><div class="bar-track"><i></i></div></div>';
       el.innerHTML =
-        '<div class="station-head">' + st.em + ' ' + st.name + ' <small>' + (stationCook(id) / 1000).toFixed(1) + 's</small></div>' +
+        '<div class="station-head">' + st.em + ' ' + t('st.' + id) + ' <small>' + (stationCook(id) / 1000).toFixed(1) + 's</small></div>' +
         '<div class="slots">' + slots + '</div>' +
-        '<button class="tray" type="button"><span class="em">' + dish.em + '</span>' + dish.name + ' <span class="price">' + money(dish.price) + '</span></button>';
+        '<button class="tray" type="button"><span class="em">' + st.raw + st.raw + st.raw + '</span>' + t('dish.' + st.dish) + ' <span class="price">' + money(dish.price) + '</span></button>';
       els.kitchen.appendChild(el);
       G.stations[id] = { id: id, el: el, slots: [], cook: stationCook(id), burn: st.burn, dish: st.dish };
       for (var j = 0; j < n; j++) G.stations[id].slots.push({ state: 'empty', el: el.querySelectorAll('.slot')[j], t: 0 });
@@ -226,7 +346,7 @@
     levelIndex = i;
     var L = LEVELS[i];
     G = { L: L, elapsed: 0, earned: 0, served: 0, lost: 0, burnt: 0, customers: [], spawnIn: 900, last: 0, raf: 0, paused: false, marketAt: 0, pumpAt: 12000 + Math.random() * 8000, shown: -1, coinsEarned: {}, ended: false };
-    els.customers.innerHTML = '<span class="room-empty">Abriendo el local…</span>';
+    els.customers.innerHTML = '<span class="room-empty">' + t('room.opening') + '</span>';
     buildKitchen(L);
     els.hLevel.textContent = i + 1;
     els.hTime.textContent = L.time;
@@ -243,17 +363,17 @@
     var coins = L.coins.filter(function (c, k, a) { return a.indexOf(c) === k; }).join(' · ');
     var howto = i === 0 ?
       '<div class="howto">' +
-      '<div><span>🍔</span>Toca una <b>bandeja</b> para poner comida a cocinar.</div>' +
-      '<div><span>🍽️</span>Cuando brille, tócala para pasarla al <b>pase</b>.</div>' +
-      '<div><span>😀</span>Toca al <b>cliente</b> (o el plato) para servir. Si se aburre, se va.</div>' +
+      '<div><span>🍔</span>' + t('howto.1') + '</div>' +
+      '<div><span>🍽️</span>' + t('howto.2') + '</div>' +
+      '<div><span>😀</span>' + t('howto.3') + '</div>' +
       '</div>' : '';
     els.overlayCard.innerHTML =
-      '<span class="kicker">Nivel ' + (i + 1) + '</span>' +
-      '<h3 class="display">' + (i === 0 ? '¡Abrimos!' : 'Turno ' + (i + 1)) + '</h3>' +
+      '<span class="kicker">' + t('intro.level', { n: i + 1 }) + '</span>' +
+      '<h3 class="display">' + (i === 0 ? t('intro.open') : t('intro.shift', { n: i + 1 })) + '</h3>' +
       '<div class="goal-line"><span class="pill pill-gold">🎯 ' + money(L.goal) + '</span><span class="pill">⏱ ' + L.time + 's</span><span class="pill">' + menu + '</span></div>' +
-      '<p>Pagan en <b>' + coins + '</b>. Cuanto antes sirvas, más propina; con ' + money(L.goal * 1.6) + ' te llevas las tres estrellas.</p>' +
+      '<p>' + t('intro.text', { coins: coins, amt: money(L.goal * 1.6) }) + '</p>' +
       howto +
-      '<div class="btns"><button class="btn btn-green btn-xl" id="btnGo" type="button">▶ Empezar</button><button class="btn btn-cream btn-sm" data-go="map" type="button">Volver</button></div>';
+      '<div class="btns"><button class="btn btn-green btn-xl" id="btnGo" type="button">' + t('btn.start') + '</button><button class="btn btn-cream btn-sm" data-go="map" type="button">' + t('btn.back') + '</button></div>';
     els.overlay.hidden = false;
     $('#btnGo').addEventListener('click', function () {
       SFX.tap();
@@ -281,10 +401,10 @@
     var el = document.createElement('div');
     el.className = 'cust';
     el.innerHTML =
-      '<div class="cust-order">' + items.map(function (d) { return '<span class="it" data-d="' + d + '">' + DISHES[d].em + '</span>'; }).join('') +
+      '<div class="cust-order"><div class="items">' + items.map(function (d) { return '<span class="it" data-d="' + d + '">' + DISHES[d].em + '</span>'; }).join('') + '</div>' +
       '<span class="cust-pay' + (whale ? ' whale' : '') + '" style="--c:' + COINS[coin].color + '">' + (whale ? '🐋 ' : '') + coin + '</span></div>' +
-      '<div class="cust-face" style="--face:' + pick(FACE_COLORS) + '">' + pick(FACES) + '</div>' +
-      '<div class="cust-patience"><i></i></div>';
+      '<div class="cust-patience"><i></i></div>' +
+      '<div class="cust-face" style="--face:' + pick(FACE_COLORS) + '">' + pick(FACES) + '</div>';
     var empty = els.customers.querySelector('.room-empty');
     if (empty) empty.remove();
     els.customers.appendChild(el);
@@ -298,7 +418,7 @@
     c.el.classList.add(cls);
     setTimeout(function () {
       c.el.remove();
-      if (G && G.customers.length === 0 && !els.customers.querySelector('.cust')) els.customers.innerHTML = '<span class="room-empty">Esperando clientes…</span>';
+      if (G && G.customers.length === 0 && !els.customers.querySelector('.cust')) els.customers.innerHTML = '<span class="room-empty">' + t('room.waiting') + '</span>';
     }, 500);
   }
 
@@ -315,7 +435,7 @@
   function tapSlot(id, i) {
     var st = G.stations[id], slot = st.slots[i];
     if (slot.state === 'ready') {
-      if (G.pass.length >= G.passSlots) { flashBanner('¡El pase está lleno!'); return; }
+      if (G.pass.length >= G.passSlots) { flashBanner(t('msg.passFull')); return; }
       slot.state = 'empty'; slot.el.className = 'slot'; slot.el.querySelector('.bar-track i').style.width = '0';
       G.pass.push(st.dish);
       SFX.plate();
@@ -357,7 +477,7 @@
     for (var k = 0; k < G.customers.length; k++) {
       if (G.customers[k].pending.indexOf(dish) !== -1) { G.pass.splice(i, 1); giveDish(G.customers[k], dish); renderPass(); return; }
     }
-    flashBanner('Nadie ha pedido ' + DISHES[dish].name.toLowerCase());
+    flashBanner(t('msg.nobody', { dish: DISHES[dish].em + ' ' + t('dish.' + dish) }));
   });
 
   // serving
@@ -369,7 +489,7 @@
       if (i !== -1) { G.pass.splice(i, 1); giveDish(c, d); given++; }
     });
     if (given) renderPass();
-    else { SFX.tap(); flashBanner('Le falta ' + c.pending.map(function (d) { return DISHES[d].em; }).join(' ')); }
+    else { SFX.tap(); flashBanner(t('msg.missing', { items: c.pending.map(function (d) { return DISHES[d].em; }).join(' ') })); }
   }
   function giveDish(c, dish) {
     c.pending.splice(c.pending.indexOf(dish), 1);
@@ -493,7 +613,7 @@
       if (p <= 0) {
         G.lost += 1; save.lost += 1;
         var r = c.el.getBoundingClientRect(), s = stage.getBoundingClientRect();
-        popText('Se fue 😠', (r.left + r.width / 2 - s.left) / s.width * stage.offsetWidth, (r.top + r.height / 2 - s.top) / s.height * stage.offsetHeight, 'bad');
+        popText(t('msg.left'), (r.left + r.width / 2 - s.left) / s.width * stage.offsetWidth, (r.top + r.height / 2 - s.top) / s.height * stage.offsetHeight, 'bad');
         SFX.leave();
         removeCustomer(c, 'leaving');
         autoHint();
@@ -512,7 +632,7 @@
           var q = 1 - (ms - slot.t) / st.burn;
           slot.el.querySelector('.bar-track i').style.width = Math.max(0, q * 100) + '%';
           slot.el.classList.toggle('soon', q < 0.35);
-          if (q <= 0) { slot.state = 'burnt'; slot.el.className = 'slot burnt'; G.burnt += 1; SFX.burn(); flashBanner('¡Se ha quemado! Tócalo para tirarlo'); }
+          if (q <= 0) { slot.state = 'burnt'; slot.el.className = 'slot burnt'; G.burnt += 1; SFX.burn(); flashBanner(t('msg.burnt')); }
         }
       });
     });
@@ -523,7 +643,7 @@
       var candidates = L.coins.filter(function (c, k, a) { return a.indexOf(c) === k && c !== 'USDC'; });
       if (candidates.length) {
         pump = { coin: pick(candidates), until: ms + 9000 };
-        flashBanner('🚀 ¡' + pump.coin + ' está pumpeando! Los que pagan en ' + pump.coin + ' pagan ×2', 2600);
+        flashBanner(t('msg.pump', { coin: pump.coin }), 2600);
         SFX.pump();
         renderMarket();
       }
@@ -547,17 +667,17 @@
     var hasNext = i + 1 < LEVELS.length;
     els.overlayCard.innerHTML =
       '<span class="big-emoji">' + (stars === 3 ? '🤑' : stars ? '😋' : '😅') + '</span>' +
-      '<h3 class="display">' + (stars ? '¡Turno cerrado!' : 'No llegaste…') + '</h3>' +
+      '<h3 class="display">' + (stars ? t('res.win') : t('res.lose')) + '</h3>' +
       '<div class="result-stars">' + '★'.repeat(stars) + '<i>' + '★'.repeat(3 - stars) + '</i></div>' +
-      '<div class="result-grid"><div>Ganado<b>' + money(G.earned) + '</b></div><div>Objetivo<b>' + money(L.goal) + '</b></div><div>Servidos<b>' + G.served + '</b></div></div>' +
-      '<div class="result-coins">' + (coins || '<span>Nada cobrado</span>') + '</div>' +
-      '<p style="margin-top:8px">' + (G.lost ? G.lost + ' cliente' + (G.lost === 1 ? '' : 's') + ' se fue' + (G.lost === 1 ? '' : 'ron') + ' sin pagar. ' : '') + (G.burnt ? G.burnt + ' plato' + (G.burnt === 1 ? '' : 's') + ' quemado' + (G.burnt === 1 ? '' : 's') + '. ' : '') + (stars ? 'Lo cobrado ya está en tu cartera.' : 'Prueba una mejora en la tienda y repite.') + '</p>' +
+      '<div class="result-grid"><div>' + t('res.earned') + '<b>' + money(G.earned) + '</b></div><div>' + t('res.goal') + '<b>' + money(L.goal) + '</b></div><div>' + t('res.served') + '<b>' + G.served + '</b></div></div>' +
+      '<div class="result-coins">' + (coins || '<span>' + t('res.nothing') + '</span>') + '</div>' +
+      '<p style="margin-top:8px">' + (G.lost ? tn('res.lost', G.lost) + ' ' : '') + (G.burnt ? tn('res.burnt', G.burnt) + ' ' : '') + (stars ? t('res.inWallet') : t('res.tryShop')) + '</p>' +
       '<div class="btns">' +
-      (stars && hasNext ? '<button class="btn btn-green btn-xl" id="btnNext" type="button">Siguiente ▶</button>' : '') +
-      (stars && !hasNext ? '<span class="pill pill-gold">🏆 ¡Has completado la cocina!</span>' : '') +
-      '<button class="btn ' + (stars ? 'btn-cream' : 'btn-green btn-xl') + '" id="btnRetry" type="button">↻ Repetir</button>' +
-      '<button class="btn btn-gold" data-go="shop" type="button">🛒 Tienda</button>' +
-      '<button class="btn btn-cream btn-sm" data-go="map" type="button">Niveles</button>' +
+      (stars && hasNext ? '<button class="btn btn-green btn-xl" id="btnNext" type="button">' + t('btn.next') + '</button>' : '') +
+      (stars && !hasNext ? '<span class="pill pill-gold">' + t('res.done') + '</span>' : '') +
+      '<button class="btn ' + (stars ? 'btn-cream' : 'btn-green btn-xl') + '" id="btnRetry" type="button">' + t('btn.retry') + '</button>' +
+      '<button class="btn btn-gold" data-go="shop" type="button">' + t('btn.shop') + '</button>' +
+      '<button class="btn btn-cream btn-sm" data-go="map" type="button">' + t('btn.levels') + '</button>' +
       '</div>';
     els.overlay.hidden = false;
     var next = $('#btnNext');
@@ -571,8 +691,8 @@
     G.paused = true;
     cancelAnimationFrame(G.raf);
     els.overlayCard.innerHTML =
-      '<span class="big-emoji">⏸</span><h3 class="display">Pausa</h3><p>La cocina espera. Los clientes también, por una vez.</p>' +
-      '<div class="btns"><button class="btn btn-green btn-xl" id="btnResume" type="button">▶ Seguir</button><button class="btn btn-cream btn-sm" id="btnQuit" type="button">Abandonar</button></div>';
+      '<span class="big-emoji">⏸</span><h3 class="display">' + t('pause.title') + '</h3><p>' + t('pause.text') + '</p>' +
+      '<div class="btns"><button class="btn btn-green btn-xl" id="btnResume" type="button">' + t('btn.resume') + '</button><button class="btn btn-cream btn-sm" id="btnQuit" type="button">' + t('btn.quit') + '</button></div>';
     els.overlay.hidden = false;
     $('#btnResume').addEventListener('click', resume);
     $('#btnQuit').addEventListener('click', function () { SFX.tap(); G.ended = true; els.overlay.hidden = true; go('map'); });
@@ -637,8 +757,8 @@
       for (var i = 0; i < max; i++) dots += '<i class="' + (i < lv ? 'on' : '') + '"></i>';
       return '<div class="card upg' + (maxed ? ' maxed' : '') + '" style="--hue:' + up.hue + '">' +
         '<span class="upg-em">' + up.em + '</span>' +
-        '<div><h3>' + up.name + '</h3><p>' + up.desc + '</p><div class="upg-lv">' + dots + '</div></div>' +
-        (maxed ? '<span class="pill">MAX</span>' : '<button class="btn btn-gold btn-sm" data-buy="' + up.id + '" type="button"' + (save.cash < price ? ' disabled' : '') + '>' + money(price) + '</button>') +
+        '<div><h3>' + t('upg.' + up.id)[0] + '</h3><p>' + t('upg.' + up.id)[1] + '</p><div class="upg-lv">' + dots + '</div></div>' +
+        (maxed ? '<span class="pill">' + t('shop.max') + '</span>' : '<button class="btn btn-gold btn-sm" data-buy="' + up.id + '" type="button"' + (save.cash < price ? ' disabled' : '') + '>' + money(price) + '</button>') +
         '</div>';
     }).join('');
   }
@@ -666,11 +786,12 @@
         '<td class="num">' + coinAmount(amt) + '</td><td class="num">' + money(market[k]) + '</td><td class="num"><b>' + money(amt * market[k]) + '</b></td></tr>';
     }).join('');
     var stars = save.stars.reduce(function (s, n) { return s + (n || 0); }, 0);
-    $('#walletStats').innerHTML = '<span>💵 Caja: <b>' + money(save.cash) + '</b></span><span>🪙 Cartera: <b>' + money(walletValue()) + '</b></span><span>🍽️ Servidos: <b>' + save.served + '</b></span><span>😠 Perdidos: <b>' + save.lost + '</b></span><span>⭐ ' + stars + '/' + LEVELS.length * 3 + '</span>';
+    $('#walletStats').innerHTML = '<span>' + t('wallet.cash') + ' <b>' + money(save.cash) + '</b></span><span>' + t('wallet.wallet') + ' <b>' + money(walletValue()) + '</b></span><span>' + t('wallet.served') + ' <b>' + save.served + '</b></span><span>' + t('wallet.lost') + ' <b>' + save.lost + '</b></span><span>⭐ ' + stars + '/' + LEVELS.length * 3 + '</span>';
   }
   $('#btnReset').addEventListener('click', function () {
-    if (!window.confirm('¿Borrar todo el progreso, la caja y la cartera?')) return;
+    if (!window.confirm(t('reset.confirm'))) return;
     save = JSON.parse(JSON.stringify(DEFAULT_SAVE));
+    save.lang = lang;
     applyUpgrades();
     persist();
     renderWallet();

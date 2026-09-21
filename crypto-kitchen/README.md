@@ -1,11 +1,33 @@
-# Crypto Kitchen — el juego
+# Crypto Kitchen — launchpad + juego
+
+Dos piezas que comparten una cartera:
+
+- **`index.html` — el launchpad.** App con barra lateral al estilo Pairex: Explorar (hero, stats,
+  coin oficial `SIZZLE`, mercado con búsqueda y pestañas), Dropear coin, Crear par, Exchange,
+  Portfolio, Ganancias, Cocina (el juego embebido), Cotizaciones y Cómo funciona. Cada coin de
+  comida nace en la *curva de la cocina* (producto constante con reservas virtuales, 1B de
+  supply, 1% de comisión) y al recaudar $12,000 se **gradúa a PonsV2 o Uniswap v3**; el Exchange
+  cotiza en los dos DEX y ejecuta en el mejor. Todo es simulado en el navegador (`ck-pad` en
+  `localStorage`). Idiomas: español, inglés y chino (`?lang=es|en|zh` o el selector de arriba).
+- **`play.html` — el juego** (Cooking-Fever style), descrito abajo. El cash que ganas es el saldo
+  de la *Kitchen Wallet* que se conecta en el launchpad; la clave `ck-game` es la misma.
+
+```
+index.html · app.css · app.js     launchpad (i18n en app.js: I18N)
+play.html  · game.css · game.js   juego     (i18n en game.js: I18N)
+```
+
+Sin build ni dependencias. Sirve la carpeta: `python3 -m http.server 8000`.
+
+---
+
 
 Un juego de cocina estilo **Cooking Fever / Cooking Festival** en el que los clientes pagan en
 crypto. Entran con un pedido, tú cocinas en las estaciones, emplatas en el pase y sirves; cada
 pedido completo se cobra en la moneda que lleva el cliente (USDC, DOGE, SOL, ETH o BTC) al precio
 del mercado del juego, más propina si has sido rápido.
 
-Sin build ni dependencias: HTML, CSS y JS vanilla. Abre `index.html` o sirve la carpeta:
+Sin build ni dependencias: HTML, CSS y JS vanilla. Abre `play.html` o sirve la carpeta:
 
 ```bash
 python3 -m http.server 8000     # y abre http://localhost:8000
@@ -33,9 +55,9 @@ Cada nivel tiene un **objetivo en dólares** y un reloj: 1 estrella al llegar, 2
 ## Estructura
 
 ```
-index.html   las pantallas: título, mapa de niveles, juego (HUD, mercado, sala, pase,
+play.html    las pantallas: título, mapa de niveles, juego (HUD, mercado, sala, pase,
              cocina, overlay), tienda y cartera
-styles.css   el escenario escalado, la paleta y todo el chrome (paneles, botones,
+game.css     el escenario escalado, la paleta y todo el chrome (paneles, botones,
              monedas, estaciones, clientes) más la variante vertical
 game.js      datos (monedas, platos, estaciones, mejoras, niveles), guardado, sonido,
              mercado, el bucle del juego, la tienda y la cartera

@@ -8,7 +8,7 @@
 html, body { height: 100%; margin: 0; overflow: hidden; }
 html { background: #2A1245; }
 body {
-  font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
   font-weight: 800;
   color: #3A1F0F;
   background:
@@ -33,7 +33,7 @@ button { font: inherit; color: inherit; }
   --cream: #FFF6E0; --cream-2: #FFE7B3;
   --toast: #8A4A1E;
   --ink: #3A1F0F; --ink-soft: #6B4A33;
-  --display: 'Lilita One', 'Arial Black', Impact, sans-serif;
+  --display: 'Lilita One', 'Arial Black', Impact, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
   --shadow: 0 6px 0 rgba(58, 31, 15, .28), 0 14px 30px rgba(20, 8, 40, .35);
 }
 
@@ -125,6 +125,10 @@ button { font: inherit; color: inherit; }
 .title-btns { display: flex; gap: 14px; align-items: center; }
 .title-balance { color: var(--cream-2); font-size: 14px; margin: 0; }
 .title-balance b { color: var(--gold); }
+
+.lang { display: flex; gap: 6px; margin-top: 4px; }
+.lang button { font-family: var(--display); font-size: 13px; letter-spacing: .06em; color: var(--cream); background: rgba(0, 0, 0, .3); border: 2px solid rgba(255, 210, 63, .4); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.lang button.on { background: var(--gold); color: var(--ink); border-color: var(--toast); box-shadow: 0 2px 0 var(--toast); }
 
 /* ---------- bars (map / shop / wallet headers) ---------- */
 
@@ -384,3 +388,60 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .title-food, .title-scene .coin, .level-card.next .level-num, .pill-time.low, .mk.pump, .slot .food, .cust.angry .cust-face { animation: none !important; }
 }
+
+/* ===== Cooking-City look for the game screen =====
+   HUD like the reference: chef avatar + level, goal bar, coins, a green pause.
+   Customers carry a white order card with their patience bar under it. The
+   kitchen is a pink counter with real-looking gear: grate, basket, pan,
+   soda machine, oven; the trays underneath are metal trays of raw food. */
+.screen-game { background: radial-gradient(circle at 20% 10%, rgba(255, 170, 60, .35), transparent 30%), radial-gradient(circle at 80% 12%, rgba(255, 93, 162, .35), transparent 30%), linear-gradient(180deg, #4A1C6E 0%, #2A1245 40%, #3B1B5E 100%); }
+.hud { background: linear-gradient(180deg, rgba(20, 8, 40, .75), rgba(20, 8, 40, .35)); border-bottom: 0; height: 60px; padding: 8px 12px; }
+.hud::before { content: "👩‍🍳"; width: 44px; height: 44px; display: grid; place-items: center; font-size: 26px; background: radial-gradient(circle at 40% 30%, #FFE7B3, var(--orange)); border: 3px solid var(--toast); border-radius: 12px; box-shadow: 0 3px 0 var(--toast); }
+.pill-level { background: linear-gradient(180deg, #FFF1A8, var(--gold)); }
+.goal-bar { height: 28px; background: #3a1a2e; border-color: #FFD6E8; box-shadow: 0 3px 0 rgba(0, 0, 0, .35), inset 0 2px 0 rgba(0, 0, 0, .4); }
+.goal-bar i { background: linear-gradient(180deg, #FF9A7A, var(--red) 50%, #C4231C); }
+.goal-bar.met i { background: linear-gradient(180deg, #8CF07A, var(--green) 50%, #2DB53C); }
+#btnPause { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 40% 30%, #9CF58A, var(--green) 55%, #2DB53C); color: #fff; font-size: 16px; text-shadow: 0 1px 0 var(--toast); border-color: #1F6E28; box-shadow: 0 3px 0 #1F6E28; }
+#btnSound { border-radius: 50%; width: 40px; height: 40px; }
+
+/* the street outside: string lights and shop awnings */
+.room { position: relative; height: 176px; overflow: hidden; }
+.room::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 22px; background: radial-gradient(circle, #FFE27A 0 3px, transparent 4px) 0 8px / 26px 12px repeat-x; opacity: .9; }
+.room::after { content: ""; position: absolute; left: -10px; right: -10px; bottom: 0; height: 26px; background: repeating-linear-gradient(90deg, #FF5DA2 0 22px, #FFF 22px 44px); border-top: 3px solid var(--toast); border-bottom: 3px solid var(--toast); opacity: .95; }
+.customers { position: relative; z-index: 1; padding-bottom: 26px; }
+.cust { width: 156px; gap: 4px; }
+.cust-order { order: 0; flex-direction: column; align-items: stretch; gap: 6px; padding: 6px 8px 7px; min-width: 96px; border-radius: 12px; background: linear-gradient(180deg, #fff, var(--cream)); }
+.cust-order::after { display: none; }
+.cust-order .items { display: flex; gap: 4px; justify-content: center; }
+.cust-order .it { font-size: 30px; }
+.cust-pay { top: -12px; right: -12px; }
+.cust-patience { order: 1; width: 100%; height: 9px; margin-top: -2px; border-width: 2px; }
+.cust-face { order: 2; width: 62px; height: 62px; font-size: 38px; }
+.cust-patience-out { display: none; }
+
+/* the counter: pink top, pass in teal */
+.pass { height: 80px; background: linear-gradient(180deg, #DDFBF5 0 8px, var(--teal) 8px 24px, var(--teal-deep) 24px 100%); }
+.plate { width: 70px; height: 60px; }
+
+/* the kitchen counter */
+.kitchen { background: linear-gradient(180deg, #F8A2C8 0 10px, #E8579A 10px 26px, #B8347A 26px 100%); border-top: 4px solid var(--toast); padding: 14px 12px 10px; }
+.station { background: linear-gradient(180deg, #F5DFEB, #E9C4D9); border-color: var(--toast); box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .5), 0 5px 0 var(--toast); }
+.station-head { font-size: 13px; color: var(--ink); background: rgba(255, 255, 255, .7); border-radius: 999px; padding: 2px 10px; }
+.station-head small { display: none; }
+.slot { border-width: 3px; }
+.station[data-id="grill"] .slot { background: repeating-linear-gradient(90deg, #4a4a4a 0 7px, #1d1d1d 7px 11px), #222; box-shadow: inset 0 0 12px 2px rgba(255, 120, 20, .55), inset 0 -4px 0 rgba(0, 0, 0, .4); }
+.station[data-id="grill"] .slots { padding: 6px; background: #1a1a1a; border: 3px solid var(--toast); border-radius: 14px; box-shadow: 0 4px 0 var(--toast); }
+.station[data-id="fryer"] .slot { background: repeating-linear-gradient(0deg, transparent 0 6px, rgba(0, 0, 0, .18) 6px 8px), repeating-linear-gradient(90deg, transparent 0 6px, rgba(0, 0, 0, .18) 6px 8px), radial-gradient(circle at 50% 40%, #F6C35A, #B77A1E 70%); border-radius: 8px 8px 16px 16px; }
+.station[data-id="soda"] .slot { background: linear-gradient(180deg, #7FE9E3, var(--teal-deep)); border-radius: 12px 12px 6px 6px; box-shadow: inset 0 3px 0 rgba(255, 255, 255, .5), inset 0 -8px 0 rgba(0, 0, 0, .25); }
+.station[data-id="soda"] .slot::after { content: ""; position: absolute; top: -8px; left: 50%; width: 14px; height: 10px; margin-left: -7px; background: #eee; border: 2px solid var(--toast); border-radius: 4px; }
+.station[data-id="pan"] .slot { background: radial-gradient(circle at 50% 45%, #444 0 55%, #1a1a1a 56%); border-radius: 50%; width: 72px; height: 72px; }
+.station[data-id="pan"] .slot::after { content: ""; position: absolute; right: -26px; top: 50%; width: 28px; height: 10px; margin-top: -5px; background: #2a2a2a; border: 2px solid var(--toast); border-radius: 6px; }
+.station[data-id="pan"] .slots { gap: 30px; padding-right: 22px; }
+.station[data-id="oven"] .slot { background: radial-gradient(ellipse at 50% 80%, #FF8A1F, #7A2E08 60%), repeating-linear-gradient(90deg, #8b3d1a 0 10px, #6b2a10 10px 12px); border-radius: 16px 16px 6px 6px; }
+.slot.cooking .food { filter: saturate(.5) brightness(.85); }
+
+/* metal trays of raw ingredients */
+.tray { width: 100%; justify-content: center; gap: 4px; padding: 4px 10px; border-radius: 10px; background: linear-gradient(180deg, #FFFFFF, #D9DDE3 60%, #B9BEC6); color: var(--ink); text-shadow: none; box-shadow: inset 0 2px 0 #fff, inset 0 -3px 0 rgba(0, 0, 0, .18), 0 3px 0 var(--toast); border-width: 3px; }
+.tray .em { font-size: 22px; letter-spacing: -8px; margin-right: 8px; }
+.tray .price { background: var(--gold); color: var(--ink); border: 2px solid var(--toast); }
+.stage.portrait .tray .em { font-size: 18px; }

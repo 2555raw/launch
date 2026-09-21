@@ -86,6 +86,8 @@ http.createServer((req, res) => {
 
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT)) { res.writeHead(403).end('Forbidden'); return; }
+  /* the server, its scripts and the package files are not part of the site */
+  if (/^\/(server\.js|package\.json|README\.md|scripts(\/|$)|data(\/|$))/.test(rel)) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); res.end('404 — nothing on this pad'); return; }
 
   const versioned = /[?&]v=/.test(req.url);
   let st = null; try { st = fs.statSync(file); } catch (_) {}

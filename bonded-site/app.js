@@ -459,7 +459,7 @@
     document.dispatchEvent(new CustomEvent('bonded:wallet', { detail: w }));
   };
   try { const w = JSON.parse(sessionStorage.getItem('bonded-wallet')); if (w?.address) setWallet(w); } catch (_) {}
-  const connect = async () => { try { setWallet(await adapter.connect()); toast('Wallet connected'); } catch (e) { console.warn('wallet', e); } return wallet; };
+  const connect = async () => { try { setWallet(await adapter.connect()); toast('Wallet connected'); } catch (e) { console.warn('wallet', e); const m = String(e?.message || e); if (!/No wallet chosen|rejected|denied/i.test(m)) toast(/No wallet found/.test(m) ? 'No wallet found. Install MetaMask, Phantom or Rabby and reload.' : m.slice(0, 120)); } return wallet; };
   walletBtns.forEach(b => b.addEventListener('click', () => wallet ? (location.href = 'playground.html') : connect()));
 
   const page = document.body.dataset.page;

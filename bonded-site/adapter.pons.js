@@ -56,29 +56,66 @@
   const T_BUY = A.topic('CurveBuy', ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256']);
   const T_SELL = A.topic('CurveSell', ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256']);
 
-  // transport: the wallet when it sits on Robinhood Chain (its own RPC, no CORS, no shared rate limit),
-  // the public RPC otherwise; a network failure reads as a sentence instead of "Failed to fetch"
+  // transport: reads go to the site's proxy, with eth_call coalesced into JSON-RPC batches (a page
+  // that asks sixty balances makes three requests, not sixty, and never queues behind a wallet
+  // extension); the wallet's own node answers what must be fresh (a simulation right after an
+  // approval, a receipt) and stands in when the proxy is down; the public RPC is the last resort.
   const httpRpc = A.makeRpc(PONS.rpc);
   const publicHttpRpc = A.makeRpc(PONS.publicRpc);
   let walletChain = null;
-  async function rpc(method, params = []) {
+  async function walletOnChain() {
     const w = window.bdWallet ? window.bdWallet.provider() : window.ethereum;
-    if (w && w.request) {
-      if (walletChain == null) {
-        try { walletChain = parseInt(await w.request({ method: 'eth_chainId' }), 16); if (w.on) w.on('chainChanged', c => { walletChain = parseInt(c, 16); }); } catch (_) { walletChain = 0; }
-      }
-      if (walletChain === PONS.chainId) return w.request({ method, params });
+    if (!w || !w.request) return null;
+    if (walletChain == null) {
+      try { walletChain = parseInt(await w.request({ method: 'eth_chainId' }), 16); if (w.on) w.on('chainChanged', c => { walletChain = parseInt(c, 16); }); } catch (_) { walletChain = 0; }
     }
-    try { return await httpRpc(method, params); }
+    return walletChain === PONS.chainId ? w : null;
+  }
+  const isNetworkError = e => e instanceof TypeError || !!e.network || /Failed to fetch|NetworkError|Load failed|HTTP 5\d\d|HTTP 404|HTTP 413|HTTP 429|upstream/i.test(e.message || '');
+  const BATCH = 20;   // the proxy accepts up to 20 calls per request
+  let batchQ = [], batchT = null;
+  const proxyBatch = (method, params) => new Promise((resolve, reject) => { batchQ.push({ method, params, resolve, reject }); if (!batchT) batchT = setTimeout(flushBatch, 0); });
+  function flushBatch() {
+    const q = batchQ; batchQ = []; batchT = null;
+    for (let i = 0; i < q.length; i += BATCH) {
+      const part = q.slice(i, i + BATCH);
+      (async () => {
+        try {
+          if (part.length === 1) { part[0].resolve(await httpRpc(part[0].method, part[0].params)); return; }
+          const res = await fetch(PONS.rpc, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(part.map((c, k) => ({ jsonrpc: '2.0', id: k + 1, method: c.method, params: c.params }))) });
+          if (!res.ok) { const e = new Error(`rpc batch: HTTP ${res.status}`); e.network = true; throw e; }
+          const arr = await res.json();
+          if (!Array.isArray(arr)) { const e = new Error('rpc batch: bad response'); e.network = true; throw e; }
+          part.forEach((c, k) => {
+            const j = arr.find(x => x.id === k + 1);
+            if (!j) { const e = new Error(`rpc ${c.method}: no answer`); e.network = true; c.reject(e); }
+            else if (j.error) { const e = new Error(`rpc ${c.method}: ${j.error.message}`); e.data = j.error.data; e.code = j.error.code; c.reject(e); }
+            else c.resolve(j.result);
+          });
+        } catch (e) {
+          // the batch as a whole failed (proxy down, or an upstream that dislikes batches): one by one, then
+          part.forEach(c => httpRpc(c.method, c.params).then(c.resolve, c.reject));
+        }
+      })();
+    }
+  }
+  async function rpc(method, params = []) {
+    try { return await (method === 'eth_call' ? proxyBatch(method, params) : httpRpc(method, params)); }
     catch (e) {
-      const network = e instanceof TypeError || /Failed to fetch|NetworkError|Load failed|HTTP 5\d\d|HTTP 404/i.test(e.message);
-      if (!network) throw e;
+      if (!isNetworkError(e)) throw e;
+      const w = await walletOnChain();
+      if (w) return w.request({ method, params });
       try { return await publicHttpRpc(method, params); }
       catch (e2) {
         if (e2 instanceof TypeError || /Failed to fetch|NetworkError|Load failed/i.test(e2.message)) throw new Error(`Cannot reach ${PONS.chainName} right now. Connect a wallet set to ${PONS.chainName} (chain ${PONS.chainId}) and try again.`);
         throw e2;
       }
     }
+  }
+  // the wallet's node when it is on Robinhood Chain: freshest right after a transaction it just sent
+  async function walletRpc(method, params = []) {
+    const w = await walletOnChain();
+    return w ? w.request({ method, params }) : rpc(method, params);
   }
   // map with a concurrency cap, so indexing does not fire hundreds of requests at once
   async function pmap(items, fn, n = PONS.parallel) {
@@ -158,7 +195,7 @@
     const call = { from, ...tx };
     let reason = null;
     for (let attempt = 0; attempt < 5; attempt++) {
-      try { await rpc('eth_call', [call, 'latest']); reason = null; break; }
+      try { await walletRpc('eth_call', [call, 'latest']); reason = null; break; }
       catch (e) {
         reason = A.revertReason(e);
         if (/execution reverted$|^rpc eth_call: execution reverted/.test(reason)) { try { await simulate(call); reason = null; break; } catch (e2) { reason = A.revertReason(e2); } }
@@ -173,7 +210,7 @@
   async function waitReceipt(hash, ms = 180_000) {
     const t0 = Date.now();
     while (Date.now() - t0 < ms) {
-      const r = await rpc('eth_getTransactionReceipt', [hash]);
+      const r = await walletRpc('eth_getTransactionReceipt', [hash]);
       if (r) { if (r.status !== '0x1') throw new Error('Transaction reverted: ' + hash); return r; }
       await new Promise(r => setTimeout(r, 1500));
     }
@@ -424,7 +461,7 @@
     },
     async createPair(payload) {
       if (!account) await this.connect();
-      walletChain = PONS.chainId;       // connected and switched: reads go through the wallet from here
+      walletChain = PONS.chainId;       // connected and switched: the wallet's node can answer what must be fresh
       await stocksReady();
       ready().catch(() => {});
       const st = stockTokens[payload.stock];
@@ -563,38 +600,42 @@
     },
     async holdings(address) {
       if (!address) return [];
-      const pairs = await safe(ready, []);
+      await budget(safe(ready, [])); const pairs = index.launches.slice();
       const bals = await Promise.all(pairs.map(p => erc20.balanceOf(p.address, address).catch(() => 0n)));
       return pairs.map((p, i) => ({ ticker: p.ticker, amount: Number(bals[i]) / 1e18 })).filter(h => h.amount > 0);
     },
     async balances(address) {
       if (!address) return [];
-      await safe(ready, []);
+      await budget(safe(stocksReady, null), 900);
       const entries = Object.entries(stockTokens);
       const bals = await Promise.all(entries.map(([, tk]) => erc20.balanceOf(tk.address, address).catch(() => 0n)));
       return entries.map(([sym, tk], i) => ({ sym, amount: Number(bals[i]) / 10 ** tk.decimals }));
     },
     async launched(address) {
       if (!address) return [];
-      return (await safe(ready, [])).filter(p => p.creator.toLowerCase() === address.toLowerCase()).map(p => p.ticker);
+      await budget(safe(ready, []));
+      return index.launches.filter(p => p.creator.toLowerCase() === address.toLowerCase()).map(p => p.ticker);
     },
     // creator fees: what sits on each curve (creatorTaxBalance) and what the Pons fee escrow already holds for `address`
     async fees(address, pairs) {
       const escrow = await factory.feeEscrow().catch(() => null);
-      const out = [];
-      for (const [sym, tk] of Object.entries(stockTokens)) {
+      const entries = Object.entries(stockTokens);
+      const SIGS = [['balanceOfToken', ['address', 'address'], (t) => [address, t]], ['balanceOf', ['address', 'address'], (t) => [address, t]], ['balanceOfToken', ['address', 'address'], (t) => [t, address]]];
+      // which signature the escrow answers is found once, on the first stock; the rest read in one batch
+      let sig = null;
+      if (escrow && entries.length) for (const cand of SIGS) { try { await call(escrow, cand[0], cand[1], cand[2](entries[0][1].address), ['uint256']); sig = cand; break; } catch (_) {} }
+      const rows = await Promise.all(entries.map(async ([sym, tk]) => {
         const mine = (pairs || []).filter(p => p.stock === sym);
-        const pending = await Promise.all(mine.map(p => curve.creatorTaxBalance(p.curve).then(v => ({ pair: p, amount: v }))));
-        let claimable = 0n, readable = false;
-        if (escrow) {
-          for (const sig of [['balanceOfToken', ['address', 'address'], [address, tk.address]], ['balanceOf', ['address', 'address'], [address, tk.address]], ['balanceOfToken', ['address', 'address'], [tk.address, address]]]) {
-            try { claimable = (await call(escrow, sig[0], sig[1], sig[2], ['uint256']))[0]; readable = true; break; } catch (_) {}
-          }
-        }
+        const [pending, claimable] = await Promise.all([
+          Promise.all(mine.map(p => curve.creatorTaxBalance(p.curve).then(v => ({ pair: p, amount: v })))),
+          sig ? call(escrow, sig[0], sig[1], sig[2](tk.address), ['uint256']).then(r => r[0]).catch(() => null) : null,
+        ]);
         const pend = pending.reduce((a, x) => a + x.amount, 0n);
-        if (pend > 0n || claimable > 0n || mine.length) out.push({ sym, token: tk.address, decimals: tk.decimals, escrow, readable, claimable: Number(claimable) / 10 ** tk.decimals, pending: Number(pend) / 10 ** tk.decimals, curves: pending.filter(x => x.amount > 0n).map(x => ({ ticker: x.pair.ticker, curve: x.pair.curve, amount: Number(x.amount) / 10 ** tk.decimals })) });
-      }
-      return { escrow, stocks: out };
+        const readable = claimable !== null;
+        if (!(pend > 0n || (claimable || 0n) > 0n || mine.length)) return null;
+        return { sym, token: tk.address, decimals: tk.decimals, escrow, readable, claimable: Number(claimable || 0n) / 10 ** tk.decimals, pending: Number(pend) / 10 ** tk.decimals, curves: pending.filter(x => x.amount > 0n).map(x => ({ ticker: x.pair.ticker, curve: x.pair.curve, amount: Number(x.amount) / 10 ** tk.decimals })) };
+      }));
+      return { escrow, stocks: rows.filter(Boolean) };
     },
     // move a curve's accrued fees into the escrow (anyone may call it)
     async sweep(curveAddress) {

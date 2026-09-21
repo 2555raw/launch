@@ -1459,23 +1459,28 @@
      ===================================================================== */
   if (page === 'playground') {
     const root = $('#mine');
+    let paintRun = 0;   // a wallet change mid-paint drops the stale paint
     const paint = async () => {
       if (!wallet) {
         root.innerHTML = `<div class="bd-mine-connect"><h2>Connect to see your playground.</h2><p>Your launches and your positions, in one place.</p><button class="bd-btn bd-btn-primary" id="mine-connect" type="button">Connect wallet</button></div>`;
         $('#mine-connect').addEventListener('click', connect); return;
       }
-      const [pairs, launchedT, holdings] = await Promise.all([adapter.pairs(), adapter.launched(wallet.address), adapter.holdings(wallet.address)]);
+      const run = ++paintRun;
+      const [pairs, launchedT] = await Promise.all([adapter.pairs(), adapter.launched(wallet.address)]);
+      if (run !== paintRun) return;
       const me = String(wallet.address).toLowerCase();
       const launched = adapter.pons
         ? pairs.filter(p => String(p.creator).toLowerCase() === me || (isOwner(wallet) && isLilyPad(p))).sort((a, b) => b.createdAt - a.createdAt)
         : launchedT.map(t => pairs.find(p => p.ticker === t)).filter(Boolean);
-      const positions = holdings.map(h => ({ ...h, p: pairs.find(p => p.ticker === h.ticker) })).filter(x => x.p);
-      const valueUsd = positions.reduce((s, x) => s + x.amount * priceUsd(x.p), 0);
       const fees = launched.reduce((s, p) => s + p.volume * CONFIG.swapFeeRate * CONFIG.creatorShareRate, 0);
-      root.innerHTML = `
+      // two paints: the launches come from the index at once, the positions when the balances arrive
+      const render = (positions) => {
+        const loading = positions === null; positions = positions || [];
+        const valueUsd = positions.reduce((s, x) => s + x.amount * priceUsd(x.p), 0);
+        root.innerHTML = `
         <div class="bd-mine-summary">
-          <div class="bd-stat"><span class="bd-label">Positions</span><b>${fmtUsd(valueUsd)}</b></div>
-          <div class="bd-stat"><span class="bd-label">Pairs held</span><b>${positions.length}</b></div>
+          <div class="bd-stat"><span class="bd-label">Positions</span><b>${loading ? '…' : fmtUsd(valueUsd)}</b></div>
+          <div class="bd-stat"><span class="bd-label">Pairs held</span><b>${loading ? '…' : positions.length}</b></div>
           <div class="bd-stat"><span class="bd-label">Launched</span><b>${launched.length}</b></div>
           <div class="bd-stat"><span class="bd-label">Creator fees</span><b>${fmtUsd(fees)}</b></div>
         </div>
@@ -1483,12 +1488,17 @@
         ${launched.length ? `<div class="bd-pairs">${launched.map(pairTile).join('')}</div>${isOwner(wallet) ? `<div style="margin-top:12px"><button class="bd-btn bd-btn-ghost bd-btn-sm" id="claim" type="button">Claim ${fmtUsd(fees)} in fees</button></div>` : `<p class="bd-fees-note">Creator fees accrue to the LilyPad treasury${OWNER ? ` (${shortAddr(OWNER)})` : ""}.</p>`}`
           : `<div class="bd-mine-empty">Nothing launched from ${shortAddr(wallet.address)} yet.<br><a class="bd-btn bd-btn-primary bd-btn-sm" href="launch.html">Launch a pair</a></div>`}
         <h3>Positions</h3>
-        ${positions.length ? `<div class="bd-trades-wrap" style="overflow-x:auto"><table class="bd-trades"><thead><tr><th>Pair</th><th class="is-num">Amount</th><th class="is-num">Value in stock</th><th class="is-num">Value</th><th class="is-num">24h</th><th></th></tr></thead><tbody>
+        ${loading ? `<div class="bd-mine-empty">Reading your balances…</div>` : positions.length ? `<div class="bd-trades-wrap" style="overflow-x:auto"><table class="bd-trades"><thead><tr><th>Pair</th><th class="is-num">Amount</th><th class="is-num">Value in stock</th><th class="is-num">Value</th><th class="is-num">24h</th><th></th></tr></thead><tbody>
           ${positions.map(({ p, amount }) => { const st = stockOf(p.stock); return `<tr><td style="font-family:var(--font-body)"><div class="bd-cell-pair">${avatar(p)}<div><b>${esc(p.name)}</b><span>$${esc(p.ticker)} / ${st.sym}</span></div></div></td><td class="is-num">${fmtNum(amount)}</td><td class="is-num">${fmtNum(amount * priceShares(p))} ${st.sym}</td><td class="is-num">${fmtUsd(amount * priceUsd(p))}</td><td class="is-num ${p.change >= 0 ? 'bd-up' : 'bd-down'}">${fmtPct(p.change)}</td><td class="is-num"><a class="bd-btn bd-btn-xs bd-btn-gold" href="${pairHref(p)}">Trade</a></td></tr>`; }).join('')}
         </tbody></table></div>`
           : `<div class="bd-mine-empty">No positions yet. Buy into a pair and it shows up here.<br><a class="bd-btn bd-btn-ghost bd-btn-sm" href="board.html">Explore the pairs</a></div>`}`;
-      $('#claim')?.addEventListener('click', () => toast(`Claimed ${fmtUsd(fees)} in creator fees`));
+        $('#claim')?.addEventListener('click', () => toast(`Claimed ${fmtUsd(fees)} in creator fees`));
+      };
+      render(null);
       if (adapter.pons && adapter.fees) paintFees(launched);
+      const holdings = await adapter.holdings(wallet.address);
+      if (run !== paintRun) return;
+      render(holdings.map(h => ({ ...h, p: pairs.find(p => p.ticker === h.ticker) })).filter(x => x.p));
     };
     // live: the 2% creator tax, per stock — what is still on the curves and what the Pons escrow already holds for this wallet
     const paintFees = async (launched) => {

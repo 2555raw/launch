@@ -142,17 +142,32 @@
   }
 
   // Decode an Error(string) revert reason when present.
+  // custom errors a launch factory or curve is likely to throw; the selector is matched at runtime
+  const KNOWN_ERRORS = ['LaunchDisabled()', 'LaunchesDisabled()', 'NotLaunchable()', 'CannotLaunch()', 'NotAllowed()', 'Unauthorized()', 'Paused()', 'EnforcedPause()',
+    'InvalidPairToken()', 'PairTokenNotApproved()', 'UnapprovedPairToken()', 'InvalidQuote()', 'InvalidFee()', 'IncorrectFee()', 'WrongFee()', 'InsufficientFee()', 'FeeMismatch()',
+    'EconomicsMismatch()', 'StaleEconomics()', 'InvalidEconomics()', 'InvalidConfig()', 'ConfigDisabled()', 'InvalidLaunchConfig()', 'LaunchConfigDisabled()',
+    'CreatorTaxTooHigh()', 'InvalidCreatorTax()', 'TaxTooHigh()', 'InvalidRecipient()', 'ZeroAddress()', 'InvalidSalt()', 'SaltInUse()', 'TokenExists()', 'AlreadyDeployed()',
+    'TooManyExemptions()', 'InvalidName()', 'InvalidSymbol()', 'NameTooLong()', 'SymbolTooLong()', 'EmptyName()', 'EmptySymbol()', 'InvalidMetadata()', 'InvalidLogo()',
+    'Graduated()', 'NotGraduated()', 'Slippage()', 'InsufficientOutput()', 'ZeroAmount()', 'Reentrancy()', 'ReentrancyGuardReentrantCall()', 'CurveClosed()', 'Cooldown()', 'RateLimited()'];
+  let knownBySelector = null;
+  function errorName(selector) {
+    if (!knownBySelector) { knownBySelector = {}; for (const sig of KNOWN_ERRORS) knownBySelector[keccak()(sig).slice(0, 10)] = sig; }
+    return knownBySelector[selector] || null;
+  }
   function revertReason(err) {
-    const d = typeof err?.data === 'string' ? err.data : err?.data?.data;
-    if (typeof d === 'string' && d.startsWith('0x08c379a0')) {
-      try { return decodeTuple(['string'], d.slice(10))[0]; } catch { /* fallthrough */ }
+    const d = typeof err?.data === 'string' ? err.data : (err?.data?.data || err?.data?.originalError?.data || err?.error?.data);
+    if (typeof d === 'string' && d.length >= 10) {
+      if (d.startsWith('0x08c379a0')) { try { return decodeTuple(['string'], d.slice(10))[0]; } catch { /* fallthrough */ } }
+      if (d.startsWith('0x4e487b71')) { try { return 'panic 0x' + decodeTuple(['uint256'], d.slice(10))[0].toString(16); } catch { /* fallthrough */ } }
+      const sel = d.slice(0, 10);
+      return (errorName(sel) || `custom error ${sel}`) + (d.length > 10 ? ` (${d.slice(10, 74)}…)` : '');
     }
     return err?.message || String(err);
   }
 
   globalThis.bdAbi = {
     encodeTuple, decodeTuple, encodeCall, decodeResult, selector, topic, typeName,
-    makeRpc, revertReason, hexToBytes, toHex, pad32, strip,
+    makeRpc, revertReason, errorName, hexToBytes, toHex, pad32, strip,
     hex: (n) => '0x' + BigInt(n).toString(16),
     // fixed-point helpers
     toUnits: (amount, decimals) => {

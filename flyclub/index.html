@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEUROCLUB · The Fly Behind the Bar</title>
+<meta name="description" content="NEUROCLUB: a digitized fruit fly works the bar of a nightclub. Pour beers, cocktails and shots to the beat, under lasers and moving lights. EN / 中文.">
+<meta name="theme-color" content="#07030f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%AA%B0%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700;900&family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===================== CLUB · escenografía ===================== -->
+<div class="club" aria-hidden="true">
+  <div class="club-sky"></div>
+  <div class="beams">
+    <i class="beam b1"></i><i class="beam b2"></i><i class="beam b3"></i>
+    <i class="beam b4"></i><i class="beam b5"></i>
+  </div>
+  <div class="lasers">
+    <i class="laser l1"></i><i class="laser l2"></i><i class="laser l3"></i>
+    <i class="laser l4"></i><i class="laser l5"></i><i class="laser l6"></i>
+  </div>
+  <div class="ball">
+    <div class="ball-body"></div>
+    <div class="ball-glints" id="ball-glints"></div>
+  </div>
+  <div class="haze h1"></div><div class="haze h2"></div><div class="haze h3"></div>
+  <div class="speakers">
+    <div class="spk spk-l"><i></i><i></i></div>
+    <div class="spk spk-r"><i></i><i></i></div>
+  </div>
+  <div class="crowd" id="crowd"></div>
+  <div class="floor"><div class="floor-tiles"></div></div>
+  <div class="strobe" id="strobe"></div>
+  <div class="vignette"></div>
+</div>
+
+<!-- ===================== HEADER ===================== -->
+<header class="bar-header">
+  <div class="logo">
+    <span class="logo-fly" aria-hidden="true">
+      <svg viewBox="0 0 48 40">
+        <defs>
+          <linearGradient id="lw" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#4ce3ff"/><stop offset=".5" stop-color="#b06cff"/><stop offset="1" stop-color="#ff4fd8"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="14" cy="12" rx="12" ry="6" fill="url(#lw)" opacity=".75" transform="rotate(-24 14 12)"/>
+        <ellipse cx="34" cy="12" rx="12" ry="6" fill="url(#lw)" opacity=".75" transform="rotate(24 34 12)"/>
+        <ellipse cx="24" cy="26" rx="11" ry="12" fill="#150d22"/>
+        <circle cx="18" cy="22" r="6" fill="#ff3b6b"/><circle cx="30" cy="22" r="6" fill="#ff3b6b"/>
+        <circle cx="16.5" cy="20" r="1.8" fill="#fff" opacity=".8"/><circle cx="28.5" cy="20" r="1.8" fill="#fff" opacity=".8"/>
+      </svg>
+    </span>
+    <span class="logo-text">NEURO<em>CLUB</em><i data-i18n="logo.sub">数字果蝇 · 吧台之夜</i></span>
+  </div>
+
+  <div class="header-right">
+    <div class="bpm">
+      <span class="bpm-dot" id="bpm-dot"></span>
+      <span class="mono" id="bpm-val">124</span><small>BPM</small>
+    </div>
+    <button class="ghost-btn" id="btn-music" type="button" data-i18n="btn.musicOn">🔈 开音乐</button>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" class="lang-btn is-on" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="zh">中文</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ===================== HUD ===================== -->
+  <section class="hud">
+    <div class="hud-card tips">
+      <span class="hud-k" data-i18n="hud.tips">Tips</span>
+      <span class="hud-v mono" id="hud-tips">0</span>
+      <span class="hud-x" data-i18n="hud.tipsX">tonight's take</span>
+    </div>
+    <div class="hud-card">
+      <span class="hud-k" data-i18n="hud.served">Served</span>
+      <span class="hud-v mono" id="hud-served">0</span>
+      <span class="hud-x" id="hud-missed">0 missed</span>
+    </div>
+    <div class="hud-card">
+      <span class="hud-k" data-i18n="hud.combo">Combo</span>
+      <span class="hud-v mono" id="hud-combo">×1</span>
+      <span class="hud-x" id="hud-best">best ×1</span>
+    </div>
+    <div class="hud-card meters">
+      <div class="meter">
+        <div class="meter-top"><span data-i18n="meter.hype">Crowd hype</span><b id="hype-pct">0%</b></div>
+        <div class="meter-track"><i class="meter-fill hype" id="hype-fill"></i></div>
+      </div>
+      <div class="meter">
+        <div class="meter-top"><span data-i18n="meter.dopa">Dopamine</span><b id="dopa-pct">0%</b></div>
+        <div class="meter-track"><i class="meter-fill dopa" id="dopa-fill"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ESCENA DE LA BARRA ===================== -->
+  <section class="scene" id="scene">
+    <div class="neon-sign"><span data-i18n="sign">OPEN BAR</span></div>
+
+    <!-- cola de clientes -->
+    <div class="queue" id="queue"></div>
+
+    <!-- barra + mosca -->
+    <div class="bar">
+      <div class="backbar">
+        <div class="bottles" id="bottles"></div>
+      </div>
+
+      <div class="fly-wrap">
+        <div class="fly-bubble" id="fly-bubble"><p id="fly-line">Let's pour.</p></div>
+        <svg class="fly" id="fly" viewBox="0 0 280 250" role="img" aria-label="fly bartender">
+          <defs>
+            <linearGradient id="wingG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4ce3ff" stop-opacity=".9"/>
+              <stop offset=".45" stop-color="#b06cff" stop-opacity=".75"/>
+              <stop offset="1" stop-color="#ff4fd8" stop-opacity=".65"/>
+            </linearGradient>
+            <radialGradient id="eyeG" cx="35%" cy="30%" r="75%">
+              <stop offset="0" stop-color="#ff8fa3"/><stop offset=".45" stop-color="#ff2d5e"/><stop offset="1" stop-color="#8d0b2c"/>
+            </radialGradient>
+            <linearGradient id="bodyG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#3a2a52"/><stop offset="1" stop-color="#160e24"/>
+            </linearGradient>
+            <linearGradient id="abdG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6a4a2a"/><stop offset="1" stop-color="#2a1a14"/>
+            </linearGradient>
+            <pattern id="hexEye" width="7" height="6" patternUnits="userSpaceOnUse">
+              <circle cx="3.5" cy="3" r="2.4" fill="none" stroke="rgba(0,0,0,.33)" stroke-width="1"/>
+            </pattern>
+          </defs>
+
+          <!-- alas -->
+          <g class="wing wing-l"><ellipse cx="54" cy="96" rx="76" ry="22" fill="url(#wingG)" transform="rotate(-34 54 96)"/></g>
+          <g class="wing wing-r"><ellipse cx="226" cy="96" rx="76" ry="22" fill="url(#wingG)" transform="rotate(34 226 96)"/></g>
+
+          <!-- abdomen -->
+          <ellipse cx="140" cy="196" rx="44" ry="46" fill="url(#abdG)"/>
+          <path d="M98 184h84M102 202h76M110 220h60" stroke="#120b1c" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+
+          <!-- tórax -->
+          <ellipse cx="140" cy="140" rx="46" ry="38" fill="url(#bodyG)"/>
+          <path class="connectome" d="M104 140q18-16 36 0t36 0M112 126q26 10 56 0M112 154q26-10 56 0" stroke="#7de3ff" stroke-width="2" fill="none" opacity=".55"/>
+
+          <!-- pajarita -->
+          <path d="M140 108l-20-11v22zM140 108l20-11v22z" fill="#ff2d6f"/>
+          <circle cx="140" cy="108" r="5" fill="#ffd166"/>
+
+          <!-- cabeza -->
+          <ellipse cx="140" cy="76" rx="52" ry="44" fill="#1b1128"/>
+          <!-- ojos compuestos -->
+          <ellipse cx="106" cy="72" rx="30" ry="34" fill="url(#eyeG)"/>
+          <ellipse cx="174" cy="72" rx="30" ry="34" fill="url(#eyeG)"/>
+          <ellipse cx="106" cy="72" rx="30" ry="34" fill="url(#hexEye)"/>
+          <ellipse cx="174" cy="72" rx="30" ry="34" fill="url(#hexEye)"/>
+          <ellipse class="eye-shine" cx="97" cy="58" rx="8" ry="10" fill="#fff" opacity=".55"/>
+          <ellipse class="eye-shine" cx="165" cy="58" rx="8" ry="10" fill="#fff" opacity=".55"/>
+          <!-- antenas -->
+          <path d="M122 36q-8-18-22-22M158 36q8-18 22-22" stroke="#2c1c40" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <circle cx="98" cy="13" r="6" fill="#2c1c40"/><circle cx="182" cy="13" r="6" fill="#2c1c40"/>
+          <!-- probóscide -->
+          <path d="M132 104h16l-4 12h-8z" fill="#3a2550"/>
+
+          <!-- patas / brazos con coctelera -->
+          <g class="arm arm-l">
+            <path d="M98 146q-34 10-46 30" stroke="#4a3568" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M98 146q-34 10-46 30" stroke="#7d5fa8" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+          </g>
+          <g class="arm arm-r">
+            <path d="M182 146q34 10 46 30" stroke="#4a3568" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M182 146q34 10 46 30" stroke="#7d5fa8" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+          </g>
+          <g class="shaker" id="shaker">
+            <path d="M26 178h44l-8 42a6 6 0 0 1-6 5H40a6 6 0 0 1-6-5z" fill="#aab8d0" stroke="#5a6780" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M34 184h12l-4 36h-5z" fill="#ffffff" opacity=".5"/>
+            <rect x="22" y="163" width="52" height="16" rx="6" fill="#8b9ab8" stroke="#5a6780" stroke-width="2"/>
+            <path d="M31 150h34l-3 13H34z" fill="#7686a6" stroke="#5a6780" stroke-width="2" stroke-linejoin="round"/>
+            <ellipse cx="48" cy="150" rx="17" ry="5" fill="#c2cee2" stroke="#5a6780" stroke-width="2"/>
+          </g>
+          <g class="bottle-hand">
+            <rect x="212" y="164" width="28" height="56" rx="9" fill="#2fa37a"/>
+            <rect x="219" y="148" width="14" height="20" rx="5" fill="#1d6b50"/>
+            <rect x="216" y="180" width="20" height="22" rx="3" fill="#ffe8a3" opacity=".9"/>
+            <path d="M218 172h16" stroke="#bff3dd" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="bartop">
+        <div class="bartop-glow"></div>
+        <div class="bar-mat"></div>
+        <div class="pour-spot" id="pour-spot"></div>
+      </div>
+    </div>
+
+    <!-- estantería de bebidas -->
+    <div class="shelf">
+      <div class="shelf-k" data-i18n="shelf.k">Pour a drink</div>
+      <div class="drinks" id="drinks"></div>
+      <p class="shelf-hint" data-i18n="shelf.hint">Click the drink the customer at the front of the queue asked for — or press 1-4.</p>
+    </div>
+
+    <div class="overdrive-banner" id="overdrive" hidden><span data-i18n="overdrive">NEURAL OVERDRIVE · DOUBLE TIPS</span></div>
+    <div class="shotround-banner" id="shotround" hidden><span data-i18n="shotround">SHOT ROUND! 全场干杯</span></div>
+  </section>
+
+  <!-- ===================== INFO ===================== -->
+  <section class="info">
+    <article class="info-card">
+      <h2 data-i18n="info.1.t">How the shift works</h2>
+      <p data-i18n="info.1.p">Customers come to the bar and ask for a beer, a cocktail, a martini or a shot. Pour the right one before their patience runs out. Correct pours build a combo and the crowd's hype; a wrong pour spills the glass and resets it.</p>
+    </article>
+    <article class="info-card">
+      <h2 data-i18n="info.2.t">Hype &amp; dopamine</h2>
+      <p data-i18n="info.2.p">Fill the hype bar and the club calls a SHOT ROUND: everyone wants shots, tips double and the lasers lose their mind. The dopamine bar fills as you serve, and at 100% the fly goes into NEURAL OVERDRIVE.</p>
+    </article>
+    <article class="info-card">
+      <h2 data-i18n="info.3.t">About the fly</h2>
+      <p data-i18n="info.3.p">A playful nod to the viral thread about the digitized fruit-fly connectome — the one where the simulated fly supposedly drinks beer, trades crypto and plays DOOM. This page is a toy, not a simulation, and is not affiliated with any of that research.</p>
+    </article>
+  </section>
+</main>
+
+<footer class="club-foot">
+  <span data-i18n="foot">NEUROCLUB · front-end demo, no backend. Sound is synthesized live in your browser.</span>
+  <span class="mono">v1.0 · EN / 中文</span>
+</footer>
+
+<div class="fx" id="fx" aria-hidden="true"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -4,6 +4,10 @@
 纯前端演示：HTML + CSS + 原生 JavaScript，无构建步骤、无依赖、无后端。
 直接用浏览器打开 `index.html` 即可运行。
 
+**中文 / English 双语**：点击页眉右侧的语言开关即可整页切换，选择会随存档一起保存。
+*Bilingual: the header toggle reskins the whole page live — table, market, logs, banners and
+the cat's own lines — and the choice is stored with the session.*
+
 ## 玩法
 
 **牌桌**
@@ -27,6 +31,13 @@
 - 顶栏始终显示：筹码 | 持仓市值 | 总资产
 - 猫会对发牌、爆牌、开仓、爆仓和行情剧烈波动做出不同表情和吐槽
 
+**视觉层**
+- 页眉下方的滚动行情条，实时跟着报价走
+- 所选标的的大图：网格、渐变填充、开盘虚线、发光的最新价圆点、悬停读数、最高/最低/波动
+- 市场情绪指针（恐慌 — 平静 — 贪婪）
+- 押注会堆成真实的筹码堆，开局时落进桌面中央的底池
+- 桌面上方缓慢旋转的光束、背景漂浮的猫爪、行情卡片的 3D 倾斜、招财猫挥动的爪子
+
 ## 设计说明
 
 - 深色高级质感，黑蓝底 + 金色点缀 + 赌桌绿绒
@@ -36,7 +47,7 @@
 
 ## 状态保存
 
-筹码、持仓、行情、牌局与交易记录都存在 `localStorage`（键名 `catjack.v2`），刷新不丢。
+筹码、持仓、行情、语言、牌局与交易记录都存在 `localStorage`（键名 `catjack.v3`），刷新不丢。
 页面底部「重置本局」可清空全部数据。筹码见底且无持仓时，可申请一次猫咪救济金（+250，不计入盈利）。
 
 ## 文件
@@ -49,4 +60,4 @@ catjack/
 └── README.md
 ```
 
-调试时可在控制台使用 `window.CatJack`（`state()` / `handValue()` / `tick()` / `portfolioValue()`）。
+调试时可在控制台使用 `window.CatJack`（`state()` / `handValue()` / `tick()` / `portfolioValue()` / `setLang()`）。

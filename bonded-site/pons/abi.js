@@ -143,7 +143,8 @@
 
   // Decode an Error(string) revert reason when present.
   // custom errors a launch factory or curve is likely to throw; the selector is matched at runtime
-  const KNOWN_ERRORS = ['LaunchDisabled()', 'LaunchesDisabled()', 'NotLaunchable()', 'CannotLaunch()', 'NotAllowed()', 'Unauthorized()', 'Paused()', 'EnforcedPause()',
+  const KNOWN_ERRORS = ['ERC20InsufficientAllowance(address,uint256,uint256)', 'ERC20InsufficientBalance(address,uint256,uint256)', 'ERC20InvalidSpender(address)', 'ERC20InvalidReceiver(address)', 'ERC20InvalidSender(address)', 'ERC20InvalidApprover(address)', 'SafeERC20FailedOperation(address)', 'AddressEmptyCode(address)', 'AddressInsufficientBalance(address)', 'FailedInnerCall()', 'OwnableUnauthorizedAccount(address)', 'ExpectedPause()',
+    'LaunchDisabled()', 'LaunchesDisabled()', 'NotLaunchable()', 'CannotLaunch()', 'NotAllowed()', 'Unauthorized()', 'Paused()', 'EnforcedPause()',
     'InvalidPairToken()', 'PairTokenNotApproved()', 'UnapprovedPairToken()', 'InvalidQuote()', 'InvalidFee()', 'IncorrectFee()', 'WrongFee()', 'InsufficientFee()', 'FeeMismatch()',
     'EconomicsMismatch()', 'StaleEconomics()', 'InvalidEconomics()', 'InvalidConfig()', 'ConfigDisabled()', 'InvalidLaunchConfig()', 'LaunchConfigDisabled()',
     'CreatorTaxTooHigh()', 'InvalidCreatorTax()', 'TaxTooHigh()', 'InvalidRecipient()', 'ZeroAddress()', 'InvalidSalt()', 'SaltInUse()', 'TokenExists()', 'AlreadyDeployed()',

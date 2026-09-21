@@ -1303,3 +1303,6 @@ html.is-night .bd-callout-demo b { color: #F0C078; }
 
 .bd-fees-note { margin: 12px 0 0; font-size: 13px; color: #4A5560; }
 html.is-night .bd-fees-note { color: #93A39B; }
+
+/* the board shows 50 rows at a time */
+.bd-more { display: block; margin: 18px auto 0; }

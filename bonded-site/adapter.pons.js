@@ -36,7 +36,8 @@
     creatorTaxBps: 100,        // 1% of every curve trade, paid to feeRecipient
     feeRecipient: null,        // defaults to BONDED_OWNER (config.js), else the launching wallet
     slippageBps: 300,          // shown on the pair page; snipe tax on young curves can exceed 1%
-    lookbackBlocks: 150_000,   // how far back to index launches on the first visit; later visits scan only new blocks
+    lookbackBlocks: 60_000,    // how far back to index launches on the first visit; later visits scan only new blocks
+    maxPairs: 60,              // newest launches kept from the shared factory (LilyPad's own are always kept)
     chunk: 10_000,             // eth_getLogs window
     parallel: 3,               // concurrent RPC requests while indexing (the public RPC is rate-limited)
     pollMs: 12_000,
@@ -148,9 +149,22 @@
   async function sendTx(tx) {
     await ensureChain();
     const from = account || (await eth().request({ method: 'eth_requestAccounts' }))[0];
-    // simulate first so a revert reads as a sentence, not a wallet error code
-    try { await simulate({ from, ...tx }); }
-    catch (e) { throw new Error('Would revert: ' + A.revertReason(e)); }
+    // simulate first so a revert reads as a sentence, not a wallet error code. The wallet's own node
+    // is the freshest after a transaction it just mined (an approval, say), so it goes first; a
+    // revert without data is re-run on the public RPC to recover the reason; an allowance or
+    // balance that is not visible yet is retried for a few seconds before giving up.
+    const call = { from, ...tx };
+    let reason = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try { await rpc('eth_call', [call, 'latest']); reason = null; break; }
+      catch (e) {
+        reason = A.revertReason(e);
+        if (/execution reverted$|^rpc eth_call: execution reverted/.test(reason)) { try { await simulate(call); reason = null; break; } catch (e2) { reason = A.revertReason(e2); } }
+        if (!/InsufficientAllowance|InsufficientBalance|TransferFailed|SafeERC20/i.test(reason)) break;
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    }
+    if (reason) throw new Error('Would revert: ' + reason);
     const hash = await eth().request({ method: 'eth_sendTransaction', params: [{ from, ...tx }] });
     return waitReceipt(hash);
   }
@@ -287,14 +301,17 @@
       // any other quote token seen on the factory
       const seen = new Set(launches.map(l => l.pairToken.toLowerCase()));
       for (const a of seen) if (byToken[a] === undefined) await registerStock(null, a);
-      const fresh = (await pmap(launches, hydrate)).filter(Boolean);
-      index.launches = [...fresh, ...index.launches].sort((a, b) => b.createdAt - a.createdAt);
+      const newest = launches.sort((a, b) => b.block - a.block).slice(0, PONS.maxPairs);
+      const fresh = (await pmap(newest, hydrate)).filter(Boolean);
+      const merged = [...fresh, ...index.launches].sort((a, b) => b.createdAt - a.createdAt);
+      const keep = merged.filter((p, i) => i < PONS.maxPairs || p.lilypad || p.mine || lilypadTokens.has(p.address.toLowerCase()));
+      index.launches = keep;
       index.lastBlock = head;
     }
     await Promise.race([registryLoaded, sleep(800)]);
     markLilypad();
     // reserves move; refresh the price of the most recent pairs without blocking anyone
-    pmap(index.launches.slice(0, 40), async p => {
+    pmap(index.launches.slice(0, 20), async p => {
       try { const { q, t } = await curve.reserves(p.curve); if (!stockTokens[p.stock]) return; Object.assign(p, valueOf(p.stock, q, t)); } catch (_) {}
     }, 3).then(() => { saveIndex(); announce('bonded:index'); });
     saveIndex();

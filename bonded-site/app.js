@@ -789,7 +789,7 @@
      ===================================================================== */
   if (lake && page !== 'home' && !matchMedia('(prefers-reduced-motion: reduce)').matches) (() => {
     const layer = lake.el, small = innerWidth < 900;
-    const N = small ? 6 : 12;
+    const N = small ? 4 : 7;
     const list = [];
     // every little frog is a different stock: shuffle the list, deal them out
     const deck = STOCKS.slice(); for (let i = deck.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [deck[i], deck[k]] = [deck[k], deck[i]]; }
@@ -1058,9 +1058,14 @@
       list.sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * state.dir; });
       return list;
     };
+    let shown = 50;
+    $('#more')?.addEventListener('click', () => { shown += 50; render(); });
     const render = () => {
-      const list = applyFilters();
-      empty.hidden = list.length > 0;
+      const all = applyFilters();
+      const list = all.slice(0, shown);
+      empty.hidden = all.length > 0;
+      const more = $('#more');
+      if (more) { more.hidden = all.length <= shown; more.textContent = `Show ${Math.min(50, all.length - shown)} more of ${all.length}`; }
       $$('th[data-sort]').forEach(th => th.classList.toggle('is-sorted', th.dataset.sort === state.sort));
       rows.innerHTML = list.map(p => {
         const st = stockOf(p.stock);

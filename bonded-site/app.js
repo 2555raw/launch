@@ -444,40 +444,11 @@
 
   if (CONFIG.xUrl === '#') $$('[data-cfg-href="xUrl"]').forEach(a => a.remove());
 
-  // language: lang.es.js maps English strings to Spanish; the switch lives in the footer
-  const LANG_KEY = 'bonded-lang';
-  let currentLang = 'en';
-  try { currentLang = localStorage.getItem(LANG_KEY) === 'es' ? 'es' : 'en'; } catch (_) {}
-  const normText = x => x.replace(/<(\w+)[^>]*>/g, '<$1>').replace(/<span>[^<]*<\/span>/g, '<span></span>').replace(/\s+/g, ' ').trim();
-  let esByKey = null;
-  const originals = new WeakMap();
-  const t = str => (currentLang === 'es' && window.LILYPAD_ES && window.LILYPAD_ES[str]) || str;
-  const INLINE = new Set(['EM', 'B', 'A', 'SPAN', 'CODE', 'I', 'BR', 'STRONG', 'U', 'SMALL']);
-  const applyLang = () => {
-    if (!esByKey) { esByKey = {}; for (const [k, v] of Object.entries(window.LILYPAD_ES || {})) esByKey[normText(k)] = v; }
-    const dict = esByKey;
-    document.documentElement.lang = currentLang;
-    $$('h1, h2, h3, p, summary, small, li, label, a, button, th, td, span.bd-label, span.bd-eyebrow, span.bd-step-n, .bd-hero-foot div').forEach(el => {
-      if (el.closest('svg, code, pre, .bd-frog, #scene')) return;
-      if ([...el.children].some(c => !INLINE.has(c.tagName))) return;
-      if (!originals.has(el)) originals.set(el, el.innerHTML);
-      const en = originals.get(el); const key = normText(en);
-      if (currentLang === 'es') { if (dict[key]) el.innerHTML = dict[key]; }
-      else if (el.innerHTML !== en) el.innerHTML = en;
-    });
-    $$('[data-cfg-href]').forEach(el => { const v = CONFIG[el.dataset.cfgHref]; if (v) el.href = v; });
-    $$('[data-cfg]').forEach(el => { const v = CONFIG[el.dataset.cfg]; if (v != null) el.textContent = v; });
-    const btn = $('#lang'); if (btn) { btn.textContent = currentLang === 'es' ? 'EN' : 'ES'; btn.setAttribute('aria-label', currentLang === 'es' ? 'Switch to English' : 'Cambiar a español'); }
-    document.dispatchEvent(new CustomEvent('bonded:lang', { detail: currentLang }));
-  };
-  applyLang();
-  $('#lang')?.addEventListener('click', () => { currentLang = currentLang === 'es' ? 'en' : 'es'; try { localStorage.setItem(LANG_KEY, currentLang); } catch (_) {} applyLang(); });
-
   // wallet (remembered for the tab so it survives page changes)
   let wallet = null;
   const walletBtns = $$('.bd-wallet');
   const setWallet = w => {
-    wallet = w; walletBtns.forEach(b => { b.textContent = w ? shortAddr(w.address) : t('Connect wallet'); b.title = w ? `${w.address} · ${CONFIG.chain}` : ''; });
+    wallet = w; walletBtns.forEach(b => { b.textContent = w ? shortAddr(w.address) : 'Connect wallet'; b.title = w ? `${w.address} · ${CONFIG.chain}` : ''; });
     try { w ? sessionStorage.setItem('bonded-wallet', JSON.stringify(w)) : sessionStorage.removeItem('bonded-wallet'); } catch (_) {}
     document.dispatchEvent(new CustomEvent('bonded:wallet', { detail: w }));
   };

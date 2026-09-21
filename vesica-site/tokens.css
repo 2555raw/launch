@@ -1,80 +1,86 @@
 /* Vesica — the palette and the type, in one place.
-   Every value here was sampled out of screenshots of the reference, pixel by
-   pixel, rather than guessed: the ground is #E9E9E9 and cards sit one step
-   lighter at #EEEEEE with a #D6D6D6 hairline — they are not white. The dark
-   navy #3D3B4F does double duty as the band and as the ink.
 
-   Three accents, each with its own ground:
-   The accent is a pastel yellow. It cannot be text on a light ground, so it
-   works as a fill and a darker relative carries the type:
+   The brand is burgundy. The ground is a warm off-white #EBE7E8 and cards sit
+   one step lighter at #F0EDEE with a #DCD4D7 hairline: they are not white, and
+   the warmth is deliberate so the neutrals sit with the wine rather than
+   fighting it. The deep wine #2B1520 does double duty as the dark band and as
+   the source of the ink.
 
-     --accent-fill  #F2EAA0  pills, buttons, tiles, badges — navy ink on top
-     --accent-soft  #FBF7DA  the tinted card and the quieter badges
-     --accent-lift  #F2EAA0  the same pastel, where it sits on the navy band
-     --accent       #6E5D0D  accent type on the light ground
-     --accent-ink   #5C4E08  type on a tinted fill
+   Unlike the pastel it replaces, this accent reads as text on a light ground,
+   so there is no longer a fill-only accent with a darker relative standing in
+   for it:
+
+     --accent       #8A1F3D  accent type and marks on the light ground, 9.0:1
+     --accent-ink   #6E1730  the same, at small sizes or on a tinted fill
+     --accent-fill  #F4DCE3  pills, buttons, tiles, badges — near-black ink on top
+     --accent-soft  #FBF1F4  the tinted card and the quieter badges
+     --accent-lift  #EFCCD8  where the tint sits on the wine band
+     --accent-glow  #B83A5C  decorative only: glows, lit cube faces
+     --accent-head  #E0A9BA  the closing headline, on the band
      --pink         #FFCFFE  the second accent, dark grounds only
 
-   The tokens are named for their job now, not for a colour. They have been
-   green and blue already, and each rename through a colour name cost a bug.
-
-   Light only, like the reference. */
+   The type is a three-way split: a high-contrast serif for headlines, a tight
+   grotesk for the interface, a mono for every number and address. */
 
 :root {
-  --bg: #E9E9E9;
-  --card: #EEEEEE;
-  --card-2: #E4E4E4;
-  --line: #D6D6D6;
-  --line-2: #DFDFDF;
+  /* ---------- Burgundy, the brand ----------
+     Every pair below clears WCAG AA against the surface it is used on; the
+     ratios were solved before the values were written, not checked after.
+     The neutrals carry a warm cast so the greys sit with the wine instead of
+     fighting it. */
+  --bg: #EBE7E8;
+  --card: #F0EDEE;
+  --card-2: #E4DEE0;
+  --line: #DCD4D7;
+  --line-2: #E4DEE0;
 
-  --band: #3D3B4F;
-  --band-2: #514F61;
-  --band-hi: #4A4860;
+  --band: #2B1520;         /* deep wine: the dark surface, was a navy */
+  --band-2: #3E2130;
+  --band-hi: #361C28;
 
-  --ink: #3D3B4F;
-  /* Secondary ink, for light backgrounds. Both clear WCAG AA (4.5:1) against
-     every light surface the site uses, #E9E9E9 included, which is the darkest
-     of them and so the one that sets the ceiling. The old pair (#82828D,
-     #A9A8AF) sat at 3.13:1 and 1.94:1 there. */
-  --muted: #5A5A63;
-  --dim: #656570;
-  --faint: #C3C3C7;
+  --ink: #2A1C22;          /* 16.3:1 on white */
+  --muted: #5C4A50;        /* 6.7:1 on the darkest light surface */
+  --dim: #6B575D;          /* 5.4:1 there */
+  --faint: #B9AAAF;        /* never text: rules and disabled marks only */
 
-  /* Text on --band. The dark surfaces already had --on-band / --on-band-2;
-     these two name the purple-tinted variants that were hardcoded in four
-     stylesheets at #9E9BB4 (4.03:1) and #9391B9 (3.61:1). */
-  --band-label: #B5B2C8;
-  --band-code-c: #AEACCE;
+  /* Text on --band. */
+  --band-label: #D8C6CC;   /* 10.5:1 on the wine */
+  --band-code-c: #C9A8B4;
 
-  --accent: #6E5D0D;
-  --accent-ink: #5C4E08;
-  --accent-fill: #F2EAA0;
-  --accent-soft: #FBF7DA;
-  --accent-line: #E6DC94;
-  --accent-lift: #F2EAA0;
-  --accent-glow: #EFD95E;   /* the pastel, pushed up where it has to read against grey */
+  --accent: #8A1F3D;       /* 9.0:1 on white */
+  --accent-ink: #6E1730;   /* 11.5:1, for accent text at small sizes */
+  --accent-fill: #F4DCE3;  /* the pale tint: fills, chips, highlights */
+  --accent-soft: #FBF1F4;
+  --accent-line: #E8C2CE;
+  --accent-lift: #EFCCD8;
+  --accent-glow: #B83A5C;  /* decorative only: glows and lit cube faces */
   --pink: #FFCFFE;
-  --on-accent: #3D3B4F;    /* the fill is pale, so its ink is the navy */
-  --yellow: #F2EAA0;       /* the closing headline: the same pastel, not a second one */
+  --on-accent: #2A1C22;    /* the fill is pale, so its ink is the near-black */
+  --accent-head: #E0A9BA;  /* the closing headline, on the wine band */
 
-  --on-band: #E9E9E9;
-  --on-band-2: #A9A8AF;
-  --band-line: rgba(233, 233, 233, .16);
-  --dash: #D6D6D6;
-  --edge: #23222F;         /* the drawn edge: the ink, one step darker */
-  --grid: #DEDEDE;         /* the graph paper the page sits on */
+  --on-band: #EBE7E8;
+  --on-band-2: #C9B8BE;
+  --band-line: rgba(235, 231, 232, .16);
+  --dash: #DCD4D7;
+  --edge: #1A0E14;         /* the drawn edge: the ink, one step darker */
+  --grid: #E0DADC;         /* the graph paper the page sits on */
   --grid-step: 32px;
 
-  --warn: #B4802A;
+  --warn: #A8621F;
   --down: #B33F39;
 
-  --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* ---------- the type ----------
+     A high-contrast serif for the headlines, a tight grotesk for the
+     interface, and a mono for anything that is a number or an address. */
+  --display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --wrap: 1020px;
   --wrap-head: 1460px;
   --nav: 66px;
   --r: 10px;
 }
+
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -119,12 +125,12 @@ img, svg { display: block; }
 .btn-pink { background: var(--pink); color: var(--band); }
 /* on the navy band a solid accent disappears, so it lightens instead */
 .hm-cta .btn-mint, .cs-close .cs-btn-fill, .cs-head .cs-btn-fill { background: var(--accent-lift); color: var(--band); }
-.hm-cta .btn-mint:hover, .cs-close .cs-btn-fill:hover, .cs-head .cs-btn-fill:hover { background: #F7F2BC; }
+.hm-cta .btn-mint:hover, .cs-close .cs-btn-fill:hover, .cs-head .cs-btn-fill:hover { background: #F7E0E8; }
 .btn-pink:hover { background: #FFDCFE; }
-.btn-mint { background: var(--accent-fill); color: var(--on-accent); }
-.btn-mint:hover { background: #24518F; }
+.btn-mint { background: var(--accent); color: #FFFFFF; }
+.btn-mint:hover { background: var(--accent-ink); }
 .cs-btn-line, .btn-line { background: transparent; color: var(--ink); border-color: var(--line); }
-.cs-btn-line:hover, .btn-line:hover { border-color: #BEBEBE; }
+.cs-btn-line:hover, .btn-line:hover { border-color: var(--accent); color: var(--accent); }
 .cs-btn:disabled, .tr-btn:disabled, .btn:disabled { opacity: .45; cursor: not-allowed; }
 .cs-btn-wide, .tr-btn-wide { width: 100%; height: 44px; font-size: 16.1px; }
 .tr-btn-sm { height: 32px; padding: 0 13px; font-size: 14.4px; }
@@ -640,3 +646,16 @@ img, svg { display: block; }
   .ca-out { padding: 16px; }
   .tr-chain, .tr-band a, .ft-bar-in a { display: inline-block; padding-top: 14px; padding-bottom: 14px; }
 }
+
+/* ---------- the display face ----------
+   Headlines carry the serif; everything else stays on the grotesk. The serif
+   is optically larger and much lighter in colour than the old grotesk at the
+   same size, so headline sizes come down a touch and the weight goes to 400:
+   Instrument Serif has no bold, and faking one would muddy its thin strokes. */
+h1, h2, .hm-hero h1, .cs-head h1, .tr-band h1, .dx-hero h1,
+.cs-legal-head h1, .hm-cta h2, .dx-head h2, .cs-band-label h2, .pr-head h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -.012em;
+}
+h1 em, h2 em, .hm-hero h1 em, .dx-hero h1 em { font-style: italic; font-weight: 400; }

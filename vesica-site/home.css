@@ -50,7 +50,8 @@
 
 
 /* the wireframe form */
-.hm-form { position: absolute; right: -6px; top: -34px; width: min(52vw, 800px); color: #C9C8CE; pointer-events: none; }
+/* The mark takes the brand: the extruded layers read off currentColor. */
+.hm-form { position: absolute; right: 10px; top: 4px; width: min(40vw, 560px); color: var(--accent); pointer-events: none; }
 .hm-form svg { width: 100%; height: auto; }
 
 /* ---------- one vault per stock ---------- */
@@ -85,7 +86,7 @@
   max-width: var(--wrap-head); margin: 0 auto; padding: 54px 24px 58px;
   display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.25fr); gap: 34px; align-items: center;
 }
-.hm-cta h2 { margin: 0 0 22px; font-size: 34.2px; line-height: 1.18; font-weight: 600; letter-spacing: -.03em; color: var(--yellow); max-width: 20ch; }
+.hm-cta h2 { margin: 0 0 22px; font-size: 34.2px; line-height: 1.18; font-weight: 600; letter-spacing: -.03em; color: var(--accent-head); max-width: 20ch; }
 .hm-cta .hm-fine { color: var(--on-band-2); }
 .hm-cta .hm-fine a { color: var(--on-band); }
 .hm-cta-dia { color: var(--band-2); }

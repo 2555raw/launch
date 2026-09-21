@@ -4,8 +4,8 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   const l = LOGOS[el.dataset.logo];
   if (!l) return;
   const dot = el.querySelector('span');
-  dot.style.background = '#EEEEEE';
-  dot.style.color = l.c === '#000000' ? '#3D3B4F' : l.c;
+  dot.style.background = '#F0EDEE';
+  dot.style.color = l.c === '#000000' ? '#2B1520' : l.c;
   dot.innerHTML = markSvg(l);
 });
 
@@ -28,8 +28,8 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
   const g = document.getElementById('spin');
   if (!svg || !g) return;
 
-  const DEPTH = 26;        // layers from back to front
-  const STEP = 0.72;       // how far apart they sit, in viewBox units
+  const DEPTH = 14;        // layers from back to front
+  const STEP = 0.52;       // how far apart they sit, in viewBox units
   const PERIOD = 14000;    // one full turn about the vertical axis
   const TUMBLE = 0.63;     // the pitch swing against the yaw swing, deliberately not a round ratio
   const EASE = 0.56;       // how hard it dwells face-on and snaps through edge-on
@@ -44,12 +44,12 @@ document.querySelectorAll('.hm-stock[data-logo]').forEach(el => {
     u.setAttribute('href', '#vesicamark');
     // back layers are faint, the face is solid
     const front = i / (DEPTH - 1);
-    u.setAttribute('opacity', (0.05 + 0.5 * Math.pow(front, 2.4)).toFixed(3));
+    u.setAttribute('opacity', (0.06 + 0.94 * Math.pow(front, 3.0)).toFixed(3));
     // the deepest layers carry a faint pastel trail, so the solid has an edge
     // rather than a second colour: eight layers, none of them over a fifth opaque
-    if (i < 8) {
-      u.setAttribute('fill', '#F2EAA0');
-      u.setAttribute('opacity', (0.07 + 0.11 * (i / 7)).toFixed(3));
+    if (i < 5) {
+      u.setAttribute('fill', '#E8C2CE');
+      u.setAttribute('opacity', (0.10 + 0.10 * (i / 4)).toFixed(3));
     }
     g.appendChild(u);
     layers.push(u);

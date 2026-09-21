@@ -3,8 +3,8 @@
    pairs every coin with the tokenized stock the creator picked: the stock token
    IS the curve's quote asset, so the coin can only be bought and sold with it.
 
-   Opt in with ?pons=1 (remembered in localStorage 'bonded-pons'); ?pons=0 turns
-   it off. Without the flag the demo adapter in app.js stays in charge.
+   Live is the default. ?demo=1 switches this browser to the demo adapter in app.js
+   (remembered in localStorage 'bonded-demo'); ?demo=0 switches back.
    Needs pons/wallet.js, pons/keccak.js and pons/abi.js before it, and a wallet (MetaMask, Phantom, Rabby…).
 
    Stock token addresses: pass them in window.BONDED_STOCK_TOKENS = { TSLA: '0x…' }
@@ -13,12 +13,13 @@
    Run scripts/verify-pons.mjs from your machine to confirm all of this on-chain. */
 (function () {
   const url = new URL(location.href);
-  const flag = url.searchParams.get('pons');
+  const demo = url.searchParams.get('demo');
   try {
-    if (flag === '1') localStorage.setItem('bonded-pons', '1');
-    if (flag === '0') localStorage.removeItem('bonded-pons');
-    if (localStorage.getItem('bonded-pons') !== '1') return;
-  } catch (_) { if (flag !== '1') return; }
+    if (demo === '1') localStorage.setItem('bonded-demo', '1');
+    if (demo === '0') localStorage.removeItem('bonded-demo');
+    if (localStorage.getItem('bonded-demo') === '1') return;
+  } catch (_) { if (demo === '1') return; }
+  if (location.protocol === 'file:') return;   // opened from disk: no server, no proxy, stay on the demo
   if (!globalThis.bdAbi || !globalThis.bdKeccak256) { console.error('pons: load pons/keccak.js and pons/abi.js first'); return; }
 
   const A = globalThis.bdAbi;
@@ -26,7 +27,8 @@
     chainId: 4663,
     chainHex: '0x1237',
     chainName: 'Robinhood Chain',
-    rpc: 'https://rpc.mainnet.chain.robinhood.com',
+    rpc: '/rpc',               // the site's own proxy (server.js) to the public RPC: browsers cannot call it directly
+    publicRpc: 'https://rpc.mainnet.chain.robinhood.com',
     explorer: 'https://robinhoodchain.blockscout.com',
     factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
     launcher: null,            // LilyPadLauncher address (contracts/pons/), bundles the first buy into the launch tx
@@ -56,6 +58,7 @@
   // transport: the wallet when it sits on Robinhood Chain (its own RPC, no CORS, no shared rate limit),
   // the public RPC otherwise; a network failure reads as a sentence instead of "Failed to fetch"
   const httpRpc = A.makeRpc(PONS.rpc);
+  const publicHttpRpc = A.makeRpc(PONS.publicRpc);
   let walletChain = null;
   async function rpc(method, params = []) {
     const w = window.bdWallet ? window.bdWallet.provider() : window.ethereum;
@@ -67,8 +70,13 @@
     }
     try { return await httpRpc(method, params); }
     catch (e) {
-      if (e instanceof TypeError || /Failed to fetch|NetworkError|Load failed/i.test(e.message)) throw new Error(`Cannot reach ${PONS.rpc} from this browser. Connect a wallet set to ${PONS.chainName} (chain ${PONS.chainId}) and try again.`);
-      throw e;
+      const network = e instanceof TypeError || /Failed to fetch|NetworkError|Load failed|HTTP 5\d\d|HTTP 404/i.test(e.message);
+      if (!network) throw e;
+      try { return await publicHttpRpc(method, params); }
+      catch (e2) {
+        if (e2 instanceof TypeError || /Failed to fetch|NetworkError|Load failed/i.test(e2.message)) throw new Error(`Cannot reach ${PONS.chainName} right now. Connect a wallet set to ${PONS.chainName} (chain ${PONS.chainId}) and try again.`);
+        throw e2;
+      }
     }
   }
   // map with a concurrency cap, so indexing does not fire hundreds of requests at once
@@ -115,7 +123,7 @@
     catch (e) {
       if (e.code === 4001) throw new Error('You declined the switch to ' + PONS.chainName + '.');
       try {
-        await w.request({ method: 'wallet_addEthereumChain', params: [{ chainId: PONS.chainHex, chainName: PONS.chainName, rpcUrls: [PONS.rpc], blockExplorerUrls: [PONS.explorer], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 } }] });
+        await w.request({ method: 'wallet_addEthereumChain', params: [{ chainId: PONS.chainHex, chainName: PONS.chainName, rpcUrls: [PONS.publicRpc], blockExplorerUrls: [PONS.explorer], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 } }] });
       } catch (e2) {
         const who = w.isPhantom ? 'Phantom' : 'This wallet';
         throw new Error(`${who} could not switch to ${PONS.chainName} (chain ${PONS.chainId}): ${e2.message || e2.code}. If it does not let you add custom networks, use MetaMask or Rabby.`);

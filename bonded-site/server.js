@@ -22,9 +22,33 @@ const TYPES = {
   '.txt': 'text/plain; charset=utf-8'
 };
 
+/* /rpc forwards read-only JSON-RPC to Robinhood Chain. Browsers cannot call the public RPC
+   directly (CORS), the server can. Only read methods pass; transactions go through the wallet. */
+const RPC_URL = process.env.RPC_URL || 'https://rpc.mainnet.chain.robinhood.com';
+const RPC_METHODS = new Set(['eth_chainId', 'eth_blockNumber', 'eth_call', 'eth_getLogs', 'eth_getCode', 'eth_getBlockByNumber', 'eth_getTransactionReceipt', 'eth_getTransactionByHash', 'eth_estimateGas', 'eth_gasPrice', 'eth_getBalance', 'net_version']);
+function proxyRpc(req, res) {
+  if (req.method !== 'POST') { res.writeHead(405).end(); return; }
+  let body = ''; req.on('data', c => { body += c; if (body.length > 200_000) req.destroy(); });
+  req.on('end', () => {
+    let payload;
+    try { payload = JSON.parse(body); } catch { res.writeHead(400, { 'content-type': 'application/json' }); res.end('{"error":"bad json"}'); return; }
+    const calls = Array.isArray(payload) ? payload : [payload];
+    if (calls.length > 20 || !calls.every(c => c && RPC_METHODS.has(c.method))) { res.writeHead(403, { 'content-type': 'application/json' }); res.end('{"error":"method not allowed"}'); return; }
+    const up = new URL(RPC_URL);
+    const r = (up.protocol === 'http:' ? require('http') : require('https')).request(up, { method: 'POST', headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) } }, u => {
+      res.writeHead(u.statusCode || 502, { 'content-type': 'application/json', 'cache-control': 'no-store' });
+      u.pipe(res);
+    });
+    r.on('error', () => { res.writeHead(502, { 'content-type': 'application/json' }); res.end('{"error":"upstream unreachable"}'); });
+    r.setTimeout(20_000, () => r.destroy());
+    r.end(body);
+  });
+}
+
 http.createServer((req, res) => {
   let rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (rel === '/health') { res.writeHead(200, { 'content-type': 'text/plain' }); res.end('ok'); return; }
+  if (rel === '/rpc') { proxyRpc(req, res); return; }
   if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
   /* /board and /launch without the extension */
   if (!path.extname(rel)) rel += '.html';

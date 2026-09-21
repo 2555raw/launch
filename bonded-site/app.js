@@ -1023,7 +1023,7 @@
       // one pair per big name, the busiest on each stock
       const pick = ['AMZN', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'GOOGL']
         .map(sym => pairs.filter(p => p.stock === sym).sort((a, b) => b.volume - a.volume)[0]).filter(Boolean);
-      pairsGrid.innerHTML = pick.map(pairTile).join('');
+      pairsGrid.innerHTML = pick.length ? pick.map(pairTile).join('') : `<div class="bd-empty" style="grid-column:1/-1">No pairs on the pond yet. <a class="bd-link" href="launch.html">Launch the first one →</a></div>`;
     });
   }
 
@@ -1350,7 +1350,7 @@
     const form = { stock: params.get('stock') || 'NVDA', name: '', ticker: '', desc: '', image: '', buy: '', x: '', site: '' };
     const art = $('#preview-art'), card = $('#preview-card'), review = $('#review'), sel = $('#f-stock');
     if (adapter.pons && !adapter.pons.launcher) $('#f-buy-note').textContent = 'Optional. Sent right after the launch as a second transaction from your wallet: one approval of the stock, then the buy.';
-    if (!adapter.pons) $('#launch-form').insertAdjacentHTML('afterbegin', `<div class="bd-callout bd-callout-demo"><b>Demo mode.</b> A launch here stays in this browser: no transaction, no real coin, nothing for explorers or terminals to find. <a class="bd-btn bd-btn-sm bd-btn-primary" href="launch.html?pons=1">Launch for real on Robinhood Chain</a></div>`);
+    if (!adapter.pons) $('#launch-form').insertAdjacentHTML('afterbegin', `<div class="bd-callout bd-callout-demo"><b>Demo mode.</b> A launch here stays in this browser: no transaction, no real coin, nothing for explorers or terminals to find. <a class="bd-btn bd-btn-sm bd-btn-primary" href="launch.html?demo=0">Launch for real on Robinhood Chain</a></div>`);
 
     const previewPair = () => ({
       name: form.name || 'Your coin', ticker: form.ticker || 'TKN', stock: form.stock, image: /^https?:\/\//.test(form.image) ? form.image : '',
@@ -1414,7 +1414,7 @@
         $('#done-tx').href = `${CONFIG.explorer}/tx/${res.txHash}`; $('#done-open').href = 'pair.html?t=' + encodeURIComponent(form.ticker);
         if (!adapter.pons) {
           // the demo adapter: nothing left this browser, and the addresses are made up
-          $('#done').insertAdjacentHTML('beforeend', `<div class="bd-review-row bd-demo-row"><span>Mode</span><b>Demo · nothing was sent to the chain. Open <a class="bd-link" href="launch.html?pons=1">launch?pons=1</a> to launch for real.</b></div>`);
+          $('#done').insertAdjacentHTML('beforeend', `<div class="bd-review-row bd-demo-row"><span>Mode</span><b>Demo · nothing was sent to the chain. Open <a class="bd-link" href="launch.html?demo=0">launch?demo=0</a> to launch for real.</b></div>`);
           $('#done-tx').hidden = true;
         }
         $('.bd-launch').hidden = true; $('#done-wrap').hidden = false; window.scrollTo({ top: 0, behavior: 'smooth' });

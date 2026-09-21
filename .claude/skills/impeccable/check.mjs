@@ -91,6 +91,7 @@ try {
     const b = await chromium.launch(fs.existsSync(exe) ? { executablePath: exe } : {});
     for (const p of pages) for (const w of [1440, 390]) {
       const ctx = await b.newContext({ viewport: { width: w, height: 900 } }); const page = await ctx.newPage();
+      await page.addInitScript(() => { try { localStorage.setItem('bonded-demo', '1'); } catch (_) {} });   // the check drives the demo adapter
       const errs = []; page.on('pageerror', e => errs.push(e.message)); page.on('console', m => { if (m.type() === 'error' && !/font|CERT|net::ERR/i.test(m.text())) errs.push(m.text()); });
       const url = p === 'pair.html' ? p + '?t=ROBO' : p;
       await page.goto(`${base}/${url}`, { waitUntil: 'networkidle' }); await page.waitForTimeout(400);
@@ -103,6 +104,7 @@ try {
     // the loop
     try {
       const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } }); const pg = await ctx.newPage();
+      await pg.addInitScript(() => { try { localStorage.setItem('bonded-demo', '1'); } catch (_) {} });
       const errs = []; pg.on('pageerror', e => errs.push(e.message));
       const T = 'IMP' + Math.floor(Math.random() * 900 + 100);
       await pg.goto(`${base}/launch.html?stock=TSLA`, { waitUntil: 'networkidle' });

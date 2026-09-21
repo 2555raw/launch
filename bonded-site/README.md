@@ -134,8 +134,10 @@ remembered for the tab in `sessionStorage`, so it survives page changes.
 **3. Or switch on the Pons adapter that is already there.** `adapter.pons.js` implements the whole
 contract against the open Pons V2 LaunchFactory on Robinhood Chain (chain 4663, factory
 `0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e`), with `pons/keccak.js` and `pons/abi.js` as its only
-helpers (no viem, no ethers). It is off by default; `?pons=1` on any page turns it on for that
-browser, `?pons=0` turns it off. What it does:
+helpers (no viem, no ethers). It is the default; `?demo=1` on any page switches that browser to
+the demo adapter, `?demo=0` switches back. Reads go through the site's own `/rpc` proxy in
+`server.js` (browsers cannot call the public RPC directly), or through the wallet once it is
+connected on Robinhood Chain. What it does:
 
 - `createPair` → `launchToken(TokenParams, launchConfigId, stockToken, [])` with `launchFee()` as
   value and `previewLaunchEconomics(configId, stockToken)` as `expectedEconomics`; then it reads the
@@ -218,7 +220,7 @@ Selecting text highlights in the pond's green (`::selection`).
 - **Every number is sample data**: stats, stock prices, pairs, trades, the live feed, creator fees.
   The footer says so until the adapter is wired.
 - `CONFIG` points at Robinhood Chain and the Pons V2 factory, but the protocol-token address, the
-  lock link and the fee text are still placeholders; the demo adapter is the default until `?pons=1`.
+  lock link and the fee text are still placeholders; the live adapter is the default; `?demo=1` shows the demo.
 - Official stock token addresses live at docs.robinhood.com/chain/contracts. Same-ticker fakes
   exist, so pin the official ones in `BONDED_STOCK_TOKENS` rather than trusting discovery.
 - The trust claims describe Pons V2 as its interface documents it: the stock is the curve's quote

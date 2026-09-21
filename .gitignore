@@ -1,0 +1,7 @@
+# Test dependencies. In this sandbox test/node_modules is a symlink into the
+# session scratchpad, so committing it would store a dead absolute path.
+node_modules/
+node_modules
+
+# Local server / tooling output
+*.log

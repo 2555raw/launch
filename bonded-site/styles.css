@@ -1319,3 +1319,6 @@ html.is-night .bd-fees-note { color: #93A39B; }
 html.is-night .bd-fees { background: rgba(14, 26, 22, .92); border-color: rgba(255,255,255,.08); }
 html.is-night .bd-fees-note { color: #93A39B; }
 @media (max-width: 700px) { .bd-fee-row { grid-template-columns: 1fr; } .bd-fee-actions { justify-content: flex-start; } }
+
+/* the launch form really disappears once the pair is live (display: grid used to beat the hidden attribute) */
+.bd-launch[hidden] { display: none; }

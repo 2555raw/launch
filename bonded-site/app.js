@@ -154,8 +154,9 @@
       return { ...p, liquidityUsd: p.mcap * 0.31, series: priceSeries(p, 168), trades: tradeHistory(p) };
     },
     async connect() {
-      if (window.ethereum?.request) {
-        const [address] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const w = window.bdWallet && window.bdWallet.list().length ? (await window.bdWallet.pick()).provider : window.ethereum;
+      if (w && w.request) {
+        const [address] = await w.request({ method: 'eth_requestAccounts' });
         return { address };
       }
       await wait(400);
@@ -1314,7 +1315,7 @@
       const mine = pairs.filter(p => p.stock === s.sym).sort((a, b) => b.volume - a.volume);
       const vol = mine.reduce((t, p) => t + p.volume, 0), liq = mine.reduce((t, p) => t + p.mcap * .31, 0);
       detail.innerHTML = `
-        <div class="bd-sd-head"><div class="bd-sd-atom">${s.sym}</div><div><h3>${esc(s.name)}</h3><p>$${s.price.toFixed(2)} · <span class="${s.change >= 0 ? 'bd-up' : 'bd-down'}">${fmtPct(s.change)}</span> today</p></div></div>
+        <div class="bd-sd-head"><i class="bd-frog bd-frogpic bd-sd-frog" style="--c:${s.color}">${FROG_SVG(s)}</i><div><h3>${esc(s.name)}</h3><p>$${s.price.toFixed(2)} · <span class="${s.change >= 0 ? 'bd-up' : 'bd-down'}">${fmtPct(s.change)}</span> today</p></div></div>
         <div class="bd-sd-stats">
           <div class="bd-stat"><span class="bd-label">Pairs</span><b>${s.pairs}</b></div>
           <div class="bd-stat"><span class="bd-label">24h volume</span><b>${fmtUsd(vol * 3.6)}</b></div>

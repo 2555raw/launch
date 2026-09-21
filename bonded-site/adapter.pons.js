@@ -5,7 +5,7 @@
 
    Opt in with ?pons=1 (remembered in localStorage 'bonded-pons'); ?pons=0 turns
    it off. Without the flag the demo adapter in app.js stays in charge.
-   Needs pons/keccak.js and pons/abi.js before it, and a wallet (window.ethereum).
+   Needs pons/wallet.js, pons/keccak.js and pons/abi.js before it, and a wallet (MetaMask, Phantom, Rabby…).
 
    Stock token addresses: pass them in window.BONDED_STOCK_TOKENS = { TSLA: '0x…' }
    before this script, or let the adapter discover them from recent launches on the
@@ -57,7 +57,7 @@
   const httpRpc = A.makeRpc(PONS.rpc);
   let walletChain = null;
   async function rpc(method, params = []) {
-    const w = window.ethereum;
+    const w = window.bdWallet ? window.bdWallet.provider() : window.ethereum;
     if (w && w.request) {
       if (walletChain == null) {
         try { walletChain = parseInt(await w.request({ method: 'eth_chainId' }), 16); if (w.on) w.on('chainChanged', c => { walletChain = parseInt(c, 16); }); } catch (_) { walletChain = 0; }
@@ -105,16 +105,22 @@
   };
 
   // ---- wallet ----------------------------------------------------------
-  const eth = () => { if (!window.ethereum?.request) throw new Error('No wallet found. Install MetaMask or Rabby.'); return window.ethereum; };
+  const eth = () => { const w = window.bdWallet ? window.bdWallet.provider() : window.ethereum; if (!w || !w.request) throw new Error('No wallet found. Install MetaMask, Phantom or Rabby and reload.'); return w; };
   async function ensureChain() {
     const w = eth();
     const cur = await w.request({ method: 'eth_chainId' });
     if (parseInt(cur, 16) === PONS.chainId) return;
     try { await w.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: PONS.chainHex }] }); }
     catch (e) {
-      if (e.code !== 4902) throw e;
-      await w.request({ method: 'wallet_addEthereumChain', params: [{ chainId: PONS.chainHex, chainName: PONS.chainName, rpcUrls: [PONS.rpc], blockExplorerUrls: [PONS.explorer], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 } }] });
+      if (e.code === 4001) throw new Error('You declined the switch to ' + PONS.chainName + '.');
+      try {
+        await w.request({ method: 'wallet_addEthereumChain', params: [{ chainId: PONS.chainHex, chainName: PONS.chainName, rpcUrls: [PONS.rpc], blockExplorerUrls: [PONS.explorer], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 } }] });
+      } catch (e2) {
+        const who = w.isPhantom ? 'Phantom' : 'This wallet';
+        throw new Error(`${who} could not switch to ${PONS.chainName} (chain ${PONS.chainId}): ${e2.message || e2.code}. If it does not let you add custom networks, use MetaMask or Rabby.`);
+      }
     }
+    walletChain = null;
   }
   let account = null;
   async function sendTx(tx) {
@@ -293,6 +299,8 @@
       return { ...p, liquidityUsd: Number(q) / 10 ** st.decimals * priceOf(p.stock), series, trades: trades.slice().reverse().slice(0, 40) };
     },
     async connect() {
+      if (window.bdWallet) await window.bdWallet.pick();   // MetaMask, Phantom, Rabby…: one is used directly, several get a chooser
+      walletChain = null;
       await ensureChain();
       [account] = await eth().request({ method: 'eth_requestAccounts' });
       return { address: account };

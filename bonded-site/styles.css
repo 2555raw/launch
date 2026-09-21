@@ -1273,3 +1273,19 @@ html.is-lite .bd-lake-mote, html.is-lite .bd-lake-cloud, html.is-lite .bd-lake-s
 
 /* lite mode: no SVG filters on .bd-lake-shimmer */
 html.is-lite .bd-lake-shimmer { filter: none !important; }
+
+/* the stock's frog on its detail card */
+.bd-sd-frog { width: 68px; height: 68px; flex: 0 0 auto; }
+.bd-sd-frog svg { width: 100%; height: 100%; }
+/* wallet chooser */
+.bd-wallets { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(10, 24, 18, .45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 16px; }
+.bd-wallets-card { width: min(360px, 100%); background: #fff; border-radius: 20px; padding: 18px; box-shadow: 0 24px 60px rgba(10, 30, 20, .35); display: grid; gap: 8px; }
+.bd-wallets-card h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 18px; letter-spacing: -.01em; }
+.bd-wallets-card button { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 14px; border-radius: 14px; border: 1px solid var(--line); background: #F6F8F7; font: 600 15px var(--font-body); color: #131720; cursor: pointer; text-align: left; }
+.bd-wallets-card button:hover { background: #ECF3EF; border-color: #BFD6CA; }
+.bd-wallets-card button img, .bd-wallets-card button i { width: 28px; height: 28px; border-radius: 8px; flex: 0 0 auto; }
+.bd-wallets-card button i { background: linear-gradient(135deg, #78AB9A, #1E7A56); }
+.bd-wallets-x { justify-self: center; margin-top: 4px; font-size: 13px; color: #5B6670; cursor: pointer; }
+html.is-night .bd-wallets-card { background: #101B16; }
+html.is-night .bd-wallets-card h3 { color: #E8F0EB; }
+html.is-night .bd-wallets-card button { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.1); color: #E8F0EB; }

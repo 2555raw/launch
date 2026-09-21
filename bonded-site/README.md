@@ -146,8 +146,8 @@ browser, `?pons=0` turns it off. What it does:
 - `pairs` / `pair` / `stats` / `launched` → indexed from `TokenLaunched` events (last 400k blocks,
   10k per `eth_getLogs`, six in flight; tune `window.BONDED_PONS = { lookbackBlocks, chunk, parallel }`), keeping only launches whose quote token is a stock LilyPad lists;
   `trades` and `series` from `CurveBuy` / `CurveSell`; `holdings` from `balanceOf`.
-- Stock tokens come from `window.BONDED_STOCK_TOKENS = { TSLA: '0x…' }` if you define it before the
-  scripts, otherwise from the quote tokens seen on recent launches. Every address must pass
+- Stock tokens come from `stock-tokens.js` (`window.BONDED_STOCK_TOKENS`), a list of candidate
+  addresses gathered from third-party sources, plus the quote tokens seen on recent launches. Every address must pass
   `approvedPairTokens()` or it is dropped. Prices in USD still come from `STOCKS` (or
   `window.BONDED_PRICES`), so plug a price feed there.
 

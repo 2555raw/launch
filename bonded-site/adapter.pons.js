@@ -241,7 +241,10 @@
     },
     async stocks() {
       const pairs = await safe(ready, []);
-      return stocksMeta().map(s => ({ ...s, pairs: pairs.filter(p => p.stock === s.sym).length, change: 0, live: !!stockTokens[s.sym] }));
+      const all = stocksMeta().map(s => ({ ...s, pairs: pairs.filter(p => p.stock === s.sym).length, change: 0, live: !!stockTokens[s.sym] }));
+      // live mode only offers stocks whose token passed approvedPairTokens(); with no chain access it shows the full list, greyed by `live`
+      const live = all.filter(s => s.live);
+      return live.length ? live : all;
     },
     async pairs() { return (await safe(ready, [])).slice(); },
     async pair(ticker) {

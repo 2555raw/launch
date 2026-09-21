@@ -23,6 +23,7 @@
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 const here = path.dirname(fileURLToPath(import.meta.url));
+globalThis.window = globalThis;   // stock-tokens.js is a browser file; give it a window
 await import(path.join(here, '..', 'pons', 'keccak.js'));
 await import(path.join(here, '..', 'pons', 'abi.js'));
 const A = globalThis.bdAbi;
@@ -32,7 +33,9 @@ const RPC = args.rpc || 'https://rpc.mainnet.chain.robinhood.com';
 const FACTORY = (args.factory || '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e').toLowerCase();
 const LOOKBACK = Number(args.lookback || 400_000);
 const CHUNK = Number(args.chunk || 10_000);
-const given = Object.fromEntries((args.stocks || '').split(',').filter(Boolean).map(kv => kv.split('=')).map(([k, v]) => [k.toUpperCase(), v.toLowerCase()]));
+// the site's candidate list is checked by default; --stocks adds or overrides entries
+const site = await import(path.join(here, '..', 'stock-tokens.js')).then(() => globalThis.window?.BONDED_STOCK_TOKENS || {}).catch(() => ({}));
+const given = Object.fromEntries([...Object.entries(site), ...(args.stocks || '').split(',').filter(Boolean).map(kv => kv.split('='))].map(([k, v]) => [k.toUpperCase(), v.toLowerCase()]));
 
 const rpc = A.makeRpc(RPC);
 const call = async (to, name, types, argv, out, extra = {}) => A.decodeResult(out, await rpc('eth_call', [{ to, data: A.encodeCall(name, types, argv), ...extra }, 'latest']));

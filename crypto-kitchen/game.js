@@ -20,36 +20,6 @@
 
   // ---------- languages ----------
   var I18N = {
-    es: {
-      'title.kicker': '🔥 Cooking · play to earn', 'title.tag': 'Los clientes entran. Tú cocinas. Ellos pagan en crypto.',
-      'btn.play': '▶ Jugar', 'btn.wallet': '👛 Cartera', 'title.balance': 'Balance:', 'title.walletWord': 'cartera',
-      'nav.home': '‹ Inicio', 'nav.levels': '‹ Niveles', 'h.levels': 'Niveles', 'h.shop': 'Tienda', 'h.wallet': 'Cartera', 'btn.shop': '🛒 Tienda',
-      'hud.level': 'Nivel', 'pass': 'Pase', 'btn.launchpad': '🚀 Launchpad',
-      'shop.note': 'Las mejoras se pagan con los dólares que ganas en la cocina. Cada nivel de mejora es permanente.', 'shop.max': 'MAX',
-      'wallet.coin': 'Moneda', 'wallet.amount': 'Cantidad', 'wallet.price': 'Precio', 'wallet.value': 'Valor',
-      'wallet.note': 'Lo que cobras a los clientes se guarda en la moneda en la que pagan. El valor sigue el mercado del juego, que se mueve solo. Todo vive en tu navegador; nada va a una cadena real.',
-      'wallet.cash': '💵 Caja:', 'wallet.wallet': '🪙 Cartera:', 'wallet.served': '🍽️ Servidos:', 'wallet.lost': '😠 Perdidos:',
-      'btn.reset': 'Borrar progreso', 'reset.confirm': '¿Borrar todo el progreso, la caja y la cartera?',
-      'dish.burger': 'Burger', 'dish.fries': 'Patatas', 'dish.soda': 'Refresco', 'dish.steak': 'Chuletón', 'dish.pizza': 'Pizza',
-      'st.grill': 'Parrilla', 'st.fryer': 'Freidora', 'st.soda': 'Bebidas', 'st.pan': 'Sartén', 'st.oven': 'Horno',
-      'upg.grillSlots': ['Parrilla grande', 'Más huecos para hamburguesas a la vez.'], 'upg.grillSpeed': ['Parrilla rápida', 'Las hamburguesas se hacen antes.'],
-      'upg.fryerSlots': ['Segunda cesta', 'Dos cestas de patatas en la freidora.'], 'upg.fryerSpeed': ['Aceite caliente', 'Las patatas fríen más rápido.'],
-      'upg.sodaSpeed': ['Grifo a presión', 'Los refrescos salen casi al instante.'], 'upg.panSlots': ['Segunda sartén', 'Dos chuletones a la vez.'],
-      'upg.passSlots': ['Pase más largo', 'Más platos esperando en el pase.'], 'upg.neon': ['Cartel de neón', 'Los clientes esperan un 20% más por nivel.'],
-      'upg.jukebox': ['Jukebox', 'Buen ambiente: +10% de propina por nivel.'],
-      'intro.level': 'Nivel {n}', 'intro.open': '¡Abrimos!', 'intro.shift': 'Turno {n}',
-      'intro.text': 'Pagan en <b>{coins}</b>. Cuanto antes sirvas, más propina; con {amt} te llevas las tres estrellas.',
-      'howto.1': 'Toca una <b>bandeja</b> para poner comida a cocinar.', 'howto.2': 'Cuando brille, tócala para pasarla al <b>pase</b>.', 'howto.3': 'Toca al <b>cliente</b> (o el plato) para servir. Si se aburre, se va.',
-      'btn.start': '▶ Empezar', 'btn.back': 'Volver',
-      'room.opening': 'Abriendo el local…', 'room.waiting': 'Esperando clientes…',
-      'msg.passFull': '¡El pase está lleno!', 'msg.nobody': 'Nadie ha pedido {dish}', 'msg.missing': 'Le falta {items}', 'msg.burnt': '¡Se ha quemado! Tócalo para tirarlo',
-      'msg.pump': '🚀 ¡{coin} está pumpeando! Los que pagan en {coin} pagan ×2', 'msg.left': 'Se fue 😠',
-      'res.win': '¡Turno cerrado!', 'res.lose': 'No llegaste…', 'res.earned': 'Ganado', 'res.goal': 'Objetivo', 'res.served': 'Servidos', 'res.nothing': 'Nada cobrado',
-      'res.lost': ['{n} cliente se fue sin pagar.', '{n} clientes se fueron sin pagar.'], 'res.burnt': ['{n} plato quemado.', '{n} platos quemados.'],
-      'res.inWallet': 'Lo cobrado ya está en tu cartera.', 'res.tryShop': 'Prueba una mejora en la tienda y repite.',
-      'btn.next': 'Siguiente ▶', 'res.done': '🏆 ¡Has completado la cocina!', 'btn.retry': '↻ Repetir', 'btn.levels': 'Niveles',
-      'pause.title': 'Pausa', 'pause.text': 'La cocina espera. Los clientes también, por una vez.', 'btn.resume': '▶ Seguir', 'btn.quit': 'Abandonar'
-    },
     en: {
       'title.kicker': '🔥 Cooking · play to earn', 'title.tag': 'Customers walk in. You cook. They pay in crypto.',
       'btn.play': '▶ Play', 'btn.wallet': '👛 Wallet', 'title.balance': 'Balance:', 'title.walletWord': 'wallet',
@@ -111,10 +81,10 @@
       'pause.title': '暂停', 'pause.text': '厨房在等，顾客这次也在等。', 'btn.resume': '▶ 继续', 'btn.quit': '放弃'
     }
   };
-  var LANGS = ['es', 'en', 'zh'];
-  var lang = 'es';
+  var LANGS = ['en', 'zh'];
+  var lang = 'en';
   function t(key, vars) {
-    var v = (I18N[lang] && I18N[lang][key] !== undefined) ? I18N[lang][key] : I18N.es[key];
+    var v = (I18N[lang] && I18N[lang][key] !== undefined) ? I18N[lang][key] : I18N.en[key];
     if (typeof v === 'string' && vars) v = v.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] !== undefined ? vars[k] : m; });
     return v;
   }
@@ -190,8 +160,8 @@
   function persist() { store('ck-game', save); }
   (function () {
     var q = (location.search.match(/[?&]lang=(\w+)/) || [])[1];
-    var nav = (navigator.language || 'es').toLowerCase();
-    lang = LANGS.indexOf(q) !== -1 ? q : LANGS.indexOf(save.lang) !== -1 ? save.lang : nav.indexOf('zh') === 0 ? 'zh' : nav.indexOf('es') === 0 ? 'es' : 'en';
+    var nav = (navigator.language || 'en').toLowerCase();
+    lang = LANGS.indexOf(q) !== -1 ? q : LANGS.indexOf(save.lang) !== -1 ? save.lang : nav.indexOf('zh') === 0 ? 'zh' : 'en';
     save.lang = lang;
     applyLang();
   })();

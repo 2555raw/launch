@@ -8,7 +8,7 @@ Dos piezas que comparten una cartera:
   comida nace en la *curva de la cocina* (producto constante con reservas virtuales, 1B de
   supply, 1% de comisión) y al recaudar $12,000 se **gradúa a PonsV2 o Uniswap v3**; el Exchange
   cotiza en los dos DEX y ejecuta en el mejor. Todo es simulado en el navegador (`ck-pad` en
-  `localStorage`). Idiomas: español, inglés y chino (`?lang=es|en|zh` o el selector de arriba).
+  `localStorage`). Idiomas: inglés y chino (`?lang=en|zh` o el selector de arriba).
 - **`play.html` — el juego** (Cooking-Fever style), descrito abajo. El cash que ganas es el saldo
   de la *Kitchen Wallet* que se conecta en el launchpad; la clave `ck-game` es la misma.
 

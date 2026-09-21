@@ -1,61 +1,48 @@
-"use client";
+import type { ReactNode, ButtonHTMLAttributes } from "react";
+import Link from "next/link";
 
-import { motion, useReducedMotion } from "framer-motion";
-import type { ReactNode } from "react";
-
-type Props = {
-  children: ReactNode;
-  href?: string;
-  variant?: "solid" | "outline" | "ghost" | "invert";
-  size?: "sm" | "md" | "lg";
-  className?: string;
-  type?: "button" | "submit";
-  onClick?: () => void;
-};
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "invert";
+type Size = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-pill font-medium transition-colors duration-200 whitespace-nowrap";
+  "inline-flex items-center justify-center gap-2 rounded-pill font-medium whitespace-nowrap transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.985] disabled:pointer-events-none disabled:opacity-45";
 
-const variants = {
-  solid: "bg-ink text-canvas hover:bg-coral",
-  outline: "border border-hairStrong text-ink hover:border-ink hover:bg-ink hover:text-canvas",
-  ghost: "text-ink hover:text-coral",
+const variants: Record<Variant, string> = {
+  primary: "bg-ink text-canvas hover:bg-ink/90",
+  secondary: "border border-hairStrong bg-surface text-ink hover:border-ink",
+  ghost: "text-ink hover:bg-shell",
+  danger: "bg-danger text-white hover:bg-danger/90",
   invert: "bg-canvas text-ink hover:bg-coral hover:text-canvas",
 };
 
-const sizes = {
+const sizes: Record<Size, string> = {
   sm: "h-9 px-4 text-[13px]",
-  md: "h-11 px-6 text-[14px]",
-  lg: "h-14 px-8 text-[15px]",
+  md: "h-11 px-5 text-[14px]",
+  // 52px: a comfortable one-handed target on a phone.
+  lg: "h-[52px] px-7 text-[15px]",
 };
 
-/** Buttons take the page's only micro-interaction: a small press, no bounce. */
-export function Button({
-  children,
-  href,
-  variant = "solid",
-  size = "md",
-  className = "",
-  type = "button",
-  onClick,
-}: Props) {
-  const still = useReducedMotion();
-  const cls = `${base} ${variants[variant]} ${sizes[size]} ${className}`;
-  const motionProps = still
-    ? {}
-    : { whileHover: { y: -2 }, whileTap: { y: 0, scale: 0.985 }, transition: { duration: 0.18 } };
+type Props = {
+  children: ReactNode;
+  variant?: Variant;
+  size?: Size;
+  href?: string;
+  className?: string;
+  full?: boolean;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className">;
 
+export function Button({ children, variant = "primary", size = "md", href, className = "", full, ...rest }: Props) {
+  const cls = `${base} ${variants[variant]} ${sizes[size]} ${full ? "w-full" : ""} ${className}`;
   if (href) {
     return (
-      <motion.a href={href} className={cls} {...motionProps}>
+      <Link href={href} className={cls}>
         {children}
-      </motion.a>
+      </Link>
     );
   }
-
   return (
-    <motion.button type={type} onClick={onClick} className={cls} {...motionProps}>
+    <button className={cls} {...rest}>
       {children}
-    </motion.button>
+    </button>
   );
 }

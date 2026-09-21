@@ -1,9 +1,15 @@
 import type { MetadataRoute } from "next";
 
-/** Let everything be indexed, and point crawlers at the sitemap. */
+const base = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+
+/** The app, the checkout and the API are never for crawlers. */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/" },
-    sitemap: "https://payence.site/sitemap.xml",
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/dashboard", "/wallet", "/send", "/receive", "/pay", "/transactions", "/settings", "/notifications", "/merchant", "/checkout", "/api"],
+    },
+    sitemap: `${base}/sitemap.xml`,
   };
 }

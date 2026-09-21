@@ -1,233 +1,124 @@
 # Payence
 
-Landing page for **Payence**, a fictional platform that gives AI agents their own financial layer:
-virtual cards, spend policies, merchant locks and real-time transaction visibility.
+A stablecoin payment platform. People hold digital euros and dollars and spend them in shops,
+online and with each other; merchants take those payments with a QR code, a link or an API call.
 
-Built as a brief-driven recreation of a fintech/AI landing structure, with an original identity.
-
-## Stack
-
-Next.js 14 (App Router) · React 18 · TypeScript · Tailwind CSS · Framer Motion. No other runtime
-dependencies.
+The point of this build is that the payments are real operations against a real double-entry ledger,
+not a clickable mock. What is simulated is the blockchain settlement underneath, and the app says so
+on every screen where it matters.
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # production build; the page prerenders as static
-npm start
+cp .env.example .env
+npm run seed          # demo accounts, a merchant, balances and history
+npm run dev           # http://localhost:3000
 ```
 
-## Structure
+The seed prints two sign-ins, a merchant API key and an open charge to pay:
+
+```
+alex@example.com / payence-demo-2026    funded personal account
+sam@example.com  / payence-demo-2026    owns the merchant
+```
+
+## What actually works
+
+Everything in this list runs end to end against the ledger, is covered by a test, and does what its
+button says.
+
+- **Accounts**: sign-up, sign-in, sessions, sign-out, device list and revocation, password change
+  (which signs out every other device), TOTP two-factor with a QR to scan.
+- **Wallet**: balances per asset with a fiat equivalent, deposit addresses per network, withdrawals
+  with a network fee and a pending hold, conversion between assets at the reference rate.
+- **Payments**: send to another account by handle, pay a merchant from a QR or a link, hosted
+  checkout with a live expiry countdown, receipts with fee, rate, network and hash.
+- **Merchants**: onboarding, charge creation, QR and payment links, transaction list, partial and
+  full refunds, revenue and fee totals, accepted and settlement asset settings.
+- **Developers**: API keys (hashed, shown once), webhooks with signed deliveries and retry backoff,
+  and a REST API for payment requests, refunds, transactions and balance.
+- **Guardrails**: tiered limits per transaction, per day and per month; a self-imposed daily cap;
+  rate limiting on sign-in, sign-up, payments and the API; an append-only audit log.
+
+## What is simulated, and what a real deployment needs
+
+| Area | Here | To go live |
+| --- | --- | --- |
+| Blockchain settlement | `SimulatedChain`: deterministic addresses and hashes, no funds move | Set `CHAIN_PROVIDER=evm` with an RPC URL. The viem implementation is written; the signing key must move to custody (see below) |
+| Deposit detection | Credited by a demo button, clearly labelled | Run the chain watcher against `watchDeposits` as a worker |
+| Exchange rates | Fixed constants | `RATE_PROVIDER=frankfurter` (ECB, no key) or a market data feed |
+| Identity verification | Opens a review case; nothing is auto-approved | Sumsub, Persona or Onfido behind `ComplianceProvider.startKyc` |
+| Sanctions and address risk | Not implemented | ComplyAdvantage, Chainalysis or TRM behind `screenTransaction` |
+| Email and push | Logged to the console | `EMAIL_PROVIDER=resend`, or any transactional provider |
+| Fiat payout to a bank | Not implemented | A licensed off-ramp partner; this is a regulated activity |
+| Tap to pay / NFC | Not implemented | A native app with secure element access, plus a card issuing partner |
+
+Nothing in the UI claims a capability from the right-hand column. The developers page lists each one
+with its real status.
+
+## Before processing real money
+
+1. **Get licensed.** Holding customer funds and converting them is a regulated activity. This build
+   is not authorised anywhere and says so in its footer.
+2. **Move the signing key.** `HOT_WALLET_PRIVATE_KEY` in an environment variable is a development
+   shape. Production needs an HSM, a KMS or a custody provider, a hot wallet float small enough to
+   lose, and sweeps to cold storage.
+3. **Move the database.** SQLite is right for one process. Multiple instances need Postgres; the
+   schema is dialect-neutral, so it is a driver change, not a data-model change.
+4. **Move the rate limiter and the webhook queue out of process.** Both are in-memory today and
+   protect a single instance only. Redis for the first, a real queue for the second.
+5. **Replace the legal copy.** The terms and privacy policy are templates and say so at the top.
+6. **Add monitoring.** Error reporting, alerting on failed webhooks and stuck withdrawals, and a
+   reconciliation job that checks the ledger against on-chain balances.
+
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` / `npm start` | Production build and server |
+| `npm test` | Unit tests: money, ledger, auth, webhooks |
+| `npm run smoke` | HTTP smoke test against a running server |
+| `npm run journey` | Browser test of the customer journey |
+| `npm run journey:merchant` | Browser test of the merchant journey |
+| `npm run seed` | Reset and seed demo data |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run db:generate` | Regenerate migrations from the schema |
+
+The browser tests need a Chromium binary; set `CHROMIUM` if it is not at the default path. The end
+to end suites run against a server started with `npm start`, which refuses to boot in production
+without `APP_SECRET` set: that guard is deliberate, so export one first.
+
+`GET /api/health` reports the database, the chain provider and whether settlement is simulated.
+
+## Layout
 
 ```
 app/
-  layout.tsx        metadata (SEO/OpenGraph), fonts, skip link
-  page.tsx          section order, and nothing else
-  globals.css       base layer, the .shell/.label/.card component classes, reduced-motion
-  icon.svg          favicon
+  (marketing)/        landing, developers, API reference, legal
+  (auth)/             sign-in, sign-up, two-factor
+  (app)/              wallet, payments, activity, settings
+  (merchant)/         merchant dashboard, charges, refunds, keys
+  checkout/[code]/    the hosted checkout
+  pay/[code]/         the QR target, a redirect to checkout
+  api/v1/             the merchant API
 components/
-  ui/               Reveal, Button, Meter, Bits (Label + Status pills), VirtualCard
-  sections/         one file per section, in page order
-tailwind.config.ts  the palette, the type scale, the radii: the whole identity
+  ui/                 buttons, fields, states, icons, money display
+  app/                shells, navigation, transaction list, QR
+  landing/            marketing sections
+lib/
+  money.ts            integer money, fees, conversion
+  assets.ts           the asset registry
+  networks.ts         the network registry
+  db/                 schema and client
+  auth/               passwords, sessions, TOTP, crypto, rate limiting
+  providers/          the external seams
+  services/           the ledger and everything that moves money
 ```
 
-## Design
+`ARCHITECTURE.md` explains the ledger rules, the provider seams and the payment flow in detail.
 
-An editorial layout on warm paper: hairline rules, wide margins, headlines set as large as the
-grid allows, and a single loud colour. Black is used at full strength for surfaces and type, not
-softened to grey.
+## A note on fonts
 
-| Token | Value | Role |
-| --- | --- | --- |
-| `canvas` | `#F4F1EA` | page ground, warm paper |
-| `shell` | `#E8E3D8` | second surface: alternating bands and insets |
-| `ink` | `#151515` | body type, and the ground for the dark sections |
-| `muted` | `#66645F` | secondary copy, warm so it sits on the paper |
-| `coral` | `#FF5C35` | the accent: money moving, live state, the one loud element |
-| `violet` | `#6C63FF` | secondary accent, reserved for policy and machine decisions |
-| `positive` | `#28A96B` | approved and healthy states |
-| `danger` | `#E5484D` | frozen and stopped states. A state colour, never the accent |
-| `hair` / `hairStrong` | `#151515` at 12% / 22% | every border on the page |
-
-Section kickers are set in Archivo (`.label`), not in mono. A tiny uppercase mono label above
-every heading is one of the tells of a generated page. Mono stays where it means something:
-figures, identifiers, code and card data. The hero carries no kicker at all: the page opens on
-the headline.
-
-Type: **Archivo** across the board (400–800, tightened to `-0.045em` at display sizes) with
-**JetBrains Mono** for figures, identifiers, labels and code. One scale, defined in
-`tailwind.config.ts` as `label / title / display / mega`; nothing is set off-scale.
-
-Colour is assigned by role, not by decoration: coral only ever marks money in motion or live
-state, violet only marks policy, green only marks approval. That is why the page reads as a
-product rather than a template.
-
-## Legal dialogs
-
-`lib/legal.ts` holds the Terms of Service and Privacy Policy. Both documents are always in the
-document and hidden when closed, so they are readable without JavaScript and indexable by
-crawlers, and the flat snapshot opens them with a class toggle. Any element carrying
-`data-legal="terms"` or `data-legal="privacy"` opens the matching dialog, so links can live
-anywhere on the page without being wired up.
-
-**The copy is a template written for a fictional product, and every dialog says so at the top.
-It has not been reviewed by a lawyer. Replace it with text from counsel before launch, and
-leave that notice in place until you do.**
-
-## The cookie notice
-
-`components/ui/CookieNotice.tsx` asks on arrival, bottom-left, and it is wired to something real:
-allow it and the card you design in the hero (its name, colour and network) is still yours when
-you come back; decline and nothing is written, and anything already stored is cleared. It is one
-first-party entry in `localStorage` (`lib/consent.ts`), never sent anywhere.
-
-A consent notice that stores nothing is a lie told politely. If you add anything else that
-persists, put it behind `getConsent()` too, or change the copy.
-
-## The terms gate
-
-`components/ui/TermsGate.tsx` asks the visitor to accept before they use the site. Three decisions
-worth keeping:
-
-- **It waits.** Nothing interrupts the first frame. The dialog arrives once the visitor has
-  scrolled past 520px, when they are actually reading rather than landing.
-- **It dims, it does not cover.** The scrim is `bg-ink/45` with a 3px backdrop blur, so the page
-  behind stays recognisable and the dialog reads as a layer over the product, not a door before it.
-- **Declining is reversible.** The block screen always offers the way back to the terms. A gate
-  that can lock someone out permanently is a bug, not a policy.
-
-Acceptance is stored in `localStorage` (wrapped in `try/catch`, so a browser that blocks storage
-simply asks again). Escape and backdrop clicks deliberately do nothing, because it is a choice
-rather than a dismissal, and Tab is trapped inside the dialog while it is up.
-
-## The example card
-
-The virtual card in the hero is a live example rather than a picture of one: the cardholder line
-is an input you can type your own name into, the allowlist chips can be removed and added, the
-freeze switch works, and the palette re-colours the face.
-
-The allowlist holds two kinds of rule, and the **Merchant / Category** toggle picks which one you
-are writing: a merchant matches one payee, a category matches a whole class of spend the way a
-card network's merchant category does, so "AI APIs" clears every model provider without naming
-each one. Category rules carry a tag and the violet accent, because they are a different thing
-from a named merchant and should not look identical to one.
-
-The allowlist works both ways: removing a merchant drops it into an **Add back** row rather than
-deleting it, so anything you take off can go straight back on with one click, including names you
-typed yourself. `POOL` in `components/ui/CardPanel.tsx` seeds that row with a few merchants to try.
-
-Card protection carries a light: green while the card is live, red once it is frozen, with the
-badge and the button following it. That red is `danger` (`#E5484D`), a token kept deliberately
-apart from `coral`. Semantic colour says what state something is in, and if it were the accent
-you could no longer tell an alarm from a brand flourish.
-
-The network is picked from a menu that shows each mark, and the mark you pick lands on the card
-where a scheme mark sits. **Those networks are Payence's own, with marks drawn for this page.**
-Real scheme marks (Visa, Mastercard, American Express and the rest) are registered trademarks,
-and putting one on a card implies an issuing agreement that does not exist, so they are
-deliberately not reproduced. If you license a scheme's brand assets, swapping one in is a single
-component in `components/ui/CardNetworks.tsx`: keep the viewBox at 44×24 and draw in
-`currentColor`, and the mark takes the colour of whatever face it lands on.
-
-The face is driven by two custom properties, `--face` and `--ink`, set from `CARD_THEMES` in
-`components/ui/CardPanel.tsx`. Everything on the card, from the chip to the rules to the muted
-labels, takes its colour from `currentColor` at an opacity, so a new swatch is two hex values and nothing
-else. That is also why the flat snapshot can re-colour the card by setting two variables instead
-of swapping class lists across a dozen elements.
-
-### Checking the snapshot
-
-The snapshot's behaviour is a hand-written port of the components, so the two can drift: a
-component can gain a control the port never learns about, and an edit to the port can delete
-blocks of it without anything failing to build. `scripts/check-snapshot.js` drives the assembled
-file through every interaction on the page:
-
-```bash
-npm run snapshot
-python3 scripts/assemble-snapshot.py payence.html
-node scripts/check-snapshot.js .
-```
-
-Every value it prints should be true or a real reading, and `errors` should be empty. Run it after
-touching either side.
-
-## Motion
-
-Framer Motion, kept deliberately quiet:
-
-- `Reveal`: one rise as an element enters the viewport, `once: true`, never a loop.
-- Buttons lift 2px on hover and settle on press.
-- Meters fill to the value they report, once, when they come into view.
-- Tabs cross-fade, and the underline travels between them with a shared `layoutId`.
-- The headline arrives a word at a time on load, and the accent line lands last.
-- Figures count to their value the first time they reach the viewport, and the spend bars grow
-  into place. Both render their final value on the server, so they are right with no JavaScript;
-  the client resets them before the first paint, which is why `CountUp` uses a layout effect
-  rather than an ordinary one, because an effect would let the final number flash first.
-- The statement rule takes a few pixels of parallax. Nothing else moves on scroll.
-- The `LIVE` dot is the only looping animation on the page.
-
-Every one of those is bypassed under `prefers-reduced-motion`, both in the components (via
-`useReducedMotion`) and globally in `globals.css`.
-
-## Accessibility
-
-Skip link, one `h1`, semantic landmarks, real `button`/`a` elements throughout, `aria-expanded`
-on the menu and the FAQ, `role="tablist"` with `aria-selected` and `aria-controls` on the platform
-tabs, `role="progressbar"` with values on the meters, a labelled email input, and a coral
-`:focus-visible` ring on everything focusable.
-
-## Fonts
-
-Loaded with a plain `<link>` to Google Fonts rather than `next/font`, so the production build
-never depends on reaching Google's servers at build time. If you prefer self-hosted fonts, swap in
-`next/font/local` and drop the link in `app/layout.tsx`.
-
-## Publishing a flat snapshot
-
-The page can be flattened into one self-contained HTML file, which is useful for sharing
-a link to the design without deploying the app:
-
-```bash
-npm run snapshot                                        # static export
-python3 scripts/assemble-snapshot.py payence.html        # one file, CSS inlined
-```
-
-`NEXT_PUBLIC_SNAPSHOT=1` also changes two components: the platform tabs and the
-FAQ render every panel with the closed ones `hidden`, instead of mounting only
-the open one. A flat file has no React to mount the rest, and having the whole
-content in the document is better for crawlers either way. The assembler then
-inlines the stylesheet and restores the behaviour in ~120 lines of vanilla JS.
-
-## Publishing
-
-`npm run build:pages` exports the real app as static files, and
-`.github/workflows/pages.yml` publishes them to GitHub Pages on every push to
-`main`.
-
-Two details that a project site needs and a root deploy does not: `BASE_PATH`
-(the workflow sets it to `/<repo>`, and `next.config.mjs` feeds it to `basePath`
-and `assetPrefix`, or every asset 404s), and `.nojekyll` (Jekyll drops
-directories starting with an underscore, which is where Next puts everything).
-
-To turn it on: **Settings, Pages, Source: GitHub Actions**. Pages needs the
-repository to be public on the free plan.
-
-For a custom domain, put the hostname in `public/CNAME` (one line, no protocol).
-With the file in place the site builds for the root, which is right for a domain
-and breaks the github.io project URL, so only add it once the DNS actually
-points at GitHub.
-Next copies `public/` into the export, so Pages finds it at `out/CNAME`, and the
-workflow reads the same file to decide the base path: a custom domain serves from
-the root, so the prefix has to be empty.
-
-For a host that serves from the root (Vercel, Netlify, a domain of your own),
-leave `BASE_PATH` unset and the export works unprefixed.
-
-## Before going live
-
-- **Every figure is sample data**: the activity feeds, spend monitor, limits and stats. The
-  footer and two panels say so on the page.
-- The nav, footer and form submit are inert: the email form sets local state, it does not post.
-- Merchant names in the mockups (openai.com, aws.amazon.com, vercel.com, datadoghq.com) are
-  illustrative examples of an allowlist, not partnerships.
+Type is loaded from Google Fonts with a plain `<link>`, so the build never depends on reaching
+Google at build time. For a payment product that would rather not make a third-party request on
+every page load, self-host the two families and drop the link from `app/layout.tsx`.

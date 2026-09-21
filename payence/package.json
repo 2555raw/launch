@@ -7,26 +7,44 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "snapshot": "NEXT_PUBLIC_SNAPSHOT=1 next build",
-    "check:snapshot": "node scripts/check-snapshot.js .",
-    "build:pages": "PAGES=1 next build"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio",
+    "seed": "tsx --conditions=react-server scripts/seed.ts",
+    "smoke": "tsx --conditions=react-server scripts/smoke.ts",
+    "journey": "tsx --conditions=react-server scripts/journey.ts",
+    "journey:merchant": "tsx --conditions=react-server scripts/merchant-journey.ts",
+    "test:e2e": "npm run smoke && npm run journey && npm run journey:merchant"
   },
   "dependencies": {
-    "framer-motion": "^11.11.17",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "^0.45.2",
+    "jsqr": "^1.4.0",
     "next": "^14.2.35",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "server-only": "^0.0.1",
+    "viem": "^2.56.8",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@fontsource/archivo": "^5.3.0",
-    "@fontsource/jetbrains-mono": "^5.3.0",
-    "@types/node": "^20.17.6",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^22.20.4",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.31.10",
     "playwright-core": "^1.63.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
-    "typescript": "^5.6.3"
+    "tsx": "^4.23.15",
+    "typescript": "^5.6.3",
+    "vitest": "^5.0.1"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -1407,8 +1407,13 @@
         $('#done').innerHTML = [['Pair', `${esc(form.ticker)} / ${st.sym}`], ['Token', res.tokenAddress], ['Pool', res.pairAddress], ['Transaction', res.txHash.slice(0, 18) + '…']]
           .map(([k, v]) => `<div class="bd-review-row"><span>${k}</span><b>${v}</b></div>`).join('');
         $('#done-tx').href = `${CONFIG.explorer}/tx/${res.txHash}`; $('#done-open').href = 'pair.html?t=' + encodeURIComponent(form.ticker);
+        if (!adapter.pons) {
+          // the demo adapter: nothing left this browser, and the addresses are made up
+          $('#done').insertAdjacentHTML('beforeend', `<div class="bd-review-row bd-demo-row"><span>Mode</span><b>Demo · nothing was sent to the chain. Open <a class="bd-link" href="launch.html?pons=1">launch?pons=1</a> to launch for real.</b></div>`);
+          $('#done-tx').hidden = true;
+        }
         $('.bd-launch').hidden = true; $('#done-wrap').hidden = false; window.scrollTo({ top: 0, behavior: 'smooth' });
-        toast(`$${form.ticker} is live, paired with ${st.sym}`);
+        toast(adapter.pons ? `$${form.ticker} is live, paired with ${st.sym}` : `Demo: $${form.ticker} paired with ${st.sym} in this browser only`);
       } catch (e) { err.hidden = false; err.textContent = e?.message || 'The transaction was rejected.'; }
       finally { deployBtn.disabled = false; paintDeploy(); }
     });

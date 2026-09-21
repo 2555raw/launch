@@ -1289,3 +1289,7 @@ html.is-lite .bd-lake-shimmer { filter: none !important; }
 html.is-night .bd-wallets-card { background: #101B16; }
 html.is-night .bd-wallets-card h3 { color: #E8F0EB; }
 html.is-night .bd-wallets-card button { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.1); color: #E8F0EB; }
+
+/* the success panel says when a launch was only a demo */
+.bd-demo-row b { color: #7A4F0A; font-weight: 600; }
+html.is-night .bd-demo-row b { color: #F0C078; }

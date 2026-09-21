@@ -61,7 +61,7 @@ function tokenMark(sym) {
 /* Four routers with their own spread and their own gas. The jitter is what
    makes a refresh mean something: in a real one the pools have moved. */
 const PROVIDERS = [
-  { id: 'kestrel', name: 'Kestrel',  c: '#2F9E7A', spread: 0.0012, gas: 0.42 },
+  { id: 'kestrel', name: 'Kestrel',  c: '#27825F', spread: 0.0012, gas: 0.42 },
   { id: 'zeroth',  name: 'Zeroth',   c: '#232330', spread: 0.0018, gas: 0.31 },
   { id: 'nordway', name: 'Nordway',  c: '#C2412F', spread: 0.0009, gas: 0.58 },
   { id: 'lattice', name: 'Lattice',  c: '#4B4BD6', spread: 0.0021, gas: 0.27 },

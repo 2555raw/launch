@@ -97,7 +97,7 @@
 }
 .dx-flow span { display: flex; align-items: center; gap: 7px; font-size: 12.8px; color: var(--muted); }
 .dx-flow svg { color: var(--accent); flex: none; }
-.dx-flow i { color: var(--faint); font-style: normal; }
+.dx-flow i { color: var(--dim); font-style: normal; }
 
 /* the chainlink panel */
 .dx-panel { display: grid; grid-template-columns: minmax(0, .62fr) minmax(0, 1fr) minmax(0, 1fr); border: 1px solid var(--band); border-radius: var(--r); overflow: hidden; background: var(--band); gap: 1px; }
@@ -142,7 +142,7 @@ a.dx-tr:hover code { color: var(--ink); }
 .dx-code .k { padding: 12px 14px 0; color: var(--on-band-2); font-size: 9.4px; line-height: 1.4; }
 .dx-code pre { margin: 0; padding: 12px 14px 14px; overflow-x: auto; }
 .dx-code code { font-family: var(--mono); font-size: 11.8px; line-height: 1.7; color: var(--on-band); white-space: pre; }
-.dx-code .c { color: #9391B9; }
+.dx-code .c { color: var(--band-code-c); }
 .dx-code .s { color: var(--accent-lift); }
 .dx-code .n { color: var(--pink); }
 
@@ -181,8 +181,13 @@ a.dx-tr:hover code { color: var(--ink); }
 
 /* ---------- responsive ---------- */
 
+/* The desktop nav needs about 1140px before its right-hand side runs past the
+   viewport. Collapsing it any later left a dead zone (iPad landscape, small
+   laptops) where the whole page carried a horizontal scrollbar: measured at
+   1024px as +98 on index, +110 on swap, +77 on docs. */
+@media (max-width: 1140px) { .dx-links { display: none; } }
+
 @media (max-width: 1000px) {
-  .dx-links { display: none; }
   .dx { grid-template-columns: 1fr; gap: 24px; }
   .dx-toc { position: static; }
   .dx-toc ol { columns: 2; column-gap: 22px; }

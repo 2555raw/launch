@@ -110,8 +110,13 @@
 
 /* ---------- responsive ---------- */
 
+/* The desktop nav needs about 1140px before its right-hand side runs past the
+   viewport. Collapsing it any later left a dead zone (iPad landscape, small
+   laptops) where the whole page carried a horizontal scrollbar: measured at
+   1024px as +98 on index, +110 on swap, +77 on docs. */
+@media (max-width: 1140px) { .hm-links { display: none; } }
+
 @media (max-width: 1000px) {
-  .hm-links { display: none; }
   .hm-hero-in { min-height: 0; }
   .hm-hero h1 { margin-bottom: 22px; font-size: 59.9px; }
   .hm-hero-copy { padding-top: 0; }

@@ -338,21 +338,58 @@ function setMode(next) {
   fillDrawer();
 }
 
+/* Who opened the drawer, so closing it can put the focus back where the user
+   left it rather than at the top of the document. */
+let opener = null;
+
+/* Tab and Shift+Tab have to stay inside an open modal: a screen-reader user who
+   tabs past the last control otherwise lands on page furniture that the scrim
+   is covering, with no way of knowing they have left the dialog. */
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function drawerStops() {
+  return [...drawer.querySelectorAll(FOCUSABLE)]
+    .filter(el => el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+}
+
+function trapTab(e) {
+  if (e.key !== 'Tab' || !drawer.classList.contains('on')) return;
+  const stops = drawerStops();
+  if (!stops.length) return;
+  const first = stops[0], last = stops[stops.length - 1];
+  /* Focus can sit outside the drawer if the repaint replaced the focused node;
+     pull it back to whichever end the user was heading for. */
+  if (!drawer.contains(document.activeElement)) {
+    e.preventDefault();
+    (e.shiftKey ? last : first).focus();
+    return;
+  }
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+
 function openDrawer(ticker) {
   current = VAULTS.find(v => v.t === ticker);
   if (!current) return;
+  opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   document.getElementById('d-name').textContent = 'USDG / x' + current.t;
   setMode(held(current.t) && current.state === 'paused' ? 'withdraw' : 'deposit');
   drawer.classList.add('on');
   drawer.setAttribute('aria-hidden', 'false');
   scrim.hidden = false;
+  /* The page behind must not scroll under the scrim. */
+  document.body.style.overflow = 'hidden';
   amount.focus();
 }
 
 function closeDrawer() {
+  const wasOpen = drawer.classList.contains('on');
   drawer.classList.remove('on');
   drawer.setAttribute('aria-hidden', 'true');
   scrim.hidden = true;
+  document.body.style.overflow = '';
+  if (wasOpen && opener && document.contains(opener)) opener.focus();
+  opener = null;
 }
 
 seg.addEventListener('click', e => {
@@ -381,6 +418,7 @@ amount.addEventListener('input', fillDrawer);
 scrim.addEventListener('click', closeDrawer);
 document.getElementById('d-close').addEventListener('click', closeDrawer);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); pop.hidden = true; } });
+document.addEventListener('keydown', trapTab);
 
 /* the buttons live inside a <summary>, so swallow the click before it toggles the row */
 document.addEventListener('click', e => {

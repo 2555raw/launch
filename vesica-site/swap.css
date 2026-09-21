@@ -26,7 +26,11 @@
 .tr-links a:hover { color: var(--ink); }
 .tr-links a.on { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
 
-.tr-nav-right { display: flex; align-items: center; gap: 10px; }
+.tr-nav-right { display: flex; align-items: center; gap: 10px; min-width: 0; }
+/* The chip carries a 42-character address; without a shrink floor it
+   pushed the nav 3px past a 375px viewport. */
+.tr-nav-right .tr-chip { min-width: 0; }
+.tr-nav-right .tr-chip > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tr-chip {
   display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px 0 6px;
   border: 1px solid var(--line); border-radius: 999px; background: var(--card);
@@ -50,7 +54,7 @@
 .tr-eyebrow {
   margin: 0 0 14px;
   font-size: 12.8px; font-weight: 700; letter-spacing: .085em; text-transform: uppercase;
-  color: #9E9BB4;
+  color: var(--band-label);
 }
 .tr-eyebrow span { color: var(--accent-lift); }
 .tr-band h1 {
@@ -113,7 +117,7 @@
 .tr-field input::-webkit-outer-spin-button, .tr-field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .tr-field input { -moz-appearance: textfield; appearance: textfield; }
 .tr-out { color: var(--ink); }
-.tr-out.dim { color: #C4C3CC; }
+.tr-out.dim { color: var(--dim); }
 
 .tr-tok { position: relative; flex: none; width: 152px; border-left: 1px solid var(--line); }
 .tr-tok select {
@@ -240,12 +244,25 @@
 
 /* ---------- responsive ---------- */
 
+/* The desktop nav needs about 1140px before its right-hand side runs past the
+   viewport. Collapsing it any later left a dead zone (iPad landscape, small
+   laptops) where the whole page carried a horizontal scrollbar: measured at
+   1024px as +98 on index, +110 on swap, +77 on docs. */
+@media (max-width: 1140px) { .tr-links { display: none; } }
+
 @media (max-width: 940px) {
   .tr-band-in { grid-template-columns: minmax(0, 1fr); gap: 26px; }
   .tr-cols { grid-template-columns: minmax(0, 1fr); }
-  .tr-links { display: none; }
   .tr-foot-in { grid-template-columns: 1fr 1fr; }
 }
+/* At 375px the brand, the X link and a 154px Connect button come to 3px more
+   than the bar holds. The X link repeats a footer link, so it is the one to
+   drop; the button keeps its full label. */
+@media (max-width: 430px) {
+  .tr-nav-in .nav-x { display: none; }
+  .tr-nav-in { gap: 14px; }
+}
+
 @media (max-width: 560px) {
   .tr-nav-in, .tr-band-in, .tr-main, .tr-foot-in, .tr-disclaimer { padding-left: 16px; padding-right: 16px; }
   .tr-band h1 { font-size: 33.2px; }

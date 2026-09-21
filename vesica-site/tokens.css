@@ -32,9 +32,19 @@
   --band-hi: #4A4860;
 
   --ink: #3D3B4F;
-  --muted: #82828D;
-  --dim: #A9A8AF;
+  /* Secondary ink, for light backgrounds. Both clear WCAG AA (4.5:1) against
+     every light surface the site uses, #E9E9E9 included, which is the darkest
+     of them and so the one that sets the ceiling. The old pair (#82828D,
+     #A9A8AF) sat at 3.13:1 and 1.94:1 there. */
+  --muted: #5A5A63;
+  --dim: #656570;
   --faint: #C3C3C7;
+
+  /* Text on --band. The dark surfaces already had --on-band / --on-band-2;
+     these two name the purple-tinted variants that were hardcoded in four
+     stylesheets at #9E9BB4 (4.03:1) and #9391B9 (3.61:1). */
+  --band-label: #B5B2C8;
+  --band-code-c: #AEACCE;
 
   --accent: #6E5D0D;
   --accent-ink: #5C4E08;
@@ -56,7 +66,7 @@
   --grid-step: 32px;
 
   --warn: #B4802A;
-  --down: #C24B45;
+  --down: #B33F39;
 
   --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -176,9 +186,10 @@ img, svg { display: block; }
 }
 .ft-col { padding: 26px 22px 36px; border-left: 1px dashed var(--line); }
 .ft-col:last-child { border-right: 1px dashed var(--line); }
-/* the four column headings carry the accent — weight 700 rather than 600,
-   because a pastel on this grey needs the extra stroke to hold at 11.8px */
-.ft-col .k { margin-bottom: 15px; color: var(--accent-glow); font-weight: 700; }
+/* The four column headings carry the accent. They used --accent-glow, which
+   on this near-white grey is 1.42:1: no weight rescues that, the heading was
+   simply invisible. --accent-ink is the same gold family at 8.24:1. */
+.ft-col .k { margin-bottom: 15px; color: var(--accent-ink); font-weight: 700; }
 .ft-col a {
   display: block; padding: 5px 0;
   font-size: 13.4px; letter-spacing: .04em; text-transform: uppercase;
@@ -586,3 +597,46 @@ img, svg { display: block; }
   text-decoration: none; padding: 2px;
 }
 .ca-out:hover { color: var(--ink); }
+
+/* ---------- touch targets ----------
+   On a phone every one of these was under the 44px that a fingertip needs:
+   the vault search was 21px tall, the explorer link 16 square, the copy chip
+   20. Rather than inflate the artwork, the small chips and icons grow an
+   invisible pad around themselves; only the things that are genuinely a row
+   of controls get real height. */
+@media (pointer: coarse), (max-width: 560px) {
+  .ca-copy, .ca-out, .nav-x, .pr-more, .tr-flip, .cs-icon,
+  .tr-slip button, .tr-refresh, .cs-chips button {
+    position: relative;
+  }
+  .ca-copy::after, .ca-out::after, .nav-x::after, .pr-more::after,
+  .tr-flip::after, .cs-icon::after, .tr-slip button::after,
+  .tr-refresh::after, .cs-chips button::after {
+    content: ''; position: absolute; left: 50%; top: 50%;
+    width: 44px; height: 44px; transform: translate(-50%, -50%);
+    /* the pad is only a hit area: it must never paint or catch a hover */
+    border-radius: inherit;
+  }
+  .cs-search { height: 44px; }
+  .cs-chips button, .tr-slip button, .tr-refresh { min-height: 44px; }
+  .cs-search input, #sort, #q { min-height: 44px; }
+  #sort { height: 44px; }
+
+  /* Anything shaped like a button gets the height for real: these are the
+     primary actions, and an invisible pad around a visibly small button
+     still reads as small. */
+  .btn, .cs-btn, .tr-btn, .cs-row-act .cs-btn { min-height: 44px; }
+  .tr-btn-sm { height: auto; min-height: 44px; }
+
+  /* Inline links that act as buttons: pad rather than resize, so the text
+     keeps its place in the sentence. */
+  .ft-col a, .tr-foot-in a, .dx-foot-in a, .hm-foot-in a { padding-top: 15px; padding-bottom: 15px; }
+  .pr-more, .cs-open, .ft-status { display: inline-block; padding-top: 14px; padding-bottom: 14px; }
+  #slip-own { min-height: 44px; }
+
+  /* The copy chip and the explorer link are the two smallest things on the
+     page; the pad alone was not enough once neighbours stacked over it. */
+  .ca-copy { padding-top: 15px; padding-bottom: 15px; }
+  .ca-out { padding: 16px; }
+  .tr-chain, .tr-band a, .ft-bar-in a { display: inline-block; padding-top: 14px; padding-bottom: 14px; }
+}

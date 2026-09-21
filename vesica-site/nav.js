@@ -163,7 +163,24 @@
    :hover on an SVG <use> does not match here — the same quirk the fee loop
    hit — so the highlight is delegated from the svg and set as a class. */
 
-(function lightTheCubes() {
+/* The field is 40 KB of <use> elements and it is identical on all eleven
+   pages. Inlined, that was 440 KB of markup no browser could cache. Fetched,
+   it is one file served once and answered with a 304 from then on. It is
+   decorative and aria-hidden, so a reader that never runs this loses nothing. */
+async function loadTheCubes() {
+  const slot = document.querySelector('.ft-cubes');
+  if (!slot || slot.querySelector('svg')) return;
+  try {
+    const r = await fetch('cubes.svg?v=2');
+    if (!r.ok) return;
+    const doc = new DOMParser().parseFromString(await r.text(), 'image/svg+xml');
+    const svg = doc.querySelector('svg');
+    if (!svg || doc.querySelector('parsererror')) return;
+    slot.appendChild(document.importNode(svg, true));
+  } catch (_) { /* offline, or the file moved: the footer reads fine without it */ }
+}
+
+function lightTheCubes() {
   const field = document.querySelector('.ft-cubes svg');
   if (!field) return;
   let lit = null;
@@ -175,4 +192,6 @@
     if (u) { u.classList.add('on'); lit = u; }
   });
   field.addEventListener('pointerleave', clear);
-})();
+}
+
+loadTheCubes().then(lightTheCubes);

@@ -448,6 +448,7 @@
   // the site owner: the only wallet that can claim fees
   const OWNER = String(window.BONDED_OWNER || '').toLowerCase();
   const isOwner = w => !!OWNER && !!w && String(w.address).toLowerCase() === OWNER;
+  const isLilyPad = p => !!(p.lilypad || p.mine || (OWNER && String(p.creator).toLowerCase() === OWNER) || (wallet && String(p.creator).toLowerCase() === String(wallet.address).toLowerCase()));
 
   // wallet (remembered for the tab so it survives page changes)
   let wallet = null;
@@ -1020,12 +1021,15 @@
     $$('[data-bridge-frog]').forEach(el => { el.innerHTML = pic('NVDA'); });
     const pairsGrid = $('#pairs-grid');
     const loadHome = () => adapter.pairs().then(pairs => {
-      // one pair per big name, the busiest on each stock
-      const pick = ['AMZN', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'GOOGL']
+      // coins launched from LilyPad come first; without any, one pair per big name, the busiest on each stock
+      const ours = pairs.filter(isLilyPad).sort((a, b) => b.createdAt - a.createdAt);
+      const head = [$('#pairs-label'), $('#pairs-title'), $('#pairs-sub')];
+      if (ours.length && head.every(Boolean)) { head[0].textContent = 'Fresh from the pad'; head[1].textContent = 'Launched on LilyPad.'; head[2].textContent = 'Every coin here was paired with its stock from this site. Newest first.'; }
+      const pick = ours.length ? ours.slice(0, 6) : ['AMZN', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'GOOGL']
         .map(sym => pairs.filter(p => p.stock === sym).sort((a, b) => b.volume - a.volume)[0]).filter(Boolean);
       pairsGrid.innerHTML = pick.length ? pick.map(pairTile).join('') : `<div class="bd-empty" style="grid-column:1/-1">No pairs on the pond yet. <a class="bd-link" href="launch.html">Launch the first one →</a></div>`;
     });
-    loadHome(); document.addEventListener('bonded:index', loadHome);
+    loadHome(); document.addEventListener('bonded:index', loadHome); document.addEventListener('bonded:wallet', loadHome);
   }
 
   /* =====================================================================
@@ -1050,7 +1054,7 @@
       let list = all.filter(p =>
         (state.stock === 'all' || p.stock === state.stock) &&
         (!q || p.name.toLowerCase().includes(q) || p.ticker.toLowerCase().includes(q) || p.stock.toLowerCase().includes(q)));
-      if (state.tab === 'lilypad') list = list.filter(p => p.lilypad || p.mine || (OWNER && String(p.creator).toLowerCase() === OWNER));
+      if (state.tab === 'lilypad') list = list.filter(isLilyPad);
       if (state.tab === 'new') list = list.filter(p => Date.now() - p.createdAt < 24 * 3600e3);
       paintNote(); if (state.tab === 'hot') list = list.filter(p => p.volume / p.mcap > .25);
       if (state.tab === 'top') list = list.filter(p => p.mcap > 1e6);
@@ -1095,7 +1099,7 @@
       });
     });
     const loadPairs = () => adapter.pairs().then(pairs => { all = pairs; render(); });
-    loadPairs(); document.addEventListener('bonded:index', loadPairs);
+    loadPairs(); document.addEventListener('bonded:index', loadPairs); document.addEventListener('bonded:wallet', () => render());
     adapter.subscribe(ev => { if (ev.kind === 'launch' && !all.includes(ev.pair)) { all.unshift(ev.pair); render(); } });
 
     $('#tabs').addEventListener('click', e => {

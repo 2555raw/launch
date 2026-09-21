@@ -36,9 +36,9 @@
     creatorTaxBps: 100,        // 1% of every curve trade, paid to feeRecipient
     feeRecipient: null,        // defaults to BONDED_OWNER (config.js), else the launching wallet
     slippageBps: 300,          // shown on the pair page; snipe tax on young curves can exceed 1%
-    lookbackBlocks: 400_000,   // how far back to index launches (Robinhood Chain blocks are fast)
+    lookbackBlocks: 150_000,   // how far back to index launches on the first visit; later visits scan only new blocks
     chunk: 10_000,             // eth_getLogs window
-    parallel: 6,               // concurrent RPC requests while indexing
+    parallel: 3,               // concurrent RPC requests while indexing (the public RPC is rate-limited)
     pollMs: 12_000,
   }, window.BONDED_PONS || {});
 
@@ -94,6 +94,8 @@
     launchFee: () => call(PONS.factory, 'launchFee', [], [], ['uint256']).then(r => r[0]),
     launchEnabled: () => call(PONS.factory, 'launchEnabled', [], [], ['bool']).then(r => r[0]),
     approved: (t) => call(PONS.factory, 'approvedPairTokens', ['address'], [t], ['bool']).then(r => r[0]),
+    canLaunch: (who) => call(PONS.factory, 'canLaunch', ['address'], [who], ['bool']).then(r => r[0]),
+    maxCreatorTaxBps: () => call(PONS.factory, 'maxCreatorTaxBps', [], [], ['uint256']).then(r => Number(r[0])).catch(() => null),
     configCount: () => call(PONS.factory, 'launchConfigCount', [], [], ['uint256']).then(r => Number(r[0])),
     config: (id) => call(PONS.factory, 'getLaunchConfig', ['uint256'], [id], [LAUNCH_CONFIG]).then(([c]) => ({ supply: c[0], curveFeeBps: c[1], phantomQuote: c[2], graduationThreshold: c[3], poolFee: c[4], tickSpacing: c[5], enabled: c[6] })),
     economics: (id, quote) => call(PONS.factory, 'previewLaunchEconomics', ['uint256', 'address'], [id, quote], ['bytes32']).then(r => r[0]),
@@ -268,7 +270,7 @@
   }
   const ready = () => index.ready || (index.ready = buildIndex().then(r => { announce('bonded:index'); return r; }).catch(e => { index.ready = null; throw e; }));
   // a page never waits more than this for the chain: it paints what it has and refreshes on 'bonded:index'
-  const budget = (p, ms = 2500) => Promise.race([p, sleep(ms)]);
+  const budget = (p, ms = 700) => Promise.race([p, sleep(ms)]);
   // the read paths degrade to empty when the RPC is unreachable, so the pages still render
   const safe = (fn, fallback) => fn().catch(e => { console.warn('pons: cannot reach the chain —', e.message); return fallback; });
   const find = async (ticker) => (await ready()).find(p => p.ticker.toUpperCase() === String(ticker).toUpperCase());
@@ -299,7 +301,7 @@
       return { pairs: pairs.length, volumeUsd: pairs.reduce((s, p) => s + p.volume, 0), lockedUsd: pairs.reduce((s, p) => s + p.mcap * 0.31, 0) };
     },
     async stocks() {
-      await budget(safe(stocksReady, null), 2000);
+      await budget(safe(stocksReady, null), 900);
       ready().catch(() => {});          // warm the index in the background; the list does not wait for it
       const pairs = index.launches;
       const all = stocksMeta().map(s => ({ ...s, pairs: pairs.filter(p => p.stock === s.sym).length, change: 0, live: !!stockTokens[s.sym] }));
@@ -343,25 +345,44 @@
       if (!st) throw new Error(`No approved ${payload.stock} token is configured. Add it to BONDED_STOCK_TOKENS (see docs).`);
       if (!(await factory.launchEnabled())) throw new Error('Pons launches are paused right now.');
       if (!(await factory.approved(st.address))) throw new Error(`${payload.stock} is no longer an approved quote token.`);
-      let configId = PONS.launchConfigId;
-      if (configId == null) {
-        const n = await factory.configCount();
-        for (let i = 0; i < n; i++) if ((await factory.config(i)).enabled) { configId = i; break; }
-        if (configId == null) throw new Error('No enabled launch config on the factory.');
-      }
-      const [fee, economics] = await Promise.all([factory.launchFee(), factory.economics(configId, st.address)]);
-      const salt = A.toHex(crypto.getRandomValues(new Uint8Array(32)));
+      // pre-flight, each with its own sentence
+      if (!(await factory.canLaunch(account).catch(() => true))) throw new Error(`The factory does not let ${account.slice(0, 6)}… launch right now (canLaunch is false: a cooldown or an allowlist). Try again later or from another wallet.`);
+      const fee = await factory.launchFee();
+      const bal = BigInt(await rpc('eth_getBalance', [account, 'latest']).catch(() => '0x' + 'f'.repeat(20)));
+      if (bal < fee) throw new Error(`The launch fee is ${Number(fee) / 1e18} ETH on ${PONS.chainName} and this wallet holds ${(Number(bal) / 1e18).toFixed(5)} ETH.`);
+      const maxTax = await factory.maxCreatorTaxBps();
+      const wantedTax = Math.min(PONS.creatorTaxBps, maxTax == null ? PONS.creatorTaxBps : maxTax);
+      // enabled configs, the configured one first
+      const n = await factory.configCount();
+      const configs = [];
+      for (let i = 0; i < n; i++) if ((await factory.config(i)).enabled) configs.push(i);
+      if (!configs.length) throw new Error('No enabled launch config on the factory.');
+      if (PONS.launchConfigId != null) configs.sort((a, b) => (a === PONS.launchConfigId ? -1 : b === PONS.launchConfigId ? 1 : 0));
       // the coin's picture: the stock's frog, served by the site, unless the creator gave an image
       const logo = payload.image || `${location.origin}/frogs/${encodeURIComponent(payload.stock)}.png`;
-      const params = [
-        payload.name, payload.ticker, logo, payload.desc || '',
-        [payload.x || '', '', '', payload.site || '', ''],
-        (PONS.feeRecipient || window.BONDED_OWNER || account), PONS.creatorTaxBps, false, economics, salt,
-      ];
+      const recipient = (PONS.feeRecipient || window.BONDED_OWNER || account);
       // the creator's own first buy should not pay the launch-window snipe tax
       const buying = Number(payload.buy) > 0;
       const viaLauncher = buying && !!launcherAddr();
       const exemptions = buying ? (viaLauncher ? [account, launcherAddr()] : [account]) : [];
+      const randomSalt = () => A.toHex(crypto.getRandomValues(new Uint8Array(32)));
+      const senderSalt = () => account.toLowerCase() + A.strip(A.toHex(crypto.getRandomValues(new Uint8Array(12))));
+      const buildParams = (economics, tax, salt) => [payload.name, payload.ticker, logo, payload.desc || '', [payload.x || '', '', '', payload.site || '', ''], recipient, tax, false, economics, salt];
+      // find a combination the factory accepts: config × creator tax × salt shape, cheapest first
+      let configId = null, params = null, lastReason = null;
+      outer: for (const cid of configs) {
+        const eco = await factory.economics(cid, st.address).catch(() => null);
+        if (!eco) { lastReason = `previewLaunchEconomics(${cid}, ${payload.stock}) reverted`; continue; }
+        for (const tax of [...new Set([wantedTax, 0])]) {
+          for (const salt of [randomSalt(), senderSalt(), '0x' + '00'.repeat(32)]) {
+            const trial = buildParams(eco, tax, salt);
+            const data = A.encodeCall('launchToken', LAUNCH_TYPES, [trial, cid, st.address, exemptions]);
+            try { await rpc('eth_call', [{ from: account, to: PONS.factory, data, value: A.hex(fee) }, 'latest']); configId = cid; params = trial; break outer; }
+            catch (e) { lastReason = `config ${cid}, creator tax ${tax} bps, salt ${salt.slice(0, 6)}…: ${A.revertReason(e)}`; }
+          }
+        }
+      }
+      if (params == null) throw new Error(`The factory rejects this launch. Last attempt — ${lastReason}. Run scripts/verify-pons.mjs --from ${account} for the full picture.`);
       let quoteIn = 0n, minOut = 0n;
       if (buying) {
         quoteIn = A.toUnits(payload.buy, st.decimals);

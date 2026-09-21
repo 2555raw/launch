@@ -8,7 +8,7 @@
    with the Pons factory's approvedPairTokens() before using it, and drops the rest with a
    console warning. Confirm them against docs.robinhood.com/chain/contracts and with
    `node scripts/verify-pons.mjs` before trusting them with money. Add or replace freely. */
-window.BONDED_OWNER = '';   // e.g. '0xb553…c3b6' in full
+window.BONDED_OWNER = '0xb5530232ee1dea37c57dc72e7abd7b551c62c3b6';
 
 window.BONDED_STOCK_TOKENS = {
   AAPL:  '0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9',

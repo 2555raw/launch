@@ -1396,8 +1396,18 @@
       sel.innerHTML = stocks.map(s => `<option value="${s.sym}" ${s.sym === form.stock ? 'selected' : ''}>${s.sym} — ${esc(s.name)} · $${s.price.toFixed(2)}</option>`).join('');
       paint();
     });
-    sel.addEventListener('change', () => { form.stock = sel.value; paint(); });
+    sel.addEventListener('change', () => { form.stock = sel.value; paint(); paintBuyBal(); });
     loadStockSelect(); document.addEventListener('bonded:stocks', loadStockSelect);
+    // the wallet's balance of the chosen stock, so a first buy is never a surprise
+    let bals = null;
+    const paintBuyBal = async () => {
+      const el = $('#f-buy-bal'); if (!el) return;
+      if (!wallet || !adapter.pons) { el.textContent = ''; return; }
+      if (!bals) bals = await adapter.balances(wallet.address).catch(() => []);
+      const b = bals.find(x => x.sym === form.stock);
+      el.textContent = b ? `You hold ${fmtNum(b.amount)} ${form.stock}${b.amount > 0 ? '' : ' · set the first buy to 0 or get some first'}` : '';
+    };
+    document.addEventListener('bonded:wallet', () => { bals = null; paintBuyBal(); }); paintBuyBal();
     const fields = { name: '#f-name', ticker: '#f-ticker', buy: '#f-buy' };
     Object.entries(fields).forEach(([k, s]) => $(s).addEventListener('input', e => {
       form[k] = k === 'ticker' ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '') : e.target.value;
@@ -1429,13 +1439,16 @@
         $('#done').innerHTML = [['Pair', `${esc(form.ticker)} / ${st.sym}`], ['Token', res.tokenAddress], ['Pool', res.pairAddress], ['Transaction', res.txHash.slice(0, 18) + '…']]
           .map(([k, v]) => `<div class="bd-review-row"><span>${k}</span><b>${v}</b></div>`).join('');
         $('#done-tx').href = `${CONFIG.explorer}/tx/${res.txHash}`; $('#done-open').href = 'pair.html?t=' + encodeURIComponent(form.ticker);
+        if (res.buyError) {
+          $('#done').insertAdjacentHTML('beforeend', `<div class="bd-review-row bd-demo-row"><span>First buy</span><b>Did not go through: ${esc(res.buyError)} The coin is live; you can buy from its page.</b></div>`);
+        }
         if (!adapter.pons) {
           // the demo adapter: nothing left this browser, and the addresses are made up
           $('#done').insertAdjacentHTML('beforeend', `<div class="bd-review-row bd-demo-row"><span>Mode</span><b>Demo · nothing was sent to the chain. Open <a class="bd-link" href="launch.html?demo=0">launch?demo=0</a> to launch for real.</b></div>`);
           $('#done-tx').hidden = true;
         }
         $('.bd-launch').hidden = true; $('#done-wrap').hidden = false; window.scrollTo({ top: 0, behavior: 'smooth' });
-        toast(adapter.pons ? `$${form.ticker} is live, paired with ${st.sym}` : `Demo: $${form.ticker} paired with ${st.sym} in this browser only`);
+        toast(adapter.pons ? (res.buyError ? `$${form.ticker} is live · the first buy failed` : `$${form.ticker} is live, paired with ${st.sym}`) : `Demo: $${form.ticker} paired with ${st.sym} in this browser only`);
       } catch (e) { err.hidden = false; err.textContent = e?.message || 'The transaction was rejected.'; }
       finally { deployBtn.disabled = false; paintDeploy(); }
     });

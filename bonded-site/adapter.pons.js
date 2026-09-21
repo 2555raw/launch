@@ -472,6 +472,8 @@
       let quoteIn = 0n, minOut = 0n;
       if (buying) {
         quoteIn = A.toUnits(payload.buy, st.decimals);
+        const have = await erc20.balanceOf(st.address, account).catch(() => null);
+        if (have !== null && have < quoteIn) throw new Error(`Your first buy needs ${payload.buy} ${payload.stock} and this wallet holds ${(Number(have) / 10 ** st.decimals).toFixed(6)} ${payload.stock}. Set the first buy to 0 to launch without one, or get some ${payload.stock} first.`);
         // price the first buy from the launch config's phantom reserve: the curve does not exist yet
         const cfg = await factory.config(configId);
         const [phantom] = await factory.pairEconomics(st.address);
@@ -502,16 +504,19 @@
       if (!index.launches.some(x => x.address.toLowerCase() === pair.address.toLowerCase())) index.launches.unshift(pair);
       emit({ kind: 'launch', pair, wallet: account, ts: Date.now() });
       // without the launcher, the first buy is a second transaction straight into the new curve
+      let buyError = null, buyTx = null;
       if (buying && !viaLauncher) {
-        const { q, t } = await curve.reserves(l.curve);
-        const feeBps = await curve.feeBps(l.curve);
-        const net = quoteIn - quoteIn * feeBps / 10000n;
-        const out = net * t / (q + net);
-        const floor = out - out * BigInt(PONS.slippageBps) / 10000n;
-        await approveIfNeeded(st.address, l.curve, quoteIn);
-        await sendTx({ to: l.curve, data: A.encodeCall('buy', ['uint256', 'uint256', 'address'], [quoteIn, floor, account]) });
+        try {
+          const { q, t } = await curve.reserves(l.curve);
+          const feeBps = await curve.feeBps(l.curve);
+          const net = quoteIn - quoteIn * feeBps / 10000n;
+          const out = net * t / (q + net);
+          const floor = out - out * BigInt(PONS.slippageBps) / 10000n;
+          await approveIfNeeded(st.address, l.curve, quoteIn);
+          buyTx = (await sendTx({ to: l.curve, data: A.encodeCall('buy', ['uint256', 'uint256', 'address'], [quoteIn, floor, account]) })).transactionHash;
+        } catch (e) { buyError = e.message || String(e); console.warn('first buy', e); }
       }
-      return { txHash: receipt.transactionHash, tokenAddress: l.token, pairAddress: l.curve, launch: l };
+      return { txHash: receipt.transactionHash, tokenAddress: l.token, pairAddress: l.curve, launch: l, buyTx, buyError };
     },
     async quote({ ticker, side, amount }) {
       const p = await find(ticker); if (!p) throw new Error('Unknown pair ' + ticker);

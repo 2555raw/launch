@@ -8,7 +8,8 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23E4461E'/%3E%3Ctext x='16' y='23' font-size='19' text-anchor='middle'%3E🍳%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="game.css">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -142,7 +143,7 @@
           <div><h3 data-i18n="kitchen.title">The kitchen</h3><p data-i18n="kitchen.sub">Customers pay in crypto; what you earn here is the cash you spend on the launchpad.</p></div>
           <a class="btn btn-dark" href="play.html" target="_blank" rel="noopener" data-i18n="kitchen.full">Open fullscreen ↗</a>
         </div>
-        <div class="game-frame"><iframe id="gameFrame" title="Crypto Kitchen game" loading="lazy"></iframe></div>
+        <div class="game-frame"><div class="gk" id="gk"></div></div>
       </section>
 
       <!-- rates -->
@@ -155,6 +156,7 @@
   <div class="toast" id="toast" aria-live="polite"></div>
   <div class="modal" id="modal" hidden><div class="modal-card" id="modalCard"></div></div>
 </div>
+<script src="game.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

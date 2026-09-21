@@ -63,13 +63,15 @@
     $$('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
     $$('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
     $$('#lang button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-lang') === lang); });
-    var f = $('#gameFrame'); if (f.getAttribute('src')) f.setAttribute('src', 'play.html?lang=' + lang);
+    if (window.CKGame) window.CKGame.setLang(lang);
   }
 
   // ---------- state ----------
   var game = load('ck-game', null) || { cash: 0, wallet: {}, stars: [], served: 0, lost: 0, lang: '' };
   var pad = load('ck-pad', null) || { coins: [], hold: {}, pools: [], fees: 0, lpFees: 0, connected: false, trades: [] };
   function saveAll() { store('ck-game', game); store('ck-pad', pad); }
+  function savePad() { store('ck-pad', pad); }
+  function freshGame() { var g = load('ck-game', null); if (g) { game = g; game.lang = lang; } }
   var q = (location.search.match(/[?&]lang=(\w+)/) || [])[1];
   var nav = (navigator.language || 'en').toLowerCase();
   lang = ['en', 'zh'].indexOf(q) !== -1 ? q : ['en', 'zh'].indexOf(game.lang) !== -1 ? game.lang : nav.indexOf('zh') === 0 ? 'zh' : 'en';
@@ -144,7 +146,7 @@
     if (view === 'coin' && current) renderCoin(current);
     if (view === 'rates') renderRates();
     if (view === 'exchange') quoteSwap();
-    saveAll();
+    savePad();
   }, 3000);
   function graduate(c) { if (c.grad) return; c.grad = true; c.liq = GRAD * 0.9; if (c.you) toast(t('trade.grad', { t: c.t, dex: DEX[c.dex].name })); }
 
@@ -179,6 +181,7 @@
     $('#walletLabel').textContent = connected() ? short(ADDR) + ' · ' + money(game.cash) : t('wallet.connect');
   }
   $('#btnWallet').addEventListener('click', function () {
+    freshGame();
     if (connected()) { modal('<h3>' + t('wallet.kitchen') + '</h3><p class="mono muted">' + ADDR + '</p><p><b>' + money(game.cash) + '</b></p><button class="btn btn-ghost" id="mDisc" type="button">' + t('wallet.disconnect') + '</button>'); $('#mDisc').addEventListener('click', function () { pad.connected = false; saveAll(); renderWallet(); closeModal(); }); return; }
     modal('<h3>' + t('wallet.title') + '</h3>' +
       '<button class="wopt" id="mKitchen" type="button"><span class="logo">🍳</span><span><b>' + t('wallet.kitchen') + '</b><small>' + t('wallet.kitchenSub', { cash: money(game.cash) }) + '</small></span></button>' +
@@ -210,7 +213,7 @@
     if (view === 'exchange') renderSwap();
     if (view === 'portfolio') renderPortfolio();
     if (view === 'earnings') renderEarnings();
-    if (view === 'kitchen') { var f = $('#gameFrame'); if (!f.getAttribute('src')) f.setAttribute('src', 'play.html?lang=' + lang); }
+    if (view === 'kitchen') { if (window.CKGame) window.CKGame.refresh(); window.dispatchEvent(new Event('resize')); }
     if (view === 'rates') renderRates();
     if (view === 'how') renderHow();
     window.scrollTo(0, 0);
@@ -219,8 +222,9 @@
   $('#burger').addEventListener('click', function () { $('#side').classList.toggle('open'); });
   $('#lang').addEventListener('click', function (e) { var b = e.target.closest('[data-lang]'); if (!b) return; lang = b.getAttribute('data-lang'); game.lang = lang; saveAll(); applyLang(); renderWallet(); route(); });
   // the game writes cash while it plays in the iframe; pick it up when it changes
-  window.addEventListener('storage', function (e) { if (e.key === 'ck-game') { game = load('ck-game', game); renderWallet(); if (view === 'portfolio') renderPortfolio(); } });
-  window.addEventListener('focus', function () { var g = load('ck-game', null); if (g && g.cash !== game.cash) { game = g; renderWallet(); } });
+  // the embedded game saves after every shift and purchase; pick the cash up
+  document.addEventListener('ck-game-saved', function () { freshGame(); renderWallet(); if (view === 'portfolio') renderPortfolio(); if (view === 'earnings') renderEarnings(); });
+  window.addEventListener('storage', function (e) { if (e.key === 'ck-game') { freshGame(); renderWallet(); } });
 
   // ---------- explore ----------
   function renderStats() {
@@ -304,6 +308,7 @@
   }
   function trade(c) {
     if (!needWallet()) return;
+    freshGame();
     var v = parseFloat($('#tAmt').value) || 0; if (!v) return;
     if (side === 'buy') {
       if (v > game.cash) { toast(t('trade.noCash')); return; }
@@ -341,6 +346,7 @@
   $('#launchForm').addEventListener('submit', function (e) {
     e.preventDefault();
     if (!needWallet()) return;
+    freshGame();
     var tk = $('#lTicker').value.toUpperCase().replace(/[^A-Z0-9]/g, ''), buy = Math.max(0, parseFloat($('#lBuy').value) || 0), cost = buy + LAUNCH_FEE;
     if (!tk) return;
     if (byT(tk)) { toast(t('launch.taken')); return; }
@@ -362,6 +368,7 @@
   }
   $('#pairForm').addEventListener('submit', function (e) {
     e.preventDefault(); if (!needWallet()) return;
+    freshGame();
     var tk = $('#pCoin').value, c = byT(tk), usd = Math.max(1, parseFloat($('#pAmount').value) || 0);
     if (!c || !c.grad) { toast(t('pair.needGrad')); return; }
     if (usd > game.cash) { toast(t('trade.noCash')); return; }
@@ -417,6 +424,7 @@
   }
   function doSwap() {
     if (!needWallet()) return;
+    freshGame();
     var v = parseFloat($('#swAmt').value) || 0; if (!v || swapFrom === swapTo) return;
     if (v > bal(swapFrom) + 1e-9) { toast(swapFrom === 'USD' ? t('trade.noCash') : t('trade.noTok', { t: swapFrom })); return; }
     var r = swapRoutes(v)[0];
@@ -446,7 +454,8 @@
       '<div class="card pf"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h3>' + t('earn.yourCoins') + '</h3><button class="btn btn-dark" id="claim" type="button"' + (pad.fees + pad.lpFees < 0.01 ? ' disabled' : '') + '>' + t('earn.claim') + ' ' + money(pad.fees + pad.lpFees) + '</button></div>' +
       (mine.length ? mine.map(function (c) { return '<div class="hold"><span class="logo">' + c.em + '</span><div class="h-name"><b>' + c.name + '</b><small>' + c.t + ' · ' + (c.grad ? DEX[c.dex].name : Math.round(c.raised / GRAD * 100) + '% → ' + DEX[c.dex].name) + '</small></div><div class="h-val"><b>' + money(mcap(c)) + '</b><small>' + t('coin.vol') + ' ' + money(c.vol) + '</small></div></div>'; }).join('') : '<p class="muted" style="margin-top:8px">' + t('earn.none') + '</p>') + '</div>' +
       '<div class="cta-card"><span class="big">🍩</span><div><h4>' + t('launch.title') + '</h4><p>' + t('launch.s4') + '</p></div><a class="btn btn-dark" href="#launch">' + t('hero.launch') + ' +</a></div>';
-    $('#claim').addEventListener('click', function () { if (!needWallet()) return; var amt = pad.fees + pad.lpFees; game.cash += amt; pad.fees = 0; pad.lpFees = 0; saveAll(); renderWallet(); renderEarnings(); toast(t('earn.claimed', { amt: money(amt) })); });
+    $('#claim').addEventListener('click', function () { if (!needWallet()) return;
+    freshGame(); var amt = pad.fees + pad.lpFees; game.cash += amt; pad.fees = 0; pad.lpFees = 0; saveAll(); renderWallet(); renderEarnings(); toast(t('earn.claimed', { amt: money(amt) })); });
   }
 
   // ---------- rates / how ----------

@@ -2,24 +2,24 @@
    with the food coins as the only color. Fraunces italic carries the
    headline, Inter the interface, JetBrains Mono the figures. */
 :root {
-  --bg: #FBFAF6; --card: #FFFFFF; --card-2: #F5F2EA; --ink: #17130E; --ink-2: #4A4339; --muted: #7C7466; --line: #E9E4D8; --line-2: #D9D2C3;
-  --accent: #E4461E; --accent-ink: #FFFFFF; --accent-soft: #FDEBE3; --gold: #E9A21B; --gold-soft: #FBF1D6;
-  --good: #1B9A5B; --good-soft: #E3F5EA; --bad: #D33A2C; --bad-soft: #FBE6E3; --pons: #1F6FB2; --uni: #C73B8F;
-  --hero-a: #FFF4E8; --hero-b: #FBE3D2; --shadow: 0 1px 2px rgba(23, 19, 14, .05), 0 10px 30px -14px rgba(23, 19, 14, .18);
+  --bg: #F7F9FC; --card: #FFFFFF; --card-2: #F0F4F9; --ink: #0F1720; --ink-2: #3D4B5C; --muted: #6B7A8C; --line: #E3E9F1; --line-2: #CFD8E4;
+  --accent: #1F6FD6; --accent-ink: #FFFFFF; --accent-soft: #E7F0FC; --gold: #E9A21B; --gold-soft: #FBF1D6;
+  --good: #1B9A5B; --good-soft: #E3F5EA; --bad: #D33A2C; --bad-soft: #FBE6E3; --pons: #1F6FD6; --uni: #C73B8F;
+  --hero-a: #EAF3FE; --hero-b: #F6FAFF; --shadow: 0 1px 2px rgba(23, 19, 14, .05), 0 10px 30px -14px rgba(23, 19, 14, .18);
   --display: 'Fraunces', 'Iowan Old Style', Georgia, serif; --body: 'Inter', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #131110; --card: #1B1816; --card-2: #23201C; --ink: #F4EFE6; --ink-2: #CFC7BA; --muted: #928A7B; --line: #2B2723; --line-2: #3A352E;
-    --accent: #F0623E; --accent-soft: #3A2119; --gold: #F0B33A; --gold-soft: #3A2E12; --good: #3FC57C; --good-soft: #14301F; --bad: #F06C5E; --bad-soft: #3A1B17;
-    --hero-a: #2A1F17; --hero-b: #1F1A16; --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -14px rgba(0, 0, 0, .6); color-scheme: dark;
+    --bg: #0F1319; --card: #161B23; --card-2: #1D242E; --ink: #EEF2F7; --ink-2: #C3CCD8; --muted: #7F8B9A; --line: #232B36; --line-2: #33404E;
+    --accent: #5B9BEA; --accent-soft: #14273D; --gold: #F0B33A; --gold-soft: #3A2E12; --good: #3FC57C; --good-soft: #14301F; --bad: #F06C5E; --bad-soft: #3A1B17;
+    --hero-a: #132238; --hero-b: #161B22; --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -14px rgba(0, 0, 0, .6); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #131110; --card: #1B1816; --card-2: #23201C; --ink: #F4EFE6; --ink-2: #CFC7BA; --muted: #928A7B; --line: #2B2723; --line-2: #3A352E;
-  --accent: #F0623E; --accent-soft: #3A2119; --gold: #F0B33A; --gold-soft: #3A2E12; --good: #3FC57C; --good-soft: #14301F; --bad: #F06C5E; --bad-soft: #3A1B17;
-  --hero-a: #2A1F17; --hero-b: #1F1A16; --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -14px rgba(0, 0, 0, .6); color-scheme: dark;
+  --bg: #0F1319; --card: #161B23; --card-2: #1D242E; --ink: #EEF2F7; --ink-2: #C3CCD8; --muted: #7F8B9A; --line: #232B36; --line-2: #33404E;
+  --accent: #5B9BEA; --accent-soft: #14273D; --gold: #F0B33A; --gold-soft: #3A2E12; --good: #3FC57C; --good-soft: #14301F; --bad: #F06C5E; --bad-soft: #3A1B17;
+  --hero-a: #132238; --hero-b: #161B22; --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -14px rgba(0, 0, 0, .6); color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -36,7 +36,7 @@ h1, h2, h3, h4, p { margin: 0; }
 /* ---------- sidebar ---------- */
 .side { position: sticky; top: env(safe-area-inset-top, 0px); height: 100vh; display: flex; flex-direction: column; padding: 18px 14px; border-right: 1px solid var(--line); background: var(--bg); }
 .brand { display: flex; align-items: center; gap: 10px; padding: 6px 8px 22px; font-weight: 600; font-size: 15px; }
-.brand-mark { width: 30px; height: 30px; display: grid; place-items: center; background: var(--accent); border-radius: 9px; font-size: 16px; }
+.brand-mark { width: 30px; height: 30px; display: grid; place-items: center; background: var(--accent-soft); border-radius: 9px; font-size: 16px; }
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav small { font-size: 11px; color: var(--muted); padding: 16px 12px 6px; letter-spacing: .02em; }
 .nav a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; font-weight: 500; color: var(--ink-2); }
@@ -88,7 +88,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .hero-p { margin: 20px 0 24px; max-width: 46ch; color: var(--ink-2); font-size: 15px; line-height: 1.55; }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 8px; }
 .hero-art { position: relative; min-height: 280px; }
-.globe { position: absolute; right: -6%; top: -8%; width: 116%; height: 116%; color: var(--accent); opacity: .22; }
+.globe { position: absolute; right: -6%; top: -8%; width: 116%; height: 116%; color: var(--accent); opacity: .28; }
 .chip { position: absolute; display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); animation: drift 6s ease-in-out infinite; }
 .chip-em { width: 34px; height: 34px; display: grid; place-items: center; font-size: 20px; background: var(--card-2); border-radius: 9px; }
 .chip b { display: block; font-size: 13px; }
@@ -259,7 +259,7 @@ table.market tbody tr:hover { background: var(--card-2); }
 .kitchen-head h3 { font-family: var(--display); font-size: 26px; font-weight: 500; }
 .kitchen-head p { color: var(--muted); margin-top: 4px; }
 .game-frame { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #2A1245; aspect-ratio: 3 / 2; max-height: 720px; }
-.game-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+.game-frame .gk { width: 100%; height: 100%; position: relative; overflow: hidden; }
 
 /* rates / how */
 .rates-table { width: 100%; border-collapse: collapse; }

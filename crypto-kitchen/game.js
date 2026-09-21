@@ -7,7 +7,14 @@
 (function () {
   'use strict';
 
-  var $ = function (s) { return document.querySelector(s); };
+  var MARKUP = '<div class="stage" id="stage">\n\n  <!-- ===== título ===== -->\n  <section class="screen screen-title is-on" id="s-title">\n    <div class="title-scene" aria-hidden="true">\n      <span class="title-food f1">🍔</span><span class="title-food f2">🍟</span><span class="title-food f3">🥤</span>\n      <span class="title-food f4">🥩</span><span class="title-food f5">🍕</span>\n      <i class="coin c1"></i><i class="coin c2"></i><i class="coin c3"></i>\n    </div>\n    <div class="title-card">\n      <span class="kicker" data-i18n="title.kicker">🔥 Cooking · play to earn</span>\n      <h1 class="display title-logo">Crypto<br><em>Kitchen</em></h1>\n      <p class="title-tag" data-i18n="title.tag">Customers walk in. You cook. They pay in crypto.</p>\n      <div class="title-btns">\n        <button class="btn btn-green btn-xl" data-go="map" type="button" data-i18n="btn.play">▶ Play</button>\n        <button class="btn btn-cream" data-go="wallet" type="button" data-i18n="btn.wallet">👛 Wallet</button>\n        <a class="btn btn-gold" href="index.html" data-i18n="btn.launchpad">🚀 Launchpad</a>\n      </div>\n      <p class="title-balance"><span data-i18n="title.balance">Balance:</span> <b id="titleBalance">$0</b></p>\n      <div class="lang" id="gLang" aria-label="Language / 语言"><button type="button" data-lang="en">EN</button><button type="button" data-lang="zh">中文</button></div>\n    </div>\n  </section>\n\n  <!-- ===== mapa de niveles ===== -->\n  <section class="screen screen-map" id="s-map">\n    <header class="bar">\n      <button class="btn btn-cream btn-sm" data-go="title" type="button" data-i18n="nav.home">‹ Home</button>\n      <h2 class="display" data-i18n="h.levels">Levels</h2>\n      <div class="bar-right">\n        <span class="pill pill-gold"><i class="coin coin-xs"></i> <b id="mapBalance">$0</b></span>\n        <button class="btn btn-gold btn-sm" data-go="shop" type="button" data-i18n="btn.shop">🛒 Shop</button>\n      </div>\n    </header>\n    <div class="map-grid" id="mapGrid"></div>\n  </section>\n\n  <!-- ===== juego ===== -->\n  <section class="screen screen-game" id="s-game">\n    <header class="hud">\n      <span class="pill pill-level"><span data-i18n="hud.level">Level</span> <b id="hLevel">1</b></span>\n      <div class="hud-goal" aria-label="Objetivo del nivel">\n        <div class="goal-bar"><i id="hGoalFill"></i><span id="hGoalText">$0 / $60</span></div>\n      </div>\n      <span class="pill pill-time">⏱ <b id="hTime">60</b></span>\n      <span class="pill pill-gold pill-cash"><i class="coin coin-xs"></i> <b id="hCash">$0</b></span>\n      <button class="hud-btn" id="btnSound" type="button" aria-label="Sonido">🔊</button>\n      <button class="hud-btn" id="btnPause" type="button" aria-label="Pausa">⏸</button>\n    </header>\n\n    <div class="market" id="market" aria-label="Mercado"></div>\n\n    <div class="room">\n      <div class="customers" id="customers"></div>\n    </div>\n\n    <div class="pass">\n      <span class="pass-label" data-i18n="pass">Pass</span>\n      <div class="pass-slots" id="pass"></div>\n    </div>\n\n    <div class="kitchen" id="kitchen"></div>\n\n    <div class="banner" id="banner" aria-live="polite"></div>\n    <div class="fx" id="fx" aria-hidden="true"></div>\n\n    <div class="overlay" id="gOverlay">\n      <div class="card overlay-card" id="overlayCard"></div>\n    </div>\n  </section>\n\n  <!-- ===== tienda ===== -->\n  <section class="screen screen-shop" id="s-shop">\n    <header class="bar">\n      <button class="btn btn-cream btn-sm" data-go="map" type="button" data-i18n="nav.levels">‹ Levels</button>\n      <h2 class="display" data-i18n="h.shop">Shop</h2>\n      <div class="bar-right"><span class="pill pill-gold"><i class="coin coin-xs"></i> <b id="shopBalance">$0</b></span></div>\n    </header>\n    <p class="shop-note" data-i18n="shop.note">Upgrades are paid with the dollars you earn in the kitchen. Every upgrade level is permanent.</p>\n    <div class="shop-grid" id="shopGrid"></div>\n  </section>\n\n  <!-- ===== cartera ===== -->\n  <section class="screen screen-wallet" id="s-wallet">\n    <header class="bar">\n      <button class="btn btn-cream btn-sm" data-go="title" type="button" data-i18n="nav.home">‹ Home</button>\n      <h2 class="display" data-i18n="h.wallet">Wallet</h2>\n      <div class="bar-right"><span class="pill pill-gold"><i class="coin coin-xs"></i> <b id="walletBalance">$0</b></span></div>\n    </header>\n    <div class="card wallet-card">\n      <table class="wallet-table">\n        <thead><tr><th data-i18n="wallet.coin">Coin</th><th class="num" data-i18n="wallet.amount">Amount</th><th class="num" data-i18n="wallet.price">Price</th><th class="num" data-i18n="wallet.value">Value</th></tr></thead>\n        <tbody id="walletRows"></tbody>\n      </table>\n      <p class="wallet-note" data-i18n="wallet.note">What customers pay is kept in the coin they pay with. Its value follows the game market, which moves on its own. Everything lives in your browser; nothing touches a real chain.</p>\n      <div class="wallet-stats" id="walletStats"></div>\n      <button class="btn btn-red btn-sm" id="btnReset" type="button" data-i18n="btn.reset">Reset progress</button>\n    </div>\n  </section>\n\n</div>\n';
+
+  // the host: play.html gives it the whole page, the launchpad a box
+  var ROOT = document.querySelector('.gk');
+  if (!ROOT.firstElementChild) ROOT.innerHTML = MARKUP;
+  var EMBEDDED = !document.documentElement.classList.contains('gk-page');
+  var $ = function (s) { return ROOT.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(ROOT.querySelectorAll(s)); };
 
   // ---------- storage, tolerant of browsers that block it ----------
   function load(key, fallback) {
@@ -90,9 +97,9 @@
   }
   function tn(key, n) { return t(key)[n === 1 ? 0 : 1].replace('{n}', n); }
   function applyLang() {
-    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
-    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
-    Array.prototype.forEach.call(document.querySelectorAll('#lang button'), function (b) { b.classList.toggle('on', b.getAttribute('data-lang') === lang); });
+    if (!EMBEDDED) document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+    $$('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
+    $$('#gLang button').forEach( function (b) { b.classList.toggle('on', b.getAttribute('data-lang') === lang); });
   }
 
   // ---------- data ----------
@@ -157,7 +164,8 @@
   // ---------- save ----------
   var DEFAULT_SAVE = { cash: 0, wallet: {}, stars: [], upg: {}, served: 0, lost: 0, sound: true, lang: '' };
   var save = load('ck-game', null) || JSON.parse(JSON.stringify(DEFAULT_SAVE));
-  function persist() { store('ck-game', save); }
+  function persist() { store('ck-game', save); document.dispatchEvent(new CustomEvent('ck-game-saved')); }
+  function reloadCash() { var fresh = load('ck-game', null); if (fresh && typeof fresh.cash === 'number') save.cash = fresh.cash; }
   (function () {
     var q = (location.search.match(/[?&]lang=(\w+)/) || [])[1];
     var nav = (navigator.language || 'en').toLowerCase();
@@ -165,7 +173,7 @@
     save.lang = lang;
     applyLang();
   })();
-  $('#lang').addEventListener('click', function (e) {
+  $('#gLang').addEventListener('click', function (e) {
     var b = e.target.closest('[data-lang]');
     if (!b) return;
     lang = b.getAttribute('data-lang'); save.lang = lang; persist(); applyLang(); go('title');
@@ -223,26 +231,28 @@
   // ---------- stage scaling ----------
   var stage = $('#stage');
   function fit() {
-    var portrait = window.innerWidth < window.innerHeight * 0.95;
+    var bw = ROOT.clientWidth || window.innerWidth, bh = ROOT.clientHeight || window.innerHeight;
+    var portrait = bw < bh * 0.95;
     var W = portrait ? 480 : 960, H = portrait ? 820 : 640;
     stage.classList.toggle('portrait', portrait);
-    var s = Math.min(window.innerWidth / W, window.innerHeight / H);
+    var s = Math.min(bw / W, bh / H);
     stage.style.width = W + 'px'; stage.style.height = H + 'px';
     stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
   }
   window.addEventListener('resize', fit);
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(ROOT);
   fit();
 
   // ---------- screens ----------
   function go(name) {
-    Array.prototype.forEach.call(document.querySelectorAll('.screen'), function (s) { s.classList.remove('is-on'); });
+    $$('.screen').forEach(function (s) { s.classList.remove('is-on'); });
     $('#s-' + name).classList.add('is-on');
     if (name === 'title') $('#titleBalance').textContent = money(save.cash) + ' · ' + t('title.walletWord') + ' ' + money(walletValue());
     if (name === 'map') renderMap();
     if (name === 'shop') renderShop();
     if (name === 'wallet') renderWallet();
   }
-  document.addEventListener('click', function (e) {
+  ROOT.addEventListener('click', function (e) {
     var t = e.target.closest('[data-go]');
     if (!t) return;
     SFX.tap();
@@ -471,6 +481,7 @@
     else SFX.plate();
   }
   function pay(c) {
+    reloadCash();
     var left = Math.max(0, 1 - (G.elapsed * 1000 - c.born) / c.patience);
     var tipRate = (left > 0.6 ? 0.3 : left > 0.3 ? 0.15 : 0) + U.tip;
     var mult = COINS[c.coin].mult * (pump && pump.coin === c.coin ? 2 : 1);
@@ -630,6 +641,7 @@
     var L = G.L, i = levelIndex;
     var stars = G.earned >= L.goal * 1.6 ? 3 : G.earned >= L.goal * 1.3 ? 2 : G.earned >= L.goal ? 1 : 0;
     save.stars[i] = Math.max(save.stars[i] || 0, stars);
+    reloadCash();
     persist();
     (stars ? SFX.win : SFX.lose)();
 
@@ -677,6 +689,7 @@
   $('#btnPause').addEventListener('click', pause);
   document.addEventListener('visibilitychange', function () { if (document.hidden) pause(); });
   document.addEventListener('keydown', function (e) {
+    if (EMBEDDED && !ROOT.contains(document.activeElement) && !G) return;
     if (e.key === 'Escape' || e.key === 'p') { if (G && G.paused) resume(); else pause(); }
     if (!G || G.paused || G.ended) return;
     // 1–5 start cooking on the nth station; space serves the first customer that can be served
@@ -738,6 +751,7 @@
     var up = UPGRADES.filter(function (u) { return u.id === b.getAttribute('data-buy'); })[0];
     var lv = save.upg[up.id] || 0;
     var price = up.prices[lv];
+    reloadCash();
     if (save.cash < price) return;
     save.cash -= price;
     save.upg[up.id] = lv + 1;
@@ -769,4 +783,5 @@
   });
 
   go('title');
+  window.CKGame = { setLang: function (l) { if (LANGS.indexOf(l) === -1) return; lang = l; save.lang = l; persist(); applyLang(); go('title'); }, refresh: function () { reloadCash(); if ($('#s-title').classList.contains('is-on')) go('title'); } };
 })();

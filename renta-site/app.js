@@ -71,7 +71,7 @@
   });
 
   /* active link, by which section owns the middle of the screen */
-  var sections = ['portfolio', 'roll', 'dashboard', 'faq', 'docs'].map(function (id) {
+  var sections = ['portfolio', 'roll', 'dashboard', 'faq'].map(function (id) {
     return document.getElementById(id);
   }).filter(Boolean);
 
@@ -80,7 +80,8 @@
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
         $$('#navlinks a').forEach(function (a) {
-          a.classList.toggle('is-active', a.getAttribute('href') === '#' + e.target.id);
+          var owns = a.getAttribute('data-spy') || (a.getAttribute('href') || '').slice(1);
+          a.classList.toggle('is-active', owns === e.target.id);
         });
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
@@ -143,19 +144,23 @@
   });
 
   /* ------------------------------------------------- map <-> properties -- */
-  var pins = $$('.rt-pin'), props = $$('.rt-prop'), shapes = $$('.rt-c');
+  var pins = $$('.rt-pin'), props = $$('#portfolio tr[data-city]'), shapes = $$('.rt-c');
 
   /* which country each city we own in belongs to, so the whole country
      lights up with its pin */
   var COUNTRY = {
-    Lisbon: 'Portugal', Porto: 'Portugal',
-    Madrid: 'Spain', Valencia: 'Spain',
+    Lisbon: 'Portugal',
+    Madrid: 'Spain', Barcelona: 'Spain', Terrassa: 'Spain',
+    Turin: 'Italy',
     Leipzig: 'Germany', Rotterdam: 'Netherlands', 'Kraków': 'Poland'
   };
+  /* Terrassa is twenty kilometres from Barcelona — one pin at this scale */
+  var PIN = { Terrassa: 'Barcelona' };
 
   function light(city, on) {
+    var pin = PIN[city] || city;
     pins.forEach(function (p) {
-      if (p.getAttribute('data-city') === city) p.classList.toggle('is-on', on);
+      if (p.getAttribute('data-city') === pin) p.classList.toggle('is-on', on);
     });
     props.forEach(function (p) {
       if (p.getAttribute('data-city') === city) p.classList.toggle('is-on', on);

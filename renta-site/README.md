@@ -70,8 +70,8 @@ data/buildings.json ──facades.js──▶ data/facades.js   (a façade per b
 ## The map, and the cities
 
 The map of Europe is generated, not drawn: `world-atlas@2` 1:50m country polygons,
-projected (equirectangular, x scaled by `cos 48°`, framed 16.2°W–51.4°E by
-37.4°N–60°N, 2:1), simplified with Douglas-Peucker at 1.1px of final screen pixels,
+projected (equirectangular, x scaled by `cos 48°`, framed 21°W–59.7°E by
+35°N–62°N, 2:1), simplified with Douglas-Peucker at 1.1px of final screen pixels,
 and written to `map.svg` — one `<path>` per country, ~66KB, loaded as an `<img>`
 and cached. An inline overlay in the same frame carries only what needs to react:
 the six owned countries (transparent until a building is hovered), the capitals as

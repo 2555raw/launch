@@ -190,11 +190,19 @@
     svg.push('</g>');
     /* labels: the small central cells keep their name for hover only, and a
        district that holds a building gets its name moved clear of the pin */
-    c.districts.forEach(function (d) {
-      if (d.area < 2100 && !d.own) return;
-      var small = d.area < 3200;
+    /* labels, biggest district first; one that would sit on another, or on
+       a pin, is left off — its name is still in the cell's tooltip */
+    var boxes = c.buildings.map(function (b) { return { x: b.x - 16, y: b.y - 16, w: 32, h: 32 }; });
+    var hit = function (b) { return boxes.some(function (o) { return b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y; }); };
+    c.districts.slice().sort(function (a, b) { return (b.own - a.own) || (b.area - a.area); }).forEach(function (d) {
+      if (d.area < 1200 && !d.own) return;
+      var small = d.area < 3200, fs = small ? 10.5 : 12.5;
       var x = d.cx, y = d.cy;
       c.buildings.forEach(function (b) { if (Math.hypot(b.x - x, b.y - y) < 34) y = b.y - 22; });
+      var w = d.name.length * fs * 0.62, h = fs * 1.15;
+      var box = { x: x - w / 2 - 3, y: y - h * 0.8 - 2, w: w + 6, h: h + 4 };
+      if (hit(box)) return;
+      boxes.push(box);
       svg.push('<text class="rt-dist-label' + (d.own ? ' rt-dist-label--own' : '') + (small ? ' rt-dist-label--sm' : '') + '" x="' + x + '" y="' + y + '" text-anchor="middle">' + d.name + '</text>');
     });
     c.buildings.forEach(function (b, i) {

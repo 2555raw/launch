@@ -388,7 +388,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
   width: 100vw;
   margin-inline: calc(50% - 50vw);
   margin-block: clamp(30px, 5vw, 56px);
-  aspect-ratio: 1440 / 719;   /* the reference's proportion, not Europe's */
+  aspect-ratio: 1440 / 720;   /* the reference's proportion, not Europe's */
   max-height: 900px;
   overflow: hidden;
   background:

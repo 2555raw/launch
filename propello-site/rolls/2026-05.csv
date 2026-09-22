@@ -1,0 +1,132 @@
+section,building,unit,lease_due,collected,collected_on,note
+header,month,2026-05,,,,
+header,opening_price,1.008263,,,,
+header,closing_price,1.012383,,,,
+header,shares_open,9160000,,,,
+header,shares_close,9704000,,,,
+header,buildings_at_cost,10900000.000000,,,,
+header,bought,Torrent de l'Olla 62,1580000.000000,,2026-05-27,"Barcelona — 6 apartments, let on completion"
+header,previous_roll,0xacc9581db6d3e4f26adbe32c2aabf8367cd7d0c797035191f614be161b9f57ac,,,,
+rent,Rua da Bica 14,1A,815.000000,510.000000,2026-05-10,"partial, balance chased"
+rent,Rua da Bica 14,1B,815.000000,815.000000,2026-05-02,
+rent,Rua da Bica 14,2A,815.000000,815.000000,2026-05-04,
+rent,Rua da Bica 14,2B,815.000000,815.000000,2026-05-01,
+rent,Rua da Bica 14,3A,815.000000,815.000000,2026-05-01,
+rent,Rua da Bica 14,3B,815.000000,0.000000,,not received
+rent,Rua da Bica 14,4A,815.000000,815.000000,2026-05-04,
+rent,Rua da Bica 14,4B,815.000000,815.000000,2026-05-05,
+rent,Mesón de Paredes 41,1A,980.000000,980.000000,2026-05-04,
+rent,Mesón de Paredes 41,1B,980.000000,980.000000,2026-05-05,
+rent,Mesón de Paredes 41,2A,980.000000,980.000000,2026-05-01,
+rent,Mesón de Paredes 41,2B,980.000000,980.000000,2026-05-04,
+rent,Mesón de Paredes 41,3A,980.000000,980.000000,2026-05-14,late
+rent,Mesón de Paredes 41,3B,980.000000,980.000000,2026-05-09,late
+rent,Mesón de Paredes 41,4A,980.000000,980.000000,2026-05-02,
+rent,Mesón de Paredes 41,4B,0.000000,0.000000,,vacant
+rent,Mesón de Paredes 41,5A,980.000000,980.000000,2026-05-18,late
+rent,Carrer del Nord 15,1A,590.000000,365.000000,2026-05-01,"partial, balance chased"
+rent,Carrer del Nord 15,1B,590.000000,590.000000,2026-05-14,late
+rent,Carrer del Nord 15,2A,590.000000,590.000000,2026-05-02,
+rent,Carrer del Nord 15,2B,590.000000,590.000000,2026-05-01,
+rent,Carrer del Nord 15,3A,590.000000,590.000000,2026-05-04,
+rent,Carrer del Nord 15,3B,590.000000,590.000000,2026-05-01,
+rent,Carrer del Nord 15,4A,590.000000,590.000000,2026-05-05,
+rent,Via Sant'Ottavio 24,1A,710.000000,710.000000,2026-05-01,
+rent,Via Sant'Ottavio 24,1B,710.000000,710.000000,2026-05-10,late
+rent,Via Sant'Ottavio 24,2A,0.000000,0.000000,,vacant
+rent,Via Sant'Ottavio 24,2B,710.000000,0.000000,,not received
+rent,Via Sant'Ottavio 24,3A,710.000000,710.000000,2026-05-03,
+rent,Via Sant'Ottavio 24,3B,710.000000,0.000000,,not received
+rent,Via Sant'Ottavio 24,4A,710.000000,710.000000,2026-05-04,
+rent,Via Sant'Ottavio 24,4B,710.000000,710.000000,2026-05-01,
+rent,Kurt-Eisner-Straße 27,1A,690.000000,290.000000,2026-05-02,"partial, balance chased"
+rent,Kurt-Eisner-Straße 27,1B,690.000000,690.000000,2026-05-12,late
+rent,Kurt-Eisner-Straße 27,2A,690.000000,690.000000,2026-05-04,
+rent,Kurt-Eisner-Straße 27,2B,690.000000,690.000000,2026-05-04,
+rent,Kurt-Eisner-Straße 27,3A,690.000000,245.000000,2026-05-05,"partial, balance chased"
+rent,Kurt-Eisner-Straße 27,3B,690.000000,430.000000,2026-05-01,"partial, balance chased"
+rent,Kurt-Eisner-Straße 27,4A,690.000000,690.000000,2026-05-05,
+rent,Kurt-Eisner-Straße 27,4B,690.000000,690.000000,2026-05-05,
+rent,Kurt-Eisner-Straße 27,5A,690.000000,690.000000,2026-05-04,
+rent,Kurt-Eisner-Straße 27,5B,690.000000,690.000000,2026-05-05,
+rent,Gohliser Straße 9,1A,715.000000,405.000000,2026-05-18,"partial, balance chased"
+rent,Gohliser Straße 9,1B,715.000000,715.000000,2026-05-01,
+rent,Gohliser Straße 9,2A,715.000000,715.000000,2026-05-04,
+rent,Gohliser Straße 9,2B,715.000000,410.000000,2026-05-02,"partial, balance chased"
+rent,Gohliser Straße 9,3A,715.000000,715.000000,2026-05-01,
+rent,Gohliser Straße 9,3B,715.000000,715.000000,2026-05-05,
+rent,Beijerlandselaan 112,1A,1060.000000,530.000000,2026-05-04,"partial, balance chased"
+rent,Beijerlandselaan 112,1B,1060.000000,1060.000000,2026-05-11,late
+rent,Beijerlandselaan 112,2A,1060.000000,1060.000000,2026-05-02,
+rent,Beijerlandselaan 112,2B,1060.000000,495.000000,2026-05-03,"partial, balance chased"
+rent,Beijerlandselaan 112,3A,1060.000000,1060.000000,2026-05-02,
+rent,Beijerlandselaan 112,3B,1060.000000,1060.000000,2026-05-02,
+rent,Beijerlandselaan 112,4A,1060.000000,1060.000000,2026-05-01,
+rent,Beijerlandselaan 112,4B,1060.000000,1060.000000,2026-05-02,
+rent,Beijerlandselaan 112,5A,1060.000000,1060.000000,2026-05-07,
+rent,Beijerlandselaan 112,5B,1060.000000,1060.000000,2026-05-02,
+rent,Zwaanshals 64,1,1050.000000,1050.000000,2026-05-03,
+rent,Zwaanshals 64,2,1050.000000,1050.000000,2026-05-02,
+rent,Zwaanshals 64,3,1050.000000,1050.000000,2026-05-05,
+rent,Zwaanshals 64,4,1050.000000,1050.000000,2026-05-19,late
+rent,Zwaanshals 64,5,1050.000000,1050.000000,2026-05-03,
+rent,Ulica Krakowska 18,1A,650.000000,650.000000,2026-05-05,
+rent,Ulica Krakowska 18,1B,650.000000,650.000000,2026-05-04,
+rent,Ulica Krakowska 18,2A,650.000000,650.000000,2026-05-03,
+rent,Ulica Krakowska 18,2B,650.000000,650.000000,2026-05-05,
+rent,Ulica Krakowska 18,3A,650.000000,650.000000,2026-05-07,
+rent,Ulica Krakowska 18,3B,650.000000,650.000000,2026-05-01,
+rent,Ulica Krakowska 18,4A,650.000000,650.000000,2026-05-10,late
+rent,Ulica Krakowska 18,4B,650.000000,650.000000,2026-05-03,
+cost,,,,3179.000000,2026-05-31,Propello Vastgoed B.V. — management fee 0.35% — invoice MGMT-2026-05
+cost,Rua da Bica 14,,,365.000000,2026-05-31,"managing agent, Lisbon — invoice AGT-2026-05-LIS"
+cost,Rua da Bica 14,,,390.000000,2026-05-31,"property tax, Lisbon — invoice TAX-2026-05"
+cost,Rua da Bica 14,,,150.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Mesón de Paredes 41,,,440.000000,2026-05-31,"managing agent, Madrid — invoice AGT-2026-05-MAD"
+cost,Mesón de Paredes 41,,,500.000000,2026-05-31,"property tax, Madrid — invoice TAX-2026-05"
+cost,Mesón de Paredes 41,,,190.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Carrer del Nord 15,,,230.000000,2026-05-31,"managing agent, Terrassa — invoice AGT-2026-05-TER"
+cost,Carrer del Nord 15,,,240.000000,2026-05-31,"property tax, Terrassa — invoice TAX-2026-05"
+cost,Carrer del Nord 15,,,90.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Via Sant'Ottavio 24,,,280.000000,2026-05-31,"managing agent, Turin — invoice AGT-2026-05-TUR"
+cost,Via Sant'Ottavio 24,,,300.000000,2026-05-31,"property tax, Turin — invoice TAX-2026-05"
+cost,Via Sant'Ottavio 24,,,115.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Kurt-Eisner-Straße 27,,,390.000000,2026-05-31,"managing agent, Leipzig — invoice AGT-2026-05-LEI"
+cost,Kurt-Eisner-Straße 27,,,435.000000,2026-05-31,"property tax, Leipzig — invoice TAX-2026-05"
+cost,Kurt-Eisner-Straße 27,,,165.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Gohliser Straße 9,,,240.000000,2026-05-31,"managing agent, Leipzig — invoice AGT-2026-05-LEI"
+cost,Gohliser Straße 9,,,265.000000,2026-05-31,"property tax, Leipzig — invoice TAX-2026-05"
+cost,Gohliser Straße 9,,,100.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Beijerlandselaan 112,,,595.000000,2026-05-31,"managing agent, Rotterdam — invoice AGT-2026-05-ROT"
+cost,Beijerlandselaan 112,,,600.000000,2026-05-31,"property tax, Rotterdam — invoice TAX-2026-05"
+cost,Beijerlandselaan 112,,,230.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Zwaanshals 64,,,235.000000,2026-05-31,"managing agent, Rotterdam — invoice AGT-2026-05-ROT"
+cost,Zwaanshals 64,,,300.000000,2026-05-31,"property tax, Rotterdam — invoice TAX-2026-05"
+cost,Zwaanshals 64,,,115.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Ulica Krakowska 18,,,290.000000,2026-05-31,"managing agent, Kraków — invoice AGT-2026-05-KRA"
+cost,Ulica Krakowska 18,,,230.000000,2026-05-31,"property tax, Kraków — invoice TAX-2026-05"
+cost,Ulica Krakowska 18,,,90.000000,2026-05-31,buildings insurance — invoice INS-2026-05
+cost,Kurt-Eisner-Straße 27,,,4180.000000,2026-05-31,"Dachdeckerei Hoffmann — roof, west section — invoice LE-2026-0512"
+cost,Rua da Bica 14,,,165.000000,2026-05-31,lift inspection — invoice LI-202605-100
+cost,Mesón de Paredes 41,,,195.000000,2026-05-31,gutter — invoice MA-202605-101
+cost,Carrer del Nord 15,,,115.000000,2026-05-31,electrician — invoice TE-202605-102
+cost,Via Sant'Ottavio 24,,,160.000000,2026-05-31,"painting, stairwell — invoice TU-202605-103"
+cost,Kurt-Eisner-Straße 27,,,180.000000,2026-05-31,gutter — invoice LE-202605-104
+cost,Gohliser Straße 9,,,125.000000,2026-05-31,lift inspection — invoice LE-202605-105
+cost,Beijerlandselaan 112,,,235.000000,2026-05-31,"painting, stairwell — invoice RO-202605-106"
+cost,Zwaanshals 64,,,160.000000,2026-05-31,window seal — invoice RO-202605-107
+cost,Ulica Krakowska 18,,,86.000000,2026-05-31,gutter — invoice KR-202605-108
+movement,,,,67800.000000,2026-05-05,deposit 0x54d3…c2e8 at 1.008263
+movement,,,,47600.000000,2026-05-06,deposit 0xE8a0…1b3f at 1.008263
+movement,,,,149600.000000,2026-05-06,deposit 0x54d3…c2e8 at 1.008263
+movement,,,,11000.000000,2026-05-09,redeem 0x61F2…a09b at 1.008263 curve 45.53% tax 5049.38
+movement,,,,60800.000000,2026-05-12,deposit 0x7c02…44de at 1.008263
+movement,,,,31300.000000,2026-05-14,deposit 0xB19e…0f7a at 1.008263
+movement,,,,27700.000000,2026-05-15,redeem 0xB19e…0f7a at 1.008263 curve 2.30% tax 642.36
+movement,,,,54200.000000,2026-05-15,deposit 0xB19e…0f7a at 1.008263
+movement,,,,16600.000000,2026-05-17,deposit 0x9cC4…7d10 at 1.008263
+movement,,,,87100.000000,2026-05-17,deposit 0xE8a0…1b3f at 1.008263
+movement,,,,86300.000000,2026-05-18,deposit 0x9cC4…7d10 at 1.008263
+movement,,,,13000.000000,2026-05-19,deposit 0x9cC4…7d10 at 1.008263
+movement,,,,6000.000000,2026-05-26,redeem 0xB19e…0f7a at 1.008263 curve 1.33% tax 80.46
+movement,,,,25600.000000,2026-05-26,redeem 0x54d3…c2e8 at 1.008263 curve 1.70% tax 438.80

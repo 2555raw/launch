@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- The card other sites show when the link is shared. Rendered to og.png by
+     scripts/og.js, which fills the figures from data/vault.json first, so the
+     image can never disagree with the page. -->
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #102A47; }
+  .og {
+    position: relative; width: 1200px; height: 630px; padding: 72px 80px; box-sizing: border-box;
+    background: radial-gradient(ellipse at 78% 30%, rgba(99,214,242,.14), transparent 55%), #102A47;
+    color: #E8F1F8; font-family: "Space Grotesk", sans-serif;
+  }
+  .og-map {
+    position: absolute; inset: 0; background: url("../map.svg") no-repeat 50% 44%;
+    background-size: 150% auto; opacity: .5;
+    -webkit-mask-image: radial-gradient(120% 100% at 50% 44%, #000 40%, transparent 100%);
+  }
+  .og > * { position: relative; }
+  .og-brand { display: flex; align-items: center; gap: 14px; font-size: 34px; font-weight: 700; letter-spacing: -.035em; color: #F3F2EC; }
+  .og-brand svg { width: 44px; height: 44px; }
+  .og h1 { margin: 60px 0 0; font-size: 92px; line-height: .96; letter-spacing: -.035em; font-weight: 700; color: #F3F2EC; }
+  .og p { margin: 34px 0 0; font-size: 30px; line-height: 1.35; color: #9CB9D3; max-width: 900px; }
+  .og p b { color: #E8F1F8; font-weight: 600; }
+  .og-foot { position: absolute; left: 80px; bottom: 60px; display: flex; gap: 44px; font-family: "JetBrains Mono", monospace; font-size: 20px; color: #93B1CC; letter-spacing: .04em; }
+  .og-foot b { color: #63D6F2; font-weight: 500; }
+  .og-ring { position: absolute; right: -180px; top: -120px; width: 720px; height: 720px; border-radius: 50%; border: 1px solid rgba(99,214,242,.18); }
+  .og-ring.b { right: -60px; top: 20px; width: 480px; height: 480px; border-color: rgba(99,214,242,.28); }
+</style></head>
+<body><div class="og">
+  <i class="og-map"></i><i class="og-ring"></i><i class="og-ring b"></i>
+  <div class="og-brand">
+    <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 2.4 28.4 10.6H3.6z"/><rect x="7" y="12.6" width="18" height="3.9" rx="1"/><rect x="6" y="18.5" width="20" height="3.9" rx="1"/><rect x="5" y="24.4" width="22" height="3.9" rx="1"/></svg>Propello
+  </div>
+  <h1>Rental property,<br>without the property.</h1>
+  <p>Own a share of a vault that owns rented apartments across Europe. <b>The rent they collect, after the bills, lifts the price of your share.</b></p>
+  <div class="og-foot">
+    <span id="og-b">10 BUILDINGS</span><span id="og-c">8 CITIES</span>
+    <span>SHARE PRICE <b id="og-p">€1.0254</b></span><span>FROM <b>100 EURG</b></span>
+  </div>
+</div></body></html>

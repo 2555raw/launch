@@ -1,0 +1,32 @@
+[
+  {
+    "month": "2026-03",
+    "file": "rolls/2026-03.csv",
+    "sha256": "0x0a8108c99729bc8224cb31b578099adec80f3eca7820379a6d36a5c53b3b1659"
+  },
+  {
+    "month": "2026-04",
+    "file": "rolls/2026-04.csv",
+    "sha256": "0xacc9581db6d3e4f26adbe32c2aabf8367cd7d0c797035191f614be161b9f57ac"
+  },
+  {
+    "month": "2026-05",
+    "file": "rolls/2026-05.csv",
+    "sha256": "0x2c715f5ccf6c6a59e51a543616ea63d1c334303f953f759d80387165a6a53b6b"
+  },
+  {
+    "month": "2026-06",
+    "file": "rolls/2026-06.csv",
+    "sha256": "0xd5c55054f0dcf47c8c4f97da16e5f97426003f1416b853da301df75f7525a201"
+  },
+  {
+    "month": "2026-07",
+    "file": "rolls/2026-07.csv",
+    "sha256": "0xdf4e858789f281d5e6f8287f1f4d5fef688346b12ef8e6853de6c1eb402ea8cd"
+  },
+  {
+    "month": "2026-08",
+    "file": "rolls/2026-08.csv",
+    "sha256": "0xce2847f97de41680096eaf90bab6fbb86ccabd23703da661dc6faab318a088d4"
+  }
+]

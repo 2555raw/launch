@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propello · Docs</title>
+<meta name="description" content="Propello 金库如何运作：份额是什么，什么决定它的价格，如何存入与赎回，如何阅读和验证月报，以及如何在其上构建。">
+<link rel="canonical" href="https://propello.example/zh/docs.html">
+<link rel="alternate" hreflang="en" href="https://propello.example/docs.html">
+<link rel="alternate" hreflang="zh" href="https://propello.example/zh/docs.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:site_name" content="Propello">
+<meta property="og:title" content="Propello — 文档">
+<meta property="og:description" content="Propello 金库如何运作：份额是什么，什么决定它的价格，如何存入与赎回，如何阅读和验证月报，以及如何在其上构建。">
+<meta property="og:url" content="https://propello.example/zh/docs.html">
+<meta property="og:image" content="https://propello.example/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Propello — 拥有出租房产的收益，无需拥有房产。">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Propello — 文档">
+<meta name="twitter:description" content="Propello 金库如何运作：份额是什么，什么决定它的价格，如何存入与赎回，如何阅读和验证月报，以及如何在其上构建。">
+<meta name="twitter:image" content="https://propello.example/og.png">
+<meta name="theme-color" content="#102A47">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23102A47'/%3E%3Cg fill='%23F3F2EC'%3E%3Cpath d='M16 3 28.5 11.2H3.5z'/%3E%3Crect x='7' y='13.2' width='18' height='4' rx='1'/%3E%3Crect x='6' y='19.2' width='20' height='4' rx='1'/%3E%3Crect x='5' y='25.2' width='22' height='4' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="../fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body class="rt-docs-body">
+
+<nav class="rt-nav" id="nav">
+  <a class="rt-brand" href="index.html" aria-label="Propello，回到网站">
+    <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+      <path d="M16 2.4 28.4 10.6H3.6z"/>
+      <rect x="7" y="12.6" width="18" height="3.9" rx="1"/>
+      <rect x="6" y="18.5" width="20" height="3.9" rx="1"/>
+      <rect x="5" y="24.4" width="22" height="3.9" rx="1"/>
+    </svg>
+    <span>Propello</span>
+  </a>
+  <div class="rt-nav-links" id="navlinks">
+    <a href="index.html#map">物业组合</a>
+    <a href="index.html#roll">月报</a>
+    <a href="index.html#dashboard">面板</a>
+    <a href="index.html#faq">常见问题</a>
+    <a href="sandbox.html">沙盒</a>
+    <a href="docs.html" class="is-active">Docs</a>
+  </div>
+  <div class="rt-nav-right">
+    <a class="rt-lang" href="../docs.html" hreflang="en" lang="en" aria-label="English">EN</a>
+    <button class="rt-burger" id="burger" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="navlinks">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <a class="rt-btn rt-btn--light rt-btn--sm" href="index.html#start">连接钱包</a>
+  </div>
+</nav>
+
+<main class="rt-docs" id="top">
+
+  <aside class="rt-side" id="side" aria-label="文档章节">
+    <a class="rt-side-top is-active" href="#overview">概览</a>
+    <div class="rt-side-h">使用金库</div>
+    <a href="#how">它如何运作</a>
+    <a href="#price">什么决定份额价格</a>
+    <a href="#deposit">存入与赎回</a>
+    <a href="#fees">费用</a>
+    <a href="#risk">可能出什么问题</a>
+    <div class="rt-side-h">月报</div>
+    <a href="#reading">阅读月报</a>
+    <a href="#verifying">验证月报</a>
+    <a href="#format">发布文件的格式</a>
+    <div class="rt-side-h">在其上构建</div>
+    <a href="#local">在本地运行</a>
+    <a href="#chain">链与地址</a>
+    <a href="#contracts">合约</a>
+    <a href="#audit">审计</a>
+    <div class="rt-side-h">法律</div>
+    <a href="#who">谁可以投资</a>
+    <a href="#legal">这是什么，不是什么</a>
+  </aside>
+
+  <article class="rt-doc">
+    <h1 id="overview">Propello</h1>
+    <p class="rt-doc-lede">
+      一个持有出租公寓份额的金库，公布每一套公寓付了多少钱，
+      并让你自己核对算术。
+    </p>
+    <hr>
+    <p>
+      租客交租。账单从中扣除。剩下的留在金库里，推高份额价格。
+      你永远不会收到租金转账，也永远不会拥有一套公寓。
+    </p>
+    <p>
+      每月一号，金库发布<b>月报（The Roll）</b>——刚结束那个月的报告。它列出每一套公寓、
+      租约上写的金额、租金是否到账，以及扣除的每一项成本。文件会被哈希，哈希与当月的
+      结算份额价格一起写在链上，因此你读到的文件可以被证明就是发布的那份文件。
+    </p>
+    <p>本文档涵盖三件事：</p>
+    <ul>
+      <li><a href="#how">使用金库</a>——份额是什么，它的价格如何变动，费用是什么，以及可能出什么问题。</li>
+      <li><a href="#reading">月报</a>——如何阅读月报，以及如何自己验证一份月报。</li>
+      <li><a href="#local">在其上构建</a>——合约、链、审计，以及如何在自己的机器上运行整个系统。</li>
+    </ul>
+
+    <h2>简短版本</h2>
+    <table class="rt-kv">
+      <tr><th>你持有什么</th><td>vPROP，金库的 ERC-4626 份额</td></tr>
+      <tr><th>什么决定它的价格</th><td>金库持有的 EURG 加上楼宇的账面价值，除以流通份额数</td></tr>
+      <tr><th>钱从哪里来</th><td>实收租金，扣除物业成本和管理费</td></tr>
+      <tr><th>什么时候拿到钱</th><td>赎回时。没有月度分红。</td></tr>
+      <tr><th>费用是什么</th><td>存入免费，赎回免费。九十天内离开需付曲线税，且它留在金库里。</td></tr>
+      <tr><th>如何核对</th><td>重新计算月报的哈希，与链上的比对</td></tr>
+    </table>
+    <p>
+      这里没有任何预测。网站上的每一个数字都由随之发布的账本计算得出，
+      所以一份月报可以逐行核对，而不必凭信任接受。
+    </p>
+
+    <hr>
+
+    <!-- ================================================= using the vault == -->
+    <h2 id="how">它如何运作</h2>
+    <p>
+      金库是一家控股公司，前面放着一个代币。这家公司——一家荷兰 B.V.——全款持有
+      六个国家八座城市的十栋公寓楼，并持有一笔 EURG 现金储备。代币 vPROP 是对这一切
+      按比例的权利主张。
+    </p>
+    <p>每个月，依次发生三件事：</p>
+    <ol>
+      <li><b>收租。</b>各城市的管理机构从七十七套公寓收取租金，扣除自己的费用后转入金库的运营账户。</li>
+      <li><b>付账单。</b>维修、房产税、保险、管理机构和审计师的费用从该账户支出。剩下的即为<i>留存</i>。</li>
+      <li><b>写入结算。</b>每月最后一天，留存金额计入金库持有量，计算新的份额价格，并发布月报，其哈希写在链上。</li>
+    </ol>
+    <p>
+      这个结构里没有任何借贷。任何楼宇都没有房贷，金库没有信用额度，代币没有杠杆。
+      金库以存款和留存租金的速度增长，比银行允许的要慢，而这正是重点。
+    </p>
+
+    <h2 id="price">什么决定份额价格</h2>
+    <p>
+      一个 vPROP 的价格，是金库的持有量除以流通份额数。金库的持有量是两项之和：
+      储备中的 EURG，以及按买入价计的楼宇，后者只在楼宇出售或委托独立估值时调整——
+      估值每年一次，估值本身也会公布。
+    </p>
+    <p>
+      由于两次估值之间楼宇按成本入账，价格在两次结算之间只因两个原因变动：
+    </p>
+    <ul>
+      <li><b>留存租金。</b>当月实收租金减去当月成本，计入储备。</li>
+      <li><b>曲线税。</b>存入后九十天内赎回的人，以略低于份额价格的价格卖出。差额留在储备中归其他人所有。见<a href="#fees">费用</a>。</li>
+    </ul>
+    <p>这是 2026 年 8 月 31 日的结算，金库开放以来的第六次：</p>
+    <!-- data:ledger --><table class="rt-ledger">
+      <tr><td>租约应收租金</td><td>€61,671</td></tr>
+      <tr><td>实收租金 <span class="rt-c-muted">（鹿特丹的一份租约于 9 日到期）</span></td><td>€58,870</td></tr>
+      <tr><td>物业成本与费用</td><td>−€18,250</td></tr>
+      <tr class="rt-sum"><td>留存并计入储备</td><td>€40,620</td></tr>
+      <tr><td>提前赎回缴纳的曲线税</td><td>€7,470</td></tr>
+      <tr><td>结算时流通份额</td><td>11,050,000</td></tr>
+      <tr><td>份额价格变动</td><td>+€0.004352</td></tr>
+      <tr class="rt-sum"><td>一个 vPROP 的结算价格</td><td>€1.025393</td></tr>
+    </table><!-- /data:ledger -->
+    <!-- data:ledger-text --><p>
+      €40,620 分摊到 11,050,000 份，每份 €0.003676。曲线税增加了 €0.000676。价格从 €1.021041
+      变为 €1.025393，网站将其取整为 €1.0254。这些数字每一个都在八月的月报里，月报的哈希在登记合约中。
+    </p><!-- /data:ledger-text -->
+
+    <h2 id="deposit">存入与赎回</h2>
+    <p>
+      金库是一个 ERC-4626 合约，所以它的运作方式和其他合约一样。你授权 EURG，
+      调用 <code>deposit</code>，vPROP 在同一笔交易中按该区块时的份额价格到账。
+      最低 100 EURG。没有上限，没有白名单，没有锁定期。
+    </p>
+    <p>
+      离开时，你带上份额数量调用 <code>redeem</code>。只要储备够付，EURG 在同一个区块到账——
+      储备大致保持在一个月租金加上通常的赎回量，上次结算时为 <!-- data:reserve -->€430,593<!-- /data:reserve -->。
+      超过储备的赎回会排队，在下一次结算时按那次结算的价格清算。这是唯一需要等待的情况，
+      月报会记录每一笔排队的赎回及其清算日期。
+    </p>
+    <div class="rt-note">
+      <p><b>你永远不会收到租金。</b>没有流式支付、空投或可领取的东西。租金在价格里。如果你想让它进钱包，就赎回你持仓中价值相当的那一部分。</p>
+    </div>
+
+    <h2 id="fees">费用</h2>
+    <table class="rt-kv">
+      <tr><th>存入</th><td><span class="rt-num">0.00%</span></td></tr>
+      <tr><th>赎回</th><td><span class="rt-num">0.00%</span></td></tr>
+      <tr><th>曲线税</th><td>适用于最近一次存入后 90 天内的赎回，从第一天的 <span class="rt-num">3.0%</span> 直线下降到第九十天的 <span class="rt-num">0.0%</span>。这不是我们收取的费用：它留在金库里，推高留下来的持有人的价格。</td></tr>
+      <tr><th>管理费</th><td>每年为金库持有量的 <span class="rt-num">0.35%</span>，每月在结算前从租金中扣除。它包含在上面 €18,250 的成本里，并且是每份月报中的一行。</td></tr>
+      <tr><th>业绩费</th><td>无。</td></tr>
+    </table>
+    <p>
+      曲线税的存在，是为了让一个紧张的星期不至于迫使金库卖掉一栋楼，去付钱给三周前才进来的人。
+      楼宇要几个月才能卖掉，而且急着卖会卖得很差；这项税让提前离开的代价，
+      大致等于一次仓促出售会让其他所有人付出的代价。
+    </p>
+
+    <h2 id="risk">可能出什么问题</h2>
+    <p>房产是慢的，也并非没有风险。大致按你应该担心的顺序：</p>
+    <ul>
+      <li><b>租客不交租。</b>管理机构追讨，月报记为应收未收，当月价格涨幅变小。在七十七套公寓里，一套空置每月只损失几百欧元，而不是全部。</li>
+      <li><b>一次大修。</b>屋顶、锅炉、外墙。2026 年 5 月就有一次：Kurt-Eisner-Straße 花了 €4,180，一次付清，从当月租金里出。那个月价格照样上涨，只是少了一点。</li>
+      <li><b>估值下跌。</b>楼宇每年独立重估一次。如果某个市场跌了，份额价格在那次结算时随之下跌。除了赎回队列以低于储备的价格清算之外，这是价格下跌的唯一途径。</li>
+      <li><b>赎回队列。</b>如果赎回超过储备，它们要等到下一次结算。极端情况下金库会卖掉一栋楼来应付，市场给什么价就是什么价，每个人的份额都要承担这一点。</li>
+      <li><b>稳定币。</b>金库持有 EURG。如果 EURG 的交易价格偏离一欧元，即使楼宇没有任何变化，储备按欧元计也会缩水。</li>
+      <li><b>我们。</b>运营金库的公司可能会停止。控股公司和楼宇不依赖它：vPROP 持有人拥有控股公司，无论这个网站是否存在，金库合约都接受任何钱包的赎回，房契也在各国以常规方式登记。</li>
+    </ul>
+
+    <hr>
+
+    <!-- ========================================================= the roll == -->
+    <h2 id="reading">阅读月报</h2>
+    <p>
+      一份月报是金库一个月的全部内容，装在一个文件里。它有四个部分，顺序永远如下：
+    </p>
+    <ol>
+      <li><b>头部。</b>月份、期初和期末份额价格、期初和期末的流通份额数，以及上一份月报的哈希。</li>
+      <li><b>租金表本身。</b>每套公寓一行：楼宇、单元、租约上应付的金额、到账金额和到账日，以及晚付、部分付或未付的备注。</li>
+      <li><b>成本。</b>运营账户的每一笔支出，附所属楼宇、收款方、发票编号和金额。管理费在这里和其他项一样是一行。</li>
+      <li><b>资金变动。</b>当月每一笔存入和赎回，按钱包列出，附成交价格和适用的曲线税。</li>
+    </ol>
+    <p>
+      大家最先看的两个数字是<b>应收</b>和<b>实收</b>。应收是租约上写的。实收是到账的。
+      两者的差距就是这个月的故事，租金表逐行讲述它。
+    </p>
+
+    <h2 id="verifying">验证月报</h2>
+    <p>
+      月报以纯文件形式发布，其 SHA-256 哈希由设置当月结算价格的同一笔交易写入金库合约。
+      验证一份月报：
+    </p>
+    <pre><code><span class="c"># 下载 2026 年 8 月的月报并计算哈希</span>
+curl -sO https://propello.example/rolls/2026-08.csv
+sha256sum 2026-08.csv
+
+<span class="c"># 读取登记合约为该次结算保存的哈希</span>
+cast call $REGISTRY <span class="k">"rollHash(uint256)(bytes32)"</span> 202608 --rpc-url $RPC
+
+<span class="c"># 两者应当一致。若不一致，你手里的文件不是发布的那份。</span>
+
+<span class="c"># 或者让脚本一次处理六份，顺便重算每一次结算</span>
+node scripts/recompute.js --check</code></pre>
+    <p>迄今发布的每一份月报，及登记合约为其保存的哈希：</p>
+    <!-- data:hashes --><table class="rt-kv rt-kv--hashes">
+      <tr><th><a href="../rolls/2026-03.csv" download>rolls/2026-03.csv</a></th><td><code>0x0a8108c99729bc8224cb31b578099adec80f3eca7820379a6d36a5c53b3b1659</code></td></tr>
+      <tr><th><a href="../rolls/2026-04.csv" download>rolls/2026-04.csv</a></th><td><code>0xacc9581db6d3e4f26adbe32c2aabf8367cd7d0c797035191f614be161b9f57ac</code></td></tr>
+      <tr><th><a href="../rolls/2026-05.csv" download>rolls/2026-05.csv</a></th><td><code>0x2c715f5ccf6c6a59e51a543616ea63d1c334303f953f759d80387165a6a53b6b</code></td></tr>
+      <tr><th><a href="../rolls/2026-06.csv" download>rolls/2026-06.csv</a></th><td><code>0xd5c55054f0dcf47c8c4f97da16e5f97426003f1416b853da301df75f7525a201</code></td></tr>
+      <tr><th><a href="../rolls/2026-07.csv" download>rolls/2026-07.csv</a></th><td><code>0xdf4e858789f281d5e6f8287f1f4d5fef688346b12ef8e6853de6c1eb402ea8cd</code></td></tr>
+      <tr><th><a href="../rolls/2026-08.csv" download>rolls/2026-08.csv</a></th><td><code>0xce2847f97de41680096eaf90bab6fbb86ccabd23703da661dc6faab318a088d4</code></td></tr>
+    </table><!-- /data:hashes -->
+    <p>
+      然后重算结算。把实收列求和，减去成本，除以结算时的流通份额数，加上资金变动中的
+      每份额曲线税，再把结果加到期初价格上。你应该得到头部中精确到小数点后六位的结算价格。
+      仓库里有一个小脚本，对金库开放以来的每一份月报都做这件事。
+    </p>
+
+    <h2 id="format">发布文件的格式</h2>
+    <p>
+      每月一个 CSV，UTF-8，逗号分隔，带一个 <code>section</code> 列，取值为
+      <code>header</code>、<code>rent</code>、<code>cost</code> 或 <code>movement</code> 之一。
+      金额以 EURG 计，六位小数，无千位分隔符。日期为 ISO 8601。钱包地址带校验和。
+      除上一份月报的哈希外，文件中没有任何内容来自文件之外。
+    </p>
+    <pre><code>section,building,unit,lease_due,collected,collected_on,note
+rent,Rua da Bica 14,3B,640.000000,640.000000,2026-08-02,
+rent,Zwaanshals 64,1,0.000000,0.000000,,lease ended 2026-08-09
+cost,Kurt-Eisner-Straße 27,,,,2026-08-14,plumbing — invoice LE-2026-0819 — 412.500000
+movement,,,,,2026-08-21,redeem 0x3f…9a1c 12000.000000 shares at 1.023114 curve 0.42%</code></pre>
+
+    <hr>
+
+    <!-- ===================================================== building on it == -->
+    <h2 id="local">在本地运行</h2>
+    <p>
+      网站是纯 HTML、CSS 和 JavaScript，没有构建步骤。合约用 Foundry。
+      网站上的一切都由月报计算得出，所以只要月报在磁盘上，你不用碰链就能重现每一个数字。
+    </p>
+    <pre><code>git clone https://github.com/propello/vault
+cd vault
+
+<span class="c"># 网站</span>
+python3 -m http.server 8000        <span class="c"># http://localhost:8000/site</span>
+
+<span class="c"># 合约</span>
+forge build &amp;&amp; forge test
+
+<span class="c"># 从月报重算每一次结算</span>
+node scripts/recompute.js rolls/</code></pre>
+
+    <h2 id="chain">链与地址</h2>
+    <p>
+      金库运行在一条以太坊 L2 上。EURG 是一种以欧元计价的稳定币，在欧盟电子货币牌照下发行，
+      可一比一赎回。下面的地址属于演示部署；正式地址一旦存在，将在这里、也只在这里列出。
+    </p>
+    <table class="rt-kv">
+      <tr><th>金库（vPROP）</th><td><code>0x5A1c…e8f4</code></td></tr>
+      <tr><th>资产（EURG）</th><td><code>0xE0d2…71b9</code></td></tr>
+      <tr><th>月报登记合约</th><td><code>0x9b7F…03ad</code></td></tr>
+      <tr><th>控股公司</th><td>Propello Vastgoed B.V.，鹿特丹——KvK 注册号将随第一份正式月报公布</td></tr>
+    </table>
+
+    <h2 id="contracts">合约</h2>
+    <p>一共三个，而且刻意写得很小。</p>
+    <ul>
+      <li><b>Vault。</b>一个 ERC-4626，加了两样东西：<code>redeem</code> 上的曲线，它会查找调用者最近一次存入；以及一个只有运营方可以每月调用一次的 <code>close</code> 函数，它同时设置新价格和月报哈希。没有哈希就设不了价格，没有价格也设不了哈希。</li>
+      <li><b>月报登记合约。</b>一个从月份到哈希的映射，只能追加。一旦写入，某月的哈希任何人都改不了，包括我们。</li>
+      <li><b>运营方。</b>一个三取二多签，拥有调用 <code>close</code> 的权利。它无权把 EURG 转出金库；只有 <code>redeem</code> 能做到，而且只能转给赎回的钱包。</li>
+    </ul>
+    <p>
+      源代码在仓库里，在区块浏览器上已验证，并且不可升级。如果将来需要改动，那会是一个新金库，
+      在月报中公布，并提供一个由你自行选择是否参与的迁移。
+    </p>
+
+    <h2 id="audit">审计</h2>
+    <p>
+      有两样东西被审计，由两个不同的人来做。合约在部署前由一家独立的智能合约公司审阅，
+      报告在仓库里，附每一项发现及其处理。公司的账目——楼宇、租金、银行余额——每年由一位
+      注册的荷兰审计师审计，经审计的账目随十二月的月报一起发布。月报的作用是让第二项审计
+      变得无聊：审计师到来时，十二个月的账本早已公开并哈希过了。
+    </p>
+
+    <hr>
+
+    <!-- ============================================================= legal == -->
+    <h2 id="who">谁可以投资</h2>
+    <p>
+      vPROP 面向居住在欧盟和欧洲经济区、瑞士和英国、年满 18 岁并通过身份验证的人发售。
+      不面向美国、加拿大或日本的居民或公民，不面向任何需要公司尚未持有的牌照的地方，
+      也不面向欧盟制裁名单上的任何人。名单在 <code>config.js</code> 里，也在连接钱包前
+      看到的那道门上。
+    </p>
+    <p>
+      身份验证由受监管的服务商执行，在你第一次存入前进行一次。金库合约本身不知道你是谁——
+      它只认识一个钱包——公司依照欧盟数据保护法保存两者之间的关联，保存期限以反洗钱规则
+      要求为限，不会更长。
+    </p>
+
+    <h2 id="legal">这是什么，不是什么</h2>
+    <p>
+      vPROP 是一家持有楼宇的公司的份额。在大多数地方这使它成为一种证券，它也是作为证券发售的。
+      它不是存款，没有保险，价格可能下跌。租金可能停止到账。一栋楼明年可能比今年更不值钱。
+      过去的结算是记录，不是承诺。
+    </p>
+    <p>
+      本网站和本文档中的任何内容都不是建议。如果你不会仅凭一家小型房产公司公布的账目去买它的股份，
+      也不要仅凭一份月报来买这个。
+    </p>
+    <div class="rt-note">
+      <p><b>这是一个演示版本。</b>本网站上的每一个地址、每一栋楼和每一次结算都是虚构的，用来展示这套机制读起来是什么样。背后没有已部署的合约，也没有公司。</p>
+    </div>
+  </article>
+</main>
+
+<footer class="rt-footer">
+  <div class="rt-wrap">
+    <div class="rt-footer-top">
+      <div>
+        <a class="rt-brand" href="index.html">
+          <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+            <path d="M16 2.4 28.4 10.6H3.6z"/>
+            <rect x="7" y="12.6" width="18" height="3.9" rx="1"/>
+            <rect x="6" y="18.5" width="20" height="3.9" rx="1"/>
+            <rect x="5" y="24.4" width="22" height="3.9" rx="1"/>
+          </svg>
+          <span>Propello</span>
+        </a>
+        <p>一份租金，没有楼、没有房贷，也没有早上六点的电话。</p>
+      </div>
+      <div class="rt-fcol">
+        <div class="rt-fcol-h">Vault</div>
+        <a href="index.html#dashboard">面板</a>
+        <a href="index.html#calculator">存入 EURG</a>
+        <a href="index.html#map">物业组合</a>
+      </div>
+      <div class="rt-fcol">
+        <div class="rt-fcol-h">阅读</div>
+        <a href="docs.html">文档</a>
+        <a href="index.html#roll">月报</a>
+        <a href="index.html#faq">常见问题</a>
+      </div>
+      <div class="rt-fcol">
+        <div class="rt-fcol-h">链上</div>
+        <a href="#chain">区块浏览器</a>
+        <a href="#contracts">金库合约</a>
+        <a href="#audit">审计</a>
+      </div>
+    </div>
+    <div class="rt-footer-bottom">
+      <p class="rt-disclaimer">
+        Propello 是一个演示版本。本页所有数字仅作示意，过去的结算不构成对未来的承诺。
+        房产可能贬值，租金可能停止到账。这里没有任何内容是投资建议。
+      </p>
+      <div class="rt-footer-right">
+        <a class="rt-social" href="https://x.com/propello" target="_blank" rel="noopener" aria-label="Propello 的 X（Twitter）">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/>
+          </svg>
+        </a>
+        <span>© 2026 Propello</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="rt-toast" id="toast" role="status" aria-live="polite"></div>
+<script src="../data/vault.js"></script>
+<script src="../app.js"></script>
+<script src="../docs.js"></script>
+</body>
+</html>

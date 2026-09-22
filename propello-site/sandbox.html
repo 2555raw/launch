@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propello · Sandbox</title>
+<meta name="description" content="Run the Propello vault yourself with play money: take EURG from the tap, deposit, close a month, redeem, and watch the share price move. Same rules as the contract, nothing real at stake.">
+<link rel="canonical" href="https://propello.example/sandbox.html">
+<link rel="alternate" hreflang="en" href="https://propello.example/sandbox.html">
+<link rel="alternate" hreflang="zh" href="https://propello.example/zh/sandbox.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Propello">
+<meta property="og:title" content="Propello — sandbox">
+<meta property="og:description" content="Run the Propello vault yourself with play money: deposit, close a month, redeem, and watch the share price move.">
+<meta property="og:url" content="https://propello.example/sandbox.html">
+<meta property="og:image" content="https://propello.example/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Propello — Rental property, without the property.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Propello — sandbox">
+<meta name="twitter:description" content="Run the Propello vault yourself with play money.">
+<meta name="twitter:image" content="https://propello.example/og.png">
+<meta name="theme-color" content="#102A47">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23102A47'/%3E%3Cg fill='%23F3F2EC'%3E%3Cpath d='M16 3 28.5 11.2H3.5z'/%3E%3Crect x='7' y='13.2' width='18' height='4' rx='1'/%3E%3Crect x='6' y='19.2' width='20' height='4' rx='1'/%3E%3Crect x='5' y='25.2' width='22' height='4' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="sandbox.css">
+</head>
+<body class="rt-sb-body">
+
+<!-- Europe, fixed behind the page -->
+<div class="rt-bg" aria-hidden="true"></div>
+
+<nav class="rt-nav" id="nav">
+  <a class="rt-brand" href="index.html" aria-label="Propello, back to the site">
+    <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+      <path d="M16 2.4 28.4 10.6H3.6z"/>
+      <rect x="7" y="12.6" width="18" height="3.9" rx="1"/>
+      <rect x="6" y="18.5" width="20" height="3.9" rx="1"/>
+      <rect x="5" y="24.4" width="22" height="3.9" rx="1"/>
+    </svg>
+    <span>Propello</span>
+  </a>
+  <div class="rt-nav-links" id="navlinks">
+    <a href="index.html#map">Portfolio</a>
+    <a href="index.html#roll">The Roll</a>
+    <a href="index.html#dashboard">Dashboard</a>
+    <a href="sandbox.html" class="is-active">Sandbox</a>
+    <a href="docs.html">Docs</a>
+  </div>
+  <div class="rt-nav-right">
+    <a class="rt-lang" href="zh/sandbox.html" hreflang="zh" lang="zh" aria-label="中文版">中文</a>
+    <button class="rt-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false" aria-controls="navlinks">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="rt-btn rt-btn--light rt-btn--sm" id="sb-nav-wallet" type="button">Connect wallet</button>
+  </div>
+</nav>
+
+<main class="rt-sb">
+  <header class="rt-sb-head">
+    <p class="rt-eyebrow">Sandbox · play money</p>
+    <h1 class="rt-h2">Run the vault yourself.</h1>
+    <p class="rt-lede">
+      The same rules as the contract, with nothing real at stake. Take some EURG from the tap,
+      deposit it, close a month and watch the price move, then cash out and see the curve take its cut.
+      <b>Everyone on this page shares one vault</b>: what you do, the next visitor sees.
+    </p>
+    <p class="rt-sb-mode" id="sb-mode" role="status"></p>
+  </header>
+
+  <div class="rt-sb-grid">
+
+    <!-- ============================================================= you == -->
+    <section class="rt-sb-col" aria-labelledby="sb-you-h">
+      <div class="rt-sb-card rt-sb-card--lit">
+        <p class="rt-eyebrow">You</p>
+        <h2 class="rt-h4" id="sb-you-h">Who is depositing?</h2>
+
+        <div id="sb-signin">
+          <label class="rt-sb-field">
+            <span>A name for the holders list</span>
+            <input type="text" id="sb-name" maxlength="24" autocomplete="nickname" placeholder="e.g. Marta" spellcheck="false">
+          </label>
+          <div class="rt-sb-actions">
+            <button class="rt-btn rt-btn--ink" type="button" id="sb-guest">Continue as guest</button>
+            <button class="rt-btn rt-btn--ink-ghost" type="button" id="sb-wallet">Connect wallet</button>
+          </div>
+          <p class="rt-sb-fine">A wallet signs one message to prove it is yours. No transaction, no gas, nothing goes on chain, and the sandbox never asks for real EURG.</p>
+        </div>
+
+        <div id="sb-me" hidden>
+          <div class="rt-sb-who">
+            <b id="sb-me-name"></b>
+            <span class="rt-sb-kind" id="sb-me-kind"></span>
+            <button class="rt-sb-link" type="button" id="sb-signout">Switch</button>
+          </div>
+          <dl class="rt-sb-bal">
+            <div><dt>EURG in hand</dt><dd class="rt-num" id="sb-eurg">€0.00</dd></div>
+            <div><dt>vPROP</dt><dd class="rt-num" id="sb-shares">0.00</dd></div>
+            <div><dt>Worth today</dt><dd class="rt-num rt-sb-pos" id="sb-worth">€0.00</dd></div>
+            <div><dt>Curve tax now</dt><dd class="rt-num" id="sb-curve">0%</dd></div>
+          </dl>
+          <p class="rt-sb-fine" id="sb-curve-note"></p>
+        </div>
+      </div>
+
+      <div class="rt-sb-card" id="sb-actions">
+        <div class="rt-sb-act">
+          <div>
+            <h3 class="rt-h4">The tap</h3>
+            <p>€25,000 of play EURG each time, up to €100,000 in hand.</p>
+          </div>
+          <button class="rt-btn rt-btn--accent rt-btn--sm" type="button" id="sb-tap" data-needs-me>Take €25,000</button>
+        </div>
+
+        <div class="rt-sb-act">
+          <div>
+            <h3 class="rt-h4">Deposit</h3>
+            <p>EURG in, vPROP out at today’s price. From €100.</p>
+            <div class="rt-sb-amount">
+              <span>€</span><input type="text" inputmode="decimal" id="sb-dep-amt" value="10,000" aria-label="EURG to deposit">
+              <span class="rt-sb-preview rt-num" id="sb-dep-preview"></span>
+            </div>
+          </div>
+          <button class="rt-btn rt-btn--light rt-btn--sm" type="button" id="sb-deposit" data-needs-me>Deposit</button>
+        </div>
+
+        <div class="rt-sb-act">
+          <div>
+            <h3 class="rt-h4">Redeem</h3>
+            <p>vPROP in, EURG out. Within 90 days of a deposit the curve keeps up to 3%.</p>
+            <div class="rt-sb-amount">
+              <input type="text" inputmode="decimal" id="sb-red-amt" value="" placeholder="all" aria-label="vPROP to redeem">
+              <span class="rt-sb-preview rt-num" id="sb-red-preview"></span>
+            </div>
+          </div>
+          <button class="rt-btn rt-btn--ghost rt-btn--sm" type="button" id="sb-redeem" data-needs-me>Redeem</button>
+        </div>
+        <p class="rt-sb-fine" id="sb-queue-note" hidden></p>
+      </div>
+    </section>
+
+    <!-- =========================================================== vault == -->
+    <section class="rt-sb-col rt-sb-col--wide" aria-labelledby="sb-vault-h">
+      <div class="rt-sb-card">
+        <div class="rt-sb-cardhead">
+          <div>
+            <p class="rt-eyebrow">The vault</p>
+            <h2 class="rt-h4" id="sb-vault-h">One vault, everyone’s moves.</h2>
+          </div>
+          <button class="rt-sb-link" type="button" id="sb-reset" hidden>Reset the sandbox</button>
+        </div>
+        <div class="rt-sb-tiles">
+          <div class="rt-sb-tile"><small>Share price</small><b class="rt-num" id="sb-price">€1.0000</b></div>
+          <div class="rt-sb-tile"><small>vPROP in issue</small><b class="rt-num" id="sb-supply">0</b></div>
+          <div class="rt-sb-tile"><small>Reserve (EURG)</small><b class="rt-num" id="sb-reserve">€0</b></div>
+          <div class="rt-sb-tile"><small>Buildings at cost</small><b class="rt-num" id="sb-buildings">€0</b></div>
+          <div class="rt-sb-tile"><small>Holders</small><b class="rt-num" id="sb-holders-n">0</b></div>
+          <div class="rt-sb-tile"><small>Queued for the close</small><b class="rt-num" id="sb-queued">0</b></div>
+        </div>
+      </div>
+
+      <div class="rt-sb-card rt-sb-close">
+        <div class="rt-sb-act rt-sb-act--close">
+          <div>
+            <h3 class="rt-h4" id="sb-close-h">Close the month</h3>
+            <p id="sb-close-preview"></p>
+          </div>
+          <button class="rt-btn rt-btn--accent" type="button" id="sb-close" data-needs-me>Close the month</button>
+        </div>
+      </div>
+
+      <div class="rt-sb-card">
+        <h3 class="rt-h4">Closes</h3>
+        <p class="rt-sb-sub">The first six are the real Rolls. Everything after them happened here.</p>
+        <div class="rt-sb-scroll">
+          <table class="rt-sbt" id="sb-closes">
+            <thead><tr><th>Month</th><th>Collected</th><th>Costs</th><th>Kept</th><th>Price</th><th>Source</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rt-sb-two">
+        <div class="rt-sb-card">
+          <h3 class="rt-h4">Holders</h3>
+          <div class="rt-sb-scroll">
+            <table class="rt-sbt" id="sb-holders">
+              <thead><tr><th>Name</th><th>vPROP</th><th>Worth</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="rt-sb-card">
+          <h3 class="rt-h4">Ledger</h3>
+          <ol class="rt-sb-ledger" id="sb-ledger"></ol>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="rt-sb-notes">
+    <h2 class="rt-h4">What is real here, and what is not</h2>
+    <ul>
+      <li><b>The rules are the contract’s.</b> Price is what the vault holds divided by the shares in issue. A deposit mints at that price. A redemption pays it minus the curve, 3% on the day of a deposit falling to nothing at 90 days, and the curve stays in the vault for everyone else. A redemption the reserve cannot cover waits for the next close.</li>
+      <li><b>Time is a month per close.</b> Each close moves the calendar forward a month, so the curve is 3%, 2%, 1%, then gone, depending on how many closes have passed since your last deposit.</li>
+      <li><b>The rent is simulated.</b> The vault starts where the real Rolls end. From then on each close collects between 90% and 100% of the scheduled rent and pays 26% to 36% of it in costs, fixed for each month so everyone sees the same forecast.</li>
+      <li><b>Nothing is money.</b> EURG here comes from a tap, a wallet signs a message and pays no gas, and nothing touches a chain. The real vault, when it goes live, is the contract in <a href="docs.html#contracts">the docs</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="rt-footer">
+  <div class="rt-wrap">
+    <div class="rt-footer-bottom">
+      <p class="rt-disclaimer">
+        Propello is a demonstration build. The sandbox is a game with play money, and its figures say
+        nothing about what a real vault would do. Nothing here is investment advice.
+      </p>
+      <div class="rt-footer-right">
+        <a class="rt-social" href="https://x.com/propello" target="_blank" rel="noopener" aria-label="Propello on X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/>
+          </svg>
+        </a>
+        <span>© 2026 Propello</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="rt-toast" id="toast" role="status" aria-live="polite"></div>
+<script src="data/vault.js"></script>
+<script src="sandbox.js"></script>
+</body>
+</html>

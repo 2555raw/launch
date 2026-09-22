@@ -701,6 +701,17 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
   color: var(--muted-2); font-size: .84rem;
 }
 .rt-disclaimer { max-width: 78ch; line-height: 1.6; }
+.rt-footer-right { display: flex; align-items: center; gap: 14px; }
+.rt-social {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: #CBDDEC;
+  transition: color .18s var(--ease), border-color .18s var(--ease), background-color .18s var(--ease);
+}
+.rt-social svg { width: 16px; height: 16px; }
+.rt-social:hover { color: var(--ink); background: var(--accent); border-color: var(--accent); }
 
 /* ---------------------------------------------------------------- toast --- */
 .rt-toast {

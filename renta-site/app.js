@@ -30,7 +30,8 @@
       cityAria: function (c, n) { return 'Schematic map of ' + c + ' by district, with ' + n + ' building' + (n > 1 ? 's' : '') + ' marked.'; },
       built: 'built', bought: 'bought', facts: ['Apartments', 'Let', 'Held at', 'Net rent, last close'], also: 'Also in ',
       noteReal: 'District boundaries are the city\u2019s own, from its open data. Buildings sit at their real coordinates, in the district the boundary file puts them in.',
-      noteSchematic: 'Districts are named and placed where they are; the lines between them are drawn, not surveyed. Buildings sit at their real coordinates.'
+      noteSchematic: 'Districts are named and placed where they are; the lines between them are drawn, not surveyed. Buildings sit at their real coordinates.',
+      noteOutline: 'The city limit is the real one, from its open data. Inside it, districts are named and placed where they are, but the lines between them are drawn, not surveyed. Buildings sit at their real coordinates.'
     },
     zh: {
       months: { Jan: '1月', Feb: '2月', Mar: '3月', Apr: '4月', May: '5月', Jun: '6月', Jul: '7月', Aug: '8月', Sep: '9月', Oct: '10月', Nov: '11月', Dec: '12月', Opened: '开放' },
@@ -45,7 +46,8 @@
       cityAria: function (c, n) { return c + '分区示意图，标出 ' + n + ' 栋楼。'; },
       built: '建于', bought: '购于', facts: ['公寓数', '出租率', '账面价值', '净租金（上次结算）'], also: '同在',
       noteReal: '分区边界来自该市的开放数据。楼宇位于其真实坐标，在边界文件所划定的分区内。',
-      noteSchematic: '各区的名称和位置是真实的；它们之间的边界是画出来的，不是测绘的。楼宇位于其真实坐标。'
+      noteSchematic: '各区的名称和位置是真实的；它们之间的边界是画出来的，不是测绘的。楼宇位于其真实坐标。',
+      noteOutline: '城市边界是真实的，来自开放数据。边界之内，各区的名称和位置是真实的，但它们之间的分界线是画出来的，不是测绘的。楼宇位于其真实坐标。'
     }
   };
   var TX = STRINGS[LANG] || STRINGS.en;   /* not T: the chart uses T for its top margin */
@@ -262,7 +264,7 @@
       title: tr(TX.cities, city),
       sub: TX.building(mine.length) + ' · ' + units + (LANG === 'zh' ? '' : ' ') + TX.apartments + ' · ' + euro(rent, 0) + (LANG === 'zh' ? '' : ' ') + TX.netRentClose,
       map: svg.join(''), side: side,
-      note: c.real ? TX.noteReal : TX.noteSchematic
+      note: c.real ? TX.noteReal : c.outline ? TX.noteOutline : TX.noteSchematic
     };
   }
 

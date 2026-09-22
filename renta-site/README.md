@@ -88,9 +88,9 @@ draws each one from its real district boundaries where they are on disk
 (`data/geo/`, five cities so far: Lisbon's freguesias, Madrid's barrios, Barcelona's
 barris, Leipzig's Ortsteile, Rotterdam's gebieden), projected, simplified to a pixel,
 with each building placed by point-in-polygon so its district is whatever the
-boundary file says. Where no file exists (Turin, Kraków, Terrassa — `SOURCES.md`
-says why) the city is a schematic: real district centres, Voronoi cells between
-them, and the panel says so. Either way: the building's district lit, the building
+boundary file says. Where no district file exists (Turin, Kraków, Terrassa — `SOURCES.md`
+says why) the city's real municipal outline is the limit and the districts inside
+it are schematic: real centres, Voronoi cells between them, and the panel says so. Either way: the building's district lit, the building
 at its true coordinates, a scale bar, and a card per building with its façade.
 Terrassa is twenty kilometres from Barcelona, eight pixels on the big map, so it
 rides Barcelona's pin there and has its own city view, linked from Barcelona's.

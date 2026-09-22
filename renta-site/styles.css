@@ -793,7 +793,7 @@ body.rt-locked { overflow: hidden; }
 .rt-city-body { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr); gap: 22px; align-items: start; }
 .rt-city-map { background: var(--navy-850); border: 1px solid var(--line-2); border-radius: var(--r-lg); overflow: hidden; }
 .rt-city-svg { width: 100%; height: auto; display: block; }
-.rt-city-limit { fill: #123052; stroke: #2B5A88; stroke-width: 1.5; }
+.rt-city-limit { fill: #123052; stroke: #3E6F9F; stroke-width: 1.6; stroke-linejoin: round; }
 .rt-dist { fill: #17395B; fill-rule: evenodd; stroke: #0D2340; stroke-width: 1.2; stroke-linejoin: round; transition: fill .2s var(--ease); }
 .rt-dist--alt { fill: #193D61; }
 .rt-dist--own { fill: #21507D; }

@@ -12,13 +12,16 @@ cells between them) and the city view says so.
 | Leipzig | `leipzig.geojson` | 63 Ortsteile | Stadt Leipzig open data, via click_that_hood | dl-de/by-2-0 |
 | Rotterdam | `rotterdam.geojson` | gebieden (harbour areas and Hoogvliet dropped) | Gemeente Rotterdam open data, via click_that_hood | CC0 |
 
-Schematic until a file lands here:
+Three cities have their **real municipal outline** on disk (`<city>-outline.geojson`)
+and schematic districts inside it — real district names at their real centres,
+Voronoi cells between them, clipped to the true shape of the city. The city view
+says so. They become fully real the moment a district file lands here:
 
-| City | Wanted | Why not yet | Where it is published |
-|---|---|---|---|
-| Turin | 8 circoscrizioni or 94 quartieri | Who's On First holds polygons for only 14 of the quartieri — a map with gaps misleads more than a schematic | Comune di Torino, AperTO (`aperto.comune.torino.it`) |
-| Kraków | 18 dzielnice | Who's On First holds points, not polygons, for Kraków's districts | Urząd Miasta Krakowa, MSIP (`msip.krakow.pl`) |
-| Terrassa | 6 districtes / barris | No mirror of the city's data reachable from the build environment | Ajuntament de Terrassa, Open Data (`opendata.terrassa.cat`) |
+| City | Outline (on disk) | Districts wanted | Why not yet | Where it is published |
+|---|---|---|---|---|
+| Turin | Comune di Torino, via Who's On First (quattroshapes) | 8 circoscrizioni or 94 quartieri | Who's On First holds polygons for only 14 of the quartieri — a map with gaps misleads more than a schematic | Comune di Torino, AperTO (`aperto.comune.torino.it`) |
+| Kraków | gmina Kraków, geoBoundaries gbOpen POL ADM3 (CC BY 4.0) | 18 dzielnice | Who's On First holds points, not polygons, for Kraków's districts | Urząd Miasta Krakowa, MSIP (`msip.krakow.pl`) |
+| Terrassa | municipio de Terrassa, geoBoundaries gbOpen ESP ADM3 (CC BY 4.0) | 6 districtes / barris | No mirror of the city's data reachable from the build environment | Ajuntament de Terrassa, Open Data (`opendata.terrassa.cat`) |
 
 Drop the file in as `<city>.geojson` (WGS84, one feature per district, a `name`
 property), add a line to `REAL` in `scripts/cities.js` if the name property differs,

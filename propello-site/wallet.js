@@ -108,7 +108,17 @@
     if (window.solana && !ph) add(window.solana, window.solana.isPhantom ? 'Phantom' : 'Solana wallet', 'solana.injected');
     return out;
   }
-  function all() { return known().concat(solanaKnown()); }
+  /* Phantom answers on both rails, so it would otherwise be offered twice.
+     The share is an ERC-4626 token on Base, so when a wallet can do both, the
+     Ethereum side is the one worth offering; a Solana-only wallet still gets
+     its own row. */
+  function all() {
+    var evm = known();
+    var brand = function (p) { return String(p.info.name).toLowerCase().replace(/[^a-z]/g, ''); };
+    var seen = {};
+    evm.forEach(function (p) { seen[brand(p)] = 1; });
+    return evm.concat(solanaKnown().filter(function (p) { return !seen[brand(p)]; }));
+  }
 
   /* ---------------------------------------------------- abi helpers ------ */
   var pad = function (hex) { return hex.replace(/^0x/, '').padStart(64, '0'); };

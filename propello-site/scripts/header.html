@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- The X header: the map on the right, the name on the left. Rendered to
+<!-- The X header: Europe on the left, the name on the right. Rendered to
      brand/header.png by scripts/header.js.
 
-     X puts the avatar over the bottom-left corner and crops the top and
-     bottom on phones, so everything that matters lives in the upper band and
-     nothing sits below y=320 on the left third. -->
+     X lays the avatar over the bottom-left corner, so the map is framed with
+     its southernmost pin (Lisbon) clear of that circle, and the type sits in
+     the right third where nothing covers it. -->
 <html lang="en"><head><meta charset="utf-8">
 <link rel="stylesheet" href="../styles.css">
 <style>
@@ -12,7 +12,7 @@
   .hd {
     position: relative; width: 1500px; height: 500px; overflow: hidden;
     background:
-      radial-gradient(ellipse at 68% 40%, rgba(99,214,242,.15), transparent 58%),
+      radial-gradient(ellipse at 32% 42%, rgba(99,214,242,.15), transparent 58%),
       #102A47;
     font-family: "Space Grotesk", sans-serif; color: #F3F2EC;
   }
@@ -20,25 +20,23 @@
   /* Europe, framed on the eight cities and faded into the ground */
   /* the site's stylesheet clamps images to their container; here the map is
      deliberately wider than the banner, so opt out or the pins drift off it */
-  .map { position: absolute; left: 378px; top: -360px; width: 1900px; height: 950px; max-width: none; }
-  .pins { position: absolute; left: 378px; top: -360px; width: 1900px; height: 950px; max-width: none; }
+  .map { position: absolute; left: -57px; top: -265px; width: 1500px; height: 750px; max-width: none; }
+  .pins { position: absolute; left: -57px; top: -265px; width: 1500px; height: 750px; max-width: none; }
   .map, .pins {
-    -webkit-mask-image: linear-gradient(to right, transparent 2%, #000 26%, #000 88%, transparent 100%),
-                        linear-gradient(to bottom, transparent 1%, #000 12%, #000 86%, transparent 99%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 10%, #000 62%, transparent 86%),
+                        linear-gradient(to bottom, transparent 1%, #000 14%, #000 84%, transparent 99%);
     -webkit-mask-composite: source-in; mask-composite: intersect;
   }
   .dot { fill: #6EA0FF; }
   .ring { fill: none; stroke: rgba(110,160,255,.55); stroke-width: 1.6; }
 
-  /* the name, clear of the avatar's corner */
-  .left { position: absolute; left: 96px; top: 92px; width: 720px; }
-  .brand { display: flex; align-items: center; gap: 18px; }
-  .brand svg { width: 62px; height: 62px; color: #F3F2EC; }
-  .brand span { font-size: 62px; font-weight: 700; letter-spacing: -.04em; }
-  .tag { margin: 26px 0 0; font-size: 31px; line-height: 1.25; letter-spacing: -.02em; color: #E8F1F8; }
+  /* the name, in the right third, away from the avatar and the phone crop */
+  .right { position: absolute; right: 88px; top: 118px; text-align: right; }
+  .name { font-size: 76px; font-weight: 700; letter-spacing: -.045em; line-height: 1; }
+  .tag { margin: 30px 0 0; font-size: 32px; line-height: 1.24; letter-spacing: -.02em; color: #E8F1F8; }
   .tag b { color: #63D6F2; font-weight: 700; }
   .cities {
-    margin: 26px 0 0; font-family: "JetBrains Mono", monospace; font-size: 13.5px;
+    margin: 30px 0 0; font-family: "JetBrains Mono", monospace; font-size: 13.5px;
     letter-spacing: .13em; color: #93B1CC; text-transform: uppercase; white-space: nowrap;
   }
 </style></head>
@@ -46,11 +44,8 @@
   <img class="map" src="../map.svg" alt="">
   <svg class="pins" viewBox="0 0 1440 720"></svg>
 
-  <div class="left">
-    <div class="brand">
-      <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 2.4 28.4 10.6H3.6z"/><rect x="7" y="12.6" width="18" height="3.9" rx="1"/><rect x="6" y="18.5" width="20" height="3.9" rx="1"/><rect x="5" y="24.4" width="22" height="3.9" rx="1"/></svg>
-      <span>Propello</span>
-    </div>
+  <div class="right">
+    <div class="name">Propello</div>
     <p class="tag">Rental property,<br><b>without the property.</b></p>
     <p class="cities">Lisbon · Madrid · Barcelona · Turin · Leipzig · Rotterdam · Kraków</p>
   </div>

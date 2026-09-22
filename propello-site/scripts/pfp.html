@@ -1,0 +1,29 @@
+<!doctype html>
+<!-- The profile picture: the mark on the site's navy. Rendered to
+     brand/pfp.png by scripts/pfp.js. X crops it to a circle, so everything
+     that matters lives inside the middle 80%. -->
+<html lang="en"><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1000px; height: 1000px; overflow: hidden; background: #102A47; }
+  .pfp {
+    position: relative; width: 1000px; height: 1000px; display: grid; place-items: center;
+    background:
+      radial-gradient(ellipse at 50% 34%, rgba(99, 214, 242, .16), transparent 62%),
+      radial-gradient(ellipse at 50% 108%, rgba(10, 28, 51, .85), transparent 60%),
+      #102A47;
+  }
+  /* two faint rings, the same ones the hero draws behind its headline */
+  .ring { position: absolute; border: 1px solid rgba(99, 214, 242, .13); border-radius: 50%; aspect-ratio: 1; }
+  .ring.a { width: 620px; }
+  .ring.b { width: 880px; border-color: rgba(99, 214, 242, .085); }
+  svg { position: relative; width: 540px; height: 540px; color: #F3F2EC; margin-top: 8px; }
+</style></head>
+<body><div class="pfp">
+  <i class="ring a"></i><i class="ring b"></i>
+  <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+    <path d="M16 2.4 28.4 10.6H3.6z"/>
+    <rect x="7" y="12.6" width="18" height="3.9" rx="1"/>
+    <rect x="6" y="18.5" width="20" height="3.9" rx="1"/>
+    <rect x="5" y="24.4" width="22" height="3.9" rx="1"/>
+  </svg>
+</div></body></html>

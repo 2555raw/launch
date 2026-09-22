@@ -357,7 +357,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
   width: 100vw;
   margin-inline: calc(50% - 50vw);
   margin-block: clamp(30px, 5vw, 56px);
-  aspect-ratio: 1440 / 669;   /* the reference's proportion, not Europe's */
+  aspect-ratio: 1440 / 719;   /* the reference's proportion, not Europe's */
   max-height: 900px;
   overflow: hidden;
   background:
@@ -751,9 +751,9 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 }
 @media (max-width: 680px) {
   body { font-size: 16px; }
-  /* on a phone the frame goes 5:4 and, anchored left, keeps Iberia to
+  /* on a phone the frame goes 4:3 and, anchored left, keeps Iberia to
      Poland; the capitals step aside and the pins grow to stay legible */
-  .rt-map { aspect-ratio: 5 / 4; max-height: none; margin-block: 24px; }
+  .rt-map { aspect-ratio: 4 / 3; max-height: none; margin-block: 24px; }
   .rt-caps { display: none; }
   .rt-pin-dot  { r: 10.5; }
   .rt-pin-ring { r: 19.5; stroke-width: 3; }

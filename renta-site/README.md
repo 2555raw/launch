@@ -56,16 +56,16 @@ and a weight the font does not have is a smear the browser invents.
 
 The map of Europe in the portfolio section is generated, not drawn. `world-atlas@2`
 1:50m country polygons are projected (equirectangular, x scaled by `cos 48°`, framed
-to 11.5°W–52.8°E and 37.5°N–57.5°N), simplified with Douglas-Peucker at a 1.1px tolerance
+to 16.2°W–51.4°E and 37.4°N–60°N), simplified with Douglas-Peucker at a 1.1px tolerance
 measured in final screen pixels, and written out as one `<path>` per country. That is
 why the page ships no map library and makes no request for tiles: 56 countries in
 about 63KB of path data, borders and all.
 
 It runs full-bleed, edge to edge, at the reference's proportion rather than
-Europe's: the frame is 11.5°W–52.8°E by 37.5°N–57.5°N, which is 2.15:1, so it
-stands 669px tall on a 1440px screen instead of the 960px a square Europe would
-take. Scandinavia north of Copenhagen and the strip of North Africa are the price.
-On a phone the frame goes 5:4 and, anchored left with `xMinYMid slice`, keeps
+Europe's: the frame is 16.2°W–51.4°E by 37.4°N–60°N, which is 2:1, so it
+stands 719px tall on a 1440px screen instead of the 960px a square Europe would
+take. Scandinavia north of Oslo and the strip of North Africa are the price.
+On a phone the frame goes 4:3 and, anchored left with `xMinYMid slice`, keeps
 Lisbon to Kraków; the capitals step aside and the pins grow (through the CSS `r`
 property) so the cities stay legible.
 

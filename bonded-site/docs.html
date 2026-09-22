@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>try{if(localStorage.getItem("bonded-night")==="true")document.documentElement.classList.add("is-night")}catch(e){}</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docs — LilyPad</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="LilyPad">
+  <meta property="og:title" content="Docs — LilyPad"><meta property="og:description" content="How LilyPad works: pairs, curves, launching, trading, fees, graduation, contracts and how to integrate.">
+  <meta property="og:image" content="/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Docs — LilyPad"><meta name="twitter:description" content="How LilyPad works: pairs, curves, launching, trading, fees, graduation, contracts and how to integrate."><meta name="twitter:image" content="/og.png">
+  <meta name="description" content="How LilyPad works: pairs, curves, launching, trading, fees, graduation, contracts and how to integrate.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23131720'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css?v=7">
+</head>
+<body data-page="docs">
+<div class="bd" id="top">
+  <nav class="bd-nav">
+    <div class="bd-pill">
+      <a class="bd-brand" href="index.html">LilyPad</a>
+      <div class="bd-nav-links" id="navlinks"><a href="board.html">Pairs</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">FAQ</a><a href="docs.html" class="is-active">Docs</a><button type="button" class="bd-wallet bd-only-sm">Connect wallet</button><button class="bd-nav-ca bd-only-sm" type="button" title="Contract address"><span class="bd-nav-ca-label">CA:</span><span class="bd-nav-ca-value"></span></button></div>
+      <div class="bd-nav-right">
+        <button class="bd-nav-ca" type="button" title="Contract address"><span class="bd-nav-ca-label">CA:</span><span class="bd-nav-ca-value"></span></button>
+        <a class="bd-nav-icon" data-cfg-href="xUrl" href="#" target="_blank" rel="noopener" aria-label="LilyPad on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+        <button class="bd-nav-icon bd-nav-night" type="button" aria-label="Night on the pond" aria-pressed="false"><svg class="bd-ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg><svg class="bd-ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        <button class="bd-nav-ghost bd-wallet" id="wallet" type="button">Connect wallet</button>
+        <a class="bd-btn bd-btn-dark" href="launch.html">Launch a coin</a>
+        <button class="bd-icon-btn bd-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="bd-wrap bd-docs">
+      <aside class="bd-docs-side" id="docs-side">
+        <span class="bd-label">Docs</span>
+        <a data-scroll="d-overview">Overview</a>
+        <a data-scroll="d-bond">How a pair works</a>
+        <a data-scroll="d-launch">Launching</a>
+        <a data-scroll="d-trade">Trading</a>
+        <a data-scroll="d-fees">Fees</a>
+        <a data-scroll="d-safety">What holds</a>
+        <a data-scroll="d-contracts">Contracts</a>
+        <a data-scroll="d-tokens">Stock tokens</a>
+        <a data-scroll="d-integrate">Integrate</a>
+        <a data-scroll="d-pons">Live on Pons</a>
+        <a data-scroll="d-risk">Risks</a>
+      </aside>
+      <article class="bd-docs-body">
+        <h1 id="d-overview">LilyPad docs</h1>
+        <p class="bd-lede">LilyPad is a launchpad where a new token is paired with a tokenized stock instead of ETH. Each token starts on a bonding curve quoted in the share and graduates to a Uniswap v4 pool once the curve has raised the stock's threshold. The curves and the factory are the public Pons V2 contracts on Robinhood Chain; LilyPad is the front end.</p>
+        <p>This page is the reference for creators and traders. Addresses and the integration contract are in the <b>Contracts</b> and <b>Integrate</b> sections.</p>
+
+        <h2 id="d-bond">How a pair works</h2>
+        <p>Every token launched on LilyPad has exactly one bonding curve, and the curve's quote asset is a tokenized stock: NVDA, TSLA, SPY and the rest of the list on the <a class="bd-link" href="stocks.html">Stocks</a> page. We call the token and its stock a <b>pair</b>.</p>
+        <ul>
+          <li><b>Buying</b> the token means paying in the stock token. <b>Selling</b> returns stock tokens.</li>
+          <li>The <b>price</b> is a number of shares per token. The USD figure next to it is a reference computed from the stock's last on-chain price; it is not what the pool settles in.</li>
+          <li>Nothing is pegged. The token trades freely against the stock; if the stock moves and the token does not, the USD reference moves with the stock.</li>
+          <li>The curve is constant-product with a phantom quote reserve set per stock by the factory, so the first buy has a price instead of zero. <code>getReserves()</code> on the curve gives the live numbers.</li>
+          <li>When the curve holds its <b>graduation threshold</b> of the stock, it seeds a Uniswap v4 pool with what it raised and the remaining tokens, and closes. From then on the pair trades on Uniswap.</li>
+        </ul>
+        <div class="bd-note">A coin paired with TSLA is quoted in TSLA. When Tesla reports earnings, that pair moves in dollar terms even if nobody trades it.</div>
+
+        <h2 id="d-launch">Launching</h2>
+        <ol>
+          <li><b>Pick the stock.</b> Permanent. It sets the quote unit and the asset the curve holds.</li>
+          <li><b>Name the token.</b> Name, ticker (2 to 8 alphanumerics, never a stock symbol), a line of description, an image URL, optional links.</li>
+          <li><b>Optional first buy.</b> An amount of the stock token spent on the new curve. Through the LilyPad launcher it lands in the same transaction as the launch (one approval of the stock, then one launch); calling the factory directly it is a second transaction. The creator is exempt from the launch-window snipe tax either way.</li>
+          <li><b>Sign.</b> The factory deploys the token, mints the supply into a new curve quoted in your stock, and emits <code>TokenLaunched</code>. The pair is tradable in the same block.</li>
+        </ol>
+        <p>Supply is <code>1,000,000,000</code>, minted once by the factory. The creation fee is the factory's <code>launchFee()</code>, paid in ETH.</p>
+
+        <h2 id="d-trade">Trading</h2>
+        <p>Open any pair from the <a class="bd-link" href="board.html">Pairs</a> board. The trade panel takes an amount of the stock token to buy, or an amount of the token to sell, and shows the quote, the price impact and the fee before you sign.</p>
+        <ul>
+          <li>You need the stock token in your wallet to buy.</li>
+          <li>Slippage tolerance defaults to 3% on live curves. Young curves also charge a snipe tax on buys in the first minutes, which the quote does not include; the transaction reverts if the floor is not met.</li>
+          <li>Trades on a curve are <code>buy()</code> / <code>sell()</code> on that curve; anyone can call them. After graduation the pair is an ordinary Uniswap v4 pool.</li>
+        </ul>
+
+        <h2 id="d-fees">Fees</h2>
+        <table>
+          <tr><th>Fee</th><th>Amount</th><th>Who receives it</th></tr>
+          <tr><td>Creation</td><td><span data-cfg="fee">—</span></td><td>Pons</td></tr>
+          <tr><td>Curve fee</td><td><span data-cfg="swapFee">—</span> of each curve trade</td><td>Pons, per the launch config</td></tr>
+          <tr><td>Creator tax</td><td><span data-cfg="creatorTax">—</span> (capped by the factory's maximum)</td><td>LilyPad, via the Pons fee escrow</td></tr>
+          <tr><td>Snipe tax</td><td>on buys in the launch window, decaying</td><td>The curve; the creator's own first buy is exempt</td></tr>
+          <tr><td>Transferring</td><td>none</td><td>—</td></tr>
+        </table>
+        <p>Creator tax accrues per trade in the Pons fee escrow and is claimed from there.</p>
+
+        <h2 id="d-safety">What holds</h2>
+        <ul>
+          <li><b>The stock stays in the curve.</b> Buys pay it in, sells take it out, and at graduation it seeds the Uniswap v4 pool. There is no withdraw function for the creator or for LilyPad.</li>
+          <li><b>Supply.</b> Minted once by the factory. No owner is left who could mint more.</li>
+          <li><b>Graduation.</b> Automatic, at a threshold the factory sets per stock and that every pair shows.</li>
+          <li><b>Code.</b> The factory and the curves are the public Pons V2 contracts, verified on the explorer. LilyPad's only contract is the launcher that bundles the first buy, published in this repository.</li>
+        </ul>
+
+        <h2 id="d-contracts">Contracts</h2>
+        <table>
+          <tr><th>Contract</th><th>Address</th></tr>
+          <tr><td>Chain</td><td><span data-cfg="chain">—</span></td></tr>
+          <tr><td>Factory</td><td><code data-cfg="factory">—</code></td></tr>
+          <tr><td>Launcher (first buy in the launch tx)</td><td><code data-cfg="launcher">—</code></td></tr>
+        </table>
+        <p>The factory is the open <strong>Pons V2 LaunchFactory</strong> on Robinhood Chain (chain id 4663). It emits <code>TokenLaunched(token, curve, deployer, pairToken, launchConfigId, graduationThreshold)</code> on every launch; <code>pairToken</code> is the stock the coin is paired with. Each coin gets its own bonding curve, which emits <code>CurveBuy</code> and <code>CurveSell</code> for trades and hands over to Uniswap v4 once it graduates.</p>
+
+        <h2 id="d-tokens">Stock tokens</h2>
+        <p>Several tokens on Robinhood Chain use the same ticker; only the ones issued by Robinhood are approved as quote assets by the factory. The official list is at <a class="bd-link" href="https://docs.robinhood.com/chain/contracts/" target="_blank" rel="noopener">docs.robinhood.com/chain/contracts</a>. When the live adapter is on, the tokens it has verified with <code>approvedPairTokens()</code> appear here, linked to the explorer.</p>
+        <table id="stock-tokens"><thead><tr><th>Stock</th><th>Token</th><th>Factory</th></tr></thead><tbody><tr><td colspan="3">Appears once the adapter has verified them against the factory.</td></tr></tbody></table>
+
+        <h2 id="d-integrate">Integrate</h2>
+        <p>The site reads everything through one adapter object. To point it at a live deployment, define <code>window.BONDED_ADAPTER</code> before <code>app.js</code> loads, with these methods:</p>
+        <pre><code>window.BONDED_ADAPTER = {
+  async stats()             { return { pairs, volumeUsd, lockedUsd }; },
+  async stocks()            { return [{ sym, name, price, pairs }]; },
+  async pairs()             { return [{ name, ticker, stock, mcap, volume, change, holders, createdAt, address, desc, creator }]; },
+  async pair(ticker)        { return { ...pair, liquidityUsd, series, trades }; },
+  async connect()           { return { address }; },
+  async createPair(payload) { return { txHash, tokenAddress, pairAddress }; },
+  async quote({ ticker, side, amount }) { return { out, priceImpact, fee }; },
+  async swap({ ticker, side, amount, minOut }) { return { txHash }; },
+  async holdings(address)   { return [{ ticker, amount }]; },
+  async launched(address)   { return [ticker]; },
+  subscribe(onEvent)        { /* onEvent({ kind: 'launch'|'buy'|'sell', ... }) */ return unsubscribe; },
+};</code></pre>
+        <p>Amounts are in the stock token for buys and in the token for sells. <code>series</code> is an array of prices in shares per token, oldest first.</p>
+
+        <h3 id="d-pons">Live on Pons</h3>
+        <p>The site ships with that adapter written: <code>adapter.pons.js</code> talks to the Pons V2 factory with no libraries. It is on by default; open any page with <code>?demo=1</code> to see the demo instead (and <code>?demo=0</code> to come back). With it on, <em>Launch</em> calls <code>launchToken(params, launchConfigId, stockToken, [])</code> with the factory's <code>launchFee()</code> attached and <code>previewLaunchEconomics()</code> as the economics digest, waits for the receipt, reads <code>TokenLaunched</code> and refuses to continue unless <code>pairToken</code> is the stock you picked. The first buy is a real <code>curve.buy()</code> paid in that stock. Trading on a pair page is <code>curve.buy()</code> / <code>curve.sell()</code> with a 3% slippage floor; quotes come from <code>getReserves()</code> and <code>feeBps()</code>; they do not include the creator tax or the launch-window snipe tax, which the slippage floor absorbs (the creator's own first buy is sent as a snipe-tax exemption).</p>
+        <p>The adapter discovers stock tokens from recent launches on the factory and only keeps the ones that pass <code>approvedPairTokens()</code>. To pin the official ones, define them before the scripts load:</p>
+        <pre><code>&lt;script&gt;window.BONDED_STOCK_TOKENS = { TSLA: '0x…', NVDA: '0x…' };&lt;/script&gt;</code></pre>
+        <p>Before trusting any of it with money, run <code>node scripts/verify-pons.mjs</code> from a machine that can reach <code>rpc.mainnet.chain.robinhood.com</code>. It checks the chain id and factory code, reads <code>launchEnabled()</code>, <code>launchFee()</code> and every launch config, tallies the quote tokens of real launches, opens a live curve per stock to confirm <code>pairToken()</code>, and simulates <code>launchToken()</code> with a stock as quote. Pass <code>--from 0xYourWallet</code> to simulate as yourself and <code>--stocks TSLA=0x…</code> to check your own addresses.</p>
+
+        <h2 id="d-risk">Risks</h2>
+        <ul>
+          <li>Tokenized stocks are issued by third parties. LilyPad does not issue them, custody them or guarantee their peg to the underlying.</li>
+          <li>Tokens launched here are created by their creators. A curve that cannot be pulled does not make a token valuable; it only means the stock in it goes where the formula says.</li>
+          <li>Robinhood's stock tokens are issued for eligible customers in the European Union and are geo-restricted. If you cannot hold the stock token, you cannot trade the pair.</li>
+          <li>Stock tokens trade on chain around the clock. Their price can drift from the underlying while markets are closed.</li>
+          <li>Nothing on this site is financial advice. Read your local rules before launching or trading.</li>
+        </ul>
+      </article>
+    </div>
+
+  </main>
+  <footer class="bd-footer">
+    <div class="bd-wrap">
+      <div class="bd-footer-main">
+        <div class="bd-footer-brand">
+          <a class="bd-footer-name" href="index.html">LilyPad</a>
+          <p>A little pair. A big leap.</p>
+        </div>
+        <nav class="bd-footer-links">
+          <a href="board.html">The pairs</a><a href="launch.html">Launch a pair</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">Questions</a><a href="live.html">Live feed</a><a href="docs.html">Docs</a><a href="https://x.com/useLilypadtech" target="_blank" rel="noopener">@useLilypadtech</a>
+        </nav>
+      </div>
+      <div class="bd-footer-bottom">
+        <span>© <span data-year></span> LilyPad · A little pair. A big leap.</span>
+        <button class="bd-night" id="night" type="button" aria-pressed="false"><i></i><span>Night on the pond</span></button>
+        <span><span data-cfg="chain">—</span> · Pons V2 factory</span>
+      </div>
+    </div>
+  </footer>
+  <div class="bd-toast" id="toast" role="status"></div>
+
+</div>
+<script defer src="config.js?v=7"></script>
+<script defer src="pons/wallet.js?v=7"></script>
+<script defer src="pons/keccak.js?v=7"></script>
+<script defer src="pons/abi.js?v=7"></script>
+<script defer src="adapter.pons.js?v=7"></script>
+<script defer src="app.js?v=7"></script>
+</body>
+</html>

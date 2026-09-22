@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>try{if(localStorage.getItem("bonded-night")==="true")document.documentElement.classList.add("is-night")}catch(e){}</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Launch a pair — LilyPad</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="LilyPad">
+  <meta property="og:title" content="Launch a pair — LilyPad"><meta property="og:description" content="Pick a tokenized stock, name your coin, sign once. LilyPad launches it on the public Pons V2 factory with a curve quoted in that stock, first buy included.">
+  <meta property="og:image" content="/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Launch a pair — LilyPad"><meta name="twitter:description" content="Pick a tokenized stock, name your coin, sign once. LilyPad launches it on the public Pons V2 factory with a curve quoted in that stock, first buy included."><meta name="twitter:image" content="/og.png">
+  <meta name="description" content="Pick a tokenized stock, name your coin, sign once. LilyPad launches it on the public Pons V2 factory with a curve quoted in that stock, first buy included.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23131720'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%235DE1FF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='16' r='6' fill='%23F0B35B'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%235DE1FF'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css?v=7">
+</head>
+<body data-page="launch">
+<div class="bd" id="top">
+  <nav class="bd-nav">
+    <div class="bd-pill">
+      <a class="bd-brand" href="index.html">LilyPad</a>
+      <div class="bd-nav-links" id="navlinks"><a href="board.html">Pairs</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">FAQ</a><a href="docs.html">Docs</a><button type="button" class="bd-wallet bd-only-sm">Connect wallet</button><button class="bd-nav-ca bd-only-sm" type="button" title="Contract address"><span class="bd-nav-ca-label">CA:</span><span class="bd-nav-ca-value"></span></button></div>
+      <div class="bd-nav-right">
+        <button class="bd-nav-ca" type="button" title="Contract address"><span class="bd-nav-ca-label">CA:</span><span class="bd-nav-ca-value"></span></button>
+        <a class="bd-nav-icon" data-cfg-href="xUrl" href="#" target="_blank" rel="noopener" aria-label="LilyPad on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+        <button class="bd-nav-icon bd-nav-night" type="button" aria-label="Night on the pond" aria-pressed="false"><svg class="bd-ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg><svg class="bd-ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        <button class="bd-nav-ghost bd-wallet" id="wallet" type="button">Connect wallet</button>
+        <a class="bd-btn bd-btn-dark" href="launch.html">Launch a coin</a>
+        <button class="bd-icon-btn bd-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="bd-page-head">
+      <div class="bd-wrap">
+        <span class="bd-label">Launch</span>
+        <h1>Pair a new coin with a stock.</h1>
+        <p>Three fields and a stock. The curve opens the moment the transaction lands. Creation fee <b class="bd-mono" data-cfg="fee">—</b> on <span data-cfg="chain">—</span>.</p>
+      </div>
+    </section>
+
+    <div class="bd-wrap bd-launch">
+      <form class="bd-panel bd-form" id="launch-form" novalidate>
+        <div class="bd-field">
+          <label for="f-name">Coin name</label>
+          <input class="bd-input" id="f-name" maxlength="40" placeholder="Robotaxi Season" autocomplete="off">
+          <small>Up to 40 characters. This is what people will read on the board.</small>
+        </div>
+        <div class="bd-field">
+          <label for="f-ticker">Ticker</label>
+          <div class="bd-input-wrap">
+            <input class="bd-input" id="f-ticker" maxlength="8" placeholder="ROBO" autocomplete="off" style="text-transform:uppercase">
+            <span class="bd-suffix" id="f-ticker-pair">/ —</span>
+          </div>
+          <small>Letters and numbers, 2 to 8.</small>
+        </div>
+        <div class="bd-field">
+          <label for="f-stock">Stock</label>
+          <select class="bd-input bd-select-input" id="f-stock"></select>
+          <small>Chosen once, at launch, and held for the life of the pair.</small>
+        </div>
+        <div class="bd-field">
+          <label for="f-buy">Your first buy</label>
+          <div class="bd-input-wrap">
+            <input class="bd-input" id="f-buy" type="number" min="0" step="0.001" placeholder="0">
+            <span class="bd-suffix" id="f-buy-unit">—</span>
+          </div>
+          <small class="bd-bal" id="f-buy-bal"></small>
+          <small id="f-buy-note">Optional. Your first buy lands in the same transaction as the launch, so nobody gets in before you.</small>
+        </div>
+        <div class="bd-error" id="f-error" hidden></div>
+        <div class="bd-error" id="tx-error" hidden></div>
+        <div class="bd-callout bd-callout-wallet" id="wallet-callout">
+          <b>Connect a wallet to launch.</b> One signature deploys the coin and opens its curve, quoted in the stock. A first buy adds one approval of the stock token.
+          <div style="margin-top:12px"><button class="bd-btn bd-btn-ghost bd-btn-sm bd-wallet" type="button">Connect wallet</button></div>
+        </div>
+        <button class="bd-btn bd-btn-primary bd-btn-lg bd-btn-block" type="button" id="deploy">Launch the pair ↗</button>
+      </form>
+
+      <aside class="bd-preview">
+        <div class="bd-preview-art" id="preview-art"></div>
+        <div class="bd-summary">
+          <span class="bd-label">Launch summary</span>
+          <h2 id="sum-name">Your coin</h2>
+          <div class="bd-summary-sub" id="sum-sub">TICKER · PRICED IN —</div>
+          <div class="bd-review" id="review"></div>
+        </div>
+        <div class="bd-preview-card" id="preview-card"></div>
+      </aside>
+    </div>
+
+    <!-- done -->
+    <div class="bd-wrap" id="done-wrap" hidden>
+      <div class="bd-panel bd-success">
+        <div class="bd-success-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h2>On the pad.</h2>
+        <p>Your pair is live and on the board. Share the link; the first buyers are usually the people who saw it first.</p>
+        <div class="bd-review" id="done"></div>
+        <div class="bd-hero-cta bd-hero-cta-row" style="justify-content:center">
+          <a class="bd-btn bd-btn-primary" id="done-open" href="board.html">Open the pair</a>
+          <a class="bd-btn bd-btn-ghost" id="done-tx" href="#" target="_blank" rel="noopener">Transaction ↗</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bd-footer">
+    <div class="bd-wrap">
+      <div class="bd-footer-main">
+        <div class="bd-footer-brand">
+          <a class="bd-footer-name" href="index.html">LilyPad</a>
+          <p>A little pair. A big leap.</p>
+        </div>
+        <nav class="bd-footer-links">
+          <a href="board.html">The pairs</a><a href="launch.html">Launch a pair</a><a href="index.html#how">How it works</a><a href="stocks.html">Stocks</a><a href="playground.html">My playground</a><a href="index.html#faq">Questions</a><a href="live.html">Live feed</a><a href="docs.html">Docs</a><a href="https://x.com/useLilypadtech" target="_blank" rel="noopener">@useLilypadtech</a>
+        </nav>
+      </div>
+      <div class="bd-footer-bottom">
+        <span>© <span data-year></span> LilyPad · A little pair. A big leap.</span>
+        <button class="bd-night" id="night" type="button" aria-pressed="false"><i></i><span>Night on the pond</span></button>
+        <span><span data-cfg="chain">—</span> · Pons V2 factory</span>
+      </div>
+    </div>
+  </footer>
+  <div class="bd-toast" id="toast" role="status"></div>
+
+</div>
+<script defer src="config.js?v=7"></script>
+<script defer src="pons/wallet.js?v=7"></script>
+<script defer src="pons/keccak.js?v=7"></script>
+<script defer src="pons/abi.js?v=7"></script>
+<script defer src="adapter.pons.js?v=7"></script>
+<script defer src="app.js?v=7"></script>
+</body>
+</html>

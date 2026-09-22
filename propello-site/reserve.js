@@ -148,12 +148,19 @@
   /* one note per address: signing again replaces your own, never piles up */
   function keyFor(address) { return String(address).toLowerCase().replace(/[^a-z0-9_.:@+-]/g, ''); }
 
-  function save(rec) {
-    if (db) return db.collection('reservations').doc(keyFor(rec.address)).set(rec);
+  function saveLocal(rec) {
     var notes = localAll();
     notes[keyFor(rec.address)] = rec;
     localWrite(notes);
     paintList(localRows());
+  }
+  function save(rec) {
+    if (db) {
+      return db.collection('reservations').doc(keyFor(rec.address)).set(rec)
+        /* a viewer who may not write the shared list still keeps their own note */
+        .catch(function (e) { console.warn('Propello: the shared list refused the note', e); saveLocal(rec); });
+    }
+    saveLocal(rec);
     return Promise.resolve();
   }
   function drop(address) {
@@ -309,7 +316,6 @@
   el.go.addEventListener('click', sign);
 
   /* the note carries the address, so it is redrawn whenever the link changes */
-  window.addEventListener('propello:wallet', paintNote);
   setInterval(function () {
     var a = (W() && W().state && W().state.account) || null;
     if (a !== paintNote.last) { paintNote.last = a; paintNote(); paintList(db ? paintList.rows || [] : localRows()); }

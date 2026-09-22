@@ -40,8 +40,11 @@ and it is reserved: share prices, rent figures, the step numbers, the primary
 button, the map pins, the chart line. Nothing decorative is ever allowed to be
 azure, because the moment the accent spreads it stops meaning "money".
 
-The four claim pills step through tints of the same azure (`--accent-1` → 
-`--accent`) so the last line lands hardest.
+The light panels are a *warm* off-white (`--cream`, `#F3F2EC`) on purpose: a cool
+off-white swallowed the pale azure tints. On the warm ground the four claim pills step
+through a ramp (`--accent-1` → `--accent-4`) whose steps are far enough apart to read
+as four steps, and whose last one goes deeper than the accent so the closing line
+lands hardest.
 
 Type is Figtree for everything and JetBrains Mono for every figure that sits in a
 column — prices, table cells, map labels, the stat tiles — so numbers stay tabular

@@ -14,15 +14,18 @@
   --navy-600: #23517F;   /* borders that need to be seen                       */
 
   /* --- the two grounds ---------------------------------------------------- */
-  --cream:    #EEF3F8;   /* the light panels                                   */
-  --cream-2:  #E2EBF3;
+  --cream:    #F3F2EC;   /* the light panels — warm, so the blues read on it   */
+  --cream-2:  #E7E6DE;
   --ink:      #0B1F38;   /* text on cream                                      */
 
   /* --- azure is the accent, and it only ever means money ------------------- */
   --accent:   #63D6F2;
-  --accent-3: #8FDCF5;
-  --accent-2: #BEE9F8;
-  --accent-1: #DDF2FB;
+  /* the tint ramp under the accent: four steps far enough apart to be
+     four steps on a light ground, the last one deeper than the accent */
+  --accent-4: #4DBFE6;
+  --accent-3: #7ED1EF;
+  --accent-2: #A9DFF5;
+  --accent-1: #D2ECF9;
 
   /* --- the map pins get a blue of their own, so they read as places
          rather than as one more money figure ------------------------------ */
@@ -320,7 +323,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 .rt-claim span:nth-child(1) { background: var(--accent-1); margin-left: 0; }
 .rt-claim span:nth-child(2) { background: var(--accent-2); margin-left: clamp(8px, 3vw, 46px); }
 .rt-claim span:nth-child(3) { background: var(--accent-3); margin-left: clamp(4px, 1.5vw, 18px); }
-.rt-claim span:nth-child(4) { background: var(--accent);   margin-left: clamp(12px, 4vw, 72px); }
+.rt-claim span:nth-child(4) { background: var(--accent-4); margin-left: clamp(12px, 4vw, 72px); }
 .rt-claim-arrow {
   justify-self: start;
   margin-left: clamp(14px, 4.5vw, 84px);
@@ -548,7 +551,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
   flex-direction: column;
   border-radius: var(--r-lg);
   padding: clamp(24px, 3vw, 34px);
-  border: 1px solid rgba(11,31,56,.08);
+  border: 1px solid rgba(11,31,56,.10);
 }
 .rt-calc-label { font-size: .92rem; color: #5A7796; }
 .rt-calc-amount { display: flex; align-items: baseline; gap: 12px; margin: 4px 0 20px; }

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ===========================================================================
-   translate.js — builds <lang>/index.html and <lang>/docs.html from the
-   English pages and the dictionaries i18n/<lang>.index.json, i18n/<lang>.docs.json.
+   translate.js — builds <lang>/index.html, <lang>/docs.html and <lang>/sandbox.html
+   from the English pages and the dictionaries i18n/<lang>.<page>.json.
    Only English ships today; this is the seam for a second language.
 
    The English page is the structure; the dictionary is a list of exact
@@ -22,12 +22,12 @@ const LANG = process.argv[process.argv.indexOf('--lang') + 1];
 if (!LANG || LANG.startsWith('--')) { console.error('usage: translate.js --lang <code> [--check]'); process.exit(2); }
 
 /* local assets live one level up from es/ */
-const LOCAL = ['styles.css', 'docs.css', 'app.js', 'docs.js', 'config.js', 'gate.js', 'wallet.js', 'map.svg', 'og.png'];
+const LOCAL = ['styles.css', 'docs.css', 'sandbox.css', 'app.js', 'docs.js', 'sandbox.js', 'config.js', 'gate.js', 'wallet.js', 'map.svg', 'og.png'];
 function repath(html) {
   html = html.replace(/(href|src)="(data\/|rolls\/|fonts\/)/g, '$1="../$2');
   for (const f of LOCAL) html = html.replace(new RegExp('(href|src)="' + f.replace('.', '\\.') + '"', 'g'), '$1="../' + f + '"');
   /* canonical for the translated page, and the language switch pointing back */
-  html = html.replace(/<a class="rt-lang" href="[a-z]+\/(index|docs)\.html" hreflang="[a-z]+" lang="[a-z]+" aria-label="[^"]*">[^<]*<\/a>/, (m, p) => '<a class="rt-lang" href="../' + p + '.html" hreflang="en" lang="en" aria-label="English">EN</a>');
+  html = html.replace(/<a class="rt-lang" href="[a-z]+\/(index|docs|sandbox)\.html" hreflang="[a-z]+" lang="[a-z]+" aria-label="[^"]*">[^<]*<\/a>/, (m, p) => '<a class="rt-lang" href="../' + p + '.html" hreflang="en" lang="en" aria-label="English">EN</a>');
   html = html.replace(/<link rel="canonical" href="https:\/\/renta\.example\/([^"]*)">/, (m, p) => '<link rel="canonical" href="https://renta.example/' + LANG + '/' + p + '">');
   html = html.replace(/<meta property="og:url" content="https:\/\/renta\.example\/([^"]*)">/, (m, p) => '<meta property="og:url" content="https://renta.example/' + LANG + '/' + p + '">');
   html = html.replace(/<meta property="og:locale" content="[^"]*">\n?/, '');
@@ -64,7 +64,7 @@ function leftovers(html, skipData) {
 }
 
 let warnings = 0;
-for (const page of ['index', 'docs']) {
+for (const page of ['index', 'docs', 'sandbox']) {
   if (CHECK) {
     /* check the built, rendered page: everything on it should be Spanish */
     const built = fs.readFileSync(path.join(root, LANG, page + '.html'), 'utf8');

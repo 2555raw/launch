@@ -79,7 +79,6 @@
   "The buildings are owned by the holding company, not by us, and the holders of vRENTA\n            own the holding company. If the front end goes dark the vault contract still accepts\n            redemptions from any wallet, and the deeds do not care whether this website exists.": "楼宇归控股公司所有，而不是归我们，vRENTA 的持有人拥有这家控股公司。就算前端\n            关停，金库合约依然接受任何钱包的赎回，而房契并不关心这个网站是否存在。",
   "<h2 class=\"rt-h2\">Put something in<br>and watch a<br>month happen.</h2>": "<h2 class=\"rt-h2\">放一点进去，<br>看一个月<br>如何发生。</h2>",
   "Deposit, read the next report, and cash out whenever you want.\n              There is nothing to pay either way.": "存入，读下一份月报，想什么时候赎回就什么时候赎回。\n              两个方向都没有费用。",
-  "href=\"#roll\">Read the last report</a>": "href=\"#roll\">读最新月报</a>",
   "<p>A share of the rent, without the building, the mortgage or the phone call at six in the morning.</p>": "<p>一份租金，没有楼、没有房贷，也没有早上六点的电话。</p>",
   "<div class=\"rt-fcol-h\">Vault</div>": "<div class=\"rt-fcol-h\">金库</div>",
   "<div class=\"rt-fcol-h\">Read</div>": "<div class=\"rt-fcol-h\">阅读</div>",
@@ -102,5 +101,8 @@
   "id=\"gate-continue\" disabled>Continue to my wallet</button>": "id=\"gate-continue\" disabled>继续连接我的钱包</button>",
   "rel=\"noopener\">Identity check</a>": "rel=\"noopener\">身份验证</a>",
   "data-gate-close>Not now</button>": "data-gate-close>暂不</button>",
-  "Your answer stays in this browser. Nothing is sent anywhere until you sign a transaction.": "你的回答只保存在这个浏览器里。在你签署交易之前，不会向任何地方发送任何内容。"
+  "Your answer stays in this browser. Nothing is sent anywhere until you sign a transaction.": "你的回答只保存在这个浏览器里。在你签署交易之前，不会向任何地方发送任何内容。",
+  "href=\"sandbox.html\">Try it with play money</a>": "href=\"sandbox.html\">用虚拟资金试一试</a>",
+  ">Sandbox</a>": ">沙盒</a>",
+  ">Try the sandbox</a>": ">试试沙盒</a>"
 }

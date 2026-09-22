@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RENTA · 沙盒</title>
+<meta name="description" content="用虚拟资金亲自运行 RENTA 金库：从水龙头取 EURG、存入、结算一个月、赎回，看份额价格如何变动。规则与合约相同，没有任何真实风险。">
+<link rel="canonical" href="https://renta.example/zh/sandbox.html">
+<link rel="alternate" hreflang="en" href="https://renta.example/sandbox.html">
+<link rel="alternate" hreflang="zh" href="https://renta.example/zh/sandbox.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:site_name" content="RENTA">
+<meta property="og:title" content="RENTA — 沙盒">
+<meta property="og:description" content="用虚拟资金亲自运行 RENTA 金库：存入、结算、赎回，看价格如何变动。">
+<meta property="og:url" content="https://renta.example/zh/sandbox.html">
+<meta property="og:image" content="https://renta.example/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="RENTA — Rental property, without the property.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RENTA — 沙盒">
+<meta name="twitter:description" content="用虚拟资金亲自运行 RENTA 金库。">
+<meta name="twitter:image" content="https://renta.example/og.png">
+<meta name="theme-color" content="#102A47">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23102A47'/%3E%3Cg fill='%23F3F2EC'%3E%3Cpath d='M16 3 28.5 11.2H3.5z'/%3E%3Crect x='7' y='13.2' width='18' height='4' rx='1'/%3E%3Crect x='6' y='19.2' width='20' height='4' rx='1'/%3E%3Crect x='5' y='25.2' width='22' height='4' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="../fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../sandbox.css">
+</head>
+<body class="rt-sb-body">
+
+<nav class="rt-nav" id="nav">
+  <a class="rt-brand" href="index.html" aria-label="RENTA，回到网站">
+    <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+      <path d="M16 2.4 28.4 10.6H3.6z"/>
+      <rect x="7" y="12.6" width="18" height="3.9" rx="1"/>
+      <rect x="6" y="18.5" width="20" height="3.9" rx="1"/>
+      <rect x="5" y="24.4" width="22" height="3.9" rx="1"/>
+    </svg>
+    <span>RENTA</span>
+  </a>
+  <div class="rt-nav-links" id="navlinks">
+    <a href="index.html#map">物业组合</a>
+    <a href="index.html#roll">月报</a>
+    <a href="index.html#dashboard">仪表盘</a>
+    <a href="sandbox.html" class="is-active">沙盒</a>
+    <a href="docs.html">文档</a>
+  </div>
+  <div class="rt-nav-right">
+    <a class="rt-lang" href="../sandbox.html" hreflang="en" lang="en" aria-label="English">EN</a>
+    <button class="rt-burger" id="burger" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="navlinks">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="rt-btn rt-btn--light rt-btn--sm" id="sb-nav-wallet" type="button">连接钱包</button>
+  </div>
+</nav>
+
+<main class="rt-sb">
+  <header class="rt-sb-head">
+    <p class="rt-eyebrow">沙盒 · 虚拟资金</p>
+    <h1 class="rt-h2">亲自运行这个金库。</h1>
+    <p class="rt-lede">
+      规则与合约完全相同，但没有任何真实风险。从水龙头取一些 EURG，存进去，结算一个月看价格变动，
+      再取出来看曲线税如何扣除。<b>本页所有人共用同一个金库</b>：你做的事，下一位访客都能看到。
+    </p>
+    <p class="rt-sb-mode" id="sb-mode" role="status"></p>
+  </header>
+
+  <div class="rt-sb-grid">
+
+    <!-- ============================================================= you == -->
+    <section class="rt-sb-col" aria-labelledby="sb-you-h">
+      <div class="rt-sb-card rt-sb-card--lit">
+        <p class="rt-eyebrow">你</p>
+        <h2 class="rt-h4" id="sb-you-h">谁在存入？</h2>
+
+        <div id="sb-signin">
+          <label class="rt-sb-field">
+            <span>在持有人名单上显示的名字</span>
+            <input type="text" id="sb-name" maxlength="24" autocomplete="nickname" placeholder="例如：小雨" spellcheck="false">
+          </label>
+          <div class="rt-sb-actions">
+            <button class="rt-btn rt-btn--ink" type="button" id="sb-guest">以访客身份继续</button>
+            <button class="rt-btn rt-btn--ink-ghost" type="button" id="sb-wallet">连接钱包</button>
+          </div>
+          <p class="rt-sb-fine">钱包只需签署一条消息来证明它属于你。没有交易，没有 gas，不会上链，沙盒也永远不会索要真实的 EURG。</p>
+        </div>
+
+        <div id="sb-me" hidden>
+          <div class="rt-sb-who">
+            <b id="sb-me-name"></b>
+            <span class="rt-sb-kind" id="sb-me-kind"></span>
+            <button class="rt-sb-link" type="button" id="sb-signout">切换</button>
+          </div>
+          <dl class="rt-sb-bal">
+            <div><dt>手头 EURG</dt><dd class="rt-num" id="sb-eurg">€0.00</dd></div>
+            <div><dt>vRENTA</dt><dd class="rt-num" id="sb-shares">0.00</dd></div>
+            <div><dt>今日价值</dt><dd class="rt-num rt-sb-pos" id="sb-worth">€0.00</dd></div>
+            <div><dt>当前曲线税</dt><dd class="rt-num" id="sb-curve">0%</dd></div>
+          </dl>
+          <p class="rt-sb-fine" id="sb-curve-note"></p>
+        </div>
+      </div>
+
+      <div class="rt-sb-card" id="sb-actions">
+        <div class="rt-sb-act">
+          <div>
+            <h3 class="rt-h4">水龙头</h3>
+            <p>每次 €25,000 虚拟 EURG，手头最多 €100,000。</p>
+          </div>
+          <button class="rt-btn rt-btn--accent rt-btn--sm" type="button" id="sb-tap" data-needs-me>领取 €25,000</button>
+        </div>
+
+        <div class="rt-sb-act">
+          <div>
+            <h3 class="rt-h4">存入</h3>
+            <p>存入 EURG，按今日价格换成 vRENTA。€100 起。</p>
+            <div class="rt-sb-amount">
+              <span>€</span><input type="text" inputmode="decimal" id="sb-dep-amt" value="10,000" aria-label="存入的 EURG">
+              <span class="rt-sb-preview rt-num" id="sb-dep-preview"></span>
+            </div>
+          </div>
+          <button class="rt-btn rt-btn--light rt-btn--sm" type="button" id="sb-deposit" data-needs-me>存入</button>
+        </div>
+
+        <div class="rt-sb-act">
+          <div>
+            <h3 class="rt-h4">赎回</h3>
+            <p>交回 vRENTA，取出 EURG。存入后 90 天内，曲线税最多扣 3%。</p>
+            <div class="rt-sb-amount">
+              <input type="text" inputmode="decimal" id="sb-red-amt" value="" placeholder="全部" aria-label="赎回的 vRENTA">
+              <span class="rt-sb-preview rt-num" id="sb-red-preview"></span>
+            </div>
+          </div>
+          <button class="rt-btn rt-btn--ghost rt-btn--sm" type="button" id="sb-redeem" data-needs-me>赎回</button>
+        </div>
+        <p class="rt-sb-fine" id="sb-queue-note" hidden></p>
+      </div>
+    </section>
+
+    <!-- =========================================================== vault == -->
+    <section class="rt-sb-col rt-sb-col--wide" aria-labelledby="sb-vault-h">
+      <div class="rt-sb-card">
+        <div class="rt-sb-cardhead">
+          <div>
+            <p class="rt-eyebrow">金库</p>
+            <h2 class="rt-h4" id="sb-vault-h">一个金库，所有人的操作。</h2>
+          </div>
+          <button class="rt-sb-link" type="button" id="sb-reset" hidden>重置沙盒</button>
+        </div>
+        <div class="rt-sb-tiles">
+          <div class="rt-sb-tile"><small>份额价格</small><b class="rt-num" id="sb-price">€1.0000</b></div>
+          <div class="rt-sb-tile"><small>已发行 vRENTA</small><b class="rt-num" id="sb-supply">0</b></div>
+          <div class="rt-sb-tile"><small>储备（EURG）</small><b class="rt-num" id="sb-reserve">€0</b></div>
+          <div class="rt-sb-tile"><small>楼宇（按成本）</small><b class="rt-num" id="sb-buildings">€0</b></div>
+          <div class="rt-sb-tile"><small>持有人</small><b class="rt-num" id="sb-holders-n">0</b></div>
+          <div class="rt-sb-tile"><small>排队等待结算</small><b class="rt-num" id="sb-queued">0</b></div>
+        </div>
+      </div>
+
+      <div class="rt-sb-card rt-sb-close">
+        <div class="rt-sb-act rt-sb-act--close">
+          <div>
+            <h3 class="rt-h4" id="sb-close-h">结算本月</h3>
+            <p id="sb-close-preview"></p>
+          </div>
+          <button class="rt-btn rt-btn--accent" type="button" id="sb-close" data-needs-me>结算本月</button>
+        </div>
+      </div>
+
+      <div class="rt-sb-card">
+        <h3 class="rt-h4">结算记录</h3>
+        <p class="rt-sb-sub">前六条是真实的月报。之后的都发生在这里。</p>
+        <div class="rt-sb-scroll">
+          <table class="rt-sbt" id="sb-closes">
+            <thead><tr><th>月份</th><th>实收</th><th>成本</th><th>留存</th><th>价格</th><th>来源</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rt-sb-two">
+        <div class="rt-sb-card">
+          <h3 class="rt-h4">持有人</h3>
+          <div class="rt-sb-scroll">
+            <table class="rt-sbt" id="sb-holders">
+              <thead><tr><th>名字</th><th>vRENTA</th><th>价值</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="rt-sb-card">
+          <h3 class="rt-h4">流水</h3>
+          <ol class="rt-sb-ledger" id="sb-ledger"></ol>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="rt-sb-notes">
+    <h2 class="rt-h4">这里什么是真的，什么不是</h2>
+    <ul>
+      <li><b>规则就是合约的规则。</b>价格等于金库持有的资产除以已发行份额。存入按该价格铸造份额。赎回按该价格支付并扣除曲线税：存入当天 3%，到第 90 天降为零，扣下的部分留在金库归其他人。储备无法支付的赎回，等待下次结算。</li>
+      <li><b>时间以每次结算一个月计。</b>每次结算把日历向前推一个月，因此曲线税按你上次存入后经过的结算次数，依次为 3%、2%、1%，然后归零。</li>
+      <li><b>租金是模拟的。</b>金库从真实月报结束处开始。此后每次结算收取应收租金的 90% 至 100%，并支付其中 26% 至 36% 作为成本；每个月的数值固定，所以所有人看到同样的预测。</li>
+      <li><b>这里没有真钱。</b>EURG 来自水龙头，钱包只签署消息、不付 gas，没有任何东西上链。真正的金库上线时，就是<a href="docs.html#contracts">文档</a>中的那份合约。</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="rt-footer">
+  <div class="rt-wrap">
+    <div class="rt-footer-bottom">
+      <p class="rt-disclaimer">
+        RENTA 是一个演示版本。沙盒是使用虚拟资金的游戏，其数字不能说明真实金库会如何表现。这里没有任何内容构成投资建议。
+      </p>
+      <div class="rt-footer-right">
+        <a class="rt-social" href="https://x.com/renta" target="_blank" rel="noopener" aria-label="RENTA 的 X（Twitter）">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/>
+          </svg>
+        </a>
+        <span>© 2026 RENTA</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="rt-toast" id="toast" role="status" aria-live="polite"></div>
+<script src="../data/vault.js"></script>
+<script src="../sandbox.js"></script>
+</body>
+</html>

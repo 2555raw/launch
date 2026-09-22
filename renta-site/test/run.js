@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* ===========================================================================
    The site's tests: the Rolls verify, the pages load clean at two widths,
-   every link resolves, the calculator, the FAQ, the chart, the city view and
-   the gate behave, and the figures on the page agree with the Rolls.
+   every link resolves, the calculator, the FAQ, the chart, the city view, the
+   gate and the sandbox behave, and the figures on the page agree with the Rolls.
 
      npm test                 (needs Chromium: set CHROME to its binary, or
                                have playwright-core find it)
@@ -29,7 +29,7 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
   const exe = process.env.CHROME || undefined;
   const b = await chromium.launch(exe ? { executablePath: exe, args: ['--no-sandbox'] } : {});
 
-  for (const [file, w] of [['index.html', 1440], ['docs.html', 1440], ['zh/index.html', 1440], ['zh/docs.html', 1440], ['index.html', 390], ['docs.html', 390], ['zh/index.html', 390]]) {
+  for (const [file, w] of [['index.html', 1440], ['docs.html', 1440], ['sandbox.html', 1440], ['zh/index.html', 1440], ['zh/docs.html', 1440], ['zh/sandbox.html', 1440], ['index.html', 390], ['docs.html', 390], ['sandbox.html', 390], ['zh/index.html', 390]]) {
     const p = await b.newPage({ viewport: { width: w, height: 900 }, reducedMotion: 'reduce' });
     const errs = [], failed = [];
     p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
@@ -118,6 +118,44 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
   ok('without a wallet installed the page says so', (await p.textContent('#toast')).includes('No wallet found'));
   ok('the answer is remembered', await p.evaluate(() => localStorage.getItem('renta.eligible.v1') === 'yes'));
   ok('map pins are keyboard focusable', await p.$$eval('#map .rt-pin', n => n.every(e => e.getAttribute('tabindex') === '0' && e.getAttribute('role') === 'button')));
+
+  /* the sandbox: the contract's rules, in the browser, in localStorage here
+     (no claude.ai store in a bare Chromium), for a guest called Marta */
+  const s = await b.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  await s.goto(base + 'sandbox.html', { waitUntil: 'networkidle' }); await s.waitForTimeout(300);
+  const st = async q => (await s.textContent(q)).trim();
+  const money = t => parseFloat(t.replace(/[€,\s]/g, ''));
+  ok('sandbox: says the vault is this browser\u2019s when no shared store exists', (await st('#sb-mode')).startsWith('This browser only'));
+  ok('sandbox: starts where the Rolls end', (await st('#sb-price')) === '€' + V.price.toFixed(4) && money(await st('#sb-supply')) === V.sharesInIssue && money(await st('#sb-reserve')) === V.reserve);
+  ok('sandbox: actions wait for a name', await s.$$eval('[data-needs-me]', n => n.every(b => b.disabled)));
+  await s.click('#sb-guest'); await s.waitForTimeout(150);
+  ok('sandbox: guest needs a name', (await st('#toast')) === 'Pick a name first.');
+  await s.fill('#sb-name', 'Marta'); await s.press('#sb-name', 'Enter'); await s.waitForTimeout(150);
+  ok('sandbox: a named guest is in', (await st('#sb-me-name')) === 'Marta' && await s.$$eval('[data-needs-me]', n => n.every(b => !b.disabled)));
+  await s.click('#sb-tap'); await s.waitForTimeout(150);
+  ok('sandbox: the tap gives €25,000', money(await st('#sb-eurg')) === 25000);
+  await s.fill('#sb-dep-amt', '20000'); await s.click('#sb-deposit'); await s.waitForTimeout(150);
+  const sh = money(await st('#sb-shares'));
+  ok('sandbox: a deposit mints at the share price', Math.abs(sh - 20000 / V.price) < 0.01 && money(await st('#sb-eurg')) === 5000, sh);
+  ok('sandbox: the curve is 3% on the day of a deposit', (await st('#sb-curve')) === '3%');
+  await s.fill('#sb-red-amt', ''); await s.dispatchEvent('#sb-red-amt', 'input');
+  ok('sandbox: redeeming everything now would leave 3% behind', (await st('#sb-red-preview')).includes('€19,400.00') && (await st('#sb-red-preview')).includes('€600.00'));
+  const forecast = await st('#sb-close-preview');
+  await s.click('#sb-close'); await s.waitForTimeout(150);
+  const pAfter = money(await st('#sb-price'));
+  ok('sandbox: a close moves the price to the forecast', forecast.includes('€' + pAfter.toFixed(4)) && pAfter > V.price, forecast);
+  ok('sandbox: a close takes the curve down a step', (await st('#sb-curve')) === '2%');
+  ok('sandbox: the close is on the table, marked as the sandbox\u2019s', (await s.$$eval('#sb-closes tbody tr', r => r.length)) === V.closes.length + 1 && (await st('#sb-closes tbody tr:first-child td:last-child')).startsWith('sandbox'));
+  await s.fill('#sb-red-amt', '5000'); await s.click('#sb-redeem'); await s.waitForTimeout(150);
+  const red = (await st('#toast')).match(/€([\d,.]+) paid out, €([\d,.]+) curve/);
+  const net = red ? money(red[1]) : 0, tax = red ? money(red[2]) : 0;
+  ok('sandbox: a redemption pays price × shares less a 2% curve', red && Math.abs(tax - 0.02 * (net + tax)) < 0.01 && Math.abs(net + tax - 5000 * pAfter) < 0.3 && Math.abs(money(await st('#sb-eurg')) - (5000 + net)) < 0.02 && Math.abs(money(await st('#sb-shares')) - (sh - 5000)) < 0.01, await st('#toast'));
+  ok('sandbox: the ledger tells the story', (await s.$$eval('#sb-ledger li', n => n.map(e => e.querySelector('.rt-sb-kind').textContent))).join(',') === 'Redeem,Close,Deposit,Tap');
+  await s.reload({ waitUntil: 'networkidle' }); await s.waitForTimeout(300);
+  ok('sandbox: the vault and the guest survive a reload', (await st('#sb-me-name')) === 'Marta' && money(await st('#sb-price')) === pAfter);
+  await s.click('#sb-nav-wallet'); await s.waitForTimeout(150);
+  ok('sandbox: without a wallet installed the page says so', (await st('#toast')).startsWith('No wallet found'));
+  await s.close();
 
   const d = await b.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   await d.goto(base + 'docs.html', { waitUntil: 'networkidle' }); await d.waitForTimeout(300);

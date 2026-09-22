@@ -12,19 +12,23 @@ English and Chinese with no build step and no third-party request.
 ```bash
 npm run data      # rebuild every figure from the Rolls (see below)
 npm run serve     # http://localhost:8000
-npm test          # 60-odd checks, needs Chromium (CHROME=/path/to/chrome)
+npm test          # 130-odd checks, needs Chromium (CHROME=/path/to/chrome)
 ```
 
 ## Structure
 
 ```
 index.html / docs.html        the landing page and the documentation
-zh/index.html / zh/docs.html  the same two pages in Chinese — GENERATED, do not edit
-styles.css, docs.css          the design system and the docs layout
+sandbox.html                  the sandbox: the vault's rules with play money, one
+                              vault shared by every visitor (next section)
+zh/*.html                     the same three pages in Chinese — GENERATED, do not edit
+styles.css, docs.css,
+sandbox.css                   the design system, the docs layout, the sandbox
 app.js                        nav, reveal, count-ups, FAQ, the map, the city view,
                               the calculator and the share-price chart
 wallet.js, gate.js, config.js the wallet connection, the eligibility gate, and the
                               one file to edit when the vault goes live
+sandbox.js                    the sandbox: contract rules, store, wallet sign-in
 map.svg                       56 countries, drawn from real polygons (cached image)
 og.png, sitemap.xml, robots.txt, 404.html
 
@@ -38,6 +42,21 @@ scripts/                      the generators (next section)
 test/                         the test suite and its static server
 fonts/                        Figtree and JetBrains Mono, self-hosted
 ```
+
+## The sandbox
+
+`sandbox.html` runs the rules of `contracts/Vault.sol` in the browser with play money.
+A visitor signs in as a guest by name, or with a wallet (one `personal_sign`, no
+transaction); takes EURG from a tap; deposits at the share price; closes a month
+(simulated rent, deterministic per month, so everyone forecasts the same figures; a
+fat reserve buys a building); redeems with the curve applied, 3% → 2% → 1% → 0 by
+closes since the last deposit; and a redemption the reserve cannot cover queues for
+the next close. The vault starts where the real Rolls end.
+
+Where the state lives: on claude.ai, in the artifact's shared store (`claude.use("db")`,
+one document `sandbox/vault`, written under a short lease so visitors do not overwrite
+each other) and every open page sees every move live; anywhere else, in localStorage,
+and the page says so. Nothing is verified server-side and nothing is money.
 
 ## The pipeline: from the Rolls to the page
 

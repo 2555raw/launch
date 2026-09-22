@@ -43,7 +43,7 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
     ok(`${file}@${w}: heading outline has no jumps`, heads.length === 0, heads.join(','));
     if (w === 1440) {
       const x = await p.evaluate(() => [...document.querySelectorAll('a[href*=".html#"]')].map(a => a.getAttribute('href')));
-      for (const h of [...new Set(x)]) { const [f, id] = h.split('#'); const q = await b.newPage(); await q.goto(base + f); const has = await q.evaluate(i => !!document.getElementById(i), id); await q.close(); ok(`${file}: link ${h} resolves`, has); }
+      for (const h of [...new Set(x)]) { const [f, id] = h.split('#'); const q = await b.newPage(); await q.goto(new URL(f, base + file).href); const has = await q.evaluate(i => !!document.getElementById(i), id); await q.close(); ok(`${file}: link ${h} resolves`, has); }
       const fonts = await p.evaluate(() => [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family));
       ok(`${file}: self-hosted fonts loaded`, fonts.includes('Figtree') && fonts.includes('JetBrains Mono'), [...new Set(fonts)].join(', '));
       ok(`${file}: no third-party requests`, !(await p.evaluate(() => performance.getEntriesByType('resource').some(r => !r.name.startsWith(location.origin)))));

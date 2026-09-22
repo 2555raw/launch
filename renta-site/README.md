@@ -1,118 +1,135 @@
 # RENTA — site
 
-Static landing page for **RENTA**: a share of the rent from ten apartment buildings
-in eight European cities, held through one vault token called `vRENTA`.
+Static site for **RENTA**: a share of the rent from ten apartment buildings in eight
+European cities, held through one vault token, `vRENTA`.
 
 Built as a mid-dark navy reading of the DEED layout — same mechanics, same section
-order, same plain-English voice, different palette, different continent.
+order, same plain-English voice, different palette, different continent — and then
+taken further: every figure on it is computed from published monthly ledgers, the
+map steps into each city by district, a wallet connects, and the whole thing ships with
+no build step and no third-party request.
 
-No build step, no dependencies. Plain HTML, CSS and vanilla JS.
+```bash
+npm run data      # rebuild every figure from the Rolls (see below)
+npm run serve     # http://localhost:8000
+npm test          # 60-odd checks, needs Chromium (CHROME=/path/to/chrome)
+```
 
 ## Structure
 
 ```
-index.html   the landing page: hero, how it works, the claim panel, the portfolio
-             with the full-bleed map of Europe and the buildings table, The Roll,
-             the dashboard chart, the deposit calculator, FAQ, closing call, footer
-docs.html    the documentation: a sticky sidebar and one column of prose —
-             using the vault, The Roll, building on it, legal
-styles.css   the design system (palette, type, layout) and the responsive rules
-docs.css     the light-ground layout and prose styles for the docs page
-app.js       nav, scroll reveal, count-ups, FAQ accordion, the map-to-building
-             hover link, the deposit calculator and the share-price chart
-docs.js      the docs sidebar following the heading you are reading
+index.html / docs.html        the landing page and the documentation
+styles.css, docs.css          the design system and the docs layout
+app.js                        nav, reveal, count-ups, FAQ, the map, the city view,
+                              the calculator and the share-price chart
+wallet.js, gate.js, config.js the wallet connection, the eligibility gate, and the
+                              one file to edit when the vault goes live
+map.svg                       56 countries, drawn from real polygons (cached image)
+og.png, sitemap.xml, robots.txt, 404.html
+
+rolls/                        the six monthly Rolls (CSV) and hashes.json
+data/                         buildings.json (the facts), and the GENERATED
+                              vault.js/json, facades.js, cities.js
+contracts/                    Vault.sol, RollRegistry.sol and their ABIs
+i18n/                         the seam for a second language (none ships; see i18n/README.md)
+scripts/                      the generators (next section)
+test/                         the test suite and its static server
+fonts/                        Figtree and JetBrains Mono, self-hosted
 ```
 
-## Run it
+## The pipeline: from the Rolls to the page
 
-```bash
-python3 -m http.server 8000     # then open http://localhost:8000
+Nothing on the page is typed in. The chain is:
+
+```
+rolls/*.csv ──recompute.js──▶ data/vault.json ──render-static.js──▶ index.html, docs.html
+     ▲                             │
+make-rolls.js (demo only)          └──▶ app.js (chart, calculator, city cards)
+data/buildings.json ──facades.js──▶ data/facades.js   (a façade per building)
+                    ──cities.js───▶ data/cities.js    (a district map per city)
 ```
 
-Or open `index.html` directly. Deploy by dropping the folder on any static host.
+- **`scripts/recompute.js`** reads every Roll, checks its SHA-256 against
+  `rolls/hashes.json`, checks that each header's `previous_roll` is the hash of the
+  Roll before it, recomputes the closing price from the lines — `opening + (Σ collected
+  − Σ costs) / shares + Σ curve tax / shares` — to six decimals, and checks the share
+  movements. Then it writes `data/vault.js`. `--check` verifies only and exits 1 on any
+  mismatch; a Roll with one edited cent fails on both the hash and the price.
+- **`scripts/render-static.js`** writes the figures into regions marked
+  `<!-- data:key --> … <!-- /data:key -->` in both pages. The pages are right with JavaScript off, and can never
+  disagree with the Rolls. The notes under The Roll (the biggest invoice, a lease that
+  ended, each purchase) are told from the data too.
+- **`scripts/make-rolls.js`** is the demonstration's only invented input: it writes
+  the six Rolls deterministically (fixed-seed PRNG) — a rent roll per apartment,
+  costs by invoice, deposits and redemptions by wallet, purchases as they happened.
+  A live vault replaces this script with real ledgers and nothing downstream changes.
+- **`scripts/translate.js`** is the seam for a second language: dictionaries in
+  `i18n/`, a built copy in `<lang>/`, and a check that nothing on it still reads as
+  English. No translation ships.
+
+## The map, and the cities
+
+The map of Europe is generated, not drawn: `world-atlas@2` 1:50m country polygons,
+projected (equirectangular, x scaled by `cos 48°`, framed 16.2°W–51.4°E by
+37.4°N–60°N, 2:1), simplified with Douglas-Peucker at 1.1px of final screen pixels,
+and written to `map.svg` — one `<path>` per country, ~66KB, loaded as an `<img>`
+and cached. An inline overlay in the same frame carries only what needs to react:
+the six owned countries (transparent until a building is hovered), the capitals as
+reference, and the pins in a blue of their own (`--pin`, not the azure money accent),
+each sending out a ring every few seconds. Labels are placed by a greedy solver.
+
+Click a pin, or a building in the table, and the city opens. `scripts/cities.js`
+draws each one: real districts at their real centres, the boundaries between them
+as Voronoi cells clipped to a convex city limit — a map of *which district is where*,
+not a cadastral one, and the panel says so — the building's district lit, the
+building at its true coordinates (the script fails if a building does not land in
+its named district), a scale bar, and a card per building with its façade.
+Terrassa is twenty kilometres from Barcelona, eight pixels on the big map, so it
+rides Barcelona's pin there and has its own city view, linked from Barcelona's.
+
+`scripts/facades.js` draws an elevation per building from its facts — floors,
+apartments per floor, a roof for its era — as the thumbnail in the table and on the
+cards. There are no photographs because there are no buildings.
+
+## The wallet and the contracts
+
+`wallet.js` finds injected wallets through EIP-6963 (falling back to
+`window.ethereum`), connects with EIP-1193, moves the wallet to the vault's chain
+(adding it if unknown), and — with a vault address in `config.js` — reads your
+vRENTA balance, the share price and what the vault holds straight from the contract
+with hand-encoded ABI calls. No library. With no address configured it connects and
+says plainly that nothing is deployed on that chain.
+
+Before the first connection, `gate.js` asks for three confirmations — residence in
+an eligible jurisdiction, the risks read, that this is a security — with the
+jurisdictions from `config.js`, and links to the identity-check provider when one
+is configured. The answer stays in that browser.
+
+`contracts/Vault.sol` is an ERC-4626 with three additions: a curve on `redeem`
+(3% on day one, straight line to zero on day ninety, and the difference stays in the
+vault), a `close` the operator calls once a month that sets the buildings' carrying
+value and writes the Roll's hash to `RollRegistry.sol` in the same transaction, and
+a queue for redemptions the reserve cannot cover, settled at the next close. It
+compiles clean with solc 0.8.37 and it is **not audited**: it is the reference source
+for the mechanism the docs describe, not something to deploy with money.
 
 ## Design
 
-**Navy is the ground, azure is the money.** Five blues carry the entire page —
-`--navy-900` through `--navy-600` — and a cool off-white (`--cream`) for the
-panels that need to break the dark. Bright azure `#63D6F2` is the only accent,
-and it is reserved: share prices, rent figures, the step numbers, the primary
-button, the map pins, the chart line. Nothing decorative is ever allowed to be
-azure, because the moment the accent spreads it stops meaning "money".
-
-The light panels are a *warm* off-white (`--cream`, `#F3F2EC`) on purpose: a cool
-off-white swallowed the pale azure tints. On the warm ground the four claim pills step
-through a ramp (`--accent-1` → `--accent-4`) whose steps are far enough apart to read
-as four steps, and whose last one goes deeper than the accent so the closing line
-lands hardest.
+**Navy is the ground, azure is the money, a second blue is the map.** Five navies
+(`--navy-900` … `--navy-600`) carry the page, a warm off-white (`--cream`) the panels
+that break the dark. Azure `#63D6F2` is reserved for money — prices, rent, the step
+numbers, the primary button, the chart line — and never spreads; the four claim
+pills step through a ramp under it that reads as four steps on the warm ground. The
+map pins take `--pin`, so a place is never confused with a figure.
 
 Type is Figtree for everything and JetBrains Mono for every figure that sits in a
-column — prices, table cells, map labels, the stat tiles — so numbers stay tabular
-and never reflow as they animate. A figure quoted *inside a sentence* ("From
-**100 EURG**") stays in the sans, bold: the mono only ships at 400, 500 and 700,
-and a weight the font does not have is a smear the browser invents.
-
-## The map
-
-The map of Europe in the portfolio section is generated, not drawn. `world-atlas@2`
-1:50m country polygons are projected (equirectangular, x scaled by `cos 48°`, framed
-to 16.2°W–51.4°E and 37.4°N–60°N), simplified with Douglas-Peucker at a 1.1px tolerance
-measured in final screen pixels, and written out as one `<path>` per country. That is
-why the page ships no map library and makes no request for tiles: 56 countries in
-about 63KB of path data, borders and all.
-
-It runs full-bleed, edge to edge, at the reference's proportion rather than
-Europe's: the frame is 16.2°W–51.4°E by 37.4°N–60°N, which is 2:1, so it
-stands 719px tall on a 1440px screen instead of the 960px a square Europe would
-take. Scandinavia north of Oslo and the strip of North Africa are the price.
-On a phone the frame goes 4:3 and, anchored left with `xMinYMid slice`, keeps
-Lisbon to Kraków; the capitals step aside and the pins grow (through the CSS `r`
-property) so the cities stay legible.
-
-Three layers, in order of importance:
-
-1. **Countries**, filled a step above the sea with a lighter border — the six the
-   vault owns in (Portugal, Spain, Italy, Germany, the Netherlands, Poland) are
-   filled a step lighter again.
-2. **Capitals**, as small dim dots with small labels, purely as reference.
-3. **The cities the vault owns in**, as pins in a blue of their own (`--pin`, not
-   the azure money accent) with larger labels, each sending out a ring every few
-   seconds, staggered so the map never pulses in unison. Terrassa is twenty
-   kilometres from Barcelona — eight pixels at this scale — so it rides Barcelona's
-   pin rather than drawing a second one on top of it.
-
-Labels are placed by a greedy solver rather than by hand: holdings claim their
-position first, then capitals try eight candidate offsets each and take the first
-that collides with nothing already on the map. A capital whose name will not fit
-anywhere keeps its dot and loses its label, which currently happens to two.
-
-Hovering a building in the list lights its pin **and its whole country**; hovering a
-city on the map lights every building it holds.
-
-## The numbers
-
-Every figure on the page comes from one table in `app.js` (`CLOSES`), so the
-calculator, the chart, the copy and The Roll can never disagree:
-
-| | |
-|---|---|
-| Share price after six closes | €1.025393 |
-| — of which rent kept | €0.021871 per share |
-| — of which the curve tax | €0.003522 per share |
-| vRENTA in issue | 11,050,000 |
-| What the vault holds | €11,330,593 (€10,900,000 of buildings + €430,593 cash) |
-| Kept in August | €40,620, which is the sum of the ten buildings' net rent |
-
-A €10,000 deposit on 1 March is therefore worth €10,253.93 — €218.71 of rent and
-€35.22 of curve tax. The portfolio table, the props footer and the FAQ all quote
-those same totals.
-
-The share-price chart is one series, so it carries no legend: the card title
-names it, the last point is directly labelled, and hover gives a crosshair and
-the month behind the point. The Roll above it is the chart's table view.
+column, served from `fonts/` so no request leaves the site. Small secondary text
+clears 4.5:1 on every surface it sits on; nothing pressable is under 40px; the
+heading outline has no jumps; the map pins and the buildings are keyboard-reachable
+and the city view and the gate are dialogs with focus handling and Escape.
 
 ## Not real
 
-This is a demonstration build. There is no wallet connector — the *Connect wallet*
-buttons raise a toast saying so — no contracts, and no buildings. Every address,
-price and close is invented.
+This is a demonstration build. The buildings, the tenants, the wallets in the
+movements, the addresses in the docs and every close are invented by
+`make-rolls.js` to show how the mechanism reads. Nothing is deployed.

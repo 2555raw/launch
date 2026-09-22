@@ -14,6 +14,7 @@
 (function () {
   'use strict';
   var C = window.RENTA_CONFIG || {};
+  var T = { connect: 'Connect wallet', wallet: 'Wallet', network: 'Network', switchTo: 'switch to ', noVault: function (ch) { return 'No vault is deployed on ' + ch + ' yet. The contract source is in <code>contracts/</code>; set its address in <code>config.js</code> and this panel reads your balance from it.'; }, explorer: 'View on explorer', disconnect: 'Disconnect', yours: 'Your vRENTA', worth: 'Worth', price: 'Share price', holds: 'Vault holds', readFail: 'Could not read the vault: ', noWallet: 'No wallet found. Install MetaMask, Rabby or Coinbase Wallet and try again.', connected: 'Connected ', via: ' via ', cancelled: 'Connection cancelled.', couldNot: 'Could not connect: ', disconnected: 'Disconnected. The wallet itself keeps its own permissions.' };
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
@@ -53,7 +54,7 @@
   function renderButtons() {
     $$('[data-connect]').forEach(function (b) {
       if (b.tagName !== 'BUTTON') return;
-      b.textContent = state.account ? short(state.account) : 'Connect wallet';
+      b.textContent = state.account ? short(state.account) : T.connect;
       b.classList.toggle('is-connected', !!state.account);
     });
   }
@@ -63,14 +64,14 @@
     if (!state.account) { panel.hidden = true; return; }
     var onChain = C.chain && state.chainId === C.chain.hex;
     var rows = [
-      '<div class="rt-wp-row"><span>Wallet</span><b class="rt-num">' + short(state.account) + '</b></div>',
-      '<div class="rt-wp-row"><span>Network</span><b>' + (onChain ? C.chain.name : 'chain ' + parseInt(state.chainId || '0x0', 16)) + (onChain ? '' : ' <button class="rt-wp-link" type="button" data-switch>switch to ' + C.chain.name + '</button>') + '</b></div>'
+      '<div class="rt-wp-row"><span>' + T.wallet + '</span><b class="rt-num">' + short(state.account) + '</b></div>',
+      '<div class="rt-wp-row"><span>' + T.network + '</span><b>' + (onChain ? C.chain.name : 'chain ' + parseInt(state.chainId || '0x0', 16)) + (onChain ? '' : ' <button class="rt-wp-link" type="button" data-switch>' + T.switchTo + C.chain.name + '</button>') + '</b></div>'
     ];
     if (extra) rows = rows.concat(extra);
-    else if (!C.vault) rows.push('<p class="rt-wp-note">No vault is deployed on ' + (C.chain ? C.chain.name : 'this chain') + ' yet. The contract source is in <code>contracts/</code>; set its address in <code>config.js</code> and this panel reads your balance from it.</p>');
+    else if (!C.vault) rows.push('<p class="rt-wp-note">' + T.noVault(C.chain ? C.chain.name : 'this chain') + '</p>');
     rows.push('<div class="rt-wp-actions">' +
-      (C.chain && C.chain.explorer ? '<a class="rt-wp-link" href="' + C.chain.explorer + '/address/' + state.account + '" target="_blank" rel="noopener">View on explorer</a>' : '') +
-      '<button class="rt-wp-link" type="button" data-disconnect>Disconnect</button></div>');
+      (C.chain && C.chain.explorer ? '<a class="rt-wp-link" href="' + C.chain.explorer + '/address/' + state.account + '" target="_blank" rel="noopener">' + T.explorer + '</a>' : '') +
+      '<button class="rt-wp-link" type="button" data-disconnect>' + T.disconnect + '</button></div>');
     panel.innerHTML = rows.join('');
     panel.hidden = false;
     var sw = $('[data-switch]', panel); if (sw) sw.addEventListener('click', switchChain);
@@ -104,18 +105,18 @@
         var bal = big(r[1]), price = big(px), supply = big(r[2]), assets = big(r[3]);
         var worth = bal * price / one;
         return [
-          '<div class="rt-wp-row"><span>Your vRENTA</span><b class="rt-num">' + fmtUnits(bal, dec, 2) + '</b></div>',
-          '<div class="rt-wp-row"><span>Worth</span><b class="rt-num rt-pos">€' + fmtUnits(worth, dec, 2) + '</b></div>',
-          '<div class="rt-wp-row"><span>Share price</span><b class="rt-num">€' + fmtUnits(price, dec, 4) + '</b></div>',
-          '<div class="rt-wp-row"><span>Vault holds</span><b class="rt-num">€' + fmtUnits(assets, dec, 0) + ' / ' + fmtUnits(supply, dec, 0) + ' shares</b></div>'
+          '<div class="rt-wp-row"><span>' + T.yours + '</span><b class="rt-num">' + fmtUnits(bal, dec, 2) + '</b></div>',
+          '<div class="rt-wp-row"><span>' + T.worth + '</span><b class="rt-num rt-pos">€' + fmtUnits(worth, dec, 2) + '</b></div>',
+          '<div class="rt-wp-row"><span>' + T.price + '</span><b class="rt-num">€' + fmtUnits(price, dec, 4) + '</b></div>',
+          '<div class="rt-wp-row"><span>' + T.holds + '</span><b class="rt-num">€' + fmtUnits(assets, dec, 0) + ' / ' + fmtUnits(supply, dec, 0) + ' shares</b></div>'
         ];
       });
-    }).catch(function (err) { console.warn('RENTA: vault read failed', err); return ['<p class="rt-wp-note">Could not read the vault: ' + (err.message || err) + '</p>']; });
+    }).catch(function (err) { console.warn('RENTA: vault read failed', err); return ['<p class="rt-wp-note">' + T.readFail + (err.message || err) + '</p>']; });
   }
 
   function connect() {
     var p = pickProvider();
-    if (!p) { say('No wallet found. Install MetaMask, Rabby or Coinbase Wallet and try again.'); return; }
+    if (!p) { say(T.noWallet); return; }
     state.provider = p.provider;
     p.provider.request({ method: 'eth_requestAccounts' }).then(function (accounts) {
       state.account = accounts[0];
@@ -128,18 +129,18 @@
       return readVault();
     }).then(function (extra) {
       renderPanel(extra);
-      say('Connected ' + short(state.account) + (p.info.name ? ' via ' + p.info.name : ''));
+      say(T.connected + short(state.account) + (p.info.name ? T.via + p.info.name : ''));
       p.provider.on && p.provider.on('accountsChanged', function (a) { if (!a.length) return disconnect(); state.account = a[0]; renderButtons(); readVault().then(renderPanel); });
       p.provider.on && p.provider.on('chainChanged', function (c) { state.chainId = c; readVault().then(renderPanel); });
     }).catch(function (err) {
-      if (err && err.code === 4001) say('Connection cancelled.'); else say('Could not connect: ' + (err.message || err));
+      if (err && err.code === 4001) say(T.cancelled); else say(T.couldNot + (err.message || err));
     });
   }
 
   function disconnect() {
     state.account = null; state.chainId = null;
     renderButtons(); renderPanel();
-    say('Disconnected. The wallet itself keeps its own permissions.');
+    say(T.disconnected);
   }
 
   /* the eligibility gate (gate.js) decides whether connect() may run */

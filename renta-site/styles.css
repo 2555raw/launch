@@ -217,6 +217,14 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 }
 .rt-nav-links a:hover, .rt-nav-links a.is-active { background: rgba(255, 255, 255, .1); color: #fff; }
 .rt-nav-right { display: flex; align-items: center; gap: 10px; }
+.rt-lang {
+  display: inline-grid; place-items: center;
+  min-width: 42px; height: 42px; padding: 0 12px;
+  border-radius: var(--r-pill); border: 1px solid var(--line);
+  font-family: var(--mono); font-size: .8rem; letter-spacing: .08em; color: #CBDDEC;
+  transition: border-color .18s var(--ease), color .18s var(--ease);
+}
+.rt-lang:hover { border-color: var(--accent); color: var(--accent); }
 
 .rt-burger {
   display: none;

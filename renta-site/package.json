@@ -1,7 +1,7 @@
 {
   "name": "renta-site",
   "private": true,
-  "description": "RENTA — a share of the rent, without the building. Static site, no build step.",
+  "description": "RENTA \u2014 a share of the rent, without the building. Static site, no build step.",
   "scripts": {
     "rolls": "node scripts/make-rolls.js",
     "data": "node scripts/recompute.js && node scripts/facades.js && node scripts/cities.js && node scripts/render-static.js",

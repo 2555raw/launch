@@ -13,10 +13,42 @@
   var D = window.RENTA_DATA;
   if (!D) { console.error('RENTA: data/vault.js did not load'); return; }
 
-  var CLOSES = [{ date: '1 ' + new Date(D.closes[0].month + '-01T00:00:00Z').toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' }) + ' ' + D.closes[0].month.slice(0, 4),
-                  label: 'Opened', price: 1, rent: 0, curve: 0, collected: null, costs: null, kept: null }]
+  /* ------------------------------------------------------ language ------
+     The page's lang decides the words and the number format. Only English
+     ships; a second language is a table here plus a dictionary in i18n/. */
+  var LANG = document.documentElement.lang || 'en';
+  var LOCALE = { en: 'en-GB', zh: 'zh-CN' }[LANG] || 'en-GB';
+  var STRINGS = {
+    en: {
+      months: {}, long: { Jan: 'January', Feb: 'February', Mar: 'March', Apr: 'April', May: 'May', Jun: 'June', Jul: 'July', Aug: 'August', Sep: 'September', Oct: 'October', Nov: 'November', Dec: 'December' },
+      words: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'],
+      opened: 'The vault opened at ', price: 'Price', kept: 'Kept', of: 'of',
+      chartAria: function (a, b, p) { return 'Line chart of the vRENTA share price rising from 1.0000 euro on ' + a + ' to ' + p + ' at the close of ' + b + '. The figures behind it are listed in The Roll table above.'; },
+      note: function (d, sh, n, p4, w, r, c) { return 'Deposited on ' + d + ' at €1.0000, that is <b>' + sh + ' vRENTA</b>. After ' + n + ' closes vRENTA is ' + p4 + ', so it is worth <b>' + w + '</b> — ' + r + ' of rent the vault kept, and ' + c + ' from the curve tax. Nothing was paid out along the way.'; },
+      cities: {}, countries: {},
+      building: function (n) { return n + ' building' + (n > 1 ? 's' : ''); }, apartments: 'apartments', netRentClose: 'of net rent at the last close.',
+      cityAria: function (c, n) { return 'Schematic map of ' + c + ' by district, with ' + n + ' building' + (n > 1 ? 's' : '') + ' marked.'; },
+      built: 'built', bought: 'bought', facts: ['Apartments', 'Let', 'Held at', 'Net rent, last close'], also: 'Also in '
+    }
+  };
+  var TX = STRINGS[LANG] || STRINGS.en;   /* not T: the chart uses T for its top margin */
+  var tr = function (map, k) { return map[k] || k; };
+
+  var euro = function (n, dp) {
+    return '€' + n.toLocaleString(LOCALE, {
+      minimumFractionDigits: dp === undefined ? 2 : dp,
+      maximumFractionDigits: dp === undefined ? 2 : dp
+    });
+  };
+  var price4 = function (p) { return '€' + p.toFixed(4); };
+  var dateT = function (d) { var p = d.split(' '); return p[0] + ' ' + tr(TX.months, p[1]) + ' ' + p[2]; };
+
+
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var CLOSES = [{ date: dateT('1 ' + MON[+D.closes[0].month.slice(5, 7) - 1] + ' ' + D.closes[0].month.slice(0, 4)),
+                  label: tr(TX.months, 'Opened'), price: 1, rent: 0, curve: 0, collected: null, costs: null, kept: null }]
     .concat(D.closes.map(function (c) {
-      return { date: c.date, label: c.label, price: c.price, rent: c.rentPerShare, curve: c.curvePerShare,
+      return { date: dateT(c.date), label: tr(TX.months, c.label), price: c.price, rent: c.rentPerShare, curve: c.curvePerShare,
                collected: c.collected, costs: c.costs, kept: c.kept };
     }));
 
@@ -24,12 +56,6 @@
   var RENT_TOTAL  = D.rentPerShareTotal;
   var CURVE_TOTAL = D.curvePerShareTotal;
 
-  var euro = function (n, dp) {
-    return '€' + n.toLocaleString('en-GB', {
-      minimumFractionDigits: dp === undefined ? 2 : dp,
-      maximumFractionDigits: dp === undefined ? 2 : dp
-    });
-  };
 
   var $  = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -154,7 +180,7 @@
   function cityHTML(city) {
     var c = CITIES[city]; if (!c) return null;
     var mine = D.buildings.filter(function (b) { return b.city === city; });
-    var svg = ['<svg viewBox="' + c.viewBox + '" class="rt-city-svg" role="img" aria-label="Schematic map of ' + city + ' by district, with ' + mine.length + ' building' + (mine.length > 1 ? 's' : '') + ' marked.">'];
+    var svg = ['<svg viewBox="' + c.viewBox + '" class="rt-city-svg" role="img" aria-label="' + TX.cityAria(tr(TX.cities, city), mine.length) + '">'];
     svg.push('<defs><clipPath id="cityclip"><path d="' + c.limit + '"/></clipPath></defs>');
     svg.push('<path class="rt-city-limit" d="' + c.limit + '"/>');
     svg.push('<g clip-path="url(#cityclip)">');
@@ -191,23 +217,23 @@
         '<div class="rt-bcard-art">' + (FACADES[b.id] || '') + '</div>' +
         '<div class="rt-bcard-body">' +
         '<h3 class="rt-h4">' + b.name + '</h3>' +
-        '<p class="rt-bcard-district">' + b.district + ' · built ' + b.built + ' · bought ' + b.bought.slice(0, 7) + '</p>' +
+        '<p class="rt-bcard-district">' + b.district + ' · ' + TX.built + ' ' + b.built + ' · ' + TX.bought + ' ' + b.bought.slice(0, 7) + '</p>' +
         '<dl class="rt-bcard-facts">' +
-        '<div><dt>Apartments</dt><dd class="rt-num">' + b.units + '</dd></div>' +
-        '<div><dt>Let</dt><dd class="rt-num">' + b.let + '%</dd></div>' +
-        '<div><dt>Held at</dt><dd class="rt-num">' + euro(b.value, 0) + '</dd></div>' +
-        '<div><dt>Net rent, last close</dt><dd class="rt-num rt-pos">' + euro(b.net, 0) + '</dd></div>' +
+        '<div><dt>' + TX.facts[0] + '</dt><dd class="rt-num">' + b.units + '</dd></div>' +
+        '<div><dt>' + TX.facts[1] + '</dt><dd class="rt-num">' + b.let + '%</dd></div>' +
+        '<div><dt>' + TX.facts[2] + '</dt><dd class="rt-num">' + euro(b.value, 0) + '</dd></div>' +
+        '<div><dt>' + TX.facts[3] + '</dt><dd class="rt-num rt-pos">' + euro(b.net, 0) + '</dd></div>' +
         '</dl></div></article>';
     }).join('');
     var others = Object.keys(CITIES).filter(function (k) { return k !== city && c.region && CITIES[k].region === c.region; });
-    if (others.length) side += '<p class="rt-city-more">Also in ' + c.region + ': ' + others.map(function (k) { return '<a href="#map" data-open-city="' + k + '">' + k + ' →</a>'; }).join(' ') + '</p>';
+    if (others.length) side += '<p class="rt-city-more">' + TX.also + tr(TX.countries, c.region) + ': ' + others.map(function (k) { return '<a href="#map" data-open-city="' + k + '">' + tr(TX.cities, k) + ' →</a>'; }).join(' ') + '</p>';
 
     var units = mine.reduce(function (s, b) { return s + b.units; }, 0);
     var rent = mine.reduce(function (s, b) { return s + b.net; }, 0);
     return {
-      eyebrow: c.country + (c.region ? ' · ' + c.region : ''),
-      title: city,
-      sub: mine.length + ' building' + (mine.length > 1 ? 's' : '') + ' · ' + units + ' apartments · ' + euro(rent, 0) + ' of net rent at the last close.',
+      eyebrow: tr(TX.countries, c.country) + (c.region ? ' · ' + tr(TX.countries, c.region) : ''),
+      title: tr(TX.cities, city),
+      sub: TX.building(mine.length) + ' · ' + units + ' ' + TX.apartments + ' · ' + euro(rent, 0) + ' ' + TX.netRentClose,
       map: svg.join(''), side: side
     };
   }
@@ -306,22 +332,18 @@
     var rent   = amount * RENT_TOTAL;
     var curve  = amount * CURVE_TOTAL;
 
-    oShares.textContent = shares.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' vRENTA';
+    oShares.textContent = shares.toLocaleString(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' vRENTA';
     oWorth.textContent  = euro(worth);
     oRent.textContent   = '+' + euro(rent);
     oCurve.textContent  = '+' + euro(curve);
 
-    oNote.innerHTML =
-      'Deposited on ' + CLOSES[0].date.slice(0, -5) + ' at €1.0000, that is <b>' +
-      shares.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
-      ' vRENTA</b>. After ' + ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'][D.closes.length] + ' closes vRENTA is €' + PRICE_NOW.toFixed(4) + ', so it is worth <b>' + euro(worth) +
-      '</b> — ' + euro(rent) + ' of rent the vault kept, and ' + euro(curve) +
-      ' from the curve tax. Nothing was paid out along the way.';
+    var opened = CLOSES[0].date.slice(0, -5);
+    oNote.innerHTML = TX.note(opened, shares.toLocaleString(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), TX.words[D.closes.length], price4(PRICE_NOW), euro(worth), euro(rent), euro(curve));
   }
 
   function setAmount(value, fromInput) {
     var n = Math.max(MIN, Math.min(MAX, Math.round(value || MIN)));
-    if (!fromInput) input.value = n.toLocaleString('en-GB');
+    if (!fromInput) input.value = n.toLocaleString(LOCALE);
     range.value = n;
     chips.forEach(function (c) { c.classList.toggle('is-on', parseInt(c.getAttribute('data-amt'), 10) === n); });
     render(n);
@@ -357,7 +379,7 @@
     var x = function (i) { return L + (W - L - R) * (i / (CLOSES.length - 1)); };
     var y = function (v) { return T + (H - T - B) * (1 - (v - lo) / (hi - lo)); };
 
-    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Line chart of the vRENTA share price rising from 1.0000 euro on ' + CLOSES[0].date + ' to ' + PRICE_NOW.toFixed(4) + ' euro at the close of ' + CLOSES[CLOSES.length - 1].date + '. The figures behind it are listed in The Roll table above.">'];
+    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + TX.chartAria(CLOSES[0].date, CLOSES[CLOSES.length - 1].date, price4(PRICE_NOW)) + '">'];
 
     svg.push('<defs><linearGradient id="rtFade" x1="0" y1="0" x2="0" y2="1">' +
              '<stop offset="0" stop-color="#63D6F2" stop-opacity=".22"/>' +
@@ -382,7 +404,7 @@
     });
 
     var last = CLOSES.length - 1;
-    svg.push('<text class="rt-last-label" x="' + (x(last) + 12) + '" y="' + (y(CLOSES[last].price) + 4).toFixed(1) + '">€' + PRICE_NOW.toFixed(4) + '</text>');
+    svg.push('<text class="rt-last-label" x="' + (x(last) + 12) + '" y="' + (y(CLOSES[last].price) + 4).toFixed(1) + '">' + price4(PRICE_NOW) + '</text>');
     svg.push('</svg>');
 
     host.insertAdjacentHTML('afterbegin', svg.join(''));
@@ -393,8 +415,8 @@
       var c = CLOSES[i];
       var box = host.getBoundingClientRect(), nb = node.getBoundingClientRect();
       tip.innerHTML = c.kept === null
-        ? '<b>' + c.date + '</b><br><i>The vault opened at €1.0000</i>'
-        : '<b>' + c.date + '</b><br>Price <i>€' + c.price.toFixed(4) + '</i><br>Kept ' + euro(c.kept, 0) + ' <i>of ' + euro(c.collected, 0) + '</i>';
+        ? '<b>' + c.date + '</b><br><i>' + TX.opened + price4(1) + '</i>'
+        : '<b>' + c.date + '</b><br>' + TX.price + ' <i>' + price4(c.price) + '</i><br>' + TX.kept + ' ' + euro(c.kept, 0) + ' <i>' + TX.of + ' ' + euro(c.collected, 0) + '</i>';
       tip.style.left = (nb.left - box.left + nb.width / 2) + 'px';
       tip.style.top  = (nb.top - box.top + nb.height / 2) + 'px';
       tip.classList.add('is-on');

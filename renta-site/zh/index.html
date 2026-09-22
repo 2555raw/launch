@@ -1,37 +1,38 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RENTA</title>
-<meta name="description" content="Own a share of a vault that owns rented apartments across Europe. The rent they collect, after the bills, lifts the price of your share. No deposit to save for, no mortgage, no tenants, no repairs.">
-<link rel="canonical" href="https://renta.example/">
+<meta name="description" content="持有一个金库的份额，这个金库在欧洲各地持有出租公寓。扣除账单后的租金，会推高你份额的价格。不用攒首付，没有房贷，没有租客，没有维修。">
+<link rel="canonical" href="https://renta.example/zh/">
 <link rel="alternate" hreflang="en" href="https://renta.example/">
 <link rel="alternate" hreflang="zh" href="https://renta.example/zh/">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:site_name" content="RENTA">
-<meta property="og:title" content="RENTA — rental property, without the property.">
-<meta property="og:description" content="Own a share of a vault that owns rented apartments across Europe. The rent they collect, after the bills, lifts the price of your share. From 100 EURG, nothing to pay to come in or leave.">
-<meta property="og:url" content="https://renta.example/">
+<meta property="og:title" content="RENTA — 拥有出租房产的收益，无需拥有房产。">
+<meta property="og:description" content="持有一个金库的份额，这个金库在欧洲各地持有出租公寓。扣除账单后的租金，会推高你份额的价格。100 EURG 起投，进出均无费用。">
+<meta property="og:url" content="https://renta.example/zh/">
 <meta property="og:image" content="https://renta.example/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="RENTA — Rental property, without the property.">
+<meta property="og:image:alt" content="RENTA — 拥有出租房产的收益，无需拥有房产。">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="RENTA — rental property, without the property.">
-<meta name="twitter:description" content="Own a share of a vault that owns rented apartments across Europe. The rent they collect, after the bills, lifts the price of your share. From 100 EURG, nothing to pay to come in or leave.">
+<meta name="twitter:title" content="RENTA — 拥有出租房产的收益，无需拥有房产。">
+<meta name="twitter:description" content="持有一个金库的份额，这个金库在欧洲各地持有出租公寓。扣除账单后的租金，会推高你份额的价格。100 EURG 起投，进出均无费用。">
 <meta name="twitter:image" content="https://renta.example/og.png">
 <meta name="theme-color" content="#102A47">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23102A47'/%3E%3Cg fill='%23F3F2EC'%3E%3Cpath d='M16 3 28.5 11.2H3.5z'/%3E%3Crect x='7' y='13.2' width='18' height='4' rx='1'/%3E%3Crect x='6' y='19.2' width='20' height='4' rx='1'/%3E%3Crect x='5' y='25.2' width='22' height='4' rx='1'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css">
+<link rel="preload" href="../fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 
 <!-- ============================================================ nav ====== -->
 <nav class="rt-nav" id="nav">
-  <a class="rt-brand" href="#top" aria-label="RENTA, back to the top">
+  <a class="rt-brand" href="#top" aria-label="RENTA，回到顶部">
     <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
       <path d="M16 2.4 28.4 10.6H3.6z"/>
       <rect x="7" y="12.6" width="18" height="3.9" rx="1"/>
@@ -42,21 +43,21 @@
   </a>
 
   <div class="rt-nav-links" id="navlinks">
-    <a href="#map" data-spy="portfolio">Portfolio</a>
-    <a href="#roll">The Roll</a>
-    <a href="#dashboard">Dashboard</a>
-    <a href="#faq">FAQ</a>
-    <a href="docs.html">Docs</a>
+    <a href="#map" data-spy="portfolio">物业组合</a>
+    <a href="#roll">月报</a>
+    <a href="#dashboard">面板</a>
+    <a href="#faq">常见问题</a>
+    <a href="docs.html">文档</a>
   </div>
 
   <div class="rt-nav-right">
-    <a class="rt-lang" href="zh/index.html" hreflang="zh" lang="zh" aria-label="中文版">中文</a>
-    <button class="rt-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false" aria-controls="navlinks">
+    <a class="rt-lang" href="../index.html" hreflang="en" lang="en" aria-label="English">EN</a>
+    <button class="rt-burger" id="burger" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="navlinks">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </button>
-    <button class="rt-btn rt-btn--light rt-btn--sm" data-connect type="button">Connect wallet</button>
+    <button class="rt-btn rt-btn--light rt-btn--sm" data-connect type="button">连接钱包</button>
   </div>
 </nav>
 
@@ -66,18 +67,18 @@
   <header class="rt-hero">
     <div class="rt-rings" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="rt-wrap rt-hero-in">
-      <h1 class="rt-display">Rental&nbsp;property,<br>without&nbsp;the<br>property.</h1>
+      <h1 class="rt-display">出租房产的收益，<br>无需拥有<br>房产。</h1>
       <p class="rt-lede">
-        Own a share of a vault that owns rented apartments across Europe.
-        <b>The rent they collect, after the bills, lifts the price of your share.</b>
-        No deposit to save for, no mortgage, no tenants, no repairs.
+        持有一个金库的份额，这个金库在欧洲各地持有出租公寓。
+        <b>扣除账单后的租金，会推高你份额的价格。</b>
+        不用攒首付，没有房贷，没有租客，没有维修。
       </p>
       <div class="rt-hero-cta">
-        <button class="rt-btn rt-btn--accent" data-connect type="button">Connect wallet</button>
-        <a class="rt-btn rt-btn--ghost" href="#how">See how it works</a>
+        <button class="rt-btn rt-btn--accent" data-connect type="button">连接钱包</button>
+        <a class="rt-btn rt-btn--ghost" href="#how">看看它如何运作</a>
       </div>
       <p class="rt-hero-note">
-        <!-- data:heronote -->10 buildings · 8 cities · share price <b class="rt-num">€1.0254</b> · six closes on the record<!-- /data:heronote -->
+        <!-- data:heronote -->10 栋楼 · 8 座城市 · 份额价格 <b class="rt-num">€1.0254</b> · 已记录 六 次结算<!-- /data:heronote -->
       </p>
     </div>
   </header>
@@ -86,28 +87,28 @@
   <section class="rt-section" id="how">
     <div class="rt-wrap">
       <div class="rt-head rt-rise">
-        <h2 class="rt-h2">The money comes<br>from tenants.</h2>
-        <p class="rt-lede">Nothing is lent out and nothing is borrowed. Three things happen, in order.</p>
+        <h2 class="rt-h2">钱来自<br>租客。</h2>
+        <p class="rt-lede">不放贷，也不借钱。依次发生三件事。</p>
       </div>
 
       <div class="rt-steps">
         <article class="rt-step rt-rise">
           <div class="rt-step-n">1</div>
-          <h3 class="rt-h4">You buy a share</h3>
-          <p>Your EURG buys vRENTA at what the vault holds per share. Nothing to pay to come in.</p>
-          <div class="rt-step-foot">From <b>100 EURG</b></div>
+          <h3 class="rt-h4">你买入份额</h3>
+          <p>你的 EURG 按金库每份额的持有价值买入 vRENTA。进入无需任何费用。</p>
+          <div class="rt-step-foot"><b>100 EURG</b> 起</div>
         </article>
         <article class="rt-step rt-rise">
           <div class="rt-step-n">2</div>
-          <h3 class="rt-h4">Tenants pay rent</h3>
-          <p>Repairs, taxes, insurance and the people who run the buildings come out of it first. The rest stays in the vault.</p>
-          <div class="rt-step-foot"><!-- data:step2 -->Last month the vault kept <b>€40,620</b><!-- /data:step2 --></div>
+          <h3 class="rt-h4">租客交租</h3>
+          <p>维修、税费、保险和楼宇管理人员的费用先从中扣除。剩下的留在金库里。</p>
+          <div class="rt-step-foot"><!-- data:step2 -->上个月金库留存了 <b>€40,620</b><!-- /data:step2 --></div>
         </article>
         <article class="rt-step rt-rise">
           <div class="rt-step-n">3</div>
-          <h3 class="rt-h4">Your share is worth more</h3>
-          <p>Nothing lands in your wallet. The price of vRENTA rises instead, and you take it when you cash out.</p>
-          <div class="rt-step-foot">Cash out in one transaction, <b>no fee</b></div>
+          <h3 class="rt-h4">你的份额更值钱了</h3>
+          <p>没有任何东西打进你的钱包。取而代之的是 vRENTA 的价格上涨，你在赎回时把它拿走。</p>
+          <div class="rt-step-foot">一笔交易即可赎回，<b>无费用</b></div>
         </article>
       </div>
     </div>
@@ -118,19 +119,19 @@
     <div class="rt-wrap">
       <div class="rt-panel rt-rise">
         <div class="rt-head">
-          <h2 class="rt-h2">No mortgage. No<br>tenants. No repairs.</h2>
+          <h2 class="rt-h2">没有房贷。没有<br>租客。没有维修。</h2>
           <p class="rt-lede">
-            Buying a rental property normally takes a deposit you saved for years, a mortgage,
-            a notary and a phone that rings at six in the morning. The buildings here are
-            already bought and already let. Somebody else fixes the boiler.
+            买一套出租房，通常要攒好几年的首付、办房贷、找公证，
+            还要接早上六点响起的电话。这里的楼已经买好，也已经租出去了。
+            锅炉由别人来修。
           </p>
         </div>
         <div class="rt-claim">
-          <span>A share of the rent</span>
-          <span>Without buying</span>
-          <span>A property</span>
-          <span>Or becoming a landlord</span>
-          <a class="rt-claim-arrow" href="#portfolio" aria-label="Down to the portfolio">
+          <span>一份租金</span>
+          <span>无需购买</span>
+          <span>一套房产</span>
+          <span>也无需当房东</span>
+          <a class="rt-claim-arrow" href="#portfolio" aria-label="下到物业组合">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M12 5v14M6 13l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -144,26 +145,26 @@
   <section class="rt-section" id="portfolio">
     <div class="rt-wrap">
       <div class="rt-head rt-head--even rt-rise">
-        <h2 class="rt-h2">Where the rent<br>comes from.</h2>
+        <h2 class="rt-h2">租金从<br>哪里来。</h2>
         <p class="rt-lede">
-          You own a share of every apartment at once, not one building. That is why an empty
-          apartment is a dent and not a disaster. These numbers move when a lease ends or a
-          building is added, and the monthly report records every one of those changes.
+          你同时持有每一套公寓的一份，而不是某一栋楼。所以一套空置的公寓
+          只是一个小凹痕，而不是灾难。租约到期或新增楼宇时这些数字会变，
+          月报会记录每一次变化。
         </p>
       </div>
 
       <!-- data:stats --><div class="rt-stats rt-rise">
-        <div class="rt-stat rt-stat--lit"><b class="rt-num" data-count="77">77</b><small>Apartments</small></div>
-        <div class="rt-stat"><b class="rt-num" data-count="10">10</b><small>Buildings</small></div>
-        <div class="rt-stat"><b class="rt-num" data-count="8">8</b><small>Cities</small></div>
-        <div class="rt-stat"><b class="rt-num" data-count="96" data-suffix="%">96%</b><small>Occupied</small></div>
-        <div class="rt-stat"><b class="rt-num">€61,671</b><small>Rent scheduled each month</small></div>
+        <div class="rt-stat rt-stat--lit"><b class="rt-num" data-count="77">77</b><small>套公寓</small></div>
+        <div class="rt-stat"><b class="rt-num" data-count="10">10</b><small>栋楼</small></div>
+        <div class="rt-stat"><b class="rt-num" data-count="8">8</b><small>座城市</small></div>
+        <div class="rt-stat"><b class="rt-num" data-count="96" data-suffix="%">96%</b><small>出租率</small></div>
+        <div class="rt-stat"><b class="rt-num">€61,671</b><small>每月应收租金</small></div>
       </div><!-- /data:stats -->
       </div>
     </div>
 
     <div class="rt-map" id="map">
-    <img class="rt-map-base" src="map.svg" alt="" width="1440" height="720" decoding="async">
+    <img class="rt-map-base" src="../map.svg" alt="" width="1440" height="720" decoding="async">
       <svg class="rt-map-svg rt-map-svg--over" viewBox="0 0 1440 720" preserveAspectRatio="xMinYMid slice" role="img" aria-label="Map of Europe drawn country by country with national capitals marked, and the cities the vault owns buildings in picked out: Lisbon, Madrid, Barcelona and nearby Terrassa, Turin, Leipzig, Rotterdam and Kraków.">
                       <path class="rt-c rt-c--own" data-country="Spain" d="M430.8,592.3L436.3,593L436.5,594.7L432.6,603L429.5,605.3L424.7,603.1L422.9,598.9L419.3,600.6L417,598.1L424.4,590.6L431.1,587.5L430.8,592.3ZM451.3,590.9L443.7,587.8L443.5,585L450.1,585.8L451.3,590.9ZM400.5,615.5L399.9,617.1L396.5,615.9L398.8,611.2L402.6,610.1L403.7,612.3L400.5,615.5ZM342.7,495.8L343.4,498L349.6,500.3L349.3,505.7L351.2,504.1L361.1,508.3L364.3,512.1L369.4,511.3L374,515L386,515L386.7,511L388.4,511L398.8,514.9L400.6,521.7L404.7,520.1L410.1,523.8L414,522.1L422,524.3L426.3,521.2L432.1,521.9L433.7,525.6L431.2,526.5L431,529L432.7,534.8L411.9,552.3L393.1,558.4L387.5,564.7L390.6,567.4L385.9,570.1L368.9,599.5L371.1,611.7L378.3,619.8L365.4,631.5L360.2,646.2L360.9,650.8L351,651.7L345.5,656.4L340.1,668.1L335.7,673.5L330.9,671.2L325,674.3L318.5,673.1L313.5,674.5L306.4,673.2L296.8,674.2L291.3,679.8L282.4,682L279,689.7L274.3,692.7L267,688.3L262.8,677.4L260.8,676.4L260.3,673.9L263.8,669L260.6,671.2L251.9,661.5L252.3,659.2L250.3,661.4L242.6,661.9L240.9,652.7L241.9,647.3L246.5,639.8L249.4,638.8L250.6,635L247.9,635.2L243.7,627.8L244.8,620.9L249,615.8L249.9,611.8L246.7,609.7L240.4,596.2L247.7,595.2L250.3,592.1L251.7,586.1L249.2,582.2L253.2,577.5L251.1,559.8L263.7,545.1L262.1,542.9L258,542.1L256.6,534.9L247.2,533.9L242.6,537.8L237.5,536.3L229.3,538.4L228,536.1L229.6,532.8L227.2,529.7L216.8,535.3L216.1,530.5L219.6,526L217.4,525.8L219,522.4L217.5,516.3L213.5,517.5L215.4,512.1L209.9,507.3L210.9,502.1L216.4,497.8L225.7,496.1L227.5,495L227.4,491.2L237.3,486.3L248.7,491.9L270.4,489.5L294,495.6L310.4,492.8L320.4,496.8L323.4,494.6L335.5,498.1L342.1,496ZM83.2,896.6L81.8,902.6L77.5,906.5L73.1,897.6L80,895.7L83.5,891.8L87,891.3L83.2,896.6ZM130,882.4L127.4,883.5L128.7,878.5L134.5,873.7L134.2,879.9L130,882.4ZM121.4,902.2L119,905.2L116.5,904.5L120.8,900.9L124.9,887.8L126.9,886.8L128,891.1L126.2,899.9L121.4,902.2ZM99.9,902.7L100.1,910L97.1,913.4L95.4,913.2L92.6,906.9L94.9,902.6L99.9,902.7ZM56.5,893.5L53.5,886.5L54.8,884.2L58.1,885.7L56.5,893.5Z"/>
                   <path class="rt-c rt-c--own" data-country="Portugal" d="M67.9,776.9L76.9,779.8L74.2,782.7L71,782.3L67.4,779.5L67.9,776.9ZM218.1,534.9L227.2,529.7L229.5,532.3L228,536.1L229.3,538.4L237.5,536.3L242.6,537.8L247.2,533.9L256.6,534.9L258,542.1L262.1,542.9L263.9,545.8L251.1,559.8L253.2,577.5L249.2,582.2L251.7,586.1L250.3,592.1L247.7,595.2L240.2,595.7L246.7,609.7L249.9,611.8L249,615.8L244.8,620.9L243.7,627.8L247.9,635.2L250.3,634.8L249.4,638.8L244.6,642.5L240.8,651.1L242.6,661.9L234.9,666.5L221.3,663.4L214.2,665.8L217.4,655.2L216.3,628.1L220.1,628.7L217.7,626.2L210.8,628.3L209.7,622.5L213.8,620.1L215.2,613.4L217.8,611.3L214.9,612.9L211.7,620.2L205.7,620.5L207.4,604.3L211.5,598.9L217,583.6L216.4,579.8L219.7,566.6L218.5,541.4L216.1,539.6L218.1,534.9ZM-121,625.2L-126.6,623.5L-130.4,620.2L-121,625.2ZM-127.5,627.9L-126.1,629L-133,629.1L-134.7,626.2L-132.1,625.2L-127.5,627.9ZM-82.9,644.3L-74.6,644.3L-74.8,646.3L-79.2,647.6L-84.5,646.4L-86.5,642.8L-82.9,644.3Z"/>
@@ -307,36 +308,36 @@
     <div class="rt-wrap">
       <div class="rt-roll rt-rise">
         <div class="rt-props-head">
-          <!-- data:props-head --><h3>Ten buildings, eight cities</h3>
-            <span>Net rent · August</span><!-- /data:props-head -->
+          <!-- data:props-head --><h3>十栋楼，八座城市</h3>
+            <span>净租金 · 八月</span><!-- /data:props-head -->
         </div>
         <table class="rt-table">
           <thead>
             <tr>
-              <th scope="col">Building</th>
-              <th scope="col">City</th>
-              <th scope="col">Apartments</th>
-              <th scope="col">Let</th>
-              <th scope="col">Held at</th>
-              <th scope="col">Net rent</th>
+              <th scope="col">楼宇</th>
+              <th scope="col">城市</th>
+              <th scope="col">公寓数</th>
+              <th scope="col">出租率</th>
+              <th scope="col">账面价值</th>
+              <th scope="col">净租金</th>
             </tr>
           </thead>
-          <tbody><!-- data:props -->            <tr data-city="Lisbon" data-building="bica" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="34.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="52.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="70.0" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="18.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="18.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="36.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="36.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="54.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="54.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="72.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Rua da Bica 14</td><td class="rt-c-muted">Lisbon</td><td>8</td><td class="rt-c-muted">100%</td><td>€1,120,000</td><td class="rt-pos">€4,623</td></tr>
-            <tr data-city="Madrid" data-building="meson" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="30.4" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="44.8" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="59.2" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="73.6" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="16.7" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="16.7" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="31.1" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="31.1" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="59.9" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="59.9" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="74.3" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Mesón de Paredes 41</td><td class="rt-c-muted">Madrid</td><td>9</td><td class="rt-c-muted">89%</td><td>€1,430,000</td><td class="rt-pos">€4,883</td></tr>
-            <tr data-city="Barcelona" data-building="olla" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="10" width="88" height="78" fill="#7E6A55"/><rect x="13" y="2" width="94" height="8" rx="2" fill="#5C4B3B"/><rect x="39.3" y="13.3" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.7" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="32.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="71.7" y="32.8" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="39.3" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="71.7" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="71.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Torrent de l'Olla 62</td><td class="rt-c-muted">Barcelona</td><td>6</td><td class="rt-c-muted">100%</td><td>€1,580,000</td><td class="rt-pos">€3,984</td></tr>
-            <tr data-city="Terrassa" data-building="nord" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="6" width="88" height="82" fill="#7E6A55"/><rect x="14" y="2" width="92" height="4" fill="#5C4B3B"/><rect x="36.0" y="11.8" width="14" height="9" rx="1" fill="#BEE9F8"/><rect x="70.0" y="11.8" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="36.0" y="32.3" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="70.0" y="32.3" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="36.0" y="52.8" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="70.0" y="52.8" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="36.0" y="73.3" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="72.0" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Carrer del Nord 15</td><td class="rt-c-muted">Terrassa</td><td>7</td><td class="rt-c-muted">100%</td><td>€690,000</td><td class="rt-pos">€2,869</td></tr>
-            <tr data-city="Turin" data-building="ottavio" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="30.4" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="44.8" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="59.2" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="73.6" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="16.7" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="16.7" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="31.1" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="31.1" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="45.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="59.9" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="59.9" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="74.3" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Via Sant'Ottavio 24</td><td class="rt-c-muted">Turin</td><td>8</td><td class="rt-c-muted">88%</td><td>€850,000</td><td class="rt-pos">€2,687</td></tr>
-            <tr data-city="Leipzig" data-building="eisner" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="30.4" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="44.8" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="59.2" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="73.6" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="16.7" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="16.7" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="31.1" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="31.1" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="45.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="59.9" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="59.9" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="74.3" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Kurt-Eisner-Straße 27</td><td class="rt-c-muted">Leipzig</td><td>10</td><td class="rt-c-muted">100%</td><td>€1,240,000</td><td class="rt-pos">€4,878</td></tr>
-            <tr data-city="Leipzig" data-building="gohliser" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="34.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="52.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="70.0" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="18.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="18.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="36.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="36.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="54.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="54.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="72.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Gohliser Straße 9</td><td class="rt-c-muted">Leipzig</td><td>6</td><td class="rt-c-muted">100%</td><td>€750,000</td><td class="rt-pos">€2,305</td></tr>
-            <tr data-city="Rotterdam" data-building="beijer" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="10" width="88" height="78" fill="#7E6A55"/><rect x="13" y="2" width="94" height="8" rx="2" fill="#5C4B3B"/><rect x="31.3" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="55.5" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="79.8" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="31.3" y="32.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="55.5" y="32.8" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="79.8" y="32.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="31.3" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="55.5" y="52.3" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="79.8" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="31.3" y="71.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="55.0" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/><rect x="79.8" y="71.8" width="9" height="13" rx="1" fill="#0F2A45"/></svg></span>Beijerlandselaan 112</td><td class="rt-c-muted">Rotterdam</td><td>10</td><td class="rt-c-muted">100%</td><td>€1,720,000</td><td class="rt-pos">€7,379</td></tr>
-            <tr data-city="Rotterdam" data-building="zwaan" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="40.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="64.0" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="21.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="21.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="45.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="69.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Zwaanshals 64</td><td class="rt-c-muted">Rotterdam</td><td>5</td><td class="rt-c-muted">80%</td><td>€860,000</td><td class="rt-pos">€3,100</td></tr>
-            <tr data-city="Kraków" data-building="krakowska" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="10" width="88" height="78" fill="#7E6A55"/><rect x="13" y="2" width="94" height="8" rx="2" fill="#5C4B3B"/><rect x="39.3" y="13.3" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.7" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="32.8" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.7" y="32.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="52.3" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.7" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="71.8" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Ulica Krakowska 18</td><td class="rt-c-muted">Kraków</td><td>8</td><td class="rt-c-muted">100%</td><td>€660,000</td><td class="rt-pos">€3,912</td></tr>
+          <tbody><!-- data:props -->            <tr data-city="Lisbon" data-building="bica" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="34.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="52.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="70.0" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="18.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="18.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="36.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="36.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="54.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="54.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="72.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Rua da Bica 14</td><td class="rt-c-muted">里斯本</td><td>8</td><td class="rt-c-muted">100%</td><td>€1,120,000</td><td class="rt-pos">€4,623</td></tr>
+            <tr data-city="Madrid" data-building="meson" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="30.4" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="44.8" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="59.2" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="73.6" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="16.7" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="16.7" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="31.1" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="31.1" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="59.9" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="59.9" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="74.3" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Mesón de Paredes 41</td><td class="rt-c-muted">马德里</td><td>9</td><td class="rt-c-muted">89%</td><td>€1,430,000</td><td class="rt-pos">€4,883</td></tr>
+            <tr data-city="Barcelona" data-building="olla" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="10" width="88" height="78" fill="#7E6A55"/><rect x="13" y="2" width="94" height="8" rx="2" fill="#5C4B3B"/><rect x="39.3" y="13.3" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.7" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="32.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="71.7" y="32.8" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="39.3" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="71.7" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="71.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Torrent de l'Olla 62</td><td class="rt-c-muted">巴塞罗那</td><td>6</td><td class="rt-c-muted">100%</td><td>€1,580,000</td><td class="rt-pos">€3,984</td></tr>
+            <tr data-city="Terrassa" data-building="nord" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="6" width="88" height="82" fill="#7E6A55"/><rect x="14" y="2" width="92" height="4" fill="#5C4B3B"/><rect x="36.0" y="11.8" width="14" height="9" rx="1" fill="#BEE9F8"/><rect x="70.0" y="11.8" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="36.0" y="32.3" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="70.0" y="32.3" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="36.0" y="52.8" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="70.0" y="52.8" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="36.0" y="73.3" width="14" height="9" rx="1" fill="#0F2A45"/><rect x="72.0" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Carrer del Nord 15</td><td class="rt-c-muted">特拉萨</td><td>7</td><td class="rt-c-muted">100%</td><td>€690,000</td><td class="rt-pos">€2,869</td></tr>
+            <tr data-city="Turin" data-building="ottavio" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="30.4" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="44.8" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="59.2" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="73.6" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="16.7" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="16.7" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="31.1" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="31.1" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="45.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="59.9" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="59.9" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="74.3" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Via Sant'Ottavio 24</td><td class="rt-c-muted">都灵</td><td>8</td><td class="rt-c-muted">88%</td><td>€850,000</td><td class="rt-pos">€2,687</td></tr>
+            <tr data-city="Leipzig" data-building="eisner" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="30.4" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="44.8" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="59.2" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="73.6" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="16.7" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="16.7" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="31.1" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="31.1" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="45.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="59.9" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="59.9" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="74.3" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Kurt-Eisner-Straße 27</td><td class="rt-c-muted">莱比锡</td><td>10</td><td class="rt-c-muted">100%</td><td>€1,240,000</td><td class="rt-pos">€4,878</td></tr>
+            <tr data-city="Leipzig" data-building="gohliser" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="34.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="52.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="70.0" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="18.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.7" y="18.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="36.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="36.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="54.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="54.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="39.3" y="72.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Gohliser Straße 9</td><td class="rt-c-muted">莱比锡</td><td>6</td><td class="rt-c-muted">100%</td><td>€750,000</td><td class="rt-pos">€2,305</td></tr>
+            <tr data-city="Rotterdam" data-building="beijer" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="10" width="88" height="78" fill="#7E6A55"/><rect x="13" y="2" width="94" height="8" rx="2" fill="#5C4B3B"/><rect x="31.3" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="55.5" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="79.8" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="31.3" y="32.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="55.5" y="32.8" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="79.8" y="32.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="31.3" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="55.5" y="52.3" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="79.8" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="31.3" y="71.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="55.0" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/><rect x="79.8" y="71.8" width="9" height="13" rx="1" fill="#0F2A45"/></svg></span>Beijerlandselaan 112</td><td class="rt-c-muted">鹿特丹</td><td>10</td><td class="rt-c-muted">100%</td><td>€1,720,000</td><td class="rt-pos">€7,379</td></tr>
+            <tr data-city="Rotterdam" data-building="zwaan" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="16" width="88" height="72" fill="#7E6A55"/><path d="M12,16 L60,1 L108,16Z" fill="#5C4B3B"/><rect x="16" y="40.0" width="88" height="1.2" fill="#6B5947"/><rect x="16" y="64.0" width="88" height="1.2" fill="#6B5947"/><rect x="39.3" y="21.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="21.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="45.5" width="9" height="13" rx="3" fill="#0F2A45"/><rect x="71.7" y="45.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="39.3" y="69.5" width="9" height="13" rx="3" fill="#BEE9F8"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Zwaanshals 64</td><td class="rt-c-muted">鹿特丹</td><td>5</td><td class="rt-c-muted">80%</td><td>€860,000</td><td class="rt-pos">€3,100</td></tr>
+            <tr data-city="Kraków" data-building="krakowska" tabindex="0"><td><span class="rt-thumb"><svg viewBox="0 0 120 96" class="rt-facade" aria-hidden="true"><rect x="0" y="88" width="120" height="8" fill="#0B1F38"/><rect x="16" y="10" width="88" height="78" fill="#7E6A55"/><rect x="13" y="2" width="94" height="8" rx="2" fill="#5C4B3B"/><rect x="39.3" y="13.3" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.7" y="13.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="32.8" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.7" y="32.8" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="52.3" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.7" y="52.3" width="9" height="13" rx="1" fill="#0F2A45"/><rect x="39.3" y="71.8" width="9" height="13" rx="1" fill="#BEE9F8"/><rect x="71.2" y="72.0" width="10" height="16" rx="1" fill="#0F2A45"/></svg></span>Ulica Krakowska 18</td><td class="rt-c-muted">克拉科夫</td><td>8</td><td class="rt-c-muted">100%</td><td>€660,000</td><td class="rt-pos">€3,912</td></tr>
 <!-- /data:props -->
           </tbody>
         </table>
         <div class="rt-props-foot">
-          <!-- data:props-foot --><span>Held by the vault <b>€10,900,000</b></span>
-          <span>Kept in August <b>€40,620</b></span><!-- /data:props-foot -->
+          <!-- data:props-foot --><span>金库账面持有 <b>€10,900,000</b></span>
+          <span>八月留存 <b>€40,620</b></span><!-- /data:props-foot -->
         </div>
       </div>
     </div>
@@ -346,45 +347,45 @@
   <section class="rt-section" id="roll">
     <div class="rt-wrap">
       <div class="rt-head rt-rise">
-        <h2 class="rt-h2">See what<br>actually arrived.</h2>
+        <h2 class="rt-h2">看看实际<br>到账了多少。</h2>
         <p class="rt-lede">
-          Rent scheduled is what the leases say. What reaches the vault is less: repairs, taxes,
-          insurance and the people who run the buildings all come out first, and some rent lands
-          late or not at all. The Roll shows both numbers and everything between them.
+          应收租金是租约上写的数。到达金库的要少一些：维修、税费、保险和
+          楼宇管理人员的费用先扣，有些租金晚到或根本没到。月报（The Roll）
+          同时展示这两个数字，以及它们之间的每一项。
         </p>
       </div>
 
       <div class="rt-roll rt-roll--closes rt-rise">
         <table class="rt-table">
           <caption class="rt-hide-sm">
-            Every close since the vault opened
+            金库开放以来的每一次结算
           </caption>
           <thead>
             <tr>
-              <th scope="col">Close</th>
-              <th scope="col">Collected</th>
-              <th scope="col">Costs</th>
-              <th scope="col">Kept</th>
+              <th scope="col">结算</th>
+              <th scope="col">实收</th>
+              <th scope="col">成本</th>
+              <th scope="col">留存</th>
               <th scope="col">vRENTA</th>
-              <th scope="col">Change</th>
+              <th scope="col">变动</th>
             </tr>
           </thead>
-          <tbody><!-- data:roll -->            <tr><td>31 Mar 2026</td><td>€43,290</td><td class="rt-c-muted">−€13,652</td><td>€29,638</td><td>€1.0041</td><td class="rt-pos">+0.41%</td></tr>
-            <tr><td>30 Apr 2026</td><td>€47,880</td><td class="rt-c-muted">−€14,812</td><td>€33,068</td><td>€1.0083</td><td class="rt-pos">+0.41%</td></tr>
-            <tr><td>31 May 2026</td><td>€50,120</td><td class="rt-c-muted">−€16,350</td><td>€33,770</td><td>€1.0124</td><td class="rt-pos">+0.41%</td></tr>
-            <tr><td>30 Jun 2026</td><td>€55,410</td><td class="rt-c-muted">−€17,061</td><td>€38,349</td><td>€1.0166</td><td class="rt-pos">+0.42%</td></tr>
-            <tr><td>31 Jul 2026</td><td>€58,940</td><td class="rt-c-muted">−€18,205</td><td>€40,735</td><td>€1.0210</td><td class="rt-pos">+0.43%</td></tr>
-            <tr><td>31 Aug 2026</td><td>€58,870</td><td class="rt-c-muted">−€18,250</td><td>€40,620</td><td>€1.0254</td><td class="rt-pos">+0.43%</td></tr>
+          <tbody><!-- data:roll -->            <tr><td>31 3月 2026</td><td>€43,290</td><td class="rt-c-muted">−€13,652</td><td>€29,638</td><td>€1.0041</td><td class="rt-pos">+0.41%</td></tr>
+            <tr><td>30 4月 2026</td><td>€47,880</td><td class="rt-c-muted">−€14,812</td><td>€33,068</td><td>€1.0083</td><td class="rt-pos">+0.41%</td></tr>
+            <tr><td>31 5月 2026</td><td>€50,120</td><td class="rt-c-muted">−€16,350</td><td>€33,770</td><td>€1.0124</td><td class="rt-pos">+0.41%</td></tr>
+            <tr><td>30 6月 2026</td><td>€55,410</td><td class="rt-c-muted">−€17,061</td><td>€38,349</td><td>€1.0166</td><td class="rt-pos">+0.42%</td></tr>
+            <tr><td>31 7月 2026</td><td>€58,940</td><td class="rt-c-muted">−€18,205</td><td>€40,735</td><td>€1.0210</td><td class="rt-pos">+0.43%</td></tr>
+            <tr><td>31 8月 2026</td><td>€58,870</td><td class="rt-c-muted">−€18,250</td><td>€40,620</td><td>€1.0254</td><td class="rt-pos">+0.43%</td></tr>
 <!-- /data:roll -->
           </tbody>
         </table>
         <!-- data:roll-note --><div class="rt-roll-note">
-          <span><b>May</b> was the roof on Kurt-Eisner-Straße 27: €4,180 of it, paid once, out of the rent that month.</span>
-          <span><b>August</b> collected less than July — one lease in Rotterdam ended on the 9th.</span>
-          <span><b>March</b> bought Via Sant'Ottavio 24, Turin, for €850,000.</span>
-          <span><b>April</b> bought Carrer del Nord 15, Terrassa, for €690,000.</span>
-          <span><b>May</b> bought Torrent de l'Olla 62, Barcelona, for €1,580,000.</span>
-          <span>Next close <b>30 Sep 2026</b>.</span>
+          <span><b>五月</b>是 Kurt-Eisner-Straße 27 的屋顶：€4,180，一次付清，从当月租金中支出。</span>
+          <span><b>八月</b>的实收少于七月——鹿特丹的一份租约于 9 日到期。</span>
+          <span><b>三月</b>以 €850,000 买入 Via Sant'Ottavio 24（都灵）。</span>
+          <span><b>四月</b>以 €690,000 买入 Carrer del Nord 15（特拉萨）。</span>
+          <span><b>五月</b>以 €1,580,000 买入 Torrent de l'Olla 62（巴塞罗那）。</span>
+          <span>下次结算：<b>30 9月 2026</b>。</span>
         </div><!-- /data:roll-note -->
       </div>
     </div>
@@ -394,19 +395,18 @@
   <section class="rt-section" id="dashboard">
     <div class="rt-wrap">
       <div class="rt-head rt-rise">
-        <h2 class="rt-h2">One line, six<br>closes, no story.</h2>
+        <h2 class="rt-h2">一条线，六次<br>结算，没有故事。</h2>
         <p class="rt-lede">
-          The share price only moves on a close, and it only moves for two reasons: rent the
-          vault kept, and the exit curve paid by people leaving. Hover any point to see the
-          month behind it.
+          份额价格只在结算时变动，而且只因两个原因变动：金库留存的租金，
+          以及离开的人支付的退出曲线税。把鼠标放到任一点上，查看它背后的那个月。
         </p>
       </div>
 
       <div class="rt-dash">
         <div class="rt-card rt-rise">
           <div class="rt-chart-head">
-            <div class="rt-chart-title">Price of one vRENTA, in EURG</div>
-            <!-- data:chart-sub --><div class="rt-chart-sub">1 Mar 2026 → 31 Aug 2026</div><!-- /data:chart-sub -->
+            <div class="rt-chart-title">一个 vRENTA 的价格，以 EURG 计</div>
+            <!-- data:chart-sub --><div class="rt-chart-sub">1 3月 2026 → 31 8月 2026</div><!-- /data:chart-sub -->
           </div>
           <div class="rt-chart" id="chart">
             <div class="rt-tip" id="tip" role="status" aria-live="polite"></div>
@@ -414,12 +414,12 @@
         </div>
 
         <!-- data:figs --><div class="rt-figs rt-rise">
-          <div class="rt-fig"><span>Share price</span><b class="rt-num">€1.0254</b></div>
-          <div class="rt-fig"><span>Since 1 March</span><b class="rt-num rt-pos">+2.54%</b></div>
-          <div class="rt-fig"><span>vRENTA in issue</span><b class="rt-num">11,050,000</b></div>
-          <div class="rt-fig"><span>What the vault holds</span><b class="rt-num">€11,330,593</b></div>
-          <div class="rt-fig"><span>Deposit fee</span><b class="rt-num">0.00%</b></div>
-          <div class="rt-fig"><span>Exit fee</span><b class="rt-num">0.00%</b></div>
+          <div class="rt-fig"><span>份额价格</span><b class="rt-num">€1.0254</b></div>
+          <div class="rt-fig"><span>自 三月 1 日起</span><b class="rt-num rt-pos">+2.54%</b></div>
+          <div class="rt-fig"><span>vRENTA 流通量</span><b class="rt-num">11,050,000</b></div>
+          <div class="rt-fig"><span>金库持有</span><b class="rt-num">€11,330,593</b></div>
+          <div class="rt-fig"><span>存入费</span><b class="rt-num">0,00 %</b></div>
+          <div class="rt-fig"><span>赎回费</span><b class="rt-num">0,00 %</b></div>
         </div><!-- /data:figs -->
       </div>
     </div>
@@ -430,21 +430,21 @@
     <div class="rt-wrap">
       <div class="rt-panel rt-rise">
         <div class="rt-head">
-          <h2 class="rt-h2">Start at a<br>hundred euros.</h2>
+          <h2 class="rt-h2">从一百欧元<br>开始。</h2>
           <p class="rt-lede">
-            Put a number in and see what it would have done across the six closes that have
-            already happened. What the vault did, not what it expects to do.
+            输入一个数字，看看它在已经发生的六次结算中会有什么表现。
+            是金库实际做到的，不是它预期要做的。
           </p>
         </div>
 
         <div class="rt-calc">
           <div class="rt-calc-in">
-            <label class="rt-calc-label" for="amount">Deposit</label>
+            <label class="rt-calc-label" for="amount">存入</label>
             <div class="rt-calc-amount">
               <input id="amount" type="text" inputmode="numeric" value="10,000" aria-describedby="calcmin">
               <span>EURG</span>
             </div>
-            <input class="rt-range" id="range" type="range" min="100" max="100000" step="100" value="10000" aria-label="Deposit amount">
+            <input class="rt-range" id="range" type="range" min="100" max="100000" step="100" value="10000" aria-label="存入金额">
             <div class="rt-chips">
               <button class="rt-chip" type="button" data-amt="1000">1,000</button>
               <button class="rt-chip" type="button" data-amt="5000">5,000</button>
@@ -452,15 +452,15 @@
               <button class="rt-chip" type="button" data-amt="50000">50,000</button>
               <button class="rt-chip" type="button" data-amt="100000">100,000</button>
             </div>
-            <p class="rt-calc-min" id="calcmin">Minimum 100 EURG. Nothing to pay to come in, and nothing to pay to leave.</p>
-            <div class="rt-calc-foot"><span>Share price today</span><b class="rt-num">€1.0254</b></div>
+            <p class="rt-calc-min" id="calcmin">最低 100 EURG。进入无费用，离开也无费用。</p>
+            <div class="rt-calc-foot"><span>今日份额价格</span><b class="rt-num">€1.0254</b></div>
           </div>
 
           <div class="rt-calc-out">
-            <!-- data:calc --><div class="rt-row"><span>vRENTA you would hold</span><b class="rt-num" id="o-shares">10,000.00 vRENTA</b></div>
-            <div class="rt-row rt-row--big"><span>Worth today</span><b class="rt-num rt-pos" id="o-worth">€10,253.93</b></div>
-            <div class="rt-row"><span>Of which rent</span><b class="rt-num" id="o-rent">+€218.71</b></div>
-            <div class="rt-row"><span>Of which the curve tax</span><b class="rt-num" id="o-curve">+€35.22</b></div><!-- /data:calc -->
+            <!-- data:calc --><div class="rt-row"><span>你将持有的 vRENTA</span><b class="rt-num" id="o-shares">10,000.00 vRENTA</b></div>
+            <div class="rt-row rt-row--big"><span>今日价值</span><b class="rt-num rt-pos" id="o-worth">€10,253.93</b></div>
+            <div class="rt-row"><span>其中租金</span><b class="rt-num" id="o-rent">+€218.71</b></div>
+            <div class="rt-row"><span>其中曲线税</span><b class="rt-num" id="o-curve">+€35.22</b></div><!-- /data:calc -->
             <p class="rt-calc-note" id="o-note"></p>
           </div>
         </div>
@@ -472,95 +472,87 @@
   <section class="rt-section" id="faq">
     <div class="rt-wrap">
       <div class="rt-head rt-head--stack rt-rise">
-        <h2 class="rt-h2">The ones people<br>actually ask.</h2>
+        <h2 class="rt-h2">大家真正会问的<br>问题。</h2>
       </div>
 
       <div class="rt-faq" id="faqlist">
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>What am I actually buying?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>我买的到底是什么？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            A token called vRENTA, which is a share of one vault. The vault owns ten apartment
-            buildings through a Dutch holding company, and it owns them outright. You are not
-            buying a specific flat and you are not lending anybody money — you hold a slice of
-            everything the vault holds, including the cash it has not spent yet.
+            一个叫 vRENTA 的代币，它是一个金库的份额。金库通过一家荷兰控股公司
+            全款持有十栋公寓楼。你买的不是某一套具体的房子，也不是把钱借给谁——
+            你持有的是金库全部资产的一部分，包括它还没花掉的现金。
           </p></div></div>
         </div>
 
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>Do I receive rent payments in my wallet?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>租金会打到我的钱包里吗？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            No. Nothing is ever sent to you. At each monthly close the rent that survived the
-            bills stays inside the vault, so the vault is worth more and every vRENTA is worth
-            more with it. You turn that into money by selling your shares back, whenever you
-            like. It means one taxable event instead of twelve, and no dust payments.
+            不会。永远不会有任何东西发给你。每次月度结算时，扣除账单后剩下的租金
+            留在金库内，金库因此更值钱，每个 vRENTA 也随之更值钱。你随时可以把
+            份额卖回给金库来变现。这意味着一次应税事件而不是十二次，也没有零碎的小额打款。
           </p></div></div>
         </div>
 
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>What do I need to start?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>开始需要什么？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            A wallet, 100 EURG and about forty seconds. No credit check, no notary, no deposit
-            saved over five years, and no minimum holding period. The deposit is a single
-            transaction and the vault prices it at the share price standing at that moment.
+            一个钱包、100 EURG，大约四十秒。不查征信，不用公证，不用攒五年首付，
+            也没有最短持有期。存入是一笔交易，金库按那一刻的份额价格给你定价。
           </p></div></div>
         </div>
 
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>How do I cash out?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>怎么赎回？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            You sell vRENTA back to the vault in one transaction and EURG arrives in the same
-            block. The vault keeps a cash reserve — <!-- data:reserve -->€430,593<!-- /data:reserve --> at the last close — so ordinary
-            exits settle instantly. A redemption larger than the reserve is queued until the
-            next close, which is the one case where you wait.
+            你用一笔交易把 vRENTA 卖回金库，EURG 在同一个区块到账。金库保有一笔现金储备
+            ——上次结算时为 <!-- data:reserve -->€430,593<!-- /data:reserve -->——所以普通的退出即时结算。超过储备的赎回会排队到
+            下一次结算，这是唯一需要等待的情况。
           </p></div></div>
         </div>
 
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>What is the curve tax?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>什么是曲线税？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            Leaving early is priced. Anyone who redeems within ninety days of depositing sells
-            back slightly below the share price, and the difference does not go to us — it
-            stays in the vault and lifts the price for everyone still in. It is the second line
-            in the calculator above. It exists so that a nervous month does not force the vault
-            to sell a building to pay people who arrived three weeks ago.
+            提前离开是有代价的。存入后九十天内赎回的人，会以略低于份额价格的价格卖回，
+            差额不归我们——它留在金库里，推高仍在金库中的所有人的价格。它就是上面
+            计算器里的第二行。它的存在是为了让一个紧张的月份不至于迫使金库卖掉一栋楼，
+            去付钱给三周前才进来的人。
           </p></div></div>
         </div>
 
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>Can I put money into just one building?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>我能只投一栋楼吗？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            No, and that is deliberate. One building is one roof, one boiler and one bad tenant
-            away from a very bad year. Spread across seventy-seven apartments in eight cities,
-            an empty flat costs the vault a few hundred euros a month rather than everything.
+            不能，这是有意为之。一栋楼离糟糕的一年只差一个屋顶、一台锅炉和一个坏租客。
+            分散在八座城市的七十七套公寓里，一套空置的房子每月只让金库损失几百欧元，
+            而不是全部。
           </p></div></div>
         </div>
 
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>Why not hold more buildings?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>为什么不持有更多楼？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            Because we only buy what the rent can pay for. There is no mortgage anywhere in this
-            structure, so the vault grows at the speed of deposits and retained rent, not at the
-            speed of a bank. Every purchase is announced in The Roll before it completes, with
-            the price paid and the leases already in place.
+            因为我们只买租金付得起的楼。这个结构里任何地方都没有房贷，所以金库以存款和
+            留存租金的速度增长，而不是以银行的速度。每一次购买都会在完成前在月报中公布，
+            附上成交价和已经生效的租约。
           </p></div></div>
         </div>
 
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>What happens if a tenant stops paying?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>租客不交租了会怎样？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            The managing agent chases it, the close records it as rent scheduled but not
-            collected, and the share price rises by a little less that month. You saw exactly
-            that in August: one lease in Rotterdam ended on the ninth, collection fell by €70
-            against July, and the line kept going up anyway.
+            管理机构会去追讨，结算会把它记为应收未收，当月份额价格的涨幅会小一点。
+            八月你就看到了这一幕：鹿特丹的一份租约在九号到期，实收比七月少了 70 欧元，
+            但那条线照样在往上走。
           </p></div></div>
         </div>
 
         <div class="rt-q">
-          <button type="button" aria-expanded="false"><span>What if RENTA disappears?</span><i class="rt-q-sign" aria-hidden="true"></i></button>
+          <button type="button" aria-expanded="false"><span>要是 RENTA 消失了呢？</span><i class="rt-q-sign" aria-hidden="true"></i></button>
           <div class="rt-a"><div><p>
-            The buildings are owned by the holding company, not by us, and the holders of vRENTA
-            own the holding company. If the front end goes dark the vault contract still accepts
-            redemptions from any wallet, and the deeds do not care whether this website exists.
+            楼宇归控股公司所有，而不是归我们，vRENTA 的持有人拥有这家控股公司。就算前端
+            关停，金库合约依然接受任何钱包的赎回，而房契并不关心这个网站是否存在。
           </p></div></div>
         </div>
       </div>
@@ -573,14 +565,14 @@
       <div class="rt-panel rt-rise">
         <div class="rt-cta">
           <div>
-            <h2 class="rt-h2">Put something in<br>and watch a<br>month happen.</h2>
+            <h2 class="rt-h2">放一点进去，<br>看一个月<br>如何发生。</h2>
             <p class="rt-lede">
-              Deposit, read the next report, and cash out whenever you want.
-              There is nothing to pay either way.
+              存入，读下一份月报，想什么时候赎回就什么时候赎回。
+              两个方向都没有费用。
             </p>
             <div class="rt-cta-btns">
-              <button class="rt-btn rt-btn--ink" data-connect type="button">Connect wallet</button>
-              <a class="rt-btn rt-btn--ink-ghost" href="#roll">Read the last report</a>
+              <button class="rt-btn rt-btn--ink" data-connect type="button">连接钱包</button>
+              <a class="rt-btn rt-btn--ink-ghost" href="#roll">读最新月报</a>
             </div>
           </div>
 
@@ -629,37 +621,36 @@
           </svg>
           <span>RENTA</span>
         </a>
-        <p>A share of the rent, without the building, the mortgage or the phone call at six in the morning.</p>
+        <p>一份租金，没有楼、没有房贷，也没有早上六点的电话。</p>
       </div>
 
       <div class="rt-fcol">
-        <div class="rt-fcol-h">Vault</div>
-        <a href="#dashboard">Dashboard</a>
-        <a href="#calculator">Deposit EURG</a>
-        <a href="#map" data-spy="portfolio">Portfolio</a>
+        <div class="rt-fcol-h">金库</div>
+        <a href="#dashboard">面板</a>
+        <a href="#calculator">存入 EURG</a>
+        <a href="#map" data-spy="portfolio">物业组合</a>
       </div>
       <div class="rt-fcol">
-        <div class="rt-fcol-h">Read</div>
-        <a href="docs.html">Documentation</a>
-        <a href="#roll">The Roll</a>
-        <a href="#faq">FAQ</a>
+        <div class="rt-fcol-h">阅读</div>
+        <a href="docs.html">文档</a>
+        <a href="#roll">月报</a>
+        <a href="#faq">常见问题</a>
       </div>
       <div class="rt-fcol">
-        <div class="rt-fcol-h">Onchain</div>
-        <a href="docs.html#chain">Explorer</a>
-        <a href="docs.html#contracts">Vault contract</a>
-        <a href="docs.html#audit">Audit</a>
+        <div class="rt-fcol-h">链上</div>
+        <a href="docs.html#chain">区块浏览器</a>
+        <a href="docs.html#contracts">金库合约</a>
+        <a href="docs.html#audit">审计</a>
       </div>
     </div>
 
     <div class="rt-footer-bottom">
       <p class="rt-disclaimer">
-        RENTA is a demonstration build. Every figure on this page is illustrative, and past
-        closes are not a promise about future ones. Property can fall in value and rent can
-        stop arriving. Nothing here is investment advice.
+        RENTA 是一个演示版本。本页所有数字仅作示意，过去的结算不构成对未来的承诺。
+        房产可能贬值，租金可能停止到账。这里没有任何内容是投资建议。
       </p>
       <div class="rt-footer-right">
-        <a class="rt-social" href="https://x.com/renta" target="_blank" rel="noopener" aria-label="RENTA on X (Twitter)">
+        <a class="rt-social" href="https://x.com/renta" target="_blank" rel="noopener" aria-label="RENTA 的 X（Twitter）">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/>
           </svg>
@@ -674,7 +665,7 @@
 <div class="rt-city" id="cityview" role="dialog" aria-modal="true" aria-labelledby="city-title" hidden>
   <div class="rt-city-backdrop" data-city-close></div>
   <div class="rt-city-panel">
-    <button class="rt-city-close" type="button" data-city-close aria-label="Close the city view">
+    <button class="rt-city-close" type="button" data-city-close aria-label="关闭城市视图">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
     <div class="rt-city-head">
@@ -686,7 +677,7 @@
       <div class="rt-city-map" id="city-map"></div>
       <div class="rt-city-side" id="city-side"></div>
     </div>
-    <p class="rt-city-note">Districts are named and placed where they are; the lines between them are drawn, not surveyed. Buildings sit at their real coordinates.</p>
+    <p class="rt-city-note">各区的名称和位置是真实的；它们之间的边界是画出来的，不是测绘的。楼宇位于其真实坐标。</p>
   </div>
 </div>
 
@@ -694,30 +685,30 @@
 <div class="rt-gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title" hidden>
   <div class="rt-gate-backdrop" data-gate-close></div>
   <div class="rt-gate-panel">
-    <p class="rt-eyebrow">Before you connect</p>
-    <h2 class="rt-h3" id="gate-title">vRENTA is a security. Three things to confirm.</h2>
-    <p class="rt-gate-lede">The vault is a share of a company that owns buildings. It is offered to residents of <b id="gate-eligible">the EU/EEA</b>, and it is not offered in <b id="gate-not">the United States</b>, nor anywhere it would need a licence we do not hold.</p>
-    <label class="rt-check"><input type="checkbox"><span>I am 18 or over and I live in one of the places it is offered.</span></label>
-    <label class="rt-check"><input type="checkbox"><span>I have read <a href="docs.html#risk" target="_blank" rel="noopener">what can go wrong</a>: the price can fall, rent can stop, and a redemption can wait for a close.</span></label>
-    <label class="rt-check"><input type="checkbox"><span>I understand nothing here is advice, and that I will need to pass an identity check before I can deposit.</span></label>
+    <p class="rt-eyebrow">连接之前</p>
+    <h2 class="rt-h3" id="gate-title">vRENTA 是一种证券。请确认三件事。</h2>
+    <p class="rt-gate-lede">金库是一家持有楼宇的公司的份额。它面向 <b id="gate-eligible">欧盟/欧洲经济区</b> 的居民发售，不在 <b id="gate-not">美国</b> 发售，也不在任何需要我们尚未持有的牌照的地方发售。</p>
+    <label class="rt-check"><input type="checkbox"><span>我年满 18 岁，并居住在发售地区之一。</span></label>
+    <label class="rt-check"><input type="checkbox"><span>我已阅读<a href="docs.html#risk" target="_blank" rel="noopener">可能出什么问题</a>：价格可能下跌，租金可能停止，赎回可能要等到结算。</span></label>
+    <label class="rt-check"><input type="checkbox"><span>我明白这里的内容不构成建议，并且我在存入之前需要通过身份验证。</span></label>
     <div class="rt-gate-actions">
-      <button class="rt-btn rt-btn--accent" type="button" id="gate-continue" disabled>Continue to my wallet</button>
-      <a class="rt-btn rt-btn--ghost" id="gate-kyc" href="#" target="_blank" rel="noopener">Identity check</a>
-      <button class="rt-btn rt-btn--ghost" type="button" data-gate-close>Not now</button>
+      <button class="rt-btn rt-btn--accent" type="button" id="gate-continue" disabled>继续连接我的钱包</button>
+      <a class="rt-btn rt-btn--ghost" id="gate-kyc" href="#" target="_blank" rel="noopener">身份验证</a>
+      <button class="rt-btn rt-btn--ghost" type="button" data-gate-close>暂不</button>
     </div>
-    <p class="rt-gate-fine">Your answer stays in this browser. Nothing is sent anywhere until you sign a transaction.</p>
+    <p class="rt-gate-fine">你的回答只保存在这个浏览器里。在你签署交易之前，不会向任何地方发送任何内容。</p>
   </div>
 </div>
 
 <div class="rt-wp" id="walletpanel" hidden></div>
 
 <div class="rt-toast" id="toast" role="status" aria-live="polite"></div>
-<script src="data/vault.js"></script>
-<script src="data/facades.js"></script>
-<script src="data/cities.js"></script>
-<script src="config.js"></script>
-<script src="app.js"></script>
-<script src="gate.js"></script>
-<script src="wallet.js"></script>
+<script src="../data/vault.js"></script>
+<script src="../data/facades.js"></script>
+<script src="../data/cities.js"></script>
+<script src="../config.js"></script>
+<script src="../app.js"></script>
+<script src="../gate.js"></script>
+<script src="../wallet.js"></script>
 </body>
 </html>

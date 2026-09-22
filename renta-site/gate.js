@@ -19,7 +19,7 @@
   var el = $('#gate-eligible'); if (el && C.eligible) el.textContent = C.eligible.join(', ');
   var no = $('#gate-not'); if (no && C.notOffered) no.textContent = C.notOffered.join(', ');
   var kyc = $('#gate-kyc');
-  if (kyc) { if (C.kycUrl) { kyc.href = C.kycUrl; } else { kyc.removeAttribute('href'); kyc.classList.add('is-off'); kyc.setAttribute('aria-disabled', 'true'); kyc.textContent = 'Identity check — provider not configured yet'; } }
+  if (kyc) { if (C.kycUrl) { kyc.href = C.kycUrl; } else { kyc.removeAttribute('href'); kyc.classList.add('is-off'); kyc.setAttribute('aria-disabled', 'true'); kyc.textContent = document.documentElement.lang === 'zh' ? '身份验证——服务商尚未配置' : 'Identity check — provider not configured yet'; } }
 
   function open(cb) {
     after = cb;

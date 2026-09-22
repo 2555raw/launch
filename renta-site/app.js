@@ -31,6 +31,21 @@
       built: 'built', bought: 'bought', facts: ['Apartments', 'Let', 'Held at', 'Net rent, last close'], also: 'Also in ',
       noteReal: 'District boundaries are the city\u2019s own, from its open data. Buildings sit at their real coordinates, in the district the boundary file puts them in.',
       noteSchematic: 'Districts are named and placed where they are; the lines between them are drawn, not surveyed. Buildings sit at their real coordinates.'
+    },
+    zh: {
+      months: { Jan: '1月', Feb: '2月', Mar: '3月', Apr: '4月', May: '5月', Jun: '6月', Jul: '7月', Aug: '8月', Sep: '9月', Oct: '10月', Nov: '11月', Dec: '12月', Opened: '开放' },
+      long: { Jan: '一月', Feb: '二月', Mar: '三月', Apr: '四月', May: '五月', Jun: '六月', Jul: '七月', Aug: '八月', Sep: '九月', Oct: '十月', Nov: '十一月', Dec: '十二月' },
+      words: ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
+      opened: '金库以 ', price: '价格', kept: '留存', of: '／实收',
+      chartAria: function (a, b, p) { return 'vRENTA 份额价格折线图：从 ' + a + ' 的 €1.0000 升至 ' + b + ' 结算时的 ' + p + '。背后的数字列在上方的月报表中。'; },
+      note: function (d, sh, n, p4, w, r, c) { return '于 ' + d + ' 以 €1.0000 存入，即 <b>' + sh + ' vRENTA</b>。' + n + '次结算后 vRENTA 为 ' + p4 + '，因此价值 <b>' + w + '</b>——其中 ' + r + ' 是金库留存的租金，' + c + ' 来自曲线税。过程中没有任何派发。'; },
+      cities: { Lisbon: '里斯本', Madrid: '马德里', Barcelona: '巴塞罗那', Terrassa: '特拉萨', Turin: '都灵', Leipzig: '莱比锡', Rotterdam: '鹿特丹', 'Kraków': '克拉科夫' },
+      countries: { Portugal: '葡萄牙', Spain: '西班牙', Italy: '意大利', Germany: '德国', Netherlands: '荷兰', Poland: '波兰', Catalonia: '加泰罗尼亚' },
+      building: function (n) { return n + ' 栋楼'; }, apartments: '套公寓', netRentClose: '上次结算的净租金。',
+      cityAria: function (c, n) { return c + '分区示意图，标出 ' + n + ' 栋楼。'; },
+      built: '建于', bought: '购于', facts: ['公寓数', '出租率', '账面价值', '净租金（上次结算）'], also: '同在',
+      noteReal: '分区边界来自该市的开放数据。楼宇位于其真实坐标，在边界文件所划定的分区内。',
+      noteSchematic: '各区的名称和位置是真实的；它们之间的边界是画出来的，不是测绘的。楼宇位于其真实坐标。'
     }
   };
   var TX = STRINGS[LANG] || STRINGS.en;   /* not T: the chart uses T for its top margin */
@@ -196,13 +211,13 @@
        district that holds a building gets its name moved clear of the pin */
     /* labels, biggest district first; one that would sit on another, or on
        a pin, is left off — its name is still in the cell's tooltip */
-    var boxes = c.buildings.map(function (b) { return { x: b.x - 16, y: b.y - 16, w: 32, h: 32 }; });
+    var boxes = c.buildings.map(function (b) { return { x: b.x - 11, y: b.y - 11, w: 22, h: 22 }; });
     var hit = function (b) { return boxes.some(function (o) { return b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y; }); };
     c.districts.slice().sort(function (a, b) { return (b.own - a.own) || (b.area - a.area); }).forEach(function (d) {
       if (d.area < 1200 && !d.own) return;
       var small = d.area < 3200, fs = small ? 10.5 : 12.5;
       var x = d.cx, y = d.cy;
-      c.buildings.forEach(function (b) { if (Math.hypot(b.x - x, b.y - y) < 34) y = b.y - 22; });
+      c.buildings.forEach(function (b) { if (Math.hypot(b.x - x, b.y - y) < 26) y = b.y - 16; });
       var w = d.name.length * fs * 0.62, h = fs * 1.15;
       var box = { x: x - w / 2 - 3, y: y - h * 0.8 - 2, w: w + 6, h: h + 4 };
       if (hit(box)) return;
@@ -212,9 +227,9 @@
     c.buildings.forEach(function (b, i) {
       svg.push('<g class="rt-pin rt-pin--city" data-building="' + b.id + '" tabindex="0" role="img" aria-label="' + b.name + ', ' + b.district + '">' +
         '<title>' + b.name + '</title>' +
-        '<circle class="rt-pin-ping" cx="' + b.x + '" cy="' + b.y + '" r="11" style="animation-delay:' + (i * 0.5) + 's"/>' +
-        '<circle class="rt-pin-ring" cx="' + b.x + '" cy="' + b.y + '" r="12"/>' +
-        '<circle class="rt-pin-dot" cx="' + b.x + '" cy="' + b.y + '" r="6.5"/></g>');
+        '<circle class="rt-pin-ping" cx="' + b.x + '" cy="' + b.y + '" r="7" style="animation-delay:' + (i * 0.5) + 's"/>' +
+        '<circle class="rt-pin-ring" cx="' + b.x + '" cy="' + b.y + '" r="7.5"/>' +
+        '<circle class="rt-pin-dot" cx="' + b.x + '" cy="' + b.y + '" r="3.8"/></g>');
     });
     /* scale bar and north */
     var W = +c.viewBox.split(' ')[2], H = +c.viewBox.split(' ')[3];
@@ -238,14 +253,14 @@
         '</dl></div></article>';
     }).join('');
     var others = Object.keys(CITIES).filter(function (k) { return k !== city && c.region && CITIES[k].region === c.region; });
-    if (others.length) side += '<p class="rt-city-more">' + TX.also + tr(TX.countries, c.region) + ': ' + others.map(function (k) { return '<a href="#map" data-open-city="' + k + '">' + tr(TX.cities, k) + ' →</a>'; }).join(' ') + '</p>';
+    if (others.length) side += '<p class="rt-city-more">' + TX.also + tr(TX.countries, c.region) + (LANG === 'zh' ? '：' : ': ') + others.map(function (k) { return '<a href="#map" data-open-city="' + k + '">' + tr(TX.cities, k) + ' →</a>'; }).join(' ') + '</p>';
 
     var units = mine.reduce(function (s, b) { return s + b.units; }, 0);
     var rent = mine.reduce(function (s, b) { return s + b.net; }, 0);
     return {
       eyebrow: tr(TX.countries, c.country) + (c.region ? ' · ' + tr(TX.countries, c.region) : ''),
       title: tr(TX.cities, city),
-      sub: TX.building(mine.length) + ' · ' + units + ' ' + TX.apartments + ' · ' + euro(rent, 0) + ' ' + TX.netRentClose,
+      sub: TX.building(mine.length) + ' · ' + units + (LANG === 'zh' ? '' : ' ') + TX.apartments + ' · ' + euro(rent, 0) + (LANG === 'zh' ? '' : ' ') + TX.netRentClose,
       map: svg.join(''), side: side,
       note: c.real ? TX.noteReal : TX.noteSchematic
     };
@@ -352,6 +367,7 @@
     oCurve.textContent  = '+' + euro(curve);
 
     var opened = CLOSES[0].date.slice(0, -5);
+    if (LANG === 'zh') { var pz = opened.split(' '); opened = pz[1] + pz[0] + '日'; }
     oNote.innerHTML = TX.note(opened, shares.toLocaleString(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), TX.words[D.closes.length], price4(PRICE_NOW), euro(worth), euro(rent), euro(curve));
   }
 

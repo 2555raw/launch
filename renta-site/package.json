@@ -4,10 +4,11 @@
   "description": "RENTA \u2014 a share of the rent, without the building. Static site, no build step.",
   "scripts": {
     "rolls": "node scripts/make-rolls.js",
-    "data": "node scripts/recompute.js && node scripts/facades.js && node scripts/cities.js && node scripts/render-static.js",
+    "data": "node scripts/recompute.js && node scripts/facades.js && node scripts/cities.js && node scripts/translate.js --lang zh && node scripts/render-static.js",
     "verify": "node scripts/recompute.js --check",
     "serve": "node test/server.js 8000",
-    "test": "node test/run.js"
+    "test": "node test/run.js",
+    "i18n": "node scripts/translate.js --lang zh && node scripts/render-static.js"
   },
   "devDependencies": {
     "playwright-core": "^1.49.0"

@@ -6,8 +6,8 @@ European cities, held through one vault token, `vRENTA`.
 Built as a mid-dark navy reading of the DEED layout — same mechanics, same section
 order, same plain-English voice, different palette, different continent — and then
 taken further: every figure on it is computed from published monthly ledgers, the
-map steps into each city by district, a wallet connects, and the whole thing ships with
-no build step and no third-party request.
+map steps into each city by district, a wallet connects, and the whole thing ships in
+English and Chinese with no build step and no third-party request.
 
 ```bash
 npm run data      # rebuild every figure from the Rolls (see below)
@@ -19,6 +19,7 @@ npm test          # 60-odd checks, needs Chromium (CHROME=/path/to/chrome)
 
 ```
 index.html / docs.html        the landing page and the documentation
+zh/index.html / zh/docs.html  the same two pages in Chinese — GENERATED, do not edit
 styles.css, docs.css          the design system and the docs layout
 app.js                        nav, reveal, count-ups, FAQ, the map, the city view,
                               the calculator and the share-price chart
@@ -31,7 +32,8 @@ rolls/                        the six monthly Rolls (CSV) and hashes.json
 data/                         buildings.json (the facts), and the GENERATED
                               vault.js/json, facades.js, cities.js
 contracts/                    Vault.sol, RollRegistry.sol and their ABIs
-i18n/                         the seam for a second language (none ships; see i18n/README.md)
+i18n/                         the English → Chinese dictionaries (see i18n/README.md)
+data/geo/                     real district boundaries per city (see data/geo/SOURCES.md)
 scripts/                      the generators (next section)
 test/                         the test suite and its static server
 fonts/                        Figtree and JetBrains Mono, self-hosted
@@ -63,9 +65,12 @@ data/buildings.json ──facades.js──▶ data/facades.js   (a façade per b
   the six Rolls deterministically (fixed-seed PRNG) — a rent roll per apartment,
   costs by invoice, deposits and redemptions by wallet, purchases as they happened.
   A live vault replaces this script with real ledgers and nothing downstream changes.
-- **`scripts/translate.js`** is the seam for a second language: dictionaries in
-  `i18n/`, a built copy in `<lang>/`, and a check that nothing on it still reads as
-  English. No translation ships.
+- **`scripts/translate.js --lang zh`** builds `zh/` from the English pages and the
+  dictionaries in `i18n/`, longest phrase first, and reports any text node that still
+  reads as English (`--check` fails the tests if one does). `render-static.js` then
+  fills the data regions in Chinese words and formats; `app.js`, `wallet.js` and
+  `gate.js` read their strings from a table keyed by the page's `lang`. The switch
+  in the nav goes both ways.
 
 ## The map, and the cities
 
@@ -79,11 +84,14 @@ reference, and the pins in a blue of their own (`--pin`, not the azure money acc
 each sending out a ring every few seconds. Labels are placed by a greedy solver.
 
 Click a pin, or a building in the table, and the city opens. `scripts/cities.js`
-draws each one: real districts at their real centres, the boundaries between them
-as Voronoi cells clipped to a convex city limit — a map of *which district is where*,
-not a cadastral one, and the panel says so — the building's district lit, the
-building at its true coordinates (the script fails if a building does not land in
-its named district), a scale bar, and a card per building with its façade.
+draws each one from its real district boundaries where they are on disk
+(`data/geo/`, five cities so far: Lisbon's freguesias, Madrid's barrios, Barcelona's
+barris, Leipzig's Ortsteile, Rotterdam's gebieden), projected, simplified to a pixel,
+with each building placed by point-in-polygon so its district is whatever the
+boundary file says. Where no file exists (Turin, Kraków, Terrassa — `SOURCES.md`
+says why) the city is a schematic: real district centres, Voronoi cells between
+them, and the panel says so. Either way: the building's district lit, the building
+at its true coordinates, a scale bar, and a card per building with its façade.
 Terrassa is twenty kilometres from Barcelona, eight pixels on the big map, so it
 rides Barcelona's pin there and has its own city view, linked from Barcelona's.
 

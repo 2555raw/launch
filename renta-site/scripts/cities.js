@@ -124,7 +124,7 @@ function hull(points) {
 const pathOf = rings => rings.map(r => 'M' + r.map(p => p.join(',')).join('L') + 'Z').join('');
 
 /* ------------------------------------------------------- draw ----------- */
-const W = 640, H = 520, PAD = 30;
+const W = 640, H = 520, PAD = 70;
 const out = {};
 for (const [city, c] of Object.entries(SCHEMATIC)) {
   const k = Math.cos(c.lat * Math.PI / 180);

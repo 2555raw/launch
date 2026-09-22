@@ -74,7 +74,7 @@
   --maxw: 1280px;
 
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --sans: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --sans: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", Helvetica, Arial, sans-serif;
 
   --ease: cubic-bezier(.22, .61, .36, 1);
 }
@@ -219,7 +219,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 .rt-nav-right { display: flex; align-items: center; gap: 10px; }
 .rt-lang {
   display: inline-grid; place-items: center;
-  min-width: 42px; height: 42px; padding: 0 12px;
+  min-width: 42px; height: 42px; padding: 0 12px; white-space: nowrap;
   border-radius: var(--r-pill); border: 1px solid var(--line);
   font-family: var(--mono); font-size: .8rem; letter-spacing: .08em; color: #CBDDEC;
   transition: border-color .18s var(--ease), color .18s var(--ease);
@@ -414,7 +414,8 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 .rt-c--own { fill: #1E4873; }
 .rt-c.is-on { fill: #2A6497; stroke: var(--pin-lit); }
 
-/* capitals sit under the holdings: smaller, dimmer, never competing */
+/* capitals are in the file but off by default: the map shows the vault's cities */
+.rt-caps { display: none; }
 .rt-cap-dot { fill: #83AACB; }
 .rt-cap-label {
   font-family: var(--mono);
@@ -427,15 +428,18 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 }
 .rt-pin { cursor: pointer; }
 .rt-pin-halo { fill: rgba(110, 160, 255, .12); opacity: 0; transition: opacity .25s var(--ease); }
-.rt-pin-ring { fill: none; stroke: rgba(110, 160, 255, .55); stroke-width: 2; opacity: .8; }
+.rt-pin-ring { fill: none; stroke: rgba(110, 160, 255, .45); stroke-width: 1.5; opacity: .8; }
 .rt-pin-dot  { fill: var(--pin); }
+
+.rt-pin--city .rt-pin-ring { stroke-width: 1.5; }
+.rt-pin--city .rt-pin-ping { stroke-width: 1.5; }
 
 /* the ping: one ring leaving the pin every few seconds, staggered per city
    so the map never pulses in unison */
 .rt-pin-ping {
   fill: none;
   stroke: var(--pin);
-  stroke-width: 2;
+  stroke-width: 1.5;
   transform-box: fill-box;
   transform-origin: center;
   animation: rt-ping 2.9s cubic-bezier(.16, .62, .34, 1) infinite;
@@ -447,8 +451,8 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 }
 .rt-pin-label {
   font-family: var(--mono);
-  font-size: 19px;
-  fill: #D7E8F5;
+  font-size: 15px;
+  fill: #C7DEEE;
   letter-spacing: .02em;
   paint-order: stroke;
   stroke: #0E2C49;
@@ -855,6 +859,12 @@ body.rt-locked { overflow: hidden; }
 .rt-wp-link { background: none; border: 0; padding: 0; color: var(--accent); font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; }
 .rt-wp-link:hover { text-decoration: underline; }
 
+/* ------------------------------------------------------------ CJK pages --- */
+html[lang="zh"] h1, html[lang="zh"] h2, html[lang="zh"] h3, html[lang="zh"] .rt-display, html[lang="zh"] .rt-h2 { letter-spacing: 0; line-height: 1.12; }
+html[lang="zh"] .rt-display { font-size: clamp(2.6rem, 7.4vw, 5.8rem); }
+html[lang="zh"] .rt-claim span { letter-spacing: .02em; }
+html[lang="zh"] .rt-hero-note, html[lang="zh"] .rt-eyebrow { letter-spacing: .06em; }
+
 /* ---------------------------------------------------------------- toast --- */
 .rt-toast {
   position: fixed;
@@ -920,11 +930,11 @@ body.rt-locked { overflow: hidden; }
      Poland; the capitals step aside and the pins grow to stay legible */
   .rt-map { aspect-ratio: 4 / 3; max-height: none; margin-block: 24px; }
   .rt-caps { display: none; }
-  .rt-pin-dot  { r: 10.5; }
-  .rt-pin-ring { r: 19.5; stroke-width: 3; }
-  .rt-pin-ping { r: 18; stroke-width: 3; }
-  .rt-pin-halo { r: 40; }
-  .rt-pin-label { font-size: 30px; stroke-width: 8px; }
+  .rt-pin-dot  { r: 8; }
+  .rt-pin-ring { r: 15; stroke-width: 2.5; }
+  .rt-pin-ping { r: 14; stroke-width: 2.5; }
+  .rt-pin-halo { r: 32; }
+  .rt-pin-label { font-size: 26px; stroke-width: 7px; }
   .rt-stats { grid-template-columns: repeat(2, 1fr); }
   .rt-stat:first-child { grid-column: span 2; }
   .rt-footer-top { grid-template-columns: 1fr; }

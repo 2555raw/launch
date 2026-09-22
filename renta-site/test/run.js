@@ -19,6 +19,8 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
   /* 1. the data pipeline */
   try { execFileSync('node', [path.join(root, 'scripts', 'recompute.js'), '--check'], { stdio: 'pipe' }); ok('rolls: every Roll verifies (hash, chain, price, shares)', true); }
   catch (e) { ok('rolls: every Roll verifies', false, String(e.stderr || e.message).trim().split('\n').slice(-3).join(' | ')); }
+  try { execFileSync('node', [path.join(root, 'scripts', 'translate.js'), '--lang', 'zh', '--check'], { stdio: 'pipe' }); ok('i18n: the Chinese pages have no untranslated text', true); }
+  catch (e) { ok('i18n: the Chinese pages have no untranslated text', false, String(e.stderr || e.message).trim().split('\n').filter(l => l.includes('?')).slice(0, 3).join(' | ')); }
   const V = require(path.join(root, 'data', 'vault.json'));
 
   const { chromium } = require('playwright-core');
@@ -27,7 +29,7 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
   const exe = process.env.CHROME || undefined;
   const b = await chromium.launch(exe ? { executablePath: exe, args: ['--no-sandbox'] } : {});
 
-  for (const [file, w] of [['index.html', 1440], ['docs.html', 1440], ['index.html', 390], ['docs.html', 390]]) {
+  for (const [file, w] of [['index.html', 1440], ['docs.html', 1440], ['zh/index.html', 1440], ['zh/docs.html', 1440], ['index.html', 390], ['docs.html', 390], ['zh/index.html', 390]]) {
     const p = await b.newPage({ viewport: { width: w, height: 900 }, reducedMotion: 'reduce' });
     const errs = [], failed = [];
     p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });

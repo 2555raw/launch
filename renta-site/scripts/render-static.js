@@ -41,6 +41,31 @@ const LANGS = {
     ledger: ['Rent scheduled by the leases', 'Rent collected', (city, d) => `(one lease in ${city} ended on the ${d})`, 'Property costs and fees', 'Kept, and added to the reserve', 'Curve tax received from early redemptions', 'Shares in issue at the close', 'Change in the share price', 'Closing price of one vRENTA'],
     ledgerText: (kept, sh, rps, cps, o, p, p4, m) => `${kept} across ${sh} shares is ${rps} a share. The curve tax added ${cps}. The\n      price moved from ${o} to ${p}, which the site rounds to ${p4}. Every one of those\n      numbers is in the Roll for ${m}, and the Roll's hash is in the registry.`,
     cities: {}, countries: {}
+  },
+  zh: {
+    locale: 'zh-CN', eur: (n, dp) => '€' + n.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp }),
+    price: p => '€' + p.toFixed(4), price6: p => '€' + p.toFixed(6),
+    words: ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
+    months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+    short: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+    ord: n => n + ' 日',
+    heronote: (b, c, p, n) => `${b} 栋楼 · ${c} 座城市 · 份额价格 <b class="rt-num">${p}</b> · 已记录 ${n} 次结算`,
+    step2: k => `上个月金库留存了 <b>${k}</b>`,
+    stats: ['套公寓', '栋楼', '座城市', '出租率', '每月应收租金'],
+    propsHead: (b, c) => `${b}栋楼，${c}座城市`, netRent: m => `净租金 · ${m}`,
+    heldBy: v => `金库账面持有 <b>${v}</b>`, keptIn: (m, k) => `${m}留存 <b>${k}</b>`,
+    noteTop: (m, what, b, a) => `<b>${m}</b>是 ${b} 的${what}：${a}，一次付清，从当月租金中支出。`,
+    noteLess: (m, pm, city, d) => `<b>${m}</b>的实收少于${pm}——${city}的一份租约于 ${d}到期。`,
+    noteBought: (m, b, city, v) => `<b>${m}</b>以 ${v} 买入 ${b}（${city}）。`,
+    noteNext: d => `下次结算：<b>${d}</b>。`,
+    chartSub: (a, b) => `${a} → ${b}`,
+    figs: ['份额价格', '自 3 月 1 日起 ', 'vRENTA 流通量', '金库持有', '存入费', '赎回费'],
+    calc: ['你将持有的 vRENTA', '今日价值', '其中租金', '其中曲线税'],
+    ledger: ['租约应收租金', '实收租金', (city, d) => `（${city}的一份租约于 ${d}到期）`, '物业成本与费用', '留存并计入储备', '提前赎回缴纳的曲线税', '结算时流通份额', '份额价格变动', '一个 vRENTA 的结算价格'],
+    ledgerText: (kept, sh, rps, cps, o, p, p4, m) => `${kept} 分摊到 ${sh} 份，每份 ${rps}。曲线税增加了 ${cps}。价格从 ${o}\n      变为 ${p}，网站将其取整为 ${p4}。这些数字每一个都在${m}的月报里，月报的哈希在登记合约中。`,
+    cities: { Lisbon: '里斯本', Madrid: '马德里', Barcelona: '巴塞罗那', Terrassa: '特拉萨', Turin: '都灵', Leipzig: '莱比锡', Rotterdam: '鹿特丹', 'Kraków': '克拉科夫' },
+    countries: { Portugal: '葡萄牙', Spain: '西班牙', Italy: '意大利', Germany: '德国', Netherlands: '荷兰', Poland: '波兰' },
+    what: { roof: '屋顶', plumbing: '管道维修', 'boiler service': '锅炉保养', 'lift inspection': '电梯检查', 'common-parts cleaning': '公共区域清洁', 'lock change': '换锁', 'window seal': '窗户密封', electrician: '电工', 'painting': '粉刷', gutter: '排水槽', 'intercom repair': '对讲机维修' }
   }
 };
 
@@ -92,7 +117,7 @@ function render(lang) {
   R['chart-sub'] = `<div class="rt-chart-sub">${L.chartSub('1 ' + L.short[mi(V.closes[0].month)] + ' ' + V.closes[0].month.slice(0, 4), dateOf(last.date))}</div>`;
   R.figs = `<div class="rt-figs rt-rise">
           <div class="rt-fig"><span>${L.figs[0]}</span><b class="rt-num">${L.price(V.price)}</b></div>
-          <div class="rt-fig"><span>${L.figs[1]}${monthName(V.closes[0].month)}</span><b class="rt-num rt-pos">+${num((V.price - 1) * 100, 2)}%</b></div>
+          <div class="rt-fig"><span>${lang === 'zh' ? '自 ' + monthName(V.closes[0].month) + ' 1 日起' : L.figs[1] + monthName(V.closes[0].month)}</span><b class="rt-num rt-pos">+${num((V.price - 1) * 100, 2)}%</b></div>
           <div class="rt-fig"><span>${L.figs[2]}</span><b class="rt-num">${num(V.sharesInIssue)}</b></div>
           <div class="rt-fig"><span>${L.figs[3]}</span><b class="rt-num">${eur(V.held)}</b></div>
           <div class="rt-fig"><span>${L.figs[4]}</span><b class="rt-num">0,00%</b></div>
@@ -134,7 +159,7 @@ for (const [lang, files] of targets) {
     const p = path.join(root, file);
     if (!fs.existsSync(p)) { console.error('  (no ' + file + ' yet — run translate.js first)'); continue; }
     let html = fs.readFileSync(p, 'utf8');
-    html = html.replace(/<!-- data:([a-z-]+) -->[\s\S]*?<!-- \/data:\1 -->/g, (m, key) => {
+    html = html.replace(/<!-- data:([a-z0-9-]+) -->[\s\S]*?<!-- \/data:\1 -->/g, (m, key) => {
       if (!(key in R)) { console.error('  no renderer for data:' + key + ' in ' + file); return m; }
       touched++;
       return `<!-- data:${key} -->${R[key]}<!-- /data:${key} -->`;

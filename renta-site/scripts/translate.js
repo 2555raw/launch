@@ -26,11 +26,12 @@ const LOCAL = ['styles.css', 'docs.css', 'app.js', 'docs.js', 'config.js', 'gate
 function repath(html) {
   html = html.replace(/(href|src)="(data\/|rolls\/|fonts\/)/g, '$1="../$2');
   for (const f of LOCAL) html = html.replace(new RegExp('(href|src)="' + f.replace('.', '\\.') + '"', 'g'), '$1="../' + f + '"');
-  /* canonical + hreflang for the Spanish page */
+  /* canonical for the translated page, and the language switch pointing back */
+  html = html.replace(/<a class="rt-lang" href="[a-z]+\/(index|docs)\.html" hreflang="[a-z]+" lang="[a-z]+" aria-label="[^"]*">[^<]*<\/a>/, (m, p) => '<a class="rt-lang" href="../' + p + '.html" hreflang="en" lang="en" aria-label="English">EN</a>');
   html = html.replace(/<link rel="canonical" href="https:\/\/renta\.example\/([^"]*)">/, (m, p) => '<link rel="canonical" href="https://renta.example/' + LANG + '/' + p + '">');
   html = html.replace(/<meta property="og:url" content="https:\/\/renta\.example\/([^"]*)">/, (m, p) => '<meta property="og:url" content="https://renta.example/' + LANG + '/' + p + '">');
   html = html.replace(/<meta property="og:locale" content="[^"]*">\n?/, '');
-  html = html.replace('<meta property="og:type" content="website">', '<meta property="og:type" content="website">');
+  html = html.replace('<meta property="og:type" content="website">', '<meta property="og:type" content="website">\n<meta property="og:locale" content="' + ({ zh: 'zh_CN' }[LANG] || LANG) + '">');
   /* the language switch points back */
   
   return html;
@@ -51,12 +52,15 @@ function leftovers(html, skipData) {
   let body = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '').replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<pre[\s\S]*?<\/pre>/g, '');
   /* data regions are filled by render-static.js after this runs; at build
      time they still hold the English figures and are not this script's job */
-  if (skipData) body = body.replace(/<!-- data:([a-z-]+) -->[\s\S]*?<!-- \/data:\1 -->/g, '');
+  if (skipData) body = body.replace(/<!-- data:([a-z0-9-]+) -->[\s\S]*?<!-- \/data:\1 -->/g, '');
   body = body.replace(/<!--[\s\S]*?-->/g, '');
   const texts = body.split(/<[^>]+>/).map(t => t.replace(/\s+/g, ' ').trim()).filter(t => t.length > 2);
   const en = /\b(the|and|of|with|your|you|is|are|for|from|what|how|this|that|not|it|by|on|at|to|an)\b/i;   /* English function words */
   const ok = /^(RENTA|vRENTA|EURG|Docs|X|EN|ES|N|km|USDG|ERC-4626|SHA-256|CSV|B\.V\.|KvK|CET)$/;
-  return [...new Set(texts.filter(t => en.test(t) && !ok.test(t)))];
+  /* a node reads as English when it has English function words AND is mostly
+     Latin letters — a Chinese sentence quoting "The Roll" is not English */
+  const latin = s => (s.match(/[A-Za-z]/g) || []).length, cjk = s => (s.match(/[\u3040-\u30ff\u3400-\u9fff]/g) || []).length;
+  return [...new Set(texts.filter(t => en.test(t) && !ok.test(t) && latin(t) > cjk(t) * 2 && latin(t) >= 12))];
 }
 
 let warnings = 0;
@@ -78,6 +82,7 @@ for (const page of ['index', 'docs']) {
   console.error(page + '.html → ' + LANG + '/' + page + '.html: ' + r.used + '/' + r.total + ' entries applied' + (left.length ? ', ' + left.length + ' text nodes still look English:' : ''));
   left.forEach(t => console.error('    ? ' + t.slice(0, 110)));
   warnings += left.length;
+  fs.mkdirSync(path.join(root, LANG), { recursive: true });
   fs.writeFileSync(path.join(root, LANG, page + '.html'), out);
 }
 if (CHECK && warnings) process.exit(1);

@@ -316,6 +316,13 @@
     r.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
   });
 
+  /* the frame: the whole map fits on a wide screen ("meet"); on a phone the
+     4:3 box is filled instead, centred, so Iberia to Poland stay in view */
+  var overlay = $('.rt-map-svg--over'), phone = window.matchMedia('(max-width: 680px)');
+  function frame() { if (overlay) overlay.setAttribute('preserveAspectRatio', phone.matches ? 'xMidYMid slice' : 'xMidYMid meet'); }
+  frame();
+  if (phone.addEventListener) phone.addEventListener('change', frame); else if (phone.addListener) phone.addListener(frame);
+
   /* which country each city we own in belongs to, so the whole country
      lights up with its pin */
   var COUNTRY = {

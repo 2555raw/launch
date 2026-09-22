@@ -910,6 +910,18 @@ body.rt-locked { overflow: hidden; }
 .rt-rv-drop:hover { color: var(--text); }
 .rt-rv-foot { margin: 16px 0 0; font-size: .8rem; line-height: 1.6; color: var(--muted-2); }
 
+/* the vault controls inside the wallet panel */
+.rt-wp-do { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; margin-top: 12px; }
+.rt-wp-amt {
+  min-width: 0; border: 1px solid var(--line); background: var(--navy-800); color: var(--text);
+  border-radius: var(--r-sm); padding: 8px 10px; font: 400 .85rem var(--mono);
+}
+.rt-wp-amt:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.rt-wp-amt::placeholder { color: var(--muted-2); }
+.rt-wp-ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+.rt-wp-ghost:hover { background: var(--navy-650); }
+.rt-wp-faucet { display: block; margin-top: 10px; text-align: left; }
+
 /* ---------------------------------------------------------------- gate ---- */
 .rt-gate { position: fixed; inset: 0; z-index: 85; display: grid; place-items: center; padding: clamp(12px, 3vw, 40px); }
 .rt-gate[hidden] { display: none; }

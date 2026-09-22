@@ -42,7 +42,17 @@
     disconnected: '已断开。钱包自身的授权仍然保留。',
     solana: 'Solana', address: '地址',
     solNote: '份额是 Base 上的 ERC-4626 代币，Solana 钱包无法持有。这个地址用于登录和签名，不用于持有 vPROP。',
-    noSolSign: '此钱包不支持消息签名。'
+    noSolSign: '此钱包不支持消息签名。',
+    yourEurg: '你的 EURG', deposit: '存入', redeem: '赎回', faucet: '领取 10,000 测试 EURG',
+    amount: '金额',
+    testnet: '测试网。这些代币没有任何价值，其背后的金库也不持有任何房产——但合约是真的，只是跑在出错不会有代价的地方。',
+    approving: '请授权金库支取 EURG…', depositing: '请确认存入…',
+    redeeming: '请确认赎回…', minting: '请确认铸造…', waiting: '等待链上确认…',
+    didDeposit: function (a) { return '已存入 ' + a + '，vPROP 已到账。'; },
+    didRedeem: function (a) { return '已赎回 ' + a + '。'; },
+    didMint: '测试 EURG 已到账。',
+    needAmount: '请先填写金额。', notEnough: '超过你的持有量。',
+    txFailed: '交易失败：', reverted: '链上拒绝了这笔交易。'
   } : {
     connect: 'Connect wallet', linking: 'Connecting…', wallet: 'Wallet', network: 'Network', balance: 'Balance',
     linked: 'Verified', notLinked: 'Not verified', switchTo: 'switch to ',
@@ -61,7 +71,17 @@
     disconnected: 'Disconnected. The wallet itself keeps its own permissions.',
     solana: 'Solana', address: 'Address',
     solNote: 'The share is an ERC-4626 token on Base, which a Solana wallet cannot hold. This address signs you in; it does not hold vPROP.',
-    noSolSign: 'This wallet cannot sign messages.'
+    noSolSign: 'This wallet cannot sign messages.',
+    yourEurg: 'Your EURG', deposit: 'Deposit', redeem: 'Redeem', faucet: 'Get 10,000 test EURG',
+    amount: 'amount',
+    testnet: 'Testnet. These tokens are worth nothing and the vault behind them holds no buildings — it is the real contract, running where a mistake costs nothing.',
+    approving: 'Approve the vault to take the EURG…', depositing: 'Confirm the deposit…',
+    redeeming: 'Confirm the redemption…', minting: 'Confirm the mint…', waiting: 'Waiting for the chain…',
+    didDeposit: function (a) { return 'Deposited ' + a + '. The vPROP is in your wallet.'; },
+    didRedeem: function (a) { return 'Redeemed ' + a + '.'; },
+    didMint: 'Test EURG minted.',
+    needAmount: 'Type an amount first.', notEnough: 'More than you hold.',
+    txFailed: 'The transaction failed: ', reverted: 'The chain rejected it.'
   };
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -122,7 +142,10 @@
 
   /* ---------------------------------------------------- abi helpers ------ */
   var pad = function (hex) { return hex.replace(/^0x/, '').padStart(64, '0'); };
-  var SEL = { balanceOf: '0x70a08231', decimals: '0x313ce567', totalSupply: '0x18160ddd', totalAssets: '0x01e1d114', convertToAssets: '0x07a2d13a' };
+  /* every one of these is keccak('signature').slice(0, 4) — computed, not remembered */
+  var SEL = { balanceOf: '0x70a08231', decimals: '0x313ce567', totalSupply: '0x18160ddd', totalAssets: '0x01e1d114', convertToAssets: '0x07a2d13a',
+    mint: '0xa0712d68', approve: '0x095ea7b3', allowance: '0xdd62ed3e',
+    deposit: '0x6e553f65', redeem: '0xba087652', previewRedeem: '0x1daea443', minDeposit: '0x41b3d185' };
   function call(provider, to, data) { return provider.request({ method: 'eth_call', params: [{ to: to, data: data }, 'latest'] }); }
   var big = function (hex) { return BigInt(hex === '0x' || !hex ? '0x0' : hex); };
   function fmtUnits(v, dec, dp) {
@@ -196,6 +219,9 @@
 
     panel.innerHTML = rows.join('');
     panel.hidden = false;
+    var dp = $('[data-deposit]', panel); if (dp) dp.addEventListener('click', doDeposit);
+    var rd = $('[data-redeem]', panel); if (rd) rd.addEventListener('click', doRedeem);
+    var fc = $('[data-faucet]', panel); if (fc) fc.addEventListener('click', doFaucet);
     var sw = $('[data-switch]', panel); if (sw) sw.addEventListener('click', switchChain);
     var sg = $('[data-sign]', panel); if (sg) sg.addEventListener('click', verify);
     var cp = $('[data-copy]', panel); if (cp) cp.addEventListener('click', copyAddress);
@@ -267,16 +293,117 @@
       var dec = Number(big(r[0])), one = (10n ** BigInt(dec));
       return call(p, v, SEL.convertToAssets + pad(one.toString(16))).then(function (px) {
         var bal = big(r[1]), price = big(px), supply = big(r[2]), assets = big(r[3]);
-        return [
-          row(T.yours, '<span class="rt-num">' + fmtUnits(bal, dec, 2) + '</span>'),
-          row(T.worth, '<span class="rt-num rt-pos">€' + fmtUnits(bal * price / one, dec, 2) + '</span>'),
-          row(T.price, '<span class="rt-num">€' + fmtUnits(price, dec, 4) + '</span>'),
-          row(T.holds, '<span class="rt-num">€' + fmtUnits(assets, dec, 0) + ' / ' + fmtUnits(supply, dec, 0) + '</span>')
-        ];
+        vaultState = { dec: dec, one: one, price: price, shares: bal };
+        return call(p, C.asset, SEL.balanceOf + pad(state.account)).catch(function () { return '0x0'; }).then(function (eb) {
+          var eurg = big(eb);
+          vaultState.eurg = eurg;
+          return [
+            row(T.yours, '<span class="rt-num">' + fmtUnits(bal, dec, 2) + '</span>'),
+            row(T.worth, '<span class="rt-num rt-pos">€' + fmtUnits(bal * price / one, dec, 2) + '</span>'),
+            row(T.price, '<span class="rt-num">€' + fmtUnits(price, dec, 4) + '</span>'),
+            row(T.yourEurg, '<span class="rt-num">€' + fmtUnits(eurg, dec, 2) + '</span>'),
+            row(T.holds, '<span class="rt-num">€' + fmtUnits(assets, dec, 0) + ' / ' + fmtUnits(supply, dec, 0) + '</span>'),
+            '<div class="rt-wp-do">' +
+              '<input class="rt-wp-amt" type="text" inputmode="decimal" placeholder="' + T.amount + '" data-amount>' +
+              '<button class="rt-btn rt-btn--accent rt-btn--sm" type="button" data-deposit>' + T.deposit + '</button>' +
+              '<button class="rt-btn rt-btn--sm rt-wp-ghost" type="button" data-redeem>' + T.redeem + '</button>' +
+            '</div>' +
+            (C.testnet ? '<button class="rt-wp-link rt-wp-faucet" type="button" data-faucet>' + T.faucet + '</button>' +
+              '<p class="rt-wp-note">' + T.testnet + '</p>' : '')
+          ];
+        });
       });
     }).catch(function (err) {
       console.warn('Propello: vault read failed', err);
       return ['<p class="rt-wp-note">' + T.readFail + esc(err.message || err) + '</p>'];
+    });
+  }
+
+  /* --------------------------------------------------- moving the money --
+     The only place in this file that builds a transaction. Each one is the
+     plainest possible call: a selector and its arguments, hand-encoded, sent
+     to the wallet to confirm. Nothing is signed here and no amount is chosen
+     here — the wallet shows the user exactly what they are agreeing to. */
+  var vaultState = null;
+  var busy = false;
+
+  /* a decimal string in, the contract's smallest unit out, without floats */
+  function units(text, dec) {
+    var m = String(text).replace(/[\s,]/g, '').match(/^(\d*)(?:\.(\d*))?$/);
+    if (!m || (!m[1] && !m[2])) return null;
+    var frac = (m[2] || '').slice(0, dec).padEnd(dec, '0');
+    return BigInt((m[1] || '0') + frac);
+  }
+
+  function sendTx(to, data) {
+    return state.provider.request({ method: 'eth_sendTransaction', params: [{ from: state.account, to: to, data: data }] })
+      .then(function (hash) {
+        say(T.waiting);
+        /* wait for the receipt: a hash only means the node took it */
+        return new Promise(function (resolve, reject) {
+          var tries = 0;
+          (function poll() {
+            state.provider.request({ method: 'eth_getTransactionReceipt', params: [hash] }).then(function (r) {
+              if (r) return BigInt(r.status || '0x0') === 1n ? resolve(r) : reject(new Error(T.reverted));
+              if (++tries > 100) return reject(new Error(T.reverted));
+              setTimeout(poll, 2000);
+            }, reject);
+          })();
+        });
+      });
+  }
+
+  function amountField() { return $('[data-amount]', panel); }
+
+  function act(run) {
+    if (busy || !vaultState) return;
+    busy = true;
+    Promise.resolve().then(run)
+      .catch(function (err) {
+        if (err && err.code === 4001) say(T.cancelled);
+        else say(T.txFailed + (err && (err.message || err)));
+      })
+      .then(function () { busy = false; return refresh(); });
+  }
+
+  function doFaucet() {
+    act(function () {
+      say(T.minting);
+      return sendTx(C.asset, SEL.mint + pad((10000n * vaultState.one).toString(16)))
+        .then(function () { say(T.didMint); });
+    });
+  }
+
+  function doDeposit() {
+    var f = amountField(); if (!f) return;
+    var amount = units(f.value, vaultState.dec);
+    if (!amount || amount <= 0n) return say(T.needAmount);
+    if (amount > vaultState.eurg) return say(T.notEnough);
+    act(function () {
+      /* the vault can only take what it has been allowed to take */
+      return call(state.provider, C.asset, SEL.allowance + pad(state.account) + pad(C.vault))
+        .then(function (a) {
+          if (big(a) >= amount) return;
+          say(T.approving);
+          return sendTx(C.asset, SEL.approve + pad(C.vault) + pad(amount.toString(16)));
+        })
+        .then(function () {
+          say(T.depositing);
+          return sendTx(C.vault, SEL.deposit + pad(amount.toString(16)) + pad(state.account));
+        })
+        .then(function () { f.value = ''; say(T.didDeposit('€' + fmtUnits(amount, vaultState.dec, 2))); });
+    });
+  }
+
+  function doRedeem() {
+    var f = amountField(); if (!f) return;
+    var shares = units(f.value, vaultState.dec);
+    if (!shares || shares <= 0n) return say(T.needAmount);
+    if (shares > vaultState.shares) return say(T.notEnough);
+    act(function () {
+      say(T.redeeming);
+      return sendTx(C.vault, SEL.redeem + pad(shares.toString(16)) + pad(state.account) + pad(state.account))
+        .then(function () { f.value = ''; say(T.didRedeem(fmtUnits(shares, vaultState.dec, 2) + ' vPROP')); });
     });
   }
 
@@ -421,6 +548,7 @@
     state.kind = 'evm';
     state.provider = null; state.info = null; state.account = null;
     state.chainId = null; state.verified = false; state.balance = null;
+    vaultState = null;
     remember(null);
     renderButtons(); render();
     if (!quiet) say(T.disconnected);

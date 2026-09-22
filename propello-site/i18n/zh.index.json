@@ -104,5 +104,13 @@
   "Your answer stays in this browser. Nothing is sent anywhere until you sign a transaction.": "你的回答只保存在这个浏览器里。在你签署交易之前，不会向任何地方发送任何内容。",
   "href=\"sandbox.html\">Try it with play money</a>": "href=\"sandbox.html\">用虚拟资金试一试</a>",
   ">Sandbox</a>": ">沙盒</a>",
-  ">Try the sandbox</a>": ">试试沙盒</a>"
+  ">Try the sandbox</a>": ">试试沙盒</a>",
+  "<h2 class=\"rt-h2\">Sign for a place<br>in the next close.</h2>": "<h2 class=\"rt-h2\">为下一次结算<br>签下你的名字。</h2>",
+  "The vault is not open yet, so there is nothing to pay and nothing to approve.\n          <b>You sign a note with your wallet, and this page checks the signature itself</b> —\n          it recovers the address out of the signature and compares it to yours, right here,\n          with no server anywhere in it.": "金库尚未开放，所以没有任何费用，也不需要任何授权。\n          <b>你用钱包签署一份说明，而本页面会自行校验这个签名</b>——\n          它从签名中反推出地址，再与你的地址比对，就在这里完成，\n          整个过程没有任何服务器参与。",
+  "for=\"rvamount\">Amount you would put in</label>": "for=\"rvamount\">你愿意投入的金额</label>",
+  "<p class=\"rt-rv-label\">The note your wallet will sign</p>": "<p class=\"rt-rv-label\">你的钱包将要签署的说明</p>",
+  "data-rv-sign>Sign the note</button>": "data-rv-sign>签署此说明</button>",
+  "<h3 class=\"rt-h4\">Who has signed</h3>": "<h3 class=\"rt-h4\">谁签署了</h3>",
+  "<thead><tr><th scope=\"col\">Address</th><th scope=\"col\">Amount</th><th scope=\"col\">Checked</th></tr></thead>": "<thead><tr><th scope=\"col\">地址</th><th scope=\"col\">金额</th><th scope=\"col\">校验</th></tr></thead>",
+  "A signature proves an address, nothing more. It is not a transaction, it costs no\n            gas, it moves no money, and it is not an offer of anything. Every note names the\n            share price and the hash of the last close, so a signature cannot be lifted and\n            replayed against different numbers.": "签名只能证明一个地址，仅此而已。它不是交易，不消耗 gas，不转移任何资金，\n            也不构成任何要约。每份说明都写明份额价格和上次结算的哈希，\n            因此一个签名无法被拿去套用在另一组数字上。"
 }

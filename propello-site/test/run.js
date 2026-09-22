@@ -167,14 +167,24 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
      MetaMask-shaped (EIP-6963, an Ethereum provider) and one Phantom-shaped
      (a Solana provider). Neither touches a network. */
   const FAKE = `(() => {
-    const ACC = '0x8C2f1a4B77aE9b3c51D0e7F6a2B9c4D5E6f70819';
+    /* a real key, so personal_sign produces a signature the page can actually
+       recover an address from — the reservation card checks it for real */
+    const PRIV = 0x4c0883a69102937d6231471b5dbb6204fe512961708279f2b3c9b1e4d7bde1a1n;
+    const ACC = '0xa8456d74F166BE938605c404C0B69BbF2a0601bD';
     const mm = { isMetaMask: true, _allowed: sessionStorage.getItem('mm.ok') === '1', on: () => {},
-      request: async ({ method }) => {
+      request: async ({ method, params }) => {
         if (method === 'eth_requestAccounts') { mm._allowed = true; sessionStorage.setItem('mm.ok','1'); return [ACC]; }
         if (method === 'eth_accounts') return mm._allowed ? [ACC] : [];
         if (method === 'eth_chainId') return '0x2105';
         if (method === 'eth_getBalance') return '0x16345785d8a0000';
-        if (method === 'personal_sign') return '0x' + 'ab'.repeat(65);
+        if (method === 'personal_sign') {
+          const S = window.PROPELLO_SIG;
+          if (!S) return '0x' + 'ab'.repeat(65);
+          const hex = String(params[0]).replace(/^0x/, '');
+          const bytes = new Uint8Array(hex.length / 2);
+          for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+          return S._sign(S.hashMessage(bytes), PRIV);
+        }
         if (method === 'wallet_switchEthereumChain') return null;
         throw new Error('unhandled ' + method);
       } };
@@ -207,12 +217,55 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
   ok('wallet: both wallets are offered when both are installed', offered.length === 2 && offered.join(' ').includes('MetaMask') && offered.join(' ').includes('Phantom'), offered.join(' | '));
   await w.click('.rt-wp-pick:has-text("MetaMask")'); await w.waitForTimeout(500);
   ok('wallet: MetaMask links and the panel reads the chain and balance',
-     (await w.textContent('.rt-nav [data-connect]')).includes('0x8C2f') && (await w.textContent('#walletpanel')).includes('Base') && (await w.textContent('#walletpanel')).includes('0.1000'));
+     (await w.textContent('.rt-nav [data-connect]')).includes('0xa845') && (await w.textContent('#walletpanel')).includes('Base') && (await w.textContent('#walletpanel')).includes('0.1000'));
   ok('wallet: an unsigned address is marked unverified', (await w.textContent('.rt-wp-tag')).trim() === 'Not verified');
   await w.click('[data-sign]'); await w.waitForTimeout(400);
   ok('wallet: signing verifies the address', (await w.textContent('.rt-wp-tag')).trim() === 'Verified');
   await w.reload({ waitUntil: 'networkidle' }); await w.waitForTimeout(900);
-  ok('wallet: the link survives a reload without a prompt', (await w.textContent('.rt-nav [data-connect]')).includes('0x8C2f'));
+  ok('wallet: the link survives a reload without a prompt', (await w.textContent('.rt-nav [data-connect]')).includes('0xa845'));
+  /* ---- the reservation card: a signature the page checks for itself ---- */
+  const selfTest = await w.evaluate(() => window.PROPELLO_SIG.selfTest());
+  ok('sig: keccak and secp256k1 pass their own checks in the browser',
+     selfTest.every(r => r[1]), selfTest.filter(r => !r[1]).map(r => r[0]).join(' | '));
+
+  await w.click('[data-rv-chip="5000"]'); await w.waitForTimeout(150);
+  ok('reserve: the note names the amount, the price and the last close',
+     (await w.textContent('#rvnote')).includes('5,000 EURG') &&
+     (await w.textContent('#rvnote')).includes('€' + V.price.toFixed(6)) &&
+     (await w.textContent('#rvnote')).includes(V.closes[V.closes.length - 1].hash.slice(0, 10)));
+  ok('reserve: the note carries the linked address', (await w.textContent('#rvnote')).includes('0xa8456d74F166BE938605c404C0B69BbF2a0601bD'));
+
+  await w.click('[data-rv-sign]'); await w.waitForTimeout(1200);
+  ok('reserve: the page recovers the signer and says so',
+     (await w.getAttribute('#rvstatus', 'class')).includes('is-ok') &&
+     (await w.textContent('#rvstatus')).includes('0xa845'), await w.textContent('#rvstatus'));
+  ok('reserve: the note is listed and ticked by a check run here',
+     (await w.textContent('#rvlist')).includes('0xa845') &&
+     (await w.textContent('.rt-rv-check.is-ok')).includes('verified'), await w.textContent('#rvlist'));
+  ok('reserve: the total counts it', (await w.textContent('#rvtot')).includes('1 note') && (await w.textContent('#rvtot')).includes('5,000'));
+
+  /* the check is real: change one character of the note and it fails */
+  const tamper = await w.evaluate(() => {
+    const r = JSON.parse(localStorage.getItem('propello.reserve.v1')).notes;
+    const one = r[Object.keys(r)[0]];
+    return [window.PROPELLO_SIG.verify(one.message, one.sig, one.address),
+            window.PROPELLO_SIG.verify(one.message.replace('5,000', '500,000'), one.sig, one.address),
+            window.PROPELLO_SIG.verify(one.message, one.sig, '0x' + '11'.repeat(20))];
+  });
+  ok('reserve: the same check refuses a changed amount and a different address',
+     tamper[0] === true && tamper[1] === false && tamper[2] === false, JSON.stringify(tamper));
+
+  await w.reload({ waitUntil: 'networkidle' }); await w.waitForTimeout(1200);
+  ok('reserve: the note is still there after a reload, and still checks out',
+     (await w.textContent('#rvlist')).includes('0xa845') &&
+     (await w.textContent('.rt-rv-check.is-ok')).includes('verified'));
+
+  await w.fill('#rvamount', '50'); await w.click('[data-rv-sign]'); await w.waitForTimeout(300);
+  ok('reserve: under the minimum, nothing is signed', (await w.textContent('#rvstatus')).includes('Minimum 100'));
+
+  await w.click('[data-rv-drop]'); await w.waitForTimeout(400);
+  ok('reserve: withdrawing empties the list', (await w.textContent('#rvlist')).includes('Nobody has signed yet'));
+
   await w.click('.rt-nav [data-connect]'); await w.waitForTimeout(200);
   await w.click('[data-disconnect]'); await w.waitForTimeout(300);
   ok('wallet: disconnect forgets the address', (await w.textContent('.rt-nav [data-connect]')).trim() === 'Connect wallet');
@@ -222,6 +275,11 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
   ok('wallet: Phantom links on Solana and says the share lives on Base', sol.includes('Solana') && sol.includes('cannot hold'));
   await w.click('[data-sign]'); await w.waitForTimeout(400);
   ok('wallet: Phantom signs a message to verify', (await w.textContent('.rt-wp-tag')).trim() === 'Verified');
+  await w.click('[data-rv-chip="1000"]'); await w.click('[data-rv-sign]'); await w.waitForTimeout(600);
+  ok('reserve: a Solana note is recorded and honestly marked unchecked',
+     (await w.textContent('#rvstatus')).includes('ed25519') &&
+     (await w.textContent('.rt-rv-check')).includes('ed25519'), await w.textContent('#rvstatus'));
+
   await w.reload({ waitUntil: 'networkidle' }); await w.waitForTimeout(900);
   ok('wallet: the Solana link comes back too', (await w.textContent('.rt-nav [data-connect]')).includes('7Yb3'));
   ok('wallet: no JS errors through the whole flow', werr.length === 0, werr.join(' | '));

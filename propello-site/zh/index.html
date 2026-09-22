@@ -559,6 +559,62 @@
     </div>
   </section>
 
+  <!-- ======================================================= reserve ==== -->
+  <section class="rt-section rt-section--tight" id="reserve">
+    <div class="rt-wrap">
+      <div class="rt-head">
+        <h2 class="rt-h2">为下一次结算<br>签下你的名字。</h2>
+        <p class="rt-lede">
+          金库尚未开放，所以没有任何费用，也不需要任何授权。
+          <b>你用钱包签署一份说明，而本页面会自行校验这个签名</b>——
+          它从签名中反推出地址，再与你的地址比对，就在这里完成，
+          整个过程没有任何服务器参与。
+        </p>
+      </div>
+
+      <div class="rt-rv rt-rise">
+        <div class="rt-rv-in">
+          <label class="rt-calc-label" for="rvamount">你愿意投入的金额</label>
+          <div class="rt-calc-amount">
+            <input id="rvamount" type="text" inputmode="numeric" value="5,000" autocomplete="off">
+            <span>EURG</span>
+          </div>
+          <div class="rt-rv-chips">
+            <button class="rt-rv-chip" type="button" data-rv-chip="1000">1,000</button>
+            <button class="rt-rv-chip" type="button" data-rv-chip="5000">5,000</button>
+            <button class="rt-rv-chip" type="button" data-rv-chip="25000">25,000</button>
+            <button class="rt-rv-chip" type="button" data-rv-chip="100000">100,000</button>
+          </div>
+
+          <p class="rt-rv-label">你的钱包将要签署的说明</p>
+          <pre class="rt-rv-note" id="rvnote"></pre>
+
+          <button class="rt-btn rt-btn--ink rt-rv-go" type="button" data-rv-sign>签署此说明</button>
+          <p class="rt-rv-status" id="rvstatus" role="status"></p>
+        </div>
+
+        <div class="rt-rv-out">
+          <div class="rt-rv-outhead">
+            <h3 class="rt-h4">谁签署了</h3>
+            <span class="rt-rv-store" id="rvstore"></span>
+          </div>
+          <div class="rt-rv-tot" id="rvtot"></div>
+          <div class="rt-rv-scroll">
+            <table class="rt-table rt-rv-table">
+              <thead><tr><th scope="col">地址</th><th scope="col">金额</th><th scope="col">校验</th></tr></thead>
+              <tbody id="rvlist"></tbody>
+            </table>
+          </div>
+          <p class="rt-rv-foot">
+            签名只能证明一个地址，仅此而已。它不是交易，不消耗 gas，不转移任何资金，
+            也不构成任何要约。每份说明都写明份额价格和上次结算的哈希，
+            因此一个签名无法被拿去套用在另一组数字上。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============================================================ cta ==== -->
   <section class="rt-section rt-section--tight" id="start">
     <div class="rt-wrap">
@@ -711,5 +767,7 @@
 <script src="../app.js"></script>
 <script src="../gate.js"></script>
 <script src="../wallet.js"></script>
+<script src="../sig.js"></script>
+<script src="../reserve.js"></script>
 </body>
 </html>

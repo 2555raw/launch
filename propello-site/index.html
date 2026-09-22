@@ -567,6 +567,63 @@
     </div>
   </section>
 
+  <!-- ======================================================= reserve ==== -->
+  <section class="rt-section rt-section--tight" id="reserve">
+    <div class="rt-wrap">
+      <div class="rt-head">
+        <h2 class="rt-h2">Sign for a place<br>in the next close.</h2>
+        <p class="rt-lede">
+          The vault is not open yet, so there is nothing to pay and nothing to approve.
+          <b>You sign a note with your wallet, and this page checks the signature itself</b> —
+          it recovers the address out of the signature and compares it to yours, right here,
+          with no server anywhere in it.
+        </p>
+      </div>
+
+      <div class="rt-rv rt-rise">
+        <div class="rt-rv-in">
+          <label class="rt-calc-label" for="rvamount">Amount you would put in</label>
+          <div class="rt-calc-amount">
+            <input id="rvamount" type="text" inputmode="numeric" value="5,000" autocomplete="off">
+            <span>EURG</span>
+          </div>
+          <div class="rt-rv-chips">
+            <button class="rt-rv-chip" type="button" data-rv-chip="1000">1,000</button>
+            <button class="rt-rv-chip" type="button" data-rv-chip="5000">5,000</button>
+            <button class="rt-rv-chip" type="button" data-rv-chip="25000">25,000</button>
+            <button class="rt-rv-chip" type="button" data-rv-chip="100000">100,000</button>
+          </div>
+
+          <p class="rt-rv-label">The note your wallet will sign</p>
+          <pre class="rt-rv-note" id="rvnote"></pre>
+
+          <button class="rt-btn rt-btn--ink rt-rv-go" type="button" data-rv-sign>Sign the note</button>
+          <p class="rt-rv-status" id="rvstatus" role="status"></p>
+        </div>
+
+        <div class="rt-rv-out">
+          <div class="rt-rv-outhead">
+            <h3 class="rt-h4">Who has signed</h3>
+            <span class="rt-rv-store" id="rvstore"></span>
+          </div>
+          <div class="rt-rv-tot" id="rvtot"></div>
+          <div class="rt-rv-scroll">
+            <table class="rt-table rt-rv-table">
+              <thead><tr><th scope="col">Address</th><th scope="col">Amount</th><th scope="col">Checked</th></tr></thead>
+              <tbody id="rvlist"></tbody>
+            </table>
+          </div>
+          <p class="rt-rv-foot">
+            A signature proves an address, nothing more. It is not a transaction, it costs no
+            gas, it moves no money, and it is not an offer of anything. Every note names the
+            share price and the hash of the last close, so a signature cannot be lifted and
+            replayed against different numbers.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============================================================ cta ==== -->
   <section class="rt-section rt-section--tight" id="start">
     <div class="rt-wrap">
@@ -720,5 +777,7 @@
 <script src="app.js"></script>
 <script src="gate.js"></script>
 <script src="wallet.js"></script>
+<script src="sig.js"></script>
+<script src="reserve.js"></script>
 </body>
 </html>

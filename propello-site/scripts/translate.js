@@ -22,7 +22,7 @@ const LANG = process.argv[process.argv.indexOf('--lang') + 1];
 if (!LANG || LANG.startsWith('--')) { console.error('usage: translate.js --lang <code> [--check]'); process.exit(2); }
 
 /* local assets live one level up from es/ */
-const LOCAL = ['styles.css', 'docs.css', 'sandbox.css', 'app.js', 'docs.js', 'sandbox.js', 'config.js', 'gate.js', 'wallet.js', 'map.svg', 'og.png'];
+const LOCAL = ['styles.css', 'docs.css', 'sandbox.css', 'app.js', 'docs.js', 'sandbox.js', 'config.js', 'gate.js', 'wallet.js', 'sig.js', 'reserve.js', 'map.svg', 'og.png'];
 function repath(html) {
   html = html.replace(/(href|src)="(data\/|rolls\/|fonts\/)/g, '$1="../$2');
   for (const f of LOCAL) html = html.replace(new RegExp('(href|src)="' + f.replace('.', '\\.') + '"', 'g'), '$1="../' + f + '"');

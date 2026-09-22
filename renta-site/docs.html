@@ -7,9 +7,8 @@
 <meta name="description" content="How the RENTA vault works: what a share is, what sets its price, how to deposit and redeem, how to read and verify a monthly Roll, and how to build on it.">
 <meta name="theme-color" content="#102A47">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23102A47'/%3E%3Cg fill='%23F3F2EC'%3E%3Cpath d='M16 3 28.5 11.2H3.5z'/%3E%3Crect x='7' y='13.2' width='18' height='4' rx='1'/%3E%3Crect x='6' y='19.2' width='20' height='4' rx='1'/%3E%3Crect x='5' y='25.2' width='22' height='4' rx='1'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="docs.css">
 </head>
@@ -141,8 +140,8 @@
       <li><b>The curve tax.</b> Anyone redeeming within ninety days of a deposit sells slightly below the share price. The difference stays in the reserve for everyone else. See <a href="#fees">Fees</a>.</li>
     </ul>
     <p>Here is the close of 31 August 2026, the sixth since the vault opened:</p>
-    <table class="rt-ledger">
-      <tr><td>Rent scheduled by the leases</td><td>€61,400</td></tr>
+    <!-- data:ledger --><table class="rt-ledger">
+      <tr><td>Rent scheduled by the leases</td><td>€61,671</td></tr>
       <tr><td>Rent collected <span class="rt-c-muted">(one lease in Rotterdam ended on the 9th)</span></td><td>€58,870</td></tr>
       <tr><td>Property costs and fees</td><td>−€18,250</td></tr>
       <tr class="rt-sum"><td>Kept, and added to the reserve</td><td>€40,620</td></tr>
@@ -150,12 +149,12 @@
       <tr><td>Shares in issue at the close</td><td>11,050,000</td></tr>
       <tr><td>Change in the share price</td><td>+€0.004352</td></tr>
       <tr class="rt-sum"><td>Closing price of one vRENTA</td><td>€1.025393</td></tr>
-    </table>
-    <p>
+    </table><!-- /data:ledger -->
+    <!-- data:ledger-text --><p>
       €40,620 across 11,050,000 shares is €0.003676 a share. The curve tax added €0.000676. The
       price moved from €1.021041 to €1.025393, which the site rounds to €1.0254. Every one of those
-      numbers is in the Roll for August, and the Roll's hash is on chain.
-    </p>
+      numbers is in the Roll for August, and the Roll's hash is in the registry.
+    </p><!-- /data:ledger-text -->
 
     <h2 id="deposit">Depositing and redeeming</h2>
     <p>
@@ -167,7 +166,7 @@
     <p>
       To leave you call <code>redeem</code> with the number of shares. EURG arrives in the same
       block as long as the reserve covers it — and the reserve is kept at roughly a month of rent
-      plus whatever redemptions are usual, which was €430,593 at the last close. A redemption larger
+      plus whatever redemptions are usual, which was <!-- data:reserve -->€430,593<!-- /data:reserve --> at the last close. A redemption larger
       than the reserve is queued and settled at the next close, at that close's price. It is the
       one case where you wait, and the Roll records every queued redemption and the day it settled.
     </p>
@@ -226,13 +225,25 @@
       by the same transaction that sets the month's closing price. To check one:
     </p>
     <pre><code><span class="c"># fetch the Roll for August 2026 and hash it</span>
-curl -sO https://roll.renta.example/2026-08.csv
+curl -sO https://renta.example/rolls/2026-08.csv
 sha256sum 2026-08.csv
 
-<span class="c"># read the hash the contract holds for that close</span>
-cast call $VAULT <span class="k">"rollHash(uint256)(bytes32)"</span> 202608 --rpc-url $RPC
+<span class="c"># read the hash the registry holds for that close</span>
+cast call $REGISTRY <span class="k">"rollHash(uint256)(bytes32)"</span> 202608 --rpc-url $RPC
 
-<span class="c"># they should match. If they do not, the file you have is not the one published.</span></code></pre>
+<span class="c"># they should match. If they do not, the file you have is not the one published.</span>
+
+<span class="c"># or let the script do all six, and recompute every close while it is at it</span>
+node scripts/recompute.js --check</code></pre>
+    <p>Every Roll published so far, with the hash the registry holds for it:</p>
+    <!-- data:hashes --><table class="rt-kv rt-kv--hashes">
+      <tr><th><a href="rolls/2026-03.csv" download>rolls/2026-03.csv</a></th><td><code>0x64f590a9398143c673d7f71c73019dc600ccc2f256f03ddebe729a15e0c4d326</code></td></tr>
+      <tr><th><a href="rolls/2026-04.csv" download>rolls/2026-04.csv</a></th><td><code>0x40c4aff25d7d0fe9473cd153fa4a3676865fc393130bcce18b1b44349f1eb868</code></td></tr>
+      <tr><th><a href="rolls/2026-05.csv" download>rolls/2026-05.csv</a></th><td><code>0xc26bb32aa3064a1037fee8e6ef3ceaf15dc45afe6e8b857cdfb58dd2fb2617f3</code></td></tr>
+      <tr><th><a href="rolls/2026-06.csv" download>rolls/2026-06.csv</a></th><td><code>0xbe41d97b213269e2c6e93aaa008df6d1acec9e68602775f4230cc624f2cf92dc</code></td></tr>
+      <tr><th><a href="rolls/2026-07.csv" download>rolls/2026-07.csv</a></th><td><code>0x3fa5ab7123902306d21c1a20d93e628adb6bc8de4ef2526e6c410ef04b3699b9</code></td></tr>
+      <tr><th><a href="rolls/2026-08.csv" download>rolls/2026-08.csv</a></th><td><code>0x1324ae20dcdb2674f1c938d8ebb1e306c32fed218107ddf77c02c6302681a02d</code></td></tr>
+    </table><!-- /data:hashes -->
     <p>
       Then recompute the close. Sum the collected column, subtract the costs, divide by the shares
       in issue at the close, add the curve tax per share from the movements, and add the result to
@@ -386,6 +397,7 @@ node scripts/recompute.js rolls/</code></pre>
 </footer>
 
 <div class="rt-toast" id="toast" role="status" aria-live="polite"></div>
+<script src="data/vault.js"></script>
 <script src="app.js"></script>
 <script src="docs.js"></script>
 </body>

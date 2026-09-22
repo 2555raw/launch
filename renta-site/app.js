@@ -7,21 +7,22 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------------------------------------------------------- the vault ---
-     One source of truth. The calculator, the chart and the copy all read
-     from here, so a number can never disagree with itself on this page.   */
-  var CLOSES = [
-    { date: '1 Mar 2026',  label: 'Opened',  price: 1.000000, rent: 0,        curve: 0,        collected: null,  costs: null,   kept: null   },
-    { date: '31 Mar 2026', label: 'Mar',     price: 1.004122, rent: 0.003520, curve: 0.000602, collected: 43290, costs: 13652, kept: 29638 },
-    { date: '30 Apr 2026', label: 'Apr',     price: 1.008263, rent: 0.003610, curve: 0.000531, collected: 47880, costs: 14812, kept: 33068 },
-    { date: '31 May 2026', label: 'May',     price: 1.012383, rent: 0.003480, curve: 0.000640, collected: 50120, costs: 16350, kept: 33770 },
-    { date: '30 Jun 2026', label: 'Jun',     price: 1.016626, rent: 0.003745, curve: 0.000498, collected: 55410, costs: 17061, kept: 38349 },
-    { date: '31 Jul 2026', label: 'Jul',     price: 1.021041, rent: 0.003840, curve: 0.000575, collected: 58940, costs: 18205, kept: 40735 },
-    { date: '31 Aug 2026', label: 'Aug',     price: 1.025393, rent: 0.003676, curve: 0.000676, collected: 58870, costs: 18250, kept: 40620 }
-  ];
+     One source of truth: data/vault.js, written by scripts/recompute.js from
+     the Rolls. The calculator, the chart and the copy all read from here, so
+     a number can never disagree with itself on this page.                  */
+  var D = window.RENTA_DATA;
+  if (!D) { console.error('RENTA: data/vault.js did not load'); return; }
 
-  var PRICE_NOW  = CLOSES[CLOSES.length - 1].price;
-  var RENT_TOTAL = CLOSES.reduce(function (s, c) { return s + c.rent; }, 0);   /* 0.021871 */
-  var CURVE_TOTAL = CLOSES.reduce(function (s, c) { return s + c.curve; }, 0); /* 0.003522 */
+  var CLOSES = [{ date: '1 ' + new Date(D.closes[0].month + '-01T00:00:00Z').toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' }) + ' ' + D.closes[0].month.slice(0, 4),
+                  label: 'Opened', price: 1, rent: 0, curve: 0, collected: null, costs: null, kept: null }]
+    .concat(D.closes.map(function (c) {
+      return { date: c.date, label: c.label, price: c.price, rent: c.rentPerShare, curve: c.curvePerShare,
+               collected: c.collected, costs: c.costs, kept: c.kept };
+    }));
+
+  var PRICE_NOW   = D.price;
+  var RENT_TOTAL  = D.rentPerShareTotal;
+  var CURVE_TOTAL = D.curvePerShareTotal;
 
   var euro = function (n, dp) {
     return '€' + n.toLocaleString('en-GB', {
@@ -199,9 +200,9 @@
     oCurve.textContent  = '+' + euro(curve);
 
     oNote.innerHTML =
-      'Deposited on 1 March at €1.0000, that is <b>' +
+      'Deposited on ' + CLOSES[0].date.slice(0, -5) + ' at €1.0000, that is <b>' +
       shares.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
-      ' vRENTA</b>. After six closes vRENTA is €1.0254, so it is worth <b>' + euro(worth) +
+      ' vRENTA</b>. After ' + ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'][D.closes.length] + ' closes vRENTA is €' + PRICE_NOW.toFixed(4) + ', so it is worth <b>' + euro(worth) +
       '</b> — ' + euro(rent) + ' of rent the vault kept, and ' + euro(curve) +
       ' from the curve tax. Nothing was paid out along the way.';
   }
@@ -240,17 +241,18 @@
     if (!host) return;
 
     var W = 720, H = 300, L = 54, R = 76, T = 20, B = 34;
-    var lo = 0.998, hi = 1.028;
+    var lo = 0.998, hi = Math.ceil((PRICE_NOW + 0.002) * 200) / 200;
     var x = function (i) { return L + (W - L - R) * (i / (CLOSES.length - 1)); };
     var y = function (v) { return T + (H - T - B) * (1 - (v - lo) / (hi - lo)); };
 
-    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Line chart of the vRENTA share price rising from 1.0000 euro on 1 March 2026 to 1.0254 euro at the close of 31 August 2026. The figures behind it are listed in The Roll table above.">'];
+    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Line chart of the vRENTA share price rising from 1.0000 euro on ' + CLOSES[0].date + ' to ' + PRICE_NOW.toFixed(4) + ' euro at the close of ' + CLOSES[CLOSES.length - 1].date + '. The figures behind it are listed in The Roll table above.">'];
 
     svg.push('<defs><linearGradient id="rtFade" x1="0" y1="0" x2="0" y2="1">' +
              '<stop offset="0" stop-color="#63D6F2" stop-opacity=".22"/>' +
              '<stop offset="1" stop-color="#63D6F2" stop-opacity="0"/></linearGradient></defs>');
 
-    [1.000, 1.005, 1.010, 1.015, 1.020, 1.025].forEach(function (v) {
+    var grid = []; for (var g = 1.0; g <= hi - 0.001; g += 0.005) grid.push(+g.toFixed(3));
+    grid.forEach(function (v) {
       svg.push('<line class="rt-grid-line" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v).toFixed(1) + '" y2="' + y(v).toFixed(1) + '"/>');
       svg.push('<text class="rt-axis-text" x="' + (L - 12) + '" y="' + (y(v) + 4).toFixed(1) + '" text-anchor="end">' + v.toFixed(3) + '</text>');
     });
@@ -268,7 +270,7 @@
     });
 
     var last = CLOSES.length - 1;
-    svg.push('<text class="rt-last-label" x="' + (x(last) + 12) + '" y="' + (y(CLOSES[last].price) + 4).toFixed(1) + '">€1.0254</text>');
+    svg.push('<text class="rt-last-label" x="' + (x(last) + 12) + '" y="' + (y(CLOSES[last].price) + 4).toFixed(1) + '">€' + PRICE_NOW.toFixed(4) + '</text>');
     svg.push('</svg>');
 
     host.insertAdjacentHTML('afterbegin', svg.join(''));

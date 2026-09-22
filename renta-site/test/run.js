@@ -95,7 +95,8 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
   await p.click('#map .rt-pin[data-city="Barcelona"]'); await p.waitForTimeout(500);
   ok('clicking a pin opens the city view', await p.evaluate(() => !document.getElementById('cityview').hidden && document.getElementById('city-title').textContent === 'Barcelona'));
   ok('city view lists districts and the building', await p.evaluate(() => document.querySelectorAll('#city-map .rt-dist').length > 10 && document.querySelectorAll('#city-map .rt-pin--city').length === 1 && document.querySelectorAll('#city-side .rt-bcard').length === 1));
-  ok('the building’s district is lit', await p.evaluate(() => !!document.querySelector('#city-map .rt-dist--own[data-district="Gràcia"]')));
+  const olla = V.buildings.find(b => b.id === 'olla');
+  ok('the building’s district is lit', await p.evaluate(d => !!document.querySelector('#city-map .rt-dist--own[data-district="' + d + '"]'), olla.district), olla.district);
   await p.click('[data-open-city="Terrassa"]'); await p.waitForTimeout(400);
   ok('Barcelona links to Terrassa', await p.evaluate(() => document.getElementById('city-title').textContent === 'Terrassa'));
   await p.keyboard.press('Escape'); await p.waitForTimeout(400);

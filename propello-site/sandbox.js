@@ -304,6 +304,19 @@
 
   /* -------------------------------------------------------------- who ---- */
   var WHO_KEY = 'propello.sandbox.who';
+  /* the link the rest of the site made (wallet.js). One signature is enough
+     for both: neither is checked by a server, so asking twice buys nothing. */
+  var LINK_KEY = 'propello.wallet.v1';
+  function linkedWallet() {
+    try { var r = JSON.parse(localStorage.getItem(LINK_KEY)); return r && r.address && r.signedAt ? r : null; } catch (e) { return null; }
+  }
+  function rememberLink(addr, rdns) {
+    try {
+      var r = JSON.parse(localStorage.getItem(LINK_KEY)) || {};
+      r.address = addr; r.signedAt = Date.now(); if (rdns) r.rdns = rdns;
+      localStorage.setItem(LINK_KEY, JSON.stringify(r));
+    } catch (e) {}
+  }
   var who = null;
   function loadWho() { try { var w = JSON.parse(localStorage.getItem(WHO_KEY)); if (w && w.id && w.name) return w; } catch (e) {} return null; }
   function saveWho(w) { who = w; try { if (w) localStorage.setItem(WHO_KEY, JSON.stringify(w)); else localStorage.removeItem(WHO_KEY); } catch (e) {} renderMe(); }
@@ -313,7 +326,14 @@
   var providers = [];
   window.addEventListener('eip6963:announceProvider', function (e) { if (!providers.some(function (p) { return p.info.uuid === e.detail.info.uuid; })) providers.push(e.detail); });
   window.dispatchEvent(new Event('eip6963:requestProvider'));
-  function pickProvider() { if (providers.length) return providers[0]; if (window.ethereum) return { info: { name: 'Injected wallet' }, provider: window.ethereum }; return null; }
+  function pickProvider() {
+    var want = (linkedWallet() || {}).rdns;
+    var same = want && providers.filter(function (p) { return p.info.rdns === want; })[0];
+    if (same) return same;
+    if (providers.length) return providers[0];
+    if (window.ethereum) return { info: { name: 'Injected wallet' }, provider: window.ethereum };
+    return null;
+  }
   function toHex(s) { var b = new TextEncoder().encode(s), h = '0x'; for (var i = 0; i < b.length; i++) h += b[i].toString(16).padStart(2, '0'); return h; }
   function connectWallet() {
     var p = pickProvider();
@@ -324,6 +344,7 @@
       return p.provider.request({ method: 'personal_sign', params: [toHex(T.signMsg(addr)), addr] });
     }).then(function (sig) {
       saveWho({ kind: 'wallet', id: addr.toLowerCase(), name: short(addr), sig: String(sig).slice(0, 12) + '…' });
+      rememberLink(addr, p.info && p.info.rdns);        /* the whole site counts it as linked */
       say(T.signedIn(short(addr)));
     }).catch(function (err) { if (err && err.code === 4001) say(T.cancelled); else say(T.couldNot + (err && err.message || err)); });
   }
@@ -448,6 +469,11 @@
 
   /* --------------------------------------------------------------- boot -- */
   who = loadWho();
+  if (!who) {
+    /* already linked and signed elsewhere on the site: walk straight in */
+    var L = linkedWallet();
+    if (L) who = { kind: 'wallet', id: L.address.toLowerCase(), name: short(L.address) };
+  }
   render(seed());
   el.mode.textContent = '';
 

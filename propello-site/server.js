@@ -5,6 +5,10 @@
 
      PORT   the port to listen on (Railway sets it; 3000 otherwise)
 
+   /health answers the platform's healthcheck with a plain 200, so a deploy
+   is judged by whether the server is up rather than by whether the page it
+   happens to probe exists.
+
    It serves index.html for a directory, answers a miss with 404.html and a
    real 404 status, and lets the browser cache anything with a hash-stable
    name (fonts, the map, the share card) for a year while keeping the pages
@@ -38,6 +42,13 @@ function send(res, status, file) {
 http.createServer((req, res) => {
   let p;
   try { p = decodeURIComponent(req.url.split('?')[0]); } catch (e) { p = '/'; }
+
+  /* the platform's healthcheck: a plain OK, no file behind it */
+  if (p === '/health' || p === '/healthz') {
+    res.writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' });
+    return res.end('ok');
+  }
+
   if (p.endsWith('/')) p += 'index.html';
   const file = path.normalize(path.join(root, p));
 

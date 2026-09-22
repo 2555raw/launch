@@ -28,7 +28,9 @@
       cities: {}, countries: {},
       building: function (n) { return n + ' building' + (n > 1 ? 's' : ''); }, apartments: 'apartments', netRentClose: 'of net rent at the last close.',
       cityAria: function (c, n) { return 'Schematic map of ' + c + ' by district, with ' + n + ' building' + (n > 1 ? 's' : '') + ' marked.'; },
-      built: 'built', bought: 'bought', facts: ['Apartments', 'Let', 'Held at', 'Net rent, last close'], also: 'Also in '
+      built: 'built', bought: 'bought', facts: ['Apartments', 'Let', 'Held at', 'Net rent, last close'], also: 'Also in ',
+      noteReal: 'District boundaries are the city\u2019s own, from its open data. Buildings sit at their real coordinates, in the district the boundary file puts them in.',
+      noteSchematic: 'Districts are named and placed where they are; the lines between them are drawn, not surveyed. Buildings sit at their real coordinates.'
     }
   };
   var TX = STRINGS[LANG] || STRINGS.en;   /* not T: the chart uses T for its top margin */
@@ -181,9 +183,11 @@
     var c = CITIES[city]; if (!c) return null;
     var mine = D.buildings.filter(function (b) { return b.city === city; });
     var svg = ['<svg viewBox="' + c.viewBox + '" class="rt-city-svg" role="img" aria-label="' + TX.cityAria(tr(TX.cities, city), mine.length) + '">'];
-    svg.push('<defs><clipPath id="cityclip"><path d="' + c.limit + '"/></clipPath></defs>');
-    svg.push('<path class="rt-city-limit" d="' + c.limit + '"/>');
-    svg.push('<g clip-path="url(#cityclip)">');
+    if (c.limit) {
+      svg.push('<defs><clipPath id="cityclip"><path d="' + c.limit + '"/></clipPath></defs>');
+      svg.push('<path class="rt-city-limit" d="' + c.limit + '"/>');
+    }
+    svg.push('<g' + (c.limit ? ' clip-path="url(#cityclip)"' : '') + '>');
     c.districts.forEach(function (d, i) {
       svg.push('<path class="rt-dist' + (d.own ? ' rt-dist--own' : '') + (i % 2 ? ' rt-dist--alt' : '') + '" d="' + d.d + '" data-district="' + d.name + '"><title>' + d.name + '</title></path>');
     });
@@ -242,7 +246,8 @@
       eyebrow: tr(TX.countries, c.country) + (c.region ? ' · ' + tr(TX.countries, c.region) : ''),
       title: tr(TX.cities, city),
       sub: TX.building(mine.length) + ' · ' + units + ' ' + TX.apartments + ' · ' + euro(rent, 0) + ' ' + TX.netRentClose,
-      map: svg.join(''), side: side
+      map: svg.join(''), side: side,
+      note: c.real ? TX.noteReal : TX.noteSchematic
     };
   }
 
@@ -253,6 +258,7 @@
     $('#city-sub').textContent = h.sub;
     $('#city-map').innerHTML = h.map;
     $('#city-side').innerHTML = h.side;
+    $('.rt-city-note', view).textContent = h.note;
     lastFocus = document.activeElement;
     view.hidden = false;
     document.body.classList.add('rt-locked');

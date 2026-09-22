@@ -104,8 +104,9 @@
 .rt-sbt th, .rt-sbt td { padding: 9px 8px; text-align: right; border-bottom: 1px solid var(--line-2); font-weight: 400; }
 .rt-sbt th:first-child, .rt-sbt td:first-child { text-align: left; }
 .rt-sbt thead th { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); padding-top: 0; }
-.rt-sbt tbody th { font-family: var(--sans); font-weight: 600; white-space: normal; overflow-wrap: anywhere; }
-.rt-sbt tbody th .rt-sb-kind { white-space: nowrap; }
+.rt-sbt tbody th { font-family: var(--sans); font-weight: 600; }
+#sb-holders tbody th { white-space: normal; overflow-wrap: anywhere; }
+#sb-holders tbody th .rt-sb-kind { white-space: nowrap; }
 .rt-sbt tbody tr:last-child th, .rt-sbt tbody tr:last-child td { border-bottom: 0; }
 .rt-sbt tr.is-real { color: var(--muted); }
 .rt-sbt tr.is-real th { color: var(--muted); font-weight: 500; }
@@ -133,6 +134,7 @@
 @media (max-width: 680px) {
   .rt-sb { padding-top: 110px; }
   .rt-sb-tiles { grid-template-columns: repeat(2, 1fr); }
+  .rt-sb-tile b { font-size: 1.05rem; }
   .rt-sb-act { grid-template-columns: 1fr; }
   .rt-sb-act .rt-btn { justify-self: start; }
   .rt-sb-bal { grid-template-columns: 1fr 1fr; }

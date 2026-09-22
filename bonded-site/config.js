@@ -12,7 +12,7 @@ window.BONDED_OWNER = '0xb5530232ee1dea37c57dc72e7abd7b551c62c3b6';
 
 /* CA: the LilyPad token's contract address. Empty until it drops; the nav shows "CA:" with a blank
    slot, and once this is filled it shows the short address and copies the full one on click. */
-window.BONDED_CA = '0x789e575872761b44deaa8b2bb6bb35d84900b103';
+window.BONDED_CA = '';
 
 window.BONDED_STOCK_TOKENS = {
   AAPL:  '0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9',

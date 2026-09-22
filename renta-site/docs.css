@@ -39,12 +39,12 @@ body.rt-docs-body { background: var(--cream); color: var(--ink); }
 .rt-side a:hover { color: var(--ink); background: rgba(11, 31, 56, .05); }
 .rt-side a.is-active { background: var(--accent-1); color: var(--ink); font-weight: 600; }
 .rt-side a.rt-side-top { font-weight: 600; font-size: 1.05rem; padding: 12px 14px; }
-.rt-side h4 {
+.rt-side .rt-side-h {
   font-family: var(--mono);
   font-size: .7rem;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: #6F8CA8;
+  color: #4F6E8E;
   font-weight: 500;
   margin: 26px 14px 8px;
 }
@@ -85,7 +85,7 @@ body.rt-docs-body { background: var(--cream); color: var(--ink); }
 .rt-doc p b, .rt-doc li b { color: var(--ink); font-weight: 700; }
 .rt-doc ul, .rt-doc ol { padding-left: 22px; margin: 0 0 20px; }
 .rt-doc li { margin: 0 0 10px; }
-.rt-doc li::marker { color: #6F8CA8; }
+.rt-doc li::marker { color: #4F6E8E; }
 .rt-doc a {
   color: var(--ink);
   font-weight: 600;
@@ -176,8 +176,8 @@ body.rt-docs-body { background: var(--cream); color: var(--ink); }
     border-radius: var(--r-md);
     background: #fff;
   }
-  .rt-side h4 { flex-basis: 100%; margin: 10px 8px 2px; }
-  .rt-side a { padding: 8px 13px; font-size: .92rem; }
+  .rt-side .rt-side-h { flex-basis: 100%; margin: 10px 8px 2px; }
+  .rt-side a { padding: 10px 13px; min-height: 40px; font-size: .92rem; }
 }
 @media (max-width: 680px) {
   .rt-kv th { width: 42%; }

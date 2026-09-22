@@ -35,7 +35,7 @@
   /* --- text --------------------------------------------------------------- */
   --text:     #E8F1F8;
   --muted:    #9CB9D3;
-  --muted-2:  #7A9ABA;
+  --muted-2:  #93B1CC;
 
   --line:     rgba(255, 255, 255, .10);
   --line-2:   rgba(255, 255, 255, .06);
@@ -470,6 +470,17 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 .rt-roll--closes .rt-table tbody tr:last-child td { background: rgba(99, 214, 242, .06); }
 .rt-table td.rt-c-muted { color: var(--muted-2); }
 .rt-table td.rt-pos { color: var(--accent); }
+.rt-table caption {
+  caption-side: top;
+  text-align: left;
+  padding: 18px 20px 0;
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: .76rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.rt-cta .rt-lede { margin-top: 24px; }
 .rt-roll-note {
   padding: 18px 20px;
   border-top: 1px solid var(--line-2);
@@ -585,7 +596,8 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 }
 .rt-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .rt-chip {
-  padding: 8px 14px;
+  padding: 10px 14px;
+  min-height: 40px;
   border-radius: var(--r-pill);
   border: 0;
   background: var(--accent-1);
@@ -678,8 +690,8 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
 .rt-footer { background: var(--navy-900); padding-block: clamp(56px, 7vw, 92px) 34px; }
 .rt-footer-top { display: grid; grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, .55fr)); gap: clamp(28px, 4vw, 56px); }
 .rt-footer p { color: var(--muted); max-width: 34ch; margin: 20px 0 0; font-size: .98rem; }
-.rt-fcol h4 { font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-2); font-weight: 500; margin-bottom: 16px; }
-.rt-fcol a { display: block; padding: 7px 0; color: #CBDDEC; font-size: .98rem; transition: color .18s var(--ease); }
+.rt-fcol-h { font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-2); font-weight: 500; margin-bottom: 16px; }
+.rt-fcol a { display: block; padding: 9px 0; min-height: 40px; color: #CBDDEC; font-size: .98rem; transition: color .18s var(--ease); }
 .rt-fcol a:hover { color: var(--accent); }
 .rt-footer-bottom {
   margin-top: clamp(40px, 6vw, 72px);

@@ -14,6 +14,7 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const V = JSON.parse(fs.readFileSync(path.join(root, 'data', 'vault.json'), 'utf8'));
 const last = V.closes[V.closes.length - 1];
+const FACADES = JSON.parse(fs.readFileSync(path.join(root, 'data', 'facades.json'), 'utf8'));
 
 const eur = (n, dp = 0) => '€' + n.toLocaleString('en-GB', { minimumFractionDigits: dp, maximumFractionDigits: dp });
 const num = (n, dp = 0) => n.toLocaleString('en-GB', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -36,7 +37,7 @@ R.stats = `<div class="rt-stats rt-rise">
 R['props-head'] = `<h3>${cap(words[V.buildingCount])} buildings, ${words[V.cityCount]} cities</h3>
             <span>Net rent · ${monthName(last.month)}</span>`;
 R.props = V.buildings.map(b =>
-  `            <tr data-city="${b.city}" data-building="${b.id}"><td>${b.name}</td><td class="rt-c-muted">${b.city}</td><td>${b.units}</td><td class="rt-c-muted">${b.let}%</td><td>${eur(b.value)}</td><td class="rt-pos">${eur(b.net)}</td></tr>`
+  `            <tr data-city="${b.city}" data-building="${b.id}" tabindex="0"><td><span class="rt-thumb">${FACADES[b.id] || ''}</span>${b.name}</td><td class="rt-c-muted">${b.city}</td><td>${b.units}</td><td class="rt-c-muted">${b.let}%</td><td>${eur(b.value)}</td><td class="rt-pos">${eur(b.net)}</td></tr>`
 ).join('\n') + '\n';
 R['props-foot'] = `<span>Held by the vault <b>${eur(V.buildingsAtCost)}</b></span>
           <span>Kept in ${monthName(last.month)} <b>${eur(V.keptLast)}</b></span>`;

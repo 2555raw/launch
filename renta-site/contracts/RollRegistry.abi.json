@@ -1,0 +1,164 @@
+[
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "writer_",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "nonpayable",
+  "type": "constructor"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "uint256",
+    "name": "month",
+    "type": "uint256"
+   }
+  ],
+  "name": "AlreadyPublished",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "EmptyHash",
+  "type": "error"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "uint256",
+    "name": "month",
+    "type": "uint256"
+   }
+  ],
+  "name": "NotInOrder",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "NotWriter",
+  "type": "error"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "uint256",
+    "name": "month",
+    "type": "uint256"
+   },
+   {
+    "indexed": false,
+    "internalType": "bytes32",
+    "name": "hash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "RollPublished",
+  "type": "event"
+ },
+ {
+  "inputs": [],
+  "name": "count",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "latest",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "month",
+    "type": "uint256"
+   },
+   {
+    "internalType": "bytes32",
+    "name": "hash",
+    "type": "bytes32"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "uint256",
+    "name": "i",
+    "type": "uint256"
+   }
+  ],
+  "name": "monthAt",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "uint256",
+    "name": "month",
+    "type": "uint256"
+   },
+   {
+    "internalType": "bytes32",
+    "name": "hash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "publish",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "uint256",
+    "name": "month",
+    "type": "uint256"
+   }
+  ],
+  "name": "rollHash",
+  "outputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "writer",
+  "outputs": [
+   {
+    "internalType": "address",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ }
+]

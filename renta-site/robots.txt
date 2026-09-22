@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://renta.example/sitemap.xml

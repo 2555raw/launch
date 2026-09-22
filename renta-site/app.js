@@ -43,11 +43,8 @@
     clearTimeout(toastT);
     toastT = setTimeout(function () { toast.classList.remove('is-on'); }, 3200);
   }
-  $$('[data-connect]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      say('No wallet connector in this build — the vault is a demonstration.');
-    });
-  });
+  /* Connect wallet is handled by gate.js + wallet.js; app.js only lends them the toast */
+  window.RENTA_SAY = say;
 
   /* --------------------------------------------------------------- nav --- */
   var nav = $('#nav'), links = $('#navlinks'), burger = $('#burger');
@@ -146,6 +143,121 @@
 
   /* ------------------------------------------------- map <-> properties -- */
   var pins = $$('.rt-pin'), props = $$('#portfolio tr[data-city]'), shapes = $$('.rt-c');
+
+  /* -------------------------------------------------------- city view ----
+     Click a pin, or a building, and step into the city: its districts, the
+     one the building is in lit, and the building itself at its real spot. */
+  var CITIES = window.RENTA_CITIES || {};
+  var FACADES = window.RENTA_FACADES || {};
+  var view = $('#cityview'), lastFocus = null;
+
+  function cityHTML(city) {
+    var c = CITIES[city]; if (!c) return null;
+    var mine = D.buildings.filter(function (b) { return b.city === city; });
+    var svg = ['<svg viewBox="' + c.viewBox + '" class="rt-city-svg" role="img" aria-label="Schematic map of ' + city + ' by district, with ' + mine.length + ' building' + (mine.length > 1 ? 's' : '') + ' marked.">'];
+    svg.push('<defs><clipPath id="cityclip"><path d="' + c.limit + '"/></clipPath></defs>');
+    svg.push('<path class="rt-city-limit" d="' + c.limit + '"/>');
+    svg.push('<g clip-path="url(#cityclip)">');
+    c.districts.forEach(function (d, i) {
+      svg.push('<path class="rt-dist' + (d.own ? ' rt-dist--own' : '') + (i % 2 ? ' rt-dist--alt' : '') + '" d="' + d.d + '" data-district="' + d.name + '"><title>' + d.name + '</title></path>');
+    });
+    svg.push('</g>');
+    /* labels: the small central cells keep their name for hover only, and a
+       district that holds a building gets its name moved clear of the pin */
+    c.districts.forEach(function (d) {
+      if (d.area < 2100 && !d.own) return;
+      var small = d.area < 3200;
+      var x = d.cx, y = d.cy;
+      c.buildings.forEach(function (b) { if (Math.hypot(b.x - x, b.y - y) < 34) y = b.y - 22; });
+      svg.push('<text class="rt-dist-label' + (d.own ? ' rt-dist-label--own' : '') + (small ? ' rt-dist-label--sm' : '') + '" x="' + x + '" y="' + y + '" text-anchor="middle">' + d.name + '</text>');
+    });
+    c.buildings.forEach(function (b, i) {
+      svg.push('<g class="rt-pin rt-pin--city" data-building="' + b.id + '" tabindex="0" role="img" aria-label="' + b.name + ', ' + b.district + '">' +
+        '<title>' + b.name + '</title>' +
+        '<circle class="rt-pin-ping" cx="' + b.x + '" cy="' + b.y + '" r="11" style="animation-delay:' + (i * 0.5) + 's"/>' +
+        '<circle class="rt-pin-ring" cx="' + b.x + '" cy="' + b.y + '" r="12"/>' +
+        '<circle class="rt-pin-dot" cx="' + b.x + '" cy="' + b.y + '" r="6.5"/></g>');
+    });
+    /* scale bar and north */
+    var W = +c.viewBox.split(' ')[2], H = +c.viewBox.split(' ')[3];
+    svg.push('<g class="rt-city-scale"><line x1="' + (W - 30 - c.scalePx) + '" y1="' + (H - 22) + '" x2="' + (W - 30) + '" y2="' + (H - 22) + '"/>' +
+      '<line x1="' + (W - 30 - c.scalePx) + '" y1="' + (H - 27) + '" x2="' + (W - 30 - c.scalePx) + '" y2="' + (H - 17) + '"/><line x1="' + (W - 30) + '" y1="' + (H - 27) + '" x2="' + (W - 30) + '" y2="' + (H - 17) + '"/>' +
+      '<text x="' + (W - 30 - c.scalePx / 2) + '" y="' + (H - 30) + '" text-anchor="middle">' + c.scaleKm + ' km</text></g>');
+    svg.push('<g class="rt-city-north"><path d="M' + (W - 30) + ',22 l-6,16 6,-4 6,4z"/><text x="' + (W - 30) + '" y="52" text-anchor="middle">N</text></g>');
+    svg.push('</svg>');
+
+    var side = mine.map(function (b) {
+      return '<article class="rt-bcard" data-building="' + b.id + '">' +
+        '<div class="rt-bcard-art">' + (FACADES[b.id] || '') + '</div>' +
+        '<div class="rt-bcard-body">' +
+        '<h3 class="rt-h4">' + b.name + '</h3>' +
+        '<p class="rt-bcard-district">' + b.district + ' · built ' + b.built + ' · bought ' + b.bought.slice(0, 7) + '</p>' +
+        '<dl class="rt-bcard-facts">' +
+        '<div><dt>Apartments</dt><dd class="rt-num">' + b.units + '</dd></div>' +
+        '<div><dt>Let</dt><dd class="rt-num">' + b.let + '%</dd></div>' +
+        '<div><dt>Held at</dt><dd class="rt-num">' + euro(b.value, 0) + '</dd></div>' +
+        '<div><dt>Net rent, last close</dt><dd class="rt-num rt-pos">' + euro(b.net, 0) + '</dd></div>' +
+        '</dl></div></article>';
+    }).join('');
+    var others = Object.keys(CITIES).filter(function (k) { return k !== city && c.region && CITIES[k].region === c.region; });
+    if (others.length) side += '<p class="rt-city-more">Also in ' + c.region + ': ' + others.map(function (k) { return '<a href="#map" data-open-city="' + k + '">' + k + ' →</a>'; }).join(' ') + '</p>';
+
+    var units = mine.reduce(function (s, b) { return s + b.units; }, 0);
+    var rent = mine.reduce(function (s, b) { return s + b.net; }, 0);
+    return {
+      eyebrow: c.country + (c.region ? ' · ' + c.region : ''),
+      title: city,
+      sub: mine.length + ' building' + (mine.length > 1 ? 's' : '') + ' · ' + units + ' apartments · ' + euro(rent, 0) + ' of net rent at the last close.',
+      map: svg.join(''), side: side
+    };
+  }
+
+  function openCity(city) {
+    var h = cityHTML(city); if (!h || !view) return;
+    $('#city-eyebrow').textContent = h.eyebrow;
+    $('#city-title').textContent = h.title;
+    $('#city-sub').textContent = h.sub;
+    $('#city-map').innerHTML = h.map;
+    $('#city-side').innerHTML = h.side;
+    lastFocus = document.activeElement;
+    view.hidden = false;
+    document.body.classList.add('rt-locked');
+    requestAnimationFrame(function () { view.classList.add('is-on'); $('.rt-city-close', view).focus(); });
+    /* hovering a card lights its pin and district, and back */
+    $$('.rt-bcard', view).concat($$('.rt-pin--city', view)).forEach(function (el) {
+      var id = el.getAttribute('data-building');
+      var on = function (yes) {
+        $$('[data-building="' + id + '"]', view).forEach(function (x) { x.classList.toggle('is-on', yes); });
+        var b = D.buildings.filter(function (b) { return b.id === id; })[0];
+        if (b) $$('[data-district="' + b.district + '"]', view).forEach(function (x) { x.classList.toggle('is-on', yes); });
+      };
+      el.addEventListener('mouseenter', function () { on(true); });
+      el.addEventListener('mouseleave', function () { on(false); });
+    });
+    $$('[data-open-city]', view).forEach(function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); openCity(a.getAttribute('data-open-city')); });
+    });
+  }
+  function closeCity() {
+    if (!view || view.hidden) return;
+    view.classList.remove('is-on');
+    document.body.classList.remove('rt-locked');
+    setTimeout(function () { view.hidden = true; if (lastFocus && lastFocus.focus) lastFocus.focus(); }, 220);
+  }
+  if (view) {
+    $$('[data-city-close]', view).forEach(function (b) { b.addEventListener('click', closeCity); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeCity(); });
+  }
+  pins.forEach(function (p) {
+    var open = function () { openCity(p.getAttribute('data-city')); };
+    p.addEventListener('click', open);
+    p.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  });
+  props.forEach(function (r) {
+    var open = function () { openCity(r.getAttribute('data-city')); };
+    r.addEventListener('click', open);
+    r.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  });
 
   /* which country each city we own in belongs to, so the whole country
      lights up with its pin */

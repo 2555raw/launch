@@ -879,6 +879,35 @@ body.rt-locked { overflow: hidden; }
 .rt-wp-link { background: none; border: 0; padding: 0; color: var(--accent); font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; }
 .rt-wp-link:hover { text-decoration: underline; }
 
+/* the panel's head: which wallet, and whether the address has been proved */
+.rt-wp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 12px; }
+.rt-wp-who { font-weight: 700; letter-spacing: -.02em; }
+.rt-wp-tag {
+  font-family: var(--mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: var(--r-pill); border: 1px solid var(--line); color: var(--muted-2);
+}
+.rt-wp-tag.is-ok { border-color: rgba(99,214,242,.45); color: var(--accent); }
+.rt-wp-copy {
+  background: none; border: 0; padding: 0 0 0 6px; color: var(--muted);
+  font: inherit; font-size: .95rem; cursor: pointer; line-height: 1;
+}
+.rt-wp-copy:hover { color: var(--accent); }
+.rt-wp-sign { width: 100%; margin-top: 14px; justify-content: center; }
+
+/* choosing between the wallets that answered */
+.rt-wp-list { display: grid; gap: 8px; margin-top: 12px; }
+.rt-wp-pick {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 11px 14px; border-radius: var(--r-md);
+  background: var(--navy-800); border: 1px solid var(--line); color: var(--text);
+  font: inherit; font-weight: 600; cursor: pointer; text-align: left;
+  transition: border-color .18s var(--ease), background-color .18s var(--ease);
+}
+.rt-wp-pick:hover { border-color: var(--accent); background: var(--navy-700); }
+.rt-wp-pick img { width: 22px; height: 22px; border-radius: 6px; flex: none; }
+.rt-wp-pick i { width: 22px; height: 22px; border-radius: 6px; background: var(--navy-600); flex: none; }
+.rt-wp-pick em { margin-left: auto; font-style: normal; font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-2); }
+
 /* ------------------------------------------------------------ CJK pages --- */
 html[lang="zh"] h1, html[lang="zh"] h2, html[lang="zh"] h3, html[lang="zh"] .rt-display, html[lang="zh"] .rt-h2 { letter-spacing: 0; line-height: 1.12; }
 html[lang="zh"] .rt-display { font-size: clamp(2.6rem, 7.4vw, 5.8rem); }

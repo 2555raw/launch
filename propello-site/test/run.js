@@ -163,6 +163,70 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
   ok('sandbox: without a wallet installed the page says so', (await st('#toast')).startsWith('No wallet found'));
   await s.close();
 
+  /* linking a wallet, with two fakes standing in for the extensions: one
+     MetaMask-shaped (EIP-6963, an Ethereum provider) and one Phantom-shaped
+     (a Solana provider). Neither touches a network. */
+  const FAKE = `(() => {
+    const ACC = '0x8C2f1a4B77aE9b3c51D0e7F6a2B9c4D5E6f70819';
+    const mm = { isMetaMask: true, _allowed: sessionStorage.getItem('mm.ok') === '1', on: () => {},
+      request: async ({ method }) => {
+        if (method === 'eth_requestAccounts') { mm._allowed = true; sessionStorage.setItem('mm.ok','1'); return [ACC]; }
+        if (method === 'eth_accounts') return mm._allowed ? [ACC] : [];
+        if (method === 'eth_chainId') return '0x2105';
+        if (method === 'eth_getBalance') return '0x16345785d8a0000';
+        if (method === 'personal_sign') return '0x' + 'ab'.repeat(65);
+        if (method === 'wallet_switchEthereumChain') return null;
+        throw new Error('unhandled ' + method);
+      } };
+    const announce = () => window.dispatchEvent(new CustomEvent('eip6963:announceProvider', {
+      detail: Object.freeze({ info: { uuid: 'u1', name: 'MetaMask', rdns: 'io.metamask' }, provider: mm }) }));
+    window.addEventListener('eip6963:requestProvider', announce); announce();
+    window.ethereum = mm;
+    const PK = '7Yb3Kq1sE9nF2vXpL4mR8tZcW6hJdA5gQ3uN1yS0bTxV';
+    const sol = { isPhantom: true, _trusted: sessionStorage.getItem('ph.ok') === '1', publicKey: null, on: () => {},
+      connect: async (o) => { if (o && o.onlyIfTrusted && !sol._trusted) throw new Error('untrusted');
+        sol._trusted = true; sessionStorage.setItem('ph.ok','1');
+        sol.publicKey = { toString: () => PK }; return { publicKey: sol.publicKey }; },
+      disconnect: async () => { sol.publicKey = null; },
+      signMessage: async () => ({ signature: new Uint8Array([1,2,3,4,5,6,7,8]) }) };
+    window.phantom = { solana: sol };
+  })();`;
+
+  const wctx = await b.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  await wctx.addInitScript(FAKE);
+  const w = await wctx.newPage();
+  const werr = [];
+  w.on('pageerror', e => werr.push(e.message));
+  await w.goto(base, { waitUntil: 'networkidle' });
+  await w.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+  await w.reload({ waitUntil: 'networkidle' }); await w.waitForTimeout(300);
+  await w.click('.rt-hero [data-connect]'); await w.waitForTimeout(300);
+  for (const i of await w.$$('#gate input[type=checkbox]')) await i.check();
+  await w.click('#gate-continue'); await w.waitForTimeout(600);
+  const offered = await w.$$eval('.rt-wp-pick', n => n.map(e => e.textContent.replace(/\s+/g, ' ').trim()));
+  ok('wallet: both wallets are offered when both are installed', offered.length === 2 && offered.join(' ').includes('MetaMask') && offered.join(' ').includes('Phantom'), offered.join(' | '));
+  await w.click('.rt-wp-pick:has-text("MetaMask")'); await w.waitForTimeout(500);
+  ok('wallet: MetaMask links and the panel reads the chain and balance',
+     (await w.textContent('.rt-nav [data-connect]')).includes('0x8C2f') && (await w.textContent('#walletpanel')).includes('Base') && (await w.textContent('#walletpanel')).includes('0.1000'));
+  ok('wallet: an unsigned address is marked unverified', (await w.textContent('.rt-wp-tag')).trim() === 'Not verified');
+  await w.click('[data-sign]'); await w.waitForTimeout(400);
+  ok('wallet: signing verifies the address', (await w.textContent('.rt-wp-tag')).trim() === 'Verified');
+  await w.reload({ waitUntil: 'networkidle' }); await w.waitForTimeout(900);
+  ok('wallet: the link survives a reload without a prompt', (await w.textContent('.rt-nav [data-connect]')).includes('0x8C2f'));
+  await w.click('.rt-nav [data-connect]'); await w.waitForTimeout(200);
+  await w.click('[data-disconnect]'); await w.waitForTimeout(300);
+  ok('wallet: disconnect forgets the address', (await w.textContent('.rt-nav [data-connect]')).trim() === 'Connect wallet');
+  await w.click('.rt-hero [data-connect]'); await w.waitForTimeout(400);
+  await w.click('.rt-wp-pick:has-text("Phantom")'); await w.waitForTimeout(500);
+  const sol = await w.textContent('#walletpanel');
+  ok('wallet: Phantom links on Solana and says the share lives on Base', sol.includes('Solana') && sol.includes('cannot hold'));
+  await w.click('[data-sign]'); await w.waitForTimeout(400);
+  ok('wallet: Phantom signs a message to verify', (await w.textContent('.rt-wp-tag')).trim() === 'Verified');
+  await w.reload({ waitUntil: 'networkidle' }); await w.waitForTimeout(900);
+  ok('wallet: the Solana link comes back too', (await w.textContent('.rt-nav [data-connect]')).includes('7Yb3'));
+  ok('wallet: no JS errors through the whole flow', werr.length === 0, werr.join(' | '));
+  await wctx.close();
+
   const d = await b.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   await d.goto(base + 'docs.html', { waitUntil: 'networkidle' }); await d.waitForTimeout(300);
   await d.evaluate(() => document.getElementById('fees').scrollIntoView({ block: 'start' })); await d.waitForTimeout(400);

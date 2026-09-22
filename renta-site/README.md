@@ -40,7 +40,7 @@ i18n/                         the English → Chinese dictionaries (see i18n/REA
 data/geo/                     real district boundaries per city (see data/geo/SOURCES.md)
 scripts/                      the generators (next section)
 test/                         the test suite and its static server
-fonts/                        Figtree and JetBrains Mono, self-hosted
+fonts/                        Space Grotesk and JetBrains Mono, self-hosted
 ```
 
 ## The sandbox
@@ -149,7 +149,7 @@ numbers, the primary button, the chart line — and never spreads; the four clai
 pills step through a ramp under it that reads as four steps on the warm ground. The
 map pins take `--pin`, so a place is never confused with a figure.
 
-Type is Figtree for everything and JetBrains Mono for every figure that sits in a
+Type is Space Grotesk for everything and JetBrains Mono for every figure that sits in a
 column, served from `fonts/` so no request leaves the site. Small secondary text
 clears 4.5:1 on every surface it sits on; nothing pressable is under 40px; the
 heading outline has no jumps; the map pins and the buildings are keyboard-reachable

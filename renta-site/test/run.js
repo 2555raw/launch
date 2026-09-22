@@ -39,6 +39,12 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
     ok(`${file}@${w}: no failed requests`, failed.length === 0, failed.join(' | '));
     const sw = await p.evaluate(() => document.documentElement.scrollWidth);
     ok(`${file}@${w}: no horizontal overflow`, sw <= w, 'scrollWidth ' + sw);
+    /* overflow-x: hidden hides a spill from scrollWidth, so measure the nav and
+       the headline against the viewport directly */
+    const spill = await p.evaluate(() => [...document.querySelectorAll('.rt-nav *, .rt-display, .rt-h2')]
+      .filter(e => e.getBoundingClientRect().width && e.getBoundingClientRect().right > innerWidth - 1)
+      .map(e => e.tagName.toLowerCase() + '.' + ((e.className.baseVal !== undefined ? e.className.baseVal : e.className) || '').split(' ')[0]));
+    ok(`${file}@${w}: nav and headlines stay inside the viewport`, spill.length === 0, [...new Set(spill)].join(' '));
     const dead = await p.evaluate(() => [...document.querySelectorAll('a[href^="#"]')].map(a => a.getAttribute('href')).filter(h => h.length > 1 && !document.querySelector(h)));
     ok(`${file}@${w}: every #anchor resolves`, dead.length === 0, [...new Set(dead)].join(' '));
     const heads = await p.evaluate(() => { const h = [...document.querySelectorAll('h1,h2,h3')].map(x => +x.tagName[1]); const j = []; for (let i = 1; i < h.length; i++) if (h[i] - h[i - 1] > 1) j.push(h[i - 1] + '→' + h[i]); return j; });
@@ -47,7 +53,7 @@ const ok = (n, c, d) => out.push((c ? 'PASS' : 'FAIL') + '  ' + n + (d ? '  — 
       const x = await p.evaluate(() => [...document.querySelectorAll('a[href*=".html#"]')].map(a => a.getAttribute('href')));
       for (const h of [...new Set(x)]) { const [f, id] = h.split('#'); const q = await b.newPage(); await q.goto(new URL(f, base + file).href); const has = await q.evaluate(i => !!document.getElementById(i), id); await q.close(); ok(`${file}: link ${h} resolves`, has); }
       const fonts = await p.evaluate(() => [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family));
-      ok(`${file}: self-hosted fonts loaded`, fonts.includes('Figtree') && fonts.includes('JetBrains Mono'), [...new Set(fonts)].join(', '));
+      ok(`${file}: self-hosted fonts loaded`, fonts.includes('Space Grotesk') && fonts.includes('JetBrains Mono'), [...new Set(fonts)].join(', '));
       ok(`${file}: no third-party requests`, !(await p.evaluate(() => performance.getEntriesByType('resource').some(r => !r.name.startsWith(location.origin)))));
     }
     await p.close();

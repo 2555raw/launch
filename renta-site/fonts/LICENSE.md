@@ -3,8 +3,8 @@
 Both families are served from this folder rather than from Google Fonts, so
 the page makes no request to a third party and no visitor IP leaves the site.
 
-- **Figtree** — © Erik Kennedy. SIL Open Font License 1.1.
-  https://github.com/erikdkennedy/figtree
+- **Space Grotesk** — © Florian Karsten. SIL Open Font License 1.1.
+  https://github.com/floriankarsten/space-grotesk
 - **JetBrains Mono** — © JetBrains. SIL Open Font License 1.1.
   https://github.com/JetBrains/JetBrainsMono
 

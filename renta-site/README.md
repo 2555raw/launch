@@ -45,20 +45,28 @@ never reflow as they animate.
 
 ## The map
 
-The dot-matrix map of Europe in the portfolio section is generated, not drawn.
-`world-atlas@2` 1:50m country polygons were rasterised onto a square lattice
-(74 columns, equirectangular projection scaled by `cos 48°`, clipped to
-10.5°W–30.5°E and 35°N–61°N) with a point-in-polygon test per lattice point.
-Dots within 34 units of a portfolio city are painted a step brighter, so each
-city reads as a lit cluster rather than a lone pin. The result is baked into
-`index.html` as two `<path>` elements — one for land, one for the lit clusters —
-which is why the page ships no map library and makes no requests for tiles.
+The map of Europe in the portfolio section is generated, not drawn. `world-atlas@2`
+1:50m country polygons are projected (equirectangular, x scaled by `cos 48°`, framed
+to 10.5°W–30.5°E and 35°N–61°N), simplified with Douglas-Peucker at a 1.1px tolerance
+measured in final screen pixels, and written out as one `<path>` per country. That is
+why the page ships no map library and makes no request for tiles: 43 countries in
+about 55KB of path data, borders and all.
 
-City labels are hand-placed (anchor and offset per city) because automatic
-placement collided Madrid with Valencia and Kraków with its own pin.
+Three layers, in order of importance:
 
-Hovering a building in the list lights its city on the map, and hovering a city
-lights every building it holds.
+1. **Countries**, filled a step above the sea with a lighter border — the five the
+   vault owns in (Portugal, Spain, Germany, the Netherlands, Poland) are filled a
+   step lighter again.
+2. **Capitals**, as small dim dots with small labels, purely as reference.
+3. **The seven cities the vault owns in**, as azure pins with larger labels.
+
+Labels are placed by a greedy solver rather than by hand: holdings claim their
+position first, then capitals try eight candidate offsets each and take the first
+that collides with nothing already on the map. A capital whose name will not fit
+anywhere keeps its dot and loses its label, which currently happens to exactly one.
+
+Hovering a building in the list lights its pin **and its whole country**; hovering a
+city on the map lights every building it holds.
 
 ## The numbers
 

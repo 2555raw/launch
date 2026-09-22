@@ -361,8 +361,28 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
   overflow: hidden;
 }
 .rt-map-svg { width: 100%; height: auto; }
-.rt-map-land { stroke: #39628C; stroke-width: 5.4; stroke-linecap: round; fill: none; }
-.rt-map-lit  { stroke: #6FA6D4; stroke-width: 5.4; stroke-linecap: round; fill: none; }
+/* one path per country: a fill a step above the sea, borders a step above that */
+.rt-c {
+  fill: #17395B;
+  stroke: #2B5A88;
+  stroke-width: .9;
+  stroke-linejoin: round;
+  transition: fill .25s var(--ease), stroke .25s var(--ease);
+}
+.rt-c--own { fill: #1E4873; }
+.rt-c.is-on { fill: #2A6497; stroke: var(--accent); }
+
+/* capitals sit under the holdings: smaller, dimmer, never competing */
+.rt-cap-dot { fill: #83AACB; }
+.rt-cap-label {
+  font-family: var(--mono);
+  font-size: 14.5px;
+  fill: #9DBDD7;
+  paint-order: stroke;
+  stroke: #10304F;
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
 .rt-pin { cursor: pointer; }
 .rt-pin-halo { fill: rgba(99, 214, 242, .10); opacity: 0; transition: opacity .25s var(--ease); }
 .rt-pin-ring { fill: none; stroke: rgba(99, 214, 242, .5); stroke-width: 2; opacity: .75; }
@@ -373,7 +393,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-heig
   fill: #D7E8F5;
   letter-spacing: .02em;
   paint-order: stroke;
-  stroke: #0D2340;
+  stroke: #0E2C49;
   stroke-width: 5px;
   stroke-linejoin: round;
 }

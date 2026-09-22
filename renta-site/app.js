@@ -143,7 +143,15 @@
   });
 
   /* ------------------------------------------------- map <-> properties -- */
-  var pins = $$('.rt-pin'), props = $$('.rt-prop');
+  var pins = $$('.rt-pin'), props = $$('.rt-prop'), shapes = $$('.rt-c');
+
+  /* which country each city we own in belongs to, so the whole country
+     lights up with its pin */
+  var COUNTRY = {
+    Lisbon: 'Portugal', Porto: 'Portugal',
+    Madrid: 'Spain', Valencia: 'Spain',
+    Leipzig: 'Germany', Rotterdam: 'Netherlands', 'Kraków': 'Poland'
+  };
 
   function light(city, on) {
     pins.forEach(function (p) {
@@ -151,6 +159,11 @@
     });
     props.forEach(function (p) {
       if (p.getAttribute('data-city') === city) p.classList.toggle('is-on', on);
+    });
+    var country = COUNTRY[city];
+    if (!country) return;
+    shapes.forEach(function (s) {
+      if (s.getAttribute('data-country') === country) s.classList.toggle('is-on', on);
     });
   }
   function bind(el) {

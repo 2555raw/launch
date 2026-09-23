@@ -15,8 +15,7 @@ is Nvidia, Spotify, USDG and Starbucks; blue is Meta, Walmart, Skype and Intel. 
 colour's four as a set, so moving one somewhere else is a deliberate edit rather than a slip.
 
 **That table lives in exactly one place: `config.js`.** The wheel, the board, the asset desk, the
-playground, the result screen and the value encoded into the constructor are all read out of the
-same object, so they cannot drift apart. Changing a pairing is changing one line.
+result screen and the value encoded into the constructor are all read out of the same object, so they cannot drift apart. Changing a pairing is changing one line.
 
 **Two things are kept apart, on purpose.** The **pairing** is a name: the cell the wheel lands on is
 written into the contract as text. There is no oracle, nothing tracks a share price, and none of
@@ -88,14 +87,14 @@ generated file holding the compiled contract.
 ## Structure
 
 ```
-index.html            the page: the door, sticky nav, hero, ticker, the board,
-                      the pad, how it works, the asset desk, the playground,
-                      proof, FAQ and footer
+index.html            the page: the door, floating nav, hero, ticker, the
+                      board, the pad, how it works, the asset desk, proof,
+                      FAQ and footer
 config.js             the chain, the router, the quote token and THE PAIRING
                       TABLE — position + colour → asset, sixteen lines
 chain.js              wallet, encoding, on-chain verification, deploy, pool
-app.js                the wheel, the board, the stage machine, the mat and its
-                      figure, the proof list, the metrics and local storage
+app.js                the wheel, the board, the stage machine, the proof list,
+                      the metrics and local storage
 styles.css            the design system
 server.js             the static server Railway runs — no dependencies
 contract/
@@ -178,25 +177,6 @@ a random margin inside the node's slice so it never stops at the same point twic
 resolves on `transitionend`, with a `setTimeout` behind it: a tab backgrounded mid-spin never fires
 the transition, and without the fallback the spin would hang.
 
-### The mat
-
-The playground is the same table laid flat on the floor: four rows, one per position, by four colour
-columns, under the spinner's own crosshair. Tap a circle and that limb walks onto it, **or drag a
-hand or a foot along its row** — the drag asks the document what is under the pointer rather than
-mapping coordinates, because the floor is rotated in 3D and hit testing is the only cheap way to get
-that right. A drop outside the limb's own row leaves it where it was. When the wheel resolves, the
-figure moves by itself, so the result is something you watch rather than read.
-
-Nothing in the playground launches anything, which is why it is not in the pad and why the section
-heading says so.
-
-The circles are drawn inside cell-sized buttons rather than being buttons themselves. Under the
-floor's rotation a circle's own box projects to a trapezoid whose centre can land outside it, so a
-tap aimed at the middle of the mark would miss — a real bug, caught by clicking the mat in a
-browser. The figure measures the laid-out positions of the circles with `offsetLeft`/`offsetTop`
-rather than computing them: the floor is rotated in 3D, so a client rect would come back projected
-and the limbs would land beside the dots instead of on them.
-
 ## Design
 
 Editorial rather than crypto: a lot of white, one strong typeface, hairline rules and almost no
@@ -266,8 +246,6 @@ round for a disclaimer.
   the record's shape changes, rather than the reader guessing about an older one.
 - **Proof shows real launches only.** There are no seeded coins, no invented prices, caps, curves or
   holder counts anywhere on the page. Before the first launch the list is empty and says so.
-- Coming back to the tab blooms the coloured ground under the playground back in. Decoration, so it
-  is skipped under `prefers-reduced-motion`.
 
 ## Running it
 
@@ -301,7 +279,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-166 checks across three suites.
+156 checks across three suites.
 
 ### The chain, checked without a chain
 
@@ -358,9 +336,6 @@ not a unit test of the internals; it goes at the product the way someone trying 
   appearing anywhere on it.
 - Calling the spin again from a console changes nothing and does not move the pad.
 - Nothing on the result screen is a control that offers another spin.
-- The mat is a control: tapping a circle moves that limb, dragging one walks it along its row, and a
-  drop in another row is ignored — with a check first that the grip really was under the pointer,
-  because a drag aimed at an off-screen grip lands somewhere else entirely and silently passes.
 - A logo that loaded sits on a white disc with the colour as a ring, and a cell with no logo file
   keeps its coloured disc and drawn mark.
 - The proof list is empty rather than invented.

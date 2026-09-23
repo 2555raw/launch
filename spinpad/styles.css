@@ -482,87 +482,6 @@ a { color: inherit; text-decoration: none; }
   font: 600 10.5px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
 }
 
-/* ---------- playground ---------- */
-
-.sp-sec-mat { position: relative; isolation: isolate; overflow: hidden; }
-.sp-sec-mat::before {
-  content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none; opacity: .2;
-  background-image:
-    radial-gradient(circle 48px at 78px 78px, var(--green)  100%, transparent 0),
-    radial-gradient(circle 48px at 78px 78px, var(--yellow) 100%, transparent 0),
-    radial-gradient(circle 48px at 78px 78px, var(--blue)   100%, transparent 0),
-    radial-gradient(circle 48px at 78px 78px, var(--red)    100%, transparent 0);
-  background-position: 0 0, 156px 0, 312px 0, 468px 0;
-  background-size: 624px 156px;
-}
-/* coming back to the tab brings the coloured ground back in, because the one
-   thing this page has that a launchpad does not is a floor covered in spots */
-.sp-sec-mat.is-blooming::before { animation: sp-bloom 1.5s var(--ease) both; }
-@keyframes sp-bloom {
-  from { opacity: 0; transform: scale(1.06); }
-  to   { opacity: .2; transform: none; }
-}
-
-.sp-sec-mat::after {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(180deg, rgba(255,255,255,.76), rgba(255,255,255,.86));
-}
-
-.sp-mat { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .76fr); gap: 48px; align-items: center; }
-.sp-mat-stage { perspective: 1200px; }
-.sp-mat-floor {
-  position: relative; width: min(560px, 100%); margin-inline: auto; aspect-ratio: 1; padding: 4%;
-  transform: rotateX(26deg); transform-style: preserve-3d;
-  background: linear-gradient(160deg, #fff, #F4F4F1);
-  border-radius: 22px; box-shadow: 0 52px 72px -48px rgba(16, 17, 20, .7), inset 0 0 0 1px var(--line);
-}
-.sp-mat-cross { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.sp-mat-rows { position: relative; display: grid; grid-template-rows: repeat(4, 1fr); height: 100%; gap: 2%; }
-.sp-mat-row { display: grid; grid-template-columns: 58px repeat(4, 1fr); gap: 2%; min-height: 0; align-items: center; }
-.sp-mat-row.is-live { outline: 2px dashed rgba(16, 17, 20, .28); outline-offset: 6px; border-radius: 999px; }
-.sp-mat-rowlabel { font: 700 9.5px/1.25 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-right: 6px; text-align: right; }
-
-.sp-mat-dot { border: 0; padding: 0; margin: 0; background: none; cursor: pointer; width: 100%; height: 100%; display: grid; place-items: center; }
-.sp-mat-dot i {
-  width: 84%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
-  background: radial-gradient(circle at 34% 28%, rgba(255,255,255,.7), rgba(255,255,255,0) 52%), var(--c);
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 20, .16);
-  transition: transform .18s var(--ease), box-shadow .18s;
-}
-.sp-mat-dot span { font: 700 clamp(7px, 1vw, 10px)/1 var(--sans); color: var(--on); opacity: .92; }
-.sp-mat-dot:hover i { transform: scale(1.08); }
-.sp-mat-dot:focus-visible { outline: none; }
-.sp-mat-dot:focus-visible i { box-shadow: inset 0 0 0 1px rgba(16,17,20,.16), 0 0 0 3px var(--ink); }
-.sp-mat-dot.is-under i { box-shadow: inset 0 0 0 1px rgba(16,17,20,.16), 0 0 0 4px rgba(16, 17, 20, .85); }
-.sp-mat-dot.is-drawn i { animation: sp-pulse 1.1s ease-out 3; }
-@keyframes sp-pulse {
-  0%   { box-shadow: inset 0 0 0 1px rgba(16,17,20,.16), 0 0 0 0 rgba(16,17,20,.5); }
-  70%  { box-shadow: inset 0 0 0 1px rgba(16,17,20,.16), 0 0 0 16px rgba(16,17,20,0); }
-  100% { box-shadow: inset 0 0 0 1px rgba(16,17,20,.16), 0 0 0 0 rgba(16,17,20,0); }
-}
-
-.sp-mat-figure { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; touch-action: none; }
-.sp-mat-figure .sp-fig-limb { stroke: var(--ink); stroke-width: 5; fill: none; stroke-linecap: round; }
-.sp-mat-figure .sp-fig-body { stroke: var(--ink); stroke-width: 7; stroke-linecap: round; fill: none; }
-.sp-mat-figure .sp-fig-head { fill: var(--ink); stroke: #fff; stroke-width: 3; }
-.sp-mat-figure .sp-fig-joint { fill: var(--ink); }
-.sp-mat-figure .sp-fig-grip { fill: #fff; stroke: var(--ink); stroke-width: 4; pointer-events: auto; cursor: grab; transition: r .14s; }
-.sp-mat-figure .sp-fig-grip:hover { r: 11; }
-.sp-mat.is-dragging .sp-mat-figure .sp-fig-grip { pointer-events: none; cursor: grabbing; }
-
-.sp-mat-limbs { display: grid; gap: 8px; }
-.sp-mat-limb {
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
-  border: 1.5px solid var(--line); border-radius: 999px; background: var(--card);
-  padding: 12px 18px; cursor: pointer; text-align: left;
-  font: 600 13.5px/1 var(--sans); transition: border-color .16s, transform .14s var(--ease);
-}
-.sp-mat-limb:hover { border-color: var(--line-hi); transform: translateX(2px); }
-.sp-mat-limb.is-sel { border-color: var(--ink); }
-.sp-mat-limb:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-.sp-mat-limb em { font: 500 12.5px/1 var(--sans); font-style: normal; color: var(--muted); text-align: right; }
-.sp-mat-read { margin-top: 18px; font-size: 13.5px; line-height: 1.6; color: var(--muted); min-height: 3em; }
-
 /* ---------- proof ---------- */
 
 .sp-search { display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--bg); padding: 0 18px; height: 44px; }
@@ -707,8 +626,6 @@ a { color: inherit; text-decoration: none; }
   .sp-nav-links { gap: 16px; font-size: 13.5px; }
   .sp-hero { grid-template-columns: 1fr; gap: 44px; }
   .sp-hero-copy { max-width: 620px; }
-  .sp-mat { grid-template-columns: 1fr; gap: 32px; }
-  .sp-mat-side { max-width: 560px; margin-inline: auto; width: 100%; }
 }
 
 @media (max-width: 860px) {
@@ -740,13 +657,9 @@ a { color: inherit; text-decoration: none; }
   .sp-nav .sp-link { font-size: 13.5px; }
   .sp-hero-cta { gap: 16px; }
   .sp-btn-spin { width: 100%; padding: 18px; }
-  .sp-mat-row { grid-template-columns: 34px repeat(4, 1fr); }
-  .sp-mat-rowlabel { font-size: 7.5px; letter-spacing: .04em; padding-right: 3px; }
-  .sp-mat-floor { padding: 3%; width: 92%; transform: rotateX(14deg); }
   .sp-meter-row { grid-template-columns: 96px 1fr; }
   .sp-meter-val { grid-column: 2; text-align: left; }
   .sp-meter-val small { display: inline; margin-left: 10px; }
-  .sp-sec-mat::before { background-size: 380px 95px; background-position: 0 0, 95px 0, 190px 0, 285px 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

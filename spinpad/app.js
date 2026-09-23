@@ -15,7 +15,7 @@
  * chain, and what is not on chain yet says so.
  *
  * There is no pairing table in this file. It is in config.js, once, and the
- * wheel, the board, the desk, the playground and the bytes in the constructor
+ * wheel, the board, the desk and the bytes in the constructor
  * are all read out of it, so they cannot drift apart.
  */
 
@@ -333,223 +333,6 @@
     }).join('')).join('');
   };
 
-  /* ---------- the playground ----------
-   *
-   * The mat, flat on the floor in perspective: one row per position, one column
-   * per colour, which is the same table again. Nothing here launches anything —
-   * it is where the mechanic can be poked at without spending money.
-   */
-
-  const MAT_ROWS = POSITIONS.map((p) => p.id);
-  const MAT_COLS = COLOURS.map((c) => c.id);
-
-  const mat = { sel: MAT_ROWS[0] };
-  MAT_ROWS.forEach((id, i) => { mat[id] = i % MAT_COLS.length; });
-
-  // Offsets walked up to the floor, not getBoundingClientRect: the floor is
-  // rotated in 3D, so a client rect would come back projected. offsetLeft/Top
-  // are plain layout coordinates, which is what the overlay needs.
-  const offsetIn = (el, root) => {
-    let x = 0, y = 0, n = el;
-    while (n && n !== root) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
-    return [x, y];
-  };
-
-  const dotCentre = (row, col, floor) => {
-    const d = document.querySelector(`.sp-mat-dot[data-row="${row}"][data-col="${col}"]`);
-    if (!d) return null;
-    const [x, y] = offsetIn(d, floor);
-    return [x + d.offsetWidth / 2, y + d.offsetHeight / 2];
-  };
-
-  const renderMatDots = () => {
-    const rows = $('matRows');
-    if (!rows) return;
-    rows.innerHTML = MAT_ROWS.map((pid, r) => {
-      const p = posOf(pid);
-      return `<div class="sp-mat-row" role="group" aria-label="${esc(p.label)}">`
-        + `<span class="sp-mat-rowlabel">${esc(p.short)}</span>`
-        + MAT_COLS.map((ck, c) => {
-          const as = assetOf(ck, pid);
-          return `<button class="sp-mat-dot" type="button" data-color="${ck}" data-row="${r}" data-col="${c}"
-                  aria-label="${esc(p.label)} on ${esc(colOf(ck).label)} — ${esc(as.name)}"
-                  title="${esc(comboOf(ck, pid))} → ${esc(as.name)} (${esc(as.ticker)})"><i><span>${esc(as.ticker)}</span></i></button>`;
-        }).join('') + '</div>';
-    }).join('');
-  };
-
-  // A quadratic with the control point pushed off the straight line, so an arm
-  // reaching across the mat bends like an arm instead of pointing like a stick.
-  const limbPath = (ax, ay, tx, ty, bend) => {
-    const mx = (ax + tx) / 2, my = (ay + ty) / 2;
-    const dx = tx - ax, dy = ty - ay;
-    const len = Math.hypot(dx, dy) || 1;
-    return `M${ax.toFixed(1)} ${ay.toFixed(1)} Q${(mx - dy / len * bend).toFixed(1)} ${(my + dx / len * bend).toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}`;
-  };
-
-  const renderFigure = () => {
-    const svg = $('matFigure');
-    const floor = document.querySelector('.sp-mat-floor');
-    if (!svg || !floor) return;
-
-    const W = floor.clientWidth, H = floor.clientHeight;
-    if (!W || !H) return;
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-
-    const target = {};
-    MAT_ROWS.forEach((pid, r) => { target[pid] = dotCentre(r, mat[pid], floor); });
-    if (MAT_ROWS.some((p) => !target[p])) return;
-
-    const rowY = (r) => (dotCentre(r, 0, floor) || [0, 0])[1];
-    const colXs = MAT_COLS.map((_, c) => (dotCentre(0, c, floor) || [0, 0])[0]);
-    const cx = colXs.reduce((s2, v) => s2 + v, 0) / colXs.length;
-    const shY = (rowY(0) + rowY(1)) / 2;
-    const hipY = (rowY(2) + rowY(3)) / 2;
-    const reach = Math.max(8, (hipY - shY) * 0.16);
-
-    const limbs = MAT_ROWS.map((pid, r) => ({
-      id: pid,
-      ax: cx,
-      ay: r < 2 ? shY : hipY,
-      bend: (r % 2 ? -1 : 1) * reach * (r < 2 ? 1 : 0.9),
-    }));
-
-    // Seen from above, so the head sits on the shoulders rather than over them:
-    // torso first, limbs on it, then the head capping the top of the spine.
-    const grip = Math.max(5, W * 0.016);
-    let out = `<path class="sp-fig-body" d="M${cx.toFixed(1)} ${shY.toFixed(1)} L${cx.toFixed(1)} ${hipY.toFixed(1)}"/>`;
-    limbs.forEach((l) => {
-      const [tx, ty] = target[l.id];
-      out += `<path class="sp-fig-limb" d="${limbPath(l.ax, l.ay, tx, ty, l.bend)}"/>`;
-    });
-    out += `<circle class="sp-fig-joint" cx="${cx.toFixed(1)}" cy="${hipY.toFixed(1)}" r="${(grip * 0.55).toFixed(1)}"/>`;
-    out += `<circle class="sp-fig-head" cx="${cx.toFixed(1)}" cy="${shY.toFixed(1)}" r="${(grip * 1.35).toFixed(1)}"/>`;
-    limbs.forEach((l) => {
-      const [tx, ty] = target[l.id];
-      out += `<circle class="sp-fig-grip" data-limb="${l.id}" cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="${grip.toFixed(1)}">`
-           + `<title>${esc(posOf(l.id).short)} — drag along this row</title></circle>`;
-    });
-    svg.innerHTML = out;
-
-    [...document.querySelectorAll('.sp-mat-dot')].forEach((d) => {
-      d.classList.toggle('is-under', mat[MAT_ROWS[Number(d.dataset.row)]] === Number(d.dataset.col));
-    });
-  };
-
-  const renderMatLimbs = () => {
-    const box = $('matLimbs');
-    if (!box) return;
-    box.innerHTML = MAT_ROWS.map((pid) => {
-      const p = posOf(pid);
-      const ck = MAT_COLS[mat[pid]];
-      const as = assetOf(ck, pid);
-      return `<button class="sp-mat-limb${mat.sel === pid ? ' is-sel' : ''}" type="button" data-limb="${pid}" data-color="${ck}">
-          <i class="sp-dot"></i>
-          <span>${esc(p.short)}</span>
-          <em>${esc(as.name)}</em>
-        </button>`;
-    }).join('');
-
-    const p = posOf(mat.sel);
-    const ck = MAT_COLS[mat[mat.sel]];
-    const as = assetOf(ck, mat.sel);
-    const read = $('matRead');
-    if (read) {
-      read.textContent =
-        `${p.label} on ${colOf(ck).label.toLowerCase()} pairs with ${as.name} (${as.ticker}). ` +
-        'Move a hand or a foot and the pairing changes with it. Nothing here launches a coin.';
-    }
-  };
-
-  // The spinner's crosshair, laid under the circles so the mat reads as the
-  // same object the arrow turns on.
-  const renderCross = () => {
-    const svg = $('matCross');
-    const floor = document.querySelector('.sp-mat-floor');
-    if (!svg || !floor) return;
-    const W = floor.clientWidth, H = floor.clientHeight;
-    if (!W || !H) return;
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-
-    const xs = MAT_COLS.map((_, c) => (dotCentre(0, c, floor) || [0, 0])[0]);
-    const ys = MAT_ROWS.map((_, r) => (dotCentre(r, 0, floor) || [0, 0])[1]);
-    if (!xs[0] || !ys[0]) return;
-    const cx = (xs[1] + xs[2]) / 2, cy = (ys[1] + ys[2]) / 2;
-    const pad2 = W * 0.03;
-
-    svg.innerHTML =
-      `<path d="M${cx.toFixed(1)} ${pad2.toFixed(1)} V${(H - pad2).toFixed(1)} M${pad2.toFixed(1)} ${cy.toFixed(1)} H${(W - pad2).toFixed(1)}"
-             stroke="rgba(16,17,20,.22)" stroke-width="1.5" stroke-dasharray="5 6"/>` +
-      `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3" fill="rgba(16,17,20,.22)"/>`;
-  };
-
-  const renderMat = () => {
-    renderMatDots();
-    // one frame, so the grid has been laid out before the overlays measure it
-    requestAnimationFrame(() => { renderCross(); renderFigure(); });
-    renderMatLimbs();
-  };
-
-  /* Dragging works by asking the document what is under the pointer rather than
-     by mapping coordinates: the floor is rotated in 3D, so hit testing is the
-     only cheap way to get this right. A drop outside the limb's own row leaves
-     it where it was. */
-  const drag = { limb: null, id: null };
-
-  const dragTo = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    const dot = el && el.closest ? el.closest('.sp-mat-dot') : null;
-    if (!dot) return;
-    if (MAT_ROWS[Number(dot.dataset.row)] !== drag.limb) return;   // stay in your own row
-    const col = Number(dot.dataset.col);
-    if (mat[drag.limb] === col) return;
-    mat[drag.limb] = col;
-    renderFigure();
-    renderMatLimbs();
-  };
-
-  const startDrag = (e) => {
-    const grip = e.target.closest ? e.target.closest('.sp-fig-grip') : null;
-    if (!grip || !grip.dataset.limb) return;
-    drag.limb = grip.dataset.limb;
-    drag.id = e.pointerId;
-    mat.sel = drag.limb;
-    const box = document.querySelector('.sp-mat');
-    if (box) box.classList.add('is-dragging');
-    const row = document.querySelectorAll('.sp-mat-row')[MAT_ROWS.indexOf(drag.limb)];
-    if (row) row.classList.add('is-live');
-    /* Capture is a nicety here, not the mechanism. It cannot be relied on: the
-       element holding it is the same <svg> that renderFigure() rewrites on
-       every step of the drag, and replacing it releases the capture. The moves
-       are listened for on the window instead, so the limb keeps following the
-       pointer either way. */
-    try { $('matFigure').setPointerCapture(e.pointerId); } catch (e2) { /* fine without it */ }
-    renderMatLimbs();
-    e.preventDefault();
-  };
-
-  const endDrag = () => {
-    if (!drag.limb) return;
-    const row = document.querySelectorAll('.sp-mat-row')[MAT_ROWS.indexOf(drag.limb)];
-    if (row) row.classList.remove('is-live');
-    const box = document.querySelector('.sp-mat');
-    if (box) box.classList.remove('is-dragging');
-    drag.limb = null;
-    drag.id = null;
-  };
-
-  // the figure follows the draw: the limb the arrow named walks onto its colour
-  const matFollow = (sector) => {
-    const col = MAT_COLS.indexOf(sector.color);
-    if (col < 0) return;
-    mat[sector.position] = col;
-    mat.sel = sector.position;
-    renderFigure();
-    renderMatLimbs();
-    const dot = document.querySelector(`.sp-mat-dot[data-row="${MAT_ROWS.indexOf(sector.position)}"][data-col="${col}"]`);
-    if (dot) { dot.classList.remove('is-drawn'); void dot.offsetWidth; dot.classList.add('is-drawn'); }
-  };
-
   /* ---------- metrics ---------- */
 
   const tally = () => {
@@ -847,7 +630,6 @@
 
     setStep(3);
     renderSummary();
-    matFollow(sector);
   };
 
   /* ---------- launching, for real ----------
@@ -1276,18 +1058,6 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
   };
 
-  /* ---------- coming back to the tab ----------
-     Replaying a CSS animation needs the class off, a reflow, then the class on:
-     without the flush the browser coalesces both changes and nothing moves. */
-  const bloom = () => {
-    if (reduced()) return;
-    document.querySelectorAll('.sp-sec-mat').forEach((el) => {
-      el.classList.remove('is-blooming');
-      void el.offsetWidth;
-      el.classList.add('is-blooming');
-    });
-  };
-
   /* ---------- wiring ---------- */
 
   const init = () => {
@@ -1299,30 +1069,11 @@
     wireHeroWheel();
     renderBoardGrid();
     renderDesk();
-    renderMat();
     wireGate();
     wireSort();
     wireBurger();
     wireWallet();
     openGate();
-
-    const floorEl = document.querySelector('.sp-mat-floor');
-    if (floorEl && window.ResizeObserver) {
-      new ResizeObserver(() => { renderCross(); renderFigure(); }).observe(floorEl);
-    }
-
-    const fig = $('matFigure');
-    if (fig) {
-      fig.addEventListener('pointerdown', startDrag);
-      /* On the window, not on the figure: the figure is pointer-events:none
-         except for the grips, and the grips are switched off for the duration
-         of a drag so the document can be asked what is under the pointer. A
-         listener on the figure would therefore stop hearing about the drag the
-         moment it left the grip. */
-      window.addEventListener('pointermove', (e) => { if (drag.limb) dragTo(e.clientX, e.clientY); });
-      window.addEventListener('pointerup', endDrag);
-      window.addEventListener('pointercancel', endDrag);
-    }
 
     load();
     renderProof();
@@ -1334,25 +1085,6 @@
       const cell = e.target.closest('.sp-cell');
       if (!cell) return;
       readCell(cell.dataset.color, cell.dataset.pos);
-    });
-
-    const rows = $('matRows');
-    if (rows) rows.addEventListener('click', (e) => {
-      const d = e.target.closest('.sp-mat-dot');
-      if (!d) return;
-      const pid = MAT_ROWS[Number(d.dataset.row)];
-      mat[pid] = Number(d.dataset.col);
-      mat.sel = pid;
-      renderFigure();
-      renderMatLimbs();
-    });
-
-    const limbBox = $('matLimbs');
-    if (limbBox) limbBox.addEventListener('click', (e) => {
-      const b = e.target.closest('.sp-mat-limb');
-      if (!b) return;
-      mat.sel = b.dataset.limb;
-      renderMatLimbs();
     });
 
     $('form').addEventListener('submit', (e) => {
@@ -1480,13 +1212,7 @@
         links.forEach((a) => a.classList.toggle('is-here', a.dataset.scroll === en.target.id));
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
-    ['board', 'launch', 'how', 'desk', 'playground', 'proof', 'faq'].forEach((id) => { const s = $(id); if (s) spy.observe(s); });
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') bloom();
-    });
-    window.addEventListener('pageshow', bloom);    // and on a back/forward restore
-    bloom();
+    ['board', 'launch', 'how', 'desk', 'proof', 'faq'].forEach((id) => { const s = $(id); if (s) spy.observe(s); });
 
     // relative timestamps should not freeze on a tab left open
     setInterval(renderProof, 60000);

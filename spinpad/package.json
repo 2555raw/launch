@@ -1,0 +1,12 @@
+{
+  "name": "spinpad",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spinpad — a launchpad where the underlying asset is drawn by the dial, not chosen.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -840,7 +840,7 @@
         links.forEach((a) => a.classList.toggle('is-here', a.dataset.scroll === en.target.id));
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
-    ['board', 'launch', 'how', 'proof', 'faq'].forEach((id) => { const s = $(id); if (s) spy.observe(s); });
+    ['board', 'how', 'launch', 'proof', 'faq'].forEach((id) => { const s = $(id); if (s) spy.observe(s); });
 
     // relative timestamps should not freeze on a tab left open
     setInterval(renderBoard, 60000);

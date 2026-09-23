@@ -17,12 +17,13 @@ No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 ## Structure
 
 ```
-index.html   the page: header, live launch ticker, intro, metrics and spin distribution,
-             leading launch, the launch board, how it works, FAQ, footer, and the
-             create-token dialog (details -> spin -> launch, then the spin record)
-styles.css   the design system (the mat, the four reserved colours, type, layout) and
-             the responsive rules
-app.js       the dial, the three-step machine, the board, the metrics and local storage
+index.html   the page: pinned nav and contract bars, hero, launch ticker, the coin
+             board, the pad (details -> spin -> launch, then the spin record),
+             how it works, proof, FAQ and footer
+styles.css   the design system: the ground, the mat under the pad, the four reserved
+             colours, type, components and the responsive rules
+app.js       the dial, the three-step machine, the board and its cards, the metrics
+             and local storage
 ```
 
 ## Running it
@@ -47,6 +48,15 @@ three independent places in `app.js`, deliberately.
 3. **`launch()` re-checks before it writes.** Missing spin, draft or step and it reports,
    re-synchronises the controls and returns. Setting `disabled = false` from a console and clicking
    produces nothing — there is a regression check for exactly that.
+
+The moment the arrow stops, `resolveSpin()` writes the asset into the form's underlying-asset field,
+the preview sphere and the launch summary at once, and marks the field locked. There is nothing to
+choose and nothing to confirm: the draw fills it in.
+
+One id collision was worth the bug it caused. The launch *section* and the launch *button* both
+carried `id="launch"`, so `getElementById` returned the section, `disabled` was set on a `<section>`
+where it means nothing, and the button — which ships disabled in the markup — could never open. The
+button is `#launchBtn` now, and the checks below cover it.
 
 The second spin is closed the same way: `doSpin()` returns early once `flow.spin` exists, so
 calling it by hand does not change the colour already drawn.
@@ -77,38 +87,59 @@ the transition, and without the fallback the spin would hang.
 
 ## Design
 
-The page sits on the board. The background is the mat — four columns of dots in the board's own
-order, green, yellow, blue, red — tiled behind everything at 22% opacity, with the application's
-own surfaces in opaque white floating on top. Running text always gets one of those surfaces; ink
-on a 22% tint is legible, but a headline straddling four circles is not something to ask a reader
-to do.
+The chrome is a floating-pad layout: two pinned pills over an atmospheric light
+ground, an oversized centred hero with the asset spheres drifting behind it,
+tinted product cards, and a two-column pad.
 
-**The four colours are reserved: they only ever mean the four assets.** Every piece of chrome —
-buttons, chips, filters, links, figures — is ink on white. A red button reads as a Tesla token, and
-the colour coding stops meaning anything the moment it is spent on decoration.
+**The mat appears in one place only — the pad.** Four columns of dots in the
+board's own order, green, yellow, blue, red, sit under the launch section and
+nowhere else, with a wash over them so the form and the summary stay comfortable
+to read. Everywhere else the ground is plain: one soft light in the top right and
+a long cool wash below it. The board belongs where the board is played.
 
-Each colour carries two tokens, `--c` (the colour) and `--on` (what reads on top of it). Yellow
-`#FDD208` against white sits at 1.4:1, so text on yellow drops to ink while the other three take
-white.
+**The four colours are reserved: they only ever mean the four assets.** Every
+piece of chrome — buttons, links, chips, the nav, the dial's hub — is ink on
+white. A blue progress bar on a Tesla coin would quietly break the only code the
+product has, so each card's curve, sphere and tint take the colour of the asset
+it drew.
 
-Type: **Inter** throughout, **JetBrains Mono** for figures, tickers and identifiers.
+Each colour carries two tokens, `--c` (the colour) and `--on` (what reads on top
+of it). Yellow `#FDD208` against white sits at 1.4:1, so text on yellow drops to
+ink while the other three take white.
+
+Type: **Plus Jakarta Sans** throughout — 800 for display, 400–700 for text — with
+**JetBrains Mono** for the contract line, tickers, supplies and prices.
+
+### The spinner
+
+The dial is drawn the way the board is printed: a square face with the four limbs
+named in its corners, a ring of sixteen equal sectors, an open hub, and a black
+arrow turning over it. It is SVG generated at runtime from the same `SECTORS`
+table the outcome is read from, so what the arrow points at and what the app
+reports cannot drift apart — there is a check for that, comparing the needle's
+final angle against the colour named in the result.
 
 ### The distribution chart
 
-The spin distribution is four horizontal bars in fixed asset order, never reordered by rank, with a
-dashed rule at the 25% each colour is expected to draw.
+Four horizontal bars in fixed asset order, never reordered by rank, with a dashed
+rule at the 25% each colour is expected to draw.
 
-Running the four fills through a palette validator returns a pass on colourblind separation — the
-worst adjacent pair, yellow against green, holds ΔE 18.4 under protanopia — but a contrast warning:
-against white, green reaches 3.0:1 and yellow only 1.4:1, both under the 3:1 floor for a mark that
-has to be findable. Those fills are not free to change, because the colour *is* the data. So the
-relief is built in instead, and it is not optional:
+Running the four fills through a palette validator returns a pass on colourblind
+separation — the worst adjacent pair, yellow against green, holds ΔE 18.4 under
+protanopia — but a contrast warning: against white, green reaches 3.0:1 and yellow
+only 1.4:1, both under the 3:1 floor for a mark that has to be findable. Those
+fills are not free to change, because the colour *is* the data. So the relief is
+built in instead, and it is not optional:
 
-- every bar carries a visible ink label with its share and its count, so no value is encoded in
-  colour alone;
-- each fill takes a hairline ink ring, which keeps the light ones visible against the surface;
-- the reference rule sits above the fills with a white edge behind the dashes, so it stays readable
-  where a bar runs past it.
+- every bar carries a visible ink label with its share and its count, so no value
+  is encoded in colour alone;
+- each fill takes a hairline ink ring, which keeps the light ones visible against
+  the surface;
+- the reference rule sits above the fills with a white edge behind the dashes, so
+  it stays readable where a bar runs past it.
+
+Card sparklines are ink lines over a tinted area, not coloured lines: a 1px mark
+in yellow or green on white would fail the same floor with no label to rescue it.
 
 ## The data
 
@@ -116,8 +147,10 @@ relief is built in instead, and it is not optional:
   illustrative; the board, the metrics and the footer all say so.
 - Launches live in `localStorage` under `spinpad.coins.v1`, capped at 60. Reads and writes are
   wrapped in `try/catch`: a browser that blocks storage still runs, just in memory.
-- The first five launches are samples, tagged `sample` on the board. They are seeded once, when the
+- The first five launches are samples, tagged `SAMPLE` on the board. They are seeded once, when the
   key is absent — clearing the record leaves it cleared.
+- Card sparklines are deterministic: each one is a seeded random walk keyed on the coin's id, so a
+  card looks the same across re-renders instead of twitching every time the board redraws.
 - The board re-renders each minute so relative timestamps do not freeze on a tab left open.
 
 ## Before this becomes real

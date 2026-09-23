@@ -4,363 +4,373 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Spinpad — the underlying asset is drawn, not chosen</title>
-  <meta name="description" content="A token launchpad with a mandatory spin. Four colours, four underlying assets: blue Meta, red Tesla, green Nvidia, yellow Amazon. One spin per launch, recorded with the token and fixed at launch.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314161A'/%3E%3Cpath d='M16 5a11 11 0 0 1 11 11H16z' fill='%23E4322B'/%3E%3Cpath d='M27 16a11 11 0 0 1-11 11V16z' fill='%23FDD208'/%3E%3Cpath d='M16 27A11 11 0 0 1 5 16h11z' fill='%231B75BC'/%3E%3Cpath d='M5 16A11 11 0 0 1 16 5v11z' fill='%232FA84F'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23FFFFFF'/%3E%3C/svg%3E">
+  <title>Spinpad — coins paired by the dial</title>
+  <meta name="description" content="A launchpad where the underlying asset is drawn, not chosen. One mandatory spin, four colours, four assets: blue Meta, red Tesla, green Nvidia, yellow Amazon. Chosen once, at launch, and held for the life of the market.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230E1014'/%3E%3Cpath d='M16 5a11 11 0 0 1 11 11H16z' fill='%23E4322B'/%3E%3Cpath d='M27 16a11 11 0 0 1-11 11V16z' fill='%23FDD208'/%3E%3Cpath d='M16 27A11 11 0 0 1 5 16h11z' fill='%231B75BC'/%3E%3Cpath d='M5 16A11 11 0 0 1 16 5v11z' fill='%232FA84F'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<a class="sp-skip" href="#main">Skip to content</a>
+<a class="lv-skip" href="#board">Skip to the board</a>
 
-<header class="sp-top" id="top">
-  <div class="sp-top-in">
-    <a class="sp-brand" data-scroll="top">
-      <span class="sp-mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32">
-          <path d="M16 5a11 11 0 0 1 11 11H16z" fill="#E4322B"/>
-          <path d="M27 16a11 11 0 0 1-11 11V16z" fill="#FDD208"/>
-          <path d="M16 27A11 11 0 0 1 5 16h11z" fill="#1B75BC"/>
-          <path d="M5 16A11 11 0 0 1 16 5v11z" fill="#2FA84F"/>
-          <circle cx="16" cy="16" r="3.2" fill="#fff"/>
-        </svg>
-      </span>
-      Spinpad
-    </a>
-
-    <nav class="sp-top-nav" aria-label="Sections">
-      <a data-scroll="launches">Launches</a>
-      <a data-scroll="distribution">Distribution</a>
-      <a data-scroll="how">How it works</a>
-      <a data-scroll="faq">FAQ</a>
-    </nav>
-
-    <div class="sp-top-right">
-      <label class="sp-search">
-        <span class="sp-sr">Search launches</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
-        <input id="search" type="search" placeholder="Search name or ticker" autocomplete="off">
-      </label>
-      <span class="sp-badge" title="No chain, no contract, no money. Every figure on this page is simulated.">Simulation</span>
-      <button class="sp-btn sp-btn-primary" id="openCreate" type="button">Create token</button>
-    </div>
-  </div>
-
-  <div class="sp-ticker" aria-label="Recent launches">
-    <div class="sp-ticker-track" id="tickerTrack"></div>
+<!-- floating chrome: both bars stay pinned over the mat -->
+<header class="lv-nav">
+  <a class="lv-brand" data-scroll="top">Spinpad</a>
+  <nav class="lv-links" id="navlinks" aria-label="Sections">
+    <a data-scroll="board">Board</a>
+    <a data-scroll="launch">Launch</a>
+    <a data-scroll="how">How it works</a>
+    <a data-scroll="proof">Proof</a>
+    <a data-scroll="faq">FAQ</a>
+  </nav>
+  <div class="lv-nav-right">
+    <button class="lv-textlink" id="connect" type="button">Connect wallet</button>
+    <button class="lv-btn lv-btn-dark" data-scroll="launch" type="button">Open the pad <span aria-hidden="true">↗</span></button>
   </div>
 </header>
 
-<main id="main">
+<div class="lv-ca">
+  <span class="lv-ca-sym">$SPIN</span>
+  <span class="lv-ca-key">CA</span>
+  <code id="caValue">0x5p1n0000000000000000000000000000000dem0</code>
+  <button class="lv-ca-copy" id="caCopy" type="button">Copy</button>
+  <span class="lv-ca-chain"><i></i>SIMULATION</span>
+</div>
 
-  <!-- intro -->
-  <section class="sp-intro">
-    <div class="sp-wrap sp-intro-in">
-      <div class="sp-intro-copy">
-        <p class="sp-eyebrow">Mandatory spin</p>
-        <h1>Coins paired with an asset you don't choose.</h1>
-        <p class="sp-lede">
-          Spinpad assigns the underlying asset with a single spin taken before launch. Four colours,
-          four assets, one spin per token. The result is written into the launch record the moment
-          the dial stops, and from then on it cannot be edited, re-rolled or overridden.
-        </p>
-        <div class="sp-intro-cta">
-          <button class="sp-btn sp-btn-primary sp-btn-lg" id="openCreate2" type="button">Create token</button>
-          <a class="sp-btn sp-btn-ghost sp-btn-lg" data-scroll="how">How it works</a>
+<main id="top">
+
+  <!-- ————— hero ————— -->
+  <section class="lv-hero">
+    <div class="lv-orbs" aria-hidden="true">
+      <span class="lv-orb lv-orb-1" data-color="green"><b>NVDA</b></span>
+      <span class="lv-orb lv-orb-2" data-color="red"><b>TSLA</b></span>
+      <span class="lv-orb lv-orb-3" data-color="blue"><b>META</b></span>
+      <span class="lv-orb lv-orb-4" data-color="yellow"><b>AMZN</b></span>
+      <span class="lv-orb lv-orb-5" data-color="blue"><b>META</b></span>
+      <span class="lv-orb lv-orb-6" data-color="green"><b>NVDA</b></span>
+      <span class="lv-orb lv-orb-7" data-color="yellow"><b>AMZN</b></span>
+    </div>
+
+    <p class="lv-eyebrow">One spin. Four colours. No choice.</p>
+    <h1>Coins paired<br>with assets</h1>
+    <p class="lv-hero-sub">Your next big idea. Paired with <span id="rotator" data-color="green">Nvidia</span>.</p>
+    <div class="lv-hero-cta">
+      <button class="lv-btn lv-btn-dark lv-btn-lg" data-scroll="launch" type="button">Launch a coin <span aria-hidden="true">↗</span></button>
+      <button class="lv-textlink lv-textlink-lg" data-scroll="board" type="button">Explore the board <span aria-hidden="true">→</span></button>
+    </div>
+  </section>
+
+  <div class="lv-ticker" aria-label="Recent launches">
+    <div class="lv-ticker-track" id="tickerTrack"></div>
+  </div>
+
+  <!-- ————— board ————— -->
+  <section class="lv-sec" id="board">
+    <div class="lv-wrap">
+      <div class="lv-sec-head">
+        <div class="lv-sec-copy">
+          <p class="lv-kicker">Everything here was drawn</p>
+          <h2>Pick a coin</h2>
+          <p class="lv-sec-lede">
+            Every coin here is paired with one of four assets, drawn once at launch by the dial and
+            held for the life of the market.
+          </p>
         </div>
+        <button class="lv-textlink lv-textlink-lg" data-scroll="launch" type="button">Make your own <span aria-hidden="true">↗</span></button>
       </div>
 
-      <ul class="sp-legend" aria-label="Colour to asset mapping">
-        <li data-color="blue"><i class="sp-dot"></i><b>Blue</b><span>Meta</span><em>META</em></li>
-        <li data-color="red"><i class="sp-dot"></i><b>Red</b><span>Tesla</span><em>TSLA</em></li>
-        <li data-color="green"><i class="sp-dot"></i><b>Green</b><span>Nvidia</span><em>NVDA</em></li>
-        <li data-color="yellow"><i class="sp-dot"></i><b>Yellow</b><span>Amazon</span><em>AMZN</em></li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- metrics -->
-  <section class="sp-metrics" id="distribution">
-    <div class="sp-wrap">
-      <div class="sp-kpis" id="kpis"></div>
-
-      <figure class="sp-figure">
-        <figcaption>
-          <h2>Spin distribution</h2>
-          <p>
-            Observed outcomes across recorded launches, against the 25% each colour is expected to
-            draw. Every colour occupies four of the dial's sixteen equal sectors.
-          </p>
-        </figcaption>
-        <div class="sp-meter" id="meter"></div>
-        <p class="sp-figure-note" id="meterNote"></p>
-      </figure>
-    </div>
-  </section>
-
-  <!-- leading launch -->
-  <section class="sp-lead">
-    <div class="sp-wrap">
-      <h2 class="sp-h-small">Leading launch</h2>
-      <article class="sp-lead-card" id="lead" data-color="none">
-        <span class="sp-avatar" id="leadAvatar"></span>
-        <div class="sp-lead-body">
-          <h3 id="leadName">—</h3>
-          <p class="sp-lead-meta" id="leadMeta">—</p>
-          <p class="sp-lead-desc" id="leadDesc">—</p>
-          <div class="sp-curve" id="leadCurveWrap">
-            <i id="leadCurve"></i>
-          </div>
-          <p class="sp-curve-label" id="leadCurveLabel">—</p>
+      <div class="lv-board-bar">
+        <div class="lv-filters" id="filters" role="group" aria-label="Filter by underlying asset">
+          <button class="lv-chip is-on" data-filter="all" type="button">All</button>
+          <button class="lv-chip" data-filter="blue" type="button"><i class="lv-dot" data-color="blue"></i>Meta</button>
+          <button class="lv-chip" data-filter="red" type="button"><i class="lv-dot" data-color="red"></i>Tesla</button>
+          <button class="lv-chip" data-filter="green" type="button"><i class="lv-dot" data-color="green"></i>Nvidia</button>
+          <button class="lv-chip" data-filter="yellow" type="button"><i class="lv-dot" data-color="yellow"></i>Amazon</button>
         </div>
-      </article>
-    </div>
-  </section>
-
-  <!-- launches -->
-  <section class="sp-board" id="launches">
-    <div class="sp-wrap">
-      <div class="sp-board-bar">
-        <h2 class="sp-h-small">Launches</h2>
-        <div class="sp-filters" id="filters" role="group" aria-label="Filter by underlying asset">
-          <button class="sp-chip is-on" data-filter="all" type="button">All</button>
-          <button class="sp-chip" data-filter="blue" type="button"><i class="sp-dot" data-color="blue"></i>Meta</button>
-          <button class="sp-chip" data-filter="red" type="button"><i class="sp-dot" data-color="red"></i>Tesla</button>
-          <button class="sp-chip" data-filter="green" type="button"><i class="sp-dot" data-color="green"></i>Nvidia</button>
-          <button class="sp-chip" data-filter="yellow" type="button"><i class="sp-dot" data-color="yellow"></i>Amazon</button>
-        </div>
-        <label class="sp-sort">
+        <label class="lv-search">
+          <span class="lv-sr">Search launches</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+          <input id="search" type="search" placeholder="Search name or ticker" autocomplete="off">
+        </label>
+        <label class="lv-sort">
           Sort by
           <select id="sort">
             <option value="new">Most recent</option>
             <option value="cap">Simulated cap</option>
-            <option value="replies">Replies</option>
+            <option value="replies">Holders</option>
           </select>
         </label>
       </div>
 
-      <div class="sp-grid" id="grid"></div>
-      <p class="sp-empty" id="empty" hidden>No launches match this view.</p>
+      <div class="lv-grid" id="grid"></div>
+      <p class="lv-empty" id="empty" hidden>No coins match this view.</p>
 
-      <div class="sp-board-foot">
+      <div class="lv-board-foot">
         <span id="count">—</span>
-        <button class="sp-btn sp-btn-ghost sp-btn-sm" id="clear" type="button">Clear local record</button>
+        <button class="lv-btn lv-btn-quiet" id="clear" type="button">Clear local record</button>
       </div>
     </div>
   </section>
 
-  <!-- how it works -->
-  <section class="sp-how" id="how">
-    <div class="sp-wrap">
-      <h2>How it works</h2>
-      <ol class="sp-flow">
-        <li>
-          <span>1</span>
-          <h3>Token details</h3>
-          <p>Name, ticker, total supply and a one-line description. The asset field stays empty.</p>
-        </li>
-        <li>
-          <span>2</span>
-          <h3>Mandatory spin</h3>
-          <p>One spin per launch, taken before anything is created. The dial is not skippable.</p>
-        </li>
-        <li>
-          <span>3</span>
-          <h3>Asset locked</h3>
-          <p>The colour drawn fills the underlying asset field and closes it to editing.</p>
-        </li>
-        <li>
-          <span>4</span>
-          <h3>Launch</h3>
-          <p>The launch button opens and the token ships with its spin record attached.</p>
-        </li>
+  <!-- ————— launch ————— -->
+  <section class="lv-sec lv-sec-pad" id="launch">
+    <div class="lv-wrap">
+      <p class="lv-kicker">The pad</p>
+      <h2>Name it. The dial pairs it.</h2>
+      <p class="lv-sec-lede lv-sec-lede-wide">
+        Four fields and one spin. The colour the dial stops on writes the underlying asset, and the
+        market opens the moment the launch lands.
+      </p>
+
+      <ol class="lv-steps" id="steps">
+        <li data-step="1"><span>1</span> Details</li>
+        <li data-step="2"><span>2</span> Spin</li>
+        <li data-step="3"><span>3</span> Launch</li>
+      </ol>
+
+      <div class="lv-pad" id="pad" data-step="1">
+
+        <!-- left: the form -->
+        <form class="lv-card lv-form" id="form" novalidate>
+          <fieldset id="fields">
+            <div class="lv-field">
+              <label for="fName">Coin name</label>
+              <input id="fName" type="text" maxlength="32" autocomplete="off" placeholder="Meridian Reserve" required>
+              <p class="lv-help">Up to 32 characters. This is what people read on the board.</p>
+              <p class="lv-err" data-for="fName"></p>
+            </div>
+
+            <div class="lv-field">
+              <label for="fTicker">Ticker</label>
+              <input id="fTicker" type="text" maxlength="8" autocomplete="off" placeholder="MRDN" required>
+              <p class="lv-help">Letters and numbers, up to 8.</p>
+              <p class="lv-err" data-for="fTicker"></p>
+            </div>
+
+            <div class="lv-field">
+              <label for="fSupply">Total supply</label>
+              <input id="fSupply" type="text" inputmode="numeric" autocomplete="off" value="1,000,000,000" required>
+              <p class="lv-help">Between 1,000 and 1,000,000,000,000.</p>
+              <p class="lv-err" data-for="fSupply"></p>
+            </div>
+
+            <div class="lv-field">
+              <label for="fDesc">Description <i id="descCount">0/140</i></label>
+              <textarea id="fDesc" maxlength="140" rows="3" placeholder="One line on what this coin is for."></textarea>
+              <p class="lv-err" data-for="fDesc"></p>
+            </div>
+
+            <div class="lv-field">
+              <label>Underlying asset</label>
+              <div class="lv-locked" id="assetSlot" data-color="none">
+                <i class="lv-dot"></i>
+                <b id="assetName">Assigned by the spin</b>
+                <em id="assetHint">Locked</em>
+              </div>
+              <p class="lv-help">Drawn once, at launch, and held for the life of the market.</p>
+            </div>
+          </fieldset>
+
+          <button class="lv-btn lv-btn-dark lv-btn-block" id="toSpin" type="submit">Continue to the spin <span aria-hidden="true">↗</span></button>
+          <button class="lv-btn lv-btn-quiet lv-btn-block" id="backToForm" type="button" hidden>Back to details</button>
+
+          <div class="lv-notice">
+            <p><b>The spin is mandatory.</b> Nothing is signed and no real money moves — the dial
+            decides which asset your coin is paired with, and the result cannot be re-rolled.</p>
+            <button class="lv-btn lv-btn-outline" id="connect2" type="button">Connect wallet</button>
+          </div>
+
+          <button class="lv-btn lv-btn-dark lv-btn-block lv-btn-launch" id="launchBtn" type="button" disabled>Launch the coin <span aria-hidden="true">↗</span></button>
+          <p class="lv-help lv-help-final">
+            The pairing is final: a market cannot be re-paired after launch. The dial picks it, not you.
+          </p>
+          <button class="lv-btn lv-btn-quiet lv-btn-block" id="discard" type="button" hidden>Discard draft</button>
+        </form>
+
+        <!-- right: preview, dial, summary -->
+        <div class="lv-side">
+
+          <div class="lv-preview" id="preview" data-color="none">
+            <span class="lv-disc lv-disc-lg">
+              <b id="pvTicker">TICKER</b>
+              <i id="pvAsset">UNPAIRED</i>
+            </span>
+          </div>
+
+          <div class="lv-card lv-dialcard">
+            <div class="lv-card-head">
+              <p class="lv-kicker lv-kicker-sm">The dial</p>
+              <span class="lv-tag" id="spinCount">Spins 0/1</span>
+            </div>
+
+            <div class="lv-dial-stage">
+              <span class="lv-limb lv-limb-tl">Left hand</span>
+              <span class="lv-limb lv-limb-tr">Right hand</span>
+              <span class="lv-limb lv-limb-bl">Left foot</span>
+              <span class="lv-limb lv-limb-br">Right foot</span>
+              <div class="lv-dial-wrap">
+                <svg class="lv-dial" id="dial" viewBox="0 0 200 200" role="img" aria-label="Dial of sixteen equal sectors in four colours"></svg>
+                <div class="lv-needle" id="needle">
+                  <svg viewBox="0 0 200 200" aria-hidden="true">
+                    <path d="M100 12 L107.5 96 L100 106 L92.5 96 Z" fill="currentColor"/>
+                    <circle cx="100" cy="100" r="11" fill="currentColor"/>
+                    <circle cx="100" cy="100" r="4.5" class="lv-needle-eye"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <button class="lv-btn lv-btn-dark lv-btn-block" id="spin" type="button" disabled>Spin</button>
+            <p class="lv-status" id="status" role="status" aria-live="polite">Complete the details to unlock the spin.</p>
+
+            <div class="lv-result" id="result" hidden>
+              <i class="lv-dot lv-dot-lg" id="resDot"></i>
+              <div>
+                <b id="resColor">—</b>
+                <em id="resLimb">—</em>
+                <p id="resLine">—</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="lv-card lv-summary">
+            <p class="lv-kicker lv-kicker-sm">Launch summary</p>
+            <h3 id="sumName">Your coin</h3>
+            <p class="lv-summary-sub" id="sumSub">TICKER · UNPAIRED</p>
+            <dl class="lv-rows" id="sumRows"></dl>
+          </div>
+
+          <div class="lv-card lv-record" id="ticket" hidden>
+            <div class="lv-card-head">
+              <p class="lv-kicker lv-kicker-sm">Spin record</p>
+              <span class="lv-tag" id="tkId">—</span>
+            </div>
+            <div class="lv-record-coin">
+              <span class="lv-disc" id="tkAvatar"><b>—</b></span>
+              <div><b id="tkName">—</b><em id="tkTicker">—</em></div>
+            </div>
+            <dl class="lv-rows" id="tkRows"></dl>
+            <p class="lv-record-note" id="tkNote">—</p>
+            <div class="lv-record-foot">
+              <button class="lv-btn lv-btn-quiet" id="tkCopy" type="button">Copy record</button>
+              <button class="lv-btn lv-btn-dark" id="tkAgain" type="button">Launch another</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————— how it works ————— -->
+  <section class="lv-sec" id="how">
+    <div class="lv-wrap">
+      <p class="lv-kicker">How it works</p>
+      <h2>Four steps, in order</h2>
+      <ol class="lv-flow">
+        <li><span>1</span><h3>Name the coin</h3><p>Name, ticker, total supply and one line of description. The asset field stays empty.</p></li>
+        <li><span>2</span><h3>Take the spin</h3><p>One spin per launch, before anything is created. The dial is not skippable.</p></li>
+        <li><span>3</span><h3>The colour pairs it</h3><p>The colour drawn fills the underlying asset and closes the field to editing.</p></li>
+        <li><span>4</span><h3>Launch</h3><p>The control opens and the coin ships with its spin record attached.</p></li>
       </ol>
     </div>
   </section>
 
-  <!-- faq -->
-  <section class="sp-faq" id="faq">
-    <div class="sp-wrap sp-wrap-narrow">
+  <!-- ————— proof ————— -->
+  <section class="lv-sec lv-sec-tint" id="proof">
+    <div class="lv-wrap">
+      <p class="lv-kicker">Proof</p>
+      <h2>The dial is flat, and the record is open</h2>
+      <p class="lv-sec-lede lv-sec-lede-wide">
+        Sixteen equal sectors, four to a colour. The outcome comes from the browser's cryptographic
+        random source, so every colour draws one launch in four over the long run.
+      </p>
+
+      <div class="lv-kpis" id="kpis"></div>
+
+      <figure class="lv-figure">
+        <figcaption>
+          <h3>Spin distribution</h3>
+          <p>Observed outcomes across recorded launches, against the 25% each colour is expected to draw.</p>
+        </figcaption>
+        <div class="lv-meter" id="meter"></div>
+        <p class="lv-figure-note" id="meterNote"></p>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ————— faq ————— -->
+  <section class="lv-sec" id="faq">
+    <div class="lv-wrap lv-wrap-narrow">
+      <p class="lv-kicker">Questions</p>
       <h2>Frequently asked</h2>
 
       <details>
         <summary>Can a spin be repeated if the colour is unwanted?</summary>
-        <p>
-          No. The spin is spent the moment it is taken and stays bound to that draft. A draft can be
-          discarded, which clears the name, ticker, supply and description along with the spin — that
-          is starting over, not re-rolling.
-        </p>
+        <p>No. The spin is spent the moment it is taken and stays bound to that draft. A draft can be
+        discarded, which clears the name, ticker, supply and description along with the spin — that is
+        starting over, not re-rolling.</p>
       </details>
       <details>
-        <summary>Can a token be launched without spinning?</summary>
-        <p>
-          No. The launch control ships disabled, the step machine only reaches the launch step with a
-          resolved spin, and the launch routine checks the spin again before it writes anything.
-          Re-enabling the control from the console does not produce a launch.
-        </p>
+        <summary>Can a coin be launched without spinning?</summary>
+        <p>No. The launch control ships disabled, the step machine only reaches the launch step with a
+        resolved spin, and the launch routine checks the spin again before it writes anything.
+        Re-enabling the control from a console produces no launch.</p>
       </details>
       <details>
         <summary>Is the dial fair?</summary>
-        <p>
-          The sixteen sectors are equal and the outcome comes from <code>crypto.getRandomValues</code>
-          rather than <code>Math.random</code>. Each colour holds exactly four sectors, so the expected
-          share is 25%. The distribution section above reports the observed split.
-        </p>
+        <p>The sixteen sectors are equal and the outcome comes from <code>crypto.getRandomValues</code>
+        rather than <code>Math.random</code>. Each colour holds exactly four sectors, so the expected
+        share is 25%. The proof section reports the observed split.</p>
       </details>
       <details>
         <summary>What does the quadrant do?</summary>
-        <p>
-          The colour governs the outcome: it sets the underlying asset. The quadrant — right hand,
-          left hand, right foot, left foot — is recorded alongside it as part of the spin record and
-          affects no parameter of the token.
-        </p>
+        <p>The colour governs: it sets the underlying asset. The quadrant — right hand, left hand,
+        right foot, left foot — is recorded beside it as part of the outcome and affects no parameter
+        of the coin.</p>
       </details>
       <details>
         <summary>Does this issue real tokens?</summary>
-        <p>
-          No. Spinpad is a working simulation of the mechanic. There is no chain, no contract and no
-          money; market caps, replies and curve progress are generated figures. Launches are stored
-          in this browser only.
-        </p>
+        <p>No. Spinpad is a working simulation of the mechanic. There is no chain, no contract and no
+        money; prices, curves and holders are generated figures, and launches are stored in this
+        browser only.</p>
       </details>
     </div>
   </section>
 
 </main>
 
-<footer class="sp-foot">
-  <div class="sp-wrap sp-foot-in">
-    <p class="sp-foot-brand">Spinpad</p>
-    <p class="sp-foot-note">
-      Simulation only: no blockchain, no contract and no funds are involved, and every figure shown
-      is generated. Meta, Tesla, Nvidia and Amazon appear here as labels in a demonstration and
-      imply no relationship with those companies. Linking a token to the price of a listed security
-      carries significant regulatory consequences in most jurisdictions. The colour-dial mechanic is
-      an homage to the floor game of the same idea; Twister is a trademark of Hasbro and this
-      project is not affiliated with it.
+<footer class="lv-foot">
+  <div class="lv-wrap lv-foot-in">
+    <div class="lv-foot-brand">
+      <p class="lv-foot-name">Spinpad</p>
+      <p class="lv-foot-tag">Pairing, minus the choosing.</p>
+    </div>
+    <nav class="lv-foot-links" aria-label="Footer">
+      <button class="lv-textlink" data-scroll="board" type="button">The board</button>
+      <button class="lv-textlink" data-scroll="launch" type="button">Launch a coin</button>
+      <button class="lv-textlink" data-scroll="how" type="button">How it works</button>
+      <button class="lv-textlink" data-scroll="proof" type="button">Proof</button>
+      <button class="lv-textlink" data-scroll="faq" type="button">Questions</button>
+    </nav>
+  </div>
+  <div class="lv-wrap lv-foot-bar">
+    <p>© 2026 Spinpad · Pairing, minus the choosing.</p>
+    <p class="lv-foot-status">SIMULATION · NO CHAIN · NO CONTRACT · NO REAL MONEY ON THIS SITE</p>
+  </div>
+  <div class="lv-wrap">
+    <p class="lv-foot-note">
+      Every figure on this page is generated, and the contract address above is a placeholder. Meta,
+      Tesla, Nvidia and Amazon appear as labels in a demonstration and imply no relationship with those
+      companies. Pairing a token with the price of a listed security carries significant regulatory
+      consequences in most jurisdictions. The colour-dial mechanic is an homage to the floor game of
+      the same idea; Twister is a trademark of Hasbro and this project is not affiliated with it.
     </p>
   </div>
 </footer>
-
-<!-- create token -->
-<dialog class="sp-modal" id="create" aria-labelledby="createTitle">
-  <form method="dialog" class="sp-modal-x"><button value="cancel" aria-label="Close">&times;</button></form>
-
-  <div class="sp-modal-in">
-    <header class="sp-modal-head">
-      <h2 id="createTitle">Create token</h2>
-      <ol class="sp-steps" id="steps">
-        <li data-step="1"><span>1</span> Details</li>
-        <li data-step="2"><span>2</span> Spin</li>
-        <li data-step="3"><span>3</span> Launch</li>
-      </ol>
-    </header>
-
-    <div class="sp-pad" id="pad" data-step="1">
-
-      <form class="sp-panel" id="form" novalidate>
-        <h3 class="sp-panel-title">Token details</h3>
-        <fieldset id="fields">
-          <label class="sp-field">
-            <span>Name</span>
-            <input id="fName" type="text" maxlength="32" autocomplete="off" placeholder="Meridian Reserve" required>
-            <em class="sp-err" data-for="fName"></em>
-          </label>
-
-          <label class="sp-field">
-            <span>Ticker</span>
-            <input id="fTicker" type="text" maxlength="8" autocomplete="off" placeholder="MRDN" required>
-            <em class="sp-err" data-for="fTicker"></em>
-          </label>
-
-          <label class="sp-field">
-            <span>Total supply</span>
-            <input id="fSupply" type="text" inputmode="numeric" autocomplete="off" value="1,000,000,000" required>
-            <em class="sp-err" data-for="fSupply"></em>
-          </label>
-
-          <label class="sp-field">
-            <span>Description <i id="descCount">0/140</i></span>
-            <textarea id="fDesc" maxlength="140" rows="3" placeholder="One line on what this token is for."></textarea>
-            <em class="sp-err" data-for="fDesc"></em>
-          </label>
-
-          <div class="sp-field">
-            <span>Underlying asset</span>
-            <div class="sp-locked" id="assetSlot" data-color="none">
-              <i class="sp-dot"></i>
-              <b id="assetName">Assigned by the spin</b>
-              <em id="assetHint">Locked until the dial is spun</em>
-            </div>
-          </div>
-        </fieldset>
-
-        <button class="sp-btn sp-btn-primary sp-btn-block" id="toSpin" type="submit">Continue to the spin</button>
-        <button class="sp-btn sp-btn-ghost sp-btn-block" id="backToForm" type="button" hidden>Back to details</button>
-      </form>
-
-      <div class="sp-panel sp-panel-spin">
-        <h3 class="sp-panel-title">The dial <span class="sp-tag" id="spinCount">Spins 0/1</span></h3>
-
-        <div class="sp-dial-stage">
-          <span class="sp-limb sp-limb-tl">Left hand</span>
-          <span class="sp-limb sp-limb-tr">Right hand</span>
-          <span class="sp-limb sp-limb-bl">Left foot</span>
-          <span class="sp-limb sp-limb-br">Right foot</span>
-
-          <div class="sp-dial-wrap">
-            <svg class="sp-dial" id="dial" viewBox="0 0 200 200" role="img" aria-label="Dial of sixteen equal sectors in four colours"></svg>
-            <div class="sp-needle" id="needle">
-              <svg viewBox="0 0 200 200" aria-hidden="true">
-                <path d="M100 16 L107.5 96 L100 105 L92.5 96 Z" fill="currentColor"/>
-                <circle cx="100" cy="100" r="11" fill="currentColor"/>
-                <circle cx="100" cy="100" r="4.5" class="sp-needle-eye"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <button class="sp-btn sp-btn-spin sp-btn-block" id="spin" type="button" disabled>Spin</button>
-        <p class="sp-status" id="status" role="status" aria-live="polite">Complete the token details to unlock the spin.</p>
-
-        <div class="sp-result" id="result" hidden>
-          <i class="sp-dot sp-dot-lg" id="resDot"></i>
-          <div>
-            <b id="resColor">—</b>
-            <em id="resLimb">—</em>
-            <p id="resLine">—</p>
-          </div>
-        </div>
-
-        <div class="sp-spin-foot">
-          <button class="sp-btn sp-btn-launch sp-btn-block" id="launch" type="button" disabled>Launch</button>
-          <button class="sp-btn sp-btn-ghost sp-btn-block" id="discard" type="button" hidden>Discard draft</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- spin record -->
-    <div class="sp-ticket" id="ticket" hidden>
-      <div class="sp-ticket-head">
-        <span>Spin record</span>
-        <span class="sp-ticket-id" id="tkId">—</span>
-      </div>
-      <div class="sp-ticket-coin">
-        <span class="sp-avatar" id="tkAvatar"></span>
-        <div><b id="tkName">—</b><em id="tkTicker">—</em></div>
-      </div>
-      <dl class="sp-ticket-rows" id="tkRows"></dl>
-      <p class="sp-ticket-note" id="tkNote">—</p>
-      <div class="sp-ticket-foot">
-        <button class="sp-btn sp-btn-ghost sp-btn-sm" id="tkCopy" type="button">Copy record</button>
-        <button class="sp-btn sp-btn-primary sp-btn-sm" id="tkAgain" type="button">Create another</button>
-      </div>
-    </div>
-  </div>
-</dialog>
 
 <script src="app.js"></script>
 </body>

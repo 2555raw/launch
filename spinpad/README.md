@@ -29,8 +29,10 @@ index.html   the page: pinned nav and contract bars, hero, launch ticker, the co
              how it works, proof, FAQ and footer
 styles.css   the design system: the ground, the mat under the pad, the four reserved
              colours, type, components and the responsive rules
-app.js       the dial, the three-step machine, the board and its cards, the metrics
-             and local storage
+app.js       the board, the step machine, the mat and its figure, the coin cards,
+             the metrics and local storage
+server.js    the static server Railway runs — no dependencies
+test/        the rule, held down in a real browser
 ```
 
 ## Running it
@@ -45,6 +47,7 @@ Deploy by dropping the folder on any static host (Netlify, Vercel, GitHub Pages,
 Pages).
 
 ### On Railway
+
 
 `server.js` is the whole server: no dependencies, reads the file off disk and hands it back with
 the right content type. It is the same shape as the one in `archive-2011/`, because the job is the
@@ -66,12 +69,45 @@ three independent places in `app.js`, deliberately.
    is the form, step two is the dial, and `#launch` only opens on `n === 3 && flow.spin`.
 3. **`launch()` re-checks before it writes.** Missing spin, draft or step and it reports,
    re-synchronises the controls and returns. Setting `disabled = false` from a console and clicking
-   produces nothing — there is a regression check for exactly that.
+   produces nothing.
+4. **Minting closes the flow.** A successful launch moves to a terminal step where every control
+   is shut, so one spin can only ever produce one coin. Without it, a second click re-mints the
+   same draft — from one spin, with a duplicate ticker the form itself refuses to accept.
+
+Every one of those is held down by a check in `test/rule.test.js`, including the console attacks.
 
 The moment the arrow stops, `resolveSpin()` reads both coordinates, looks the asset up in the same
 table the board is drawn from, and writes it into the form's underlying-asset field, the preview
 sphere, the launch summary and the figure on the mat at once, marking the field locked. There is
 nothing to choose and nothing to confirm: the draw fills it in.
+
+## Checks
+
+```bash
+npm test                                  # a global or nearby Playwright
+CHROME_PATH=/path/to/chrome npm test      # or point it at a browser
+```
+
+`test/rule.test.js` runs the whole rule in a real browser and the server in a real process. It is
+not a unit test of the internals; it goes at the product the way someone trying to cheat it would.
+
+- The launch control ships disabled, and forcing it open from a console and clicking mints nothing.
+- An invalid draft never reaches the spin; the asset field is empty until the arrow stops.
+- After the draw, the asset appears in the form, the preview, the summary and the figure on the mat,
+  and the spin is spent with no way back to the details.
+- Calling the spin again from a console does not change what was drawn.
+- One spin mints one coin: a second launch, with the control forced open again, mints nothing.
+- **The dot under the needle is the asset reported.** The test rebuilds the board's table itself
+  from first principles, reads the needle's resting angle out of the computed transform, and works
+  out which dot that is — so if `app.js` and the page ever disagree about what the arrow is
+  pointing at, this fails.
+- The mat is a control: tapping a circle moves that limb, and onto the right asset.
+- The nav links are focusable, and nothing logs to the console along the way.
+- The server survives a malformed escape (`/%`) and a NUL byte (`/a%00b`) — both throw
+  synchronously in Node and would otherwise take the process down — and keeps serving afterwards.
+
+Playwright is deliberately **not** a dependency: the site itself ships none, and nothing in the
+deploy path installs anything.
 
 One id collision was worth the bug it caused. The launch *section* and the launch *button* both
 carried `id="launch"`, so `getElementById` returned the section, `disabled` was set on a `<section>`

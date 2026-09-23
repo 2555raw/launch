@@ -449,6 +449,7 @@
             <span class="lv-coin-pill">On the board</span>
           </div>
           <p class="lv-coin-sub">${esc(c.ticker)} · ${esc(as.name)} · ${esc(f.family)} ${esc(quadOf(c.quadrant).label)}${c.demo ? '<span class="lv-coin-demo">SAMPLE</span>' : ''}</p>
+          ${c.desc ? `<p class="lv-coin-desc">${esc(c.desc)}</p>` : ''}
           <div class="lv-bar"><i style="width:${pct.toFixed(1)}%"></i></div>
           <div class="lv-coin-nums"><span>${esc(as.unit)} ${esc(as.ticker)}</span><span>${pct.toFixed(1)}% of curve</span></div>
           <p class="lv-spark-label">1 USD in ${esc(as.ticker)} · simulated</p>
@@ -628,6 +629,11 @@
     coins.unshift(coin);
     save();
     renderBoard();
+    // Step 4 is the terminal state: the spin is spent and the draft is minted,
+    // so every control closes. Without it a second click on the launch button
+    // mints the same draft again, from one spin, with a duplicate ticker that
+    // readForm() refuses to let anyone type.
+    setStep(4);
     showRecord(coin);
   };
 
@@ -651,6 +657,8 @@
       ['Opening cap', money(coin.cap) + ' · simulated', true],
       ['Recorded', new Date(coin.ts).toLocaleString('en-US'), true],
     ].map(([k, v, mono]) => `<div><dt>${esc(k)}</dt><dd${mono ? ' class="is-mono"' : ''}>${esc(v)}</dd></div>`).join('');
+    $('tkDesc').textContent = coin.desc || '';
+    $('tkDesc').hidden = !coin.desc;
     $('tkNote').textContent =
       `${coin.name} launches paired with ${as.name} because the arrow stopped on a ${f.label.toLowerCase()} dot in the ${q.label} quadrant — ` +
       `${f.label.toLowerCase()} names the family, the quadrant names the asset. One spin per launch: another coin needs another spin.`;
@@ -731,7 +739,8 @@
       const needle = $('needle');
       needle.style.transition = 'none';
       needle.style.transform = 'rotate(0deg)';
-      requestAnimationFrame(() => { needle.style.transition = ''; });
+      void needle.offsetWidth;          // flush, or the transition survives and it unwinds
+      needle.style.transition = '';
       resetFlow();
     });
 
@@ -756,7 +765,18 @@
     }));
 
     $('fTicker').addEventListener('input', (e) => {
-      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      // Reassigning .value moves the caret to the end, so only do it when the
+      // text actually changed, and put the caret back where the edit was.
+      const el = e.target;
+      const before = el.value;
+      const after = before.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (after !== before) {
+        const at = el.selectionStart === null ? after.length : el.selectionStart;
+        const lost = before.length - after.length;
+        el.value = after;
+        const put = Math.max(0, Math.min(after.length, at - lost));
+        try { el.setSelectionRange(put, put); } catch (e2) { /* not a text input */ }
+      }
       renderSummary();
     });
     $('fName').addEventListener('input', renderSummary);
@@ -790,9 +810,11 @@
     });
 
     document.querySelectorAll('[data-scroll]').forEach((el) => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (e) => {
         const t = document.getElementById(el.dataset.scroll);
-        if (t) t.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        if (!t) return;                 // a real href still works if the id moved
+        e.preventDefault();
+        t.scrollIntoView({ block: 'start', behavior: 'smooth' });
       });
     });
 

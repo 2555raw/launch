@@ -24,21 +24,39 @@ const TYPES = {
   '.txt': 'text/plain; charset=utf-8'
 };
 
+const bad = (res, code, msg) => {
+  res.writeHead(code, { 'content-type': 'text/plain; charset=utf-8' });
+  res.end(msg);
+};
+
 http.createServer((req, res) => {
-  let rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  /* Two ways a request can throw synchronously and take the process with it:
+     a malformed escape (/%) makes decodeURIComponent throw URIError, and a NUL
+     byte makes fs.readFile throw rather than call back, so the 404 branch below
+     never runs. Both are a plain bad request, not a crash. */
+  let rel;
+  try {
+    rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  } catch (e) {
+    bad(res, 400, '400 — bad path');
+    return;
+  }
+  if (rel.includes('\0')) {
+    bad(res, 400, '400 — bad path');
+    return;
+  }
   if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
 
   /* keep the request inside the directory, whatever it asks for */
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT)) {
-    res.writeHead(403).end('Forbidden');
+    bad(res, 403, '403 — forbidden');
     return;
   }
 
   fs.readFile(file, (err, body) => {
     if (err) {
-      res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
-      res.end('404 — nothing here');
+      bad(res, 404, '404 — nothing here');
       return;
     }
     res.writeHead(200, {

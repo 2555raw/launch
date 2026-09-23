@@ -136,21 +136,25 @@
               <div class="sp-field">
                 <label for="fName">Coin name</label>
                 <input id="fName" type="text" maxlength="32" autocomplete="off" placeholder="Northwind Capital" required>
+                <p class="sp-help">Up to 32 characters. This is what people read on the board.</p>
                 <p class="sp-err" data-for="fName"></p>
               </div>
               <div class="sp-field">
                 <label for="fTicker">Ticker</label>
                 <input id="fTicker" type="text" maxlength="8" autocomplete="off" placeholder="NWND" required>
+                <p class="sp-help">2 to 8 letters or digits, no spaces. It becomes the token symbol.</p>
                 <p class="sp-err" data-for="fTicker"></p>
               </div>
               <div class="sp-field">
                 <label for="fSupply">Supply</label>
                 <input id="fSupply" type="text" inputmode="numeric" autocomplete="off" value="1,000,000,000" required>
+                <p class="sp-help">Whole tokens, between 1,000 and 1,000,000,000,000. Minted once, to you.</p>
                 <p class="sp-err" data-for="fSupply"></p>
               </div>
               <div class="sp-field">
                 <label for="fDesc">Description <i id="descCount">0/140</i></label>
                 <textarea id="fDesc" maxlength="140" rows="2" placeholder="One line."></textarea>
+                <p class="sp-help">One line, kept in this browser with the record. It does not go on chain.</p>
                 <p class="sp-err" data-for="fDesc"></p>
               </div>
               <div class="sp-field">
@@ -167,7 +171,15 @@
               <em id="assetHint">You cannot pick this</em>
             </div>
 
+            <div class="sp-note" id="walletNote">
+              <p id="walletNoteText"><b>A wallet is needed to launch, not to spin.</b> Fill this in and
+                spin whenever you like. The deployment is a transaction from your own address, and
+                nothing is sent until you confirm it in the wallet.</p>
+              <button class="sp-btn sp-btn-outline" id="connectInline" type="button">Connect wallet</button>
+            </div>
+
             <button class="sp-btn sp-btn-dark sp-btn-block" id="toSpin" type="submit">Spin the wheel <span aria-hidden="true">→</span></button>
+            <p class="sp-help sp-help-final">One spin decides the pairing. There is no second one.</p>
           </form>
 
           <!-- what is being made, as it is typed. The pairing row cannot fill

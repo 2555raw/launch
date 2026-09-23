@@ -574,6 +574,16 @@ a { color: inherit; text-decoration: none; }
 .sp-err.is-on { display: block; }
 .sp-field input[aria-invalid="true"], .sp-field textarea[aria-invalid="true"] { border-color: var(--red); background: #fff; }
 
+/* the wallet, said where it matters rather than only in the section header */
+.sp-note {
+  margin-top: 26px; padding: 18px 20px;
+  background: var(--tint); border-left: 3px solid var(--ink); border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.sp-note p { font-size: 13.5px; line-height: 1.6; color: var(--prose); }
+.sp-note b { font-weight: 700; color: var(--ink); }
+.sp-note .sp-btn { margin-top: 14px; padding: 10px 18px; font-size: 13.5px; }
+.sp-note.is-on { border-left-color: var(--green); }
+
 /* the one field nobody gets to fill in */
 .sp-pairing-slot {
   margin-top: 26px; padding: 20px 22px; text-align: center;

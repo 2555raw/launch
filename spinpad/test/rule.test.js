@@ -291,6 +291,10 @@ async function browserChecks() {
   }));
   ok('the live summary follows what is typed',
     live.name === 'Northwind Capital' && live.orb === 'NWND', JSON.stringify(live).slice(0, 120));
+  /* Supply reformats on blur but has to read on input, or the panel beside the
+     field shows the previous number while the new one is on screen next to it. */
+  ok('including the supply, before the field is left',
+    live.pairing.includes('Total supply=250,000,000'), live.pairing.join(' | '));
   ok('and says the same as the confirmation, row for row', live.rows === live.mirror);
   ok('with the pairing still the wheel\u2019s to give',
     live.pairing.includes('Pairing=Decided by the wheel')
@@ -299,6 +303,12 @@ async function browserChecks() {
 
   await page.click('#toSpin');
   await page.waitForTimeout(250);
+  ok('the note says a wallet is for launching, not for spinning',
+    /still fill this in and spin/i.test(await page.locator('#walletNoteText').textContent()),
+    (await page.locator('#walletNoteText').textContent()).slice(0, 70));
+  ok('and offers no connect button when there is no wallet to connect',
+    await page.locator('#connectInline').isHidden());
+
   ok('the spin opens on step two', !(await page.locator('#spin').isDisabled()));
   ok('the launch control is still shut on step two', await page.locator('#launchBtn').isDisabled());
   ok('the details are locked while the wheel is up',

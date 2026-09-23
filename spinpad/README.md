@@ -136,6 +136,13 @@ Five screens, one at a time, because the flow is the interface:
    That summary and the one on the confirmation are rendered from a single list of rows, because
    two copies of it are two chances for the screen someone reads to disagree with the screen that
    launches. A check compares the two panels row for row.
+
+   Every field carries a line saying what it will be used for, and above the button there is a note
+   about the wallet that changes with the wallet's state: none in the browser, present but not
+   connected, connected, connected on the wrong network. **It is deliberately not a blocker.** A
+   wallet is needed to launch, not to spin, and asking someone to sign something before they have
+   even seen the wheel is asking for a signature to look at a website. Its button is the header's
+   button rather than a second path to a wallet.
 2. **Spin** — the wheel, large and centred, and one button. *Let the wheel decide. One spin, one
    pairing.*
 3. **Result** — `YOU LANDED ON / LEFT FOOT · BLUE`, then `PAIRING / Skype`, then `PAIRING LOCKED`.
@@ -361,7 +368,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-182 checks across three suites.
+185 checks across three suites.
 
 ### The chain, checked without a chain
 

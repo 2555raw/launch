@@ -1020,9 +1020,41 @@
 
   /* ---------- the wallet ---------- */
 
+  /* The note in the form says the same thing as the header, in the place where
+     it is about to matter. It is deliberately not a blocker: a wallet is needed
+     to launch, not to spin, and telling someone to connect before they have
+     even seen the wheel is asking for a signature to look at a website. */
+  const renderWalletNote = () => {
+    const box = $('walletNote'), text = $('walletNoteText'), btn = $('connectInline');
+    if (!box || !text || !btn) return;
+    const acct = SpinpadChain.state.account;
+    const ready = !!acct && SpinpadChain.onChain();
+    box.classList.toggle('is-on', ready);
+    btn.hidden = !!acct;
+    if (!SpinpadChain.hasWallet()) {
+      text.innerHTML = '<b>No wallet in this browser.</b> You can still fill this in and spin \u2014 '
+        + 'the wheel needs nothing. Launching does: it deploys a contract on ' + esc(CFG.chain.name)
+        + ' from your own address.';
+      btn.hidden = true;
+      return;
+    }
+    if (!acct) {
+      text.innerHTML = '<b>A wallet is needed to launch, not to spin.</b> Fill this in and spin '
+        + 'whenever you like. The deployment is a transaction from your own address, and nothing is '
+        + 'sent until you confirm it in the wallet.';
+      return;
+    }
+    text.innerHTML = ready
+      ? '<b>Connected as ' + esc(short(acct)) + '.</b> The coin will be deployed from this address on '
+        + esc(CFG.chain.name) + ', and the supply minted to it.'
+      : '<b>Connected as ' + esc(short(acct)) + ', on the wrong network.</b> Switch to '
+        + esc(CFG.chain.name) + ' before launching \u2014 the header button does it.';
+  };
+
   const renderWallet = () => {
     const btn = $('connect');
     const line = $('walletLine');
+    renderWalletNote();
     if (!btn) return;
     if (!SpinpadChain.hasWallet()) {
       btn.textContent = 'No wallet found';
@@ -1247,6 +1279,9 @@
       say('Fill in the details, then the wheel decides the rest.');
     });
 
+    // the note's button is the header's button, not a second path to a wallet
+    if ($('connectInline')) $('connectInline').addEventListener('click', () => $('connect').click());
+
     $('spin').addEventListener('click', doSpin);
 
     // The only way from the result to the confirmation, and it carries nothing
@@ -1311,8 +1346,11 @@
     });
     $('fName').addEventListener('input', renderSummary);
 
-    // Formatted on blur only: rewriting the value while the field has focus
-    // fights with whatever the user is doing to it mid-edit.
+    /* The panel beside the form has to follow this field as it is typed, but the
+       thousands separators still go in on blur only: rewriting .value while the
+       field has focus fights whatever the user is doing to it mid-edit. So the
+       two are split — read on input, reformat on blur. */
+    $('fSupply').addEventListener('input', renderSummary);
     $('fSupply').addEventListener('blur', (e) => {
       const n = Number(e.target.value.replace(/\D/g, ''));
       e.target.value = n ? num(n) : '';

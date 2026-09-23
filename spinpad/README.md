@@ -1,38 +1,55 @@
-# Spinpad — a launchpad where the underlying asset is drawn, not chosen
+# Spinpad — a launchpad where a spinner picks the pairing
 
-A token launchpad built around one rule: **nothing launches until the board has been spun, and
-where the arrow stops sets the asset the coin is paired with.**
+**Nothing launches until the board has been spun, and where the arrow stops decides what the coin is
+paired with.** The draw is then written into the token's own contract, at construction, with no
+function anywhere that can change it afterwards.
 
-Where it stops gives two coordinates, and it takes both to name an asset. The **colour** picks one
-of four families; the **quadrant** picks which of the four names inside it. Sixteen dots on the
-board, sixteen assets, one to a dot — so red on the bid hand and red on the short leg are different
-coins.
-
-| | Bid hand | Ask hand | Short leg | Long leg |
-| --- | --- | --- | --- | --- |
-| 🟩 **Silicon** — the chip makers | Nvidia `NVDA` | AMD `AMD` | Broadcom `AVGO` | TSMC `TSM` |
-| 🟨 **Shelves** — commerce and logistics | Amazon `AMZN` | Shopify `SHOP` | Walmart `WMT` | Coupang `CPNG` |
-| 🟦 **Signal** — screens and feeds | Meta `META` | Netflix `NFLX` | Spotify `SPOT` | Alphabet `GOOGL` |
-| 🟥 **Motion** — everything that moves | Tesla `TSLA` | Rivian `RIVN` | Uber `UBER` | Ford `F` |
-
-A pairs trade has two legs and two sides, which is where the quadrant names come from.
+Where the arrow stops gives two coordinates, and it takes both to name an asset. The **colour**
+picks one of four families; the **quadrant** picks which of the four tokens inside it. Sixteen dots
+on the board, sixteen tokens, one to a dot — so a red dot on the bid hand and a red dot on the short
+leg are different coins. A pairs trade has two legs and two sides, which is where the quadrant names
+come from.
 
 One spin per launch. It cannot be repeated, and the pairing cannot be edited afterwards.
 
-No build step, no dependencies. Plain HTML, CSS and vanilla JS.
+## This deploys real contracts
+
+Launching calls `eth_sendTransaction` on **Base mainnet** from the connected wallet. It costs gas,
+it is permanent, and there is no undo. Opening the first pool moves real funds. The page says so
+before it lets anyone in, and it is the first thing to understand about the rest of this document.
+
+**No address in `config.js` is filled in.** They were left empty on purpose: this was built in an
+environment with no route to Base, so nothing could be checked against the chain, and an address
+written from memory into a tool that moves money is how someone's liquidity ends up somewhere it
+cannot be recovered from. Fill them from a source you trust, and the pad will check them for you —
+on connect it calls `symbol()` and `decimals()` on every one and refuses to launch against anything
+whose answers do not match. The router has to answer like a Uniswap V2 router, and its `WETH()` has
+to match the config, or pools stay off.
+
+No build step for the site, and no dependencies at runtime. Plain HTML, CSS and vanilla JS, plus one
+generated file holding the compiled contract.
 
 ## Structure
 
 ```
-index.html   the page: the door, pinned nav, hero, launch ticker, the coin board,
-             how it works, the asset desk, the playground, the pad (details ->
-             spin -> launch, then the spin record), proof, FAQ and footer
-styles.css   the design system: the ground, the mat under the pad, the four reserved
-             colours, type, components and the responsive rules
-app.js       the board, the step machine, the mat and its figure, the coin cards,
-             the metrics and local storage
-server.js    the static server Railway runs — no dependencies
-test/        the rule, held down in a real browser
+index.html            the page: the door, pinned nav, hero, ticker, the coin board,
+                      how it works, the asset desk, the playground, the pad and
+                      the spin record, proof, FAQ and footer
+config.js             the chain, the router and the sixteen tokens. Addresses are
+                      empty until someone fills them; nothing else needs editing
+chain.js              wallet, encoding, on-chain verification, deploy, pool
+app.js                the board, the step machine, the mat and its figure, the
+                      cards, the metrics and local storage
+styles.css            the design system
+server.js             the static server Railway runs — no dependencies
+contract/
+  SpinpadCoin.sol     the ERC-20 that carries its own draw
+  build.js            compiles it (needs solc; not a dependency of the site)
+  spinpad-coin.js     generated: bytecode + ABI, the only thing the page loads
+test/
+  contract.test.js    deploys the shipped creation code in a local EVM
+  launch.test.js      drives the real launch path with a fake wallet
+  rule.test.js        the rule, in a real browser
 ```
 
 ## Running it
@@ -84,9 +101,31 @@ nothing to choose and nothing to confirm: the draw fills it in.
 ## Checks
 
 ```bash
-npm test                                  # a global or nearby Playwright
-CHROME_PATH=/path/to/chrome npm test      # or point it at a browser
+npm i --no-save playwright solc @ethereumjs/evm @ethereumjs/util ethereum-cryptography
+CHROME_PATH=/path/to/chrome npm test
 ```
+
+None of those are dependencies of the site. It ships no runtime dependencies at all.
+
+### The chain, checked without a chain
+
+`test/contract.test.js` does not test a copy of the encoder. It loads `chain.js` exactly as the page
+loads it, builds the creation code the pad would send, and **deploys that in a local EVM**, then
+reads every field back: name, symbol, supply, decimals, the creator's balance, and all four fields
+of the draw. It also recomputes every function selector in `chain.js` from the signature written
+beside it, and asserts the ABI exposes no writable function beyond `approve`, `transfer` and
+`transferFrom` — nothing that could rewrite a draw.
+
+`test/launch.test.js` serves the page with the real `server.js`, injects a fake EIP-1193 wallet and
+a test config whose addresses resolve, and then checks **the exact bytes the pad hands the wallet**:
+that a deployment is a create with no `to`, starting with the compiled bytecode and carrying the
+encoded draw; that a pool is an approval to the router followed by `addLiquidity` with the right
+pair, the configured share of supply, the amount that was typed, minimums 1% under each side, the
+connected account as recipient and a deadline in the future. Nothing is broadcast.
+
+The contract was compiled for `evmVersion: paris` on purpose: Shanghai and later emit `PUSH0`, which
+is not accepted on every chain a token might be deployed to, and the saving is a handful of gas.
+That was not a guess — the local EVM rejected the Shanghai build with `invalid opcode`.
 
 `test/rule.test.js` runs the whole rule in a real browser and the server in a real process. It is
 not a unit test of the internals; it goes at the product the way someone trying to cheat it would.
@@ -229,30 +268,29 @@ round for a disclaimer.
 
 ## The data
 
-- **Every figure is generated.** Market caps, replies, curve progress and the combined total are
-  illustrative; the board, the metrics and the footer all say so.
-- Launches live in `localStorage` under `spinpad.coins.v2`, capped at 60. The key was bumped from
-  `v1` because records written then stored a colour-only pairing, which no longer names an asset on
-  its own. Reads and writes are
-  wrapped in `try/catch`: a browser that blocks storage still runs, just in memory.
-- The first five launches are samples, tagged `SAMPLE` on the board. They are seeded once, when the
-  key is absent — clearing the record leaves it cleared.
-- Card sparklines are deterministic: each one is a seeded random walk keyed on the coin's id, so a
-  card looks the same across re-renders instead of twitching every time the board redraws.
-- The board re-renders each minute so relative timestamps do not freeze on a tab left open.
+- Launches are kept in `localStorage` under `spinpad.coins.v2` so the board has something to show;
+  the chain holds the real record, and every card links to it. Reads and writes are wrapped in
+  `try/catch`, so a browser that blocks storage still runs.
+- There are no seeded sample coins. A pad that deploys for real has no business showing invented
+  ones, and there are no invented prices, caps or curves anywhere on the page any more.
 - Coming back to the tab blooms the coloured ground in again — the mat under the playground and the
-  assets behind the hero. It is decoration, so it is skipped entirely under `prefers-reduced-motion`.
+  assets behind the hero. Decoration, so it is skipped under `prefers-reduced-motion`.
 
-## Before this becomes real
+## Before the first real launch
 
-- **There is no chain, no contract and no money.** This is a complete simulation of the mechanic,
-  not a launchpad. The seam for a real backend is `launch()`: today it builds the token object and
-  unshifts it into the array. The spin record it produces — colour, quadrant, timestamp, id — is
-  exactly what would need to be signed and stored alongside the token for the rule to be auditable
-  rather than a promise the interface makes.
-- Meta, Tesla, Nvidia and Amazon appear here as labels in a demonstration. Pairing a token with the
-  price of a listed security carries significant regulatory consequences in most jurisdictions, and
-  that has to be resolved before anything ships, not after.
-- The colour-dial mechanic is an homage to the floor game of the same idea. **Twister is a
-  trademark of Hasbro** and this project is not affiliated with it, which is why the product is
-  called Spinpad and the trademark appears nowhere in the interface.
+1. **Fill in `config.js`** — the router, its `WETH()`, and the sixteen token addresses with their
+   decimals. Take them from each token's own site or a verified contract page, not from a search
+   result and not from this file.
+2. **Connect and read the panel.** The pad checks every address against the live chain and tells
+   you, one by one, what answered and what did not. Squares that did not verify cannot be launched
+   against.
+3. **Launch one coin with a small supply first**, and look at it on the explorer before opening any
+   pool. The deployment and the pool are separate transactions precisely so this is possible.
+4. **Understand what a first pool is.** A new pair with thin liquidity is trivially easy for anyone
+   to drain, and the pad does not lock, vest or protect anything. It opens a pool; that is all.
+
+Nothing here is an investment, an offer or advice, and no outcome is promised — the pairing is
+decided by a spinner. The tokens on the board are third-party ERC-20s, named only to identify what
+a pool would pair against; naming one implies no relationship with or endorsement by its issuer.
+The colour-dial mechanic is an homage to the floor game of the same idea; **Twister is a trademark
+of Hasbro** and this project is not affiliated with it.

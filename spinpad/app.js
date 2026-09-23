@@ -18,66 +18,64 @@
    *
    * Where the arrow stops gives two coordinates, and it takes both to name an
    * asset. The colour picks the family; the quadrant picks which of the four
-   * names inside it. Sixteen dots on the board, sixteen assets, one to a dot —
-   * so red on the bid hand and red on the short leg are different coins.
+   * names inside it. Sixteen dots on the board, sixteen assets, one to a dot.
+   *
+   * The assets are invented. That is deliberate and it is not decoration: this
+   * pad deploys real contracts on a real chain, and a token sold under the name
+   * of a listed company, or advertised as tracking one, is a different and
+   * heavily regulated thing. These are houses in a board game.
    */
 
-  // Quadrants clockwise from twelve o'clock, matching the labels printed in the
-  // corners of the board. A pairs trade has two legs and two sides; so does this.
+  // Quadrants clockwise from twelve, matching the corners of the board. A pairs
+  // trade has two legs and two sides; so does this.
   const QUADRANTS = [
-    { id: 'bid',   label: 'bid hand',   short: 'Bid hand' },
-    { id: 'ask',   label: 'ask hand',   short: 'Ask hand' },
-    { id: 'short', label: 'short leg',  short: 'Short leg' },
-    { id: 'long',  label: 'long leg',   short: 'Long leg' },
+    { id: 'bid',   label: 'bid hand',  short: 'Bid hand' },
+    { id: 'ask',   label: 'ask hand',  short: 'Ask hand' },
+    { id: 'short', label: 'short leg', short: 'Short leg' },
+    { id: 'long',  label: 'long leg',  short: 'Long leg' },
   ];
 
-  const FAMILIES = {
-    green: {
-      id: 'green', label: 'Green', family: 'Silicon', blurb: 'the chip makers',
-      assets: {
-        bid:   { name: 'Nvidia',   ticker: 'NVDA', unit: '0.000004200' },
-        ask:   { name: 'AMD',      ticker: 'AMD',  unit: '0.000012800' },
-        short: { name: 'Broadcom', ticker: 'AVGO', unit: '0.000006100' },
-        long:  { name: 'TSMC',     ticker: 'TSM',  unit: '0.000009400' },
-      },
-    },
-    red: {
-      id: 'red', label: 'Red', family: 'Motion', blurb: 'everything that moves',
-      assets: {
-        bid:   { name: 'Tesla',  ticker: 'TSLA', unit: '0.000003400' },
-        ask:   { name: 'Rivian', ticker: 'RIVN', unit: '0.000071000' },
-        short: { name: 'Uber',   ticker: 'UBER', unit: '0.000013500' },
-        long:  { name: 'Ford',   ticker: 'F',    unit: '0.000094000' },
-      },
-    },
-    blue: {
-      id: 'blue', label: 'Blue', family: 'Signal', blurb: 'screens and feeds',
-      assets: {
-        bid:   { name: 'Meta',     ticker: 'META',  unit: '0.000001800' },
-        ask:   { name: 'Netflix',  ticker: 'NFLX',  unit: '0.000001100' },
-        short: { name: 'Spotify',  ticker: 'SPOT',  unit: '0.000002000' },
-        long:  { name: 'Alphabet', ticker: 'GOOGL', unit: '0.000006300' },
-      },
-    },
-    yellow: {
-      id: 'yellow', label: 'Yellow', family: 'Shelves', blurb: 'commerce and logistics',
-      assets: {
-        bid:   { name: 'Amazon',  ticker: 'AMZN', unit: '0.000005100' },
-        ask:   { name: 'Shopify', ticker: 'SHOP', unit: '0.000010200' },
-        short: { name: 'Walmart', ticker: 'WMT',  unit: '0.000011700' },
-        long:  { name: 'Coupang', ticker: 'CPNG', unit: '0.000042000' },
-      },
-    },
+  // One mark per asset, drawn rather than fetched: sixteen files would be
+  // sixteen requests for something that is four hundred bytes of path data.
+  const GLYPHS = {
+    chevron:  'M5 15l7-7 7 7',
+    bars:     'M5 8h14M5 12h14M5 16h9',
+    orbit:    'M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7M3.5 12c0-1.7 3.8-3 8.5-3s8.5 1.3 8.5 3-3.8 3-8.5 3-8.5-1.3-8.5-3',
+    grid:     'M5 5h5.5v5.5H5zM13.5 5H19v5.5h-5.5zM5 13.5h5.5V19H5zM13.5 13.5H19V19h-5.5z',
+    arc:      'M12 4.5v15M7 10a5 5 0 0 0 10 0M5.5 19.5h13',
+    arrowbox: 'M4.5 6.5h15v11h-15zM8.5 12h7M13 9.5l2.5 2.5L13 14.5',
+    stack:    'M4 15.5l8 3.5 8-3.5M4 11.5l8 3.5 8-3.5M4 7.5l8 3.5 8-3.5',
+    loop:     'M9.5 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6M15.5 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6',
+    play:     'M9 6.5l9 5.5-9 5.5z',
+    spark:    'M12 4c3 4 5 5.5 5 9a5 5 0 0 1-10 0c0-3.5 2-5 5-9z',
+    wave:     'M3.5 12h3l2-5.5 3 11 3-8.5 2 3h4',
+    tiles:    'M12 4l3.6 3.6L12 11.2 8.4 7.6zM12 12.8l3.6 3.6L12 20l-3.6-3.6z',
+    bolt:     'M13.5 3.5L6.5 13h4.5l-1 7.5 7-10h-4.5z',
+    rail:     'M8.5 4.5v15M15.5 4.5v15M5 9h14M5 15h14',
+    waves:    'M3.5 9.5c3-2 5 2 8.5 0s5.5-2 8.5 0M3.5 15c3-2 5 2 8.5 0s5.5-2 8.5 0',
+    delta:    'M12 4l7.5 16L12 16.5 4.5 20z',
   };
+
+  const CFG = window.SPINPAD_CONFIG;
+
+  // The board is built from config.js so there is exactly one place where an
+  // address lives, and it is the place the verifier checks.
+  const FAMILIES = {};
+  ['green', 'yellow', 'blue', 'red'].forEach((k) => {
+    const c = CFG.assets[k];
+    FAMILIES[k] = {
+      id: k,
+      label: k[0].toUpperCase() + k.slice(1),
+      family: c.family,
+      blurb: c.blurb,
+      assets: { bid: c.bid, ask: c.ask, short: c.short, long: c.long },
+    };
+  });
 
   const HEX = { green: '#2FA84F', yellow: '#FDD208', blue: '#1B75BC', red: '#E4322B' };
 
-  // Fixed reading order for the matrix, the filters and the chart. Categorical
-  // identity never follows rank, so a filter or a sort cannot repaint it.
   const ORDER = ['blue', 'red', 'green', 'yellow'];
 
-  // One asset per dot. Each quadrant carries all four colours, so every
-  // (colour, quadrant) pair appears exactly once around the board.
   const BASE = ['green', 'yellow', 'blue', 'red'];
   const SECTORS = [];
   for (let q = 0; q < 4; q++) {
@@ -89,9 +87,12 @@
   const assetOf = (color, quadrant) => FAMILIES[color].assets[quadrant];
   const quadOf = (id) => QUADRANTS.find((q) => q.id === id) || QUADRANTS[0];
 
+  const mark = (glyph, size) => `<svg class="lv-glyph" viewBox="0 0 24 24" width="${size}" height="${size}"
+      fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+      aria-hidden="true"><path d="${GLYPHS[glyph]}"/></svg>`;
+
   const SEG = 360 / SECTORS.length;   // 22.5 degrees between dots
   const EXPECTED = 100 / 4;           // four of sixteen dots per family
-  const CURVE = 69000;                // simulated cap that fills the curve
   const KEY = 'spinpad.coins.v2';     // v1 held colour-only pairings
 
   /* ---------- helpers ---------- */
@@ -122,47 +123,17 @@
 
   const initials = (t) => t.replace(/[^A-Z0-9]/gi, '').slice(0, 5).toUpperCase() || '??';
 
-  // deterministic noise per coin, so a card's sparkline is stable across renders
-  const seeded = (str) => {
-    let h = 1779033703 ^ str.length;
-    for (let i = 0; i < str.length; i++) {
-      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
-      h = (h << 13) | (h >>> 19);
-    }
-    return () => {
-      h = Math.imul(h ^ (h >>> 16), 2246822507);
-      h = Math.imul(h ^ (h >>> 13), 3266489909);
-      return ((h ^= h >>> 16) >>> 0) / 4294967296;
-    };
-  };
-
   /* ---------- store ---------- */
-
-  const DEMO = [
-    { name: 'Meridian Reserve', ticker: 'MRDN', color: 'red',    quadrant: 'bid',   supply: 1000000000, desc: 'Red on the bid hand, and it took the loudest name in Motion.',    cap: 48200, replies: 214, age: 41 },
-    { name: 'Halden Grid',      ticker: 'HLDN', color: 'green',  quadrant: 'short', supply: 500000000,  desc: 'Silicon, short leg. Not the chip anyone asks for first.',         cap: 31800, replies: 96,  age: 96 },
-    { name: 'Copperline',       ticker: 'CPRL', color: 'blue',   quadrant: 'ask',   supply: 1000000000, desc: 'Signal on the ask hand: the feed nobody expected to draw.',       cap: 12400, replies: 41,  age: 180 },
-    { name: 'Vantage Point',    ticker: 'VNTG', color: 'yellow', quadrant: 'long',  supply: 210000000,  desc: 'Shelves, long leg. Logistics by accident rather than by plan.',   cap: 8100,  replies: 27,  age: 320 },
-    { name: 'Solace Works',     ticker: 'SLCE', color: 'green',  quadrant: 'long',  supply: 888888888,  desc: 'Sixteen dots on the board, and this is the one the arrow found.', cap: 5600,  replies: 12,  age: 615 },
-  ];
-
-  const seed = () => DEMO.map((d, i) => ({
-    id: 'sample-' + (i + 1),
-    name: d.name, ticker: d.ticker, color: d.color, quadrant: d.quadrant,
-    supply: d.supply, desc: d.desc, cap: d.cap, replies: d.replies,
-    ts: Date.now() - d.age * 60000, demo: true,
-  }));
 
   let coins = [];
 
   const load = () => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw === null) { coins = seed(); save(); return; }
-      const parsed = JSON.parse(raw);
+      const parsed = raw === null ? [] : JSON.parse(raw);
       coins = Array.isArray(parsed) ? parsed : [];
     } catch (e) {
-      coins = seed();              // storage blocked or corrupt: run from memory
+      coins = [];                  // storage blocked or corrupt: run from memory
     }
   };
 
@@ -438,7 +409,6 @@
   const renderKpis = () => {
     const counts = tally();
     const total = coins.length;
-    const sum = coins.reduce((a, c) => a + c.cap, 0);
     const shares = ORDER.map((k) => ({ k, pct: total ? counts[k] / total * 100 : 0 }));
     const most = shares.slice().sort((a, b) => b.pct - a.pct)[0];
     const wide = shares.slice().sort((a, b) => Math.abs(b.pct - EXPECTED) - Math.abs(a.pct - EXPECTED))[0];
@@ -446,7 +416,7 @@
 
     const tiles = [
       ['Launches recorded', num(total), total === 1 ? 'coin' : 'coins'],
-      ['Combined cap', money(sum), 'simulated'],
+      ['Launched on ' + esc(CFG.chain.name), num(total), total === 1 ? 'contract' : 'contracts'],
       ['Most drawn family', total ? FAMILIES[most.k].family : '—', total ? most.pct.toFixed(1) + '%' : ''],
       ['Widest deviation', total ? (gap >= 0 ? '+' : '') + gap.toFixed(1) : '—', total ? 'pts · ' + FAMILIES[wide.k].family : ''],
     ];
@@ -495,53 +465,39 @@
       const q = view.q.toLowerCase();
       list = list.filter((c) => (c.name + ' ' + c.ticker).toLowerCase().includes(q));
     }
-    const by = { new: (a, b) => b.ts - a.ts, cap: (a, b) => b.cap - a.cap, replies: (a, b) => b.replies - a.replies };
-    return list.sort(by[view.sort]);
+    const by = { new: (a, b) => b.ts - a.ts, supply: (a, b) => Number(BigInt(b.supply) - BigInt(a.supply)), name: (a, b) => a.name.localeCompare(b.name) };
+    return list.sort(by[view.sort] || by.new);
   };
 
-  const sparkline = (coin) => {
-    const rand = seeded(coin.id + coin.ticker);
-    const n = 46, walk = [];
-    let v = 0;
-    for (let i = 0; i < n; i++) { v += (rand() - 0.5) * 0.26; walk.push(v); }
-    // normalised to its own range, so a quiet series still fills the box
-    const lo = Math.min(...walk), hi = Math.max(...walk), span = (hi - lo) || 1;
-    const pts = walk.map((y, i) => [
-      (i / (n - 1) * 100).toFixed(2),
-      (40 - (y - lo) / span * 34).toFixed(2),
-    ]);
-    const line = pts.map((p) => p.join(',')).join(' ');
-    const area = `0,44 ${line} 100,44`;
-    return `
-      <svg class="lv-spark" viewBox="0 0 100 44" preserveAspectRatio="none" aria-hidden="true">
-        <polygon points="${area}" fill="var(--c)" opacity=".1"/>
-        <polyline points="${line}" fill="none" stroke="#171A1F" stroke-width="1.1"
-                  stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-      </svg>`;
-  };
+  const short = (addr) => (addr ? addr.slice(0, 6) + '\u2026' + addr.slice(-4) : '');
 
   const coinCard = (c) => {
     const f = FAMILIES[c.color];
     const as = assetOf(c.color, c.quadrant);
-    const pct = Math.min(100, c.cap / CURVE * 100);
+    const link = c.address ? SpinpadChain.explorerAddress(c.address) : null;
     return `
       <article class="lv-coin" data-color="${c.color}">
         <div class="lv-coin-top">
           <span class="lv-coin-code">${esc(as.ticker)}</span>
-          <span class="lv-disc"><b>${esc(initials(c.ticker))}</b><i>${esc(as.ticker)}</i></span>
+          <span class="lv-disc">${mark(as.glyph, 34)}<i>${esc(as.ticker)}</i></span>
           <span class="lv-coin-age">${ago(c.ts)}</span>
         </div>
         <div class="lv-coin-body">
           <div class="lv-coin-title">
             <h3>${esc(c.name)}</h3>
-            <span class="lv-coin-pill">On the board</span>
+            <span class="lv-coin-pill">${esc(c.ticker)}</span>
           </div>
-          <p class="lv-coin-sub">${esc(c.ticker)} · ${esc(as.name)} · ${esc(f.family)} ${esc(quadOf(c.quadrant).label)}${c.demo ? '<span class="lv-coin-demo">SAMPLE</span>' : ''}</p>
+          <p class="lv-coin-sub">paired with ${esc(as.name)} \u00b7 ${esc(f.family)} ${esc(quadOf(c.quadrant).label)}</p>
           ${c.desc ? `<p class="lv-coin-desc">${esc(c.desc)}</p>` : ''}
-          <div class="lv-bar"><i style="width:${pct.toFixed(1)}%"></i></div>
-          <div class="lv-coin-nums"><span>${esc(as.unit)} ${esc(as.ticker)}</span><span>${pct.toFixed(1)}% of curve</span></div>
-          <p class="lv-spark-label">1 USD in ${esc(as.ticker)} · simulated</p>
-          ${sparkline(c)}
+          <dl class="lv-coin-facts">
+            <div><dt>Supply</dt><dd>${esc(num(Number(BigInt(c.supply) / (10n ** 18n))))}</dd></div>
+            <div><dt>Contract</dt><dd>${link
+              ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(short(c.address))}</a>`
+              : 'pending'}</dd></div>
+            <div><dt>Pool</dt><dd>${c.poolTx
+              ? `<a href="${esc(SpinpadChain.explorerTx(c.poolTx))}" target="_blank" rel="noopener noreferrer">opened</a>`
+              : 'not opened'}</dd></div>
+          </dl>
         </div>
       </article>`;
   };
@@ -569,7 +525,12 @@
   /* ---------- the pad ---------- */
 
   const pad = $('pad');
-  const flow = { step: 1, draft: null, spin: null, spinning: false, rot: 0 };
+  const flow = { step: 1, draft: null, spin: null, spinning: false, rot: 0, sending: false, minted: null };
+
+  /* What the chain said about the list in config.js. Nothing launches against
+     an entry that is not in here with ok: true. */
+  const verified = {};
+  let routerOk = null;
 
   const setStep = (n) => {
     flow.step = n;
@@ -692,64 +653,203 @@
     matFollow(sector);
   };
 
-  const launch = () => {
+  const say = (msg) => { $('status').textContent = msg; };
+
+  /* ---------- launching, for real ----------
+   *
+   * Two transactions, never one. The deployment creates the coin and records
+   * the draw; opening the pool is a separate, separately confirmed step. That
+   * ordering is deliberate: it lets someone see their contract exist on the
+   * explorer before they put anything into a pool, and a failed pool leaves a
+   * perfectly good token rather than a half-finished launch.
+   */
+  const launch = async () => {
     // The rule, checked once more at the last possible moment.
     if (!flow.spin || !flow.draft || flow.step !== 3) {
-      $('status').textContent = 'No spin on record. Nothing launches here without one.';
-      setStep(flow.step);          // put back any control that was forced open
+      say('No spin on record. Nothing launches here without one.');
+      setStep(flow.step);
+      return;
+    }
+    if (flow.sending) return;
+
+    const f = FAMILIES[flow.spin.color];
+    const as = assetOf(flow.spin.color, flow.spin.quadrant);
+    const q = quadOf(flow.spin.quadrant);
+
+    if (!SpinpadChain.hasWallet()) {
+      say('No wallet in this browser. Spinpad deploys a real contract, so it needs one.');
+      return;
+    }
+    if (!SpinpadChain.state.account) {
+      say('Connect a wallet first — the contract is deployed from your address.');
+      return;
+    }
+    if (!SpinpadChain.onChain()) {
+      say(`Wrong network. Switch to ${CFG.chain.name} before launching.`);
+      return;
+    }
+    const check = verified[as.ticker];
+    if (!check || !check.ok) {
+      say(`${as.ticker} has not been verified on chain yet, so the pad will not launch against it. `
+        + (check ? check.reason : 'No address configured.'));
+      return;
+    }
+
+    flow.sending = true;
+    $('launchBtn').disabled = true;
+    say('Confirm the deployment in your wallet. This costs gas and cannot be undone.');
+
+    const supplyWei = BigInt(flow.draft.supply) * 10n ** 18n;
+    let hash;
+    try {
+      hash = await SpinpadChain.deploy({
+        name: flow.draft.name,
+        ticker: flow.draft.ticker,
+        supplyWei,
+        assetName: as.name,
+        assetTicker: as.ticker,
+        family: f.family,
+        quadrant: q.label,
+      });
+    } catch (e) {
+      flow.sending = false;
+      setStep(3);
+      say(e && e.code === 4001 ? 'Rejected in the wallet. Nothing was sent.'
+        : 'The wallet refused the transaction: ' + ((e && e.message) || 'unknown error'));
+      return;
+    }
+
+    say('Sent. Waiting for it to be mined — this usually takes a few seconds.');
+    let receipt;
+    try {
+      receipt = await SpinpadChain.waitForReceipt(hash, (i) => {
+        if (i && i % 5 === 0) say(`Still waiting (${i * 2}s). The hash is ${hash.slice(0, 10)}\u2026`);
+      });
+    } catch (e) {
+      flow.sending = false;
+      setStep(3);
+      say((e && e.message) || 'Could not confirm the transaction.');
       return;
     }
 
     const coin = {
-      id: 'spn-' + Date.now().toString(36) + '-' + rnd(4096).toString(36),
+      id: hash,
       name: flow.draft.name,
       ticker: flow.draft.ticker,
-      supply: flow.draft.supply,
+      supply: supplyWei.toString(),
       desc: flow.draft.desc,
       color: flow.spin.color,
       quadrant: flow.spin.quadrant,
-      cap: 3800 + rnd(2600),       // simulated, like every figure on the board
-      replies: rnd(4),
+      address: receipt.contractAddress,
+      txHash: hash,
+      poolTx: null,
+      creator: SpinpadChain.state.account,
+      chainId: CFG.chain.id,
       ts: Date.now(),
-      demo: false,
     };
 
     coins.unshift(coin);
     save();
     renderBoard();
-    // Step 4 is the terminal state: the spin is spent and the draft is minted,
-    // so every control closes. Without it a second click on the launch button
-    // mints the same draft again, from one spin, with a duplicate ticker that
-    // readForm() refuses to let anyone type.
+    flow.sending = false;
     setStep(4);
+    say('Deployed. The draw is written into the contract and cannot be changed.');
     showRecord(coin);
   };
 
+  /* The first pool: approve the router for the coin, then add both sides. Two
+     more confirmations, and the amount of the drawn token is whatever the
+     person types — the pad never picks a number that moves someone's money. */
+  const openPool = async () => {
+    const coin = flow.minted;
+    if (!coin || !coin.address) return;
+    const as = assetOf(coin.color, coin.quadrant);
+    const check = verified[as.ticker];
+    const note = $('poolNote');
+
+    if (!CFG.router.address) { note.textContent = 'No router configured in config.js, so no pool can be opened.'; return; }
+    if (!routerOk || !routerOk.ok) { note.textContent = 'The router has not verified: ' + (routerOk ? routerOk.reason : 'not checked') + '.'; return; }
+    if (!check || !check.ok) { note.textContent = as.ticker + ' has not verified, so the pad will not pair against it.'; return; }
+
+    const typed = ($('poolAmount').value || '').trim();
+    if (!/^\d+(\.\d+)?$/.test(typed) || Number(typed) <= 0) {
+      note.textContent = 'Type how much ' + as.ticker + ' to put in, as a plain number.';
+      return;
+    }
+
+    // scale by the token's own decimals, which the verifier read off the chain
+    const dec = BigInt(check.decimals);
+    const [whole, frac = ''] = typed.split('.');
+    const tokenAmount = BigInt(whole + (frac + '0'.repeat(Number(dec))).slice(0, Number(dec)));
+    const coinAmount = (BigInt(coin.supply) * BigInt(Math.round(CFG.liquidity.supplyShare * 1000))) / 1000n;
+
+    $('poolBtn').disabled = true;
+    try {
+      note.textContent = 'Confirm the approval: this lets the router move the coin you just made.';
+      const approveTx = await SpinpadChain.approve(coin.address, CFG.router.address, coinAmount);
+      await SpinpadChain.waitForReceipt(approveTx);
+
+      note.textContent = 'Approved. Now confirm the liquidity itself — this moves your ' + as.ticker + '.';
+      const poolTx = await SpinpadChain.addLiquidity({
+        coin: coin.address,
+        token: check.address || CFG.assets[coin.color][coin.quadrant].address,
+        coinAmount,
+        tokenAmount,
+      });
+      await SpinpadChain.waitForReceipt(poolTx);
+
+      coin.poolTx = poolTx;
+      save();
+      renderBoard();
+      note.innerHTML = 'Pool open. <a href="' + esc(SpinpadChain.explorerTx(poolTx))
+        + '" target="_blank" rel="noopener noreferrer">See it on the explorer</a>.';
+    } catch (e) {
+      note.textContent = e && e.code === 4001 ? 'Rejected in the wallet. Nothing moved.'
+        : 'The pool did not open: ' + ((e && e.message) || 'unknown error') + '. The coin is fine.';
+      $('poolBtn').disabled = false;
+    }
+  };
+
   const showRecord = (coin) => {
-    const t = $('ticket');
-    t.hidden = false;
-    t.dataset.color = coin.color;
-    $('tkId').textContent = coin.id;
-    $('tkAvatar').innerHTML = `<b>${esc(initials(coin.ticker))}</b>`;
-    $('tkAvatar').dataset.color = coin.color;
-    $('tkName').textContent = coin.name;
-    $('tkTicker').textContent = coin.ticker;
+    flow.minted = coin;
     const f = FAMILIES[coin.color];
     const q = quadOf(coin.quadrant);
     const as = assetOf(coin.color, coin.quadrant);
-    $('tkRows').innerHTML = [
-      ['Underlying asset', as.name + ' (' + as.ticker + ')', false],
-      ['Colour drawn', f.label + ' · ' + f.family, false],
-      ['Quadrant', q.short, false],
-      ['Total supply', num(coin.supply), true],
-      ['Opening cap', money(coin.cap) + ' · simulated', true],
-      ['Recorded', new Date(coin.ts).toLocaleString('en-US'), true],
-    ].map(([k, v, mono]) => `<div><dt>${esc(k)}</dt><dd${mono ? ' class="is-mono"' : ''}>${esc(v)}</dd></div>`).join('');
+    const t = $('ticket');
+    t.hidden = false;
+    t.dataset.color = coin.color;
+    $('tkId').textContent = short(coin.address || coin.txHash);
+    $('tkAvatar').innerHTML = mark(as.glyph, 30);
+    $('tkAvatar').dataset.color = coin.color;
+    $('tkName').textContent = coin.name;
+    $('tkTicker').textContent = coin.ticker;
     $('tkDesc').textContent = coin.desc || '';
     $('tkDesc').hidden = !coin.desc;
+
+    const rows = [
+      ['Paired with', as.name + ' (' + as.ticker + ')', false],
+      ['Colour drawn', f.label + ' \u00b7 ' + f.family, false],
+      ['Quadrant', q.short, false],
+      ['Total supply', num(Number(BigInt(coin.supply) / (10n ** 18n))), true],
+      ['Network', CFG.chain.name, false],
+    ];
+    $('tkRows').innerHTML = rows
+      .map(([k, v, mono]) => `<div><dt>${esc(k)}</dt><dd${mono ? ' class="is-mono"' : ''}>${esc(v)}</dd></div>`).join('')
+      + (coin.address ? `<div><dt>Contract</dt><dd class="is-mono"><a href="${esc(SpinpadChain.explorerAddress(coin.address))}" target="_blank" rel="noopener noreferrer">${esc(short(coin.address))}</a></dd></div>` : '')
+      + (coin.txHash ? `<div><dt>Deployment</dt><dd class="is-mono"><a href="${esc(SpinpadChain.explorerTx(coin.txHash))}" target="_blank" rel="noopener noreferrer">${esc(short(coin.txHash))}</a></dd></div>` : '');
+
     $('tkNote').textContent =
-      `${coin.name} launches paired with ${as.name} because the arrow stopped on a ${f.label.toLowerCase()} dot in the ${q.label} quadrant — ` +
-      `${f.label.toLowerCase()} names the family, the quadrant names the asset. One spin per launch: another coin needs another spin.`;
+      `${coin.name} is paired with ${as.name} because the arrow stopped on a ${f.label.toLowerCase()} dot `
+      + `in the ${q.label} quadrant. That is written into the contract itself, where nothing \u2014 including this page \u2014 can change it.`;
+
+    if ($('poolAsset')) {
+      $('poolAsset').textContent = as.ticker;
+      $('poolShare').textContent = Math.round(CFG.liquidity.supplyShare * 100) + '%';
+      $('poolNote').textContent = coin.poolTx
+        ? 'Pool already open.'
+        : 'Optional, and it is where real money moves. Two confirmations: an approval, then the liquidity itself.';
+      $('poolBtn').disabled = !!coin.poolTx;
+    }
     $('tkCopy').textContent = 'Copy record';
     t.scrollIntoView({ block: 'center', behavior: 'smooth' });
   };
@@ -773,6 +873,96 @@
   };
 
   /* ---------- wiring ---------- */
+
+  /* ---------- the wallet ---------- */
+
+  const renderWallet = () => {
+    const btn = $('connect');
+    const line = $('walletLine');
+    if (!btn) return;
+    if (!SpinpadChain.hasWallet()) {
+      btn.textContent = 'No wallet found';
+      if (line) line.textContent = 'This pad deploys a real contract on ' + CFG.chain.name + ', so it needs a wallet in the browser.';
+      return;
+    }
+    const acct = SpinpadChain.state.account;
+    if (!acct) {
+      btn.textContent = 'Connect wallet';
+      if (line) line.textContent = 'Not connected.';
+      return;
+    }
+    btn.textContent = short(acct);
+    if (line) {
+      line.textContent = SpinpadChain.onChain()
+        ? 'Connected on ' + CFG.chain.name + '.'
+        : 'Connected, but on the wrong network. Click to switch to ' + CFG.chain.name + '.';
+    }
+  };
+
+  /* Read the configured list back off the chain before trusting a word of it. */
+  const verifyTokens = async () => {
+    const box = $('verify');
+    if (!box) return;
+    if (!SpinpadChain.state.account) { box.innerHTML = ''; return; }
+
+    box.innerHTML = '<p class="lv-verify-head">Checking the token list against ' + esc(CFG.chain.name) + '\u2026</p>';
+    routerOk = await SpinpadChain.verifyRouter();
+
+    const rows = [];
+    for (const k of ORDER) {
+      for (const q of QUADRANTS) {
+        const entry = FAMILIES[k].assets[q.id];
+        // eslint-disable-next-line no-await-in-loop
+        const res = await SpinpadChain.verifyToken(entry);
+        verified[entry.ticker] = Object.assign({ address: entry.address }, res);
+        rows.push({ entry, res, k });
+      }
+    }
+
+    const good = rows.filter((r) => r.res.ok).length;
+    box.innerHTML =
+      `<p class="lv-verify-head">${good} of ${rows.length} tokens verified on ${esc(CFG.chain.name)}`
+      + `${routerOk.ok ? '' : ' \u00b7 router not verified'}</p>`
+      + '<ul class="lv-verify-list">' + rows.map((r) => `
+        <li data-color="${r.k}" class="${r.res.ok ? 'is-ok' : 'is-bad'}">
+          <i class="lv-dot"></i><b>${esc(r.entry.ticker)}</b>
+          <em>${esc(r.res.ok ? 'verified' : r.res.reason)}</em>
+        </li>`).join('') + '</ul>'
+      + (routerOk.ok ? '' : `<p class="lv-verify-note">Pools stay off until the router in config.js is filled in and answers like a V2 router: ${esc(routerOk.reason)}</p>`);
+  };
+
+  const wireWallet = () => {
+    const btn = $('connect');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      if (!SpinpadChain.hasWallet()) {
+        say('No wallet in this browser. Spinpad deploys a real contract, so it needs one.');
+        return;
+      }
+      try {
+        if (!SpinpadChain.state.account) await SpinpadChain.connect();
+        if (!SpinpadChain.onChain()) await SpinpadChain.switchChain();
+        renderWallet();
+        await verifyTokens();
+      } catch (e) {
+        say(e && e.code === 4001 ? 'Connection refused in the wallet.'
+          : 'Could not connect: ' + ((e && e.message) || 'unknown error'));
+      }
+    });
+
+    const p = SpinpadChain.hasWallet() ? window.ethereum : null;
+    if (p && p.on) {
+      p.on('accountsChanged', (accs) => {
+        SpinpadChain.state.account = (accs && accs[0]) || null;
+        renderWallet(); verifyTokens();
+      });
+      p.on('chainChanged', (id) => {
+        SpinpadChain.state.chainId = id;
+        renderWallet(); verifyTokens();
+      });
+    }
+    renderWallet();
+  };
 
   /* ---------- the door ----------
      Nobody gets to the board without being told, in as many words, that none of
@@ -867,6 +1057,7 @@
     renderMat();
     wireGate();
     wireSort();
+    wireWallet();
     openGate();
     const floorEl = document.querySelector('.lv-mat-floor');
     if (floorEl && window.ResizeObserver) {
@@ -922,6 +1113,8 @@
 
     $('spin').addEventListener('click', doSpin);
     $('launchBtn').addEventListener('click', launch);
+    if ($('poolBtn')) $('poolBtn').addEventListener('click', openPool);
+    if ($('connect2')) $('connect2').addEventListener('click', () => $('connect').click());
 
     $('discard').addEventListener('click', () => {
       if (!confirm('Discarding clears the whole draft — name, ticker, supply, description and the spin. This is starting over, not re-rolling.')) return;
@@ -948,11 +1141,6 @@
       catch (e2) { e.target.textContent = 'Copy failed'; }
       setTimeout(() => { e.target.textContent = 'Copy record'; }, 1800);
     });
-
-    [$('connect'), $('connect2')].forEach((b) => b.addEventListener('click', () => {
-      $('status').textContent = 'No wallet to connect: Spinpad is a simulation, and the dial is the only thing that signs anything here.';
-      $('status').scrollIntoView({ block: 'center', behavior: 'smooth' });
-    }));
 
     $('fTicker').addEventListener('input', (e) => {
       // Reassigning .value moves the caret to the end, so only do it when the

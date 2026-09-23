@@ -96,8 +96,8 @@
                     aria-haspopup="listbox" aria-expanded="false" aria-labelledby="sortLabel sortBtn">Most recent</button>
             <ul class="lv-select-menu" id="sortMenu" role="listbox" aria-label="Sort the board" hidden>
               <li role="option" data-value="new" aria-selected="true" tabindex="-1">Most recent</li>
-              <li role="option" data-value="cap" aria-selected="false" tabindex="-1">Simulated cap</li>
-              <li role="option" data-value="replies" aria-selected="false" tabindex="-1">Holders</li>
+              <li role="option" data-value="supply" aria-selected="false" tabindex="-1">Supply</li>
+              <li role="option" data-value="name" aria-selected="false" tabindex="-1">Name</li>
             </ul>
           </div>
         </div>
@@ -186,6 +186,11 @@
         quadrant — and together they name the underlying asset. The market opens the moment the
         launch lands.
       </p>
+
+      <div class="lv-wallet">
+        <p class="lv-wallet-line" id="walletLine">Not connected.</p>
+        <div class="lv-verify" id="verify"></div>
+      </div>
 
       <ol class="lv-steps" id="steps">
         <li data-step="1"><span>1</span> Details</li>
@@ -317,6 +322,20 @@
             <p class="lv-record-desc" id="tkDesc" hidden></p>
             <dl class="lv-rows" id="tkRows"></dl>
             <p class="lv-record-note" id="tkNote"></p>
+            <div class="lv-pool">
+              <p class="lv-kicker lv-kicker-sm">The first pool</p>
+              <p class="lv-pool-copy">
+                Pair it with <b id="poolAsset">the drawn token</b>. <span id="poolShare">80%</span> of the
+                supply goes in from the coin's side; you choose the other side.
+              </p>
+              <label class="lv-pool-field">
+                <span>Liquidity, in the drawn token</span>
+                <input id="poolAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.05">
+              </label>
+              <button class="lv-btn lv-btn-dark lv-btn-block" id="poolBtn" type="button">Open the pool</button>
+              <p class="lv-pool-note" id="poolNote"></p>
+            </div>
+
             <div class="lv-record-foot">
               <button class="lv-btn lv-btn-quiet" id="tkCopy" type="button">Copy record</button>
               <button class="lv-btn lv-btn-dark" id="tkAgain" type="button">Launch another</button>
@@ -386,9 +405,10 @@
       </details>
       <details>
         <summary>Does this issue real tokens?</summary>
-        <p>No. Spinpad is a working simulation of the mechanic. There is no chain, no contract and no
-        money; prices, curves and holders are generated figures, and launches are stored in this
-        browser only.</p>
+        <p>Yes. Launching deploys a real ERC-20 on Base from your own wallet, and the draw — the
+        asset, the colour family, the quadrant and who spun — is written into the contract at
+        construction, with no function anywhere that can change it afterwards. The pad keeps a local
+        list of what you launched; the chain keeps the real one.</p>
       </details>
     </div>
   </section>
@@ -413,15 +433,17 @@
   </div>
   <div class="lv-wrap lv-foot-bar">
     <p>© 2026 Spinpad · Pairing, minus the choosing.</p>
-    <p class="lv-foot-status">SIMULATION · NO CHAIN · NO CONTRACT · NO REAL MONEY ON THIS SITE</p>
+    <p class="lv-foot-status">REAL CONTRACTS ON BASE · REAL GAS · NO UNDO</p>
   </div>
   <div class="lv-wrap">
     <p class="lv-foot-note">
-      Every figure on this page is generated, and the contract address above is a placeholder. Meta,
-      Tesla, Nvidia and Amazon appear as labels in a demonstration and imply no relationship with those
-      companies. Pairing a token with the price of a listed security carries significant regulatory
-      consequences in most jurisdictions. The colour-dial mechanic is an homage to the floor game of
-      the same idea; Twister is a trademark of Hasbro and this project is not affiliated with it.
+      Launching here deploys a real contract on Base and costs real money. Nothing on this page is an
+      investment, an offer or advice, and no outcome is promised — the pairing is decided by a
+      spinner. The tokens on the board are third-party ERC-20s, named only to identify what a pool
+      would pair against; naming one implies no relationship with or endorsement by its issuer, and
+      the pad refuses any address that does not verify against the chain. The colour-dial mechanic is
+      an homage to the floor game of the same idea; Twister is a trademark of Hasbro and this project
+      is not affiliated with it.
     </p>
   </div>
 </footer>
@@ -431,37 +453,42 @@
 <dialog class="lv-gate" id="gate" aria-labelledby="gateTitle">
   <div class="lv-gate-in">
     <p class="lv-kicker lv-kicker-sm">Before you step on the mat</p>
-    <h2 id="gateTitle">This is a game.</h2>
+    <h2 id="gateTitle">This is a game. The money is not.</h2>
     <p class="lv-gate-lede">
-      Spinpad is a working simulation of a launchpad. Everything in it behaves; none of it settles.
-      The short version, so nobody is surprised later:
+      Spinpad is a board game with a real contract at the end of it. The spinning, the mat and the
+      figure are the game; what the pad does when you press launch is a transaction on Base that
+      nobody can take back. The short version, so nobody is surprised later:
     </p>
     <ul class="lv-gate-list">
-      <li><b>No chain, no contract, no wallet, no money.</b> There is nothing here to lose except
-        an argument with an arrow.</li>
-      <li><b>You do not pick the asset.</b> A spinner does. That is not a bug we are working on, it
-        is the entire product.</li>
-      <li><b>Meta, Tesla, Nvidia and Amazon are labels on a demo.</b> They have never heard of us,
-        and nothing here is affiliated with, endorsed by or connected to any of them.</li>
-      <li><b>Every price, cap and curve was invented</b> by a random number generator with no
-        financial training whatsoever.</li>
-      <li><b>This is not financial advice</b>, or financial anything. Pairing a real token to a
-        listed share is a serious regulated act in most of the world. This is a board game about it.</li>
+      <li><b>Launching deploys a real ERC-20 on Base mainnet.</b> It costs gas, it is permanent and it
+        happens from your address. There is no undo, no support desk and no refund.</li>
+      <li><b>You do not pick the asset your coin is paired with.</b> A spinner does. That is not a bug
+        we are working on, it is the entire product.</li>
+      <li><b>Opening a pool moves real funds out of your wallet.</b> It is optional, it is a separate
+        confirmation, and a new pool with thin liquidity is trivially easy for anyone to drain.</li>
+      <li><b>Nothing here is an investment and nobody here is advising you.</b> A token made in an
+        afternoon is worth whatever someone will pay for it, which is usually nothing.</li>
+      <li><b>Check the addresses yourself.</b> The pad reads its own token list back off the chain and
+        refuses anything that does not match, but the list in <code>config.js</code> is whatever was
+        put there. Read it before you trust it.</li>
     </ul>
 
     <label class="lv-gate-check">
       <input type="checkbox" id="gateAgree">
-      <span>I understand this is a game and not a financial instrument, and I will not tell anyone
-        the arrow gave me a hot tip.</span>
+      <span>I understand that launching spends real money on a real chain, that the spinner picks the
+        pairing and I do not, and that anything I lose here is mine to have lost.</span>
     </label>
 
     <div class="lv-gate-foot">
       <button class="lv-btn lv-btn-dark lv-btn-lg" id="gateGo" type="button" disabled>Step on the mat</button>
-      <p class="lv-gate-note">The mat is honest. It is the only thing here that is.</p>
+      <p class="lv-gate-note">The mat is honest. It is still the only thing here that is.</p>
     </div>
   </div>
 </dialog>
 
+<script src="config.js"></script>
+<script src="contract/spinpad-coin.js"></script>
+<script src="chain.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

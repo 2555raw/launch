@@ -1,0 +1,125 @@
+/* The chain layer, checked without a chain.
+ *
+ * This does not test a copy of the encoder — it loads chain.js exactly as the
+ * page loads it, builds the creation code the pad would send, and deploys that
+ * in a local EVM. If the constructor encoding is wrong in the shipped file, the
+ * deploy fails or a field comes back wrong, here, instead of on Base with
+ * somebody's gas.
+ *
+ * Needs @ethereumjs/evm and ethereum-cryptography, which are not dependencies
+ * of the site:
+ *   npm i --no-save @ethereumjs/evm @ethereumjs/util ethereum-cryptography
+ *   node test/contract.test.js
+ */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+let passed = 0;
+const fails = [];
+const ok = (name, cond, detail) => {
+  if (cond) { passed++; console.log('  ok   ' + name); }
+  else { fails.push(name + (detail ? ' — ' + detail : '')); console.log('  FAIL ' + name + (detail ? ' — ' + detail : '')); }
+};
+
+/* ---------- load the real files into a fake window ---------- */
+const root = path.join(__dirname, '..');
+const sandbox = { window: {}, TextEncoder, TextDecoder, setTimeout, Date, console };
+sandbox.window.SPINPAD_CONFIG = { chain: { explorer: 'https://example.invalid' }, router: {}, liquidity: { slippageBps: 100, deadlineMinutes: 20 } };
+vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(root, 'contract', 'spinpad-coin.js'), 'utf8'), sandbox);
+vm.runInContext(fs.readFileSync(path.join(root, 'chain.js'), 'utf8'), sandbox);
+const chain = sandbox.window.SpinpadChain;
+const build = sandbox.window.SPINPAD_COIN;
+
+(async () => {
+  console.log('\nselectors');
+  let keccak256;
+  try { ({ keccak256 } = require('ethereum-cryptography/keccak')); }
+  catch (e) { console.log('  skipped: ethereum-cryptography is not installed'); }
+
+  if (keccak256) {
+    // every selector, recomputed from the signature written beside it in chain.js
+    const src = fs.readFileSync(path.join(root, 'chain.js'), 'utf8');
+    const lines = [...src.matchAll(/^\s*(\w+):\s*'(0x[0-9a-f]{8})',\s*\/\/\s*(.+?)\s*$/gm)];
+    ok('every selector has its signature written down', lines.length >= 12, lines.length + ' found');
+    lines.forEach(([, key, hex, sig]) => {
+      const want = '0x' + Buffer.from(keccak256(Buffer.from(sig, 'utf8'))).toString('hex').slice(0, 8);
+      ok('selector ' + key + ' matches ' + sig, hex === want, 'file says ' + hex + ', keccak says ' + want);
+    });
+  }
+
+  console.log('\ndeploying the real creation code');
+  let EVM, Address;
+  try {
+    ({ EVM } = require('@ethereumjs/evm'));
+    ({ Address } = require('@ethereumjs/util'));
+  } catch (e) {
+    console.log('  skipped: @ethereumjs/evm is not installed');
+    console.log('\n' + passed + ' passed, ' + fails.length + ' failed');
+    process.exit(fails.length ? 1 : 0);
+  }
+
+  const evm = await EVM.create();
+  const callerHex = '00000000000000000000000000000000000000c0';
+  const from = new Address(Buffer.from(callerHex, 'hex'));
+  const bytes = (h) => Buffer.from(String(h).replace(/^0x/, ''), 'hex');
+
+  const SUPPLY = 1000000n * 10n ** 18n;
+  const coin = {
+    name: 'Northwind Capital', ticker: 'NWND', supplyWei: SUPPLY,
+    assetName: 'Wrapped Ether', assetTicker: 'WETH', family: 'Ether', quadrant: 'bid hand',
+  };
+
+  const creation = chain.creationCode(coin);
+  ok('the creation code starts with the compiled bytecode', creation.startsWith(build.bytecode));
+
+  const res = await evm.runCall({ caller: from, to: undefined, data: bytes(creation), gasLimit: 8000000n });
+  ok('it deploys', !res.execResult.exceptionError,
+    res.execResult.exceptionError && res.execResult.exceptionError.error);
+  if (res.execResult.exceptionError) {
+    console.log('\n' + passed + ' passed, ' + fails.length + ' failed');
+    process.exit(1);
+  }
+  const addr = res.createdAddress;
+
+  const read = async (sel, args = '') => {
+    const r = await evm.runCall({ caller: from, to: addr, data: bytes(sel + args), gasLimit: 2000000n });
+    if (r.execResult.exceptionError) throw new Error(sel + ' reverted');
+    return '0x' + Buffer.from(r.execResult.returnValue).toString('hex');
+  };
+
+  ok('name comes back', chain.decodeString(await read(chain.SEL.name)) === coin.name);
+  ok('symbol comes back', chain.decodeString(await read(chain.SEL.symbol)) === coin.ticker);
+  ok('total supply is exact', chain.decodeUint(await read(chain.SEL.totalSupply)) === SUPPLY);
+  ok('decimals are 18', chain.decodeUint(await read(chain.SEL.decimals)) === 18n);
+  ok('the whole supply is the creator’s',
+    chain.decodeUint(await read(chain.SEL.balanceOf, callerHex.padStart(64, '0'))) === SUPPLY);
+
+  // the draw, which is the only reason this contract is not a stock ERC-20
+  ok('the paired asset is on chain', chain.decodeString(await read('0x39191d7b')) === coin.assetName);
+  ok('its ticker is on chain', chain.decodeString(await read('0xbcc49b0c')) === coin.assetTicker);
+  ok('the family is on chain', chain.decodeString(await read('0x76e75a0e')) === coin.family);
+  ok('the quadrant is on chain', chain.decodeString(await read('0x855ea7f2')) === coin.quadrant);
+  ok('the creator is on chain', chain.decodeAddress(await read('0x02d05d3f')).toLowerCase() === '0x' + callerHex);
+
+  // and nothing can rewrite it afterwards
+  const writable = build.abi
+    .filter((f) => f.type === 'function' && f.stateMutability !== 'view' && f.stateMutability !== 'pure')
+    .map((f) => f.name).sort();
+  ok('no function can change the draw', writable.join(',') === 'approve,transfer,transferFrom',
+    'writable: ' + writable.join(','));
+
+  // an awkward name must survive the encoder
+  const odd = { ...coin, name: 'Ñandú & Co — "quoted"', ticker: 'NDU' };
+  const oddRes = await evm.runCall({ caller: from, to: undefined, data: bytes(chain.creationCode(odd)), gasLimit: 8000000n });
+  ok('a non-ASCII name deploys', !oddRes.execResult.exceptionError);
+  if (!oddRes.execResult.exceptionError) {
+    const r2 = await evm.runCall({ caller: from, to: oddRes.createdAddress, data: bytes(chain.SEL.name), gasLimit: 2000000n });
+    ok('and comes back byte for byte',
+      chain.decodeString('0x' + Buffer.from(r2.execResult.returnValue).toString('hex')) === odd.name);
+  }
+
+  console.log('\n' + passed + ' passed, ' + fails.length + ' failed');
+  if (fails.length) { fails.forEach((f) => console.log('  - ' + f)); process.exit(1); }
+})();

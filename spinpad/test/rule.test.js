@@ -32,11 +32,16 @@ const BASE = ['green', 'yellow', 'blue', 'red'];
 const SECTORS = [];
 for (let q = 0; q < 4; q++) for (let k = 0; k < 4; k++) SECTORS.push({ color: BASE[(k + q) % 4], quadrant: QUADS[q] });
 
-const ASSETS = {
-  green:  { bid: 'Nvidia', ask: 'AMD',     short: 'Broadcom', long: 'TSMC' },
-  yellow: { bid: 'Amazon', ask: 'Shopify', short: 'Walmart',  long: 'Coupang' },
-  blue:   { bid: 'Meta',   ask: 'Netflix', short: 'Spotify',  long: 'Alphabet' },
-  red:    { bid: 'Tesla',  ask: 'Rivian',  short: 'Uber',     long: 'Ford' },
+/* The table is read off the page rather than copied here: it lives in
+   config.js now, where the addresses are, and a test that hardcodes it would
+   pass while the page paired coins with something else entirely. */
+const assetsFrom = (cfg) => {
+  const out = {};
+  ['green', 'yellow', 'blue', 'red'].forEach((k) => {
+    out[k] = {};
+    QUADS.forEach((q) => { out[k][q] = cfg.assets[k][q].name; });
+  });
+  return out;
 };
 
 /* ---------- the server must survive a hostile path ---------- */
@@ -85,7 +90,8 @@ async function browserChecks() {
   page.on('console', (m) => { if (m.type() === 'error' && !/ERR_CERT|net::/.test(m.text())) errors.push(m.text()); });
 
   await page.goto(PAGE);
-  await page.waitForTimeout(600);
+  await page.waitForTimeout(700);
+  const ASSETS = assetsFrom(await page.evaluate(() => window.SPINPAD_CONFIG));
 
   // the door: nothing on the page is reachable until it is accepted
   ok('the door is up on a first visit', await page.locator('#gate').isVisible());
@@ -161,17 +167,15 @@ async function browserChecks() {
   ok('a forced second spin does not change the draw',
     (await page.locator('#assetName').textContent()).trim() === inForm);
 
+  // No wallet is injected in this file, so launching has to refuse rather than
+  // pretend. The path that actually deploys is exercised in launch.test.js with
+  // a fake wallet, where the bytes it would send are checked.
   await page.click('#launchBtn');
   await page.waitForTimeout(500);
-  ok('the launch mints one coin', await coins() === before + 1);
-  ok('the record is shown', await page.locator('#ticket').isVisible());
-
-  // one spin, one coin: clicking again must not mint the draft twice
-  ok('the launch control closes after minting', await page.locator('#launchBtn').isDisabled());
-  await page.evaluate(() => { document.getElementById('launchBtn').disabled = false; });
-  await page.click('#launchBtn');
-  await page.waitForTimeout(300);
-  ok('a second launch from one spin mints nothing', await coins() === before + 1);
+  ok('without a wallet the pad refuses to launch',
+    /wallet/i.test(await page.locator('#status').textContent()));
+  ok('and mints nothing', await coins() === before);
+  ok('the record stays closed', !(await page.locator('#ticket').isVisible()));
 
   // the mat is a control, not a picture.
   // It has to be on screen first: mouse coordinates are viewport coordinates,
@@ -184,7 +188,7 @@ async function browserChecks() {
   await page.waitForTimeout(250);
   ok('tapping a circle moves that limb', (await page.locator('#matRead').textContent()) !== read);
   ok('and it lands on the right asset',
-    (await page.locator('#matRead').textContent()).includes('TSMC'));
+    (await page.locator('#matRead').textContent()).includes(ASSETS.green.long));
 
   // and the limbs can be dragged along their own row
   const from = await page.locator('.lv-fig-grip[data-limb="long"]').boundingBox();
@@ -195,7 +199,7 @@ async function browserChecks() {
   await page.mouse.up();
   await page.waitForTimeout(250);
   ok('dragging a foot walks it along its row',
-    (await page.locator('#matRead').textContent()).includes('Ford'));
+    (await page.locator('#matRead').textContent()).includes(ASSETS.red.long));
 
   // a limb dropped outside its own row stays where it was
   const before2 = await page.locator('#matRead').textContent();

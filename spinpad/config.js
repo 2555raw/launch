@@ -7,8 +7,8 @@
  * them names one asset. Four positions by four colours is sixteen cells, and
  * `pairings` below is all sixteen, written flat so changing one is changing one
  * line. Everything on the site is built from this object: the wheel, the board,
- * the asset desk, and the value written into the coin's
- * contract. Nothing keeps a second copy of it.
+ * the asset desk, and the value written into the coin's contract. Nothing keeps
+ * a second copy of it.
  *
  * TWO THINGS, KEPT APART ON PURPOSE.
  *

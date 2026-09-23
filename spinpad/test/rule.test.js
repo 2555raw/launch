@@ -87,6 +87,18 @@ async function browserChecks() {
   await page.goto(PAGE);
   await page.waitForTimeout(600);
 
+  // the door: nothing on the page is reachable until it is accepted
+  ok('the door is up on a first visit', await page.locator('#gate').isVisible());
+  ok('and it will not open without the tick', await page.locator('#gateGo').isDisabled());
+  await page.check('#gateAgree');
+  ok('ticking it opens the way in', !(await page.locator('#gateGo').isDisabled()));
+  await page.click('#gateGo');
+  await page.waitForTimeout(300);
+  ok('accepting closes it', !(await page.locator('#gate').isVisible()));
+  await page.reload();
+  await page.waitForTimeout(500);
+  ok('and it stays closed on the way back', !(await page.locator('#gate').isVisible()));
+
   const coins = () => page.locator('.lv-coin').count();
   const before = await coins();
 
@@ -161,13 +173,68 @@ async function browserChecks() {
   await page.waitForTimeout(300);
   ok('a second launch from one spin mints nothing', await coins() === before + 1);
 
-  // the mat is a control, not a picture
+  // the mat is a control, not a picture.
+  // It has to be on screen first: mouse coordinates are viewport coordinates,
+  // and a drag aimed at an off-screen grip silently lands somewhere else — which
+  // is exactly how the first version of this check passed without doing anything.
+  await page.locator('.lv-mat').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
   const read = await page.locator('#matRead').textContent();
   await page.locator('.lv-mat-dot[data-row="3"][data-col="0"]').click();
   await page.waitForTimeout(250);
   ok('tapping a circle moves that limb', (await page.locator('#matRead').textContent()) !== read);
   ok('and it lands on the right asset',
     (await page.locator('#matRead').textContent()).includes('TSMC'));
+
+  // and the limbs can be dragged along their own row
+  const from = await page.locator('.lv-fig-grip[data-limb="long"]').boundingBox();
+  const onto = await page.locator('.lv-mat-dot[data-row="3"][data-col="3"]').boundingBox();
+  await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(onto.x + onto.width / 2, onto.y + onto.height / 2, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(250);
+  ok('dragging a foot walks it along its row',
+    (await page.locator('#matRead').textContent()).includes('Ford'));
+
+  // a limb dropped outside its own row stays where it was
+  const before2 = await page.locator('#matRead').textContent();
+  const off = await page.locator('.lv-mat-dot[data-row="0"][data-col="0"]').boundingBox();
+  const grip2 = await page.locator('.lv-fig-grip[data-limb="long"]').boundingBox();
+  await page.mouse.move(grip2.x + grip2.width / 2, grip2.y + grip2.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(off.x + off.width / 2, off.y + off.height / 2, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(250);
+  const moved = await page.evaluate(() => {
+    const g = document.querySelector('.lv-fig-grip[data-limb="long"]');
+    const r = g.getBoundingClientRect();
+    const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return !!(el && el.closest && el.closest('.lv-fig-grip'));
+  });
+  ok('the grip really was under the pointer', moved);
+  ok('and a drop in someone else\u2019s row is ignored',
+    (await page.locator('#matRead').textContent()) === before2);
+
+  // the sort control is a listbox now, and it has to work from the keyboard
+  await page.click('#sortBtn');
+  await page.waitForTimeout(200);
+  ok('the sort menu opens', await page.locator('#sortMenu').isVisible());
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(250);
+  ok('choosing with the keyboard closes it', !(await page.locator('#sortMenu').isVisible()));
+  ok('and the button reports the choice',
+    (await page.locator('#sortBtn').textContent()).trim().length > 0);
+
+  // the coloured ground comes back when the tab does
+  await page.evaluate(() => {
+    document.querySelectorAll('.is-blooming').forEach((el) => el.classList.remove('is-blooming'));
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await page.waitForTimeout(150);
+  ok('the ground blooms back on return to the tab',
+    await page.evaluate(() => document.querySelectorAll('.is-blooming').length > 0));
 
   // nothing on the page should be reachable only by mouse
   ok('the nav links are focusable',

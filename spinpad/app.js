@@ -289,7 +289,8 @@
     out += `<circle class="lv-fig-head" cx="${cx.toFixed(1)}" cy="${shY.toFixed(1)}" r="${(grip * 1.35).toFixed(1)}"/>`;
     limbs.forEach((l) => {
       const [tx, ty] = target[l.id];
-      out += `<circle class="lv-fig-grip" cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="${grip.toFixed(1)}"/>`;
+      out += `<circle class="lv-fig-grip" data-limb="${l.id}" cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="${grip.toFixed(1)}">`
+           + `<title>${esc(quadOf(l.id).short)} — drag along this row</title></circle>`;
     });
     svg.innerHTML = out;
 
@@ -320,11 +321,98 @@
       `${FAMILIES[ck].family} is ${FAMILIES[ck].blurb}; the ${q.label} picks the name inside it.`;
   };
 
+  // The spinner's crosshair, laid under the circles so the mat reads as the same
+   // object the arrow turns on.
+  const renderCross = () => {
+    const svg = $('matCross');
+    const floor = document.querySelector('.lv-mat-floor');
+    if (!svg || !floor) return;
+    const W = floor.clientWidth, H = floor.clientHeight;
+    if (!W || !H) return;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+    const xs = MAT_COLS.map((_, c) => (dotCentre(0, c, floor) || [0, 0])[0]);
+    const ys = MAT_ROWS.map((_, r) => (dotCentre(r, 0, floor) || [0, 0])[1]);
+    if (!xs[0] || !ys[0]) return;
+    const cx = (xs[1] + xs[2]) / 2, cy = (ys[1] + ys[2]) / 2;
+    const pad = W * 0.03;
+
+    svg.innerHTML =
+      `<path d="M${cx.toFixed(1)} ${pad.toFixed(1)} V${(H - pad).toFixed(1)} M${pad.toFixed(1)} ${cy.toFixed(1)} H${(W - pad).toFixed(1)}"
+             stroke="rgba(23,26,31,.22)" stroke-width="1.5" stroke-dasharray="5 6"/>` +
+      `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3" fill="rgba(23,26,31,.22)"/>`;
+  };
+
+  // The pairing table, written out. Built from the same tables the board is
+  // drawn from, so the desk cannot advertise a pairing the arrow will not give.
+  const renderMatrix = () => {
+    const el = $('matrix');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="lv-matrix-row lv-matrix-head">
+        <span>Family</span>
+        ${QUADRANTS.map((q) => `<span>${esc(q.short)}</span>`).join('')}
+      </div>
+      ${ORDER.map((k) => {
+        const f = FAMILIES[k];
+        return `
+          <div class="lv-matrix-row" data-color="${k}">
+            <span class="lv-matrix-fam"><i class="lv-dot" data-color="${k}"></i><b>${esc(f.family)}</b><em>${esc(f.blurb)}</em></span>
+            ${QUADRANTS.map((q) => {
+              const as = f.assets[q.id];
+              return `<span class="lv-matrix-cell"><b>${esc(as.name)}</b><em>${esc(as.ticker)}</em></span>`;
+            }).join('')}
+          </div>`;
+      }).join('')}`;
+  };
+
   const renderMat = () => {
     renderMatDots();
-    // one frame, so the grid has been laid out before the overlay measures it
-    requestAnimationFrame(renderFigure);
+    // one frame, so the grid has been laid out before the overlays measure it
+    requestAnimationFrame(() => { renderCross(); renderFigure(); });
     renderMatLimbs();
+  };
+
+  /* Dragging works by asking the document what is under the pointer rather than
+     by mapping coordinates: the floor is rotated in 3D, so hit testing is the
+     only cheap way to get this right. The limb steps from circle to circle as
+     the pointer sweeps its row, and a drop outside the row simply leaves it
+     where it was. */
+  const drag = { limb: null, id: null };
+
+  const dragTo = (x, y) => {
+    const el = document.elementFromPoint(x, y);
+    const dot = el && el.closest ? el.closest('.lv-mat-dot') : null;
+    if (!dot) return;
+    if (MAT_ROWS[Number(dot.dataset.row)] !== drag.limb) return;   // stay in your own row
+    const col = Number(dot.dataset.col);
+    if (mat[drag.limb] === col) return;
+    mat[drag.limb] = col;
+    renderFigure();
+    renderMatLimbs();
+  };
+
+  const startDrag = (e) => {
+    const grip = e.target.closest ? e.target.closest('.lv-fig-grip') : null;
+    if (!grip || !grip.dataset.limb) return;
+    drag.limb = grip.dataset.limb;
+    drag.id = e.pointerId;
+    mat.sel = drag.limb;
+    document.querySelector('.lv-mat').classList.add('is-dragging');
+    const row = document.querySelectorAll('.lv-mat-row')[MAT_ROWS.indexOf(drag.limb)];
+    if (row) row.classList.add('is-live');
+    try { $('matFigure').setPointerCapture(e.pointerId); } catch (e2) { /* no capture, moves still land */ }
+    renderMatLimbs();
+    e.preventDefault();
+  };
+
+  const endDrag = () => {
+    if (!drag.limb) return;
+    const row = document.querySelectorAll('.lv-mat-row')[MAT_ROWS.indexOf(drag.limb)];
+    if (row) row.classList.remove('is-live');
+    document.querySelector('.lv-mat').classList.remove('is-dragging');
+    drag.limb = null;
+    drag.id = null;
   };
 
   // the figure follows the draw: the limb the arrow named walks onto its colour
@@ -686,11 +774,113 @@
 
   /* ---------- wiring ---------- */
 
+  /* ---------- the door ----------
+     Nobody gets to the board without being told, in as many words, that none of
+     this settles. The tick is the point: it has to be a deliberate act. */
+  const GATE = 'spinpad.gate.v1';
+
+  const openGate = () => {
+    const gate = $('gate');
+    if (!gate) return;
+    let seen = false;
+    try { seen = localStorage.getItem(GATE) === 'ok'; } catch (e) { /* blocked: ask again */ }
+    if (seen) return;
+    if (typeof gate.showModal === 'function') gate.showModal();
+    else gate.setAttribute('open', '');
+  };
+
+  const wireGate = () => {
+    const gate = $('gate'), agree = $('gateAgree'), go = $('gateGo');
+    if (!gate || !agree || !go) return;
+    agree.addEventListener('change', () => { go.disabled = !agree.checked; });
+    go.addEventListener('click', () => {
+      if (!agree.checked) return;
+      try { localStorage.setItem(GATE, 'ok'); } catch (e) { /* it will ask again */ }
+      if (typeof gate.close === 'function') gate.close();
+      else gate.removeAttribute('open');
+    });
+    // Esc closes a dialog on its own; make that mean "not accepted"
+    gate.addEventListener('cancel', (e) => { e.preventDefault(); });
+  };
+
+  /* ---------- the sort control ---------- */
+
+  const wireSort = () => {
+    const btn = $('sortBtn'), menu = $('sortMenu');
+    if (!btn || !menu) return;
+    const items = [...menu.querySelectorAll('[role="option"]')];
+
+    const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+    const open = () => {
+      menu.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      (items.find((i) => i.getAttribute('aria-selected') === 'true') || items[0]).focus();
+    };
+
+    const choose = (li) => {
+      items.forEach((i) => i.setAttribute('aria-selected', String(i === li)));
+      btn.textContent = li.textContent;
+      view.sort = li.dataset.value;
+      renderBoard();
+      close();
+      btn.focus();
+    };
+
+    btn.addEventListener('click', () => (menu.hidden ? open() : close()));
+    menu.addEventListener('click', (e) => {
+      const li = e.target.closest('[role="option"]');
+      if (li) choose(li);
+    });
+    menu.addEventListener('keydown', (e) => {
+      const at = items.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const next = (at + (e.key === 'ArrowDown' ? 1 : items.length - 1) + items.length) % items.length;
+        items[next].focus();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (at >= 0) choose(items[at]);
+      } else if (e.key === 'Escape') {
+        close(); btn.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!menu.hidden && !e.target.closest('#sortWrap')) close();
+    });
+  };
+
+  /* ---------- coming back to the tab ----------
+     Replaying a CSS animation needs the class off, a reflow, then the class on:
+     without the flush the browser coalesces both changes and nothing moves. */
+  const bloom = () => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.querySelectorAll('.lv-sec-pad, .lv-orbs').forEach((el) => {
+      el.classList.remove('is-blooming');
+      void el.offsetWidth;
+      el.classList.add('is-blooming');
+    });
+  };
+
   const init = () => {
     drawDial($('dial'));
+    renderMatrix();
     renderMat();
+    wireGate();
+    wireSort();
+    openGate();
     const floorEl = document.querySelector('.lv-mat-floor');
-    if (floorEl && window.ResizeObserver) new ResizeObserver(renderFigure).observe(floorEl);
+    if (floorEl && window.ResizeObserver) {
+      new ResizeObserver(() => { renderCross(); renderFigure(); }).observe(floorEl);
+    }
+
+    const fig = $('matFigure');
+    if (fig) {
+      fig.addEventListener('pointerdown', startDrag);
+      fig.addEventListener('pointermove', (e) => { if (drag.limb) dragTo(e.clientX, e.clientY); });
+      fig.addEventListener('pointerup', endDrag);
+      fig.addEventListener('pointercancel', endDrag);
+      window.addEventListener('pointerup', endDrag);
+    }
     load();
     renderBoard();
     resetFlow();
@@ -799,7 +989,6 @@
       renderBoard();
     });
 
-    $('sort').addEventListener('change', (e) => { view.sort = e.target.value; renderBoard(); });
     $('search').addEventListener('input', (e) => { view.q = e.target.value.trim(); renderBoard(); });
 
     $('clear').addEventListener('click', () => {
@@ -840,7 +1029,13 @@
         links.forEach((a) => a.classList.toggle('is-here', a.dataset.scroll === en.target.id));
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
-    ['board', 'how', 'launch', 'proof', 'faq'].forEach((id) => { const s = $(id); if (s) spy.observe(s); });
+    ['board', 'how', 'desk', 'playground', 'launch', 'proof', 'faq'].forEach((id) => { const s = $(id); if (s) spy.observe(s); });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') bloom();
+    });
+    window.addEventListener('pageshow', bloom);    // and on a back/forward restore
+    bloom();
 
     // relative timestamps should not freeze on a tab left open
     setInterval(renderBoard, 60000);

@@ -22,6 +22,8 @@
   <nav class="lv-links" id="navlinks" aria-label="Sections">
     <a href="#board" data-scroll="board">Board</a>
     <a href="#how" data-scroll="how">How it works</a>
+    <a href="#desk" data-scroll="desk">Asset desk</a>
+    <a href="#playground" data-scroll="playground">Playground</a>
     <a href="#launch" data-scroll="launch">Launch</a>
     <a href="#proof" data-scroll="proof">Proof</a>
     <a href="#faq" data-scroll="faq">FAQ</a>
@@ -87,14 +89,18 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
           <input id="search" type="search" placeholder="Search name or ticker" autocomplete="off">
         </label>
-        <label class="lv-sort">
-          Sort by
-          <select id="sort">
-            <option value="new">Most recent</option>
-            <option value="cap">Simulated cap</option>
-            <option value="replies">Holders</option>
-          </select>
-        </label>
+        <div class="lv-sort">
+          <span id="sortLabel">Sort by</span>
+          <div class="lv-select" id="sortWrap">
+            <button class="lv-select-btn" id="sortBtn" type="button"
+                    aria-haspopup="listbox" aria-expanded="false" aria-labelledby="sortLabel sortBtn">Most recent</button>
+            <ul class="lv-select-menu" id="sortMenu" role="listbox" aria-label="Sort the board" hidden>
+              <li role="option" data-value="new" aria-selected="true" tabindex="-1">Most recent</li>
+              <li role="option" data-value="cap" aria-selected="false" tabindex="-1">Simulated cap</li>
+              <li role="option" data-value="replies" aria-selected="false" tabindex="-1">Holders</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div class="lv-grid" id="grid"></div>
@@ -121,22 +127,36 @@
     </div>
   </section>
 
-  <!-- ————— launch ————— -->
-  <section class="lv-sec lv-sec-pad" id="launch">
+  <!-- ————— asset desk ————— -->
+  <section class="lv-sec" id="desk">
     <div class="lv-wrap">
-      <p class="lv-kicker">The pad</p>
-      <h2>Name it. The dial pairs it.</h2>
+      <p class="lv-kicker">Asset desk</p>
+      <h2>Sixteen names, and where each one lives</h2>
       <p class="lv-sec-lede lv-sec-lede-wide">
-        Four fields and one spin. Where the arrow stops gives two coordinates — a colour and a
-        quadrant — and together they name the underlying asset. The market opens the moment the
-        launch lands.
+        The colour picks the family, the quadrant picks the name inside it. This is the whole
+        table, and it is the same one the arrow reads — the page cannot promise a pairing the
+        board does not honour.
+      </p>
+      <div class="lv-matrix" id="matrix"></div>
+    </div>
+  </section>
+
+  <!-- ————— playground ————— -->
+  <section class="lv-sec lv-sec-pad" id="playground">
+    <div class="lv-wrap">
+      <p class="lv-kicker">Playground</p>
+      <h2>Nothing here launches anything</h2>
+      <p class="lv-sec-lede lv-sec-lede-wide">
+        The mat, flat on the floor. Move the figure around it as much as you like: no coin is
+        created, no spin is spent, and the arrow is not watching.
       </p>
 
       <div class="lv-mat">
         <div class="lv-mat-stage">
           <div class="lv-mat-floor">
+            <svg class="lv-mat-cross" id="matCross" aria-hidden="true"></svg>
             <div class="lv-mat-rows" id="matRows"></div>
-            <svg class="lv-mat-figure" id="matFigure" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <svg class="lv-mat-figure" id="matFigure" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
           </div>
         </div>
 
@@ -145,13 +165,27 @@
           <h3>Put a hand or a foot on a colour</h3>
           <p class="lv-mat-copy">
             Sixteen circles, sixteen assets. Each row belongs to one hand or one foot, each column to
-            one colour family — tap a circle and that limb moves onto it. It is the same table the
-            arrow reads, so whatever the dial lands on, the figure can reach.
+            one colour family. <b>Drag a hand or a foot along its row</b>, or tap a circle to send it
+            there. It is the same table the arrow reads, so whatever the board lands on, the figure
+            can already reach.
           </p>
           <div class="lv-mat-limbs" id="matLimbs"></div>
           <p class="lv-mat-read" id="matRead"></p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ————— launch ————— -->
+  <section class="lv-sec lv-sec-tint" id="launch">
+    <div class="lv-wrap">
+      <p class="lv-kicker">The pad</p>
+      <h2>Name it. The dial pairs it.</h2>
+      <p class="lv-sec-lede lv-sec-lede-wide">
+        Four fields and one spin. Where the arrow stops gives two coordinates — a colour and a
+        quadrant — and together they name the underlying asset. The market opens the moment the
+        launch lands.
+      </p>
 
       <ol class="lv-steps" id="steps">
         <li data-step="1"><span>1</span> Details</li>
@@ -370,6 +404,8 @@
     <nav class="lv-foot-links" aria-label="Footer">
       <button class="lv-textlink" data-scroll="board" type="button">The board</button>
       <button class="lv-textlink" data-scroll="how" type="button">How it works</button>
+      <button class="lv-textlink" data-scroll="desk" type="button">Asset desk</button>
+      <button class="lv-textlink" data-scroll="playground" type="button">Playground</button>
       <button class="lv-textlink" data-scroll="launch" type="button">Launch a coin</button>
       <button class="lv-textlink" data-scroll="proof" type="button">Proof</button>
       <button class="lv-textlink" data-scroll="faq" type="button">Questions</button>
@@ -389,6 +425,42 @@
     </p>
   </div>
 </footer>
+
+
+<!-- the door: you are told what this is before you are let in -->
+<dialog class="lv-gate" id="gate" aria-labelledby="gateTitle">
+  <div class="lv-gate-in">
+    <p class="lv-kicker lv-kicker-sm">Before you step on the mat</p>
+    <h2 id="gateTitle">This is a game.</h2>
+    <p class="lv-gate-lede">
+      Spinpad is a working simulation of a launchpad. Everything in it behaves; none of it settles.
+      The short version, so nobody is surprised later:
+    </p>
+    <ul class="lv-gate-list">
+      <li><b>No chain, no contract, no wallet, no money.</b> There is nothing here to lose except
+        an argument with an arrow.</li>
+      <li><b>You do not pick the asset.</b> A spinner does. That is not a bug we are working on, it
+        is the entire product.</li>
+      <li><b>Meta, Tesla, Nvidia and Amazon are labels on a demo.</b> They have never heard of us,
+        and nothing here is affiliated with, endorsed by or connected to any of them.</li>
+      <li><b>Every price, cap and curve was invented</b> by a random number generator with no
+        financial training whatsoever.</li>
+      <li><b>This is not financial advice</b>, or financial anything. Pairing a real token to a
+        listed share is a serious regulated act in most of the world. This is a board game about it.</li>
+    </ul>
+
+    <label class="lv-gate-check">
+      <input type="checkbox" id="gateAgree">
+      <span>I understand this is a game and not a financial instrument, and I will not tell anyone
+        the arrow gave me a hot tip.</span>
+    </label>
+
+    <div class="lv-gate-foot">
+      <button class="lv-btn lv-btn-dark lv-btn-lg" id="gateGo" type="button" disabled>Step on the mat</button>
+      <p class="lv-gate-note">The mat is honest. It is the only thing here that is.</p>
+    </div>
+  </div>
+</dialog>
 
 <script src="app.js"></script>
 </body>

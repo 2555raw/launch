@@ -24,9 +24,9 @@ No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 ## Structure
 
 ```
-index.html   the page: pinned nav and contract bars, hero, launch ticker, the coin
-             board, the pad (details -> spin -> launch, then the spin record),
-             how it works, proof, FAQ and footer
+index.html   the page: the door, pinned nav, hero, launch ticker, the coin board,
+             how it works, the asset desk, the playground, the pad (details ->
+             spin -> launch, then the spin record), proof, FAQ and footer
 styles.css   the design system: the ground, the mat under the pad, the four reserved
              colours, type, components and the responsive rules
 app.js       the board, the step machine, the mat and its figure, the coin cards,
@@ -135,10 +135,15 @@ blue 25.20%, red 24.77%.
 
 ### The mat
 
-Below the pad is the board laid flat on the floor: four rows, one per hand and foot, by four colour
-columns, which is the pairing table with the perspective of the game it came from. Tapping a circle
-walks that limb onto it, and when the arrow resolves the figure does the same thing by itself, so
-the draw is something you watch rather than read.
+The playground is the board laid flat on the floor: four rows, one per hand and foot, by four
+colour columns, under the spinner's own crosshair. It is the pairing table with the perspective of
+the game it came from. Tap a circle and that limb walks onto it, **or drag a hand or a foot along
+its row** — the drag asks the document what is under the pointer rather than mapping coordinates,
+because the floor is rotated in 3D and hit testing is the only cheap way to get that right. A drop
+outside the limb's own row leaves it where it was. When the arrow resolves, the figure moves by
+itself, so the draw is something you watch rather than read.
+
+Nothing in the playground launches anything, which is why it is not in the pad.
 
 The circles are drawn inside cell-sized buttons rather than being buttons themselves. Under the
 floor's rotation a circle's own box projects to a trapezoid whose centre can land outside it, so a
@@ -212,6 +217,16 @@ The distribution chart stays at four bars, one per family, rather than sixteen: 
 sixteen-bar chart of a handful of launches would be mostly empty, and the family
 share is the number that says whether the board is flat.
 
+## The door
+
+The first visit is gated on reading what this is. It says, in as many words, that there is no
+chain, no contract and no money; that the asset is drawn rather than chosen; that Meta, Tesla,
+Nvidia and Amazon are labels on a demo with no connection to it; that every figure was invented;
+and that pairing a real token to a listed share is a serious regulated act in most of the world.
+Getting in needs a deliberate tick, not a dismissal — Escape is refused — and the answer is
+remembered under `spinpad.gate.v1`. If storage is blocked it asks again, which is the right way
+round for a disclaimer.
+
 ## The data
 
 - **Every figure is generated.** Market caps, replies, curve progress and the combined total are
@@ -225,6 +240,8 @@ share is the number that says whether the board is flat.
 - Card sparklines are deterministic: each one is a seeded random walk keyed on the coin's id, so a
   card looks the same across re-renders instead of twitching every time the board redraws.
 - The board re-renders each minute so relative timestamps do not freeze on a tab left open.
+- Coming back to the tab blooms the coloured ground in again — the mat under the playground and the
+  assets behind the hero. It is decoration, so it is skipped entirely under `prefers-reduced-motion`.
 
 ## Before this becomes real
 

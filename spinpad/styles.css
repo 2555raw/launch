@@ -40,7 +40,7 @@
   --sh:        0 1px 3px rgba(23, 26, 31, .05), 0 18px 40px -26px rgba(23, 26, 31, .34);
   --sh-lg:     0 2px 6px rgba(23, 26, 31, .05), 0 40px 70px -36px rgba(23, 26, 31, .4);
 
-  --nav-h:     72px;
+  --nav-h:     56px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -136,7 +136,7 @@ a { color: inherit; text-decoration: none; }
 
 .lv-textlink {
   background: none; border: 0; padding: 0; cursor: pointer;
-  font: 600 15px/1.4 "Plus Jakarta Sans", sans-serif; color: var(--ink-soft);
+  font: 600 14px/1.4 "Plus Jakarta Sans", sans-serif; color: var(--ink-soft);
   transition: color .16s;
 }
 .lv-textlink:hover { color: var(--ink); }
@@ -162,18 +162,18 @@ a { color: inherit; text-decoration: none; }
 
 .lv-nav {
   position: fixed; z-index: 50; top: 18px; left: 50%; transform: translateX(-50%);
-  width: min(1560px, 100% - 56px); height: var(--nav-h);
-  display: flex; align-items: center; gap: 28px; padding: 0 14px 0 34px;
+  width: min(1440px, 100% - 56px); height: var(--nav-h);
+  display: flex; align-items: center; gap: 20px; padding: 0 10px 0 24px;
   background: linear-gradient(115deg, rgba(246, 247, 250, .96), rgba(255, 255, 255, .96));
   backdrop-filter: blur(16px) saturate(140%);
   border-radius: 999px; box-shadow: var(--sh);
 }
-.lv-brand { font: 800 23px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: -0.035em; cursor: pointer; }
-.lv-links { display: flex; gap: 26px; margin-inline: auto; font: 500 15.5px/1 "Plus Jakarta Sans", sans-serif; color: var(--prose); }
-.lv-links a { cursor: pointer; padding: 6px 0; border-bottom: 2px solid transparent; transition: color .16s, border-color .16s; }
+.lv-brand { font: 800 18px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: -0.035em; cursor: pointer; }
+.lv-links { display: flex; gap: 20px; margin-inline: auto; font: 500 14px/1 "Plus Jakarta Sans", sans-serif; color: var(--prose); }
+.lv-links a { cursor: pointer; padding: 5px 0; border-bottom: 2px solid transparent; white-space: nowrap; transition: color .16s, border-color .16s; }
 .lv-links a:hover { color: var(--ink); }
 .lv-links a.is-here { color: var(--ink); border-bottom-color: var(--ink); }
-.lv-nav-right { display: flex; align-items: center; gap: 16px; }
+.lv-nav-right { display: flex; align-items: center; gap: 12px; }
 
 /* ---------- hero ---------- */
 
@@ -281,7 +281,10 @@ a { color: inherit; text-decoration: none; }
   border-radius: 20px; box-shadow: 0 50px 70px -46px rgba(23, 26, 31, .7), inset 0 0 0 1px var(--line);
   padding: 4%;
 }
-.lv-mat-rows { display: grid; grid-template-rows: repeat(4, 1fr); height: 100%; gap: 2%; }
+/* the board's own crosshair, laid under the circles so the mat reads as the
+   same object as the spinner it takes its quadrants from */
+.lv-mat-cross { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.lv-mat-rows { position: relative; display: grid; grid-template-rows: repeat(4, 1fr); height: 100%; gap: 2%; }
 .lv-mat-row { display: grid; grid-template-columns: 58px repeat(4, 1fr); gap: 2%; min-height: 0; align-items: center; }
 .lv-mat-rowlabel {
   font: 700 9.5px/1.25 "Plus Jakarta Sans", sans-serif; letter-spacing: .08em;
@@ -321,12 +324,19 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* the figure lies in the mat's own plane, seen from above like the players are */
-.lv-mat-figure { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+/* only the grips take the pointer: the limbs and the body stay out of the way
+   of the circles underneath them */
+.lv-mat-figure { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; touch-action: none; }
+.lv-mat-figure .lv-fig-grip { pointer-events: auto; cursor: grab; }
+.lv-mat.is-dragging .lv-mat-figure .lv-fig-grip { pointer-events: none; cursor: grabbing; }
+.lv-mat.is-dragging { cursor: grabbing; }
+.lv-mat-row.is-live { outline: 2px dashed rgba(23, 26, 31, .28); outline-offset: 6px; border-radius: 999px; }
 .lv-mat-figure .lv-fig-limb { stroke: var(--ink); stroke-width: 5; fill: none; stroke-linecap: round; }
 .lv-mat-figure .lv-fig-body { stroke: var(--ink); stroke-width: 7; stroke-linecap: round; fill: none; }
 .lv-mat-figure .lv-fig-head { fill: var(--ink); stroke: #fff; stroke-width: 3; }
 .lv-mat-figure .lv-fig-joint { fill: var(--ink); }
-.lv-mat-figure .lv-fig-grip { fill: #fff; stroke: var(--ink); stroke-width: 4; }
+.lv-mat-figure .lv-fig-grip { fill: #fff; stroke: var(--ink); stroke-width: 4; transition: r .14s; }
+.lv-mat-figure .lv-fig-grip:hover { r: 11; }
 
 .lv-mat-side h3 { font-size: 26px; margin: 12px 0 14px; }
 .lv-mat-copy { font-size: 15px; line-height: 1.65; color: var(--prose); max-width: 46ch; }
@@ -357,10 +367,39 @@ a { color: inherit; text-decoration: none; }
 .lv-search input { border: 0; background: transparent; color: var(--ink); font: 500 14px/1 inherit; width: 170px; outline: none; }
 .lv-search input::placeholder { color: var(--dim); }
 .lv-sort { display: inline-flex; align-items: center; gap: 10px; font: 500 14px/1 inherit; color: var(--muted); }
-.lv-sort select {
-  background: rgba(255, 255, 255, .86); color: var(--ink); border: 1.5px solid var(--line);
-  border-radius: 999px; padding: 11px 14px; font: 600 13.5px/1 inherit; cursor: pointer;
+/* A listbox rather than a native select: the platform control cannot be made
+   to match the rest of the page, and it was the one thing on it that looked
+   borrowed. */
+.lv-select { position: relative; }
+.lv-select-btn {
+  display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+  background: rgba(255, 255, 255, .86); color: var(--ink);
+  border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 10px 16px; font: 600 13.5px/1 "Plus Jakarta Sans", sans-serif;
+  transition: border-color .16s;
 }
+.lv-select-btn::after {
+  content: ""; width: 7px; height: 7px; margin-left: 2px;
+  border-right: 1.6px solid var(--muted); border-bottom: 1.6px solid var(--muted);
+  transform: translateY(-2px) rotate(45deg); transition: transform .18s;
+}
+.lv-select-btn:hover { border-color: var(--line-hi); }
+.lv-select-btn[aria-expanded="true"] { border-color: var(--ink); }
+.lv-select-btn[aria-expanded="true"]::after { transform: translateY(1px) rotate(225deg); }
+.lv-select-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.lv-select-menu {
+  position: absolute; z-index: 30; top: calc(100% + 8px); right: 0; min-width: 100%;
+  margin: 0; padding: 6px; list-style: none;
+  background: var(--card); border: 1.5px solid var(--line-hi); border-radius: 14px;
+  box-shadow: var(--sh);
+}
+.lv-select-menu li {
+  padding: 10px 14px; border-radius: 9px; cursor: pointer; white-space: nowrap;
+  font: 600 13.5px/1 "Plus Jakarta Sans", sans-serif; color: var(--prose);
+}
+.lv-select-menu li:hover, .lv-select-menu li:focus { background: var(--field); color: var(--ink); outline: none; }
+.lv-select-menu li[aria-selected="true"] { color: var(--ink); background: var(--field); }
 
 .lv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
 
@@ -638,11 +677,63 @@ a { color: inherit; text-decoration: none; }
 .lv-foot-status { font: 600 11px/1.6 "Plus Jakarta Sans", sans-serif; letter-spacing: .14em; color: var(--dim); }
 .lv-foot-note { margin-top: 22px; font-size: 12px; line-height: 1.75; color: var(--dim); max-width: 100ch; }
 
+/* ---------- coming back ----------
+   The coloured ground blooms back in when the tab is looked at again: the mat
+   under the playground and the assets floating behind the hero. Both are
+   decoration, so the whole thing is skipped under reduced motion. */
+
+@keyframes lv-bloom {
+  from { opacity: 0; transform: scale(.955); }
+  to   { opacity: .3; transform: none; }
+}
+@keyframes lv-orbs-in {
+  from { opacity: 0; transform: translateY(18px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.lv-sec-pad.is-blooming::before { animation: lv-bloom .95s cubic-bezier(.2, .7, .3, 1) both; }
+.lv-orbs.is-blooming { animation: lv-orbs-in .9s cubic-bezier(.2, .7, .3, 1) both; }
+
+/* ---------- the door ---------- */
+
+.lv-gate {
+  width: min(620px, 94vw); padding: 0; border: 1px solid var(--line-hi);
+  border-radius: 24px; background: var(--bg); color: var(--ink); box-shadow: var(--sh-lg);
+}
+.lv-gate::backdrop { background: rgba(18, 20, 26, .55); backdrop-filter: blur(6px); }
+.lv-gate-in { padding: 34px; }
+.lv-gate h2 { font-size: clamp(28px, 4vw, 38px); margin: 10px 0 16px; }
+.lv-gate-lede { font-size: 15.5px; line-height: 1.65; color: var(--prose); }
+.lv-gate-list { margin: 22px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.lv-gate-list li {
+  position: relative; padding-left: 26px; font-size: 14.5px; line-height: 1.6; color: var(--prose);
+}
+.lv-gate-list li::before {
+  content: ""; position: absolute; left: 0; top: .55em; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--line-hi);
+}
+.lv-gate-list li:nth-child(1)::before { background: var(--green); }
+.lv-gate-list li:nth-child(2)::before { background: var(--yellow); }
+.lv-gate-list li:nth-child(3)::before { background: var(--blue); }
+.lv-gate-list li:nth-child(4)::before { background: var(--red); }
+.lv-gate-list b { color: var(--ink); }
+
+.lv-gate-check {
+  display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start;
+  margin-top: 26px; padding: 16px 18px; border: 1.5px solid var(--line-hi);
+  border-radius: 14px; cursor: pointer; font-size: 14px; line-height: 1.55; color: var(--prose);
+}
+.lv-gate-check:hover { border-color: var(--ink); }
+.lv-gate-check input { width: 20px; height: 20px; accent-color: var(--ink); margin-top: 1px; cursor: pointer; }
+
+.lv-gate-foot { margin-top: 22px; display: grid; gap: 12px; justify-items: start; }
+.lv-gate-note { font-size: 12.5px; color: var(--dim); }
+
 /* ---------- responsive ---------- */
 
-@media (max-width: 1180px) {
-  .lv-links { gap: 18px; font-size: 14.5px; }
-  .lv-nav { padding-left: 26px; }
+@media (max-width: 1280px) {
+  .lv-links { gap: 14px; font-size: 13px; }
+  .lv-nav { padding-left: 18px; gap: 14px; }
 }
 @media (max-width: 1040px) {
   .lv-mat { grid-template-columns: 1fr; gap: 30px; }
@@ -664,6 +755,7 @@ a { color: inherit; text-decoration: none; }
 }
 @media (max-width: 600px) {
   .lv-wrap, .lv-wrap-narrow { width: calc(100% - 28px); }
+  .lv-gate-in { padding: 24px; }
   /* the fixed label column would otherwise eat the whole row at this width, and
      the rotation has to ease off: perspective widens the near edge past the
      element's own box, which the section's overflow then clips */
@@ -672,7 +764,7 @@ a { color: inherit; text-decoration: none; }
   .lv-mat-floor { padding: 3%; width: 92%; transform: rotateX(14deg); }
   .lv-nav { width: calc(100% - 24px); padding: 0 8px 0 18px; gap: 10px; }
   .lv-brand { font-size: 19px; }
-  .lv-nav .lv-btn { padding: 11px 16px; font-size: 13.5px; }
+  .lv-nav .lv-btn { padding: 10px 14px; font-size: 13px; }
   .lv-textlink { font-size: 13.5px; }
   .lv-hero { padding-inline: 0; }
   .lv-search { margin-left: 0; width: 100%; }
@@ -695,6 +787,7 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .lv-ticker-track, .lv-orb { animation: none; }
+  .lv-sec-pad.is-blooming::before, .lv-orbs.is-blooming { animation: none; }
   .lv-needle { transition-duration: .2s; }
   .lv-btn, .lv-coin, .lv-meter-fill { transition: none; }
 }

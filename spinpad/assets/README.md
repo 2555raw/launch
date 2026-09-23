@@ -19,7 +19,7 @@ assets/usdg.png     USDG        assets/skype.png    Skype
 assets/sbux.png     Starbucks   assets/intc.png     Intel
 ```
 
-Fifteen ship. Missing: `usdg.png`, which keeps its drawn dollar mark.
+All sixteen ship.
 
 The eight in red and yellow are bitmaps, trimmed and scaled. The seven in green and blue were
 rendered from the `simple-icons` package instead — official single-colour marks in each brand's own
@@ -27,8 +27,12 @@ hex. That package is not a dependency of anything; it was used once to write the
 and `wmt.png` came from `simple-icons@11`, because the current release has dropped both, and
 `wmt.png` is the spark cut out of the lockup, in Walmart blue rather than the spark's yellow.
 
-There is no Global Dollar mark in `simple-icons` (3461 icons) or in `@web3icons/core` (5364 token
-icons, which has USDC, USDD, USDE, USDT, USDV and USDX but not USDG). That one needs a file.
+`usdg.png` is a bitmap, and the only one that came with transparency already outside its own disc —
+so it needed neither trimming back nor masking. It had to be supplied: there is no Global Dollar
+mark in `simple-icons` (3461 icons) or in `@web3icons/core` (5364 token icons, which has USDC, USDD,
+USDE, USDT, USDV and USDX but not USDG).
+
+The drawn marks are still there under every logo, and still the fallback if a file is removed.
 
 **A missing file costs nothing.** The cell falls back to a drawn abstract mark, silently, so the
 board looks finished whether you add one logo or all sixteen.

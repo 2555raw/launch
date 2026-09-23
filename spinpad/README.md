@@ -53,12 +53,12 @@ and the logo are stacked in the same box and the image only becomes visible once
 loaded, so a cell with no file simply keeps its drawn mark. `assets/README.md` has the full list of
 filenames, grouped by colour.
 
-Fifteen ship. One does not — USDG — and it keeps its drawn dollar mark, which is why fifteen discs
-are white and one is green.
+All sixteen ship, so every disc on the board is white with its colour as a ring.
 
-They come from two places. Red and yellow are pictures: bitmaps, trimmed and scaled. The other
-seven are vectors rendered from the `simple-icons` package — official single-colour marks in each
-brand's own hex, which on a white disc reads better than a photograph of a logo and needs no
+They come from two places. Red and yellow are pictures: bitmaps, trimmed and scaled. USDG is one too, and the only one that
+arrived already transparent outside its own disc, so it needed neither trimming back nor masking.
+The other seven are vectors rendered from the `simple-icons` package — official single-colour marks
+in each brand's own hex, which on a white disc reads better than a photograph of a logo and needs no
 trimming or keying at all. The package is not a dependency; it was used once to write the files.
 
 Two of those seven came from `simple-icons@11` rather than the current release, which has dropped
@@ -294,7 +294,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-156 checks across three suites.
+158 checks across three suites.
 
 ### The chain, checked without a chain
 
@@ -351,8 +351,10 @@ not a unit test of the internals; it goes at the product the way someone trying 
   appearing anywhere on it.
 - Calling the spin again from a console changes nothing and does not move the pad.
 - Nothing on the result screen is a control that offers another spin.
-- A logo that loaded sits on a white disc with the colour as a ring, and a cell with no logo file
-  keeps its coloured disc and drawn mark.
+- A logo that loaded sits on a white disc with the colour as a ring. And because every cell now
+  ships one, the fallback is probed directly: a cell pointed at a file that does not exist stays
+  coloured, shows no broken image and keeps its drawn mark. Without that, the old check —
+  "cells with no logo equals sixteen minus cells with one" — passes as 0 === 0 and proves nothing.
 - The proof list is empty rather than invented.
 - **No sideways scroll at 1440, 1024, 768 or 390px**, the nav collapses to a menu on a phone, and
   the menu opens and closes again when something is picked.

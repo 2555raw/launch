@@ -375,8 +375,39 @@ async function browserChecks() {
   ok('a loaded logo sits on a white disc',
     discs.withLogo > 0 && discs.white === discs.withLogo, JSON.stringify(discs));
   ok('and the colour is still there as a ring', discs.ringed === discs.withLogo, JSON.stringify(discs));
-  ok('a cell with no logo file keeps its coloured disc',
-    discs.coloured === 16 - discs.withLogo, JSON.stringify(discs));
+  /* Every cell now ships a logo, so nothing on the page exercises the fallback
+     any more and `coloured === 16 - withLogo` passes by being 0 === 0. Put a
+     cell with a file that is not there in front of the same code and watch it
+     stay coloured: that is the behaviour worth keeping, and it is the one that
+     quietly rots the moment the last drawn mark disappears. */
+  const missing = await page.evaluate(async () => {
+    const holder = document.createElement('span');
+    holder.className = 'sp-cell-node';
+    holder.dataset.color = 'red';
+    holder.innerHTML = '<span class="sp-mark" style="--m:24px">'
+      + '<svg class="sp-glyph" viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg>'
+      + '<img class="sp-logo" src="assets/there-is-no-such-file.png" alt="">'
+      + '</span>';
+    document.getElementById('boardGrid').appendChild(holder);
+    await new Promise((r) => setTimeout(r, 900));
+    const cs = getComputedStyle(holder);
+    const img = holder.querySelector('img.sp-logo');
+    const out = {
+      gotHasLogo: holder.classList.contains('has-logo'),
+      background: cs.backgroundColor,
+      imageVisible: getComputedStyle(img).opacity !== '0',
+      glyphVisible: getComputedStyle(holder.querySelector('.sp-glyph')).visibility !== 'hidden',
+    };
+    holder.remove();
+    return out;
+  });
+  ok('a file that is not there never turns the disc white',
+    !missing.gotHasLogo && missing.background !== 'rgb(255, 255, 255)', JSON.stringify(missing));
+  ok('and shows no broken image, just the drawn mark',
+    !missing.imageVisible && missing.glyphVisible, JSON.stringify(missing));
+
+  ok('every cell on the board carries a logo now',
+    discs.withLogo === 16 && discs.coloured === 0, JSON.stringify(discs));
 
   // both wheels carry all sixteen nodes, and their corner labels match the table
   const nodes = await page.evaluate(() => ({

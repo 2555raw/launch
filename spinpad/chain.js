@@ -214,7 +214,12 @@ window.SpinpadChain = (() => {
     for (let i = 0; i < 180; i++) {
       const r = await rpc('eth_getTransactionReceipt', [hash]);
       if (r && r.blockNumber) {
-        if (r.status && BigInt(r.status) === 0n) throw new Error('The transaction reverted on chain.');
+        /* status can arrive as '0x0' or as a number; `r.status && …` let a
+           numeric 0 through as success, which reported a reverted deployment
+           as deployed. Anything that is not explicitly 1 is a failure. */
+        if (r.status !== undefined && r.status !== null && BigInt(r.status) !== 1n) {
+          throw new Error('The transaction reverted on chain.');
+        }
         return r;
       }
       if (onTick) onTick(i);
@@ -225,11 +230,41 @@ window.SpinpadChain = (() => {
 
   /* ---------- the first pool ---------- */
 
+  const allowanceOf = async (token, owner, spender) =>
+    decodeUint(await call(token, SEL.allowance + addrWord(owner) + addrWord(spender)));
+
   const approve = async (token, spender, amountWei) => rpc('eth_sendTransaction', [{
     from: state.account,
     to: token,
     data: SEL.approve + addrWord(spender) + word(amountWei),
   }]);
+
+  /* Approve only what is missing, and only for the amount being used.
+   *
+   * V2's addLiquidity pulls BOTH sides of the pair with transferFrom, so both
+   * tokens need an allowance — approving only the new coin makes the liquidity
+   * call revert with TRANSFER_FROM_FAILED, every time.
+   *
+   * The reset to zero is for the tokens that refuse to change a non-zero
+   * allowance directly. It costs one transaction on those and none anywhere
+   * else, and `sent` lets the caller tell the user what they are about to sign. */
+  const ensureAllowance = async (token, spender, amountWei, onStep) => {
+    const sent = [];
+    const have = await allowanceOf(token, state.account, spender);
+    if (have >= BigInt(amountWei)) return sent;
+
+    if (have > 0n) {
+      if (onStep) onStep('reset');
+      const zero = await approve(token, spender, 0n);
+      await waitForReceipt(zero);
+      sent.push(zero);
+    }
+    if (onStep) onStep('approve');
+    const tx = await approve(token, spender, amountWei);
+    await waitForReceipt(tx);
+    sent.push(tx);
+    return sent;
+  };
 
   const minOut = (amount, bps) => (BigInt(amount) * BigInt(10000 - bps)) / 10000n;
 
@@ -257,7 +292,8 @@ window.SpinpadChain = (() => {
   return {
     SEL, encodeArgs, decodeString, decodeUint, decodeAddress, creationCode,
     hasWallet, connect, state, onChain, switchChain,
-    verifyToken, verifyRouter, deploy, waitForReceipt, approve, addLiquidity,
+    verifyToken, verifyRouter, deploy, waitForReceipt,
+    approve, allowanceOf, ensureAllowance, addLiquidity,
     explorerTx, explorerAddress,
   };
 })();

@@ -47,9 +47,14 @@ http.createServer((req, res) => {
   }
   if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
 
-  /* keep the request inside the directory, whatever it asks for */
-  const file = path.join(ROOT, path.normalize(rel));
-  if (!file.startsWith(ROOT)) {
+  /* Keep the request inside the directory, whatever it asks for.
+     The separator matters: a bare startsWith(ROOT) also accepts a sibling
+     directory whose name merely begins with it. Nothing can reach that today —
+     pathname always starts with a slash, so normalize() eats the ..  before
+     join() ever runs — but the guard should hold on its own rather than because
+     of how its input happens to be built. */
+  const file = path.resolve(ROOT, '.' + path.normalize(rel));
+  if (file !== ROOT && !file.startsWith(ROOT + path.sep)) {
     bad(res, 403, '403 — forbidden');
     return;
   }

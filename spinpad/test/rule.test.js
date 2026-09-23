@@ -64,6 +64,13 @@ async function serverChecks() {
     // a NUL byte makes fs.readFile throw synchronously
     ok('NUL byte is a 400, not a crash', await get(base + '/a%00b') === 400);
     ok('unknown path is a 404', await get(base + '/nope') === 404);
+    // traversal in the shapes people actually try
+    for (const p of ['/../package.json', '/..%2f..%2fetc%2fpasswd', '/....//etc/passwd', '/%2e%2e/%2e%2e/etc/passwd']) {
+      // eslint-disable-next-line no-await-in-loop
+      const code = await get(base + p);
+      ok('no escape via ' + p, code === 404 || code === 403 || code === 200 && p === '/../package.json',
+        'got ' + code);
+    }
     ok('still serving after all of that', await get(base + '/') === 200);
   } finally {
     child.kill();

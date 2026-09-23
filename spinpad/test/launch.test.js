@@ -65,6 +65,7 @@ window.ethereum = {
         const d = (params[0].data || '');
         if (d.startsWith('0x95d89b41')) return abiString('TEST');                       // symbol()
         if (d.startsWith('0x313ce567')) return '0x' + (18).toString(16).padStart(64,'0'); // decimals()
+        if (d.startsWith('0xdd62ed3e')) return '0x' + (0).toString(16).padStart(64,'0');      // allowance()
         if (d.startsWith('0xad5c4648')) return '0x' + '${WETH}'.slice(2).padStart(64,'0'); // WETH()
         if (d.startsWith('0xc45a0155')) return '0x' + '${WETH}'.slice(2).padStart(64,'0'); // factory()
         return '0x';
@@ -159,29 +160,58 @@ window.ethereum = {
   await page.waitForTimeout(1500);
 
   const after = await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction'));
-  ok('two more transactions: an approval and the liquidity', after.length === 3, after.length + ' in total');
-  if (after.length === 3) {
-    const appr = after[1].params[0];
-    const liq = after[2].params[0];
-    ok('the approval goes to the coin', String(appr.to).toLowerCase() === COIN);
-    ok('and approves the router', String(appr.data).includes(ROUTER.slice(2).toLowerCase()));
+  ok('three more transactions: two approvals and the liquidity', after.length === 4,
+    after.length + ' in total');
+
+  if (after.length === 4) {
+    const coinAppr = after[1].params[0];
+    const quoteAppr = after[2].params[0];
+    const liq = after[3].params[0];
+
+    /* The whole point of this block: addLiquidity pulls BOTH sides with
+       transferFrom, so both tokens need an allowance. An earlier version
+       approved only the coin and this test asserted three transactions, which
+       locked the bug in — the pool could never have opened. */
+    ok('the coin is approved', String(coinAppr.to).toLowerCase() === COIN
+      && String(coinAppr.data).startsWith('0x095ea7b3'));
+    ok('and so is the quote token', String(quoteAppr.to).toLowerCase() === TOKEN
+      && String(quoteAppr.data).startsWith('0x095ea7b3'));
+    ok('both approvals name the router',
+      String(coinAppr.data).includes(ROUTER.slice(2).toLowerCase())
+      && String(quoteAppr.data).includes(ROUTER.slice(2).toLowerCase()));
+
+    // neither approval is unlimited: exactly what the pool is about to use
+    const approved = (tx) => BigInt('0x' + String(tx.data).slice(10).match(/.{64}/g)[1]);
+    ok('the coin approval is for the exact amount', approved(coinAppr) === 800000n * 10n ** 18n,
+      approved(coinAppr).toString());
+    ok('the quote approval is for the exact amount', approved(quoteAppr) === 50000000000000000n,
+      approved(quoteAppr).toString());
+
     ok('the liquidity goes to the router', String(liq.to).toLowerCase() === ROUTER);
     ok('it calls addLiquidity', String(liq.data).startsWith('0xe8e33700'));
-    ok('with the coin and the drawn token as the pair',
+    ok('with the coin and the quote token as the pair',
       String(liq.data).includes(COIN.slice(2).toLowerCase()) && String(liq.data).includes(TOKEN.slice(2).toLowerCase()));
 
-    // 80% of a million at 18 decimals, and a floor 1% under each side
     const words = String(liq.data).slice(10).match(/.{64}/g);
     const coinAmount = BigInt('0x' + words[2]);
     const tokenAmount = BigInt('0x' + words[3]);
-    ok('the coin side is the configured share of supply',
-      coinAmount === 800000n * 10n ** 18n, coinAmount.toString());
+    ok('the coin side is the configured share of supply', coinAmount === 800000n * 10n ** 18n, coinAmount.toString());
     ok('the token side is what was typed', tokenAmount === 50000000000000000n, tokenAmount.toString());
     ok('the minimums sit 1% under', BigInt('0x' + words[4]) === (coinAmount * 9900n) / 10000n
       && BigInt('0x' + words[5]) === (tokenAmount * 9900n) / 10000n);
     ok('the recipient is the connected account', words[6].endsWith(ME.slice(2)));
     ok('the deadline is in the future', BigInt('0x' + words[7]) > BigInt(Math.floor(Date.now() / 1000)));
   }
+
+  // an amount too small to survive the token's decimals must be refused, not sent as zero
+  const beforeDust = await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction').length);
+  await page.fill('#poolAmount', '0.0000000000000000001');
+  await page.evaluate(() => { document.getElementById('poolBtn').disabled = false; });
+  await page.click('#poolBtn');
+  await page.waitForTimeout(400);
+  ok('an amount that rounds to nothing is refused',
+    (await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction').length)) === beforeDust
+    && /rounds to nothing/.test(await page.locator('#poolNote').textContent()));
 
   ok('no console errors along the way', errors.length === 0, errors.slice(0, 2).join(' / '));
 

@@ -7,8 +7,10 @@
  * with a resolved spin, and launch() re-checks the spin before it writes
  * anything. Re-enabling the control from a console produces nothing.
  *
- * No chain is involved. Prices, curves, caps and holders are generated figures,
- * and the interface says so wherever they appear.
+ * A chain is very much involved. Launching deploys a real ERC-20 on the network
+ * in config.js, from the connected wallet, and opening a pool moves real funds.
+ * Nothing on the page is a generated figure any more: what a card shows is what
+ * is on chain, and what is not on chain yet says so.
  */
 
 (() => {
@@ -121,7 +123,11 @@
 
   const SEG = 360 / SECTORS.length;   // 22.5 degrees between dots
   const EXPECTED = 100 / 4;           // four of sixteen dots per family
-  const KEY = 'spinpad.coins.v2';     // v1 held colour-only pairings
+  /* v3 because the shape changed twice: v1 stored a colour-only pairing, and v2
+     stored supply as whole tokens where this stores a wei string. An old record
+     read with this code shows a supply of 0 and counts coins that were never
+     deployed, so the key moves rather than the reader guessing. */
+  const KEY = 'spinpad.coins.v3';
 
   /* ---------- helpers ---------- */
 
@@ -137,10 +143,6 @@
 
   const num = (n) => n.toLocaleString('en-US');
 
-  const money = (n) => n >= 1e6
-    ? '$' + (n / 1e6).toFixed(1) + 'M'
-    : n >= 1000 ? '$' + (n / 1000).toFixed(1) + 'K' : '$' + n;
-
   const ago = (ts) => {
     const s = Math.max(0, (Date.now() - ts) / 1000);
     if (s < 60) return Math.floor(s) + 's ago';
@@ -149,7 +151,6 @@
     return Math.floor(s / 86400) + 'd ago';
   };
 
-  const initials = (t) => t.replace(/[^A-Z0-9]/gi, '').slice(0, 5).toUpperCase() || '??';
 
   /* ---------- store ---------- */
 
@@ -465,7 +466,7 @@
 
     const tiles = [
       ['Launches recorded', num(total), total === 1 ? 'coin' : 'coins'],
-      ['Launched on ' + esc(CFG.chain.name), num(total), total === 1 ? 'contract' : 'contracts'],
+      ['Launched on ' + CFG.chain.name, num(total), total === 1 ? 'contract' : 'contracts'],
       ['Most drawn family', total ? FAMILIES[most.k].family : '—', total ? most.pct.toFixed(1) + '%' : ''],
       ['Widest deviation', total ? (gap >= 0 ? '+' : '') + gap.toFixed(1) : '—', total ? 'pts · ' + FAMILIES[wide.k].family : ''],
     ];
@@ -565,7 +566,7 @@
     const list = visible();
     $('grid').innerHTML = list.map(coinCard).join('');
     $('empty').hidden = list.length > 0;
-    $('count').textContent = `Showing ${list.length} of ${coins.length} coins · every figure simulated`;
+    $('count').textContent = `Showing ${list.length} of ${coins.length} coins · deployed from this browser`;
     renderTicker();
     renderKpis();
     renderMeter();
@@ -811,6 +812,14 @@
     if (!CFG.router.address) { note.textContent = 'No router in config.js, so no pool can be opened.'; return; }
     if (!routerOk || !routerOk.ok) { note.textContent = 'The router has not verified: ' + (routerOk ? routerOk.reason : 'not checked') + '.'; return; }
     if (!quoteOk || !quoteOk.ok) { note.textContent = quote.ticker + ' has not verified: ' + (quoteOk ? quoteOk.reason : 'not checked') + '.'; return; }
+    if (!SpinpadChain.state.account) { note.textContent = 'Connect a wallet first.'; return; }
+    /* The network can change between deploying and pooling, and every address
+       here belongs to one chain. Without this, an approval and a liquidity call
+       go out against whatever happens to live at those addresses elsewhere. */
+    if (!SpinpadChain.onChain()) {
+      note.textContent = 'Wrong network. Switch back to ' + CFG.chain.name + ' before opening the pool.';
+      return;
+    }
 
     const typed = ($('poolAmount').value || '').trim();
     if (!/^\d+(\.\d+)?$/.test(typed) || Number(typed) <= 0) {
@@ -818,19 +827,39 @@
       return;
     }
 
-    // scale by the token's own decimals, which the verifier read off the chain
-    const dec = BigInt(quoteOk.decimals);
+    // scale by the decimals the chain reported, not the ones the config claims
+    const dec = Number(quoteOk.decimals);
     const [whole, frac = ''] = typed.split('.');
-    const tokenAmount = BigInt(whole + (frac + '0'.repeat(Number(dec))).slice(0, Number(dec)));
+    const tokenAmount = BigInt(whole + (frac + '0'.repeat(dec)).slice(0, dec));
+    if (tokenAmount <= 0n) {
+      note.textContent = quote.ticker + ' has ' + dec + ' decimals, so that amount rounds to nothing. '
+        + 'Type a larger one.';
+      return;
+    }
+
     const coinAmount = (BigInt(coin.supply) * BigInt(Math.round(CFG.liquidity.supplyShare * 1000))) / 1000n;
+    if (coinAmount <= 0n) { note.textContent = 'Nothing of the coin to put in.'; return; }
 
     $('poolBtn').disabled = true;
     try {
-      note.textContent = 'Confirm the approval: this lets the router move the coin you just made.';
-      const approveTx = await SpinpadChain.approve(coin.address, CFG.router.address, coinAmount);
-      await SpinpadChain.waitForReceipt(approveTx);
+      /* Both sides, because addLiquidity pulls both with transferFrom. Only
+         approving the coin is why this reverted with TRANSFER_FROM_FAILED. */
+      note.textContent = 'Approving the coin for the router\u2026 confirm in your wallet.';
+      await SpinpadChain.ensureAllowance(coin.address, CFG.router.address, coinAmount, (step) => {
+        note.textContent = step === 'reset'
+          ? 'Clearing the old allowance on the coin first\u2026'
+          : 'Approving the coin for the router\u2026 confirm in your wallet.';
+      });
 
-      note.textContent = 'Approved. Now confirm the liquidity itself \u2014 this moves your ' + quote.ticker + '.';
+      note.textContent = 'Now approving your ' + quote.ticker + '\u2026 confirm in your wallet.';
+      await SpinpadChain.ensureAllowance(quote.address, CFG.router.address, tokenAmount, (step) => {
+        note.textContent = step === 'reset'
+          ? 'Clearing the old ' + quote.ticker + ' allowance first\u2026'
+          : 'Now approving your ' + quote.ticker + '\u2026 confirm in your wallet.';
+      });
+
+      note.textContent = 'Approved. Confirm the liquidity itself \u2014 this is the one that moves your '
+        + quote.ticker + '.';
       const poolTx = await SpinpadChain.addLiquidity({
         coin: coin.address,
         token: quote.address,
@@ -985,11 +1014,13 @@
       try {
         if (!SpinpadChain.state.account) await SpinpadChain.connect();
         if (!SpinpadChain.onChain()) await SpinpadChain.switchChain();
+      } catch (e) {
+        say(e && e.code === 4001 ? 'Refused in the wallet.'
+          : 'Could not connect: ' + ((e && e.message) || 'unknown error'));
+      } finally {
+        // the account can be connected even when the network switch was refused
         renderWallet();
         await verifyTokens();
-      } catch (e) {
-        say(e && e.code === 4001 ? 'Connection refused in the wallet.'
-          : 'Could not connect: ' + ((e && e.message) || 'unknown error'));
       }
     });
 

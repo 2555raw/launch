@@ -143,9 +143,16 @@ beside it, and asserts the ABI exposes no writable function beyond `approve`, `t
 `test/launch.test.js` serves the page with the real `server.js`, injects a fake EIP-1193 wallet and
 a test config whose addresses resolve, and then checks **the exact bytes the pad hands the wallet**:
 that a deployment is a create with no `to`, starting with the compiled bytecode and carrying the
-encoded draw; that a pool is an approval to the router followed by `addLiquidity` with the right
-pair, the configured share of supply, the amount that was typed, minimums 1% under each side, the
-connected account as recipient and a deadline in the future. Nothing is broadcast.
+encoded draw; that a pool is **two** approvals — the coin and the quote token, each for exactly the
+amount about to be used and never unlimited — followed by `addLiquidity` with the right pair, the
+configured share of supply, the amount that was typed, minimums 1% under each side, the connected
+account as recipient and a deadline in the future. Nothing is broadcast.
+
+That test used to assert three transactions, and that was the bug: V2's `addLiquidity` pulls **both**
+sides with `transferFrom`, so approving only the coin makes the liquidity call revert with
+`TRANSFER_FROM_FAILED` — the pool could never have opened. The test agreed with the code instead of
+with the router, which is the worst way for a test to be green. It asserts four now, and removing
+either approval fails it.
 
 The contract was compiled for `evmVersion: paris` on purpose: Shanghai and later emit `PUSH0`, which
 is not accepted on every chain a token might be deployed to, and the saving is a handful of gas.
@@ -302,12 +309,13 @@ round for a disclaimer.
 
 ## Before the first real launch
 
-1. **Fill in `config.js`** — the router, its `WETH()`, and the sixteen token addresses with their
-   decimals. Take them from each token's own site or a verified contract page, not from a search
-   result and not from this file.
-2. **Connect and read the panel.** The pad checks every address against the live chain and tells
-   you, one by one, what answered and what did not. Squares that did not verify cannot be launched
-   against.
+1. **Fill in `config.js`** — three addresses, not sixteen: the router, its `WETH()`, and the
+   `quote` token the pools pair against. Take them from the project's own site or a verified
+   contract page, not from a search result and not from this file. The sixteen squares are themes
+   and carry no address at all.
+2. **Connect and read the panel.** The pad calls `symbol()` and `decimals()` on the quote token and
+   checks the router answers like a V2 router. If either fails, deploying still works and pools
+   stay off.
 3. **Launch one coin with a small supply first**, and look at it on the explorer before opening any
    pool. The deployment and the pool are separate transactions precisely so this is possible.
 4. **Understand what a first pool is.** A new pair with thin liquidity is trivially easy for anyone

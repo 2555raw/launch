@@ -186,12 +186,30 @@ a { color: inherit; text-decoration: none; }
    the copy and the wheel still inside the same column as everything else.
    The clipping lives here rather than on the drift layer, so a chip that hangs
    off the side cannot widen the page. */
-.sp-hero { position: relative; overflow: hidden; isolation: isolate; }
+/* One screen, and nothing of the next one. The nav sits in normal flow above
+   this, so its height and the gap it floats by come off the top — otherwise
+   the first screen is the nav plus a full viewport and the board peeks in at
+   the bottom, which is the thing this is for.
+   
+   `min-height`, not `height`: on a phone the copy and the wheel together are
+   taller than the window, and a fixed height would either squash them or spill
+   them out of a section that clips. Taller than one screen also means the next
+   section is not visible, which is the same answer by another route.
+   
+   dvh over svh: svh is the window with the browser's chrome showing, so when
+   the chrome retracts the hero stops short and the board slides into view —
+   exactly the gap being closed. vh first for anything that does not know dvh. */
+.sp-hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: grid; align-content: center;
+  min-height: calc(100vh - var(--nav-h) - var(--nav-gap));
+  min-height: calc(100dvh - var(--nav-h) - var(--nav-gap));
+}
 .sp-hero-in {
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(32px, 6vw, 88px); align-items: center;
   width: min(1200px, 100% - 48px); margin-inline: auto;
-  padding: clamp(56px, 9vw, 120px) 0 clamp(48px, 7vw, 96px);
+  padding: clamp(40px, 5vw, 72px) 0;
 }
 
 /* ---------- the drifting sixteen ----------
@@ -282,7 +300,43 @@ a { color: inherit; text-decoration: none; }
 }
 
 .sp-hero.is-still .sp-float-in { animation-play-state: paused; }
+/* It lives in the copy, so that when the hero stacks and grows past the window
+   it can simply stop being pinned and sit under the buttons, where it is on
+   screen. Pinned to the hero's bottom edge it was reachable only by scrolling,
+   which is the one group that does not need it. */
 .sp-hero-motion { position: absolute; left: clamp(20px, 4vw, 48px); bottom: 20px; margin: 0; }
+
+/* A short window is the case this breaks in: the hero grows past its own floor
+   to fit the copy, and the two controls pinned to its bottom edge end up below
+   the fold — visible only to someone who scrolls, which is the one group that
+   does not need them. The wheel takes a height cap and the headline steps down
+   so the content fits inside the floor instead of pushing past it. */
+@media (max-height: 880px) {
+  .sp-hero-in { padding-block: clamp(20px, 3vh, 48px); }
+  .sp-hero-wheel { gap: 14px; }
+  .sp-hero-wheel .sp-wheel { width: min(440px, 88vw, 46vh); }
+  .sp-lede { margin-top: 20px; }
+  .sp-hero-cta { margin-top: 26px; }
+  .sp-eyebrow { margin-bottom: 18px; }
+}
+@media (max-height: 880px) and (min-width: 861px) {
+  .sp-hero h1 { font-size: clamp(44px, 6.4vw, 82px); }
+}
+
+/* A hero that fills the window can read as the whole site. This says it is not. */
+.sp-hero-more {
+  position: absolute; right: clamp(20px, 4vw, 48px); bottom: 20px; margin: 0;
+  display: inline-flex; align-items: center; gap: 10px;
+  font: 600 10.5px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer;
+}
+.sp-hero-more:hover { color: var(--ink); }
+.sp-hero-more:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 4px; }
+.sp-hero-more i { font-style: normal; animation: sp-nudge 2.4s ease-in-out infinite; }
+@keyframes sp-nudge {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(4px); }
+}
 .sp-eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 26px; }
 .sp-lede { margin-top: 28px; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.6; color: var(--prose); max-width: 42ch; }
 .sp-hero-cta { margin-top: 36px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
@@ -726,6 +780,11 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 860px) {
+  .sp-hero-motion { position: static; margin-top: 24px; }
+  /* and the scroll cue has nothing to say when the wheel is already half
+     below the fold telling you the same thing */
+  .sp-hero-more { display: none; }
+
   /* one column, so the hero is nearly twice as tall and every percentage in
      the slot table points somewhere else. Smaller, and the two that lived in
      the gap between the copy and the wheel have no gap to live in. */

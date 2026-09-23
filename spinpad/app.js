@@ -322,7 +322,7 @@
     // the margins, where a disc can be big and solid without covering anything
     { x: 3,  y: 24, d: 0.05, z: 'edge' }, { x: 5,  y: 72, d: 0.12, z: 'edge' },
     { x: 96, y: 20, d: 0.10, z: 'edge' }, { x: 98, y: 66, d: 0.18, z: 'edge' },
-    { x: 26, y: 96, d: 0.28, z: 'edge' }, { x: 88, y: 94, d: 0.32, z: 'edge' },
+    { x: 24, y: 97, d: 0.28, z: 'edge' }, { x: 94, y: 84, d: 0.32, z: 'edge' },
     // the band above the copy, and the one below it
     { x: 31, y: 6,  d: 0.50, z: 'band' }, { x: 53, y: 9,  d: 0.62, z: 'band' },
     { x: 71, y: 4,  d: 0.45, z: 'band' }, { x: 39, y: 92, d: 0.58, z: 'band' },

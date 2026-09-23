@@ -502,6 +502,37 @@ async function browserChecks() {
 
   /* ---------- it has to work on a phone ---------- */
   console.log('\nresponsive');
+
+  /* The hero is one screen and the next section stays off it. A hero sized in
+     `vh` on a window whose height it does not fill leaves the board peeking in
+     at the bottom, which is the whole thing this is for — so it is measured at
+     a tall window, a short one and a phone, not just the one it was built at. */
+  for (const [w, h] of [[1440, 950], [1440, 760], [1512, 700], [1280, 1100], [768, 900], [390, 844]]) {
+    // eslint-disable-next-line no-await-in-loop
+    await page.setViewportSize({ width: w, height: h });
+    /* Back to the top, and not with a smooth scroll: the page sets
+       scroll-behavior: smooth, so scrollTo(0, 0) animates and a fixed wait
+       lands somewhere down the page. Five pixels of leftover scroll is all it
+       takes to report the board peeking when it is not. */
+    // eslint-disable-next-line no-await-in-loop
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    // eslint-disable-next-line no-await-in-loop
+    await page.waitForFunction(() => window.scrollY === 0, null, { timeout: 4000 });
+    // eslint-disable-next-line no-await-in-loop
+    await page.waitForTimeout(300);
+    // eslint-disable-next-line no-await-in-loop
+    const first = await page.evaluate(() => {
+      const board = document.getElementById('board').getBoundingClientRect().top;
+      const pause = document.getElementById('motion').getBoundingClientRect();
+      return {
+        peek: Math.round(window.innerHeight - board),
+        pauseOnScreen: pause.top >= 0 && pause.bottom <= window.innerHeight,
+      };
+    });
+    ok(`nothing of the board shows at ${w}×${h}`, first.peek <= 0, first.peek + 'px of it visible');
+    ok(`and the motion control is on screen at ${w}×${h}`, first.pauseOnScreen);
+  }
+
   for (const [w, h] of [[1440, 950], [1024, 800], [768, 900], [390, 844]]) {
     // eslint-disable-next-line no-await-in-loop
     await page.setViewportSize({ width: w, height: h });

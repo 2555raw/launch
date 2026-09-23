@@ -214,6 +214,25 @@ column as the rest of the page, so its edges line up with the content under it a
 runs behind it. On a phone it becomes a card — a 999px radius around a stacked menu reads as a
 mistake — and the last link drops its rule so it does not cut across the rounded corner.
 
+**The hero is one screen and nothing of the next one.** Its floor is the window less the nav's
+height and the gap the nav floats by, because the nav sits in normal flow above it — without
+subtracting both, the first screen is a nav plus a full viewport and the board peeks in at the
+bottom. It is `dvh` rather than `svh`: `svh` is the window with the browser's chrome showing, so
+when the chrome retracts an `svh` hero stops short and the board slides into view, which is the
+exact gap being closed. And it is a `min-height`, not a `height`: on a phone the copy and the wheel
+together are taller than the window, and a fixed height would either squash them or spill them out
+of a section that clips — taller than one screen also means the next section is not visible, which
+is the same answer by another route.
+
+A short window is where that breaks, and it took a second pass. The hero grows past its own floor to
+fit the copy, and the two controls pinned to its bottom edge end up below the fold — visible only to
+someone who has already scrolled, which is the one group that does not need them. Under 880px of
+height the wheel takes a height cap and the headline steps down so the content fits inside the floor
+instead of pushing past it. Under 860px of width, where the hero stacks and is taller than the
+window whatever happens, the scroll cue goes away (the half-visible wheel says the same thing) and
+the motion control stops being pinned and sits under the buttons. Six window sizes are checked, tall
+and short and narrow, for a board that stays off screen and a motion control that does not.
+
 The hero is one headline and one object: the wheel, which tilts a little under the cursor and names
 the pairing under whichever node you point at. It is SVG generated at runtime from the same
 `SECTORS` table the outcome is read from, and its sixteen nodes are lit the same way the drifting
@@ -334,7 +353,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-167 checks across three suites.
+179 checks across three suites.
 
 ### The chain, checked without a chain
 

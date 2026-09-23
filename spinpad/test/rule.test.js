@@ -175,6 +175,60 @@ async function browserChecks() {
   await page.waitForTimeout(600);
   ok('and it stays closed on the way back', !(await page.locator('#gate').isVisible()));
 
+  /* ---------- the room ---------- */
+  console.log('\nthe room');
+  const room = await page.evaluate(() => {
+    const svg = document.getElementById('roomSvg');
+    const layer = document.getElementById('room');
+    const cs = layer ? getComputedStyle(layer) : null;
+    const num = (el, a) => Number(el.getAttribute(a));
+    const spots = [...svg.querySelectorAll('.sp-mat-spot')];
+    return {
+      spots: spots.length,
+      spotFills: spots.map((e) => e.getAttribute('fill')),
+      limbs: svg.querySelectorAll('.sp-limb').length,
+      hands: svg.querySelectorAll('.sp-hand').length,
+      heads: svg.querySelectorAll('.sp-head').length,
+      bodies: svg.querySelectorAll('.sp-body').length,
+      planks: svg.querySelectorAll('.sp-plank').length,
+      // the mat is drawn in perspective: the near row has to be wider than the far one
+      farGap: spots.length >= 16 ? num(spots[3], 'cx') - num(spots[0], 'cx') : 0,
+      nearGap: spots.length >= 16 ? num(spots[15], 'cx') - num(spots[12], 'cx') : 0,
+      behind: cs ? Number(cs.zIndex) < 0 : false,
+      inert: cs ? cs.pointerEvents === 'none' : false,
+      hidden: layer ? layer.getAttribute('aria-hidden') === 'true' : false,
+      // .sp-figure is the card in the proof section; the room's group must not take it
+      collides: svg.querySelectorAll('.sp-figure').length,
+    };
+  });
+  ok('the floor carries all sixteen spots', room.spots === 16, String(room.spots));
+  ok('one spot per colour per row, in the table\'s own order',
+    room.spotFills.length === 16
+      && [0, 4, 8, 12].every((i) => new Set(room.spotFills.slice(i, i + 4)).size === 4),
+    room.spotFills.join(','));
+  ok('someone is standing on it', room.limbs === 4 && room.heads === 1 && room.bodies === 1,
+    `${room.limbs} limbs, ${room.heads} head, ${room.bodies} body`);
+  ok('each limb ends in a hand or a foot', room.hands === 4, String(room.hands));
+  ok('the floor is boarded', room.planks > 0, String(room.planks));
+  ok('and it recedes: the near row is wider than the far one',
+    room.nearGap > room.farGap * 1.3, `${room.farGap.toFixed(0)}px far, ${room.nearGap.toFixed(0)}px near`);
+  ok('the room sits behind the page', room.behind, 'z-index');
+  ok('and cannot be clicked or read out', room.inert && room.hidden);
+  /* .sp-figure is already the proof section's card. A second thing wearing it
+     would inherit a border and a background it has no use for — the same
+     collision .sp-chip caused once already. */
+  ok('the room does not borrow another section\'s class name', room.collides === 0);
+
+  const handsNow = () => page.evaluate(() =>
+    [...document.querySelectorAll('#roomSvg .sp-hand')].map((e) => e.getAttribute('cx') + ',' + e.getAttribute('cy')).join('|'));
+  const roomWide = await handsNow();
+  await page.setViewportSize({ width: 1180, height: 820 });
+  await page.waitForTimeout(350);
+  const roomNarrow = await handsNow();
+  ok('the room is redrawn when the window changes size', roomWide !== roomNarrow);
+  await page.setViewportSize({ width: 1440, height: 950 });
+  await page.waitForTimeout(350);
+
   /* ---------- the hero ---------- */
   console.log('\nthe drifting sixteen');
   const drift = await page.evaluate(() => {
@@ -363,6 +417,42 @@ async function browserChecks() {
   ok('the form slot shows the same asset',
     (await page.locator('#assetName').textContent()).includes(expected.name));
 
+  /* The room is the draw, happening behind the page. Whatever the wheel said,
+     that limb has to be standing on that colour when it stops — measured off
+     the drawing rather than off a variable, so a room that renders one thing
+     and reports another is caught here. */
+  await page.waitForTimeout(1600);
+  const reach = await page.evaluate((drew) => {
+    const svg = document.getElementById('roomSvg');
+    const spots = [...svg.querySelectorAll('.sp-mat-spot')];
+    const live = svg.querySelector('.sp-mat-spot-live');
+    const hands = [...svg.querySelectorAll('.sp-hand')]
+      .map((e) => [Number(e.getAttribute('cx')), Number(e.getAttribute('cy'))]);
+    const cfg = window.SPINPAD_CONFIG;
+    const row = cfg.positions.findIndex((p) => p.id === drew.position);
+    const col = cfg.colours.findIndex((c) => c.id === drew.color);
+    const cellIdx = row * cfg.colours.length + col;
+    const target = spots[cellIdx];
+    const at = [Number(target.getAttribute('cx')), Number(target.getAttribute('cy'))];
+    const gaps = hands.map((h) => Math.hypot(h[0] - at[0], h[1] - at[1]));
+    return {
+      liveIndex: live ? spots.indexOf(live) : -1,
+      cellIdx,
+      row,
+      mine: gaps[row],
+      nearest: gaps.indexOf(Math.min(...gaps)),
+      others: gaps.filter((_, i) => i !== row),
+    };
+  }, drew);
+  ok('the spot the wheel drew is the one lit on the floor', reach.liveIndex === reach.cellIdx,
+    `lit ${reach.liveIndex}, drew ${reach.cellIdx}`);
+  ok('the limb the wheel named is standing on it', reach.mine < 1,
+    `${expectedCombo} is ${reach.mine.toFixed(1)}px off`);
+  ok('and it is that limb, not a nearer one', reach.nearest === reach.row,
+    `limb ${reach.nearest} is closer than limb ${reach.row}`);
+  ok('the other three stayed where they were',
+    reach.others.every((g) => g > 1), reach.others.map((g) => g.toFixed(0)).join(', '));
+
   // force a second spin from outside
   await page.evaluate(() => { const s = document.getElementById('spin'); s.disabled = false; s.click(); });
   await page.waitForTimeout(600);
@@ -528,6 +618,28 @@ async function browserChecks() {
   // nothing on the page should be reachable only by mouse
   ok('the nav links are focusable',
     await page.evaluate(() => [...document.querySelectorAll('.sp-nav-links a')].every((a) => a.hasAttribute('href'))));
+
+  /* Starting over has to reach the room too. The lit spot and the limb on it
+     are a pairing being advertised; a discarded draft has no pairing. */
+  page.once('dialog', (d) => d.accept());
+  await page.evaluate(() => document.getElementById('discard').click());
+  await page.waitForTimeout(1800);
+  const wentHome = await page.evaluate(() => ({
+    lit: document.querySelectorAll('#roomSvg .sp-mat-spot-live').length,
+    hands: [...document.querySelectorAll('#roomSvg .sp-hand')]
+      .map((e) => [Number(e.getAttribute('cx')), Number(e.getAttribute('cy'))]),
+    spots: [...document.querySelectorAll('#roomSvg .sp-mat-spot')]
+      .map((e) => [Number(e.getAttribute('cx')), Number(e.getAttribute('cy'))]),
+  }));
+  ok('discarding puts the floor light out', wentHome.lit === 0, String(wentHome.lit));
+  /* home is hands on column 1, feet on column 2 — compact, so the figure reads
+     as a person rather than something spread corner to corner */
+  const homeCols = [1, 2, 1, 2];
+  const back = wentHome.hands.every((h, r) => {
+    const want = wentHome.spots[r * 4 + homeCols[r]];
+    return Math.hypot(h[0] - want[0], h[1] - want[1]) < 1;
+  });
+  ok('and everyone back on their own square', back, JSON.stringify(wentHome.hands));
 
   ok('no console errors along the way', errors.length === 0, errors.join(' / '));
 

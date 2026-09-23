@@ -41,7 +41,6 @@
   --sh-lg:     0 2px 6px rgba(23, 26, 31, .05), 0 40px 70px -36px rgba(23, 26, 31, .4);
 
   --nav-h:     72px;
-  --ca-h:      58px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -176,38 +175,11 @@ a { color: inherit; text-decoration: none; }
 .lv-links a.is-here { color: var(--ink); border-bottom-color: var(--ink); }
 .lv-nav-right { display: flex; align-items: center; gap: 16px; }
 
-.lv-ca {
-  position: fixed; z-index: 49; top: calc(18px + var(--nav-h) + 10px); left: 50%; transform: translateX(-50%);
-  width: min(1470px, 100% - 92px); height: var(--ca-h);
-  display: flex; align-items: center; gap: 14px; padding: 0 10px 0 26px;
-  background: rgba(255, 255, 255, .95); backdrop-filter: blur(14px);
-  border-radius: 999px; box-shadow: var(--sh-sm);
-}
-.lv-ca-sym { font: 800 15px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: -0.02em; }
-.lv-ca-key { font: 600 11.5px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: .18em; color: var(--muted); }
-.lv-ca code {
-  font: 400 13.5px/1 var(--mono); color: var(--prose);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.lv-ca-copy {
-  margin-left: auto; flex: none; cursor: pointer;
-  background: var(--field); border: 0; border-radius: 999px;
-  padding: 10px 20px; font: 700 13.5px/1 "Plus Jakarta Sans", sans-serif; color: var(--ink);
-  transition: background .16s;
-}
-.lv-ca-copy:hover { background: var(--line); }
-.lv-ca-chain {
-  flex: none; display: inline-flex; align-items: center; gap: 8px;
-  background: #0E5C36; color: #fff; border-radius: 999px; padding: 10px 18px;
-  font: 700 12px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: .1em;
-}
-.lv-ca-chain i { width: 8px; height: 8px; border-radius: 50%; background: #4ADE80; }
-
 /* ---------- hero ---------- */
 
 .lv-hero {
   position: relative;
-  padding: calc(18px + var(--nav-h) + var(--ca-h) + 96px) 24px 96px;
+  padding: calc(18px + var(--nav-h) + 92px) 24px 100px;
   text-align: center;
 }
 .lv-eyebrow {
@@ -265,7 +237,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- sections ---------- */
 
-.lv-sec { padding: 104px 0; scroll-margin-top: calc(18px + var(--nav-h) + var(--ca-h) + 34px); }
+.lv-sec { padding: 104px 0; scroll-margin-top: calc(18px + var(--nav-h) + 30px); }
 .lv-sec-tint { background: rgba(255, 255, 255, .72); border-block: 1px solid var(--line); }
 /* The mat belongs to the pad and nowhere else: four columns of dots in the
    board's own order — green, yellow, blue, red — under this section alone,
@@ -292,6 +264,84 @@ a { color: inherit; text-decoration: none; }
 .lv-sec-lede { margin-top: 22px; font-size: 17px; line-height: 1.68; color: var(--prose); max-width: 58ch; }
 .lv-sec-lede-wide { max-width: 72ch; margin-bottom: 44px; }
 .lv-sec h2 + .lv-sec-lede { margin-top: 20px; }
+
+/* The mat, laid on the floor. Four rows — one per hand and foot — by four
+   colour columns, which is the pairing table with the perspective of the game
+   it came from. Tapping a circle walks that limb onto it; the arrow does the
+   same thing when it resolves, so the figure shows what the spin drew. */
+.lv-mat {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .82fr);
+  gap: 44px; align-items: center; margin-bottom: 46px;
+}
+.lv-mat-stage { perspective: 1200px; }
+.lv-mat-floor {
+  position: relative; width: min(560px, 100%); margin-inline: auto; aspect-ratio: 1;
+  transform: rotateX(26deg); transform-style: preserve-3d;
+  background: linear-gradient(160deg, #FFFFFF, #F4F5F2);
+  border-radius: 20px; box-shadow: 0 50px 70px -46px rgba(23, 26, 31, .7), inset 0 0 0 1px var(--line);
+  padding: 4%;
+}
+.lv-mat-rows { display: grid; grid-template-rows: repeat(4, 1fr); height: 100%; gap: 2%; }
+.lv-mat-row { display: grid; grid-template-columns: 58px repeat(4, 1fr); gap: 2%; min-height: 0; align-items: center; }
+.lv-mat-rowlabel {
+  font: 700 9.5px/1.25 "Plus Jakarta Sans", sans-serif; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); padding-right: 6px; text-align: right;
+}
+
+/* The button fills its whole cell and the circle is drawn inside it. Under the
+   floor's rotation a circle's own box projects to a trapezoid whose centre can
+   fall outside it, so a tap aimed at the middle of the mark would miss — the
+   cell-sized target is what makes the mat actually usable. */
+.lv-mat-dot {
+  border: 0; padding: 0; margin: 0; background: none; cursor: pointer;
+  width: 100%; height: 100%; display: grid; place-items: center;
+}
+.lv-mat-dot i {
+  width: 84%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .75), rgba(255, 255, 255, 0) 52%),
+    var(--c);
+  box-shadow: inset 0 0 0 1px rgba(23, 26, 31, .16);
+  transition: transform .18s, box-shadow .18s;
+}
+.lv-mat-dot span {
+  font: 700 clamp(7px, 1vw, 10px)/1 "Plus Jakarta Sans", sans-serif;
+  letter-spacing: .04em; color: var(--on); opacity: .92;
+}
+.lv-mat-dot:hover i { transform: scale(1.08); }
+.lv-mat-dot:focus-visible { outline: none; }
+.lv-mat-dot:focus-visible i { box-shadow: inset 0 0 0 1px rgba(23,26,31,.16), 0 0 0 3px var(--ink); }
+.lv-mat-dot.is-under i { box-shadow: inset 0 0 0 1px rgba(23, 26, 31, .16), 0 0 0 4px rgba(23, 26, 31, .85); }
+.lv-mat-dot.is-drawn i { animation: lv-pulse 1.1s ease-out 3; }
+
+@keyframes lv-pulse {
+  0%   { box-shadow: inset 0 0 0 1px rgba(23,26,31,.14), 0 0 0 0 rgba(23, 26, 31, .55); }
+  70%  { box-shadow: inset 0 0 0 1px rgba(23,26,31,.14), 0 0 0 16px rgba(23, 26, 31, 0); }
+  100% { box-shadow: inset 0 0 0 1px rgba(23,26,31,.14), 0 0 0 0 rgba(23, 26, 31, 0); }
+}
+
+/* the figure lies in the mat's own plane, seen from above like the players are */
+.lv-mat-figure { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.lv-mat-figure .lv-fig-limb { stroke: var(--ink); stroke-width: 5; fill: none; stroke-linecap: round; }
+.lv-mat-figure .lv-fig-body { stroke: var(--ink); stroke-width: 7; stroke-linecap: round; fill: none; }
+.lv-mat-figure .lv-fig-head { fill: var(--ink); stroke: #fff; stroke-width: 3; }
+.lv-mat-figure .lv-fig-joint { fill: var(--ink); }
+.lv-mat-figure .lv-fig-grip { fill: #fff; stroke: var(--ink); stroke-width: 4; }
+
+.lv-mat-side h3 { font-size: 26px; margin: 12px 0 14px; }
+.lv-mat-copy { font-size: 15px; line-height: 1.65; color: var(--prose); max-width: 46ch; }
+.lv-mat-limbs { display: grid; gap: 8px; margin-top: 24px; }
+.lv-mat-limb {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
+  border: 1.5px solid var(--line); border-radius: 999px; background: var(--card);
+  padding: 11px 18px; cursor: pointer; text-align: left;
+  font: 600 14px/1 "Plus Jakarta Sans", sans-serif; transition: border-color .16s, transform .12s;
+}
+.lv-mat-limb:hover { border-color: var(--line-hi); transform: translateX(2px); }
+.lv-mat-limb.is-sel { border-color: var(--ink); }
+.lv-mat-limb:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.lv-mat-limb em { font: 500 13px/1 "Plus Jakarta Sans", sans-serif; font-style: normal; color: var(--muted); text-align: right; }
+.lv-mat-read { margin-top: 16px; font-size: 13.5px; color: var(--muted); min-height: 2.8em; }
 
 /* ---------- coin cards ---------- */
 
@@ -458,9 +508,7 @@ a { color: inherit; text-decoration: none; }
    turning over it. */
 .lv-dial-stage {
   position: relative; aspect-ratio: 1; display: grid; place-items: center;
-  padding: 26px; border-radius: 16px;
-  background: linear-gradient(150deg, #FEFDFA, #F6F4EE);
-  box-shadow: inset 0 0 0 1.5px var(--line-hi), var(--sh-sm);
+  padding: 26px; border-radius: 16px; background: transparent;
 }
 .lv-limb {
   position: absolute; font: 800 10.5px/1 "Plus Jakarta Sans", sans-serif;
@@ -471,11 +519,11 @@ a { color: inherit; text-decoration: none; }
 .lv-limb-bl { bottom: 16px; left: 18px; }
 .lv-limb-br { bottom: 16px; right: 18px; }
 
-.lv-dial-wrap { position: relative; width: min(252px, 56vw); aspect-ratio: 1; }
+.lv-dial-wrap { position: relative; width: min(268px, 62vw); aspect-ratio: 1; }
 /* sits above the arrow's pivot, the way the board carries its name */
-.lv-dial-word { font: 800 13px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: .16em; fill: var(--ink); }
-.lv-dial-word-2 { font: 600 9px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: .2em; fill: var(--muted); }
-.lv-dial { width: 100%; height: 100%; display: block; border-radius: 50%; box-shadow: 0 24px 44px -26px rgba(23, 26, 31, .7); }
+.lv-dial-word { font: 800 15px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: .14em; fill: var(--ink); }
+.lv-dial-word-2 { font: 600 8.5px/1 "Plus Jakarta Sans", sans-serif; letter-spacing: .18em; fill: var(--dim); }
+.lv-dial { width: 100%; height: 100%; display: block; }
 .lv-dial .lv-rim { fill: none; stroke: var(--ink); stroke-width: 2; }
 
 .lv-needle {
@@ -589,9 +637,8 @@ a { color: inherit; text-decoration: none; }
   .lv-nav { padding-left: 26px; }
 }
 @media (max-width: 960px) {
-  .lv-links, .lv-ca code, .lv-ca-key { display: none; }
+  .lv-links { display: none; }
   .lv-nav { justify-content: space-between; }
-  .lv-ca-copy { margin-left: auto; }
   .lv-pad { grid-template-columns: 1fr; }
   .lv-sec { padding: 72px 0; }
   .lv-sec-head { flex-direction: column; align-items: flex-start; gap: 20px; }
@@ -599,10 +646,13 @@ a { color: inherit; text-decoration: none; }
   .lv-orb-1, .lv-orb-3 { width: 76px; height: 76px; }
   .lv-orb-5 { width: 84px; height: 84px; }
 }
+@media (max-width: 760px) {
+  .lv-matrix { overflow-x: auto; }
+  .lv-matrix-row { grid-template-columns: 132px repeat(4, 120px); min-width: 620px; }
+}
 @media (max-width: 600px) {
   .lv-wrap, .lv-wrap-narrow { width: calc(100% - 28px); }
   .lv-nav { width: calc(100% - 24px); padding: 0 8px 0 18px; gap: 10px; }
-  .lv-ca { width: calc(100% - 24px); padding: 0 8px 0 16px; }
   .lv-brand { font-size: 19px; }
   .lv-nav .lv-btn { padding: 11px 16px; font-size: 13.5px; }
   .lv-textlink { font-size: 13.5px; }

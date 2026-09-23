@@ -32,14 +32,6 @@
   </div>
 </header>
 
-<div class="lv-ca">
-  <span class="lv-ca-sym">$SPIN</span>
-  <span class="lv-ca-key">CA</span>
-  <code id="caValue">0x5p1n0000000000000000000000000000000dem0</code>
-  <button class="lv-ca-copy" id="caCopy" type="button">Copy</button>
-  <span class="lv-ca-chain"><i></i>SIMULATION</span>
-</div>
-
 <main id="top">
 
   <!-- ————— hero ————— -->
@@ -54,7 +46,7 @@
       <span class="lv-orb lv-orb-7" data-color="yellow"><b>AMZN</b></span>
     </div>
 
-    <p class="lv-eyebrow">One spin. Four colours. No choice.</p>
+    <p class="lv-eyebrow">One spin. Sixteen assets. No choice.</p>
     <h1>Coins paired<br>with assets</h1>
     <p class="lv-hero-sub">Your next big idea. Paired with <span id="rotator" data-color="green">Nvidia</span>.</p>
     <div class="lv-hero-cta">
@@ -83,12 +75,12 @@
       </div>
 
       <div class="lv-board-bar">
-        <div class="lv-filters" id="filters" role="group" aria-label="Filter by underlying asset">
+        <div class="lv-filters" id="filters" role="group" aria-label="Filter by asset family">
           <button class="lv-chip is-on" data-filter="all" type="button">All</button>
-          <button class="lv-chip" data-filter="blue" type="button"><i class="lv-dot" data-color="blue"></i>Meta</button>
-          <button class="lv-chip" data-filter="red" type="button"><i class="lv-dot" data-color="red"></i>Tesla</button>
-          <button class="lv-chip" data-filter="green" type="button"><i class="lv-dot" data-color="green"></i>Nvidia</button>
-          <button class="lv-chip" data-filter="yellow" type="button"><i class="lv-dot" data-color="yellow"></i>Amazon</button>
+          <button class="lv-chip" data-filter="blue" type="button"><i class="lv-dot" data-color="blue"></i>Signal</button>
+          <button class="lv-chip" data-filter="red" type="button"><i class="lv-dot" data-color="red"></i>Motion</button>
+          <button class="lv-chip" data-filter="green" type="button"><i class="lv-dot" data-color="green"></i>Silicon</button>
+          <button class="lv-chip" data-filter="yellow" type="button"><i class="lv-dot" data-color="yellow"></i>Shelves</button>
         </div>
         <label class="lv-search">
           <span class="lv-sr">Search launches</span>
@@ -121,9 +113,31 @@
       <p class="lv-kicker">The pad</p>
       <h2>Name it. The dial pairs it.</h2>
       <p class="lv-sec-lede lv-sec-lede-wide">
-        Four fields and one spin. The colour the dial stops on writes the underlying asset, and the
-        market opens the moment the launch lands.
+        Four fields and one spin. Where the arrow stops gives two coordinates — a colour and a
+        quadrant — and together they name the underlying asset. The market opens the moment the
+        launch lands.
       </p>
+
+      <div class="lv-mat">
+        <div class="lv-mat-stage">
+          <div class="lv-mat-floor">
+            <div class="lv-mat-rows" id="matRows"></div>
+            <svg class="lv-mat-figure" id="matFigure" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+          </div>
+        </div>
+
+        <div class="lv-mat-side">
+          <p class="lv-kicker lv-kicker-sm">The mat</p>
+          <h3>Put a hand or a foot on a colour</h3>
+          <p class="lv-mat-copy">
+            Sixteen circles, sixteen assets. Each row belongs to one hand or one foot, each column to
+            one colour family — tap a circle and that limb moves onto it. It is the same table the
+            arrow reads, so whatever the dial lands on, the figure can reach.
+          </p>
+          <div class="lv-mat-limbs" id="matLimbs"></div>
+          <p class="lv-mat-read" id="matRead">—</p>
+        </div>
+      </div>
 
       <ol class="lv-steps" id="steps">
         <li data-step="1"><span>1</span> Details</li>
@@ -207,17 +221,17 @@
             </div>
 
             <div class="lv-dial-stage">
-              <span class="lv-limb lv-limb-tl">Left hand</span>
-              <span class="lv-limb lv-limb-tr">Right hand</span>
-              <span class="lv-limb lv-limb-bl">Left foot</span>
-              <span class="lv-limb lv-limb-br">Right foot</span>
+              <span class="lv-limb lv-limb-tl">Long leg</span>
+              <span class="lv-limb lv-limb-tr">Bid hand</span>
+              <span class="lv-limb lv-limb-bl">Short leg</span>
+              <span class="lv-limb lv-limb-br">Ask hand</span>
               <div class="lv-dial-wrap">
-                <svg class="lv-dial" id="dial" viewBox="0 0 200 200" role="img" aria-label="Dial of sixteen equal sectors in four colours"></svg>
+                <svg class="lv-dial" id="dial" viewBox="0 0 200 200" role="img" aria-label="Board of sixteen dots in four colours across four quadrants"></svg>
                 <div class="lv-needle" id="needle">
                   <svg viewBox="0 0 200 200" aria-hidden="true">
-                    <path d="M100 12 L107.5 96 L100 106 L92.5 96 Z" fill="currentColor"/>
-                    <circle cx="100" cy="100" r="11" fill="currentColor"/>
-                    <circle cx="100" cy="100" r="4.5" class="lv-needle-eye"/>
+                    <path d="M100 20 L108 92 L100 128 L92 92 Z" fill="currentColor"/>
+                    <circle cx="100" cy="100" r="10" fill="currentColor"/>
+                    <circle cx="100" cy="100" r="3.6" class="lv-needle-eye"/>
                   </svg>
                 </div>
               </div>
@@ -273,7 +287,7 @@
       <ol class="lv-flow">
         <li><span>1</span><h3>Name the coin</h3><p>Name, ticker, total supply and one line of description. The asset field stays empty.</p></li>
         <li><span>2</span><h3>Take the spin</h3><p>One spin per launch, before anything is created. The dial is not skippable.</p></li>
-        <li><span>3</span><h3>The colour pairs it</h3><p>The colour drawn fills the underlying asset and closes the field to editing.</p></li>
+        <li><span>3</span><h3>The dot names it</h3><p>Colour plus quadrant fills the underlying asset and closes the field to editing.</p></li>
         <li><span>4</span><h3>Launch</h3><p>The control opens and the coin ships with its spin record attached.</p></li>
       </ol>
     </div>
@@ -285,8 +299,9 @@
       <p class="lv-kicker">Proof</p>
       <h2>The dial is flat, and the record is open</h2>
       <p class="lv-sec-lede lv-sec-lede-wide">
-        Sixteen equal sectors, four to a colour. The outcome comes from the browser's cryptographic
-        random source, so every colour draws one launch in four over the long run.
+        Sixteen dots, four to a colour and four to a quadrant. The outcome comes from the browser's
+        cryptographic random source, so every asset draws one launch in sixteen over the long run,
+        and every family one in four.
       </p>
 
       <div class="lv-kpis" id="kpis"></div>
@@ -322,15 +337,17 @@
       </details>
       <details>
         <summary>Is the dial fair?</summary>
-        <p>The sixteen sectors are equal and the outcome comes from <code>crypto.getRandomValues</code>
-        rather than <code>Math.random</code>. Each colour holds exactly four sectors, so the expected
-        share is 25%. The proof section reports the observed split.</p>
+        <p>The sixteen dots are evenly spaced and the outcome comes from
+        <code>crypto.getRandomValues</code> rather than <code>Math.random</code>. Every asset holds
+        exactly one dot, so each is drawn 6.25% of the time and each colour family 25%. The proof
+        section reports the observed split.</p>
       </details>
       <details>
         <summary>What does the quadrant do?</summary>
-        <p>The colour governs: it sets the underlying asset. The quadrant — right hand, left hand,
-        right foot, left foot — is recorded beside it as part of the outcome and affects no parameter
-        of the coin.</p>
+        <p>It is half the answer. The colour picks one of four asset families and the quadrant —
+        bid hand, ask hand, long leg, short leg — picks which of the four names inside that family
+        you get. Red on the bid hand is Tesla; red on the short leg is Uber. Sixteen dots on the
+        board, sixteen assets, one to a dot.</p>
       </details>
       <details>
         <summary>Does this issue real tokens?</summary>

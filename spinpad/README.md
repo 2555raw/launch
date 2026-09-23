@@ -1,14 +1,21 @@
 # Spinpad — a launchpad where the underlying asset is drawn, not chosen
 
-A token launchpad built around one rule: **nothing launches until the dial has been spun, and the
-colour it stops on sets the asset the token is paired with.**
+A token launchpad built around one rule: **nothing launches until the board has been spun, and
+where the arrow stops sets the asset the coin is paired with.**
 
-| Colour | Underlying asset | Ticker |
-| --- | --- | --- |
-| Blue | Meta | `META` |
-| Red | Tesla | `TSLA` |
-| Green | Nvidia | `NVDA` |
-| Yellow | Amazon | `AMZN` |
+Where it stops gives two coordinates, and it takes both to name an asset. The **colour** picks one
+of four families; the **quadrant** picks which of the four names inside it. Sixteen dots on the
+board, sixteen assets, one to a dot — so red on the bid hand and red on the short leg are different
+coins.
+
+| | Bid hand | Ask hand | Short leg | Long leg |
+| --- | --- | --- | --- | --- |
+| 🟩 **Silicon** — the chip makers | Nvidia `NVDA` | AMD `AMD` | Broadcom `AVGO` | TSMC `TSM` |
+| 🟨 **Shelves** — commerce and logistics | Amazon `AMZN` | Shopify `SHOP` | Walmart `WMT` | Coupang `CPNG` |
+| 🟦 **Signal** — screens and feeds | Meta `META` | Netflix `NFLX` | Spotify `SPOT` | Alphabet `GOOGL` |
+| 🟥 **Motion** — everything that moves | Tesla `TSLA` | Rivian `RIVN` | Uber `UBER` | Ford `F` |
+
+A pairs trade has two legs and two sides, which is where the quadrant names come from.
 
 One spin per launch. It cannot be repeated, and the pairing cannot be edited afterwards.
 
@@ -61,9 +68,10 @@ three independent places in `app.js`, deliberately.
    re-synchronises the controls and returns. Setting `disabled = false` from a console and clicking
    produces nothing — there is a regression check for exactly that.
 
-The moment the arrow stops, `resolveSpin()` writes the asset into the form's underlying-asset field,
-the preview sphere and the launch summary at once, and marks the field locked. There is nothing to
-choose and nothing to confirm: the draw fills it in.
+The moment the arrow stops, `resolveSpin()` reads both coordinates, looks the asset up in the same
+table the board is drawn from, and writes it into the form's underlying-asset field, the preview
+sphere, the launch summary and the figure on the mat at once, marking the field locked. There is
+nothing to choose and nothing to confirm: the draw fills it in.
 
 One id collision was worth the bug it caused. The launch *section* and the launch *button* both
 carried `id="launch"`, so `getElementById` returned the section, `disabled` was set on a `<section>`
@@ -77,20 +85,31 @@ calling it by hand does not change the colour already drawn.
 description and the spin — and returns to step one. *Back to details* exists only before the spin;
 the moment the needle moves, it is gone.
 
-## The dial
+## The board
 
-Sixteen sectors of 22.5°: four quadrants (right hand, right foot, left foot, left hand, clockwise
-from twelve) holding four colours each. The colour order rotates one place per quadrant so no two
-neighbouring quadrants open on the same colour.
+Sixteen dots spaced 22.5° apart, in four quadrants of four (bid hand, ask hand, short leg, long leg,
+clockwise from twelve). Every quadrant carries all four colours, so each (colour, quadrant) pair —
+and therefore each asset — appears exactly once around the board. The colour order rotates one place
+per quadrant so no two neighbouring quadrants open on the same colour.
 
-- **The colour governs**: it sets the underlying asset, and it is the only thing that changes the
-  token.
-- **The quadrant is recorded**: it goes into the spin record as part of the outcome and affects no
-  parameter.
+The dot comes from `crypto.getRandomValues`, not `Math.random`. A `Uint32` is taken modulo 16, and
+since 2^32 is a multiple of 16 there is no modulo bias: each asset is drawn 6.25% of the time and
+each colour family 25%. Measured over 80,000 draws of the colour: green 24.68%, yellow 25.34%,
+blue 25.20%, red 24.77%.
 
-The sector comes from `crypto.getRandomValues`, not `Math.random`. A `Uint32` is taken modulo 16,
-and since 2^32 is a multiple of 16 there is no modulo bias: each colour holds exactly four sectors,
-an expected 25%. Measured over 80,000 draws: green 24.68%, yellow 25.34%, blue 25.20%, red 24.77%.
+### The mat
+
+Below the pad is the board laid flat on the floor: four rows, one per hand and foot, by four colour
+columns, which is the pairing table with the perspective of the game it came from. Tapping a circle
+walks that limb onto it, and when the arrow resolves the figure does the same thing by itself, so
+the draw is something you watch rather than read.
+
+The circles are drawn inside cell-sized buttons rather than being buttons themselves. Under the
+floor's rotation a circle's own box projects to a trapezoid whose centre can land outside it, so a
+tap aimed at the middle of the mark would miss — that was a real bug, caught by clicking the mat in
+a browser, not a theoretical one. The figure measures the laid-out positions of the circles with
+`offsetLeft`/`offsetTop` rather than computing them: the floor is rotated in 3D, so a client rect
+would come back projected and the limbs would land beside the dots instead of on them.
 
 The needle turns five to seven full rotations plus the offset needed to land on the chosen sector,
 with a random margin inside the sector so it never stops at the same point twice. The outcome
@@ -109,10 +128,10 @@ nowhere else, with a wash over them so the form and the summary stay comfortable
 to read. Everywhere else the ground is plain: one soft light in the top right and
 a long cool wash below it. The board belongs where the board is played.
 
-**The four colours are reserved: they only ever mean the four assets.** Every
-piece of chrome — buttons, links, chips, the nav, the dial's hub — is ink on
-white. A blue progress bar on a Tesla coin would quietly break the only code the
-product has, so each card's curve, sphere and tint take the colour of the asset
+**The four colours are reserved: each one always means the same family.** Every
+piece of chrome — buttons, links, chips, the nav, the board's hub — is ink on
+white. A blue progress bar on a Motion coin would quietly break the only code the
+product has, so each card's curve, sphere and tint take the colour of the family
 it drew.
 
 Each colour carries two tokens, `--c` (the colour) and `--on` (what reads on top
@@ -153,11 +172,17 @@ built in instead, and it is not optional:
 Card sparklines are ink lines over a tinted area, not coloured lines: a 1px mark
 in yellow or green on white would fail the same floor with no label to rescue it.
 
+The distribution chart stays at four bars, one per family, rather than sixteen: a
+sixteen-bar chart of a handful of launches would be mostly empty, and the family
+share is the number that says whether the board is flat.
+
 ## The data
 
 - **Every figure is generated.** Market caps, replies, curve progress and the combined total are
   illustrative; the board, the metrics and the footer all say so.
-- Launches live in `localStorage` under `spinpad.coins.v1`, capped at 60. Reads and writes are
+- Launches live in `localStorage` under `spinpad.coins.v2`, capped at 60. The key was bumped from
+  `v1` because records written then stored a colour-only pairing, which no longer names an asset on
+  its own. Reads and writes are
   wrapped in `try/catch`: a browser that blocks storage still runs, just in memory.
 - The first five launches are samples, tagged `SAMPLE` on the board. They are seeded once, when the
   key is absent — clearing the record leaves it cleared.

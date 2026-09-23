@@ -704,14 +704,22 @@ a { color: inherit; text-decoration: none; }
 .lv-pool-note { margin-top: 12px; font-size: 13px; line-height: 1.55; color: var(--muted); }
 .lv-pool-note a { text-decoration: underline; text-underline-offset: 2px; }
 
-/* the mark a token wears: its own logo when one is configured, the drawn sign
-   otherwise. Both sit in the same box so nothing shifts when one replaces the other. */
+/* The mark a square wears. The drawn sign and the logo are stacked in one box:
+   the logo is invisible until it has loaded, so a missing file simply never
+   appears and the drawn one stays. Nothing shifts either way. */
 .lv-glyph { display: block; }
-.lv-logo { display: block; border-radius: 50%; object-fit: contain; }
-.lv-orb .lv-glyph, .lv-orb .lv-logo { margin-bottom: 3px; opacity: .92; }
-.lv-mat-dot i .lv-glyph, .lv-mat-dot i .lv-logo { margin-bottom: 1px; }
+.lv-mark { position: relative; display: block; }
+.lv-mark .lv-glyph { position: absolute; inset: 0; margin: 0 !important; }
+.lv-logo {
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+  object-fit: contain; opacity: 0; transition: opacity .2s;
+}
+.lv-mark.has-logo .lv-glyph { visibility: hidden; }
+.lv-mark.has-logo .lv-logo { opacity: 1; }
+.lv-orb .lv-glyph, .lv-orb .lv-mark { margin-bottom: 3px; opacity: .92; }
+.lv-mat-dot i .lv-glyph, .lv-mat-dot i .lv-mark { margin-bottom: 1px; }
 .lv-matrix-cell { flex-direction: row !important; align-items: center; gap: 10px !important; flex-wrap: wrap; }
-.lv-matrix-cell .lv-glyph, .lv-matrix-cell .lv-logo { flex: none; color: var(--c); }
+.lv-matrix-cell .lv-glyph, .lv-matrix-cell .lv-mark { flex: none; color: var(--c); }
 .lv-matrix-cell b { flex: 1 1 auto; }
 
 /* ---------- coming back ----------

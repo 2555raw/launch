@@ -101,17 +101,22 @@
       fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
       aria-hidden="true"><path d="${GLYPHS[glyph] || GLYPHS.chevron}"/></svg>`;
 
-  /* A token's own logo if config.js carries one, and the drawn mark otherwise —
-     including when the image fails, because a broken picture on a sphere is
-     worse than a clean symbol. No logo URLs ship with the page: they could not
-     be checked from where this was built, same as the addresses. */
+  /* A square's own logo when there is a file for it, and the drawn mark when
+     there is not.
+     
+     Both are rendered, one on top of the other, and the image only becomes
+     visible once it has actually loaded. An onerror handler was the obvious way
+     to do this and it did not work — sixteen missing files left sixteen broken
+     images on the board — so the fallback is now the default state rather than
+     a recovery from one. A square with no logo file costs nothing. */
   const mark = (asset, size) => {
     const glyph = typeof asset === 'string' ? asset : (asset && asset.glyph);
     const logo = typeof asset === 'string' ? '' : (asset && asset.logo);
-    if (!logo) return drawn(glyph, size);
-    const fallback = drawn(glyph, size).replace(/"/g, '&quot;');
-    return `<img class="lv-logo" src="${esc(logo)}" width="${size}" height="${size}" alt="" loading="lazy"
-        onerror="this.outerHTML='${fallback}'">`;
+    const svg = drawn(glyph, size);
+    if (!logo) return svg;
+    return `<span class="lv-mark" style="width:${size}px;height:${size}px">${svg}`
+      + `<img class="lv-logo" src="${esc(logo)}" alt="" width="${size}" height="${size}"`
+      + ` onload="this.parentNode.classList.add('has-logo')"></span>`;
   };
 
   const SEG = 360 / SECTORS.length;   // 22.5 degrees between dots
@@ -531,7 +536,7 @@
             <h3>${esc(c.name)}</h3>
             <span class="lv-coin-pill">${esc(c.ticker)}</span>
           </div>
-          <p class="lv-coin-sub">paired with ${esc(as.name)} \u00b7 ${esc(f.family)} ${esc(quadOf(c.quadrant).label)}</p>
+          <p class="lv-coin-sub">drew ${esc(as.name)} \u00b7 ${esc(f.family)} ${esc(quadOf(c.quadrant).label)}</p>
           ${c.desc ? `<p class="lv-coin-desc">${esc(c.desc)}</p>` : ''}
           <dl class="lv-coin-facts">
             <div><dt>Supply</dt><dd>${esc(num(Number(BigInt(c.supply) / (10n ** 18n))))}</dd></div>
@@ -573,7 +578,7 @@
 
   /* What the chain said about the list in config.js. Nothing launches against
      an entry that is not in here with ok: true. */
-  const verified = {};
+  let quoteOk = null;
   let routerOk = null;
 
   const setStep = (n) => {
@@ -732,13 +737,6 @@
       say(`Wrong network. Switch to ${CFG.chain.name} before launching.`);
       return;
     }
-    const check = verified[as.ticker];
-    if (!check || !check.ok) {
-      say(`${as.ticker} has not been verified on chain yet, so the pad will not launch against it. `
-        + (check ? check.reason : 'No address configured.'));
-      return;
-    }
-
     flow.sending = true;
     $('launchBtn').disabled = true;
     say('Confirm the deployment in your wallet. This costs gas and cannot be undone.');
@@ -807,22 +805,21 @@
   const openPool = async () => {
     const coin = flow.minted;
     if (!coin || !coin.address) return;
-    const as = assetOf(coin.color, coin.quadrant);
-    const check = verified[as.ticker];
     const note = $('poolNote');
+    const quote = CFG.quote;
 
-    if (!CFG.router.address) { note.textContent = 'No router configured in config.js, so no pool can be opened.'; return; }
+    if (!CFG.router.address) { note.textContent = 'No router in config.js, so no pool can be opened.'; return; }
     if (!routerOk || !routerOk.ok) { note.textContent = 'The router has not verified: ' + (routerOk ? routerOk.reason : 'not checked') + '.'; return; }
-    if (!check || !check.ok) { note.textContent = as.ticker + ' has not verified, so the pad will not pair against it.'; return; }
+    if (!quoteOk || !quoteOk.ok) { note.textContent = quote.ticker + ' has not verified: ' + (quoteOk ? quoteOk.reason : 'not checked') + '.'; return; }
 
     const typed = ($('poolAmount').value || '').trim();
     if (!/^\d+(\.\d+)?$/.test(typed) || Number(typed) <= 0) {
-      note.textContent = 'Type how much ' + as.ticker + ' to put in, as a plain number.';
+      note.textContent = 'Type how much ' + quote.ticker + ' to put in, as a plain number.';
       return;
     }
 
     // scale by the token's own decimals, which the verifier read off the chain
-    const dec = BigInt(check.decimals);
+    const dec = BigInt(quoteOk.decimals);
     const [whole, frac = ''] = typed.split('.');
     const tokenAmount = BigInt(whole + (frac + '0'.repeat(Number(dec))).slice(0, Number(dec)));
     const coinAmount = (BigInt(coin.supply) * BigInt(Math.round(CFG.liquidity.supplyShare * 1000))) / 1000n;
@@ -833,10 +830,10 @@
       const approveTx = await SpinpadChain.approve(coin.address, CFG.router.address, coinAmount);
       await SpinpadChain.waitForReceipt(approveTx);
 
-      note.textContent = 'Approved. Now confirm the liquidity itself — this moves your ' + as.ticker + '.';
+      note.textContent = 'Approved. Now confirm the liquidity itself \u2014 this moves your ' + quote.ticker + '.';
       const poolTx = await SpinpadChain.addLiquidity({
         coin: coin.address,
-        token: check.address || CFG.assets[coin.color][coin.quadrant].address,
+        token: quote.address,
         coinAmount,
         tokenAmount,
       });
@@ -871,7 +868,7 @@
     $('tkDesc').hidden = !coin.desc;
 
     const rows = [
-      ['Paired with', as.name + ' (' + as.ticker + ')', false],
+      ['Theme drawn', as.name + ' (' + as.ticker + ')', false],
       ['Colour drawn', f.label + ' \u00b7 ' + f.family, false],
       ['Quadrant', q.short, false],
       ['Total supply', num(Number(BigInt(coin.supply) / (10n ** 18n))), true],
@@ -883,11 +880,14 @@
       + (coin.txHash ? `<div><dt>Deployment</dt><dd class="is-mono"><a href="${esc(SpinpadChain.explorerTx(coin.txHash))}" target="_blank" rel="noopener noreferrer">${esc(short(coin.txHash))}</a></dd></div>` : '');
 
     $('tkNote').textContent =
-      `${coin.name} is paired with ${as.name} because the arrow stopped on a ${f.label.toLowerCase()} dot `
-      + `in the ${q.label} quadrant. That is written into the contract itself, where nothing \u2014 including this page \u2014 can change it.`;
+      `${coin.name} drew ${as.name} because the arrow stopped on a ${f.label.toLowerCase()} dot in the `
+      + `${q.label} quadrant, and that is written into the contract where nothing \u2014 including this page \u2014 `
+      + `can change it. It is a name on a token: nothing here tracks ${as.name}\u2019s share price, and ${as.name} `
+      + `has no connection to it.`;
 
     if ($('poolAsset')) {
-      $('poolAsset').textContent = as.ticker;
+      $('poolAsset').textContent = CFG.quote.ticker;
+      const pa = $('poolAssetB'); if (pa) pa.textContent = CFG.quote.ticker;
       $('poolShare').textContent = Math.round(CFG.liquidity.supplyShare * 100) + '%';
       $('poolNote').textContent = coin.poolTx
         ? 'Pool already open.'
@@ -943,36 +943,35 @@
     }
   };
 
-  /* Read the configured list back off the chain before trusting a word of it. */
+  /* One address does the work now, so one address gets checked. The squares on
+     the board are themes and carry no address at all. */
   const verifyTokens = async () => {
     const box = $('verify');
     if (!box) return;
     if (!SpinpadChain.state.account) { box.innerHTML = ''; return; }
 
-    box.innerHTML = '<p class="lv-verify-head">Checking the token list against ' + esc(CFG.chain.name) + '\u2026</p>';
-    routerOk = await SpinpadChain.verifyRouter();
+    box.innerHTML = '<p class="lv-verify-head">Checking against ' + esc(CFG.chain.name) + '\u2026</p>';
+    const [q, r] = await Promise.all([
+      SpinpadChain.verifyToken(CFG.quote),
+      SpinpadChain.verifyRouter(),
+    ]);
+    quoteOk = q;
+    routerOk = r;
 
-    const rows = [];
-    for (const k of ORDER) {
-      for (const q of QUADRANTS) {
-        const entry = FAMILIES[k].assets[q.id];
-        // eslint-disable-next-line no-await-in-loop
-        const res = await SpinpadChain.verifyToken(entry);
-        verified[entry.ticker] = Object.assign({ address: entry.address }, res);
-        rows.push({ entry, res, k });
-      }
-    }
+    const row = (label, res, hint) => `
+      <li class="${res.ok ? 'is-ok' : 'is-bad'}">
+        <i class="lv-dot" data-color="${res.ok ? 'green' : 'none'}"></i>
+        <b>${esc(label)}</b><em>${esc(res.ok ? (res.symbol ? res.symbol + ' \u00b7 verified' : 'verified') : res.reason)}</em>
+      </li>${hint && !res.ok ? `<li class="lv-verify-hint">${esc(hint)}</li>` : ''}`;
 
-    const good = rows.filter((r) => r.res.ok).length;
     box.innerHTML =
-      `<p class="lv-verify-head">${good} of ${rows.length} tokens verified on ${esc(CFG.chain.name)}`
-      + `${routerOk.ok ? '' : ' \u00b7 router not verified'}</p>`
-      + '<ul class="lv-verify-list">' + rows.map((r) => `
-        <li data-color="${r.k}" class="${r.res.ok ? 'is-ok' : 'is-bad'}">
-          <i class="lv-dot"></i><b>${esc(r.entry.ticker)}</b>
-          <em>${esc(r.res.ok ? 'verified' : r.res.reason)}</em>
-        </li>`).join('') + '</ul>'
-      + (routerOk.ok ? '' : `<p class="lv-verify-note">Pools stay off until the router in config.js is filled in and answers like a V2 router: ${esc(routerOk.reason)}</p>`);
+      `<p class="lv-verify-head">${q.ok && r.ok ? 'Ready to launch on ' : 'Not ready on '}${esc(CFG.chain.name)}</p>`
+      + '<ul class="lv-verify-list">'
+      + row('Pair token (' + CFG.quote.ticker + ')', q, 'Fill quote.address in config.js. Deploying still works; pools do not.')
+      + row('Router', r, 'Fill router.address and router.weth in config.js.')
+      + '</ul>'
+      + '<p class="lv-verify-note">The sixteen squares are themes written into the coin, not tokens. '
+      + 'Nothing on the board tracks a share price.</p>';
   };
 
   const wireWallet = () => {

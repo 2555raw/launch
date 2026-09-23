@@ -41,8 +41,8 @@
     <div class="lv-orbs" aria-hidden="true"></div>
 
     <p class="lv-eyebrow">One spin. Sixteen assets. No choice.</p>
-    <h1>Coins paired<br>with assets</h1>
-    <p class="lv-hero-sub">Your next big idea. Paired with <span id="rotator" data-color="green"></span>.</p>
+    <h1>Coins named<br>by a spinner</h1>
+    <p class="lv-hero-sub">Your next big idea. Named after <span id="rotator" data-color="green"></span>.</p>
     <div class="lv-hero-cta">
       <button class="lv-btn lv-btn-dark lv-btn-lg" data-scroll="launch" type="button">Launch a coin <span aria-hidden="true">↗</span></button>
       <button class="lv-textlink lv-textlink-lg" data-scroll="board" type="button">Explore the board <span aria-hidden="true">→</span></button>
@@ -317,11 +317,13 @@
             <div class="lv-pool">
               <p class="lv-kicker lv-kicker-sm">The first pool</p>
               <p class="lv-pool-copy">
-                Pair it with <b id="poolAsset">the drawn token</b>. <span id="poolShare">80%</span> of the
-                supply goes in from the coin's side; you choose the other side.
+                Every pool is opened against <b id="poolAsset">the pair token</b> — a company is not an
+                ERC-20, so the draw names your coin and this is what it trades against.
+                <span id="poolShare">80%</span> of the supply goes in from the coin's side; you choose
+                the other.
               </p>
               <label class="lv-pool-field">
-                <span>Liquidity, in the drawn token</span>
+                <span>Liquidity, in <b id="poolAssetB">the pair token</b></span>
                 <input id="poolAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.05">
               </label>
               <button class="lv-btn lv-btn-dark lv-btn-block" id="poolBtn" type="button">Open the pool</button>

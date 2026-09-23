@@ -240,6 +240,19 @@ async function browserChecks() {
   ok('the ground blooms back on return to the tab',
     await page.evaluate(() => document.querySelectorAll('.is-blooming').length > 0));
 
+  // a logo file that is not there must cost nothing
+  const marks = await page.evaluate(() => {
+    const imgs = [...document.querySelectorAll('img.lv-logo')];
+    return {
+      drawn: document.querySelectorAll('.lv-glyph').length,
+      visibleImages: imgs.filter((i) => getComputedStyle(i).opacity !== '0').length,
+      loaded: imgs.filter((i) => i.complete && i.naturalWidth > 0).length,
+    };
+  });
+  ok('every square has a mark', marks.drawn >= 16, marks.drawn + ' drawn');
+  ok('a missing logo file shows nothing at all', marks.visibleImages === marks.loaded,
+    marks.visibleImages + ' visible, ' + marks.loaded + ' actually loaded');
+
   // nothing on the page should be reachable only by mouse
   ok('the nav links are focusable',
     await page.evaluate(() => [...document.querySelectorAll('.lv-links a')].every((a) => a.hasAttribute('href'))));

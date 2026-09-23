@@ -4,11 +4,22 @@
 paired with.** The draw is then written into the token's own contract, at construction, with no
 function anywhere that can change it afterwards.
 
-Where the arrow stops gives two coordinates, and it takes both to name an asset. The **colour**
-picks one of four families; the **quadrant** picks which of the four tokens inside it. Sixteen dots
-on the board, sixteen tokens, one to a dot — so a red dot on the bid hand and a red dot on the short
+Where the arrow stops gives two coordinates, and it takes both to name a square. The **colour**
+picks one of four families; the **quadrant** picks which of the four names inside it. Sixteen dots
+on the board, sixteen names, one to a dot — so a red dot on the bid hand and a red dot on the short
 leg are different coins. A pairs trade has two legs and two sides, which is where the quadrant names
 come from.
+
+**Two things are kept apart, on purpose.** The draw is a **theme**: the square your arrow lands on
+is the company your coin is named after, and that name is written into the contract. It is a name
+on a token — there is no oracle, nothing tracks a share price, and none of those companies have
+anything to do with it. The **pair** is a real token: a company is not an ERC-20, so every pool is
+opened against the one `quote` token in `config.js`, whose address is verified against the chain
+before the pad will touch it.
+
+Naming a tradeable token after a listed company is a real-world risk rather than a styling choice —
+other people's trademarks, and regulators who take an interest in anything that looks like a bet on
+a share. `config.js` is one file and the names are all in it, which is where that decision lives.
 
 One spin per launch. It cannot be repeated, and the pairing cannot be edited afterwards.
 
@@ -18,13 +29,26 @@ Launching calls `eth_sendTransaction` on **Base mainnet** from the connected wal
 it is permanent, and there is no undo. Opening the first pool moves real funds. The page says so
 before it lets anyone in, and it is the first thing to understand about the rest of this document.
 
+### Logos
+
+`config.js` already points every square at `assets/<ticker>.png`, so there is nothing to wire: drop
+`tsla.png` into `assets/` and Tesla's square wears it. None ship, and a missing file costs nothing —
+the drawn mark and the logo are stacked in the same box and the image only becomes visible once it
+has actually loaded, so a square with no file simply keeps its drawn mark. `assets/README.md` has
+the full list of filenames and what makes a logo read well at 22px on a coloured sphere.
+
+An `onerror` handler was the obvious way to do that fallback, and it did not work: sixteen missing
+files left sixteen broken images across the board. Making the fallback the default state rather than
+a recovery from one is why there is now a check for it.
+
 **No address in `config.js` is filled in.** They were left empty on purpose: this was built in an
 environment with no route to Base, so nothing could be checked against the chain, and an address
 written from memory into a tool that moves money is how someone's liquidity ends up somewhere it
-cannot be recovered from. Fill them from a source you trust, and the pad will check them for you —
-on connect it calls `symbol()` and `decimals()` on every one and refuses to launch against anything
-whose answers do not match. The router has to answer like a Uniswap V2 router, and its `WETH()` has
-to match the config, or pools stay off.
+cannot be recovered from. Fill them from a source you trust, and the pad will check them for you — on
+connect it calls `symbol()` and `decimals()` on the quote token and refuses to open a pool if the
+answers do not match. The router has to answer like a Uniswap V2 router, and its `WETH()` has to
+match the config, or pools stay off. Deploying a coin needs neither: the draw is a name, so the
+sixteen squares carry no address at all.
 
 No build step for the site, and no dependencies at runtime. Plain HTML, CSS and vanilla JS, plus one
 generated file holding the compiled contract.

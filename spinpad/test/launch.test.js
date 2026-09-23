@@ -26,14 +26,15 @@ const WETH = '0x3333333333333333333333333333333333333333';
 const COIN = '0x4444444444444444444444444444444444444444';
 const ME = '0x00000000000000000000000000000000000000c0';
 
-/* every square points at one token that answers, so whatever the arrow draws is launchable */
+/* squares are themes and carry no address; one quote token does the pairing */
 const testConfig = `window.SPINPAD_CONFIG = (() => {
-  const t = (name, ticker, glyph) => ({ name, ticker, glyph, address: '${TOKEN}', decimals: 18 });
+  const t = (name, ticker, glyph) => ({ name, ticker, glyph, logo: '' });
   const fam = (family, blurb, a, b, c, d) => ({ family, blurb, bid: a, ask: b, short: c, long: d });
   return {
     chain: { id: 8453, hex: '0x2105', name: 'Base', currency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
              rpc: ['https://example.invalid'], explorer: 'https://example.invalid' },
     router: { address: '${ROUTER}', kind: 'uniswap-v2', weth: '${WETH}' },
+    quote: { name: 'Wrapped Ether', ticker: 'TEST', address: '${TOKEN}', decimals: 18 },
     assets: {
       green:  fam('Stables', 'x', t('Test Token','TEST','grid'), t('Test Token','TEST','bars'), t('Test Token','TEST','orbit'), t('Test Token','TEST','chevron')),
       blue:   fam('Ether',   'x', t('Test Token','TEST','delta'), t('Test Token','TEST','tiles'), t('Test Token','TEST','wave'), t('Test Token','TEST','play')),
@@ -105,8 +106,9 @@ window.ethereum = {
   await page.click('#connect');
   await page.waitForTimeout(1200);
   ok('the wallet shows as connected', (await page.locator('#connect').textContent()).includes('0x0000'));
-  ok('all sixteen tokens verify', (await page.locator('.lv-verify-head').textContent()).startsWith('16 of 16'));
-  ok('the router verifies', !(await page.locator('.lv-verify-head').textContent()).includes('router not verified'));
+  ok('the pad reports itself ready', (await page.locator('.lv-verify-head').textContent()).startsWith('Ready to launch'));
+  ok('both the pair token and the router verify',
+    (await page.locator('.lv-verify-list .is-bad').count()) === 0);
 
   console.log('\nlaunching');
   await page.fill('#fName', 'Northwind Capital');
@@ -137,8 +139,9 @@ window.ethereum = {
     ok('it starts with the compiled bytecode', String(tx.data).startsWith(bytecode));
     const args = String(tx.data).slice(bytecode.length);
     ok('the constructor args are whole words', args.length % 64 === 0, args.length + ' hex chars');
-    ok('the drawn asset is in the args',
-      args.includes(Buffer.from('TEST', 'utf8').toString('hex')), 'ticker not found in the encoded args');
+    ok('the drawn theme is in the args',
+      args.includes(Buffer.from(drew.split(' \u00b7 ')[0], 'utf8').toString('hex')),
+      'theme "' + drew + '" not found in the encoded args');
     ok('the coin name is in the args',
       args.includes(Buffer.from('Northwind Capital', 'utf8').toString('hex')));
   }

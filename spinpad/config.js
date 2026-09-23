@@ -128,37 +128,39 @@ window.SPINPAD_CONFIG = {
 
   /* position + colour → asset. Sixteen cells, one line each.
    *
-   * The four in a colour were picked to look like that colour, which is why
-   * they read as a set on the wheel: green is Nvidia, Spotify, USDG and
-   * Starbucks; red is Tesla, Coca-Cola, Netflix and YouTube; yellow is Amazon,
-   * Snapchat, Microsoft and McDonald's; blue is Meta, Walmart, Skype and Intel.
-   * Moving one to another colour is moving its line.
+   * THESE SIXTEEN ARE PAIRABLE FOR REAL, but not from this file yet. They are
+   * all on the list of 63 stock tokens that Pons v2 accepts as the `pairToken`
+   * argument of a launch, on Robinhood Chain (4663). That is a different chain
+   * from the one in `chain` above and a different AMM — Pons is Uniswap V4,
+   * with pool keys and hooks, where this pad calls V2 addLiquidity. Until that
+   * integration exists these are still names written into the contract and the
+   * pool still opens against `quote`.
    *
-   *
-   * `glyph` is the mark drawn on the node when there is no logo file; the names
-   * come from the set in app.js. `logo` already points at assets/<ticker>.png,
-   * so adding a real one is dropping a file in — nothing to edit here. A
-   * missing file costs nothing: the drawn mark stays. See assets/README.md. */
+   * Colour could not be matched to brand the way the previous set was: the 63
+   * skew heavily blue (META, GOOGL, INTC, COIN, IBM, BA, F, PFE, DELL...) and
+   * have almost nothing green. Green takes the two real greens, Nvidia and
+   * Shopify, plus two marks that are black and read on any ground.
+   */
   pairings: {
-    'leftHand.red':     { name: 'Netflix',    ticker: 'NFLX',  glyph: 'play',     logo: 'assets/nflx.png' },
+    'leftHand.red':     { name: 'Tesla',      ticker: 'TSLA',  glyph: 'bolt',     logo: 'assets/tsla.png' },
     'leftHand.yellow':  { name: 'Amazon',     ticker: 'AMZN',  glyph: 'arc',      logo: 'assets/amzn.png' },
-    'leftHand.green':   { name: 'Spotify',    ticker: 'SPOT',  glyph: 'waves',    logo: 'assets/spot.png' },
+    'leftHand.green':   { name: 'Nvidia',     ticker: 'NVDA',  glyph: 'chevron',  logo: 'assets/nvda.png' },
     'leftHand.blue':    { name: 'Meta',       ticker: 'META',  glyph: 'loop',     logo: 'assets/meta.png' },
 
-    'rightHand.red':    { name: 'Coca-Cola',  ticker: 'KO',    glyph: 'wave',     logo: 'assets/ko.png' },
-    'rightHand.yellow': { name: 'Snapchat',   ticker: 'SNAP',  glyph: 'tiles',    logo: 'assets/snap.png' },
-    'rightHand.green':  { name: 'Nvidia',     ticker: 'NVDA',  glyph: 'chevron',  logo: 'assets/nvda.png' },
-    'rightHand.blue':   { name: 'Intel',      ticker: 'INTC',  glyph: 'rail',     logo: 'assets/intc.png' },
+    'rightHand.red':    { name: 'Netflix',    ticker: 'NFLX',  glyph: 'play',     logo: 'assets/nflx.png' },
+    'rightHand.yellow': { name: 'Snapchat',   ticker: 'SNAP',  glyph: 'spark',    logo: 'assets/snap.png' },
+    'rightHand.green':  { name: 'Shopify',    ticker: 'SHOP',  glyph: 'tiles',    logo: 'assets/shop.png' },
+    'rightHand.blue':   { name: 'Google',     ticker: 'GOOGL', glyph: 'orbit',    logo: 'assets/googl.png' },
 
-    'leftFoot.red':     { name: 'YouTube',    ticker: 'YT',    glyph: 'arrowbox', logo: 'assets/yt.png' },
-    'leftFoot.yellow':  { name: "McDonald's", ticker: 'MCD',   glyph: 'delta',    logo: 'assets/mcd.png' },
-    'leftFoot.green':   { name: 'Starbucks',  ticker: 'SBUX',  glyph: 'orbit',    logo: 'assets/sbux.png' },
-    'leftFoot.blue':    { name: 'Skype',      ticker: 'SKYPE', glyph: 'stack',    logo: 'assets/skype.png' },
+    'leftFoot.red':     { name: 'AMD',        ticker: 'AMD',   glyph: 'delta',    logo: 'assets/amd.png' },
+    'leftFoot.yellow':  { name: 'Microsoft',  ticker: 'MSFT',  glyph: 'grid',     logo: 'assets/msft.png' },
+    'leftFoot.green':   { name: 'Apple',      ticker: 'AAPL',  glyph: 'stack',    logo: 'assets/aapl.png' },
+    'leftFoot.blue':    { name: 'Intel',      ticker: 'INTC',  glyph: 'rail',     logo: 'assets/intc.png' },
 
-    'rightFoot.red':    { name: 'Tesla',      ticker: 'TSLA',  glyph: 'bolt',     logo: 'assets/tsla.png' },
-    'rightFoot.yellow': { name: 'Microsoft',  ticker: 'MSFT',  glyph: 'grid',     logo: 'assets/msft.png' },
-    'rightFoot.green':  { name: 'USDG',       ticker: 'USDG',  glyph: 'dollar',   logo: 'assets/usdg.png' },
-    'rightFoot.blue':   { name: 'Walmart',    ticker: 'WMT',   glyph: 'spark',    logo: 'assets/wmt.png' },
+    'rightFoot.red':    { name: 'Reddit',     ticker: 'RDDT',  glyph: 'wave',     logo: 'assets/rddt.png' },
+    'rightFoot.yellow': { name: 'Cloudflare', ticker: 'NET',   glyph: 'waves',    logo: 'assets/net.png' },
+    'rightFoot.green':  { name: 'Roblox',     ticker: 'RBLX',  glyph: 'arrowbox', logo: 'assets/rblx.png' },
+    'rightFoot.blue':   { name: 'Coinbase',   ticker: 'COIN',  glyph: 'dollar',   logo: 'assets/coin.png' },
   },
 
   /* What the pad puts into the first pool, as a fraction of the coin's supply

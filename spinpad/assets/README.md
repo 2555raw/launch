@@ -8,31 +8,24 @@ were chosen to look like that colour, so they read as a set on the wheel:
 ```
 RED                             YELLOW
 assets/tsla.png     Tesla       assets/amzn.png     Amazon
-assets/ko.png       Coca-Cola   assets/snap.png     Snapchat
-assets/nflx.png     Netflix     assets/msft.png     Microsoft
-assets/yt.png       YouTube     assets/mcd.png      McDonald's
+assets/nflx.png     Netflix     assets/snap.png     Snapchat
+assets/amd.png      AMD         assets/msft.png     Microsoft
+assets/rddt.png     Reddit      assets/net.png      Cloudflare
 
 GREEN                           BLUE
 assets/nvda.png     Nvidia      assets/meta.png     Meta
-assets/spot.png     Spotify     assets/wmt.png      Walmart
-assets/usdg.png     USDG        assets/skype.png    Skype
-assets/sbux.png     Starbucks   assets/intc.png     Intel
+assets/shop.png     Shopify     assets/googl.png    Google
+assets/aapl.png     Apple       assets/intc.png     Intel
+assets/rblx.png     Roblox      assets/coin.png     Coinbase
 ```
 
-All sixteen ship.
+All sixteen ship. Eight are bitmaps, trimmed and scaled; eight were rendered from the
+`simple-icons` package — official single-colour marks in each brand's own hex. That package is not a
+dependency of anything; it was used once to write the files. `amd.png` came from `simple-icons@9`,
+which still carries AMD.
 
-The eight in red and yellow are bitmaps, trimmed and scaled. The seven in green and blue were
-rendered from the `simple-icons` package instead — official single-colour marks in each brand's own
-hex. That package is not a dependency of anything; it was used once to write the files. `skype.png`
-and `wmt.png` came from `simple-icons@11`, because the current release has dropped both, and
-`wmt.png` is the spark cut out of the lockup, in Walmart blue rather than the spark's yellow.
-
-`usdg.png` is a bitmap, and the only one that came with transparency already outside its own disc —
-so it needed neither trimming back nor masking. It had to be supplied: there is no Global Dollar
-mark in `simple-icons` (3461 icons) or in `@web3icons/core` (5364 token icons, which has USDC, USDD,
-USDE, USDT, USDV and USDX but not USDG).
-
-The drawn marks are still there under every logo, and still the fallback if a file is removed.
+Files from the previous set are still in this folder and unreferenced: `ko`, `yt`, `mcd`, `spot`,
+`sbux`, `usdg`, `skype`, `wmt`. Nothing loads them; delete them whenever.
 
 **A missing file costs nothing.** The cell falls back to a drawn abstract mark, silently, so the
 board looks finished whether you add one logo or all sixteen.

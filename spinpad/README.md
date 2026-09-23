@@ -7,12 +7,21 @@ function anywhere that can change it afterwards.
 The wheel gives two coordinates, and it takes both to name a cell. A **body position** — left hand,
 right hand, left foot, right foot — and a **colour** — red, yellow, green, blue. Four by four is
 sixteen cells, sixteen assets, one to a cell, each drawn one time in sixteen. Left hand on yellow is
-Amazon; right foot on red is Tesla; right hand on green is Nvidia; left foot on blue is Skype.
+Amazon; left hand on red is Tesla; left hand on green is Nvidia; right foot on blue is Coinbase.
 
-**The four in a colour were chosen to look like that colour**, so each column reads as a set: red is
-Tesla, Coca-Cola, Netflix and YouTube; yellow is Amazon, Snapchat, Microsoft and McDonald's; green
-is Nvidia, Spotify, USDG and Starbucks; blue is Meta, Walmart, Skype and Intel. A check pins each
-colour's four as a set, so moving one somewhere else is a deliberate edit rather than a slip.
+**All sixteen are pair tokens a launch can really name**, which is the constraint that picked them:
+they are on the list of 63 stock tokens Pons v2 accepts as the `pairToken` argument of a launch, on
+Robinhood Chain. Red is Tesla, Netflix, AMD and Reddit; yellow is Amazon, Snapchat, Microsoft and
+Cloudflare; green is Nvidia, Shopify, Apple and Roblox; blue is Meta, Google, Intel and Coinbase. A
+check pins each colour's four as a set, so moving one somewhere else is a deliberate edit rather
+than a slip.
+
+Colour could not be matched to brand the way an invented set can be. Of those 63, checked by hue
+against every mark in `simple-icons`, exactly two are green: Nvidia and Shopify. The set skews hard
+to blue — Meta, Google, Intel, Coinbase, Boeing, Dell, Ford, Pfizer, IBM — and 33 of the 63 have no
+published mark at all, including the ones that are green in real life (Bloom Energy, Constellation).
+So green takes the two real greens plus Apple and Roblox, whose marks are black and read on any
+ground. Red and yellow do line up.
 
 **That table lives in exactly one place: `config.js`.** The wheel, the board, the asset desk, the
 result screen and the value encoded into the constructor are all read out of the same object, so they cannot drift apart. Changing a pairing is changing one line.
@@ -89,29 +98,10 @@ filenames, grouped by colour.
 
 All sixteen ship, so every disc on the board is white with its colour as a ring.
 
-They come from two places. Red and yellow are pictures: bitmaps, trimmed and scaled. USDG is one too, and the only one that
-arrived already transparent outside its own disc, so it needed neither trimming back nor masking.
-The other seven are vectors rendered from the `simple-icons` package — official single-colour marks
-in each brand's own hex, which on a white disc reads better than a photograph of a logo and needs no
+They come from two places. Eight are pictures — bitmaps, trimmed and scaled to 128px. The other
+eight are vectors rendered from the `simple-icons` package: official single-colour marks in each
+brand's own hex, which on a white disc reads better than a photograph of a logo and needs no
 trimming or keying at all. The package is not a dependency; it was used once to write the files.
-
-Two of those seven came from `simple-icons@11` rather than the current release, which has dropped
-them: Skype when Microsoft retired it, Walmart some time after v13.
-
-Walmart needed one more step. The package ships the full lockup, wordmark and spark, and at 30px a
-wordmark is a smudge — the same problem Coca-Cola's had. The spark alone survives, so it is cut out
-by finding the widest run of empty columns in the image and keeping everything to the right of it.
-The obvious version of that, "take the last run of opaque columns", finds one ray: the spark is six
-separate shapes with gaps between them. It is in Walmart blue rather than the spark's real yellow,
-because that is what a single-colour package can give and because a yellow mark in a blue-ringed
-cell would fight the one thing colour means here. Drop a real `wmt.png` in and it wins.
-
-**A logo that has loaded turns its disc white and pushes the colour out to a ring.** Brand logos
-arrive in their own colours, and a red Tesla on a red circle is not a logo, it is a red circle. The
-colour is the whole code of this product, so it does not go away — it becomes the ring. The size
-box is wider than it is tall (76% × 64% of the disc), because a wordmark like Coca-Cola's is short
-and wide and a square box would shrink it to the height of one letter; a square logo is limited by
-the height, so it is unaffected.
 
 The `load` listener is on the document in the capture phase, because `load` on an `<img>` does not
 bubble and the disc is one level further out than the `<span>` an inline `onload` can reach.
@@ -120,10 +110,10 @@ An `onerror` handler was the obvious way to do the fallback, and it did not work
 files left sixteen broken images across the board. Making the fallback the default state rather
 than a recovery from one is why there is a check for it.
 
-The files that ship were trimmed and scaled to 128px, and deliberately **not** chroma-keyed. Several
-came on a white field, and knocking near-white out to alpha leaves a white fringe on every
-anti-aliased edge — the pixels between the mark and the field are neither, and a threshold cannot
-tell which way they go. The white disc makes a white field disappear anyway.
+The bitmaps were deliberately **not** chroma-keyed. Several came on a white field, and knocking
+near-white out to alpha leaves a white fringe on every anti-aliased edge — the pixels between the
+mark and the field are neither, and a threshold cannot tell which way they go. The white disc makes
+a white field disappear anyway.
 
 Trimming reads the top-left pixel, which is what makes a logo on a coloured card work: Snapchat
 loses its yellow border down to the ghost and Microsoft loses its grey one down to the four squares.
@@ -179,7 +169,7 @@ Five screens, one at a time, because the flow is the interface:
    button rather than a second path to a wallet.
 2. **Spin** — the wheel, large and centred, and one button. *Let the wheel decide. One spin, one
    pairing.*
-3. **Result** — `YOU LANDED ON / LEFT FOOT · BLUE`, then `PAIRING / Skype`, then `PAIRING LOCKED`.
+3. **Result** — `YOU LANDED ON / LEFT FOOT · BLUE`, then `PAIRING / Intel`, then `PAIRING LOCKED`.
    There is no reroll control on this screen, and a check asserts there is no button on it whose
    label offers one.
 4. **Launch** — the confirmation: everything that is about to be deployed, including the pairing and

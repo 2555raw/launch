@@ -102,10 +102,10 @@ async function configChecks(cfg) {
   /* The assets were chosen by colour, not by cell, so that is what is pinned:
      each colour's four, as a set, whichever positions they sit on. */
   const wantByColour = {
-    red:    ['Tesla', 'Coca-Cola', 'Netflix', 'YouTube'],
-    yellow: ['Amazon', 'Snapchat', 'Microsoft', "McDonald's"],
-    green:  ['Nvidia', 'Spotify', 'USDG', 'Starbucks'],
-    blue:   ['Meta', 'Walmart', 'Skype', 'Intel'],
+    red:    ['Tesla', 'Netflix', 'AMD', 'Reddit'],
+    yellow: ['Amazon', 'Snapchat', 'Microsoft', 'Cloudflare'],
+    green:  ['Nvidia', 'Shopify', 'Apple', 'Roblox'],
+    blue:   ['Meta', 'Google', 'Intel', 'Coinbase'],
   };
   Object.keys(wantByColour).forEach((c) => {
     const got = cfg.positions.map((p) => cfg.pairings[p.id + '.' + c].name).sort();
@@ -117,8 +117,8 @@ async function configChecks(cfg) {
   // and the three cells that were named by position as well as colour
   [
     ['leftHand', 'yellow', 'Amazon'],
-    ['rightFoot', 'red', 'Tesla'],
-    ['rightHand', 'green', 'Nvidia'],
+    ['leftHand', 'red', 'Tesla'],
+    ['leftHand', 'green', 'Nvidia'],
   ].forEach(([p, c, n]) => {
     const a = cfg.pairings[p + '.' + c];
     ok(`${p} + ${c} is ${n}`, !!a && a.name === n, a ? a.name : 'missing');

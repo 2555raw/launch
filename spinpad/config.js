@@ -40,35 +40,42 @@ window.SPINPAD_CONFIG = {
 
   /* The sixteen squares. colour = family, quadrant = which name inside it.
    * `address` empty means "not launchable yet"; everything else is already
-   * wired and will light up the moment an address is filled and verified. */
+   * wired and will light up the moment an address is filled and verified.
+   *
+   * `logo` is optional. Leave it empty and the square wears a drawn mark — the
+   * sign the money already has where there is one (a dollar, a euro, an ether
+   * diamond, a bitcoin B) and an abstract one otherwise. Put a URL there and it
+   * is used instead, falling back to the drawn mark if the image fails. No URLs
+   * ship here for the same reason no addresses do: they could not be checked
+   * from where this was built. Take them from each project's own brand page. */
   assets: {
     green: {                                    // stable value
       family: 'Stables', blurb: 'the ones that try not to move',
-      bid:   { name: 'USD Coin',        ticker: 'USDC',  glyph: 'grid',     address: '', decimals: 6 },
-      ask:   { name: 'Tether USD',      ticker: 'USDT',  glyph: 'bars',     address: '', decimals: 6 },
-      short: { name: 'Dai',             ticker: 'DAI',   glyph: 'orbit',    address: '', decimals: 18 },
-      long:  { name: 'Euro Coin',       ticker: 'EURC',  glyph: 'chevron',  address: '', decimals: 6 },
+      bid:   { name: 'USD Coin',        ticker: 'USDC',  glyph: 'dollar',     address: '', decimals: 6, logo: '' },
+      ask:   { name: 'Tether USD',      ticker: 'USDT',  glyph: 'bars',     address: '', decimals: 6, logo: '' },
+      short: { name: 'Dai',             ticker: 'DAI',   glyph: 'orbit',    address: '', decimals: 18, logo: '' },
+      long:  { name: 'Euro Coin',       ticker: 'EURC',  glyph: 'euro',  address: '', decimals: 6, logo: '' },
     },
     blue: {                                     // ether and its derivatives
       family: 'Ether', blurb: 'the chain’s own money, and its echoes',
-      bid:   { name: 'Wrapped Ether',   ticker: 'WETH',  glyph: 'delta',    address: '', decimals: 18 },
-      ask:   { name: 'Coinbase Wrapped Staked ETH', ticker: 'cbETH', glyph: 'tiles', address: '', decimals: 18 },
-      short: { name: 'Wrapped stETH',   ticker: 'wstETH', glyph: 'wave',    address: '', decimals: 18 },
-      long:  { name: 'Rocket Pool ETH', ticker: 'rETH',  glyph: 'play',     address: '', decimals: 18 },
+      bid:   { name: 'Wrapped Ether',   ticker: 'WETH',  glyph: 'ether',    address: '', decimals: 18, logo: '' },
+      ask:   { name: 'Coinbase Wrapped Staked ETH', ticker: 'cbETH', glyph: 'etherRing', address: '', decimals: 18, logo: '' },
+      short: { name: 'Wrapped stETH',   ticker: 'wstETH', glyph: 'etherArc',    address: '', decimals: 18, logo: '' },
+      long:  { name: 'Rocket Pool ETH', ticker: 'rETH',  glyph: 'etherDot',     address: '', decimals: 18, logo: '' },
     },
-    yellow: {                                   // bitcoin, wrapped
+    yellow: {                                   // bitcoin, wrapped four ways
       family: 'Bitcoin', blurb: 'the old one, wearing a wrapper',
-      bid:   { name: 'Coinbase Wrapped BTC', ticker: 'cbBTC', glyph: 'arc',  address: '', decimals: 8 },
-      ask:   { name: 'tBTC',            ticker: 'tBTC',  glyph: 'loop',     address: '', decimals: 18 },
-      short: { name: 'Wrapped BTC',     ticker: 'WBTC',  glyph: 'stack',    address: '', decimals: 8 },
-      long:  { name: 'Coinbase Wrapped BTC (alt)', ticker: 'BTC', glyph: 'arrowbox', address: '', decimals: 8 },
+      bid:   { name: 'Coinbase Wrapped BTC', ticker: 'cbBTC', glyph: 'bitcoin',  address: '', decimals: 8, logo: '' },
+      ask:   { name: 'tBTC',            ticker: 'tBTC',  glyph: 'bitcoinO',     address: '', decimals: 18, logo: '' },
+      short: { name: 'Wrapped BTC',     ticker: 'WBTC',  glyph: 'bitcoinB',    address: '', decimals: 8, logo: '' },
+      long:  { name: 'Lombard Staked BTC', ticker: 'LBTC',  glyph: 'bitcoinO', address: '', decimals: 8, logo: '' },
     },
     red: {                                      // native to the chain
       family: 'Natives', blurb: 'the ones that only exist here',
-      bid:   { name: 'Aerodrome',       ticker: 'AERO',  glyph: 'bolt',     address: '', decimals: 18 },
-      ask:   { name: 'Degen',           ticker: 'DEGEN', glyph: 'spark',    address: '', decimals: 18 },
-      short: { name: 'Chainlink',       ticker: 'LINK',  glyph: 'rail',     address: '', decimals: 18 },
-      long:  { name: 'Uniswap',         ticker: 'UNI',   glyph: 'waves',    address: '', decimals: 18 },
+      bid:   { name: 'Aerodrome',       ticker: 'AERO',  glyph: 'bolt',     address: '', decimals: 18, logo: '' },
+      ask:   { name: 'Degen',           ticker: 'DEGEN', glyph: 'spark',    address: '', decimals: 18, logo: '' },
+      short: { name: 'Chainlink',       ticker: 'LINK',  glyph: 'rail',     address: '', decimals: 18, logo: '' },
+      long:  { name: 'Uniswap',         ticker: 'UNI',   glyph: 'waves',    address: '', decimals: 18, logo: '' },
     },
   },
 

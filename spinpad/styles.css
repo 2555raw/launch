@@ -704,8 +704,15 @@ a { color: inherit; text-decoration: none; }
 .lv-pool-note { margin-top: 12px; font-size: 13px; line-height: 1.55; color: var(--muted); }
 .lv-pool-note a { text-decoration: underline; text-underline-offset: 2px; }
 
-/* the glyph a token wears */
+/* the mark a token wears: its own logo when one is configured, the drawn sign
+   otherwise. Both sit in the same box so nothing shifts when one replaces the other. */
 .lv-glyph { display: block; }
+.lv-logo { display: block; border-radius: 50%; object-fit: contain; }
+.lv-orb .lv-glyph, .lv-orb .lv-logo { margin-bottom: 3px; opacity: .92; }
+.lv-mat-dot i .lv-glyph, .lv-mat-dot i .lv-logo { margin-bottom: 1px; }
+.lv-matrix-cell { flex-direction: row !important; align-items: center; gap: 10px !important; flex-wrap: wrap; }
+.lv-matrix-cell .lv-glyph, .lv-matrix-cell .lv-logo { flex: none; color: var(--c); }
+.lv-matrix-cell b { flex: 1 1 auto; }
 
 /* ---------- coming back ----------
    The coloured ground blooms back in when the tab is looked at again: the mat

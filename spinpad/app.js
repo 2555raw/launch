@@ -38,6 +38,16 @@
   // One mark per asset, drawn rather than fetched: sixteen files would be
   // sixteen requests for something that is four hundred bytes of path data.
   const GLYPHS = {
+    // the signs money already has: nobody's trademark, and instantly readable
+    dollar:   'M12 3.5v17M15.8 7.6c-.7-1.2-2.1-2-3.8-2-2.3 0-4 1.3-4 3.2 0 4.4 8 2.4 8 6.8 0 1.9-1.8 3.3-4.1 3.3-1.9 0-3.5-.9-4.1-2.3',
+    euro:     'M18 7.2A6.2 6.2 0 0 0 13.6 5C10 5 7 8.1 7 12s3 7 6.6 7A6.2 6.2 0 0 0 18 16.8M4.5 10.3h8M4.5 13.7h8',
+    ether:    'M12 3l5.5 9L12 15.2 6.5 12zM12 17l5.5-3.2L12 21l-5.5-7.2z',
+    etherRing:'M12 3.4l4.6 7.6L12 13.6 7.4 11zM12 15.2l4.6-2.7L12 20.6l-4.6-8.1zM12 3.4v17.2',
+    etherArc: 'M12 3.4l4.6 7.6L12 13.6 7.4 11zM12 15.2l4.6-2.7L12 20.6l-4.6-8.1zM4 12a8 8 0 0 0 16 0',
+    etherDot: 'M12 4.4l4.2 6.9L12 13.7 7.8 11.3zM12 15.1l4.2-2.5L12 19.6l-4.2-7zM19.5 19.5h.01',
+    bitcoin:  'M9 6.5h4.6a2.8 2.8 0 0 1 0 5.5H9zM9 12h5.2a2.8 2.8 0 0 1 0 5.5H9zM9 6.5v11M11.4 4v2.5M11.4 17.5V20M14.4 4v2.5M14.4 17.5V20M6.6 6.5h2.6M6.6 17.5h2.6',
+    bitcoinB: 'M8.5 6h4.8a2.7 2.7 0 0 1 0 5.4H8.5zM8.5 11.4h5.4a2.8 2.8 0 0 1 0 5.6H8.5zM8.5 6v11M12 3.6V6M12 17v2.4',
+    bitcoinO: 'M12 3.6a8.4 8.4 0 1 0 0 16.8 8.4 8.4 0 0 0 0-16.8M10 8h3.4a2.2 2.2 0 0 1 0 4.4H10zM10 12.4h3.8a2.2 2.2 0 0 1 0 4.4H10zM10 8v8.8',
     chevron:  'M5 15l7-7 7 7',
     bars:     'M5 8h14M5 12h14M5 16h9',
     orbit:    'M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7M3.5 12c0-1.7 3.8-3 8.5-3s8.5 1.3 8.5 3-3.8 3-8.5 3-8.5-1.3-8.5-3',
@@ -87,9 +97,22 @@
   const assetOf = (color, quadrant) => FAMILIES[color].assets[quadrant];
   const quadOf = (id) => QUADRANTS.find((q) => q.id === id) || QUADRANTS[0];
 
-  const mark = (glyph, size) => `<svg class="lv-glyph" viewBox="0 0 24 24" width="${size}" height="${size}"
+  const drawn = (glyph, size) => `<svg class="lv-glyph" viewBox="0 0 24 24" width="${size}" height="${size}"
       fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-      aria-hidden="true"><path d="${GLYPHS[glyph]}"/></svg>`;
+      aria-hidden="true"><path d="${GLYPHS[glyph] || GLYPHS.chevron}"/></svg>`;
+
+  /* A token's own logo if config.js carries one, and the drawn mark otherwise —
+     including when the image fails, because a broken picture on a sphere is
+     worse than a clean symbol. No logo URLs ship with the page: they could not
+     be checked from where this was built, same as the addresses. */
+  const mark = (asset, size) => {
+    const glyph = typeof asset === 'string' ? asset : (asset && asset.glyph);
+    const logo = typeof asset === 'string' ? '' : (asset && asset.logo);
+    if (!logo) return drawn(glyph, size);
+    const fallback = drawn(glyph, size).replace(/"/g, '&quot;');
+    return `<img class="lv-logo" src="${esc(logo)}" width="${size}" height="${size}" alt="" loading="lazy"
+        onerror="this.outerHTML='${fallback}'">`;
+  };
 
   const SEG = 360 / SECTORS.length;   // 22.5 degrees between dots
   const EXPECTED = 100 / 4;           // four of sixteen dots per family
@@ -205,7 +228,7 @@
         const as = assetOf(ck, qid);
         return `<button class="lv-mat-dot" type="button" data-color="${ck}" data-row="${r}" data-col="${c}"
                   aria-label="${esc(q.short)} on ${esc(FAMILIES[ck].family)} — ${esc(as.name)}"
-                  title="${esc(q.short)} · ${esc(FAMILIES[ck].family)} → ${esc(as.name)} (${esc(as.ticker)})"><i><span>${esc(as.ticker)}</span></i></button>`;
+                  title="${esc(q.short)} · ${esc(FAMILIES[ck].family)} → ${esc(as.name)} (${esc(as.ticker)})"><i>${mark(as, 22)}<span>${esc(as.ticker)}</span></i></button>`;
       }).join('') + '</div>';
     }).join('');
   };
@@ -331,10 +354,31 @@
             <span class="lv-matrix-fam"><i class="lv-dot" data-color="${k}"></i><b>${esc(f.family)}</b><em>${esc(f.blurb)}</em></span>
             ${QUADRANTS.map((q) => {
               const as = f.assets[q.id];
-              return `<span class="lv-matrix-cell"><b>${esc(as.name)}</b><em>${esc(as.ticker)}</em></span>`;
+              return `<span class="lv-matrix-cell">${mark(as, 18)}<b>${esc(as.name)}</b><em>${esc(as.ticker)}</em></span>`;
             }).join('')}
           </div>`;
       }).join('')}`;
+  };
+
+  /* The spheres behind the hero: seven of the sixteen, drawn from the board so
+     they can never advertise a token the board does not hold. */
+  const ORB_LAYOUT = [
+    { color: 'green',  q: 'bid',   cls: 'lv-orb-1' },
+    { color: 'red',    q: 'ask',   cls: 'lv-orb-2' },
+    { color: 'blue',   q: 'bid',   cls: 'lv-orb-3' },
+    { color: 'yellow', q: 'short', cls: 'lv-orb-4' },
+    { color: 'blue',   q: 'long',  cls: 'lv-orb-5' },
+    { color: 'green',  q: 'short', cls: 'lv-orb-6' },
+    { color: 'yellow', q: 'bid',   cls: 'lv-orb-7' },
+  ];
+
+  const renderOrbs = () => {
+    const box = document.querySelector('.lv-orbs');
+    if (!box) return;
+    box.innerHTML = ORB_LAYOUT.map((o) => {
+      const as = assetOf(o.color, o.q);
+      return `<span class="lv-orb ${o.cls}" data-color="${o.color}">${mark(as, 26)}<b>${esc(as.ticker)}</b></span>`;
+    }).join('');
   };
 
   const renderMat = () => {
@@ -479,7 +523,7 @@
       <article class="lv-coin" data-color="${c.color}">
         <div class="lv-coin-top">
           <span class="lv-coin-code">${esc(as.ticker)}</span>
-          <span class="lv-disc">${mark(as.glyph, 34)}<i>${esc(as.ticker)}</i></span>
+          <span class="lv-disc">${mark(as, 34)}<i>${esc(as.ticker)}</i></span>
           <span class="lv-coin-age">${ago(c.ts)}</span>
         </div>
         <div class="lv-coin-body">
@@ -819,7 +863,7 @@
     t.hidden = false;
     t.dataset.color = coin.color;
     $('tkId').textContent = short(coin.address || coin.txHash);
-    $('tkAvatar').innerHTML = mark(as.glyph, 30);
+    $('tkAvatar').innerHTML = mark(as, 30);
     $('tkAvatar').dataset.color = coin.color;
     $('tkName').textContent = coin.name;
     $('tkTicker').textContent = coin.ticker;
@@ -1053,6 +1097,7 @@
 
   const init = () => {
     drawDial($('dial'));
+    renderOrbs();
     renderMatrix();
     renderMat();
     wireGate();
@@ -1198,9 +1243,14 @@
     // the asset named in the hero cycles through the four, so the promise on the
     // page is the same one the dial makes
     const rotator = $('rotator');
+    const all = [];
+    ORDER.forEach((k) => QUADRANTS.forEach((q) => all.push({ k, as: FAMILIES[k].assets[q.id] })));
+    if (rotator && all.length) {
+      // seed it from the board, so the page never shows a token the board lost
+      rotator.textContent = all[0].as.name;
+      rotator.dataset.color = all[0].k;
+    }
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const all = [];
-      ORDER.forEach((k) => QUADRANTS.forEach((q) => all.push({ k, as: FAMILIES[k].assets[q.id] })));
       let r = 0;
       setInterval(() => {
         r = (r + 1) % all.length;

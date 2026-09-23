@@ -24,10 +24,10 @@ contract SpinpadCoin {
     string public pairedAsset;
     /// @notice Its ticker on the board.
     string public assetTicker;
-    /// @notice The colour family the arrow landed in.
-    string public family;
-    /// @notice The quadrant it landed in: the other half of the draw.
-    string public quadrant;
+    /// @notice The colour the wheel landed on.
+    string public colour;
+    /// @notice The body position it landed on: the other half of the draw.
+    string public position;
     /// @notice Block timestamp of the deployment that recorded the draw.
     uint256 public drawnAt;
     /// @notice Who spun.
@@ -39,7 +39,7 @@ contract SpinpadCoin {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
     /// @notice Emitted once, at birth, so the draw is in the logs as well as in storage.
-    event Paired(string asset, string assetTicker, string family, string quadrant, address creator);
+    event Paired(string asset, string assetTicker, string colour, string position, address creator);
 
     error ZeroAddress();
     error InsufficientBalance();
@@ -51,15 +51,15 @@ contract SpinpadCoin {
         uint256 _supply,
         string memory _pairedAsset,
         string memory _assetTicker,
-        string memory _family,
-        string memory _quadrant
+        string memory _colour,
+        string memory _position
     ) {
         name = _name;
         symbol = _symbol;
         pairedAsset = _pairedAsset;
         assetTicker = _assetTicker;
-        family = _family;
-        quadrant = _quadrant;
+        colour = _colour;
+        position = _position;
         drawnAt = block.timestamp;
         creator = msg.sender;
 
@@ -67,7 +67,7 @@ contract SpinpadCoin {
         balanceOf[msg.sender] = _supply;
 
         emit Transfer(address(0), msg.sender, _supply);
-        emit Paired(_pairedAsset, _assetTicker, _family, _quadrant, msg.sender);
+        emit Paired(_pairedAsset, _assetTicker, _colour, _position, msg.sender);
     }
 
     function transfer(address to, uint256 value) external returns (bool) {

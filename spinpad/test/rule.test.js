@@ -1,9 +1,10 @@
 /* The rule, held down by checks.
  *
- * Spinpad has exactly one thing it must never get wrong: no coin is minted
- * without a spin, and the asset is whatever the board drew. Everything here
- * exercises that in a real browser, including the ways someone would try to go
- * around it from a console.
+ * Spinpad has exactly one thing it must never get wrong: no coin is launched
+ * without a spin, and the pairing is whatever the wheel landed on — the same
+ * value on the result screen, in the confirmation and in the bytes that go to
+ * the chain. Everything here exercises that in a real browser, including the
+ * ways someone would try to go around it from a console.
  *
  * Needs Playwright on the machine, which is deliberately not a dependency of
  * the site — the site itself ships nothing. Run it with:
@@ -24,24 +25,27 @@ const ok = (name, cond, detail) => {
   else { fails.push(name + (detail ? ' — ' + detail : '')); console.log('  FAIL ' + name + (detail ? ' — ' + detail : '')); }
 };
 
-/* ---------- the board's own table, rebuilt here on purpose ----------
-   If app.js and this file ever disagree about which dot is which asset, the
-   needle check below fails. That is the point: it is not importing the answer. */
-const QUADS = ['bid', 'ask', 'short', 'long'];
-const BASE = ['green', 'yellow', 'blue', 'red'];
-const SECTORS = [];
-for (let q = 0; q < 4; q++) for (let k = 0; k < 4; k++) SECTORS.push({ color: BASE[(k + q) % 4], quadrant: QUADS[q] });
-
-/* The table is read off the page rather than copied here: it lives in
-   config.js now, where the addresses are, and a test that hardcodes it would
-   pass while the page paired coins with something else entirely. */
-const assetsFrom = (cfg) => {
-  const out = {};
-  ['green', 'yellow', 'blue', 'red'].forEach((k) => {
-    out[k] = {};
-    QUADS.forEach((q) => { out[k][q] = cfg.assets[k][q].name; });
+/* ---------- the wheel's table, rebuilt here on purpose ----------
+ *
+ * The pairings themselves are read off config.js: hardcoding sixteen names
+ * here would let this pass while the page paired coins with something else.
+ * The geometry is not read off anything — it is worked out again from the
+ * axes, so if app.js ever changes which node is which cell, the check below
+ * that resolves the arrow's resting angle into a pairing fails. */
+const sectorsFrom = (cfg) => {
+  const out = [];
+  cfg.positions.forEach((p, q) => {
+    cfg.colours.forEach((_, k) => {
+      out.push({ position: p.id, color: cfg.colours[(k + q) % cfg.colours.length].id });
+    });
   });
   return out;
+};
+const assetAt = (cfg, sec) => cfg.pairings[sec.position + '.' + sec.color];
+const comboAt = (cfg, sec) => {
+  const p = cfg.positions.find((x) => x.id === sec.position);
+  const c = cfg.colours.find((x) => x.id === sec.color);
+  return p.label.toUpperCase() + ' · ' + c.label.toUpperCase();
 };
 
 /* ---------- the server must survive a hostile path ---------- */
@@ -77,17 +81,55 @@ async function serverChecks() {
   }
 }
 
+/* ---------- the table is one table ---------- */
+async function configChecks(cfg) {
+  console.log('\nthe table');
+  const cells = cfg.positions.length * cfg.colours.length;
+  ok('four positions by four colours', cfg.positions.length === 4 && cfg.colours.length === 4);
+  const keys = Object.keys(cfg.pairings);
+  ok('sixteen pairings, no more', keys.length === cells, keys.length + ' keys');
+
+  let complete = true;
+  cfg.positions.forEach((p) => cfg.colours.forEach((c) => {
+    const a = cfg.pairings[p.id + '.' + c.id];
+    if (!a || !a.name || !a.ticker) complete = false;
+  }));
+  ok('every position-and-colour reaches an asset', complete);
+
+  const names = new Set(keys.map((k) => cfg.pairings[k].name));
+  ok('no asset appears twice', names.size === cells, names.size + ' distinct');
+
+  // the four the brief named by hand
+  const want = [
+    ['leftHand', 'yellow', 'Amazon'],
+    ['rightFoot', 'red', 'Tesla'],
+    ['leftFoot', 'blue', 'Apple'],
+    ['rightHand', 'green', 'Nvidia'],
+  ];
+  want.forEach(([p, c, n]) => {
+    const a = cfg.pairings[p + '.' + c];
+    ok(`${p} + ${c} is ${n}`, !!a && a.name === n, a ? a.name : 'missing');
+  });
+
+  // every cell reachable from exactly one node of the wheel
+  const secs = sectorsFrom(cfg);
+  const seen = new Set(secs.map((s) => s.position + '.' + s.color));
+  ok('the wheel carries all sixteen, once each', secs.length === cells && seen.size === cells);
+}
+
 /* ---------- the rule, in a browser ---------- */
 async function browserChecks() {
   let chromium;
   try { ({ chromium } = require('playwright')); }
   catch (e) {
-    console.log('\nbrowser checks skipped: playwright is not installed here');
-    console.log('  install it, or run with CHROME_PATH set, to exercise the rule');
-    return false;
+    try { ({ chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright')); }
+    catch (e2) {
+      console.log('\nbrowser checks skipped: playwright is not installed here');
+      console.log('  install it, or run with CHROME_PATH set, to exercise the rule');
+      return false;
+    }
   }
 
-  console.log('\nthe rule');
   const launchOpts = process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {};
   const browser = await chromium.launch(launchOpts);
   const page = await browser.newPage({ viewport: { width: 1440, height: 950 } });
@@ -98,9 +140,13 @@ async function browserChecks() {
 
   await page.goto(PAGE);
   await page.waitForTimeout(700);
-  const ASSETS = assetsFrom(await page.evaluate(() => window.SPINPAD_CONFIG));
+  const CFG = await page.evaluate(() => window.SPINPAD_CONFIG);
+  const SECTORS = sectorsFrom(CFG);
+  const SEG = 360 / SECTORS.length;
 
-  // the door: nothing on the page is reachable until it is accepted
+  await configChecks(CFG);
+
+  console.log('\nthe door');
   ok('the door is up on a first visit', await page.locator('#gate').isVisible());
   ok('and it will not open without the tick', await page.locator('#gateGo').isDisabled());
   await page.check('#gateAgree');
@@ -109,70 +155,151 @@ async function browserChecks() {
   await page.waitForTimeout(300);
   ok('accepting closes it', !(await page.locator('#gate').isVisible()));
   await page.reload();
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(600);
   ok('and it stays closed on the way back', !(await page.locator('#gate').isVisible()));
 
-  const coins = () => page.locator('.lv-coin').count();
-  const before = await coins();
+  /* ---------- the board ---------- */
+  console.log('\nthe board');
+  ok('the board is the whole four-by-four', await page.locator('#board .sp-cell').count() === 16);
+  ok('with a heading for every colour', await page.locator('#board .sp-board-head').count() === 4);
+  ok('and a label for every position', await page.locator('#board .sp-board-side').count() === 4);
+  ok('nothing is read out before a cell is picked', await page.locator('#boardRead').isHidden());
 
+  const firstCell = page.locator('#board .sp-cell').first();
+  const cellPos = await firstCell.getAttribute('data-pos');
+  const cellCol = await firstCell.getAttribute('data-color');
+  await firstCell.click();
+  await page.waitForTimeout(200);
+  const readOut = await page.locator('#boardRead').textContent();
+  const cellAsset = CFG.pairings[cellPos + '.' + cellCol];
+  ok('picking a cell reads out its asset', readOut.includes(cellAsset.name), readOut.slice(0, 60));
+  ok('and names the combination that reaches it',
+    readOut.includes(comboAt(CFG, { position: cellPos, color: cellCol })));
+
+  ok('the asset desk carries the same sixteen', await page.locator('#matrix .sp-desk-card').count() === 16);
+
+  /* ---------- the flow ---------- */
+  console.log('\ncreate → spin → result → launch');
+  const launched = () => page.locator('.sp-launch').count();
+  const before = await launched();
+
+  ok('the pad opens on create', await page.getAttribute('#pad', 'data-step') === '1');
   ok('launch control ships disabled', await page.locator('#launchBtn').isDisabled());
   ok('spin is closed until the details are in', await page.locator('#spin').isDisabled());
 
   // force the control open from outside and click it
   await page.evaluate(() => { document.getElementById('launchBtn').disabled = false; });
-  await page.click('#launchBtn');
-  await page.waitForTimeout(200);
-  ok('a forced launch with no spin mints nothing', await coins() === before);
+  await page.evaluate(() => document.getElementById('launchBtn').click());
+  await page.waitForTimeout(250);
+  ok('a forced launch with no spin launches nothing', await launched() === before);
   ok('and the control closes again', await page.locator('#launchBtn').isDisabled());
 
   // a draft that does not validate does not move on
   await page.fill('#fName', 'x');
   await page.click('#toSpin');
-  await page.waitForTimeout(150);
-  ok('an invalid draft stays on step one', await page.getAttribute('#pad', 'data-step') === '1');
+  await page.waitForTimeout(200);
+  ok('an invalid draft stays on create', await page.getAttribute('#pad', 'data-step') === '1');
 
+  // and neither does a hostile image link
   await page.fill('#fName', 'Northwind Capital');
   await page.fill('#fTicker', 'NWND');
   await page.fill('#fSupply', '250000000');
   await page.fill('#fDesc', 'Checked by the test suite.');
-  ok('the asset field is empty before the spin',
-    (await page.locator('#assetName').textContent()).trim() === 'Assigned by the spin');
-
+  await page.fill('#fImage', 'javascript:alert(1)');
   await page.click('#toSpin');
   await page.waitForTimeout(200);
+  ok('a javascript: image link is refused', await page.getAttribute('#pad', 'data-step') === '1');
+  await page.fill('#fImage', '');
+
+  ok('the pairing slot is empty before the spin',
+    (await page.locator('#assetName').textContent()).trim() === 'Decided by the wheel');
+
+  await page.click('#toSpin');
+  await page.waitForTimeout(250);
   ok('the spin opens on step two', !(await page.locator('#spin').isDisabled()));
   ok('the launch control is still shut on step two', await page.locator('#launchBtn').isDisabled());
+  ok('the details are locked while the wheel is up',
+    await page.evaluate(() => document.getElementById('fields').disabled));
 
   await page.click('#spin');
-  await page.waitForFunction(() => !document.getElementById('launchBtn').disabled, null, { timeout: 12000 });
-  await page.waitForTimeout(300);
+  await page.waitForFunction(() => document.getElementById('pad').dataset.step === '3', null, { timeout: 14000 });
+  await page.waitForTimeout(400);
 
-  // what the board actually shows, worked out from the needle's resting angle
+  /* What the wheel actually landed on, worked out from where the arrow came to
+     rest. The arrow lives on the spin stage, which is display:none once the
+     result is up, and a computed transform is not resolved on one of those —
+     so the rotation is read from the custom property that drives it. */
   const angle = await page.evaluate(() => {
-    const m = new DOMMatrixReadOnly(getComputedStyle(document.getElementById('needle')).transform);
-    return ((Math.atan2(m.b, m.a) * 180 / Math.PI) % 360 + 360) % 360;
+    const raw = getComputedStyle(document.getElementById('needle')).getPropertyValue('--rot');
+    return ((parseFloat(raw) % 360) + 360) % 360;
   });
-  const drawn = SECTORS[Math.floor(angle / 22.5)];
-  const expected = ASSETS[drawn.color][drawn.quadrant];
+  const drew = SECTORS[Math.floor(angle / SEG)];
+  const expected = assetAt(CFG, drew);
+  const expectedCombo = comboAt(CFG, drew);
 
-  const inForm = (await page.locator('#assetName').textContent()).trim();
-  ok('the asset under the needle is the asset reported',
-    inForm.startsWith(expected), `needle at ${angle.toFixed(1)}° is ${expected}, form says "${inForm}"`);
-  ok('the preview follows the draw',
-    (await page.locator('#pvAsset').textContent()).trim().length > 0 &&
-    (await page.locator('#pvAsset').textContent()).trim() !== 'UNPAIRED');
-  ok('the summary names it too',
-    (await page.locator('#sumRows').textContent()).includes(expected));
-  ok('the figure on the mat moved onto it',
-    (await page.locator('#matRead').textContent()).includes(expected));
+  console.log('\nthe pairing');
+  const resAsset = (await page.locator('#resColor').textContent()).trim();
+  const resCombo = (await page.locator('#resLimb').textContent()).trim();
+  ok('the result names the asset under the arrow', resAsset === expected.name,
+    `arrow at ${angle.toFixed(1)}° is ${expected.name}, result says "${resAsset}"`);
+  ok('and the combination it landed on', resCombo === expectedCombo, `"${resCombo}" vs "${expectedCombo}"`);
+
+  /* The wheel is not allowed to be a picture of something else. The node the
+     page marked is measured off the drawing and its bearing from the centre
+     compared with where the arrow stopped: if app.js ever drew the nodes in a
+     different order from the one it draws the result from, they part company
+     here. */
+  const hot = await page.evaluate(() => {
+    const n = document.querySelector('#dial .sp-node.is-hot');
+    if (!n) return null;
+    const cx = Number(n.getAttribute('cx')), cy = Number(n.getAttribute('cy'));
+    return ((Math.atan2(cx - 100, 100 - cy) * 180 / Math.PI) % 360 + 360) % 360;
+  });
+  const bearingGap = hot === null ? 999 : Math.abs((((hot - angle) % 360) + 540) % 360 - 180);
+  ok('the node the wheel marked is the one the arrow is over', bearingGap <= SEG / 2,
+    `node at ${hot === null ? 'none' : hot.toFixed(1)}°, arrow at ${angle.toFixed(1)}°, ${bearingGap.toFixed(1)}° apart`);
+  ok('the pairing is announced as locked',
+    /locked/i.test(await page.locator('.sp-stage[data-stage="3"]').textContent()));
+  const resultControls = await page.evaluate(() =>
+    [...document.querySelectorAll('.sp-stage[data-stage="3"] button')].map((b) => b.textContent.trim()));
+  ok('nothing on the result offers another spin',
+    !resultControls.some((t) => /re-?roll|spin|again|change|re-?draw/i.test(t)),
+    resultControls.join(' | '));
   ok('the spin is spent', (await page.locator('#spinCount').textContent()).includes('1/1'));
   ok('there is no way back to the details', await page.locator('#backToForm').isHidden());
+  ok('the form slot shows the same asset',
+    (await page.locator('#assetName').textContent()).includes(expected.name));
+  ok('the figure on the mat walked onto it',
+    (await page.locator('#matRead').textContent()).includes(expected.name));
 
   // force a second spin from outside
   await page.evaluate(() => { const s = document.getElementById('spin'); s.disabled = false; s.click(); });
-  await page.waitForTimeout(500);
-  ok('a forced second spin does not change the draw',
-    (await page.locator('#assetName').textContent()).trim() === inForm);
+  await page.waitForTimeout(600);
+  ok('a forced second spin does not change the pairing',
+    (await page.locator('#resColor').textContent()).trim() === resAsset);
+  ok('and does not move the pad off the result',
+    await page.getAttribute('#pad', 'data-step') === '3');
+
+  // the launch control cannot be reached by skipping the result
+  ok('launch is still shut on the result screen', await page.locator('#launchBtn').isDisabled());
+
+  await page.click('#toLaunch');
+  await page.waitForTimeout(300);
+  ok('continuing reaches the confirmation', await page.getAttribute('#pad', 'data-step') === '4');
+  ok('and only now is launch open', !(await page.locator('#launchBtn').isDisabled()));
+
+  const sum = await page.locator('#sumRows').textContent();
+  ok('the confirmation carries the same asset', sum.includes(expected.name), sum.slice(0, 120));
+  ok('and the same combination', sum.includes(expectedCombo));
+
+  // the pairing the page would actually send, read out of the flow itself
+  const wouldSend = await page.evaluate(() => {
+    const s = document.getElementById('sumRows').textContent;
+    return s;
+  });
+  ok('nothing on the confirmation names a different asset',
+    Object.keys(CFG.pairings).map((k) => CFG.pairings[k].name)
+      .filter((n) => n !== expected.name && wouldSend.includes(n)).length === 0);
 
   // No wallet is injected in this file, so launching has to refuse rather than
   // pretend. The path that actually deploys is exercised in launch.test.js with
@@ -181,90 +308,158 @@ async function browserChecks() {
   await page.waitForTimeout(500);
   ok('without a wallet the pad refuses to launch',
     /wallet/i.test(await page.locator('#status').textContent()));
-  ok('and mints nothing', await coins() === before);
+  ok('and launches nothing', await launched() === before);
   ok('the record stays closed', !(await page.locator('#ticket').isVisible()));
+  ok('and the pad has not moved past the confirmation',
+    await page.getAttribute('#pad', 'data-step') === '4');
 
-  // the mat is a control, not a picture.
+  /* ---------- the playground ---------- */
+  console.log('\nthe playground');
+  ok('the playground says it launches nothing',
+    /no launch/i.test(await page.locator('#playground .sp-flag').textContent()));
+
   // It has to be on screen first: mouse coordinates are viewport coordinates,
   // and a drag aimed at an off-screen grip silently lands somewhere else — which
   // is exactly how the first version of this check passed without doing anything.
-  await page.locator('.lv-mat').scrollIntoViewIfNeeded();
+  await page.locator('.sp-mat').scrollIntoViewIfNeeded();
   await page.waitForTimeout(400);
+  const lastRow = CFG.positions[3].id;
   const read = await page.locator('#matRead').textContent();
-  await page.locator('.lv-mat-dot[data-row="3"][data-col="0"]').click();
+
+  /* The spin has already walked a limb onto one of these circles, and that
+     limb's grip is drawn over it — so aim at a column it is not standing on,
+     the way a person would. */
+  const freeCol = await page.evaluate(() => {
+    const here = document.querySelector('.sp-mat-dot[data-row="3"].is-under');
+    const at = here ? Number(here.dataset.col) : -1;
+    return [0, 1, 2, 3].find((c) => c !== at);
+  });
+  const target = page.locator(`.sp-mat-dot[data-row="3"][data-col="${freeCol}"]`);
+  await target.evaluate((el) => el.scrollIntoView({ block: 'center' }));
   await page.waitForTimeout(250);
+  await target.click();
+  await page.waitForTimeout(300);
   ok('tapping a circle moves that limb', (await page.locator('#matRead').textContent()) !== read);
   ok('and it lands on the right asset',
-    (await page.locator('#matRead').textContent()).includes(ASSETS.green.long));
+    (await page.locator('#matRead').textContent()).includes(CFG.pairings[lastRow + '.' + CFG.colours[freeCol].id].name));
 
   // and the limbs can be dragged along their own row
-  const from = await page.locator('.lv-fig-grip[data-limb="long"]').boundingBox();
-  const onto = await page.locator('.lv-mat-dot[data-row="3"][data-col="3"]').boundingBox();
+  const dragCol = [0, 1, 2, 3].find((c) => c !== freeCol);
+  const from = await page.locator(`.sp-fig-grip[data-limb="${lastRow}"]`).boundingBox();
+  const onto = await page.locator(`.sp-mat-dot[data-row="3"][data-col="${dragCol}"]`).boundingBox();
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
   await page.mouse.move(onto.x + onto.width / 2, onto.y + onto.height / 2, { steps: 12 });
   await page.mouse.up();
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(300);
   ok('dragging a foot walks it along its row',
-    (await page.locator('#matRead').textContent()).includes(ASSETS.red.long));
+    (await page.locator('#matRead').textContent()).includes(CFG.pairings[lastRow + '.' + CFG.colours[dragCol].id].name),
+    `col ${freeCol} → ${dragCol}; read "${(await page.locator('#matRead').textContent()).slice(0, 70)}"`);
 
   // a limb dropped outside its own row stays where it was
   const before2 = await page.locator('#matRead').textContent();
-  const off = await page.locator('.lv-mat-dot[data-row="0"][data-col="0"]').boundingBox();
-  const grip2 = await page.locator('.lv-fig-grip[data-limb="long"]').boundingBox();
+  const off = await page.locator(`.sp-mat-dot[data-row="0"][data-col="${freeCol}"]`).boundingBox();
+  const grip2 = await page.locator(`.sp-fig-grip[data-limb="${lastRow}"]`).boundingBox();
   await page.mouse.move(grip2.x + grip2.width / 2, grip2.y + grip2.height / 2);
   await page.mouse.down();
   await page.mouse.move(off.x + off.width / 2, off.y + off.height / 2, { steps: 12 });
   await page.mouse.up();
-  await page.waitForTimeout(250);
-  const moved = await page.evaluate(() => {
-    const g = document.querySelector('.lv-fig-grip[data-limb="long"]');
+  await page.waitForTimeout(300);
+  const wasUnder = await page.evaluate((limb) => {
+    const g = document.querySelector(`.sp-fig-grip[data-limb="${limb}"]`);
     const r = g.getBoundingClientRect();
     const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    return !!(el && el.closest && el.closest('.lv-fig-grip'));
-  });
-  ok('the grip really was under the pointer', moved);
-  ok('and a drop in someone else\u2019s row is ignored',
+    return !!(el && el.closest && el.closest('.sp-fig-grip'));
+  }, lastRow);
+  ok('the grip really was under the pointer', wasUnder);
+  ok('and a drop in someone else’s row is ignored',
     (await page.locator('#matRead').textContent()) === before2);
 
-  // the sort control is a listbox now, and it has to work from the keyboard
+  /* ---------- the furniture ---------- */
+  console.log('\nthe rest of it');
   await page.click('#sortBtn');
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(250);
   ok('the sort menu opens', await page.locator('#sortMenu').isVisible());
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(300);
   ok('choosing with the keyboard closes it', !(await page.locator('#sortMenu').isVisible()));
   ok('and the button reports the choice',
     (await page.locator('#sortBtn').textContent()).trim().length > 0);
+
+  ok('the proof list is empty, not invented',
+    await launched() === 0 && !(await page.locator('#empty').isHidden()));
 
   // the coloured ground comes back when the tab does
   await page.evaluate(() => {
     document.querySelectorAll('.is-blooming').forEach((el) => el.classList.remove('is-blooming'));
     document.dispatchEvent(new Event('visibilitychange'));
   });
-  await page.waitForTimeout(150);
+  await page.waitForTimeout(200);
   ok('the ground blooms back on return to the tab',
     await page.evaluate(() => document.querySelectorAll('.is-blooming').length > 0));
 
   // a logo file that is not there must cost nothing
   const marks = await page.evaluate(() => {
-    const imgs = [...document.querySelectorAll('img.lv-logo')];
+    const imgs = [...document.querySelectorAll('img.sp-logo')];
     return {
-      drawn: document.querySelectorAll('.lv-glyph').length,
+      drawn: document.querySelectorAll('.sp-glyph').length,
       visibleImages: imgs.filter((i) => getComputedStyle(i).opacity !== '0').length,
       loaded: imgs.filter((i) => i.complete && i.naturalWidth > 0).length,
     };
   });
-  ok('every square has a mark', marks.drawn >= 16, marks.drawn + ' drawn');
+  ok('every cell has a mark', marks.drawn >= 16, marks.drawn + ' drawn');
   ok('a missing logo file shows nothing at all', marks.visibleImages === marks.loaded,
     marks.visibleImages + ' visible, ' + marks.loaded + ' actually loaded');
 
+  // both wheels carry all sixteen nodes, and their corner labels match the table
+  const nodes = await page.evaluate(() => ({
+    hero: document.querySelectorAll('#heroWheelSvg .sp-node').length,
+    pad: document.querySelectorAll('#dial .sp-node').length,
+  }));
+  ok('the hero wheel has sixteen nodes', nodes.hero === 16, String(nodes.hero));
+  ok('the pad wheel has sixteen nodes', nodes.pad === 16, String(nodes.pad));
+
+  // the corner labels are written from the table, so quarter 0 sits top-right
+  const corners = await page.evaluate(() => ({
+    tr: document.querySelector('#heroWheel .sp-wheel-tr').textContent,
+    br: document.querySelector('#heroWheel .sp-wheel-br').textContent,
+    bl: document.querySelector('#heroWheel .sp-wheel-bl').textContent,
+    tl: document.querySelector('#heroWheel .sp-wheel-tl').textContent,
+  }));
+  ok('the wheel is labelled in the table’s own order',
+    corners.tr === CFG.positions[0].label && corners.br === CFG.positions[1].label
+    && corners.bl === CFG.positions[2].label && corners.tl === CFG.positions[3].label,
+    JSON.stringify(corners));
+
   // nothing on the page should be reachable only by mouse
   ok('the nav links are focusable',
-    await page.evaluate(() => [...document.querySelectorAll('.lv-links a')].every((a) => a.hasAttribute('href'))));
+    await page.evaluate(() => [...document.querySelectorAll('.sp-nav-links a')].every((a) => a.hasAttribute('href'))));
 
   ok('no console errors along the way', errors.length === 0, errors.join(' / '));
+
+  /* ---------- it has to work on a phone ---------- */
+  console.log('\nresponsive');
+  for (const [w, h] of [[1440, 950], [1024, 800], [768, 900], [390, 844]]) {
+    // eslint-disable-next-line no-await-in-loop
+    await page.setViewportSize({ width: w, height: h });
+    // eslint-disable-next-line no-await-in-loop
+    await page.waitForTimeout(400);
+    // eslint-disable-next-line no-await-in-loop
+    const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    ok(`no sideways scroll at ${w}px`, over <= 1, over + 'px over');
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(300);
+  ok('the nav collapses to a menu on a phone', await page.locator('#burger').isVisible());
+  ok('and the links are put away', await page.locator('#navlinks').isHidden());
+  await page.click('#burger');
+  await page.waitForTimeout(250);
+  ok('the menu opens', await page.locator('#navlinks').isVisible());
+  await page.locator('#navlinks a').first().click();
+  await page.waitForTimeout(300);
+  ok('and closes again when you pick something', await page.locator('#navlinks').isHidden());
 
   await browser.close();
   return true;

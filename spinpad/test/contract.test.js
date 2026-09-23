@@ -50,25 +50,38 @@ const build = sandbox.window.SPINPAD_COIN;
   }
 
   console.log('\ndeploying the real creation code');
-  let EVM, Address;
+  let evmMod, utilMod;
   try {
-    ({ EVM } = require('@ethereumjs/evm'));
-    ({ Address } = require('@ethereumjs/util'));
+    evmMod = require('@ethereumjs/evm');
+    utilMod = require('@ethereumjs/util');
   } catch (e) {
     console.log('  skipped: @ethereumjs/evm is not installed');
     console.log('\n' + passed + ' passed, ' + fails.length + ' failed');
     process.exit(fails.length ? 1 : 0);
   }
 
-  const evm = await EVM.create();
+  /* The library renamed both of these between majors — EVM.create became
+     createEVM, and the Address constructor became createAddressFromString. The
+     contract is what is under test here, not the harness, so take whichever
+     one this machine happens to have rather than pinning a version. */
+  const makeEvm = evmMod.createEVM || (evmMod.EVM && evmMod.EVM.create);
+  if (!makeEvm) {
+    console.log('  skipped: @ethereumjs/evm exposes no EVM factory this build knows');
+    console.log('\n' + passed + ' passed, ' + fails.length + ' failed');
+    process.exit(fails.length ? 1 : 0);
+  }
+  const evm = await makeEvm();
+
   const callerHex = '00000000000000000000000000000000000000c0';
-  const from = new Address(Buffer.from(callerHex, 'hex'));
+  const from = utilMod.createAddressFromString
+    ? utilMod.createAddressFromString('0x' + callerHex)
+    : new utilMod.Address(Buffer.from(callerHex, 'hex'));
   const bytes = (h) => Buffer.from(String(h).replace(/^0x/, ''), 'hex');
 
   const SUPPLY = 1000000n * 10n ** 18n;
   const coin = {
     name: 'Northwind Capital', ticker: 'NWND', supplyWei: SUPPLY,
-    assetName: 'Wrapped Ether', assetTicker: 'WETH', family: 'Ether', quadrant: 'bid hand',
+    assetName: 'Amazon', assetTicker: 'AMZN', colour: 'Yellow', position: 'Left hand',
   };
 
   const creation = chain.creationCode(coin);
@@ -99,8 +112,8 @@ const build = sandbox.window.SPINPAD_COIN;
   // the draw, which is the only reason this contract is not a stock ERC-20
   ok('the paired asset is on chain', chain.decodeString(await read('0x39191d7b')) === coin.assetName);
   ok('its ticker is on chain', chain.decodeString(await read('0xbcc49b0c')) === coin.assetTicker);
-  ok('the family is on chain', chain.decodeString(await read('0x76e75a0e')) === coin.family);
-  ok('the quadrant is on chain', chain.decodeString(await read('0x855ea7f2')) === coin.quadrant);
+  ok('the colour is on chain', chain.decodeString(await read('0x3dbc0610')) === coin.colour);
+  ok('the position is on chain', chain.decodeString(await read('0x09218e91')) === coin.position);
   ok('the creator is on chain', chain.decodeAddress(await read('0x02d05d3f')).toLowerCase() === '0x' + callerHex);
 
   // and nothing can rewrite it afterwards

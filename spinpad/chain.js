@@ -197,8 +197,8 @@ window.SpinpadChain = (() => {
       { type: 'uint256', value: coin.supplyWei },
       { type: 'string', value: coin.assetName },
       { type: 'string', value: coin.assetTicker },
-      { type: 'string', value: coin.family },
-      { type: 'string', value: coin.quadrant },
+      { type: 'string', value: coin.colour },
+      { type: 'string', value: coin.position },
     ]);
     return build.bytecode + args;
   };

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Spinpad — coins paired by the dial</title>
-  <meta name="description" content="A launchpad where the underlying asset is drawn, not chosen. One mandatory spin on a sixteen-dot board: the colour picks one of four asset families and the quadrant picks the name inside it. Drawn once, at launch, and held for the life of the market.">
+  <title>Spinpad — the wheel decides the pair</title>
+  <meta name="description" content="A coin launchpad where you do not choose the pairing. Create a coin, spin the wheel, and the position and colour it lands on decide what your coin is paired with. One spin, one pairing, written into the contract.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230E1014'/%3E%3Cpath d='M16 5a11 11 0 0 1 11 11H16z' fill='%23E4322B'/%3E%3Cpath d='M27 16a11 11 0 0 1-11 11V16z' fill='%23FDD208'/%3E%3Cpath d='M16 27A11 11 0 0 1 5 16h11z' fill='%231B75BC'/%3E%3Cpath d='M5 16A11 11 0 0 1 16 5v11z' fill='%232FA84F'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,79 +14,331 @@
 </head>
 <body>
 
-<a class="lv-skip" href="#board">Skip to the board</a>
+<a class="sp-skip" href="#board">Skip to the board</a>
 
-<!-- floating chrome: both bars stay pinned over the mat -->
-<header class="lv-nav">
-  <a class="lv-brand" href="#top" data-scroll="top">Spinpad</a>
-  <nav class="lv-links" id="navlinks" aria-label="Sections">
+<header class="sp-nav" id="top">
+  <a class="sp-brand" href="#top" data-scroll="top">Spinpad</a>
+
+  <nav class="sp-nav-links" id="navlinks" aria-label="Sections">
     <a href="#board" data-scroll="board">Board</a>
+    <a href="#launch" data-scroll="launch">Launch</a>
     <a href="#how" data-scroll="how">How it works</a>
     <a href="#desk" data-scroll="desk">Asset desk</a>
     <a href="#playground" data-scroll="playground">Playground</a>
-    <a href="#launch" data-scroll="launch">Launch</a>
     <a href="#proof" data-scroll="proof">Proof</a>
     <a href="#faq" data-scroll="faq">FAQ</a>
   </nav>
-  <div class="lv-nav-right">
-    <button class="lv-textlink" id="connect" type="button">Connect wallet</button>
-    <button class="lv-btn lv-btn-dark" data-scroll="launch" type="button">Open the pad <span aria-hidden="true">↗</span></button>
+
+  <div class="sp-nav-right">
+    <button class="sp-link" id="connect" type="button">Connect wallet</button>
+    <button class="sp-btn sp-btn-dark" data-scroll="launch" type="button">Launch a coin <span aria-hidden="true">↗</span></button>
+    <button class="sp-burger" id="burger" type="button" aria-expanded="false" aria-controls="navlinks" aria-label="Menu">
+      <span></span><span></span>
+    </button>
   </div>
 </header>
 
-<main id="top">
+<main>
 
-  <!-- ————— hero ————— -->
-  <section class="lv-hero">
-    <div class="lv-orbs" aria-hidden="true"></div>
+  <!-- ─────────── hero ─────────── -->
+  <section class="sp-hero">
+    <div class="sp-hero-copy">
+      <p class="sp-eyebrow">One spin. One pairing.</p>
+      <h1>Spin.<br>Pair.<br>Launch.</h1>
+      <p class="sp-lede">
+        Create a coin, spin the wheel, and let the result decide what it is paired with.
+        You do not get to choose, and there is no second go.
+      </p>
+      <div class="sp-hero-cta">
+        <button class="sp-btn sp-btn-dark sp-btn-lg" data-scroll="launch" type="button">Launch a coin <span aria-hidden="true">↗</span></button>
+        <button class="sp-link sp-link-lg" data-scroll="board" type="button">Explore the board <span aria-hidden="true">→</span></button>
+      </div>
+    </div>
 
-    <p class="lv-eyebrow">One spin. Sixteen assets. No choice.</p>
-    <h1>Coins named<br>by a spinner</h1>
-    <p class="lv-hero-sub">Your next big idea. Named after <span id="rotator" data-color="green"></span>.</p>
-    <div class="lv-hero-cta">
-      <button class="lv-btn lv-btn-dark lv-btn-lg" data-scroll="launch" type="button">Launch a coin <span aria-hidden="true">↗</span></button>
-      <button class="lv-textlink lv-textlink-lg" data-scroll="board" type="button">Explore the board <span aria-hidden="true">→</span></button>
+    <!-- the wheel: the whole product, in one object -->
+    <div class="sp-hero-wheel">
+      <div class="sp-wheel" id="heroWheel">
+        <span class="sp-wheel-label sp-wheel-tl">Left hand</span>
+        <span class="sp-wheel-label sp-wheel-tr">Right hand</span>
+        <span class="sp-wheel-label sp-wheel-bl">Left foot</span>
+        <span class="sp-wheel-label sp-wheel-br">Right foot</span>
+        <div class="sp-wheel-face">
+          <svg class="sp-wheel-svg" id="heroWheelSvg" viewBox="0 0 200 200" role="img"
+               aria-label="A wheel of sixteen nodes: four body positions by four colours"></svg>
+          <div class="sp-wheel-arrow" id="heroArrow" aria-hidden="true">
+            <svg viewBox="0 0 200 200"><path d="M100 24 L106.5 94 L100 118 L93.5 94 Z"/><circle cx="100" cy="100" r="7.5"/><circle class="sp-arrow-eye" cx="100" cy="100" r="2.6"/></svg>
+          </div>
+        </div>
+      </div>
+      <p class="sp-wheel-caption" id="heroCaption">Sixteen outcomes. The wheel picks one.</p>
     </div>
   </section>
 
-  <div class="lv-ticker" aria-label="Recent launches">
-    <div class="lv-ticker-track" id="tickerTrack"></div>
-  </div>
+  <div class="sp-ticker" aria-label="Recent launches"><div class="sp-ticker-track" id="tickerTrack"></div></div>
 
-  <!-- ————— board ————— -->
-  <section class="lv-sec" id="board">
-    <div class="lv-wrap">
-      <div class="lv-sec-head">
-        <div class="lv-sec-copy">
-          <p class="lv-kicker">Everything here was drawn</p>
-          <h2>Pick a coin</h2>
-          <p class="lv-sec-lede">
-            Every coin here is paired with one of four assets, drawn once at launch by the dial and
-            held for the life of the market.
-          </p>
+  <!-- ─────────── the board ─────────── -->
+  <section class="sp-sec" id="board">
+    <div class="sp-wrap">
+      <header class="sp-sec-head">
+        <div>
+          <p class="sp-kicker">The board</p>
+          <h2>Every outcome, laid out</h2>
         </div>
-        <button class="lv-textlink lv-textlink-lg" data-scroll="launch" type="button">Make your own <span aria-hidden="true">↗</span></button>
+        <p class="sp-sec-note">A position and a colour make one pairing. Pick a cell to read it.</p>
+      </header>
+
+      <div class="sp-board-scroll">
+        <div class="sp-board" id="boardGrid"></div>
       </div>
 
-      <div class="lv-board-bar">
-        <div class="lv-filters" id="filters" role="group" aria-label="Filter by asset family">
-          <button class="lv-chip is-on" data-filter="all" type="button">All</button>
-          <button class="lv-chip" data-filter="blue" type="button"><i class="lv-dot" data-color="blue"></i>Signal</button>
-          <button class="lv-chip" data-filter="red" type="button"><i class="lv-dot" data-color="red"></i>Motion</button>
-          <button class="lv-chip" data-filter="green" type="button"><i class="lv-dot" data-color="green"></i>Silicon</button>
-          <button class="lv-chip" data-filter="yellow" type="button"><i class="lv-dot" data-color="yellow"></i>Shelves</button>
+      <div class="sp-board-read" id="boardRead" hidden></div>
+    </div>
+  </section>
+
+  <!-- ─────────── launch ─────────── -->
+  <section class="sp-sec sp-sec-tint" id="launch">
+    <div class="sp-wrap">
+      <header class="sp-sec-head">
+        <div>
+          <p class="sp-kicker">Launch</p>
+          <h2>Create, spin, launch</h2>
         </div>
-        <label class="lv-search">
-          <span class="lv-sr">Search launches</span>
+        <p class="sp-sec-note" id="walletLine">Not connected.</p>
+      </header>
+
+      <div class="sp-verify" id="verify"></div>
+
+      <ol class="sp-steps" id="steps">
+        <li data-step="1"><span>01</span> Create</li>
+        <li data-step="2"><span>02</span> Spin</li>
+        <li data-step="3"><span>03</span> Pair</li>
+        <li data-step="4"><span>04</span> Launch</li>
+      </ol>
+
+      <div class="sp-pad" id="pad" data-step="1">
+
+        <!-- 01 — create -->
+        <div class="sp-stage" data-stage="1">
+          <form class="sp-card sp-form" id="form" novalidate>
+            <fieldset id="fields">
+              <div class="sp-field">
+                <label for="fName">Coin name</label>
+                <input id="fName" type="text" maxlength="32" autocomplete="off" placeholder="Northwind Capital" required>
+                <p class="sp-err" data-for="fName"></p>
+              </div>
+              <div class="sp-field">
+                <label for="fTicker">Ticker</label>
+                <input id="fTicker" type="text" maxlength="8" autocomplete="off" placeholder="NWND" required>
+                <p class="sp-err" data-for="fTicker"></p>
+              </div>
+              <div class="sp-field">
+                <label for="fSupply">Supply</label>
+                <input id="fSupply" type="text" inputmode="numeric" autocomplete="off" value="1,000,000,000" required>
+                <p class="sp-err" data-for="fSupply"></p>
+              </div>
+              <div class="sp-field">
+                <label for="fDesc">Description <i id="descCount">0/140</i></label>
+                <textarea id="fDesc" maxlength="140" rows="2" placeholder="One line."></textarea>
+                <p class="sp-err" data-for="fDesc"></p>
+              </div>
+              <div class="sp-field">
+                <label for="fImage">Image <i>optional</i></label>
+                <input id="fImage" type="url" autocomplete="off" placeholder="https://…">
+                <p class="sp-help">Shown on this board only. It is not uploaded and not stored on chain.</p>
+                <p class="sp-err" data-for="fImage"></p>
+              </div>
+            </fieldset>
+
+            <div class="sp-pairing-slot" id="assetSlot" data-color="none">
+              <p class="sp-kicker sp-kicker-sm">Pairing</p>
+              <b id="assetName">Decided by the wheel</b>
+              <em id="assetHint">You cannot pick this</em>
+            </div>
+
+            <button class="sp-btn sp-btn-dark sp-btn-block" id="toSpin" type="submit">Spin the wheel <span aria-hidden="true">→</span></button>
+          </form>
+        </div>
+
+        <!-- 02 — spin -->
+        <div class="sp-stage sp-stage-spin" data-stage="2">
+          <p class="sp-kicker">Let the wheel decide</p>
+          <h3 class="sp-stage-title">One spin. One pairing.</h3>
+
+          <div class="sp-wheel sp-wheel-big">
+            <span class="sp-wheel-label sp-wheel-tl">Left hand</span>
+            <span class="sp-wheel-label sp-wheel-tr">Right hand</span>
+            <span class="sp-wheel-label sp-wheel-bl">Left foot</span>
+            <span class="sp-wheel-label sp-wheel-br">Right foot</span>
+            <div class="sp-wheel-face">
+              <svg class="sp-wheel-svg" id="dial" viewBox="0 0 200 200" role="img"
+                   aria-label="Wheel of sixteen outcomes"></svg>
+              <div class="sp-wheel-arrow" id="needle">
+                <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M100 24 L106.5 94 L100 118 L93.5 94 Z"/><circle cx="100" cy="100" r="7.5"/><circle class="sp-arrow-eye" cx="100" cy="100" r="2.6"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <button class="sp-btn sp-btn-spin" id="spin" type="button" disabled>Spin</button>
+          <p class="sp-status" id="status" role="status" aria-live="polite"></p>
+          <div class="sp-stage-foot">
+            <span class="sp-tag" id="spinCount">Spins 0/1</span>
+            <button class="sp-link" id="backToForm" type="button" hidden>Back to details</button>
+          </div>
+        </div>
+
+        <!-- 03 — result -->
+        <div class="sp-stage sp-stage-result" data-stage="3">
+          <div class="sp-result" id="result" data-color="none">
+            <p class="sp-kicker">You landed on</p>
+            <p class="sp-result-combo" id="resLimb">—</p>
+            <div class="sp-result-asset">
+              <span class="sp-result-mark" id="resDot"></span>
+              <div>
+                <p class="sp-kicker sp-kicker-sm">Pairing</p>
+                <b id="resColor">—</b>
+              </div>
+            </div>
+            <p class="sp-locked">Pairing locked</p>
+            <p class="sp-result-note" id="resLine">—</p>
+          </div>
+          <div class="sp-stage-cta">
+            <button class="sp-btn sp-btn-dark sp-btn-lg" id="toLaunch" type="button">Continue to launch <span aria-hidden="true">→</span></button>
+            <button class="sp-link" data-scroll="board" type="button">View board</button>
+          </div>
+        </div>
+
+        <!-- 04 — confirm -->
+        <div class="sp-stage sp-stage-confirm" data-stage="4">
+          <div class="sp-card sp-confirm">
+            <p class="sp-kicker">Your coin</p>
+            <div class="sp-confirm-head">
+              <span class="sp-confirm-mark" id="preview" data-color="none"><b id="pvTicker">TICKER</b><i id="pvAsset">UNPAIRED</i></span>
+              <div>
+                <h3 id="sumName">Your coin</h3>
+                <p class="sp-confirm-sub" id="sumSub">TICKER</p>
+              </div>
+            </div>
+            <dl class="sp-rows" id="sumRows"></dl>
+            <button class="sp-btn sp-btn-dark sp-btn-block sp-btn-lg" id="launchBtn" type="button" disabled>Launch coin</button>
+            <p class="sp-help sp-help-final">
+              Deploys a contract on Base from your wallet. It costs gas and there is no undo.
+            </p>
+            <button class="sp-link sp-link-quiet" id="discard" type="button" hidden>Discard and start over</button>
+          </div>
+        </div>
+
+        <!-- 05 — done -->
+        <div class="sp-stage sp-stage-done" data-stage="5">
+          <div class="sp-card sp-record" id="ticket" hidden data-color="none">
+            <div class="sp-record-head">
+              <p class="sp-kicker sp-kicker-sm">Coin live</p>
+              <span class="sp-tag" id="tkId"></span>
+            </div>
+            <div class="sp-record-coin">
+              <span class="sp-confirm-mark" id="tkAvatar"></span>
+              <div><b id="tkName"></b><em id="tkTicker"></em></div>
+            </div>
+            <p class="sp-record-desc" id="tkDesc" hidden></p>
+            <dl class="sp-rows" id="tkRows"></dl>
+            <p class="sp-record-note" id="tkNote"></p>
+
+            <div class="sp-pool">
+              <p class="sp-kicker sp-kicker-sm">First pool <i>optional</i></p>
+              <p class="sp-pool-copy">
+                A company is not a token, so the pool opens against <b id="poolAsset">the pair token</b>.
+                <span id="poolShare">80%</span> of the supply goes in from the coin's side.
+              </p>
+              <label class="sp-field">
+                <span class="sp-field-label">Liquidity, in <b id="poolAssetB">the pair token</b></span>
+                <input id="poolAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.05">
+              </label>
+              <button class="sp-btn sp-btn-outline sp-btn-block" id="poolBtn" type="button">Open the pool</button>
+              <p class="sp-pool-note" id="poolNote"></p>
+            </div>
+
+            <div class="sp-record-foot">
+              <button class="sp-link" id="tkCopy" type="button">Copy record</button>
+              <button class="sp-btn sp-btn-dark" id="tkAgain" type="button">Launch another</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── how it works ─────────── -->
+  <section class="sp-sec" id="how">
+    <div class="sp-wrap">
+      <header class="sp-sec-head"><div><p class="sp-kicker">How it works</p><h2>Three steps</h2></div></header>
+      <ol class="sp-how">
+        <li><span>01</span><h3>Create</h3><p>Name it, pick a ticker and a supply.</p></li>
+        <li><span>02</span><h3>Spin</h3><p>The wheel chooses your pairing.</p></li>
+        <li><span>03</span><h3>Launch</h3><p>The coin ships with that pairing in its contract.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ─────────── asset desk ─────────── -->
+  <section class="sp-sec sp-sec-tint" id="desk">
+    <div class="sp-wrap">
+      <header class="sp-sec-head">
+        <div><p class="sp-kicker">Asset desk</p><h2>Sixteen assets, one way to each</h2></div>
+        <p class="sp-sec-note">Every asset has exactly one position and colour that reaches it.</p>
+      </header>
+      <div class="sp-desk" id="matrix"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── playground ─────────── -->
+  <section class="sp-sec sp-sec-mat" id="playground">
+    <div class="sp-wrap">
+      <header class="sp-sec-head">
+        <div><p class="sp-kicker">Playground <b class="sp-flag">No launch</b></p><h2>Try the mechanic</h2></div>
+        <p class="sp-sec-note">Move a hand or a foot onto a colour. Nothing here creates a coin.</p>
+      </header>
+
+      <div class="sp-mat">
+        <div class="sp-mat-stage">
+          <div class="sp-mat-floor">
+            <svg class="sp-mat-cross" id="matCross" aria-hidden="true"></svg>
+            <div class="sp-mat-rows" id="matRows"></div>
+            <svg class="sp-mat-figure" id="matFigure" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          </div>
+        </div>
+        <div class="sp-mat-side">
+          <div class="sp-mat-limbs" id="matLimbs"></div>
+          <p class="sp-mat-read" id="matRead"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── proof ─────────── -->
+  <section class="sp-sec" id="proof">
+    <div class="sp-wrap">
+      <header class="sp-sec-head">
+        <div><p class="sp-kicker">Proof</p><h2>What has been launched</h2></div>
+        <label class="sp-search">
+          <span class="sp-sr">Search launches</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
-          <input id="search" type="search" placeholder="Search name or ticker" autocomplete="off">
+          <input id="search" type="search" placeholder="Name or ticker" autocomplete="off">
         </label>
-        <div class="lv-sort">
-          <span id="sortLabel">Sort by</span>
-          <div class="lv-select" id="sortWrap">
-            <button class="lv-select-btn" id="sortBtn" type="button"
-                    aria-haspopup="listbox" aria-expanded="false" aria-labelledby="sortLabel sortBtn">Most recent</button>
-            <ul class="lv-select-menu" id="sortMenu" role="listbox" aria-label="Sort the board" hidden>
+      </header>
+
+      <div class="sp-proof-bar">
+        <div class="sp-filters" id="filters" role="group" aria-label="Filter by colour">
+          <button class="sp-chip is-on" data-filter="all" type="button">All</button>
+          <button class="sp-chip" data-filter="red" type="button"><i class="sp-dot" data-color="red"></i>Red</button>
+          <button class="sp-chip" data-filter="yellow" type="button"><i class="sp-dot" data-color="yellow"></i>Yellow</button>
+          <button class="sp-chip" data-filter="green" type="button"><i class="sp-dot" data-color="green"></i>Green</button>
+          <button class="sp-chip" data-filter="blue" type="button"><i class="sp-dot" data-color="blue"></i>Blue</button>
+        </div>
+        <div class="sp-sort">
+          <span id="sortLabel">Sort</span>
+          <div class="sp-select" id="sortWrap">
+            <button class="sp-select-btn" id="sortBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="sortLabel sortBtn">Most recent</button>
+            <ul class="sp-select-menu" id="sortMenu" role="listbox" aria-label="Sort" hidden>
               <li role="option" data-value="new" aria-selected="true" tabindex="-1">Most recent</li>
               <li role="option" data-value="supply" aria-selected="false" tabindex="-1">Supply</li>
               <li role="option" data-value="name" aria-selected="false" tabindex="-1">Name</li>
@@ -95,389 +347,116 @@
         </div>
       </div>
 
-      <div class="lv-grid" id="grid"></div>
-      <p class="lv-empty" id="empty" hidden>No coins match this view.</p>
+      <div class="sp-launches" id="grid"></div>
+      <p class="sp-empty" id="empty" hidden>No launches yet. The first one will show up here with its transaction.</p>
 
-      <div class="lv-board-foot">
+      <div class="sp-proof-stats">
+        <div class="sp-kpis" id="kpis"></div>
+        <figure class="sp-figure">
+          <figcaption>
+            <h3>Colour distribution</h3>
+            <p>What the wheel has actually drawn, against the 25% each colour is expected to.</p>
+          </figcaption>
+          <div class="sp-meter" id="meter"></div>
+          <p class="sp-figure-note" id="meterNote"></p>
+        </figure>
+      </div>
+
+      <div class="sp-proof-foot">
         <span id="count"></span>
-        <button class="lv-btn lv-btn-quiet" id="clear" type="button">Clear local record</button>
+        <button class="sp-link sp-link-quiet" id="clear" type="button">Clear local record</button>
       </div>
     </div>
   </section>
 
-  <!-- ————— how it works ————— -->
-  <section class="lv-sec lv-sec-tint" id="how">
-    <div class="lv-wrap">
-      <p class="lv-kicker">How it works</p>
-      <h2>Four steps, in order</h2>
-      <ol class="lv-flow">
-        <li><span>1</span><h3>Name the coin</h3><p>Name, ticker, total supply and one line of description. The asset field stays empty.</p></li>
-        <li><span>2</span><h3>Take the spin</h3><p>One spin per launch, before anything is created. The dial is not skippable.</p></li>
-        <li><span>3</span><h3>The dot names it</h3><p>Colour plus quadrant fills the underlying asset and closes the field to editing.</p></li>
-        <li><span>4</span><h3>Launch</h3><p>The control opens and the coin ships with its spin record attached.</p></li>
-      </ol>
-    </div>
-  </section>
+  <!-- ─────────── faq ─────────── -->
+  <section class="sp-sec sp-sec-tint" id="faq">
+    <div class="sp-wrap sp-wrap-narrow">
+      <header class="sp-sec-head"><div><p class="sp-kicker">FAQ</p><h2>Questions</h2></div></header>
 
-  <!-- ————— asset desk ————— -->
-  <section class="lv-sec" id="desk">
-    <div class="lv-wrap">
-      <p class="lv-kicker">Asset desk</p>
-      <h2>Sixteen names, and where each one lives</h2>
-      <p class="lv-sec-lede lv-sec-lede-wide">
-        The colour picks the family, the quadrant picks the name inside it. This is the whole
-        table, and it is the same one the arrow reads — the page cannot promise a pairing the
-        board does not honour.
-      </p>
-      <div class="lv-matrix" id="matrix"></div>
-    </div>
-  </section>
-
-  <!-- ————— playground ————— -->
-  <section class="lv-sec lv-sec-pad" id="playground">
-    <div class="lv-wrap">
-      <p class="lv-kicker">Playground</p>
-      <h2>Nothing here launches anything</h2>
-      <p class="lv-sec-lede lv-sec-lede-wide">
-        The mat, flat on the floor. Move the figure around it as much as you like: no coin is
-        created, no spin is spent, and the arrow is not watching.
-      </p>
-
-      <div class="lv-mat">
-        <div class="lv-mat-stage">
-          <div class="lv-mat-floor">
-            <svg class="lv-mat-cross" id="matCross" aria-hidden="true"></svg>
-            <div class="lv-mat-rows" id="matRows"></div>
-            <svg class="lv-mat-figure" id="matFigure" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-          </div>
-        </div>
-
-        <div class="lv-mat-side">
-          <p class="lv-kicker lv-kicker-sm">The mat</p>
-          <h3>Put a hand or a foot on a colour</h3>
-          <p class="lv-mat-copy">
-            Sixteen circles, sixteen assets. Each row belongs to one hand or one foot, each column to
-            one colour family. <b>Drag a hand or a foot along its row</b>, or tap a circle to send it
-            there. It is the same table the arrow reads, so whatever the board lands on, the figure
-            can already reach.
-          </p>
-          <div class="lv-mat-limbs" id="matLimbs"></div>
-          <p class="lv-mat-read" id="matRead"></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ————— launch ————— -->
-  <section class="lv-sec lv-sec-tint" id="launch">
-    <div class="lv-wrap">
-      <p class="lv-kicker">The pad</p>
-      <h2>Name it. The dial pairs it.</h2>
-      <p class="lv-sec-lede lv-sec-lede-wide">
-        Four fields and one spin. Where the arrow stops gives two coordinates — a colour and a
-        quadrant — and together they name the underlying asset. The market opens the moment the
-        launch lands.
-      </p>
-
-      <div class="lv-wallet">
-        <p class="lv-wallet-line" id="walletLine">Not connected.</p>
-        <div class="lv-verify" id="verify"></div>
-      </div>
-
-      <ol class="lv-steps" id="steps">
-        <li data-step="1"><span>1</span> Details</li>
-        <li data-step="2"><span>2</span> Spin</li>
-        <li data-step="3"><span>3</span> Launch</li>
-      </ol>
-
-      <div class="lv-pad" id="pad" data-step="1">
-
-        <!-- left: the form -->
-        <form class="lv-card lv-form" id="form" novalidate>
-          <fieldset id="fields">
-            <div class="lv-field">
-              <label for="fName">Coin name</label>
-              <input id="fName" type="text" maxlength="32" autocomplete="off" placeholder="Meridian Reserve" required>
-              <p class="lv-help">Up to 32 characters. This is what people read on the board.</p>
-              <p class="lv-err" data-for="fName"></p>
-            </div>
-
-            <div class="lv-field">
-              <label for="fTicker">Ticker</label>
-              <input id="fTicker" type="text" maxlength="8" autocomplete="off" placeholder="MRDN" required>
-              <p class="lv-help">Letters and numbers, up to 8.</p>
-              <p class="lv-err" data-for="fTicker"></p>
-            </div>
-
-            <div class="lv-field">
-              <label for="fSupply">Total supply</label>
-              <input id="fSupply" type="text" inputmode="numeric" autocomplete="off" value="1,000,000,000" required>
-              <p class="lv-help">Between 1,000 and 1,000,000,000,000.</p>
-              <p class="lv-err" data-for="fSupply"></p>
-            </div>
-
-            <div class="lv-field">
-              <label for="fDesc">Description <i id="descCount">0/140</i></label>
-              <textarea id="fDesc" maxlength="140" rows="3" placeholder="One line on what this coin is for."></textarea>
-              <p class="lv-err" data-for="fDesc"></p>
-            </div>
-
-            <div class="lv-field">
-              <label>Underlying asset</label>
-              <div class="lv-locked" id="assetSlot" data-color="none">
-                <i class="lv-dot"></i>
-                <b id="assetName">Assigned by the spin</b>
-                <em id="assetHint">Locked</em>
-              </div>
-              <p class="lv-help">Drawn once, at launch, and held for the life of the market.</p>
-            </div>
-          </fieldset>
-
-          <button class="lv-btn lv-btn-dark lv-btn-block" id="toSpin" type="submit">Continue to the spin <span aria-hidden="true">↗</span></button>
-          <button class="lv-btn lv-btn-quiet lv-btn-block" id="backToForm" type="button" hidden>Back to details</button>
-
-          <div class="lv-notice">
-            <p><b>The spin is mandatory, and the launch is real.</b> The dial decides what your coin
-            is named after and the result cannot be re-rolled. Pressing launch deploys a contract on
-            Base from your wallet: it costs gas and there is no undo.</p>
-            <button class="lv-btn lv-btn-outline" id="connect2" type="button">Connect wallet</button>
-          </div>
-
-          <button class="lv-btn lv-btn-dark lv-btn-block lv-btn-launch" id="launchBtn" type="button" disabled>Launch the coin <span aria-hidden="true">↗</span></button>
-          <p class="lv-help lv-help-final">
-            The pairing is final: a market cannot be re-paired after launch. The dial picks it, not you.
-          </p>
-          <button class="lv-btn lv-btn-quiet lv-btn-block" id="discard" type="button" hidden>Discard draft</button>
-        </form>
-
-        <!-- right: preview, dial, summary -->
-        <div class="lv-side">
-
-          <div class="lv-preview" id="preview" data-color="none">
-            <span class="lv-disc lv-disc-lg">
-              <b id="pvTicker">TICKER</b>
-              <i id="pvAsset">UNPAIRED</i>
-            </span>
-          </div>
-
-          <div class="lv-card lv-dialcard">
-            <div class="lv-card-head">
-              <p class="lv-kicker lv-kicker-sm">The dial</p>
-              <span class="lv-tag" id="spinCount">Spins 0/1</span>
-            </div>
-
-            <div class="lv-dial-stage">
-              <span class="lv-limb lv-limb-tl">Long leg</span>
-              <span class="lv-limb lv-limb-tr">Bid hand</span>
-              <span class="lv-limb lv-limb-bl">Short leg</span>
-              <span class="lv-limb lv-limb-br">Ask hand</span>
-              <div class="lv-dial-wrap">
-                <svg class="lv-dial" id="dial" viewBox="0 0 200 200" role="img" aria-label="Board of sixteen dots in four colours across four quadrants"></svg>
-                <div class="lv-needle" id="needle">
-                  <svg viewBox="0 0 200 200" aria-hidden="true">
-                    <path d="M100 20 L108 92 L100 128 L92 92 Z" fill="currentColor"/>
-                    <circle cx="100" cy="100" r="10" fill="currentColor"/>
-                    <circle cx="100" cy="100" r="3.6" class="lv-needle-eye"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <button class="lv-btn lv-btn-dark lv-btn-block" id="spin" type="button" disabled>Spin</button>
-            <p class="lv-status" id="status" role="status" aria-live="polite">Complete the details to unlock the spin.</p>
-
-            <div class="lv-result" id="result" hidden>
-              <i class="lv-dot lv-dot-lg" id="resDot"></i>
-              <div>
-                <b id="resColor"></b>
-                <em id="resLimb"></em>
-                <p id="resLine"></p>
-              </div>
-            </div>
-          </div>
-
-          <div class="lv-card lv-summary">
-            <p class="lv-kicker lv-kicker-sm">Launch summary</p>
-            <h3 id="sumName">Your coin</h3>
-            <p class="lv-summary-sub" id="sumSub">TICKER · UNPAIRED</p>
-            <dl class="lv-rows" id="sumRows"></dl>
-          </div>
-
-          <div class="lv-card lv-record" id="ticket" hidden>
-            <div class="lv-card-head">
-              <p class="lv-kicker lv-kicker-sm">Spin record</p>
-              <span class="lv-tag" id="tkId"></span>
-            </div>
-            <div class="lv-record-coin">
-              <span class="lv-disc" id="tkAvatar"><b></b></span>
-              <div><b id="tkName"></b><em id="tkTicker"></em></div>
-            </div>
-            <p class="lv-record-desc" id="tkDesc" hidden></p>
-            <dl class="lv-rows" id="tkRows"></dl>
-            <p class="lv-record-note" id="tkNote"></p>
-            <div class="lv-pool">
-              <p class="lv-kicker lv-kicker-sm">The first pool</p>
-              <p class="lv-pool-copy">
-                Every pool is opened against <b id="poolAsset">the pair token</b> — a company is not an
-                ERC-20, so the draw names your coin and this is what it trades against.
-                <span id="poolShare">80%</span> of the supply goes in from the coin's side; you choose
-                the other.
-              </p>
-              <label class="lv-pool-field">
-                <span>Liquidity, in <b id="poolAssetB">the pair token</b></span>
-                <input id="poolAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.05">
-              </label>
-              <button class="lv-btn lv-btn-dark lv-btn-block" id="poolBtn" type="button">Open the pool</button>
-              <p class="lv-pool-note" id="poolNote"></p>
-            </div>
-
-            <div class="lv-record-foot">
-              <button class="lv-btn lv-btn-quiet" id="tkCopy" type="button">Copy record</button>
-              <button class="lv-btn lv-btn-dark" id="tkAgain" type="button">Launch another</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ————— proof ————— -->
-  <section class="lv-sec lv-sec-tint" id="proof">
-    <div class="lv-wrap">
-      <p class="lv-kicker">Proof</p>
-      <h2>The dial is flat, and the record is open</h2>
-      <p class="lv-sec-lede lv-sec-lede-wide">
-        Sixteen dots, four to a colour and four to a quadrant. The outcome comes from the browser's
-        cryptographic random source, so every asset draws one launch in sixteen over the long run,
-        and every family one in four.
-      </p>
-
-      <div class="lv-kpis" id="kpis"></div>
-
-      <figure class="lv-figure">
-        <figcaption>
-          <h3>Spin distribution</h3>
-          <p>Observed outcomes across recorded launches, against the 25% each colour is expected to draw.</p>
-        </figcaption>
-        <div class="lv-meter" id="meter"></div>
-        <p class="lv-figure-note" id="meterNote"></p>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ————— faq ————— -->
-  <section class="lv-sec" id="faq">
-    <div class="lv-wrap lv-wrap-narrow">
-      <p class="lv-kicker">Questions</p>
-      <h2>Frequently asked</h2>
-
-      <details>
-        <summary>Can a spin be repeated if the colour is unwanted?</summary>
-        <p>No. The spin is spent the moment it is taken and stays bound to that draft. A draft can be
-        discarded, which clears the name, ticker, supply and description along with the spin — that is
-        starting over, not re-rolling.</p>
-      </details>
-      <details>
-        <summary>Can a coin be launched without spinning?</summary>
-        <p>No. The launch control ships disabled, the step machine only reaches the launch step with a
-        resolved spin, and the launch routine checks the spin again before it writes anything.
-        Re-enabling the control from a console produces no launch.</p>
-      </details>
-      <details>
-        <summary>Is the dial fair?</summary>
-        <p>The sixteen dots are evenly spaced and the outcome comes from
-        <code>crypto.getRandomValues</code> rather than <code>Math.random</code>. Every asset holds
-        exactly one dot, so each is drawn 6.25% of the time and each colour family 25%. The proof
-        section reports the observed split.</p>
-      </details>
-      <details>
-        <summary>What does the quadrant do?</summary>
-        <p>It is half the answer. The colour picks one of four asset families and the quadrant —
-        bid hand, ask hand, long leg, short leg — picks which of the four names inside that family
-        you get: a red dot on the bid hand and a red dot on the short leg are different tokens.
-        Sixteen dots on the board, sixteen tokens, one to a dot — the whole table is on the asset
-        desk, and every square is checked against the chain before it can be launched against.</p>
-      </details>
-      <details>
-        <summary>Does this issue real tokens?</summary>
-        <p>Yes. Launching deploys a real ERC-20 on Base from your own wallet, and the draw — the
-        asset, the colour family, the quadrant and who spun — is written into the contract at
-        construction, with no function anywhere that can change it afterwards. The pad keeps a local
-        list of what you launched; the chain keeps the real one.</p>
-      </details>
+      <details><summary>What is Spinpad?</summary>
+        <p>A coin launchpad where you do not choose the pairing. You make the coin; the wheel decides
+        what it is paired with.</p></details>
+      <details><summary>How does the wheel work?</summary>
+        <p>It lands on a body position and a colour. Four positions by four colours is sixteen
+        outcomes, one per asset, each drawn one time in sixteen.</p></details>
+      <details><summary>Can I choose my pairing?</summary>
+        <p>No. That is the product.</p></details>
+      <details><summary>Can I reroll?</summary>
+        <p>No. One spin, one pairing. You can throw the whole draft away and start again from an
+        empty form, but that is starting over, not rerolling.</p></details>
+      <details><summary>What happens after I spin?</summary>
+        <p>The pairing locks, the confirmation screen shows exactly what will be deployed, and
+        launching writes that pairing into the coin's contract where nothing can change it.</p></details>
+      <details><summary>What assets can I pair with?</summary>
+        <p>The sixteen on the board. They are names written into the contract — there is no oracle
+        and nothing tracks a share price.</p></details>
+      <details><summary>How do I launch a coin?</summary>
+        <p>Connect a wallet, fill in four fields, spin, confirm. The deployment is a transaction from
+        your own address.</p></details>
+      <details><summary>Which chain is Spinpad using?</summary>
+        <p>Base. The pad checks it is on the right network before it will send anything.</p></details>
     </div>
   </section>
 
 </main>
 
-<footer class="lv-foot">
-  <div class="lv-wrap lv-foot-in">
-    <div class="lv-foot-brand">
-      <p class="lv-foot-name">Spinpad</p>
-      <p class="lv-foot-tag">Pairing, minus the choosing.</p>
+<footer class="sp-foot">
+  <div class="sp-wrap">
+    <div class="sp-foot-top">
+      <div>
+        <p class="sp-foot-brand">Spinpad</p>
+        <p class="sp-foot-tag">The wheel decides the pair.</p>
+      </div>
+      <nav class="sp-foot-links" aria-label="Footer">
+        <button class="sp-link" data-scroll="board" type="button">Board</button>
+        <button class="sp-link" data-scroll="launch" type="button">Launch</button>
+        <button class="sp-link" data-scroll="how" type="button">How it works</button>
+        <button class="sp-link" data-scroll="desk" type="button">Asset desk</button>
+        <button class="sp-link" data-scroll="playground" type="button">Playground</button>
+        <button class="sp-link" data-scroll="proof" type="button">Proof</button>
+        <button class="sp-link" data-scroll="faq" type="button">FAQ</button>
+      </nav>
     </div>
-    <nav class="lv-foot-links" aria-label="Footer">
-      <button class="lv-textlink" data-scroll="board" type="button">The board</button>
-      <button class="lv-textlink" data-scroll="how" type="button">How it works</button>
-      <button class="lv-textlink" data-scroll="desk" type="button">Asset desk</button>
-      <button class="lv-textlink" data-scroll="playground" type="button">Playground</button>
-      <button class="lv-textlink" data-scroll="launch" type="button">Launch a coin</button>
-      <button class="lv-textlink" data-scroll="proof" type="button">Proof</button>
-      <button class="lv-textlink" data-scroll="faq" type="button">Questions</button>
-    </nav>
-  </div>
-  <div class="lv-wrap lv-foot-bar">
-    <p>© 2026 Spinpad · Pairing, minus the choosing.</p>
-    <p class="lv-foot-status">REAL CONTRACTS ON BASE · REAL GAS · NO UNDO</p>
-  </div>
-  <div class="lv-wrap">
-    <p class="lv-foot-note">
-      Launching here deploys a real contract on Base and costs real money. Nothing on this page is an
-      investment, an offer or advice, and no outcome is promised — the pairing is decided by a
-      spinner. The tokens on the board are third-party ERC-20s, named only to identify what a pool
-      would pair against; naming one implies no relationship with or endorsement by its issuer, and
-      the pad refuses any address that does not verify against the chain. The colour-dial mechanic is
-      an homage to the floor game of the same idea; Twister is a trademark of Hasbro and this project
-      is not affiliated with it.
+    <div class="sp-foot-bar">
+      <p>© 2026 Spinpad</p>
+      <p class="sp-foot-status">Real contracts on Base · real gas · no undo</p>
+    </div>
+    <p class="sp-foot-note">
+      Launching deploys a real contract and costs real money. Nothing here is an investment, an offer
+      or advice, and no outcome is promised — the pairing is decided by a wheel. Asset names are
+      written into the coin as a label and imply no relationship with, or endorsement by, those
+      companies; nothing tracks a share price. The colour-and-position mechanic is an homage to the
+      floor game of the same idea; Twister is a trademark of Hasbro and this project is not
+      affiliated with it.
     </p>
   </div>
 </footer>
 
-
-<!-- the door: you are told what this is before you are let in -->
-<dialog class="lv-gate" id="gate" aria-labelledby="gateTitle">
-  <div class="lv-gate-in">
-    <p class="lv-kicker lv-kicker-sm">Before you step on the mat</p>
-    <h2 id="gateTitle">This is a game. The money is not.</h2>
-    <p class="lv-gate-lede">
-      Spinpad is a board game with a real contract at the end of it. The spinning, the mat and the
-      figure are the game; what the pad does when you press launch is a transaction on Base that
-      nobody can take back. The short version, so nobody is surprised later:
+<dialog class="sp-gate" id="gate" aria-labelledby="gateTitle">
+  <div class="sp-gate-in">
+    <p class="sp-kicker sp-kicker-sm">Before you spin</p>
+    <h2 id="gateTitle">It is a game. The money is not.</h2>
+    <p class="sp-gate-lede">
+      The wheel is the game. What happens when you press launch is a transaction on Base that nobody
+      can take back. The short version:
     </p>
-    <ul class="lv-gate-list">
-      <li><b>Launching deploys a real ERC-20 on Base mainnet.</b> It costs gas, it is permanent and it
-        happens from your address. There is no undo, no support desk and no refund.</li>
-      <li><b>You do not pick the asset your coin is paired with.</b> A spinner does. That is not a bug
-        we are working on, it is the entire product.</li>
-      <li><b>Opening a pool moves real funds out of your wallet.</b> It is optional, it is a separate
-        confirmation, and a new pool with thin liquidity is trivially easy for anyone to drain.</li>
-      <li><b>Nothing here is an investment and nobody here is advising you.</b> A token made in an
-        afternoon is worth whatever someone will pay for it, which is usually nothing.</li>
-      <li><b>Check the addresses yourself.</b> The pad reads its own token list back off the chain and
-        refuses anything that does not match, but the list in <code>config.js</code> is whatever was
-        put there. Read it before you trust it.</li>
+    <ul class="sp-gate-list">
+      <li><b>Launching deploys a real ERC-20 on Base.</b> It costs gas, it is permanent, and it comes
+        from your address. No undo, no support desk, no refund.</li>
+      <li><b>You do not pick the pairing.</b> A wheel does, once. That is not a bug we are fixing.</li>
+      <li><b>Opening a pool moves real funds.</b> It is optional, separately confirmed, and a new pool
+        with thin liquidity is trivially easy for anyone to drain.</li>
+      <li><b>Nothing here is an investment and nobody is advising you.</b> A coin made in an afternoon
+        is worth whatever someone will pay for it, which is usually nothing.</li>
     </ul>
-
-    <label class="lv-gate-check">
+    <label class="sp-gate-check">
       <input type="checkbox" id="gateAgree">
-      <span>I understand that launching spends real money on a real chain, that the spinner picks the
-        pairing and I do not, and that anything I lose here is mine to have lost.</span>
+      <span>I understand this spends real money on a real chain, that the wheel picks the pairing and
+        I do not, and that anything I lose here is mine to have lost.</span>
     </label>
-
-    <div class="lv-gate-foot">
-      <button class="lv-btn lv-btn-dark lv-btn-lg" id="gateGo" type="button" disabled>Step on the mat</button>
-      <p class="lv-gate-note">The mat is honest. It is still the only thing here that is.</p>
+    <div class="sp-gate-foot">
+      <button class="sp-btn sp-btn-dark sp-btn-lg" id="gateGo" type="button" disabled>Enter</button>
     </div>
   </div>
 </dialog>

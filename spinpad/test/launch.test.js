@@ -26,21 +26,35 @@ const WETH = '0x3333333333333333333333333333333333333333';
 const COIN = '0x4444444444444444444444444444444444444444';
 const ME = '0x00000000000000000000000000000000000000c0';
 
-/* squares are themes and carry no address; one quote token does the pairing */
+/* Cells are names and carry no address; one quote token does the pairing. The
+   sixteen names are distinct so the encoded draw can be pinned to one of them. */
 const testConfig = `window.SPINPAD_CONFIG = (() => {
-  const t = (name, ticker, glyph) => ({ name, ticker, glyph, logo: '' });
-  const fam = (family, blurb, a, b, c, d) => ({ family, blurb, bid: a, ask: b, short: c, long: d });
+  const positions = [
+    { id: 'leftHand',  label: 'Left hand',  short: 'L HAND', limb: 'hand' },
+    { id: 'rightHand', label: 'Right hand', short: 'R HAND', limb: 'hand' },
+    { id: 'leftFoot',  label: 'Left foot',  short: 'L FOOT', limb: 'foot' },
+    { id: 'rightFoot', label: 'Right foot', short: 'R FOOT', limb: 'foot' },
+  ];
+  const colours = [
+    { id: 'red', label: 'Red', hex: '#E4322B' }, { id: 'yellow', label: 'Yellow', hex: '#FDD208' },
+    { id: 'green', label: 'Green', hex: '#2FA84F' }, { id: 'blue', label: 'Blue', hex: '#1B75BC' },
+  ];
+  const glyphs = ['grid','bars','orbit','chevron','delta','tiles','wave','play','arc','loop','stack','arrowbox','bolt','spark','rail','waves'];
+  const pairings = {};
+  let n = 0;
+  positions.forEach((p) => colours.forEach((c) => {
+    n += 1;
+    // zero-padded so no name is a prefix of another: the check below looks for
+    // one name's bytes and must not find them inside a longer one
+    const tag = String(n).padStart(2, '0');
+    pairings[p.id + '.' + c.id] = { name: 'Testcorp-' + tag, ticker: 'TC' + tag, glyph: glyphs[n - 1], logo: '' };
+  }));
   return {
     chain: { id: 8453, hex: '0x2105', name: 'Base', currency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
              rpc: ['https://example.invalid'], explorer: 'https://example.invalid' },
     router: { address: '${ROUTER}', kind: 'uniswap-v2', weth: '${WETH}' },
     quote: { name: 'Wrapped Ether', ticker: 'TEST', address: '${TOKEN}', decimals: 18 },
-    assets: {
-      green:  fam('Stables', 'x', t('Test Token','TEST','grid'), t('Test Token','TEST','bars'), t('Test Token','TEST','orbit'), t('Test Token','TEST','chevron')),
-      blue:   fam('Ether',   'x', t('Test Token','TEST','delta'), t('Test Token','TEST','tiles'), t('Test Token','TEST','wave'), t('Test Token','TEST','play')),
-      yellow: fam('Bitcoin', 'x', t('Test Token','TEST','arc'), t('Test Token','TEST','loop'), t('Test Token','TEST','stack'), t('Test Token','TEST','arrowbox')),
-      red:    fam('Natives', 'x', t('Test Token','TEST','bolt'), t('Test Token','TEST','spark'), t('Test Token','TEST','rail'), t('Test Token','TEST','waves')),
-    },
+    positions, colours, pairings,
     liquidity: { supplyShare: 0.8, slippageBps: 100, deadlineMinutes: 20 },
   };
 })();`;
@@ -107,9 +121,9 @@ window.ethereum = {
   await page.click('#connect');
   await page.waitForTimeout(1200);
   ok('the wallet shows as connected', (await page.locator('#connect').textContent()).includes('0x0000'));
-  ok('the pad reports itself ready', (await page.locator('.lv-verify-head').textContent()).startsWith('Ready to launch'));
+  ok('the pad reports itself ready', (await page.locator('.sp-verify-head').textContent()).startsWith('Ready to launch'));
   ok('both the pair token and the router verify',
-    (await page.locator('.lv-verify-list .is-bad').count()) === 0);
+    (await page.locator('.sp-verify-list .is-bad').count()) === 0);
 
   console.log('\nlaunching');
   await page.fill('#fName', 'Northwind Capital');
@@ -122,9 +136,21 @@ window.ethereum = {
     (await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction').length)) === 0);
 
   await page.click('#spin');
-  await page.waitForFunction(() => !document.getElementById('launchBtn').disabled, null, { timeout: 12000 });
-  await page.waitForTimeout(250);
-  const drew = (await page.locator('#assetName').textContent()).trim();
+  await page.waitForFunction(() => document.getElementById('pad').dataset.step === '3', null, { timeout: 14000 });
+  await page.waitForTimeout(300);
+
+  // what the result screen says it landed on, which is what must reach the chain
+  const drew = (await page.locator('#resColor').textContent()).trim();
+  const combo = (await page.locator('#resLimb').textContent()).trim();
+  ok('the result names a pairing', drew.length > 0 && /·/.test(combo), drew + ' / ' + combo);
+  ok('launch is still shut on the result', await page.locator('#launchBtn').isDisabled());
+  ok('and still nothing has been sent',
+    (await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction').length)) === 0);
+
+  await page.click('#toLaunch');
+  await page.waitForTimeout(300);
+  ok('the confirmation shows the same pairing',
+    (await page.locator('#sumRows').textContent()).includes(drew));
 
   await page.click('#launchBtn');
   await page.waitForTimeout(1500);
@@ -140,19 +166,40 @@ window.ethereum = {
     ok('it starts with the compiled bytecode', String(tx.data).startsWith(bytecode));
     const args = String(tx.data).slice(bytecode.length);
     ok('the constructor args are whole words', args.length % 64 === 0, args.length + ' hex chars');
-    ok('the drawn theme is in the args',
-      args.includes(Buffer.from(drew.split(' \u00b7 ')[0], 'utf8').toString('hex')),
-      'theme "' + drew + '" not found in the encoded args');
+    /* The rule, in bytes: the asset the result screen showed is the asset in
+       the constructor, and no other cell's name is anywhere near it. */
+    ok('the pairing shown is the pairing encoded',
+      args.includes(Buffer.from(drew, 'utf8').toString('hex')),
+      '"' + drew + '" not found in the encoded args');
+    const others = await page.evaluate((shown) => Object.keys(window.SPINPAD_CONFIG.pairings)
+      .map((k) => window.SPINPAD_CONFIG.pairings[k].name).filter((n) => n !== shown), drew);
+    ok('and no other cell\u2019s name got in',
+      !others.some((n) => args.includes(Buffer.from(n, 'utf8').toString('hex'))));
+    ok('the colour and position it landed on are in there too',
+      combo.split(' \u00b7 ').every((part) => args.includes(
+        Buffer.from(part[0] + part.slice(1).toLowerCase(), 'utf8').toString('hex'))),
+      combo);
     ok('the coin name is in the args',
       args.includes(Buffer.from('Northwind Capital', 'utf8').toString('hex')));
   }
 
   ok('the record is shown', await page.locator('#ticket').isVisible());
-  ok('the coin is on the board', (await page.locator('.lv-coin').count()) === 1);
-  ok('the card links to the contract',
-    (await page.locator('.lv-coin-facts a').first().getAttribute('href')).includes(COIN));
+  ok('the launch is in the proof list', (await page.locator('.sp-launch').count()) === 1);
+  ok('the row carries the pairing it landed on',
+    (await page.locator('.sp-launch-pair').first().textContent()).includes(drew));
+  ok('and the transaction that made it',
+    (await page.locator('.sp-launch-tx a').first().getAttribute('href')).length > 0);
+  ok('the record links to the contract',
+    (await page.locator('#tkRows a').first().getAttribute('href')).includes(COIN));
+  ok('the pad is on its last step', await page.getAttribute('#pad', 'data-step') === '5');
   ok('the launch control closed behind it', await page.locator('#launchBtn').isDisabled());
-  ok('the draw reached the form', drew.length > 0);
+
+  // the terminal step, probed the way someone would
+  await page.evaluate(() => { const b = document.getElementById('launchBtn'); b.disabled = false; b.click(); });
+  await page.waitForTimeout(600);
+  ok('a forced second launch mints nothing from one spin',
+    (await page.locator('.sp-launch').count()) === 1
+    && (await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction').length)) === 1);
 
   console.log('\nthe pool');
   await page.fill('#poolAmount', '0.05');

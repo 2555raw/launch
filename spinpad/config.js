@@ -1,30 +1,35 @@
 /* Spinpad — configuration.
  *
  * ────────────────────────────────────────────────────────────────────────────
+ * THE PAIRING TABLE IS THE PRODUCT. It lives here and nowhere else.
+ *
+ * The wheel gives two things — a body position and a colour — and the pair of
+ * them names one asset. Four positions by four colours is sixteen cells, and
+ * `pairings` below is all sixteen, written flat so changing one is changing one
+ * line. Everything on the site is built from this object: the wheel, the board,
+ * the asset desk, the playground, and the value written into the coin's
+ * contract. Nothing keeps a second copy of it.
+ *
  * TWO THINGS, KEPT APART ON PURPOSE.
  *
- * The DRAW is a theme. The board has sixteen squares, each one a company, and
- * the spin decides which one your coin is named after. That theme is written
- * into the coin's contract at construction and cannot be changed afterwards.
- * It is a name on a token. It is not a claim about that company's share price,
- * there is no oracle, nothing tracks anything, and nobody from those companies
- * has anything to do with this.
+ * The PAIRING is a name. It goes into the coin's contract at construction and
+ * cannot be changed afterwards. It is not a claim about a share price: there is
+ * no oracle, nothing tracks anything, and none of these companies have anything
+ * to do with this.
  *
- * The PAIR is a real token. A company is not an ERC-20, so a pool cannot be
- * opened against "Tesla". Every pool is opened against `quote` below — one real
- * token on the chain, whose address you fill in and which the pad verifies
- * before it will touch it.
+ * The POOL is a real token. A company is not an ERC-20, so a pool cannot be
+ * opened against "Tesla". Every pool opens against `quote` below, whose address
+ * the pad verifies against the live chain before it will touch it.
  *
- * A NOTE YOU SHOULD READ ONCE. Naming a token after a listed company and then
- * making it tradeable is a real-world risk, not a styling choice: it is other
- * people's trademarks, and regulators in most countries take an interest in
- * anything that looks like a bet on a share. This file is where you would
- * change the names if you would rather not carry that.
+ * ONE NOTE WORTH READING ONCE. Naming a tradeable token after a listed company
+ * is a real-world risk, not a styling choice: other people's trademarks, and
+ * regulators who take an interest in anything that looks like a bet on a share.
+ * This file is where you would change the names if you would rather not carry
+ * that.
  *
  * ADDRESSES ARE EMPTY ON PURPOSE. They were not written from memory, because a
  * wrong one sends real liquidity somewhere it cannot be recovered from. Fill
- * them from a source you trust; the pad calls symbol() and decimals() on the
- * quote token and refuses to open a pool if the answers do not match.
+ * them from a source you trust; the pad checks them before it uses them.
  * ────────────────────────────────────────────────────────────────────────────
  */
 window.SPINPAD_CONFIG = {
@@ -57,45 +62,48 @@ window.SPINPAD_CONFIG = {
     decimals: 18,
   },
 
-  /* The sixteen squares: colour picks the family, quadrant picks the name.
+  /* The wheel's two axes. The order is the order they sit in: clockwise on the
+     wheel, and top-to-bottom / left-to-right on the board. */
+  positions: [
+    { id: 'leftHand',  label: 'Left hand',  short: 'L HAND', limb: 'hand' },
+    { id: 'rightHand', label: 'Right hand', short: 'R HAND', limb: 'hand' },
+    { id: 'leftFoot',  label: 'Left foot',  short: 'L FOOT', limb: 'foot' },
+    { id: 'rightFoot', label: 'Right foot', short: 'R FOOT', limb: 'foot' },
+  ],
+
+  colours: [
+    { id: 'red',    label: 'Red',    hex: '#E4322B' },
+    { id: 'yellow', label: 'Yellow', hex: '#FDD208' },
+    { id: 'green',  label: 'Green',  hex: '#2FA84F' },
+    { id: 'blue',   label: 'Blue',   hex: '#1B75BC' },
+  ],
+
+  /* position + colour → asset. Sixteen cells, one line each.
    *
-   * `logo` is already pointing at assets/<ticker>.png for every square, so there
-   * is nothing to edit: drop tsla.png into assets/ and Tesla's square wears it.
-   * Until a file is there the square falls back to a drawn abstract mark — never
-   * an imitation of a real logo — and it does that silently, so a missing file
-   * costs nothing. Point it at a URL instead if you would rather not host them.
-   * See assets/README.md.
-   *
-   * These names are themes. Nothing here tracks a share price. */
-  assets: {
-    green: {
-      family: 'Silicon', blurb: 'the ones that make the chips',
-      bid:   { name: 'Nvidia',   ticker: 'NVDA',  glyph: 'chevron',  logo: 'assets/nvda.png' },
-      ask:   { name: 'AMD',      ticker: 'AMD',   glyph: 'bars',     logo: 'assets/amd.png' },
-      short: { name: 'Broadcom', ticker: 'AVGO',  glyph: 'orbit',    logo: 'assets/avgo.png' },
-      long:  { name: 'TSMC',     ticker: 'TSM',   glyph: 'grid',     logo: 'assets/tsm.png' },
-    },
-    yellow: {
-      family: 'Shelves', blurb: 'the ones that move the boxes',
-      bid:   { name: 'Amazon',   ticker: 'AMZN',  glyph: 'arc',      logo: 'assets/amzn.png' },
-      ask:   { name: 'Shopify',  ticker: 'SHOP',  glyph: 'arrowbox', logo: 'assets/shop.png' },
-      short: { name: 'Walmart',  ticker: 'WMT',   glyph: 'stack',    logo: 'assets/wmt.png' },
-      long:  { name: 'Coupang',  ticker: 'CPNG',  glyph: 'loop',     logo: 'assets/cpng.png' },
-    },
-    blue: {
-      family: 'Signal', blurb: 'the ones with your attention',
-      bid:   { name: 'Meta',     ticker: 'META',  glyph: 'play',     logo: 'assets/meta.png' },
-      ask:   { name: 'Netflix',  ticker: 'NFLX',  glyph: 'spark',    logo: 'assets/nflx.png' },
-      short: { name: 'Spotify',  ticker: 'SPOT',  glyph: 'wave',     logo: 'assets/spot.png' },
-      long:  { name: 'Alphabet', ticker: 'GOOGL', glyph: 'tiles',    logo: 'assets/googl.png' },
-    },
-    red: {
-      family: 'Motion', blurb: 'the ones that go somewhere',
-      bid:   { name: 'Tesla',    ticker: 'TSLA',  glyph: 'bolt',     logo: 'assets/tsla.png' },
-      ask:   { name: 'Rivian',   ticker: 'RIVN',  glyph: 'rail',     logo: 'assets/rivn.png' },
-      short: { name: 'Uber',     ticker: 'UBER',  glyph: 'waves',    logo: 'assets/uber.png' },
-      long:  { name: 'Ford',     ticker: 'F',     glyph: 'delta',    logo: 'assets/f.png' },
-    },
+   * `glyph` is the mark drawn on the node when there is no logo file; the names
+   * come from the set in app.js. `logo` already points at assets/<ticker>.png,
+   * so adding a real one is dropping a file in — nothing to edit here. A
+   * missing file costs nothing: the drawn mark stays. See assets/README.md. */
+  pairings: {
+    'leftHand.red':     { name: 'Netflix',    ticker: 'NFLX', glyph: 'play',     logo: 'assets/nflx.png' },
+    'leftHand.yellow':  { name: 'Amazon',     ticker: 'AMZN', glyph: 'arc',      logo: 'assets/amzn.png' },
+    'leftHand.green':   { name: 'Spotify',    ticker: 'SPOT', glyph: 'wave',     logo: 'assets/spot.png' },
+    'leftHand.blue':    { name: 'Meta',       ticker: 'META', glyph: 'loop',     logo: 'assets/meta.png' },
+
+    'rightHand.red':    { name: 'Coca-Cola',  ticker: 'KO',   glyph: 'spark',    logo: 'assets/ko.png' },
+    'rightHand.yellow': { name: 'Visa',       ticker: 'V',    glyph: 'bars',     logo: 'assets/v.png' },
+    'rightHand.green':  { name: 'Nvidia',     ticker: 'NVDA', glyph: 'chevron',  logo: 'assets/nvda.png' },
+    'rightHand.blue':   { name: 'Intel',      ticker: 'INTC', glyph: 'grid',     logo: 'assets/intc.png' },
+
+    'leftFoot.red':     { name: 'Oracle',     ticker: 'ORCL', glyph: 'orbit',    logo: 'assets/orcl.png' },
+    'leftFoot.yellow':  { name: "McDonald's", ticker: 'MCD',  glyph: 'arrowbox', logo: 'assets/mcd.png' },
+    'leftFoot.green':   { name: 'Starbucks',  ticker: 'SBUX', glyph: 'tiles',    logo: 'assets/sbux.png' },
+    'leftFoot.blue':    { name: 'Apple',      ticker: 'AAPL', glyph: 'stack',    logo: 'assets/aapl.png' },
+
+    'rightFoot.red':    { name: 'Tesla',      ticker: 'TSLA', glyph: 'bolt',     logo: 'assets/tsla.png' },
+    'rightFoot.yellow': { name: 'Shell',      ticker: 'SHEL', glyph: 'waves',    logo: 'assets/shel.png' },
+    'rightFoot.green':  { name: 'Nike',       ticker: 'NKE',  glyph: 'delta',    logo: 'assets/nke.png' },
+    'rightFoot.blue':   { name: 'Microsoft',  ticker: 'MSFT', glyph: 'rail',     logo: 'assets/msft.png' },
   },
 
   /* What the pad puts into the first pool, as a fraction of the coin's supply

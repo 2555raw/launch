@@ -185,6 +185,11 @@ white.
 Type: **Plus Jakarta Sans** throughout — 700–800 for display, 400–600 for text — with **JetBrains
 Mono** for tickers, supplies, hashes and timestamps.
 
+The nav is a floating panel rather than a bar welded to the window: it sits in the same 1200px
+column as the rest of the page, so its edges line up with the content under it and the page visibly
+runs behind it. On a phone it becomes a card — a 999px radius around a stacked menu reads as a
+mistake — and the last link drops its rule so it does not cut across the rounded corner.
+
 The hero is one headline and one object: the wheel, which tilts a little under the cursor and names
 the pairing under whichever node you point at. It is SVG generated at runtime from the same
 `SECTORS` table the outcome is read from.
@@ -267,7 +272,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-157 checks across three suites.
+158 checks across three suites.
 
 ### The chain, checked without a chain
 

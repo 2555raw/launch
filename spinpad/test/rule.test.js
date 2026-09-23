@@ -49,6 +49,22 @@ const comboAt = (cfg, sec) => {
 };
 
 /* ---------- the server must survive a hostile path ---------- */
+/* The page sets `scroll-behavior: smooth`, so scrollIntoView animates. A
+   bounding box read while that is still running is a box the element has
+   already moved out of, and a mouse.down aimed at it lands on nothing —
+   which is how a drag check fails while the drag itself works. Wait for the
+   scroll position to stop changing before measuring anything. */
+const settle = async (page) => {
+  await page.waitForFunction(() => new Promise((done) => {
+    let last = window.scrollY, still = 0;
+    const tick = () => {
+      if (window.scrollY === last) still += 1; else { still = 0; last = window.scrollY; }
+      if (still >= 3) done(true); else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }), null, { timeout: 5000 });
+};
+
 const get = (url) => new Promise((resolve, reject) => {
   http.get(url, (res) => { res.resume(); resolve(res.statusCode); }).on('error', reject);
 });
@@ -336,18 +352,25 @@ async function browserChecks() {
   });
   const target = page.locator(`.sp-mat-dot[data-row="3"][data-col="${freeCol}"]`);
   await target.evaluate((el) => el.scrollIntoView({ block: 'center' }));
-  await page.waitForTimeout(250);
+  await settle(page);
   await target.click();
   await page.waitForTimeout(300);
+  await settle(page);
   ok('tapping a circle moves that limb', (await page.locator('#matRead').textContent()) !== read);
   ok('and it lands on the right asset',
     (await page.locator('#matRead').textContent()).includes(CFG.pairings[lastRow + '.' + CFG.colours[freeCol].id].name));
 
   // and the limbs can be dragged along their own row
   const dragCol = [0, 1, 2, 3].find((c) => c !== freeCol);
+  await settle(page);
   const from = await page.locator(`.sp-fig-grip[data-limb="${lastRow}"]`).boundingBox();
   const onto = await page.locator(`.sp-mat-dot[data-row="3"][data-col="${dragCol}"]`).boundingBox();
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  ok('the grip is under the pointer before the drag starts',
+    await page.evaluate(([x, y]) => {
+      const el = document.elementFromPoint(x, y);
+      return !!(el && el.closest && el.closest('.sp-fig-grip'));
+    }, [from.x + from.width / 2, from.y + from.height / 2]));
   await page.mouse.down();
   await page.mouse.move(onto.x + onto.width / 2, onto.y + onto.height / 2, { steps: 12 });
   await page.mouse.up();
@@ -358,6 +381,7 @@ async function browserChecks() {
 
   // a limb dropped outside its own row stays where it was
   const before2 = await page.locator('#matRead').textContent();
+  await settle(page);
   const off = await page.locator(`.sp-mat-dot[data-row="0"][data-col="${freeCol}"]`).boundingBox();
   const grip2 = await page.locator(`.sp-fig-grip[data-limb="${lastRow}"]`).boundingBox();
   await page.mouse.move(grip2.x + grip2.width / 2, grip2.y + grip2.height / 2);

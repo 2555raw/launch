@@ -1,116 +1,135 @@
-# spinpad — launchpad con ruleta obligatoria
+# Spinpad — a launchpad where the underlying asset is drawn, not chosen
 
-Launchpad donde **nadie elige a que activo lanza: lo elige la ruleta**. Rellenas los datos de la
-coin, giras una vez, y el color que sale decide el activo subyacente al que queda atada:
+A token launchpad built around one rule: **nothing launches until the dial has been spun, and the
+colour it stops on sets the asset the token is paired with.**
 
-| Color | Activo | Ticker |
+| Colour | Underlying asset | Ticker |
 | --- | --- | --- |
-| azul | Meta | `META` |
-| rojo | Tesla | `TSLA` |
-| verde | Nvidia | `NVDA` |
-| amarillo | Amazon | `AMZN` |
+| Blue | Meta | `META` |
+| Red | Tesla | `TSLA` |
+| Green | Nvidia | `NVDA` |
+| Yellow | Amazon | `AMZN` |
 
-Un giro por lanzamiento. No se repite, no se edita despues.
+One spin per launch. It cannot be repeated, and the pairing cannot be edited afterwards.
 
-Sin build, sin dependencias. HTML, CSS y JS a pelo.
+No build step, no dependencies. Plain HTML, CSS and vanilla JS.
 
-## Estructura
+## Structure
 
 ```
-index.html   la pagina entera: barra superior, cinta de ultimos lanzamientos, rey de la colina,
-             tablero de coins, reglas, dudas, pie y el modal de creacion (formulario + ruleta + acta)
-styles.css   el sistema de diseno (mat blanco, los cuatro colores, tipografia) y el responsive
-app.js       la ruleta, la maquina de estados de los tres pasos, el tablero y el almacenamiento
+index.html   the page: header, live launch ticker, intro, metrics and spin distribution,
+             leading launch, the launch board, how it works, FAQ, footer, and the
+             create-token dialog (details -> spin -> launch, then the spin record)
+styles.css   the design system (the mat, the four reserved colours, type, layout) and
+             the responsive rules
+app.js       the dial, the three-step machine, the board, the metrics and local storage
 ```
 
-## Abrirlo
+## Running it
 
-Abre `index.html` directamente, o sirve la carpeta:
+Open `index.html` directly, or serve the folder:
 
 ```bash
-python3 -m http.server 8000     # y entra en http://localhost:8000
+python3 -m http.server 8000     # then open http://localhost:8000
 ```
 
-Se despliega soltando la carpeta en cualquier hosting estatico (Netlify, Vercel, GitHub Pages, S3,
-Cloudflare Pages).
+Deploy by dropping the folder on any static host (Netlify, Vercel, GitHub Pages, S3, Cloudflare
+Pages).
 
-## La regla, y donde esta metida
+## Where the rule lives
 
-Que no se pueda lanzar sin girar no es un aviso en la interfaz: esta comprobado en tres sitios
-distintos de `app.js`, a proposito.
+That a token cannot be launched without a spin is not a note in the interface. It is enforced in
+three independent places in `app.js`, deliberately.
 
-1. **El boton nace apagado.** `#launch` sale con `disabled` en el HTML.
-2. **La maquina de estados no llega al paso 3 sin giro.** `setStep(n)` recalcula que se puede tocar
-   en cada paso: en el 1 solo el formulario, en el 2 solo el boton de girar, y `#launch` solo se
-   enciende con `n === 3 && flow.spin`.
-3. **`launch()` lo vuelve a mirar antes de escribir nada.** Si falta el giro, el borrador o el paso,
-   escupe el mensaje, vuelve a sincronizar los botones y se va. Forzar `disabled = false` desde la
-   consola y pulsar no lanza nada — esta probado.
+1. **The control ships disabled.** `#launch` carries `disabled` in the markup.
+2. **The step machine gates it.** `setStep(n)` recomputes what is reachable at each step: step one
+   is the form, step two is the dial, and `#launch` only opens on `n === 3 && flow.spin`.
+3. **`launch()` re-checks before it writes.** Missing spin, draft or step and it reports,
+   re-synchronises the controls and returns. Setting `disabled = false` from a console and clicking
+   produces nothing — there is a regression check for exactly that.
 
-Lo mismo con el segundo giro: `doSpin()` sale por la puerta si ya hay `flow.spin`, asi que llamarlo
-a mano desde la consola tampoco cambia el color que toco.
+The second spin is closed the same way: `doSpin()` returns early once `flow.spin` exists, so
+calling it by hand does not change the colour already drawn.
 
-**Descartar no es volver a girar.** `descartar` tira el borrador entero (nombre, ticker, suministro,
-descripcion y el giro) y te devuelve a la casilla uno. Volver a editar solo existe *antes* de girar:
-en cuanto la aguja arranca, ese boton desaparece.
+**Discarding is not re-rolling.** Discard clears the entire draft — name, ticker, supply,
+description and the spin — and returns to step one. *Back to details* exists only before the spin;
+the moment the needle moves, it is gone.
 
-## La ruleta
+## The dial
 
-Dieciseis sectores de 22,5 grados: cuatro cuadrantes (mano derecha, pie derecho, pie izquierdo,
-mano izquierda, en sentido horario desde las doce) con cuatro colores dentro de cada uno. El orden
-de colores rota un puesto por cuadrante para que dos cuadrantes vecinos no empiecen igual.
+Sixteen sectors of 22.5°: four quadrants (right hand, right foot, left foot, left hand, clockwise
+from twelve) holding four colours each. The colour order rotates one place per quadrant so no two
+neighbouring quadrants open on the same colour.
 
-- **El color manda**: decide el activo, y eso es lo unico que cambia la coin.
-- **El cuadrante es la postura**: va en el acta como firma del giro y no toca ningun numero.
+- **The colour governs**: it sets the underlying asset, and it is the only thing that changes the
+  token.
+- **The quadrant is recorded**: it goes into the spin record as part of the outcome and affects no
+  parameter.
 
-El sector sale de `crypto.getRandomValues` y no de `Math.random`. Se toma el modulo 16 de un
-`Uint32`, y como 2^32 es multiplo de 16 el reparto queda plano sin sesgo de modulo: cada color
-ocupa cuatro sectores exactos, el 25%. Medido con 80.000 tiradas: verde 24,68%, amarillo 25,34%,
-azul 25,20%, rojo 24,77%.
+The sector comes from `crypto.getRandomValues`, not `Math.random`. A `Uint32` is taken modulo 16,
+and since 2^32 is a multiple of 16 there is no modulo bias: each colour holds exactly four sectors,
+an expected 25%. Measured over 80,000 draws: green 24.68%, yellow 25.34%, blue 25.20%, red 24.77%.
 
-La aguja gira de 5 a 7 vueltas mas lo que falte para caer en el centro del sector elegido, con un
-margen aleatorio dentro del sector para que no se pare siempre en el mismo punto. El resultado se
-resuelve en `transitionend`, con un `setTimeout` de respaldo: si cambias de pestana a mitad del
-giro la transicion nunca termina y sin ese respaldo el giro se quedaria colgado.
+The needle turns five to seven full rotations plus the offset needed to land on the chosen sector,
+with a random margin inside the sector so it never stops at the same point twice. The outcome
+resolves on `transitionend`, with a `setTimeout` behind it: a tab backgrounded mid-spin never fires
+the transition, and without the fallback the spin would hang.
 
-## Diseno
+## Design
 
-El tablero es el mat: fondo blanco y cuatro columnas de puntos gordos —verde, amarillo, azul,
-rojo— repetidas por detras de todo, al 17% de opacidad para que el texto siga leyendose. Es un
-`body::before` fijo, cuatro capas de `radial-gradient` con el radio en pixeles; con el radio en
-porcentaje el circulo se mide contra el tile entero y los puntos se convierten en franjas.
+The page sits on the board. The background is the mat — four columns of dots in the board's own
+order, green, yellow, blue, red — tiled behind everything at 22% opacity, with the application's
+own surfaces in opaque white floating on top. Running text always gets one of those surfaces; ink
+on a 22% tint is legible, but a headline straddling four circles is not something to ask a reader
+to do.
 
-**Los cuatro colores estan reservados: solo significan los cuatro activos.** Por eso todo el
-cromado —botones, chips, filtros, enlaces, numeros destacados— es negro tinta. En cuanto un boton
-se pone rojo parece una coin de Tesla, y el codigo de color deja de querer decir nada.
+**The four colours are reserved: they only ever mean the four assets.** Every piece of chrome —
+buttons, chips, filters, links, figures — is ink on white. A red button reads as a Tesla token, and
+the colour coding stops meaning anything the moment it is spent on decoration.
 
-Cada color lleva dos tokens, `--c` (el color) y `--on` (lo que se lee encima). El amarillo
-`#FDD208` con texto blanco no llega ni a 1,6:1, asi que sobre amarillo el texto baja a tinta y
-sobre los otros tres sube a blanco.
+Each colour carries two tokens, `--c` (the colour) and `--on` (what reads on top of it). Yellow
+`#FDD208` against white sits at 1.4:1, so text on yellow drops to ink while the other three take
+white.
 
-Tipografia: **Inter** para todo y **JetBrains Mono** para tickers, cifras, etiquetas y botones.
+Type: **Inter** throughout, **JetBrains Mono** for figures, tickers and identifiers.
 
-## Los datos
+### The distribution chart
 
-- **Todos los numeros son inventados.** La capitalizacion, las respuestas, el progreso de la curva
-  y el saldo `0 SOL` de la barra son de adorno; el tablero y el pie lo dicen.
-- Las coins viven en `localStorage` bajo `spinpad.coins.v1`, con tope de 60. Lectura y escritura
-  van envueltas en `try/catch`: un navegador que bloquee el almacenamiento sigue funcionando, solo
-  que en memoria.
-- Las cinco primeras coins son de ejemplo y salen marcadas con la etiqueta `demo`. Se siembran una
-  sola vez, cuando la clave no existe: si vacias el tablero, se queda vacio.
-- El tablero se vuelve a pintar cada minuto para que los "hace 3 min" no se queden congelados.
+The spin distribution is four horizontal bars in fixed asset order, never reordered by rank, with a
+dashed rule at the 25% each colour is expected to draw.
 
-## Antes de poner esto en serio
+Running the four fills through a palette validator returns a pass on colourblind separation — the
+worst adjacent pair, yellow against green, holds ΔE 18.4 under protanopia — but a contrast warning:
+against white, green reaches 3.0:1 and yellow only 1.4:1, both under the 3:1 floor for a mark that
+has to be findable. Those fills are not free to change, because the colour *is* the data. So the
+relief is built in instead, and it is not optional:
 
-- **No hay cadena, ni contrato, ni dinero.** Es un simulacro completo de la mecanica, no un
-  launchpad. El sitio por donde entraria un backend de verdad es `launch()`: hoy construye el
-  objeto de la coin y lo mete en el array; ahi es donde iria la llamada que despliega, y el acta
-  del giro (color, cuadrante, hora, id) es justo lo que habria que firmar y guardar junto al
-  token para que la regla sea auditable y no solo una promesa de la interfaz.
-- Meta, Tesla, Nvidia y Amazon se usan aqui como etiquetas de una demo. Atar un token al precio de
-  una accion real tiene consecuencias regulatorias serias en casi cualquier pais: eso hay que
-  mirarlo antes de lanzar nada, no despues.
-- La mecanica es un homenaje al juego de la ruleta de colores. **Twister es una marca de Hasbro** y
-  este proyecto no esta asociado a ella; por eso el producto se llama spinpad y en ninguna parte de
-  la interfaz aparece la marca.
+- every bar carries a visible ink label with its share and its count, so no value is encoded in
+  colour alone;
+- each fill takes a hairline ink ring, which keeps the light ones visible against the surface;
+- the reference rule sits above the fills with a white edge behind the dashes, so it stays readable
+  where a bar runs past it.
+
+## The data
+
+- **Every figure is generated.** Market caps, replies, curve progress and the combined total are
+  illustrative; the board, the metrics and the footer all say so.
+- Launches live in `localStorage` under `spinpad.coins.v1`, capped at 60. Reads and writes are
+  wrapped in `try/catch`: a browser that blocks storage still runs, just in memory.
+- The first five launches are samples, tagged `sample` on the board. They are seeded once, when the
+  key is absent — clearing the record leaves it cleared.
+- The board re-renders each minute so relative timestamps do not freeze on a tab left open.
+
+## Before this becomes real
+
+- **There is no chain, no contract and no money.** This is a complete simulation of the mechanic,
+  not a launchpad. The seam for a real backend is `launch()`: today it builds the token object and
+  unshifts it into the array. The spin record it produces — colour, quadrant, timestamp, id — is
+  exactly what would need to be signed and stored alongside the token for the rule to be auditable
+  rather than a promise the interface makes.
+- Meta, Tesla, Nvidia and Amazon appear here as labels in a demonstration. Pairing a token with the
+  price of a listed security carries significant regulatory consequences in most jurisdictions, and
+  that has to be resolved before anything ships, not after.
+- The colour-dial mechanic is an homage to the floor game of the same idea. **Twister is a
+  trademark of Hasbro** and this project is not affiliated with it, which is why the product is
+  called Spinpad and the trademark appears nowhere in the interface.

@@ -678,10 +678,14 @@
     $('pvTicker').textContent = ticker;
     $('pvAsset').textContent = as ? as.ticker : 'UNPAIRED';
 
+    const sub = ticker + ' · ' + (as ? 'paired with ' + as.name : 'not yet paired');
     $('sumName').textContent = name;
-    $('sumSub').textContent = ticker + ' · ' + (as ? 'paired with ' + as.name : 'not yet paired');
+    $('sumSub').textContent = sub;
 
-    $('sumRows').innerHTML = [
+    /* One set of rows, written to both panels: the live one beside the form
+       and the one on the confirmation. Two copies of this list is two chances
+       for the screen someone reads to disagree with the screen that launches. */
+    const rows = [
       ['Pairing', as ? as.name + ' (' + as.ticker + ')' : 'Decided by the wheel', false],
       ['Spin result', flow.spin ? comboOf(flow.spin.color, flow.spin.position) : 'Not spun yet', false],
       ['Colour', f ? f.label : 'Decided by the wheel', false],
@@ -690,6 +694,15 @@
       ['Spins used', (flow.spin ? 1 : 0) + ' of 1', true],
       ['Network', CFG.chain.name, false],
     ].map(([k, v, mono]) => `<div><dt>${esc(k)}</dt><dd${mono ? ' class="is-mono"' : ''}>${esc(v)}</dd></div>`).join('');
+
+    $('sumRows').innerHTML = rows;
+    if ($('liveRows')) {
+      $('liveRows').innerHTML = rows;
+      $('liveName').textContent = name;
+      $('liveSub').textContent = sub;
+      $('orbTicker').textContent = ticker;
+      $('orbTicker').nextElementSibling.textContent = as ? as.ticker : 'unpaired';
+    }
   };
 
   const say = (msg) => { $('status').textContent = msg; };

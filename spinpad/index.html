@@ -130,6 +130,7 @@
 
         <!-- 01 — create -->
         <div class="sp-stage" data-stage="1">
+          <div class="sp-make">
           <form class="sp-card sp-form" id="form" novalidate>
             <fieldset id="fields">
               <div class="sp-field">
@@ -168,6 +169,27 @@
 
             <button class="sp-btn sp-btn-dark sp-btn-block" id="toSpin" type="submit">Spin the wheel <span aria-hidden="true">→</span></button>
           </form>
+
+          <!-- what is being made, as it is typed. The pairing row cannot fill
+               in here: it is the one thing on this screen nobody gets to set. -->
+          <aside class="sp-aside">
+            <div class="sp-preview">
+              <div class="sp-orb" data-color="none">
+                <span class="sp-orb-face"><b id="orbTicker">TICKER</b><i>unpaired</i></span>
+                <span class="sp-orb-gloss"></span>
+              </div>
+              <p class="sp-preview-note">Its colour is the wheel's to give.</p>
+            </div>
+
+            <div class="sp-card sp-live">
+              <p class="sp-kicker sp-kicker-sm">Launch summary</p>
+              <h3 id="liveName">Your coin</h3>
+              <p class="sp-confirm-sub" id="liveSub">TICKER · not yet paired</p>
+              <dl class="sp-rows" id="liveRows"></dl>
+              <p class="sp-help">Nothing here is sent until you have spun and confirmed.</p>
+            </div>
+          </aside>
+          </div>
         </div>
 
         <!-- 02 — spin -->

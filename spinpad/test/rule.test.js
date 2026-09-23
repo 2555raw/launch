@@ -276,6 +276,27 @@ async function browserChecks() {
   ok('the pairing slot is empty before the spin',
     (await page.locator('#assetName').textContent()).trim() === 'Decided by the wheel');
 
+  /* The panel beside the form mirrors the draft as it is typed, and it is the
+     same list of rows the confirmation shows. Two copies of that list is two
+     chances for the screen someone reads to disagree with the screen that
+     launches, so the check is that they are byte for byte the same. */
+  const live = await page.evaluate(() => ({
+    rows: document.getElementById('liveRows').innerHTML,
+    mirror: document.getElementById('sumRows').innerHTML,
+    name: document.getElementById('liveName').textContent.trim(),
+    orb: document.getElementById('orbTicker').textContent.trim(),
+    orbPair: document.getElementById('orbTicker').nextElementSibling.textContent.trim(),
+    pairing: [...document.querySelectorAll('#liveRows > div')]
+      .map((d) => d.querySelector('dt').textContent + '=' + d.querySelector('dd').textContent),
+  }));
+  ok('the live summary follows what is typed',
+    live.name === 'Northwind Capital' && live.orb === 'NWND', JSON.stringify(live).slice(0, 120));
+  ok('and says the same as the confirmation, row for row', live.rows === live.mirror);
+  ok('with the pairing still the wheel\u2019s to give',
+    live.pairing.includes('Pairing=Decided by the wheel')
+    && live.pairing.includes('Spin result=Not spun yet')
+    && live.orbPair === 'unpaired', live.pairing.join(' | '));
+
   await page.click('#toSpin');
   await page.waitForTimeout(250);
   ok('the spin opens on step two', !(await page.locator('#spin').isDisabled()));

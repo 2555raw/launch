@@ -126,8 +126,16 @@ test/
 
 Five screens, one at a time, because the flow is the interface:
 
-1. **Create** — name, ticker, supply, an optional line of description and an optional image link.
-   The pairing slot is on this screen and says *Decided by the wheel · You cannot pick this*.
+1. **Create** — name, ticker, supply, an optional line of description and an optional image link,
+   with what is being made beside it: a preview sphere carrying the ticker, and a launch summary
+   that follows the draft as it is typed. The pairing slot says *Decided by the wheel · You cannot
+   pick this*, the sphere is the only one on the site with no colour, and the summary's pairing,
+   colour and position rows all read *Decided by the wheel*. The preview is the one place the rule
+   is visible as an absence rather than a sentence.
+
+   That summary and the one on the confirmation are rendered from a single list of rows, because
+   two copies of it are two chances for the screen someone reads to disagree with the screen that
+   launches. A check compares the two panels row for row.
 2. **Spin** — the wheel, large and centred, and one button. *Let the wheel decide. One spin, one
    pairing.*
 3. **Result** — `YOU LANDED ON / LEFT FOOT · BLUE`, then `PAIRING / Skype`, then `PAIRING LOCKED`.
@@ -353,7 +361,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-179 checks across three suites.
+182 checks across three suites.
 
 ### The chain, checked without a chain
 

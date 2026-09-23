@@ -502,7 +502,56 @@ a { color: inherit; text-decoration: none; }
   background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r);
   padding: clamp(24px, 3vw, 34px); box-shadow: var(--sh-sm);
 }
-.sp-form { width: min(620px, 100%); margin-inline: auto; }
+/* 01 — the form, and what it is making, side by side */
+.sp-make {
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  gap: 24px; align-items: start;
+}
+.sp-aside { display: grid; gap: 20px; position: sticky; top: calc(var(--nav-h) + var(--nav-gap) * 2); }
+
+.sp-preview {
+  display: grid; justify-items: center; gap: 18px;
+  padding: clamp(28px, 4vw, 44px) 24px;
+  background: linear-gradient(180deg, var(--tint), #fff);
+  border: 1.5px solid var(--line); border-radius: var(--r);
+}
+.sp-preview-note { font: 500 12.5px/1 var(--mono); color: var(--dim); }
+
+/* The same lit sphere as the hero, at the size a preview wants. It is the one
+   on the page with no colour yet, because on this screen there is no pairing —
+   so it takes the neutral, and says so underneath. */
+.sp-orb {
+  position: relative; display: grid; place-items: center;
+  width: clamp(120px, 22vw, 168px); aspect-ratio: 1; border-radius: 50%;
+  font-size: clamp(120px, 22vw, 168px);
+  background: radial-gradient(circle at 32% 26%, var(--c-hi, #EFEFEC) 0%, var(--c) 46%, var(--c-lo, #8E9096) 100%);
+  box-shadow:
+    inset 0 -0.10em 0.18em -0.06em rgba(0, 0, 0, .34),
+    inset 0 0.04em 0.10em -0.03em rgba(255, 255, 255, .55),
+    0 0.14em 0.22em -0.10em rgba(16, 17, 20, .38),
+    0 0.26em 0.36em -0.20em rgba(16, 17, 20, .28);
+  transition: background .3s var(--ease);
+}
+.sp-orb-face {
+  position: relative; z-index: 1;
+  display: grid; place-items: center; align-content: center; gap: 3px;
+  width: 62%; height: 62%; border-radius: 50%; text-align: center;
+  background: radial-gradient(circle at 34% 28%, #fff 0%, #F4F4F2 100%);
+  box-shadow: inset 0 0.015em 0.05em rgba(16, 17, 20, .2);
+}
+.sp-orb-face b { font: 700 clamp(15px, 2.6vw, 19px)/1 var(--mono); letter-spacing: -0.02em; max-width: 84%; overflow: hidden; text-overflow: ellipsis; }
+.sp-orb-face i { font: 600 8.5px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; font-style: normal; color: var(--muted); }
+.sp-orb-gloss {
+  position: absolute; inset: 0; z-index: 2; border-radius: 50%; pointer-events: none;
+  background:
+    radial-gradient(38% 26% at 32% 20%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 68%),
+    radial-gradient(52% 34% at 68% 94%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 72%);
+}
+
+.sp-live h3 { margin-top: 12px; font-size: 21px; }
+.sp-live .sp-rows { margin: 18px 0 14px; }
+
+.sp-form { width: 100%; }
 .sp-form fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 22px; }
 .sp-form fieldset[disabled] { opacity: .55; }
 
@@ -780,6 +829,14 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 860px) {
+  /* The preview is a mirror of the form. Stacked, it repeats what was just
+     typed a screen further down, so it goes above the form rather than under
+     it — seen before you fill anything in, ignored afterwards. */
+  .sp-make { grid-template-columns: 1fr; gap: 20px; }
+  .sp-aside { position: static; order: -1; }
+  .sp-form { width: min(620px, 100%); margin-inline: auto; }
+  .sp-aside { width: min(620px, 100%); margin-inline: auto; }
+
   .sp-hero-motion { position: static; margin-top: 24px; }
   /* and the scroll cue has nothing to say when the wheel is already half
      below the fold telling you the same thing */

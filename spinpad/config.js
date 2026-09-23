@@ -27,9 +27,12 @@
  * This file is where you would change the names if you would rather not carry
  * that.
  *
- * ADDRESSES ARE EMPTY ON PURPOSE. They were not written from memory, because a
- * wrong one sends real liquidity somewhere it cannot be recovered from. Fill
- * them from a source you trust; the pad checks them before it uses them.
+ * ADDRESSES. None of these was written from memory. `quote` is filled in with
+ * WETH on Base, taken from Uniswap's own published token list and corroborated
+ * by a second Uniswap package. `router` is still empty because no package
+ * publishes a V2 router for Base, and a wrong one sends real liquidity
+ * somewhere it cannot be recovered from. The pad checks whatever is here
+ * against the live chain before it uses it.
  * ────────────────────────────────────────────────────────────────────────────
  */
 window.SPINPAD_CONFIG = {
@@ -47,6 +50,19 @@ window.SPINPAD_CONFIG = {
    * Uniswap V2-compatible: addLiquidity / addLiquidityETH. A Solidly-style
    * router (Aerodrome) has a different signature and will not work unchanged —
    * the pad checks the interface before it calls it. */
+  /* STILL EMPTY, and not for the same reason the quote token was. There is no
+   * package on npm that publishes a V2 router address for Base: @uniswap/v2-sdk
+   * ships one factory, 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f, and that is
+   * Ethereum mainnet. So there was nothing to copy from a source, and writing
+   * forty characters from memory into the call that moves the liquidity is how
+   * money ends up somewhere nobody can get it back from.
+   *
+   * Fill both from the router's own deployment page. The pad checks it before
+   * it will use it: WETH() has to return `weth` below and factory() has to
+   * answer at all, or pools stay off and deploying still works.
+   *
+   * Aerodrome is the big one on Base and is NOT a drop-in: it is Solidly-style,
+   * its addLiquidity takes a `stable` flag this pad does not send. */
   router: {
     address: '',                                // ← fill in, then verify
     kind: 'uniswap-v2',
@@ -54,11 +70,28 @@ window.SPINPAD_CONFIG = {
   },
 
   /* Every pool is opened against this one token. It is the only address the pad
-   * needs to move money, and it is checked against the chain on connect. */
+   * needs to move money, and it is checked against the chain on connect.
+   *
+   * WETH on Base, and the one address here that was not written from memory:
+   * it came out of the `@uniswap/default-token-list` package (Uniswap Labs
+   * Default, v22.21.0) and is corroborated by the WETH9 map in
+   * `@uniswap/sdk-core`, which is a second package agreeing on the same forty
+   * characters. Check it yourself against basescan before you put money
+   * through it; the pad also calls symbol() and decimals() on connect and
+   * refuses it if the chain disagrees.
+   *
+   * To pair against something else, replace these four lines. From the same
+   * list, on Base:
+   *   USDC   6  0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+   *   USDbC  6  0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA
+   *   cbBTC  8  0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf
+   *   DAI   18  0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb
+   *   EURC   6  0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42
+   * The ticker and decimals have to match the chain, not your intention. */
   quote: {
     name: 'Wrapped Ether',
     ticker: 'WETH',
-    address: '',                                // ← fill in, then verify
+    address: '0x4200000000000000000000000000000000000006',
     decimals: 18,
   },
 

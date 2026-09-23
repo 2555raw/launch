@@ -36,14 +36,35 @@ Launching calls `eth_sendTransaction` on **Base mainnet** from the connected wal
 it is permanent, and there is no undo. Opening the first pool moves real funds. The page says so
 before it lets anyone in, and it is the first thing to understand about the rest of this document.
 
-**No address in `config.js` is filled in.** They were left empty on purpose: this was built in an
-environment with no route to Base, so nothing could be checked against the chain, and an address
-written from memory into a tool that moves money is how someone's liquidity ends up somewhere it
-cannot be recovered from. Fill them from a source you trust, and the pad will check them for you —
-on connect it calls `symbol()` and `decimals()` on the quote token and refuses to open a pool if the
-answers do not match. The router has to answer like a Uniswap V2 router, and its `WETH()` has to
-match the config, or pools stay off. Deploying a coin needs neither: the pairing is a name, so the
-sixteen cells carry no address at all.
+**What a coin is actually paired with is one token, not sixteen.** The names on the board go into
+the contract as text. The pool opens against `quote` in `config.js`, and that is the only address
+the pad needs to move money.
+
+That one is filled in: **WETH on Base, `0x4200000000000000000000000000000000000006`.** It was not
+written from memory. It came out of the `@uniswap/default-token-list` package — Uniswap Labs
+Default, v22.21.0 — and the WETH9 map in `@uniswap/sdk-core` independently agrees on the same forty
+characters. Every logo CDN is refused by the network this was built on, but the npm registry is not,
+and a published package is a source you can check rather than a thing a model remembers.
+
+To pair against something else, replace four lines. From the same list, on Base: USDC (6 decimals)
+`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`, USDbC (6) `0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA`,
+cbBTC (8) `0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf`, DAI (18)
+`0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb`, EURC (6)
+`0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42`. It has to be a plain ERC-20: `addLiquidity` computes
+the amounts before it transfers, so a fee-on-transfer or rebasing token leaves the pool wrong.
+
+**The router is still empty, and for a different reason.** No package publishes a V2 router address
+for Base — `@uniswap/v2-sdk` ships one factory and it is Ethereum mainnet's. There was nothing to
+copy from a source, so nothing was written. Fill `router.address` and `router.weth` from the
+router's own deployment page. Until then the pad deploys coins and pools stay off, which is the
+right way round.
+
+Whatever is in there, the pad checks against the live chain on connect: `symbol()` and `decimals()`
+on the quote token, `WETH()` and `factory()` on the router, and it refuses anything that disagrees.
+Deploying a coin needs neither — the pairing is a name, so the sixteen cells carry no address at all.
+
+Aerodrome is the large DEX on Base and is **not** a drop-in: it is Solidly-style and its
+`addLiquidity` takes a `stable` flag this pad does not send.
 
 ### Logos
 
@@ -438,9 +459,9 @@ not a unit test of the internals; it goes at the product the way someone trying 
 
 ## Before the first real launch
 
-1. **Fill in `config.js`** — three addresses, not sixteen: the router, its `WETH()`, and the `quote`
-   token the pools pair against. Take them from the project's own site or a verified contract page,
-   not from a search result and not from this file. The sixteen cells are names and carry no address.
+1. **Fill in the router** — two addresses, `router.address` and its `WETH()`. The `quote` token is
+   already WETH on Base. Take the router from its own deployment page, not from a search result and
+   not from this file. The sixteen cells are names and carry no address.
 2. **Connect and read the panel.** The pad calls `symbol()` and `decimals()` on the quote token and
    checks the router answers like a V2 router. If either fails, deploying still works and pools stay
    off.

@@ -182,12 +182,73 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- hero ---------- */
 
-.sp-hero {
+/* Full-bleed so the drifting sixteen can pass the edges of the window, with
+   the copy and the wheel still inside the same column as everything else.
+   The clipping lives here rather than on the drift layer, so a chip that hangs
+   off the side cannot widen the page. */
+.sp-hero { position: relative; overflow: hidden; isolation: isolate; }
+.sp-hero-in {
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(32px, 6vw, 88px); align-items: center;
   width: min(1200px, 100% - 48px); margin-inline: auto;
   padding: clamp(56px, 9vw, 120px) 0 clamp(48px, 7vw, 96px);
 }
+
+/* ---------- the drifting sixteen ----------
+ *
+ * Every asset on the board, once each, floating behind the hero on a disc of
+ * its own colour. Depth is done with size and opacity rather than blur: a
+ * blurred element that animates repaints every frame, and sixteen of them is
+ * how a landing page starts dropping frames on a laptop.
+ *
+ * Two elements per chip on purpose. The outer one places it and plays the
+ * arrival once; the inner one floats forever. One element cannot do both,
+ * because the second animation would replace the first.
+ */
+.sp-floaters { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.sp-floaters::before {
+  content: ""; position: absolute; inset: -20%; z-index: -1;
+  background:
+    radial-gradient(38% 46% at 12% 16%, rgba(228, 50, 43, .07), transparent 70%),
+    radial-gradient(34% 42% at 88% 22%, rgba(253, 210, 8, .10), transparent 70%),
+    radial-gradient(40% 44% at 78% 84%, rgba(27, 117, 188, .07), transparent 70%),
+    radial-gradient(36% 40% at 18% 86%, rgba(47, 168, 79, .07), transparent 70%);
+}
+
+.sp-float {
+  position: absolute; left: var(--x); top: var(--y);
+  width: var(--s); height: var(--s); margin: calc(var(--s) / -2);
+  opacity: 0;
+  animation: sp-float-arrive .9s var(--ease) both var(--delay);
+}
+.sp-float-in {
+  display: block; width: 100%; height: 100%;
+  animation: sp-float-drift var(--dur) ease-in-out infinite alternate;
+  animation-delay: var(--offset);
+}
+.sp-float-disc {
+  display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 22px 30px -20px rgba(16, 17, 20, .55), inset 0 0 0 1px rgba(16, 17, 20, .07);
+}
+.sp-float-face {
+  display: grid; place-items: center; width: 64%; height: 64%; border-radius: 50%;
+  background: #fff; box-shadow: inset 0 0 0 1px rgba(16, 17, 20, .06);
+}
+.sp-float-face .sp-mark { width: 74%; height: 62%; }
+.sp-float-face .sp-glyph { color: var(--c); }
+
+@keyframes sp-float-arrive {
+  from { opacity: 0; transform: translateY(26px) scale(.86); }
+  to   { opacity: var(--o); transform: none; }
+}
+@keyframes sp-float-drift {
+  from { transform: translate3d(0, var(--riseA), 0) rotate(var(--tiltA)); }
+  to   { transform: translate3d(0, var(--riseB), 0) rotate(var(--tiltB)); }
+}
+
+.sp-hero.is-still .sp-float-in { animation-play-state: paused; }
+.sp-hero-motion { position: absolute; left: clamp(20px, 4vw, 48px); bottom: 20px; margin: 0; }
 .sp-eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 26px; }
 .sp-lede { margin-top: 28px; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.6; color: var(--prose); max-width: 42ch; }
 .sp-hero-cta { margin-top: 36px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
@@ -247,7 +308,7 @@ a { color: inherit; text-decoration: none; }
 
 /* The nav is sticky, so anything scrolled to by an anchor has to start below
    it — without this every section heading arrives hidden under the bar. */
-.sp-sec, .sp-hero { scroll-margin-top: calc(var(--nav-h) + var(--nav-gap) * 2); }
+.sp-sec, .sp-hero-in { scroll-margin-top: calc(var(--nav-h) + var(--nav-gap) * 2); }
 
 .sp-sec { padding: clamp(64px, 9vw, 120px) 0; border-top: 1px solid var(--line); }
 .sp-sec-tint { background: var(--tint); }
@@ -624,11 +685,17 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 1080px) {
   .sp-nav-links { gap: 16px; font-size: 13.5px; }
-  .sp-hero { grid-template-columns: 1fr; gap: 44px; }
+  .sp-hero-in { grid-template-columns: 1fr; gap: 44px; }
   .sp-hero-copy { max-width: 620px; }
 }
 
 @media (max-width: 860px) {
+  /* one column, so the hero is nearly twice as tall and every percentage in
+     the slot table points somewhere else. Smaller, and the two that lived in
+     the gap between the copy and the wheel have no gap to live in. */
+  .sp-float { width: calc(var(--s) * .66); height: calc(var(--s) * .66); margin: calc(var(--s) * -.33); }
+  .sp-float[data-zone="inner"] { display: none; }
+
   .sp-burger { display: block; }
   .sp-nav { flex-wrap: wrap; }
   .sp-nav-links {
@@ -646,7 +713,11 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 600px) {
-  .sp-wrap, .sp-wrap-narrow, .sp-hero { width: calc(100% - 32px); }
+  .sp-float { width: calc(var(--s) * .5); height: calc(var(--s) * .5); margin: calc(var(--s) * -.25); }
+  .sp-float[data-zone="band"] { display: none; }
+  .sp-floaters { opacity: .62; }   /* six discs on a phone, and quieter */
+
+  .sp-wrap, .sp-wrap-narrow, .sp-hero-in { width: calc(100% - 32px); }
   /* the bar is brand, wallet and menu at this width and nothing else: the
      fourth control pushed the row onto a second line, which a fixed-height
      sticky header then spilled over the top of the page */
@@ -665,6 +736,8 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .sp-ticker-track, .sp-hero-wheel .sp-wheel-arrow { animation: none; }
+  .sp-float { animation: none; opacity: var(--o); }
+  .sp-float-in { animation: none; }
   .sp-wheel-arrow { transition-duration: .2s; }
   .sp-stage { animation: none; }
   .sp-btn, .sp-cell, .sp-desk-card, .sp-meter-fill, .sp-wheel-face { transition: none; }

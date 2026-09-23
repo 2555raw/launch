@@ -175,6 +175,51 @@ async function browserChecks() {
   await page.waitForTimeout(600);
   ok('and it stays closed on the way back', !(await page.locator('#gate').isVisible()));
 
+  /* ---------- the hero ---------- */
+  console.log('\nthe drifting sixteen');
+  const drift = await page.evaluate(() => {
+    const chips = [...document.querySelectorAll('.sp-float')];
+    return {
+      count: chips.length,
+      colours: chips.map((c) => c.dataset.color),
+      zones: chips.map((c) => c.dataset.zone),
+      logos: chips.map((c) => {
+        const i = c.querySelector('img.sp-logo');
+        return i ? i.getAttribute('src') : null;
+      }),
+      behind: chips.every((c) => Number(getComputedStyle(c.closest('.sp-floaters')).zIndex) < 0),
+      inert: getComputedStyle(document.querySelector('.sp-floaters')).pointerEvents === 'none',
+    };
+  });
+  ok('all sixteen assets drift behind the hero', drift.count === 16, String(drift.count));
+  ok('one chip per cell, no asset twice', new Set(drift.logos).size === 16,
+    new Set(drift.logos).size + ' distinct');
+  ok('four of each colour, like the table',
+    ['red', 'yellow', 'green', 'blue'].every((k) => drift.colours.filter((c) => c === k).length === 4),
+    JSON.stringify(drift.colours));
+  ok('every chip is tagged with a zone, so a phone can drop the inner ones',
+    drift.zones.every((z) => ['edge', 'band', 'inner'].includes(z)));
+  ok('the layer sits behind the page and swallows no clicks', drift.behind && drift.inert);
+
+  // sixteen things moving for ever is the case a pause control exists for
+  const paused = await page.evaluate(async () => {
+    const chip = document.querySelector('.sp-float-in');
+    const before = getComputedStyle(chip).animationPlayState;
+    document.getElementById('motion').click();
+    await new Promise((r) => setTimeout(r, 60));
+    const after = getComputedStyle(chip).animationPlayState;
+    const label = document.getElementById('motion').textContent.trim();
+    const pressed = document.getElementById('motion').getAttribute('aria-pressed');
+    document.getElementById('motion').click();
+    await new Promise((r) => setTimeout(r, 60));
+    return { before, after, label, pressed, back: getComputedStyle(chip).animationPlayState };
+  });
+  ok('the motion control really stops them',
+    paused.before === 'running' && paused.after === 'paused' && paused.back === 'running',
+    JSON.stringify(paused));
+  ok('and says so, to a screen reader too',
+    paused.label === 'Resume motion' && paused.pressed === 'true', JSON.stringify(paused));
+
   /* ---------- the board ---------- */
   console.log('\nthe board');
   ok('the board is the whole four-by-four', await page.locator('#board .sp-cell').count() === 16);

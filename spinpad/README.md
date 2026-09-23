@@ -218,6 +218,32 @@ The hero is one headline and one object: the wheel, which tilts a little under t
 the pairing under whichever node you point at. It is SVG generated at runtime from the same
 `SECTORS` table the outcome is read from.
 
+### The drifting sixteen
+
+Behind the hero, every asset on the board floats once, each on a disc of its own colour, over a very
+faint wash of the four. It is built from the pairing table like everything else, so the first thing
+anyone sees cannot advertise a pairing the wheel will not give — a check counts sixteen chips, four
+per colour, no asset twice.
+
+Four things about it are decisions rather than defaults:
+
+- **The slots are written out, not randomised.** Random placement stacks two discs on top of each
+  other about as often as not, and drops one behind the headline where it fights the only words on
+  the page. The near, solid discs hold the margins; the faint ones fill the middle distance.
+- **Depth is size and opacity, never blur.** A blurred element that animates repaints every frame,
+  and sixteen of them is how a landing page starts dropping frames on a laptop.
+- **Two elements per chip.** The outer one places it and plays the arrival once; the inner one
+  floats for ever. One element cannot do both — the second animation would replace the first.
+- **Every chip carries a zone.** A layout tuned for two columns has nothing to say about one: on a
+  phone the hero is nearly twice as tall, every percentage lands somewhere else, and a disc that sat
+  in the gap between the copy and the wheel ends up on the headline. Narrow screens keep the six
+  edge chips, at half size and quieter, and drop the rest.
+
+There is a **Pause motion** control, and it is not a nicety: sixteen things moving indefinitely is
+exactly what a pause control is for. A check presses it and asserts the animation actually stops,
+that it resumes, and that the label and `aria-pressed` follow. Under `prefers-reduced-motion` the
+chips arrive and then hold still.
+
 A stage's `display` is declared next to the rule that reveals it, never on its `.sp-stage-*` class.
 Those class rules sit lower in the file, and a `display` on one of them beats
 `.sp-stage { display: none }` — which leaves that stage on screen at every step. That happened; the
@@ -294,7 +320,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-158 checks across three suites.
+165 checks across three suites.
 
 ### The chain, checked without a chain
 

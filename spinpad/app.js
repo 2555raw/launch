@@ -263,6 +263,92 @@
     });
   };
 
+  /* ---------- the drifting sixteen ----------
+   *
+   * Every asset on the board, once each, floating behind the hero on a disc of
+   * its own colour. Built from the pairing table like everything else, so the
+   * first thing anyone sees cannot advertise a pairing the wheel will not give.
+   *
+   * The slots are written out rather than randomised. Random placement puts two
+   * discs on top of each other about as often as not, and drops one behind the
+   * headline where it fights the only words on the page. These are laid out
+   * around the copy and the wheel: the big, solid ones hold the margins, the
+   * small faint ones fill the middle distance.
+   *
+   * `d` is depth, 0 near to 1 far, and it sets size and opacity together. Blur
+   * would be the obvious third, and it is the reason this does not use it: a
+   * blurred element that animates repaints every frame, and sixteen of those is
+   * how a landing page starts dropping frames on a laptop.
+   */
+  /* `z` is the zone, and it is what makes this survive a phone. A layout tuned
+     for two columns has nothing to say about one: the hero grows to nearly
+     twice the height, every percentage lands somewhere else, and a disc that
+     sat in the gap between the copy and the wheel ends up on the headline.
+     Narrow screens keep the edge chips and drop the rest. */
+  const SLOTS = [
+    // the margins, where a disc can be big and solid without covering anything
+    { x: 3,  y: 24, d: 0.05, z: 'edge' }, { x: 5,  y: 72, d: 0.12, z: 'edge' },
+    { x: 96, y: 20, d: 0.10, z: 'edge' }, { x: 98, y: 66, d: 0.18, z: 'edge' },
+    { x: 26, y: 96, d: 0.28, z: 'edge' }, { x: 88, y: 94, d: 0.32, z: 'edge' },
+    // the band above the copy, and the one below it
+    { x: 31, y: 6,  d: 0.50, z: 'band' }, { x: 53, y: 9,  d: 0.62, z: 'band' },
+    { x: 71, y: 4,  d: 0.45, z: 'band' }, { x: 39, y: 92, d: 0.58, z: 'band' },
+    { x: 60, y: 97, d: 0.74, z: 'band' }, { x: 75, y: 90, d: 0.54, z: 'band' },
+    // the gap between the copy and the wheel
+    { x: 47, y: 44, d: 0.84, z: 'inner' }, { x: 44, y: 74, d: 0.70, z: 'inner' },
+    // and two far enough back to pass behind the words without being read
+    { x: 19, y: 42, d: 0.93, z: 'inner' }, { x: 91, y: 44, d: 0.88, z: 'inner' },
+  ];
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  const renderFloaters = () => {
+    const box = $('drift');
+    if (!box) return;
+
+    // one chip per cell of the table, in reading order, so all sixteen appear
+    const cells = [];
+    POSITIONS.forEach((p) => COLOURS.forEach((c) => {
+      cells.push({ colour: c.id, asset: assetOf(c.id, p.id) });
+    }));
+
+    box.innerHTML = cells.map((cell, i) => {
+      const slot = SLOTS[i % SLOTS.length];
+      const size = Math.round(lerp(94, 38, slot.d));
+      const opacity = lerp(0.95, 0.16, slot.d).toFixed(2);
+      // the far ones drift further and slower, which is backwards from life and
+      // right on screen: a small slow mover reads as distant
+      const rise = lerp(10, 26, slot.d).toFixed(0);
+      const tilt = lerp(3, 9, slot.d).toFixed(0);
+      const dur = lerp(6.5, 13, slot.d).toFixed(1);
+      const dir = i % 2 ? 1 : -1;
+      return `<span class="sp-float" data-color="${cell.colour}" data-zone="${slot.z}" style="
+          --x:${slot.x}%; --y:${slot.y}%; --s:${size}px; --o:${opacity};
+          --delay:${(0.06 * i).toFixed(2)}s; --dur:${dur}s; --offset:-${(0.7 * i).toFixed(2)}s;
+          --riseA:${rise * dir}%; --riseB:${-rise * dir}%;
+          --tiltA:${tilt * dir}deg; --tiltB:${-tilt * dir}deg;">
+        <span class="sp-float-in">
+          <span class="sp-float-disc">
+            <span class="sp-float-face">${mark(cell.asset, Math.round(size * 0.4))}</span>
+          </span>
+        </span>
+      </span>`;
+    }).join('');
+  };
+
+  /* Sixteen things moving for ever is exactly the case a pause control exists
+     for. It is not decoration you can ignore if it bothers you. */
+  const wireMotion = () => {
+    const btn = $('motion');
+    const hero = document.querySelector('.sp-hero');
+    if (!btn || !hero) return;
+    btn.addEventListener('click', () => {
+      const still = hero.classList.toggle('is-still');
+      btn.textContent = still ? 'Resume motion' : 'Pause motion';
+      btn.setAttribute('aria-pressed', String(still));
+    });
+  };
+
   /* ---------- the board ----------
    *
    * The whole table at once: four positions down, four colours across. This is
@@ -1067,6 +1153,8 @@
     labelWheel($('heroWheel'));
     labelWheel(document.querySelector('.sp-wheel-big'));
     wireHeroWheel();
+    renderFloaters();
+    wireMotion();
     renderBoardGrid();
     renderDesk();
     wireGate();

@@ -19,8 +19,10 @@ assets/usdg.png     USDG        assets/skype.png    Skype
 assets/sbux.png     Starbucks   assets/intc.png     Intel
 ```
 
+Four ship: `nflx.png`, `ko.png`, `yt.png` and `tsla.png` — the red column.
+
 **A missing file costs nothing.** The cell falls back to a drawn abstract mark, silently, so the
-board looks finished whether you add one logo or all sixteen. Nothing ships in this folder.
+board looks finished whether you add one logo or all sixteen.
 
 Prefer an SVG? Point at it in `config.js`:
 
@@ -32,15 +34,20 @@ A URL works too, if you would rather not host them: `logo: 'https://example.com/
 
 ## What makes one read well
 
-The marks sit on coloured circles between 24px and 34px across.
+**A cell with a logo gets a white disc**, with its colour as a ring around it — so the logo can be
+in its own colours and does not have to fight a saturated background. That changes what makes a
+good file:
 
-- **A silhouette beats a full-colour logo.** At 22px on a red circle, a detailed mark turns to mush;
-  a single-colour shape stays legible.
-- **White or very light**, because the circle underneath is saturated. The drawn marks it replaces
-  use `currentColor`, which is already the circle's contrast colour.
-- **Square and centred.** The page draws it into a square box, so a wide wordmark gets squeezed —
-  crop to the symbol rather than the full lockup.
-- **SVG or a transparent PNG.** A white rectangle around the mark will be very visible on the circle.
+- **Its own colours, not a silhouette.** The disc is white, so Tesla's red and Coca-Cola's script
+  land exactly as they should.
+- **Transparent, or on a white field.** Both work: a white field disappears into the disc. What
+  does not work is a coloured card around the mark, which will show as a square inside the circle.
+- **Crop to the mark.** The file is drawn into a box 76% wide and 64% tall, so a wide wordmark has
+  room, but a full lockup with a tagline will still come out tiny.
+- **Do not chroma-key a white background to transparency.** The anti-aliased pixels between the
+  mark and the field are neither, and a threshold leaves a white fringe on every edge. Leave the
+  white in; the disc is white.
+- **PNG or SVG.** 128px square is plenty; the largest it is ever drawn is about 47px.
 
 ## One thing worth being sure about
 

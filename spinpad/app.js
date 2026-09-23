@@ -98,9 +98,31 @@
     const logo = typeof asset === 'string' ? '' : (asset && asset.logo);
     const svg = drawn(glyph, size);
     if (!logo) return svg;
-    return `<span class="sp-mark" style="width:${size}px;height:${size}px">${svg}`
-      + `<img class="sp-logo" src="${esc(logo)}" alt="" width="${size}" height="${size}"`
-      + ` onload="this.parentNode.classList.add('has-logo')"></span>`;
+    // the size is a custom property rather than a width, so the stylesheet can
+    // give a real logo more of the disc than a drawn glyph needs
+    return `<span class="sp-mark" style="--m:${size}px">${svg}`
+      + `<img class="sp-logo" src="${esc(logo)}" alt="" width="${size}" height="${size}"></span>`;
+  };
+
+  /* A logo that has actually loaded turns its disc white and pushes the colour
+     out to a ring. Brand logos come in their own colours, and a red Tesla on a
+     red circle is not a logo, it is a red circle — but the colour is the whole
+     code of this product, so it stays, as the ring.
+   
+     This listens in the capture phase because `load` on an <img> does not
+     bubble. The old inline onload could only reach the <span> around the image;
+     the disc is one level further out. */
+  const LOGO_HOLDER = '.sp-cell-node, .sp-desk-mark, .sp-result-mark, .sp-launch-mark, .sp-confirm-mark';
+
+  const wireLogos = () => {
+    document.addEventListener('load', (e) => {
+      const img = e.target;
+      if (!img || !img.classList || !img.classList.contains('sp-logo')) return;
+      if (!img.naturalWidth) return;             // a 0x0 response is not a logo
+      img.parentNode.classList.add('has-logo');
+      const disc = img.closest(LOGO_HOLDER);
+      if (disc) disc.classList.add('has-logo');
+    }, true);
   };
 
   /* ---------- helpers ---------- */
@@ -619,9 +641,8 @@
     const as = assetOf(c.color, c.position);
     const size = 24;
     const face = c.image
-      ? `<span class="sp-mark" style="width:${size}px;height:${size}px">${drawn(as.glyph, size)}`
-        + `<img class="sp-logo" src="${esc(c.image)}" alt="" width="${size}" height="${size}"`
-        + ` onload="this.parentNode.classList.add('has-logo')"></span>`
+      ? `<span class="sp-mark" style="--m:${size}px">${drawn(as.glyph, size)}`
+        + `<img class="sp-logo" src="${esc(c.image)}" alt="" width="${size}" height="${size}"></span>`
       : mark(as, size);
     return `
       <div class="sp-launch" data-color="${c.color}">
@@ -1270,6 +1291,7 @@
   /* ---------- wiring ---------- */
 
   const init = () => {
+    wireLogos();            // before anything renders, or the first images race it
     drawWheel($('heroWheelSvg'));
     drawWheel($('dial'));
     labelWheel($('heroWheel'));

@@ -56,13 +56,19 @@ const comboAt = (cfg, sec) => {
    scroll position to stop changing before measuring anything. */
 const settle = async (page) => {
   await page.waitForFunction(() => new Promise((done) => {
-    let last = window.scrollY, still = 0;
+    /* Watch for a fixed stretch before believing anything. A smooth scroll has
+       a pre-roll: scrollY sits unchanged for the first few frames after
+       scrollIntoView is called, so a "three identical frames" test resolves
+       before the animation has moved at all, and every measurement after it is
+       of a page that is about to slide out from under the pointer. */
+    let last = window.scrollY, still = 0, seen = 0;
     const tick = () => {
+      seen += 1;
       if (window.scrollY === last) still += 1; else { still = 0; last = window.scrollY; }
-      if (still >= 3) done(true); else requestAnimationFrame(tick);
+      if (seen >= 12 && still >= 6) done(true); else requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
-  }), null, { timeout: 5000 });
+  }), null, { timeout: 8000 });
 };
 
 const get = (url) => new Promise((resolve, reject) => {
@@ -368,7 +374,7 @@ async function browserChecks() {
     return [0, 1, 2, 3].find((c) => c !== at);
   });
   const target = page.locator(`.sp-mat-dot[data-row="3"][data-col="${freeCol}"]`);
-  await target.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  await target.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await settle(page);
   await target.click();
   await page.waitForTimeout(300);
@@ -383,11 +389,18 @@ async function browserChecks() {
   const from = await page.locator(`.sp-fig-grip[data-limb="${lastRow}"]`).boundingBox();
   const onto = await page.locator(`.sp-mat-dot[data-row="3"][data-col="${dragCol}"]`).boundingBox();
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
-  ok('the grip is under the pointer before the drag starts',
-    await page.evaluate(([x, y]) => {
-      const el = document.elementFromPoint(x, y);
-      return !!(el && el.closest && el.closest('.sp-fig-grip'));
-    }, [from.x + from.width / 2, from.y + from.height / 2]));
+  const under = await page.evaluate(([x, y]) => {
+    const el = document.elementFromPoint(x, y);
+    const g = document.querySelector('.sp-fig-grip[data-limb]');
+    const r = g ? g.getBoundingClientRect() : null;
+    return {
+      hit: !!(el && el.closest && el.closest('.sp-fig-grip')),
+      at: el ? (el.className.baseVal !== undefined ? el.className.baseVal : el.className) : null,
+      aimed: [Math.round(x), Math.round(y)],
+      firstGrip: r ? [Math.round(r.x + r.width / 2), Math.round(r.y + r.height / 2)] : null,
+    };
+  }, [from.x + from.width / 2, from.y + from.height / 2]);
+  ok('the grip is under the pointer before the drag starts', under.hit, JSON.stringify(under));
   await page.mouse.down();
   await page.mouse.move(onto.x + onto.width / 2, onto.y + onto.height / 2, { steps: 12 });
   await page.mouse.up();
@@ -452,6 +465,28 @@ async function browserChecks() {
   ok('every cell has a mark', marks.drawn >= 16, marks.drawn + ' drawn');
   ok('a missing logo file shows nothing at all', marks.visibleImages === marks.loaded,
     marks.visibleImages + ' visible, ' + marks.loaded + ' actually loaded');
+
+  /* A logo that loaded has to end up on a white disc, or a red Tesla lands on
+     a red circle and disappears. The colour moves to the ring, so the disc
+     still says which colour the cell is. */
+  const discs = await page.evaluate(() => {
+    const out = { withLogo: 0, white: 0, ringed: 0, coloured: 0 };
+    document.querySelectorAll('#boardGrid .sp-cell-node').forEach((d) => {
+      const cs = getComputedStyle(d);
+      const has = d.querySelector('img.sp-logo');
+      const loaded = has && has.complete && has.naturalWidth > 0;
+      if (!loaded) { if (cs.backgroundColor !== 'rgb(255, 255, 255)') out.coloured += 1; return; }
+      out.withLogo += 1;
+      if (cs.backgroundColor === 'rgb(255, 255, 255)') out.white += 1;
+      if (/inset/.test(cs.boxShadow)) out.ringed += 1;
+    });
+    return out;
+  });
+  ok('a loaded logo sits on a white disc',
+    discs.withLogo > 0 && discs.white === discs.withLogo, JSON.stringify(discs));
+  ok('and the colour is still there as a ring', discs.ringed === discs.withLogo, JSON.stringify(discs));
+  ok('a cell with no logo file keeps its coloured disc',
+    discs.coloured === 16 - discs.withLogo, JSON.stringify(discs));
 
   // both wheels carry all sixteen nodes, and their corner labels match the table
   const nodes = await page.evaluate(() => ({

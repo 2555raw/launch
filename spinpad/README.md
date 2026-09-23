@@ -49,14 +49,32 @@ sixteen cells carry no address at all.
 ### Logos
 
 `config.js` already points every cell at `assets/<ticker>.png`, so there is nothing to wire: drop
-`tsla.png` into `assets/` and Tesla's cell wears it. None ship, and a missing file costs nothing —
-the drawn mark and the logo are stacked in the same box and the image only becomes visible once it
-has actually loaded, so a cell with no file simply keeps its drawn mark. `assets/README.md` has the
-full list of filenames.
+`tsla.png` into `assets/` and Tesla's cell wears it. A missing file costs nothing — the drawn mark
+and the logo are stacked in the same box and the image only becomes visible once it has actually
+loaded, so a cell with no file simply keeps its drawn mark. `assets/README.md` has the full list of
+filenames, grouped by colour.
 
-An `onerror` handler was the obvious way to do that fallback, and it did not work: sixteen missing
+Four ship: Netflix, Coca-Cola, YouTube and Tesla, the red column. The other twelve are still drawn
+marks, which is why some discs are white and some are coloured.
+
+**A logo that has loaded turns its disc white and pushes the colour out to a ring.** Brand logos
+arrive in their own colours, and a red Tesla on a red circle is not a logo, it is a red circle. The
+colour is the whole code of this product, so it does not go away — it becomes the ring. The size
+box is wider than it is tall (76% × 64% of the disc), because a wordmark like Coca-Cola's is short
+and wide and a square box would shrink it to the height of one letter; a square logo is limited by
+the height, so it is unaffected.
+
+The `load` listener is on the document in the capture phase, because `load` on an `<img>` does not
+bubble and the disc is one level further out than the `<span>` an inline `onload` can reach.
+
+An `onerror` handler was the obvious way to do the fallback, and it did not work: sixteen missing
 files left sixteen broken images across the board. Making the fallback the default state rather
-than a recovery from one is why there is now a check for it.
+than a recovery from one is why there is a check for it.
+
+The files that ship were trimmed and scaled to 128px, and deliberately **not** chroma-keyed. Two of
+them came on a white field, and knocking near-white out to alpha leaves a white fringe on every
+anti-aliased edge — the pixels between the mark and the field are neither, and a threshold cannot
+tell which way they go. The white disc makes a white field disappear anyway.
 
 No build step for the site, and no dependencies at runtime. Plain HTML, CSS and vanilla JS, plus one
 generated file holding the compiled contract.
@@ -277,7 +295,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-162 checks across three suites.
+166 checks across three suites.
 
 ### The chain, checked without a chain
 
@@ -337,6 +355,8 @@ not a unit test of the internals; it goes at the product the way someone trying 
 - The mat is a control: tapping a circle moves that limb, dragging one walks it along its row, and a
   drop in another row is ignored — with a check first that the grip really was under the pointer,
   because a drag aimed at an off-screen grip lands somewhere else entirely and silently passes.
+- A logo that loaded sits on a white disc with the colour as a ring, and a cell with no logo file
+  keeps its coloured disc and drawn mark.
 - The proof list is empty rather than invented.
 - **No sideways scroll at 1440, 1024, 768 or 390px**, the nav collapses to a menu on a phone, and
   the menu opens and closes again when something is picked.

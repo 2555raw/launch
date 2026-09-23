@@ -680,11 +680,26 @@ a { color: inherit; text-decoration: none; }
 /* the mark a square wears: its logo when there is a file, the drawn sign when
    there is not. Stacked, with the image invisible until it has really loaded. */
 .sp-glyph { display: block; }
-.sp-mark { position: relative; display: block; }
+.sp-mark { position: relative; display: block; width: var(--m); height: var(--m); }
 .sp-mark .sp-glyph { position: absolute; inset: 0; margin: 0 !important; }
 .sp-logo { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .2s; }
 .sp-mark.has-logo .sp-glyph { visibility: hidden; }
 .sp-mark.has-logo .sp-logo { opacity: 1; }
+
+/* A real logo arrives in its own colours, so it gets a white disc to sit on —
+   a red Tesla on a red circle is not a logo, it is a red circle. The colour is
+   the whole code of this product, so it does not go away: it becomes the ring.
+   A cell with no logo file keeps the coloured disc and its drawn mark. */
+.sp-cell-node.has-logo, .sp-desk-mark.has-logo, .sp-result-mark.has-logo,
+.sp-launch-mark.has-logo, .sp-confirm-mark.has-logo {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--c), inset 0 0 0 3px rgba(16, 17, 20, .06);
+}
+/* More of the disc than a line drawing needs, and wider than it is tall: a
+   wordmark like Coca-Cola's is short and wide, and a square box would shrink
+   it to the height of a letter. A square logo is still limited by the height,
+   so it is unaffected. */
+.has-logo > .sp-mark { width: 76%; height: 64%; }
 
 /* ---------- responsive ---------- */
 

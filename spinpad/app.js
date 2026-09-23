@@ -543,11 +543,11 @@
 
     $('sumRows').innerHTML = [
       ['Underlying asset', as ? as.name + ' (' + as.ticker + ')' : 'Drawn at launch', false],
-      ['Family', f ? f.family + ' · ' + f.label.toLowerCase() : '—', false],
-      ['Quadrant', flow.spin ? quadOf(flow.spin.quadrant).short : '—', false],
-      ['Total supply', supply ? num(supply) : '—', true],
+      ['Family', f ? f.family + ' · ' + f.label.toLowerCase() : 'Drawn at launch', false],
+      ['Quadrant', flow.spin ? quadOf(flow.spin.quadrant).short : 'Drawn at launch', false],
+      ['Total supply', supply ? num(supply) : 'Not set', true],
       ['Spins used', (flow.spin ? 1 : 0) + ' of 1', true],
-      ['Opening cap', as ? 'set at launch' : '—', false],
+      ['Opening cap', 'Set at launch', false],
     ].map(([k, v, mono]) => `<div><dt>${esc(k)}</dt><dd${mono ? ' class="is-mono"' : ''}>${esc(v)}</dd></div>`).join('');
   };
 

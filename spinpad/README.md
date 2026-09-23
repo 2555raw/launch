@@ -7,7 +7,12 @@ function anywhere that can change it afterwards.
 The wheel gives two coordinates, and it takes both to name a cell. A **body position** — left hand,
 right hand, left foot, right foot — and a **colour** — red, yellow, green, blue. Four by four is
 sixteen cells, sixteen assets, one to a cell, each drawn one time in sixteen. Left hand on yellow is
-Amazon; right foot on red is Tesla; left foot on blue is Apple; right hand on green is Nvidia.
+Amazon; right foot on red is Tesla; right hand on green is Nvidia; left foot on blue is Skype.
+
+**The four in a colour were chosen to look like that colour**, so each column reads as a set: red is
+Tesla, Coca-Cola, Netflix and YouTube; yellow is Amazon, Snapchat, Microsoft and McDonald's; green
+is Nvidia, Spotify, USDG and Starbucks; blue is Meta, Walmart, Skype and Intel. A check pins each
+colour's four as a set, so moving one somewhere else is a deliberate edit rather than a slip.
 
 **That table lives in exactly one place: `config.js`.** The wheel, the board, the asset desk, the
 playground, the result screen and the value encoded into the constructor are all read out of the
@@ -87,7 +92,7 @@ Five screens, one at a time, because the flow is the interface:
    The pairing slot is on this screen and says *Decided by the wheel · You cannot pick this*.
 2. **Spin** — the wheel, large and centred, and one button. *Let the wheel decide. One spin, one
    pairing.*
-3. **Result** — `YOU LANDED ON / LEFT FOOT · BLUE`, then `PAIRING / Apple`, then `PAIRING LOCKED`.
+3. **Result** — `YOU LANDED ON / LEFT FOOT · BLUE`, then `PAIRING / Skype`, then `PAIRING LOCKED`.
    There is no reroll control on this screen, and a check asserts there is no button on it whose
    label offers one.
 4. **Launch** — the confirmation: everything that is about to be deployed, including the pairing and
@@ -272,7 +277,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-158 checks across three suites.
+162 checks across three suites.
 
 ### The chain, checked without a chain
 

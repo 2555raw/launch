@@ -115,17 +115,34 @@ async function configChecks(cfg) {
   const names = new Set(keys.map((k) => cfg.pairings[k].name));
   ok('no asset appears twice', names.size === cells, names.size + ' distinct');
 
-  // the four the brief named by hand
-  const want = [
+  /* The assets were chosen by colour, not by cell, so that is what is pinned:
+     each colour's four, as a set, whichever positions they sit on. */
+  const wantByColour = {
+    red:    ['Tesla', 'Coca-Cola', 'Netflix', 'YouTube'],
+    yellow: ['Amazon', 'Snapchat', 'Microsoft', "McDonald's"],
+    green:  ['Nvidia', 'Spotify', 'USDG', 'Starbucks'],
+    blue:   ['Meta', 'Walmart', 'Skype', 'Intel'],
+  };
+  Object.keys(wantByColour).forEach((c) => {
+    const got = cfg.positions.map((p) => cfg.pairings[p.id + '.' + c].name).sort();
+    const want = wantByColour[c].slice().sort();
+    ok(`${c} carries ${wantByColour[c].join(', ')}`,
+      got.length === want.length && got.every((n, i) => n === want[i]), got.join(', '));
+  });
+
+  // and the three cells that were named by position as well as colour
+  [
     ['leftHand', 'yellow', 'Amazon'],
     ['rightFoot', 'red', 'Tesla'],
-    ['leftFoot', 'blue', 'Apple'],
     ['rightHand', 'green', 'Nvidia'],
-  ];
-  want.forEach(([p, c, n]) => {
+  ].forEach(([p, c, n]) => {
     const a = cfg.pairings[p + '.' + c];
     ok(`${p} + ${c} is ${n}`, !!a && a.name === n, a ? a.name : 'missing');
   });
+
+  // every cell's mark has to resolve to a shape, or it silently falls back
+  ok('every cell has its own glyph',
+    new Set(keys.map((k) => cfg.pairings[k].glyph)).size === cells);
 
   // every cell reachable from exactly one node of the wheel
   const secs = sectorsFrom(cfg);

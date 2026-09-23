@@ -66,6 +66,8 @@
    * from one. A square with no logo file costs nothing.
    */
   const GLYPHS = {
+    // the one sign money already has: nobody's trademark, and readable at 22px
+    dollar:   'M12 3.5v17M15.8 7.6c-.7-1.2-2.1-2-3.8-2-2.3 0-4 1.3-4 3.2 0 4.4 8 2.4 8 6.8 0 1.9-1.8 3.3-4.1 3.3-1.9 0-3.5-.9-4.1-2.3',
     chevron:  'M5 15l7-7 7 7',
     bars:     'M5 8h14M5 12h14M5 16h9',
     orbit:    'M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7M3.5 12c0-1.7 3.8-3 8.5-3s8.5 1.3 8.5 3-3.8 3-8.5 3-8.5-1.3-8.5-3',

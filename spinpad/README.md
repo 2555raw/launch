@@ -54,8 +54,9 @@ and the logo are stacked in the same box and the image only becomes visible once
 loaded, so a cell with no file simply keeps its drawn mark. `assets/README.md` has the full list of
 filenames, grouped by colour.
 
-Four ship: Netflix, Coca-Cola, YouTube and Tesla, the red column. The other twelve are still drawn
-marks, which is why some discs are white and some are coloured.
+Eight ship: the red column (Netflix, Coca-Cola, YouTube, Tesla) and the yellow one (Amazon,
+Snapchat, McDonald's, Microsoft). Green and blue are still drawn marks, which is why some discs are
+white and some are coloured.
 
 **A logo that has loaded turns its disc white and pushes the colour out to a ring.** Brand logos
 arrive in their own colours, and a red Tesla on a red circle is not a logo, it is a red circle. The
@@ -71,10 +72,15 @@ An `onerror` handler was the obvious way to do the fallback, and it did not work
 files left sixteen broken images across the board. Making the fallback the default state rather
 than a recovery from one is why there is a check for it.
 
-The files that ship were trimmed and scaled to 128px, and deliberately **not** chroma-keyed. Two of
-them came on a white field, and knocking near-white out to alpha leaves a white fringe on every
+The files that ship were trimmed and scaled to 128px, and deliberately **not** chroma-keyed. Several
+came on a white field, and knocking near-white out to alpha leaves a white fringe on every
 anti-aliased edge — the pixels between the mark and the field are neither, and a threshold cannot
 tell which way they go. The white disc makes a white field disappear anyway.
+
+Trimming reads the top-left pixel, which is what makes a logo on a coloured card work: Snapchat
+loses its yellow border down to the ghost and Microsoft loses its grey one down to the four squares.
+A mark on a *dark* field is the case that does not work — trimmed, it still carries dark corners
+into a white disc — and none of the eight are one.
 
 No build step for the site, and no dependencies at runtime. Plain HTML, CSS and vanilla JS, plus one
 generated file holding the compiled contract.

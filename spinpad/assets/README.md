@@ -19,7 +19,8 @@ assets/usdg.png     USDG        assets/skype.png    Skype
 assets/sbux.png     Starbucks   assets/intc.png     Intel
 ```
 
-Four ship: `nflx.png`, `ko.png`, `yt.png` and `tsla.png` — the red column.
+Eight ship: the red column (`nflx.png`, `ko.png`, `yt.png`, `tsla.png`) and the yellow one
+(`amzn.png`, `snap.png`, `mcd.png`, `msft.png`). Green and blue are still drawn marks.
 
 **A missing file costs nothing.** The cell falls back to a drawn abstract mark, silently, so the
 board looks finished whether you add one logo or all sixteen.
@@ -40,8 +41,11 @@ good file:
 
 - **Its own colours, not a silhouette.** The disc is white, so Tesla's red and Coca-Cola's script
   land exactly as they should.
-- **Transparent, or on a white field.** Both work: a white field disappears into the disc. What
-  does not work is a coloured card around the mark, which will show as a square inside the circle.
+- **Transparent, or on a white field.** Both work: a white field disappears into the disc.
+- **A coloured card is fine too**, as long as it is the cell's own colour — Snapchat's yellow and
+  Microsoft's grey both get trimmed back to the mark, and what is left reads as the brand. A mark on
+  a *dark* field is the one that does not work: trimmed, it still carries dark corners into a white
+  disc.
 - **Crop to the mark.** The file is drawn into a box 76% wide and 64% tall, so a wide wordmark has
   room, but a full lockup with a tagline will still come out tiny.
 - **Do not chroma-key a white background to transparency.** The anti-aliased pixels between the

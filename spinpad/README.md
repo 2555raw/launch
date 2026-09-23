@@ -37,6 +37,18 @@ python3 -m http.server 8000     # then open http://localhost:8000
 Deploy by dropping the folder on any static host (Netlify, Vercel, GitHub Pages, S3, Cloudflare
 Pages).
 
+### On Railway
+
+`server.js` is the whole server: no dependencies, reads the file off disk and hands it back with
+the right content type. It is the same shape as the one in `archive-2011/`, because the job is the
+same. Railway passes `PORT` in; 8080 is the fallback, because that is what a generated domain
+points at otherwise.
+
+The service is configured with **root directory `/spinpad`** and **start command `node server.js`**,
+which is the part worth writing down: a service pointed at the repository root finds no
+`package.json` and the build fails before it reaches anything. HTML is served `no-cache` so a
+redeploy shows up immediately, everything else gets an hour.
+
 ## Where the rule lives
 
 That a token cannot be launched without a spin is not a note in the interface. It is enforced in

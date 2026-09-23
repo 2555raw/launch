@@ -11,17 +11,18 @@ Amazon; left hand on red is Tesla; left hand on green is Nvidia; right foot on b
 
 **All sixteen are pair tokens a launch can really name**, which is the constraint that picked them:
 they are on the list of 63 stock tokens Pons v2 accepts as the `pairToken` argument of a launch, on
-Robinhood Chain. Red is Tesla, Netflix, AMD and Reddit; yellow is Amazon, Snapchat, Microsoft and
-Cloudflare; green is Nvidia, Shopify, Apple and Roblox; blue is Meta, Google, Intel and Coinbase. A
-check pins each colour's four as a set, so moving one somewhere else is a deliberate edit rather
-than a slip.
+Robinhood Chain. Red is Tesla, Lululemon, GameStop and NET; yellow is Amazon, Snapchat, Microsoft
+and GLD; green is Nvidia, Shopify, BULL and INDA; blue is Meta, Intel, Ford and Coinbase. A check
+pins each colour's four as a set, so moving one somewhere else is a deliberate edit rather than a
+slip.
 
-Colour could not be matched to brand the way an invented set can be. Of those 63, checked by hue
-against every mark in `simple-icons`, exactly two are green: Nvidia and Shopify. The set skews hard
-to blue — Meta, Google, Intel, Coinbase, Boeing, Dell, Ford, Pfizer, IBM — and 33 of the 63 have no
-published mark at all, including the ones that are green in real life (Bloom Energy, Constellation).
-So green takes the two real greens plus Apple and Roblox, whose marks are black and read on any
-ground. Red and yellow do line up.
+They were picked off Pons's own token grid by eye, which is why the colours line up better than a
+package search could manage: GLD is a stack of gold bars, BULL is a green bull, INDA is the Indian
+flag. Eleven have a logo file. The other five — GameStop, NET, GLD, BULL, INDA — have no published
+mark in any icon package, and the only artwork available for them is a 90px tile inside a
+screenshot, which does not survive being cut out and put next to a vector. They keep their drawn
+mark and their coloured disc until someone drops a real file into `assets/`. That is what the
+fallback is for, and there is a check that eleven cells are on white discs and five are not.
 
 **That table lives in exactly one place: `config.js`.** The wheel, the board, the asset desk, the
 result screen and the value encoded into the constructor are all read out of the same object, so they cannot drift apart. Changing a pairing is changing one line.

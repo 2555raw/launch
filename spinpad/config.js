@@ -142,25 +142,25 @@ window.SPINPAD_CONFIG = {
    * Shopify, plus two marks that are black and read on any ground.
    */
   pairings: {
-    'leftHand.red':     { name: 'Tesla',      ticker: 'TSLA',  glyph: 'bolt',     logo: 'assets/tsla.png' },
-    'leftHand.yellow':  { name: 'Amazon',     ticker: 'AMZN',  glyph: 'arc',      logo: 'assets/amzn.png' },
-    'leftHand.green':   { name: 'Nvidia',     ticker: 'NVDA',  glyph: 'chevron',  logo: 'assets/nvda.png' },
-    'leftHand.blue':    { name: 'Meta',       ticker: 'META',  glyph: 'loop',     logo: 'assets/meta.png' },
+    'leftHand.red':     { name: 'Tesla',      ticker: 'TSLA', glyph: 'bolt',     logo: 'assets/tsla.png' },
+    'leftHand.yellow':  { name: 'Amazon',     ticker: 'AMZN', glyph: 'arc',      logo: 'assets/amzn.png' },
+    'leftHand.green':   { name: 'Nvidia',     ticker: 'NVDA', glyph: 'chevron',  logo: 'assets/nvda.png' },
+    'leftHand.blue':    { name: 'Meta',       ticker: 'META', glyph: 'loop',     logo: 'assets/meta.png' },
 
-    'rightHand.red':    { name: 'Netflix',    ticker: 'NFLX',  glyph: 'play',     logo: 'assets/nflx.png' },
-    'rightHand.yellow': { name: 'Snapchat',   ticker: 'SNAP',  glyph: 'spark',    logo: 'assets/snap.png' },
-    'rightHand.green':  { name: 'Shopify',    ticker: 'SHOP',  glyph: 'tiles',    logo: 'assets/shop.png' },
-    'rightHand.blue':   { name: 'Google',     ticker: 'GOOGL', glyph: 'orbit',    logo: 'assets/googl.png' },
+    'rightHand.red':    { name: 'Lululemon',  ticker: 'LULU', glyph: 'orbit',    logo: 'assets/lulu.png' },
+    'rightHand.yellow': { name: 'Snapchat',   ticker: 'SNAP', glyph: 'spark',    logo: 'assets/snap.png' },
+    'rightHand.green':  { name: 'Shopify',    ticker: 'SHOP', glyph: 'tiles',    logo: 'assets/shop.png' },
+    'rightHand.blue':   { name: 'Intel',      ticker: 'INTC', glyph: 'rail',     logo: 'assets/intc.png' },
 
-    'leftFoot.red':     { name: 'AMD',        ticker: 'AMD',   glyph: 'delta',    logo: 'assets/amd.png' },
-    'leftFoot.yellow':  { name: 'Microsoft',  ticker: 'MSFT',  glyph: 'grid',     logo: 'assets/msft.png' },
-    'leftFoot.green':   { name: 'Apple',      ticker: 'AAPL',  glyph: 'stack',    logo: 'assets/aapl.png' },
-    'leftFoot.blue':    { name: 'Intel',      ticker: 'INTC',  glyph: 'rail',     logo: 'assets/intc.png' },
+    'leftFoot.red':     { name: 'GameStop',   ticker: 'GME',  glyph: 'arrowbox', logo: 'assets/gme.png' },
+    'leftFoot.yellow':  { name: 'Microsoft',  ticker: 'MSFT', glyph: 'grid',     logo: 'assets/msft.png' },
+    'leftFoot.green':   { name: 'Bull',       ticker: 'BULL', glyph: 'delta',    logo: 'assets/bull.png' },
+    'leftFoot.blue':    { name: 'Ford',       ticker: 'F',    glyph: 'stack',    logo: 'assets/f.png' },
 
-    'rightFoot.red':    { name: 'Reddit',     ticker: 'RDDT',  glyph: 'wave',     logo: 'assets/rddt.png' },
-    'rightFoot.yellow': { name: 'Cloudflare', ticker: 'NET',   glyph: 'waves',    logo: 'assets/net.png' },
-    'rightFoot.green':  { name: 'Roblox',     ticker: 'RBLX',  glyph: 'arrowbox', logo: 'assets/rblx.png' },
-    'rightFoot.blue':   { name: 'Coinbase',   ticker: 'COIN',  glyph: 'dollar',   logo: 'assets/coin.png' },
+    'rightFoot.red':    { name: 'Netflix',    ticker: 'NET',  glyph: 'play',     logo: 'assets/net.png' },
+    'rightFoot.yellow': { name: 'Gold',       ticker: 'GLD',  glyph: 'dollar',   logo: 'assets/gld.png' },
+    'rightFoot.green':  { name: 'India',      ticker: 'INDA', glyph: 'waves',    logo: 'assets/inda.png' },
+    'rightFoot.blue':   { name: 'Coinbase',   ticker: 'COIN', glyph: 'wave',     logo: 'assets/coin.png' },
   },
 
   /* What the pad puts into the first pool, as a fraction of the coin's supply

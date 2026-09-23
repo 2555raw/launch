@@ -102,10 +102,10 @@ async function configChecks(cfg) {
   /* The assets were chosen by colour, not by cell, so that is what is pinned:
      each colour's four, as a set, whichever positions they sit on. */
   const wantByColour = {
-    red:    ['Tesla', 'Netflix', 'AMD', 'Reddit'],
-    yellow: ['Amazon', 'Snapchat', 'Microsoft', 'Cloudflare'],
-    green:  ['Nvidia', 'Shopify', 'Apple', 'Roblox'],
-    blue:   ['Meta', 'Google', 'Intel', 'Coinbase'],
+    red:    ['Tesla', 'Lululemon', 'GameStop', 'Netflix'],
+    yellow: ['Amazon', 'Snapchat', 'Microsoft', 'Gold'],
+    green:  ['Nvidia', 'Shopify', 'Bull', 'India'],
+    blue:   ['Meta', 'Intel', 'Ford', 'Coinbase'],
   };
   Object.keys(wantByColour).forEach((c) => {
     const got = cfg.positions.map((p) => cfg.pairings[p.id + '.' + c].name).sort();
@@ -482,8 +482,8 @@ async function browserChecks() {
   ok('and shows no broken image, just the drawn mark',
     !missing.imageVisible && missing.glyphVisible, JSON.stringify(missing));
 
-  ok('every cell on the board carries a logo now',
-    discs.withLogo === 16 && discs.coloured === 0, JSON.stringify(discs));
+  ok('the cells with a logo file are on white discs, the rest are not',
+    discs.withLogo + discs.coloured === 16 && discs.withLogo === 11, JSON.stringify(discs));
 
   // both wheels carry all sixteen nodes, and their corner labels match the table
   const nodes = await page.evaluate(() => ({

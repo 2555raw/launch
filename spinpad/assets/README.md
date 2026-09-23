@@ -8,24 +8,29 @@ were chosen to look like that colour, so they read as a set on the wheel:
 ```
 RED                             YELLOW
 assets/tsla.png     Tesla       assets/amzn.png     Amazon
-assets/nflx.png     Netflix     assets/snap.png     Snapchat
-assets/amd.png      AMD         assets/msft.png     Microsoft
-assets/rddt.png     Reddit      assets/net.png      Cloudflare
+assets/lulu.png     Lululemon   assets/snap.png     Snapchat
+assets/gme.png      GameStop *  assets/msft.png     Microsoft
+assets/net.png      NET      *  assets/gld.png      GLD      *
 
 GREEN                           BLUE
 assets/nvda.png     Nvidia      assets/meta.png     Meta
-assets/shop.png     Shopify     assets/googl.png    Google
-assets/aapl.png     Apple       assets/intc.png     Intel
-assets/rblx.png     Roblox      assets/coin.png     Coinbase
+assets/shop.png     Shopify     assets/intc.png     Intel
+assets/bull.png     BULL     *  assets/f.png        Ford
+assets/inda.png     INDA     *  assets/coin.png     Coinbase
 ```
 
-All sixteen ship. Eight are bitmaps, trimmed and scaled; eight were rendered from the
-`simple-icons` package — official single-colour marks in each brand's own hex. That package is not a
-dependency of anything; it was used once to write the files. `amd.png` came from `simple-icons@9`,
-which still carries AMD.
+`*` — these five do not exist yet. No icon package publishes a mark for them, and the only artwork
+to hand is a 90px tile inside a screenshot, which does not survive being cut out and set next to a
+vector. Those cells keep their drawn mark and their coloured disc, which costs nothing, until a real
+file is dropped in.
 
-Files from the previous set are still in this folder and unreferenced: `ko`, `yt`, `mcd`, `spot`,
-`sbux`, `usdg`, `skype`, `wmt`. Nothing loads them; delete them whenever.
+Eleven of the sixteen ship. Eight are bitmaps, trimmed and scaled; `lulu.png` was cut out of a
+screenshot of Pons's token grid and masked to a circle, which works only because that mark is itself
+a disc; `f.png` and the vector marks came from the `simple-icons` package. That package is not a
+dependency of anything; it was used once to write the files.
+
+Files from earlier sets are still here and unreferenced: `aapl`, `amd`, `googl`, `ko`, `mcd`, `nflx`,
+`rblx`, `rddt`, `sbux`, `skype`, `spot`, `usdg`, `wmt`, `yt`. Nothing loads them; delete them whenever.
 
 **A missing file costs nothing.** The cell falls back to a drawn abstract mark, silently, so the
 board looks finished whether you add one logo or all sixteen.

@@ -66,6 +66,19 @@ Deploying a coin needs neither — the pairing is a name, so the sixteen cells c
 Aerodrome is the large DEX on Base and is **not** a drop-in: it is Solidly-style and its
 `addLiquidity` takes a `stable` flag this pad does not send.
 
+**And not a tokenized share either.** This is the question the board's sixteen names invite, so:
+tokenized US equities do exist as ERC-20s on Base — Dinari's dShares, whose official SDK lists
+`eip155:8453` among its chains. They still cannot be the quote token here, because they are
+permissioned. That same SDK is built around KYC — document types, statuses, managed checks — so only
+approved wallets may hold the token, and a Uniswap V2 pair is an anonymous contract with no KYC:
+`addLiquidity`'s `transferFrom` into the pair reverts. A permissionless pool against a permissioned
+token is not a thing. (Backed Finance's xStocks — AAPLx, TSLAx, GOOGLx — are Solana SPL tokens, so
+they are not candidates on an EVM chain at all.)
+
+That is why the sixteen are names and the pool is WETH. Not a shortcut around the hard version — the
+only shape that works. A pad that really paired against Tesla would need every buyer to clear an
+issuer's KYC, at which point it is a broker rather than a launchpad.
+
 ### Logos
 
 `config.js` already points every cell at `assets/<ticker>.png`, so there is nothing to wire: drop

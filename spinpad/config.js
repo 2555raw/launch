@@ -21,6 +21,21 @@
  * opened against "Tesla". Every pool opens against `quote` below, whose address
  * the pad verifies against the live chain before it will touch it.
  *
+ * AND NO, NOT A TOKENIZED SHARE EITHER. This comes up, so: tokenized US
+ * equities do exist as ERC-20s on Base — Dinari's dShares, and their official
+ * SDK lists eip155:8453 among its chains. They still cannot be the quote token
+ * here, because they are permissioned: that same SDK is built around KYC, with
+ * document types, statuses and managed checks, so only approved wallets may
+ * hold the token. A Uniswap V2 pair is an anonymous contract with no KYC, so
+ * addLiquidity's transferFrom into the pair reverts. A permissionless pool
+ * against a permissioned token is not a thing.
+ *
+ * (Backed Finance's xStocks — AAPLx, TSLAx, GOOGLx — are Solana SPL tokens, so
+ * they are not candidates on an EVM chain at all.)
+ *
+ * Which is why the sixteen are names and the pool is WETH. That is not a
+ * shortcut around the hard version; it is the only shape that works.
+ *
  * ONE NOTE WORTH READING ONCE. Naming a tradeable token after a listed company
  * is a real-world risk, not a styling choice: other people's trademarks, and
  * regulators who take an interest in anything that looks like a bet on a share.

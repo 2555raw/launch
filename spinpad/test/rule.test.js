@@ -462,6 +462,26 @@ async function browserChecks() {
   ok('the hero wheel has sixteen nodes', nodes.hero === 16, String(nodes.hero));
   ok('the pad wheel has sixteen nodes', nodes.pad === 16, String(nodes.pad));
 
+  /* Two wheels in one document, each with its own gradients. Sharing the ids
+     is invalid and fails silently — the second wheel just paints itself with
+     the first one's fills, which looks fine until the two wheels differ. */
+  const grads = await page.evaluate(() => {
+    const ids = (id) => [...document.querySelectorAll('#' + id + ' defs radialGradient')].map((g) => g.id);
+    const hero = ids('heroWheelSvg'), pad = ids('dial');
+    const all = [...document.querySelectorAll('svg defs radialGradient')].map((g) => g.id);
+    return {
+      hero, pad,
+      shared: hero.filter((i) => pad.includes(i)),
+      duplicated: all.length !== new Set(all).size,
+      fills: [...document.querySelectorAll('#dial .sp-node')].map((n) => n.getAttribute('fill')),
+    };
+  });
+  ok('each wheel has its own gradient ids',
+    grads.hero.length > 0 && grads.shared.length === 0 && !grads.duplicated, JSON.stringify(grads.shared));
+  ok('and every node is painted with one of its own',
+    grads.fills.length === 16 && grads.fills.every((f) => /^url\(#dial-/.test(f)),
+    grads.fills.slice(0, 2).join(' '));
+
   // the corner labels are written from the table, so quarter 0 sits top-right
   const corners = await page.evaluate(() => ({
     tr: document.querySelector('#heroWheel .sp-wheel-tr').textContent,

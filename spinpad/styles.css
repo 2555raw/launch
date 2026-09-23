@@ -219,32 +219,66 @@ a { color: inherit; text-decoration: none; }
   position: absolute; left: var(--x); top: var(--y);
   width: var(--s); height: var(--s); margin: calc(var(--s) / -2);
   opacity: 0;
-  animation: sp-float-arrive .9s var(--ease) both var(--delay);
+  animation: sp-float-arrive 1s var(--ease) both var(--delay);
 }
 .sp-float-in {
   display: block; width: 100%; height: 100%;
   animation: sp-float-drift var(--dur) ease-in-out infinite alternate;
   animation-delay: var(--offset);
 }
+
+/* The sphere. Its shading is written in `em` and the disc's font-size is its
+   own diameter, so one set of numbers holds at 38px and at 94px — a highlight
+   in fixed pixels is a pinprick on the big ones and a wash on the small.
+   Four layers, in the order light actually arrives:
+     the body gradient, lit from the top left;
+     the terminator and the ground bounce, as inset shadows;
+     the rim, where the edge catches light from behind;
+     and the cast shadow underneath. */
 .sp-float-disc {
-  display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%;
-  background: var(--c);
-  box-shadow: 0 22px 30px -20px rgba(16, 17, 20, .55), inset 0 0 0 1px rgba(16, 17, 20, .07);
+  position: relative; display: grid; place-items: center;
+  width: 100%; height: 100%; border-radius: 50%;
+  font-size: var(--s);
+  background: radial-gradient(circle at var(--lx) var(--ly),
+    var(--c-hi) 0%, var(--c) 44%, var(--c-lo) 100%);
+  box-shadow:
+    inset 0 -0.10em 0.18em -0.06em rgba(0, 0, 0, .42),
+    inset -0.05em -0.05em 0.12em -0.03em var(--c-rim),
+    inset 0 0.04em 0.10em -0.03em rgba(255, 255, 255, .5),
+    0 0.16em 0.24em -0.12em rgba(16, 17, 20, .5),
+    0 0.30em 0.40em -0.22em rgba(16, 17, 20, .35);
 }
+
+/* The logo is printed on the sphere, not floating in front of it: a soft inner
+   shadow sets it into the surface, and the gloss above passes over both. */
 .sp-float-face {
-  display: grid; place-items: center; width: 64%; height: 64%; border-radius: 50%;
-  background: #fff; box-shadow: inset 0 0 0 1px rgba(16, 17, 20, .06);
+  position: relative; z-index: 1;
+  display: grid; place-items: center; width: 62%; height: 62%; border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #fff 0%, #F4F4F2 100%);
+  box-shadow: inset 0 0.015em 0.05em rgba(16, 17, 20, .22), 0 0.01em 0.02em rgba(16, 17, 20, .1);
 }
 .sp-float-face .sp-mark { width: 74%; height: 62%; }
 .sp-float-face .sp-glyph { color: var(--c); }
 
+/* One gloss over the whole ball. This is the layer that makes the white face
+   read as part of the sphere rather than a sticker on it. */
+.sp-float-gloss {
+  position: absolute; inset: 0; z-index: 2; border-radius: 50%; pointer-events: none;
+  background:
+    radial-gradient(38% 26% at var(--lx) calc(var(--ly) - 6%),
+      rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 68%),
+    radial-gradient(52% 34% at 68% 94%,
+      rgba(255, 255, 255, .26), rgba(255, 255, 255, 0) 72%);
+}
+
 @keyframes sp-float-arrive {
-  from { opacity: 0; transform: translateY(26px) scale(.86); }
+  from { opacity: 0; transform: translateY(30px) scale(.82); }
   to   { opacity: var(--o); transform: none; }
 }
+/* Air, not a lift: it sways across as well as up, and the tilt lags the sway. */
 @keyframes sp-float-drift {
-  from { transform: translate3d(0, var(--riseA), 0) rotate(var(--tiltA)); }
-  to   { transform: translate3d(0, var(--riseB), 0) rotate(var(--tiltB)); }
+  from { transform: translate3d(var(--swayA), var(--riseA), 0) rotate(var(--tiltA)); }
+  to   { transform: translate3d(var(--swayB), var(--riseB), 0) rotate(var(--tiltB)); }
 }
 
 .sp-hero.is-still .sp-float-in { animation-play-state: paused; }
@@ -284,7 +318,9 @@ a { color: inherit; text-decoration: none; }
 .sp-wheel-svg .sp-rim { fill: #fff; stroke: var(--ink); stroke-width: 1.6; }
 .sp-wheel-svg .sp-spoke { stroke: var(--line-hi); stroke-width: 1; stroke-dasharray: 3 5; }
 .sp-wheel-svg .sp-node { transition: r .25s var(--ease), opacity .25s; }
-.sp-wheel-svg .sp-node-ring { fill: none; stroke: rgba(16, 17, 20, .16); stroke-width: 1; }
+.sp-wheel-svg .sp-node-gloss { pointer-events: none; }
+.sp-wheel-svg .sp-node-cast { fill: rgba(16, 17, 20, .22); }
+.sp-wheel-svg .sp-node-ring { fill: none; stroke: rgba(16, 17, 20, .22); stroke-width: .8; }
 .sp-wheel-svg .sp-hub { fill: #fff; stroke: var(--ink); stroke-width: 1.6; }
 
 .sp-wheel-arrow {

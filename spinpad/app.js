@@ -171,6 +171,18 @@
     try { localStorage.setItem(KEY, JSON.stringify(coins.slice(0, 60))); } catch (e) { /* ignore */ }
   };
 
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  /* Shading needs three more colours per sphere, mixed from the one in the
+     table so they cannot drift apart from it. Towards white for the lit side
+     and the rim, towards black for the terminator. */
+  const mix = (hex, towards, t) => {
+    const n = parseInt(hex.slice(1), 16);
+    const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    const d = towards === 'white' ? [255, 255, 255] : [0, 0, 0];
+    return '#' + c.map((v, i) => Math.round(lerp(v, d[i], t)).toString(16).padStart(2, '0')).join('');
+  };
+
   /* ---------- the wheel ----------
    *
    * Sixteen nodes on a ring, a dashed cross under them, an arrow over the top.
@@ -185,15 +197,36 @@
 
   const drawWheel = (svg) => {
     if (!svg) return;
-    let out = '<circle class="sp-rim" cx="100" cy="100" r="95"/>';
+
+    /* The nodes are lit the way the hero's spheres are, from one source in the
+       top left, so the two objects on the page read as being in the same room.
+       The gradient ids carry the svg's own id: two wheels in one document with
+       the same ids is invalid, and the second would silently paint itself with
+       the first one's gradients. */
+    const ns = svg.id || 'w';
+    let out = '<defs>' + COLOURS.map((c) => `
+      <radialGradient id="${ns}-${c.id}" cx="34%" cy="28%" r="72%">
+        <stop offset="0%" stop-color="${mix(c.hex, 'white', 0.5)}"/>
+        <stop offset="46%" stop-color="${c.hex}"/>
+        <stop offset="100%" stop-color="${mix(c.hex, 'black', 0.3)}"/>
+      </radialGradient>`).join('')
+      + `<radialGradient id="${ns}-gloss" cx="34%" cy="24%" r="48%">
+        <stop offset="0%" stop-color="#fff" stop-opacity=".88"/>
+        <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient></defs>`;
+
+    out += '<circle class="sp-rim" cx="100" cy="100" r="95"/>';
     out += '<path class="sp-spoke" d="M100 8 V192 M8 100 H192 M35 35 L165 165 M165 35 L35 165"/>';
 
     SECTORS.forEach((sec, i) => {
       const [x, y] = nodeAt(i, 70);
       const as = assetOf(sec.color, sec.position);
+      const cx = x.toFixed(2), cy = y.toFixed(2);
       out += `<g data-i="${i}"><title>${esc(comboOf(sec.color, sec.position))} → ${esc(as.name)}</title>`
-        + `<circle class="sp-node" data-i="${i}" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="13" fill="${HEX[sec.color]}"/>`
-        + `<circle class="sp-node-ring" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="13"/></g>`;
+        + `<ellipse class="sp-node-cast" cx="${cx}" cy="${(y + 3.4).toFixed(2)}" rx="11.5" ry="9"/>`
+        + `<circle class="sp-node" data-i="${i}" cx="${cx}" cy="${cy}" r="13" fill="url(#${ns}-${sec.color})"/>`
+        + `<circle class="sp-node-gloss" cx="${cx}" cy="${cy}" r="13" fill="url(#${ns}-gloss)"/>`
+        + `<circle class="sp-node-ring" cx="${cx}" cy="${cy}" r="13"/></g>`;
     });
 
     /* A plain ring, and no word in it. The arrow pivots on this exact spot, so
@@ -300,8 +333,6 @@
     { x: 19, y: 42, d: 0.93, z: 'inner' }, { x: 91, y: 44, d: 0.88, z: 'inner' },
   ];
 
-  const lerp = (a, b, t) => a + (b - a) * t;
-
   const renderFloaters = () => {
     const box = $('drift');
     if (!box) return;
@@ -319,17 +350,28 @@
       // the far ones drift further and slower, which is backwards from life and
       // right on screen: a small slow mover reads as distant
       const rise = lerp(10, 26, slot.d).toFixed(0);
+      const sway = lerp(4, 11, slot.d).toFixed(0);
       const tilt = lerp(3, 9, slot.d).toFixed(0);
       const dur = lerp(6.5, 13, slot.d).toFixed(1);
       const dir = i % 2 ? 1 : -1;
+      /* The light is in the same quarter for all of them, because one light
+         source is what makes a group of objects look like it is in one place.
+         It only wanders a few points, so they are not stamped from one mould. */
+      const lx = (26 + (i % 4) * 3).toFixed(0);
+      const ly = (22 + ((i * 5) % 4) * 3).toFixed(0);
+      const hex = HEX[cell.colour];
       return `<span class="sp-float" data-color="${cell.colour}" data-zone="${slot.z}" style="
           --x:${slot.x}%; --y:${slot.y}%; --s:${size}px; --o:${opacity};
+          --c-hi:${mix(hex, 'white', 0.55)}; --c-lo:${mix(hex, 'black', 0.34)};
+          --c-rim:${mix(hex, 'white', 0.3)}; --lx:${lx}%; --ly:${ly}%;
           --delay:${(0.06 * i).toFixed(2)}s; --dur:${dur}s; --offset:-${(0.7 * i).toFixed(2)}s;
           --riseA:${rise * dir}%; --riseB:${-rise * dir}%;
+          --swayA:${sway * -dir}%; --swayB:${sway * dir}%;
           --tiltA:${tilt * dir}deg; --tiltB:${-tilt * dir}deg;">
         <span class="sp-float-in">
           <span class="sp-float-disc">
-            <span class="sp-float-face">${mark(cell.asset, Math.round(size * 0.4))}</span>
+            <span class="sp-float-face">${mark(cell.asset, Math.round(size * 0.36))}</span>
+            <span class="sp-float-gloss"></span>
           </span>
         </span>
       </span>`;

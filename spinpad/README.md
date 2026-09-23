@@ -216,7 +216,13 @@ mistake — and the last link drops its rule so it does not cut across the round
 
 The hero is one headline and one object: the wheel, which tilts a little under the cursor and names
 the pairing under whichever node you point at. It is SVG generated at runtime from the same
-`SECTORS` table the outcome is read from.
+`SECTORS` table the outcome is read from, and its sixteen nodes are lit the same way the drifting
+spheres behind it are, from one source in the top left — two objects in one room rather than a flat
+diagram next to a rendering.
+
+Both wheels build their gradients with ids carrying their own element's id. Two SVGs in one document
+sharing gradient ids is invalid, and it fails silently: the second wheel simply paints itself with
+the first one's fills, which looks right until the two wheels differ. There is a check.
 
 ### The drifting sixteen
 
@@ -232,6 +238,14 @@ Four things about it are decisions rather than defaults:
   the page. The near, solid discs hold the margins; the faint ones fill the middle distance.
 - **Depth is size and opacity, never blur.** A blurred element that animates repaints every frame,
   and sixteen of them is how a landing page starts dropping frames on a laptop.
+- **They are lit, not coloured in.** Each one is a body gradient from one source in the top left, a
+  terminator and a ground bounce as inset shadows, a rim where the edge catches light from behind,
+  a cast shadow underneath, and a single gloss layer over the top. That last one is what makes the
+  white label read as printed on the sphere rather than stuck in front of it — it passes over both.
+  The shading is written in `em` and the sphere's font-size is its own diameter, so one set of
+  numbers holds at 38px and at 94px; a highlight in fixed pixels is a pinprick on the big ones and
+  a wash on the small. The three extra colours per sphere are mixed in JavaScript from the one hex
+  in `config.js`, so they cannot drift away from it.
 - **Two elements per chip.** The outer one places it and plays the arrival once; the inner one
   floats for ever. One element cannot do both — the second animation would replace the first.
 - **Every chip carries a zone.** A layout tuned for two columns has nothing to say about one: on a
@@ -320,7 +334,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-165 checks across three suites.
+167 checks across three suites.
 
 ### The chain, checked without a chain
 

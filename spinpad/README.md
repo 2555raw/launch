@@ -53,9 +53,14 @@ and the logo are stacked in the same box and the image only becomes visible once
 loaded, so a cell with no file simply keeps its drawn mark. `assets/README.md` has the full list of
 filenames, grouped by colour.
 
-Eight ship: the red column (Netflix, Coca-Cola, YouTube, Tesla) and the yellow one (Amazon,
-Snapchat, McDonald's, Microsoft). Green and blue are still drawn marks, which is why some discs are
-white and some are coloured.
+Thirteen ship. Three do not — Skype, Walmart and USDG — and those three keep their drawn marks,
+which is why most discs are white and three are coloured.
+
+They come from two places. Red and yellow are pictures: bitmaps, trimmed and scaled. Spotify,
+Nvidia, Starbucks, Meta and Intel are vectors rendered from the `simple-icons` package — official
+single-colour marks in each brand's own hex, which on a white disc reads better than a photograph
+of a logo and needs no trimming or keying at all. The package is not a dependency; it was used once
+to generate the files.
 
 **A logo that has loaded turns its disc white and pushes the colour out to a ring.** Brand logos
 arrive in their own colours, and a red Tesla on a red circle is not a logo, it is a red circle. The
@@ -79,7 +84,7 @@ tell which way they go. The white disc makes a white field disappear anyway.
 Trimming reads the top-left pixel, which is what makes a logo on a coloured card work: Snapchat
 loses its yellow border down to the ghost and Microsoft loses its grey one down to the four squares.
 A mark on a *dark* field is the case that does not work — trimmed, it still carries dark corners
-into a white disc — and none of the eight are one.
+into a white disc — and none of the bitmaps are one.
 
 No build step for the site, and no dependencies at runtime. Plain HTML, CSS and vanilla JS, plus one
 generated file holding the compiled contract.

@@ -19,8 +19,12 @@ assets/usdg.png     USDG        assets/skype.png    Skype
 assets/sbux.png     Starbucks   assets/intc.png     Intel
 ```
 
-Eight ship: the red column (`nflx.png`, `ko.png`, `yt.png`, `tsla.png`) and the yellow one
-(`amzn.png`, `snap.png`, `mcd.png`, `msft.png`). Green and blue are still drawn marks.
+Thirteen ship. Missing: `skype.png`, `wmt.png` and `usdg.png`, which keep their drawn marks.
+
+The eight in red and yellow are bitmaps, trimmed and scaled. `spot.png`, `nvda.png`, `sbux.png`,
+`meta.png` and `intc.png` were rendered from the `simple-icons` package instead — official
+single-colour marks in each brand's own hex. That package is not a dependency of anything; it was
+used once to write these five files. Skype, Walmart and a Global Dollar mark are not in it.
 
 **A missing file costs nothing.** The cell falls back to a drawn abstract mark, silently, so the
 board looks finished whether you add one logo or all sixteen.

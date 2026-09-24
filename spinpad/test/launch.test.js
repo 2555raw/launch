@@ -28,7 +28,7 @@ const ME = '0x00000000000000000000000000000000000000c0';
 
 /* Cells are names and carry no address; one quote token does the pairing. The
    sixteen names are distinct so the encoded draw can be pinned to one of them. */
-const testConfig = `window.SPINPAD_CONFIG = (() => {
+const testConfig = `window.TWISTR_CONFIG = (() => {
   const positions = [
     { id: 'leftHand',  label: 'Left hand',  short: 'L HAND', limb: 'hand' },
     { id: 'rightHand', label: 'Right hand', short: 'R HAND', limb: 'hand' },
@@ -160,7 +160,7 @@ window.ethereum = {
 
   if (txs.length) {
     const tx = txs[0].params[0];
-    const bytecode = await page.evaluate(() => window.SPINPAD_COIN.bytecode);
+    const bytecode = await page.evaluate(() => window.TWISTR_COIN.bytecode);
     ok('it is a create, with no "to"', tx.to === undefined || tx.to === null);
     ok('it is sent from the connected account', String(tx.from).toLowerCase() === ME);
     ok('it starts with the compiled bytecode', String(tx.data).startsWith(bytecode));
@@ -171,8 +171,8 @@ window.ethereum = {
     ok('the pairing shown is the pairing encoded',
       args.includes(Buffer.from(drew, 'utf8').toString('hex')),
       '"' + drew + '" not found in the encoded args');
-    const others = await page.evaluate((shown) => Object.keys(window.SPINPAD_CONFIG.pairings)
-      .map((k) => window.SPINPAD_CONFIG.pairings[k].name).filter((n) => n !== shown), drew);
+    const others = await page.evaluate((shown) => Object.keys(window.TWISTR_CONFIG.pairings)
+      .map((k) => window.TWISTR_CONFIG.pairings[k].name).filter((n) => n !== shown), drew);
     ok('and no other cell\u2019s name got in',
       !others.some((n) => args.includes(Buffer.from(n, 'utf8').toString('hex'))));
     ok('the colour and position it landed on are in there too',

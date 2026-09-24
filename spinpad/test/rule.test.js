@@ -1,6 +1,6 @@
 /* The rule, held down by checks.
  *
- * Spinpad has exactly one thing it must never get wrong: no coin is launched
+ * Twistr has exactly one thing it must never get wrong: no coin is launched
  * without a spin, and the pairing is whatever the wheel landed on — the same
  * value on the result screen, in the confirmation and in the bytes that go to
  * the chain. Everything here exercises that in a real browser, including the
@@ -227,7 +227,7 @@ async function browserChecks() {
 
   await page.goto(PAGE);
   await page.waitForTimeout(700);
-  const CFG = await page.evaluate(() => window.SPINPAD_CONFIG);
+  const CFG = await page.evaluate(() => window.TWISTR_CONFIG);
   const SECTORS = sectorsFrom(CFG);
   const SEG = 360 / SECTORS.length;
 
@@ -244,6 +244,42 @@ async function browserChecks() {
   await page.reload();
   await page.waitForTimeout(600);
   ok('and it stays closed on the way back', !(await page.locator('#gate').isVisible()));
+
+  /* ---------- the name ----------
+   *
+   * A rename is the easiest thing in a codebase to leave half done: the title
+   * gets changed, a footer keeps the old one, and the page says two different
+   * things about what it is. Everything that names the product is compared
+   * against the brand in the nav rather than against a string written here, so
+   * the next rename does not have to come back and edit this. */
+  console.log('\nthe name');
+  const named = await page.evaluate(() => {
+    const brand = document.querySelector('.sp-brand').textContent.trim();
+    return {
+      brand,
+      title: document.title,
+      foot: document.querySelector('.sp-foot-brand').textContent.trim(),
+      copyright: [...document.querySelectorAll('footer p')]
+        .map((p) => p.textContent).find((t) => /©/.test(t)) || '',
+      faq: [...document.querySelectorAll('summary')].map((t) => t.textContent).join(' | '),
+      // the globals the page is wired through
+      cfg: typeof window.TWISTR_CONFIG,
+      chain: typeof window.TwistrChain,
+      coin: typeof window.TWISTR_COIN,
+    };
+  });
+  ok('the page has a name', named.brand.length > 1, named.brand);
+  ok('and the tab says the same one', named.title.startsWith(named.brand),
+    `${named.title} vs ${named.brand}`);
+  ok('and so does the footer', named.foot === named.brand && named.copyright.includes(named.brand),
+    `${named.foot} / ${named.copyright}`);
+  ok('and the questions people ask about it',
+    named.faq.includes(named.brand), named.faq.slice(0, 80));
+  ok('nothing on the page still answers to the old one',
+    !(await page.content()).includes('Spinpad'));
+  ok('the globals carry the name too',
+    named.cfg === 'object' && named.chain === 'object' && named.coin === 'object',
+    JSON.stringify(named));
 
   /* ---------- the hero ---------- */
   console.log('\nthe hero');

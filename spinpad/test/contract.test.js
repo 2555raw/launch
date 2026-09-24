@@ -25,12 +25,12 @@ const ok = (name, cond, detail) => {
 /* ---------- load the real files into a fake window ---------- */
 const root = path.join(__dirname, '..');
 const sandbox = { window: {}, TextEncoder, TextDecoder, setTimeout, Date, console };
-sandbox.window.SPINPAD_CONFIG = { chain: { explorer: 'https://example.invalid' }, router: {}, liquidity: { slippageBps: 100, deadlineMinutes: 20 } };
+sandbox.window.TWISTR_CONFIG = { chain: { explorer: 'https://example.invalid' }, router: {}, liquidity: { slippageBps: 100, deadlineMinutes: 20 } };
 vm.createContext(sandbox);
-vm.runInContext(fs.readFileSync(path.join(root, 'contract', 'spinpad-coin.js'), 'utf8'), sandbox);
+vm.runInContext(fs.readFileSync(path.join(root, 'contract', 'twistr-coin.js'), 'utf8'), sandbox);
 vm.runInContext(fs.readFileSync(path.join(root, 'chain.js'), 'utf8'), sandbox);
-const chain = sandbox.window.SpinpadChain;
-const build = sandbox.window.SPINPAD_COIN;
+const chain = sandbox.window.TwistrChain;
+const build = sandbox.window.TWISTR_COIN;
 
 (async () => {
   console.log('\nselectors');

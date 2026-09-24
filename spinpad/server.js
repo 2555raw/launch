@@ -1,4 +1,4 @@
-/* Serves Spinpad as a static site.
+/* Serves Twistr as a static site.
  *
  * Four files and no dependencies, so this is the whole server: read the file
  * off disk, hand it back with the right content type, and send index.html for
@@ -99,4 +99,4 @@ http.createServer((req, res) => {
     });
     res.end(body);
   });
-}).listen(PORT, () => console.log(`Spinpad on :${PORT}`));
+}).listen(PORT, () => console.log(`Twistr on :${PORT}`));

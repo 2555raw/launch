@@ -1,4 +1,4 @@
-/* Spinpad — configuration.
+/* Twistr — configuration.
  *
  * ────────────────────────────────────────────────────────────────────────────
  * THE PAIRING TABLE IS THE PRODUCT. It lives here and nowhere else.
@@ -50,7 +50,7 @@
  * against the live chain before it uses it.
  * ────────────────────────────────────────────────────────────────────────────
  */
-window.SPINPAD_CONFIG = {
+window.TWISTR_CONFIG = {
   chain: {
     id: 8453,                                   // Base mainnet
     hex: '0x2105',

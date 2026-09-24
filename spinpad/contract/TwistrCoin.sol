@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-/// @title SpinpadCoin
+/// @title TwistrCoin
 /// @notice A plain ERC-20 that carries the draw that created it.
 ///
 /// The point of this contract is the four fields under "the draw". They are set
@@ -12,7 +12,7 @@ pragma solidity ^0.8.26;
 ///
 /// No owner, no mint, no pause, no upgrade path. The whole supply goes to the
 /// creator in the constructor and the contract is finished.
-contract SpinpadCoin {
+contract TwistrCoin {
     string public name;
     string public symbol;
     uint8 public constant decimals = 18;

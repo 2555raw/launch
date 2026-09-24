@@ -1,4 +1,4 @@
-/* Spinpad — the whole application.
+/* Twistr — the whole application.
  *
  * The product rule, and the reason the pad exists: a coin cannot be launched
  * until the wheel has been spun, and the cell it stops on — one body position,
@@ -24,7 +24,7 @@
 
   /* ---------- the table ---------- */
 
-  const CFG = window.SPINPAD_CONFIG;
+  const CFG = window.TWISTR_CONFIG;
   const POSITIONS = CFG.positions;
   const COLOURS = CFG.colours;
 
@@ -54,7 +54,25 @@
   /* v4 because the shape changed again: v3 keyed the pairing by quadrant names
      that no longer exist. An old record read with this code names the wrong
      asset, so the key moves rather than the reader guessing. */
-  const KEY = 'spinpad.coins.v4';
+  const KEY = 'twistr.coins.v1';
+
+  /* The product was called Spinpad until this release. Whatever is already in
+     somebody's browser is under the old names, and a rename is no reason to
+     throw their launches away — so the old keys are read once, written under
+     the new ones, and removed. Nothing about the records themselves changed,
+     which is why this is a carry-over and not another version bump. */
+  const WAS = [['spinpad.coins.v4', 'twistr.coins.v1'], ['spinpad.gate.v1', 'twistr.gate.v1']];
+  const carryOver = () => {
+    WAS.forEach(([was, now]) => {
+      try {
+        if (localStorage.getItem(now) !== null) return;   // already carried, or already used
+        const v = localStorage.getItem(was);
+        if (v === null) return;
+        localStorage.setItem(now, v);
+        localStorage.removeItem(was);
+      } catch (e) { /* storage blocked: there is nothing to carry */ }
+    });
+  };
 
   /* ---------- marks ----------
    *
@@ -696,7 +714,7 @@
         <span class="sp-launch-pair"><b>${esc(as.name)}</b><em>${esc(comboOf(c.color, c.position))}</em></span>
         <span class="sp-launch-time">${ago(c.ts)}</span>
         <span class="sp-launch-tx">${c.txHash
-          ? `<a href="${esc(SpinpadChain.explorerTx(c.txHash))}" target="_blank" rel="noopener noreferrer">${esc(short(c.txHash))}</a>`
+          ? `<a href="${esc(TwistrChain.explorerTx(c.txHash))}" target="_blank" rel="noopener noreferrer">${esc(short(c.txHash))}</a>`
           : '<span>pending</span>'}</span>
       </div>`;
   };
@@ -1092,15 +1110,15 @@
     const p = posOf(flow.spin.position);
     const as = assetOf(flow.spin.color, flow.spin.position);
 
-    if (!SpinpadChain.hasWallet()) {
-      say('No wallet in this browser. Spinpad deploys a real contract, so it needs one.');
+    if (!TwistrChain.hasWallet()) {
+      say('No wallet in this browser. Twistr deploys a real contract, so it needs one.');
       return;
     }
-    if (!SpinpadChain.state.account) {
+    if (!TwistrChain.state.account) {
       say('Connect a wallet first — the contract is deployed from your address.');
       return;
     }
-    if (!SpinpadChain.onChain()) {
+    if (!TwistrChain.onChain()) {
       say(`Wrong network. Switch to ${CFG.chain.name} before launching.`);
       return;
     }
@@ -1111,7 +1129,7 @@
     const supplyWei = BigInt(flow.draft.supply) * 10n ** 18n;
     let hash;
     try {
-      hash = await SpinpadChain.deploy({
+      hash = await TwistrChain.deploy({
         name: flow.draft.name,
         ticker: flow.draft.ticker,
         supplyWei,
@@ -1131,7 +1149,7 @@
     say('Sent. Waiting for it to be mined — this usually takes a few seconds.');
     let receipt;
     try {
-      receipt = await SpinpadChain.waitForReceipt(hash, (i) => {
+      receipt = await TwistrChain.waitForReceipt(hash, (i) => {
         if (i && i % 5 === 0) say(`Still waiting (${i * 2}s). The hash is ${hash.slice(0, 10)}…`);
       });
     } catch (e) {
@@ -1153,7 +1171,7 @@
       address: receipt.contractAddress,
       txHash: hash,
       poolTx: null,
-      creator: SpinpadChain.state.account,
+      creator: TwistrChain.state.account,
       chainId: CFG.chain.id,
       ts: Date.now(),
     };
@@ -1181,11 +1199,11 @@
     if (!CFG.router.address) { note.textContent = 'No router in config.js, so no pool can be opened.'; return; }
     if (!routerOk || !routerOk.ok) { note.textContent = 'The router has not verified: ' + (routerOk ? routerOk.reason : 'not checked') + '.'; return; }
     if (!quoteOk || !quoteOk.ok) { note.textContent = quote.ticker + ' has not verified: ' + (quoteOk ? quoteOk.reason : 'not checked') + '.'; return; }
-    if (!SpinpadChain.state.account) { note.textContent = 'Connect a wallet first.'; return; }
+    if (!TwistrChain.state.account) { note.textContent = 'Connect a wallet first.'; return; }
     /* The network can change between deploying and pooling, and every address
        here belongs to one chain. Without this, an approval and a liquidity call
        go out against whatever happens to live at those addresses elsewhere. */
-    if (!SpinpadChain.onChain()) {
+    if (!TwistrChain.onChain()) {
       note.textContent = 'Wrong network. Switch back to ' + CFG.chain.name + ' before opening the pool.';
       return;
     }
@@ -1212,14 +1230,14 @@
     $('poolBtn').disabled = true;
     try {
       note.textContent = 'Approving the coin for the router… confirm in your wallet.';
-      await SpinpadChain.ensureAllowance(coin.address, CFG.router.address, coinAmount, (step) => {
+      await TwistrChain.ensureAllowance(coin.address, CFG.router.address, coinAmount, (step) => {
         note.textContent = step === 'reset'
           ? 'Clearing the old allowance on the coin first…'
           : 'Approving the coin for the router… confirm in your wallet.';
       });
 
       note.textContent = 'Now approving your ' + quote.ticker + '… confirm in your wallet.';
-      await SpinpadChain.ensureAllowance(quote.address, CFG.router.address, tokenAmount, (step) => {
+      await TwistrChain.ensureAllowance(quote.address, CFG.router.address, tokenAmount, (step) => {
         note.textContent = step === 'reset'
           ? 'Clearing the old ' + quote.ticker + ' allowance first…'
           : 'Now approving your ' + quote.ticker + '… confirm in your wallet.';
@@ -1227,18 +1245,18 @@
 
       note.textContent = 'Approved. Confirm the liquidity itself — this is the one that moves your '
         + quote.ticker + '.';
-      const poolTx = await SpinpadChain.addLiquidity({
+      const poolTx = await TwistrChain.addLiquidity({
         coin: coin.address,
         token: quote.address,
         coinAmount,
         tokenAmount,
       });
-      await SpinpadChain.waitForReceipt(poolTx);
+      await TwistrChain.waitForReceipt(poolTx);
 
       coin.poolTx = poolTx;
       save();
       renderProof();
-      note.innerHTML = 'Pool open. <a href="' + esc(SpinpadChain.explorerTx(poolTx))
+      note.innerHTML = 'Pool open. <a href="' + esc(TwistrChain.explorerTx(poolTx))
         + '" target="_blank" rel="noopener noreferrer">See it on the explorer</a>.';
     } catch (e) {
       note.textContent = e && e.code === 4001 ? 'Rejected in the wallet. Nothing moved.'
@@ -1273,8 +1291,8 @@
     ];
     $('tkRows').innerHTML = rows
       .map(([k, v, mono]) => `<div><dt>${esc(k)}</dt><dd${mono ? ' class="is-mono"' : ''}>${esc(v)}</dd></div>`).join('')
-      + (coin.address ? `<div><dt>Contract</dt><dd class="is-mono"><a href="${esc(SpinpadChain.explorerAddress(coin.address))}" target="_blank" rel="noopener noreferrer">${esc(short(coin.address))}</a></dd></div>` : '')
-      + (coin.txHash ? `<div><dt>Transaction</dt><dd class="is-mono"><a href="${esc(SpinpadChain.explorerTx(coin.txHash))}" target="_blank" rel="noopener noreferrer">${esc(short(coin.txHash))}</a></dd></div>` : '');
+      + (coin.address ? `<div><dt>Contract</dt><dd class="is-mono"><a href="${esc(TwistrChain.explorerAddress(coin.address))}" target="_blank" rel="noopener noreferrer">${esc(short(coin.address))}</a></dd></div>` : '')
+      + (coin.txHash ? `<div><dt>Transaction</dt><dd class="is-mono"><a href="${esc(TwistrChain.explorerTx(coin.txHash))}" target="_blank" rel="noopener noreferrer">${esc(short(coin.txHash))}</a></dd></div>` : '');
 
     $('tkNote').textContent =
       `${coin.name} is paired with ${as.name} because the wheel stopped on ${comboOf(coin.color, coin.position).toLowerCase()}, `
@@ -1329,11 +1347,11 @@
   const renderWalletNote = () => {
     const box = $('walletNote'), text = $('walletNoteText'), btn = $('connectInline');
     if (!box || !text || !btn) return;
-    const acct = SpinpadChain.state.account;
-    const ready = !!acct && SpinpadChain.onChain();
+    const acct = TwistrChain.state.account;
+    const ready = !!acct && TwistrChain.onChain();
     box.classList.toggle('is-on', ready);
     btn.hidden = !!acct;
-    if (!SpinpadChain.hasWallet()) {
+    if (!TwistrChain.hasWallet()) {
       text.innerHTML = '<b>No wallet in this browser.</b> You can still fill this in and spin \u2014 '
         + 'the wheel needs nothing. Launching does: it deploys a contract on ' + esc(CFG.chain.name)
         + ' from your own address.';
@@ -1358,12 +1376,12 @@
     const line = $('walletLine');
     renderWalletNote();
     if (!btn) return;
-    if (!SpinpadChain.hasWallet()) {
+    if (!TwistrChain.hasWallet()) {
       btn.textContent = 'No wallet found';
       if (line) line.textContent = 'This pad deploys a real contract on ' + CFG.chain.name + ', so it needs a wallet in the browser.';
       return;
     }
-    const acct = SpinpadChain.state.account;
+    const acct = TwistrChain.state.account;
     if (!acct) {
       btn.textContent = 'Connect wallet';
       if (line) line.textContent = 'Not connected.';
@@ -1371,7 +1389,7 @@
     }
     btn.textContent = short(acct);
     if (line) {
-      line.textContent = SpinpadChain.onChain()
+      line.textContent = TwistrChain.onChain()
         ? 'Connected on ' + CFG.chain.name + '.'
         : 'Connected, but on the wrong network. Click to switch to ' + CFG.chain.name + '.';
     }
@@ -1382,12 +1400,12 @@
   const verifyTokens = async () => {
     const box = $('verify');
     if (!box) return;
-    if (!SpinpadChain.state.account) { box.innerHTML = ''; return; }
+    if (!TwistrChain.state.account) { box.innerHTML = ''; return; }
 
     box.innerHTML = '<p class="sp-verify-head">Checking against ' + esc(CFG.chain.name) + '…</p>';
     const [q, r] = await Promise.all([
-      SpinpadChain.verifyToken(CFG.quote),
-      SpinpadChain.verifyRouter(),
+      TwistrChain.verifyToken(CFG.quote),
+      TwistrChain.verifyRouter(),
     ]);
     quoteOk = q;
     routerOk = r;
@@ -1412,13 +1430,13 @@
     const btn = $('connect');
     if (!btn) return;
     btn.addEventListener('click', async () => {
-      if (!SpinpadChain.hasWallet()) {
-        say('No wallet in this browser. Spinpad deploys a real contract, so it needs one.');
+      if (!TwistrChain.hasWallet()) {
+        say('No wallet in this browser. Twistr deploys a real contract, so it needs one.');
         return;
       }
       try {
-        if (!SpinpadChain.state.account) await SpinpadChain.connect();
-        if (!SpinpadChain.onChain()) await SpinpadChain.switchChain();
+        if (!TwistrChain.state.account) await TwistrChain.connect();
+        if (!TwistrChain.onChain()) await TwistrChain.switchChain();
       } catch (e) {
         say(e && e.code === 4001 ? 'Refused in the wallet.'
           : 'Could not connect: ' + ((e && e.message) || 'unknown error'));
@@ -1429,14 +1447,14 @@
       }
     });
 
-    const p = SpinpadChain.hasWallet() ? window.ethereum : null;
+    const p = TwistrChain.hasWallet() ? window.ethereum : null;
     if (p && p.on) {
       p.on('accountsChanged', (accs) => {
-        SpinpadChain.state.account = (accs && accs[0]) || null;
+        TwistrChain.state.account = (accs && accs[0]) || null;
         renderWallet(); verifyTokens();
       });
       p.on('chainChanged', (id) => {
-        SpinpadChain.state.chainId = id;
+        TwistrChain.state.chainId = id;
         renderWallet(); verifyTokens();
       });
     }
@@ -1446,7 +1464,7 @@
   /* ---------- the door ----------
      Nobody gets to the pad without being told, in as many words, that none of
      this settles. The tick is the point: it has to be a deliberate act. */
-  const GATE = 'spinpad.gate.v1';
+  const GATE = 'twistr.gate.v1';
 
   const openGate = () => {
     const gate = $('gate');
@@ -1536,6 +1554,8 @@
   /* ---------- wiring ---------- */
 
   const init = () => {
+    carryOver();          // before load() or the door reads anything
+
     wireLogos();            // before anything renders, or the first images race it
     drawWheel($('heroWheelSvg'));
     drawWheel($('dial'));
@@ -1626,7 +1646,7 @@
 
     $('tkCopy').addEventListener('click', async (e) => {
       const lines = [...$('tkRows').children].map((d) => d.querySelector('dt').textContent + ': ' + d.querySelector('dd').textContent);
-      const text = ['Spinpad — launch record', $('tkId').textContent,
+      const text = ['Twistr — launch record', $('tkId').textContent,
         $('tkName').textContent + ' (' + $('tkTicker').textContent + ')', ...lines].join('\n');
       try { await navigator.clipboard.writeText(text); e.target.textContent = 'Copied'; }
       catch (e2) { e.target.textContent = 'Copy failed'; }

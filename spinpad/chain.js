@@ -1,4 +1,4 @@
-/* Spinpad — the chain layer.
+/* Twistr — the chain layer.
  *
  * Everything that talks to a wallet or a contract lives here: encoding, the
  * connection, verifying the configured tokens, deploying the coin, and opening
@@ -16,7 +16,7 @@
  * The selectors below were computed from their signatures, not remembered. The
  * signature sits beside each one and test/chain.test.js recomputes the lot.
  */
-window.SpinpadChain = (() => {
+window.TwistrChain = (() => {
   'use strict';
 
   const SEL = {
@@ -105,14 +105,14 @@ window.SpinpadChain = (() => {
   };
 
   const onChain = () => {
-    const want = window.SPINPAD_CONFIG.chain;
+    const want = window.TWISTR_CONFIG.chain;
     return String(state.chainId).toLowerCase() === want.hex.toLowerCase();
   };
 
   /* Ask the wallet to move to the configured chain, adding it only if the
      wallet has never heard of it (4902). */
   const switchChain = async () => {
-    const c = window.SPINPAD_CONFIG.chain;
+    const c = window.TWISTR_CONFIG.chain;
     try {
       await rpc('wallet_switchEthereumChain', [{ chainId: c.hex }]);
     } catch (e) {
@@ -163,7 +163,7 @@ window.SpinpadChain = (() => {
      match what the config claims, or addLiquidityETH would send ether into the
      wrong pool. */
   const verifyRouter = async () => {
-    const r = window.SPINPAD_CONFIG.router;
+    const r = window.TWISTR_CONFIG.router;
     if (!r.address) return { ok: false, reason: 'no router configured' };
     try {
       const code = await rpc('eth_getCode', [r.address, 'latest']);
@@ -189,8 +189,8 @@ window.SpinpadChain = (() => {
   /* ---------- deploying the coin ---------- */
 
   const creationCode = (coin) => {
-    const build = window.SPINPAD_COIN;
-    if (!build || !build.bytecode) throw new Error('contract/spinpad-coin.js has not been loaded');
+    const build = window.TWISTR_COIN;
+    if (!build || !build.bytecode) throw new Error('contract/twistr-coin.js has not been loaded');
     const args = encodeArgs([
       { type: 'string', value: coin.name },
       { type: 'string', value: coin.ticker },
@@ -269,7 +269,7 @@ window.SpinpadChain = (() => {
   const minOut = (amount, bps) => (BigInt(amount) * BigInt(10000 - bps)) / 10000n;
 
   const addLiquidity = async (opts) => {
-    const cfg = window.SPINPAD_CONFIG;
+    const cfg = window.TWISTR_CONFIG;
     const deadline = BigInt(Math.floor(Date.now() / 1000) + cfg.liquidity.deadlineMinutes * 60);
     const bps = cfg.liquidity.slippageBps;
 
@@ -286,8 +286,8 @@ window.SpinpadChain = (() => {
     return rpc('eth_sendTransaction', [{ from: state.account, to: cfg.router.address, data }]);
   };
 
-  const explorerTx = (hash) => window.SPINPAD_CONFIG.chain.explorer + '/tx/' + hash;
-  const explorerAddress = (a) => window.SPINPAD_CONFIG.chain.explorer + '/address/' + a;
+  const explorerTx = (hash) => window.TWISTR_CONFIG.chain.explorer + '/tx/' + hash;
+  const explorerAddress = (a) => window.TWISTR_CONFIG.chain.explorer + '/address/' + a;
 
   return {
     SEL, encodeArgs, decodeString, decodeUint, decodeAddress, creationCode,

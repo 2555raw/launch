@@ -1432,7 +1432,8 @@
     }
     flow.sending = true;
     $('launchBtn').disabled = true;
-    say('Confirm the deployment in your wallet. This costs gas and cannot be undone.');
+    say('Pricing the deployment against the chain before opening your wallet…');
+    let estimate = null;
 
     const supplyWei = BigInt(flow.draft.supply) * 10n ** 18n;
     let hash;
@@ -1445,6 +1446,28 @@
         assetTicker: as.ticker,
         colour: f.label,
         position: p.label,
+      }, (est) => {
+        /* Said BEFORE the wallet opens, because this is the one thing that
+           answers "why is my wallet showing a red simulation error?".
+
+           A wallet's simulator and the node's gas estimate answer different
+           questions. eth_estimateGas runs the transaction against current
+           state; if it comes back with a number, the deployment executes. A
+           wallet simulator is predicting balance changes for a preview, and a
+           bare contract creation has no `to`, no transfer and no token it
+           recognises — so it often has nothing to describe and shows a failure
+           for a transaction that is completely fine. Phantom in particular is
+           Solana-first and this is its weakest case on an EVM chain. */
+        estimate = est;
+        if (est.ok) {
+          say('The node priced the deployment at ' + num(Number(est.gas)) + ' gas, so it executes. '
+            + 'If your wallet says it cannot simulate this, that is the wallet — a bare contract '
+            + 'creation has no transfer for it to preview. Confirm it.');
+        } else {
+          say('The node REFUSED to price this deployment (' + est.reason + '). That usually means it '
+            + 'would fail. You can still send it, but do not confirm past a wallet warning unless '
+            + 'you are willing to pay gas for a transaction that may revert.');
+        }
       });
     } catch (e) {
       flow.sending = false;
@@ -1487,6 +1510,9 @@
       poolTx: null,
       creator: TwistrChain.state.account,
       chainId: CFG.chain.id,
+      /* What the node said it would cost, kept because it is the difference
+         between "the wallet could not preview this" and "this was broken". */
+      gasEstimate: estimate && estimate.ok ? estimate.gas : null,
       ts: Date.now(),
     };
 

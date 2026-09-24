@@ -383,15 +383,32 @@ window.TwistrChain = (() => {
     return '0x' + ((BigInt(gas) * 115n) / 100n).toString(16);
   };
 
-  const deploy = async (coin) => {
+  /* The estimate is the answer to "why does my wallet say it cannot simulate
+     this?", and it used to go to console.warn where nobody would ever see it.
+     It is handed back to the caller now.
+
+     The distinction matters and it is not cosmetic. A wallet's simulation and
+     the node's gas estimate are two different machines answering two different
+     questions. eth_estimateGas actually executes the transaction against the
+     current state and reports what it costs — if it returns a number, the
+     deployment runs. A wallet simulator is trying to predict BALANCE CHANGES
+     for a human-readable preview, and a bare contract creation has no `to`, no
+     transfer and no token it recognises, so there is frequently nothing for it
+     to describe and it reports a failure. Those are not the same event, and
+     treating the second as evidence about the first is how people either panic
+     over a fine transaction or confirm a broken one.
+
+     So: still sends when the estimate is refused, because some nodes decline
+     creations on principle and the wallet does get the last word — but the
+     caller is told, and can say so before the wallet opens. */
+  const deploy = async (coin, onEstimate) => {
     const tx = { from: state.account, data: creationCode(coin) };
     try {
       tx.gas = await estimateDeploy(coin);
+      if (onEstimate) onEstimate({ ok: true, gas: BigInt(tx.gas).toString() });
     } catch (e) {
-      /* A node that will not estimate is not proof the deployment is bad — some
-         refuse creations outright — so this reports and sends anyway rather
-         than blocking on it. The wallet gets the last word either way. */
-      if (typeof console !== 'undefined') console.warn('gas estimate refused:', e && e.message);
+      const reason = (e && (e.message || e.reason)) || 'the node gave no reason';
+      if (onEstimate) onEstimate({ ok: false, reason });
     }
     return rpc('eth_sendTransaction', [tx]);
   };

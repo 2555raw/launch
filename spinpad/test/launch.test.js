@@ -161,6 +161,16 @@ window.ethereum = {
   ok('the confirmation shows the same pairing',
     (await page.locator('#sumRows').textContent()).includes(drew));
 
+  /* Every line the status area shows during the launch, in order. Reading it
+     once at the end is no good: by then a later step has overwritten it. */
+  await page.evaluate(() => {
+    window.__said = [];
+    const el = document.getElementById('status');
+    window.__said.push(el.textContent);
+    new MutationObserver(() => window.__said.push(el.textContent))
+      .observe(el, { childList: true, characterData: true, subtree: true });
+  });
+
   await page.click('#launchBtn');
   await page.waitForTimeout(1500);
 
@@ -224,6 +234,21 @@ window.ethereum = {
   ok('a forced second launch mints nothing from one spin',
     (await page.locator('.sp-launch').count()) === 1
     && (await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction').length)) === 1);
+
+  /* The wallet's red "cannot simulate" box is the most alarming thing a person
+     sees in this whole flow, and it is usually wrong about a bare contract
+     creation — there is no transfer for a balance-change preview to describe.
+     The node's gas estimate is the thing that actually answers it, and it used
+     to go to console.warn where nobody would ever see it. */
+  const said = await page.evaluate(() => window.__said || []);
+  const priced = said.findIndex((t) => /priced the deployment/.test(t));
+  const sent = said.findIndex((t) => /^Sent\./.test(t));
+  ok('the node’s price is said at all', priced >= 0, said.join(' | ').slice(0, 300));
+  ok('and it is said BEFORE the transaction goes out, which is when the wallet is open',
+    priced >= 0 && sent >= 0 && priced < sent, `priced at ${priced}, sent at ${sent}`);
+  ok('it tells the person the deployment executes, so a wallet warning is the wallet',
+    said.some((t) => /so it executes/.test(t) && /that is the wallet/.test(t)),
+    said.find((t) => /priced/.test(t)) || '');
 
   console.log('\nthe pool');
   await page.fill('#poolAmount', '0.05');

@@ -116,6 +116,32 @@ window.TWISTR_CONFIG = {
     decimals: 18,
   },
 
+  /* The launcher contract, and the reason it exists is not gas.
+   *
+   * A contract creation has no `to`, no recipient and no transfer. Wallet
+   * simulators exist to show a person the balance changes a transaction will
+   * cause, so on a creation they have nothing to describe — and Phantom in
+   * particular answers with a red "could not simulate this request" and a
+   * "Confirm (unsafe)" button, every single time, on a deployment that is
+   * completely fine.
+   *
+   * Through the factory the same launch is an ordinary call: there is a `to`,
+   * and the mint inside emits Transfer(0x0 -> you, supply), which is exactly
+   * what a simulator reads. The warning stops because its cause is gone.
+   *
+   * EMPTY MEANS THE PAD FALLS BACK TO A DIRECT CREATION, which works, makes the
+   * same coin, and looks alarming in some wallets. Nothing breaks either way.
+   *
+   * To fill it: deploy contract/TwistrFactory.sol once — the pad can do it
+   * from the wallet panel, using the bytecode in contract/twistr-factory.js so
+   * it is the same build everything else was checked against — and put the
+   * address the receipt gives back here. It holds nothing, has no owner, no
+   * fee and no way to reach a coin once made, so there is nothing to lose by
+   * it and nothing anybody can take out of it. */
+  factory: {
+    address: '',                                // ← deploy once, then paste the address
+  },
+
   /* ── Pons, on Robinhood Chain (4663) ───────────────────────────────────────
    *
    * The Base side above deploys its own ERC-20 and opens a Uniswap V2 pool.

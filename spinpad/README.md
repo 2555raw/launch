@@ -574,6 +574,51 @@ compares them as a list of shapes rather than as text, because the two are the s
 twice: `innerHTML` spells a circle `<circle ...></circle>` where the data URL spells it
 `<circle .../>`, and folding those two by hand kept tripping over its own replacements.
 
+## The launcher contract, and why it is not about gas
+
+A contract creation has no `to`, no recipient and no transfer. Wallet simulators exist to show a
+person the **balance changes** a transaction will cause, so on a creation they have nothing to
+describe — and Phantom answers with a red *"could not simulate this request"* and a **Confirm
+(unsafe)** button, every single time, on a deployment that is completely fine.
+
+`contract/TwistrFactory.sol` turns the same launch into an ordinary call. There is a `to`, and the
+mint inside emits `Transfer(0x0 → you, supply)`, which is exactly what a simulator reads. The
+warning stops because its cause is gone.
+
+It holds nothing and can do nothing: no owner, no fee, no pause, no upgrade, no way to reach a coin
+once it is made. One external function, and the supply is minted straight to the caller without
+passing through it. There is no balance for anybody to take, including whoever deployed it.
+
+Two things fall out for free. Every launch is announced from **one known address**, so reading the
+board becomes a log query filtered by that contract instead of a sweep of every block for a topic.
+And a launch and its pool could later be made atomic, which is impossible while the token does not
+exist until its own transaction has been mined.
+
+`factory.address` empty means the pad falls back to a direct creation. Same coin, works fine, looks
+alarming in some wallets. The wallet panel will deploy the launcher for you when it sees a wallet
+that cannot preview creations — one transaction, which *is* a creation and *will* show the warning,
+once, and then never again. The address is **not** written back automatically: `config.js` is the
+file that decides where transactions go, and a page that can edit its own launch target at runtime
+has a launch target that is whatever the last person to click a button made it.
+
+`TwistrCoin`'s constructor takes the creator as an argument now rather than using `msg.sender`, so a
+factory can deploy *for* a person. The trade-off, plainly: whoever sends the deployment chooses that
+value, so on a direct creation it is a claim rather than a fact. Through the factory it is enforced
+to be the caller, which is why the factory is the path the pad prefers.
+
+It compiles with `viaIR: true`. Seven calldata strings passed into an eight-argument constructor run
+the legacy pipeline out of stack; the alternative was wrapping them in a struct, which would have
+pushed tuple encoding into `chain.js` for no benefit to anyone reading the contract. An earlier
+version also put nine fields in the `Launched` event, which failed to compile for the same reason —
+it carries two addresses now, because the draw is already on the token and in the coin's own
+`Paired` event, emitted in the very same transaction.
+
+**Checked in a real EVM, not reasoned about.** `test/contract.test.js` deploys the factory, launches
+through it, and asserts the coin matches, the whole supply is the launcher's, **the factory holds
+none of it** — it has no transfer and no owner, so a supply minted there would be stuck forever —
+the coin records the launcher rather than the factory as its creator, and the transaction emits both
+an ERC-20 `Transfer` to the launcher and the factory's own `Launched`.
+
 ## The fee, and what is actually yours to set
 
 Two different fees ride on a Pons launch and **only one of them is this pad's**:
@@ -733,7 +778,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-359 checks across four suites.
+385 checks across four suites.
 
 ### The chain, checked without a chain
 

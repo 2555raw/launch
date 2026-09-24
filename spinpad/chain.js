@@ -38,6 +38,7 @@ window.TwistrChain = (() => {
     creator:       '0x02d05d3f',   // creator()
     addLiquidity:  '0xe8e33700',   // addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)
     addLiquidityETH: '0xf305d719', // addLiquidityETH(address,uint256,uint256,uint256,address,uint256)
+    launch:        '0x1daea893',   // launch(string,string,uint256,string,string,string,string)
   };
 
   /* ---------- encoding ---------- */
@@ -102,6 +103,8 @@ window.TwistrChain = (() => {
   const TOPIC = {
     paired: '0x97e37329ad6278899cda0351f48aa595e149ae986230bfbd2856809790d94390',
     // Paired(string,string,string,string,address)
+    launched: '0xdb50a9e15b4eabbc5e97186ae158f84d5f78e14d0495e4cf35386b4bed4e5a7e',
+    // Launched(address,address)
   };
 
   /* Four strings and an address, none indexed, so it is all in `data`.
@@ -387,20 +390,37 @@ window.TwistrChain = (() => {
 
   /* ---------- deploying the coin ---------- */
 
-  const creationCode = (coin) => {
+  /* The seven values of a launch, in the order both the constructor and the
+     factory's launch() take them. One list, used by both paths, so the two
+     cannot drift into encoding different coins. */
+  const launchArgs = (coin) => [
+    { type: 'string', value: coin.name },
+    { type: 'string', value: coin.ticker },
+    { type: 'uint256', value: coin.supplyWei },
+    { type: 'string', value: coin.assetName },
+    { type: 'string', value: coin.assetTicker },
+    { type: 'string', value: coin.colour },
+    { type: 'string', value: coin.position },
+  ];
+
+  const creationCode = (coin, creator) => {
     const build = window.TWISTR_COIN;
     if (!build || !build.bytecode) throw new Error('contract/twistr-coin.js has not been loaded');
-    const args = encodeArgs([
-      { type: 'string', value: coin.name },
-      { type: 'string', value: coin.ticker },
-      { type: 'uint256', value: coin.supplyWei },
-      { type: 'string', value: coin.assetName },
-      { type: 'string', value: coin.assetTicker },
-      { type: 'string', value: coin.colour },
-      { type: 'string', value: coin.position },
-    ]);
+    /* The constructor takes the creator explicitly now. On this path it is
+       whoever is sending, which is the same thing msg.sender used to be. */
+    const args = encodeArgs(launchArgs(coin).concat([
+      { type: 'address', value: creator || state.account },
+    ]));
     return build.bytecode + args;
   };
+
+  const factoryCode = () => {
+    const build = window.TWISTR_FACTORY;
+    if (!build || !build.bytecode) throw new Error('contract/twistr-factory.js has not been loaded');
+    return build.bytecode;   // no constructor arguments: it holds nothing
+  };
+
+  const launchData = (coin) => SEL.launch + encodeArgs(launchArgs(coin));
 
   /* Ask the node what this costs before opening the wallet.
    *
@@ -413,10 +433,10 @@ window.TwistrChain = (() => {
    * contract creation on its own. The estimate is padded because the state it
    * was measured against is one block old by the time it is mined. */
   const estimateDeploy = async (coin) => {
-    const gas = await rpc('eth_estimateGas', [{
-      from: state.account,
-      data: creationCode(coin),
-    }]);
+    /* Prices the transaction that will ACTUALLY be sent. Estimating the direct
+       creation while sending a factory call would be an estimate of a different
+       transaction, which is worse than no estimate at all. */
+    const gas = await rpc('eth_estimateGas', [deployTx(coin)]);
     return '0x' + ((BigInt(gas) * 115n) / 100n).toString(16);
   };
 
@@ -438,20 +458,53 @@ window.TwistrChain = (() => {
      So: still sends when the estimate is refused, because some nodes decline
      creations on principle and the wallet does get the last word — but the
      caller is told, and can say so before the wallet opens. */
-  const deploy = async (coin, onEstimate) => {
+  /* Two ways to make the same coin, and which one runs decides whether the
+     person's wallet can show them a preview.
+   *
+     THROUGH THE FACTORY, when config.js has its address: an ordinary call with
+     a `to`, and the coin's mint emits Transfer(0x0 -> you, supply) inside it.
+     That is exactly what a wallet simulator reads, so the red "could not
+     simulate this request" box does not appear.
+
+     DIRECTLY, when it does not: a bare creation, with no recipient and nothing
+     to transfer, which several wallets cannot preview at all. It still works
+     and it is still the same contract — it just looks alarming in Phantom.
+
+     Identical coins either way. creationCode and launchData are built from one
+     shared argument list so they cannot drift apart. */
+  const usesFactory = () => {
+    const f = window.TWISTR_CONFIG.factory;
+    return !!(f && f.address && window.TWISTR_FACTORY);
+  };
+
+  const deployTx = (coin) => (usesFactory()
+    ? { from: state.account, to: window.TWISTR_CONFIG.factory.address,
+        data: launchData(coin), value: '0x0' }
     /* value is explicitly zero rather than absent. A creation sends nothing
        either way, but some wallets treat a missing field as unknown rather
        than as zero when they build their preview. */
-    const tx = { from: state.account, data: creationCode(coin), value: '0x0' };
+    : { from: state.account, data: creationCode(coin), value: '0x0' });
+
+  const deploy = async (coin, onEstimate) => {
+    const tx = deployTx(coin);
     try {
-      tx.gas = await estimateDeploy(coin);
-      if (onEstimate) onEstimate({ ok: true, gas: BigInt(tx.gas).toString() });
+      const gas = await rpc('eth_estimateGas', [tx]);
+      tx.gas = '0x' + ((BigInt(gas) * 115n) / 100n).toString(16);
+      if (onEstimate) onEstimate({ ok: true, gas: BigInt(tx.gas).toString(), viaFactory: usesFactory() });
     } catch (e) {
       const reason = (e && (e.message || e.reason)) || 'the node gave no reason';
-      if (onEstimate) onEstimate({ ok: false, reason });
+      if (onEstimate) onEstimate({ ok: false, reason, viaFactory: usesFactory() });
     }
     return rpc('eth_sendTransaction', [tx]);
   };
+
+  /* Deploying the factory itself. Done once, by whoever runs the pad, and its
+     address goes in config.js. This is still a bare creation and will still
+     make Phantom complain — but once, rather than on every launch anybody
+     ever does. */
+  const deployFactory = async () => rpc('eth_sendTransaction', [{
+    from: state.account, data: factoryCode(), value: '0x0',
+  }]);
 
   /* A deployment is only real once it is mined, and the address comes from the
      receipt rather than being predicted from the nonce. */
@@ -570,7 +623,8 @@ window.TwistrChain = (() => {
 
   return {
     SEL, TOPIC, encodeArgs, decodeString, decodeUint, decodeAddress, decodePaired,
-    creationCode, estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
+    creationCode, factoryCode, launchData, launchArgs, deployTx, usesFactory, deployFactory,
+    estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
     hasWallet, walletInfo, connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,
     approve, allowanceOf, ensureAllowance, addLiquidity, addLiquidityETH, pairFor,

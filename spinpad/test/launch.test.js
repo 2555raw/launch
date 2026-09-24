@@ -471,7 +471,65 @@ window.ethereum = {
   ok('and does not claim the transaction is broken',
     !/will fail|is broken|do not confirm/i.test(wt), wt.slice(0, 200));
   ok('and points at a wallet that does not do it', /MetaMask|Rabby/.test(wt));
+  /* Telling somebody their wallet will frighten them without offering the fix
+     is half an answer. The fix is one transaction, from here. */
+  ok('and offers the launcher contract as the permanent fix',
+    (await page4.locator('#deployFactory').count()) === 1);
+  ok('which is honest about it holding nothing',
+    /holds nothing|no owner|no fee/.test(wt), wt.slice(-200));
   await page4.close();
+
+  /* With a launcher configured there is nothing to warn about, because the
+     launch stops being a creation at all. */
+  const factoryConfig = testConfig.replace(
+    'router: {', "factory: { address: '" + ROUTER + "' },\n    router: {");
+  ok('the factory config really names one', factoryConfig !== testConfig);
+  const page6 = await browser.newPage({ viewport: { width: 1440, height: 950 } });
+  await page6.route('**/config.js', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: factoryConfig }));
+  await page6.addInitScript(phantomWallet);
+  await page6.goto('http://127.0.0.1:' + PORT + '/');
+  await page6.waitForTimeout(700);
+  await page6.check('#gateAgree'); await page6.click('#gateGo');
+  await page6.waitForTimeout(250);
+  await page6.click('#connect');
+  await page6.waitForTimeout(1200);
+  ok('with a launcher configured, Phantom is not warned about at all',
+    (await page6.locator('.sp-verify-warn').count()) === 0);
+
+  /* And the launch it sends is a CALL, which is the entire point. */
+  await page6.fill('#fName', 'Northwind Capital');
+  await page6.fill('#fTicker', 'NWND');
+  await page6.fill('#fSupply', '1000000');
+  await page6.click('#toSpin');
+  await page6.click('#spin');
+  await page6.waitForFunction(() => document.getElementById('pad').dataset.step === '3', null, { timeout: 14000 });
+  await page6.waitForTimeout(300);
+  await page6.click('#toLaunch');
+  await page6.waitForTimeout(200);
+  await page6.click('#launchBtn');
+  await page6.waitForTimeout(1600);
+
+  const fsent = await page6.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction'));
+  ok('the launch went out as one transaction', fsent.length === 1, String(fsent.length));
+  if (fsent.length) {
+    const tx = fsent[0].params[0];
+    ok('it has a `to`, which a bare creation never does',
+      String(tx.to || '').toLowerCase() === ROUTER, String(tx.to));
+    ok('and it calls launch() on it', String(tx.data).startsWith('0x1daea893'),
+      String(tx.data).slice(0, 10));
+    ok('the draw is still in the calldata',
+      String(tx.data).length > 200 && /4e6f72746877696e64/.test(String(tx.data)),
+      String(tx.data).length + ' chars');
+  }
+  /* The estimate has to price the transaction that will actually be sent. An
+     estimate of the direct creation while sending a factory call is an
+     estimate of a different transaction, which is worse than none. */
+  const festimates = await page6.evaluate(() => window.__sent.filter((s) => s.method === 'eth_estimateGas'));
+  ok('the gas estimate priced the factory call, not a creation',
+    festimates.length === 1 && String(festimates[0].params[0].to || '').toLowerCase() === ROUTER,
+    JSON.stringify(festimates.map((e) => e.params[0].to)));
+  await page6.close();
 
   /* MetaMask handles creations, so saying it does not would be a lie that
      costs the pad its credibility on the warnings that matter. */

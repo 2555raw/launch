@@ -45,6 +45,19 @@ contract TwistrCoin {
     error InsufficientBalance();
     error InsufficientAllowance();
 
+    /// @param _creator who the supply is minted to and who the draw records.
+    ///
+    /// This is a parameter rather than msg.sender so the token can be deployed
+    /// BY a factory FOR a person. That matters for more than tidiness: a bare
+    /// contract creation has no recipient and no transfer, so a wallet's
+    /// simulator has nothing to preview and warns about a perfectly good
+    /// transaction. Routed through a factory there is a recipient, and the mint
+    /// below is a Transfer the wallet can show.
+    ///
+    /// The trade-off, said plainly: whoever sends the deployment chooses this
+    /// value, so on a direct creation it is a claim rather than a fact. Through
+    /// TwistrFactory it is enforced to be the caller, which is why the factory
+    /// is the path the pad prefers.
     constructor(
         string memory _name,
         string memory _symbol,
@@ -52,8 +65,11 @@ contract TwistrCoin {
         string memory _pairedAsset,
         string memory _assetTicker,
         string memory _colour,
-        string memory _position
+        string memory _position,
+        address _creator
     ) {
+        if (_creator == address(0)) revert ZeroAddress();
+
         name = _name;
         symbol = _symbol;
         pairedAsset = _pairedAsset;
@@ -61,13 +77,13 @@ contract TwistrCoin {
         colour = _colour;
         position = _position;
         drawnAt = block.timestamp;
-        creator = msg.sender;
+        creator = _creator;
 
         totalSupply = _supply;
-        balanceOf[msg.sender] = _supply;
+        balanceOf[_creator] = _supply;
 
-        emit Transfer(address(0), msg.sender, _supply);
-        emit Paired(_pairedAsset, _assetTicker, _colour, _position, msg.sender);
+        emit Transfer(address(0), _creator, _supply);
+        emit Paired(_pairedAsset, _assetTicker, _colour, _position, _creator);
     }
 
     function transfer(address to, uint256 value) external returns (bool) {

@@ -1923,16 +1923,61 @@
          its red box up. Knowing it is coming is the difference between "this
          site is broken" and "my wallet cannot preview this kind of
          transaction". */
-      + (w.name && !w.simulatesCreates
-        ? '<p class="sp-verify-warn">' + esc(w.name) + ' will show a red “could not simulate” '
+      + (TwistrChain.usesFactory()
+        ? '<p class="sp-verify-note">Launching goes through the launcher contract, so it is an '
+          + 'ordinary call rather than a bare contract creation — which is what lets a wallet '
+          + 'preview it.</p>'
+        : '')
+      /* The warning, and then the way out of it. Telling somebody their wallet
+         is going to frighten them without offering the fix is only half an
+         answer, and the fix is one transaction they can send from here. */
+      + (w.name && !w.simulatesCreates && !TwistrChain.usesFactory()
+        ? '<div class="sp-verify-warn"><p>' + esc(w.name) + ' will show a red “could not simulate” '
           + 'warning on the deployment, with a Confirm (unsafe) button. It does that on every '
           + 'contract creation: there is no recipient and no transfer, so it has no balance change '
-          + 'to preview. This pad prices the deployment against the chain first and tells you what '
-          + 'the node said — go by that. If you would rather not see the warning at all, MetaMask '
-          + 'or Rabby handle creations without it.</p>'
+          + 'to preview. The transaction is fine — this pad prices it against the chain first and '
+          + 'tells you what the node said.</p>'
+          + '<p><b>It can be made to go away for good.</b> Deploying the launcher contract once '
+          + 'turns every launch after it into an ordinary call that ' + esc(w.name) + ' can '
+          + 'preview. It holds nothing, has no owner and no fee, and nobody — including whoever '
+          + 'deploys it — can take anything out of it.</p>'
+          + '<p>If this is not your site to change, MetaMask and Rabby handle creations without '
+          + 'the warning.</p>'
+          + '<button class="sp-btn sp-btn-outline sp-btn-sm" id="deployFactory" type="button">'
+          + 'Deploy the launcher (one transaction)</button>'
+          + '<p class="sp-chain-note" id="factoryNote"></p></div>'
         : '');
 
     renderLiqField();
+
+    const fb = $('deployFactory');
+    if (fb) fb.addEventListener('click', async () => {
+      const note = $('factoryNote');
+      fb.disabled = true;
+      note.textContent = 'Confirm it in your wallet. This one IS a contract creation, so the '
+        + 'warning will appear — once, and then never again.';
+      try {
+        const hash = await TwistrChain.deployFactory();
+        note.textContent = 'Sent. Waiting for it to be mined…';
+        const receipt = await TwistrChain.waitForReceipt(hash);
+        const addr = receipt && receipt.contractAddress;
+        if (!addr) throw new Error('the receipt carried no contract address');
+        /* Deliberately not written into anything automatically. config.js is
+           the file that decides where transactions go, and a page that could
+           edit its own launch target at runtime is a page whose launch target
+           is whatever the last person to click a button made it. */
+        note.innerHTML = 'Deployed at <b class="is-mono">' + esc(addr) + '</b>. '
+          + 'Put that in <b>factory.address</b> in config.js and redeploy the site — from then on '
+          + 'every launch is a plain call and the warning is gone. '
+          + '<a href="' + esc(TwistrChain.explorerAddress(addr)) + '" target="_blank" '
+          + 'rel="noopener noreferrer">See it on the explorer</a>.';
+      } catch (e) {
+        fb.disabled = false;
+        note.textContent = e && e.code === 4001
+          ? 'Rejected in the wallet. Nothing was sent.'
+          : 'It did not deploy: ' + ((e && e.message) || 'unknown error');
+      }
+    });
   };
 
   const wireWallet = () => {

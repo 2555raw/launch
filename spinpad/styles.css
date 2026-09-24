@@ -152,48 +152,6 @@ a { color: inherit; text-decoration: none; }
   color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px;
 }
 
-/* ---------- the room ----------
- *
- * A floor with the mat on it and someone standing on the mat, fixed behind the
- * whole page. Levity puts a sky back there; this is the floor the game is
- * actually played on, which is the same idea pointed the other way.
- *
- * Everything in here is pale on purpose. It sits under every word on the site,
- * so it has to be legible-through rather than looked-at: the sections above it
- * are white veils, not solid fills, and the mat is well under half strength.
- */
-.sp-room {
-  position: fixed; inset: 0; z-index: -2; pointer-events: none; overflow: hidden;
-  background:
-    linear-gradient(180deg, #FAF8F4 0%, #F3EFE8 46%, #EDE7DD 100%);
-}
-.sp-room svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-
-.sp-room .sp-plank { stroke: rgba(122, 96, 62, .16); stroke-width: 1; }
-.sp-room .sp-mat-pad { fill: #FEFDFB; stroke: rgba(16, 17, 20, .10); stroke-width: 1.5; }
-.sp-room .sp-mat-shadow { fill: rgba(70, 56, 36, .07); }
-.sp-room .sp-mat-spot { opacity: .34; }
-.sp-room .sp-mat-spot-live { opacity: .92; }
-
-.sp-room .sp-doll path, .sp-room .sp-doll circle { stroke-linecap: round; stroke-linejoin: round; }
-.sp-room .sp-body { stroke: rgba(16, 17, 20, .42); fill: none; }
-.sp-room .sp-head { fill: #FEFDFB; stroke: rgba(16, 17, 20, .42); }
-.sp-room .sp-limb { stroke: rgba(16, 17, 20, .42); fill: none; }
-.sp-room .sp-hand { fill: rgba(16, 17, 20, .46); }
-
-/* On a phone the room and the copy are fighting for the same 390px. The room
-   loses: it is scenery, and the paragraph is the page. */
-@media (max-width: 760px) {
-  .sp-room svg { opacity: .58; }
-}
-
-/* the page floats over it */
-.sp-sec { background: rgba(255, 255, 255, .62); }
-.sp-sec-tint { background: rgba(247, 247, 245, .72); }
-.sp-foot { background: rgba(255, 255, 255, .78); }
-.sp-hero { background: transparent; }
-.sp-ticker { background: rgba(255, 255, 255, .7); }
-
 /* ---------- nav ---------- */
 
 /* A floating panel rather than a bar welded to the top of the window: it sits
@@ -265,8 +223,10 @@ a { color: inherit; text-decoration: none; }
  * arrival once; the inner one floats forever. One element cannot do both,
  * because the second animation would replace the first.
  */
+/* No wash, no floor, no texture: the hero's ground is the page's own white.
+   Sixteen lit spheres are already the colour on this screen, and anything
+   behind them competes with the one headline. */
 .sp-floaters { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-/* the hero's colour wash is gone: the floor underneath is doing that job now */
 
 .sp-float {
   position: absolute; left: var(--x); top: var(--y);

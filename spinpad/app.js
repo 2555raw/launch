@@ -296,212 +296,6 @@
     });
   };
 
-  /* ---------- the room ----------
-   *
-   * A floor, the mat laid on it, and someone standing on the mat, drawn into one
-   * fixed SVG behind the whole page. When the wheel resolves, the limb it named
-   * reaches for the colour it drew — so the thing the product does is happening
-   * in the background of every screen, not only on the one with the wheel.
-   *
-   * Nothing here measures the DOM. The old mat did, and it needed offsetLeft
-   * walks, a ResizeObserver and hit-testing to survive a CSS 3D rotation. The
-   * floor is projected arithmetically instead: one function maps a point on the
-   * mat to a point on screen, and everything — spots, limbs, the figure — is
-   * drawn from it. It cannot disagree with a layout because it does not have one.
-   */
-
-  const ROOM = {
-    // where each limb is standing, as a column index that is tweened, not snapped
-    at: {},
-    target: {},
-    spinning: false,
-    raf: null,
-    t0: 0,
-  };
-  /* The home pose is compact, not one limb per column: hands on the two far
-     rows and feet on the two near ones, all inside the middle two columns.
-     A limb per column spreads the figure corner to corner and it stops reading
-     as a person at all. */
-  const HOME = { leftHand: 1, rightHand: 2, leftFoot: 1, rightFoot: 2 };
-  POSITIONS.forEach((p, i) => {
-    ROOM.at[p.id] = HOME[p.id] !== undefined ? HOME[p.id] : (i % COLOURS.length);
-    ROOM.target[p.id] = ROOM.at[p.id];
-  });
-
-  /* A floor seen from a standing height. `v` runs 0 at the far edge to 1 at the
-     near one, and the near edge is wider — so the spacing has to compress toward
-     the back the way perspective really does, not linearly. This is the
-     projective interpolation that does that. */
-  const project = (u, v, W, H) => {
-    const farY = H * 0.42, nearY = H * 1.02;
-    const farW = W * 0.30, nearW = W * 1.25;
-    const r = farW / nearW;
-    const t = v / (v + (1 - v) / r);
-    const y = farY + (nearY - farY) * t;
-    const w = farW + (nearW - farW) * t;
-    return [W / 2 + (u - 0.5) * w, y, w / nearW];
-  };
-
-  /* Where the mat lies on the floor, four rows by four columns. It is not a
-     fixed rectangle: on a wide screen it sits in the middle, but on a phone the
-     same numbers give a tall thin mat with a stretched figure standing in the
-     middle of the copy. A narrow viewport gets a wider, lower mat instead, so
-     the figure stays a figure and stays out of the text. */
-  const matBox = (W, H) => (W / H < 0.9
-    ? { u0: 0.20, u1: 0.80, v0: 0.66, v1: 0.96 }
-    : { u0: 0.30, u1: 0.70, v0: 0.34, v1: 0.88 });
-  const matCorners = (W, H) => {
-    const m = matBox(W, H);
-    return [[m.u0, m.v0], [m.u1, m.v0], [m.u1, m.v1], [m.u0, m.v1]]
-      .map(([u, v]) => project(u, v, W, H));
-  };
-  const cell = (row, col, W, H) => {
-    const m = matBox(W, H);
-    const u = m.u0 + (m.u1 - m.u0) * ((col + 0.5) / COLOURS.length);
-    const v = m.v0 + (m.v1 - m.v0) * ((row + 0.5) / POSITIONS.length);
-    return project(u, v, W, H);
-  };
-
-  // a quadratic with its control point pushed off the straight line, so a limb
-  // reaching across the mat bends like a limb instead of pointing like a stick
-  const limbPath = (ax, ay, tx, ty, bend) => {
-    const mx = (ax + tx) / 2, my = (ay + ty) / 2;
-    const dx = tx - ax, dy = ty - ay;
-    const len = Math.hypot(dx, dy) || 1;
-    return `M${ax.toFixed(1)} ${ay.toFixed(1)} Q${(mx - dy / len * bend).toFixed(1)} ${(my + dx / len * bend).toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}`;
-  };
-
-  const drawRoom = () => {
-    const svg = $('roomSvg');
-    if (!svg) return;
-    const W = svg.clientWidth || window.innerWidth;
-    const H = svg.clientHeight || window.innerHeight;
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-
-    let out = '';
-
-    // floorboards, converging the way the mat does
-    for (let i = 0; i <= 14; i++) {
-      const u = i / 14;
-      const [x0, y0] = project(u, 0, W, H);
-      const [x1, y1] = project(u, 1, W, H);
-      out += `<path class="sp-plank" d="M${x0.toFixed(1)} ${y0.toFixed(1)} L${x1.toFixed(1)} ${y1.toFixed(1)}"/>`;
-    }
-    for (let j = 1; j <= 6; j++) {
-      const v = j / 6;
-      const [xa, ya] = project(0, v, W, H);
-      const [xb] = project(1, v, W, H);
-      out += `<path class="sp-plank" d="M${xa.toFixed(1)} ${ya.toFixed(1)} H${xb.toFixed(1)}"/>`;
-    }
-
-    // the mat itself
-    const corners = matCorners(W, H);
-    const poly = (pts) => 'M' + pts.map((c) => c[0].toFixed(1) + ' ' + c[1].toFixed(1)).join(' L') + ' Z';
-    // a contact shadow: the same quad, nudged down and out, so the mat sits on
-    // the floor instead of being printed on it
-    const cx0 = corners.reduce((a, c) => a + c[0], 0) / 4;
-    const cy0 = corners.reduce((a, c) => a + c[1], 0) / 4;
-    out += `<path class="sp-mat-shadow" d="${poly(corners.map(([x, y]) => [cx0 + (x - cx0) * 1.035, cy0 + (y - cy0) * 1.035 + H * 0.006]))}"/>`;
-    out += `<path class="sp-mat-pad" d="${poly(corners)}"/>`;
-
-    const live = flow.spin;
-    POSITIONS.forEach((p, r) => COLOURS.forEach((c, k) => {
-      const [x, y, sc] = cell(r, k, W, H);
-      const on = live && live.position === p.id && live.color === c.id;
-      out += `<ellipse class="sp-mat-spot${on ? ' sp-mat-spot-live' : ''}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}"`
-        + ` rx="${(W * 0.034 * sc).toFixed(1)}" ry="${(W * 0.034 * sc * 0.44).toFixed(1)}" fill="${c.hex}"/>`;
-    }));
-
-    /* The figure. Four limbs are on the mat; the body stands over them.
-       Shoulders and hips are lifted off the floor rather than sitting at the
-       spots, which is the whole difference between a person leaning over a mat
-       and four lines meeting at a point — the first attempt put the shoulders
-       at the midpoint of the two hands and the arms disappeared into the neck. */
-    const foot = (pid) => {
-      const r = POSITIONS.findIndex((p) => p.id === pid);
-      return cell(r, ROOM.at[pid], W, H);
-    };
-    const [lhX, lhY, lhS] = foot('leftHand'), [rhX, rhY, rhS] = foot('rightHand');
-    const [lfX, lfY, lfS] = foot('leftFoot'), [rfX, rfY, rfS] = foot('rightFoot');
-
-    /* How tall a standing body is here, in screen pixels, at the mat's scale.
-       The figure is shorter relative to its mat on a phone: at full height its
-       head reaches into the hero copy, and scenery does not get to do that. */
-    const matH = corners[3][1] - corners[0][1];
-    const lift = matH * (W / H < 0.9 ? 0.30 : 0.46);
-    const lw = Math.max(2.5, W * 0.0034);
-    const sway = ROOM.spinning ? Math.sin(Date.now() / 200) * lift * 0.055 : 0;
-
-    // hips over the feet, shoulders over the hands and set back toward the hips,
-    // so the torso leans the way someone reaching across a mat actually leans
-    const hipX = (lfX + rfX) / 2 + sway * 0.4;
-    const hipY = (lfY + rfY) / 2 - lift * ((lfS + rfS) / 2);
-    const shX = (lhX + rhX) / 2 * 0.62 + hipX * 0.38 + sway;
-    const shY = (lhY + rhY) / 2 - lift * 1.06 * ((lhS + rhS) / 2);
-    const headR = Math.max(10, lift * 0.20);
-
-    out += '<g class="sp-doll">';
-    // torso first, so the limbs and the head sit on top of it
-    out += `<path class="sp-body" stroke-width="${(lw * 2).toFixed(1)}"`
-      + ` d="M${shX.toFixed(1)} ${shY.toFixed(1)} L${hipX.toFixed(1)} ${hipY.toFixed(1)}"/>`;
-
-    [['leftHand', lhX, lhY, shX, shY, 1], ['rightHand', rhX, rhY, shX, shY, -1],
-     ['leftFoot', lfX, lfY, hipX, hipY, 0.7], ['rightFoot', rfX, rfY, hipX, hipY, -0.7]]
-      .forEach(([, tx, ty, ax, ay, dir]) => {
-        out += `<path class="sp-limb" stroke-width="${lw.toFixed(1)}"`
-          + ` d="${limbPath(ax, ay, tx, ty, lift * 0.16 * dir)}"/>`;
-        out += `<circle class="sp-hand" cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="${(lw * 1.4).toFixed(1)}"/>`;
-      });
-
-    // the head leans out past the shoulders, in the direction the torso leans
-    const leanX = (shX - hipX) * 0.18;
-    out += `<circle class="sp-head" stroke-width="${(lw * 1.2).toFixed(1)}"`
-      + ` cx="${(shX + leanX).toFixed(1)}" cy="${(shY - headR * 1.25).toFixed(1)}" r="${headR.toFixed(1)}"/>`;
-    out += '</g>';
-
-    svg.innerHTML = out;
-  };
-
-  /* Moving a limb is a tween rather than a jump: the point of the thing is to
-     watch someone reach for the colour the wheel gave, and a reach that happens
-     between two frames is not a reach. */
-  const roomStep = () => {
-    let moving = false;
-    POSITIONS.forEach((p) => {
-      const d = ROOM.target[p.id] - ROOM.at[p.id];
-      if (Math.abs(d) > 0.002) { ROOM.at[p.id] += d * 0.12; moving = true; }
-      else ROOM.at[p.id] = ROOM.target[p.id];
-    });
-    drawRoom();
-    if (moving || ROOM.spinning) ROOM.raf = requestAnimationFrame(roomStep);
-    else ROOM.raf = null;
-  };
-
-  const roomKick = () => { if (!ROOM.raf) ROOM.raf = requestAnimationFrame(roomStep); };
-
-  const roomSpinning = (on) => {
-    if (reduced()) return;
-    ROOM.spinning = on;
-    if (on) roomKick(); else drawRoom();
-  };
-
-  /* Discarding a draft puts the room back: the spot stays lit and the limb
-     stays reaching otherwise, advertising a pairing that no longer exists. */
-  const roomHome = () => {
-    POSITIONS.forEach((p) => { ROOM.target[p.id] = HOME[p.id]; });
-    if (reduced()) { POSITIONS.forEach((p) => { ROOM.at[p.id] = HOME[p.id]; }); drawRoom(); return; }
-    roomKick();
-  };
-
-  // the wheel said a position and a colour; that limb goes to that column
-  const roomFollow = (sector) => {
-    const col = COLOURS.findIndex((c) => c.id === sector.color);
-    if (col < 0) return;
-    ROOM.target[sector.position] = col;
-    if (reduced()) { ROOM.at[sector.position] = col; drawRoom(); return; }
-    roomKick();
-  };
-
   /* ---------- the drifting sixteen ----------
    *
    * Every asset on the board, once each, floating behind the hero on a disc of
@@ -918,7 +712,6 @@
     flow.spinning = true;
     setStep(2);
     say('Spinning. The wheel decides the pairing, not you.');
-    roomSpinning(true);
 
     const i = rnd(SECTORS.length);
     const centre = i * SEG + SEG / 2;
@@ -975,9 +768,6 @@
     }
 
     say(`${p.label} on ${f.label.toLowerCase()} — ${as.name}. The pairing is locked.`);
-
-    roomSpinning(false);
-    roomFollow(sector);
 
     setStep(3);
     renderSummary();
@@ -1226,7 +1016,6 @@
     say('Fill in the details, then the wheel decides the rest.');
     setStep(1);
     renderSummary();
-    roomHome();
   };
 
   /* ---------- the wallet ---------- */
@@ -1453,8 +1242,6 @@
     wireHeroWheel();
     renderFloaters();
     wireMotion();
-    drawRoom();
-    window.addEventListener('resize', drawRoom);
     renderBoardGrid();
     renderDesk();
     wireGate();

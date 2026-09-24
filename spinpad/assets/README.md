@@ -10,24 +10,33 @@ RED                             YELLOW
 assets/tsla.png     Tesla       assets/amzn.png     Amazon
 assets/lulu.png     Lululemon   assets/snap.png     Snapchat
 assets/gme.png      GameStop *  assets/msft.png     Microsoft
-assets/net.png      NET      *  assets/gld.png      GLD      *
+assets/net.png      Netflix     assets/gld.png      GLD      *
 
 GREEN                           BLUE
 assets/nvda.png     Nvidia      assets/meta.png     Meta
 assets/shop.png     Shopify     assets/intc.png     Intel
-assets/bull.png     BULL     *  assets/f.png        Ford
+assets/bull.png     BULL        assets/f.png        Ford
 assets/inda.png     INDA     *  assets/coin.png     Coinbase
 ```
 
-`*` — these five do not exist yet. No icon package publishes a mark for them, and the only artwork
-to hand is a 90px tile inside a screenshot, which does not survive being cut out and set next to a
-vector. Those cells keep their drawn mark and their coloured disc, which costs nothing, until a real
-file is dropped in.
+`*` — these three do not exist yet, and each fails for its own reason rather than for want of
+trying. **GME** is a wordmark whose "Game" is white: cut off the dark tile it came from, half of it
+disappears into a white disc, and inverting somebody's wordmark is not using their mark, it is
+drawing a different one. **GLD** has a red pen stroke across the right-hand bar in the only picture
+of it here; keying the pen out and filling the hole leaves a grey smear worse than the pen. **INDA**
+is clipped by the edge of that screenshot — only part of the flag is in frame. Those three cells
+keep their drawn mark and their coloured disc, which costs nothing, until a real file is dropped in.
 
-Eleven of the sixteen ship. Eight are bitmaps, trimmed and scaled; `lulu.png` was cut out of a
-screenshot of Pons's token grid and masked to a circle, which works only because that mark is itself
-a disc; `f.png` and the vector marks came from the `simple-icons` package. That package is not a
-dependency of anything; it was used once to write the files.
+Thirteen of the sixteen ship. `bull.png` and `lulu.png` were cut out of a screenshot of Pons's token
+grid: those tiles sit on one flat dark navy, so the background keys out by colour distance rather
+than by luminance — a luminance key eats a dark mark along with the ground, which is exactly what
+happened to the Netflix N on the first attempt. Every pixel that survives has the navy divided back
+out of it, or the mark ships with a dark halo the moment it lands on a white disc. `f.png` and the
+vector marks came from the `simple-icons` package, which is not a dependency of anything; it was
+used once to write the files. The rest are bitmaps, trimmed and scaled.
+
+`net.png` is a copy of `nflx.png` from an earlier set — the same Netflix mark under the ticker Pons
+lists it by, and a far better file than anything that could be cut out of a 40px tile.
 
 Files from earlier sets are still here and unreferenced: `aapl`, `amd`, `googl`, `ko`, `mcd`, `nflx`,
 `rblx`, `rddt`, `sbux`, `skype`, `spot`, `usdg`, `wmt`, `yt`. Nothing loads them; delete them whenever.

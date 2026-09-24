@@ -18,11 +18,12 @@ slip.
 
 They were picked off Pons's own token grid by eye, which is why the colours line up better than a
 package search could manage: GLD is a stack of gold bars, BULL is a green bull, INDA is the Indian
-flag. Eleven have a logo file. The other five — GameStop, NET, GLD, BULL, INDA — have no published
-mark in any icon package, and the only artwork available for them is a 90px tile inside a
-screenshot, which does not survive being cut out and put next to a vector. They keep their drawn
-mark and their coloured disc until someone drops a real file into `assets/`. That is what the
-fallback is for, and there is a check that eleven cells are on white discs and five are not.
+flag. Thirteen have a logo file. The other three — GameStop, GLD and INDA — have no published mark
+in any icon package, and each defeats the one screenshot that holds it for its own reason: GameStop's
+wordmark is half white and disappears into a white disc, GLD has a red pen stroke across it, and
+INDA is clipped by the edge of the frame. They keep their drawn mark and their coloured disc until
+someone drops a real file into `assets/`. That is what the fallback is for, and there is a check
+that thirteen cells are on white discs and three are not.
 
 **That table lives in exactly one place: `config.js`.** The wheel, the board, the asset desk, the
 result screen and the value encoded into the constructor are all read out of the same object, so they cannot drift apart. Changing a pairing is changing one line.
@@ -127,14 +128,14 @@ generated file holding the compiled contract.
 ## Structure
 
 ```
-index.html            the page: the room, the door, floating nav, hero,
-                      ticker, the board, the pad, how it works, the asset
-                      desk, proof, FAQ and footer
+index.html            the page: the door, floating nav, hero, ticker, the
+                      board, the pad, how it works, the asset desk, proof,
+                      FAQ and footer
 config.js             the chain, the router, the quote token and THE PAIRING
                       TABLE — position + colour → asset, sixteen lines
 chain.js              wallet, encoding, on-chain verification, deploy, pool
-app.js                the room, the wheel, the board, the stage machine, the
-                      proof list, the metrics and local storage
+app.js                the wheel, the board, the stage machine, the proof list,
+                      the metrics and local storage
 styles.css            the design system
 server.js             the static server Railway runs — no dependencies
 contract/
@@ -283,52 +284,12 @@ Both wheels build their gradients with ids carrying their own element's id. Two 
 sharing gradient ids is invalid, and it fails silently: the second wheel simply paints itself with
 the first one's fills, which looks right until the two wheels differ. There is a check.
 
-### The room
-
-The page is not on a background. It is in a room: a floorboarded floor with the mat laid on it and
-someone standing on the mat, drawn once into a fixed SVG that every section then floats over as a
-white veil. When the wheel spins the figure sways; when it stops, the limb the wheel named reaches
-across and puts its hand on the colour it drew, and that square lights up. The product's one
-mechanic is happening behind the page, wherever you are on it.
-
-Three things about how it is built:
-
-- **Nothing measures the DOM.** The old mat was a CSS 3D rotation, and it cost an `offsetLeft` walk
-  for every circle, a `ResizeObserver`, and `elementFromPoint` hit-testing, because a rotated
-  element's client rect comes back projected and its centre falls outside its own box. The floor is
-  projected arithmetically instead: `project(u, v)` maps a point on the floor to a point on screen,
-  and the planks, the mat, the sixteen spots and all four limbs are drawn from that one function.
-  It cannot disagree with a layout because it does not have one.
-- **The interpolation is projective, not linear.** A floor seen from standing height has its far
-  edge narrower *and* its rows bunched toward the back. Spacing the rows evenly down the screen
-  gives a trapezoid that reads as a shape rather than a plane. `project` divides through by the
-  width ratio, which is what perspective actually does, and a check asserts the near row of spots is
-  wider than the far one.
-- **The body stands over the mat, not on it.** The first attempt put the shoulders at the midpoint
-  of the two hands, and the arms vanished into the neck and the figure read as four lines meeting at
-  a point. Hips sit lifted over the feet, shoulders lifted over the hands and set back toward the
-  hips, so the torso leans the way someone reaching across a mat leans.
-
-The mat's footprint is not a fixed rectangle. On a phone the desktop numbers give a tall thin mat
-with a stretched figure standing in the middle of the hero copy; a narrow viewport gets a wider,
-lower mat, a shorter figure and the whole room at 58% — it is scenery, and the paragraph is the
-page.
-
-Four checks hold the mechanic down. The lit square is the square the wheel drew; the limb the wheel
-named is standing on it, measured off the drawing rather than off a variable, to within a pixel;
-it is *that* limb and not a nearer one; and the other three have not moved. Discarding a draft puts
-the light out and everyone back on their own square — a discarded draft has no pairing, and a lit
-spot with a hand on it is a pairing being advertised.
-
-The group is `.sp-doll`, not `.sp-figure`. `.sp-figure` is already the proof section's card, and a
-second thing wearing it inherits a border and a background it has no use for. A check counts zero
-`.sp-figure` inside the room, because this is the same collision `.sp-chip` caused once already.
-
 ### The drifting sixteen
 
-Behind the hero, every asset on the board floats once, each on a disc of its own colour, over the
-room. There used to be a faint wash of the four colours behind them; the floor does that job now.
-It is built from the pairing table like everything else, so the first thing
+Behind the hero, every asset on the board floats once, each on a disc of its own colour, over plain
+white. There is no wash, no floor and no texture behind them: sixteen lit spheres are already the
+colour on that screen, and anything else competes with the one headline. It is built from the
+pairing table like everything else, so the first thing
 anyone sees cannot advertise a pairing the wheel will not give — a check counts sixteen chips, four
 per colour, no asset twice.
 
@@ -435,7 +396,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-201 checks across three suites.
+185 checks across three suites.
 
 ### The chain, checked without a chain
 

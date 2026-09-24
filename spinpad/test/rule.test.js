@@ -269,6 +269,22 @@ async function browserChecks() {
     };
   });
   ok('the page has a name', named.brand.length > 1, named.brand);
+
+  /* Clicking the brand goes back to the top. It used to do nothing: it points
+     at #top, which is the id of the sticky bar itself, and scrolling to
+     something that never moves relative to the window is a no-op. */
+  await page.evaluate(() => {
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.getElementById('faq').scrollIntoView({ block: 'start', behavior: 'instant' });
+  });
+  await page.waitForTimeout(200);
+  const away = await page.evaluate(() => Math.round(window.scrollY));
+  await page.click('.sp-brand');
+  await settle(page);
+  const home = await page.evaluate(() => Math.round(window.scrollY));
+  ok('the brand takes you back to the top', away > 400 && home === 0,
+    `left at ${away}, came back to ${home}`);
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = ''; });
   ok('and the tab says the same one', named.title.startsWith(named.brand),
     `${named.title} vs ${named.brand}`);
   ok('and so does the footer', named.foot === named.brand && named.copyright.includes(named.brand),

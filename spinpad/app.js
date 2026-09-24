@@ -1556,7 +1556,9 @@
       burger.setAttribute('aria-expanded', String(on));
     };
     burger.addEventListener('click', () => set(!nav.classList.contains('is-open')));
-    nav.querySelectorAll('.sp-nav-links a').forEach((a) => a.addEventListener('click', () => set(false)));
+    /* The brand closes it too. On a phone the open menu covers the page, so
+       going to the top of a page you cannot see is not going anywhere. */
+    nav.querySelectorAll('.sp-nav-links a, .sp-brand').forEach((a) => a.addEventListener('click', () => set(false)));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
   };
 
@@ -1711,6 +1713,16 @@
 
     document.querySelectorAll('[data-scroll]').forEach((el) => {
       el.addEventListener('click', (e) => {
+        /* The brand goes to the top of the page, not to an element. #top is the
+           id of the sticky bar itself, and scrolling to something that never
+           moves relative to the window does nothing at all — which is exactly
+           what clicking the brand did. The href stays as the no-script
+           fallback, where a fragment jump does land at the top. */
+        if (el.dataset.scroll === 'top') {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
         const t = document.getElementById(el.dataset.scroll);
         if (!t) return;                 // a real href still works if the id moved
         e.preventDefault();

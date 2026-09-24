@@ -196,7 +196,15 @@ a { color: inherit; text-decoration: none; }
   box-shadow: var(--sh);
   transition: border-radius .2s var(--ease);
 }
-.sp-brand { font: 700 19px/1 var(--sans); letter-spacing: -0.04em; }
+/* It is a link and it does something, so it has to look like one under the
+   pointer. It had neither a hover state nor a focus ring. */
+.sp-brand {
+  font: 700 19px/1 var(--sans); letter-spacing: -0.04em;
+  color: var(--ink); text-decoration: none; border-radius: 6px;
+  transition: opacity .16s;
+}
+.sp-brand:hover { opacity: .62; }
+.sp-brand:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
 .sp-nav-links { display: flex; gap: 22px; margin-inline: auto; font: 500 14.5px/1 var(--sans); color: var(--muted); }
 .sp-nav-links a { padding: 6px 0; border-bottom: 1.5px solid transparent; white-space: nowrap; transition: color .16s, border-color .16s; }
 .sp-nav-links a:hover { color: var(--ink); }

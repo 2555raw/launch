@@ -87,6 +87,7 @@ const run = () => {
     'function balanceOf(address who)',
     'function balanceOfToken(address who, address token)',
     'function claimToken(address token)',
+    'function sweepFees(uint256 minBuybackTokensOut)',
   ]);
   const same = (name, mine, theirs) =>
     ok(name, mine.toLowerCase() === theirs.toLowerCase(),
@@ -212,6 +213,29 @@ const run = () => {
     chain: { maxCreatorTaxBps: 500, launchFee: 10n ** 15n, canLaunch: true, pairApproved: true } });
   ok('a native pair pays the fee plus the buy',
     BigInt(native.value) === 10n ** 15n + LAUNCH.quoteIn, native.value);
+
+  console.log('\ngetting the money out');
+  /* Three places the tax can sit, and only the last is spendable: on the
+     curve until somebody sweeps, in the escrow until you claim, then in your
+     wallet. Each step is a different contract and a different call. */
+  same('sweepFees, which moves it off the curve', Pons.sweepFeesData(0),
+    viem.encodeFunctionData({ abi, functionName: 'sweepFees', args: [0n] }));
+  same('sweepFees with a slippage floor', Pons.sweepFeesData(1234n),
+    viem.encodeFunctionData({ abi, functionName: 'sweepFees', args: [1234n] }));
+  ok('an omitted floor is zero rather than undefined',
+    Pons.sweepFeesData() === Pons.sweepFeesData(0), Pons.sweepFeesData());
+  ok('creatorTaxBalance is a bare selector', Pons.creatorTaxBalanceData() === Pons.SEL.creatorTaxBalance
+    && /^0x[0-9a-f]{8}$/.test(Pons.creatorTaxBalanceData()), Pons.creatorTaxBalanceData());
+  ok('and so is claim', Pons.claimData() === '0x4e71d92d', Pons.claimData());
+  ok('claim and claimToken are different calls',
+    Pons.claimData() !== Pons.claimTokenData(LAUNCH.pairToken));
+  /* The escrow reads take the RECIPIENT, not the token, in the first slot.
+     Swapping them reads somebody else's balance and reports zero. */
+  const bal = Pons.escrowBalanceTokenData(TOKEN.feeRecipient, LAUNCH.pairToken);
+  const words = bal.slice(10).match(/.{64}/g);
+  ok('balanceOfToken puts the recipient first and the token second',
+    words[0].endsWith(TOKEN.feeRecipient.slice(2)) && words[1].endsWith(LAUNCH.pairToken.slice(2)),
+    words.join(' / '));
 
   console.log('\nfinding the pair tokens from the chain');
   /* The log is built by viem's encodeEventTopics/encodeAbiParameters, so the

@@ -654,6 +654,34 @@ including in the wrong field entirely — `recipient` is a different parameter o
 words further along. The calldata is **decoded back** by viem and the values read out of the struct
 by name.
 
+## Getting the fee out, which is three places and not one
+
+The creator tax does not arrive by itself, and this is the part that surprises people. It can be
+sitting in three places, and only the last is spendable:
+
+| where | how to read it | how to move it on |
+|---|---|---|
+| **on the coin's curve** | `creatorTaxBalance()` on the curve | `sweepFees(minBuybackTokensOut)` — **anyone** can call it, but somebody has to |
+| **in the FeeEscrow** | `balanceOf(you)`, or `balanceOfToken(you, pairToken)` | `claim()` / `claimToken(token)` |
+| **in your wallet** | — | — |
+
+`sweepFees` is a plain public write with no access control, so anybody can call it — but *anybody has
+to*. **Nothing sweeps on a timer.** A coin nobody trades much can hold your tax on its curve
+indefinitely, and the way to find that out is to read `creatorTaxBalance()` per coin, not to look at
+the escrow, see zero, and conclude there is nothing there.
+
+The curve address for a coin comes from `getLaunchedToken(token)`, which returns a `LaunchedToken`
+with `curve` in it. So the full walk is: token → curve → `creatorTaxBalance()` → `sweepFees()` →
+escrow `balanceOf()` → `claim()`.
+
+`minBuybackTokensOut` is a slippage floor, because sweeping can perform the buyback and a buyback is
+a swap. Zero accepts any price; pass zero only when the coin has buyback disabled or you do not
+care.
+
+All seven calls are encoded in `pons.js` and checked against viem. One check exists specifically
+because the mistake is invisible: `balanceOfToken` takes the **recipient first and the token
+second**, and swapping them reads a stranger's balance and quietly reports zero.
+
 ## Pons, and what is still missing
 
 The sixteen assets are real tickers off Pons's own approved pair-token list, but the pad does not
@@ -778,7 +806,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-385 checks across four suites.
+395 checks across four suites.
 
 ### The chain, checked without a chain
 

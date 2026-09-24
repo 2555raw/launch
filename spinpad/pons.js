@@ -50,6 +50,9 @@ window.TwistrPons = (() => {
     maxCreatorTaxBps:       'maxCreatorTaxBps()',
     previewLaunchEconomics: 'previewLaunchEconomics(uint256,address)',
     launchAndBuy: `launchAndBuy(${TOKEN_PARAMS},uint256,address,uint256,uint256,address,address[])`,
+    sweepFees:              'sweepFees(uint256)',
+    creatorTaxBalance:      'creatorTaxBalance()',
+    quoteFeeBalance:        'quoteFeeBalance()',
     balanceOf:              'balanceOf(address)',
     balanceOfToken:         'balanceOfToken(address,address)',
     claim:                  'claim()',
@@ -68,6 +71,9 @@ window.TwistrPons = (() => {
     maxCreatorTaxBps:       '0xf325a5fb',
     previewLaunchEconomics: '0xf718b78c',
     launchAndBuy:           '0xf85f8e41',
+    sweepFees:              '0x3729bb9a',
+    creatorTaxBalance:      '0xdb2bd533',
+    quoteFeeBalance:        '0xed479c47',
     balanceOf:              '0x70a08231',
     balanceOfToken:         '0xf59e38b7',
     claim:                  '0x4e71d92d',
@@ -360,6 +366,36 @@ window.TwistrPons = (() => {
   const maxCreatorTaxBpsData = () => SEL.maxCreatorTaxBps;
   const previewLaunchEconomicsData = (id, a) =>
     encodeCall('previewLaunchEconomics', ['uint256', 'address'], [id, a]);
+  /* ---------- getting the money out ----------
+   *
+     THE FEE DOES NOT ARRIVE BY ITSELF, and this is the part that surprises
+     people. There are three places the creator tax can be sitting and only the
+     last one is yours to spend:
+
+       1. ON THE CURVE. Every buy and sell credits the tax to the curve
+          contract for that coin. creatorTaxBalance() is what is waiting there.
+          It stays there until somebody calls sweepFees().
+
+       2. IN THE ESCROW. sweepFees() moves it to the FeeEscrow and credits it
+          to the recipient the token was launched with. balanceOf(you) is the
+          native balance; balanceOfToken(you, token) is per pair token.
+
+       3. IN YOUR WALLET, after claim() or claimToken().
+
+     sweepFees is a plain public write with no access control, so anyone can
+     call it — but ANYONE has to. Nothing sweeps on a timer. A coin that nobody
+     trades much can hold your tax on its curve indefinitely, and the way to
+     find that out is to read creatorTaxBalance() per coin rather than to check
+     the escrow and conclude there is nothing.
+
+     `minBuybackTokensOut` is a slippage floor: sweeping can perform the
+     buyback, which is a swap, so zero accepts any price. Pass zero only when
+     the coin has buyback disabled or you do not care. */
+  const sweepFeesData = (minBuybackTokensOut) =>
+    encodeCall('sweepFees', ['uint256'], [minBuybackTokensOut || 0]);
+  const creatorTaxBalanceData = () => SEL.creatorTaxBalance;
+  const quoteFeeBalanceData = () => SEL.quoteFeeBalance;
+
   const escrowBalanceData = (who) => encodeCall('balanceOf', ['address'], [who]);
   const escrowBalanceTokenData = (who, token) =>
     encodeCall('balanceOfToken', ['address', 'address'], [who, token]);
@@ -376,6 +412,7 @@ window.TwistrPons = (() => {
     launchAndBuyData, approvedPairTokensData, pairTokenEconomicsData,
     maxCreatorTaxBpsData, previewLaunchEconomicsData,
     escrowBalanceData, escrowBalanceTokenData, claimData, claimTokenData,
+    sweepFeesData, creatorTaxBalanceData, quoteFeeBalanceData,
   };
 })();
 

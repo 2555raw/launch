@@ -254,7 +254,12 @@
        names, a cross dividing the board into those quarters, and the sixteen
        circles inside it. That is the object this page is about, and a ring of
        dots with the names floating outside it was a diagram of it. */
-    const R_OUT = 97, R_RIM = 79, R_FACE = 78.5;
+    /* The rim gives up what the circles need. Sixteen of them on a ring have
+       2πr/16 of arc each, and at r=60 that was 23.6 against a diameter of 27 —
+       they were overlapping, which is why the logos read as a crowded strip
+       rather than sixteen things. At r=70 the arc is 27.5, so a circle of 25.2
+       leaves a real gap either side. */
+    const R_OUT = 97, R_RIM = 86, R_FACE = 85.5;
     const pol = (deg, r) => {
       const a = (deg - 90) * Math.PI / 180;
       return [100 + Math.cos(a) * r, 100 + Math.sin(a) * r];
@@ -296,13 +301,13 @@
        The drawn glyph goes underneath the picture rather than instead of it.
        An <image> whose file is missing renders nothing at all, so the glyph
        shows through on its own — the same fallback the board has, for free. */
-    const NODE_R = 13.5, DISC_R = 8.6, PIC = 12, GLY = 10;
+    const NODE_R = 12.6, DISC_R = 8.1, PIC = 11.2, GLY = 9;
     SECTORS.forEach((sec, i) => {
-      const [x, y] = nodeAt(i, 60);
+      const [x, y] = nodeAt(i, 70);
       const as = assetOf(sec.color, sec.position);
       const cx = x.toFixed(2), cy = y.toFixed(2);
       out += `<g data-i="${i}"><title>${esc(comboOf(sec.color, sec.position))} → ${esc(as.name)}</title>`
-        + `<ellipse class="sp-node-cast" cx="${cx}" cy="${(y + 3.4).toFixed(2)}" rx="12" ry="9.4"/>`
+        + `<ellipse class="sp-node-cast" cx="${cx}" cy="${(y + 3.4).toFixed(2)}" rx="11.2" ry="8.8"/>`
         + `<circle class="sp-node" data-i="${i}" cx="${cx}" cy="${cy}" r="${NODE_R}" fill="url(#${ns}-${sec.color})"/>`
         + `<circle class="sp-node-gloss" cx="${cx}" cy="${cy}" r="${NODE_R}" fill="url(#${ns}-gloss)"/>`
         + `<circle class="sp-node-disc" cx="${cx}" cy="${cy}" r="${DISC_R}"/>`

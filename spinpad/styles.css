@@ -149,7 +149,7 @@ a { color: inherit; text-decoration: none; }
 /* the spin button: the biggest single control on the site, because it is the
    moment the product is about */
 .sp-btn-spin {
-  margin-top: 30px; padding: 20px 64px; border-radius: 999px;
+  margin-top: 18px; padding: 18px 60px; border-radius: 999px;
   background: var(--ink); color: #fff;
   font: 700 17px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase;
 }
@@ -338,7 +338,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-height: 880px) {
   .sp-hero-in { padding-block: clamp(20px, 3vh, 48px); }
   .sp-hero-wheel { gap: 14px; }
-  .sp-hero-wheel .sp-wheel { width: min(516px, 92vw, 52vh); }
+  .sp-hero-wheel .sp-wheel { width: min(600px, 92vw, 56vh); }
   .sp-lede { margin-top: 20px; }
   .sp-hero-live { margin-top: 14px; }
   .sp-hero-cta { margin-top: 22px; }
@@ -465,8 +465,11 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- the wheel ---------- */
 
-.sp-wheel { position: relative; width: min(516px, 92vw); aspect-ratio: 1; display: grid; place-items: center; }
-.sp-wheel-big { width: min(580px, 90vw); margin-inline: auto; }
+.sp-wheel { position: relative; width: min(600px, 92vw); aspect-ratio: 1; display: grid; place-items: center; }
+/* The wheel is the screen, so it takes the height it can and no more: without
+   the vh cap a 700px wheel pushed the SPIN button off the bottom on every
+   desktop, which is the one control the screen exists for. */
+.sp-wheel-big { width: min(700px, 90vw, 64vh); margin-inline: auto; }
 
 /* The quarter names are printed into the rim, the way they are on the board.
    They sat outside it as chips, and a spinner whose quarters are labelled by
@@ -485,13 +488,13 @@ a { color: inherit; text-decoration: none; }
    is a percentage of the element itself, which on a 70px label moved them 18px
    and piled all four on the hub. These are percentages of the wheel's box.
 
-   28.46% is cos(45°) of the mid-rim radius: the face is 92% of the box, so SVG
-   radius 87.5 of 200 lands at 40.25% of the box, and the diagonal takes .7071
-   of that. */
-.sp-wheel-tl { left: 21.54%; top: 21.54%; transform: translate(-50%, -50%) rotate(-45deg); }
-.sp-wheel-tr { left: 78.46%; top: 21.54%; transform: translate(-50%, -50%) rotate(45deg); }
-.sp-wheel-bl { left: 21.54%; top: 78.46%; transform: translate(-50%, -50%) rotate(45deg); }
-.sp-wheel-br { left: 78.46%; top: 78.46%; transform: translate(-50%, -50%) rotate(-45deg); }
+   29.76% off centre is cos(45°) of the mid-rim radius: the face is 92% of the box,
+   so SVG radius 91.5 of 200 lands at 42.09% of the box, and the diagonal takes
+   .7071 of that. */
+.sp-wheel-tl { left: 20.24%; top: 20.24%; transform: translate(-50%, -50%) rotate(-45deg); }
+.sp-wheel-tr { left: 79.76%; top: 20.24%; transform: translate(-50%, -50%) rotate(45deg); }
+.sp-wheel-bl { left: 20.24%; top: 79.76%; transform: translate(-50%, -50%) rotate(45deg); }
+.sp-wheel-br { left: 79.76%; top: 79.76%; transform: translate(-50%, -50%) rotate(-45deg); }
 
 /* the face tilts a little under the cursor, which is the only thing that makes
    a flat circle feel like an object you could reach out and turn */
@@ -536,7 +539,7 @@ a { color: inherit; text-decoration: none; }
   0%, 100% { transform: rotate(-6deg); }
   50%      { transform: rotate(6deg); }
 }
-.sp-wheel-svg .sp-node.is-hot { r: 15.5; }
+.sp-wheel-svg .sp-node.is-hot { r: 14.5; }
 
 /* ---------- sections ---------- */
 
@@ -816,8 +819,8 @@ a { color: inherit; text-decoration: none; }
 
 /* 02 — the spin */
 .sp-stage-spin { text-align: center; }
-.sp-stage-title { margin: 12px 0 40px; font-size: clamp(26px, 3.4vw, 40px); }
-.sp-status { margin-top: 22px; min-height: 2.6em; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+.sp-stage-title { margin: 10px 0 18px; font-size: clamp(24px, 3vw, 36px); }
+.sp-status { margin-top: 14px; min-height: 2.6em; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
 .sp-stage-foot { margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 20px; }
 
 /* 03 — the result (its display lives with the stage rules above) */

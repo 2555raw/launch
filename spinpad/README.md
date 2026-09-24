@@ -302,7 +302,18 @@ The drawn glyph stays under the picture rather than instead of it, which gets th
 for free: an `<image>` whose file is missing renders nothing at all, so the glyph shows through on
 its own.
 
-Six checks hold the object to the table: the face cannot reach the outer edge (a rim with no
+The rim gives up its width to the circles. Sixteen of them on a ring have 2πr/16 of arc each, and
+at r=60 that was 23.6 against a diameter of 27 — they were overlapping, which is why sixteen logos
+read as one crowded strip. At r=70 the arc is 27.5 and a circle of 25.2 leaves a real gap either
+side, and a check measures that off the drawing rather than trusting the numbers: the distance
+between neighbouring centres has to beat the diameter.
+
+The spin screen's wheel takes a height cap for the same reason the hero's does. Without one a 700px
+wheel pushed the SPIN button below the fold on every desktop size — the one control that screen
+exists for — and the words around it gave up their margins to make the rest of the room. There is a
+check that the button is on screen when the stage opens.
+
+Eight checks hold the object to the table: the face cannot reach the outer edge (a rim with no
 thickness is a line), there is one tick per outcome, the cross has one arm per position, and each
 quarter name physically lands between the face's edge and the rim's. A wheel whose rim stops
 agreeing with the table is a picture of a different product.
@@ -497,7 +508,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-206 checks across three suites.
+208 checks across three suites.
 
 ### The chain, checked without a chain
 

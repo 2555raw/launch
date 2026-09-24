@@ -313,6 +313,25 @@ async function browserChecks() {
   ok('on a white disc inside the colour, with the drawn mark still under it',
     worn.every((n) => n.disc && n.glyph));
 
+  /* Sixteen circles on a ring have 2πr/16 of arc each. At r=60 that was 23.6
+     against a diameter of 27, so they overlapped and the logos read as one
+     crowded strip. This measures the drawing rather than the numbers: the gap
+     between neighbouring centres has to beat the diameter. */
+  const spacing = await page.evaluate(() => {
+    const svg = document.getElementById('heroWheelSvg');
+    const c = [...svg.querySelectorAll('.sp-node')]
+      .map((n) => [Number(n.getAttribute('cx')), Number(n.getAttribute('cy')), Number(n.getAttribute('r'))]);
+    let worst = Infinity;
+    for (let i = 0; i < c.length; i++) {
+      const n = c[(i + 1) % c.length];
+      worst = Math.min(worst, Math.hypot(n[0] - c[i][0], n[1] - c[i][1]));
+    }
+    return { worst, d: c[0][2] * 2 };
+  });
+  ok('the circles do not touch each other',
+    spacing.worst > spacing.d,
+    `closest centres ${spacing.worst.toFixed(1)} apart, diameter ${spacing.d}`);
+
   /* The chip under the headline names a real cell of the board. A name written
      into the markup is exactly the bug this replaced: the hero advertised a
      token that had been off the board for two releases. */
@@ -555,6 +574,15 @@ async function browserChecks() {
   });
   ok('the spin stage arrives below the nav, not behind it',
     clears.top >= clears.navBottom, JSON.stringify(clears));
+
+  /* And the control the screen exists for is on the screen. Without a height
+     cap the wheel grew until SPIN was below the fold on every desktop. */
+  const spinSeen = await page.evaluate(() => {
+    const b = document.getElementById('spin').getBoundingClientRect();
+    return { bottom: Math.round(b.bottom), vh: window.innerHeight };
+  });
+  ok('and the spin control is on screen with it',
+    spinSeen.bottom <= spinSeen.vh, JSON.stringify(spinSeen));
 
   ok('the spin opens on step two', !(await page.locator('#spin').isDisabled()));
   ok('the launch control is still shut on step two', await page.locator('#launchBtn').isDisabled());

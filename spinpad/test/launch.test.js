@@ -190,10 +190,11 @@ window.ethereum = {
      that would revert then arrives as an error this page can explain, rather
      than as "could not simulate this request" in the wallet with a Confirm
      (unsafe) button under it. */
-  /* The pad no longer prices anything on connect — that was the commentary
-     panel, and it is gone — so the launch is the only thing estimated. */
+  /* The pad also prices a launch on connect, to say whether the account can
+     afford the gas, so this takes the estimate the LAUNCH caused: the last
+     one, sent immediately before the only eth_sendTransaction. */
   const est = await page.evaluate(() =>
-    window.__sent.filter((s) => s.method === 'eth_estimateGas'));
+    window.__sent.filter((s) => s.method === 'eth_estimateGas').slice(-1));
   ok('the deployment is estimated before the wallet is opened', est.length === 1,
     est.length + ' estimates');
   const sentGas = await page.evaluate(() =>
@@ -506,8 +507,10 @@ window.ethereum = {
 
   ok('there is no diagnostic panel', (await page.locator('.sp-diag').count()) === 0);
   ok('and no button asking about transactions', (await page.locator('#diagBtn').count()) === 0);
+  /* The launcher is a one-off operator job and lives in the footer. What
+     matters is that it is not on the wallet screen. */
   ok('and no launcher button on the wallet screen',
-    (await page.locator('#deployFactory').count()) === 0);
+    (await page.locator('#launch #deployFactory').count()) === 0);
   const wallScreen = await page.locator('.sp-verify').textContent();
   ok('and the wallet screen names no wallet and no calldata',
     !/Phantom|MetaMask|Rabby|calldata|creation/i.test(wallScreen), wallScreen.slice(0, 200));

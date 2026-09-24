@@ -184,6 +184,16 @@
                 <p class="sp-err" data-for="fSupply"></p>
               </div>
               <div class="sp-field">
+                <label for="fLiq">Starting liquidity <i id="liqUnit">ETH</i></label>
+                <input id="fLiq" type="text" inputmode="decimal" autocomplete="off" placeholder="0.05">
+                <p class="sp-help" id="liqHelp">
+                  Goes into the pool the moment the coin exists, with
+                  <span id="liqShare">80%</span> of the supply against it. Leave it empty to deploy
+                  with no pool — the coin is real either way, but nobody can buy it.
+                </p>
+                <p class="sp-err" data-for="fLiq"></p>
+              </div>
+              <div class="sp-field">
                 <label for="fDesc">Description <i id="descCount">0/140</i></label>
                 <textarea id="fDesc" maxlength="140" rows="2" placeholder="One line."></textarea>
                 <p class="sp-help">One line, kept in this browser with the record. It does not go on chain.</p>

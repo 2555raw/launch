@@ -1263,6 +1263,7 @@
     const supply = Number($('fSupply').value.replace(/\D/g, ''));
     const desc = $('fDesc').value.trim();
     const image = imageData;
+    const liqRaw = ($('fLiq') ? $('fLiq').value : '').trim();
 
     let ok = true;
     ok = err('fName', name.length < 2 || name.length > 32 ? 'Between 2 and 32 characters.' : '') && ok;
@@ -1276,7 +1277,41 @@
     ok = err('fImage', !image || IMG_OK.test(image) ? '' : 'That image could not be read. Choose another.') && ok;
     if (coins.some((c) => c.ticker === ticker)) ok = err('fTicker', 'That ticker is already on the board.') && ok;
 
-    return ok ? { name, ticker, supply, desc, image } : null;
+    /* Empty is allowed and means "no pool". Anything else has to be a plain
+       positive number, and it is validated HERE rather than after the coin is
+       already deployed — finding out your liquidity figure was unreadable when
+       the token already exists is the worst moment to find out. */
+    let liq = '';
+    if (liqRaw !== '') {
+      if (!/^\d+(\.\d+)?$/.test(liqRaw) || Number(liqRaw) <= 0) {
+        ok = err('fLiq', 'A plain positive number, or leave it empty for no pool.') && ok;
+      } else if (!poolPossible()) {
+        ok = err('fLiq', poolWhyNot()) && ok;
+      } else {
+        liq = liqRaw;
+        err('fLiq', '');
+      }
+    } else {
+      err('fLiq', '');
+    }
+
+    return ok ? { name, ticker, supply, desc, image, liq } : null;
+  };
+
+  /* Whether a pool could be opened at all, which is a different question from
+     whether the person wants one. Asked before the launch rather than after,
+     so "no router" is a thing you learn while typing and not while holding a
+     token nobody can buy. */
+  const poolPossible = () =>
+    !!(CFG.router.address && routerOk && routerOk.ok && quoteOk && quoteOk.ok
+       && TwistrChain.state.account);
+
+  const poolWhyNot = () => {
+    if (!CFG.router.address) return 'No router is configured, so no pool can be opened yet.';
+    if (!TwistrChain.state.account) return 'Connect a wallet first — liquidity comes out of it.';
+    if (!routerOk || !routerOk.ok) return 'The router has not verified: ' + ((routerOk && routerOk.reason) || 'not checked') + '.';
+    if (!quoteOk || !quoteOk.ok) return CFG.quote.ticker + ' has not verified.';
+    return 'A pool cannot be opened right now.';
   };
 
   // The confirmation mirrors the draft, and the pairing rows read from
@@ -1306,6 +1341,13 @@
       ['Colour', f ? f.label : 'Decided by the wheel', false],
       ['Position', flow.spin ? posOf(flow.spin.position).label : 'Decided by the wheel', false],
       ['Total supply', supply ? num(supply) : 'Not set', true],
+      /* On the confirmation, because it is money leaving the wallet and the
+         confirmation is the last screen before it does. */
+      ['Starting liquidity', (() => {
+        const v = ($('fLiq') && $('fLiq').value || '').trim();
+        return v ? v + ' ' + payTicker() + ' + ' + Math.round(CFG.liquidity.supplyShare * 100) + '% of supply'
+                 : 'None — no pool';
+      })(), true],
       ['Spins used', (flow.spin ? 1 : 0) + ' of 1', true],
       ['Network', CFG.chain.name, false],
     ].map(([k, v, mono]) => `<div><dt>${esc(k)}</dt><dd${mono ? ' class="is-mono"' : ''}>${esc(v)}</dd></div>`).join('');
@@ -1521,8 +1563,30 @@
     renderProof();
     flow.sending = false;
     setStep(5);
-    say('Deployed. The pairing is written into the contract and cannot be changed.');
     showRecord(coin);
+
+    /* A coin with no pool is a token nobody can buy, so liquidity is part of
+       launching rather than a button to find afterwards. The amount was taken
+       on the form, before any of this, which is the only moment it can still
+       be changed for free.
+
+       It is still THREE wallet confirmations and there is no honest way around
+       that from a browser: deploying a contract, approving it and adding
+       liquidity are three separate operations on chain, and making them one
+       would need a factory contract of ours deployed to do all three
+       atomically. What this does is stop the person having to go and find the
+       second and third themselves.
+
+       And it is deliberately sequenced after the record is shown. If the pool
+       fails, the coin still exists, is on the board, and the panel is right
+       there to retry — a failed pool must never look like a failed launch. */
+    if (flow.draft && flow.draft.liq) {
+      say('Deployed. Now putting the liquidity in — two more confirmations.');
+      await openPool(flow.draft.liq);
+    } else {
+      say('Deployed. The pairing is written into the contract and cannot be changed. '
+        + 'There is no pool, so nobody can buy it yet — you can open one below.');
+    }
   };
 
   /* Is the quote token the router's own WETH? If it is, the pool can be paid
@@ -1544,7 +1608,7 @@
      earlier version reverted with TRANSFER_FROM_FAILED every time.
      The amount is whatever the person types; the pad never picks a number that
      moves someone's money. */
-  const openPool = async () => {
+  const openPool = async (amountOverride) => {
     const coin = flow.minted;
     if (!coin || !coin.address) return;
     const note = $('poolNote');
@@ -1565,7 +1629,12 @@
     const inEther = paysInEther();
     const unit = payTicker();
 
-    const typed = ($('poolAmount').value || '').trim();
+    /* The amount comes from the launch form when the pool is part of the
+       launch, and from the panel when someone opens one later on a coin that
+       was deployed without liquidity. Same code either way. */
+    const typed = String(amountOverride !== undefined && amountOverride !== null && amountOverride !== ''
+      ? amountOverride
+      : ($('poolAmount').value || '')).trim();
     if (!/^\d+(\.\d+)?$/.test(typed) || Number(typed) <= 0) {
       note.textContent = 'Type how much ' + unit + ' to put in, as a plain number.';
       return;
@@ -1712,8 +1781,9 @@
     flow.minted = null;
     $('form').reset();
     $('fSupply').value = '1,000,000,000';
+    if ($('fLiq')) $('fLiq').value = '';
     $('descCount').textContent = '0/140';
-    ['fName', 'fTicker', 'fSupply', 'fDesc', 'fImage'].forEach((id) => { if ($(id)) err(id, ''); });
+    ['fName', 'fTicker', 'fSupply', 'fLiq', 'fDesc', 'fImage'].forEach((id) => { if ($(id)) err(id, ''); });
     /* form.reset() empties the file input but not the string this code holds,
        and a discarded draft leaving its picture on the next one is the kind of
        thing nobody reports and everybody notices. */
@@ -1787,6 +1857,29 @@
     }
   };
 
+  /* The form's liquidity field has to say what it will actually take. ETH when
+     the router wraps for us, the quote token otherwise, and a plain refusal
+     when no pool is possible at all — a field asking for money it cannot use
+     is worse than no field. */
+  const renderLiqField = () => {
+    const field = $('fLiq');
+    if (!field) return;
+    const can = poolPossible();
+    const unit = $('liqUnit');
+    const help = $('liqHelp');
+    if (unit) unit.textContent = can ? payTicker() : '—';
+    field.disabled = !can;
+    field.placeholder = can ? '0.05' : '';
+    if (help) {
+      help.textContent = can
+        ? 'Goes into the pool the moment the coin exists, with '
+          + Math.round(CFG.liquidity.supplyShare * 100)
+          + '% of the supply against it. Leave it empty to deploy with no pool — the coin is real '
+          + 'either way, but nobody can buy it.'
+        : poolWhyNot() + ' The coin still deploys; it just comes out with no pool.';
+    }
+  };
+
   /* One address does the work, so one address gets checked. The sixteen cells
      are names written into the coin and carry no address at all. */
   const verifyTokens = async () => {
@@ -1825,6 +1918,8 @@
         : '')
       + '<p class="sp-verify-note">The sixteen cells are names written into the coin, not tokens. '
       + 'Nothing on the board tracks a share price.</p>';
+
+    renderLiqField();
   };
 
   const wireWallet = () => {
@@ -2022,7 +2117,7 @@
     });
 
     $('launchBtn').addEventListener('click', launch);
-    if ($('poolBtn')) $('poolBtn').addEventListener('click', openPool);
+    if ($('poolBtn')) $('poolBtn').addEventListener('click', () => openPool());
 
     $('discard').addEventListener('click', () => {
       if (!confirm('Discarding clears the whole draft — name, ticker, supply, description and the spin. This is starting over, not re-rolling.')) return;
@@ -2078,6 +2173,7 @@
        field has focus fights whatever the user is doing to it mid-edit. So the
        two are split — read on input, reformat on blur. */
     $('fSupply').addEventListener('input', renderSummary);
+    if ($('fLiq')) $('fLiq').addEventListener('input', renderSummary);
     $('fSupply').addEventListener('blur', (e) => {
       const n = Number(e.target.value.replace(/\D/g, ''));
       e.target.value = n ? num(n) : '';

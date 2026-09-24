@@ -347,12 +347,17 @@ window.ethereum = {
   await page2.fill('#fName', 'Northwind Capital');
   await page2.fill('#fTicker', 'NWND');
   await page2.fill('#fSupply', '1000000');
+  /* The whole point of this block: liquidity typed on the FORM, before the
+     spin, and never touching the pool panel afterwards. A launched coin with
+     no pool is a token nobody can buy. */
+  await page2.fill('#fLiq', '0.05');
   await page2.click('#toSpin');
   await page2.click('#spin');
   await page2.waitForFunction(() => document.getElementById('pad').dataset.step === '3', null, { timeout: 14000 });
   await page2.waitForTimeout(300);
   await page2.click('#toLaunch');
   await page2.waitForTimeout(200);
+  await page2.evaluate(() => { window.__sumBefore = document.getElementById('sumRows').textContent; });
   await page2.click('#launchBtn');
   await page2.waitForFunction(() => document.getElementById('pad').dataset.step === '5', null, { timeout: 14000 });
   await page2.waitForTimeout(400);
@@ -360,18 +365,27 @@ window.ethereum = {
   /* The label has to change with the path. Someone told to supply "WETH" goes
      off to wrap ether they do not have; the whole point of this branch is that
      they do not need to. */
-  ok('the field asks for ether, not WETH',
+  ok('the pool field asks for ether, not WETH',
     (await page2.locator('#poolAssetB').textContent()).trim() === 'ETH');
-  ok('and the note says the router wraps it',
-    /router wraps it/.test(await page2.locator('#poolNote').textContent()));
+  /* By now the pool is already open, so the panel reports that rather than
+     offering to do it — which is the visible proof that liquidity was part of
+     the launch and not a step left to the person. */
+  ok('and by the time the record is up, the pool is already reported open',
+    /Pool open/.test(await page2.locator('#poolNote').textContent()),
+    await page2.locator('#poolNote').textContent());
+  ok('the pool button is shut, because there is nothing left to do',
+    await page2.locator('#poolBtn').isDisabled());
 
-  await page2.fill('#poolAmount', '0.05');
-  await page2.click('#poolBtn');
-  await page2.waitForTimeout(1500);
+  /* No click. The liquidity was part of launching, so by the time the record
+     is on screen the pool has already been opened. */
+  await page2.waitForTimeout(1800);
 
   const sent2 = await page2.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction'));
-  ok('two more transactions, not three: one approval and the liquidity',
-    sent2.length === 3, sent2.length + ' in total');
+  ok('the pool opened from the launch itself, with nothing else pressed',
+    sent2.length === 3, sent2.length + ' transactions in total');
+  ok('and the summary warned it would, before the wallet ever opened',
+    (await page2.evaluate(() => window.__sumBefore || '')).includes('0.05'),
+    await page2.evaluate(() => window.__sumBefore || ''));
 
   if (sent2.length === 3) {
     const appr = sent2[1].params[0];

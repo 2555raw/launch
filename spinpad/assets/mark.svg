@@ -1,10 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Twistr">
-  <!-- The board's four colours around the pivot they turn on. The dots touch
-       the hub on purpose: spaced apart they are five specks at 16px, touching
-       they are one mark. -->
-  <circle cx="32" cy="14.5" r="9.5" fill="#E4322B"/>
-  <circle cx="49.5" cy="32" r="9.5" fill="#FDD208"/>
-  <circle cx="32" cy="49.5" r="9.5" fill="#2FA84F"/>
-  <circle cx="14.5" cy="32" r="9.5" fill="#1B75BC"/>
-  <circle cx="32" cy="32" r="10.5" fill="#101114"/>
+  <!-- Five equal circles: the board's four colours and the pivot they turn on,
+       set a hair apart rather than touching. -->
+  <circle cx="32" cy="12" r="9.5" fill="#E4322B"/>
+  <circle cx="52" cy="32" r="9.5" fill="#FDD208"/>
+  <circle cx="32" cy="52" r="9.5" fill="#2FA84F"/>
+  <circle cx="12" cy="32" r="9.5" fill="#1B75BC"/>
+  <circle cx="32" cy="32" r="9.5" fill="#101114"/>
 </svg>

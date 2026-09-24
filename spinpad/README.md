@@ -485,9 +485,13 @@ misunderstand the old shape, and that is not what happened here.
 
 ## The mark
 
-Twistr has a logo now: the board's four colours around the pivot they turn on. The dots touch the
-hub rather than floating around it, and that is the whole design decision — spaced apart they are
-five specks at 16px; touching, they are one mark.
+Twistr has a logo now: the board's four colours around the pivot they turn on. Five equal circles,
+set a hair apart.
+
+The spacing was tried four ways against each other at five sizes before it was chosen, because the
+gap between the dots is the difference between a mark and a scatter. The version here keeps the
+gaps: it is the strongest of the four large, and the one trade it makes is that at 16px the dots
+separate into specks. That is a favicon, and it is a deliberate price rather than an oversight.
 
 Six were drawn and the choice was made at 16px, not at 200, which is where a logo actually lives.
 Three died there: a quartered disc goes to mush, a ring of separated dots loses the dots, and a thin

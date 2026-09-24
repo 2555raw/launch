@@ -1928,6 +1928,7 @@
         : '')
       + '<p class="sp-verify-note">The sixteen cells are names written into the coin, not tokens. '
       + 'Nothing on the board tracks a share price.</p>'
+      + '<p id="balanceLine"></p>'
       /* Said here, on connect, rather than after the wallet has already thrown
          its red box up. Knowing it is coming is the difference between "this
          site is broken" and "my wallet cannot preview this kind of
@@ -1948,8 +1949,56 @@
          naming anybody's wallet — and the button to set it up rides with it. */
 
     renderLiqField();
-
+    renderLauncherState();
+    checkBalance();
   };
+
+  /* Can this account actually pay for a launch?
+   *
+     The thing that should have been checked first and was checked tenth. An
+     account without enough ether for gas cannot have its transaction
+     simulated — it would fail at the first step — so every wallet reports it
+     exactly the way they report a transaction they merely cannot preview:
+     "could not simulate", "estimated changes not available", a red fee. Two
+     causes, one appearance, and this one is trivially checkable from here. */
+  const checkBalance = async () => {
+    const el = $('balanceLine');
+    if (!el) return;
+    if (!TwistrChain.state.account || !TwistrChain.onChain()) { el.innerHTML = ''; return; }
+
+    const sym = CFG.chain.currency.symbol;
+    const [have, cost] = await Promise.all([
+      TwistrChain.balance(),
+      TwistrChain.launchCost({
+        name: 'Balance check', ticker: 'BAL', supplyWei: 1000000n * 10n ** 18n,
+        assetName: 'Tesla', assetTicker: 'TSLA', colour: 'Red', position: 'Left hand',
+      }),
+    ]);
+    if (have === null) { el.innerHTML = ''; return; }
+
+    const eth = (w) => {
+      const n = Number(w) / 1e18;
+      return n === 0 ? '0' : n < 0.00001 ? n.toExponential(1) : n.toFixed(5).replace(/0+$/, '');
+    };
+
+    if (have === 0n) {
+      el.innerHTML = '<span class="sp-bal is-bad"><b>This account holds no ' + esc(sym) + ' on '
+        + esc(CFG.chain.name) + '.</b> Launching costs gas, so nothing can be sent — and a wallet '
+        + 'cannot simulate a transaction that would fail for want of it, which is why it may say '
+        + 'the transaction cannot be previewed.</span>';
+      return;
+    }
+    if (cost !== null && have < cost) {
+      el.innerHTML = '<span class="sp-bal is-bad"><b>Not enough ' + esc(sym) + ' for gas.</b> This '
+        + 'account holds ' + eth(have) + ' and a launch costs about ' + eth(cost) + '. A wallet '
+        + 'cannot simulate a transaction it cannot afford, which shows up as a warning about the '
+        + 'fee or a preview it will not give.</span>';
+      return;
+    }
+    el.innerHTML = '<span class="sp-bal is-ok">' + eth(have) + ' ' + esc(sym)
+      + (cost !== null ? ' · a launch costs about ' + eth(cost) + ' ' + esc(sym) : '') + '</span>';
+  };
+  window.__recheckBalance = checkBalance;
 
   /* The launcher is set up from config.js, not from a button on the page.
    *
@@ -1995,6 +2044,52 @@
         renderPicker();
         renderWallet();
       });
+    });
+  };
+
+  /* The launcher, in the footer, because it is a one-off job for whoever runs
+     the pad and not something a visitor should be reading about.
+   *
+     Until it is deployed, every launch is a contract creation: no recipient,
+     no transfer, and so nothing for a wallet to preview — MetaMask says
+     "estimated changes: not available", Phantom refuses outright. Deploying it
+     once turns every launch after it, for everybody, into an ordinary call
+     with a Transfer in it.
+
+     It shows nothing at all once the launcher is up, which is the normal
+     state. */
+  const renderLauncherState = () => {
+    const el = $('launcherState');
+    if (!el) return;
+    if (!TwistrChain.state.account || TwistrChain.usesFactory()) { el.innerHTML = ''; return; }
+    el.innerHTML = '<button class="sp-link" id="deployFactory" type="button">'
+      + 'Set up the launcher</button><span id="factoryNote"></span> · ';
+    wireFactoryButton();
+  };
+
+  const wireFactoryButton = () => {
+    const fb = $('deployFactory');
+    if (!fb || fb.dataset.wired) return;
+    fb.dataset.wired = '1';
+    fb.addEventListener('click', async () => {
+      const note = $('factoryNote') || { set textContent(v) {} };
+      fb.disabled = true;
+      note.textContent = ' confirm in your wallet…';
+      try {
+        const hash = await TwistrChain.deployFactory();
+        note.textContent = ' waiting…';
+        const receipt = await TwistrChain.waitForReceipt(hash);
+        const addr = (receipt && receipt.contractAddress)
+          || (CFG.factory && CFG.factory.address) || '';
+        if (!addr) throw new Error('no launcher address');
+        TwistrChain.rememberFactory(addr);
+        const v = await TwistrChain.verifyFactory();
+        if (!v.ok) { TwistrChain.forgetFactory(); throw new Error(v.reason); }
+        renderLauncherState();
+      } catch (e) {
+        fb.disabled = false;
+        note.textContent = e && e.code === 4001 ? ' rejected' : ' failed: ' + ((e && e.message) || 'unknown');
+      }
     });
   };
 

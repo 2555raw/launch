@@ -141,6 +141,41 @@ window.TwistrChain = (() => {
     };
   };
 
+  /* What the account actually holds, and what a launch would cost it.
+   *
+     This should have existed from the first day. An account without enough
+     ether to pay for gas cannot have its transaction simulated — there is
+     nothing to simulate, it would fail at the first step — so every wallet
+     reports it the same way they report a transaction they cannot preview:
+     "could not simulate", "estimated changes not available", a red fee.
+     Those two causes look identical from outside the wallet and one of them
+     is trivially checkable from here.
+
+     Returns wei, or null when the node will not say. */
+  const balance = async (who) => {
+    try {
+      const hex = await rpc('eth_getBalance', [who || state.account, 'latest']);
+      return BigInt(hex);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  /* Roughly what a launch costs, priced at the current base fee. Rough is
+     fine: the question is "is there anything like enough", not the exact
+     figure, and the wallet shows the exact figure anyway. */
+  const launchCost = async (coin) => {
+    try {
+      const [gasHex, priceHex] = await Promise.all([
+        rpc('eth_estimateGas', [deployTx(coin)]),
+        rpc('eth_gasPrice', []),
+      ]);
+      return (BigInt(gasHex) * BigInt(priceHex) * 12n) / 10n;   // a fifth of headroom
+    } catch (e) {
+      return null;
+    }
+  };
+
   const blockNumber = async () => Number(BigInt(await rpc('eth_blockNumber', [])));
 
   /* One window of blocks. No address filter — the point is to find coins this
@@ -816,7 +851,7 @@ window.TwistrChain = (() => {
     usesFactory, verifyFactory, factoryAddress, rememberFactory, forgetFactory,
     factoryDeployIsCall,
     describeLaunch,
-    estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
+    estimateDeploy, balance, launchCost, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
     hasWallet, walletInfo, wallets, chooseWallet, chosenWallet,
     connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,

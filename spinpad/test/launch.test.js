@@ -102,6 +102,8 @@ window.ethereum = {
         return '0x';
       }
       case 'eth_estimateGas': return '0x' + (1234567).toString(16);
+      case 'eth_gasPrice': return '0x' + (1000000).toString(16);
+      case 'eth_getBalance': return window.__balance !== undefined ? window.__balance : '0x' + (10n ** 18n).toString(16);
       case 'eth_sendTransaction': return '0x' + 'ab'.repeat(32);
       case 'eth_getTransactionReceipt': return { blockNumber: '0x1', status: '0x1',
         contractAddress: window.__nextContract || '${COIN}' };
@@ -466,6 +468,40 @@ window.ethereum = {
      function stays — it is the thing that tells a bug here from a wallet's
      own judgement — but it is called when something needs diagnosing, not
      painted on the wall. */
+  /* ── can this account even pay for it ───────────────────────────────────
+     The check that should have come first and came tenth. An account without
+     enough ether for gas cannot have its transaction simulated — it fails at
+     the first step — so every wallet reports it exactly the way it reports a
+     transaction it merely cannot preview. Two causes, one appearance, and
+     this one is checkable in a line. */
+  console.log('\nwhether the account can pay');
+
+  await page.waitForTimeout(700);
+  const balLine = await page.locator('#balanceLine').textContent();
+  ok('the balance is shown without being asked for', balLine.trim().length > 0, balLine);
+  ok('and so is what a launch costs', /costs about/.test(balLine), balLine);
+
+  const empty = await page.evaluate(async () => {
+    window.__balance = '0x0';
+    await window.__recheckBalance();
+    return document.getElementById('balanceLine').textContent;
+  });
+  ok('an empty account is called out plainly', /holds no ETH/.test(empty), empty);
+  ok('and it explains why the wallet cannot preview it either',
+    /cannot simulate/.test(empty), empty);
+
+  const thin = await page.evaluate(async () => {
+    window.__balance = '0x1';          // one wei
+    await window.__recheckBalance();
+    return document.getElementById('balanceLine').textContent;
+  });
+  ok('so is one that cannot cover the gas', /Not enough ETH/.test(thin), thin);
+
+  await page.evaluate(async () => {
+    window.__balance = undefined;
+    await window.__recheckBalance();
+  });
+
   console.log('\nno commentary on the page');
 
   ok('there is no diagnostic panel', (await page.locator('.sp-diag').count()) === 0);

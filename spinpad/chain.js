@@ -220,8 +220,70 @@ window.TwistrChain = (() => {
 
   /* ---------- the wallet ---------- */
 
-  const provider = () => (typeof window !== 'undefined' ? window.ethereum : null);
-  const hasWallet = () => !!provider();
+  /* ---------- which wallet ----------
+   *
+     EIP-6963. Before it, a page got window.ethereum and whatever had won the
+     race to set it — which is why having two wallets installed used to mean
+     the wrong one opening. Wallets announce themselves on an event instead
+     now, so a page can list them and let the person choose.
+
+     EXCLUDED lists wallets this pad will not offer. Phantom is on it at the
+     site owner's request: it refuses to preview contract interactions from
+     this domain and there is nothing in this code that changes that, so
+     offering it is offering a dead end. Everything else that announces itself
+     is listed, in the order it announced.
+
+     window.ethereum stays as a fallback for wallets too old to announce, and
+     is only used when nothing announced at all. */
+  const EXCLUDED = ['app.phantom'];
+
+  const found = [];          // {uuid, name, icon, rdns, provider}
+  let chosen = null;
+
+  const excluded = (info) =>
+    EXCLUDED.some((x) => String(info && info.rdns || '').toLowerCase() === x);
+
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('eip6963:announceProvider', (e) => {
+      const d = e && e.detail;
+      if (!d || !d.info || !d.provider) return;
+      if (excluded(d.info)) return;
+      if (found.some((f) => f.uuid === d.info.uuid)) return;
+      found.push({
+        uuid: d.info.uuid, name: d.info.name, icon: d.info.icon,
+        rdns: d.info.rdns, provider: d.provider,
+      });
+      if (typeof window.__twistrWallets === 'function') window.__twistrWallets();
+    });
+    /* Wallets that announced before this listener existed re-announce on
+       request, so this catches both orders. */
+    try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch (e) { /* older browser */ }
+  }
+
+  const wallets = () => found.slice();
+
+  const chooseWallet = (uuid) => {
+    const hit = found.find((f) => f.uuid === uuid);
+    if (!hit) return false;
+    chosen = hit;
+    state.account = null;           // a different wallet is a different account
+    return true;
+  };
+
+  const chosenWallet = () => chosen;
+
+  /* The chosen one, else the only one, else window.ethereum — and never
+     window.ethereum when it is an excluded wallet wearing the global. */
+  const provider = () => {
+    if (chosen) return chosen.provider;
+    if (found.length === 1) return found[0].provider;
+    if (found.length > 1) return null;      // ambiguous on purpose: the person picks
+    const w = typeof window !== 'undefined' ? window.ethereum : null;
+    if (w && EXCLUDED.includes('app.phantom') && w.isPhantom && !w.isMetaMask) return null;
+    return w;
+  };
+
+  const hasWallet = () => !!provider() || found.length > 0;
 
   /* Which wallet this is, and whether it can preview a contract creation.
    *
@@ -755,7 +817,8 @@ window.TwistrChain = (() => {
     factoryDeployIsCall,
     describeLaunch,
     estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
-    hasWallet, walletInfo, connect, state, onChain, switchChain,
+    hasWallet, walletInfo, wallets, chooseWallet, chosenWallet,
+    connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,
     approve, allowanceOf, ensureAllowance, addLiquidity, addLiquidityETH, pairFor,
     explorerTx, explorerAddress,

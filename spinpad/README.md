@@ -574,6 +574,23 @@ compares them as a list of shapes rather than as text, because the two are the s
 twice: `innerHTML` spells a circle `<circle ...></circle>` where the data URL spells it
 `<circle .../>`, and folding those two by hand kept tripping over its own replacements.
 
+## Choosing a wallet, and one that is not offered
+
+Wallets announce themselves over **EIP-6963**, so the pad lists them and the person picks. Before
+that standard a page got `window.ethereum` and whatever had won the race to set it, which is why
+having two wallets installed used to mean the wrong one opening.
+
+With one wallet there is no picker and connecting is a single click, exactly as before. With
+several, the pad **does not guess** — it asks, and connects nothing until told which.
+
+**Phantom is excluded**, by name, in `EXCLUDED` in `chain.js`. Not because it is a bad wallet: it
+refuses to preview this domain's transactions, escalating to an outright block, and nothing in this
+code changes that. Listing a wallet that cannot complete a launch here is offering a dead end. The
+exclusion is one line to remove if that ever changes.
+
+`window.ethereum` stays as a fallback for wallets too old to announce, and is used only when nothing
+announced at all — and never when the global belongs to an excluded wallet.
+
 ## The launcher contract, and why it is not about gas
 
 A contract creation has no `to`, no recipient and no transfer. Wallet simulators exist to show a
@@ -818,7 +835,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-420 checks across four suites.
+429 checks across four suites.
 
 ### The chain, checked without a chain
 

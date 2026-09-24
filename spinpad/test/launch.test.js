@@ -510,10 +510,100 @@ window.ethereum = {
   ok('and so does one that would mint to the zero address',
     /zero address/i.test(zero), zero);
 
-  console.log('\nthe wallet that cannot preview a creation');
+  /* ── choosing a wallet, and Phantom not being one of them ────────────────
+     EIP-6963: wallets announce themselves, so the page lists them instead of
+     taking whatever won the race to set window.ethereum. Phantom is excluded
+     at the site owner's request — it refuses to preview this domain's
+     transactions and nothing in this code changes that, so listing it would
+     be offering a dead end. */
+  console.log('\nchoosing a wallet');
 
-  const phantomWallet = wallet.replace('window.ethereum = {', 'window.ethereum = {\n  isPhantom: true,');
-  ok('the fake Phantom really is flagged', phantomWallet.includes('isPhantom: true'));
+  const announce = (name, rdns, uuid) => `
+    (() => {
+      const p = Object.create(window.ethereum);
+      p.__name = ${JSON.stringify(name)};
+      const detail = Object.freeze({
+        info: { uuid: ${JSON.stringify(uuid)}, name: ${JSON.stringify(name)},
+                icon: 'data:image/svg+xml,<svg/>', rdns: ${JSON.stringify(rdns)} },
+        provider: p,
+      });
+      const fire = () => window.dispatchEvent(
+        new CustomEvent('eip6963:announceProvider', { detail }));
+      window.addEventListener('eip6963:requestProvider', fire);
+      fire();
+    })();`;
+
+  const pageW = await browser.newPage({ viewport: { width: 1440, height: 950 } });
+  await pageW.route('**/config.js', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: testConfig }));
+  await pageW.addInitScript(wallet);
+  await pageW.addInitScript(announce('MetaMask', 'io.metamask', 'uuid-mm')
+    + announce('Rabby', 'io.rabby', 'uuid-rb')
+    + announce('Phantom', 'app.phantom', 'uuid-ph'));
+  await pageW.goto('http://127.0.0.1:' + PORT + '/');
+  await pageW.waitForTimeout(900);
+  await pageW.check('#gateAgree'); await pageW.click('#gateGo');
+  await pageW.waitForTimeout(400);
+
+  const listed = await pageW.evaluate(() => window.TwistrChain.wallets().map((w) => w.name));
+  ok('the wallets that announced are listed', listed.length === 2, JSON.stringify(listed));
+  ok('Phantom is not one of them', !listed.includes('Phantom'), JSON.stringify(listed));
+  ok('and the ones that are, are the ones that announced',
+    listed.includes('MetaMask') && listed.includes('Rabby'), JSON.stringify(listed));
+
+  const chips = pageW.locator('.sp-wallet');
+  ok('a picker is shown when there is more than one', (await chips.count()) === 2,
+    String(await chips.count()));
+  ok('and it does not offer Phantom either',
+    !/Phantom/.test(await pageW.locator('#picker').textContent()),
+    await pageW.locator('#picker').textContent());
+
+  /* The pad does not guess which of somebody's wallets to open. */
+  await pageW.click('#connect');
+  await pageW.waitForTimeout(400);
+  ok('connecting without choosing sends nothing and says to choose',
+    (await pageW.evaluate(() => window.__sent.filter((s) => s.method === 'eth_requestAccounts').length)) === 0
+    && /Pick which wallet/.test(await pageW.locator('#status').textContent()),
+    await pageW.locator('#status').textContent());
+
+  await chips.first().click();
+  await pageW.waitForTimeout(200);
+  await pageW.click('#connect');
+  await pageW.waitForTimeout(1200);
+  ok('choosing one and connecting works',
+    (await pageW.locator('#connect').textContent()).includes('0x0000'),
+    await pageW.locator('#connect').textContent());
+  ok('and the picker goes away once connected',
+    await pageW.locator('#picker').isHidden());
+  await pageW.close();
+
+  /* One wallet is the common case and must not have grown a step. */
+  const pageOne = await browser.newPage({ viewport: { width: 1440, height: 950 } });
+  await pageOne.route('**/config.js', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: testConfig }));
+  await pageOne.addInitScript(wallet);
+  await pageOne.addInitScript(announce('MetaMask', 'io.metamask', 'uuid-mm'));
+  await pageOne.goto('http://127.0.0.1:' + PORT + '/');
+  await pageOne.waitForTimeout(900);
+  await pageOne.check('#gateAgree'); await pageOne.click('#gateGo');
+  await pageOne.waitForTimeout(300);
+  ok('with one wallet there is no picker at all',
+    await pageOne.locator('#picker').isHidden());
+  await pageOne.click('#connect');
+  await pageOne.waitForTimeout(1200);
+  ok('and connecting is still one click',
+    (await pageOne.locator('#connect').textContent()).includes('0x0000'),
+    await pageOne.locator('#connect').textContent());
+  await pageOne.close();
+
+  /* ── setting the launcher up ─────────────────────────────────────────────
+     Not a Phantom story any more: Phantom is excluded outright, so the pad
+     never uses it. What remains is that launching should be a call rather than
+     a contract creation for everybody, and that setting that up is one click
+     that cannot fail silently. */
+  console.log('\nsetting up the launcher');
+
+  const phantomWallet = wallet;   // an ordinary wallet; the flow is not wallet-specific
 
   const page4 = await browser.newPage({ viewport: { width: 1440, height: 950 } });
   await page4.route('**/config.js', (route) =>
@@ -532,6 +622,7 @@ window.ethereum = {
      implying the site is broken. */
   ok('there is no wallet warning panel at all',
     (await page4.locator('.sp-verify-act').count()) === 0);
+  await page4.waitForTimeout(900);
   const panel = await page4.locator('.sp-verify').textContent();
   ok('and the panel never mentions the wallet by name',
     !/Phantom|MetaMask|Rabby/.test(panel), panel.slice(0, 200));

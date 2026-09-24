@@ -2085,12 +2085,59 @@
     });
   };
 
+  /* The wallet picker.
+   *
+     Wallets announce themselves over EIP-6963, so the page can list them
+     instead of taking whatever won the race to set window.ethereum. With one
+     wallet installed this never appears and connecting is one click, the way
+     it always was. With several, you choose.
+
+     Phantom is not in the list. It is excluded in chain.js at the site
+     owner's request, because it refuses to preview this domain's transactions
+     and nothing here changes that — listing it would be offering a dead end. */
+  const renderPicker = () => {
+    const box = $('picker');
+    if (!box) return;
+    const list = TwistrChain.wallets();
+    const chosen = TwistrChain.chosenWallet();
+
+    if (list.length < 2 || TwistrChain.state.account) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    box.innerHTML = '<p class="sp-picker-head">Which wallet?</p>'
+      + '<div class="sp-picker-row">'
+      + list.map((w) => '<button class="sp-wallet' + (chosen && chosen.uuid === w.uuid ? ' is-on' : '')
+        + '" type="button" data-uuid="' + esc(w.uuid) + '">'
+        + (w.icon ? '<img src="' + esc(w.icon) + '" alt="" width="20" height="20">' : '')
+        + esc(w.name) + '</button>').join('')
+      + '</div>';
+
+    box.querySelectorAll('.sp-wallet').forEach((b) => {
+      b.addEventListener('click', () => {
+        TwistrChain.chooseWallet(b.dataset.uuid);
+        renderPicker();
+        renderWallet();
+      });
+    });
+  };
+
   const wireWallet = () => {
     const btn = $('connect');
     if (!btn) return;
+
+    /* Redrawn as wallets announce, which can happen after this runs. */
+    window.__twistrWallets = renderPicker;
+    renderPicker();
+
     btn.addEventListener('click', async () => {
       if (!TwistrChain.hasWallet()) {
         say('No wallet in this browser. Twistr deploys a real contract, so it needs one.');
+        return;
+      }
+      /* More than one and none picked: the pad does not guess which of
+         somebody's wallets to open. */
+      if (TwistrChain.wallets().length > 1 && !TwistrChain.chosenWallet()) {
+        renderPicker();
+        say('Pick which wallet to use.');
         return;
       }
       try {
@@ -2101,6 +2148,7 @@
           : 'Could not connect: ' + ((e && e.message) || 'unknown error'));
       } finally {
         // the account can be connected even when the network switch was refused
+        renderPicker();
         renderWallet();
         await verifyTokens();
       }

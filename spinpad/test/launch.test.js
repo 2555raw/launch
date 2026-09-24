@@ -526,25 +526,25 @@ window.ethereum = {
   await page4.click('#connect');
   await page4.waitForTimeout(1200);
 
-  const warn = page4.locator('.sp-verify-act');
-  ok('Phantom gets one line about it before anything is signed', (await warn.count()) === 1,
-    String(await warn.count()));
-  const wt = (await warn.count()) ? await warn.textContent() : '';
-  ok('the warning names the wallet', /Phantom/.test(wt), wt.slice(0, 120));
-  ok('and says why, in passing', /creation/i.test(wt), wt.slice(0, 200));
-  ok('and does not claim the transaction is broken',
-    !/will fail|is broken|do not confirm/i.test(wt), wt.slice(0, 200));
-  ok('and is a line rather than an essay', wt.length < 240, wt.length + ' chars: ' + wt.slice(0, 200));
-  /* Telling somebody their wallet will frighten them without offering the fix
-     is half an answer. The fix is one transaction, from here. */
-  ok('and offers the launcher contract as the permanent fix',
+  /* NOTHING about wallets on the page. Eight rounds put a growing yellow panel
+     here and it was asked to go twice. What is left is a neutral verdict from
+     the chain, which says the same thing without naming anybody's wallet or
+     implying the site is broken. */
+  ok('there is no wallet warning panel at all',
+    (await page4.locator('.sp-verify-act').count()) === 0);
+  const panel = await page4.locator('.sp-verify').textContent();
+  ok('and the panel never mentions the wallet by name',
+    !/Phantom|MetaMask|Rabby/.test(panel), panel.slice(0, 200));
+
+  await page4.waitForTimeout(600);
+  const verdict = await page4.locator('.sp-diag-verdict').textContent();
+  ok('the chain\u2019s verdict is shown instead, without being asked for',
+    /Ready|refused/.test(verdict), verdict.slice(0, 160));
+  ok('and it says what shape the launch would be',
+    /creation|call/.test(verdict), verdict.slice(0, 200));
+  ok('with the launcher offered right there when it would be a creation',
     (await page4.locator('#deployFactory').count()) === 1);
 
-  /* ── one click, and the warning is gone ──────────────────────────────────
-     The earlier version of this printed an address and asked for config.js to
-     be edited and the site redeployed. That meant the fix existed and stayed
-     switched off while the wallet kept showing its red box, which is not a
-     fix. Pressing the button has to be the whole of it. */
   const FACTORY_AT = '0x8888888888888888888888888888888888888888';
   await page4.evaluate((at) => {
     window.__factoryAt = at;
@@ -588,13 +588,14 @@ window.ethereum = {
     await page4.evaluate(() => window.TwistrChain.usesFactory()));
   ok('and the line about creations is gone from the panel',
     (await page4.locator('.sp-verify-act').count()) === 0);
-  /* The confirmation has to survive the redraw that removes the warning, or
-     the person watches the box vanish and is told nothing about why. */
-  ok('and the person is told what happened, outside the box that just went',
-    (await page4.locator('.sp-verify-good').count()) === 1,
-    await page4.locator('.sp-verify').textContent());
+  /* And the offer to set it up is gone, because there is nothing left to set
+     up — which is the only confirmation that matters and the one that cannot
+     be missed. */
+  ok('and the launcher button is gone, because there is nothing left to do',
+    (await page4.locator('#deployFactory').count()) === 0);
   ok('without anyone editing a file',
-    /Launcher deployed/.test(await page4.locator('.sp-verify-good').textContent()));
+    /call/.test(await page4.locator('.sp-diag-verdict').textContent()),
+    await page4.locator('.sp-diag-verdict').textContent());
 
   /* And it survives a reload, or it would be one click per visit. */
   await page4.reload();

@@ -1634,22 +1634,24 @@
     });
 
     const shape = d.kind === 'call'
-      ? 'a contract <b>call</b> — a wallet can preview this'
-      : 'a bare contract <b>creation</b> — some wallets cannot preview this';
+      ? 'a contract <b>call</b>'
+      : 'a contract <b>creation</b>, which some wallets will not preview';
 
     box.innerHTML = d.ok
-      ? '<div class="sp-diag-verdict is-ok"><b>The chain executed a test launch and it worked'
-        + '</b> — ' + num(Number(d.gas)) + ' gas. The transaction is sound. It would be sent as '
-        + shape + '.'
+      ? '<div class="sp-diag-verdict is-ok">'
+        + '<b>Ready.</b> The chain ran a test launch and it worked — ' + num(Number(d.gas))
+        + ' gas. Launching sends ' + shape + '.'
         + (d.kind === 'creation'
-          ? ' <b>Deploy the launcher above to make it a call.</b>'
+          ? ' <button class="sp-btn sp-btn-outline sp-btn-sm" id="deployFactory" type="button">'
+            + 'Set up the launcher</button>'
+            + '<span class="sp-chain-note" id="factoryNote"></span>'
           : '')
-        + ' If your wallet still shows a red warning after that, it is the wallet’s own risk '
-        + 'scoring of a new domain, not a problem with the transaction — and nothing in this page '
-        + 'can change it.</div>'
-      : '<div class="sp-diag-verdict is-bad"><b>The chain refused to execute a test launch.</b> '
-        + esc(d.reason || 'no reason given') + ' — so the transaction really would fail, and that '
-        + 'is a bug here rather than anything to do with your wallet. Send me this line.</div>';
+        + '</div>'
+      : '<div class="sp-diag-verdict is-bad"><b>The chain refused a test launch.</b> '
+        + esc(d.reason || 'no reason given') + ' — so the transaction really would fail. '
+        + 'That is a bug here; send me this line.</div>';
+
+    wireFactoryButton();
   };
 
   const showDiagnosis = async () => {
@@ -2018,30 +2020,20 @@
          its red box up. Knowing it is coming is the difference between "this
          site is broken" and "my wallet cannot preview this kind of
          transaction". */
-      + (factoryNews ? '<p class="sp-verify-good">' + factoryNews + '</p>' : '')
       + (TwistrChain.usesFactory()
         ? '<p class="sp-verify-note">Launching goes through the launcher at <b class="is-mono">'
           + esc(TwistrChain.factoryAddress()) + '</b>, checked byte for byte against this build, so '
           + 'it is an ordinary call rather than a bare contract creation — which is what lets a '
           + 'wallet preview it.</p>'
         : '')
-      /* No warning box.
+      /* Nothing about wallets here at all.
        *
-         There were eight rounds of increasingly large yellow panels here,
-         explaining a wallet's simulation behaviour to somebody who cannot do
-         anything about it. A launchpad that greets you with a page of caveats
-         about your wallet reads as broken, whatever the caveats say.
-
-         What is left is one quiet line, only when the launcher is not up yet,
-         and a small button. The explanation lives in the README where someone
-         can go looking for it. */
-      + (!TwistrChain.usesFactory() && w.name && !w.simulatesCreates
-        ? '<p class="sp-verify-note sp-verify-act">Launches are contract creations until the '
-          + 'launcher is up, and ' + esc(w.name) + ' cannot preview those. '
-          + '<button class="sp-btn sp-btn-outline sp-btn-sm" id="deployFactory" type="button">'
-          + 'Set up the launcher</button>'
-          + '<span class="sp-chain-note" id="factoryNote"></span></p>'
-        : '');
+         This spot held, over eight rounds, a growing yellow panel explaining a
+         wallet's simulation behaviour. Then one line. Both were asked to be
+         removed, and both deserved it: a launchpad whose first screen is a
+         caveat about your wallet reads as broken. The state of the launcher
+         belongs with the other chain facts below, said plainly and without
+         naming anybody's wallet — and the button to set it up rides with it. */
 
     renderLiqField();
 
@@ -2060,61 +2052,35 @@
        not, the transaction really is broken, and that is mine. */
     if (q.ok) autoDiagnose();
 
+  };
+
+  /* Wired where the button is drawn, because it is drawn by the verdict line
+     and not by the panel. An earlier version attached this once, to a button a
+     later redesign moved, and the click silently did nothing — which looked
+     exactly like the deployment failing. */
+  const wireFactoryButton = () => {
     const fb = $('deployFactory');
-    if (fb) fb.addEventListener('click', async () => {
-      /* A no-op sink rather than a null: this handler used to write straight
-         to an element that a later redesign removed, so the click threw before
-         sending anything and the button looked simply dead. */
+    if (!fb || fb.dataset.wired) return;
+    fb.dataset.wired = '1';
+    fb.addEventListener('click', async () => {
       const note = $('factoryNote') || { set textContent(v) {}, set innerHTML(v) {} };
       fb.disabled = true;
-      note.textContent = TwistrChain.factoryDeployIsCall()
-        ? 'Confirm it in your wallet. This is an ordinary call to a CREATE2 deployer, not a '
-          + 'contract creation, so it should preview cleanly.'
-        : 'Confirm it in your wallet. This one IS a contract creation, so the warning will '
-          + 'appear — once, and then never again.';
+      note.textContent = ' Confirm it in your wallet…';
       try {
         const hash = await TwistrChain.deployFactory();
-        note.textContent = 'Sent. Waiting for it to be mined…';
+        note.textContent = ' Waiting for it to be mined…';
         const receipt = await TwistrChain.waitForReceipt(hash);
-        /* A CREATE2 call's receipt has no contractAddress — nothing was created
-           by the transaction itself, the deployer created it. The address was
-           known before the transaction was sent, which is the whole point of
-           a deterministic deployment, so it comes from the config. */
         const addr = (receipt && receipt.contractAddress)
-          || (CFG.factory && CFG.factory.address)
-          || '';
-        if (!addr) throw new Error('no launcher address — neither the receipt nor config.js had one');
-
-        /* Remembered and used immediately. The earlier version printed the
-           address and asked for config.js to be edited and the site
-           redeployed, which meant the fix existed and stayed switched off
-           while the wallet kept showing its red box.
-
-           Remembering is safe because it is not believed: verifyFactory reads
-           the code at that address and compares it byte for byte with this
-           build's runtime bytecode. A mismatch is discarded. */
+          || (CFG.factory && CFG.factory.address) || '';
+        if (!addr) throw new Error('no launcher address');
         TwistrChain.rememberFactory(addr);
         const v = await TwistrChain.verifyFactory();
-        if (!v.ok) {
-          TwistrChain.forgetFactory();
-          throw new Error('deployed, but the code at ' + addr + ' did not match this build ('
-            + v.reason + '), so it will not be used');
-        }
-
-        factoryNews = '<b>Launcher deployed.</b> The simulation warning is gone — launches are an '
-          + 'ordinary call now. <a href="' + esc(TwistrChain.explorerAddress(addr)) + '" '
-          + 'target="_blank" rel="noopener noreferrer">See it on the explorer</a>. '
-          + 'It is remembered in this browser; to make it permanent for everyone, put '
-          + esc(addr) + ' in <b>factory.address</b> in config.js.';
-        /* Redraw the panel: the warning this button lives inside should no
-           longer be there, and nothing about this is real to the person until
-           it goes. The news above survives that redraw. */
+        if (!v.ok) { TwistrChain.forgetFactory(); throw new Error(v.reason); }
         await verifyTokens();
       } catch (e) {
         fb.disabled = false;
-        note.textContent = e && e.code === 4001
-          ? 'Rejected in the wallet. Nothing was sent.'
-          : 'It did not deploy: ' + ((e && e.message) || 'unknown error');
+        note.textContent = e && e.code === 4001 ? ' Rejected in the wallet.'
+          : ' It did not deploy: ' + ((e && e.message) || 'unknown error');
       }
     });
   };

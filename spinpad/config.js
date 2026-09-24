@@ -116,6 +116,50 @@ window.TWISTR_CONFIG = {
     decimals: 18,
   },
 
+  /* ── Pons, on Robinhood Chain (4663) ───────────────────────────────────────
+   *
+   * The Base side above deploys its own ERC-20 and opens a Uniswap V2 pool.
+   * Pons is a different venue on a different chain and it is where the creator
+   * fee exists at all, so it gets its own block rather than overloading the
+   * one above. A launch goes to one or the other; there is no launch that is
+   * both.
+   *
+   * THE FEE. `bps` is yours: 200 basis points is 2%, written into the token at
+   * construction as `creatorTaxBps`, accruing to `recipient`. The pad refuses
+   * to build a launch if `recipient` is empty or zero, because the tax would
+   * then accrue to nobody and there is no clean way back — the recipient is
+   * fixed at construction and changing it later goes through a proposal with an
+   * `effectiveAt` delay.
+   *
+   * There is deliberately no "pons share" field here. Pons's own cut is
+   * `curveFeeBps` on whichever LaunchConfig is used, split by the protocol's
+   * FeePolicy. It is not passed in and it is not ours to allocate — picking a
+   * config is the whole of that choice. The pad reads it and shows it.
+   *
+   * `recipient` IS EMPTY AND HAS TO STAY EMPTY UNTIL IT IS YOUR ADDRESS. It is
+   * the one value in this file that decides where revenue goes, it cannot be
+   * derived from anything, and a plausible-looking wrong address here is
+   * revenue paid to a stranger for the life of every coin launched. Fill it
+   * with the wallet you want paid on chain 4663, and nothing else. */
+  pons: {
+    enabled: true,
+    fee: {
+      bps: 200,                                 // 2%, capped by maxCreatorTaxBps()
+      recipient: '',                            // ← YOUR address on 4663. Nothing launches until this is set.
+    },
+    /* Which LaunchConfig to launch with. Read from the factory with
+       launchConfigCount() / getLaunchConfig(id) and shown before launching;
+       null means "ask the chain and let the launcher pick". */
+    configId: null,
+    /* The pair tokens are NOT listed here on purpose. approvedPairTokens() is a
+       lookup and not an enumeration, so a list here would be transcribed by
+       hand — and a wrong address in the call that moves liquidity is the exact
+       failure this file exists to avoid. The pad discovers them from the
+       factory's own TokenLaunched logs and re-checks each one with
+       approvedPairTokens() before offering it. */
+    pairTokens: [],
+  },
+
   /* The wheel's two axes. The order is the order they sit in: clockwise on the
      wheel, and top-to-bottom / left-to-right on the board. */
   positions: [

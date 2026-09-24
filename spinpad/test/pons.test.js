@@ -213,6 +213,86 @@ const run = () => {
   ok('a native pair pays the fee plus the buy',
     BigInt(native.value) === 10n ** 15n + LAUNCH.quoteIn, native.value);
 
+  console.log('\nfinding the pair tokens from the chain');
+  /* The log is built by viem's encodeEventTopics/encodeAbiParameters, so the
+     decoder is checked against a reference encoder rather than against the
+     shape I imagined. Three indexed fields go in topics, three static words in
+     data, and mixing those two up is the whole failure mode. */
+  const launchedAbi = viem.parseAbi([
+    'event TokenLaunched(address indexed token, address indexed curve, address indexed deployer, address pairToken, uint256 launchConfigId, uint256 graduationThreshold)',
+  ]);
+  const mkLog = (token, curve, deployer, pairToken, configId, grad) => ({
+    topics: viem.encodeEventTopics({ abi: launchedAbi, eventName: 'TokenLaunched',
+      args: { token, curve, deployer } }),
+    data: viem.encodeAbiParameters(
+      viem.parseAbiParameters('address, uint256, uint256'),
+      [pairToken, BigInt(configId), BigInt(grad)]),
+  });
+
+  const A = '0x00000000000000000000000000000000000000a1';
+  const B = '0x00000000000000000000000000000000000000b2';
+  const TSLA = '0x000000000000000000000000000000000000dead';
+  const AMZN = '0x000000000000000000000000000000000000beef';
+
+  const one = Pons.decodeTokenLaunched(mkLog(A, B, A, TSLA, 3, 99));
+  ok('a TokenLaunched log decodes', !!one, JSON.stringify(one));
+  ok('the pair token comes out of the data, not a topic',
+    one && one.pairToken.toLowerCase() === TSLA, one && one.pairToken);
+  ok('the token comes out of a topic, not the data',
+    one && one.token.toLowerCase() === A, one && one.token);
+  ok('the deployer is the third topic, not the first',
+    one && one.deployer.toLowerCase() === A && one.curve.toLowerCase() === B,
+    one && one.curve);
+  ok('the config id survives as a number', one && one.configId === '3', one && one.configId);
+  ok('and so does the graduation threshold', one && one.graduationThreshold === '99');
+
+  ok('a log with the wrong topic is ignored',
+    Pons.decodeTokenLaunched({ topics: ['0x' + '11'.repeat(32), A, B, A], data: '0x' }) === null);
+  ok('and so is a truncated one',
+    Pons.decodeTokenLaunched({ topics: [Pons.TOPIC.tokenLaunched, A, B, A], data: '0x1234' }) === null);
+
+  /* The whole point: sixteen addresses nobody had to type in. */
+  const found = Pons.pairTokensFrom([
+    mkLog(A, B, A, TSLA, 3, 99),
+    mkLog(B, A, B, AMZN, 4, 99),
+    mkLog(A, A, B, TSLA, 5, 99),
+  ]);
+  ok('the distinct pair tokens are discovered', found.length === 2, JSON.stringify(found));
+  ok('and the commonest comes first',
+    found[0].pairToken === TSLA && found[0].launches === 2, JSON.stringify(found[0]));
+  ok('with the config ids seen with it',
+    found[0].configIds.sort().join(',') === '3,5', found[0].configIds.join(','));
+  ok('rubbish in the batch is skipped rather than throwing',
+    Pons.pairTokensFrom([{ topics: [], data: '0x' }, mkLog(A, B, A, TSLA, 1, 1)]).length === 1);
+
+  console.log('\nthe shipped pons config');
+  /* Read off disk, not a stub. The fee recipient is the one value in the whole
+     project that decides where revenue goes, and it cannot be derived from
+     anything — so the only useful check is that it is either genuinely empty
+     (and the pad therefore refuses to launch) or a real address. A
+     half-filled, plausible-looking value is the failure mode. */
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const cfg = fs2.readFileSync(path2.join(__dirname, '..', 'config.js'), 'utf8');
+  const ponsBlock = cfg.slice(cfg.indexOf('  pons: {'));
+  const feeBlock = ponsBlock.slice(0, ponsBlock.indexOf('pairTokens'));
+
+  const bpsM = feeBlock.match(/bps:\s*(\d+)/);
+  const recM = feeBlock.match(/recipient:\s*'([^']*)'/);
+  ok('the pons block names a fee in basis points', !!bpsM, String(bpsM));
+  ok('and it is the 2% asked for', bpsM && Number(bpsM[1]) === 200, bpsM && bpsM[1]);
+  ok('the fee is within what any protocol could allow',
+    bpsM && Number(bpsM[1]) <= Pons.MAX_BPS);
+  ok('the recipient is either empty or a real address',
+    recM && (recM[1] === '' || /^0x[0-9a-fA-F]{40}$/.test(recM[1])), recM && recM[1]);
+  ok('and if it is empty, the pad refuses to launch',
+    recM[1] !== '' || Pons.buildLaunch({ ...LAUNCH,
+      token: { ...TOKEN, feeRecipient: recM[1] },
+      chain: { maxCreatorTaxBps: 500, launchFee: 0n, canLaunch: true, pairApproved: true } }).ok === false);
+  ok('no pair token was transcribed into the file by hand',
+    /pairTokens:\s*\[\s*\]/.test(ponsBlock),
+    'pairTokens should stay empty and be discovered from the chain');
+
   console.log('\nwhat the chain has to answer first');
   ok('every preflight read has a selector', Pons.PREFLIGHT.every(([k]) => !!Pons.SEL[k]),
     Pons.PREFLIGHT.map(([k]) => k).join(', '));

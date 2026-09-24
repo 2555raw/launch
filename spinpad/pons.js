@@ -187,6 +187,72 @@ window.TwistrPons = (() => {
     o.snipeTaxExemptions || [],
   ]);
 
+  /* ---------- finding the pair tokens without being told them ----------
+   *
+     THE WALL THIS GETS AROUND. approvedPairTokens(address) is a lookup, not an
+     enumeration: you can ask "is this one approved?" but there is no call that
+     hands back the list. So the sixteen addresses the wheel needs looked like
+     something that had to come from outside the code, written down by hand,
+     which is exactly how a wrong address gets into the one call that moves
+     money.
+
+     It does not. Every launch the factory has ever done emits
+
+       TokenLaunched(address indexed token, address indexed curve,
+                     address indexed deployer, address pairToken,
+                     uint256 launchConfigId, uint256 graduationThreshold)
+
+     with pairToken in the data. Walking that log from the factory's own address
+     gives every pair token anyone has actually launched against, and the config
+     ids in use with them — discovered from the chain at runtime, in the
+     launcher's own browser, rather than transcribed. Each one is then put back
+     through approvedPairTokens() before the pad will offer it, so a token that
+     appears in an old log but has since been dropped cannot be used.
+
+     Three indexed fields and three static words of data, so the decode is
+     simple — which is the point. Nothing here is guessed. */
+  const TOPIC = {
+    tokenLaunched: '0x8d4aad4953d0ca700d468f3753aa14432d1b35b43ec6409f051fb6aa43a89607',
+    // TokenLaunched(address,address,address,address,uint256,uint256)
+  };
+
+  const decodeTokenLaunched = (log) => {
+    const t = log && log.topics;
+    if (!t || t.length < 4 || String(t[0]).toLowerCase() !== TOPIC.tokenLaunched) return null;
+    const h = String(log.data || '').replace(/^0x/, '');
+    const w = h.match(/.{64}/g) || [];
+    if (w.length < 3) return null;
+    const addr = (x) => '0x' + String(x).replace(/^0x/, '').padStart(64, '0').slice(24);
+    return {
+      token: addr(t[1]),
+      curve: addr(t[2]),
+      deployer: addr(t[3]),
+      pairToken: '0x' + w[0].slice(24),
+      configId: BigInt('0x' + w[1]).toString(),
+      graduationThreshold: BigInt('0x' + w[2]).toString(),
+    };
+  };
+
+  /* The distinct pair tokens in a batch of logs, commonest first, because the
+     one most launches used is the one most likely to still be approved and
+     liquid. Zero addresses are kept: a native pair token is a real choice and
+     changes what `value` has to carry. */
+  const pairTokensFrom = (logs) => {
+    const seen = new Map();
+    (logs || []).forEach((l) => {
+      const d = decodeTokenLaunched(l);
+      if (!d) return;
+      const k = d.pairToken.toLowerCase();
+      const at = seen.get(k) || { pairToken: k, launches: 0, configIds: new Set() };
+      at.launches += 1;
+      at.configIds.add(d.configId);
+      seen.set(k, at);
+    });
+    return [...seen.values()]
+      .map((x) => ({ pairToken: x.pairToken, launches: x.launches, configIds: [...x.configIds] }))
+      .sort((a, b) => b.launches - a.launches);
+  };
+
   /* ---------- the fee, and refusing to launch without it ----------
    *
      THE ONE THING THAT MUST NOT BE WRONG. `creatorFeeRecipient` is where the
@@ -301,7 +367,8 @@ window.TwistrPons = (() => {
   const claimTokenData = (token) => encodeCall('claimToken', ['address'], [token]);
 
   return {
-    CHAIN, ADDR, SIG, SEL, TOKEN_PARAMS, LAUNCH_TYPES,
+    CHAIN, ADDR, SIG, SEL, TOPIC, TOKEN_PARAMS, LAUNCH_TYPES,
+    decodeTokenLaunched, pairTokensFrom,
     isDynamic, split, encodeTuple, encodeCall, tokenParams,
     MAX_BPS, PREFLIGHT, feeProblem, buildLaunch,
     launchFeeData, canLaunchData, launchConfigCountData, getLaunchConfigData,

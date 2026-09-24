@@ -574,6 +574,41 @@ compares them as a list of shapes rather than as text, because the two are the s
 twice: `innerHTML` spells a circle `<circle ...></circle>` where the data URL spells it
 `<circle .../>`, and folding those two by hand kept tripping over its own replacements.
 
+## The fee, and what is actually yours to set
+
+Two different fees ride on a Pons launch and **only one of them is this pad's**:
+
+| | who sets it | where it lives |
+|---|---|---|
+| `creatorTaxBps` | **you** | `TokenParams`, written into the token at launch |
+| `curveFeeBps` | **Pons** | a field of the `LaunchConfig` you pick |
+
+There is no parameter anywhere in Pons's ABI that assigns a share to Pons, because Pons's share is
+already theirs by the config: `FeePolicy { protocolFeeRecipient, protocolFeeShareBps, … }` splits
+`curveFeeBps`, and none of it is passed in. **You cannot give Pons a percentage — you pick a launch
+config, and its fee is what it is.** The pad reads `curveFeeBps` and shows it rather than pretending
+to set it. What you set is your own `creatorTaxBps`, capped by the factory's `maxCreatorTaxBps()`.
+
+`buildLaunch()` refuses rather than warns, because a launch is not repairable afterwards:
+
+- no fee recipient, or the zero address → refused, because the tax would accrue to nobody and
+  `CreatorFeeRecipientUpdated` carries an `effectiveAt`, so changing it later is at best delayed and
+  permissioned;
+- a tax above the chain's `maxCreatorTaxBps()` → refused **before the wallet opens**, rather than
+  reverting after gas has been estimated;
+- a missing `expectedEconomics` → refused. That hash comes from `previewLaunchEconomics()` and the
+  factory recomputes and compares it, so a pad that filled it from a constant would build a
+  transaction that always reverts.
+
+`value` is the launch fee alone for an ERC-20 pair token, and the launch fee **plus** the buy when
+the pair token is native — underpay and it reverts, overpay with a non-native pair and the ether
+buys nothing.
+
+The fee checks do not use `includes()` on the calldata. An address anywhere in 900 bytes passes that,
+including in the wrong field entirely — `recipient` is a different parameter of the same type eight
+words further along. The calldata is **decoded back** by viem and the values read out of the struct
+by name.
+
 ## Pons, and what is still missing
 
 The sixteen assets are real tickers off Pons's own approved pair-token list, but the pad does not
@@ -698,7 +733,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-300 checks across four suites.
+329 checks across four suites.
 
 ### The chain, checked without a chain
 

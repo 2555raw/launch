@@ -39,6 +39,12 @@ window.TwistrPons = (() => {
     '(string,string,string,string,(string,string,string,string,string),address,uint16,bool,bytes32,bytes32)';
 
   const SIG = {
+    launchFee:              'launchFee()',
+    canLaunch:              'canLaunch(address)',
+    launchConfigCount:      'launchConfigCount()',
+    getLaunchConfig:        'getLaunchConfig(uint256)',
+    getLaunchFeePolicy:     'getLaunchFeePolicy(address)',
+    getLaunchedToken:       'getLaunchedToken(address)',
     approvedPairTokens:     'approvedPairTokens(address)',
     pairTokenEconomics:     'pairTokenEconomics(address)',
     maxCreatorTaxBps:       'maxCreatorTaxBps()',
@@ -51,6 +57,12 @@ window.TwistrPons = (() => {
   };
 
   const SEL = {
+    launchFee:              '0xcf3cf573',
+    canLaunch:              '0x58373f04',
+    launchConfigCount:      '0xae72d871',
+    getLaunchConfig:        '0x1cad862d',
+    getLaunchFeePolicy:     '0x470ef5fc',
+    getLaunchedToken:       '0x3cf28b5a',
     approvedPairTokens:     '0x9831705e',
     pairTokenEconomics:     '0x31082134',
     maxCreatorTaxBps:       '0xf325a5fb',
@@ -175,6 +187,108 @@ window.TwistrPons = (() => {
     o.snipeTaxExemptions || [],
   ]);
 
+  /* ---------- the fee, and refusing to launch without it ----------
+   *
+     THE ONE THING THAT MUST NOT BE WRONG. `creatorFeeRecipient` is where the
+     creator tax accrues; `creatorTaxBps` is how much. Both are written into the
+     token at launch and there is no second chance: the factory exposes
+     transferCreatorFeeRecipient, and CreatorFeeRecipientUpdated carries an
+     effectiveAt, so changing it later is at best a delayed, permissioned
+     operation and at worst not available to you at all.
+
+     So the guard below is not a formality. A launch with a zero or empty
+     recipient is a launch whose fees accrue to nobody and cannot be recovered —
+     which is precisely the outcome to design against. buildLaunch refuses it
+     rather than sending a transaction that looks fine and quietly burns the
+     revenue.
+
+     WHAT IS AND IS NOT YOURS TO SET. Two different fees ride on a Pons launch
+     and only one of them is this pad's:
+
+       creatorTaxBps      yours. Capped by the factory's maxCreatorTaxBps().
+       curveFeeBps        Pons's, and it is a field of the LaunchConfig you
+                          pick, not something passed in. FeePolicy splits it
+                          via protocolFeeShareBps.
+
+     There is no parameter anywhere in this ABI that assigns a share to Pons,
+     because Pons's share is already theirs by the config. Picking a config is
+     the whole of the choice. The pad reads curveFeeBps and shows it rather than
+     pretending to set it. */
+  const MAX_BPS = 10000;
+
+  const feeProblem = (t, maxBps) => {
+    const r = String(t.feeRecipient || '');
+    if (!/^0x[0-9a-fA-F]{40}$/.test(r)) {
+      return 'No fee recipient. The creator tax would accrue to nobody and could not be recovered.';
+    }
+    if (/^0x0{40}$/i.test(r)) {
+      return 'The fee recipient is the zero address. The creator tax would be burned.';
+    }
+    const bps = Number(t.feeBps);
+    if (!Number.isInteger(bps) || bps < 0 || bps > MAX_BPS) {
+      return `Creator tax ${t.feeBps} is not a whole number of basis points.`;
+    }
+    /* The chain's cap, when it has been read. Sending a tax above it does not
+       fail quietly — it reverts — but it reverts after the wallet has been
+       opened and gas has been estimated, which is a worse way to find out. */
+    if (maxBps !== null && maxBps !== undefined && bps > Number(maxBps)) {
+      return `Creator tax ${bps} bps is above the protocol maximum of ${maxBps} bps, so the launch would revert.`;
+    }
+    return null;
+  };
+
+  /* Everything the chain has to answer before a launch can be built. None of it
+     is optional and none of it can be guessed: expectedEconomics is a hash the
+     factory recomputes and compares, and launchFee is paid as value. A pad that
+     filled either from a constant would build a transaction that always
+     reverts. */
+  const PREFLIGHT = [
+    ['maxCreatorTaxBps',       'the cap on your own fee'],
+    ['launchFee',              'what the factory charges to launch, paid as value'],
+    ['canLaunch',              'whether this address is allowed to launch at all'],
+    ['approvedPairTokens',     'whether the pair token is one Pons has approved'],
+    ['previewLaunchEconomics', 'the economics hash pinned into the params'],
+  ];
+
+  /* Build the whole call, or say why not. Nothing here sends anything. */
+  const buildLaunch = (o) => {
+    const chain = o.chain || {};
+    const problem = feeProblem(o.token, chain.maxCreatorTaxBps);
+    if (problem) return { ok: false, reason: problem };
+
+    if (!/^0x[0-9a-fA-F]{64}$/.test(String(o.token.expectedEconomics || ''))) {
+      return { ok: false, reason: 'No economics hash. previewLaunchEconomics has to be read from the factory first.' };
+    }
+    if (chain.canLaunch === false) {
+      return { ok: false, reason: 'This address is not allowed to launch on Pons.' };
+    }
+    if (chain.pairApproved === false) {
+      return { ok: false, reason: 'That pair token is not approved by Pons, so the launch would revert.' };
+    }
+
+    /* value = the launch fee, plus the buy when the pair token is native.
+       pons-client does exactly this, and getting it wrong either underpays the
+       fee (revert) or sends ether that buys nothing. */
+    const native = /^0x0{40}$/i.test(String(o.pairToken || ''));
+    const fee = BigInt(chain.launchFee || 0n);
+    const value = native ? fee + BigInt(o.quoteIn || 0n) : fee;
+
+    return {
+      ok: true,
+      to: ADDR.launchAndBuy,
+      data: launchAndBuyData(o),
+      value: '0x' + value.toString(16),
+      fee: { recipient: o.token.feeRecipient, bps: Number(o.token.feeBps) },
+    };
+  };
+
+  const launchFeeData = () => SEL.launchFee;
+  const canLaunchData = (a) => encodeCall('canLaunch', ['address'], [a]);
+  const launchConfigCountData = () => SEL.launchConfigCount;
+  const getLaunchConfigData = (id) => encodeCall('getLaunchConfig', ['uint256'], [id]);
+  const getLaunchFeePolicyData = (t) => encodeCall('getLaunchFeePolicy', ['address'], [t]);
+  const getLaunchedTokenData = (t) => encodeCall('getLaunchedToken', ['address'], [t]);
+
   const approvedPairTokensData = (a) => encodeCall('approvedPairTokens', ['address'], [a]);
   const pairTokenEconomicsData = (a) => encodeCall('pairTokenEconomics', ['address'], [a]);
   const maxCreatorTaxBpsData = () => SEL.maxCreatorTaxBps;
@@ -189,6 +303,9 @@ window.TwistrPons = (() => {
   return {
     CHAIN, ADDR, SIG, SEL, TOKEN_PARAMS, LAUNCH_TYPES,
     isDynamic, split, encodeTuple, encodeCall, tokenParams,
+    MAX_BPS, PREFLIGHT, feeProblem, buildLaunch,
+    launchFeeData, canLaunchData, launchConfigCountData, getLaunchConfigData,
+    getLaunchFeePolicyData, getLaunchedTokenData,
     launchAndBuyData, approvedPairTokensData, pairTokenEconomicsData,
     maxCreatorTaxBpsData, previewLaunchEconomicsData,
     escrowBalanceData, escrowBalanceTokenData, claimData, claimTokenData,

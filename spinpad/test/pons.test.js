@@ -136,14 +136,87 @@ const run = () => {
       BigInt(LAUNCH.configId), LAUNCH.pairToken, LAUNCH.quoteIn, LAUNCH.minTokensOut,
       LAUNCH.recipient, LAUNCH.snipeTaxExemptions] }));
 
-  console.log('\nthe fee recipient');
-  /* The one thing the pad sets that decides where money goes. If this ever
-     stopped being the address handed in, launches would pay somebody else. */
+  console.log('\nthe fee, decoded back out');
+  /* The one thing the pad sets that decides where money goes.
+     `includes()` was the first version of this check and it was far too weak:
+     an address anywhere in 900 bytes of calldata passes it, including in the
+     wrong field entirely. So the calldata is DECODED, by viem, and the values
+     are read out of the struct by name. That is the only way to know the
+     recipient is in the recipient's word and not, say, in `recipient` — which
+     is a different parameter of the same type, eight words further along. */
   const d = Pons.launchAndBuyData(LAUNCH);
-  ok('the fee recipient in the calldata is the one asked for',
-    d.toLowerCase().includes(TOKEN.feeRecipient.slice(2).toLowerCase()),
-    TOKEN.feeRecipient);
-  ok('and so is the pair token', d.toLowerCase().includes(LAUNCH.pairToken.slice(2).toLowerCase()));
+  const back = viem.decodeFunctionData({ abi, data: d });
+  const params = back.args[0];
+
+  ok('it decodes as launchAndBuy at all', back.functionName === 'launchAndBuy');
+  ok('creatorFeeRecipient is the address handed in',
+    String(params[5]).toLowerCase() === TOKEN.feeRecipient.toLowerCase(),
+    String(params[5]));
+  ok('creatorTaxBps is the number handed in', Number(params[6]) === TOKEN.feeBps,
+    String(params[6]));
+  ok('and it did not land in `recipient`, which is a different address',
+    String(back.args[5]).toLowerCase() === LAUNCH.recipient.toLowerCase(),
+    String(back.args[5]));
+  ok('the pair token is where the pair token goes',
+    String(back.args[2]).toLowerCase() === LAUNCH.pairToken.toLowerCase());
+  ok('the name survived its accents and em dash', params[0] === TOKEN.name, params[0]);
+
+  /* Two hundred basis points is two percent. Worth one check that says so in
+     as many words, because it is the number the whole arrangement is about. */
+  console.log('\ntwo per cent');
+  const TWO = { ...TOKEN, feeBps: 200, feeRecipient: '0x00000000000000000000000000000000000000f7' };
+  const twoBack = viem.decodeFunctionData({ abi, data: Pons.launchAndBuyData({ ...LAUNCH, token: TWO }) });
+  ok('200 bps rides in creatorTaxBps', Number(twoBack.args[0][6]) === 200);
+  ok('and 200 bps of a whole is two per cent', (200 / Pons.MAX_BPS) * 100 === 2);
+  ok('the recipient is the one the config names',
+    String(twoBack.args[0][5]).toLowerCase() === TWO.feeRecipient.toLowerCase());
+
+  console.log('\nrefusing to launch the money away');
+  /* A launch whose fee recipient is missing or zero accrues to nobody, and the
+     factory gives no second chance worth relying on. These must be refusals,
+     not warnings — the transaction would otherwise look completely fine. */
+  const build = (over) => Pons.buildLaunch({ ...LAUNCH, token: { ...TWO, ...over },
+    chain: { maxCreatorTaxBps: 500, launchFee: 10n ** 15n, canLaunch: true, pairApproved: true } });
+
+  ok('a launch with no fee recipient is refused',
+    build({ feeRecipient: '' }).ok === false, JSON.stringify(build({ feeRecipient: '' })));
+  ok('and says why', /accrue to nobody/.test(build({ feeRecipient: '' }).reason || ''));
+  ok('the zero address is refused too',
+    build({ feeRecipient: '0x' + '0'.repeat(40) }).ok === false);
+  ok('and says it would be burned',
+    /burned/.test(build({ feeRecipient: '0x' + '0'.repeat(40) }).reason || ''));
+  ok('a tax above the protocol cap is refused before the wallet opens',
+    build({ feeBps: 900 }).ok === false, JSON.stringify(build({ feeBps: 900 })));
+  ok('and names the cap', /maximum of 500/.test(build({ feeBps: 900 }).reason || ''));
+  ok('a fractional tax is refused', build({ feeBps: 12.5 }).ok === false);
+  ok('a missing economics hash is refused',
+    build({ expectedEconomics: '' }).ok === false);
+  ok('and says it has to be read from the factory',
+    /read from the factory/.test(build({ expectedEconomics: '' }).reason || ''));
+
+  const good = build({});
+  ok('a complete launch is allowed through', good.ok === true, JSON.stringify(good).slice(0, 200));
+  ok('it goes to the launchAndBuy router, not the factory',
+    good.to === Pons.ADDR.launchAndBuy);
+  ok('the fee it reports back is the fee in the calldata',
+    good.fee.bps === 200 && good.fee.recipient === TWO.feeRecipient);
+
+  /* value: the launch fee on its own for an ERC-20 pair token, and the fee
+     plus the buy when the pair token is native. Underpay it and the launch
+     reverts; overpay it with a non-native pair and the ether buys nothing. */
+  console.log('\nwhat gets sent as value');
+  ok('an ERC-20 pair pays only the launch fee', BigInt(good.value) === 10n ** 15n,
+    good.value);
+  const native = Pons.buildLaunch({ ...LAUNCH, pairToken: '0x' + '0'.repeat(40),
+    token: TWO,
+    chain: { maxCreatorTaxBps: 500, launchFee: 10n ** 15n, canLaunch: true, pairApproved: true } });
+  ok('a native pair pays the fee plus the buy',
+    BigInt(native.value) === 10n ** 15n + LAUNCH.quoteIn, native.value);
+
+  console.log('\nwhat the chain has to answer first');
+  ok('every preflight read has a selector', Pons.PREFLIGHT.every(([k]) => !!Pons.SEL[k]),
+    Pons.PREFLIGHT.map(([k]) => k).join(', '));
+  ok('and every one of them is explained', Pons.PREFLIGHT.every(([, why]) => why.length > 10));
 };
 
 run();

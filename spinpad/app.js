@@ -235,41 +235,58 @@
        the same top-left source as everything else, a face that is not flat
        white, and ticks cut into the rim — a flat circle with a hairline round
        it was the one object on the page that looked like a diagram. */
-    out += `<circle class="sp-rim" cx="100" cy="100" r="96" fill="url(#${ns}-rim)"/>`;
-    out += `<circle class="sp-rim-in" cx="100" cy="100" r="85.5"/>`;
-    out += `<circle class="sp-face" cx="100" cy="100" r="85" fill="url(#${ns}-face)"/>`;
+    /* Laid out as the spinner it is: a wide rim carrying the four quarter
+       names, a cross dividing the board into those quarters, and the sixteen
+       circles inside it. That is the object this page is about, and a ring of
+       dots with the names floating outside it was a diagram of it. */
+    const R_OUT = 97, R_RIM = 79, R_FACE = 78.5;
+    const pol = (deg, r) => {
+      const a = (deg - 90) * Math.PI / 180;
+      return [100 + Math.cos(a) * r, 100 + Math.sin(a) * r];
+    };
+    const at2 = (deg, r) => pol(deg, r).map((n) => n.toFixed(2));
+    const line = (cls, deg, r0, r1) => {
+      const [x1, y1] = at2(deg, r0), [x2, y2] = at2(deg, r1);
+      return `<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+    };
 
-    /* A tick on every sector boundary, and a longer one where the quadrant
-       changes — which is where the position the arrow names changes too, so the
-       rim says something rather than being decorated. */
-    const per = SECTORS.length / POSITIONS.length;
-    for (let i = 0; i < SECTORS.length; i++) {
-      const a = ((i + 0.5) * SEG - 90) * Math.PI / 180;
-      const quarter = i % per === per - 1;
-      const r0 = quarter ? 85.5 : 88.5, r1 = 95.5;
-      out += `<line class="sp-tick${quarter ? ' sp-tick-q' : ''}"`
-        + ` x1="${(100 + Math.cos(a) * r0).toFixed(2)}" y1="${(100 + Math.sin(a) * r0).toFixed(2)}"`
-        + ` x2="${(100 + Math.cos(a) * r1).toFixed(2)}" y2="${(100 + Math.sin(a) * r1).toFixed(2)}"/>`;
-    }
+    out += `<circle class="sp-rim" cx="100" cy="100" r="${R_OUT}" fill="url(#${ns}-rim)"/>`;
+    out += `<circle class="sp-face" cx="100" cy="100" r="${R_FACE}" fill="url(#${ns}-face)"/>`;
 
-    out += '<path class="sp-spoke" d="M100 18 V182 M18 100 H182 M42 42 L158 158 M158 42 L42 158"/>';
+    /* Alternate quarters take a breath of tint. On a printed board that is what
+       says the thing is divided into four before you have read a word of it. */
+    const quarter = 360 / POSITIONS.length;
+    POSITIONS.forEach((p, q) => {
+      if (q % 2) return;
+      const [x0, y0] = at2(q * quarter, R_FACE);
+      const [x1, y1] = at2((q + 1) * quarter, R_FACE);
+      out += `<path class="sp-quad" d="M100 100 L${x0} ${y0} A${R_FACE} ${R_FACE} 0 0 1 ${x1} ${y1} Z"/>`;
+    });
+
+    // the cross runs out through the rim, the way the printed one does
+    for (let q = 0; q < POSITIONS.length; q++) out += line('sp-cross', q * quarter, 0, R_OUT);
+
+    out += `<circle class="sp-rim-in" cx="100" cy="100" r="${R_RIM}"/>`;
+
+    // one tick per outcome, cut into the inside edge of the rim
+    for (let i = 0; i < SECTORS.length; i++) out += line('sp-tick', (i + 0.5) * SEG, R_RIM, R_RIM + 6);
 
     SECTORS.forEach((sec, i) => {
-      const [x, y] = nodeAt(i, 70);
+      const [x, y] = nodeAt(i, 60);
       const as = assetOf(sec.color, sec.position);
       const cx = x.toFixed(2), cy = y.toFixed(2);
       out += `<g data-i="${i}"><title>${esc(comboOf(sec.color, sec.position))} → ${esc(as.name)}</title>`
-        + `<ellipse class="sp-node-cast" cx="${cx}" cy="${(y + 3.4).toFixed(2)}" rx="11.5" ry="9"/>`
-        + `<circle class="sp-node" data-i="${i}" cx="${cx}" cy="${cy}" r="13" fill="url(#${ns}-${sec.color})"/>`
-        + `<circle class="sp-node-gloss" cx="${cx}" cy="${cy}" r="13" fill="url(#${ns}-gloss)"/>`
-        + `<circle class="sp-node-ring" cx="${cx}" cy="${cy}" r="13"/></g>`;
+        + `<ellipse class="sp-node-cast" cx="${cx}" cy="${(y + 3.4).toFixed(2)}" rx="12" ry="9.4"/>`
+        + `<circle class="sp-node" data-i="${i}" cx="${cx}" cy="${cy}" r="13.5" fill="url(#${ns}-${sec.color})"/>`
+        + `<circle class="sp-node-gloss" cx="${cx}" cy="${cy}" r="13.5" fill="url(#${ns}-gloss)"/>`
+        + `<circle class="sp-node-ring" cx="${cx}" cy="${cy}" r="13.5"/></g>`;
     });
 
     /* A plain cap, and no word in it. The arrow pivots on this exact spot, so
        anything written here is read through the arrow's tail. */
-    out += `<circle class="sp-hub-cast" cx="100" cy="102.5" r="22"/>`;
-    out += `<circle class="sp-hub" cx="100" cy="100" r="22" fill="url(#${ns}-hub)"/>`;
-    out += `<circle class="sp-hub-in" cx="100" cy="100" r="16.5"/>`;
+    out += `<circle class="sp-hub-cast" cx="100" cy="102.5" r="20"/>`;
+    out += `<circle class="sp-hub" cx="100" cy="100" r="20" fill="url(#${ns}-hub)"/>`;
+    out += `<circle class="sp-hub-in" cx="100" cy="100" r="14.5"/>`;
     svg.innerHTML = out;
   };
 

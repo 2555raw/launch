@@ -183,7 +183,8 @@ async function browserChecks() {
       rim: svg.querySelectorAll('.sp-rim').length,
       face: svg.querySelectorAll('.sp-face').length,
       ticks: svg.querySelectorAll('.sp-tick').length,
-      quarterTicks: svg.querySelectorAll('.sp-tick-q').length,
+      cross: svg.querySelectorAll('.sp-cross').length,
+      quads: svg.querySelectorAll('.sp-quad').length,
       hub: svg.querySelectorAll('.sp-hub').length,
       // the rim has to have thickness: the face cannot reach the outer edge
       rimR: Number(svg.querySelector('.sp-rim').getAttribute('r')),
@@ -194,8 +195,29 @@ async function browserChecks() {
     wheelObj.rim === 1 && wheelObj.face === 1 && wheelObj.hub === 1
     && wheelObj.rimR - wheelObj.faceR >= 8, JSON.stringify(wheelObj));
   ok('its rim is ticked once per outcome', wheelObj.ticks === SECTORS.length, String(wheelObj.ticks));
-  ok('and marked where the quarter changes',
-    wheelObj.quarterTicks === CFG.positions.length, String(wheelObj.quarterTicks));
+  ok('and divided by a cross into one quarter per position',
+    wheelObj.cross === CFG.positions.length, String(wheelObj.cross));
+
+  /* The quarter names are printed into the rim. Outside it they were captions
+     beside a spinner rather than the spinner's own labels, so the check is
+     where they physically land: between the face's edge and the rim's. */
+  const printed = await page.evaluate(() => {
+    const wheel = document.getElementById('heroWheel');
+    const svg = document.getElementById('heroWheelSvg');
+    const w = wheel.getBoundingClientRect();
+    const cx = w.left + w.width / 2, cy = w.top + w.height / 2;
+    const unit = svg.getBoundingClientRect().width / 200;   // svg units to px
+    const inner = Number(svg.querySelector('.sp-face').getAttribute('r')) * unit;
+    const outer = Number(svg.querySelector('.sp-rim').getAttribute('r')) * unit;
+    return [...wheel.querySelectorAll('.sp-wheel-label')].map((el) => {
+      const b = el.getBoundingClientRect();
+      const d = Math.hypot(b.left + b.width / 2 - cx, b.top + b.height / 2 - cy);
+      return { text: el.textContent.trim(), inBand: d > inner && d < outer, d: Math.round(d) };
+    });
+  });
+  ok('the quarter names are printed in the rim, not floating outside it',
+    printed.length === 4 && printed.every((l) => l.inBand),
+    JSON.stringify(printed));
 
   /* The chip under the headline names a real cell of the board. A name written
      into the markup is exactly the bug this replaced: the hero advertised a

@@ -284,12 +284,21 @@ the pairing under whichever node you point at. It is SVG generated at runtime fr
 spheres behind it are, from one source in the top left — two objects in one room rather than a flat
 diagram next to a rendering.
 
-The wheel is a disc rather than a circle with a line round it. A rim with real thickness, lit from
-that same top-left source, a face that is not flat white, and ticks cut into the rim — long ones
-where the quarter changes, because that is where the position the arrow names changes too, so the
-rim says something instead of being decorated. There is a check that the face cannot reach the
-outer edge, that there is one tick per outcome, and that the long ones number exactly the
-positions: a wheel whose rim stops agreeing with the table is a picture of a different product.
+The wheel is laid out as the spinner it is, not as a diagram of one. A wide rim with the four
+quarter names printed into it, lit from that same top-left source; a cross running out through the
+rim that divides the board into those quarters, with alternate quarters taking a breath of tint; a
+tick cut into the rim for every outcome; and sixteen circles inside. The names used to sit outside
+it as four chips, which is a spinner with captions next to it rather than a spinner.
+
+Each name is placed on its quarter's own diagonal, turned to lie along the rim. The offset is
+cos(45°) of the mid-rim radius as a percentage of the wheel's box — `left`/`top`, not a second
+`translate`, because a percentage inside `transform: translate` is a percentage of *the element*,
+and on a 70px label that moved all four about 18px and piled them on the hub.
+
+Four checks hold the object to the table: the face cannot reach the outer edge (a rim with no
+thickness is a line), there is one tick per outcome, the cross has one arm per position, and each
+quarter name physically lands between the face's edge and the rim's. A wheel whose rim stops
+agreeing with the table is a picture of a different product.
 
 Three things in the copy exist to stop the left column being a wall of black on white:
 
@@ -415,8 +424,15 @@ domain points at otherwise.
 
 The service is configured with **root directory `/spinpad`** and **start command `node server.js`**,
 which is the part worth writing down: a service pointed at the repository root finds no
-`package.json` and the build fails before it reaches anything. HTML is served `no-cache` so a
-redeploy shows up immediately, everything else gets an hour.
+`package.json` and the build fails before it reaches anything.
+
+Caching: every file gets an ETag off its own bytes, and the three the page is made of — HTML, CSS,
+JS — are `no-cache`, which means revalidate, not "do not cache": an unchanged file comes back as a
+304 with no body. They used to be an hour while index.html alone was `no-cache`, which is the worst
+of both. A redeploy changed all three, the browser fetched the new HTML and kept the previous
+release's stylesheet and script for up to an hour, and what came back was new markup wearing old
+CSS — a redesign that had shipped and could not be seen. Logos keep five minutes, because there are
+sixteen of them and they change rarely, and the ETag still catches one that has been replaced.
 
 ## Checks
 
@@ -428,7 +444,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-196 checks across three suites.
+197 checks across three suites.
 
 ### The chain, checked without a chain
 

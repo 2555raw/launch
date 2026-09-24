@@ -309,7 +309,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-height: 880px) {
   .sp-hero-in { padding-block: clamp(20px, 3vh, 48px); }
   .sp-hero-wheel { gap: 14px; }
-  .sp-hero-wheel .sp-wheel { width: min(440px, 88vw, 46vh); }
+  .sp-hero-wheel .sp-wheel { width: min(516px, 92vw, 52vh); }
   .sp-lede { margin-top: 20px; }
   .sp-hero-live { margin-top: 14px; }
   .sp-hero-cta { margin-top: 22px; }
@@ -436,28 +436,38 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- the wheel ---------- */
 
-.sp-wheel { position: relative; width: min(440px, 88vw); aspect-ratio: 1; display: grid; place-items: center; }
-.sp-wheel-big { width: min(520px, 86vw); margin-inline: auto; }
+.sp-wheel { position: relative; width: min(516px, 92vw); aspect-ratio: 1; display: grid; place-items: center; }
+.sp-wheel-big { width: min(580px, 90vw); margin-inline: auto; }
 
-/* The quarter labels belong to the wheel, so they are chips sitting on its
-   corners rather than four words of grey text floating near it. */
+/* The quarter names are printed into the rim, the way they are on the board.
+   They sat outside it as chips, and a spinner whose quarters are labelled by
+   four captions beside it is a diagram of a spinner.
+
+   Each one is placed on its quarter's own diagonal — the centre offset is
+   cos(45°) of the mid-rim radius, as a percentage of the wheel's box — and
+   turned to lie along the rim rather than across it. */
 .sp-wheel-label {
   position: absolute; z-index: 2;
-  font: 600 10px/1 var(--sans); letter-spacing: .15em; text-transform: uppercase;
-  color: var(--ink-soft); white-space: nowrap;
-  padding: 7px 12px; border-radius: 999px;
-  background: var(--card); border: 1.5px solid var(--line);
-  box-shadow: var(--sh-sm);
+  font: 700 clamp(8px, 1.5vw, 10.5px)/1 var(--sans);
+  letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(16, 17, 20, .55); white-space: nowrap;
 }
-.sp-wheel-tl { top: 4%;    left: 1%; }
-.sp-wheel-tr { top: 4%;    right: 1%; }
-.sp-wheel-bl { bottom: 4%; left: 1%; }
-.sp-wheel-br { bottom: 4%; right: 1%; }
+/* left/top, not a second translate: a percentage inside `transform: translate`
+   is a percentage of the element itself, which on a 70px label moved them 18px
+   and piled all four on the hub. These are percentages of the wheel's box.
+
+   28.46% is cos(45°) of the mid-rim radius: the face is 92% of the box, so SVG
+   radius 87.5 of 200 lands at 40.25% of the box, and the diagonal takes .7071
+   of that. */
+.sp-wheel-tl { left: 21.54%; top: 21.54%; transform: translate(-50%, -50%) rotate(-45deg); }
+.sp-wheel-tr { left: 78.46%; top: 21.54%; transform: translate(-50%, -50%) rotate(45deg); }
+.sp-wheel-bl { left: 21.54%; top: 78.46%; transform: translate(-50%, -50%) rotate(45deg); }
+.sp-wheel-br { left: 78.46%; top: 78.46%; transform: translate(-50%, -50%) rotate(-45deg); }
 
 /* the face tilts a little under the cursor, which is the only thing that makes
    a flat circle feel like an object you could reach out and turn */
 .sp-wheel-face {
-  position: relative; width: 84%; aspect-ratio: 1;
+  position: relative; width: 92%; aspect-ratio: 1;
   transform: rotateX(var(--tiltX, 0deg)) rotateY(var(--tiltY, 0deg));
   transform-style: preserve-3d;
   transition: transform .5s var(--ease);
@@ -465,12 +475,12 @@ a { color: inherit; text-decoration: none; }
           drop-shadow(0 38px 52px rgba(16, 17, 20, .16));
 }
 .sp-wheel-svg { width: 100%; height: 100%; display: block; }
-.sp-wheel-svg .sp-rim { stroke: rgba(16, 17, 20, .34); stroke-width: 1.1; }
-.sp-wheel-svg .sp-rim-in { fill: none; stroke: rgba(16, 17, 20, .16); stroke-width: 1; }
+.sp-wheel-svg .sp-rim { stroke: rgba(16, 17, 20, .52); stroke-width: 1.4; }
+.sp-wheel-svg .sp-rim-in { fill: none; stroke: rgba(16, 17, 20, .3); stroke-width: 1.2; }
 .sp-wheel-svg .sp-face { stroke: none; }
-.sp-wheel-svg .sp-tick { stroke: rgba(16, 17, 20, .26); stroke-width: 1; stroke-linecap: round; }
-.sp-wheel-svg .sp-tick-q { stroke: rgba(16, 17, 20, .5); stroke-width: 1.8; }
-.sp-wheel-svg .sp-spoke { stroke: var(--line-hi); stroke-width: 1; stroke-dasharray: 3 5; }
+.sp-wheel-svg .sp-quad { fill: rgba(16, 17, 20, .022); }
+.sp-wheel-svg .sp-cross { stroke: rgba(16, 17, 20, .34); stroke-width: 1.2; }
+.sp-wheel-svg .sp-tick { stroke: rgba(16, 17, 20, .22); stroke-width: 1; stroke-linecap: round; }
 .sp-wheel-svg .sp-node { transition: r .25s var(--ease), opacity .25s; }
 .sp-wheel-svg .sp-node-gloss { pointer-events: none; }
 .sp-wheel-svg .sp-node-cast { fill: rgba(16, 17, 20, .22); }
@@ -494,7 +504,7 @@ a { color: inherit; text-decoration: none; }
   0%, 100% { transform: rotate(-6deg); }
   50%      { transform: rotate(6deg); }
 }
-.sp-wheel-svg .sp-node.is-hot { r: 15; }
+.sp-wheel-svg .sp-node.is-hot { r: 15.5; }
 
 /* ---------- sections ---------- */
 

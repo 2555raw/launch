@@ -296,11 +296,17 @@ cos(45°) of the mid-rim radius as a percentage of the wheel's box — `left`/`t
 and on a 70px label that moved all four about 18px and piled them on the hub.
 
 Every circle wears the asset it pairs with. The colour is half the draw, so the picture goes on a
-white disc *inside* the sphere and what is left of the colour is a thick ring — the board's rule
+white disc *inside* the sphere and what is left of the colour is a ring — the board's rule
 inside out, for the board's reason: a mark printed on a saturated ground is a mark you cannot see.
 The drawn glyph stays under the picture rather than instead of it, which gets the board's fallback
 for free: an `<image>` whose file is missing renders nothing at all, so the glyph shows through on
 its own.
+
+That disc is 82% of the circle, not the 64% it started at, and the picture's box is wider than it is
+tall like the board's. At 64% the five marks whose own colour is their ball's colour — Nvidia and
+Bull on green, Meta and Intel on blue, the gold bars on yellow — had so little white around them
+that they read as a smudge in a coloured blob rather than a logo. What is left is still
+unmistakably a ring of the colour, which is what the colour is for.
 
 The rim gives up its width to the circles. Sixteen of them on a ring have 2πr/16 of arc each, and
 at r=60 that was 23.6 against a diameter of 27 — they were overlapping, which is why sixteen logos
@@ -472,6 +478,27 @@ and `twistr.gate.v1` are read first; if they are empty and the old `spinpad.*` k
 values are copied across and removed. Nothing about the records themselves changed, which is why
 this is a carry-over and not another version bump — a version bump means the reader would
 misunderstand the old shape, and that is not what happened here.
+
+## The link card
+
+A page with no `og:image` is a bare line of text wherever it is posted, which for a launchpad is
+most of its traffic. `assets/og.png` is 1200×630 and the tags say so.
+
+`og:image` is an absolute URL, because most scrapers will not resolve a relative one — which means
+it names the deployed domain and has to change if the domain does. There are checks for the card's
+shape, that the URL is absolute, that it declares the wide card, that it carries alt text, and that
+the file it names is really there at the size it claims. A card that promises 1200×630 and serves
+something else gets cropped by whoever renders it.
+
+That last check cost one mistake worth writing down. It loaded the image from the URL's pathname,
+which starts with a slash — and this suite opens the page over `file://`, where a root-relative path
+is the filesystem root and finds nothing. Relative to the document is right in both places, because
+index.html is the site root.
+
+The card and the account header are generated from the site rather than drawn to look like it: the
+wheel is cut out of the running page with `omitBackground`, and the banner is composed on the same
+ground, in the same type, with the same three numbers. A banner cannot advertise a wheel the page
+does not have.
 
 ## The ground
 

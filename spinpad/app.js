@@ -319,7 +319,16 @@
        The drawn glyph goes underneath the picture rather than instead of it.
        An <image> whose file is missing renders nothing at all, so the glyph
        shows through on its own — the same fallback the board has, for free. */
-    const NODE_R = 12.6, DISC_R = 8.1, PIC = 11.2, GLY = 9;
+    /* The white disc is 82% of the circle, not 64%. At 64% the five marks whose
+       own colour is their ball's colour — Nvidia and Bull on green, Meta and
+       Intel on blue, the gold bars on yellow — had so little white around them
+       that they read as a smudge in a coloured blob. What is left is still
+       unmistakably a ring of the colour, which is what the colour is for.
+
+       And the picture's box is wider than it is tall, like the board's: a
+       wordmark such as intel or GameStop is short and wide, and a square box
+       shrinks it to the height of a letter. */
+    const NODE_R = 12.6, DISC_R = 10.3, PIC_W = 15, PIC_H = 12.4, GLY = 11;
     SECTORS.forEach((sec, i) => {
       const [x, y] = nodeAt(i, 70);
       const as = assetOf(sec.color, sec.position);
@@ -332,8 +341,8 @@
         + `<g class="sp-node-glyph" transform="translate(${(x - GLY / 2).toFixed(2)} ${(y - GLY / 2).toFixed(2)}) scale(${(GLY / 24).toFixed(4)})">`
         + `<path d="${GLYPHS[as.glyph] || GLYPHS.chevron}"/></g>`
         + (as.logo
-          ? `<image class="sp-node-pic" href="${esc(as.logo)}" x="${(x - PIC / 2).toFixed(2)}"`
-            + ` y="${(y - PIC / 2).toFixed(2)}" width="${PIC}" height="${PIC}"`
+          ? `<image class="sp-node-pic" href="${esc(as.logo)}" x="${(x - PIC_W / 2).toFixed(2)}"`
+            + ` y="${(y - PIC_H / 2).toFixed(2)}" width="${PIC_W}" height="${PIC_H}"`
             + ` preserveAspectRatio="xMidYMid meet"/>`
           : '')
         + `<circle class="sp-node-ring" cx="${cx}" cy="${cy}" r="${NODE_R}"/></g>`;

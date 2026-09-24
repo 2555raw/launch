@@ -277,6 +277,47 @@ async function browserChecks() {
     named.faq.includes(named.brand), named.faq.slice(0, 80));
   ok('nothing on the page still answers to the old one',
     !(await page.content()).includes('Spinpad'));
+
+  /* The link card. A page with no og:image is a bare line of text wherever it
+     is posted, which for a launchpad is most of its traffic. og:image has to be
+     absolute — most scrapers will not resolve a relative one — and the file has
+     to actually be there, which a relative path silently hides. */
+  const card = await page.evaluate(() => {
+    const m = (p) => {
+      const el = document.querySelector(`meta[property="${p}"]`) || document.querySelector(`meta[name="${p}"]`);
+      return el ? el.content : null;
+    };
+    return {
+      title: m('og:title'), desc: m('og:description'), img: m('og:image'),
+      w: m('og:image:width'), h: m('og:image:height'),
+      twitter: m('twitter:card'), alt: m('og:image:alt'),
+    };
+  });
+  ok('the page has a link card', !!card.title && !!card.desc && !!card.img,
+    JSON.stringify(card));
+  ok('and its image is an absolute url', /^https?:\/\//.test(card.img || ''), card.img);
+  ok('and says it is the wide kind', card.twitter === 'summary_large_image', card.twitter);
+  ok('and carries alt text', (card.alt || '').length > 20, card.alt);
+  /* The absolute URL points at the deployed domain, which this cannot reach —
+     but the path it names is a file in the site, so loading it proves both
+     that the file exists and that it is the size the tags claim. A card that
+     promises 1200x630 and serves something else is cropped by whoever renders
+     it.
+
+     The leading slash goes: this suite opens the page over file://, where a
+     root-relative path is the filesystem root and finds nothing. Relative to
+     the document is right in both places, because index.html is the site
+     root. */
+  const declared = await page.evaluate((img) => new Promise((res) => {
+    const i = new Image();
+    i.onload = () => res([i.naturalWidth, i.naturalHeight]);
+    i.onerror = () => res([0, 0]);
+    i.src = new URL(img).pathname.replace(/^\//, '');
+  }), card.img);
+  ok('the file it names is really there', declared[0] > 0, declared.join('x'));
+  ok('at the size it says it is',
+    String(declared[0]) === card.w && String(declared[1]) === card.h,
+    `${declared.join('x')} vs ${card.w}x${card.h}`);
   ok('the globals carry the name too',
     named.cfg === 'object' && named.chain === 'object' && named.coin === 'object',
     JSON.stringify(named));

@@ -406,11 +406,24 @@ window.TwistrChain = (() => {
   const creationCode = (coin, creator) => {
     const build = window.TWISTR_COIN;
     if (!build || !build.bytecode) throw new Error('contract/twistr-coin.js has not been loaded');
-    /* The constructor takes the creator explicitly now. On this path it is
-       whoever is sending, which is the same thing msg.sender used to be. */
-    const args = encodeArgs(launchArgs(coin).concat([
-      { type: 'address', value: creator || state.account },
-    ]));
+
+    /* The constructor takes the creator explicitly now, and the contract
+       reverts on address(0). Encoding a missing account as a zero word would
+       therefore build a transaction that is GUARANTEED to revert — and a
+       transaction that reverts is one a wallet simulator reports as failing,
+       which is indistinguishable from the wallet simply being unable to
+       preview a creation. Two completely different problems that look the
+       same from the outside, and I spent several rounds on the wrong one.
+       So this refuses to build the calldata at all. */
+    const who = creator || state.account;
+    if (!/^0x[0-9a-fA-F]{40}$/.test(String(who || ''))) {
+      throw new Error('No account to mint to — reconnect the wallet before launching.');
+    }
+    if (/^0x0{40}$/i.test(String(who))) {
+      throw new Error('The account is the zero address, which the contract refuses.');
+    }
+
+    const args = encodeArgs(launchArgs(coin).concat([{ type: 'address', value: who }]));
     return build.bytecode + args;
   };
 
@@ -544,6 +557,34 @@ window.TwistrChain = (() => {
        either way, but some wallets treat a missing field as unknown rather
        than as zero when they build their preview. */
     : { from: state.account, data: creationCode(coin), value: '0x0' });
+
+  /* Exactly what would be sent, without sending it. Built so a person can see
+     the transaction their wallet is objecting to and say which one it is —
+     debugging this by guessing from a screenshot of the wallet has not worked. */
+  const describeLaunch = async (coin) => {
+    let tx;
+    try { tx = deployTx(coin); }
+    catch (e) { return { ok: false, reason: (e && e.message) || 'could not build it' }; }
+
+    const out = {
+      kind: usesFactory() ? 'call' : 'creation',
+      to: tx.to || null,
+      from: tx.from,
+      value: tx.value,
+      dataBytes: (String(tx.data).length - 2) / 2,
+      selector: usesFactory() ? String(tx.data).slice(0, 10) : null,
+      launcher: usesFactory() ? factoryAddress() : null,
+    };
+    try {
+      const gas = await rpc('eth_estimateGas', [tx]);
+      out.ok = true;
+      out.gas = BigInt(gas).toString();
+    } catch (e) {
+      out.ok = false;
+      out.reason = (e && (e.message || e.reason)) || 'the node refused to price it';
+    }
+    return out;
+  };
 
   const deploy = async (coin, onEstimate) => {
     const tx = deployTx(coin);
@@ -685,6 +726,7 @@ window.TwistrChain = (() => {
     SEL, TOPIC, encodeArgs, decodeString, decodeUint, decodeAddress, decodePaired,
     creationCode, factoryCode, launchData, launchArgs, deployTx, deployFactory,
     usesFactory, verifyFactory, factoryAddress, rememberFactory, forgetFactory,
+    describeLaunch,
     estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
     hasWallet, walletInfo, connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,

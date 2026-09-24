@@ -456,6 +456,50 @@ window.ethereum = {
      fine. Saying so AFTER the box is up does not help, so the pad names it on
      connect — and this checks it does, and that it does not slander wallets
      that handle creates without complaint. */
+  /* ── the diagnostic ──────────────────────────────────────────────────────
+     Five rounds went on guessing which transaction a wallet screenshot was
+     complaining about. This makes the page say it, and — the part that
+     actually settles it — whether the NODE will price it. "The node executed
+     this and it worked" and "the node refuses to execute this" look identical
+     in a wallet dialog and need completely different fixes. */
+  console.log('\nsaying what would be sent');
+
+  await page.click('#diagBtn');
+  await page.waitForTimeout(900);
+  const diag = await page.locator('#diagOut').textContent();
+  ok('it says what shape the transaction is', /creation|CALL/.test(diag), diag.slice(0, 160));
+  ok('and how big the calldata is', /bytes/.test(diag));
+  ok('and what the node said about it', /priced it at|REFUSED/.test(diag), diag.slice(0, 200));
+  ok('and separates the node\u2019s verdict from the wallet\u2019s',
+    /risk scoring|really would fail/.test(diag));
+
+  /* A launch with no account to mint to would revert on the contract's
+     zero-address guard — and a reverting transaction is reported by a wallet
+     simulator exactly like a transaction it merely cannot preview. Refusing to
+     build it keeps those two apart. */
+  const built = await page.evaluate(() => {
+    const before = window.TwistrChain.state.account;
+    window.TwistrChain.state.account = null;
+    let msg = '';
+    try { window.TwistrChain.creationCode({ name: 'x', ticker: 'X', supplyWei: 1n,
+      assetName: 'a', assetTicker: 'A', colour: 'Red', position: 'Left hand' }); }
+    catch (e) { msg = e.message; }
+    window.TwistrChain.state.account = before;
+    return msg;
+  });
+  ok('a launch with no account refuses to be built at all', /reconnect the wallet/i.test(built), built);
+
+  const zero = await page.evaluate(() => {
+    let msg = '';
+    try { window.TwistrChain.creationCode({ name: 'x', ticker: 'X', supplyWei: 1n,
+      assetName: 'a', assetTicker: 'A', colour: 'Red', position: 'Left hand' },
+      '0x0000000000000000000000000000000000000000'); }
+    catch (e) { msg = e.message; }
+    return msg;
+  });
+  ok('and so does one that would mint to the zero address',
+    /zero address/i.test(zero), zero);
+
   console.log('\nthe wallet that cannot preview a creation');
 
   const phantomWallet = wallet.replace('window.ethereum = {', 'window.ethereum = {\n  isPhantom: true,');

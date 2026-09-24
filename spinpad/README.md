@@ -818,7 +818,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-403 checks across four suites.
+409 checks across four suites.
 
 ### The chain, checked without a chain
 

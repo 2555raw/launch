@@ -1613,6 +1613,63 @@
      earlier version reverted with TRANSFER_FROM_FAILED every time.
      The amount is whatever the person types; the pad never picks a number that
      moves someone's money. */
+  /* What the pad would send, shown without sending it.
+   *
+     Five rounds of this were spent guessing from screenshots of a wallet
+     dialog, which never says which transaction it is objecting to. This says
+     it: creation or call, to what, how big, and — the part that actually
+     settles it — whether the NODE will price it. A node that prices the
+     transaction has executed it against current state, so a wallet refusing
+     it after that is the wallet's own judgement and not a broken transaction.
+     Those two look identical from outside and need completely different
+     fixes. */
+  const showDiagnosis = async () => {
+    const box = $('diagOut');
+    if (!box) return;
+    if (!flow.draft && !readForm()) {
+      box.textContent = 'Fill the form in first — there is no launch to describe yet.';
+      return;
+    }
+    if (!TwistrChain.state.account) { box.textContent = 'Connect a wallet first.'; return; }
+
+    const draft = flow.draft || readForm();
+    const sp = flow.spin;
+    const as = sp ? assetOf(sp.color, sp.position) : null;
+    const coin = {
+      name: draft.name, ticker: draft.ticker,
+      supplyWei: BigInt(draft.supply) * 10n ** 18n,
+      assetName: as ? as.name : 'Unspun',
+      assetTicker: as ? as.ticker : 'NONE',
+      colour: sp ? colOf(sp.color).label : 'Unspun',
+      position: sp ? posOf(sp.position).label : 'Unspun',
+    };
+
+    box.textContent = 'Asking the chain…';
+    const d = await TwistrChain.describeLaunch(coin);
+
+    const rows = [
+      ['Shape', d.kind === 'call' ? 'a contract CALL — a wallet can preview this'
+                                  : 'a bare contract CREATION — some wallets cannot preview this'],
+      ['To', d.to || '(nothing — that is what makes it a creation)'],
+      ['From', d.from || '(not connected)'],
+      ['Value', d.value || '0x0'],
+      ['Calldata', d.dataBytes ? d.dataBytes + ' bytes' : '(none)'],
+    ];
+    if (d.launcher) rows.push(['Launcher', d.launcher]);
+    rows.push(['Node says', d.ok
+      ? 'priced it at ' + num(Number(d.gas)) + ' gas — it executes'
+      : 'REFUSED to price it: ' + (d.reason || 'no reason given')]);
+
+    box.innerHTML = rows.map(([k, v]) =>
+      '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join('')
+      + '<p class="sp-chain-note">' + (d.ok
+        ? 'The node executed this against the live chain and it worked. If your wallet still '
+          + 'refuses it, that is the wallet\u2019s own risk scoring — not a broken transaction, and '
+          + 'not something a change here can fix.'
+        : 'The node would not execute it, so this transaction really would fail. That is mine to '
+          + 'fix — send me this text.') + '</p>';
+  };
+
   const openPool = async (amountOverride) => {
     const coin = flow.minted;
     if (!coin || !coin.address) return;
@@ -2204,6 +2261,7 @@
 
     $('launchBtn').addEventListener('click', launch);
     if ($('poolBtn')) $('poolBtn').addEventListener('click', () => openPool());
+    if ($('diagBtn')) $('diagBtn').addEventListener('click', showDiagnosis);
 
     $('discard').addEventListener('click', () => {
       if (!confirm('Discarding clears the whole draft — name, ticker, supply, description and the spin. This is starting over, not re-rolling.')) return;

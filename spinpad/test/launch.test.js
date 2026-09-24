@@ -439,6 +439,57 @@ window.ethereum = {
      That makes this a check of the decoder against a reference encoder, which
      is the only way to be sure four dynamic strings are being read at the right
      offsets — the layout is easy to get plausibly wrong. */
+  /* ── the wallet that cannot preview a creation ───────────────────────────
+     Phantom throws a red "could not simulate" box with a Confirm (unsafe)
+     button on every deployment, because a create has no recipient and no
+     transfer for a balance-change preview to describe. The transaction is
+     fine. Saying so AFTER the box is up does not help, so the pad names it on
+     connect — and this checks it does, and that it does not slander wallets
+     that handle creates without complaint. */
+  console.log('\nthe wallet that cannot preview a creation');
+
+  const phantomWallet = wallet.replace('window.ethereum = {', 'window.ethereum = {\n  isPhantom: true,');
+  ok('the fake Phantom really is flagged', phantomWallet.includes('isPhantom: true'));
+
+  const page4 = await browser.newPage({ viewport: { width: 1440, height: 950 } });
+  await page4.route('**/config.js', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: testConfig }));
+  await page4.addInitScript(phantomWallet);
+  await page4.goto('http://127.0.0.1:' + PORT + '/');
+  await page4.waitForTimeout(700);
+  await page4.check('#gateAgree'); await page4.click('#gateGo');
+  await page4.waitForTimeout(250);
+  await page4.click('#connect');
+  await page4.waitForTimeout(1200);
+
+  const warn = page4.locator('.sp-verify-warn');
+  ok('Phantom is warned about before anything is signed', (await warn.count()) === 1,
+    String(await warn.count()));
+  const wt = (await warn.count()) ? await warn.textContent() : '';
+  ok('the warning names the wallet', /Phantom/.test(wt), wt.slice(0, 120));
+  ok('and says it happens on every contract creation', /every.*contract creation/i.test(wt));
+  ok('and does not claim the transaction is broken',
+    !/will fail|is broken|do not confirm/i.test(wt), wt.slice(0, 200));
+  ok('and points at a wallet that does not do it', /MetaMask|Rabby/.test(wt));
+  await page4.close();
+
+  /* MetaMask handles creations, so saying it does not would be a lie that
+     costs the pad its credibility on the warnings that matter. */
+  const mmWallet = wallet.replace('window.ethereum = {', 'window.ethereum = {\n  isMetaMask: true,');
+  const page5 = await browser.newPage({ viewport: { width: 1440, height: 950 } });
+  await page5.route('**/config.js', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: testConfig }));
+  await page5.addInitScript(mmWallet);
+  await page5.goto('http://127.0.0.1:' + PORT + '/');
+  await page5.waitForTimeout(700);
+  await page5.check('#gateAgree'); await page5.click('#gateGo');
+  await page5.waitForTimeout(250);
+  await page5.click('#connect');
+  await page5.waitForTimeout(1200);
+  ok('a wallet that handles creations is not warned about',
+    (await page5.locator('.sp-verify-warn').count()) === 0);
+  await page5.close();
+
   console.log('\nreading the chain');
 
   const OTHER = '0x7777777777777777777777777777777777777777';

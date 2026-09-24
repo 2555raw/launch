@@ -220,6 +220,43 @@ window.TwistrChain = (() => {
   const provider = () => (typeof window !== 'undefined' ? window.ethereum : null);
   const hasWallet = () => !!provider();
 
+  /* Which wallet this is, and whether it can preview a contract creation.
+   *
+     This exists because of a specific, repeated complaint: Phantom shows a red
+     "could not simulate this request" with a "Confirm (unsafe)" button under
+     it, every single time, on a deployment that is completely fine. Explaining
+     that after the fact does not help — the person is already staring at it
+     and deciding whether to trust us.
+
+     A deployment has no `to`, no transfer and no token. A wallet simulator is
+     built to show BALANCE CHANGES, so on a create there is frequently nothing
+     for it to describe and it reports failure. That is a property of the
+     wallet, not of the transaction, and which wallet it is is knowable before
+     anything is signed.
+
+     `simulatesCreates: false` is not a claim that the wallet is broken or that
+     the transaction will fail. It means: this one is known to show a scary box
+     on a create, so say so first. */
+  const WALLETS = [
+    { flag: 'isPhantom',       name: 'Phantom',          simulatesCreates: false },
+    { flag: 'isRabby',         name: 'Rabby',            simulatesCreates: true  },
+    { flag: 'isCoinbaseWallet',name: 'Coinbase Wallet',  simulatesCreates: true  },
+    { flag: 'isBraveWallet',   name: 'Brave Wallet',     simulatesCreates: true  },
+    { flag: 'isTrust',         name: 'Trust Wallet',     simulatesCreates: true  },
+    { flag: 'isMetaMask',      name: 'MetaMask',         simulatesCreates: true  },
+  ];
+
+  const walletInfo = () => {
+    const p = provider();
+    if (!p) return { name: '', simulatesCreates: true };
+    /* Order matters: several wallets set isMetaMask as well as their own flag,
+       to get through code that only checks for MetaMask. Their own flag is
+       checked first, and MetaMask is last for exactly that reason. */
+    const hit = WALLETS.find((w) => p[w.flag]);
+    return hit ? { name: hit.name, simulatesCreates: hit.simulatesCreates }
+               : { name: '', simulatesCreates: true };
+  };
+
   const rpc = (method, params) => {
     const p = provider();
     if (!p) return Promise.reject(new Error('No wallet found in this browser.'));
@@ -402,7 +439,10 @@ window.TwistrChain = (() => {
      creations on principle and the wallet does get the last word — but the
      caller is told, and can say so before the wallet opens. */
   const deploy = async (coin, onEstimate) => {
-    const tx = { from: state.account, data: creationCode(coin) };
+    /* value is explicitly zero rather than absent. A creation sends nothing
+       either way, but some wallets treat a missing field as unknown rather
+       than as zero when they build their preview. */
+    const tx = { from: state.account, data: creationCode(coin), value: '0x0' };
     try {
       tx.gas = await estimateDeploy(coin);
       if (onEstimate) onEstimate({ ok: true, gas: BigInt(tx.gas).toString() });
@@ -531,7 +571,7 @@ window.TwistrChain = (() => {
   return {
     SEL, TOPIC, encodeArgs, decodeString, decodeUint, decodeAddress, decodePaired,
     creationCode, estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
-    hasWallet, connect, state, onChain, switchChain,
+    hasWallet, walletInfo, connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,
     approve, allowanceOf, ensureAllowance, addLiquidity, addLiquidityETH, pairFor,
     explorerTx, explorerAddress,

@@ -1888,6 +1888,7 @@
     if (!TwistrChain.state.account) { box.innerHTML = ''; return; }
 
     box.innerHTML = '<p class="sp-verify-head">Checking against ' + esc(CFG.chain.name) + '…</p>';
+    const w = TwistrChain.walletInfo();
     const [q, r] = await Promise.all([
       TwistrChain.verifyToken(CFG.quote),
       TwistrChain.verifyRouter(),
@@ -1917,7 +1918,19 @@
           + '</p>'
         : '')
       + '<p class="sp-verify-note">The sixteen cells are names written into the coin, not tokens. '
-      + 'Nothing on the board tracks a share price.</p>';
+      + 'Nothing on the board tracks a share price.</p>'
+      /* Said here, on connect, rather than after the wallet has already thrown
+         its red box up. Knowing it is coming is the difference between "this
+         site is broken" and "my wallet cannot preview this kind of
+         transaction". */
+      + (w.name && !w.simulatesCreates
+        ? '<p class="sp-verify-warn">' + esc(w.name) + ' will show a red “could not simulate” '
+          + 'warning on the deployment, with a Confirm (unsafe) button. It does that on every '
+          + 'contract creation: there is no recipient and no transfer, so it has no balance change '
+          + 'to preview. This pad prices the deployment against the chain first and tells you what '
+          + 'the node said — go by that. If you would rather not see the warning at all, MetaMask '
+          + 'or Rabby handle creations without it.</p>'
+        : '');
 
     renderLiqField();
   };

@@ -515,6 +515,36 @@ compares them as a list of shapes rather than as text, because the two are the s
 twice: `innerHTML` spells a circle `<circle ...></circle>` where the data URL spells it
 `<circle .../>`, and folding those two by hand kept tripping over its own replacements.
 
+## Pons, and what is still missing
+
+The sixteen assets are real tickers off Pons's own approved pair-token list, but the pad does not
+pair against them: it deploys on Base and a pool would open against WETH. Making the pairing real
+means launching through Pons v2 on Robinhood Chain instead — a different chain, a different AMM, and
+a factory that deploys the token for you rather than the other way round.
+
+`pons.js` is that layer, as far as it can be built from here. Every address and signature in it was
+read out of `pons-client` 0.1.1 on npm — the protocol's own published client, which is what their
+front end talks to the chain with — rather than remembered or copied off a screenshot.
+
+The hard part is `launchAndBuy`: a tuple holding four dynamic strings and a nested tuple of five
+more, then fixed fields, then a dynamic array. ABI encoding nests, and a tuple with a dynamic member
+is itself dynamic — its head is an offset, and the offsets inside its tail are relative to the start
+of that tail rather than to the start of the call. Get it wrong and you produce a perfectly
+well-formed transaction that says something else.
+
+So `test/pons.test.js` trusts none of that arithmetic. Every call is encoded twice, once by
+`pons.js` and once by viem, and compared byte for byte — including an empty exemption array (a
+length word and no tail) and a token whose every string is empty (all offsets, no data), which are
+the shapes most likely to be off by one word. The selectors are recomputed from their signatures
+the same way. viem is not a dependency of the site; it sits beside the suite and the checks skip if
+it is absent, like playwright.
+
+What is missing is addresses. The factory exposes `approvedPairTokens(address)`, so the pad can ask
+the chain whether a pair token is allowed rather than trusting a list — but that is a lookup, not an
+enumeration, and there is no route to `rpc.robinhood.com` from where this was built. Sixteen
+addresses have to come from someone who can reach it. Until then the router stays empty, the panel
+says **not ready**, and the board's note says what the sixteen cells actually are.
+
 ## What the wallet says
 
 A deployment arriving at a wallet with no gas limit and no `to` address is a hard thing for it to
@@ -609,7 +639,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-229 checks across three suites.
+252 checks across four suites.
 
 ### The chain, checked without a chain
 

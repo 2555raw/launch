@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "build:contract": "node contract/build.js",
-    "test": "node test/contract.test.js && node test/rule.test.js && node test/launch.test.js"
+    "test": "node test/contract.test.js && node test/pons.test.js && node test/rule.test.js && node test/launch.test.js"
   },
   "engines": {
     "node": ">=18"

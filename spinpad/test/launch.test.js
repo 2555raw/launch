@@ -81,7 +81,16 @@ window.ethereum = {
     switch (method) {
       case 'eth_requestAccounts': return ['${ME}'];
       case 'eth_chainId': return '0x2105';
-      case 'eth_getCode': return '0x6001';
+      case 'eth_getCode': {
+        /* The pad compares the code at a launcher address against this build's
+           runtime bytecode, byte for byte. A mock that returned anything else
+           would make every factory check fail, and one that returned the right
+           thing for ANY address would make the check meaningless — so it is
+           served for the deployed address only. */
+        const at = String(params[0] || '').toLowerCase();
+        if (window.__factoryAt && at === window.__factoryAt) return window.__factoryCode;
+        return '0x6001';
+      }
       case 'eth_call': {
         const d = (params[0].data || '');
         if (d.startsWith('0x95d89b41')) return abiString('TEST');                       // symbol()
@@ -94,7 +103,8 @@ window.ethereum = {
       }
       case 'eth_estimateGas': return '0x' + (1234567).toString(16);
       case 'eth_sendTransaction': return '0x' + 'ab'.repeat(32);
-      case 'eth_getTransactionReceipt': return { blockNumber: '0x1', status: '0x1', contractAddress: '${COIN}' };
+      case 'eth_getTransactionReceipt': return { blockNumber: '0x1', status: '0x1',
+        contractAddress: window.__nextContract || '${COIN}' };
       default: return null;
     }
   },
@@ -475,6 +485,55 @@ window.ethereum = {
      is half an answer. The fix is one transaction, from here. */
   ok('and offers the launcher contract as the permanent fix',
     (await page4.locator('#deployFactory').count()) === 1);
+
+  /* ── one click, and the warning is gone ──────────────────────────────────
+     The earlier version of this printed an address and asked for config.js to
+     be edited and the site redeployed. That meant the fix existed and stayed
+     switched off while the wallet kept showing its red box, which is not a
+     fix. Pressing the button has to be the whole of it. */
+  const FACTORY_AT = '0x8888888888888888888888888888888888888888';
+  await page4.evaluate((at) => {
+    window.__factoryAt = at;
+    window.__factoryCode = window.TWISTR_FACTORY.deployedBytecode;
+    window.__nextContract = at;
+  }, FACTORY_AT);
+
+  await page4.click('#deployFactory');
+  await page4.waitForTimeout(2500);
+
+  ok('the launcher is in use straight after deploying it',
+    await page4.evaluate(() => window.TwistrChain.usesFactory()));
+  ok('and the red-box warning is gone from the panel',
+    (await page4.locator('.sp-verify-warn').count()) === 0);
+  /* The confirmation has to survive the redraw that removes the warning, or
+     the person watches the box vanish and is told nothing about why. */
+  ok('and the person is told what happened, outside the box that just went',
+    (await page4.locator('.sp-verify-good').count()) === 1,
+    await page4.locator('.sp-verify').textContent());
+  ok('without anyone editing a file',
+    /Launcher deployed/.test(await page4.locator('.sp-verify-good').textContent()));
+
+  /* And it survives a reload, or it would be one click per visit. */
+  await page4.reload();
+  await page4.waitForTimeout(700);
+  await page4.evaluate((at) => {
+    window.__factoryAt = at;
+    window.__factoryCode = window.TWISTR_FACTORY.deployedBytecode;
+  }, FACTORY_AT);
+  await page4.click('#connect');
+  await page4.waitForTimeout(1200);
+  ok('it is still in use after a reload',
+    await page4.evaluate(() => window.TwistrChain.usesFactory()));
+
+  /* THE CHECK THAT MAKES REMEMBERING SAFE. An address that holds anything
+     other than this exact build is refused, so a stored value cannot redirect
+     a launch anywhere. */
+  await page4.evaluate(() => { window.__factoryCode = '0xdeadbeef'; });
+  const bad = await page4.evaluate(() => window.TwistrChain.verifyFactory());
+  ok('a launcher whose code is not this build is refused', bad.ok === false, JSON.stringify(bad));
+  ok('and the reason says so', /not this launcher/.test(bad.reason || ''), bad.reason);
+  ok('and launches fall back to a direct creation rather than going there',
+    (await page4.evaluate(() => window.TwistrChain.usesFactory())) === false);
   ok('which is honest about it holding nothing',
     /holds nothing|no owner|no fee/.test(wt), wt.slice(-200));
   await page4.close();
@@ -488,6 +547,16 @@ window.ethereum = {
   await page6.route('**/config.js', (route) =>
     route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: factoryConfig }));
   await page6.addInitScript(phantomWallet);
+  /* The pad checks the code at a configured launcher too — being in config.js
+     is not a reason to skip the check, it is just a different way of being
+     named. Without this the mock serves 0x6001 there and the pad correctly
+     refuses to use it, which is how this test first failed. */
+  await page6.addInitScript((at) => {
+    window.addEventListener('DOMContentLoaded', () => {
+      window.__factoryAt = at;
+      window.__factoryCode = window.TWISTR_FACTORY && window.TWISTR_FACTORY.deployedBytecode;
+    });
+  }, ROUTER);
   await page6.goto('http://127.0.0.1:' + PORT + '/');
   await page6.waitForTimeout(700);
   await page6.check('#gateAgree'); await page6.click('#gateGo');

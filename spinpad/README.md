@@ -595,11 +595,23 @@ And a launch and its pool could later be made atomic, which is impossible while 
 exist until its own transaction has been mined.
 
 `factory.address` empty means the pad falls back to a direct creation. Same coin, works fine, looks
-alarming in some wallets. The wallet panel will deploy the launcher for you when it sees a wallet
-that cannot preview creations — one transaction, which *is* a creation and *will* show the warning,
-once, and then never again. The address is **not** written back automatically: `config.js` is the
-file that decides where transactions go, and a page that can edit its own launch target at runtime
-has a launch target that is whatever the last person to click a button made it.
+alarming in some wallets. The wallet panel deploys the launcher when it sees a wallet that cannot
+preview creations — **one transaction, one click, and it is in use immediately.** That transaction
+*is* a creation and *will* show the warning, once, and then never again.
+
+The first version of this printed the address and asked for `config.js` to be edited and the site
+redeployed. That meant the fix was built and left switched off while the wallet went on showing its
+red box, which is not a fix. A launcher deployed from the panel is remembered in the browser and
+used straight away.
+
+The obvious objection to that is right, and the answer is that **the address is never trusted on its
+word.** Before the pad will launch through it, `eth_getCode` is read and compared byte for byte
+against the runtime bytecode of the factory in this build — which is why `contract/build.js` emits
+`deployedBytecode` as well as the creation code. A different contract, a different version, or
+nothing at all is discarded, and launches fall back to a direct creation. A stored value cannot
+redirect anything: it either holds this exact contract, which mints to `msg.sender` and can hold
+nothing, or it is not used. `config.js` still wins when it names one, and a configured address is
+checked exactly as hard.
 
 `TwistrCoin`'s constructor takes the creator as an argument now rather than using `msg.sender`, so a
 factory can deploy *for* a person. The trade-off, plainly: whoever sends the deployment chooses that
@@ -806,7 +818,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-395 checks across four suites.
+403 checks across four suites.
 
 ### The chain, checked without a chain
 

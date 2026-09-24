@@ -1069,6 +1069,11 @@
      against an entry that is not in here with ok: true. */
   let quoteOk = null;
   let routerOk = null;
+  /* Set when a launcher is deployed from the panel. It has to live out here
+     because deploying one redraws the panel — the warning it was announced
+     inside is exactly what goes away — and a confirmation that vanishes with
+     the thing it was confirming tells the person nothing. */
+  let factoryNews = '';
 
   /* Bring a stage's top under the nav rather than centring a control inside it.
      Centring the SPIN button put the wheel's heading behind the sticky bar —
@@ -1892,6 +1897,10 @@
     const [q, r] = await Promise.all([
       TwistrChain.verifyToken(CFG.quote),
       TwistrChain.verifyRouter(),
+      /* Checked on every connect, not once. A remembered launcher on the wrong
+         network is nothing at that address, and it has to fall back rather
+         than launch into empty space. */
+      TwistrChain.verifyFactory(),
     ]);
     quoteOk = q;
     routerOk = r;
@@ -1923,10 +1932,12 @@
          its red box up. Knowing it is coming is the difference between "this
          site is broken" and "my wallet cannot preview this kind of
          transaction". */
+      + (factoryNews ? '<p class="sp-verify-good">' + factoryNews + '</p>' : '')
       + (TwistrChain.usesFactory()
-        ? '<p class="sp-verify-note">Launching goes through the launcher contract, so it is an '
-          + 'ordinary call rather than a bare contract creation — which is what lets a wallet '
-          + 'preview it.</p>'
+        ? '<p class="sp-verify-note">Launching goes through the launcher at <b class="is-mono">'
+          + esc(TwistrChain.factoryAddress()) + '</b>, checked byte for byte against this build, so '
+          + 'it is an ordinary call rather than a bare contract creation — which is what lets a '
+          + 'wallet preview it.</p>'
         : '')
       /* The warning, and then the way out of it. Telling somebody their wallet
          is going to frighten them without offering the fix is only half an
@@ -1962,15 +1973,32 @@
         const receipt = await TwistrChain.waitForReceipt(hash);
         const addr = receipt && receipt.contractAddress;
         if (!addr) throw new Error('the receipt carried no contract address');
-        /* Deliberately not written into anything automatically. config.js is
-           the file that decides where transactions go, and a page that could
-           edit its own launch target at runtime is a page whose launch target
-           is whatever the last person to click a button made it. */
-        note.innerHTML = 'Deployed at <b class="is-mono">' + esc(addr) + '</b>. '
-          + 'Put that in <b>factory.address</b> in config.js and redeploy the site — from then on '
-          + 'every launch is a plain call and the warning is gone. '
-          + '<a href="' + esc(TwistrChain.explorerAddress(addr)) + '" target="_blank" '
-          + 'rel="noopener noreferrer">See it on the explorer</a>.';
+
+        /* Remembered and used immediately. The earlier version printed the
+           address and asked for config.js to be edited and the site
+           redeployed, which meant the fix existed and stayed switched off
+           while the wallet kept showing its red box.
+
+           Remembering is safe because it is not believed: verifyFactory reads
+           the code at that address and compares it byte for byte with this
+           build's runtime bytecode. A mismatch is discarded. */
+        TwistrChain.rememberFactory(addr);
+        const v = await TwistrChain.verifyFactory();
+        if (!v.ok) {
+          TwistrChain.forgetFactory();
+          throw new Error('deployed, but the code at ' + addr + ' did not match this build ('
+            + v.reason + '), so it will not be used');
+        }
+
+        factoryNews = '<b>Launcher deployed.</b> The simulation warning is gone — launches are an '
+          + 'ordinary call now. <a href="' + esc(TwistrChain.explorerAddress(addr)) + '" '
+          + 'target="_blank" rel="noopener noreferrer">See it on the explorer</a>. '
+          + 'It is remembered in this browser; to make it permanent for everyone, put '
+          + esc(addr) + ' in <b>factory.address</b> in config.js.';
+        /* Redraw the panel: the warning this button lives inside should no
+           longer be there, and nothing about this is real to the person until
+           it goes. The news above survives that redraw. */
+        await verifyTokens();
       } catch (e) {
         fb.disabled = false;
         note.textContent = e && e.code === 4001

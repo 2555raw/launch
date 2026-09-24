@@ -472,13 +472,73 @@ window.TwistrChain = (() => {
 
      Identical coins either way. creationCode and launchData are built from one
      shared argument list so they cannot drift apart. */
-  const usesFactory = () => {
-    const f = window.TWISTR_CONFIG.factory;
-    return !!(f && f.address && window.TWISTR_FACTORY);
+  /* WHERE THE LAUNCHER ADDRESS COMES FROM, and why it is safe to keep one
+     this page was not shipped with.
+   *
+     The first version of this required editing config.js and redeploying the
+     site, which meant the fix was built but switched off — and the wallet kept
+     showing its red box. That is not a fix.
+
+     So a launcher deployed from the wallet panel is remembered here. The
+     objection to that is real and worth stating: a page that decides at
+     runtime where its transactions go can be pointed anywhere. The answer is
+     that this address is never trusted on its word. Before the pad will launch
+     through it, eth_getCode is read and compared BYTE FOR BYTE against the
+     runtime bytecode of the factory in this build. If it does not match
+     exactly — a different contract, a different version, nothing at all — it
+     is discarded and the pad falls back to a direct creation.
+
+     So the stored value cannot redirect anything. It either holds this exact
+     contract, which mints to msg.sender and can hold nothing, or it is not
+     used. config.js still wins when it names one. */
+  const REMEMBERED = 'twistr.factory.v1';
+
+  const rememberFactory = (addr) => {
+    try { localStorage.setItem(REMEMBERED, String(addr)); } catch (e) { /* storage blocked */ }
+  };
+  const forgetFactory = () => {
+    try { localStorage.removeItem(REMEMBERED); } catch (e) { /* storage blocked */ }
+  };
+  const rememberedFactory = () => {
+    try { return localStorage.getItem(REMEMBERED) || ''; } catch (e) { return ''; }
   };
 
+  /* config.js first: a site that ships an address means it, and it should not
+     be overridden by whatever a browser happens to remember. */
+  const factoryAddress = () => {
+    const f = window.TWISTR_CONFIG.factory;
+    if (f && f.address) return f.address;
+    return rememberedFactory();
+  };
+
+  /* Set by verifyFactory, and the only thing usesFactory trusts. Until the
+     chain has confirmed the code, launches take the direct path — being
+     unverified means being unused, never being assumed good. */
+  let factoryOk = false;
+
+  const verifyFactory = async () => {
+    factoryOk = false;
+    const addr = factoryAddress();
+    const build = window.TWISTR_FACTORY;
+    if (!addr || !build || !build.deployedBytecode) return { ok: false, reason: 'none configured' };
+    if (!/^0x[0-9a-fA-F]{40}$/.test(addr)) return { ok: false, reason: 'not an address' };
+    try {
+      const code = await rpc('eth_getCode', [addr, 'latest']);
+      if (!code || code === '0x') return { ok: false, reason: 'nothing deployed there' };
+      if (String(code).toLowerCase() !== String(build.deployedBytecode).toLowerCase()) {
+        return { ok: false, reason: 'the code there is not this launcher' };
+      }
+      factoryOk = true;
+      return { ok: true, address: addr };
+    } catch (e) {
+      return { ok: false, reason: (e && e.message) || 'call failed' };
+    }
+  };
+
+  const usesFactory = () => factoryOk && !!factoryAddress() && !!window.TWISTR_FACTORY;
+
   const deployTx = (coin) => (usesFactory()
-    ? { from: state.account, to: window.TWISTR_CONFIG.factory.address,
+    ? { from: state.account, to: factoryAddress(),
         data: launchData(coin), value: '0x0' }
     /* value is explicitly zero rather than absent. A creation sends nothing
        either way, but some wallets treat a missing field as unknown rather
@@ -623,7 +683,8 @@ window.TwistrChain = (() => {
 
   return {
     SEL, TOPIC, encodeArgs, decodeString, decodeUint, decodeAddress, decodePaired,
-    creationCode, factoryCode, launchData, launchArgs, deployTx, usesFactory, deployFactory,
+    creationCode, factoryCode, launchData, launchArgs, deployTx, deployFactory,
+    usesFactory, verifyFactory, factoryAddress, rememberFactory, forgetFactory,
     estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
     hasWallet, walletInfo, connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,

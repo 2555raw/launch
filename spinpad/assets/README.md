@@ -25,6 +25,12 @@ wordmark is not using their mark, it is drawing a different one. The file that w
 white field, which is the field this folder asks for — nothing is keyed out of it, because the disc
 is white and the field simply disappears into it.
 
+`lulu.png` took two goes, and the first one is the lesson. The Lululemon mark is a red disc, so the
+first cut masked the tile to a circle and called it done — which kept the tile's black background
+*inside* the mask and shipped a black disc with a red ring on it. Masking to the shape of a mark is
+not the same as removing what is behind it. The second cut keys the navy out by colour distance like
+every other one here, and what is left is the mark and nothing else.
+
 `inda.png` and `gld.png` are drawn rather than lifted. A national flag and a gold bar are nobody's
 trademark — the Indian flag's proportions, colours and twenty-four spokes are published, and a gold
 bar is a tapered box — so the honest thing was to draw them properly instead of cutting up a

@@ -1623,6 +1623,35 @@
      it after that is the wallet's own judgement and not a broken transaction.
      Those two look identical from outside and need completely different
      fixes. */
+  /* A launch that is never sent, only priced. The draw is a stand-in: gas for a
+     deployment does not depend on which of sixteen names is in it. */
+  const autoDiagnose = async () => {
+    const box = $('diagOut');
+    if (!box || !TwistrChain.state.account) return;
+    const d = await TwistrChain.describeLaunch({
+      name: 'Diagnostic', ticker: 'DIAG', supplyWei: 1000000n * 10n ** 18n,
+      assetName: 'Tesla', assetTicker: 'TSLA', colour: 'Red', position: 'Left hand',
+    });
+
+    const shape = d.kind === 'call'
+      ? 'a contract <b>call</b> — a wallet can preview this'
+      : 'a bare contract <b>creation</b> — some wallets cannot preview this';
+
+    box.innerHTML = d.ok
+      ? '<div class="sp-diag-verdict is-ok"><b>The chain executed a test launch and it worked'
+        + '</b> — ' + num(Number(d.gas)) + ' gas. The transaction is sound. It would be sent as '
+        + shape + '.'
+        + (d.kind === 'creation'
+          ? ' <b>Deploy the launcher above to make it a call.</b>'
+          : '')
+        + ' If your wallet still shows a red warning after that, it is the wallet’s own risk '
+        + 'scoring of a new domain, not a problem with the transaction — and nothing in this page '
+        + 'can change it.</div>'
+      : '<div class="sp-diag-verdict is-bad"><b>The chain refused to execute a test launch.</b> '
+        + esc(d.reason || 'no reason given') + ' — so the transaction really would fail, and that '
+        + 'is a bug here rather than anything to do with your wallet. Send me this line.</div>';
+  };
+
   const showDiagnosis = async () => {
     const box = $('diagOut');
     if (!box) return;
@@ -1996,39 +2025,47 @@
           + 'it is an ordinary call rather than a bare contract creation — which is what lets a '
           + 'wallet preview it.</p>'
         : '')
-      /* The warning, and then the way out of it. Telling somebody their wallet
-         is going to frighten them without offering the fix is only half an
-         answer, and the fix is one transaction they can send from here. */
-      + (w.name && !w.simulatesCreates && !TwistrChain.usesFactory()
-        ? '<div class="sp-verify-warn"><p>' + esc(w.name) + ' will show a red “could not simulate” '
-          + 'warning on the deployment, with a Confirm (unsafe) button. It does that on every '
-          + 'contract creation: there is no recipient and no transfer, so it has no balance change '
-          + 'to preview. The transaction is fine — this pad prices it against the chain first and '
-          + 'tells you what the node said.</p>'
-          + '<p><b>It can be made to go away for good.</b> Deploying the launcher contract once '
-          + 'turns every launch after it into an ordinary call that ' + esc(w.name) + ' can '
-          + 'preview. It holds nothing, has no owner and no fee, and nobody — including whoever '
-          + 'deploys it — can take anything out of it.</p>'
-          + (TwistrChain.factoryDeployIsCall()
-            ? '<p><b>And this button is not a contract creation either.</b> It goes through a '
-              + 'CREATE2 deployer that is already on ' + esc(CFG.chain.name) + ', so it is an '
-              + 'ordinary call — which is the point, because an earlier version asked you to send '
-              + 'the exact kind of transaction your wallet refuses in order to stop it refusing '
-              + 'them.</p>'
-            : '<p>That one transaction <b>is</b> a creation, so the warning will appear for it — '
-              + 'once, and then never again.</p>')
-          + '<p>If this is not your site to change, MetaMask and Rabby handle creations without '
-          + 'the warning.</p>'
+      /* No warning box.
+       *
+         There were eight rounds of increasingly large yellow panels here,
+         explaining a wallet's simulation behaviour to somebody who cannot do
+         anything about it. A launchpad that greets you with a page of caveats
+         about your wallet reads as broken, whatever the caveats say.
+
+         What is left is one quiet line, only when the launcher is not up yet,
+         and a small button. The explanation lives in the README where someone
+         can go looking for it. */
+      + (!TwistrChain.usesFactory() && w.name && !w.simulatesCreates
+        ? '<p class="sp-verify-note sp-verify-act">Launches are contract creations until the '
+          + 'launcher is up, and ' + esc(w.name) + ' cannot preview those. '
           + '<button class="sp-btn sp-btn-outline sp-btn-sm" id="deployFactory" type="button">'
-          + 'Deploy the launcher (one transaction)</button>'
-          + '<p class="sp-chain-note" id="factoryNote"></p></div>'
+          + 'Set up the launcher</button>'
+          + '<span class="sp-chain-note" id="factoryNote"></span></p>'
         : '');
 
     renderLiqField();
 
+    /* Price a launch against the chain right now, without being asked.
+     *
+       Twice I put a diagnostic behind a button and asked for the output, and
+       twice the answer came back as another screenshot of the wallet. That is
+       not the person's failing — the button needs a filled-in form to describe
+       anything, and by the time you are staring at a red dialog you want an
+       answer, not homework. So it runs on connect, with a stand-in draft, and
+       the verdict sits in the panel before anything is signed.
+
+       It answers the only question that matters: does the NODE execute this?
+       If it does, the transaction is sound and a wallet refusing it is the
+       wallet's own risk scoring — which no change here can fix. If it does
+       not, the transaction really is broken, and that is mine. */
+    if (q.ok) autoDiagnose();
+
     const fb = $('deployFactory');
     if (fb) fb.addEventListener('click', async () => {
-      const note = $('factoryNote');
+      /* A no-op sink rather than a null: this handler used to write straight
+         to an element that a later redesign removed, so the click threw before
+         sending anything and the button looked simply dead. */
+      const note = $('factoryNote') || { set textContent(v) {}, set innerHTML(v) {} };
       fb.disabled = true;
       note.textContent = TwistrChain.factoryDeployIsCall()
         ? 'Confirm it in your wallet. This is an ordinary call to a CREATE2 deployer, not a '

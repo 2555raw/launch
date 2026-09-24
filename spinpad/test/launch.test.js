@@ -188,9 +188,19 @@ window.ethereum = {
      that would revert then arrives as an error this page can explain, rather
      than as "could not simulate this request" in the wallet with a Confirm
      (unsafe) button under it. */
-  const est = await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_estimateGas'));
+  /* The pad also prices a stand-in launch on connect, so this counts the
+     estimate the LAUNCH caused: the last one, sent immediately before the
+     only eth_sendTransaction. */
+  const est = await page.evaluate(() => {
+    const all = window.__sent.filter((s) => s.method === 'eth_estimateGas');
+    return all.slice(-1);
+  });
+  const estTotal = await page.evaluate(() =>
+    window.__sent.filter((s) => s.method === 'eth_estimateGas').length);
   ok('the deployment is estimated before the wallet is opened', est.length === 1,
-    est.length + ' estimates');
+    estTotal + ' estimates in total');
+  ok('and the pad had already priced one on connect, without being asked',
+    estTotal >= 2, String(estTotal));
   const sentGas = await page.evaluate(() =>
     (window.__sent.find((s) => s.method === 'eth_sendTransaction').params[0] || {}).gas);
   ok('and the send carries a gas limit above that estimate',
@@ -516,15 +526,15 @@ window.ethereum = {
   await page4.click('#connect');
   await page4.waitForTimeout(1200);
 
-  const warn = page4.locator('.sp-verify-warn');
-  ok('Phantom is warned about before anything is signed', (await warn.count()) === 1,
+  const warn = page4.locator('.sp-verify-act');
+  ok('Phantom gets one line about it before anything is signed', (await warn.count()) === 1,
     String(await warn.count()));
   const wt = (await warn.count()) ? await warn.textContent() : '';
   ok('the warning names the wallet', /Phantom/.test(wt), wt.slice(0, 120));
-  ok('and says it happens on every contract creation', /every.*contract creation/i.test(wt));
+  ok('and says why, in passing', /creation/i.test(wt), wt.slice(0, 200));
   ok('and does not claim the transaction is broken',
     !/will fail|is broken|do not confirm/i.test(wt), wt.slice(0, 200));
-  ok('and points at a wallet that does not do it', /MetaMask|Rabby/.test(wt));
+  ok('and is a line rather than an essay', wt.length < 240, wt.length + ' chars: ' + wt.slice(0, 200));
   /* Telling somebody their wallet will frighten them without offering the fix
      is half an answer. The fix is one transaction, from here. */
   ok('and offers the launcher contract as the permanent fix',
@@ -576,8 +586,8 @@ window.ethereum = {
 
   ok('the launcher is in use straight after deploying it',
     await page4.evaluate(() => window.TwistrChain.usesFactory()));
-  ok('and the red-box warning is gone from the panel',
-    (await page4.locator('.sp-verify-warn').count()) === 0);
+  ok('and the line about creations is gone from the panel',
+    (await page4.locator('.sp-verify-act').count()) === 0);
   /* The confirmation has to survive the redraw that removes the warning, or
      the person watches the box vanish and is told nothing about why. */
   ok('and the person is told what happened, outside the box that just went',
@@ -607,8 +617,6 @@ window.ethereum = {
   ok('and the reason says so', /not this launcher/.test(bad.reason || ''), bad.reason);
   ok('and launches fall back to a direct creation rather than going there',
     (await page4.evaluate(() => window.TwistrChain.usesFactory())) === false);
-  ok('which is honest about it holding nothing',
-    /holds nothing|no owner|no fee/.test(wt), wt.slice(-200));
   await page4.close();
 
   /* With a launcher configured there is nothing to warn about, because the
@@ -637,7 +645,7 @@ window.ethereum = {
   await page6.click('#connect');
   await page6.waitForTimeout(1200);
   ok('with a launcher configured, Phantom is not warned about at all',
-    (await page6.locator('.sp-verify-warn').count()) === 0);
+    (await page6.locator('.sp-verify-act').count()) === 0);
 
   /* And the launch it sends is a CALL, which is the entire point. */
   await page6.fill('#fName', 'Northwind Capital');
@@ -668,9 +676,13 @@ window.ethereum = {
      estimate of the direct creation while sending a factory call is an
      estimate of a different transaction, which is worse than none. */
   const festimates = await page6.evaluate(() => window.__sent.filter((s) => s.method === 'eth_estimateGas'));
+  const last = festimates[festimates.length - 1];
   ok('the gas estimate priced the factory call, not a creation',
-    festimates.length === 1 && String(festimates[0].params[0].to || '').toLowerCase() === ROUTER,
+    !!last && String(last.params[0].to || '').toLowerCase() === ROUTER,
     JSON.stringify(festimates.map((e) => e.params[0].to)));
+  ok('and every estimate it made was of a call, never of a creation',
+    festimates.every((e) => !!e.params[0].to),
+    JSON.stringify(festimates.map((e) => e.params[0].to || 'CREATE')));
   await page6.close();
 
   /* MetaMask handles creations, so saying it does not would be a lie that
@@ -687,7 +699,7 @@ window.ethereum = {
   await page5.click('#connect');
   await page5.waitForTimeout(1200);
   ok('a wallet that handles creations is not warned about',
-    (await page5.locator('.sp-verify-warn').count()) === 0);
+    (await page5.locator('.sp-verify-act').count()) === 0);
   await page5.close();
 
   console.log('\nreading the chain');

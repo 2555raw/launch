@@ -482,8 +482,12 @@ async function browserChecks() {
   ok('and shows no broken image, just the drawn mark',
     !missing.imageVisible && missing.glyphVisible, JSON.stringify(missing));
 
-  ok('the cells with a logo file are on white discs, the rest are not',
-    discs.withLogo + discs.coloured === 16 && discs.withLogo === 15, JSON.stringify(discs));
+  /* All sixteen now carry a file, so this counts sixteen rather than a split.
+     What keeps it from being vacuous is the injected cell above: the fallback
+     is proved against a file that is not there, not against a cell that has
+     none left. */
+  ok('all sixteen cells are on white discs, with a file behind each one',
+    discs.withLogo === 16 && discs.coloured === 0, JSON.stringify(discs));
 
   // both wheels carry all sixteen nodes, and their corner labels match the table
   const nodes = await page.evaluate(() => ({

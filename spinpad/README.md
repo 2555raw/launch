@@ -18,14 +18,16 @@ slip.
 
 They were picked off Pons's own token grid by eye, which is why the colours line up better than a
 package search could manage: GLD is a stack of gold bars, BULL is a green bull, INDA is the Indian
-flag. Fifteen have a logo file. `inda.png` and `gld.png` are drawn here rather than lifted from
+flag. All sixteen have a logo file. `inda.png` and `gld.png` are drawn here rather than lifted from
 anywhere: a national flag and a gold bar are nobody's trademark, their published specifications are
 all a drawing needs, and the photographs to hand were a waving flag and a watermarked stock image,
-both of which turn to mush at the 28px these are actually drawn at. The one still missing is
-GameStop, whose wordmark is half white — off a dark field it disappears into a white disc, and
-inverting somebody's wordmark is drawing a different mark rather than using theirs. That cell keeps
-its drawn mark and its coloured disc until a real file lands in `assets/`. That is what the fallback
-is for, and there is a check that fifteen cells are on white discs and one is not.
+both of which turn to mush at the 28px these are actually drawn at.
+
+The drawn-mark fallback stays, and the check for it changed shape rather than disappearing. With a
+file behind every cell, counting how many are coloured passes by being 0 === 0, so the check puts a
+cell pointing at a file that is not there in front of the same code and watches it stay coloured
+and show no broken image. That is the behaviour worth keeping, and it is the one that quietly rots
+the moment the last drawn mark leaves the page.
 
 **That table lives in exactly one place: `config.js`.** The wheel, the board, the asset desk, the
 result screen and the value encoded into the constructor are all read out of the same object, so they cannot drift apart. Changing a pairing is changing one line.

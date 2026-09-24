@@ -9,7 +9,7 @@ were chosen to look like that colour, so they read as a set on the wheel:
 RED                             YELLOW
 assets/tsla.png     Tesla       assets/amzn.png     Amazon
 assets/lulu.png     Lululemon   assets/snap.png     Snapchat
-assets/gme.png      GameStop *  assets/msft.png     Microsoft
+assets/gme.png      GameStop    assets/msft.png     Microsoft
 assets/net.png      Netflix     assets/gld.png      Gold
 
 GREEN                           BLUE
@@ -19,10 +19,11 @@ assets/bull.png     BULL        assets/f.png        Ford
 assets/inda.png     India       assets/coin.png     Coinbase
 ```
 
-`*` — **GME** is the one still missing, and it is not for want of trying. Its wordmark's "Game" is
-white: cut off the dark field it came from, half the word disappears into a white disc, and
-inverting somebody's wordmark is not using their mark, it is drawing a different one. That cell
-keeps its drawn mark and its coloured disc, which costs nothing, until a real file is dropped in.
+All sixteen exist now. `gme.png` took three goes and the first two are the useful part: the mark cut
+off Pons's dark tile has a white "Game" that vanishes into a white disc, and inverting somebody's
+wordmark is not using their mark, it is drawing a different one. The file that worked came on a
+white field, which is the field this folder asks for — nothing is keyed out of it, because the disc
+is white and the field simply disappears into it.
 
 `inda.png` and `gld.png` are drawn rather than lifted. A national flag and a gold bar are nobody's
 trademark — the Indian flag's proportions, colours and twenty-four spokes are published, and a gold
@@ -31,7 +32,7 @@ photograph. The photographs available were a waving flag and a watermarked stock
 28px a cell actually draws, a photo of a waving flag is three smears. `gold.js` and `flag.js` in the
 scratchpad wrote them; neither is a dependency of anything.
 
-Fifteen of the sixteen ship. `bull.png` and `lulu.png` were cut out of a screenshot of Pons's token
+All sixteen ship. `bull.png` and `lulu.png` were cut out of a screenshot of Pons's token
 grid: those tiles sit on one flat dark navy, so the background keys out by colour distance rather
 than by luminance — a luminance key eats a dark mark along with the ground, which is exactly what
 happened to the Netflix N on the first attempt. Every pixel that survives has the navy divided back

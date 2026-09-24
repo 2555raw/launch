@@ -30,6 +30,12 @@ window.TwistrChain = (() => {
     WETH:          '0xad5c4648',   // WETH()
     factory:       '0xc45a0155',   // factory()
     getPair:       '0xe6a43905',   // getPair(address,address)
+    pairedAsset:   '0x39191d7b',   // pairedAsset()
+    assetTicker:   '0xbcc49b0c',   // assetTicker()
+    colour:        '0x3dbc0610',   // colour()
+    position:      '0x09218e91',   // position()
+    drawnAt:       '0x25c5e0a1',   // drawnAt()
+    creator:       '0x02d05d3f',   // creator()
     addLiquidity:  '0xe8e33700',   // addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)
     addLiquidityETH: '0xf305d719', // addLiquidityETH(address,uint256,uint256,uint256,address,uint256)
   };
@@ -81,6 +87,133 @@ window.TwistrChain = (() => {
   };
 
   const decodeAddress = (hex) => '0x' + strip(hex).slice(24, 64);
+
+  /* ---------- reading launches back off the chain ----------
+   *
+     Every coin emits Paired once, in its constructor, so the draw is in the
+     logs as well as in storage. That one line is what makes a public board
+     possible at all: a coin is deployed straight from the launcher's own wallet
+     with a bare create, so there is no factory holding a list and nothing to
+     enumerate — but there IS a log topic, and eth_getLogs over that topic finds
+     every Twistr coin ever deployed, by anyone, without trusting this page.
+
+     Computed from the signature, not remembered. The signature is written
+     beside it so the test can recompute it. */
+  const TOPIC = {
+    paired: '0x97e37329ad6278899cda0351f48aa595e149ae986230bfbd2856809790d94390',
+    // Paired(string,string,string,string,address)
+  };
+
+  /* Four strings and an address, none indexed, so it is all in `data`.
+     decodeString above assumes the one-value layout — an offset, a length, the
+     bytes — and cannot be reused here, because four strings means four offsets
+     pointing at four tails. Each string is read at the offset its head word
+     gives, and anything malformed comes back empty rather than throwing: this
+     is a log written by a contract nobody here controls. */
+  const decodePaired = (data) => {
+    const h = strip(data);
+    const words = h.match(/.{64}/g) || [];
+    if (words.length < 5) return null;
+
+    const at = (i) => {
+      const off = Number(BigInt('0x' + words[i]));
+      if (!Number.isFinite(off) || off < 160 || off % 32 !== 0) return '';
+      const w = off / 32;
+      if (w >= words.length) return '';
+      const len = Number(BigInt('0x' + words[w]));
+      // a name is not a book; a length that says otherwise is a malformed log
+      if (!Number.isFinite(len) || len === 0 || len > 512) return '';
+      const bytes = h.slice((w + 1) * 64, (w + 1) * 64 + len * 2).match(/.{2}/g) || [];
+      if (bytes.length !== len) return '';
+      try { return new TextDecoder().decode(new Uint8Array(bytes.map((b) => parseInt(b, 16)))); }
+      catch (e) { return ''; }
+    };
+
+    return {
+      asset: at(0),
+      assetTicker: at(1),
+      colour: at(2),
+      position: at(3),
+      creator: '0x' + words[4].slice(24),
+    };
+  };
+
+  const blockNumber = async () => Number(BigInt(await rpc('eth_blockNumber', [])));
+
+  /* One window of blocks. No address filter — the point is to find coins this
+     browser has never seen — so the topic is the whole filter and the range has
+     to stay small enough that the node will answer it. */
+  const pairedLogs = async (fromBlock, toBlock) => {
+    const logs = await rpc('eth_getLogs', [{
+      fromBlock: '0x' + Number(fromBlock).toString(16),
+      toBlock: '0x' + Number(toBlock).toString(16),
+      topics: [TOPIC.paired],
+    }]);
+    return (Array.isArray(logs) ? logs : [])
+      .map((l) => {
+        const d = decodePaired(l.data);
+        if (!d) return null;
+        return Object.assign({
+          address: String(l.address || '').toLowerCase(),
+          block: Number(BigInt(l.blockNumber || '0x0')),
+          txHash: l.transactionHash || '',
+        }, d);
+      })
+      .filter(Boolean);
+  };
+
+  /* When a block was mined, in milliseconds, so a coin found in a log can say
+     how long ago it was launched like every other row. Cached: a scan usually
+     finds several coins in the same block and the answer cannot change. */
+  const blockTimes = new Map();
+  const blockTime = async (n) => {
+    if (blockTimes.has(n)) return blockTimes.get(n);
+    try {
+      const b = await rpc('eth_getBlockByNumber', ['0x' + Number(n).toString(16), false]);
+      const ms = b && b.timestamp ? Number(BigInt(b.timestamp)) * 1000 : 0;
+      blockTimes.set(n, ms);
+      return ms;
+    } catch (e) {
+      blockTimes.set(n, 0);
+      return 0;
+    }
+  };
+
+  /* The draw, read straight off the contract rather than out of a log.
+     This is the payoff of writing the pairing into the token at construction:
+     anyone can point at an address and get the same answer, without this page
+     and without having been here when it was launched. A contract that is not
+     a Twistr coin simply has no such getters and comes back empty. */
+  const readDraw = async (address) => {
+    const [a, t, c, p] = await Promise.all([
+      call(address, SEL.pairedAsset).catch(() => '0x'),
+      call(address, SEL.assetTicker).catch(() => '0x'),
+      call(address, SEL.colour).catch(() => '0x'),
+      call(address, SEL.position).catch(() => '0x'),
+    ]);
+    return {
+      asset: decodeString(a),
+      assetTicker: decodeString(t),
+      colour: decodeString(c),
+      position: decodeString(p),
+      creator: '',
+    };
+  };
+
+  /* What the coin itself says, which is the authority. The log is how it was
+     found; these three calls are what gets shown. */
+  const readCoin = async (address) => {
+    const [nm, sym, sup] = await Promise.all([
+      call(address, SEL.name),
+      call(address, SEL.symbol),
+      call(address, SEL.totalSupply),
+    ]);
+    return {
+      name: decodeString(nm),
+      ticker: decodeString(sym),
+      supply: decodeUint(sup).toString(),
+    };
+  };
 
   /* ---------- the wallet ---------- */
 
@@ -379,7 +512,8 @@ window.TwistrChain = (() => {
   const explorerAddress = (a) => window.TWISTR_CONFIG.chain.explorer + '/address/' + a;
 
   return {
-    SEL, encodeArgs, decodeString, decodeUint, decodeAddress, creationCode, estimateDeploy,
+    SEL, TOPIC, encodeArgs, decodeString, decodeUint, decodeAddress, decodePaired,
+    creationCode, estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
     hasWallet, connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,
     approve, allowanceOf, ensureAllowance, addLiquidity, addLiquidityETH, pairFor,

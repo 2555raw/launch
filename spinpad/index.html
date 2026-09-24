@@ -415,8 +415,29 @@
         </div>
       </div>
 
+      <div class="sp-chainbar">
+        <p class="sp-chainbar-copy">
+          <b>This board is not only this browser.</b> Every Twistr coin announces its draw in the
+          chain's logs when it is born, so launches made by other people, on other machines, can be
+          read straight off <span class="sp-chain-name">the chain</span> — no account, no server,
+          nothing to take on trust. A node will not answer one query for all of history, so the scan
+          walks backwards and says how far it got.
+        </p>
+        <div class="sp-chainbar-row">
+          <button class="sp-btn sp-btn-outline sp-btn-sm" id="scanBtn" type="button">Read launches from the chain</button>
+          <button class="sp-btn sp-btn-ghost sp-btn-sm" id="scanMore" type="button" hidden>Look further back</button>
+          <span class="sp-chain-note" id="scanNote"></span>
+        </div>
+        <div class="sp-chainbar-row sp-lookup">
+          <label class="sp-sr" for="lookup">A coin's contract address</label>
+          <input id="lookup" type="text" spellcheck="false" autocomplete="off" placeholder="0x… paste any Twistr coin's address">
+          <button class="sp-btn sp-btn-outline sp-btn-sm" id="lookupBtn" type="button">Look it up</button>
+        </div>
+        <p class="sp-chain-note" id="lookupNote"></p>
+      </div>
+
       <div class="sp-launches" id="grid"></div>
-      <p class="sp-empty" id="empty" hidden>No launches yet. The first one will show up here with its transaction.</p>
+      <p class="sp-empty" id="empty" hidden>No launches on the board yet. Launch one, or read them off the chain above.</p>
 
       <div class="sp-proof-stats">
         <div class="sp-kpis" id="kpis"></div>

@@ -47,6 +47,31 @@ const build = sandbox.window.TWISTR_COIN;
       const want = '0x' + Buffer.from(keccak256(Buffer.from(sig, 'utf8'))).toString('hex').slice(0, 8);
       ok('selector ' + key + ' matches ' + sig, hex === want, 'file says ' + hex + ', keccak says ' + want);
     });
+
+    /* An event topic is a whole 32-byte keccak, not a 4-byte selector, so the
+       sweep above does not reach it. It gets its own check because it is the
+       entire basis of the public board: a wrong topic matches no log, finds
+       nothing, and does so silently and forever — there is no error to notice.
+       And it is checked against the SOLIDITY, not just against itself, so the
+       two cannot drift if the event is ever changed. */
+    const topics = [...src.matchAll(/^\s*(\w+):\s*'(0x[0-9a-f]{64})',\n\s*\/\/\s*(.+?)\s*$/gm)];
+    ok('the event topic has its signature written down', topics.length === 1, topics.length + ' found');
+    topics.forEach(([, key, hex, sig]) => {
+      const want = '0x' + Buffer.from(keccak256(Buffer.from(sig, 'utf8'))).toString('hex');
+      ok('topic ' + key + ' matches ' + sig, hex === want, 'file says ' + hex + ', keccak says ' + want);
+
+      // the same signature, as the contract actually declares it
+      const sol = fs.readFileSync(path.join(root, 'contract', 'TwistrCoin.sol'), 'utf8');
+      const m = sol.match(/event\s+(\w+)\s*\(([^)]*)\)\s*;/g) || [];
+      const declared = m.map((e) => {
+        const name = e.match(/event\s+(\w+)/)[1];
+        const args = e.slice(e.indexOf('(') + 1, e.lastIndexOf(')'))
+          .split(',').map((a) => a.trim().split(/\s+/)[0]).filter(Boolean);
+        return name + '(' + args.join(',') + ')';
+      });
+      ok('and the contract really declares that event', declared.includes(sig),
+        declared.join(' / '));
+    });
   }
 
   console.log('\ndeploying the real creation code');

@@ -462,6 +462,45 @@ round for a disclaimer.
 - **Proof shows real launches only.** There are no seeded coins, no invented prices, caps, curves or
   holder counts anywhere on the page. Before the first launch the list is empty and says so.
 
+### The board is not only this browser
+
+`localStorage` is what *this* browser remembers, which is not the same thing as what has been
+launched. A coin is deployed straight from the launcher's own wallet with a bare `create`, so there
+is no factory holding a register and nothing to ask for a list — but every coin emits
+
+```solidity
+event Paired(string asset, string assetTicker, string colour, string position, address creator);
+```
+
+once, in its constructor. One `eth_getLogs` on that topic finds coins launched by **other people, in
+other browsers, on other machines**, with no account, no server and nothing here to take on trust.
+Press *Read launches from Base* and the board fills from the chain.
+
+The topic is `0x97e37329…`, and `test/contract.test.js` recomputes it from the signature *and*
+checks the signature against the event `TwistrCoin.sol` actually declares — because a wrong topic
+matches no log, finds nothing, and does so silently forever. There is no error to notice.
+
+Two real limits, both said on the page rather than papered over:
+
+- **A node will not answer one query for all of history.** The scan walks backwards 800 blocks at a
+  time, six windows a press, and reports how far it got in hours rather than block numbers. *Look
+  further back* continues from where it stopped.
+- **Some wallets will not forward `eth_getLogs` at all.** When that happens the page says so and
+  points at the lookup box: paste any coin's address and the draw is read straight off the contract
+  with `pairedAsset()`, `colour()` and `position()`. That is the whole payoff of writing the pairing
+  into the token at construction — anyone can point at an address and get the same answer, without
+  this page and without having been here when it was launched.
+
+Nothing read off the chain is written to storage. Someone else's launch is not this browser's record.
+
+**The contract is the authority, not this page's table.** For a coin launched here the two always
+agree, which is exactly why this looked skippable — and the test of a coin read off the chain proved
+it was not. The board was showing the asset *this config* maps red-plus-left-hand to, while the
+contract said something else, with nothing on screen to say so. A coin from a different build of the
+pairing table, or from a fork, would have been quietly relabelled with a name it does not carry,
+which is the single thing this whole design exists to prevent. The name shown is now the contract's,
+and the row says `as written in the contract` when the two disagree.
+
 ## Running it
 
 Open `index.html` directly, or serve the folder:
@@ -659,7 +698,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-274 checks across four suites.
+300 checks across four suites.
 
 ### The chain, checked without a chain
 

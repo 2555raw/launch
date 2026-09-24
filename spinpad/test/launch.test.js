@@ -389,6 +389,177 @@ window.ethereum = {
 
   ok('no console errors on the ether path', errors2.length === 0, errors2.slice(0, 2).join(' / '));
 
+  /* ── the board reads launches nobody here made ───────────────────────────
+     The board used to be whatever localStorage remembered, which is not the
+     same thing as what has been launched. Every coin emits Paired in its
+     constructor, so this walks the fake node's logs and asserts a coin THIS
+     BROWSER NEVER LAUNCHED lands on the board with the right draw.
+
+     The log data below is not hand-rolled: it is the exact output of viem's
+     encodeAbiParameters for ('string,string,string,string,address'), pasted in.
+     That makes this a check of the decoder against a reference encoder, which
+     is the only way to be sure four dynamic strings are being read at the right
+     offsets — the layout is easy to get plausibly wrong. */
+  console.log('\nreading the chain');
+
+  const OTHER = '0x7777777777777777777777777777777777777777';
+  const PAIRED_TOPIC = '0x97e37329ad6278899cda0351f48aa595e149ae986230bfbd2856809790d94390';
+  const LOG_DATA = '0x'
+    + '00000000000000000000000000000000000000000000000000000000000000a0'
+    + '00000000000000000000000000000000000000000000000000000000000000e0'
+    + '0000000000000000000000000000000000000000000000000000000000000120'
+    + '0000000000000000000000000000000000000000000000000000000000000160'
+    + '00000000000000000000000000000000000000000000000000000000000000c0'
+    + '000000000000000000000000000000000000000000000000000000000000000b'
+    + '54657374636f72702d3037000000000000000000000000000000000000000000'
+    + '0000000000000000000000000000000000000000000000000000000000000004'
+    + '5443303700000000000000000000000000000000000000000000000000000000'
+    + '0000000000000000000000000000000000000000000000000000000000000003'
+    + '5265640000000000000000000000000000000000000000000000000000000000'
+    + '0000000000000000000000000000000000000000000000000000000000000009'
+    + '4c6566742068616e640000000000000000000000000000000000000000000000';
+
+  const nodeWallet = wallet.replace(
+    "      case 'eth_estimateGas':",
+    [
+      "      case 'eth_blockNumber': return '0x2710';",   // 10000
+      "      case 'eth_getBlockByNumber': return { timestamp: '0x66000000' };",
+      "      case 'eth_getLogs': {",
+      "        const from = parseInt(params[0].fromBlock, 16);",
+      "        const to = parseInt(params[0].toBlock, 16);",
+      "        if (params[0].topics[0] !== '" + PAIRED_TOPIC + "') return [];",
+      "        if (9900 < from || 9900 > to) return [];",
+      "        return [{ address: '" + OTHER + "', blockNumber: '0x26ac',",
+      "                  transactionHash: '0x' + 'cd'.repeat(32), data: '" + LOG_DATA + "' }];",
+      "      }",
+      "      case 'eth_estimateGas':",
+    ].join('\n'));
+
+  /* Answer the coin's own getters for that address, so the row is built from
+     what the contract says rather than from the log alone. */
+  const nodeWallet2 = nodeWallet.replace(
+    "        if (d.startsWith('0x95d89b41')) return abiString('TEST');",
+    [
+      "        if (String(params[0].to).toLowerCase() === '" + OTHER + "') {",
+      "          if (d.startsWith('0x06fdde03')) return abiString('Somebody Else Coin');",
+      "          if (d.startsWith('0x95d89b41')) return abiString('SELSE');",
+      "          if (d.startsWith('0x18160ddd')) return '0x' + (7n * 10n ** 23n).toString(16).padStart(64,'0');",
+      "          if (d.startsWith('0x39191d7b')) return abiString('Testcorp-07');",
+      "          if (d.startsWith('0xbcc49b0c')) return abiString('TC07');",
+      "          if (d.startsWith('0x3dbc0610')) return abiString('Red');",
+      "          if (d.startsWith('0x09218e91')) return abiString('Left hand');",
+      "        }",
+      "        if (d.startsWith('0x95d89b41')) return abiString('TEST');",
+    ].join('\n'));
+
+  ok('the fake node was actually rewired', nodeWallet2 !== wallet
+    && nodeWallet2.includes('eth_getLogs') && nodeWallet2.includes('SELSE'));
+
+  const page3 = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
+  const errors3 = [];
+  page3.on('pageerror', (e) => errors3.push(e.message));
+  page3.on('console', (m) => { if (m.type() === 'error' && !/ERR_CERT|net::/.test(m.text())) errors3.push(m.text()); });
+  await page3.route('**/config.js', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: testConfig }));
+  await page3.addInitScript(nodeWallet2);
+
+  await page3.goto('http://127.0.0.1:' + PORT + '/');
+  await page3.waitForTimeout(700);
+  await page3.check('#gateAgree');
+  await page3.click('#gateGo');
+  await page3.waitForTimeout(250);
+
+  ok('the board starts empty in a browser that has launched nothing',
+    (await page3.locator('.sp-launch').count()) === 0);
+
+  await page3.click('#connect');
+  await page3.waitForTimeout(900);
+  await page3.click('#scanBtn');
+  await page3.waitForTimeout(2500);
+
+  ok('a coin this browser never launched is on the board',
+    (await page3.locator('.sp-launch').count()) === 1,
+    await page3.locator('#scanNote').textContent());
+
+  /* Everything below reads that row. If the scan found nothing the checks above
+     already said so, and asking for the text of a row that is not there just
+     hangs until Playwright's timeout — one loud crash instead of a list of what
+     actually failed. */
+  if ((await page3.locator('.sp-launch').count()) !== 1) {
+    ok('the row checks could run', false, 'no row on the board, so the rest were skipped');
+  } else {
+  const row = page3.locator('.sp-launch').first();
+  ok('it shows the name the contract gave, not the one in the log',
+    /Somebody Else Coin/.test(await row.textContent()));
+  ok('and its ticker', /SELSE/.test(await row.textContent()));
+
+  /* The four strings out of the log data, at four different offsets. If the
+     decoder read them at the wrong tails this is where it shows. */
+  ok('the pairing decoded out of the log is right',
+    /Testcorp-07/.test(await row.textContent()), await row.textContent());
+  /* And it says WHERE that name came from. This test config maps red-plus-left-
+     hand to Testcorp-01, while the contract says Testcorp-07 — exactly the
+     disagreement a coin from a different build of the pairing table would
+     cause. An earlier version of the board silently showed Testcorp-01, the
+     name this page's table would have given it, with nothing on screen to say
+     the contract disagreed. It says so now. */
+  ok('and it says the name is the contract’s, not this table’s',
+    /as written in the contract/.test(await row.textContent()),
+    (await row.textContent()).replace(/\s+/g, ' '));
+
+  ok('the row carries the colour decoded out of the log',
+    (await row.getAttribute('data-color')) === 'red');
+
+  /* The colour filter is built from the decoded colour, so it is a second,
+     independent read of the same field. */
+  await page3.click('.sp-chip[data-filter="blue"]');
+  await page3.waitForTimeout(200);
+  ok('filtering to another colour drops it',
+    (await page3.locator('.sp-launch').count()) === 0);
+  await page3.click('.sp-chip[data-filter="red"]');
+  await page3.waitForTimeout(200);
+  ok('and filtering to red brings it back',
+    (await page3.locator('.sp-launch').count()) === 1);
+  await page3.click('.sp-chip[data-filter="all"]');
+  await page3.waitForTimeout(200);
+
+  /* The position, read straight off the contract by the lookup rather than out
+     of the log, which also exercises readDraw. */
+  await page3.fill('#lookup', OTHER);
+  await page3.click('#lookupBtn');
+  await page3.waitForTimeout(900);
+  ok('looking the same coin up reads the draw off the contract',
+    /Testcorp-07, from red on the left hand/i.test(await page3.locator('#lookupNote').textContent()),
+    await page3.locator('#lookupNote').textContent());
+  ok('and looking it up does not add a second row',
+    (await page3.locator('.sp-launch').count()) === 1);
+  }
+
+  ok('the count says where the rows came from',
+    /read from Base/.test(await page3.locator('#count').textContent()),
+    await page3.locator('#count').textContent());
+  ok('and the scan says how far back it looked',
+    /Looked back .* and found 1 coin/.test(await page3.locator('#scanNote').textContent()),
+    await page3.locator('#scanNote').textContent());
+
+  /* Scanning twice must not double the board. The scan walks a window at a
+     time and windows overlap on a re-press; keying by address is what stops
+     the same coin arriving twice. */
+  await page3.click('#scanBtn');
+  await page3.waitForTimeout(2000);
+  ok('scanning again does not duplicate it',
+    (await page3.locator('.sp-launch').count()) === 1);
+
+  /* The lookup is the way in when a wallet will not forward a log query, and
+     the way to check one specific coin. */
+  await page3.fill('#lookup', 'not-an-address');
+  await page3.click('#lookupBtn');
+  await page3.waitForTimeout(300);
+  ok('the lookup refuses something that is not an address',
+    /not a contract address/.test(await page3.locator('#lookupNote').textContent()));
+
+  ok('no console errors while reading the chain', errors3.length === 0, errors3.slice(0, 2).join(' / '));
+
   /* ── the shipped config, not a stub ──────────────────────────────────────
      Every check above runs against a test config. These read the real file,
      because the ether path is only taken when the SHIPPED quote and the SHIPPED
@@ -414,6 +585,7 @@ window.ethereum = {
     new Set([rAddr, rFactory, qAddr]).size === 3);
 
   await page2.close();
+  await page3.close();
   await browser.close();
   server.kill();
 

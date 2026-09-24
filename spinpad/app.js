@@ -162,6 +162,7 @@
     posOf(position).label.toUpperCase() + ' · ' + colOf(color).label.toUpperCase();
 
   const ago = (ts) => {
+    if (!ts) return 'unknown';          // read off the chain, timestamp unavailable
     const s = Math.max(0, (Date.now() - ts) / 1000);
     if (s < 60) return Math.floor(s) + 's ago';
     if (s < 3600) return Math.floor(s / 60) + 'm ago';
@@ -643,26 +644,30 @@
 
   /* ---------- metrics ---------- */
 
-  const tally = () => {
+  /* Over everything the board knows — this browser's launches and anything
+     read back off the chain — because a bigger sample is a better one, and a
+     distribution drawn from five local launches says nothing at all. */
+  const tally = (list) => {
     const counts = {};
     ORDER.forEach((k) => { counts[k] = 0; });
-    coins.forEach((c) => { if (counts[c.color] !== undefined) counts[c.color]++; });
+    list.forEach((c) => { if (counts[c.color] !== undefined) counts[c.color]++; });
     return counts;
   };
 
   const renderKpis = () => {
     const box = $('kpis');
     if (!box) return;
-    const counts = tally();
-    const total = coins.length;
+    const all = merged();
+    const counts = tally(all);
+    const total = all.length;
     const shares = ORDER.map((k) => ({ k, pct: total ? counts[k] / total * 100 : 0 }));
     const most = shares.slice().sort((a, b) => b.pct - a.pct)[0];
     const wide = shares.slice().sort((a, b) => Math.abs(b.pct - EXPECTED) - Math.abs(a.pct - EXPECTED))[0];
     const gap = wide.pct - EXPECTED;
 
     const tiles = [
-      ['Launches recorded', num(total), total === 1 ? 'coin' : 'coins'],
-      ['Pools opened', num(coins.filter((c) => c.poolTx).length), 'on ' + CFG.chain.name],
+      ['Launches', num(total), total === 1 ? 'coin' : 'coins'],
+      ['Pools opened', num(all.filter((c) => c.poolTx || c.pair).length), 'on ' + CFG.chain.name],
       ['Most drawn colour', total ? colOf(most.k).label : 'None yet', total ? most.pct.toFixed(1) + '%' : ''],
       ['Widest deviation', total ? (gap >= 0 ? '+' : '') + gap.toFixed(1) : 'None yet', total ? 'pts · ' + colOf(wide.k).label : ''],
     ];
@@ -677,8 +682,9 @@
   const renderMeter = () => {
     const box = $('meter');
     if (!box) return;
-    const counts = tally();
-    const total = coins.length;
+    const all = merged();
+    const counts = tally(all);
+    const total = all.length;
     const max = Math.max(EXPECTED + 6, ...ORDER.map((k) => (total ? counts[k] / total * 100 : 0)));
 
     box.innerHTML = ORDER.map((k, i) => {
@@ -700,7 +706,7 @@
     const note = $('meterNote');
     if (note) {
       note.textContent = total
-        ? `Based on ${total} launch${total === 1 ? '' : 'es'} recorded in this browser. A short record wanders from ${EXPECTED}% freely; the wheel itself is flat by construction.`
+        ? `Based on ${total} launch${total === 1 ? '' : 'es'} the board can see. A short record wanders from ${EXPECTED}% freely; the wheel itself is flat by construction.`
         : `No launches recorded yet. Each colour holds four of the wheel’s ${SECTORS.length} nodes.`;
     }
   };
@@ -713,15 +719,98 @@
 
   const view = { filter: 'all', sort: 'new', q: '' };
 
+  /* ---------- launches read back off the chain ----------
+   *
+     The list above is what THIS browser remembers, which is not the same thing
+     as what has been launched. A coin is deployed straight from the launcher's
+     own wallet, so there is no factory holding a register and nothing to ask
+     for a list — but every coin emits Paired in its constructor, and that is
+     enough: one eth_getLogs on that topic finds coins launched by other people,
+     in other browsers, on other machines, without this page being trusted for
+     any of it.
+
+     `chainCoins` is keyed by address and merged into the board. Nothing is
+     written to storage from it: a launch someone else made is not this
+     browser's record, and the local list stays exactly what it was.
+
+     What the scan CANNOT do is see everything at once. Base makes a block every
+     couple of seconds and a node will refuse a log query over too wide a range,
+     so the scan walks backwards a window at a time and says plainly how far it
+     has got. That is a real limit and the copy on the page says so rather than
+     implying the board is complete. */
+  const chainCoins = new Map();          // address → record
+  const scan = { head: 0, reached: 0, running: false, blocked: '' };
+
+  const WINDOW = 800;                    // blocks per eth_getLogs, conservative
+  const PASSES = 6;                      // windows per press
+
+  const byLabel = (list, label) => {
+    const want = String(label || '').trim().toLowerCase();
+    return list.find((x) => String(x.label).toLowerCase() === want) || null;
+  };
+
+  /* The contract stores the colour and position as their LABELS, so they come
+     back as "Red" and "Left hand" rather than ids. A coin whose labels this
+     config does not know — an older build, or a fork — is still a real coin and
+     still shown; it just cannot be filtered by colour or given a mark. */
+  const fromLog = (log, read, ts) => {
+    const col = byLabel(CFG.colours, log.colour);
+    const pos = byLabel(CFG.positions, log.position);
+    return {
+      id: log.txHash || log.address,
+      address: log.address,
+      name: read.name || log.asset || 'Unnamed',
+      ticker: read.ticker || '',
+      supply: read.supply || '0',
+      desc: '',
+      image: '',
+      color: col ? col.id : '',
+      position: pos ? pos.id : '',
+      assetName: log.asset,
+      creator: log.creator,
+      block: log.block,
+      ts: ts || 0,
+      txHash: log.txHash,
+      fromChain: true,
+    };
+  };
+
+  /* Local first for the fields that only exist here — the picture and the
+     description are typed into this browser and are not on the chain — then
+     everything the chain says on top, because the chain is the authority for
+     anything it holds. */
+  const merged = () => {
+    const out = new Map();
+    coins.forEach((c) => {
+      const k = String(c.address || c.id || '').toLowerCase();
+      if (k) out.set(k, c); else out.set('local:' + c.id, c);
+    });
+    chainCoins.forEach((c, k) => {
+      const mine = out.get(k);
+      out.set(k, mine
+        ? Object.assign({}, c, {
+            desc: mine.desc || '',
+            image: mine.image || '',
+            poolTx: mine.poolTx || c.poolTx,
+            pair: c.pair || mine.pair,
+            ts: mine.ts || c.ts,
+          })
+        : c);
+    });
+    return [...out.values()];
+  };
+
   const visible = () => {
-    let list = coins.slice();
+    let list = merged();
     if (view.filter !== 'all') list = list.filter((c) => c.color === view.filter);
     if (view.q) {
       const q = view.q.toLowerCase();
       list = list.filter((c) => (c.name + ' ' + c.ticker).toLowerCase().includes(q));
     }
     const by = {
-      new: (a, b) => b.ts - a.ts,
+      /* A coin found in a log and a coin launched here are ordered together:
+         the timestamp when there is one, the block when there is not. */
+      new: (a, b) => (b.ts || 0) - (a.ts || 0) || (b.block || 0) - (a.block || 0),
       supply: (a, b) => Number(BigInt(b.supply) - BigInt(a.supply)),
       name: (a, b) => a.name.localeCompare(b.name),
     };
@@ -745,8 +834,33 @@
     return '<span>no pool</span>';
   };
 
+  /* THE CONTRACT IS THE AUTHORITY, not this page's table.
+   *
+     For a coin launched here the two always agree, so this looked like it
+     could be skipped — and a test of a coin read off the chain proved it
+     could not. The board showed the asset THIS config maps red-plus-left-hand
+     to, while the contract said something else entirely, and there was nothing
+     on screen to say so. A coin from a different build of the pairing table, or
+     from a fork, would have been quietly relabelled with a name it does not
+     carry. That is the one thing this whole design exists to prevent.
+
+     So: if the coin itself names an asset, that is the name shown. The table is
+     only consulted for the mark and the ticker, and only when it agrees. */
+  const assetShown = (c) => {
+    const table = assetOf(c.color, c.position);
+    if (!c.assetName) return table;
+    if (table && table.name === c.assetName) return table;
+    return {
+      name: c.assetName,
+      ticker: c.assetTicker || '',
+      glyph: 'chevron',
+      logo: '',
+      offTable: true,
+    };
+  };
+
   const launchRow = (c) => {
-    const as = assetOf(c.color, c.position);
+    const as = assetShown(c);
     const size = 24;
     const pic = safeImage(c.image);
     const face = pic
@@ -757,7 +871,9 @@
       <div class="sp-launch" data-color="${c.color}">
         <span class="sp-launch-mark">${face}</span>
         <span class="sp-launch-name"><b>${esc(c.name)}</b><br><em>${esc(c.ticker)}</em></span>
-        <span class="sp-launch-pair"><b>${esc(as.name)}</b><em>${esc(comboOf(c.color, c.position))}</em></span>
+        <span class="sp-launch-pair"><b>${esc(as.name)}</b><em>${as.offTable
+          ? 'as written in the contract'
+          : esc(comboOf(c.color, c.position))}</em></span>
         <span class="sp-launch-pool">${poolCell(c)}</span>
         <span class="sp-launch-time">${ago(c.ts)}</span>
         <span class="sp-launch-tx">${c.txHash
@@ -775,7 +891,7 @@
     if (band) band.hidden = last.length === 0;
     if (!last.length) { track.innerHTML = ''; return; }
     const one = last.map((c) => {
-      const as = assetOf(c.color, c.position);
+      const as = assetShown(c);
       return `<span class="sp-tick" data-color="${c.color}"><i class="sp-dot"></i><b>${esc(c.ticker)}</b> landed on ${esc(comboOf(c.color, c.position).toLowerCase())} → ${esc(as.name)} · ${ago(c.ts)}</span>`;
     }).join('');
     track.innerHTML = one + one;   // two copies: the marquee loops at -50%
@@ -791,10 +907,155 @@
     const empty = $('empty');
     if (empty) empty.hidden = list.length > 0;
     const count = $('count');
-    if (count) count.textContent = `Showing ${list.length} of ${coins.length} launched from this browser`;
+    if (count) {
+      const all = merged().length;
+      const off = chainCoins.size;
+      count.textContent = `Showing ${list.length} of ${all}`
+        + (off ? ` — ${off} read from ${CFG.chain.name}` : ' launched from this browser');
+    }
+    renderScan();
     renderTicker();
     renderKpis();
     renderMeter();
+  };
+
+  /* ---------- the scan ----------
+   *
+     How far back the board has looked, said in hours rather than blocks,
+     because "reached block 24,113,900" tells nobody anything. Base makes a
+     block about every two seconds. */
+  const BLOCK_SECONDS = 2;
+
+  const spanWords = (blocks) => {
+    const hours = (blocks * BLOCK_SECONDS) / 3600;
+    if (hours < 1.5) return Math.max(1, Math.round(hours * 60)) + ' minutes';
+    if (hours < 48) return Math.round(hours) + ' hours';
+    return Math.round(hours / 24) + ' days';
+  };
+
+  const renderScan = () => {
+    const note = $('scanNote');
+    const btn = $('scanBtn');
+    const more = $('scanMore');
+    if (!note) return;
+
+    if (scan.blocked) {
+      note.textContent = scan.blocked;
+    } else if (scan.running) {
+      note.textContent = 'Reading the logs…';
+    } else if (scan.head) {
+      const covered = scan.head - scan.reached;
+      note.textContent = `Looked back ${spanWords(covered)} and found `
+        + `${chainCoins.size} coin${chainCoins.size === 1 ? '' : 's'}. `
+        + 'Older ones are further down the chain.';
+    } else {
+      note.textContent = '';
+    }
+
+    if (btn) {
+      btn.disabled = scan.running;
+      btn.textContent = scan.running ? 'Reading…' : (scan.head ? 'Check again' : 'Read launches from ' + CFG.chain.name);
+    }
+    if (more) {
+      more.hidden = !scan.head || !!scan.blocked;
+      more.disabled = scan.running;
+    }
+  };
+
+  /* Walk backwards a window at a time. Not one wide query: a node will refuse
+     a log range that is too big, and the refusal looks like an outage rather
+     than a limit. Small windows, a bounded number per press, and whatever is
+     found is shown as it is found. */
+  const runScan = async (older) => {
+    if (scan.running) return;
+    if (!TwistrChain.hasWallet()) {
+      scan.blocked = 'No wallet in this browser, and reading the chain needs one to talk to a node.';
+      renderScan();
+      return;
+    }
+    scan.running = true;
+    scan.blocked = '';
+    renderScan();
+
+    try {
+      if (!older || !scan.head) {
+        scan.head = await TwistrChain.blockNumber();
+        scan.reached = scan.head + 1;
+      }
+
+      let to = Math.min(scan.reached - 1, scan.head);
+      for (let i = 0; i < PASSES && to > 0; i++) {
+        const from = Math.max(0, to - WINDOW + 1);
+        const logs = await TwistrChain.pairedLogs(from, to);
+        for (const log of logs) await absorb(log);
+        scan.reached = from;
+        to = from - 1;
+        renderProof();
+      }
+    } catch (e) {
+      /* A node that refuses a log query, or a wallet that does not forward one,
+         is a limit to report — not something to retry silently or pretend away. */
+      scan.blocked = 'This wallet’s node would not answer the log query'
+        + ((e && e.message) ? ' (' + e.message + ')' : '')
+        + '. You can still paste a coin’s address below to look it up.';
+    }
+
+    scan.running = false;
+    renderProof();
+  };
+
+  /* Found in a log, then read from the coin itself: the log is how it was
+     found, the contract is what gets shown. */
+  const absorb = async (log) => {
+    if (chainCoins.has(log.address)) return;
+    try {
+      const read = await TwistrChain.readCoin(log.address);
+      const rec = fromLog(log, read, await TwistrChain.blockTime(log.block));
+      if (routerOk && routerOk.ok && routerOk.factory) {
+        const pair = await TwistrChain.pairFor(routerOk.factory, log.address, routerOk.weth);
+        if (pair) rec.pair = pair;
+      }
+      chainCoins.set(log.address, rec);
+    } catch (e) { /* one unreadable coin does not stop the scan */ }
+  };
+
+  /* The way in when the log scan is refused, and the way to check one specific
+     coin: paste its address and the page reads the draw straight off it. That
+     is the whole point of writing the pairing into the contract — it can be
+     read back by anyone, from the chain, without this page. */
+  const lookUp = async () => {
+    const field = $('lookup');
+    const note = $('lookupNote');
+    if (!field || !note) return;
+    const addr = (field.value || '').trim().toLowerCase();
+
+    if (!/^0x[0-9a-f]{40}$/.test(addr)) { note.textContent = 'That is not a contract address.'; return; }
+    if (!TwistrChain.hasWallet()) { note.textContent = 'Reading the chain needs a wallet to talk to a node.'; return; }
+
+    note.textContent = 'Reading…';
+    try {
+      const read = await TwistrChain.readCoin(addr);
+      if (!read.ticker && !read.name) { note.textContent = 'Nothing at that address answers like a token.'; return; }
+
+      const draw = await TwistrChain.readDraw(addr);
+      if (!draw.asset) {
+        note.textContent = `${read.name || addr} is a token, but it carries no Twistr draw — `
+          + 'it was not launched here.';
+        return;
+      }
+
+      const rec = fromLog(Object.assign({ address: addr, txHash: '', block: 0 }, draw), read, 0);
+      if (routerOk && routerOk.ok && routerOk.factory) {
+        const pair = await TwistrChain.pairFor(routerOk.factory, addr, routerOk.weth);
+        if (pair) rec.pair = pair;
+      }
+      chainCoins.set(addr, rec);
+      field.value = '';
+      note.textContent = `${rec.name} is on the board: ${draw.asset}, from ${draw.colour.toLowerCase()} on the ${draw.position.toLowerCase()}.`;
+      renderProof();
+    } catch (e) {
+      note.textContent = 'Could not read that address: ' + ((e && e.message) || 'the node refused');
+    }
   };
 
   /* ---------- the pad ---------- */
@@ -1215,6 +1476,12 @@
       image: flow.draft.image || '',
       color: flow.spin.color,
       position: flow.spin.position,
+      /* What went into the constructor, recorded next to what drew it. The row
+         shows this rather than re-deriving the name from the table, so a later
+         edit to the pairings cannot retroactively relabel a coin that is
+         already on chain carrying the old name. */
+      assetName: as.name,
+      assetTicker: as.ticker,
       address: receipt.contractAddress,
       txHash: hash,
       poolTx: null,
@@ -1360,7 +1627,7 @@
     flow.minted = coin;
     const f = colOf(coin.color);
     const p = posOf(coin.position);
-    const as = assetOf(coin.color, coin.position);
+    const as = assetShown(coin);
     const t = $('ticket');
     t.hidden = false;
     t.dataset.color = coin.color;
@@ -1803,9 +2070,23 @@
 
     $('search').addEventListener('input', (e) => { view.q = e.target.value.trim(); renderProof(); });
 
+    document.querySelectorAll('.sp-chain-name').forEach((el) => { el.textContent = CFG.chain.name; });
+    if ($('scanBtn')) $('scanBtn').addEventListener('click', () => runScan(false));
+    if ($('scanMore')) $('scanMore').addEventListener('click', () => runScan(true));
+    if ($('lookupBtn')) $('lookupBtn').addEventListener('click', lookUp);
+    if ($('lookup')) {
+      $('lookup').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); lookUp(); } });
+    }
+
     $('clear').addEventListener('click', () => {
       if (!confirm('This clears every launch recorded in this browser. The contracts stay on chain; only the local record goes.')) return;
       coins = [];
+      /* Anything read off the chain goes with it, or the list would not visibly
+         change and the button would look broken. It is one press to read it
+         back; the local record is the only thing actually destroyed here. */
+      chainCoins.clear();
+      scan.head = 0;
+      scan.reached = 0;
       save();
       renderProof();
     });

@@ -269,6 +269,29 @@ async function browserChecks() {
       coin: typeof window.TWISTR_COIN,
     };
   });
+  /* The brand is a mark and a wordmark, and the tab icon is the same mark. A
+     favicon that has drifted from the logo is the commonest way a rename or a
+     redesign leaves a trace of the old one. */
+  const brandMark = await page.evaluate(() => {
+    const logo = document.querySelector('.sp-brand .sp-mark-logo');
+    const icon = document.querySelector('link[rel="icon"]');
+    const href = icon ? icon.getAttribute('href') : '';
+    const box = logo ? logo.getBoundingClientRect() : null;
+    return {
+      hasMark: !!logo,
+      wordmark: (document.querySelector('.sp-brand span') || {}).textContent,
+      drawn: box ? Math.round(box.width) > 8 && Math.round(box.height) > 8 : false,
+      // the icon is the same geometry, inline
+      iconIsSvg: href.startsWith('data:image/svg+xml'),
+      iconSharesPath: logo && href.includes(encodeURIComponent(logo.querySelector('path').getAttribute('d')).replace(/%20/g, ' ')),
+    };
+  });
+  ok('the brand carries a mark as well as the name',
+    brandMark.hasMark && brandMark.drawn && brandMark.wordmark.trim().length > 1,
+    JSON.stringify(brandMark));
+  ok('and the tab icon is that same mark',
+    brandMark.iconIsSvg && brandMark.iconSharesPath, JSON.stringify(brandMark));
+
   ok('the page has a name', named.brand.length > 1, named.brand);
 
   /* Clicking the brand goes back to the top. It used to do nothing: it points

@@ -483,6 +483,21 @@ values are copied across and removed. Nothing about the records themselves chang
 this is a carry-over and not another version bump — a version bump means the reader would
 misunderstand the old shape, and that is not what happened here.
 
+## The mark
+
+Twistr has a logo now: the letter T and the spinner's needle as one shape, on the disc it turns on,
+pinned by its pivot. One colour, not four — the four belong to the board, and a logo that uses all
+of them is a pie chart.
+
+Six were drawn and the choice was made at 16px, not at 200. Three died there: a quartered disc goes
+to mush and is the four-colour cliché anyway, a ring of coloured dots loses the dots, and a thin
+open ring loses its stroke. What survives small is a bold silhouette with one accent, which is also
+what "eye-catching but quiet" turns out to mean once you stop designing at poster size.
+
+The same geometry is the nav mark, the tab icon and the banner. A check asserts the brand carries
+both a mark and the wordmark, and that the favicon's path is the mark's own — a favicon that has
+drifted from the logo is the commonest way a rename leaves a trace of the old one behind.
+
 ## The link card
 
 A page with no `og:image` is a bare line of text wherever it is posted, which for a launchpad is
@@ -560,7 +575,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-223 checks across three suites.
+225 checks across three suites.
 
 ### The chain, checked without a chain
 

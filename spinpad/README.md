@@ -284,6 +284,34 @@ the pairing under whichever node you point at. It is SVG generated at runtime fr
 spheres behind it are, from one source in the top left — two objects in one room rather than a flat
 diagram next to a rendering.
 
+The wheel is a disc rather than a circle with a line round it. A rim with real thickness, lit from
+that same top-left source, a face that is not flat white, and ticks cut into the rim — long ones
+where the quarter changes, because that is where the position the arrow names changes too, so the
+rim says something instead of being decorated. There is a check that the face cannot reach the
+outer edge, that there is one tick per outcome, and that the long ones number exactly the
+positions: a wheel whose rim stops agreeing with the table is a picture of a different product.
+
+Three things in the copy exist to stop the left column being a wall of black on white:
+
+- **The stops carry the wheel's colours.** Red, yellow, green, in the order the table lists them.
+  It is the only colour in the headline and it is the colour the product is about.
+- **A live chip names one cell of the board, cycling.** It says *yours could be*, not *yours is* —
+  nothing has been spun. It is read off `SECTORS`, never written into the markup, because a name in
+  the markup is exactly the bug it replaced: the hero advertised a token that had been off the
+  board for two releases, corrected by a script two seconds after load. Checks assert the name is
+  on the board, that the chip wears that cell's own colour and logo, that it moves on by itself,
+  and that it holds when **Pause motion** is pressed — it is one more thing moving for ever, so the
+  pause control owns it too.
+- **Three numbers under the buttons**, read against the table rather than typed: sixteen outcomes,
+  6.25% each. A check recomputes both from `SECTORS.length`.
+
+A short window is where this had to be paid for. The live chip costs about the height of one
+headline line, so below 760px the headline steps down again and the numbers go. And the hero used
+to stack into one column at 1080px regardless of height, which on a 1024×800 laptop put the wheel
+under the copy and ran the hero 240px past the fold, taking the motion control with it. Stacking now
+needs the height to spend: below 860px wide it stacks anyway, because there is no horizontal room
+either way. That size is in the responsive checks now.
+
 Both wheels build their gradients with ids carrying their own element's id. Two SVGs in one document
 sharing gradient ids is invalid, and it fails silently: the second wheel simply paints itself with
 the first one's fills, which looks right until the two wheels differ. There is a check.
@@ -400,7 +428,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-185 checks across three suites.
+196 checks across three suites.
 
 ### The chain, checked without a chain
 

@@ -213,10 +213,46 @@
       + `<radialGradient id="${ns}-gloss" cx="34%" cy="24%" r="48%">
         <stop offset="0%" stop-color="#fff" stop-opacity=".88"/>
         <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-      </radialGradient></defs>`;
+      </radialGradient>
+      <linearGradient id="${ns}-rim" x1="14%" y1="4%" x2="82%" y2="96%">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="38%" stop-color="#F1F0EC"/>
+        <stop offset="72%" stop-color="#DFDDD6"/>
+        <stop offset="100%" stop-color="#C9C6BC"/>
+      </linearGradient>
+      <radialGradient id="${ns}-face" cx="36%" cy="26%" r="78%">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="62%" stop-color="#FCFBF9"/>
+        <stop offset="100%" stop-color="#F0EEE9"/>
+      </radialGradient>
+      <linearGradient id="${ns}-hub" x1="26%" y1="10%" x2="74%" y2="90%">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="55%" stop-color="#F0EEE9"/>
+        <stop offset="100%" stop-color="#D5D2C9"/>
+      </linearGradient></defs>`;
 
-    out += '<circle class="sp-rim" cx="100" cy="100" r="95"/>';
-    out += '<path class="sp-spoke" d="M100 8 V192 M8 100 H192 M35 35 L165 165 M165 35 L35 165"/>';
+    /* The wheel is a disc, not a drawing of one. A rim with thickness, lit from
+       the same top-left source as everything else, a face that is not flat
+       white, and ticks cut into the rim — a flat circle with a hairline round
+       it was the one object on the page that looked like a diagram. */
+    out += `<circle class="sp-rim" cx="100" cy="100" r="96" fill="url(#${ns}-rim)"/>`;
+    out += `<circle class="sp-rim-in" cx="100" cy="100" r="85.5"/>`;
+    out += `<circle class="sp-face" cx="100" cy="100" r="85" fill="url(#${ns}-face)"/>`;
+
+    /* A tick on every sector boundary, and a longer one where the quadrant
+       changes — which is where the position the arrow names changes too, so the
+       rim says something rather than being decorated. */
+    const per = SECTORS.length / POSITIONS.length;
+    for (let i = 0; i < SECTORS.length; i++) {
+      const a = ((i + 0.5) * SEG - 90) * Math.PI / 180;
+      const quarter = i % per === per - 1;
+      const r0 = quarter ? 85.5 : 88.5, r1 = 95.5;
+      out += `<line class="sp-tick${quarter ? ' sp-tick-q' : ''}"`
+        + ` x1="${(100 + Math.cos(a) * r0).toFixed(2)}" y1="${(100 + Math.sin(a) * r0).toFixed(2)}"`
+        + ` x2="${(100 + Math.cos(a) * r1).toFixed(2)}" y2="${(100 + Math.sin(a) * r1).toFixed(2)}"/>`;
+    }
+
+    out += '<path class="sp-spoke" d="M100 18 V182 M18 100 H182 M42 42 L158 158 M158 42 L42 158"/>';
 
     SECTORS.forEach((sec, i) => {
       const [x, y] = nodeAt(i, 70);
@@ -229,9 +265,11 @@
         + `<circle class="sp-node-ring" cx="${cx}" cy="${cy}" r="13"/></g>`;
     });
 
-    /* A plain ring, and no word in it. The arrow pivots on this exact spot, so
+    /* A plain cap, and no word in it. The arrow pivots on this exact spot, so
        anything written here is read through the arrow's tail. */
-    out += '<circle class="sp-hub" cx="100" cy="100" r="22"/>';
+    out += `<circle class="sp-hub-cast" cx="100" cy="102.5" r="22"/>`;
+    out += `<circle class="sp-hub" cx="100" cy="100" r="22" fill="url(#${ns}-hub)"/>`;
+    out += `<circle class="sp-hub-in" cx="100" cy="100" r="16.5"/>`;
     svg.innerHTML = out;
   };
 
@@ -378,8 +416,47 @@
     }).join('');
   };
 
+  /* ---------- the live chip ----------
+   *
+   * One asset at a time under the headline, cycling. It is read off SECTORS
+   * like everything else: the version before last had a name written into the
+   * markup, and it advertised a token that had been off the board for two
+   * releases until a script corrected it two seconds after load.
+   *
+   * It says "yours could be", not "yours is". The wheel has not been spun.
+   */
+  let liveAt = Math.floor(Math.random() * SECTORS.length);
+
+  const showLive = () => {
+    const chip = $('heroLive'), name = $('heroLiveName'), markEl = $('heroLiveMark');
+    if (!chip || !name || !markEl) return;
+    const sec = SECTORS[liveAt % SECTORS.length];
+    const as = assetOf(sec.color, sec.position);
+    chip.dataset.color = sec.color;
+    markEl.style.backgroundImage = as.logo ? `url("${as.logo}")` : 'none';
+    // restart the entry animation: without the reflow it only ever plays once
+    name.style.animation = 'none';
+    void name.offsetWidth;
+    name.style.animation = '';
+    name.textContent = as.name;
+  };
+
+  const wireLive = () => {
+    if (!$('heroLive')) return;
+    showLive();
+    if (reduced()) return;                 // one name, held, rather than a flicker
+    const hero = document.querySelector('.sp-hero');
+    setInterval(() => {
+      if (hero && hero.classList.contains('is-still')) return;
+      if (document.hidden) return;
+      liveAt = (liveAt + 1) % SECTORS.length;
+      showLive();
+    }, 2200);
+  };
+
   /* Sixteen things moving for ever is exactly the case a pause control exists
-     for. It is not decoration you can ignore if it bothers you. */
+     for. It is not decoration you can ignore if it bothers you — and the chip
+     under the headline is one of the sixteen things, so it stops too. */
   const wireMotion = () => {
     const btn = $('motion');
     const hero = document.querySelector('.sp-hero');
@@ -1241,6 +1318,7 @@
     labelWheel(document.querySelector('.sp-wheel-big'));
     wireHeroWheel();
     renderFloaters();
+    wireLive();
     wireMotion();
     renderBoardGrid();
     renderDesk();

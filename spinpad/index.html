@@ -46,16 +46,34 @@
 
     <div class="sp-hero-in">
     <div class="sp-hero-copy">
-      <p class="sp-eyebrow">One spin. One pairing.</p>
-      <h1>Spin.<br>Pair.<br>Launch.</h1>
+      <p class="sp-eyebrow"><i class="sp-eyebrow-dot" aria-hidden="true"></i>One spin. One pairing.</p>
+      <h1>Spin<b>.</b><br>Pair<b>.</b><br>Launch<b>.</b></h1>
       <p class="sp-lede">
         Create a coin, spin the wheel, and let the result decide what it is paired with.
         You do not get to choose, and there is no second go.
       </p>
+
+      <!-- Seeded and cycled from the board, never written here: a hardcoded name
+           in the markup once advertised a token two versions out of date. -->
+      <p class="sp-hero-live">
+        <span class="sp-hero-live-lead">Yours could be</span>
+        <span class="sp-hero-live-chip" id="heroLive" data-color="red">
+          <i class="sp-hero-live-mark" id="heroLiveMark" aria-hidden="true"></i>
+          <b id="heroLiveName">&nbsp;</b>
+        </span>
+      </p>
+
       <div class="sp-hero-cta">
         <button class="sp-btn sp-btn-dark sp-btn-lg" data-scroll="launch" type="button">Launch a coin <span aria-hidden="true">↗</span></button>
         <button class="sp-link sp-link-lg" data-scroll="board" type="button">Explore the board <span aria-hidden="true">→</span></button>
       </div>
+
+      <ul class="sp-hero-facts">
+        <li><b>16</b> outcomes</li>
+        <li><b>6.25%</b> each</li>
+        <li><b>No</b> reroll</li>
+      </ul>
+
       <p class="sp-hero-motion">
         <button class="sp-link sp-link-quiet" id="motion" type="button" aria-pressed="false">Pause motion</button>
       </p>

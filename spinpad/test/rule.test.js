@@ -176,6 +176,68 @@ async function browserChecks() {
   ok('and it stays closed on the way back', !(await page.locator('#gate').isVisible()));
 
   /* ---------- the hero ---------- */
+  console.log('\nthe hero');
+  const wheelObj = await page.evaluate(() => {
+    const svg = document.getElementById('heroWheelSvg');
+    return {
+      rim: svg.querySelectorAll('.sp-rim').length,
+      face: svg.querySelectorAll('.sp-face').length,
+      ticks: svg.querySelectorAll('.sp-tick').length,
+      quarterTicks: svg.querySelectorAll('.sp-tick-q').length,
+      hub: svg.querySelectorAll('.sp-hub').length,
+      // the rim has to have thickness: the face cannot reach the outer edge
+      rimR: Number(svg.querySelector('.sp-rim').getAttribute('r')),
+      faceR: Number(svg.querySelector('.sp-face').getAttribute('r')),
+    };
+  });
+  ok('the wheel is a disc, not a circle with a line round it',
+    wheelObj.rim === 1 && wheelObj.face === 1 && wheelObj.hub === 1
+    && wheelObj.rimR - wheelObj.faceR >= 8, JSON.stringify(wheelObj));
+  ok('its rim is ticked once per outcome', wheelObj.ticks === SECTORS.length, String(wheelObj.ticks));
+  ok('and marked where the quarter changes',
+    wheelObj.quarterTicks === CFG.positions.length, String(wheelObj.quarterTicks));
+
+  /* The chip under the headline names a real cell of the board. A name written
+     into the markup is exactly the bug this replaced: the hero advertised a
+     token that had been off the board for two releases. */
+  const liveOf = () => page.evaluate(() => ({
+    name: document.getElementById('heroLiveName').textContent.trim(),
+    colour: document.getElementById('heroLive').dataset.color,
+    logo: document.getElementById('heroLiveMark').style.backgroundImage,
+  }));
+  const names = Object.values(CFG.pairings).map((a) => a.name);
+  const live1 = await liveOf();
+  ok('the live chip names something that is actually on the board',
+    names.includes(live1.name), live1.name);
+  const liveAsset = Object.entries(CFG.pairings)
+    .find(([, a]) => a.name === live1.name);
+  ok('and wears that cell\'s own colour',
+    !!liveAsset && liveAsset[0].split('.')[1] === live1.colour,
+    `${live1.name} is ${liveAsset ? liveAsset[0] : '?'}, chip says ${live1.colour}`);
+  ok('and that cell\'s own logo', !!liveAsset && live1.logo.includes(liveAsset[1].logo),
+    live1.logo);
+
+  await page.waitForTimeout(2600);
+  const live2 = await liveOf();
+  ok('it moves on by itself', live2.name !== live1.name, `${live1.name} → ${live2.name}`);
+
+  /* Pausing motion is not only about the drifting spheres: the chip is one more
+     thing moving for ever, so it holds too. */
+  await page.click('#motion');
+  const held = await liveOf();
+  await page.waitForTimeout(2600);
+  const stillHeld = await liveOf();
+  ok('and holds when motion is paused', stillHeld.name === held.name,
+    `${held.name} → ${stillHeld.name}`);
+  await page.click('#motion');
+
+  const facts = await page.evaluate(() =>
+    [...document.querySelectorAll('.sp-hero-facts li')].map((l) => l.textContent.replace(/\s+/g, ' ').trim()));
+  ok('the hero\'s numbers are the table\'s numbers',
+    facts.some((f) => f.startsWith(String(SECTORS.length)))
+    && facts.some((f) => f.includes((100 / SECTORS.length).toFixed(2))),
+    facts.join(' | '));
+
   console.log('\nthe drifting sixteen');
   const drift = await page.evaluate(() => {
     const chips = [...document.querySelectorAll('.sp-float')];
@@ -542,7 +604,7 @@ async function browserChecks() {
      `vh` on a window whose height it does not fill leaves the board peeking in
      at the bottom, which is the whole thing this is for — so it is measured at
      a tall window, a short one and a phone, not just the one it was built at. */
-  for (const [w, h] of [[1440, 950], [1440, 760], [1512, 700], [1280, 1100], [768, 900], [390, 844]]) {
+  for (const [w, h] of [[1440, 950], [1440, 760], [1512, 700], [1024, 800], [1280, 1100], [768, 900], [390, 844]]) {
     // eslint-disable-next-line no-await-in-loop
     await page.setViewportSize({ width: w, height: h });
     /* Back to the top, and not with a smooth scroll: the page sets

@@ -84,6 +84,7 @@ window.ethereum = {
         if (d.startsWith('0xc45a0155')) return '0x' + '${WETH}'.slice(2).padStart(64,'0'); // factory()
         return '0x';
       }
+      case 'eth_estimateGas': return '0x' + (1234567).toString(16);
       case 'eth_sendTransaction': return '0x' + 'ab'.repeat(32);
       case 'eth_getTransactionReceipt': return { blockNumber: '0x1', status: '0x1', contractAddress: '${COIN}' };
       default: return null;
@@ -154,6 +155,21 @@ window.ethereum = {
 
   await page.click('#launchBtn');
   await page.waitForTimeout(1500);
+
+  /* The node is asked what it costs before the wallet is opened. A deployment
+     that would revert then arrives as an error this page can explain, rather
+     than as "could not simulate this request" in the wallet with a Confirm
+     (unsafe) button under it. */
+  const est = await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_estimateGas'));
+  ok('the deployment is estimated before the wallet is opened', est.length === 1,
+    est.length + ' estimates');
+  const sentGas = await page.evaluate(() =>
+    (window.__sent.find((s) => s.method === 'eth_sendTransaction').params[0] || {}).gas);
+  ok('and the send carries a gas limit above that estimate',
+    !!sentGas && BigInt(sentGas) > 1234567n, String(sentGas));
+  ok('and it is the same bytes that get sent',
+    est.length === 1 && est[0].params[0].data
+      === (await page.evaluate(() => window.__sent.find((s) => s.method === 'eth_sendTransaction').params[0].data)));
 
   const txs = await page.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction'));
   ok('exactly one transaction for a deployment', txs.length === 1, txs.length + ' sent');

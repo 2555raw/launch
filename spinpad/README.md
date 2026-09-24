@@ -515,6 +515,23 @@ compares them as a list of shapes rather than as text, because the two are the s
 twice: `innerHTML` spells a circle `<circle ...></circle>` where the data URL spells it
 `<circle .../>`, and folding those two by hand kept tripping over its own replacements.
 
+## What the wallet says
+
+A deployment arriving at a wallet with no gas limit and no `to` address is a hard thing for it to
+show you. Phantom reports "could not simulate this request" and offers a **Confirm (unsafe)**
+button — a simulator has nothing to preview when the transaction's whole purpose is to create the
+contract it would be previewing against.
+
+So the node is asked first. `eth_estimateGas` runs before the wallet is opened, which means a
+deployment that would revert comes back here as a plain error this page can explain, instead of as
+a red box with an unsafe button under it. The estimate is padded 15% and sent as the gas limit, so
+the wallet is not left estimating a contract creation on its own. A node that refuses to estimate
+one is not proof the deployment is bad — some refuse creations outright — so that case reports and
+sends anyway rather than blocking.
+
+The other warning, "this domain is new", is about the domain and not the code. It is a Railway
+subdomain a few days old, and nothing in this repository can change it.
+
 ## The link card
 
 A page with no `og:image` is a bare line of text wherever it is posted, which for a launchpad is
@@ -592,7 +609,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-226 checks across three suites.
+229 checks across three suites.
 
 ### The chain, checked without a chain
 

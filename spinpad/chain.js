@@ -203,10 +203,36 @@ window.TwistrChain = (() => {
     return build.bytecode + args;
   };
 
-  const deploy = async (coin) => rpc('eth_sendTransaction', [{
-    from: state.account,
-    data: creationCode(coin),
-  }]);
+  /* Ask the node what this costs before opening the wallet.
+   *
+   * Two things come out of it. A deployment that would revert is caught here,
+   * as a plain error this page can explain, instead of arriving in the wallet
+   * as "could not simulate this request" with a Confirm (unsafe) button under
+   * it — which is a dialog nobody should be reading, let alone clicking.
+   *
+   * And the send carries a gas limit, so the wallet is not left estimating a
+   * contract creation on its own. The estimate is padded because the state it
+   * was measured against is one block old by the time it is mined. */
+  const estimateDeploy = async (coin) => {
+    const gas = await rpc('eth_estimateGas', [{
+      from: state.account,
+      data: creationCode(coin),
+    }]);
+    return '0x' + ((BigInt(gas) * 115n) / 100n).toString(16);
+  };
+
+  const deploy = async (coin) => {
+    const tx = { from: state.account, data: creationCode(coin) };
+    try {
+      tx.gas = await estimateDeploy(coin);
+    } catch (e) {
+      /* A node that will not estimate is not proof the deployment is bad — some
+         refuse creations outright — so this reports and sends anyway rather
+         than blocking on it. The wallet gets the last word either way. */
+      if (typeof console !== 'undefined') console.warn('gas estimate refused:', e && e.message);
+    }
+    return rpc('eth_sendTransaction', [tx]);
+  };
 
   /* A deployment is only real once it is mined, and the address comes from the
      receipt rather than being predicted from the nonce. */
@@ -290,7 +316,7 @@ window.TwistrChain = (() => {
   const explorerAddress = (a) => window.TWISTR_CONFIG.chain.explorer + '/address/' + a;
 
   return {
-    SEL, encodeArgs, decodeString, decodeUint, decodeAddress, creationCode,
+    SEL, encodeArgs, decodeString, decodeUint, decodeAddress, creationCode, estimateDeploy,
     hasWallet, connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,
     approve, allowanceOf, ensureAllowance, addLiquidity,

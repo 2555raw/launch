@@ -8,6 +8,10 @@
  */
 
 :root {
+  /* --ground is the page; --bg is the white of the things sitting on it. They
+     were one token, so lifting the page off white would have taken the nav
+     pill, the cards and the gate with it. */
+  --ground:    #FAF9F6;
   --bg:        #FFFFFF;
   --tint:      #F7F7F5;
   --card:      #FFFFFF;
@@ -40,12 +44,37 @@
   --ease:      cubic-bezier(.22, .68, .28, 1);
 }
 
+/* ---------- the ground ----------
+ *
+ * Flat white read as unfinished. This is the least that fixes it: a fine dot
+ * grid for grain, and four very faint blooms in the wheel's own colours — the
+ * palette rule holds even here, a colour on this page always means a colour on
+ * the wheel. Fixed rather than scrolled, so the page travels across it.
+ *
+ * Every number is deliberately low. At .05 the dots are texture; at .12 they
+ * are a pattern competing with the type, and the whole point is that nobody
+ * should notice this directly.
+ */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    radial-gradient(rgba(16, 17, 20, .05) 1px, transparent 1px),
+    radial-gradient(52rem 34rem at 8% -4%, rgba(228, 50, 43, .05), transparent 64%),
+    radial-gradient(46rem 30rem at 95% 6%, rgba(253, 210, 8, .07), transparent 62%),
+    radial-gradient(50rem 34rem at 88% 62%, rgba(27, 117, 188, .05), transparent 64%),
+    radial-gradient(44rem 30rem at 4% 82%, rgba(47, 168, 79, .05), transparent 64%);
+  background-size: 22px 22px, auto, auto, auto, auto;
+}
+@media (prefers-reduced-transparency: reduce) {
+  body::before { display: none; }
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 
 body {
-  margin: 0; background: var(--bg); color: var(--ink);
+  margin: 0; background: var(--ground); color: var(--ink);
   font: 400 16px/1.6 var(--sans);
   -webkit-font-smoothing: antialiased;
 }
@@ -485,6 +514,9 @@ a { color: inherit; text-decoration: none; }
 .sp-wheel-svg .sp-node-gloss { pointer-events: none; }
 .sp-wheel-svg .sp-node-cast { fill: rgba(16, 17, 20, .22); }
 .sp-wheel-svg .sp-node-ring { fill: none; stroke: rgba(16, 17, 20, .22); stroke-width: .8; }
+.sp-wheel-svg .sp-node-disc { fill: #fff; }
+.sp-wheel-svg .sp-node-glyph { fill: none; stroke: rgba(16, 17, 20, .5); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sp-wheel-svg .sp-node-pic { pointer-events: none; }
 .sp-wheel-svg .sp-hub { stroke: rgba(16, 17, 20, .38); stroke-width: 1.1; }
 .sp-wheel-svg .sp-hub-cast { fill: rgba(16, 17, 20, .16); }
 .sp-wheel-svg .sp-hub-in { fill: none; stroke: rgba(16, 17, 20, .14); stroke-width: 1; }
@@ -510,10 +542,12 @@ a { color: inherit; text-decoration: none; }
 
 /* The nav is sticky, so anything scrolled to by an anchor has to start below
    it — without this every section heading arrives hidden under the bar. */
-.sp-sec, .sp-hero-in { scroll-margin-top: calc(var(--nav-h) + var(--nav-gap) * 2); }
+.sp-sec, .sp-hero-in, .sp-stage { scroll-margin-top: calc(var(--nav-h) + var(--nav-gap) * 2 + 12px); }
 
 .sp-sec { padding: clamp(64px, 9vw, 120px) 0; border-top: 1px solid var(--line); }
-.sp-sec-tint { background: var(--tint); }
+/* A veil, not a fill: an opaque band would cut a flat stripe through the
+   ground and the blooms would stop at its edges. */
+.sp-sec-tint { background: rgba(16, 17, 20, .028); }
 .sp-sec-head {
   display: flex; align-items: flex-end; justify-content: space-between;
   gap: 32px; flex-wrap: wrap; margin-bottom: clamp(32px, 4vw, 52px);
@@ -622,20 +656,20 @@ a { color: inherit; text-decoration: none; }
 .sp-aside { display: grid; gap: 20px; position: sticky; top: calc(var(--nav-h) + var(--nav-gap) * 2); }
 
 .sp-preview {
-  display: grid; justify-items: center; gap: 18px;
-  padding: clamp(28px, 4vw, 44px) 24px;
+  display: grid; justify-items: center; gap: 13px;
+  padding: clamp(18px, 2.4vw, 26px) 20px;
   background: linear-gradient(180deg, var(--tint), #fff);
   border: 1.5px solid var(--line); border-radius: var(--r);
 }
-.sp-preview-note { font: 500 12.5px/1 var(--mono); color: var(--dim); }
+.sp-preview-note { font: 500 12px/1 var(--mono); color: var(--dim); }
 
 /* The same lit sphere as the hero, at the size a preview wants. It is the one
    on the page with no colour yet, because on this screen there is no pairing —
    so it takes the neutral, and says so underneath. */
 .sp-orb {
   position: relative; display: grid; place-items: center;
-  width: clamp(120px, 22vw, 168px); aspect-ratio: 1; border-radius: 50%;
-  font-size: clamp(120px, 22vw, 168px);
+  width: clamp(104px, 16vw, 132px); aspect-ratio: 1; border-radius: 50%;
+  font-size: clamp(104px, 16vw, 132px);
   background: radial-gradient(circle at 32% 26%, var(--c-hi, #EFEFEC) 0%, var(--c) 46%, var(--c-lo, #8E9096) 100%);
   box-shadow:
     inset 0 -0.10em 0.18em -0.06em rgba(0, 0, 0, .34),
@@ -653,8 +687,29 @@ a { color: inherit; text-decoration: none; }
 }
 .sp-orb-face b { font: 700 clamp(15px, 2.6vw, 19px)/1 var(--mono); letter-spacing: -0.02em; max-width: 84%; overflow: hidden; text-overflow: ellipsis; }
 .sp-orb-face i { font: 600 8.5px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; font-style: normal; color: var(--muted); }
+/* The picture sits in the orb's inner disc, under the gloss, so the sphere's
+   own lighting passes over it rather than the picture sitting on top of a ball. */
+.sp-orb-pic {
+  position: absolute; z-index: 1; width: 62%; height: 62%;
+  border-radius: 50%; object-fit: cover;
+  box-shadow: inset 0 0.015em 0.05em rgba(16, 17, 20, .2);
+}
+.sp-orb.has-pic .sp-orb-face {
+  background: none; box-shadow: none; z-index: 2;
+  width: auto; height: auto; padding: 5px 11px; border-radius: 999px;
+  align-self: end; margin-bottom: 8%;
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: blur(2px);
+}
+/* The base rule caps the ticker at 84% of the face; on an auto-width chip that
+   is a percentage of a width the text is setting, and "TICKER" came out
+   "TICK…". The chip takes the cap instead. */
+.sp-orb.has-pic .sp-orb-face { max-width: 82%; }
+.sp-orb.has-pic .sp-orb-face b { font-size: clamp(11px, 1.8vw, 13px); max-width: none; }
+.sp-orb.has-pic .sp-orb-face i { display: none; }
+
 .sp-orb-gloss {
-  position: absolute; inset: 0; z-index: 2; border-radius: 50%; pointer-events: none;
+  position: absolute; inset: 0; z-index: 3; border-radius: 50%; pointer-events: none;
   background:
     radial-gradient(38% 26% at 32% 20%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 68%),
     radial-gradient(52% 34% at 68% 94%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 72%);
@@ -680,6 +735,60 @@ a { color: inherit; text-decoration: none; }
 .sp-field input:focus, .sp-field textarea:focus { outline: none; border-color: var(--ink); background: #fff; }
 .sp-field input::placeholder, .sp-field textarea::placeholder { color: var(--dim); font-weight: 400; }
 #fTicker, #fSupply, #poolAmount { font-family: var(--mono); font-weight: 400; }
+/* ---------- the image drop ----------
+ *
+ * The file input covers the whole box and is transparent, so the box itself is
+ * the button and the drop target. A styled label next to a hidden input needs
+ * its own drag handlers, its own keyboard handling and its own focus ring; a
+ * real input stretched over the box comes with all three. */
+.sp-drop {
+  position: relative; display: flex; align-items: center;
+  min-height: 78px; padding: 12px 14px;
+  background: var(--field); border: 1.5px dashed var(--line-hi); border-radius: var(--r-sm);
+  transition: border-color .16s, background .16s;
+}
+.sp-drop:hover { border-color: var(--ink-soft); }
+.sp-drop.is-over { border-color: var(--ink); border-style: solid; background: #fff; }
+.sp-drop.is-full { border-style: solid; border-color: var(--line); background: var(--field); }
+
+.sp-drop-input {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; cursor: pointer; padding: 0; border: 0;
+}
+.sp-drop-input:focus-visible + .sp-drop-empty,
+.sp-drop:focus-within { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: var(--r-sm); }
+.sp-drop.is-full .sp-drop-input { cursor: default; }
+
+.sp-drop-empty {
+  display: flex; align-items: center; gap: 11px;
+  font: 500 14px/1.4 var(--sans); color: var(--muted);
+}
+.sp-drop-empty b { font-weight: 700; color: var(--ink); }
+.sp-drop-empty svg { flex: none; color: var(--dim); }
+
+.sp-drop-has { display: flex; align-items: center; gap: 14px; width: 100%; }
+.sp-drop-has img {
+  flex: none; width: 52px; height: 52px; border-radius: 9px; object-fit: cover;
+  background: #fff; border: 1.5px solid var(--line);
+}
+.sp-drop-meta { display: grid; gap: 4px; min-width: 0; }
+.sp-drop-meta b {
+  font: 600 14px/1.2 var(--sans); color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sp-drop-meta i { font: 400 12px/1 var(--mono); font-style: normal; color: var(--muted); }
+/* above the input, or the input's own click area swallows it */
+.sp-drop-clear {
+  position: relative; z-index: 1; margin-left: auto; flex: none;
+  background: none; border: 1.5px solid var(--line-hi); border-radius: 999px;
+  padding: 7px 14px; cursor: pointer;
+  font: 600 12.5px/1 var(--sans); color: var(--ink-soft);
+}
+.sp-drop-clear:hover { border-color: var(--ink); color: var(--ink); }
+.sp-drop-clear:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.sp-drop.is-bad { border-color: var(--red); border-style: solid; background: #fff; }
+
 .sp-help { margin-top: 9px; font-size: 12.5px; color: var(--muted); }
 .sp-help-final { margin-top: 14px; text-align: center; }
 .sp-err { display: none; margin-top: 9px; font: 600 12.5px/1.4 var(--sans); color: var(--red); }

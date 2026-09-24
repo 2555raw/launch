@@ -167,8 +167,23 @@
     }
   };
 
+  /* Records carry a picture now, so the 5MB this gets is reachable. Dropping
+     the oldest pictures beats dropping the oldest coins: a launch is the record
+     and the image is decoration on it. Only if that is not enough does the list
+     itself get shorter. */
   const save = () => {
-    try { localStorage.setItem(KEY, JSON.stringify(coins.slice(0, 60))); } catch (e) { /* ignore */ }
+    const write = (list) => localStorage.setItem(KEY, JSON.stringify(list));
+    let list = coins.slice(0, 60);
+    try { write(list); return; } catch (e) { /* full: fall through and shed weight */ }
+    for (let keep = 6; keep >= 0; keep--) {
+      const trimmed = list.map((c, i) => (i < keep ? c : Object.assign({}, c, { image: '' })));
+      try { write(trimmed); return; } catch (e) { /* still full */ }
+    }
+    for (let n = 30; n >= 1; n = Math.floor(n / 2)) {
+      const short_ = list.slice(0, n).map((c) => Object.assign({}, c, { image: '' }));
+      try { write(short_); return; } catch (e) { /* keep shrinking */ }
+    }
+    try { localStorage.removeItem(KEY); } catch (e) { /* storage is blocked entirely */ }
   };
 
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -271,15 +286,34 @@
     // one tick per outcome, cut into the inside edge of the rim
     for (let i = 0; i < SECTORS.length; i++) out += line('sp-tick', (i + 0.5) * SEG, R_RIM, R_RIM + 6);
 
+    /* Every circle wears the asset it pairs with. The colour still has to read
+       at a glance — it is half the draw — so the logo sits on a white disc
+       inside the sphere rather than on the sphere itself, and what is left of
+       the colour is a thick ring. That is the board's rule inside out, and it
+       is the same reason the board uses it: a mark printed on a saturated
+       ground is a mark you cannot see.
+
+       The drawn glyph goes underneath the picture rather than instead of it.
+       An <image> whose file is missing renders nothing at all, so the glyph
+       shows through on its own — the same fallback the board has, for free. */
+    const NODE_R = 13.5, DISC_R = 8.6, PIC = 12, GLY = 10;
     SECTORS.forEach((sec, i) => {
       const [x, y] = nodeAt(i, 60);
       const as = assetOf(sec.color, sec.position);
       const cx = x.toFixed(2), cy = y.toFixed(2);
       out += `<g data-i="${i}"><title>${esc(comboOf(sec.color, sec.position))} → ${esc(as.name)}</title>`
         + `<ellipse class="sp-node-cast" cx="${cx}" cy="${(y + 3.4).toFixed(2)}" rx="12" ry="9.4"/>`
-        + `<circle class="sp-node" data-i="${i}" cx="${cx}" cy="${cy}" r="13.5" fill="url(#${ns}-${sec.color})"/>`
-        + `<circle class="sp-node-gloss" cx="${cx}" cy="${cy}" r="13.5" fill="url(#${ns}-gloss)"/>`
-        + `<circle class="sp-node-ring" cx="${cx}" cy="${cy}" r="13.5"/></g>`;
+        + `<circle class="sp-node" data-i="${i}" cx="${cx}" cy="${cy}" r="${NODE_R}" fill="url(#${ns}-${sec.color})"/>`
+        + `<circle class="sp-node-gloss" cx="${cx}" cy="${cy}" r="${NODE_R}" fill="url(#${ns}-gloss)"/>`
+        + `<circle class="sp-node-disc" cx="${cx}" cy="${cy}" r="${DISC_R}"/>`
+        + `<g class="sp-node-glyph" transform="translate(${(x - GLY / 2).toFixed(2)} ${(y - GLY / 2).toFixed(2)}) scale(${(GLY / 24).toFixed(4)})">`
+        + `<path d="${GLYPHS[as.glyph] || GLYPHS.chevron}"/></g>`
+        + (as.logo
+          ? `<image class="sp-node-pic" href="${esc(as.logo)}" x="${(x - PIC / 2).toFixed(2)}"`
+            + ` y="${(y - PIC / 2).toFixed(2)}" width="${PIC}" height="${PIC}"`
+            + ` preserveAspectRatio="xMidYMid meet"/>`
+          : '')
+        + `<circle class="sp-node-ring" cx="${cx}" cy="${cy}" r="${NODE_R}"/></g>`;
     });
 
     /* A plain cap, and no word in it. The arrow pivots on this exact spot, so
@@ -645,9 +679,10 @@
   const launchRow = (c) => {
     const as = assetOf(c.color, c.position);
     const size = 24;
-    const face = c.image
+    const pic = safeImage(c.image);
+    const face = pic
       ? `<span class="sp-mark" style="--m:${size}px">${drawn(as.glyph, size)}`
-        + `<img class="sp-logo" src="${esc(c.image)}" alt="" width="${size}" height="${size}"></span>`
+        + `<img class="sp-logo" src="${esc(pic)}" alt="" width="${size}" height="${size}"></span>`
       : mark(as, size);
     return `
       <div class="sp-launch" data-color="${c.color}">
@@ -704,6 +739,15 @@
   let quoteOk = null;
   let routerOk = null;
 
+  /* Bring a stage's top under the nav rather than centring a control inside it.
+     Centring the SPIN button put the wheel's heading behind the sticky bar —
+     and the bigger the wheel got, the more of the stage went with it. The
+     stages carry a scroll-margin for the bar, so `start` lands correctly. */
+  const showStage = (n) => {
+    const el = document.querySelector(`.sp-stage[data-stage="${n}"]`);
+    if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  };
+
   const setStep = (n) => {
     flow.step = n;
     if (pad) pad.dataset.step = String(n);
@@ -738,21 +782,167 @@
     return !msg;
   };
 
+  /* ---------- the image ----------
+   *
+   * Uploaded is the wrong word for what happens, and the help text says so: the
+   * file never leaves the browser. It is decoded, drawn into a canvas at 256px
+   * and re-encoded, and that string is what sits beside the record in
+   * localStorage. There is no server to send it to — this is four static files
+   * — and there is nowhere on chain for it either.
+   *
+   * Resizing is not tidiness. localStorage is about 5MB for the whole origin,
+   * and one photo off a phone is bigger than that on its own: stored raw, the
+   * first coin with a picture would throw the whole board away.
+   */
+  const IMG_PX = 256;            // the largest it is ever drawn is about 47
+  const IMG_MAX_BYTES = 20e6;    // refuse to decode something absurd
+  const IMG_MAX_STORED = 220e3;  // and refuse to keep the result if it is still huge
+  const IMG_OK = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+={0,2}$/;
+
+  let imageData = '';            // the encoded result, or empty
+  let imageName = '';
+
+  /* WebP first because it is the smallest by a distance. A browser without it
+     hands back a PNG from toDataURL regardless of what was asked for, so the
+     result is checked rather than trusted — and if PNG comes back large, the
+     picture is a photograph and needs a lossy codec. JPEG has no alpha, so it
+     gets a white ground; transparent pixels encoded as JPEG come out black. */
+  const encodeCanvas = (c) => {
+    const webp = c.toDataURL('image/webp', 0.82);
+    if (webp.startsWith('data:image/webp')) return webp;
+    const png = c.toDataURL('image/png');
+    if (png.length <= 120e3) return png;
+    const flat = document.createElement('canvas');
+    flat.width = c.width; flat.height = c.height;
+    const g = flat.getContext('2d');
+    g.fillStyle = '#fff';
+    g.fillRect(0, 0, flat.width, flat.height);
+    g.drawImage(c, 0, 0);
+    return flat.toDataURL('image/jpeg', 0.86);
+  };
+
+  const shrinkImage = (file) => new Promise((resolve, reject) => {
+    if (!/^image\//.test(file.type)) { reject(new Error('That is not an image file.')); return; }
+    if (file.size > IMG_MAX_BYTES) { reject(new Error('That file is over 20MB. Try a smaller one.')); return; }
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error('That file could not be read.'));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('This browser could not open that image.'));
+      img.onload = () => {
+        const long = Math.max(img.naturalWidth, img.naturalHeight);
+        if (!long) { reject(new Error('That image has no size.')); return; }
+        const k = Math.min(1, IMG_PX / long);
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.naturalWidth * k));
+        c.height = Math.max(1, Math.round(img.naturalHeight * k));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        let url;
+        try { url = encodeCanvas(c); } catch (e) { reject(new Error('That image could not be re-encoded.')); return; }
+        if (url.length > IMG_MAX_STORED) { reject(new Error('That image is too big to keep in this browser.')); return; }
+        resolve(url);
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+
+  /* Anything rendered into a src attribute is checked against this first. The
+     string this code writes always passes; a hand-edited localStorage entry
+     saying data:text/html does not. */
+  const safeImage = (v) => (typeof v === 'string' && IMG_OK.test(v) ? v : '');
+
+  const kb = (n) => (n < 1024 ? n + ' B' : Math.round(n / 1024) + ' KB');
+
+  const showImage = () => {
+    const box = $('imageDrop'), has = $('imageHas');
+    if (!box || !has) return;
+    const on = !!imageData;
+    box.classList.toggle('is-full', on);
+    has.hidden = !on;
+    const empty = box.querySelector('.sp-drop-empty');
+    if (empty) empty.hidden = on;
+    if (on) {
+      $('imageThumb').src = imageData;
+      $('imageName').textContent = imageName || 'image';
+      // the stored length, not the file's: the stored one is what costs anything
+      $('imageSize').textContent = kb(Math.round(imageData.length * 0.75)) + ' stored · ' + IMG_PX + 'px';
+    }
+  };
+
+  const clearImage = () => {
+    imageData = ''; imageName = '';
+    if ($('fImage')) $('fImage').value = '';
+    err('fImage', '');
+    if ($('imageDrop')) $('imageDrop').classList.remove('is-bad');
+    showImage();
+    renderSummary();
+  };
+
+  const takeImage = (file) => {
+    if (!file) return;
+    const box = $('imageDrop');
+    shrinkImage(file).then((url) => {
+      imageData = url;
+      imageName = file.name || 'image';
+      err('fImage', '');
+      if (box) box.classList.remove('is-bad');
+      showImage();
+      renderSummary();
+    }).catch((e) => {
+      imageData = ''; imageName = '';
+      err('fImage', e.message);
+      if (box) box.classList.add('is-bad');
+      showImage();
+      renderSummary();
+    });
+  };
+
+  const wireImage = () => {
+    const box = $('imageDrop'), input = $('fImage');
+    if (!box || !input) return;
+    input.addEventListener('change', () => takeImage(input.files && input.files[0]));
+    $('imageClear').addEventListener('click', (e) => { e.stopPropagation(); clearImage(); });
+
+    /* Every one of these has to preventDefault or the browser navigates to the
+       file, which loses the whole draft along with the page. */
+    ['dragenter', 'dragover'].forEach((t) => box.addEventListener(t, (e) => {
+      e.preventDefault();
+      if (!input.disabled) box.classList.add('is-over');
+    }));
+    ['dragleave', 'dragend'].forEach((t) => box.addEventListener(t, () => box.classList.remove('is-over')));
+    box.addEventListener('drop', (e) => {
+      e.preventDefault();
+      box.classList.remove('is-over');
+      if (input.disabled) return;
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      takeImage(f);
+    });
+
+    // a screenshot in the clipboard is the common case, and it has no file to pick
+    box.addEventListener('paste', (e) => {
+      const items = e.clipboardData && e.clipboardData.files;
+      if (items && items[0]) { e.preventDefault(); takeImage(items[0]); }
+    });
+  };
+
   const readForm = () => {
     const name = $('fName').value.trim();
     const ticker = $('fTicker').value.trim().toUpperCase();
     const supply = Number($('fSupply').value.replace(/\D/g, ''));
     const desc = $('fDesc').value.trim();
-    const image = $('fImage') ? $('fImage').value.trim() : '';
+    const image = imageData;
 
     let ok = true;
     ok = err('fName', name.length < 2 || name.length > 32 ? 'Between 2 and 32 characters.' : '') && ok;
     ok = err('fTicker', /^[A-Z0-9]{2,8}$/.test(ticker) ? '' : '2 to 8 letters or digits, no spaces.') && ok;
     ok = err('fSupply', !supply || supply < 1000 || supply > 1e12 ? 'Between 1,000 and 1,000,000,000,000.' : '') && ok;
     ok = err('fDesc', desc.length > 140 ? '140 characters maximum.' : '') && ok;
-    // An http:// image on an https page is blocked by the browser anyway, and a
-    // javascript: or data: URL here would be an injection with extra steps.
-    ok = err('fImage', !image || /^https:\/\/[^\s"'<>]+$/i.test(image) ? '' : 'Must be an https:// link, or left empty.') && ok;
+    /* The field used to take a URL and refuse data: on the grounds that it
+       would be an injection with extra steps. It only ever holds a data URL
+       now — but one this code encoded off a canvas, never a string anybody
+       typed, and it is checked on the way out as well as here. */
+    ok = err('fImage', !image || IMG_OK.test(image) ? '' : 'That image could not be read. Choose another.') && ok;
     if (coins.some((c) => c.ticker === ticker)) ok = err('fTicker', 'That ticker is already on the board.') && ok;
 
     return ok ? { name, ticker, supply, desc, image } : null;
@@ -796,6 +986,15 @@
       $('liveSub').textContent = sub;
       $('orbTicker').textContent = ticker;
       $('orbTicker').nextElementSibling.textContent = as ? as.ticker : 'unpaired';
+      /* The picture goes on the orb the moment it is chosen, which is the only
+         reason to believe it was read at all — there is no upload to watch. */
+      const orbPic = $('orbPic');
+      if (orbPic) {
+        const pic = safeImage(imageData);
+        orbPic.hidden = !pic;
+        if (pic) orbPic.src = pic;
+        $('orbTicker').closest('.sp-orb').classList.toggle('has-pic', !!pic);
+      }
     }
   };
 
@@ -1100,6 +1299,10 @@
     $('fSupply').value = '1,000,000,000';
     $('descCount').textContent = '0/140';
     ['fName', 'fTicker', 'fSupply', 'fDesc', 'fImage'].forEach((id) => { if ($(id)) err(id, ''); });
+    /* form.reset() empties the file input but not the string this code holds,
+       and a discarded draft leaving its picture on the next one is the kind of
+       thing nobody reports and everybody notices. */
+    clearImage();
     $('result').hidden = true;
     $('ticket').hidden = true;
     $('assetSlot').dataset.color = 'none';
@@ -1335,6 +1538,7 @@
     labelWheel(document.querySelector('.sp-wheel-big'));
     wireHeroWheel();
     renderFloaters();
+    wireImage();
     wireLive();
     wireMotion();
     renderBoardGrid();
@@ -1365,7 +1569,7 @@
       setStep(2);
       say('Details locked. One spin decides the pairing.');
       $('spin').focus();
-      $('spin').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      showStage(2);
     });
 
     $('backToForm').addEventListener('click', () => {
@@ -1386,7 +1590,7 @@
       if (!flow.spin || flow.step !== 3) return;
       setStep(4);
       renderSummary();
-      $('launchBtn').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      showStage(4);
     });
 
     $('launchBtn').addEventListener('click', launch);

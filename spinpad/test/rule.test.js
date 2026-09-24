@@ -13,6 +13,7 @@
  *   CHROME_PATH=/path/to/chrome npm test
  */
 const http = require('http');
+const zlib = require('zlib');
 const path = require('path');
 const { spawn } = require('child_process');
 
@@ -23,6 +24,75 @@ const fails = [];
 const ok = (name, cond, detail) => {
   if (cond) { passed++; console.log('  ok   ' + name); }
   else { fails.push(name + (detail ? ' — ' + detail : '')); console.log('  FAIL ' + name + (detail ? ' — ' + detail : '')); }
+};
+
+/* Wait for a smooth scroll to actually finish.
+ *
+ * A fixed timeout is a guess, and measuring anything positional mid-flight
+ * reads where the page started rather than where it stopped.
+ *
+ * Counting frames does not work here and the first version of this did. Under
+ * a headless browser requestAnimationFrame fires faster than the scroll
+ * updates scrollY, so two consecutive frames read the same value in the middle
+ * of a scroll that has a second left to run. This is on the clock instead:
+ * unchanged for 260ms, and never before 420ms have passed, which covers the
+ * pre-roll where a smooth scroll has been asked for but has not started. */
+const settle = (page, ms = 260) => page.evaluate((hold) => new Promise((resolve) => {
+  const t0 = performance.now();
+  let last = window.scrollY, since = t0;
+  const tick = (now) => {
+    if (window.scrollY !== last) { last = window.scrollY; since = now; }
+    if (now - t0 > 420 && now - since > hold) resolve();
+    else requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}), ms);
+
+/* ---------- a large PNG, built here ----------
+ *
+ * The image field has to be given something big enough that shrinking it is
+ * visible, and every picture in the repository is already 128px. Rather than
+ * commit a photograph to prove a resize, the suite writes its own: a 900×700
+ * gradient, which is a real PNG a browser will decode, and which no code under
+ * test has ever seen.
+ */
+const crc32 = (buf) => {
+  let c = ~0;
+  for (let i = 0; i < buf.length; i++) {
+    c ^= buf[i];
+    for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xEDB88320 & -(c & 1));
+  }
+  return ~c >>> 0;
+};
+const chunk = (type, data) => {
+  const len = Buffer.alloc(4);
+  len.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body));
+  return Buffer.concat([len, body, crc]);
+};
+const bigPng = (w, h) => {
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4);
+  ihdr[8] = 8; ihdr[9] = 2;                       // 8-bit, truecolour
+  const raw = Buffer.alloc(h * (1 + w * 3));
+  for (let y = 0; y < h; y++) {
+    const row = y * (1 + w * 3);
+    raw[row] = 0;                                 // filter: none
+    for (let x = 0; x < w; x++) {
+      const i = row + 1 + x * 3;
+      raw[i] = (x * 255 / w) | 0;
+      raw[i + 1] = (y * 255 / h) | 0;
+      raw[i + 2] = ((x + y) * 255 / (w + h)) | 0;
+    }
+  }
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk('IHDR', ihdr),
+    chunk('IDAT', zlib.deflateSync(raw)),
+    chunk('IEND', Buffer.alloc(0)),
+  ]);
 };
 
 /* ---------- the wheel's table, rebuilt here on purpose ----------
@@ -219,6 +289,30 @@ async function browserChecks() {
     printed.length === 4 && printed.every((l) => l.inBand),
     JSON.stringify(printed));
 
+  /* Every circle wears the asset it pairs with, read off the table in the same
+     order the nodes are drawn in. A wheel showing sixteen colours and a board
+     showing sixteen companies are two different products. */
+  const worn = await page.evaluate(() => {
+    const svg = document.getElementById('heroWheelSvg');
+    return [...svg.querySelectorAll('g[data-i]')].map((g) => ({
+      i: Number(g.dataset.i),
+      pic: (g.querySelector('.sp-node-pic') || {}).getAttribute
+        ? g.querySelector('.sp-node-pic').getAttribute('href') : null,
+      disc: !!g.querySelector('.sp-node-disc'),
+      glyph: !!g.querySelector('.sp-node-glyph'),
+    }));
+  });
+  const wantLogo = SECTORS.map((sec) => assetAt(CFG, sec).logo);
+  ok('every circle on the wheel carries its asset',
+    worn.length === SECTORS.length && worn.every((n) => n.pic === wantLogo[n.i]),
+    JSON.stringify(worn.filter((n) => n.pic !== wantLogo[n.i])));
+  /* The colour is half the draw, so the picture goes on a white disc inside the
+     sphere and the colour stays as a ring. And the drawn glyph stays under the
+     picture: an <image> with no file renders nothing, so the glyph is the
+     fallback for free. */
+  ok('on a white disc inside the colour, with the drawn mark still under it',
+    worn.every((n) => n.disc && n.glyph));
+
   /* The chip under the headline names a real cell of the board. A name written
      into the markup is exactly the bug this replaced: the hero advertised a
      token that had been off the board for two releases. */
@@ -346,16 +440,71 @@ async function browserChecks() {
   await page.waitForTimeout(200);
   ok('an invalid draft stays on create', await page.getAttribute('#pad', 'data-step') === '1');
 
-  // and neither does a hostile image link
   await page.fill('#fName', 'Northwind Capital');
   await page.fill('#fTicker', 'NWND');
   await page.fill('#fSupply', '250000000');
   await page.fill('#fDesc', 'Checked by the test suite.');
-  await page.fill('#fImage', 'javascript:alert(1)');
-  await page.click('#toSpin');
-  await page.waitForTimeout(200);
-  ok('a javascript: image link is refused', await page.getAttribute('#pad', 'data-step') === '1');
-  await page.fill('#fImage', '');
+
+  /* ---------- the picture ----------
+   *
+   * The field used to take a URL and its risk was a hostile one. It takes a
+   * file now, and the risk moved: the only string that can reach the record is
+   * one this code encoded off a canvas, and anything else has to be refused —
+   * on the way in and again on the way out. */
+  console.log('\nthe picture');
+  await page.setInputFiles('#fImage', {
+    name: 'big.png', mimeType: 'image/png', buffer: bigPng(900, 700),
+  });
+  await page.waitForTimeout(700);
+  const pic = await page.evaluate(() => new Promise((resolve) => {
+    const src = document.getElementById('imageThumb').src;
+    const img = new Image();
+    img.onload = () => resolve({
+      src: src.slice(0, 24),
+      bytes: Math.round(src.length * 0.75),
+      w: img.naturalWidth, h: img.naturalHeight,
+      shown: !document.getElementById('imageHas').hidden,
+      onOrb: !document.getElementById('orbPic').hidden,
+      name: document.getElementById('imageName').textContent,
+    });
+    img.onerror = () => resolve({ src, broken: true });
+    img.src = src;
+  }));
+  ok('a picked file is read and shown', pic.shown && pic.onOrb && pic.name === 'big.png',
+    JSON.stringify(pic));
+  ok('and it is an image the browser made, not the bytes that were handed in',
+    /^data:image\/(webp|png|jpeg);base64,/.test(pic.src), pic.src);
+  ok('900×700 comes back inside 256px', Math.max(pic.w, pic.h) <= 256, `${pic.w}×${pic.h}`);
+  ok('and small enough to keep in this browser', pic.bytes < 220e3, pic.bytes + ' bytes');
+
+  // a file that is not a picture never becomes one
+  await page.setInputFiles('#fImage', {
+    name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('<script>alert(1)</script>'),
+  });
+  await page.waitForTimeout(400);
+  const refused = await page.evaluate(() => ({
+    msg: document.querySelector('.sp-err[data-for="fImage"]').textContent.trim(),
+    bad: document.getElementById('imageDrop').classList.contains('is-bad'),
+    held: !document.getElementById('imageHas').hidden,
+    onOrb: !document.getElementById('orbPic').hidden,
+  }));
+  ok('a file that is not an image is refused', !!refused.msg && refused.bad, JSON.stringify(refused));
+  ok('and nothing of it is kept', !refused.held && !refused.onOrb, JSON.stringify(refused));
+
+  // put a good one back, because Remove is only there when something is held
+  await page.setInputFiles('#fImage', {
+    name: 'again.png', mimeType: 'image/png', buffer: bigPng(400, 400),
+  });
+  await page.waitForTimeout(600);
+  await page.click('#imageClear');
+  await page.waitForTimeout(300);
+  const cleared = await page.evaluate(() => ({
+    held: !document.getElementById('imageHas').hidden,
+    onOrb: !document.getElementById('orbPic').hidden,
+    full: document.getElementById('imageDrop').classList.contains('is-full'),
+  }));
+  ok('remove puts the field back', !cleared.held && !cleared.onOrb && !cleared.full,
+    JSON.stringify(cleared));
 
   ok('the pairing slot is empty before the spin',
     (await page.locator('#assetName').textContent()).trim() === 'Decided by the wheel');
@@ -392,6 +541,20 @@ async function browserChecks() {
     (await page.locator('#walletNoteText').textContent()).slice(0, 70));
   ok('and offers no connect button when there is no wallet to connect',
     await page.locator('#connectInline').isHidden());
+
+  /* Advancing used to centre the SPIN button, which put the stage's heading
+     behind the sticky bar — and the bigger the wheel got, the more went with
+     it. The stage's top is what is scrolled to now. */
+  await settle(page);          // the scroll is smooth; measuring mid-flight reads the start
+  const clears = await page.evaluate(() => {
+    const st = document.querySelector('.sp-stage[data-stage="2"]');
+    const head = st.querySelector('.sp-kicker');
+    const nav = document.querySelector('header').getBoundingClientRect();
+    const hb = head.getBoundingClientRect();
+    return { top: Math.round(hb.top), navBottom: Math.round(nav.bottom) };
+  });
+  ok('the spin stage arrives below the nav, not behind it',
+    clears.top >= clears.navBottom, JSON.stringify(clears));
 
   ok('the spin opens on step two', !(await page.locator('#spin').isDisabled()));
   ok('the launch control is still shut on step two', await page.locator('#launchBtn').isDisabled());

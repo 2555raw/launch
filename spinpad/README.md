@@ -295,7 +295,14 @@ cos(45°) of the mid-rim radius as a percentage of the wheel's box — `left`/`t
 `translate`, because a percentage inside `transform: translate` is a percentage of *the element*,
 and on a 70px label that moved all four about 18px and piled them on the hub.
 
-Four checks hold the object to the table: the face cannot reach the outer edge (a rim with no
+Every circle wears the asset it pairs with. The colour is half the draw, so the picture goes on a
+white disc *inside* the sphere and what is left of the colour is a thick ring — the board's rule
+inside out, for the board's reason: a mark printed on a saturated ground is a mark you cannot see.
+The drawn glyph stays under the picture rather than instead of it, which gets the board's fallback
+for free: an `<image>` whose file is missing renders nothing at all, so the glyph shows through on
+its own.
+
+Six checks hold the object to the table: the face cannot reach the outer edge (a rim with no
 thickness is a line), there is one tick per outcome, the cross has one arm per position, and each
 quarter name physically lands between the face's edge and the rim's. A wheel whose rim stops
 agreeing with the table is a picture of a different product.
@@ -434,6 +441,52 @@ release's stylesheet and script for up to an hour, and what came back was new ma
 CSS — a redesign that had shipped and could not be seen. Logos keep five minutes, because there are
 sixteen of them and they change rarely, and the ETag still catches one that has been replaced.
 
+## The ground
+
+Flat white read as unfinished. The page sits on a warm off-white now, with a fine dot grid for grain
+and four very faint blooms in the wheel's own colours — the palette rule holds even in the
+decoration: a colour on this page always means a colour on the wheel. It is fixed rather than
+scrolled, so the page travels across it.
+
+Every number in it is deliberately low. At .05 the dots are texture; at .12 they are a pattern
+competing with the type, and the whole point is that nobody should notice this directly.
+
+`--ground` and `--bg` are separate tokens for a reason. They used to be one, so lifting the page off
+white would have taken the nav pill, the cards, the search field and the gate with it — the things
+that are supposed to sit *on* the page. And the tinted section band is a veil (`rgba(16,17,20,.028)`)
+rather than a fill, because an opaque band cuts a flat stripe through the ground and the blooms stop
+dead at its edges.
+
+## The picture on a coin
+
+The image field takes a file. *Uploaded* is the wrong word for what happens and the help text says
+so: the file never leaves the browser. It is decoded, drawn into a canvas at 256px and re-encoded,
+and that string is what sits beside the record in `localStorage`. There is no server to send it to —
+this is four static files — and there is nowhere on chain for it either.
+
+Resizing is not tidiness. `localStorage` is about 5MB for the whole origin and one photo off a phone
+is bigger than that on its own: stored raw, the first coin with a picture would throw the whole
+board away. WebP first because it is smallest by a distance; a browser without it hands back a PNG
+from `toDataURL` whatever was asked for, so the result is checked rather than trusted, and a PNG
+that comes back large means a photograph, which needs a lossy codec. JPEG has no alpha, so it gets a
+white ground first — transparent pixels encoded as JPEG come out black.
+
+The field used to take a URL, and its risk was a hostile one: it refused `javascript:` and `data:`
+on the grounds that either would be an injection with extra steps. The risk moved rather than went
+away. The only string that can reach a record now is one this code encoded off a canvas — and it is
+checked on the way out as well as on the way in, because a hand-edited `localStorage` entry saying
+`data:text/html` would otherwise go straight into a `src`.
+
+Storage being finite is now reachable, so `save()` sheds weight instead of throwing the board away:
+first the oldest pictures, keeping the launches, because a launch is the record and the image is
+decoration on it; only if that is not enough does the list itself get shorter.
+
+Six checks: a picked file is read, shown in the field and on the preview orb; what comes back is an
+image the browser made rather than the bytes handed in; a 900×700 PNG the suite builds for itself
+comes back inside 256px and small enough to keep; a text file is refused with a message and nothing
+of it is kept; and Remove puts the field back. The suite writes its own large PNG rather than
+committing a photograph to prove a resize — every picture in the repository is already 128px.
+
 ## Checks
 
 ```bash
@@ -444,7 +497,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-197 checks across three suites.
+206 checks across three suites.
 
 ### The chain, checked without a chain
 

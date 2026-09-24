@@ -68,15 +68,35 @@ cbBTC (8) `0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf`, DAI (18)
 `0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42`. It has to be a plain ERC-20: `addLiquidity` computes
 the amounts before it transfers, so a fee-on-transfer or rebasing token leaves the pool wrong.
 
-**The router is still empty, and for a different reason.** No package publishes a V2 router address
-for Base — `@uniswap/v2-sdk` ships one factory and it is Ethereum mainnet's. There was nothing to
-copy from a source, so nothing was written. Fill `router.address` and `router.weth` from the
-router's own deployment page. Until then the pad deploys coins and pools stay off, which is the
-right way round.
+**The router is filled in now, and an earlier version of this file was wrong about why it was not.**
+It said no package publishes a V2 router address for Base. That was wrong because I looked in
+`@uniswap/v2-sdk`, which only re-exports the map, instead of `@uniswap/sdk-core`, which holds it.
+`@uniswap/sdk-core` 7.19.3 ships `V2_ROUTER_ADDRESSES` and `V2_FACTORY_ADDRESSES` keyed by chain,
+and 8453 is in both:
 
-Whatever is in there, the pad checks against the live chain on connect: `symbol()` and `decimals()`
-on the quote token, `WETH()` and `factory()` on the router, and it refuses anything that disagrees.
+| | address | source |
+|---|---|---|
+| Router02 | `0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24` | `@uniswap/sdk-core` |
+| Factory | `0x8909dc15e40173ff4699343b6eb8132c65e18ec6` | `@uniswap/sdk-core`, and independently `sushi` 7.3.15 |
+
+Two unrelated publishers agree on the factory, character for character. The router has one source,
+which is thinner than I would like for the call that moves someone's liquidity — **which is why the
+factory is in `config.js` at all.** The pad does not take the router on trust: on connect it asks
+the contract at that address for its `WETH()` and its `factory()`, and refuses it unless *both* come
+back as the file says. A wrong address would have to answer two unrelated getters with two specific
+addresses to get through, and a wrong-but-real V2 router — one for another chain, or a fork — fails
+on the factory even when it passes on WETH. If either disagrees, pools stay off and deploying still
+works.
+
 Deploying a coin needs neither — the pairing is a name, so the sixteen cells carry no address at all.
+
+**Pools are paid in ether, not WETH.** `addLiquidity` pulls *both* sides with `transferFrom`, which
+means pooling against WETH would require already holding WETH: go somewhere else, wrap, come back,
+sign two approvals. Nobody has WETH sitting there. So when the quote token *is* the router's own
+`WETH()` — which the shipped config makes true, and which is checked at runtime, not assumed — the
+pad calls `addLiquidityETH` instead and lets the router wrap. One approval instead of two, and the
+ether rides along as `value`. It is the same pool either way; the token path is still there and
+still tested, for a config that quotes in something else.
 
 Aerodrome is the large DEX on Base and is **not** a drop-in: it is Solidly-style and its
 `addLiquidity` takes a `stable` flag this pad does not send.
@@ -639,7 +659,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-252 checks across four suites.
+274 checks across four suites.
 
 ### The chain, checked without a chain
 
@@ -666,7 +686,16 @@ a test config whose addresses resolve, and then checks **the exact bytes the pad
 - a pool is **two** approvals — the coin and the quote token, each for exactly the amount about to
   be used and never unlimited — followed by `addLiquidity` with the right pair, the configured share
   of supply, the amount that was typed, minimums 1% under each side, the connected account as
-  recipient and a deadline in the future.
+  recipient and a deadline in the future;
+- and then the **whole walk again** against a config that quotes in the router's own WETH, which is
+  the shipped case: one approval instead of two, `addLiquidityETH` rather than `addLiquidity`, the
+  ether carried as `value`, exactly six arguments, and the field on screen asking for ETH. Without
+  this the branch the product actually takes would have no test at all — the first walk deliberately
+  quotes in something that is *not* the router's WETH, so it can only exercise the other path.
+
+Four more read the shipped `config.js` off disk rather than a stub, because the ether path is only
+taken when the shipped quote and the shipped router WETH are the same address, and nothing else
+would notice if a later edit changed one and not the other.
 
 Nothing is broadcast.
 
@@ -709,12 +738,14 @@ not a unit test of the internals; it goes at the product the way someone trying 
 
 ## Before the first real launch
 
-1. **Fill in the router** — two addresses, `router.address` and its `WETH()`. The `quote` token is
-   already WETH on Base. Take the router from its own deployment page, not from a search result and
-   not from this file. The sixteen cells are names and carry no address.
-2. **Connect and read the panel.** The pad calls `symbol()` and `decimals()` on the quote token and
-   checks the router answers like a V2 router. If either fails, deploying still works and pools stay
-   off.
+1. **Check the three addresses yourself, on basescan.** `router.address`, `router.factory` and
+   `quote.address` in `config.js`. They came out of published packages rather than memory and the
+   pad re-checks them against the live chain, but the router has a single source and it is the call
+   that moves the liquidity. Five minutes on the explorer is cheap. The sixteen cells are names and
+   carry no address.
+2. **Connect and read the panel.** The pad calls `symbol()` and `decimals()` on the quote token, and
+   asks the router for its `WETH()` and its `factory()` — both have to match `config.js`. If either
+   fails, deploying still works and pools stay off.
 3. **Launch one coin with a small supply first**, and look at it on the explorer before opening any
    pool. The deployment and the pool are separate transactions precisely so this is possible.
 4. **Understand what a first pool is.** A new pair with thin liquidity is trivially easy for anyone

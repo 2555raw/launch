@@ -728,6 +728,23 @@
     return list.sort(by[view.sort] || by.new);
   };
 
+  /* Whether this coin actually got a pool, said plainly. A launched coin with
+     no pool is a token nobody can buy, and that is the single most useful thing
+     this list can tell you about a row — so it gets a column rather than being
+     something you find out by clicking through to the explorer.
+
+     `pair` is the pool's own address, read off the factory when the pool opened.
+     Coins launched before pools worked have a txHash and no pool, and say so. */
+  const poolCell = (c) => {
+    if (c.pair) {
+      return `<a href="${esc(TwistrChain.explorerAddress(c.pair))}" target="_blank" rel="noopener noreferrer" class="is-live">Pool</a>`;
+    }
+    if (c.poolTx) {
+      return `<a href="${esc(TwistrChain.explorerTx(c.poolTx))}" target="_blank" rel="noopener noreferrer" class="is-live">Pool</a>`;
+    }
+    return '<span>no pool</span>';
+  };
+
   const launchRow = (c) => {
     const as = assetOf(c.color, c.position);
     const size = 24;
@@ -741,6 +758,7 @@
         <span class="sp-launch-mark">${face}</span>
         <span class="sp-launch-name"><b>${esc(c.name)}</b><br><em>${esc(c.ticker)}</em></span>
         <span class="sp-launch-pair"><b>${esc(as.name)}</b><em>${esc(comboOf(c.color, c.position))}</em></span>
+        <span class="sp-launch-pool">${poolCell(c)}</span>
         <span class="sp-launch-time">${ago(c.ts)}</span>
         <span class="sp-launch-tx">${c.txHash
           ? `<a href="${esc(TwistrChain.explorerTx(c.txHash))}" target="_blank" rel="noopener noreferrer">${esc(short(c.txHash))}</a>`
@@ -1214,11 +1232,25 @@
     showRecord(coin);
   };
 
-  /* The first pool: approve the router for both sides, then add liquidity.
-     addLiquidity pulls both tokens with transferFrom, so both need allowances —
-     approving only the coin is why an earlier version reverted with
-     TRANSFER_FROM_FAILED. The amount of the pair token is whatever the person
-     types; the pad never picks a number that moves someone's money. */
+  /* Is the quote token the router's own WETH? If it is, the pool can be paid
+     for in plain ether and the router wraps it, which is one approval instead
+     of two and no trip to a wrapping site first. Both halves have to be true
+     and verified: the config has to say so, and the router has to have told us
+     the same address on connect. Anything else falls back to the token path. */
+  const paysInEther = () =>
+    !!(routerOk && routerOk.ok && routerOk.weth
+       && CFG.quote.address
+       && routerOk.weth.toLowerCase() === CFG.quote.address.toLowerCase());
+
+  const payTicker = () => (paysInEther() ? CFG.chain.currency.symbol : CFG.quote.ticker);
+
+  /* The first pool.
+     Paid in ether: one approval (the coin), then addLiquidityETH with the ether
+     as value. Paid in the quote token: two approvals, because V2's addLiquidity
+     pulls BOTH sides with transferFrom and approving only the coin is why an
+     earlier version reverted with TRANSFER_FROM_FAILED every time.
+     The amount is whatever the person types; the pad never picks a number that
+     moves someone's money. */
   const openPool = async () => {
     const coin = flow.minted;
     if (!coin || !coin.address) return;
@@ -1237,18 +1269,23 @@
       return;
     }
 
+    const inEther = paysInEther();
+    const unit = payTicker();
+
     const typed = ($('poolAmount').value || '').trim();
     if (!/^\d+(\.\d+)?$/.test(typed) || Number(typed) <= 0) {
-      note.textContent = 'Type how much ' + quote.ticker + ' to put in, as a plain number.';
+      note.textContent = 'Type how much ' + unit + ' to put in, as a plain number.';
       return;
     }
 
-    // scale by the decimals the chain reported, not the ones the config claims
-    const dec = Number(quoteOk.decimals);
+    /* Scale by the decimals the chain reported, not the ones the config claims.
+       Ether is 18 by definition; the quote token is whatever symbol()/decimals()
+       actually returned on connect. */
+    const dec = inEther ? 18 : Number(quoteOk.decimals);
     const [whole, frac = ''] = typed.split('.');
     const tokenAmount = BigInt(whole + (frac + '0'.repeat(dec)).slice(0, dec));
     if (tokenAmount <= 0n) {
-      note.textContent = quote.ticker + ' has ' + dec + ' decimals, so that amount rounds to nothing. '
+      note.textContent = unit + ' has ' + dec + ' decimals, so that amount rounds to nothing. '
         + 'Type a larger one.';
       return;
     }
@@ -1265,28 +1302,53 @@
           : 'Approving the coin for the router… confirm in your wallet.';
       });
 
-      note.textContent = 'Now approving your ' + quote.ticker + '… confirm in your wallet.';
-      await TwistrChain.ensureAllowance(quote.address, CFG.router.address, tokenAmount, (step) => {
-        note.textContent = step === 'reset'
-          ? 'Clearing the old ' + quote.ticker + ' allowance first…'
-          : 'Now approving your ' + quote.ticker + '… confirm in your wallet.';
-      });
+      let poolTx;
+      if (inEther) {
+        /* The router wraps the ether itself, so there is no second approval and
+           nothing to hold beforehand. */
+        note.textContent = 'Approved. Confirm the liquidity itself — this is the one that moves your '
+          + unit + '.';
+        poolTx = await TwistrChain.addLiquidityETH({
+          coin: coin.address,
+          coinAmount,
+          ethAmount: tokenAmount,
+        });
+      } else {
+        note.textContent = 'Now approving your ' + quote.ticker + '… confirm in your wallet.';
+        await TwistrChain.ensureAllowance(quote.address, CFG.router.address, tokenAmount, (step) => {
+          note.textContent = step === 'reset'
+            ? 'Clearing the old ' + quote.ticker + ' allowance first…'
+            : 'Now approving your ' + quote.ticker + '… confirm in your wallet.';
+        });
 
-      note.textContent = 'Approved. Confirm the liquidity itself — this is the one that moves your '
-        + quote.ticker + '.';
-      const poolTx = await TwistrChain.addLiquidity({
-        coin: coin.address,
-        token: quote.address,
-        coinAmount,
-        tokenAmount,
-      });
+        note.textContent = 'Approved. Confirm the liquidity itself — this is the one that moves your '
+          + quote.ticker + '.';
+        poolTx = await TwistrChain.addLiquidity({
+          coin: coin.address,
+          token: quote.address,
+          coinAmount,
+          tokenAmount,
+        });
+      }
       await TwistrChain.waitForReceipt(poolTx);
 
       coin.poolTx = poolTx;
+      /* Ask the factory for the pair the router just created. It is the address
+         a chart or a swap page needs, and it is the one thing that proves the
+         pool exists to somebody who does not trust this page. */
+      try {
+        const pair = await TwistrChain.pairFor(routerOk.factory, coin.address, routerOk.weth);
+        if (pair) coin.pair = pair;
+      } catch (e) { /* the pool is open either way */ }
       save();
       renderProof();
       note.innerHTML = 'Pool open. <a href="' + esc(TwistrChain.explorerTx(poolTx))
-        + '" target="_blank" rel="noopener noreferrer">See it on the explorer</a>.';
+        + '" target="_blank" rel="noopener noreferrer">See the transaction</a>'
+        + (coin.pair
+          ? ' · <a href="' + esc(TwistrChain.explorerAddress(coin.pair))
+            + '" target="_blank" rel="noopener noreferrer">the pair</a>'
+          : '')
+        + '.';
     } catch (e) {
       note.textContent = e && e.code === 4001 ? 'Rejected in the wallet. Nothing moved.'
         : 'The pool did not open: ' + ((e && e.message) || 'unknown error') + '. The coin is fine.';
@@ -1330,12 +1392,20 @@
       + 'connection to it.';
 
     if ($('poolAsset')) {
+      /* The pool is always against the quote token. What the person HANDS OVER
+         is ether when the router wraps for us, so the field has to say ETH or
+         they will go looking for WETH they do not have. */
+      const inEther = paysInEther();
       $('poolAsset').textContent = CFG.quote.ticker;
-      const pa = $('poolAssetB'); if (pa) pa.textContent = CFG.quote.ticker;
+      const pa = $('poolAssetB'); if (pa) pa.textContent = payTicker();
       $('poolShare').textContent = Math.round(CFG.liquidity.supplyShare * 100) + '%';
       $('poolNote').textContent = coin.poolTx
         ? 'Pool already open.'
-        : 'Optional, and it is where real money moves. Three confirmations: two approvals, then the liquidity itself.';
+        : inEther
+          ? 'Optional, and it is where real money moves. Two confirmations: approving the coin, '
+            + 'then the liquidity itself. You pay in ' + CFG.chain.currency.symbol
+            + ' — the router wraps it.'
+          : 'Optional, and it is where real money moves. Three confirmations: two approvals, then the liquidity itself.';
       $('poolBtn').disabled = !!coin.poolTx;
     }
     $('tkCopy').textContent = 'Copy record';
@@ -1449,8 +1519,17 @@
       `<p class="sp-verify-head">${q.ok && r.ok ? 'Ready to launch on ' : 'Not ready on '}${esc(CFG.chain.name)}</p>`
       + '<ul class="sp-verify-list">'
       + row('Pair token (' + CFG.quote.ticker + ')', q, 'Fill quote.address in config.js. Deploying still works; pools do not.')
-      + row('Router', r, 'Fill router.address and router.weth in config.js.')
+      + row('Router (Uniswap V2)', r,
+        'The router did not answer with the WETH and factory config.js claims, so pools are off. '
+        + 'Deploying a coin still works.')
       + '</ul>'
+      + (q.ok && r.ok
+        ? '<p class="sp-verify-note">Pools open against ' + esc(CFG.quote.ticker)
+          + (paysInEther()
+            ? ', and you pay in ' + esc(CFG.chain.currency.symbol) + ' — the router wraps it for you.'
+            : '.')
+          + '</p>'
+        : '')
       + '<p class="sp-verify-note">The sixteen cells are names written into the coin, not tokens. '
       + 'Nothing on the board tracks a share price.</p>';
   };

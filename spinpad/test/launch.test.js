@@ -6,9 +6,14 @@
  * with the compiled bytecode and the encoded draw, and that a pool is an
  * approval followed by addLiquidity with the right router, amounts and slippage.
  *
+ * It runs the pool twice: once against a quote token that is not the router's
+ * WETH (two approvals, addLiquidity) and once against one that is, which is the
+ * shipped config (one approval, addLiquidityETH, ether as value).
+ *
  * Nothing is broadcast. Needs Playwright:
  *   CHROME_PATH=/path/to/chrome node test/launch.test.js
  */
+const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
@@ -23,6 +28,8 @@ const PORT = 8123;
 const TOKEN = '0x1111111111111111111111111111111111111111';
 const ROUTER = '0x2222222222222222222222222222222222222222';
 const WETH = '0x3333333333333333333333333333333333333333';
+const FACTORY = '0x5555555555555555555555555555555555555555';
+const PAIR = '0x6666666666666666666666666666666666666666';
 const COIN = '0x4444444444444444444444444444444444444444';
 const ME = '0x00000000000000000000000000000000000000c0';
 
@@ -52,7 +59,7 @@ const testConfig = `window.TWISTR_CONFIG = (() => {
   return {
     chain: { id: 8453, hex: '0x2105', name: 'Base', currency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
              rpc: ['https://example.invalid'], explorer: 'https://example.invalid' },
-    router: { address: '${ROUTER}', kind: 'uniswap-v2', weth: '${WETH}' },
+    router: { address: '${ROUTER}', kind: 'uniswap-v2', weth: '${WETH}', factory: '${FACTORY}' },
     quote: { name: 'Wrapped Ether', ticker: 'TEST', address: '${TOKEN}', decimals: 18 },
     positions, colours, pairings,
     liquidity: { supplyShare: 0.8, slippageBps: 100, deadlineMinutes: 20 },
@@ -81,7 +88,8 @@ window.ethereum = {
         if (d.startsWith('0x313ce567')) return '0x' + (18).toString(16).padStart(64,'0'); // decimals()
         if (d.startsWith('0xdd62ed3e')) return '0x' + (0).toString(16).padStart(64,'0');      // allowance()
         if (d.startsWith('0xad5c4648')) return '0x' + '${WETH}'.slice(2).padStart(64,'0'); // WETH()
-        if (d.startsWith('0xc45a0155')) return '0x' + '${WETH}'.slice(2).padStart(64,'0'); // factory()
+        if (d.startsWith('0xc45a0155')) return '0x' + '${FACTORY}'.slice(2).padStart(64,'0'); // factory()
+        if (d.startsWith('0xe6a43905')) return '0x' + '${PAIR}'.slice(2).padStart(64,'0'); // getPair()
         return '0x';
       }
       case 'eth_estimateGas': return '0x' + (1234567).toString(16);
@@ -278,6 +286,134 @@ window.ethereum = {
 
   ok('no console errors along the way', errors.length === 0, errors.slice(0, 2).join(' / '));
 
+  /* ── the same pool, paid in ether ────────────────────────────────────────
+     Everything above runs against a quote token that is NOT the router's WETH,
+     which is the two-approval path. The SHIPPED config is the other case —
+     quote and router WETH are the same address — so without this the branch the
+     product actually takes would have no test at all. Same walk, one changed
+     line of config, and the assertion is that the bytes are addLiquidityETH
+     with the ether carried as value rather than pulled with transferFrom. */
+  console.log('\nthe pool, paid in ether');
+
+  const etherConfig = testConfig.replace(
+    "address: '" + TOKEN + "', decimals: 18",
+    "address: '" + WETH + "', decimals: 18");
+  ok('the ether config really does quote in the router’s WETH',
+    etherConfig !== testConfig && etherConfig.includes(WETH + "', decimals: 18"));
+
+  const page2 = await browser.newPage({ viewport: { width: 1440, height: 950 } });
+  const errors2 = [];
+  page2.on('pageerror', (e) => errors2.push(e.message));
+  page2.on('console', (m) => { if (m.type() === 'error' && !/ERR_CERT|net::/.test(m.text())) errors2.push(m.text()); });
+  await page2.route('**/config.js', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: etherConfig }));
+  await page2.addInitScript(wallet);
+
+  await page2.goto('http://127.0.0.1:' + PORT + '/');
+  await page2.waitForTimeout(700);
+  await page2.check('#gateAgree');
+  await page2.click('#gateGo');
+  await page2.waitForTimeout(250);
+  await page2.click('#connect');
+  await page2.waitForTimeout(1200);
+  ok('it still verifies with WETH as the quote',
+    (await page2.locator('.sp-verify-list .is-bad').count()) === 0);
+
+  await page2.fill('#fName', 'Northwind Capital');
+  await page2.fill('#fTicker', 'NWND');
+  await page2.fill('#fSupply', '1000000');
+  await page2.click('#toSpin');
+  await page2.click('#spin');
+  await page2.waitForFunction(() => document.getElementById('pad').dataset.step === '3', null, { timeout: 14000 });
+  await page2.waitForTimeout(300);
+  await page2.click('#toLaunch');
+  await page2.waitForTimeout(200);
+  await page2.click('#launchBtn');
+  await page2.waitForFunction(() => document.getElementById('pad').dataset.step === '5', null, { timeout: 14000 });
+  await page2.waitForTimeout(400);
+
+  /* The label has to change with the path. Someone told to supply "WETH" goes
+     off to wrap ether they do not have; the whole point of this branch is that
+     they do not need to. */
+  ok('the field asks for ether, not WETH',
+    (await page2.locator('#poolAssetB').textContent()).trim() === 'ETH');
+  ok('and the note says the router wraps it',
+    /router wraps it/.test(await page2.locator('#poolNote').textContent()));
+
+  await page2.fill('#poolAmount', '0.05');
+  await page2.click('#poolBtn');
+  await page2.waitForTimeout(1500);
+
+  const sent2 = await page2.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction'));
+  ok('two more transactions, not three: one approval and the liquidity',
+    sent2.length === 3, sent2.length + ' in total');
+
+  if (sent2.length === 3) {
+    const appr = sent2[1].params[0];
+    const liq = sent2[2].params[0];
+
+    ok('the one approval is the coin, not the quote token',
+      String(appr.to).toLowerCase() === COIN && String(appr.data).startsWith('0x095ea7b3')
+      && String(appr.data).includes(ROUTER.slice(2).toLowerCase()));
+
+    ok('the liquidity goes to the router', String(liq.to).toLowerCase() === ROUTER);
+    ok('it calls addLiquidityETH', String(liq.data).startsWith('0xf305d719'),
+      String(liq.data).slice(0, 10));
+
+    /* The ether rides as value. If this were missing the router would wrap
+       nothing, and addLiquidityETH would revert — or worse, open a pool with
+       one side empty. */
+    ok('the ether is carried as value', BigInt(liq.value || '0x0') === 50000000000000000n,
+      String(liq.value));
+
+    const w = String(liq.data).slice(10).match(/.{64}/g);
+    ok('the token argument is the coin', w[0].endsWith(COIN.slice(2)));
+    ok('the coin side is the configured share of supply',
+      BigInt('0x' + w[1]) === 800000n * 10n ** 18n, BigInt('0x' + w[1]).toString());
+    ok('both minimums sit 1% under',
+      BigInt('0x' + w[2]) === (800000n * 10n ** 18n * 9900n) / 10000n
+      && BigInt('0x' + w[3]) === (50000000000000000n * 9900n) / 10000n);
+    ok('the recipient is the connected account', w[4].endsWith(ME.slice(2)));
+    ok('the deadline is in the future', BigInt('0x' + w[5]) > BigInt(Math.floor(Date.now() / 1000)));
+
+    /* Six arguments and no more: a stray word here is a different function. */
+    ok('there are exactly six arguments', w.length === 6, String(w.length));
+  }
+
+  /* The board has to say the coin got a pool. That is the one thing the list
+     can tell you that the explorer link cannot without a click. */
+  ok('the board now shows a live pool for it',
+    (await page2.locator('.sp-launch-pool a').count()) === 1);
+  ok('and it links to the pair the factory named',
+    ((await page2.locator('.sp-launch-pool a').first().getAttribute('href')) || '').includes(PAIR.slice(2)));
+
+  ok('no console errors on the ether path', errors2.length === 0, errors2.slice(0, 2).join(' / '));
+
+  /* ── the shipped config, not a stub ──────────────────────────────────────
+     Every check above runs against a test config. These read the real file,
+     because the ether path is only taken when the SHIPPED quote and the SHIPPED
+     router WETH are the same address — and nothing else would notice if a later
+     edit changed one and not the other. */
+  console.log('\nthe shipped config');
+  const shipped = fs.readFileSync(path.join(__dirname, '..', 'config.js'), 'utf8');
+  const field = (obj, key) => {
+    const block = shipped.slice(shipped.indexOf(obj + ': {'));
+    const m = block.slice(0, block.indexOf('},')).match(new RegExp(key + ":\\s*'(0x[0-9a-fA-F]{40})'"));
+    return m ? m[1].toLowerCase() : null;
+  };
+  const rAddr = field('router', 'address');
+  const rWeth = field('router', 'weth');
+  const rFactory = field('router', 'factory');
+  const qAddr = field('quote', 'address');
+
+  ok('a router is configured', !!rAddr, String(rAddr));
+  ok('with the factory the pad checks it against', !!rFactory, String(rFactory));
+  ok('the router WETH and the quote token are the same address, so pools take ether',
+    !!rWeth && rWeth === qAddr, rWeth + ' vs ' + qAddr);
+  ok('the router, its factory and the quote are three different contracts',
+    new Set([rAddr, rFactory, qAddr]).size === 3);
+
+  await page2.close();
   await browser.close();
   server.kill();
 

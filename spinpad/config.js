@@ -42,12 +42,10 @@
  * This file is where you would change the names if you would rather not carry
  * that.
  *
- * ADDRESSES. None of these was written from memory. `quote` is filled in with
- * WETH on Base, taken from Uniswap's own published token list and corroborated
- * by a second Uniswap package. `router` is still empty because no package
- * publishes a V2 router for Base, and a wrong one sends real liquidity
- * somewhere it cannot be recovered from. The pad checks whatever is here
- * against the live chain before it uses it.
+ * ADDRESSES. None of these was written from memory, and every one of them is
+ * checked against the live chain before the pad will move anything through it.
+ * Where an address came from is written beside it, because that is the only
+ * part of this file that can lose somebody real money.
  * ────────────────────────────────────────────────────────────────────────────
  */
 window.TWISTR_CONFIG = {
@@ -61,27 +59,35 @@ window.TWISTR_CONFIG = {
     explorer: 'https://basescan.org',
   },
 
-  /* The router that opens the pool and takes the first liquidity.
-   * Uniswap V2-compatible: addLiquidity / addLiquidityETH. A Solidly-style
-   * router (Aerodrome) has a different signature and will not work unchanged —
-   * the pad checks the interface before it calls it. */
-  /* STILL EMPTY, and not for the same reason the quote token was. There is no
-   * package on npm that publishes a V2 router address for Base: @uniswap/v2-sdk
-   * ships one factory, 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f, and that is
-   * Ethereum mainnet. So there was nothing to copy from a source, and writing
-   * forty characters from memory into the call that moves the liquidity is how
-   * money ends up somewhere nobody can get it back from.
+  /* The router that opens the pool and takes the first liquidity: Uniswap's own
+   * V2 router on Base, and the factory behind it.
    *
-   * Fill both from the router's own deployment page. The pad checks it before
-   * it will use it: WETH() has to return `weth` below and factory() has to
-   * answer at all, or pools stay off and deploying still works.
+   * WHERE THESE CAME FROM. An earlier version of this file said no package
+   * publishes a V2 router for Base. That was wrong, and it was wrong because I
+   * looked in @uniswap/v2-sdk, which only re-exports the map, instead of in
+   * @uniswap/sdk-core, which holds it. sdk-core 7.19.3 ships V2_ROUTER_ADDRESSES
+   * and V2_FACTORY_ADDRESSES keyed by chain, and chain 8453 is in both.
+   *
+   * The factory is corroborated by a second, unrelated publisher: the `sushi`
+   * package (7.3.15) has its own UNISWAP_V2_FACTORY_ADDRESS map, and its entry
+   * for Base is the same forty characters. The router is from sdk-core alone.
+   *
+   * WHICH IS WHY THE FACTORY IS HERE AT ALL. The pad does not take the router
+   * on trust. On connect it asks the router two questions and both answers have
+   * to match this file: WETH() has to return `weth`, and factory() has to return
+   * `factory`. A wrong router address would have to answer both correctly to get
+   * through, which a random contract will not. That check is what makes it safe
+   * to ship a router that only one package vouches for — and if either answer
+   * disagrees, pools stay off and deploying still works.
    *
    * Aerodrome is the big one on Base and is NOT a drop-in: it is Solidly-style,
-   * its addLiquidity takes a `stable` flag this pad does not send. */
+   * its addLiquidity takes a `stable` flag this pad does not send, so it would
+   * fail the interface check rather than silently do the wrong thing. */
   router: {
-    address: '',                                // ← fill in, then verify
+    address: '0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24',   // Uniswap V2 Router02
     kind: 'uniswap-v2',
-    weth: '',                                   // ← the router's WETH(), fill in
+    weth: '0x4200000000000000000000000000000000000006',      // the router's WETH()
+    factory: '0x8909dc15e40173ff4699343b6eb8132c65e18ec6',   // the router's factory()
   },
 
   /* Every pool is opened against this one token. It is the only address the pad

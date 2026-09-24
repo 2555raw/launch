@@ -159,9 +159,19 @@ window.TwistrChain = (() => {
     }
   };
 
-  /* The router has to answer like a Uniswap V2 router, and its WETH() has to
-     match what the config claims, or addLiquidityETH would send ether into the
-     wrong pool. */
+  /* Two questions, and BOTH answers have to match config.js.
+
+     One would not be enough. The router address in config.js is vouched for by
+     a single package, which is thinner than I would like for the call that
+     moves someone's liquidity. So the pad asks the contract at that address
+     what its WETH() and its factory() are, and refuses to use it unless both
+     come back as the file says. A wrong address would have to be a contract
+     that answers two unrelated getters with two specific addresses to slip
+     through, and a wrong-but-real V2 router — one for another chain, or a fork
+     — fails on the factory even when it passes on WETH.
+
+     Failing here is not fatal: pools stay off, and deploying a coin still
+     works. */
   const verifyRouter = async () => {
     const r = window.TWISTR_CONFIG.router;
     if (!r.address) return { ok: false, reason: 'no router configured' };
@@ -180,9 +190,28 @@ window.TwistrChain = (() => {
       if (r.weth && weth.toLowerCase() !== r.weth.toLowerCase()) {
         return { ok: false, reason: `router WETH is ${weth}, config says ${r.weth}` };
       }
+      if (!/^0x[0-9a-f]{40}$/.test(factory) || /^0x0{40}$/.test(factory)) {
+        return { ok: false, reason: 'no factory() — not a V2 router' };
+      }
+      if (r.factory && factory.toLowerCase() !== r.factory.toLowerCase()) {
+        return { ok: false, reason: `router factory is ${factory}, config says ${r.factory}` };
+      }
       return { ok: true, weth, factory };
     } catch (e) {
       return { ok: false, reason: (e && e.message) || 'call failed' };
+    }
+  };
+
+  /* The pair for two tokens, or null if nobody has opened it yet. Read off the
+     factory rather than computed, so it is the chain's answer and not this
+     page's arithmetic about an init code hash. */
+  const pairFor = async (factory, a, b) => {
+    try {
+      const hex = await call(factory, SEL.getPair + addrWord(a) + addrWord(b));
+      const addr = decodeAddress(hex);
+      return /^0x0{40}$/.test(addr) ? null : addr;
+    } catch (e) {
+      return null;
     }
   };
 
@@ -312,6 +341,40 @@ window.TwistrChain = (() => {
     return rpc('eth_sendTransaction', [{ from: state.account, to: cfg.router.address, data }]);
   };
 
+  /* The same pool, paid in ether instead of WETH.
+   *
+     Worth the extra function. addLiquidity pulls BOTH sides with transferFrom,
+     which means someone opening a pool against WETH has to already hold WETH —
+     so before they can launch they have to go somewhere else, wrap ether, come
+     back, and then sign two approvals. Nobody has WETH sitting there. This is
+     the version that works for a person with ETH in their wallet: the router
+     wraps it inside the call, so there is one approval (the coin) instead of
+     two, and the ether rides along as `value`.
+
+     The pool it opens is the same pool. addLiquidityETH is addLiquidity with
+     the router doing the wrapping, against the same pair — the router's own
+     WETH(), which verifyRouter has already checked is the quote token. */
+  const addLiquidityETH = async (opts) => {
+    const cfg = window.TWISTR_CONFIG;
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + cfg.liquidity.deadlineMinutes * 60);
+    const bps = cfg.liquidity.slippageBps;
+
+    const data = SEL.addLiquidityETH
+      + addrWord(opts.coin)
+      + word(opts.coinAmount)
+      + word(minOut(opts.coinAmount, bps))
+      + word(minOut(opts.ethAmount, bps))
+      + addrWord(state.account)
+      + word(deadline);
+
+    return rpc('eth_sendTransaction', [{
+      from: state.account,
+      to: cfg.router.address,
+      data,
+      value: '0x' + BigInt(opts.ethAmount).toString(16),
+    }]);
+  };
+
   const explorerTx = (hash) => window.TWISTR_CONFIG.chain.explorer + '/tx/' + hash;
   const explorerAddress = (a) => window.TWISTR_CONFIG.chain.explorer + '/address/' + a;
 
@@ -319,7 +382,7 @@ window.TwistrChain = (() => {
     SEL, encodeArgs, decodeString, decodeUint, decodeAddress, creationCode, estimateDeploy,
     hasWallet, connect, state, onChain, switchChain,
     verifyToken, verifyRouter, deploy, waitForReceipt,
-    approve, allowanceOf, ensureAllowance, addLiquidity,
+    approve, allowanceOf, ensureAllowance, addLiquidity, addLiquidityETH, pairFor,
     explorerTx, explorerAddress,
   };
 })();

@@ -483,6 +483,15 @@
       const tilt = lerp(3, 9, slot.d).toFixed(0);
       const dur = lerp(6.5, 13, slot.d).toFixed(1);
       const dir = i % 2 ? 1 : -1;
+      /* Where this chip starts: the middle of the hero, expressed as the vector
+         back from its own slot. Percentages cannot do it — a percentage inside
+         translate() is a percentage of the element, not of its container — so
+         the trip is written in viewport units against the hero's own box.
+         The far ones leave later, which is what makes it read as a burst
+         spreading rather than sixteen things moving at once. */
+      const fx = (50 - slot.x).toFixed(2);
+      const fy = (50 - slot.y).toFixed(2);
+      const reach = Math.hypot(50 - slot.x, 50 - slot.y) / 60;   // 0 near, ~1 far
       /* The light is in the same quarter for all of them, because one light
          source is what makes a group of objects look like it is in one place.
          It only wanders a few points, so they are not stamped from one mould. */
@@ -493,7 +502,10 @@
           --x:${slot.x}%; --y:${slot.y}%; --s:${size}px; --o:${opacity};
           --c-hi:${mix(hex, 'white', 0.55)}; --c-lo:${mix(hex, 'black', 0.34)};
           --c-rim:${mix(hex, 'white', 0.3)}; --lx:${lx}%; --ly:${ly}%;
-          --delay:${(0.06 * i).toFixed(2)}s; --dur:${dur}s; --offset:-${(0.7 * i).toFixed(2)}s;
+          --fx:calc(${fx} * 1vw);
+          --fy:calc(${fy} * (100dvh - var(--nav-h) - var(--nav-gap)) / 100);
+          --spin:${(dir * (14 + (i % 3) * 9)).toFixed(0)}deg;
+          --delay:${(0.05 + reach * 0.34).toFixed(2)}s; --dur:${dur}s; --offset:-${(0.7 * i).toFixed(2)}s;
           --riseA:${rise * dir}%; --riseB:${-rise * dir}%;
           --swayA:${sway * -dir}%; --swayB:${sway * dir}%;
           --tiltA:${tilt * dir}deg; --tiltB:${-tilt * dir}deg;">

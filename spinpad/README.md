@@ -364,6 +364,15 @@ per colour, no asset twice.
 
 Four things about it are decisions rather than defaults:
 
+- **They arrive out of the middle.** Each one starts at the hero's centre, small, and is thrown to
+  its slot; the easing carries it a little past and lets it settle. The vector is computed per chip
+  from its own slot and written in viewport units, because a percentage inside `translate()` is a
+  percentage of the element rather than of its container and cannot express "back to the middle".
+  The far ones leave last, which is what makes it read as one thing spreading rather than sixteen
+  things moving at once. A check scrubs the animation to its first frame — with the Web Animations
+  API, because setting `animation-delay` does not scrub an animation that has already finished — and
+  asserts every chip really is at the centre then. A slot moved without touching the vector would
+  launch that chip from the wrong place, and nobody would notice, because it is over in a second.
 - **The slots are written out, not randomised.** Random placement stacks two discs on top of each
   other about as often as not, and drops one behind the headline where it fights the only words on
   the page. The near, solid discs hold the margins; the faint ones fill the middle distance.
@@ -583,7 +592,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-225 checks across three suites.
+226 checks across three suites.
 
 ### The chain, checked without a chain
 

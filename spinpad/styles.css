@@ -271,7 +271,7 @@ a { color: inherit; text-decoration: none; }
   position: absolute; left: var(--x); top: var(--y);
   width: var(--s); height: var(--s); margin: calc(var(--s) / -2);
   opacity: 0;
-  animation: sp-float-arrive 1s var(--ease) both var(--delay);
+  animation: sp-float-arrive 1.15s cubic-bezier(.16, .84, .3, 1.07) both var(--delay);
 }
 .sp-float-in {
   display: block; width: 100%; height: 100%;
@@ -323,9 +323,14 @@ a { color: inherit; text-decoration: none; }
       rgba(255, 255, 255, .26), rgba(255, 255, 255, 0) 72%);
 }
 
+/* Out of the middle, not up from the floor. Each chip starts at the hero's
+   centre, small, and is thrown to its slot — the easing carries it a little
+   past and lets it settle, which is what stops sixteen simultaneous arrivals
+   looking like a slide transition. */
 @keyframes sp-float-arrive {
-  from { opacity: 0; transform: translateY(30px) scale(.82); }
-  to   { opacity: var(--o); transform: none; }
+  0%   { opacity: 0; transform: translate3d(var(--fx), var(--fy), 0) scale(.22) rotate(var(--spin)); }
+  16%  { opacity: var(--o); }
+  100% { opacity: var(--o); transform: none; }
 }
 /* Air, not a lift: it sways across as well as up, and the tilt lags the sway. */
 @keyframes sp-float-drift {

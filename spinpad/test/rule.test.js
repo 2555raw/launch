@@ -569,6 +569,32 @@ async function browserChecks() {
     };
   });
   ok('all sixteen assets drift behind the hero', drift.count === 16, String(drift.count));
+
+  /* They arrive out of the middle. The vector each chip flies along is computed
+     from its own slot, so a slot moved without touching it would launch that
+     chip from the wrong place — and nobody would notice, because it is over in
+     a second. This scrubs the animation to its first frame with the Web
+     Animations API (setting animation-delay does not scrub one that has already
+     finished) and asks where the chips actually are. */
+  const burst = await page.evaluate(async () => {
+    const hero = document.querySelector('.sp-hero').getBoundingClientRect();
+    const cx = hero.left + hero.width / 2, cy = hero.top + hero.height / 2;
+    const chips = [...document.querySelectorAll('.sp-float')];
+    const anims = chips.flatMap((el) => el.getAnimations());
+    anims.forEach((a) => { a.pause(); try { a.currentTime = 0; } catch (e) { /* not started */ } });
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const off = chips.map((el) => {
+      const b = el.getBoundingClientRect();
+      return Math.hypot(b.left + b.width / 2 - cx, b.top + b.height / 2 - cy);
+    });
+    // and put them back where they were, or every check after this one is lying
+    anims.forEach((a) => { try { a.finish(); } catch (e) { /* infinite */ } a.play(); });
+    await new Promise((r) => requestAnimationFrame(r));
+    return { worst: Math.max(...off), span: Math.min(hero.width, hero.height) };
+  });
+  ok('and they start from the middle of it, not from where they end up',
+    burst.worst < burst.span * 0.1,
+    `furthest chip starts ${burst.worst.toFixed(0)}px off centre`);
   ok('one chip per cell, no asset twice', new Set(drift.logos).size === 16,
     new Set(drift.logos).size + ' distinct');
   ok('four of each colour, like the table',

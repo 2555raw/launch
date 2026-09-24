@@ -483,7 +483,7 @@ async function browserChecks() {
     !missing.imageVisible && missing.glyphVisible, JSON.stringify(missing));
 
   ok('the cells with a logo file are on white discs, the rest are not',
-    discs.withLogo + discs.coloured === 16 && discs.withLogo === 13, JSON.stringify(discs));
+    discs.withLogo + discs.coloured === 16 && discs.withLogo === 15, JSON.stringify(discs));
 
   // both wheels carry all sixteen nodes, and their corner labels match the table
   const nodes = await page.evaluate(() => ({

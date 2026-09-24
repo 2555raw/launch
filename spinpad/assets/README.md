@@ -10,24 +10,28 @@ RED                             YELLOW
 assets/tsla.png     Tesla       assets/amzn.png     Amazon
 assets/lulu.png     Lululemon   assets/snap.png     Snapchat
 assets/gme.png      GameStop *  assets/msft.png     Microsoft
-assets/net.png      Netflix     assets/gld.png      GLD      *
+assets/net.png      Netflix     assets/gld.png      Gold
 
 GREEN                           BLUE
 assets/nvda.png     Nvidia      assets/meta.png     Meta
 assets/shop.png     Shopify     assets/intc.png     Intel
 assets/bull.png     BULL        assets/f.png        Ford
-assets/inda.png     INDA     *  assets/coin.png     Coinbase
+assets/inda.png     India       assets/coin.png     Coinbase
 ```
 
-`*` — these three do not exist yet, and each fails for its own reason rather than for want of
-trying. **GME** is a wordmark whose "Game" is white: cut off the dark tile it came from, half of it
-disappears into a white disc, and inverting somebody's wordmark is not using their mark, it is
-drawing a different one. **GLD** has a red pen stroke across the right-hand bar in the only picture
-of it here; keying the pen out and filling the hole leaves a grey smear worse than the pen. **INDA**
-is clipped by the edge of that screenshot — only part of the flag is in frame. Those three cells
-keep their drawn mark and their coloured disc, which costs nothing, until a real file is dropped in.
+`*` — **GME** is the one still missing, and it is not for want of trying. Its wordmark's "Game" is
+white: cut off the dark field it came from, half the word disappears into a white disc, and
+inverting somebody's wordmark is not using their mark, it is drawing a different one. That cell
+keeps its drawn mark and its coloured disc, which costs nothing, until a real file is dropped in.
 
-Thirteen of the sixteen ship. `bull.png` and `lulu.png` were cut out of a screenshot of Pons's token
+`inda.png` and `gld.png` are drawn rather than lifted. A national flag and a gold bar are nobody's
+trademark — the Indian flag's proportions, colours and twenty-four spokes are published, and a gold
+bar is a tapered box — so the honest thing was to draw them properly instead of cutting up a
+photograph. The photographs available were a waving flag and a watermarked stock image, and at the
+28px a cell actually draws, a photo of a waving flag is three smears. `gold.js` and `flag.js` in the
+scratchpad wrote them; neither is a dependency of anything.
+
+Fifteen of the sixteen ship. `bull.png` and `lulu.png` were cut out of a screenshot of Pons's token
 grid: those tiles sit on one flat dark navy, so the background keys out by colour distance rather
 than by luminance — a luminance key eats a dark mark along with the ground, which is exactly what
 happened to the Netflix N on the first attempt. Every pixel that survives has the navy divided back

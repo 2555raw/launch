@@ -188,19 +188,12 @@ window.ethereum = {
      that would revert then arrives as an error this page can explain, rather
      than as "could not simulate this request" in the wallet with a Confirm
      (unsafe) button under it. */
-  /* The pad also prices a stand-in launch on connect, so this counts the
-     estimate the LAUNCH caused: the last one, sent immediately before the
-     only eth_sendTransaction. */
-  const est = await page.evaluate(() => {
-    const all = window.__sent.filter((s) => s.method === 'eth_estimateGas');
-    return all.slice(-1);
-  });
-  const estTotal = await page.evaluate(() =>
-    window.__sent.filter((s) => s.method === 'eth_estimateGas').length);
+  /* The pad no longer prices anything on connect — that was the commentary
+     panel, and it is gone — so the launch is the only thing estimated. */
+  const est = await page.evaluate(() =>
+    window.__sent.filter((s) => s.method === 'eth_estimateGas'));
   ok('the deployment is estimated before the wallet is opened', est.length === 1,
-    estTotal + ' estimates in total');
-  ok('and the pad had already priced one on connect, without being asked',
-    estTotal >= 2, String(estTotal));
+    est.length + ' estimates');
   const sentGas = await page.evaluate(() =>
     (window.__sent.find((s) => s.method === 'eth_sendTransaction').params[0] || {}).gas);
   ok('and the send carries a gas limit above that estimate',
@@ -466,22 +459,33 @@ window.ethereum = {
      fine. Saying so AFTER the box is up does not help, so the pad names it on
      connect — and this checks it does, and that it does not slander wallets
      that handle creates without complaint. */
-  /* ── the diagnostic ──────────────────────────────────────────────────────
-     Five rounds went on guessing which transaction a wallet screenshot was
-     complaining about. This makes the page say it, and — the part that
-     actually settles it — whether the NODE will price it. "The node executed
-     this and it worked" and "the node refuses to execute this" look identical
-     in a wallet dialog and need completely different fixes. */
-  console.log('\nsaying what would be sent');
+  /* ── nothing on the page about the transaction layer ─────────────────────
+     A yellow panel, then a line, then a green panel: three versions of a
+     running commentary on wallets and calldata on the first screen of a
+     launchpad, and all three were asked to go. They were right. The verdict
+     function stays — it is the thing that tells a bug here from a wallet's
+     own judgement — but it is called when something needs diagnosing, not
+     painted on the wall. */
+  console.log('\nno commentary on the page');
 
-  await page.click('#diagBtn');
-  await page.waitForTimeout(900);
-  const diag = await page.locator('#diagOut').textContent();
-  ok('it says what shape the transaction is', /creation|CALL/.test(diag), diag.slice(0, 160));
-  ok('and how big the calldata is', /bytes/.test(diag));
-  ok('and what the node said about it', /priced it at|REFUSED/.test(diag), diag.slice(0, 200));
-  ok('and separates the node\u2019s verdict from the wallet\u2019s',
-    /risk scoring|really would fail/.test(diag));
+  ok('there is no diagnostic panel', (await page.locator('.sp-diag').count()) === 0);
+  ok('and no button asking about transactions', (await page.locator('#diagBtn').count()) === 0);
+  ok('and no launcher button on the wallet screen',
+    (await page.locator('#deployFactory').count()) === 0);
+  const wallScreen = await page.locator('.sp-verify').textContent();
+  ok('and the wallet screen names no wallet and no calldata',
+    !/Phantom|MetaMask|Rabby|calldata|creation/i.test(wallScreen), wallScreen.slice(0, 200));
+
+  /* It still works, and still tells the two cases apart — which is the whole
+     reason it survives at all. */
+  const verdict = await page.evaluate(() => window.TwistrChain.describeLaunch({
+    name: 'Diagnostic', ticker: 'DIAG', supplyWei: '1000000000000000000000000',
+    assetName: 'Tesla', assetTicker: 'TSLA', colour: 'Red', position: 'Left hand',
+  }));
+  ok('the verdict function still answers', !!verdict && typeof verdict.ok === 'boolean',
+    JSON.stringify(verdict).slice(0, 160));
+  ok('and says whether the node would execute it', verdict.ok === true, JSON.stringify(verdict).slice(0, 200));
+  ok('and what shape the transaction is', /creation|call/.test(verdict.kind), String(verdict.kind));
 
   /* A launch with no account to mint to would revert on the contract's
      zero-address guard — and a reverting transaction is reported by a wallet
@@ -627,15 +631,6 @@ window.ethereum = {
   ok('and the panel never mentions the wallet by name',
     !/Phantom|MetaMask|Rabby/.test(panel), panel.slice(0, 200));
 
-  await page4.waitForTimeout(600);
-  const verdict = await page4.locator('.sp-diag-verdict').textContent();
-  ok('the chain\u2019s verdict is shown instead, without being asked for',
-    /Ready|refused/.test(verdict), verdict.slice(0, 160));
-  ok('and it says what shape the launch would be',
-    /creation|call/.test(verdict), verdict.slice(0, 200));
-  ok('with the launcher offered right there when it would be a creation',
-    (await page4.locator('#deployFactory').count()) === 1);
-
   const FACTORY_AT = '0x8888888888888888888888888888888888888888';
   await page4.evaluate((at) => {
     window.__factoryAt = at;
@@ -658,8 +653,8 @@ window.ethereum = {
   }, { deployer: CREATE2, salt: SALT, at: FACTORY_AT });
 
   const before = await page4.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction').length);
-  await page4.click('#deployFactory');
-  await page4.waitForTimeout(2500);
+  await page4.evaluate(() => window.TwistrChain.deployFactory());
+  await page4.waitForTimeout(2000);
 
   const dep = await page4.evaluate((n) =>
     window.__sent.filter((s) => s.method === 'eth_sendTransaction')[n], before);
@@ -675,18 +670,17 @@ window.ethereum = {
     sentCode.toLowerCase() === (await page4.evaluate(() => window.TWISTR_FACTORY.bytecode)).toLowerCase(),
     sentCode.length + ' vs shipped');
 
-  ok('the launcher is in use straight after deploying it',
+  await page4.evaluate(async () => {
+    window.TwistrChain.rememberFactory(window.__factoryAt);
+    await window.TwistrChain.verifyFactory();
+  });
+  ok('the launcher is in use once it is deployed and checked',
     await page4.evaluate(() => window.TwistrChain.usesFactory()));
-  ok('and the line about creations is gone from the panel',
-    (await page4.locator('.sp-verify-act').count()) === 0);
-  /* And the offer to set it up is gone, because there is nothing left to set
-     up — which is the only confirmation that matters and the one that cannot
-     be missed. */
-  ok('and the launcher button is gone, because there is nothing left to do',
-    (await page4.locator('#deployFactory').count()) === 0);
-  ok('without anyone editing a file',
-    /call/.test(await page4.locator('.sp-diag-verdict').textContent()),
-    await page4.locator('.sp-diag-verdict').textContent());
+  ok('and a launch is a call from then on',
+    (await page4.evaluate(() => window.TwistrChain.describeLaunch({
+      name: 'x', ticker: 'X', supplyWei: '1000000000000000000',
+      assetName: 'a', assetTicker: 'A', colour: 'Red', position: 'Left hand',
+    }))).kind === 'call');
 
   /* And it survives a reload, or it would be one click per visit. */
   await page4.reload();

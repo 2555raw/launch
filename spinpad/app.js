@@ -1613,94 +1613,6 @@
      earlier version reverted with TRANSFER_FROM_FAILED every time.
      The amount is whatever the person types; the pad never picks a number that
      moves someone's money. */
-  /* What the pad would send, shown without sending it.
-   *
-     Five rounds of this were spent guessing from screenshots of a wallet
-     dialog, which never says which transaction it is objecting to. This says
-     it: creation or call, to what, how big, and — the part that actually
-     settles it — whether the NODE will price it. A node that prices the
-     transaction has executed it against current state, so a wallet refusing
-     it after that is the wallet's own judgement and not a broken transaction.
-     Those two look identical from outside and need completely different
-     fixes. */
-  /* A launch that is never sent, only priced. The draw is a stand-in: gas for a
-     deployment does not depend on which of sixteen names is in it. */
-  const autoDiagnose = async () => {
-    const box = $('diagOut');
-    if (!box || !TwistrChain.state.account) return;
-    const d = await TwistrChain.describeLaunch({
-      name: 'Diagnostic', ticker: 'DIAG', supplyWei: 1000000n * 10n ** 18n,
-      assetName: 'Tesla', assetTicker: 'TSLA', colour: 'Red', position: 'Left hand',
-    });
-
-    const shape = d.kind === 'call'
-      ? 'a contract <b>call</b>'
-      : 'a contract <b>creation</b>, which some wallets will not preview';
-
-    box.innerHTML = d.ok
-      ? '<div class="sp-diag-verdict is-ok">'
-        + '<b>Ready.</b> The chain ran a test launch and it worked — ' + num(Number(d.gas))
-        + ' gas. Launching sends ' + shape + '.'
-        + (d.kind === 'creation'
-          ? ' <button class="sp-btn sp-btn-outline sp-btn-sm" id="deployFactory" type="button">'
-            + 'Set up the launcher</button>'
-            + '<span class="sp-chain-note" id="factoryNote"></span>'
-          : '')
-        + '</div>'
-      : '<div class="sp-diag-verdict is-bad"><b>The chain refused a test launch.</b> '
-        + esc(d.reason || 'no reason given') + ' — so the transaction really would fail. '
-        + 'That is a bug here; send me this line.</div>';
-
-    wireFactoryButton();
-  };
-
-  const showDiagnosis = async () => {
-    const box = $('diagOut');
-    if (!box) return;
-    if (!flow.draft && !readForm()) {
-      box.textContent = 'Fill the form in first — there is no launch to describe yet.';
-      return;
-    }
-    if (!TwistrChain.state.account) { box.textContent = 'Connect a wallet first.'; return; }
-
-    const draft = flow.draft || readForm();
-    const sp = flow.spin;
-    const as = sp ? assetOf(sp.color, sp.position) : null;
-    const coin = {
-      name: draft.name, ticker: draft.ticker,
-      supplyWei: BigInt(draft.supply) * 10n ** 18n,
-      assetName: as ? as.name : 'Unspun',
-      assetTicker: as ? as.ticker : 'NONE',
-      colour: sp ? colOf(sp.color).label : 'Unspun',
-      position: sp ? posOf(sp.position).label : 'Unspun',
-    };
-
-    box.textContent = 'Asking the chain…';
-    const d = await TwistrChain.describeLaunch(coin);
-
-    const rows = [
-      ['Shape', d.kind === 'call' ? 'a contract CALL — a wallet can preview this'
-                                  : 'a bare contract CREATION — some wallets cannot preview this'],
-      ['To', d.to || '(nothing — that is what makes it a creation)'],
-      ['From', d.from || '(not connected)'],
-      ['Value', d.value || '0x0'],
-      ['Calldata', d.dataBytes ? d.dataBytes + ' bytes' : '(none)'],
-    ];
-    if (d.launcher) rows.push(['Launcher', d.launcher]);
-    rows.push(['Node says', d.ok
-      ? 'priced it at ' + num(Number(d.gas)) + ' gas — it executes'
-      : 'REFUSED to price it: ' + (d.reason || 'no reason given')]);
-
-    box.innerHTML = rows.map(([k, v]) =>
-      '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join('')
-      + '<p class="sp-chain-note">' + (d.ok
-        ? 'The node executed this against the live chain and it worked. If your wallet still '
-          + 'refuses it, that is the wallet\u2019s own risk scoring — not a broken transaction, and '
-          + 'not something a change here can fix.'
-        : 'The node would not execute it, so this transaction really would fail. That is mine to '
-          + 'fix — send me this text.') + '</p>';
-  };
-
   const openPool = async (amountOverride) => {
     const coin = flow.minted;
     if (!coin || !coin.address) return;
@@ -2037,53 +1949,19 @@
 
     renderLiqField();
 
-    /* Price a launch against the chain right now, without being asked.
-     *
-       Twice I put a diagnostic behind a button and asked for the output, and
-       twice the answer came back as another screenshot of the wallet. That is
-       not the person's failing — the button needs a filled-in form to describe
-       anything, and by the time you are staring at a red dialog you want an
-       answer, not homework. So it runs on connect, with a stand-in draft, and
-       the verdict sits in the panel before anything is signed.
-
-       It answers the only question that matters: does the NODE execute this?
-       If it does, the transaction is sound and a wallet refusing it is the
-       wallet's own risk scoring — which no change here can fix. If it does
-       not, the transaction really is broken, and that is mine. */
-    if (q.ok) autoDiagnose();
-
   };
 
-  /* Wired where the button is drawn, because it is drawn by the verdict line
-     and not by the panel. An earlier version attached this once, to a button a
-     later redesign moved, and the click silently did nothing — which looked
-     exactly like the deployment failing. */
-  const wireFactoryButton = () => {
-    const fb = $('deployFactory');
-    if (!fb || fb.dataset.wired) return;
-    fb.dataset.wired = '1';
-    fb.addEventListener('click', async () => {
-      const note = $('factoryNote') || { set textContent(v) {}, set innerHTML(v) {} };
-      fb.disabled = true;
-      note.textContent = ' Confirm it in your wallet…';
-      try {
-        const hash = await TwistrChain.deployFactory();
-        note.textContent = ' Waiting for it to be mined…';
-        const receipt = await TwistrChain.waitForReceipt(hash);
-        const addr = (receipt && receipt.contractAddress)
-          || (CFG.factory && CFG.factory.address) || '';
-        if (!addr) throw new Error('no launcher address');
-        TwistrChain.rememberFactory(addr);
-        const v = await TwistrChain.verifyFactory();
-        if (!v.ok) { TwistrChain.forgetFactory(); throw new Error(v.reason); }
-        await verifyTokens();
-      } catch (e) {
-        fb.disabled = false;
-        note.textContent = e && e.code === 4001 ? ' Rejected in the wallet.'
-          : ' It did not deploy: ' + ((e && e.message) || 'unknown error');
-      }
-    });
-  };
+  /* The launcher is set up from config.js, not from a button on the page.
+   *
+     Its address is deterministic — contract/TwistrFactory.sol through a CREATE2
+     deployer — so it is already named in config.js and the pad checks whether
+     code is there. Deploying it once makes every launch after it, for
+     everybody, a contract call instead of a creation. That is a one-off
+     operator job, not something a visitor should be looking at, and it had no
+     business being the first thing on the wallet screen.
+
+     TwistrChain.deployFactory() does it from the console for whoever runs the
+     pad, and the check on connect picks it up from then on. */
 
   /* The wallet picker.
    *
@@ -2329,7 +2207,6 @@
 
     $('launchBtn').addEventListener('click', launch);
     if ($('poolBtn')) $('poolBtn').addEventListener('click', () => openPool());
-    if ($('diagBtn')) $('diagBtn').addEventListener('click', showDiagnosis);
 
     $('discard').addEventListener('click', () => {
       if (!confirm('Discarding clears the whole draft — name, ticker, supply, description and the spin. This is starting over, not re-rolling.')) return;

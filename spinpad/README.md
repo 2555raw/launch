@@ -485,18 +485,22 @@ misunderstand the old shape, and that is not what happened here.
 
 ## The mark
 
-Twistr has a logo now: the letter T and the spinner's needle as one shape, on the disc it turns on,
-pinned by its pivot. One colour, not four — the four belong to the board, and a logo that uses all
-of them is a pie chart.
+Twistr has a logo now: the board's four colours around the pivot they turn on. The dots touch the
+hub rather than floating around it, and that is the whole design decision — spaced apart they are
+five specks at 16px; touching, they are one mark.
 
-Six were drawn and the choice was made at 16px, not at 200. Three died there: a quartered disc goes
-to mush and is the four-colour cliché anyway, a ring of coloured dots loses the dots, and a thin
-open ring loses its stroke. What survives small is a bold silhouette with one accent, which is also
-what "eye-catching but quiet" turns out to mean once you stop designing at poster size.
+Six were drawn and the choice was made at 16px, not at 200, which is where a logo actually lives.
+Three died there: a quartered disc goes to mush, a ring of separated dots loses the dots, and a thin
+open ring loses its stroke. The one that was picked then got four spacings tried against each other
+at the same five sizes, because the gap between the dots is the difference between a mark and a
+scatter.
 
 The same geometry is the nav mark, the tab icon and the banner. A check asserts the brand carries
-both a mark and the wordmark, and that the favicon's path is the mark's own — a favicon that has
-drifted from the logo is the commonest way a rename leaves a trace of the old one behind.
+both a mark and the wordmark, and that the icon is the mark shape for shape — a favicon that has
+drifted from the logo is the commonest way a redesign leaves a trace of the old one behind. It
+compares them as a list of shapes rather than as text, because the two are the same drawing written
+twice: `innerHTML` spells a circle `<circle ...></circle>` where the data URL spells it
+`<circle .../>`, and folding those two by hand kept tripping over its own replacements.
 
 ## The link card
 

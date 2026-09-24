@@ -281,16 +281,30 @@ async function browserChecks() {
       hasMark: !!logo,
       wordmark: (document.querySelector('.sp-brand span') || {}).textContent,
       drawn: box ? Math.round(box.width) > 8 && Math.round(box.height) > 8 : false,
-      // the icon is the same geometry, inline
+      /* The icon and the nav mark are the same drawing written twice — one
+         inline, one in a data URL — so what is compared is the geometry
+         itself, normalised. Comparing one path's `d` was narrower and broke
+         the moment the mark stopped having a path. */
       iconIsSvg: href.startsWith('data:image/svg+xml'),
-      iconSharesPath: logo && href.includes(encodeURIComponent(logo.querySelector('path').getAttribute('d')).replace(/%20/g, ' ')),
+      iconBody: decodeURIComponent(href.replace(/^data:image\/svg\+xml,/, ''))
+        .replace(/^.*?<svg[^>]*>|<\/svg>.*$/g, ''),
+      markBody: logo ? logo.innerHTML : '',
     };
   });
+  /* The two are the same drawing written twice — inline, and inside a data
+     URL — so they are compared as a list of shapes rather than as text.
+     innerHTML writes <circle ...></circle> where the URL has <circle .../>,
+     and folding those two spellings by hand kept tripping over its own
+     replacements. Pulling the tags out and dropping the closers does not. */
+  const tidy = (x) => (String(x).match(/<(?:circle|path|rect|ellipse|line|polygon|polyline)[^>]*>/g) || [])
+    .map((t) => t.replace(/\s*\/?>$/, '').replace(/'/g, '"').replace(/\s+/g, ' ').trim().toLowerCase())
+    .join('|');
   ok('the brand carries a mark as well as the name',
     brandMark.hasMark && brandMark.drawn && brandMark.wordmark.trim().length > 1,
     JSON.stringify(brandMark));
-  ok('and the tab icon is that same mark',
-    brandMark.iconIsSvg && brandMark.iconSharesPath, JSON.stringify(brandMark));
+  ok('and the tab icon is that same mark, shape for shape',
+    brandMark.iconIsSvg && tidy(brandMark.iconBody) === tidy(brandMark.markBody),
+    `icon ${tidy(brandMark.iconBody).slice(0, 60)} / mark ${tidy(brandMark.markBody).slice(0, 60)}`);
 
   ok('the page has a name', named.brand.length > 1, named.brand);
 

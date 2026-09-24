@@ -2009,6 +2009,14 @@
           + 'turns every launch after it into an ordinary call that ' + esc(w.name) + ' can '
           + 'preview. It holds nothing, has no owner and no fee, and nobody — including whoever '
           + 'deploys it — can take anything out of it.</p>'
+          + (TwistrChain.factoryDeployIsCall()
+            ? '<p><b>And this button is not a contract creation either.</b> It goes through a '
+              + 'CREATE2 deployer that is already on ' + esc(CFG.chain.name) + ', so it is an '
+              + 'ordinary call — which is the point, because an earlier version asked you to send '
+              + 'the exact kind of transaction your wallet refuses in order to stop it refusing '
+              + 'them.</p>'
+            : '<p>That one transaction <b>is</b> a creation, so the warning will appear for it — '
+              + 'once, and then never again.</p>')
           + '<p>If this is not your site to change, MetaMask and Rabby handle creations without '
           + 'the warning.</p>'
           + '<button class="sp-btn sp-btn-outline sp-btn-sm" id="deployFactory" type="button">'
@@ -2022,14 +2030,23 @@
     if (fb) fb.addEventListener('click', async () => {
       const note = $('factoryNote');
       fb.disabled = true;
-      note.textContent = 'Confirm it in your wallet. This one IS a contract creation, so the '
-        + 'warning will appear — once, and then never again.';
+      note.textContent = TwistrChain.factoryDeployIsCall()
+        ? 'Confirm it in your wallet. This is an ordinary call to a CREATE2 deployer, not a '
+          + 'contract creation, so it should preview cleanly.'
+        : 'Confirm it in your wallet. This one IS a contract creation, so the warning will '
+          + 'appear — once, and then never again.';
       try {
         const hash = await TwistrChain.deployFactory();
         note.textContent = 'Sent. Waiting for it to be mined…';
         const receipt = await TwistrChain.waitForReceipt(hash);
-        const addr = receipt && receipt.contractAddress;
-        if (!addr) throw new Error('the receipt carried no contract address');
+        /* A CREATE2 call's receipt has no contractAddress — nothing was created
+           by the transaction itself, the deployer created it. The address was
+           known before the transaction was sent, which is the whole point of
+           a deterministic deployment, so it comes from the config. */
+        const addr = (receipt && receipt.contractAddress)
+          || (CFG.factory && CFG.factory.address)
+          || '';
+        if (!addr) throw new Error('no launcher address — neither the receipt nor config.js had one');
 
         /* Remembered and used immediately. The earlier version printed the
            address and asked for config.js to be edited and the site

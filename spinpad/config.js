@@ -139,7 +139,34 @@ window.TWISTR_CONFIG = {
    * fee and no way to reach a coin once made, so there is nothing to lose by
    * it and nothing anybody can take out of it. */
   factory: {
-    address: '',                                // ← deploy once, then paste the address
+    /* Deterministic, and that is the whole trick.
+     *
+     * The launcher is deployed through Safe's singleton factory — a CREATE2
+     * deployer that already exists on Base — so its address is decided by the
+     * bytecode and the salt rather than by who deploys it or when. It is
+     * written here BEFORE anything is deployed, and the pad checks whether the
+     * code is actually there on connect.
+     *
+     * That is what removes the last contract creation from the whole product.
+     * The launcher itself used to be a bare create, which is precisely what
+     * some wallets refuse to preview, so the fix for "my wallet blocks this"
+     * required sending the one transaction the wallet blocks. Through the
+     * CREATE2 deployer it is an ordinary call, like everything else.
+     *
+     * Verified in a local EVM: installing Safe's proxy at its published
+     * address and calling it with salt + bytecode deploys the launcher at
+     * exactly the address below, with runtime code matching this build.
+     *
+     *   deployer  0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7
+     *             (@safe-global/safe-singleton-factory 2.0.0, artifacts/8453)
+     *   salt      keccak256("twistr.launcher.v1")
+     *
+     * The address is never trusted on its word. The pad reads the code there
+     * and compares it byte for byte with contract/twistr-factory.js before it
+     * will launch through it; anything else falls back to a direct creation. */
+    address: '0xa2c32f06f71B23C137A6182c7E785cbb13A26A3C',
+    deployer: '0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7',
+    salt: '0xac03e0ca39f425b4a8a6eea68035c8da98e672bb152c70ab13875d1a66b0589e',
   },
 
   /* ── Pons, on Robinhood Chain (4663) ───────────────────────────────────────

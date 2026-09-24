@@ -603,9 +603,35 @@ window.TwistrChain = (() => {
      address goes in config.js. This is still a bare creation and will still
      make Phantom complain — but once, rather than on every launch anybody
      ever does. */
-  const deployFactory = async () => rpc('eth_sendTransaction', [{
-    from: state.account, data: factoryCode(), value: '0x0',
-  }]);
+  const deployFactory = async () => {
+    const f = window.TWISTR_CONFIG.factory || {};
+    const code = factoryCode();
+
+    /* Through the CREATE2 deployer when one is configured, which makes even
+       THIS an ordinary call. It matters more than it looks: the launcher exists
+       to stop launches being bare creations, and until now deploying it was
+       itself a bare creation — so the fix for "my wallet blocks this" required
+       sending the exact transaction the wallet blocks. Safe's singleton
+       factory is already on Base, takes salt ++ initCode as calldata, and
+       returns the address. */
+    if (f.deployer && f.salt) {
+      return rpc('eth_sendTransaction', [{
+        from: state.account,
+        to: f.deployer,
+        data: f.salt + String(code).replace(/^0x/, ''),
+        value: '0x0',
+      }]);
+    }
+    return rpc('eth_sendTransaction', [{ from: state.account, data: code, value: '0x0' }]);
+  };
+
+  /* Whether deploying the launcher will itself be a creation. The panel says
+     so, because "this one will show the warning" and "this one will not" are
+     different things to tell somebody about to press a button. */
+  const factoryDeployIsCall = () => {
+    const f = window.TWISTR_CONFIG.factory || {};
+    return !!(f.deployer && f.salt);
+  };
 
   /* A deployment is only real once it is mined, and the address comes from the
      receipt rather than being predicted from the nonce. */
@@ -726,6 +752,7 @@ window.TwistrChain = (() => {
     SEL, TOPIC, encodeArgs, decodeString, decodeUint, decodeAddress, decodePaired,
     creationCode, factoryCode, launchData, launchArgs, deployTx, deployFactory,
     usesFactory, verifyFactory, factoryAddress, rememberFactory, forgetFactory,
+    factoryDeployIsCall,
     describeLaunch,
     estimateDeploy, blockNumber, blockTime, pairedLogs, readCoin, readDraw,
     hasWallet, walletInfo, connect, state, onChain, switchChain,

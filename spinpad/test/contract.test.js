@@ -248,6 +248,63 @@ const build = sandbox.window.TWISTR_COIN;
     }
   }
 
+  /* ── the deterministic deployment ────────────────────────────────────────
+     config.js names the launcher's address BEFORE anything is deployed, which
+     only works if the address is really decided by the bytecode and the salt.
+     Safe's CREATE2 proxy is installed at its published address here and called
+     exactly as the pad would call it. If this ever stops matching, the pad
+     would check the code at an address the launcher is not at, find nothing,
+     and quietly fall back to creations forever. */
+  console.log('\nthe deterministic launcher address');
+
+  const PROXY_RUNTIME = '0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0'
+    + '3601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3';
+  const cfgSrc = fs.readFileSync(path.join(root, 'config.js'), 'utf8');
+  const fBlock = cfgSrc.slice(cfgSrc.indexOf('  factory: {'));
+  const grab = (k) => {
+    const m = fBlock.slice(0, fBlock.indexOf('},')).match(new RegExp(k + ":\\s*'(0x[0-9a-fA-F]+)'"));
+    return m ? m[1] : null;
+  };
+  const cfgAddr = grab('address');
+  const cfgDeployer = grab('deployer');
+  const cfgSalt = grab('salt');
+
+  ok('config names a launcher address', !!cfgAddr, String(cfgAddr));
+  ok('and a CREATE2 deployer', !!cfgDeployer, String(cfgDeployer));
+  ok('and a 32-byte salt', !!cfgSalt && cfgSalt.length === 66, String(cfgSalt));
+
+  if (cfgAddr && cfgDeployer && cfgSalt) {
+    const putCode = (evm.stateManager.putContractCode || evm.stateManager.putCode).bind(evm.stateManager);
+    const getCode = (evm.stateManager.getContractCode || evm.stateManager.getCode).bind(evm.stateManager);
+    const addrOf = (a) => (utilMod.createAddressFromString
+      ? utilMod.createAddressFromString(a.toLowerCase())
+      : new utilMod.Address(Buffer.from(a.replace(/^0x/, ''), 'hex')));
+
+    await putCode(addrOf(cfgDeployer), bytes(PROXY_RUNTIME));
+    const dep = await evm.runCall({ caller: from, to: addrOf(cfgDeployer),
+      data: bytes(cfgSalt + fbuild.bytecode.replace(/^0x/, '')), gasLimit: 9000000n });
+
+    ok('the CREATE2 call succeeds', !dep.execResult.exceptionError,
+      dep.execResult.exceptionError && dep.execResult.exceptionError.error);
+
+    if (!dep.execResult.exceptionError) {
+      const landed = '0x' + Buffer.from(dep.execResult.returnValue).toString('hex');
+      ok('the launcher lands at exactly the address config.js names',
+        landed.toLowerCase() === cfgAddr.toLowerCase(), landed + ' vs ' + cfgAddr);
+
+      const there = await getCode(addrOf(cfgAddr));
+      ok('and the code there is this build, byte for byte',
+        '0x' + Buffer.from(there).toString('hex') === fbuild.deployedBytecode.toLowerCase(),
+        there.length + ' bytes');
+
+      /* And it works from there, which is the only thing that finally matters. */
+      const viaDet = await evm.runCall({ caller: from, to: addrOf(cfgAddr),
+        data: bytes(chain.launchData(coin)), gasLimit: 9000000n });
+      ok('and launching through it works', !viaDet.execResult.exceptionError,
+        viaDet.execResult.exceptionError && viaDet.execResult.exceptionError.error);
+    }
+  }
+
 console.log('\n' + passed + ' passed, ' + fails.length + ' failed');
   if (fails.length) { fails.forEach((f) => console.log('  - ' + f)); process.exit(1); }
 })();

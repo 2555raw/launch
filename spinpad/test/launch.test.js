@@ -542,8 +542,37 @@ window.ethereum = {
     window.__nextContract = at;
   }, FACTORY_AT);
 
+  /* THE ONE THAT MATTERS. Deploying the launcher used to be a bare creation —
+     so the fix for "my wallet blocks contract creations" required sending a
+     contract creation, and the wallet blocked it. That is not a theory: the
+     button came back "It did not deploy: Unexpected error", which is what
+     Phantom says when it blocks one.
+
+     Through a CREATE2 deployer it is an ordinary call, like everything else. */
+  const CREATE2 = '0x914d7fec6aac8cd542e72bca78b30650d45643d7';
+  const SALT = '0xac03e0ca39f425b4a8a6eea68035c8da98e672bb152c70ab13875d1a66b0589e';
+  await page4.evaluate((d) => {
+    window.TWISTR_CONFIG.factory = Object.assign({}, window.TWISTR_CONFIG.factory,
+      { deployer: d.deployer, salt: d.salt, address: d.at });
+  }, { deployer: CREATE2, salt: SALT, at: FACTORY_AT });
+
+  const before = await page4.evaluate(() => window.__sent.filter((s) => s.method === 'eth_sendTransaction').length);
   await page4.click('#deployFactory');
   await page4.waitForTimeout(2500);
+
+  const dep = await page4.evaluate((n) =>
+    window.__sent.filter((s) => s.method === 'eth_sendTransaction')[n], before);
+  ok('deploying the launcher is a CALL, not a contract creation',
+    !!(dep && dep.params[0].to), JSON.stringify(dep && dep.params[0].to));
+  ok('and it goes to the CREATE2 deployer',
+    String(dep.params[0].to).toLowerCase() === CREATE2, String(dep.params[0].to));
+  ok('with the salt first and the launcher bytecode after it',
+    String(dep.params[0].data).toLowerCase().startsWith(SALT),
+    String(dep.params[0].data).slice(0, 70));
+  const sentCode = '0x' + String(dep.params[0].data).slice(SALT.length);
+  ok('and the bytecode is this build\u2019s launcher, unaltered',
+    sentCode.toLowerCase() === (await page4.evaluate(() => window.TWISTR_FACTORY.bytecode)).toLowerCase(),
+    sentCode.length + ' vs shipped');
 
   ok('the launcher is in use straight after deploying it',
     await page4.evaluate(() => window.TwistrChain.usesFactory()));

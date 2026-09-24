@@ -298,9 +298,13 @@ and on a 70px label that moved all four about 18px and piled them on the hub.
 Every circle wears the asset it pairs with. The colour is half the draw, so the picture goes on a
 white disc *inside* the sphere and what is left of the colour is a ring — the board's rule
 inside out, for the board's reason: a mark printed on a saturated ground is a mark you cannot see.
-The drawn glyph stays under the picture rather than instead of it, which gets the board's fallback
-for free: an `<image>` whose file is missing renders nothing at all, so the glyph shows through on
-its own.
+The drawn glyph is the fallback for a cell with no logo, and it is drawn *instead of* the picture,
+never under it. Under it looked free — an `<image>` whose file is missing renders nothing, so a
+glyph beneath it would show through by itself — and it was wrong for the case that actually
+happens. A logo that is present has transparent parts, and the grey glyph showed straight through
+them: a wavy line across Nvidia's eye, a ring behind Meta's. The board never had this, because its
+CSS hides the glyph once the image loads; the wheel is SVG and had no such rule. A check now asserts
+a circle carries one mark or the other and never both.
 
 That disc is 82% of the circle, not the 64% it started at, and the picture's box is wider than it is
 tall like the board's. At 64% the five marks whose own colour is their ball's colour — Nvidia and
@@ -556,7 +560,7 @@ CHROME_PATH=/path/to/chrome npm test
 None of those are dependencies of the site. It ships no runtime dependencies at all, and nothing in
 the deploy path installs anything.
 
-222 checks across three suites.
+223 checks across three suites.
 
 ### The chain, checked without a chain
 

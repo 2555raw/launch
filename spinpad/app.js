@@ -338,13 +338,21 @@
         + `<circle class="sp-node" data-i="${i}" cx="${cx}" cy="${cy}" r="${NODE_R}" fill="url(#${ns}-${sec.color})"/>`
         + `<circle class="sp-node-gloss" cx="${cx}" cy="${cy}" r="${NODE_R}" fill="url(#${ns}-gloss)"/>`
         + `<circle class="sp-node-disc" cx="${cx}" cy="${cy}" r="${DISC_R}"/>`
-        + `<g class="sp-node-glyph" transform="translate(${(x - GLY / 2).toFixed(2)} ${(y - GLY / 2).toFixed(2)}) scale(${(GLY / 24).toFixed(4)})">`
-        + `<path d="${GLYPHS[as.glyph] || GLYPHS.chevron}"/></g>`
+        /* The drawn mark is the fallback for a cell with no logo, and it is
+           drawn *instead of* the picture, not under it.
+
+           Under it was the bug: an <image> whose file is missing renders
+           nothing, so a glyph underneath looked like a free fallback. But a
+           logo that is present has transparent parts, and the grey glyph shows
+           straight through them — a wavy line across Nvidia's eye, a ring
+           behind Meta's. The board never had this because its CSS hides the
+           glyph once the image loads; the wheel is SVG and had no such rule. */
         + (as.logo
           ? `<image class="sp-node-pic" href="${esc(as.logo)}" x="${(x - PIC_W / 2).toFixed(2)}"`
             + ` y="${(y - PIC_H / 2).toFixed(2)}" width="${PIC_W}" height="${PIC_H}"`
             + ` preserveAspectRatio="xMidYMid meet"/>`
-          : '')
+          : `<g class="sp-node-glyph" transform="translate(${(x - GLY / 2).toFixed(2)} ${(y - GLY / 2).toFixed(2)}) scale(${(GLY / 24).toFixed(4)})">`
+            + `<path d="${GLYPHS[as.glyph] || GLYPHS.chevron}"/></g>`)
         + `<circle class="sp-node-ring" cx="${cx}" cy="${cy}" r="${NODE_R}"/></g>`;
     });
 

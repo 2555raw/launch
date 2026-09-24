@@ -404,8 +404,14 @@ async function browserChecks() {
      sphere and the colour stays as a ring. And the drawn glyph stays under the
      picture: an <image> with no file renders nothing, so the glyph is the
      fallback for free. */
-  ok('on a white disc inside the colour, with the drawn mark still under it',
-    worn.every((n) => n.disc && n.glyph));
+  ok('on a white disc inside the colour', worn.every((n) => n.disc));
+  /* The drawn mark is instead of the picture, never under it. Under it, the
+     grey glyph showed through every transparent part of a logo that was
+     perfectly fine — a wavy line across Nvidia's eye, a ring behind Meta's.
+     A cell has one mark or the other, never both. */
+  ok('and never both a picture and a drawn mark on the same circle',
+    worn.every((n) => (n.pic ? !n.glyph : n.glyph)),
+    JSON.stringify(worn.filter((n) => n.pic && n.glyph).map((n) => n.i)));
 
   /* No mark may bring a square of its own colour with it. Snapchat's file was
      the app tile — a white ghost on a solid yellow field — and on a white disc

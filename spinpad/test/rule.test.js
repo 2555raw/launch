@@ -14,6 +14,7 @@
  */
 const http = require('http');
 const zlib = require('zlib');
+const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
@@ -405,6 +406,49 @@ async function browserChecks() {
      fallback for free. */
   ok('on a white disc inside the colour, with the drawn mark still under it',
     worn.every((n) => n.disc && n.glyph));
+
+  /* No mark may bring a square of its own colour with it. Snapchat's file was
+     the app tile — a white ghost on a solid yellow field — and on a white disc
+     that field is a yellow square sitting inside a circle. A mark that is
+     itself a disc (Lululemon, Snapchat) is masked to one; the rest arrive on
+     transparency or on white, which the disc swallows.
+
+     The test is the four corners, and it has to be more than "are they inked":
+     Microsoft's mark is four coloured squares that fill the frame, and the
+     first version of this check called that a background. A background is one
+     colour. Four corners the same colour is a field behind the mark; four
+     corners in different colours is the mark. */
+  /* The bytes are read here and handed in as data URLs. Read straight off the
+     page they taint the canvas: this suite opens over file://, whose origin is
+     opaque, so getImageData on an image loaded from it throws. */
+  const logoData = Object.values(CFG.pairings).map((a) => ({
+    name: a.logo,
+    url: 'data:image/png;base64,' + fs.readFileSync(path.join(__dirname, '..', a.logo)).toString('base64'),
+  }));
+  const grounds = await page.evaluate(async (logos) => {
+    const bad = [];
+    for (const { name, url } of logos) {
+      const img = new Image();
+      img.src = url;
+      // eslint-disable-next-line no-await-in-loop
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const g = c.getContext('2d');
+      g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, c.width, c.height).data;
+      const at = (x, y) => { const i = (y * c.width + x) * 4; return [d[i], d[i + 1], d[i + 2], d[i + 3]]; };
+      const k = 2, W = c.width - 1, H = c.height - 1;
+      const corners = [at(k, k), at(W - k, k), at(k, H - k), at(W - k, H - k)];
+      const inked = corners.filter((q) => q[3] > 200 && !(q[0] > 244 && q[1] > 244 && q[2] > 244));
+      const same = inked.length === 4
+        && inked.every((q) => Math.abs(q[0] - inked[0][0]) < 12
+          && Math.abs(q[1] - inked[0][1]) < 12 && Math.abs(q[2] - inked[0][2]) < 12);
+      if (same) bad.push(`${name.split('/').pop()} on rgb(${inked[0].slice(0, 3).join(',')})`);
+    }
+    return bad;
+  }, logoData);
+  ok('no mark brings a background of its own', grounds.length === 0, grounds.join(', '));
 
   /* Sixteen circles on a ring have 2πr/16 of arc each. At r=60 that was 23.6
      against a diameter of 27, so they overlapped and the logos read as one

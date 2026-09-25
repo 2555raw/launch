@@ -16,9 +16,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
     "@solana/web3.js": "^1.99.0",
-    "ethers": "^6.13.0"
-  },
-  "devDependencies": {
-    "jpeg-js": "^0.4.4"
+    "ethers": "^6.13.0",
+    "jpeg-js": "^0.4.4",
+    "pngjs": "^7.0.0"
   }
 }

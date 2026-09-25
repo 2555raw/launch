@@ -1,11 +1,11 @@
 /* wondr — design system
    Dark ground, one accent. The accent is green (harmony, health, wealth) and it means action:
    buttons, the highlighted word in a headline, the live dot, the send arrow.
-   Headlines are Instrument Serif; body is Plus Jakarta Sans; figures are mono.
+   Headlines are a heavy pixel face (Press Start 2P); body is Plus Jakarta Sans; figures are mono.
    The header art is a blue sky with clouds over a field of flowers, and it
    is the only place the page gets bright. */
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap');
 
 :root {
   --bg: #0A0A0A;
@@ -28,7 +28,7 @@
   --down: #F87171;
   --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --pixel: 'Instrument Serif', Georgia, serif;
+  --pixel: 'Press Start 2P', 'Geist Mono', monospace;
   --wrap: 1456px;
   --col: 960px;
   --r: 12px;
@@ -68,8 +68,8 @@ a { color: inherit; text-decoration: none; }
 img, svg, video { display: block; max-width: 100%; }
 button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
-.pixel { font-family: var(--pixel); font-weight: 400; letter-spacing: -.015em; line-height: 1.02; }
-.pixel .accent, .pixel.accent { font-style: italic; }
+.pixel { font-family: var(--pixel); font-weight: 400; letter-spacing: 0; line-height: 1.28; }
+.pixel .accent, .pixel.accent { font-style: normal; }
 ::selection { background: var(--accent); color: var(--on-accent); }
 ::-moz-selection { background: var(--accent); color: var(--on-accent); }
 input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
@@ -128,7 +128,7 @@ input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
 /* ---------- hero ---------- */
 .hero { position: relative; overflow: hidden; }
 .hero-in { max-width: var(--wrap); margin: 0 auto; padding: 90px 32px 48px; position: relative; z-index: 1; min-height: 700px; display: flex; flex-direction: column; justify-content: center; }
-.hero h1 { font-size: 76px; margin: 0 0 26px; max-width: 900px; letter-spacing: -.01em; }
+.hero h1 { font-size: 40px; margin: 0 0 26px; max-width: 900px; letter-spacing: -.01em; }
 .hero h1 > span { display: block; white-space: nowrap; }
 .hero p { font-size: 16.5px; color: var(--text); max-width: 560px; margin: 0 0 32px; line-height: 1.55; }
 .hero-cta { display: flex; gap: 14px; }
@@ -196,7 +196,7 @@ input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
 .section { padding: 88px 32px; position: relative; z-index: 1; }
 .section.alt { border-top: 1px solid var(--line); }
 .col { max-width: var(--col); margin: 0 auto; }
-.h2 { font-size: 56px; margin: 0 0 20px; }
+.h2 { font-size: 32px; margin: 0 0 22px; }
 .h2 > span { display: block; }
 .lead { font-size: 16px; color: var(--text); max-width: 680px; margin: 0 0 28px; line-height: 1.6; }
 .links-row { display: flex; justify-content: flex-end; gap: 28px; font-size: 15px; color: var(--text); margin-bottom: 26px; }
@@ -215,7 +215,7 @@ input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
 /* step cards */
 .step { background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-line); border-radius: 16px; padding: 26px 28px 28px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 300px; gap: 32px; }
 .step .tag { grid-column: 1 / -1; margin-bottom: 6px; }
-.step h3 { font-size: 26px; margin: 0 0 10px; }
+.step h3 { font-size: 18px; margin: 0 0 12px; }
 .step p { margin: 0 0 18px; color: var(--text); font-size: 14.5px; line-height: 1.6; max-width: 480px; }
 .step ul { list-style: none; margin: 8px 0 0; padding: 0 0 0 28px; border-left: 1px solid var(--line); font-size: 14px; color: var(--text); display: flex; flex-direction: column; gap: 12px; }
 .step ul li::before { content: '/ '; color: var(--dim); }
@@ -252,7 +252,7 @@ input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
 
 /* FAQ */
 .faq-head { text-align: center; margin-bottom: 40px; }
-.faq-head h2 { font-size: 46px; margin: 0 0 16px; }
+.faq-head h2 { font-size: 30px; margin: 0 0 16px; }
 .faq-head p { color: var(--text); font-size: 17px; margin: 0; }
 .faq { border-top: 1px solid var(--line); }
 .faq details { border-bottom: 1px solid var(--line); }
@@ -266,7 +266,7 @@ input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
 .closing { text-align: center; padding: 120px 32px 128px; border-top: 1px solid var(--glass-line); position: relative; z-index: 1; overflow: hidden; }
 .closing::before { content: ''; position: absolute; left: 50%; top: 50%; width: 820px; height: 460px; transform: translate(-50%, -50%); background: radial-gradient(closest-side, var(--accent-soft), transparent); pointer-events: none; z-index: -1; }
 .closing-mark { display: block; width: 56px; height: 56px; margin: 0 auto 28px; filter: drop-shadow(0 8px 30px rgba(43, 214, 123, .45)); }
-.closing h2 { font-size: 76px; margin: 0 0 20px; line-height: .98; letter-spacing: -.02em; color: var(--ink); }
+.closing h2 { font-size: 40px; margin: 0 0 22px; line-height: 1.3; color: var(--ink); }
 .closing-sub { font-size: 18px; color: var(--text); margin: 0 0 34px; }
 .closing-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .closing h2 > span { display: block; }
@@ -281,7 +281,7 @@ footer { border-top: 1px solid var(--glass-line); position: relative; z-index: 1
 
 /* ---------- simple pages (pricing, calculator, token, developers, community) ---------- */
 .page { max-width: var(--col); margin: 0 auto; padding: 56px 32px 96px; position: relative; z-index: 1; }
-.page h1 { font-size: 68px; margin: 0 0 20px; }
+.page h1 { font-size: 38px; margin: 0 0 22px; }
 .page .lead { margin-bottom: 40px; }
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
 #tables { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -588,6 +588,8 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 .rwa-filter button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .rwa-filter small { font-family: var(--mono); font-size: 10.5px; font-weight: 500; opacity: .6; }
 .rwa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; text-align: left; }
+.rwa-skel span { display: block; height: 104px; border-radius: 16px; border: 1px solid var(--glass-line); background: linear-gradient(100deg, var(--glass) 30%, color-mix(in srgb, var(--glass) 60%, var(--ink) 6%) 50%, var(--glass) 70%) 0 0 / 300% 100%; animation: skel 1.2s linear infinite; }
+@keyframes skel { to { background-position: -150% 0; } }
 .rwa-tile { display: grid; grid-template-columns: 38px minmax(0, 1fr); column-gap: 11px; row-gap: 12px; text-align: left; align-items: center; padding: 14px; border-radius: 16px; border: 1px solid var(--glass-line); background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); color: var(--ink); cursor: pointer; transition: border-color .15s, transform .15s, box-shadow .15s; }
 .rwa-tile:hover { border-color: var(--accent-line); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(10, 110, 60, .14); }
 .rwa-ic { width: 38px; height: 38px; }
@@ -663,7 +665,7 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1100px) {
-  .hero h1 { font-size: 64px; }
+  .hero h1 { font-size: 36px; }
   .prices { position: relative; right: auto; bottom: auto; width: 100%; margin-top: 40px; }
   .sky::after { background: linear-gradient(180deg, rgba(10, 10, 10, .55) 0%, rgba(10, 10, 10, .35) 55%, var(--bg) 100%); }
   :root[data-theme="light"] .sky::after { background: linear-gradient(180deg, rgba(247, 248, 251, .68) 0%, rgba(247, 248, 251, .4) 55%, var(--bg) 100%); }
@@ -682,16 +684,16 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
   .hero-in { padding: 48px 16px 40px; min-height: 0; }
   .nav + .hero { margin-top: -70px; }
   .nav + .hero .hero-in { padding-top: 118px; min-height: 0; }
-  .hero h1 { font-size: 48px; }
+  .hero h1 { font-size: 24px; }
   .hero h1 > span { white-space: normal; }
   .hero p { font-size: 17px; }
   .section, .closing { padding: 72px 16px; }
-  .closing h2 { font-size: 48px; }
-  .h2 { font-size: 44px; }
+  .closing h2 { font-size: 22px; }
+  .h2 { font-size: 22px; }
   .step, .job { grid-template-columns: 1fr; gap: 20px; padding: 22px; }
   .step ul { padding-left: 0; border-left: 0; }
   .cards3 { grid-template-columns: 1fr; }
-  .faq-head h2 { font-size: 44px; }
+  .faq-head h2 { font-size: 24px; }
   .foot { grid-template-columns: 1fr 1fr; }
   .foot-right { align-items: flex-start; grid-column: 1 / -1; }
   .logos { padding: 0 12px; margin: 0 12px; }
@@ -816,12 +818,14 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 }
 
 /* language switch and the Chinese site */
-.lang-btn { height: 34px; min-width: 42px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass); color: var(--ink); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.lang-btn { flex: none; white-space: nowrap; height: 34px; min-width: 42px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass); color: var(--ink); font-size: 12.5px; font-weight: 700; cursor: pointer; }
 .lang-btn:hover { border-color: var(--accent-line); color: var(--accent); }
 .i18n-wait body { visibility: hidden; }
+.lang-menu { display: none; }
+@media (max-width: 560px) { .lang-btn { display: none; } .lang-menu { display: block; } }
 html[lang="zh-CN"] .chg-up { color: #F04438; } html[lang="zh-CN"] .chg-down { color: #22C55E; }
 html[lang="zh-CN"] { --font: 'Plus Jakarta Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif; }
 html[lang="zh-CN"] .tk-stats b.chg-up { color: #dc2626; } html[lang="zh-CN"] .tk-stats b.chg-down { color: #16a34a; }
-html[lang="zh-CN"] .pixel { font-family: 'Instrument Serif', 'Songti SC', 'STSong', 'Noto Serif SC', 'Source Han Serif SC', serif; letter-spacing: .01em; }
+html[lang="zh-CN"] .pixel { font-family: 'Press Start 2P', 'Songti SC', 'STSong', 'Noto Serif SC', 'Source Han Serif SC', serif; letter-spacing: .01em; }
 html[lang="zh-CN"] .pixel .accent, html[lang="zh-CN"] .pixel.accent { font-style: normal; }
 html[lang="zh-CN"] body { letter-spacing: .01em; }

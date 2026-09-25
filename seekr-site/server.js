@@ -535,6 +535,8 @@ function serveStatic(req, res, pathname) {
     fs.createReadStream(r.file).pipe(res);
     return;
   }
+  /* generated scene photos live on the data volume */
+  if (pathname.startsWith('/art/gen/')) { const f = require('./lib/scenegen').serve(pathname.slice(9)); if (f) return serveFile(res, f, 'public, max-age=604800', req); res.writeHead(404); res.end('Not found'); return; }
   let rel = PAGES[pathname] || pathname;
   if (rel.endsWith('/')) rel += 'index.html';
   const file = path.join(PUBLIC, path.normalize(rel));
@@ -594,6 +596,7 @@ server.listen(config.port, () => {
   const live = Object.keys(config.keys).filter((k) => config.isLive(k));
   console.log(`wondr on :${config.port} — ${live.length ? 'live: ' + live.join(', ') : 'no provider keys'} — the rest: free tier, then demo`);
   if (process.env.FREE_PROBE !== 'off') swap.probe().then((r) => console.log('swap check: ' + r));
+  if (process.env.FREE_PROBE !== 'off') { const warm = () => swap.rwa().catch(() => null); warm(); setInterval(warm, 10 * 60 * 1000).unref(); }
   require('./lib/scenegen').run();
   chain.tokenCheck().then((r) => { if (r) console.log('wondr token check: ' + r); }).catch((e) => console.log('wondr token check failed: ' + e.message));
   router.openrouter.start().then((st) => { if (config.keys.openrouter) console.log(`openrouter: ${Object.keys(st.mapped).length} models live${st.error ? ' (error: ' + st.error + ')' : ''} · ${Object.entries(st.mapped).map(([k, v]) => k + '→' + v).join(', ')}${st.missing.length ? ' · no exact match: ' + st.missing.join(', ') : ''}`); if (st.check) console.log('openrouter check: ' + st.check); });

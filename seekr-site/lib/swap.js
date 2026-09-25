@@ -88,9 +88,8 @@ async function rwa() {
   return cached('rwa', 30 * 60 * 1000, async () => {
     const ids = [1, 42161, 8453, 137, 56, SOLANA_ID];
     const out = [];
-    for (const id of ids) {
-      let list = [];
-      try { list = await tokens(id); } catch { continue; }
+    const lists = await Promise.all(ids.map((id) => tokens(id).catch(() => [])));
+    for (const list of lists) {
       for (const t of list) {
         const kind = RWA.gold.includes(t.symbol) ? 'Gold' : RWA.treasuries.includes(t.symbol) ? 'Treasuries' : RWA.stocks.includes(t.symbol) && /xstock/i.test(t.name) ? 'Stocks' : null;
         if (kind) out.push({ ...t, kind });

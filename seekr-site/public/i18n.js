@@ -18,6 +18,9 @@
     b.textContent = lang === 'zh' ? 'EN' : '中文'; b.title = lang === 'zh' ? 'English' : '切换到中文'; b.setAttribute('aria-label', b.title);
     b.onclick = () => { try { localStorage.setItem(KEY, lang === 'zh' ? 'en' : 'zh'); } catch {} const u = new URL(location.href); u.searchParams.delete('lang'); location.replace(u.toString()); };
     tb.parentNode.insertBefore(b, tb);
+    /* on phones the switch lives in the menu, where there is room */
+    const links = document.getElementById('navLinks');
+    if (links) { const m = document.createElement('a'); m.href = '#'; m.className = 'lang-menu'; m.textContent = lang === 'zh' ? 'English' : '中文'; m.onclick = (e) => { e.preventDefault(); b.onclick(); }; links.appendChild(m); }
   };
   /* the switch only shows once the Chinese dictionary is published */
   const ver = document.currentScript ? (document.currentScript.src.split('v=')[1] || '') : '';

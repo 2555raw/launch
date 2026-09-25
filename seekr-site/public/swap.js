@@ -418,6 +418,7 @@
   };
 
   (async () => {
+    const rwaReq = api('/api/swap/rwa').catch(() => null);
     try {
       S.chains = (await api('/api/swap/chains')).chains;
       const eth = await tokensFor(1);
@@ -430,7 +431,8 @@
       $('#swErr').textContent = 'The swap service is not reachable right now: ' + e.message; $('#swErr').hidden = false;
     }
     try {
-      S.rwa = (await api('/api/swap/rwa')).tokens;
+      const r = await rwaReq; if (!r) throw new Error('rwa');
+      S.rwa = r.tokens;
       drawShelf('All');
     } catch { $('#rwaList').innerHTML = '<span class="note">Real-world assets could not be loaded.</span>'; }
   })();

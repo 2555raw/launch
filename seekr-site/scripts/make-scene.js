@@ -13,7 +13,7 @@ const jpeg = require('jpeg-js');
 
 const W = 2400, H = 1400;
 const HORIZON = Math.round(H * 0.6);
-const SUN = { x: W * 0.8, y: H * 0.14 };
+const SUN = { x: W * 0.8, y: H * 0.22 };
 
 /* ---------- noise ---------- */
 let seed = 1337;

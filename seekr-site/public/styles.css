@@ -106,17 +106,16 @@ button { cursor: pointer; }
 .hero h1 > span { display: block; white-space: nowrap; }
 .hero p { font-size: 20px; color: var(--text); max-width: 640px; margin: 0 0 40px; line-height: 1.55; }
 .hero-cta { display: flex; gap: 14px; }
-/* the header art: a blue sky over a field, on the right, fading into the page */
-.sky { position: absolute; inset: 0 0 0 38%; z-index: 0; pointer-events: none;
-  -webkit-mask-image: radial-gradient(120% 95% at 82% 45%, #000 40%, transparent 78%);
-  mask-image: radial-gradient(120% 95% at 82% 45%, #000 40%, transparent 78%); }
-.sky img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; transition: opacity .6s ease; }
+/* the header art: the meadow fills the whole hero, edge to edge; a soft veil
+   behind the copy keeps the text readable, and the bottom melts into the page */
+.sky { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.sky img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 62%; transition: opacity .6s ease; }
 .sky img.night { opacity: 0; }
 :root[data-theme="dark"] .sky img.day { opacity: 0; }
 :root[data-theme="dark"] .sky img.night { opacity: 1; }
 .sky::after { z-index: 1; }
 .sky-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
-:root[data-theme="light"] .sky::after { background: linear-gradient(90deg, var(--bg) 0%, transparent 38%), linear-gradient(0deg, var(--bg) 0%, transparent 26%); }
+:root[data-theme="light"] .sky::after { background: linear-gradient(90deg, rgba(247, 248, 251, .82) 0%, rgba(247, 248, 251, .55) 34%, rgba(247, 248, 251, 0) 62%), linear-gradient(0deg, var(--bg) 0%, rgba(247, 248, 251, 0) 8%); }
 :root[data-theme="light"] .grid-lines { background-image: linear-gradient(90deg, rgba(11, 15, 26, .05) 1px, transparent 1px); }
 .theme-btn { width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; }
 .theme-btn:hover { border-color: var(--line-2); }
@@ -124,7 +123,8 @@ button { cursor: pointer; }
 .theme-btn .i-moon { display: none; }
 :root[data-theme="dark"] .theme-btn .i-sun { display: none; }
 :root[data-theme="dark"] .theme-btn .i-moon { display: block; }
-.sky::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg) 0%, transparent 42%), linear-gradient(0deg, var(--bg) 0%, transparent 34%); }
+.sky::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10, 10, 10, .7) 0%, rgba(10, 10, 10, .42) 34%, rgba(10, 10, 10, 0) 62%), linear-gradient(0deg, var(--bg) 0%, rgba(10, 10, 10, 0) 8%); }
+.grid-lines { display: none; }
 .grid-lines { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px); background-size: 240px 100%; background-position: 60px 0;
   -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%); mask-image: linear-gradient(180deg, #000, transparent 85%); }
 .hero-copy { position: relative; z-index: 1; }
@@ -297,7 +297,9 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 .side-foot { display: flex; gap: 4px; padding: 10px 2px 0; }
 
 .main { position: relative; overflow: hidden; min-height: 100vh; }
-.main .sky { inset: -6% -12% 0 46%; opacity: .85; -webkit-mask-image: radial-gradient(110% 100% at 85% 45%, #000 45%, transparent 80%); mask-image: radial-gradient(110% 100% at 85% 45%, #000 45%, transparent 80%); }
+.main .sky { position: fixed; left: 210px; right: 0; top: 0; bottom: 0; }
+.main .sky::after { background: radial-gradient(60% 75% at 50% 42%, rgba(10, 10, 10, .55) 0%, rgba(10, 10, 10, 0) 80%); }
+:root[data-theme="light"] .main .sky::after { background: radial-gradient(60% 75% at 50% 42%, rgba(247, 248, 251, .7) 0%, rgba(247, 248, 251, 0) 80%); }
 .main .grid-lines { background-size: 140px 100%; }
 .stage { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; padding: 70px 24px 80px; }
 .stage-logo { display: flex; align-items: baseline; gap: 4px; font-size: 42px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 6px; }
@@ -461,10 +463,11 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 @media (max-width: 1100px) {
   .hero h1 { font-size: 52px; }
   .prices { position: relative; right: auto; bottom: auto; width: 100%; margin-top: 40px; }
-  .sky { inset: 0 0 auto 0; height: 60%; -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent); mask-image: linear-gradient(180deg, #000 30%, transparent); opacity: .55; }
-  .sky::after { background: linear-gradient(0deg, var(--bg) 0%, transparent 50%); }
+  .sky::after { background: linear-gradient(180deg, rgba(10, 10, 10, .55) 0%, rgba(10, 10, 10, .35) 55%, var(--bg) 100%); }
+  :root[data-theme="light"] .sky::after { background: linear-gradient(180deg, rgba(247, 248, 251, .68) 0%, rgba(247, 248, 251, .4) 55%, var(--bg) 100%); }
 }
 @media (max-width: 860px) {
+  .main .sky { left: 0; }
   .nav-links { display: none; position: absolute; top: 90px; left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--line); flex-direction: column; gap: 0; padding: 8px 16px 16px; }
   .nav-links.open { display: flex; }
   .nav-links a { padding: 12px 0; }

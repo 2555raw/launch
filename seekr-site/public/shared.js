@@ -15,7 +15,7 @@ window.seekr = (() => {
   const getKey = () => { try { return localStorage.getItem(KEY) || ''; } catch { return ''; } };
   const setKey = (k) => { try { k ? localStorage.setItem(KEY, k) : localStorage.removeItem(KEY); } catch { /* private mode */ } };
 
-  const usd = (n, d) => { if (n === null || n === undefined) return '—'; const v = Number(n); const digits = d ?? (v >= 0.01 ? 2 : v >= 0.0001 ? 4 : 6); return '$' + v.toLocaleString('en-US', { minimumFractionDigits: v >= 0.01 ? 2 : 0, maximumFractionDigits: digits }); };
+  const usd = (n, d) => { if (n === null || n === undefined) return 'n/a'; const v = Number(n); const digits = d ?? (v >= 0.01 ? 2 : v >= 0.0001 ? 4 : 6); return '$' + v.toLocaleString('en-US', { minimumFractionDigits: v >= 0.01 ? 2 : 0, maximumFractionDigits: digits }); };
   const cr = (n) => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: n < 10 ? 2 : 0 });
   const pct = (n) => (n >= 0 ? '+' : '') + Number(n).toFixed(2) + '%';
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

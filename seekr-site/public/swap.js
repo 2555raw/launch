@@ -217,10 +217,10 @@
       d.innerHTML = `<div><span>Rate</span><b>1 ${esc(f.symbol)} = ${rate.toLocaleString('en-US', { maximumSignificantDigits: 6 })} ${esc(t.symbol)}</b></div>
         <div><span>Minimum received</span><b>${fromRaw(quote.toAmountMin, t.decimals)} ${esc(t.symbol)}</b></div>
         <div><span>Route</span><b>${quote.toolLogo ? `<img src="${esc(quote.toolLogo)}" alt="">` : ''}${esc(quote.toolName || quote.tool)}${quote.steps.length > 1 ? ` · ${quote.steps.length} steps` : ''}</b></div>
-        <div><span>Network cost</span><b>${usd(quote.gasUSD) || '—'}</b></div>
+        <div><span>Network cost</span><b>${usd(quote.gasUSD) || 'n/a'}</b></div>
         ${quote.feeUSD ? `<div><span>Protocol fees</span><b>${usd(quote.feeUSD)}</b></div>` : ''}
         ${impact !== null ? `<div><span>Value difference</span><b class="${impact > 3 ? 'bad' : ''}">${impact > 0 ? '−' : '+'}${Math.abs(impact).toFixed(2)}%</b></div>` : ''}
-        <div><span>Estimated time</span><b>${quote.duration ? (quote.duration < 90 ? Math.round(quote.duration) + ' s' : Math.round(quote.duration / 60) + ' min') : '—'}</b></div>`;
+        <div><span>Estimated time</span><b>${quote.duration ? (quote.duration < 90 ? Math.round(quote.duration) + ' s' : Math.round(quote.duration / 60) + ' min') : 'n/a'}</b></div>`;
       d.hidden = false;
     } catch (e) {
       if (my !== S.seq) return;

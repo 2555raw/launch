@@ -60,7 +60,7 @@ ${cloud(w * 0.2, h * 0.18, 1, 40)}${cloud(w * 0.55, h * 0.3, .7, 55)}${cloud(w *
 <path d="M0 ${h * 0.78} C ${w * 0.3} ${h * 0.68}, ${w * 0.6} ${h * 0.9}, ${w} ${h * 0.74} L ${w} ${h} L 0 ${h} Z" fill="url(#hill)"/>
 ${flowers.join('')}
 <text x="${w / 2}" y="${h * 0.5}" text-anchor="middle" font-family="system-ui, sans-serif" font-size="${Math.max(14, w / 32)}" font-weight="700" fill="#0b2a4a" opacity=".85">${esc(prompt.slice(0, 48))}</text>
-<text x="${w / 2}" y="${h * 0.5 + w / 28}" text-anchor="middle" font-family="ui-monospace, monospace" font-size="${Math.max(10, w / 70)}" fill="#0b2a4a" opacity=".7">demo render — set a provider key for the real model</text>
+<text x="${w / 2}" y="${h * 0.5 + w / 28}" text-anchor="middle" font-family="ui-monospace, monospace" font-size="${Math.max(10, w / 70)}" fill="#0b2a4a" opacity=".7">demo render: set a provider key for the real model</text>
 </svg>`;
 }
 

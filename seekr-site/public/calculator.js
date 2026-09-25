@@ -3,7 +3,7 @@
   const $ = (s) => document.querySelector(s);
   api('/api/models').then(({ models, default: def }) => {
     const sel = $('#model');
-    sel.innerHTML = models.map((m) => `<option value="${m.id}">${esc(m.name)} — ${esc(m.vendor)}</option>`).join('');
+    sel.innerHTML = models.map((m) => `<option value="${m.id}">${esc(m.name)} (${esc(m.vendor)})</option>`).join('');
     sel.value = new URLSearchParams(location.search).get('model') || def;
     const fields = { chat: [['inTokens', 'Input tokens per request', 2000], ['outTokens', 'Output tokens per request', 600]], image: [['images', 'Images per request', 1]], video: [['seconds', 'Seconds of video', 5]], tts: [['chars', 'Characters of text', 800]], stt: [['minutes', 'Minutes of audio', 2]] };
     const render = () => {

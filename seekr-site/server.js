@@ -494,7 +494,7 @@ function match(method, pathname) {
 /* ---------- static ---------- */
 function serveFile(res, file, cache) {
   fs.readFile(file, (err, body) => {
-    if (err) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); res.end('404 — nothing here'); return; }
+    if (err) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); res.end('404: nothing here'); return; }
     res.writeHead(200, { 'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', 'cache-control': cache });
     res.end(body);
   });

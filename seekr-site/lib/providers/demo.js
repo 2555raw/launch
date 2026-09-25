@@ -12,7 +12,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 function answerFor(model, messages, mode) {
   const last = messages[messages.length - 1]?.content || '';
   const short = last.length > 140 ? last.slice(0, 140) + '…' : last;
-  const head = `**Demo mode.** ${model.vendor} has no API key on this server, so this is a simulated reply from *${model.name}*, streamed and charged like a real one. Add \`${keyName(model.provider)}\` to go live.\n\n`;
+  const head = `**Demo mode.** ${model.vendor} has no API key on this server and the free tier did not answer, so this is a simulated reply from *${model.name}*. Add \`${keyName(model.provider)}\` to go live.\n\n`;
   if (mode === 'code') {
     return head + `You asked for: "${short}"\n\nHere is the shape of an answer a code model would return:\n\n\`\`\`html\n<!doctype html>\n<html lang="en">\n  <head><meta charset="utf-8"><title>Demo</title></head>\n  <body>\n    <main>\n      <h1>${esc(short) || 'Hello'}</h1>\n      <p>Generated in demo mode by ${model.name}.</p>\n    </main>\n  </body>\n</html>\n\`\`\`\n\nWith a key set, the same request goes to ${model.vendor} and the real code comes back here.`;
   }

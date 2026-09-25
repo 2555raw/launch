@@ -83,7 +83,8 @@ const api = {
     holdings: chain.holdingsConfigured(),
     chain: { id: config.chain.rhChainId, token: config.chain.seekrToken, buyUrl: config.chain.buyUrl, chartUrl: config.chain.chartUrl },
     links: config.links,
-    skills: skills.publicList()
+    skills: skills.publicList(),
+    free: { on: (process.env.FREE_TIER || 'on') !== 'off', status: router.free.status }
   }),
 
   'GET /api/models': async () => ({
@@ -143,7 +144,8 @@ const api = {
     const model = catalog.get(b.model);
     if (!model) throw new HttpError(400, 'Unknown model');
     const usage = model.kind === 'chat' ? credits.estimateChat(model, b.text || '', b.expectedOut) : b.usage || {};
-    return { quote: credits.quote(model, usage, a), usage, live: config.isLive(model.provider) };
+    const { tier } = router.resolve(model);
+    return { quote: credits.quote(model, usage, a), usage, live: tier === 'live', tier };
   },
 
   /* --- chat (SSE) --- */
@@ -173,16 +175,15 @@ const api = {
       else content += `\n\n[attached file: ${f.name} (${f.mime}, ${Math.round(f.bytes / 1024)} KB)]`;
     }
 
-    const est = credits.quote(model, credits.estimateChat(model, content, 300), a);
-    if (!credits.canAfford(a, Math.min(est.credits, 1))) throw new HttpError(402, 'Not enough credits. Top up to keep asking.', { code: 'insufficient' });
+    const { impl, live, tier: planned } = router.resolve(model);
+    if (planned === 'live' && !credits.canAfford(a, Math.min(credits.quote(model, credits.estimateChat(model, content, 300), a).credits, 1))) throw new HttpError(402, 'Not enough credits. Top up to keep asking.', { code: 'insufficient' });
 
     const history = chat.messages.slice(-40).map((m) => ({ role: m.role, content: m.content }));
     const messages = [...history, { role: 'user', content }];
-    const { impl, live } = router.resolve(model);
 
     res.writeHead(200, { 'content-type': 'text/event-stream; charset=utf-8', 'cache-control': 'no-store', connection: 'keep-alive', 'x-accel-buffering': 'no' });
     const emit = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
-    emit('meta', { chatId: chat.id, model: model.id, live });
+    emit('meta', { chatId: chat.id, model: model.id, live, tier: planned });
 
     const ac = new AbortController();
     req.on('close', () => ac.abort());
@@ -192,9 +193,10 @@ const api = {
 
     try {
       const out = await impl.streamChat({ model, messages, system: SYSTEM[mode] + (chatSkill ? `\n\nSkill: ${chatSkill.title}. ${chatSkill.prompt}` : ''), mode, web: Boolean(b.web || (chatSkill && chatSkill.web)), signal: ac.signal, onText: (t) => emit('delta', { text: t }) });
+      const tier = out.tier || planned;
       let rec;
       try {
-        rec = credits.debit(store, a, model, out.usage, { chat: chat.id, live });
+        rec = settle(a, model, out.usage, tier, { chat: chat.id, servedBy: out.servedBy });
       } catch (e) {
         if (e.code !== 'insufficient') throw e;
         /* the answer was already produced: take what is left rather than refuse it */
@@ -202,9 +204,9 @@ const api = {
         rec = { credits: a.balance, listCredits: q.listCredits, saved: 0 };
         a.balance = 0; store.put('accounts', a.id, a);
       }
-      const msg = { id: auth.newId('m_'), role: 'assistant', content: out.text, model: model.id, live, at: new Date().toISOString(), credits: rec.credits, usage: out.usage };
+      const msg = { id: auth.newId('m_'), role: 'assistant', content: out.text, model: model.id, live: tier === 'live', tier, servedBy: out.servedBy || null, at: new Date().toISOString(), credits: rec.credits, usage: out.usage };
       chat.messages.push(msg); chat.updated = msg.at; store.put('chats', chat.id, chat);
-      emit('done', { chatId: chat.id, messageId: msg.id, usage: out.usage, credits: rec.credits, listCredits: rec.listCredits, saved: rec.saved, balance: a.balance, live, title: chat.title });
+      emit('done', { chatId: chat.id, messageId: msg.id, usage: out.usage, credits: rec.credits, listCredits: rec.listCredits, saved: rec.saved, balance: a.balance, live: tier === 'live', tier, servedBy: out.servedBy || null, title: chat.title });
     } catch (e) {
       if (!ac.signal.aborted) emit('error', { message: e.message || 'The model failed' });
     }
@@ -222,14 +224,16 @@ const api = {
     if (!prompt) throw new HttpError(400, 'Describe the image first');
     const size = ['1024x1024', '1536x1024', '1024x1536'].includes(b.size) ? b.size : '1024x1024';
     const usage = { images: 1 };
+    const { impl, tier: planned } = router.resolve(model);
     const q = credits.quote(model, usage, a);
-    if (!credits.canAfford(a, q.credits)) throw new HttpError(402, `Not enough credits (${q.credits} needed)`, { code: 'insufficient' });
-    const { impl, live } = router.resolve(model);
+    if (planned === 'live' && !credits.canAfford(a, q.credits)) throw new HttpError(402, `Not enough credits (${q.credits} needed)`, { code: 'insufficient' });
     const out = await impl.generateImage({ model, prompt, size });
-    const rec = credits.debit(store, a, model, usage, { live, prompt });
-    const item = { id: auth.newId('l_'), account: a.id, kind: 'image', model: model.id, prompt, url: out.url, mime: out.mime, asset: out.id, live, credits: rec.credits, created: new Date().toISOString() };
+    const tier = out.tier || planned;
+    const live = tier === 'live';
+    const rec = settle(a, model, usage, tier, { prompt, servedBy: out.servedBy });
+    const item = { id: auth.newId('l_'), account: a.id, kind: 'image', model: model.id, prompt, url: out.url, mime: out.mime, asset: out.id, live, tier, servedBy: out.servedBy || null, credits: rec.credits, created: new Date().toISOString() };
     store.put('library', item.id, item);
-    return { item, balance: a.balance, credits: rec.credits, live };
+    return { item, balance: a.balance, credits: rec.credits, live, tier, servedBy: out.servedBy || null };
   },
 
   'POST /api/video': async (req) => {
@@ -241,14 +245,16 @@ const api = {
     if (!prompt) throw new HttpError(400, 'Describe the clip first');
     const seconds = Math.max(2, Math.min(15, Number(b.seconds) || 5));
     const usage = { seconds };
+    const { impl, tier: planned } = router.resolve(model);
     const q = credits.quote(model, usage, a);
-    if (!credits.canAfford(a, q.credits)) throw new HttpError(402, `Not enough credits (${q.credits} needed)`, { code: 'insufficient' });
-    const { impl, live } = router.resolve(model);
+    if (planned === 'live' && !credits.canAfford(a, q.credits)) throw new HttpError(402, `Not enough credits (${q.credits} needed)`, { code: 'insufficient' });
     const out = await impl.generateVideo({ model, prompt, seconds, aspect: b.aspect });
-    const rec = credits.debit(store, a, model, usage, { live, prompt });
-    const item = { id: auth.newId('l_'), account: a.id, kind: 'video', model: model.id, prompt, url: out.url, mime: out.mime, asset: out.id, seconds, live, credits: rec.credits, created: new Date().toISOString() };
+    const tier = out.tier || planned;
+    const live = tier === 'live';
+    const rec = settle(a, model, usage, tier, { prompt, servedBy: out.servedBy });
+    const item = { id: auth.newId('l_'), account: a.id, kind: 'video', model: model.id, prompt, url: out.url, mime: out.mime, asset: out.id, seconds, live, tier, servedBy: out.servedBy || null, credits: rec.credits, created: new Date().toISOString() };
     store.put('library', item.id, item);
-    return { item, balance: a.balance, credits: rec.credits, live };
+    return { item, balance: a.balance, credits: rec.credits, live, tier, servedBy: out.servedBy || null };
   },
 
   'POST /api/tts': async (req) => {
@@ -259,14 +265,16 @@ const api = {
     const text = String(b.text || '').trim().slice(0, 5000);
     if (!text) throw new HttpError(400, 'Write something to say first');
     const usage = { chars: text.length };
+    const { impl, tier: planned } = router.resolve(model);
     const q = credits.quote(model, usage, a);
-    if (!credits.canAfford(a, q.credits)) throw new HttpError(402, `Not enough credits (${q.credits} needed)`, { code: 'insufficient' });
-    const { impl, live } = router.resolve(model);
+    if (planned === 'live' && !credits.canAfford(a, q.credits)) throw new HttpError(402, `Not enough credits (${q.credits} needed)`, { code: 'insufficient' });
     const out = await impl.speak({ model, text, voice: b.voice });
-    const rec = credits.debit(store, a, model, usage, { live, prompt: text.slice(0, 200) });
-    const item = { id: auth.newId('l_'), account: a.id, kind: 'audio', model: model.id, prompt: text, url: out.url, mime: out.mime, asset: out.id, live, credits: rec.credits, created: new Date().toISOString() };
+    const tier = out.tier || planned;
+    const live = tier === 'live';
+    const rec = settle(a, model, usage, tier, { prompt: text.slice(0, 200), servedBy: out.servedBy });
+    const item = { id: auth.newId('l_'), account: a.id, kind: 'audio', model: model.id, prompt: text, url: out.url, mime: out.mime, asset: out.id, live, tier, servedBy: out.servedBy || null, credits: rec.credits, created: new Date().toISOString() };
     store.put('library', item.id, item);
-    return { item, balance: a.balance, credits: rec.credits, live };
+    return { item, balance: a.balance, credits: rec.credits, live, tier, servedBy: out.servedBy || null };
   },
 
   'POST /api/stt': async (req) => {
@@ -277,12 +285,12 @@ const api = {
     if (!audio.length) throw new HttpError(400, 'No audio received');
     const minutes = Math.max(0.05, (Number(b.seconds) || audio.length / 16000) / 60);
     const usage = { minutes };
-    const q = credits.quote(model, usage, a);
-    if (!credits.canAfford(a, q.credits)) throw new HttpError(402, 'Not enough credits', { code: 'insufficient' });
-    const { impl, live } = router.resolve(model);
+    const { impl, tier: planned } = router.resolve(model);
+    if (planned === 'live' && !credits.canAfford(a, credits.quote(model, usage, a).credits)) throw new HttpError(402, 'Not enough credits', { code: 'insufficient' });
     const out = await impl.transcribe({ model, audio, mime: b.mime || 'audio/webm' });
-    const rec = credits.debit(store, a, model, usage, { live });
-    return { text: out.text, credits: rec.credits, balance: a.balance, live };
+    const tier = out.tier || planned;
+    const rec = settle(a, model, usage, tier, {});
+    return { text: out.text, credits: rec.credits, balance: a.balance, live: tier === 'live', tier };
   },
 
   /* --- chats --- */
@@ -364,6 +372,14 @@ const api = {
   }
 };
 
+/* Only live calls cost credits; free and demo answers are recorded at zero. */
+function settle(a, model, usage, tier, meta = {}) {
+  if (tier === 'live') return credits.debit(store, a, model, usage, { ...meta, live: true, tier });
+  const rec = { id: 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), account: a.id, at: new Date().toISOString(), model: model.id, kind: model.kind, usage, credits: 0, listCredits: 0, saved: 0, live: false, tier, ...meta };
+  store.put('usage', rec.id, rec);
+  return rec;
+}
+
 async function refreshHoldings(a) {
   if (!a.wallet || !chain.holdingsConfigured()) return;
   const h = await chain.holdingsPct(a.wallet);
@@ -433,5 +449,6 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(config.port, () => {
   const live = Object.keys(config.keys).filter((k) => config.isLive(k));
-  console.log(`seekr on :${config.port} — ${live.length ? 'live: ' + live.join(', ') : 'no provider keys'}${config.demoAllowed() ? ' (demo mode for the rest)' : ''}`);
+  console.log(`seekr on :${config.port} — ${live.length ? 'live: ' + live.join(', ') : 'no provider keys'} — the rest: free tier, then demo`);
+  if ((process.env.FREE_TIER || 'on') !== 'off' && process.env.FREE_PROBE !== 'off') router.free.probe().then((r) => console.log('free tier check: ' + r)).catch((e) => console.log('free tier check failed: ' + e.message));
 });

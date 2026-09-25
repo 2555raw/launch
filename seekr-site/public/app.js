@@ -216,7 +216,7 @@
     const list = state.models.filter((m) => m.kind === kind);
     const groups = [...new Set(list.map((m) => m.vendor))];
     const cur = activeModel();
-    mn.innerHTML = groups.map((g) => `<div class="grp">${esc(g)}</div>` + list.filter((m) => m.vendor === g).map((m) => `<button data-id="${m.id}" class="${m.id === cur.id ? 'on' : ''}">${mark(vendorMark(m.vendor)).replace('<svg', '<svg width="16" height="16"')}<span>${esc(m.name)}</span><span class="id">${m.id}</span><span class="pr">${usd(m.prices.usd)}${m.prices.unit}</span><span class="lv ${m.live ? '' : 'demo'}" title="${m.live ? 'live' : 'demo'}"></span></button>`).join('')).join('');
+    mn.innerHTML = groups.map((g) => `<div class="grp">${esc(g)}</div>` + list.filter((m) => m.vendor === g).map((m) => `<button data-id="${m.id}" class="${m.id === cur.id ? 'on' : ''}">${mark(vendorMark(m.vendor)).replace('<svg', '<svg width="16" height="16"')}<span>${esc(m.name)}</span><span class="id">${m.id}</span><span class="pr">${usd(m.prices.usd)}${m.prices.unit}</span><span class="lv ${m.live ? '' : 'demo'}" title="${m.live ? 'live' : m.kind === 'video' ? 'demo' : 'free tier'}"></span></button>`).join('')).join('');
     mn.querySelectorAll('button').forEach((b) => b.onclick = (e) => { e.stopPropagation(); const m = state.models.find((x) => x.id === b.dataset.id); if (kind === 'image') state.imgModel = m; else if (kind === 'video') state.vidModel = m; else state.model = m; renderComposer(); });
     mn.classList.add('open');
   }
@@ -227,7 +227,7 @@
     estT = setTimeout(async () => {
       const m = activeModel(); const text = ($('#prompt') || {}).value || '';
       const body = m.kind === 'chat' ? { model: m.id, text: text + (state.chat ? state.chat.messages.map((x) => x.content).join(' ') : '') } : { model: m.id, usage: m.kind === 'image' ? { images: 1 } : { seconds: state.seconds } };
-      try { const { quote } = await api('/api/quote', { method: 'POST', body }); const e = $('#est'); if (e) e.textContent = `~${quote.credits < 10 ? quote.credits.toFixed(1) : Math.round(quote.credits)} cr`; } catch { /* leave it */ }
+      try { const { quote, tier } = await api('/api/quote', { method: 'POST', body }); const e = $('#est'); if (e) e.textContent = tier === 'live' ? `~${quote.credits < 10 ? quote.credits.toFixed(1) : Math.round(quote.credits)} cr` : tier === 'free' ? 'free' : 'demo'; } catch { /* leave it */ }
     }, 250);
   }
 
@@ -280,9 +280,9 @@
           const ev = /^event: (.*)$/m.exec(chunk)?.[1]; const data = /^data: (.*)$/m.exec(chunk)?.[1];
           if (!ev || !data) continue;
           const d = JSON.parse(data);
-          if (ev === 'meta') { state.chat.id = d.chatId; aiMsg.live = d.live; }
+          if (ev === 'meta') { state.chat.id = d.chatId; aiMsg.live = d.live; aiMsg.tier = d.tier; }
           if (ev === 'delta') { aiMsg.content += d.text; const b = body(); if (b) { b.textContent = aiMsg.content; b.classList.add('cursor'); b.parentElement.scrollIntoView({ block: 'end' }); } }
-          if (ev === 'done') { aiMsg.credits = d.credits; aiMsg.usage = d.usage; aiMsg.saved = d.saved; state.me.balance = d.balance; state.chat.title = d.title || state.chat.title; }
+          if (ev === 'done') { aiMsg.tier = d.tier; aiMsg.servedBy = d.servedBy; aiMsg.live = d.live; aiMsg.credits = d.credits; aiMsg.usage = d.usage; aiMsg.saved = d.saved; state.me.balance = d.balance; state.chat.title = d.title || state.chat.title; }
           if (ev === 'error') throw new Error(d.message);
         }
       }
@@ -303,7 +303,7 @@
     const msgs = (state.chat && state.chat.messages) || [];
     t.innerHTML = msgs.map((m, i) => m.role === 'user'
       ? `<div class="msg user"><span class="who">you</span><div class="body">${esc(m.content)}</div></div>`
-      : `<div class="msg ai"><span class="who">${esc(m.model || 'seekr')}</span><div class="body ${m.streaming ? 'cursor' : ''}">${m.streaming ? esc(m.content) : md(m.content)}</div>${m.streaming ? '' : `<div class="meta"><span>${m.credits !== undefined ? `−${cr(m.credits)} cr` : ''}</span>${m.usage ? `<span>${m.usage.inTokens}→${m.usage.outTokens} tok</span>` : ''}${m.saved ? `<span class="accent">saved ${cr(m.saved)} cr as a holder</span>` : ''}${m.live === false ? '<span class="demo">demo</span>' : ''}<button class="copy" data-say="${i}">${ICONS.speaker.replace('<svg', '<svg width="12" height="12" style="display:inline;vertical-align:-2px"')} listen</button><button class="copy" data-copytext="${i}">copy</button></div>`}</div>`).join('');
+      : `<div class="msg ai"><span class="who">${esc(m.model || 'seekr')}</span><div class="body ${m.streaming ? 'cursor' : ''}">${m.streaming ? esc(m.content) : md(m.content)}</div>${m.streaming ? '' : `<div class="meta"><span>${m.credits !== undefined ? costTag(m) : ''}</span>${m.usage ? `<span>${m.usage.inTokens}→${m.usage.outTokens} tok</span>` : ''}${m.saved ? `<span class="accent">saved ${cr(m.saved)} cr as a holder</span>` : ''}${tierTag(m)}<button class="copy" data-say="${i}">${ICONS.speaker.replace('<svg', '<svg width="12" height="12" style="display:inline;vertical-align:-2px"')} listen</button><button class="copy" data-copytext="${i}">copy</button></div>`}</div>`).join('');
     t.querySelectorAll('[data-copytext]').forEach((b) => b.onclick = () => { navigator.clipboard.writeText(msgs[b.dataset.copytext].content); toast('Copied'); });
     t.querySelectorAll('[data-copy]').forEach((b) => b.onclick = () => { const pre = b.closest('.preview').previousElementSibling; navigator.clipboard.writeText(pre.textContent); toast('Code copied'); });
     t.querySelectorAll('[data-say]').forEach((b) => b.onclick = () => speak(msgs[b.dataset.say].content));
@@ -317,7 +317,7 @@
     try {
       const r = await api('/api/tts', { method: 'POST', body: { model: state.ttsModel.id, text: text.replace(/```[\s\S]*?```/g, ' (code) ').slice(0, 3000) } });
       new Audio(r.item.url).play(); state.me.balance = r.balance; renderSignbox(); loadLibrary();
-      toast(`Spoken by ${state.ttsModel.name}${r.live ? '' : ' (demo)'} · −${cr(r.credits)} cr`);
+      toast(`Spoken${r.tier === 'free' ? ' by a free voice' : r.tier === 'demo' ? ' (demo)' : ' by ' + state.ttsModel.name} · ${costTag(r)}`);
     } catch (e) { toast(e.message, true); }
   }
 
@@ -332,7 +332,7 @@
       const r = await api('/api/' + kind, { method: 'POST', body: { model: m.id, prompt, size: state.size, seconds: state.seconds } });
       const it = r.item;
       $('#genMsg .body').classList.remove('cursor');
-      $('#genMsg .body').innerHTML = `${media(it)}<div class="meta"><span>−${cr(r.credits)} cr</span>${r.live ? '' : '<span class="demo">demo render</span>'}<a class="copy" href="${it.url}" download>download</a><a class="copy" href="#library">library</a></div>`;
+      $('#genMsg .body').innerHTML = `${media(it)}<div class="meta"><span>${costTag(r)}</span>${tierTag(r)}<a class="copy" href="${it.url}" download>download</a><a class="copy" href="#library">library</a></div>`;
       state.me.balance = r.balance; renderSignbox(); loadLibrary();
     } catch (e) {
       $('#genMsg .body').classList.remove('cursor'); $('#genMsg .body').textContent = `⚠ ${e.message}`;
@@ -340,6 +340,8 @@
     } finally { state.streaming = false; $('#sendBtn').disabled = false; }
   }
 
+  const tierTag = (x) => x.tier === 'free' ? `<span class="demo">free${x.servedBy ? ' · ' + esc(x.servedBy.replace(' (free)', '')) : ''}</span>` : (x.tier === 'demo' || x.live === false) ? '<span class="demo">demo</span>' : '';
+  const costTag = (x) => (x.credits ? `−${cr(x.credits)} cr` : x.tier === 'live' || x.live ? '' : 'no charge');
   const media = (it) => it.kind === 'image' || (it.mime && it.mime.startsWith('image/')) ? `<img src="${it.url}" alt="${esc(it.prompt)}" style="border-radius:10px;max-height:420px">` : it.kind === 'video' ? (it.mime === 'image/svg+xml' ? `<img src="${it.url}" alt="" style="border-radius:10px">` : `<video src="${it.url}" controls playsinline style="border-radius:10px"></video>`) : `<audio src="${it.url}" controls></audio>`;
 
   function renderLibBlock() {
@@ -425,7 +427,7 @@
     if (!state.me) return needSignIn('Library');
     await loadLibrary();
     const s = $('#stage');
-    s.innerHTML = `<div class="view"><h2>Library</h2><p class="sub">Everything you have generated: images, clips and audio.</p>${state.library.length ? `<div class="gallery">${state.library.map((it) => `<div class="gitem"><div class="media">${media(it)}</div><div class="cap"><span>${esc(it.prompt.slice(0, 120))}</span><span class="mono"><span>${it.model} · −${cr(it.credits)} cr${it.live ? '' : ' · demo'}</span><span><a href="${it.url}" download>download</a> · <a href="#" data-del="${it.id}">delete</a></span></span></div></div>`).join('')}</div>` : '<div class="thumb" style="aspect-ratio:auto;padding:40px">Nothing yet. Switch to Images or Video on Home and make something.</div>'}</div>`;
+    s.innerHTML = `<div class="view"><h2>Library</h2><p class="sub">Everything you have generated: images, clips and audio.</p>${state.library.length ? `<div class="gallery">${state.library.map((it) => `<div class="gitem"><div class="media">${media(it)}</div><div class="cap"><span>${esc(it.prompt.slice(0, 120))}</span><span class="mono"><span>${it.model} · ${costTag(it)}${it.tier === 'free' ? ' · free' : it.live ? '' : ' · demo'}</span><span><a href="${it.url}" download>download</a> · <a href="#" data-del="${it.id}">delete</a></span></span></div></div>`).join('')}</div>` : '<div class="thumb" style="aspect-ratio:auto;padding:40px">Nothing yet. Switch to Images or Video on Home and make something.</div>'}</div>`;
     s.querySelectorAll('[data-del]').forEach((a) => a.onclick = async (e) => { e.preventDefault(); await api('/api/library/' + a.dataset.del, { method: 'DELETE' }); renderLibrary(); });
   }
 
@@ -520,7 +522,7 @@
     $('#signOut').onclick = signOut;
     try {
       const { usage, deposits } = await api('/api/me/history');
-      const rows = [...deposits.map((d) => ({ at: d.at, l: `Deposit · ${d.method}${d.asset ? ` · ${d.amount} ${d.asset}` : ''}`, r: `<span class="u">+${cr(d.credits)}</span>` })), ...usage.map((u) => ({ at: u.at, l: `${u.model} · ${u.kind}${u.live === false ? ' · demo' : ''}${u.saved ? ` · saved ${cr(u.saved)}` : ''}`, r: `<span class="d">−${cr(u.credits)}</span>` }))].sort((x, y) => y.at.localeCompare(x.at)).slice(0, 60);
+      const rows = [...deposits.map((d) => ({ at: d.at, l: `Deposit · ${d.method}${d.asset ? ` · ${d.amount} ${d.asset}` : ''}`, r: `<span class="u">+${cr(d.credits)}</span>` })), ...usage.map((u) => ({ at: u.at, l: `${u.model} · ${u.kind}${u.tier === 'free' ? ' · free' : u.live === false ? ' · demo' : ''}${u.saved ? ` · saved ${cr(u.saved)}` : ''}`, r: u.credits ? `<span class="d">−${cr(u.credits)}</span>` : '<span>0</span>' }))].sort((x, y) => y.at.localeCompare(x.at)).slice(0, 60);
       $('#histList').innerHTML = rows.map((r) => `<div class="li"><div>${r.l}<div class="mono">${new Date(r.at).toLocaleString()}</div></div><div class="r">${r.r}</div></div>`).join('') || '<div class="li"><span class="note">Nothing yet.</span></div>';
     } catch { $('#histList').innerHTML = ''; }
   }

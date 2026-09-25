@@ -22,17 +22,10 @@ async function fail(r, what) {
   throw Object.assign(new Error(msg), { status: 502 });
 }
 
-async function streamChat({ model, messages, system, onText, signal }) {
-  const provider = model.provider;
-  const body = {
-    model: model.upstream,
-    stream: true,
-    stream_options: { include_usage: true },
-    messages: [...(system ? [{ role: 'system', content: system }] : []), ...messages.map((m) => ({ role: m.role, content: m.content }))]
-  };
-  const r = await fetch(`${BASES[provider]}/chat/completions`, { method: 'POST', headers: headers(provider, { 'content-type': 'application/json' }), body: JSON.stringify(body), signal });
+/* Stream an OpenAI-style chat completion from any compatible endpoint. */
+async function streamFrom(url, hdrs, body, onText, signal) {
+  const r = await fetch(url, { method: 'POST', headers: { ...hdrs, 'content-type': 'application/json' }, body: JSON.stringify({ ...body, stream: true }), signal });
   if (!r.ok) await fail(r, 'Chat');
-
   let text = '';
   let usage = null;
   let finish = null;
@@ -60,6 +53,13 @@ async function streamChat({ model, messages, system, onText, signal }) {
   }
   if (!usage) usage = { inTokens: Math.ceil(JSON.stringify(body.messages).length / 4), outTokens: Math.ceil(text.length / 4) };
   return { text, usage, finish };
+}
+
+const toMessages = (messages, system) => [...(system ? [{ role: 'system', content: system }] : []), ...messages.map((m) => ({ role: m.role, content: m.content }))];
+
+async function streamChat({ model, messages, system, onText, signal }) {
+  const provider = model.provider;
+  return streamFrom(`${BASES[provider]}/chat/completions`, headers(provider), { model: model.upstream, stream_options: { include_usage: true }, messages: toMessages(messages, system) }, onText, signal);
 }
 
 async function generateImage({ model, prompt, size }) {
@@ -93,4 +93,4 @@ async function transcribe({ model, audio, mime }) {
   return { text: j.text || '' };
 }
 
-module.exports = { streamChat, generateImage, speak, transcribe };
+module.exports = { streamChat, generateImage, speak, transcribe, streamFrom, toMessages };

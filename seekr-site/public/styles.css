@@ -206,6 +206,9 @@ button { cursor: pointer; }
 .icons svg { width: 20px; height: 20px; color: var(--ink); }
 .ship { display: flex; justify-content: space-between; font-size: 14px; color: var(--text); padding: 12px 0 0; border-top: 1px solid var(--line); max-width: 480px; }
 .ship b { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: .1em; }
+.assets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.step .more { display: inline-block; font-size: 14px; color: var(--accent); font-weight: 600; }
+.assets span { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--accent-line); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 
 /* token */
 .cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 40px 0 32px; }

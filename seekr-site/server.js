@@ -542,5 +542,6 @@ server.listen(config.port, () => {
   const live = Object.keys(config.keys).filter((k) => config.isLive(k));
   console.log(`seekr on :${config.port} — ${live.length ? 'live: ' + live.join(', ') : 'no provider keys'} — the rest: free tier, then demo`);
   if (process.env.FREE_PROBE !== 'off') swap.probe().then((r) => console.log('swap check: ' + r));
+  if (process.env.FREE_DIAG === '1') router.free.diag(SYSTEM).catch((e) => console.log('diag failed: ' + e.message));
   if ((process.env.FREE_TIER || 'on') !== 'off' && process.env.FREE_PROBE !== 'off') router.free.probe().then((r) => console.log('free tier check: ' + r)).catch((e) => console.log('free tier check failed: ' + e.message));
 });

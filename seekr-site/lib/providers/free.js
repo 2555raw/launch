@@ -102,4 +102,34 @@ async function probe() {
   return results.join(' · ');
 }
 
-module.exports = { streamChat, generateImage, speak, probe, status, supports: { chat: true, image: true, tts: true } };
+
+/* FREE_DIAG=1: at boot, run a small battery through the free models and log
+ * the answers, to judge which free model follows instructions best. */
+async function diag(systems) {
+  const log = (k, v) => console.log(`diag ${k}: ${String(v).replace(/\s+/g, ' ').slice(0, 400)}`);
+  try {
+    const r = await fetch('https://text.pollinations.ai/models', { signal: AbortSignal.timeout(15000) });
+    const list = await r.json();
+    log('models', list.map((m) => `${m.name}${m.tier ? '[' + m.tier + ']' : ''}`).join(', '));
+  } catch (e) { log('models', 'failed ' + e.message); }
+  const tests = [
+    ['es', systems.ask, [{ role: 'user', content: 'Escríbeme exactamente 3 ideas de nombres para una cafetería en Madrid, en una lista numerada, sin nada más.' }]],
+    ['code', systems.code, [{ role: 'user', content: 'Make a single HTML page with one red button that says Hola and turns blue when clicked.' }]],
+    ['memory', systems.ask, [{ role: 'user', content: 'My name is Lucia.' }, { role: 'assistant', content: 'Nice to meet you, Lucia!' }, { role: 'user', content: 'What is my name? Answer with just the name.' }]]
+  ];
+  for (const model of (process.env.FREE_DIAG_MODELS || 'openai,openai-fast,openai-large,mistral,deepseek,qwen-coder,llama,gemini').split(',')) {
+    for (const [name, system, messages] of tests) {
+      const t0 = Date.now();
+      try {
+        const out = await streamFrom(TEXT[1].url, { Referer: `https://${REF}.app` }, { model, referrer: REF, messages: toMessages(messages, system) }, () => {}, AbortSignal.timeout(60000));
+        log(`${model}/${name} ${Date.now() - t0}ms`, out.text || '(empty)');
+      } catch (e) { log(`${model}/${name}`, 'FAILED ' + e.message); }
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+  }
+  for (const [p, sz] of [['a red sports car parked on a sunny beach, photo', '1024x1024']]) {
+    try { const img = await generateImage({ prompt: p, size: sz }); log('image', `${img.bytes} bytes ${img.mime || ''}`); } catch (e) { log('image', 'FAILED ' + e.message); }
+  }
+}
+
+module.exports = { streamChat, generateImage, speak, probe, diag, status, supports: { chat: true, image: true, tts: true } };

@@ -54,7 +54,8 @@ module.exports = {
 
   chain: {
     /* Robinhood Chain (Arbitrum L2, chain id 4663) where $SEEKR lives */
-    rhRpc: env.ROBINHOOD_RPC_URL || '',
+    rhRpc: env.ROBINHOOD_RPC_URL || 'https://rpc.mainnet.chain.robinhood.com', // public, rate limited; set a dedicated one if holders grow
+    explorer: env.ROBINHOOD_EXPLORER_URL || 'https://robinhoodchain.blockscout.com',
     rhChainId: 4663,
     seekrToken: env.SEEKR_TOKEN_ADDRESS || '',
     seekrSupply: num(env.SEEKR_TOTAL_SUPPLY, 1e9),

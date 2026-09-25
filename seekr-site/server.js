@@ -110,7 +110,7 @@ const api = {
     welcomeCredits: config.welcomeCredits,
     deposits: { ...chain.depositsConfigured(), treasury: config.chain.treasury, minConfirmations: config.chain.minConfirmations },
     holdings: chain.holdingsConfigured(),
-    chain: { id: config.chain.rhChainId, token: config.chain.seekrToken, buyUrl: config.chain.buyUrl, chartUrl: config.chain.chartUrl, launch: config.chain.launch },
+    chain: { id: config.chain.rhChainId, token: config.chain.seekrToken, buyUrl: config.chain.buyUrl, chartUrl: config.chain.chartUrl, launch: config.chain.launch, explorer: config.chain.explorer },
     links: config.links,
     skills: skills.publicList(),
     auth: { email: mailer.configured(), wallet: true, username: true },

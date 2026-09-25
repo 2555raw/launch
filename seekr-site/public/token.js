@@ -9,6 +9,7 @@
     if (c.launch) $('tLaunch').textContent = c.launch;
     if (c.token) {
       $('tCa').textContent = c.token; $('tCopy').hidden = false;
+      if (c.explorer) { $('tScan').href = `${c.explorer}/token/${c.token}`; $('tScan').hidden = false; }
       $('tCopy').onclick = () => navigator.clipboard.writeText(c.token).then(() => { $('tCopy').textContent = 'Copied'; setTimeout(() => { $('tCopy').textContent = 'Copy'; }, 1600); }).catch(() => null);
     }
     if (!c.buyUrl) pending($('buyBtn'), 'Opens at launch');

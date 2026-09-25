@@ -52,7 +52,16 @@ async function streamChatNow({ messages, system, onText, signal }) {
     for (const m of FREE_MODELS) {
       let emitted = false;
       try {
-        const out = await streamFrom(TEXT[e].url, { ...auth(), Referer: `https://${REF}.app` }, { model: m, referrer: REF, messages: toMessages(messages, system) }, (t) => { emitted = true; onText(t); }, signal);
+        /* a request that hangs would hold the whole queue: no first word in 20 s, or
+           no end in 120 s, and this attempt is cut and retried */
+        const ac = new AbortController();
+        const cut = () => ac.abort(new Error('Free chat timed out'));
+        let timer = setTimeout(cut, 20000);
+        const onAbort = () => ac.abort(signal.reason); signal?.addEventListener('abort', onAbort, { once: true });
+        let out;
+        try {
+          out = await streamFrom(TEXT[e].url, { ...auth(), Referer: `https://${REF}.app` }, { model: m, referrer: REF, messages: toMessages(messages, system) }, (t) => { if (!emitted) { clearTimeout(timer); timer = setTimeout(cut, 120000); } emitted = true; onText(t); }, ac.signal);
+        } finally { clearTimeout(timer); signal?.removeEventListener('abort', onAbort); }
         if (!out.text.trim()) throw new Error('Empty reply');
         textAt = e; status.text = true; status.textModel = m;
         return { ...out, servedBy: `${m} (free)` };

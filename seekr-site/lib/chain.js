@@ -5,7 +5,7 @@ const { JsonRpcProvider, Contract, formatUnits, getAddress, Interface } = requir
 const config = require('./config');
 const markets = require('./markets');
 
-const ERC20 = ['function balanceOf(address) view returns (uint256)', 'function totalSupply() view returns (uint256)', 'event Transfer(address indexed from, address indexed to, uint256 value)'];
+const ERC20 = ['function balanceOf(address) view returns (uint256)', 'function totalSupply() view returns (uint256)', 'function name() view returns (string)', 'function symbol() view returns (string)', 'function decimals() view returns (uint8)', 'event Transfer(address indexed from, address indexed to, uint256 value)'];
 const erc20Iface = new Interface(ERC20);
 
 let rh = null;
@@ -93,4 +93,21 @@ async function verifyDeposit(chain, ref) {
   throw Object.assign(new Error(`${chain} deposits are not configured on this server`), { status: 503 });
 }
 
-module.exports = { holdingsConfigured, holdingsPct, depositsConfigured, verifyDeposit };
+/* boot check of the configured $SEEKR contract: what the chain says it is, and whether DexScreener has a pair */
+async function tokenCheck() {
+  const addr = config.chain.seekrToken;
+  if (!addr) return null;
+  const out = [];
+  try {
+    const c = new Contract(addr, ERC20, rhProvider());
+    const [name, symbol, dec, supply] = await Promise.all([c.name(), c.symbol(), c.decimals(), c.totalSupply()]);
+    out.push(`on chain ${config.chain.rhChainId}: ${name} (${symbol}), ${dec} decimals, supply ${Number(formatUnits(supply, dec)).toLocaleString('en-US')}${Number(dec) !== config.chain.seekrDecimals ? ` · WARNING: SEEKR_DECIMALS is ${config.chain.seekrDecimals}` : ''}`);
+  } catch (e) { out.push(`chain read failed: ${e.shortMessage || e.message}`); }
+  try {
+    const { seekr: s } = await markets.snapshot();
+    out.push(s.live ? `dexscreener: ${s.chainId}/${s.dexId} price $${s.price} · liquidity $${Math.round(s.liquidity || 0)} · mcap $${Math.round(s.mcap || 0)} · ${s.url}` : 'dexscreener: no pair yet');
+  } catch (e) { out.push('dexscreener failed: ' + e.message); }
+  return `${addr} · ${out.join(' · ')}`;
+}
+
+module.exports = { tokenCheck, holdingsConfigured, holdingsPct, depositsConfigured, verifyDeposit };

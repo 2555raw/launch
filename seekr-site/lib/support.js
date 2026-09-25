@@ -37,7 +37,7 @@ function faq() {
     { k: 'buy token where contract address chart robinhood chain launch', q: 'Where do I buy $WONDR?',
       a: config.chain.seekrToken
         ? `$WONDR lives on Robinhood Chain (chain id 4663). Contract: \`${config.chain.seekrToken}\`. Use **Buy $WONDR** on the Token page.`
-        : '$WONDR launches on Robinhood Chain (an Arbitrum L2, chain id 4663), paired against ETH, with a fixed supply of 1,000,000,000. It is not live yet, so there is no contract address to buy. Watch https://x.com/heySeekr for the launch and never trust an address sent to you in a DM.' },
+        : '$WONDR launches on Robinhood Chain (an Arbitrum L2, chain id 4663), paired against ETH, with a fixed supply of 1,000,000,000. It is not live yet, so there is no contract address to buy. Watch https://x.com/heywondr for the launch and never trust an address sent to you in a DM.' },
     { k: 'swap exchange trade convert token coin gold stock real world asset rwa metamask phantom coinbase', q: 'How does Swap work?',
       a: 'Open **Swap** in the top menu, connect MetaMask, Coinbase Wallet or Phantom, pick what you pay and what you get, and press Swap. Routes are found by LI.FI across DEXs and bridges, on one chain or across chains (EVM and Solana). You sign in your own wallet; wondr never holds your funds. The **Real-world assets** shelf has tokenized gold (PAXG, XAUT), US treasuries and tokenized stocks (xStocks).' },
     { k: 'swap failed error stuck slippage approve gas pending bridge', q: 'My swap failed or is stuck.',
@@ -53,7 +53,7 @@ function faq() {
     { k: 'expire credits refund', q: 'Do credits expire? Can I get a refund?',
       a: `Credits never expire. Deposits are on-chain transfers, so they cannot be reversed automatically; for a problem with a charge, write to ${email} with your account and the request.` },
     { k: 'contact human email team talk person twitter x', q: 'How do I reach a person?',
-      a: `Email ${email} or message https://x.com/heySeekr on X.` }
+      a: `Email ${email} or message https://x.com/heywondr on X.` }
   ];
 }
 
@@ -97,8 +97,8 @@ FACTS
 - Credits: $1 = ${config.creditsPerUsd.toLocaleString()} credits. List price = provider price × ${config.markup} (a ${((config.markup - 1) * 100).toFixed(1)}% margin). Credits never expire.${config.welcomeCredits ? ` New accounts get ${config.welcomeCredits.toLocaleString()} welcome credits.` : ''}
 - Sign-in: username + password, wallet signature, ${mailer.configured() ? 'email code, ' : ''}or an access key (seek_…). Email is optional.
 - Payments: crypto only (USDT, ETH, SOL, BTC). No card payments.
-- $WONDR: supply 1,000,000,000 fixed, no mint, no presale, no team allocation, launched on the Pons curve paired with ETH; the company buys its 5% on the curve like anyone and locks it; liquidity locked with Team Finance when the curve graduates. Robinhood Chain docs: https://docs.robinhood.com/chain/. ${config.chain.seekrToken ? `Contract: ${config.chain.seekrToken}.` : 'Not launched yet: there is no contract address; anyone giving one before the official launch post on https://x.com/heySeekr is a scammer.'}
-- Contact: ${config.links.email}, X https://x.com/heySeekr.
+- $WONDR: supply 1,000,000,000 fixed, no mint, no presale, no team allocation, launched on the Pons curve paired with ETH; the company buys its 5% on the curve like anyone and locks it; liquidity locked with Team Finance when the curve graduates. Robinhood Chain docs: https://docs.robinhood.com/chain/. ${config.chain.seekrToken ? `Contract: ${config.chain.seekrToken}.` : 'Not launched yet: there is no contract address; anyone giving one before the official launch post on https://x.com/heywondr is a scammer.'}
+- Contact: ${config.links.email}, X https://x.com/heywondr.
 
 MODELS AND LIST PRICES
 ${priceTable()}

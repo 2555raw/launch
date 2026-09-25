@@ -131,7 +131,7 @@ seekr.support = (() => {
       <div class="sup-log" aria-live="polite"></div>
       <div class="sup-sugg"></div>
       <form class="sup-f"><textarea rows="1" maxlength="2000" placeholder="Ask anything about wondr…" aria-label="Your question"></textarea><button class="sup-send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
-      <div class="sup-foot">Never share your seed phrase, password or keys. Need a person? <a href="https://x.com/heySeekr" target="_blank" rel="noopener">@heySeekr</a></div>`;
+      <div class="sup-foot">Never share your seed phrase, password or keys. Need a person? <a href="https://x.com/heywondr" target="_blank" rel="noopener">@heywondr</a></div>`;
     document.body.appendChild(el);
     const ta = el.querySelector('textarea');
     el.querySelector('[data-act=close]').onclick = close;

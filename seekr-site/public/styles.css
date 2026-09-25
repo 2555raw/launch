@@ -141,7 +141,8 @@ button { cursor: pointer; }
 .sky-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 .sky-wind { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .8s ease; pointer-events: none; }
 .sky-wind.on { opacity: 1; }
-:root[data-theme="light"] .sky::after { background: linear-gradient(90deg, rgba(247, 248, 251, .66) 0%, rgba(247, 248, 251, .38) 34%, rgba(247, 248, 251, 0) 60%); }
+/* only behind the headline: an oval that fades out before the grass */
+:root[data-theme="light"] .sky::after { background: radial-gradient(48% 42% at 24% 40%, rgba(247, 248, 251, .5) 0%, rgba(247, 248, 251, .26) 50%, rgba(247, 248, 251, 0) 100%); }
 :root[data-theme="light"] .grid-lines { background-image: linear-gradient(90deg, rgba(11, 15, 26, .05) 1px, transparent 1px); }
 .theme-btn { width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; }
 .theme-btn:hover { border-color: var(--line-2); }
@@ -149,7 +150,7 @@ button { cursor: pointer; }
 .theme-btn .i-moon { display: none; }
 :root[data-theme="dark"] .theme-btn .i-sun { display: none; }
 :root[data-theme="dark"] .theme-btn .i-moon { display: block; }
-.sky::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10, 10, 10, .7) 0%, rgba(10, 10, 10, .42) 34%, rgba(10, 10, 10, 0) 62%); }
+.sky::after { content: ''; position: absolute; inset: 0; background: radial-gradient(50% 45% at 24% 40%, rgba(10, 10, 10, .58) 0%, rgba(10, 10, 10, .3) 50%, rgba(10, 10, 10, 0) 100%); }
 .grid-lines { display: none; }
 .grid-lines { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px); background-size: 240px 100%; background-position: 60px 0;
   -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%); mask-image: linear-gradient(180deg, #000, transparent 85%); }

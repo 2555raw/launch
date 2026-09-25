@@ -5,7 +5,7 @@ behind it, with **blue** as the accent instead of red and a header painted as
 a **blue sky with clouds over a green field of flowers** in place of the red
 planet. Everything on the page is wired to the server: live prices, the model
 catalog, accounts, credits, streamed chat, image / video / speech generation,
-crypto and card deposits, and the $SEEKR holder allowance.
+crypto deposits, swaps into real-world assets, and the $SEEKR holder allowance.
 
 ```
 seekr-site/
@@ -19,7 +19,7 @@ seekr-site/
     assets.js          generated files on disk, served at /assets/<id>
     router.js          live provider when its key is set, demo otherwise
     markets.js         crypto tickers (CoinGecko) and the $SEEKR price (DexScreener)
-    chain.js           $SEEKR holdings, deposit verification (ETH/USDT, SOL, BTC), Stripe
+    chain.js           $SEEKR holdings, deposit verification (ETH/USDT, SOL, BTC)
     providers/         anthropic, openaiCompat (OpenAI, DeepSeek, xAI, OpenRouter),
                        google (Gemini, Nano Banana, Veo), fal (FLUX, Kling, Seedance,
                        Runway), elevenlabs, demo
@@ -86,8 +86,7 @@ inside a daily allowance of **1,000 credits per 0.01% of supply, up to
 **Deposits** — set a treasury address per chain and the account page shows
 it; the user pastes the transaction id and the server verifies it on chain
 (ETH or USDT to the treasury on Ethereum; SOL; BTC via mempool.space), converts
-at the live rate and credits the balance once. Card top-ups go through Stripe
-Checkout with a signed webhook.
+at the live rate and credits the balance once.
 
 ## Swap
 

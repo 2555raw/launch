@@ -17,7 +17,7 @@ let tickers = { at: 0, stale: true, coins: [
   { sym: 'BTC', price: 84451.35, change: -0.03 }, { sym: 'ETH', price: 2692.35, change: 0.39 }, { sym: 'BNB', price: 777.28, change: 1.5 },
   { sym: 'XRP', price: 1.54, change: 2.71 }, { sym: 'SOL', price: 117.1, change: 1.99 }, { sym: 'DOGE', price: 0.0959, change: 3.61 }
 ].map((c) => ({ ...c, color: COINS.find((x) => x.sym === c.sym).color })) };
-let seekr = { at: 0, stale: true, price: 0.003828, change: 16.9, symbol: 'SEEKR' };
+let seekr = { at: 0, stale: true, live: false, price: null, change: null, symbol: 'SEEKR' };
 
 const TTL = 60 * 1000;
 
@@ -40,11 +40,15 @@ async function refreshTickers() {
 
 async function refreshSeekr() {
   if (Date.now() - seekr.at < TTL) return seekr;
-  if (!config.chain.dexscreenerPair) { seekr.at = Date.now(); return seekr; }
+  const { dexscreenerPair: pair, seekrToken: token } = config.chain;
+  if (!pair && !token) { seekr.at = Date.now(); return seekr; }
   try {
-    const j = await fetchJson(`https://api.dexscreener.com/latest/dex/pairs/${config.chain.dexscreenerPair}`);
-    const p = j.pairs?.[0] || j.pair;
-    if (p) seekr = { at: Date.now(), stale: false, price: Number(p.priceUsd), change: Number(p.priceChange?.h24 || 0), symbol: 'SEEKR', url: p.url };
+    /* a pinned pair wins; otherwise take the most liquid pair for the token */
+    const j = await fetchJson(pair ? `https://api.dexscreener.com/latest/dex/pairs/${pair}` : `https://api.dexscreener.com/latest/dex/tokens/${token}`);
+    const pairs = j.pairs || (j.pair ? [j.pair] : []);
+    const p = pairs.filter((x) => x.priceUsd).sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
+    if (p) seekr = { at: Date.now(), stale: false, live: true, price: Number(p.priceUsd), change: Number(p.priceChange?.h24 || 0), symbol: 'SEEKR', url: p.url };
+    else seekr.at = Date.now();
   } catch {
     seekr.at = Date.now() - TTL + 15000;
   }

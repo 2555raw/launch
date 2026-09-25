@@ -411,24 +411,6 @@ const api = {
     const n = Math.max(1, Math.min(100, Number(usd) || 10));
     const rec = credits.credit(store, a, n * config.creditsPerUsd, { chain: 'demo', asset: 'USDT', amount: n, usd: n, method: 'demo' });
     return { deposit: rec, account: accountView(a) };
-  },
-  'POST /api/deposit/card': async (req) => {
-    const a = requireAccount(req);
-    const { usd } = await readJson(req);
-    return chain.cardCheckout(a, Number(usd) || 10, originOf(req));
-  },
-  'POST /api/stripe/webhook': async (req) => {
-    const raw = (await readBody(req)).toString('utf8');
-    const ev = chain.stripeEvent(raw, req.headers['stripe-signature']);
-    if (ev.type === 'checkout.session.completed' && ev.data.object.payment_status === 'paid') {
-      const s = ev.data.object;
-      const a = store.get('accounts', s.client_reference_id || s.metadata?.account);
-      if (a && !store.find('deposits', (d) => d.ref === `stripe:${s.id}`).length) {
-        const usd = (s.amount_total || 0) / 100;
-        credits.credit(store, a, usd * config.creditsPerUsd, { ref: `stripe:${s.id}`, chain: 'card', asset: 'USD', amount: usd, usd, method: 'card' });
-      }
-    }
-    return { received: true };
   }
 };
 

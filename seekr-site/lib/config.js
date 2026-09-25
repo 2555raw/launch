@@ -73,11 +73,6 @@ module.exports = {
     minConfirmations: num(env.MIN_CONFIRMATIONS, 1)
   },
 
-  stripe: {
-    secret: env.STRIPE_SECRET_KEY || '',
-    webhookSecret: env.STRIPE_WEBHOOK_SECRET || ''
-  },
-
   links: {
     x: env.LINK_X || 'https://x.com/seekr',
     telegram: env.LINK_TELEGRAM || 'https://t.me/seekr',

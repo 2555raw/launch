@@ -71,8 +71,8 @@ window.seekr = (() => {
     if (dd) dd.querySelector('a').addEventListener('click', (e) => { if (matchMedia('(max-width: 860px)').matches) { e.preventDefault(); dd.classList.toggle('open'); } });
     api('/api/markets').then(({ seekr: a }) => {
       const p = document.getElementById('seekrPrice'); const c = document.getElementById('seekrChange');
-      if (p) p.textContent = usd(a.price, 6);
-      if (c) { c.textContent = pct(a.change); c.className = a.change >= 0 ? 'chg-up' : 'chg-down'; }
+      if (p) p.textContent = a.live ? usd(a.price, 6) : 'soon';
+      if (c) { c.textContent = a.live ? pct(a.change) : ''; c.className = a.change >= 0 ? 'chg-up' : 'chg-down'; }
     }).catch(() => null);
     api('/api/config').then((cfg) => {
       const buy = document.getElementById('buyBtn'); const chart = document.getElementById('chartBtn');

@@ -560,7 +560,6 @@
     try { state.me = (await api('/api/me')).account; } catch { /* keep what we have */ }
     const a = state.me; const cfg = state.cfg; const dep = cfg.deposits; const al = a.allowance;
     const s = $('#stage');
-    const paid = /paid=1/.test(location.hash); if (paid) toast('Thanks. Card payments land as soon as Stripe confirms them.');
     s.innerHTML = `<div class="view"><h2>Account</h2><p class="sub">${a.username ? '@' + esc(a.username) : a.email ? esc(a.email) : a.wallet ? a.wallet : 'Access-key account'} · since ${new Date(a.created).toLocaleDateString()}</p>
       <div class="stat"><div><span class="k">Balance</span><div class="v">${cr(a.balance)}<small>credits · ${usd(a.balance / cfg.creditsPerUsd)}</small></div></div><div><span class="k">Deposited</span><div class="v">${cr(a.deposited)}</div></div><div><span class="k">Spent</span><div class="v">${cr(a.spent)}</div></div></div>
 
@@ -570,7 +569,6 @@
           ${dep.sol ? `<div class="addr"><span><b>SOL</b><br>${dep.treasury.sol}</span><button class="copy" data-copyaddr="${dep.treasury.sol}">copy</button></div>` : ''}
           ${dep.btc ? `<div class="addr"><span><b>BTC</b><br>${dep.treasury.btc}</span><button class="copy" data-copyaddr="${dep.treasury.btc}">copy</button></div>` : ''}
           <div class="inline" style="margin-top:8px"><select class="input" id="depChain" style="max-width:160px">${dep.eth ? '<option value="ethereum">Ethereum</option>' : ''}${dep.sol ? '<option value="solana">Solana</option>' : ''}${dep.btc ? '<option value="bitcoin">Bitcoin</option>' : ''}</select><input class="input" id="depRef" placeholder="Transaction id / signature"><button class="btn btn-primary" id="depGo">Credit</button></div></div>` : `<p class="note">Crypto deposit addresses are not configured on this server yet.</p>`}
-        ${dep.card ? `<div class="inline" style="margin-top:10px"><input class="input" id="cardUsd" type="number" min="5" value="20" style="max-width:120px"><button class="btn btn-ghost" id="cardGo">Pay by card (Stripe)</button></div>` : ''}
         ${cfg.demo ? `<div class="inline" style="margin-top:10px"><input class="input" id="demoUsd" type="number" min="1" max="100" value="10" style="max-width:120px"><button class="btn btn-ghost" id="demoGo">Simulate a $ deposit (demo)</button></div>` : ''}
       </div>
 
@@ -602,7 +600,6 @@
 
     s.querySelectorAll('[data-copyaddr]').forEach((b) => b.onclick = () => { navigator.clipboard.writeText(b.dataset.copyaddr); toast('Address copied'); });
     if ($('#depGo')) $('#depGo').onclick = async () => { try { const r = await api('/api/deposit/verify', { method: 'POST', body: { chain: $('#depChain').value, ref: $('#depRef').value } }); toast(`Credited ${cr(r.deposit.credits)} credits (${r.deposit.amount} ${r.deposit.asset})`); state.me = r.account; renderSignbox(); renderAccount(); } catch (e) { toast(e.message, true); } };
-    if ($('#cardGo')) $('#cardGo').onclick = async () => { try { const { url } = await api('/api/deposit/card', { method: 'POST', body: { usd: Number($('#cardUsd').value) } }); location.href = url; } catch (e) { toast(e.message, true); } };
     if ($('#demoGo')) $('#demoGo').onclick = async () => { try { const r = await api('/api/deposit/demo', { method: 'POST', body: { usd: Number($('#demoUsd').value) } }); toast(`Credited ${cr(r.deposit.credits)} credits (demo)`); state.me = r.account; renderSignbox(); renderAccount(); } catch (e) { toast(e.message, true); } };
     if ($('#refreshHold')) $('#refreshHold').onclick = async () => { try { const r = await api('/api/me/holdings', { method: 'POST', body: {} }); state.me = r.account; renderSignbox(); renderAccount(); toast('Holdings refreshed'); } catch (e) { toast(e.message, true); } };
     if ($('#linkWallet')) $('#linkWallet').onclick = () => walletSignIn(true);

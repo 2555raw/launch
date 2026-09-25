@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>askr — Credit calculator</title>
+<meta name="description" content="Turn a workload into credits for any model.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script>try{var t=localStorage.getItem("askr.theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="/"><b>&gt;</b>askr</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/#how">How it works</a><a href="/#models">Models</a><a href="/pricing">Pricing</a><a href="/calculator">Calculator</a><a href="/community">Community</a>
+      <div class="dd" id="devDd"><a href="/developers">Developers</a><div class="dd-menu"><a href="/developers">API reference<small>Every model behind one key</small></a><a href="/developers#quickstart">Quickstart<small>First request in a minute</small></a><a href="/developers#methodology">Methodology<small>How prices are set</small></a></div></div>
+    </nav>
+    <div class="nav-right">
+      <a class="pill" href="/token"><span class="dot pulse"></span><span>$ASKR</span><span id="askrPrice">$0.003828</span><span id="askrChange" class="chg-up">+16.9%</span></a>
+      <a class="btn btn-primary" href="/ask">Ask</a><a class="btn btn-ghost" href="/ask#account">Account</a>
+      <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<main class="page">
+  <h1 class="pixel">Credit <span class="accent">calculator.</span></h1>
+  <p class="lead">Pick a model, describe the workload, see the credits. $1 = 1,000 credits. Toggle the holder switch to see what the same work costs inside a $ASKR allowance.</p>
+  <div class="calc">
+    <div>
+      <div class="field"><label>Model</label><select class="input" id="model"></select></div>
+      <div id="inputs"></div>
+      <div class="field"><label>Requests per month</label><input class="input" id="reqs" type="number" min="1" value="100"></div>
+      <label class="switch"><input type="checkbox" id="holder"> I hold $ASKR (5% price inside the daily allowance)</label>
+    </div>
+    <div class="result">
+      <span class="tag">Per request</span>
+      <div class="big" id="perReq">0 cr</div>
+      <div class="row"><span>List price</span><b id="listUsd">$0</b></div>
+      <div class="row"><span>Per month</span><b id="month">0 cr</b></div>
+      <div class="row"><span>Per month in USD</span><b id="monthUsd">$0</b></div>
+      <div class="row"><span>What you deposit</span><b id="deposit">$0</b></div>
+      <p class="note" style="margin-top:16px">Holder pricing applies to the first 1,000 credits a day per 0.01% of supply held (up to 25,000); anything past the allowance is list price.</p>
+      <a class="btn btn-primary" style="margin-top:16px" id="go" href="/ask">Run it</a>
+    </div>
+  </div>
+</main>
+<footer><div class="foot">
+  <div><a class="logo" href="/"><b>&gt;</b>askr</a></div>
+  <div><h5>Product</h5><ul><li><a href="/#how">How it works</a></li><li><a href="/#models">Models</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/calculator">Calculator</a></li></ul></div>
+  <div><h5>Research</h5><ul><li><a href="/pricing#compare">Compare</a></li><li><a href="/pricing#alternatives">Alternatives</a></li><li><a href="/developers">Learn</a></li><li><a href="/developers#methodology">Methodology</a></li></ul></div>
+  <div><h5>Company</h5><ul><li><a href="/token">About</a></li><li><a href="/community">Community</a></li><li><a href="/community" id="tgLink">Telegram</a></li><li><a href="mailto:ask@heyaskr.ai" id="supportLink">Support</a></li></ul></div>
+  <div class="foot-right"><span class="chip"><span class="ring"></span>Built on <b>Robinhood Chain</b></span><a href="mailto:ask@heyaskr.ai" id="mailLink">ask@heyaskr.ai</a><span>© 2026 HeyAskr</span></div>
+</div></footer>
+<script src="/shared.js"></script>
+<script src="/calculator.js"></script></body></html>

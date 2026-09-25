@@ -1,0 +1,20 @@
+{
+  "name": "askr-site",
+  "version": "1.1.0",
+  "private": true,
+  "description": "askr — every AI model, funded by crypto. Landing page plus the /ask app and the API behind it.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "art": "node scripts/make-scene.js",
+    "check": "node --check server.js && node -e \"require('./lib/catalog'); require('./lib/credits'); console.log('ok')\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
+    "ethers": "^6.13.0"
+  }
+}

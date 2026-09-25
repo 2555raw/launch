@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multiple AI Models in One Platform</title>
+<meta name="description" content="Use every AI model in one place for chat, code, images, video and audio: GPT, Claude, Gemini, DeepSeek and Grok, FLUX and Nano Banana, Kling and Seedance. One pay-as-you-go balance, funded with crypto.">
+<meta property="og:title" content="askr — Every AI model. Funded by crypto.">
+<meta property="og:description" content="Chat with GPT, Claude, Gemini, DeepSeek and Grok, generate images with FLUX and Nano Banana, create videos with Kling and Seedance, and only pay for what you use.">
+<meta property="og:image" content="/art/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/art/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script>try{var t=localStorage.getItem('askr.theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="/"><b>&gt;</b>askr</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/#how">How it works</a>
+      <a href="/#models">Models</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/calculator">Calculator</a>
+      <a href="/community">Community</a>
+      <div class="dd" id="devDd">
+        <a href="/developers">Developers</a>
+        <div class="dd-menu">
+          <a href="/developers">API reference<small>Every model behind one key</small></a>
+          <a href="/developers#quickstart">Quickstart<small>First request in a minute</small></a>
+          <a href="/developers#methodology">Methodology<small>How prices are set</small></a>
+        </div>
+      </div>
+    </nav>
+    <div class="nav-right">
+      <a class="pill" href="/token" id="askrPill"><span class="dot pulse"></span><span>$ASKR</span><span id="askrPrice">$0.003828</span><span id="askrChange" class="chg-up">+16.9%</span></a>
+      <a class="btn btn-primary" href="/ask">Ask</a>
+      <a class="btn btn-ghost" href="/ask#account">Account</a>
+      <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="grid-lines"></div>
+  <div class="sky"><img src="/art/scene.svg" alt=""></div>
+  <div class="hero-in">
+    <div class="hero-copy">
+      <h1 class="pixel"><span>Every AI model.</span><span>Funded by crypto.</span></h1>
+      <p>Access every major AI model from one platform. Chat with GPT, Claude, Gemini, DeepSeek and Grok, generate images with FLUX and Nano Banana, create videos with Kling and Seedance, and only pay for what you use, funded with crypto.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="/ask">Ask</a>
+        <a class="btn btn-ghost" href="#how">How it works</a>
+      </div>
+    </div>
+    <aside class="prices" id="prices">
+      <table>
+        <thead><tr><th><span class="dot"></span>LIVE PRICES / USD</th><th>PRICE</th><th>$ASKR HOLDERS</th></tr></thead>
+        <tbody id="priceRows">
+          <tr><td>Claude Opus 5.5</td><td>$21.10<small>/1M out</small></td><td>$1.06</td></tr>
+          <tr><td>GPT-6 Sol</td><td>$10.55<small>/1M out</small></td><td>$0.53</td></tr>
+          <tr><td>Nano Banana 2 Lite</td><td>$0.04<small>/image</small></td><td>$0.0021</td></tr>
+        </tbody>
+      </table>
+      <p class="note">$ASKR holder prices apply within a daily allowance: 1,000 credits per 0.01% of supply held, up to 25,000. Resets 00:00 UTC. <a href="/token">How it works</a></p>
+    </aside>
+  </div>
+</section>
+
+<div class="logos">
+  <div class="logos-row"><div class="logos-track" id="logosTrack"></div></div>
+  <div class="ticker" id="ticker"></div>
+</div>
+
+<section class="section" id="how">
+  <div class="col">
+    <h2 class="h2 pixel"><span>Crypto in.</span><span class="accent">Intelligence out.</span></h2>
+    <p class="lead">One balance. Funded with BTC, ETH, SOL or the tokens already in your wallet.</p>
+    <div class="links-row"><a href="/ask#account">See how it works</a><a href="/calculator">Calculate credits</a></div>
+
+    <article class="step">
+      <span class="tag">01 / FUND</span>
+      <div>
+        <h3 class="pixel">Crypto or card</h3>
+        <p>Fund from the wallet you already use, or pay by card through Stripe. No bank transfer, no waiting for a deposit to clear.</p>
+        <div class="icons" data-icons="usdt btc eth sol"></div>
+      </div>
+      <ul><li>USDT, BTC, ETH and SOL</li><li>Live rate at funding time</li><li>Balance denominated in USDT</li></ul>
+    </article>
+
+    <article class="step">
+      <span class="tag">02 / CONVERT</span>
+      <div>
+        <h3 class="pixel">AI credits</h3>
+        <p>Your deposit becomes credit that works across every model. Move from GPT to Claude to FLUX without a second subscription.</p>
+        <div class="icons" data-icons="openai anthropic gemini deepseek xai meta mistral runway bfl nvidia kling"></div>
+      </div>
+      <ul><li>Open and proprietary side by side</li><li>Best model for every outcome</li><li>Transparent per-model pricing</li></ul>
+    </article>
+
+    <article class="step">
+      <span class="tag">03 / SHIP</span>
+      <div>
+        <h3 class="pixel">Your output</h3>
+        <p>Build with whatever the job needs. Pay for the requests you make and nothing else.</p>
+        <div class="ship"><span>Product</span><b>SHIPPED</b></div>
+      </div>
+      <ul><li>Chat, code, image, video, audio</li><li>Balance follows the workload</li><li>Top up only when you need to</li></ul>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="token">
+  <div class="col">
+    <span class="chip"><span class="ring"></span>Built on <b>Robinhood Chain</b></span>
+    <h2 class="h2 pixel" style="margin-top:22px"><span>Hold <span class="accent">askr.</span></span><span>Pay less.</span></h2>
+    <p class="lead">The askr token is the access token for benefits and rights across the HeyAskr ecosystem. Holding askr unlocks discounted usage across every AI model on the platform, so holders pay less for the same output, and gives priority access to new models and features before they reach the wider community. As HeyAskr grows, askr will carry additional utility and exclusive platform benefits.</p>
+    <div class="cards3">
+      <div class="card"><span class="tag">Utility</span><h4>Pay 5%, get in first</h4><p>Every model at 5% of its price, on a daily allowance that scales with what you hold. New models 14 days early from 0.5%. Priority routing from 1%.</p></div>
+      <div class="card"><span class="tag">Supply</span><h4>1,000,000,000, fixed</h4><p>No mint, no presale, no team allocation. Everything goes onto the Pons curve at creation; the company buys its 5% there like anyone else and locks it.</p></div>
+      <div class="card"><span class="tag">Chain</span><h4>Robinhood Chain</h4><p>An Arbitrum L2, chain id 4663, paired against ETH. Liquidity locked with Team Finance when the curve graduates.</p></div>
+    </div>
+    <div class="cta-row">
+      <a class="btn btn-primary" id="buyBtn" href="/token">Buy $ASKR</a>
+      <a class="btn btn-ghost" id="chartBtn" href="/token">Chart</a>
+      <a class="btn btn-ghost" href="/token">Everything about $ASKR</a>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="models">
+  <div class="col">
+    <h2 class="h2 pixel"><span>What are you <span class="accent">making?</span></span></h2>
+    <p class="lead">Choose the job. <span id="modelCount">Every model</span> you can run today across text, code, image and video, all drawing on the same balance. No askr fee: what you deposit is what you get in credits.</p>
+    <div class="tabs" id="jobTabs"></div>
+    <div class="job" id="jobCard"></div>
+  </div>
+</section>
+
+<section class="section alt" id="faq">
+  <div class="col">
+    <div class="faq-head"><h2 class="pixel">FAQ</h2><p>Everything you need to know: models, funding, privacy and what it costs.</p></div>
+    <div class="faq">
+      <details open><summary>What is Askr?</summary><p class="a">Askr is a single platform where you can access every major AI model for text, image, video and audio, paying only for what you use.</p></details>
+      <details><summary>Do I need a subscription?</summary><p class="a">No. There is nothing recurring. You fund one balance and it goes down as you use models. When it runs out you top up, and only then.</p></details>
+      <details><summary>How do I pay?</summary><p class="a">With crypto from the wallet you already use: USDT, BTC, ETH or SOL, at the live rate when you fund. Or by card through Stripe. Your deposit is converted to credits at $1 = 1,000 credits with no askr fee on the deposit.</p></details>
+      <details><summary>What models are available?</summary><p class="a">Chat and code with Claude, GPT, Gemini, DeepSeek, Grok and open models like Llama, Qwen and Mistral. Images with FLUX and Nano Banana. Video with Kling, Seedance, Veo and Runway. Voice with GPT-4o TTS and ElevenLabs. New models are added as they ship, and $ASKR holders get them 14 days early.</p></details>
+      <details><summary>How much does it cost?</summary><p class="a">Each model has a transparent per-request price on the <a class="accent" href="/pricing">pricing page</a>, metered against your balance as you go: per token for text, per image, per second of video. The <a class="accent" href="/calculator">calculator</a> turns your workload into credits. $ASKR holders pay 5% of the list price within a daily allowance.</p></details>
+      <details><summary>Is my data private?</summary><p class="a">There is no email and no sign-up form: an account is an access key or a wallet signature. Prompts go to the model provider you chose and nowhere else. Your chats and library stay on your account until you delete them.</p></details>
+      <details><summary>Do my credits expire?</summary><p class="a">No. Credits stay on your balance until you spend them.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <h2 class="pixel"><span>Every <span class="accent">AI</span> model.</span><span>No <span class="accent">subscriptions.</span></span><span>Pay for what you use, with <span class="accent">crypto.</span></span></h2>
+  <a class="btn btn-primary" href="/ask">Start asking</a>
+</section>
+
+<footer>
+  <div class="foot">
+    <div><a class="logo" href="/"><b>&gt;</b>askr</a></div>
+    <div><h5>Product</h5><ul><li><a href="/#how">How it works</a></li><li><a href="/#models">Models</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/calculator">Calculator</a></li></ul></div>
+    <div><h5>Research</h5><ul><li><a href="/pricing#compare">Compare</a></li><li><a href="/pricing#alternatives">Alternatives</a></li><li><a href="/developers">Learn</a></li><li><a href="/developers#methodology">Methodology</a></li></ul></div>
+    <div><h5>Company</h5><ul><li><a href="/token">About</a></li><li><a href="/community">Community</a></li><li><a href="/community" id="tgLink">Telegram</a></li><li><a href="mailto:ask@heyaskr.ai" id="supportLink">Support</a></li></ul></div>
+    <div class="foot-right">
+      <span class="chip"><span class="ring"></span>Built on <b>Robinhood Chain</b></span>
+      <a href="mailto:ask@heyaskr.ai" id="mailLink">ask@heyaskr.ai</a>
+      <span>© 2026 HeyAskr</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/shared.js"></script>
+<script src="/landing.js"></script>
+</body>
+</html>

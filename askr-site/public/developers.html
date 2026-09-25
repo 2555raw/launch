@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>askr — Developers</title>
+<meta name="description" content="The askr API: one key, every model.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script>try{var t=localStorage.getItem("askr.theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="/"><b>&gt;</b>askr</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/#how">How it works</a><a href="/#models">Models</a><a href="/pricing">Pricing</a><a href="/calculator">Calculator</a><a href="/community">Community</a>
+      <div class="dd" id="devDd"><a href="/developers">Developers</a><div class="dd-menu"><a href="/developers">API reference<small>Every model behind one key</small></a><a href="/developers#quickstart">Quickstart<small>First request in a minute</small></a><a href="/developers#methodology">Methodology<small>How prices are set</small></a></div></div>
+    </nav>
+    <div class="nav-right">
+      <a class="pill" href="/token"><span class="dot pulse"></span><span>$ASKR</span><span id="askrPrice">$0.003828</span><span id="askrChange" class="chg-up">+16.9%</span></a>
+      <a class="btn btn-primary" href="/ask">Ask</a><a class="btn btn-ghost" href="/ask#account">Account</a>
+      <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<main class="page prose">
+  <h1 class="pixel">Developers.</h1>
+  <p class="lead">One key, every model. The same API the app uses is yours: chat streams over server-sent events, images and video come back as URLs, and every response tells you what it cost.</p>
+  <h2 id="quickstart">Quickstart</h2>
+  <p>Create an account (it is just a key), then ask. No email anywhere.</p>
+<pre class="code">curl -X POST https://heyaskr.ai/api/auth/key
+# → { "key": "ask_…", "account": { "balance": 1000, … } }
+
+curl -N https://heyaskr.ai/api/chat \
+  -H "Authorization: Bearer ask_…" -H "content-type: application/json" \
+  -d '{ "model": "claude-sonnet-5", "message": "Explain Robinhood Chain in two lines." }'
+# event: meta  → { chatId, model, live }
+# event: delta → { text }   (repeated)
+# event: done  → { usage, credits, balance }</pre>
+  <h2>Endpoints</h2>
+  <table class="table"><thead><tr><th>Method</th><th>Path</th><th>What it does</th></tr></thead><tbody>
+    <tr><td>GET</td><td class="id">/api/models</td><td>The catalog with list and holder prices</td></tr>
+    <tr><td>GET</td><td class="id">/api/markets</td><td>Crypto tickers and the $ASKR price</td></tr>
+    <tr><td>POST</td><td class="id">/api/auth/key</td><td>Create an account; returns the key once</td></tr>
+    <tr><td>GET / POST</td><td class="id">/api/auth/nonce · /api/auth/wallet</td><td>Wallet sign-in: fetch a message, sign it, get a key</td></tr>
+    <tr><td>GET</td><td class="id">/api/me · /api/me/history</td><td>Balance, tier, allowance, usage and deposits</td></tr>
+    <tr><td>POST</td><td class="id">/api/quote</td><td>Credits for a request before you send it</td></tr>
+    <tr><td>POST</td><td class="id">/api/chat</td><td>Streamed chat; <code>mode</code> is <code>ask</code> or <code>code</code>, <code>chatId</code> continues a chat, <code>web</code> lets Claude search</td></tr>
+    <tr><td>POST</td><td class="id">/api/image · /api/video · /api/tts · /api/stt</td><td>Media, charged per image / second / character / minute</td></tr>
+    <tr><td>GET</td><td class="id">/api/chats · /api/library · /api/files</td><td>What you made</td></tr>
+    <tr><td>POST</td><td class="id">/api/deposit/verify</td><td>Credit a crypto deposit from its transaction id</td></tr>
+    <tr><td>POST</td><td class="id">/api/deposit/card</td><td>Stripe Checkout for a card top-up</td></tr>
+  </tbody></table>
+  <h2>Errors</h2>
+  <p>Errors are JSON with an <code>error</code> message. <code>401</code> means sign in, <code>402</code> with <code>code: "insufficient"</code> means top up, <code>503</code> means that provider is not configured on the server.</p>
+  <h2 id="methodology">Methodology</h2>
+  <p>Every price on the site is derived from one table in the open: the provider's own published price, times a fixed margin of 5.5%, expressed in credits at $1 = 1,000. Chat is charged on the exact token counts the provider reports; images per image; video per second; speech per character; transcription per minute. $ASKR holders pay 5% of the list price inside a daily allowance of 1,000 credits per 0.01% of supply held, capped at 25,000, reset at 00:00 UTC. Deposits are converted at the live rate when they land, with no fee on the deposit.</p>
+  <p>Requests in demo mode (a provider without a key on the server) are labelled as such in every response, in the app, and in your history, and are charged like the real thing so the accounting can be tested end to end.</p>
+</main>
+<footer><div class="foot">
+  <div><a class="logo" href="/"><b>&gt;</b>askr</a></div>
+  <div><h5>Product</h5><ul><li><a href="/#how">How it works</a></li><li><a href="/#models">Models</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/calculator">Calculator</a></li></ul></div>
+  <div><h5>Research</h5><ul><li><a href="/pricing#compare">Compare</a></li><li><a href="/pricing#alternatives">Alternatives</a></li><li><a href="/developers">Learn</a></li><li><a href="/developers#methodology">Methodology</a></li></ul></div>
+  <div><h5>Company</h5><ul><li><a href="/token">About</a></li><li><a href="/community">Community</a></li><li><a href="/community" id="tgLink">Telegram</a></li><li><a href="mailto:ask@heyaskr.ai" id="supportLink">Support</a></li></ul></div>
+  <div class="foot-right"><span class="chip"><span class="ring"></span>Built on <b>Robinhood Chain</b></span><a href="mailto:ask@heyaskr.ai" id="mailLink">ask@heyaskr.ai</a><span>© 2026 HeyAskr</span></div>
+</div></footer>
+<script src="/shared.js"></script>
+<script src="/developers.js"></script></body></html>

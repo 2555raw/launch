@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>seekr — Models TITLE pricing</title>
+<meta name="description" content="Swap any token to any token, on one chain or across chains, with MetaMask, Coinbase Wallet or Phantom.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script>(function(){var t="light";try{t=localStorage.getItem("seekr.theme")||"light";}catch(e){}document.documentElement.dataset.theme=t;})();</script>
+</head>
+<body>
+<div class="sky"><img class="day" src="/art/scene-day.jpg" alt="" fetchpriority="high"><img class="night" src="/art/scene-night.jpg" alt="" loading="lazy"></div><div class="page-veil static" style="opacity:.45"></div>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="/"><b>&gt;</b>seekr</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/swap">Swap</a><a href="/#how">How it works</a><a href="/#models">Models</a><a href="/pricing">Pricing</a><a href="/calculator">Calculator</a><a href="/community">Community</a>
+      <div class="dd" id="devDd"><a href="/developers">Developers</a><div class="dd-menu"><a href="/developers">API reference<small>Every model behind one key</small></a><a href="/developers#quickstart">Quickstart<small>First request in a minute</small></a><a href="/developers#methodology">Methodology<small>How prices are set</small></a></div></div>
+    </nav>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeToggle" aria-label="Switch day and night" title="Day / night"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      <a class="pill" href="/token"><span class="dot pulse"></span><span>$SEEKR</span><span id="seekrPrice">$0.003828</span><span id="seekrChange" class="chg-up">+16.9%</span></a>
+      <a class="btn btn-primary" href="/ask">Ask</a><a class="btn btn-ghost" href="/ask#account">Account</a>
+      <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<main class="swap-page">
+  <div class="swap-card" id="swapCard">
+    <div class="sw-head">
+      <h1>Swap</h1>
+      <div class="sw-tools">
+        <button class="icon-btn" id="slipBtn" title="Slippage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
+        <button class="pill sw-wallet" id="walletBtn">Connect wallet</button>
+      </div>
+    </div>
+    <div class="sw-slip" id="slipBox" hidden>
+      <span>Max slippage</span>
+      <div class="sw-slip-opts"><button data-s="0.001">0.1%</button><button data-s="0.005" class="on">0.5%</button><button data-s="0.01">1%</button><input id="slipCustom" inputmode="decimal" placeholder="custom %"></div>
+    </div>
+    <div class="sw-box">
+      <div class="sw-lbl"><span>You pay</span><span id="payBal"></span></div>
+      <div class="sw-row"><input id="amt" inputmode="decimal" autocomplete="off" placeholder="0"><button class="tok" id="fromTok"></button></div>
+      <div class="sw-sub"><span id="payUsd"></span><button class="sw-max" id="maxBtn" hidden>Max</button></div>
+    </div>
+    <button class="sw-flip" id="flipBtn" aria-label="Flip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14m0 0-5-5m5 5 5-5"/></svg></button>
+    <div class="sw-box">
+      <div class="sw-lbl"><span>You receive</span><span id="recvBal"></span></div>
+      <div class="sw-row"><div class="sw-out" id="recvAmt">0</div><button class="tok" id="toTok"></button></div>
+      <div class="sw-sub"><span id="recvUsd"></span></div>
+    </div>
+    <label class="sw-to" id="toAddrRow" hidden><span id="toAddrLbl">Receive at</span><input id="toAddr" autocomplete="off" spellcheck="false"></label>
+    <div class="sw-details" id="details" hidden></div>
+    <p class="auth-err" id="swErr" hidden></p>
+    <button class="btn btn-primary sw-go" id="goBtn">Connect wallet</button>
+    <div class="sw-progress" id="progress" hidden></div>
+    <p class="sw-note">Routes by LI.FI across dozens of DEXs and bridges, on one chain or between chains, Solana included. Every transaction is signed in your own wallet; seekr never holds your funds or keys. Approvals are for the exact amount.</p>
+  </div>
+
+  <section class="sw-rwa">
+    <h2>Real-world assets, on-chain</h2>
+    <p>Tokenized gold, treasuries and stocks you can swap into like any other token.</p>
+    <div class="sw-rwa-list" id="rwaList"><span class="note">Loading…</span></div>
+  </section>
+</main>
+
+<div class="modal-bg" id="tokModal"><div class="modal tok-modal" id="tokModalBody"></div></div>
+<div class="modal-bg" id="walModal"><div class="modal wal-modal" id="walModalBody"></div></div>
+
+<footer><div class="foot">
+  <div><a class="logo" href="/"><b>&gt;</b>seekr</a></div>
+  <div><h5>Product</h5><ul><li><a href="/#how">How it works</a></li><li><a href="/#models">Models</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/calculator">Calculator</a></li></ul></div>
+  <div><h5>Research</h5><ul><li><a href="/pricing#compare">Compare</a></li><li><a href="/pricing#alternatives">Alternatives</a></li><li><a href="/developers">Learn</a></li><li><a href="/developers#methodology">Methodology</a></li></ul></div>
+  <div><h5>Company</h5><ul><li><a href="/token">About</a></li><li><a href="/community">Community</a></li><li><a href="/community" id="tgLink">Telegram</a></li><li><a href="mailto:hello@seekr.ai" id="supportLink">Support</a></li></ul></div>
+  <div class="foot-right"><span class="chip"><span class="ring"></span>Built on <b>Robinhood Chain</b></span><a href="mailto:hello@seekr.ai" id="mailLink">hello@seekr.ai</a><span>© 2026 Seekr</span></div>
+</div></footer>
+<script src="/shared.js"></script>
+<script src="/fx.js"></script>
+<script src="/swap.js"></script></body></html>

@@ -89,6 +89,18 @@ it; the user pastes the transaction id and the server verifies it on chain
 at the live rate and credits the balance once. Card top-ups go through Stripe
 Checkout with a signed webhook.
 
+## Swap
+
+`/swap` swaps any token to any token, on one chain or across chains (EVM
+chains and Solana), routed by LI.FI across DEXs and bridges. MetaMask,
+Coinbase Wallet, Rabby and Phantom's EVM side connect through EIP-6963;
+Phantom signs Solana routes. On phones without an injected wallet the page
+offers "Open in app" links for MetaMask, Coinbase Wallet and Phantom. The
+server only relays read-only calls (`/api/swap/*`: chains, tokens, quotes,
+status, balances); every transaction is signed in the user's wallet, and
+ERC-20 approvals are for the exact amount. A "Real-world assets" shelf lists
+tokenized gold, treasuries and xStocks that LI.FI can route to.
+
 ## Deploy on Railway
 
 Point a service at this folder, set the variables from `.env.example`, and

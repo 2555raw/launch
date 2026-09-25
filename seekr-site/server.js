@@ -17,11 +17,12 @@ const markets = require('./lib/markets');
 const chain = require('./lib/chain');
 const skills = require('./lib/skills');
 const mailer = require('./lib/mailer');
+const swap = require('./lib/swap');
 
 const PUBLIC = path.join(__dirname, 'public');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 /* clean URLs → files */
-const PAGES = { '/': 'index.html', '/ask': 'ask.html', '/pricing': 'pricing.html', '/models': 'pricing.html', '/calculator': 'calculator.html', '/token': 'token.html', '/developers': 'developers.html', '/community': 'community.html' };
+const PAGES = { '/': 'index.html', '/ask': 'ask.html', '/swap': 'swap.html', '/pricing': 'pricing.html', '/models': 'pricing.html', '/calculator': 'calculator.html', '/token': 'token.html', '/developers': 'developers.html', '/community': 'community.html' };
 
 class HttpError extends Error { constructor(status, message, extra) { super(message); this.status = status; Object.assign(this, extra); } }
 
@@ -99,6 +100,15 @@ const api = {
   }),
 
   'GET /api/markets': async () => markets.snapshot(),
+
+  /* --- swaps (LI.FI relay; signing happens in the user's wallet) --- */
+  'GET /api/swap/chains': async () => ({ chains: await swap.chains() }),
+  'GET /api/swap/tokens': async (req, url) => ({ tokens: await swap.tokens(url.searchParams.get('chain')) }),
+  'GET /api/swap/rwa': async () => ({ tokens: await swap.rwa() }),
+  'GET /api/swap/token': async (req, url) => ({ token: await swap.token(url.searchParams.get('chain'), url.searchParams.get('token')) }),
+  'GET /api/swap/quote': async (req, url) => ({ quote: await swap.quote(Object.fromEntries(url.searchParams)) }),
+  'GET /api/swap/status': async (req, url) => swap.status(Object.fromEntries(url.searchParams)),
+  'GET /api/swap/balance': async (req, url) => swap.balance(Object.fromEntries(url.searchParams)),
 
   /* --- auth --- */
   'POST /api/auth/key': async () => { const { account, key } = auth.createAccount(); return { key, account: accountView(account) }; },
@@ -464,6 +474,9 @@ function serveFile(res, file, cache) {
 }
 
 function serveStatic(req, res, pathname) {
+  if (pathname === '/vendor/solana-web3.js') {
+    return serveFile(res, path.join(__dirname, 'node_modules', '@solana', 'web3.js', 'lib', 'index.iife.min.js'), 'public, max-age=86400');
+  }
   if (pathname.startsWith('/assets/')) {
     const r = assets.resolve(pathname.slice('/assets/'.length));
     if (!r) { res.writeHead(404); res.end('404'); return; }
@@ -500,5 +513,6 @@ const server = http.createServer(async (req, res) => {
 server.listen(config.port, () => {
   const live = Object.keys(config.keys).filter((k) => config.isLive(k));
   console.log(`seekr on :${config.port} — ${live.length ? 'live: ' + live.join(', ') : 'no provider keys'} — the rest: free tier, then demo`);
+  if (process.env.FREE_PROBE !== 'off') swap.probe().then((r) => console.log('swap check: ' + r));
   if ((process.env.FREE_TIER || 'on') !== 'off' && process.env.FREE_PROBE !== 'off') router.free.probe().then((r) => console.log('free tier check: ' + r)).catch((e) => console.log('free tier check failed: ' + e.message));
 });

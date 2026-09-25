@@ -108,12 +108,19 @@
     void main() {
       float s = max(uRes.x / uImg.x, uRes.y / uImg.y);
       vec2 disp = uImg * s, uv = (v * uRes - (uRes - disp) * uPos) / disp;
-      float m = smoothstep(.645, .73, uv.y);                       /* grass only, not sky or trees */
-      float fg = mix(.35, 1., smoothstep(.66, 1., uv.y));          /* nearer grass moves more */
-      float gust = .5 + .5 * sin(uT * .45 - uv.x * 5. + sin(uT * .23) * 1.5);
-      float sway = sin(uT * 1.4 + uv.y * 95. + uv.x * 8.) * .55 + sin(uT * .9 + uv.y * 57. - uv.x * 4.) * .45;
-      float a = .0062 * m * fg * gust;
-      vec2 q = uv + vec2(sway * a, -abs(sway) * a * .35);
+      /* the ground as a plane seen in perspective: distance grows toward the horizon */
+      float h = .645, dy = max(uv.y - h, 0.) + .018;
+      float z = .055 / dy;                                          /* ~.15 in front, ~3 at the horizon */
+      float wx = (uv.x - .5) * z * (uImg.x / uImg.y);               /* position across the field, in ground units */
+      /* long waves rolling downwind (+x), slow gusts on top; nothing varies fast
+         from one row of pixels to the next, so each plant moves as one piece */
+      float p = wx * 2.1 + z * .7 - uT * 1.05;
+      float gust = .5 + .5 * sin(wx * .55 + z * .25 - uT * .33 + sin(uT * .17) * 1.2);
+      float wave = .65 * sin(p) + .35 * sin(p * 1.83 + 1.7 - uT * .35);
+      float lean = (.3 + .7 * gust) * (.55 + .45 * wave);          /* bends with the wind and springs back */
+      float amp = .0085 / (1. + z * 3.);                            /* near grass sways more */
+      float m = smoothstep(h, h + .08, uv.y);
+      vec2 q = uv + vec2(-lean * amp * m, lean * amp * m * .22);
       gl_FragColor = vec4(mix(texture2D(uDay, q).rgb, texture2D(uNight, q).rgb, uMix), 1.);
     }`;
   document.querySelectorAll('.sky').forEach((sky) => {
@@ -147,7 +154,7 @@
       const frame = (now) => {
         const target = dark() ? 1 : 0, dt = (now - last) / 1000; last = now;
         if (mixV !== target) mixV = target > mixV ? Math.min(target, mixV + dt / 0.6) : Math.max(target, mixV - dt / 0.6);  /* matches the images' .6s crossfade */
-        gl.uniform1f(U('uMix'), mixV); gl.uniform1f(U('uT'), (now - t0) / 1000);
+        gl.uniform1f(U('uMix'), mixV); gl.uniform1f(U('uT'), typeof window.__windT === 'number' ? window.__windT : (now - t0) / 1000);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         raf = requestAnimationFrame(frame);
       };

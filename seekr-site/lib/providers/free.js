@@ -130,7 +130,16 @@ async function diag(systems) {
     ['code', systems.code, [{ role: 'user', content: 'Make a single HTML page with one red button that says Hola and turns blue when clicked.' }]],
     ['memory', systems.ask, [{ role: 'user', content: 'My name is Lucia.' }, { role: 'assistant', content: 'Nice to meet you, Lucia!' }, { role: 'user', content: 'What is my name? Answer with just the name.' }]]
   ];
-  for (const model of (process.env.FREE_DIAG_MODELS || 'openai,openai-fast,openai-large,mistral,deepseek,qwen-coder,llama,gemini').split(',')) {
+  if (systems.support) tests.push(['support', systems.support, [{ role: 'user', content: 'hola, como meto dinero en mi cuenta? y puedo pagar con tarjeta?' }]]);
+  if (process.env.FREE_DIAG === '2') {
+    /* the path users take: queue + retries, all tests fired at once like real traffic */
+    await Promise.all(tests.map(async ([name, system, messages]) => {
+      const t0 = Date.now();
+      try { const out = await streamChat({ messages, system, onText: () => {}, signal: AbortSignal.timeout(180000) }); log(`live/${name} ${Date.now() - t0}ms via ${out.servedBy}`, out.text || '(empty)'); } catch (e) { log(`live/${name}`, 'FAILED ' + e.message); }
+    }));
+    return;
+  }
+  for (const model of (process.env.FREE_DIAG_MODELS || 'openai,openai-fast').split(',')) {
     for (const [name, system, messages] of tests) {
       const t0 = Date.now();
       try {

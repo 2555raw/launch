@@ -6,7 +6,7 @@
 
   const state = {
     me: null, cfg: null, models: [], cats: [], model: null, imgModel: null, vidModel: null, ttsModel: null,
-    mode: 'ask', chat: null, chats: [], library: [], attachments: [], web: false, streaming: false, size: '1024x1024', seconds: 5
+    mode: 'ask', skill: null, chat: null, chats: [], library: [], attachments: [], web: false, streaming: false, size: '1024x1024', seconds: 5
   };
 
   const ICONS = {
@@ -22,6 +22,16 @@
     chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg>',
     wallet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg>',
     key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="12" r="4"/><path d="M12 12h9m-3 0v3m-3-3v2"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+    pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+    cap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>',
+    wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>',
+    pulse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 000-7.8z"/><path d="M3.5 12h4l2-3 3 6 2-3h6"/></svg>',
+    translate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h9M8.5 3v2M6 5c1 3.5 3.5 6 6 7M11 5c-1 3.5-3.5 6.5-7 8"/><path d="m13 21 4-9 4 9M14.5 18h5"/></svg>',
+    piggy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 10c.7 0 2 .5 2 2v2h-2l-1 2v3h-3v-2h-4v2H8v-3c-2-1-3-3-3-5a6 6 0 016-6h3c2 0 4 1 5 3z"/><circle cx="15.5" cy="10.5" r=".8" fill="currentColor"/><path d="M5 11H3"/></svg>',
+    bulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0012 3z"/></svg>',
+    doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h6"/></svg>',
+    bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l1 14H5z"/><path d="M9 7a3 3 0 016 0"/></svg>',
     speaker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 010 6"/></svg>'
   };
 
@@ -79,7 +89,7 @@
   }
 
   function wireSidebar() {
-    $('#newChat').onclick = () => { state.chat = null; state.mode = 'ask'; location.hash = '#home'; route(); };
+    $('#newChat').onclick = () => { state.chat = null; state.mode = 'ask'; state.skill = null; location.hash = '#home'; route(); };
     $('#searchBox').oninput = (e) => renderRecent(e.target.value);
     $('#themeBtn').onclick = () => theme.toggle();
     $('#sideClose').onclick = () => $('#side').classList.remove('open');
@@ -95,7 +105,7 @@
     const v = view.split('?')[0];
     document.querySelectorAll('#sideNav a').forEach((a) => a.classList.toggle('on', a.dataset.view === (v === 'chat' ? 'home' : v)));
     $('#side').classList.remove('open');
-    if (v === 'chat' && arg) { if (!state.me) return openSignIn(); try { state.chat = (await api('/api/chats/' + arg)).chat; state.mode = state.chat.mode === 'code' ? 'code' : 'ask'; const m = state.models.find((x) => x.id === state.chat.model); if (m) state.model = m; } catch { state.chat = null; } renderRecent(); return renderHome(); }
+    if (v === 'chat' && arg) { if (!state.me) return openSignIn(); try { state.chat = (await api('/api/chats/' + arg)).chat; state.mode = state.chat.mode === 'code' ? 'code' : 'ask'; state.skill = state.chat.skill || null; const m = state.models.find((x) => x.id === state.chat.model); if (m) state.model = m; } catch { state.chat = null; } renderRecent(); return renderHome(); }
     if (v === 'share' && arg) return renderShared(arg);
     if (v === 'account') return renderAccount(arg);
     if (v === 'library') return renderLibrary();
@@ -112,7 +122,7 @@
     const inChat = state.chat && state.chat.messages && state.chat.messages.length;
     stage.innerHTML = `
       ${inChat ? `<div class="shared-h"><div><div class="stage-logo" style="font-size:22px;margin:0"><b style="font-size:26px">&gt;</b>seekr</div><div class="note mono">${esc(state.chat.title)}</div></div><div class="cta-row"><button class="btn btn-ghost btn-sm" id="shareBtn">Share</button><button class="btn btn-ghost btn-sm" id="newBtn">New chat</button></div></div>` :
-        `<div class="stage-logo"><b>&gt;</b>seekr</div><h1>What are we <span class="accent" id="modeWord">experimenting?</span></h1>`}
+        `<div class="stage-logo"><b>&gt;</b>seekr</div><h1>What are we <span class="accent" id="modeWord">${{ ask: 'experimenting?', code: 'building?', images: 'picturing?', video: 'filming?' }[state.mode] || 'experimenting?'}</span></h1>`}
       <div class="modes" id="modes"></div>
       <div class="thread" id="thread"></div>
       <div class="composer" id="composer"></div>
@@ -128,8 +138,34 @@
     const modes = [['ask', 'Ask'], ['code', 'Code'], ['images', 'Images'], ['video', 'Video'], ['collab', 'Collab']];
     const m = $('#modes');
     m.innerHTML = modes.map(([id, label]) => `<button class="mode ${state.mode === id ? 'on' : ''}" data-mode="${id}">${ICONS[id]}${label}</button>`).join('');
-    m.querySelectorAll('.mode').forEach((b) => b.onclick = () => { if (b.dataset.mode === 'collab') { location.hash = '#collab'; return; } state.mode = b.dataset.mode; renderModes(); renderComposer(); const w = $('#modeWord'); if (w) w.textContent = { ask: 'experimenting?', code: 'building?', images: 'picturing?', video: 'filming?' }[state.mode]; });
+    m.querySelectorAll('.mode').forEach((b) => b.onclick = (e) => { if (b.dataset.mode === 'collab') { location.hash = '#collab'; return; } if (b.dataset.mode === 'ask') { e.stopPropagation(); toggleSkills(); } else closeSkills(); state.mode = b.dataset.mode; renderModes(); renderComposer(); const w = $('#modeWord'); if (w) w.textContent = { ask: 'experimenting?', code: 'building?', images: 'picturing?', video: 'filming?' }[state.mode]; });
   }
+
+  function skillsList() { return (state.cfg && state.cfg.skills) || []; }
+  function closeSkills() { const p = $('#skillsPop'); if (p) p.remove(); }
+  function toggleSkills() {
+    if ($('#skillsPop')) return closeSkills();
+    const host = $('#modes');
+    const pop = el(`<div class="skills-pop" id="skillsPop" role="dialog" aria-label="Ask">
+      <div class="sp-h">Ask</div>
+      <button class="sp-main ${state.skill ? '' : 'on'}" data-skill=""><span class="sp-ic big">${ICONS.ask}</span><span><b>Ask anything</b><small>Any question, any model, the plain chat</small></span></button>
+      <div class="sp-h">Or ask a skill</div>
+      <div class="sp-grid">${skillsList().map((k) => `<button class="sp-item ${state.skill === k.id ? 'on' : ''}" data-skill="${k.id}"><span class="sp-ic">${ICONS[k.icon] || ICONS.ask}</span><span><b>${esc(k.title)}</b><small>${esc(k.blurb)}</small></span></button>`).join('')}</div>
+    </div>`);
+    host.insertAdjacentElement('afterend', pop);
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    pop.querySelectorAll('[data-skill]').forEach((b) => b.onclick = () => { setSkill(b.dataset.skill || null); closeSkills(); });
+    const away = () => { closeSkills(); document.removeEventListener('click', away); document.removeEventListener('keydown', esc1); };
+    const esc1 = (e) => { if (e.key === 'Escape') away(); };
+    setTimeout(() => { document.addEventListener('click', away); document.addEventListener('keydown', esc1); });
+  }
+  function setSkill(id) {
+    state.skill = id;
+    state.mode = 'ask';
+    if (state.chat && state.chat.messages && state.chat.messages.length && state.chat.skill !== id) state.chat = null; // a new skill starts a new chat
+    renderHome();
+  }
+  const currentSkill = () => skillsList().find((k) => k.id === state.skill) || null;
 
   function activeModel() { return state.mode === 'images' ? state.imgModel : state.mode === 'video' ? state.vidModel : state.model; }
 
@@ -137,13 +173,15 @@
     const c = $('#composer');
     const m = activeModel();
     const hints = { ask: `${m.name} answers as it thinks. Long questions can take a moment.`, code: `${m.name} thinks before it writes. A big build brief can take several minutes.`, images: `${m.name} renders one image per request at ${state.size}.`, video: `${m.name} renders ${state.seconds}s of video. Clips take a few minutes.` };
-    const ph = { ask: 'Ask anything…', code: 'Describe what to build…', images: 'Describe the image…', video: 'Describe the clip…' };
+    const sk = state.mode === 'ask' ? currentSkill() : null;
+    if (sk) hints.ask = `${sk.title}: ${sk.blurb.toLowerCase()}. ${m.name} answers${sk.web ? ' and searches when it helps' : ''}.`;
+    const ph = { ask: sk ? ({ lookup: 'What do you want to look up?', write: 'Paste a draft or say what to write…', learn: 'What are you learning?', fix: 'What needs fixing, and on which device?', health: 'Paste a result or describe what you want to understand…', translate: 'Paste the text and say which language…', money: 'Describe the budget, loan or bill…', brainstorm: 'What do you need ideas for?', summarise: 'Paste anything long…', shop: 'What are you buying, and your budget?' }[sk.id] || 'Ask anything…') : 'Ask anything…', code: 'Describe what to build…', images: 'Describe the image…', video: 'Describe the clip…' };
     c.innerHTML = `
       <div class="hint">${esc(hints[state.mode])}</div>
       <div class="row"><span class="plus">+</span><textarea id="prompt" rows="1" placeholder="${ph[state.mode]}"></textarea></div>
       <div class="attach-list" id="attachList"></div>
       <div class="bar">
-        <span class="pill-sm mode-pill"><span class="dot"></span>${{ ask: 'Ask', code: 'Code', images: 'Image', video: 'Video' }[state.mode]}</span>
+        <span class="pill-sm mode-pill"><span class="dot"></span>${sk ? esc(sk.title) : { ask: 'Ask', code: 'Code', images: 'Image', video: 'Video' }[state.mode]}${sk ? '<button class="pill-x" id="clearSkill" title="Back to plain chat">✕</button>' : ''}</span>
         <div class="picker"><button class="pill-sm" id="pickerBtn">${esc(m.name)}<span class="caret"></span></button><div class="menu" id="pickerMenu"></div></div>
         <span class="kbd">⌘K</span>
         ${state.mode === 'images' ? `<select class="pill-sm" id="sizeSel"><option value="1024x1024">1:1</option><option value="1536x1024">3:2</option><option value="1024x1536">2:3</option></select>` : ''}
@@ -158,6 +196,7 @@
     ta.oninput = () => { grow(); estimate(); };
     ta.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
     $('#sendBtn').onclick = send;
+    if ($('#clearSkill')) $('#clearSkill').onclick = () => setSkill(null);
     $('#pickerBtn').onclick = (e) => { e.stopPropagation(); togglePicker(); };
     document.addEventListener('click', () => { const mn = $('#pickerMenu'); if (mn) mn.classList.remove('open'); }, { once: true });
     if ($('#sizeSel')) { $('#sizeSel').value = state.size; $('#sizeSel').onchange = (e) => { state.size = e.target.value; renderComposer(); }; }
@@ -217,7 +256,7 @@
     if (state.mode === 'images') return generate('image', text);
     if (state.mode === 'video') return generate('video', text);
     ta.value = ''; ta.style.height = 'auto';
-    if (!state.chat) state.chat = { id: null, title: text.slice(0, 60), messages: [], mode: state.mode, model: state.model.id };
+    if (!state.chat) state.chat = { id: null, title: text.slice(0, 60), messages: [], mode: state.mode, model: state.model.id, skill: state.mode === 'ask' ? state.skill : null };
     state.chat.messages.push({ role: 'user', content: text, at: new Date().toISOString() });
     const wasHome = !$('#thread').children.length;
     if (wasHome) renderHome();
@@ -228,7 +267,7 @@
     state.streaming = true; $('#sendBtn').disabled = true;
     const attachments = state.attachments.map((f) => f.id); state.attachments = []; renderAttachments();
     try {
-      const r = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + getKey() }, body: JSON.stringify({ chatId: state.chat.id, model: state.model.id, mode: state.mode, message: text, attachments, web: state.web }) });
+      const r = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + getKey() }, body: JSON.stringify({ chatId: state.chat.id, model: state.model.id, mode: state.mode, message: text, attachments, web: state.web, skill: state.mode === 'ask' ? state.skill : null }) });
       if (!r.ok) { const j = await r.json().catch(() => ({})); throw Object.assign(new Error(j.error || 'Request failed'), { code: j.code }); }
       const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
       const body = () => $('#thread .msg:last-child .body');

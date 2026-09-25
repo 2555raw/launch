@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +7,7 @@
 <meta name="description" content="Ask, code, generate images and video with every major AI model from one balance.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/styles.css">
-<script>try{var t=localStorage.getItem('seekr.theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<script>(function(){var t="light";try{t=localStorage.getItem("seekr.theme")||"light";}catch(e){}document.documentElement.dataset.theme=t;})();</script>
 </head>
 <body class="app-body">
 <div class="app">
@@ -37,7 +37,7 @@
 
   <main class="main">
     <div class="grid-lines"></div>
-    <div class="sky"><img src="/art/scene.svg" alt=""></div>
+    <div class="sky"><img class="day" src="/art/scene-day.jpg" alt="" fetchpriority="high"><img class="night" src="/art/scene-night.jpg" alt="" loading="lazy"></div>
     <div class="main-top"><button class="icon-btn" id="sideOpen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><a class="logo" href="/"><b>&gt;</b>seekr</a></div>
     <div class="stage" id="stage"></div>
   </main>
@@ -49,6 +49,7 @@
 <input type="file" id="fileInput" class="sr" multiple>
 
 <script src="/shared.js"></script>
+<script src="/fx.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

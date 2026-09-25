@@ -46,13 +46,15 @@ window.seekr = (() => {
 
   /* theme */
   const theme = {
-    get: () => document.documentElement.dataset.theme || 'dark',
+    get: () => document.documentElement.dataset.theme || 'light',
     set: (t) => { document.documentElement.dataset.theme = t; try { localStorage.setItem('seekr.theme', t); } catch { /* ignore */ } },
     toggle: () => theme.set(theme.get() === 'light' ? 'dark' : 'light')
   };
 
   /* nav behaviour shared by the marketing pages */
   function nav() {
+    const tt = document.getElementById('themeToggle');
+    if (tt) tt.addEventListener('click', () => theme.toggle());
     const b = document.getElementById('burger');
     const links = document.getElementById('navLinks');
     if (b && links) b.addEventListener('click', () => links.classList.toggle('open'));

@@ -15,6 +15,7 @@ const assets = require('./lib/assets');
 const router = require('./lib/router');
 const markets = require('./lib/markets');
 const chain = require('./lib/chain');
+const skills = require('./lib/skills');
 
 const PUBLIC = path.join(__dirname, 'public');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
@@ -81,7 +82,8 @@ const api = {
     deposits: { ...chain.depositsConfigured(), treasury: config.chain.treasury, minConfirmations: config.chain.minConfirmations },
     holdings: chain.holdingsConfigured(),
     chain: { id: config.chain.rhChainId, token: config.chain.seekrToken, buyUrl: config.chain.buyUrl, chartUrl: config.chain.chartUrl },
-    links: config.links
+    links: config.links,
+    skills: skills.publicList()
   }),
 
   'GET /api/models': async () => ({
@@ -151,12 +153,15 @@ const api = {
     const model = catalog.get(b.model) || catalog.defaultChat();
     if (model.kind !== 'chat') throw new HttpError(400, `${model.name} is not a chat model`);
     const mode = b.mode === 'code' ? 'code' : 'ask';
+    const skill = mode === 'ask' ? skills.get(b.skill) : null;
     const text = String(b.message || '').trim();
     if (!text) throw new HttpError(400, 'Say something first');
 
     let chat = b.chatId ? store.get('chats', b.chatId) : null;
     if (chat && chat.account !== a.id) throw new HttpError(403, 'Not your chat');
     if (!chat) chat = { id: auth.newId('c_'), account: a.id, title: text.slice(0, 60), mode, model: model.id, messages: [], created: new Date().toISOString() };
+    if (skill) chat.skill = skill.id;
+    const chatSkill = skills.get(chat.skill);
 
     /* attachments: text files are inlined, others are named */
     let content = text;
@@ -186,7 +191,7 @@ const api = {
     store.put('chats', chat.id, chat);
 
     try {
-      const out = await impl.streamChat({ model, messages, system: SYSTEM[mode], mode, web: Boolean(b.web), signal: ac.signal, onText: (t) => emit('delta', { text: t }) });
+      const out = await impl.streamChat({ model, messages, system: SYSTEM[mode] + (chatSkill ? `\n\nSkill: ${chatSkill.title}. ${chatSkill.prompt}` : ''), mode, web: Boolean(b.web || (chatSkill && chatSkill.web)), signal: ac.signal, onText: (t) => emit('delta', { text: t }) });
       let rec;
       try {
         rec = credits.debit(store, a, model, out.usage, { chat: chat.id, live });

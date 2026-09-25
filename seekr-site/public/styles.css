@@ -116,13 +116,13 @@ button { cursor: pointer; }
 /* the header art: the meadow fills the whole hero, edge to edge; a soft veil
    behind the copy keeps the text readable, and the bottom melts into the page */
 .sky { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-.sky img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 62%; transition: opacity .6s ease; }
+.sky img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 48%; transition: opacity .6s ease; }
 .sky img.night { opacity: 0; }
 :root[data-theme="dark"] .sky img.day { opacity: 0; }
 :root[data-theme="dark"] .sky img.night { opacity: 1; }
 .sky::after { z-index: 1; }
 .sky-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
-:root[data-theme="light"] .sky::after { background: linear-gradient(90deg, rgba(247, 248, 251, .82) 0%, rgba(247, 248, 251, .55) 34%, rgba(247, 248, 251, 0) 62%), linear-gradient(0deg, var(--bg) 0%, rgba(247, 248, 251, 0) 8%); }
+:root[data-theme="light"] .sky::after { background: linear-gradient(90deg, rgba(247, 248, 251, .66) 0%, rgba(247, 248, 251, .38) 34%, rgba(247, 248, 251, 0) 60%), linear-gradient(0deg, var(--bg) 0%, rgba(247, 248, 251, 0) 8%); }
 :root[data-theme="light"] .grid-lines { background-image: linear-gradient(90deg, rgba(11, 15, 26, .05) 1px, transparent 1px); }
 .theme-btn { width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; }
 .theme-btn:hover { border-color: var(--line-2); }

@@ -64,6 +64,7 @@ module.exports = {
     buyUrl: env.SEEKR_BUY_URL || '',
     chartUrl: env.SEEKR_CHART_URL || '',
     launch: env.SEEKR_LAUNCH || 'Soon, on Pons', // e.g. "Fri 2 Oct on Pons"
+    launchAt: env.SEEKR_LAUNCH_AT || '', // ISO time, e.g. 2026-10-02T12:00:00Z; shown in Beijing time (UTC+8) with a countdown
 
     /* where deposits go. Leave empty and the deposit panel offers the demo top-up instead. */
     ethRpc: env.ETH_RPC_URL || 'https://ethereum-rpc.publicnode.com',

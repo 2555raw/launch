@@ -782,6 +782,11 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 .tk-meta div { display: flex; align-items: baseline; gap: 8px; }
 .tk-meta dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 .tk-meta dd { margin: 0; font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.tk-count { display: inline-flex; align-items: baseline; flex-wrap: wrap; justify-content: center; gap: 10px 14px; margin: 0 0 18px; padding: 12px 20px; border-radius: 14px; border: 1px solid var(--accent-line); background: var(--accent-soft); }
+.tk-count[hidden] { display: none; }
+.tk-count-k { font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.tk-count b { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tk-count-t { font-size: 13px; color: var(--muted); }
 .tk-ca { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 36px; font-size: 12px; color: var(--muted); }
 .tk-ca code { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ink); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--glass-line); background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); word-break: break-all; }
 .tk-copy[hidden], .tk-ca[hidden] { display: none; }

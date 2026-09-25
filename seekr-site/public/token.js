@@ -7,6 +7,20 @@
   Promise.all([api('/api/config').catch(() => ({ chain: {} })), api('/api/markets').catch(() => ({ seekr: {} }))]).then(([cfg, m]) => {
     const c = cfg.chain || {}, a = m.seekr || {};
     if (c.launch) $('tLaunch').textContent = c.launch;
+    /* launch time: shown in Beijing time (UTC+8), where the market is, with the visitor's own time and a countdown */
+    const at = c.launchAt ? new Date(c.launchAt) : null;
+    if (at && !isNaN(at)) {
+      const fmt = (tz) => new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).format(at);
+      $('tLaunch').textContent = `${fmt('Asia/Shanghai')} Beijing (UTC+8)`;
+      if (!c.token) {
+        const local = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        $('tCountT').textContent = local && local !== 'Asia/Shanghai' ? `${fmt('Asia/Shanghai')} Beijing · ${fmt(local)} your time` : `${fmt('Asia/Shanghai')} Beijing time`;
+        $('tCount').hidden = false;
+        const pad = (n) => String(n).padStart(2, '0');
+        const tick = () => { const s = Math.max(0, Math.floor((at - Date.now()) / 1000)); $('tCountV').textContent = s ? `${Math.floor(s / 86400)}d ${pad(Math.floor(s / 3600) % 24)}h ${pad(Math.floor(s / 60) % 60)}m ${pad(s % 60)}s` : 'Launching now'; if (s) setTimeout(tick, 1000); };
+        tick();
+      }
+    }
     if (cfg.links && cfg.links.x) $('tX').href = cfg.links.x;
     if (c.token) {
       $('tCa').textContent = c.token; $('tCopy').hidden = false;

@@ -67,6 +67,53 @@ async function describe(H, name, buf) {
   const j = await r.json(); const t = (j.choices?.[0]?.message?.content || JSON.stringify(j).slice(0, 200)).replace(/\s+/g, ' ').trim();
   fs.writeFileSync(f, t); console.log(`SCENECHECK ${name}: ${t}`);
 }
+/* ---------- what is where in the photos, for the animated background (printed to the log) ---------- */
+function grid(img, W, Hh, box = [0, 0, 1, 1]) {
+  const [u0, v0, u1, v1] = box, X0 = u0 * img.width, Y0 = v0 * img.height, sx = (u1 - u0) * img.width / W, sy = (v1 - v0) * img.height / Hh, out = [];
+  for (let y = 0; y < Hh; y++) { const row = []; for (let x = 0; x < W; x++) {
+    let r = 0, g = 0, b = 0, n = 0;
+    for (let yy = Math.floor(Y0 + y * sy); yy < Math.floor(Y0 + (y + 1) * sy); yy += 2) for (let xx = Math.floor(X0 + x * sx); xx < Math.floor(X0 + (x + 1) * sx); xx += 2) { const i = (yy * img.width + xx) * 4; r += img.data[i]; g += img.data[i + 1]; b += img.data[i + 2]; n++; }
+    row.push([r / n, g / n, b / n]); } out.push(row); }
+  return out;
+}
+const lum = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+function ascii(tag, img, W, Hh, box) {
+  const g = grid(img, W, Hh, box), L = g.flat().map(lum), lo = Math.min(...L), hi = Math.max(...L), ramp = ' .:-=+*#%@';
+  console.log(`SCENEASCII ${tag} ${W}x${Hh} box ${box ? box.join(',') : 'full'} lum ${lo.toFixed(0)}..${hi.toFixed(0)}`);
+  g.forEach((row, y) => console.log(`SCENEASCII ${tag} ${String(y).padStart(2, '0')} |${row.map((c) => ramp[Math.min(9, Math.floor((lum(c) - lo) / (hi - lo + 1e-6) * 10))]).join('')}|`));
+}
+/* luminance (0-99) and tint (b = blue, r = warm, n = neutral) along a row */
+function line(tag, img, v, n = 150) {
+  const y = Math.round(v * (img.height - 1)), cells = [];
+  for (let k = 0; k < n; k++) { const x0 = Math.round((k + .5) / n * img.width); let r = 0, g = 0, b = 0, c = 0; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const i = (Math.min(img.height - 1, Math.max(0, y + dy)) * img.width + Math.min(img.width - 1, Math.max(0, x0 + dx))) * 4; r += img.data[i]; g += img.data[i + 1]; b += img.data[i + 2]; c++; } r /= c; g /= c; b /= c; cells.push(String(Math.min(99, Math.round(lum([r, g, b]) / 2.56))).padStart(2, '0') + (b > r + 10 ? 'b' : r > b + 10 ? 'r' : 'n')); }
+  console.log(`SCENELINE ${tag} v=${v} ${cells.join(' ')}`);
+}
+async function boxes(H, name, prompt) {
+  const f = path.join(DIR, `${name}.boxes.json`); if (fs.existsSync(f)) return fs.readFileSync(f, 'utf8');
+  const url = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(DIR, `${name}-web.jpg`)).toString('base64');
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { ...H, 'content-type': 'application/json' }, body: JSON.stringify({ model: process.env.SCENE_VISION || 'google/gemini-3.7-flash', temperature: 0, messages: [{ role: 'user', content: [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url } }] }] }) });
+  const j = await r.json(); const t = j.choices?.[0]?.message?.content || JSON.stringify(j).slice(0, 300); const m = t.match(/\{[\s\S]*\}/);
+  const out = (m ? m[0] : t).replace(/\s+/g, ' '); fs.writeFileSync(f, out); return out;
+}
+const BOX = 'All values are integers from 0 to 1000, normalized to the image height (y) and width (x). Reply with JSON only, no markdown.';
+async function analyze(H) {
+  const dayF = have('pro-day'), nightF = have('pro-night'); if (!dayF || !nightF) return;
+  console.log('SCENEBOXES day ' + await boxes(H, 'pro-day', 'Photo of a tea room by day. Detect these and return JSON: {"cups": [[ymin,xmin,ymax,xmax], ...] every small porcelain tea cup, "teapot": [ymin,xmin,ymax,xmax] the clay teapot with spout and handle, "spout_tip": [y,x] the opening at the tip of the teapot spout, "lid": [y,x] the top of the teapot lid, "tray": [ymin,xmin,ymax,xmax] the tea tray, "steam": [[ymin,xmin,ymax,xmax], ...] any visible steam}. ' + BOX));
+  console.log('SCENEBOXES night ' + await boxes(H, 'pro-night', 'Photo of a tea room at night. Detect these and return JSON: {"lantern": [ymin,xmin,ymax,xmax] the red paper lantern including its gold caps and tassel, "cord_top": [y,x] where the lantern cord meets the ceiling or the top edge, "panels": [[ymin,xmin,ymax,xmax], ...] every glowing translucent paper panel of the sliding doors (the paper between the wooden frames) on the back wall and on the side walls, "shadow_area": [ymin,xmin,ymax,xmax] the area covered by tree branch shadows, "pillars": [[ymin,xmin,ymax,xmax], ...] the large wooden pillars, "table": [ymin,xmin,ymax,xmax]}. ' + BOX));
+  const day = decode(fs.readFileSync(dayF)), night = decode(fs.readFileSync(nightF));
+  ascii('night', night, 150, 42);
+  for (const v of [0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75]) line('night', night, v);
+  ascii('day-tea', day, 120, 40, [0.36, 0.58, 0.66, 0.84]);
+  /* small JPEGs, printed once */
+  const flag = path.join(DIR, 'peek.done');
+  if (!fs.existsSync(flag)) {
+    const peek = (tag, img, w, q) => { const b64 = jpeg.encode(shrink(img, w), q).data.toString('base64'), N = 6000, n = Math.ceil(b64.length / N); console.log(`SCENEPEEK ${tag} len ${b64.length} parts ${n}`); for (let i = 0; i < n; i++) console.log(`SCENEPEEK ${tag} ${i + 1}/${n} ${b64.slice(i * N, (i + 1) * N)}`); };
+    peek('night', night, 480, 55);
+    const crop = (img, [u0, v0, u1, v1]) => { const X0 = Math.round(u0 * img.width), Y0 = Math.round(v0 * img.height), w = Math.round((u1 - u0) * img.width), h = Math.round((v1 - v0) * img.height), d = Buffer.alloc(w * h * 4); for (let y = 0; y < h; y++) img.data.copy ? Buffer.from(img.data.buffer, img.data.byteOffset + ((Y0 + y) * img.width + X0) * 4, w * 4).copy(d, y * w * 4) : null; return { width: w, height: h, data: d }; };
+    peek('day-tea', crop(day, [0.36, 0.58, 0.66, 0.84]), 412, 60);
+    fs.writeFileSync(flag, '1');
+  }
+}
 const have = (name) => ['png', 'jpg'].map((e) => path.join(DIR, `${name}.${e}`)).find((f) => fs.existsSync(f));
 
 async function run() {
@@ -84,6 +131,7 @@ async function run() {
       if (!have(`${tag}-night`)) { const d = fs.readFileSync(have(`${tag}-day`)); keep(`${tag}-night`, await gen(H, model, NIGHT, `data:image/${d[0] === 0x89 ? 'png' : 'jpeg'};base64,${d.toString('base64')}`)); }
     }
     for (const f of fs.readdirSync(DIR)) { const m = f.match(/^([a-z0-9]+-(?:day|night))\.(png|jpg)$/); if (!m) continue; const buf = fs.readFileSync(path.join(DIR, f)); if (!fs.existsSync(path.join(DIR, `${m[1]}-web.jpg`))) publish(m[1], buf); if (m[1].startsWith('pro-')) await describe(H, m[1], buf).catch((e) => console.log(`SCENECHECK ${m[1]} failed: ${e.message}`)); }
+    await analyze(H).catch((e) => console.log('SCENEANALYSIS failed: ' + e.message));
     console.log('scenegen: done');
   } catch (e) { console.log('scenegen failed: ' + e.message); }
 }
@@ -91,6 +139,9 @@ async function run() {
 /* GET /art/gen/<name>.jpg */
 function serve(name) {
   if (!/^[a-z0-9]+-(?:day|night)-web\.jpg$/.test(name)) return null;
-  const f = path.join(DIR, name); return fs.existsSync(f) ? f : null;
+  const f = path.join(DIR, name); if (fs.existsSync(f)) return f;
+  /* the painted room stands in if the volume ever loses the photos */
+  const fb = path.join(__dirname, '..', 'public', 'art', `room-${name.includes('-night-') ? 'night' : 'day'}.jpg`);
+  return fs.existsSync(fb) ? fb : null;
 }
 module.exports = { run, serve };

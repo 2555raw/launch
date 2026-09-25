@@ -64,7 +64,7 @@ async function tokens(chainId) {
       if (t.logo) return 200;
       return 300;
     };
-    return list.map((t) => ({ address: t.address, chainId: t.chainId, symbol: t.symbol, name: t.name, decimals: t.decimals, logo: t.logoURI, priceUSD: t.priceUSD ? Number(t.priceUSD) : null, coinKey: t.coinKey || null }))
+    return list.map((t) => ({ address: t.address, chainId: t.chainId, symbol: t.symbol, name: t.name, decimals: t.decimals, logo: rwaLogo(t) || t.logoURI, priceUSD: t.priceUSD ? Number(t.priceUSD) : null, coinKey: t.coinKey || null }))
       .filter((t) => !(t.priceUSD > 250000) || /BTC/i.test(t.symbol))
       .map((t) => ({ ...t, popular: MAJORS.slice(0, 14).includes(t.symbol.toUpperCase()) }))
       .sort((a, b) => rank(a) - rank(b) || (b.priceUSD ? 1 : 0) - (a.priceUSD ? 1 : 0));
@@ -77,6 +77,13 @@ const RWA = {
   treasuries: ['USDY', 'OUSG', 'BUIDL', 'USTB', 'TBILL'],
   stocks: ['TSLAx', 'AAPLx', 'NVDAx', 'SPYx', 'QQQx', 'GOOGLx', 'METAx', 'MSFTx', 'AMZNx', 'MSTRx', 'COINx', 'HOODx', 'CRCLx', 'NFLXx', 'AMDx']
 };
+/* the issuers' own logos, shipped with the site: LI.FI lists several of these without one */
+const RWA_LOGOS = new Set(['PAXG', 'XAUT', 'USDY', 'TSLAX', 'NVDAX', 'AAPLX', 'SPYX', 'QQQX', 'GOOGLX', 'METAX', 'MSFTX', 'AMZNX', 'MSTRX', 'COINX', 'HOODX', 'CRCLX', 'NFLXX', 'AMDX']);
+function rwaLogo(t) {
+  const k = String(t.symbol || '').toUpperCase();
+  if (!RWA_LOGOS.has(k) || (k.endsWith('X') && k !== 'XAUT' && !/xstock/i.test(t.name || ''))) return null;
+  return `/art/rwa/${k}.${k === 'PAXG' ? 'svg' : 'png'}`;
+}
 async function rwa() {
   return cached('rwa', 30 * 60 * 1000, async () => {
     const ids = [1, 42161, 8453, 137, 56, SOLANA_ID];

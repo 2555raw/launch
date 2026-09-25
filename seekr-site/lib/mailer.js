@@ -2,7 +2,7 @@
  * (RESEND_API_KEY + EMAIL_FROM); without a key the email tab says so and the
  * other two doors still work. */
 const KEY = process.env.RESEND_API_KEY || '';
-const FROM = process.env.EMAIL_FROM || 'seekr <login@seekr.app>';
+const FROM = process.env.EMAIL_FROM || 'seekr <seek@seekr.website>';
 
 const configured = () => Boolean(KEY);
 

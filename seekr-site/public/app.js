@@ -92,8 +92,13 @@
     $('#newChat').onclick = () => { state.chat = null; state.mode = 'ask'; state.skill = null; location.hash = '#home'; route(); };
     $('#searchBox').oninput = (e) => renderRecent(e.target.value);
     $('#themeBtn').onclick = () => theme.toggle();
-    $('#sideClose').onclick = () => $('#side').classList.remove('open');
-    $('#sideOpen').onclick = () => $('#side').classList.add('open');
+    /* desktop: collapse the sidebar (remembered); phone: slide it away */
+    const wide = () => matchMedia('(min-width: 861px)').matches;
+    const app = document.querySelector('.app');
+    const collapse = (on) => { app.classList.toggle('side-hidden', on); try { localStorage.setItem('seekr.sideHidden', on ? '1' : ''); } catch { /* private mode */ } };
+    try { if (localStorage.getItem('seekr.sideHidden')) app.classList.add('side-hidden'); } catch { /* private mode */ }
+    $('#sideClose').onclick = () => { if (wide()) collapse(true); else $('#side').classList.remove('open'); };
+    $('#sideOpen').onclick = () => { if (wide()) collapse(false); else $('#side').classList.add('open'); };
     document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); const p = $('#pickerBtn'); if (p) p.click(); } });
     $('#fileInput').onchange = (e) => uploadFiles([...e.target.files]);
   }

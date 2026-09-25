@@ -814,3 +814,14 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
   .tk-stats { grid-template-columns: 1fr 1fr; } .tk-stats div:first-child { grid-column: 1 / -1; } .tk-stats div + div { border-left: 0; border-top: 1px solid var(--glass-line); } .tk-stats div:nth-child(3), .tk-stats div:nth-child(5) { border-left: 1px solid var(--glass-line); }
   .tk-cards { grid-template-columns: 1fr; }
 }
+
+/* language switch and the Chinese site */
+.lang-btn { height: 34px; min-width: 42px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass); color: var(--ink); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.lang-btn:hover { border-color: var(--accent-line); color: var(--accent); }
+.i18n-wait body { visibility: hidden; }
+html[lang="zh-CN"] .chg-up { color: #F04438; } html[lang="zh-CN"] .chg-down { color: #22C55E; }
+html[lang="zh-CN"] { --font: 'Plus Jakarta Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif; }
+html[lang="zh-CN"] .tk-stats b.chg-up { color: #dc2626; } html[lang="zh-CN"] .tk-stats b.chg-down { color: #16a34a; }
+html[lang="zh-CN"] .pixel { font-family: 'Instrument Serif', 'Songti SC', 'STSong', 'Noto Serif SC', 'Source Han Serif SC', serif; letter-spacing: .01em; }
+html[lang="zh-CN"] .pixel .accent, html[lang="zh-CN"] .pixel.accent { font-style: normal; }
+html[lang="zh-CN"] body { letter-spacing: .01em; }

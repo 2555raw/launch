@@ -10,14 +10,15 @@
     /* launch time: shown in Beijing time (UTC+8), where the market is, with the visitor's own time and a countdown */
     const at = c.launchAt ? new Date(c.launchAt) : null;
     if (at && !isNaN(at)) {
-      const fmt = (tz) => new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).format(at);
-      $('tLaunch').textContent = `${fmt('Asia/Shanghai')} Beijing (UTC+8)`;
+      const zh = document.documentElement.lang === 'zh-CN';
+      const fmt = (tz) => new Intl.DateTimeFormat(zh ? 'zh-CN' : 'en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).format(at);
+      $('tLaunch').textContent = zh ? `北京时间 ${fmt('Asia/Shanghai')} (UTC+8)` : `${fmt('Asia/Shanghai')} Beijing (UTC+8)`;
       if (!c.token) {
         const local = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        $('tCountT').textContent = local && local !== 'Asia/Shanghai' ? `${fmt('Asia/Shanghai')} Beijing · ${fmt(local)} your time` : `${fmt('Asia/Shanghai')} Beijing time`;
+        $('tCountT').textContent = zh ? (local && local !== 'Asia/Shanghai' ? `北京时间 ${fmt('Asia/Shanghai')} · 你的时间 ${fmt(local)}` : `北京时间 ${fmt('Asia/Shanghai')}`) : local && local !== 'Asia/Shanghai' ? `${fmt('Asia/Shanghai')} Beijing · ${fmt(local)} your time` : `${fmt('Asia/Shanghai')} Beijing time`;
         $('tCount').hidden = false;
         const pad = (n) => String(n).padStart(2, '0');
-        const tick = () => { const s = Math.max(0, Math.floor((at - Date.now()) / 1000)); $('tCountV').textContent = s ? `${Math.floor(s / 86400)}d ${pad(Math.floor(s / 3600) % 24)}h ${pad(Math.floor(s / 60) % 60)}m ${pad(s % 60)}s` : 'Launching now'; if (s) setTimeout(tick, 1000); };
+        const tick = () => { const s = Math.max(0, Math.floor((at - Date.now()) / 1000)); $('tCountV').textContent = s ? (zh ? `${Math.floor(s / 86400)}天 ${pad(Math.floor(s / 3600) % 24)}时 ${pad(Math.floor(s / 60) % 60)}分 ${pad(s % 60)}秒` : `${Math.floor(s / 86400)}d ${pad(Math.floor(s / 3600) % 24)}h ${pad(Math.floor(s / 60) % 60)}m ${pad(s % 60)}s`) : 'Launching now'; if (s) setTimeout(tick, 1000); };
         tick();
       }
     }

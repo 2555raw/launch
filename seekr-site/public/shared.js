@@ -79,6 +79,7 @@ window.seekr = (() => {
       if (buy && cfg.chain.buyUrl) buy.href = cfg.chain.buyUrl;
       if (chart && cfg.chain.chartUrl) chart.href = cfg.chain.chartUrl;
       const tg = document.getElementById('tgLink'); if (tg) tg.href = cfg.links.telegram;
+      const xl = document.getElementById('xLink'); if (xl) xl.href = cfg.links.x;
       for (const id of ['mailLink', 'supportLink']) { const el = document.getElementById(id); if (el) { el.href = 'mailto:' + cfg.links.email; if (id === 'mailLink') el.textContent = cfg.links.email; } }
       window.seekrConfig = cfg;
     }).catch(() => null);

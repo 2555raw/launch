@@ -80,6 +80,12 @@ window.seekr = (() => {
       ext(buy, cfg.chain.buyUrl); ext(chart, cfg.chain.chartUrl);
       const xl = document.getElementById('xLink'); if (xl) xl.href = cfg.links.x;
       const ml = document.getElementById('mailLink'); if (ml) { ml.href = 'mailto:' + cfg.links.email; const ma = document.getElementById('mailAddr'); if (ma) ma.textContent = cfg.links.email; }
+      /* once the coin is live, every [data-ca] on the page shows the contract, with a copy button */
+      if (cfg.chain.token) {
+        document.querySelectorAll('[data-ca]').forEach((el) => { el.textContent = cfg.chain.token; });
+        const hc = document.getElementById('homeCa'); if (hc) hc.hidden = false;
+        document.querySelectorAll('[data-ca-copy]').forEach((b) => { b.onclick = () => navigator.clipboard.writeText(cfg.chain.token).then(() => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy'; }, 1600); }).catch(() => null); });
+      }
       window.seekrConfig = cfg;
     }).catch(() => null);
   }

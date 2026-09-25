@@ -15,7 +15,7 @@
     }
     /* buy: the configured link; after launch without one, the pair page; before launch, it waits */
     const buy = c.buyUrl || (c.token && a.url) || '';
-    if (buy) link($('buyBtn'), buy, c.buyUrl ? null : 'Buy $SEEKR'); else pending($('buyBtn'), c.token ? 'Buy link soon' : 'Opens at launch');
+    if (buy) link($('buyBtn'), buy, c.buyUrl ? null : 'Buy $WONDR'); else pending($('buyBtn'), c.token ? 'Buy link soon' : 'Opens at launch');
     const chart = c.chartUrl || a.url || '';
     if (chart) link($('chartBtn'), chart); else pending($('chartBtn'), 'Chart');
     if (a.live) {

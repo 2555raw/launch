@@ -75,7 +75,7 @@
     const b = $('#signbox');
     if (!state.me) { b.innerHTML = '<span class="mono">NOT SIGNED IN</span><b>Sign in to start</b>'; b.onclick = openSignIn; return; }
     const a = state.me;
-    b.innerHTML = `<span class="mono">BALANCE</span><b>${cr(a.balance)} credits</b><small>${a.username ? '@' + esc(a.username) : a.email ? esc(a.email) : a.wallet ? a.wallet.slice(0, 6) + '…' + a.wallet.slice(-4) : 'access key'}${a.tier.holder ? ` · ${a.holdingsPct.toFixed(3)}% $SEEKR` : ''}</small>`;
+    b.innerHTML = `<span class="mono">BALANCE</span><b>${cr(a.balance)} credits</b><small>${a.username ? '@' + esc(a.username) : a.email ? esc(a.email) : a.wallet ? a.wallet.slice(0, 6) + '…' + a.wallet.slice(-4) : 'access key'}${a.tier.holder ? ` · ${a.holdingsPct.toFixed(3)}% $WONDR` : ''}</small>`;
     b.onclick = () => { location.hash = '#account'; };
   }
 
@@ -126,8 +126,8 @@
     const stage = $('#stage');
     const inChat = state.chat && state.chat.messages && state.chat.messages.length;
     stage.innerHTML = `
-      ${inChat ? `<div class="shared-h"><div><div class="stage-logo" style="font-size:22px;margin:0"><img class="logo-mark" src="/art/brand/seekr-mark.svg" alt="" width="26" height="26">seekr</div><div class="note mono">${esc(state.chat.title)}</div></div><div class="cta-row"><button class="btn btn-ghost btn-sm" id="shareBtn">Share</button><button class="btn btn-ghost btn-sm" id="newBtn">New chat</button></div></div>` :
-        `<div class="stage-logo"><img class="logo-mark" src="/art/brand/seekr-mark.svg" alt="" width="26" height="26">seekr</div><h1>What are we <span class="accent" id="modeWord">${{ ask: 'experimenting?', code: 'building?', images: 'picturing?', video: 'filming?' }[state.mode] || 'experimenting?'}</span></h1>`}
+      ${inChat ? `<div class="shared-h"><div><div class="stage-logo" style="font-size:22px;margin:0"><img class="logo-mark" src="/art/brand/wondr-mark.svg" alt="" width="26" height="26">wondr</div><div class="note mono">${esc(state.chat.title)}</div></div><div class="cta-row"><button class="btn btn-ghost btn-sm" id="shareBtn">Share</button><button class="btn btn-ghost btn-sm" id="newBtn">New chat</button></div></div>` :
+        `<div class="stage-logo"><img class="logo-mark" src="/art/brand/wondr-mark.svg" alt="" width="26" height="26">wondr</div><h1>What are we <span class="accent" id="modeWord">${{ ask: 'experimenting?', code: 'building?', images: 'picturing?', video: 'filming?' }[state.mode] || 'experimenting?'}</span></h1>`}
       <div class="modes" id="modes"></div>
       <div class="thread" id="thread"></div>
       <div class="composer" id="composer"></div>
@@ -310,7 +310,7 @@
     const msgs = (state.chat && state.chat.messages) || [];
     t.innerHTML = msgs.map((m, i) => m.role === 'user'
       ? `<div class="msg user"><span class="who">you</span><div class="body">${esc(m.content)}</div></div>`
-      : `<div class="msg ai"><span class="who">${esc(m.model || 'seekr')}</span><div class="body ${m.streaming ? 'cursor' : ''}">${m.streaming ? esc(m.content) : md(m.content)}</div>${m.streaming ? '' : `<div class="meta"><span>${m.credits !== undefined ? costTag(m) : ''}</span>${m.usage ? `<span>${m.usage.inTokens}→${m.usage.outTokens} tok</span>` : ''}${m.saved ? `<span class="accent">saved ${cr(m.saved)} cr as a holder</span>` : ''}${tierTag(m)}<button class="copy" data-say="${i}">${ICONS.speaker.replace('<svg', '<svg width="12" height="12" style="display:inline;vertical-align:-2px"')} listen</button><button class="copy" data-copytext="${i}">copy</button></div>`}</div>`).join('');
+      : `<div class="msg ai"><span class="who">${esc(m.model || 'wondr')}</span><div class="body ${m.streaming ? 'cursor' : ''}">${m.streaming ? esc(m.content) : md(m.content)}</div>${m.streaming ? '' : `<div class="meta"><span>${m.credits !== undefined ? costTag(m) : ''}</span>${m.usage ? `<span>${m.usage.inTokens}→${m.usage.outTokens} tok</span>` : ''}${m.saved ? `<span class="accent">saved ${cr(m.saved)} cr as a holder</span>` : ''}${tierTag(m)}<button class="copy" data-say="${i}">${ICONS.speaker.replace('<svg', '<svg width="12" height="12" style="display:inline;vertical-align:-2px"')} listen</button><button class="copy" data-copytext="${i}">copy</button></div>`}</div>`).join('');
     t.querySelectorAll('[data-copytext]').forEach((b) => b.onclick = () => { navigator.clipboard.writeText(msgs[b.dataset.copytext].content); toast('Copied'); });
     t.querySelectorAll('[data-copy]').forEach((b) => b.onclick = () => { const pre = b.closest('.preview').previousElementSibling; navigator.clipboard.writeText(pre.textContent); toast('Code copied'); });
     t.querySelectorAll('[data-say]').forEach((b) => b.onclick = () => speak(msgs[b.dataset.say].content));
@@ -423,7 +423,7 @@
       <p class="auth-key"><a href="#" id="useKey">I have an access key</a></p></div>
     </div>`;
     const body = host.querySelector('#authBody');
-    const finish = (r, msg) => { setKey(r.key); state.me = r.account; toast(msg || (r.created ? 'Account created. Welcome to seekr.' : 'Welcome back.')); done(); };
+    const finish = (r, msg) => { setKey(r.key); state.me = r.account; toast(msg || (r.created ? 'Account created. Welcome to wondr.' : 'Welcome back.')); done(); };
     const busy = (btn, on) => { btn.disabled = on; btn.classList.toggle('loading', on); };
     const fail = (e, el) => { el.textContent = e.message; el.hidden = false; };
 
@@ -584,7 +584,7 @@
     const s = $('#stage');
     try {
       const { chat } = await api('/api/shared/' + token);
-      s.innerHTML = `<div class="view"><div class="shared-h"><div><h2>${esc(chat.title)}</h2><p class="sub" style="margin:0">Shared chat · ${chat.model} · ${new Date(chat.created).toLocaleDateString()}</p></div><a class="btn btn-primary btn-sm" href="#home">Start your own</a></div><div class="thread">${chat.messages.map((m) => m.role === 'user' ? `<div class="msg user"><span class="who">them</span><div class="body">${esc(m.content)}</div></div>` : `<div class="msg ai"><span class="who">${esc(m.model || 'seekr')}</span><div class="body">${md(m.content)}</div></div>`).join('')}</div></div>`;
+      s.innerHTML = `<div class="view"><div class="shared-h"><div><h2>${esc(chat.title)}</h2><p class="sub" style="margin:0">Shared chat · ${chat.model} · ${new Date(chat.created).toLocaleDateString()}</p></div><a class="btn btn-primary btn-sm" href="#home">Start your own</a></div><div class="thread">${chat.messages.map((m) => m.role === 'user' ? `<div class="msg user"><span class="who">them</span><div class="body">${esc(m.content)}</div></div>` : `<div class="msg ai"><span class="who">${esc(m.model || 'wondr')}</span><div class="body">${md(m.content)}</div></div>`).join('')}</div></div>`;
     } catch (e) { s.innerHTML = `<div class="view"><h2>That link is gone</h2><p class="sub">${esc(e.message)}</p></div>`; }
   }
 
@@ -597,7 +597,7 @@
     s.innerHTML = `<div class="view"><h2>Account</h2><p class="sub">${a.username ? '@' + esc(a.username) : a.email ? esc(a.email) : a.wallet ? a.wallet : 'Access-key account'} · since ${new Date(a.created).toLocaleDateString()}</p>
       <div class="stat"><div><span class="k">Balance</span><div class="v">${cr(a.balance)}<small>credits · ${usd(a.balance / cfg.creditsPerUsd)}</small></div></div><div><span class="k">Deposited</span><div class="v">${cr(a.deposited)}</div></div><div><span class="k">Spent</span><div class="v">${cr(a.spent)}</div></div></div>
 
-      <div class="panel"><h3>Top up</h3><p class="sub">$1 = ${cfg.creditsPerUsd.toLocaleString()} credits. No seekr fee on the deposit: what you send is what you get.</p>
+      <div class="panel"><h3>Top up</h3><p class="sub">$1 = ${cfg.creditsPerUsd.toLocaleString()} credits. No wondr fee on the deposit: what you send is what you get.</p>
         ${dep.eth || dep.sol || dep.btc ? `<div class="field"><label>Send to the treasury, then paste the transaction id to credit it (${dep.minConfirmations} confirmation${dep.minConfirmations === 1 ? '' : 's'}).</label>
           ${dep.eth ? `<div class="addr"><span><b>ETH / USDT (Ethereum)</b><br>${dep.treasury.eth}</span><button class="copy" data-copyaddr="${dep.treasury.eth}">copy</button></div>` : ''}
           ${dep.sol ? `<div class="addr"><span><b>SOL</b><br>${dep.treasury.sol}</span><button class="copy" data-copyaddr="${dep.treasury.sol}">copy</button></div>` : ''}
@@ -606,7 +606,7 @@
         ${cfg.demo ? `<div class="inline" style="margin-top:10px"><input class="input" id="demoUsd" type="number" min="1" max="100" value="10" style="max-width:120px"><button class="btn btn-ghost" id="demoGo">Simulate a $ deposit (demo)</button></div>` : ''}
       </div>
 
-      <div class="panel"><h3>$SEEKR holder tier</h3><p class="sub">Every model at 5% of its price on a daily allowance: 1,000 credits per 0.01% of supply held, up to 25,000. Resets 00:00 UTC.</p>
+      <div class="panel"><h3>$WONDR holder tier</h3><p class="sub">Every model at 5% of its price on a daily allowance: 1,000 credits per 0.01% of supply held, up to 25,000. Resets 00:00 UTC.</p>
         <div class="row" style="display:flex;justify-content:space-between;font-size:14px"><span>Holding</span><b class="mono">${a.holdingsPct.toFixed(4)}%${a.holdingsSimulated ? ' (simulated)' : ''}</b></div>
         <div class="tierbar"><i style="width:${al.total ? Math.min(100, (al.used / al.total) * 100) : 0}%"></i></div>
         <div class="row" style="display:flex;justify-content:space-between;font-size:13px" class="note"><span>Allowance today</span><b class="mono">${cr(al.used)} / ${cr(al.total)} credits</b></div>

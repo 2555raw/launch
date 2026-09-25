@@ -39,7 +39,7 @@
       const rows = [
         [`Per ${kind.unit}`, money(unit)],
         ['Per month', `<b>${money(month)}</b>`],
-        ['Per month, $SEEKR holder', `<span class="accent">${money(month * 0.05)}</span>`],
+        ['Per month, $WONDR holder', `<span class="accent">${money(month * 0.05)}</span>`],
         ...(m.kind === 'chat' ? [['Input / output per 1M tokens', `${usd(m.prices.inUsd)} / ${usd(m.prices.usd)}`], ['Context window', m.context ? (m.context >= 1e6 ? m.context / 1e6 + 'M' : Math.round(m.context / 1000) + 'k') + ' tokens' : 'n/a']] : [])
       ];
       return `<div class="cmp-card${picked.length > 1 && month === min ? ' best' : ''}">

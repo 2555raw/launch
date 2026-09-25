@@ -1,7 +1,7 @@
 /* Swaps through LI.FI: any token to any token, on one chain or across chains
  * (EVM chains and Solana). The server only relays read-only calls — chains,
  * token lists, quotes, status, balances. Transactions are built by LI.FI and
- * signed in the user's own wallet; seekr never holds funds or keys.
+ * signed in the user's own wallet; wondr never holds funds or keys.
  *   LIFI_API_KEY  optional, raises LI.FI rate limits
  *   SWAP_FEE      optional integrator fee, e.g. 0.0025 (needs a LI.FI integrator set up) */
 const { JsonRpcProvider, Contract, formatUnits } = require('ethers');
@@ -10,7 +10,7 @@ const config = require('./config');
 const BASE = process.env.LIFI_BASE || 'https://li.quest/v1';
 const KEY = process.env.LIFI_API_KEY || '';
 const FEE = Number(process.env.SWAP_FEE || 0);
-const INTEGRATOR = process.env.SWAP_INTEGRATOR || 'seekr';
+const INTEGRATOR = process.env.SWAP_INTEGRATOR || 'wondr';
 const SOLANA_ID = 1151111081099710;
 
 const cache = new Map();

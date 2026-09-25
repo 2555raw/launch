@@ -3,7 +3,7 @@
  * Prices are the provider's own price in USD (per 1M tokens, per image, per
  * second of video, per 1M characters of speech, per minute of audio). The
  * list price shown on the site is that number times config.markup; the
- * $SEEKR holder price is 5% of the list price. Both are computed in credits.js
+ * $WONDR holder price is 5% of the list price. Both are computed in credits.js
  * so the numbers live in exactly one place.
  *
  * `upstream` is the id the provider is called with. Change it here (or with

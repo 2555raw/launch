@@ -32,14 +32,14 @@ function faq() {
     { k: 'subscription monthly recurring cancel', q: 'Is there a subscription?', a: 'No. Nothing is recurring. You fund one balance and it goes down as you use models. Credits never expire.' },
     { k: 'models available which claude gpt gemini deepseek grok flux video image voice', q: 'Which models can I use?',
       a: `Chat and code: ${names('chat')}. Images: ${names('image')}. Video: ${names('video')}. Voice: ${names('tts')}. Pick the model in the box under the prompt on the **Ask** page.` },
-    { k: 'seekr token holder holders discount allowance 5% hold holding give benefits', q: 'What does holding $SEEKR give me?',
+    { k: 'wondr token holder holders discount allowance 5% hold holding give benefits', q: 'What does holding $WONDR give me?',
       a: `Holders pay **${H.pricePct * 100}% of the list price** inside a daily allowance of ${H.creditsPerStep.toLocaleString()} credits per ${H.stepPct}% of supply held, up to ${H.maxAllowance.toLocaleString()} credits a day (${usd(H.maxAllowance)} at list), reset 00:00 UTC. From ${H.earlyAccessPct}% you get new models 14 days early, from ${H.priorityPct}% priority routing. Link your wallet in **Account** so the server can read your balance (it only signs a message).` },
-    { k: 'buy token where contract address chart robinhood chain launch', q: 'Where do I buy $SEEKR?',
+    { k: 'buy token where contract address chart robinhood chain launch', q: 'Where do I buy $WONDR?',
       a: config.chain.seekrToken
-        ? `$SEEKR lives on Robinhood Chain (chain id 4663). Contract: \`${config.chain.seekrToken}\`. Use **Buy $SEEKR** on the Token page.`
-        : '$SEEKR launches on Robinhood Chain (an Arbitrum L2, chain id 4663), paired against ETH, with a fixed supply of 1,000,000,000. It is not live yet, so there is no contract address to buy. Watch https://x.com/heySeekr for the launch and never trust an address sent to you in a DM.' },
+        ? `$WONDR lives on Robinhood Chain (chain id 4663). Contract: \`${config.chain.seekrToken}\`. Use **Buy $WONDR** on the Token page.`
+        : '$WONDR launches on Robinhood Chain (an Arbitrum L2, chain id 4663), paired against ETH, with a fixed supply of 1,000,000,000. It is not live yet, so there is no contract address to buy. Watch https://x.com/heySeekr for the launch and never trust an address sent to you in a DM.' },
     { k: 'swap exchange trade convert token coin gold stock real world asset rwa metamask phantom coinbase', q: 'How does Swap work?',
-      a: 'Open **Swap** in the top menu, connect MetaMask, Coinbase Wallet or Phantom, pick what you pay and what you get, and press Swap. Routes are found by LI.FI across DEXs and bridges, on one chain or across chains (EVM and Solana). You sign in your own wallet; seekr never holds your funds. The **Real-world assets** shelf has tokenized gold (PAXG, XAUT), US treasuries and tokenized stocks (xStocks).' },
+      a: 'Open **Swap** in the top menu, connect MetaMask, Coinbase Wallet or Phantom, pick what you pay and what you get, and press Swap. Routes are found by LI.FI across DEXs and bridges, on one chain or across chains (EVM and Solana). You sign in your own wallet; wondr never holds your funds. The **Real-world assets** shelf has tokenized gold (PAXG, XAUT), US treasuries and tokenized stocks (xStocks).' },
     { k: 'swap failed error stuck slippage approve gas pending bridge', q: 'My swap failed or is stuck.',
       a: 'Check that you have enough of the native coin for gas (ETH, SOL, etc.) on the chain you pay from. If the price moved, get a fresh quote and try again. Some tokens need an **Approve** transaction first, then the swap. Cross-chain swaps can take a few minutes: the status updates on the page, and the transaction link opens in the explorer. If funds left your wallet and did not arrive after 30 minutes, send the transaction hash to ' + email + '.' },
     { k: 'xstocks us united states restricted country stocks legal', q: 'Can anyone buy tokenized stocks?',
@@ -81,23 +81,23 @@ function system(account) {
   if (account) {
     const credits = require('./credits');
     const al = credits.allowance(account);
-    me = `The visitor is signed in. Account id ${account.id}${account.username ? `, username ${account.username}` : ''}${account.wallet ? `, wallet ${account.wallet}` : ''}${account.email ? `, email on file` : ', no email on file'}. Balance: ${Math.round(account.balance || 0).toLocaleString()} credits (${usd(account.balance || 0)}). $SEEKR held: ${al.pct}% of supply; holder allowance today ${al.left.toLocaleString()} of ${al.total.toLocaleString()} credits left.`;
+    me = `The visitor is signed in. Account id ${account.id}${account.username ? `, username ${account.username}` : ''}${account.wallet ? `, wallet ${account.wallet}` : ''}${account.email ? `, email on file` : ', no email on file'}. Balance: ${Math.round(account.balance || 0).toLocaleString()} credits (${usd(account.balance || 0)}). $WONDR held: ${al.pct}% of supply; holder allowance today ${al.left.toLocaleString()} of ${al.total.toLocaleString()} credits left.`;
   }
-  return `You are the support assistant for seekr (${config.publicUrl || 'seekr.website'}), inside the Support panel on the site.
+  return `You are the support assistant for wondr (${config.publicUrl || 'seekr.website'}), inside the Support panel on the site.
 
-Your job: solve the visitor's problem completely, right here. Be warm, direct and short (2 to 6 sentences, or a short numbered list for steps). Always answer in the language the visitor writes in. Give exact steps with the names of buttons and pages as they appear on the site (in bold). Use only the facts below; if something is not covered, say so plainly and give the best next step, never invent prices, addresses, dates or features. Never ask for a seed phrase, private key, password or access key, and warn the visitor if they paste one. seekr staff never DM first. For anything you truly cannot fix (a lost deposit, a bug, a business request), tell them to email ${config.links.email} with the details you list.
+Your job: solve the visitor's problem completely, right here. Be warm, direct and short (2 to 6 sentences, or a short numbered list for steps). Always answer in the language the visitor writes in. Give exact steps with the names of buttons and pages as they appear on the site (in bold). Use only the facts below; if something is not covered, say so plainly and give the best next step, never invent prices, addresses, dates or features. Never ask for a seed phrase, private key, password or access key, and warn the visitor if they paste one. wondr staff never DM first. For anything you truly cannot fix (a lost deposit, a bug, a business request), tell them to email ${config.links.email} with the details you list.
 
-WHAT SEEKR IS
-One platform for every major AI model (chat, code, images, video, voice), paid with crypto from one balance: no subscription, pay per request. Plus Swap: any coin to any coin or to tokenized real-world assets, from the visitor's own wallet. Token: $SEEKR on Robinhood Chain.
+WHAT WONDR IS
+One platform for every major AI model (chat, code, images, video, voice), paid with crypto from one balance: no subscription, pay per request. Plus Swap: any coin to any coin or to tokenized real-world assets, from the visitor's own wallet. Token: $WONDR on Robinhood Chain.
 
 PAGES
-Home (/), Swap (/swap), How it works (/#how), Models and Pricing (/pricing), Compare models side by side (/compare), seekr vs subscriptions (/alternatives), Calculator (/calculator), Token (/token), Community (/community), Developers (/developers), the app (/ask: Ask, Code, Images, Video modes, chat history, Library, Account). The theme button (sun/moon) switches day and night mode.
+Home (/), Swap (/swap), How it works (/#how), Models and Pricing (/pricing), Compare models side by side (/compare), wondr vs subscriptions (/alternatives), Calculator (/calculator), Token (/token), Community (/community), Developers (/developers), the app (/ask: Ask, Code, Images, Video modes, chat history, Library, Account). The theme button (sun/moon) switches day and night mode.
 
 FACTS
 - Credits: $1 = ${config.creditsPerUsd.toLocaleString()} credits. List price = provider price × ${config.markup} (a ${((config.markup - 1) * 100).toFixed(1)}% margin). Credits never expire.${config.welcomeCredits ? ` New accounts get ${config.welcomeCredits.toLocaleString()} welcome credits.` : ''}
 - Sign-in: username + password, wallet signature, ${mailer.configured() ? 'email code, ' : ''}or an access key (seek_…). Email is optional.
 - Payments: crypto only (USDT, ETH, SOL, BTC). No card payments.
-- $SEEKR: supply 1,000,000,000 fixed, no mint, no presale, no team allocation, launched on the Pons curve paired with ETH; the company buys its 5% on the curve like anyone and locks it; liquidity locked with Team Finance when the curve graduates. Robinhood Chain docs: https://docs.robinhood.com/chain/. ${config.chain.seekrToken ? `Contract: ${config.chain.seekrToken}.` : 'Not launched yet: there is no contract address; anyone giving one before the official launch post on https://x.com/heySeekr is a scammer.'}
+- $WONDR: supply 1,000,000,000 fixed, no mint, no presale, no team allocation, launched on the Pons curve paired with ETH; the company buys its 5% on the curve like anyone and locks it; liquidity locked with Team Finance when the curve graduates. Robinhood Chain docs: https://docs.robinhood.com/chain/. ${config.chain.seekrToken ? `Contract: ${config.chain.seekrToken}.` : 'Not launched yet: there is no contract address; anyone giving one before the official launch post on https://x.com/heySeekr is a scammer.'}
 - Contact: ${config.links.email}, X https://x.com/heySeekr.
 
 MODELS AND LIST PRICES
@@ -121,7 +121,7 @@ function localAnswer(text) {
     const s = e.k.split(' ').reduce((n, k) => n + (set.has(k) ? 1 : 0), 0);
     if (s > score) { best = e; score = s; }
   }
-  return best ? best.a : `I can help with accounts and sign-in, adding funds, prices and models, Swap, and the $SEEKR token. Tell me a bit more about what you need, or email ${config.links.email}.`;
+  return best ? best.a : `I can help with accounts and sign-in, adding funds, prices and models, Swap, and the $WONDR token. Tell me a bit more about what you need, or email ${config.links.email}.`;
 }
 
 module.exports = { system, localAnswer, faq };

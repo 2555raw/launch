@@ -33,7 +33,7 @@ module.exports = {
   markup: num(env.PRICE_MARKUP, 1.055), // what the list price carries over the provider's own price
   welcomeCredits: num(env.WELCOME_CREDITS, demoMode === 'off' ? 0 : 1000),
 
-  /* $SEEKR holder terms, as published on the site */
+  /* $WONDR holder terms, as published on the site */
   holder: {
     pricePct: 0.05,          // holders pay 5% of the list price...
     creditsPerStep: 1000,    // ...on 1,000 credits a day per 0.01% of supply held...
@@ -53,14 +53,14 @@ module.exports = {
   demoMoney() { return demoMode !== 'off' && !Object.values(keys).some(Boolean); },
 
   chain: {
-    /* Robinhood Chain (Arbitrum L2, chain id 4663) where $SEEKR lives */
+    /* Robinhood Chain (Arbitrum L2, chain id 4663) where $WONDR lives */
     rhRpc: env.ROBINHOOD_RPC_URL || 'https://rpc.mainnet.chain.robinhood.com', // public, rate limited; set a dedicated one if holders grow
     explorer: env.ROBINHOOD_EXPLORER_URL || 'https://robinhoodchain.blockscout.com',
     rhChainId: 4663,
     seekrToken: env.SEEKR_TOKEN_ADDRESS || '',
     seekrSupply: num(env.SEEKR_TOTAL_SUPPLY, 1e9),
     seekrDecimals: num(env.SEEKR_DECIMALS, 18),
-    dexscreenerPair: env.SEEKR_DEXSCREENER_PAIR || '', // "robinhood/0xpair" — for the live $SEEKR price
+    dexscreenerPair: env.SEEKR_DEXSCREENER_PAIR || '', // "robinhood/0xpair" — for the live $WONDR price
     buyUrl: env.SEEKR_BUY_URL || '',
     chartUrl: env.SEEKR_CHART_URL || '',
     launch: env.SEEKR_LAUNCH || 'Soon, on Pons', // e.g. "Fri 2 Oct on Pons"

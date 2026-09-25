@@ -67,7 +67,7 @@ function nonceFor(address) {
 }
 
 function signInMessage(address, nonce) {
-  return `seekr wants you to sign in with your wallet.\n\nAddress: ${address}\nNonce: ${nonce}\n\nThis signature costs nothing and does not send a transaction.`;
+  return `wondr wants you to sign in with your wallet.\n\nAddress: ${address}\nNonce: ${nonce}\n\nThis signature costs nothing and does not send a transaction.`;
 }
 
 function verifyWallet(address, signature) {

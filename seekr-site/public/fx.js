@@ -71,8 +71,8 @@
         const a = Math.sin(Math.PI * age);
         const g = ctx.createLinearGradient(px, py, tx, ty);
         g.addColorStop(0, `rgba(255,255,255,${0.95 * a})`);
-        g.addColorStop(0.25, `rgba(190,215,255,${0.45 * a})`);
-        g.addColorStop(1, 'rgba(160,190,255,0)');
+        g.addColorStop(0.25, `rgba(200,255,225,${0.45 * a})`);
+        g.addColorStop(1, 'rgba(160,240,200,0)');
         ctx.strokeStyle = g; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
         ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(tx, ty); ctx.stroke();
         ctx.fillStyle = `rgba(255,255,255,${a})`;

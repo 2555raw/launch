@@ -11,7 +11,7 @@
   api('/api/models').then(({ models }) => {
     const cards = EX.map((e) => { const m = models.find((x) => x.id === e.id); if (!m) return ''; const t = e.cost(m) * e.n;
       return `<div class="cmp-card"><div class="cmp-h"><span class="cmp-ic">${mark(vendorMark(m.vendor))}</span><div><b>${esc(m.name)}</b><small>${e.n} ${esc(e.what)}</small></div></div>
-        <div class="cmp-big">${money(t)}<small>/month</small></div><div class="cmp-row"><span>$SEEKR holder</span><span class="accent">${money(t * 0.05)}</span></div>
+        <div class="cmp-big">${money(t)}<small>/month</small></div><div class="cmp-row"><span>$WONDR holder</span><span class="accent">${money(t * 0.05)}</span></div>
         <a class="btn btn-ghost btn-sm cmp-try" href="/compare#${m.kind === 'chat' ? 'chat' : m.kind}">Compare</a></div>`; }).join('');
     document.getElementById('altEx').innerHTML = cards;
   }).catch(() => null);

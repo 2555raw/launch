@@ -1,4 +1,4 @@
-/* Prices, credits and the $SEEKR holder allowance.
+/* Prices, credits and the $WONDR holder allowance.
  *
  *   list price   = provider price × markup
  *   credits      = usd × 1000

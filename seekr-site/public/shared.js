@@ -1,5 +1,5 @@
 /* Shared by every page: the API client, formatting, the vendor marks, the
- * theme, the nav, and the live $SEEKR pill. */
+ * theme, the nav, and the live $WONDR pill. */
 window.seekr = (() => {
   const KEY = 'seekr.key';
   const api = async (path, opts = {}) => {
@@ -101,13 +101,13 @@ window.seekr = (() => {
   return { api, getKey, setKey, usd, cr, pct, esc, mark, vendorMark, theme, nav, toast };
 })();
 
-/* Support: a chat panel with an assistant that knows seekr. Opens from any
+/* Support: a chat panel with an assistant that knows wondr. Opens from any
  * "Support" link (#supportLink or [data-support]) on every page. */
 seekr.support = (() => {
   const { esc, getKey } = seekr;
   const SAVE = 'seekr.support';
-  const HELLO = "Hi, I'm the seekr assistant. Ask me anything: signing in, adding funds, prices and models, Swap, or $SEEKR. I answer in your language.";
-  const SUGG = ['How do I add funds?', 'How does Swap work?', 'What does $SEEKR give me?', "I can't sign in"];
+  const HELLO = "Hi, I'm the wondr assistant. Ask me anything: signing in, adding funds, prices and models, Swap, or $WONDR. I answer in your language.";
+  const SUGG = ['How do I add funds?', 'How does Swap work?', 'What does $WONDR give me?', "I can't sign in"];
   let log = [];
   try { log = JSON.parse(sessionStorage.getItem(SAVE) || '[]'); } catch { log = []; }
   const save = () => { try { sessionStorage.setItem(SAVE, JSON.stringify(log.slice(-30))); } catch { /* private mode */ } };
@@ -124,13 +124,13 @@ seekr.support = (() => {
 
   function build() {
     el = document.createElement('div');
-    el.className = 'sup'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'seekr support');
-    el.innerHTML = `<div class="sup-h"><span class="sup-av"><img src="/art/brand/seekr-mark-white.svg" alt="" width="22" height="22"></span><div class="sup-t"><b>seekr support</b><small><span class="dot pulse"></span>AI assistant, answers in seconds</small></div>
+    el.className = 'sup'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'wondr support');
+    el.innerHTML = `<div class="sup-h"><span class="sup-av"><img src="/art/brand/wondr-mark-white.svg" alt="" width="22" height="22"></span><div class="sup-t"><b>wondr support</b><small><span class="dot pulse"></span>AI assistant, answers in seconds</small></div>
       <button class="sup-ic" data-act="new" title="New conversation" aria-label="New conversation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
       <button class="sup-ic" data-act="close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="sup-log" aria-live="polite"></div>
       <div class="sup-sugg"></div>
-      <form class="sup-f"><textarea rows="1" maxlength="2000" placeholder="Ask anything about seekr…" aria-label="Your question"></textarea><button class="sup-send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
+      <form class="sup-f"><textarea rows="1" maxlength="2000" placeholder="Ask anything about wondr…" aria-label="Your question"></textarea><button class="sup-send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
       <div class="sup-foot">Never share your seed phrase, password or keys. Need a person? <a href="https://x.com/heySeekr" target="_blank" rel="noopener">@heySeekr</a></div>`;
     document.body.appendChild(el);
     const ta = el.querySelector('textarea');

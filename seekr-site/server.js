@@ -21,7 +21,7 @@ const swap = require('./lib/swap');
 const support = require('./lib/support');
 
 const PUBLIC = path.join(__dirname, 'public');
-const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.xml': 'application/xml; charset=utf-8', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 /* clean URLs → files */
 const PAGES = { '/': 'index.html', '/ask': 'ask.html', '/swap': 'swap.html', '/pricing': 'pricing.html', '/models': 'pricing.html', '/calculator': 'calculator.html', '/token': 'token.html', '/developers': 'developers.html', '/community': 'community.html' };
 
@@ -515,7 +515,8 @@ function serveStatic(req, res, pathname) {
   if (rel.endsWith('/')) rel += 'index.html';
   const file = path.join(PUBLIC, path.normalize(rel));
   if (!file.startsWith(PUBLIC)) { res.writeHead(403); res.end('Forbidden'); return; }
-  serveFile(res, file, path.extname(file) === '.html' ? 'no-cache' : 'public, max-age=3600');
+  const ext = path.extname(file).toLowerCase();
+  serveFile(res, file, ext === '.html' ? 'no-cache' : ['.jpg', '.webp', '.png', '.svg'].includes(ext) ? 'public, max-age=604800' : 'public, max-age=3600');
 }
 
 /* ---------- server ---------- */

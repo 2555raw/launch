@@ -33,7 +33,7 @@ seekr-site/
     art/scene-night.jpg the same meadow by night: moon, stars, the milky way
     fx.js              night only: twinkling stars across the sky, shooting stars
     (both scenes are rendered by scripts/make-scene.js)
-    art/og.png         the social card, same scene
+    art/og.jpg         the social card, same scene (og.png is the lossless source)
 ```
 
 ## Run it

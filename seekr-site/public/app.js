@@ -357,7 +357,35 @@
 
   /* ---------- voice input ---------- */
   let rec = null;
+  /* without a transcription key, dictate with the browser's own speech recognition: free and real */
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let dict = null;
+  function dictate() {
+    const btn = $('#micBtn');
+    if (dict) { dict.stop(); return; }
+    const t0 = $('#prompt');
+    const base = t0 && t0.value ? t0.value.replace(/\s*$/, ' ') : '';
+    let said = '';
+    dict = new SpeechRec();
+    dict.lang = navigator.language || 'en-US'; dict.interimResults = true; dict.continuous = true;
+    dict.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) said += r[0].transcript; else interim += r[0].transcript; }
+      const ta = $('#prompt'); if (ta) { ta.value = base + said + interim; ta.dispatchEvent(new Event('input')); }
+    };
+    dict.onerror = (e) => {
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Allow the microphone in your browser to dictate.', true);
+      else if (e.error !== 'no-speech' && e.error !== 'aborted') toast('Dictation stopped (' + e.error + ').', true);
+    };
+    dict.onend = () => { const b = $('#micBtn'); if (b) b.classList.remove('rec'); dict = null; };
+    try { dict.start(); } catch { dict = null; return toast('Microphone not available', true); }
+    if (btn) btn.classList.add('rec');
+    toast('Listening… speak, then click the mic to stop.');
+  }
+
   async function record() {
+    const sttLive = (state.models || []).some((m) => m.kind === 'stt' && m.live);
+    if (!sttLive) return SpeechRec ? dictate() : toast('Voice input works in Chrome, Edge and Safari.', true);
     if (!state.me) return openSignIn();
     const btn = $('#micBtn');
     if (rec) { rec.stop(); return; }

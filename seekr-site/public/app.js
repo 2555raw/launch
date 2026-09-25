@@ -75,7 +75,7 @@
     const b = $('#signbox');
     if (!state.me) { b.innerHTML = '<span class="mono">NOT SIGNED IN</span><b>Sign in to start</b>'; b.onclick = openSignIn; return; }
     const a = state.me;
-    b.innerHTML = `<span class="mono">BALANCE</span><b>${cr(a.balance)} credits</b><small>${a.wallet ? a.wallet.slice(0, 6) + '…' + a.wallet.slice(-4) : 'access key'}${a.tier.holder ? ` · ${a.holdingsPct.toFixed(3)}% $SEEKR` : ''}</small>`;
+    b.innerHTML = `<span class="mono">BALANCE</span><b>${cr(a.balance)} credits</b><small>${a.username ? '@' + esc(a.username) : a.email ? esc(a.email) : a.wallet ? a.wallet.slice(0, 6) + '…' + a.wallet.slice(-4) : 'access key'}${a.tier.holder ? ` · ${a.holdingsPct.toFixed(3)}% $SEEKR` : ''}</small>`;
     b.onclick = () => { location.hash = '#account'; };
   }
 
@@ -374,33 +374,109 @@
   }
 
   /* ---------- sign in ---------- */
+  /* ---------- the sign-in panel: username, wallet, email code ---------- */
+  function authPanel(host, done) {
+    const cfg = state.cfg || {};
+    const emailOn = cfg.auth && cfg.auth.email;
+    const tg = (cfg.links && cfg.links.telegram) || '#';
+    host.innerHTML = `<div class="auth">
+      <h2 class="auth-h">Log in or create<br>an account</h2>
+      <p class="auth-sub">No email needed. Nothing is shared with anyone.</p>
+      <div class="seg" role="tablist"><button data-tab="user" class="on" role="tab">Username</button><button data-tab="wallet" role="tab">Wallet</button><button data-tab="email" role="tab">Email code</button></div>
+      <div class="auth-body" id="authBody"></div>
+      <div class="auth-foot"><hr><p>Made your account with a username or a wallet? You can add an email later from your account page, for recovery and receipts. Never required.</p>
+      <p>Cannot get in? <a href="${esc(tg)}" target="_blank" rel="noopener">Message support on Telegram</a> and a person sorts it.</p>
+      <p class="auth-key"><a href="#" id="useKey">I have an access key</a></p></div>
+    </div>`;
+    const body = host.querySelector('#authBody');
+    const finish = (r, msg) => { setKey(r.key); state.me = r.account; toast(msg || (r.created ? 'Account created. Welcome to seekr.' : 'Welcome back.')); done(); };
+    const busy = (btn, on) => { btn.disabled = on; btn.classList.toggle('loading', on); };
+    const fail = (e, el) => { el.textContent = e.message; el.hidden = false; };
+
+    const tabs = {
+      user() {
+        body.innerHTML = `<p class="auth-desc">A username and a password, nothing else. The only door where you make an account first.</p>
+          <label class="auth-l">Username<input class="input" id="auUser" autocomplete="username" placeholder="3 to 32 letters, numbers, underscores" maxlength="32"></label>
+          <label class="auth-l">Password<span class="pw"><input class="input" id="auPw" type="password" autocomplete="current-password" placeholder="At least 8 characters"><button type="button" class="pw-eye" id="auEye" aria-label="Show password">show</button></span></label>
+          <p class="auth-err" id="auErr" hidden></p>
+          <div class="auth-row"><button class="btn btn-primary" id="auLogin">Log in</button><button class="btn btn-ghost" id="auCreate">Create account</button></div>
+          <p class="auth-desc">New here? Create account makes one with exactly what you typed. Write the password down: with no email on the account there is no reset until you add one.</p>`;
+        const u = body.querySelector('#auUser'), pw = body.querySelector('#auPw'), er = body.querySelector('#auErr');
+        body.querySelector('#auEye').onclick = (e) => { pw.type = pw.type === 'password' ? 'text' : 'password'; e.target.textContent = pw.type === 'password' ? 'show' : 'hide'; };
+        const go = async (path, btn) => {
+          er.hidden = true; busy(btn, true);
+          try { finish(await api(path, { method: 'POST', body: { username: u.value, password: pw.value } })); } catch (e) { fail(e, er); } finally { busy(btn, false); }
+        };
+        body.querySelector('#auLogin').onclick = (e) => go('/api/auth/password', e.currentTarget);
+        body.querySelector('#auCreate').onclick = (e) => go('/api/auth/register', e.currentTarget);
+        pw.onkeydown = (e) => { if (e.key === 'Enter') body.querySelector('#auLogin').click(); };
+        u.focus();
+      },
+      wallet() {
+        const has = typeof window.ethereum !== 'undefined';
+        body.innerHTML = `<p class="auth-desc">Sign a message with the wallet you already use. No transaction, no gas. Your first signature creates the account.</p>
+          <p class="auth-err" id="auErr" hidden></p>
+          <div class="auth-row"><button class="btn btn-primary" id="auWallet" ${has ? '' : 'disabled'}>${ICONS.wallet.replace('<svg', '<svg width="16" height="16"')} Connect wallet</button></div>
+          <p class="auth-desc">${has ? 'Works with MetaMask, Rabby, Coinbase Wallet and any browser wallet.' : 'No wallet found in this browser. Install MetaMask or Rabby, or use a username.'}</p>`;
+        const er = body.querySelector('#auErr');
+        if (has) body.querySelector('#auWallet').onclick = async (e) => {
+          const btn = e.currentTarget; er.hidden = true; busy(btn, true);
+          try {
+            const [address] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const { message } = await api('/api/auth/nonce?address=' + address);
+            const signature = await window.ethereum.request({ method: 'personal_sign', params: [message, address] });
+            finish(await api('/api/auth/wallet', { method: 'POST', body: { address, signature } }), null);
+          } catch (err) { fail({ message: err.message || 'Signature cancelled' }, er); } finally { busy(btn, false); }
+        };
+      },
+      email() {
+        body.innerHTML = `<p class="auth-desc">We send a six-digit code to your email. Type it here and you are in. First use creates the account.</p>
+          <label class="auth-l">Email<input class="input" id="auEmail" type="email" autocomplete="email" placeholder="you@example.com" ${emailOn ? '' : 'disabled'}></label>
+          <div id="auCodeWrap" hidden><label class="auth-l">Code<input class="input code-in" id="auCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 digits"></label></div>
+          <p class="auth-err" id="auErr" hidden></p>
+          <div class="auth-row"><button class="btn btn-primary" id="auSend" ${emailOn ? '' : 'disabled'}>Send code</button><button class="btn btn-ghost" id="auResend" hidden>Send again</button></div>
+          <p class="auth-desc">${emailOn ? 'The code works once and expires in 10 minutes.' : 'Email codes are not switched on for this site yet. Use a username or a wallet for now.'}</p>`;
+        if (!emailOn) return;
+        const em = body.querySelector('#auEmail'), code = body.querySelector('#auCode'), er = body.querySelector('#auErr');
+        const send = body.querySelector('#auSend'), again = body.querySelector('#auResend');
+        let sent = false;
+        const ask = async (btn) => {
+          er.hidden = true; busy(btn, true);
+          try { await api('/api/auth/email/start', { method: 'POST', body: { email: em.value } }); sent = true; body.querySelector('#auCodeWrap').hidden = false; send.textContent = 'Log in'; again.hidden = false; code.focus(); toast('Code sent. Check your inbox.'); } catch (e) { fail(e, er); } finally { busy(btn, false); }
+        };
+        send.onclick = async (e) => {
+          if (!sent) return ask(e.currentTarget);
+          er.hidden = true; busy(send, true);
+          try { finish(await api('/api/auth/email/verify', { method: 'POST', body: { email: em.value, code: code.value } })); } catch (err) { fail(err, er); } finally { busy(send, false); }
+        };
+        again.onclick = (e) => ask(e.currentTarget);
+        em.onkeydown = (e) => { if (e.key === 'Enter') send.click(); };
+        code.onkeydown = (e) => { if (e.key === 'Enter') send.click(); };
+        em.focus();
+      }
+    };
+    host.querySelectorAll('.seg button').forEach((b) => b.onclick = () => { host.querySelectorAll('.seg button').forEach((x) => x.classList.toggle('on', x === b)); tabs[b.dataset.tab](); });
+    host.querySelector('#useKey').onclick = (e) => {
+      e.preventDefault();
+      host.querySelectorAll('.seg button').forEach((x) => x.classList.remove('on'));
+      body.innerHTML = `<p class="auth-desc">Paste the access key you saved (it starts with seek_).</p><label class="auth-l">Access key<input class="input" id="auKey" autocomplete="off" placeholder="seek_…"></label><p class="auth-err" id="auErr" hidden></p><div class="auth-row"><button class="btn btn-primary" id="auKeyGo">Log in</button></div>`;
+      const k = body.querySelector('#auKey'), er = body.querySelector('#auErr');
+      body.querySelector('#auKeyGo').onclick = async () => { er.hidden = true; try { const { account } = await api('/api/auth/login', { method: 'POST', body: { key: k.value.trim() } }); finish({ key: k.value.trim(), account }, 'Welcome back.'); } catch (err) { fail(err, er); } };
+      k.onkeydown = (ev) => { if (ev.key === 'Enter') body.querySelector('#auKeyGo').click(); };
+      k.focus();
+    };
+    tabs.user();
+  }
+
   function openSignIn() {
-    const bg = $('#signModal'); const b = $('#signModalBody');
-    const hasWallet = typeof window.ethereum !== 'undefined';
-    b.innerHTML = `<button class="icon-btn x" id="closeModal">✕</button><h2>Sign in to start</h2><p class="sub">No email, no password. An account is a wallet signature or an access key.</p>
-      <button class="opt" id="optWallet">${ICONS.wallet}<span><b>Continue with wallet</b><small>${hasWallet ? 'Sign a message with your EVM wallet. No transaction.' : 'No wallet extension found in this browser.'}</small></span></button>
-      <button class="opt" id="optNew">${ICONS.key}<span><b>Create an access key</b><small>A key is your account. Save it and you can sign in anywhere.</small></span></button>
-      <button class="opt" id="optKey">${ICONS.key}<span><b>I have a key</b><small>Paste an access key from before.</small></span></button>
-      <div id="signExtra"></div>`;
+    const bg = $('#signModal'); const m = $('#signModalBody');
+    m.className = 'modal auth-modal';
+    m.innerHTML = '<button class="icon-btn x" id="closeModal" aria-label="Close">✕</button><div id="authHost"></div>';
     bg.classList.add('open');
-    $('#closeModal').onclick = () => bg.classList.remove('open');
-    bg.onclick = (e) => { if (e.target === bg) bg.classList.remove('open'); };
-    $('#optWallet').onclick = walletSignIn;
-    $('#optNew').onclick = async () => {
-      try {
-        const { key, account } = await api('/api/auth/key', { method: 'POST' });
-        setKey(key); state.me = account;
-        $('#signExtra').innerHTML = `<p class="sub" style="margin-top:14px">This is your access key. It is shown once. Keep it somewhere safe.</p><div class="keybox">${key}</div><div class="cta-row"><button class="btn btn-primary btn-sm" id="copyKey">Copy key</button><button class="btn btn-ghost btn-sm" id="doneKey">Done</button></div>`;
-        $('#copyKey').onclick = () => { navigator.clipboard.writeText(key); toast('Key copied'); };
-        $('#doneKey').onclick = () => { bg.classList.remove('open'); afterSignIn(); };
-      } catch (e) { toast(e.message, true); }
-    };
-    $('#optKey').onclick = () => {
-      $('#signExtra').innerHTML = `<div class="inline" style="display:flex;gap:8px;margin-top:12px"><input class="input" id="keyIn" placeholder="seek_…" autocomplete="off"><button class="btn btn-primary" id="keyGo">Sign in</button></div>`;
-      $('#keyIn').focus();
-      $('#keyGo').onclick = async () => { const k = $('#keyIn').value.trim(); try { const { account } = await api('/api/auth/login', { method: 'POST', body: { key: k } }); setKey(k); state.me = account; bg.classList.remove('open'); afterSignIn(); } catch (e) { toast(e.message, true); } };
-      $('#keyIn').onkeydown = (e) => { if (e.key === 'Enter') $('#keyGo').click(); };
-    };
+    const close = () => { bg.classList.remove('open'); m.innerHTML = ''; };
+    $('#closeModal').onclick = close;
+    bg.onclick = (e) => { if (e.target === bg) close(); };
+    authPanel($('#authHost'), () => { close(); afterSignIn(); });
   }
 
   async function walletSignIn(linkOnly) {
@@ -421,7 +497,7 @@
   function signOut() { setKey(''); state.me = null; state.chat = null; state.chats = []; state.library = []; renderSignbox(); renderRecent(); location.hash = '#home'; route(); toast('Signed out. Keep your key to come back.'); }
 
   /* ---------- views ---------- */
-  function needSignIn(title) { $('#stage').innerHTML = `<div class="view"><h2>${title}</h2><p class="sub">Sign in to see this.</p><button class="btn btn-primary" id="si">Sign in</button></div>`; $('#si').onclick = openSignIn; }
+  function needSignIn() { $('#stage').innerHTML = '<div class="auth-inline" id="authInline"></div>'; authPanel($('#authInline'), afterSignIn); }
 
   async function renderLibrary() {
     if (!state.me) return needSignIn('Library');
@@ -485,7 +561,7 @@
     const a = state.me; const cfg = state.cfg; const dep = cfg.deposits; const al = a.allowance;
     const s = $('#stage');
     const paid = /paid=1/.test(location.hash); if (paid) toast('Thanks. Card payments land as soon as Stripe confirms them.');
-    s.innerHTML = `<div class="view"><h2>Account</h2><p class="sub">${a.wallet ? a.wallet : 'Access-key account'} · since ${new Date(a.created).toLocaleDateString()}</p>
+    s.innerHTML = `<div class="view"><h2>Account</h2><p class="sub">${a.username ? '@' + esc(a.username) : a.email ? esc(a.email) : a.wallet ? a.wallet : 'Access-key account'} · since ${new Date(a.created).toLocaleDateString()}</p>
       <div class="stat"><div><span class="k">Balance</span><div class="v">${cr(a.balance)}<small>credits · ${usd(a.balance / cfg.creditsPerUsd)}</small></div></div><div><span class="k">Deposited</span><div class="v">${cr(a.deposited)}</div></div><div><span class="k">Spent</span><div class="v">${cr(a.spent)}</div></div></div>
 
       <div class="panel"><h3>Top up</h3><p class="sub">$1 = ${cfg.creditsPerUsd.toLocaleString()} credits. No seekr fee on the deposit: what you send is what you get.</p>
@@ -506,6 +582,20 @@
         <div class="cta-row">${a.wallet ? `<button class="btn btn-ghost btn-sm" id="refreshHold">${cfg.holdings ? 'Refresh holdings' : 'Holdings check not configured'}</button>` : `<button class="btn btn-ghost btn-sm" id="linkWallet">Link a wallet</button>`}${cfg.demo ? `<span class="inline"><input class="input" id="simPct" type="number" step="0.01" min="0" max="100" value="${a.holdingsPct}" style="width:110px;height:36px"><button class="btn btn-ghost btn-sm" id="simGo">Simulate %</button></span>` : ''}</div>
       </div>
 
+      <div class="panel"><h3>Sign-in</h3><p class="sub">The ways into this account. Add more so you never get locked out.</p>
+        <div class="field"><label>Username</label>${a.username
+          ? `<div class="addr"><span>@${esc(a.username)}</span><span class="ok">set</span></div>
+             <div class="inline" style="margin-top:8px"><input class="input" id="pwCur" type="password" placeholder="Current password" autocomplete="current-password"><input class="input" id="pwNew" type="password" placeholder="New password" autocomplete="new-password"><button class="btn btn-ghost btn-sm" id="pwGo">Change</button></div>`
+          : `<div class="inline"><input class="input" id="unNew" placeholder="Pick a username" maxlength="32" autocomplete="username"><input class="input" id="unPw" type="password" placeholder="Password, 8+ characters" autocomplete="new-password"><button class="btn btn-ghost btn-sm" id="unGo">Set</button></div>`}</div>
+        <div class="field"><label>Email ${a.email ? '' : '<span class="note">(optional, for recovery and receipts)</span>'}</label>${a.email
+          ? `<div class="addr"><span>${esc(a.email)}</span><span class="ok">verified</span></div>`
+          : cfg.auth && cfg.auth.email
+            ? `<div class="inline"><input class="input" id="emNew" type="email" placeholder="you@example.com" autocomplete="email"><button class="btn btn-ghost btn-sm" id="emSend">Send code</button></div>
+               <div class="inline" id="emCodeRow" style="margin-top:8px" hidden><input class="input" id="emCode" inputmode="numeric" maxlength="6" placeholder="6-digit code"><button class="btn btn-primary btn-sm" id="emVerify">Verify</button></div>`
+            : '<p class="note">Email codes are not switched on for this site yet.</p>'}</div>
+        <div class="field"><label>Wallet</label>${a.wallet ? `<div class="addr"><span>${a.wallet}</span><span class="ok">linked</span></div>` : '<p class="note">No wallet linked. Link one in the holder tier panel above.</p>'}</div>
+      </div>
+
       <div class="panel"><h3>Access</h3><p class="sub">Your key is your account. Copy it to sign in on another device.</p><div class="cta-row"><button class="btn btn-ghost btn-sm" id="copyKey">Copy access key</button><button class="btn btn-ghost btn-sm" id="themeT">Theme: ${theme.get()}</button><button class="btn btn-ghost btn-sm" id="signOut">Sign out</button></div></div>
 
       <div class="panel"><h3>History</h3><div class="list" id="histList"><div class="li"><span class="note">Loading…</span></div></div></div></div>`;
@@ -517,6 +607,11 @@
     if ($('#refreshHold')) $('#refreshHold').onclick = async () => { try { const r = await api('/api/me/holdings', { method: 'POST', body: {} }); state.me = r.account; renderSignbox(); renderAccount(); toast('Holdings refreshed'); } catch (e) { toast(e.message, true); } };
     if ($('#linkWallet')) $('#linkWallet').onclick = () => walletSignIn(true);
     if ($('#simGo')) $('#simGo').onclick = async () => { try { const r = await api('/api/me/holdings', { method: 'POST', body: { simulatePct: Number($('#simPct').value) } }); state.me = r.account; renderSignbox(); renderAccount(); } catch (e) { toast(e.message, true); } };
+    const reload = (r, msg) => { if (r && r.account) state.me = r.account; toast(msg); renderSignbox(); renderAccount(); };
+    if ($('#pwGo')) $('#pwGo').onclick = async () => { try { await api('/api/me/password', { method: 'POST', body: { current: $('#pwCur').value, next: $('#pwNew').value } }); toast('Password changed'); $('#pwCur').value = ''; $('#pwNew').value = ''; } catch (e) { toast(e.message, true); } };
+    if ($('#unGo')) $('#unGo').onclick = async () => { try { reload(await api('/api/me/username', { method: 'POST', body: { username: $('#unNew').value, password: $('#unPw').value } }), 'Username set. You can log in with it now.'); } catch (e) { toast(e.message, true); } };
+    if ($('#emSend')) $('#emSend').onclick = async () => { try { await api('/api/me/email/start', { method: 'POST', body: { email: $('#emNew').value } }); $('#emCodeRow').hidden = false; $('#emCode').focus(); toast('Code sent. Check your inbox.'); } catch (e) { toast(e.message, true); } };
+    if ($('#emVerify')) $('#emVerify').onclick = async () => { try { reload(await api('/api/me/email/verify', { method: 'POST', body: { email: $('#emNew').value, code: $('#emCode').value } }), 'Email added'); } catch (e) { toast(e.message, true); } };
     $('#copyKey').onclick = () => { navigator.clipboard.writeText(getKey()); toast('Access key copied. Keep it safe.'); };
     $('#themeT').onclick = () => { theme.toggle(); $('#themeT').textContent = 'Theme: ' + theme.get(); };
     $('#signOut').onclick = signOut;

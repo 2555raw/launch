@@ -16,6 +16,7 @@ const router = require('./lib/router');
 const markets = require('./lib/markets');
 const chain = require('./lib/chain');
 const skills = require('./lib/skills');
+const mailer = require('./lib/mailer');
 
 const PUBLIC = path.join(__dirname, 'public');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
@@ -53,6 +54,8 @@ function requireAccount(req) {
   return a;
 }
 
+const ipOf = (req) => String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+
 function accountView(a) {
   return { ...auth.publicAccount(a), tier: credits.tier(a), allowance: credits.allowance(a) };
 }
@@ -84,6 +87,7 @@ const api = {
     chain: { id: config.chain.rhChainId, token: config.chain.seekrToken, buyUrl: config.chain.buyUrl, chartUrl: config.chain.chartUrl },
     links: config.links,
     skills: skills.publicList(),
+    auth: { email: mailer.configured(), wallet: true, username: true },
     free: { on: (process.env.FREE_TIER || 'on') !== 'off', status: router.free.status }
   }),
 
@@ -104,6 +108,27 @@ const api = {
     if (!a) throw new HttpError(401, 'That access key does not match an account');
     return { account: accountView(a) };
   },
+  'POST /api/auth/register': async (req) => {
+    const { username, password } = await readJson(req);
+    const { account, key } = await auth.registerUsername(username, password);
+    return { key, account: accountView(account), created: true };
+  },
+  'POST /api/auth/password': async (req) => {
+    const { username, password } = await readJson(req);
+    const { account, key } = await auth.loginUsername(username, password, ipOf(req));
+    return { key, account: accountView(account) };
+  },
+  'POST /api/auth/email/start': async (req) => {
+    const { email } = await readJson(req);
+    const { email: e, code } = auth.newCode(email, 'login', null, ipOf(req));
+    await mailer.sendCode(e, code, 'login');
+    return { sent: true, email: e };
+  },
+  'POST /api/auth/email/verify': async (req) => {
+    const { email, code } = await readJson(req);
+    const r = auth.emailSignIn(email, code);
+    return { key: r.key, created: r.created, account: accountView(r.account) };
+  },
   'GET /api/auth/nonce': async (req, url) => auth.nonceFor(url.searchParams.get('address') || ''),
   'POST /api/auth/wallet': async (req) => {
     const { address, signature } = await readJson(req);
@@ -120,6 +145,31 @@ const api = {
     auth.linkWallet(a, address, signature);
     await refreshHoldings(a).catch(() => null);
     return { account: accountView(a) };
+  },
+  'POST /api/me/email/start': async (req) => {
+    const a = requireAccount(req);
+    const { email } = await readJson(req);
+    const { email: e, code } = auth.newCode(email, 'link', a.id, ipOf(req));
+    await mailer.sendCode(e, code, 'link');
+    return { sent: true, email: e };
+  },
+  'POST /api/me/email/verify': async (req) => {
+    const a = requireAccount(req);
+    const { email, code } = await readJson(req);
+    auth.linkEmail(a, email, code);
+    return { account: accountView(a) };
+  },
+  'POST /api/me/username': async (req) => {
+    const a = requireAccount(req);
+    const { username, password } = await readJson(req);
+    await auth.setUsername(a, username, password);
+    return { account: accountView(a) };
+  },
+  'POST /api/me/password': async (req) => {
+    const a = requireAccount(req);
+    const { current, next } = await readJson(req);
+    await auth.changePassword(a, current, next);
+    return { ok: true };
   },
   'POST /api/me/holdings': async (req) => {
     const a = requireAccount(req);

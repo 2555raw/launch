@@ -12,7 +12,7 @@ const BASES = {
 
 function headers(provider, extra = {}) {
   const h = { Authorization: `Bearer ${config.keys[provider]}`, ...extra };
-  if (provider === 'openrouter') { h['HTTP-Referer'] = config.publicUrl || 'https://seekr.website'; h['X-Title'] = 'wondr'; }
+  if (provider === 'openrouter') { h['HTTP-Referer'] = config.publicUrl || 'https://wondr.website'; h['X-Title'] = 'wondr'; }
   return h;
 }
 

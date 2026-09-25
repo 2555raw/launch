@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://seekr.website/sitemap.xml
+Sitemap: https://wondr.website/sitemap.xml

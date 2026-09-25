@@ -16,9 +16,10 @@ function faq() {
   const dep = chain.depositsConfigured();
   const depOpen = dep.eth || dep.sol || dep.btc;
   const email = config.links.email;
+  const reach = email ? `${email} or https://x.com/heywondr on X` : 'https://x.com/heywondr on X';
   return [
     { k: 'account sign signin create register login log username password', q: 'How do I create an account or sign in?',
-      a: `Press **Account** (top right) or **Seek**, then pick one: **Username** and password, **Wallet** (MetaMask, Coinbase Wallet, Phantom or any browser wallet signs a message, no transaction, no gas)${mailer.configured() ? ', or **Email code** (we send a 6-digit code)' : ''}. There is no sign-up form. You can also keep an **access key** (starts with \`seek_\`) and paste it under "I have an access key".` },
+      a: `Press **Account** (top right) or **Wonder**, then pick one: **Username** and password, **Wallet** (MetaMask, Coinbase Wallet, Phantom or any browser wallet signs a message, no transaction, no gas)${mailer.configured() ? ', or **Email code** (we send a 6-digit code)' : ''}. There is no sign-up form. You can also keep an **access key** (starts with \`seek_\`) and paste it under "I have an access key".` },
     { k: 'lost key forgot password recover locked out cannot get in access', q: 'I lost my key or forgot my password.',
       a: `If you signed up with a wallet, just sign in with the same wallet again. If you added an email to your account, use **Email code** to get back in${mailer.configured() ? '' : ' (email sign-in is being switched on)'}. With a username, a password can be changed from the account page while you are signed in. If none of that works, write to ${email} from the email on your account.` },
     { k: 'pay deposit fund funds top add money balance usdt btc eth sol crypto card', q: 'How do I add funds?',
@@ -51,9 +52,9 @@ function faq() {
     { k: 'api developer key programmatic curl endpoint', q: 'Is there an API?',
       a: 'Yes, the same API the app uses. See the **Developers** page: create a key with `POST /api/auth/key`, then stream chat from `POST /api/chat` with `Authorization: Bearer seek_…`. Images, video, speech and transcription have their own endpoints, and every response says what it cost.' },
     { k: 'expire credits refund', q: 'Do credits expire? Can I get a refund?',
-      a: `Credits never expire. Deposits are on-chain transfers, so they cannot be reversed automatically; for a problem with a charge, write to ${email} with your account and the request.` },
+      a: `Credits never expire. Deposits are on-chain transfers, so they cannot be reversed automatically; for a problem with a charge, message ${reach} with your account and the request.` },
     { k: 'contact human email team talk person twitter x', q: 'How do I reach a person?',
-      a: `Email ${email} or message https://x.com/heywondr on X.` }
+      a: `Message ${reach}.` }
   ];
 }
 
@@ -83,7 +84,7 @@ function system(account) {
     const al = credits.allowance(account);
     me = `The visitor is signed in. Account id ${account.id}${account.username ? `, username ${account.username}` : ''}${account.wallet ? `, wallet ${account.wallet}` : ''}${account.email ? `, email on file` : ', no email on file'}. Balance: ${Math.round(account.balance || 0).toLocaleString()} credits (${usd(account.balance || 0)}). $WONDR held: ${al.pct}% of supply; holder allowance today ${al.left.toLocaleString()} of ${al.total.toLocaleString()} credits left.`;
   }
-  return `You are the support assistant for wondr (${config.publicUrl || 'seekr.website'}), inside the Support panel on the site.
+  return `You are the support assistant for wondr (${config.publicUrl || 'wondr.website'}), inside the Support panel on the site.
 
 Your job: solve the visitor's problem completely, right here. Be warm, direct and short (2 to 6 sentences, or a short numbered list for steps). Always answer in the language the visitor writes in. Give exact steps with the names of buttons and pages as they appear on the site (in bold). Use only the facts below; if something is not covered, say so plainly and give the best next step, never invent prices, addresses, dates or features. Never ask for a seed phrase, private key, password or access key, and warn the visitor if they paste one. wondr staff never DM first. For anything you truly cannot fix (a lost deposit, a bug, a business request), tell them to email ${config.links.email} with the details you list.
 
@@ -98,7 +99,7 @@ FACTS
 - Sign-in: username + password, wallet signature, ${mailer.configured() ? 'email code, ' : ''}or an access key (seek_…). Email is optional.
 - Payments: crypto only (USDT, ETH, SOL, BTC). No card payments.
 - $WONDR: supply 1,000,000,000 fixed, no mint, no presale, no team allocation, launched on the Pons curve paired with ETH; the company buys its 5% on the curve like anyone and locks it; liquidity locked with Team Finance when the curve graduates. Robinhood Chain docs: https://docs.robinhood.com/chain/. ${config.chain.seekrToken ? `Contract: ${config.chain.seekrToken}.` : 'Not launched yet: there is no contract address; anyone giving one before the official launch post on https://x.com/heywondr is a scammer.'}
-- Contact: ${config.links.email}, X https://x.com/heywondr.
+- Contact: ${config.links.email ? config.links.email + ', ' : ''}X https://x.com/heywondr.
 
 MODELS AND LIST PRICES
 ${priceTable()}
@@ -121,7 +122,7 @@ function localAnswer(text) {
     const s = e.k.split(' ').reduce((n, k) => n + (set.has(k) ? 1 : 0), 0);
     if (s > score) { best = e; score = s; }
   }
-  return best ? best.a : `I can help with accounts and sign-in, adding funds, prices and models, Swap, and the $WONDR token. Tell me a bit more about what you need, or email ${config.links.email}.`;
+  return best ? best.a : `I can help with accounts and sign-in, adding funds, prices and models, Swap, and the $WONDR token. Tell me a bit more about what you need, or message https://x.com/heywondr on X.`;
 }
 
 module.exports = { system, localAnswer, faq };

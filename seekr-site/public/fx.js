@@ -2,7 +2,7 @@
  * and shooting stars streaking through it. Runs only in dark mode, pauses
  * when the tab is hidden, and holds still for prefers-reduced-motion. */
 /* an indoor scene (the tea room) has no sky and no field: no stars, no wind */
-const skyIndoor = (sky) => /\/art\/room-/.test((sky.querySelector('img.day') || { getAttribute: () => '' }).getAttribute('src') || '');
+const skyIndoor = (sky) => /\/art\/(room-|gen\/)/.test((sky.querySelector('img.day') || { getAttribute: () => '' }).getAttribute('src') || '');
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll('.sky').forEach((sky) => {

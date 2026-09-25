@@ -82,6 +82,6 @@ module.exports = {
   links: {
     x: env.LINK_X || 'https://x.com/heywondr',
     telegram: env.LINK_TELEGRAM || 'https://t.me/seekr',
-    email: env.CONTACT_EMAIL || 'seek@seekr.website'
+    email: env.CONTACT_EMAIL || ''
   }
 };

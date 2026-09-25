@@ -137,7 +137,7 @@ input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
 .sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .page-veil { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: var(--bg); opacity: 0; }
 .page-veil.static { opacity: .8; }
-.sky img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 48%; transition: opacity .6s ease; }
+.sky img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 55% 55%; transition: opacity .6s ease; }
 .sky img.night { opacity: 0; }
 :root[data-theme="dark"] .sky img.day { opacity: 0; }
 :root[data-theme="dark"] .sky img.night { opacity: 1; }
@@ -146,7 +146,7 @@ input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
 .sky-wind { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .8s ease; pointer-events: none; }
 .sky-wind.on { opacity: 1; }
 /* only behind the headline: an oval that fades out before the grass */
-:root[data-theme="light"] .sky::after { background: radial-gradient(50% 46% at 22% 44%, rgba(247, 248, 251, .72) 0%, rgba(247, 248, 251, .4) 50%, rgba(247, 248, 251, 0) 100%); }
+:root[data-theme="light"] .sky::after { background: linear-gradient(90deg, rgba(8, 9, 10, .66) 0%, rgba(8, 9, 10, .42) 34%, rgba(8, 9, 10, .08) 60%, rgba(8, 9, 10, 0) 100%); }
 :root[data-theme="light"] .grid-lines { background-image: linear-gradient(90deg, rgba(11, 15, 26, .05) 1px, transparent 1px); }
 .theme-btn { width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; }
 .theme-btn:hover { border-color: var(--line-2); }
@@ -154,7 +154,10 @@ input, textarea { caret-color: var(--accent); accent-color: var(--accent); }
 .theme-btn .i-moon { display: none; }
 :root[data-theme="dark"] .theme-btn .i-sun { display: none; }
 :root[data-theme="dark"] .theme-btn .i-moon { display: block; }
-.sky::after { content: ''; position: absolute; inset: 0; background: radial-gradient(50% 45% at 24% 40%, rgba(10, 10, 10, .58) 0%, rgba(10, 10, 10, .3) 50%, rgba(10, 10, 10, 0) 100%); }
+.sky::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8, 9, 10, .7) 0%, rgba(8, 9, 10, .45) 34%, rgba(8, 9, 10, .1) 60%, rgba(8, 9, 10, 0) 100%); }
+/* the hero sits on a photograph in both themes: light type on it */
+.hero h1, .hero p { color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, .35); }
+.hero .btn-ghost { color: #fff; border-color: rgba(255, 255, 255, .45); background: rgba(0, 0, 0, .18); }
 .grid-lines { display: none; }
 .grid-lines { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px); background-size: 240px 100%; background-position: 60px 0;
   -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%); mask-image: linear-gradient(180deg, #000, transparent 85%); }
@@ -668,7 +671,7 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
   .hero h1 { font-size: 36px; }
   .prices { position: relative; right: auto; bottom: auto; width: 100%; margin-top: 40px; }
   .sky::after { background: linear-gradient(180deg, rgba(10, 10, 10, .55) 0%, rgba(10, 10, 10, .35) 55%, var(--bg) 100%); }
-  :root[data-theme="light"] .sky::after { background: linear-gradient(180deg, rgba(247, 248, 251, .68) 0%, rgba(247, 248, 251, .4) 55%, var(--bg) 100%); }
+  :root[data-theme="light"] .sky::after { background: linear-gradient(180deg, rgba(8, 9, 10, .55) 0%, rgba(8, 9, 10, .45) 55%, var(--bg) 100%); }
 }
 @media (max-width: 860px) {
   .main .sky { left: 0; }

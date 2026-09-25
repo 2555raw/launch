@@ -53,7 +53,7 @@ const viaOpenRouter = (model) => Boolean(config.keys.openrouter && model.via ===
 
 /* at boot: is the key good, how much is left, and does a real call go through (a few tokens, a fraction of a cent) */
 async function check() {
-  const H = { Authorization: `Bearer ${config.keys.openrouter}`, 'content-type': 'application/json', 'HTTP-Referer': config.publicUrl || 'https://seekr.website', 'X-Title': 'seekr' };
+  const H = { Authorization: `Bearer ${config.keys.openrouter}`, 'content-type': 'application/json', 'HTTP-Referer': config.publicUrl || 'https://wondr.website', 'X-Title': 'seekr' };
   const out = [];
   try {
     const k = (await (await fetch('https://openrouter.ai/api/v1/key', { headers: H, signal: AbortSignal.timeout(15000) })).json()).data || {};

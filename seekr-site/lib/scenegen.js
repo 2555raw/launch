@@ -59,6 +59,14 @@ function publish(name, buf) {
   console.log(`SCENEINFO ${name} ${img.width}x${img.height} ${buf.length} web ${fs.statSync(path.join(DIR, `${name}-web.jpg`)).size} thumb ${th.length}`);
   for (let i = 0; i < n; i++) console.log(`SCENETHUMB ${name} ${i + 1}/${n} ${th.slice(i * N, (i + 1) * N)}`);
 }
+/* a second model looks at each generated photo and says what is in it, so it can be checked from the log */
+async function describe(H, name, buf) {
+  const f = path.join(DIR, `${name}.check.txt`); if (fs.existsSync(f)) { console.log(`SCENECHECK ${name}: ${fs.readFileSync(f, 'utf8')}`); return; }
+  const url = `data:image/${buf[0] === 0x89 ? 'png' : 'jpeg'};base64,${buf.toString('base64')}`;
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { ...H, 'content-type': 'application/json' }, body: JSON.stringify({ model: process.env.SCENE_VISION || 'google/gemini-3.7-flash', messages: [{ role: 'user', content: [{ type: 'text', text: 'Look at this photo and answer in one short line each: 1) day or night; 2) are the sliding doors on the back wall open (showing the landscape) or closed; 3) what is on or above the table; 4) any text, watermark, warped geometry or other artifacts; 5) how realistic it looks from 1 to 10.' }, { type: 'image_url', image_url: { url } }] }] }) });
+  const j = await r.json(); const t = (j.choices?.[0]?.message?.content || JSON.stringify(j).slice(0, 200)).replace(/\s+/g, ' ').trim();
+  fs.writeFileSync(f, t); console.log(`SCENECHECK ${name}: ${t}`);
+}
 const have = (name) => ['png', 'jpg'].map((e) => path.join(DIR, `${name}.${e}`)).find((f) => fs.existsSync(f));
 
 async function run() {
@@ -66,7 +74,7 @@ async function run() {
   fs.mkdirSync(DIR, { recursive: true });
   /* the first run saved data URLs; turn them into files */
   for (const w of ['day', 'night']) { const t = path.join(DIR, `${w}.txt`); if (fs.existsSync(t) && !have(`lite-${w}`)) keep(`lite-${w}`, fs.readFileSync(t, 'utf8')); }
-  const H = { Authorization: `Bearer ${config.keys.openrouter}`, 'HTTP-Referer': config.publicUrl || 'https://seekr.website', 'X-Title': 'wondr' };
+  const H = { Authorization: `Bearer ${config.keys.openrouter}`, 'HTTP-Referer': config.publicUrl || 'https://wondr.website', 'X-Title': 'wondr' };
   try {
     const tag = process.env.SCENE_TAG || 'pro';
     if (!have(`${tag}-day`) || !have(`${tag}-night`)) {
@@ -75,7 +83,7 @@ async function run() {
       if (!have(`${tag}-day`)) keep(`${tag}-day`, await gen(H, model, DAY));
       if (!have(`${tag}-night`)) { const d = fs.readFileSync(have(`${tag}-day`)); keep(`${tag}-night`, await gen(H, model, NIGHT, `data:image/${d[0] === 0x89 ? 'png' : 'jpeg'};base64,${d.toString('base64')}`)); }
     }
-    for (const f of fs.readdirSync(DIR)) { const m = f.match(/^([a-z0-9]+-(?:day|night))\.(png|jpg)$/); if (m) publish(m[1], fs.readFileSync(path.join(DIR, f))); }
+    for (const f of fs.readdirSync(DIR)) { const m = f.match(/^([a-z0-9]+-(?:day|night))\.(png|jpg)$/); if (!m) continue; const buf = fs.readFileSync(path.join(DIR, f)); if (!fs.existsSync(path.join(DIR, `${m[1]}-web.jpg`))) publish(m[1], buf); if (m[1].startsWith('pro-')) await describe(H, m[1], buf).catch((e) => console.log(`SCENECHECK ${m[1]} failed: ${e.message}`)); }
     console.log('scenegen: done');
   } catch (e) { console.log('scenegen failed: ' + e.message); }
 }

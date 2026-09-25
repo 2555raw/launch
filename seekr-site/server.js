@@ -23,7 +23,7 @@ const support = require('./lib/support');
 const PUBLIC = path.join(__dirname, 'public');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.xml': 'application/xml; charset=utf-8', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 /* clean URLs → files */
-const PAGES = { '/': 'index.html', '/ask': 'ask.html', '/swap': 'swap.html', '/pricing': 'pricing.html', '/models': 'pricing.html', '/calculator': 'calculator.html', '/token': 'token.html', '/developers': 'developers.html', '/community': 'community.html' };
+const PAGES = { '/': 'index.html', '/ask': 'ask.html', '/swap': 'swap.html', '/pricing': 'pricing.html', '/models': 'pricing.html', '/calculator': 'calculator.html', '/token': 'token.html', '/developers': 'developers.html', '/community': 'community.html', '/compare': 'compare.html', '/alternatives': 'alternatives.html' };
 
 class HttpError extends Error { constructor(status, message, extra) { super(message); this.status = status; Object.assign(this, extra); } }
 

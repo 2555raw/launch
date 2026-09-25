@@ -91,7 +91,7 @@ WHAT SEEKR IS
 One platform for every major AI model (chat, code, images, video, voice), paid with crypto from one balance: no subscription, pay per request. Plus Swap: any coin to any coin or to tokenized real-world assets, from the visitor's own wallet. Token: $SEEKR on Robinhood Chain.
 
 PAGES
-Home (/), Swap (/swap), How it works (/#how), Models and Pricing (/pricing), Calculator (/calculator), Token (/token), Community (/community), Developers (/developers), the app (/ask: Ask, Code, Images, Video modes, chat history, Library, Account). The theme button (sun/moon) switches day and night mode.
+Home (/), Swap (/swap), How it works (/#how), Models and Pricing (/pricing), Compare models side by side (/compare), seekr vs subscriptions (/alternatives), Calculator (/calculator), Token (/token), Community (/community), Developers (/developers), the app (/ask: Ask, Code, Images, Video modes, chat history, Library, Account). The theme button (sun/moon) switches day and night mode.
 
 FACTS
 - Credits: $1 = ${config.creditsPerUsd.toLocaleString()} credits. List price = provider price × ${config.markup} (a ${((config.markup - 1) * 100).toFixed(1)}% margin). Credits never expire.${config.welcomeCredits ? ` New accounts get ${config.welcomeCredits.toLocaleString()} welcome credits.` : ''}

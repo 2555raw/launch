@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>seekr | Swap any coin into real assets</title>
-<meta name="description" content="Swap any token to any token, on one chain or across chains, with MetaMask, Coinbase Wallet or Phantom.">
-<link rel="canonical" href="https://seekr.website/swap">
-<meta property="og:title" content="seekr | Swap any coin into real assets">
-<meta property="og:description" content="Swap any token to any token, on one chain or across chains, with MetaMask, Coinbase Wallet or Phantom.">
+<title>seekr | seekr vs subscriptions</title>
+<meta name="description" content="One crypto balance for every AI model instead of a monthly subscription per provider.">
+<link rel="canonical" href="https://seekr.website/alternatives">
+<meta property="og:title" content="seekr | seekr vs subscriptions">
+<meta property="og:description" content="One crypto balance for every AI model instead of a monthly subscription per provider.">
 <meta property="og:image" content="https://seekr.website/art/og.jpg">
-<meta property="og:url" content="https://seekr.website/swap">
+<meta property="og:url" content="https://seekr.website/alternatives">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="seekr">
 <meta name="twitter:card" content="summary_large_image">
@@ -21,7 +21,7 @@
 <script>(function(){var t="light";try{t=localStorage.getItem("seekr.theme")||"light";}catch(e){}document.documentElement.dataset.theme=t;})();</script>
 </head>
 <body>
-<div class="sky"><picture><source srcset="/art/scene-day.webp" type="image/webp"><img class="day" src="/art/scene-day.jpg" alt="" fetchpriority="high"></picture><picture><source srcset="/art/scene-night.webp" type="image/webp"><img class="night" src="/art/scene-night.jpg" alt="" loading="lazy"></picture></div><div class="page-veil static" style="opacity:.45"></div>
+<div class="sky"><picture><source srcset="/art/scene-day.webp" type="image/webp"><img class="day" src="/art/scene-day.jpg" alt="" fetchpriority="high"></picture><picture><source srcset="/art/scene-night.webp" type="image/webp"><img class="night" src="/art/scene-night.jpg" alt="" loading="lazy"></picture></div><div class="page-veil static"></div>
 <header class="nav">
   <div class="nav-in">
     <a class="logo" href="/"><img class="logo-mark" src="/art/brand/seekr-mark.svg" alt="" width="26" height="26">seekr</a>
@@ -37,48 +37,26 @@
     </div>
   </div>
 </header>
-<main class="swap-page">
-  <div class="swap-card" id="swapCard">
-    <div class="sw-head">
-      <h1>Swap</h1>
-      <div class="sw-tools">
-        <button class="icon-btn" id="slipBtn" title="Slippage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
-        <button class="pill sw-wallet" id="walletBtn">Connect wallet</button>
-      </div>
-    </div>
-    <div class="sw-slip" id="slipBox" hidden>
-      <span>Max slippage</span>
-      <div class="sw-slip-opts"><button data-s="0.001">0.1%</button><button data-s="0.005" class="on">0.5%</button><button data-s="0.01">1%</button><input id="slipCustom" inputmode="decimal" placeholder="custom %"></div>
-    </div>
-    <div class="sw-box">
-      <div class="sw-lbl"><span>You pay</span><span id="payBal"></span></div>
-      <div class="sw-row"><input id="amt" inputmode="decimal" autocomplete="off" placeholder="0"><button class="tok" id="fromTok"></button></div>
-      <div class="sw-sub"><span id="payUsd"></span><button class="sw-max" id="maxBtn" hidden>Max</button></div>
-    </div>
-    <button class="sw-flip" id="flipBtn" aria-label="Flip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14m0 0-5-5m5 5 5-5"/></svg></button>
-    <div class="sw-box">
-      <div class="sw-lbl"><span>You receive</span><span id="recvBal"></span></div>
-      <div class="sw-row"><div class="sw-out" id="recvAmt">0</div><button class="tok" id="toTok"></button></div>
-      <div class="sw-sub"><span id="recvUsd"></span></div>
-    </div>
-    <label class="sw-to" id="toAddrRow" hidden><span id="toAddrLbl">Receive at</span><input id="toAddr" autocomplete="off" spellcheck="false"></label>
-    <div class="sw-details" id="details" hidden></div>
-    <p class="auth-err" id="swErr" hidden></p>
-    <button class="btn btn-primary sw-go" id="goBtn">Connect wallet</button>
-    <div class="sw-progress" id="progress" hidden></div>
-    <p class="sw-note">Routes by LI.FI across dozens of DEXs and bridges, on one chain or between chains, Solana included. Every transaction is signed in your own wallet; seekr never holds your funds or keys. Approvals are for the exact amount.</p>
-  </div>
-
-  <section class="sw-rwa">
-    <h2>Real-world assets, on-chain</h2>
-    <p>Tokenized gold, treasuries and stocks you can swap into like any other token.</p>
-    <div class="sw-rwa-list" id="rwaList"><span class="note">Loading…</span></div>
-  </section>
+<main class="page">
+  <h1 class="pixel">seekr vs <span class="accent">subscriptions.</span></h1>
+  <p class="lead">Most AI apps sell a monthly plan per provider: one for chat, another for images, another for video, charged whether you use them or not, often $20 to $200 a month each. seekr is one balance for all of them, and you only pay for the requests you make.</p>
+  <table class="table alt-table">
+    <thead><tr><th></th><th>A subscription per provider</th><th>seekr</th></tr></thead>
+    <tbody>
+      <tr><td>What you pay</td><td>A fixed fee every month</td><td><b>Only the requests you make</b></td></tr>
+      <tr><td>A quiet month</td><td>Full price anyway</td><td><b>Close to nothing</b></td></tr>
+      <tr><td>Models</td><td>One company's models per plan</td><td><b>Every major model in one place</b></td></tr>
+      <tr><td>Switching models</td><td>Another plan, another login</td><td><b>Pick it from a menu</b></td></tr>
+      <tr><td>Payment</td><td>Card</td><td><b>Crypto: USDT, BTC, ETH, SOL</b></td></tr>
+      <tr><td>Unused balance</td><td>Resets every month</td><td><b>Credits never expire</b></td></tr>
+      <tr><td>API access</td><td>Separate billing</td><td><b>Same key, same balance</b></td></tr>
+      <tr><td>Holding the token</td><td>n/a</td><td><b>$SEEKR holders pay 5% of list</b></td></tr>
+    </tbody>
+  </table>
+  <div class="prose"><h2>What a month costs here</h2><p>Real examples from today's price table, at list price. Holders of $SEEKR pay 5% of these inside their daily allowance.</p></div>
+  <div class="cmp-grid" id="altEx"></div>
+  <p class="note" style="margin-top:18px">Your own mix: <a class="accent" href="/calculator">calculator</a>. Side by side: <a class="accent" href="/compare">compare models</a>.</p>
 </main>
-
-<div class="modal-bg" id="tokModal"><div class="modal tok-modal" id="tokModalBody"></div></div>
-<div class="modal-bg" id="walModal"><div class="modal wal-modal" id="walModalBody"></div></div>
-
 <footer><div class="foot">
   <div><a class="logo" href="/"><img class="logo-mark" src="/art/brand/seekr-mark.svg" alt="" width="26" height="26">seekr</a></div>
   <div><h5>Product</h5><ul><li><a href="/#how">How it works</a></li><li><a href="/#models">Models</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/calculator">Calculator</a></li><li><a href="/swap">Swap</a></li></ul></div>
@@ -88,4 +66,4 @@
 </div></footer>
 <script src="/shared.js"></script>
 <script src="/fx.js"></script>
-<script src="/swap.js"></script></body></html>
+<script src="/alternatives.js"></script></body></html>

@@ -60,8 +60,9 @@ module.exports = {
     seekrSupply: num(env.SEEKR_TOTAL_SUPPLY, 1e9),
     seekrDecimals: num(env.SEEKR_DECIMALS, 18),
     dexscreenerPair: env.SEEKR_DEXSCREENER_PAIR || '', // "robinhood/0xpair" — for the live $SEEKR price
-    buyUrl: env.SEEKR_BUY_URL || '#token',
-    chartUrl: env.SEEKR_CHART_URL || '#token',
+    buyUrl: env.SEEKR_BUY_URL || '',
+    chartUrl: env.SEEKR_CHART_URL || '',
+    launch: env.SEEKR_LAUNCH || 'Soon, on Pons', // e.g. "Fri 2 Oct on Pons"
 
     /* where deposits go. Leave empty and the deposit panel offers the demo top-up instead. */
     ethRpc: env.ETH_RPC_URL || 'https://ethereum-rpc.publicnode.com',

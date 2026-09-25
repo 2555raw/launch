@@ -47,7 +47,7 @@ async function refreshSeekr() {
     const j = await fetchJson(pair ? `https://api.dexscreener.com/latest/dex/pairs/${pair}` : `https://api.dexscreener.com/latest/dex/tokens/${token}`);
     const pairs = j.pairs || (j.pair ? [j.pair] : []);
     const p = pairs.filter((x) => x.priceUsd).sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
-    if (p) seekr = { at: Date.now(), stale: false, live: true, price: Number(p.priceUsd), change: Number(p.priceChange?.h24 || 0), symbol: 'SEEKR', url: p.url };
+    if (p) seekr = { at: Date.now(), stale: false, live: true, price: Number(p.priceUsd), change: Number(p.priceChange?.h24 || 0), mcap: Number(p.marketCap || p.fdv || 0) || null, liquidity: Number(p.liquidity?.usd || 0) || null, volume: Number(p.volume?.h24 || 0) || null, symbol: 'SEEKR', url: p.url };
     else seekr.at = Date.now();
   } catch {
     seekr.at = Date.now() - TTL + 15000;

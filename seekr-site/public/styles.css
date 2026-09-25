@@ -763,3 +763,38 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 @media (max-width: 520px) { .sup { right: 0; bottom: 0; width: 100vw; max-width: 100vw; height: 85vh; border-radius: 20px 20px 0 0; } }
 
 @media (prefers-reduced-motion: reduce) { .logos-track { animation: none; } .dot.pulse { animation: none; } .sup { transition: none; } .sup-dots i { animation: none; } }
+
+/* token page: centred hero, key facts, live stats and three ways in */
+.tk-hero { text-align: center; display: flex; flex-direction: column; align-items: center; padding-top: 8px; }
+.page h1.tk-word { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 30px 0 22px; font-size: 112px; font-weight: 700; letter-spacing: -.055em; line-height: 1; color: var(--ink); }
+.tk-word img { width: 104px; height: 104px; filter: drop-shadow(0 6px 24px rgba(47, 107, 255, .35)); }
+.tk-lead { max-width: 620px; margin: 0 auto 26px; font-size: 16px; line-height: 1.65; color: var(--text); }
+.tk-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin: 0 0 16px; }
+.tk-meta div { display: flex; align-items: baseline; gap: 8px; }
+.tk-meta dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.tk-meta dd { margin: 0; font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.tk-ca { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 36px; font-size: 12px; color: var(--muted); }
+.tk-ca code { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ink); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--glass-line); background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); word-break: break-all; }
+.tk-copy { border: 0; background: none; padding: 0; font-size: 12px; font-weight: 700; color: var(--accent); cursor: pointer; }
+.tk-stats { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--glass-line); border-radius: 16px; overflow: hidden; background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); margin-bottom: 36px; }
+.tk-stats div { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; text-align: center; }
+.tk-stats div + div { border-left: 1px solid var(--glass-line); }
+.tk-stats span { font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.tk-stats b { font-family: var(--mono); font-size: 19px; font-weight: 600; color: var(--ink); min-height: 1.2em; }
+.tk-stats b.chg-up { color: #16a34a; } .tk-stats b.chg-down { color: #dc2626; }
+.tk-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.tk-card { display: flex; flex-direction: column; padding: 22px; border-radius: 16px; border: 1px solid var(--glass-line); background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+.tk-card.tk-buy { border-color: var(--accent-line); box-shadow: 0 0 0 1px var(--accent-soft) inset; }
+.tk-card .tag { margin-bottom: 8px; }
+.prose .tk-card h3 { margin: 0 0 10px; font-size: 21px; letter-spacing: -.02em; }
+.prose .tk-card p { margin: 0 0 18px; font-size: 13.5px; line-height: 1.6; color: var(--text); flex: 1; }
+.tk-card .cta-row { gap: 8px; }
+.tk-card .cta-row { flex-wrap: nowrap; }
+.tk-card .btn { height: 36px; padding: 0 13px; font-size: 13px; white-space: nowrap; }
+.tk-stats b.soon { color: var(--muted); font-size: 15px; font-weight: 500; }
+.btn.is-soon { opacity: .55; cursor: default; pointer-events: none; }
+@media (max-width: 860px) {
+  .page h1.tk-word { font-size: 72px; gap: 12px; } .tk-word img { width: 66px; height: 66px; }
+  .tk-stats { grid-template-columns: 1fr 1fr; } .tk-stats div:first-child { grid-column: 1 / -1; } .tk-stats div + div { border-left: 0; border-top: 1px solid var(--glass-line); } .tk-stats div:nth-child(3), .tk-stats div:nth-child(5) { border-left: 1px solid var(--glass-line); }
+  .tk-cards { grid-template-columns: 1fr; }
+}

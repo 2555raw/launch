@@ -94,3 +94,68 @@
     sync();
   });
 })();
+
+/* Wind over the field: the scene image is redrawn by a small WebGL shader that
+ * sways the grass and flowers, gently, in slow gusts that roll across the field.
+ * The sky and the tree line hold still; the foreground moves most. Same framing
+ * as the <img> it sits on (object-fit: cover, 60% 48%), so it fades in seamlessly.
+ * No WebGL, reduced motion or a hidden tab: the still image stays. */
+(() => {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const VS = 'attribute vec2 p; varying vec2 v; void main(){ v = vec2((p.x+1.)*.5, (1.-p.y)*.5); gl_Position = vec4(p,0.,1.); }';
+  const FS = `precision mediump float;
+    uniform sampler2D uDay, uNight; uniform float uMix, uT; uniform vec2 uRes, uImg, uPos; varying vec2 v;
+    void main() {
+      float s = max(uRes.x / uImg.x, uRes.y / uImg.y);
+      vec2 disp = uImg * s, uv = (v * uRes - (uRes - disp) * uPos) / disp;
+      float m = smoothstep(.645, .73, uv.y);                       /* grass only, not sky or trees */
+      float fg = mix(.35, 1., smoothstep(.66, 1., uv.y));          /* nearer grass moves more */
+      float gust = .55 + .45 * sin(uT * .45 - uv.x * 5. + sin(uT * .23) * 1.5);
+      float sway = sin(uT * 1.6 + uv.y * 140. + uv.x * 9.) * .55 + sin(uT * .9 + uv.y * 57. - uv.x * 4.) * .45;
+      float a = .0022 * m * fg * gust;
+      vec2 q = uv + vec2(sway * a, -abs(sway) * a * .35);
+      gl_FragColor = vec4(mix(texture2D(uDay, q).rgb, texture2D(uNight, q).rgb, uMix), 1.);
+    }`;
+  document.querySelectorAll('.sky').forEach((sky) => {
+    const dayImg = sky.querySelector('img.day'), nightImg = sky.querySelector('img.night');
+    if (!dayImg || !nightImg) return;
+    const cv = document.createElement('canvas');
+    cv.className = 'sky-wind';
+    const gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false });
+    if (!gl) return;
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+    const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return;
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const U = (n) => gl.getUniformLocation(pr, n);
+    const tex = (unit, img) => { const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img); };
+    const load = (el) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = el.currentSrc || el.src; });
+    Promise.all([load(dayImg), load(nightImg)]).then(([d, n]) => {
+      tex(0, d); tex(1, n);
+      gl.uniform1i(U('uDay'), 0); gl.uniform1i(U('uNight'), 1);
+      gl.uniform2f(U('uImg'), d.naturalWidth, d.naturalHeight); gl.uniform2f(U('uPos'), 0.6, 0.48);
+      const dark = () => document.documentElement.dataset.theme === 'dark';
+      let mixV = dark() ? 1 : 0, raf = 0, w = 0, h = 0;
+      const resize = () => { const dpr = Math.min(1.5, devicePixelRatio || 1); w = sky.clientWidth; h = sky.clientHeight; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); gl.viewport(0, 0, cv.width, cv.height); gl.uniform2f(U('uRes'), cv.width, cv.height); };
+      const t0 = performance.now(); let last = t0;
+      const frame = (now) => {
+        const target = dark() ? 1 : 0, dt = (now - last) / 1000; last = now;
+        if (mixV !== target) mixV = target > mixV ? Math.min(target, mixV + dt / 0.6) : Math.max(target, mixV - dt / 0.6);  /* matches the images' .6s crossfade */
+        gl.uniform1f(U('uMix'), mixV); gl.uniform1f(U('uT'), (now - t0) / 1000);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        raf = requestAnimationFrame(frame);
+      };
+      resize(); addEventListener('resize', resize);
+      const fxc = sky.querySelector('.sky-fx'); if (fxc) sky.insertBefore(cv, fxc); else sky.appendChild(cv);
+      requestAnimationFrame(() => cv.classList.add('on'));
+      document.addEventListener('visibilitychange', () => { cancelAnimationFrame(raf); if (!document.hidden) { last = performance.now(); raf = requestAnimationFrame(frame); } });
+      raf = requestAnimationFrame(frame);
+    }).catch(() => null);
+  });
+})();

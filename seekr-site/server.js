@@ -58,6 +58,20 @@ function requireAccount(req) {
 
 const ipOf = (req) => String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 
+/* Welcome credits buy real model calls once a provider is connected, so an
+ * address gets them for its first two new accounts a day; later ones start at 0. */
+const WELCOME_PER_IP = 2;
+function limitWelcome(account, req) {
+  if (!account || !config.welcomeCredits) return account;
+  const ip = ipOf(req) || 'unknown', now = Date.now();
+  const rec = store.get('welcome', ip) || { times: [] };
+  rec.times = rec.times.filter((t) => now - t < 24 * 3600 * 1000);
+  if (rec.times.length >= WELCOME_PER_IP) {
+    if (account.balance === config.welcomeCredits && !account.deposited) { account.balance = 0; account.welcomeWithheld = true; store.put('accounts', account.id, account); }
+  } else { rec.times.push(now); store.put('welcome', ip, rec); }
+  return account;
+}
+
 /* support is free, so it is metered per address: 30 questions per 10 minutes */
 const supportHits = new Map();
 function supportLimit(ip) {
@@ -105,7 +119,7 @@ const api = {
 
   'GET /api/models': async () => ({
     categories: catalog.CATEGORIES,
-    models: catalog.MODELS.map((m) => ({ ...m, live: config.isLive(m.provider), prices: credits.unitPrices(m) })),
+    models: catalog.MODELS.map((m) => ({ ...m, live: router.isLive(m), prices: credits.unitPrices(m) })),
     default: catalog.defaultChat().id,
     count: catalog.MODELS.length
   }),
@@ -122,7 +136,7 @@ const api = {
   'GET /api/swap/balance': async (req, url) => swap.balance(Object.fromEntries(url.searchParams)),
 
   /* --- auth --- */
-  'POST /api/auth/key': async () => { const { account, key } = auth.createAccount(); return { key, account: accountView(account) }; },
+  'POST /api/auth/key': async (req) => { const { account, key } = auth.createAccount(); limitWelcome(account, req); return { key, account: accountView(account) }; },
   'POST /api/auth/login': async (req) => {
     const { key } = await readJson(req);
     const a = auth.findByKey(String(key || '').trim());
@@ -132,6 +146,7 @@ const api = {
   'POST /api/auth/register': async (req) => {
     const { username, password } = await readJson(req);
     const { account, key } = await auth.registerUsername(username, password);
+    limitWelcome(account, req);
     return { key, account: accountView(account), created: true };
   },
   'POST /api/auth/password': async (req) => {
@@ -148,12 +163,14 @@ const api = {
   'POST /api/auth/email/verify': async (req) => {
     const { email, code } = await readJson(req);
     const r = auth.emailSignIn(email, code);
+    if (r.created) limitWelcome(r.account, req);
     return { key: r.key, created: r.created, account: accountView(r.account) };
   },
   'GET /api/auth/nonce': async (req, url) => auth.nonceFor(url.searchParams.get('address') || ''),
   'POST /api/auth/wallet': async (req) => {
     const { address, signature } = await readJson(req);
     const r = auth.walletSignIn(address, signature);
+    if (r.created) limitWelcome(r.account, req);
     await refreshHoldings(r.account).catch(() => null);
     return { key: r.key, created: r.created, account: accountView(r.account) };
   },
@@ -296,7 +313,7 @@ const api = {
     if (!last || last.role !== 'user') throw new HttpError(400, 'Ask something first');
     const a = auth.fromRequest(req);
     /* the cheapest connected chat model, else the free tier */
-    const liveModel = catalog.MODELS.filter((m) => m.kind === 'chat' && config.isLive(m.provider)).sort((x, y) => x.price.out - y.price.out)[0];
+    const liveModel = catalog.MODELS.filter((m) => m.kind === 'chat' && router.isLive(m)).sort((x, y) => x.price.out - y.price.out)[0];
     const model = liveModel || catalog.get('gpt-5-mini') || catalog.defaultChat();
     const impl = liveModel ? router.resolve(liveModel).impl : router.free;
 
@@ -550,6 +567,7 @@ server.listen(config.port, () => {
   const live = Object.keys(config.keys).filter((k) => config.isLive(k));
   console.log(`seekr on :${config.port} — ${live.length ? 'live: ' + live.join(', ') : 'no provider keys'} — the rest: free tier, then demo`);
   if (process.env.FREE_PROBE !== 'off') swap.probe().then((r) => console.log('swap check: ' + r));
+  router.openrouter.start().then((st) => { if (config.keys.openrouter) console.log(`openrouter: ${Object.keys(st.mapped).length} models live${st.error ? ' (error: ' + st.error + ')' : ''} · ${Object.entries(st.mapped).map(([k, v]) => k + '→' + v).join(', ')}${st.missing.length ? ' · no exact match: ' + st.missing.join(', ') : ''}`); });
   if (process.env.FREE_DIAG === '1' || process.env.FREE_DIAG === '2') router.free.diag({ ...SYSTEM, support: support.system(null) }).catch((e) => console.log('diag failed: ' + e.message));
   if ((process.env.FREE_TIER || 'on') !== 'off' && process.env.FREE_PROBE !== 'off') router.free.probe().then((r) => console.log('free tier check: ' + r)).catch((e) => console.log('free tier check failed: ' + e.message));
 });

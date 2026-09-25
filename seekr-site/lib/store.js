@@ -7,7 +7,7 @@ const path = require('path');
 const config = require('./config');
 
 const FILE = path.join(config.dataDir, 'seekr.json');
-const COLLECTIONS = ['accounts', 'chats', 'library', 'files', 'deposits', 'nonces', 'shares', 'usage', 'codes'];
+const COLLECTIONS = ['accounts', 'chats', 'library', 'files', 'deposits', 'nonces', 'shares', 'usage', 'codes', 'welcome'];
 
 let db = null;
 let timer = null;

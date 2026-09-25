@@ -71,7 +71,7 @@ function priceTable() {
     else if (p.second != null) s = `${c(p.second)} credits per second`;
     else if (p.mchars != null) s = `${c(p.mchars / 1000)} credits per 1,000 characters`;
     else if (p.minute != null) s = `${c(p.minute)} credits per minute`;
-    return `- ${m.name} (${m.vendor}, ${m.kind}${m.context ? `, ${Math.round(m.context / 1000)}k context` : ''})${s ? ': ' + s : ''}${config.isLive(m.provider) ? '' : ['video', 'stt'].includes(m.kind) ? ' [not switched on yet on this server]' : ' [answered by a free model on this server today]'}`;
+    return `- ${m.name} (${m.vendor}, ${m.kind}${m.context ? `, ${Math.round(m.context / 1000)}k context` : ''})${s ? ': ' + s : ''}${require('./router').isLive(m) ? '' : ['video', 'stt'].includes(m.kind) ? ' [not switched on yet on this server]' : ' [answered by a free model on this server today]'}`;
   }).join('\n');
 }
 

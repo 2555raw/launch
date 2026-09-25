@@ -7,6 +7,7 @@
 const config = require('./config');
 const demo = require('./providers/demo');
 const free = require('./providers/free');
+const openrouter = require('./openrouter');
 
 const live = {
   anthropic: () => require('./providers/anthropic'),
@@ -49,12 +50,21 @@ function freeOnly() {
   };
 }
 
+/* the model's own provider key first, then OpenRouter with the exact same model */
+const isLive = (model) => config.isLive(model.provider) || openrouter.viaOpenRouter(model);
+function viaOR(model) {
+  const oc = require('./providers/openaiCompat');
+  const as = (m) => ({ ...m, provider: 'openrouter', upstream: m.orSlug });
+  return { streamChat: async (args) => ({ ...(await oc.streamChat({ ...args, model: as(args.model) })), servedBy: model.orSlug + ' (OpenRouter)' }) };
+}
+
 function resolve(model) {
   if (config.isLive(model.provider)) return { impl: live[model.provider](), live: true, tier: 'live' };
+  if (openrouter.viaOpenRouter(model)) return { impl: viaOR(model), live: true, tier: 'live' };
   const kindOk = { chat: 'chat', image: 'image', tts: 'tts' }[model.kind];
   if (freeOn() && kindOk) return { impl: freeOnly(), live: false, tier: 'free' };
   if (config.demoAllowed()) return { impl: demo, live: false, tier: 'demo' };
   throw Object.assign(new Error(`${model.vendor} is not configured on this server (set ${demo.keyName(model.provider)})`), { status: 503 });
 }
 
-module.exports = { resolve, free };
+module.exports = { resolve, free, isLive, openrouter };

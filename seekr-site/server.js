@@ -545,7 +545,34 @@ function serveStatic(req, res, pathname) {
 }
 
 /* ---------- server ---------- */
+/* standard browser protections on every response. Inline scripts and styles
+   stay allowed (the theme boot script and the code preview use them); frames,
+   plugins and other origins' scripts do not. */
+const SECURITY = {
+  'x-content-type-options': 'nosniff',
+  'x-frame-options': 'DENY',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'permissions-policy': 'camera=(), geolocation=(), payment=(), microphone=(self)',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains',
+  'content-security-policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://cdn.tailwindcss.com",
+    "style-src 'self' 'unsafe-inline' https:",
+    "font-src 'self' data: https:",
+    "img-src 'self' data: blob: https:",
+    "media-src 'self' data: blob: https:",
+    "connect-src 'self' https: wss:",
+    "frame-src 'self' blob: data:",
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'"
+  ].join('; ')
+};
+
 const server = http.createServer(async (req, res) => {
+  for (const [k, v] of Object.entries(SECURITY)) res.setHeader(k, v);
   const url = new URL(req.url, 'http://x');
   const pathname = decodeURIComponent(url.pathname);
   if (!pathname.startsWith('/api/')) return serveStatic(req, res, pathname);

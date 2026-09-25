@@ -276,6 +276,8 @@ footer { border-top: 1px solid var(--glass-line); position: relative; z-index: 1
 .page h1 { font-size: 56px; margin: 0 0 20px; }
 .page .lead { margin-bottom: 40px; }
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+#tables { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+#tables .table { min-width: 560px; }
 .table th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding: 10px 12px; border-bottom: 1px solid var(--line); font-weight: 500; }
 .table td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .table td.num, .table th.num { text-align: right; font-family: var(--mono); }

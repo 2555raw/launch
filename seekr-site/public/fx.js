@@ -1,9 +1,12 @@
 /* Night sky over the header scene: stars twinkling across the top of the sky
  * and shooting stars streaking through it. Runs only in dark mode, pauses
  * when the tab is hidden, and holds still for prefers-reduced-motion. */
+/* an indoor scene (the tea room) has no sky and no field: no stars, no wind */
+const skyIndoor = (sky) => /\/art\/room-/.test((sky.querySelector('img.day') || { getAttribute: () => '' }).getAttribute('src') || '');
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll('.sky').forEach((sky) => {
+    if (skyIndoor(sky)) return;
     const cv = document.createElement('canvas');
     cv.className = 'sky-fx';
     sky.appendChild(cv);
@@ -125,7 +128,7 @@
     }`;
   document.querySelectorAll('.sky').forEach((sky) => {
     const dayImg = sky.querySelector('img.day'), nightImg = sky.querySelector('img.night');
-    if (!dayImg || !nightImg) return;
+    if (!dayImg || !nightImg || skyIndoor(sky)) return;
     const cv = document.createElement('canvas');
     cv.className = 'sky-wind';
     const gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false });

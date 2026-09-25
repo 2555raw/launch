@@ -31,7 +31,7 @@ seekr-site/
     shared.js          API client, formatting, vendor marks, theme, nav
     art/scene-day.jpg  the header by day: sun, cumulus, a meadow of flowers
     art/scene-night.jpg the same meadow by night: moon, stars, the milky way
-    fx.js              night only: fireflies over the meadow, shooting stars
+    fx.js              night only: twinkling stars across the sky, shooting stars
     (both scenes are rendered by scripts/make-scene.js)
     art/og.png         the social card, same scene
 ```

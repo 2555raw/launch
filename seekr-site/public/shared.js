@@ -53,6 +53,15 @@ window.seekr = (() => {
 
   /* nav behaviour shared by the marketing pages */
   function nav() {
+    /* the scene sits behind the page; a veil fades in as the hero scrolls away */
+    const veil = document.getElementById('pageVeil');
+    if (veil) {
+      const hero = document.querySelector('.hero');
+      const upd = () => { const h = hero ? hero.offsetHeight : innerHeight; veil.style.opacity = String(Math.min(0.8, Math.max(0, (scrollY - h * 0.35) / (h * 0.6)) * 0.8)); };
+      addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
+    }
+    const navEl = document.querySelector('.nav');
+    if (navEl) { const onS = () => navEl.classList.toggle('scrolled', scrollY > 40); addEventListener('scroll', onS, { passive: true }); onS(); }
     const tt = document.getElementById('themeToggle');
     if (tt) tt.addEventListener('click', () => theme.toggle());
     const b = document.getElementById('burger');

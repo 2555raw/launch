@@ -110,9 +110,9 @@
       vec2 disp = uImg * s, uv = (v * uRes - (uRes - disp) * uPos) / disp;
       float m = smoothstep(.645, .73, uv.y);                       /* grass only, not sky or trees */
       float fg = mix(.35, 1., smoothstep(.66, 1., uv.y));          /* nearer grass moves more */
-      float gust = .55 + .45 * sin(uT * .45 - uv.x * 5. + sin(uT * .23) * 1.5);
+      float gust = .5 + .5 * sin(uT * .45 - uv.x * 5. + sin(uT * .23) * 1.5);
       float sway = sin(uT * 1.6 + uv.y * 140. + uv.x * 9.) * .55 + sin(uT * .9 + uv.y * 57. - uv.x * 4.) * .45;
-      float a = .0022 * m * fg * gust;
+      float a = .0038 * m * fg * gust;
       vec2 q = uv + vec2(sway * a, -abs(sway) * a * .35);
       gl_FragColor = vec4(mix(texture2D(uDay, q).rgb, texture2D(uNight, q).rgb, uMix), 1.);
     }`;

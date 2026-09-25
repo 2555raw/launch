@@ -5,7 +5,8 @@
   seekr.nav();
 
   /* icons in the step cards */
-  document.querySelectorAll('[data-icons]').forEach((el) => { el.innerHTML = el.dataset.icons.split(' ').map((id) => `<span title="${id}">${mark(id)}</span>`).join(''); });
+  const COINS = ['usdt', 'btc', 'eth', 'sol'];
+  document.querySelectorAll('[data-icons]').forEach((el) => { el.innerHTML = el.dataset.icons.split(' ').map((id) => COINS.includes(id) ? `<img class="coin" src="/art/coins/${id}.svg" alt="${id.toUpperCase()}" title="${id.toUpperCase()}" width="20" height="20">` : `<span title="${id}">${mark(id)}</span>`).join(''); });
 
   /* vendor marquee (doubled for the loop) */
   const vendors = ['anthropic', 'gemini', 'xai', 'deepseek', 'runway', 'bytedance', 'meta', 'nvidia', 'openai', 'mistral', 'bfl', 'kling'];
@@ -14,7 +15,7 @@
 
   /* crypto ticker */
   function renderTicker(t) {
-    document.getElementById('ticker').innerHTML = t.coins.map((c) => `<span class="t"><i style="background:${c.color}">${c.sym[0]}</i><span>${c.price >= 1000 ? c.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : c.price >= 1 ? c.price.toFixed(2) : c.price.toFixed(4)}</span><small class="${c.change >= 0 ? 'chg-up' : 'chg-down'}">${pct(c.change)}</small></span>`).join('');
+    document.getElementById('ticker').innerHTML = t.coins.map((c) => `<span class="t"><img class="coin" src="/art/coins/${c.sym.toLowerCase()}.svg" alt="${c.sym}" title="${c.sym}" width="16" height="16"><span>${c.price >= 1000 ? c.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : c.price >= 1 ? c.price.toFixed(2) : c.price.toFixed(4)}</span><small class="${c.change >= 0 ? 'chg-up' : 'chg-down'}">${pct(c.change)}</small></span>`).join('');
   }
   const loadMarkets = () => api('/api/markets').then(({ tickers }) => renderTicker(tickers)).catch(() => null);
   loadMarkets(); setInterval(loadMarkets, 60000);

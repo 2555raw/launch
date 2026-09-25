@@ -174,7 +174,10 @@ button { cursor: pointer; }
 .ticker { display: flex; justify-content: center; gap: 0; padding: 22px 0 6px; flex-wrap: wrap; }
 .ticker .t { display: flex; align-items: center; gap: 9px; padding: 6px 22px; font-family: var(--mono); font-size: 13px; font-weight: 600; border-right: 1px solid var(--line); }
 .ticker .t:last-child { border-right: 0; }
-.ticker .t i { width: 15px; height: 15px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-size: 8px; font-weight: 700; color: #111; }
+.ticker .t .coin { width: 16px; height: 16px; flex: none; }
+.icons .coin { width: 20px; height: 20px; }
+.coin { border-radius: 50%; }
+:root[data-theme="dark"] .coin { box-shadow: 0 0 0 1px rgba(255, 255, 255, .28); }
 .ticker .t small { font-size: 10px; font-weight: 500; }
 
 /* ---------- sections ---------- */

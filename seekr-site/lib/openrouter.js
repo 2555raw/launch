@@ -51,10 +51,33 @@ async function refresh() {
 
 const viaOpenRouter = (model) => Boolean(config.keys.openrouter && model.via === 'openrouter' && model.orSlug);
 
+/* at boot: is the key good, how much is left, and does a real call go through (a few tokens, a fraction of a cent) */
+async function check() {
+  const H = { Authorization: `Bearer ${config.keys.openrouter}`, 'content-type': 'application/json', 'HTTP-Referer': config.publicUrl || 'https://seekr.website', 'X-Title': 'seekr' };
+  const out = [];
+  try {
+    const k = (await (await fetch('https://openrouter.ai/api/v1/key', { headers: H, signal: AbortSignal.timeout(15000) })).json()).data || {};
+    out.push(`key ok, used $${Number(k.usage || 0).toFixed(4)}${k.limit != null ? ` of a $${k.limit} limit` : ', no limit set on the key'}${k.is_free_tier ? ', free tier' : ''}`);
+  } catch (e) { out.push('key check failed: ' + e.message); }
+  try {
+    const r = await fetch('https://openrouter.ai/api/v1/credits', { headers: H, signal: AbortSignal.timeout(15000) });
+    if (r.ok) { const c = (await r.json()).data || {}; out.push(`account credits $${(Number(c.total_credits || 0) - Number(c.total_usage || 0)).toFixed(2)} left`); }
+  } catch { /* optional */ }
+  const cheap = catalog.MODELS.filter((m) => m.via === 'openrouter').sort((a, b) => a.price.out - b.price.out)[0];
+  if (cheap) {
+    try {
+      const r = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: H, signal: AbortSignal.timeout(30000), body: JSON.stringify({ model: cheap.orSlug, max_tokens: 5, messages: [{ role: 'user', content: 'Reply with the single word: ready' }] }) });
+      const j = await r.json();
+      out.push(r.ok ? `test call ${cheap.orSlug}: "${String(j.choices?.[0]?.message?.content || '').trim().slice(0, 20)}"` : `test call ${cheap.orSlug} FAILED (${r.status}): ${j.error?.message || ''}`);
+    } catch (e) { out.push('test call failed: ' + e.message); }
+  }
+  return out.join(' · ');
+}
+
 function start() {
   if (!config.keys.openrouter) return Promise.resolve(status);
   setInterval(refresh, 6 * 60 * 60 * 1000).unref();
-  return refresh();
+  return refresh().then(async (st) => { st.check = await check(); return st; });
 }
 
 module.exports = { start, refresh, viaOpenRouter, status, match };

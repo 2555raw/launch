@@ -125,7 +125,7 @@ seekr.support = (() => {
   function build() {
     el = document.createElement('div');
     el.className = 'sup'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'wondr support');
-    el.innerHTML = `<div class="sup-h"><span class="sup-av"><img src="/art/brand/wondr-mark-white.svg" alt="" width="22" height="22"></span><div class="sup-t"><b>wondr support</b><small><span class="dot pulse"></span>AI assistant, answers in seconds</small></div>
+    el.innerHTML = `<div class="sup-h"><span class="sup-av"><img src="/art/brand/wondr-mark.svg" alt="" width="24" height="24"></span><div class="sup-t"><b>wondr support</b><small><span class="dot pulse"></span>AI assistant, answers in seconds</small></div>
       <button class="sup-ic" data-act="new" title="New conversation" aria-label="New conversation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
       <button class="sup-ic" data-act="close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="sup-log" aria-live="polite"></div>

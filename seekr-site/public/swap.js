@@ -119,12 +119,47 @@
   /* a real-world asset issued on several networks: take the one on the network you pay from */
   function sameChain(t) {
     if (!t || !t.kind || !S.from || t.chainId === S.from.chainId) return t;
-    const alt = S.rwa.find((x) => x.symbol === t.symbol && x.chainId === S.from.chainId);
+    const alt = S.rwa.find((x) => x.symbol.toUpperCase() === t.symbol.toUpperCase() && x.chainId === S.from.chainId);
     if (alt) { const c = chainOf(alt.chainId); toast(`Using ${alt.symbol} on ${c ? c.name : 'the same network'}: no bridge, no second wallet.`); return alt; }
     return t;
   }
   const fallbackIcon = (sym) => `<span class="tok-fb">${esc(String(sym || '?').replace(/[^A-Za-z0-9]/g, '').slice(0, 1).toUpperCase() || '?')}</span>`;
   const tokImg = (t) => (t.logo ? `<img src="${esc(t.logo)}" alt="" onerror="this.outerHTML=this.dataset.fb" data-fb='${fallbackIcon(t.symbol).replace(/'/g, '&#39;')}'>` : fallbackIcon(t.symbol));
+
+  /* ---------- real-world asset shelf: one tile per asset, whatever the number of networks it lives on ---------- */
+  const RWA_NAMES = { PAXG: 'Pax Gold', XAUT: 'Tether Gold', USDY: 'Ondo US Dollar Yield', OUSG: 'Ondo Short-Term Treasuries', BUIDL: 'BlackRock USD Fund', USTB: 'Superstate Treasuries', TBILL: 'OpenEden T-Bills', SPYX: 'S&P 500 ETF', QQQX: 'Nasdaq 100 ETF', GOOGLX: 'Alphabet', MSTRX: 'Strategy', AMZNX: 'Amazon', METAX: 'Meta', MSFTX: 'Microsoft', AMDX: 'AMD', CRCLX: 'Circle', COINX: 'Coinbase', HOODX: 'Robinhood', NVDAX: 'NVIDIA', AAPLX: 'Apple', TSLAX: 'Tesla', NFLXX: 'Netflix' };
+  const HOME = { Gold: 1, Treasuries: 1, Stocks: SOL };
+  const ORDER = ['PAXG', 'XAUT', 'USDY', 'OUSG', 'BUIDL', 'USTB', 'TBILL', 'TSLAX', 'NVDAX', 'AAPLX', 'SPYX', 'QQQX', 'HOODX', 'COINX', 'MSTRX', 'AMZNX', 'GOOGLX', 'METAX', 'MSFTX', 'NFLXX', 'CRCLX', 'AMDX'];
+  const rank = (k) => { const i = ORDER.indexOf(k); return i < 0 ? 99 : i; };
+  const px = (n) => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: n < 1 ? 4 : 2 });
+  const median = (a) => { const v = a.filter((n) => n > 0).sort((x, y) => x - y); return v.length ? v[Math.floor((v.length - 1) / 2)] : null; };
+  function shelfAssets() {
+    const by = new Map();
+    for (const t of S.rwa) {
+      const k = t.symbol.toUpperCase();
+      if (!by.has(k)) by.set(k, { key: k, kind: t.kind, list: [] });
+      by.get(k).list.push(t);
+    }
+    return [...by.values()].map((a) => {
+      const withLogo = a.list.find((t) => t.logo), first = a.list.find((t) => t.chainId === HOME[a.kind]) || withLogo || a.list[0];
+      return { ...a, symbol: first.symbol, logo: withLogo ? withLogo.logo : '', name: RWA_NAMES[a.key] || first.name.replace(/\s*xStock$/i, ''), price: median(a.list.map((t) => t.priceUSD)), pick: first, chains: [...new Set(a.list.map((t) => t.chainId))] };
+    }).sort((a, b) => ['Gold', 'Treasuries', 'Stocks'].indexOf(a.kind) - ['Gold', 'Treasuries', 'Stocks'].indexOf(b.kind) || rank(a.key) - rank(b.key));
+  }
+  function drawShelf(filter) {
+    const el = $('#rwaList');
+    if (!S.rwa.length) { el.innerHTML = '<span class="note">No real-world assets are on the swap routes right now.</span>'; return; }
+    const all = shelfAssets(), kinds = ['Gold', 'Treasuries', 'Stocks'].filter((k) => all.some((a) => a.kind === k));
+    const shown = all.filter((a) => filter === 'All' || a.kind === filter);
+    const chainIcons = (ids) => ids.slice(0, 4).map((id) => { const c = chainOf(id); return c ? `<img src="${esc(c.logo)}" alt="" title="${esc(c.name)}">` : ''; }).join('') + (ids.length > 4 ? `<i>+${ids.length - 4}</i>` : '');
+    el.innerHTML = `<div class="seg rwa-filter">${['All', ...kinds].map((k) => `<button data-k="${k}" class="${k === filter ? 'on' : ''}">${k}<small>${k === 'All' ? all.length : all.filter((a) => a.kind === k).length}</small></button>`).join('')}</div>
+      <div class="rwa-grid">${shown.map((a) => `<button class="rwa-tile" data-k="${esc(a.key)}">
+        <span class="rwa-ic">${tokImg({ logo: a.logo, symbol: a.symbol })}</span>
+        <span class="rwa-nm"><span class="rwa-h"><b>${esc(a.symbol)}</b><span class="rwa-px">${a.price ? px(a.price) : ''}</span></span><small title="${esc(a.name)}">${esc(a.name)}</small></span>
+        <span class="rwa-ft"><span class="rwa-kind k-${a.kind.toLowerCase()}">${a.kind === 'Stocks' ? 'Stock' : a.kind === 'Treasuries' ? 'Treasury' : 'Gold'}</span><span class="rwa-chains">${chainIcons(a.chains)}</span><span class="rwa-go">Swap</span></span>
+      </button>`).join('')}</div>`;
+    el.querySelectorAll('.rwa-filter button').forEach((b) => b.onclick = () => drawShelf(b.dataset.k));
+    el.querySelectorAll('.rwa-tile').forEach((b) => b.onclick = () => { const a = all.find((x) => x.key === b.dataset.k); S.to = sameChain(a.pick); scrollTo({ top: 0, behavior: 'smooth' }); refresh(); $('#amt').focus(); });
+  }
 
   function tokBtn(el, side) {
     const t = S[side];
@@ -396,9 +431,7 @@
     }
     try {
       S.rwa = (await api('/api/swap/rwa')).tokens;
-      const groups = ['Gold', 'Treasuries', 'Stocks'];
-      $('#rwaList').innerHTML = S.rwa.length ? groups.map((g) => { const items = S.rwa.filter((t) => t.kind === g); return items.length ? `<div class="rwa-g"><span class="tag">${g}</span><div class="rwa-items">${items.slice(0, 12).map((t) => `<button class="rwa-it" data-a="${esc(t.address)}" data-ch="${t.chainId}"><img src="${esc(t.logo || '')}" alt="" onerror="this.style.visibility='hidden'"><b>${esc(t.symbol)}</b><small>${t.priceUSD ? usd(t.priceUSD) : esc(chainOf(t.chainId) ? chainOf(t.chainId).name : '')}</small></button>`).join('')}</div></div>` : ''; }).join('') : '<span class="note">No real-world assets are on the swap routes right now.</span>';
-      document.querySelectorAll('.rwa-it').forEach((b) => b.onclick = () => { S.to = sameChain(S.rwa.find((t) => t.address === b.dataset.a && t.chainId === Number(b.dataset.ch))); scrollTo({ top: 0, behavior: 'smooth' }); refresh(); $('#amt').focus(); });
+      drawShelf('All');
     } catch { $('#rwaList').innerHTML = '<span class="note">Real-world assets could not be loaded.</span>'; }
   })();
 })();

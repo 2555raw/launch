@@ -594,6 +594,7 @@ server.listen(config.port, () => {
   const live = Object.keys(config.keys).filter((k) => config.isLive(k));
   console.log(`wondr on :${config.port} — ${live.length ? 'live: ' + live.join(', ') : 'no provider keys'} — the rest: free tier, then demo`);
   if (process.env.FREE_PROBE !== 'off') swap.probe().then((r) => console.log('swap check: ' + r));
+  require('./lib/scenegen').run();
   chain.tokenCheck().then((r) => { if (r) console.log('wondr token check: ' + r); }).catch((e) => console.log('wondr token check failed: ' + e.message));
   router.openrouter.start().then((st) => { if (config.keys.openrouter) console.log(`openrouter: ${Object.keys(st.mapped).length} models live${st.error ? ' (error: ' + st.error + ')' : ''} · ${Object.entries(st.mapped).map(([k, v]) => k + '→' + v).join(', ')}${st.missing.length ? ' · no exact match: ' + st.missing.join(', ') : ''}`); if (st.check) console.log('openrouter check: ' + st.check); });
   if (process.env.FREE_DIAG === '1' || process.env.FREE_DIAG === '2') router.free.diag({ ...SYSTEM, support: support.system(null) }).catch((e) => console.log('diag failed: ' + e.message));

@@ -27,18 +27,29 @@ let textAt = 0;
 let imageAt = 0;
 const status = { text: null, image: null, speech: null, textModel: null };
 
-/* which free model stands in for the one the user picked */
-function standIn(model) {
-  const byVendor = { OpenAI: 'openai', Mistral: 'mistral', DeepSeek: 'deepseek', Meta: 'openai', Alibaba: 'qwen-coder' };
-  return byVendor[model.vendor] || 'openai';
-}
+/* The anonymous tier serves one model today (openai-fast; "openai" is an alias).
+ * Other names answer 404 without a key, so every request uses these two. */
+const FREE_MODELS = (process.env.FREE_MODELS || 'openai-fast,openai').split(',');
 
-async function streamChat({ model, messages, system, onText, signal }) {
-  const tries = [standIn(model), 'openai'].filter((v, i, a) => a.indexOf(v) === i);
+/* The anonymous tier allows about one request at a time per address and answers
+ * 502/429 to the rest, so calls go through a queue and retry a failed start. */
+let queue = Promise.resolve();
+function queued(fn) {
+  const run = queue.then(fn, fn);
+  queue = run.catch(() => {});
+  return run;
+}
+const sleep = (ms, signal) => new Promise((res, rej) => { const t = setTimeout(res, ms); signal?.addEventListener('abort', () => { clearTimeout(t); rej(new Error('aborted')); }, { once: true }); });
+
+function streamChat(args) { return queued(() => streamChatNow(args)); }
+
+async function streamChatNow({ messages, system, onText, signal }) {
   let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+  if (attempt) await sleep(1500 * attempt, signal);
   for (let e = textAt; e < TEXT.length; e++) {
     if (!usable(TEXT[e])) continue;
-    for (const m of tries) {
+    for (const m of FREE_MODELS) {
       let emitted = false;
       try {
         const out = await streamFrom(TEXT[e].url, { ...auth(), Referer: `https://${REF}.app` }, { model: m, referrer: REF, messages: toMessages(messages, system) }, (t) => { emitted = true; onText(t); }, signal);
@@ -51,11 +62,13 @@ async function streamChat({ model, messages, system, onText, signal }) {
       }
     }
   }
+  }
   status.text = false;
   throw lastErr || new Error('Free chat is unavailable');
 }
 
-async function generateImage({ prompt, size }) {
+function generateImage(args) { return queued(() => generateImageNow(args)); }
+async function generateImageNow({ prompt, size }) {
   const [w, h] = (size || '1024x1024').split('x').map(Number);
   let lastErr;
   /* the free service drops a request now and then: three tries, a fresh seed each, before demo */

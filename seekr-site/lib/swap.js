@@ -49,12 +49,25 @@ async function chains() {
   });
 }
 
+const MAJORS = ['ETH', 'SOL', 'BNB', 'POL', 'MATIC', 'AVAX', 'USDC', 'USDT', 'WETH', 'WBTC', 'CBBTC', 'DAI', 'WSOL', 'JUP', 'USDC.E', 'LINK', 'UNI', 'AAVE', 'ARB', 'OP', 'PAXG', 'XAUT', 'BONK', 'JITOSOL', 'MSOL', 'PEPE', 'SHIB', 'LDO', 'MKR', 'CRV', 'SNX', 'COMP', 'GRT', 'RNDR', 'FET', 'ENA', 'USDE', 'PYUSD', 'FDUSD', 'EURC'];
 async function tokens(chainId) {
   return cached('tokens:' + chainId, 15 * 60 * 1000, async () => {
     const j = await lifi('/tokens', { chains: chainId, chainTypes: 'EVM,SVM' });
     const list = (j.tokens && (j.tokens[chainId] || Object.values(j.tokens)[0])) || [];
+    /* LI.FI lists everything, junk included: drop tokens whose price cannot be real,
+       then order like a wallet would: the native coin, stablecoins, majors, then
+       known coins with a logo, then the rest */
+    const rank = (t) => {
+      const i = MAJORS.indexOf(t.symbol.toUpperCase());
+      if (i >= 0) return i;
+      if (t.coinKey && t.logo) return 100;
+      if (t.logo) return 200;
+      return 300;
+    };
     return list.map((t) => ({ address: t.address, chainId: t.chainId, symbol: t.symbol, name: t.name, decimals: t.decimals, logo: t.logoURI, priceUSD: t.priceUSD ? Number(t.priceUSD) : null, coinKey: t.coinKey || null }))
-      .sort((a, b) => (b.priceUSD ? 1 : 0) - (a.priceUSD ? 1 : 0));
+      .filter((t) => !(t.priceUSD > 250000) || /BTC/i.test(t.symbol))
+      .map((t) => ({ ...t, popular: MAJORS.slice(0, 14).includes(t.symbol.toUpperCase()) }))
+      .sort((a, b) => rank(a) - rank(b) || (b.priceUSD ? 1 : 0) - (a.priceUSD ? 1 : 0));
   });
 }
 

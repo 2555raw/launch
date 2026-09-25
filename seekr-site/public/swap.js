@@ -26,7 +26,8 @@
 
   /* ---------- units ---------- */
   function toRaw(v, dec) {
-    v = String(v || '').replace(',', '.').trim();
+    v = String(v || '').replace(/[\s\u00a0'_]/g, '');
+    v = v.includes(',') && v.includes('.') ? v.replace(/,/g, '') : v.replace(',', '.');
     if (!/^\d*\.?\d*$/.test(v) || v === '' || v === '.') return null;
     const [i, f = ''] = v.split('.');
     return (BigInt(i || '0') * 10n ** BigInt(dec) + BigInt((f + '0'.repeat(dec)).slice(0, dec) || '0')).toString();
@@ -53,7 +54,8 @@
     { id: 'coinbase', name: 'Coinbase Wallet', rdns: 'com.coinbase.wallet', deep: () => `https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(location.href)}`, install: 'https://www.coinbase.com/wallet/downloads' },
     { id: 'phantom', name: 'Phantom', rdns: 'app.phantom', solana: true, deep: () => `https://phantom.app/ul/browse/${encodeURIComponent(location.href)}?ref=${encodeURIComponent(location.origin)}`, install: 'https://phantom.app/download' }
   ];
-  const WALLET_ICON = { metamask: '🦊', coinbase: '🔵', phantom: '👻' };
+  const WALLET_ICON = { metamask: '/art/wallets/metamask.svg', coinbase: '/art/wallets/coinbase.svg', phantom: '/art/wallets/phantom.svg' };
+  const GENERIC_WALLET = '<span class="wal-generic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2M3 9h13a2 2 0 0 0 2-2V6"/></svg></span>';
 
   async function connectEvm(w) {
     const provider = w.provider;
@@ -85,7 +87,7 @@
     for (const k of KNOWN) {
       const evm = evmWallets.find((w) => w.info.rdns === k.rdns || (k.id === 'coinbase' && /coinbase/i.test(w.info.name)));
       const solProv = k.id === 'phantom' ? window.phantom && window.phantom.solana : k.id === 'coinbase' ? window.coinbaseSolana : null;
-      const icon = evm && evm.info.icon ? `<img src="${esc(evm.info.icon)}" alt="">` : `<span class="wal-emoji">${WALLET_ICON[k.id]}</span>`;
+      const icon = evm && evm.info.icon ? `<img src="${esc(evm.info.icon)}" alt="">` : `<img src="${WALLET_ICON[k.id]}" alt="">`;
       const acts = [];
       if (evm) acts.push(`<button class="btn btn-ghost btn-sm" data-evm="${esc(evm.info.uuid)}">${k.id === 'phantom' ? 'Ethereum & EVM' : 'Connect'}</button>`);
       if (solProv) acts.push(`<button class="btn btn-ghost btn-sm" data-sol="${k.id}">Solana</button>`);
@@ -93,11 +95,11 @@
       rows.push(`<div class="wal-row">${icon}<div><b>${k.name}</b><small>${evm || solProv ? 'Detected' : isMobile ? 'Opens this page inside the app' : 'Not installed'}</small></div><div class="wal-acts">${acts.join('')}</div></div>`);
     }
     for (const w of evmWallets.filter((w) => !KNOWN.some((k) => k.rdns === w.info.rdns || (k.id === 'coinbase' && /coinbase/i.test(w.info.name))))) {
-      rows.push(`<div class="wal-row">${w.info.icon ? `<img src="${esc(w.info.icon)}" alt="">` : '<span class="wal-emoji">👛</span>'}<div><b>${esc(w.info.name)}</b><small>Detected</small></div><div class="wal-acts"><button class="btn btn-ghost btn-sm" data-evm="${esc(w.info.uuid)}">Connect</button></div></div>`);
+      rows.push(`<div class="wal-row">${w.info.icon ? `<img src="${esc(w.info.icon)}" alt="">` : GENERIC_WALLET}<div><b>${esc(w.info.name)}</b><small>Detected</small></div><div class="wal-acts"><button class="btn btn-ghost btn-sm" data-evm="${esc(w.info.uuid)}">Connect</button></div></div>`);
     }
     if (!evmWallets.length && window.ethereum && !rows.some((r) => r.includes('data-evm'))) {
       evmWallets.push({ info: { uuid: 'injected', name: 'Browser wallet', icon: '', rdns: 'injected' }, provider: window.ethereum });
-      rows.push(`<div class="wal-row"><span class="wal-emoji">👛</span><div><b>Browser wallet</b><small>Detected</small></div><div class="wal-acts"><button class="btn btn-ghost btn-sm" data-evm="injected">Connect</button></div></div>`);
+      rows.push(`<div class="wal-row">${GENERIC_WALLET}<div><b>Browser wallet</b><small>Detected</small></div><div class="wal-acts"><button class="btn btn-ghost btn-sm" data-evm="injected">Connect</button></div></div>`);
     }
     m.innerHTML = `<button class="icon-btn x" id="walClose">✕</button><h2>Connect a wallet</h2><p class="sub">EVM chains with MetaMask or Coinbase Wallet, Solana with Phantom. You can connect one of each for cross-chain swaps.</p>${rows.join('')}
       ${S.evm || S.sol ? '<button class="btn btn-ghost btn-sm" id="walOff" style="margin-top:10px">Disconnect</button>' : ''}`;
@@ -114,11 +116,21 @@
     if (!S.tokens.has(chainId)) S.tokens.set(chainId, (await api('/api/swap/tokens?chain=' + chainId)).tokens);
     return S.tokens.get(chainId);
   }
+  /* a real-world asset issued on several networks: take the one on the network you pay from */
+  function sameChain(t) {
+    if (!t || !t.kind || !S.from || t.chainId === S.from.chainId) return t;
+    const alt = S.rwa.find((x) => x.symbol === t.symbol && x.chainId === S.from.chainId);
+    if (alt) { const c = chainOf(alt.chainId); toast(`Using ${alt.symbol} on ${c ? c.name : 'the same network'}: no bridge, no second wallet.`); return alt; }
+    return t;
+  }
+  const fallbackIcon = (sym) => `<span class="tok-fb">${esc(String(sym || '?').replace(/[^A-Za-z0-9]/g, '').slice(0, 1).toUpperCase() || '?')}</span>`;
+  const tokImg = (t) => (t.logo ? `<img src="${esc(t.logo)}" alt="" onerror="this.outerHTML=this.dataset.fb" data-fb='${fallbackIcon(t.symbol).replace(/'/g, '&#39;')}'>` : fallbackIcon(t.symbol));
+
   function tokBtn(el, side) {
     const t = S[side];
     if (!t) { el.innerHTML = '<span class="tok-sel">Select token</span><span class="caret"></span>'; return; }
     const c = chainOf(t.chainId);
-    el.innerHTML = `<span class="tok-ic"><img src="${esc(t.logo || '')}" alt="" onerror="this.style.visibility='hidden'">${c ? `<img class="tok-chain" src="${esc(c.logo)}" alt="" title="${esc(c.name)}">` : ''}</span><span class="tok-sym">${esc(t.symbol)}</span><span class="caret"></span>`;
+    el.innerHTML = `<span class="tok-ic">${tokImg(t)}${c ? `<img class="tok-chain" src="${esc(c.logo)}" alt="" title="${esc(c.name)}">` : ''}</span><span class="tok-sym">${esc(t.symbol)}${c ? `<small>${esc(c.name)}</small>` : ''}</span><span class="caret"></span>`;
     el.title = `${t.name} on ${c ? c.name : ''}`;
   }
 
@@ -128,26 +140,31 @@
     let tab = 'all';
     const featured = S.chains.slice(0, 11);
     m.innerHTML = `<button class="icon-btn x" id="tokClose">✕</button><h2>Select a token</h2>
-      <div class="tok-chains" id="tokChains"></div>
-      <select class="input tok-more" id="tokMore"><option value="">More chains…</option>${S.chains.slice(11).map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
       <div class="seg tok-tabs"><button data-t="all" class="on">All tokens</button><button data-t="rwa">Real-world assets</button></div>
-      <input class="input" id="tokSearch" placeholder="Search name or paste an address" autocomplete="off">
+      <div class="tok-chains" id="tokChains"></div>
+      <label class="tok-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="tokSearch" placeholder="Search a name or paste an address" autocomplete="off"></label>
+      <div class="tok-pop" id="tokPop"></div>
+      <div class="tok-lbl" id="tokLbl"></div>
       <div class="tok-list" id="tokList"><span class="note">Loading…</span></div>`;
     bg.classList.add('open');
     const close = () => bg.classList.remove('open');
     $('#tokClose').onclick = close; bg.onclick = (e) => { if (e.target === bg) close(); };
-    const drawChains = () => { $('#tokChains').innerHTML = featured.map((c) => `<button class="tok-chip ${c.id === chainId ? 'on' : ''}" data-c="${c.id}" title="${esc(c.name)}"><img src="${esc(c.logo)}" alt="">${esc(c.name.replace(' Chain', ''))}</button>`).join(''); m.querySelectorAll('[data-c]').forEach((b) => b.onclick = () => { chainId = Number(b.dataset.c); drawChains(); draw(); }); };
-    $('#tokMore').onchange = (e) => { if (e.target.value) { chainId = Number(e.target.value); if (!featured.find((c) => c.id === chainId)) featured.push(chainOf(chainId)); drawChains(); draw(); } };
-    m.querySelectorAll('.tok-tabs button').forEach((b) => b.onclick = () => { tab = b.dataset.t; m.querySelectorAll('.tok-tabs button').forEach((x) => x.classList.toggle('on', x === b)); $('#tokChains').style.display = tab === 'rwa' ? 'none' : ''; $('#tokMore').style.display = tab === 'rwa' ? 'none' : ''; draw(); });
-    const pick = (t) => { S[side] = t; if (S.from && S.to && S.from.address === S.to.address && S.from.chainId === S.to.chainId) S[side === 'from' ? 'to' : 'from'] = null; close(); tokBtn($('#fromTok'), 'from'); tokBtn($('#toTok'), 'to'); refresh(); };
-    const row = (t) => { const c = chainOf(t.chainId); return `<button class="tok-row" data-a="${esc(t.address)}" data-ch="${t.chainId}"><span class="tok-ic"><img src="${esc(t.logo || '')}" alt="" onerror="this.style.visibility='hidden'">${c ? `<img class="tok-chain" src="${esc(c.logo)}" alt="">` : ''}</span><span class="tok-nm"><b>${esc(t.symbol)}</b><small>${esc(t.name)}${tab === 'rwa' && c ? ' · ' + esc(c.name) : ''}</small></span>${t.kind ? `<span class="badge">${t.kind}</span>` : ''}<span class="tok-px">${t.priceUSD ? usd(t.priceUSD) : ''}</span></button>`; };
+    const drawChains = () => {
+      $('#tokChains').innerHTML = featured.map((c) => `<button class="tok-chip ${c.id === chainId ? 'on' : ''}" data-c="${c.id}" title="${esc(c.name)}"><img src="${esc(c.logo)}" alt="" onerror="this.style.display='none'">${esc(c.name.replace(' Chain', '').replace(' Mainnet', ''))}</button>`).join('')
+        + `<label class="tok-chip tok-more-wrap"><select id="tokMore" aria-label="More networks"><option value="">More networks</option>${S.chains.filter((c) => !featured.includes(c)).map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>`;
+      m.querySelectorAll('[data-c]').forEach((b) => b.onclick = () => { chainId = Number(b.dataset.c); drawChains(); draw(); });
+      $('#tokMore').onchange = (e) => { if (e.target.value) { chainId = Number(e.target.value); if (!featured.find((c) => c.id === chainId)) featured.push(chainOf(chainId)); drawChains(); draw(); } };
+    };
+    m.querySelectorAll('.tok-tabs button').forEach((b) => b.onclick = () => { tab = b.dataset.t; m.querySelectorAll('.tok-tabs button').forEach((x) => x.classList.toggle('on', x === b)); $('#tokChains').style.display = tab === 'rwa' ? 'none' : ''; draw(); });
+    const pick = (t) => { if (side === 'to') t = sameChain(t); S[side] = t; if (side === 'from' && S.to && S.to.kind) S.to = sameChain(S.to); if (S.from && S.to && S.from.address === S.to.address && S.from.chainId === S.to.chainId) S[side === 'from' ? 'to' : 'from'] = null; close(); tokBtn($('#fromTok'), 'from'); tokBtn($('#toTok'), 'to'); refresh(); };
+    const row = (t) => { const c = chainOf(t.chainId); return `<button class="tok-row" data-a="${esc(t.address)}" data-ch="${t.chainId}"><span class="tok-ic">${tokImg(t)}${c ? `<img class="tok-chain" src="${esc(c.logo)}" alt="">` : ''}</span><span class="tok-nm"><b>${esc(t.symbol)}</b><small>${esc(t.name)}${tab === 'rwa' && c ? ' · ' + esc(c.name) : ''}</small></span>${t.kind ? `<span class="badge">${t.kind}</span>` : ''}<span class="tok-px">${t.priceUSD ? usd(t.priceUSD) : ''}</span></button>`; };
     let seq = 0;
     const draw = async () => {
       const my = ++seq;
       const list = $('#tokList');
       const q = $('#tokSearch').value.trim();
       let items;
-      if (tab === 'rwa') items = S.rwa;
+      if (tab === 'rwa') items = [...S.rwa].sort((a, b) => (S.from && b.chainId === S.from.chainId ? 1 : 0) - (S.from && a.chainId === S.from.chainId ? 1 : 0));
       else { list.innerHTML = '<span class="note">Loading…</span>'; try { items = await tokensFor(chainId); } catch (e) { list.innerHTML = `<span class="note">${esc(e.message)}</span>`; return; } }
       if (my !== seq) return;
       const ql = q.toLowerCase();
@@ -156,6 +173,11 @@
       if (!shown.length && q && tab === 'all' && (/^0x[0-9a-fA-F]{40}$/.test(q) || /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(q))) {
         try { const { token } = await api(`/api/swap/token?chain=${chainId}&token=${encodeURIComponent(q)}`); shown = [token]; } catch { list.innerHTML = '<span class="note">No token at that address on this chain.</span>'; return; }
       }
+      const cn = chainOf(chainId);
+      $('#tokLbl').textContent = tab === 'rwa' ? 'Tokenized gold, treasuries and stocks' : q ? `Results on ${cn ? cn.name : 'this network'}` : `Tokens on ${cn ? cn.name : 'this network'}`;
+      const pop = tab === 'all' && !q ? items.filter((t) => t.popular).slice(0, 6) : [];
+      $('#tokPop').innerHTML = pop.map((t) => `<button class="tok-pchip" data-a="${esc(t.address)}" data-ch="${t.chainId}">${tokImg(t)}${esc(t.symbol)}</button>`).join('');
+      $('#tokPop').querySelectorAll('button').forEach((b) => b.onclick = () => pick(items.find((t) => t.address === b.dataset.a)));
       list.innerHTML = shown.length ? shown.map(row).join('') : `<span class="note">${tab === 'rwa' ? 'No real-world assets available on the swap routes right now.' : 'No tokens match.'}</span>`;
       list.querySelectorAll('.tok-row').forEach((b) => b.onclick = () => { const src = tab === 'rwa' ? S.rwa : S.tokens.get(Number(b.dataset.ch)) || shown; pick(src.find((t) => t.address === b.dataset.a && t.chainId === Number(b.dataset.ch)) || shown.find((t) => t.address === b.dataset.a)); });
     };
@@ -224,7 +246,11 @@
       d.hidden = false;
     } catch (e) {
       if (my !== S.seq) return;
-      $('#swErr').textContent = e.message; $('#swErr').hidden = false;
+      const worth = f.priceUSD ? Number(fromRaw(raw, f.decimals, 8).replace(/,/g, '')) * f.priceUSD : null;
+      const cross = f.chainId !== t.chainId;
+      const small = worth !== null && worth < (cross ? 15 : 3);
+      $('#swErr').textContent = e.message + (small ? ` ${usd(worth)} is probably too small for this route${cross ? ': moving between networks costs a few dollars in fees, so try $15 or more, or pick the same asset on ' + (chainOf(f.chainId) || {}).name : '; try a little more'}.` : '');
+      $('#swErr').hidden = false;
     } finally { if (my === S.seq) { S.quoting = false; renderGo(); } }
   }
 
@@ -372,7 +398,7 @@
       S.rwa = (await api('/api/swap/rwa')).tokens;
       const groups = ['Gold', 'Treasuries', 'Stocks'];
       $('#rwaList').innerHTML = S.rwa.length ? groups.map((g) => { const items = S.rwa.filter((t) => t.kind === g); return items.length ? `<div class="rwa-g"><span class="tag">${g}</span><div class="rwa-items">${items.slice(0, 12).map((t) => `<button class="rwa-it" data-a="${esc(t.address)}" data-ch="${t.chainId}"><img src="${esc(t.logo || '')}" alt="" onerror="this.style.visibility='hidden'"><b>${esc(t.symbol)}</b><small>${t.priceUSD ? usd(t.priceUSD) : esc(chainOf(t.chainId) ? chainOf(t.chainId).name : '')}</small></button>`).join('')}</div></div>` : ''; }).join('') : '<span class="note">No real-world assets are on the swap routes right now.</span>';
-      document.querySelectorAll('.rwa-it').forEach((b) => b.onclick = () => { S.to = S.rwa.find((t) => t.address === b.dataset.a && t.chainId === Number(b.dataset.ch)); scrollTo({ top: 0, behavior: 'smooth' }); refresh(); $('#amt').focus(); });
+      document.querySelectorAll('.rwa-it').forEach((b) => b.onclick = () => { S.to = sameChain(S.rwa.find((t) => t.address === b.dataset.a && t.chainId === Number(b.dataset.ch))); scrollTo({ top: 0, behavior: 'smooth' }); refresh(); $('#amt').focus(); });
     } catch { $('#rwaList').innerHTML = '<span class="note">Real-world assets could not be loaded.</span>'; }
   })();
 })();

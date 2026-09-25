@@ -492,11 +492,18 @@ function match(method, pathname) {
 }
 
 /* ---------- static ---------- */
-function serveFile(res, file, cache) {
-  fs.readFile(file, (err, body) => {
-    if (err) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); res.end('404: nothing here'); return; }
-    res.writeHead(200, { 'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', 'cache-control': cache });
-    res.end(body);
+/* Last-Modified + If-Modified-Since, so "no-cache" files cost a 304 when unchanged */
+function serveFile(res, file, cache, req) {
+  fs.stat(file, (e, st) => {
+    if (e || !st.isFile()) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); res.end('404: nothing here'); return; }
+    const lm = new Date(Math.floor(st.mtimeMs / 1000) * 1000).toUTCString();
+    const since = req && req.headers['if-modified-since'];
+    if (since && Date.parse(since) >= Date.parse(lm)) { res.writeHead(304, { 'cache-control': cache, 'last-modified': lm }); res.end(); return; }
+    fs.readFile(file, (err, body) => {
+      if (err) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); res.end('404: nothing here'); return; }
+      res.writeHead(200, { 'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', 'cache-control': cache, 'last-modified': lm });
+      res.end(body);
+    });
   });
 }
 
@@ -516,7 +523,8 @@ function serveStatic(req, res, pathname) {
   const file = path.join(PUBLIC, path.normalize(rel));
   if (!file.startsWith(PUBLIC)) { res.writeHead(403); res.end('Forbidden'); return; }
   const ext = path.extname(file).toLowerCase();
-  serveFile(res, file, ext === '.html' ? 'no-cache' : ['.jpg', '.webp', '.png', '.svg'].includes(ext) ? 'public, max-age=604800' : 'public, max-age=3600');
+  /* pages, styles and scripts revalidate on every load so a deploy shows at once; art is cached a week */
+  serveFile(res, file, ['.html', '.css', '.js'].includes(ext) ? 'no-cache' : ['.jpg', '.webp', '.png', '.svg'].includes(ext) ? 'public, max-age=604800' : 'public, max-age=3600', req);
 }
 
 /* ---------- server ---------- */

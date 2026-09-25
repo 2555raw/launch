@@ -1,9 +1,9 @@
 /* Picks who serves a model:
  *   live — the model's own provider, when its key is set
  *   free — a real free model (lib/providers/free.js), when it can do the job
- *   demo — a labelled simulation, if both of the above are unavailable
- * A free call that fails before sending anything falls through to demo, so
- * the product always answers. */
+ *   demo — a labelled simulation, only when the free tier is switched off
+ * A free call that fails says the free model is busy; it never falls back to a
+ * simulated answer. */
 const config = require('./config');
 const demo = require('./providers/demo');
 const free = require('./providers/free');
@@ -21,19 +21,23 @@ const live = {
 
 const freeOn = () => (process.env.FREE_TIER || 'on').toLowerCase() !== 'off';
 
-/* wrap each method: try free, fall back to demo when free gives nothing */
-function freeThenDemo() {
+/* The free tier, and nothing pretending to be it: when the free service cannot
+ * answer (after its own retries) the user gets a plain "busy" message, never a
+ * simulated answer that has nothing to do with the question. */
+const BUSY = {
+  streamChat: 'The free model is busy right now. Try again in a few seconds.',
+  generateImage: 'The free image model is busy right now. Try again in a few seconds.',
+  speak: 'The free voice model is busy right now. Try again in a few seconds.'
+};
+function freeOnly() {
   const wrap = (name) => async (args) => {
-    let emitted = false;
-    const a = name === 'streamChat' ? { ...args, onText: (t) => { emitted = true; args.onText(t); } } : args;
     try {
-      const out = await free[name](a);
+      const out = await free[name](args);
       return { ...out, tier: 'free' };
     } catch (e) {
-      if (emitted || args.signal?.aborted) throw e;
-      console.warn(`free ${name} failed, using demo: ${e.message}`);
-      const out = await demo[name](args);
-      return { ...out, tier: 'demo' };
+      if (args.signal?.aborted) throw e;
+      console.warn(`free ${name} failed: ${e.message}`);
+      throw Object.assign(new Error(BUSY[name]), { status: 503, cause: e });
     }
   };
   return {
@@ -48,7 +52,7 @@ function freeThenDemo() {
 function resolve(model) {
   if (config.isLive(model.provider)) return { impl: live[model.provider](), live: true, tier: 'live' };
   const kindOk = { chat: 'chat', image: 'image', tts: 'tts' }[model.kind];
-  if (freeOn() && kindOk) return { impl: freeThenDemo(), live: false, tier: 'free' };
+  if (freeOn() && kindOk) return { impl: freeOnly(), live: false, tier: 'free' };
   if (config.demoAllowed()) return { impl: demo, live: false, tier: 'demo' };
   throw Object.assign(new Error(`${model.vendor} is not configured on this server (set ${demo.keyName(model.provider)})`), { status: 503 });
 }

@@ -18,6 +18,7 @@ const chain = require('./lib/chain');
 const skills = require('./lib/skills');
 const mailer = require('./lib/mailer');
 const swap = require('./lib/swap');
+const support = require('./lib/support');
 
 const PUBLIC = path.join(__dirname, 'public');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
@@ -56,6 +57,16 @@ function requireAccount(req) {
 }
 
 const ipOf = (req) => String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+
+/* support is free, so it is metered per address: 30 questions per 10 minutes */
+const supportHits = new Map();
+function supportLimit(ip) {
+  const now = Date.now();
+  const t = (supportHits.get(ip) || []).filter((x) => now - x < 10 * 60 * 1000);
+  if (t.length >= 30) throw new HttpError(429, 'Too many questions in a row. Wait a few minutes and ask again.');
+  t.push(now); supportHits.set(ip, t);
+  if (supportHits.size > 5000) supportHits.clear();
+}
 
 function accountView(a) {
   return { ...auth.publicAccount(a), tier: credits.tier(a), allowance: credits.allowance(a) };
@@ -274,6 +285,38 @@ const api = {
     return null;
   },
 
+  /* --- support: an assistant that knows the product; free, no sign-in --- */
+  'POST /api/support': async (req, url, res) => {
+    supportLimit(ipOf(req));
+    const b = await readJson(req);
+    const messages = (Array.isArray(b.messages) ? b.messages : []).slice(-12)
+      .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
+      .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+    const last = messages[messages.length - 1];
+    if (!last || last.role !== 'user') throw new HttpError(400, 'Ask something first');
+    const a = auth.fromRequest(req);
+    /* the cheapest connected chat model, else the free tier */
+    const liveModel = catalog.MODELS.filter((m) => m.kind === 'chat' && config.isLive(m.provider)).sort((x, y) => x.price.out - y.price.out)[0];
+    const model = liveModel || catalog.get('gpt-5-mini') || catalog.defaultChat();
+    const impl = liveModel ? router.resolve(liveModel).impl : router.free;
+
+    res.writeHead(200, { 'content-type': 'text/event-stream; charset=utf-8', 'cache-control': 'no-store', connection: 'keep-alive', 'x-accel-buffering': 'no' });
+    const emit = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    const ac = new AbortController();
+    req.on('close', () => ac.abort());
+    let emitted = false;
+    try {
+      await impl.streamChat({ model, messages, system: support.system(a), mode: 'ask', signal: ac.signal, onText: (t) => { emitted = true; emit('delta', { text: t }); } });
+      emit('done', {});
+    } catch (e) {
+      if (!ac.signal.aborted) {
+        if (!emitted) { emit('delta', { text: support.localAnswer(last.content) }); emit('done', { offline: true }); } else emit('error', { message: 'The answer was cut off. Try again.' });
+      }
+    }
+    res.end();
+    return null;
+  },
+
   /* --- media --- */
   'POST /api/image': async (req) => {
     const a = requireAccount(req);
@@ -304,6 +347,8 @@ const api = {
     const prompt = String(b.prompt || '').trim();
     if (!prompt) throw new HttpError(400, 'Describe the clip first');
     const seconds = Math.max(2, Math.min(15, Number(b.seconds) || 5));
+    /* no free service makes real video: without the provider's key, say so instead of faking a clip */
+    if (!config.isLive(model.provider)) throw new HttpError(503, 'Video is not switched on yet: it needs a video provider connected on the server. Coming soon.', { code: 'not_live' });
     const usage = { seconds };
     const { impl, tier: planned } = router.resolve(model);
     const q = credits.quote(model, usage, a);
@@ -376,7 +421,7 @@ const api = {
   },
 
   /* --- library & files --- */
-  'GET /api/library': async (req) => { const a = requireAccount(req); return { items: store.find('library', (i) => i.account === a.id).sort((x, y) => y.created.localeCompare(x.created)) }; },
+  'GET /api/library': async (req) => { const a = requireAccount(req); return { items: store.find('library', (i) => i.account === a.id && !(i.kind === 'video' && !i.live)).sort((x, y) => y.created.localeCompare(x.created)) }; },
   'DELETE /api/library/:id': async (req, url, res, p) => { const a = requireAccount(req); const i = store.get('library', p.id); if (!i || i.account !== a.id) throw new HttpError(404, 'No such item'); store.del('library', i.id); return { ok: true }; },
   'GET /api/files': async (req) => { const a = requireAccount(req); return { files: store.find('files', (f) => f.account === a.id).sort((x, y) => y.created.localeCompare(x.created)) }; },
   'POST /api/files': async (req) => {

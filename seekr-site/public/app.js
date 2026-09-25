@@ -172,7 +172,7 @@
   function renderComposer() {
     const c = $('#composer');
     const m = activeModel();
-    const hints = { ask: `${m.name} answers as it thinks. Long questions can take a moment.`, code: `${m.name} thinks before it writes. A big build brief can take several minutes.`, images: `${m.name} renders one image per request at ${state.size}.`, video: `${m.name} renders ${state.seconds}s of video. Clips take a few minutes.` };
+    const hints = { ask: `${m.name} answers as it thinks. Long questions can take a moment.`, code: `${m.name} thinks before it writes. A big build brief can take several minutes.`, images: `${m.name} renders one image per request at ${state.size}.`, video: m.live ? `${m.name} renders ${state.seconds}s of video. Clips take a few minutes.` : 'Video is not switched on yet: it needs a video provider connected on the server. Coming soon.' };
     const sk = state.mode === 'ask' ? currentSkill() : null;
     if (sk) hints.ask = `${sk.title}: ${sk.blurb.toLowerCase()}. ${m.name} answers${sk.web ? ' and searches when it helps' : ''}.`;
     const ph = { ask: sk ? ({ lookup: 'What do you want to look up?', write: 'Paste a draft or say what to write…', learn: 'What are you learning?', fix: 'What needs fixing, and on which device?', health: 'Paste a result or describe what you want to understand…', translate: 'Paste the text and say which language…', money: 'Describe the budget, loan or bill…', brainstorm: 'What do you need ideas for?', summarise: 'Paste anything long…', shop: 'What are you buying, and your budget?' }[sk.id] || 'Ask anything…') : 'Ask anything…', code: 'Describe what to build…', images: 'Describe the image…', video: 'Describe the clip…' };
@@ -254,7 +254,7 @@
     const ta = $('#prompt'); const text = ta.value.trim();
     if (!text) return;
     if (state.mode === 'images') return generate('image', text);
-    if (state.mode === 'video') return generate('video', text);
+    if (state.mode === 'video') { if (!activeModel().live) return toast('Video is not switched on yet: it needs a video provider connected on the server. Coming soon.', true); return generate('video', text); }
     ta.value = ''; ta.style.height = 'auto';
     if (!state.chat) state.chat = { id: null, title: text.slice(0, 60), messages: [], mode: state.mode, model: state.model.id, skill: state.mode === 'ask' ? state.skill : null };
     state.chat.messages.push({ role: 'user', content: text, at: new Date().toISOString() });
@@ -378,14 +378,13 @@
   function authPanel(host, done) {
     const cfg = state.cfg || {};
     const emailOn = cfg.auth && cfg.auth.email;
-    const tg = (cfg.links && cfg.links.telegram) || '#';
     host.innerHTML = `<div class="auth">
       <h2 class="auth-h">Log in or create<br>an account</h2>
       <p class="auth-sub">No email needed. Nothing is shared with anyone.</p>
       <div class="seg" role="tablist"><button data-tab="user" class="on" role="tab">Username</button><button data-tab="wallet" role="tab">Wallet</button><button data-tab="email" role="tab">Email code</button></div>
       <div class="auth-body" id="authBody"></div>
       <div class="auth-foot"><hr><p>Made your account with a username or a wallet? You can add an email later from your account page, for recovery and receipts. Never required.</p>
-      <p>Cannot get in? <a href="${esc(tg)}" target="_blank" rel="noopener">Message support on Telegram</a> and a person sorts it.</p>
+      <p>Cannot get in? <a href="#support" data-support="I can't sign in to my account">Ask support</a> and get an answer right away.</p>
       <p class="auth-key"><a href="#" id="useKey">I have an access key</a></p></div>
     </div>`;
     const body = host.querySelector('#authBody');

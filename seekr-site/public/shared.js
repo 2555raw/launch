@@ -78,9 +78,8 @@ window.seekr = (() => {
       const buy = document.getElementById('buyBtn'); const chart = document.getElementById('chartBtn');
       if (buy && cfg.chain.buyUrl) buy.href = cfg.chain.buyUrl;
       if (chart && cfg.chain.chartUrl) chart.href = cfg.chain.chartUrl;
-      const tg = document.getElementById('tgLink'); if (tg) tg.href = cfg.links.telegram;
       const xl = document.getElementById('xLink'); if (xl) xl.href = cfg.links.x;
-      for (const id of ['mailLink', 'supportLink']) { const el = document.getElementById(id); if (el) { el.href = 'mailto:' + cfg.links.email; if (id === 'mailLink') el.textContent = cfg.links.email; } }
+      const ml = document.getElementById('mailLink'); if (ml) { ml.href = 'mailto:' + cfg.links.email; ml.textContent = cfg.links.email; }
       window.seekrConfig = cfg;
     }).catch(() => null);
   }
@@ -95,3 +94,110 @@ window.seekr = (() => {
 
   return { api, getKey, setKey, usd, cr, pct, esc, mark, vendorMark, theme, nav, toast };
 })();
+
+/* Support: a chat panel with an assistant that knows seekr. Opens from any
+ * "Support" link (#supportLink or [data-support]) on every page. */
+seekr.support = (() => {
+  const { esc, getKey } = seekr;
+  const SAVE = 'seekr.support';
+  const HELLO = "Hi, I'm the seekr assistant. Ask me anything: signing in, adding funds, prices and models, Swap, or $SEEKR. I answer in your language.";
+  const SUGG = ['How do I add funds?', 'How does Swap work?', 'What does $SEEKR give me?', "I can't sign in"];
+  let log = [];
+  try { log = JSON.parse(sessionStorage.getItem(SAVE) || '[]'); } catch { log = []; }
+  const save = () => { try { sessionStorage.setItem(SAVE, JSON.stringify(log.slice(-30))); } catch { /* private mode */ } };
+  let el = null; let busy = false;
+
+  /* just enough markdown for support answers */
+  const md = (t) => esc(t)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/(^|[\s(])(https?:\/\/[^\s<)]+[^\s<).,])/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>')
+    .replace(/(^|[\s(])([\w.+-]+@[\w-]+\.[\w.]+[a-z])/gi, '$1<a href="mailto:$2">$2</a>')
+    .replace(/\n/g, '<br>');
+
+  function build() {
+    el = document.createElement('div');
+    el.className = 'sup'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'seekr support');
+    el.innerHTML = `<div class="sup-h"><span class="sup-av">&gt;</span><div class="sup-t"><b>seekr support</b><small><span class="dot pulse"></span>AI assistant, answers in seconds</small></div>
+      <button class="sup-ic" data-act="new" title="New conversation" aria-label="New conversation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+      <button class="sup-ic" data-act="close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="sup-log" aria-live="polite"></div>
+      <div class="sup-sugg"></div>
+      <form class="sup-f"><textarea rows="1" maxlength="2000" placeholder="Ask anything about seekr…" aria-label="Your question"></textarea><button class="sup-send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
+      <div class="sup-foot">Never share your seed phrase, password or keys. Need a person? <a href="https://x.com/heySeekr" target="_blank" rel="noopener">@heySeekr</a></div>`;
+    document.body.appendChild(el);
+    const ta = el.querySelector('textarea');
+    el.querySelector('[data-act=close]').onclick = close;
+    el.querySelector('[data-act=new]').onclick = () => { if (busy) return; log = []; save(); render(); ta.focus(); };
+    el.querySelector('form').onsubmit = (e) => { e.preventDefault(); send(ta.value); };
+    ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(ta.value); } });
+    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; });
+    el.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    render();
+  }
+
+  function render() {
+    const box = el.querySelector('.sup-log');
+    box.innerHTML = `<div class="sup-m bot">${md(HELLO)}</div>` + log.map((m) => `<div class="sup-m ${m.role === 'user' ? 'me' : 'bot'}${m.err ? ' err' : ''}">${m.content ? md(m.content) : '<span class="sup-dots"><i></i><i></i><i></i></span>'}</div>`).join('');
+    el.querySelector('.sup-sugg').innerHTML = log.length ? '' : SUGG.map((q) => `<button type="button">${esc(q)}</button>`).join('');
+    el.querySelectorAll('.sup-sugg button').forEach((b) => { b.onclick = () => send(b.textContent); });
+    box.scrollTop = box.scrollHeight;
+  }
+
+  async function send(text) {
+    text = String(text || '').trim();
+    if (!text || busy) return;
+    const ta = el.querySelector('textarea'); ta.value = ''; ta.style.height = 'auto';
+    busy = true; el.classList.add('busy');
+    log.push({ role: 'user', content: text });
+    const bot = { role: 'assistant', content: '' }; log.push(bot); render();
+    const box = el.querySelector('.sup-log');
+    const paint = () => { const last = box.lastElementChild; if (last) last.innerHTML = bot.content ? md(bot.content) : '<span class="sup-dots"><i></i><i></i><i></i></span>'; box.scrollTop = box.scrollHeight; };
+    try {
+      const headers = { 'content-type': 'application/json' };
+      const key = getKey(); if (key) headers.authorization = 'Bearer ' + key;
+      const history = log.filter((m) => m !== bot && !m.err && m.content).map(({ role, content }) => ({ role, content }));
+      const r = await fetch('/api/support', { method: 'POST', headers, body: JSON.stringify({ messages: history }) });
+      if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || 'Support is unavailable right now.'); }
+      const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf('\n\n')) >= 0) {
+          const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+          const ev = (chunk.match(/^event: (.*)$/m) || [])[1]; const data = (chunk.match(/^data: (.*)$/m) || [])[1];
+          if (!data) continue;
+          const d = JSON.parse(data);
+          if (ev === 'delta') { bot.content += d.text; paint(); }
+          if (ev === 'error') throw new Error(d.message);
+        }
+      }
+      if (!bot.content) throw new Error('No answer came back. Try again.');
+    } catch (e) {
+      bot.content = bot.content ? bot.content + '\n\n' + e.message : e.message; bot.err = true;
+    }
+    busy = false; el.classList.remove('busy'); save(); render();
+    el.querySelector('textarea').focus();
+  }
+
+  function open(q) {
+    if (!el) build();
+    el.classList.add('open');
+    const ta = el.querySelector('textarea');
+    setTimeout(() => ta.focus(), 50);
+    if (q) send(q);
+  }
+  function close() { if (el) el.classList.remove('open'); }
+
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('#supportLink, [data-support]');
+    if (!t) return;
+    e.preventDefault(); open(t.dataset.support || '');
+  });
+  if (location.hash === '#support') setTimeout(() => open(), 300);
+  return { open, close };
+})();
+

@@ -99,10 +99,10 @@ const SYSTEM = {
 
 /* ---------- API ---------- */
 const api = {
-  'GET /api/health': async () => ({ ok: true, demo: config.demoAllowed(), time: new Date().toISOString() }),
+  'GET /api/health': async () => ({ ok: true, demo: config.demoMoney(), time: new Date().toISOString() }),
 
   'GET /api/config': async () => ({
-    demo: config.demoAllowed(),
+    demo: config.demoMoney(),
     live: Object.fromEntries(Object.keys(config.keys).map((k) => [k, config.isLive(k)])),
     creditsPerUsd: config.creditsPerUsd,
     markup: config.markup,
@@ -213,7 +213,7 @@ const api = {
     const a = requireAccount(req);
     const body = await readJson(req);
     if (chain.holdingsConfigured() && a.wallet) await refreshHoldings(a);
-    else if (config.demoAllowed() && typeof body.simulatePct === 'number') { a.holdingsPct = Math.max(0, Math.min(100, body.simulatePct)); a.holdingsCheckedAt = new Date().toISOString(); a.holdingsSimulated = true; store.put('accounts', a.id, a); }
+    else if (config.demoMoney() && typeof body.simulatePct === 'number') { a.holdingsPct = Math.max(0, Math.min(100, body.simulatePct)); a.holdingsCheckedAt = new Date().toISOString(); a.holdingsSimulated = true; store.put('accounts', a.id, a); }
     else throw new HttpError(a.wallet ? 503 : 400, a.wallet ? 'Holdings checks are not configured on this server' : 'Link a wallet first');
     return { account: accountView(a) };
   },
@@ -468,7 +468,7 @@ const api = {
   },
   'POST /api/deposit/demo': async (req) => {
     const a = requireAccount(req);
-    if (!config.demoAllowed()) throw new HttpError(403, 'Demo top-ups are off on this server');
+    if (!config.demoMoney()) throw new HttpError(403, 'Demo top-ups are off on this server');
     const { usd } = await readJson(req);
     const n = Math.max(1, Math.min(100, Number(usd) || 10));
     const rec = credits.credit(store, a, n * config.creditsPerUsd, { chain: 'demo', asset: 'USDT', amount: n, usd: n, method: 'demo' });

@@ -48,6 +48,9 @@ module.exports = {
   /* a provider is "live" when its key is set; otherwise its models run in demo mode (unless DEMO_MODE=off) */
   isLive(provider) { return Boolean(keys[provider]); },
   demoAllowed() { return demoMode !== 'off'; },
+  /* free demo credits and simulated holdings cost real money once any provider is
+     live, so they only exist while nothing is */
+  demoMoney() { return demoMode !== 'off' && !Object.values(keys).some(Boolean); },
 
   chain: {
     /* Robinhood Chain (Arbitrum L2, chain id 4663) where $SEEKR lives */

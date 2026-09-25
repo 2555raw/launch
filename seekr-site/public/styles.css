@@ -77,8 +77,15 @@ button { cursor: pointer; }
 .btn[disabled] { opacity: .5; cursor: default; }
 
 /* ---------- top nav ---------- */
-.nav { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); }
-.nav-in { max-width: var(--wrap); margin: 0 auto; padding: 0 32px; height: 90px; display: flex; align-items: center; gap: 28px; }
+/* the nav is a floating glass panel; the page (and the hero art) runs behind it */
+.nav { position: sticky; top: 0; z-index: 50; padding: 14px 24px 0; pointer-events: none; }
+.nav-in { pointer-events: auto; position: relative; max-width: var(--wrap); margin: 0 auto; padding: 0 14px 0 26px; height: 68px; display: flex; align-items: center; gap: 28px;
+  border-radius: 18px; border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  background: color-mix(in srgb, var(--bg) 70%, transparent); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .12), inset 0 1px 0 color-mix(in srgb, #fff 18%, transparent); }
+:root[data-theme="dark"] .nav-in { background: rgba(12, 12, 16, .55); border-color: rgba(255, 255, 255, .1); box-shadow: 0 10px 40px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .06); }
+.nav + .hero { margin-top: -82px; }
+.nav + .hero .hero-in { padding-top: 182px; min-height: 862px; }
 .logo { display: inline-flex; align-items: baseline; font-weight: 700; font-size: 27px; letter-spacing: -.02em; color: var(--ink); }
 .logo b { color: var(--accent); font-family: var(--mono); font-weight: 700; margin-right: 1px; }
 .nav-links { display: flex; gap: 34px; margin-left: auto; font-size: 15px; color: var(--text); }
@@ -468,14 +475,17 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 }
 @media (max-width: 860px) {
   .main .sky { left: 0; }
-  .nav-links { display: none; position: absolute; top: 90px; left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--line); flex-direction: column; gap: 0; padding: 8px 16px 16px; }
+  .nav-links { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, .2); flex-direction: column; gap: 0; padding: 8px 18px 14px; }
   .nav-links.open { display: flex; }
   .nav-links a { padding: 12px 0; }
   .dd-menu { position: static; box-shadow: none; padding-left: 16px; }
   .nav-right .pill, .nav-right .btn-ghost:not(.theme-btn) { display: none; }
   .burger { display: inline-block; }
-  .nav-in { padding: 0 16px; height: 70px; }
+  .nav { padding: 10px 12px 0; }
+  .nav-in { padding: 0 10px 0 16px; height: 60px; border-radius: 16px; }
   .hero-in { padding: 48px 16px 40px; min-height: 0; }
+  .nav + .hero { margin-top: -70px; }
+  .nav + .hero .hero-in { padding-top: 118px; min-height: 0; }
   .hero h1 { font-size: 34px; }
   .hero h1 > span { white-space: normal; }
   .hero p { font-size: 17px; }

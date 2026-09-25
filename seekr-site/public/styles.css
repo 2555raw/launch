@@ -96,8 +96,9 @@ button { cursor: pointer; }
 :root[data-theme="dark"] .nav.scrolled .nav-in { background: rgba(12, 12, 16, .82); }
 .nav + .hero { margin-top: -70px; }
 .nav + .hero .hero-in { padding-top: 150px; min-height: 760px; }
-.logo { display: inline-flex; align-items: baseline; font-weight: 700; font-size: 22px; letter-spacing: -.02em; color: var(--ink); }
+.logo { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; font-size: 22px; letter-spacing: -.02em; color: var(--ink); }
 .logo b { color: var(--accent); font-family: var(--mono); font-weight: 700; margin-right: 1px; }
+.logo-mark { width: 1.2em; height: 1.2em; flex: none; display: block; }
 .nav-links { display: flex; gap: 26px; margin-left: auto; font-size: 13.5px; color: var(--text); }
 .nav-links a:hover { color: var(--ink); }
 .nav-links .dd { position: relative; }
@@ -334,7 +335,7 @@ textarea.input { height: auto; padding: 12px 14px; resize: vertical; }
 :root[data-theme="light"] .main .sky::after { background: radial-gradient(60% 75% at 50% 42%, rgba(247, 248, 251, .7) 0%, rgba(247, 248, 251, 0) 80%); }
 .main .grid-lines { background-size: 140px 100%; }
 .stage { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 56px 24px 72px; }
-.stage-logo { display: flex; align-items: baseline; gap: 4px; font-size: 34px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 6px; }
+.stage-logo { display: flex; align-items: center; gap: 10px; font-size: 34px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 6px; }
 .stage-logo b { color: var(--accent); font-family: var(--mono); font-size: 42px; }
 .stage h1 { font-size: 24px; font-weight: 600; letter-spacing: -.01em; margin: 0 0 22px; }
 .modes { display: flex; gap: 12px; margin-bottom: 18px; }

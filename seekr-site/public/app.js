@@ -126,8 +126,8 @@
     const stage = $('#stage');
     const inChat = state.chat && state.chat.messages && state.chat.messages.length;
     stage.innerHTML = `
-      ${inChat ? `<div class="shared-h"><div><div class="stage-logo" style="font-size:22px;margin:0"><b style="font-size:26px">&gt;</b>seekr</div><div class="note mono">${esc(state.chat.title)}</div></div><div class="cta-row"><button class="btn btn-ghost btn-sm" id="shareBtn">Share</button><button class="btn btn-ghost btn-sm" id="newBtn">New chat</button></div></div>` :
-        `<div class="stage-logo"><b>&gt;</b>seekr</div><h1>What are we <span class="accent" id="modeWord">${{ ask: 'experimenting?', code: 'building?', images: 'picturing?', video: 'filming?' }[state.mode] || 'experimenting?'}</span></h1>`}
+      ${inChat ? `<div class="shared-h"><div><div class="stage-logo" style="font-size:22px;margin:0"><img class="logo-mark" src="/art/brand/seekr-mark.svg" alt="" width="26" height="26">seekr</div><div class="note mono">${esc(state.chat.title)}</div></div><div class="cta-row"><button class="btn btn-ghost btn-sm" id="shareBtn">Share</button><button class="btn btn-ghost btn-sm" id="newBtn">New chat</button></div></div>` :
+        `<div class="stage-logo"><img class="logo-mark" src="/art/brand/seekr-mark.svg" alt="" width="26" height="26">seekr</div><h1>What are we <span class="accent" id="modeWord">${{ ask: 'experimenting?', code: 'building?', images: 'picturing?', video: 'filming?' }[state.mode] || 'experimenting?'}</span></h1>`}
       <div class="modes" id="modes"></div>
       <div class="thread" id="thread"></div>
       <div class="composer" id="composer"></div>

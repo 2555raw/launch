@@ -57,8 +57,11 @@ async function streamChat({ model, messages, system, onText, signal }) {
 
 async function generateImage({ prompt, size }) {
   const [w, h] = (size || '1024x1024').split('x').map(Number);
-  const seed = Math.floor(Math.random() * 1e9);
   let lastErr;
+  /* the free service drops a request now and then: three tries, a fresh seed each, before demo */
+  for (let attempt = 0; attempt < 3; attempt++) {
+  if (attempt) await new Promise((r) => setTimeout(r, 1500 * attempt));
+  const seed = Math.floor(Math.random() * 1e9);
   for (let e = imageAt; e < IMAGE.length; e++) {
     const ep = IMAGE[e](prompt, w, h, seed);
     if (!usable(ep)) continue;
@@ -70,6 +73,7 @@ async function generateImage({ prompt, size }) {
       imageAt = e; status.image = true;
       return { ...saved, servedBy: 'flux (free)' };
     } catch (err) { lastErr = err; }
+  }
   }
   status.image = false;
   throw lastErr || new Error('Free images are unavailable');

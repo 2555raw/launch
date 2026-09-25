@@ -1,1 +1,0 @@
-(() => { askr.nav(); askr.api('/api/config').then((c) => { document.getElementById('xCard').href = c.links.x; document.getElementById('tgCard').href = c.links.telegram; document.getElementById('mailCard').href = 'mailto:' + c.links.email; document.querySelector('#mailCard h4').textContent = c.links.email; }).catch(() => null); })();

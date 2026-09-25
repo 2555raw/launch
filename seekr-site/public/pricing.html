@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>seekr — Models TITLE pricing</title>
+<meta name="description" content="Every model with its list price and the SEEKR holder price.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script>try{var t=localStorage.getItem("seekr.theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="/"><b>&gt;</b>seekr</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/#how">How it works</a><a href="/#models">Models</a><a href="/pricing">Pricing</a><a href="/calculator">Calculator</a><a href="/community">Community</a>
+      <div class="dd" id="devDd"><a href="/developers">Developers</a><div class="dd-menu"><a href="/developers">API reference<small>Every model behind one key</small></a><a href="/developers#quickstart">Quickstart<small>First request in a minute</small></a><a href="/developers#methodology">Methodology<small>How prices are set</small></a></div></div>
+    </nav>
+    <div class="nav-right">
+      <a class="pill" href="/token"><span class="dot pulse"></span><span>$SEEKR</span><span id="seekrPrice">$0.003828</span><span id="seekrChange" class="chg-up">+16.9%</span></a>
+      <a class="btn btn-primary" href="/ask">Ask</a><a class="btn btn-ghost" href="/ask#account">Account</a>
+      <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<main class="page">
+  <h1 class="pixel">Models &amp; <span class="accent">pricing.</span></h1>
+  <p class="lead">Every model on the platform, with its list price and the $SEEKR holder price. $1 buys 1,000 credits and each request is metered against your balance: per token for text, per image, per second of video, per character of speech.</p>
+  <div class="tabs" id="catTabs" style="margin-top:0"></div>
+  <div id="tables"></div>
+  <div class="prose" id="compare"><h2>Compare</h2><p>The same prompt can go to any chat model in the picker, so comparing is a matter of asking twice. Prices update as providers change them; the list price carries a small margin over the provider's own price (see the <a class="accent" href="/developers#methodology">methodology</a>).</p></div>
+  <div class="prose" id="alternatives"><h2>Alternatives</h2><p>A subscription to each provider costs $20 to $200 a month each, whether you use it or not. Here, a light month can cost a dollar and a heavy one costs what it costs. The <a class="accent" href="/calculator">calculator</a> shows the number for your workload.</p></div>
+</main>
+<footer><div class="foot">
+  <div><a class="logo" href="/"><b>&gt;</b>seekr</a></div>
+  <div><h5>Product</h5><ul><li><a href="/#how">How it works</a></li><li><a href="/#models">Models</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/calculator">Calculator</a></li></ul></div>
+  <div><h5>Research</h5><ul><li><a href="/pricing#compare">Compare</a></li><li><a href="/pricing#alternatives">Alternatives</a></li><li><a href="/developers">Learn</a></li><li><a href="/developers#methodology">Methodology</a></li></ul></div>
+  <div><h5>Company</h5><ul><li><a href="/token">About</a></li><li><a href="/community">Community</a></li><li><a href="/community" id="tgLink">Telegram</a></li><li><a href="mailto:hello@seekr.ai" id="supportLink">Support</a></li></ul></div>
+  <div class="foot-right"><span class="chip"><span class="ring"></span>Built on <b>Robinhood Chain</b></span><a href="mailto:hello@seekr.ai" id="mailLink">hello@seekr.ai</a><span>© 2026 Seekr</span></div>
+</div></footer>
+<script src="/shared.js"></script>
+<script src="/pricing.js"></script></body></html>

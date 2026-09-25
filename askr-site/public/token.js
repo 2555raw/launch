@@ -1,1 +1,0 @@
-(() => { const { api, usd, pct } = askr; askr.nav(); api('/api/markets').then(({ askr: a }) => { document.getElementById('tPrice').textContent = usd(a.price, 6); const c = document.getElementById('tChange'); c.textContent = pct(a.change); c.className = 'v ' + (a.change >= 0 ? 'chg-up' : 'chg-down'); }).catch(() => null); })();

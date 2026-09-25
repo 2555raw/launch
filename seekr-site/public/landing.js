@@ -35,6 +35,8 @@
       card.innerHTML = `<div><span class="tag">${cat.tag}</span><h3>${cat.title}</h3><p>${cat.blurb}</p><a class="more slash" href="/pricing#${cat.id}">See every ${cat.title.toLowerCase()} model</a></div>
         <div class="rec"><span class="tag">Recommended</span>${(rec.length ? rec : all.slice(0, 2)).map((m) => `<div><a href="/ask?model=${m.id}">${m.id}</a><span>${esc(m.name)}</span></div>`).join('')}</div>`;
     };
+    /* video shows up once a video model is actually connected */
+    if (!models.some((m) => m.kind === 'video' && m.live)) categories = categories.filter((c) => c.id !== 'video');
     tabs.innerHTML = categories.map((c) => `<button class="tab" data-id="${c.id}">${c.title}</button>`).join('');
     tabs.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => show(categories.find((c) => c.id === b.dataset.id))));
     show(categories[0]);

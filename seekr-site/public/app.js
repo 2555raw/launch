@@ -140,7 +140,9 @@
   }
 
   function renderModes() {
-    const modes = [['ask', 'Ask'], ['code', 'Code'], ['images', 'Images'], ['video', 'Video'], ['collab', 'Collab']];
+    const videoOn = (state.models || []).some((x) => x.kind === 'video' && x.live);
+    if (!videoOn && state.mode === 'video') state.mode = 'ask';
+    const modes = [['ask', 'Ask'], ['code', 'Code'], ['images', 'Images'], ...(videoOn ? [['video', 'Video']] : []), ['collab', 'Collab']];
     const m = $('#modes');
     m.innerHTML = modes.map(([id, label]) => `<button class="mode ${state.mode === id ? 'on' : ''}" data-mode="${id}">${ICONS[id]}${label}</button>`).join('');
     m.querySelectorAll('.mode').forEach((b) => b.onclick = (e) => { if (b.dataset.mode === 'collab') { location.hash = '#collab'; return; } if (b.dataset.mode === 'ask') { e.stopPropagation(); toggleSkills(); } else closeSkills(); state.mode = b.dataset.mode; renderModes(); renderComposer(); const w = $('#modeWord'); if (w) w.textContent = { ask: 'experimenting?', code: 'building?', images: 'picturing?', video: 'filming?' }[state.mode]; });
@@ -232,7 +234,7 @@
     estT = setTimeout(async () => {
       const m = activeModel(); const text = ($('#prompt') || {}).value || '';
       const body = m.kind === 'chat' ? { model: m.id, text: text + (state.chat ? state.chat.messages.map((x) => x.content).join(' ') : '') } : { model: m.id, usage: m.kind === 'image' ? { images: 1 } : { seconds: state.seconds } };
-      try { const { quote, tier } = await api('/api/quote', { method: 'POST', body }); const e = $('#est'); if (e) e.textContent = tier === 'live' ? `~${quote.credits < 10 ? quote.credits.toFixed(1) : Math.round(quote.credits)} cr` : tier === 'free' ? 'free' : 'demo'; } catch { /* leave it */ }
+      try { const { quote, tier } = await api('/api/quote', { method: 'POST', body }); const e = $('#est'); if (e) e.textContent = tier === 'live' ? `~${quote.credits < 10 ? quote.credits.toFixed(1) : Math.round(quote.credits)} cr` : tier === 'free' ? 'free' : ''; } catch { /* leave it */ }
     }, 250);
   }
 

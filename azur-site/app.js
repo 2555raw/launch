@@ -205,4 +205,112 @@
     });
     update();
   }
+
+  // ---------------------------------------------------------------- site config
+  // Put the real community links here; every Discord and X icon on the site uses them.
+  const SOCIAL = {
+    discord: "",   // e.g. "https://discord.gg/your-invite"
+    x: "",         // e.g. "https://x.com/yourhandle"
+  };
+  const LIVE_SITE = "https://spinpad-production.up.railway.app";
+  document.querySelectorAll("[data-social]").forEach((a) => {
+    const url = SOCIAL[a.dataset.social];
+    if (url) a.href = url;
+  });
+  // The API only exists on the real server; previews and copies of the page skip it.
+  const HAS_API = /^https?:$/.test(location.protocol) && !/claude|anthropic|usercontent/i.test(location.hostname);
+
+  // ---------------------------------------------------------------- waitlist
+  document.querySelectorAll("form.wl").forEach((form) => {
+    const input = form.querySelector("input[type=email]");
+    const btn = form.querySelector("button");
+    const msg = form.querySelector(".wl-msg");
+    const say = (text, kind) => { msg.innerHTML = text; msg.className = "wl-msg " + (kind || ""); };
+    input.addEventListener("input", () => { if (msg.classList.contains("err")) say(""); });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+        say("Enter a valid email, like name@example.com.", "err");
+        input.focus();
+        return;
+      }
+      if (!HAS_API) {
+        say('Sign-ups open on the live site: <a href="' + LIVE_SITE + '/#join" target="_blank" rel="noopener">join there</a>.', "err");
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = "Joining…";
+      try {
+        const r = await fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email, source: form.dataset.source, website: form.querySelector(".hp").value }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || "Something went wrong. Try again.");
+        form.classList.add("done");
+        say(data.already
+          ? "You're already on the list at #" + data.position + ". We'll email you soon."
+          : "You're in. You are #" + data.position + " on the waitlist. Watch your inbox.", "ok");
+      } catch (err) {
+        say(err.message === "Failed to fetch" ? "Could not reach the server. Check your connection and try again." : err.message, "err");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Join the waitlist";
+      }
+    });
+  });
+
+  // Store buttons, pricing buttons and "#join" links all lead to a form.
+  function focusForm(id) {
+    const input = document.getElementById(id);
+    if (!input) return;
+    const form = input.closest("form");
+    form.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => {
+      input.focus({ preventScroll: true });
+      form.classList.remove("flash");
+      void form.offsetWidth;
+      form.classList.add("flash");
+    }, 350);
+  }
+  document.querySelectorAll('a.store[href="#wlHero"]').forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); focusForm("wlHero"); }));
+  document.querySelectorAll('a[href="#join"]').forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); focusForm("wlFoot"); }));
+
+  // ---------------------------------------------------------------- live prices
+  const pills = [...document.querySelectorAll(".pill")];
+  const fmtPrice = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: n < 1000 ? 2 : 0, maximumFractionDigits: n < 1000 ? 2 : 0 });
+  async function loadPrices() {
+    try {
+      const r = await fetch("/api/prices");
+      if (!r.ok) return;
+      const { prices } = await r.json();
+      pills.forEach((pill) => {
+        const t = pill.querySelector(".coin").dataset.t;
+        const p = prices[t];
+        if (!p) return;
+        const b = pill.querySelector(".pv b");
+        const up = p.change >= 0;
+        b.textContent = (up ? "+" : "−") + Math.abs(p.change).toFixed(2) + "%";
+        b.classList.toggle("dn", !up);
+        pill.querySelector(".pv small").textContent = t + " " + fmtPrice(p.price);
+        pill.title = t + " live price";
+      });
+    } catch (e) { /* keep the sample figures */ }
+  }
+  if (pills.length && HAS_API) {
+    loadPrices();
+    setInterval(loadPrices, 60 * 1000);
+  }
+
+  // ---------------------------------------------------------------- page views
+  // One small, cookie-free ping per page load, counted on our own server.
+  if (HAS_API) {
+    const payload = JSON.stringify({ path: location.pathname, ref: document.referrer });
+    try {
+      navigator.sendBeacon ? navigator.sendBeacon("/api/hit", new Blob([payload], { type: "application/json" }))
+        : fetch("/api/hit", { method: "POST", body: payload, headers: { "content-type": "application/json" }, keepalive: true });
+    } catch (e) { /* not important */ }
+  }
 })();

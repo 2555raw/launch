@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AZUR — trade with an AI co-pilot</title>
   <meta name="description" content="AZUR is a mobile app for trading with AI. Research ideas, build a plan and place trades from one conversation.">
+  <meta name="theme-color" content="#050a16">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AZUR">
+  <meta property="og:title" content="AZUR — trade with an AI co-pilot">
+  <meta property="og:description" content="Research, plan and place trades from one conversation. Built for Robinhood Chain.">
+  <meta property="og:url" content="https://spinpad-production.up.railway.app/">
+  <meta property="og:image" content="https://spinpad-production.up.railway.app/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AZUR — trade with an AI co-pilot">
+  <meta name="twitter:description" content="Research, plan and place trades from one conversation. Built for Robinhood Chain.">
+  <meta name="twitter:image" content="https://spinpad-production.up.railway.app/assets/og.png">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23061a3a'/%3E%3Cpath fill='%234da3ff' d='M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,11 +36,12 @@
       <span class="brand-name">AZUR</span>
     </a>
     <div class="nav-links">
+      <a href="#pricing">Pricing</a>
       <a href="docs.html">Docs</a>
-      <a href="https://discord.com" target="_blank" rel="noopener" aria-label="Community on Discord">
+      <a href="https://discord.com" data-social="discord" target="_blank" rel="noopener" aria-label="Community on Discord">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
       </a>
-      <a href="https://x.com" target="_blank" rel="noopener" aria-label="AZUR on X">
+      <a href="https://x.com" data-social="x" target="_blank" rel="noopener" aria-label="AZUR on X">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h4.2l4.1 5.6L17.2 4H20l-6.4 7.3L20.5 20h-4.2l-4.5-6-5.3 6H3.7l6.9-7.8z"/></svg>
       </a>
     </div>
@@ -35,31 +49,39 @@
 
   <!-- floating ticker pills -->
   <div class="pills" aria-hidden="true">
-    <div class="pill p1"><span class="coin" data-t="GOOGL" style="--c:#1a73e8"></span><b>+11.42%</b></div>
-    <div class="pill p2"><span class="coin" data-t="HOOD" style="--c:#00c805"></span><b>+$1.36k</b></div>
-    <div class="pill p3"><span class="coin" data-t="BTC" style="--c:#f7931a"></span><b>+21.08%</b></div>
-    <div class="pill p4"><span class="coin" data-t="PONS" style="--c:#2a2f3a"></span><b>+$2.73k</b></div>
-    <div class="pill p5"><span class="coin" data-t="AAPL" style="--c:#d5d9e0"></span><b>+$904.52</b></div>
-    <div class="pill p6"><span class="coin" data-t="ETH" style="--c:#627eea"></span><b>+15.33%</b></div>
-    <div class="pill p7"><span class="coin" data-t="TSLA" style="--c:#e31937"></span><b>+$712.40</b></div>
-    <div class="pill p8"><span class="coin" data-t="NVDA" style="--c:#76b900"></span><b>+8.91%</b></div>
+    <div class="pill p1"><span class="coin" data-t="GOOGL" style="--c:#1a73e8"></span><span class="pv"><b>+1.42%</b><small></small></span></div>
+    <div class="pill p2"><span class="coin" data-t="HOOD" style="--c:#00c805"></span><span class="pv"><b>+2.36%</b><small></small></span></div>
+    <div class="pill p3"><span class="coin" data-t="BTC" style="--c:#f7931a"></span><span class="pv"><b>+1.08%</b><small></small></span></div>
+    <div class="pill p4"><span class="coin" data-t="PONS" style="--c:#2a2f3a"></span><span class="pv"><b>+6.73%</b><small></small></span></div>
+    <div class="pill p5"><span class="coin" data-t="AAPL" style="--c:#d5d9e0"></span><span class="pv"><b>+0.52%</b><small></small></span></div>
+    <div class="pill p6"><span class="coin" data-t="ETH" style="--c:#627eea"></span><span class="pv"><b>+1.33%</b><small></small></span></div>
+    <div class="pill p7"><span class="coin" data-t="TSLA" style="--c:#e31937"></span><span class="pv"><b class="dn">−0.84%</b><small></small></span></div>
+    <div class="pill p8"><span class="coin" data-t="NVDA" style="--c:#76b900"></span><span class="pv"><b>+2.91%</b><small></small></span></div>
   </div>
 
   <div class="hero-copy wrap">
     <h1>Trade with an unfair edge</h1>
     <p>AZUR is a mobile app for trading with AI. Research ideas, build a plan and place the trade, all from one conversation.</p>
     <div class="stores">
-      <a class="store" href="#">
+      <a class="store" href="#wlHero">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 18.5h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <span><small>Download for</small>iPhone</span>
         <em>SOON</em>
       </a>
-      <a class="store" href="#">
+      <a class="store" href="#wlHero">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5v17l14-8.5z" fill="currentColor"/></svg>
         <span><small>Get it for</small>Android</span>
         <em>SOON</em>
       </a>
     </div>
+    <form class="wl" data-source="hero" novalidate>
+      <label class="sr" for="wlHero">Email address</label>
+      <input id="wlHero" type="email" name="email" placeholder="you@email.com" autocomplete="email" required>
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit">Join the waitlist</button>
+      <p class="wl-msg" role="status" aria-live="polite"></p>
+    </form>
+    <p class="wl-fine">Invites go out every week. We only email you about AZUR. <a href="privacy.html">Privacy</a></p>
   </div>
 
   <!-- three phones -->
@@ -105,6 +127,52 @@
     </div>
   </div>
 </header>
+
+<!-- ============================== HOW IT WORKS ============================== -->
+<section class="how" id="how">
+  <div class="wrap">
+    <h2>How AZUR works</h2>
+    <p class="sec-lead">Three steps from an idea to a filled order.</p>
+    <ol class="steps">
+      <li class="step">
+        <div class="step-vis" aria-hidden="true">
+          <div class="v-wallet">
+            <div class="v-row"><span class="v-chip">● Connected</span><span class="v-mono">0x7a3f…c91e</span></div>
+            <small>Robinhood Chain wallet</small>
+            <b>$2,500.00</b>
+            <div class="v-row"><span class="v-tag">USDC</span><span class="v-tag">Self-custody</span></div>
+          </div>
+        </div>
+        <span class="step-n">1</span>
+        <h3>Connect</h3>
+        <p>Sign in and AZUR creates your own wallet on Robinhood Chain. Fund it with a card or send USDC.</p>
+      </li>
+      <li class="step">
+        <div class="step-vis" aria-hidden="true">
+          <div class="v-chat">
+            <div class="v-me">Build a HOOD position. Max $500 a day, only on red days.</div>
+            <div class="v-ai"><i></i>Plan ready: five buys of $100, each after a 2% dip. I'll check liquidity first.</div>
+          </div>
+        </div>
+        <span class="step-n">2</span>
+        <h3>Ask</h3>
+        <p>Tell the agent what you want in plain words. It researches, checks the data and writes a plan.</p>
+      </li>
+      <li class="step">
+        <div class="step-vis" aria-hidden="true">
+          <div class="v-confirm">
+            <b>Confirm order</b>
+            <small>Buy 10 HOOD at market · ≈ $549.40</small>
+            <div class="v-btns"><span class="ok">Approve</span><span>Decline</span></div>
+          </div>
+        </div>
+        <span class="step-n">3</span>
+        <h3>Approve</h3>
+        <p>Nothing happens until you tap Approve, or until you give the agent limits to act on its own.</p>
+      </li>
+    </ol>
+  </div>
+</section>
 
 <!-- ============================== MONITOR ============================== -->
 <section class="monitor">
@@ -221,6 +289,61 @@
       <a class="eco-item" href="https://www.google.com/search?q=Arcus+DEX+Robinhood+Chain" target="_blank" rel="noopener"><b>Arcus</b><span>Stock-token and crypto exchange</span></a>
     </div>
     <small class="eco-note">Names belong to their owners. AZUR is independent and not affiliated with or endorsed by these projects.</small>
+  </div>
+</section>
+
+<!-- ============================== PRICING ============================== -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <h2>Simple pricing</h2>
+    <p class="sec-lead">Free during the beta. Go Pro when you want the agent working around the clock.</p>
+    <div class="plans">
+      <div class="plan">
+        <h3>Free</h3>
+        <div class="price"><b>$0</b><span>forever</span></div>
+        <p>Research and trade with AI, one approval at a time.</p>
+        <ul>
+          <li>AI agent with its own workspace</li>
+          <li>5 active alerts</li>
+          <li>Approval on every order</li>
+          <li>Self-custody Robinhood Chain wallet</li>
+          <li>Stock tokens, crypto and Pons tokens</li>
+        </ul>
+        <a class="plan-btn ghost" href="#join">Join the waitlist</a>
+      </div>
+      <div class="plan pro">
+        <span class="badge">Most popular</span>
+        <h3>Pro</h3>
+        <div class="price"><b>$19</b><span>per month</span></div>
+        <p>For traders who want the agent watching markets 24/7.</p>
+        <ul>
+          <li>Everything in Free</li>
+          <li>Unlimited alerts</li>
+          <li>Wake on posts from accounts on X</li>
+          <li>Autonomy inside limits you set</li>
+          <li>80% lower AZUR fees</li>
+          <li>Priority agent speed</li>
+        </ul>
+        <a class="plan-btn" href="#join">Get early access</a>
+      </div>
+    </div>
+    <p class="plans-note">Prices in USD. Network and venue fees are always shown before you approve. Pro launches after the beta.</p>
+  </div>
+</section>
+
+<!-- ============================== JOIN ============================== -->
+<section class="cta" id="join">
+  <div class="wrap cta-in">
+    <span class="cta-star" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z"/></svg></span>
+    <h2>Be first in line</h2>
+    <p class="sec-lead">We let new people in every week. Leave your email and your invite comes straight to your inbox.</p>
+    <form class="wl" data-source="footer" novalidate>
+      <label class="sr" for="wlFoot">Email address</label>
+      <input id="wlFoot" type="email" name="email" placeholder="you@email.com" autocomplete="email" required>
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit">Join the waitlist</button>
+      <p class="wl-msg" role="status" aria-live="polite"></p>
+    </form>
   </div>
 </section>
 

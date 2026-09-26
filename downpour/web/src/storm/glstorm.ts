@@ -1,22 +1,28 @@
-/* The sky, on the GPU (WebGL2): deep space.
+/* The sky, on the GPU (WebGL2): deep space above the Earth.
  *
- *   sky       a fragment shader renders layered starfields that twinkle, drifting
- *             nebulae, a galaxy band with dust lanes, a far spiral galaxy and the limb
- *             of a planet, at reduced resolution into a texture
- *   stars     the currency stars: glowing orbs in the currency's colour with a halo,
- *             diffraction spikes and the currency sign on their face; they are born
- *             with a flare, drift slowly upward and fade out after a while
- *   sparkles  bursts of sparks and a shockwave when a star is tapped, and the dust a
- *             shooting star sheds as it goes
- *   meteors   shooting stars: a bright head with a fading tail, bloomed, lighting the
- *             nebula they cross; tap the empty sky to send one through that point
- *   lens      vignette and film grain over everything
+ *   sky        layered starfields that twinkle, drifting nebulae, a galaxy band with dust
+ *              lanes and a far spiral galaxy, at reduced resolution into a texture
+ *   stars      the currency stars, drawn like real stars (an over-exposed core, halo,
+ *              diffraction spikes that shimmer) in the currency's colour, each with its
+ *              sign written beside it like a star chart; born with a flare, drifting up
+ *   satellite  a 3D model (foil, solar cells, dishes) rendered supersampled into its own
+ *              texture with a depth buffer; it rises from behind the planet and drifts
+ *              across the sky turning slowly, its panels flashing when they catch the sun
+ *   planet     the Earth's horizon along the bottom: real coastlines, with the detail,
+ *              colours, clouds, storms and city lights generated on the GPU once at start
+ *              (a strip per frame), turning slowly; day on the left, dusk and the lit
+ *              cities of the night on the right, under a thin glowing atmosphere
+ *   meteors    shooting stars: a bright head with a fading tail, bloomed
+ *   lens       vignette and film grain over everything
  *
- * Quality drops automatically if frames get slow, taps send at most one shooting star
- * every 0.35 s, and under prefers-reduced-motion a single still frame is drawn. If
+ * Stars and the satellite are drawn before the planet, so it hides whatever is behind
+ * it. Quality drops automatically if frames get slow, taps send at most one shooting
+ * star every 0.35 s, and under prefers-reduced-motion a single still frame is drawn. If
  * WebGL2 is missing, Storm.tsx falls back to the 2D sky in engine.ts. */
 import { CURRENCIES, currencyColor, dropGlyph } from '../data/currencies';
+import { CLOUD_DRIFT, EARTH_SUN, PLANET, POLE_MAT, SPIN, START_TURN, STORMS, horizonY, landFields, onPlanet, toPlanet, type Vec3 } from './earth';
 import { FULLSCREEN_VS, freeTarget, program, target, type Program, type Target } from './gl';
+import { BEACON, SAT_RADIUS, SAT_STRIDE, WING_CENTRES, apply3, buildSatellite, perspective, rotation } from './satellite';
 import * as S from './shaders';
 import { COLUMN, type Intensity, type Scene, type StormRenderer } from './types';
 
@@ -61,6 +67,23 @@ interface Meteor {
   count: number;
 }
 
+interface Sat {
+  born: number;
+  dur: number;
+  from: Pt;
+  to: Pt;
+  yaw: number;
+  spin: number;
+  roll: number;
+}
+
+interface Tex {
+  fbo: WebGLFramebuffer;
+  tex: WebGLTexture;
+  w: number;
+  h: number;
+}
+
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const MAX_STARS = 24;
 const MAX_PARTS = 900;
@@ -68,6 +91,18 @@ const MAX_METEORS = 24;
 const METEOR_POINTS = 24;
 const IGNITE = 1.3;
 const FADE = 1.6;
+const EARTH_STRIPS = 4;
+/** The satellite's camera distance and field of view, framing its bounding sphere. */
+const SAT_DIST = 16;
+const SAT_FOV = 2 * Math.asin(SAT_RADIUS / SAT_DIST);
+const SAT_F = 1 / Math.tan(SAT_FOV / 2);
+/** Light on the satellite: from the upper left and in front, so its face is lit. */
+const SAT_SUN: Vec3 = (() => {
+  const v: Vec3 = [-0.55, 0.5, 0.67];
+  const l = Math.hypot(...v);
+  return [v[0] / l, v[1] / l, v[2] / l];
+})();
+const SAT_EARTH: Vec3 = [0.1, -0.97, -0.2];
 
 /** Where a currency star may sit on the hero without covering the headline. */
 export function heroSpot(w: number, h: number, r: number) {
@@ -110,19 +145,37 @@ export class GLStorm implements StormRenderer {
   private dpr = 1;
   private skyScale = 0.6;
 
-  private progs!: Record<'sky' | 'blit' | 'drop' | 'part' | 'bolt' | 'blur' | 'add' | 'overlay', Program>;
+  private progs!: Record<'sky' | 'blit' | 'drop' | 'part' | 'bolt' | 'blur' | 'add' | 'overlay' | 'planet' | 'surfGen' | 'cloudGen' | 'sat' | 'sprite', Program>;
   private vaoEmpty!: WebGLVertexArrayObject;
   private vaoDrop!: WebGLVertexArrayObject;
   private vaoPart!: WebGLVertexArrayObject;
   private vaoBolt!: WebGLVertexArrayObject;
+  private vaoSat!: WebGLVertexArrayObject;
   private bufDrop!: WebGLBuffer;
   private bufPart!: WebGLBuffer;
   private bufBolt!: WebGLBuffer;
+  private satCount = 0;
   private atlas!: WebGLTexture;
   private sky?: Target;
   private boltRT?: Target;
   private blurA?: Target;
   private blurB?: Target;
+
+  // the planet
+  private maskTex?: WebGLTexture;
+  private surf?: Tex;
+  private cloud?: Tex;
+  private earthStep = 0;
+  private earthReadyAt = 0;
+  private stormData = new Float32Array(32);
+  private aniso = 0;
+
+  // the satellite
+  private satRT?: { fbo: WebGLFramebuffer; tex: WebGLTexture; depth: WebGLRenderbuffer; size: number };
+  private satSize = 260;
+  private sat?: Sat;
+  private nextSat = 0;
+  private satProj = perspective(SAT_FOV, 1, SAT_DIST - SAT_RADIUS - 1, SAT_DIST + SAT_RADIUS + 1);
 
   private dropData = new Float32Array(MAX_STARS * 11);
   private partData = new Float32Array(MAX_PARTS * 8);
@@ -149,6 +202,11 @@ export class GLStorm implements StormRenderer {
     if (!gl) throw new Error('WebGL2 is not available');
     this.gl = gl;
     this.reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    STORMS.forEach(([lat, lon, twist], i) => {
+      const la = (lat * Math.PI) / 180;
+      const lo = (lon * Math.PI) / 180;
+      this.stormData.set([Math.cos(la) * Math.cos(lo), Math.sin(la), Math.cos(la) * Math.sin(lo), twist], i * 4);
+    });
     this.init();
     canvas.addEventListener('webglcontextlost', this.onLost, false);
     canvas.addEventListener('webglcontextrestored', this.onRestored, false);
@@ -164,12 +222,17 @@ export class GLStorm implements StormRenderer {
     this.progs = {
       sky: program(gl, FULLSCREEN_VS, S.SKY_FS, U('uTime', 'uAspect', 'uFlash')),
       blit: program(gl, FULLSCREEN_VS, S.BLIT_FS, U('uTex')),
-      drop: program(gl, S.DROP_VS, S.DROP_FS, U('uRes', 'uAtlas', 'uFlash')),
+      drop: program(gl, S.DROP_VS, S.DROP_FS, U('uRes', 'uAtlas')),
       part: program(gl, S.PART_VS, S.PART_FS, U('uRes', 'uFlash')),
       bolt: program(gl, S.BOLT_VS, S.BOLT_FS, U('uRes', 'uWidthScale', 'uIntensity', 'uReveal', 'uColor', 'uSharp', 'uTail')),
       blur: program(gl, FULLSCREEN_VS, S.BLUR_FS, U('uTex', 'uDir')),
       add: program(gl, FULLSCREEN_VS, S.ADD_FS, U('uTex', 'uStrength')),
       overlay: program(gl, FULLSCREEN_VS, S.OVERLAY_FS, U('uAspect', 'uTime', 'uRes')),
+      planet: program(gl, S.PLANET_VS, S.PLANET_FS, U('uTop', 'uAspect', 'uGeo', 'uAtmo', 'uPix', 'uSun', 'uSunP', 'uPole', 'uSpin', 'uSurf', 'uCloud', 'uFade')),
+      surfGen: program(gl, FULLSCREEN_VS, S.EARTH_SURF_FS, U('uMask')),
+      cloudGen: program(gl, FULLSCREEN_VS, S.EARTH_CLOUD_FS, U('uMask', 'uStorm')),
+      sat: program(gl, S.SAT_VS, S.SAT_FS, U('uRot', 'uProj', 'uDist', 'uSun', 'uEarth')),
+      sprite: program(gl, S.SPRITE_VS, S.SPRITE_FS, U('uRect', 'uRes', 'uTex', 'uAlpha')),
     };
     this.vaoEmpty = gl.createVertexArray()!;
 
@@ -187,7 +250,7 @@ export class GLStorm implements StormRenderer {
       gl.vertexAttribDivisor(loc, divisor);
     };
 
-    // currency stars
+    // currency stars (and the satellite's glints and beacon)
     this.vaoDrop = gl.createVertexArray()!;
     gl.bindVertexArray(this.vaoDrop);
     gl.bindBuffer(gl.ARRAY_BUFFER, quad());
@@ -219,10 +282,28 @@ export class GLStorm implements StormRenderer {
     attr(this.progs.bolt, 'aPos', 2, 32, 0, 0);
     attr(this.progs.bolt, 'aNormal', 2, 32, 8, 0);
     attr(this.progs.bolt, 'aInfo', 4, 32, 16, 0);
+
+    // the satellite
+    const mesh = buildSatellite();
+    this.satCount = mesh.count;
+    this.vaoSat = gl.createVertexArray()!;
+    gl.bindVertexArray(this.vaoSat);
+    const bufSat = gl.createBuffer()!;
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufSat);
+    gl.bufferData(gl.ARRAY_BUFFER, mesh.data, gl.STATIC_DRAW);
+    const st = SAT_STRIDE * 4;
+    attr(this.progs.sat, 'aPos', 3, st, 0, 0);
+    attr(this.progs.sat, 'aNormal', 3, st, 12, 0);
+    attr(this.progs.sat, 'aUv', 2, st, 24, 0);
+    attr(this.progs.sat, 'aMat', 1, st, 32, 0);
     gl.bindVertexArray(null);
+
+    const ext = gl.getExtension('EXT_texture_filter_anisotropic');
+    this.aniso = ext ? Math.min(8, gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT) as number) : 0;
 
     this.atlas = gl.createTexture()!;
     this.buildAtlas();
+    this.makeEarth();
     this.meteors = [];
   }
 
@@ -241,11 +322,11 @@ export class GLStorm implements StormRenderer {
       this.glyphIndex.set(cur.code, i);
       const glyph = dropGlyph(cur.code);
       let size = [...glyph].length >= 3 ? 26 : [...glyph].length === 2 ? 32 : 42;
-      g.font = `800 ${size}px "Sora Variable", "Sora", system-ui, sans-serif`;
+      g.font = `700 ${size}px "Sora Variable", "Sora", system-ui, sans-serif`;
       const wdt = g.measureText(glyph).width;
       if (wdt > cell * 0.84) {
         size = Math.floor((size * cell * 0.84) / wdt);
-        g.font = `800 ${size}px "Sora Variable", "Sora", system-ui, sans-serif`;
+        g.font = `700 ${size}px "Sora Variable", "Sora", system-ui, sans-serif`;
       }
       const cx = (i % 16) * cell + cell / 2;
       const cy = Math.floor(i / 16) * cell + cell / 2 + 2;
@@ -262,6 +343,79 @@ export class GLStorm implements StormRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
 
+  /** The land mask, and empty targets for the planet's textures (filled a strip a frame). */
+  private makeEarth() {
+    const gl = this.gl;
+    const f = landFields();
+    this.maskTex = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, this.maskTex);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG8, f.w, f.h, 0, gl.RG, gl.UNSIGNED_BYTE, f.data);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const big = Math.max(window.innerWidth, window.innerHeight) >= 900 && (window.devicePixelRatio || 1) * Math.min(window.innerWidth, window.innerHeight) >= 700;
+    const W = big ? 2048 : 1024;
+    const make = (): Tex => {
+      const tex = gl.createTexture()!;
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, W, W / 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      const fbo = gl.createFramebuffer()!;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return { fbo, tex, w: W, h: W / 2 };
+    };
+    this.surf = make();
+    this.cloud = make();
+    this.earthStep = 0;
+    this.earthReadyAt = 0;
+  }
+
+  /** Generates one strip of the planet's textures (or all of them), then their mipmaps. */
+  private stepEarth(all: boolean) {
+    if (this.earthReadyAt || !this.surf || !this.cloud) return;
+    const gl = this.gl;
+    gl.disable(gl.BLEND);
+    gl.bindVertexArray(this.vaoEmpty);
+    gl.enable(gl.SCISSOR_TEST);
+    do {
+      const pass = this.earthStep < EARTH_STRIPS ? 0 : 1;
+      const strip = this.earthStep % EARTH_STRIPS;
+      const t = pass ? this.cloud : this.surf;
+      const P = pass ? this.progs.cloudGen : this.progs.surfGen;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo);
+      gl.viewport(0, 0, t.w, t.h);
+      const y0 = Math.floor((t.h * strip) / EARTH_STRIPS);
+      const y1 = Math.floor((t.h * (strip + 1)) / EARTH_STRIPS);
+      gl.scissor(0, y0, t.w, y1 - y0);
+      gl.useProgram(P.prog);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.maskTex!);
+      gl.uniform1i(P.u.uMask, 0);
+      if (pass) gl.uniform4fv(P.u.uStorm, this.stormData);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      this.earthStep++;
+    } while (all && this.earthStep < EARTH_STRIPS * 2);
+    gl.disable(gl.SCISSOR_TEST);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (this.earthStep < EARTH_STRIPS * 2) return;
+    const ext = this.aniso ? gl.getExtension('EXT_texture_filter_anisotropic') : null;
+    for (const t of [this.surf, this.cloud]) {
+      gl.bindTexture(gl.TEXTURE_2D, t.tex);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      if (ext) gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, this.aniso);
+    }
+    this.earthReadyAt = performance.now() / 1000;
+  }
+
   private onLost = (e: Event) => {
     e.preventDefault();
     this.lost = true;
@@ -271,6 +425,7 @@ export class GLStorm implements StormRenderer {
   private onRestored = () => {
     this.lost = false;
     this.sky = this.boltRT = this.blurA = this.blurB = undefined;
+    this.satRT = undefined;
     this.init();
     this.resize();
     if (this.running) {
@@ -292,6 +447,7 @@ export class GLStorm implements StormRenderer {
     this.canvas.style.width = `${this.w}px`;
     this.canvas.style.height = `${this.h}px`;
     if (mobile) this.skyScale = Math.min(this.skyScale, 0.5);
+    this.satSize = Math.round(this.w < 720 ? Math.max(120, this.w * 0.34) : Math.max(160, Math.min(330, this.w * 0.22)));
     this.makeTargets();
     this.fillStars();
     if (this.reduced || !this.running) this.frame(performance.now(), true);
@@ -310,6 +466,30 @@ export class GLStorm implements StormRenderer {
     this.boltRT = target(gl, Math.max(2, Math.round(W / 2)), Math.max(2, Math.round(H / 2)));
     this.blurA = target(gl, Math.max(2, Math.round(W / 4)), Math.max(2, Math.round(H / 4)));
     this.blurB = target(gl, Math.max(2, Math.round(W / 4)), Math.max(2, Math.round(H / 4)));
+
+    // the satellite: rendered at twice its on-screen resolution, with depth
+    if (this.satRT) {
+      gl.deleteFramebuffer(this.satRT.fbo);
+      gl.deleteTexture(this.satRT.tex);
+      gl.deleteRenderbuffer(this.satRT.depth);
+    }
+    const size = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) as number, 1400, Math.round(this.satSize * this.dpr * 2));
+    const tex = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const depth = gl.createRenderbuffer()!;
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depth);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, size, size);
+    const fbo = gl.createFramebuffer()!;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depth);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this.satRT = { fbo, tex, depth, size };
   }
 
   /* ------------------------------ controls ------------------------------ */
@@ -352,25 +532,32 @@ export class GLStorm implements StormRenderer {
 
   private newStar(settled = false): Star {
     const big = Math.random() < 0.3;
-    let r = big ? rand(19, 27) : rand(11, 17);
+    let r = big ? rand(13, 18) : rand(8, 12);
     const code = this.codes[Math.floor(Math.random() * this.codes.length)];
-    let x = rand(r * 3, this.w - r * 3);
-    let y = rand(this.h * 0.14, this.h * 0.94);
+    let x = 0;
+    let y = 0;
     let vy = -rand(5, 13);
     let alpha = 1;
-    if (this.scene === 'hero') {
-      // keep the headline clear: beside it, or below the buttons
-      ({ x, y, alpha } = heroSpot(this.w, this.h, r));
-      vy = -rand(1.5, 4);
-    } else {
-      const g = this.gutter();
-      if (g >= 90) {
-        r = Math.min(r, g * 0.2);
-        x = Math.random() < 0.5 ? rand(r * 2.5, g - r * 2) : rand(this.w - g + r * 2, this.w - r * 2.5);
+    // somewhere in open sky, never on the planet (it would hide the star)
+    for (let tries = 0; tries < 12; tries++) {
+      x = rand(r * 3, this.w - r * 3);
+      y = rand(this.h * 0.14, this.h * 0.94);
+      alpha = 1;
+      if (this.scene === 'hero') {
+        // keep the headline clear: beside it, or below the buttons
+        ({ x, y, alpha } = heroSpot(this.w, this.h, r));
+        vy = -rand(1.5, 4);
       } else {
-        alpha = 0.35;
-        r *= 0.8;
+        const g = this.gutter();
+        if (g >= 90) {
+          r = Math.min(r, g * 0.14);
+          x = Math.random() < 0.5 ? rand(r * 2.5, g - r * 2) : rand(this.w - g + r * 2, this.w - r * 2.5);
+        } else {
+          alpha = 0.35;
+          r *= 0.8;
+        }
       }
+      if (!onPlanet(x, y + r * 2, this.w, this.h)) break;
     }
     const now = performance.now() / 1000;
     const life = rand(16, 34);
@@ -406,7 +593,7 @@ export class GLStorm implements StormRenderer {
     for (let i = this.stars.length - 1; i >= 0; i--) {
       const s = this.stars[i];
       if (now - s.born < IGNITE * 0.5) continue;
-      if (Math.hypot(s.x - x, s.y - y) < s.r * 1.5) {
+      if (Math.hypot(s.x - x, s.y - y) < s.r * 1.7) {
         this.burst(s.x, s.y, s.r, rgbOf(s.code));
         this.onPop?.(s.code);
         this.flash = Math.min(1, this.flash + 0.35);
@@ -429,6 +616,121 @@ export class GLStorm implements StormRenderer {
     }
     if (this.parts.length < MAX_PARTS) this.parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.7, size: r * 0.8, grow: 190, type: 1, tint });
     if (this.parts.length < MAX_PARTS) this.parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.45, size: r * 0.5, grow: 110, type: 1, tint: [1, 1, 1] });
+  }
+
+  /* ------------------------------ the satellite ------------------------------ */
+
+  /** Sends the satellite up from behind the planet's horizon on the right, rising almost
+   *  straight up (clear of the headline) until it leaves the top of the screen. */
+  private launchSatellite(now: number) {
+    const S = this.satSize;
+    const x0 = this.w * (this.w < 720 ? rand(0.8, 0.9) : rand(0.83, 0.9));
+    const y0 = (horizonY(x0, this.w, this.h) ?? this.h) + S * 0.45;
+    const ang = (rand(84, 100) * Math.PI) / 180;
+    const dist = (y0 + S * 0.6) / Math.sin(ang);
+    const speed = rand(19, 25) * Math.max(0.7, Math.min(1.2, this.h / 900));
+    this.sat = {
+      born: now,
+      dur: dist / speed,
+      from: [x0, y0],
+      to: [x0 + Math.cos(ang) * dist, y0 - Math.sin(ang) * dist],
+      yaw: rand(-0.45, 0.45),
+      spin: rand(0.1, 0.16) * (Math.random() < 0.5 ? -1 : 1),
+      roll: rand(-0.25, 0.25),
+    };
+  }
+
+  /** Renders the satellite and composites it at its place on screen, with its panel
+   *  glints and blinking beacon. Returns nothing drawn when there is no satellite. */
+  private drawSatellite(now: number) {
+    const sat = this.sat;
+    const T = this.satRT;
+    if (!sat || !T) return;
+    const gl = this.gl;
+    const age = now - sat.born;
+    const k = Math.min(1, Math.max(0, age / sat.dur));
+    const cx = sat.from[0] + (sat.to[0] - sat.from[0]) * k;
+    const cy = sat.from[1] + (sat.to[1] - sat.from[1]) * k;
+    const rot = rotation(sat.yaw + 0.75 * Math.sin(sat.spin * age), 0.32 + 0.08 * Math.sin(age * 0.23), sat.roll + 0.06 * Math.sin(age * 0.17 + 1));
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, T.fbo);
+    gl.viewport(0, 0, T.size, T.size);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clearDepth(1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LESS);
+    gl.disable(gl.BLEND);
+    const P = this.progs.sat;
+    gl.useProgram(P.prog);
+    gl.uniformMatrix3fv(P.u.uRot, false, new Float32Array(rot));
+    gl.uniformMatrix4fv(P.u.uProj, false, this.satProj);
+    gl.uniform1f(P.u.uDist, SAT_DIST);
+    gl.uniform3f(P.u.uSun, SAT_SUN[0], SAT_SUN[1], SAT_SUN[2]);
+    gl.uniform3f(P.u.uEarth, SAT_EARTH[0], SAT_EARTH[1], SAT_EARTH[2]);
+    gl.bindVertexArray(this.vaoSat);
+    gl.drawArrays(gl.TRIANGLES, 0, this.satCount);
+    gl.disable(gl.DEPTH_TEST);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    const Q = this.progs.sprite;
+    gl.useProgram(Q.prog);
+    gl.uniform4f(Q.u.uRect, cx, cy, this.satSize / 2, this.satSize / 2);
+    gl.uniform2f(Q.u.uRes, this.w, this.h);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, T.tex);
+    gl.uniform1i(Q.u.uTex, 0);
+    gl.uniform1f(Q.u.uAlpha, 1);
+    gl.bindVertexArray(this.vaoEmpty);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    // where a model point lands on screen
+    const toScreen = (v: Vec3): Pt => {
+      const p = apply3(rot, v);
+      const z = SAT_DIST - p[2];
+      return [cx + ((p[0] * SAT_F) / z) * (this.satSize / 2), cy - ((p[1] * SAT_F) / z) * (this.satSize / 2)];
+    };
+    const flares: Array<[Pt, number, [number, number, number], number]> = [];
+    // the panels flash when they mirror the sun toward us
+    const nF = apply3(rot, [0, 0, 1]);
+    const dl = nF[0] * SAT_SUN[0] + nF[1] * SAT_SUN[1] + nF[2] * SAT_SUN[2];
+    if (nF[2] > 0 && dl > 0) {
+      const rz = 2 * dl * nF[2] - SAT_SUN[2];
+      const glint = Math.pow(Math.max(0, rz), 320);
+      if (glint > 0.02) for (const c of WING_CENTRES) flares.push([toScreen(c), 4 + 22 * glint, [0.85, 0.92, 1], Math.min(1, glint * 2)]);
+    }
+    // a small red beacon on the antenna, blinking
+    const top = apply3(rot, [0, 1, 0]);
+    const ph = (now % 1.7) / 1.7;
+    if (top[2] > -0.25 && ph < 0.12) flares.push([toScreen(BEACON), 2.6, [1, 0.25, 0.2], 1 - ph / 0.12]);
+    if (flares.length) {
+      let n = 0;
+      for (const [[x, y], r, tint, a] of flares) {
+        const o = n * 11;
+        this.dropData.set([x, y, r, a, 0, 0, 0.5, 0, tint[0], tint[1], tint[2]], o);
+        n++;
+      }
+      this.drawStars(n);
+    }
+  }
+
+  /** Draws the first n instances in dropData with the star shader (additive). */
+  private drawStars(n: number) {
+    const gl = this.gl;
+    const P = this.progs.drop;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufDrop);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.dropData.subarray(0, n * 11));
+    gl.useProgram(P.prog);
+    gl.uniform2f(P.u.uRes, this.w, this.h);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, this.atlas);
+    gl.uniform1i(P.u.uAtlas, 1);
+    gl.bindVertexArray(this.vaoDrop);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, n);
+    gl.activeTexture(gl.TEXTURE0);
   }
 
   /* ------------------------------ shooting stars ------------------------------ */
@@ -514,6 +816,7 @@ export class GLStorm implements StormRenderer {
     this.running = true;
     this.last = performance.now();
     this.nextAuto = this.last / 1000 + rand(0.8, 2.2);
+    if (!this.sat && !this.nextSat) this.nextSat = this.last / 1000 + 2.5;
     const loop = (t: number) => {
       if (!this.running || this.lost) return;
       this.frame(t);
@@ -560,11 +863,28 @@ export class GLStorm implements StormRenderer {
     const time = now - this.t0;
     const shower = this.intensity === 'storm';
 
+    // the planet's textures, a strip a frame until they are done (all at once for a still sky)
+    this.stepEarth(still && this.reduced);
+
     // shooting stars on their own: a shower, or now and then when calm
     if (!still && now > this.nextAuto) {
       this.strike();
       if (shower && Math.random() < 0.25) this.strike();
       this.nextAuto = now + (shower ? rand(1.4, 3.8) : rand(6, 12));
+    }
+
+    // the satellite: one at a time, a pause between
+    if (!still) {
+      if (!this.sat && this.nextSat && now > this.nextSat) this.launchSatellite(now);
+      if (this.sat && now - this.sat.born > this.sat.dur) {
+        this.sat = undefined;
+        this.nextSat = now + rand(16, 30);
+      }
+    } else if (this.reduced && !this.sat) {
+      // a still sky still gets its satellite, parked part way up
+      this.launchSatellite(now);
+      this.sat!.born = now - this.sat!.dur * 0.42;
+      this.sat!.spin = 0;
     }
 
     // physics
@@ -657,34 +977,25 @@ export class GLStorm implements StormRenderer {
       const grow = igniting ? 0.15 + 0.85 * (1 - (1 - k) ** 3) : 1;
       const left = s.life - age;
       const fade = left < FADE ? Math.max(0, left / FADE) : 1;
-      const tint = rgbOf(s.code);
+      const r = s.r * grow * (0.7 + 0.3 * fade);
       const o = nd * 11;
+      const tint = rgbOf(s.code);
+      // twinkle: a restless, uneven shimmer, as starlight through air
+      const tw = 0.5 + 0.3 * Math.sin(s.phase * 1.7) + 0.2 * Math.sin(s.phase * 4.3 + 1.3);
       this.dropData[o] = s.x;
       this.dropData[o + 1] = s.y;
-      this.dropData[o + 2] = s.r * grow * (0.7 + 0.3 * fade);
+      this.dropData[o + 2] = r;
       this.dropData[o + 3] = s.alpha * Math.min(1, k * 3) * fade;
       this.dropData[o + 4] = this.glyphIndex.get(s.code) ?? 0;
       this.dropData[o + 5] = Math.max(s.charge, igniting ? (1 - k) * 1.2 : 0);
-      this.dropData[o + 6] = 0.5 + 0.5 * Math.sin(s.phase);
-      this.dropData[o + 7] = 0;
+      this.dropData[o + 6] = Math.max(0, Math.min(1, tw));
+      this.dropData[o + 7] = grow > 0.6 ? 11 / r : 0;
       this.dropData[o + 8] = tint[0];
       this.dropData[o + 9] = tint[1];
       this.dropData[o + 10] = tint[2];
       nd++;
     }
-    if (nd) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufDrop);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.dropData.subarray(0, nd * 11));
-      gl.useProgram(P.drop.prog);
-      gl.uniform2f(P.drop.u.uRes, this.w, this.h);
-      gl.uniform1f(P.drop.u.uFlash, flash);
-      gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, this.atlas);
-      gl.uniform1i(P.drop.u.uAtlas, 1);
-      gl.bindVertexArray(this.vaoDrop);
-      gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nd);
-      gl.activeTexture(gl.TEXTURE0);
-    }
+    if (nd) this.drawStars(nd);
 
     // 4. sparkles, added so they glow
     const np = Math.min(this.parts.length, MAX_PARTS);
@@ -714,7 +1025,41 @@ export class GLStorm implements StormRenderer {
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    // 5. shooting stars: bloom from a half-resolution pass, then a crisp core on top
+    // 5. the satellite, still behind the planet
+    this.drawSatellite(now);
+
+    // 6. the planet, hiding whatever is behind it, fading in once its textures exist
+    if (this.earthReadyAt) {
+      const Q = P.planet;
+      const fade = still ? 1 : Math.min(1, (now - this.earthReadyAt) / 0.9);
+      const spinS = (((0.5 + START_TURN - time * SPIN) % 1) + 1) % 1;
+      const spinC = (((0.5 + START_TURN - time * (SPIN + CLOUD_DRIFT)) % 1) + 1) % 1;
+      const sunP = toPlanet(EARTH_SUN);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.useProgram(Q.prog);
+      gl.uniform1f(Q.u.uTop, Math.min(1, PLANET.cy + PLANET.r + PLANET.atmo * 4));
+      gl.uniform1f(Q.u.uAspect, aspect);
+      gl.uniform3f(Q.u.uGeo, PLANET.cx * aspect, PLANET.cy, PLANET.r);
+      gl.uniform1f(Q.u.uAtmo, PLANET.atmo);
+      gl.uniform1f(Q.u.uPix, 1 / H);
+      gl.uniform3f(Q.u.uSun, EARTH_SUN[0], EARTH_SUN[1], EARTH_SUN[2]);
+      gl.uniform3f(Q.u.uSunP, sunP[0], sunP[1], sunP[2]);
+      gl.uniformMatrix3fv(Q.u.uPole, false, POLE_MAT);
+      gl.uniform2f(Q.u.uSpin, spinS, spinC);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.surf!.tex);
+      gl.uniform1i(Q.u.uSurf, 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, this.cloud!.tex);
+      gl.uniform1i(Q.u.uCloud, 1);
+      gl.uniform1f(Q.u.uFade, fade);
+      gl.bindVertexArray(this.vaoEmpty);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.activeTexture(gl.TEXTURE0);
+    }
+
+    // 7. shooting stars: bloom from a half-resolution pass, then a crisp core on top
     if (this.meteors.length) {
       const draw = (widthScale: number, sharp: number, color: [number, number, number], gain: number) => {
         gl.useProgram(P.bolt.prog);
@@ -772,7 +1117,7 @@ export class GLStorm implements StormRenderer {
       draw(0.22, 2.6, [1.0, 1.0, 1.0], 2.2);
     }
 
-    // 6. lens: vignette and grain, multiplied
+    // 8. lens: vignette and grain, multiplied
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.DST_COLOR, gl.ZERO);
     gl.useProgram(P.overlay.prog);

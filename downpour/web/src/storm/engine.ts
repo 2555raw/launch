@@ -1,16 +1,21 @@
 /* The sky behind every page, on a 2D canvas, for browsers without WebGL2 (or with
  * ?storm2d). A simpler cousin of glstorm.ts:
  *
- *   space     a painted backdrop of nebula glow and a few thousand fixed stars, some of
- *             which twinkle
- *   stars     the currency stars: glowing orbs with the currency sign, born with a flare,
- *             drifting slowly upward and fading out after a while
- *   meteors   shooting stars with fading tails; tap the empty sky to send one
- *   sparkles  a burst of sparks and a ring when a currency star is tapped
+ *   space      a painted backdrop of nebula glow and a few thousand fixed stars, some of
+ *              which twinkle
+ *   stars      the currency stars, drawn as real stars (halo, spikes, a white core) with
+ *              the currency sign beside them; born with a flare, drifting slowly upward
+ *   satellite  rising from behind the planet and drifting up the right side
+ *   planet     the Earth's horizon, painted once from the real coastlines: day on the
+ *              left, dusk and night on the right, a thin glowing atmosphere
+ *   meteors    shooting stars with fading tails; tap the empty sky to send one
+ *   sparkles   a burst of sparks and a ring when a currency star is tapped
  *
  * Nothing moves at all under prefers-reduced-motion. */
 import { currencyColor, dropGlyph } from '../data/currencies';
+import { EARTH_SUN, PLANET, START_TURN, horizonY, landFields, onPlanet, toPlanet } from './earth';
 import { heroSpot } from './glstorm';
+import { drawSatellite2D } from './satellite';
 import { COLUMN, type Intensity, type Scene, type StormRenderer } from './types';
 
 interface Star {
@@ -78,6 +83,11 @@ export class StormEngine implements StormRenderer {
   private dpr = 1;
 
   private backdrop?: HTMLCanvasElement;
+  private earth?: { disc: HTMLCanvasElement; air: HTMLCanvasElement; top: number };
+  private satSprite?: HTMLCanvasElement;
+  private sat?: { born: number; dur: number; x0: number; y0: number; x1: number; y1: number; tilt: number };
+  private nextSat = 0;
+  private satSize = 240;
   private sprites = new Map<string, HTMLCanvasElement>();
   private twinklers: Twinkler[] = [];
   private stars: Star[] = [];
@@ -111,6 +121,9 @@ export class StormEngine implements StormRenderer {
     this.canvas.style.width = `${this.w}px`;
     this.canvas.style.height = `${this.h}px`;
     this.paintBackdrop();
+    this.paintEarth();
+    this.satSize = Math.round(this.w < 720 ? Math.max(120, this.w * 0.34) : Math.max(160, Math.min(330, this.w * 0.22)));
+    this.satSprite = undefined;
     this.fillStars();
     if (this.reduced || !this.running) this.frame(performance.now(), true);
   }
@@ -177,12 +190,14 @@ export class StormEngine implements StormRenderer {
     }));
   }
 
-  /** A currency star, pre-rendered: halo, spikes, a lit sphere and the sign. */
+  /** A currency star, pre-rendered like a real one: a halo in its colour, long thin
+   *  diffraction spikes, a white core, and the currency sign beside it. Drawn at a half
+   *  size of 6 star radii, added to the sky. */
   private sprite(code: string) {
     const hit = this.sprites.get(code);
     if (hit) return hit;
-    const R = 40;
-    const S = R * 3;
+    const R = 16;
+    const S = R * 6;
     const scale = 2;
     const c = document.createElement('canvas');
     c.width = c.height = S * 2 * scale;
@@ -190,51 +205,143 @@ export class StormEngine implements StormRenderer {
     g.scale(scale, scale);
     g.translate(S, S);
     const color = currencyColor(code);
-
-    const halo = g.createRadialGradient(0, 0, R * 0.8, 0, 0, S);
+    g.globalCompositeOperation = 'lighter';
+    const halo = g.createRadialGradient(0, 0, 0, 0, 0, S * 0.7);
     halo.addColorStop(0, color);
+    halo.addColorStop(0.15, color);
     halo.addColorStop(1, 'rgba(0,0,0,0)');
-    g.globalAlpha = 0.45;
+    g.globalAlpha = 0.5;
     g.fillStyle = halo;
     g.fillRect(-S, -S, S * 2, S * 2);
     g.globalAlpha = 1;
-    for (const [w, h] of [
-      [S * 2, 2.4],
-      [2.4, S * 2],
-    ]) {
-      const sp = w > h ? g.createLinearGradient(-S, 0, S, 0) : g.createLinearGradient(0, -S, 0, S);
+    for (const horizontal of [true, false]) {
+      const sp = horizontal ? g.createLinearGradient(-S, 0, S, 0) : g.createLinearGradient(0, -S, 0, S);
       sp.addColorStop(0, 'rgba(255,255,255,0)');
-      sp.addColorStop(0.5, 'rgba(255,255,255,0.85)');
+      sp.addColorStop(0.5, 'rgba(255,255,255,0.95)');
       sp.addColorStop(1, 'rgba(255,255,255,0)');
       g.fillStyle = sp;
-      g.fillRect(-w / 2, -h / 2, w, h);
+      g.beginPath();
+      if (horizontal) {
+        g.moveTo(-S, 0);
+        g.lineTo(0, -1.3);
+        g.lineTo(S, 0);
+        g.lineTo(0, 1.3);
+      } else {
+        g.moveTo(0, -S);
+        g.lineTo(1.3, 0);
+        g.lineTo(0, S);
+        g.lineTo(-1.3, 0);
+      }
+      g.fill();
     }
-
-    const body = g.createRadialGradient(-R * 0.35, -R * 0.4, R * 0.05, 0, 0, R);
-    body.addColorStop(0, '#ffffff');
-    body.addColorStop(0.3, color);
-    body.addColorStop(0.8, color);
-    body.addColorStop(1, '#0b0724');
-    g.beginPath();
-    g.arc(0, 0, R, 0, Math.PI * 2);
-    g.fillStyle = body;
-    g.fill();
-    g.strokeStyle = 'rgba(255,255,255,0.55)';
-    g.lineWidth = 1.4;
-    g.stroke();
-
+    const core = g.createRadialGradient(0, 0, 0, 0, 0, R * 0.9);
+    core.addColorStop(0, '#ffffff');
+    core.addColorStop(0.35, 'rgba(255,255,255,0.9)');
+    core.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = core;
+    g.fillRect(-R, -R, R * 2, R * 2);
     const glyph = dropGlyph(code);
-    const size = [...glyph].length >= 3 ? R * 0.62 : [...glyph].length === 2 ? R * 0.78 : R * 0.98;
-    g.font = `800 ${size}px "Sora Variable", "Sora", system-ui, sans-serif`;
+    g.globalCompositeOperation = 'source-over';
+    g.font = `700 ${[...glyph].length >= 3 ? 11 : 14}px "Sora Variable", "Sora", system-ui, sans-serif`;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
-    g.fillStyle = 'rgba(11,7,36,0.45)';
-    g.fillText(glyph, 1.2, 2.4);
-    g.fillStyle = '#fffdf5';
-    g.fillText(glyph, 0, 1);
-
+    g.fillStyle = 'rgba(225,232,255,0.8)';
+    g.fillText(glyph, R * 1.6, R * 1.6);
     this.sprites.set(code, c);
     return c;
+  }
+
+  /** The planet's horizon, painted once per size from the real coastlines: the disc
+   *  (opaque) and its atmosphere (added to the sky). Static; the WebGL sky turns it. */
+  private paintEarth() {
+    const w = Math.max(1, Math.round(this.w));
+    const h = this.h;
+    const topUv = Math.min(1, PLANET.cy + PLANET.r + PLANET.atmo * 4);
+    const band = Math.max(1, Math.ceil(h * topUv));
+    const cxp = PLANET.cx * (w / h);
+    const R = PLANET.r;
+    const { data: field, w: mw, h: mh } = landFields();
+    // the softened coastline, sampled smoothly so coasts are not blocky
+    const coast = (u: number, v: number) => {
+      const fx = u * mw - 0.5;
+      const fy = Math.min(mh - 1.001, Math.max(0, v * mh - 0.5));
+      const x0 = Math.floor(fx);
+      const y0 = Math.floor(fy);
+      const tx = fx - x0;
+      const ty = fy - y0;
+      const at = (x: number, y: number) => field[(y * mw + (((x % mw) + mw) % mw)) * 2] / 255;
+      return (at(x0, y0) * (1 - tx) + at(x0 + 1, y0) * tx) * (1 - ty) + (at(x0, y0 + 1) * (1 - tx) + at(x0 + 1, y0 + 1) * tx) * ty;
+    };
+    const spin = 0.5 + START_TURN;
+    const disc = new ImageData(w, band);
+    const air = new ImageData(w, band);
+    const airC = (mu: number): [number, number, number] => {
+      const day = Math.min(1, Math.max(0, (mu + 0.07) / 0.37));
+      const dusk = Math.exp(-(((mu - 0.01) / 0.1) ** 2)) * 0.6;
+      return [0.28 * day + dusk, 0.54 * day + 0.43 * dusk, day + 0.2 * dusk];
+    };
+    for (let y = 0; y < band; y++) {
+      const py = 1 - (h - band + y + 0.5) / h;
+      for (let x = 0; x < w; x++) {
+        const px = (x + 0.5) / h;
+        const dx = px - cxp;
+        const dy = py - PLANET.cy;
+        const dist = Math.hypot(dx, dy);
+        const o = (y * w + x) * 4;
+        const cover = Math.min(1, Math.max(0, (R - dist) * h + 0.5));
+        if (cover > 0) {
+          const z = Math.sqrt(Math.max(0, R * R - dist * dist));
+          const n: [number, number, number] = [dx / R, dy / R, z / R];
+          const q = toPlanet(n);
+          const lat = Math.asin(Math.max(-1, Math.min(1, q[1])));
+          let u = Math.atan2(q[2], q[0]) / (Math.PI * 2) + spin;
+          u -= Math.floor(u);
+          const v = 0.5 - lat / Math.PI;
+          const land = coast(u, v) > 0.5;
+          const alat = Math.abs(lat) * 57.3;
+          const base: [number, number, number] = land
+            ? alat > 68
+              ? [0.9, 0.93, 0.97]
+              : alat > 12 && alat < 34
+                ? [0.72, 0.58, 0.4]
+                : [0.3, 0.36, 0.2]
+            : [0.015, 0.05, 0.11];
+          const ndl = n[0] * EARTH_SUN[0] + n[1] * EARTH_SUN[1] + n[2] * EARTH_SUN[2];
+          const lit = Math.max(0, ndl) * 1.6;
+          const T = Math.exp(-0.065 / Math.max(n[2], 0.015));
+          const a = airC(ndl);
+          let r = base[0] * lit * T + a[0] * (1 - T);
+          let gg = base[1] * lit * T + a[1] * (1 - T);
+          let b = base[2] * lit * T + a[2] * (1 - T);
+          if (land && ndl < -0.04 && Math.random() < 0.012) {
+            r += 0.9;
+            gg += 0.6;
+            b += 0.3;
+          }
+          disc.data[o] = Math.min(255, r * 255);
+          disc.data[o + 1] = Math.min(255, gg * 255);
+          disc.data[o + 2] = Math.min(255, b * 255);
+          disc.data[o + 3] = cover * 255;
+        }
+        const alt = Math.max(0, dist - R) / PLANET.atmo;
+        const mul = (dx / dist) * EARTH_SUN[0] + (dy / dist) * EARTH_SUN[1];
+        const a = airC(mul);
+        const k = Math.exp(-alt * 2.3) * 1.2 * (1 - cover);
+        const edge = Math.exp(-alt * 10) * Math.min(1, Math.max(0, (mul + 0.08) / 0.38)) * 0.55 * (1 - cover);
+        air.data[o] = Math.min(255, (a[0] * k + 0.75 * edge) * 255);
+        air.data[o + 1] = Math.min(255, (a[1] * k + 0.88 * edge) * 255);
+        air.data[o + 2] = Math.min(255, (a[2] * k + edge) * 255);
+        air.data[o + 3] = 255;
+      }
+    }
+    const toCanvas = (img: ImageData) => {
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = band;
+      c.getContext('2d')!.putImageData(img, 0, 0);
+      return c;
+    };
+    this.earth = { disc: toCanvas(disc), air: toCanvas(air), top: h - band };
   }
 
   /* ------------------------------ currency stars ------------------------------ */
@@ -250,23 +357,29 @@ export class StormEngine implements StormRenderer {
   }
 
   private newStar(settled = false): Star {
-    let r = Math.random() < 0.3 ? rand(19, 26) : rand(11, 17);
-    let x = rand(r * 3, this.w - r * 3);
-    let y = rand(this.h * 0.14, this.h * 0.94);
+    let r = Math.random() < 0.3 ? rand(13, 18) : rand(8, 12);
+    let x = 0;
+    let y = 0;
     let vy = -rand(5, 13);
     let alpha = 1;
-    if (this.scene === 'hero') {
-      ({ x, y, alpha } = heroSpot(this.w, this.h, r));
-      vy = -rand(1.5, 4);
-    } else {
-      const g = this.gutter();
-      if (g >= 90) {
-        r = Math.min(r, g * 0.2);
-        x = Math.random() < 0.5 ? rand(r * 2.5, g - r * 2) : rand(this.w - g + r * 2, this.w - r * 2.5);
+    for (let tries = 0; tries < 12; tries++) {
+      x = rand(r * 3, this.w - r * 3);
+      y = rand(this.h * 0.14, this.h * 0.94);
+      alpha = 1;
+      if (this.scene === 'hero') {
+        ({ x, y, alpha } = heroSpot(this.w, this.h, r));
+        vy = -rand(1.5, 4);
       } else {
-        alpha = 0.35;
-        r *= 0.8;
+        const g = this.gutter();
+        if (g >= 90) {
+          r = Math.min(r, g * 0.14);
+          x = Math.random() < 0.5 ? rand(r * 2.5, g - r * 2) : rand(this.w - g + r * 2, this.w - r * 2.5);
+        } else {
+          alpha = 0.35;
+          r *= 0.8;
+        }
       }
+      if (!onPlanet(x, y + r * 2, this.w, this.h)) break;
     }
     const now = performance.now() / 1000;
     const life = rand(16, 34);
@@ -286,7 +399,7 @@ export class StormEngine implements StormRenderer {
   pop(x: number, y: number): boolean {
     for (let i = this.stars.length - 1; i >= 0; i--) {
       const s = this.stars[i];
-      if (Math.hypot(s.x - x, s.y - y) < s.r * 1.5) {
+      if (Math.hypot(s.x - x, s.y - y) < s.r * 1.7) {
         const color = currencyColor(s.code);
         for (let k = 0; k < 28; k++) {
           const a = rand(0, Math.PI * 2);
@@ -333,6 +446,7 @@ export class StormEngine implements StormRenderer {
     this.running = true;
     this.last = performance.now();
     this.nextAuto = this.last / 1000 + rand(0.8, 2.2);
+    if (!this.sat && !this.nextSat) this.nextSat = this.last / 1000 + 2.5;
     const loop = (t: number) => {
       if (!this.running) return;
       this.frame(t);
@@ -393,12 +507,56 @@ export class StormEngine implements StormRenderer {
       const grow = 0.15 + 0.85 * (1 - (1 - k) ** 3);
       const left = s.life - age;
       const fade = left < FADE ? Math.max(0, left / FADE) : 1;
-      const pulse = 1 + 0.05 * Math.sin(s.phase);
-      const size = s.r * 3 * grow * pulse * (0.7 + 0.3 * fade);
+      const pulse = 1 + 0.08 * Math.sin(s.phase * 1.7) + 0.04 * Math.sin(s.phase * 4.3);
+      const size = s.r * 6 * grow * pulse * (0.7 + 0.3 * fade);
       g.globalAlpha = s.alpha * Math.min(1, k * 3) * fade;
+      g.globalCompositeOperation = 'lighter';
       g.drawImage(this.sprite(s.code), s.x - size, s.y - size, size * 2, size * 2);
+      g.globalCompositeOperation = 'source-over';
     }
     g.globalAlpha = 1;
+
+    // the satellite rises from behind the planet, which is painted over it
+    if (!still) {
+      if (!this.sat && this.nextSat && now > this.nextSat) {
+        const x0 = this.w * (this.w < 720 ? rand(0.8, 0.9) : rand(0.83, 0.9));
+        const y0 = (horizonY(x0, this.w, this.h) ?? this.h) + this.satSize * 0.45;
+        const ang = (rand(84, 100) * Math.PI) / 180;
+        const dist = (y0 + this.satSize * 0.6) / Math.sin(ang);
+        this.sat = { born: now, dur: dist / rand(19, 25), x0, y0, x1: x0 + Math.cos(ang) * dist, y1: y0 - Math.sin(ang) * dist, tilt: rand(-0.4, 0.4) };
+      }
+      if (this.sat && now - this.sat.born > this.sat.dur) {
+        this.sat = undefined;
+        this.nextSat = now + rand(16, 30);
+      }
+    }
+    if (this.sat) {
+      if (!this.satSprite) {
+        const c = document.createElement('canvas');
+        c.width = c.height = Math.round(this.satSize * this.dpr);
+        const sg = c.getContext('2d')!;
+        sg.scale(this.dpr, this.dpr);
+        sg.translate(this.satSize / 2, this.satSize / 2);
+        drawSatellite2D(sg, this.satSize * 0.95);
+        this.satSprite = c;
+      }
+      const k = Math.min(1, (now - this.sat.born) / this.sat.dur);
+      const sx = this.sat.x0 + (this.sat.x1 - this.sat.x0) * k;
+      const sy = this.sat.y0 + (this.sat.y1 - this.sat.y0) * k;
+      g.save();
+      g.translate(sx, sy);
+      g.rotate(this.sat.tilt + Math.sin((now - this.sat.born) * 0.15) * 0.08);
+      g.drawImage(this.satSprite, -this.satSize / 2, -this.satSize / 2, this.satSize, this.satSize);
+      g.restore();
+    }
+
+    // the planet, hiding what is behind it, and its atmosphere
+    if (this.earth) {
+      g.drawImage(this.earth.disc, 0, this.earth.top, this.w, this.earth.disc.height);
+      g.globalCompositeOperation = 'lighter';
+      g.drawImage(this.earth.air, 0, this.earth.top, this.w, this.earth.air.height);
+      g.globalCompositeOperation = 'source-over';
+    }
 
     // meteors
     g.globalCompositeOperation = 'lighter';

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Starmint \u2014 a star-themed launchpad where every coin is paired with a currency.",
+  "description": "Starmint — a star-themed launchpad where every coin is paired with a currency.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
@@ -16,6 +16,7 @@
     "deploy": "node scripts/deploy.mjs",
     "seed": "node scripts/seed.mjs",
     "keeper": "node scripts/keeper.mjs",
+    "earth": "node scripts/build-earth.mjs",
     "verify": "node scripts/verify.mjs",
     "e2e": "node e2e/run.mjs",
     "e2e:playground": "node e2e/playground.mjs"
@@ -40,7 +41,9 @@
     "@vitejs/plugin-react": "^6.1.1",
     "playwright": "^1.63.0",
     "solady": "^0.1.26",
+    "topojson-client": "^3.1.0",
     "typescript": "^7.0.2",
-    "vite": "^8.3.1"
+    "vite": "^8.3.1",
+    "world-atlas": "^2.0.2"
   }
 }

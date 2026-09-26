@@ -7,22 +7,66 @@ import { Close } from './icons';
 
 /* ------------------------------ stars & badges ------------------------------ */
 
-/** A currency star: a small glowing world in the currency's colour, lit from the
- *  upper left with a bright limb, a soft halo and four diffraction spikes, and the
- *  currency sign (or the coin's picture) on its face. */
-export function Orb({
-  color,
-  glyph,
-  size = 44,
-  image,
-  label,
-}: {
-  color: string;
-  glyph: string;
-  size?: number;
-  image?: string;
-  label?: string;
-}) {
+type OrbProps = { color: string; glyph: string; size?: number; image?: string; label?: string };
+
+/** A coin's mark. Large ones are drawn as a real star in the currency's colour (halo,
+ *  fine diffraction spikes, an over-exposed core) with the currency's sign beside it,
+ *  like a label on a star chart; a coin with its own picture shows the picture; small
+ *  ones (list icons) are a round currency icon. */
+export function Orb(props: OrbProps) {
+  if (props.image || (props.size ?? 44) < 40) return <OrbIcon {...props} />;
+  return <StarMark {...props} />;
+}
+
+function StarMark({ color, glyph, size = 44, label }: OrbProps) {
+  const id = useId().replace(/:/g, '');
+  const len = [...glyph].length;
+  const fs = len >= 3 ? 11 : len === 2 ? 13 : 15;
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" aria-label={label} role={label ? 'img' : undefined} className="star-mark">
+      <defs>
+        <radialGradient id={`h${id}`} cx="50" cy="50" r="50" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor={color} stopOpacity="0.6" />
+          <stop offset="0.22" stopColor={color} stopOpacity="0.24" />
+          <stop offset="0.55" stopColor={color} stopOpacity="0.06" />
+          <stop offset="1" stopColor={color} stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={`c${id}`} cx="50" cy="50" r="12" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#fff" />
+          <stop offset="0.4" stopColor="#fff" stopOpacity="0.95" />
+          <stop offset="0.7" stopColor={color} stopOpacity="0.55" />
+          <stop offset="1" stopColor={color} stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id={`x${id}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#fff" stopOpacity="0.95" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={`y${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#fff" stopOpacity="0.95" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="50" fill={`url(#h${id})`} />
+      <path d="M0 50 50 48.9 100 50 50 51.1Z" fill={`url(#x${id})`} />
+      <path d="M50 2 51.1 50 50 98 48.9 50Z" fill={`url(#y${id})`} />
+      <g opacity="0.3" transform="rotate(45 50 50)">
+        <path d="M22 50 50 49.4 78 50 50 50.6Z" fill={`url(#x${id})`} />
+        <path d="M50 22 50.6 50 50 78 49.4 50Z" fill={`url(#y${id})`} />
+      </g>
+      <circle cx="50" cy="50" r="12" fill={`url(#c${id})`} />
+      <circle cx="50" cy="50" r="3.4" fill="#fff" />
+      <text x="63" y="71" fontFamily="Sora Variable, Sora, system-ui" fontWeight="700" fontSize={fs} fill="#fff" opacity="0.85">
+        {glyph}
+      </text>
+    </svg>
+  );
+}
+
+/** The round version: a small glowing world in the currency's colour with its sign
+ *  (or the coin's picture) on its face. */
+function OrbIcon({ color, glyph, size = 44, image, label }: OrbProps) {
   const id = useId().replace(/:/g, '');
   const len = [...glyph].length;
   const fs = len >= 4 ? 10 : len === 3 ? 12 : len === 2 ? 15 : 19;

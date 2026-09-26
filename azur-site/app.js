@@ -264,7 +264,7 @@
   // Put the real community links here; every Discord and X icon on the site uses them.
   const SOCIAL = {
     discord: "",   // e.g. "https://discord.gg/your-invite"
-    x: "",         // e.g. "https://x.com/yourhandle"
+    x: "https://x.com/useAzur",
   };
   const LIVE_SITE = "https://spinpad-production.up.railway.app";
   document.querySelectorAll("[data-social]").forEach((a) => {

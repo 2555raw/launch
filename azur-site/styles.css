@@ -152,7 +152,7 @@ h1, h2 {
 .p1 { left: 10.5%; top: 21%; transform: rotate(-4deg); }
 .p2 { left: 13%;   top: 34%; transform: rotate(3deg);  animation-delay: -2s; }
 .p3 { left: 9.6%;  top: 46%; transform: rotate(-3deg); animation-delay: -4s; }
-.p4 { left: 16%;   top: 60%; transform: rotate(4deg);  animation-delay: -1s; filter: blur(.6px); opacity: .6; }
+.p4 { left: 16%;   top: 60%; transform: rotate(4deg);  animation-delay: -1s; }
 .p5 { right: 11%;  top: 23%; transform: rotate(4deg);  animation-delay: -3s; }
 .p6 { right: 13%;  top: 34%; transform: rotate(-4deg); animation-delay: -5s; }
 .p7 { right: 10.5%; top: 48%; transform: rotate(4deg); animation-delay: -1.5s; }

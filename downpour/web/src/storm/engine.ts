@@ -10,6 +10,7 @@
  * Flashes are capped in brightness and to at most three a second (WCAG 2.3.1), and
  * nothing moves at all under prefers-reduced-motion. */
 import { currencyColor, dropGlyph } from '../data/currencies';
+import { COLUMN, type Intensity, type Scene, type StormRenderer } from './types';
 
 type Pt = [number, number];
 
@@ -60,14 +61,7 @@ interface Bolt {
   warm: boolean;
 }
 
-export type Intensity = 'drizzle' | 'storm';
-
-/** 'hero': drops fall anywhere, mostly around the headline. 'content': drops keep to
- *  the margins beside the page column so they never sit on a form or a table. */
-export type Scene = 'hero' | 'content';
-
-/** Width of the page column (.wrap max-width), used to find the margins. */
-const COLUMN = 1160;
+export type { Intensity, Scene } from './types';
 
 const LAYERS = [
   { count: 0.45, len: [6, 11], speed: [380, 520], alpha: 0.13, width: 0.7 },
@@ -77,7 +71,8 @@ const LAYERS = [
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
-export class StormEngine {
+/** The 2D fallback, used when WebGL2 is not available. */
+export class StormEngine implements StormRenderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private w = 0;

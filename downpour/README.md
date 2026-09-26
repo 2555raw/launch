@@ -8,11 +8,16 @@ it, sells pay out in it, the price is quoted in it and fees are collected in it.
 The pairing is shown everywhere as a badge, coin on the left and currency on the
 right, e.g. `BOLT / € EUR`.
 
-The sky behind the pages is a storm on a canvas: a bank of clouds, rain in three
-depths, big glossy drops that each carry a currency sign and splash when they
-land (or when you tap them), and lightning that lights the clouds from inside.
-Tap the empty sky to call a bolt down where you tapped. Flashes are capped in
-brightness and frequency, and nothing moves under `prefers-reduced-motion`.
+The sky behind the pages is a storm rendered on the GPU (WebGL2): a deck of
+turbulent storm cloud with rain curtains under it, a few thousand rain streaks at
+three depths, and big water drops that each carry a currency sign. The drops
+refract the sky behind them (flipped, as a real drop does), with Fresnel
+reflection, a dark rim, highlights and a caustic in the currency's color, and
+they splash when they land or when you tap them. Lightning comes as a stepped
+leader, a return stroke and a restrike, bloomed, lighting the clouds from inside;
+tap the empty sky to call a bolt down where you tapped. Resolution drops by itself
+on slow devices, browsers without WebGL2 get a 2D version (also reachable with
+`?storm2d`), flashes are capped, and nothing moves under `prefers-reduced-motion`.
 
 ## What works
 
@@ -67,7 +72,7 @@ brightness and frequency, and nothing moves under `prefers-reduced-motion`.
 contracts/   Solidity (Foundry): Coin, TestCurrency, CurrencyDesk, Launchpad, Router + tests
 scripts/     deploy, seed, keeper, verify, dev (local chain), build-artifacts
 shared/      currencies.json (the 147 currencies and reference rates), artifacts.json (ABIs + bytecode)
-web/         the site: Vite + React + TypeScript + viem
+web/         the site: Vite + React + TypeScript + viem; web/src/storm is the WebGL storm
 e2e/         browser tests (Playwright) for live and playground modes
 server.js    serves dist/ as a single-page app (Railway)
 ```
@@ -137,8 +142,11 @@ stablecoins (`CurrencyDesk.listCurrency`) rather than mint test ones.
 
 ## Host the site
 
-On Railway, point a service at this repository with root directory `downpour`;
-it runs `npm run build` and `npm start` (the server answers on `PORT`, or 8080).
+It is live at https://downpour-production.up.railway.app (Railway service
+`downpour`, root directory `downpour`, deploying this branch on every push). To
+set up another one, point a Railway service at this repository with root
+directory `downpour`; it runs `npm run build` and `node server.js` (the server
+answers on `PORT`, or 8080).
 Any static host works too, as long as unknown paths fall back to `index.html`.
 
 ## Make it yours

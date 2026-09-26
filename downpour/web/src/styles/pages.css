@@ -149,9 +149,9 @@ a.card:hover {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(120px 90px at 50% 58%, color-mix(in srgb, var(--c) 38%, transparent), transparent 70%),
-    repeating-linear-gradient(104deg, transparent 0 22px, rgba(170, 200, 255, 0.06) 22px 23px),
-    linear-gradient(180deg, rgba(10, 16, 30, 0.9), rgba(16, 26, 46, 0.6));
+    radial-gradient(90px 70px at 50% 62%, color-mix(in srgb, var(--c) 22%, transparent), transparent 72%),
+    radial-gradient(140% 70% at 50% -10%, rgba(120, 135, 165, 0.22), transparent 60%),
+    linear-gradient(180deg, #0b1019, #131b2a 70%, #182235);
   border-bottom: 1px solid var(--line);
 }
 
@@ -159,17 +159,21 @@ a.card:hover {
   content: '';
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(104deg, transparent 0 40px, rgba(170, 200, 255, 0.05) 40px 41px);
-  animation: card-rain 1.6s linear infinite;
+  background:
+    repeating-linear-gradient(98deg, transparent 0 17px, rgba(185, 205, 235, 0.07) 17px 18px, transparent 18px 43px),
+    repeating-linear-gradient(101deg, transparent 0 29px, rgba(185, 205, 235, 0.05) 29px 30px, transparent 30px 61px);
+  background-size: 100% 60px, 100% 90px;
+  animation: card-rain 0.9s linear infinite;
+  mask-image: linear-gradient(180deg, transparent, #000 25%, #000 80%, transparent);
   pointer-events: none;
 }
 
 @keyframes card-rain {
   from {
-    background-position: 0 -40px;
+    background-position: 0 0, 0 0;
   }
   to {
-    background-position: -10px 40px;
+    background-position: -6px 60px, -9px 90px;
   }
 }
 
@@ -955,9 +959,21 @@ a.card:hover {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(180px 120px at 50% 60%, color-mix(in srgb, var(--c) 40%, transparent), transparent 70%),
-    repeating-linear-gradient(104deg, transparent 0 26px, rgba(170, 200, 255, 0.06) 26px 27px),
-    linear-gradient(180deg, rgba(10, 16, 30, 0.95), rgba(16, 26, 46, 0.65));
+    radial-gradient(130px 100px at 50% 62%, color-mix(in srgb, var(--c) 22%, transparent), transparent 72%),
+    radial-gradient(140% 70% at 50% -10%, rgba(120, 135, 165, 0.22), transparent 60%),
+    linear-gradient(180deg, #0b1019, #131b2a 70%, #182235);
+}
+
+.preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(98deg, transparent 0 17px, rgba(185, 205, 235, 0.07) 17px 18px, transparent 18px 43px),
+    repeating-linear-gradient(101deg, transparent 0 29px, rgba(185, 205, 235, 0.05) 29px 30px, transparent 30px 61px);
+  background-size: 100% 60px, 100% 90px;
+  animation: card-rain 0.9s linear infinite;
+  pointer-events: none;
 }
 
 .preview .cc-drop {

@@ -86,6 +86,13 @@ img {
   border-radius: 8px;
 }
 
+.storm-host {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #06090f;
+}
+
 .storm-canvas {
   position: fixed;
   inset: 0;

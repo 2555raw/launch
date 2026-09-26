@@ -7,7 +7,12 @@ import { Close } from './icons';
 
 /* ------------------------------ drops & badges ------------------------------ */
 
-/** A water drop in the currency's color, with its sign, or a coin's image inside. */
+/** A water drop, drawn to look like the real thing: clear water that shows a
+ *  flipped, darker sky, a dark band inside the rim, a hairline of light at the
+ *  edge, a sharp highlight, light focused into a caustic, a hint of the currency's
+ *  color, and the currency sign (or the coin's picture) inside. */
+const DROP_PATH = 'M32 3C32 3 7 34 7 50a25 25 0 0 0 50 0C57 34 32 3 32 3z';
+
 export function Drop({
   color,
   glyph,
@@ -23,29 +28,61 @@ export function Drop({
 }) {
   const id = useId().replace(/:/g, '');
   const len = [...glyph].length;
-  const fs = len >= 4 ? 13 : len === 3 ? 16 : len === 2 ? 20 : 26;
+  const fs = len >= 4 ? 13 : len === 3 ? 16 : len === 2 ? 20 : 25;
   return (
     <svg width={size} height={size * 1.25} viewBox="0 0 64 80" aria-label={label} role={label ? 'img' : undefined}>
       <defs>
-        <radialGradient id={`b${id}`} cx="0.36" cy="0.5" r="0.75">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.85" />
-          <stop offset="0.22" stopColor={color} />
-          <stop offset="0.78" stopColor={color} />
-          <stop offset="1" stopColor="#081024" />
+        {/* the sky seen through the drop, flipped: lighter below, darker above */}
+        <linearGradient id={`w${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0d1422" stopOpacity="0.72" />
+          <stop offset="0.55" stopColor="#1a2436" stopOpacity="0.62" />
+          <stop offset="1" stopColor="#4a5d7c" stopOpacity="0.7" />
+        </linearGradient>
+        <radialGradient id={`r${id}`} cx="32" cy="50" r="25" gradientUnits="userSpaceOnUse">
+          <stop offset="0.62" stopColor="#000" stopOpacity="0" />
+          <stop offset="0.86" stopColor="#02050c" stopOpacity="0.42" />
+          <stop offset="1" stopColor="#02050c" stopOpacity="0.62" />
         </radialGradient>
+        <radialGradient id={`k${id}`} cx="39" cy="66" r="13" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor={color} stopOpacity="0.85" />
+          <stop offset="0.45" stopColor={color} stopOpacity="0.28" />
+          <stop offset="1" stopColor={color} stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={`s${id}`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.95" />
+          <stop offset="0.6" stopColor="#fff" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id={`e${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.7" />
+          <stop offset="0.5" stopColor="#dfe8ff" stopOpacity="0.25" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0.4" />
+        </linearGradient>
         <clipPath id={`c${id}`}>
-          <path d="M32 3C32 3 7 34 7 50a25 25 0 0 0 50 0C57 34 32 3 32 3z" />
+          <path d={DROP_PATH} />
         </clipPath>
       </defs>
-      <path d="M32 3C32 3 7 34 7 50a25 25 0 0 0 50 0C57 34 32 3 32 3z" fill={`url(#b${id})`} stroke="rgba(255,255,255,0.45)" strokeWidth="1.2" />
+      <path d={DROP_PATH} fill={`url(#w${id})`} />
+      <path d={DROP_PATH} fill={color} opacity="0.2" />
       {image ? (
-        <image href={imageSrc(image)} x="7" y="25" width="50" height="50" clipPath={`url(#c${id})`} preserveAspectRatio="xMidYMid slice" />
+        <image href={imageSrc(image)} x="7" y="25" width="50" height="50" clipPath={`url(#c${id})`} preserveAspectRatio="xMidYMid slice" opacity="0.92" />
       ) : (
-        <text x="32" y="56" textAnchor="middle" fontFamily="Sora Variable, Sora, system-ui" fontWeight="800" fontSize={fs} fill="#fff" style={{ paintOrder: 'stroke' }} stroke="rgba(5,10,25,0.35)" strokeWidth="1.2">
-          {glyph}
-        </text>
+        <g fontFamily="Sora Variable, Sora, system-ui" fontWeight="800" fontSize={fs} textAnchor="middle">
+          <text x="32.8" y="57.6" fill="#02050c" opacity="0.45">
+            {glyph}
+          </text>
+          <text x="32" y="56.6" fill="#f3f7ff" opacity="0.94">
+            {glyph}
+          </text>
+        </g>
       )}
-      <ellipse cx="21" cy="42" rx="4" ry="8" fill="#fff" opacity="0.65" transform="rotate(-28 21 42)" />
+      <g clipPath={`url(#c${id})`}>
+        <circle cx="39" cy="66" r="13" fill={`url(#k${id})`} />
+        <path d={DROP_PATH} fill={`url(#r${id})`} />
+      </g>
+      <path d={DROP_PATH} fill="none" stroke={`url(#e${id})`} strokeWidth="0.9" />
+      <ellipse cx="18.5" cy="39" rx="3.1" ry="6.2" fill={`url(#s${id})`} transform="rotate(-30 18.5 39)" />
+      <circle cx="45.5" cy="63.5" r="1.3" fill="#fff" opacity="0.55" />
     </svg>
   );
 }

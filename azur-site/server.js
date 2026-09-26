@@ -100,28 +100,61 @@ async function joinWaitlist(req, res) {
 
 /* ------------------------------------------------------------ prices */
 
-/* Stocks come from Stooq (change is measured against today's open), crypto from
-   CoinGecko (24h change). Both are free and need no key. */
+/* Stocks come from Yahoo Finance (change against the previous close, like a
+   broker shows it) with Stooq as a fallback; crypto from CoinGecko (24h change);
+   PONS from DexScreener, preferring its Robinhood Chain pair. All free, no keys. */
 const STOCKS = { GOOGL: 'googl.us', HOOD: 'hood.us', AAPL: 'aapl.us', TSLA: 'tsla.us', NVDA: 'nvda.us' };
 const COINS = { BTC: 'bitcoin', ETH: 'ethereum' };
+const DEX = { PONS: 'PONS' };
 let priceCache = { at: 0, data: {} };
+const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36';
 
-async function fetchText(url) {
-  const r = await fetch(url, { signal: AbortSignal.timeout(5000), headers: { 'user-agent': 'azur-site/1.0' } });
-  if (!r.ok) throw new Error(url + ' ' + r.status);
+async function fetchText(url, ms = 8000) {
+  const r = await fetch(url, { signal: AbortSignal.timeout(ms), headers: { 'user-agent': UA, accept: 'application/json,text/csv,*/*' } });
+  if (!r.ok) throw new Error(url.split('?')[0] + ' ' + r.status);
   return r.text();
+}
+
+async function yahoo(t) {
+  for (const host of ['query1', 'query2']) {
+    try {
+      const body = JSON.parse(await fetchText('https://' + host + '.finance.yahoo.com/v8/finance/chart/' + t + '?interval=1d&range=5d'));
+      const meta = body.chart && body.chart.result && body.chart.result[0] && body.chart.result[0].meta;
+      const price = meta && meta.regularMarketPrice;
+      const prev = meta && (meta.chartPreviousClose || meta.previousClose);
+      if (price > 0 && prev > 0) return { price, change: (price - prev) / prev * 100 };
+    } catch (e) { /* try the next host */ }
+  }
+  throw new Error('yahoo ' + t + ' unavailable');
+}
+
+async function stooq(sym) {
+  const csv = await fetchText('https://stooq.com/q/l/?s=' + sym + '&f=sd2t2ohlc&h&e=csv', 6000);
+  const cols = csv.trim().split('\n')[1].split(',');
+  const open = parseFloat(cols[3]), close = parseFloat(cols[6]);
+  if (!(open > 0 && close > 0)) throw new Error('stooq ' + sym + ' empty');
+  return { price: close, change: (close - open) / open * 100 };
+}
+
+let dexLogged = false;
+async function dexscreener(symbol) {
+  const body = JSON.parse(await fetchText('https://api.dexscreener.com/latest/dex/search?q=' + encodeURIComponent(symbol)));
+  const pairs = (body.pairs || []).filter((p) => p.baseToken && String(p.baseToken.symbol).toUpperCase() === symbol && parseFloat(p.priceUsd) > 0);
+  if (!pairs.length) throw new Error('dexscreener ' + symbol + ' not found');
+  const liq = (p) => (p.liquidity && p.liquidity.usd) || 0;
+  const onChain = pairs.filter((p) => /robinhood/i.test(p.chainId));
+  const best = (onChain.length ? onChain : pairs).sort((a, b) => liq(b) - liq(a))[0];
+  if (!dexLogged) { dexLogged = true; console.log('price', symbol, 'from', best.chainId, best.dexId, best.pairAddress); }
+  return { price: parseFloat(best.priceUsd), change: (best.priceChange && best.priceChange.h24) || 0 };
 }
 
 async function loadPrices() {
   const out = {};
   await Promise.all(Object.entries(STOCKS).map(async ([t, sym]) => {
-    try {
-      const csv = await fetchText('https://stooq.com/q/l/?s=' + sym + '&f=sd2t2ohlc&h&e=csv');
-      const [, row] = csv.trim().split('\n');
-      const cols = row.split(',');
-      const open = parseFloat(cols[3]), close = parseFloat(cols[6]);
-      if (open > 0 && close > 0) out[t] = { price: close, change: (close - open) / open * 100 };
-    } catch (e) { console.error('price', t, e.message); }
+    try { out[t] = await yahoo(t); }
+    catch (e) {
+      try { out[t] = await stooq(sym); } catch (e2) { console.error('price', t, e.message, '|', e2.message); }
+    }
   }));
   try {
     const body = JSON.parse(await fetchText('https://api.coingecko.com/api/v3/simple/price?ids=' +
@@ -131,6 +164,9 @@ async function loadPrices() {
       if (c && c.usd) out[t] = { price: c.usd, change: c.usd_24h_change || 0 };
     }
   } catch (e) { console.error('price crypto', e.message); }
+  await Promise.all(Object.entries(DEX).map(async ([t, sym]) => {
+    try { out[t] = await dexscreener(sym); } catch (e) { console.error('price', t, e.message); }
+  }));
   return out;
 }
 

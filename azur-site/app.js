@@ -353,7 +353,7 @@
 
   // ---------------------------------------------------------------- live prices
   const pills = [...document.querySelectorAll(".pill")];
-  const fmtPrice = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: n < 1000 ? 2 : 0, maximumFractionDigits: n < 1000 ? 2 : 0 });
+  const fmtPrice = (n) => "$" + (n < 1 ? n.toPrecision(3) : n.toLocaleString("en-US", { minimumFractionDigits: n < 1000 ? 2 : 0, maximumFractionDigits: n < 1000 ? 2 : 0 }));
   async function loadPrices() {
     try {
       const r = await fetch("/api/prices");
@@ -364,9 +364,10 @@
         const p = prices[t];
         if (!p) return;
         const b = pill.querySelector(".pv b");
+        const flat = Math.abs(p.change) < 0.005;
         const up = p.change >= 0;
-        b.textContent = (up ? "+" : "−") + Math.abs(p.change).toFixed(2) + "%";
-        b.classList.toggle("dn", !up);
+        b.textContent = (flat ? "" : up ? "+" : "−") + Math.abs(p.change).toFixed(2) + "%";
+        b.classList.toggle("dn", !up && !flat);
         pill.querySelector(".pv small").textContent = t + " " + fmtPrice(p.price);
         pill.title = t + " live price";
       });

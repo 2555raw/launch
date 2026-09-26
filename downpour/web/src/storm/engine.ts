@@ -5,15 +5,16 @@
  *              which twinkle
  *   stars      the currency stars, drawn as real stars (halo, spikes, a white core) with
  *              the currency sign beside them; born with a flare, drifting slowly upward
- *   satellite  rising from behind the planet and drifting up the right side
- *   planet     the Earth's horizon, painted once from the real coastlines: day on the
- *              left, dusk and night on the right, a thin glowing atmosphere
+ *   planet     the Earth, painted once from NASA's real day and night maps (the
+ *              coastlines alone until they load): day on the left, dusk and night with
+ *              its cities on the right, a thin glowing atmosphere
+ *   satellite  orbiting along just inside the horizon and off the right side
  *   meteors    shooting stars with fading tails; tap the empty sky to send one
  *   sparkles   a burst of sparks and a ring when a currency star is tapped
  *
  * Nothing moves at all under prefers-reduced-motion. */
 import { currencyColor, dropGlyph } from '../data/currencies';
-import { EARTH_SUN, PLANET, START_TURN, horizonY, landFields, onPlanet, toPlanet } from './earth';
+import { EARTH_IMAGES, EARTH_SUN, PLANET, START_TURN, landFields, onPlanet, orbitAt, orbitSpan, toPlanet } from './earth';
 import { heroSpot } from './glstorm';
 import { drawSatellite2D } from './satellite';
 import { COLUMN, type Intensity, type Scene, type StormRenderer } from './types';
@@ -85,9 +86,10 @@ export class StormEngine implements StormRenderer {
   private backdrop?: HTMLCanvasElement;
   private earth?: { disc: HTMLCanvasElement; air: HTMLCanvasElement; top: number };
   private satSprite?: HTMLCanvasElement;
-  private sat?: { born: number; dur: number; x0: number; y0: number; x1: number; y1: number; tilt: number };
+  private sat?: { born: number; dur: number; from: number; to: number; ro: number; tilt: number };
   private nextSat = 0;
-  private satSize = 240;
+  private satSize = 100;
+  private maps?: { day: ImageData; night: ImageData };
   private sprites = new Map<string, HTMLCanvasElement>();
   private twinklers: Twinkler[] = [];
   private stars: Star[] = [];
@@ -107,6 +109,29 @@ export class StormEngine implements StormRenderer {
     this.ctx = canvas.getContext('2d', { alpha: false })!;
     this.reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.resize();
+    this.loadMaps();
+  }
+
+  /** The real day and night maps, read into memory to paint the planet from. */
+  private loadMaps() {
+    const read = async (url: string) => {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
+      const g = c.getContext('2d', { willReadFrequently: true })!;
+      g.drawImage(img, 0, 0);
+      return g.getImageData(0, 0, c.width, c.height);
+    };
+    Promise.all([read(EARTH_IMAGES.day(false)), read(EARTH_IMAGES.night)])
+      .then(([day, night]) => {
+        this.maps = { day, night };
+        this.paintEarth();
+        if (!this.running) this.frame(performance.now(), true);
+      })
+      .catch(() => {});
   }
 
   /* ------------------------------ setup ------------------------------ */
@@ -122,7 +147,7 @@ export class StormEngine implements StormRenderer {
     this.canvas.style.height = `${this.h}px`;
     this.paintBackdrop();
     this.paintEarth();
-    this.satSize = Math.round(this.w < 720 ? Math.max(120, this.w * 0.34) : Math.max(160, Math.min(330, this.w * 0.22)));
+    this.satSize = Math.round(this.w < 720 ? Math.max(64, this.w * 0.2) : Math.max(80, Math.min(120, this.w * 0.07)));
     this.satSprite = undefined;
     this.fillStars();
     if (this.reduced || !this.running) this.frame(performance.now(), true);
@@ -273,6 +298,21 @@ export class StormEngine implements StormRenderer {
       return (at(x0, y0) * (1 - tx) + at(x0 + 1, y0) * tx) * (1 - ty) + (at(x0, y0 + 1) * (1 - tx) + at(x0 + 1, y0 + 1) * tx) * ty;
     };
     const spin = 0.5 + START_TURN;
+    // a map pixel, smoothly, as 0..1 rgb
+    const sample = (img: ImageData, u: number, v: number): [number, number, number] => {
+      const fx = u * img.width - 0.5;
+      const fy = Math.min(img.height - 1.001, Math.max(0, v * img.height - 0.5));
+      const x0 = Math.floor(fx);
+      const y0 = Math.floor(fy);
+      const tx = fx - x0;
+      const ty = fy - y0;
+      const out: [number, number, number] = [0, 0, 0];
+      for (let c = 0; c < 3; c++) {
+        const at = (x: number, y: number) => img.data[(y * img.width + (((x % img.width) + img.width) % img.width)) * 4 + c];
+        out[c] = ((at(x0, y0) * (1 - tx) + at(x0 + 1, y0) * tx) * (1 - ty) + (at(x0, y0 + 1) * (1 - tx) + at(x0 + 1, y0 + 1) * tx) * ty) / 255;
+      }
+      return out;
+    };
     const disc = new ImageData(w, band);
     const air = new ImageData(w, band);
     const airC = (mu: number): [number, number, number] => {
@@ -294,26 +334,36 @@ export class StormEngine implements StormRenderer {
           const n: [number, number, number] = [dx / R, dy / R, z / R];
           const q = toPlanet(n);
           const lat = Math.asin(Math.max(-1, Math.min(1, q[1])));
-          let u = Math.atan2(q[2], q[0]) / (Math.PI * 2) + spin;
+          let u = Math.atan2(-q[2], q[0]) / (Math.PI * 2) + spin;
           u -= Math.floor(u);
           const v = 0.5 - lat / Math.PI;
           const land = coast(u, v) > 0.5;
           const alat = Math.abs(lat) * 57.3;
-          const base: [number, number, number] = land
+          let base: [number, number, number] = land
             ? alat > 68
               ? [0.9, 0.93, 0.97]
               : alat > 12 && alat < 34
                 ? [0.72, 0.58, 0.4]
                 : [0.3, 0.36, 0.2]
             : [0.015, 0.05, 0.11];
+          let lights: [number, number, number] | undefined;
+          if (this.maps) {
+            base = sample(this.maps.day, u, v);
+            lights = sample(this.maps.night, u, v);
+          }
           const ndl = n[0] * EARTH_SUN[0] + n[1] * EARTH_SUN[1] + n[2] * EARTH_SUN[2];
-          const lit = Math.max(0, ndl) * 1.6;
+          const lit = Math.max(0, ndl) * 1.45;
           const T = Math.exp(-0.065 / Math.max(n[2], 0.015));
           const a = airC(ndl);
           let r = base[0] * lit * T + a[0] * (1 - T);
           let gg = base[1] * lit * T + a[1] * (1 - T);
           let b = base[2] * lit * T + a[2] * (1 - T);
-          if (land && ndl < -0.04 && Math.random() < 0.012) {
+          const night = 1 - Math.min(1, Math.max(0, (ndl + 0.16) / 0.2));
+          if (lights) {
+            r += lights[0] * lights[0] * 2.6 * night;
+            gg += lights[1] * lights[1] * 2.2 * night;
+            b += lights[2] * lights[2] * 1.6 * night;
+          } else if (land && ndl < -0.04 && Math.random() < 0.012) {
             r += 0.9;
             gg += 0.6;
             b += 0.3;
@@ -516,14 +566,22 @@ export class StormEngine implements StormRenderer {
     }
     g.globalAlpha = 1;
 
-    // the satellite rises from behind the planet, which is painted over it
+    // the planet, hiding what is behind it, and its atmosphere
+    if (this.earth) {
+      g.drawImage(this.earth.disc, 0, this.earth.top, this.w, this.earth.disc.height);
+      g.globalCompositeOperation = 'lighter';
+      g.drawImage(this.earth.air, 0, this.earth.top, this.w, this.earth.air.height);
+      g.globalCompositeOperation = 'source-over';
+    }
+
+    // the satellite, orbiting just inside the horizon and off the right side
     if (!still) {
       if (!this.sat && this.nextSat && now > this.nextSat) {
-        const x0 = this.w * (this.w < 720 ? rand(0.8, 0.9) : rand(0.83, 0.9));
-        const y0 = (horizonY(x0, this.w, this.h) ?? this.h) + this.satSize * 0.45;
-        const ang = (rand(84, 100) * Math.PI) / 180;
-        const dist = (y0 + this.satSize * 0.6) / Math.sin(ang);
-        this.sat = { born: now, dur: dist / rand(19, 25), x0, y0, x1: x0 + Math.cos(ang) * dist, y1: y0 - Math.sin(ang) * dist, tilt: rand(-0.4, 0.4) };
+        const ro = rand(1.045, 1.075);
+        const tilt = (rand(22, 29) * Math.PI) / 180;
+        const span = orbitSpan(ro, tilt, this.w, this.h, this.satSize * 0.6);
+        const arc = PLANET.r * ro * this.h * Math.max(0.05, span.from - span.to);
+        this.sat = { born: now, dur: arc / rand(26, 34), from: span.from, to: span.to, ro, tilt };
       }
       if (this.sat && now - this.sat.born > this.sat.dur) {
         this.sat = undefined;
@@ -533,29 +591,20 @@ export class StormEngine implements StormRenderer {
     if (this.sat) {
       if (!this.satSprite) {
         const c = document.createElement('canvas');
-        c.width = c.height = Math.round(this.satSize * this.dpr);
+        c.width = c.height = Math.round(this.satSize * this.dpr * 2);
         const sg = c.getContext('2d')!;
-        sg.scale(this.dpr, this.dpr);
+        sg.scale(this.dpr * 2, this.dpr * 2);
         sg.translate(this.satSize / 2, this.satSize / 2);
         drawSatellite2D(sg, this.satSize * 0.95);
         this.satSprite = c;
       }
       const k = Math.min(1, (now - this.sat.born) / this.sat.dur);
-      const sx = this.sat.x0 + (this.sat.x1 - this.sat.x0) * k;
-      const sy = this.sat.y0 + (this.sat.y1 - this.sat.y0) * k;
+      const o = orbitAt(this.sat.from + (this.sat.to - this.sat.from) * k, this.sat.ro, this.sat.tilt, this.w, this.h);
       g.save();
-      g.translate(sx, sy);
-      g.rotate(this.sat.tilt + Math.sin((now - this.sat.born) * 0.15) * 0.08);
+      g.translate(o.x, o.y);
+      g.rotate(-o.angle);
       g.drawImage(this.satSprite, -this.satSize / 2, -this.satSize / 2, this.satSize, this.satSize);
       g.restore();
-    }
-
-    // the planet, hiding what is behind it, and its atmosphere
-    if (this.earth) {
-      g.drawImage(this.earth.disc, 0, this.earth.top, this.w, this.earth.disc.height);
-      g.globalCompositeOperation = 'lighter';
-      g.drawImage(this.earth.air, 0, this.earth.top, this.w, this.earth.air.height);
-      g.globalCompositeOperation = 'source-over';
     }
 
     // meteors

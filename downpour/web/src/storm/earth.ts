@@ -16,23 +16,23 @@ const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
  *  y up in screen heights from the bottom edge. Only its top shows, as a curved horizon. */
 export const PLANET = {
   /** centre x, as a fraction of the screen width */
-  cx: 0.7,
+  cx: 0.68,
   /** centre y, in screen heights (below the bottom edge) */
-  cy: -1.26,
+  cy: -0.72,
   /** radius, in screen heights */
-  r: 1.5,
+  r: 1.0,
   /** thickness of the glowing atmosphere, in screen heights */
-  atmo: 0.03,
+  atmo: 0.026,
 };
 
 /** Toward the planet's sun, in view space (x right, y up, z toward the viewer): low on
- *  the left and a touch behind, so the day side is on the left, dusk crosses the
- *  horizon on the right, and the cities of the night side glow beyond it. */
-export const EARTH_SUN: Vec3 = norm([-1, 0.2, -0.06]);
+ *  the left and a little in front, so the day side fills the left and middle, dusk
+ *  crosses the planet on the right, and the cities of the night side glow beyond it. */
+export const EARTH_SUN: Vec3 = norm([-0.9, 0.22, 0.25]);
 
-/** The planet's north pole in view space: tipped away from the viewer so the horizon
- *  runs through the northern mid-latitudes and the near ground is subtropical. */
-const POLE: Vec3 = norm([0.17, 0.766, -0.62]);
+/** The planet's north pole in view space: tipped away from the viewer so the near
+ *  ground is around 13°N and the horizon runs through the mid-northern latitudes. */
+const POLE: Vec3 = norm([0.214, 0.82, -0.53]);
 
 /** Rows of the view-to-planet rotation: planet x, y (north) and z axes in view space. */
 const AXIS_Y = POLE;
@@ -48,13 +48,13 @@ export function toPlanet(v: Vec3): Vec3 {
 export const POLE_MAT = new Float32Array([AXIS_X[0], AXIS_Y[0], AXIS_Z[0], AXIS_X[1], AXIS_Y[1], AXIS_Z[1], AXIS_X[2], AXIS_Y[2], AXIS_Z[2]]);
 
 /** Longitude (turns) facing the viewer at the bottom of the screen when time starts:
- *  roughly North Africa and Arabia, with Europe toward the horizon. */
+ *  Africa and Arabia below, the Mediterranean and Europe toward the horizon. */
 export const START_TURN = (() => {
   // the ground seen at the bottom middle of the screen
   const n = norm([0, -PLANET.cy / PLANET.r, Math.sqrt(1 - (PLANET.cy / PLANET.r) ** 2)]);
   const q = toPlanet(n);
-  const lonHere = Math.atan2(q[2], q[0]);
-  const want = (28 * Math.PI) / 180;
+  const lonHere = Math.atan2(-q[2], q[0]);
+  const want = (30 * Math.PI) / 180;
   return (want - lonHere) / (2 * Math.PI);
 })();
 
@@ -166,3 +166,42 @@ export const STORMS: Array<[number, number, number]> = [
   [-51, 62, -4.5],
   [-56, -104, -4],
 ];
+
+/** The real Earth: NASA's Blue Marble (day) and Earth at Night maps and topography,
+ *  public domain, prepared by scripts/build-earth-images.mjs. */
+export const EARTH_IMAGES = {
+  day: (big: boolean) => `${import.meta.env.BASE_URL}earth/day-${big ? '4k' : '2k'}.jpg`,
+  night: `${import.meta.env.BASE_URL}earth/night-2k.jpg`,
+  relief: `${import.meta.env.BASE_URL}earth/relief-2k.jpg`,
+};
+
+/** A low orbit round the planet as we see it: a circle of `ro` planet radii round its
+ *  centre, tilted toward us by `tilt` (radians), travelled left to right over the top as
+ *  θ falls. Screen position in CSS px, depth (+ toward us) and direction of travel on
+ *  screen (radians, y up). */
+export function orbitAt(theta: number, ro: number, tilt: number, w: number, h: number) {
+  const R = PLANET.r * ro;
+  const x = PLANET.cx * (w / h) + R * Math.cos(theta);
+  const y = PLANET.cy + R * Math.sin(theta) * Math.cos(tilt);
+  return {
+    x: x * h,
+    y: h * (1 - y),
+    z: R * Math.sin(theta) * Math.sin(tilt),
+    angle: Math.atan2(-Math.cos(theta) * Math.cos(tilt), Math.sin(theta)),
+  };
+}
+
+/** The part of that orbit on screen: θ where it comes into view (over the bottom or the
+ *  left edge) and where it leaves (off the right edge, or the bottom), padded by `pad`
+ *  CSS px so it enters and leaves fully out of sight. */
+export function orbitSpan(ro: number, tilt: number, w: number, h: number, pad: number) {
+  const R = PLANET.r * ro;
+  const cxp = PLANET.cx * (w / h);
+  const clamp = (v: number) => Math.max(-1, Math.min(1, v));
+  const s = clamp((-PLANET.cy - pad / h) / (R * Math.cos(tilt)));
+  const enterX = Math.acos(clamp((-cxp - pad / h) / R));
+  const enterY = Math.PI - Math.asin(s);
+  const leaveX = Math.acos(clamp((w / h - cxp + pad / h) / R));
+  const leaveY = Math.asin(s);
+  return { from: Math.min(enterX, enterY), to: Math.max(leaveX, leaveY), throughSide: leaveX > leaveY };
+}

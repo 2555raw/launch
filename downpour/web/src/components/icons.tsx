@@ -10,8 +10,8 @@ export function Logo({ size = 26 }: { size?: number }) {
           <stop offset="1" stopColor="#120c3a" />
         </radialGradient>
         <linearGradient id="logo-star" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff6cf" />
-          <stop offset="1" stopColor="#ffc53d" />
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#9fdcff" />
         </linearGradient>
       </defs>
       <circle cx="32" cy="32" r="28" fill="url(#logo-coin)" />

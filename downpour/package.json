@@ -16,7 +16,7 @@
     "deploy": "node scripts/deploy.mjs",
     "seed": "node scripts/seed.mjs",
     "keeper": "node scripts/keeper.mjs",
-    "earth": "node scripts/build-earth.mjs",
+    "earth": "node scripts/build-earth.mjs && node scripts/build-earth-images.mjs",
     "verify": "node scripts/verify.mjs",
     "e2e": "node e2e/run.mjs",
     "e2e:playground": "node e2e/playground.mjs"

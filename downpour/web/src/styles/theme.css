@@ -29,7 +29,7 @@
   --rain-2: #5a3fd1;
   --up: #0c9a5f;
   --down: #d13a55;
-  --bolt: #b58400;
+  --bolt: #1f6fb8;
   color: var(--ink);
   background: var(--glass);
   border-color: rgba(255, 255, 255, 0.55);
@@ -75,7 +75,7 @@
   color: var(--ink);
 }
 .nav-links a[href='/swap'] {
-  color: #9a6b00;
+  color: #1f6fb8;
   font-weight: 600;
 }
 .nav-links a.on::after {
@@ -217,7 +217,7 @@ main {
 }
 .panel .pill.new,
 .card .pill.new {
-  color: #9a6b00;
+  color: #1f6fb8;
   background: rgba(181, 132, 0, 0.1);
   border-color: rgba(181, 132, 0, 0.35);
 }

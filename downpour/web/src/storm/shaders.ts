@@ -546,12 +546,13 @@ void main() {
   gl_Position = vec4(vUv * 2.0 - 1.0, 0.0, 1.0);
 }`;
 
-/** The planet's horizon: the generated textures wrapped on the sphere and turning, lit
- *  by a low sun (a soft terminator reddening the light, pink clouds at dusk, cloud
- *  shadows, a sheen on the sea toward the horizon), cities on the night side with a glow
- *  round them, the ground fading into the air toward the horizon, and above it the
- *  atmosphere as a thin shell: white-blue low down, deep blue higher, orange where dusk
- *  meets the horizon, a faint green airglow over the night side. */
+/** The planet: NASA's real day map (or the generated one until it loads) wrapped on
+ *  the sphere and turning, with relief from real topography, lit by a low sun (a soft
+ *  terminator reddening the light, pink clouds at dusk, cloud shadows, a sheen on the
+ *  sea toward the horizon), the real city lights on the night side with a glow round
+ *  them, the ground fading into the air toward the horizon, and above it the atmosphere
+ *  as a thin shell: white-blue low down, deep blue higher, orange where dusk meets the
+ *  horizon, a faint green airglow over the night side. */
 export const PLANET_FS = `#version 300 es
 precision highp float;
 in vec2 vUv;
@@ -566,6 +567,11 @@ uniform mat3 uPole;
 uniform vec2 uSpin;
 uniform sampler2D uSurf;
 uniform sampler2D uCloud;
+uniform sampler2D uDay;
+uniform sampler2D uNight;
+uniform sampler2D uRelief;
+uniform sampler2D uMask;
+uniform float uReal;
 uniform float uFade;
 const float PI = 3.14159265;
 const float TAU = 6.28318531;
@@ -586,7 +592,7 @@ void main() {
   vec3 n = vec3(dd, sqrt(max(R * R - dc * dc, 0.0))) / R;
   vec3 q = uPole * n;
   float lat = asin(clamp(q.y, -1.0, 1.0));
-  float lon = atan(q.z, q.x);
+  float lon = atan(-q.z, q.x);   // east to the right, seen from outside
   float v = 0.5 - lat / PI;
   float us = lon / TAU + uSpin.x;
   vec2 a = vec2(fract(us), v);
@@ -606,23 +612,44 @@ void main() {
   if (cover > 0.0) {
     vec4 S = textureGrad(uSurf, uvS, gx, gy);
     vec4 G = textureGrad(uCloud, uvS, gx, gy);
-    float cl = textureGrad(uCloud, uvC, gx, gy).r;
+    float cl = textureGrad(uCloud, uvC, gx, gy).r * 0.9;
+    vec3 east = vec3(-sin(lon), 0.0, -cos(lon));
+    vec3 north = vec3(-sin(lat) * cos(lon), cos(lat), sin(lat) * sin(lon));
+    vec3 albedo = S.rgb;
+    float water = S.a;
+    float ndlG = dot(n, uSun);
+    if (uReal > 0.5) {
+      albedo = textureGrad(uDay, uvS, gx, gy).rgb;
+      water = 1.0 - smoothstep(0.4, 0.6, textureGrad(uMask, uvS, gx, gy).r);
+      // relief from real topography, tilting the ground toward or away from the sun
+      float h0 = textureGrad(uRelief, uvS, gx, gy).r;
+      float hE = textureGrad(uRelief, uvS + vec2(1.0 / 2048.0, 0.0), gx, gy).r;
+      float hN = textureGrad(uRelief, uvS - vec2(0.0, 1.0 / 1024.0), gx, gy).r;
+      vec3 qn = normalize(q - 3.5 * ((hE - h0) * east + (hN - h0) * north));
+      ndlG = dot(qn, uSunP);
+    }
     float ndl = dot(n, uSun);
     float lit = max(ndl, 0.0);
     vec3 sunC = mix(vec3(1.0, 0.52, 0.26), vec3(1.0, 0.96, 0.9), smoothstep(0.0, 0.3, ndl));
-    vec3 east = vec3(-sin(lon), 0.0, cos(lon));
-    vec3 north = vec3(-sin(lat) * cos(lon), cos(lat), -sin(lat) * sin(lon));
     vec3 tq = uSunP - q * dot(q, uSunP);
     vec2 sh = vec2(dot(tq, east) / (max(cos(lat), 0.1) * TAU), -dot(tq, north) / PI) * 0.004;
     float shadow = textureGrad(uCloud, uvC + sh, gx, gy).r;
-    vec3 col = S.rgb * sunC * lit * 1.6 * (1.0 - shadow * 0.55);
+    vec3 col = albedo * sunC * max(ndlG, 0.0) * smoothstep(-0.02, 0.06, ndl) * 1.45 * (1.0 - shadow * 0.5);
     float fres = 0.02 + 0.98 * pow(1.0 - max(n.z, 0.0), 5.0);
-    col += air(ndl, 0.07) * fres * S.a * (1.0 - cl) * 0.5;
+    col += air(ndl, 0.07) * fres * water * (1.0 - cl) * 0.5;
     vec3 cloudC = sunC * (0.05 + 1.2 * lit) + vec3(1.0, 0.45, 0.3) * exp(-pow(ndl / 0.12, 2.0)) * 0.3;
     col = mix(col, cloudC, cl);
     float night = 1.0 - smoothstep(-0.16, 0.04, ndl);
-    float glow = textureGrad(uCloud, uvS, gx * 5.0, gy * 5.0).g;
-    col += (vec3(1.0, 0.75, 0.43) * G.g * 2.3 + vec3(1.0, 0.58, 0.3) * glow * 1.0) * night * (1.0 - cl * 0.8);
+    vec3 cities;
+    if (uReal > 0.5) {
+      vec3 nl = textureGrad(uNight, uvS, gx, gy).rgb;
+      vec3 halo = textureGrad(uNight, uvS, gx * 5.0, gy * 5.0).rgb;
+      cities = (nl * nl * 2.6 + halo * 0.5) * vec3(1.0, 0.86, 0.62);
+    } else {
+      float glow = textureGrad(uCloud, uvS, gx * 5.0, gy * 5.0).g;
+      cities = vec3(1.0, 0.75, 0.43) * G.g * 2.3 + vec3(1.0, 0.58, 0.3) * glow * 1.0;
+    }
+    col += cities * night * (1.0 - cl * 0.8);
     float mu = max(n.z, 0.015);
     float T = exp(-0.065 / mu);
     ground = col * T + mix(air(ndl, 0.07), vec3(0.62, 0.74, 0.95) * smoothstep(-0.05, 0.3, ndl), 0.3) * (1.0 - T) * 1.1;

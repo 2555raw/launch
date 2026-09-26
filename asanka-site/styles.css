@@ -137,6 +137,9 @@ p { margin: 0; }
 .as-btn-light { background: var(--palm); color: #2A1A12; }
 .as-btn-light:hover { background: #F4B75A; }
 .as-btn-block { width: 100%; }
+.as-btn-wa { background: #1E8E4E; color: #fff; }
+.as-btn-wa:hover { background: #17753F; }
+.as-form-msg a { color: inherit; font-weight: 800; }
 
 .as-icon-btn {
   width: 42px; height: 42px; display: grid; place-items: center;
@@ -156,7 +159,7 @@ p { margin: 0; }
 .as-live { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: #5BD27A; box-shadow: 0 0 0 3px rgba(91, 210, 122, .25); vertical-align: 1px; }
 
 .as-nav {
-  position: sticky; top: 0; z-index: 40;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px);
   border-bottom: 1px solid transparent; transition: border-color .2s, box-shadow .2s;
@@ -463,10 +466,10 @@ p { margin: 0; }
 }
 .as-drawer.is-open { transform: none; visibility: visible; }
 .as-drawer:focus { outline: none; }
-.as-drawer-head { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--line); }
+.as-drawer-head { display: flex; justify-content: space-between; align-items: center; padding: calc(20px + env(safe-area-inset-top, 0px)) 24px 20px; border-bottom: 1px solid var(--line); }
 .as-drawer-head h2 { font-size: 26px; }
 .as-drawer-body { flex: 1; overflow-y: auto; padding: 8px 24px 24px; overscroll-behavior: contain; }
-.as-drawer-foot { padding: 18px 24px 24px; border-top: 1px solid var(--line); background: var(--card); }
+.as-drawer-foot { padding: 18px 24px calc(24px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); background: var(--card); }
 
 .as-empty { text-align: center; padding: 48px 12px; display: grid; justify-items: center; gap: 18px; }
 .as-empty-art { width: 150px; opacity: .9; }
@@ -524,8 +527,8 @@ p { margin: 0; }
 
 /* ---------- reveal ---------- */
 
-.as-js .as-rise { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2, .7, .2, 1); }
-.as-js .as-rise.is-in { opacity: 1; transform: none; }
+.as-js .as-rise { transform: translateY(18px); transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+.as-js .as-rise.is-in { transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

@@ -517,7 +517,6 @@
     ].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n');
 
     const url = waLink(text);
-    window.open(url, '_blank', 'noopener');
 
     $('#done-ref').textContent = ref;
     $('#done-link').href = url;
@@ -550,9 +549,7 @@
     const f = form.elements;
     const date = new Date(`${f.date.value}T12:00`).toLocaleDateString(CONFIG.locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const text = `Hola Asanka, soy ${f.name.value.trim()}. Me gustaría un presupuesto de catering para ${f.guests.value} personas el ${date}.`;
-    window.open(waLink(text), '_blank', 'noopener');
-    msg.textContent = 'Hemos abierto WhatsApp con tu solicitud. Te responderemos en menos de 24 horas.';
-    form.reset();
+    msg.innerHTML = `Solicitud lista. <a href="${waLink(text)}" target="_blank" rel="noopener">Envíala por WhatsApp</a> y te responderemos en menos de 24 horas.`;
   });
 
   /* ---------- scroll reveal ---------- */

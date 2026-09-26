@@ -33,8 +33,10 @@ Cloudflare Pages, Railway).
 2. In the drawer they pick delivery or pickup, a spice level, their details and a time.
    The times come from the opening hours in `CONFIG.hours`, starting 45 minutes
    from now for delivery and 25 for pickup.
-3. "Enviar pedido por WhatsApp" opens `wa.me` with the full summary (lines, subtotal,
-   delivery fee, total, reference `AS-XXXXX`). The business confirms from WhatsApp.
+3. "Revisar y enviar pedido" checks the form and shows a WhatsApp button that opens
+   `wa.me` with the full summary (lines, subtotal, delivery fee, total, reference
+   `AS-XXXXX`). It is a real link rather than `window.open`, so pop-up blockers and
+   embedded viewers cannot swallow it. The business confirms from WhatsApp.
 
 Delivery is free from `CONFIG.freeDelivery` (35 €), costs `CONFIG.deliveryFee`
 (3.90 €) below that, and needs a minimum of `CONFIG.minDelivery` (15 €).

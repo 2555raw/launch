@@ -93,7 +93,7 @@ const coinImplementation = await ctx.publicClient.readContract({
 
 const record = {
   chainId: ctx.chainId,
-  name: env('CHAIN_NAME', local ? 'Local storm' : `Chain ${ctx.chainId}`),
+  name: env('CHAIN_NAME', local ? 'Local galaxy' : `Chain ${ctx.chainId}`),
   rpcUrl: env('PUBLIC_RPC', ctx.url),
   explorer: env('EXPLORER', ''),
   desk: desk.address,

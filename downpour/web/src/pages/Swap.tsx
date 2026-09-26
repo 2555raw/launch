@@ -4,8 +4,8 @@ import { usePad } from '../backend/PadProvider';
 import type { Address } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { TokenSelect } from '../components/TokenSelect';
-import { CoinDrop, CurrencyDot, PageHead, PairBadge } from '../components/bits';
-import { Arrow, Bolt, Gear, Swap as SwapIcon } from '../components/icons';
+import { CoinOrb, CurrencyDot, PageHead, PairBadge } from '../components/bits';
+import { Arrow, Sparkle, Gear, Swap as SwapIcon } from '../components/icons';
 import { quoteSwap, type Step } from '../lib/route';
 import { compact, money, parseAmount, pct, toDisplay, toInput, usd } from '../lib/format';
 import { amount, sortRows, useRows } from '../lib/views';
@@ -25,7 +25,7 @@ function TokenButton({ token, onClick }: { token?: string; onClick(): void }) {
   const cur = coin ? pad.currencyOf(coin) : pad.currencyByToken.get(token.toLowerCase());
   return (
     <button className="token-btn" onClick={onClick}>
-      {coin ? <CoinDrop coin={coin} currency={cur} size={22} /> : cur && <CurrencyDot c={cur} size={26} />}
+      {coin ? <CoinOrb coin={coin} currency={cur} size={22} /> : cur && <CurrencyDot c={cur} size={26} />}
       {coin ? coin.symbol : cur?.code}
       <span className="muted" aria-hidden="true">
         ▾
@@ -183,7 +183,7 @@ export default function Swap() {
                 Balance {compact(amount(bal, decOf(tokenIn)))}{' '}
                 {bal > 0n && (
                   <button
-                    className="link rain-text"
+                    className="link accent-text"
                     style={{ fontSize: 12 }}
                     onClick={() => {
                       setText(toDisplay(bal, decOf(tokenIn)));
@@ -261,8 +261,8 @@ export default function Swap() {
               </div>
               {snipe && (
                 <div className="kv">
-                  <span className="bolt-text">Snipe tax (coin just launched)</span>
-                  <span className="bolt-text">{money(amount(snipe.snipeTax ?? 0n), '')} {snipe.from}</span>
+                  <span className="gold-text">Snipe tax (coin just launched)</span>
+                  <span className="gold-text">{money(amount(snipe.snipeTax ?? 0n), '')} {snipe.from}</span>
                 </div>
               )}
               <div className="kv">
@@ -281,7 +281,7 @@ export default function Swap() {
           )}
 
           <button className="btn btn-primary btn-lg btn-block" style={{ marginTop: 16 }} disabled={action.disabled} onClick={action.onClick}>
-            {action.label === 'Swap' && <Bolt />} {action.label}
+            {action.label === 'Swap' && <Sparkle />} {action.label}
           </button>
           {pad.mode === 'playground' && <p className="hint center" style={{ marginBottom: 0 }}>Playground: simulated balances, nothing is signed.</p>}
         </div>

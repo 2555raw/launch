@@ -4,13 +4,20 @@ export function Logo({ size = 26 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
       <defs>
-        <linearGradient id="logo-drop" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#a9dbff" />
-          <stop offset="1" stopColor="#2f7de1" />
+        <radialGradient id="logo-coin" cx="0.35" cy="0.3" r="0.8">
+          <stop offset="0" stopColor="#8f7bff" />
+          <stop offset="0.6" stopColor="#3a2a9e" />
+          <stop offset="1" stopColor="#120c3a" />
+        </radialGradient>
+        <linearGradient id="logo-star" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff6cf" />
+          <stop offset="1" stopColor="#ffc53d" />
         </linearGradient>
       </defs>
-      <path d="M32 4C32 4 12 28 12 40a20 20 0 0 0 40 0C52 28 32 4 32 4z" fill="url(#logo-drop)" />
-      <path d="M35 22 25 40h8l-3 14 11-19h-8l2-13z" fill="#ffe066" stroke="#0b1220" strokeWidth="1.5" strokeLinejoin="round" />
+      <circle cx="32" cy="32" r="28" fill="url(#logo-coin)" />
+      <circle cx="32" cy="32" r="24.5" fill="none" stroke="#b9adff" strokeOpacity="0.45" strokeWidth="1.5" />
+      <path d="M32 11c1.6 11.2 9.8 19.4 21 21-11.2 1.6-19.4 9.8-21 21-1.6-11.2-9.8-19.4-21-21 11.2-1.6 19.4-9.8 21-21z" fill="url(#logo-star)" />
+      <path d="M48 12c.5 3.4 2.6 5.5 6 6-3.4.5-5.5 2.6-6 6-.5-3.4-2.6-5.5-6-6 3.4-.5 5.5-2.6 6-6z" fill="#fff" />
     </svg>
   );
 }
@@ -24,18 +31,18 @@ export function Arrow({ dir = 'ne', size = 14 }: { dir?: 'ne' | 'right' | 'down'
   );
 }
 
-export function Bolt({ size = 14 }: { size?: number }) {
+export function Sparkle({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M9.2 1 3 9h4l-1.2 6L13 7H9l.2-6z" fill="currentColor" />
+      <path d="M8 1c.5 3.6 2.4 5.5 7 7-4.6 1.5-6.5 3.4-7 7-.5-3.6-2.4-5.5-7-7 4.6-1.5 6.5-3.4 7-7z" fill="currentColor" />
     </svg>
   );
 }
 
-export function DropIcon({ size = 14 }: { size?: number }) {
+export function StarIcon({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M8 1.5S3.5 7 3.5 10a4.5 4.5 0 0 0 9 0C12.5 7 8 1.5 8 1.5z" fill="currentColor" />
+      <path d="m8 1.2 2 4.3 4.7.6-3.4 3.2.9 4.7L8 11.7 3.8 14l.9-4.7L1.3 6.1 6 5.5z" fill="currentColor" />
     </svg>
   );
 }

@@ -84,7 +84,7 @@ export default function Faq() {
           <span>20%</span>
         </div>
         <p className="hint" style={{ marginBottom: 0 }}>
-          More in <Link to="/how-it-works" className="rain-text">How it works</Link>.
+          More in <Link to="/how-it-works" className="accent-text">How it works</Link>.
         </p>
       </div>
     </div>

@@ -1,9 +1,9 @@
 {
-  "name": "downpour",
+  "name": "starmint",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Downpour \u2014 a storm-themed launchpad where every coin is paired with a currency.",
+  "description": "Starmint \u2014 a star-themed launchpad where every coin is paired with a currency.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",

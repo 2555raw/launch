@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
 import { useWallet } from '../wallet/WalletProvider';
-import { CoinDrop, CurrencyDot, PageHead, PairBadge } from '../components/bits';
+import { CoinOrb, CurrencyDot, PageHead, PairBadge } from '../components/bits';
 import { RecentFills } from '../components/sections';
 import { Arrow } from '../components/icons';
 import { compact, money, pct, shortAddr, usd } from '../lib/format';
@@ -107,13 +107,13 @@ export default function Portfolio() {
         </div>
         {coins.length === 0 && (
           <div className="empty small">
-            No coins yet. <Link to="/board" className="rain-text">Find one on the board</Link> or <Link to="/swap" className="rain-text">swap into one</Link>.
+            No coins yet. <Link to="/board" className="accent-text">Find one on the board</Link> or <Link to="/swap" className="accent-text">swap into one</Link>.
           </div>
         )}
         {coins.map(({ r, bal, value, usdValue }) => (
           <Link key={r.coin.address} to={`/coin/${r.coin.address}`} className="asset-row">
             <span className="row" style={{ minWidth: 0 }}>
-              <CoinDrop coin={r.coin} currency={r.cur} size={26} />
+              <CoinOrb coin={r.coin} currency={r.cur} size={26} />
               <span className="stack" style={{ gap: 2, minWidth: 0 }}>
                 <PairBadge coin={r.coin} currency={r.cur} size="sm" />
                 <span className="muted small">{r.coin.name}</span>
@@ -139,7 +139,7 @@ export default function Portfolio() {
           </div>
           {launched.length === 0 && (
             <div className="empty small">
-              None yet. <Link to="/launch" className="rain-text">Start a storm</Link>: you earn half of every trade fee.
+              None yet. <Link to="/launch" className="accent-text">Light a new star</Link>: you earn half of every trade fee.
             </div>
           )}
           {launched.map((r) => (
@@ -177,7 +177,7 @@ export default function Portfolio() {
           </div>
           {currencies.length === 0 && (
             <div className="empty small">
-              Nothing here. <Link to="/desk" className="rain-text">The desk</Link> has a faucet for test currencies.
+              Nothing here. <Link to="/desk" className="accent-text">The desk</Link> has a faucet for test currencies.
             </div>
           )}
           <div style={{ maxHeight: 420, overflow: 'auto' }}>

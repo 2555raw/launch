@@ -56,7 +56,7 @@ export function currencyColor(code: string): string {
   return `hsl(${h} 78% 62%)`;
 }
 
-/** The glyph drawn inside a drop: short symbols as they are, long ones cut down. */
+/** The glyph drawn on a star: short symbols as they are, long ones cut down. */
 export function dropGlyph(code: string): string {
   const c = CURRENCY_BY_CODE[code];
   if (!c) return code.slice(0, 2);
@@ -64,7 +64,7 @@ export function dropGlyph(code: string): string {
   return [...s].length <= 3 ? s : code;
 }
 
-/** Currencies to feature first (hero drops, launch default, desk top row). */
+/** Currencies to feature first (hero stars, launch default, desk top row). */
 export const POPULAR = ['USD', 'EUR', 'JPY', 'GBP', 'BRL', 'MXN', 'INR', 'KRW', 'NGN', 'TRY', 'CHF', 'ZAR', 'VND', 'CAD', 'AUD', 'XAU'];
 
 /** Plural nouns for the hero's rotating line. */

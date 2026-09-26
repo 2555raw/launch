@@ -18,7 +18,7 @@ const Ctx = createContext<StormControls | null>(null);
 
 const INTERACTIVE = 'a,button,input,select,textarea,label,summary,[role="button"],[data-solid],.glass,.card,.panel';
 
-/** The realistic WebGL storm where the browser can run it, the 2D one where it cannot.
+/** The WebGL space sky where the browser can run it, the 2D one where it cannot.
  *  A canvas can only ever hold one kind of context, so each attempt gets its own. */
 function makeRenderer(host: HTMLElement): StormRenderer {
   const fresh = () => {
@@ -34,7 +34,7 @@ function makeRenderer(host: HTMLElement): StormRenderer {
     try {
       return new GLStorm(fresh());
     } catch (e) {
-      console.warn('WebGL storm unavailable, using the 2D one:', (e as Error).message);
+      console.warn('WebGL sky unavailable, using the 2D one:', (e as Error).message);
     }
   }
   return new StormEngine(fresh());
@@ -54,7 +54,7 @@ export function StormProvider({ children }: { children: ReactNode }) {
     if (!host) return;
     const e = makeRenderer(host);
     engine.current = e;
-    // a handle for browser tests and for poking at the weather from the console
+    // a handle for browser tests and for poking at the sky from the console
     (window as unknown as { __storm?: StormRenderer }).__storm = e;
     e.onPop = (code) => setLastPop(code);
     if (pending.current.codes) e.setCurrencies(pending.current.codes);

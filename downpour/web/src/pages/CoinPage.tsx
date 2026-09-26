@@ -4,10 +4,10 @@ import { usePad } from '../backend/PadProvider';
 import type { Coin, Currency } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { explorerAddress } from '../config/chains';
-import { CoinDrop, CopyButton, PairBadge, ProgressBar, StatusPill } from '../components/bits';
+import { CoinOrb, CopyButton, PairBadge, ProgressBar, StatusPill } from '../components/bits';
 import { PriceChart } from '../components/PriceChart';
 import { RecentFills } from '../components/sections';
-import { Arrow, Bolt } from '../components/icons';
+import { Arrow, Sparkle } from '../components/icons';
 import { ago, compact, money, parseAmount, pct, shortAddr, toInput, usd } from '../lib/format';
 import { amount, buildRows, unitsPerUsd } from '../lib/views';
 import { CURVE_SUPPLY, TOTAL_SUPPLY, fromUsd, graduationPrice, quoteBuy, quoteSell, snipeBps, WAD } from '../lib/math';
@@ -141,7 +141,7 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
       )}
 
       <button className={`btn btn-lg btn-block ${side === 'buy' ? 'btn-primary' : ''}`} disabled={action.disabled} onClick={action.onClick}>
-        {side === 'buy' && !action.disabled && <Bolt />} {action.label}
+        {side === 'buy' && !action.disabled && <Sparkle />} {action.label}
       </button>
 
       <div className="row-between small" style={{ marginTop: 12 }}>
@@ -160,13 +160,13 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
           No {cur.code} yet?{' '}
           {cur.mintable && (
             <>
-              <Link to={`/desk?code=${cur.code}`} className="rain-text">
+              <Link to={`/desk?code=${cur.code}`} className="accent-text">
                 Get test {cur.code} at the desk
               </Link>{' '}
               or{' '}
             </>
           )}
-          <Link to={`/swap?in=${usdBase?.token ?? ''}&out=${coin.address}`} className="rain-text">
+          <Link to={`/swap?in=${usdBase?.token ?? ''}&out=${coin.address}`} className="accent-text">
             pay with another currency
           </Link>
           .
@@ -250,7 +250,7 @@ export default function CoinPage() {
   return (
     <div className="wrap">
       <div className="coin-head">
-        <CoinDrop coin={coin} currency={cur} size={78} />
+        <CoinOrb coin={coin} currency={cur} size={78} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="kicker">{coin.graduated ? 'Graduated · trading in its pool' : 'On the curve'}</div>
           <h1>{coin.name}</h1>
@@ -265,7 +265,7 @@ export default function CoinPage() {
             <span className="mono muted">{coin.address}</span>
             <CopyButton text={coin.address} />
             {exp && (
-              <a href={exp} target="_blank" rel="noreferrer" className="rain-text">
+              <a href={exp} target="_blank" rel="noreferrer" className="accent-text">
                 Explorer ↗
               </a>
             )}

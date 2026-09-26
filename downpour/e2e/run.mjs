@@ -59,7 +59,7 @@ function testWallet({ rpc, account }) {
   const icon =
     'data:image/svg+xml;base64,' +
     btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#ffe066"/><path d="M18 5 9 18h6l-2 9 10-14h-6z" fill="#1b1500"/></svg>');
-  const info = { uuid: '6f7b1b64-5f38-4cb3-9a7c-0d0f00000007', name: 'Test Wallet', icon, rdns: 'dev.downpour.testwallet' };
+  const info = { uuid: '6f7b1b64-5f38-4cb3-9a7c-0d0f00000007', name: 'Test Wallet', icon, rdns: 'dev.starmint.testwallet' };
   const announce = () => window.dispatchEvent(new CustomEvent('eip6963:announceProvider', { detail: Object.freeze({ info, provider }) }));
   window.addEventListener('eip6963:requestProvider', announce);
   announce();
@@ -110,7 +110,7 @@ let lisbon = '';
 // Unique per run, so the test can run again on the same chain.
 const tag = String(Date.now()).slice(-4);
 const TICKER = `LISB${tag}`;
-const NAME = `Lisbon Drizzle ${tag}`;
+const NAME = `Lisbon Lightyear ${tag}`;
 
 console.log(`live mode against ${RPC}`);
 await step('home renders coins from the chain', async () => {
@@ -148,7 +148,7 @@ await step('launch a coin paired with EUR, with a first buy', async () => {
   await page.locator('#name').fill(NAME);
   await page.locator('#ticker').fill(TICKER.toLowerCase());
   await page.locator('.cur-picker-btn', { hasText: 'EUR' }).waitFor();
-  await page.locator('#desc').fill('Soft rain on the tram lines, priced in euros.');
+  await page.locator('#desc').fill('Starlight on the tram lines, priced in euros.');
   await page.locator('#first').fill('25');
   await shot(page, '04-launch');
   await page.getByRole('button', { name: 'Launch the coin' }).click();
@@ -180,15 +180,15 @@ await step('swap USD into a coin priced in another currency', async () => {
   await waitToast(page, 'Swap USD →');
 });
 
-await step('swap coin to coin across currencies (new EUR coin → DRIZZLE/JPY)', async () => {
+await step('swap coin to coin across currencies (new EUR coin → COMET/JPY)', async () => {
   await page.goto(BASE + `/swap?in=${lisbon}`);
   await page.locator('.token-btn').nth(1).click();
-  await page.locator('.modal input').fill('DRIZZLE');
-  await page.locator('.token-row', { hasText: 'DRIZZLE' }).first().click();
+  await page.locator('.modal input').fill('COMET');
+  await page.locator('.token-row', { hasText: 'COMET' }).first().click();
   await page.locator('.swap-box').first().getByRole('button', { name: 'Max' }).click();
   await page.locator('.route', { hasText: 'desk' }).waitFor();
   await page.locator('.swap-card button.btn-primary').click();
-  await waitToast(page, `Swap ${TICKER} → DRIZZLE`);
+  await waitToast(page, `Swap ${TICKER} → COMET`);
   // Max spent the exact balance: nothing left behind
   await page.goto(BASE + `/coin/${lisbon}`);
   await page.locator('.trade-panel .tabs button', { hasText: 'Sell' }).click();

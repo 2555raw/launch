@@ -1,21 +1,20 @@
-/* The realistic storm, on the GPU (WebGL2).
+/* The sky, on the GPU (WebGL2): deep space.
  *
- *   sky        a fragment shader renders a deck of turbulent storm cloud (domain-warped
- *              noise, lit from above, dark in the belly), rain curtains under it and a
- *              city glow at the horizon, at reduced resolution into a texture
- *   rain       a few thousand instanced streaks at three depths of field
- *   drops      the currency drops: water that refracts that sky texture, flipped like a
- *              real drop does, with Fresnel reflection, a dark rim, a sharp highlight,
- *              a caustic and the currency sign embossed inside
- *   splashes   crowns of droplets and ripples where rain and drops land
- *   lightning  a stepped leader, then a return stroke and a restrike; the channel is
- *              drawn crisp and bloomed, and it lights the cloud from inside
- *   lens       vignette and film grain over everything
+ *   sky       a fragment shader renders layered starfields that twinkle, drifting
+ *             nebulae, a galaxy band with dust lanes, a far spiral galaxy and the limb
+ *             of a planet, at reduced resolution into a texture
+ *   stars     the currency stars: glowing orbs in the currency's colour with a halo,
+ *             diffraction spikes and the currency sign on their face; they are born
+ *             with a flare, drift slowly upward and fade out after a while
+ *   sparkles  bursts of sparks and a shockwave when a star is tapped, and the dust a
+ *             shooting star sheds as it goes
+ *   meteors   shooting stars: a bright head with a fading tail, bloomed, lighting the
+ *             nebula they cross; tap the empty sky to send one through that point
+ *   lens      vignette and film grain over everything
  *
- * Quality drops automatically if frames get slow. Flashes are capped (at most one
- * bolt per 0.7 s from taps, two pulses per bolt), and under prefers-reduced-motion a
- * single still frame is drawn. If WebGL2 is missing, Storm.tsx falls back to the 2D
- * engine in engine.ts. */
+ * Quality drops automatically if frames get slow, taps send at most one shooting star
+ * every 0.35 s, and under prefers-reduced-motion a single still frame is drawn. If
+ * WebGL2 is missing, Storm.tsx falls back to the 2D sky in engine.ts. */
 import { CURRENCIES, currencyColor, dropGlyph } from '../data/currencies';
 import { FULLSCREEN_VS, freeTarget, program, target, type Program, type Target } from './gl';
 import * as S from './shaders';
@@ -23,14 +22,16 @@ import { COLUMN, type Intensity, type Scene, type StormRenderer } from './types'
 
 type Pt = [number, number];
 
-interface Drop {
+interface Star {
   x: number;
   y: number;
   r: number;
   vy: number;
   code: string;
   phase: number;
+  rate: number;
   born: number;
+  life: number;
   charge: number;
   alpha: number;
 }
@@ -48,21 +49,35 @@ interface Particle {
   tint: [number, number, number];
 }
 
-interface Bolt {
+interface Meteor {
   born: number;
-  leader: number;
-  restrike: number;
-  life: number;
-  start: number; // vertex offset in the bolt buffer
-  count: number[]; // vertices per strip
-  offsets: number[];
+  dur: number;
+  tail: number;
+  from: Pt;
+  to: Pt;
+  width: number;
+  bright: number;
+  offset: number;
+  count: number;
 }
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
-const MAX_RAIN = 2600;
-const MAX_DROPS = 24;
-const MAX_PARTS = 700;
-const MAX_BOLT_VERTS = 12000;
+const MAX_STARS = 24;
+const MAX_PARTS = 900;
+const MAX_METEORS = 24;
+const METEOR_POINTS = 24;
+const IGNITE = 1.3;
+const FADE = 1.6;
+
+/** Where a currency star may sit on the hero without covering the headline. */
+export function heroSpot(w: number, h: number, r: number) {
+  const side = Math.max(0, w * 0.15);
+  if (Math.random() < 0.3) return { x: rand(r * 3, w - r * 3), y: rand(h * 0.8, h * 0.95), alpha: 1 };
+  const y = rand(h * 0.14, h * 0.8);
+  if (side < r * 5) return { x: rand(r * 2, w - r * 2), y, alpha: 0.4 };
+  const x = Math.random() < 0.5 ? rand(r * 2.5, side) : rand(w - side, w - r * 2.5);
+  return { x, y, alpha: 1 };
+}
 
 const rgbCache = new Map<string, [number, number, number]>();
 function rgbOf(code: string): [number, number, number] {
@@ -93,13 +108,10 @@ export class GLStorm implements StormRenderer {
   private w = 0;
   private h = 0;
   private dpr = 1;
-  private skyScale = 0.5;
-  private rainFactor = 1;
-  private cloudBottom = 260;
+  private skyScale = 0.6;
 
-  private progs!: Record<'sky' | 'blit' | 'rain' | 'drop' | 'part' | 'bolt' | 'blur' | 'add' | 'overlay', Program>;
+  private progs!: Record<'sky' | 'blit' | 'drop' | 'part' | 'bolt' | 'blur' | 'add' | 'overlay', Program>;
   private vaoEmpty!: WebGLVertexArrayObject;
-  private vaoRain!: WebGLVertexArrayObject;
   private vaoDrop!: WebGLVertexArrayObject;
   private vaoPart!: WebGLVertexArrayObject;
   private vaoBolt!: WebGLVertexArrayObject;
@@ -112,26 +124,22 @@ export class GLStorm implements StormRenderer {
   private blurA?: Target;
   private blurB?: Target;
 
-  private dropData = new Float32Array(MAX_DROPS * 11);
+  private dropData = new Float32Array(MAX_STARS * 11);
   private partData = new Float32Array(MAX_PARTS * 8);
-  private boltData = new Float32Array(MAX_BOLT_VERTS * 8);
-  private boltVerts = 0;
+  private boltData = new Float32Array(MAX_METEORS * METEOR_POINTS * 2 * 8);
 
-  private drops: Drop[] = [];
+  private stars: Star[] = [];
   private parts: Particle[] = [];
-  private bolts: Bolt[] = [];
+  private meteors: Meteor[] = [];
   private codes: string[] = ['USD', 'EUR', 'JPY', 'GBP', 'BRL', 'MXN', 'INR', 'KRW', 'NGN', 'TRY', 'CHF', 'ZAR', 'VND', 'CAD', 'AUD', 'XAU'];
   private glyphIndex = new Map<string, number>();
 
   private intensity: Intensity = 'storm';
   private scene: Scene = 'content';
   private flash = 0;
-  private flashQueue: number[] = [];
   private flashAt: Pt = [0.5, 0.8];
-  private sheet = 0;
   private nextAuto = 0;
-  private lastTapBolt = 0;
-  private splashAcc = 0;
+  private lastTap = 0;
   private frameTimes: number[] = [];
   private lost = false;
 
@@ -154,22 +162,21 @@ export class GLStorm implements StormRenderer {
     const gl = this.gl;
     const U = (...n: string[]) => n;
     this.progs = {
-      sky: program(gl, FULLSCREEN_VS, S.SKY_FS, U('uTime', 'uAspect', 'uFlash', 'uSheet', 'uBase', 'uStorm', 'uHorizon', 'uShore')),
+      sky: program(gl, FULLSCREEN_VS, S.SKY_FS, U('uTime', 'uAspect', 'uFlash')),
       blit: program(gl, FULLSCREEN_VS, S.BLIT_FS, U('uTex')),
-      rain: program(gl, S.RAIN_VS, S.RAIN_FS, U('uTime', 'uRes', 'uWind', 'uTop', 'uFlash')),
-      drop: program(gl, S.DROP_VS, S.DROP_FS, U('uRes', 'uSky', 'uAtlas', 'uFlash')),
+      drop: program(gl, S.DROP_VS, S.DROP_FS, U('uRes', 'uAtlas', 'uFlash')),
       part: program(gl, S.PART_VS, S.PART_FS, U('uRes', 'uFlash')),
-      bolt: program(gl, S.BOLT_VS, S.BOLT_FS, U('uRes', 'uWidthScale', 'uIntensity', 'uReveal', 'uColor', 'uSharp')),
+      bolt: program(gl, S.BOLT_VS, S.BOLT_FS, U('uRes', 'uWidthScale', 'uIntensity', 'uReveal', 'uColor', 'uSharp', 'uTail')),
       blur: program(gl, FULLSCREEN_VS, S.BLUR_FS, U('uTex', 'uDir')),
       add: program(gl, FULLSCREEN_VS, S.ADD_FS, U('uTex', 'uStrength')),
       overlay: program(gl, FULLSCREEN_VS, S.OVERLAY_FS, U('uAspect', 'uTime', 'uRes')),
     };
     this.vaoEmpty = gl.createVertexArray()!;
 
-    const quad = (ys: [number, number]) => {
+    const quad = () => {
       const b = gl.createBuffer()!;
       gl.bindBuffer(gl.ARRAY_BUFFER, b);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, ys[0], 1, ys[0], -1, ys[1], 1, ys[1]]), gl.STATIC_DRAW);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
       return b;
     };
     const attr = (prog: Program, name: string, size: number, stride: number, offset: number, divisor: number) => {
@@ -180,28 +187,10 @@ export class GLStorm implements StormRenderer {
       gl.vertexAttribDivisor(loc, divisor);
     };
 
-    // rain: static seeds
-    this.vaoRain = gl.createVertexArray()!;
-    gl.bindVertexArray(this.vaoRain);
-    gl.bindBuffer(gl.ARRAY_BUFFER, quad([0, 1]));
-    attr(this.progs.rain, 'aCorner', 2, 8, 0, 0);
-    const seeds = new Float32Array(MAX_RAIN * 4);
-    for (let i = 0; i < MAX_RAIN; i++) {
-      seeds[i * 4] = Math.random();
-      seeds[i * 4 + 1] = Math.random();
-      // more far streaks than near ones
-      seeds[i * 4 + 2] = Math.pow(Math.random(), 1.6);
-      seeds[i * 4 + 3] = Math.random();
-    }
-    const bufSeeds = gl.createBuffer()!;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufSeeds);
-    gl.bufferData(gl.ARRAY_BUFFER, seeds, gl.STATIC_DRAW);
-    attr(this.progs.rain, 'aSeed', 4, 16, 0, 1);
-
-    // drops
+    // currency stars
     this.vaoDrop = gl.createVertexArray()!;
     gl.bindVertexArray(this.vaoDrop);
-    gl.bindBuffer(gl.ARRAY_BUFFER, quad([-1, 1]));
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad());
     attr(this.progs.drop, 'aCorner', 2, 8, 0, 0);
     this.bufDrop = gl.createBuffer()!;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufDrop);
@@ -210,10 +199,10 @@ export class GLStorm implements StormRenderer {
     attr(this.progs.drop, 'aMisc', 4, 44, 16, 1);
     attr(this.progs.drop, 'aTint', 3, 44, 32, 1);
 
-    // particles
+    // sparkles and shockwaves
     this.vaoPart = gl.createVertexArray()!;
     gl.bindVertexArray(this.vaoPart);
-    gl.bindBuffer(gl.ARRAY_BUFFER, quad([-1, 1]));
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad());
     attr(this.progs.part, 'aCorner', 2, 8, 0, 0);
     this.bufPart = gl.createBuffer()!;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufPart);
@@ -221,7 +210,7 @@ export class GLStorm implements StormRenderer {
     attr(this.progs.part, 'aP', 4, 32, 0, 1);
     attr(this.progs.part, 'aQ', 4, 32, 16, 1);
 
-    // bolts
+    // shooting stars
     this.vaoBolt = gl.createVertexArray()!;
     gl.bindVertexArray(this.vaoBolt);
     this.bufBolt = gl.createBuffer()!;
@@ -234,8 +223,7 @@ export class GLStorm implements StormRenderer {
 
     this.atlas = gl.createTexture()!;
     this.buildAtlas();
-    this.boltVerts = 0;
-    this.bolts = [];
+    this.meteors = [];
   }
 
   /** Every currency sign, white on transparent, in a 16 x 16 grid of 64 px cells. */
@@ -303,10 +291,9 @@ export class GLStorm implements StormRenderer {
     this.canvas.height = Math.round(this.h * this.dpr);
     this.canvas.style.width = `${this.w}px`;
     this.canvas.style.height = `${this.h}px`;
-    this.cloudBottom = Math.max(190, Math.min(this.h * 0.36, 360));
-    if (mobile) this.skyScale = Math.min(this.skyScale, 0.42);
+    if (mobile) this.skyScale = Math.min(this.skyScale, 0.5);
     this.makeTargets();
-    this.fillDrops();
+    this.fillStars();
     if (this.reduced || !this.running) this.frame(performance.now(), true);
   }
 
@@ -318,7 +305,7 @@ export class GLStorm implements StormRenderer {
     freeTarget(gl, this.blurB);
     const W = this.canvas.width;
     const H = this.canvas.height;
-    // clouds are soft: render them against CSS pixels, not device pixels, to keep hi-dpi screens cheap
+    // the sky is rendered against CSS pixels, not device pixels, to keep hi-dpi screens cheap
     this.sky = target(gl, Math.max(2, Math.round(this.w * this.skyScale)), Math.max(2, Math.round(this.h * this.skyScale)));
     this.boltRT = target(gl, Math.max(2, Math.round(W / 2)), Math.max(2, Math.round(H / 2)));
     this.blurA = target(gl, Math.max(2, Math.round(W / 4)), Math.max(2, Math.round(H / 4)));
@@ -338,211 +325,181 @@ export class GLStorm implements StormRenderer {
   setScene(scene: Scene) {
     if (scene === this.scene) return;
     this.scene = scene;
-    this.fillDrops();
+    this.stars = [];
+    this.fillStars();
   }
 
   get isRunning() {
     return this.running;
   }
 
-  /* ------------------------------ drops ------------------------------ */
+  /* ------------------------------ currency stars ------------------------------ */
 
   private gutter() {
     return Math.max(0, (this.w - COLUMN) / 2);
   }
 
-  private targetDrops() {
+  private targetStars() {
     if (this.scene === 'hero') return this.w < 720 ? 6 : this.w < 1100 ? 9 : 12;
     return this.gutter() >= 90 ? 8 : 3;
   }
 
-  private fillDrops() {
-    const n = this.targetDrops();
-    while (this.drops.length < n) this.drops.push(this.newDrop(true));
-    if (this.drops.length > n) this.drops.length = n;
+  private fillStars() {
+    const n = this.targetStars();
+    while (this.stars.length < n) this.stars.push(this.newStar(true));
+    if (this.stars.length > n) this.stars.length = n;
   }
 
-  private newDrop(anywhere = false): Drop {
+  private newStar(settled = false): Star {
     const big = Math.random() < 0.3;
-    let r = big ? rand(24, 36) : rand(13, 22);
+    let r = big ? rand(19, 27) : rand(11, 17);
     const code = this.codes[Math.floor(Math.random() * this.codes.length)];
-    let x = rand(r * 2, this.w - r * 2);
+    let x = rand(r * 3, this.w - r * 3);
+    let y = rand(this.h * 0.14, this.h * 0.94);
+    let vy = -rand(5, 13);
     let alpha = 1;
     if (this.scene === 'hero') {
-      const mid = x > this.w * 0.26 && x < this.w * 0.74;
-      if (mid && Math.random() < 0.7) x = Math.random() < 0.5 ? rand(r * 1.5, this.w * 0.26) : rand(this.w * 0.74, this.w - r * 1.5);
+      // keep the headline clear: beside it, or below the buttons
+      ({ x, y, alpha } = heroSpot(this.w, this.h, r));
+      vy = -rand(1.5, 4);
     } else {
       const g = this.gutter();
       if (g >= 90) {
-        r = Math.min(r, g * 0.3);
-        x = Math.random() < 0.5 ? rand(r * 1.5, g - r * 1.2) : rand(this.w - g + r * 1.2, this.w - r * 1.5);
+        r = Math.min(r, g * 0.2);
+        x = Math.random() < 0.5 ? rand(r * 2.5, g - r * 2) : rand(this.w - g + r * 2, this.w - r * 2.5);
       } else {
-        alpha = 0.3;
+        alpha = 0.35;
         r *= 0.8;
       }
     }
-    const top = this.cloudBottom - 4;
+    const now = performance.now() / 1000;
+    const life = rand(16, 34);
     return {
       x,
-      y: anywhere ? rand(top + 30, this.h * 0.95) : top,
+      y,
       r,
-      vy: rand(38, 72) * (r / 26) ** 0.35,
+      vy,
       code,
       phase: Math.random() * Math.PI * 2,
-      born: anywhere ? -10 : performance.now() / 1000,
+      rate: rand(1.4, 2.8),
+      // settled stars are already shining, part way through their life
+      born: settled ? now - rand(IGNITE, life * 0.7) : now,
+      life,
       charge: 0,
       alpha,
     };
   }
 
+  /** A new star flares up: a ring of light and a few sparks. */
+  private ignite(s: Star) {
+    const tint = rgbOf(s.code);
+    if (this.parts.length < MAX_PARTS) this.parts.push({ x: s.x, y: s.y, vx: 0, vy: 0, life: 0, max: 0.9, size: s.r * 0.6, grow: 70, type: 1, tint });
+    for (let i = 0; i < 8 && this.parts.length < MAX_PARTS; i++) {
+      const a = rand(0, Math.PI * 2);
+      const v = rand(20, 70);
+      this.parts.push({ x: s.x, y: s.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.6, 1.1), size: rand(1.2, 2.4), grow: 0, type: 0, tint });
+    }
+  }
+
   pop(x: number, y: number) {
-    for (let i = this.drops.length - 1; i >= 0; i--) {
-      const d = this.drops[i];
-      if (Math.hypot(d.x - x, d.y - y) < d.r * 1.3) {
-        this.splash(d.x, d.y, d.r, rgbOf(d.code), true);
-        this.onPop?.(d.code);
-        this.drops[i] = this.newDrop();
+    const now = performance.now() / 1000;
+    for (let i = this.stars.length - 1; i >= 0; i--) {
+      const s = this.stars[i];
+      if (now - s.born < IGNITE * 0.5) continue;
+      if (Math.hypot(s.x - x, s.y - y) < s.r * 1.5) {
+        this.burst(s.x, s.y, s.r, rgbOf(s.code));
+        this.onPop?.(s.code);
+        this.flash = Math.min(1, this.flash + 0.35);
+        this.flashAt = [s.x / this.w, 1 - s.y / this.h];
+        const next = this.newStar();
+        this.stars[i] = next;
+        this.ignite(next);
         return true;
       }
     }
     return false;
   }
 
-  private splash(x: number, y: number, r: number, tint: [number, number, number], big: boolean) {
-    const n = big ? 18 : Math.round(8 + r / 4);
-    for (let i = 0; i < n && this.parts.length < MAX_PARTS; i++) {
-      const a = big ? rand(0, Math.PI * 2) : rand(Math.PI * 1.08, Math.PI * 1.92);
-      const v = rand(70, big ? 300 : 210);
-      this.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.45, 0.85), size: rand(1.6, big ? 4.2 : 3.4), grow: 0, type: 0, tint });
+  /** A star bursting: sparks flying out and slowing down, and a shockwave. */
+  private burst(x: number, y: number, r: number, tint: [number, number, number]) {
+    for (let i = 0; i < 34 && this.parts.length < MAX_PARTS; i++) {
+      const a = rand(0, Math.PI * 2);
+      const v = rand(50, 280);
+      this.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.6, 1.3), size: rand(1.4, 3.6), grow: 0, type: 0, tint });
     }
-    if (this.parts.length < MAX_PARTS) this.parts.push({ x, y: big ? y + r * 0.6 : y, vx: 0, vy: 0, life: 0, max: 0.7, size: r * 0.5, grow: 95, type: 1, tint });
+    if (this.parts.length < MAX_PARTS) this.parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.7, size: r * 0.8, grow: 190, type: 1, tint });
+    if (this.parts.length < MAX_PARTS) this.parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.45, size: r * 0.5, grow: 110, type: 1, tint: [1, 1, 1] });
   }
 
-  /** Rain landing along the bottom of the screen: small crowns and ripples. */
-  private rainSplashes(dt: number) {
-    const rate = (this.intensity === 'storm' ? 30 : 11) * (this.w / 1440) * this.rainFactor;
-    this.splashAcc += rate * dt;
-    const grey: [number, number, number] = [0.7, 0.76, 0.86];
-    while (this.splashAcc >= 1 && this.parts.length < MAX_PARTS - 8) {
-      this.splashAcc -= 1;
-      const x = rand(0, this.w);
-      const y = this.h - rand(2, 46);
-      const n = 3 + Math.floor(Math.random() * 3);
-      for (let i = 0; i < n; i++) {
-        const a = rand(Math.PI * 1.15, Math.PI * 1.85);
-        const v = rand(40, 130);
-        this.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.22, 0.42), size: rand(0.8, 1.7), grow: 0, type: 0, tint: grey });
-      }
-      this.parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.45, size: rand(2, 5), grow: rand(22, 40), type: 1, tint: grey });
-    }
-  }
+  /* ------------------------------ shooting stars ------------------------------ */
 
-  /* ------------------------------ lightning ------------------------------ */
-
-  private jag(a: Pt, b: Pt, rough: number, depth: number): Pt[] {
-    let pts: Pt[] = [a, b];
-    for (let d = 0; d < depth; d++) {
-      const next: Pt[] = [pts[0]];
-      for (let i = 0; i < pts.length - 1; i++) {
-        const [x1, y1] = pts[i];
-        const [x2, y2] = pts[i + 1];
-        const len = Math.hypot(x2 - x1, y2 - y1) || 1;
-        const off = (Math.random() - 0.5) * len * rough;
-        next.push([(x1 + x2) / 2 - ((y2 - y1) / len) * off, (y1 + y2) / 2 + ((x2 - x1) / len) * off], pts[i + 1]);
-      }
-      pts = next;
-      rough *= 0.78;
-    }
-    return pts;
-  }
-
+  /** A shooting star through (x, y) if given, else somewhere across the upper sky. */
   strike(x?: number, y?: number) {
     if (this.reduced || this.lost) return;
     const now = performance.now() / 1000;
     if (x !== undefined) {
-      if (now - this.lastTapBolt < 0.7) return;
-      this.lastTapBolt = now;
+      if (now - this.lastTap < 0.35) return;
+      this.lastTap = now;
     }
-    const endX = x ?? rand(this.w * 0.06, this.w * 0.94);
-    const endY = y ?? rand(this.h * 0.62, this.h * 1.05);
-    const startX = endX + rand(-this.w * 0.1, this.w * 0.1);
-    const startY = this.cloudBottom * rand(0.35, 0.7);
-
-    const strips: Array<{ pts: Pt[]; glow: number; core: number; bright: number; t0: number; t1: number }> = [];
-    const main = this.jag([startX, startY], [endX, endY], 0.62, 6);
-    strips.push({ pts: main, glow: 10, core: 1.7, bright: 1, t0: 0, t1: 1 });
-    const branches = 3 + Math.floor(Math.random() * 5);
-    for (let i = 0; i < branches; i++) {
-      const k = rand(0.08, 0.72);
-      const from = main[Math.floor(k * (main.length - 1))];
-      const ang = Math.atan2(endY - startY, endX - startX) + rand(-1.0, 1.0);
-      const len = rand(50, 240) * (1 - k * 0.6);
-      const to: Pt = [from[0] + Math.cos(ang) * len, from[1] + Math.abs(Math.sin(ang)) * len];
-      const pts = this.jag(from, to, 0.7, 5);
-      strips.push({ pts, glow: 6, core: 1.05, bright: rand(0.4, 0.7), t0: k, t1: Math.min(1, k + 0.35) });
-      if (Math.random() < 0.45) {
-        const f2 = pts[Math.floor(rand(0.3, 0.7) * (pts.length - 1))];
-        const a2 = ang + rand(-0.8, 0.8);
-        const l2 = len * rand(0.3, 0.55);
-        const sub = this.jag(f2, [f2[0] + Math.cos(a2) * l2, f2[1] + Math.abs(Math.sin(a2)) * l2], 0.7, 4);
-        strips.push({ pts: sub, glow: 4, core: 0.8, bright: rand(0.25, 0.4), t0: k + 0.1, t1: Math.min(1, k + 0.5) });
-      }
+    // mostly falling down and across, like meteors do
+    const dir = Math.random() < 0.5 ? -1 : 1;
+    const ang = rand(0.28, 0.7);
+    const dx = Math.cos(ang) * dir;
+    const dy = Math.sin(ang);
+    const len = x !== undefined ? rand(320, 520) : rand(220, 480) * Math.min(1.3, Math.max(0.7, this.w / 1440));
+    let from: Pt;
+    if (x !== undefined && y !== undefined) {
+      // the tap point sits a little past the middle, where the head is brightest
+      from = [x - dx * len * 0.6, y - dy * len * 0.6];
+    } else {
+      from = [rand(this.w * 0.08, this.w * 0.92), rand(-20, this.h * 0.45)];
     }
-
-    // write the strips into the bolt buffer (it is rebuilt from scratch when a new bolt starts)
-    this.bolts = this.bolts.filter((b) => now - b.born < b.life);
-    if (!this.bolts.length) this.boltVerts = 0;
-    const start = this.boltVerts;
-    const count: number[] = [];
-    const offsets: number[] = [];
-    for (const s of strips) {
-      const n = s.pts.length;
-      if (this.boltVerts + n * 2 > MAX_BOLT_VERTS) break;
-      offsets.push(this.boltVerts);
-      let total = 0;
-      const lens = [0];
-      for (let i = 1; i < n; i++) {
-        total += Math.hypot(s.pts[i][0] - s.pts[i - 1][0], s.pts[i][1] - s.pts[i - 1][1]);
-        lens.push(total);
-      }
-      for (let i = 0; i < n; i++) {
-        const a = s.pts[Math.max(0, i - 1)];
-        const b = s.pts[Math.min(n - 1, i + 1)];
-        const dx = b[0] - a[0];
-        const dy = b[1] - a[1];
-        const l = Math.hypot(dx, dy) || 1;
-        const nx = -dy / l;
-        const ny = dx / l;
-        const t = s.t0 + (s.t1 - s.t0) * (lens[i] / (total || 1));
-        // fades toward the tip of a branch
-        const bright = s.bright * (s === strips[0] ? 1 : 1 - 0.6 * (lens[i] / (total || 1)));
-        for (const side of [-1, 1]) {
-          const o = this.boltVerts * 8;
-          this.boltData.set([s.pts[i][0], s.pts[i][1], nx, ny, side, s.glow, bright, t], o);
-          this.boltVerts++;
-        }
-      }
-      count.push(n * 2);
-    }
-    // core widths are drawn with a separate scale; store the core/glow ratio per strip via uWidthScale
-    const gl = this.gl;
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufBolt);
-    gl.bufferSubData(gl.ARRAY_BUFFER, start * 32, this.boltData.subarray(start * 8, this.boltVerts * 8));
-
-    const leader = rand(0.06, 0.11);
-    const restrike = leader + rand(0.08, 0.15);
-    this.bolts.push({ born: now, leader, restrike, life: restrike + 0.5, start, count, offsets });
-    this.flashQueue.push(now + leader, now + restrike);
-    this.flashAt = [startX / this.w, 1 - startY / this.h];
-
-    for (const d of this.drops) if (Math.hypot(d.x - endX, d.y - endY) < d.r * 3.2) d.charge = 1;
+    const to: Pt = [from[0] + dx * len, from[1] + dy * len];
+    const bright = x !== undefined ? 1 : rand(0.55, 1);
+    this.meteors = this.meteors.filter((m) => now - m.born < m.dur);
+    if (this.meteors.length >= MAX_METEORS) this.meteors.shift();
+    this.meteors.push({ born: now, dur: rand(0.75, 1.15), tail: rand(0.3, 0.42), from, to, width: rand(7, 10), bright, offset: 0, count: 0 });
+    this.writeMeteors();
   }
 
-  private sheetFlash() {
-    const now = performance.now() / 1000;
-    this.flashAt = [rand(0.05, 0.95), 1 - (this.cloudBottom * rand(0.3, 0.7)) / this.h];
-    this.flashQueue.push(now);
-    this.sheet = 0.9;
+  /** Rebuilds the meteor vertex buffer: a straight strip per meteor, t 0..1 along it. */
+  private writeMeteors() {
+    let v = 0;
+    for (const m of this.meteors) {
+      m.offset = v;
+      const ddx = m.to[0] - m.from[0];
+      const ddy = m.to[1] - m.from[1];
+      const l = Math.hypot(ddx, ddy) || 1;
+      const nx = -ddy / l;
+      const ny = ddx / l;
+      for (let i = 0; i < METEOR_POINTS; i++) {
+        const t = i / (METEOR_POINTS - 1);
+        const px = m.from[0] + ddx * t;
+        const py = m.from[1] + ddy * t;
+        // the head is wider than the tail
+        const wdt = m.width * (0.45 + 0.55 * t);
+        for (const side of [-1, 1]) {
+          this.boltData.set([px, py, nx, ny, side, wdt, m.bright, t], v * 8);
+          v++;
+        }
+      }
+      m.count = METEOR_POINTS * 2;
+    }
+    const gl = this.gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufBolt);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.boltData.subarray(0, v * 8));
+  }
+
+  /** Where a meteor's head is and how bright it is at `now`. */
+  private meteorState(m: Meteor, now: number) {
+    const k = (now - m.born) / m.dur;
+    const reveal = k * (1 + m.tail);
+    const head = Math.min(1, reveal);
+    const fadeIn = Math.min(1, k / 0.12);
+    const fadeOut = reveal > 1 ? Math.max(0, 1 - (reveal - 1) / m.tail) : 1;
+    const x = m.from[0] + (m.to[0] - m.from[0]) * head;
+    const y = m.from[1] + (m.to[1] - m.from[1]) * head;
+    return { reveal, x, y, intensity: fadeIn * fadeOut * m.bright, live: reveal <= 1 };
   }
 
   /* ------------------------------ loop ------------------------------ */
@@ -556,7 +513,7 @@ export class GLStorm implements StormRenderer {
     if (this.running) return;
     this.running = true;
     this.last = performance.now();
-    this.nextAuto = this.last / 1000 + rand(1.2, 3.5);
+    this.nextAuto = this.last / 1000 + rand(0.8, 2.2);
     const loop = (t: number) => {
       if (!this.running || this.lost) return;
       this.frame(t);
@@ -581,15 +538,14 @@ export class GLStorm implements StormRenderer {
     this.canvas.removeEventListener('webglcontextrestored', this.onRestored);
   }
 
-  /** Lowers resolution and rain density if frames are slow. */
+  /** Lowers the sky's resolution if frames are slow. */
   private adapt(dtMs: number) {
     this.frameTimes.push(dtMs);
     if (this.frameTimes.length < 90) return;
     const avg = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length;
     this.frameTimes = [];
-    if (avg > 25 && (this.skyScale > 0.26 || this.rainFactor > 0.5)) {
-      this.skyScale = Math.max(0.26, this.skyScale * 0.8);
-      this.rainFactor = Math.max(0.5, this.rainFactor * 0.85);
+    if (avg > 25 && this.skyScale > 0.3) {
+      this.skyScale = Math.max(0.3, this.skyScale * 0.8);
       this.makeTargets();
     }
   }
@@ -598,39 +554,31 @@ export class GLStorm implements StormRenderer {
     if (this.lost) return;
     const gl = this.gl;
     const now = nowMs / 1000;
-    const dt = still ? 0 : Math.min(0.05, (nowMs - this.last) / 1000);
+    const dt = still ? 0 : Math.max(0, Math.min(0.05, (nowMs - this.last) / 1000));
     if (!still && this.last) this.adapt(nowMs - this.last);
     this.last = nowMs;
     const time = now - this.t0;
+    const shower = this.intensity === 'storm';
 
-    // weather
-    if (!still && this.intensity === 'storm' && now > this.nextAuto) {
-      if (Math.random() < 0.72) this.strike();
-      else this.sheetFlash();
-      this.nextAuto = now + rand(4.5, 10.5);
+    // shooting stars on their own: a shower, or now and then when calm
+    if (!still && now > this.nextAuto) {
+      this.strike();
+      if (shower && Math.random() < 0.25) this.strike();
+      this.nextAuto = now + (shower ? rand(1.4, 3.8) : rand(6, 12));
     }
-    while (this.flashQueue.length && this.flashQueue[0] <= now) {
-      this.flashQueue.shift();
-      this.flash = Math.min(1, this.flash + 0.85);
-    }
-    this.flash *= Math.exp(-dt * 8.5);
-    this.sheet *= Math.exp(-dt * 6);
-    const flash = this.flash;
-    const wind = 0.13 + 0.05 * Math.sin(time * 0.31) + 0.03 * Math.sin(time * 1.7);
 
     // physics
     if (!still) {
-      this.rainSplashes(dt);
-      for (let i = 0; i < this.drops.length; i++) {
-        const d = this.drops[i];
-        const forming = d.born > 0 && now - d.born < 1.1;
-        if (!forming) d.y += d.vy * dt;
-        d.phase += dt * 2.4;
-        d.x += Math.sin(d.phase) * 5 * dt + wind * 18 * dt;
-        d.charge = Math.max(0, d.charge - dt * 0.9);
-        if (d.y > this.h - d.r * 0.35) {
-          this.splash(d.x, this.h - 6, d.r, rgbOf(d.code), false);
-          this.drops[i] = this.newDrop();
+      for (let i = 0; i < this.stars.length; i++) {
+        const s = this.stars[i];
+        s.y += s.vy * dt;
+        s.phase += dt * s.rate;
+        s.x += Math.sin(s.phase * 0.35) * 3 * dt;
+        s.charge = Math.max(0, s.charge - dt * 0.8);
+        if (now - s.born > s.life || s.y < -s.r * 3.5) {
+          const next = this.newStar();
+          this.stars[i] = next;
+          this.ignite(next);
         }
       }
       for (let i = this.parts.length - 1; i >= 0; i--) {
@@ -641,12 +589,34 @@ export class GLStorm implements StormRenderer {
           continue;
         }
         if (p.type === 0) {
-          p.vy += 560 * dt;
+          // no gravity out here, just drag
+          const drag = Math.exp(-dt * 2.6);
+          p.vx *= drag;
+          p.vy *= drag;
           p.x += p.vx * dt;
           p.y += p.vy * dt;
         } else p.size += p.grow * dt;
       }
     }
+
+    // meteors: their heads shed dust, light the gas and wake the stars they pass
+    this.meteors = this.meteors.filter((m) => now - m.born < m.dur);
+    let glow = 0;
+    const white: [number, number, number] = [0.85, 0.9, 1];
+    for (const m of this.meteors) {
+      const st = this.meteorState(m, now);
+      if (!st.live) continue;
+      if (st.intensity > glow) {
+        glow = st.intensity;
+        this.flashAt = [st.x / this.w, 1 - st.y / this.h];
+      }
+      if (!still && Math.random() < 0.6 && this.parts.length < MAX_PARTS) {
+        this.parts.push({ x: st.x + rand(-2, 2), y: st.y + rand(-2, 2), vx: rand(-14, 14), vy: rand(-14, 14), life: 0, max: rand(0.35, 0.7), size: rand(0.8, 1.7), grow: 0, type: 0, tint: white });
+      }
+      for (const s of this.stars) if (Math.hypot(s.x - st.x, s.y - st.y) < s.r * 3) s.charge = 1;
+    }
+    this.flash *= Math.exp(-dt * 5);
+    const flash = Math.min(1, Math.max(this.flash, glow * 0.6));
 
     const W = this.canvas.width;
     const H = this.canvas.height;
@@ -662,11 +632,6 @@ export class GLStorm implements StormRenderer {
     gl.uniform1f(P.sky.u.uTime, time);
     gl.uniform1f(P.sky.u.uAspect, aspect);
     gl.uniform3f(P.sky.u.uFlash, this.flashAt[0], this.flashAt[1], flash);
-    gl.uniform1f(P.sky.u.uSheet, this.sheet * flash);
-    gl.uniform1f(P.sky.u.uBase, 1 - this.cloudBottom / this.h);
-    gl.uniform1f(P.sky.u.uStorm, this.intensity === 'storm' ? 1 : 0.55);
-    gl.uniform1f(P.sky.u.uHorizon, 0.44);
-    gl.uniform1f(P.sky.u.uShore, 0.2);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
     // 2. sky onto the screen
@@ -681,35 +646,27 @@ export class GLStorm implements StormRenderer {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-    // 3. rain
-    const rainCount = Math.floor(MAX_RAIN * this.rainFactor * (this.intensity === 'storm' ? 1 : 0.4) * Math.min(1.3, Math.max(0.35, (this.w * this.h) / (1440 * 900))));
-    gl.useProgram(P.rain.prog);
-    gl.uniform1f(P.rain.u.uTime, time);
-    gl.uniform2f(P.rain.u.uRes, this.w, this.h);
-    gl.uniform1f(P.rain.u.uWind, wind);
-    gl.uniform1f(P.rain.u.uTop, this.cloudBottom - 70);
-    gl.uniform1f(P.rain.u.uFlash, flash);
-    gl.bindVertexArray(this.vaoRain);
-    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, rainCount);
-
-    // 4. drops (refracting the sky texture)
+    // 3. currency stars
     let nd = 0;
-    for (const d of this.drops) {
-      if (nd >= MAX_DROPS) break;
-      const age = now - d.born;
-      const forming = d.born > 0 && age < 1.1;
-      const grow = forming ? 0.22 + 0.78 * Math.min(1, age / 1.1) ** 2 : 1;
-      const tint = rgbOf(d.code);
-      const stretch = forming ? 0.92 + 0.12 * Math.min(1, age) : 1 + Math.sin(d.phase * 1.7) * 0.045 + 0.03;
+    for (const s of this.stars) {
+      if (nd >= MAX_STARS) break;
+      const age = now - s.born;
+      const igniting = age < IGNITE;
+      const k = Math.min(1, age / IGNITE);
+      // born small and over-bright, settling into its size
+      const grow = igniting ? 0.15 + 0.85 * (1 - (1 - k) ** 3) : 1;
+      const left = s.life - age;
+      const fade = left < FADE ? Math.max(0, left / FADE) : 1;
+      const tint = rgbOf(s.code);
       const o = nd * 11;
-      this.dropData[o] = d.x;
-      this.dropData[o + 1] = d.y;
-      this.dropData[o + 2] = d.r * grow;
-      this.dropData[o + 3] = d.alpha * (forming ? Math.min(1, age * 2.5) : 1);
-      this.dropData[o + 4] = this.glyphIndex.get(d.code) ?? 0;
-      this.dropData[o + 5] = d.charge;
-      this.dropData[o + 6] = stretch;
-      this.dropData[o + 7] = Math.sin(d.phase) * 0.06 + wind * 0.3;
+      this.dropData[o] = s.x;
+      this.dropData[o + 1] = s.y;
+      this.dropData[o + 2] = s.r * grow * (0.7 + 0.3 * fade);
+      this.dropData[o + 3] = s.alpha * Math.min(1, k * 3) * fade;
+      this.dropData[o + 4] = this.glyphIndex.get(s.code) ?? 0;
+      this.dropData[o + 5] = Math.max(s.charge, igniting ? (1 - k) * 1.2 : 0);
+      this.dropData[o + 6] = 0.5 + 0.5 * Math.sin(s.phase);
+      this.dropData[o + 7] = 0;
       this.dropData[o + 8] = tint[0];
       this.dropData[o + 9] = tint[1];
       this.dropData[o + 10] = tint[2];
@@ -721,9 +678,6 @@ export class GLStorm implements StormRenderer {
       gl.useProgram(P.drop.prog);
       gl.uniform2f(P.drop.u.uRes, this.w, this.h);
       gl.uniform1f(P.drop.u.uFlash, flash);
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, this.sky!.tex);
-      gl.uniform1i(P.drop.u.uSky, 0);
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, this.atlas);
       gl.uniform1i(P.drop.u.uAtlas, 1);
@@ -732,34 +686,36 @@ export class GLStorm implements StormRenderer {
       gl.activeTexture(gl.TEXTURE0);
     }
 
-    // 5. splashes
+    // 4. sparkles, added so they glow
     const np = Math.min(this.parts.length, MAX_PARTS);
     if (np) {
       for (let i = 0; i < np; i++) {
         const p = this.parts[i];
         const k = p.life / p.max;
+        const tw = p.type === 0 ? 0.7 + 0.3 * Math.sin(p.life * 30 + i) : 1;
         const o = i * 8;
         this.partData[o] = p.x;
         this.partData[o + 1] = p.y;
         this.partData[o + 2] = p.size;
-        this.partData[o + 3] = p.type === 0 ? (1 - k) * 0.85 : (1 - k) * 0.55;
+        this.partData[o + 3] = (p.type === 0 ? (1 - k) * 0.95 : (1 - k) ** 1.5 * 0.8) * tw;
         this.partData[o + 4] = p.type;
         this.partData[o + 5] = p.tint[0];
         this.partData[o + 6] = p.tint[1];
         this.partData[o + 7] = p.tint[2];
       }
+      gl.blendFunc(gl.ONE, gl.ONE);
       gl.bindBuffer(gl.ARRAY_BUFFER, this.bufPart);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.partData.subarray(0, np * 8));
       gl.useProgram(P.part.prog);
       gl.uniform2f(P.part.u.uRes, this.w, this.h);
-      gl.uniform1f(P.part.u.uFlash, flash);
+      gl.uniform1f(P.part.u.uFlash, 0);
       gl.bindVertexArray(this.vaoPart);
       gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, np);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    // 6. lightning: bloom from a half-resolution pass, then a crisp core on top
-    this.bolts = this.bolts.filter((b) => now - b.born < b.life);
-    if (this.bolts.length) {
+    // 5. shooting stars: bloom from a half-resolution pass, then a crisp core on top
+    if (this.meteors.length) {
       const draw = (widthScale: number, sharp: number, color: [number, number, number], gain: number) => {
         gl.useProgram(P.bolt.prog);
         gl.uniform2f(P.bolt.u.uRes, this.w, this.h);
@@ -767,21 +723,12 @@ export class GLStorm implements StormRenderer {
         gl.uniform3f(P.bolt.u.uColor, color[0], color[1], color[2]);
         gl.uniform1f(P.bolt.u.uSharp, sharp);
         gl.bindVertexArray(this.vaoBolt);
-        for (const b of this.bolts) {
-          const age = now - b.born;
-          let reveal = 1;
-          let intensity: number;
-          if (age < b.leader) {
-            reveal = age / b.leader;
-            intensity = 0.22;
-          } else {
-            intensity = Math.exp(-(age - b.leader) * 11);
-            if (age > b.restrike) intensity += 0.8 * Math.exp(-(age - b.restrike) * 13);
-            intensity = Math.max(intensity, 0.05 * (1 - age / b.life));
-          }
-          gl.uniform1f(P.bolt.u.uIntensity, intensity * gain);
-          gl.uniform1f(P.bolt.u.uReveal, reveal);
-          b.offsets.forEach((off, i) => gl.drawArrays(gl.TRIANGLE_STRIP, off, b.count[i]));
+        for (const m of this.meteors) {
+          const st = this.meteorState(m, now);
+          gl.uniform1f(P.bolt.u.uIntensity, st.intensity * gain);
+          gl.uniform1f(P.bolt.u.uReveal, st.reveal);
+          gl.uniform1f(P.bolt.u.uTail, m.tail);
+          gl.drawArrays(gl.TRIANGLE_STRIP, m.offset, m.count);
         }
       };
       gl.blendFunc(gl.ONE, gl.ONE);
@@ -789,10 +736,10 @@ export class GLStorm implements StormRenderer {
       gl.viewport(0, 0, this.boltRT!.w, this.boltRT!.h);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
-      draw(1.0, 2.4, [0.52, 0.58, 1.0], 0.9);
-      draw(0.22, 3.2, [0.95, 0.93, 1.0], 1.2);
+      draw(1.0, 2.2, [0.5, 0.66, 1.0], 1.2);
+      draw(0.35, 3.0, [0.95, 0.96, 1.0], 1.6);
 
-      // blur: bolt -> A (horizontal) -> B (vertical) -> A (horizontal) -> B (vertical)
+      // blur: meteor -> A (horizontal) -> B (vertical) -> A (horizontal) -> B (vertical)
       gl.disable(gl.BLEND);
       gl.useProgram(P.blur.prog);
       gl.bindVertexArray(this.vaoEmpty);
@@ -816,16 +763,16 @@ export class GLStorm implements StormRenderer {
       gl.useProgram(P.add.prog);
       gl.uniform1i(P.add.u.uTex, 0);
       gl.bindTexture(gl.TEXTURE_2D, this.blurB!.tex);
-      gl.uniform1f(P.add.u.uStrength, 1.7);
+      gl.uniform1f(P.add.u.uStrength, 1.9);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       gl.bindTexture(gl.TEXTURE_2D, this.boltRT!.tex);
-      gl.uniform1f(P.add.u.uStrength, 0.45);
+      gl.uniform1f(P.add.u.uStrength, 0.4);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-      draw(0.12, 2.8, [1.0, 0.98, 1.0], 2.0);
+      draw(0.22, 2.6, [1.0, 1.0, 1.0], 2.2);
     }
 
-    // 7. lens: vignette and grain, multiplied
+    // 6. lens: vignette and grain, multiplied
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.DST_COLOR, gl.ZERO);
     gl.useProgram(P.overlay.prog);

@@ -1,7 +1,7 @@
-/* Downpour — storm theme. Tokens first, then base, then shared components. */
+/* Starmint — space theme. Tokens first, then base, then shared components. */
 
 :root {
-  --bg: #070b16;
+  --bg: #05040f;
   --ink: #eef3ff;
   --ink-2: #b7c3da;
   --ink-3: #7f8ca8;
@@ -14,8 +14,8 @@
   --bolt: #ffe066;
   --bolt-2: #fff1a8;
   --bolt-ink: #1b1500;
-  --rain: #7cc4ff;
-  --rain-2: #a9dbff;
+  --rain: #b9a8ff;
+  --rain-2: #d8cfff;
   --up: #3ddc97;
   --down: #ff6b81;
   --warn: #ffb454;
@@ -90,7 +90,7 @@ img {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: #06090f;
+  background: #05040f;
 }
 
 .storm-canvas {
@@ -186,11 +186,11 @@ h4 {
   color: var(--down);
 }
 
-.bolt-text {
+.gold-text {
   color: var(--bolt);
 }
 
-.rain-text {
+.accent-text {
   color: var(--rain);
 }
 
@@ -216,7 +216,7 @@ h4 {
   position: relative;
 }
 
-/* rain running down wet glass, only a hint */
+/* a soft sheen along the top edge of glass */
 .panel::before,
 .card::before {
   content: '';
@@ -666,7 +666,7 @@ textarea.input:focus {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #4f9dff, var(--rain));
+  background: linear-gradient(90deg, #3fa8ff, var(--rain));
 }
 
 .bar.full > i {

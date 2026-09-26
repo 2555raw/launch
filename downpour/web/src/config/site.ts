@@ -1,13 +1,13 @@
 /* Everything a fork would rename lives here. */
 
 export const SITE = {
-  name: 'Downpour',
-  tagline: 'Make it rain in any currency.',
-  footerLine: 'Coins that fall in the money you already use.',
+  name: 'Starmint',
+  tagline: 'Mint a star in any currency.',
+  footerLine: 'Coins that shine in the money you already use.',
   /** The platform's own token, shown in the bar under the nav. Leave `address`
    *  empty until it exists and the bar says so instead of showing a fake CA. */
   token: {
-    symbol: '$POUR',
+    symbol: '$SMNT',
     address: '' as string,
     chainLabel: 'Robinhood Chain',
     chainId: 4663,

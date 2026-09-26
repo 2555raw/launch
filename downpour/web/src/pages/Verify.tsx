@@ -279,7 +279,7 @@ export default function Verify() {
         <div className="panel" style={{ marginTop: 30 }}>
           <b>Run the same checks from a terminal</b>
           <p className="muted small">If this page and the script ever disagree, trust the script: it is short enough to read.</p>
-          <div className="code-block">{`cd downpour && npm install
+          <div className="code-block">{`cd starmint && npm install
 node scripts/verify.mjs \\
   --rpc ${rpc || 'https://…'} \\
   --pad ${padAddr || '0x…'} \\

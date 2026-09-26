@@ -12,8 +12,8 @@ import type { DiscoveredWallet, Eip1193Provider } from './types';
  *  - a guest: a random address kept in this browser, for trying the playground
  *    without installing anything. Guests can never sign, so live mode ignores them. */
 
-const LAST_WALLET = 'downpour:last-wallet';
-const GUEST_KEY = 'downpour:guest';
+const LAST_WALLET = 'starmint:last-wallet';
+const GUEST_KEY = 'starmint:guest';
 
 type Status = 'disconnected' | 'connecting' | 'connected';
 

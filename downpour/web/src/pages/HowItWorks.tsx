@@ -28,7 +28,7 @@ export default function HowItWorks() {
   return (
     <div className="wrap">
       <PageHead
-        kicker="Under the clouds"
+        kicker="Inside the engine"
         title="How it works"
         lead="Six parts, every one of them enforced by the contracts. Nothing on this page is a promise that lives only on a website."
       />
@@ -45,7 +45,7 @@ export default function HowItWorks() {
         </div>
         <div className="panel">
           <div style={{ marginBottom: 14 }}>
-            <PairBadge coin={{ symbol: 'BOLT' }} currency={eur ?? { code: 'EUR', color: '#5b8cff', name: 'Euro' }} size="lg" />
+            <PairBadge coin={{ symbol: 'PULSAR' }} currency={eur ?? { code: 'EUR', color: '#5b8cff', name: 'Euro' }} size="lg" />
           </div>
           <div className="kv">
             <span>Chosen</span>
@@ -143,7 +143,7 @@ export default function HowItWorks() {
           </p>
           <p>
             A run on one currency cannot reach another: a sale is paid from that coin's own backing, in that coin's own currency.{' '}
-            <Link to="/proof" className="rain-text">
+            <Link to="/proof" className="accent-text">
               The Proof page
             </Link>{' '}
             recomputes this for every market while you watch.

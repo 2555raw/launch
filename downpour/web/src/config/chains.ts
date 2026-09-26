@@ -32,7 +32,7 @@ export const KNOWN_CHAINS: ChainMeta[] = [
   { id: 8453, name: 'Base', rpc: 'https://mainnet.base.org', explorer: 'https://basescan.org', testnet: false },
   { id: 84532, name: 'Base Sepolia', rpc: 'https://sepolia.base.org', explorer: 'https://sepolia.basescan.org', faucet: 'https://www.alchemy.com/faucets/base-sepolia', testnet: true },
   { id: 11155111, name: 'Sepolia', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', explorer: 'https://sepolia.etherscan.io', faucet: 'https://www.alchemy.com/faucets/ethereum-sepolia', testnet: true },
-  { id: 31337, name: 'Local storm', rpc: 'http://127.0.0.1:8545', explorer: '', testnet: true },
+  { id: 31337, name: 'Local galaxy', rpc: 'http://127.0.0.1:8545', explorer: '', testnet: true },
 ];
 
 // Local deployments live in a git-ignored file; only a dev server or a build

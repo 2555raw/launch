@@ -24,22 +24,22 @@ const tokenOf = Object.fromEntries(currencyList.map((c) => [c.code, c.token]));
 /* Original demo coins: a name, a ticker, the currency it is paired with, a line of
  * description, and how hard the crowd piles in (share of the curve to fill). */
 const COINS = [
-  ['Tokyo Drizzle', 'DRIZZLE', 'JPY', 'Light rain over Shibuya, priced in yen.', 0.55],
-  ['Samba Squall', 'SQUALL', 'BRL', 'A carnival gust that only moves in reais.', 0.72],
-  ['Monsoon Masala', 'MASALA', 'INR', 'Four months of rain, one very spicy coin.', 0.38],
-  ['Baguette Bolt', 'BOLT', 'EUR', 'Struck by lightning outside a Paris bakery.', 0.86],
-  ['Lagos Thunder', 'THUNDA', 'NGN', 'Loud, bright and denominated in naira.', 0.47],
-  ['Seoul Shower', 'SHOWER', 'KRW', 'A quick one on the way to the subway.', 0.29],
-  ['Mariachi Mist', 'MIST', 'MXN', 'Fine mist, full band, paid in pesos.', 0.63],
-  ['Teatime Tempest', 'TEMPEST', 'GBP', 'Brewing since four o’clock.', 0.21],
-  ['Alpine Hail', 'HAIL', 'CHF', 'Small, cold, very precise. Swiss francs only.', 0.34],
-  ['Bosphorus Puddle', 'PUDDLE', 'TRY', 'Every step splashes lira.', 0.18],
-  ['Pho Flood', 'FLOOD', 'VND', 'A bowl that overflowed into the street.', 0.42],
-  ['Braai Rain', 'BRAAI', 'ZAR', 'Never cancels the barbecue.', 0.26],
-  ['Nugget Rain', 'NUGGET', 'XAU', 'It rains gold, measured in ounces.', 0.33],
-  ['Buck Storm', 'BUCK', 'USD', 'Rained so hard it flooded into its own pool.', 1.0],
-  ['Outback Downpour', 'OUTBACK', 'AUD', 'Once a decade, all at once.', 0.51],
-  ['Maple Sleet', 'SLEET', 'CAD', 'Half snow, half syrup.', 0.15],
+  ['Tokyo Comet', 'COMET', 'JPY', 'A bright tail over Shibuya, priced in yen.', 0.55],
+  ['Samba Nebula', 'NEBULA', 'BRL', 'A carnival of gas and dust that only moves in reais.', 0.72],
+  ['Masala Moon', 'MOON', 'INR', 'Full every night, very spicy, paid in rupees.', 0.38],
+  ['Paris Pulsar', 'PULSAR', 'EUR', 'Blinks once a second from the top of a bakery.', 0.86],
+  ['Lagos Orbit', 'ORBIT', 'NGN', 'Round and round, denominated in naira.', 0.47],
+  ['Seoul Satellite', 'SAT', 'KRW', 'Always overhead on the way to the subway.', 0.29],
+  ['Mariachi Meteor', 'METEOR', 'MXN', 'Full band, bright streak, paid in pesos.', 0.63],
+  ['Teatime Telescope', 'SCOPE', 'GBP', 'Looking up since four o’clock.', 0.21],
+  ['Alpine Aurora', 'AURORA', 'CHF', 'Green curtains, very precise. Swiss francs only.', 0.34],
+  ['Bosphorus Quasar', 'QUASAR', 'TRY', 'The brightest thing for a billion lira.', 0.18],
+  ['Pho Photon', 'PHOTON', 'VND', 'Light from a bowl that never cools.', 0.42],
+  ['Braai Blackhole', 'BHOLE', 'ZAR', 'Everything goes in, nothing comes back.', 0.26],
+  ['Golden Galaxy', 'GALAXY', 'XAU', 'A hundred billion stars, measured in ounces.', 0.33],
+  ['Buck Supernova', 'NOVA', 'USD', 'Burned so bright it collapsed into its own pool.', 1.0],
+  ['Outback Stardust', 'DUST', 'AUD', 'Settles on everything, once a decade.', 0.51],
+  ['Maple Moonbeam', 'BEAM', 'CAD', 'Half light, half syrup.', 0.15],
 ];
 
 const traders = light ? [ctx.account] : [1, 2, 3, 4, 5, 6].map((i) => devAccount(i));

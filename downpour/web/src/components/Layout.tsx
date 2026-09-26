@@ -163,7 +163,7 @@ function Toasts() {
             </div>
             <div className="small">{text}</div>
             {href && (
-              <a className="small rain-text" href={href} target="_blank" rel="noreferrer">
+              <a className="small accent-text" href={href} target="_blank" rel="noreferrer">
                 View transaction ↗
               </a>
             )}

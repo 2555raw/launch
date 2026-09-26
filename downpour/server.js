@@ -66,4 +66,4 @@ http
       send(res, path.join(ROOT, 'index.html'));
     });
   })
-  .listen(PORT, () => console.log(`Downpour on :${PORT}`));
+  .listen(PORT, () => console.log(`Starmint on :${PORT}`));

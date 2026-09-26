@@ -3,7 +3,7 @@ import { usePad } from '../backend/PadProvider';
 import type { Address } from '../backend/types';
 import { compact } from '../lib/format';
 import { amount } from '../lib/views';
-import { CoinDrop, CurrencyDot, Modal, PairBadge } from './bits';
+import { CoinOrb, CurrencyDot, Modal, PairBadge } from './bits';
 import { Search } from './icons';
 
 type Filter = 'all' | 'coins' | 'currencies';
@@ -82,7 +82,7 @@ export function TokenSelect({
                 onClose();
               }}
             >
-              <span className="token-mini">{coin ? <CoinDrop coin={coin} currency={cur} size={26} /> : cur && <CurrencyDot c={cur} size={30} />}</span>
+              <span className="token-mini">{coin ? <CoinOrb coin={coin} currency={cur} size={26} /> : cur && <CurrencyDot c={cur} size={30} />}</span>
               <span className="name">
                 {coin ? <PairBadge coin={coin} currency={cur} size="sm" /> : <b>{r.label}</b>}
                 <span className="muted small">{coin ? `${r.sub} · priced in ${cur?.name}` : r.sub}</span>

@@ -2,7 +2,7 @@ import { useWallet } from '../wallet/WalletProvider';
 import { isMobile, mobileDeepLinks } from '../wallet/discovery';
 import { usePad } from '../backend/PadProvider';
 import { Modal } from './bits';
-import { DropIcon } from './icons';
+import { StarIcon } from './icons';
 
 const INSTALL = [
   { name: 'MetaMask', href: 'https://metamask.io/download/' },
@@ -29,7 +29,7 @@ export function ConnectModal() {
         <div className="wallet-list">
           {w.wallets.map((wal) => (
             <button key={wal.info.uuid} className="wallet-row" onClick={() => w.connect(wal)} disabled={w.status === 'connecting'}>
-              {wal.info.icon ? <img src={wal.info.icon} alt="" width={28} height={28} /> : <span className="wallet-fallback"><DropIcon /></span>}
+              {wal.info.icon ? <img src={wal.info.icon} alt="" width={28} height={28} /> : <span className="wallet-fallback"><StarIcon /></span>}
               <span>{wal.info.name}</span>
               <span className="muted small">{w.status === 'connecting' ? 'Check your wallet…' : 'Detected'}</span>
             </button>
@@ -54,7 +54,7 @@ export function ConnectModal() {
       {playground && (
         <button className="wallet-row guest" onClick={w.connectGuest}>
           <span className="wallet-fallback">
-            <DropIcon />
+            <StarIcon />
           </span>
           <span>Continue as a guest</span>
           <span className="muted small">Playground only · a random address kept in this browser</span>

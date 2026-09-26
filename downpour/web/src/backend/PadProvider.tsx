@@ -13,7 +13,7 @@ import type { Address, Backend, Coin, Currency, Snapshot, TxOptions, TxResult, T
  * the connected account's balances, and `run` for anything that writes. Which
  * backend sits underneath (live chain or playground) is a toggle. */
 
-const MODE_KEY = 'downpour:mode';
+const MODE_KEY = 'starmint:mode';
 
 export interface Toast {
   id: number;

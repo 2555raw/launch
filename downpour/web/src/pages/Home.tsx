@@ -5,7 +5,7 @@ import { useStorm } from '../storm/Storm';
 import { CoinCard, CoinCardSkeleton } from '../components/CoinCard';
 import { CurrencyDot } from '../components/bits';
 import { CORE_FAQ, CurveChart, Faq, KeeperLine, RecentFills } from '../components/sections';
-import { Arrow, Bolt } from '../components/icons';
+import { Arrow, Sparkle } from '../components/icons';
 import { CURRENCY_BY_CODE, HERO_WORDS, POPULAR } from '../data/currencies';
 import { sortRows, totalVolumeUsd, unitsPerUsd, useRows } from '../lib/views';
 import { compact, money, usd } from '../lib/format';
@@ -35,15 +35,15 @@ function StormControls() {
     <div className="hero-controls" data-solid>
       <div className="row small">
         <button className="link muted" onClick={storm.toggle}>
-          {storm.running ? 'Pause the storm' : 'Let it rain'}
+          {storm.running ? 'Pause the sky' : 'Let it shine'}
         </button>
         <span className="muted">/</span>
         <button className="link muted" onClick={() => storm.setIntensity(storm.intensity === 'storm' ? 'drizzle' : 'storm')}>
-          {storm.intensity === 'storm' ? 'Drizzle' : 'Full storm'}
+          {storm.intensity === 'storm' ? 'Calm sky' : 'Meteor shower'}
         </button>
       </div>
       <div className="small muted hero-hint">
-        <Bolt size={12} /> Tap the sky for lightning. Tap a drop to pop it.
+        <Sparkle size={12} /> Tap the sky for a shooting star. Tap a star to make it burst.
       </div>
       <a href="#coins" className="kicker hero-scroll">
         Scroll <Arrow dir="down" size={12} />
@@ -53,7 +53,7 @@ function StormControls() {
 }
 
 /** "If I put this much into a brand-new coin...": the curve in one card. */
-function DropCalculator() {
+function StarCalculator() {
   const pad = usePad();
   const [code, setCode] = useState('EUR');
   const [spendUsd, setSpendUsd] = useState(100);
@@ -118,7 +118,7 @@ export function Home() {
   const featured = useMemo(() => sortRows(rows, 'active').slice(0, 6), [rows]);
   const snap = pad.snap;
 
-  // Drops gather around the headline while the hero is on screen, then move to the margins.
+  // Stars gather around the headline while the hero is on screen, then move to the margins.
   const heroRef = useRef<HTMLElement>(null);
   const { setScene } = storm;
   useEffect(() => {
@@ -132,7 +132,7 @@ export function Home() {
     };
   }, [setScene]);
 
-  // Rain the currencies people actually launched in, plus the popular ones.
+  // Light up the currencies people actually launched in, plus the popular ones.
   useEffect(() => {
     const codes = new Set(POPULAR);
     rows.forEach((r) => codes.add(r.cur.code));
@@ -151,9 +151,9 @@ export function Home() {
     <>
       <section className="hero" data-sky ref={heroRef}>
         <div className="wrap hero-inner">
-          <div className="kicker">Every drop is a currency</div>
+          <div className="kicker">Every star is a currency</div>
           <h1 className="hero-title">
-            Make it rain
+            Mint a star
             <br />
             in any currency
           </h1>
@@ -162,7 +162,7 @@ export function Home() {
           </p>
           <div className="hero-cta" data-solid>
             <Link to="/launch" className="btn btn-primary btn-lg">
-              Launch a coin <Bolt />
+              Launch a coin <Sparkle />
             </Link>
             <Link to="/board" className="link">
               Browse the board <Arrow dir="right" />
@@ -178,7 +178,7 @@ export function Home() {
           <p className="intro-line">
             A meme can come from anywhere.
             <br />
-            <span className="rain-text">So can the money it trades in.</span>
+            <span className="accent-text">So can the money it trades in.</span>
           </p>
         </div>
       </section>
@@ -187,8 +187,8 @@ export function Home() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <div className="kicker">Falling right now</div>
-              <h2 className="h-section">Catch a coin</h2>
+              <div className="kicker">Shining right now</div>
+              <h2 className="h-section">Pick a star</h2>
               <p className="lead">
                 Every coin is paired with one of {snap?.currencies.length ?? 147} currencies, picked at launch and fixed for good. The badge on each card
                 says which: <b>coin / currency</b>.
@@ -213,8 +213,8 @@ export function Home() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <div className="kicker">Storm report</div>
-              <h2 className="h-section">What the sky is doing</h2>
+              <div className="kicker">Mission control</div>
+              <h2 className="h-section">What the universe is doing</h2>
             </div>
             <Link to="/how-it-works" className="link">
               How the curve works <Arrow />
@@ -268,7 +268,7 @@ export function Home() {
       <section className="section">
         <div className="wrap grid grid-2 steps-wrap">
           <div>
-            <div className="kicker">Three steps to a storm</div>
+            <div className="kicker">Three steps to a new star</div>
             <h2 className="h-section">
               Pick the money.
               <br />
@@ -292,13 +292,13 @@ export function Home() {
               <li>
                 <span className="step-n">03</span>
                 <div>
-                  <b>Let it fall.</b>
+                  <b>Watch it rise.</b>
                   <p className="muted small">People buy and sell in your currency. You earn half of every trade fee, paid in that same currency.</p>
                 </div>
               </li>
             </ol>
           </div>
-          <DropCalculator />
+          <StarCalculator />
         </div>
       </section>
 
@@ -395,10 +395,10 @@ export function Home() {
 
       <section className="section final" data-sky>
         <div className="wrap center">
-          <div className="kicker">The forecast is up to you</div>
-          <h2 className="final-title">Your coin. Your currency. Your storm.</h2>
+          <div className="kicker">The sky has room for one more</div>
+          <h2 className="final-title">Your coin. Your currency. Your star.</h2>
           <Link to="/launch" className="btn btn-primary btn-lg" data-solid>
-            Launch a coin <Bolt />
+            Launch a coin <Sparkle />
           </Link>
         </div>
       </section>

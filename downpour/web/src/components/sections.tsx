@@ -129,7 +129,7 @@ export function Faq({ items, open: initial = 0 }: { items: Array<[string, ReactN
 export const CORE_FAQ: Array<[string, ReactNode]> = [
   [
     'What does it mean that a coin is paired with a currency?',
-    'When you launch, you choose one currency from the desk: euros, yen, naira, gold, anything listed. Every buy is paid in it, every sell pays out in it, the price is quoted in it and the fees are collected in it. The badge on each coin, like BOLT / EUR, is that pairing.',
+    'When you launch, you choose one currency from the desk: euros, yen, naira, gold, anything listed. Every buy is paid in it, every sell pays out in it, the price is quoted in it and the fees are collected in it. The badge on each coin, like PULSAR / EUR, is that pairing.',
   ],
   [
     'Can the currency be changed after launch?',

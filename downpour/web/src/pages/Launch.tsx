@@ -4,8 +4,8 @@ import { usePad } from '../backend/PadProvider';
 import type { Address } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { CurrencyPicker } from '../components/CurrencyPicker';
-import { Drop, PageHead, PairBadge } from '../components/bits';
-import { Bolt } from '../components/icons';
+import { Orb, PageHead, PairBadge } from '../components/bits';
+import { Sparkle } from '../components/icons';
 import { dropGlyph } from '../data/currencies';
 import { compact, money, parseAmount, usd } from '../lib/format';
 import { amount, unitsPerUsd } from '../lib/views';
@@ -111,14 +111,14 @@ export default function Launch() {
     <div className="wrap">
       <PageHead
         kicker="Launch"
-        title="Start a storm"
+        title="Light a new star"
         lead="A name, a ticker and a currency. The market opens in the same transaction, and the currency you pick is the one your coin trades in for as long as it exists."
       />
       <div className="launch-layout">
         <form className="panel" data-solid onSubmit={(e) => (e.preventDefault(), action.onClick?.())}>
           <div className="field">
             <label htmlFor="name">Coin name</label>
-            <input id="name" className={`input ${name && !nameOk ? 'bad' : ''}`} placeholder="Lisbon Drizzle" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} />
+            <input id="name" className={`input ${name && !nameOk ? 'bad' : ''}`} placeholder="Lisbon Lightyear" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} />
             <span className="hint">Up to 40 characters. It is what people read on the board.</span>
           </div>
           <div className="field">
@@ -126,12 +126,12 @@ export default function Launch() {
             <input
               id="ticker"
               className={`input mono ${ticker && !tickerOk ? 'bad' : ''}`}
-              placeholder="DRIZZLE"
+              placeholder="LIGHT"
               value={ticker}
               onChange={(e) => setTicker(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
             />
             <span className="hint">
-              Capital letters and digits, up to 10.{symbolTaken && <span className="bolt-text"> Another coin already uses {ticker}; that is allowed, but buyers may mix them up.</span>}
+              Capital letters and digits, up to 10.{symbolTaken && <span className="gold-text"> Another coin already uses {ticker}; that is allowed, but buyers may mix them up.</span>}
             </span>
           </div>
           <div className="field">
@@ -192,7 +192,7 @@ export default function Launch() {
           )}
 
           <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={action.disabled}>
-            {!action.disabled && <Bolt />} {action.label}
+            {!action.disabled && <Sparkle />} {action.label}
           </button>
           <p className="hint center" style={{ marginBottom: 0 }}>
             The currency cannot be changed after launch. Pick the money your buyers already use.
@@ -203,8 +203,8 @@ export default function Launch() {
           <div className="card" style={{ '--c': cur?.color ?? '#7cc4ff' } as React.CSSProperties}>
             <div className="preview">
               <span className="cc-code">{cur?.code}</span>
-              <div className="cc-drop">
-                <Drop color={cur?.color ?? '#7cc4ff'} glyph={cur ? dropGlyph(cur.code) : '?'} image={image || undefined} size={96} />
+              <div className="cc-orb">
+                <Orb color={cur?.color ?? '#7cc4ff'} glyph={cur ? dropGlyph(cur.code) : '?'} image={image || undefined} size={96} />
               </div>
               <span className="cc-ticker">{ticker || 'TICKER'}</span>
             </div>

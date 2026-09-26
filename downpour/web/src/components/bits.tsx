@@ -5,15 +5,12 @@ import { imageSrc } from '../lib/meta';
 import type { Coin, Currency } from '../backend/types';
 import { Close } from './icons';
 
-/* ------------------------------ drops & badges ------------------------------ */
+/* ------------------------------ stars & badges ------------------------------ */
 
-/** A water drop, drawn to look like the real thing: clear water that shows a
- *  flipped, darker sky, a dark band inside the rim, a hairline of light at the
- *  edge, a sharp highlight, light focused into a caustic, a hint of the currency's
- *  color, and the currency sign (or the coin's picture) inside. */
-const DROP_PATH = 'M32 3C32 3 7 34 7 50a25 25 0 0 0 50 0C57 34 32 3 32 3z';
-
-export function Drop({
+/** A currency star: a small glowing world in the currency's colour, lit from the
+ *  upper left with a bright limb, a soft halo and four diffraction spikes, and the
+ *  currency sign (or the coin's picture) on its face. */
+export function Orb({
   color,
   glyph,
   size = 44,
@@ -28,61 +25,58 @@ export function Drop({
 }) {
   const id = useId().replace(/:/g, '');
   const len = [...glyph].length;
-  const fs = len >= 4 ? 13 : len === 3 ? 16 : len === 2 ? 20 : 25;
+  const fs = len >= 4 ? 10 : len === 3 ? 12 : len === 2 ? 15 : 19;
   return (
-    <svg width={size} height={size * 1.25} viewBox="0 0 64 80" aria-label={label} role={label ? 'img' : undefined}>
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-label={label} role={label ? 'img' : undefined} className="orb">
       <defs>
-        {/* the sky seen through the drop, flipped: lighter below, darker above */}
-        <linearGradient id={`w${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#0d1422" stopOpacity="0.72" />
-          <stop offset="0.55" stopColor="#1a2436" stopOpacity="0.62" />
-          <stop offset="1" stopColor="#4a5d7c" stopOpacity="0.7" />
-        </linearGradient>
-        <radialGradient id={`r${id}`} cx="32" cy="50" r="25" gradientUnits="userSpaceOnUse">
-          <stop offset="0.62" stopColor="#000" stopOpacity="0" />
-          <stop offset="0.86" stopColor="#02050c" stopOpacity="0.42" />
-          <stop offset="1" stopColor="#02050c" stopOpacity="0.62" />
-        </radialGradient>
-        <radialGradient id={`k${id}`} cx="39" cy="66" r="13" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor={color} stopOpacity="0.85" />
-          <stop offset="0.45" stopColor={color} stopOpacity="0.28" />
+        <radialGradient id={`h${id}`} cx="32" cy="32" r="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0.5" stopColor={color} stopOpacity="0.55" />
+          <stop offset="0.72" stopColor={color} stopOpacity="0.16" />
           <stop offset="1" stopColor={color} stopOpacity="0" />
         </radialGradient>
-        <radialGradient id={`s${id}`} cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.95" />
-          <stop offset="0.6" stopColor="#fff" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        <radialGradient id={`b${id}`} cx="25" cy="23" r="26" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="0.28" stopColor={color} />
+          <stop offset="0.78" stopColor={color} />
+          <stop offset="1" stopColor="#0b0724" />
         </radialGradient>
-        <linearGradient id={`e${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.7" />
-          <stop offset="0.5" stopColor="#dfe8ff" stopOpacity="0.25" />
-          <stop offset="1" stopColor="#fff" stopOpacity="0.4" />
+        <radialGradient id={`l${id}`} cx="32" cy="32" r="20" gradientUnits="userSpaceOnUse">
+          <stop offset="0.72" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0.96" stopColor="#fff" stopOpacity="0.45" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0.7" />
+        </radialGradient>
+        <linearGradient id={`sx${id}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#fff" stopOpacity="0.9" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={`sy${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#fff" stopOpacity="0.9" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
         <clipPath id={`c${id}`}>
-          <path d={DROP_PATH} />
+          <circle cx="32" cy="32" r="20" />
         </clipPath>
       </defs>
-      <path d={DROP_PATH} fill={`url(#w${id})`} />
-      <path d={DROP_PATH} fill={color} opacity="0.2" />
+      <circle cx="32" cy="32" r="32" fill={`url(#h${id})`} />
+      <rect x="0" y="31.2" width="64" height="1.6" rx="0.8" fill={`url(#sx${id})`} />
+      <rect x="31.2" y="0" width="1.6" height="64" rx="0.8" fill={`url(#sy${id})`} />
+      <circle cx="32" cy="32" r="20" fill={`url(#b${id})`} />
       {image ? (
-        <image href={imageSrc(image)} x="7" y="25" width="50" height="50" clipPath={`url(#c${id})`} preserveAspectRatio="xMidYMid slice" opacity="0.92" />
+        <image href={imageSrc(image)} x="12" y="12" width="40" height="40" clipPath={`url(#c${id})`} preserveAspectRatio="xMidYMid slice" opacity="0.95" />
       ) : (
-        <g fontFamily="Sora Variable, Sora, system-ui" fontWeight="800" fontSize={fs} textAnchor="middle">
-          <text x="32.8" y="57.6" fill="#02050c" opacity="0.45">
+        <g fontFamily="Sora Variable, Sora, system-ui" fontWeight="800" fontSize={fs} textAnchor="middle" dominantBaseline="central">
+          <text x="32.6" y="33.2" fill="#0b0724" opacity="0.35">
             {glyph}
           </text>
-          <text x="32" y="56.6" fill="#f3f7ff" opacity="0.94">
+          <text x="32" y="32.4" fill="#fffdf5">
             {glyph}
           </text>
         </g>
       )}
-      <g clipPath={`url(#c${id})`}>
-        <circle cx="39" cy="66" r="13" fill={`url(#k${id})`} />
-        <path d={DROP_PATH} fill={`url(#r${id})`} />
-      </g>
-      <path d={DROP_PATH} fill="none" stroke={`url(#e${id})`} strokeWidth="0.9" />
-      <ellipse cx="18.5" cy="39" rx="3.1" ry="6.2" fill={`url(#s${id})`} transform="rotate(-30 18.5 39)" />
-      <circle cx="45.5" cy="63.5" r="1.3" fill="#fff" opacity="0.55" />
+      <circle cx="32" cy="32" r="20" fill={`url(#l${id})`} />
+      <ellipse cx="24.5" cy="22.5" rx="5" ry="3" fill="#fff" opacity="0.5" transform="rotate(-35 24.5 22.5)" />
     </svg>
   );
 }
@@ -92,7 +86,7 @@ export function CurrencyDot({ c, size = 26 }: { c: Pick<Currency, 'code' | 'colo
   return (
     <span
       className="cur-dot"
-      style={{ width: size, height: size, fontSize: [...g].length > 2 ? size * 0.3 : size * 0.44, background: `radial-gradient(circle at 35% 30%, #ffffffcc, ${c.color} 38%, ${c.color} 70%, #0a1226)` }}
+      style={{ width: size, height: size, fontSize: [...g].length > 2 ? size * 0.3 : size * 0.44, background: `radial-gradient(circle at 35% 30%, #ffffffcc, ${c.color} 38%, ${c.color} 70%, #0b0724)` }}
       aria-hidden="true"
     >
       {g}
@@ -115,21 +109,21 @@ export function PairBadge({ coin, currency, size = 'md' }: { coin: Pick<Coin, 's
   );
 }
 
-export function CoinDrop({ coin, currency, size = 44 }: { coin: Coin; currency?: Currency; size?: number }) {
+export function CoinOrb({ coin, currency, size = 44 }: { coin: Coin; currency?: Currency; size?: number }) {
   return (
-    <Drop
+    <Orb
       color={currency?.color ?? '#7cc4ff'}
       glyph={currency ? dropGlyph(currency.code) : coin.symbol.slice(0, 2)}
       image={coin.meta.image || undefined}
       size={size}
-      label={`${coin.symbol} drop in ${currency?.code ?? ''}`}
+      label={`${coin.symbol} star in ${currency?.code ?? ''}`}
     />
   );
 }
 
 export function StatusPill({ coin, now }: { coin: Coin; now: number }) {
   if (coin.graduated) return <span className="pill pool">In the pool</span>;
-  if (now - coin.createdAt < 3600) return <span className="pill new">Just fell</span>;
+  if (now - coin.createdAt < 3600) return <span className="pill new">Newborn</span>;
   return <span className="pill curve">On the curve</span>;
 }
 

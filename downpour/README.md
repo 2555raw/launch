@@ -1,23 +1,23 @@
-# Downpour
+# Starmint
 
-A storm-themed token launchpad where every coin is paired with a currency.
+A star-themed token launchpad where every coin is paired with a currency.
 
 You pick one of 147 currencies when you launch (euros, yen, naira, pesos, gold,
 bitcoin…) and the coin trades in it for as long as it exists: buys are paid in
 it, sells pay out in it, the price is quoted in it and fees are collected in it.
 The pairing is shown everywhere as a badge, coin on the left and currency on the
-right, e.g. `BOLT / € EUR`.
+right, e.g. `PULSAR / € EUR`.
 
-The sky behind the pages is a storm rendered on the GPU (WebGL2): a deck of
-turbulent storm cloud with rain curtains under it, a few thousand rain streaks at
-three depths, and big water drops that each carry a currency sign. The drops
-refract the sky behind them (flipped, as a real drop does), with Fresnel
-reflection, a dark rim, highlights and a caustic in the currency's color, and
-they splash when they land or when you tap them. Lightning comes as a stepped
-leader, a return stroke and a restrike, bloomed, lighting the clouds from inside;
-tap the empty sky to call a bolt down where you tapped. Resolution drops by itself
-on slow devices, browsers without WebGL2 get a 2D version (also reachable with
-`?storm2d`), flashes are capped, and nothing moves under `prefers-reduced-motion`.
+The sky behind the pages is deep space rendered on the GPU (WebGL2): layered
+starfields that twinkle, drifting nebulae, a galaxy band with dust lanes, a far
+spiral galaxy and the limb of a planet with a glowing atmosphere. Every currency is
+a star: a glowing orb in the currency's colour with a halo, diffraction spikes and
+its sign on the face. Stars are born with a flare, drift slowly upward and fade
+out; tap one and it bursts into sparks with a shockwave. Shooting stars cross the
+sky on their own (a meteor shower, or now and then when calm), bloomed and lighting
+the nebula they pass; tap the empty sky to send one through that point. Resolution
+drops by itself on slow devices, browsers without WebGL2 get a 2D version (also
+reachable with `?storm2d`), and nothing moves under `prefers-reduced-motion`.
 
 ## What works
 
@@ -72,7 +72,7 @@ on slow devices, browsers without WebGL2 get a 2D version (also reachable with
 contracts/   Solidity (Foundry): Coin, TestCurrency, CurrencyDesk, Launchpad, Router + tests
 scripts/     deploy, seed, keeper, verify, dev (local chain), build-artifacts
 shared/      currencies.json (the 147 currencies and reference rates), artifacts.json (ABIs + bytecode)
-web/         the site: Vite + React + TypeScript + viem; web/src/storm is the WebGL storm
+web/         the site: Vite + React + TypeScript + viem; web/src/storm is the WebGL sky
 e2e/         browser tests (Playwright) for live and playground modes
 server.js    serves dist/ as a single-page app (Railway)
 ```
@@ -80,7 +80,7 @@ server.js    serves dist/ as a single-page app (Railway)
 ## Run it
 
 ```bash
-cd downpour
+cd downpour   # the project folder
 npm install
 npm run dev            # http://localhost:5173, opens in the playground
 ```
@@ -143,7 +143,8 @@ stablecoins (`CurrencyDesk.listCurrency`) rather than mint test ones.
 ## Host the site
 
 It is live at https://downpour-production.up.railway.app (Railway service
-`downpour`, root directory `downpour`, deploying this branch on every push). To
+`downpour`, root directory `downpour`, deploying this branch on every push; the
+service and folder keep the project's first name). To
 set up another one, point a Railway service at this repository with root
 directory `downpour`; it runs `npm run build` and `node server.js` (the server
 answers on `PORT`, or 8080).

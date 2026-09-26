@@ -20,7 +20,7 @@ import {
 import { MAX_META_BYTES } from '../lib/meta';
 import type { Address, Backend, Coin, CreateCoinInput, Currency, Params, RateMove, Snapshot, Trade, TxOptions } from './types';
 
-const KEY = 'downpour:playground:v1';
+const KEY = 'starmint:playground:v1';
 const MAX_TRADES = 2600;
 const STARTING_USD = 1_000n * WAD; // every currency, for every new address
 export const PLAYGROUND_TREASURY = '0x000000000000000000000000000000000000dEaD' as Address;
@@ -79,7 +79,7 @@ function rateWad(rate: number) {
 const replacer = (_: string, v: unknown) => (typeof v === 'bigint' ? { $b: v.toString() } : v);
 const reviver = (_: string, v: any) => (v && typeof v === 'object' && '$b' in v ? BigInt(v.$b) : v);
 
-const BOTS: Address[] = Array.from({ length: 9 }, (_, i) => addr(`downpour:playground:bot:${i}`));
+const BOTS: Address[] = Array.from({ length: 9 }, (_, i) => addr(`starmint:playground:bot:${i}`));
 
 /* ------------------------------ genesis ------------------------------ */
 
@@ -87,7 +87,7 @@ function genesis(): World {
   const t0 = now();
   const rnd = prng(20260926);
   const currencies: Currency[] = CURRENCIES.map((c) => ({
-    token: addr(`downpour:playground:currency:${c.code}`),
+    token: addr(`starmint:playground:currency:${c.code}`),
     code: c.code,
     name: c.name,
     symbol: c.symbol,
@@ -160,7 +160,7 @@ function genesis(): World {
 
 function openCoin(w: World, creator: Address, input: Omit<CreateCoinInput, 'firstBuy' | 'minTokensOut'>, createdAt: number): Address {
   const cur = w.currencies.find((c) => lc(c.token) === lc(input.currency))!;
-  const address = addr(`downpour:playground:coin:${w.born}:${w.nonce++}:${input.symbol}`);
+  const address = addr(`starmint:playground:coin:${w.born}:${w.nonce++}:${input.symbol}`);
   const m = newMarket(virtualQuoteFor(cur, w.params.targetRaiseUsd), createdAt);
   w.coins.push({ ...m, address, name: input.name, symbol: input.symbol, creator, currency: cur.token, meta: input.meta });
   return address;

@@ -80,7 +80,7 @@ export default function Proof() {
     <div className="wrap">
       <PageHead
         kicker="Live, from the markets"
-        title="Every drop is backed"
+        title="Every star is backed"
         lead="Not a status page someone updates. This page takes every market's reserves and does the arithmetic in your browser, again each time a trade lands."
       />
 
@@ -192,7 +192,7 @@ export default function Proof() {
             <div>
               <b>What it does not prove.</b>
               <p className="muted small">
-                It does not audit the contracts, and it cannot tell you a coin is worth anything. <Link to="/verify" className="rain-text">Verify</Link>{' '}
+                It does not audit the contracts, and it cannot tell you a coin is worth anything. <Link to="/verify" className="accent-text">Verify</Link>{' '}
                 checks that a specific coin is really the pad's.
               </p>
             </div>

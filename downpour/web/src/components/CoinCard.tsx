@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { CoinRow } from '../lib/views';
 import { ago, money, pct, usd } from '../lib/format';
-import { CoinDrop, PairBadge, ProgressBar, Sparkline, StatusPill } from './bits';
+import { CoinOrb, PairBadge, ProgressBar, Sparkline, StatusPill } from './bits';
 
 export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
   const { coin, cur } = row;
@@ -10,8 +10,8 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
       <div className="cc-sky">
         <span className="cc-code">{cur.code}</span>
         <span className="cc-age">{ago(coin.createdAt, now)}</span>
-        <div className="cc-drop">
-          <CoinDrop coin={coin} currency={cur} size={70} />
+        <div className="cc-orb">
+          <CoinOrb coin={coin} currency={cur} size={70} />
         </div>
         <span className="cc-ticker">{coin.symbol}</span>
       </div>

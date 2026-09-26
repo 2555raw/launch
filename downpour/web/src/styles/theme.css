@@ -1,6 +1,6 @@
 /* ------------------------------ white glass ------------------------------ */
 /* Every surface (nav, token bar, panels, cards, modals, toasts) is frosted white
- * glass with dark ink; the storm and the beach stay visible through it. Text that
+ * glass with dark ink; the universe stays visible through it. Text that
  * sits straight on the scene (headlines, footer) stays light. */
 
 :root {
@@ -25,8 +25,8 @@
   --ink-3: #465267;
   --line: rgba(15, 28, 50, 0.12);
   --line-2: rgba(15, 28, 50, 0.22);
-  --rain: #1766c9;
-  --rain-2: #1766c9;
+  --rain: #5a3fd1;
+  --rain-2: #5a3fd1;
   --up: #0c9a5f;
   --down: #d13a55;
   --bolt: #b58400;

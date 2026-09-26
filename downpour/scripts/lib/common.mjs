@@ -41,7 +41,7 @@ export async function connect({ rpc, key, account } = {}) {
   const id = await probe.getChainId();
   const chain = defineChain({
     id,
-    name: id === 31337 ? 'Local storm' : `Chain ${id}`,
+    name: id === 31337 ? 'Local galaxy' : `Chain ${id}`,
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: [url] } },
   });

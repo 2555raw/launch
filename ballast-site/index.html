@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ballast</title>
+  <meta name="description" content="Ballast is a launchpad where every coin carries a basket of tokenized stocks: 1% of every trade buys the basket and sends it to holders. Launch in one transaction, from the app or from your agent.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090A'/%3E%3Crect x='7' y='19' width='18' height='6' rx='1.5' fill='%234C7DFF'/%3E%3Crect x='10' y='12' width='12' height='5' rx='1.5' fill='%23F5F5F2'/%3E%3Crect x='13' y='6' width='6' height='4' rx='1.5' fill='%23F5F5F2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav" id="top">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="Ballast, back to top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="19" width="18" height="6" rx="1.5" class="b-accent"/><rect x="10" y="12" width="12" height="5" rx="1.5" class="b-ink"/><rect x="13" y="6" width="6" height="4" rx="1.5" class="b-ink"/></svg>
+      Ballast
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav-links">
+        <li><a href="#mechanism">Mechanism</a></li>
+        <li><a href="#builder">Build a coin</a></li>
+        <li><a href="#agents">Agents</a></li>
+        <li><a href="#rules">Rules</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-small" href="#builder">Launch a coin</a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero wrap">
+  <div class="hero-copy">
+    <p class="eyebrow">Launchpad · Robinhood Chain · BNB Chain · Solana · Base</p>
+    <h1>Coins that carry <span class="accent">real stocks</span></h1>
+    <p class="lead">Launch a coin in one transaction and give it ballast. 1% of every trade buys a basket of tokenized stocks and sends it to holders every 15 minutes. No claim, no staking, no team allocation, and a fee nobody can change.</p>
+    <div class="cta-row">
+      <a class="btn" href="#builder">Build a basket</a>
+      <a class="btn btn-ghost" href="#mechanism">See the mechanism</a>
+    </div>
+    <dl class="hero-specs">
+      <div><dt>Fee</dt><dd>1%, fixed forever</dd></div>
+      <div><dt>Supply</dt><dd>1B, all to the pool</dd></div>
+      <div><dt>Payout</dt><dd>Every 15 min</dd></div>
+      <div><dt>Launch</dt><dd>App, API or agent</dd></div>
+    </dl>
+  </div>
+
+  <figure class="console" aria-label="Simulated feed: trades on a Ballast coin filling its stock basket">
+    <div class="console-head">
+      <span class="coin-id"><b>$ORBIT</b> · basket NVDA 40 · TSLA 30 · SPY 30</span>
+      <span class="sim-tag">Simulated feed</span>
+    </div>
+    <ol class="tape" id="tape" aria-live="off">
+      <li><span class="side buy">BUY</span><span>0.84 ETH</span><span class="fee">fee 0.0084</span><span class="to">→ basket 0.00504</span></li>
+      <li><span class="side sell">SELL</span><span>0.31 ETH</span><span class="fee">fee 0.0031</span><span class="to">→ basket 0.00186</span></li>
+      <li><span class="side buy">BUY</span><span>2.10 ETH</span><span class="fee">fee 0.0210</span><span class="to">→ basket 0.01260</span></li>
+      <li><span class="side buy">BUY</span><span>0.12 ETH</span><span class="fee">fee 0.0012</span><span class="to">→ basket 0.00072</span></li>
+    </ol>
+    <div class="basket" id="basket">
+      <div class="basket-row"><span class="tk">NVDA</span><span class="track"><span class="fill" data-w="40" style="width:62%"></span></span><span class="amt mono" data-k="NVDA">0.00785</span></div>
+      <div class="basket-row"><span class="tk">TSLA</span><span class="track"><span class="fill" data-w="30" style="width:62%"></span></span><span class="amt mono" data-k="TSLA">0.00589</span></div>
+      <div class="basket-row"><span class="tk">SPY</span><span class="track"><span class="fill" data-w="30" style="width:62%"></span></span><span class="amt mono" data-k="SPY">0.00589</span></div>
+    </div>
+    <div class="console-foot">
+      <span>Next payout to <b id="holders">1,204</b> holders in <b class="mono" id="countdown">09:41</b></span>
+      <span class="mono">ETH in basket <b id="basketTotal">0.01963</b></span>
+    </div>
+  </figure>
+</section>
+
+<section class="section wrap" id="mechanism">
+  <div class="sec-head">
+    <p class="eyebrow">The mechanism</p>
+    <h2>Every trade fills the basket</h2>
+    <p class="sub">A Ballast coin is a normal coin with one extra part: a vault that turns trading fees into stocks and pays them out. When volume stops, the basket stops filling. We say that up front.</p>
+  </div>
+
+  <ol class="flow" aria-label="Where the 1% fee goes">
+    <li class="node"><b>Trade</b><span>Anyone buys or sells the coin</span></li>
+    <li class="arrow"><i>1% fee</i></li>
+    <li class="node hot"><b>Vault</b><span>Splits the fee on-chain, same rule for every coin</span></li>
+    <li class="arrow"><i>60%</i></li>
+    <li class="node hot"><b>Basket</b><span>Buys the coin's 3–5 tokenized stocks at their weights</span></li>
+    <li class="arrow"><i>every 15 min</i></li>
+    <li class="node"><b>Holders</b><span>Stocks land in wallets pro rata. No claim, no staking</span></li>
+  </ol>
+
+  <figure class="split">
+    <div class="split-labels" aria-hidden="true">
+      <span style="flex:60"><b>0.60%</b> basket to holders</span>
+      <span style="flex:20"><b>0.20%</b> creator</span>
+      <span style="flex:10"><b>0.10%</b> burn</span>
+      <span style="flex:10"><b>0.10%</b> protocol</span>
+    </div>
+    <div class="split-bar" role="img" aria-label="Split of the 1% fee: 0.60% buys the basket for holders, 0.20% to the creator, 0.10% buys back and burns BLST, 0.10% to the protocol">
+      <span class="seg seg-main" style="flex:60" title="0.60% buys the stock basket for holders"></span>
+      <span class="seg" style="flex:20" title="0.20% to the coin's creator"></span>
+      <span class="seg" style="flex:10" title="0.10% buys back and burns BLST"></span>
+      <span class="seg" style="flex:10" title="0.10% to the protocol, 25% of it to referrers"></span>
+    </div>
+    <figcaption>How each 1% fee splits. Blue is what goes back to holders as stocks. The protocol share pays referrers 25%.</figcaption>
+  </figure>
+
+  <div class="steps">
+    <article class="step">
+      <p class="step-n mono">Step 1</p>
+      <h3>Pick the basket</h3>
+      <p>Choose 3 to 5 tokenized stocks and their weights. The basket is written into the coin at launch and can't be edited later.</p>
+    </article>
+    <article class="step">
+      <p class="step-n mono">Step 2</p>
+      <h3>Launch in one transaction</h3>
+      <p>1B supply goes straight to a pool with locked liquidity. No presale, no team allocation, no snipers: the buy fee starts high and decays to 1% in the first blocks.</p>
+    </article>
+    <article class="step">
+      <p class="step-n mono">Step 3</p>
+      <h3>Trades fill it</h3>
+      <p>Every trade pays 1%. The vault buys the basket and pays holders every 15 minutes, with a link to each payout on the explorer.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section wrap" id="builder">
+  <div class="sec-head">
+    <p class="eyebrow">Build a coin</p>
+    <h2>Design the basket, see what trades would buy</h2>
+    <p class="sub">Pick the stocks, set the weights and drag the volume. The math below is volume × 1% × the split. It's an illustration, not a forecast: no volume means no basket.</p>
+  </div>
+
+  <div class="builder">
+    <form class="panel" id="builderForm" autocomplete="off">
+      <div class="field-row">
+        <label class="field"><span>Coin name</span><input id="coinName" type="text" value="Orbit" maxlength="24"></label>
+        <label class="field"><span>Ticker</span><input id="coinTicker" type="text" value="ORBIT" maxlength="8"></label>
+      </div>
+      <label class="field"><span>Chain</span>
+        <select id="chain">
+          <option value="robinhood">Robinhood Chain</option>
+          <option value="bnb">BNB Chain</option>
+          <option value="solana">Solana</option>
+          <option value="base">Base</option>
+        </select>
+      </label>
+
+      <fieldset class="field">
+        <legend>Stocks <small id="pickHint">3 to 5</small></legend>
+        <div class="picks" id="picks">
+          <label><input type="checkbox" id="stk-NVDA" value="NVDA" checked><span>NVDA</span></label>
+          <label><input type="checkbox" id="stk-TSLA" value="TSLA" checked><span>TSLA</span></label>
+          <label><input type="checkbox" id="stk-SPY" value="SPY" checked><span>SPY</span></label>
+          <label><input type="checkbox" id="stk-AAPL" value="AAPL"><span>AAPL</span></label>
+          <label><input type="checkbox" id="stk-MSFT" value="MSFT"><span>MSFT</span></label>
+          <label><input type="checkbox" id="stk-AMZN" value="AMZN"><span>AMZN</span></label>
+          <label><input type="checkbox" id="stk-META" value="META"><span>META</span></label>
+          <label><input type="checkbox" id="stk-GOOGL" value="GOOGL"><span>GOOGL</span></label>
+          <label><input type="checkbox" id="stk-PLTR" value="PLTR"><span>PLTR</span></label>
+          <label><input type="checkbox" id="stk-COIN" value="COIN"><span>COIN</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>Weights <small id="weightSum">100%</small></legend>
+        <div class="weights" id="weights">
+          <label class="weight"><span class="tk">NVDA</span><input type="range" id="w-NVDA" min="5" max="90" value="40"><b class="mono">40%</b></label>
+          <label class="weight"><span class="tk">TSLA</span><input type="range" id="w-TSLA" min="5" max="90" value="30"><b class="mono">30%</b></label>
+          <label class="weight"><span class="tk">SPY</span><input type="range" id="w-SPY" min="5" max="90" value="30"><b class="mono">30%</b></label>
+        </div>
+      </fieldset>
+
+      <label class="field"><span>Daily trading volume <b class="mono" id="volLabel">$260K</b></span>
+        <input type="range" id="volume" min="0" max="100" value="47" aria-describedby="volHelp">
+        <small id="volHelp">From $10K to $10M a day</small>
+      </label>
+    </form>
+
+    <div class="panel preview" aria-live="polite">
+      <div class="preview-head">
+        <div>
+          <p class="mono dim" id="pvChain">Robinhood Chain</p>
+          <h3 id="pvName">Orbit <span class="accent mono" id="pvTicker">$ORBIT</span></h3>
+        </div>
+        <span class="pill">Preview</span>
+      </div>
+      <div class="mix" id="pvMix" role="img" aria-label="Basket: NVDA 40%, TSLA 30%, SPY 30%">
+        <span style="flex:40">NVDA 40</span><span style="flex:30">TSLA 30</span><span style="flex:30">SPY 30</span>
+      </div>
+      <dl class="outs">
+        <div class="out-main"><dt>Stocks bought for holders</dt><dd class="mono"><span id="outBasket">$1,560</span><small>/day</small></dd></div>
+        <div><dt>Creator earns</dt><dd class="mono"><span id="outCreator">$520</span><small>/day</small></dd></div>
+        <div><dt>BLST bought and burned</dt><dd class="mono"><span id="outBurn">$260</span><small>/day</small></dd></div>
+        <div><dt>Protocol</dt><dd class="mono"><span id="outProtocol">$260</span><small>/day</small></dd></div>
+      </dl>
+      <p class="thirty">In 30 days at this volume, holders receive <b class="mono" id="out30">$47K</b> in stocks.</p>
+      <div class="cmd">
+        <code id="launchCmd">!ballast launch ORBIT basket=NVDA:40,TSLA:30,SPY:30 chain=robinhood</code>
+        <button class="copy" type="button" data-copy-target="launchCmd">Copy command</button>
+      </div>
+      <p class="fine">Paste the command to your agent or in the app. Weights are rounded to whole percent and always sum to 100.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section wrap" id="agents">
+  <div class="sec-head">
+    <p class="eyebrow">Agents</p>
+    <h2>Launch from your agent, inside limits it can't break</h2>
+    <p class="sub">Ballast speaks the formats agents already use: an MCP server, a skill file and a one-line command. You set the spend limits once; a contract enforces them and anything outside reverts.</p>
+  </div>
+  <div class="grid-2">
+    <div class="panel code-panel">
+      <div class="tabs" role="tablist" aria-label="Ways to launch">
+        <button role="tab" id="tab-mcp" aria-selected="true" aria-controls="pane-mcp">MCP</button>
+        <button role="tab" id="tab-cmd" aria-selected="false" aria-controls="pane-cmd" tabindex="-1">Command</button>
+        <button role="tab" id="tab-skill" aria-selected="false" aria-controls="pane-skill" tabindex="-1">SKILL.md</button>
+      </div>
+<pre class="pane" id="pane-mcp" role="tabpanel" aria-labelledby="tab-mcp"><code>{
+  "tool": "ballast.launch_coin",
+  "input": {
+    "name": "Orbit",
+    "ticker": "ORBIT",
+    "chain": "robinhood",
+    "basket": { "NVDA": 40, "TSLA": 30, "SPY": 30 },
+    "max_spend_eth": 0.05
+  }
+}</code></pre>
+<pre class="pane" id="pane-cmd" role="tabpanel" aria-labelledby="tab-cmd" hidden><code>!ballast launch ORBIT basket=NVDA:40,TSLA:30,SPY:30 chain=robinhood
+
+→ validated in &lt;1 min
+→ pool live from block 1, liquidity locked
+→ basket vault armed, first payout in 15 min</code></pre>
+<pre class="pane" id="pane-skill" role="tabpanel" aria-labelledby="tab-skill" hidden><code># Ballast skill
+You can launch coins that carry a stock basket.
+1. Ask the user for 3-5 stocks and weights.
+2. Call ballast.launch_coin once. Never retry a
+   launch that returned a transaction hash.
+3. Stay under the spend limit. If a call reverts
+   with LIMIT_EXCEEDED, stop and tell the user.</code></pre>
+    </div>
+
+    <div class="panel limits" id="limits">
+      <div class="limits-head">
+        <h3>Agent spend limits</h3>
+        <span class="state mono" id="limitState">Active</span>
+      </div>
+      <dl class="limit-list">
+        <div><dt>Per day</dt><dd class="mono">0.50 ETH</dd></div>
+        <div><dt>Per coin launch</dt><dd class="mono">0.05 ETH</dd></div>
+        <div><dt>Allowed actions</dt><dd>Launch, buy own coin</dd></div>
+        <div><dt>Used today</dt><dd class="mono"><span class="meter"><span style="width:34%"></span></span> 0.17 ETH</dd></div>
+      </dl>
+      <button class="btn btn-danger" type="button" id="revokeBtn" aria-pressed="false">Revoke all</button>
+      <p class="fine" id="revokeNote">One call switches every delegation off on-chain. Your agent checks it before each action.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section wrap" id="coinpage">
+  <div class="sec-head">
+    <p class="eyebrow">Every coin gets a page</p>
+    <h2>Holders show their entry, their PnL and why they hold</h2>
+    <p class="sub">Each coin has a public page with its basket, payouts and holders. A thesis sits next to the position that backs it, so you can see who's actually in. Share links carry your referral.</p>
+  </div>
+  <div class="panel coin-page">
+    <div class="cp-head">
+      <div>
+        <p class="mono dim">/robinhood/orbit?r=you</p>
+        <h3>Orbit <span class="accent mono">$ORBIT</span></h3>
+      </div>
+      <span class="pill">Example data</span>
+    </div>
+    <div class="table-scroll" role="region" aria-label="Example holders table" tabindex="0">
+      <table>
+        <thead><tr><th>Holder</th><th>Position</th><th>Entry</th><th>PnL</th><th>Stocks received</th><th>Thesis</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">0x7a…41c</td><td class="num">1.8%</td><td class="num">$0.00041</td><td class="num up">+212%</td><td class="num">$184</td><td>"Holding for the NVDA leg. Payouts cover my gas."</td></tr>
+          <tr><td class="mono">0x3e…9d0</td><td class="num">0.9%</td><td class="num">$0.00088</td><td class="num up">+46%</td><td class="num">$61</td><td>"Creator ships daily. Watching volume, not price."</td></tr>
+          <tr><td class="mono">0xc1…07f</td><td class="num">0.4%</td><td class="num">$0.00140</td><td class="num down">−8%</td><td class="num">$19</td><td>"Late entry. Out if the basket stops growing."</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section wrap" id="rules">
+  <div class="sec-head">
+    <p class="eyebrow">Rules</p>
+    <h2>What can't change after launch</h2>
+  </div>
+  <ul class="rules">
+    <li><b>1% fee, forever.</b><span>There is no owner function to raise it. No taxes that can be edited into a honeypot.</span></li>
+    <li><b>No team allocation.</b><span>All 1B tokens go to the pool. The creator earns only from trading fees.</span></li>
+    <li><b>Liquidity locked.</b><span>Locked at launch. Nobody can pull it.</span></li>
+    <li><b>Basket fixed.</b><span>Stocks and weights are written into the coin and shown on its page.</span></li>
+    <li><b>Every payout on the explorer.</b><span>Each 15-minute payout links to its transaction.</span></li>
+    <li><b>No promise of returns.</b><span>Payouts depend on volume. Stocks can fall. No volume, no basket.</span></li>
+  </ul>
+  <div class="official">
+    <p class="mono">Official BLST address</p>
+    <p><b>Ballast has not launched a token.</b> Any $BLST you see today is not ours. The address will be published here, and only here, at launch.</p>
+  </div>
+</section>
+
+<section class="section wrap" id="chains">
+  <div class="sec-head">
+    <p class="eyebrow">Chains</p>
+    <h2>Where tokenized stocks already trade</h2>
+    <p class="sub">Baskets use the tokenized stocks live on each chain. Robinhood Chain goes first; the rest follow with the same vault and the same rules.</p>
+  </div>
+  <ul class="chains">
+    <li><b>Robinhood Chain</b><span class="mono">First</span></li>
+    <li><b>BNB Chain</b><span class="mono">Next</span></li>
+    <li><b>Solana</b><span class="mono">Next</span></li>
+    <li><b>Base</b><span class="mono">Next</span></li>
+  </ul>
+</section>
+
+<section class="section wrap" id="faq">
+  <div class="sec-head">
+    <p class="eyebrow">FAQ</p>
+    <h2>Straight answers</h2>
+  </div>
+  <div class="faq">
+    <details><summary>Is this yield?</summary><p>No. A Ballast coin is a coin with a mechanic: trading fees buy stocks for holders. There is no promised return. If nobody trades, nothing is bought, and the stocks in the basket can lose value.</p></details>
+    <details><summary>Can the fee or the basket change later?</summary><p>No. Both are set at launch and there is no function to edit them.</p></details>
+    <details><summary>Do I need to claim or stake?</summary><p>No. Payouts go straight to holders' wallets every 15 minutes, pro rata to their balance at payout time.</p></details>
+    <details><summary>How do you stop snipers?</summary><p>The buy fee starts high in the first blocks and decays to 1% on a public schedule. Every coin uses the same schedule.</p></details>
+    <details><summary>What does BLST do?</summary><p>0.10% of every trade on every coin buys BLST and burns it. It gets no other promises.</p></details>
+    <details><summary>Can my agent launch without me?</summary><p>Only inside the limits you set. Actions outside them revert, and "Revoke all" turns every delegation off in one call.</p></details>
+    <details><summary>Where is it available?</summary><p>Tokenized stocks aren't available everywhere. The app checks your region before you can buy a coin.</p></details>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot wrap">
+  <div class="foot-brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="19" width="18" height="6" rx="1.5" class="b-accent"/><rect x="10" y="12" width="12" height="5" rx="1.5" class="b-ink"/><rect x="13" y="6" width="6" height="4" rx="1.5" class="b-ink"/></svg>
+    <span>Ballast</span>
+  </div>
+  <p>Preview of a product in development. Nothing on this page is an offer to sell a security or any token. Coins launched on Ballast carry no rights to the underlying stocks beyond the payouts described above. Crypto assets are volatile and you can lose everything you put in.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

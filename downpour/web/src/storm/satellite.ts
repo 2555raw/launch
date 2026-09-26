@@ -1,23 +1,20 @@
-/* A communications satellite, modelled for the sky: a box-shaped bus wrapped in gold
- * and silver insulation foil with white radiators on top and bottom, two wings of three
- * solar panels on booms and yokes, a large dish on an arm with its feed on three struts,
- * a smaller dish, star trackers, an omni antenna and thruster nozzles.
+/* A slim modern satellite, modelled for the sky: a flat tray of a body with silver foil
+ * on top, one long, narrow solar array on a short mast (four panels folded out on
+ * hinges), a small dish and two star trackers on top, a whip antenna with a beacon, and
+ * an ion thruster at the far end.
  *
  * The mesh is triangles of [x, y, z, nx, ny, nz, u, v, material], in metres-ish model
- * units (x along the wings, y up, z toward the front). */
+ * units (x along the array, y up, z toward the front). */
 import type { Vec3 } from './earth';
 
 export const MAT = { GOLD: 0, SILVER: 1, WHITE: 2, CELLS: 3, BACK: 4, METAL: 5, DARK: 6, DISH: 7 } as const;
 export const SAT_STRIDE = 9;
 
 /** Half the extent of the model, for framing it. */
-export const SAT_RADIUS = 4.5;
-/** Where the little red beacon sits (the tip of the omni antenna), and the centres of the wings. */
-export const BEACON: Vec3 = [-0.42, 1.24, 0.3];
-export const WING_CENTRES: Vec3[] = [
-  [2.8, 0, 0],
-  [-2.8, 0, 0],
-];
+export const SAT_RADIUS = 4.7;
+/** Where the little red beacon sits (the tip of the whip antenna), and the middle of the array. */
+export const BEACON: Vec3 = [-4.25, 0.52, -0.42];
+export const WING_CENTRES: Vec3[] = [[1.52, 0, 0]];
 
 type Frame = { o: Vec3; x: Vec3; y: Vec3; z: Vec3 };
 
@@ -141,59 +138,38 @@ class Builder {
 
 export function buildSatellite() {
   const b = new Builder();
-  const { GOLD, SILVER, WHITE, CELLS, BACK, METAL, DARK, DISH } = MAT;
+  const { SILVER, WHITE, CELLS, BACK, METAL, DARK, DISH } = MAT;
 
-  // the bus: gold foil front and back, silver foil sides, white radiators top and bottom
-  b.box([0, 0, 0], [1.4, 1.3, 1.3], [SILVER, SILVER, WHITE, WHITE, GOLD, GOLD]);
-  // a thin frame along its edges, and an adapter ring underneath
-  for (const x of [-0.7, 0.7]) for (const z of [-0.65, 0.65]) b.box([x, 0, z], [0.05, 1.32, 0.05], METAL);
-  b.tube([0, -0.65, 0], [0, -0.78, 0], 0.42, 0.42, 24, METAL);
-  // the main engine
-  b.tube([0, -0.78, 0], [0, -1.08, 0], 0.08, 0.2, 18, DARK, false);
-
-  // wings: boom, yoke, three panels, hinges
-  for (const s of [1, -1]) {
-    b.tube([0.7 * s, 0, 0], [1.12 * s, 0, 0], 0.045, 0.045, 12, METAL);
-    b.box([0.72 * s, 0, 0], [0.06, 0.22, 0.22], METAL); // the drive at the root
-    b.tube([1.12 * s, 0, 0], [1.26 * s, 0.4, 0], 0.022, 0.022, 8, METAL);
-    b.tube([1.12 * s, 0, 0], [1.26 * s, -0.4, 0], 0.022, 0.022, 8, METAL);
-    b.box([1.27 * s, 0, 0], [0.04, 0.9, 0.04], METAL);
-    for (let i = 0; i < 3; i++) {
-      const x0 = 1.3 + i * 1.03;
-      const cx = (x0 + 0.5) * s;
-      b.box([cx, 0, 0], [1.0, 0.9, 0.03], s > 0 ? [METAL, METAL, METAL, METAL, CELLS, BACK] : [METAL, METAL, METAL, METAL, CELLS, BACK]);
-      if (i < 2) for (const y of [-0.3, 0.3]) b.box([(x0 + 1.015) * s, y, 0], [0.05, 0.07, 0.05], METAL);
-    }
-  }
-
-  // the big dish on an arm off the front, looking forward and down
-  const dishC: Vec3 = [0.05, -0.2, 1.08];
-  const dishDir: Vec3 = norm([0, -0.38, 1]);
-  b.tube([0.05, -0.2, 0.65], add(dishC, mul(dishDir, -0.16)), 0.045, 0.045, 10, METAL);
-  const df = b.dish(dishC, dishDir, 0.56, 0.15, DISH);
-  const focus = add(dishC, mul(df.z, 0.42));
-  for (let k = 0; k < 3; k++) {
-    const t = (k / 3) * Math.PI * 2 + 0.4;
-    const rim = add(dishC, add(mul(df.x, Math.cos(t) * 0.53), mul(df.y, Math.sin(t) * 0.53)));
-    b.tube(rim, focus, 0.009, 0.009, 5, METAL, false);
-  }
-  b.tube(add(focus, mul(df.z, -0.02)), add(focus, mul(df.z, -0.13)), 0.04, 0.06, 12, WHITE);
-
-  // a smaller dish on top, looking up and forward
-  b.tube([0.32, 0.65, 0.3], [0.32, 0.8, 0.36], 0.03, 0.03, 8, METAL);
-  b.dish([0.32, 0.82, 0.37], norm([0, 1, 0.55]), 0.22, 0.05, DISH);
-
-  // star trackers, omni antenna, thrusters
+  // the body: a flat tray, silver foil on top, white underneath, bare metal round the edge
+  b.box([-3.25, 0, 0], [2.3, 0.14, 1.25], [METAL, METAL, SILVER, WHITE, METAL, METAL]);
+  // two star trackers and a small dish on top, looking up and forward
   for (const [x, z] of [
-    [-0.3, -0.35],
-    [-0.05, -0.42],
+    [-3.2, -0.38],
+    [-2.9, -0.38],
   ]) {
-    b.tube([x, 0.65, z], [x, 0.84, z - 0.04], 0.065, 0.065, 12, DARK);
-    b.tube([x, 0.84, z - 0.04], [x, 0.9, z - 0.05], 0.08, 0.1, 12, DARK, false);
+    b.tube([x, 0.07, z], [x, 0.2, z - 0.03], 0.055, 0.055, 12, DARK);
+    b.tube([x, 0.2, z - 0.03], [x, 0.25, z - 0.04], 0.07, 0.085, 12, DARK, false);
   }
-  b.tube([-0.42, 0.65, 0.3], BEACON, 0.014, 0.014, 6, METAL);
-  b.box(BEACON, [0.05, 0.05, 0.05], WHITE);
-  for (const x of [-0.5, 0.5]) for (const y of [-0.5, 0.5]) b.tube([x, y, -0.65], [x, y, -0.77], 0.03, 0.075, 10, DARK, false);
+  b.tube([-3.9, 0.07, 0.3], [-3.9, 0.16, 0.33], 0.025, 0.025, 8, METAL);
+  b.dish([-3.9, 0.18, 0.34], norm([0, 1, 0.6]), 0.2, 0.045, DISH);
+  // a whip antenna with the beacon at its tip, and the ion thruster at the far end
+  b.tube([-4.25, 0.07, -0.42], BEACON, 0.012, 0.012, 6, METAL);
+  b.box(BEACON, [0.045, 0.045, 0.045], WHITE);
+  b.tube([-4.4, 0, 0.1], [-4.62, 0, 0.1], 0.06, 0.11, 14, DARK, false);
+
+  // the mast out to the array, with its drive at the root and a yoke at the far end
+  b.box([-2.08, 0, 0], [0.08, 0.2, 0.2], METAL);
+  b.tube([-2.1, 0, 0], [-1.6, 0, 0], 0.04, 0.04, 10, METAL);
+  b.box([-1.6, 0, 0], [0.04, 1.3, 0.04], METAL);
+
+  // the array: four long panels, cells to the front, hinged end to end
+  const panel = 1.51;
+  const gap = 0.04;
+  for (let i = 0; i < 4; i++) {
+    const x0 = -1.56 + i * (panel + gap);
+    b.box([x0 + panel / 2, 0, 0], [panel, 1.3, 0.03], [METAL, METAL, METAL, METAL, CELLS, BACK]);
+    if (i < 3) for (const y of [-0.42, 0.42]) b.box([x0 + panel + gap / 2, y, 0], [0.05, 0.08, 0.05], METAL);
+  }
 
   const data = new Float32Array(b.out);
   return { data, count: data.length / SAT_STRIDE };
@@ -232,82 +208,77 @@ export function perspective(fovY: number, aspect: number, near: number, far: num
 
 /* ------------------------------ the 2D fallback's satellite ------------------------------ */
 
-/** Draws the satellite flat (seen from the front) into a 2D canvas, centred at 0,0 and
- *  `span` wide. Used by the 2D sky. */
+/** Draws the satellite flat (seen from the front, its top tipped a little toward us)
+ *  into a 2D canvas, centred at 0,0 and `span` wide. Used by the 2D sky. */
 export function drawSatellite2D(g: CanvasRenderingContext2D, span: number) {
-  const u = span / 8.8;
+  const u = span / 9.3;
   g.save();
   g.scale(u, u);
   g.lineWidth = 0.02;
-  // booms
+  // the array: four long panels of blue cells on the mast
   g.fillStyle = '#9aa3ad';
-  g.fillRect(-1.3, -0.04, 2.6, 0.08);
-  for (const s of [1, -1]) {
-    g.fillRect(1.25 * s - 0.02, -0.45, 0.04, 0.9);
-    for (let i = 0; i < 3; i++) {
-      const x0 = (1.3 + i * 1.03) * s;
-      const x = s > 0 ? x0 : x0 - 1.0;
-      const grad = g.createLinearGradient(x, -0.45, x + 1.0, 0.45);
-      grad.addColorStop(0, '#1d3a8a');
-      grad.addColorStop(0.5, '#0b1a4d');
-      grad.addColorStop(1, '#152f78');
-      g.fillStyle = grad;
-      g.fillRect(x, -0.45, 1.0, 0.9);
-      g.strokeStyle = 'rgba(190,200,215,0.55)';
-      for (let k = 1; k < 10; k++) {
-        g.beginPath();
-        g.moveTo(x + k * 0.1, -0.45);
-        g.lineTo(x + k * 0.1, 0.45);
-        g.stroke();
-      }
-      for (let k = 1; k < 8; k++) {
-        g.beginPath();
-        g.moveTo(x, -0.45 + k * 0.1125);
-        g.lineTo(x + 1.0, -0.45 + k * 0.1125);
-        g.stroke();
-      }
-      g.strokeStyle = '#aab3bf';
-      g.strokeRect(x, -0.45, 1.0, 0.9);
+  g.fillRect(-2.1, -0.04, 0.55, 0.08);
+  g.fillRect(-1.62, -0.65, 0.04, 1.3);
+  for (let i = 0; i < 4; i++) {
+    const x = -1.56 + i * 1.55;
+    const grad = g.createLinearGradient(x, -0.65, x + 1.51, 0.65);
+    grad.addColorStop(0, '#1d3a8a');
+    grad.addColorStop(0.5, '#0b1a4d');
+    grad.addColorStop(1, '#152f78');
+    g.fillStyle = grad;
+    g.fillRect(x, -0.65, 1.51, 1.3);
+    g.strokeStyle = 'rgba(190,200,215,0.5)';
+    for (let k = 1; k < 12; k++) {
+      g.beginPath();
+      g.moveTo(x + k * (1.51 / 12), -0.65);
+      g.lineTo(x + k * (1.51 / 12), 0.65);
+      g.stroke();
     }
+    for (let k = 1; k < 9; k++) {
+      g.beginPath();
+      g.moveTo(x, -0.65 + k * (1.3 / 9));
+      g.lineTo(x + 1.51, -0.65 + k * (1.3 / 9));
+      g.stroke();
+    }
+    g.strokeStyle = '#aab3bf';
+    g.strokeRect(x, -0.65, 1.51, 1.3);
   }
-  // body: gold foil
-  const body = g.createLinearGradient(-0.7, -0.65, 0.7, 0.65);
-  body.addColorStop(0, '#ffe39a');
-  body.addColorStop(0.35, '#d9a13a');
-  body.addColorStop(0.6, '#f6c65e');
-  body.addColorStop(1, '#8a5a17');
-  g.fillStyle = body;
-  g.fillRect(-0.7, -0.65, 1.4, 1.3);
-  g.strokeStyle = 'rgba(255,240,200,0.35)';
-  for (let k = 0; k < 7; k++) {
-    g.beginPath();
-    g.moveTo(-0.7 + Math.random() * 1.4, -0.65);
-    g.lineTo(-0.7 + Math.random() * 1.4, 0.65);
-    g.stroke();
-  }
-  g.fillStyle = '#e8eaed';
-  g.fillRect(-0.7, -0.72, 1.4, 0.08);
-  g.fillRect(-0.7, 0.64, 1.4, 0.08);
-  // dish
-  const dish = g.createRadialGradient(-0.1, 0.1, 0.05, 0.05, 0.2, 0.56);
-  dish.addColorStop(0, '#ffffff');
-  dish.addColorStop(1, '#b9bec6');
-  g.fillStyle = dish;
+  // the body: a thin tray, its silver top seen at a slant above its front edge
+  const top = g.createLinearGradient(-4.4, -0.3, -2.1, -0.07);
+  top.addColorStop(0, '#f1f3f6');
+  top.addColorStop(0.5, '#a9b0ba');
+  top.addColorStop(1, '#dde1e6');
+  g.fillStyle = top;
   g.beginPath();
-  g.ellipse(0.05, 0.25, 0.56, 0.5, 0, 0, Math.PI * 2);
+  g.moveTo(-4.4, -0.07);
+  g.lineTo(-2.1, -0.07);
+  g.lineTo(-2.2, -0.3);
+  g.lineTo(-4.3, -0.3);
+  g.closePath();
   g.fill();
-  g.strokeStyle = '#8e959e';
-  g.lineWidth = 0.03;
-  g.stroke();
-  g.fillStyle = '#d6d9de';
+  g.fillStyle = '#7d8691';
+  g.fillRect(-4.4, -0.07, 2.3, 0.14);
+  // a small dish and two star trackers on top, the whip antenna, the thruster
+  g.fillStyle = '#e9ebee';
   g.beginPath();
-  g.arc(0.05, 0.25, 0.07, 0, Math.PI * 2);
+  g.ellipse(-3.9, -0.42, 0.2, 0.12, 0, 0, Math.PI * 2);
   g.fill();
-  // antenna
+  g.fillStyle = '#1a1c20';
+  g.fillRect(-3.26, -0.5, 0.11, 0.2);
+  g.fillRect(-2.96, -0.5, 0.11, 0.2);
   g.strokeStyle = '#b0b7c0';
+  g.lineWidth = 0.025;
   g.beginPath();
-  g.moveTo(-0.42, -0.65);
-  g.lineTo(-0.42, -1.2);
+  g.moveTo(-4.25, -0.2);
+  g.lineTo(-4.25, -0.62);
   g.stroke();
+  g.fillStyle = '#23262b';
+  g.beginPath();
+  g.moveTo(-4.4, -0.06);
+  g.lineTo(-4.62, -0.11);
+  g.lineTo(-4.62, 0.11);
+  g.lineTo(-4.4, 0.06);
+  g.closePath();
+  g.fill();
   g.restore();
 }

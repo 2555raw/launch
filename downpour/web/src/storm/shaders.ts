@@ -78,16 +78,15 @@ void main() {
   // the void, faintly blue at the top and violet toward the bottom
   vec3 col = mix(vec3(0.012, 0.01, 0.03), vec3(0.01, 0.018, 0.045), uv.y);
 
-  // nebulae: domain-warped clouds of glowing gas in three hues
+  // nebulae: faint domain-warped wisps of gas, violet and blue
   vec2 q = p * 1.3 + vec2(t * 0.004, t * 0.002);
   vec2 w = vec2(fbm3(q + vec2(1.7, 9.2)), fbm3(q + vec2(8.3, 2.8)));
   float n1 = fbm(q + 1.8 * w);
   float n2 = fbm(q * 1.7 - 1.2 * w + 4.0);
   float mask1 = smoothstep(0.45, 0.85, n1);
   float mask2 = smoothstep(0.5, 0.9, n2);
-  col += vec3(0.42, 0.1, 0.5) * mask1 * 0.55;           // magenta-violet
-  col += vec3(0.05, 0.28, 0.45) * mask2 * 0.5;          // teal-blue
-  col += vec3(0.55, 0.3, 0.08) * mask1 * mask2 * 0.45;  // warm where they meet
+  col += vec3(0.3, 0.16, 0.45) * mask1 * 0.3;           // violet
+  col += vec3(0.05, 0.24, 0.42) * mask2 * 0.32;         // blue
   // dark dust eating into the gas
   float dust = smoothstep(0.55, 0.75, fbm3(q * 2.3 + w * 1.4 + 11.0));
   col *= 1.0 - dust * 0.55;
@@ -99,7 +98,7 @@ void main() {
   float along = bp.x * cos(ang) + bp.y * sin(ang);
   float band = exp(-across * across * 14.0);
   float lane = smoothstep(0.35, 0.7, fbm(vec2(along * 2.5, across * 9.0) + 3.0)) * exp(-across * across * 60.0);
-  vec3 bandCol = mix(vec3(0.5, 0.45, 0.6), vec3(0.75, 0.62, 0.48), fbm3(vec2(along * 3.0, 1.0)));
+  vec3 bandCol = mix(vec3(0.5, 0.5, 0.6), vec3(0.64, 0.62, 0.62), fbm3(vec2(along * 3.0, 1.0)));
   col += bandCol * band * 0.16 * (0.6 + 0.8 * fbm3(vec2(along * 6.0, across * 12.0)));
   col *= 1.0 - lane * 0.6;
 
@@ -579,7 +578,7 @@ const float TAU = 6.28318531;
 vec3 air(float mu, float duskW) {
   float day = smoothstep(-0.07, 0.3, mu);
   float dusk = exp(-pow((mu - 0.01) / duskW, 2.0));
-  return vec3(0.28, 0.54, 1.0) * day + vec3(1.0, 0.43, 0.2) * dusk * 0.6;
+  return vec3(0.28, 0.54, 1.0) * day + vec3(1.0, 0.62, 0.45) * dusk * 0.28;
 }
 void main() {
   vec2 p = vec2(vUv.x * uAspect, vUv.y);
@@ -622,6 +621,8 @@ void main() {
     if (uReal > 0.5) {
       albedo = textureGrad(uDay, uvS, gx, gy).rgb;
       water = 1.0 - smoothstep(0.4, 0.6, textureGrad(uMask, uvS, gx, gy).r);
+      // deserts and fields as they look from orbit: paler and less saturated than the map
+      albedo = mix(albedo, vec3(dot(albedo, vec3(0.3, 0.59, 0.11))), (1.0 - water) * 0.32);
       // relief from real topography, tilting the ground toward or away from the sun
       float h0 = textureGrad(uRelief, uvS, gx, gy).r;
       float hE = textureGrad(uRelief, uvS + vec2(1.0 / 2048.0, 0.0), gx, gy).r;
@@ -631,14 +632,14 @@ void main() {
     }
     float ndl = dot(n, uSun);
     float lit = max(ndl, 0.0);
-    vec3 sunC = mix(vec3(1.0, 0.52, 0.26), vec3(1.0, 0.96, 0.9), smoothstep(0.0, 0.3, ndl));
+    vec3 sunC = mix(vec3(1.0, 0.62, 0.42), vec3(1.0, 0.98, 0.95), smoothstep(0.0, 0.3, ndl));
     vec3 tq = uSunP - q * dot(q, uSunP);
     vec2 sh = vec2(dot(tq, east) / (max(cos(lat), 0.1) * TAU), -dot(tq, north) / PI) * 0.004;
     float shadow = textureGrad(uCloud, uvC + sh, gx, gy).r;
-    vec3 col = albedo * sunC * max(ndlG, 0.0) * smoothstep(-0.02, 0.06, ndl) * 1.45 * (1.0 - shadow * 0.5);
+    vec3 col = albedo * sunC * max(ndlG, 0.0) * smoothstep(-0.02, 0.06, ndl) * 1.25 * (1.0 - shadow * 0.5);
     float fres = 0.02 + 0.98 * pow(1.0 - max(n.z, 0.0), 5.0);
     col += air(ndl, 0.07) * fres * water * (1.0 - cl) * 0.5;
-    vec3 cloudC = sunC * (0.03 + 1.2 * lit) + vec3(1.0, 0.45, 0.3) * exp(-pow(ndl / 0.12, 2.0)) * 0.3;
+    vec3 cloudC = sunC * (0.03 + 1.2 * lit) + vec3(1.0, 0.6, 0.45) * exp(-pow(ndl / 0.12, 2.0)) * 0.12;
     col = mix(col, cloudC, cl);
     float night = 1.0 - smoothstep(-0.16, 0.04, ndl);
     vec3 cities;
@@ -659,7 +660,7 @@ void main() {
     vec3 moonGround = mix(vec3(lumD), albedo, 0.4) * moonTint * 0.44;
     col += mix(moonGround, moonTint * 0.3, cl) * night;
     float mu = max(n.z, 0.015);
-    float T = exp(-0.065 / mu);
+    float T = exp(-0.1 / mu);
     ground = col * T + mix(air(ndl, 0.07), vec3(0.62, 0.74, 0.95) * smoothstep(-0.05, 0.3, ndl), 0.3) * (1.0 - T) * 1.1;
   }
 
@@ -761,11 +762,11 @@ void main() {
     base = vec3(0.85, 0.86, 0.87) * (0.94 + 0.06 * step(0.5, fract(vUv.x * 12.0)));
     rough = 0.7;
   } else if (m == 3) {
-    vec2 g = vUv * vec2(12.0, 9.0);
+    vec2 g = vUv * vec2(10.0, 8.0);
     vec2 f = fract(g);
     float cell = step(0.07, f.x) * step(f.x, 0.95) * step(0.07, f.y) * step(f.y, 0.95);
-    vec3 si = vec3(0.035, 0.075, 0.24) + vec3(0.01, 0.025, 0.07) * h21(floor(g));
-    si += vec3(0.05) * smoothstep(0.08, 0.0, abs(fract(f.y * 5.0) - 0.5) - 0.42);
+    vec3 si = vec3(0.04, 0.085, 0.26) + vec3(0.005, 0.012, 0.035) * h21(floor(g));
+    si += vec3(0.025) * smoothstep(0.08, 0.0, abs(fract(f.y * 5.0) - 0.5) - 0.42);
     base = mix(vec3(0.55, 0.57, 0.6), si, cell);
     rough = 0.1 + 0.25 * (1.0 - cell);
     f0 = 0.06;

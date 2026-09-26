@@ -89,13 +89,14 @@ export function toPlanet(v: Vec3): Vec3 {
 export const POLE_MAT = new Float32Array([AXIS_X[0], AXIS_Y[0], AXIS_Z[0], AXIS_X[1], AXIS_Y[1], AXIS_Z[1], AXIS_X[2], AXIS_Y[2], AXIS_Z[2]]);
 
 /** Longitude (turns) facing the viewer at the bottom of the screen when time starts:
- *  Africa and Arabia below, the Mediterranean and Europe toward the horizon. */
+ *  the Caribbean and the Atlantic below, North America toward the horizon on the left,
+ *  so the planet opens mostly blue (it turns on toward the Pacific). */
 export const START_TURN = (() => {
   // the ground seen at the bottom middle of the screen
   const n = norm([0, -PLANET.cy / PLANET.r, Math.sqrt(1 - (PLANET.cy / PLANET.r) ** 2)]);
   const q = toPlanet(n);
   const lonHere = Math.atan2(-q[2], q[0]);
-  const want = (30 * Math.PI) / 180;
+  const want = (-58 * Math.PI) / 180;
   return (want - lonHere) / (2 * Math.PI);
 })();
 

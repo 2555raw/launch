@@ -9,16 +9,18 @@ The pairing is shown everywhere as a badge, coin on the left and currency on the
 right, e.g. `PULSAR / € EUR`.
 
 The sky behind the pages is deep space rendered on the GPU (WebGL2): layered
-starfields that twinkle, drifting nebulae, a galaxy band with dust lanes and a far
-spiral galaxy. Along the bottom is the real Earth, from NASA's public-domain Blue
+starfields that twinkle, faint wisps of nebula, a galaxy band with dust lanes and a far
+spiral galaxy. Along the bottom is the real Earth, opening on the Caribbean and the
+Atlantic, from NASA's public-domain Blue
 Marble day map, the city lights of Earth at Night and topography (prepared by
 `scripts/build-earth-images.mjs`), with the coastlines (Natural Earth, rasterized by
 `scripts/build-earth.mjs`) for the sea's sheen, and clouds with cyclones and two
 hurricanes generated on the GPU. It turns slowly in daylight under a thin glowing
 atmosphere, with the real city lights (from NASA's night map, its moonlit ground
-removed) wherever it is night. A small 3D satellite (gold foil, solar wings, dishes) comes up over the planet's edge now
-and then, orbits along just inside the horizon and leaves off the side of the screen,
-its panels flashing when they catch the sun.
+removed) wherever it is night. A slim 3D satellite (a flat body with silver foil and one
+long solar array) comes up over the planet's edge now and then, orbits along just inside
+the horizon and leaves off the side of the screen, its array flashing when it catches
+the sun.
 
 Every currency is a star, drawn like a real one (a white core, a halo in the
 currency's colour, diffraction spikes) with its sign beside it like a star chart.

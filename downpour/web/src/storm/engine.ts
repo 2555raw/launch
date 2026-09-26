@@ -211,9 +211,8 @@ export class StormEngine implements StormRenderer {
       g.fillStyle = gr;
       g.fillRect(x - r, y - r, r * 2, r * 2);
     };
-    blob(this.w * 0.8, this.h * 0.2, this.h * 0.6, 'rgba(120, 40, 160, 0.28)');
-    blob(this.w * 0.15, this.h * 0.75, this.h * 0.55, 'rgba(20, 90, 150, 0.26)');
-    blob(this.w * 0.5, this.h * 0.45, this.h * 0.4, 'rgba(160, 90, 40, 0.1)');
+    blob(this.w * 0.8, this.h * 0.2, this.h * 0.6, 'rgba(90, 50, 150, 0.16)');
+    blob(this.w * 0.15, this.h * 0.75, this.h * 0.55, 'rgba(20, 80, 150, 0.18)');
     const n = Math.round((this.w * this.h) / 900);
     for (let i = 0; i < n; i++) {
       const mag = Math.random() ** 5;
@@ -337,8 +336,8 @@ export class StormEngine implements StormRenderer {
     const air = new ImageData(w, band);
     const airC = (mu: number): [number, number, number] => {
       const day = Math.min(1, Math.max(0, (mu + 0.07) / 0.37));
-      const dusk = Math.exp(-(((mu - 0.01) / 0.1) ** 2)) * 0.6;
-      return [0.28 * day + dusk, 0.54 * day + 0.43 * dusk, day + 0.2 * dusk];
+      const dusk = Math.exp(-(((mu - 0.01) / 0.1) ** 2)) * 0.28;
+      return [0.28 * day + dusk, 0.54 * day + 0.62 * dusk, day + 0.45 * dusk];
     };
     for (let y = 0; y < band; y++) {
       const py = 1 - (h - band + y + 0.5) / h;
@@ -370,10 +369,15 @@ export class StormEngine implements StormRenderer {
           if (this.maps) {
             base = sample(this.maps.day, u, v);
             lights = sample(this.maps.night, u, v);
+            // land as it looks from orbit: paler and less saturated than the map
+            if (land) {
+              const grey = base[0] * 0.3 + base[1] * 0.59 + base[2] * 0.11;
+              base = [base[0] + (grey - base[0]) * 0.32, base[1] + (grey - base[1]) * 0.32, base[2] + (grey - base[2]) * 0.32];
+            }
           }
           const ndl = n[0] * EARTH_SUN[0] + n[1] * EARTH_SUN[1] + n[2] * EARTH_SUN[2];
-          const lit = Math.max(0, ndl) * 1.45;
-          const T = Math.exp(-0.065 / Math.max(n[2], 0.015));
+          const lit = Math.max(0, ndl) * 1.25;
+          const T = Math.exp(-0.1 / Math.max(n[2], 0.015));
           const a = airC(ndl);
           let r = base[0] * lit * T + a[0] * (1 - T);
           let gg = base[1] * lit * T + a[1] * (1 - T);

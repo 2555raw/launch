@@ -317,7 +317,7 @@
 "NOT SIGNED IN": "未登录",
 "Sign in to start": "登录后开始",
 "What are we": "我们来",
-"experimenting?": "试点什么？",
+"experimenting?": "试试什么？",
 "Ask": "问答",
 "Code": "代码",
 "Claude Sonnet 5 answers as it thinks. Long questions can take a moment.": "Claude Sonnet 5 边思考边回答。较长的问题可能需要稍等片刻。",
@@ -368,5 +368,8 @@
 "Copied": "已复制",
 "Buy on Pons": "在 Pons 购买",
 "Live now": "已上线",
-"Blockscout": "Blockscout"
+"Blockscout": "Blockscout",
+"building?": "构建什么？",
+"picturing?": "画点什么？",
+"filming?": "拍点什么？"
 }

@@ -201,7 +201,6 @@ h4 {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
   box-shadow: var(--shadow);
 }
 
@@ -210,7 +209,6 @@ h4 {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
   box-shadow: var(--shadow);
   padding: 22px;
   position: relative;

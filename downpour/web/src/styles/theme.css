@@ -1,13 +1,16 @@
-/* ------------------------------ white glass ------------------------------ */
-/* Every surface (nav, token bar, panels, cards, modals, toasts) is frosted white
- * glass with dark ink; the universe stays visible through it. Text that
- * sits straight on the scene (headlines, footer) stays light. */
+/* ------------------------------ white panels ------------------------------ */
+/* Every surface (nav, token bar, panels, cards, modals, toasts) is white with dark
+ * ink. Panels and cards are solid, so everything on them reads and there is no blur
+ * to redraw over the moving sky; the bars, menus and dialogs are frosted.
+ * Text that sits straight on the scene (headlines, footer) stays light. */
 
 :root {
   --nav-h: 50px;
-  --glass: rgba(255, 255, 255, 0.56);
-  --glass-2: rgba(255, 255, 255, 0.58);
-  --glass-strong: rgba(255, 255, 255, 0.62);
+  --glass: #fff;
+  --glass-2: #fff;
+  --glass-strong: rgba(255, 255, 255, 0.95);
+  /* the light grey of boxes inside a white panel */
+  --well: #f3f4f9;
 }
 
 .glass,
@@ -30,11 +33,11 @@
   --up: #0c9a5f;
   --down: #d13a55;
   --bolt: #5a3fd1;
+  --bolt-2: #6c52dc;
   color: var(--ink);
   background: var(--glass);
-  border-color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
   box-shadow: 0 18px 50px -24px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
@@ -45,6 +48,12 @@
 .modal,
 .toast {
   background: var(--glass-strong);
+}
+.panel,
+.card,
+.stats.glass,
+.coin-stats.glass {
+  backdrop-filter: none;
 }
 
 .panel::before,
@@ -73,10 +82,6 @@
 .nav-connect:hover {
   background: rgba(15, 28, 50, 0.06);
   color: var(--ink);
-}
-.nav-links a[href='/swap'] {
-  color: #5a3fd1;
-  font-weight: 600;
 }
 .nav-links a.on::after {
   background: #5a3fd1;
@@ -108,9 +113,9 @@
   border-color: #0b1322;
 }
 .copy-btn {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   border-color: rgba(15, 28, 50, 0.18);
-  color: var(--ink);
+  color: #0b1322;
 }
 .icon-btn {
   background: rgba(255, 255, 255, 0.5);
@@ -126,20 +131,56 @@ main {
   padding-top: calc(var(--nav-h) + 62px);
 }
 
-/* dark-on-light controls inside the glass */
+/* dark-on-light controls inside the panels: light grey wells */
 .glass .input,
 .panel .input,
 .modal .input,
-.glass .select,
-.panel .select,
-.modal .select,
 .panel textarea.input,
 .big-input,
 .swap-box,
 .cur-picker-btn {
-  background: rgba(255, 255, 255, 0.62);
-  border-color: rgba(15, 28, 50, 0.14);
+  background: var(--well);
+  border-color: rgba(15, 28, 50, 0.1);
   color: var(--ink);
+}
+/* (background-color, so the select keeps its arrow) */
+.glass .select,
+.panel .select,
+.modal .select {
+  background-color: var(--well);
+  border-color: rgba(15, 28, 50, 0.1);
+  color: var(--ink);
+}
+.glass .input:focus,
+.panel .input:focus,
+.modal .input:focus,
+.glass .select:focus,
+.panel .select:focus,
+.modal .select:focus,
+.toolbar .input:focus,
+.toolbar .select:focus {
+  border-color: rgba(90, 63, 209, 0.5);
+  box-shadow: 0 0 0 3px rgba(90, 63, 209, 0.14);
+}
+
+/* the board's and the desk's search, sort and filters sit on the sky: white pills */
+.toolbar .input,
+.toolbar .select,
+.toolbar .chip,
+.cur-filter .chip {
+  --ink: #0b1322;
+  --ink-2: #2a3547;
+  --ink-3: #5b6679;
+  color: var(--ink);
+  background-color: rgba(255, 255, 255, 0.93);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 26px -18px rgba(0, 0, 0, 0.8);
+}
+.toolbar .input::placeholder {
+  color: #7a8497;
+}
+.toolbar .search svg {
+  color: #5b6679;
 }
 .panel .input::placeholder,
 .modal .input::placeholder,
@@ -152,18 +193,24 @@ main {
 .panel .btn:not(.btn-primary),
 .modal .btn:not(.btn-primary),
 .card .btn:not(.btn-primary) {
-  background: rgba(255, 255, 255, 0.55);
-  border-color: rgba(15, 28, 50, 0.16);
+  background: #fff;
+  border-color: rgba(15, 28, 50, 0.14);
   color: var(--ink);
+}
+.panel .btn:not(.btn-primary):hover,
+.modal .btn:not(.btn-primary):hover,
+.card .btn:not(.btn-primary):hover {
+  border-color: rgba(90, 63, 209, 0.45);
 }
 .panel .chip,
 .modal .chip,
-.card .chip,
-.toolbar .chip,
-.cur-filter .chip {
-  background: rgba(255, 255, 255, 0.55);
-  border-color: rgba(15, 28, 50, 0.14);
+.card .chip {
+  background: var(--well);
+  border-color: rgba(15, 28, 50, 0.08);
   color: var(--ink-2);
+}
+.chip.on .muted {
+  color: rgba(255, 255, 255, 0.72);
 }
 .chip.on,
 .panel .chip.on,
@@ -174,9 +221,24 @@ main {
   border-color: #5a3fd1;
   color: #fff;
 }
+/* buy / sell: a segmented control, the chosen side lifted in white */
 .tabs {
-  background: rgba(15, 28, 50, 0.06);
-  border-color: rgba(15, 28, 50, 0.1);
+  background: var(--well);
+  border-color: rgba(15, 28, 50, 0.07);
+}
+.tabs button {
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.tabs button.on.buy,
+.tabs button.on.sell {
+  background: #fff;
+  box-shadow: 0 4px 12px -6px rgba(15, 28, 50, 0.35), 0 0 0 1px rgba(15, 28, 50, 0.05);
+}
+.tabs button.on.buy {
+  color: #0c9a5f;
+}
+.tabs button.on.sell {
+  color: #d13a55;
 }
 .token-btn {
   background: rgba(255, 255, 255, 0.75);
@@ -224,9 +286,26 @@ main {
 .bar {
   background: rgba(15, 28, 50, 0.1);
 }
-.callout {
-  background: rgba(255, 255, 255, 0.45);
+.panel .callout,
+.card .callout,
+.modal .callout,
+.glass .callout,
+.sheet .callout {
+  background: var(--well);
+  border-color: rgba(15, 28, 50, 0.07);
   color: var(--ink-2);
+}
+.panel .callout.warn,
+.modal .callout.warn,
+.glass .callout.warn {
+  background: #fff6ea;
+  border-left-color: #e08a1e;
+}
+.panel .callout.bolt,
+.modal .callout.bolt,
+.glass .callout.bolt {
+  background: #f3f0ff;
+  border-left-color: #5a3fd1;
 }
 .fill:hover,
 .pairs-side .pair-row:hover,
@@ -235,8 +314,8 @@ main {
   background: rgba(15, 28, 50, 0.05);
 }
 .wallet-row {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(15, 28, 50, 0.12);
+  background: var(--well);
+  border-color: rgba(15, 28, 50, 0.08);
 }
 .stats.glass .stat {
   border-color: rgba(15, 28, 50, 0.1);
@@ -245,7 +324,7 @@ main {
   border-color: rgba(255, 255, 255, 0.25);
 }
 .skeleton {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.2));
+  background: linear-gradient(90deg, #eceef5, #f7f8fb, #eceef5);
   background-size: 200% 100%;
 }
 .coin-card .cc-sky {
@@ -290,7 +369,6 @@ main {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
   box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 .hero .btn-primary:hover,
@@ -423,7 +501,7 @@ main {
 /* ------------------------------ swap ------------------------------ */
 .swap-card,
 .pairs-side .panel {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--glass);
   border-color: rgba(255, 255, 255, 0.96);
   box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.85), inset 0 1px 0 #fff;
 }
@@ -521,4 +599,108 @@ main {
 .token-row:hover,
 .token-row:focus-visible {
   background: rgba(90, 63, 209, 0.07);
+}
+
+/* ------------------------------ the top menu ------------------------------ */
+/* Swap is a purple pill, so it reads as a feature and not as the page you are on */
+.nav-links a.nav-swap {
+  color: #5a3fd1;
+  font-weight: 600;
+  background: rgba(90, 63, 209, 0.09);
+  padding: 5px 12px;
+  margin-right: 4px;
+}
+.nav-links a.nav-swap:hover {
+  color: #4a32b8;
+  background: rgba(90, 63, 209, 0.15);
+}
+.nav-links a.nav-swap.on {
+  color: #fff;
+  background: #5a3fd1;
+}
+.nav-links a.nav-swap.on::after {
+  display: none;
+}
+
+/* the bar (and anything that drops down from it) stays above the token bar */
+.nav {
+  position: relative;
+  z-index: 3;
+}
+/* dropdowns are solid white: a frosted layer inside the frosted bar can't blur the page */
+.acct-menu,
+.mode-menu,
+.more-menu {
+  background: #fff;
+}
+
+/* More: the rest of the pages, in a small dropdown */
+.more {
+  position: relative;
+}
+.more-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.more-btn:hover,
+.more-btn[aria-expanded='true'] {
+  background: rgba(15, 28, 50, 0.06);
+  color: var(--ink);
+}
+.more-btn.on {
+  color: var(--ink);
+}
+.more-btn.on::after {
+  content: '';
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: #5a3fd1;
+}
+.more-btn svg {
+  transition: transform 0.15s ease;
+}
+.more-btn[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.more-menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  translate: -50% 0;
+  min-width: 190px;
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.96);
+  border-radius: 16px;
+  box-shadow: 0 22px 50px -20px rgba(0, 0, 0, 0.7), inset 0 1px 0 #fff;
+  z-index: 60;
+  animation: fade 0.15s ease;
+}
+.nav-links .more-menu a {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.nav-links .more-menu a.on {
+  color: #5a3fd1;
+  background: rgba(90, 63, 209, 0.08);
+}
+.nav-links .more-menu a.on::after {
+  display: none;
 }

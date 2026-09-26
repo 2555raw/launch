@@ -64,7 +64,7 @@ export function KeeperLine() {
 /* ------------------------------ curve picture ------------------------------ */
 
 /** Price against coins sold: the curve, where it stands now, and the graduation point. */
-export function CurveChart({ sold = 0.42, height = 170, color = '#7cc4ff' }: { sold?: number; height?: number; color?: string }) {
+export function CurveChart({ sold = 0.42, height = 170, color = '#3f8ce6' }: { sold?: number; height?: number; color?: string }) {
   const w = 460;
   const pad = 14;
   const S = Number(CURVE_SUPPLY) / 1e18;
@@ -84,21 +84,21 @@ export function CurveChart({ sold = 0.42, height = 170, color = '#7cc4ff' }: { s
   const endY = height - pad - (height - pad * 2.5);
   return (
     <svg viewBox={`0 0 ${w} ${height}`} className="curve-chart" role="img" aria-label="Bonding curve: price rises as coins are sold, then the coin graduates into a pool">
-      <line x1={pad} y1={height - pad} x2={w - pad} y2={height - pad} stroke="rgba(150,180,255,0.2)" />
+      <line x1={pad} y1={height - pad} x2={w - pad} y2={height - pad} stroke="rgba(15,28,50,0.15)" />
       <path d={pts.join(' ')} fill="none" stroke={color} strokeWidth="2" />
-      <line x1={endX} y1={endY} x2={w - pad} y2={endY} stroke="#3ddc97" strokeWidth="2" strokeDasharray="4 4" />
-      <circle cx={endX} cy={endY} r="5" fill="#3ddc97" />
-      <text x={endX - 6} y={endY - 12} fill="#8ff0c4" fontSize="11" textAnchor="end">
+      <line x1={endX} y1={endY} x2={w - pad} y2={endY} stroke="#0c9a5f" strokeWidth="2" strokeDasharray="4 4" />
+      <circle cx={endX} cy={endY} r="5" fill="#0c9a5f" />
+      <text x={endX - 6} y={endY - 12} fill="#0c9a5f" fontSize="11" textAnchor="end">
         graduates · pool starts at the same price
       </text>
-      <circle cx={nowX} cy={nowY} r="6" fill="#a18cff" stroke="#150b3d" strokeWidth="2" />
-      <text x={nowX + 10} y={nowY + 4} fill="#7c63f0" fontSize="11">
+      <circle cx={nowX} cy={nowY} r="6" fill="#5a3fd1" stroke="#fff" strokeWidth="2" />
+      <text x={nowX + 10} y={nowY + 4} fill="#5a3fd1" fontSize="11">
         you are here
       </text>
-      <text x={pad} y={height - 2} fill="#7f8ca8" fontSize="10">
+      <text x={pad} y={height - 2} fill="#5b6679" fontSize="10">
         0
       </text>
-      <text x={endX} y={height - 2} fill="#7f8ca8" fontSize="10" textAnchor="middle">
+      <text x={endX} y={height - 2} fill="#5b6679" fontSize="10" textAnchor="middle">
         800M sold
       </text>
     </svg>

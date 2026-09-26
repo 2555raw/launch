@@ -14,18 +14,16 @@ spiral galaxy. Along the bottom is the real Earth, from NASA's public-domain Blu
 Marble day map, the city lights of Earth at Night and topography (prepared by
 `scripts/build-earth-images.mjs`), with the coastlines (Natural Earth, rasterized by
 `scripts/build-earth.mjs`) for the sea's sheen, and clouds with cyclones and two
-hurricanes generated on the GPU. It turns slowly under a thin glowing atmosphere. The
-Night button in the nav sweeps night across it until the whole face is black and only
-the real city lights shine (brightest where most people live, from NASA's night map
-with its moonlit ground removed); Day brings the daylight back, and the choice is
-remembered. A
-small 3D satellite (gold foil, solar wings, dishes) comes up over the planet's edge now
+hurricanes generated on the GPU. It turns slowly in daylight under a thin glowing
+atmosphere, with the real city lights (from NASA's night map, its moonlit ground
+removed) wherever it is night. A small 3D satellite (gold foil, solar wings, dishes) comes up over the planet's edge now
 and then, orbits along just inside the horizon and leaves off the side of the screen,
 its panels flashing when they catch the sun.
 
 Every currency is a star, drawn like a real one (a white core, a halo in the
 currency's colour, diffraction spikes) with its sign beside it like a star chart.
-Stars are born with a flare, drift slowly upward and fade out; tap one and it bursts.
+Stars are born with a flare, drift slowly upward and fade out; tap one and it flares up
+for a moment and fades, like a real star going out.
 Shooting stars streak across the top of the sky on their own, over the planet and
 away from it. Resolution drops by itself on slow devices, browsers without WebGL2 get a 2D
 version (also reachable with `?storm2d`), and nothing moves under

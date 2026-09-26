@@ -6,6 +6,7 @@ import { useWallet } from '../wallet/WalletProvider';
 import { explorerAddress } from '../config/chains';
 import { CoinOrb, CopyButton, PairBadge, ProgressBar, StatusPill } from '../components/bits';
 import { PriceChart } from '../components/PriceChart';
+import { skyStyle } from '../components/CoinCard';
 import { RecentFills } from '../components/sections';
 import { Arrow, Sparkle } from '../components/icons';
 import { ago, compact, money, parseAmount, pct, shortAddr, toInput, usd } from '../lib/format';
@@ -250,7 +251,9 @@ export default function CoinPage() {
   return (
     <div className="wrap">
       <div className="coin-head">
-        <CoinOrb coin={coin} currency={cur} size={78} />
+        <div className="coin-avatar" style={skyStyle(coin.address, cur.color)}>
+          <CoinOrb coin={coin} currency={cur} size={coin.meta.image ? 76 : 124} />
+        </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="kicker">{coin.graduated ? 'Graduated · trading in its pool' : 'On the curve'}</div>
           <h1>{coin.name}</h1>
@@ -262,7 +265,8 @@ export default function CoinPage() {
             </span>
           </div>
           <div className="meta-line small">
-            <span className="mono muted">{coin.address}</span>
+            <span className="mono muted addr-full">{coin.address}</span>
+            <span className="mono muted addr-short">{shortAddr(coin.address)}</span>
             <CopyButton text={coin.address} />
             {exp && (
               <a href={exp} target="_blank" rel="noreferrer" className="accent-text">

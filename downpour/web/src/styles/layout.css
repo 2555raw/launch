@@ -80,10 +80,6 @@
   box-shadow: 0 0 10px rgba(124, 99, 240, 0.8);
 }
 
-.nav-links a[href='/swap'] {
-  color: var(--bolt-2);
-}
-
 .nav-actions {
   display: flex;
   align-items: center;
@@ -168,7 +164,7 @@
   }
 }
 
-@media (max-width: 1060px) {
+@media (max-width: 820px) {
   .nav-links {
     display: none;
   }

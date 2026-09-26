@@ -131,7 +131,6 @@
   border: 1px solid var(--line);
   background: var(--glass);
   backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
   box-shadow: var(--shadow);
   overflow: hidden;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -143,7 +142,8 @@ a.card:hover {
   box-shadow: 0 26px 70px -30px color-mix(in srgb, var(--c, #7cc4ff) 60%, transparent), var(--shadow);
 }
 
-.coin-card .cc-sky {
+.coin-card .cc-sky,
+.coin-avatar {
   position: relative;
   height: 150px;
   display: grid;
@@ -159,7 +159,8 @@ a.card:hover {
   border-bottom: 1px solid var(--line);
 }
 
-.coin-card .cc-sky::after {
+.coin-card .cc-sky::after,
+.coin-avatar::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -595,6 +596,70 @@ a.card:hover {
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: 26px;
+}
+
+/* the coin's star in its own patch of sky, as on its card (the sky is shared with .cc-sky) */
+.coin-avatar {
+  flex: none;
+  width: 104px;
+  height: 104px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 24px;
+  box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* centred on the tile; the star is drawn a little larger than it so its halo fills it */
+.coin-avatar .star-mark,
+.coin-avatar .orb {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+}
+
+.coin-avatar .star-mark {
+  width: 124px;
+  height: 124px;
+}
+
+.coin-avatar .orb {
+  width: 76px;
+  height: 76px;
+}
+
+.coin-head .addr-short {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .coin-head {
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .coin-avatar {
+    width: 76px;
+    height: 76px;
+    border-radius: 18px;
+  }
+
+  .coin-avatar .star-mark {
+    width: 92px;
+    height: 92px;
+  }
+
+  .coin-avatar .orb {
+    width: 56px;
+    height: 56px;
+  }
+
+  .coin-head .addr-full {
+    display: none;
+  }
+
+  .coin-head .addr-short {
+    display: inline;
+  }
 }
 
 .coin-head h1 {

@@ -266,7 +266,7 @@ export class GLStorm implements StormRenderer {
     attr(this.progs.drop, 'aMisc', 4, 44, 16, 1);
     attr(this.progs.drop, 'aTint', 3, 44, 32, 1);
 
-    // sparkles and shockwaves
+    // sparkles and flares
     this.vaoPart = gl.createVertexArray()!;
     gl.bindVertexArray(this.vaoPart);
     gl.bindBuffer(gl.ARRAY_BUFFER, quad());
@@ -625,17 +625,6 @@ export class GLStorm implements StormRenderer {
     };
   }
 
-  /** A new star flares up: a ring of light and a few sparks. */
-  private ignite(s: Star) {
-    const tint = rgbOf(s.code);
-    if (this.parts.length < MAX_PARTS) this.parts.push({ x: s.x, y: s.y, vx: 0, vy: 0, life: 0, max: 0.9, size: s.r * 0.6, grow: 70, type: 1, tint });
-    for (let i = 0; i < 8 && this.parts.length < MAX_PARTS; i++) {
-      const a = rand(0, Math.PI * 2);
-      const v = rand(20, 70);
-      this.parts.push({ x: s.x, y: s.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.6, 1.1), size: rand(1.2, 2.4), grow: 0, type: 0, tint });
-    }
-  }
-
   pop(x: number, y: number) {
     const now = performance.now() / 1000;
     for (let i = this.stars.length - 1; i >= 0; i--) {
@@ -644,26 +633,24 @@ export class GLStorm implements StormRenderer {
       if (Math.hypot(s.x - x, s.y - y) < s.r * 1.7) {
         this.burst(s.x, s.y, s.r, rgbOf(s.code));
         this.onPop?.(s.code);
-        this.flash = Math.min(1, this.flash + 0.35);
+        this.flash = Math.min(1, this.flash + 0.1);
         this.flashAt = [s.x / this.w, 1 - s.y / this.h];
-        const next = this.newStar();
-        this.stars[i] = next;
-        this.ignite(next);
+        this.stars[i] = this.newStar();
         return true;
       }
     }
     return false;
   }
 
-  /** A star bursting: sparks flying out and slowing down, and a shockwave. */
+  /** A star going out: it flares up for a moment and fades, and a few faint motes of
+   *  its light drift off. */
   private burst(x: number, y: number, r: number, tint: [number, number, number]) {
-    for (let i = 0; i < 34 && this.parts.length < MAX_PARTS; i++) {
+    if (this.parts.length < MAX_PARTS) this.parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.85, size: r * 2.4, grow: r * 1.4, type: 1, tint });
+    for (let i = 0; i < 5 && this.parts.length < MAX_PARTS; i++) {
       const a = rand(0, Math.PI * 2);
-      const v = rand(50, 280);
-      this.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.6, 1.3), size: rand(1.4, 3.6), grow: 0, type: 0, tint });
+      const v = rand(10, 34);
+      this.parts.push({ x: x + Math.cos(a) * r * 0.3, y: y + Math.sin(a) * r * 0.3, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.5, 0.9), size: rand(0.8, 1.4), grow: 0, type: 0, tint });
     }
-    if (this.parts.length < MAX_PARTS) this.parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.7, size: r * 0.8, grow: 190, type: 1, tint });
-    if (this.parts.length < MAX_PARTS) this.parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.45, size: r * 0.5, grow: 110, type: 1, tint: [1, 1, 1] });
   }
 
   /* ------------------------------ the satellite ------------------------------ */
@@ -954,11 +941,7 @@ export class GLStorm implements StormRenderer {
         s.phase += dt * s.rate;
         s.x += Math.sin(s.phase * 0.35) * 3 * dt;
         s.charge = Math.max(0, s.charge - dt * 0.8);
-        if (now - s.born > s.life || s.y < -s.r * 3.5) {
-          const next = this.newStar();
-          this.stars[i] = next;
-          this.ignite(next);
-        }
+        if (now - s.born > s.life || s.y < -s.r * 3.5) this.stars[i] = this.newStar();
       }
       for (let i = this.parts.length - 1; i >= 0; i--) {
         const p = this.parts[i];
@@ -1062,12 +1045,12 @@ export class GLStorm implements StormRenderer {
       for (let i = 0; i < np; i++) {
         const p = this.parts[i];
         const k = p.life / p.max;
-        const tw = p.type === 0 ? 0.7 + 0.3 * Math.sin(p.life * 30 + i) : 1;
+        const tw = p.type === 0 ? 0.85 + 0.15 * Math.sin(p.life * 16 + i) : 1;
         const o = i * 8;
         this.partData[o] = p.x;
         this.partData[o + 1] = p.y;
         this.partData[o + 2] = p.size;
-        this.partData[o + 3] = (p.type === 0 ? (1 - k) * 0.95 : (1 - k) ** 1.5 * 0.8) * tw;
+        this.partData[o + 3] = (p.type === 0 ? (1 - k) * 0.95 : Math.min(1, k / 0.03) * (1 - k) ** 2 * 0.9) * tw;
         this.partData[o + 4] = p.type;
         this.partData[o + 5] = p.tint[0];
         this.partData[o + 6] = p.tint[1];

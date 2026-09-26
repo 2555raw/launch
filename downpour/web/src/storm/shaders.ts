@@ -209,7 +209,7 @@ void main() {
 export const PART_VS = `#version 300 es
 in vec2 aCorner;
 in vec4 aP;     // x, y, size, alpha
-in vec4 aQ;     // type (0 sparkle, 1 ring), tint rgb
+in vec4 aQ;     // type (0 sparkle, 1 flare), tint rgb
 uniform vec2 uRes;
 out vec2 vLocal;
 out float vType;
@@ -242,8 +242,9 @@ void main() {
     float glint = smoothstep(0.55, 0.0, length(vLocal - vec2(-0.35, 0.35)));
     c = mix(vec3(1.0), vTint, 0.45) * 1.2 + glint * 0.4;
   } else {
-    a = smoothstep(0.16, 0.0, abs(r - 0.82)) * 0.7;
-    c = mix(vec3(0.6, 0.68, 0.8), vTint, 0.35);
+    // a flare: the star's light swelling into a soft glow, white at the heart
+    a = (exp(-r * r * 6.0) * 0.8 + exp(-r * 3.2) * 0.3) * smoothstep(1.0, 0.72, r);
+    c = mix(vTint, vec3(1.0), exp(-r * r * 14.0) * 0.8);
   }
   c += vec3(0.8, 0.85, 1.0) * uFlash * 0.6;
   a *= vAlpha;

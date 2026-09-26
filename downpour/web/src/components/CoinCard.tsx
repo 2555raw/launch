@@ -3,11 +3,17 @@ import type { CoinRow } from '../lib/views';
 import { ago, money, pct, usd } from '../lib/format';
 import { CoinOrb, PairBadge, ProgressBar, Sparkline, StatusPill } from './bits';
 
+/** A coin's own patch of sky: its currency's colour and a starfield offset seeded from
+ *  its address, so a coin looks the same on its card and on its page. */
+export function skyStyle(address: string, color: string) {
+  const seed = parseInt(address.slice(2, 10), 16) || 0;
+  return { '--c': color, '--sx': `${seed % 420}px`, '--sy': `${(seed >>> 9) % 160}px` } as React.CSSProperties;
+}
+
 export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
   const { coin, cur } = row;
   // each card shows its own patch of sky
-  const seed = parseInt(coin.address.slice(2, 10), 16) || 0;
-  const sky = { '--c': cur.color, '--sx': `${seed % 420}px`, '--sy': `${(seed >>> 9) % 160}px` } as React.CSSProperties;
+  const sky = skyStyle(coin.address, cur.color);
   return (
     <Link to={`/coin/${coin.address}`} className="card coin-card" style={sky}>
       <div className="cc-sky">

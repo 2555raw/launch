@@ -10,7 +10,7 @@
  *              wherever it is night; a thin glowing atmosphere
  *   satellite  orbiting along just inside the horizon and off the right side
  *   meteors    shooting stars with fading tails, across the top of the sky
- *   sparkles   a burst of sparks and a ring when a currency star is tapped
+ *   sparkles   a tapped currency star flares up and fades, shedding a few faint motes
  *
  * Nothing moves at all under prefers-reduced-motion. */
 import { currencyColor, dropGlyph } from '../data/currencies';
@@ -60,15 +60,34 @@ interface Particle {
   size: number;
 }
 
-interface Ring {
+interface Flare {
   x: number;
   y: number;
   r: number;
+  grow: number;
   life: number;
+  max: number;
   color: string;
 }
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
+/** The same colour at an opacity (a hex or hsl() currency colour). */
+const withAlpha = (c: string, a: number) =>
+  c.startsWith('#') && c.length === 7
+    ? c + Math.round(a * 255).toString(16).padStart(2, '0')
+    : c.startsWith('hsl(')
+      ? c.replace(')', ` / ${a})`)
+      : `rgba(255,255,255,${a})`;
+/** A flare's falloff, as gradient stops: most of its light close to the heart. */
+const FLARE_STOPS: [number, number][] = [
+  [0.1, 0.95],
+  [0.2, 0.79],
+  [0.3, 0.58],
+  [0.45, 0.31],
+  [0.6, 0.14],
+  [0.8, 0.03],
+  [1, 0],
+];
 const IGNITE = 1.2;
 const FADE = 1.5;
 
@@ -95,7 +114,7 @@ export class StormEngine implements StormRenderer {
   private stars: Star[] = [];
   private meteors: Meteor[] = [];
   private parts: Particle[] = [];
-  private rings: Ring[] = [];
+  private flares: Flare[] = [];
   private nextAuto = 0;
   private lastTap = 0;
   private intensity: Intensity = 'storm';
@@ -454,16 +473,16 @@ export class StormEngine implements StormRenderer {
     for (let i = this.stars.length - 1; i >= 0; i--) {
       const s = this.stars[i];
       if (Math.hypot(s.x - x, s.y - y) < s.r * 1.7) {
+        // it flares up for a moment and fades; a few faint motes of its light drift off
         const color = currencyColor(s.code);
-        for (let k = 0; k < 28; k++) {
+        this.flares.push({ x: s.x, y: s.y, r: s.r * 2.4, grow: s.r * 1.4, life: 0, max: 0.85, color });
+        for (let k = 0; k < 5; k++) {
           const a = rand(0, Math.PI * 2);
-          const v = rand(50, 260);
-          this.parts.push({ x: s.x, y: s.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.6, 1.2), color, size: rand(1.2, 3) });
+          const v = rand(10, 34);
+          this.parts.push({ x: s.x + Math.cos(a) * s.r * 0.3, y: s.y + Math.sin(a) * s.r * 0.3, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.5, 0.9), color, size: rand(0.8, 1.4) });
         }
-        this.rings.push({ x: s.x, y: s.y, r: s.r * 0.8, life: 0, color });
         this.onPop?.(s.code);
         this.stars[i] = this.newStar();
-        this.rings.push({ x: this.stars[i].x, y: this.stars[i].y, r: 6, life: 0, color: currencyColor(this.stars[i].code) });
         return true;
       }
     }
@@ -553,7 +572,6 @@ export class StormEngine implements StormRenderer {
       const age = now - s.born;
       if (!still && (age > s.life || s.y < -s.r * 3.5)) {
         this.stars[i] = this.newStar();
-        this.rings.push({ x: this.stars[i].x, y: this.stars[i].y, r: 6, life: 0, color: currencyColor(this.stars[i].code) });
         continue;
       }
       const k = Math.min(1, Math.max(0, age) / IGNITE);
@@ -643,7 +661,7 @@ export class StormEngine implements StormRenderer {
       }
     }
 
-    // sparks and rings
+    // motes and flares
     for (let i = this.parts.length - 1; i >= 0; i--) {
       const p = this.parts[i];
       if (!still) {
@@ -664,22 +682,24 @@ export class StormEngine implements StormRenderer {
       g.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       g.fill();
     }
-    for (let i = this.rings.length - 1; i >= 0; i--) {
-      const r = this.rings[i];
+    for (let i = this.flares.length - 1; i >= 0; i--) {
+      const f = this.flares[i];
       if (!still) {
-        r.life += dt;
-        r.r += 150 * dt;
+        f.life += dt;
+        f.r += f.grow * dt;
       }
-      if (r.life > 0.7) {
-        this.rings.splice(i, 1);
+      const k = f.life / f.max;
+      if (k >= 1) {
+        this.flares.splice(i, 1);
         continue;
       }
-      g.globalAlpha = (1 - r.life / 0.7) * 0.7;
-      g.strokeStyle = r.color;
-      g.lineWidth = 2;
-      g.beginPath();
-      g.arc(r.x, r.y, r.r, 0, Math.PI * 2);
-      g.stroke();
+      // at once as bright as the star was, then fading slowly: a soft glow, white at the heart
+      g.globalAlpha = Math.min(1, k / 0.03) * (1 - k) ** 2 * 0.9;
+      const glow = g.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
+      glow.addColorStop(0, '#fff');
+      for (const [at, a] of FLARE_STOPS) glow.addColorStop(at, withAlpha(f.color, a));
+      g.fillStyle = glow;
+      g.fillRect(f.x - f.r, f.y - f.r, f.r * 2, f.r * 2);
     }
     g.globalAlpha = 1;
     g.globalCompositeOperation = 'source-over';

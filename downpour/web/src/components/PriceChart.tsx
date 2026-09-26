@@ -35,11 +35,11 @@ export function PriceChart({
     if (!box.current) return;
     const c = createChart(box.current, {
       autoSize: true,
-      layout: { background: { type: ColorType.Solid, color: 'transparent' }, textColor: '#8b98b4', fontFamily: 'Inter Variable, system-ui' },
-      grid: { vertLines: { color: 'rgba(150,180,255,0.06)' }, horzLines: { color: 'rgba(150,180,255,0.06)' } },
-      rightPriceScale: { borderColor: 'rgba(150,180,255,0.14)' },
-      timeScale: { borderColor: 'rgba(150,180,255,0.14)', timeVisible: true, secondsVisible: false },
-      crosshair: { vertLine: { color: 'rgba(255,224,102,0.4)' }, horzLine: { color: 'rgba(255,224,102,0.4)' } },
+      layout: { background: { type: ColorType.Solid, color: 'transparent' }, textColor: '#5b6679', fontFamily: 'Inter Variable, system-ui' },
+      grid: { vertLines: { color: 'rgba(15,28,50,0.05)' }, horzLines: { color: 'rgba(15,28,50,0.06)' } },
+      rightPriceScale: { borderColor: 'rgba(15,28,50,0.12)' },
+      timeScale: { borderColor: 'rgba(15,28,50,0.12)', timeVisible: true, secondsVisible: false },
+      crosshair: { vertLine: { color: 'rgba(90,63,209,0.45)' }, horzLine: { color: 'rgba(90,63,209,0.45)' } },
       localization: { priceFormatter: (p: number) => formatTick(p) },
     });
     chart.current = c;
@@ -66,7 +66,8 @@ export function PriceChart({
 }
 
 function formatTick(p: number) {
-  if (p === 0) return '0';
+  // the bottom of the scale can be a hair off zero; show it as zero
+  if (Math.abs(p) < 1e-15) return '0';
   if (p >= 1) return p.toFixed(2);
   const zeros = Math.floor(-Math.log10(p));
   return p.toFixed(Math.min(zeros + 3, 14));

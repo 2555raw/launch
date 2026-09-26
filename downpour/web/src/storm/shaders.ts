@@ -49,47 +49,43 @@ float fbm3(vec2 p) {
   return s;
 }`;
 
-/** Storm sky: a deck of turbulent cumulonimbus, rain curtains beneath it, a faint
- *  city glow at the horizon, and lightning that lights the cloud from inside. */
+/** A storm over a beach: a deck of turbulent cumulonimbus with rain curtains, a
+ *  wind-driven sea that reflects the sky (Fresnel, choppy normals, crest foam,
+ *  rings where rain hits it), surf washing up a wet, reflective strip of sand, and
+ *  lightning that lights the cloud from inside and flashes across the water. */
 export const SKY_FS = `#version 300 es
 precision highp float;
 in vec2 vUv;
 out vec4 o;
 uniform float uTime;
 uniform float uAspect;
-uniform vec3 uFlash;   // xy: where the bolt leaves the cloud (uv, y up), z: intensity
-uniform float uSheet;  // cloud-wide flash with no bolt
-uniform float uBase;   // cloud base height (uv, from the bottom)
-uniform float uStorm;  // 1 storm, ~0.55 drizzle
+uniform vec3 uFlash;    // xy: where the bolt leaves the cloud (uv, y up), z: intensity
+uniform float uSheet;   // cloud-wide flash with no bolt
+uniform float uBase;    // cloud base height (uv, from the bottom)
+uniform float uStorm;   // 1 storm, ~0.55 drizzle
+uniform float uHorizon; // sea horizon (uv, from the bottom)
+uniform float uShore;   // where the surf reaches on average (uv, from the bottom)
 ${NOISE}
-void main() {
-  vec2 uv = vUv;
-  vec2 p = vec2(uv.x * uAspect, uv.y);
-  float t = uTime;
-  vec2 drift = vec2(t * 0.012, 0.0);
+const vec3 FLASH = vec3(0.8, 0.85, 1.0);
 
-  // the underside of the deck is ragged, not a straight line
+// sky and clouds, full detail
+vec3 skyAt(vec2 uv, float t) {
+  vec2 p = vec2(uv.x * uAspect, uv.y);
+  vec2 drift = vec2(t * 0.012, 0.0);
   float base = uBase + 0.07 * (fbm3(vec2(p.x * 1.1 + t * 0.006, 2.3)) - 0.5);
   float h = uv.y - base;
-
-  // turbulent, domain-warped cloud field, squashed like a real storm deck
   vec2 q = p * vec2(1.6, 2.7) + drift;
   vec2 w = vec2(fbm3(q + vec2(0.0, t * 0.012)), fbm3(q + vec2(5.3, 1.9) - vec2(t * 0.009, 0.0)));
   float d = mix(fbm(q + 1.35 * w), 1.0 - billow(q * 1.25 + w * 0.6), 0.42);
   float lumps = fbm3(p * vec2(0.75, 1.4) + drift * 0.6 + 9.0);
-
-  // coverage: broken near the base, a solid (but still textured) ceiling above
   float cover = smoothstep(-0.16, 0.16, h + (lumps - 0.5) * 0.3);
   float dens = clamp((d - 0.28) * 2.6 + cover - 0.32, 0.0, 1.0) * cover;
   dens = max(dens, smoothstep(0.06, 0.4, h) * (0.8 + 0.2 * d));
-
-  // billows: brighter where the field peaks toward the light above, dark in the cavities
   vec2 qu = q + vec2(0.012, 0.075);
   float dUp = mix(fbm(qu + 1.35 * w), 1.0 - billow(qu * 1.25 + w * 0.6), 0.42);
   float edge = clamp((d - dUp) * 6.0 + 0.45, 0.0, 1.0);
   float belly = smoothstep(0.22, -0.08, h);
   float det = fbm3(q * 3.6 - drift * 2.8);
-
   vec3 cDark = vec3(0.022, 0.028, 0.042);
   vec3 cMid = vec3(0.085, 0.1, 0.13);
   vec3 cLight = vec3(0.25, 0.28, 0.34);
@@ -98,32 +94,144 @@ void main() {
   cloud *= 0.72 + 0.56 * smoothstep(0.18, 0.78, d);
   cloud *= 0.86 + 0.28 * det;
   cloud *= mix(1.3, 1.0, uStorm);
-
-  // sky beyond the deck: steel blue, lighter toward the horizon
-  vec3 sky = mix(vec3(0.085, 0.11, 0.155), vec3(0.03, 0.04, 0.062), smoothstep(0.0, 0.85, uv.y));
-  // rain curtains hanging under the deck, leaning with the wind
+  // the sky low over the sea: lighter, hazy, streaked with distant rain
+  vec3 sky = mix(vec3(0.12, 0.145, 0.18), vec3(0.03, 0.04, 0.062), smoothstep(uHorizon, 0.9, uv.y));
   float curtains = fbm3(vec2(p.x * 4.4 + t * 0.05 - uv.y * 0.9, uv.y * 0.45 - t * 0.32));
   float under = smoothstep(0.03, -0.42, h);
-  sky = mix(sky, vec3(0.14, 0.165, 0.21), smoothstep(0.4, 0.78, curtains) * under * 0.8 * uStorm);
-  // a faint city glow under the storm
-  sky += vec3(0.06, 0.055, 0.05) * pow(1.0 - uv.y, 4.5);
-
+  sky = mix(sky, vec3(0.155, 0.18, 0.22), smoothstep(0.4, 0.78, curtains) * under * 0.8 * uStorm);
   vec3 col = mix(sky, cloud, dens);
-
-  // ragged scud racing under the base
   float scud = fbm3(p * vec2(3.2, 7.0) + vec2(t * 0.045, 0.0));
   float band = smoothstep(-0.13, -0.03, h) * smoothstep(0.08, 0.0, h);
   col = mix(col, cDark * 1.3, smoothstep(0.52, 0.72, scud) * band * 0.85);
-
-  // lightning: a light inside the cloud, scattered by its density
   vec2 fp = vec2(uFlash.x * uAspect, uFlash.y);
   float r = length((p - fp) * vec2(1.0, 1.7));
   float glow = uFlash.z * exp(-r * 2.4);
-  vec3 flashCol = vec3(0.8, 0.85, 1.0);
-  col += flashCol * glow * (0.16 + 1.9 * dens * (0.5 + 0.5 * det) * (0.55 + 0.45 * edge));
-  col += flashCol * uSheet * dens * (0.25 + 0.75 * edge) * 0.6;
-  col += flashCol * (uFlash.z * 0.04 + uSheet * 0.025);
+  col += FLASH * glow * (0.16 + 1.9 * dens * (0.5 + 0.5 * det) * (0.55 + 0.45 * edge));
+  col += FLASH * uSheet * dens * (0.25 + 0.75 * edge) * 0.6;
+  col += FLASH * (uFlash.z * 0.04 + uSheet * 0.025);
+  return col;
+}
 
+// a cheaper sky for what the water reflects (it is broken up by waves anyway)
+vec3 skyLite(vec2 uv, float t) {
+  vec2 p = vec2(uv.x * uAspect, uv.y);
+  float d = fbm3(p * vec2(1.6, 2.7) + vec2(t * 0.012, 0.0));
+  float h = uv.y - uBase;
+  float dens = clamp(smoothstep(-0.2, 0.2, h) * (0.6 + d * 0.8), 0.0, 1.0);
+  vec3 sky = mix(vec3(0.13, 0.155, 0.19), vec3(0.04, 0.05, 0.07), smoothstep(uHorizon, 0.9, uv.y));
+  vec3 col = mix(sky, vec3(0.06, 0.07, 0.09) * (0.7 + 0.6 * d), dens);
+  vec2 fp = vec2(uFlash.x * uAspect, uFlash.y);
+  float r = length((p - fp) * vec2(1.0, 1.7));
+  col += FLASH * uFlash.z * exp(-r * 2.4) * (0.3 + 1.2 * dens);
+  col += FLASH * uSheet * dens * 0.4;
+  return col;
+}
+
+// the sea surface height, waves rolling toward the beach plus wind chop
+float seaH(vec2 w, float t) {
+  float h = 0.0;
+  h += 0.32 * sin(w.y * 1.25 + t * 1.15 + sin(w.x * 0.27) * 1.6);
+  h += 0.17 * sin(w.y * 2.6 - w.x * 0.8 + t * 1.85);
+  h += 0.09 * sin(w.y * 4.9 + w.x * 1.6 + t * 2.6);
+  h += 0.28 * (fbm3(w * vec2(1.3, 2.1) + vec2(0.0, t * 0.4)) - 0.5);
+  h += 0.07 * (noise(w * 6.5 + vec2(t * 0.9, t * 0.7)) - 0.5);
+  return h;
+}
+
+// expanding rings where raindrops hit the water, returned as a normal nudge
+vec2 rainRings(vec2 w, float t) {
+  vec2 acc = vec2(0.0);
+  for (int k = 0; k < 2; k++) {
+    vec2 rp = w * (k == 0 ? 2.4 : 3.7) + float(k) * 17.3;
+    vec2 cell = floor(rp);
+    vec2 f = fract(rp) - 0.5;
+    float rnd = hash(cell);
+    float ph = fract(t * (0.8 + rnd * 0.6) + rnd * 7.0);
+    vec2 c = vec2(hash(cell + 3.1), hash(cell + 7.7)) - 0.5;
+    vec2 dv = f - c * 0.6;
+    float d = length(dv) + 1e-4;
+    float radius = ph * 0.45;
+    float ring = sin((d - radius) * 52.0) * smoothstep(0.06, 0.0, abs(d - radius)) * (1.0 - ph);
+    acc += dv / d * ring;
+  }
+  return acc;
+}
+
+void main() {
+  vec2 uv = vUv;
+  float t = uTime;
+  vec3 col;
+
+  if (uv.y >= uHorizon) {
+    col = skyAt(uv, t);
+    // a headland far off to the left, fading into the rain
+    float hill = uHorizon + 0.045 * smoothstep(0.42, 0.0, uv.x) * (0.55 + 0.45 * fbm3(vec2(uv.x * 9.0, 1.0)));
+    if (uv.y < hill) col = mix(col, vec3(0.045, 0.055, 0.07) + FLASH * uFlash.z * 0.05, 0.75);
+  } else {
+    // project the pixel onto the ground plane
+    float dy = uHorizon - uv.y;
+    float z = 0.075 / dy;
+    vec2 wp = vec2((uv.x - 0.5) * uAspect * z, z);
+    vec3 V = normalize(vec3((uv.x - 0.5) * uAspect, -dy, 1.0));
+    // the surf washes up and back
+    float wash = 0.018 * sin(t * 0.55 + wp.x * 0.35) + 0.012 * sin(t * 0.93 + 1.7 + wp.x * 0.8);
+    float shoreY = uShore + wash + 0.01 * (fbm3(vec2(wp.x * 0.6, t * 0.1)) - 0.5);
+
+    vec3 wcol = vec3(0.0);
+    vec3 scol = vec3(0.0);
+    float edgeW = smoothstep(shoreY - 0.004, shoreY + 0.008, uv.y);
+    if (edgeW > 0.0) {
+      // water
+      float e = 0.03 * z + 0.01;
+      float h = seaH(wp, t);
+      float hx = seaH(wp + vec2(e, 0.0), t) - h;
+      float hz = seaH(wp + vec2(0.0, e), t) - h;
+      float near = smoothstep(0.02, 0.18, dy);
+      vec3 n = normalize(vec3(-hx / e * 0.35, 1.0, -hz / e * 0.35));
+      vec2 rr = rainRings(wp * 1.2, t) * near * uStorm;
+      n = normalize(n + vec3(rr.x, 0.0, rr.y) * 0.09);
+      vec3 R = reflect(V, n);
+      vec2 ruv = vec2(uv.x + R.x * 0.08, uHorizon + max(R.y, 0.0) * 0.9);
+      vec3 refl = skyLite(ruv, t);
+      float fres = 0.02 + 0.98 * pow(1.0 - max(dot(-V, n), 0.0), 5.0);
+      vec3 deep = vec3(0.01, 0.028, 0.036);
+      vec3 body = deep + vec3(0.02, 0.07, 0.075) * max(h + 0.15, 0.0);
+      wcol = mix(body, refl, clamp(fres, 0.0, 1.0));
+      // lightning glinting off the water
+      vec3 Lf = normalize(vec3((uFlash.x - 0.5) * uAspect, 0.55, 1.4));
+      wcol += FLASH * uFlash.z * pow(max(dot(R, Lf), 0.0), 40.0) * 1.8;
+      wcol += FLASH * uFlash.z * 0.05;
+      // foam on the crests and in the surf line
+      float fn = fbm3(wp * vec2(2.2, 3.4) + vec2(0.0, t * 0.5));
+      float crest = smoothstep(0.34, 0.55, h + (fn - 0.5) * 0.35) * near;
+      float surf = smoothstep(shoreY + 0.035, shoreY, uv.y) * smoothstep(0.3, 0.7, fn + 0.25);
+      float breaker = smoothstep(0.012, 0.0, abs(uv.y - (shoreY + 0.028 + 0.008 * sin(t * 0.8 + wp.x)))) * smoothstep(0.35, 0.65, fn);
+      wcol = mix(wcol, vec3(0.42, 0.46, 0.5) + FLASH * uFlash.z * 0.3, clamp(crest * 0.45 + surf * 0.7 + breaker * 0.55, 0.0, 0.85));
+      // distance haze toward the horizon
+      wcol = mix(wcol, vec3(0.11, 0.13, 0.16), smoothstep(0.06, 0.0, dy) * 0.85);
+    }
+    if (edgeW < 1.0) {
+      // sand: a wet, mirror-like strip where the surf just left, dry above it
+      float grain = noise(wp * 40.0) * 0.5 + noise(wp * 120.0) * 0.5;
+      float ripples = sin(wp.y * 9.0 + fbm3(wp * 1.5) * 4.0) * 0.5 + 0.5;
+      vec3 dry = vec3(0.3, 0.265, 0.21) * (0.82 + 0.25 * grain) * (0.9 + 0.1 * ripples);
+      float wetK = smoothstep(shoreY - 0.07, shoreY - 0.005, uv.y);
+      vec3 wetSand = vec3(0.1, 0.09, 0.075) * (0.85 + 0.2 * grain);
+      vec3 n = normalize(vec3((grain - 0.5) * 0.06, 1.0, (ripples - 0.5) * 0.05));
+      vec3 R = reflect(V, n);
+      vec3 refl = skyLite(vec2(uv.x + R.x * 0.05, uHorizon + max(R.y, 0.0) * 0.9), t);
+      float fres = 0.02 + 0.98 * pow(1.0 - max(dot(-V, n), 0.0), 5.0);
+      vec3 wetCol = mix(wetSand, refl, clamp(fres * 1.4 + 0.12, 0.0, 0.8));
+      scol = mix(dry * 0.62, wetCol, wetK);
+      // rain pocks on the sand
+      float pock = smoothstep(0.9, 0.98, noise(wp * 90.0 + floor(t * 4.0) * 13.1));
+      scol *= 1.0 - pock * 0.18 * uStorm;
+      scol += FLASH * uFlash.z * (0.07 + 0.25 * wetK * fres);
+      // a thin line of foam left behind at the water's edge
+      scol = mix(scol, vec3(0.4, 0.43, 0.46), smoothstep(0.006, 0.0, abs(uv.y - shoreY + 0.004)) * 0.5);
+    }
+    col = mix(scol, wcol, edgeW);
+  }
   o = vec4(col, 1.0);
 }`;
 

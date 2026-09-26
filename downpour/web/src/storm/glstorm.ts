@@ -154,7 +154,7 @@ export class GLStorm implements StormRenderer {
     const gl = this.gl;
     const U = (...n: string[]) => n;
     this.progs = {
-      sky: program(gl, FULLSCREEN_VS, S.SKY_FS, U('uTime', 'uAspect', 'uFlash', 'uSheet', 'uBase', 'uStorm')),
+      sky: program(gl, FULLSCREEN_VS, S.SKY_FS, U('uTime', 'uAspect', 'uFlash', 'uSheet', 'uBase', 'uStorm', 'uHorizon', 'uShore')),
       blit: program(gl, FULLSCREEN_VS, S.BLIT_FS, U('uTex')),
       rain: program(gl, S.RAIN_VS, S.RAIN_FS, U('uTime', 'uRes', 'uWind', 'uTop', 'uFlash')),
       drop: program(gl, S.DROP_VS, S.DROP_FS, U('uRes', 'uSky', 'uAtlas', 'uFlash')),
@@ -665,6 +665,8 @@ export class GLStorm implements StormRenderer {
     gl.uniform1f(P.sky.u.uSheet, this.sheet * flash);
     gl.uniform1f(P.sky.u.uBase, 1 - this.cloudBottom / this.h);
     gl.uniform1f(P.sky.u.uStorm, this.intensity === 'storm' ? 1 : 0.55);
+    gl.uniform1f(P.sky.u.uHorizon, 0.44);
+    gl.uniform1f(P.sky.u.uShore, 0.2);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
     // 2. sky onto the screen

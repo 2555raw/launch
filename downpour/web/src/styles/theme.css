@@ -1,0 +1,272 @@
+/* ------------------------------ white glass ------------------------------ */
+/* Every surface (nav, token bar, panels, cards, modals, toasts) is frosted white
+ * glass with dark ink; the storm and the beach stay visible through it. Text that
+ * sits straight on the scene (headlines, footer) stays light. */
+
+:root {
+  --nav-h: 50px;
+  --glass: rgba(255, 255, 255, 0.56);
+  --glass-2: rgba(255, 255, 255, 0.58);
+  --glass-strong: rgba(255, 255, 255, 0.62);
+}
+
+.glass,
+.panel,
+.card,
+.modal,
+.toast,
+.nav,
+.ca-bar,
+.sheet,
+.acct-menu,
+.mode-menu {
+  --ink: #0b1322;
+  --ink-2: #2a3547;
+  --ink-3: #465267;
+  --line: rgba(15, 28, 50, 0.12);
+  --line-2: rgba(15, 28, 50, 0.22);
+  --rain: #1766c9;
+  --rain-2: #1766c9;
+  --up: #0c9a5f;
+  --down: #d13a55;
+  --bolt: #b58400;
+  color: var(--ink);
+  background: var(--glass);
+  border-color: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 18px 50px -24px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.nav,
+.ca-bar,
+.acct-menu,
+.mode-menu,
+.modal,
+.toast {
+  background: var(--glass-strong);
+}
+
+.panel::before,
+.card::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 40%);
+}
+
+/* a thinner nav and token bar */
+.top {
+  top: 10px;
+  gap: 6px;
+}
+.nav {
+  height: var(--nav-h);
+  padding: 0 6px 0 16px;
+}
+.brand {
+  font-size: 17px;
+}
+.nav-links a {
+  font-size: 12.5px;
+  padding: 5px 9px;
+  color: var(--ink-2);
+}
+.nav-links a:hover,
+.nav-connect:hover {
+  background: rgba(15, 28, 50, 0.06);
+  color: var(--ink);
+}
+.nav-links a[href='/swap'] {
+  color: #9a6b00;
+  font-weight: 600;
+}
+.nav-links a.on::after {
+  background: #0b1322;
+  box-shadow: none;
+  bottom: 0;
+}
+.nav .btn-sm {
+  height: 32px;
+}
+.nav-connect {
+  color: var(--ink-2);
+  font-size: 12.5px;
+}
+.ca-bar {
+  min-height: 32px;
+  padding: 3px 5px 3px 16px;
+  font-size: 11.5px;
+}
+.mode-pill {
+  height: 24px;
+  font-size: 10px;
+  background: #0b1322;
+  color: #7ff0bd;
+  border-color: #0b1322;
+}
+.mode-pill.playground {
+  background: #0b1322;
+  color: #a9dbff;
+  border-color: #0b1322;
+}
+.copy-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(15, 28, 50, 0.18);
+  color: var(--ink);
+}
+.icon-btn {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(15, 28, 50, 0.14);
+  color: var(--ink-2);
+}
+.acct-btn {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(15, 28, 50, 0.18);
+  color: var(--ink);
+}
+main {
+  padding-top: calc(var(--nav-h) + 62px);
+}
+
+/* dark-on-light controls inside the glass */
+.glass .input,
+.panel .input,
+.modal .input,
+.glass .select,
+.panel .select,
+.modal .select,
+.panel textarea.input,
+.big-input,
+.swap-box,
+.cur-picker-btn {
+  background: rgba(255, 255, 255, 0.62);
+  border-color: rgba(15, 28, 50, 0.14);
+  color: var(--ink);
+}
+.panel .input::placeholder,
+.modal .input::placeholder,
+.big-input input::placeholder {
+  color: #8a94a6;
+}
+.big-input input {
+  color: var(--ink);
+}
+.panel .btn:not(.btn-primary),
+.modal .btn:not(.btn-primary),
+.card .btn:not(.btn-primary) {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(15, 28, 50, 0.16);
+  color: var(--ink);
+}
+.panel .chip,
+.modal .chip,
+.card .chip,
+.toolbar .chip,
+.cur-filter .chip {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(15, 28, 50, 0.14);
+  color: var(--ink-2);
+}
+.chip.on,
+.panel .chip.on,
+.modal .chip.on,
+.toolbar .chip.on,
+.cur-filter .chip.on {
+  background: #0b1322;
+  border-color: #0b1322;
+  color: #fff;
+}
+.tabs {
+  background: rgba(15, 28, 50, 0.06);
+  border-color: rgba(15, 28, 50, 0.1);
+}
+.token-btn {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(15, 28, 50, 0.16);
+  color: var(--ink);
+}
+.flip {
+  background: #fff;
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #0b1322;
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.4);
+}
+.flip:hover {
+  background: #f3f6fb;
+}
+.pair {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(15, 28, 50, 0.16);
+  color: #0b1322;
+}
+.pair-cur {
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--c) 22%, white));
+}
+.pill {
+  border-color: rgba(15, 28, 50, 0.2);
+}
+.panel .pill.curve,
+.card .pill.curve {
+  color: #1766c9;
+  background: rgba(23, 102, 201, 0.08);
+  border-color: rgba(23, 102, 201, 0.3);
+}
+.panel .pill.pool,
+.card .pill.pool {
+  color: #0c9a5f;
+  background: rgba(12, 154, 95, 0.08);
+  border-color: rgba(12, 154, 95, 0.3);
+}
+.panel .pill.new,
+.card .pill.new {
+  color: #9a6b00;
+  background: rgba(181, 132, 0, 0.1);
+  border-color: rgba(181, 132, 0, 0.35);
+}
+.bar {
+  background: rgba(15, 28, 50, 0.1);
+}
+.callout {
+  background: rgba(255, 255, 255, 0.45);
+  color: var(--ink-2);
+}
+.fill:hover,
+.pairs-side .pair-row:hover,
+.token-row:hover,
+.wallet-row:hover {
+  background: rgba(15, 28, 50, 0.05);
+}
+.wallet-row {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(15, 28, 50, 0.12);
+}
+.stats.glass .stat {
+  border-color: rgba(15, 28, 50, 0.1);
+}
+.faq-item {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.2));
+  background-size: 200% 100%;
+}
+.coin-card .cc-sky {
+  border-bottom-color: rgba(255, 255, 255, 0.4);
+}
+.code-block {
+  color: #cfe0ff;
+}
+.modal-back {
+  background: rgba(2, 5, 12, 0.45);
+}
+
+.swap-box .big-input {
+  background: none;
+  border: 0;
+}
+.swap-box .row-between {
+  color: var(--ink-3);
+}
+.panel .kicker,
+.card .kicker,
+.modal .kicker {
+  color: var(--ink-3);
+}

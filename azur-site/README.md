@@ -27,3 +27,17 @@ python3 -m http.server 8000     # then open http://localhost:8000
 All names, accounts, figures and partner wordmarks are made up. Swap in the real brand
 name, store links, social links, contact email and partner logos (with permission)
 before launch.
+
+## Pages
+
+```
+index.html     landing page
+docs.html      getting-started docs: sidebar with search (Ctrl/Cmd+K), phone screens,
+               "On this page" index that follows the scroll   (docs.css, docs.js)
+privacy.html   privacy policy draft   } page.css
+terms.html     terms of use draft     }
+server.js      tiny Node server for Railway; /docs, /privacy, /terms work without .html,
+               /health answers "ok"
+```
+
+Deploy on Railway with root directory `/azur-site` and start command `node server.js`.

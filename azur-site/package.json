@@ -1,0 +1,12 @@
+{
+  "name": "azur-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AZUR landing page, docs and legal pages.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

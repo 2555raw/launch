@@ -2,6 +2,25 @@
 (function () {
   "use strict";
 
+  // Asset badges. Bitcoin and Ethereum use their openly licensed marks; every
+  // other ticker shows as text unless assets/logos/<ticker>.png exists, in which
+  // case that file is drawn over it (add official logos there if you have the
+  // right to use them).
+  const MARKS = {
+    BTC: '<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#f7931a"/><path fill="#fff" d="M46.1 27.4c.6-4.2-2.6-6.5-7-8l1.4-5.7-3.5-.9-1.4 5.6-2.8-.7 1.4-5.6-3.5-.9-1.4 5.7-2.2-.5-4.8-1.2-.9 3.7s2.6.6 2.5.6c1.4.4 1.7 1.3 1.6 2l-1.6 6.5.4.1-.4-.1-2.3 9.1c-.2.4-.6 1.1-1.6.8l-2.5-.6-1.7 4 4.6 1.1 2.5.7-1.4 5.8 3.5.9 1.4-5.7 2.8.7-1.4 5.7 3.5.9 1.4-5.8c6 1.1 10.5.7 12.4-4.7 1.5-4.4-.1-6.9-3.2-8.5 2.3-.5 4-2 4.4-5.1zm-8 11.2c-1.1 4.4-8.4 2-10.8 1.4l1.9-7.7c2.4.6 10 1.8 8.9 6.3zm1.1-11.3c-1 4-7.1 2-9.1 1.5l1.8-7c2 .5 8.3 1.4 7.3 5.5z"/></svg>',
+    ETH: '<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#627eea"/><g fill="#fff"><path fill-opacity=".6" d="M32 8v17.7l15 6.7z"/><path d="M32 8 17 32.4l15-6.7z"/><path fill-opacity=".6" d="M32 44v12l15-20.8z"/><path d="M32 56V44l-15-8.8z"/><path fill-opacity=".2" d="m32 41.2 15-8.8-15-6.7z"/><path fill-opacity=".6" d="m17 32.4 15 8.8V25.7z"/></g></svg>'
+  };
+  document.querySelectorAll(".coin[data-t]").forEach((el) => {
+    const t = el.dataset.t;
+    if (MARKS[t]) { el.innerHTML = MARKS[t]; el.classList.add("mark"); return; }
+    el.textContent = t;
+    if (t.length > 3) el.classList.add(t.length > 4 ? "xlong" : "long");
+    const img = new Image();
+    img.alt = "";
+    img.onload = () => el.appendChild(img);
+    img.src = "assets/logos/" + t.toLowerCase() + ".png";
+  });
+
   // Seeded random walk so the charts look the same on every load.
   function walk(seed, n, drift, vol) {
     let s = seed, v = 0;
@@ -21,20 +40,20 @@
     return pts.map((p, i) => (i ? "L" : "M") + (i * sx).toFixed(1) + " " + (h - pad - (p - min) * sy).toFixed(1)).join(" ");
   }
 
-  // Hero balance chart: line, glow fill under it, and a live dot at the end.
-  const hero = document.getElementById("heroChart");
-  if (hero) {
-    const pts = walk(7, 90, 0.18, 4.2);
+  // Balance charts (hero and docs): line, glow fill under it, and a live dot at the end.
+  document.querySelectorAll("#heroChart, .doc-chart").forEach((svg, n) => {
+    const pts = walk(+(svg.dataset.seed || 7), 90, 0.18, 4.2);
     const d = toPath(pts, 290, 170, 12);
     const end = d.slice(d.lastIndexOf("L") + 1).split(" ").map(Number);
-    hero.innerHTML =
-      '<defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1">' +
+    const id = "hg" + n;
+    svg.innerHTML =
+      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
       '<stop offset="0" stop-color="#2f7bff" stop-opacity=".45"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/>' +
       "</linearGradient></defs>" +
-      '<path d="' + d + " L290 170 L0 170 Z" + '" fill="url(#hg)"/>' +
+      '<path d="' + d + " L290 170 L0 170 Z" + '" fill="url(#' + id + ')"/>' +
       '<path class="line" d="' + d + '"/>' +
       '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#9cc7ff"/>';
-  }
+  });
 
   // Small sparklines: red ones trend down, blue ones trend up.
   document.querySelectorAll(".spark").forEach((svg, i) => {

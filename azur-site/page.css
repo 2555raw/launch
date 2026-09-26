@@ -1,0 +1,28 @@
+/* Docs and legal pages: same nav and footer as the landing page, a reading column. */
+.sub-head {
+  background: radial-gradient(70% 90% at 50% 0%, rgba(29, 107, 255, .35), transparent 70%), #000;
+  padding-bottom: 60px;
+  border-bottom: 1px solid var(--line);
+}
+.sub-title { padding-top: 90px; max-width: 760px; }
+.kicker { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--blue-hi); }
+.sub-title h1 { font-size: clamp(38px, 5vw, 64px); margin-top: 14px; text-wrap: balance; }
+.sub-title p { margin-top: 18px; font-size: 18px; color: var(--prose); line-height: 1.5; }
+.doc { display: grid; grid-template-columns: 200px minmax(0, 700px); gap: 60px; padding: 60px 0 20px; }
+.doc:not(:has(.toc)) { grid-template-columns: minmax(0, 760px); }
+.toc { position: sticky; top: 24px; align-self: start; display: flex; flex-direction: column; gap: 4px; }
+.toc a { padding: 8px 12px; border-radius: 8px; font-size: 14px; color: var(--muted); }
+.toc a:hover { color: #fff; background: var(--card-2); }
+.doc section { padding-bottom: 36px; margin-bottom: 36px; border-bottom: 1px solid var(--line); scroll-margin-top: 24px; }
+.doc section:last-child { border-bottom: 0; }
+.doc h2 { font-size: 28px; letter-spacing: -.03em; margin-bottom: 14px; }
+.doc p, .doc li { font-size: 16px; line-height: 1.7; color: var(--prose); max-width: 65ch; }
+.doc p + p { margin-top: 12px; }
+.doc ul { padding-left: 20px; margin: 10px 0; display: grid; gap: 6px; }
+.doc b { color: #fff; }
+.sub .foot { margin-top: 40px; }
+@media (max-width: 760px) {
+  .doc { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .toc { position: static; flex-direction: row; flex-wrap: wrap; }
+  .sub-title { padding-top: 50px; }
+}

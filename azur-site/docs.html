@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AZUR Docs</title>
+  <meta name="description" content="Set up AZUR, fund your account, talk to your agent and place your first trade.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body class="docs">
+
+<!-- ============================== SIDEBAR ============================== -->
+<aside class="side" id="side">
+  <div class="side-top">
+    <a class="brand" href="index.html">
+      <span class="brand-mark sm"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z"/></svg></span>
+      <span class="brand-name">AZUR</span>
+    </a>
+    <button class="icon-btn" id="sideToggle" aria-label="Hide sidebar">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+    </button>
+  </div>
+
+  <label class="search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search" autocomplete="off">
+    <kbd>Ctrl</kbd><kbd>K</kbd>
+  </label>
+
+  <div class="picker">
+    <svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></svg>
+    <select id="product" aria-label="Section">
+      <option>App</option>
+      <option>Robinhood Chain</option>
+    </select>
+    <svg class="chev" viewBox="0 0 24 24"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>
+  </div>
+
+  <nav class="side-nav" id="sideNav">
+    <a class="active" href="#top">Getting started</a>
+    <a href="#chain">Trading on Robinhood Chain</a>
+    <a href="#alerts">Alerts</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <p class="no-hits" id="noHits" hidden>No results. Try “funds” or “alerts”.</p>
+
+  <a class="side-back" href="index.html">← Back to azur</a>
+</aside>
+
+<button class="side-open" id="sideOpen" aria-label="Show sidebar" hidden>
+  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+</button>
+
+<!-- ============================== CONTENT ============================== -->
+<main class="content" id="top">
+  <header class="doc-head">
+    <h1>Getting started</h1>
+    <p class="lede">Install AZUR, add funds, open your first thread and approve your first trade.</p>
+  </header>
+
+  <p>AZUR is a mobile trading app with an AI agent built in. The agent has its own workspace, live market data and a connection to your account, so it can research, plan and, within the limits you set, act on your behalf.</p>
+  <p>This page walks you through everything from download to a filled order.</p>
+
+  <section id="need" data-k="requirements iphone android phone account email">
+    <h2>What you need</h2>
+    <ul>
+      <li>An iPhone on iOS 17 or later, or an Android phone on Android 13 or later</li>
+      <li>An email address or a passkey to sign in</li>
+      <li>A few dollars in USDC or a card to fund your account</li>
+    </ul>
+  </section>
+
+  <section id="install" data-k="install download sign in login waitlist beta">
+    <h2>Install and sign in</h2>
+    <p>AZUR is in private beta. Join the waitlist on the home page and we will send a download link to your email when your spot opens. Invites go out in batches every week.</p>
+
+    <figure class="shot">
+      <div class="phone doc-phone">
+        <div class="screen s-login">
+          <div class="status"><span>5:05</span><span class="island"></span><span class="sig"></span></div>
+          <div class="login-orbit" aria-hidden="true">
+            <span class="coin" data-t="TSLA" style="--c:#e31937"></span>
+            <span class="coin" data-t="BTC" style="--c:#f7931a"></span>
+            <span class="coin" data-t="HOOD" style="--c:#00c805"></span>
+            <span class="coin" data-t="ETH" style="--c:#627eea"></span>
+            <span class="coin" data-t="NVDA" style="--c:#76b900"></span>
+            <svg class="login-star" viewBox="0 0 32 32"><path d="M16 1l2.4 9.2L26.6 4.3 21.8 12.6 31 16l-9.2 2.4 4.8 9.3-8.2-5.9L16 31l-2.4-9.2-8.2 5.9 4.8-9.3L1 16l9.2-3.4-4.8-8.3 8.2 5.9z"/></svg>
+          </div>
+          <div class="login-copy">
+            <b>Trade with an unfair edge</b>
+            <p>Research, plan and trade from one conversation.</p>
+          </div>
+          <div class="login-btn">Continue with email</div>
+          <div class="login-alt">Use a passkey</div>
+          <small class="login-legal">By continuing you agree to the <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</small>
+        </div>
+      </div>
+    </figure>
+
+    <ol>
+      <li>Open the link in your invite email and install AZUR.</li>
+      <li>Sign in with your email, or create a passkey.</li>
+    </ol>
+    <p>When you sign in for the first time, AZUR creates a self-custody wallet on Robinhood Chain for you. The keys are yours: you can export them from Settings whenever you want.</p>
+  </section>
+
+  <section id="home" data-k="home screen portfolio balance chart">
+    <h2>The home screen</h2>
+    <p>Home shows your total balance, how it moved today, and every thesis your agent is running.</p>
+
+    <figure class="shot">
+      <div class="phone doc-phone">
+        <div class="screen">
+          <div class="status"><span>5:42</span><span class="island"></span><span class="sig"></span></div>
+          <div class="bal">
+            <div>
+              <div class="bal-value">$98,410.72</div>
+              <div class="bal-change">+$221.09 (+0.23%)</div>
+            </div>
+            <span class="avatar"></span>
+          </div>
+          <svg class="chart doc-chart" viewBox="0 0 300 170" preserveAspectRatio="none" data-seed="11"></svg>
+          <div class="ranges"><b>1D</b><span>1W</span><span>1M</span><span>3M</span><span>YTD</span><span>1Y</span><span>ALL</span></div>
+          <div class="row-link"><span>Buying power</span><span>$24,310.80 ›</span></div>
+          <div class="promo">
+            <div><b>Watch every move</b><span>Unlock Pro alerts →</span></div>
+            <em>−80% fees</em>
+          </div>
+          <div class="h-sub">Running theses</div>
+          <div class="thesis"><i class="t1"></i><div><b>AI data centers</b><span>NVDA leads; trimming AMD into strength</span></div><em>+$3.1K</em></div>
+          <div class="thesis"><i class="t2"></i><div><b>Onchain brokers</b><span>HOOD and PONS, no leverage</span></div><em>+$2.4K</em></div>
+        </div>
+      </div>
+    </figure>
+  </section>
+
+  <section id="funds" class="sub-sec" data-k="add funds deposit usdc card transfer buying power">
+    <h2>Add funds</h2>
+    <p>Tap <b>Buying power</b> on Home to open Transfer. You can fund your account two ways:</p>
+    <ul>
+      <li><b>Card or bank.</b> Buy USDC in the app with a debit card or a bank transfer. It lands in your AZUR wallet in a few minutes.</li>
+      <li><b>Send USDC on Robinhood Chain.</b> Copy your AZUR address and send from any wallet. Only send USDC on Robinhood Chain; funds sent on another network will not arrive.</li>
+    </ul>
+
+    <figure class="shot">
+      <div class="phone doc-phone">
+        <div class="screen">
+          <div class="status"><span>5:42</span><span class="island"></span><span class="sig"></span></div>
+          <div class="ph-top"><span class="back">‹</span><span class="clock-ic"></span></div>
+          <div class="bp">
+            <div class="bp-label">Buying power</div>
+            <div class="bp-value">$24,310.80</div>
+            <div class="bp-bar"><i></i></div>
+            <div class="bp-legend"><span>Cash $15,800.00</span><span>Margin $8,510.80</span></div>
+          </div>
+          <div class="h-sub">Perps</div>
+          <div class="pos"><span class="coin" data-t="ETH" style="--c:#627eea"></span><div><b>Ethereum</b><span>2x Long</span></div><div class="r"><b>$4,210.40</b><span class="dn">−$388.10 (−8.4%)</span></div></div>
+          <div class="h-sub">Spot</div>
+          <div class="pos"><span class="coin" data-t="NVDA" style="--c:#76b900"></span><div><b>NVIDIA</b><span>96 NVDA</span></div><div class="r"><b>$17,904.00</b><span class="up">+$3,112.50 (+21.0%)</span></div></div>
+          <div class="pos"><span class="coin" data-t="HOOD" style="--c:#00c805"></span><div><b>Robinhood</b><span>180 HOOD</span></div><div class="r"><b>$9,882.00</b><span class="up">+$1,940.40 (+24.4%)</span></div></div>
+          <div class="pos"><span class="coin" data-t="PONS" style="--c:#2a2f3a"></span><div><b>Pons</b><span>52,000 PONS</span></div><div class="r"><b>$6,240.00</b><span class="up">+$1,510.20 (+31.9%)</span></div></div>
+          <div class="pos"><span class="coin" data-t="BTC" style="--c:#f7931a"></span><div><b>Bitcoin</b><span>0.12 BTC</span></div><div class="r"><b>$12,960.00</b><span class="dn">−$240.00 (−1.8%)</span></div></div>
+          <div class="transfer">Transfer</div>
+        </div>
+      </div>
+    </figure>
+  </section>
+
+  <section id="thread" data-k="conversation chat thread agent ask research alert">
+    <h2>Start a thread</h2>
+    <p>Your agent is more than a chat window. It runs on our servers with its own workspace, live prices and technical indicators, so it keeps working after you close the app.</p>
+    <p>Your agent can:</p>
+    <ul>
+      <li>Run web research on a schedule</li>
+      <li>Write notes and small programs and keep them between threads</li>
+      <li>Wake up at a set time</li>
+      <li>Wake up when an account you follow on X posts</li>
+      <li>Wake up on a setup: an RSI cross, a moving-average cross, a divergence, or a simple “price above $X”, on any timeframe</li>
+      <li>Watch your balance and positions in real time</li>
+      <li>Combine any of the above</li>
+    </ul>
+
+    <figure class="shot wide">
+      <div class="chat-demo">
+        <span class="fake-search"></span>
+        <span class="chat-btn"><svg viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Chat</span>
+      </div>
+    </figure>
+
+    <p>Tap <b>Chat</b> to start a new thread for anything you want to buy, sell or research. Be specific. For example:</p>
+    <ul class="quotes">
+      <li>“I want to build a BTC position over the next two weeks. Buy more on red days, never more than $500 a day.”</li>
+      <li>“Tell me when HOOD crosses its 50-day average on the 4h chart, and explain what changed.”</li>
+      <li>“Find new tokens on Pons with more than $1M in liquidity and show me the top five.”</li>
+    </ul>
+    <p>Once you are comfortable, try a setup with conditions:</p>
+    <ul class="quotes">
+      <li>“Start buying ETH when it closes under the 1h lower Bollinger band, and scale out as it nears the middle band.”</li>
+      <li>“Alert me on a bullish MACD and RSI divergence on SOL, 4h chart.”</li>
+      <li>“If my HOOD position is up 30%, sell a third and move it to USDC.”</li>
+    </ul>
+
+    <figure class="shot">
+      <div class="phone doc-phone">
+        <div class="screen">
+          <div class="status"><span>5:43</span><span class="island"></span><span class="sig"></span></div>
+          <div class="chat-head">
+            <span class="back">‹</span>
+            <span class="thread"><i class="thumb"></i>AI data centers ›</span>
+            <span class="dots">•••</span>
+          </div>
+          <div class="chat">
+            <div class="msg ai">NVDA is the core compute position; AMD is the cheaper second leg. NVDA is above your entry and AMD is slightly below, so the pair spreads your risk across two roadmaps instead of one.</div>
+            <div class="cards">
+              <div class="ccard"><div><b>NVDA</b><small>NVIDIA</small></div><div class="r"><b>$186.50</b><small class="up">+0.71%</small></div><svg viewBox="0 0 100 50" class="spark up-l"></svg></div>
+              <div class="ccard"><div><b>AMD</b><small>AMD</small></div><div class="r"><b>$151.20</b><small class="dn">−0.40%</small></div><svg viewBox="0 0 100 50" class="spark dn-l"></svg></div>
+            </div>
+            <div class="msg me">Keep both, but let NVDA carry about two thirds of the sleeve.</div>
+            <div class="thought">Thought for 9s ›</div>
+            <div class="msg ai">Done. Target is 65% NVDA and 35% AMD. I'll rebalance when either drifts more than 5 points and flag earnings a week ahead.</div>
+          </div>
+          <div class="chat-foot">
+            <div class="chips"><span>2 positions <b class="up">+14.62%</b></span><span>🔔 1 alert</span></div>
+            <div class="ask"><span>＋</span><span class="ph">Ask AZUR</span><span class="mic"></span></div>
+          </div>
+        </div>
+      </div>
+    </figure>
+  </section>
+
+  <section id="autonomy" data-k="autonomy approvals limits confirm safety permissions">
+    <h2>Approvals and autonomy</h2>
+    <p>By default every order waits for you. The agent sends the plan, you tap <b>Approve</b> or <b>Decline</b>. When you are comfortable, you can let a thread act on its own inside limits you set:</p>
+    <div class="limits">
+      <div><span>Max per order</span><b>$250</b></div>
+      <div><span>Max per day</span><b>$1,000</b></div>
+      <div><span>Allowed assets</span><b>BTC, ETH, HOOD</b></div>
+      <div><span>Leverage</span><b>Off</b></div>
+    </div>
+    <figure class="shot wide">
+      <div class="approve-demo">
+        <div class="msg me">Buy 10 HOOD at market.</div>
+        <p class="muted">Here is the order. Nothing is sent until you approve.</p>
+        <div class="confirm">
+          <div class="confirm-h"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Confirm order</div>
+          <p>Buy 10 Robinhood (HOOD) at market, about $549.00 plus $0.40 in fees.</p>
+          <div class="confirm-btns"><button type="button" class="ok">Approve</button><button type="button" class="no">Decline</button></div>
+        </div>
+      </div>
+    </figure>
+    <p>Limits apply per thread. You can pause every thread at once from Settings.</p>
+  </section>
+
+  <section id="chain" data-k="robinhood chain stock tokens uniswap arcus pons wallet l2">
+    <h2>Trading on Robinhood Chain</h2>
+    <p>Robinhood Chain is an Ethereum-compatible Layer 2 built for tokenized stocks. AZUR routes each order to the venue with the best price at that moment, such as Uniswap or Arcus for stock tokens, and reads prices from onchain feeds like Chainlink.</p>
+    <p>Tokens launched on Pons show up in search once they have enough liquidity. New tokens are risky; the agent flags thin liquidity and concentrated holders before you buy.</p>
+    <p class="note">AZUR is an independent app and is not affiliated with Robinhood or the projects named here.</p>
+  </section>
+
+  <section id="alerts" data-k="alerts notifications push watch x accounts price">
+    <h2>Alerts</h2>
+    <p>Ask for an alert in plain words: “Ping me if NVDA drops 5% before earnings.” Every alert comes with a two-line summary of why it matters to what you hold.</p>
+  </section>
+
+  <section id="faq" data-k="faq questions fees custody support">
+    <h2>FAQ</h2>
+    <details><summary>Who holds my funds?</summary><p>You do. Your wallet is self-custodied and you can export its keys from Settings.</p></details>
+    <details><summary>What does it cost?</summary><p>The app is free during the beta. Venues charge their normal trading fees; AZUR shows them before you approve.</p></details>
+    <details><summary>Can the agent lose money?</summary><p>Yes. It can be wrong like any trader. Start with approvals on and small limits.</p></details>
+    <details><summary>How do I get help?</summary><p>Write to hello@example.com or ask in the community chat.</p></details>
+  </section>
+
+  <section id="next" data-k="next steps">
+    <h2>Where to go next</h2>
+    <p>Follow AZUR on <a href="https://x.com" target="_blank" rel="noopener">X</a> or join the <a href="https://discord.com" target="_blank" rel="noopener">community chat</a> to share setups and ask questions.</p>
+    <div class="next">
+      <a href="#chain"><b>Trading on Robinhood Chain</b><span>Venues, prices and new tokens</span></a>
+      <a href="#autonomy"><b>Set your limits</b><span>Decide what the agent can do alone</span></a>
+    </div>
+  </section>
+
+  <footer class="doc-foot">
+    <span>© 2026 AZUR Labs.</span>
+    <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+  </footer>
+</main>
+
+<!-- ============================== ON THIS PAGE ============================== -->
+<aside class="toc-r">
+  <div class="toc-title"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg>On this page</div>
+  <nav id="toc">
+    <a href="#need">What you need</a>
+    <a href="#install">Install and sign in</a>
+    <a href="#home">The home screen</a>
+    <a class="sub" href="#funds">Add funds</a>
+    <a href="#thread">Start a thread</a>
+    <a href="#autonomy">Approvals and autonomy</a>
+    <a href="#chain">Trading on Robinhood Chain</a>
+    <a href="#alerts">Alerts</a>
+    <a href="#faq">FAQ</a>
+    <a href="#next">Where to go next</a>
+  </nav>
+</aside>
+
+<script src="app.js"></script>
+<script src="docs.js"></script>
+</body>
+</html>

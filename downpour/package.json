@@ -1,0 +1,46 @@
+{
+  "name": "downpour",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Downpour \u2014 a storm-themed launchpad where every coin is paired with a currency.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "start": "node server.js",
+    "dev:chain": "node scripts/dev.mjs",
+    "contracts:setup": "git clone --depth 1 --branch v1.10.0 https://github.com/foundry-rs/forge-std contracts/lib/forge-std",
+    "contracts:build": "cd contracts && forge build && cd .. && node scripts/build-artifacts.mjs",
+    "contracts:test": "cd contracts && forge test",
+    "deploy": "node scripts/deploy.mjs",
+    "seed": "node scripts/seed.mjs",
+    "keeper": "node scripts/keeper.mjs",
+    "verify": "node scripts/verify.mjs",
+    "e2e": "node e2e/run.mjs",
+    "e2e:playground": "node e2e/playground.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/sora": "^5.3.0",
+    "lightweight-charts": "^5.2.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "viem": "^2.56.9"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "playwright": "^1.63.0",
+    "solady": "^0.1.26",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1"
+  }
+}

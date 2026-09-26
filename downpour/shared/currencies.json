@@ -1,0 +1,1178 @@
+[
+ {
+  "code": "USD",
+  "name": "US Dollar",
+  "symbol": "$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 1.0
+ },
+ {
+  "code": "CAD",
+  "name": "Canadian Dollar",
+  "symbol": "C$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 1.37
+ },
+ {
+  "code": "MXN",
+  "name": "Mexican Peso",
+  "symbol": "MX$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 18.6
+ },
+ {
+  "code": "BRL",
+  "name": "Brazilian Real",
+  "symbol": "R$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 5.4
+ },
+ {
+  "code": "ARS",
+  "name": "Argentine Peso",
+  "symbol": "AR$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 1450.0
+ },
+ {
+  "code": "CLP",
+  "name": "Chilean Peso",
+  "symbol": "CL$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 950.0
+ },
+ {
+  "code": "COP",
+  "name": "Colombian Peso",
+  "symbol": "CO$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 3950.0
+ },
+ {
+  "code": "PEN",
+  "name": "Peruvian Sol",
+  "symbol": "S/",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 3.52
+ },
+ {
+  "code": "UYU",
+  "name": "Uruguayan Peso",
+  "symbol": "$U",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 40.0
+ },
+ {
+  "code": "PYG",
+  "name": "Paraguayan Guaraní",
+  "symbol": "₲",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 7300.0
+ },
+ {
+  "code": "BOB",
+  "name": "Bolivian Boliviano",
+  "symbol": "Bs",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 6.91
+ },
+ {
+  "code": "VES",
+  "name": "Venezuelan Bolívar",
+  "symbol": "Bs.",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 180.0
+ },
+ {
+  "code": "CRC",
+  "name": "Costa Rican Colón",
+  "symbol": "₡",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 505.0
+ },
+ {
+  "code": "GTQ",
+  "name": "Guatemalan Quetzal",
+  "symbol": "Q",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 7.68
+ },
+ {
+  "code": "HNL",
+  "name": "Honduran Lempira",
+  "symbol": "L",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 26.2
+ },
+ {
+  "code": "NIO",
+  "name": "Nicaraguan Córdoba",
+  "symbol": "C$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 36.8
+ },
+ {
+  "code": "PAB",
+  "name": "Panamanian Balboa",
+  "symbol": "B/.",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 1.0
+ },
+ {
+  "code": "DOP",
+  "name": "Dominican Peso",
+  "symbol": "RD$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 62.0
+ },
+ {
+  "code": "JMD",
+  "name": "Jamaican Dollar",
+  "symbol": "J$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 160.0
+ },
+ {
+  "code": "TTD",
+  "name": "Trinidad & Tobago Dollar",
+  "symbol": "TT$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 6.78
+ },
+ {
+  "code": "BSD",
+  "name": "Bahamian Dollar",
+  "symbol": "B$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 1.0
+ },
+ {
+  "code": "BBD",
+  "name": "Barbadian Dollar",
+  "symbol": "Bds$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 2.0
+ },
+ {
+  "code": "BZD",
+  "name": "Belize Dollar",
+  "symbol": "BZ$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 2.0
+ },
+ {
+  "code": "BMD",
+  "name": "Bermudian Dollar",
+  "symbol": "BD$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 1.0
+ },
+ {
+  "code": "KYD",
+  "name": "Cayman Islands Dollar",
+  "symbol": "CI$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 0.833
+ },
+ {
+  "code": "XCD",
+  "name": "East Caribbean Dollar",
+  "symbol": "EC$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 2.7
+ },
+ {
+  "code": "AWG",
+  "name": "Aruban Florin",
+  "symbol": "ƒ",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 1.79
+ },
+ {
+  "code": "XCG",
+  "name": "Caribbean Guilder",
+  "symbol": "Cg",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 1.79
+ },
+ {
+  "code": "HTG",
+  "name": "Haitian Gourde",
+  "symbol": "G",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 131.0
+ },
+ {
+  "code": "SRD",
+  "name": "Surinamese Dollar",
+  "symbol": "Sr$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 37.5
+ },
+ {
+  "code": "GYD",
+  "name": "Guyanese Dollar",
+  "symbol": "G$",
+  "region": "Americas",
+  "kind": "fiat",
+  "rate": 209.0
+ },
+ {
+  "code": "EUR",
+  "name": "Euro",
+  "symbol": "€",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 0.86
+ },
+ {
+  "code": "GBP",
+  "name": "British Pound",
+  "symbol": "£",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 0.745
+ },
+ {
+  "code": "CHF",
+  "name": "Swiss Franc",
+  "symbol": "Fr",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 0.8
+ },
+ {
+  "code": "SEK",
+  "name": "Swedish Krona",
+  "symbol": "kr",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 9.45
+ },
+ {
+  "code": "NOK",
+  "name": "Norwegian Krone",
+  "symbol": "kr",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 10.1
+ },
+ {
+  "code": "DKK",
+  "name": "Danish Krone",
+  "symbol": "kr",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 6.42
+ },
+ {
+  "code": "ISK",
+  "name": "Icelandic Króna",
+  "symbol": "kr",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 123.0
+ },
+ {
+  "code": "PLN",
+  "name": "Polish Złoty",
+  "symbol": "zł",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 3.65
+ },
+ {
+  "code": "CZK",
+  "name": "Czech Koruna",
+  "symbol": "Kč",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 20.9
+ },
+ {
+  "code": "HUF",
+  "name": "Hungarian Forint",
+  "symbol": "Ft",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 335.0
+ },
+ {
+  "code": "RON",
+  "name": "Romanian Leu",
+  "symbol": "lei",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 4.36
+ },
+ {
+  "code": "RSD",
+  "name": "Serbian Dinar",
+  "symbol": "din",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 100.5
+ },
+ {
+  "code": "MKD",
+  "name": "Macedonian Denar",
+  "symbol": "ден",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 52.9
+ },
+ {
+  "code": "ALL",
+  "name": "Albanian Lek",
+  "symbol": "L",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 83.0
+ },
+ {
+  "code": "BAM",
+  "name": "Bosnia-Herzegovina Mark",
+  "symbol": "KM",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 1.68
+ },
+ {
+  "code": "MDL",
+  "name": "Moldovan Leu",
+  "symbol": "L",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 17.0
+ },
+ {
+  "code": "UAH",
+  "name": "Ukrainian Hryvnia",
+  "symbol": "₴",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 41.5
+ },
+ {
+  "code": "BYN",
+  "name": "Belarusian Ruble",
+  "symbol": "Br",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 3.05
+ },
+ {
+  "code": "RUB",
+  "name": "Russian Ruble",
+  "symbol": "₽",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 82.0
+ },
+ {
+  "code": "TRY",
+  "name": "Turkish Lira",
+  "symbol": "₺",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 42.0
+ },
+ {
+  "code": "GEL",
+  "name": "Georgian Lari",
+  "symbol": "₾",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 2.7
+ },
+ {
+  "code": "AMD",
+  "name": "Armenian Dram",
+  "symbol": "֏",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 383.0
+ },
+ {
+  "code": "AZN",
+  "name": "Azerbaijani Manat",
+  "symbol": "₼",
+  "region": "Europe",
+  "kind": "fiat",
+  "rate": 1.7
+ },
+ {
+  "code": "AED",
+  "name": "UAE Dirham",
+  "symbol": "د.إ",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 3.6725
+ },
+ {
+  "code": "SAR",
+  "name": "Saudi Riyal",
+  "symbol": "SR",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 3.75
+ },
+ {
+  "code": "QAR",
+  "name": "Qatari Riyal",
+  "symbol": "QR",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 3.64
+ },
+ {
+  "code": "KWD",
+  "name": "Kuwaiti Dinar",
+  "symbol": "KD",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 0.305
+ },
+ {
+  "code": "BHD",
+  "name": "Bahraini Dinar",
+  "symbol": "BD",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 0.376
+ },
+ {
+  "code": "OMR",
+  "name": "Omani Rial",
+  "symbol": "OR",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 0.3845
+ },
+ {
+  "code": "JOD",
+  "name": "Jordanian Dinar",
+  "symbol": "JD",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 0.709
+ },
+ {
+  "code": "ILS",
+  "name": "Israeli Shekel",
+  "symbol": "₪",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 3.35
+ },
+ {
+  "code": "LBP",
+  "name": "Lebanese Pound",
+  "symbol": "L£",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 89500.0
+ },
+ {
+  "code": "IQD",
+  "name": "Iraqi Dinar",
+  "symbol": "ID",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 1310.0
+ },
+ {
+  "code": "EGP",
+  "name": "Egyptian Pound",
+  "symbol": "E£",
+  "region": "Middle East",
+  "kind": "fiat",
+  "rate": 48.5
+ },
+ {
+  "code": "NGN",
+  "name": "Nigerian Naira",
+  "symbol": "₦",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 1520.0
+ },
+ {
+  "code": "ZAR",
+  "name": "South African Rand",
+  "symbol": "R",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 17.6
+ },
+ {
+  "code": "KES",
+  "name": "Kenyan Shilling",
+  "symbol": "KSh",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 129.0
+ },
+ {
+  "code": "GHS",
+  "name": "Ghanaian Cedi",
+  "symbol": "₵",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 11.5
+ },
+ {
+  "code": "MAD",
+  "name": "Moroccan Dirham",
+  "symbol": "DH",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 9.1
+ },
+ {
+  "code": "TND",
+  "name": "Tunisian Dinar",
+  "symbol": "DT",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 2.92
+ },
+ {
+  "code": "DZD",
+  "name": "Algerian Dinar",
+  "symbol": "DA",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 130.0
+ },
+ {
+  "code": "ETB",
+  "name": "Ethiopian Birr",
+  "symbol": "Br",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 145.0
+ },
+ {
+  "code": "TZS",
+  "name": "Tanzanian Shilling",
+  "symbol": "TSh",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 2500.0
+ },
+ {
+  "code": "UGX",
+  "name": "Ugandan Shilling",
+  "symbol": "USh",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 3550.0
+ },
+ {
+  "code": "RWF",
+  "name": "Rwandan Franc",
+  "symbol": "FRw",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 1440.0
+ },
+ {
+  "code": "XOF",
+  "name": "West African CFA Franc",
+  "symbol": "CFA",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 564.0
+ },
+ {
+  "code": "XAF",
+  "name": "Central African CFA Franc",
+  "symbol": "FCFA",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 564.0
+ },
+ {
+  "code": "AOA",
+  "name": "Angolan Kwanza",
+  "symbol": "Kz",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 915.0
+ },
+ {
+  "code": "ZMW",
+  "name": "Zambian Kwacha",
+  "symbol": "ZK",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 24.0
+ },
+ {
+  "code": "MWK",
+  "name": "Malawian Kwacha",
+  "symbol": "MK",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 1735.0
+ },
+ {
+  "code": "MZN",
+  "name": "Mozambican Metical",
+  "symbol": "MT",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 63.9
+ },
+ {
+  "code": "BWP",
+  "name": "Botswana Pula",
+  "symbol": "P",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 13.4
+ },
+ {
+  "code": "NAD",
+  "name": "Namibian Dollar",
+  "symbol": "N$",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 17.6
+ },
+ {
+  "code": "MUR",
+  "name": "Mauritian Rupee",
+  "symbol": "₨",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 45.5
+ },
+ {
+  "code": "SCR",
+  "name": "Seychellois Rupee",
+  "symbol": "SR",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 14.3
+ },
+ {
+  "code": "MGA",
+  "name": "Malagasy Ariary",
+  "symbol": "Ar",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 4450.0
+ },
+ {
+  "code": "CDF",
+  "name": "Congolese Franc",
+  "symbol": "FC",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 2880.0
+ },
+ {
+  "code": "LYD",
+  "name": "Libyan Dinar",
+  "symbol": "LD",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 5.4
+ },
+ {
+  "code": "SLE",
+  "name": "Sierra Leonean Leone",
+  "symbol": "Le",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 22.8
+ },
+ {
+  "code": "GMD",
+  "name": "Gambian Dalasi",
+  "symbol": "D",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 72.0
+ },
+ {
+  "code": "GNF",
+  "name": "Guinean Franc",
+  "symbol": "FG",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 8680.0
+ },
+ {
+  "code": "LRD",
+  "name": "Liberian Dollar",
+  "symbol": "L$",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 200.0
+ },
+ {
+  "code": "CVE",
+  "name": "Cape Verdean Escudo",
+  "symbol": "Esc",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 95.0
+ },
+ {
+  "code": "SZL",
+  "name": "Swazi Lilangeni",
+  "symbol": "E",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 17.6
+ },
+ {
+  "code": "LSL",
+  "name": "Lesotho Loti",
+  "symbol": "M",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 17.6
+ },
+ {
+  "code": "BIF",
+  "name": "Burundian Franc",
+  "symbol": "FBu",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 2970.0
+ },
+ {
+  "code": "DJF",
+  "name": "Djiboutian Franc",
+  "symbol": "Fdj",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 178.0
+ },
+ {
+  "code": "SOS",
+  "name": "Somali Shilling",
+  "symbol": "Sh",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 571.0
+ },
+ {
+  "code": "STN",
+  "name": "São Tomé Dobra",
+  "symbol": "Db",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 21.5
+ },
+ {
+  "code": "KMF",
+  "name": "Comorian Franc",
+  "symbol": "CF",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 423.0
+ },
+ {
+  "code": "MRU",
+  "name": "Mauritanian Ouguiya",
+  "symbol": "UM",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 40.0
+ },
+ {
+  "code": "ZWG",
+  "name": "Zimbabwe Gold",
+  "symbol": "ZiG",
+  "region": "Africa",
+  "kind": "fiat",
+  "rate": 26.8
+ },
+ {
+  "code": "JPY",
+  "name": "Japanese Yen",
+  "symbol": "¥",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 148.0
+ },
+ {
+  "code": "CNY",
+  "name": "Chinese Yuan",
+  "symbol": "CN¥",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 7.12
+ },
+ {
+  "code": "HKD",
+  "name": "Hong Kong Dollar",
+  "symbol": "HK$",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 7.79
+ },
+ {
+  "code": "TWD",
+  "name": "New Taiwan Dollar",
+  "symbol": "NT$",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 30.3
+ },
+ {
+  "code": "KRW",
+  "name": "South Korean Won",
+  "symbol": "₩",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 1390.0
+ },
+ {
+  "code": "INR",
+  "name": "Indian Rupee",
+  "symbol": "₹",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 88.5
+ },
+ {
+  "code": "PKR",
+  "name": "Pakistani Rupee",
+  "symbol": "Rs",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 281.0
+ },
+ {
+  "code": "BDT",
+  "name": "Bangladeshi Taka",
+  "symbol": "৳",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 122.0
+ },
+ {
+  "code": "LKR",
+  "name": "Sri Lankan Rupee",
+  "symbol": "Rs",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 302.0
+ },
+ {
+  "code": "NPR",
+  "name": "Nepalese Rupee",
+  "symbol": "रू",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 141.5
+ },
+ {
+  "code": "BTN",
+  "name": "Bhutanese Ngultrum",
+  "symbol": "Nu.",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 88.5
+ },
+ {
+  "code": "MVR",
+  "name": "Maldivian Rufiyaa",
+  "symbol": "Rf",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 15.4
+ },
+ {
+  "code": "AFN",
+  "name": "Afghan Afghani",
+  "symbol": "؋",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 68.5
+ },
+ {
+  "code": "IDR",
+  "name": "Indonesian Rupiah",
+  "symbol": "Rp",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 16450.0
+ },
+ {
+  "code": "MYR",
+  "name": "Malaysian Ringgit",
+  "symbol": "RM",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 4.21
+ },
+ {
+  "code": "SGD",
+  "name": "Singapore Dollar",
+  "symbol": "S$",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 1.285
+ },
+ {
+  "code": "THB",
+  "name": "Thai Baht",
+  "symbol": "฿",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 32.2
+ },
+ {
+  "code": "VND",
+  "name": "Vietnamese Đồng",
+  "symbol": "₫",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 26300.0
+ },
+ {
+  "code": "PHP",
+  "name": "Philippine Peso",
+  "symbol": "₱",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 57.2
+ },
+ {
+  "code": "MMK",
+  "name": "Myanmar Kyat",
+  "symbol": "K",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 2100.0
+ },
+ {
+  "code": "KHR",
+  "name": "Cambodian Riel",
+  "symbol": "៛",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 4010.0
+ },
+ {
+  "code": "LAK",
+  "name": "Lao Kip",
+  "symbol": "₭",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 21600.0
+ },
+ {
+  "code": "BND",
+  "name": "Brunei Dollar",
+  "symbol": "B$",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 1.285
+ },
+ {
+  "code": "MNT",
+  "name": "Mongolian Tögrög",
+  "symbol": "₮",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 3590.0
+ },
+ {
+  "code": "KZT",
+  "name": "Kazakhstani Tenge",
+  "symbol": "₸",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 540.0
+ },
+ {
+  "code": "UZS",
+  "name": "Uzbekistani Som",
+  "symbol": "soʻm",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 12200.0
+ },
+ {
+  "code": "KGS",
+  "name": "Kyrgyzstani Som",
+  "symbol": "с",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 87.4
+ },
+ {
+  "code": "TJS",
+  "name": "Tajikistani Somoni",
+  "symbol": "SM",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 9.4
+ },
+ {
+  "code": "TMT",
+  "name": "Turkmenistani Manat",
+  "symbol": "m",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 3.5
+ },
+ {
+  "code": "MOP",
+  "name": "Macanese Pataca",
+  "symbol": "MOP$",
+  "region": "Asia",
+  "kind": "fiat",
+  "rate": 8.03
+ },
+ {
+  "code": "AUD",
+  "name": "Australian Dollar",
+  "symbol": "A$",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 1.52
+ },
+ {
+  "code": "NZD",
+  "name": "New Zealand Dollar",
+  "symbol": "NZ$",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 1.7
+ },
+ {
+  "code": "FJD",
+  "name": "Fijian Dollar",
+  "symbol": "FJ$",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 2.26
+ },
+ {
+  "code": "PGK",
+  "name": "Papua New Guinean Kina",
+  "symbol": "K",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 4.15
+ },
+ {
+  "code": "WST",
+  "name": "Samoan Tālā",
+  "symbol": "WS$",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 2.75
+ },
+ {
+  "code": "TOP",
+  "name": "Tongan Paʻanga",
+  "symbol": "T$",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 2.37
+ },
+ {
+  "code": "SBD",
+  "name": "Solomon Islands Dollar",
+  "symbol": "SI$",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 8.25
+ },
+ {
+  "code": "VUV",
+  "name": "Vanuatu Vatu",
+  "symbol": "VT",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 120.0
+ },
+ {
+  "code": "XPF",
+  "name": "CFP Franc",
+  "symbol": "₣",
+  "region": "Oceania",
+  "kind": "fiat",
+  "rate": 102.6
+ },
+ {
+  "code": "XAU",
+  "name": "Gold (troy ounce)",
+  "symbol": "Au",
+  "region": "Metals & crypto",
+  "kind": "metal",
+  "rate": 0.0002739726027
+ },
+ {
+  "code": "XAG",
+  "name": "Silver (troy ounce)",
+  "symbol": "Ag",
+  "region": "Metals & crypto",
+  "kind": "metal",
+  "rate": 0.02380952381
+ },
+ {
+  "code": "XPT",
+  "name": "Platinum (troy ounce)",
+  "symbol": "Pt",
+  "region": "Metals & crypto",
+  "kind": "metal",
+  "rate": 0.0007142857143
+ },
+ {
+  "code": "BTC",
+  "name": "Bitcoin",
+  "symbol": "₿",
+  "region": "Metals & crypto",
+  "kind": "crypto",
+  "rate": 9.090909091e-06
+ },
+ {
+  "code": "ETH",
+  "name": "Ether",
+  "symbol": "Ξ",
+  "region": "Metals & crypto",
+  "kind": "crypto",
+  "rate": 0.0002325581395
+ }
+]

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+e2e/shots/
+contracts/out/
+contracts/cache/
+contracts/lib/
+contracts/broadcast/
+# local chains only live on your machine
+deployments/31337.json
+web/src/generated/deployments.local.json
+.env

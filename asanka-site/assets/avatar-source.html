@@ -1,0 +1,136 @@
+<!doctype html><meta charset="utf-8">
+<title>Asanka avatar</title>
+<!-- Source of assets/avatar.png. A coin: reeded gold edge, a kente ring, and on a
+     jollof-red field the clay asanka bowl launching a ball of fufu. Rendered at
+     1000×1000; everything that matters sits inside the circle, so a round crop
+     (X, Instagram, Telegram) loses nothing. -->
+<style>html,body{margin:0;padding:0;background:#110B08}svg{display:block;width:1000px;height:1000px}</style>
+<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx=".5" cy=".42" r=".75"><stop offset="0" stop-color="#3A2418"/><stop offset=".6" stop-color="#1B110C"/><stop offset="1" stop-color="#0D0806"/></radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE3A1"/><stop offset=".35" stop-color="#F2B33D"/><stop offset=".6" stop-color="#C98A1E"/><stop offset=".8" stop-color="#F6C865"/><stop offset="1" stop-color="#A86C12"/></linearGradient>
+    <linearGradient id="goldInner" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FFE3A1"/><stop offset=".5" stop-color="#D99A2B"/><stop offset="1" stop-color="#8E5A0E"/></linearGradient>
+    <radialGradient id="field" cx=".42" cy=".34" r=".78"><stop offset="0" stop-color="#E4572E"/><stop offset=".55" stop-color="#B8321A"/><stop offset="1" stop-color="#6E1A0C"/></radialGradient>
+    <radialGradient id="ball" cx=".36" cy=".3" r=".78"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#F6EEDC"/><stop offset=".8" stop-color="#E2D1AC"/><stop offset="1" stop-color="#C4AC7E"/></radialGradient>
+    <linearGradient id="clay" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5E2A14"/><stop offset=".3" stop-color="#A45A34"/><stop offset=".55" stop-color="#C0714A"/><stop offset="1" stop-color="#5A2812"/></linearGradient>
+    <radialGradient id="soup" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#F07A3E"/><stop offset="1" stop-color="#A8300F"/></radialGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#F2B33D" stop-opacity="0"/><stop offset=".35" stop-color="#F2B33D"/><stop offset="1" stop-color="#FFE9B0"/></linearGradient>
+    <linearGradient id="flameCore" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FFF6DD" stop-opacity="0"/><stop offset="1" stop-color="#FFFBEF"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD27A" stop-opacity=".55"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0"/></radialGradient>
+    <clipPath id="bowlClip"><path d="M286 612 C 294 812 706 812 714 612 Z"/></clipPath>
+    <clipPath id="fieldClip"><circle cx="500" cy="500" r="368"/></clipPath>
+  </defs>
+
+  <rect width="1000" height="1000" fill="url(#bg)"/>
+
+  <!-- coin shadow and body -->
+  <circle cx="512" cy="522" r="446" fill="#000" opacity=".45"/>
+  <circle cx="500" cy="500" r="446" fill="url(#gold)"/>
+  <!-- reeded edge: 180 grooves -->
+  <g id="reeds" stroke="#7A4B0C" stroke-opacity=".55" stroke-width="3.2" stroke-linecap="round"></g>
+  <circle cx="500" cy="500" r="424" fill="none" stroke="#7A4B0C" stroke-opacity=".5" stroke-width="3"/>
+
+  <!-- kente ring -->
+  <circle cx="500" cy="500" r="404" fill="#1F1410"/>
+  <g id="kente"></g>
+  <circle cx="500" cy="500" r="386" fill="url(#goldInner)"/>
+  <circle cx="500" cy="500" r="376" fill="none" stroke="#6E4308" stroke-width="2"/>
+
+  <!-- field -->
+  <circle cx="500" cy="500" r="370" fill="url(#field)"/>
+  <g clip-path="url(#fieldClip)">
+    <!-- engraved concentric lines -->
+    <g fill="none" stroke="#FFFFFF" stroke-opacity=".05" stroke-width="2">
+      <circle cx="500" cy="500" r="330"/><circle cx="500" cy="500" r="290"/><circle cx="500" cy="500" r="250"/>
+    </g>
+    <!-- rising candles behind the launch -->
+    <g fill="#FFFFFF" opacity=".09">
+      <rect x="262" y="520" width="34" height="90" rx="6"/><rect x="314" y="470" width="34" height="140" rx="6"/>
+      <rect x="652" y="400" width="34" height="210" rx="6"/><rect x="704" y="330" width="34" height="280" rx="6"/>
+    </g>
+    <g stroke="#FFFFFF" stroke-opacity=".09" stroke-width="4" stroke-linecap="round">
+      <path d="M279 500 v 130"/><path d="M331 450 v 170"/><path d="M669 380 v 240"/><path d="M721 305 v 315"/>
+    </g>
+    <!-- dotted engraving -->
+    <g id="dots" fill="#FFD9A8" opacity=".35"></g>
+  </g>
+
+  <!-- the launch: glow, flame trail, speed lines -->
+  <circle cx="500" cy="330" r="190" fill="url(#glow)"/>
+  <path d="M500 606 C 430 520 440 452 500 404 C 560 452 570 520 500 606 Z" fill="url(#flame)"/>
+  <path d="M500 590 C 468 530 472 480 500 440 C 528 480 532 530 500 590 Z" fill="url(#flameCore)" opacity=".85"/>
+  <g stroke="#FFE3A1" stroke-width="7" stroke-linecap="round" opacity=".8">
+    <path d="M404 470 L 390 540"/><path d="M596 470 L 610 540"/>
+    <path d="M430 520 L 424 566" opacity=".6"/><path d="M570 520 L 576 566" opacity=".6"/>
+  </g>
+
+  <!-- fufu ball -->
+    <circle cx="500" cy="318" r="104" fill="url(#ball)"/>
+  <path d="M430 372 C 460 410 540 414 578 380" fill="none" stroke="#C4AC7E" stroke-opacity=".5" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="462" cy="270" rx="36" ry="20" fill="#FFFFFF" opacity=".85" transform="rotate(-30 462 270)"/>
+  <circle cx="522" cy="252" r="7" fill="#FFFFFF" opacity=".7"/>
+  <!-- thumb dent, the way fufu is eaten -->
+  <ellipse cx="548" cy="336" rx="22" ry="14" fill="#D8C49A" opacity=".55" transform="rotate(-20 548 336)"/>
+
+  <!-- asanka: the ridged clay bowl -->
+  <ellipse cx="500" cy="782" rx="170" ry="22" fill="#2A0A04" opacity=".4"/>
+  <path d="M286 612 C 294 812 706 812 714 612 Z" fill="url(#clay)"/>
+  <g clip-path="url(#bowlClip)" fill="none" stroke="#3E1808" stroke-opacity=".45" stroke-width="3.5" stroke-linecap="round">
+    <path d="M296 656 C 380 700 620 700 704 656"/>
+    <path d="M310 700 C 390 742 610 742 690 700"/>
+    <path d="M340 740 C 410 772 590 772 660 740"/>
+  </g>
+  <g clip-path="url(#bowlClip)" fill="none" stroke="#E4A07A" stroke-opacity=".35" stroke-width="2.5" stroke-linecap="round">
+    <path d="M300 664 C 384 707 616 707 700 664"/>
+    <path d="M316 708 C 392 749 608 749 684 708"/>
+  </g>
+  <path d="M420 770 C 440 790 560 790 580 770 L 574 786 C 550 800 450 800 426 786 Z" fill="#4A1E0C"/>
+  <ellipse cx="500" cy="612" rx="214" ry="46" fill="#6A3119"/>
+  <ellipse cx="500" cy="612" rx="214" ry="46" fill="none" stroke="#E4A07A" stroke-opacity=".45" stroke-width="3"/>
+  <ellipse cx="500" cy="616" rx="192" ry="36" fill="url(#soup)"/>
+  <!-- palm oil beads and a splash -->
+  <g fill="#FFC36B" opacity=".75">
+    <circle cx="410" cy="620" r="7"/><circle cx="592" cy="626" r="6"/><circle cx="640" cy="614" r="4"/><circle cx="366" cy="616" r="4"/>
+  </g>
+  <g fill="#E4572E">
+    <circle cx="440" cy="570" r="9"/><circle cx="568" cy="562" r="7"/><circle cx="416" cy="540" r="5"/><circle cx="592" cy="532" r="4.5"/>
+  </g>
+  <path d="M600 604 c 10 -14 26 -16 34 -4 c -12 4 -24 8 -34 4z" fill="#3F7A3A"/>
+  <path d="M612 602 h 18" stroke="#FFFFFF" stroke-opacity=".3" stroke-width="1.5"/>
+
+  <!-- sparkles -->
+  <g fill="#FFE9B0">
+    <path d="M330 300 l 8 24 l 24 8 l -24 8 l -8 24 l -8 -24 l -24 -8 l 24 -8 z"/>
+    <path d="M690 250 l 6 18 l 18 6 l -18 6 l -6 18 l -6 -18 l -18 -6 l 18 -6 z"/>
+    <path d="M700 470 l 4 12 l 12 4 l -12 4 l -4 12 l -4 -12 l -12 -4 l 12 -4 z" opacity=".8"/>
+    <path d="M300 460 l 4 12 l 12 4 l -12 4 l -4 12 l -4 -12 l -12 -4 l 12 -4 z" opacity=".7"/>
+  </g>
+
+  <!-- coin rim highlight -->
+  <path d="M170 360 A 350 350 0 0 1 380 150" fill="none" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="10" stroke-linecap="round"/>
+</svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const add = (parent, tag, attrs) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); parent.appendChild(el); return el; };
+  const reeds = document.getElementById('reeds');
+  for (let i = 0; i < 180; i++) {
+    const a = (i / 180) * Math.PI * 2, c = Math.cos(a), s = Math.sin(a);
+    add(reeds, 'line', { x1: 500 + c * 428, y1: 500 + s * 428, x2: 500 + c * 442, y2: 500 + s * 442 });
+  }
+  // kente: 36 blocks in gold, red, green and black, each split by a thin line
+  const kente = document.getElementById('kente');
+  const COLS = ['#F2B33D', '#C8391B', '#2F6B3B', '#F2B33D', '#1F1410', '#C8391B'];
+  const n = 36, r = 395;
+  for (let i = 0; i < n; i++) {
+    const a0 = (i / n) * Math.PI * 2, a1 = ((i + 1) / n) * Math.PI * 2 - 0.012;
+    const p = (a, rr) => `${500 + Math.cos(a) * rr} ${500 + Math.sin(a) * rr}`;
+    add(kente, 'path', { d: `M${p(a0, r - 9)} L${p(a0, r + 9)} A ${r + 9} ${r + 9} 0 0 1 ${p(a1, r + 9)} L${p(a1, r - 9)} A ${r - 9} ${r - 9} 0 0 0 ${p(a0, r - 9)} Z`, fill: COLS[i % COLS.length] });
+    const am = (a0 + a1) / 2;
+    if (i % 2 === 0) add(kente, 'path', { d: `M${p(am, r - 9)} L${p(am, r + 9)}`, stroke: '#1F1410', 'stroke-width': 3 });
+  }
+  const dots = document.getElementById('dots');
+  for (let i = 0; i < 72; i++) {
+    const a = (i / 72) * Math.PI * 2;
+    add(dots, 'circle', { cx: 500 + Math.cos(a) * 352, cy: 500 + Math.sin(a) * 352, r: 3 });
+  }
+</script>

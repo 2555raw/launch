@@ -31,52 +31,65 @@
 
   /* ---------- the menu ---------- */
 
-  const MENU = [
-    { id: 'fufu-light', cat: 'fufu', name: 'Fufu con light soup', native: 'Nkrakra', price: 13.5, spice: 2, gf: true, popular: true,
-      desc: 'Sopa ligera de tomate, pimiento y jengibre con pollo de corral y un fufu de yuca y plátano.', art: 'fufu:light' },
-    { id: 'fufu-groundnut', cat: 'fufu', name: 'Fufu con sopa de cacahuete', native: 'Nkatenkwan', price: 14.5, spice: 1, gf: true,
-      desc: 'Crema de cacahuete tostado, cocinada cuatro horas con pollo y carne de cabra.', art: 'fufu:groundnut' },
-    { id: 'fufu-palmnut', cat: 'fufu', name: 'Fufu con sopa de nuez de palma', native: 'Abenkwan', price: 15, spice: 2, gf: true,
-      desc: 'Sopa roja y profunda de nuez de palma con pescado ahumado, ternera y cangrejo.', art: 'fufu:palmnut:fish' },
-    { id: 'fufu-egusi', cat: 'fufu', name: 'Fufu con egusi', native: 'Egusi soup', price: 14.9, spice: 2, gf: true,
-      desc: 'Semillas de melón molidas con espinaca, aceite de palma y trozos de ternera.', art: 'fufu:egusi' },
+  // allergens follow the EU list of 14; only the ones the kitchen actually uses appear
+  const ALLERGENS = {
+    gluten: 'Gluten', cacahuete: 'Cacahuete', pescado: 'Pescado', crustaceos: 'Marisco',
+    huevo: 'Huevo', lacteos: 'Lácteos', sesamo: 'Sésamo', soja: 'Soja',
+  };
 
-    { id: 'jollof-chicken', cat: 'jollof', name: 'Jollof con pollo a la parrilla', native: 'Party jollof', price: 12.9, spice: 2, gf: true, popular: true,
+  const MENU = [
+    { id: 'fufu-light', cat: 'fufu', name: 'Fufu con light soup', native: 'Nkrakra', price: 13.5, spice: 2, gf: true, popular: true, allergens: [],
+      desc: 'Sopa ligera de tomate, pimiento y jengibre con pollo de corral y un fufu de yuca y plátano.', art: 'fufu:light' },
+    { id: 'fufu-groundnut', cat: 'fufu', name: 'Fufu con sopa de cacahuete', native: 'Nkatenkwan', price: 14.5, spice: 1, gf: true, allergens: ['cacahuete'],
+      desc: 'Crema de cacahuete tostado, cocinada cuatro horas con pollo y carne de cabra.', art: 'fufu:groundnut' },
+    { id: 'fufu-palmnut', cat: 'fufu', name: 'Fufu con sopa de nuez de palma', native: 'Abenkwan', price: 15, spice: 2, gf: true, allergens: ['pescado', 'crustaceos'],
+      desc: 'Sopa roja y profunda de nuez de palma con pescado ahumado, ternera y cangrejo.', art: 'fufu:palmnut:fish' },
+    { id: 'fufu-egusi', cat: 'fufu', name: 'Fufu con egusi', native: 'Egusi soup', price: 14.9, spice: 2, gf: true, allergens: ['crustaceos'],
+      desc: 'Semillas de melón molidas con espinaca, aceite de palma, cangrejo de río y ternera.', art: 'fufu:egusi' },
+    { id: 'fufu-vegan', cat: 'fufu', name: 'Fufu con sopa de cacahuete vegana', native: 'Nkatenkwan verde', price: 13.5, spice: 1, gf: true, vegan: true, allergens: ['cacahuete'],
+      desc: 'La misma crema de cacahuete tostado, con setas asadas, garbanzos y berenjena.', art: 'fufu:groundnut' },
+    { id: 'egusi-vegan', cat: 'fufu', name: 'Egusi vegano', native: 'Egusi de la huerta', price: 13.9, spice: 2, gf: true, vegan: true, allergens: [],
+      desc: 'Egusi con espinaca, calabaza y setas ostra, sin marisco ni carne. Con fufu.', art: 'fufu:egusi' },
+
+    { id: 'jollof-chicken', cat: 'jollof', name: 'Jollof con pollo a la parrilla', native: 'Party jollof', price: 12.9, spice: 2, gf: true, popular: true, allergens: [],
       desc: 'Arroz ahumado en salsa de tomate y pimiento, con muslo a la brasa, dodo y ensalada.', art: 'jollof:chicken' },
-    { id: 'jollof-beef', cat: 'jollof', name: 'Jollof con ternera suya', native: 'Suya jollof', price: 13.9, spice: 3, gf: true,
+    { id: 'jollof-beef', cat: 'jollof', name: 'Jollof con ternera suya', native: 'Suya jollof', price: 13.9, spice: 3, gf: true, allergens: ['cacahuete'],
       desc: 'Brochetas de ternera con especia suya de cacahuete y chile, sobre jollof ahumado.', art: 'jollof:beef' },
-    { id: 'jollof-fish', cat: 'jollof', name: 'Jollof con tilapia a la brasa', native: 'Tilapia jollof', price: 15.5, spice: 2, gf: true,
+    { id: 'jollof-fish', cat: 'jollof', name: 'Jollof con tilapia a la brasa', native: 'Tilapia jollof', price: 15.5, spice: 2, gf: true, allergens: ['pescado'],
       desc: 'Tilapia entera marinada en jengibre y ajo, a la brasa, con jollof, dodo y lima.', art: 'jollof:fish' },
-    { id: 'jollof-veg', cat: 'jollof', name: 'Jollof vegetal', native: 'Garden jollof', price: 10.9, spice: 1, gf: true, vegan: true,
+    { id: 'jollof-veg', cat: 'jollof', name: 'Jollof vegetal', native: 'Garden jollof', price: 10.9, spice: 1, gf: true, vegan: true, allergens: [],
       desc: 'Jollof con judías de ojo negro, pimientos asados y plátano frito. 100 % vegetal.', art: 'jollof:veg' },
 
-    { id: 'kelewele', cat: 'side', name: 'Kelewele', native: 'Street food de Accra', price: 4.5, spice: 2, gf: true, vegan: true,
+    { id: 'redred', cat: 'side', name: 'Red red', native: 'Guiso de Accra', price: 9.5, spice: 1, gf: true, vegan: true, allergens: [],
+      desc: 'Judías de ojo negro guisadas en aceite de palma y tomate, con dodo y gari.', art: 'side:dodo' },
+    { id: 'kelewele', cat: 'side', name: 'Kelewele', native: 'Street food de Accra', price: 4.5, spice: 2, gf: true, vegan: true, allergens: ['cacahuete'],
       desc: 'Dados de plátano macho con jengibre, clavo y chile, fritos y con cacahuetes.', art: 'side:kelewele' },
-    { id: 'dodo', cat: 'side', name: 'Dodo', native: 'Plátano frito', price: 4, spice: 0, gf: true, vegan: true,
+    { id: 'dodo', cat: 'side', name: 'Dodo', native: 'Plátano frito', price: 4, spice: 0, gf: true, vegan: true, allergens: [],
       desc: 'Rodajas de plátano macho maduro fritas hasta caramelizar.', art: 'side:dodo' },
-    { id: 'shito', cat: 'side', name: 'Shito de la casa', native: 'Salsa negra picante', price: 2.5, spice: 3, gf: true,
+    { id: 'shito', cat: 'side', name: 'Shito de la casa', native: 'Salsa negra picante', price: 2.5, spice: 3, gf: true, allergens: ['crustaceos', 'pescado'],
       desc: 'Salsa de pimiento, gamba seca y cebolla confitada. El toque que lo cambia todo.', art: 'side:shito' },
-    { id: 'fufu-extra', cat: 'side', name: 'Fufu extra', native: 'Una bola más', price: 3.5, spice: 0, gf: true, vegan: true,
+    { id: 'fufu-extra', cat: 'side', name: 'Fufu extra', native: 'Una bola más', price: 3.5, spice: 0, gf: true, vegan: true, allergens: [],
       desc: 'Porción adicional de fufu recién machacado para acompañar tu sopa.', art: 'side:fufu' },
 
-    { id: 'sobolo', cat: 'drink', name: 'Sobolo', native: 'Hibisco y jengibre', price: 3.5, spice: 0, gf: true, vegan: true,
+    { id: 'sobolo', cat: 'drink', name: 'Sobolo', native: 'Hibisco y jengibre', price: 3.5, spice: 0, gf: true, vegan: true, allergens: [],
       desc: 'Infusión fría de flor de hibisco con jengibre, piña y clavo. 500 ml.', art: 'drink:sobolo' },
-    { id: 'ginger', cat: 'drink', name: 'Ginger beer casera', native: 'Sin alcohol', price: 3.5, spice: 1, gf: true, vegan: true,
+    { id: 'ginger', cat: 'drink', name: 'Ginger beer casera', native: 'Sin alcohol', price: 3.5, spice: 1, gf: true, vegan: true, allergens: [],
       desc: 'Jengibre fresco fermentado con limón y un punto de picante. 500 ml.', art: 'drink:ginger' },
   ];
 
   const EXTRAS = {
-    combo: { id: 'combo', name: 'Combo Asanka para dos', price: 34.9, was: 41.3 },
-    'tray-10':  { id: 'tray-10',  name: 'Bandeja de jollof · 10 personas', price: 89,  people: 10,
+    combo: { id: 'combo', name: 'Combo Asanka para dos', price: 34.9, was: 41.3, allergens: ['cacahuete'] },
+    'combo-vegan': { id: 'combo-vegan', name: 'Combo vegano para dos', price: 31.9, was: 38.9, vegan: true, allergens: ['cacahuete'] },
+    'tray-10':  { id: 'tray-10',  name: 'Bandeja de jollof · 10 personas', price: 89,  people: 10, allergens: [],
       desc: 'Jollof con pollo, dodo y ensalada. Ideal para cumpleaños y comidas de equipo.' },
-    'tray-25':  { id: 'tray-25',  name: 'Bandeja de jollof · 25 personas', price: 209, people: 25, popular: true,
+    'tray-25':  { id: 'tray-25',  name: 'Bandeja de jollof · 25 personas', price: 209, people: 25, popular: true, allergens: ['cacahuete'],
       desc: 'Jollof, pollo y ternera suya, dodo, kelewele y ensalada. El formato de fiesta.' },
-    'fufu-20':  { id: 'fufu-20',  name: 'Fufu y dos sopas · 20 personas', price: 239, people: 20,
+    'fufu-20':  { id: 'fufu-20',  name: 'Fufu y dos sopas · 20 personas', price: 239, people: 20, allergens: ['cacahuete', 'pescado'],
       desc: 'Fufu recién machacado con sopa de cacahuete y light soup, carne y pescado.' },
   };
 
   // cart thumbnails for the items that have no card of their own
-  const LINE_ART = { combo: 'jollof:chicken', 'tray-10': 'tray', 'tray-25': 'tray', 'fufu-20': 'fufu:groundnut' };
+  const LINE_ART = { combo: 'jollof:chicken', 'combo-vegan': 'jollof:veg', 'tray-10': 'tray', 'tray-25': 'tray', 'fufu-20': 'fufu:groundnut' };
 
   const ITEMS = Object.fromEntries([...MENU, ...Object.values(EXTRAS)].map((i) => [i.id, i]));
 
@@ -85,15 +98,30 @@
 
   $$('[data-money]').forEach((el) => {
     const key = el.dataset.money;
-    const v = { freeDelivery: CONFIG.freeDelivery, combo: EXTRAS.combo.price, comboWas: EXTRAS.combo.was }[key];
+    const v = {
+      freeDelivery: CONFIG.freeDelivery, combo: EXTRAS.combo.price, comboWas: EXTRAS.combo.was,
+      comboVegan: EXTRAS['combo-vegan'].price, comboVeganWas: EXTRAS['combo-vegan'].was,
+    }[key];
     if (v != null) el.textContent = fmt(v);
   });
 
   /* ---------- storage (never trusted to exist) ---------- */
 
+  /* Until the visitor accepts preferences, only their consent choice is written
+     to the browser; the cart and allergies live in memory for this visit. */
+  const CONSENT_KEY = 'asanka-consent';
+  const memory = {};
+  const readLocal = (key) => { try { return localStorage.getItem(key); } catch (_) { return null; } };
+  const writeLocal = (key, v) => { try { localStorage.setItem(key, v); } catch (_) { /* storage blocked */ } };
+  const dropLocal = (key) => { try { localStorage.removeItem(key); } catch (_) { /* storage blocked */ } };
+  let consent = readLocal(CONSENT_KEY);
+
   const store = {
-    get(key) { try { return localStorage.getItem(key); } catch (_) { return null; } },
-    set(key, v) { try { localStorage.setItem(key, v); } catch (_) { /* storage blocked */ } },
+    get(key) { return key in memory ? memory[key] : consent === 'all' ? readLocal(key) : null; },
+    set(key, v) {
+      memory[key] = v;
+      if (key === CONSENT_KEY || consent === 'all') writeLocal(key, v);
+    },
   };
 
   /* ---------- theme: follows the system until the visitor picks one ---------- */
@@ -176,6 +204,7 @@
     if (kind === 'jollof') return A.jollof(p, seed, a);
     if (kind === 'drink') return A.drink(p, seed, a);
     if (kind === 'tray') return A.tray(p, seed);
+    if (kind === 'stick') return A.stickman(p, a);
     if (kind === 'side') {
       if (a === 'kelewele') return A.kelewele(p, seed);
       if (a === 'dodo') return A.dodo(p, seed);
@@ -194,10 +223,13 @@
 
   const grid = $('#menu-grid');
 
+  const allergenText = (list) => list.map((k) => ALLERGENS[k].toLowerCase()).join(', ');
+
   const cardHTML = (item) => `
-    <article class="as-card as-rise" data-cat="${item.cat}" data-id="${item.id}">
+    <article class="as-card as-rise" data-cat="${item.cat}" data-id="${item.id}"${item.vegan ? ' data-vegan' : ''}>
       <div class="as-card-art">
         ${item.popular ? '<span class="as-ribbon">Más pedido</span>' : ''}
+        <span class="as-warn" hidden></span>
         ${drawArt(item.art)}
       </div>
       <div class="as-card-body">
@@ -207,6 +239,7 @@
           <span class="as-card-price">${fmt(item.price)}</span>
         </div>
         <p class="as-card-desc">${item.desc}</p>
+        <p class="as-card-allergens">${item.allergens.length ? `Alérgenos: ${allergenText(item.allergens)}` : 'Sin alérgenos de declaración obligatoria'}</p>
         <div class="as-card-foot">
           <div class="as-card-meta">
             <span class="as-spice" title="${SPICE_LABEL[item.spice]}" aria-label="Picante: ${SPICE_LABEL[item.spice]}">
@@ -221,6 +254,7 @@
     </article>`;
 
   grid.insertAdjacentHTML('beforeend', MENU.map(cardHTML).join(''));
+  $('#vegan-grid').innerHTML = MENU.filter((i) => i.vegan && i.cat !== 'drink' && i.id !== 'fufu-extra').map(cardHTML).join('');
 
   $('#trays').innerHTML = ['tray-10', 'tray-25', 'fufu-20'].map((id) => {
     const t = EXTRAS[id];
@@ -238,16 +272,106 @@
       </article>`;
   }).join('');
 
+  /* ---------- allergies and filters ---------- */
+
+  let prefs = { allergies: [], hideUnsafe: false };
+  try { prefs = { ...prefs, ...JSON.parse(store.get('asanka-prefs') || '{}') }; } catch (_) { /* keep defaults */ }
+  prefs.allergies = (prefs.allergies || []).filter((k) => k in ALLERGENS);
+
+  let filter = 'all';
+  const conflicts = (item) => (item.allergens || []).filter((k) => prefs.allergies.includes(k));
+
+  function applyFilters() {
+    $$('.as-card').forEach((card) => {
+      const item = ITEMS[card.dataset.id];
+      const bad = conflicts(item);
+      card.classList.toggle('is-unsafe', bad.length > 0);
+      const warn = $('.as-warn', card);
+      warn.hidden = !bad.length;
+      warn.textContent = bad.length ? `Contiene ${allergenText(bad)}` : '';
+      if (card.closest('#menu-grid')) {
+        const inTab = filter === 'all' || (filter === 'vegan' ? item.vegan : item.cat === filter);
+        card.hidden = !inTab || (prefs.hideUnsafe && bad.length > 0);
+      } else card.hidden = prefs.hideUnsafe && bad.length > 0;
+    });
+
+    const bar = $('#allergy-bar');
+    if (prefs.allergies.length) {
+      const hidden = MENU.filter((i) => conflicts(i).length).length;
+      bar.innerHTML = `
+        <span class="as-allergy-i" aria-hidden="true">!</span>
+        <span>Tus alergias: <b>${prefs.allergies.map((k) => ALLERGENS[k]).join(', ')}</b>. ${hidden} ${hidden === 1 ? 'plato las contiene' : 'platos las contienen'} y ${hidden === 1 ? 'está marcado' : 'están marcados'}.</span>
+        <label class="as-switch"><input type="checkbox" id="hide-unsafe"${prefs.hideUnsafe ? ' checked' : ''}><span>Ocultarlos</span></label>
+        <button type="button" class="as-link-btn" data-open-prefs>Cambiar</button>`;
+    } else {
+      bar.innerHTML = `
+        <span class="as-allergy-i as-allergy-ok" aria-hidden="true">✓</span>
+        <span>Todo el menú es <b>sin gluten</b>. ¿Tienes otra alergia o intolerancia?</span>
+        <button type="button" class="as-link-btn" data-open-prefs>Indícala aquí</button>`;
+    }
+  }
+
+  document.addEventListener('change', (e) => {
+    if (e.target.id !== 'hide-unsafe') return;
+    prefs.hideUnsafe = e.target.checked;
+    store.set('asanka-prefs', JSON.stringify(prefs));
+    applyFilters();
+  });
+
   const tabs = $$('.as-tab');
-  tabs.forEach((tab) => tab.addEventListener('click', () => {
-    const f = tab.dataset.filter;
+  const selectTab = (f) => {
+    filter = f;
     tabs.forEach((t) => {
-      const on = t === tab;
+      const on = t.dataset.filter === f;
       t.classList.toggle('is-active', on);
       t.setAttribute('aria-selected', String(on));
     });
-    $$('.as-card', grid).forEach((card) => { card.hidden = f !== 'all' && card.dataset.cat !== f; });
-  }));
+    applyFilters();
+  };
+  tabs.forEach((tab) => tab.addEventListener('click', () => selectTab(tab.dataset.filter)));
+
+  /* ---------- welcome: privacy and allergies ---------- */
+
+  const welcome = $('#welcome');
+  $('#welcome-allergies').innerHTML = Object.entries(ALLERGENS).map(([k, label]) => `
+    <label class="as-chip"><input type="checkbox" name="allergy" value="${k}"><span>${label}</span></label>`).join('');
+
+  function openWelcome(focusAllergies = false) {
+    $$('#welcome-allergies input').forEach((el) => { el.checked = prefs.allergies.includes(el.value); });
+    welcome.hidden = false;
+    document.body.classList.add('as-lock');
+    requestAnimationFrame(() => welcome.classList.add('is-on'));
+    (focusAllergies ? $('#welcome-allergies input') : $('#welcome-accept')).focus();
+  }
+
+  function closeWelcome(choice) {
+    consent = choice;
+    store.set(CONSENT_KEY, choice);
+    prefs.allergies = $$('#welcome-allergies input:checked').map((el) => el.value);
+    if (!prefs.allergies.length) prefs.hideUnsafe = false;
+    if (choice === 'all') {
+      Object.entries(memory).forEach(([k, v]) => { if (k !== CONSENT_KEY) writeLocal(k, v); });
+    } else {
+      ['asanka-cart', 'asanka-prefs', 'asanka-theme'].forEach(dropLocal);
+    }
+    store.set('asanka-prefs', JSON.stringify(prefs));
+    welcome.classList.remove('is-on');
+    welcome.hidden = true;
+    document.body.classList.remove('as-lock');
+    applyFilters();
+  }
+
+  $('#welcome-accept').addEventListener('click', () => closeWelcome('all'));
+  $('#welcome-necessary').addEventListener('click', () => closeWelcome('necessary'));
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-open-prefs]');
+    if (!el) return;
+    e.preventDefault();
+    openWelcome(true);
+  });
+
+  applyFilters();
+  if (consent !== 'all' && consent !== 'necessary') openWelcome();
 
   /* ---------- cart ---------- */
 
@@ -509,12 +633,13 @@
       `Total: ${fmt(sub + ship)}`,
       '',
       `Picante: ${f.spice.value}`,
+      prefs.allergies.length ? `Alergias: ${prefs.allergies.map((k) => ALLERGENS[k]).join(', ')}` : null,
       `Hora: ${f.when.value}`,
       `Nombre: ${f.name.value.trim()}`,
       `Teléfono: ${f.phone.value.trim()}`,
-      mode() === 'delivery' ? `Dirección: ${f.address.value.trim()}` : '',
-      f.notes.value.trim() ? `Notas: ${f.notes.value.trim()}` : '',
-    ].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n');
+      mode() === 'delivery' ? `Dirección: ${f.address.value.trim()}` : null,
+      f.notes.value.trim() ? `Notas: ${f.notes.value.trim()}` : null,
+    ].filter((l) => l !== null).join('\n');
 
     const url = waLink(text);
 

@@ -312,5 +312,148 @@ window.AsankaArt = (() => {
     return svg(body, defs, 'Bandeja de jollof para fiestas');
   }
 
-  return { fufu, jollof, kelewele, dodo, shito, fufuSide, drink, tray };
+  /* ---------- more of the region, for the launchpad ---------- */
+
+  // suya: two skewers of spiced beef on a board with raw onion and tomato
+  function suya(p, seed) {
+    const rand = rng(seed);
+    const defs = radial(`${p}-board`, [[0, '#C98E55'], [.8, '#A8703C'], [1, '#86552B']], '.4', '.35', '.8');
+    let body = `<rect x="22" y="26" width="164" height="156" rx="26" fill="#2A1A12" opacity=".16"/>`;
+    body += `<rect x="16" y="18" width="164" height="156" rx="26" fill="url(#${p}-board)"/>`;
+    for (let i = 0; i < 7; i++) body += `<path d="M28 ${40 + i * 20} C 80 ${36 + i * 20} 120 ${46 + i * 20} 168 ${40 + i * 20}" stroke="#7A4A22" stroke-opacity=".28" stroke-width="1.2" fill="none"/>`;
+    [[62, -30], [100, -30]].forEach(([y, r], k) => {
+      body += `<g transform="rotate(${r} 98 ${y + 30})"><rect x="22" y="${y + 28}" width="160" height="3.4" rx="1.7" fill="#E8D2A8"/>`;
+      [44, 70, 96, 122, 148].forEach((x, i) => {
+        body += `<rect x="${x - 10 + 1.5}" y="${y + 20 + 3}" width="21" height="19" rx="5" fill="#000" opacity=".22"/><rect x="${x - 10}" y="${y + 20}" width="21" height="19" rx="5" fill="${(i + k) % 2 ? '#7A2E12' : '#94391A'}"/><rect x="${x - 7}" y="${y + 22.5}" width="10" height="3" rx="1.5" fill="#FFB36B" opacity=".35"/>`;
+      });
+      body += '</g>';
+    });
+    for (let i = 0; i < 90; i++) {
+      const x = 30 + rand() * 140, y = 40 + rand() * 110;
+      body += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(.6 + rand() * 1.1)}" fill="${i % 3 ? '#C8561E' : '#E8B46A'}" opacity=".8"/>`;
+    }
+    body += onionRing(150, 150, 11) + onionRing(136, 158, 8) + tomatoSlice(46, 150, 12);
+    return svg(body, defs, 'Suya, ternera especiada a la brasa');
+  }
+
+  // injera: the spongy flatbread as the plate, with stews spooned on top
+  function injera(p, seed) {
+    const rand = rng(seed);
+    const defs = radial(`${p}-bread`, [[0, '#E6D2AE'], [.8, '#D4BA8E'], [1, '#B99A6A']], '.42', '.38', '.72') +
+      radial(`${p}-plate`, [[0, '#F4F0E8'], [1, '#CFC6B5']], '.4', '.35', '.75');
+    let body = shadow() + `<circle cx="100" cy="100" r="88" fill="url(#${p}-plate)"/><circle cx="100" cy="100" r="80" fill="url(#${p}-bread)"/>`;
+    for (let i = 0; i < 260; i++) {
+      const [x, y] = inCircle(rand, 100, 100, 76);
+      body += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(.7 + rand() * 1.5)}" fill="#9C7C4E" opacity="${f(.3 + rand() * .35)}"/>`;
+    }
+    const stews = [
+      [100, 98, 22, '#7A1E0E', '#4A0F06'],   // doro wat
+      [62, 70, 15, '#E07A2E', '#B8531A'],    // misir wat
+      [138, 70, 15, '#3F6E2A', '#274A18'],   // gomen
+      [62, 132, 15, '#D9A441', '#A87622'],   // shiro
+      [138, 132, 14, '#F6F0E2', '#D9CFBC'],  // ayib
+      [100, 150, 12, '#B8421E', '#7E2A10'],  // key wat
+    ];
+    stews.forEach(([x, y, r, a, b], i) => {
+      body += `<radialGradient id="${p}-s${i}" cx=".38" cy=".34" r=".75"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>`;
+      body += `<circle cx="${x + 2}" cy="${y + 3}" r="${r}" fill="#000" opacity=".16"/><circle cx="${x}" cy="${y}" r="${r}" fill="url(#${p}-s${i})"/><ellipse cx="${f(x - r * .3)}" cy="${f(y - r * .35)}" rx="${f(r * .35)}" ry="${f(r * .18)}" fill="#fff" opacity=".22"/>`;
+    });
+    body += `<circle cx="96" cy="94" r="5" fill="#F4ECDC"/><circle cx="96" cy="94" r="2.4" fill="#F2B33D"/>`;
+    return svg(body, defs, 'Injera con wat');
+  }
+
+  // puff-puff: fried dough balls dusted with sugar
+  function puffpuff(p, seed) {
+    const rand = rng(seed);
+    const defs = radial(`${p}-bowl`, [[0, '#FFFFFF'], [.85, '#F3ECE0'], [1, '#DCCFB9']]) +
+      radial(`${p}-ball`, [[0, '#F8C66A'], [.55, '#D98A2B'], [1, '#9A5214']], '.36', '.3', '.8');
+    let body = shadow(82) + `<circle cx="100" cy="100" r="82" fill="url(#${p}-bowl)"/><circle cx="100" cy="100" r="66" fill="#EFE5D3"/>`;
+    const spots = [[100, 100], [72, 84], [128, 84], [70, 118], [130, 118], [100, 64], [100, 138], [80, 150], [124, 150]];
+    spots.slice(0, 9).forEach(([x, y]) => {
+      const r = 17 + rand() * 3;
+      body += `<circle cx="${x + 2}" cy="${y + 4}" r="${f(r)}" fill="#000" opacity=".18"/><circle cx="${x}" cy="${y}" r="${f(r)}" fill="url(#${p}-ball)"/><ellipse cx="${f(x - r * .3)}" cy="${f(y - r * .38)}" rx="${f(r * .34)}" ry="${f(r * .2)}" fill="#fff" opacity=".4"/>`;
+    });
+    for (let i = 0; i < 70; i++) {
+      const [x, y] = inCircle(rand, 100, 104, 58);
+      body += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(.6 + rand() * .9)}" fill="#FFFFFF" opacity=".85"/>`;
+    }
+    return svg(body, defs, 'Puff-puff');
+  }
+
+  /* ---------- a stickman eating ----------
+     Sits cross-legged on the floor in front of the bowl. The right arm is two
+     segments that rotate about the shoulder (88,112) and the elbow (122,112):
+     52.8° / -30.4° puts the hand in the bowl, -0.1° / -130.2° puts it at the
+     mouth. The angles come from two-link inverse kinematics with 34px bones. */
+
+  function stickman(p, food = 'fufu') {
+    const jollofPlate = food === 'jollof';
+    const defs =
+      radial(`${p}-bowl`, [[0, '#C0714A'], [.7, '#8C4526'], [1, '#6A3119']], '.35', '.3', '.9') +
+      radial(`${p}-ball`, [[0, '#FFFDF6'], [.6, '#F1E6CC'], [1, '#D6C29A']], '.36', '.3', '.75') +
+      radial(`${p}-rice`, [[0, '#F3793F'], [1, '#C23D1B']], '.4', '.35', '.8');
+
+    const css = `
+      .sm-up{transform-origin:88px 112px;animation:sm-up 2.8s cubic-bezier(.45,0,.35,1) infinite}
+      .sm-fore{transform-origin:122px 112px;animation:sm-fore 2.8s cubic-bezier(.45,0,.35,1) infinite}
+      .sm-bite{animation:sm-bite 2.8s linear infinite}
+      .sm-mouth{transform-origin:99px 89px;animation:sm-chew 2.8s ease-in-out infinite}
+      .sm-head{transform-origin:88px 100px;animation:sm-nod 2.8s ease-in-out infinite}
+      .sm-steam path{animation:sm-steam 3.2s ease-in-out infinite}
+      .sm-steam path:nth-child(2){animation-delay:-1.1s}.sm-steam path:nth-child(3){animation-delay:-2.2s}
+      @keyframes sm-up{0%,14%{transform:rotate(52.8deg)}46%,68%{transform:rotate(-.1deg)}100%{transform:rotate(52.8deg)}}
+      @keyframes sm-fore{0%,14%{transform:rotate(-30.4deg)}46%,68%{transform:rotate(-130.2deg)}100%{transform:rotate(-30.4deg)}}
+      @keyframes sm-bite{0%,52%{opacity:1}56%,96%{opacity:0}100%{opacity:1}}
+      @keyframes sm-chew{0%,58%{transform:scaleY(1)}64%{transform:scaleY(.2)}70%{transform:scaleY(1)}76%{transform:scaleY(.2)}82%{transform:scaleY(1)}88%{transform:scaleY(.2)}94%,100%{transform:scaleY(1)}}
+      @keyframes sm-nod{0%,40%{transform:rotate(0)}52%{transform:rotate(-4deg)}66%{transform:rotate(3deg)}80%,100%{transform:rotate(0)}}
+      @keyframes sm-steam{0%{opacity:0;transform:translateY(6px)}40%{opacity:.7}100%{opacity:0;transform:translateY(-14px)}}
+      @media (prefers-reduced-motion:reduce){.sm-up,.sm-fore,.sm-bite,.sm-mouth,.sm-head,.sm-steam path{animation:none}}`;
+
+    const bite = jollofPlate
+      ? `<g class="sm-bite"><path d="M150 112 h14" stroke="#9AA3A8" stroke-width="3.2" stroke-linecap="round"/><ellipse cx="160" cy="110" rx="6" ry="3.6" fill="#E4572E"/></g>`
+      : `<circle class="sm-bite" cx="157" cy="112" r="5.2" fill="url(#${p}-ball)" stroke="#CDBB93" stroke-width=".8"/>`;
+
+    const dish = jollofPlate
+      ? `<ellipse cx="152" cy="173" rx="34" ry="7" fill="#2A1A12" opacity=".14"/>
+         <ellipse cx="152" cy="168" rx="32" ry="8" fill="#F4EEE4" stroke="#D9CDB9" stroke-width="1.5"/>
+         <path d="M130 166 C 134 152 170 150 174 166 Z" fill="url(#${p}-rice)"/>
+         <path d="M162 160 c 5 -5 12 -3 12 2 c -2 5 -9 6 -12 -2z" fill="#8A3E17"/>`
+      : `<ellipse cx="150" cy="178" rx="30" ry="5" fill="#2A1A12" opacity=".14"/>
+         <path d="M124 156 C 126 176 174 176 176 156 Z" fill="url(#${p}-bowl)"/>
+         <ellipse cx="150" cy="156" rx="26" ry="6.5" fill="#6A3119"/>
+         <ellipse cx="150" cy="156.8" rx="23" ry="5" fill="#C8401C"/>
+         <circle cx="146" cy="151" r="10" fill="url(#${p}-ball)"/>
+         <ellipse cx="143" cy="147" rx="3.4" ry="2" fill="#fff" opacity=".8"/>
+         <path d="M132 168 h36" stroke="#fff" stroke-opacity=".14" stroke-width="2"/>`;
+
+    const body = `<style>${css}</style>
+      <path d="M20 179 H 200" stroke="currentColor" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>
+      <g class="sm-steam" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="2.4" stroke-linecap="round">
+        <path d="M140 138 c -4 -6 4 -10 0 -16"/><path d="M151 136 c -4 -6 4 -10 0 -16"/><path d="M162 138 c -4 -6 4 -10 0 -16"/>
+      </g>
+      ${dish}
+      <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M88 160 L 60 168 L 84 176"/>
+        <path d="M88 160 L 120 168 L 98 176"/>
+        <path d="M88 160 L 88 104"/>
+        <path d="M88 114 L 104 140 L 118 160"/>
+        <g class="sm-head">
+          <circle cx="88" cy="80" r="17" fill="var(--sm-face, transparent)"/>
+        </g>
+      </g>
+      <g class="sm-head">
+        <circle cx="95" cy="76" r="2.6" fill="currentColor"/>
+        <ellipse class="sm-mouth" cx="99" cy="89" rx="4" ry="2.4" fill="currentColor"/>
+      </g>
+      <g class="sm-up">
+        <path d="M88 112 H 122" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+        <g class="sm-fore">
+          <path d="M122 112 H 154" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+          ${bite}
+        </g>
+      </g>`;
+    return `<svg viewBox="36 44 172 146" role="img" aria-label="Un stickman comiendo ${jollofPlate ? 'arroz jollof' : 'fufu'}" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
+  }
+
+  return { fufu, jollof, kelewele, dodo, shito, fufuSide, drink, tray, suya, injera, puffpuff, stickman };
 })();

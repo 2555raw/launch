@@ -12,7 +12,8 @@ No build step, no dependencies. Plain HTML, CSS and vanilla JS. The site is in S
 index.html   the whole page: announcement bar, hero, menu, combo, how it works,
              our kitchen, catering, FAQ, closing call, footer and the cart drawer
 styles.css   the design system (palette, type, layout), light/dark and the responsive rules
-art.js       the dish illustrations: every plate is a top-down SVG drawn in code
+art.js       the dish illustrations (top-down SVG drawn in code) and the stickman
+assets/      the profile picture: avatar.png (1000 px), avatar-400.png and its source
 app.js       CONFIG and MENU, theme, navigation, filters, cart, checkout,
              catering quote, opening hours and the scroll reveal
 ```
@@ -40,6 +41,27 @@ Cloudflare Pages, Railway).
 
 Delivery is free from `CONFIG.freeDelivery` (35 €), costs `CONFIG.deliveryFee`
 (3.90 €) below that, and needs a minimum of `CONFIG.minDelivery` (15 €).
+
+## Privacy and allergies
+
+On the first visit a window asks two things before the page can be used:
+
+- **Privacy.** "Aceptar y continuar" lets the page keep the cart, the allergies and the
+  theme in `localStorage`. "Solo lo necesario" keeps them in memory for this visit only;
+  the one thing written either way is the choice itself (`asanka-consent`). Name, phone
+  and address are never stored: they only travel inside the WhatsApp message.
+- **Allergies.** Chips for the allergens the kitchen uses (gluten, peanut, fish,
+  shellfish, egg, dairy, sesame, soy). Every dish carries its `allergens`; a dish that
+  contains one of the visitor's gets a warning badge, and a bar above the menu can hide
+  them. The allergies also go into the WhatsApp order.
+
+The footer's "Privacidad" and "Alérgenos" links, and "Cambiar" in the bar, reopen it.
+
+## Vegan
+
+The "Vegano" section and menu tab list the dishes flagged `vegan: true`: jollof vegetal,
+the vegan groundnut soup and egusi, red red, kelewele, dodo and the drinks, plus a vegan
+combo for two. They are cooked in separate pots; the copy says so, keep it true.
 
 ## Editing the menu
 

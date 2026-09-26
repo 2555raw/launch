@@ -112,11 +112,10 @@ p { margin: 0; }
 .as-skip:focus { top: 12px; }
 
 .as-eyebrow {
-  display: inline-flex; align-items: center; gap: 10px;
+  display: inline-flex; align-items: center;
   font-size: 12.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
   color: var(--jollof); margin-bottom: 16px;
 }
-.as-eyebrow::before { content: ''; width: 22px; height: 2px; background: currentColor; border-radius: 2px; }
 .as-eyebrow-light { color: var(--palm); }
 
 /* ---------- buttons ---------- */
@@ -171,17 +170,17 @@ p { margin: 0; }
 .as-mark { width: 42px; height: 42px; border-radius: 13px; background: var(--btn); color: #FBF5EC; display: grid; place-items: center; flex: none; }
 .as-mark svg { width: 28px; height: 28px; }
 .as-brand-t { display: flex; flex-direction: column; font-family: var(--display); font-weight: 700; font-size: 23px; line-height: 1; letter-spacing: -.02em; }
-.as-brand-t small { font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--muted); margin-top: 5px; }
+.as-brand-t small { white-space: nowrap; font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--muted); margin-top: 5px; }
 
 .as-links { display: flex; gap: 4px; margin-left: auto; }
-.as-links a { padding: 9px 14px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: var(--prose); transition: color .2s, background .2s; }
+.as-links a { white-space: nowrap; padding: 9px 14px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: var(--prose); transition: color .2s, background .2s; }
 .as-links a:hover { color: var(--ink); background: var(--bg-alt); }
 .as-links a.is-active { color: var(--jollof); }
 
 .as-nav-actions { display: flex; align-items: center; gap: 10px; }
 .as-cart-btn {
   display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 18px;
-  border-radius: 999px; border: 0; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 14.5px;
+  border-radius: 999px; border: 0; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 14.5px; white-space: nowrap;
 }
 .as-cart-count {
   min-width: 28px; height: 28px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center;
@@ -438,6 +437,9 @@ p { margin: 0; }
 }
 .as-cta-card::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: var(--kente); }
 .as-cta-card h2 { font-size: clamp(28px, 3.6vw, 42px); color: #fff; max-width: 620px; }
+.as-cta-copy { flex: 1 1 360px; }
+.as-cta-stick { flex: none; width: 210px; aspect-ratio: 1; max-width: 100%; border-radius: 50%; display: grid; place-items: center; background: var(--bg); color: var(--ink); box-shadow: 0 0 0 8px rgba(255, 255, 255, .12); }
+.as-cta-stick svg { width: 84%; margin-top: 4%; }
 .as-cta-card p { margin-top: 10px; color: #FFE2D6; font-size: 17px; }
 
 /* ---------- footer ---------- */
@@ -472,7 +474,7 @@ p { margin: 0; }
 .as-drawer-foot { padding: 18px 24px calc(24px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); background: var(--card); }
 
 .as-empty { text-align: center; padding: 48px 12px; display: grid; justify-items: center; gap: 18px; }
-.as-empty-art { width: 150px; opacity: .9; }
+.as-empty-art { width: 190px; color: var(--ink); }
 .as-empty p { color: var(--prose); }
 
 .as-lines { list-style: none; padding: 0; margin: 0; }
@@ -537,7 +539,7 @@ p { margin: 0; }
 
 /* ---------- responsive ---------- */
 
-@media (max-width: 1080px) {
+@media (max-width: 1240px) {
   .as-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; padding: 8px 16px 16px; background: var(--bg); border-bottom: 1px solid var(--line); box-shadow: 0 20px 30px -24px rgba(42, 26, 18, .5); }
   .as-links.is-open { display: flex; }
   .as-links a { padding: 14px 12px; border-radius: 12px; font-size: 16px; }
@@ -585,8 +587,110 @@ p { margin: 0; }
   .as-quote-fields .as-field:first-child, .as-quote-fields .as-btn { grid-column: 1 / -1; }
   .as-cta-card { padding: 40px 24px 48px; }
   .as-cta-card .as-btn { width: 100%; }
+  .as-cta-stick { width: 170px; margin: 0 auto; }
   .as-footer-in { grid-template-columns: 1fr; gap: 32px; }
   .as-story-art { min-height: 360px; }
   .as-price-now { font-size: 40px; }
   .as-toast { white-space: normal; border-radius: 18px; bottom: 16px; }
 }
+
+/* ---------- allergies bar ---------- */
+
+.as-allergy-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: -8px 0 24px; padding: 12px 16px;
+  border-radius: 16px; background: var(--card); border: 1px solid var(--line); font-size: 14.5px; color: var(--prose);
+}
+.as-allergy-bar b { color: var(--ink); }
+.as-allergy-bar > span:nth-child(2) { flex: 1 1 280px; }
+.as-allergy-i {
+  flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--jollof-soft); color: var(--jollof); font-weight: 800; font-size: 14px;
+}
+.as-allergy-ok { background: var(--leaf-soft); color: var(--leaf); }
+.as-switch { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13.5px; cursor: pointer; }
+.as-switch input { width: 18px; height: 18px; accent-color: var(--btn); margin: 0; }
+
+.as-card-allergens { margin-top: 10px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.as-warn {
+  position: absolute; top: 14px; right: 14px; z-index: 1; max-width: calc(100% - 28px); padding: 5px 11px; border-radius: 999px;
+  background: #FFF1E0; color: #8A3A0A; border: 1px solid #F2C08A; font-size: 11.5px; font-weight: 800;
+}
+.as-card.is-unsafe .as-card-art svg { opacity: .55; filter: grayscale(.5); }
+.as-card.is-unsafe .as-card-allergens { color: var(--jollof); }
+
+/* ---------- vegan ---------- */
+
+.as-vegan { background: var(--leaf-soft); position: relative; }
+.as-vegan::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: repeating-linear-gradient(90deg, var(--leaf) 0 40px, var(--palm) 40px 52px, var(--leaf) 52px 70px, transparent 70px 78px); opacity: .8; }
+.as-eyebrow-leaf { color: var(--leaf); }
+.as-vegan-head { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: end; margin-bottom: 44px; }
+.as-vegan-lead { margin-top: 18px; color: var(--prose); font-size: 17px; max-width: 560px; }
+.as-vegan-points { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.as-vegan-points li { display: grid; gap: 2px; padding-left: 18px; border-left: 3px solid var(--leaf); }
+.as-vegan-points b { font-size: 15.5px; }
+.as-vegan-points span { color: var(--muted); font-size: 14px; }
+.as-vegan .as-tab.is-active, .as-tab[data-filter="vegan"].is-active { background: var(--leaf); border-color: var(--leaf); color: #fff; }
+
+.as-vegan-combo {
+  margin-top: 28px; display: grid; grid-template-columns: 220px 1fr auto; gap: 28px; align-items: center;
+  padding: 24px 28px; border-radius: var(--radius); background: var(--card); border: 1.5px solid color-mix(in srgb, var(--leaf) 40%, transparent);
+}
+.as-vegan-combo-art { position: relative; aspect-ratio: 16 / 10; }
+.as-vegan-combo-art > div { position: absolute; width: 62%; }
+.as-vegan-combo-art > div:first-child { left: 0; top: 0; }
+.as-vegan-combo-art > div:last-child { right: 0; bottom: 0; }
+.as-vegan-combo h3 { font-size: 24px; }
+.as-vegan-combo-copy p { color: var(--prose); margin-top: 6px; font-size: 15px; }
+.as-vegan-combo-buy { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+.as-vegan-combo .as-price-now { font-size: 34px; color: var(--ink); }
+.as-vegan-combo .as-btn { align-self: center; }
+.as-btn-leaf { background: #2F6B3B; color: #fff; }
+.as-btn-leaf:hover { background: #24552E; }
+
+/* ---------- welcome (privacy + allergies) ---------- */
+
+.as-welcome {
+  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; overflow-y: auto;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: rgba(20, 12, 8, .6); opacity: 0; transition: opacity .25s;
+}
+.as-welcome.is-on { opacity: 1; }
+.as-welcome-card {
+  width: min(560px, 100%); display: grid; gap: 22px; padding: 30px; border-radius: 28px;
+  background: var(--bg); box-shadow: var(--shadow-lg); border: 1px solid var(--line);
+  transform: translateY(12px); transition: transform .3s cubic-bezier(.2, .7, .2, 1);
+}
+.as-welcome.is-on .as-welcome-card { transform: none; }
+.as-welcome-top { display: flex; align-items: center; gap: 14px; }
+.as-welcome-top h2 { font-size: 28px; }
+.as-welcome-block { display: grid; gap: 10px; padding-top: 20px; border-top: 1px solid var(--line); }
+.as-welcome-block h3 { font-size: 18px; }
+.as-welcome-block > p { color: var(--prose); font-size: 14.5px; }
+.as-welcome-block details { font-size: 14px; color: var(--prose); }
+.as-welcome-block summary { cursor: pointer; font-weight: 700; color: var(--jollof); }
+.as-welcome-block details ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+.as-welcome-note { font-size: 12.5px !important; color: var(--muted) !important; }
+.as-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.as-chip { position: relative; }
+.as-chip input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.as-chip span {
+  display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 16px; border-radius: 999px;
+  border: 1.5px solid var(--line-hi); background: var(--card); font-weight: 700; font-size: 14px; transition: all .2s;
+}
+.as-chip input:checked + span { border-color: var(--jollof); background: var(--jollof-soft); color: var(--jollof); }
+.as-chip input:checked + span::before { content: '✕'; font-size: 11px; }
+.as-chip input:focus-visible + span { outline: 2.5px solid var(--jollof); outline-offset: 2px; }
+.as-welcome-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .as-vegan-head { grid-template-columns: 1fr; gap: 28px; }
+  .as-vegan-combo { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  .as-vegan-combo-art { width: 240px; max-width: 100%; }
+  .as-vegan-combo-buy { justify-content: center; }
+}
+@media (max-width: 640px) {
+  .as-welcome { place-items: end center; padding-left: 0; padding-right: 0; padding-bottom: 0; }
+  .as-welcome-card { border-radius: 24px 24px 0 0; padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .as-welcome-actions .as-btn { flex: 1; }
+}
+.as-cart-btn svg { flex: none; }

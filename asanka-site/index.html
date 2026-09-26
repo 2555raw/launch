@@ -42,6 +42,7 @@
 
       <nav class="as-links" id="navlinks" aria-label="Principal">
         <a href="#menu" data-scroll="menu">Menú</a>
+        <a href="#vegano" data-scroll="vegano">Vegano</a>
         <a href="#como" data-scroll="como">Cómo funciona</a>
         <a href="#historia" data-scroll="historia">Nuestra cocina</a>
         <a href="#catering" data-scroll="catering">Catering</a>
@@ -115,11 +116,14 @@
 
         <div class="as-tabs" role="tablist" aria-label="Filtrar el menú">
           <button class="as-tab is-active" role="tab" aria-selected="true" data-filter="all">Todo</button>
+          <button class="as-tab" role="tab" aria-selected="false" data-filter="vegan">Vegano</button>
           <button class="as-tab" role="tab" aria-selected="false" data-filter="fufu">Fufu</button>
           <button class="as-tab" role="tab" aria-selected="false" data-filter="jollof">Jollof</button>
           <button class="as-tab" role="tab" aria-selected="false" data-filter="side">Acompañamientos</button>
           <button class="as-tab" role="tab" aria-selected="false" data-filter="drink">Bebidas</button>
         </div>
+
+        <div class="as-allergy-bar" id="allergy-bar" role="status"></div>
 
         <div class="as-grid" id="menu-grid">
           <noscript><p class="as-noscript">Activa JavaScript para ver el menú y hacer tu pedido, o escríbenos por WhatsApp.</p></noscript>
@@ -129,6 +133,42 @@
           <span><i class="as-chili-dot"></i> Nivel de picante</span>
           <span><i class="as-tag as-tag-leaf">Vegano</i> Sin productos animales</span>
           <span><i class="as-tag">Sin gluten</i> Apto para celíacos</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- vegan -->
+    <section class="as-section as-vegan" id="vegano">
+      <div class="as-wrap">
+        <div class="as-vegan-head">
+          <div>
+            <p class="as-eyebrow as-eyebrow-leaf">Apartado vegano</p>
+            <h2>100 % vegetal. Igual de sabroso.</h2>
+            <p class="as-vegan-lead">La cocina de África Occidental está llena de legumbres, plátano, hojas y semillas. Estos platos no llevan carne, pescado, marisco, huevo ni lácteos, y se cocinan en ollas separadas.</p>
+          </div>
+          <ul class="as-vegan-points">
+            <li><b>Ollas propias</b><span>Nada se cocina junto a la carne.</span></li>
+            <li><b>El mismo fufu</b><span>Yuca y plátano, machacado a mano.</span></li>
+            <li><b>Proteína de verdad</b><span>Judías de ojo negro, garbanzos y egusi.</span></li>
+          </ul>
+        </div>
+
+        <div class="as-grid" id="vegan-grid"></div>
+
+        <div class="as-vegan-combo">
+          <div class="as-vegan-combo-art" aria-hidden="true">
+            <div data-art="fufu:groundnut"></div>
+            <div data-art="jollof:veg"></div>
+          </div>
+          <div class="as-vegan-combo-copy">
+            <h3>Combo vegano para dos</h3>
+            <p>Fufu con sopa de cacahuete vegana, jollof vegetal, kelewele y dos sobolos.</p>
+          </div>
+          <div class="as-vegan-combo-buy">
+            <span class="as-price-now" data-money="comboVegan"></span>
+            <span class="as-price-was" data-money="comboVeganWas"></span>
+            <button class="as-btn as-btn-leaf" type="button" data-add="combo-vegan">Añadir el combo</button>
+          </div>
         </div>
       </div>
     </section>
@@ -283,7 +323,8 @@
     <section class="as-cta">
       <div class="as-wrap">
         <div class="as-cta-card">
-          <div>
+          <div class="as-cta-stick" data-art="stick:fufu"></div>
+          <div class="as-cta-copy">
             <h2>¿Hambre? La olla ya está en el fuego.</h2>
             <p>Haz tu pedido ahora y recíbelo recién hecho en unos 45 minutos.</p>
           </div>
@@ -329,7 +370,7 @@
     </div>
     <div class="as-wrap as-footer-base">
       <span>© <span id="year"></span> Asanka. Todos los derechos reservados.</span>
-      <span><a href="#top">Aviso legal</a> · <a href="#top">Privacidad</a> · <a href="#top">Alérgenos</a></span>
+      <span><a href="#top">Aviso legal</a> · <a href="#top" data-open-prefs>Privacidad</a> · <a href="#top" data-open-prefs>Alérgenos</a></span>
     </div>
   </footer>
 
@@ -345,7 +386,7 @@
 
     <div class="as-drawer-body" id="drawer-body">
       <div class="as-empty" id="cart-empty">
-        <div class="as-empty-art" data-art="fufu:light"></div>
+        <div class="as-empty-art" data-art="stick:jollof"></div>
         <p><b>Tu pedido está vacío.</b><br>Añade un fufu o un jollof para empezar.</p>
         <button class="as-btn as-btn-ghost" type="button" data-close-cart data-scroll="menu">Ver el menú</button>
       </div>
@@ -397,6 +438,43 @@
       <button class="as-btn as-btn-ghost" type="button" id="done-new">Hacer otro pedido</button>
     </div>
   </aside>
+
+  <!-- welcome: privacy and allergies, shown on the first visit -->
+  <div class="as-welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title" hidden>
+    <div class="as-welcome-card">
+      <div class="as-welcome-top">
+        <span class="as-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M5 15h22a11 11 0 0 1-22 0z" fill="currentColor"/><circle cx="16" cy="9.5" r="4.6" fill="var(--palm)"/></svg>
+        </span>
+        <h2 id="welcome-title">Bienvenido a Asanka</h2>
+      </div>
+
+      <section class="as-welcome-block">
+        <h3>Tu privacidad</h3>
+        <p>Guardamos en tu navegador tu pedido, tus alergias y el tema que elijas, para que no los pierdas al volver. No usamos cookies de publicidad ni herramientas de seguimiento, y no compartimos tus datos con nadie.</p>
+        <details>
+          <summary>Qué se guarda exactamente</summary>
+          <ul>
+            <li><b>Tu decisión sobre este aviso.</b> Necesaria, se guarda siempre.</li>
+            <li><b>El carrito, tus alergias y el tema.</b> Solo si aceptas. Con «Solo lo necesario» se olvidan al cerrar la página.</li>
+            <li><b>Tu nombre, teléfono y dirección.</b> No se guardan: viajan en el mensaje de WhatsApp que tú envías.</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="as-welcome-block">
+        <h3>¿Tienes alguna alergia o intolerancia?</h3>
+        <p>Todo nuestro menú es sin gluten. Marca lo que no puedes tomar y te avisaremos en cada plato que lo contenga.</p>
+        <div class="as-chips" id="welcome-allergies"></div>
+        <p class="as-welcome-note">Cocinamos en una cocina donde se usan cacahuete, pescado y marisco. Si tu alergia es grave, escríbenos antes de pedir.</p>
+      </section>
+
+      <div class="as-welcome-actions">
+        <button class="as-btn as-btn-ghost" type="button" id="welcome-necessary">Solo lo necesario</button>
+        <button class="as-btn as-btn-primary" type="button" id="welcome-accept">Aceptar y continuar</button>
+      </div>
+    </div>
+  </div>
 
   <div class="as-toast" id="toast" role="status" aria-live="polite"></div>
 

@@ -120,17 +120,71 @@
     row.innerHTML = html + html; // doubled so the loop is seamless
   });
 
-  // Light up cards on the right half of the screen, where the blue wedge is.
-  const allPosts = document.querySelectorAll(".post");
-  function highlight() {
-    const mid = window.innerWidth * 0.66;
-    allPosts.forEach((el) => {
-      const r = el.getBoundingClientRect();
-      el.classList.toggle("hot", r.left + r.width / 2 > mid);
-    });
-    requestAnimationFrame(highlight);
+  // Signal hub: every so often a news card lights up, a signal travels into the
+  // star, and one of the alerts around it fires. Links fan out to the alerts.
+  const monitor = document.querySelector(".monitor");
+  const burst = document.querySelector(".burst");
+  const star = burst && burst.querySelector(".star");
+  const links = document.getElementById("burstLinks");
+  const alertEls = [...document.querySelectorAll(".alert")];
+  const centerOf = (el, rel) => {
+    const r = el.getBoundingClientRect(), b = rel.getBoundingClientRect();
+    return { x: r.left + r.width / 2 - b.left, y: r.top + r.height / 2 - b.top };
+  };
+  function drawLinks() {
+    if (!links || getComputedStyle(links).display === "none") return;
+    const s = centerOf(star, burst);
+    const b = burst.getBoundingClientRect();
+    links.innerHTML = alertEls.map((a) => {
+      const r = a.getBoundingClientRect();
+      const leftSide = r.left + r.width / 2 < b.left + s.x;
+      const x = (leftSide ? r.right - 6 : r.left + 6) - b.left;
+      const y = r.top + r.height / 2 - b.top;
+      const d = "M" + s.x + " " + s.y + " C" + (s.x + (x - s.x) * 0.45) + " " + s.y + " " + (x - (x - s.x) * 0.35) + " " + y + " " + x + " " + y;
+      return '<path class="base" d="' + d + '"/><path class="flow" d="' + d + '"/>';
+    }).join("");
   }
-  requestAnimationFrame(highlight);
+  if (burst && star) {
+    window.addEventListener("resize", drawLinks);
+    document.fonts ? document.fonts.ready.then(drawLinks) : window.addEventListener("load", drawLinks);
+    drawLinks();
+
+    const canFly = window.CSS && CSS.supports("offset-path", 'path("M0 0L1 1")') &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function fire() {
+      if (!canFly || document.hidden || window.innerWidth <= 760) return;
+      const m = monitor.getBoundingClientRect();
+      if (m.bottom < 0 || m.top > window.innerHeight) return;
+      const cards = [...document.querySelectorAll(".post")].filter((p) => {
+        const r = p.getBoundingClientRect(), cx = r.left + r.width / 2;
+        return cx > window.innerWidth * 0.12 && cx < window.innerWidth * 0.88;
+      });
+      if (!cards.length) return;
+      const card = cards[(Math.random() * cards.length) | 0];
+      card.classList.add("hot");
+      setTimeout(() => card.classList.remove("hot"), 1700);
+      const r = card.getBoundingClientRect();
+      const x0 = r.left + r.width / 2 - m.left, y0 = r.bottom - m.top;
+      const s = centerOf(star, monitor);
+      const dot = document.createElement("span");
+      dot.className = "signal";
+      dot.style.offsetPath = 'path("M' + x0 + " " + y0 + " Q" + x0 + " " + (s.y - 20) + " " + s.x + " " + s.y + '")';
+      monitor.appendChild(dot);
+      dot.animate(
+        [{ offsetDistance: "0%", opacity: 0 }, { opacity: 1, offset: 0.12 }, { offsetDistance: "100%", opacity: 1 }],
+        { duration: 1200, easing: "cubic-bezier(.45,0,.75,1)" }
+      ).onfinish = () => {
+        dot.remove();
+        star.classList.remove("hit");
+        void star.offsetWidth;
+        star.classList.add("hit");
+        const al = alertEls[(Math.random() * alertEls.length) | 0];
+        al.classList.add("ping");
+        setTimeout(() => al.classList.remove("ping"), 1900);
+      };
+    }
+    setInterval(fire, 1600);
+  }
 
   // Prompt bubbles: one at a time turns blue.
   const bubbles = document.querySelectorAll(".bubble");

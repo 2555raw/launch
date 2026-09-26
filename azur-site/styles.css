@@ -248,7 +248,8 @@ h1, h2 {
   transition: border-color .3s, box-shadow .3s;
 }
 .post.hot { border-color: var(--blue-hi); box-shadow: 0 0 0 1px rgba(90, 162, 255, .25), 0 0 30px rgba(47, 123, 255, .18); }
-.post .pfp { width: 52px; height: 52px; flex: none; border-radius: 50%; display: grid; place-items: center; font: 800 18px/1 var(--display); color: #fff; }
+.post .pfp { width: 52px; height: 52px; flex: none; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08); }
+.post .pfp svg { display: block; width: 100%; height: 100%; }
 .post-h { display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; }
 .post-h b { font-size: 17px; }
 .post-h .ck { width: 15px; height: 15px; flex: none; fill: var(--blue); }
@@ -500,7 +501,7 @@ h1, h2 {
 
   .monitor-title { padding-left: 0; text-align: center; }
   .post { width: 300px; padding: 16px; }
-  .post .pfp { width: 40px; height: 40px; font-size: 15px; }
+  .post .pfp { width: 40px; height: 40px; }
   .post p { font-size: 14px; }
   /* stack the burst: two alerts, star, two alerts, caption */
   .burst { height: auto; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 30px 16px 50px; }

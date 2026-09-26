@@ -146,7 +146,10 @@ async function dexscreener(symbol, chainOnly = false) {
   if (chainOnly && !onChain.length) throw new Error('dexscreener ' + symbol + ' has no Robinhood Chain pair');
   const best = (onChain.length ? onChain : pairs).sort((a, b) => liq(b) - liq(a))[0];
   if (!dexLogged.has(symbol)) { dexLogged.add(symbol); console.log('price', symbol, 'from', best.chainId, best.dexId, best.pairAddress); }
-  return { price: parseFloat(best.priceUsd), change: (best.priceChange && best.priceChange.h24) || 0 };
+  // new pools can report absurd 24h moves; anything that big or missing is treated as unknown
+  const raw = best.priceChange ? Number(best.priceChange.h24) : NaN;
+  const change = Number.isFinite(raw) && Math.abs(raw) <= 60 ? raw : null;
+  return { price: parseFloat(best.priceUsd), change };
 }
 
 async function loadPrices() {
@@ -174,9 +177,16 @@ async function loadPrices() {
   return out;
 }
 
+function sane(p) {
+  if (!p || !(p.price > 0) || !Number.isFinite(p.price)) return null;
+  const c = p.change === null || p.change === undefined ? NaN : Number(p.change);
+  return { price: p.price, change: Number.isFinite(c) && Math.abs(c) <= 60 ? c : null };
+}
+
 async function prices(req, res) {
   if (Date.now() - priceCache.at > 60 * 1000) {
-    const fresh = await loadPrices();
+    const fresh = {};
+    for (const [t, p] of Object.entries(await loadPrices())) { const ok = sane(p); if (ok) fresh[t] = ok; }
     /* keep the last good value for anything that failed this time */
     priceCache = { at: Date.now(), data: Object.assign({}, priceCache.data, fresh) };
   }

@@ -54,11 +54,11 @@
     const id = "hg" + n;
     svg.innerHTML =
       '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#ffffff" stop-opacity=".45"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>' +
+      '<stop offset="0" stop-color="#000000" stop-opacity=".45"/><stop offset="1" stop-color="#000000" stop-opacity="0"/>' +
       "</linearGradient></defs>" +
       '<path d="' + d + " L290 170 L0 170 Z" + '" fill="url(#' + id + ')"/>' +
       '<path class="line" d="' + d + '"/>' +
-      '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#e6e6e6"/>';
+      '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#191919"/>';
   });
 
   // Small sparklines: red ones trend down, blue ones trend up.
@@ -83,25 +83,25 @@
       long: '<path d="M19 44c-1-12-2-32 13-32s14 20 13 32c-2-8-3-15-4-20-4 3-10 4-17 3-1 5-2 10-5 17z" fill="' + hair + '"/>',
       bald: '<path d="M21 27c0-2 .5-3.5 1-4.5 1 1.5 1 3 1 4.5zM43 27c0-2-.5-3.5-1-4.5-1 1.5-1 3-1 4.5z" fill="' + hair + '"/>'
     })[style] +
-    '<circle cx="27.5" cy="29" r="1.4" fill="#1b1b1b"/><circle cx="36.5" cy="29" r="1.4" fill="#1b1b1b"/>' +
-    '<path d="M28.5 35c2 1.6 5 1.6 7 0" fill="none" stroke="#1b1b1b" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>'
+    '<circle cx="27.5" cy="29" r="1.4" fill="#e4e4e4"/><circle cx="36.5" cy="29" r="1.4" fill="#e4e4e4"/>' +
+    '<path d="M28.5 35c2 1.6 5 1.6 7 0" fill="none" stroke="#e4e4e4" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>'
   );
   const av = {
-    tapereader: person("#7d7d7d", "#e9c3a4", "#3b2a20", "#272727", "short"),
-    orbitweekly: V('<rect width="64" height="64" fill="#050608"/><circle cx="32" cy="32" r="11" fill="#eeeeee"/>' +
-      '<ellipse cx="32" cy="32" rx="22" ry="7" fill="none" stroke="#ffffff" stroke-width="3" transform="rotate(-20 32 32)"/>' +
-      '<path d="M21 32a11 11 0 0 0 22 0" fill="#eeeeee"/>'),
-    chainside: V('<rect width="64" height="64" fill="#151515"/><g fill="none" stroke="#fff" stroke-width="4">' +
-      '<rect x="12" y="24" width="24" height="16" rx="8"/><rect x="28" y="24" width="24" height="16" rx="8" stroke="#ffffff"/></g>'),
-    launchpill: V('<rect width="64" height="64" fill="#f6f6f6"/><g transform="rotate(-40 32 32)">' +
-      '<path d="M20 32a8 8 0 0 1 8-8h4v16h-4a8 8 0 0 1-8-8z" fill="#e5484d"/><path d="M32 24h4a8 8 0 0 1 0 16h-4z" fill="#ffffff"/></g>'),
+    tapereader: person("#828282", "#e9c3a4", "#3b2a20", "#d8d8d8", "short"),
+    orbitweekly: V('<rect width="64" height="64" fill="#f9f9f9"/><circle cx="32" cy="32" r="11" fill="#111111"/>' +
+      '<ellipse cx="32" cy="32" rx="22" ry="7" fill="none" stroke="#000000" stroke-width="3" transform="rotate(-20 32 32)"/>' +
+      '<path d="M21 32a11 11 0 0 0 22 0" fill="#111111"/>'),
+    chainside: V('<rect width="64" height="64" fill="#eaeaea"/><g fill="none" stroke="#000000" stroke-width="4">' +
+      '<rect x="12" y="24" width="24" height="16" rx="8"/><rect x="28" y="24" width="24" height="16" rx="8" stroke="#000000"/></g>'),
+    launchpill: V('<rect width="64" height="64" fill="#090909"/><g transform="rotate(-40 32 32)">' +
+      '<path d="M20 32a8 8 0 0 1 8-8h4v16h-4a8 8 0 0 1-8-8z" fill="#e5484d"/><path d="M32 24h4a8 8 0 0 1 0 16h-4z" fill="#000000"/></g>'),
     macropulse: V('<rect width="64" height="64" fill="#0f3d2a"/><polyline points="10,34 22,34 27,22 34,44 39,30 42,34 54,34" fill="none" stroke="#7ef0b4" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>'),
-    oddflows: V('<rect width="64" height="64" fill="#f6f6f6"/><path d="M12 38c0-9 9-14 19-14 9 0 15 5 17 11l6-6-1 13c-6 5-13 6-22 6-11 0-19-3-19-10z" fill="#5e5e5e"/>' +
-      '<circle cx="24" cy="34" r="1.8" fill="#fff"/><path d="M30 22c0-4-3-6-3-9M30 22c0-4 3-6 3-9" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>'),
-    wirewatch: V('<rect width="64" height="64" fill="#10b35c"/><path d="M36 10 18 36h12l-4 18 20-28H34z" fill="#06140c"/>'),
-    devdiaries: person("#c97d4e", "#8d5a3b", "#1a1210", "#f2f2f2", "curly"),
-    hottokens: V('<rect width="64" height="64" fill="#1c1c1f"/><path d="M32 12c8 11 14 18 14 26a14 14 0 0 1-28 0c0-8 6-15 14-26z" fill="#f59e0b"/><path d="M32 30c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z" fill="#fde68a"/>'),
-    stocktokendaily: person("#dadada", "#f1d2bd", "#b9793f", "#454545", "long"),
+    oddflows: V('<rect width="64" height="64" fill="#090909"/><path d="M12 38c0-9 9-14 19-14 9 0 15 5 17 11l6-6-1 13c-6 5-13 6-22 6-11 0-19-3-19-10z" fill="#a1a1a1"/>' +
+      '<circle cx="24" cy="34" r="1.8" fill="#000000"/><path d="M30 22c0-4-3-6-3-9M30 22c0-4 3-6 3-9" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round"/>'),
+    wirewatch: V('<rect width="64" height="64" fill="#10b35c"/><path d="M36 10 18 36h12l-4 18 20-28H34z" fill="#f2f2f2"/>'),
+    devdiaries: person("#c97d4e", "#8d5a3b", "#ebebeb", "#0d0d0d", "curly"),
+    hottokens: V('<rect width="64" height="64" fill="#e2e2e2"/><path d="M32 12c8 11 14 18 14 26a14 14 0 0 1-28 0c0-8 6-15 14-26z" fill="#f59e0b"/><path d="M32 30c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z" fill="#fde68a"/>'),
+    stocktokendaily: person("#252525", "#f1d2bd", "#b9793f", "#bababa", "long"),
   };
   // Real posts as shown on screen; each card links to the author's profile on X.
   const posts = [
@@ -114,8 +114,8 @@
     ["Polymarket Money", "PolymarketMoney", "BREAKING: US PPI falls to 5.5%, lower than expectations.", "#0f5132", "PM"],
     ["unusual_whales", "unusual_whales", "Trump: Russia ready to make a deal with Ukraine soon.", "#454545", "UW"],
   ];
-  const check = '<svg class="ck" viewBox="0 0 24 24"><path d="M12 1l2.6 2.2 3.4-.4 1 3.3 3 1.7-1 3.2 1 3.2-3 1.7-1 3.3-3.4-.4L12 23l-2.6-2.2-3.4.4-1-3.3-3-1.7 1-3.2-1-3.2 3-1.7 1-3.3 3.4.4z"/><path d="M7.5 12.2l3 3 6-6" fill="none" stroke="#000" stroke-width="2.2"/></svg>';
-  const mono = (bg, txt) => V('<rect width="64" height="64" fill="' + bg + '"/><text x="32" y="38" text-anchor="middle" font-family="Inter Tight,Inter,sans-serif" font-weight="800" font-size="' + (txt.length > 2 ? 17 : 22) + '" fill="' + (bg === "#f3efe6" ? "#1b1b1b" : "#fff") + '">' + txt + "</text>");
+  const check = '<svg class="ck" viewBox="0 0 24 24"><path d="M12 1l2.6 2.2 3.4-.4 1 3.3 3 1.7-1 3.2 1 3.2-3 1.7-1 3.3-3.4-.4L12 23l-2.6-2.2-3.4.4-1-3.3-3-1.7 1-3.2-1-3.2 3-1.7 1-3.3 3.4.4z"/><path d="M7.5 12.2l3 3 6-6" fill="none" stroke="#ffffff" stroke-width="2.2"/></svg>';
+  const mono = (bg, txt) => V('<rect width="64" height="64" fill="' + bg + '"/><text x="32" y="38" text-anchor="middle" font-family="Inter Tight,Inter,sans-serif" font-weight="800" font-size="' + (txt.length > 2 ? 17 : 22) + '" fill="' + (bg === "#121212" ? "#e4e4e4" : "#000000") + '">' + txt + "</text>");
   const card = (p) =>
     '<a class="post" href="https://x.com/' + p[1] + '" target="_blank" rel="noopener"><span class="pfp">' + mono(p[3], p[4]) + "</span>" +
     '<div><div class="post-h"><b>' + p[0] + "</b>" + check + "<span>@" + p[1] + "</span></div><p>" + p[2] + "</p></div></a>";
@@ -362,18 +362,21 @@
       pills.forEach((pill) => {
         const t = pill.querySelector(".coin").dataset.t;
         const p = prices[t];
-        if (!p) return;
-        const b = pill.querySelector(".pv b");
-        const flat = Math.abs(p.change) < 0.005;
-        const up = p.change >= 0;
-        b.textContent = (flat ? "" : up ? "+" : "−") + Math.abs(p.change).toFixed(2) + "%";
-        b.classList.toggle("dn", !up && !flat);
-        pill.querySelector(".pv small").textContent = t + " " + fmtPrice(p.price);
+        const b = pill.querySelector(".pv b"), sm = pill.querySelector(".pv small");
+        if (!p) { b.textContent = t; b.className = ""; sm.textContent = ""; return; }
+        const known = typeof p.change === "number" && isFinite(p.change) && Math.abs(p.change) <= 60;
+        const flat = !known || Math.abs(p.change) < 0.005;
+        const dir = flat ? "flat" : p.change > 0 ? "up" : "dn";
+        b.textContent = fmtPrice(p.price);
+        b.className = dir;
+        sm.className = dir;
+        sm.textContent = known ? (flat ? "" : dir === "up" ? "▲ " : "▼ ") + Math.abs(p.change).toFixed(2) + "% · " + t : t;
         pill.title = t + " live price";
       });
-    } catch (e) { /* keep the sample figures */ }
+    } catch (e) { /* keep what is on screen */ }
   }
   if (pills.length && HAS_API) {
+    pills.forEach((pill) => { pill.querySelector(".pv b").textContent = "···"; });
     loadPrices();
     setInterval(loadPrices, 60 * 1000);
   }

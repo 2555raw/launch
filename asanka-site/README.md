@@ -6,6 +6,10 @@ and catering trays for events.
 
 No build step, no dependencies. Plain HTML, CSS and vanilla JS. The site is in Spanish.
 
+The folder holds two pages that share `art.js`: the store (`index.html`, Spanish) and
+**Asanka Pad** (`launchpad.html`, English), a demo launchpad for coins paired with
+African dishes.
+
 ## Structure
 
 ```
@@ -13,6 +17,7 @@ index.html   the whole page: announcement bar, hero, menu, combo, how it works,
              our kitchen, catering, FAQ, closing call, footer and the cart drawer
 styles.css   the design system (palette, type, layout), light/dark and the responsive rules
 art.js       the dish illustrations (top-down SVG drawn in code) and the stickman
+launchpad.html / .css / .js   Asanka Pad, the coin launchpad (see below)
 assets/      the profile picture: avatar.png (1000 px), avatar-400.png and its source
 app.js       CONFIG and MENU, theme, navigation, filters, cart, checkout,
              catering quote, opening hours and the scroll reveal
@@ -102,3 +107,35 @@ Type: **Fraunces** for headings and prices, **Manrope** for the rest. The kente 
 - The social and legal links in the footer are still anchors to `#top`.
 - There is no online payment: the site sends the order through WhatsApp and payment
   happens on delivery (cash, card or Bizum, as the FAQ says).
+
+## Asanka Pad (`launchpad.html`)
+
+A pump-style launchpad where every coin is paired with a dish: fufu, jollof, suya,
+injera, puff-puff and eleven more. **It is a simulation from end to end**: the wallet is
+a demo wallet with play SOL, the other traders are bots in the page, and nothing talks to
+a blockchain. A yellow bar at the top of the page says so, and so does "How it works".
+
+- **Curve.** Constant product over virtual reserves (30 SOL / 1.073B tokens), 1B supply,
+  1% fee. A coin starts near a $4.2K market cap and graduates when the curve has raised
+  85 SOL (about $61.5K), with SOL fixed at $150. All of it is at the top of
+  `launchpad.js`.
+- **Launch.** Pick one of 16 dishes, a name, a ticker (2–10 letters or numbers, unique),
+  the country and an optional first buy. Launching costs 0.02 play SOL.
+- **Coin view.** Candle chart of market cap, buy/sell with quick amounts and a price
+  estimate, bonding-curve progress, top holders, trades and a reply thread.
+- **Explore.** Trending, new, market cap, about to graduate and graduated; region
+  filters and search. "King of the pot" is the largest coin still on its curve.
+- **Activity.** Bots trade every few seconds and launch a new coin now and then; the
+  ticker tape and the cards update live. Everything is kept in `localStorage`
+  (`asanka-pad-v1`); "Reset all demo data" in the wallet menu starts over.
+
+A real launch would need audited contracts, custody, and legal review in every country
+where it is offered. None of that exists here.
+
+## Profile picture and illustrations
+
+- `assets/avatar.png`: the coin avatar (1000 px, no text), and `avatar-400.png`.
+- `assets/fufu-scene.png`: a man eating fufu by hand, the bowl in front, jollof on the side.
+
+Both come from the `*-source.html` next to them; open one in a browser at its native
+size and take a screenshot to re-export.

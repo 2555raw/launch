@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Asanka Pad</title>
+  <meta name="description" content="Launch coins paired with West African food. Pick a dish, name your coin and ride the bonding curve. Demo mode: no real funds.">
+  <meta name="theme-color" content="#110B08">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23F2B33D'/%3E%3Ccircle cx='16' cy='16' r='12' fill='%23C8391B'/%3E%3Cpath d='M8 19h16a8 8 0 0 1-16 0z' fill='%238C4526'/%3E%3Ccircle cx='16' cy='12' r='4.5' fill='%23FBF5EC'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="launchpad.css">
+</head>
+<body>
+<div class="lp" id="top">
+
+  <div class="lp-demo" role="note">
+    <b>Demo mode.</b> The wallet, the SOL, the other traders and every price on this page are simulated. Nothing here is real money.
+  </div>
+
+  <header class="lp-top">
+    <div class="lp-wrap lp-top-in">
+      <a class="lp-brand" href="#top">
+        <span class="lp-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="#F2B33D"/><circle cx="16" cy="16" r="12" fill="#C8391B"/><path d="M8 19h16a8 8 0 0 1-16 0z" fill="#8C4526"/><circle cx="16" cy="12" r="4.5" fill="#FBF5EC"/></svg>
+        </span>
+        <span class="lp-brand-t">Asanka <em>Pad</em></span>
+      </a>
+      <nav class="lp-nav" aria-label="Main">
+        <a href="#explore">Explore</a>
+        <a href="#how">How it works</a>
+        <a href="index.html" id="store-link">Order food</a>
+      </nav>
+      <div class="lp-top-actions">
+        <button class="lp-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
+        <button class="lp-btn lp-btn-ghost lp-launch-top" type="button" data-create>Launch a coin</button>
+        <div class="lp-wallet">
+          <button class="lp-wallet-btn" id="wallet-btn" type="button" aria-haspopup="true" aria-expanded="false">Connect demo wallet</button>
+          <div class="lp-wallet-pop" id="wallet-pop" hidden>
+            <div class="lp-wp-head">
+              <span class="lp-dim">Demo wallet</span>
+              <span class="lp-mono" id="wp-addr"></span>
+            </div>
+            <b class="lp-wp-sol lp-mono" id="wp-sol"></b>
+            <p class="lp-dim" id="wp-value"></p>
+            <ul class="lp-wp-holds" id="wp-holds"></ul>
+            <div class="lp-wp-actions">
+              <button type="button" class="lp-btn lp-btn-ghost lp-btn-sm" id="wp-topup">Add 10 play SOL</button>
+              <button type="button" class="lp-btn lp-btn-ghost lp-btn-sm" id="wp-disconnect">Disconnect</button>
+            </div>
+            <button type="button" class="lp-link" id="wp-reset">Reset all demo data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="lp-tape" id="tape" aria-label="Latest trades"></div>
+
+  <main>
+    <section class="lp-hero">
+      <div class="lp-wrap lp-hero-in">
+        <div class="lp-hero-copy">
+          <p class="lp-eyebrow">The launchpad for African food coins</p>
+          <h1>Pick a dish.<br>Name your coin.<br><span>Ride the curve.</span></h1>
+          <p class="lp-lead">Every coin on Asanka Pad is paired with a real dish from West and East Africa: fufu, jollof, suya, injera and more. It starts at <b id="start-mcap"></b>, trades on a bonding curve, and graduates once the curve raises <b id="grad-sol"></b>.</p>
+          <div class="lp-hero-cta">
+            <button class="lp-btn lp-btn-gold" type="button" data-create>Launch a coin</button>
+            <a class="lp-btn lp-btn-ghost" href="#explore">Explore coins</a>
+          </div>
+          <dl class="lp-stats">
+            <div><dt>Coins on the stove</dt><dd class="lp-mono" id="st-coins"></dd></div>
+            <div><dt>Volume, 24h</dt><dd class="lp-mono" id="st-vol"></dd></div>
+            <div><dt>Graduated</dt><dd class="lp-mono" id="st-grad"></dd></div>
+          </dl>
+        </div>
+        <div class="lp-hero-side">
+          <div class="lp-king" id="king" role="button" tabindex="0" aria-label="Open the leading coin"></div>
+          <div class="lp-hero-stick" id="hero-stick" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-section" id="explore">
+      <div class="lp-wrap">
+        <div class="lp-head">
+          <div>
+            <p class="lp-eyebrow">Explore</p>
+            <h2>What's cooking</h2>
+          </div>
+          <label class="lp-search">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+            <input id="search" type="search" placeholder="Search a coin, ticker or country" aria-label="Search coins">
+          </label>
+        </div>
+        <div class="lp-controls">
+          <div class="lp-sorts" role="group" aria-label="Sort">
+            <button type="button" class="lp-sort is-active" data-sort="trending" aria-pressed="true">Trending</button>
+            <button type="button" class="lp-sort" data-sort="new" aria-pressed="false">New</button>
+            <button type="button" class="lp-sort" data-sort="mcap" aria-pressed="false">Market cap</button>
+            <button type="button" class="lp-sort" data-sort="near" aria-pressed="false">About to graduate</button>
+            <button type="button" class="lp-sort" data-sort="graduated" aria-pressed="false">Graduated</button>
+          </div>
+          <span class="lp-dim lp-count" id="grid-count"></span>
+        </div>
+        <div class="lp-regions" id="regions"></div>
+        <div class="lp-grid" id="grid"></div>
+      </div>
+    </section>
+
+    <section class="lp-section lp-section-alt" id="how">
+      <div class="lp-wrap">
+        <div class="lp-head">
+          <div>
+            <p class="lp-eyebrow">How it works</p>
+            <h2>From the pot to graduation</h2>
+          </div>
+        </div>
+        <ol class="lp-steps">
+          <li>
+            <span class="lp-step-n">1</span>
+            <h3>Pair it with a dish</h3>
+            <p>Choose one of sixteen dishes, give the coin a name and a ticker, and say why it matters. Launching costs 0.02 SOL. You can make the first buy yourself.</p>
+          </li>
+          <li>
+            <span class="lp-step-n">2</span>
+            <h3>Trade on the curve</h3>
+            <p>There is no presale and no team allocation. All billion tokens sit in a bonding curve: each buy raises the price, each sell lowers it, with a 1% fee.</p>
+          </li>
+          <li>
+            <span class="lp-step-n">3</span>
+            <h3>Graduate</h3>
+            <p>When the curve has raised its SOL, the coin reaches a <b id="grad-mcap"></b> market cap and graduates. On a live launchpad the liquidity would then move to a DEX.</p>
+          </li>
+        </ol>
+        <p class="lp-note">This page is a demo of how such a launchpad works. It does not connect to Solana or any other chain, it does not hold funds, and the coins do not exist outside your browser. A real launch needs audited contracts and a legal review in every country where it is offered.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="lp-footer">
+    <div class="lp-wrap lp-footer-in">
+      <span>Asanka Pad · a demo by <a href="index.html" id="store-link-2">Asanka</a>, a West African kitchen.</span>
+      <span class="lp-dim">Prices use SOL at a fixed $150. No real funds.</span>
+    </div>
+  </footer>
+
+  <!-- coin detail -->
+  <dialog class="lp-dialog lp-detail" id="detail" aria-labelledby="d-name">
+    <div class="lp-dialog-in">
+      <button class="lp-icon-btn lp-close" id="d-close" type="button" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="lp-d-head">
+        <div class="lp-d-art" id="d-art" aria-hidden="true"></div>
+        <div>
+          <div class="lp-d-title"><h2 id="d-name"></h2><span class="lp-ticker" id="d-ticker"></span></div>
+          <p class="lp-dim lp-d-by" id="d-by"></p>
+          <p class="lp-d-desc" id="d-desc"></p>
+        </div>
+      </div>
+
+      <div class="lp-d-grid">
+        <div class="lp-d-main">
+          <dl class="lp-d-stats">
+            <div><dt>Market cap</dt><dd class="lp-mono" id="d-mc"></dd></div>
+            <div><dt>24h</dt><dd id="d-ch"></dd></div>
+            <div><dt>Volume 24h</dt><dd class="lp-mono" id="d-vol"></dd></div>
+            <div><dt>Price</dt><dd class="lp-mono" id="d-price"></dd></div>
+          </dl>
+          <div class="lp-chart-box"><canvas id="d-chart" aria-label="Price chart"></canvas></div>
+        </div>
+
+        <aside class="lp-d-side">
+          <form class="lp-trade" id="d-trade" novalidate>
+            <div class="lp-sides">
+              <button type="button" class="lp-side is-active" data-side="buy">Buy</button>
+              <button type="button" class="lp-side" data-side="sell">Sell</button>
+            </div>
+            <label class="lp-amount">
+              <input id="d-amount" type="number" min="0" step="any" inputmode="decimal" placeholder="0.0" aria-label="Amount">
+              <span id="d-unit">SOL</span>
+            </label>
+            <div class="lp-quick" id="d-quick"></div>
+            <p class="lp-est" id="d-est"></p>
+            <button class="lp-btn lp-btn-gold lp-btn-block" type="submit" id="d-submit">Buy</button>
+            <p class="lp-dim lp-bal" id="d-bal"></p>
+            <p class="lp-msg" id="d-msg" role="status"></p>
+          </form>
+
+          <div class="lp-curve">
+            <h3>Bonding curve</h3>
+            <div class="lp-bar"><i id="d-bar"></i></div>
+            <p id="d-curve"></p>
+          </div>
+
+          <div class="lp-holders">
+            <h3>Top holders <span class="lp-dim" id="d-holders-n"></span></h3>
+            <ol id="d-holders"></ol>
+          </div>
+        </aside>
+
+        <div class="lp-d-lists">
+          <section>
+            <h3>Trades</h3>
+            <div class="lp-table-wrap">
+              <table class="lp-trades">
+                <thead><tr><th>Account</th><th>Type</th><th>SOL</th><th>Tokens</th><th>When</th></tr></thead>
+                <tbody id="d-trades"></tbody>
+              </table>
+            </div>
+          </section>
+          <section>
+            <h3>Thread <span class="lp-dim" id="d-thread-n"></span></h3>
+            <form class="lp-reply-form" id="d-reply">
+              <input id="d-reply-text" maxlength="280" placeholder="Add a reply" aria-label="Reply">
+              <button class="lp-btn lp-btn-ghost lp-btn-sm" type="submit">Post</button>
+            </form>
+            <ul class="lp-thread" id="d-thread"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- launch a coin -->
+  <dialog class="lp-dialog lp-create" id="create" aria-labelledby="c-title">
+    <form class="lp-dialog-in" id="create-form" novalidate>
+      <button class="lp-icon-btn lp-close" id="c-close" type="button" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <h2 id="c-title">Launch a coin</h2>
+      <fieldset class="lp-dishes">
+        <legend>Pair it with a dish</legend>
+        <div class="lp-dish-grid" id="c-dishes"></div>
+      </fieldset>
+      <div class="lp-fields">
+        <label class="lp-field"><span>Name</span><input id="c-name" maxlength="32" placeholder="Fufu Forever" autocomplete="off" required></label>
+        <label class="lp-field"><span>Ticker</span><input id="c-ticker" maxlength="10" placeholder="FUFU2" autocomplete="off" required></label>
+        <label class="lp-field"><span>Country</span><select id="c-region"></select></label>
+        <label class="lp-field"><span>First buy <i>(SOL, optional)</i></span><input id="c-buy" type="number" min="0" max="20" step="0.1" inputmode="decimal" placeholder="0"></label>
+        <label class="lp-field lp-field-wide"><span>Description</span><textarea id="c-desc" maxlength="160" rows="2" placeholder="Why this dish deserves a coin"></textarea></label>
+      </div>
+      <div class="lp-preview" id="c-preview"></div>
+      <p class="lp-cost" id="c-cost"></p>
+      <p class="lp-msg" id="c-msg" role="status"></p>
+      <button class="lp-btn lp-btn-gold lp-btn-block" type="submit">Launch on the curve</button>
+    </form>
+  </dialog>
+
+  <div class="lp-toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<script src="art.js"></script>
+<script src="launchpad.js"></script>
+</body>
+</html>

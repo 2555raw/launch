@@ -694,3 +694,5 @@ p { margin: 0; }
   .as-welcome-actions .as-btn { flex: 1; }
 }
 .as-cart-btn svg { flex: none; }
+
+.as-links a.as-nav-pad { color: var(--jollof); font-weight: 800; }

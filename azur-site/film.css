@@ -139,7 +139,9 @@ body { overflow: hidden; }
 .end { position: absolute; left: 0; right: 0; top: 330px; display: flex; flex-direction: column; align-items: center; gap: 26px; }
 .end-mark svg { width: 190px; height: 190px; fill: #fff; filter: drop-shadow(0 0 40px rgba(90, 162, 255, .55)); display: block; }
 .end-name { font: 800 120px/1 var(--display); letter-spacing: -.04em; }
-.end-url { font: 600 34px var(--display); color: var(--prose); }
+.end-url { display: flex; gap: 44px; font: 600 34px var(--display); color: var(--prose); }
+.end-url span { display: inline-flex; align-items: center; gap: 14px; }
+.end-url svg { width: 34px; height: 34px; fill: #fff; }
 
 /* controls (live playback only) */
 .controls { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-radius: 999px; background: rgba(8, 12, 20, .8); border: 1px solid #1c2a44; backdrop-filter: blur(8px); font: 600 14px var(--body); }

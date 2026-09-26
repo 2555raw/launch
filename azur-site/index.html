@@ -235,6 +235,35 @@
   </div>
 </footer>
 
+<!-- ============================== TERMS GATE ============================== -->
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
+  <div class="gate-card" id="gateCard">
+    <div class="gate-top">
+      <span class="gate-kicker">Terms of Vibes · v4.20</span>
+      <span class="gate-star" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z"/></svg></span>
+    </div>
+    <h2 id="gateTitle">Before you get an unfair edge</h2>
+    <p class="gate-lead">Our lawyers wrote 40 pages. Our intern read two of them and wrote this. Tick all three to get in.</p>
+
+    <div class="gate-list">
+      <label class="gate-item"><input type="checkbox" id="g1"><span class="box"></span><span>I understand numbers can go down. Even mine. <em>Especially</em> mine.</span></label>
+      <label class="gate-item"><input type="checkbox" id="g2"><span class="box"></span><span>I won't blame the AI when I buy a Pons token called <b>$MOONCAT</b> at 3am.</span></label>
+      <label class="gate-item"><input type="checkbox" id="g3"><span class="box"></span><span>I'll drink water, touch grass, and keep my rent money out of a 50x long.</span></label>
+    </div>
+
+    <div class="gate-meter">
+      <div class="gate-meter-h"><span>Degen level</span><b id="gateLevel">MAXIMUM</b></div>
+      <div class="gate-bar"><i id="gateBar"></i></div>
+    </div>
+
+    <div class="gate-btns" id="gateBtns">
+      <button type="button" class="gate-ok" id="gateOk" disabled>Tick all three</button>
+      <button type="button" class="gate-no" id="gateNo">Nah</button>
+    </div>
+    <p class="gate-fine">This is the fun summary. The real, boring version lives in our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</p>
+  </div>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>

@@ -75,6 +75,7 @@
         <em>SOON</em>
       </a>
     </div>
+    <button type="button" class="film-btn" id="filmOpen"><span class="play" aria-hidden="true"></span>Watch the 30-second film</button>
     <form class="wl" data-source="hero" novalidate>
       <label class="sr" for="wlHero">Email address</label>
       <input id="wlHero" type="email" name="email" placeholder="you@email.com" autocomplete="email" required>
@@ -341,6 +342,15 @@
     <div><a href="mailto:heyAzur@gmail.com">heyAzur@gmail.com</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
   </div>
 </footer>
+
+<!-- ============================== FILM ============================== -->
+<div class="film-modal" id="filmModal" role="dialog" aria-modal="true" aria-label="Azur film" hidden>
+  <div class="film-box">
+    <button type="button" class="film-close" id="filmClose" aria-label="Close the film">×</button>
+    <video id="filmVideo" poster="assets/azur-film-poster.jpg" controls playsinline preload="none"><source src="assets/azur-film.mp4" type="video/mp4"><source src="assets/azur-film.webm" type="video/webm"></video>
+    <a class="film-full" href="film.html">Open the live version</a>
+  </div>
+</div>
 
 <!-- ============================== TERMS GATE ============================== -->
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" aria-describedby="gateLead" hidden>

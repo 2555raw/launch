@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Azur Film</title>
+  <meta name="description" content="A 30-second film about Azur, the AI co-pilot for trading on Robinhood Chain.">
+  <link rel="stylesheet" href="film.css">
+</head>
+<body>
+<main class="stage-wrap">
+  <div class="stage" id="stage" aria-label="Azur film">
+
+    <!-- 1. price line + headline -->
+    <section class="sc sc1" id="sc1">
+      <div class="axis" id="axis"><span>9:30</span><span>11:00</span><span>12:30</span><span>14:00</span><span>15:30</span></div>
+      <svg class="pline" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+        <defs><linearGradient id="plg" x1="0" x2="1"><stop offset="0" stop-color="#2f7bff" stop-opacity="0"/><stop offset=".25" stop-color="#5aa2ff"/><stop offset="1" stop-color="#9cc7ff"/></linearGradient></defs>
+        <path id="pline" d=""/>
+        <circle id="phead" r="9"/>
+      </svg>
+      <h1 class="h1" id="h1"><span>Meet</span> <span>your</span> <span>trading</span> <span>co-pilot</span></h1>
+    </section>
+
+    <!-- 2. app reveal -->
+    <section class="sc sc2" id="sc2">
+      <div class="app" id="app">
+        <div class="app-top"><span class="app-logo"><svg viewBox="0 0 491 491" aria-hidden="true"><ellipse cx="175.0" cy="140.1" rx="89.8" ry="149.3" transform="rotate(146.9 175.0 140.1)"/><ellipse cx="154.0" cy="377.0" rx="72.2" ry="93.5" transform="rotate(93.2 154.0 377.0)"/><ellipse cx="360.2" cy="162.3" rx="46.0" ry="88.2" transform="rotate(176.5 360.2 162.3)"/><ellipse cx="316.6" cy="327.8" rx="39.0" ry="50.4" transform="rotate(14.6 316.6 327.8)"/><ellipse cx="284.3" cy="448.6" rx="29.5" ry="44.2" transform="rotate(48.4 284.3 448.6)"/><ellipse cx="405.8" cy="299.0" rx="22.4" ry="41.1" transform="rotate(14.2 405.8 299.0)"/><ellipse cx="370.7" cy="398.0" rx="16.7" ry="33.3" transform="rotate(32.2 370.7 398.0)"/></svg></span><span class="app-name">Azur</span><span class="app-live">● Live</span></div>
+        <div class="app-body">
+          <div class="app-bal"><small>Portfolio</small><b>$98,406.51</b><em>+$214.66 (+0.22%)</em></div>
+          <svg class="app-chart" viewBox="0 0 800 260" preserveAspectRatio="none"><path id="appArea"/><path id="appLine"/></svg>
+          <div class="app-rows">
+            <div><i style="background:#ccff00"></i><b>HOOD</b><span>$54.94</span><em>+2.36%</em></div>
+            <div><i style="background:#76b900"></i><b>NVDA</b><span>$186.50</span><em>+2.91%</em></div>
+            <div><i style="background:#f7931a"></i><b>BTC</b><span>$84,011</span><em>+0.15%</em></div>
+          </div>
+        </div>
+      </div>
+      <div class="dots" id="dots"></div>
+      <p class="cap" id="cap2">Research. Plan. Trade. One conversation.</p>
+    </section>
+
+    <!-- 3. the prompt -->
+    <section class="sc sc3" id="sc3">
+      <div class="bigtype" id="bigtype"><span id="typed"></span><i class="caret" id="caret"></i></div>
+      <div class="ask" id="ask">
+        <span class="ask-plus">+</span>
+        <span class="ask-text" id="askText"></span>
+        <span class="ask-send" id="askSend">↵</span>
+        <div class="ask-meta"><span>Agent · Live data</span><span>Robinhood Chain</span></div>
+      </div>
+    </section>
+
+    <!-- 4. chart + alert -->
+    <section class="sc sc4" id="sc4">
+      <div class="chart-card" id="chartCard">
+        <div class="cc-h"><i></i><b>HOOD</b><span>Robinhood Markets</span><em id="ccPx">$53.12</em></div>
+        <svg class="cc-svg" viewBox="0 0 1000 420" preserveAspectRatio="none">
+          <g class="cc-grid"><line x1="0" y1="105" x2="1000" y2="105"/><line x1="0" y1="210" x2="1000" y2="210"/><line x1="0" y1="315" x2="1000" y2="315"/></g>
+          <path id="ma"/><path id="px"/>
+          <g id="ring"><circle r="10"/><circle r="10"/><circle r="10"/></g>
+          <circle id="dotX" r="8"/>
+        </svg>
+        <div class="cc-legend"><span><i class="l1"></i>Price</span><span><i class="l2"></i>50-day average</span></div>
+      </div>
+      <div class="alert-card" id="alertCard">
+        <span class="al-ic">🔔</span>
+        <div><b>HOOD crossed its 50-day average</b><span>Volume 2.1× normal · momentum turning up</span></div>
+      </div>
+    </section>
+
+    <!-- 5. approve -->
+    <section class="sc sc5" id="sc5">
+      <div class="order" id="order">
+        <div class="or-h"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Confirm order</div>
+        <div class="or-l"><span>Buy</span><b>10 HOOD</b></div>
+        <div class="or-l"><span>Price</span><b>Market · ≈ $549.40</b></div>
+        <div class="or-l"><span>Fees</span><b>$0.40</b></div>
+        <div class="or-btns"><span class="no">Decline</span><span class="ok" id="okBtn">Approve</span></div>
+        <div class="filled" id="filled"><span>✓</span>Filled · 10 HOOD at $54.91</div>
+      </div>
+      <div class="cursor" id="cursor"></div>
+    </section>
+
+    <!-- 6. kinetic type -->
+    <section class="sc sc6" id="sc6">
+      <div class="k k1" id="k1">You make</div>
+      <div class="k k2" id="k2">the call.</div>
+    </section>
+
+    <!-- 7. end card -->
+    <section class="sc sc7" id="sc7">
+      <div class="end" id="end">
+        <div class="end-mark"><svg viewBox="0 0 491 491" aria-hidden="true"><ellipse cx="175.0" cy="140.1" rx="89.8" ry="149.3" transform="rotate(146.9 175.0 140.1)"/><ellipse cx="154.0" cy="377.0" rx="72.2" ry="93.5" transform="rotate(93.2 154.0 377.0)"/><ellipse cx="360.2" cy="162.3" rx="46.0" ry="88.2" transform="rotate(176.5 360.2 162.3)"/><ellipse cx="316.6" cy="327.8" rx="39.0" ry="50.4" transform="rotate(14.6 316.6 327.8)"/><ellipse cx="284.3" cy="448.6" rx="29.5" ry="44.2" transform="rotate(48.4 284.3 448.6)"/><ellipse cx="405.8" cy="299.0" rx="22.4" ry="41.1" transform="rotate(14.2 405.8 299.0)"/><ellipse cx="370.7" cy="398.0" rx="16.7" ry="33.3" transform="rotate(32.2 370.7 398.0)"/></svg></div>
+        <div class="end-name">Azur</div>
+        <div class="end-url">Join the waitlist · @useAzur</div>
+      </div>
+    </section>
+
+    <div class="grain"></div>
+  </div>
+
+  <div class="controls" id="controls">
+    <button type="button" id="playBtn" aria-label="Pause">Pause</button>
+    <div class="bar"><i id="barFill"></i></div>
+    <button type="button" id="soundBtn" aria-pressed="false" hidden>Sound off</button>
+    <a href="index.html">Back to site</a>
+  </div>
+</main>
+<script src="film.js"></script>
+</body>
+</html>

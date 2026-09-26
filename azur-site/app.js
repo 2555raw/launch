@@ -103,22 +103,22 @@
     hottokens: V('<rect width="64" height="64" fill="#1c1c1f"/><path d="M32 12c8 11 14 18 14 26a14 14 0 0 1-28 0c0-8 6-15 14-26z" fill="#f59e0b"/><path d="M32 30c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z" fill="#fde68a"/>'),
     stocktokendaily: person("#9aa7c7", "#f1d2bd", "#b9793f", "#2f4f8f", "long"),
   };
+  // Real posts as shown on screen; each card links to the author's profile on X.
   const posts = [
-    ["Tape Reader", "tapereader", "Robinhood Chain mainnet is live. Day-one partners include Uniswap, Chainlink, Alchemy and BitGo."],
-    ["Orbit Weekly", "orbitweekly", "Robinhood Chain testnet processed 4 million transactions in its first week after launching on Feb 10."],
-    ["Chainside", "chainside", "Robinhood Chain is an Ethereum-compatible Layer 2 on Arbitrum, built to bring stocks onchain as tokens."],
-    ["Launch Pill", "launchpill", "Pons just passed 167,000 tokens launched on Robinhood Chain, with around $4B in cumulative volume."],
-    ["Macro Pulse", "macropulse", "Every Pons launch ships a fixed 1B supply, seeded straight into a Uniswap pool with a 1% fee."],
-    ["Odd Flows", "oddflows", "Arcus, the stock-token and crypto DEX from dYdX Labs and Robinhood Crypto, is trading on Robinhood Chain."],
-    ["Wire Watch", "wirewatch", "JUST IN: Morpho lending is now integrated with Robinhood Earn for USDG."],
-    ["Dev Diaries", "devdiaries", "Robinhood put $1M behind developers building on Robinhood Chain. Shipping something this week."],
-    ["Hot Tokens", "hottokens", "Chainlink, LayerZero, Alchemy and TRM Labs have all integrated with Robinhood Chain."],
-    ["Stock Token Daily", "stocktokendaily", "long.xyz pairs meme coins with stock tokens, and it has become the most talked-about trade on Robinhood Chain."],
+    ["*Walter Bloomberg", "Deltaone", "MUSK TARGETS RETAIL INVESTORS IN SPACEX IPO Elon Musk is considering allocating up to 30% of SpaceX's IPO to retail investors—far…", "#1f2937", "WB"],
+    ["AST SpaceMobile", "AST_SpaceMobile", "FCC Grants AST SpaceMobile Commercial Authority to Deliver Direct-to-Device Cellular Broadband from Space Advancing…", "#0b0b0b", "AST"],
+    ["Vlad Tenev", "vladtenev", "While we're building robinhood chain to be the best chain for RWA … it works great for memes too", "#1e3a5f", "VT"],
+    ["Hims House", "himshouse", "🚨 BREAKING: FDA PEPTIDE PANEL VOTES YES ON BPC-157 $HIMS", "#f3efe6", "HH"],
+    ["Watcher.Guru", "WatcherGuru", "JUST IN: us SEC prepares to allow blockchain-based tokenized stock trading.", "#12a150", "WG"],
+    ["Johann Kerbrat", "JohannKerbrat", "$540M+ in protocol TVL. Three weeks in. Just getting started.", "#7c4a2d", "JK"],
+    ["Polymarket Money", "PolymarketMoney", "BREAKING: US PPI falls to 5.5%, lower than expectations.", "#0f5132", "PM"],
+    ["unusual_whales", "unusual_whales", "Trump: Russia ready to make a deal with Ukraine soon.", "#1d4ed8", "UW"],
   ];
   const check = '<svg class="ck" viewBox="0 0 24 24"><path d="M12 1l2.6 2.2 3.4-.4 1 3.3 3 1.7-1 3.2 1 3.2-3 1.7-1 3.3-3.4-.4L12 23l-2.6-2.2-3.4.4-1-3.3-3-1.7 1-3.2-1-3.2 3-1.7 1-3.3 3.4.4z"/><path d="M7.5 12.2l3 3 6-6" fill="none" stroke="#fff" stroke-width="2.2"/></svg>';
+  const mono = (bg, txt) => V('<rect width="64" height="64" fill="' + bg + '"/><text x="32" y="38" text-anchor="middle" font-family="Inter Tight,Inter,sans-serif" font-weight="800" font-size="' + (txt.length > 2 ? 17 : 22) + '" fill="' + (bg === "#f3efe6" ? "#1b1b1f" : "#fff") + '">' + txt + "</text>");
   const card = (p) =>
-    '<article class="post"><span class="pfp">' + av[p[1]] + "</span>" +
-    '<div><div class="post-h"><b>' + p[0] + "</b>" + check + "<span>@" + p[1] + "</span></div><p>" + p[2] + "</p></div></article>";
+    '<a class="post" href="https://x.com/' + p[1] + '" target="_blank" rel="noopener"><span class="pfp">' + mono(p[3], p[4]) + "</span>" +
+    '<div><div class="post-h"><b>' + p[0] + "</b>" + check + "<span>@" + p[1] + "</span></div><p>" + p[2] + "</p></div></a>";
 
   document.querySelectorAll(".feed-row").forEach((row, r) => {
     const list = r ? posts.slice(5).concat(posts.slice(0, 5)) : posts;
@@ -385,5 +385,23 @@
       navigator.sendBeacon ? navigator.sendBeacon("/api/hit", new Blob([payload], { type: "application/json" }))
         : fetch("/api/hit", { method: "POST", body: payload, headers: { "content-type": "application/json" }, keepalive: true });
     } catch (e) { /* not important */ }
+  }
+
+  // ---------------------------------------------------------------- film
+  const filmModal = document.getElementById("filmModal");
+  if (filmModal) {
+    const video = document.getElementById("filmVideo");
+    const openBtn = document.getElementById("filmOpen");
+    const close = () => { video.pause(); filmModal.hidden = true; document.body.classList.remove("gated"); openBtn.focus(); };
+    openBtn.addEventListener("click", () => {
+      filmModal.hidden = false;
+      document.body.classList.add("gated");
+      video.currentTime = 0;
+      video.play().catch(() => {});
+      document.getElementById("filmClose").focus();
+    });
+    document.getElementById("filmClose").addEventListener("click", close);
+    filmModal.addEventListener("click", (e) => { if (e.target === filmModal) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !filmModal.hidden) close(); });
   }
 })();

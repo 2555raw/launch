@@ -100,8 +100,8 @@ async function joinWaitlist(req, res) {
 
 /* ------------------------------------------------------------ prices */
 
-/* Stocks come from Yahoo Finance (change against the previous close, like a
-   broker shows it) with Stooq as a fallback; crypto from CoinGecko (24h change);
+/* Stocks come from their stock tokens on Robinhood Chain (DexScreener), then
+   Yahoo Finance (change against the previous close) and Stooq as fallbacks; crypto from CoinGecko (24h change);
    PONS from DexScreener, preferring its Robinhood Chain pair. All free, no keys. */
 const STOCKS = { GOOGL: 'googl.us', HOOD: 'hood.us', AAPL: 'aapl.us', TSLA: 'tsla.us', NVDA: 'nvda.us' };
 const COINS = { BTC: 'bitcoin', ETH: 'ethereum' };
@@ -136,25 +136,29 @@ async function stooq(sym) {
   return { price: close, change: (close - open) / open * 100 };
 }
 
-let dexLogged = false;
-async function dexscreener(symbol) {
+const dexLogged = new Set();
+async function dexscreener(symbol, chainOnly = false) {
   const body = JSON.parse(await fetchText('https://api.dexscreener.com/latest/dex/search?q=' + encodeURIComponent(symbol)));
   const pairs = (body.pairs || []).filter((p) => p.baseToken && String(p.baseToken.symbol).toUpperCase() === symbol && parseFloat(p.priceUsd) > 0);
   if (!pairs.length) throw new Error('dexscreener ' + symbol + ' not found');
   const liq = (p) => (p.liquidity && p.liquidity.usd) || 0;
   const onChain = pairs.filter((p) => /robinhood/i.test(p.chainId));
+  if (chainOnly && !onChain.length) throw new Error('dexscreener ' + symbol + ' has no Robinhood Chain pair');
   const best = (onChain.length ? onChain : pairs).sort((a, b) => liq(b) - liq(a))[0];
-  if (!dexLogged) { dexLogged = true; console.log('price', symbol, 'from', best.chainId, best.dexId, best.pairAddress); }
+  if (!dexLogged.has(symbol)) { dexLogged.add(symbol); console.log('price', symbol, 'from', best.chainId, best.dexId, best.pairAddress); }
   return { price: parseFloat(best.priceUsd), change: (best.priceChange && best.priceChange.h24) || 0 };
 }
 
 async function loadPrices() {
   const out = {};
   await Promise.all(Object.entries(STOCKS).map(async ([t, sym]) => {
-    try { out[t] = await yahoo(t); }
-    catch (e) {
-      try { out[t] = await stooq(sym); } catch (e2) { console.error('price', t, e.message, '|', e2.message); }
+    // stock tokens on Robinhood Chain first, then the stock market feeds
+    const sources = [() => dexscreener(t, true), () => yahoo(t), () => stooq(sym)];
+    const errors = [];
+    for (const src of sources) {
+      try { out[t] = await src(); return; } catch (e) { errors.push(e.message); }
     }
+    console.error('price', t, errors.join(' | '));
   }));
   try {
     const body = JSON.parse(await fetchText('https://api.coingecko.com/api/v3/simple/price?ids=' +

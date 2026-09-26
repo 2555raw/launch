@@ -169,92 +169,40 @@
   document.fonts ? document.fonts.ready.then(wire) : window.addEventListener("load", wire);
   wire();
 
-  // Terms gate: shows on the first visit, remembered per browser.
+  // Terms gate: shown until the visitor accepts, then remembered per browser.
   const gate = document.getElementById("gate");
   if (gate) {
-    const KEY = "azur-vibes-accepted";
+    const KEY = "azur-terms-accepted-v1";
     let seen = false;
     try { seen = localStorage.getItem(KEY) === "1"; } catch (e) {}
-    if (!seen) {
-      gate.hidden = false;
-      document.body.classList.add("gated");
-    }
     const boxes = [...gate.querySelectorAll("input[type=checkbox]")];
     const ok = document.getElementById("gateOk");
     const no = document.getElementById("gateNo");
-    const bar = document.getElementById("gateBar");
-    const level = document.getElementById("gateLevel");
-    const card = document.getElementById("gateCard");
-    const LEVELS = [
-      ["MAXIMUM", "#ff5c6c", "linear-gradient(90deg,#ff9a3d,#ff4d5e)"],
-      ["Spicy", "#ff9a3d", "linear-gradient(90deg,#ffd166,#ff9a3d)"],
-      ["Mildly responsible", "#9cc7ff", "linear-gradient(90deg,#7fd1ff,#5aa2ff)"],
-      ["Certified adult", "#5aa2ff", "linear-gradient(90deg,#2f7bff,#7fd1ff)"],
-    ];
-    const OK_LABELS = ["Tick all three", "Two to go", "One more", "Let me in"];
-    function update() {
-      const n = boxes.filter((b) => b.checked).length;
-      bar.style.width = (100 - n * 30) + "%";
-      bar.style.background = LEVELS[n][2];
-      level.textContent = LEVELS[n][0];
-      level.style.color = LEVELS[n][1];
-      ok.disabled = n < 3;
-      ok.textContent = OK_LABELS[n];
+    const note = document.getElementById("gateNote");
+    if (!seen) {
+      gate.hidden = false;
+      document.body.classList.add("gated");
+      boxes[0].focus({ preventScroll: true });
     }
-    boxes.forEach((b) => b.addEventListener("change", update));
-
-    // "Nah" gets more nervous every time you go for it, then leaves.
-    const NO_LABELS = ["You sure?", "Really sure?", "It's scared of you", "Bye"];
-    let tries = 0;
-    function dodge() {
-      if (no.classList.contains("gone")) return;
-      const box = card.getBoundingClientRect();
-      const x = -(60 + Math.random() * Math.min(220, box.width - 200));
-      const y = (Math.random() - 0.5) * 24;
-      no.style.transform = "translate(" + x.toFixed(0) + "px," + y.toFixed(0) + "px) rotate(" + ((Math.random() - 0.5) * 30).toFixed(0) + "deg)";
-    }
-    no.addEventListener("mouseenter", () => { if (tries < 3) dodge(); });
-    no.addEventListener("click", () => {
-      no.textContent = NO_LABELS[Math.min(tries, NO_LABELS.length - 1)];
-      tries++;
-      card.classList.remove("shake");
-      void card.offsetWidth;
-      card.classList.add("shake");
-      if (tries >= 4) no.classList.add("gone");
-      else dodge();
-    });
-
+    const update = () => { ok.disabled = !boxes.every((b) => b.checked); };
+    boxes.forEach((b) => b.addEventListener("change", () => { update(); note.hidden = true; }));
+    no.addEventListener("click", () => { note.hidden = false; });
     ok.addEventListener("click", () => {
       try { localStorage.setItem(KEY, "1"); } catch (e) {}
-      const r = ok.getBoundingClientRect();
-      burst(r.left + r.width / 2, r.top + r.height / 2);
       gate.classList.add("out");
       setTimeout(() => {
         gate.hidden = true;
         document.body.classList.remove("gated");
-      }, 350);
+      }, 200);
     });
-
-    // A handful of little blue stars fly out of the button.
-    function burst(x, y) {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      const star = '<path d="M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z"/>';
-      for (let i = 0; i < 36; i++) {
-        const el = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        el.setAttribute("viewBox", "0 0 32 32");
-        el.setAttribute("class", "confetti");
-        el.innerHTML = star;
-        el.style.left = x + "px";
-        el.style.top = y + "px";
-        el.style.fill = ["#5aa2ff", "#9cc7ff", "#2f7bff", "#ffffff"][i % 4];
-        document.body.appendChild(el);
-        const a = Math.random() * Math.PI * 2, d = 120 + Math.random() * 260;
-        el.animate([
-          { transform: "translate(-50%,-50%) scale(.4) rotate(0deg)", opacity: 1 },
-          { transform: "translate(calc(-50% + " + Math.cos(a) * d + "px), calc(-50% + " + (Math.sin(a) * d + 160) + "px)) scale(" + (0.6 + Math.random()) + ") rotate(" + (Math.random() * 720 - 360) + "deg)", opacity: 0 }
-        ], { duration: 900 + Math.random() * 700, easing: "cubic-bezier(.2,.7,.4,1)" }).onfinish = () => el.remove();
-      }
-    }
+    // keep keyboard focus inside the dialog while it is open
+    gate.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      const f = [...gate.querySelectorAll("input, a, button:not(:disabled)")];
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
     update();
   }
 })();

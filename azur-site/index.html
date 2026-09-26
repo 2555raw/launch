@@ -236,31 +236,33 @@
 </footer>
 
 <!-- ============================== TERMS GATE ============================== -->
-<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" aria-describedby="gateLead" hidden>
   <div class="gate-card" id="gateCard">
     <div class="gate-top">
-      <span class="gate-kicker">Terms of Vibes · v4.20</span>
-      <span class="gate-star" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z"/></svg></span>
+      <span class="gate-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+      <span class="gate-meta">Terms of Use · Updated Sep 26, 2026</span>
     </div>
-    <h2 id="gateTitle">Before you get an unfair edge</h2>
-    <p class="gate-lead">Our lawyers wrote 40 pages. Our intern read two of them and wrote this. Tick all three to get in.</p>
+    <h2 id="gateTitle">Before you continue</h2>
+    <p class="gate-lead" id="gateLead">Please review the key points below and confirm to use AZUR.</p>
+
+    <ul class="gate-points">
+      <li><b>Software, not advice.</b> AZUR is a research and trading tool. It is not a broker, exchange or investment adviser.</li>
+      <li><b>Markets carry risk.</b> Stocks, stock tokens and crypto can lose value quickly, and you can lose all of the money you invest.</li>
+      <li><b>You stay in control.</b> The AI agent can make mistakes. Orders are only placed after your approval or within limits you set.</li>
+    </ul>
 
     <div class="gate-list">
-      <label class="gate-item"><input type="checkbox" id="g1"><span class="box"></span><span>I understand numbers can go down. Even mine. <em>Especially</em> mine.</span></label>
-      <label class="gate-item"><input type="checkbox" id="g2"><span class="box"></span><span>I won't blame the AI when I buy a Pons token called <b>$MOONCAT</b> at 3am.</span></label>
-      <label class="gate-item"><input type="checkbox" id="g3"><span class="box"></span><span>I'll drink water, touch grass, and keep my rent money out of a 50x long.</span></label>
+      <label class="gate-item"><input type="checkbox" id="g1"><span class="box"></span><span>I have read and agree to the <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Policy</a>.</span></label>
+      <label class="gate-item"><input type="checkbox" id="g2"><span class="box"></span><span>I understand the risks of trading and that AZUR does not provide financial advice.</span></label>
+      <label class="gate-item"><input type="checkbox" id="g3"><span class="box"></span><span>I am at least 18 years old and permitted to use this service where I live.</span></label>
     </div>
 
-    <div class="gate-meter">
-      <div class="gate-meter-h"><span>Degen level</span><b id="gateLevel">MAXIMUM</b></div>
-      <div class="gate-bar"><i id="gateBar"></i></div>
-    </div>
+    <p class="gate-note" id="gateNote" role="status" hidden>You need to accept the terms to use AZUR. You can close this tab at any time.</p>
 
-    <div class="gate-btns" id="gateBtns">
-      <button type="button" class="gate-ok" id="gateOk" disabled>Tick all three</button>
-      <button type="button" class="gate-no" id="gateNo">Nah</button>
+    <div class="gate-btns">
+      <button type="button" class="gate-no" id="gateNo">Decline</button>
+      <button type="button" class="gate-ok" id="gateOk" disabled>Accept and continue</button>
     </div>
-    <p class="gate-fine">This is the fun summary. The real, boring version lives in our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</p>
   </div>
 </div>
 

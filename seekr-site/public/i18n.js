@@ -11,16 +11,25 @@
   if (!lang) lang = /^zh\b/i.test(navigator.language || '') ? 'zh' : 'en';
   const reveal = () => root.classList.remove('i18n-wait');
 
-  /* the switch sits next to the day/night button */
+  /* the switch sits next to the day/night button (site pages) or in the sidebar foot (the app) */
+  const flip = () => {
+    try { localStorage.setItem(KEY, lang === 'zh' ? 'en' : 'zh'); } catch {}
+    const u = new URL(location.href);
+    /* a plain reload, so it also works when the address carries a #section */
+    if (u.searchParams.has('lang')) { u.searchParams.delete('lang'); location.replace(u.toString()); } else location.reload();
+  };
   const addSwitch = () => {
-    const tb = document.getElementById('themeToggle'); if (!tb || document.getElementById('langToggle')) return;
-    const b = document.createElement('button'); b.id = 'langToggle'; b.className = 'lang-btn'; b.type = 'button';
+    if (document.getElementById('langToggle')) return;
+    const site = document.getElementById('themeToggle'), app = document.getElementById('themeBtn'), tb = site || app;
+    if (!tb) return;
+    const b = document.createElement('button'); b.id = 'langToggle'; b.type = 'button';
+    b.className = site ? 'lang-btn' : 'icon-btn lang-app';
     b.textContent = lang === 'zh' ? 'EN' : '中文'; b.title = lang === 'zh' ? 'English' : '切换到中文'; b.setAttribute('aria-label', b.title);
-    b.onclick = () => { try { localStorage.setItem(KEY, lang === 'zh' ? 'en' : 'zh'); } catch {} const u = new URL(location.href); u.searchParams.delete('lang'); location.replace(u.toString()); };
+    b.onclick = flip;
     tb.parentNode.insertBefore(b, tb);
     /* on phones the switch lives in the menu, where there is room */
     const links = document.getElementById('navLinks');
-    if (links) { const m = document.createElement('a'); m.href = '#'; m.className = 'lang-menu'; m.textContent = lang === 'zh' ? 'English' : '中文'; m.onclick = (e) => { e.preventDefault(); b.onclick(); }; links.appendChild(m); }
+    if (site && links) { const m = document.createElement('a'); m.href = '#'; m.className = 'lang-menu'; m.textContent = lang === 'zh' ? 'English' : '中文'; m.onclick = (e) => { e.preventDefault(); flip(); }; links.appendChild(m); }
   };
   /* the switch only shows once the Chinese dictionary is published */
   const ver = document.currentScript ? (document.currentScript.src.split('v=')[1] || '') : '';

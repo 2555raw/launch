@@ -156,7 +156,7 @@ h1, h2 {
 .p5 { right: 11%;  top: 23%; transform: rotate(4deg);  animation-delay: -3s; }
 .p6 { right: 13%;  top: 34%; transform: rotate(-4deg); animation-delay: -5s; }
 .p7 { right: 10.5%; top: 48%; transform: rotate(4deg); animation-delay: -1.5s; }
-.p8 { right: 17%;  top: 59%; transform: rotate(-4deg); animation-delay: -3.5s; filter: blur(.6px); opacity: .6; }
+.p8 { right: 17%;  top: 59%; transform: rotate(-4deg); animation-delay: -3.5s; }
 @keyframes float {
   0%, 100% { translate: 0 0; }
   50% { translate: 0 -12px; }

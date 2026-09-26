@@ -390,9 +390,12 @@ export class StormEngine implements StormRenderer {
           disc.data[o + 2] = Math.min(255, b * 255);
           disc.data[o + 3] = cover * 255;
           // the same ground in full night: black, with its cities
-          dark.data[o] = Math.min(255, (0.008 + city) * 255);
-          dark.data[o + 1] = Math.min(255, (0.01 + city * 0.8) * 255);
-          dark.data[o + 2] = Math.min(255, (0.02 + city * 0.52) * 255);
+          // moonlit: black sea, blue-grey land, with the cities over it
+          const lumD = base[0] * 0.3 + base[1] * 0.5 + base[2] * 0.2;
+          const moon = [0, 1, 2].map((c) => (lumD * 0.6 + base[c] * 0.4) * [0.45, 0.56, 0.86][c] * 0.44);
+          dark.data[o] = Math.min(255, (moon[0] + city) * 255);
+          dark.data[o + 1] = Math.min(255, (moon[1] + city * 0.8) * 255);
+          dark.data[o + 2] = Math.min(255, (moon[2] + city * 0.52) * 255);
           dark.data[o + 3] = cover * 255;
         }
         const alt = Math.max(0, dist - R) / PLANET.atmo;

@@ -651,6 +651,12 @@ void main() {
       cities = vec3(1.0, 0.75, 0.43) * G.g * 2.3 + vec3(1.0, 0.58, 0.3) * glow * 1.0;
     }
     col += cities * night * (1.0 - cl * 0.8);
+    // moonlight: at night the map stays readable, dark and cool (black sea, blue-grey
+    // land, pale ice and cloud)
+    vec3 moonTint = vec3(0.45, 0.56, 0.86);
+    float lumD = dot(albedo, vec3(0.3, 0.5, 0.2));
+    vec3 moonGround = mix(vec3(lumD), albedo, 0.4) * moonTint * 0.44;
+    col += mix(moonGround, moonTint * 0.3, cl) * night;
     float mu = max(n.z, 0.015);
     float T = exp(-0.065 / mu);
     ground = col * T + mix(air(ndl, 0.07), vec3(0.62, 0.74, 0.95) * smoothstep(-0.05, 0.3, ndl), 0.3) * (1.0 - T) * 1.1;
@@ -661,6 +667,8 @@ void main() {
   vec3 sky = air(mul, 0.11) * exp(-h * 2.3) * 1.2;
   sky += vec3(0.75, 0.88, 1.0) * exp(-h * 10.0) * smoothstep(-0.08, 0.3, mul) * 0.55;
   sky += vec3(0.3, 0.75, 0.35) * exp(-pow((h - 1.1) / 0.16, 2.0)) * 0.1 * (1.0 - smoothstep(-0.25, 0.05, mul));
+  // a faint moonlit rim so the planet's edge still shows at night
+  sky += vec3(0.1, 0.17, 0.34) * exp(-h * 2.6) * 0.7 * (1.0 - smoothstep(-0.2, 0.1, mul));
 
   o = vec4(mix(sky, ground, cover), cover) * uFade;
 }`;

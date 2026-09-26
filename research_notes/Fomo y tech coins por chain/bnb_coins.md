@@ -1,6 +1,8 @@
 # Tech coins en BNB Chain que tocaron US$700K–10M de market cap (2025–2026): notas de investigación al 2026-09-26
 
 > **Método y límites.** Todas las cifras vienen de títulos, snippets y resúmenes de resultados de WebSearch, y de metadatos de GitHub (búsqueda de repositorios: fechas, descripciones, estrellas). WebFetch y curl estaban bloqueados. Además, el presupuesto de WebSearch de la sesión (200 llamadas, compartido con otros investigadores) se agotó a mitad de esta tarea. Por eso **ninguna cifra se comprobó en vivo** en DexScreener, GeckoTerminal o BscScan. Cuando pone "no verificado", el dato no apareció en ninguna fuente. Las fechas de los posts de X se calcularon a partir del ID del post (snowflake), que es un cálculo exacto y no una estimación. Esto es análisis técnico y de producto, no asesoramiento de inversión.
+>
+> **Aviso de procedencia [GH-MCP].** Los ítems marcados **[GH-MCP]** vienen de metadatos de búsqueda de GitHub (herramientas GitHub MCP: `search_repositories` y `search_code`) sobre repos públicos ajenos a 2555raw/launch. Esas consultas se hicieron **antes** de recibir la instrucción del coordinador de no usar GitHub fuera de 2555raw/launch, y después no se hizo ninguna más. El coordinador o el redactor pueden excluirlos. Los repos que aparecieron directamente en resultados de WebSearch (StonksPad, myx-flap-vault, four-meme-ai, la URL de four-meme-agent y la org 4clawd) no llevan la marca.
 
 ## 1. Candidatos (ranking): identidad, launchpad, fecha y market cap tocado
 
@@ -21,9 +23,9 @@ Solo **un** token ligado a un producto tiene un market cap dentro de la banda re
 - Qué es: "the first specialized launchpad for OpenClaw agents, seamlessly integrated with Four.meme, Moltbook, and Moltx to tokenize and launch agent-led projects on BSC". Despliega tokens para agentes a partir de prompts en lenguaje natural. — [GitHub 4CLAW](https://github.com/4clawd); [CryptoRank 4claw](https://cryptorank.io/price/4-claw)
 - Existe una ficha de precio "4claw" en CryptoRank, lo que sugiere que hay token. Su MC no está verificado. — [CryptoRank](https://cryptorank.io/price/4-claw)
 - Repos:
-  - `4claw-agent-cli` ("Cli version of 4claw agent. run it on any computer you like"): creado el 2026-03-04, último push el 2026-05-28, 8 issues abiertos, 0 estrellas, homepage agent.4claw.fun, topics `openclaw`/`picoclaw`/`bsc`. — [GitHub](https://github.com/4clawd/4claw-agent-cli)
-  - `4claw-flashloan` ("Flashloan contract of 4claw"), creado el 2026-03-30. — [GitHub](https://github.com/4clawd/4claw-flashloan)
-  - `flashloan-dapp`, creado el 2026-04-01. — [GitHub](https://github.com/4clawd/flashloan-dapp)
+  - `4claw-agent-cli` ("Cli version of 4claw agent. run it on any computer you like"): creado el 2026-03-04, último push el 2026-05-28, 8 issues abiertos, 0 estrellas, homepage agent.4claw.fun, topics `openclaw`/`picoclaw`/`bsc`. — [GitHub](https://github.com/4clawd/4claw-agent-cli) **[GH-MCP]**
+  - `4claw-flashloan` ("Flashloan contract of 4claw"), creado el 2026-03-30. — [GitHub](https://github.com/4clawd/4claw-flashloan) **[GH-MCP]**
+  - `flashloan-dapp`, creado el 2026-04-01. — [GitHub](https://github.com/4clawd/flashloan-dapp) **[GH-MCP]**
 - Contrato, ticker exacto y MC pico o actual: no verificados.
 
 **#3: EQUITY (getequity.fun) y StonksPad, launchpads sobre Flap que pagan a los holders en bStocks**
@@ -34,7 +36,7 @@ Solo **un** token ligado a un producto tiene un market cap dentro de la banda re
 - Referencia de la misma narrativa: "BSC Meme Coin Stonks Tops $14M Market Cap" (nuevo máximo). Atravesó la banda, pero su pico la supera y no documenta producto. — [Phemex](https://phemex.com/news/article/bsc-meme-coin-stonks-hits-14-million-market-cap-sets-fresh-high-95588)
 
 **#4: B402 / tokens x402 en BNB (con Quack AI "Q" como referencia fuera de banda)**
-- Repo BNBChain402/B402: "The first X402 Protocol on BNB Chain, powered by USD1 payments, enabling seamless on-chain transactions with zero gas hassle". Solidity, creado el 2025-10-28, actualizado el 2026-06-10, 0 estrellas. — [GitHub](https://github.com/BNBChain402/B402)
+- Repo BNBChain402/B402: "The first X402 Protocol on BNB Chain, powered by USD1 payments, enabling seamless on-chain transactions with zero gas hassle". Solidity, creado el 2025-10-28, actualizado el 2026-06-10, 0 estrellas. — [GitHub](https://github.com/BNBChain402/B402) **[GH-MCP]**
 - Vistara Labs anunció "b402" el 25-oct-2025: pagos de agentes con cualquier BEP-20, con el B402 relay como intermediario de confianza. — [Bitget News](https://www.bitget.com/news/detail/12560605040847); [Gate Learn](https://www.gate.com/learn/articles/x402-builders-list-who-s-really-powering-x402/13436)
 - CMC lista una **colección NFT** "b402.ai" en BNB (contrato 0xc67fa9e70d2aad3c5392c6b4522206edb8be3edd). — [CMC NFT](https://coinmarketcap.com/nft/collections/bnb/0xc67fa9e70d2aad3c5392c6b4522206edb8be3edd/b402.ai). Token fungible B402 y su MC: no verificados.
 - Token "x402" de four.meme: FDV de US$6,513.79, liquidez de US$5,074.71 y volumen 24h de US$2.92, es decir, muerto. La dirección 0xcd5038c6dc6134041c45de22e6fcd4f2ffe14444 aparece en la URL del pool. — [GeckoTerminal](https://www.geckoterminal.com/bsc/pools/0xcd5038c6dc6134041c45de22e6fcd4f2ffe14444)
@@ -51,7 +53,7 @@ Solo **un** token ligado a un producto tiene un market cap dentro de la banda re
 ### Inferences
 - **Por qué este orden:**
   - BNC4 es el único con MC en banda respaldado por fuente y vínculo real a un producto (el rail 4Stock de acciones tokenizadas). Su profundidad técnica, sin embargo, es baja-media: es más RWA-meme que "tech".
-  - 4CLAW tiene la tecnología más verificable (CLI open source, contratos de flashloan) y es de 2026, pero su MC no está verificado.
+  - 4CLAW tiene la tecnología más verificable (CLI open source, contratos de flashloan) y es de 2026, pero su MC no está verificado. **[GH-MCP]**
   - EQUITY/StonksPad aporta la mecánica más copiable para el usuario, pero no se confirmó que tenga token propio.
   - B402/x402 es la narrativa más alineada con Payence/Nomia, pero no hay token en banda verificado.
 - **Sugerencia para el informe final ("mejores 2"):** presentar **BNC4** y **4CLAW** con caveats explícitos sobre el MC, e integrar **EQUITY/StonksPad** como "la mecánica a copiar" dentro de la sección de narrativas. Si el informe prioriza la inspiración sobre el MC verificado, EQUITY/StonksPad puede sustituir a BNC4.
@@ -61,7 +63,7 @@ Solo **un** token ligado a un producto tiene un market cap dentro de la banda re
   - Stonks (95588), 4Stock (95859) y "BSC DEX volume tops $1.3B" (95889) caen en la misma ventana que el post "BNB Stonks Szn" de Flap del 2026-09-04, así que probablemente son de sept-2026.
   - "memes" (54898/55781) sería de principios de 2026.
   - Es inferencia, no un dato.
-- 4CLAW probablemente se lanzó hacia marzo de 2026: primeros repos del 2026-03-04, días después de que Agentic Mode de four.meme se lanzara el 2026-03-01.
+- 4CLAW probablemente se lanzó hacia marzo de 2026: primeros repos del 2026-03-04, días después de que Agentic Mode de four.meme se lanzara el 2026-03-01. **[GH-MCP]**
 
 ### Gaps
 - MC pico y actual, fecha de lanzamiento, contrato y estado (activo, abandonado, rug) de **4CLAW, EQUITY, StonksPad y B402**: no verificados. No se pudo abrir CryptoRank, CMC, DexScreener ni BscScan.
@@ -86,12 +88,12 @@ Los diseños "tech" que funcionan en BNB en 2025–2026 comparten algo: el token
 - "Four.meme allows you to create, trade, and manage Meme tokens directly inside Claude, OpenClaw, and other AI agents". — [four.meme/agentic](https://four.meme/en/agentic)
 - "ALPHA AI Agent" (con GoPlus) toma la idea de un meme desde la cuenta de X del usuario y genera el nombre, la descripción y la imagen del token. — [CoinGape](https://coingape.com/blog/3-meme-coin-launchpads-making-it-up-with-ai-trends-in-2026/)
 - Ejemplos de tooling de terceros:
-  - `alenfour/four-meme-agent` ("Autonomous AI agent for four.meme — Agentic Mode token launcher on BSC"): Python, creado el 2026-03-01, 2 estrellas. — [GitHub](https://github.com/alenfour/four-meme-agent)
-  - `Clawd4U/fourmeme-launchpad` ("AI Agent Token Launchpad on Four.meme"), creado el 2026-02-03. — [GitHub](https://github.com/Clawd4U/fourmeme-launchpad)
+  - `alenfour/four-meme-agent` ("Autonomous AI agent for four.meme — Agentic Mode token launcher on BSC"): Python, creado el 2026-03-01, 2 estrellas. — [GitHub](https://github.com/alenfour/four-meme-agent) **[GH-MCP]**
+  - `Clawd4U/fourmeme-launchpad` ("AI Agent Token Launchpad on Four.meme"), creado el 2026-02-03. — [GitHub](https://github.com/Clawd4U/fourmeme-launchpad) **[GH-MCP]**
 
 **4CLAW**
 - Lanzamiento de tokens para agentes OpenClaw a partir de lenguaje natural, integrado con four.meme, Moltbook y Moltx. — [GitHub 4CLAW](https://github.com/4clawd)
-- Tiene un CLI ejecutable en local (agent.4claw.fun) y un contrato y dapp de flashloan propios. — [GitHub](https://github.com/4clawd/4claw-agent-cli); [GitHub](https://github.com/4clawd/4claw-flashloan)
+- Tiene un CLI ejecutable en local (agent.4claw.fun) y un contrato y dapp de flashloan propios. — [GitHub](https://github.com/4clawd/4claw-agent-cli); [GitHub](https://github.com/4clawd/4claw-flashloan) **[GH-MCP]**
 - Cómo acumula valor el token (fees, buyback): no documentado en lo encontrado.
 
 **Flap (base de EQUITY y StonksPad)**
@@ -102,7 +104,7 @@ Los diseños "tech" que funcionan en BNB en 2025–2026 comparten algo: el token
 - **Flap AI Oracle:** `FlapAIProvider` soporta tool calling. El backend del oráculo ejecuta las tool calls del prompt e inyecta los resultados en el contexto del LLM antes de decidir. — [Flap docs, AI Oracle](https://docs.flap.sh/flap/developers/preview/flap-ai-oracle); [flap.sh/ai](https://flap.sh/ai)
 - EQUITY: tax → vault → pago on-chain; 80% para holders y 20% para el creador; el pago es en BNB o en un bStock a elegir. — [getequity.fun](https://getequity.fun/)
 - StonksPad: tax → compra de acciones tokenizadas para los holders, vía `newTokenV6WithVault()`. — [GitHub](https://github.com/StonksPadBNB/stonkspad-contracts)
-- Otro ejemplo: "Asian Stock Strategy — 3% tax coin designed to launch via flap.sh with custom vault" (ago-2026). — [GitHub ass-protocol](https://github.com/AstrosDiary/ass-protocol)
+- Otro ejemplo: "Asian Stock Strategy — 3% tax coin designed to launch via flap.sh with custom vault" (ago-2026). — [GitHub ass-protocol](https://github.com/AstrosDiary/ass-protocol) **[GH-MCP]**
 
 **x402 / pagos de agentes en BNB (B402, Quack AI y facilitators)**
 - En la página de BNB Chain, los agentes liquidan pagos por llamada a API "in USDC, USDT, USD1, or U — with no accounts, no API keys, and finality in under 200 milliseconds". — [BNB Chain AI Agent Solutions](https://www.bnbchain.org/en/solutions/ai-agent)
@@ -118,7 +120,7 @@ Los diseños "tech" que funcionan en BNB en 2025–2026 comparten algo: el token
 - El 13-may-2026 BNB Chain anunció el framework completo: identidad 8004, pagos P2P, delegación de tareas con ERC-8183 y reputación en 8004scan.
 - En la fuente, BNB Chain aparece con 44,051 agentes frente a 36,512 en Ethereum (fecha del dato no verificada).
 - Fuentes de estos tres puntos: [The Defiant](https://thedefiant.io/news/blockchains/bnb-chain-agent-identity-erc-8004-go3uof); [Cryptopolitan](https://www.cryptopolitan.com/bnb-chain-lead-erc-8004-ai-agent/); [Crypto Economy](https://crypto-economy.com/bnb-chain-surges-ahead-in-erc-8004-adoption-as-on-chain-ai-agents-multiply/)
-- Ejemplo de composición de 2026: `chainhelix-agents` es un marketplace donde agentes ERC-8004 en BSC "are found, probed and hired per job in ERC-8183 escrow or per call on B402". El entregable se guarda en BNB Greenfield y cada verificación se sella en opBNB. — [GitHub](https://github.com/kairovate/chainhelix-agents)
+- Ejemplo de composición de 2026: `chainhelix-agents` es un marketplace donde agentes ERC-8004 en BSC "are found, probed and hired per job in ERC-8183 escrow or per call on B402". El entregable se guarda en BNB Greenfield y cada verificación se sella en opBNB. — [GitHub](https://github.com/kairovate/chainhelix-agents) **[GH-MCP]**
 
 ### Inferences
 - Resumen de cómo llega el valor al token en cada candidato:
@@ -139,14 +141,14 @@ Los diseños "tech" que funcionan en BNB en 2025–2026 comparten algo: el token
 ## 3. Links, equipo, tracción y red flags
 
 ### Takeaway
-Todos los candidatos tienen tracción pública débil o sin medir: repos con 0–2 estrellas, equipos anónimos o sin identificar, sin métricas de usuarios. La tracción real está en las plataformas (Flap: unos US$14M en fees en 30 días; four.meme: más de 20,000 tokens al día en oct-2025), no en los tokens. Las red flags del ecosistema son concretas y recientes: honeypots "Pixiu" como 4AGENT, micro-caps que ocupan el nombre de una narrativa (x402, OPENCLAW), caídas tras los listados de Binance Alpha y repos cebo de "four.meme bot".
+Todos los candidatos tienen tracción pública débil o sin medir: repos con 0–2 estrellas, equipos anónimos o sin identificar, sin métricas de usuarios. La tracción real está en las plataformas (Flap: unos US$14M en fees en 30 días; four.meme: más de 20,000 tokens al día en oct-2025), no en los tokens. Las red flags del ecosistema son concretas y recientes: honeypots "Pixiu" como 4AGENT, micro-caps que ocupan el nombre de una narrativa (x402, OPENCLAW), caídas tras los listados de Binance Alpha y repos cebo de "four.meme bot". **[GH-MCP]**
 
 ### Cited Findings
 **Links y equipo**
-- 4CLAW: GitHub [4clawd](https://github.com/4clawd); homepage agent.4claw.fun (en los metadatos del repo) — [GitHub](https://github.com/4clawd/4claw-agent-cli). Equipo autodescrito como "hardcore development team building on the BNB Chain... builders and friends of the Four.meme ecosystem", sin nombres, es decir, anónimo. — [GitHub 4CLAW](https://github.com/4clawd)
+- 4CLAW: GitHub [4clawd](https://github.com/4clawd); homepage agent.4claw.fun (en los metadatos del repo) — [GitHub](https://github.com/4clawd/4claw-agent-cli). Equipo autodescrito como "hardcore development team building on the BNB Chain... builders and friends of the Four.meme ecosystem", sin nombres, es decir, anónimo. — [GitHub 4CLAW](https://github.com/4clawd) **[GH-MCP]**
 - EQUITY: [getequity.fun](https://getequity.fun/). Equipo: no verificado.
 - StonksPad: [contracts](https://github.com/StonksPadBNB/stonkspad-contracts) y [docs](https://github.com/StonksPadBNB/stonkspad-docs). Equipo: no verificado.
-- B402: [BNBChain402/B402](https://github.com/BNBChain402/B402). La b402 de Vistara Labs es un equipo con nombre de empresa. — [Bitget News](https://www.bitget.com/news/detail/12560605040847)
+- B402: [BNBChain402/B402](https://github.com/BNBChain402/B402). La b402 de Vistara Labs es un equipo con nombre de empresa. — [Bitget News](https://www.bitget.com/news/detail/12560605040847) **[GH-MCP]**
 - Quack AI: [Medium](https://medium.com/@quackai/4e9db5f513f5); [CMC](https://coinmarketcap.com/currencies/quack-ai/)
 - Flap: X [@flapdotsh](https://x.com/flapdotsh/status/2095886155296247819); [docs](https://docs.flap.sh/flap/developers/basic-and-mechanism/flap-tax-token/tax-token-v3); [DappBay](https://dappbay.bnbchain.org/detail/flap)
 
@@ -158,14 +160,14 @@ Todos los candidatos tienen tracción pública débil o sin medir: repos con 0�
 - MC de la categoría Four.meme Ecosystem en CoinGecko: US$523M (con US$347M de volumen) en un snapshot y US$824M en otro. Son instantáneas distintas, sin fecha. — [CoinGecko](https://www.coingecko.com/en/categories/four-meme-ecosystem)
 - GitHub:
   - 4claw-agent-cli: 0 estrellas y 8 issues abiertos.
-  - four-meme-agent: 2 estrellas.
+  - four-meme-agent: 2 estrellas. **[GH-MCP]**
   - B402: 0 estrellas.
-  - Enlaces: [4claw-agent-cli](https://github.com/4clawd/4claw-agent-cli), [four-meme-agent](https://github.com/alenfour/four-meme-agent), [B402](https://github.com/BNBChain402/B402)
+  - Enlaces: [4claw-agent-cli](https://github.com/4clawd/4claw-agent-cli), [four-meme-agent](https://github.com/alenfour/four-meme-agent), [B402](https://github.com/BNBChain402/B402) **[GH-MCP]**
 - Uso real del rail "Binance x402 (b402)" por builders en ago–sep 2026:
-  - `bnb-agent-marketplace` (hackathon Build the Era; contratar agentes ERC-8004 con Binance x402). — [GitHub](https://github.com/Ai-Rook/bnb-agent-marketplace)
-  - `till` ("payment counter for agent skills on Binance x402... real USD1 settles on BNB Chain inside the same HTTP request", EIP-3009). — [GitHub](https://github.com/bzdmin/till)
-  - `agent-payment-templates` (x402 en Base y b402 en BSC). — [GitHub](https://github.com/kairovate/agent-payment-templates)
-- Q402 ya se integra en copilots de hackathon ("Copilot built with quackai q402 + Chaingpt", dic-2025). — [GitHub](https://github.com/OWK50GA/BNB-Super-Web3-Agent)
+  - `bnb-agent-marketplace` (hackathon Build the Era; contratar agentes ERC-8004 con Binance x402). — [GitHub](https://github.com/Ai-Rook/bnb-agent-marketplace) **[GH-MCP]**
+  - `till` ("payment counter for agent skills on Binance x402... real USD1 settles on BNB Chain inside the same HTTP request", EIP-3009). — [GitHub](https://github.com/bzdmin/till) **[GH-MCP]**
+  - `agent-payment-templates` (x402 en Base y b402 en BSC). — [GitHub](https://github.com/kairovate/agent-payment-templates) **[GH-MCP]**
+- Q402 ya se integra en copilots de hackathon ("Copilot built with quackai q402 + Chaingpt", dic-2025). — [GitHub](https://github.com/OWK50GA/BNB-Super-Web3-Agent) **[GH-MCP]**
 
 **Red flags**
 - **4AGENT (Pixiu/honeypot):** GoPlus avisó de 4AGENT, vinculado al token "Gork 4.2". KOLs y smart money perdieron 170 BNB (unos US$100K). Un resultado lo califica de alegación no confirmada. — [Bitget News](https://www.bitget.com/news/detail/12560605236729); [Phemex](https://phemex.com/news/article/goplus-warns-of-bsc-token-scam-investors-lose-100000-64146)
@@ -177,15 +179,15 @@ Todos los candidatos tienen tracción pública débil o sin medir: repos con 0�
   - Hacia mediados de 2025 había ~190 proyectos listados; ~70% por debajo de US$50M de MC y ~5% por encima de US$1B. — [EasyMM](https://www.easymm.io/post/what-is-binance-alpha-the-complete-guide-for-traders-and-projects-in-2026)
 - Quack AI:
   - El MC de Q difiere mucho entre agregadores: US$72.7M en CoinGecko frente a US$108–113M en CMC y Bitget. — [CoinGecko](https://www.coingecko.com/en/coins/quack-ai); [CMC](https://coinmarketcap.com/currencies/quack-ai/)
-  - En GitHub abundan scripts "auto quackai" de 2025 (farming de puntos). — [GitHub jackerdev01/quackai](https://github.com/jackerdev01/quackai); [GitHub unwinned/quack-ai](https://github.com/unwinned/quack-ai)
-- Repo `bsc-fourmeme-bot`: descripción rellena de keywords ("bnb four meme" repetido), 227 estrellas frente a 4,788 forks, creado en 2021 y actualizado en sept-2026. — [GitHub](https://github.com/1009682175845693/bsc-fourmeme-bot)
+  - En GitHub abundan scripts "auto quackai" de 2025 (farming de puntos). — [GitHub jackerdev01/quackai](https://github.com/jackerdev01/quackai); [GitHub unwinned/quack-ai](https://github.com/unwinned/quack-ai) **[GH-MCP]**
+- Repo `bsc-fourmeme-bot`: descripción rellena de keywords ("bnb four meme" repetido), 227 estrellas frente a 4,788 forks, creado en 2021 y actualizado en sept-2026. — [GitHub](https://github.com/1009682175845693/bsc-fourmeme-bot) **[GH-MCP]**
 - Artículos promocionales de preventas (MemeToro, AlphaPepe) que se cuelan en las búsquedas de "BNB AI". — [Bitcoin Sistemi](https://en.bitcoinsistemi.com/top-bnb-chain-meme-coins-2026-where-memetoros-ai-launchpad-fits-in-the-bnb-memecoin-ecosystem/); [OpenPR](https://www.openpr.com/news/4637903/bnb-news-bnb-chain-is-building-the-agent-economy-while-alphapepe)
 
 ### Inferences
-- El patrón del repo `bsc-fourmeme-bot` (keyword stuffing, forks anómalos, fecha de creación antigua) encaja con repos cebo que distribuyen bots que roban claves. Conviene no ejecutarlo. Es inferencia, no se analizó el código.
+- El patrón del repo `bsc-fourmeme-bot` (keyword stuffing, forks anómalos, fecha de creación antigua) encaja con repos cebo que distribuyen bots que roban claves. Conviene no ejecutarlo. Es inferencia, no se analizó el código. **[GH-MCP]**
 - En los tax tokens (Flap, four.meme TaxToken), un tax alto o modificable es la forma más fácil de montar un honeypot. Una landing seria debería mostrar el tax, su inmutabilidad y el destino de los fondos.
 - BNC4 y los stock-memes tienen un riesgo regulatorio y de peg (acciones tokenizadas cotizando con premium). Es inferencia; no se encontró ninguna acción regulatoria concreta.
-- El flashloan de 4CLAW amplía la superficie de ataque. No consta ninguna auditoría.
+- El flashloan de 4CLAW amplía la superficie de ataque. No consta ninguna auditoría. **[GH-MCP]**
 
 ### Gaps
 - No se encontraron auditorías, datos de holders, concentración de supply, bundling ni snipers de ningún candidato, porque no hubo acceso a BscScan ni a los escáneres de GoPlus.
@@ -209,7 +211,7 @@ Hay que inspirarse en las **mecánicas y en el producto**, no en los tokens en s
   - Cuatro de los diez ganadores atacan exploits de DeFi.
   - Fuentes: [Blockchain.news](https://blockchain.news/news/bnb-chain-openclaw-hackathon-awards-100k-ai-agent-projects); [DoraHacks](https://dorahacks.io/hackathon/goodvibes/winner)
 - Flap "BNB Stonks Szn": "$4M in rewards from @BNBCHAIN for bStocks-paired memes and the communities that actually hold them". Post del 2026-09-04 (fecha derivada del ID). — [X @flapdotsh](https://x.com/flapdotsh/status/2095886155296247819)
-- Existe un panel público de APY de dividendos de tax de flap.sh ("flap.sh 税收分红 APY 面板 — 每10分钟自动更新"), creado el 2026-08-01. — [GitHub flap-apy](https://github.com/Glaucus666/flap-apy)
+- Existe un panel público de APY de dividendos de tax de flap.sh ("flap.sh 税收分红 APY 面板 — 每10分钟自动更新"), creado el 2026-08-01. — [GitHub flap-apy](https://github.com/Glaucus666/flap-apy) **[GH-MCP]**
 - La fuente sobre el ecosistema four.meme advierte de que la falta de utilidad fundamental hace que los precios colapsen cuando se va la atención. — [CryptoSlate](https://cryptoslate.com/launchpads/four-meme-review/)
 
 ### Inferences
@@ -219,10 +221,10 @@ Hay que inspirarse en las **mecánicas y en el producto**, no en los tokens en s
   - *Evitar:* la ambigüedad peg/premium (dice "1:1" y cotiza "10x"). Una landing de Tricker debería mostrar el NAV del bag frente al precio de mercado, sin ocultar el premium.
 - **4CLAW: inspirarse en la UX, no en el token.**
   - *Copiar (Payence/Nomia, launch sites):* lanzar tokens a partir de un prompt, un CLI ejecutable en local y la integración con el launchpad dominante (four.meme) en lugar de competir con él.
-  - *Evitar:* un token sin fee link documentado y contratos de flashloan sin auditoría como "utilidad".
+  - *Evitar:* un token sin fee link documentado y contratos de flashloan sin auditoría como "utilidad". **[GH-MCP]**
 - **EQUITY / StonksPad: la mejor fuente de inspiración para Tricker.**
   - *Copiar:* el hook de la landing ("launch a coin that already pays its holders"); el reparto transparente 80/20; que el holder elija el activo de pago; montarse sobre Flap como operador con commission receiver (fee share permanente) en lugar de desplegar contratos propios.
-  - *Traducción a Tricker:* un "bag token" cuyo tax compre la cesta de 3–5 activos y la reparta, con el APY del vault en directo en Tricker Terminal, al estilo del patrón flap-apy.
+  - *Traducción a Tricker:* un "bag token" cuyo tax compre la cesta de 3–5 activos y la reparta, con el APY del vault en directo en Tricker Terminal, al estilo del patrón flap-apy. **[GH-MCP]**
   - *Evitar:* un tax alto o modificable (riesgo de honeypot) y prometer "dividendos" sin mostrar los contratos y el vault.
 - **B402 / x402-BNB (y Quack AI): la narrativa más alineada con Payence/Nomia, pero NO copiar el "token de protocolo".**
   - *Copiar:*
@@ -267,8 +269,8 @@ Hay que inspirarse en las **mecánicas y en el producto**, no en los tokens en s
 - Moltbook (MOLT, en Base): Phemex habla de un ATH de US$7M, pero BingX dice más de US$42M a principios de feb-2026. Las fuentes se contradicen y es otra cadena. — [Phemex](https://phemex.com/news/article/molt-meme-coin-surpasses-7m-market-cap-reaches-alltime-high-56995); [BingX](https://bingx.com/en/learn/article/what-is-moltbook-molt-coin-reddit-like-ai-agent-social-network)
 - ERC-8004 en BSC (4-feb / 4-mar-2026) y framework 8004/8183 (13-may-2026). — [The Defiant](https://thedefiant.io/news/blockchains/bnb-chain-agent-identity-erc-8004-go3uof)
 - Agentic Mode de four.meme (1-mar-2026). — [KuCoin](https://www.kucoin.com/news/flash/four-meme-to-launch-agentic-mode-ai-agent-meme-product-on-bnb-chain)
-- 4CLAW (mar-2026). — [GitHub](https://github.com/4clawd/4claw-agent-cli)
-- "Four.Meme AI Sprint 2026" (abr-2026), con proyectos como waifu.fun (launchpad de tokens nativo para agentes) y VeriVerse (confianza entre agentes verificada con zkTLS). — [GitHub waifu.fun](https://github.com/waifufun/waifu.fun-hackathon); [GitHub VeriVerse](https://github.com/Skottbie/VeriVerse)
+- 4CLAW (mar-2026). — [GitHub](https://github.com/4clawd/4claw-agent-cli) **[GH-MCP]**
+- "Four.Meme AI Sprint 2026" (abr-2026), con proyectos como waifu.fun (launchpad de tokens nativo para agentes) y VeriVerse (confianza entre agentes verificada con zkTLS). — [GitHub waifu.fun](https://github.com/waifufun/waifu.fun-hackathon); [GitHub VeriVerse](https://github.com/Skottbie/VeriVerse) **[GH-MCP]**
 
 **2026: stock memes**
 - Four.meme lanzó los Stock Memes emparejados con bStocks. — [CoinGabbar](https://www.coingabbar.com/en/crypto-currency-news/bnb-news-today-four-meme-stock-memes-launch-update)

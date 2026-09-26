@@ -3,7 +3,7 @@ body.docs {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr) 260px;
   min-height: 100vh;
-  background: #f9f9f9;
+  background: #ecece9;
 }
 body.docs.collapsed { grid-template-columns: 0 minmax(0, 1fr) 260px; }
 body.docs.collapsed .side { visibility: hidden; }

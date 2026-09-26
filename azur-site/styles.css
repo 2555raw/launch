@@ -1,7 +1,7 @@
 /* AZUR — dark trading landing page, electric-blue accent. */
 
 :root {
-  --bg: #ffffff;
+  --bg: #ecece9;
   --bg-2: #f3f3f3;
   --card: #eeeeee;
   --card-2: #e5e5e5;
@@ -46,7 +46,7 @@ h1, h2 {
   min-height: 100vh;
   background:
     radial-gradient(90% 60% at 50% 100%, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.098) 45%, transparent 75%),
-    linear-gradient(#ffffff 0%, #fbfbfb 40%, #efefef 100%);
+    linear-gradient(#efefec 0%, #ecece9 40%, #e3e3df 100%);
 }
 .nav {
   position: relative;
@@ -86,7 +86,7 @@ h1, h2 {
   padding: 9px 22px 9px 16px;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.49);
-  background: #ffffff;
+  background: #f6f6f4;
   transition: transform .2s, box-shadow .2s;
 }
 .store.has-badge { min-width: 0; padding: 0; border: 0; background: none; }
@@ -270,7 +270,7 @@ h1, h2 {
 .dn { color: var(--dn); }
 
 /* ------------------------------------------------------------ monitor */
-.monitor { position: relative; overflow: hidden; background: #ffffff; padding-top: 70px; }
+.monitor { position: relative; overflow: hidden; background: var(--bg); padding-top: 70px; }
 .monitor-title { font-size: clamp(40px, 4.2vw, 62px); padding-left: 10%; }
 .feeds { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 20px; margin-top: 48px; }
 .feed-row { display: flex; gap: 16px; width: max-content; }
@@ -286,7 +286,7 @@ h1, h2 {
   width: 420px;
   padding: 20px 22px;
   border-radius: 16px;
-  background: #efefef;
+  background: #f6f6f4;
   border: 1.5px solid #e0e0e0;
   transition: border-color .3s, box-shadow .3s;
 }
@@ -394,7 +394,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
   gap: 14px;
   padding: 10px 22px 10px 10px;
   border-radius: 999px;
-  background: #efefef;
+  background: #f6f6f4;
   border: 1.5px solid #dadada;
   font: 600 18px/1 var(--display);
   white-space: nowrap;
@@ -422,7 +422,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 }
 
 /* ------------------------------------------------------------ speed */
-.speed { background: #eaeaea; padding: 70px 0 110px; }
+.speed { background: #e4e4e0; padding: 70px 0 110px; }
 .speed-grid { display: grid; grid-template-columns: 360px 1fr; gap: 80px; align-items: start; }
 .phone-chat { position: relative; width: 352px; height: 730px; border-radius: 58px; }
 .chat-head { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; }
@@ -488,7 +488,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .b5 { left: 9%;  top: 520px; rotate: -.5deg; }
 
 /* ------------------------------------------------------------ sandbox */
-.sandbox { background: #ffffff; padding: 80px 0 60px; text-align: center; }
+.sandbox { background: var(--bg); padding: 80px 0 60px; text-align: center; }
 .sandbox h2 { font-size: clamp(38px, 4.4vw, 64px); max-width: 1000px; }
 .hub {
   position: relative;
@@ -514,7 +514,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
   gap: 14px;
   padding: 14px 20px 14px 16px;
   border-radius: 14px;
-  background: #f0f0f0;
+  background: #f6f6f4;
   border: 1px solid #d9d9d9;
   font-size: 15px;
   font-weight: 600;
@@ -537,7 +537,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
   gap: 6px;
   padding: 22px 18px;
   border-radius: 16px;
-  background: #f2f2f2;
+  background: #f6f6f4;
   border: 1px solid #dedede;
   text-align: left;
   transition: border-color .2s, background .2s, transform .2s;
@@ -549,7 +549,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .eco-note { display: block; margin-top: 22px; font-size: 12px; color: #9b9b9b; }
 
 /* ------------------------------------------------------------ footer */
-.foot { margin-top: 90px; border-top: 1px solid #e5e5e5; background: linear-gradient(#f8f8f8, #fafafa); }
+.foot { margin-top: 90px; border-top: 1px solid #e5e5e5; background: linear-gradient(#e6e6e2, #e2e2de); }
 .foot-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 40px; padding: 64px 0 48px; }
 .foot-logo { display: inline-flex; align-items: center; gap: 12px; font: 800 26px var(--display); letter-spacing: -.02em; color: #000000; }
 .foot-logo svg { width: 34px; height: 34px; fill: #000000; }
@@ -635,10 +635,10 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .how h2, .pricing h2, .cta h2 { font-size: clamp(38px, 4.2vw, 60px); text-wrap: balance; }
 
 /* ------------------------------------------------------------ how it works */
-.how { background: #ffffff; padding: 110px 0 40px; }
+.how { background: var(--bg); padding: 110px 0 40px; }
 .how .wrap > h2, .how .sec-lead { text-align: center; margin-inline: auto; }
 .steps { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 56px; }
-.step { position: relative; padding: 18px 18px 26px; border-radius: 22px; background: #f4f4f4; border: 1px solid #e3e3e3; }
+.step { position: relative; padding: 18px 18px 26px; border-radius: 22px; background: #f6f6f4; border: 1px solid #e3e3e3; }
 .step-vis {
   display: grid;
   place-items: center;
@@ -682,10 +682,10 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .v-btns .ok { background: var(--blue); color: #ffffff; box-shadow: 0 0 20px rgba(0, 0, 0, 0.154); }
 
 /* ------------------------------------------------------------ pricing */
-.pricing { background: #ffffff; padding: 80px 0 40px; text-align: center; }
+.pricing { background: var(--bg); padding: 80px 0 40px; text-align: center; }
 .pricing .sec-lead { margin-inline: auto; }
 .plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 860px; margin: 50px auto 0; text-align: left; }
-.plan { position: relative; display: flex; flex-direction: column; padding: 30px; border-radius: 22px; background: #f2f2f2; border: 1px solid #dfdfdf; }
+.plan { position: relative; display: flex; flex-direction: column; padding: 30px; border-radius: 22px; background: #f6f6f4; border: 1px solid #dfdfdf; }
 .plan.pro { background: linear-gradient(180deg, #e8e8e8, #f4f4f4 70%); border-color: #bbbbbb; box-shadow: 0 0 60px rgba(0, 0, 0, 0.056); }
 .plan h3 { font: 700 22px var(--display); }
 .badge { position: absolute; top: 28px; right: 28px; padding: 5px 10px; border-radius: 999px; background: var(--blue); color: #ffffff; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; }
@@ -704,14 +704,14 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .plans-note { margin-top: 20px; font-size: 13px; color: #8a8a8a; }
 
 /* ------------------------------------------------------------ call to join */
-.cta { padding: 90px 0 20px; background: #ffffff; }
+.cta { padding: 90px 0 20px; background: var(--bg); }
 .cta-in {
   position: relative;
   overflow: hidden;
   padding: 70px 24px;
   border-radius: 28px;
   text-align: center;
-  background: radial-gradient(70% 120% at 50% 0%, rgba(0, 0, 0, 0.175), transparent 70%), #f7f7f7;
+  background: radial-gradient(70% 120% at 50% 0%, rgba(0, 0, 0, 0.175), transparent 70%), #f6f6f4;
   border: 1px solid #d8d8d8;
 }
 .cta-in .sec-lead { margin-inline: auto; }

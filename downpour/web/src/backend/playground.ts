@@ -83,10 +83,9 @@ const BOTS: Address[] = Array.from({ length: 9 }, (_, i) => addr(`starmint:playg
 
 /* ------------------------------ genesis ------------------------------ */
 
-function genesis(): World {
-  const t0 = now();
-  const rnd = prng(20260926);
-  const currencies: Currency[] = CURRENCIES.map((c) => ({
+/** A desk currency for the playground, from the shared list. */
+function makeCurrency(c: (typeof CURRENCIES)[number], t0: number): Currency {
+  return {
     token: addr(`starmint:playground:currency:${c.code}`),
     code: c.code,
     name: c.name,
@@ -98,7 +97,13 @@ function genesis(): World {
     updatedAt: t0 - 600,
     mintable: true,
     color: currencyColor(c.code),
-  }));
+  };
+}
+
+function genesis(): World {
+  const t0 = now();
+  const rnd = prng(20260926);
+  const currencies: Currency[] = CURRENCIES.map((c) => makeCurrency(c, t0));
   const params: Params = {
     targetRaiseUsd: 12_000n * WAD,
     protocolFeeBps: 50,
@@ -280,7 +285,10 @@ export class PlaygroundBackend implements Backend {
       const raw = localStorage.getItem(KEY);
       if (!raw) return null;
       const w = JSON.parse(raw, reviver) as World;
-      if (w.v !== 1 || !Array.isArray(w.coins) || w.currencies.length !== CURRENCIES.length) return null;
+      if (w.v !== 1 || !Array.isArray(w.coins) || !Array.isArray(w.currencies)) return null;
+      // currencies added to the list since this world was saved join it
+      const have = new Set(w.currencies.map((c) => c.code));
+      for (const c of CURRENCIES) if (!have.has(c.code)) w.currencies.push(makeCurrency(c, now()));
       return w;
     } catch {
       return null;

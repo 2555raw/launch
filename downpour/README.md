@@ -2,7 +2,7 @@
 
 A star-themed token launchpad where every coin is paired with a currency.
 
-You pick one of 147 currencies when you launch (euros, yen, naira, pesos, gold,
+You pick one of 148 currencies when you launch (euros, yen, naira, pesos, gold,
 bitcoin…) and the coin trades in it for as long as it exists: buys are paid in
 it, sells pay out in it, the price is quoted in it and fees are collected in it.
 The pairing is shown everywhere as a badge, coin on the left and currency on the
@@ -39,7 +39,7 @@ version (also reachable with `?storm2d`), and nothing moves under
 | **Board** | Every coin, filterable by currency, sortable by activity, market cap, volume or progress. |
 | **Coin page** | Price chart, buy/sell, curve progress, backing, holders, fills. |
 | **Launch** | Name, ticker, currency, picture, links, optional first buy. The market opens in the same transaction. |
-| **Currency desk** | All 147 currencies with their USD rate, coins and backing per currency, conversion, and a faucet for test currencies. |
+| **Currency desk** | All 148 currencies with their USD rate, coins and backing per currency, conversion, and a faucet for test currencies. |
 | **Portfolio** | Your coins, currencies, launches, and creator fees to claim. |
 | **Proof** | Recomputes, for every market, that its reserves add up and its backing covers selling every coin back at once; in live mode also that the contract really holds the money. |
 | **Verify** | Checks from the browser, against any RPC, that a coin is genuinely the pad's and its pairing is what the badge says (the same checks as `scripts/verify.mjs`). |

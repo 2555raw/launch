@@ -91,8 +91,8 @@ export function CurveChart({ sold = 0.42, height = 170, color = '#7cc4ff' }: { s
       <text x={endX - 6} y={endY - 12} fill="#8ff0c4" fontSize="11" textAnchor="end">
         graduates · pool starts at the same price
       </text>
-      <circle cx={nowX} cy={nowY} r="6" fill="#8ed8ff" stroke="#041826" strokeWidth="2" />
-      <text x={nowX + 10} y={nowY + 4} fill="#5aa9e6" fontSize="11">
+      <circle cx={nowX} cy={nowY} r="6" fill="#a18cff" stroke="#150b3d" strokeWidth="2" />
+      <text x={nowX + 10} y={nowY + 4} fill="#7c63f0" fontSize="11">
         you are here
       </text>
       <text x={pad} y={height - 2} fill="#7f8ca8" fontSize="10">

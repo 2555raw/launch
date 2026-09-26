@@ -190,7 +190,7 @@ export function Home() {
               <div className="kicker">Shining right now</div>
               <h2 className="h-section">Pick a star</h2>
               <p className="lead">
-                Every coin is paired with one of {snap?.currencies.length ?? 147} currencies, picked at launch and fixed for good. The badge on each card
+                Every coin is paired with one of {snap?.currencies.length ?? 148} currencies, picked at launch and fixed for good. The badge on each card
                 says which: <b>coin / currency</b>.
               </p>
             </div>
@@ -309,7 +309,7 @@ export function Home() {
               <div className="kicker">The other half of the pair</div>
               <h2 className="h-section">Money people already count in</h2>
               <p className="lead">
-                {snap?.currencies.length ?? 147} currencies, plus gold, silver, platinum, bitcoin and ether. Each keeps its own backing: a rush on one
+                {snap?.currencies.length ?? 148} currencies, including gold, silver, platinum, bitcoin, ether and solana. Each keeps its own backing: a rush on one
                 never touches another.
               </p>
             </div>

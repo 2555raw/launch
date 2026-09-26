@@ -11,6 +11,8 @@ import { compact, money, parseAmount, pct, toDisplay, toInput, usd } from '../li
 import { amount, sortRows, useRows } from '../lib/views';
 
 const SLIPPAGES = [50, 100, 300];
+/** One-tap targets under "You receive". */
+const QUICK = ['USD', 'EUR', 'BTC', 'ETH', 'SOL'];
 
 function TokenButton({ token, onClick }: { token?: string; onClick(): void }) {
   const pad = usePad();
@@ -226,6 +228,20 @@ export default function Swap() {
               <TokenButton token={tokenOut} onClick={() => setPicking('out')} />
             </div>
             <div className="small muted">{usdOut ? `≈ ${usd(usdOut)}` : ' '}</div>
+          </div>
+
+          <div className="swap-quick" aria-label="Popular">
+            {QUICK.map((code) => {
+              const c = snap?.currencies.find((x) => x.code === code);
+              if (!c) return null;
+              const on = tokenOut?.toLowerCase() === c.token.toLowerCase();
+              return (
+                <button key={code} type="button" className={`quick-pick ${on ? 'on' : ''}`} onClick={() => setTokenOut(c.token)} aria-pressed={on}>
+                  <CurrencyDot c={c} size={18} />
+                  {code}
+                </button>
+              );
+            })}
           </div>
 
           {pairCoin && pairCur && (

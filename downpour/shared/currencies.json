@@ -1174,5 +1174,13 @@
   "region": "Metals & crypto",
   "kind": "crypto",
   "rate": 0.0002325581395
+ },
+ {
+  "code": "SOL",
+  "name": "Solana",
+  "symbol": "◎",
+  "region": "Metals & crypto",
+  "kind": "crypto",
+  "rate": 0.005
  }
 ]

@@ -11,9 +11,9 @@
   --glass-2: rgba(19, 30, 54, 0.84);
   --glass-strong: rgba(10, 16, 31, 0.9);
   --tint: rgba(255, 255, 255, 0.04);
-  --bolt: #8ed8ff;
-  --bolt-2: #c9ecff;
-  --bolt-ink: #041826;
+  --bolt: #a18cff;
+  --bolt-2: #d2c8ff;
+  --bolt-ink: #150b3d;
   --rain: #b9a8ff;
   --rain-2: #d8cfff;
   --up: #3ddc97;
@@ -77,7 +77,7 @@ img {
 }
 
 ::selection {
-  background: rgba(142, 216, 255, 0.35);
+  background: rgba(90, 63, 209, 0.4);
 }
 
 :focus-visible {
@@ -337,12 +337,12 @@ h4 {
   background: linear-gradient(180deg, var(--bolt-2), var(--bolt));
   color: var(--bolt-ink);
   border-color: rgba(255, 240, 170, 0.8);
-  box-shadow: 0 8px 28px -10px rgba(142, 216, 255, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 28px -10px rgba(124, 99, 240, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .btn-primary:hover {
   background: linear-gradient(180deg, #e3f5ff, #b3e3ff);
-  box-shadow: 0 10px 36px -8px rgba(142, 216, 255, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 36px -8px rgba(124, 99, 240, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .btn-lg {
@@ -443,8 +443,8 @@ h4 {
 
 .pill.new {
   color: var(--bolt);
-  border-color: rgba(142, 216, 255, 0.45);
-  background: rgba(142, 216, 255, 0.08);
+  border-color: rgba(124, 99, 240, 0.45);
+  background: rgba(124, 99, 240, 0.08);
 }
 
 .dot {
@@ -581,7 +581,7 @@ textarea.input:focus {
 
 .callout.bolt {
   border-left-color: var(--bolt);
-  background: rgba(142, 216, 255, 0.06);
+  background: rgba(124, 99, 240, 0.06);
 }
 
 /* ------------------------------ tables & lists ------------------------------ */

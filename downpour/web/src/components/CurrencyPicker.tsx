@@ -43,7 +43,7 @@ export function CurrencyPicker({ value, onChange }: { value?: Address; onChange(
       <Modal open={open} onClose={() => setOpen(false)} title="Pair your coin with…" wide>
         <div className="search" style={{ maxWidth: 'none', marginBottom: 14 }}>
           <Search />
-          <input className="input" autoFocus placeholder="Search 147 currencies, metals and crypto" value={q} onChange={(e) => setQ(e.target.value)} />
+          <input className="input" autoFocus placeholder={`Search ${pad.snap?.currencies.length ?? 148} currencies, metals and crypto`} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="token-list">
           {groups.popular.length > 0 && <div className="kicker" style={{ padding: '6px 12px' }}>Popular</div>}

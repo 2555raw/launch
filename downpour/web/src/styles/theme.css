@@ -29,7 +29,7 @@
   --rain-2: #5a3fd1;
   --up: #0c9a5f;
   --down: #d13a55;
-  --bolt: #1f6fb8;
+  --bolt: #5a3fd1;
   color: var(--ink);
   background: var(--glass);
   border-color: rgba(255, 255, 255, 0.55);
@@ -75,11 +75,11 @@
   color: var(--ink);
 }
 .nav-links a[href='/swap'] {
-  color: #1f6fb8;
+  color: #5a3fd1;
   font-weight: 600;
 }
 .nav-links a.on::after {
-  background: #0b1322;
+  background: #5a3fd1;
   box-shadow: none;
   bottom: 0;
 }
@@ -170,8 +170,8 @@ main {
 .modal .chip.on,
 .toolbar .chip.on,
 .cur-filter .chip.on {
-  background: #0b1322;
-  border-color: #0b1322;
+  background: #5a3fd1;
+  border-color: #5a3fd1;
   color: #fff;
 }
 .tabs {
@@ -217,9 +217,9 @@ main {
 }
 .panel .pill.new,
 .card .pill.new {
-  color: #1f6fb8;
-  background: rgba(181, 132, 0, 0.1);
-  border-color: rgba(181, 132, 0, 0.35);
+  color: #5a3fd1;
+  background: rgba(90, 63, 209, 0.08);
+  border-color: rgba(90, 63, 209, 0.3);
 }
 .bar {
   background: rgba(15, 28, 50, 0.1);
@@ -394,4 +394,131 @@ main {
   100% {
     box-shadow: 0 0 0 0 rgba(61, 220, 151, 0);
   }
+}
+
+/* ------------------------------ selected things: the site's purple ------------------------------ */
+.sheet a.on {
+  color: #5a3fd1;
+  background: rgba(90, 63, 209, 0.08);
+}
+.mode-menu button.on {
+  background: rgba(90, 63, 209, 0.08);
+  border-color: rgba(90, 63, 209, 0.45);
+}
+
+/* ------------------------------ real currency marks ------------------------------ */
+.cur-logo {
+  display: inline-block;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(15, 28, 50, 0.12), 0 2px 6px -3px rgba(0, 0, 0, 0.45);
+}
+.cur-filter .chip .cur-logo {
+  margin-left: -6px;
+}
+
+/* ------------------------------ swap ------------------------------ */
+.swap-card,
+.pairs-side .panel {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.85), inset 0 1px 0 #fff;
+}
+.swap-card .swap-box {
+  background: #f3f4f9;
+  border: 1px solid rgba(15, 28, 50, 0.07);
+  border-radius: 18px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.swap-card .swap-box:focus-within {
+  border-color: rgba(90, 63, 209, 0.45);
+  box-shadow: 0 0 0 3px rgba(90, 63, 209, 0.12);
+}
+.swap-card .swap-box .big-input input {
+  color: #0b1322;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.swap-card .token-btn {
+  height: 42px;
+  padding: 0 12px 0 6px;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid rgba(15, 28, 50, 0.1);
+  box-shadow: 0 6px 16px -10px rgba(15, 28, 50, 0.5);
+  color: #0b1322;
+  font-size: 15px;
+}
+.swap-card .token-btn:hover {
+  border-color: rgba(90, 63, 209, 0.5);
+}
+.swap-card .token-btn.empty {
+  background: #5a3fd1;
+  border-color: #5a3fd1;
+  color: #fff;
+  padding: 0 16px;
+}
+.swap-card .flip {
+  border: 4px solid #fff;
+  background: #eef0f7;
+  color: #0b1322;
+  transition: color 0.15s ease, transform 0.2s ease;
+}
+.swap-card .flip:hover {
+  color: #5a3fd1;
+  transform: rotate(180deg);
+}
+.swap-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.quick-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px 0 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 28, 50, 0.1);
+  background: #fff;
+  color: #0b1322;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.quick-pick:hover {
+  border-color: rgba(90, 63, 209, 0.45);
+}
+.quick-pick.on {
+  border-color: #5a3fd1;
+  box-shadow: 0 0 0 2px rgba(90, 63, 209, 0.18);
+}
+.swap-card .pair-callout {
+  background: #fff;
+  border: 1px solid rgba(15, 28, 50, 0.08);
+  border-left: 3px solid var(--c, #5a3fd1);
+  color: var(--ink-2);
+}
+.pairs-side .pair-row {
+  border-radius: 12px;
+}
+.pairs-side .pair-row:hover {
+  background: rgba(90, 63, 209, 0.06);
+}
+
+
+/* the token picker: badge and name aligned to the left, a soft purple hover */
+.token-row .name {
+  align-items: flex-start;
+  gap: 3px;
+}
+.token-row:hover,
+.token-row:focus-visible {
+  background: rgba(90, 63, 209, 0.07);
 }

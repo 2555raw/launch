@@ -4,6 +4,7 @@ import { dropGlyph } from '../data/currencies';
 import { imageSrc } from '../lib/meta';
 import type { Coin, Currency } from '../backend/types';
 import { Close } from './icons';
+import { CurrencyLogo, hasLogo } from './CurrencyLogo';
 
 /* ------------------------------ stars & badges ------------------------------ */
 
@@ -132,7 +133,10 @@ function OrbIcon({ color, glyph, size = 44, image, label }: OrbProps) {
   );
 }
 
+/** A currency's icon: its real mark (flag, coin logo, metal) where it has one, else a
+ *  dot in its colour with its sign. */
 export function CurrencyDot({ c, size = 26 }: { c: Pick<Currency, 'code' | 'color'>; size?: number }) {
+  if (hasLogo(c.code)) return <CurrencyLogo code={c.code} size={size} />;
   const g = dropGlyph(c.code);
   return (
     <span

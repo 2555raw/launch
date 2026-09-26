@@ -165,7 +165,7 @@ export default function Desk() {
       <PageHead
         kicker="Denominations"
         title="The currency desk"
-        lead={`${snap?.currencies.length ?? 147} currencies a coin can be paired with, each with its USD rate, how many coins live in it and how much backing they hold. Tap one to convert, or to top up test money from the faucet.`}
+        lead={`${snap?.currencies.length ?? 148} currencies a coin can be paired with, each with its USD rate, how many coins live in it and how much backing they hold. Tap one to convert, or to top up test money from the faucet.`}
       />
 
       <div className="toolbar" data-solid>

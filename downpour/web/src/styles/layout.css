@@ -77,7 +77,7 @@
   height: 2px;
   border-radius: 2px;
   background: var(--bolt);
-  box-shadow: 0 0 10px rgba(142, 216, 255, 0.8);
+  box-shadow: 0 0 10px rgba(124, 99, 240, 0.8);
 }
 
 .nav-links a[href='/swap'] {

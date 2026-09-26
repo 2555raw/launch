@@ -97,6 +97,8 @@ h1, h2 {
   background: #000;
   transition: transform .2s, box-shadow .2s;
 }
+.store.has-badge { min-width: 0; padding: 0; border: 0; background: none; }
+.store.has-badge img { display: block; height: 56px; width: auto; }
 .store:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(47, 123, 255, .35); }
 .store svg { width: 34px; height: 34px; flex: none; color: #fff; }
 .store span { display: flex; flex-direction: column; text-align: left; font-size: 27px; font-weight: 600; line-height: 1; letter-spacing: -.02em; }

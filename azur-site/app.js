@@ -262,6 +262,19 @@
     });
   });
 
+  // Official store badges: drop app-store.svg and google-play.svg (from Apple's and
+  // Google's badge pages) into assets/badges/ and they replace the placeholder buttons.
+  document.querySelectorAll("a.store[data-badge]").forEach((a) => {
+    const img = new Image();
+    img.alt = a.dataset.badge === "app-store" ? "Download on the App Store" : "Get it on Google Play";
+    img.onload = () => {
+      a.classList.add("has-badge");
+      [...a.children].forEach((c) => { if (c.tagName !== "EM") c.remove(); });
+      a.prepend(img);
+    };
+    img.src = "assets/badges/" + a.dataset.badge + ".svg";
+  });
+
   // Store buttons, pricing buttons and "#join" links all lead to a form.
   function focusForm(id) {
     const input = document.getElementById(id);

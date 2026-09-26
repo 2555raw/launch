@@ -86,8 +86,8 @@ window.AsankaArt = (() => {
 
   const SOUPS = {
     light:     { a: '#F07A3E', b: '#C8401C', oil: '#FFC36B', label: 'light soup' },
-    groundnut: { a: '#C9793A', b: '#8E4A1E', oil: '#F2B35E', label: 'sopa de cacahuete' },
-    palmnut:   { a: '#B2361A', b: '#6E1A0C', oil: '#F08A3A', label: 'sopa de nuez de palma' },
+    groundnut: { a: '#C9793A', b: '#8E4A1E', oil: '#F2B35E', label: 'groundnut soup' },
+    palmnut:   { a: '#B2361A', b: '#6E1A0C', oil: '#F08A3A', label: 'palm nut soup' },
     egusi:     { a: '#D9A441', b: '#A36F1E', oil: '#FFE08A', label: 'egusi' },
   };
 
@@ -140,7 +140,7 @@ window.AsankaArt = (() => {
     else { body += fufuBall(p, 78, 96, 26); body += fufuBall(p, 116, 88, 22); }
     if (soupKey !== 'egusi') body += leaf(64, 132, -30, .7, '#3F7A3A');
 
-    return svg(body, defs, `Fufu con ${s.label}`);
+    return svg(body, defs, `Fufu with ${s.label}`);
   }
 
   /* ---------- jollof plate ---------- */
@@ -218,8 +218,8 @@ window.AsankaArt = (() => {
     body += tomatoSlice(66, 72, 10);
     body += onionRing(50, 96, 8);
 
-    const who = { chicken: 'pollo', beef: 'ternera suya', fish: 'tilapia', veg: 'verduras' }[protein];
-    return svg(body, defs, `Arroz jollof con ${who}`);
+    const who = { chicken: 'chicken', beef: 'beef suya', fish: 'tilapia', veg: 'vegetables' }[protein];
+    return svg(body, defs, `Jollof rice with ${who}`);
   }
 
   /* ---------- sides ---------- */
@@ -247,7 +247,7 @@ window.AsankaArt = (() => {
     let body = shadow(84) + `<circle cx="100" cy="100" r="84" fill="url(#${p}-plate)"/><circle cx="100" cy="100" r="66" fill="none" stroke="#2A1A12" stroke-opacity=".06" stroke-width="1.5"/>`;
     const spots = [[74, 72], [108, 64], [138, 84], [66, 106], [100, 100], [134, 118], [80, 136], [114, 138]];
     spots.forEach(([x, y]) => { body += plantain(p, x, y, Math.round(rand() * 180 - 90), 15, 9.5); });
-    return svg(body, defs, 'Dodo, plátano macho frito');
+    return svg(body, defs, 'Dodo, fried plantain');
   }
 
   function shito(p, seed) {
@@ -261,7 +261,7 @@ window.AsankaArt = (() => {
     }
     body += `<ellipse cx="84" cy="80" rx="18" ry="7" fill="#fff" opacity=".16" transform="rotate(-30 84 80)"/>`;
     body += chili(118, 146, -20) + chili(60, 150, -60, '#D23A1E');
-    return svg(body, defs, 'Shito, salsa picante de la casa');
+    return svg(body, defs, 'Shito, the house pepper sauce');
   }
 
   function fufuSide(p) {
@@ -269,7 +269,7 @@ window.AsankaArt = (() => {
       radial(`${p}-ball`, [[0, '#FFFDF6'], [.55, '#F1E6CC'], [1, '#D6C29A']], '.36', '.3', '.75');
     let body = shadow(80) + `<circle cx="100" cy="100" r="80" fill="url(#${p}-bowl)"/><circle cx="100" cy="100" r="66" fill="#4C2213"/><circle cx="100" cy="101" r="63" fill="#E8DCC0"/>`;
     body += fufuBall(p, 100, 98, 40);
-    return svg(body, defs, 'Porción extra de fufu');
+    return svg(body, defs, 'Extra fufu');
   }
 
   /* ---------- drinks ---------- */
@@ -277,8 +277,8 @@ window.AsankaArt = (() => {
   function drink(p, seed, kind = 'sobolo') {
     const rand = rng(seed);
     const k = kind === 'sobolo'
-      ? { a: '#A3183F', b: '#4E0A1E', label: 'Sobolo, bebida de hibisco' }
-      : { a: '#F2B84B', b: '#B8741C', label: 'Ginger beer casera' };
+      ? { a: '#A3183F', b: '#4E0A1E', label: 'Sobolo, hibiscus drink' }
+      : { a: '#F2B84B', b: '#B8741C', label: 'House ginger beer' };
     const defs = radial(`${p}-glass`, [[0, '#FFFFFF'], [.85, '#EEF2F2'], [1, '#C9D2D2']]) +
       radial(`${p}-liq`, [[0, k.a], [1, k.b]], '.4', '.36', '.75');
     let body = shadow(70) + `<circle cx="100" cy="100" r="70" fill="url(#${p}-glass)"/><circle cx="100" cy="100" r="60" fill="url(#${p}-liq)"/>`;
@@ -309,7 +309,7 @@ window.AsankaArt = (() => {
     }
     body += plantain(p, 56, 60, 10) + plantain(p, 150, 142, -20) + plantain(p, 140, 58, 40) + plantain(p, 58, 140, -40);
     body += leaf(92, 92, 20, 1.1, '#4C8A3A') + leaf(104, 104, 200, 1, '#5C9B45');
-    return svg(body, defs, 'Bandeja de jollof para fiestas');
+    return svg(body, defs, 'Party tray of jollof');
   }
 
   /* ---------- more of the region, for the launchpad ---------- */
@@ -333,7 +333,7 @@ window.AsankaArt = (() => {
       body += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(.6 + rand() * 1.1)}" fill="${i % 3 ? '#C8561E' : '#E8B46A'}" opacity=".8"/>`;
     }
     body += onionRing(150, 150, 11) + onionRing(136, 158, 8) + tomatoSlice(46, 150, 12);
-    return svg(body, defs, 'Suya, ternera especiada a la brasa');
+    return svg(body, defs, 'Suya, spiced grilled beef');
   }
 
   // injera: the spongy flatbread as the plate, with stews spooned on top
@@ -359,7 +359,7 @@ window.AsankaArt = (() => {
       body += `<circle cx="${x + 2}" cy="${y + 3}" r="${r}" fill="#000" opacity=".16"/><circle cx="${x}" cy="${y}" r="${r}" fill="url(#${p}-s${i})"/><ellipse cx="${f(x - r * .3)}" cy="${f(y - r * .35)}" rx="${f(r * .35)}" ry="${f(r * .18)}" fill="#fff" opacity=".22"/>`;
     });
     body += `<circle cx="96" cy="94" r="5" fill="#F4ECDC"/><circle cx="96" cy="94" r="2.4" fill="#F2B33D"/>`;
-    return svg(body, defs, 'Injera con wat');
+    return svg(body, defs, 'Injera with wat');
   }
 
   // puff-puff: fried dough balls dusted with sugar
@@ -452,7 +452,7 @@ window.AsankaArt = (() => {
           ${bite}
         </g>
       </g>`;
-    return `<svg viewBox="36 44 172 146" role="img" aria-label="Un stickman comiendo ${jollofPlate ? 'arroz jollof' : 'fufu'}" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
+    return `<svg viewBox="36 44 172 146" role="img" aria-label="A stickman eating ${jollofPlate ? 'jollof rice' : 'fufu'}" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
   }
 
   return { fufu, jollof, kelewele, dodo, shito, fufuSide, drink, tray, suya, injera, puffpuff, stickman };

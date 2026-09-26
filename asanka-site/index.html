@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Asanka — Fufu y arroz jollof hechos a mano</title>
-  <meta name="description" content="Asanka cocina fufu machacado a mano y arroz jollof ahumado cada día. Pide a domicilio o para recoger, y encarga bandejas para tus celebraciones.">
+  <title>Asanka — Hand-pounded fufu and jollof rice</title>
+  <meta name="description" content="Asanka cooks hand-pounded fufu and smoky jollof rice every day. Order for delivery or pickup, and book party trays for your celebrations.">
   <meta name="theme-color" content="#C8391B">
-  <meta property="og:title" content="Asanka — Fufu y arroz jollof hechos a mano">
-  <meta property="og:description" content="Cocina de África Occidental recién hecha cada día. Pide a domicilio o para recoger.">
+  <meta property="og:title" content="Asanka — Hand-pounded fufu and jollof rice">
+  <meta property="og:description" content="West African cooking, made fresh every day. Order for delivery or pickup.">
   <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23C8391B'/%3E%3Cpath d='M7 15h18a9 9 0 0 1-18 0z' fill='%23FBF5EC'/%3E%3Ccircle cx='16' cy='10.5' r='4' fill='%23E9A23B'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,46 +18,46 @@
 <body>
 <div class="as" id="top">
 
-  <a class="as-skip" href="#menu">Saltar al menú</a>
+  <a class="as-skip" href="#menu">Skip to the menu</a>
 
   <!-- announcement bar -->
   <div class="as-announce">
     <div class="as-wrap as-announce-in">
-      <span><b>Envío gratis</b> en pedidos desde <span data-money="freeDelivery"></span></span>
+      <span><b>Free delivery</b> on orders over <span data-money="freeDelivery"></span></span>
       <span class="as-dot" aria-hidden="true"></span>
-      <span>Fufu machacado a mano <b>cada mañana</b></span>
+      <span>Fufu pounded by hand <b>every morning</b></span>
       <span class="as-dot" aria-hidden="true"></span>
-      <span id="open-status">Pedidos de 12:00 a 22:00</span>
+      <span id="open-status">Orders from 12:00 to 22:00</span>
     </div>
   </div>
 
   <header class="as-nav" id="nav">
     <div class="as-wrap as-nav-in">
-      <a class="as-brand" href="#top" data-scroll="top" aria-label="Asanka, inicio">
+      <a class="as-brand" href="#top" data-scroll="top" aria-label="Asanka, home">
         <span class="as-mark" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M5 15h22a11 11 0 0 1-22 0z" fill="currentColor"/><circle cx="16" cy="9.5" r="4.6" fill="var(--palm)"/></svg>
         </span>
-        <span class="as-brand-t">Asanka<small>Cocina de África Occidental</small></span>
+        <span class="as-brand-t">Asanka<small>West African kitchen</small></span>
       </a>
 
-      <nav class="as-links" id="navlinks" aria-label="Principal">
-        <a href="#menu" data-scroll="menu">Menú</a>
-        <a href="#vegano" data-scroll="vegano">Vegano</a>
-        <a href="#como" data-scroll="como">Cómo funciona</a>
-        <a href="#historia" data-scroll="historia">Nuestra cocina</a>
+      <nav class="as-links" id="navlinks" aria-label="Main">
+        <a href="#menu" data-scroll="menu">Menu</a>
+        <a href="#vegan" data-scroll="vegan">Vegan</a>
+        <a href="#how" data-scroll="how">How it works</a>
+        <a href="#kitchen" data-scroll="kitchen">Our kitchen</a>
         <a href="#catering" data-scroll="catering">Catering</a>
-        <a href="#faq" data-scroll="faq">Preguntas</a>
+        <a href="#faq" data-scroll="faq">FAQ</a>
         <a href="launchpad.html" class="as-nav-pad" id="pad-link">Launchpad</a>
       </nav>
 
       <div class="as-nav-actions">
-        <button class="as-icon-btn" id="theme" type="button" aria-label="Cambiar tema"></button>
-        <button class="as-cart-btn" id="cart-open" type="button" aria-label="Abrir el pedido">
+        <button class="as-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
+        <button class="as-cart-btn" id="cart-open" type="button" aria-label="Open your order">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 7z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg>
-          <span class="as-cart-label">Mi pedido</span>
+          <span class="as-cart-label">My order</span>
           <span class="as-cart-count" id="cart-count">0</span>
         </button>
-        <button class="as-icon-btn as-burger" id="burger" type="button" aria-label="Menú de navegación" aria-expanded="false" aria-controls="navlinks">
+        <button class="as-icon-btn as-burger" id="burger" type="button" aria-label="Navigation menu" aria-expanded="false" aria-controls="navlinks">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
       </div>
@@ -70,19 +70,19 @@
     <section class="as-hero">
       <div class="as-wrap as-hero-in">
         <div class="as-hero-copy">
-          <p class="as-eyebrow">Hecho hoy · Machacado a mano</p>
-          <h1>Fufu y arroz jollof <em>como en casa de la abuela.</em></h1>
-          <p class="as-lead">Cocinamos a fuego lento las recetas de Ghana y Nigeria con ingredientes frescos: fufu suave y elástico, sopas profundas y un jollof ahumado que se pide dos veces.</p>
+          <p class="as-eyebrow">Made today · Pounded by hand</p>
+          <h1>Fufu and jollof rice <em>just like grandma makes.</em></h1>
+          <p class="as-lead">We slow-cook the recipes of Ghana and Nigeria with fresh ingredients: soft, stretchy fufu, deep soups and a smoky jollof people order twice.</p>
           <div class="as-hero-cta">
-            <a class="as-btn as-btn-primary" href="#menu" data-scroll="menu">Ver el menú
+            <a class="as-btn as-btn-primary" href="#menu" data-scroll="menu">See the menu
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
-            <a class="as-btn as-btn-ghost" href="#catering" data-scroll="catering">Encargar para eventos</a>
+            <a class="as-btn as-btn-ghost" href="#catering" data-scroll="catering">Order for events</a>
           </div>
           <ul class="as-hero-facts">
-            <li><b>45 min</b><span>entrega media</span></li>
-            <li><b>0</b><span>conservantes</span></li>
-            <li><b>7 días</b><span>a la semana</span></li>
+            <li><b>45 min</b><span>average delivery</span></li>
+            <li><b>0</b><span>preservatives</span></li>
+            <li><b>7 days</b><span>a week</span></li>
           </ul>
         </div>
 
@@ -92,11 +92,11 @@
           <div class="as-hero-plate as-hero-plate-b" data-art="jollof:chicken"></div>
           <div class="as-badge as-badge-a">
             <span class="as-badge-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a6 6 0 0 0 6-6c0-4-3-6-4-10-2 2-3 4-3 6-1-1-1.5-2-1.5-3C7 9.5 6 12 6 15a6 6 0 0 0 6 6z"/></svg></span>
-            <span><b>Jollof ahumado</b><small>al fuego de leña</small></span>
+            <span><b>Smoky jollof</b><small>over a wood fire</small></span>
           </div>
           <div class="as-badge as-badge-b">
             <span class="as-badge-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 7c0-1.5 1-1.5 1-3M12 7c0-1.5 1-1.5 1-3M16 7c0-1.5 1-1.5 1-3"/></svg></span>
-            <span><b>Fufu del día</b><small>yuca y plátano</small></span>
+            <span><b>Today's fufu</b><small>cassava and plantain</small></span>
           </div>
         </div>
       </div>
@@ -109,48 +109,48 @@
       <div class="as-wrap">
         <div class="as-head">
           <div>
-            <p class="as-eyebrow">La carta</p>
-            <h2>Nuestro menú</h2>
+            <p class="as-eyebrow">The menu</p>
+            <h2>Our menu</h2>
           </div>
-          <p class="as-head-note">Todos los platos se preparan el mismo día. Elige tu nivel de picante al hacer el pedido.</p>
+          <p class="as-head-note">Every dish is cooked the same day. Choose your spice level when you order.</p>
         </div>
 
-        <div class="as-tabs" role="tablist" aria-label="Filtrar el menú">
-          <button class="as-tab is-active" role="tab" aria-selected="true" data-filter="all">Todo</button>
-          <button class="as-tab" role="tab" aria-selected="false" data-filter="vegan">Vegano</button>
+        <div class="as-tabs" role="tablist" aria-label="Filter the menu">
+          <button class="as-tab is-active" role="tab" aria-selected="true" data-filter="all">All</button>
+          <button class="as-tab" role="tab" aria-selected="false" data-filter="vegan">Vegan</button>
           <button class="as-tab" role="tab" aria-selected="false" data-filter="fufu">Fufu</button>
           <button class="as-tab" role="tab" aria-selected="false" data-filter="jollof">Jollof</button>
-          <button class="as-tab" role="tab" aria-selected="false" data-filter="side">Acompañamientos</button>
-          <button class="as-tab" role="tab" aria-selected="false" data-filter="drink">Bebidas</button>
+          <button class="as-tab" role="tab" aria-selected="false" data-filter="side">Sides</button>
+          <button class="as-tab" role="tab" aria-selected="false" data-filter="drink">Drinks</button>
         </div>
 
         <div class="as-allergy-bar" id="allergy-bar" role="status"></div>
 
         <div class="as-grid" id="menu-grid">
-          <noscript><p class="as-noscript">Activa JavaScript para ver el menú y hacer tu pedido, o escríbenos por WhatsApp.</p></noscript>
+          <noscript><p class="as-noscript">Turn on JavaScript to see the menu and order, or message us on WhatsApp.</p></noscript>
         </div>
 
         <div class="as-legend">
-          <span><i class="as-chili-dot"></i> Nivel de picante</span>
-          <span><i class="as-tag as-tag-leaf">Vegano</i> Sin productos animales</span>
-          <span><i class="as-tag">Sin gluten</i> Apto para celíacos</span>
+          <span><i class="as-chili-dot"></i> Spice level</span>
+          <span><i class="as-tag as-tag-leaf">Vegan</i> No animal products</span>
+          <span><i class="as-tag">Gluten-free</i> Safe for coeliacs</span>
         </div>
       </div>
     </section>
 
     <!-- vegan -->
-    <section class="as-section as-vegan" id="vegano">
+    <section class="as-section as-vegan" id="vegan">
       <div class="as-wrap">
         <div class="as-vegan-head">
           <div>
-            <p class="as-eyebrow as-eyebrow-leaf">Apartado vegano</p>
-            <h2>100 % vegetal. Igual de sabroso.</h2>
-            <p class="as-vegan-lead">La cocina de África Occidental está llena de legumbres, plátano, hojas y semillas. Estos platos no llevan carne, pescado, marisco, huevo ni lácteos, y se cocinan en ollas separadas.</p>
+            <p class="as-eyebrow as-eyebrow-leaf">Vegan</p>
+            <h2>100% plants. Just as tasty.</h2>
+            <p class="as-vegan-lead">West African cooking is full of beans, plantain, greens and seeds. These dishes have no meat, fish, shellfish, egg or dairy, and they are cooked in separate pots.</p>
           </div>
           <ul class="as-vegan-points">
-            <li><b>Ollas propias</b><span>Nada se cocina junto a la carne.</span></li>
-            <li><b>El mismo fufu</b><span>Yuca y plátano, machacado a mano.</span></li>
-            <li><b>Proteína de verdad</b><span>Judías de ojo negro, garbanzos y egusi.</span></li>
+            <li><b>Their own pots</b><span>Nothing is cooked next to the meat.</span></li>
+            <li><b>The same fufu</b><span>Cassava and plantain, pounded by hand.</span></li>
+            <li><b>Real protein</b><span>Black-eyed beans, chickpeas and egusi.</span></li>
           </ul>
         </div>
 
@@ -162,13 +162,13 @@
             <div data-art="jollof:veg"></div>
           </div>
           <div class="as-vegan-combo-copy">
-            <h3>Combo vegano para dos</h3>
-            <p>Fufu con sopa de cacahuete vegana, jollof vegetal, kelewele y dos sobolos.</p>
+            <h3>Vegan combo for two</h3>
+            <p>Fufu with vegan groundnut soup, garden jollof, kelewele and two sobolos.</p>
           </div>
           <div class="as-vegan-combo-buy">
             <span class="as-price-now" data-money="comboVegan"></span>
             <span class="as-price-was" data-money="comboVeganWas"></span>
-            <button class="as-btn as-btn-leaf" type="button" data-add="combo-vegan">Añadir el combo</button>
+            <button class="as-btn as-btn-leaf" type="button" data-add="combo-vegan">Add the combo</button>
           </div>
         </div>
       </div>
@@ -182,76 +182,76 @@
           <div data-art="jollof:chicken"></div>
         </div>
         <div class="as-combo-copy">
-          <p class="as-eyebrow as-eyebrow-light">El favorito de la casa</p>
-          <h2>Combo Asanka para dos</h2>
-          <p>Un fufu con sopa de cacahuete, un jollof con pollo a la parrilla, una ración de kelewele y dos bebidas caseras. Lo mejor de la carta en una sola bolsa.</p>
+          <p class="as-eyebrow as-eyebrow-light">House favourite</p>
+          <h2>Asanka combo for two</h2>
+          <p>Fufu with groundnut soup, jollof with grilled chicken, a portion of kelewele and two house drinks. The best of the menu in one bag.</p>
           <div class="as-combo-price">
             <span class="as-price-now" data-money="combo"></span>
             <span class="as-price-was" data-money="comboWas"></span>
           </div>
-          <button class="as-btn as-btn-light" type="button" data-add="combo">Añadir el combo</button>
+          <button class="as-btn as-btn-light" type="button" data-add="combo">Add the combo</button>
         </div>
       </div>
     </section>
 
     <!-- how it works -->
-    <section class="as-section" id="como">
+    <section class="as-section" id="how">
       <div class="as-wrap">
         <div class="as-head as-head-center">
-          <p class="as-eyebrow">Sencillo y rápido</p>
-          <h2>Cómo funciona</h2>
+          <p class="as-eyebrow">Quick and simple</p>
+          <h2>How it works</h2>
         </div>
         <ol class="as-steps">
           <li>
             <span class="as-step-n">1</span>
-            <h3>Elige tus platos</h3>
-            <p>Añade al pedido tu fufu, tu jollof y los acompañamientos. Indica el picante que prefieres.</p>
+            <h3>Pick your dishes</h3>
+            <p>Add your fufu, your jollof and your sides. Tell us how spicy you like it.</p>
           </li>
           <li>
             <span class="as-step-n">2</span>
-            <h3>Confirma por WhatsApp</h3>
-            <p>Te enviamos el resumen a WhatsApp y confirmamos la hora de entrega o de recogida en minutos.</p>
+            <h3>Confirm on WhatsApp</h3>
+            <p>Your order summary goes to us on WhatsApp and we confirm the delivery or pickup time within minutes.</p>
           </li>
           <li>
             <span class="as-step-n">3</span>
-            <h3>Recíbelo caliente</h3>
-            <p>Lo cocinamos al momento y lo llevamos en envases térmicos. Paga en efectivo, tarjeta o Bizum.</p>
+            <h3>Get it hot</h3>
+            <p>We cook it to order and bring it in insulated containers. Pay by cash, card or bank transfer.</p>
           </li>
         </ol>
       </div>
     </section>
 
     <!-- story -->
-    <section class="as-section as-section-alt" id="historia">
+    <section class="as-section as-section-alt" id="kitchen">
       <div class="as-wrap as-story">
         <div class="as-story-copy">
-          <p class="as-eyebrow">Nuestra cocina</p>
-          <h2>El nombre viene del cuenco donde empieza todo.</h2>
-          <p>Un <em>asanka</em> es el cuenco de barro estriado con el que se muelen los pimientos, el tomate y la cebolla en las cocinas de Ghana. Es la base de cada sopa y de cada jollof que servimos.</p>
-          <p>Machacamos el fufu cada mañana con yuca y plátano macho, sin harinas instantáneas. Las sopas se cocinan durante horas y el jollof termina en una olla de fondo grueso hasta que el arroz se tuesta en el fondo: ese sabor ahumado de fiesta que todos buscan.</p>
+          <p class="as-eyebrow">Our kitchen</p>
+          <h2>The name comes from the bowl where it all starts.</h2>
+          <p>An <em>asanka</em> is the ridged clay bowl Ghanaian kitchens use to grind peppers, tomato and onion. It is the base of every soup and every jollof we serve.</p>
+          <p>We pound the fufu every morning from cassava and plantain, never instant flour. The soups cook for hours, and the jollof finishes in a heavy pot until the rice toasts on the bottom: that smoky party flavour everyone is after.</p>
           <ul class="as-values">
             <li>
               <span class="as-value-i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4.5-2.5-7-6-7-10a7 7 0 0 1 14 0c0 4-2.5 7.5-7 10z"/><path d="M12 7v7M9 11l3 3 3-3"/></svg></span>
-              <div><b>Producto fresco</b><span>Tubérculos, pimientos y carne comprados cada día.</span></div>
+              <div><b>Fresh produce</b><span>Roots, peppers and meat bought every day.</span></div>
             </li>
             <li>
               <span class="as-value-i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span>
-              <div><b>Cocina lenta</b><span>Sopas de cuatro horas, sin atajos ni cubitos.</span></div>
+              <div><b>Slow cooking</b><span>Four-hour soups, no shortcuts, no stock cubes.</span></div>
             </li>
             <li>
               <span class="as-value-i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M12 4v16"/><circle cx="12" cy="12" r="8.5"/></svg></span>
-              <div><b>Recetas de familia</b><span>Aprendidas en Kumasi y Lagos, cocinadas aquí.</span></div>
+              <div><b>Family recipes</b><span>Learned in Kumasi and Lagos, cooked here.</span></div>
             </li>
           </ul>
         </div>
         <div class="as-story-art" aria-hidden="true">
           <div class="as-story-card">
             <div data-art="fufu:egusi"></div>
-            <p><b>Egusi</b> · semillas de melón, espinaca y ternera</p>
+            <p><b>Egusi</b> · melon seeds, spinach and beef</p>
           </div>
           <div class="as-story-card as-story-card-b">
             <div data-art="side:kelewele"></div>
-            <p><b>Kelewele</b> · plátano especiado con jengibre</p>
+            <p><b>Kelewele</b> · plantain spiced with ginger</p>
           </div>
         </div>
       </div>
@@ -262,24 +262,24 @@
       <div class="as-wrap">
         <div class="as-head">
           <div>
-            <p class="as-eyebrow">Celebraciones y empresas</p>
-            <h2>Catering para tus eventos</h2>
+            <p class="as-eyebrow">Celebrations and companies</p>
+            <h2>Catering for your events</h2>
           </div>
-          <p class="as-head-note">Bodas, bautizos, cumpleaños o comidas de oficina. Encarga con 48 horas de antelación.</p>
+          <p class="as-head-note">Weddings, naming ceremonies, birthdays or office lunches. Order 48 hours ahead.</p>
         </div>
 
         <div class="as-trays" id="trays"></div>
 
         <form class="as-quote" id="quote" novalidate>
           <div class="as-quote-copy">
-            <h3>¿Más de 50 personas?</h3>
-            <p>Cuéntanos tu evento y te enviamos un presupuesto con menú, servicio y montaje.</p>
+            <h3>More than 50 guests?</h3>
+            <p>Tell us about your event and we will send a quote with menu, staff and setup.</p>
           </div>
           <div class="as-quote-fields">
-            <label class="as-field"><span>Nombre</span><input name="name" autocomplete="name" required></label>
-            <label class="as-field"><span>Fecha del evento</span><input name="date" type="date" required></label>
-            <label class="as-field"><span>Invitados</span><input name="guests" type="number" min="10" step="1" inputmode="numeric" placeholder="80" required></label>
-            <button class="as-btn as-btn-primary" type="submit">Pedir presupuesto</button>
+            <label class="as-field"><span>Name</span><input name="name" autocomplete="name" required></label>
+            <label class="as-field"><span>Event date</span><input name="date" type="date" required></label>
+            <label class="as-field"><span>Guests</span><input name="guests" type="number" min="10" step="1" inputmode="numeric" placeholder="80" required></label>
+            <button class="as-btn as-btn-primary" type="submit">Get a quote</button>
           </div>
           <p class="as-form-msg" id="quote-msg" role="status"></p>
         </form>
@@ -291,30 +291,30 @@
       <div class="as-wrap as-faq-in">
         <div class="as-head">
           <div>
-            <p class="as-eyebrow">Resolvemos tus dudas</p>
-            <h2>Preguntas frecuentes</h2>
+            <p class="as-eyebrow">Good to know</p>
+            <h2>Frequently asked questions</h2>
           </div>
         </div>
         <div class="as-faq">
           <details open>
-            <summary>¿Qué es el fufu y cómo se come?</summary>
-            <p>Es una masa suave y elástica de yuca y plátano macho machacados. Se toma un pellizco con la mano derecha, se hunde en la sopa y se traga sin masticar demasiado. Si lo prefieres, también te damos cubiertos.</p>
+            <summary>What is fufu and how do you eat it?</summary>
+            <p>It is a soft, stretchy dough of pounded cassava and plantain. Pinch off a piece with your right hand, dip it in the soup and swallow it without much chewing. We add cutlery if you prefer.</p>
           </details>
           <details>
-            <summary>¿Hasta dónde hacéis entregas?</summary>
-            <p>Repartimos en un radio de 8 km desde la cocina. Al hacer el pedido te confirmamos por WhatsApp si tu dirección entra en la zona y la hora estimada.</p>
+            <summary>How far do you deliver?</summary>
+            <p>We deliver within 8 km of the kitchen. When you order, we confirm on WhatsApp that your address is in range and when it will arrive.</p>
           </details>
           <details>
-            <summary>¿Cuánto pica el jollof?</summary>
-            <p>Nuestro jollof base es suave y aromático. Puedes elegir entre suave, medio o picante de verdad, y añadir shito, nuestra salsa de pimiento y gamba seca, aparte.</p>
+            <summary>How spicy is the jollof?</summary>
+            <p>Our base jollof is mild and fragrant. Choose mild, medium or properly hot, and add shito, our pepper and dried shrimp sauce, on the side.</p>
           </details>
           <details>
-            <summary>¿Tenéis opciones veganas o sin gluten?</summary>
-            <p>El fufu y el jollof son sin gluten por naturaleza. El jollof vegetal, el kelewele, el dodo y las bebidas son veganos. Avísanos de cualquier alergia en las notas del pedido.</p>
+            <summary>Do you have vegan or gluten-free options?</summary>
+            <p>Fufu and jollof are naturally gluten-free, and so is the whole menu. The vegan section lists the dishes with no animal products. Tell us about any allergy in the order notes.</p>
           </details>
           <details>
-            <summary>¿Cómo se paga?</summary>
-            <p>En efectivo, con tarjeta o por Bizum al recibir el pedido. Para catering pedimos una señal del 30 % al confirmar la fecha.</p>
+            <summary>How do I pay?</summary>
+            <p>By cash, card or bank transfer when your order arrives. For catering we ask for a 30% deposit to confirm the date.</p>
           </details>
         </div>
       </div>
@@ -326,10 +326,10 @@
         <div class="as-cta-card">
           <div class="as-cta-stick" data-art="stick:fufu"></div>
           <div class="as-cta-copy">
-            <h2>¿Hambre? La olla ya está en el fuego.</h2>
-            <p>Haz tu pedido ahora y recíbelo recién hecho en unos 45 minutos.</p>
+            <h2>Hungry? The pot is already on the fire.</h2>
+            <p>Order now and get it freshly made in about 45 minutes.</p>
           </div>
-          <a class="as-btn as-btn-light" href="#menu" data-scroll="menu">Empezar mi pedido</a>
+          <a class="as-btn as-btn-light" href="#menu" data-scroll="menu">Start my order</a>
         </div>
       </div>
     </section>
@@ -344,16 +344,16 @@
           <span class="as-mark" aria-hidden="true">
             <svg viewBox="0 0 32 32"><path d="M5 15h22a11 11 0 0 1-22 0z" fill="currentColor"/><circle cx="16" cy="9.5" r="4.6" fill="var(--palm)"/></svg>
           </span>
-          <span class="as-brand-t">Asanka<small>Cocina de África Occidental</small></span>
+          <span class="as-brand-t">Asanka<small>West African kitchen</small></span>
         </a>
-        <p>Fufu machacado a mano y arroz jollof ahumado, cocinados cada día.</p>
+        <p>Hand-pounded fufu and smoky jollof rice, cooked every day.</p>
       </div>
       <div>
-        <h4>Horario</h4>
+        <h4>Opening hours</h4>
         <ul class="as-hours" id="hours"></ul>
       </div>
       <div>
-        <h4>Contacto</h4>
+        <h4>Contact</h4>
         <ul>
           <li id="contact-address"></li>
           <li><a id="contact-phone" href="#"></a></li>
@@ -361,7 +361,7 @@
         </ul>
       </div>
       <div>
-        <h4>Síguenos</h4>
+        <h4>Follow us</h4>
         <ul>
           <li><a href="#top">Instagram</a></li>
           <li><a href="#top">TikTok</a></li>
@@ -370,17 +370,17 @@
       </div>
     </div>
     <div class="as-wrap as-footer-base">
-      <span>© <span id="year"></span> Asanka. Todos los derechos reservados.</span>
-      <span><a href="#top">Aviso legal</a> · <a href="#top" data-open-prefs>Privacidad</a> · <a href="#top" data-open-prefs>Alérgenos</a></span>
+      <span>© <span id="year"></span> Asanka. All rights reserved.</span>
+      <span><a href="#top">Legal notice</a> · <a href="#top" data-open-prefs>Privacy</a> · <a href="#top" data-open-prefs>Allergens</a></span>
     </div>
   </footer>
 
   <!-- cart drawer -->
   <div class="as-scrim" id="scrim" hidden></div>
-  <aside class="as-drawer" id="drawer" aria-label="Tu pedido" aria-hidden="true" tabindex="-1">
+  <aside class="as-drawer" id="drawer" aria-label="Your order" aria-hidden="true" tabindex="-1">
     <div class="as-drawer-head">
-      <h2>Tu pedido</h2>
-      <button class="as-icon-btn" id="cart-close" type="button" aria-label="Cerrar el pedido">
+      <h2>Your order</h2>
+      <button class="as-icon-btn" id="cart-close" type="button" aria-label="Close your order">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
@@ -388,55 +388,55 @@
     <div class="as-drawer-body" id="drawer-body">
       <div class="as-empty" id="cart-empty">
         <div class="as-empty-art" data-art="stick:jollof"></div>
-        <p><b>Tu pedido está vacío.</b><br>Añade un fufu o un jollof para empezar.</p>
-        <button class="as-btn as-btn-ghost" type="button" data-close-cart data-scroll="menu">Ver el menú</button>
+        <p><b>Your order is empty.</b><br>Add a fufu or a jollof to get started.</p>
+        <button class="as-btn as-btn-ghost" type="button" data-close-cart data-scroll="menu">See the menu</button>
       </div>
 
       <ul class="as-lines" id="cart-lines"></ul>
 
       <form class="as-checkout" id="checkout" novalidate>
         <fieldset class="as-seg">
-          <legend>Entrega</legend>
-          <label><input type="radio" name="mode" value="delivery" checked><span>A domicilio</span></label>
-          <label><input type="radio" name="mode" value="pickup"><span>Recoger en local</span></label>
+          <legend>Delivery</legend>
+          <label><input type="radio" name="mode" value="delivery" checked><span>To my door</span></label>
+          <label><input type="radio" name="mode" value="pickup"><span>Pick up</span></label>
         </fieldset>
 
         <fieldset class="as-seg">
-          <legend>Picante</legend>
-          <label><input type="radio" name="spice" value="Suave"><span>Suave</span></label>
-          <label><input type="radio" name="spice" value="Medio" checked><span>Medio</span></label>
-          <label><input type="radio" name="spice" value="Picante"><span>Picante</span></label>
+          <legend>Spice</legend>
+          <label><input type="radio" name="spice" value="Mild"><span>Mild</span></label>
+          <label><input type="radio" name="spice" value="Medium" checked><span>Medium</span></label>
+          <label><input type="radio" name="spice" value="Hot"><span>Hot</span></label>
         </fieldset>
 
-        <label class="as-field"><span>Nombre</span><input name="name" autocomplete="name" required></label>
-        <label class="as-field"><span>Teléfono</span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" required></label>
-        <label class="as-field" id="address-field"><span>Dirección</span><input name="address" autocomplete="street-address" required></label>
-        <label class="as-field"><span>Hora</span>
+        <label class="as-field"><span>Name</span><input name="name" autocomplete="name" required></label>
+        <label class="as-field"><span>Phone</span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" required></label>
+        <label class="as-field" id="address-field"><span>Address</span><input name="address" autocomplete="street-address" required></label>
+        <label class="as-field"><span>Time</span>
           <select name="when" id="when"></select>
         </label>
-        <label class="as-field"><span>Notas <i>(opcional)</i></span><textarea name="notes" rows="2" placeholder="Alergias, portal, timbre…"></textarea></label>
+        <label class="as-field"><span>Notes <i>(optional)</i></span><textarea name="notes" rows="2" placeholder="Allergies, building, doorbell…"></textarea></label>
       </form>
     </div>
 
     <div class="as-drawer-foot" id="drawer-foot">
       <dl class="as-totals">
         <div><dt>Subtotal</dt><dd id="t-sub"></dd></div>
-        <div><dt>Envío</dt><dd id="t-ship"></dd></div>
+        <div><dt>Delivery</dt><dd id="t-ship"></dd></div>
         <div class="as-total"><dt>Total</dt><dd id="t-total"></dd></div>
       </dl>
       <p class="as-free-hint" id="free-hint"></p>
       <button class="as-btn as-btn-primary as-btn-block" type="submit" form="checkout" id="checkout-btn">
-        Revisar y enviar pedido
+        Review and send order
       </button>
       <p class="as-form-msg" id="checkout-msg" role="status"></p>
     </div>
 
     <div class="as-done" id="done" hidden>
       <div class="as-done-i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-      <h3>Tu pedido está listo</h3>
-      <p>Pulsa el botón para abrir WhatsApp con el resumen del pedido <b id="done-ref"></b>. Envía el mensaje y te confirmaremos la hora en unos minutos.</p>
-      <a class="as-btn as-btn-wa" id="done-link" target="_blank" rel="noopener">Enviar por WhatsApp</a>
-      <button class="as-btn as-btn-ghost" type="button" id="done-new">Hacer otro pedido</button>
+      <h3>Your order is ready</h3>
+      <p>Tap the button to open WhatsApp with the summary of order <b id="done-ref"></b>. Send the message and we will confirm the time within minutes.</p>
+      <a class="as-btn as-btn-wa" id="done-link" target="_blank" rel="noopener">Send on WhatsApp</a>
+      <button class="as-btn as-btn-ghost" type="button" id="done-new">Start a new order</button>
     </div>
   </aside>
 
@@ -447,32 +447,32 @@
         <span class="as-mark" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M5 15h22a11 11 0 0 1-22 0z" fill="currentColor"/><circle cx="16" cy="9.5" r="4.6" fill="var(--palm)"/></svg>
         </span>
-        <h2 id="welcome-title">Bienvenido a Asanka</h2>
+        <h2 id="welcome-title">Welcome to Asanka</h2>
       </div>
 
       <section class="as-welcome-block">
-        <h3>Tu privacidad</h3>
-        <p>Guardamos en tu navegador tu pedido, tus alergias y el tema que elijas, para que no los pierdas al volver. No usamos cookies de publicidad ni herramientas de seguimiento, y no compartimos tus datos con nadie.</p>
+        <h3>Your privacy</h3>
+        <p>We keep your order, your allergies and your theme in your browser so they are still there when you come back. We use no advertising cookies or tracking tools, and we share your data with no one.</p>
         <details>
-          <summary>Qué se guarda exactamente</summary>
+          <summary>What exactly is stored</summary>
           <ul>
-            <li><b>Tu decisión sobre este aviso.</b> Necesaria, se guarda siempre.</li>
-            <li><b>El carrito, tus alergias y el tema.</b> Solo si aceptas. Con «Solo lo necesario» se olvidan al cerrar la página.</li>
-            <li><b>Tu nombre, teléfono y dirección.</b> No se guardan: viajan en el mensaje de WhatsApp que tú envías.</li>
+            <li><b>Your choice on this notice.</b> Necessary, always stored.</li>
+            <li><b>Your cart, allergies and theme.</b> Only if you accept. With "Necessary only" they are forgotten when you close the page.</li>
+            <li><b>Your name, phone and address.</b> Never stored: they only travel in the WhatsApp message you send.</li>
           </ul>
         </details>
       </section>
 
       <section class="as-welcome-block">
-        <h3>¿Tienes alguna alergia o intolerancia?</h3>
-        <p>Todo nuestro menú es sin gluten. Marca lo que no puedes tomar y te avisaremos en cada plato que lo contenga.</p>
+        <h3>Any allergies or intolerances?</h3>
+        <p>Our whole menu is gluten-free. Tick what you can't eat and we will flag every dish that contains it.</p>
         <div class="as-chips" id="welcome-allergies"></div>
-        <p class="as-welcome-note">Cocinamos en una cocina donde se usan cacahuete, pescado y marisco. Si tu alergia es grave, escríbenos antes de pedir.</p>
+        <p class="as-welcome-note">Our kitchen handles peanuts, fish and shellfish. If your allergy is severe, message us before you order.</p>
       </section>
 
       <div class="as-welcome-actions">
-        <button class="as-btn as-btn-ghost" type="button" id="welcome-necessary">Solo lo necesario</button>
-        <button class="as-btn as-btn-primary" type="button" id="welcome-accept">Aceptar y continuar</button>
+        <button class="as-btn as-btn-ghost" type="button" id="welcome-necessary">Necessary only</button>
+        <button class="as-btn as-btn-primary" type="button" id="welcome-accept">Accept and continue</button>
       </div>
     </div>
   </div>

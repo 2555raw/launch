@@ -117,7 +117,9 @@
   const check = '<svg class="ck" viewBox="0 0 24 24"><path d="M12 1l2.6 2.2 3.4-.4 1 3.3 3 1.7-1 3.2 1 3.2-3 1.7-1 3.3-3.4-.4L12 23l-2.6-2.2-3.4.4-1-3.3-3-1.7 1-3.2-1-3.2 3-1.7 1-3.3 3.4.4z"/><path d="M7.5 12.2l3 3 6-6" fill="none" stroke="#ffffff" stroke-width="2.2"/></svg>';
   const mono = (bg, txt) => V('<rect width="64" height="64" fill="' + bg + '"/><text x="32" y="38" text-anchor="middle" font-family="Inter Tight,Inter,sans-serif" font-weight="800" font-size="' + (txt.length > 2 ? 17 : 22) + '" fill="' + (bg === "#121212" ? "#e4e4e4" : "#000000") + '">' + txt + "</text>");
   const card = (p) =>
-    '<a class="post" href="https://x.com/' + p[1] + '" target="_blank" rel="noopener"><span class="pfp">' + mono(p[3], p[4]) + "</span>" +
+    '<a class="post" href="https://x.com/' + p[1] + '" target="_blank" rel="noopener"><span class="pfp">' + mono(p[3], p[4]) +
+    // the account's current profile photo; the initials stay underneath if it cannot load
+    '<img src="https://unavatar.io/x/' + p[1] + '?fallback=false" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' + "</span>" +
     '<div><div class="post-h"><b>' + p[0] + "</b>" + check + "<span>@" + p[1] + "</span></div><p>" + p[2] + "</p></div></a>";
 
   document.querySelectorAll(".feed-row").forEach((row, r) => {

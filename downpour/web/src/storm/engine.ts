@@ -7,14 +7,14 @@
  *              the currency sign beside them; born with a flare, drifting slowly upward
  *   planet     the Earth, painted once from NASA's real day and night maps (the
  *              coastlines alone until they load), in daylight and in full night with its
- *              cities lit, crossfading as the day turns; a thin glowing atmosphere
+ *              cities lit, crossfading between them; a thin glowing atmosphere
  *   satellite  orbiting along just inside the horizon and off the right side
  *   meteors    shooting stars with fading tails; tap the empty sky to send one
  *   sparkles   a burst of sparks and a ring when a currency star is tapped
  *
  * Nothing moves at all under prefers-reduced-motion. */
 import { currencyColor, dropGlyph } from '../data/currencies';
-import { EARTH_IMAGES, EARTH_SUN, PLANET, START_TURN, landFields, nightness, onPlanet, orbitAt, orbitSpan, sunAt, toPlanet } from './earth';
+import { EARTH_IMAGES, EARTH_SUN, PLANET, START_TURN, landFields, onPlanet, orbitAt, orbitSpan, toPlanet } from './earth';
 import { heroSpot } from './glstorm';
 import { drawSatellite2D } from './satellite';
 import { COLUMN, type Intensity, type Scene, type StormRenderer } from './types';
@@ -85,7 +85,7 @@ export class StormEngine implements StormRenderer {
 
   private backdrop?: HTMLCanvasElement;
   private earth?: { disc: HTMLCanvasElement; night: HTMLCanvasElement; air: HTMLCanvasElement; top: number };
-  private t0 = performance.now() / 1000;
+  private dusk = { from: 0, to: 0, t0: 0 };
   private satSprite?: HTMLCanvasElement;
   private sat?: { born: number; dur: number; from: number; to: number; ro: number; tilt: number };
   private nextSat = 0;
@@ -171,6 +171,18 @@ export class StormEngine implements StormRenderer {
 
   get isRunning() {
     return this.running;
+  }
+
+  setNight(night: boolean, instant = false) {
+    const now = performance.now() / 1000;
+    const to = night ? 1 : 0;
+    this.dusk = { from: instant || this.reduced ? to : this.duskAt(now), to, t0: now };
+    if (!this.running) this.frame(performance.now(), true);
+  }
+
+  private duskAt(now: number) {
+    const k = Math.min(1, Math.max(0, (now - this.dusk.t0) / 2));
+    return this.dusk.from + (this.dusk.to - this.dusk.from) * k * k * (3 - 2 * k);
   }
 
   /** Nebula glow and fixed stars, painted once per size. */
@@ -577,7 +589,7 @@ export class StormEngine implements StormRenderer {
     g.globalAlpha = 1;
 
     // the planet, hiding what is behind it, and its atmosphere; night crossfades in
-    const dusk = nightness(sunAt(now - this.t0));
+    const dusk = this.duskAt(now);
     if (this.earth) {
       g.drawImage(this.earth.disc, 0, this.earth.top, this.w, this.earth.disc.height);
       if (dusk > 0) {

@@ -30,11 +30,11 @@ export const PLANET = {
  *  crosses the planet on the right, and the cities of the night side glow beyond it. */
 export const EARTH_SUN: Vec3 = norm([-0.9, 0.22, 0.25]);
 
-/** Day and night. The sun circles the planet once every DAY_LENGTH seconds: from the
- *  view above (day, dusk on the right), the night sweeps across from the right until the
- *  whole face is dark and only the cities shine, then dawn comes back from the right to
- *  full daylight. Night takes a little under half the cycle. */
-export const DAY_LENGTH = 100;
+/** Day and night. The sun moves along one path round the planet: at DAY_PHASE the face
+ *  is in daylight with dusk on the right; toward NIGHT_PHASE the night sweeps across from
+ *  the right until the whole face is dark and only the cities shine. */
+export const DAY_PHASE = 0.2;
+export const NIGHT_PHASE = 0.5;
 const SUN_NIGHT: Vec3 = norm([-0.05, -0.86, -0.5]);
 const SUN_E1 = EARTH_SUN;
 const SUN_E2 = norm([
@@ -46,10 +46,8 @@ const NIGHT_ANGLE = Math.acos(dot(SUN_E1, SUN_NIGHT));
 /** Roughly the normal of the part of the planet on screen. */
 export const FACE: Vec3 = norm([0.05, 0.86, 0.5]);
 
-/** Toward the sun at time t (seconds since the sky started). It starts in daylight and
- *  the first night falls about 20 s in. */
-export function sunAt(t: number): Vec3 {
-  const u = (((t / DAY_LENGTH + 0.1) % 1) + 1) % 1;
+/** Toward the sun at a phase of that path (DAY_PHASE day, NIGHT_PHASE night). */
+export function sunAt(u: number): Vec3 {
   const x = 2 * Math.PI * (u - 0.5);
   const phi = NIGHT_ANGLE + x + 0.3 * Math.sin(x);
   const c = Math.cos(phi);

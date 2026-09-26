@@ -7,7 +7,8 @@ import { usePad } from '../backend/PadProvider';
 import { shortAddr } from '../lib/format';
 import { CopyButton } from './bits';
 import { ConnectModal } from './ConnectModal';
-import { Arrow, Close, Logo, Menu } from './icons';
+import { Arrow, Close, Logo, Menu, Moon, Sun } from './icons';
+import { useStorm } from '../storm/Storm';
 
 export const NAV = [
   { to: '/swap', label: 'Swap' },
@@ -110,18 +111,39 @@ function ModeSwitch() {
   );
 }
 
+/** Day or night on the planet in the sky. */
+function NightButton() {
+  const storm = useStorm();
+  return (
+    <button
+      type="button"
+      className={`night-btn ${storm.night ? 'is-night' : ''}`}
+      onClick={storm.toggleNight}
+      aria-pressed={storm.night}
+      title={storm.night ? 'Back to daylight' : 'Night: the Earth goes dark and its cities light up'}
+    >
+      {storm.night ? <Sun /> : <Moon />}
+      <span className="night-label">{storm.night ? 'Day' : 'Night'}</span>
+    </button>
+  );
+}
+
 function CaBar() {
   const t = SITE.token;
   return (
     <div className="ca-bar glass" data-solid>
       <span className="ca-sym">{t.symbol}</span>
-      {/* only the name until the token exists; then its contract address, to copy */}
-      {t.address && (
+      <span className="ca-label">CA</span>
+      {t.address ? (
         <>
-          <span className="ca-label">CA</span>
           <span className="mono ca-addr">{t.address}</span>
           <CopyButton text={t.address} />
         </>
+      ) : (
+        <span className="ca-addr muted">
+          <span className="ca-long">Not launched yet. The contract address appears here the moment it exists.</span>
+          <span className="ca-short">coming soon</span>
+        </span>
       )}
       <span className="ca-spacer" />
       <ModeSwitch />
@@ -234,6 +256,7 @@ export function Layout({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="nav-actions">
+            <NightButton />
             <WalletButton />
             <Link to="/board" className="btn btn-primary btn-sm nav-cta">
               Open the pad <Arrow />

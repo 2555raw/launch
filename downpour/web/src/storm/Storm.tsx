@@ -6,6 +6,9 @@ import type { Intensity, Scene, StormRenderer } from './types';
 interface StormControls {
   running: boolean;
   intensity: Intensity;
+  /** night on the planet: black, with its cities lit */
+  night: boolean;
+  toggleNight(): void;
   toggle(): void;
   setIntensity(i: Intensity): void;
   strike(): void;
@@ -17,6 +20,15 @@ interface StormControls {
 const Ctx = createContext<StormControls | null>(null);
 
 const INTERACTIVE = 'a,button,input,select,textarea,label,summary,[role="button"],[data-solid],.glass,.card,.panel';
+const NIGHT_KEY = 'starmint:night';
+
+function savedNight() {
+  try {
+    return localStorage.getItem(NIGHT_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
 
 /** The WebGL space sky where the browser can run it, the 2D one where it cannot.
  *  A canvas can only ever hold one kind of context, so each attempt gets its own. */
@@ -46,6 +58,8 @@ export function StormProvider({ children }: { children: ReactNode }) {
   const [running, setRunning] = useState(true);
   const [intensity, setIntensityState] = useState<Intensity>('storm');
   const [lastPop, setLastPop] = useState<string>();
+  const [night, setNightState] = useState(savedNight);
+  const nightRef = useRef(night);
   const wanted = useRef(true);
   const pending = useRef<{ codes?: string[]; scene?: Scene }>({});
 
@@ -57,6 +71,7 @@ export function StormProvider({ children }: { children: ReactNode }) {
     // a handle for browser tests and for poking at the sky from the console
     (window as unknown as { __storm?: StormRenderer }).__storm = e;
     e.onPop = (code) => setLastPop(code);
+    e.setNight(nightRef.current, true);
     if (pending.current.codes) e.setCurrencies(pending.current.codes);
     if (pending.current.scene) e.setScene(pending.current.scene);
     e.start();
@@ -109,6 +124,18 @@ export function StormProvider({ children }: { children: ReactNode }) {
     setIntensityState(i);
   }, []);
 
+  const toggleNight = useCallback(() => {
+    const next = !nightRef.current;
+    nightRef.current = next;
+    setNightState(next);
+    engine.current?.setNight(next);
+    try {
+      localStorage.setItem(NIGHT_KEY, next ? '1' : '0');
+    } catch {
+      /* private mode: the choice lasts until the page closes */
+    }
+  }, []);
+
   const strike = useCallback(() => engine.current?.strike(), []);
   const setCurrencies = useCallback((codes: string[]) => {
     pending.current.codes = codes;
@@ -120,7 +147,7 @@ export function StormProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Ctx.Provider value={{ running, intensity, toggle, setIntensity, strike, setCurrencies, setScene, lastPop }}>
+    <Ctx.Provider value={{ running, intensity, night, toggleNight, toggle, setIntensity, strike, setCurrencies, setScene, lastPop }}>
       <div ref={hostRef} className="storm-host" aria-hidden="true" />
       {children}
     </Ctx.Provider>

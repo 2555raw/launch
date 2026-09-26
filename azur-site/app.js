@@ -54,11 +54,11 @@
     const id = "hg" + n;
     svg.innerHTML =
       '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#2f7bff" stop-opacity=".45"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/>' +
+      '<stop offset="0" stop-color="#ffffff" stop-opacity=".45"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>' +
       "</linearGradient></defs>" +
       '<path d="' + d + " L290 170 L0 170 Z" + '" fill="url(#' + id + ')"/>' +
       '<path class="line" d="' + d + '"/>' +
-      '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#9cc7ff"/>';
+      '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#e6e6e6"/>';
   });
 
   // Small sparklines: red ones trend down, blue ones trend up.
@@ -83,39 +83,39 @@
       long: '<path d="M19 44c-1-12-2-32 13-32s14 20 13 32c-2-8-3-15-4-20-4 3-10 4-17 3-1 5-2 10-5 17z" fill="' + hair + '"/>',
       bald: '<path d="M21 27c0-2 .5-3.5 1-4.5 1 1.5 1 3 1 4.5zM43 27c0-2-.5-3.5-1-4.5-1 1.5-1 3-1 4.5z" fill="' + hair + '"/>'
     })[style] +
-    '<circle cx="27.5" cy="29" r="1.4" fill="#1b1b1f"/><circle cx="36.5" cy="29" r="1.4" fill="#1b1b1f"/>' +
-    '<path d="M28.5 35c2 1.6 5 1.6 7 0" fill="none" stroke="#1b1b1f" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>'
+    '<circle cx="27.5" cy="29" r="1.4" fill="#1b1b1b"/><circle cx="36.5" cy="29" r="1.4" fill="#1b1b1b"/>' +
+    '<path d="M28.5 35c2 1.6 5 1.6 7 0" fill="none" stroke="#1b1b1b" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>'
   );
   const av = {
-    tapereader: person("#6f7f96", "#e9c3a4", "#3b2a20", "#1d2b44", "short"),
-    orbitweekly: V('<rect width="64" height="64" fill="#050608"/><circle cx="32" cy="32" r="11" fill="#e9eef7"/>' +
-      '<ellipse cx="32" cy="32" rx="22" ry="7" fill="none" stroke="#5aa2ff" stroke-width="3" transform="rotate(-20 32 32)"/>' +
-      '<path d="M21 32a11 11 0 0 0 22 0" fill="#e9eef7"/>'),
-    chainside: V('<rect width="64" height="64" fill="#12151b"/><g fill="none" stroke="#fff" stroke-width="4">' +
-      '<rect x="12" y="24" width="24" height="16" rx="8"/><rect x="28" y="24" width="24" height="16" rx="8" stroke="#5aa2ff"/></g>'),
-    launchpill: V('<rect width="64" height="64" fill="#f4f6f9"/><g transform="rotate(-40 32 32)">' +
-      '<path d="M20 32a8 8 0 0 1 8-8h4v16h-4a8 8 0 0 1-8-8z" fill="#e5484d"/><path d="M32 24h4a8 8 0 0 1 0 16h-4z" fill="#2f7bff"/></g>'),
+    tapereader: person("#7d7d7d", "#e9c3a4", "#3b2a20", "#272727", "short"),
+    orbitweekly: V('<rect width="64" height="64" fill="#050608"/><circle cx="32" cy="32" r="11" fill="#eeeeee"/>' +
+      '<ellipse cx="32" cy="32" rx="22" ry="7" fill="none" stroke="#ffffff" stroke-width="3" transform="rotate(-20 32 32)"/>' +
+      '<path d="M21 32a11 11 0 0 0 22 0" fill="#eeeeee"/>'),
+    chainside: V('<rect width="64" height="64" fill="#151515"/><g fill="none" stroke="#fff" stroke-width="4">' +
+      '<rect x="12" y="24" width="24" height="16" rx="8"/><rect x="28" y="24" width="24" height="16" rx="8" stroke="#ffffff"/></g>'),
+    launchpill: V('<rect width="64" height="64" fill="#f6f6f6"/><g transform="rotate(-40 32 32)">' +
+      '<path d="M20 32a8 8 0 0 1 8-8h4v16h-4a8 8 0 0 1-8-8z" fill="#e5484d"/><path d="M32 24h4a8 8 0 0 1 0 16h-4z" fill="#ffffff"/></g>'),
     macropulse: V('<rect width="64" height="64" fill="#0f3d2a"/><polyline points="10,34 22,34 27,22 34,44 39,30 42,34 54,34" fill="none" stroke="#7ef0b4" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>'),
-    oddflows: V('<rect width="64" height="64" fill="#d9ecff"/><path d="M12 38c0-9 9-14 19-14 9 0 15 5 17 11l6-6-1 13c-6 5-13 6-22 6-11 0-19-3-19-10z" fill="#2f6fd6"/>' +
-      '<circle cx="24" cy="34" r="1.8" fill="#fff"/><path d="M30 22c0-4-3-6-3-9M30 22c0-4 3-6 3-9" fill="none" stroke="#5aa2ff" stroke-width="2.2" stroke-linecap="round"/>'),
+    oddflows: V('<rect width="64" height="64" fill="#f6f6f6"/><path d="M12 38c0-9 9-14 19-14 9 0 15 5 17 11l6-6-1 13c-6 5-13 6-22 6-11 0-19-3-19-10z" fill="#5e5e5e"/>' +
+      '<circle cx="24" cy="34" r="1.8" fill="#fff"/><path d="M30 22c0-4-3-6-3-9M30 22c0-4 3-6 3-9" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>'),
     wirewatch: V('<rect width="64" height="64" fill="#10b35c"/><path d="M36 10 18 36h12l-4 18 20-28H34z" fill="#06140c"/>'),
     devdiaries: person("#c97d4e", "#8d5a3b", "#1a1210", "#f2f2f2", "curly"),
     hottokens: V('<rect width="64" height="64" fill="#1c1c1f"/><path d="M32 12c8 11 14 18 14 26a14 14 0 0 1-28 0c0-8 6-15 14-26z" fill="#f59e0b"/><path d="M32 30c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z" fill="#fde68a"/>'),
-    stocktokendaily: person("#9aa7c7", "#f1d2bd", "#b9793f", "#2f4f8f", "long"),
+    stocktokendaily: person("#dadada", "#f1d2bd", "#b9793f", "#454545", "long"),
   };
   // Real posts as shown on screen; each card links to the author's profile on X.
   const posts = [
-    ["*Walter Bloomberg", "Deltaone", "MUSK TARGETS RETAIL INVESTORS IN SPACEX IPO Elon Musk is considering allocating up to 30% of SpaceX's IPO to retail investors—far…", "#1f2937", "WB"],
+    ["*Walter Bloomberg", "Deltaone", "MUSK TARGETS RETAIL INVESTORS IN SPACEX IPO Elon Musk is considering allocating up to 30% of SpaceX's IPO to retail investors—far…", "#282828", "WB"],
     ["AST SpaceMobile", "AST_SpaceMobile", "FCC Grants AST SpaceMobile Commercial Authority to Deliver Direct-to-Device Cellular Broadband from Space Advancing…", "#0b0b0b", "AST"],
-    ["Vlad Tenev", "vladtenev", "While we're building robinhood chain to be the best chain for RWA … it works great for memes too", "#1e3a5f", "VT"],
+    ["Vlad Tenev", "vladtenev", "While we're building robinhood chain to be the best chain for RWA … it works great for memes too", "#313131", "VT"],
     ["Hims House", "himshouse", "🚨 BREAKING: FDA PEPTIDE PANEL VOTES YES ON BPC-157 $HIMS", "#f3efe6", "HH"],
     ["Watcher.Guru", "WatcherGuru", "JUST IN: us SEC prepares to allow blockchain-based tokenized stock trading.", "#12a150", "WG"],
     ["Johann Kerbrat", "JohannKerbrat", "$540M+ in protocol TVL. Three weeks in. Just getting started.", "#7c4a2d", "JK"],
     ["Polymarket Money", "PolymarketMoney", "BREAKING: US PPI falls to 5.5%, lower than expectations.", "#0f5132", "PM"],
-    ["unusual_whales", "unusual_whales", "Trump: Russia ready to make a deal with Ukraine soon.", "#1d4ed8", "UW"],
+    ["unusual_whales", "unusual_whales", "Trump: Russia ready to make a deal with Ukraine soon.", "#454545", "UW"],
   ];
-  const check = '<svg class="ck" viewBox="0 0 24 24"><path d="M12 1l2.6 2.2 3.4-.4 1 3.3 3 1.7-1 3.2 1 3.2-3 1.7-1 3.3-3.4-.4L12 23l-2.6-2.2-3.4.4-1-3.3-3-1.7 1-3.2-1-3.2 3-1.7 1-3.3 3.4.4z"/><path d="M7.5 12.2l3 3 6-6" fill="none" stroke="#fff" stroke-width="2.2"/></svg>';
-  const mono = (bg, txt) => V('<rect width="64" height="64" fill="' + bg + '"/><text x="32" y="38" text-anchor="middle" font-family="Inter Tight,Inter,sans-serif" font-weight="800" font-size="' + (txt.length > 2 ? 17 : 22) + '" fill="' + (bg === "#f3efe6" ? "#1b1b1f" : "#fff") + '">' + txt + "</text>");
+  const check = '<svg class="ck" viewBox="0 0 24 24"><path d="M12 1l2.6 2.2 3.4-.4 1 3.3 3 1.7-1 3.2 1 3.2-3 1.7-1 3.3-3.4-.4L12 23l-2.6-2.2-3.4.4-1-3.3-3-1.7 1-3.2-1-3.2 3-1.7 1-3.3 3.4.4z"/><path d="M7.5 12.2l3 3 6-6" fill="none" stroke="#000" stroke-width="2.2"/></svg>';
+  const mono = (bg, txt) => V('<rect width="64" height="64" fill="' + bg + '"/><text x="32" y="38" text-anchor="middle" font-family="Inter Tight,Inter,sans-serif" font-weight="800" font-size="' + (txt.length > 2 ? 17 : 22) + '" fill="' + (bg === "#f3efe6" ? "#1b1b1b" : "#fff") + '">' + txt + "</text>");
   const card = (p) =>
     '<a class="post" href="https://x.com/' + p[1] + '" target="_blank" rel="noopener"><span class="pfp">' + mono(p[3], p[4]) + "</span>" +
     '<div><div class="post-h"><b>' + p[0] + "</b>" + check + "<span>@" + p[1] + "</span></div><p>" + p[2] + "</p></div></a>";

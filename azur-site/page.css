@@ -1,6 +1,6 @@
 /* Docs and legal pages: same nav and footer as the landing page, a reading column. */
 .sub-head {
-  background: radial-gradient(70% 90% at 50% 0%, rgba(29, 107, 255, .35), transparent 70%), #000;
+  background: radial-gradient(70% 90% at 50% 0%, rgba(255, 255, 255, 0.19), transparent 70%), #000;
   padding-bottom: 60px;
   border-bottom: 1px solid var(--line);
 }

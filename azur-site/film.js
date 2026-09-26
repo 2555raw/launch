@@ -146,7 +146,7 @@
       const pulse = seg(t, 11.2, 11.75);
       const s = 1 + Math.sin(pulse * Math.PI) * 0.12 - (t > 11.6 && t < 11.75 ? 0.08 : 0);
       $("askSend").style.transform = "scale(" + s + ")";
-      $("askSend").style.boxShadow = "0 0 " + (30 + Math.sin(pulse * Math.PI) * 50) + "px rgba(47,123,255," + (0.6 + Math.sin(pulse * Math.PI) * 0.3) + ")";
+      $("askSend").style.boxShadow = "0 0 " + (30 + Math.sin(pulse * Math.PI) * 50) + "px rgba(255, 255, 255," + (0.6 + Math.sin(pulse * Math.PI) * 0.3) + ")";
     }
 
     // 4 ------------------------------------------------------------

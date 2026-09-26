@@ -226,16 +226,16 @@ function adminPage(res, key) {
     : '<p class="empty">' + empty + '</p>';
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>AZUR Admin</title><style>
-:root{color-scheme:dark;--bg:#07090d;--card:#0e131d;--line:#1d2533;--ink:#e8ecf3;--muted:#8792a6;--blue:#5aa2ff}
+:root{color-scheme:dark;--bg:#090909;--card:#131313;--line:#242424;--ink:#ececec;--muted:#919191;--blue:#ffffff}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:32px 16px}
 .w{max-width:960px;margin:0 auto;display:grid;gap:16px}h1{margin:0;font-size:24px}p.sub{margin:4px 0 0;color:var(--muted)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.k,.c{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
 .k span{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}.k b{display:block;font-size:28px;margin-top:4px;font-variant-numeric:tabular-nums}
 .bars{display:flex;align-items:flex-end;gap:6px;height:140px;margin-top:12px}.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%}
-.bar i{display:block;width:100%;background:linear-gradient(#5aa2ff,#2f7bff);border-radius:4px 4px 0 0;min-height:2px}.bar small{font-size:10px;color:var(--muted)}
+.bar i{display:block;width:100%;background:linear-gradient(#ffffff,#ffffff);border-radius:4px 4px 0 0;min-height:2px}.bar small{font-size:10px;color:var(--muted)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:700px){.two{grid-template-columns:1fr}}
 h2{margin:0 0 8px;font-size:15px}table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px solid var(--line);word-break:break-all}td.n{text-align:right;font-variant-numeric:tabular-nums;color:var(--blue);padding-left:12px}
-.empty{color:var(--muted);margin:0}a.btn{display:inline-block;margin-top:10px;padding:9px 14px;border-radius:10px;background:#2f7bff;color:#fff;text-decoration:none;font-weight:600}
+.empty{color:var(--muted);margin:0}a.btn{display:inline-block;margin-top:10px;padding:9px 14px;border-radius:10px;background:#ffffff;color:#fff;text-decoration:none;font-weight:600}
 </style></head><body><div class="w">
 <div><h1>AZUR admin</h1><p class="sub">Last 14 days. No cookies, no stored IPs.</p></div>
 <div class="kpis">

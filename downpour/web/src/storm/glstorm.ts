@@ -8,22 +8,22 @@
  *   planet     the Earth along the bottom, from NASA's real day and night maps and
  *              topography, with clouds and storms generated on the GPU once at start (a
  *              strip per frame; the generated ground stands in if the maps cannot load),
- *              turning slowly under a thin glowing atmosphere; at night (a button) the
- *              dark sweeps across until the whole face is black and only the real city
- *              lights shine, brightest where most people live
+ *              turning slowly in daylight under a thin glowing atmosphere (real city
+ *              lights wherever it is night)
  *   satellite  a small 3D model (foil, solar cells, dishes) rendered supersampled into its
  *              own texture with a depth buffer; it comes up over the planet's edge, orbits
  *              along just inside the horizon, and leaves off the side of the screen, its
  *              panels flashing when they catch the sun
- *   meteors    shooting stars: a bright head with a fading tail, bloomed
+ *   meteors    shooting stars: a bright head with a fading tail, bloomed, streaking across
+ *              the top of the sky, over the planet and away from it
  *   lens       vignette and film grain over everything
  *
  * Stars are drawn before the planet, so it hides the ones behind it; the satellite
- * orbits in front of it. Quality drops automatically if frames get slow, taps send at most one shooting
- * star every 0.35 s, and under prefers-reduced-motion a single still frame is drawn. If
+ * orbits in front of it. Quality drops automatically if frames get slow, and under
+ * prefers-reduced-motion a single still frame is drawn. If
  * WebGL2 is missing, Storm.tsx falls back to the 2D sky in engine.ts. */
 import { CURRENCIES, currencyColor, dropGlyph } from '../data/currencies';
-import { CLOUD_DRIFT, DAY_PHASE, EARTH_IMAGES, NIGHT_PHASE, PLANET, POLE_MAT, SPIN, START_TURN, STORMS, landFields, nightness, onPlanet, orbitAt, orbitSpan, sunAt, sunlightAt, toPlanet, type Vec3 } from './earth';
+import { CLOUD_DRIFT, DAY_SUN, EARTH_IMAGES, PLANET, POLE_MAT, SPIN, START_TURN, STORMS, awayFromPlanet, landFields, meteorStart, nightness, onPlanet, orbitAt, orbitSpan, sunlightAt, toPlanet, type Vec3 } from './earth';
 import { FULLSCREEN_VS, freeTarget, program, target, type Program, type Target } from './gl';
 import { BEACON, SAT_RADIUS, SAT_STRIDE, WING_CENTRES, apply3, buildSatellite, perspective, rotation } from './satellite';
 import * as S from './shaders';
@@ -178,8 +178,7 @@ export class GLStorm implements StormRenderer {
   private satSize = 260;
   private sat?: Sat;
   private nextSat = 0;
-  private sun: Vec3 = sunAt(DAY_PHASE);
-  private phase = { from: DAY_PHASE, to: DAY_PHASE, t0: 0, dur: 1 };
+  private sun: Vec3 = DAY_SUN;
   private satProj = perspective(SAT_FOV, 1, SAT_DIST - SAT_RADIUS - 1, SAT_DIST + SAT_RADIUS + 1);
 
   private dropData = new Float32Array(MAX_STARS * 11);
@@ -561,20 +560,6 @@ export class GLStorm implements StormRenderer {
     return this.running;
   }
 
-  setNight(night: boolean, instant = false) {
-    const to = night ? NIGHT_PHASE : DAY_PHASE;
-    const now = performance.now() / 1000;
-    const from = this.phaseAt(now);
-    this.phase = instant || this.reduced || !this.running ? { from: to, to, t0: now, dur: 1 } : { from, to, t0: now, dur: 4.5 * Math.abs(to - from) / (NIGHT_PHASE - DAY_PHASE) + 0.5 };
-    if (!this.running) this.frame(performance.now(), true);
-  }
-
-  /** Where the sun is along its path at `now`, easing between day and night. */
-  private phaseAt(now: number) {
-    const k = Math.min(1, Math.max(0, (now - this.phase.t0) / this.phase.dur));
-    const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-    return this.phase.from + (this.phase.to - this.phase.from) * e;
-  }
 
   /* ------------------------------ currency stars ------------------------------ */
 
@@ -817,18 +802,18 @@ export class GLStorm implements StormRenderer {
       if (now - this.lastTap < 0.35) return;
       this.lastTap = now;
     }
-    // mostly falling down and across, like meteors do
-    const dir = Math.random() < 0.5 ? -1 : 1;
-    const ang = rand(0.28, 0.7);
-    const dx = Math.cos(ang) * dir;
-    const dy = Math.sin(ang);
+    // over the planet and away from it, never down into it
     const len = x !== undefined ? rand(320, 520) : rand(220, 480) * Math.min(1.3, Math.max(0.7, this.w / 1440));
     let from: Pt;
+    let dx: number;
+    let dy: number;
     if (x !== undefined && y !== undefined) {
       // the tap point sits a little past the middle, where the head is brightest
+      [dx, dy] = awayFromPlanet(x, y, this.w, this.h);
       from = [x - dx * len * 0.6, y - dy * len * 0.6];
     } else {
-      from = [rand(this.w * 0.08, this.w * 0.92), rand(-20, this.h * 0.45)];
+      from = meteorStart(this.w, this.h);
+      [dx, dy] = awayFromPlanet(from[0], from[1], this.w, this.h);
     }
     const to: Pt = [from[0] + dx * len, from[1] + dy * len];
     const bright = x !== undefined ? 1 : rand(0.55, 1);
@@ -936,7 +921,6 @@ export class GLStorm implements StormRenderer {
     this.last = nowMs;
     const time = now - this.t0;
     const shower = this.intensity === 'storm';
-    this.sun = sunAt(this.phaseAt(now));
 
     // the planet's textures, a strip a frame until they are done (all at once for a still sky)
     this.stepEarth(still && this.reduced);

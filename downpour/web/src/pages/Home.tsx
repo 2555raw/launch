@@ -43,7 +43,7 @@ function StormControls() {
         </button>
       </div>
       <div className="small muted hero-hint">
-        <Sparkle size={12} /> Tap the sky for a shooting star. Tap a star to make it burst.
+        <Sparkle size={12} /> Tap a star to make it burst.
       </div>
       <a href="#coins" className="kicker hero-scroll">
         Scroll <Arrow dir="down" size={12} />

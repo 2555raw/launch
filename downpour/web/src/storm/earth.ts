@@ -30,11 +30,9 @@ export const PLANET = {
  *  crosses the planet on the right, and the cities of the night side glow beyond it. */
 export const EARTH_SUN: Vec3 = norm([-0.9, 0.22, 0.25]);
 
-/** Day and night. The sun moves along one path round the planet: at DAY_PHASE the face
- *  is in daylight with dusk on the right; toward NIGHT_PHASE the night sweeps across from
- *  the right until the whole face is dark and only the cities shine. */
-export const DAY_PHASE = 0.2;
-export const NIGHT_PHASE = 0.5;
+/* The daylight sun: a point on a path round the planet that runs from full day into
+ * full night (SUN_NIGHT, the whole face dark); the sky uses the daylight end of it. */
+const DAY_PHASE = 0.2;
 const SUN_NIGHT: Vec3 = norm([-0.05, -0.86, -0.5]);
 const SUN_E1 = EARTH_SUN;
 const SUN_E2 = norm([
@@ -46,14 +44,17 @@ const NIGHT_ANGLE = Math.acos(dot(SUN_E1, SUN_NIGHT));
 /** Roughly the normal of the part of the planet on screen. */
 export const FACE: Vec3 = norm([0.05, 0.86, 0.5]);
 
-/** Toward the sun at a phase of that path (DAY_PHASE day, NIGHT_PHASE night). */
-export function sunAt(u: number): Vec3 {
+function sunAt(u: number): Vec3 {
   const x = 2 * Math.PI * (u - 0.5);
   const phi = NIGHT_ANGLE + x + 0.3 * Math.sin(x);
   const c = Math.cos(phi);
   const sn = Math.sin(phi);
   return norm([c * SUN_E1[0] + sn * SUN_E2[0], c * SUN_E1[1] + sn * SUN_E2[1], c * SUN_E1[2] + sn * SUN_E2[2]]);
 }
+
+/** Toward the sun, in view space: high on the left and in front, the face in daylight
+ *  with dusk just reaching the right edge. */
+export const DAY_SUN: Vec3 = sunAt(DAY_PHASE);
 
 /** How much of the planet's face is in night, 0..1, for a sun direction. */
 export function nightness(sun: Vec3) {
@@ -184,6 +185,35 @@ export function horizonY(x: number, w: number, h: number) {
   if (Math.abs(dx) >= PLANET.r) return undefined;
   const py = PLANET.cy + Math.sqrt(PLANET.r * PLANET.r - dx * dx);
   return h * (1 - py);
+}
+
+/** Which way a shooting star at screen point (x, y) flies: along the planet's curve and
+ *  tilted away from it, so it passes over the planet and out instead of falling into it.
+ *  A unit vector in screen space (y down). */
+export function awayFromPlanet(x: number, y: number, w: number, h: number): [number, number] {
+  let rx = x - PLANET.cx * w;
+  let ry = y - h * (1 - PLANET.cy);
+  const l = Math.hypot(rx, ry) || 1;
+  rx /= l;
+  ry /= l;
+  const side = Math.random() < 0.5 ? 1 : -1;
+  const b = 0.03 + Math.random() * 0.19;
+  const dx = -ry * side * Math.cos(b) + rx * Math.sin(b);
+  const dy = rx * side * Math.cos(b) + ry * Math.sin(b);
+  const m = Math.hypot(dx, dy) || 1;
+  return [dx / m, dy / m];
+}
+
+/** Where a shooting star starts: across the top of the sky, off the planet. */
+export function meteorStart(w: number, h: number): [number, number] {
+  let x = 0;
+  let y = 0;
+  for (let tries = 0; tries < 12; tries++) {
+    x = w * (0.05 + Math.random() * 0.9);
+    y = h * (0.03 + Math.random() * 0.25);
+    if (!onPlanet(x, y, w, h)) break;
+  }
+  return [x, y];
 }
 
 /** Whether screen point (x, y) (CSS px) lies on the planet's disc. */

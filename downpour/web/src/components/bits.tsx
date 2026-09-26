@@ -21,43 +21,50 @@ export function Orb(props: OrbProps) {
 function StarMark({ color, glyph, size = 44, label }: OrbProps) {
   const id = useId().replace(/:/g, '');
   const len = [...glyph].length;
-  const fs = len >= 3 ? 11 : len === 2 ? 13 : 15;
+  const fs = len >= 3 ? 7 : len === 2 ? 8.5 : 10;
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-label={label} role={label ? 'img' : undefined} className="star-mark">
       <defs>
+        {/* light spread by the air and the lens: a wide faint halo, a tighter bloom */}
         <radialGradient id={`h${id}`} cx="50" cy="50" r="50" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor={color} stopOpacity="0.6" />
-          <stop offset="0.22" stopColor={color} stopOpacity="0.24" />
-          <stop offset="0.55" stopColor={color} stopOpacity="0.06" />
+          <stop offset="0" stopColor={color} stopOpacity="0.5" />
+          <stop offset="0.08" stopColor={color} stopOpacity="0.32" />
+          <stop offset="0.22" stopColor={color} stopOpacity="0.12" />
+          <stop offset="0.5" stopColor={color} stopOpacity="0.03" />
           <stop offset="1" stopColor={color} stopOpacity="0" />
         </radialGradient>
-        <radialGradient id={`c${id}`} cx="50" cy="50" r="12" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#fff" />
-          <stop offset="0.4" stopColor="#fff" stopOpacity="0.95" />
-          <stop offset="0.7" stopColor={color} stopOpacity="0.55" />
+        <radialGradient id={`b${id}`} cx="50" cy="50" r="10" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.9" />
+          <stop offset="0.35" stopColor="#fff" stopOpacity="0.45" />
           <stop offset="1" stopColor={color} stopOpacity="0" />
         </radialGradient>
         <linearGradient id={`x${id}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#fff" stopOpacity="0" />
-          <stop offset="0.5" stopColor="#fff" stopOpacity="0.95" />
-          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0" stopColor={color} stopOpacity="0" />
+          <stop offset="0.3" stopColor={color} stopOpacity="0.35" />
+          <stop offset="0.5" stopColor="#fff" stopOpacity="1" />
+          <stop offset="0.7" stopColor={color} stopOpacity="0.35" />
+          <stop offset="1" stopColor={color} stopOpacity="0" />
         </linearGradient>
         <linearGradient id={`y${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity="0" />
-          <stop offset="0.5" stopColor="#fff" stopOpacity="0.95" />
-          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0" stopColor={color} stopOpacity="0" />
+          <stop offset="0.3" stopColor={color} stopOpacity="0.35" />
+          <stop offset="0.5" stopColor="#fff" stopOpacity="1" />
+          <stop offset="0.7" stopColor={color} stopOpacity="0.35" />
+          <stop offset="1" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
       <circle cx="50" cy="50" r="50" fill={`url(#h${id})`} />
-      <path d="M0 50 50 48.9 100 50 50 51.1Z" fill={`url(#x${id})`} />
-      <path d="M50 2 51.1 50 50 98 48.9 50Z" fill={`url(#y${id})`} />
-      <g opacity="0.3" transform="rotate(45 50 50)">
-        <path d="M22 50 50 49.4 78 50 50 50.6Z" fill={`url(#x${id})`} />
-        <path d="M50 22 50.6 50 50 78 49.4 50Z" fill={`url(#y${id})`} />
+      <g className="star-spikes">
+        <path d="M0 50 50 49.35 100 50 50 50.65Z" fill={`url(#x${id})`} />
+        <path d="M50 0 50.65 50 50 100 49.35 50Z" fill={`url(#y${id})`} />
+        <g opacity="0.22" transform="rotate(45 50 50)">
+          <path d="M26 50 50 49.6 74 50 50 50.4Z" fill={`url(#x${id})`} />
+          <path d="M50 26 50.4 50 50 74 49.6 50Z" fill={`url(#y${id})`} />
+        </g>
       </g>
-      <circle cx="50" cy="50" r="12" fill={`url(#c${id})`} />
-      <circle cx="50" cy="50" r="3.4" fill="#fff" />
-      <text x="63" y="71" fontFamily="Sora Variable, Sora, system-ui" fontWeight="700" fontSize={fs} fill="#fff" opacity="0.85">
+      <circle cx="50" cy="50" r="10" fill={`url(#b${id})`} />
+      <circle cx="50" cy="50" r="2.3" fill="#fff" />
+      <text x="58" y="64" fontFamily="Sora Variable, Sora, system-ui" fontWeight="700" fontSize={fs} fill="#fff" opacity="0.88">
         {glyph}
       </text>
     </svg>

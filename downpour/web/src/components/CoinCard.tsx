@@ -5,13 +5,16 @@ import { CoinOrb, PairBadge, ProgressBar, Sparkline, StatusPill } from './bits';
 
 export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
   const { coin, cur } = row;
+  // each card shows its own patch of sky
+  const seed = parseInt(coin.address.slice(2, 10), 16) || 0;
+  const sky = { '--c': cur.color, '--sx': `${seed % 420}px`, '--sy': `${(seed >>> 9) % 160}px` } as React.CSSProperties;
   return (
-    <Link to={`/coin/${coin.address}`} className="card coin-card" style={{ '--c': cur.color } as React.CSSProperties}>
+    <Link to={`/coin/${coin.address}`} className="card coin-card" style={sky}>
       <div className="cc-sky">
         <span className="cc-code">{cur.code}</span>
         <span className="cc-age">{ago(coin.createdAt, now)}</span>
         <div className="cc-orb">
-          <CoinOrb coin={coin} currency={cur} size={70} />
+          <CoinOrb coin={coin} currency={cur} size={coin.meta.image ? 76 : 124} />
         </div>
         <span className="cc-ticker">{coin.symbol}</span>
       </div>

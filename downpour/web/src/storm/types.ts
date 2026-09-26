@@ -14,9 +14,6 @@ export interface StormRenderer {
   setIntensity(i: Intensity): void;
   setScene(scene: Scene): void;
   strike(x?: number, y?: number): void;
-  /** Day or night on the planet: the night sweeps in (or out) over a few seconds, or
-   *  at once when `instant`. */
-  setNight(night: boolean, instant?: boolean): void;
   /** Bursts the currency star under the point, if any; returns whether one was hit. */
   pop(x: number, y: number): boolean;
   start(): void;

@@ -7,8 +7,7 @@ import { usePad } from '../backend/PadProvider';
 import { shortAddr } from '../lib/format';
 import { CopyButton } from './bits';
 import { ConnectModal } from './ConnectModal';
-import { Arrow, Close, Logo, Menu, Moon, Sun } from './icons';
-import { useStorm } from '../storm/Storm';
+import { Arrow, Close, Logo, Menu } from './icons';
 
 export const NAV = [
   { to: '/swap', label: 'Swap' },
@@ -111,23 +110,6 @@ function ModeSwitch() {
   );
 }
 
-/** Day or night on the planet in the sky. */
-function NightButton() {
-  const storm = useStorm();
-  return (
-    <button
-      type="button"
-      className={`night-btn ${storm.night ? 'is-night' : ''}`}
-      onClick={storm.toggleNight}
-      aria-pressed={storm.night}
-      title={storm.night ? 'Back to daylight' : 'Night: the Earth goes dark and its cities light up'}
-    >
-      {storm.night ? <Sun /> : <Moon />}
-      <span className="night-label">{storm.night ? 'Day' : 'Night'}</span>
-    </button>
-  );
-}
-
 function CaBar() {
   const t = SITE.token;
   return (
@@ -195,7 +177,8 @@ function Toasts() {
 function Footer() {
   const pad = usePad();
   const pairs = pad.snap?.coins.length ?? 0;
-  const where = pad.mode === 'live' && pad.chainId ? `LIVE ON ${chainMeta(pad.chainId).name.toUpperCase()}` : 'PLAYGROUND · NO REAL MONEY ON THIS PAGE';
+  const currencies = pad.snap?.currencies.length ?? 0;
+  const where = pad.mode === 'live' && pad.chainId ? `ON ${chainMeta(pad.chainId).name.toUpperCase()} · ` : '';
   return (
     <footer className="footer" data-solid>
       <div className="wrap">
@@ -224,8 +207,10 @@ function Footer() {
           <span>
             © {new Date().getFullYear()} {SITE.name.toUpperCase()} · {SITE.tagline.toUpperCase()}
           </span>
-          <span>
-            {where} · {pairs} PAIRS OPEN
+          <span className="footer-live">
+            <i aria-hidden="true" />
+            {where}
+            {pairs} PAIRS TRADING · {currencies} CURRENCIES
           </span>
         </div>
       </div>
@@ -256,7 +241,6 @@ export function Layout({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="nav-actions">
-            <NightButton />
             <WalletButton />
             <Link to="/board" className="btn btn-primary btn-sm nav-cta">
               Open the pad <Arrow />

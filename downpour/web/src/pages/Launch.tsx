@@ -204,7 +204,7 @@ export default function Launch() {
             <div className="preview">
               <span className="cc-code">{cur?.code}</span>
               <div className="cc-orb">
-                <Orb color={cur?.color ?? '#7cc4ff'} glyph={cur ? dropGlyph(cur.code) : '?'} image={image || undefined} size={96} />
+                <Orb color={cur?.color ?? '#7cc4ff'} glyph={cur ? dropGlyph(cur.code) : '?'} image={image || undefined} size={image ? 96 : 150} />
               </div>
               <span className="cc-ticker">{ticker || 'TICKER'}</span>
             </div>

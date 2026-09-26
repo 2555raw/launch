@@ -26,8 +26,8 @@ its panels flashing when they catch the sun.
 Every currency is a star, drawn like a real one (a white core, a halo in the
 currency's colour, diffraction spikes) with its sign beside it like a star chart.
 Stars are born with a flare, drift slowly upward and fade out; tap one and it bursts.
-Shooting stars cross the sky on their own; tap the empty sky to send one through that
-point. Resolution drops by itself on slow devices, browsers without WebGL2 get a 2D
+Shooting stars streak across the top of the sky on their own, over the planet and
+away from it. Resolution drops by itself on slow devices, browsers without WebGL2 get a 2D
 version (also reachable with `?storm2d`), and nothing moves under
 `prefers-reduced-motion`.
 

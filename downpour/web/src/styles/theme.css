@@ -332,37 +332,66 @@ main {
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9), 0 0 3px rgba(0, 0, 0, 0.7);
 }
 
-/* ------------------------------ day / night button ------------------------------ */
-.night-btn {
+/* ------------------------------ coin card skies ------------------------------ */
+.coin-card .cc-ticker,
+.preview .cc-ticker {
+  color: rgba(255, 255, 255, 0.94);
+  letter-spacing: 0.14em;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.8);
+  z-index: 2;
+}
+.coin-card .cc-age {
+  color: rgba(255, 255, 255, 0.62);
+}
+.cc-orb {
+  filter: none;
+}
+/* a real star's spikes shimmer a little */
+.star-mark .star-spikes {
+  transform-origin: 50% 50%;
+  animation: star-shimmer 3.4s ease-in-out infinite alternate;
+}
+@keyframes star-shimmer {
+  from {
+    transform: scale(0.93);
+    opacity: 0.82;
+  }
+  to {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .star-mark .star-spikes {
+    animation: none;
+  }
+}
+
+/* ------------------------------ footer status ------------------------------ */
+.footer-bottom {
+  color: rgba(255, 255, 255, 0.62);
+}
+.footer-live {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 30px;
-  padding: 0 11px;
-  border-radius: 999px;
-  border: 1px solid rgba(15, 28, 50, 0.14);
-  background: rgba(15, 28, 50, 0.04);
-  color: var(--ink-2);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.82);
 }
-.night-btn:hover {
-  background: rgba(15, 28, 50, 0.09);
-  color: var(--ink);
+.footer-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3ddc97;
+  animation: live-pulse 2s ease-out infinite;
 }
-.night-btn.is-night {
-  background: #0b1322;
-  border-color: #0b1322;
-  color: #fff;
-}
-@media (max-width: 720px) {
-  .night-btn {
-    padding: 0 8px;
+@keyframes live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(61, 220, 151, 0.55);
   }
-  .night-label {
-    display: none;
+  70% {
+    box-shadow: 0 0 0 7px rgba(61, 220, 151, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(61, 220, 151, 0);
   }
 }

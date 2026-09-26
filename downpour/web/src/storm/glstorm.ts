@@ -8,8 +8,9 @@
  *   planet     the Earth along the bottom, from NASA's real day and night maps and
  *              topography, with clouds and storms generated on the GPU once at start (a
  *              strip per frame; the generated ground stands in if the maps cannot load),
- *              turning slowly; day on the left, dusk and the lit cities of the night on
- *              the right, under a thin glowing atmosphere
+ *              turning slowly under a thin glowing atmosphere; the sun circles it, so the
+ *              night sweeps across until the whole face is dark and only the real city
+ *              lights shine (brightest where most people live), then dawn returns
  *   satellite  a small 3D model (foil, solar cells, dishes) rendered supersampled into its
  *              own texture with a depth buffer; it comes up over the planet's edge, orbits
  *              along just inside the horizon, and leaves off the side of the screen, its
@@ -22,7 +23,7 @@
  * star every 0.35 s, and under prefers-reduced-motion a single still frame is drawn. If
  * WebGL2 is missing, Storm.tsx falls back to the 2D sky in engine.ts. */
 import { CURRENCIES, currencyColor, dropGlyph } from '../data/currencies';
-import { CLOUD_DRIFT, EARTH_IMAGES, EARTH_SUN, PLANET, POLE_MAT, SPIN, START_TURN, STORMS, landFields, onPlanet, orbitAt, orbitSpan, toPlanet, type Vec3 } from './earth';
+import { CLOUD_DRIFT, EARTH_IMAGES, PLANET, POLE_MAT, SPIN, START_TURN, STORMS, landFields, nightness, onPlanet, orbitAt, orbitSpan, sunAt, sunlightAt, toPlanet, type Vec3 } from './earth';
 import { FULLSCREEN_VS, freeTarget, program, target, type Program, type Target } from './gl';
 import { BEACON, SAT_RADIUS, SAT_STRIDE, WING_CENTRES, apply3, buildSatellite, perspective, rotation } from './satellite';
 import * as S from './shaders';
@@ -100,12 +101,7 @@ const EARTH_STRIPS = 4;
 const SAT_DIST = 16;
 const SAT_FOV = 2 * Math.asin(SAT_RADIUS / SAT_DIST);
 const SAT_F = 1 / Math.tan(SAT_FOV / 2);
-/** Light on the satellite: from the upper left and in front, so its face is lit. */
-const SAT_SUN: Vec3 = (() => {
-  const v: Vec3 = [-0.55, 0.5, 0.67];
-  const l = Math.hypot(...v);
-  return [v[0] / l, v[1] / l, v[2] / l];
-})();
+/** Toward the planet from the satellite, for the blue light it throws up. */
 const SAT_EARTH: Vec3 = [0.1, -0.97, -0.2];
 
 /** Where a currency star may sit on the hero without covering the headline. */
@@ -182,6 +178,7 @@ export class GLStorm implements StormRenderer {
   private satSize = 260;
   private sat?: Sat;
   private nextSat = 0;
+  private sun: Vec3 = sunAt(0);
   private satProj = perspective(SAT_FOV, 1, SAT_DIST - SAT_RADIUS - 1, SAT_DIST + SAT_RADIUS + 1);
 
   private dropData = new Float32Array(MAX_STARS * 11);
@@ -238,7 +235,7 @@ export class GLStorm implements StormRenderer {
       planet: program(gl, S.PLANET_VS, S.PLANET_FS, U('uTop', 'uAspect', 'uGeo', 'uAtmo', 'uPix', 'uSun', 'uSunP', 'uPole', 'uSpin', 'uSurf', 'uCloud', 'uDay', 'uNight', 'uRelief', 'uMask', 'uReal', 'uFade')),
       surfGen: program(gl, FULLSCREEN_VS, S.EARTH_SURF_FS, U('uMask')),
       cloudGen: program(gl, FULLSCREEN_VS, S.EARTH_CLOUD_FS, U('uMask', 'uStorm')),
-      sat: program(gl, S.SAT_VS, S.SAT_FS, U('uRot', 'uProj', 'uDist', 'uSun', 'uEarth')),
+      sat: program(gl, S.SAT_VS, S.SAT_FS, U('uRot', 'uProj', 'uDist', 'uSun', 'uEarth', 'uSunI', 'uEarthI')),
       sprite: program(gl, S.SPRITE_VS, S.SPRITE_FS, U('uRect', 'uRes', 'uTex', 'uAlpha')),
     };
     this.vaoEmpty = gl.createVertexArray()!;
@@ -352,7 +349,7 @@ export class GLStorm implements StormRenderer {
         });
     };
     load(EARTH_IMAGES.day(big), 'day', false);
-    load(EARTH_IMAGES.night, 'night', false);
+    load(EARTH_IMAGES.lights, 'night', true);
     load(EARTH_IMAGES.relief, 'relief', true);
   }
 
@@ -713,13 +710,22 @@ export class GLStorm implements StormRenderer {
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LESS);
     gl.disable(gl.BLEND);
+    // lit by the same sun as the planet (leaning toward us, so its face reads), dark in
+    // the planet's shadow; the planet below lights it blue only by day
+    const sunI = sunlightAt(o.p, this.sun);
+    const earthI = 1 - nightness(this.sun);
+    const lv: Vec3 = [this.sun[0] + 0.2, this.sun[1] + 0.25, this.sun[2] + 0.55];
+    const ll = Math.hypot(lv[0], lv[1], lv[2]) || 1;
+    const L: Vec3 = [lv[0] / ll, lv[1] / ll, lv[2] / ll];
     const P = this.progs.sat;
     gl.useProgram(P.prog);
     gl.uniformMatrix3fv(P.u.uRot, false, new Float32Array(rot));
     gl.uniformMatrix4fv(P.u.uProj, false, this.satProj);
     gl.uniform1f(P.u.uDist, SAT_DIST);
-    gl.uniform3f(P.u.uSun, SAT_SUN[0], SAT_SUN[1], SAT_SUN[2]);
+    gl.uniform3f(P.u.uSun, L[0], L[1], L[2]);
     gl.uniform3f(P.u.uEarth, SAT_EARTH[0], SAT_EARTH[1], SAT_EARTH[2]);
+    gl.uniform1f(P.u.uSunI, sunI);
+    gl.uniform1f(P.u.uEarthI, earthI);
     gl.bindVertexArray(this.vaoSat);
     gl.drawArrays(gl.TRIANGLES, 0, this.satCount);
     gl.disable(gl.DEPTH_TEST);
@@ -748,11 +754,11 @@ export class GLStorm implements StormRenderer {
     const flares: Array<[Pt, number, [number, number, number], number]> = [];
     // the panels flash when they mirror the sun toward us
     const nF = apply3(rot, [0, 0, 1]);
-    const dl = nF[0] * SAT_SUN[0] + nF[1] * SAT_SUN[1] + nF[2] * SAT_SUN[2];
-    if (nF[2] > 0 && dl > 0) {
-      const rz = 2 * dl * nF[2] - SAT_SUN[2];
-      const glint = Math.pow(Math.max(0, rz), 320);
-      if (glint > 0.02) for (const c of WING_CENTRES) flares.push([toScreen(c), 4 + 22 * glint, [0.85, 0.92, 1], Math.min(1, glint * 2)]);
+    const dl = nF[0] * L[0] + nF[1] * L[1] + nF[2] * L[2];
+    if (nF[2] > 0 && dl > 0 && sunI > 0.3) {
+      const rz = 2 * dl * nF[2] - L[2];
+      const glint = Math.pow(Math.max(0, rz), 320) * sunI;
+      if (glint > 0.02) for (const c of WING_CENTRES) flares.push([toScreen(c), 3 + 14 * glint, [0.85, 0.92, 1], Math.min(1, glint * 2)]);
     }
     // a small red beacon on the antenna, blinking
     const top = apply3(rot, [0, 1, 0]);
@@ -914,6 +920,7 @@ export class GLStorm implements StormRenderer {
     this.last = nowMs;
     const time = now - this.t0;
     const shower = this.intensity === 'storm';
+    this.sun = sunAt(time);
 
     // the planet's textures, a strip a frame until they are done (all at once for a still sky)
     this.stepEarth(still && this.reduced);
@@ -1085,7 +1092,8 @@ export class GLStorm implements StormRenderer {
       const fade = still ? 1 : Math.min(1, (now - this.planetAt) / 0.9);
       const spinS = (((0.5 + START_TURN - time * SPIN) % 1) + 1) % 1;
       const spinC = (((0.5 + START_TURN - time * (SPIN + CLOUD_DRIFT)) % 1) + 1) % 1;
-      const sunP = toPlanet(EARTH_SUN);
+      const sun = this.sun;
+      const sunP = toPlanet(sun);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.useProgram(Q.prog);
@@ -1094,7 +1102,7 @@ export class GLStorm implements StormRenderer {
       gl.uniform3f(Q.u.uGeo, PLANET.cx * aspect, PLANET.cy, PLANET.r);
       gl.uniform1f(Q.u.uAtmo, PLANET.atmo);
       gl.uniform1f(Q.u.uPix, 1 / H);
-      gl.uniform3f(Q.u.uSun, EARTH_SUN[0], EARTH_SUN[1], EARTH_SUN[2]);
+      gl.uniform3f(Q.u.uSun, sun[0], sun[1], sun[2]);
       gl.uniform3f(Q.u.uSunP, sunP[0], sunP[1], sunP[2]);
       gl.uniformMatrix3fv(Q.u.uPole, false, POLE_MAT);
       gl.uniform2f(Q.u.uSpin, spinS, spinC);

@@ -301,3 +301,33 @@ main {
 .hero-word-sym {
   color: rgba(255, 255, 255, 0.72);
 }
+
+/* ------------------------------ white top bars, white text on the sky ------------------------------ */
+.nav,
+.ca-bar,
+.acct-menu,
+.mode-menu {
+  background: rgba(255, 255, 255, 0.93);
+  border-color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 40px -22px rgba(0, 0, 0, 0.65), inset 0 1px 0 #fff;
+}
+/* labels and hints that sit straight on the sky read in white; on glass they stay ink */
+.kicker {
+  color: rgba(255, 255, 255, 0.9);
+}
+.panel .kicker,
+.card .kicker,
+.modal .kicker,
+.glass .kicker,
+.sheet .kicker,
+.nav .kicker,
+.ca-bar .kicker {
+  color: var(--ink-3);
+}
+.hero-hint,
+.hero-scroll,
+.hero-controls .link.muted,
+.hero-controls .muted {
+  color: #fff;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9), 0 0 3px rgba(0, 0, 0, 0.7);
+}

@@ -115,17 +115,13 @@ function CaBar() {
   return (
     <div className="ca-bar glass" data-solid>
       <span className="ca-sym">{t.symbol}</span>
-      <span className="ca-label">CA</span>
-      {t.address ? (
+      {/* only the name until the token exists; then its contract address, to copy */}
+      {t.address && (
         <>
+          <span className="ca-label">CA</span>
           <span className="mono ca-addr">{t.address}</span>
           <CopyButton text={t.address} />
         </>
-      ) : (
-        <span className="ca-addr muted">
-          <span className="ca-long">Not launched yet. The contract address appears here the moment it exists.</span>
-          <span className="ca-short">coming soon</span>
-        </span>
       )}
       <span className="ca-spacer" />
       <ModeSwitch />

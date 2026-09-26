@@ -637,14 +637,15 @@ void main() {
     vec3 col = albedo * sunC * max(ndlG, 0.0) * smoothstep(-0.02, 0.06, ndl) * 1.45 * (1.0 - shadow * 0.5);
     float fres = 0.02 + 0.98 * pow(1.0 - max(n.z, 0.0), 5.0);
     col += air(ndl, 0.07) * fres * water * (1.0 - cl) * 0.5;
-    vec3 cloudC = sunC * (0.05 + 1.2 * lit) + vec3(1.0, 0.45, 0.3) * exp(-pow(ndl / 0.12, 2.0)) * 0.3;
+    vec3 cloudC = sunC * (0.03 + 1.2 * lit) + vec3(1.0, 0.45, 0.3) * exp(-pow(ndl / 0.12, 2.0)) * 0.3;
     col = mix(col, cloudC, cl);
     float night = 1.0 - smoothstep(-0.16, 0.04, ndl);
     vec3 cities;
     if (uReal > 0.5) {
-      vec3 nl = textureGrad(uNight, uvS, gx, gy).rgb;
-      vec3 halo = textureGrad(uNight, uvS, gx * 5.0, gy * 5.0).rgb;
-      cities = (nl * nl * 2.6 + halo * 0.5) * vec3(1.0, 0.86, 0.62);
+      // real city light: brightest where the most people live, with a soft glow round it
+      float lum = textureGrad(uNight, uvS, gx, gy).r;
+      float halo = textureGrad(uNight, uvS, gx * 5.0, gy * 5.0).r;
+      cities = vec3(1.0, 0.78, 0.5) * (lum * lum * 2.4 + lum * 0.6 + halo * 0.9);
     } else {
       float glow = textureGrad(uCloud, uvS, gx * 5.0, gy * 5.0).g;
       cities = vec3(1.0, 0.75, 0.43) * G.g * 2.3 + vec3(1.0, 0.58, 0.3) * glow * 1.0;
@@ -703,6 +704,8 @@ in vec3 vObj;
 out vec4 o;
 uniform vec3 uSun;
 uniform vec3 uEarth;
+uniform float uSunI;
+uniform float uEarthI;
 float h31(vec3 p) {
   p = fract(p * 0.1031);
   p += dot(p, p.zyx + 31.32);
@@ -789,16 +792,16 @@ void main() {
   float G = ndv / (ndv * (1.0 - kk) + kk) * ndl / (ndl * (1.0 - kk) + kk);
   vec3 spec = D * G * F / max(4.0 * ndv * ndl, 0.001);
   vec3 kd = (1.0 - F) * (1.0 - metal);
-  vec3 sun = vec3(1.0, 0.97, 0.92) * 3.2;
+  vec3 sun = vec3(1.0, 0.97, 0.92) * 3.2 * uSunI;
   vec3 col = (kd * base / 3.14159 + spec) * sun * ndl;
-  col += base * metal * (0.42 * ndl + 0.05);
+  col += base * metal * (0.42 * ndl * uSunI + 0.05 * uEarthI);
   float nde = dot(N, uEarth) * 0.5 + 0.5;
-  col += kd * base * vec3(0.09, 0.15, 0.26) * nde * nde;
+  col += kd * base * vec3(0.09, 0.15, 0.26) * nde * nde * uEarthI;
   vec3 R = reflect(-V, N);
   float seeEarth = smoothstep(-0.1, 0.45, dot(R, uEarth));
   vec3 Fe = F0 + (max(vec3(1.0 - rough), F0) - F0) * pow(1.0 - ndv, 5.0);
-  col += vec3(0.26, 0.44, 0.72) * seeEarth * Fe * (0.5 + 0.5 * metal);
-  col += base * 0.012;
+  col += vec3(0.26, 0.44, 0.72) * seeEarth * Fe * (0.5 + 0.5 * metal) * uEarthI;
+  col += base * 0.012 + vec3(0.02, 0.022, 0.03) * seeEarth * (1.0 - uEarthI);
   col = col / (1.0 + col * 0.25);
   o = vec4(col, 1.0);
 }`;

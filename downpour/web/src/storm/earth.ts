@@ -30,6 +30,48 @@ export const PLANET = {
  *  crosses the planet on the right, and the cities of the night side glow beyond it. */
 export const EARTH_SUN: Vec3 = norm([-0.9, 0.22, 0.25]);
 
+/** Day and night. The sun circles the planet once every DAY_LENGTH seconds: from the
+ *  view above (day, dusk on the right), the night sweeps across from the right until the
+ *  whole face is dark and only the cities shine, then dawn comes back from the right to
+ *  full daylight. Night takes a little under half the cycle. */
+export const DAY_LENGTH = 100;
+const SUN_NIGHT: Vec3 = norm([-0.05, -0.86, -0.5]);
+const SUN_E1 = EARTH_SUN;
+const SUN_E2 = norm([
+  SUN_NIGHT[0] - dot(SUN_NIGHT, SUN_E1) * SUN_E1[0],
+  SUN_NIGHT[1] - dot(SUN_NIGHT, SUN_E1) * SUN_E1[1],
+  SUN_NIGHT[2] - dot(SUN_NIGHT, SUN_E1) * SUN_E1[2],
+]);
+const NIGHT_ANGLE = Math.acos(dot(SUN_E1, SUN_NIGHT));
+/** Roughly the normal of the part of the planet on screen. */
+export const FACE: Vec3 = norm([0.05, 0.86, 0.5]);
+
+/** Toward the sun at time t (seconds since the sky started). It starts in daylight and
+ *  the first night falls about 20 s in. */
+export function sunAt(t: number): Vec3 {
+  const u = (((t / DAY_LENGTH + 0.1) % 1) + 1) % 1;
+  const x = 2 * Math.PI * (u - 0.5);
+  const phi = NIGHT_ANGLE + x + 0.3 * Math.sin(x);
+  const c = Math.cos(phi);
+  const sn = Math.sin(phi);
+  return norm([c * SUN_E1[0] + sn * SUN_E2[0], c * SUN_E1[1] + sn * SUN_E2[1], c * SUN_E1[2] + sn * SUN_E2[2]]);
+}
+
+/** How much of the planet's face is in night, 0..1, for a sun direction. */
+export function nightness(sun: Vec3) {
+  const k = dot(FACE, sun);
+  return Math.min(1, Math.max(0, (0.1 - k) / 0.35));
+}
+
+/** How much sunlight reaches a point p (planet radii from the centre, view space): 0 in
+ *  the planet's shadow, 1 in full sun, soft at the edge. */
+export function sunlightAt(p: Vec3, sun: Vec3) {
+  const s = dot(p, sun);
+  if (s >= 0) return 1;
+  const perp = Math.sqrt(Math.max(0, dot(p, p) - s * s));
+  return Math.min(1, Math.max(0, (perp - 0.97) / 0.06));
+}
+
 /** The planet's north pole in view space: tipped away from the viewer so the near
  *  ground is around 13°N and the horizon runs through the mid-northern latitudes. */
 const POLE: Vec3 = norm([0.214, 0.82, -0.53]);
@@ -167,11 +209,11 @@ export const STORMS: Array<[number, number, number]> = [
   [-56, -104, -4],
 ];
 
-/** The real Earth: NASA's Blue Marble (day) and Earth at Night maps and topography,
- *  public domain, prepared by scripts/build-earth-images.mjs. */
+/** The real Earth: NASA's Blue Marble day map, the city lights of its Earth at Night
+ *  map, and topography, public domain, prepared by scripts/build-earth-images.mjs. */
 export const EARTH_IMAGES = {
   day: (big: boolean) => `${import.meta.env.BASE_URL}earth/day-${big ? '4k' : '2k'}.jpg`,
-  night: `${import.meta.env.BASE_URL}earth/night-2k.jpg`,
+  lights: `${import.meta.env.BASE_URL}earth/lights-2k.jpg`,
   relief: `${import.meta.env.BASE_URL}earth/relief-2k.jpg`,
 };
 
@@ -188,6 +230,8 @@ export function orbitAt(theta: number, ro: number, tilt: number, w: number, h: n
     y: h * (1 - y),
     z: R * Math.sin(theta) * Math.sin(tilt),
     angle: Math.atan2(-Math.cos(theta) * Math.cos(tilt), Math.sin(theta)),
+    /** where it is in space, in planet radii from the centre */
+    p: [ro * Math.cos(theta), ro * Math.sin(theta) * Math.cos(tilt), ro * Math.sin(theta) * Math.sin(tilt)] as Vec3,
   };
 }
 

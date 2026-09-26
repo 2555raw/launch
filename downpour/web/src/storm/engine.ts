@@ -6,15 +6,15 @@
  *   stars      the currency stars, drawn as real stars (halo, spikes, a white core) with
  *              the currency sign beside them; born with a flare, drifting slowly upward
  *   planet     the Earth, painted once from NASA's real day and night maps (the
- *              coastlines alone until they load): day on the left, dusk and night with
- *              its cities on the right, a thin glowing atmosphere
+ *              coastlines alone until they load), in daylight and in full night with its
+ *              cities lit, crossfading as the day turns; a thin glowing atmosphere
  *   satellite  orbiting along just inside the horizon and off the right side
  *   meteors    shooting stars with fading tails; tap the empty sky to send one
  *   sparkles   a burst of sparks and a ring when a currency star is tapped
  *
  * Nothing moves at all under prefers-reduced-motion. */
 import { currencyColor, dropGlyph } from '../data/currencies';
-import { EARTH_IMAGES, EARTH_SUN, PLANET, START_TURN, landFields, onPlanet, orbitAt, orbitSpan, toPlanet } from './earth';
+import { EARTH_IMAGES, EARTH_SUN, PLANET, START_TURN, landFields, nightness, onPlanet, orbitAt, orbitSpan, sunAt, toPlanet } from './earth';
 import { heroSpot } from './glstorm';
 import { drawSatellite2D } from './satellite';
 import { COLUMN, type Intensity, type Scene, type StormRenderer } from './types';
@@ -84,7 +84,8 @@ export class StormEngine implements StormRenderer {
   private dpr = 1;
 
   private backdrop?: HTMLCanvasElement;
-  private earth?: { disc: HTMLCanvasElement; air: HTMLCanvasElement; top: number };
+  private earth?: { disc: HTMLCanvasElement; night: HTMLCanvasElement; air: HTMLCanvasElement; top: number };
+  private t0 = performance.now() / 1000;
   private satSprite?: HTMLCanvasElement;
   private sat?: { born: number; dur: number; from: number; to: number; ro: number; tilt: number };
   private nextSat = 0;
@@ -125,7 +126,7 @@ export class StormEngine implements StormRenderer {
       g.drawImage(img, 0, 0);
       return g.getImageData(0, 0, c.width, c.height);
     };
-    Promise.all([read(EARTH_IMAGES.day(false)), read(EARTH_IMAGES.night)])
+    Promise.all([read(EARTH_IMAGES.day(false)), read(EARTH_IMAGES.lights)])
       .then(([day, night]) => {
         this.maps = { day, night };
         this.paintEarth();
@@ -314,6 +315,7 @@ export class StormEngine implements StormRenderer {
       return out;
     };
     const disc = new ImageData(w, band);
+    const dark = new ImageData(w, band);
     const air = new ImageData(w, band);
     const airC = (mu: number): [number, number, number] => {
       const day = Math.min(1, Math.max(0, (mu + 0.07) / 0.37));
@@ -359,10 +361,13 @@ export class StormEngine implements StormRenderer {
           let gg = base[1] * lit * T + a[1] * (1 - T);
           let b = base[2] * lit * T + a[2] * (1 - T);
           const night = 1 - Math.min(1, Math.max(0, (ndl + 0.16) / 0.2));
+          // real city light, brightest where the most people live
+          const lum = lights ? lights[0] : 0;
+          const city = lum * lum * 2.4 + lum * 0.6;
           if (lights) {
-            r += lights[0] * lights[0] * 2.6 * night;
-            gg += lights[1] * lights[1] * 2.2 * night;
-            b += lights[2] * lights[2] * 1.6 * night;
+            r += city * night;
+            gg += city * 0.8 * night;
+            b += city * 0.52 * night;
           } else if (land && ndl < -0.04 && Math.random() < 0.012) {
             r += 0.9;
             gg += 0.6;
@@ -372,6 +377,11 @@ export class StormEngine implements StormRenderer {
           disc.data[o + 1] = Math.min(255, gg * 255);
           disc.data[o + 2] = Math.min(255, b * 255);
           disc.data[o + 3] = cover * 255;
+          // the same ground in full night: black, with its cities
+          dark.data[o] = Math.min(255, (0.008 + city) * 255);
+          dark.data[o + 1] = Math.min(255, (0.01 + city * 0.8) * 255);
+          dark.data[o + 2] = Math.min(255, (0.02 + city * 0.52) * 255);
+          dark.data[o + 3] = cover * 255;
         }
         const alt = Math.max(0, dist - R) / PLANET.atmo;
         const mul = (dx / dist) * EARTH_SUN[0] + (dy / dist) * EARTH_SUN[1];
@@ -391,7 +401,7 @@ export class StormEngine implements StormRenderer {
       c.getContext('2d')!.putImageData(img, 0, 0);
       return c;
     };
-    this.earth = { disc: toCanvas(disc), air: toCanvas(air), top: h - band };
+    this.earth = { disc: toCanvas(disc), night: toCanvas(dark), air: toCanvas(air), top: h - band };
   }
 
   /* ------------------------------ currency stars ------------------------------ */
@@ -566,11 +576,19 @@ export class StormEngine implements StormRenderer {
     }
     g.globalAlpha = 1;
 
-    // the planet, hiding what is behind it, and its atmosphere
+    // the planet, hiding what is behind it, and its atmosphere; night crossfades in
+    const dusk = nightness(sunAt(now - this.t0));
     if (this.earth) {
       g.drawImage(this.earth.disc, 0, this.earth.top, this.w, this.earth.disc.height);
+      if (dusk > 0) {
+        g.globalAlpha = dusk;
+        g.drawImage(this.earth.night, 0, this.earth.top, this.w, this.earth.night.height);
+        g.globalAlpha = 1;
+      }
       g.globalCompositeOperation = 'lighter';
+      g.globalAlpha = 1 - dusk * 0.8;
       g.drawImage(this.earth.air, 0, this.earth.top, this.w, this.earth.air.height);
+      g.globalAlpha = 1;
       g.globalCompositeOperation = 'source-over';
     }
 
@@ -603,6 +621,7 @@ export class StormEngine implements StormRenderer {
       g.save();
       g.translate(o.x, o.y);
       g.rotate(-o.angle);
+      g.globalAlpha = 1 - dusk * 0.7;
       g.drawImage(this.satSprite, -this.satSize / 2, -this.satSize / 2, this.satSize, this.satSize);
       g.restore();
     }

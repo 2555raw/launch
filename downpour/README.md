@@ -11,11 +11,13 @@ right, e.g. `PULSAR / € EUR`.
 The sky behind the pages is deep space rendered on the GPU (WebGL2): layered
 starfields that twinkle, drifting nebulae, a galaxy band with dust lanes and a far
 spiral galaxy. Along the bottom is the real Earth, from NASA's public-domain Blue
-Marble day map, Earth at Night city lights and topography (prepared by
+Marble day map, the city lights of Earth at Night and topography (prepared by
 `scripts/build-earth-images.mjs`), with the coastlines (Natural Earth, rasterized by
 `scripts/build-earth.mjs`) for the sea's sheen, and clouds with cyclones and two
-hurricanes generated on the GPU. It turns slowly under a low sun: day on the left,
-dusk and the lit cities of the night on the right, under a thin glowing atmosphere. A
+hurricanes generated on the GPU. It turns slowly under a thin glowing atmosphere, and
+the sun circles it every 100 seconds: night sweeps across until the whole face is black
+and only the real city lights shine (brightest where most people live, from NASA's
+night map with its moonlit ground removed), then dawn brings the day back. A
 small 3D satellite (gold foil, solar wings, dishes) comes up over the planet's edge now
 and then, orbits along just inside the horizon and leaves off the side of the screen,
 its panels flashing when they catch the sun.
@@ -162,7 +164,7 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
 ## Make it yours
 
 - `web/src/config/site.ts`: name, tagline, and the platform token's contract
-  address (the bar under the nav says "not launched yet" until you fill it in).
+  address (the bar under the nav shows just the name until you fill it in).
 - `shared/currencies.json`: which currencies exist, with reference rates.
 - `VITE_DEFAULT_MODE` (`auto` | `live` | `playground`) and `VITE_DEFAULT_CHAIN`
   at build time choose what visitors see first.

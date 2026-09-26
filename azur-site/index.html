@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AZUR — trade with an AI co-pilot</title>
+  <meta name="description" content="AZUR is a mobile app for trading with AI. Research ideas, build a plan and place trades from one conversation.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23061a3a'/%3E%3Cpath fill='%234da3ff' d='M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============================== HERO ============================== -->
+<header class="hero">
+  <nav class="nav wrap">
+    <a class="brand" href="#">
+      <span class="brand-mark">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z"/></svg>
+      </span>
+      <span class="brand-name">AZUR</span>
+    </a>
+    <div class="nav-links">
+      <a href="#">Docs</a>
+      <a href="#" aria-label="Community chat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6l-4.5 3.6c-.4.3-1 0-1-.5V17H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3.5 5.2a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6zm7 0a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6z"/></svg>
+      </a>
+      <a href="#" aria-label="Social">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h4.2l4.1 5.6L17.2 4H20l-6.4 7.3L20.5 20h-4.2l-4.5-6-5.3 6H3.7l6.9-7.8z"/></svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- floating ticker pills -->
+  <div class="pills" aria-hidden="true">
+    <div class="pill p1"><span class="coin" style="--c:#4285f4">G</span><b>+11.42%</b></div>
+    <div class="pill p2"><span class="coin" style="--c:#8bd3ff">R</span><b>+$1.36k</b></div>
+    <div class="pill p3"><span class="coin" style="--c:#f7931a">₿</span><b>+21.08%</b></div>
+    <div class="pill p4"><span class="coin" style="--c:#2a2f3a">S</span><b>+$2.73k</b></div>
+    <div class="pill p5"><span class="coin" style="--c:#d5d9e0;--t:#111"></span><b>+$904.52</b></div>
+    <div class="pill p6"><span class="coin" style="--c:#627eea">Ξ</span><b>+15.33%</b></div>
+    <div class="pill p7"><span class="coin" style="--c:#e31937">T</span><b>+$712.40</b></div>
+    <div class="pill p8"><span class="coin" style="--c:#2b7fff">N</span><b>+8.91%</b></div>
+  </div>
+
+  <div class="hero-copy wrap">
+    <h1>Trade with an unfair edge</h1>
+    <p>AZUR is a mobile app for trading with AI. Research ideas, build a plan and place the trade, all from one conversation.</p>
+    <div class="stores">
+      <a class="store" href="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 18.5h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span><small>Download for</small>iPhone</span>
+        <em>SOON</em>
+      </a>
+      <a class="store" href="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5v17l14-8.5z" fill="currentColor"/></svg>
+        <span><small>Get it for</small>Android</span>
+        <em>SOON</em>
+      </a>
+    </div>
+  </div>
+
+  <!-- three phones -->
+  <div class="phones" aria-hidden="true">
+    <div class="phone phone-left">
+      <div class="screen">
+        <div class="status"><span>1:36</span><span class="island"></span><span class="sig"></span></div>
+        <div class="ph-top"><span class="back">‹</span><span class="clock-ic"></span></div>
+        <div class="bp">
+          <div class="bp-label">Buying power</div>
+          <div class="bp-value">$24,310.80</div>
+          <div class="bp-bar"><i></i></div>
+          <div class="bp-legend"><span>Cash $15,800.00</span><span>Margin $8,510.80</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phone phone-center">
+      <div class="screen">
+        <div class="status"><span>10:49</span><span class="island"></span><span class="sig"></span></div>
+        <div class="bal">
+          <div>
+            <div class="bal-value">$98,406.51</div>
+            <div class="bal-change">+$214.66 (+0.22%)</div>
+          </div>
+          <span class="avatar"></span>
+        </div>
+        <svg class="chart" id="heroChart" viewBox="0 0 300 170" preserveAspectRatio="none"></svg>
+        <div class="ranges"><b>1D</b><span>1W</span><span>1M</span><span>3M</span><span>YTD</span><span>1Y</span><span>ALL</span></div>
+      </div>
+    </div>
+
+    <div class="phone phone-right">
+      <div class="screen">
+        <div class="status"><span>3:16</span><span class="island"></span><span class="sig"></span></div>
+        <div class="ph-top"><span class="back">‹</span><span class="thread">Orbital thesis ›</span><span class="dots">•••</span></div>
+        <p class="ph-text">Launch is the capital-heavy anchor; satellite connectivity is the smaller, higher-beta leg. Size them separately and review liquidity on each.</p>
+        <div class="minis">
+          <div class="mini"><b>ORBT</b><span class="dn">$210.99</span><svg viewBox="0 0 100 40" class="spark dn-l"></svg></div>
+          <div class="mini"><b>LINK</b><span class="up">$41.20</span><svg viewBox="0 0 100 40" class="spark up-l"></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================== MONITOR ============================== -->
+<section class="monitor">
+  <h2 class="wrap monitor-title">Watch everything</h2>
+
+  <div class="feeds" aria-label="Sample market feed">
+    <div class="feed-row" data-dir="left"></div>
+    <div class="feed-row" data-dir="right"></div>
+  </div>
+
+  <div class="burst">
+    <svg class="beams" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="wedge" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#1d6bff" stop-opacity=".22"/>
+          <stop offset="1" stop-color="#1d6bff" stop-opacity=".08"/>
+        </linearGradient>
+      </defs>
+      <polygon points="500,190 1000,-260 1000,440 1000,480" fill="url(#wedge)"/>
+      <polygon points="500,190 0,70 0,400 40,400" fill="#1d6bff" fill-opacity=".07"/>
+      <line x1="500" y1="190" x2="1000" y2="-260"/>
+      <line x1="500" y1="190" x2="1000" y2="480"/>
+      <line x1="500" y1="190" x2="0" y2="70"/>
+      <line x1="500" y1="190" x2="40" y2="400"/>
+    </svg>
+
+    <div class="alerts" aria-hidden="true">
+      <div class="alert a1"><span class="coin" style="--c:#e31937">T</span>Revenue up 41% y/y</div>
+      <div class="alert a2 lit"><span class="coin" style="--c:#f7931a">₿</span>Breaks record high</div>
+      <div class="alert a3 lit"><span class="coin" style="--c:#2b7fff">N</span>Signs $2b chip order</div>
+      <div class="alert a4 lit"><span class="coin" style="--c:#627eea">Ξ</span>15m trend flip</div>
+    </div>
+
+    <div class="star" aria-hidden="true">
+      <svg viewBox="0 0 32 32"><path d="M16 1l2.4 9.2L26.6 4.3 21.8 12.6 31 16l-9.2 2.4 4.8 9.3-8.2-5.9L16 31l-2.4-9.2-8.2 5.9 4.8-9.3L1 16l9.2-3.4-4.8-8.3 8.2 5.9z"/></svg>
+    </div>
+
+    <p class="burst-copy">AZUR reads market-moving news around the clock and tells you what matters to your book, the moment it happens.</p>
+  </div>
+</section>
+
+<!-- ============================== SPEED ============================== -->
+<section class="speed">
+  <div class="wrap speed-grid">
+    <div class="phone phone-chat" aria-hidden="true">
+      <div class="screen">
+        <div class="status"><span>3:16</span><span class="island"></span><span class="sig"></span></div>
+        <div class="chat-head">
+          <span class="back">‹</span>
+          <span class="thread"><i class="thumb"></i>Orbital thesis ›</span>
+          <span class="dots">•••</span>
+        </div>
+        <div class="chat">
+          <div class="msg me">Check my launch and satellite exposure. I want both themes in one sleeve without the higher-volatility name taking over.</div>
+          <div class="thought">Thought for 18s ›</div>
+          <div class="msg ai">Launch is the capital-heavy anchor; the satellite name is the smaller, higher-beta leg. Both fit the same long-term view, but size and liquidity should be reviewed separately.</div>
+          <div class="cards">
+            <div class="ccard"><div><b>ORBT</b><small>Orbital Launch</small></div><div class="r"><b>$210.98</b><small class="dn">−0.10%</small></div><svg viewBox="0 0 100 50" class="spark dn-l"></svg></div>
+            <div class="ccard"><div><b>LINK</b><small>SatLink</small></div><div class="r"><b>$41.20</b><small class="up">+2.4%</small></div><svg viewBox="0 0 100 50" class="spark up-l"></svg></div>
+          </div>
+        </div>
+        <div class="chat-foot">
+          <div class="chips"><span>2 positions <b class="up">+33.28%</b></span><span>🔔 1 alert</span></div>
+          <div class="ask"><span>＋</span><span class="ph">Ask AZUR</span><span class="mic"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="speed-side">
+      <h2>Trade as fast as you think</h2>
+      <div class="bubbles">
+        <div class="bubble b1">Map out the space economy</div>
+        <div class="bubble b2 tail-r">Compare stablecoin payment rails</div>
+        <div class="bubble b3">Dig into AI data-center plays</div>
+        <div class="bubble b4 tail-r">Give my portfolio its weekly health check</div>
+        <div class="bubble b5">Track the accounts that move markets</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== SANDBOX ============================== -->
+<section class="sandbox">
+  <h2 class="wrap">A private workspace for your AI agent</h2>
+
+  <div class="hub wrap" id="hub">
+    <svg class="wires" id="wires" aria-hidden="true"></svg>
+    <div class="hub-col left">
+      <div class="node" data-side="l"><span class="ni"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span>One-tap sign in</div>
+      <div class="node" data-side="l"><span class="ni"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 10l3 2-3 2M12 15h5"/></svg></span>Its own cloud computer</div>
+      <div class="node" data-side="l"><span class="ni"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21M11 8v6M8 11h6"/></svg></span>Research on demand</div>
+    </div>
+
+    <div class="hub-core">
+      <div class="core-tile">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l2.2 8.3L25.2 6l-4.1 7.6L29 16l-7.9 2.4 4.1 7.6-7-5.3L16 29l-2.2-8.3L6.8 26l4.1-7.6L3 16l7.9-2.4L6.8 6l7 5.3z"/></svg>
+      </div>
+      <span class="core-badge"></span>
+    </div>
+
+    <div class="hub-col right">
+      <div class="node" data-side="r"><span class="ni"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg></span>Make custom tools</div>
+      <div class="node" data-side="r"><span class="ni"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span>Files that stick around</div>
+      <div class="node" data-side="r"><span class="ni"><svg viewBox="0 0 24 24"><path d="M6 3v18M12 3v18M18 3v18"/><rect x="4" y="7" width="4" height="6" rx="1"/><rect x="10" y="11" width="4" height="6" rx="1"/><rect x="16" y="6" width="4" height="5" rx="1"/></svg></span>A direct line to the trading engine</div>
+    </div>
+  </div>
+
+  <div class="powered wrap">
+    <p>Powered by</p>
+    <div class="logos">
+      <span class="lg lg1"><i></i>Helix</span>
+      <span class="lg lg2"><i></i>Quorum</span>
+      <span class="lg lg3"><i></i>vaultly</span>
+      <span class="lg lg4"><i></i>meridian</span>
+      <span class="lg lg5">tidepool</span>
+      <span class="lg lg6"><i></i>Arc</span>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span>© 2026 AZUR Labs.</span>
+    <div><a href="mailto:hello@example.com">hello@example.com</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

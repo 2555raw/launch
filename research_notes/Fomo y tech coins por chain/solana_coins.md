@@ -1,6 +1,23 @@
 # Solana "tech coins" that touched a US$700K–US$10M market cap (research as of 2026-09-26)
 
-**Method note (read first).** Only WebSearch worked in this environment. The session-wide WebSearch cap (200 calls, shared with the parallel researchers) ran out after this researcher's 24th query. WebFetch and curl are blocked by the egress policy. So **no figure below was checked live** on DexScreener, GeckoTerminal, Birdeye or GMGN. Market caps come from search-result titles, snippets and summaries. GitHub repo and code search (GitHub MCP) worked and is the **primary source** here for product mechanics and contract addresses (CAs). Labels:
+**Method note (read first).** Only WebSearch worked in this environment. The session-wide WebSearch cap (200 calls, shared with the parallel researchers) ran out after this researcher's 24th query. WebFetch and curl are blocked by the egress policy. So **no figure below was checked live** on DexScreener, GeckoTerminal, Birdeye or GMGN. Market caps come from search-result titles, snippets and summaries.
+
+**GitHub-sourced items (scope disclosure).** Before the coordinator limited GitHub MCP use to the `2555raw/launch` repo, this researcher had already made 10 GitHub MCP search calls on public repos outside that scope:
+- 1 `search_repositories` call (`org:Dexter-DAO`);
+- 9 `search_code` calls: in thedotmack/claude-mem, Dexter-DAO/dexter-x402-sdk, org:Dexter-DAO, bagsfm/bags-sdk, pump-fun/pump-fun-skills and ikhwanhsn/syra_agent (no results), plus global code searches for the CMEM mint, the DEXTER mint and `"CMEM" "market cap"`.
+
+Two `get_file_contents` attempts on outside repos were refused. No GitHub calls were made after the restriction was communicated.
+
+The data is public and cited to github.com URLs. In these notes it is identifiable as **any fact that cites a specific file inside a repo (shown as file `…`, or "README/examples") or repo metadata (stars, forks, creation or update dates, repo descriptions)**. The coordinator or report writer may drop these items if the tool-scope rule should also apply to calls made before it arrived. They are the main source for:
+- Dexter's official CA confirmation and its 25% token discount;
+- Dexter "Tabs" and the passkey wallet;
+- Dexter's repo activity;
+- the CMEM airdrop and CMEM Pro details;
+- the moollm GAS timeline;
+- Bags `feeClaimers`;
+- pump.fun's tokenized-agent defaults.
+
+Labels:
 - **"Current"** = the snapshot shown in search results in Sep 2026. The exact timestamp was not visible.
 - **"Derived"** = my own arithmetic from cited inputs, labelled as such.
 - **"no verificado"** = not found in any source.
@@ -21,13 +38,13 @@ Recommended "best 2" for the report: **#1 Dexter, #2 CMEM**, with CMEM's market-
 
 ### Cited Findings
 - **#1 Dexter AI ($DEXTER)** (pump.fun, late 2025).
-  - CoinGecko shows an ATH price of $0.005890, a circulating supply of 1B and a current MC of $346,850 — [CoinGecko](https://www.coingecko.com/en/coins/dexter-ai).
+  - Search summaries of the "Dexter AI" price pages give an ATH price of $0.005890, a circulating supply of 1B and a current MC of $346,850 — [CoinGecko](https://www.coingecko.com/en/coins/dexter-ai) / [Coinbase](https://www.coinbase.com/en-in/price/solana-dexter-ai-pump). The exact page behind each figure was not isolated; the wording matches CoinGecko.
   - The token was released on pump.fun in late 2025 — [LBank](https://www.lbank.com/price/dexter-ai/what-is).
 - **#2 Claude Memory ($CMEM)** (Bags.fm; the CA ends in "BAGS").
   - Current MC $6,654.96 (FDV identical, 1B max supply) — [CoinGecko](https://www.coingecko.com/en/coins/claude-memory).
   - Peak MC: **no verificado**.
 - **#3 Paystream ($PAYS)** (MetaDAO ICO).
-  - Raised $750K. MC $680K while trading about 30% below its ICO price (date not shown) — [blocmates](https://www.blocmates.com/articles/metadao-projects-distilled).
+  - Raised $750K. MC $680K while trading about 30% below its ICO price (date not shown) — search summary; the source page is likely [blocmates](https://www.blocmates.com/articles/metadao-projects-distilled), possibly the [MEXC-hosted MetaDAO article](https://www.mexc.com/news/129206).
 - **#4 (case study) Gas Town ($GAS)** (Bags.fm, Jan 2026).
   - Reached ≈ $60M on Jan 15, 2026, then fell about 98% to ≈ $1.1M — [Whale Alert](https://whale-alert.io/stories/d27c01673ae5/Gas-Town-GAS-tumbles-98-to-11M-after-creator-Steve-Yegge-distances-himself-other-Bags-launchpad-tokens-also-plunge).
   - "From $10M to $60M" on Jan 16, 2026 — [SimHacker/moollm analysis](https://github.com/SimHacker/moollm) (file `designs/gastown/YEGGE-ARC-ANALYSIS.md`).
@@ -77,15 +94,15 @@ Its pump.fun token has a derived ATH of ≈ US$5.9M (inside the band) and now si
   - Another DexScreener DEXTER pool shows "$4,583" — [DexScreener](https://dexscreener.com/solana/hgreumcnytmo98eq3yzmxp4radktmp9nkwad1nvvumqd).
 
 **Market cap**
-- ATH price $0.005890; circulating supply 1 billion; current MC $346,850 (Sep 2026 snapshot) — [CoinGecko](https://www.coingecko.com/en/coins/dexter-ai).
+- ATH price $0.005890; circulating supply 1 billion; current MC $346,850 (Sep 2026 snapshot) — search summaries of [CoinGecko](https://www.coingecko.com/en/coins/dexter-ai) / [Coinbase](https://www.coinbase.com/en-in/price/solana-dexter-ai-pump) "Dexter AI" pages. Caveat: several unrelated "DEXTER" tokens exist, so a live check of the ATH on the `EfPoo4…pump` mint is still needed.
 - The DexScreener page title for the "Dexter AI / SOL on PumpSwap" pool reads "$309.67K". Which metric and timestamp this is was not visible — [DexScreener](https://dexscreener.com/solana/csqt5axbzlcsd13dpy6ayltrkcu5q1nztapam67elxro).
 - Status: **active**. The GitHub org shows commits and updates through 2026-09-25 (see Traction).
 
 **Product and how it works**
 - **x402 facilitator.** It verifies, signs and settles x402 (HTTP 402 plus stablecoin) payments on Solana and is open to any developer or project — [dexter.cash/facilitator](https://dexter.cash/facilitator).
   - Public facilitator address: `DEXVS3su4dZQWTvvPnLDJLRK1CeeKG6K3QqdzthgAkNV` — [Orb explorer](https://orbmarkets.io/address/DEXVS3su4dZQWTvvPnLDJLRK1CeeKG6K3QqdzthgAkNV/history).
-- **Positioning.** A "vertically-integrated operating system and an x402-based economy for interactive AI agents" — [CoinGecko](https://www.coingecko.com/en/coins/dexter-ai).
-  - Claims "crypto's first native ChatGPT App, Claude Connector, and secure realtime voice agent" — search summary of [dexter.cash/facilitator](https://dexter.cash/facilitator).
+- **Positioning.** A "vertically-integrated operating system and an x402-based economy for interactive AI agents" — search summary of price-page descriptions ([CoinGecko](https://www.coingecko.com/en/coins/dexter-ai) / [LBank](https://www.lbank.com/price/dexter-ai)).
+  - Claims "crypto's first native ChatGPT App, Claude Connector, and secure realtime voice agent" — search summary. The source is one of [dexter.cash/facilitator](https://dexter.cash/facilitator) or [LBank](https://www.lbank.com/price/dexter-ai/what-is), not isolated.
 - **Feature list per a third-party explainer:** pay-per-call API billing, LLM-integrated trading, voice control, social (SNS) integration, private transfers; X handle @dexteraisol — [Web3ResearchGlobal](https://www.web3researchglobal.com/p/dexter).
 - **Dexter Connectors** link authenticated AI agents to Solana wallets, so users can research markets, trade and monitor portfolios from inside ChatGPT and Claude — search summary of [CoinGecko](https://www.coingecko.com/en/coins/dexter-ai).
 - **x402 SDK.** "TypeScript SDK for x402 buyers and sellers, with bounded Solana Tabs and one-shot multichain payments" — [Dexter-DAO/dexter-x402-sdk](https://github.com/Dexter-DAO/dexter-x402-sdk). What the README and example code show about Tabs:
@@ -218,7 +235,7 @@ $CMEM is a Bags.fm token around **claude-mem**, a hugely popular open-source mem
 MetaDAO runs fixed-price public raises: every buyer pays the same price, there is a minimum raise and a monthly budget, oversubscription is refunded pro rata, and a futarchy-governed treasury controls spending. It produced several product tokens in or near the band. Paystream (P2P lending) raised US$750K and traded around US$0.68M MC, roughly 30% under its ICO price. **Verdict: a strong model for a credibility-first fintech launch page (Payence); weak on post-ICO price performance.**
 
 ### Cited Findings
-- **Paystream** raised $750K through MetaDAO. It is "a peer-to-peer lending protocol on Solana featuring a built-in leveraged engine that maximizes APYs by directly connecting borrowers and lenders". MC $680K while trading 30% below its ICO price — [blocmates](https://www.blocmates.com/articles/metadao-projects-distilled).
+- **Paystream** raised $750K through MetaDAO. It is "a peer-to-peer lending protocol on Solana featuring a built-in leveraged engine that maximizes APYs by directly connecting borrowers and lenders". MC $680K while trading 30% below its ICO price — search summary; the source page is likely [blocmates](https://www.blocmates.com/articles/metadao-projects-distilled), possibly the [MEXC-hosted MetaDAO article](https://www.mexc.com/news/129206).
   - CA, launch date and ATH: **no verificado**.
 - **MetaDAO mechanics** (search summary of MetaDAO sources):
   - a public sale "where everyone pays the same price";
@@ -239,7 +256,7 @@ MetaDAO runs fixed-price public raises: every buyer pays the same price, there i
   | Q1 2026 | $556K |
   | Q2 2026 | $376.5K |
 
-- **Other ownership coins:** Omnipair, Umbra, Solomon, Paystream, Avici, Loyal — [blocmates](https://www.blocmates.com/articles/metadao-projects-distilled). From the same source:
+- **Other ownership coins:** Omnipair, Umbra, Solomon, Paystream, Avici, Loyal — search summary; the source page is likely [blocmates](https://www.blocmates.com/articles/metadao-projects-distilled) or [Basis Point](https://basispointres.substack.com/p/metadao-ownership-coins). From the same summary:
   - **Umbra** (privacy, "incognito mode" for Solana) drew over $154M in commitments. MC ≈ $11M at $1.1, about 4× its $0.30 ICO price.
   - **Avici** ("internet neobank") has a treasury of $3,325,489. Prices of $1.02 and $0.59 were seen at different dates.
 
@@ -359,7 +376,7 @@ The biggest 2025–26 Solana tech coins (PayAI, KLED, DUPE, LAUNCHCOIN, Umbra) p
 - Also reported: "Pump.fun Lets Creators Launch Coins Priced In Tokenized Stocks" (title only; date no verificado) — [The Defiant](https://thedefiant.io/news/defi/pump-fun-lets-creators-launch-coins-priced-in-tokenized-stocks).
 
 **LetsBonk.fun**
-- BONK ecosystem integration, volume-based graduation fees and direct Raydium listing on graduation — [StakePoint](https://stakepoint.app/blog/letsbonk-fun-vs-pump-fun-2026).
+- BONK ecosystem integration, volume-based graduation fees and direct Raydium listing on graduation — search summary of 2026 comparison posts ([StakePoint](https://stakepoint.app/blog/letsbonk-fun-vs-pump-fun-2026) / [SolBundler](https://solbundler.app/blog/pump-fun-vs-bonk)).
 - It peaked in mid-2025 and then lost share (see the pump.fun share figure above).
 
 **Bags.fm**

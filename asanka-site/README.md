@@ -29,7 +29,9 @@ app.js       CONFIG and MENU, theme, navigation, filters, cart, checkout,
 python3 -m http.server 8000     # then open http://localhost:8000
 ```
 
-Deploy it by dropping the folder on any static host (Netlify, Vercel, GitHub Pages,
+On Railway, point a service at this folder (root directory `asanka-site`): `npm start`
+runs `server.js`, a dependency-free static server that listens on `PORT`
+(`/launchpad` also serves the launchpad). Or deploy it by dropping the folder on any static host (Netlify, Vercel, GitHub Pages,
 Cloudflare Pages, Railway).
 
 ## How an order works

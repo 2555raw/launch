@@ -1,0 +1,12 @@
+{
+  "name": "asanka-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Asanka, a West African food store, and Asanka Pad, a demo launchpad for food coins.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

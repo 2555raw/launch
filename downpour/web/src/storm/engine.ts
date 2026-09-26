@@ -211,8 +211,8 @@ export class StormEngine implements StormRenderer {
       g.fillStyle = gr;
       g.fillRect(x - r, y - r, r * 2, r * 2);
     };
-    blob(this.w * 0.8, this.h * 0.2, this.h * 0.6, 'rgba(90, 50, 150, 0.16)');
-    blob(this.w * 0.15, this.h * 0.75, this.h * 0.55, 'rgba(20, 80, 150, 0.18)');
+    blob(this.w * 0.8, this.h * 0.2, this.h * 0.6, 'rgba(40, 55, 90, 0.16)');
+    blob(this.w * 0.15, this.h * 0.75, this.h * 0.55, 'rgba(20, 60, 120, 0.16)');
     const n = Math.round((this.w * this.h) / 900);
     for (let i = 0; i < n; i++) {
       const mag = Math.random() ** 5;

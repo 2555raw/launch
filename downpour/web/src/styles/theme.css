@@ -410,41 +410,6 @@ main {
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9), 0 0 3px rgba(0, 0, 0, 0.7);
 }
 
-/* ------------------------------ coin card skies ------------------------------ */
-.coin-card .cc-ticker,
-.preview .cc-ticker {
-  color: rgba(255, 255, 255, 0.94);
-  letter-spacing: 0.14em;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.8);
-  z-index: 2;
-}
-.coin-card .cc-age {
-  color: rgba(255, 255, 255, 0.62);
-}
-.cc-orb {
-  filter: none;
-}
-/* a real star's spikes shimmer a little */
-.star-mark .star-spikes {
-  transform-origin: 50% 50%;
-  animation: star-shimmer 3.4s ease-in-out infinite alternate;
-}
-@keyframes star-shimmer {
-  from {
-    transform: scale(0.93);
-    opacity: 0.82;
-  }
-  to {
-    transform: scale(1.04);
-    opacity: 1;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .star-mark .star-spikes {
-    animation: none;
-  }
-}
-
 /* ------------------------------ footer status ------------------------------ */
 .footer-bottom {
   color: rgba(255, 255, 255, 0.62);
@@ -749,3 +714,201 @@ main {
 .wallet-others {
   margin: 18px 0 8px;
 }
+
+/* ------------------------------ the top bars: translucent glass, like the hero button ------------------------------ */
+.nav,
+.ca-bar,
+.sheet {
+  --ink: #fff;
+  --ink-2: rgba(255, 255, 255, 0.86);
+  --ink-3: rgba(255, 255, 255, 0.6);
+  --line: rgba(255, 255, 255, 0.18);
+  --line-2: rgba(255, 255, 255, 0.32);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 12px 34px -20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.nav-links a:hover,
+.nav-connect:hover,
+.more-btn:hover,
+.more-btn[aria-expanded='true'] {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.nav-links a.on::after,
+.more-btn.on::after {
+  background: #b9a8ff;
+}
+.nav-links a.nav-swap {
+  color: #fff;
+  background: rgba(90, 63, 209, 0.55);
+}
+.nav-links a.nav-swap:hover {
+  color: #fff;
+  background: rgba(90, 63, 209, 0.75);
+}
+.nav-links a.nav-swap.on {
+  background: #5a3fd1;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+.nav .btn-primary {
+  background: #fff;
+  color: #0b1322;
+  border-color: #fff;
+  box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.7);
+}
+.nav .btn-primary:hover {
+  background: #eef0fa;
+  border-color: #eef0fa;
+}
+.nav .icon-btn,
+.nav .acct-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: #fff;
+}
+.sheet a.on,
+.sheet a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.mode-pill,
+.mode-pill.playground {
+  background: rgba(3, 7, 16, 0.55);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* ------------------------------ coin cards: a light header with the coin's star (after Levity) ------------------------------ */
+.coin-card .cc-sky,
+.coin-avatar,
+.preview {
+  background:
+    radial-gradient(58% 72% at 50% 52%, color-mix(in srgb, var(--c) 24%, white), transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, white), #fff 88%);
+}
+.coin-card .cc-sky::after,
+.coin-avatar::after,
+.preview::after {
+  display: none;
+}
+.coin-card .cc-sky {
+  border-bottom: 1px solid rgba(15, 28, 50, 0.06);
+}
+.coin-card .cc-code,
+.preview .cc-code {
+  top: 12px;
+  left: 14px;
+  color: #6b7385;
+}
+.coin-card .cc-age {
+  top: auto;
+  bottom: 10px;
+  right: 14px;
+  color: #8a93a4;
+}
+.cc-orb {
+  filter: drop-shadow(0 12px 14px color-mix(in srgb, var(--c) 28%, transparent));
+}
+.coin-avatar {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+.coin-avatar .star-token {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 100px;
+  height: 100px;
+}
+@media (max-width: 640px) {
+  .coin-avatar .star-token {
+    width: 74px;
+    height: 74px;
+  }
+}
+
+/* ------------------------------ the board's bar (after Levity) ------------------------------ */
+.board-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 32px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+.board-head .page-head {
+  margin-bottom: 0;
+  flex: 1 1 520px;
+}
+.board-bar {
+  justify-content: space-between;
+}
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.93);
+  box-shadow: 0 10px 26px -18px rgba(0, 0, 0, 0.8);
+}
+.seg button {
+  height: 34px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #2a3547;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.seg button:hover {
+  background: rgba(15, 28, 50, 0.06);
+}
+.seg button.on {
+  background: #5a3fd1;
+  color: #fff;
+}
+.board-find {
+  display: flex;
+  gap: 10px;
+  flex: 1 1 360px;
+  justify-content: flex-end;
+}
+.board-find .search {
+  max-width: 320px;
+}
+.board-count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  margin: 4px 0 14px;
+}
+@media (max-width: 640px) {
+  .seg {
+    width: 100%;
+  }
+  .seg button {
+    flex: 1;
+    padding: 0 8px;
+  }
+  .board-find {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+  .board-find .search {
+    min-width: 0;
+    max-width: none;
+  }
+  .board-find .select {
+    flex: 0 0 auto;
+    max-width: 44%;
+  }
+}
+

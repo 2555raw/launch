@@ -216,16 +216,6 @@ a.card:hover {
   }
 }
 
-.cc-ticker {
-  position: absolute;
-  bottom: 10px;
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--ink-2);
-}
-
 .cc-body {
   padding: 16px 18px 12px;
   display: flex;

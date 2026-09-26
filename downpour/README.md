@@ -25,7 +25,10 @@ the sun.
 Every currency is a star, drawn like a real one (a white core, a halo in the
 currency's colour, diffraction spikes) with its sign beside it like a star chart.
 Stars are born with a flare, drift slowly upward and fade out; tap one and it flares up
-for a moment and fades, like a real star going out.
+for a moment and fades, like a real star going out. On the board's cards, the coin page
+and the launch preview, each coin is a glossy star in its currency's colour with the
+currency's sign and the coin's ticker on it, on a light card (after Levity's balloons).
+The top bars are translucent glass over the sky.
 Shooting stars streak across the top of the sky on their own, over the planet and
 away from it. Resolution drops by itself on slow devices, browsers without WebGL2 get a 2D
 version (also reachable with `?storm2d`), and nothing moves under

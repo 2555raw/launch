@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
 import { CoinCard, CoinCardSkeleton } from '../components/CoinCard';
 import { CurrencyDot, PageHead } from '../components/bits';
+import { KeeperLine } from '../components/sections';
 import { Arrow, Search } from '../components/icons';
 import { sortRows, useRows, type SortKey } from '../lib/views';
 
@@ -49,34 +50,38 @@ export default function Board() {
 
   return (
     <div className="wrap">
-      <PageHead
-        kicker="The board"
-        title="Every coin, and the money it lives in"
-        lead="Filter by currency to see everything priced in pesos, or yen, or gold. Each card shows the pair up front: the coin on the left of the badge, its currency on the right."
-      />
+      <div className="board-head">
+        <PageHead
+          kicker="The board"
+          title="Every coin, and the money it lives in"
+          lead="Filter by currency to see everything priced in pesos, or yen, or gold. Each card shows the pair up front: the coin on the left of the badge, its currency on the right."
+        />
+        <Link to="/launch" className="btn btn-primary" data-solid>
+          Launch a coin <Arrow />
+        </Link>
+      </div>
 
-      <div className="toolbar" data-solid>
-        <div className="search">
-          <Search />
-          <input className="input" placeholder="Search name, ticker, currency or address" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search coins" />
-        </div>
-        <select className="select" value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Sort">
-          <option value="active">Latest trade</option>
-          <option value="new">Newest</option>
-          <option value="mcap">Market cap (USD)</option>
-          <option value="volume">24h volume (USD)</option>
-          <option value="progress">Closest to graduating</option>
-        </select>
-        <div className="chips">
+      <div className="toolbar board-bar" data-solid>
+        <div className="seg" role="group" aria-label="Show">
           {(['all', 'curve', 'pool'] as Status[]).map((s) => (
-            <button key={s} className={`chip ${status === s ? 'on' : ''}`} onClick={() => setStatus(s)}>
-              {s === 'all' ? 'All' : s === 'curve' ? 'On the curve' : 'In the pool'}
+            <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)} aria-pressed={status === s}>
+              {s === 'all' ? 'All coins' : s === 'curve' ? 'On the curve' : 'In the pool'}
             </button>
           ))}
         </div>
-        <Link to="/launch" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto' }}>
-          Launch a coin <Arrow />
-        </Link>
+        <div className="board-find">
+          <div className="search">
+            <Search />
+            <input className="input" placeholder="Find a coin, ticker, currency or address" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search coins" />
+          </div>
+          <select className="select" value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Sort">
+            <option value="active">Latest trade</option>
+            <option value="new">Newest</option>
+            <option value="mcap">Market cap (USD)</option>
+            <option value="volume">24h volume (USD)</option>
+            <option value="progress">Closest to graduating</option>
+          </select>
+        </div>
       </div>
 
       <div className="cur-filter" data-solid role="group" aria-label="Filter by currency">
@@ -88,6 +93,13 @@ export default function Board() {
             <CurrencyDot c={c} size={18} /> {c.code} <span className="muted">{c.n}</span>
           </button>
         ))}
+      </div>
+
+      <div className="board-count">
+        <span className="kicker">
+          {shown.length} {shown.length === 1 ? 'market' : 'markets'} open
+        </span>
+        <KeeperLine />
       </div>
 
       <div className="grid grid-3">

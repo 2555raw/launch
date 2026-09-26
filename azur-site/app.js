@@ -269,7 +269,7 @@
   // ---------------------------------------------------------------- site config
   // Put the real community links here; every Discord and X icon on the site uses them.
   const SOCIAL = {
-    discord: "",   // e.g. "https://discord.gg/your-invite"
+    discord: "https://discord.gg/ZaJcVDmcR",
     x: "https://x.com/useAzur",
   };
   const LIVE_SITE = "https://spinpad-production.up.railway.app";

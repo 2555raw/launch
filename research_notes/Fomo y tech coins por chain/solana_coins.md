@@ -334,7 +334,7 @@ The biggest 2025–26 Solana tech coins (PayAI, KLED, DUPE, LAUNCHCOIN, Umbra) p
   - Earlier, DUPE was ≈ $26M after a 6× week (2025) — [Cryptonews](https://cryptonews.com/exclusives/launchcoin-believe-future-of-meme-coins/).
 - **LAUNCHCOIN (Believe):**
   - Peak ≈ $200M, up to $319M during May 12–15, 2025 — [Incrypted](https://incrypted.com/en/internet-capital-markets-and-believe-app-when-an-explosive-trend-finds-its-launchpad/).
-  - Current MC $1,603,142 — [CoinMarketCap](https://coinmarketcap.com/currencies/launch-coin-on-believe/).
+  - Current MC $1,603,142 — search summary of price pages ([CoinMarketCap](https://coinmarketcap.com/currencies/launch-coin-on-believe/) / [Kraken](https://www.kraken.com/prices/launch-coin-on-believe)).
 
 ### Inferences
 - **Syra (derived, assuming 1B supply, which is not verified):** ATH ≈ $389K, below the band. Still the best functional analog for Tricker Terminal: pay-per-call x402 analytics plus a chat agent plus a Telegram bot.
@@ -386,7 +386,7 @@ The biggest 2025–26 Solana tech coins (PayAI, KLED, DUPE, LAUNCHCOIN, Umbra) p
 - More than $5B of on-chain volume and $40M+ of creator payouts. Won the "Crowdfunding Innovation Award" at the 2026 FinTech Breakthrough Awards (Mar 20, 2026) — [BusinessWire](https://www.businesswire.com/news/home/20260320414386/en).
 - **The Bags Hackathon (2026):** over $1M in direct prizes and $3M of ongoing funding. Projects **must have a linked token** — [DoraHacks](https://dorahacks.io/hackathon/the-bags-hackathon/detail).
 - BagsApp ecosystem category MC is now only $9.53M — [CoinGecko](https://www.coingecko.com/en/categories/bagsapp-ecosystem).
-- Positioning: a "smaller but dedicated community"; less organic discovery but less sniper competition — [SolBundler](https://solbundler.app/blog/pump-fun-vs-bonk).
+- Positioning: a "smaller but dedicated community"; less organic discovery but less sniper competition — search summary of 2026 comparison posts ([SolBundler](https://solbundler.app/blog/pump-fun-vs-bonk) / [StakePoint](https://stakepoint.app/blog/letsbonk-fun-vs-pump-fun-2026)).
 
 **Believe (Launchcoin)**
 - Tokens launch by replying on X with "$TICKER + @launchcoin", no wallet needed — [CoinGecko Learn](https://www.coingecko.com/learn/what-is-believe-token-launchpad).

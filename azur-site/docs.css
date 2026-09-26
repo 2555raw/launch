@@ -22,8 +22,7 @@ body.docs.collapsed .side { visibility: hidden; }
   border-right: 1px solid var(--line);
 }
 .side-top { display: flex; align-items: center; justify-content: space-between; }
-.brand-mark.sm { width: 32px; height: 32px; border-radius: 8px; }
-.brand-mark.sm svg { width: 22px; }
+.brand-mark.sm { width: 30px; height: 30px; }
 .side .brand-name { font-size: 18px; }
 .side-actions { display: flex; gap: 2px; }
 .search { cursor: pointer; }

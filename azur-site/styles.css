@@ -57,16 +57,8 @@ h1, h2 {
   padding: 44px 0 0;
 }
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #0d3a8f, #06183d);
-  box-shadow: 0 0 24px rgba(47, 123, 255, .45), inset 0 0 0 1px rgba(255, 255, 255, .08);
-}
-.brand-mark svg { width: 30px; fill: #9cc7ff; filter: drop-shadow(0 0 6px #2f7bff); }
+.brand-mark { display: grid; place-items: center; width: 40px; height: 40px; }
+.brand-mark svg { width: 100%; height: 100%; fill: #fff; }
 .brand-name { font-family: var(--display); font-weight: 800; font-style: italic; font-size: 24px; letter-spacing: -.02em; }
 .nav-links { display: flex; align-items: center; gap: 34px; font-size: 17px; font-weight: 500; }
 .nav-links svg { width: 26px; height: 26px; fill: #fff; display: block; }
@@ -497,7 +489,7 @@ h1, h2 {
   background: linear-gradient(150deg, #1a5cff, #0a2a6b 80%);
   box-shadow: 0 0 80px rgba(47, 123, 255, .35), inset 0 1px 0 rgba(255, 255, 255, .25);
 }
-.core-tile svg { width: 130px; fill: #fff; filter: drop-shadow(0 0 16px rgba(160, 205, 255, .9)); }
+.core-tile svg { width: 120px; fill: #fff; filter: drop-shadow(0 0 14px rgba(160, 205, 255, .6)); }
 .core-badge {
   position: absolute;
   right: -20px;
@@ -680,7 +672,7 @@ h1, h2 {
   border: 1px solid #1c2a47;
 }
 .cta-in .sec-lead { margin-inline: auto; }
-.cta-star svg { width: 56px; fill: #6fb3ff; filter: drop-shadow(0 0 14px #2f7bff); animation: pulse 3.2s ease-in-out infinite; }
+.cta-star svg { width: 60px; fill: #fff; filter: drop-shadow(0 0 18px rgba(90, 162, 255, .7)); }
 
 /* ------------------------------------------------------------ terms gate */
 body.gated { overflow: hidden; }

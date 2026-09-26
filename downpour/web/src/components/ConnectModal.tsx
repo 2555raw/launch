@@ -1,21 +1,32 @@
+import { useState } from 'react';
 import { useWallet } from '../wallet/WalletProvider';
-import { isMobile, mobileDeepLinks } from '../wallet/discovery';
+import { FEATURED, installedAs, isMobile } from '../wallet/discovery';
+import type { DiscoveredWallet } from '../wallet/types';
 import { usePad } from '../backend/PadProvider';
 import { Modal } from './bits';
 import { StarIcon } from './icons';
 
-const INSTALL = [
-  { name: 'MetaMask', href: 'https://metamask.io/download/' },
-  { name: 'Rabby', href: 'https://rabby.io/' },
-  { name: 'Coinbase Wallet', href: 'https://www.coinbase.com/wallet/downloads' },
-  { name: 'Phantom', href: 'https://phantom.com/download' },
-];
+const ICONS = import.meta.env.BASE_URL;
 
 export function ConnectModal() {
   const w = useWallet();
   const pad = usePad();
   const mobile = isMobile();
   const playground = pad.mode === 'playground';
+  const [pending, setPending] = useState<string>();
+  const here = typeof location !== 'undefined' ? location.href : '';
+
+  const connect = (wal: DiscoveredWallet) => {
+    setPending(wal.info.uuid);
+    void w.connect(wal);
+  };
+  const state = (wal: DiscoveredWallet) => (w.status === 'connecting' && pending === wal.info.uuid ? 'Check your wallet…' : 'Detected');
+
+  // MetaMask, Coinbase Wallet and Phantom always come first; any other wallet the
+  // browser has installed is listed after them
+  const featured = FEATURED.map((f) => ({ ...f, wallet: installedAs(f, w.wallets) }));
+  const taken = new Set(featured.map((f) => f.wallet?.info.uuid));
+  const others = w.wallets.filter((wal) => !taken.has(wal.info.uuid));
 
   return (
     <Modal open={w.modalOpen} onClose={w.closeModal} title="Connect a wallet">
@@ -25,30 +36,49 @@ export function ConnectModal() {
           : 'Transactions are signed in your wallet. The site never sees your keys.'}
       </p>
 
-      {w.wallets.length > 0 && (
-        <div className="wallet-list">
-          {w.wallets.map((wal) => (
-            <button key={wal.info.uuid} className="wallet-row" onClick={() => w.connect(wal)} disabled={w.status === 'connecting'}>
-              {wal.info.icon ? <img src={wal.info.icon} alt="" width={28} height={28} /> : <span className="wallet-fallback"><StarIcon /></span>}
-              <span>{wal.info.name}</span>
-              <span className="muted small">{w.status === 'connecting' ? 'Check your wallet…' : 'Detected'}</span>
+      <div className="wallet-list">
+        {featured.map((f) =>
+          f.wallet ? (
+            <button key={f.name} className="wallet-row featured" onClick={() => connect(f.wallet!)} disabled={w.status === 'connecting'}>
+              <img src={`${ICONS}${f.icon}`} alt="" width={36} height={36} />
+              <span>{f.name}</span>
+              <span className="wallet-state ready">{state(f.wallet)}</span>
             </button>
-          ))}
-        </div>
-      )}
+          ) : mobile ? (
+            <a key={f.name} className="wallet-row featured" href={f.open(here)}>
+              <img src={`${ICONS}${f.icon}`} alt="" width={36} height={36} />
+              <span>{f.name}</span>
+              <span className="wallet-state">Open in the app ↗</span>
+            </a>
+          ) : (
+            <a key={f.name} className="wallet-row featured" href={f.install} target="_blank" rel="noreferrer">
+              <img src={`${ICONS}${f.icon}`} alt="" width={36} height={36} />
+              <span>{f.name}</span>
+              <span className="wallet-state">Not installed · get it ↗</span>
+            </a>
+          ),
+        )}
+      </div>
 
-      {w.wallets.length === 0 && (
-        <div className="callout" style={{ marginBottom: 14 }}>
-          <b>No wallet found in this browser.</b>{' '}
-          {mobile ? 'Open this page inside your wallet app:' : 'Install one, then reload this page:'}
-          <div className="wallet-links">
-            {(mobile ? mobileDeepLinks() : INSTALL).map((l) => (
-              <a key={l.name} className="chip" href={l.href} target="_blank" rel="noreferrer">
-                {l.name}
-              </a>
+      {others.length > 0 && (
+        <>
+          <div className="kicker wallet-others">Other wallets in this browser</div>
+          <div className="wallet-list">
+            {others.map((wal) => (
+              <button key={wal.info.uuid} className="wallet-row" onClick={() => connect(wal)} disabled={w.status === 'connecting'}>
+                {wal.info.icon ? (
+                  <img src={wal.info.icon} alt="" width={28} height={28} />
+                ) : (
+                  <span className="wallet-fallback">
+                    <StarIcon />
+                  </span>
+                )}
+                <span>{wal.info.name}</span>
+                <span className="wallet-state ready">{state(wal)}</span>
+              </button>
             ))}
           </div>
-        </div>
+        </>
       )}
 
       {playground && (

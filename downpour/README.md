@@ -41,7 +41,7 @@ version (also reachable with `?storm2d`), and nothing moves under
 | **Portfolio** | Your coins, currencies, launches, and creator fees to claim. |
 | **Proof** | Recomputes, for every market, that its reserves add up and its backing covers selling every coin back at once; in live mode also that the contract really holds the money. |
 | **Verify** | Checks from the browser, against any RPC, that a coin is genuinely the pad's and its pairing is what the badge says (the same checks as `scripts/verify.mjs`). |
-| **Connect wallet** | Every browser wallet via EIP-6963 (MetaMask, Rabby, Coinbase, Phantom, OKX, Brave, Trust…), deep links into wallet apps on phones, and a guest mode for the playground. |
+| **Connect wallet** | MetaMask, Coinbase Wallet and Phantom first, with their own icons: connected straight away when installed, opened in their app on phones, or linked to their download page. Any other browser wallet (EIP-6963: Rabby, OKX, Brave, Trust…) is listed after them, and there is a guest mode for the playground. The icons are from @web3icons/core (MIT); the marks belong to their makers. |
 
 ## Two modes
 

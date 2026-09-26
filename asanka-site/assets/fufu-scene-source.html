@@ -1,0 +1,265 @@
+<!doctype html><meta charset="utf-8">
+<title>Fufu scene</title>
+<!-- Source of assets/fufu-scene.png: a man at the table eating fufu with his hand,
+     jollof on the side. The fufu bowl sits in the foreground and takes the most
+     room, as asked. Rendered at 1600×1000. -->
+<style>html,body{margin:0;background:#1B110C}svg{display:block;width:1600px;height:1000px}</style>
+<svg viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5A3824"/><stop offset=".55" stop-color="#3A2418"/><stop offset="1" stop-color="#22140D"/></linearGradient>
+  <radialGradient id="key" cx=".18" cy=".12" r=".7"><stop offset="0" stop-color="#FFC77A" stop-opacity=".45"/><stop offset="1" stop-color="#FFC77A" stop-opacity="0"/></radialGradient>
+  <linearGradient id="table" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A4A28"/><stop offset=".5" stop-color="#5E361C"/><stop offset="1" stop-color="#3E2211"/></linearGradient>
+  <radialGradient id="skin" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#8E5C3B"/><stop offset=".55" stop-color="#6A4128"/><stop offset="1" stop-color="#452815"/></radialGradient>
+  <linearGradient id="skinArm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#835334"/><stop offset="1" stop-color="#4E2E19"/></linearGradient>
+  <linearGradient id="neck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3E2413"/><stop offset="1" stop-color="#5C3820"/></linearGradient>
+  <pattern id="ankara" width="84" height="84" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+    <rect width="84" height="84" fill="#1C3E6B"/>
+    <circle cx="42" cy="42" r="24" fill="none" stroke="#F2B33D" stroke-width="7"/>
+    <circle cx="42" cy="42" r="10" fill="#D9471F"/>
+    <circle cx="42" cy="42" r="4" fill="#F6E3B4"/>
+    <path d="M0 0 l10 10 l-10 10 z M84 0 l-10 10 l10 10 z M0 84 l10 -10 l-10 -10 z M84 84 l-10 -10 l10 -10 z" fill="#2F8A6A"/>
+    <circle cx="0" cy="42" r="5" fill="#F6E3B4"/><circle cx="84" cy="42" r="5" fill="#F6E3B4"/>
+    <circle cx="42" cy="0" r="5" fill="#F6E3B4"/><circle cx="42" cy="84" r="5" fill="#F6E3B4"/>
+  </pattern>
+  <linearGradient id="clothShade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".05"/><stop offset=".6" stop-color="#000" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient>
+  <linearGradient id="clay" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4E2210"/><stop offset=".3" stop-color="#9A5230"/><stop offset=".5" stop-color="#B8683F"/><stop offset=".8" stop-color="#7A3A1E"/><stop offset="1" stop-color="#3E1A0A"/></linearGradient>
+  <radialGradient id="soup" cx=".42" cy=".4" r=".7"><stop offset="0" stop-color="#F0783A"/><stop offset=".6" stop-color="#C8401C"/><stop offset="1" stop-color="#7E2210"/></radialGradient>
+  <radialGradient id="fufu" cx=".34" cy=".26" r=".85"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#F7F0E0"/><stop offset=".7" stop-color="#E4D4B0"/><stop offset="1" stop-color="#B8A07A"/></radialGradient>
+  <radialGradient id="plate" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".8" stop-color="#EDE5D6"/><stop offset="1" stop-color="#C9BCA4"/></radialGradient>
+  <radialGradient id="rice" cx=".42" cy=".35" r=".75"><stop offset="0" stop-color="#F3793F"/><stop offset=".7" stop-color="#D24A22"/><stop offset="1" stop-color="#A8321A"/></radialGradient>
+  <radialGradient id="chicken" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#C06A30"/><stop offset=".6" stop-color="#8A3E17"/><stop offset="1" stop-color="#4E1E08"/></radialGradient>
+  <radialGradient id="dodo" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#FAD27A"/><stop offset=".6" stop-color="#EFA83A"/><stop offset="1" stop-color="#B8651A"/></radialGradient>
+  <radialGradient id="drink" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#B21E48"/><stop offset="1" stop-color="#4E0A1E"/></radialGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8E9496"/><stop offset=".4" stop-color="#E8ECEC"/><stop offset=".7" stop-color="#B4BABB"/><stop offset="1" stop-color="#6E7475"/></linearGradient>
+  <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
+  <filter id="blur14"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="blur30"><feGaussianBlur stdDeviation="30"/></filter>
+  <filter id="grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/>
+    <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .06 0"/>
+  </filter>
+  <clipPath id="hairClip"><path d="M614 356 C 604 268 660 232 724 232 C 792 232 838 266 832 356 C 826 326 814 304 792 292 C 764 280 686 280 656 292 C 632 302 620 326 614 356 Z"/></clipPath>
+  <clipPath id="bowlClip"><path d="M548 800 C 556 1010 1084 1010 1092 800 Z"/></clipPath>
+</defs>
+
+<!-- room -->
+<rect width="1600" height="1000" fill="url(#wall)"/>
+<g opacity=".5" filter="url(#blur30)">
+  <circle cx="1320" cy="200" r="70" fill="#F2B33D" opacity=".35"/>
+  <circle cx="1460" cy="330" r="46" fill="#E4572E" opacity=".3"/>
+  <circle cx="220" cy="420" r="60" fill="#F2B33D" opacity=".25"/>
+</g>
+<!-- a woven basket on the wall -->
+<g transform="translate(1250 250)" opacity=".75">
+  <circle r="120" fill="#8A5A2A"/>
+  <circle r="120" fill="none" stroke="#5E3A18" stroke-width="6"/>
+  <circle r="92" fill="none" stroke="#C99A5A" stroke-width="10" stroke-dasharray="16 10"/>
+  <circle r="64" fill="none" stroke="#2F6B3B" stroke-width="10" stroke-dasharray="12 12"/>
+  <circle r="36" fill="none" stroke="#C8391B" stroke-width="10" stroke-dasharray="10 8"/>
+  <circle r="12" fill="#5E3A18"/>
+</g>
+<rect width="1600" height="1000" fill="url(#key)"/>
+
+<!-- the man -->
+<g id="man">
+  <!-- torso in an ankara shirt -->
+  <path d="M430 700 C 440 600 500 548 600 528 L 680 520 L 770 520 L 850 528 C 950 548 1010 600 1020 700 Z" fill="url(#ankara)"/>
+  <path d="M430 700 C 440 600 500 548 600 528 L 680 520 L 770 520 L 850 528 C 950 548 1010 600 1020 700 Z" fill="url(#clothShade)"/>
+  <!-- collar and the open neck -->
+  <path d="M672 520 L 724 600 L 778 520 Z" fill="url(#neck)"/>
+  <path d="M662 516 L 724 606 L 700 520 Z M788 516 L 724 606 L 750 520 Z" fill="#16325A"/>
+  <path d="M662 516 L 724 606 M788 516 L 724 606" stroke="#F2B33D" stroke-width="4" fill="none"/>
+  <!-- neck -->
+  <path d="M676 468 L 674 530 C 700 548 748 548 774 530 L 772 468 Z" fill="url(#neck)"/>
+
+  <!-- head, tilted toward the bowl -->
+  <g transform="rotate(7 724 500)">
+    <ellipse cx="620" cy="388" rx="17" ry="30" fill="#5A3520"/>
+    <ellipse cx="624" cy="390" rx="8" ry="16" fill="#3E2213"/>
+    <ellipse cx="828" cy="388" rx="17" ry="30" fill="#5A3520"/>
+    <ellipse cx="824" cy="390" rx="8" ry="16" fill="#3E2213"/>
+    <path d="M622 360 C 622 272 670 250 724 250 C 780 250 826 272 826 360 C 826 432 804 482 764 506 C 744 518 704 518 684 506 C 644 482 622 432 622 360 Z" fill="url(#skin)"/>
+    <!-- light on the forehead and cheekbones, shade on the far side -->
+    <ellipse cx="700" cy="300" rx="52" ry="26" fill="#B07A52" opacity=".35" filter="url(#blur6)"/>
+    <ellipse cx="672" cy="424" rx="24" ry="14" fill="#A8744C" opacity=".4" filter="url(#blur6)"/>
+    <ellipse cx="780" cy="424" rx="20" ry="12" fill="#A8744C" opacity=".25" filter="url(#blur6)"/>
+    <path d="M806 330 C 822 380 818 450 770 500" stroke="#2E1A0D" stroke-width="16" opacity=".35" fill="none" filter="url(#blur6)"/>
+    <!-- close-cropped hair -->
+    <path d="M614 356 C 604 268 660 232 724 232 C 792 232 838 266 832 356 C 826 326 814 304 792 292 C 764 280 686 280 656 292 C 632 302 620 326 614 356 Z" fill="#17100B"/>
+    <path d="M656 292 C 690 282 760 282 792 292" stroke="#2A1D14" stroke-width="3" fill="none"/>
+    <g id="hairTex" fill="#2C2018" clip-path="url(#hairClip)"></g>
+    <!-- brows -->
+    <path d="M656 346 Q 682 332 708 342" stroke="#140D08" stroke-width="10" stroke-linecap="round" fill="none"/>
+    <path d="M740 342 Q 766 332 792 346" stroke="#140D08" stroke-width="10" stroke-linecap="round" fill="none"/>
+    <!-- eyes, looking down at the food -->
+    <path d="M662 376 Q 684 368 706 376" stroke="#3A2010" stroke-width="3" fill="none" opacity=".6"/>
+    <path d="M742 376 Q 764 368 786 376" stroke="#3A2010" stroke-width="3" fill="none" opacity=".6"/>
+    <path d="M662 386 Q 684 398 706 386" stroke="#140A05" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+    <path d="M742 386 Q 764 398 786 386" stroke="#140A05" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+    <path d="M668 391 l -4 5 M684 395 l 0 6 M700 391 l 4 5 M748 391 l -4 5 M764 395 l 0 6 M780 391 l 4 5" stroke="#140A05" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- nose -->
+    <path d="M716 372 C 712 404 704 424 700 436" stroke="#4A2A16" stroke-width="4" fill="none" opacity=".5" stroke-linecap="round"/>
+    <path d="M700 436 C 694 452 712 460 722 452 C 730 460 748 458 752 444 C 756 432 748 428 744 426" fill="#5A351F" opacity=".7"/>
+    <ellipse cx="712" cy="447" rx="7" ry="4" fill="#2A160B"/>
+    <ellipse cx="740" cy="447" rx="7" ry="4" fill="#2A160B"/>
+    <ellipse cx="728" cy="428" rx="6" ry="9" fill="#A8744C" opacity=".45"/>
+    <!-- beard and moustache -->
+    <path d="M630 420 C 636 474 670 514 724 518 C 778 514 812 474 818 420 C 810 462 782 496 724 500 C 666 496 638 462 630 420 Z" fill="#17100B" opacity=".72"/>
+    <path d="M690 466 Q 724 454 758 466 Q 724 461 690 466 Z" fill="#17100B" opacity=".6"/>
+    <!-- smile -->
+    <path d="M694 476 Q 710 470 724 473 Q 738 470 754 476 Q 740 479 724 479 Q 708 479 694 476 Z" fill="#3A1D14"/>
+    <path d="M696 479 Q 724 496 752 479 Q 740 490 724 491 Q 708 490 696 479 Z" fill="#6E3A2C"/>
+    <path d="M714 485 Q 724 488 734 485" stroke="#A8685A" stroke-width="2.6" stroke-linecap="round" fill="none" opacity=".6"/>
+    <path d="M688 470 q 3 6 8 7 M760 470 q -3 6 -8 7" stroke="#2A140A" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  </g>
+</g>
+
+<!-- table -->
+<rect x="0" y="640" width="1600" height="360" fill="url(#table)"/>
+<g id="grain" stroke="#3A1E0E" stroke-opacity=".35" fill="none" stroke-width="2"></g>
+<rect x="0" y="636" width="1600" height="8" fill="#9A6238" opacity=".8"/>
+<rect x="0" y="644" width="1600" height="30" fill="#000" opacity=".18" filter="url(#blur6)"/>
+
+<!-- left arm resting on the table -->
+<path d="M470 600 C 440 640 420 700 430 760 L 520 770 C 520 720 530 670 550 630 Z" fill="url(#ankara)"/>
+<path d="M470 600 C 440 640 420 700 430 760 L 520 770 C 520 720 530 670 550 630 Z" fill="#000" opacity=".22"/>
+<path d="M500 742 C 540 752 590 766 628 782 L 618 808 C 580 796 530 786 492 778 Z" fill="url(#skinArm)"/>
+<path d="M612 776 C 640 772 670 784 676 800 C 680 814 664 824 640 822 C 622 820 608 812 606 798 Z" fill="url(#skinArm)"/>
+<path d="M630 790 q 20 2 36 10 M628 802 q 18 2 32 8" stroke="#3A2010" stroke-width="2" opacity=".5" fill="none"/>
+
+<!-- finger bowl -->
+<ellipse cx="300" cy="880" rx="110" ry="30" fill="#000" opacity=".3" filter="url(#blur6)"/>
+<path d="M196 840 C 200 900 400 900 404 840 Z" fill="url(#metal)"/>
+<ellipse cx="300" cy="840" rx="104" ry="24" fill="#D4DADB"/>
+<ellipse cx="300" cy="842" rx="94" ry="19" fill="#9FB8C0"/>
+<ellipse cx="276" cy="838" rx="34" ry="5" fill="#fff" opacity=".6"/>
+<path d="M270 850 C 290 846 318 848 336 852" stroke="#E4572E" stroke-opacity=".5" stroke-width="3" fill="none"/>
+<!-- sobolo -->
+<ellipse cx="455" cy="930" rx="58" ry="16" fill="#000" opacity=".3" filter="url(#blur6)"/>
+<path d="M402 800 L 410 922 C 430 936 480 936 500 922 L 508 800 Z" fill="#E8F0F0" opacity=".35"/>
+<path d="M406 836 L 412 920 C 432 932 478 932 498 920 L 504 836 Z" fill="url(#drink)"/>
+<ellipse cx="455" cy="836" rx="49" ry="10" fill="#C22B55"/>
+<ellipse cx="455" cy="800" rx="53" ry="11" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3"/>
+<rect x="416" y="820" width="6" height="96" rx="3" fill="#fff" opacity=".35"/>
+<path d="M470 830 c 10 -10 24 -8 28 2 c -12 6 -20 6 -28 -2z" fill="#3F8A45"/>
+
+<!-- jollof, on the side -->
+<g>
+  <ellipse cx="1348" cy="872" rx="240" ry="64" fill="#000" opacity=".35" filter="url(#blur14)"/>
+  <ellipse cx="1340" cy="850" rx="236" ry="70" fill="url(#plate)"/>
+  <ellipse cx="1340" cy="846" rx="190" ry="52" fill="none" stroke="#B8AA90" stroke-opacity=".5" stroke-width="2"/>
+  <path d="M1190 850 C 1196 790 1290 764 1350 766 C 1420 768 1480 792 1486 846 C 1470 880 1380 890 1330 888 C 1260 886 1200 874 1190 850 Z" fill="url(#rice)"/>
+  <g id="grains"></g>
+  <!-- chicken leg -->
+  <path d="M1360 790 C 1380 760 1440 752 1470 770 C 1500 788 1492 818 1462 826 C 1432 834 1396 826 1372 814 C 1358 808 1354 800 1360 790 Z" fill="url(#chicken)"/>
+  <path d="M1368 800 L 1326 790" stroke="#F1E6D2" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="1320" cy="784" r="9" fill="#F1E6D2"/><circle cx="1318" cy="798" r="9" fill="#F1E6D2"/>
+  <path d="M1400 776 C 1424 768 1452 770 1468 780" stroke="#FFD08A" stroke-opacity=".5" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- dodo -->
+  <g>
+    <ellipse cx="1230" cy="878" rx="32" ry="15" fill="#8A4A12"/><ellipse cx="1230" cy="876" rx="28" ry="12" fill="url(#dodo)"/>
+    <ellipse cx="1286" cy="894" rx="30" ry="14" fill="#8A4A12"/><ellipse cx="1286" cy="892" rx="26" ry="11" fill="url(#dodo)"/>
+    <ellipse cx="1500" cy="866" rx="30" ry="14" fill="#8A4A12"/><ellipse cx="1500" cy="864" rx="26" ry="11" fill="url(#dodo)"/>
+  </g>
+  <!-- salad -->
+  <path d="M1470 880 c 20 -24 60 -22 70 0 c -24 18 -52 18 -70 0z" fill="#5C9B45"/>
+  <circle cx="1440" cy="892" r="16" fill="#D2311F"/><circle cx="1440" cy="892" r="12" fill="#E8503A"/>
+</g>
+
+<!-- steam behind the fufu -->
+<g fill="none" stroke="#FFFFFF" stroke-linecap="round" filter="url(#blur6)" opacity=".35">
+  <path d="M760 640 C 730 600 790 570 760 520 C 736 480 780 450 760 410" stroke-width="14"/>
+  <path d="M850 650 C 830 610 880 580 856 540 C 836 500 870 480 856 440" stroke-width="10"/>
+  <path d="M680 660 C 664 626 700 604 684 572" stroke-width="10"/>
+</g>
+
+<!-- the fufu bowl, front and centre -->
+<ellipse cx="826" cy="992" rx="300" ry="40" fill="#000" opacity=".45" filter="url(#blur14)"/>
+<path d="M548 800 C 556 1010 1084 1010 1092 800 Z" fill="url(#clay)"/>
+<g clip-path="url(#bowlClip)" fill="none">
+  <path d="M552 850 C 650 900 990 900 1088 850" stroke="#3A1606" stroke-opacity=".45" stroke-width="5"/>
+  <path d="M556 900 C 660 950 980 950 1084 900" stroke="#3A1606" stroke-opacity=".4" stroke-width="5"/>
+  <path d="M570 950 C 670 990 970 990 1070 950" stroke="#3A1606" stroke-opacity=".35" stroke-width="5"/>
+  <path d="M554 858 C 650 908 990 908 1086 858" stroke="#E4A07A" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M558 908 C 660 958 980 958 1082 908" stroke="#E4A07A" stroke-opacity=".25" stroke-width="3"/>
+  <rect x="560" y="780" width="120" height="260" fill="#fff" opacity=".06"/>
+</g>
+<ellipse cx="820" cy="800" rx="272" ry="64" fill="#5A2812"/>
+<ellipse cx="820" cy="800" rx="272" ry="64" fill="none" stroke="#E4A07A" stroke-opacity=".5" stroke-width="4"/>
+<ellipse cx="820" cy="806" rx="246" ry="50" fill="url(#soup)"/>
+<g id="oil"></g>
+<!-- goat meat and a piece of fish in the soup -->
+<g>
+  <path d="M622 806 c 10 -18 44 -20 56 -4 c 8 12 -6 24 -26 24 c -18 0 -36 -6 -30 -20z" fill="#5E2E16"/>
+  <path d="M632 800 c 10 -8 30 -8 40 0" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none"/>
+  <path d="M1000 820 c 12 -18 46 -18 56 -2 c 6 12 -8 22 -28 22 c -18 0 -34 -8 -28 -20z" fill="#6E3A1E"/>
+  <path d="M960 790 c 16 -10 44 -8 52 4 c -14 8 -38 8 -52 -4z" fill="#8A4A22"/>
+  <circle cx="700" cy="836" r="8" fill="#FFC36B" opacity=".6"/>
+</g>
+<!-- the fufu: big, smooth, with the dent where a piece was pulled off -->
+<ellipse cx="808" cy="826" rx="170" ry="30" fill="#6E1A08" opacity=".55" filter="url(#blur6)"/>
+<path d="M640 800 C 628 700 700 640 800 636 C 910 632 986 700 976 800 C 966 846 880 862 806 862 C 730 862 648 846 640 800 Z" fill="url(#fufu)"/>
+<path d="M660 812 C 700 850 900 852 960 812" stroke="#D8C49A" stroke-opacity=".7" stroke-width="6" fill="none"/>
+<ellipse cx="730" cy="690" rx="64" ry="30" fill="#FFFFFF" opacity=".85" transform="rotate(-18 730 690)" filter="url(#blur6)"/>
+<ellipse cx="712" cy="684" rx="26" ry="12" fill="#FFFFFF" transform="rotate(-18 712 684)"/>
+<path d="M902 700 C 930 690 958 714 950 740 C 942 762 910 764 896 746 C 884 730 886 706 902 700 Z" fill="#DCC9A2"/>
+<path d="M906 712 C 922 708 938 722 934 738" stroke="#C4AC7E" stroke-width="3" fill="none"/>
+<path d="M660 780 C 680 820 760 836 820 834" stroke="#FFFFFF" stroke-opacity=".3" stroke-width="5" fill="none"/>
+<!-- soup clinging to the base of the ball -->
+<path d="M650 812 C 700 832 760 840 810 838 C 870 838 930 828 966 812 C 950 832 880 850 806 850 C 730 850 668 834 650 812 Z" fill="#C8401C" opacity=".55"/>
+
+<!-- right arm: sleeve on the table, hand pulling a piece of fufu -->
+<path d="M960 560 C 1040 590 1110 650 1160 730 L 1112 782 C 1064 716 1000 660 940 640 Z" fill="url(#ankara)"/>
+<path d="M960 560 C 1040 590 1110 650 1160 730 L 1112 782 C 1064 716 1000 660 940 640 Z" fill="url(#clothShade)"/>
+<path d="M1120 736 C 1090 728 1058 720 1030 718 L 1024 752 C 1056 756 1090 766 1118 782 Z" fill="url(#skinArm)"/>
+<g>
+  <!-- back of the hand -->
+  <path d="M1036 716 C 1016 704 986 704 968 716 C 954 728 956 752 972 762 C 990 772 1020 768 1034 756 C 1044 746 1046 728 1036 716 Z" fill="url(#skinArm)"/>
+  <path d="M990 722 q 18 -4 34 2 M988 736 q 18 -2 34 4" stroke="#3A2010" stroke-width="2" opacity=".45" fill="none"/>
+  <!-- fingers folded under, pinching the fufu -->
+  <path d="M976 758 C 962 770 956 786 962 796 C 968 804 980 800 986 790 C 990 780 992 770 992 764 Z" fill="#6A4028"/>
+  <path d="M994 764 C 988 780 990 796 1000 800 C 1010 804 1016 792 1016 780 C 1016 772 1012 766 1008 762 Z" fill="#5E3822"/>
+  <!-- thumb -->
+  <path d="M972 730 C 954 736 944 752 946 766 C 948 778 960 780 966 770 C 970 760 976 750 984 744 Z" fill="#7A4C30"/>
+  <ellipse cx="950" cy="768" rx="5" ry="4" fill="#C9A088" opacity=".6"/>
+  <!-- the piece of fufu, dipped in soup -->
+  <ellipse cx="972" cy="800" rx="24" ry="17" fill="#F4EAD4"/>
+  <path d="M950 806 C 960 820 986 822 996 806 C 990 816 960 818 950 806 Z" fill="#C8401C"/>
+  <ellipse cx="964" cy="794" rx="8" ry="4" fill="#fff" opacity=".7"/>
+  <path d="M966 822 q 2 10 -2 16" stroke="#C8401C" stroke-width="4" stroke-linecap="round" fill="none"/>
+</g>
+
+<!-- film grain and a soft vignette -->
+<rect width="1600" height="1000" filter="url(#grain)"/>
+<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
+<rect width="1600" height="1000" fill="url(#vig)"/>
+</svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  let seed = 11;
+  const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const add = (id, tag, attrs) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); document.getElementById(id).appendChild(el); };
+  // hair texture
+  for (let i = 0; i < 260; i++) {
+    const x = 620 + rand() * 210, y = 240 + rand() * 110;
+    add('hairTex', 'circle', { cx: x, cy: y, r: .8 + rand() * 1.4 });
+  }
+  // wood grain
+  for (let i = 0; i < 26; i++) {
+    const y = 660 + i * 13 + rand() * 6, w = 40 + rand() * 30;
+    add('grain', 'path', { d: `M0 ${y} C 400 ${y - w / 6} 900 ${y + w / 5} 1600 ${y - 4}` });
+  }
+  // oil beads on the soup
+  for (let i = 0; i < 60; i++) {
+    const a = rand() * Math.PI * 2, d = Math.sqrt(rand());
+    const x = 820 + Math.cos(a) * 236 * d, y = 806 + Math.sin(a) * 46 * d;
+    add('oil', 'ellipse', { cx: x, cy: y, rx: 2 + rand() * 6, ry: 1 + rand() * 2.4, fill: '#FFC36B', opacity: .35 + rand() * .4 });
+  }
+  // rice grains
+  const G = ['#F59A5E', '#EE7440', '#D4491F', '#F8B27A', '#C23D1B'];
+  for (let i = 0; i < 520; i++) {
+    const a = rand() * Math.PI * 2, d = Math.sqrt(rand());
+    const x = 1338 + Math.cos(a) * 140 * d, y = 828 + Math.sin(a) * 50 * d;
+    add('grains', 'ellipse', { cx: x, cy: y, rx: 5, ry: 2, fill: G[i % 5], transform: `rotate(${rand() * 180 - 90} ${x} ${y})` });
+  }
+</script>

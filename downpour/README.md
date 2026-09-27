@@ -175,7 +175,7 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   (also `favicon.svg`, and the phone icon on a black square), with PNGs at 512 and
   1024 px for X, listings and the like. `token.svg` is the $SMNT token image (a coin
   with a star). `x-pfp.png` (1000×1000, the mark alone) and `x-header.jpg` (1500×500,
-  the site's sky with the name) are the X profile picture and header.
+  the site's sky with its currency stars) are the X profile picture and header.
 - `shared/currencies.json`: which currencies exist, with reference rates.
 - `VITE_DEFAULT_MODE` (`auto` | `live` | `playground`) and `VITE_DEFAULT_CHAIN`
   at build time choose what visitors see first.

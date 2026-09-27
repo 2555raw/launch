@@ -23,7 +23,7 @@ body.docs.collapsed .side { visibility: hidden; }
 }
 .side-top { display: flex; align-items: center; justify-content: space-between; }
 .brand-mark.sm { width: 30px; height: 30px; }
-.side .brand-name { font-size: 18px; }
+.side .brand-name { font-size: 17px; }
 .side-actions { display: flex; gap: 2px; }
 .search { cursor: pointer; }
 .search input { cursor: pointer; }

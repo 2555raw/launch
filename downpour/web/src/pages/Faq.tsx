@@ -50,10 +50,6 @@ export default function Faq() {
   return (
     <div className="wrap narrow" style={{ maxWidth: 900 }}>
       <PageHead kicker="Before you trade" title="What a currency coin is, in plain words" />
-      <div className="callout warn" style={{ marginBottom: 30 }}>
-        <b>Memecoins can go to zero, fast.</b> A coin being paired with a stable currency does not make the coin stable: its price in that currency moves with every
-        trade. Nothing here is financial advice, nothing is insured, and on a test network or in the playground nothing has any value.
-      </div>
 
       <div className="kicker">Questions people ask</div>
       <h2 className="h-section">Questions</h2>

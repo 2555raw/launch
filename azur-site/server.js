@@ -1,4 +1,4 @@
-/* Serves the Greenline site, plus four small endpoints:
+/* Serves the Verdant site, plus four small endpoints:
  *
  *   POST /api/waitlist   store an email on the waitlist
  *   GET  /api/prices     live prices for the hero pills (cached for a minute)
@@ -255,7 +255,7 @@ function readWaitlist() {
 function adminCsv(res) {
   const rows = readWaitlist();
   const csv = 'email,source,joined\n' + rows.map((r) => [r.email, r.source, r.at].map((v) => '"' + String(v || '').replace(/"/g, '""') + '"').join(',')).join('\n');
-  res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="greenline-waitlist.csv"', 'cache-control': 'no-store' });
+  res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="verdant-waitlist.csv"', 'cache-control': 'no-store' });
   res.end(csv);
 }
 
@@ -275,7 +275,7 @@ function adminPage(res, key) {
     ? '<table>' + pairs.map(([k, n]) => '<tr><td>' + esc(k) + '</td><td class="n">' + n + '</td></tr>').join('') + '</table>'
     : '<p class="empty">' + empty + '</p>';
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex"><title>Greenline Admin</title><style>
+<meta name="robots" content="noindex"><title>Verdant Admin</title><style>
 :root{color-scheme:dark;--bg:#090909;--card:#131313;--line:#242424;--ink:#ececec;--muted:#919191;--blue:#ffffff}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:32px 16px}
 .w{max-width:960px;margin:0 auto;display:grid;gap:16px}h1{margin:0;font-size:24px}p.sub{margin:4px 0 0;color:var(--muted)}
@@ -287,7 +287,7 @@ function adminPage(res, key) {
 h2{margin:0 0 8px;font-size:15px}table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px solid var(--line);word-break:break-all}td.n{text-align:right;font-variant-numeric:tabular-nums;color:var(--blue);padding-left:12px}
 .empty{color:var(--muted);margin:0}a.btn{display:inline-block;margin-top:10px;padding:9px 14px;border-radius:10px;background:#ffffff;color:#fff;text-decoration:none;font-weight:600}
 </style></head><body><div class="w">
-<div><h1>Greenline admin</h1><p class="sub">Last 14 days. No cookies, no stored IPs.</p></div>
+<div><h1>Verdant admin</h1><p class="sub">Last 14 days. No cookies, no stored IPs.</p></div>
 <div class="kpis">
 <div class="k"><span>Page views</span><b>${sum('v')}</b></div>
 <div class="k"><span>Unique visitors</span><b>${sum('u')}</b></div>
@@ -353,4 +353,4 @@ http.createServer(async (req, res) => {
     console.error(e);
     if (!res.headersSent) json(res, 500, { error: 'Something went wrong. Try again.' });
   }
-}).listen(PORT, () => console.log(`Greenline on :${PORT}`));
+}).listen(PORT, () => console.log(`Verdant on :${PORT}`));

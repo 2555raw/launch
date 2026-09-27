@@ -66,7 +66,7 @@ h1, h2 {
 .nav-links a:hover { opacity: 1; color: var(--blue-hi); }
 .nav-links a:hover svg { fill: var(--blue-hi); }
 
-.hero-copy { position: relative; z-index: 3; text-align: center; padding-top: 62px; }
+.hero-copy { position: relative; z-index: 3; text-align: center; padding-top: 130px; }
 .hero h1 { font-size: clamp(44px, 6.4vw, 92px); }
 .hero-copy p {
   max-width: 830px;
@@ -563,7 +563,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .foot-col a { width: fit-content; font-size: 14.5px; color: #404040; transition: color .2s; }
 .foot-col a:hover { color: #000000; }
 .foot a:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 3px; border-radius: 4px; }
-.foot-bottom { display: flex; justify-content: space-between; align-items: center; gap: 40px; padding: 24px 0 36px; border-top: 1px solid #e5e5e5; font-size: 12.5px; color: #9a9a9a; }
+.foot-bottom { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; padding: 24px 0 36px; border-top: 1px solid #e5e5e5; font-size: 12.5px; color: #9a9a9a; }
 .foot-bottom span { white-space: nowrap; }
 .foot-bottom p { max-width: 720px; line-height: 1.6; text-align: right; }
 
@@ -870,7 +870,7 @@ body.gated { overflow: hidden; }
   .nav { padding-top: 24px; }
   .nav-links { gap: 20px; font-size: 15px; }
   .nav-links svg { width: 22px; height: 22px; }
-  .hero-copy { padding-top: 40px; }
+  .hero-copy { padding-top: 80px; }
   .hero-copy p { margin-top: 22px; }
   .store { min-width: 0; flex: 1 1 150px; max-width: 220px; padding: 8px 14px 8px 12px; }
   .store span { font-size: 21px; }
@@ -916,21 +916,4 @@ body.gated { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-}
-
-/* $UPTICK contract address chip (hero + footer): click to copy */
-.ca { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; margin: 0 auto 26px; padding: 7px 8px 7px 16px; border-radius: 999px; border: 1px solid rgba(0, 0, 0, .12); background: rgba(240, 240, 236, .9); box-shadow: 0 8px 24px rgba(0, 0, 0, .07); font: 600 14px var(--body); color: #000; cursor: pointer; transition: border-color .2s, box-shadow .2s; }
-.ca:hover { border-color: rgba(0, 0, 0, .3); box-shadow: 0 10px 30px rgba(0, 0, 0, .1); }
-.ca b { font-family: var(--display); font-weight: 800; }
-.ca-label { padding: 2px 7px; border-radius: 6px; background: #000; color: #fff; font-size: 11px; letter-spacing: .06em; }
-.ca code { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 13.5px ui-monospace, SFMono-Regular, Menlo, monospace; color: #333; }
-.ca-copy { flex: none; padding: 6px 12px; border-radius: 999px; background: #000; color: #fff; font-size: 12.5px; }
-.ca.copied .ca-copy { background: #15a34a; }
-.hero-copy .ca { display: flex; width: fit-content; }
-.ca-foot { margin: 0; padding: 5px 6px 5px 12px; font-size: 12.5px; box-shadow: none; }
-.ca-foot code { font-size: 12px; }
-@media (max-width: 640px) {
-  .ca { gap: 8px; padding-left: 12px; }
-  .ca code { max-width: 150px; }
-  .ca-label { display: none; }
 }

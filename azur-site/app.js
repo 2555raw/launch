@@ -279,24 +279,6 @@
     const url = SOCIAL[a.dataset.social];
     if (url) a.href = url;
   });
-  // ---------------------------------------------------------------- $UPTICK contract address: click to copy
-  document.querySelectorAll(".ca[data-ca]").forEach((btn) => {
-    const label = btn.querySelector(".ca-copy");
-    btn.addEventListener("click", async () => {
-      const ca = btn.dataset.ca;
-      try { await navigator.clipboard.writeText(ca); }
-      catch (e) {
-        const t = document.createElement("textarea");
-        t.value = ca; t.style.position = "fixed"; t.style.opacity = "0";
-        document.body.appendChild(t); t.select();
-        try { document.execCommand("copy"); } catch (err) {}
-        t.remove();
-      }
-      btn.classList.add("copied"); label.textContent = "Copied";
-      setTimeout(() => { btn.classList.remove("copied"); label.textContent = "Copy"; }, 1600);
-    });
-  });
-
   // The API only exists on the real server; previews and copies of the page skip it.
   const HAS_API = /^https?:$/.test(location.protocol) && !/claude|anthropic|usercontent/i.test(location.hostname);
 

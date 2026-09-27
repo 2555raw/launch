@@ -129,6 +129,18 @@ function rgbOf(code: string): [number, number, number] {
   return out;
 }
 
+/** Whether WebGL is rasterized on the CPU (SwiftShader, llvmpipe, Microsoft Basic Render…). */
+function drawsInSoftware(gl: WebGL2RenderingContext): boolean {
+  let name = String(gl.getParameter(gl.RENDERER) ?? '');
+  // Chrome and Safari mask RENDERER; the unmasked name is behind this extension (Firefox
+  // unmasks RENDERER itself and warns if the extension is asked for)
+  if (/^webkit webgl$/i.test(name)) {
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    if (info) name = String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL) ?? '');
+  }
+  return /swiftshader|llvmpipe|softpipe|lavapipe|software|basic render/i.test(name);
+}
+
 export class GLStorm implements StormRenderer {
   onPop?: (code: string) => void;
 
@@ -200,10 +212,16 @@ export class GLStorm implements StormRenderer {
   private frameTimes: number[] = [];
   private lost = false;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, opts: { allowSoftware?: boolean } = {}) {
     this.canvas = canvas;
     const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false, premultipliedAlpha: true, powerPreference: 'high-performance' });
     if (!gl) throw new Error('WebGL2 is not available');
+    // Without a GPU (or with one the browser blocks) WebGL is drawn by the CPU: this sky then
+    // runs at about a frame a second and stalls the whole page, where the 2D sky stays smooth.
+    if (!opts.allowSoftware && drawsInSoftware(gl)) {
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      throw new Error('WebGL is drawn in software here');
+    }
     this.gl = gl;
     this.reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     STORMS.forEach(([lat, lon, twist], i) => {

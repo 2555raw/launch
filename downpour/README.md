@@ -28,9 +28,11 @@ Stars are born with a flare, drift slowly upward and fade out; tap one and it fl
 for a moment and fades, like a real star going out. The top bars are translucent glass
 over the sky.
 Shooting stars streak across the top of the sky on their own, over the planet and
-away from it. Resolution drops by itself on slow devices, browsers without WebGL2 get a 2D
-version (also reachable with `?storm2d`), and nothing moves under
-`prefers-reduced-motion`.
+away from it. The sky starts once the page has drawn its content, so text never waits for
+it. Resolution drops by itself on slow devices, browsers without WebGL2 get a 2D
+version (also reachable with `?storm2d`), and so do machines that draw WebGL in software
+(no GPU, or a blocked one), where the WebGL sky would crawl at a frame a second
+(`?stormgl` keeps it anyway). Nothing moves under `prefers-reduced-motion`.
 
 ## What works
 

@@ -1037,3 +1037,17 @@ main {
     margin-left: 0;
   }
 }
+
+/* ------------------------------ Poppins for the name and the titles (Sora stays for the currency glyphs on the stars) ------------------------------ */
+.brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+/* the name's letters on the bar's centre line, level with the links */
+.nav .brand {
+  position: relative;
+  top: 1px;
+}
+.hero-title {
+  letter-spacing: -0.045em;
+}

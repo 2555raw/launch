@@ -23,7 +23,7 @@
   --radius-sm: 14px;
   --shadow: 0 20px 60px -24px rgba(0, 0, 0, 0.75), 0 2px 0 rgba(255, 255, 255, 0.03) inset;
   --font: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --display: 'Sora Variable', 'Sora', 'Inter Variable', system-ui, sans-serif;
+  --display: 'Poppins', 'Inter Variable', system-ui, sans-serif;
   --mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --nav-h: 64px;
   color-scheme: dark;

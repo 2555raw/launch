@@ -1,4 +1,4 @@
-// Azur film: every frame is a pure function of time, so the same timeline plays
+// Uptick film: every frame is a pure function of time, so the same timeline plays
 // live in the browser and renders frame by frame to MP4 (?render).
 (function () {
   "use strict";

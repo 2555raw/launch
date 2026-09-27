@@ -1,6 +1,6 @@
-# AZUR — site
+# Uptick — site
 
-Static landing page for **AZUR**, a mobile app for trading with an AI co-pilot. Dark
+Static landing page for **Uptick**, a mobile app for trading with an AI co-pilot. Dark
 ground, electric-blue accent (`--blue #2f7bff`, `--blue-hi #5aa2ff`).
 
 No build step, no dependencies. Plain HTML, CSS and vanilla JS.

@@ -1,4 +1,4 @@
-// AZUR — charts, feed marquee, cycling prompt bubbles and hub wiring.
+// Uptick — charts, feed marquee, cycling prompt bubbles and hub wiring.
 (function () {
   "use strict";
 
@@ -274,7 +274,7 @@
     discord: "https://discord.gg/Beq3FBtyv",
     x: "https://x.com/useAzur",
   };
-  const LIVE_SITE = "https://azur.up.railway.app";
+  const LIVE_SITE = "https://uptick.up.railway.app";
   document.querySelectorAll("[data-social]").forEach((a) => {
     const url = SOCIAL[a.dataset.social];
     if (url) a.href = url;

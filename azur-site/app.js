@@ -54,11 +54,11 @@
     const id = "hg" + n;
     svg.innerHTML =
       '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#000000" stop-opacity=".45"/><stop offset="1" stop-color="#000000" stop-opacity="0"/>' +
+      '<stop offset="0" stop-color="#ffffff" stop-opacity=".45"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>' +
       "</linearGradient></defs>" +
       '<path d="' + d + " L290 170 L0 170 Z" + '" fill="url(#' + id + ')"/>' +
       '<path class="line" d="' + d + '"/>' +
-      '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#191919"/>';
+      '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#e3efe8"/>';
   });
 
   // Small sparklines: red ones trend down, blue ones trend up.

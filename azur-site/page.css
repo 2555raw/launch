@@ -1,6 +1,6 @@
 /* Docs and legal pages: same nav and footer as the landing page, a reading column. */
 .sub-head {
-  background: radial-gradient(70% 90% at 50% 0%, rgba(0, 0, 0, 0.133), transparent 70%), #d6d6d1;
+  background: radial-gradient(70% 90% at 50% 0%, rgba(0, 0, 0, 0.133), transparent 70%), #0e7b3c;
   padding-bottom: 60px;
   border-bottom: 1px solid var(--line);
 }
@@ -12,14 +12,14 @@
 .doc:not(:has(.toc)) { grid-template-columns: minmax(0, 760px); }
 .toc { position: sticky; top: 24px; align-self: start; display: flex; flex-direction: column; gap: 4px; }
 .toc a { padding: 8px 12px; border-radius: 8px; font-size: 14px; color: var(--muted); }
-.toc a:hover { color: #000000; background: var(--card-2); }
+.toc a:hover { color: #ffffff; background: var(--card-2); }
 .doc section { padding-bottom: 36px; margin-bottom: 36px; border-bottom: 1px solid var(--line); scroll-margin-top: 24px; }
 .doc section:last-child { border-bottom: 0; }
 .doc h2 { font-size: 28px; letter-spacing: -.03em; margin-bottom: 14px; }
 .doc p, .doc li { font-size: 16px; line-height: 1.7; color: var(--prose); max-width: 65ch; }
 .doc p + p { margin-top: 12px; }
 .doc ul { padding-left: 20px; margin: 10px 0; display: grid; gap: 6px; }
-.doc b { color: #000000; }
+.doc b { color: #ffffff; }
 .sub .foot { margin-top: 40px; }
 @media (max-width: 760px) {
   .doc { grid-template-columns: minmax(0, 1fr); gap: 20px; }

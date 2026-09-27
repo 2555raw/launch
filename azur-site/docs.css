@@ -1,4 +1,4 @@
-/* Verdant docs: sidebar, reading column with phone screens, "On this page" index. */
+/* Viridi docs: sidebar, reading column with phone screens, "On this page" index. */
 body.docs {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr) 260px;

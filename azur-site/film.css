@@ -1,4 +1,4 @@
-/* Verdant film: a 1920x1080 stage driven frame by frame from film.js. */
+/* Viridi film: a 1920x1080 stage driven frame by frame from film.js. */
 @font-face { font-family: "Inter Tight"; font-weight: 600; src: url(assets/fonts/inter-tight-latin-600-normal.woff2) format("woff2"); }
 @font-face { font-family: "Inter Tight"; font-weight: 800; src: url(assets/fonts/inter-tight-latin-800-normal.woff2) format("woff2"); }
 @font-face { font-family: "Inter"; font-weight: 400; src: url(assets/fonts/inter-latin-400-normal.woff2) format("woff2"); }
@@ -141,7 +141,7 @@ body { overflow: hidden; }
 .end-name { font: 800 120px/1 var(--display); letter-spacing: -.04em; }
 .end-url { display: flex; gap: 44px; font: 600 34px var(--display); color: var(--prose); }
 .end-url span { display: inline-flex; align-items: center; gap: 14px; }
-.end-url svg { width: 34px; height: 34px; fill: #ffffff; }
+.end-url svg { width: 34px; height: 34px; fill: var(--blue); }
 
 /* controls (live playback only) */
 .controls { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-radius: 999px; background: rgba(17, 17, 17, .8); border: 1px solid #060606; backdrop-filter: blur(8px); font: 600 14px var(--body); }

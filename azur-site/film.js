@@ -1,4 +1,4 @@
-// Verdant film: every frame is a pure function of time, so the same timeline plays
+// Viridi film: every frame is a pure function of time, so the same timeline plays
 // live in the browser and renders frame by frame to MP4 (?render).
 (function () {
   "use strict";

@@ -2,7 +2,7 @@
   "name": "azur-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Verdant landing page, docs and legal pages.",
+  "description": "Viridi landing page, docs and legal pages.",
   "scripts": {
     "start": "node server.js"
   },

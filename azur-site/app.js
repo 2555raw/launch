@@ -1,4 +1,4 @@
-// Verdant — charts, feed marquee, cycling prompt bubbles and hub wiring.
+// Viridi — charts, feed marquee, cycling prompt bubbles and hub wiring.
 (function () {
   "use strict";
 
@@ -269,7 +269,7 @@
   }
 
   // ---------------------------------------------------------------- site config
-  const LIVE_SITE = "https://useverdant.up.railway.app";
+  const LIVE_SITE = "https://viridi.up.railway.app";
   // The API only exists on the real server; previews and copies of the page skip it.
   const HAS_API = /^https?:$/.test(location.protocol) && !/claude|anthropic|usercontent/i.test(location.hostname);
 

@@ -169,10 +169,12 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
 
 - `web/src/config/site.ts`: name, tagline, and the platform token's contract
   address (the bar under the nav with its contract address only shows once you fill it in).
-- `web/public/brand/`: the logo, in black and white: `mark.svg` is the mark alone
-  (a star over the edge of the Earth), `logo.svg` the same on a black disc (also
-  `favicon.svg`), and `token.svg` the $SMNT token image (a coin with the star), with
-  PNG copies at 512 and 1024 px for X, listings and the like.
+- `web/public/brand/`: the logo, six rounded arms around a hexagon with six drops
+  circling them. `mark.svg` (white) and `mark-black.svg` are the mark alone on a
+  transparent background, with 1024 px PNGs; `logo.svg` is the mark on a black disc
+  (also `favicon.svg`, and the phone icon on a black square), with PNGs at 512 and
+  1024 px for X, listings and the like. `token.svg` is the $SMNT token image (a coin
+  with a star).
 - `shared/currencies.json`: which currencies exist, with reference rates.
 - `VITE_DEFAULT_MODE` (`auto` | `live` | `playground`) and `VITE_DEFAULT_CHAIN`
   at build time choose what visitors see first.

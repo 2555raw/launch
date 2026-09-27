@@ -18,6 +18,19 @@ export const SITE = {
     telegram: '',
     github: '',
   },
+  /** The logo row on the home page: the chain the token lives on and projects around it.
+   *  The logos are in web/public/eco and belong to their owners; `tile` puts a logo on a
+   *  rounded square of that colour. An empty list hides the row. */
+  ecosystem: {
+    title: 'The Robinhood Chain ecosystem',
+    items: [
+      { name: 'Robinhood Chain', logo: '/eco/robinhood-chain.svg' },
+      { name: 'Chainlink', logo: '/eco/chainlink.svg' },
+      { name: 'USDG', logo: '/eco/usdg.svg' },
+      { name: 'Uniswap', logo: '/eco/uniswap.svg', tile: '#fdeefa' },
+      { name: 'Pons', logo: '/eco/pons.png' },
+    ],
+  },
 } as const;
 
 export type Mode = 'live' | 'playground';

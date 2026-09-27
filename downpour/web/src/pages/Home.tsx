@@ -6,6 +6,7 @@ import { CoinCard, CoinCardSkeleton } from '../components/CoinCard';
 import { CoinOrb, CurrencyDot } from '../components/bits';
 import { CORE_FAQ, CurveChart, Faq, KeeperLine, RecentFills } from '../components/sections';
 import { Arrow, Sparkle } from '../components/icons';
+import { Ecosystem } from '../components/Ecosystem';
 import { CURRENCY_BY_CODE, HERO_WORDS, POPULAR } from '../data/currencies';
 import { sortRows, totalVolumeUsd, unitsPerUsd, useRows } from '../lib/views';
 import { compact, money, pct, usd } from '../lib/format';
@@ -251,6 +252,8 @@ export function Home() {
           </p>
         </div>
       </section>
+
+      <Ecosystem />
 
       <section className="section" id="coins">
         <div className="wrap">

@@ -169,8 +169,15 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
 
 ## Make it yours
 
-- `web/src/config/site.ts`: name, tagline, and the platform token's contract
-  address (the bar under the nav with its contract address only shows once you fill it in).
+- `web/src/config/site.ts`: name, tagline, the platform token's contract
+  address (the bar under the nav with its contract address only shows once you fill it in),
+  and `ecosystem`, the row of logos on the home page under the intro (Robinhood Chain,
+  Chainlink, USDG, Uniswap, Pons; an empty list hides it). Their files are in
+  `web/public/eco/`: Robinhood Chain, Chainlink and Uniswap from @web3icons/core (MIT); USDG
+  is the token mark from Global Dollar's brand page (globaldollar.com/brand), unchanged;
+  Pons is the mark from its public repository (ReptilianHQ/ponsfamily), lifted off its white
+  background. The marks belong to their owners, and the row doesn't say they endorse
+  Starmint.
 - `web/public/brand/`: the logo, six rounded arms around a hexagon with six drops
   circling them. `mark.svg` (white) and `mark-black.svg` are the mark alone on a
   transparent background, with 1024 px PNGs; `logo.svg` is the mark on a black disc

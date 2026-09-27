@@ -122,6 +122,62 @@
   margin: 14px 0 0;
 }
 
+/* ------------------------------ ecosystem logos ------------------------------ */
+
+.section.eco {
+  padding: 0 0 24px;
+}
+.eco-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 22px 36px 24px;
+  border-radius: 24px;
+}
+.eco-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 34px;
+}
+.eco-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #6b7280;
+  white-space: nowrap;
+}
+.eco-item img {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  border-radius: 7px;
+}
+.eco-item img.eco-tile {
+  padding: 4px;
+  background: var(--tile);
+}
+
+@media (max-width: 560px) {
+  .eco-panel {
+    padding: 18px 16px 20px;
+  }
+  .eco-row {
+    gap: 12px 22px;
+  }
+}
+
 /* ------------------------------ cards ------------------------------ */
 
 .card {

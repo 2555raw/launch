@@ -226,13 +226,17 @@
     const line = window.innerHeight * 0.35;
     let idx = 0;
     shown.forEach((s, i) => { if (s.getBoundingClientRect().top < line) idx = i; });
+    // at the very bottom the last sections can never reach the reading line,
+    // so treat the end of the page as reading the last one
+    const atEnd = window.scrollY >= document.documentElement.scrollHeight - window.innerHeight - 4;
+    if (atEnd && shown.length) idx = shown.length - 1;
     const cur = shown[idx] || sections[0];
 
     // how far into the current section the reading line is (0..1)
     const top = cur.getBoundingClientRect().top;
     const next = shown[idx + 1];
     const span = next ? next.getBoundingClientRect().top - top : cur.offsetHeight;
-    const f = Math.min(1, Math.max(0, (line - top) / Math.max(span, 1)));
+    const f = atEnd ? 0 : Math.min(1, Math.max(0, (line - top) / Math.max(span, 1)));
 
     // map that onto the rail: point idx+1 is this section's node
     const ti = visible.findIndex((a) => a.hash === "#" + cur.id);

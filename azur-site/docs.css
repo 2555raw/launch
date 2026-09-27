@@ -233,25 +233,25 @@ details p { margin-top: 10px; font-size: 15px; line-height: 1.6; color: var(--pr
   padding: 3px 9px 3px 7px;
   border-radius: 999px;
   background: #0c0c0c;
-  border: 1px solid #111111;
+  border: 1px solid #262626;
   font: 700 11px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
   color: var(--blue-hi);
   font-variant-numeric: tabular-nums;
 }
 .toc-pct i { width: 6px; height: 6px; border-radius: 50%; background: var(--blue-hi); box-shadow: 0 0 8px var(--blue-hi); animation: live 1.6s ease-in-out infinite; }
-.toc-pct.done { background: #0d2a1c; border-color: #1d5a3a; color: #6ff0a8; }
-.toc-pct.done i { background: #6ff0a8; box-shadow: 0 0 8px #6ff0a8; animation: none; }
+.toc-pct.done { background: rgba(0, 214, 92, .1); border-color: rgba(0, 214, 92, .35); color: #00d65c; }
+.toc-pct.done i { background: #00d65c; box-shadow: 0 0 8px #00d65c; animation: none; }
 @keyframes live { 50% { opacity: .25; } }
 
 .toc-body { position: relative; padding-left: 30px; }
 .toc-rail { position: absolute; left: 0; top: 0; width: 24px; height: 100%; overflow: visible; }
-.rail-bg { fill: none; stroke: #060606; stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; stroke-linejoin: round; }
-.rail-fg { fill: none; stroke: url(#railGlow); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.287)); }
-.rail-nodes circle { fill: #141414; stroke: #121212; stroke-width: 1.5; transition: fill .3s, stroke .3s; }
-.rail-nodes circle.done { fill: #ffffff; stroke: #ffffff; }
-.rail-nodes circle.on { fill: #141414; stroke: #e2e2e2; stroke-width: 2; }
-.rail-dot { fill: #ededed; filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 12px rgba(0, 0, 0, 0.308)); }
-.rail-ping { fill: none; stroke: #ffffff; stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: ping 1.8s ease-out infinite; }
+.rail-bg { fill: none; stroke: #2e2e2e; stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; stroke-linejoin: round; }
+.rail-fg { fill: none; stroke: url(#railGlow); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(0, 214, 92, .45)); }
+.rail-nodes circle { fill: #0b0b0b; stroke: #333333; stroke-width: 1.5; transition: fill .3s, stroke .3s; }
+.rail-nodes circle.done { fill: #00d65c; stroke: #00d65c; }
+.rail-nodes circle.on { fill: #0b0b0b; stroke: #00d65c; stroke-width: 2; }
+.rail-dot { fill: #00d65c; filter: drop-shadow(0 0 6px rgba(0, 214, 92, .9)) drop-shadow(0 0 14px rgba(0, 214, 92, .45)); }
+.rail-ping { fill: none; stroke: #00d65c; stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: ping 1.8s ease-out infinite; }
 @keyframes ping { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
 
 #toc { display: flex; flex-direction: column; gap: 2px; }
@@ -271,7 +271,7 @@ details p { margin-top: 10px; font-size: 15px; line-height: 1.6; color: var(--pr
 #toc a::after {
   content: attr(data-min);
   font: 600 10.5px ui-monospace, "SF Mono", Menlo, monospace;
-  color: #383838;
+  color: #5a5a5a;
   opacity: 0;
   transition: opacity .2s;
 }
@@ -280,7 +280,7 @@ details p { margin-top: 10px; font-size: 15px; line-height: 1.6; color: var(--pr
 #toc a.done { color: #d3d3d3; }
 #toc a.on {
   color: #ffffff;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.084), rgba(0, 0, 0, 0));
+  background: linear-gradient(90deg, rgba(0, 214, 92, .1), rgba(0, 214, 92, 0));
   transform: translateX(3px);
 }
 #toc a.on::after { content: "HERE"; opacity: 1; color: var(--blue-hi); font-size: 9.5px; letter-spacing: .1em; }

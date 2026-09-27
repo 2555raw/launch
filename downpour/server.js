@@ -26,6 +26,7 @@ const TYPES = {
   '.woff2': 'font/woff2',
   '.woff': 'font/woff',
   '.txt': 'text/plain; charset=utf-8',
+  '.mp4': 'video/mp4',
 };
 
 function send(res, file, status = 200) {

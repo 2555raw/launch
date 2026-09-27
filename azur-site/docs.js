@@ -1,4 +1,4 @@
-// Uptick docs: sidebar toggle, search filter, Ctrl/Cmd+K, and "On this page" scroll tracking.
+// Greenline docs: sidebar toggle, search filter, Ctrl/Cmd+K, and "On this page" scroll tracking.
 (function () {
   "use strict";
   const body = document.body;

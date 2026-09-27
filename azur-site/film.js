@@ -1,4 +1,4 @@
-// Uptick film: every frame is a pure function of time, so the same timeline plays
+// Greenline film: every frame is a pure function of time, so the same timeline plays
 // live in the browser and renders frame by frame to MP4 (?render).
 (function () {
   "use strict";
@@ -146,7 +146,7 @@
       const pulse = seg(t, 11.2, 11.75);
       const s = 1 + Math.sin(pulse * Math.PI) * 0.12 - (t > 11.6 && t < 11.75 ? 0.08 : 0);
       $("askSend").style.transform = "scale(" + s + ")";
-      $("askSend").style.boxShadow = "0 0 " + (30 + Math.sin(pulse * Math.PI) * 50) + "px rgba(0, 0, 0," + (0.3 + Math.sin(pulse * Math.PI) * 0.3) + ")";
+      $("askSend").style.boxShadow = "0 0 " + (30 + Math.sin(pulse * Math.PI) * 50) + "px rgba(255, 255, 255," + (0.3 + Math.sin(pulse * Math.PI) * 0.3) + ")";
     }
 
     // 4 ------------------------------------------------------------

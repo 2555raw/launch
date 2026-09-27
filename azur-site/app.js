@@ -269,16 +269,7 @@
   }
 
   // ---------------------------------------------------------------- site config
-  // Put the real community links here; every Discord and X icon on the site uses them.
-  const SOCIAL = {
-    discord: "https://discord.gg/Beq3FBtyv",
-    x: "https://x.com/HeyUptick",
-  };
   const LIVE_SITE = "https://uptick.up.railway.app";
-  document.querySelectorAll("[data-social]").forEach((a) => {
-    const url = SOCIAL[a.dataset.social];
-    if (url) a.href = url;
-  });
   // The API only exists on the real server; previews and copies of the page skip it.
   const HAS_API = /^https?:$/.test(location.protocol) && !/claude|anthropic|usercontent/i.test(location.hostname);
 

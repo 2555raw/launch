@@ -1,4 +1,4 @@
-/* Uptick — dark trading landing page, electric-blue accent. */
+/* Uptick — light trading landing page, green accent. */
 
 :root {
   --bg: #d6d6d1;
@@ -10,8 +10,8 @@
   --ink: #000000;
   --prose: #232323;
   --muted: #555555;
-  --blue: #000000;      /* accent fill */
-  --blue-hi: #000000;   /* accent text / glow */
+  --blue: #00a63e;      /* accent fill (green) */
+  --blue-hi: #008c34;   /* accent text / lines */
   --blue-deep: #dadada;
   --up: #292929;
   --dn: #ff4d5e;
@@ -58,7 +58,7 @@ h1, h2 {
 }
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; }
-.brand-mark svg { width: 100%; height: 100%; fill: #000000; }
+.brand-mark svg { width: 100%; height: 100%; fill: var(--blue); }
 .brand-name { font-family: var(--display); font-weight: 600; font-size: 21px; letter-spacing: -.01em; }
 .nav-links { display: flex; align-items: center; gap: 34px; font-size: 17px; font-weight: 500; }
 .nav-links svg { width: 26px; height: 26px; fill: #000000; display: block; }
@@ -381,7 +381,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
   translate: -50% -50%;
   animation: pulse 3.2s ease-in-out infinite;
 }
-.star svg { width: 100%; display: block; fill: #232323; filter: drop-shadow(0 0 14px #000000) drop-shadow(0 0 40px rgba(0, 0, 0, 0.273)); }
+.star svg { width: 100%; display: block; fill: var(--blue); filter: drop-shadow(0 0 14px rgba(0, 166, 62, .55)) drop-shadow(0 0 40px rgba(0, 166, 62, .25)); }
 @keyframes pulse {
   0%, 100% { scale: 1; rotate: 0deg; }
   50% { scale: 1.07; rotate: 8deg; }
@@ -526,7 +526,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .ni svg { width: 20px; height: 20px; fill: none; stroke: #161616; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .hub-core { position: relative; z-index: 1; justify-self: center; }
 .core-tile { display: grid; place-items: center; width: 220px; height: 220px; }
-.core-tile svg { width: 190px; fill: #000000; filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.175)); }
+.core-tile svg { width: 190px; fill: var(--blue); filter: drop-shadow(0 0 30px rgba(0, 166, 62, 0.25)); }
 
 .powered { margin-top: 110px; }
 .powered p { color: var(--muted); font-size: 20px; }
@@ -552,7 +552,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .foot { margin-top: 90px; border-top: 1px solid #c4c4bf; background: linear-gradient(#cfcfca, #c9c9c4); }
 .foot-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 40px; padding: 64px 0 48px; }
 .foot-logo { display: inline-flex; align-items: center; gap: 12px; font: 800 26px var(--display); letter-spacing: -.02em; color: #000000; }
-.foot-logo svg { width: 34px; height: 34px; fill: #000000; }
+.foot-logo svg { width: 34px; height: 34px; fill: var(--blue); }
 .foot-brand p { margin-top: 16px; max-width: 320px; font-size: 14px; line-height: 1.6; color: var(--muted); }
 .foot-social { display: flex; gap: 10px; margin-top: 22px; }
 .foot-social a { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; border: 1px solid #c4c4bf; background: #e4e4df; transition: border-color .2s, background .2s; }
@@ -608,7 +608,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 }
 .wl button:hover { filter: brightness(1.12); }
 .wl button:disabled { opacity: .6; cursor: progress; }
-.wl button:focus-visible { outline: 2px solid #000000; outline-offset: 2px; }
+.wl button:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
 .wl-msg, .hero-copy .wl-msg { flex-basis: 100%; max-width: none; margin: 0; font-weight: 500; padding: 0 8px; font-size: 13px; line-height: 1.4; text-align: left; }
 .wl-msg:empty { display: none; }
 .wl-msg.ok { color: #7fe0a8; padding-bottom: 6px; }
@@ -715,7 +715,7 @@ a.post:focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 2px; }
   border: 1px solid #d8d8d8;
 }
 .cta-in .sec-lead { margin-inline: auto; }
-.cta-star svg { width: 60px; fill: #000000; filter: drop-shadow(0 0 18px rgba(0, 0, 0, 0.273)); }
+.cta-star svg { width: 60px; fill: var(--blue); filter: drop-shadow(0 0 18px rgba(0, 166, 62, .35)); }
 
 /* ------------------------------------------------------------ film */
 .film-btn {

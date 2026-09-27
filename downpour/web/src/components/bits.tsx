@@ -205,12 +205,12 @@ export function Sparkline({ points, color = '#7cc4ff', height = 44 }: { points: 
     <svg className="spark" viewBox={`0 0 ${w} ${height}`} preserveAspectRatio="none" style={{ height }} aria-hidden="true">
       <defs>
         <linearGradient id={`s${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={color} stopOpacity="0.28" />
+          <stop offset="0" stopColor={color} stopOpacity="0.16" />
           <stop offset="1" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={`${d} L${w} ${height} L0 ${height} Z`} fill={`url(#s${id})`} />
-      <path d={d} fill="none" stroke={color} strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+      <path d={d} fill="none" stroke={color} strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

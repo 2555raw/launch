@@ -190,8 +190,8 @@ export function Home() {
               <div className="kicker">Shining right now</div>
               <h2 className="h-section">Pick a star</h2>
               <p className="lead">
-                Every coin is paired with one of {snap?.currencies.length ?? 148} currencies, picked at launch and fixed for good. The badge on each card
-                says which: <b>coin / currency</b>.
+                Every coin is paired with one of {snap?.currencies.length ?? 148} currencies, picked at launch and fixed for good. Each card says which
+                one it is priced in.
               </p>
             </div>
             <Link to="/launch" className="link">

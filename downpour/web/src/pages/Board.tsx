@@ -54,7 +54,7 @@ export default function Board() {
         <PageHead
           kicker="The board"
           title="Every coin, and the money it lives in"
-          lead="Filter by currency to see everything priced in pesos, or yen, or gold. Each card shows the pair up front: the coin on the left of the badge, its currency on the right."
+          lead="Filter by currency to see everything priced in pesos, or yen, or gold. Each card names its coin and the currency it is priced in."
         />
         <Link to="/launch" className="btn btn-primary" data-solid>
           Launch a coin <Arrow />

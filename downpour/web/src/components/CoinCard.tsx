@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { CoinRow } from '../lib/views';
 import { ago, money, pct, usd } from '../lib/format';
-import { CoinOrb, PairBadge, ProgressBar, Sparkline, StatusPill } from './bits';
+import { CoinOrb, ProgressBar, Sparkline, StatusPill } from './bits';
 
 /** A coin's own patch of sky: its currency's colour and a starfield offset seeded from
  *  its address, so a coin looks the same on its card and on its page. */
@@ -29,16 +29,15 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
           <h3 className="cc-name">{coin.name}</h3>
           <StatusPill coin={coin} now={now} />
         </div>
-        <div className="cc-pair">
-          <PairBadge coin={coin} currency={cur} size="sm" />
-          <span className="muted small">priced in {cur.name}</span>
+        <div className="cc-meta">
+          {coin.symbol} · priced in {cur.name}
         </div>
         <ProgressBar value={row.progress} full={coin.graduated} />
-        <div className="row-between small">
+        <div className="cc-line">
           <span className="num">{money(row.price, cur.symbol)}</span>
-          <span className="muted">{coin.graduated ? 'graduated · in the pool' : `${pct(row.progress)} of curve`}</span>
+          <span>{coin.graduated ? 'graduated · in the pool' : `${pct(row.progress)} of curve`}</span>
         </div>
-        <div className="row-between small muted">
+        <div className="cc-line cc-meta">
           <span>
             mcap {money(row.mcap, cur.symbol)} · {usd(row.mcapUsd)}
           </span>
@@ -47,12 +46,12 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
             {pct(row.change24)}
           </span>
         </div>
-        <Sparkline points={row.spark} color={cur.color} height={40} />
+        <Sparkline points={row.spark} color={cur.color} height={34} />
       </div>
     </Link>
   );
 }
 
 export function CoinCardSkeleton() {
-  return <div className="card coin-card skeleton" style={{ height: 380 }} />;
+  return <div className="card coin-card skeleton" style={{ height: 356 }} />;
 }

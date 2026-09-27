@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
 import { useStorm } from '../storm/Storm';
 import { CoinCard, CoinCardSkeleton } from '../components/CoinCard';
-import { CurrencyDot } from '../components/bits';
+import { CoinOrb, CurrencyDot } from '../components/bits';
 import { CORE_FAQ, CurveChart, Faq, KeeperLine, RecentFills } from '../components/sections';
 import { Arrow, Sparkle } from '../components/icons';
 import { CURRENCY_BY_CODE, HERO_WORDS, POPULAR } from '../data/currencies';
 import { sortRows, totalVolumeUsd, unitsPerUsd, useRows } from '../lib/views';
-import { compact, money, usd } from '../lib/format';
+import { compact, money, pct, usd } from '../lib/format';
 import { fromUsd, quoteBuy, newMarket, virtualQuoteFor, graduationPrice, WAD } from '../lib/math';
 
 function RotatingWord() {
@@ -110,6 +110,75 @@ function StarCalculator() {
   );
 }
 
+/** New on the desk: Zcash, private money a coin can now be priced in. */
+function ZcashBand() {
+  const pad = usePad();
+  const rows = useRows();
+  const zec = pad.snap?.currencies.find((c) => c.code === 'ZEC');
+  const zcoins = useMemo(() => sortRows(rows.filter((r) => r.cur.code === 'ZEC'), 'active'), [rows]);
+  if (pad.snap && !zec) return null; // a deployment without ZEC on its desk
+  return (
+    <section className="section zec-section">
+      <div className="wrap">
+        <div className="zec-band" data-solid>
+          <div className="zec-mark">
+            <CurrencyDot c={{ code: 'ZEC', color: '#f4b728' }} size={96} />
+          </div>
+          <div>
+            <div className="kicker zec-kicker">
+              <span className="news-tag">New</span> On the desk today
+            </div>
+            <h2 className="h-section">Zcash is here.</h2>
+            <p className="lead">
+              Zcash is digital cash with privacy built in: a shielded payment hides who paid whom and how much, and a zero-knowledge proof shows it
+              still adds up. Pair a coin with ZEC and it trades, pays its fees and pays out in zcash.
+            </p>
+            <div className="zec-facts num">
+              {zec && <span>1 ZEC ≈ {money(1 / unitsPerUsd(zec), '$', { compact: false })}</span>}
+              <span>
+                {zcoins.length} coin{zcoins.length === 1 ? '' : 's'} priced in ZEC
+              </span>
+            </div>
+            <div className="zec-cta">
+              <Link to="/launch?currency=ZEC" className="btn btn-primary">
+                Launch a coin in ZEC <Sparkle />
+              </Link>
+              {zec && (
+                <Link to={`/swap?out=${zec.token}`} className="btn">
+                  Swap into ZEC
+                </Link>
+              )}
+              <Link to="/board?currency=ZEC" className="link">
+                See the ZEC coins <Arrow dir="right" />
+              </Link>
+            </div>
+          </div>
+          {zcoins.length > 0 && (
+            <div className="zec-coins">
+              {zcoins.slice(0, 3).map((r) => (
+                <Link key={r.coin.address} to={`/coin/${r.coin.address}`} className="zec-coin">
+                  <CoinOrb coin={r.coin} currency={r.cur} size={40} />
+                  <span className="zec-coin-name">
+                    <b>{r.coin.symbol}</b>
+                    <small>{r.coin.name}</small>
+                  </span>
+                  <span className="zec-coin-num num">
+                    {money(r.mcap, r.cur.symbol)}
+                    <small className={r.change24 >= 0 ? 'up' : 'down'}>
+                      {r.change24 >= 0 ? '+' : ''}
+                      {pct(r.change24)}
+                    </small>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function Home() {
   const pad = usePad();
   const rows = useRows();
@@ -117,6 +186,7 @@ export function Home() {
   const now = pad.now();
   const featured = useMemo(() => sortRows(rows, 'active').slice(0, 6), [rows]);
   const snap = pad.snap;
+  const hasZec = !snap || snap.currencies.some((c) => c.code === 'ZEC');
 
   // Stars gather around the headline while the hero is on screen, then move to the margins.
   const heroRef = useRef<HTMLElement>(null);
@@ -151,6 +221,15 @@ export function Home() {
     <>
       <section className="hero" data-sky ref={heroRef}>
         <div className="wrap hero-inner">
+          {hasZec && (
+            <Link to="/launch?currency=ZEC" className="hero-news" data-solid>
+              <span className="news-tag">New</span>
+              <CurrencyDot c={{ code: 'ZEC', color: '#f4b728' }} size={18} />
+              <span className="news-long">Zcash is here: launch a coin priced in ZEC</span>
+              <span className="news-short">Zcash is here: launch in ZEC</span>
+              <Arrow dir="right" size={12} />
+            </Link>
+          )}
           <div className="kicker">Every star is a currency</div>
           <h1 className="hero-title">
             Mint a star
@@ -183,6 +262,8 @@ export function Home() {
         </div>
       </section>
 
+      <ZcashBand />
+
       <section className="section" id="coins">
         <div className="wrap">
           <div className="section-head">
@@ -190,7 +271,7 @@ export function Home() {
               <div className="kicker">Shining right now</div>
               <h2 className="h-section">Pick a star</h2>
               <p className="lead">
-                Every coin is paired with one of {snap?.currencies.length ?? 148} currencies, picked at launch and fixed for good. Each card says which
+                Every coin is paired with one of {snap?.currencies.length ?? 149} currencies, picked at launch and fixed for good. Each card says which
                 one it is priced in.
               </p>
             </div>
@@ -309,7 +390,7 @@ export function Home() {
               <div className="kicker">The other half of the pair</div>
               <h2 className="h-section">Money people already count in</h2>
               <p className="lead">
-                {snap?.currencies.length ?? 148} currencies, including gold, silver, platinum, bitcoin, ether and solana. Each keeps its own backing: a rush on one
+                {snap?.currencies.length ?? 149} currencies, including gold, silver, platinum, bitcoin, ether, solana and now zcash. Each keeps its own backing: a rush on one
                 never touches another.
               </p>
             </div>

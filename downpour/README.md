@@ -2,8 +2,8 @@
 
 A star-themed token launchpad where every coin is paired with a currency.
 
-You pick one of 148 currencies when you launch (euros, yen, naira, pesos, gold,
-bitcoin…) and the coin trades in it for as long as it exists: buys are paid in
+You pick one of 149 currencies when you launch (euros, yen, naira, pesos, gold,
+bitcoin, zcash…) and the coin trades in it for as long as it exists: buys are paid in
 it, sells pay out in it, the price is quoted in it and fees are collected in it.
 The pairing is shown everywhere as a badge, coin on the left and currency on the
 right, e.g. `PULSAR / € EUR`.
@@ -40,11 +40,12 @@ version (also reachable with `?storm2d`), and nothing moves under
 | **Board** | Every coin, filterable by currency, sortable by activity, market cap, volume or progress. |
 | **Coin page** | Price chart, buy/sell, curve progress, backing, holders, fills. |
 | **Launch** | Name, ticker, currency, picture, links, optional first buy. The market opens in the same transaction. |
-| **Currency desk** | All 148 currencies with their USD rate, coins and backing per currency, conversion, and a faucet for test currencies. |
+| **Currency desk** | All 149 currencies with their USD rate, coins and backing per currency, conversion, and a faucet for test currencies. |
 | **Portfolio** | Your coins, currencies, launches, and creator fees to claim. |
 | **Proof** | Recomputes, for every market, that its reserves add up and its backing covers selling every coin back at once; in live mode also that the contract really holds the money. |
 | **Verify** | Checks from the browser, against any RPC, that a coin is genuinely the pad's and its pairing is what the badge says (the same checks as `scripts/verify.mjs`). |
 | **Connect wallet** | MetaMask, Coinbase Wallet and Phantom first, with their own icons: connected straight away when installed, opened in their app on phones, or linked to their download page. Any other browser wallet (EIP-6963: Rabby, OKX, Brave, Trust…) is listed after them. The icons are from @web3icons/core (MIT); the marks belong to their makers. |
+| **Zcash** | New: ZEC is on the desk (its reference rate is about $1,550, late September 2026), so a coin can be priced in zcash. The home page announces it at the top and in its own band with the coins priced in ZEC, and ZEC is among the popular currencies and the swap's shortcuts. The playground opens two ZEC coins, SHIELD and ZODIAC; a playground saved before gets ZEC, its starting balance and those two coins on its next visit. The ZEC mark is from @web3icons/core (MIT). |
 
 ## Two modes
 

@@ -12,7 +12,7 @@ import { amount, sortRows, useRows } from '../lib/views';
 
 const SLIPPAGES = [50, 100, 300];
 /** One-tap targets under "You receive". */
-const QUICK = ['USD', 'EUR', 'BTC', 'ETH', 'SOL'];
+const QUICK = ['USD', 'EUR', 'BTC', 'ETH', 'SOL', 'ZEC'];
 
 function TokenButton({ token, onClick }: { token?: string; onClick(): void }) {
   const pad = usePad();

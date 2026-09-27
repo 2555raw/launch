@@ -1182,5 +1182,13 @@
   "region": "Metals & crypto",
   "kind": "crypto",
   "rate": 0.005
+ },
+ {
+  "code": "ZEC",
+  "name": "Zcash",
+  "symbol": "ⓩ",
+  "region": "Metals & crypto",
+  "kind": "crypto",
+  "rate": 0.0006451612903
  }
 ]

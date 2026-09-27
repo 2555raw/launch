@@ -17,6 +17,8 @@ export const DEMO_COINS: Array<[string, string, string, string, number]> = [
   ['Buck Supernova', 'NOVA', 'USD', 'Burned so bright it collapsed into its own pool.', 1],
   ['Outback Stardust', 'DUST', 'AUD', 'Settles on everything, once a decade.', 0.68],
   ['Maple Moonbeam', 'BEAM', 'CAD', 'Half light, half syrup.', 0.27],
+  ['Shielded Star', 'SHIELD', 'ZEC', 'Everyone sees it shine; who bought it stays private. Priced in zcash.', 0.74],
+  ['Zero-Knowledge Zodiac', 'ZODIAC', 'ZEC', 'Twelve signs, zero leaks. Priced in zcash.', 0.41],
 ];
 
 /** Coins the playground's crowd launches later, one every few minutes. */

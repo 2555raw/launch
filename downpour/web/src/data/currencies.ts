@@ -42,6 +42,7 @@ const TINTS: Record<string, string> = {
   XPT: '#a5b4fc',
   BTC: '#f7931a',
   ETH: '#8b9dff',
+  ZEC: '#f4b728',
 };
 
 function hash(s: string) {
@@ -65,11 +66,12 @@ export function dropGlyph(code: string): string {
 }
 
 /** Currencies to feature first (hero stars, launch default, desk top row). */
-export const POPULAR = ['USD', 'EUR', 'JPY', 'GBP', 'BRL', 'MXN', 'INR', 'KRW', 'NGN', 'TRY', 'CHF', 'ZAR', 'VND', 'CAD', 'AUD', 'XAU'];
+export const POPULAR = ['USD', 'EUR', 'ZEC', 'JPY', 'GBP', 'BRL', 'MXN', 'INR', 'KRW', 'NGN', 'TRY', 'CHF', 'ZAR', 'VND', 'CAD', 'AUD', 'XAU'];
 
 /** Plural nouns for the hero's rotating line. */
 export const HERO_WORDS: Array<[string, string]> = [
   ['pesos', 'MXN'],
+  ['zcash', 'ZEC'],
   ['yen', 'JPY'],
   ['euros', 'EUR'],
   ['rupees', 'INR'],

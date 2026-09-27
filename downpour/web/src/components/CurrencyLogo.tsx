@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { FLAGS } from '../data/flags';
 
-const MARKS = new Set(['BTC', 'ETH', 'SOL', 'XAU', 'XAG', 'XPT']);
+const MARKS = new Set(['BTC', 'ETH', 'SOL', 'ZEC', 'XAU', 'XAG', 'XPT']);
 
 /** Whether a currency has a real mark to show (see CurrencyLogo). */
 export function hasLogo(code: string) {
@@ -9,7 +9,7 @@ export function hasLogo(code: string) {
 }
 
 /** A currency's real mark: its country's flag for money, the coin's own logo for
- *  bitcoin, ether and solana, a bar of metal for gold, silver and platinum. Returns
+ *  bitcoin, ether, solana and zcash, a bar of metal for gold, silver and platinum. Returns
  *  null when there is none, so the caller can fall back to the currency's glyph. */
 export function CurrencyLogo({ code, size = 26 }: { code: string; size?: number }) {
   const id = useId().replace(/:/g, '');
@@ -64,6 +64,14 @@ export function CurrencyLogo({ code, size = 26 }: { code: string; size?: number 
             <path d="M10.3 9.23A.8.8 0 0 1 10.86 9h13.2c.36 0 .54.43.28.69l-2.44 2.44a.8.8 0 0 1-.56.23H8.14c-.36 0-.54-.43-.28-.69z" />
             <path d="M21.7 14.63a.8.8 0 0 0-.56-.23H7.94c-.36 0-.54.43-.28.69l2.44 2.44c.15.15.35.23.56.23h13.2c.36 0 .54-.43.28-.69z" />
           </g>
+        </svg>
+      );
+    case 'ZEC':
+      // the Zcash mark, after @web3icons/core (MIT)
+      return (
+        <svg {...box}>
+          <circle cx="16" cy="16" r="16" fill="#F4B728" />
+          <path fill="#231F20" transform="translate(3.4 3.4) scale(1.05)" d="M11.19 15.316h5.547v3.316H13.42V21h-2.844v-2.368H7.263v-3.01l5.521-6.938h-5.52V5.368h3.313V3h2.844v2.368h3.316v3.01z" />
         </svg>
       );
     case 'XAU':

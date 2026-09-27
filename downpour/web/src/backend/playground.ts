@@ -129,38 +129,41 @@ function genesis(): World {
     nonce: 0,
     lateLaunched: 0,
   };
-  const byCode = new Map(currencies.map((c) => [c.code, c]));
 
-  DEMO_COINS.forEach(([name, symbol, code, description, fill], i) => {
-    const cur = byCode.get(code)!;
+  DEMO_COINS.forEach((demo, i) => {
     const createdAt = t0 - Math.round((0.4 + rnd() * 3.5) * 86400);
-    const creator = BOTS[i % BOTS.length];
-    const coin = openCoin(w, creator, { name, symbol, meta: { description, image: '', links: {} }, currency: cur.token }, createdAt);
-    const raiseTarget = fromUsd(cur, params.targetRaiseUsd);
-    const trades = 26 + Math.floor(rnd() * 30);
-    const span = t0 - createdAt - 120;
-    let t = createdAt;
-    // creator's first buy
-    simBuy(w, coin, creator, fromUsd(cur, wad(40 + rnd() * 160)), createdAt, true);
-    for (let k = 0; k < trades; k++) {
-      t = Math.min(t0 - 30, t + Math.round((span / trades) * (0.3 + rnd() * 1.4)));
-      const bot = BOTS[Math.floor(rnd() * BOTS.length)];
-      const c = w.coins.find((x) => x.address === coin)!;
-      const want = (raiseTarget * BigInt(Math.round(fill * 1000))) / 1000n;
-      const held = w.balances[lc(bot)]?.[lc(coin)] ?? 0n;
-      if ((c.realQuote >= want && fill < 1) || (rnd() < 0.27 && held > 0n)) {
-        if (held > 0n) simSell(w, coin, bot, (held * BigInt(15 + Math.floor(rnd() * 60))) / 100n, t);
-        continue;
-      }
-      const remaining = want > c.realQuote ? want - c.realQuote : fromUsd(cur, wad(30));
-      let spend = (remaining * BigInt(Math.round((1.6 / Math.max(1, trades - k)) * 1000 * (0.5 + rnd())))) / 1000n;
-      const floor = fromUsd(cur, wad(8 + rnd() * 60));
-      if (spend < floor) spend = floor;
-      if (fill >= 1 && k === trades - 3) spend = raiseTarget * 2n;
-      simBuy(w, coin, bot, spend, t);
-    }
+    openDemoCoin(w, demo, BOTS[i % BOTS.length], createdAt, t0, rnd);
   });
   return w;
+}
+
+/** One of the opening coins, with its creator's first buy and a crowd's worth of trades up to `t0`. */
+function openDemoCoin(w: World, [name, symbol, code, description, fill]: (typeof DEMO_COINS)[number], creator: Address, createdAt: number, t0: number, rnd: () => number) {
+  const cur = w.currencies.find((c) => c.code === code)!;
+  const coin = openCoin(w, creator, { name, symbol, meta: { description, image: '', links: {} }, currency: cur.token }, createdAt);
+  const raiseTarget = fromUsd(cur, w.params.targetRaiseUsd);
+  const trades = 26 + Math.floor(rnd() * 30);
+  const span = t0 - createdAt - 120;
+  let t = createdAt;
+  // creator's first buy
+  simBuy(w, coin, creator, fromUsd(cur, wad(40 + rnd() * 160)), createdAt, true);
+  for (let k = 0; k < trades; k++) {
+    t = Math.min(t0 - 30, t + Math.round((span / trades) * (0.3 + rnd() * 1.4)));
+    const bot = BOTS[Math.floor(rnd() * BOTS.length)];
+    const c = w.coins.find((x) => x.address === coin)!;
+    const want = (raiseTarget * BigInt(Math.round(fill * 1000))) / 1000n;
+    const held = w.balances[lc(bot)]?.[lc(coin)] ?? 0n;
+    if ((c.realQuote >= want && fill < 1) || (rnd() < 0.27 && held > 0n)) {
+      if (held > 0n) simSell(w, coin, bot, (held * BigInt(15 + Math.floor(rnd() * 60))) / 100n, t);
+      continue;
+    }
+    const remaining = want > c.realQuote ? want - c.realQuote : fromUsd(cur, wad(30));
+    let spend = (remaining * BigInt(Math.round((1.6 / Math.max(1, trades - k)) * 1000 * (0.5 + rnd())))) / 1000n;
+    const floor = fromUsd(cur, wad(8 + rnd() * 60));
+    if (spend < floor) spend = floor;
+    if (fill >= 1 && k === trades - 3) spend = raiseTarget * 2n;
+    simBuy(w, coin, bot, spend, t);
+  }
 }
 
 function openCoin(w: World, creator: Address, input: Omit<CreateCoinInput, 'firstBuy' | 'minTokensOut'>, createdAt: number): Address {
@@ -286,9 +289,24 @@ export class PlaygroundBackend implements Backend {
       if (!raw) return null;
       const w = JSON.parse(raw, reviver) as World;
       if (w.v !== 1 || !Array.isArray(w.coins) || !Array.isArray(w.currencies)) return null;
-      // currencies added to the list since this world was saved join it
+      // currencies added to the list since this world was saved join it, with the
+      // same starting amount for every address that already got the others
       const have = new Set(w.currencies.map((c) => c.code));
-      for (const c of CURRENCIES) if (!have.has(c.code)) w.currencies.push(makeCurrency(c, now()));
+      for (const c of CURRENCIES) {
+        if (have.has(c.code)) continue;
+        const cur = makeCurrency(c, now());
+        w.currencies.push(cur);
+        for (const b of Object.values(w.balances)) if (b.__seeded !== undefined) b[lc(cur.token)] = (b[lc(cur.token)] ?? 0n) + fromUsd(cur, STARTING_USD);
+      }
+      // and so do opening coins, opened within the last hour or two
+      const symbols = new Set(w.coins.map((c) => c.symbol));
+      const missing = DEMO_COINS.map((d, i) => [d, i] as const).filter(([d]) => !symbols.has(d[1]));
+      if (missing.length) {
+        const rnd = prng(w.born);
+        const t0 = now();
+        for (const [d, i] of missing) openDemoCoin(w, d, BOTS[i % BOTS.length], t0 - Math.round((0.6 + rnd()) * 3600), t0, rnd);
+        w.trades.sort((a, b) => a.timestamp - b.timestamp);
+      }
       return w;
     } catch {
       return null;

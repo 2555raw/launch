@@ -177,7 +177,8 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   with a star). `x-pfp.png` (1000×1000, the mark alone) and `x-header.jpg` (1500×500,
   the site's sky with its currency stars) are the X profile picture and header;
   `x-header-2.jpg` is the same sky with seven coin tiles on an orbit above the Earth,
-  each star in its currency's colour.
+  each star in its currency's colour; `x-header-3.jpg` is a night field under the Milky
+  Way with a telescope, the currency stars, and the mark made of clouds on the planet.
   `starmint-teaser.mp4` (30 s) and `starmint-teaser-2.mp4` (46 s) are 1080p promo
   videos built from the site's own screens.
 - `shared/currencies.json`: which currencies exist, with reference rates.

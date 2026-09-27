@@ -36,7 +36,7 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
   const faucetUsd = Number(snap.params.faucetUsd) / 1e18;
 
   return (
-    <Modal open onClose={onClose} title={`${cur.code} — ${cur.name}`} wide>
+    <Modal open onClose={onClose} title={`${cur.code} · ${cur.name}`} wide>
       <div className="row" style={{ marginBottom: 14 }}>
         <CurrencyDot c={cur} size={44} />
         <div>
@@ -55,7 +55,7 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
           .filter((c) => c.code !== cur.code)
           .map((c) => (
             <option key={c.code} value={c.code}>
-              {c.code} — {c.name}
+              {c.code} · {c.name}
             </option>
           ))}
       </select>

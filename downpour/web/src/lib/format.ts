@@ -16,7 +16,7 @@ const SUFFIXES: Array<[number, string]> = [
 
 /** 1234567 -> "1.23M"; small numbers keep enough significant digits to be useful. */
 export function compact(n: number, digits = 2): string {
-  if (!Number.isFinite(n)) return '—';
+  if (!Number.isFinite(n)) return 'n/a';
   const a = Math.abs(n);
   if (a >= 1e3) {
     for (const [v, s] of SUFFIXES) {

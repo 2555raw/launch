@@ -7,7 +7,7 @@ import { usePad } from '../backend/PadProvider';
 import { shortAddr } from '../lib/format';
 import { CopyButton } from './bits';
 import { ConnectModal } from './ConnectModal';
-import { Close, Logo, Menu, Sparkle } from './icons';
+import { Close, Menu, Sparkle } from './icons';
 
 /** The bar's links, all in view (launching is the button beside them). */
 export const NAV = [
@@ -145,7 +145,7 @@ function Footer() {
         <div className="footer-top">
           <div>
             <Link to="/" className="brand">
-              <Logo /> {SITE.name}
+              {SITE.name}
             </Link>
             <p className="muted small" style={{ marginTop: 10 }}>
               {SITE.footerLine}
@@ -191,7 +191,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="top" data-solid>
         <header className="nav glass">
           <Link to="/" className="brand" aria-label={`${SITE.name} home`}>
-            <Logo /> <span>{SITE.name}</span>
+            {SITE.name}
           </Link>
           <nav className="nav-links" aria-label="Main">
             {NAV.map((n) => (

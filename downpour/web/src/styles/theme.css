@@ -1023,3 +1023,22 @@ main {
     max-width: 100%;
   }
 }
+
+/* ------------------------------ the hero at Levity's scale: smaller title, subtitle and button ------------------------------ */
+.hero-title {
+  font-size: clamp(44px, 6.6vw, 96px);
+  margin: 14px 0 18px;
+}
+.hero-sub {
+  font-size: clamp(15px, 1.4vw, 17px);
+  margin-bottom: 24px;
+}
+.hero-inner > .kicker {
+  font-size: 10px;
+}
+.hero-cta {
+  gap: 14px;
+}
+.hero-cta .link {
+  font-size: 13.5px;
+}

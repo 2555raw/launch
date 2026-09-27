@@ -30,7 +30,7 @@ export function CurrencyPicker({ value, onChange }: { value?: Address; onChange(
           <>
             <CurrencyDot c={current} size={26} />
             <span>
-              <b>{current.code}</b> <span className="muted">— {current.name}</span>
+              <b>{current.code}</b> <span className="muted">{current.name}</span>
             </span>
           </>
         ) : (

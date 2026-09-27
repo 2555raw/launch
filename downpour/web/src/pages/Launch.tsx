@@ -180,7 +180,7 @@ export default function Launch() {
               <span className="affix">{cur?.code}</span>
             </div>
             <span className="hint">
-              Buys in the same transaction as the launch, before anyone else can, and skips the snipe tax. Balance: {cur ? money(amount(bal, cur.decimals), cur.symbol) : '—'}
+              Buys in the same transaction as the launch, before anyone else can, and skips the snipe tax.{cur && ` Balance: ${money(amount(bal, cur.decimals), cur.symbol)}`}
             </span>
           </div>
 
@@ -222,7 +222,7 @@ export default function Launch() {
                 <div className="kv">
                   <span>Paired with</span>
                   <span>
-                    {cur.code} — {cur.name}
+                    {cur.code} · {cur.name}
                   </span>
                 </div>
                 <div className="kv">

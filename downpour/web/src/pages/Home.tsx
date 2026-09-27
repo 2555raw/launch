@@ -240,7 +240,7 @@ export function Home() {
             Launch a coin that trades in <RotatingWord />
           </p>
           <div className="hero-cta" data-solid>
-            <Link to="/launch" className="btn btn-primary btn-lg">
+            <Link to="/launch" className="btn btn-primary">
               Launch a coin <Sparkle />
             </Link>
             <Link to="/board" className="link">
@@ -304,23 +304,23 @@ export function Home() {
           <div className="stats glass">
             <div className="stat">
               <span className="kicker">Coins trading</span>
-              <b>{snap ? snap.coins.length : '—'}</b>
+              <b>{snap ? snap.coins.length : '…'}</b>
             </div>
             <div className="stat">
               <span className="kicker">Currencies</span>
-              <b>{snap ? snap.currencies.length : '—'}</b>
+              <b>{snap ? snap.currencies.length : '…'}</b>
             </div>
             <div className="stat">
               <span className="kicker">Volume, all time</span>
-              <b>{snap ? usd(totalVolumeUsd(snap)) : '—'}</b>
+              <b>{snap ? usd(totalVolumeUsd(snap)) : '…'}</b>
             </div>
             <div className="stat">
               <span className="kicker">Trade fee</span>
-              <b>{snap ? `${(snap.params.protocolFeeBps + snap.params.creatorFeeBps) / 100}%` : '—'}</b>
+              <b>{snap ? `${(snap.params.protocolFeeBps + snap.params.creatorFeeBps) / 100}%` : '…'}</b>
             </div>
             <div className="stat">
               <span className="kicker">Snipe window</span>
-              <b>{snap ? `${snap.params.snipeWindow}s` : '—'}</b>
+              <b>{snap ? `${snap.params.snipeWindow}s` : '…'}</b>
             </div>
           </div>
           <KeeperLine />

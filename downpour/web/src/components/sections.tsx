@@ -51,11 +51,11 @@ export function KeeperLine() {
       <span>KEEPER · RATES POSTED ONLY WHEN TWO FEEDS AGREE</span>
       {last && cur ? (
         <span className="muted">
-          — LAST MOVE {cur.code} {change >= 0 ? '+' : ''}
+          · LAST MOVE {cur.code} {change >= 0 ? '+' : ''}
           {(change * 100).toFixed(3)}% · {ago(last.timestamp, now).toUpperCase()} · {moves.length} MOVES
         </span>
       ) : (
-        <span className="muted">— HOLDING, NO MOVES YET</span>
+        <span className="muted">· HOLDING, NO MOVES YET</span>
       )}
     </div>
   );
@@ -141,6 +141,6 @@ export const CORE_FAQ: Array<[string, ReactNode]> = [
   ],
   [
     'Is any of this real money?',
-    'In the playground, no: balances are simulated in your browser. In live mode you trade real tokens on chain; on a test network those are test currencies from the faucet, with no value. Memecoins can go to zero. Nothing here is advice.',
+    'In the playground, no: balances are simulated in your browser. In live mode you trade real tokens on chain; on a test network those are test currencies from the faucet, with no value. Nothing here is advice.',
   ],
 ];

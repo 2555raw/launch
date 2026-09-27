@@ -14,7 +14,7 @@ export const SITE = {
     explorer: 'https://explorer.chain.robinhood.com',
   },
   links: {
-    x: '',
+    x: 'https://x.com/useStarmint',
     telegram: '',
     github: '',
   },

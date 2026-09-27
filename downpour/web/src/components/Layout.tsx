@@ -7,7 +7,7 @@ import { usePad } from '../backend/PadProvider';
 import { shortAddr } from '../lib/format';
 import { CopyButton } from './bits';
 import { ConnectModal } from './ConnectModal';
-import { Close, Menu, Sparkle } from './icons';
+import { Close, Menu, Sparkle, XLogo } from './icons';
 
 /** The bar's links, all in view (launching is the button beside them). */
 export const NAV = [
@@ -150,6 +150,11 @@ function Footer() {
             <p className="muted small" style={{ marginTop: 10 }}>
               {SITE.footerLine}
             </p>
+            {SITE.links.x && (
+              <a className="footer-x" href={SITE.links.x} target="_blank" rel="noreferrer">
+                <XLogo /> @{SITE.links.x.split('/').pop()}
+              </a>
+            )}
           </div>
           <nav className="footer-links">
             <Link to="/swap">Swap</Link>

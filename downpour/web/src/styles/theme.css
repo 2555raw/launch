@@ -1051,3 +1051,17 @@ main {
 .hero-title {
   letter-spacing: -0.045em;
 }
+
+/* ------------------------------ the site's X account, in the footer ------------------------------ */
+.footer-x {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.footer-x:hover {
+  color: var(--ink);
+}

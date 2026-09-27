@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { CoinRow } from '../lib/views';
 import { ago, money, pct, usd } from '../lib/format';
-import { PairBadge, ProgressBar, Sparkline, StarToken, StatusPill } from './bits';
-import { dropGlyph } from '../data/currencies';
+import { CoinOrb, PairBadge, ProgressBar, Sparkline, StatusPill } from './bits';
 
 /** A coin's own patch of sky: its currency's colour and a starfield offset seeded from
  *  its address, so a coin looks the same on its card and on its page. */
@@ -21,8 +20,9 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
         <span className="cc-code">{cur.code}</span>
         <span className="cc-age">{ago(coin.createdAt, now)}</span>
         <div className="cc-orb">
-          <StarToken color={cur.color} glyph={dropGlyph(cur.code)} ticker={coin.symbol} image={coin.meta.image || undefined} label={`${coin.symbol} star in ${cur.code}`} />
+          <CoinOrb coin={coin} currency={cur} size={coin.meta.image ? 76 : 124} />
         </div>
+        <span className="cc-ticker">{coin.symbol}</span>
       </div>
       <div className="cc-body">
         <div className="row-between">

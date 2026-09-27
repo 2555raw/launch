@@ -151,25 +151,17 @@ function ModeSwitch() {
   );
 }
 
+/** The platform token's contract address, under the nav, once it exists. */
+const SHOW_CA = !!SITE.token.address;
+
 function CaBar() {
   const t = SITE.token;
   return (
     <div className="ca-bar glass" data-solid>
       <span className="ca-sym">{t.symbol}</span>
       <span className="ca-label">CA</span>
-      {t.address ? (
-        <>
-          <span className="mono ca-addr">{t.address}</span>
-          <CopyButton text={t.address} />
-        </>
-      ) : (
-        <span className="ca-addr muted">
-          <span className="ca-long">Not launched yet. The contract address appears here the moment it exists.</span>
-          <span className="ca-short">coming soon</span>
-        </span>
-      )}
-      <span className="ca-spacer" />
-      <ModeSwitch />
+      <span className="mono ca-addr">{t.address}</span>
+      <CopyButton text={t.address} />
     </div>
   );
 }
@@ -268,7 +260,7 @@ export function Layout({ children }: { children: ReactNode }) {
   }, [loc.pathname]);
 
   return (
-    <div className="app">
+    <div className={SHOW_CA ? 'app has-ca' : 'app'}>
       <div className="top" data-solid>
         <header className="nav glass">
           <Link to="/" className="brand" aria-label={`${SITE.name} home`}>
@@ -283,6 +275,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <MoreMenu />
           </nav>
           <div className="nav-actions">
+            <ModeSwitch />
             <WalletButton />
             <Link to="/launch" className="btn btn-primary btn-sm nav-cta">
               Launch a coin <Sparkle size={12} />
@@ -294,6 +287,9 @@ export function Layout({ children }: { children: ReactNode }) {
         </header>
         {menu && (
           <nav className="sheet glass" aria-label="Main (mobile)">
+            <div className="sheet-mode">
+              <ModeSwitch />
+            </div>
             {ALL.map((n) => (
               <NavLink key={n.to} to={n.to} className={({ isActive }) => (isActive ? 'on' : '')}>
                 {n.label}
@@ -301,7 +297,7 @@ export function Layout({ children }: { children: ReactNode }) {
             ))}
           </nav>
         )}
-        <CaBar />
+        {SHOW_CA && <CaBar />}
       </div>
       <main>{children}</main>
       <Footer />

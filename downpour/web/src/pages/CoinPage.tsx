@@ -4,9 +4,8 @@ import { usePad } from '../backend/PadProvider';
 import type { Coin, Currency } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { explorerAddress } from '../config/chains';
-import { CopyButton, PairBadge, ProgressBar, StarToken, StatusPill } from '../components/bits';
+import { CoinOrb, CopyButton, PairBadge, ProgressBar, StatusPill } from '../components/bits';
 import { PriceChart } from '../components/PriceChart';
-import { dropGlyph } from '../data/currencies';
 import { skyStyle } from '../components/CoinCard';
 import { RecentFills } from '../components/sections';
 import { Arrow, Sparkle } from '../components/icons';
@@ -253,7 +252,7 @@ export default function CoinPage() {
     <div className="wrap">
       <div className="coin-head">
         <div className="coin-avatar" style={skyStyle(coin.address, cur.color)}>
-          <StarToken color={cur.color} glyph={dropGlyph(cur.code)} ticker={coin.symbol} image={coin.meta.image || undefined} label={`${coin.symbol} star in ${cur.code}`} />
+          <CoinOrb coin={coin} currency={cur} size={coin.meta.image ? 76 : 124} />
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="kicker">{coin.graduated ? 'Graduated · trading in its pool' : 'On the curve'}</div>

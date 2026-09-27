@@ -128,6 +128,9 @@
   color: var(--ink);
 }
 main {
+  padding-top: calc(var(--nav-h) + 30px);
+}
+.has-ca main {
   padding-top: calc(var(--nav-h) + 62px);
 }
 
@@ -408,6 +411,41 @@ main {
 .hero-controls .muted {
   color: #fff;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9), 0 0 3px rgba(0, 0, 0, 0.7);
+}
+
+/* ------------------------------ coin card skies ------------------------------ */
+.coin-card .cc-ticker,
+.preview .cc-ticker {
+  color: rgba(255, 255, 255, 0.94);
+  letter-spacing: 0.14em;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.8);
+  z-index: 2;
+}
+.coin-card .cc-age {
+  color: rgba(255, 255, 255, 0.62);
+}
+.cc-orb {
+  filter: none;
+}
+/* a real star's spikes shimmer a little */
+.star-mark .star-spikes {
+  transform-origin: 50% 50%;
+  animation: star-shimmer 3.4s ease-in-out infinite alternate;
+}
+@keyframes star-shimmer {
+  from {
+    transform: scale(0.93);
+    opacity: 0.82;
+  }
+  to {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .star-mark .star-spikes {
+    animation: none;
+  }
 }
 
 /* ------------------------------ footer status ------------------------------ */
@@ -769,6 +807,11 @@ main {
   border-color: rgba(255, 255, 255, 0.26);
   color: #fff;
 }
+/* the phone menu covers the page, so it is darker glass to keep its links readable */
+.sheet {
+  background: rgba(10, 14, 26, 0.86);
+  backdrop-filter: blur(20px) saturate(140%);
+}
 .sheet a.on,
 .sheet a:hover {
   background: rgba(255, 255, 255, 0.12);
@@ -778,55 +821,6 @@ main {
 .mode-pill.playground {
   background: rgba(3, 7, 16, 0.55);
   border-color: rgba(255, 255, 255, 0.16);
-}
-
-/* ------------------------------ coin cards: a light header with the coin's star (after Levity) ------------------------------ */
-.coin-card .cc-sky,
-.coin-avatar,
-.preview {
-  background:
-    radial-gradient(58% 72% at 50% 52%, color-mix(in srgb, var(--c) 24%, white), transparent 72%),
-    linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, white), #fff 88%);
-}
-.coin-card .cc-sky::after,
-.coin-avatar::after,
-.preview::after {
-  display: none;
-}
-.coin-card .cc-sky {
-  border-bottom: 1px solid rgba(15, 28, 50, 0.06);
-}
-.coin-card .cc-code,
-.preview .cc-code {
-  top: 12px;
-  left: 14px;
-  color: #6b7385;
-}
-.coin-card .cc-age {
-  top: auto;
-  bottom: 10px;
-  right: 14px;
-  color: #8a93a4;
-}
-.cc-orb {
-  filter: drop-shadow(0 12px 14px color-mix(in srgb, var(--c) 28%, transparent));
-}
-.coin-avatar {
-  border-color: rgba(255, 255, 255, 0.7);
-}
-.coin-avatar .star-token {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  translate: -50% -50%;
-  width: 100px;
-  height: 100px;
-}
-@media (max-width: 640px) {
-  .coin-avatar .star-token {
-    width: 74px;
-    height: 74px;
-  }
 }
 
 /* ------------------------------ the board's bar (after Levity) ------------------------------ */
@@ -909,6 +903,26 @@ main {
   .board-find .select {
     flex: 0 0 auto;
     max-width: 44%;
+  }
+}
+
+/* ------------------------------ where the pad runs: a pill in the nav (in the menu on phones) ------------------------------ */
+.sheet-mode {
+  display: none;
+  grid-column: 1 / -1;
+  padding: 4px 4px 8px;
+}
+@media (max-width: 560px) {
+  .nav .mode {
+    display: none;
+  }
+  .sheet-mode {
+    display: block;
+  }
+  .sheet-mode .mode-menu {
+    left: 0;
+    right: auto;
+    width: min(300px, calc(100vw - 48px));
   }
 }
 

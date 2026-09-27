@@ -4,8 +4,8 @@ export const SITE = {
   name: 'Starmint',
   tagline: 'Mint a star in any currency.',
   footerLine: 'Coins that shine in the money you already use.',
-  /** The platform's own token, shown in the bar under the nav. Leave `address`
-   *  empty until it exists and the bar says so instead of showing a fake CA. */
+  /** The platform's own token. Leave `address` empty until it exists: the bar under
+   *  the nav with its contract address only shows once it is set. */
   token: {
     symbol: '$SMNT',
     address: '' as string,

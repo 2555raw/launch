@@ -25,10 +25,8 @@ the sun.
 Every currency is a star, drawn like a real one (a white core, a halo in the
 currency's colour, diffraction spikes) with its sign beside it like a star chart.
 Stars are born with a flare, drift slowly upward and fade out; tap one and it flares up
-for a moment and fades, like a real star going out. On the board's cards, the coin page
-and the launch preview, each coin is a glossy star in its currency's colour with the
-currency's sign and the coin's ticker on it, on a light card (after Levity's balloons).
-The top bars are translucent glass over the sky.
+for a moment and fades, like a real star going out. The top bars are translucent glass
+over the sky.
 Shooting stars streak across the top of the sky on their own, over the planet and
 away from it. Resolution drops by itself on slow devices, browsers without WebGL2 get a 2D
 version (also reachable with `?storm2d`), and nothing moves under
@@ -56,7 +54,7 @@ version (also reachable with `?storm2d`), and nothing moves under
   small crowd of bots trades so the board is alive; state is kept in localStorage.
 - **Live**: the contracts on a chain, signed with the visitor's wallet. It switches
   on by itself once `npm run deploy` has written a deployment for a chain, and the
-  pill under the nav toggles between the two.
+  pill in the nav toggles between the two.
 
 ## How the pad works
 
@@ -168,7 +166,7 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
 ## Make it yours
 
 - `web/src/config/site.ts`: name, tagline, and the platform token's contract
-  address (the bar under the nav says "not launched yet" until you fill it in).
+  address (the bar under the nav with its contract address only shows once you fill it in).
 - `shared/currencies.json`: which currencies exist, with reference rates.
 - `VITE_DEFAULT_MODE` (`auto` | `live` | `playground`) and `VITE_DEFAULT_CHAIN`
   at build time choose what visitors see first.

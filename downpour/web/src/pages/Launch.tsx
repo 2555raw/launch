@@ -4,7 +4,7 @@ import { usePad } from '../backend/PadProvider';
 import type { Address } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { CurrencyPicker } from '../components/CurrencyPicker';
-import { PageHead, PairBadge, StarToken } from '../components/bits';
+import { Orb, PageHead, PairBadge } from '../components/bits';
 import { Sparkle } from '../components/icons';
 import { dropGlyph } from '../data/currencies';
 import { compact, money, parseAmount, usd } from '../lib/format';
@@ -204,8 +204,9 @@ export default function Launch() {
             <div className="preview">
               <span className="cc-code">{cur?.code}</span>
               <div className="cc-orb">
-                <StarToken color={cur?.color ?? '#7cc4ff'} glyph={cur ? dropGlyph(cur.code) : '?'} ticker={ticker || 'TICKER'} image={image || undefined} size={176} />
+                <Orb color={cur?.color ?? '#7cc4ff'} glyph={cur ? dropGlyph(cur.code) : '?'} image={image || undefined} size={image ? 96 : 150} />
               </div>
+              <span className="cc-ticker">{ticker || 'TICKER'}</span>
             </div>
           </div>
           <div className="panel">

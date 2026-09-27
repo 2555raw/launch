@@ -268,10 +268,6 @@
   min-width: 0;
 }
 
-.ca-spacer {
-  flex: 1;
-}
-
 .mode {
   position: relative;
   flex: none;
@@ -345,19 +341,9 @@
   cursor: not-allowed;
 }
 
-.ca-short {
-  display: none;
-}
-
 @media (max-width: 640px) {
   .ca-bar {
     padding-left: 14px;
-  }
-  .ca-long {
-    display: none;
-  }
-  .ca-short {
-    display: inline;
   }
   .ca-bar .mono.ca-addr {
     max-width: 120px;

@@ -48,9 +48,11 @@ export function TokenSelect({
         out.push({ token: c.token, kind: 'currency', label: c.code, sub: c.name, bal, usd: pad.usdValue(c.token, bal) });
       }
     }
+    // a search for "sol" puts SOL itself first, then tickers starting with it, then the rest
+    const rank = (r: { label: string }) => (!needle ? 0 : r.label.toLowerCase() === needle ? 0 : r.label.toLowerCase().startsWith(needle) ? 1 : 2);
     return out
       .filter((r) => r.token.toLowerCase() !== exclude?.toLowerCase())
-      .sort((a, b) => b.usd - a.usd || (a.kind === b.kind ? 0 : a.kind === 'coin' ? -1 : 1));
+      .sort((a, b) => rank(a) - rank(b) || b.usd - a.usd || (a.kind === b.kind ? 0 : a.kind === 'coin' ? -1 : 1));
   }, [snap, q, filter, exclude, pad]);
 
   return (

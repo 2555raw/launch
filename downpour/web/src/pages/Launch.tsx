@@ -70,7 +70,7 @@ export default function Launch() {
   };
 
   let action: { label: string; disabled: boolean; onClick?: () => void } = { label: 'Launch the coin', disabled: true };
-  if (!wallet.address || (pad.mode === 'live' && wallet.isGuest)) action = { label: 'Connect a wallet to launch', disabled: false, onClick: wallet.openModal };
+  if (!wallet.address) action = { label: 'Connect a wallet to launch', disabled: false, onClick: wallet.openModal };
   else if (pad.wrongChain && pad.chainId) action = { label: 'Switch network', disabled: false, onClick: () => wallet.switchChain(pad.chainId!) };
   else if (!nameOk) action = { label: 'Name your coin', disabled: true };
   else if (!tickerOk) action = { label: 'Give it a ticker', disabled: true };

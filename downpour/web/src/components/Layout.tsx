@@ -45,12 +45,12 @@ function WalletButton() {
   return (
     <div className="acct" ref={ref}>
       <button className={`acct-btn ${pad.wrongChain ? 'warn' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        {w.walletIcon ? <img src={w.walletIcon} alt="" width={18} height={18} /> : <span className="dot" style={{ color: w.isGuest ? '#7cc4ff' : '#3ddc97' }} />}
+        {w.walletIcon ? <img src={w.walletIcon} alt="" width={18} height={18} /> : <span className="dot" style={{ color: '#3ddc97' }} />}
         <span className="mono">{shortAddr(w.address, 5, 4)}</span>
       </button>
       {open && (
         <div className="acct-menu glass" data-solid>
-          <div className="muted small">{w.isGuest ? 'Guest (playground only)' : w.walletName}</div>
+          <div className="muted small">{w.walletName}</div>
           <div className="mono acct-addr">{w.address}</div>
           <div className="row" style={{ flexWrap: 'wrap' }}>
             <CopyButton text={w.address} label="Copy address" />

@@ -14,7 +14,7 @@ export default function Portfolio() {
   const rows = useRows();
   const snap = pad.snap;
   const me = wallet.address?.toLowerCase();
-  const usable = !!wallet.address && !(pad.mode === 'live' && wallet.isGuest);
+  const usable = !!wallet.address;
 
   const coins = useMemo(
     () =>

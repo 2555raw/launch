@@ -83,7 +83,14 @@ export function ago(tsSeconds: number, nowSeconds = Date.now() / 1000): string {
 
 /** Parses what someone typed into an amount field into base units, or null. */
 export function parseAmount(text: string, decimals = 18): bigint | null {
-  const t = text.trim().replace(/,/g, '');
+  // A dot or a comma is the decimal point: phones in Spain and much of the world
+  // only offer the comma, so 0,5 must mean half, not 5. With both (1,234.5 or
+  // 1.234,5) the last one is the decimal point; one repeated (1,000,000) groups thousands.
+  let t = text.trim().replace(/\s/g, '');
+  const last = Math.max(t.lastIndexOf('.'), t.lastIndexOf(','));
+  if (t.includes('.') && t.includes(',')) t = t.slice(0, last).replace(/[.,]/g, '') + '.' + t.slice(last + 1);
+  else if (/[.,].*[.,]/.test(t)) t = t.replace(/[.,]/g, '');
+  else t = t.replace(',', '.');
   if (!t || !/^\d*\.?\d*$/.test(t) || t === '.') return null;
   const [whole, frac = ''] = t.split('.');
   const f = (frac + '0'.repeat(decimals)).slice(0, decimals);

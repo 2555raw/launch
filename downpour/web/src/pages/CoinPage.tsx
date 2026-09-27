@@ -51,7 +51,7 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
       : [25, 50, 75, 100].map((p) => ({ label: `${p}%`, value: toInput((coinBal * BigInt(p)) / 100n, 18, 6), max: p === 100 }));
 
   let action: { label: string; disabled: boolean; onClick?: () => void } = { label: side === 'buy' ? `Buy ${coin.symbol}` : `Sell ${coin.symbol}`, disabled: true };
-  if (!wallet.address || (pad.mode === 'live' && wallet.isGuest)) action = { label: 'Connect wallet', disabled: false, onClick: wallet.openModal };
+  if (!wallet.address) action = { label: 'Connect wallet', disabled: false, onClick: wallet.openModal };
   else if (pad.wrongChain && pad.chainId) action = { label: 'Switch network', disabled: false, onClick: () => wallet.switchChain(pad.chainId!) };
   else if (!value) action = { ...action, disabled: true };
   else if (value > have) action = { label: `Not enough ${side === 'buy' ? cur.code : coin.symbol}`, disabled: true };

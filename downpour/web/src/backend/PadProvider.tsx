@@ -74,7 +74,7 @@ export function PadProvider({ children }: { children: ReactNode }) {
     if (mode === 'live' && chainId && DEPLOYMENTS[chainId]) {
       return new LiveBackend(DEPLOYMENTS[chainId], async () => {
         const w = walletRef.current;
-        if (w.isGuest || !w.address) throw new Error('Connect a wallet to trade on chain. Guests can only use the playground.');
+        if (!w.address) throw new Error('Connect a wallet to trade on chain.');
         if (w.chainId !== chainId) await w.switchChain(chainId);
         const client = w.walletClient(chainId);
         if (!client) throw new Error('Connect a wallet first.');
@@ -162,9 +162,8 @@ export function PadProvider({ children }: { children: ReactNode }) {
   // Balances of every currency and coin for whoever is connected.
   const [balances, setBalances] = useState<Record<string, bigint>>({});
   const account = wallet.address;
-  const usable = account && (mode === 'playground' || !wallet.isGuest);
   const refreshBalances = useCallback(async () => {
-    if (!usable || !snap || !account) {
+    if (!snap || !account) {
       setBalances({});
       return;
     }
@@ -174,7 +173,7 @@ export function PadProvider({ children }: { children: ReactNode }) {
     } catch {
       /* keep the last balances; the next refresh will try again */
     }
-  }, [usable, snap, account, backend]);
+  }, [snap, account, backend]);
   useEffect(() => {
     refreshBalances();
   }, [refreshBalances]);
@@ -187,10 +186,6 @@ export function PadProvider({ children }: { children: ReactNode }) {
     async (title: string, fn: (account: Address, o: TxOptions) => Promise<TxResult>) => {
       const w = walletRef.current;
       if (!w.address) {
-        w.openModal();
-        return null;
-      }
-      if (mode === 'live' && w.isGuest) {
         w.openModal();
         return null;
       }
@@ -212,7 +207,7 @@ export function PadProvider({ children }: { children: ReactNode }) {
         return null;
       }
     },
-    [mode, refresh, refreshBalances, dismiss],
+    [refresh, refreshBalances, dismiss],
   );
 
   const setMode = useCallback((m: Mode) => {
@@ -228,7 +223,7 @@ export function PadProvider({ children }: { children: ReactNode }) {
     if (backend.kind === 'playground') (backend as PlaygroundBackend).reset();
   }, [backend]);
 
-  const wrongChain = mode === 'live' && !!wallet.address && !wallet.isGuest && wallet.chainId !== chainId;
+  const wrongChain = mode === 'live' && !!wallet.address && wallet.chainId !== chainId;
 
   const value: PadState = {
     mode,

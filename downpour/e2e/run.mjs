@@ -74,7 +74,7 @@ async function step(name, fn) {
     console.log(`  ✓ ${name} (${Date.now() - t}ms)`);
   } catch (e) {
     results.push([false, name, Date.now() - t, e.message]);
-    console.log(`  ✗ ${name}: ${e.message.split('\n')[0]}`);
+    console.log(`  ✗ ${name}: ${e.message.split('\n').slice(0, 3).join(' | ')}`);
   }
 }
 

@@ -112,7 +112,7 @@ export default function Swap() {
   const snipe = q?.steps.find((s) => (s.snipeTax ?? 0n) > 0n);
 
   let action: { label: string; disabled: boolean; onClick?: () => void } = { label: 'Swap', disabled: true };
-  if (!wallet.address || (pad.mode === 'live' && wallet.isGuest)) action = { label: 'Connect wallet', disabled: false, onClick: wallet.openModal };
+  if (!wallet.address) action = { label: 'Connect wallet', disabled: false, onClick: wallet.openModal };
   else if (pad.wrongChain && pad.chainId) action = { label: 'Switch network', disabled: false, onClick: () => wallet.switchChain(pad.chainId!) };
   else if (!tokenIn || !tokenOut) action = { label: 'Select a token', disabled: true };
   else if (!amountIn) action = { label: 'Enter an amount', disabled: true };

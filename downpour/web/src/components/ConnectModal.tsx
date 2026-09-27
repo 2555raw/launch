@@ -81,16 +81,6 @@ export function ConnectModal() {
         </>
       )}
 
-      {playground && (
-        <button className="wallet-row guest" onClick={w.connectGuest}>
-          <span className="wallet-fallback">
-            <StarIcon />
-          </span>
-          <span>Continue as a guest</span>
-          <span className="muted small">Playground only · a random address kept in this browser</span>
-        </button>
-      )}
-
       {w.error && (
         <div className="callout warn" style={{ marginTop: 14 }}>
           {w.error}

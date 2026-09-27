@@ -24,7 +24,7 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
   const value = parseAmount(text, cur.decimals);
   const q = value && to ? quoteConvert(cur, to, value, snap.params.deskFeeBps) : null;
   const bal = pad.balances[cur.token.toLowerCase()] ?? 0n;
-  const canUse = wallet.address && !(pad.mode === 'live' && wallet.isGuest);
+  const canUse = !!wallet.address;
   const now = pad.now();
 
   useEffect(() => {

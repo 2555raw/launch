@@ -414,11 +414,6 @@
   background: rgba(255, 255, 255, 0.07);
 }
 
-.wallet-row.guest {
-  margin-top: 10px;
-  border-style: dashed;
-}
-
 .wallet-fallback {
   width: 30px;
   height: 30px;

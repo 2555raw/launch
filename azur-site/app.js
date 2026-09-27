@@ -58,7 +58,7 @@
       "</linearGradient></defs>" +
       '<path d="' + d + " L290 170 L0 170 Z" + '" fill="url(#' + id + ')"/>' +
       '<path class="line" d="' + d + '"/>' +
-      '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#e2e7e4"/>';
+      '<circle cx="' + end[0] + '" cy="' + end[1] + '" r="4" fill="#e2e2e2"/>';
   });
 
   // Small sparklines: red ones trend down, blue ones trend up.

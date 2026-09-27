@@ -176,8 +176,8 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   1024 px for X, listings and the like. `token.svg` is the $SMNT token image (a coin
   with a star). `x-pfp.png` (1000×1000, the mark alone) and `x-header.jpg` (1500×500,
   the site's sky with its currency stars) are the X profile picture and header;
-  `x-header-2.jpg` is a light header in the teasers' look, seven of the board's coins
-  on graph paper, each star in its currency's colour.
+  `x-header-2.jpg` is the same sky with seven of the board's coins as tiles, each star
+  in its currency's colour and each tile glowing in it.
   `starmint-teaser.mp4` (30 s) and `starmint-teaser-2.mp4` (46 s) are 1080p promo
   videos built from the site's own screens.
 - `shared/currencies.json`: which currencies exist, with reference rates.

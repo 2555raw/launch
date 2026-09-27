@@ -1010,3 +1010,30 @@ main {
 .hero-cta .link {
   font-size: 13.5px;
 }
+
+/* ------------------------------ the bar, aligned: links centred on it, both pills the same height and inset ------------------------------ */
+.nav {
+  padding: 0 8px;
+}
+.nav .brand {
+  margin-left: 10px;
+}
+.nav .acct-btn {
+  height: 32px;
+}
+@media (min-width: 1200px) {
+  .nav {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+  .nav .brand {
+    justify-self: start;
+  }
+  .nav-links {
+    margin: 0;
+  }
+  .nav-actions {
+    justify-self: end;
+    margin-left: 0;
+  }
+}

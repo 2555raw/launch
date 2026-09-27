@@ -274,7 +274,7 @@
     discord: "https://discord.gg/Beq3FBtyv",
     x: "https://x.com/useAzur",
   };
-  const LIVE_SITE = "https://spinpad-production.up.railway.app";
+  const LIVE_SITE = "https://azur.up.railway.app";
   document.querySelectorAll("[data-social]").forEach((a) => {
     const url = SOCIAL[a.dataset.social];
     if (url) a.href = url;

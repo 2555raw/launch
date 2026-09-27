@@ -1,8 +1,14 @@
 /* Small inline icons, drawn for this site. */
 
-/** The site's mark: a star rising over the Earth's edge (web/public/brand/logo.svg). */
+/** The site's mark, in the text colour: a star over the edge of the Earth (web/public/brand/mark.svg). */
 export function Logo({ size = 26 }: { size?: number }) {
-  return <img src={`${import.meta.env.BASE_URL}brand/logo.svg`} width={size} height={size} alt="" />;
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="currentColor" aria-hidden="true">
+      <path d="M32 5L35.1 23.9L51 27L35.1 30.1L32 42L28.9 30.1L13 27L28.9 23.9Z" />
+      <circle cx="32" cy="27" r="4.8" />
+      <path d="M2 59A50 50 0 0 1 62 59A100.13 100.13 0 0 0 2 59Z" />
+    </svg>
+  );
 }
 
 export function Arrow({ dir = 'ne', size = 14 }: { dir?: 'ne' | 'right' | 'down'; size?: number }) {

@@ -861,7 +861,7 @@ main {
 }
 
 
-/* ------------------------------ Zcash, new today: the hero notice and its band ------------------------------ */
+/* ------------------------------ Zcash, new today: its band ------------------------------ */
 .news-tag {
   display: inline-block;
   padding: 3px 8px;
@@ -873,25 +873,6 @@ main {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1.2;
-}
-.hero-news {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 20px;
-  padding: 5px 14px 5px 5px;
-  border-radius: 999px;
-  font-size: 13px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(244, 183, 40, 0.45);
-  backdrop-filter: blur(16px) saturate(140%);
-  box-shadow: 0 0 0 4px rgba(244, 183, 40, 0.06), 0 10px 30px -18px rgba(244, 183, 40, 0.8);
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-.hero-news:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(244, 183, 40, 0.75);
 }
 .zec-section {
   padding-top: 10px;
@@ -985,9 +966,6 @@ main {
 .zec-coin small.down {
   color: #f87171;
 }
-.news-short {
-  display: none;
-}
 @media (max-width: 1080px) {
   .zec-band {
     grid-template-columns: auto 1fr;
@@ -1008,19 +986,9 @@ main {
     padding: 26px 20px;
     border-radius: 22px;
   }
-  .news-long {
-    display: none;
-  }
-  .news-short {
-    display: inline;
-  }
   .zec-mark .cur-logo {
     width: 64px;
     height: 64px;
-  }
-  .hero-news {
-    font-size: 12px;
-    max-width: 100%;
   }
 }
 

@@ -186,7 +186,6 @@ export function Home() {
   const now = pad.now();
   const featured = useMemo(() => sortRows(rows, 'active').slice(0, 6), [rows]);
   const snap = pad.snap;
-  const hasZec = !snap || snap.currencies.some((c) => c.code === 'ZEC');
 
   // Stars gather around the headline while the hero is on screen, then move to the margins.
   const heroRef = useRef<HTMLElement>(null);
@@ -221,15 +220,6 @@ export function Home() {
     <>
       <section className="hero" data-sky ref={heroRef}>
         <div className="wrap hero-inner">
-          {hasZec && (
-            <Link to="/launch?currency=ZEC" className="hero-news" data-solid>
-              <span className="news-tag">New</span>
-              <CurrencyDot c={{ code: 'ZEC', color: '#f4b728' }} size={18} />
-              <span className="news-long">Zcash is here: launch a coin priced in ZEC</span>
-              <span className="news-short">Zcash is here: launch in ZEC</span>
-              <Arrow dir="right" size={12} />
-            </Link>
-          )}
           <div className="kicker">Every star is a currency</div>
           <h1 className="hero-title">
             Mint a star
@@ -261,8 +251,6 @@ export function Home() {
           </p>
         </div>
       </section>
-
-      <ZcashBand />
 
       <section className="section" id="coins">
         <div className="wrap">
@@ -382,6 +370,8 @@ export function Home() {
           <StarCalculator />
         </div>
       </section>
+
+      <ZcashBand />
 
       <section className="section">
         <div className="wrap">

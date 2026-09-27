@@ -71,7 +71,6 @@ export const POPULAR = ['USD', 'EUR', 'ZEC', 'JPY', 'GBP', 'BRL', 'MXN', 'INR', 
 /** Plural nouns for the hero's rotating line. */
 export const HERO_WORDS: Array<[string, string]> = [
   ['pesos', 'MXN'],
-  ['zcash', 'ZEC'],
   ['yen', 'JPY'],
   ['euros', 'EUR'],
   ['rupees', 'INR'],
@@ -83,4 +82,5 @@ export const HERO_WORDS: Array<[string, string]> = [
   ['francs', 'CHF'],
   ['dollars', 'USD'],
   ['ounces of gold', 'XAU'],
+  ['zcash', 'ZEC'],
 ];

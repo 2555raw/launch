@@ -1,25 +1,8 @@
 /* Small inline icons, drawn for this site. */
 
+/** The site's mark: a star rising over the Earth's edge (web/public/brand/logo.svg). */
 export function Logo({ size = 26 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
-      <defs>
-        <radialGradient id="logo-coin" cx="0.35" cy="0.3" r="0.8">
-          <stop offset="0" stopColor="#8f7bff" />
-          <stop offset="0.6" stopColor="#3a2a9e" />
-          <stop offset="1" stopColor="#120c3a" />
-        </radialGradient>
-        <linearGradient id="logo-star" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#9fdcff" />
-        </linearGradient>
-      </defs>
-      <circle cx="32" cy="32" r="28" fill="url(#logo-coin)" />
-      <circle cx="32" cy="32" r="24.5" fill="none" stroke="#b9adff" strokeOpacity="0.45" strokeWidth="1.5" />
-      <path d="M32 11c1.6 11.2 9.8 19.4 21 21-11.2 1.6-19.4 9.8-21 21-1.6-11.2-9.8-19.4-21-21 11.2-1.6 19.4-9.8 21-21z" fill="url(#logo-star)" />
-      <path d="M48 12c.5 3.4 2.6 5.5 6 6-3.4.5-5.5 2.6-6 6-.5-3.4-2.6-5.5-6-6 3.4-.5 5.5-2.6 6-6z" fill="#fff" />
-    </svg>
-  );
+  return <img src={`${import.meta.env.BASE_URL}brand/logo.svg`} width={size} height={size} alt="" />;
 }
 
 export function Arrow({ dir = 'ne', size = 14 }: { dir?: 'ne' | 'right' | 'down'; size?: number }) {

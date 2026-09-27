@@ -269,7 +269,7 @@
   }
 
   // ---------------------------------------------------------------- site config
-  const LIVE_SITE = "https://viridi.up.railway.app";
+  const LIVE_SITE = "https://viridi.website";
   // The API only exists on the real server; previews and copies of the page skip it.
   const HAS_API = /^https?:$/.test(location.protocol) && !/claude|anthropic|usercontent/i.test(location.hostname);
 

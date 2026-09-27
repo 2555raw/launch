@@ -281,6 +281,9 @@ export class PlaygroundBackend implements Backend {
     this.w = this.restore() ?? genesis();
     this.save();
     this.startCrowd();
+    // a save still waiting when the tab is hidden, closed or reloaded is written straight away
+    window.addEventListener('pagehide', this.flush);
+    document.addEventListener('visibilitychange', this.flushIfHidden);
   }
 
   private restore(): World | null {
@@ -315,20 +318,29 @@ export class PlaygroundBackend implements Backend {
 
   private save() {
     clearTimeout(this.saveTimer);
-    this.saveTimer = window.setTimeout(() => {
+    this.saveTimer = window.setTimeout(this.flush, 600);
+  }
+
+  private flush = () => {
+    if (this.saveTimer === undefined) return;
+    clearTimeout(this.saveTimer);
+    this.saveTimer = undefined;
+    try {
+      localStorage.setItem(KEY, JSON.stringify(this.w, replacer));
+    } catch {
+      // storage full: keep fewer trades and try once more
+      this.w.trades = this.w.trades.slice(-800);
       try {
         localStorage.setItem(KEY, JSON.stringify(this.w, replacer));
       } catch {
-        // storage full: keep fewer trades and try once more
-        this.w.trades = this.w.trades.slice(-800);
-        try {
-          localStorage.setItem(KEY, JSON.stringify(this.w, replacer));
-        } catch {
-          /* the playground still works, it just won't survive a reload */
-        }
+        /* the playground still works, it just won't survive a reload */
       }
-    }, 600);
-  }
+    }
+  };
+
+  private flushIfHidden = () => {
+    if (document.hidden) this.flush();
+  };
 
   private changed() {
     this.save();
@@ -352,6 +364,9 @@ export class PlaygroundBackend implements Backend {
 
   dispose() {
     this.timers.forEach((t) => clearTimeout(t));
+    this.flush();
+    window.removeEventListener('pagehide', this.flush);
+    document.removeEventListener('visibilitychange', this.flushIfHidden);
     this.listeners.clear();
   }
 

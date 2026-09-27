@@ -53,8 +53,9 @@ version (also reachable with `?storm2d`), and nothing moves under
   address $1,000 of every currency; nothing is signed and no real money moves. A
   small crowd of bots trades so the board is alive; state is kept in localStorage.
 - **Live**: the contracts on a chain, signed with the visitor's wallet. It switches
-  on by itself once `npm run deploy` has written a deployment for a chain, and the
-  pill in the nav toggles between the two.
+  on by itself once `npm run deploy` has written a deployment for a chain. There is
+  no switch on the page: `VITE_DEFAULT_MODE=playground|live|auto` sets the mode, and
+  a browser keeps the last one it used (`starmint:mode` in localStorage).
 
 ## How the pad works
 

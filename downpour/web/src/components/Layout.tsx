@@ -7,60 +7,22 @@ import { usePad } from '../backend/PadProvider';
 import { shortAddr } from '../lib/format';
 import { CopyButton } from './bits';
 import { ConnectModal } from './ConnectModal';
-import { Chevron, Close, Logo, Menu, Sparkle } from './icons';
+import { Close, Logo, Menu, Sparkle } from './icons';
 
-/** Always in the bar (launching is the button beside them). */
+/** The bar's links, all in view (launching is the button beside them). */
 export const NAV = [
-  { to: '/swap', label: 'Swap' },
   { to: '/board', label: 'Board' },
-  { to: '/portfolio', label: 'Portfolio' },
-];
-
-/** Under More in the bar. */
-export const MORE = [
+  { to: '/swap', label: 'Swap' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/desk', label: 'Currency desk' },
+  { to: '/portfolio', label: 'Portfolio' },
   { to: '/proof', label: 'Proof' },
   { to: '/verify', label: 'Verify' },
   { to: '/faq', label: 'FAQ' },
 ];
 
 /** Everything, for the phone menu. */
-const ALL = [NAV[1], { to: '/launch', label: 'Launch a coin' }, NAV[0], NAV[2], ...MORE];
-
-function MoreMenu() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const loc = useLocation();
-  const here = MORE.some((n) => loc.pathname.startsWith(n.to));
-  useEffect(() => setOpen(false), [loc.pathname]);
-  useEffect(() => {
-    const close = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false);
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
-    window.addEventListener('mousedown', close);
-    window.addEventListener('keydown', esc);
-    return () => {
-      window.removeEventListener('mousedown', close);
-      window.removeEventListener('keydown', esc);
-    };
-  }, []);
-  return (
-    <div className="more" ref={ref}>
-      <button className={`more-btn ${here ? 'on' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        More <Chevron />
-      </button>
-      {open && (
-        <div className="more-menu glass" data-solid>
-          {MORE.map((n) => (
-            <NavLink key={n.to} to={n.to} className={({ isActive }) => (isActive ? 'on' : '')}>
-              {n.label}
-            </NavLink>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+const ALL = [NAV[0], { to: '/launch', label: 'Launch a coin' }, ...NAV.slice(1)];
 
 function WalletButton() {
   const w = useWallet();
@@ -109,41 +71,6 @@ function WalletButton() {
             }}
           >
             Disconnect
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ModeSwitch() {
-  const pad = usePad();
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const close = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false);
-    window.addEventListener('mousedown', close);
-    return () => window.removeEventListener('mousedown', close);
-  }, []);
-  const label = pad.mode === 'live' && pad.chainId ? `LIVE · ${chainMeta(pad.chainId).name}` : 'PLAYGROUND';
-  return (
-    <div className="mode" ref={ref}>
-      <button className={`mode-pill ${pad.mode}`} onClick={() => setOpen((o) => !o)} aria-expanded={open} title="Where the pad runs">
-        <span className="dot live" /> {label}
-      </button>
-      {open && (
-        <div className="mode-menu glass" data-solid>
-          <button className={pad.mode === 'playground' ? 'on' : ''} onClick={() => (pad.setMode('playground'), setOpen(false))}>
-            <b>Playground</b>
-            <span>Everything works, simulated in your browser. No real money.</span>
-          </button>
-          <button
-            className={pad.mode === 'live' ? 'on' : ''}
-            disabled={!pad.canGoLive}
-            onClick={() => (pad.setMode('live'), setOpen(false))}
-          >
-            <b>Live</b>
-            <span>{pad.canGoLive ? 'The contracts on chain, signed with your wallet.' : 'Not deployed yet. Run npm run deploy to go live.'}</span>
           </button>
         </div>
       )}
@@ -268,14 +195,12 @@ export function Layout({ children }: { children: ReactNode }) {
           </Link>
           <nav className="nav-links" aria-label="Main">
             {NAV.map((n) => (
-              <NavLink key={n.to} to={n.to} className={({ isActive }) => `${n.to === '/swap' ? 'nav-swap ' : ''}${isActive ? 'on' : ''}`}>
+              <NavLink key={n.to} to={n.to} className={({ isActive }) => (isActive ? 'on' : '')}>
                 {n.label}
               </NavLink>
             ))}
-            <MoreMenu />
           </nav>
           <div className="nav-actions">
-            <ModeSwitch />
             <WalletButton />
             <Link to="/launch" className="btn btn-primary btn-sm nav-cta">
               Launch a coin <Sparkle size={12} />
@@ -287,9 +212,6 @@ export function Layout({ children }: { children: ReactNode }) {
         </header>
         {menu && (
           <nav className="sheet glass" aria-label="Main (mobile)">
-            <div className="sheet-mode">
-              <ModeSwitch />
-            </div>
             {ALL.map((n) => (
               <NavLink key={n.to} to={n.to} className={({ isActive }) => (isActive ? 'on' : '')}>
                 {n.label}

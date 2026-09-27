@@ -237,10 +237,10 @@ await step('how it works and FAQ render', async () => {
 
 console.log('playground mode');
 await step('switch to the playground', async () => {
+  // there is no switch on the page; the choice is remembered in the browser
   await page.goto(BASE + '/');
-  await page.locator('.mode-pill').click();
-  await page.locator('.mode-menu button', { hasText: 'Playground' }).click();
-  await page.locator('.mode-pill.playground').waitFor();
+  await page.evaluate(() => localStorage.setItem('starmint:mode', 'playground'));
+  await page.reload();
   await page.locator('.coin-card').first().waitFor();
 });
 

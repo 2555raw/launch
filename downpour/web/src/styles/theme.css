@@ -21,8 +21,7 @@
 .nav,
 .ca-bar,
 .sheet,
-.acct-menu,
-.mode-menu {
+.acct-menu {
   --ink: #0b1322;
   --ink-2: #2a3547;
   --ink-3: #465267;
@@ -44,7 +43,6 @@
 .nav,
 .ca-bar,
 .acct-menu,
-.mode-menu,
 .modal,
 .toast {
   background: var(--glass-strong);
@@ -99,18 +97,6 @@
   min-height: 32px;
   padding: 3px 5px 3px 16px;
   font-size: 11.5px;
-}
-.mode-pill {
-  height: 24px;
-  font-size: 10px;
-  background: #0b1322;
-  color: #7ff0bd;
-  border-color: #0b1322;
-}
-.mode-pill.playground {
-  background: #0b1322;
-  color: #a9dbff;
-  border-color: #0b1322;
 }
 .copy-btn {
   background: rgba(255, 255, 255, 0.9);
@@ -386,8 +372,7 @@ main {
 /* ------------------------------ white top bars, white text on the sky ------------------------------ */
 .nav,
 .ca-bar,
-.acct-menu,
-.mode-menu {
+.acct-menu {
   background: rgba(255, 255, 255, 0.93);
   border-color: rgba(255, 255, 255, 0.96);
   box-shadow: 0 14px 40px -22px rgba(0, 0, 0, 0.65), inset 0 1px 0 #fff;
@@ -481,10 +466,6 @@ main {
 .sheet a.on {
   color: #5a3fd1;
   background: rgba(90, 63, 209, 0.08);
-}
-.mode-menu button.on {
-  background: rgba(90, 63, 209, 0.08);
-  border-color: rgba(90, 63, 209, 0.45);
 }
 
 /* ------------------------------ real currency marks ------------------------------ */
@@ -605,107 +586,14 @@ main {
 }
 
 /* ------------------------------ the top menu ------------------------------ */
-/* Swap is a purple pill, so it reads as a feature and not as the page you are on */
-.nav-links a.nav-swap {
-  color: #5a3fd1;
-  font-weight: 600;
-  background: rgba(90, 63, 209, 0.09);
-  padding: 5px 12px;
-  margin-right: 4px;
-}
-.nav-links a.nav-swap:hover {
-  color: #4a32b8;
-  background: rgba(90, 63, 209, 0.15);
-}
-.nav-links a.nav-swap.on {
-  color: #fff;
-  background: #5a3fd1;
-}
-.nav-links a.nav-swap.on::after {
-  display: none;
-}
-
 /* the bar (and anything that drops down from it) stays above the token bar */
 .nav {
   position: relative;
   z-index: 3;
 }
 /* dropdowns are solid white: a frosted layer inside the frosted bar can't blur the page */
-.acct-menu,
-.mode-menu,
-.more-menu {
+.acct-menu {
   background: #fff;
-}
-
-/* More: the rest of the pages, in a small dropdown */
-.more {
-  position: relative;
-}
-.more-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 9px;
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  font: inherit;
-  font-size: 12.5px;
-  color: var(--ink-2);
-  cursor: pointer;
-  white-space: nowrap;
-}
-.more-btn:hover,
-.more-btn[aria-expanded='true'] {
-  background: rgba(15, 28, 50, 0.06);
-  color: var(--ink);
-}
-.more-btn.on {
-  color: var(--ink);
-}
-.more-btn.on::after {
-  content: '';
-  position: absolute;
-  left: 9px;
-  right: 9px;
-  bottom: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: #5a3fd1;
-}
-.more-btn svg {
-  transition: transform 0.15s ease;
-}
-.more-btn[aria-expanded='true'] svg {
-  transform: rotate(180deg);
-}
-.more-menu {
-  position: absolute;
-  top: calc(100% + 14px);
-  left: 50%;
-  translate: -50% 0;
-  min-width: 190px;
-  padding: 6px;
-  display: grid;
-  gap: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.96);
-  border-radius: 16px;
-  box-shadow: 0 22px 50px -20px rgba(0, 0, 0, 0.7), inset 0 1px 0 #fff;
-  z-index: 60;
-  animation: fade 0.15s ease;
-}
-.nav-links .more-menu a {
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-}
-.nav-links .more-menu a.on {
-  color: #5a3fd1;
-  background: rgba(90, 63, 209, 0.08);
-}
-.nav-links .more-menu a.on::after {
-  display: none;
 }
 
 /* ------------------------------ connect: MetaMask, Coinbase Wallet, Phantom first ------------------------------ */
@@ -769,27 +657,12 @@ main {
   box-shadow: 0 12px 34px -20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 .nav-links a:hover,
-.nav-connect:hover,
-.more-btn:hover,
-.more-btn[aria-expanded='true'] {
+.nav-connect:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
-.nav-links a.on::after,
-.more-btn.on::after {
+.nav-links a.on::after {
   background: #b9a8ff;
-}
-.nav-links a.nav-swap {
-  color: #fff;
-  background: rgba(90, 63, 209, 0.55);
-}
-.nav-links a.nav-swap:hover {
-  color: #fff;
-  background: rgba(90, 63, 209, 0.75);
-}
-.nav-links a.nav-swap.on {
-  background: #5a3fd1;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 .nav .btn-primary {
   background: #fff;
@@ -816,11 +689,6 @@ main {
 .sheet a:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
-}
-.mode-pill,
-.mode-pill.playground {
-  background: rgba(3, 7, 16, 0.55);
-  border-color: rgba(255, 255, 255, 0.16);
 }
 
 /* ------------------------------ the board's bar (after Levity) ------------------------------ */
@@ -906,26 +774,6 @@ main {
   }
 }
 
-/* ------------------------------ where the pad runs: a pill in the nav (in the menu on phones) ------------------------------ */
-.sheet-mode {
-  display: none;
-  grid-column: 1 / -1;
-  padding: 4px 4px 8px;
-}
-@media (max-width: 560px) {
-  .nav .mode {
-    display: none;
-  }
-  .sheet-mode {
-    display: block;
-  }
-  .sheet-mode .mode-menu {
-    left: 0;
-    right: auto;
-    width: min(300px, calc(100vw - 48px));
-  }
-}
-
 /* ------------------------------ coin cards: a finer body (after Levity) ------------------------------ */
 .coin-card .cc-body {
   padding: 16px 20px 14px;
@@ -999,5 +847,16 @@ main {
 .coin-card .cc-code,
 .coin-card .cc-age {
   font-weight: 600;
+}
+
+/* ------------------------------ the bar's links: plain and light, all in view (after Levity) ------------------------------ */
+.nav-links a {
+  font-size: 13px;
+  font-weight: 400;
+  padding: 6px 9px;
+  color: rgba(255, 255, 255, 0.78);
+}
+.nav-links a.on {
+  color: #fff;
 }
 

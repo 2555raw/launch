@@ -21,11 +21,12 @@ const fail = (msg) => {
 };
 
 await page.goto(BASE + '/');
-await page.locator('.mode-pill.playground').waitFor({ timeout: 15_000 });
-await page.locator('.coin-card').first().waitFor();
+await page.locator('.coin-card').first().waitFor({ timeout: 15_000 });
+await page.locator('button.nav-connect').click();
+// only the playground offers a guest account
+await page.locator('.wallet-row.guest').waitFor();
 console.log('  ✓ opens in the playground with the opening coins');
 
-await page.locator('button.nav-connect').click();
 await page.locator('.wallet-row.guest').click();
 await page.locator('.acct-btn').waitFor();
 console.log('  ✓ guest connect');

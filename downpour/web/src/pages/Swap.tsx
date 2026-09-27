@@ -140,6 +140,13 @@ export default function Swap() {
     setMaxed(false);
     setText(q && q.amountOut > 0n ? toInput(q.amountOut, decOf(tokenOut)) : '');
   };
+  // picking the token that is already on the other side turns the pair round
+  const pick = (side: 'in' | 'out', t: Address) => {
+    const other = side === 'in' ? tokenOut : tokenIn;
+    if (other?.toLowerCase() === t.toLowerCase()) flip();
+    else if (side === 'in') setTokenIn(t);
+    else setTokenOut(t);
+  };
   const outText = q && q.amountOut > 0n ? toDisplay(q.amountOut, decOf(tokenOut)) : '';
   const sizeClass = (t: string) => (t.length > 14 ? 'longer' : t.length > 10 ? 'long' : '');
 
@@ -236,7 +243,7 @@ export default function Swap() {
               if (!c) return null;
               const on = tokenOut?.toLowerCase() === c.token.toLowerCase();
               return (
-                <button key={code} type="button" className={`quick-pick ${on ? 'on' : ''}`} onClick={() => setTokenOut(c.token)} aria-pressed={on}>
+                <button key={code} type="button" className={`quick-pick ${on ? 'on' : ''}`} onClick={() => pick('out', c.token)} aria-pressed={on}>
                   <CurrencyDot c={c} size={18} />
                   {code}
                 </button>
@@ -310,7 +317,7 @@ export default function Swap() {
               Tap a pair to swap into it. The right half of each badge is the currency the coin is priced in.
             </p>
             {pairs.map((r) => (
-              <div key={r.coin.address} className="pair-row" onClick={() => setTokenOut(r.coin.address)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setTokenOut(r.coin.address)}>
+              <div key={r.coin.address} className="pair-row" onClick={() => pick('out', r.coin.address)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && pick('out', r.coin.address)}>
                 <span className="row" style={{ minWidth: 0 }}>
                   <PairBadge coin={r.coin} currency={r.cur} size="sm" />
                   <span className="muted small pair-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -348,8 +355,7 @@ export default function Swap() {
       <TokenSelect
         open={picking !== null}
         onClose={() => setPicking(null)}
-        exclude={picking === 'in' ? tokenOut : tokenIn}
-        onPick={(t) => (picking === 'in' ? setTokenIn(t) : setTokenOut(t))}
+        onPick={(t) => picking && pick(picking, t)}
       />
     </div>
   );

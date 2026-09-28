@@ -190,6 +190,10 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
 
 ## Make it yours
 
+- `web/src/components/EntryGate.tsx`: the notice on arrival (the risks, legal age, no
+  restricted jurisdiction). "Accept and enter" is remembered in the browser
+  (`starmint:entered` in localStorage); "I do not accept" goes to `LEAVE_TO` (Pons's
+  launchpad). The page behind is inert until then.
 - `web/src/config/site.ts`: name, tagline, the platform token's contract
   address (the bar under the nav with its contract address only shows once you fill it in),
   and `ecosystem`, the row of logos on the home page under the intro (Robinhood Chain,

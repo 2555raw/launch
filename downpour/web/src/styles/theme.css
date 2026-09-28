@@ -54,9 +54,16 @@
   backdrop-filter: none;
 }
 
-.panel::before,
 .card::before {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 40%);
+}
+/* a panel's sheen sits behind its content: as an overlay it washed out the text in the
+   panel's top rows */
+.panel::before {
+  content: none;
+}
+.panel {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 40%);
 }
 
 /* a thinner nav and token bar */
@@ -651,10 +658,21 @@ main {
   --line: rgba(255, 255, 255, 0.18);
   --line-2: rgba(255, 255, 255, 0.32);
   color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  /* dark enough by itself for white text over a white panel, where a browser has no
+     backdrop filter */
+  background: rgba(16, 20, 34, 0.62);
   border: 1px solid rgba(255, 255, 255, 0.24);
-  backdrop-filter: blur(16px) saturate(140%);
   box-shadow: 0 12px 34px -20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+/* The glass dims whatever passes under it: over the sky it is the same light frosted bar,
+   and over a white panel it turns grey, so its white text still reads. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .nav,
+  .ca-bar {
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(16px) saturate(140%) brightness(0.36);
+    backdrop-filter: blur(16px) saturate(140%) brightness(0.36);
+  }
 }
 .nav-links a:hover,
 .nav-connect:hover {

@@ -97,6 +97,8 @@ const errors = [];
 async function newPage(viewport = { width: 1440, height: 900 }) {
   const ctx = await browser.newContext({ viewport });
   await ctx.addInitScript(testWallet, { rpc: RPC, account: ACCOUNT });
+  // past the notice on arrival (e2e/playground.mjs tests the notice itself)
+  await ctx.addInitScript(() => localStorage.setItem('starmint:entered', '1'));
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`));
   page.on('console', (m) => {

@@ -180,14 +180,17 @@ export default function Portfolio() {
               Nothing here. <Link to="/desk" className="accent-text">The desk</Link> has a faucet for test currencies.
             </div>
           )}
-          <div style={{ maxHeight: 420, overflow: 'auto' }}>
+          <div className="cur-list">
             {currencies.slice(0, 60).map(({ c, bal, usdValue }) => (
-              <Link key={c.token} to={`/desk?code=${c.code}`} className="kv">
-                <span className="row">
-                  <CurrencyDot c={c} size={22} /> <b>{c.code}</b> <span className="muted small">{c.name}</span>
+              <Link key={c.token} to={`/desk?code=${c.code}`} className="cur-line">
+                <CurrencyDot c={c} size={30} />
+                <span className="cur-line-name">
+                  <b>{c.code}</b>
+                  <span>{c.name}</span>
                 </span>
-                <span className="num">
-                  {money(amount(bal, c.decimals), c.symbol)} {c.code !== 'USD' && <span className="muted small">· {usd(usdValue)}</span>}
+                <span className="cur-line-amt num">
+                  <b>{money(amount(bal, c.decimals), c.symbol)}</b>
+                  {c.code !== 'USD' && <span>≈ {usd(usdValue)}</span>}
                 </span>
               </Link>
             ))}

@@ -29,16 +29,37 @@ function testWallet({ account }) {
 }
 
 const browser = await chromium.launch(existsSync('/opt/pw-browsers/chromium') ? { executablePath: '/opt/pw-browsers/chromium' } : {});
-const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-await ctx.addInitScript(testWallet, { account: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' });
-const page = await ctx.newPage();
 const errors = [];
-page.on('pageerror', (e) => errors.push(e.message));
-
-const done = (title) => page.locator('.toast.done', { hasText: title }).first().waitFor({ timeout: 15_000 });
 const fail = (msg) => {
   throw new Error(msg);
 };
+
+// the notice on arrival: "I do not accept" leaves for Pons, "Accept and enter" is remembered
+{
+  const fresh = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const p = await fresh.newPage();
+  p.on('pageerror', (e) => errors.push(e.message));
+  await p.goto(BASE + '/board');
+  await p.locator('.gate', { hasText: 'Before you enter' }).waitFor({ timeout: 15_000 });
+  const away = await p.locator('.gate-no').getAttribute('href');
+  if (away !== 'https://www.ponsfamily.com/launchpad') fail(`"I do not accept" goes to ${away}`);
+  await p.getByRole('button', { name: 'Accept and enter' }).click();
+  await p.locator('.gate').waitFor({ state: 'detached' });
+  await p.locator('.seg button', { hasText: 'On the curve' }).click();
+  await p.reload();
+  await p.locator('.coin-card').first().waitFor({ timeout: 15_000 });
+  if (await p.locator('.gate').count()) fail('the notice came back after accepting it');
+  await fresh.close();
+  console.log('  ✓ the notice on arrival, accepted once');
+}
+
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+await ctx.addInitScript(testWallet, { account: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' });
+await ctx.addInitScript(() => localStorage.setItem('starmint:entered', '1'));
+const page = await ctx.newPage();
+page.on('pageerror', (e) => errors.push(e.message));
+
+const done = (title) => page.locator('.toast.done', { hasText: title }).first().waitFor({ timeout: 15_000 });
 
 await page.goto(BASE + '/');
 await page.locator('.coin-card').first().waitFor({ timeout: 15_000 });

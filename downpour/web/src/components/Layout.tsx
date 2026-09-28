@@ -7,6 +7,7 @@ import { usePad } from '../backend/PadProvider';
 import { shortAddr } from '../lib/format';
 import { CopyButton } from './bits';
 import { ConnectModal } from './ConnectModal';
+import { EntryGate } from './EntryGate';
 import { Close, Menu, Sparkle, XLogo } from './icons';
 
 /** The bar's links, all in view (launching is the button beside them). */
@@ -228,6 +229,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </div>
       <main>{children}</main>
       <Footer />
+      <EntryGate />
       <Toasts />
       <ConnectModal />
     </div>

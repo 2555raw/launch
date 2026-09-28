@@ -49,7 +49,8 @@ export function grouped(n: number, decimals = 2): string {
 /** An amount of a currency with its symbol: "€1.2K", "¥148,000", "0.0021 Au". */
 export function money(n: number, symbol: string, opts: { compact?: boolean } = {}): string {
   const body = opts.compact === false ? smartGrouped(n) : compact(n);
-  const joiner = /^[A-Za-z]/.test(symbol.slice(-1)) && symbol.length > 1 ? ' ' : '';
+  // a sign that ends in a letter (DT, ден, Kč) gets a space before the number; $, € and ₿ don't
+  const joiner = /\p{L}$/u.test(symbol) && symbol.length > 1 ? ' ' : '';
   return n < 0 ? `-${symbol}${joiner}${body.replace('-', '')}` : `${symbol}${joiner}${body}`;
 }
 

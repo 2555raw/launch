@@ -1215,6 +1215,82 @@ a.card:hover {
   border-bottom: 0;
 }
 
+/* the currencies you carry: a scrolling list, shadowed at an edge while there is more
+   to scroll to, with a thin scrollbar clear of the amounts */
+.cur-list {
+  max-height: 432px;
+  overflow-y: auto;
+  margin: 0 -18px 0 -10px;
+  padding: 2px 2px 2px 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 28, 50, 0.22) transparent;
+  background:
+    linear-gradient(#fff 30%, rgba(255, 255, 255, 0)) top / 100% 28px no-repeat local,
+    linear-gradient(rgba(255, 255, 255, 0), #fff 70%) bottom / 100% 28px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(15, 28, 50, 0.13), transparent) top / 100% 10px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, rgba(15, 28, 50, 0.13), transparent) bottom / 100% 10px no-repeat scroll;
+}
+.cur-list::-webkit-scrollbar {
+  width: 10px;
+}
+.cur-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cur-list::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 10px;
+  background: rgba(15, 28, 50, 0.2) padding-box;
+}
+.cur-list::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(15, 28, 50, 0.34);
+}
+.cur-line {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 14px;
+  transition: background 0.15s ease;
+}
+.cur-line + .cur-line {
+  margin-top: 2px;
+}
+.cur-line:hover,
+.cur-line:focus-visible {
+  background: var(--well);
+}
+.cur-line-name,
+.cur-line-amt {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.cur-line-name b,
+.cur-line-amt b {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.cur-line-name span,
+.cur-line-amt span {
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cur-line-amt {
+  align-items: flex-end;
+  text-align: right;
+}
+.cur-line-amt b {
+  white-space: nowrap;
+}
+
 @media (max-width: 700px) {
   .asset-row {
     grid-template-columns: minmax(0, 1fr) auto;

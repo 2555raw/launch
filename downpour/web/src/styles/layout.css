@@ -68,6 +68,22 @@
   color: var(--ink);
 }
 
+.sheet a svg {
+  margin-right: 6px;
+  vertical-align: -2px;
+}
+
+/* the X link after the menu: the logo alone */
+.nav-links a.nav-x {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 4px;
+  padding: 0;
+  color: var(--ink);
+}
+
 .nav-links a.on::after {
   content: '';
   position: absolute;

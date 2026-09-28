@@ -205,6 +205,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 {n.label}
               </NavLink>
             ))}
+            {SITE.links.x && (
+              <a className="nav-x" href={SITE.links.x} target="_blank" rel="noopener noreferrer" aria-label={`${SITE.name} on X`} title={`@${SITE.links.x.split('/').pop()} on X`}>
+                <XLogo size={15} />
+              </a>
+            )}
           </nav>
           <div className="nav-actions">
             <WalletButton />
@@ -223,6 +228,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 {n.label}
               </NavLink>
             ))}
+            {SITE.links.x && (
+              <a href={SITE.links.x} target="_blank" rel="noopener noreferrer">
+                <XLogo size={14} /> @{SITE.links.x.split('/').pop()}
+              </a>
+            )}
           </nav>
         )}
         {SHOW_CA && <CaBar />}

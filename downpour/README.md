@@ -61,9 +61,11 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
   address $1,000 of every currency; nothing is signed and no real money moves. A
   small crowd of bots trades so the board is alive; state is kept in localStorage.
 - **Live**: the contracts on a chain, signed with the visitor's wallet. It switches
-  on by itself once `npm run deploy` has written a deployment for a chain. There is
-  no switch on the page: `VITE_DEFAULT_MODE=playground|live|auto` sets the mode, and
-  a browser keeps the last one it used (`starmint:mode` in localStorage).
+  on by itself once a deployment for a chain is in `web/src/generated/deployments.json`
+  (from `npm run deploy` or the `/deploy` page). There is no switch on the page:
+  `VITE_DEFAULT_MODE=playground|live|auto` sets the mode, a browser keeps the last one
+  it used (`starmint:mode` in localStorage), and `?mode=live` or `?mode=playground` in
+  the address picks one for that browser (to try a deployment before visitors see it).
 
 ## How the pad works
 
@@ -134,6 +136,17 @@ BASE=http://localhost:8090 npm run e2e:playground
 ```
 
 ## Deploy the contracts
+
+From the browser, with no private key handed to anything: open `/deploy` on the site
+(not linked from the menu), connect the owner's wallet and press Deploy. It deploys the
+desk with every currency as a test currency, the launchpad and the router to Robinhood
+Chain's testnet (`?chain=<id>` for another test network the site knows, a local node
+included), makes the owner the keeper, and prints the deployment record to add to
+`web/src/generated/deployments.json`. That takes 13 transactions, each confirmed in the
+wallet; progress is saved and read back from the chain, so a closed tab or a rejected
+transaction carries on where it stopped.
+
+From a terminal:
 
 ```bash
 RPC_URL=https://sepolia.base.org \

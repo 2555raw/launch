@@ -17,6 +17,7 @@ const Proof = lazy(() => import('./pages/Proof'));
 const Verify = lazy(() => import('./pages/Verify'));
 const Faq = lazy(() => import('./pages/Faq'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const Deploy = lazy(() => import('./pages/Deploy'));
 
 export function App() {
   return (
@@ -37,6 +38,7 @@ export function App() {
                 <Route path="/proof" element={<Proof />} />
                 <Route path="/verify" element={<Verify />} />
                 <Route path="/faq" element={<Faq />} />
+                <Route path="/deploy" element={<Deploy />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

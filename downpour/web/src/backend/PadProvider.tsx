@@ -51,6 +51,10 @@ const Ctx = createContext<PadState | null>(null);
 
 function initialMode(): Mode {
   try {
+    // ?mode=live or ?mode=playground picks one for this browser (to preview a deployment
+    // before it becomes what every visitor sees)
+    const asked = new URLSearchParams(location.search).get('mode');
+    if (asked === 'playground' || (asked === 'live' && DEFAULT_CHAIN_ID)) localStorage.setItem(MODE_KEY, asked);
     const saved = localStorage.getItem(MODE_KEY) as Mode | null;
     if (saved === 'live' && DEFAULT_CHAIN_ID) return 'live';
     if (saved === 'playground') return 'playground';

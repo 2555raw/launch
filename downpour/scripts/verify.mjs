@@ -13,7 +13,9 @@ if (!opts.rpc || !opts.pad) {
 }
 const client = createPublicClient({ transport: http(opts.rpc) });
 const pad = getAddress(opts.pad);
-const { Launchpad: L, CurrencyDesk: D, Coin: C } = artifacts;
+const { Launchpad: L, CurrencyDesk: D, Coin: C, UniswapV2Pair: P } = artifacts;
+const DEAD = '0x000000000000000000000000000000000000dEaD';
+const factoryAbi = [parseAbiItem('function getPair(address, address) view returns (address)')];
 const read = (address, abi, functionName, a = []) => client.readContract({ address, abi, functionName, args: a });
 const balanceOf = parseAbiItem('function balanceOf(address) view returns (uint256)');
 const created = parseAbiItem(
@@ -45,6 +47,7 @@ const impl = await read(pad, L.abi, 'coinImplementation');
 const implHash = keccak256((await client.getCode({ address: impl })) ?? '0x');
 report(implHash === keccak256(C.deployedBytecode), 'its coin implementation is the published Coin', `${impl} hashes to ${implHash}`);
 const desk = await read(pad, L.abi, 'desk');
+const factory = await read(pad, L.abi, 'uniswapFactory');
 
 const coins = opts.coin
   ? [getAddress(opts.coin)]
@@ -90,6 +93,21 @@ for (const coin of coins) {
     read(pad, L.abi, 'totalFeesOwed', [m.currency]),
   ]);
   report(held >= backing + fees, 'the pad holds the money', `holds ${q(held)} ≥ owes ${q(backing + fees)}`);
+
+  // its Uniswap pair: the factory's own, sealed until graduation, then holding the pool for good
+  const pair = m.pair;
+  const official = await read(factory, factoryAbi, 'getPair', [coin, m.currency]);
+  report(getAddress(official) === getAddress(pair), 'trades in the Uniswap pair of its coin and currency', `${pair} (factory ${factory})`);
+  const [inPair, supply, burned] = await Promise.all([
+    read(coin, [balanceOf], 'balanceOf', [pair]),
+    read(pair, P.abi, 'totalSupply'),
+    read(pair, P.abi, 'balanceOf', [DEAD]),
+  ]);
+  if (m.graduated) {
+    report(supply > 0n && burned + 1000n === supply, 'its pool’s liquidity is burned', `${formatUnits(burned, 18)} of ${formatUnits(supply, 18)} LP at ${DEAD}`);
+  } else {
+    report(inPair === 0n && supply === 0n, 'its pool stays sealed until the curve sells out', `the pair holds ${formatUnits(inPair, 18)} coins, ${formatUnits(supply, 18)} LP`);
+  }
 }
 
 console.log(failures ? `\n${failures} check(s) failed` : '\nevery check passed');

@@ -92,7 +92,7 @@ export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amoun
       to: coin.symbol,
       amountIn: q.quoteUsed,
       amountOut: q.tokensOut,
-      fee: q.protocolFee + q.creatorFee,
+      fee: q.protocolFee + q.creatorFee + q.lpFee,
       snipeTax: q.snipeTax,
       graduates: q.graduates,
       impact: afterReserveToken > 0n ? impactOf(before, Number(afterReserveQuote) / Number(afterReserveToken)) : 1,
@@ -108,7 +108,7 @@ export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amoun
       to: cur.code,
       amountIn: amt,
       amountOut: q.quoteOut,
-      fee: q.protocolFee + q.creatorFee,
+      fee: q.protocolFee + q.creatorFee + q.lpFee,
       impact: impactOf(before, Number(coin.reserveQuote - q.gross) / Number(coin.reserveToken + amt)),
     });
     return q.quoteOut;

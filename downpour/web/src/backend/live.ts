@@ -31,6 +31,9 @@ const EV_TRADE = parseAbiItem(
   'event Trade(address indexed coin, address indexed trader, bool isBuy, uint256 quoteAmount, uint256 tokenAmount, uint256 protocolFee, uint256 creatorFee, uint256 snipeTax, uint256 reserveToken, uint256 reserveQuote, uint256 timestamp)',
 );
 const EV_RATE = parseAbiItem('event RateUpdated(address indexed token, uint256 oldRate, uint256 newRate)');
+// a graduated coin's Uniswap V2 pair: trades made there from anywhere (DEX screens, terminals, Uniswap)
+const EV_SWAP = parseAbiItem('event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)');
+const EV_SYNC = parseAbiItem('event Sync(uint112 reserve0, uint112 reserve1)');
 
 const FRIENDLY: Record<string, string> = {
   Slippage: 'The price moved past your slippage limit. Try again or allow more slippage.',
@@ -98,7 +101,7 @@ export class LiveBackend implements Backend {
   }
 
   /** getLogs over a range, splitting it when a public RPC refuses a wide one. */
-  private async logs(event: any, address: Address, from: bigint, to: bigint): Promise<any[]> {
+  private async logs(event: any, address: Address | Address[], from: bigint, to: bigint): Promise<any[]> {
     const out: any[] = [];
     let start = from;
     while (start <= to) {
@@ -112,6 +115,43 @@ export class LiveBackend implements Backend {
       }
     }
     return out;
+  }
+
+  /** Fills made straight in graduated coins' Uniswap pools, wherever they came from.
+   *  The pad's own trades there are skipped: its Trade event already names the trader.
+   *  Uniswap V2 emits Sync (the reserves after) just before each Swap. */
+  private async addPoolTrades(swaps: any[], syncs: any[], coins: Coin[]) {
+    if (!swaps.length) return;
+    const byPair = new Map(coins.filter((c) => c.pair).map((c) => [c.pair!.toLowerCase(), c]));
+    const syncAt = new Map(syncs.map((l) => [`${l.transactionHash}:${l.logIndex}`, l]));
+    const pad = this.dep.launchpad.toLowerCase();
+    for (const l of swaps) {
+      if (l.args.sender.toLowerCase() === pad) continue;
+      const coin = byPair.get(l.address.toLowerCase());
+      if (!coin) continue;
+      const coinIs0 = coin.address.toLowerCase() < coin.currency.toLowerCase();
+      const { amount0In, amount1In, amount0Out, amount1Out } = l.args;
+      const [coinIn, quoteIn, coinOut, quoteOut] = coinIs0 ? [amount0In, amount1In, amount0Out, amount1Out] : [amount1In, amount0In, amount1Out, amount0Out];
+      const isBuy = coinOut > 0n;
+      const sync = syncAt.get(`${l.transactionHash}:${l.logIndex - 1}`);
+      const [r0, r1] = sync ? [BigInt(sync.args.reserve0), BigInt(sync.args.reserve1)] : [0n, 0n];
+      const quote = isBuy ? quoteIn : quoteOut;
+      this.trades.push({
+        id: `${l.transactionHash}:${l.logIndex}`,
+        coin: coin.address,
+        trader: l.args.to,
+        isBuy,
+        quoteAmount: quote,
+        tokenAmount: isBuy ? coinOut : coinIn,
+        fees: isBuy ? (quote * 3n) / 1000n : (quote * 3n) / 997n,
+        snipeTax: 0n,
+        reserveToken: coinIs0 ? r0 : r1,
+        reserveQuote: coinIs0 ? r1 : r0,
+        timestamp: await this.timeOf(l.blockNumber),
+        txHash: l.transactionHash,
+      });
+    }
+    this.trades.sort((a, b) => a.timestamp - b.timestamp);
   }
 
   private async timeOf(block: bigint): Promise<number> {
@@ -158,38 +198,7 @@ export class LiveBackend implements Backend {
       };
     });
 
-    // New events since the last load.
-    const to = head.number;
-    if (to >= this.logCursor) {
-      const [created, trades, rates] = await Promise.all([
-        this.logs(EV_CREATED, launchpad, this.logCursor, to),
-        this.logs(EV_TRADE, launchpad, this.logCursor, to),
-        this.logs(EV_RATE, desk, this.logCursor, to),
-      ]);
-      for (const l of created) this.metaByCoin.set(l.args.coin.toLowerCase(), parseMeta(l.args.meta));
-      for (const l of trades) {
-        this.trades.push({
-          id: `${l.transactionHash}:${l.logIndex}`,
-          coin: l.args.coin,
-          trader: l.args.trader,
-          isBuy: l.args.isBuy,
-          quoteAmount: l.args.quoteAmount,
-          tokenAmount: l.args.tokenAmount,
-          fees: l.args.protocolFee + l.args.creatorFee,
-          snipeTax: l.args.snipeTax,
-          reserveToken: l.args.reserveToken,
-          reserveQuote: l.args.reserveQuote,
-          timestamp: Number(l.args.timestamp),
-          txHash: l.transactionHash,
-        });
-      }
-      for (const l of rates.slice(-400)) {
-        this.rateMoves.push({ token: l.args.token, oldRate: l.args.oldRate, newRate: l.args.newRate, timestamp: await this.timeOf(l.blockNumber) });
-      }
-      if (this.rateMoves.length > 400) this.rateMoves = this.rateMoves.slice(-400);
-      this.logCursor = to + 1n;
-    }
-
+    // The markets first, so the pools of graduated coins are known when the logs are read.
     const coins: Coin[] = [];
     const PAGE = 200n;
     for (let off = 0n; off < count; off += PAGE) {
@@ -209,10 +218,49 @@ export class LiveBackend implements Backend {
           realQuote: c.realQuote,
           curveLeft: c.curveLeft,
           volume: c.volume,
-          meta: this.metaByCoin.get(c.coin.toLowerCase()) ?? { description: '', image: '', links: {} },
+          pair: c.pair,
+          meta: { description: '', image: '', links: {} },
         });
       }
     }
+    const pools = coins.filter((c) => c.graduated && c.pair).map((c) => c.pair as Address);
+
+    // New events since the last load.
+    const to = head.number;
+    if (to >= this.logCursor) {
+      const [created, trades, rates, swaps, syncs] = await Promise.all([
+        this.logs(EV_CREATED, launchpad, this.logCursor, to),
+        this.logs(EV_TRADE, launchpad, this.logCursor, to),
+        this.logs(EV_RATE, desk, this.logCursor, to),
+        pools.length ? this.logs(EV_SWAP, pools, this.logCursor, to) : Promise.resolve([]),
+        pools.length ? this.logs(EV_SYNC, pools, this.logCursor, to) : Promise.resolve([]),
+      ]);
+      for (const l of created) this.metaByCoin.set(l.args.coin.toLowerCase(), parseMeta(l.args.meta));
+      for (const l of trades) {
+        this.trades.push({
+          id: `${l.transactionHash}:${l.logIndex}`,
+          coin: l.args.coin,
+          trader: l.args.trader,
+          isBuy: l.args.isBuy,
+          quoteAmount: l.args.quoteAmount,
+          tokenAmount: l.args.tokenAmount,
+          fees: l.args.protocolFee + l.args.creatorFee,
+          snipeTax: l.args.snipeTax,
+          reserveToken: l.args.reserveToken,
+          reserveQuote: l.args.reserveQuote,
+          timestamp: Number(l.args.timestamp),
+          txHash: l.transactionHash,
+        });
+      }
+      await this.addPoolTrades(swaps, syncs, coins);
+      for (const l of rates.slice(-400)) {
+        this.rateMoves.push({ token: l.args.token, oldRate: l.args.oldRate, newRate: l.args.newRate, timestamp: await this.timeOf(l.blockNumber) });
+      }
+      if (this.rateMoves.length > 400) this.rateMoves = this.rateMoves.slice(-400);
+      this.logCursor = to + 1n;
+    }
+
+    for (const c of coins) c.meta = this.metaByCoin.get(c.address.toLowerCase()) ?? c.meta;
 
     const params: Params = {
       targetRaiseUsd,

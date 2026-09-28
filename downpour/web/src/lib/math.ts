@@ -50,18 +50,32 @@ export interface BuyQuote {
   protocolFee: bigint;
   creatorFee: bigint;
   snipeTax: bigint;
+  /** Uniswap's 0.3% once graduated (it stays in the pool); zero on the curve. */
+  lpFee: bigint;
   graduates: boolean;
   snipeBps: number;
 }
 
+/** Uniswap V2's getAmountOut: 0.3% of the input stays in the pool. */
+export function poolAmountOut(amountIn: bigint, reserveIn: bigint, reserveOut: bigint): bigint {
+  if (reserveIn === 0n || reserveOut === 0n) return 0n;
+  const inWithFee = amountIn * 997n;
+  return (inWithFee * reserveOut) / (reserveIn * 1000n + inWithFee);
+}
+
 export function quoteBuy(m: MarketState, quoteIn: bigint, p: FeeParams, now: number, exempt = false): BuyQuote {
+  if (m.graduated) {
+    // in the Uniswap pool: all of it goes in, no pad fee, no snipe tax
+    const tokensOut = poolAmountOut(quoteIn, m.reserveQuote, m.reserveToken);
+    return { tokensOut, quoteUsed: quoteIn, net: quoteIn, protocolFee: 0n, creatorFee: 0n, snipeTax: 0n, lpFee: (quoteIn * 3n) / 1000n, graduates: false, snipeBps: 0 };
+  }
   const snipe = exempt ? 0 : snipeBps(m.createdAt, now, p);
   const totalBps = BigInt(p.protocolFeeBps + p.creatorFeeBps + snipe);
   let quoteUsed = quoteIn;
   let net = (quoteIn * (BPS - totalBps)) / BPS;
   let tokensOut = mulDiv(m.reserveToken, net, m.reserveQuote + net);
   let graduates = false;
-  if (!m.graduated && tokensOut >= m.curveLeft) {
+  if (tokensOut >= m.curveLeft) {
     tokensOut = m.curveLeft;
     net = mulDivUp(m.reserveQuote, tokensOut, m.reserveToken - tokensOut);
     quoteUsed = mulDivUp(net, BPS, BPS - totalBps);
@@ -77,7 +91,7 @@ export function quoteBuy(m: MarketState, quoteIn: bigint, p: FeeParams, now: num
     creatorFee = (fees * BigInt(p.creatorFeeBps)) / totalBps;
     protocolFee = fees - snipeTax - creatorFee;
   }
-  return { tokensOut, quoteUsed, net, protocolFee, creatorFee, snipeTax, graduates, snipeBps: snipe };
+  return { tokensOut, quoteUsed, net, protocolFee, creatorFee, snipeTax, lpFee: 0n, graduates, snipeBps: snipe };
 }
 
 export interface SellQuote {
@@ -85,9 +99,15 @@ export interface SellQuote {
   quoteOut: bigint;
   protocolFee: bigint;
   creatorFee: bigint;
+  /** Uniswap's 0.3% once graduated (it stays in the pool); zero on the curve. */
+  lpFee: bigint;
 }
 
 export function quoteSell(m: MarketState, tokensIn: bigint, p: FeeParams): SellQuote {
+  if (m.graduated) {
+    const quoteOut = poolAmountOut(tokensIn, m.reserveToken, m.reserveQuote);
+    return { gross: quoteOut, quoteOut, protocolFee: 0n, creatorFee: 0n, lpFee: (quoteOut * 3n) / 997n };
+  }
   let gross = mulDiv(m.reserveQuote, tokensIn, m.reserveToken + tokensIn);
   if (gross > m.realQuote) gross = m.realQuote;
   const feeBps = BigInt(p.protocolFeeBps + p.creatorFeeBps);
@@ -98,10 +118,11 @@ export function quoteSell(m: MarketState, tokensIn: bigint, p: FeeParams): SellQ
     creatorFee = (fees * BigInt(p.creatorFeeBps)) / feeBps;
     protocolFee = fees - creatorFee;
   }
-  return { gross, quoteOut: gross - fees, protocolFee, creatorFee };
+  return { gross, quoteOut: gross - fees, protocolFee, creatorFee, lpFee: 0n };
 }
 
-/** State after a buy, including graduation into the pool. */
+/** State after a buy, including graduation into the pool. Once graduated, the
+ *  reserves and `realQuote` are the Uniswap pool's, as the pad's views report them. */
 export function applyBuy(m: MarketState, q: BuyQuote): MarketState {
   const next = { ...m };
   next.reserveToken -= q.tokensOut;

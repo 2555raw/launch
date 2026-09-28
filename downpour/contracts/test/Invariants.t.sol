@@ -148,7 +148,8 @@ contract InvariantsTest is Base {
             uint256 sum;
             for (uint256 i; i < n; ++i) {
                 Launchpad.Market memory m = pad.getMarket(handler.coins(i));
-                if (m.currency == curList[j]) sum += m.realQuote;
+                // (a graduated market's currency is in its Uniswap pool, not with the pad)
+                if (m.currency == curList[j] && !m.graduated) sum += m.realQuote;
             }
             assertEq(sum, pad.backing(curList[j]), "backing total");
             assertCustody(curList[j]);

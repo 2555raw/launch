@@ -77,15 +77,28 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
   desk's rate, so a full curve raises the same dollar amount in every currency
   ($12,000 by default).
 - **Graduation**: when the curve sells out, its backing and the 200M coins held
-  back become a constant-product pool with no LP tokens and no owner. Trading
-  continues there.
-- **Fees**: 1% per trade, half to the creator and half to the protocol, in the
-  coin's currency, claimable any time. Buys in the first 15 seconds pay an extra
-  snipe tax that falls from 20% to zero; the creator's first buy is exempt.
+  back open the coin's Uniswap V2 pool with its currency, at the curve's last
+  price, and the liquidity tokens go to `0x…dEaD`, so nobody can ever withdraw it.
+  The pair is created with the coin, and the coin refuses transfers to it until
+  then, so nobody can seed the pool early at a price of their own (currency sent to
+  the empty pair goes to the treasury). From then on it is an ordinary Uniswap
+  pair: DexScreener, GeckoTerminal, Axiom and the like list it with its liquidity
+  and its currency, the pad keeps buying and selling it for its users through the
+  pair, and the site reads the pair's swaps, wherever they came from, into the
+  coin's chart and fills. On Robinhood Chain mainnet it uses Uniswap's own factory
+  (`shared/uniswap.json`); elsewhere the deploy puts up a copy of Uniswap's
+  (`contracts/uniswap/`, GPL-3.0, from its npm package).
+- **Fees**: 1% per trade on the curve, half to the creator and half to the
+  protocol, in the coin's currency, claimable any time. Buys in the first 15
+  seconds pay an extra snipe tax that falls from 20% to zero; the creator's first
+  buy is exempt. After graduation the pad takes nothing; the pool keeps Uniswap's
+  0.3%.
 - **Currency desk**: the allow-list of currencies, each with a rate in units per
   USD, and a counter that converts between them (0.10% fee). On test networks it
-  mints test currencies (`tEUR`, `tJPY`…); on a production chain you list real
-  stablecoins instead and it pays conversions from a reserve.
+  mints test currencies (`tEUR`, `tJPY`…). On mainnet it lists tokens that trade
+  there (`listCurrency`: USDG as USD, WETH as ETH), since there are no euro or yen
+  tokens on Robinhood Chain to pair with, and the site can still show prices in any
+  of the currencies; with no reserve it converts nothing.
 - **Keeper**: posts a new rate only when two independent FX feeds agree within
   0.5% and the rate has drifted at least 0.1%. The desk refuses any single post
   that moves a rate more than 20%.
@@ -123,7 +136,7 @@ public: never send real funds to them.
 
 ```bash
 npm run contracts:setup   # once: fetches forge-std
-npm run contracts:test    # unit, fuzz and invariant tests (30 tests)
+npm run contracts:test    # unit, fuzz and invariant tests (40 tests), against Uniswap's own V2 bytecode
 
 # browser, live mode against a local chain
 npm run dev:chain -- --no-web

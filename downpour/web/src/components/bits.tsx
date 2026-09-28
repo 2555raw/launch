@@ -177,7 +177,7 @@ export function CoinOrb({ coin, currency, size = 44 }: { coin: Coin; currency?: 
 }
 
 export function StatusPill({ coin, now }: { coin: Coin; now: number }) {
-  if (coin.graduated) return <span className="pill pool">In the pool</span>;
+  if (coin.graduated) return <span className="pill pool">On Uniswap</span>;
   if (now - coin.createdAt < 3600) return <span className="pill new">Newborn</span>;
   return <span className="pill curve">On the curve</span>;
 }

@@ -6,9 +6,12 @@
  * What it does, in order:
  *   1. CurrencyDesk, then every currency in shared/currencies.json as a test
  *      currency the desk mints (batched, ~20 per transaction).
- *   2. Launchpad (curve size, fees, snipe tax from the environment).
- *   3. Router, wired into the pad; the deployer becomes the desk's keeper.
- *   4. deployments/<chainId>.json, merged into web/src/generated/.
+ *   2. Uniswap V2: the chain's own factory (shared/uniswap.json) or, where it has
+ *      none (a local chain, a testnet), a copy of Uniswap's (contracts/uniswap/).
+ *      Coins graduate into pairs of that factory.
+ *   3. Launchpad (curve size, fees, snipe tax from the environment).
+ *   4. Router, wired into the pad; the deployer becomes the desk's keeper.
+ *   5. deployments/<chainId>.json, merged into web/src/generated/.
  *
  * Environment (all optional):
  *   TREASURY           where protocol fees accrue          (deployer)
@@ -21,9 +24,13 @@
  *   PUBLIC_RPC         RPC the web app should use          (RPC_URL)
  *   EXPLORER           block explorer base URL             (none)
  *   CHAIN_NAME         display name                        ("Chain <id>")
- *   ONLY               comma list of currency codes to list, e.g. USD,EUR,JPY */
+ *   ONLY               comma list of currency codes to list, e.g. USD,EUR,JPY
+ *   UNISWAP_V2_FACTORY a Uniswap V2 factory to use         (the chain's own, or a new copy) */
 import { parseUnits } from 'viem';
+import { readFileSync } from 'node:fs';
 import { args, connect, currencies, deployContract, send, toWad, writeDeployment, artifacts } from './lib/common.mjs';
+
+const uniswap = JSON.parse(readFileSync(new URL('../shared/uniswap.json', import.meta.url), 'utf8'));
 
 const opts = args();
 const env = (k, d) => opts[k.toLowerCase()] ?? process.env[k] ?? d;
@@ -62,9 +69,19 @@ for (let i = 0; i < list.length; i += BATCH) {
   console.log(`  currencies     ${Math.min(i + BATCH, list.length)}/${list.length}`);
 }
 
+let uniswapFactory = env('UNISWAP_V2_FACTORY', uniswap.v2Factory[ctx.chainId]);
+if (!uniswapFactory) {
+  // a copy nobody can switch Uniswap's protocol fee on for (feeToSetter = 0)
+  uniswapFactory = (await deployContract(ctx, 'UniswapV2Factory', ['0x0000000000000000000000000000000000000000'])).address;
+  console.log('  uniswap v2     ', uniswapFactory, '(a copy)');
+} else {
+  console.log('  uniswap v2     ', uniswapFactory);
+}
+
 const pad = await deployContract(ctx, 'Launchpad', [
   me,
   desk.address,
+  uniswapFactory,
   env('TREASURY', me),
   parseUnits(String(env('TARGET_RAISE_USD', '12000')), 18),
   Number(env('PROTOCOL_FEE_BPS', '50')),
@@ -99,6 +116,7 @@ const record = {
   desk: desk.address,
   launchpad: pad.address,
   router: router.address,
+  uniswapFactory,
   coinImplementation,
   deployBlock: Number(desk.block),
   deployedAt: new Date().toISOString(),

@@ -65,7 +65,7 @@ export default function Board() {
         <div className="seg" role="group" aria-label="Show">
           {(['all', 'curve', 'pool'] as Status[]).map((s) => (
             <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)} aria-pressed={status === s}>
-              {s === 'all' ? 'All coins' : s === 'curve' ? 'On the curve' : 'In the pool'}
+              {s === 'all' ? 'All coins' : s === 'curve' ? 'On the curve' : 'On Uniswap'}
             </button>
           ))}
         </div>

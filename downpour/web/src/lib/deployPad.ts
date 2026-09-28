@@ -1,14 +1,16 @@
 /* Deploys the pad from the browser, signed by the connected wallet: the same steps as
- * scripts/deploy.mjs (desk, the test currencies in batches, launchpad, router, keeper),
+ * scripts/deploy.mjs (desk, the test currencies in batches, Uniswap V2 where the chain
+ * has none of its own, launchpad, router, keeper),
  * so nobody has to hand a private key to a script. Progress is saved after every step
  * and read back from the chain, so a closed tab carries on where it stopped. */
-import { createPublicClient, http, parseUnits, type Address, type Hash, type PublicClient, type WalletClient } from 'viem';
+import { createPublicClient, http, parseUnits, zeroAddress, type Address, type Hash, type PublicClient, type WalletClient } from 'viem';
 import currencies from '@shared/currencies.json';
+import uniswap from '@shared/uniswap.json';
 import type { Deployment } from '../config/chains';
 import { chainMeta, viemChain } from '../config/chains';
 
 type Artifact = { abi: readonly unknown[]; bytecode: `0x${string}` };
-type Artifacts = Record<'CurrencyDesk' | 'Launchpad' | 'Router', Artifact>;
+type Artifacts = Record<'CurrencyDesk' | 'Launchpad' | 'Router' | 'UniswapV2Factory', Artifact>;
 
 /** The pad's settings, as scripts/deploy.mjs sets them by default off a local chain. */
 export const SETTINGS = {
@@ -26,6 +28,7 @@ const BATCH = 20;
 export interface DeployState {
   desk?: Address;
   deskBlock?: number;
+  uniswap?: Address;
   launchpad?: Address;
   router?: Address;
   routerSet?: boolean;
@@ -38,7 +41,13 @@ export interface Step {
   done: boolean;
 }
 
-const storeKey = (chainId: number, owner: string) => `starmint:deploy:${chainId}:${owner.toLowerCase()}`;
+// (v2: the pad graduates coins into Uniswap; a run of the earlier pad can't be carried on)
+const storeKey = (chainId: number, owner: string) => `starmint:deploy:v2:${chainId}:${owner.toLowerCase()}`;
+
+/** Uniswap's own V2 factory on this chain, if it has one; otherwise the deploy puts up a copy. */
+export function officialUniswap(chainId: number): Address | undefined {
+  return (uniswap.v2Factory as Record<string, string>)[String(chainId)] as Address | undefined;
+}
 
 export function loadState(chainId: number, owner: string): DeployState {
   try {
@@ -71,14 +80,22 @@ export function publicClientFor(chainId: number): PublicClient {
   return createPublicClient({ chain: viemChain(chainId), transport: http(chainMeta(chainId).rpc) }) as PublicClient;
 }
 
-/** How many transactions the whole deployment takes. */
-export const TX_COUNT = 1 + Math.ceil(currencies.length / BATCH) + 4;
+/** How many transactions the whole deployment takes on a chain. */
+export function txCount(chainId: number): number {
+  return 1 + Math.ceil(currencies.length / BATCH) + (officialUniswap(chainId) ? 0 : 1) + 4;
+}
 
 /** The steps and which are done, for the page to show. */
-export function steps(s: DeployState, listed: number): Step[] {
+export function steps(s: DeployState, listed: number, chainId: number): Step[] {
+  const official = officialUniswap(chainId);
   return [
     { key: 'desk', label: 'Currency desk', done: !!s.desk },
     { key: 'currencies', label: `${currencies.length} test currencies (${Math.ceil(currencies.length / BATCH)} transactions)`, done: listed >= currencies.length },
+    {
+      key: 'uniswap',
+      label: official ? 'Uniswap V2, where coins graduate (Uniswap’s own, nothing to deploy)' : 'Uniswap V2, where coins graduate (a copy for this test network)',
+      done: !!s.uniswap || !!official,
+    },
     { key: 'launchpad', label: 'Launchpad', done: !!s.launchpad },
     { key: 'router', label: 'Router', done: !!s.router },
     { key: 'wire', label: 'Router wired into the launchpad', done: !!s.routerSet },
@@ -146,10 +163,23 @@ export async function deployPad(opts: {
     listed = await listedCount(pc, art, s.desk);
     save(`${listed} of ${currencies.length} currencies listed`);
   }
+  if (!s.uniswap) {
+    const official = officialUniswap(chainId);
+    if (official) {
+      s.uniswap = official;
+      save(`Uniswap V2 factory: ${official} (Uniswap's own)`);
+    } else {
+      // a copy nobody can switch Uniswap's protocol fee on for (feeToSetter = 0)
+      const f = await deploy('UniswapV2Factory', [zeroAddress]);
+      s.uniswap = f.address;
+      save(`Uniswap V2 factory at ${f.address}`);
+    }
+  }
   if (!s.launchpad) {
     const p = await deploy('Launchpad', [
       owner,
       s.desk,
+      s.uniswap,
       owner,
       toWad(SETTINGS.targetRaiseUsd),
       SETTINGS.protocolFeeBps,
@@ -190,6 +220,7 @@ export async function deployPad(opts: {
     desk: s.desk,
     launchpad: s.launchpad,
     router: s.router,
+    uniswapFactory: s.uniswap,
     coinImplementation,
     deployBlock: s.deskBlock ?? 0,
     deployedAt: new Date().toISOString(),

@@ -7,11 +7,13 @@ import {TestCurrency} from "../src/TestCurrency.sol";
 import {CurrencyDesk} from "../src/CurrencyDesk.sol";
 import {Launchpad} from "../src/Launchpad.sol";
 import {Router} from "../src/Router.sol";
+import {IUniswapV2Factory, IUniswapV2Pair} from "../src/interfaces/IUniswapV2.sol";
 
 abstract contract Base is Test {
     CurrencyDesk desk;
     Launchpad pad;
     Router router;
+    IUniswapV2Factory uniswap;
 
     address owner = makeAddr("owner");
     address treasury = makeAddr("treasury");
@@ -41,7 +43,8 @@ abstract contract Base is Test {
         address[] memory tokens = desk.createTestCurrencies(list);
         (usd, eur, jpy, kwd, vnd) = (tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
 
-        pad = new Launchpad(owner, desk, treasury, TARGET_USD, 50, 50, 2000, 15);
+        uniswap = IUniswapV2Factory(deployUniswapV2Factory());
+        pad = new Launchpad(owner, desk, uniswap, treasury, TARGET_USD, 50, 50, 2000, 15);
         router = new Router(pad);
         pad.setRouter(address(router));
         vm.stopPrank();
@@ -61,6 +64,22 @@ abstract contract Base is Test {
             TestCurrency(vnd).approve(address(router), type(uint256).max);
             vm.stopPrank();
         }
+    }
+
+    /// Uniswap's own V2 factory, from the bytecode in its npm package (see uniswap/README.md).
+    function deployUniswapV2Factory() internal returns (address f) {
+        bytes memory code = vm.parseJsonBytes(vm.readFile("uniswap/UniswapV2Factory.json"), ".bytecode");
+        bytes memory init = abi.encodePacked(code, abi.encode(address(0)));
+        assembly {
+            f := create(0, add(init, 0x20), mload(init))
+        }
+        require(f != address(0), "uniswap factory");
+    }
+
+    /// The coin's pair reserves as (coin, currency).
+    function pairReserves(address coin) internal view returns (uint256 rToken, uint256 rQuote) {
+        (uint112 r0, uint112 r1,) = IUniswapV2Pair(pad.pairOf(coin)).getReserves();
+        (rToken, rQuote) = coin < pad.currencyOf(coin) ? (uint256(r0), uint256(r1)) : (uint256(r1), uint256(r0));
     }
 
     /// Mints `usdValue` worth of `token` to `to` through the desk (the desk is the minter).
@@ -84,9 +103,17 @@ abstract contract Base is Test {
     function assertMarketHolds(address coin) internal view {
         Launchpad.Market memory m = pad.getMarket(coin);
         if (m.graduated) {
-            assertEq(m.reserveQuote, m.realQuote, "pool: reserve is the backing");
+            address pair = pad.pairOf(coin);
+            (uint256 rToken, uint256 rQuote) = pairReserves(coin);
+            assertEq(m.reserveToken, rToken, "pool: the market reads the pair's reserves");
+            assertEq(m.reserveQuote, rQuote, "pool: the market reads the pair's reserves");
+            assertEq(m.realQuote, rQuote, "pool: the currency held is the pool's");
             assertEq(m.curveLeft, 0, "pool: nothing left on the curve");
-            assertEq(Coin(coin).balanceOf(address(pad)), m.reserveToken, "pool: pad holds the pool coins");
+            assertGe(Coin(coin).balanceOf(pair), rToken, "pool: the pair holds its coins");
+            assertEq(Coin(coin).balanceOf(address(pad)), 0, "pool: the pad holds none of them");
+            // Nobody can take the pool out: every liquidity token but Uniswap's own minimum is burned.
+            IUniswapV2Pair p = IUniswapV2Pair(pair);
+            assertEq(p.balanceOf(pad.DEAD()) + 1000, p.totalSupply(), "pool: liquidity burned");
         } else {
             assertEq(m.reserveQuote, m.virtualQuote + m.realQuote, "curve: reserve = virtual + backing");
             assertEq(

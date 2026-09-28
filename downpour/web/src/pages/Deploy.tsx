@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { formatEther, type Address } from 'viem';
 import { PageHead } from '../components/bits';
 import { chainMeta, DEPLOYMENTS, KNOWN_CHAINS, type Deployment } from '../config/chains';
-import { deployPad, forgetState, listedCount, loadState, publicClientFor, steps, TX_COUNT, type DeployState } from '../lib/deployPad';
+import { deployPad, forgetState, listedCount, loadState, publicClientFor, steps, txCount, type DeployState } from '../lib/deployPad';
 import { useWallet } from '../wallet/WalletProvider';
 
 /** Robinhood Chain's testnet: the pad goes here first. Its mainnet (real money) follows
@@ -72,7 +72,7 @@ export default function Deploy() {
   };
 
   const json = record ? JSON.stringify({ [record.chainId]: record }, null, 2) : '';
-  const list = steps(state, listed);
+  const list = steps(state, listed, TARGET);
   const started = list.some((s) => s.done);
 
   return (
@@ -80,7 +80,7 @@ export default function Deploy() {
       <PageHead
         kicker="For the owner"
         title="Put Starmint on chain"
-        lead={`This deploys the currency desk, the launchpad and the router to ${meta.name} from your own wallet. You sign ${TX_COUNT} transactions there; no private key is shared with anyone.`}
+        lead={`This deploys the currency desk, the launchpad and the router to ${meta.name} from your own wallet, and coins that sell out their curve graduate into Uniswap. You sign ${txCount(TARGET)} transactions there; no private key is shared with anyone.`}
       />
 
       {live && (

@@ -30,6 +30,8 @@ export interface Coin extends MarketState {
   creator: Address;
   currency: Address;
   meta: CoinMeta;
+  /** Its Uniswap V2 pair with the currency (live mode). */
+  pair?: Address;
 }
 
 export interface Trade {

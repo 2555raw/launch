@@ -325,11 +325,11 @@ export function Home() {
               </div>
             </div>
             <div className="panel curve-card">
-              <div className="kicker">Curve first, pool after</div>
+              <div className="kicker">Curve first, Uniswap after</div>
               <h3 className="card-title">Every buy lifts the price a little.</h3>
               <p className="muted small">
-                A coin starts cheap and gets dearer as its 800 million curve coins sell. When the last one goes, the curve becomes a pool at the exact
-                same price, and it keeps trading there.
+                A coin starts cheap and gets dearer as its 800 million curve coins sell. When the last one goes, it moves into a Uniswap pool at the
+                exact same price, and trades there, on every DEX screen, from then on.
               </p>
               <CurveChart sold={sampleSold} />
             </div>
@@ -448,8 +448,8 @@ export function Home() {
             <div className="rule">
               <span className="step-n">04</span>
               <div>
-                <b>A pool nobody can drain.</b>
-                <p className="muted small">When the curve sells out, its backing and 200 million coins become a pool at the same price. No one holds the key to pull it.</p>
+                <b>A Uniswap pool nobody can drain.</b>
+                <p className="muted small">When the curve sells out, its backing and 200 million coins open a Uniswap pool at the same price, and the liquidity tokens are burned. No one can pull it.</p>
               </div>
             </div>
           </div>

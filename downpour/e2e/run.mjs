@@ -214,12 +214,46 @@ await step('proof: every market is backed', async () => {
   await shot(page, '08-proof', true);
 });
 
+await step('a graduated coin trades on Uniswap; a swap made straight on its pair shows in its fills', async () => {
+  // the seed graduates at least one coin; an outside trader (anvil dev account #8) sells into
+  // its Uniswap pair directly, the way an aggregator or terminal would
+  const { createPublicClient, createWalletClient, http, parseAbi } = await import('viem');
+  const { readFileSync } = await import('node:fs');
+  const dep = JSON.parse(readFileSync(new URL('../web/src/generated/deployments.local.json', import.meta.url), 'utf8'))['31337'];
+  const art = JSON.parse(readFileSync(new URL('../shared/artifacts.json', import.meta.url), 'utf8'));
+  const pub = createPublicClient({ transport: http(RPC) });
+  const outsider = '0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f';
+  const wal = createWalletClient({ account: outsider, transport: http(RPC) });
+  const coins = await pub.readContract({ address: dep.launchpad, abi: art.Launchpad.abi, functionName: 'getCoins', args: [0n, 100n] });
+  const g = coins.find((c) => c.graduated);
+  if (!g) throw new Error('the seed graduated no coin');
+  const erc20 = parseAbi(['function transfer(address,uint256) returns (bool)', 'function balanceOf(address) view returns (uint256)']);
+  const wait = (hash) => pub.waitForTransactionReceipt({ hash });
+  await wait(await wal.writeContract({ address: dep.desk, abi: art.CurrencyDesk.abi, functionName: 'faucet', args: [g.currency], chain: null }));
+  const spend = (await pub.readContract({ address: g.currency, abi: erc20, functionName: 'balanceOf', args: [outsider] })) / 4n;
+  const [r0, r1] = await pub.readContract({ address: g.pair, abi: art.UniswapV2Pair.abi, functionName: 'getReserves' });
+  const coinIs0 = g.coin.toLowerCase() < g.currency.toLowerCase();
+  const [rT, rQ] = coinIs0 ? [r0, r1] : [r1, r0];
+  const out = (spend * 997n * rT) / (rQ * 1000n + spend * 997n);
+  await wait(await wal.writeContract({ address: g.currency, abi: erc20, functionName: 'transfer', args: [g.pair, spend], chain: null }));
+  await wait(
+    await wal.writeContract({ address: g.pair, abi: art.UniswapV2Pair.abi, functionName: 'swap', args: coinIs0 ? [out, 0n, outsider, '0x'] : [0n, out, outsider, '0x'], chain: null }),
+  );
+
+  await page.goto(BASE + `/coin/${g.coin}`);
+  await page.locator('.coin-head .kicker', { hasText: 'trading on Uniswap' }).waitFor({ timeout: 15_000 });
+  await page.locator('.kv', { hasText: 'Uniswap pair' }).waitFor();
+  const short = `${outsider.slice(0, 6)}…${outsider.slice(-3)}`;
+  await page.locator('.panel', { hasText: 'Fills' }).getByText(short).first().waitFor({ timeout: 20_000 });
+  await shot(page, '08b-graduated', true);
+});
+
 await step('verify: every check passes for the new coin', async () => {
   await page.goto(BASE + `/verify?coin=${lisbon}`);
   await page.getByRole('button', { name: 'Run the checks' }).click();
   await page.locator('.verdict.ok').waitFor({ timeout: 20_000 });
   const marks = await page.locator('.check-mark.ok').count();
-  if (marks < 7) throw new Error(`only ${marks} checks passed`);
+  if (marks < 9) throw new Error(`only ${marks} checks passed`);
   await shot(page, '09-verify', true);
 });
 

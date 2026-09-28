@@ -9,6 +9,8 @@ export interface Deployment {
   desk: `0x${string}`;
   launchpad: `0x${string}`;
   router: `0x${string}`;
+  /** The Uniswap V2 factory coins graduate into (absent on deployments of the earlier pad). */
+  uniswapFactory?: `0x${string}`;
   coinImplementation: `0x${string}`;
   deployBlock: number;
   deployedAt: string;
@@ -27,13 +29,16 @@ interface ChainMeta {
 /** Chains the site knows how to talk to. A chain becomes "live" once
  *  scripts/deploy.mjs has written a deployment for it. */
 export const KNOWN_CHAINS: ChainMeta[] = [
-  { id: 4663, name: 'Robinhood Chain', rpc: 'https://rpc.mainnet.chain.robinhood.com', explorer: 'https://explorer.chain.robinhood.com', testnet: false },
+  { id: 4663, name: 'Robinhood Chain', rpc: 'https://rpc.mainnet.chain.robinhood.com', explorer: 'https://robinhoodchain.blockscout.com', testnet: false },
   { id: 46630, name: 'Robinhood Chain Testnet', rpc: 'https://rpc.testnet.chain.robinhood.com', explorer: 'https://explorer.testnet.chain.robinhood.com', faucet: 'https://faucet.testnet.chain.robinhood.com', testnet: true },
   { id: 8453, name: 'Base', rpc: 'https://mainnet.base.org', explorer: 'https://basescan.org', testnet: false },
   { id: 84532, name: 'Base Sepolia', rpc: 'https://sepolia.base.org', explorer: 'https://sepolia.basescan.org', faucet: 'https://www.alchemy.com/faucets/base-sepolia', testnet: true },
   { id: 11155111, name: 'Sepolia', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', explorer: 'https://sepolia.etherscan.io', faucet: 'https://www.alchemy.com/faucets/ethereum-sepolia', testnet: true },
   { id: 31337, name: 'Local galaxy', rpc: 'http://127.0.0.1:8545', explorer: '', testnet: true },
 ];
+
+/** DexScreener's name for a chain, where it lists graduated coins' Uniswap pairs. */
+export const DEXSCREENER: Record<number, string> = { 4663: 'robinhood', 8453: 'base' };
 
 // Local deployments live in a git-ignored file; only a dev server or a build
 // made with VITE_ALLOW_LOCAL=1 picks them up.

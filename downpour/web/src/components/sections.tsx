@@ -83,13 +83,13 @@ export function CurveChart({ sold = 0.42, height = 170, color = '#3f8ce6' }: { s
   const endX = pad + (w - pad * 2 - 40);
   const endY = height - pad - (height - pad * 2.5);
   return (
-    <svg viewBox={`0 0 ${w} ${height}`} className="curve-chart" role="img" aria-label="Bonding curve: price rises as coins are sold, then the coin graduates into a pool">
+    <svg viewBox={`0 0 ${w} ${height}`} className="curve-chart" role="img" aria-label="Bonding curve: price rises as coins are sold, then the coin graduates into a Uniswap pool">
       <line x1={pad} y1={height - pad} x2={w - pad} y2={height - pad} stroke="rgba(15,28,50,0.15)" />
       <path d={pts.join(' ')} fill="none" stroke={color} strokeWidth="2" />
       <line x1={endX} y1={endY} x2={w - pad} y2={endY} stroke="#0c9a5f" strokeWidth="2" strokeDasharray="4 4" />
       <circle cx={endX} cy={endY} r="5" fill="#0c9a5f" />
       <text x={endX - 6} y={endY - 12} fill="#0c9a5f" fontSize="11" textAnchor="end">
-        graduates · pool starts at the same price
+        graduates · Uniswap pool starts at the same price
       </text>
       <circle cx={nowX} cy={nowY} r="6" fill="#5a3fd1" stroke="#fff" strokeWidth="2" />
       <text x={nowX + 10} y={nowY + 4} fill="#5a3fd1" fontSize="11">
@@ -137,7 +137,7 @@ export const CORE_FAQ: Array<[string, ReactNode]> = [
   ],
   [
     'What happens when a curve sells out?',
-    'The coin graduates. The currency the curve collected and the 200 million coins held back become a constant-product pool at the same price the curve ended on. That pool can never be withdrawn by anyone, so trading simply continues.',
+    'The coin graduates. The currency the curve collected and the 200 million coins held back open its Uniswap pool at the same price the curve ended on, and the liquidity tokens are burned, so nobody can ever withdraw it. From then on it trades there, and shows up on DEX screens like any Uniswap pair.',
   ],
   [
     'Is any of this real money?',

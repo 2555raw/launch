@@ -35,7 +35,7 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
         <ProgressBar value={row.progress} full={coin.graduated} />
         <div className="cc-line">
           <span className="num">{money(row.price, cur.symbol)}</span>
-          <span>{coin.graduated ? 'graduated · in the pool' : `${pct(row.progress)} of curve`}</span>
+          <span>{coin.graduated ? 'graduated · on Uniswap' : `${pct(row.progress)} of curve`}</span>
         </div>
         <div className="cc-line cc-meta">
           <span>

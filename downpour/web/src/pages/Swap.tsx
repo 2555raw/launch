@@ -342,7 +342,7 @@ export default function Swap() {
                 <b>Currency → currency</b>: the desk converts at the posted rate, {((pad.snap?.params.deskFeeBps ?? 10) / 100).toFixed(2)}% fee.
               </li>
               <li>
-                <b>Currency → coin</b>: converted into the coin's currency if needed, then bought on its curve (or pool).
+                <b>Currency → coin</b>: converted into the coin's currency if needed, then bought on its curve (or in its Uniswap pool once it has graduated).
               </li>
               <li>
                 <b>Coin → coin</b>: sold into its currency, converted if the other coin lives in a different one, then bought.

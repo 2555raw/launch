@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
 import type { Coin, Currency } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
-import { explorerAddress } from '../config/chains';
+import { DEXSCREENER, explorerAddress } from '../config/chains';
 import { CoinOrb, CopyButton, PairBadge, ProgressBar, StatusPill } from '../components/bits';
 import { PriceChart } from '../components/PriceChart';
 import { skyStyle } from '../components/CoinCard';
@@ -37,10 +37,10 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
     if (!value) return null;
     if (side === 'buy') {
       const q = quoteBuy(coin, value, params, now);
-      return { out: q.tokensOut, used: q.quoteUsed, fee: q.protocolFee + q.creatorFee, snipe: q.snipeTax, graduates: q.graduates };
+      return { out: q.tokensOut, used: q.quoteUsed, fee: q.protocolFee + q.creatorFee + q.lpFee, snipe: q.snipeTax, graduates: q.graduates };
     }
     const q = quoteSell(coin, value, params);
-    return { out: q.quoteOut, used: value, fee: q.protocolFee + q.creatorFee, snipe: 0n, graduates: false };
+    return { out: q.quoteOut, used: value, fee: q.protocolFee + q.creatorFee + q.lpFee, snipe: 0n, graduates: false };
   }, [value, side, coin, params, now]);
 
   const minOut = quote ? (quote.out * BigInt(10_000 - slip)) / 10_000n : 0n;
@@ -126,7 +126,7 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
             </span>
           </div>
           <div className="kv">
-            <span>Fee ({(params.protocolFeeBps + params.creatorFeeBps) / 100}%)</span>
+            <span>{coin.graduated ? 'Uniswap pool fee (0.3%, stays in the pool)' : `Fee (${(params.protocolFeeBps + params.creatorFeeBps) / 100}%)`}</span>
             <span className="num">{money(amount(quote.fee + quote.snipe, cur.decimals), cur.symbol)}</span>
           </div>
           <div className="kv">
@@ -135,7 +135,7 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
           </div>
           {quote.graduates && (
             <div className="callout small" style={{ marginTop: 8 }}>
-              This buy takes the last coins on the curve and graduates {coin.symbol} into its pool. You only pay for what is left.
+              This buy takes the last coins on the curve and graduates {coin.symbol} into its Uniswap pool. You only pay for what is left.
             </div>
           )}
         </div>
@@ -196,7 +196,7 @@ function Holders({ coin }: { coin: Coin }) {
         From fills on the pad; transfers between wallets are not counted.
       </p>
       <div className="kv">
-        <span>{coin.graduated ? 'Pool (locked)' : 'Curve + pool reserve (unsold)'}</span>
+        <span>{coin.graduated ? 'Uniswap pool (liquidity burned)' : 'Curve + pool reserve (unsold)'}</span>
         <span className="num">{pct(Number((inPad * 10000n) / TOTAL_SUPPLY) / 10000)}</span>
       </div>
       {list.map(([who, bal]) => (
@@ -255,7 +255,7 @@ export default function CoinPage() {
           <CoinOrb coin={coin} currency={cur} size={coin.meta.image ? 76 : 124} />
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div className="kicker">{coin.graduated ? 'Graduated · trading in its pool' : 'On the curve'}</div>
+          <div className="kicker">{coin.graduated ? 'Graduated · trading on Uniswap' : 'On the curve'}</div>
           <h1>{coin.name}</h1>
           <div className="meta-line">
             <PairBadge coin={coin} currency={cur} size="lg" />
@@ -322,17 +322,18 @@ export default function CoinPage() {
 
           <div className="grid grid-2" style={{ marginTop: 18 }}>
             <div className="panel">
-              <div className="kicker">{coin.graduated ? 'The pool' : 'The curve'}</div>
-              <h3 className="card-title">{coin.graduated ? 'Graduated. Liquidity is locked for good.' : `${pct(row.progress)} of the curve is sold`}</h3>
+              <div className="kicker">{coin.graduated ? 'The Uniswap pool' : 'The curve'}</div>
+              <h3 className="card-title">{coin.graduated ? 'Graduated. Its liquidity is burned for good.' : `${pct(row.progress)} of the curve is sold`}</h3>
               <ProgressBar value={row.progress} full={coin.graduated} />
               <div className="kv" style={{ marginTop: 10 }}>
                 <span>Sold on the curve</span>
                 <span className="num">{compact(amount(coin.graduated ? CURVE_SUPPLY : sold))} / 800M</span>
               </div>
               <div className="kv">
-                <span>Raised</span>
+                <span>{coin.graduated ? 'Raised on the curve' : 'Raised'}</span>
                 <span className="num">
-                  {money(row.raised, cur.symbol)} of {money(row.raiseTarget, cur.symbol)}
+                  {/* once graduated, the currency held is the pool's, which moves with every trade */}
+                  {coin.graduated ? `${money(row.raiseTarget, cur.symbol)}, the whole target` : `${money(row.raised, cur.symbol)} of ${money(row.raiseTarget, cur.symbol)}`}
                 </span>
               </div>
               <div className="kv">
@@ -347,6 +348,25 @@ export default function CoinPage() {
                   <PairBadge coin={coin} currency={cur} size="sm" />
                 </span>
               </div>
+              {coin.pair && pad.chainId && (
+                <div className="kv">
+                  <span>Uniswap pair</span>
+                  <span className="row" style={{ gap: 10 }}>
+                    {explorerAddress(pad.chainId, coin.pair) ? (
+                      <a className="link mono" href={explorerAddress(pad.chainId, coin.pair)} target="_blank" rel="noopener noreferrer">
+                        {shortAddr(coin.pair)}
+                      </a>
+                    ) : (
+                      <span className="mono">{shortAddr(coin.pair)}</span>
+                    )}
+                    {coin.graduated && DEXSCREENER[pad.chainId] && (
+                      <a className="link" href={`https://dexscreener.com/${DEXSCREENER[pad.chainId]}/${coin.pair}`} target="_blank" rel="noopener noreferrer">
+                        DexScreener
+                      </a>
+                    )}
+                  </span>
+                </div>
+              )}
             </div>
             <Holders coin={coin} />
           </div>

@@ -8,11 +8,13 @@ import {FixedPointMathLib} from "solady/utils/FixedPointMathLib.sol";
 import {LibClone} from "solady/utils/LibClone.sol";
 import {Coin} from "./Coin.sol";
 import {CurrencyDesk} from "./CurrencyDesk.sol";
+import {IUniswapV2Factory, IUniswapV2Pair} from "./interfaces/IUniswapV2.sol";
 
 /// @title Launchpad
 /// @notice Opens a market for a new coin, paired with one currency from the desk,
-/// and runs it: first on a bonding curve, then, once the curve sells out, as a
-/// constant-product pool whose liquidity can never be withdrawn.
+/// and runs it: first on a bonding curve, then, once the curve sells out, in a
+/// Uniswap V2 pool with its currency whose liquidity tokens are burned, so the
+/// pool can never be withdrawn and every DEX aggregator sees it as a normal pair.
 ///
 /// @dev Every coin has 1,000,000,000 units. 800M are sold on the curve and 200M
 /// wait inside the pad to seed the pool. The curve is x * y = k over virtual
@@ -21,6 +23,11 @@ import {CurrencyDesk} from "./CurrencyDesk.sol";
 /// pool's first price, so graduation does not move the price. The virtual quote
 /// reserve is fixed per coin at launch, from the desk's USD rate, so every
 /// currency's curve raises the same dollar amount when it sells out.
+///
+/// The pair is created with the coin, and the coin refuses transfers to it until
+/// the pad opens the pool, so nobody can seed the pool at a price of their own.
+/// After graduation the pad still buys and sells for its users, through the pair,
+/// with no fee of its own (the pool's 0.3% goes to its locked liquidity).
 ///
 /// The currency a coin is paired with is written once, at launch, and there is
 /// no function that changes it.
@@ -43,6 +50,8 @@ contract Launchpad is Ownable, ReentrancyGuard {
     uint256 public constant MAX_NAME_BYTES = 40;
     uint256 public constant MAX_SYMBOL_BYTES = 10;
     uint256 public constant MAX_META_BYTES = 16_384;
+    /// @notice Where the pool's liquidity tokens go: nobody holds the key.
+    address public constant DEAD = 0x000000000000000000000000000000000000dEaD;
 
     /*//////////////////////////////////////////////////////////////
                                  TYPES
@@ -53,12 +62,16 @@ contract Launchpad is Ownable, ReentrancyGuard {
         uint64 createdAt;
         bool graduated;
         address currency;
+        // The coin's Uniswap V2 pair with its currency, created at launch.
+        address pair;
         // The curve's virtual quote reserve, fixed at launch.
         uint256 virtualQuote;
-        // Pricing reserves: virtual + real on the curve, real in the pool.
+        // Pricing reserves: virtual + real on the curve. Once graduated, views
+        // report the pair's live reserves here.
         uint256 reserveToken;
         uint256 reserveQuote;
-        // Currency this market actually holds for its buyers: the backing.
+        // Currency the market holds for its buyers: the curve's backing, held by
+        // the pad. Once graduated, views report the pool's currency here.
         uint256 realQuote;
         // Coins still for sale on the curve; zero once graduated.
         uint256 curveLeft;
@@ -80,6 +93,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
         uint256 realQuote;
         uint256 curveLeft;
         uint256 volume;
+        address pair;
     }
 
     struct BuyQuote {
@@ -104,6 +118,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
     //////////////////////////////////////////////////////////////*/
 
     CurrencyDesk public immutable desk;
+    IUniswapV2Factory public immutable uniswapFactory;
     address public immutable coinImplementation;
 
     address public treasury;
@@ -119,7 +134,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
     mapping(address coin => Market) internal _markets;
     address[] public allCoins;
 
-    /// @notice Sum of realQuote over every market paired with a currency.
+    /// @notice Sum of the curve backing of every market paired with a currency that is still on its curve.
     mapping(address currency => uint256) public backing;
     mapping(address currency => uint256) public coinsIn;
     mapping(address account => mapping(address currency => uint256)) public feesOwed;
@@ -151,7 +166,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
         uint256 reserveQuote,
         uint256 timestamp
     );
-    event Graduated(address indexed coin, uint256 poolTokens, uint256 poolQuote);
+    event Graduated(address indexed coin, address indexed pair, uint256 poolTokens, uint256 poolQuote, uint256 liquidity);
     event FeesClaimed(address indexed account, address indexed currency, uint256 amount);
     event FeesSet(uint16 protocolFeeBps, uint16 creatorFeeBps);
     event SnipeSet(uint16 snipeTaxBps, uint32 snipeWindow);
@@ -183,6 +198,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
     constructor(
         address owner_,
         CurrencyDesk desk_,
+        IUniswapV2Factory uniswapFactory_,
         address treasury_,
         uint256 targetRaiseUsd_,
         uint16 protocolFeeBps_,
@@ -190,12 +206,15 @@ contract Launchpad is Ownable, ReentrancyGuard {
         uint16 snipeTaxBps_,
         uint32 snipeWindow_
     ) {
-        if (treasury_ == address(0) || address(desk_) == address(0)) revert ZeroAddress();
+        if (treasury_ == address(0) || address(desk_) == address(0) || address(uniswapFactory_) == address(0)) {
+            revert ZeroAddress();
+        }
         if (targetRaiseUsd_ == 0) revert BadTarget();
         if (uint256(protocolFeeBps_) + creatorFeeBps_ > MAX_TRADE_FEE_BPS) revert FeeTooHigh();
         if (snipeTaxBps_ > MAX_SNIPE_TAX_BPS || snipeWindow_ > MAX_SNIPE_WINDOW) revert BadSnipe();
         _initializeOwner(owner_);
         desk = desk_;
+        uniswapFactory = uniswapFactory_;
         coinImplementation = address(new Coin());
         treasury = treasury_;
         targetRaiseUsd = targetRaiseUsd_;
@@ -234,12 +253,16 @@ contract Launchpad is Ownable, ReentrancyGuard {
         if (vq == 0) revert BadTarget();
 
         coin = LibClone.clone(coinImplementation);
-        Coin(coin).initialize(name_, symbol_, TOTAL_SUPPLY);
+        // (anyone can create a pair for an address before it has code, so take one that is already there)
+        address pair = uniswapFactory.getPair(coin, currency);
+        if (pair == address(0)) pair = uniswapFactory.createPair(coin, currency);
+        Coin(coin).initialize(name_, symbol_, TOTAL_SUPPLY, pair);
 
         Market storage m = _markets[coin];
         m.creator = msg.sender;
         m.createdAt = uint64(block.timestamp);
         m.currency = currency;
+        m.pair = pair;
         m.virtualQuote = vq;
         m.reserveToken = VIRTUAL_TOKENS;
         m.reserveQuote = vq;
@@ -272,6 +295,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
     {
         if (quoteIn == 0) revert ZeroAmount();
         Market storage m = _market(coin);
+        if (m.graduated) return (_poolBuy(coin, m, quoteIn, minTokensOut, recipient), quoteIn);
         BuyQuote memory q = _quoteBuy(m, quoteIn, false);
         if (q.tokensOut == 0 || q.tokensOut < minTokensOut) revert Slippage();
         m.currency.safeTransferFrom(msg.sender, address(this), q.quoteUsed);
@@ -318,6 +342,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
     {
         if (tokensIn == 0) revert ZeroAmount();
         Market storage m = _market(coin);
+        if (m.graduated) return _poolSell(coin, m, tokensIn, minQuoteOut, recipient, trader);
         SellQuote memory q = _quoteSell(m, tokensIn);
         if (q.quoteOut == 0 || q.quoteOut < minQuoteOut) revert Slippage();
 
@@ -327,7 +352,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
         m.reserveToken += tokensIn;
         m.reserveQuote -= q.gross;
         m.realQuote -= q.gross;
-        if (!m.graduated) m.curveLeft += tokensIn;
+        m.curveLeft += tokensIn;
         m.volume += q.gross;
         backing[currency] -= q.gross;
         _accrue(m.creator, currency, q.protocolFee, q.creatorFee, 0);
@@ -354,7 +379,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
         m.reserveToken -= q.tokensOut;
         m.reserveQuote += q.net;
         m.realQuote += q.net;
-        if (!m.graduated) m.curveLeft -= q.tokensOut;
+        m.curveLeft -= q.tokensOut;
         m.volume += q.quoteUsed;
         backing[currency] += q.net;
         _accrue(m.creator, currency, q.protocolFee, q.creatorFee, q.snipeTax);
@@ -374,13 +399,80 @@ contract Launchpad is Ownable, ReentrancyGuard {
             block.timestamp
         );
 
-        if (!m.graduated && m.curveLeft == 0) {
-            // The curve sold out: its backing and the 200M held back become a pool.
-            m.graduated = true;
-            m.reserveToken = POOL_SUPPLY;
-            m.reserveQuote = m.realQuote;
-            emit Graduated(coin, POOL_SUPPLY, m.realQuote);
-        }
+        if (m.curveLeft == 0) _graduate(coin, m);
+    }
+
+    /// @dev The curve sold out: its backing and the 200M held back open the Uniswap
+    /// pool at the curve's last price, and the liquidity tokens are burned.
+    function _graduate(address coin, Market storage m) internal {
+        address currency = m.currency;
+        address pair = m.pair;
+        uint256 quote = m.realQuote;
+        m.graduated = true;
+        m.realQuote = 0;
+        backing[currency] -= quote;
+        Coin(coin).graduate();
+        // Currency anyone sent to the empty pair goes to the treasury rather than
+        // into the opening price.
+        IUniswapV2Pair(pair).skim(treasury);
+        coin.safeTransfer(pair, POOL_SUPPLY);
+        currency.safeTransfer(pair, quote);
+        uint256 liquidity = IUniswapV2Pair(pair).mint(DEAD);
+        (m.reserveToken, m.reserveQuote) = _pairReserves(coin, m);
+        emit Graduated(coin, pair, POOL_SUPPLY, quote, liquidity);
+    }
+
+    /// @dev A buy once the market has graduated: the currency goes straight into
+    /// the pair and the coins come straight out of it, at the pool's price.
+    function _poolBuy(address coin, Market storage m, uint256 quoteIn, uint256 minTokensOut, address recipient)
+        internal
+        returns (uint256 tokensOut)
+    {
+        (uint256 rToken, uint256 rQuote) = _pairReserves(coin, m);
+        tokensOut = _amountOut(quoteIn, rQuote, rToken);
+        if (tokensOut == 0 || tokensOut < minTokensOut) revert Slippage();
+        m.currency.safeTransferFrom(msg.sender, m.pair, quoteIn);
+        _pairSwap(coin, m, tokensOut, 0, recipient);
+        m.volume += quoteIn;
+        (rToken, rQuote) = _pairReserves(coin, m);
+        emit Trade(coin, recipient, true, quoteIn, tokensOut, 0, 0, 0, rToken, rQuote, block.timestamp);
+    }
+
+    function _poolSell(
+        address coin,
+        Market storage m,
+        uint256 tokensIn,
+        uint256 minQuoteOut,
+        address recipient,
+        address trader
+    ) internal returns (uint256 quoteOut) {
+        (uint256 rToken, uint256 rQuote) = _pairReserves(coin, m);
+        quoteOut = _amountOut(tokensIn, rToken, rQuote);
+        if (quoteOut == 0 || quoteOut < minQuoteOut) revert Slippage();
+        coin.safeTransferFrom(msg.sender, m.pair, tokensIn);
+        _pairSwap(coin, m, 0, quoteOut, recipient);
+        m.volume += quoteOut;
+        (rToken, rQuote) = _pairReserves(coin, m);
+        emit Trade(coin, trader, false, quoteOut, tokensIn, 0, 0, 0, rToken, rQuote, block.timestamp);
+        return quoteOut;
+    }
+
+    /// @dev Uniswap V2's getAmountOut: 0.3% of the input stays in the pool.
+    function _amountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut) internal pure returns (uint256) {
+        if (reserveIn == 0 || reserveOut == 0) return 0;
+        uint256 inWithFee = amountIn * 997;
+        return inWithFee * reserveOut / (reserveIn * 1000 + inWithFee);
+    }
+
+    function _pairSwap(address coin, Market storage m, uint256 coinsOut, uint256 quoteOut, address to) internal {
+        if (coin < m.currency) IUniswapV2Pair(m.pair).swap(coinsOut, quoteOut, to, "");
+        else IUniswapV2Pair(m.pair).swap(quoteOut, coinsOut, to, "");
+    }
+
+    /// @dev The pair's reserves as (coin, currency).
+    function _pairReserves(address coin, Market storage m) internal view returns (uint256 rToken, uint256 rQuote) {
+        (uint112 r0, uint112 r1,) = IUniswapV2Pair(m.pair).getReserves();
+        (rToken, rQuote) = coin < m.currency ? (uint256(r0), uint256(r1)) : (uint256(r1), uint256(r0));
     }
 
     function _accrue(address creator, address currency, uint256 protocolFee, uint256 creatorFee, uint256 snipeTax)
@@ -400,7 +492,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
         q.net = quoteIn * (BPS - totalBps) / BPS;
         q.tokensOut = FixedPointMathLib.fullMulDiv(m.reserveToken, q.net, m.reserveQuote + q.net);
 
-        if (!m.graduated && q.tokensOut >= m.curveLeft) {
+        if (q.tokensOut >= m.curveLeft) {
             // Take exactly what is left and charge only for that.
             q.tokensOut = m.curveLeft;
             q.net = FixedPointMathLib.fullMulDivUp(m.reserveQuote, q.tokensOut, m.reserveToken - q.tokensOut);
@@ -472,17 +564,29 @@ contract Launchpad is Ownable, ReentrancyGuard {
         return virtualQuoteFor(currency) * (CURVE_SUPPLY - POOL_SUPPLY) / POOL_SUPPLY;
     }
 
+    /// @dev Once graduated, `fees` is the pool's 0.3%, which stays in the pool.
     function quoteBuy(address coin, uint256 quoteIn)
         external
         view
         returns (uint256 tokensOut, uint256 quoteUsed, uint256 fees, uint256 snipeTax)
     {
-        BuyQuote memory q = _quoteBuy(_market(coin), quoteIn, false);
+        Market storage m = _market(coin);
+        if (m.graduated) {
+            (uint256 rToken, uint256 rQuote) = _pairReserves(coin, m);
+            return (_amountOut(quoteIn, rQuote, rToken), quoteIn, quoteIn * 3 / 1000, 0);
+        }
+        BuyQuote memory q = _quoteBuy(m, quoteIn, false);
         return (q.tokensOut, q.quoteUsed, q.protocolFee + q.creatorFee, q.snipeTax);
     }
 
     function quoteSell(address coin, uint256 tokensIn) external view returns (uint256 quoteOut, uint256 fees) {
-        SellQuote memory q = _quoteSell(_market(coin), tokensIn);
+        Market storage m = _market(coin);
+        if (m.graduated) {
+            (uint256 rToken, uint256 rQuote) = _pairReserves(coin, m);
+            quoteOut = _amountOut(tokensIn, rToken, rQuote);
+            return (quoteOut, quoteOut * 3 / 997);
+        }
+        SellQuote memory q = _quoteSell(m, tokensIn);
         return (q.quoteOut, q.protocolFee + q.creatorFee);
     }
 
@@ -500,7 +604,8 @@ contract Launchpad is Ownable, ReentrancyGuard {
     }
 
     function snipeTaxNow(address coin) external view returns (uint256) {
-        return _snipeBps(_market(coin).createdAt);
+        Market storage m = _market(coin);
+        return m.graduated ? 0 : _snipeBps(m.createdAt);
     }
 
     function isCoin(address coin) external view returns (bool) {
@@ -511,8 +616,20 @@ contract Launchpad is Ownable, ReentrancyGuard {
         return _market(coin).currency;
     }
 
-    function getMarket(address coin) external view returns (Market memory) {
-        return _market(coin);
+    /// @notice The coin's Uniswap V2 pair with its currency.
+    function pairOf(address coin) external view returns (address) {
+        return _market(coin).pair;
+    }
+
+    /// @notice A market as it stands; once graduated, the reserves and the currency
+    /// held are the pool's, live.
+    function getMarket(address coin) public view returns (Market memory m) {
+        Market storage s = _market(coin);
+        m = s;
+        if (s.graduated) {
+            (m.reserveToken, m.reserveQuote) = _pairReserves(coin, s);
+            m.realQuote = m.reserveQuote;
+        }
     }
 
     function coinsCount() external view returns (uint256) {
@@ -527,7 +644,7 @@ contract Launchpad is Ownable, ReentrancyGuard {
         page = new CoinView[](end - offset);
         for (uint256 i = offset; i < end; ++i) {
             address coin = allCoins[i];
-            Market storage m = _markets[coin];
+            Market memory m = getMarket(coin);
             page[i - offset] = CoinView({
                 coin: coin,
                 name: Coin(coin).name(),
@@ -541,7 +658,8 @@ contract Launchpad is Ownable, ReentrancyGuard {
                 reserveQuote: m.reserveQuote,
                 realQuote: m.realQuote,
                 curveLeft: m.curveLeft,
-                volume: m.volume
+                volume: m.volume,
+                pair: m.pair
             });
         }
     }

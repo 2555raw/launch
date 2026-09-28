@@ -238,7 +238,7 @@ export default function Launch() {
                   <span>800M</span>
                 </div>
                 <div className="kv">
-                  <span>Held back for the pool</span>
+                  <span>Held back for its Uniswap pool</span>
                   <span>200M</span>
                 </div>
                 <div className="kv">

@@ -130,7 +130,8 @@ export default function Desk() {
       const k = c.currency.toLowerCase();
       const e = m.get(k) ?? { coins: 0, backing: 0n };
       e.coins++;
-      e.backing += c.realQuote;
+      // held by the pad; a graduated coin's is in its Uniswap pool
+      if (!c.graduated) e.backing += c.realQuote;
       m.set(k, e);
     }
     return m;

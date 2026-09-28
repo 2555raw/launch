@@ -1,0 +1,6 @@
+{
+  "note": "Uniswap V2 factories the pad graduates coins into, by chain id. Where a chain has none, the deploy puts up a copy (contracts/uniswap/).",
+  "v2Factory": {
+    "4663": "0x8bceaa40b9acdfaedf85adf4ff01f5ad6517937f"
+  }
+}

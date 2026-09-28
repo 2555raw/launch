@@ -72,7 +72,7 @@ export default function HowItWorks() {
           <h2>Opening a market</h2>
           <p>
             Every coin has exactly one billion units, all minted to the pad. 800 million are for sale on the curve; 200 million stay inside the pad
-            until graduation, when they seed the pool.
+            until graduation, when they seed its Uniswap pool.
           </p>
           <p>
             The creator can buy in the same transaction as the launch, before anyone else, with no snipe tax. For everyone else the first {window}{' '}
@@ -199,11 +199,16 @@ export default function HowItWorks() {
           <div className="kicker">Part 06</div>
           <h2>Graduation</h2>
           <p>
-            When the last of the 800 million curve coins sells, the market graduates. Its backing and the 200 million coins held back become a
-            constant-product pool. The curve's size was chosen so that the pool's first price is exactly the curve's last price: nobody gets a jump
-            either way.
+            When the last of the 800 million curve coins sells, the market graduates. Its backing and the 200 million coins held back go into the
+            coin's Uniswap V2 pool with its currency. The curve's size was chosen so that the pool's first price is exactly the curve's last price:
+            nobody gets a jump either way.
           </p>
-          <p>There are no LP tokens and no owner of the pool. Its liquidity can never be withdrawn, so trading just continues, with real slippage.</p>
+          <p>
+            The pool's liquidity tokens are burned in the same transaction, so nobody can ever withdraw it. Until then the coin can't be sent to its
+            pool at all, so nobody can open it early at a price of their own. From graduation on it is an ordinary Uniswap pair: DEX screens and
+            trading terminals list it with its liquidity and its currency, and the pad keeps trading it for you, with no fee of its own (the pool
+            keeps Uniswap's 0.3%).
+          </p>
         </div>
         <div className="panel">
           <div className="kv">
@@ -212,7 +217,7 @@ export default function HowItWorks() {
           </div>
           <div className="kv">
             <span>After</span>
-            <span>pool, real reserves only</span>
+            <span>Uniswap pool, real reserves only, liquidity burned</span>
           </div>
           <div className="kv">
             <span>Price at the switch</span>

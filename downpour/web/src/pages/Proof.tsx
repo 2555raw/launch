@@ -36,7 +36,8 @@ export default function Proof() {
     for (const r of rows) {
       const k = r.cur.token.toLowerCase();
       const e = m.get(k) ?? { token: r.cur.token, code: r.cur.code, symbol: r.cur.symbol, decimals: r.cur.decimals, backing: 0n, coins: 0 };
-      e.backing += r.coin.realQuote;
+      // what the pad holds: a graduated coin's currency is in its Uniswap pool
+      if (!r.coin.graduated) e.backing += r.coin.realQuote;
       e.coins++;
       m.set(k, e);
     }

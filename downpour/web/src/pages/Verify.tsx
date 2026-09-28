@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { createPublicClient, formatUnits, getAddress, http, isAddress, keccak256, parseAbiItem, type Hex } from 'viem';
 import { usePad } from '../backend/PadProvider';
 import { DEPLOYMENTS } from '../config/chains';
-import { coinAbi, deskAbi, launchpadAbi, COIN_RUNTIME_HASH, LAUNCHPAD_IMMUTABLES, LAUNCHPAD_RUNTIME } from '../generated/contracts';
+import { coinAbi, deskAbi, launchpadAbi, uniswapV2PairAbi, COIN_RUNTIME_HASH, LAUNCHPAD_IMMUTABLES, LAUNCHPAD_RUNTIME } from '../generated/contracts';
 import { PageHead } from '../components/bits';
 import { circulating, fullSellBack } from '../lib/math';
 
@@ -14,6 +14,8 @@ interface Result {
 }
 
 const balanceOf = parseAbiItem('function balanceOf(address) view returns (uint256)');
+const getPair = parseAbiItem('function getPair(address, address) view returns (address)');
+const DEAD = '0x000000000000000000000000000000000000dEaD';
 const createdEvent = parseAbiItem(
   'event CoinCreated(address indexed coin, address indexed creator, address indexed currency, string name, string symbol, string meta, uint256 virtualQuote)',
 );
@@ -147,6 +149,34 @@ async function runChecks(rpc: string, padAddr: `0x${string}`, coinAddr: `0x${str
     ok: held >= backing + fees,
     detail: `The pad holds ${q(held)}; it owes ${q(backing)} of backing across every ${code} market plus ${q(fees)} in unclaimed fees.`,
   });
+
+  // 7. its Uniswap pool: the factory's own pair, sealed until graduation, then burned
+  const pair = market.pair as `0x${string}`;
+  const factory = await read<`0x${string}`>(padAddr, launchpadAbi, 'uniswapFactory');
+  const official = await read<`0x${string}`>(factory, [getPair], 'getPair', [coinAddr, market.currency]);
+  out.push({
+    title: 'It trades in the Uniswap pair of its coin and currency',
+    ok: getAddress(official) === getAddress(pair),
+    detail: `The market's pair ${pair} is the one Uniswap's factory (${factory.slice(0, 10)}…) returns for this coin and ${code}.`,
+  });
+  const [inPair, supply, burned] = await Promise.all([
+    read<bigint>(coinAddr, [balanceOf], 'balanceOf', [pair]),
+    read<bigint>(pair, uniswapV2PairAbi, 'totalSupply'),
+    read<bigint>(pair, uniswapV2PairAbi, 'balanceOf', [DEAD]),
+  ]);
+  out.push(
+    m.graduated
+      ? {
+          title: 'Nobody can pull its pool',
+          ok: supply > 0n && burned + 1000n === supply,
+          detail: `${formatUnits(burned, 18)} of the pool's ${formatUnits(supply, 18)} liquidity tokens sit at ${DEAD}, which nobody holds the key to; the other 1000 wei are Uniswap's own permanent minimum.`,
+        }
+      : {
+          title: 'Its pool stays sealed until the curve sells out',
+          ok: inPair === 0n && supply === 0n,
+          detail: `The pair holds ${t(inPair)} and ${formatUnits(supply, 18)} liquidity tokens: the coin refuses transfers to it until the pad opens the pool.`,
+        },
+  );
   return out;
 }
 

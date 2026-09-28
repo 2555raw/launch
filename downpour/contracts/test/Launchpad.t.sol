@@ -263,7 +263,7 @@ contract LaunchpadTest is Base {
     function test_coinImplementationCannotBeInitialized() public {
         Coin impl = Coin(pad.coinImplementation());
         vm.expectRevert(Coin.AlreadyInitialized.selector);
-        impl.initialize("x", "X", 1);
+        impl.initialize("x", "X", 1, address(0));
     }
 
     function test_getCoinsPages() public {

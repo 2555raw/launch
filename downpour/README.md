@@ -220,7 +220,9 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   map (MIT repository), the Earth's cloud cover from NASA's Blue Marble (public domain,
   via turban/webgl-earth), and the cumulus puff from pmndrs/drei-assets (MIT).
   `starmint-teaser.mp4` (30 s) and `starmint-teaser-2.mp4` (46 s) are 1080p promo
-  videos built from the site's own screens; `starmint.gif` (800 px, 20 fps, looping) and
+  videos built from the site's own screens; `starmint-teaser-35.mp4` is the second one cut
+  to 35 s on one unbroken run of the song (four identical bars of its drop play twice,
+  and it fades out at the end), with every cut on the song's beat; `starmint.gif` (800 px, 20 fps, looping) and
   `starmint-3s.mp4` (720p) are 3 seconds of the home page with the sky moving: two
   shooting stars, the planet with its hurricane, the currency in the headline changing.
   `starmint-soon.mp4` (3 s, 1080p) is a "Soon" teaser: a phone drops in over the Earth

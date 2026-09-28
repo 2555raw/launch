@@ -210,6 +210,9 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   1024 px for X, listings and the like. `token.svg` is the $SMNT token image (a coin
   with a star). `x-pfp.png` (1000×1000, the mark alone) and `x-header.jpg` (1500×500,
   the site's sky with its currency stars) are the X profile picture and header;
+  `x-pfp-sky.png`, `x-pfp-purple.png`, `x-pfp-blue.png` and `x-pfp-navy.png` are the same mark,
+  same size and place, on the site's starfield (no planet): as it is, then tinted violet,
+  royal blue and navy, stars left white;
   `x-header-2.jpg` is the same sky with seven coin tiles on an orbit above the Earth,
   each star in its currency's colour; `x-header-3.jpg` is a night field under the Milky
   Way with the currency stars, and the mark built of cumulus on the planet. Its

@@ -169,7 +169,10 @@ It is live at https://downpour-production.up.railway.app (Railway service
 service and folder keep the project's first name). To
 set up another one, point a Railway service at this repository with root
 directory `downpour`; it runs `npm run build` and `node server.js` (the server
-answers on `PORT`, or 8080).
+answers on `PORT`, or 8080). The server sends the pages with anti-framing headers
+(`X-Frame-Options: DENY`, `frame-ancestors 'none'`, so no other site can wrap the page to
+trick a wallet click) and HSTS, and sends visits to the Railway-generated address on to
+`CANONICAL_HOST` (`starmint.website`; set it empty to turn the redirect off).
 Any static host works too, as long as unknown paths fall back to `index.html`.
 
 ## Make it yours

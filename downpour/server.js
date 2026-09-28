@@ -11,6 +11,19 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'dist');
 const PORT = process.env.PORT || 8080;
+/** The site's own domain: visits to the Railway-generated one are sent here. */
+const CANONICAL_HOST = process.env.CANONICAL_HOST ?? 'starmint.website';
+
+/* A page that connects wallets must not be framed by another site (clickjacking), and it
+ * is only ever served over HTTPS. */
+const SECURITY = {
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'x-frame-options': 'DENY',
+  'content-security-policy': "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+  'strict-transport-security': 'max-age=31536000; includeSubDomains',
+  'permissions-policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+};
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -43,8 +56,7 @@ function send(res, file, status = 200) {
         : file.includes(`${path.sep}earth${path.sep}`)
           ? 'public, max-age=86400'
           : 'no-cache',
-      'x-content-type-options': 'nosniff',
-      'referrer-policy': 'strict-origin-when-cross-origin',
+      ...SECURITY,
     });
     res.end(body);
   });
@@ -52,23 +64,29 @@ function send(res, file, status = 200) {
 
 http
   .createServer((req, res) => {
+    // the Railway address still works, but only as a way in to the real domain
+    const host = (req.headers.host || '').toLowerCase().split(':')[0];
+    if (CANONICAL_HOST && host.endsWith('.up.railway.app')) {
+      res.writeHead(301, { location: `https://${CANONICAL_HOST}${req.url}`, ...SECURITY }).end();
+      return;
+    }
     let rel;
     try {
       rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
     } catch {
-      res.writeHead(400).end('Bad request');
+      res.writeHead(400, SECURITY).end('Bad request');
       return;
     }
     const file = path.join(ROOT, path.normalize(rel));
     if (!file.startsWith(ROOT)) {
-      res.writeHead(403).end('Forbidden');
+      res.writeHead(403, SECURITY).end('Forbidden');
       return;
     }
     fs.stat(file, (err, st) => {
       if (!err && st.isFile()) return send(res, file);
       // a missing asset is a real 404; anything else is a page of the app
       if (path.extname(rel)) {
-        res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }).end('Not found');
+        res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8', ...SECURITY }).end('Not found');
         return;
       }
       send(res, path.join(ROOT, 'index.html'));

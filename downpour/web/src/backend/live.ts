@@ -6,17 +6,22 @@ import {
   BaseError,
   ContractFunctionRevertedError,
   createPublicClient,
+  decodeFunctionResult,
+  encodeFunctionData,
   http,
   maxUint256,
+  parseAbi,
   parseAbiItem,
+  zeroAddress,
   type PublicClient,
   type WalletClient,
 } from 'viem';
+import uniswap from '@shared/uniswap.json';
 import { deskAbi, launchpadAbi, routerAbi, coinAbi } from '../generated/contracts';
 import { viemChain, type Deployment } from '../config/chains';
 import { CURRENCY_BY_CODE, currencyColor } from '../data/currencies';
 import { parseMeta } from '../lib/meta';
-import type { Address, Backend, Coin, CoinMeta, CreateCoinInput, Currency, Params, RateMove, Snapshot, Trade, TxOptions } from './types';
+import type { Address, Backend, Coin, CoinMeta, CreateCoinInput, Currency, ExternalQuote, Params, RateMove, Snapshot, Trade, TxOptions } from './types';
 
 const erc20 = [
   parseAbiItem('function approve(address spender, uint256 amount) returns (bool)'),
@@ -26,6 +31,37 @@ const erc20 = [
 ] as const;
 
 const wethAbi = [parseAbiItem('function deposit() payable'), parseAbiItem('function withdraw(uint256 wad)')] as const;
+
+/* Uniswap on the chain, for swaps between real tokens (USDG <-> WETH): V3 through its quoter
+ * and SwapRouter02, V2 through its router, or straight on the pair where a chain has no router. */
+const quoterV2Abi = parseAbi([
+  'function quoteExactInputSingle((address tokenIn, address tokenOut, uint256 amountIn, uint24 fee, uint160 sqrtPriceLimitX96) params) returns (uint256 amountOut, uint160 sqrtPriceX96After, uint32 initializedTicksCrossed, uint256 gasEstimate)',
+]);
+const swapRouter02Abi = parseAbi([
+  'function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) params) payable returns (uint256 amountOut)',
+]);
+const v2RouterAbi = parseAbi([
+  'function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline) returns (uint256[] amounts)',
+]);
+const v2FactoryAbi = parseAbi(['function getPair(address tokenA, address tokenB) view returns (address pair)']);
+const v2PairAbi = parseAbi([
+  'function getReserves() view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)',
+  'function token0() view returns (address)',
+  'function swap(uint256 amount0Out, uint256 amount1Out, address to, bytes data)',
+  'function transfer(address to, uint256 amount) returns (bool)',
+]);
+const V3_FEES = [100, 500, 3000, 10000] as const;
+type UniConfig = { v2Factory?: Address; v2Router02?: Address; v3?: { quoterV2: Address; swapRouter02: Address } };
+/** Uniswap's own on a chain that has it, else the V2 factory copy the pad was deployed with. */
+function uniswapOn(dep: Deployment): UniConfig {
+  const u = uniswap as { v2Factory?: Record<string, string>; v2Router02?: Record<string, string>; v3?: Record<string, { quoterV2: string; swapRouter02: string }> };
+  const id = String(dep.chainId);
+  return {
+    v2Factory: (u.v2Factory?.[id] as Address | undefined) ?? dep.uniswapFactory,
+    v2Router02: u.v2Router02?.[id] as Address | undefined,
+    v3: u.v3?.[id] as UniConfig['v3'],
+  };
+}
 
 const EV_CREATED = parseAbiItem(
   'event CoinCreated(address indexed coin, address indexed creator, address indexed currency, string name, string symbol, string meta, uint256 virtualQuote)',
@@ -388,6 +424,96 @@ export class LiveBackend implements Backend {
   async unwrap(account: Address, token: Address, amount: bigint, o?: TxOptions) {
     const { hash } = await this.write(account, { address: token, abi: wethAbi, functionName: 'withdraw', args: [amount] }, o);
     return { hash };
+  }
+
+  /** The best Uniswap price on this chain for tokenIn -> tokenOut: every V3 fee tier the
+   *  quoter answers for, and the V2 pair if there is one; null when no pool has the pair. */
+  async quoteExternal(tokenIn: Address, tokenOut: Address, amountIn: bigint): Promise<ExternalQuote | null> {
+    const u = uniswapOn(this.dep);
+    const found: ExternalQuote[] = [];
+    if (u.v3) {
+      const quoter = u.v3.quoterV2;
+      await Promise.all(
+        V3_FEES.map(async (fee) => {
+          try {
+            const data = encodeFunctionData({ abi: quoterV2Abi, functionName: 'quoteExactInputSingle', args: [{ tokenIn, tokenOut, amountIn, fee, sqrtPriceLimitX96: 0n }] });
+            const { data: out } = await this.client.call({ to: quoter, data });
+            if (!out) return;
+            const [amountOut] = decodeFunctionResult({ abi: quoterV2Abi, functionName: 'quoteExactInputSingle', data: out });
+            if (amountOut > 0n) found.push({ tokenIn, tokenOut, amountIn, amountOut, kind: 'v3', fee, via: `Uniswap V3 pool, ${fee / 10_000}% fee` });
+          } catch {
+            /* no pool at this fee, or too thin */
+          }
+        }),
+      );
+    }
+    if (u.v2Factory) {
+      try {
+        const pair = await this.read<Address>(u.v2Factory, v2FactoryAbi, 'getPair', [tokenIn, tokenOut]);
+        if (pair !== zeroAddress) {
+          const [[r0, r1], token0] = await Promise.all([this.read<[bigint, bigint, number]>(pair, v2PairAbi, 'getReserves'), this.read<Address>(pair, v2PairAbi, 'token0')]);
+          const inIs0 = token0.toLowerCase() === tokenIn.toLowerCase();
+          const [rIn, rOut] = inIs0 ? [r0, r1] : [r1, r0];
+          if (rIn > 0n && rOut > 0n) {
+            const withFee = amountIn * 997n;
+            const amountOut = (withFee * rOut) / (rIn * 1000n + withFee);
+            if (amountOut > 0n) found.push({ tokenIn, tokenOut, amountIn, amountOut, kind: 'v2', fee: 3000, via: 'Uniswap V2 pool, 0.3% fee' });
+          }
+        }
+      } catch {
+        /* no V2 pair */
+      }
+    }
+    if (!found.length) return null;
+    return found.reduce((best, q) => (q.amountOut > best.amountOut ? q : best));
+  }
+
+  /** The swap `quoteExternal` priced, paid from the wallet (plain ETH wrapped first if needed). */
+  async swapExternal(account: Address, q: ExternalQuote, minOut: bigint, o?: TxOptions) {
+    const u = uniswapOn(this.dep);
+    if (q.kind === 'v3' && u.v3) {
+      await this.ensureAllowance(account, q.tokenIn, u.v3.swapRouter02, q.amountIn, o);
+      const { hash } = await this.write(
+        account,
+        {
+          address: u.v3.swapRouter02,
+          abi: swapRouter02Abi,
+          functionName: 'exactInputSingle',
+          args: [{ tokenIn: q.tokenIn, tokenOut: q.tokenOut, fee: q.fee, recipient: account, amountIn: q.amountIn, amountOutMinimum: minOut, sqrtPriceLimitX96: 0n }],
+        },
+        o,
+      );
+      return { hash };
+    }
+    if (q.kind === 'v2' && u.v2Factory) {
+      if (u.v2Router02) {
+        await this.ensureAllowance(account, q.tokenIn, u.v2Router02, q.amountIn, o);
+        const deadline = BigInt(Math.floor(Date.now() / 1000) + 20 * 60);
+        const { hash } = await this.write(
+          account,
+          { address: u.v2Router02, abi: v2RouterAbi, functionName: 'swapExactTokensForTokens', args: [q.amountIn, minOut, [q.tokenIn, q.tokenOut], account, deadline] },
+          o,
+        );
+        return { hash };
+      }
+      // no router on this chain (a local copy of the factory): pay the pair, then take the swap
+      const pair = await this.read<Address>(u.v2Factory, v2FactoryAbi, 'getPair', [q.tokenIn, q.tokenOut]);
+      await this.ensureWrapped(account, q.tokenIn, q.amountIn, o);
+      await this.write(account, { address: q.tokenIn, abi: v2PairAbi, functionName: 'transfer', args: [pair, q.amountIn] }, { onStage: (s, d) => s === 'pending' && o?.onStage?.('pending', d) });
+      const [[r0, r1], token0] = await Promise.all([this.read<[bigint, bigint, number]>(pair, v2PairAbi, 'getReserves'), this.read<Address>(pair, v2PairAbi, 'token0')]);
+      const inIs0 = token0.toLowerCase() === q.tokenIn.toLowerCase();
+      // priced again now, from the reserves as they are, never below what the page agreed to
+      const held = await this.read<bigint>(q.tokenIn, erc20, 'balanceOf', [pair]);
+      const rIn = inIs0 ? r0 : r1;
+      const rOut = inIs0 ? r1 : r0;
+      const paid = held - rIn;
+      const withFee = paid * 997n;
+      const out = (withFee * rOut) / (rIn * 1000n + withFee);
+      if (out < minOut) throw new Error('The price moved past your slippage limit. Try again or allow more slippage.');
+      const { hash } = await this.write(account, { address: pair, abi: v2PairAbi, functionName: 'swap', args: [inIs0 ? 0n : out, inIs0 ? out : 0n, account, '0x'] }, o);
+      return { hash };
+    }
+    throw new Error('No Uniswap pool for this pair on this chain.');
   }
 
   async deskOwner() {

@@ -107,6 +107,10 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
   feeds, with the coin shown and quoted in its own currency everywhere ("priced in
   Euro · paid in USDG"; `meta.priced`). Paying in ETH works with plain ETH: the site
   wraps what a buy needs into WETH on the way, and the desk page unwraps it back.
+  Between two real tokens (USDG ↔ WETH) the swap page prices and trades through
+  Uniswap on the chain (`shared/uniswap.json`: every V3 fee tier via the quoter and
+  SwapRouter02, the V2 pair via its router, or straight on the pair where a chain only
+  has the factory copy), at the market's price, not the desk's.
 - **Keeper**: posts a new rate only when two independent FX feeds agree within
   0.5% and the rate has drifted at least 0.1%. The desk refuses any single post
   that moves a rate more than 20%.

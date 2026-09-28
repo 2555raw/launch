@@ -132,4 +132,21 @@ export interface Backend {
   listCurrency?(account: Address, token: Address, code: string, rate: bigint, o?: TxOptions): Promise<TxResult>;
   /** Live only: turn wrapped ether back into ETH. */
   unwrap?(account: Address, token: Address, amount: bigint, o?: TxOptions): Promise<TxResult>;
+  /** Live only: the best Uniswap price on this chain between two real tokens (null: no pool). */
+  quoteExternal?(tokenIn: Address, tokenOut: Address, amountIn: bigint): Promise<ExternalQuote | null>;
+  /** Live only: the swap `quoteExternal` priced. */
+  swapExternal?(account: Address, quote: ExternalQuote, minOut: bigint, o?: TxOptions): Promise<TxResult>;
+}
+
+/** A swap between two real tokens through a Uniswap pool on the chain, priced by the pool. */
+export interface ExternalQuote {
+  tokenIn: Address;
+  tokenOut: Address;
+  amountIn: bigint;
+  amountOut: bigint;
+  /** 'v3' with the pool's fee in hundredths of a bip (500 = 0.05%), or 'v2'. */
+  kind: 'v3' | 'v2';
+  fee: number;
+  /** What the page says about the route ("Uniswap V3 pool, 0.05%"). */
+  via: string;
 }

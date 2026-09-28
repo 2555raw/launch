@@ -7,7 +7,7 @@
 import type { Address, Coin, Currency, Params } from '../backend/types';
 import { quoteBuy, quoteConvert, quoteSell } from './math';
 
-export type StepKind = 'desk' | 'buy' | 'sell';
+export type StepKind = 'desk' | 'buy' | 'sell' | 'uniswap';
 
 export interface Step {
   kind: StepKind;

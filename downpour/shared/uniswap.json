@@ -1,6 +1,16 @@
 {
-  "note": "Uniswap V2 factories the pad graduates coins into, by chain id. Where a chain has none, the deploy puts up a copy (contracts/uniswap/).",
+  "note": "Uniswap on each chain, by chain id: the V2 factory the pad graduates coins into (where a chain has none, the deploy puts up a copy from contracts/uniswap/), and, on chains that have them, the V2 router and V3 quoter/router the site swaps real tokens through (USDG <-> WETH on Robinhood Chain), from Uniswap's deployments/4663.md.",
   "v2Factory": {
     "4663": "0x8bceaa40b9acdfaedf85adf4ff01f5ad6517937f"
+  },
+  "v2Router02": {
+    "4663": "0x89e5db8b5aa49aa85ac63f691524311aeb649eba"
+  },
+  "v3": {
+    "4663": {
+      "factory": "0x1f7d7550b1b028f7571e69a784071f0205fd2efa",
+      "quoterV2": "0x33e885ed0ec9bf04ecfb19341582aadcb4c8a9e7",
+      "swapRouter02": "0xcaf681a66d020601342297493863e78c959e5cb2"
+    }
   }
 }

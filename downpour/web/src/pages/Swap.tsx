@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
-import type { Address } from '../backend/types';
+import type { Address, ExternalQuote } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { TokenSelect } from '../components/TokenSelect';
 import { CoinOrb, CurrencyDot, PageHead, PairBadge } from '../components/bits';
 import { Arrow, Sparkle, Gear, Swap as SwapIcon } from '../components/icons';
-import { quoteSwap, type Step } from '../lib/route';
+import { quoteSwap, type Step, type SwapQuote } from '../lib/route';
 import { compact, money, parseAmount, pct, toDisplay, toInput, usd } from '../lib/format';
 import { amount, sortRows, useRows } from '../lib/views';
 
@@ -43,7 +43,7 @@ function RouteView({ steps }: { steps: Step[] }) {
       <span className="hop">{steps[0].from}</span>
       {steps.map((s, i) => (
         <span key={i} className="row" style={{ gap: 6 }}>
-          <span className="via">→ {s.kind === 'desk' ? 'desk' : s.kind === 'buy' ? 'curve buy' : 'curve sell'} →</span>
+          <span className="via">→ {s.kind === 'desk' ? 'desk' : s.kind === 'uniswap' ? 'Uniswap pool' : s.kind === 'buy' ? 'curve buy' : 'curve sell'} →</span>
           <span className="hop">{s.to}</span>
         </span>
       ))}
@@ -101,7 +101,37 @@ export default function Swap() {
   const bal = tokenIn ? pad.spendable(tokenIn) : 0n;
   // "Max" spends the exact balance, not the rounded number shown in the field.
   const amountIn = maxed ? bal : parseAmount(text, decOf(tokenIn));
-  const q = useMemo(() => (pad.book && tokenIn && tokenOut && amountIn ? quoteSwap(pad.book, tokenIn, tokenOut, amountIn) : null), [pad.book, tokenIn, tokenOut, amountIn]);
+  const deskQ = useMemo(() => (pad.book && tokenIn && tokenOut && amountIn ? quoteSwap(pad.book, tokenIn, tokenOut, amountIn) : null), [pad.book, tokenIn, tokenOut, amountIn]);
+  // Two real tokens (USDG <-> WETH on Robinhood Chain) trade through Uniswap's pools, at the
+  // market's price, rather than the desk; the quote comes from the chain, a moment later.
+  const curIn = tokenIn ? pad.currencyByToken.get(tokenIn.toLowerCase()) : undefined;
+  const curOut = tokenOut ? pad.currencyByToken.get(tokenOut.toLowerCase()) : undefined;
+  const viaUniswap = !!curIn && !!curOut && !curIn.mintable && !curOut.mintable && !!pad.backend.quoteExternal;
+  const [ext, setExt] = useState<{ key: string; quote: ExternalQuote | null } | null>(null);
+  const extKey = viaUniswap && tokenIn && tokenOut && amountIn ? `${tokenIn}>${tokenOut}:${amountIn}` : '';
+  useEffect(() => {
+    if (!extKey || !tokenIn || !tokenOut || !amountIn) return;
+    let off = false;
+    const t = setTimeout(() => {
+      pad.backend
+        .quoteExternal!(tokenIn, tokenOut, amountIn)
+        .then((quote) => !off && setExt({ key: extKey, quote }))
+        .catch(() => !off && setExt({ key: extKey, quote: null }));
+    }, 250);
+    return () => {
+      off = true;
+      clearTimeout(t);
+    };
+  }, [extKey, tokenIn, tokenOut, amountIn, pad.backend]);
+  const extQuote = viaUniswap && ext && ext.key === extKey ? ext.quote : undefined;
+  const extLoading = viaUniswap && !!extKey && (!ext || ext.key !== extKey);
+  const q = useMemo<SwapQuote | null>(() => {
+    if (!viaUniswap) return deskQ;
+    if (!extKey || extQuote === undefined) return null;
+    if (!extQuote) return { amountOut: 0n, refund: 0n, steps: [], impact: 0, error: `No Uniswap pool for ${curIn!.code}/${curOut!.code} on this chain yet` };
+    const step: Step = { kind: 'uniswap', from: curIn!.code, to: curOut!.code, amountIn: amountIn ?? 0n, amountOut: extQuote.amountOut, fee: 0n };
+    return { amountOut: extQuote.amountOut, refund: 0n, steps: [step], impact: 0 };
+  }, [viaUniswap, deskQ, extKey, extQuote, curIn, curOut, amountIn]);
   const balOut = tokenOut ? pad.balances[tokenOut.toLowerCase()] ?? 0n : 0n;
   const minOut = q ? (q.amountOut * BigInt(10_000 - slip)) / 10_000n : 0n;
   const usdIn = tokenIn && amountIn ? pad.usdValue(tokenIn, amountIn) : 0;
@@ -121,17 +151,20 @@ export default function Swap() {
   else if (pad.wrongChain && pad.chainId) action = { label: 'Switch network', disabled: false, onClick: () => wallet.switchChain(pad.chainId!) };
   else if (!tokenIn || !tokenOut) action = { label: 'Select a token', disabled: true };
   else if (!amountIn) action = { label: 'Enter an amount', disabled: true };
+  else if (extLoading) action = { label: 'Finding the best Uniswap pool…', disabled: true };
   else if (q?.error) action = { label: q.error, disabled: true };
   else if (amountIn > bal) action = { label: `Not enough ${labelOf(tokenIn)}`, disabled: true };
   else if (busy) action = { label: 'Swapping…', disabled: true };
   else
     action = {
-      label: q && q.impact > 0.15 ? 'Swap anyway (high price impact)' : 'Swap',
+      label: q && q.impact > 0.15 ? 'Swap anyway (high price impact)' : extQuote ? 'Swap on Uniswap' : 'Swap',
       disabled: false,
       onClick: async () => {
         setBusy(true);
         const sent = text;
-        const r = await pad.run(`Swap ${labelOf(tokenIn)} → ${labelOf(tokenOut)}`, (acct, o) => pad.backend.swap(acct, tokenIn, tokenOut, amountIn, minOut, o));
+        const r = await pad.run(`Swap ${labelOf(tokenIn)} → ${labelOf(tokenOut)}`, (acct, o) =>
+          extQuote ? pad.backend.swapExternal!(acct, extQuote, minOut, o) : pad.backend.swap(acct, tokenIn, tokenOut, amountIn, minOut, o),
+        );
         setBusy(false);
         if (r && typed.current === sent) {
           setText('');
@@ -281,6 +314,12 @@ export default function Swap() {
                   <RouteView steps={q.steps} />
                 </span>
               </div>
+              {extQuote && (
+                <div className="kv">
+                  <span>Pool</span>
+                  <span>{extQuote.via}; its fee is inside the price</span>
+                </div>
+              )}
               <div className="kv">
                 <span>Price impact</span>
                 <span className={q.impact > 0.05 ? 'down' : ''}>{pct(q.impact, 2)}</span>

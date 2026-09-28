@@ -216,6 +216,10 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   videos built from the site's own screens; `starmint.gif` (800 px, 20 fps, looping) and
   `starmint-3s.mp4` (720p) are 3 seconds of the home page with the sky moving: two
   shooting stars, the planet with its hurricane, the currency in the headline changing.
+  `starmint-soon.mp4` (3 s, 1080p) is a "Soon" teaser: a phone drops in over the Earth
+  with a coin's market cap counting up and its chart drawing, currency chips round it,
+  then the mark, the name and SOON on the sound's hit; `x-header-4.jpg` is the matching
+  X header (the mark and name, the phone over the planet, currency chips).
 - `shared/currencies.json`: which currencies exist, with reference rates.
 - `VITE_DEFAULT_MODE` (`auto` | `live` | `playground`) and `VITE_DEFAULT_CHAIN`
   at build time choose what visitors see first.

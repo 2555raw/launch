@@ -213,7 +213,9 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   map (MIT repository), the Earth's cloud cover from NASA's Blue Marble (public domain,
   via turban/webgl-earth), and the cumulus puff from pmndrs/drei-assets (MIT).
   `starmint-teaser.mp4` (30 s) and `starmint-teaser-2.mp4` (46 s) are 1080p promo
-  videos built from the site's own screens.
+  videos built from the site's own screens; `starmint.gif` (800 px, 20 fps, looping) and
+  `starmint-3s.mp4` (720p) are 3 seconds of the home page with the sky moving: two
+  shooting stars, the planet with its hurricane, the currency in the headline changing.
 - `shared/currencies.json`: which currencies exist, with reference rates.
 - `VITE_DEFAULT_MODE` (`auto` | `live` | `playground`) and `VITE_DEFAULT_CHAIN`
   at build time choose what visitors see first.

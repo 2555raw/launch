@@ -266,7 +266,7 @@ export function Home() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <div className="kicker">Shining right now</div>
+              <div className="kicker">New launches on Starmint</div>
               <h2 className="h-section">Pick a star</h2>
               <p className="lead">
                 {few

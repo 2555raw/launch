@@ -1525,3 +1525,22 @@ a.card:hover {
   font-weight: 500;
   letter-spacing: 0;
 }
+
+/* a coin launched in the last day wears it on its card */
+.cc-new {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #0b0b0f;
+  background: linear-gradient(90deg, #ffe680, #ffb84d);
+  box-shadow: 0 0 14px rgba(255, 200, 80, 0.45);
+  white-space: nowrap;
+}

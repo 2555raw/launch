@@ -25,6 +25,7 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
     <Link to={`/coin/${coin.address}`} className="card coin-card" style={sky}>
       <div className="cc-sky">
         <span className="cc-code">{disp.code}</span>
+        {now - coin.createdAt < 86_400 && <span className="cc-new">New launch</span>}
         <span className="cc-age">{ago(coin.createdAt, now)}</span>
         {mine && (
           <button

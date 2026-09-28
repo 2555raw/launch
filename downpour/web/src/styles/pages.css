@@ -1460,3 +1460,19 @@ a.card:hover {
   background: var(--well);
   color: var(--ink-2);
 }
+
+/* what a first buy gets, right under its field */
+.first-buy-preview {
+  display: grid;
+  gap: 3px;
+  margin: 8px 0 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent, #5b8cff) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #5b8cff) 28%, transparent);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.first-buy-preview b {
+  font-weight: 700;
+}

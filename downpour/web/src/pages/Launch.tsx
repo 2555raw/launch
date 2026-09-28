@@ -9,7 +9,7 @@ import { Sparkle } from '../components/icons';
 import { dropGlyph } from '../data/currencies';
 import { compact, money, parseAmount, usd } from '../lib/format';
 import { amount, unitsPerUsd } from '../lib/views';
-import { curveRaise, graduationPrice, newMarket, priceOf, quoteBuy, virtualQuoteFor } from '../lib/math';
+import { applyBuy, curveRaise, graduationPrice, marketCap, newMarket, priceOf, progress, quoteBuy, virtualQuoteFor } from '../lib/math';
 import { MAX_META_BYTES, shrinkImage } from '../lib/meta';
 
 const bytes = (s: string) => new TextEncoder().encode(s).length;
@@ -48,7 +48,18 @@ export default function Launch() {
     const end = graduationPrice(vq) / 10 ** (cur.decimals - 18);
     const buy = parseAmount(firstBuy, cur.decimals);
     const q = buy ? quoteBuy(m, buy, snap.params, pad.now(), true) : null;
-    return { vq, start, end, raise: amount(curveRaise(vq), cur.decimals), buy, q, perUsd: unitsPerUsd(cur) };
+    // where the coin stands right after that first buy
+    const after = q ? applyBuy(m, q) : null;
+    return {
+      vq,
+      start,
+      end,
+      raise: amount(curveRaise(vq), cur.decimals),
+      buy,
+      q,
+      perUsd: unitsPerUsd(cur),
+      after: after ? { price: priceOf(after, cur.decimals), mcap: marketCap(after, cur.decimals), sold: progress(after) } : null,
+    };
   }, [snap, cur, firstBuy, pad]);
 
   const meta = { description: description.trim(), image, links: { website: website.trim() || undefined, x: x.trim() || undefined, telegram: telegram.trim() || undefined } };
@@ -179,6 +190,17 @@ export default function Launch() {
               <input id="first" className={`input ${buyTooBig ? 'bad' : ''}`} inputMode="decimal" placeholder="0" value={firstBuy} onChange={(e) => setFirstBuy(e.target.value)} />
               <span className="affix">{cur?.code}</span>
             </div>
+            {numbers?.q && numbers.after && cur && (
+              <div className="first-buy-preview num" aria-live="polite">
+                <span>
+                  You get <b>{compact(amount(numbers.q.tokensOut))}</b> {ticker || 'coins'} · <b>{((Number(numbers.q.tokensOut) / 1e27) * 100).toFixed(2)}%</b> of the 1B supply
+                </span>
+                <span className="muted small">
+                  Price after {money(numbers.after.price, cur.symbol)} · market cap {money(numbers.after.mcap, cur.symbol)} ·{' '}
+                  {usd(numbers.after.mcap / numbers.perUsd)} · {(numbers.after.sold * 100).toFixed(1)}% of the curve sold
+                </span>
+              </div>
+            )}
             <span className="hint">
               Buys in the same transaction as the launch, before anyone else can, and skips the snipe tax.{cur && ` Balance: ${money(amount(bal, cur.decimals), cur.symbol)}`}
             </span>

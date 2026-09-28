@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
+import { chainMeta } from '../config/chains';
 import { useStorm } from '../storm/Storm';
 import { CoinCard, CoinCardSkeleton } from '../components/CoinCard';
 import { CoinOrb, CurrencyDot } from '../components/bits';
@@ -13,12 +14,19 @@ import { compact, money, pct, usd } from '../lib/format';
 import { fromUsd, quoteBuy, newMarket, virtualQuoteFor, graduationPrice, WAD } from '../lib/math';
 
 function RotatingWord() {
+  const pad = usePad();
+  // where the desk lists a few real tokens (mainnet), only their money is on offer
+  const words = useMemo<Array<[string, string]>>(() => {
+    const live = pad.snap?.currencies;
+    if (!live || live.length > 12) return HERO_WORDS;
+    return live.map((c) => [HERO_WORDS.find(([, code]) => code === c.code)?.[0] ?? (c.code === 'ETH' ? 'ether' : (CURRENCY_BY_CODE[c.code]?.name ?? c.code).toLowerCase()), c.code]);
+  }, [pad.snap]);
   const [i, setI] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setI((x) => (x + 1) % HERO_WORDS.length), 2200);
+    const t = setInterval(() => setI((x) => x + 1), 2200);
     return () => clearInterval(t);
   }, []);
-  const [word, code] = HERO_WORDS[i];
+  const [word, code] = words[i % words.length];
   const c = CURRENCY_BY_CODE[code];
   return (
     <span className="hero-word" key={word}>
@@ -187,6 +195,10 @@ export function Home() {
   const now = pad.now();
   const featured = useMemo(() => sortRows(rows, 'active').slice(0, 6), [rows]);
   const snap = pad.snap;
+  // a desk with a few real tokens (mainnet) is described by name, not by count
+  const few = snap && snap.currencies.length <= 6 ? snap.currencies : null;
+  const fewNames = few ? few.map((c) => c.name).join(' or ') : '';
+  const chainName = pad.chainId ? chainMeta(pad.chainId).name : 'the chain';
 
   // Stars gather around the headline while the hero is on screen, then move to the margins.
   const heroRef = useRef<HTMLElement>(null);
@@ -262,8 +274,9 @@ export function Home() {
               <div className="kicker">Shining right now</div>
               <h2 className="h-section">Pick a star</h2>
               <p className="lead">
-                Every coin is paired with one of {snap?.currencies.length ?? 149} currencies, picked at launch and fixed for good. Each card says which
-                one it is priced in.
+                {few
+                  ? `Every coin is paired with a currency picked at launch and fixed for good: ${fewNames} for now, more as their tokens arrive on ${chainName}. Each card says which one it is priced in.`
+                  : `Every coin is paired with one of ${snap?.currencies.length ?? 149} currencies, picked at launch and fixed for good. Each card says which one it is priced in.`}
               </p>
             </div>
             <Link to="/launch" className="link">
@@ -383,8 +396,9 @@ export function Home() {
               <div className="kicker">The other half of the pair</div>
               <h2 className="h-section">Money people already count in</h2>
               <p className="lead">
-                {snap?.currencies.length ?? 149} currencies, including gold, silver, platinum, bitcoin, ether, solana and now zcash. Each keeps its own backing: a rush on one
-                never touches another.
+                {few
+                  ? `${fewNames}: the money that trades on ${chainName} today, with more as their tokens arrive. Each keeps its own backing: a rush on one never touches another.`
+                  : `${snap?.currencies.length ?? 149} currencies, including gold, silver, platinum, bitcoin, ether, solana and now zcash. Each keeps its own backing: a rush on one never touches another.`}
               </p>
             </div>
             <Link to="/desk" className="link">

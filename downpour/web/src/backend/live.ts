@@ -165,7 +165,17 @@ export class LiveBackend implements Backend {
   }
 
   async load(): Promise<Snapshot> {
-    const { launchpad, desk } = this.dep;
+    const { launchpad } = this.dep;
+    // The launchpad says which desk and router are its own; the record only has to get it right.
+    const [deskOnChain, routerOnChain] = await Promise.all([
+      this.read<Address>(launchpad, launchpadAbi, 'desk'),
+      this.read<Address>(launchpad, launchpadAbi, 'router'),
+    ]);
+    if (deskOnChain.toLowerCase() !== this.dep.desk.toLowerCase() || routerOnChain.toLowerCase() !== this.dep.router.toLowerCase()) {
+      console.warn(`deployment record for chain ${this.dep.chainId}: the launchpad names desk ${deskOnChain} and router ${routerOnChain}; using those`);
+      this.dep = { ...this.dep, desk: deskOnChain, router: routerOnChain };
+    }
+    const desk = this.dep.desk;
     const [raw, count, targetRaiseUsd, protocolFeeBps, creatorFeeBps, snipeTaxBps, snipeWindow, treasury, deskFeeBps, faucetUsd, faucetCooldown, head] =
       await Promise.all([
         this.read<any[]>(desk, deskAbi, 'getCurrencies'),

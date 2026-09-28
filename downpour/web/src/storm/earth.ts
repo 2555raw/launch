@@ -244,6 +244,8 @@ export const EARTH_IMAGES = {
   day: (big: boolean) => `${import.meta.env.BASE_URL}earth/day-${big ? '4k' : '2k'}.jpg`,
   lights: `${import.meta.env.BASE_URL}earth/lights-2k.jpg`,
   relief: `${import.meta.env.BASE_URL}earth/relief-2k.jpg`,
+  /** cloud cover, rendered once by scripts/build-earth-clouds.mjs */
+  clouds: (big: boolean) => `${import.meta.env.BASE_URL}earth/clouds-${big ? '2k' : '1k'}.jpg`,
 };
 
 /** A low orbit round the planet as we see it: a circle of `ro` planet radii round its

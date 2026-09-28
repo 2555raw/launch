@@ -6,10 +6,9 @@
  *              diffraction spikes that shimmer) in the currency's colour, each with its
  *              sign written beside it like a star chart; born with a flare, drifting up
  *   planet     the Earth along the bottom, from NASA's real day and night maps and
- *              topography, with clouds and storms generated on the GPU once at start (a
- *              strip per frame; the generated ground stands in if the maps cannot load),
- *              turning slowly in daylight under a thin glowing atmosphere (real city
- *              lights wherever it is night)
+ *              topography, with a cloud map of cyclones and hurricanes (rendered once,
+ *              offline, by scripts/build-earth-clouds.mjs), turning slowly in daylight
+ *              under a thin glowing atmosphere (real city lights wherever it is night)
  *   satellite  a small 3D model (foil, solar cells, dishes) rendered supersampled into its
  *              own texture with a depth buffer; it comes up over the planet's edge, orbits
  *              along just inside the horizon, and leaves off the side of the screen, its
@@ -21,9 +20,10 @@
  * Stars are drawn before the planet, so it hides the ones behind it; the satellite
  * orbits in front of it. Quality drops automatically if frames get slow, and under
  * prefers-reduced-motion a single still frame is drawn. If
- * WebGL2 is missing, Storm.tsx falls back to the 2D sky in engine.ts. */
+ * WebGL2 is missing, Storm.tsx falls back to the 2D sky in engine.ts, as it does if the
+ * GPU drops this sky's context (onFail) or a visit crashed with it (skyGuard.ts). */
 import { CURRENCIES, currencyColor, dropGlyph } from '../data/currencies';
-import { CLOUD_DRIFT, DAY_SUN, EARTH_IMAGES, PLANET, POLE_MAT, SPIN, START_TURN, STORMS, awayFromPlanet, landFields, meteorStart, nightness, onPlanet, orbitAt, orbitSpan, sunlightAt, toPlanet, type Vec3 } from './earth';
+import { CLOUD_DRIFT, DAY_SUN, EARTH_IMAGES, PLANET, POLE_MAT, SPIN, START_TURN, awayFromPlanet, landFields, meteorStart, nightness, onPlanet, orbitAt, orbitSpan, sunlightAt, toPlanet, type Vec3 } from './earth';
 import { FULLSCREEN_VS, freeTarget, program, target, type Program, type Target } from './gl';
 import { BEACON, SAT_RADIUS, SAT_STRIDE, WING_CENTRES, apply3, buildSatellite, perspective, rotation } from './satellite';
 import * as S from './shaders';
@@ -82,13 +82,6 @@ interface Sat {
   sway: number;
 }
 
-interface Tex {
-  fbo: WebGLFramebuffer;
-  tex: WebGLTexture;
-  w: number;
-  h: number;
-}
-
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const MAX_STARS = 24;
 const MAX_PARTS = 900;
@@ -96,7 +89,6 @@ const MAX_METEORS = 24;
 const METEOR_POINTS = 24;
 const IGNITE = 1.3;
 const FADE = 1.6;
-const EARTH_STRIPS = 4;
 /** The satellite's camera distance and field of view, framing its bounding sphere. */
 const SAT_DIST = 16;
 const SAT_FOV = 2 * Math.asin(SAT_RADIUS / SAT_DIST);
@@ -143,6 +135,8 @@ function drawsInSoftware(gl: WebGL2RenderingContext): boolean {
 
 export class GLStorm implements StormRenderer {
   onPop?: (code: string) => void;
+  /** Called if the GPU drops the sky's context (a driver reset or crash). */
+  onFail?: () => void;
 
   private canvas: HTMLCanvasElement;
   private gl: WebGL2RenderingContext;
@@ -157,7 +151,7 @@ export class GLStorm implements StormRenderer {
   private dpr = 1;
   private skyScale = 0.6;
 
-  private progs!: Record<'sky' | 'blit' | 'drop' | 'part' | 'bolt' | 'blur' | 'add' | 'overlay' | 'planet' | 'surfGen' | 'cloudGen' | 'sat' | 'sprite', Program>;
+  private progs!: Record<'sky' | 'blit' | 'drop' | 'part' | 'bolt' | 'blur' | 'add' | 'overlay' | 'planet' | 'sat' | 'sprite', Program>;
   private vaoEmpty!: WebGLVertexArrayObject;
   private vaoDrop!: WebGLVertexArrayObject;
   private vaoPart!: WebGLVertexArrayObject;
@@ -175,14 +169,8 @@ export class GLStorm implements StormRenderer {
 
   // the planet
   private maskTex?: WebGLTexture;
-  private surf?: Tex;
-  private cloud?: Tex;
-  private earthStep = 0;
-  private earthReadyAt = 0;
-  private stormData = new Float32Array(32);
   private aniso = 0;
-  private real: { day?: WebGLTexture; night?: WebGLTexture; relief?: WebGLTexture } = {};
-  private realFailed = false;
+  private real: { day?: WebGLTexture; night?: WebGLTexture; relief?: WebGLTexture; clouds?: WebGLTexture } = {};
   private planetAt = 0;
 
   // the satellite
@@ -214,7 +202,7 @@ export class GLStorm implements StormRenderer {
 
   constructor(canvas: HTMLCanvasElement, opts: { allowSoftware?: boolean } = {}) {
     this.canvas = canvas;
-    const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false, premultipliedAlpha: true, powerPreference: 'high-performance' });
+    const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false, premultipliedAlpha: true });
     if (!gl) throw new Error('WebGL2 is not available');
     // Without a GPU (or with one the browser blocks) WebGL is drawn by the CPU: this sky then
     // runs at about a frame a second and stalls the whole page, where the 2D sky stays smooth.
@@ -224,11 +212,6 @@ export class GLStorm implements StormRenderer {
     }
     this.gl = gl;
     this.reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    STORMS.forEach(([lat, lon, twist], i) => {
-      const la = (lat * Math.PI) / 180;
-      const lo = (lon * Math.PI) / 180;
-      this.stormData.set([Math.cos(la) * Math.cos(lo), Math.sin(la), Math.cos(la) * Math.sin(lo), twist], i * 4);
-    });
     this.init();
     canvas.addEventListener('webglcontextlost', this.onLost, false);
     canvas.addEventListener('webglcontextrestored', this.onRestored, false);
@@ -250,9 +233,7 @@ export class GLStorm implements StormRenderer {
       blur: program(gl, FULLSCREEN_VS, S.BLUR_FS, U('uTex', 'uDir')),
       add: program(gl, FULLSCREEN_VS, S.ADD_FS, U('uTex', 'uStrength')),
       overlay: program(gl, FULLSCREEN_VS, S.OVERLAY_FS, U('uAspect', 'uTime', 'uRes')),
-      planet: program(gl, S.PLANET_VS, S.PLANET_FS, U('uTop', 'uAspect', 'uGeo', 'uAtmo', 'uPix', 'uSun', 'uSunP', 'uPole', 'uSpin', 'uSurf', 'uCloud', 'uDay', 'uNight', 'uRelief', 'uMask', 'uReal', 'uFade')),
-      surfGen: program(gl, FULLSCREEN_VS, S.EARTH_SURF_FS, U('uMask')),
-      cloudGen: program(gl, FULLSCREEN_VS, S.EARTH_CLOUD_FS, U('uMask', 'uStorm')),
+      planet: program(gl, S.PLANET_VS, S.PLANET_FS, U('uTop', 'uAspect', 'uGeo', 'uAtmo', 'uPix', 'uSun', 'uSunP', 'uPole', 'uSpin', 'uCloud', 'uDay', 'uNight', 'uRelief', 'uMask', 'uFade')),
       sat: program(gl, S.SAT_VS, S.SAT_FS, U('uRot', 'uProj', 'uDist', 'uSun', 'uEarth', 'uSunI', 'uEarthI')),
       sprite: program(gl, S.SPRITE_VS, S.SPRITE_FS, U('uRect', 'uRes', 'uTex', 'uAlpha')),
     };
@@ -325,20 +306,21 @@ export class GLStorm implements StormRenderer {
 
     this.atlas = gl.createTexture()!;
     this.buildAtlas();
-    this.makeEarth();
+    this.makeMask();
     this.loadEarthImages();
     this.meteors = [];
   }
 
-  /** The real Earth maps, loaded in the background; the planet waits for the day map
-   *  (up to a few seconds, then the generated ground stands in). */
+  /** The real Earth maps and the cloud map, loaded in the background; the planet fades in
+   *  once they are all there (and stays away if one cannot be loaded). */
   private loadEarthImages() {
     const gl = this.gl;
     const maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
-    const big = maxTex >= 4096 && Math.max(window.innerWidth, window.innerHeight) * (window.devicePixelRatio || 1) >= 1300;
+    // the 4K day map on big screens only: on a phone the planet is small, and 4K costs it
+    // some 45 MB of GPU memory
+    const big = maxTex >= 4096 && Math.max(window.innerWidth, window.innerHeight) >= 1100;
     this.real = {};
-    this.realFailed = false;
-    const load = (url: string, key: 'day' | 'night' | 'relief', single: boolean) => {
+    const load = (url: string, key: 'day' | 'night' | 'relief' | 'clouds', single: boolean) => {
       const img = new Image();
       img.decoding = 'async';
       img.src = url;
@@ -363,12 +345,15 @@ export class GLStorm implements StormRenderer {
           if (!this.running) this.frame(performance.now(), true);
         })
         .catch(() => {
-          if (key === 'day') this.realFailed = true;
+          /* without it the planet stays away; the rest of the sky goes on */
         });
     };
+    // the cloud map at 2K on big screens
+    const bigClouds = Math.max(window.innerWidth, window.innerHeight) >= 900 && (window.devicePixelRatio || 1) * Math.min(window.innerWidth, window.innerHeight) >= 700;
     load(EARTH_IMAGES.day(big), 'day', false);
     load(EARTH_IMAGES.lights, 'night', true);
     load(EARTH_IMAGES.relief, 'relief', true);
+    load(EARTH_IMAGES.clouds(bigClouds), 'clouds', true);
   }
 
   /** Every currency sign, white on transparent, in a 16 x 16 grid of 64 px cells. */
@@ -407,8 +392,8 @@ export class GLStorm implements StormRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
 
-  /** The land mask, and empty targets for the planet's textures (filled a strip a frame). */
-  private makeEarth() {
+  /** The land mask (coastlines, and how far inland), for the sea's sheen. */
+  private makeMask() {
     const gl = this.gl;
     const f = landFields();
     this.maskTex = gl.createTexture()!;
@@ -420,70 +405,13 @@ export class GLStorm implements StormRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    const big = Math.max(window.innerWidth, window.innerHeight) >= 900 && (window.devicePixelRatio || 1) * Math.min(window.innerWidth, window.innerHeight) >= 700;
-    const W = big ? 2048 : 1024;
-    const make = (): Tex => {
-      const tex = gl.createTexture()!;
-      gl.bindTexture(gl.TEXTURE_2D, tex);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, W, W / 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      const fbo = gl.createFramebuffer()!;
-      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      return { fbo, tex, w: W, h: W / 2 };
-    };
-    this.surf = make();
-    this.cloud = make();
-    this.earthStep = 0;
-    this.earthReadyAt = 0;
-  }
-
-  /** Generates one strip of the planet's textures (or all of them), then their mipmaps. */
-  private stepEarth(all: boolean) {
-    if (this.earthReadyAt || !this.surf || !this.cloud) return;
-    const gl = this.gl;
-    gl.disable(gl.BLEND);
-    gl.bindVertexArray(this.vaoEmpty);
-    gl.enable(gl.SCISSOR_TEST);
-    do {
-      const pass = this.earthStep < EARTH_STRIPS ? 0 : 1;
-      const strip = this.earthStep % EARTH_STRIPS;
-      const t = pass ? this.cloud : this.surf;
-      const P = pass ? this.progs.cloudGen : this.progs.surfGen;
-      gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo);
-      gl.viewport(0, 0, t.w, t.h);
-      const y0 = Math.floor((t.h * strip) / EARTH_STRIPS);
-      const y1 = Math.floor((t.h * (strip + 1)) / EARTH_STRIPS);
-      gl.scissor(0, y0, t.w, y1 - y0);
-      gl.useProgram(P.prog);
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, this.maskTex!);
-      gl.uniform1i(P.u.uMask, 0);
-      if (pass) gl.uniform4fv(P.u.uStorm, this.stormData);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-      this.earthStep++;
-    } while (all && this.earthStep < EARTH_STRIPS * 2);
-    gl.disable(gl.SCISSOR_TEST);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    if (this.earthStep < EARTH_STRIPS * 2) return;
-    const ext = this.aniso ? gl.getExtension('EXT_texture_filter_anisotropic') : null;
-    for (const t of [this.surf, this.cloud]) {
-      gl.bindTexture(gl.TEXTURE_2D, t.tex);
-      gl.generateMipmap(gl.TEXTURE_2D);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-      if (ext) gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, this.aniso);
-    }
-    this.earthReadyAt = performance.now() / 1000;
   }
 
   private onLost = (e: Event) => {
     e.preventDefault();
     this.lost = true;
     cancelAnimationFrame(this.raf);
+    this.onFail?.();
   };
 
   private onRestored = () => {
@@ -903,6 +831,8 @@ export class GLStorm implements StormRenderer {
     this.stop();
     this.canvas.removeEventListener('webglcontextlost', this.onLost);
     this.canvas.removeEventListener('webglcontextrestored', this.onRestored);
+    // hand the GPU memory back now rather than whenever the canvas is collected
+    if (!this.lost) this.gl.getExtension('WEBGL_lose_context')?.loseContext();
   }
 
   /** Lowers the sky's resolution if frames are slow. */
@@ -926,9 +856,6 @@ export class GLStorm implements StormRenderer {
     this.last = nowMs;
     const time = now - this.t0;
     const shower = this.intensity === 'storm';
-
-    // the planet's textures, a strip a frame until they are done (all at once for a still sky)
-    this.stepEarth(still && this.reduced);
 
     // shooting stars on their own: a shower, or now and then when calm
     if (!still && now > this.nextAuto) {
@@ -1085,9 +1012,9 @@ export class GLStorm implements StormRenderer {
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    // 5. the planet, hiding whatever is behind it; it fades in once its textures exist
-    // (the real day map, or after a few seconds without it, the generated ground)
-    if (!this.planetAt && this.earthReadyAt && (this.real.day || this.realFailed || time > 6)) this.planetAt = now;
+    // 5. the planet, hiding whatever is behind it; it fades in once its maps have loaded
+    const maps = this.real;
+    if (!this.planetAt && maps.day && maps.night && maps.relief && maps.clouds) this.planetAt = now;
     if (this.planetAt) {
       const Q = P.planet;
       const fade = still ? 1 : Math.min(1, (now - this.planetAt) / 0.9);
@@ -1107,27 +1034,18 @@ export class GLStorm implements StormRenderer {
       gl.uniform3f(Q.u.uSunP, sunP[0], sunP[1], sunP[2]);
       gl.uniformMatrix3fv(Q.u.uPole, false, POLE_MAT);
       gl.uniform2f(Q.u.uSpin, spinS, spinC);
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, this.surf!.tex);
-      gl.uniform1i(Q.u.uSurf, 0);
-      gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, this.cloud!.tex);
-      gl.uniform1i(Q.u.uCloud, 1);
-      const real = this.real.day && this.real.night && this.real.relief;
-      gl.uniform1f(Q.u.uReal, real ? 1 : 0);
-      if (real) {
-        const units: Array<[WebGLTexture, WebGLUniformLocation | null]> = [
-          [this.real.day!, Q.u.uDay],
-          [this.real.night!, Q.u.uNight],
-          [this.real.relief!, Q.u.uRelief],
-          [this.maskTex!, Q.u.uMask],
-        ];
-        units.forEach(([tex, loc], i) => {
-          gl.activeTexture(gl.TEXTURE2 + i);
-          gl.bindTexture(gl.TEXTURE_2D, tex);
-          gl.uniform1i(loc, 2 + i);
-        });
-      }
+      const units: Array<[WebGLTexture, WebGLUniformLocation | null]> = [
+        [maps.clouds!, Q.u.uCloud],
+        [maps.day!, Q.u.uDay],
+        [maps.night!, Q.u.uNight],
+        [maps.relief!, Q.u.uRelief],
+        [this.maskTex!, Q.u.uMask],
+      ];
+      units.forEach(([tex, loc], i) => {
+        gl.activeTexture(gl.TEXTURE0 + i);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.uniform1i(loc, i);
+      });
       gl.uniform1f(Q.u.uFade, fade);
       gl.bindVertexArray(this.vaoEmpty);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

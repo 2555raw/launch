@@ -15,7 +15,9 @@ Atlantic, from NASA's public-domain Blue
 Marble day map, the city lights of Earth at Night and topography (prepared by
 `scripts/build-earth-images.mjs`), with the coastlines (Natural Earth, rasterized by
 `scripts/build-earth.mjs`) for the sea's sheen, and clouds with cyclones and two
-hurricanes generated on the GPU. It turns slowly in daylight under a thin glowing
+hurricanes (rendered once by `scripts/build-earth-clouds.mjs` from the shader in
+`web/src/storm/earthgen.ts`: generated in the browser, a shader that long took some
+Windows GPU drivers minutes to compile and crashed Chrome and Brave). It turns slowly in daylight under a thin glowing
 atmosphere, with the real city lights (from NASA's night map, its moonlit ground
 removed) wherever it is night. A slim 3D satellite (a flat body with silver foil and one
 long solar array) comes up over the planet's edge now and then, orbits along just inside
@@ -32,7 +34,10 @@ away from it. The sky starts once the page has drawn its content, so text never 
 it. Resolution drops by itself on slow devices, browsers without WebGL2 get a 2D
 version (also reachable with `?storm2d`), and so do machines that draw WebGL in software
 (no GPU, or a blocked one), where the WebGL sky would crawl at a frame a second
-(`?stormgl` keeps it anyway). Nothing moves under `prefers-reduced-motion`.
+(`?stormgl` keeps it anyway). If the GPU drops the WebGL sky, the 2D one takes over on
+the spot, and if a visit ended with the WebGL sky on screen without the page closing (a
+driver crash that took the browser with it), the next visits get the 2D sky for three
+days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-motion`.
 
 ## What works
 

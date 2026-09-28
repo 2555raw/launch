@@ -330,212 +330,6 @@ void main() {
 
 /* ------------------------------ the Earth ------------------------------ */
 
-/** Noise for generating the planet's textures once: 3D gradient noise on the unit sphere
- *  (no seams, no pinching at the poles) with an integer hash, so it looks the same on
- *  every GPU. */
-const GEN_NOISE = `
-uvec3 pcg3d(uvec3 v) {
-  v = v * 1664525u + 1013904223u;
-  v.x += v.y * v.z;
-  v.y += v.z * v.x;
-  v.z += v.x * v.y;
-  v ^= v >> 16u;
-  v.x += v.y * v.z;
-  v.y += v.z * v.x;
-  v.z += v.x * v.y;
-  return v;
-}
-vec3 grad3(vec3 cell) {
-  uvec3 h = pcg3d(uvec3(ivec3(cell) + 4096));
-  return vec3(h & 0xffffu) * (2.0 / 65535.0) - 1.0;
-}
-float gnoise(vec3 p) {
-  vec3 i = floor(p);
-  vec3 f = p - i;
-  vec3 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
-  float n000 = dot(grad3(i), f);
-  float n100 = dot(grad3(i + vec3(1.0, 0.0, 0.0)), f - vec3(1.0, 0.0, 0.0));
-  float n010 = dot(grad3(i + vec3(0.0, 1.0, 0.0)), f - vec3(0.0, 1.0, 0.0));
-  float n110 = dot(grad3(i + vec3(1.0, 1.0, 0.0)), f - vec3(1.0, 1.0, 0.0));
-  float n001 = dot(grad3(i + vec3(0.0, 0.0, 1.0)), f - vec3(0.0, 0.0, 1.0));
-  float n101 = dot(grad3(i + vec3(1.0, 0.0, 1.0)), f - vec3(1.0, 0.0, 1.0));
-  float n011 = dot(grad3(i + vec3(0.0, 1.0, 1.0)), f - vec3(0.0, 1.0, 1.0));
-  float n111 = dot(grad3(i + vec3(1.0, 1.0, 1.0)), f - vec3(1.0, 1.0, 1.0));
-  return mix(mix(mix(n000, n100, u.x), mix(n010, n110, u.x), u.y), mix(mix(n001, n101, u.x), mix(n011, n111, u.x), u.y), u.z);
-}
-const mat3 M3 = mat3(0.00, 0.80, 0.60, -0.80, 0.36, -0.48, -0.60, -0.48, 0.64);
-float fbm(vec3 p, int oct) {
-  float s = 0.0;
-  float a = 0.5;
-  for (int i = 0; i < 9; i++) {
-    if (i >= oct) break;
-    s += a * gnoise(p);
-    p = M3 * p * 2.02 + 0.13;
-    a *= 0.5;
-  }
-  return s;
-}
-float ridged(vec3 p, int oct) {
-  float s = 0.0;
-  float a = 0.5;
-  for (int i = 0; i < 9; i++) {
-    if (i >= oct) break;
-    float n = 1.0 - abs(gnoise(p) * 1.7);
-    s += a * n * n;
-    p = M3 * p * 2.1 + 0.29;
-    a *= 0.5;
-  }
-  return s;
-}`;
-
-/** Climate from the real coastlines: land (the coast roughened by noise), shallow shelves,
- *  latitude, how far inland, humidity (rain belts, dry interiors, monsoon east coasts,
- *  wet western mid-latitudes), temperature, ice and mountains. */
-const CLIMATE = `
-uniform sampler2D uMask;
-const float PI = 3.14159265;
-const float TAU = 6.28318531;
-struct Climate { float land; float shelf; float alat; float inland; float hum; float temp; float ice; float mount; };
-Climate climate(vec3 s, vec2 uv) {
-  Climate c;
-  vec2 m = texture(uMask, uv).rg;
-  float cn = fbm(s * 34.0, 5) + 0.45 * fbm(s * 140.0 + 4.0, 4);
-  c.land = smoothstep(0.45, 0.55, m.r + cn * 0.45);
-  c.shelf = smoothstep(0.0, 0.42, m.r + cn * 0.2);
-  c.alat = abs(asin(clamp(s.y, -1.0, 1.0))) * 57.29578;
-  c.inland = m.g;
-  float nL = fbm(s * 2.4 + 11.0, 5);
-  float nM = fbm(s * 10.0 + 3.0, 4);
-  float hum = 0.95 * exp(-pow(c.alat / 12.0, 2.0)) + 0.6 * exp(-pow((c.alat - 52.0) / 15.0, 2.0)) + 0.14;
-  hum *= 1.0 - smoothstep(0.35, 0.9, c.inland) * 0.6 * smoothstep(8.0, 20.0, c.alat);
-  float du = 9.0 / 360.0;
-  float seaE = 1.0 - texture(uMask, uv + vec2(du, 0.0)).g;
-  float seaW = 1.0 - texture(uMask, uv - vec2(du, 0.0)).g;
-  float sub = exp(-pow((c.alat - 26.0) / 11.0, 2.0));
-  float mid = exp(-pow((c.alat - 50.0) / 12.0, 2.0));
-  hum += sub * (0.42 * seaE - 0.12 * seaW) + mid * 0.25 * seaW;
-  hum += nL * 0.5 + nM * 0.15;
-  c.hum = clamp(hum, 0.0, 1.0);
-  c.temp = 1.0 - c.alat / 90.0 + nL * 0.08;
-  float r = ridged(s * 6.5 + 2.0, 5);
-  c.mount = smoothstep(0.55, 0.85, r) * smoothstep(0.25, 0.6, c.inland);
-  float fine = fbm(s * 60.0 + 7.0, 3);
-  c.ice = clamp(smoothstep(0.215, 0.17, c.temp + fine * 0.05) + smoothstep(0.55, 0.75, c.inland) * smoothstep(60.0, 66.0, c.alat), 0.0, 1.0);
-  return c;
-}`;
-
-/** Generates the ground: rgb colour (deserts, grassland, forest, rainforest, taiga,
- *  tundra, rock, ice; deep and shallow sea, sea ice), a = open water. Equirectangular,
- *  row 0 at the north pole. */
-export const EARTH_SURF_FS = `#version 300 es
-precision highp float;
-precision highp int;
-in vec2 vUv;
-out vec4 o;
-${GEN_NOISE}
-${CLIMATE}
-void main() {
-  float lon = (vUv.x - 0.5) * TAU;
-  float lat = (0.5 - vUv.y) * PI;
-  vec3 s = vec3(cos(lat) * cos(lon), sin(lat), cos(lat) * sin(lon));
-  Climate c = climate(s, vUv);
-  float nM = fbm(s * 13.0 + 5.0, 4);
-  float nF = fbm(s * 95.0 + 9.0, 4);
-  vec3 L = mix(vec3(0.84, 0.69, 0.48), vec3(0.73, 0.49, 0.30), smoothstep(-0.2, 0.3, nM));
-  L = mix(L, vec3(0.60, 0.53, 0.37), smoothstep(0.10, 0.26, c.hum));
-  L = mix(L, vec3(0.41, 0.45, 0.25), smoothstep(0.26, 0.42, c.hum));
-  L = mix(L, vec3(0.17, 0.28, 0.13), smoothstep(0.42, 0.62, c.hum));
-  L = mix(L, vec3(0.08, 0.21, 0.07), smoothstep(0.70, 0.88, c.hum) * smoothstep(0.78, 0.9, c.temp));
-  L = mix(L, vec3(0.13, 0.20, 0.13), smoothstep(0.43, 0.35, c.temp) * smoothstep(0.04, 0.18, c.hum));
-  L = mix(L, vec3(0.47, 0.45, 0.38), smoothstep(0.31, 0.25, c.temp));
-  L = mix(L, vec3(0.44, 0.40, 0.35), c.mount * 0.6);
-  L *= 0.84 + 0.32 * clamp(nF + 0.5, 0.0, 1.0);
-  L = mix(L, vec3(0.93, 0.95, 0.98), c.ice);
-  vec3 deep = mix(vec3(0.010, 0.040, 0.100), vec3(0.018, 0.064, 0.120), smoothstep(25.0, 60.0, c.alat));
-  vec3 shallow = mix(vec3(0.05, 0.27, 0.31), vec3(0.035, 0.11, 0.15), smoothstep(22.0, 42.0, c.alat));
-  vec3 W = mix(deep, shallow, c.shelf * 0.8);
-  W *= 0.94 + 0.12 * (nM + 0.5);
-  float seaIce = smoothstep(75.0, 83.0, c.alat + nM * 8.0);
-  W = mix(W, vec3(0.86, 0.9, 0.95), seaIce);
-  o = vec4(mix(W, L, c.land), (1.0 - c.land) * (1.0 - seaIce));
-}`;
-
-/** Generates r = cloud cover (domain-warped, thinner over deserts, thicker in the rain
- *  belts, twisted into cyclones, two hurricanes with eyes), g = city lights (clusters
- *  where people would live, brightest near coasts), b = relief. */
-export const EARTH_CLOUD_FS = `#version 300 es
-precision highp float;
-precision highp int;
-in vec2 vUv;
-out vec4 o;
-uniform vec4 uStorm[8];
-${GEN_NOISE}
-${CLIMATE}
-vec3 twist(vec3 v, vec3 k, float a) {
-  float c = cos(a);
-  float sn = sin(a);
-  return v * c + cross(k, v) * sn + k * dot(k, v) * (1.0 - c);
-}
-float cities(vec3 s, float freq, float prob) {
-  vec3 g = s * freq;
-  vec3 i = floor(g);
-  float sum = 0.0;
-  for (int z = -1; z <= 1; z++)
-    for (int y = -1; y <= 1; y++)
-      for (int x = -1; x <= 1; x++) {
-        vec3 cell = i + vec3(float(x), float(y), float(z));
-        uvec3 h = pcg3d(uvec3(ivec3(cell) + 8192));
-        if (float(h.x & 0xffffu) / 65535.0 > prob) continue;
-        vec3 pos = cell + vec3(float((h.y >> 8u) & 0xffu), float((h.z >> 8u) & 0xffu), float((h.x >> 16u) & 0xffu)) / 255.0;
-        float b = float(h.y & 0xffu) / 255.0;
-        b = 0.2 + 0.8 * b * b * b;
-        float sz = 0.12 + 0.3 * b;
-        vec3 dv = g - pos;
-        sum += b * exp(-dot(dv, dv) / (sz * sz));
-      }
-  return sum;
-}
-void main() {
-  float lon = (vUv.x - 0.5) * TAU;
-  float lat = (0.5 - vUv.y) * PI;
-  vec3 s = vec3(cos(lat) * cos(lon), sin(lat), cos(lat) * sin(lon));
-  Climate c = climate(s, vUv);
-  vec3 p = s;
-  float boost = 0.0;
-  float eye = 0.0;
-  for (int i = 0; i < 8; i++) {
-    vec3 k = uStorm[i].xyz;
-    float dd = length(s - k);
-    float tight = i < 2 ? 0.055 : 0.16;
-    p = twist(p, k, uStorm[i].w * exp(-dd / tight));
-    if (i < 2) {
-      boost += 0.75 * exp(-dd / 0.05);
-      eye = max(eye, exp(-pow(dd / 0.0075, 2.0)));
-    } else {
-      boost += 0.18 * exp(-dd / 0.12);
-    }
-  }
-  vec3 w = vec3(fbm(p * 2.2 + 1.7, 4), fbm(p * 2.2 + 9.2, 4), fbm(p * 2.2 + 4.4, 4));
-  float base = fbm(p * 4.6 + w * 1.7, 7);
-  float det = fbm(p * 36.0 + w * 3.0, 5);
-  float dens = base * 1.8 + det * 0.45;
-  float cov = 0.34 + 0.3 * exp(-pow(c.alat / 8.0, 2.0)) + 0.26 * exp(-pow((c.alat - 55.0) / 12.0, 2.0)) - 0.2 * exp(-pow((c.alat - 24.0) / 9.0, 2.0));
-  cov -= (1.0 - c.hum) * 0.3 * c.land;
-  cov += fbm(s * 1.6 + 5.0, 4) * 0.55;
-  cov += boost;
-  float t = mix(0.6, -0.6, clamp(cov, 0.0, 1.0));
-  float cloud = smoothstep(t - 0.08, t + 0.55, dens) * (1.0 - eye);
-
-  float habit = c.land * (1.0 - c.ice) * smoothstep(0.1, 0.32, c.hum) * smoothstep(0.26, 0.48, c.temp);
-  habit *= 1.0 - 0.75 * smoothstep(0.78, 0.95, c.hum) * smoothstep(0.6, 0.9, c.inland);
-  habit *= mix(1.3, 0.45, smoothstep(0.45, 0.95, c.inland));
-  habit *= smoothstep(-0.18, 0.28, fbm(s * 5.0 + 21.0, 4) + 0.12);
-  float lights = cities(s, 42.0, 0.55) * 1.6 + cities(s, 150.0, 0.45) * 0.9 + smoothstep(0.05, 0.45, fbm(s * 40.0 + 3.0, 3)) * 0.45;
-  lights = clamp(lights * habit, 0.0, 1.0);
-
-  o = vec4(cloud, lights, c.land * (0.2 + 0.8 * c.mount), 1.0);
-}`;
-
 /** A quad over the bottom band of the screen, up to uTop (uv), for the planet. */
 export const PLANET_VS = `#version 300 es
 uniform float uTop;
@@ -546,8 +340,8 @@ void main() {
   gl_Position = vec4(vUv * 2.0 - 1.0, 0.0, 1.0);
 }`;
 
-/** The planet: NASA's real day map (or the generated one until it loads) wrapped on
- *  the sphere and turning, with relief from real topography, lit by a low sun (a soft
+/** The planet: NASA's real day map wrapped on the sphere and turning, under the cloud
+ *  map, with relief from real topography, lit by a low sun (a soft
  *  terminator reddening the light, pink clouds at dusk, cloud shadows, a sheen on the
  *  sea toward the horizon), the real city lights on the night side with a glow round
  *  them, the ground fading into the air toward the horizon, and above it the atmosphere
@@ -565,13 +359,11 @@ uniform vec3 uSun;
 uniform vec3 uSunP;
 uniform mat3 uPole;
 uniform vec2 uSpin;
-uniform sampler2D uSurf;
 uniform sampler2D uCloud;
 uniform sampler2D uDay;
 uniform sampler2D uNight;
 uniform sampler2D uRelief;
 uniform sampler2D uMask;
-uniform float uReal;
 uniform float uFade;
 const float PI = 3.14159265;
 const float TAU = 6.28318531;
@@ -610,26 +402,19 @@ void main() {
   float cover = clamp((R - dist) / uPix + 0.5, 0.0, 1.0);
   vec3 ground = vec3(0.0);
   if (cover > 0.0) {
-    vec4 S = textureGrad(uSurf, uvS, gx, gy);
-    vec4 G = textureGrad(uCloud, uvS, gx, gy);
     float cl = textureGrad(uCloud, uvC, gx, gy).r * 0.9;
     vec3 east = vec3(-sin(lon), 0.0, -cos(lon));
     vec3 north = vec3(-sin(lat) * cos(lon), cos(lat), sin(lat) * sin(lon));
-    vec3 albedo = S.rgb;
-    float water = S.a;
-    float ndlG = dot(n, uSun);
-    if (uReal > 0.5) {
-      albedo = textureGrad(uDay, uvS, gx, gy).rgb;
-      water = 1.0 - smoothstep(0.4, 0.6, textureGrad(uMask, uvS, gx, gy).r);
-      // deserts and fields as they look from orbit: paler and less saturated than the map
-      albedo = mix(albedo, vec3(dot(albedo, vec3(0.3, 0.59, 0.11))), (1.0 - water) * 0.32);
-      // relief from real topography, tilting the ground toward or away from the sun
-      float h0 = textureGrad(uRelief, uvS, gx, gy).r;
-      float hE = textureGrad(uRelief, uvS + vec2(1.0 / 2048.0, 0.0), gx, gy).r;
-      float hN = textureGrad(uRelief, uvS - vec2(0.0, 1.0 / 1024.0), gx, gy).r;
-      vec3 qn = normalize(q - 3.5 * ((hE - h0) * east + (hN - h0) * north));
-      ndlG = dot(qn, uSunP);
-    }
+    vec3 albedo = textureGrad(uDay, uvS, gx, gy).rgb;
+    float water = 1.0 - smoothstep(0.4, 0.6, textureGrad(uMask, uvS, gx, gy).r);
+    // deserts and fields as they look from orbit: paler and less saturated than the map
+    albedo = mix(albedo, vec3(dot(albedo, vec3(0.3, 0.59, 0.11))), (1.0 - water) * 0.32);
+    // relief from real topography, tilting the ground toward or away from the sun
+    float h0 = textureGrad(uRelief, uvS, gx, gy).r;
+    float hE = textureGrad(uRelief, uvS + vec2(1.0 / 2048.0, 0.0), gx, gy).r;
+    float hN = textureGrad(uRelief, uvS - vec2(0.0, 1.0 / 1024.0), gx, gy).r;
+    vec3 qn = normalize(q - 3.5 * ((hE - h0) * east + (hN - h0) * north));
+    float ndlG = dot(qn, uSunP);
     float ndl = dot(n, uSun);
     float lit = max(ndl, 0.0);
     vec3 sunC = mix(vec3(1.0, 0.62, 0.42), vec3(1.0, 0.98, 0.95), smoothstep(0.0, 0.3, ndl));
@@ -642,16 +427,10 @@ void main() {
     vec3 cloudC = sunC * (0.03 + 1.2 * lit) + vec3(1.0, 0.6, 0.45) * exp(-pow(ndl / 0.12, 2.0)) * 0.12;
     col = mix(col, cloudC, cl);
     float night = 1.0 - smoothstep(-0.16, 0.04, ndl);
-    vec3 cities;
-    if (uReal > 0.5) {
-      // real city light: brightest where the most people live, with a soft glow round it
-      float lum = textureGrad(uNight, uvS, gx, gy).r;
-      float halo = textureGrad(uNight, uvS, gx * 5.0, gy * 5.0).r;
-      cities = vec3(1.0, 0.78, 0.5) * (lum * lum * 2.4 + lum * 0.6 + halo * 0.9);
-    } else {
-      float glow = textureGrad(uCloud, uvS, gx * 5.0, gy * 5.0).g;
-      cities = vec3(1.0, 0.75, 0.43) * G.g * 2.3 + vec3(1.0, 0.58, 0.3) * glow * 1.0;
-    }
+    // real city light: brightest where the most people live, with a soft glow round it
+    float lum = textureGrad(uNight, uvS, gx, gy).r;
+    float halo = textureGrad(uNight, uvS, gx * 5.0, gy * 5.0).r;
+    vec3 cities = vec3(1.0, 0.78, 0.5) * (lum * lum * 2.4 + lum * 0.6 + halo * 0.9);
     col += cities * night * (1.0 - cl * 0.8);
     // moonlight: at night the map stays readable, dark and cool (black sea, blue-grey
     // land, pale ice and cloud)

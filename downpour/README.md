@@ -242,6 +242,10 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   with a coin's market cap counting up and its chart drawing, currency chips round it,
   then the mark, the name and SOON on the sound's hit; `x-header-4.jpg` is the matching
   X header (the mark and name, the phone over the planet, currency chips).
+  `starmint-soon.gif` is that teaser as a GIF (720 px, 20 fps, under 5 MB for X).
+  `starmint-30.mp4` is the site teaser at 30 s on the whole song, untouched, every cut on
+  its beat: the drop on "question", the break on "and we thought", the star on a downbeat
+  of the second drop, the song's own fade to close.
   `x-header-5.jpg` is the planet sky with the hurricane and twelve of the site's currency
   stars, drawn by the site's own WebGL sky at 1.5 times their size so the signs still read
   when X shows the header small; the corner the profile picture covers is left empty.

@@ -6,7 +6,7 @@ import { skyStyle } from './CoinCard';
 
 /** The currencies a coin can live in, as stars in their own patches of sky, each a link to
  *  launch the first coin priced in it: what a board with no coins yet shows instead of nothing. */
-export function CurrencyStars({ limit, title = 'Light the first star' }: { limit?: number; title?: string }) {
+export function CurrencyStars({ limit, title = 'Light the first star', kicker = 'No coins yet' }: { limit?: number; title?: string; kicker?: string }) {
   const pad = usePad();
   const listed = pad.snap?.currencies ?? [];
   const byCode = new Map(listed.map((c) => [c.code, c]));
@@ -25,10 +25,10 @@ export function CurrencyStars({ limit, title = 'Light the first star' }: { limit
   const sky = (code: string, color: string) => skyStyle('0x' + code.split('').map((ch) => ch.charCodeAt(0).toString(16)).join('').padEnd(8, '7'), color);
   return (
     <div className="panel star-board" data-solid>
-      <div className="kicker">No coins yet</div>
+      <div className="kicker">{kicker}</div>
       <h3 className="card-title">{title}</h3>
       <p className="muted small" style={{ marginTop: 0 }}>
-        Every star is a currency a coin can live in. Tap one to launch the first coin priced in it.
+        Every star is a currency a coin can live in. Tap one to launch a coin priced in it.
       </p>
       {groups.map(([title, list]) => (
         <div key={title} className="star-group">

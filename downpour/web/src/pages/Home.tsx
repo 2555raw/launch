@@ -280,9 +280,9 @@ export function Home() {
           </div>
           <div className="grid grid-3">
             {snap ? featured.map((r) => <CoinCard key={r.coin.address} row={r} now={now} />) : Array.from({ length: 6 }, (_, i) => <CoinCardSkeleton key={i} />)}
-            {snap && !featured.length && (
+            {snap && (
               <div style={{ gridColumn: '1 / -1' }}>
-                <CurrencyStars limit={18} />
+                <CurrencyStars limit={18} kicker={featured.length ? 'Every currency is a star' : 'No coins yet'} title={featured.length ? 'Light a new one' : 'Light the first star'} />
               </div>
             )}
           </div>

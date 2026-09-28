@@ -109,7 +109,9 @@ export default function Board() {
           <CoinCard key={r.coin.address} row={r} now={now} />
         ))}
       </div>
-      {pad.snap && !rows.length && !q && !currency && <CurrencyStars />}
+      {pad.snap && rows.length < 12 && !q && !currency && (
+        <CurrencyStars kicker={rows.length ? 'Every currency is a star' : 'No coins yet'} title={rows.length ? 'Light a new one' : 'Light the first star'} />
+      )}
       {pad.snap && !shown.length && (rows.length > 0 || q || currency) && (
         <div className="panel empty">
           <h3>{currency ? `No coins priced in ${currency} yet` : 'Nothing matches'}</h3>

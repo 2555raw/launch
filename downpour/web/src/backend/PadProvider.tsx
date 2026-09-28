@@ -49,6 +49,8 @@ interface PadState {
   spendable(token: string): bigint;
   /** The plain-ETH part of `spendable` (0 for anything but wrapped ether). */
   wrapExtra(token: string): bigint;
+  /** For wrapped ether: what of the wallet's plain ETH counts and what is kept for gas ('' otherwise). */
+  wrapNote(token: string): string;
   refreshBalances(): Promise<void>;
   run(title: string, fn: (account: Address, o: TxOptions) => Promise<TxResult>): Promise<TxResult | null>;
   toasts: Toast[];
@@ -206,18 +208,35 @@ export function PadProvider({ children }: { children: ReactNode }) {
     refreshBalances();
   }, [refreshBalances]);
 
-  // Wrapped ether: plain ETH counts too, less 0.001 kept for gas, since the pad wraps it on the way.
-  const GAS_RESERVE = 1_000_000_000_000_000n;
-  const wrapExtra = useCallback(
+  // Wrapped ether: plain ETH counts too, less what a launch's gas needs, since the pad wraps it on the way.
+  const isWrappedEther = useCallback(
     (token: string) => {
       const c = currencyByToken.get(token.toLowerCase());
-      if (!c || c.code !== 'ETH' || c.tokenSymbol !== 'WETH') return 0n;
-      const native = balances.native ?? 0n;
-      return native > GAS_RESERVE ? native - GAS_RESERVE : 0n;
+      return !!c && c.code === 'ETH' && c.tokenSymbol === 'WETH';
     },
-    [currencyByToken, balances],
+    [currencyByToken],
+  );
+  const gasReserve = balances.gasReserve ?? 1_000_000_000_000_000n;
+  const wrapExtra = useCallback(
+    (token: string) => {
+      if (!isWrappedEther(token)) return 0n;
+      const native = balances.native ?? 0n;
+      return native > gasReserve ? native - gasReserve : 0n;
+    },
+    [isWrappedEther, balances, gasReserve],
   );
   const spendable = useCallback((token: string) => (balances[token.toLowerCase()] ?? 0n) + wrapExtra(token), [balances, wrapExtra]);
+  const wrapNote = useCallback(
+    (token: string) => {
+      if (!isWrappedEther(token) || balances.native === undefined) return '';
+      const eth = (v: bigint) => `Ξ${(Number(v) / 1e18).toLocaleString('en-US', { maximumFractionDigits: 6 })}`;
+      const held = balances[token.toLowerCase()] ?? 0n;
+      const native = balances.native;
+      if (native <= gasReserve) return `${eth(native)} ETH in your wallet, all of it needed for gas (about ${eth(gasReserve)}); ${held > 0n ? `${eth(held)} is wrapped already` : 'add a little ETH to buy'}`;
+      return `${eth(native - gasReserve)} of it plain ETH from your wallet, wrapped for you (${eth(gasReserve)} kept for gas)`;
+    },
+    [isWrappedEther, balances, gasReserve],
+  );
 
   const [toasts, setToasts] = useState<Toast[]>([]);
   const toastId = useRef(1);
@@ -292,6 +311,7 @@ export function PadProvider({ children }: { children: ReactNode }) {
     balances,
     spendable,
     wrapExtra,
+    wrapNote,
     refreshBalances,
     run,
     toasts,

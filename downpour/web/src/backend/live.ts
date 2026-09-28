@@ -323,8 +323,14 @@ export class LiveBackend implements Backend {
       const vals = await this.read<bigint[]>(this.dep.router, routerAbi, 'balancesOf', [account, part]);
       part.forEach((t, j) => (out[t.toLowerCase()] = vals[j]));
     }
-    // plain ETH too: the pad wraps it when a buyer pays in wrapped ether
-    if (this.wethToken) out.native = await this.client.getBalance({ address: account });
+    // plain ETH too: the pad wraps it when a buyer pays in wrapped ether, keeping enough for
+    // the gas of a launch (about 2.5M gas at the chain's price now, and at least 0.0001 ETH)
+    if (this.wethToken) {
+      const [native, gasPrice] = await Promise.all([this.client.getBalance({ address: account }), this.client.getGasPrice().catch(() => 0n)]);
+      out.native = native;
+      const need = gasPrice * 2_500_000n;
+      out.gasReserve = need > 100_000_000_000_000n ? need : 100_000_000_000_000n;
+    }
     return out;
   }
 

@@ -31,7 +31,6 @@ function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; di
   const now = pad.now();
 
   const curBal = pad.spendable(cur.token);
-  const wrapExtra = pad.wrapExtra(cur.token);
   const coinBal = pad.balances[coin.address.toLowerCase()] ?? 0n;
   const dec = side === 'buy' ? cur.decimals : 18;
   const have = side === 'buy' ? curBal : coinBal;
@@ -98,7 +97,7 @@ function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; di
         <span>{side === 'buy' ? `You pay in ${cur.name}` : `You sell ${coin.symbol}`}</span>
         <button className="link small" onClick={() => (setText(toInput(have, dec, 6)), setMaxed(true))}>
           Balance {compact(amount(have, dec))}
-          {side === 'buy' && wrapExtra > 0n ? ` (${compact(amount(wrapExtra))} of it plain ETH, wrapped for you)` : ''}
+          {side === 'buy' && pad.wrapNote(cur.token) ? ` (${pad.wrapNote(cur.token)})` : ''}
         </button>
       </div>
       <div className="big-input" style={{ marginBottom: 14 }}>

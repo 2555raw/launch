@@ -245,6 +245,7 @@ export default function Launch() {
             )}
             <span className="hint">
               Buys in the same transaction as the launch, before anyone else can, and skips the snipe tax.{cur && ` Balance: ${money(amount(bal, cur.decimals), cur.symbol)}`}
+              {cur && pad.wrapNote(cur.token) ? ` (${pad.wrapNote(cur.token)})` : ''}
             </span>
           </div>
 

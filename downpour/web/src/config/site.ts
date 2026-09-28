@@ -8,7 +8,7 @@ export const SITE = {
    *  the nav with its contract address only shows once it is set. */
   token: {
     symbol: '$SMNT',
-    address: '' as string,
+    address: '0x4d0e499B16c0ad3CF7E74b75dF6eD0d0D11B88F0' as string,
     chainLabel: 'Robinhood Chain',
     chainId: 4663,
     explorer: 'https://robinhoodchain.blockscout.com',

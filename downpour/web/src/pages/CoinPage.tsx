@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
-import type { Coin, Currency } from '../backend/types';
+import type { Address, Coin, Currency } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { DEXSCREENER, explorerAddress } from '../config/chains';
 import { CoinOrb, CopyButton, PairBadge, ProgressBar, StatusPill } from '../components/bits';
@@ -215,6 +215,8 @@ function Holders({ coin }: { coin: Coin }) {
 export default function CoinPage() {
   const { address = '' } = useParams();
   const pad = usePad();
+  const me = useWallet().address as Address | undefined;
+  const navigate = useNavigate();
   const [inUsd, setInUsd] = useState(false);
   const coin = pad.coinByAddress.get(address.toLowerCase());
   const cur = coin ? pad.currencyOf(coin) : undefined;
@@ -403,6 +405,19 @@ export default function CoinPage() {
                   <Link className="chip" to={`/verify?coin=${coin.address}`}>
                     Verify this pairing <Arrow />
                   </Link>
+                  {pad.mode === 'playground' && me && coin.creator.toLowerCase() === me.toLowerCase() && (
+                    <button
+                      type="button"
+                      className="chip"
+                      onClick={() => {
+                        if (confirm(`Delete ${coin.symbol}? It is a test coin in this browser; it and its fills go away.`) && pad.removeTestCoin(me, coin.address)) {
+                          navigate('/board');
+                        }
+                      }}
+                    >
+                      Delete this test coin
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

@@ -45,6 +45,8 @@ interface PadState {
   dismiss(id: number): void;
   wrongChain: boolean;
   resetPlayground(): void;
+  /** Playground only: removes a coin the account launched there. */
+  removeTestCoin(account: Address, coin: Address): boolean;
 }
 
 const Ctx = createContext<PadState | null>(null);
@@ -227,6 +229,11 @@ export function PadProvider({ children }: { children: ReactNode }) {
     if (backend.kind === 'playground') (backend as PlaygroundBackend).reset();
   }, [backend]);
 
+  const removeTestCoin = useCallback(
+    (account: Address, coin: Address) => backend.kind === 'playground' && (backend as PlaygroundBackend).removeCoin(account, coin),
+    [backend],
+  );
+
   const wrongChain = mode === 'live' && !!wallet.address && wallet.chainId !== chainId;
 
   const value: PadState = {
@@ -251,6 +258,7 @@ export function PadProvider({ children }: { children: ReactNode }) {
     dismiss,
     wrongChain,
     resetPlayground,
+    removeTestCoin,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

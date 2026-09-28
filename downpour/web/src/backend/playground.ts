@@ -448,6 +448,19 @@ export class PlaygroundBackend implements Backend {
     this.changed();
   }
 
+  /** Takes a test coin out of the playground: the coin, its fills and everyone's
+   *  holdings of it. Only its creator may, and only here; on chain nothing can. */
+  removeCoin(account: Address, coin: Address) {
+    const w = this.w;
+    const c = w.coins.find((x) => lc(x.address) === lc(coin));
+    if (!c || lc(c.creator) !== lc(account)) return false;
+    w.coins = w.coins.filter((x) => x !== c);
+    w.trades = w.trades.filter((t) => lc(t.coin) !== lc(coin));
+    for (const held of Object.values(w.balances)) delete held[lc(coin)];
+    this.changed();
+    return true;
+  }
+
   subscribe(onChange: () => void) {
     this.listeners.add(onChange);
     return () => {

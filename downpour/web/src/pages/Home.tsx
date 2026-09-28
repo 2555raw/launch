@@ -9,19 +9,13 @@ import { CoinOrb, CurrencyDot } from '../components/bits';
 import { CORE_FAQ, CurveChart, Faq, KeeperLine, RecentFills } from '../components/sections';
 import { Arrow, Sparkle } from '../components/icons';
 import { Ecosystem } from '../components/Ecosystem';
-import { CURRENCY_BY_CODE, HERO_WORDS, POPULAR } from '../data/currencies';
+import { CURRENCIES, CURRENCY_BY_CODE, HERO_WORDS, POPULAR } from '../data/currencies';
 import { sortRows, totalVolumeUsd, unitsPerUsd, useRows } from '../lib/views';
 import { compact, money, pct, usd } from '../lib/format';
 import { fromUsd, quoteBuy, newMarket, virtualQuoteFor, graduationPrice, WAD } from '../lib/math';
 
 function RotatingWord() {
-  const pad = usePad();
-  // where the desk lists a few real tokens (mainnet), only their money is on offer
-  const words = useMemo<Array<[string, string]>>(() => {
-    const live = pad.snap?.currencies;
-    if (!live || live.length > 12) return HERO_WORDS;
-    return live.map((c) => [HERO_WORDS.find(([, code]) => code === c.code)?.[0] ?? (c.code === 'ETH' ? 'ether' : (CURRENCY_BY_CODE[c.code]?.name ?? c.code).toLowerCase()), c.code]);
-  }, [pad.snap]);
+  const words = HERO_WORDS;
   const [i, setI] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setI((x) => x + 1), 2200);
@@ -276,7 +270,7 @@ export function Home() {
               <h2 className="h-section">Pick a star</h2>
               <p className="lead">
                 {few
-                  ? `Every coin is paired with a currency picked at launch and fixed for good: ${fewNames} for now, more as their tokens arrive on ${chainName}. Each card says which one it is priced in.`
+                  ? `Every coin lives in a currency picked at launch and fixed for good: any of ${CURRENCIES.length}, from dollars to naira to gold. On ${chainName} it is paid in ${fewNames} at today’s rate, the money that trades there, and in more as their tokens arrive. Each card says which one it is priced in.`
                   : `Every coin is paired with one of ${snap?.currencies.length ?? 149} currencies, picked at launch and fixed for good. Each card says which one it is priced in.`}
               </p>
             </div>
@@ -318,7 +312,7 @@ export function Home() {
             </div>
             <div className="stat">
               <span className="kicker">Currencies</span>
-              <b>{snap ? snap.currencies.length : '…'}</b>
+              <b>{snap ? (few ? CURRENCIES.length : snap.currencies.length) : '…'}</b>
             </div>
             <div className="stat">
               <span className="kicker">Volume, all time</span>
@@ -403,7 +397,7 @@ export function Home() {
               <h2 className="h-section">Money people already count in</h2>
               <p className="lead">
                 {few
-                  ? `${fewNames}: the money that trades on ${chainName} today, with more as their tokens arrive. Each keeps its own backing: a rush on one never touches another.`
+                  ? `${CURRENCIES.length} currencies a coin can be priced in, including gold, silver, platinum, bitcoin, ether, solana and zcash. On ${chainName} coins are paid in ${fewNames}, the money that trades there, and in more as their tokens arrive. Each keeps its own backing: a rush on one never touches another.`
                   : `${snap?.currencies.length ?? 149} currencies, including gold, silver, platinum, bitcoin, ether, solana and now zcash. Each keeps its own backing: a rush on one never touches another.`}
               </p>
             </div>

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { parseUnits } from 'viem';
 import { usePad } from '../backend/PadProvider';
-import type { Currency } from '../backend/types';
+import type { Address, Currency } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { CurrencyDot, Modal, PageHead } from '../components/bits';
 import { KeeperLine } from '../components/sections';
 import { Search } from '../components/icons';
-import { REGIONS } from '../data/currencies';
+import { CURRENCIES, CURRENCY_BY_CODE, REGIONS } from '../data/currencies';
 import { ago, compact, money, parseAmount, toInput, usd } from '../lib/format';
 import { quoteConvert } from '../lib/math';
 import { amount, unitsPerUsd } from '../lib/views';
@@ -109,6 +110,20 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
               : `Convert to ${to?.code}`}
       </button>
 
+      {!cur.mintable && cur.code === 'ETH' && cur.tokenSymbol === 'WETH' && pad.backend.unwrap && canUse && (
+        <div className="callout" style={{ marginTop: 16 }}>
+          <b>Wrapped ether.</b> Paying in ETH wraps it for you; what you get back from a sale is WETH. Turn it back into plain ETH any time.
+          <div style={{ marginTop: 10 }}>
+            <button
+              className="btn btn-sm"
+              disabled={bal === 0n}
+              onClick={() => pad.run('Unwrap ETH', (a, o) => pad.backend.unwrap!(a, cur.token, bal, o))}
+            >
+              Unwrap {money(amount(bal, cur.decimals), cur.symbol)} to ETH
+            </button>
+          </div>
+        </div>
+      )}
       {cur.mintable && (
         <div className="callout" style={{ marginTop: 16 }}>
           <b>Need some {cur.code}?</b> The faucet hands out {usd(faucetUsd)} worth of test {cur.code}
@@ -133,6 +148,62 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
         </Link>
       </div>
     </Modal>
+  );
+}
+
+/** The desk's owner, on chain: list a token that trades there under a currency code, so
+ *  coins can pair with it (a euro stablecoin that reaches the chain, USDC…). */
+function ListTokenPanel() {
+  const pad = usePad();
+  const wallet = useWallet();
+  const [owner, setOwner] = useState<string>();
+  const [token, setToken] = useState('');
+  const [code, setCode] = useState('');
+  useEffect(() => {
+    if (pad.mode !== 'live' || !pad.backend.deskOwner) return;
+    pad.backend.deskOwner().then(setOwner, () => setOwner(undefined));
+  }, [pad.mode, pad.backend]);
+  const me = wallet.address;
+  if (pad.mode !== 'live' || !owner || !me || owner.toLowerCase() !== me.toLowerCase() || !pad.backend.listCurrency) return null;
+  const listed = new Set((pad.snap?.currencies ?? []).map((c) => c.code));
+  const options = CURRENCIES.filter((c) => !listed.has(c.code));
+  const rate = code === 'USD' ? 1 : (pad.fx[code] ?? CURRENCY_BY_CODE[code]?.rate);
+  const ok = /^0x[0-9a-fA-F]{40}$/.test(token) && !!code && !!rate;
+  return (
+    <div className="panel" data-solid style={{ marginBottom: 18 }}>
+      <div className="kicker">You own this desk</div>
+      <h3 className="card-title">List a token that trades on this chain</h3>
+      <p className="muted small" style={{ marginTop: 0 }}>
+        A euro, yen or any other token that reaches the chain goes on the desk under its currency code, and coins can pair with it from then on. One
+        transaction from your wallet; the desk reads the token’s decimals itself. Its first rate is today’s from two public feeds (
+        {Object.keys(pad.fx).length ? 'reachable now' : 'unreachable now, so the reference rate on file'}); the keeper posts the next ones.
+      </p>
+      <div className="row" style={{ flexWrap: 'wrap', gap: 10 }}>
+        <input
+          className="input mono"
+          placeholder="0x… the token’s address"
+          value={token}
+          onChange={(e) => setToken(e.target.value.trim())}
+          style={{ flex: '1 1 320px' }}
+          aria-label="Token address"
+        />
+        <select className="select" value={code} onChange={(e) => setCode(e.target.value)} style={{ flex: '0 1 260px' }} aria-label="Currency code">
+          <option value="">Listed as…</option>
+          {options.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.code} · {c.name}
+            </option>
+          ))}
+        </select>
+        <button
+          className="btn btn-primary"
+          disabled={!ok}
+          onClick={() => pad.run(`List ${code}`, (a, o) => pad.backend.listCurrency!(a, token as Address, code, parseUnits(Number(rate).toFixed(18), 18), o))}
+        >
+          {code && rate ? `List as ${code} at ${Number(rate) < 0.01 ? Number(rate).toPrecision(4) : Number(rate)} per USD` : 'List the token'}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -216,6 +287,8 @@ export default function Desk() {
         <span className="kicker">{list.length} denominations</span>
         <KeeperLine />
       </div>
+
+      <ListTokenPanel />
 
       <div className="desk-grid">
         {list.map((c) => {

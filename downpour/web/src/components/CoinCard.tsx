@@ -14,17 +14,17 @@ export function skyStyle(address: string, color: string) {
 }
 
 export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
-  const { coin, cur } = row;
+  const { coin, disp } = row;
   const pad = usePad();
   const me = useWallet().address;
   // a test coin of your own can go straight from its card
   const mine = pad.mode === 'playground' && !!me && coin.creator.toLowerCase() === me.toLowerCase();
-  // each card shows its own patch of sky
-  const sky = skyStyle(coin.address, cur.color);
+  // each card shows its own patch of sky, in the colour of the money it is priced in
+  const sky = skyStyle(coin.address, disp.color);
   return (
     <Link to={`/coin/${coin.address}`} className="card coin-card" style={sky}>
       <div className="cc-sky">
-        <span className="cc-code">{cur.code}</span>
+        <span className="cc-code">{disp.code}</span>
         <span className="cc-age">{ago(coin.createdAt, now)}</span>
         {mine && (
           <button
@@ -42,7 +42,7 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
           </button>
         )}
         <div className="cc-orb">
-          <CoinOrb coin={coin} currency={cur} size={coin.meta.image ? 76 : 124} />
+          <CoinOrb coin={coin} currency={disp} size={coin.meta.image ? 76 : 124} />
         </div>
         <span className="cc-ticker">{coin.symbol}</span>
       </div>
@@ -52,23 +52,24 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
           <StatusPill coin={coin} now={now} />
         </div>
         <div className="cc-meta">
-          {coin.symbol} · priced in {cur.name}
+          {coin.symbol} · priced in {disp.name}
+          {disp.paidIn ? ` · paid in ${disp.paidIn}` : ''}
         </div>
         <ProgressBar value={row.progress} full={coin.graduated} />
         <div className="cc-line">
-          <span className="num">{money(row.price, cur.symbol)}</span>
+          <span className="num">{money(row.dispPrice, disp.symbol)}</span>
           <span>{coin.graduated ? 'graduated · on Uniswap' : `${pct(row.progress)} of curve`}</span>
         </div>
         <div className="cc-line cc-meta">
           <span>
-            mcap {money(row.mcap, cur.symbol)} · {usd(row.mcapUsd)}
+            mcap {money(row.dispMcap, disp.symbol)} · {usd(row.mcapUsd)}
           </span>
           <span className={row.change24 >= 0 ? 'up' : 'down'}>
             {row.change24 >= 0 ? '+' : ''}
             {pct(row.change24)}
           </span>
         </div>
-        <Sparkline points={row.spark} color={cur.color} height={34} />
+        <Sparkline points={row.spark} color={disp.color} height={34} />
       </div>
     </Link>
   );

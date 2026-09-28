@@ -98,7 +98,7 @@ export default function Swap() {
     const c = pad.currencyByToken.get(t.toLowerCase());
     return c ? c.code : pad.coinByAddress.get(t.toLowerCase())?.symbol ?? '';
   };
-  const bal = tokenIn ? pad.balances[tokenIn.toLowerCase()] ?? 0n : 0n;
+  const bal = tokenIn ? pad.spendable(tokenIn) : 0n;
   // "Max" spends the exact balance, not the rounded number shown in the field.
   const amountIn = maxed ? bal : parseAmount(text, decOf(tokenIn));
   const q = useMemo(() => (pad.book && tokenIn && tokenOut && amountIn ? quoteSwap(pad.book, tokenIn, tokenOut, amountIn) : null), [pad.book, tokenIn, tokenOut, amountIn]);
@@ -110,7 +110,7 @@ export default function Swap() {
   const outCoin = tokenOut ? pad.coinByAddress.get(tokenOut.toLowerCase()) : undefined;
   const inCoin = tokenIn ? pad.coinByAddress.get(tokenIn.toLowerCase()) : undefined;
   const pairCoin = outCoin ?? inCoin;
-  const pairCur = pairCoin ? pad.currencyOf(pairCoin) : undefined;
+  const pairCur = pairCoin ? pad.displayOf(pairCoin) : undefined;
   // A buy pays its fee in the currency going in; a sell or a conversion in the currency coming out.
   const tokenOfCode = (code: string) => snap?.currencies.find((c) => c.code === code)?.token ?? '';
   const fees = q ? q.steps.reduce((a, s) => a + pad.usdValue(tokenOfCode(s.kind === 'buy' ? s.from : s.to), s.fee + (s.snipeTax ?? 0n)), 0) : 0;
@@ -261,7 +261,8 @@ export default function Swap() {
             <div className="pair-callout" style={{ '--c': pairCur.color, marginTop: 14 } as React.CSSProperties}>
               <PairBadge coin={pairCoin} currency={pairCur} />
               <span>
-                <b>{pairCoin.symbol}</b> is paired with <b>{pairCur.name}</b>. Its price, fees and payouts are all in {pairCur.code}.
+                <b>{pairCoin.symbol}</b> is priced in <b>{pairCur.name}</b>
+                {pairCur.paidIn ? ` and paid in ${pairCur.paidIn}; its fees and payouts are in ${pairCur.paidIn}.` : `. Its price, fees and payouts are all in ${pairCur.code}.`}
               </span>
             </div>
           )}
@@ -325,12 +326,12 @@ export default function Swap() {
             {pairs.map((r) => (
               <div key={r.coin.address} className="pair-row" onClick={() => pick('out', r.coin.address)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && pick('out', r.coin.address)}>
                 <span className="row" style={{ minWidth: 0 }}>
-                  <PairBadge coin={r.coin} currency={r.cur} size="sm" />
+                  <PairBadge coin={r.coin} currency={r.disp} size="sm" />
                   <span className="muted small pair-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {r.coin.name}
                   </span>
                 </span>
-                <span className="num small">{money(r.price, r.cur.symbol)}</span>
+                <span className="num small">{money(r.dispPrice, r.disp.symbol)}</span>
                 <span className={`small num ${r.change24 >= 0 ? 'up' : 'down'}`}>
                   {r.change24 >= 0 ? '+' : ''}
                   {pct(r.change24)}

@@ -101,7 +101,9 @@ function Toasts() {
       {pad.toasts.map((t) => {
         const href = t.detail && t.detail.startsWith('0x') && pad.chainId ? explorerTx(pad.chainId, t.detail) : '';
         const text =
-          t.stage === 'approve'
+          t.stage === 'wrap'
+            ? 'Wrapping the ETH this needs: confirm in your wallet…'
+            : t.stage === 'approve'
             ? 'Approve the token in your wallet…'
             : t.stage === 'sign'
               ? pad.mode === 'live'

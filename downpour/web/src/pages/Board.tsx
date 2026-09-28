@@ -19,13 +19,13 @@ export default function Board() {
   const currency = params.get('currency') ?? '';
   const now = pad.now();
 
-  // Currencies that have at least one coin, busiest first.
+  // Currencies (as the coins are priced) that have at least one coin, busiest first.
   const used = useMemo(() => {
     const m = new Map<string, { code: string; color: string; n: number }>();
     rows.forEach((r) => {
-      const e = m.get(r.cur.code) ?? { code: r.cur.code, color: r.cur.color, n: 0 };
+      const e = m.get(r.disp.code) ?? { code: r.disp.code, color: r.disp.color, n: 0 };
       e.n++;
-      m.set(r.cur.code, e);
+      m.set(r.disp.code, e);
     });
     return [...m.values()].sort((a, b) => b.n - a.n);
   }, [rows]);
@@ -33,11 +33,11 @@ export default function Board() {
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return sortRows(rows, sort).filter((r) => {
-      if (currency && r.cur.code !== currency) return false;
+      if (currency && r.disp.code !== currency && r.cur.code !== currency) return false;
       if (status === 'curve' && r.coin.graduated) return false;
       if (status === 'pool' && !r.coin.graduated) return false;
       if (!needle) return true;
-      return `${r.coin.name} ${r.coin.symbol} ${r.cur.code} ${r.cur.name} ${r.coin.address}`.toLowerCase().includes(needle);
+      return `${r.coin.name} ${r.coin.symbol} ${r.disp.code} ${r.disp.name} ${r.cur.code} ${r.cur.name} ${r.coin.address}`.toLowerCase().includes(needle);
     });
   }, [rows, q, sort, status, currency]);
 

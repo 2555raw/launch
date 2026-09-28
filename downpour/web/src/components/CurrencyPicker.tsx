@@ -1,27 +1,26 @@
 import { useMemo, useState } from 'react';
-import { usePad } from '../backend/PadProvider';
-import type { Address, Currency } from '../backend/types';
+import type { Currency } from '../backend/types';
 import { POPULAR, REGIONS } from '../data/currencies';
 import { compact } from '../lib/format';
 import { unitsPerUsd } from '../lib/views';
 import { CurrencyDot, Modal } from './bits';
 import { Search } from './icons';
 
-/** Choose the currency a coin will be paired with: search, popular first, grouped by region. */
-export function CurrencyPicker({ value, onChange }: { value?: Address; onChange(token: Address): void }) {
-  const pad = usePad();
+/** Choose the currency a coin lives in, by code: search, popular first, grouped by region.
+ *  `options` is what is on offer: the desk's currencies, or every currency where a coin can
+ *  be priced in one the desk does not list (those carry `paidIn`, the token buyers pay in). */
+export function CurrencyPicker({ value, options, onChange }: { value?: string; options: Currency[]; onChange(code: string): void }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
-  const current = value ? pad.currencyByToken.get(value.toLowerCase()) : undefined;
+  const current = value ? options.find((c) => c.code === value) : undefined;
 
   const groups = useMemo(() => {
-    const list = pad.snap?.currencies ?? [];
     const needle = q.trim().toLowerCase();
     const match = (c: Currency) => !needle || `${c.code} ${c.name} ${c.region}`.toLowerCase().includes(needle);
-    const popular = POPULAR.map((code) => list.find((c) => c.code === code)).filter((c): c is Currency => !!c && match(c));
-    const byRegion = REGIONS.map((r) => [r, list.filter((c) => c.region === r && match(c))] as const).filter(([, l]) => l.length);
+    const popular = POPULAR.map((code) => options.find((c) => c.code === code)).filter((c): c is Currency => !!c && match(c));
+    const byRegion = REGIONS.map((r) => [r, options.filter((c) => c.region === r && match(c))] as const).filter(([, l]) => l.length);
     return { popular: needle ? [] : popular, byRegion };
-  }, [pad.snap, q]);
+  }, [options, q]);
 
   return (
     <div className="cur-picker">
@@ -43,12 +42,12 @@ export function CurrencyPicker({ value, onChange }: { value?: Address; onChange(
       <Modal open={open} onClose={() => setOpen(false)} title="Pair your coin with…" wide>
         <div className="search" style={{ maxWidth: 'none', marginBottom: 14 }}>
           <Search />
-          <input className="input" autoFocus placeholder={`Search ${pad.snap?.currencies.length ?? 149} currencies, metals and crypto`} value={q} onChange={(e) => setQ(e.target.value)} />
+          <input className="input" autoFocus placeholder={`Search ${options.length} currencies, metals and crypto`} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="token-list">
           {groups.popular.length > 0 && <div className="kicker" style={{ padding: '6px 12px' }}>Popular</div>}
           {groups.popular.map((c) => (
-            <Row key={`p${c.code}`} c={c} onPick={() => (onChange(c.token), setOpen(false))} />
+            <Row key={`p${c.code}`} c={c} onPick={() => (onChange(c.code), setOpen(false))} />
           ))}
           {groups.byRegion.map(([region, list]) => (
             <div key={region}>
@@ -56,7 +55,7 @@ export function CurrencyPicker({ value, onChange }: { value?: Address; onChange(
                 {region}
               </div>
               {list.map((c) => (
-                <Row key={c.code} c={c} onPick={() => (onChange(c.token), setOpen(false))} />
+                <Row key={c.code} c={c} onPick={() => (onChange(c.code), setOpen(false))} />
               ))}
             </div>
           ))}
@@ -74,7 +73,10 @@ function Row({ c, onPick }: { c: Currency; onPick(): void }) {
       </span>
       <span className="name">
         <b>{c.code}</b>
-        <span className="muted small">{c.name}</span>
+        <span className="muted small">
+          {c.name}
+          {c.paidIn ? ` · paid in ${c.paidIn}` : ''}
+        </span>
       </span>
       <span className="muted small num">{c.code === 'USD' ? '' : `1 USD = ${compact(unitsPerUsd(c), 4)}`}</span>
     </button>

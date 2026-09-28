@@ -1,17 +1,27 @@
 /* Read-outs the pages share: every coin joined with its currency, priced, with
  * its curve progress, 24h numbers and a sparkline, all derived from one snapshot. */
 import { useMemo } from 'react';
+import { parseUnits } from 'viem';
 import { usePad } from '../backend/PadProvider';
 import type { Coin, Currency, Snapshot, Trade } from '../backend/types';
+import { CURRENCY_BY_CODE, currencyColor } from '../data/currencies';
 import { curveRaise, priceOf, progress, toUsd, VIRTUAL_TOKENS } from './math';
 
 export interface CoinRow {
   coin: Coin;
+  /** The currency the coin is paid in: the desk token its curve holds. */
   cur: Currency;
+  /** The currency it is shown in: `cur`, or the one its creator named, at today's rate. */
+  disp: Currency;
+  /** Units of `disp` per unit of `cur`. */
+  factor: number;
   price: number;
   priceUsd: number;
   mcap: number;
   mcapUsd: number;
+  dispPrice: number;
+  dispMcap: number;
+  dispVol24: number;
   progress: number;
   raised: number;
   raiseTarget: number;
@@ -34,7 +44,34 @@ export function amount(value: bigint, decimals = 18) {
   return Number(value) / 10 ** decimals;
 }
 
-export function buildRows(snap: Snapshot, now: number): CoinRow[] {
+/** The currency a coin is shown in: its own, or the one its creator named (meta.priced),
+ *  as a currency object built on that one's rate: the desk's if it lists it, else today's
+ *  from the public feeds (`fx`, units per USD), else the reference rate on file. */
+export function displayCurrency(cur: Currency, code: string | undefined, listedByCode: Map<string, Currency>, fx: Record<string, number>): Currency {
+  if (!code || code === cur.code) return cur;
+  const paidIn = cur.tokenSymbol ?? cur.code;
+  const onDesk = listedByCode.get(code);
+  if (onDesk) return { ...onDesk, paidIn };
+  const s = CURRENCY_BY_CODE[code];
+  const rate = fx[code] ?? s?.rate;
+  if (!s || !rate) return cur;
+  return {
+    ...cur,
+    code,
+    name: s.name,
+    symbol: s.symbol,
+    region: s.region,
+    kind: s.kind,
+    color: currencyColor(code),
+    rate: parseUnits(rate.toFixed(18), 18),
+    tokenSymbol: undefined,
+    paidIn,
+  };
+}
+
+export type DisplayOf = (coin: Coin, cur: Currency) => Currency;
+
+export function buildRows(snap: Snapshot, now: number, displayOf: DisplayOf = (_, cur) => cur): CoinRow[] {
   const curBy = new Map(snap.currencies.map((c) => [c.token.toLowerCase(), c]));
   const byCoin = new Map<string, Trade[]>();
   for (const t of snap.trades) {
@@ -68,14 +105,21 @@ export function buildRows(snap: Snapshot, now: number): CoinRow[] {
 
     const tail = trades.slice(-48).map(tradePrice);
     const spark = tail.length ? [trades.length > 48 ? tail[0] : startPrice, ...tail, price] : [startPrice, price];
+    const disp = displayOf(coin, cur);
+    const factor = disp === cur ? 1 : unitsPerUsd(disp) / perUsd;
 
     rows.push({
       coin,
       cur,
+      disp,
+      factor,
       price,
       priceUsd: price / perUsd,
       mcap: price * 1e9,
       mcapUsd: (price * 1e9) / perUsd,
+      dispPrice: price * factor,
+      dispMcap: price * 1e9 * factor,
+      dispVol24: vol24 * factor,
       progress: progress(coin),
       raised: amount(coin.realQuote, d),
       raiseTarget: amount(curveRaise(coin.virtualQuote), d),
@@ -91,8 +135,8 @@ export function buildRows(snap: Snapshot, now: number): CoinRow[] {
 }
 
 export function useRows(): CoinRow[] {
-  const { snap } = usePad();
-  return useMemo(() => (snap ? buildRows(snap, Date.now() / 1000 + snap.clockSkew) : []), [snap]);
+  const { snap, displayOf } = usePad();
+  return useMemo(() => (snap ? buildRows(snap, Date.now() / 1000 + snap.clockSkew, displayOf) : []), [snap, displayOf]);
 }
 
 /** Total traded, in USD, across every market (from the markets' own volume counters). */

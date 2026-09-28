@@ -4,6 +4,7 @@ import { DEFAULT_MODE, type Mode } from '../config/site';
 import { makeBook, type Book } from '../lib/route';
 import { toUsd } from '../lib/math';
 import { agreedRates } from '../lib/fx';
+import { displayCurrency } from '../lib/views';
 import { useWallet } from '../wallet/WalletProvider';
 import { LiveBackend, explainError } from './live';
 import { PlaygroundBackend } from './playground';
@@ -37,8 +38,17 @@ interface PadState {
   currencyByToken: Map<string, Currency>;
   coinByAddress: Map<string, Coin>;
   currencyOf(coin: Coin): Currency | undefined;
+  /** The currency a coin is shown in: the one it is paid in, or the one its creator named. */
+  displayOf(coin: Coin, cur?: Currency): Currency;
+  /** Today's units per USD from two public feeds that agree (empty when unreachable). */
+  fx: Record<string, number>;
   usdValue(token: string, amount: bigint): number;
   balances: Record<string, bigint>;
+  /** What the account can spend of a token: its balance, plus, for wrapped ether, the plain
+   *  ETH in the wallet (less a little for gas) that the pad wraps on the way. */
+  spendable(token: string): bigint;
+  /** The plain-ETH part of `spendable` (0 for anything but wrapped ether). */
+  wrapExtra(token: string): bigint;
   refreshBalances(): Promise<void>;
   run(title: string, fn: (account: Address, o: TxOptions) => Promise<TxResult>): Promise<TxResult | null>;
   toasts: Toast[];
@@ -131,12 +141,15 @@ export function PadProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(t);
   }, [backend, refresh]);
 
-  // Playground: start from today's rates if two public feeds agree (quietly skipped offline).
+  // Today's rates, if two public feeds agree (quietly skipped offline): the playground starts
+  // from them, and a coin priced in a currency the desk does not list is shown at them.
+  const [fx, setFx] = useState<Record<string, number>>({});
   useEffect(() => {
-    if (backend.kind !== 'playground') return;
     let off = false;
     agreedRates().then((r) => {
-      if (!off && r) (backend as PlaygroundBackend).applyAgreedRates(r.rates);
+      if (off || !r) return;
+      setFx(r.rates);
+      if (backend.kind === 'playground') (backend as PlaygroundBackend).applyAgreedRates(r.rates);
     });
     return () => {
       off = true;
@@ -144,11 +157,20 @@ export function PadProvider({ children }: { children: ReactNode }) {
   }, [backend]);
 
   const currencyByToken = useMemo(() => new Map((snap?.currencies ?? []).map((c) => [c.token.toLowerCase(), c])), [snap]);
+  const currencyByCode = useMemo(() => new Map((snap?.currencies ?? []).map((c) => [c.code, c])), [snap]);
   const coinByAddress = useMemo(() => new Map((snap?.coins ?? []).map((c) => [c.address.toLowerCase(), c])), [snap]);
   const now = useCallback(() => Date.now() / 1000 + (snap?.clockSkew ?? 0), [snap]);
   const book = useMemo(() => (snap ? makeBook(snap.currencies, snap.coins, snap.params, Date.now() / 1000 + snap.clockSkew) : null), [snap]);
 
   const currencyOf = useCallback((coin: Coin) => currencyByToken.get(coin.currency.toLowerCase()), [currencyByToken]);
+  const displayOf = useCallback(
+    (coin: Coin, cur?: Currency) => {
+      const paid = cur ?? currencyByToken.get(coin.currency.toLowerCase());
+      if (!paid) throw new Error(`no currency for ${coin.symbol}`);
+      return displayCurrency(paid, coin.meta.priced, currencyByCode, fx);
+    },
+    [currencyByToken, currencyByCode, fx],
+  );
 
   /** USD value of an amount of a currency or a coin (coins at their current price). */
   const usdValue = useCallback(
@@ -183,6 +205,19 @@ export function PadProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refreshBalances();
   }, [refreshBalances]);
+
+  // Wrapped ether: plain ETH counts too, less 0.001 kept for gas, since the pad wraps it on the way.
+  const GAS_RESERVE = 1_000_000_000_000_000n;
+  const wrapExtra = useCallback(
+    (token: string) => {
+      const c = currencyByToken.get(token.toLowerCase());
+      if (!c || c.code !== 'ETH' || c.tokenSymbol !== 'WETH') return 0n;
+      const native = balances.native ?? 0n;
+      return native > GAS_RESERVE ? native - GAS_RESERVE : 0n;
+    },
+    [currencyByToken, balances],
+  );
+  const spendable = useCallback((token: string) => (balances[token.toLowerCase()] ?? 0n) + wrapExtra(token), [balances, wrapExtra]);
 
   const [toasts, setToasts] = useState<Toast[]>([]);
   const toastId = useRef(1);
@@ -251,8 +286,12 @@ export function PadProvider({ children }: { children: ReactNode }) {
     currencyByToken,
     coinByAddress,
     currencyOf,
+    displayOf,
+    fx,
     usdValue,
     balances,
+    spendable,
+    wrapExtra,
     refreshBalances,
     run,
     toasts,

@@ -150,15 +150,25 @@ export function CurrencyDot({ c, size = 26 }: { c: Pick<Currency, 'code' | 'colo
 }
 
 /** The pairing, impossible to miss: coin on the left, its currency on the right. */
-export function PairBadge({ coin, currency, size = 'md' }: { coin: Pick<Coin, 'symbol'>; currency?: Pick<Currency, 'code' | 'color' | 'name'>; size?: 'sm' | 'md' | 'lg' }) {
+export function PairBadge({
+  coin,
+  currency,
+  size = 'md',
+}: {
+  coin: Pick<Coin, 'symbol'>;
+  currency?: Pick<Currency, 'code' | 'color' | 'name'> & { paidIn?: string };
+  size?: 'sm' | 'md' | 'lg';
+}) {
   if (!currency) return <span className={`pair pair-${size}`}>{coin.symbol}</span>;
+  const title = `${coin.symbol} is priced in ${currency.name} (${currency.code})${currency.paidIn ? `, paid in ${currency.paidIn}` : ''}`;
   return (
-    <span className={`pair pair-${size}`} title={`${coin.symbol} is paired with ${currency.name} (${currency.code})`}>
+    <span className={`pair pair-${size}`} title={title}>
       <span className="pair-coin">{coin.symbol}</span>
       <span className="pair-slash" aria-hidden="true">/</span>
       <span className="pair-cur" style={{ '--c': currency.color } as React.CSSProperties}>
         <CurrencyDot c={currency} size={size === 'lg' ? 22 : size === 'sm' ? 15 : 18} />
         {currency.code}
+        {currency.paidIn && <span className="pair-paid">{currency.paidIn}</span>}
       </span>
     </span>
   );

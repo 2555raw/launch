@@ -1,4 +1,5 @@
 import type { CoinMeta } from '../backend/types';
+import { CURRENCY_BY_CODE } from '../data/currencies';
 
 export const MAX_META_BYTES = 16_384;
 
@@ -14,6 +15,7 @@ export function parseMeta(raw: string): CoinMeta {
         x: safeUrl(links.x),
         telegram: safeUrl(links.telegram),
       },
+      priced: typeof j.priced === 'string' && CURRENCY_BY_CODE[j.priced] ? j.priced : undefined,
     };
   } catch {
     return { description: '', image: '', links: {} };

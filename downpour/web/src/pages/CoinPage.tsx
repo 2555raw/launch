@@ -14,7 +14,7 @@ import { amount, buildRows, unitsPerUsd } from '../lib/views';
 import { CURVE_SUPPLY, TOTAL_SUPPLY, fromUsd, graduationPrice, quoteBuy, quoteSell, snipeBps, WAD } from '../lib/math';
 import { imageSrc } from '../lib/meta';
 
-function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
+function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; disp: Currency; factor: number }) {
   const pad = usePad();
   const wallet = useWallet();
   const [side, setSide] = useState<'buy' | 'sell'>('buy');
@@ -30,7 +30,8 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
   const params = pad.snap!.params;
   const now = pad.now();
 
-  const curBal = pad.balances[cur.token.toLowerCase()] ?? 0n;
+  const curBal = pad.spendable(cur.token);
+  const wrapExtra = pad.wrapExtra(cur.token);
   const coinBal = pad.balances[coin.address.toLowerCase()] ?? 0n;
   const dec = side === 'buy' ? cur.decimals : 18;
   const have = side === 'buy' ? curBal : coinBal;
@@ -97,6 +98,7 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
         <span>{side === 'buy' ? `You pay in ${cur.name}` : `You sell ${coin.symbol}`}</span>
         <button className="link small" onClick={() => (setText(toInput(have, dec, 6)), setMaxed(true))}>
           Balance {compact(amount(have, dec))}
+          {side === 'buy' && wrapExtra > 0n ? ` (${compact(amount(wrapExtra))} of it plain ETH, wrapped for you)` : ''}
         </button>
       </div>
       <div className="big-input" style={{ marginBottom: 14 }}>
@@ -116,6 +118,11 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
           </button>
         ))}
       </div>
+      {disp.paidIn && !!value && value > 0n && (
+        <div className="small muted" style={{ marginTop: -6, marginBottom: 10 }}>
+          ≈ {money(amount(side === 'buy' ? value : (quote?.out ?? 0n), cur.decimals) * factor, disp.symbol)} at today’s {disp.code} rate
+        </div>
+      )}
 
       {snipe > 0 && side === 'buy' && (
         <div className="callout bolt small" style={{ marginBottom: 12 }}>
@@ -226,7 +233,7 @@ export default function CoinPage() {
   const [inUsd, setInUsd] = useState(false);
   const coin = pad.coinByAddress.get(address.toLowerCase());
   const cur = coin ? pad.currencyOf(coin) : undefined;
-  const row = useMemo(() => (pad.snap && coin ? buildRows({ ...pad.snap, coins: [coin] }, pad.now()).at(0) : undefined), [pad.snap, coin, pad]);
+  const row = useMemo(() => (pad.snap && coin ? buildRows({ ...pad.snap, coins: [coin] }, pad.now(), pad.displayOf).at(0) : undefined), [pad.snap, coin, pad]);
   const trades = useMemo(() => (pad.snap?.trades ?? []).filter((t) => t.coin.toLowerCase() === address.toLowerCase()), [pad.snap, address]);
 
   if (!pad.snap) {
@@ -252,6 +259,7 @@ export default function CoinPage() {
 
   const now = pad.now();
   const perUsd = unitsPerUsd(cur);
+  const { disp, factor } = row;
   const sold = CURVE_SUPPLY - coin.curveLeft;
   const gradPrice = graduationPrice(coin.virtualQuote) / 10 ** (cur.decimals - 18);
   const exp = pad.chainId ? explorerAddress(pad.chainId, coin.address) : '';
@@ -259,17 +267,24 @@ export default function CoinPage() {
   return (
     <div className="wrap">
       <div className="coin-head">
-        <div className="coin-avatar" style={skyStyle(coin.address, cur.color)}>
-          <CoinOrb coin={coin} currency={cur} size={coin.meta.image ? 76 : 124} />
+        <div className="coin-avatar" style={skyStyle(coin.address, disp.color)}>
+          <CoinOrb coin={coin} currency={disp} size={coin.meta.image ? 76 : 124} />
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="kicker">{coin.graduated ? 'Graduated · trading on Uniswap' : 'On the curve'}</div>
           <h1>{coin.name}</h1>
           <div className="meta-line">
-            <PairBadge coin={coin} currency={cur} size="lg" />
+            <PairBadge coin={coin} currency={disp} size="lg" />
             <StatusPill coin={coin} now={now} />
             <span className="muted small">
-              priced in <b style={{ color: cur.color }}>{cur.name}</b> · launched {ago(coin.createdAt, now)} by <span className="mono">{shortAddr(coin.creator)}</span>
+              priced in <b style={{ color: disp.color }}>{disp.name}</b>
+              {disp.paidIn ? (
+                <>
+                  {' '}
+                  · paid in <b>{disp.paidIn}</b> at {pad.fx[disp.code] ? 'today’s rate' : 'the reference rate'}
+                </>
+              ) : null}{' '}
+              · launched {ago(coin.createdAt, now)} by <span className="mono">{shortAddr(coin.creator)}</span>
             </span>
           </div>
           <div className="meta-line small">
@@ -290,12 +305,12 @@ export default function CoinPage() {
           <div className="coin-stats glass">
             <div className="stat">
               <span className="kicker">Price</span>
-              <b className="num">{money(row.price, cur.symbol)}</b>
-              <span className="muted small">{usd(row.priceUsd)}</span>
+              <b className="num">{money(row.dispPrice, disp.symbol)}</b>
+              <span className="muted small">{disp.paidIn ? `${money(row.price, cur.symbol)} · ` : ''}{usd(row.priceUsd)}</span>
             </div>
             <div className="stat">
               <span className="kicker">Market cap</span>
-              <b className="num">{money(row.mcap, cur.symbol)}</b>
+              <b className="num">{money(row.dispMcap, disp.symbol)}</b>
               <span className="muted small">{usd(row.mcapUsd)}</span>
             </div>
             <div className="stat">
@@ -309,23 +324,23 @@ export default function CoinPage() {
                 {row.change24 >= 0 ? '+' : ''}
                 {pct(row.change24)}
               </b>
-              <span className="muted small">vol {money(row.vol24, cur.symbol)}</span>
+              <span className="muted small">vol {money(row.dispVol24, disp.symbol)}</span>
             </div>
           </div>
 
           <div className="panel">
             <div className="row-between" style={{ marginBottom: 10 }}>
-              <div className="kicker">Price in {inUsd ? 'US dollars' : cur.name}</div>
+              <div className="kicker">Price in {inUsd ? 'US dollars' : disp.name}</div>
               <div className="chips">
                 <button className={`chip ${!inUsd ? 'on' : ''}`} onClick={() => setInUsd(false)}>
-                  {cur.code}
+                  {disp.code}
                 </button>
                 <button className={`chip ${inUsd ? 'on' : ''}`} onClick={() => setInUsd(true)}>
                   USD
                 </button>
               </div>
             </div>
-            <PriceChart trades={trades} current={row.price} decimals={cur.decimals} color={cur.color} divisor={inUsd ? perUsd : 1} now={now} />
+            <PriceChart trades={trades} current={row.price} decimals={cur.decimals} color={disp.color} divisor={inUsd ? perUsd : 1 / factor} now={now} />
           </div>
 
           <div className="grid grid-2" style={{ marginTop: 18 }}>
@@ -430,7 +445,7 @@ export default function CoinPage() {
           </div>
         </div>
 
-        <TradePanel coin={coin} cur={cur} />
+        <TradePanel coin={coin} cur={cur} disp={disp} factor={factor} />
       </div>
     </div>
   );

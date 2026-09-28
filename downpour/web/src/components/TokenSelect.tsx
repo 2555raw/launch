@@ -73,7 +73,7 @@ export function TokenSelect({
       <div className="token-list">
         {rows.slice(0, 250).map((r) => {
           const coin = r.kind === 'coin' ? pad.coinByAddress.get(r.token.toLowerCase()) : undefined;
-          const cur = coin ? pad.currencyOf(coin) : pad.currencyByToken.get(r.token.toLowerCase());
+          const cur = coin ? pad.displayOf(coin) : pad.currencyByToken.get(r.token.toLowerCase());
           const dec = r.kind === 'currency' ? cur?.decimals ?? 18 : 18;
           return (
             <button

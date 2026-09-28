@@ -100,7 +100,13 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
   USD, Uniswap's WETH as ETH), since there are no euro or yen tokens on the chain to
   pair with; the site shows each beside its own symbol ("US Dollar (USDG)"), and the
   desk converts between real tokens only out of what it holds, so the site refuses a
-  route the desk could not pay. The owner can list more tokens later.
+  route the desk could not pay. The owner lists more tokens from the desk page as they
+  reach the chain (a euro stablecoin, USDC). Meanwhile a coin can still be **priced in
+  any of the 149 currencies**: the launch form offers them all, and one the desk does
+  not list is paid in a desk token (USDG by default) at today's rate from two public
+  feeds, with the coin shown and quoted in its own currency everywhere ("priced in
+  Euro · paid in USDG"; `meta.priced`). Paying in ETH works with plain ETH: the site
+  wraps what a buy needs into WETH on the way, and the desk page unwraps it back.
 - **Keeper**: posts a new rate only when two independent FX feeds agree within
   0.5% and the rate has drifted at least 0.1%. The desk refuses any single post
   that moves a rate more than 20%.

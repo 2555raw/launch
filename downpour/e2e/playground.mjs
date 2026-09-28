@@ -61,7 +61,8 @@ page.on('pageerror', (e) => errors.push(e.message));
 
 const done = (title) => page.locator('.toast.done', { hasText: title }).first().waitFor({ timeout: 15_000 });
 
-await page.goto(BASE + '/');
+// ?mode=playground: the site may default to a live chain now
+await page.goto(BASE + '/?mode=playground');
 await page.locator('.coin-card').first().waitFor({ timeout: 15_000 });
 await page.locator('button.nav-connect').click();
 await page.locator('.modal', { hasText: 'In the playground' }).waitFor();

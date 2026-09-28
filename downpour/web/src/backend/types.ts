@@ -18,6 +18,8 @@ export interface Currency {
   tokenSymbol?: string;
   /** What the desk holds of a real token, the most it can convert into; test currencies are minted (undefined). */
   reserve?: bigint;
+  /** On a display currency only: the token the coin is actually paid in (USDG). */
+  paidIn?: string;
   color: string;
 }
 
@@ -25,6 +27,9 @@ export interface CoinMeta {
   description: string;
   image: string;
   links: { website?: string; x?: string; telegram?: string };
+  /** Currency code the creator wants the coin shown and quoted in, when it is not the
+   *  one it is paid in (a EUR coin paid in USDG). */
+  priced?: string;
 }
 
 export interface Coin extends MarketState {
@@ -85,7 +90,7 @@ export interface Snapshot {
   loadedAt: number;
 }
 
-export type TxStage = 'approve' | 'sign' | 'pending' | 'done';
+export type TxStage = 'wrap' | 'approve' | 'sign' | 'pending' | 'done';
 
 export interface TxOptions {
   onStage?: (stage: TxStage, detail?: string) => void;
@@ -121,4 +126,10 @@ export interface Backend {
   sell(account: Address, coin: Address, tokensIn: bigint, minOut: bigint, o?: TxOptions): Promise<TxResult>;
   swap(account: Address, tokenIn: Address, tokenOut: Address, amountIn: bigint, minOut: bigint, o?: TxOptions): Promise<TxResult>;
   claimFees(account: Address, currency: Address, o?: TxOptions): Promise<TxResult>;
+  /** Live only: who owns the desk (may list tokens). */
+  deskOwner?(): Promise<Address>;
+  /** Live only, owner: list a token that trades on the chain under a currency code, at `rate` units per USD. */
+  listCurrency?(account: Address, token: Address, code: string, rate: bigint, o?: TxOptions): Promise<TxResult>;
+  /** Live only: turn wrapped ether back into ETH. */
+  unwrap?(account: Address, token: Address, amount: bigint, o?: TxOptions): Promise<TxResult>;
 }

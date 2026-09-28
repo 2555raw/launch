@@ -6,9 +6,11 @@ import { useWallet } from '../wallet/WalletProvider';
 import { CurrencyPicker } from '../components/CurrencyPicker';
 import { Orb, PageHead, PairBadge } from '../components/bits';
 import { Sparkle } from '../components/icons';
-import { dropGlyph } from '../data/currencies';
+import { CURRENCIES, CURRENCY_BY_CODE, dropGlyph } from '../data/currencies';
 import { compact, money, parseAmount, usd } from '../lib/format';
-import { amount, unitsPerUsd } from '../lib/views';
+import { amount, displayCurrency, unitsPerUsd } from '../lib/views';
+import { chainMeta } from '../config/chains';
+import type { Currency } from '../backend/types';
 import { applyBuy, curveRaise, graduationPrice, marketCap, newMarket, priceOf, progress, quoteBuy, virtualQuoteFor } from '../lib/math';
 import { MAX_META_BYTES, shrinkImage } from '../lib/meta';
 
@@ -29,17 +31,37 @@ export default function Launch() {
   const [website, setWebsite] = useState('');
   const [x, setX] = useState('');
   const [telegram, setTelegram] = useState('');
-  const [currency, setCurrency] = useState<Address>();
+  // the currency the coin lives in, by code; and, when the desk does not list that one (euros
+  // on mainnet), the desk token buyers pay in
+  const [code, setCode] = useState('');
+  const [paid, setPaid] = useState<Address>();
   const [firstBuy, setFirstBuy] = useState('');
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (!snap || currency) return;
-    const want = params.get('currency') || 'EUR';
-    setCurrency((snap.currencies.find((c) => c.code === want) ?? snap.currencies[0])?.token);
-  }, [snap, currency, params]);
+  const listedByCode = useMemo(() => new Map((snap?.currencies ?? []).map((c) => [c.code, c])), [snap]);
+  // a desk that lists only a few real tokens (mainnet) still lets a coin be priced in any currency
+  const canPrice = !!snap && snap.currencies.length < CURRENCIES.length;
 
-  const cur = currency ? pad.currencyByToken.get(currency.toLowerCase()) : undefined;
+  useEffect(() => {
+    if (!snap || code) return;
+    const want = params.get('currency') || (listedByCode.has('EUR') ? 'EUR' : 'USD');
+    const ok = listedByCode.has(want) || (canPrice && !!CURRENCY_BY_CODE[want]);
+    setCode(ok ? want : (listedByCode.get('USD') ?? snap.currencies[0])?.code ?? '');
+  }, [snap, code, params, listedByCode, canPrice]);
+
+  const dollar = listedByCode.get('USD') ?? snap?.currencies[0];
+  const listed = code ? listedByCode.get(code) : undefined;
+  // what buyers pay in: the chosen currency's own token, else the token picked (the dollar by default)
+  const cur = listed ?? (paid ? pad.currencyByToken.get(paid.toLowerCase()) : undefined) ?? (code ? dollar : undefined);
+  const dispCode = cur && code && code !== cur.code ? code : undefined;
+  const disp = cur ? pad.displayOf({ currency: cur.token, meta: { priced: dispCode } } as never, cur) : undefined;
+  const chainName = pad.chainId ? chainMeta(pad.chainId).name : 'this chain';
+  // every currency on offer: the desk's as they are, the rest priced on the dollar token
+  const options = useMemo<Currency[]>(() => {
+    if (!snap) return [];
+    if (!canPrice || !dollar) return snap.currencies;
+    return CURRENCIES.map((s) => listedByCode.get(s.code) ?? displayCurrency(dollar, s.code, listedByCode, pad.fx)).filter((c, i) => c.code === CURRENCIES[i].code);
+  }, [snap, canPrice, dollar, listedByCode, pad.fx]);
   const numbers = useMemo(() => {
     if (!snap || !cur) return null;
     const vq = virtualQuoteFor(cur, snap.params.targetRaiseUsd);
@@ -62,11 +84,17 @@ export default function Launch() {
     };
   }, [snap, cur, firstBuy, pad]);
 
-  const meta = { description: description.trim(), image, links: { website: website.trim() || undefined, x: x.trim() || undefined, telegram: telegram.trim() || undefined } };
+  const factor = cur && disp && disp !== cur ? unitsPerUsd(disp) / unitsPerUsd(cur) : 1;
+  const meta = {
+    description: description.trim(),
+    image,
+    links: { website: website.trim() || undefined, x: x.trim() || undefined, telegram: telegram.trim() || undefined },
+    priced: dispCode,
+  };
   const metaSize = bytes(JSON.stringify(meta));
   const nameOk = bytes(name.trim()) > 0 && bytes(name.trim()) <= 40;
   const tickerOk = /^[A-Z0-9]{1,10}$/.test(ticker);
-  const bal = cur ? pad.balances[cur.token.toLowerCase()] ?? 0n : 0n;
+  const bal = cur ? pad.spendable(cur.token) : 0n;
   const buyTooBig = !!numbers?.buy && numbers.buy > bal;
   const symbolTaken = snap?.coins.some((c) => c.symbol === ticker);
 
@@ -147,7 +175,20 @@ export default function Launch() {
           </div>
           <div className="field">
             <label>Currency</label>
-            <CurrencyPicker value={currency} onChange={setCurrency} />
+            <CurrencyPicker value={code} options={options} onChange={setCode} />
+            {dispCode && cur && snap && (
+              <div className="row small paid-in" style={{ marginTop: 8, gap: 8, flexWrap: 'wrap' }}>
+                <span className="muted">No {dispCode} token on {chainName} yet, so buyers pay in</span>
+                <select className="select" style={{ width: 'auto', height: 32 }} value={cur.token} onChange={(e) => setPaid(e.target.value as Address)} aria-label="Paid in">
+                  {snap.currencies.map((c) => (
+                    <option key={c.token} value={c.token}>
+                      {c.tokenSymbol ?? c.code} · {c.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="muted">at today’s {dispCode} rate; the coin is shown and quoted in {dispCode}.</span>
+              </div>
+            )}
             <span className="hint">Chosen once. Prices, fees and payouts for this coin will all be in it, forever.</span>
           </div>
           <div className="field">
@@ -222,11 +263,11 @@ export default function Launch() {
         </form>
 
         <div className="stack" style={{ gap: 18 }}>
-          <div className="card" style={{ '--c': cur?.color ?? '#7cc4ff' } as React.CSSProperties}>
+          <div className="card" style={{ '--c': (disp ?? cur)?.color ?? '#7cc4ff' } as React.CSSProperties}>
             <div className="preview">
-              <span className="cc-code">{cur?.code}</span>
+              <span className="cc-code">{(disp ?? cur)?.code}</span>
               <div className="cc-orb">
-                <Orb color={cur?.color ?? '#7cc4ff'} glyph={cur ? dropGlyph(cur.code) : '?'} image={image || undefined} size={image ? 96 : 150} />
+                <Orb color={(disp ?? cur)?.color ?? '#7cc4ff'} glyph={disp ?? cur ? dropGlyph((disp ?? cur)!.code) : '?'} image={image || undefined} size={image ? 96 : 150} />
               </div>
               <span className="cc-ticker">{ticker || 'TICKER'}</span>
             </div>
@@ -237,19 +278,30 @@ export default function Launch() {
               {name.trim() || 'Your coin'}
             </h3>
             <div style={{ marginBottom: 12 }}>
-              <PairBadge coin={{ symbol: ticker || 'TICKER' }} currency={cur} />
+              <PairBadge coin={{ symbol: ticker || 'TICKER' }} currency={disp ?? cur} />
             </div>
-            {numbers && cur && (
+            {numbers && cur && disp && (
               <>
                 <div className="kv">
-                  <span>Paired with</span>
+                  <span>Paid in</span>
                   <span>
                     {cur.code} · {cur.name}
                   </span>
                 </div>
+                {disp !== cur && (
+                  <div className="kv">
+                    <span>Priced in</span>
+                    <span>
+                      {disp.code} · {disp.name}
+                    </span>
+                  </div>
+                )}
                 <div className="kv">
                   <span>Starting price</span>
-                  <span className="num">{money(numbers.start, cur.symbol)}</span>
+                  <span className="num">
+                    {money(numbers.start * factor, disp.symbol)}
+                    {disp !== cur ? ` · ${money(numbers.start, cur.symbol)}` : ''}
+                  </span>
                 </div>
                 <div className="kv">
                   <span>Supply</span>

@@ -1476,3 +1476,14 @@ a.card:hover {
 .first-buy-preview b {
   font-weight: 700;
 }
+
+/* a coin priced in one money and paid in another: the token it is paid in, after the code */
+.pair-paid {
+  margin-left: 5px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}

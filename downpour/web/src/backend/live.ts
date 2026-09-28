@@ -25,6 +25,8 @@ const erc20 = [
   parseAbiItem('function symbol() view returns (string)'),
 ] as const;
 
+const wethAbi = [parseAbiItem('function deposit() payable'), parseAbiItem('function withdraw(uint256 wad)')] as const;
+
 const EV_CREATED = parseAbiItem(
   'event CoinCreated(address indexed coin, address indexed creator, address indexed currency, string name, string symbol, string meta, uint256 virtualQuote)',
 );
@@ -223,6 +225,7 @@ export class LiveBackend implements Backend {
             c.tokenSymbol = sym;
             c.name = `${c.name} (${sym})`;
           }
+          if (c.code === 'ETH' && sym === 'WETH') this.wethToken = c.token;
         }),
     );
 
@@ -320,6 +323,8 @@ export class LiveBackend implements Backend {
       const vals = await this.read<bigint[]>(this.dep.router, routerAbi, 'balancesOf', [account, part]);
       part.forEach((t, j) => (out[t.toLowerCase()] = vals[j]));
     }
+    // plain ETH too: the pad wraps it when a buyer pays in wrapped ether
+    if (this.wethToken) out.native = await this.client.getBalance({ address: account });
     return out;
   }
 
@@ -349,7 +354,7 @@ export class LiveBackend implements Backend {
 
   /* -------------------------------- writes -------------------------------- */
 
-  private async write(account: Address, req: { address: Address; abi: any; functionName: string; args: unknown[] }, o?: TxOptions) {
+  private async write(account: Address, req: { address: Address; abi: any; functionName: string; args: unknown[]; value?: bigint }, o?: TxOptions) {
     const wallet = await this.getWallet();
     const { request } = await this.client.simulateContract({ ...req, account } as any);
     o?.onStage?.('sign');
@@ -361,7 +366,35 @@ export class LiveBackend implements Backend {
     return { hash, receipt };
   }
 
+  /** Wrapped ether on this chain (the desk lists it as ETH), which the pad can wrap for a buyer. */
+  private wethToken?: Address;
+
+  /** Paying in wrapped ether with plain ETH in the wallet: wraps what is missing first. */
+  private async ensureWrapped(account: Address, token: Address, amount: bigint, o?: TxOptions) {
+    if (!this.wethToken || token.toLowerCase() !== this.wethToken.toLowerCase()) return;
+    const held = await this.read<bigint>(token, erc20, 'balanceOf', [account]);
+    if (held >= amount) return;
+    const missing = amount - held;
+    o?.onStage?.('wrap');
+    await this.write(account, { address: token, abi: wethAbi, functionName: 'deposit', args: [], value: missing }, { onStage: (s, d) => s === 'pending' && o?.onStage?.('pending', d) });
+  }
+
+  async unwrap(account: Address, token: Address, amount: bigint, o?: TxOptions) {
+    const { hash } = await this.write(account, { address: token, abi: wethAbi, functionName: 'withdraw', args: [amount] }, o);
+    return { hash };
+  }
+
+  async deskOwner() {
+    return this.read<Address>(this.dep.desk, deskAbi, 'owner');
+  }
+
+  async listCurrency(account: Address, token: Address, code: string, rate: bigint, o?: TxOptions) {
+    const { hash } = await this.write(account, { address: this.dep.desk, abi: deskAbi, functionName: 'listCurrency', args: [token, code, rate] }, o);
+    return { hash };
+  }
+
   private async ensureAllowance(account: Address, token: Address, spender: Address, amount: bigint, o?: TxOptions) {
+    await this.ensureWrapped(account, token, amount, o);
     const current = await this.read<bigint>(token, erc20, 'allowance', [account, spender]);
     if (current >= amount) return;
     o?.onStage?.('approve');

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
 import { CoinCard, CoinCardSkeleton } from '../components/CoinCard';
+import { CurrencyStars } from '../components/CurrencyStars';
 import { CurrencyDot, PageHead } from '../components/bits';
 import { KeeperLine } from '../components/sections';
 import { Arrow, Search } from '../components/icons';
@@ -108,7 +109,8 @@ export default function Board() {
           <CoinCard key={r.coin.address} row={r} now={now} />
         ))}
       </div>
-      {pad.snap && !shown.length && (
+      {pad.snap && !rows.length && !q && !currency && <CurrencyStars />}
+      {pad.snap && !shown.length && (rows.length > 0 || q || currency) && (
         <div className="panel empty">
           <h3>{currency ? `No coins priced in ${currency} yet` : 'Nothing matches'}</h3>
           <p>{currency ? 'Be the first: launch one paired with it.' : 'Try another search, or clear the filters.'}</p>

@@ -44,24 +44,25 @@ export default function Launch() {
 
   useEffect(() => {
     if (!snap || code) return;
-    const want = params.get('currency') || (listedByCode.has('EUR') ? 'EUR' : 'USD');
+    const want = params.get('currency') || (listedByCode.has('EUR') ? 'EUR' : listedByCode.has('ETH') ? 'ETH' : 'USD');
     const ok = listedByCode.has(want) || (canPrice && !!CURRENCY_BY_CODE[want]);
     setCode(ok ? want : (listedByCode.get('USD') ?? snap.currencies[0])?.code ?? '');
   }, [snap, code, params, listedByCode, canPrice]);
 
-  const dollar = listedByCode.get('USD') ?? snap?.currencies[0];
+  // ether by default, the dollar where the desk has no ether
+  const base = listedByCode.get('ETH') ?? listedByCode.get('USD') ?? snap?.currencies[0];
   const listed = code ? listedByCode.get(code) : undefined;
-  // what buyers pay in: the chosen currency's own token, else the token picked (the dollar by default)
-  const cur = listed ?? (paid ? pad.currencyByToken.get(paid.toLowerCase()) : undefined) ?? (code ? dollar : undefined);
+  // what buyers pay in: the chosen currency's own token, else the token picked (ether by default)
+  const cur = listed ?? (paid ? pad.currencyByToken.get(paid.toLowerCase()) : undefined) ?? (code ? base : undefined);
   const dispCode = cur && code && code !== cur.code ? code : undefined;
   const disp = cur ? pad.displayOf({ currency: cur.token, meta: { priced: dispCode } } as never, cur) : undefined;
   const chainName = pad.chainId ? chainMeta(pad.chainId).name : 'this chain';
-  // every currency on offer: the desk's as they are, the rest priced on the dollar token
+  // every currency on offer: the desk's as they are, the rest priced on the base token
   const options = useMemo<Currency[]>(() => {
     if (!snap) return [];
-    if (!canPrice || !dollar) return snap.currencies;
-    return CURRENCIES.map((s) => listedByCode.get(s.code) ?? displayCurrency(dollar, s.code, listedByCode, pad.fx)).filter((c, i) => c.code === CURRENCIES[i].code);
-  }, [snap, canPrice, dollar, listedByCode, pad.fx]);
+    if (!canPrice || !base) return snap.currencies;
+    return CURRENCIES.map((s) => listedByCode.get(s.code) ?? displayCurrency(base, s.code, listedByCode, pad.fx)).filter((c, i) => c.code === CURRENCIES[i].code);
+  }, [snap, canPrice, base, listedByCode, pad.fx]);
   const numbers = useMemo(() => {
     if (!snap || !cur) return null;
     const vq = virtualQuoteFor(cur, snap.params.targetRaiseUsd);

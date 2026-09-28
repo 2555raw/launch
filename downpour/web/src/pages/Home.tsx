@@ -4,6 +4,7 @@ import { usePad } from '../backend/PadProvider';
 import { chainMeta } from '../config/chains';
 import { useStorm } from '../storm/Storm';
 import { CoinCard, CoinCardSkeleton } from '../components/CoinCard';
+import { CurrencyStars } from '../components/CurrencyStars';
 import { CoinOrb, CurrencyDot } from '../components/bits';
 import { CORE_FAQ, CurveChart, Faq, KeeperLine, RecentFills } from '../components/sections';
 import { Arrow, Sparkle } from '../components/icons';
@@ -285,6 +286,11 @@ export function Home() {
           </div>
           <div className="grid grid-3">
             {snap ? featured.map((r) => <CoinCard key={r.coin.address} row={r} now={now} />) : Array.from({ length: 6 }, (_, i) => <CoinCardSkeleton key={i} />)}
+            {snap && !featured.length && (
+              <div style={{ gridColumn: '1 / -1' }}>
+                <CurrencyStars limit={18} />
+              </div>
+            )}
           </div>
           <div className="center" style={{ marginTop: 26 }}>
             <Link to="/board" className="btn">

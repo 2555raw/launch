@@ -103,7 +103,7 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
   route the desk could not pay. The owner lists more tokens from the desk page as they
   reach the chain (a euro stablecoin, USDC). Meanwhile a coin can still be **priced in
   any of the 149 currencies**: the launch form offers them all, and one the desk does
-  not list is paid in a desk token (USDG by default) at today's rate from two public
+  not list is paid in a desk token (ether by default, or USDG) at today's rate from two public
   feeds, with the coin shown and quoted in its own currency everywhere ("priced in
   Euro · paid in USDG"; `meta.priced`). Paying in ETH works with plain ETH: the site
   wraps what a buy needs into WETH on the way, and the desk page unwraps it back.

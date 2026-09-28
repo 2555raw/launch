@@ -1487,3 +1487,30 @@ a.card:hover {
   letter-spacing: 0.04em;
   opacity: 0.8;
 }
+
+/* an empty board: every currency as a star to launch in */
+.star-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.star-tile {
+  min-height: 0;
+  padding: 0;
+  display: block;
+}
+.star-tile .cc-sky {
+  height: 128px;
+  border-radius: inherit;
+}
+.star-tile .cc-ticker {
+  font-size: 10px;
+  max-width: 92%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.star-tile:hover {
+  transform: translateY(-2px);
+}

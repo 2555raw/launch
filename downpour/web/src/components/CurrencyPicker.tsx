@@ -25,7 +25,7 @@ export function CurrencyPicker({ value, onChange }: { value?: Address; onChange(
 
   return (
     <div className="cur-picker">
-      <button type="button" className="cur-picker-btn" onClick={() => setOpen(true)} aria-haspopup="dialog">
+      <button type="button" className="cur-picker-btn" onClick={() => (setQ(''), setOpen(true))} aria-haspopup="dialog">
         {current ? (
           <>
             <CurrencyDot c={current} size={26} />

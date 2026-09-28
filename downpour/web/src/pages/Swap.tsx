@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
 import type { Address } from '../backend/types';
@@ -61,6 +61,11 @@ export default function Swap() {
   const [tokenIn, setTokenIn] = useState<Address | undefined>(params.get('in') as Address | undefined);
   const [tokenOut, setTokenOut] = useState<Address | undefined>(params.get('out') as Address | undefined);
   const [text, setText] = useState('');
+  // the field as it is now, so a trade that goes through only clears what it sent
+  const typed = useRef(text);
+  useEffect(() => {
+    typed.current = text;
+  }, [text]);
   const [maxed, setMaxed] = useState(false);
   const [slip, setSlip] = useState(100);
   const [picking, setPicking] = useState<'in' | 'out' | null>(null);
@@ -125,9 +130,10 @@ export default function Swap() {
       disabled: false,
       onClick: async () => {
         setBusy(true);
+        const sent = text;
         const r = await pad.run(`Swap ${labelOf(tokenIn)} → ${labelOf(tokenOut)}`, (acct, o) => pad.backend.swap(acct, tokenIn, tokenOut, amountIn, minOut, o));
         setBusy(false);
-        if (r) {
+        if (r && typed.current === sent) {
           setText('');
           setMaxed(false);
         }
@@ -352,7 +358,9 @@ export default function Swap() {
         </aside>
       </div>
 
+      {/* keyed by side, so each opening starts with an empty search and every token listed */}
       <TokenSelect
+        key={picking ?? 'closed'}
         open={picking !== null}
         onClose={() => setPicking(null)}
         onPick={(t) => picking && pick(picking, t)}

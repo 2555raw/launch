@@ -200,12 +200,13 @@ export function PadProvider({ children }: { children: ReactNode }) {
       setToasts((all) => [...all.slice(-3), { id, title, stage: 'sign' }]);
       try {
         const result = await fn(w.address, {
-          onStage: (stage, detail) => update({ stage, detail }),
+          // "Done" waits below until the new balances are on screen
+          onStage: (stage, detail) => stage !== 'done' && update({ stage, detail }),
         });
-        update({ stage: 'done', detail: result.hash });
-        setTimeout(() => dismiss(id), 5000);
         await refresh();
         await refreshBalances();
+        update({ stage: 'done', detail: result.hash });
+        setTimeout(() => dismiss(id), 5000);
         return result;
       } catch (e) {
         update({ stage: 'error', detail: explainError(e) });

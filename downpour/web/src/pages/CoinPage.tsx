@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
 import type { Address, Coin, Currency } from '../backend/types';
@@ -19,6 +19,11 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
   const wallet = useWallet();
   const [side, setSide] = useState<'buy' | 'sell'>('buy');
   const [text, setText] = useState('');
+  // the field as it is now, so a trade that goes through only clears what it sent
+  const typed = useRef(text);
+  useEffect(() => {
+    typed.current = text;
+  }, [text]);
   const [maxed, setMaxed] = useState(false);
   const [slip, setSlip] = useState(100);
   const [busy, setBusy] = useState(false);
@@ -62,12 +67,13 @@ function TradePanel({ coin, cur }: { coin: Coin; cur: Currency }) {
       disabled: false,
       onClick: async () => {
         setBusy(true);
+        const sent = text;
         const r =
           side === 'buy'
             ? await pad.run(`Buy ${coin.symbol} with ${cur.code}`, (a, o) => pad.backend.buy(a, coin.address, value, minOut, o))
             : await pad.run(`Sell ${coin.symbol} for ${cur.code}`, (a, o) => pad.backend.sell(a, coin.address, value, minOut, o));
         setBusy(false);
-        if (r) {
+        if (r && typed.current === sent) {
           setText('');
           setMaxed(false);
         }

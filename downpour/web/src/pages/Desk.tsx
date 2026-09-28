@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
 import type { Currency } from '../backend/types';
@@ -19,6 +19,11 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
   const snap = pad.snap!;
   const [toCode, setToCode] = useState(cur.code === 'USD' ? 'EUR' : 'USD');
   const [text, setText] = useState('');
+  // the field as it is now, so a trade that goes through only clears what it sent
+  const typed = useRef(text);
+  useEffect(() => {
+    typed.current = text;
+  }, [text]);
   const [readyAt, setReadyAt] = useState(0);
   const to = snap.currencies.find((c) => c.code === toCode)!;
   const value = parseAmount(text, cur.decimals);
@@ -79,10 +84,11 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
         onClick={async () => {
           if (!canUse) return wallet.openModal();
           if (!value || !q) return;
+          const sent = text;
           const r = await pad.run(`Convert ${cur.code} → ${to.code}`, (a, o) =>
             pad.backend.swap(a, cur.token, to.token, value, (q.amountOut * 995n) / 1000n, o),
           );
-          if (r) setText('');
+          if (r && typed.current === sent) setText('');
         }}
       >
         {!canUse ? 'Connect wallet' : value && value > bal ? `Not enough ${cur.code}` : `Convert to ${to?.code}`}

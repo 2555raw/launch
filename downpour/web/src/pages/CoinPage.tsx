@@ -4,14 +4,14 @@ import { usePad } from '../backend/PadProvider';
 import type { Address, Coin, Currency } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { DEXSCREENER, explorerAddress } from '../config/chains';
-import { CoinOrb, CopyButton, PairBadge, ProgressBar, StatusPill } from '../components/bits';
+import { CoinOrb, CopyButton, PairBadge, StatusPill } from '../components/bits';
 import { PriceChart } from '../components/PriceChart';
 import { skyStyle } from '../components/CoinCard';
 import { RecentFills } from '../components/sections';
 import { Arrow, Sparkle } from '../components/icons';
 import { ago, compact, money, parseAmount, pct, shortAddr, toInput, usd } from '../lib/format';
 import { amount, buildRows, unitsPerUsd } from '../lib/views';
-import { CURVE_SUPPLY, TOTAL_SUPPLY, fromUsd, graduationPrice, quoteBuy, quoteSell, snipeBps, WAD } from '../lib/math';
+import { TOTAL_SUPPLY, fromUsd, quoteBuy, quoteSell, WAD } from '../lib/math';
 import { imageSrc } from '../lib/meta';
 
 function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; disp: Currency; factor: number }) {
@@ -28,7 +28,6 @@ function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; di
   const [slip, setSlip] = useState(100);
   const [busy, setBusy] = useState(false);
   const params = pad.snap!.params;
-  const now = pad.now();
 
   const curBal = pad.spendable(cur.token);
   const coinBal = pad.balances[coin.address.toLowerCase()] ?? 0n;
@@ -36,17 +35,16 @@ function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; di
   const have = side === 'buy' ? curBal : coinBal;
   // Max and 100% use the exact balance, so selling everything leaves no dust behind.
   const value = maxed ? have : parseAmount(text, dec);
-  const snipe = snipeBps(coin.createdAt, now, params);
 
   const quote = useMemo(() => {
     if (!value) return null;
     if (side === 'buy') {
-      const q = quoteBuy(coin, value, params, now);
-      return { out: q.tokensOut, used: q.quoteUsed, fee: q.protocolFee + q.creatorFee + q.lpFee, snipe: q.snipeTax, graduates: q.graduates };
+      const q = quoteBuy(coin, value, params);
+      return { out: q.tokensOut, fee: q.fee };
     }
     const q = quoteSell(coin, value, params);
-    return { out: q.quoteOut, used: value, fee: q.protocolFee + q.creatorFee + q.lpFee, snipe: 0n, graduates: false };
-  }, [value, side, coin, params, now]);
+    return { out: q.quoteOut, fee: q.fee };
+  }, [value, side, coin, params]);
 
   const minOut = quote ? (quote.out * BigInt(10_000 - slip)) / 10_000n : 0n;
 
@@ -81,6 +79,7 @@ function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; di
     };
 
   const usdBase = pad.snap?.currencies.find((c) => c.code === 'USD');
+  const feePct = params.poolFeePips / 10_000;
 
   return (
     <div className="panel trade-panel" data-solid>
@@ -123,12 +122,6 @@ function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; di
         </div>
       )}
 
-      {snipe > 0 && side === 'buy' && (
-        <div className="callout bolt small" style={{ marginBottom: 12 }}>
-          <b>Snipe tax {(snipe / 100).toFixed(1)}%</b> right now: this coin opened {Math.floor(now - coin.createdAt)}s ago. It falls to zero at {params.snipeWindow}s.
-        </div>
-      )}
-
       {quote && (
         <div style={{ marginBottom: 12 }}>
           <div className="kv">
@@ -138,18 +131,13 @@ function TradePanel({ coin, cur, disp, factor }: { coin: Coin; cur: Currency; di
             </span>
           </div>
           <div className="kv">
-            <span>{coin.graduated ? 'Uniswap pool fee (0.3%, stays in the pool)' : `Fee (${(params.protocolFeeBps + params.creatorFeeBps) / 100}%)`}</span>
-            <span className="num">{money(amount(quote.fee + quote.snipe, cur.decimals), cur.symbol)}</span>
+            <span>Pool fee ({feePct}%, half to the creator)</span>
+            <span className="num">{money(amount(quote.fee, cur.decimals), cur.symbol)}</span>
           </div>
           <div className="kv">
             <span>Minimum, with {slip / 100}% slippage</span>
             <span className="num">{side === 'buy' ? `${compact(amount(minOut))} ${coin.symbol}` : money(amount(minOut, cur.decimals), cur.symbol)}</span>
           </div>
-          {quote.graduates && (
-            <div className="callout small" style={{ marginTop: 8 }}>
-              This buy takes the last coins on the curve and graduates {coin.symbol} into its Uniswap pool. You only pay for what is left.
-            </div>
-          )}
         </div>
       )}
 
@@ -200,16 +188,15 @@ function Holders({ coin }: { coin: Coin }) {
     }
     return [...m.entries()].filter(([, v]) => v > 0n).sort((a, b) => (b[1] > a[1] ? 1 : -1)).slice(0, 10);
   }, [pad.snap, coin.address]);
-  const inPad = coin.graduated ? coin.reserveToken : coin.curveLeft + (TOTAL_SUPPLY - CURVE_SUPPLY);
   return (
     <div className="panel">
       <div className="kicker">Top holders</div>
       <p className="hint" style={{ marginTop: 6 }}>
-        From fills on the pad; transfers between wallets are not counted.
+        From fills on the pad and in the pool; transfers between wallets are not counted.
       </p>
       <div className="kv">
-        <span>{coin.graduated ? 'Uniswap pool (liquidity burned)' : 'Curve + pool reserve (unsold)'}</span>
-        <span className="num">{pct(Number((inPad * 10000n) / TOTAL_SUPPLY) / 10000)}</span>
+        <span>In the pool, locked</span>
+        <span className="num">{pct(Number((coin.reserveToken * 10000n) / TOTAL_SUPPLY) / 10000)}</span>
       </div>
       {list.map(([who, bal]) => (
         <div key={who} className="kv">
@@ -259,9 +246,9 @@ export default function CoinPage() {
   const now = pad.now();
   const perUsd = unitsPerUsd(cur);
   const { disp, factor } = row;
-  const sold = CURVE_SUPPLY - coin.curveLeft;
-  const gradPrice = graduationPrice(coin.virtualQuote) / 10 ** (cur.decimals - 18);
   const exp = pad.chainId ? explorerAddress(pad.chainId, coin.address) : '';
+  const poolExp = pad.chainId && coin.pool ? explorerAddress(pad.chainId, coin.pool) : '';
+  const fee = pad.snap.params.poolFeePips / 10_000;
 
   return (
     <div className="wrap">
@@ -270,7 +257,7 @@ export default function CoinPage() {
           <CoinOrb coin={coin} currency={disp} size={coin.meta.image ? 76 : 124} />
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div className="kicker">{coin.graduated ? 'Graduated · trading on Uniswap' : 'On the curve'}</div>
+          <div className="kicker">Trading on Uniswap · liquidity locked since launch</div>
           <h1>{coin.name}</h1>
           <div className="meta-line">
             <PairBadge coin={coin} currency={disp} size="lg" />
@@ -295,6 +282,11 @@ export default function CoinPage() {
                 Explorer ↗
               </a>
             )}
+            {coin.pool && pad.chainId && DEXSCREENER[pad.chainId] && (
+              <a href={`https://dexscreener.com/${DEXSCREENER[pad.chainId]}/${coin.pool}`} target="_blank" rel="noopener noreferrer" className="accent-text">
+                DexScreener ↗
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -313,9 +305,9 @@ export default function CoinPage() {
               <span className="muted small">{usd(row.mcapUsd)}</span>
             </div>
             <div className="stat">
-              <span className="kicker">Backing</span>
-              <b className="num">{money(row.raised, cur.symbol)}</b>
-              <span className="muted small">{usd(row.raised / perUsd)}</span>
+              <span className="kicker">Liquidity</span>
+              <b className="num">{money(row.dispPooled, disp.symbol)}</b>
+              <span className="muted small">{usd(row.pooledUsd)} in the pool</span>
             </div>
             <div className="stat">
               <span className="kicker">24h</span>
@@ -344,24 +336,34 @@ export default function CoinPage() {
 
           <div className="grid grid-2" style={{ marginTop: 18 }}>
             <div className="panel">
-              <div className="kicker">{coin.graduated ? 'The Uniswap pool' : 'The curve'}</div>
-              <h3 className="card-title">{coin.graduated ? 'Graduated. Its liquidity is burned for good.' : `${pct(row.progress)} of the curve is sold`}</h3>
-              <ProgressBar value={row.progress} full={coin.graduated} />
-              <div className="kv" style={{ marginTop: 10 }}>
-                <span>Sold on the curve</span>
-                <span className="num">{compact(amount(coin.graduated ? CURVE_SUPPLY : sold))} / 800M</span>
+              <div className="kicker">The pool</div>
+              <h3 className="card-title">
+                {row.sinceLaunch >= 1 ? `×${row.sinceLaunch.toFixed(2)} since launch` : `${pct(row.sinceLaunch - 1)} since launch`}
+              </h3>
+              <p className="muted small" style={{ marginTop: 0 }}>
+                The whole supply went into this Uniswap pool at launch as one position the pad owns and cannot withdraw. Every buy lifts the price
+                along the curve; every sell lowers it.
+              </p>
+              <div className="kv">
+                <span>Coins in the pool</span>
+                <span className="num">{compact(amount(coin.reserveToken))} / 1B</span>
               </div>
               <div className="kv">
-                <span>{coin.graduated ? 'Raised on the curve' : 'Raised'}</span>
-                <span className="num">
-                  {/* once graduated, the currency held is the pool's, which moves with every trade */}
-                  {coin.graduated ? `${money(row.raiseTarget, cur.symbol)}, the whole target` : `${money(row.raised, cur.symbol)} of ${money(row.raiseTarget, cur.symbol)}`}
-                </span>
+                <span>In wallets</span>
+                <span className="num">{pct(row.sold)} of the supply</span>
               </div>
               <div className="kv">
-                <span>{coin.graduated ? 'Pool reserves' : 'Graduates at price'}</span>
-                <span className="num">
-                  {coin.graduated ? `${compact(amount(coin.reserveToken))} ${coin.symbol} · ${money(amount(coin.reserveQuote, cur.decimals), cur.symbol)}` : money(gradPrice, cur.symbol)}
+                <span>{cur.code} in the pool</span>
+                <span className="num">{money(row.pooled, cur.symbol)}</span>
+              </div>
+              <div className="kv">
+                <span>Launch price</span>
+                <span className="num">{money(row.startPrice * factor, disp.symbol)}</span>
+              </div>
+              <div className="kv">
+                <span>Pool fee</span>
+                <span>
+                  {fee}% · {fee / 2}% to the creator · {money(amount(coin.creatorFees, cur.decimals), cur.symbol)} paid out so far
                 </span>
               </div>
               <div className="kv">
@@ -370,19 +372,19 @@ export default function CoinPage() {
                   <PairBadge coin={coin} currency={cur} size="sm" />
                 </span>
               </div>
-              {coin.pair && pad.chainId && (
+              {coin.pool && (
                 <div className="kv">
-                  <span>Uniswap pair</span>
+                  <span>Uniswap pool</span>
                   <span className="row" style={{ gap: 10 }}>
-                    {explorerAddress(pad.chainId, coin.pair) ? (
-                      <a className="link mono" href={explorerAddress(pad.chainId, coin.pair)} target="_blank" rel="noopener noreferrer">
-                        {shortAddr(coin.pair)}
+                    {poolExp ? (
+                      <a className="link mono" href={poolExp} target="_blank" rel="noopener noreferrer">
+                        {shortAddr(coin.pool)}
                       </a>
                     ) : (
-                      <span className="mono">{shortAddr(coin.pair)}</span>
+                      <span className="mono">{shortAddr(coin.pool)}</span>
                     )}
-                    {coin.graduated && DEXSCREENER[pad.chainId] && (
-                      <a className="link" href={`https://dexscreener.com/${DEXSCREENER[pad.chainId]}/${coin.pair}`} target="_blank" rel="noopener noreferrer">
+                    {pad.chainId && DEXSCREENER[pad.chainId] && (
+                      <a className="link" href={`https://dexscreener.com/${DEXSCREENER[pad.chainId]}/${coin.pool}`} target="_blank" rel="noopener noreferrer">
                         DexScreener
                       </a>
                     )}

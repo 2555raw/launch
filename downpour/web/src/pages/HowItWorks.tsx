@@ -5,32 +5,36 @@ import { CurveChart } from '../components/sections';
 import { Arrow } from '../components/icons';
 import { money, usd } from '../lib/format';
 import { amount, unitsPerUsd } from '../lib/views';
-import { curveRaise, graduationPrice, newMarket, priceOf, virtualQuoteFor } from '../lib/math';
+import { applyBuy, fromUsd, marketCap, newMarket, priceOf, quoteBuy, startQuoteFor, WAD } from '../lib/math';
 
 export default function HowItWorks() {
   const pad = usePad();
   const snap = pad.snap;
   const p = snap?.params;
-  const eur = snap?.currencies.find((c) => c.code === 'EUR');
-  const ex = eur && p ? (() => {
-    const vq = virtualQuoteFor(eur, p.targetRaiseUsd);
-    return {
-      start: priceOf(newMarket(vq, 0), eur.decimals),
-      end: graduationPrice(vq),
-      raise: amount(curveRaise(vq), eur.decimals),
-      perUsd: unitsPerUsd(eur),
-    };
-  })() : null;
-  const fee = p ? (p.protocolFeeBps + p.creatorFeeBps) / 100 : 1;
-  const window = p?.snipeWindow ?? 15;
-  const steps = [0, 0.2, 0.4, 0.6, 0.8, 1].map((f) => Math.round(f * window));
+  const eur = snap?.currencies.find((c) => c.code === 'EUR') ?? snap?.currencies.find((c) => c.code === 'USD');
+  const ex =
+    eur && p
+      ? (() => {
+          const m = newMarket(startQuoteFor(eur, p.startMcapUsd), 0);
+          const after = applyBuy(m, quoteBuy(m, fromUsd(eur, 1_000n * WAD), p));
+          return {
+            code: eur.code,
+            sym: eur.symbol,
+            start: priceOf(m, eur.decimals),
+            startMcap: amount(m.startQuote, eur.decimals),
+            after: marketCap(after, eur.decimals),
+            perUsd: unitsPerUsd(eur),
+          };
+        })()
+      : null;
+  const fee = p ? p.poolFeePips / 10_000 : 1;
 
   return (
     <div className="wrap">
       <PageHead
         kicker="Inside the engine"
         title="How it works"
-        lead="Six parts, every one of them enforced by the contracts. Nothing on this page is a promise that lives only on a website."
+        lead="Seven parts, every one of them enforced by the contracts. Nothing on this page is a promise that lives only on a website."
       />
 
       <div className="part">
@@ -38,7 +42,7 @@ export default function HowItWorks() {
           <div className="kicker">Part 01</div>
           <h2>One coin, one currency</h2>
           <p>
-            At launch the creator picks a currency from the desk. That token becomes the other side of the coin's market: buyers pay in it, sellers
+            At launch the creator picks a currency from the desk. That token becomes the other side of the coin's pool: buyers pay in it, sellers
             are paid in it, the price is quoted in it and fees are collected in it.
           </p>
           <p>The pad stores the currency inside the market when the coin is created. There is no function anywhere that changes it later.</p>
@@ -69,42 +73,38 @@ export default function HowItWorks() {
       <div className="part">
         <div>
           <div className="kicker">Part 02</div>
-          <h2>Opening a market</h2>
+          <h2>Opening a market: a Uniswap pool from the first second</h2>
           <p>
-            Every coin has exactly one billion units, all minted to the pad. 800 million are for sale on the curve; 200 million stay inside the pad
-            until graduation, when they seed its Uniswap pool.
+            Every coin has exactly one billion units, minted to the pad and put, in the same transaction, into the coin's Uniswap V3 pool with its
+            currency: one position from the launch price up to the top of the price scale, so every coin not in a wallet is always for sale there.
           </p>
           <p>
-            The creator can buy in the same transaction as the launch, before anyone else, with no snipe tax. For everyone else the first {window}{' '}
-            seconds carry an extra tax on buys that shrinks to zero, so bots that pounce in the first block pay for it. That tax goes to the
-            protocol.
+            That is why a coin shows up on DEX screens and trading terminals the moment it launches, with its liquidity and its picture: to them it
+            is an ordinary Uniswap pool, and the coin serves its name, description and picture itself (ERC-7572 <span className="mono">contractURI</span>).
+            The creator can buy in the same transaction as the launch, before anyone else.
           </p>
         </div>
         <div className="panel">
-          <div className="kicker" style={{ marginBottom: 8 }}>
-            Snipe tax after launch
+          <div className="kv">
+            <span>Supply</span>
+            <span>1,000,000,000, all in the pool</span>
           </div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Since launch</th>
-                <th className="r">Snipe tax</th>
-                <th className="r">Total on a buy</th>
-              </tr>
-            </thead>
-            <tbody>
-              {steps.map((s) => {
-                const tax = p ? Math.floor((p.snipeTaxBps * Math.max(0, window - s)) / window) / 100 : 0;
-                return (
-                  <tr key={s}>
-                    <td className="num">{s}s</td>
-                    <td className="r num">{tax.toFixed(1)}%</td>
-                    <td className="r num">{(tax + fee).toFixed(1)}%</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="kv">
+            <span>Pool</span>
+            <span>Uniswap V3, {fee}% fee tier</span>
+          </div>
+          <div className="kv">
+            <span>Position</span>
+            <span>launch price → top of the scale</span>
+          </div>
+          <div className="kv">
+            <span>Starts at</span>
+            <span>{p ? usd(Number(p.startMcapUsd) / 1e18) : '…'} market cap, in any currency</span>
+          </div>
+          <div className="kv">
+            <span>Metadata</span>
+            <span>in the coin itself</span>
+          </div>
         </div>
       </div>
 
@@ -113,54 +113,59 @@ export default function HowItWorks() {
           <div className="kicker">Part 03</div>
           <h2>The curve</h2>
           <p>
-            Price follows <span className="mono">x · y = k</span> over two reserves: coins on one side, currency on the other. The currency side
-            starts with a virtual amount, so the first coin is cheap but never free, and every buy moves the price up the curve.
+            Inside that position the pool prices along <span className="mono">x · y = k</span>: coins on one side, currency on the other. The first
+            coin is cheap but never free, every buy moves the price up and every sell moves it down, so a launch is a bonding curve that happens to
+            be a Uniswap pool.
           </p>
           <p>
-            The virtual amount is set at launch from the desk's rate so that a full curve raises the same dollar amount in every currency
-            {p ? ` (${usd(Number(p.targetRaiseUsd) / 1e18)})` : ''}. A coin in yen and a coin in euros are equally hard to graduate.
+            The launch price is set from the desk's rate so the whole supply is worth the same in dollars in every currency
+            {p ? ` (${usd(Number(p.startMcapUsd) / 1e18)})` : ''}. A coin in yen and a coin in euros start on equal footing.
           </p>
           {ex && (
             <p className="small muted">
-              Example in euros: first coin at {money(ex.start, '€')}, last coin at {money(ex.end, '€')}, a full curve takes in{' '}
-              {money(ex.raise, '€')} ({usd(ex.raise / ex.perUsd)}).
+              Example in {ex.code}: first coin at {money(ex.start, ex.sym)}, the supply worth {money(ex.startMcap, ex.sym)}; a {usd(1000)} buy takes the
+              market cap to {money(ex.after, ex.sym)} ({usd(ex.after / ex.perUsd)}).
             </p>
           )}
         </div>
         <div className="panel">
-          <CurveChart sold={0.62} />
+          <CurveChart sold={0.42} />
         </div>
       </div>
 
       <div className="part">
         <div>
           <div className="kicker">Part 04</div>
-          <h2>Backing, and why a sell always clears</h2>
+          <h2>Liquidity that cannot leave</h2>
           <p>
-            Everything buyers pay (minus fees) stays in the coin's market as its backing, kept per coin and per currency. Because the curve only
-            ever moves along <span className="mono">x · y = k</span>, selling back every coin in circulation returns the market to where it started:
-            the backing always covers it, with rounding dust to spare.
+            The pool's position belongs to the pad, and the pad has no function that moves, decreases or burns it. The only thing it can do with the
+            position is collect its fees. There is no team wallet holding LP tokens, no unlock date and no admin key over the pool.
           </p>
           <p>
-            A run on one currency cannot reach another: a sale is paid from that coin's own backing, in that coin's own currency.{' '}
+            Because the pool only ever moves along <span className="mono">x · y = k</span>, selling every coin in wallets back returns it to where it
+            started: what came in can go out, and a run on one currency cannot reach another.{' '}
             <Link to="/proof" className="accent-text">
               The Proof page
             </Link>{' '}
-            recomputes this for every market while you watch.
+            recomputes this for every pool while you watch, and asks the chain who owns each position.
           </p>
         </div>
         <div className="panel">
           <div className="kv">
-            <span>Held per coin</span>
-            <span>its own backing, in its own currency</span>
+            <span>Position owner</span>
+            <span>the pad, forever</span>
+          </div>
+          <div className="kv">
+            <span>Withdraw, burn, move</span>
+            <span>no such function</span>
           </div>
           <div className="kv">
             <span>If every holder sold at once</span>
-            <span>backing ≥ payout</span>
+            <span>the pool pays it all</span>
           </div>
           <div className="kv">
-            <span>Fees</span>
-            <span>held apart from the backing</span>
+            <span>Held per coin</span>
+            <span>its own pool, in its own currency</span>
           </div>
         </div>
       </div>
@@ -170,14 +175,15 @@ export default function HowItWorks() {
           <div className="kicker">Part 05</div>
           <h2>Fees</h2>
           <p>
-            Each trade pays {fee}%: half to the coin's creator, half to the protocol, both in the coin's own currency. Fees build up inside the pad
-            and whoever earned them claims them from their Portfolio whenever they like.
+            Each trade pays the pool's {fee}% fee, wherever it is made: on the pad, on Uniswap, through a terminal. The fee accrues to the pad's
+            position, and anyone can have it paid out at any time: half goes to the coin's creator and half to the protocol, in the coin and in its
+            currency, exactly as the pool earned it.
           </p>
         </div>
         <div className="panel">
           <div className="kv">
             <span>Trade fee</span>
-            <span>{fee}%</span>
+            <span>{fee}%, the pool's</span>
           </div>
           <div className="kv">
             <span>To the creator</span>
@@ -185,11 +191,11 @@ export default function HowItWorks() {
           </div>
           <div className="kv">
             <span>To the protocol</span>
-            <span>{fee / 2}% + any snipe tax</span>
+            <span>{fee / 2}%</span>
           </div>
           <div className="kv">
-            <span>Paid in</span>
-            <span>the coin's currency</span>
+            <span>Paid out by</span>
+            <span>anyone, from the Portfolio</span>
           </div>
         </div>
       </div>
@@ -197,35 +203,32 @@ export default function HowItWorks() {
       <div className="part">
         <div>
           <div className="kicker">Part 06</div>
-          <h2>Graduation</h2>
+          <h2>Trading, here or anywhere</h2>
           <p>
-            When the last of the 800 million curve coins sells, the market graduates. Its backing and the 200 million coins held back go into the
-            coin's Uniswap V2 pool with its currency. The curve's size was chosen so that the pool's first price is exactly the curve's last price:
-            nobody gets a jump either way.
+            The pad buys and sells in the pool for you and quotes it as a curve: what you see on a coin page is the pool's own price. Anyone can trade
+            the same pool from Uniswap, an aggregator or a terminal, and the site reads those fills into the coin's chart and list, wherever they
+            came from.
           </p>
           <p>
-            The pool's liquidity tokens are burned in the same transaction, so nobody can ever withdraw it. Until then the coin can't be sent to its
-            pool at all, so nobody can open it early at a price of their own. From graduation on it is an ordinary Uniswap pair: DEX screens and
-            trading terminals list it with its liquidity and its currency, and the pad keeps trading it for you, with no fee of its own (the pool
-            keeps Uniswap's 0.3%).
+            Swap takes anything for anything: a currency into a coin priced in another one, or a coin into a coin, converting in between through the
+            desk or, between the real tokens on the chain, through Uniswap's own pools.
           </p>
+          <Link to="/swap" className="link">
+            Open Swap <Arrow />
+          </Link>
         </div>
         <div className="panel">
           <div className="kv">
-            <span>Before</span>
-            <span>curve, virtual + real reserves</span>
+            <span>On the pad</span>
+            <span>buy, sell, swap across currencies</span>
           </div>
           <div className="kv">
-            <span>After</span>
-            <span>Uniswap pool, real reserves only, liquidity burned</span>
+            <span>Elsewhere</span>
+            <span>the same Uniswap pool</span>
           </div>
           <div className="kv">
-            <span>Price at the switch</span>
-            <span>unchanged</span>
-          </div>
-          <div className="kv">
-            <span>Who can remove liquidity</span>
-            <span>nobody</span>
+            <span>Fills shown</span>
+            <span>from everywhere</span>
           </div>
         </div>
       </div>
@@ -235,8 +238,9 @@ export default function HowItWorks() {
           <div className="kicker">Part 07</div>
           <h2>The desk and its keeper</h2>
           <p>
-            The desk lists every currency with a rate against the dollar. It converts between currencies at those rates for a {((p?.deskFeeBps ?? 10) / 100).toFixed(2)}%
-            fee, which is how Swap can take yen in and deliver a coin priced in euros.
+            The desk lists every currency with a rate against the dollar. It sets the launch price of a coin in its currency, and converts between
+            currencies at those rates for a {((p?.deskFeeBps ?? 10) / 100).toFixed(2)}% fee wherever it holds them, which is how Swap can take yen in and
+            deliver a coin priced in euros.
           </p>
           <p>
             A keeper reads two independent FX feeds and posts a new rate only when they agree. On chain, a single post cannot move a rate more than

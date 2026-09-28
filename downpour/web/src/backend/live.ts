@@ -8,11 +8,15 @@ import {
   createPublicClient,
   decodeFunctionResult,
   encodeFunctionData,
+  encodePacked,
+  getContractAddress,
   http,
+  keccak256,
   maxUint256,
   parseAbi,
   parseAbiItem,
   zeroAddress,
+  type Hex,
   type PublicClient,
   type WalletClient,
 } from 'viem';
@@ -21,7 +25,9 @@ import { deskAbi, launchpadAbi, routerAbi, coinAbi } from '../generated/contract
 import { viemChain, type Deployment } from '../config/chains';
 import { CURRENCY_BY_CODE, currencyColor } from '../data/currencies';
 import { parseMeta } from '../lib/meta';
-import type { Address, Backend, Coin, CoinMeta, CreateCoinInput, Currency, ExternalQuote, Params, RateMove, Snapshot, Trade, TxOptions } from './types';
+import { reservesFromPool } from '../lib/math';
+import type { SwapQuote } from '../lib/route';
+import type { Address, Backend, Coin, CoinMeta, CreateCoinInput, Currency, ExternalQuote, Params, PendingFees, RateMove, Snapshot, Trade, TxOptions } from './types';
 
 const erc20 = [
   parseAbiItem('function approve(address spender, uint256 amount) returns (bool)'),
@@ -33,12 +39,16 @@ const erc20 = [
 const wethAbi = [parseAbiItem('function deposit() payable'), parseAbiItem('function withdraw(uint256 wad)')] as const;
 
 /* Uniswap on the chain, for swaps between real tokens (USDG <-> WETH): V3 through its quoter
- * and SwapRouter02, V2 through its router, or straight on the pair where a chain has no router. */
+ * and SwapRouter02 (or the first SwapRouter, which takes a deadline, on a local chain), V2
+ * through its router, or straight on the pair where a chain has no router. */
 const quoterV2Abi = parseAbi([
   'function quoteExactInputSingle((address tokenIn, address tokenOut, uint256 amountIn, uint24 fee, uint160 sqrtPriceLimitX96) params) returns (uint256 amountOut, uint160 sqrtPriceX96After, uint32 initializedTicksCrossed, uint256 gasEstimate)',
 ]);
 const swapRouter02Abi = parseAbi([
   'function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) params) payable returns (uint256 amountOut)',
+]);
+const swapRouterAbi = parseAbi([
+  'function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) params) payable returns (uint256 amountOut)',
 ]);
 const v2RouterAbi = parseAbi([
   'function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline) returns (uint256[] amounts)',
@@ -51,28 +61,39 @@ const v2PairAbi = parseAbi([
   'function transfer(address to, uint256 amount) returns (bool)',
 ]);
 const V3_FEES = [100, 500, 3000, 10000] as const;
-type UniConfig = { v2Factory?: Address; v2Router02?: Address; v3?: { quoterV2: Address; swapRouter02: Address } };
-/** Uniswap's own on a chain that has it, else the V2 factory copy the pad was deployed with. */
+type UniConfig = { v2Factory?: Address; v2Router02?: Address; v3?: { quoterV2: Address; swapRouter02?: Address; swapRouter?: Address } };
+type UniFile = {
+  v2Factory?: Record<string, string>;
+  v2Router02?: Record<string, string>;
+  v3?: Record<string, { factory: string; quoterV2: string; swapRouter02?: string; positionManager: string }>;
+};
+/** Uniswap's own on a chain that has it, else what the pad was deployed beside (a local chain). */
 function uniswapOn(dep: Deployment): UniConfig {
-  const u = uniswap as { v2Factory?: Record<string, string>; v2Router02?: Record<string, string>; v3?: Record<string, { quoterV2: string; swapRouter02: string }> };
+  const u = uniswap as UniFile;
   const id = String(dep.chainId);
+  const own = u.v3?.[id];
   return {
-    v2Factory: (u.v2Factory?.[id] as Address | undefined) ?? dep.uniswapFactory,
+    v2Factory: u.v2Factory?.[id] as Address | undefined,
     v2Router02: u.v2Router02?.[id] as Address | undefined,
-    v3: u.v3?.[id] as UniConfig['v3'],
+    v3: own
+      ? { quoterV2: own.quoterV2 as Address, swapRouter02: own.swapRouter02 as Address | undefined }
+      : dep.quoterV2
+        ? { quoterV2: dep.quoterV2, swapRouter: dep.swapRouter }
+        : undefined,
   };
 }
 
 const EV_CREATED = parseAbiItem(
-  'event CoinCreated(address indexed coin, address indexed creator, address indexed currency, string name, string symbol, string meta, uint256 virtualQuote)',
+  'event CoinCreated(address indexed coin, address indexed creator, address indexed currency, string name, string symbol, string meta, address pool, uint256 tokenId, uint256 startQuote)',
 );
 const EV_TRADE = parseAbiItem(
-  'event Trade(address indexed coin, address indexed trader, bool isBuy, uint256 quoteAmount, uint256 tokenAmount, uint256 protocolFee, uint256 creatorFee, uint256 snipeTax, uint256 reserveToken, uint256 reserveQuote, uint256 timestamp)',
+  'event Trade(address indexed coin, address indexed trader, bool isBuy, uint256 quoteAmount, uint256 tokenAmount, uint256 fee, uint160 sqrtPriceX96, uint256 timestamp)',
 );
 const EV_RATE = parseAbiItem('event RateUpdated(address indexed token, uint256 oldRate, uint256 newRate)');
-// a graduated coin's Uniswap V2 pair: trades made there from anywhere (DEX screens, terminals, Uniswap)
-const EV_SWAP = parseAbiItem('event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)');
-const EV_SYNC = parseAbiItem('event Sync(uint112 reserve0, uint112 reserve1)');
+// a coin's Uniswap V3 pool: trades made there from anywhere (DEX screens, terminals, Uniswap)
+const EV_SWAP = parseAbiItem(
+  'event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)',
+);
 
 const FRIENDLY: Record<string, string> = {
   Slippage: 'The price moved past your slippage limit. Try again or allow more slippage.',
@@ -86,6 +107,9 @@ const FRIENDLY: Record<string, string> = {
   InsufficientBalance: 'Not enough balance for that.',
   Expired: 'The swap took too long to confirm and expired. Try again.',
   NotRouter: 'Only the router can do that.',
+  BadSalt: 'The coin address did not sort below its currency; try launching again.',
+  PoolTaken: 'A pool for this coin already exists; try launching again.',
+  BadStart: 'The launch price could not be set for this currency.',
 };
 
 export function explainError(e: unknown): string {
@@ -120,6 +144,7 @@ export class LiveBackend implements Backend {
   private rateMoves: RateMove[] = [];
   private blockTimes = new Map<bigint, number>();
   private span = 20_000n;
+  private initCodeHash?: Hex;
 
   constructor(dep: Deployment, getWallet: GetWallet) {
     this.dep = dep;
@@ -130,6 +155,7 @@ export class LiveBackend implements Backend {
       desk: dep.desk,
       router: dep.router,
       coinImplementation: dep.coinImplementation,
+      positionManager: dep.positionManager,
     };
     this.client = createPublicClient({ chain: viemChain(dep.chainId), transport: http(dep.rpcUrl), batch: { multicall: false } }) as PublicClient;
     this.logCursor = BigInt(dep.deployBlock);
@@ -156,38 +182,35 @@ export class LiveBackend implements Backend {
     return out;
   }
 
-  /** Fills made straight in graduated coins' Uniswap pools, wherever they came from.
-   *  The pad's own trades there are skipped: its Trade event already names the trader.
-   *  Uniswap V2 emits Sync (the reserves after) just before each Swap. */
-  private async addPoolTrades(swaps: any[], syncs: any[], coins: Coin[]) {
+  /** Fills made straight in the coins' pools, wherever they came from. The pad's own swaps
+   *  there are skipped: its Trade event already names the trader. The coin is always token0. */
+  private async addPoolTrades(swaps: any[], coins: Coin[], feePips: bigint) {
     if (!swaps.length) return;
-    const byPair = new Map(coins.filter((c) => c.pair).map((c) => [c.pair!.toLowerCase(), c]));
-    const syncAt = new Map(syncs.map((l) => [`${l.transactionHash}:${l.logIndex}`, l]));
+    const byPool = new Map(coins.filter((c) => c.pool).map((c) => [c.pool!.toLowerCase(), c]));
     const pad = this.dep.launchpad.toLowerCase();
     for (const l of swaps) {
       if (l.args.sender.toLowerCase() === pad) continue;
-      const coin = byPair.get(l.address.toLowerCase());
+      const coin = byPool.get(l.address.toLowerCase());
       if (!coin) continue;
-      const coinIs0 = coin.address.toLowerCase() < coin.currency.toLowerCase();
-      const { amount0In, amount1In, amount0Out, amount1Out } = l.args;
-      const [coinIn, quoteIn, coinOut, quoteOut] = coinIs0 ? [amount0In, amount1In, amount0Out, amount1Out] : [amount1In, amount0In, amount1Out, amount0Out];
-      const isBuy = coinOut > 0n;
-      const sync = syncAt.get(`${l.transactionHash}:${l.logIndex - 1}`);
-      const [r0, r1] = sync ? [BigInt(sync.args.reserve0), BigInt(sync.args.reserve1)] : [0n, 0n];
-      const quote = isBuy ? quoteIn : quoteOut;
+      const amount0 = BigInt(l.args.amount0);
+      const amount1 = BigInt(l.args.amount1);
+      const isBuy = amount0 < 0n;
+      const quote = amount1 < 0n ? -amount1 : amount1;
+      const tokens = amount0 < 0n ? -amount0 : amount0;
+      const r = reservesFromPool(BigInt(l.args.sqrtPriceX96), BigInt(l.args.liquidity));
       this.trades.push({
         id: `${l.transactionHash}:${l.logIndex}`,
         coin: coin.address,
-        trader: l.args.to,
+        trader: l.args.recipient,
         isBuy,
         quoteAmount: quote,
-        tokenAmount: isBuy ? coinOut : coinIn,
-        fees: isBuy ? (quote * 3n) / 1000n : (quote * 3n) / 997n,
-        snipeTax: 0n,
-        reserveToken: coinIs0 ? r0 : r1,
-        reserveQuote: coinIs0 ? r1 : r0,
+        tokenAmount: tokens,
+        fees: isBuy ? (quote * feePips) / 1_000_000n : (quote * feePips) / (1_000_000n - feePips),
+        reserveToken: r.reserveToken,
+        reserveQuote: r.reserveQuote,
         timestamp: await this.timeOf(l.blockNumber),
         txHash: l.transactionHash,
+        via: 'pool',
       });
     }
     this.trades.sort((a, b) => a.timestamp - b.timestamp);
@@ -214,21 +237,17 @@ export class LiveBackend implements Backend {
       this.dep = { ...this.dep, desk: deskOnChain, router: routerOnChain };
     }
     const desk = this.dep.desk;
-    const [raw, count, targetRaiseUsd, protocolFeeBps, creatorFeeBps, snipeTaxBps, snipeWindow, treasury, deskFeeBps, faucetUsd, faucetCooldown, head] =
-      await Promise.all([
-        this.read<any[]>(desk, deskAbi, 'getCurrencies'),
-        this.read<bigint>(launchpad, launchpadAbi, 'coinsCount'),
-        this.read<bigint>(launchpad, launchpadAbi, 'targetRaiseUsd'),
-        this.read<number>(launchpad, launchpadAbi, 'protocolFeeBps'),
-        this.read<number>(launchpad, launchpadAbi, 'creatorFeeBps'),
-        this.read<number>(launchpad, launchpadAbi, 'snipeTaxBps'),
-        this.read<number>(launchpad, launchpadAbi, 'snipeWindow'),
-        this.read<Address>(launchpad, launchpadAbi, 'treasury'),
-        this.read<number>(desk, deskAbi, 'feeBps'),
-        this.read<bigint>(desk, deskAbi, 'faucetUsd'),
-        this.read<number>(desk, deskAbi, 'faucetCooldown'),
-        this.client.getBlock(),
-      ]);
+    const [raw, count, startMcapUsd, poolFee, treasury, deskFeeBps, faucetUsd, faucetCooldown, head] = await Promise.all([
+      this.read<any[]>(desk, deskAbi, 'getCurrencies'),
+      this.read<bigint>(launchpad, launchpadAbi, 'coinsCount'),
+      this.read<bigint>(launchpad, launchpadAbi, 'startMcapUsd'),
+      this.read<number>(launchpad, launchpadAbi, 'POOL_FEE'),
+      this.read<Address>(launchpad, launchpadAbi, 'treasury'),
+      this.read<number>(desk, deskAbi, 'feeBps'),
+      this.read<bigint>(desk, deskAbi, 'faucetUsd'),
+      this.read<number>(desk, deskAbi, 'faucetCooldown'),
+      this.client.getBlock(),
+    ]);
 
     const currencies: Currency[] = raw.map((c) => {
       const s = CURRENCY_BY_CODE[c.code];
@@ -265,7 +284,7 @@ export class LiveBackend implements Backend {
         }),
     );
 
-    // The markets first, so the pools of graduated coins are known when the logs are read.
+    // The markets first, so their pools are known when the logs are read.
     const coins: Coin[] = [];
     const PAGE = 200n;
     for (let off = 0n; off < count; off += PAGE) {
@@ -278,32 +297,38 @@ export class LiveBackend implements Backend {
           creator: c.creator,
           currency: c.currency,
           createdAt: Number(c.createdAt),
-          graduated: c.graduated,
-          virtualQuote: c.virtualQuote,
+          pool: c.pool,
+          tokenId: c.tokenId,
+          startQuote: c.startQuote,
           reserveToken: c.reserveToken,
           reserveQuote: c.reserveQuote,
           realQuote: c.realQuote,
-          curveLeft: c.curveLeft,
+          sqrtPriceX96: c.sqrtPriceX96,
+          liquidity: c.liquidity,
           volume: c.volume,
-          pair: c.pair,
+          creatorFees: c.creatorFees,
+          protocolFees: c.protocolFees,
           meta: { description: '', image: '', links: {} },
         });
       }
     }
-    const pools = coins.filter((c) => c.graduated && c.pair).map((c) => c.pair as Address);
+    const pools = coins.map((c) => c.pool!).filter(Boolean);
+    const liquidityOf = new Map(coins.map((c) => [c.address.toLowerCase(), c.liquidity ?? 0n]));
+    const feePips = BigInt(poolFee);
 
     // New events since the last load.
     const to = head.number;
     if (to >= this.logCursor) {
-      const [created, trades, rates, swaps, syncs] = await Promise.all([
+      const [created, trades, rates, swaps] = await Promise.all([
         this.logs(EV_CREATED, launchpad, this.logCursor, to),
         this.logs(EV_TRADE, launchpad, this.logCursor, to),
         this.logs(EV_RATE, desk, this.logCursor, to),
         pools.length ? this.logs(EV_SWAP, pools, this.logCursor, to) : Promise.resolve([]),
-        pools.length ? this.logs(EV_SYNC, pools, this.logCursor, to) : Promise.resolve([]),
       ]);
       for (const l of created) this.metaByCoin.set(l.args.coin.toLowerCase(), parseMeta(l.args.meta));
       for (const l of trades) {
+        // the event carries the price after the fill; the reserves behind it are the pool's liquidity at that price
+        const r = reservesFromPool(BigInt(l.args.sqrtPriceX96), liquidityOf.get(l.args.coin.toLowerCase()) ?? 0n);
         this.trades.push({
           id: `${l.transactionHash}:${l.logIndex}`,
           coin: l.args.coin,
@@ -311,15 +336,15 @@ export class LiveBackend implements Backend {
           isBuy: l.args.isBuy,
           quoteAmount: l.args.quoteAmount,
           tokenAmount: l.args.tokenAmount,
-          fees: l.args.protocolFee + l.args.creatorFee,
-          snipeTax: l.args.snipeTax,
-          reserveToken: l.args.reserveToken,
-          reserveQuote: l.args.reserveQuote,
+          fees: l.args.fee,
+          reserveToken: r.reserveToken,
+          reserveQuote: r.reserveQuote,
           timestamp: Number(l.args.timestamp),
           txHash: l.transactionHash,
+          via: 'pad',
         });
       }
-      await this.addPoolTrades(swaps, syncs, coins);
+      await this.addPoolTrades(swaps, coins, feePips);
       for (const l of rates.slice(-400)) {
         this.rateMoves.push({ token: l.args.token, oldRate: l.args.oldRate, newRate: l.args.newRate, timestamp: await this.timeOf(l.blockNumber) });
       }
@@ -330,11 +355,8 @@ export class LiveBackend implements Backend {
     for (const c of coins) c.meta = this.metaByCoin.get(c.address.toLowerCase()) ?? c.meta;
 
     const params: Params = {
-      targetRaiseUsd,
-      protocolFeeBps: Number(protocolFeeBps),
-      creatorFeeBps: Number(creatorFeeBps),
-      snipeTaxBps: Number(snipeTaxBps),
-      snipeWindow: Number(snipeWindow),
+      startMcapUsd,
+      poolFeePips: Number(poolFee),
       deskFeeBps: Number(deskFeeBps),
       faucetUsd,
       faucetCooldown: Number(faucetCooldown),
@@ -360,11 +382,12 @@ export class LiveBackend implements Backend {
       part.forEach((t, j) => (out[t.toLowerCase()] = vals[j]));
     }
     // plain ETH too: the pad wraps it when a buyer pays in wrapped ether, keeping enough for
-    // the gas of a launch (about 2.5M gas at the chain's price now, and at least 0.0001 ETH)
+    // the gas of a launch (it opens a Uniswap pool: about 8M gas at the chain's price now,
+    // and at least 0.0001 ETH)
     if (this.wethToken) {
       const [native, gasPrice] = await Promise.all([this.client.getBalance({ address: account }), this.client.getGasPrice().catch(() => 0n)]);
       out.native = native;
-      const need = gasPrice * 2_500_000n;
+      const need = gasPrice * 8_000_000n;
       out.gasReserve = need > 100_000_000_000_000n ? need : 100_000_000_000_000n;
     }
     return out;
@@ -377,12 +400,20 @@ export class LiveBackend implements Backend {
     return out;
   }
 
-  async feesOwed(account: Address, currencies: Address[]) {
-    const out: Record<string, bigint> = {};
-    const vals = await Promise.all(
-      currencies.map((c) => this.read<bigint>(this.dep.launchpad, launchpadAbi, 'feesOwed', [account, c])),
+  /** What collecting would pay out right now, simulated: the pool's fees owed to the pad's position. */
+  async pendingFees(coins: Address[]) {
+    const out: Record<string, PendingFees> = {};
+    await Promise.all(
+      coins.map(async (coin) => {
+        try {
+          const { result } = await this.client.simulateContract({ address: this.dep.launchpad, abi: launchpadAbi, functionName: 'collectFees', args: [coin] });
+          const [coinFees, quoteFees] = result as readonly [bigint, bigint];
+          out[coin.toLowerCase()] = { coin: coinFees, quote: quoteFees };
+        } catch {
+          out[coin.toLowerCase()] = { coin: 0n, quote: 0n };
+        }
+      }),
     );
-    currencies.forEach((c, i) => (out[c.toLowerCase()] = vals[i]));
     return out;
   }
 
@@ -472,17 +503,34 @@ export class LiveBackend implements Backend {
   async swapExternal(account: Address, q: ExternalQuote, minOut: bigint, o?: TxOptions) {
     const u = uniswapOn(this.dep);
     if (q.kind === 'v3' && u.v3) {
-      await this.ensureAllowance(account, q.tokenIn, u.v3.swapRouter02, q.amountIn, o);
-      const { hash } = await this.write(
-        account,
-        {
-          address: u.v3.swapRouter02,
-          abi: swapRouter02Abi,
-          functionName: 'exactInputSingle',
-          args: [{ tokenIn: q.tokenIn, tokenOut: q.tokenOut, fee: q.fee, recipient: account, amountIn: q.amountIn, amountOutMinimum: minOut, sqrtPriceLimitX96: 0n }],
-        },
-        o,
-      );
+      const router = u.v3.swapRouter02 ?? u.v3.swapRouter;
+      if (!router) throw new Error('No Uniswap router on this chain.');
+      await this.ensureAllowance(account, q.tokenIn, router, q.amountIn, o);
+      const req = u.v3.swapRouter02
+        ? {
+            address: u.v3.swapRouter02,
+            abi: swapRouter02Abi,
+            functionName: 'exactInputSingle',
+            args: [{ tokenIn: q.tokenIn, tokenOut: q.tokenOut, fee: q.fee, recipient: account, amountIn: q.amountIn, amountOutMinimum: minOut, sqrtPriceLimitX96: 0n }],
+          }
+        : {
+            address: router,
+            abi: swapRouterAbi,
+            functionName: 'exactInputSingle',
+            args: [
+              {
+                tokenIn: q.tokenIn,
+                tokenOut: q.tokenOut,
+                fee: q.fee,
+                recipient: account,
+                deadline: BigInt(Math.floor(Date.now() / 1000) + 20 * 60),
+                amountIn: q.amountIn,
+                amountOutMinimum: minOut,
+                sqrtPriceLimitX96: 0n,
+              },
+            ],
+          };
+      const { hash } = await this.write(account, req, o);
       return { hash };
     }
     if (q.kind === 'v2' && u.v2Factory) {
@@ -496,7 +544,7 @@ export class LiveBackend implements Backend {
         );
         return { hash };
       }
-      // no router on this chain (a local copy of the factory): pay the pair, then take the swap
+      // no router on this chain: pay the pair, then take the swap
       const pair = await this.read<Address>(u.v2Factory, v2FactoryAbi, 'getPair', [q.tokenIn, q.tokenOut]);
       await this.ensureWrapped(account, q.tokenIn, q.amountIn, o);
       await this.write(account, { address: q.tokenIn, abi: v2PairAbi, functionName: 'transfer', args: [pair, q.amountIn] }, { onStage: (s, d) => s === 'pending' && o?.onStage?.('pending', d) });
@@ -514,6 +562,27 @@ export class LiveBackend implements Backend {
       return { hash };
     }
     throw new Error('No Uniswap pool for this pair on this chain.');
+  }
+
+  /** A route with a Uniswap leg: one transaction per leg, each fed what the one before really
+   *  delivered (read from the wallet's balance), and each held to its own slippage. */
+  async swapRoute(account: Address, q: SwapQuote, slipBps: number, o?: TxOptions) {
+    let carry = q.steps[0]?.amountIn ?? 0n;
+    let last: { hash?: string } = {};
+    for (const s of q.steps) {
+      // the leg's quoted output, scaled to what really arrived, less the slippage allowed
+      const expected = s.amountIn === 0n ? 0n : (s.amountOut * carry) / s.amountIn;
+      const min = (expected * BigInt(10_000 - slipBps)) / 10_000n;
+      const before = await this.read<bigint>(s.tokenOut, erc20, 'balanceOf', [account]);
+      if (s.kind === 'uniswap') last = await this.swapExternal(account, { ...s.external!, amountIn: carry }, min, o);
+      else if (s.kind === 'buy') last = await this.buy(account, s.tokenOut, carry, min, o);
+      else if (s.kind === 'sell') last = await this.sell(account, s.tokenIn, carry, min, o);
+      else last = await this.swap(account, s.tokenIn, s.tokenOut, carry, min, o);
+      const after = await this.read<bigint>(s.tokenOut, erc20, 'balanceOf', [account]);
+      carry = after > before ? after - before : 0n;
+      if (carry === 0n) throw new Error(`The ${s.from} → ${s.to} leg delivered nothing.`);
+    }
+    return last;
   }
 
   async deskOwner() {
@@ -548,22 +617,46 @@ export class LiveBackend implements Backend {
     return { hash };
   }
 
+  /** A salt whose coin address sorts below the currency's, so the coin is its pool's token0
+   *  (a few thousand hashes at most; a handful on average). */
+  private async mineSalt(account: Address, currency: Address): Promise<{ salt: Hex; coin: Address }> {
+    if (!this.initCodeHash) this.initCodeHash = await this.read<Hex>(this.dep.launchpad, launchpadAbi, 'coinInitCodeHash');
+    const limit = BigInt(currency);
+    const seed = BigInt(Date.now());
+    for (let i = 0n; i < 500_000n; i++) {
+      const salt = keccak256(encodePacked(['address', 'address', 'uint256', 'uint256'], [account, currency, seed, i]));
+      const coin = getContractAddress({ opcode: 'CREATE2', from: this.dep.launchpad, salt, bytecodeHash: this.initCodeHash });
+      if (BigInt(coin) < limit) return { salt, coin };
+    }
+    throw new Error('Could not find a coin address below the currency; try again.');
+  }
+
   async createCoin(account: Address, input: CreateCoinInput, o?: TxOptions) {
     if (input.firstBuy > 0n) await this.ensureAllowance(account, input.currency, this.dep.launchpad, input.firstBuy, o);
-    const meta = JSON.stringify(input.meta);
+    // contract-level metadata (ERC-7572), stored in the coin and served by contractURI()
+    const meta = JSON.stringify({
+      name: input.name,
+      symbol: input.symbol,
+      description: input.meta.description,
+      image: input.meta.image,
+      external_link: input.meta.links.website,
+      links: input.meta.links,
+      priced: input.meta.priced,
+    });
+    const { salt, coin: predicted } = await this.mineSalt(account, input.currency);
     const { hash, receipt } = await this.write(
       account,
       {
         address: this.dep.launchpad,
         abi: launchpadAbi,
         functionName: 'createCoin',
-        args: [input.name, input.symbol, meta, input.currency, input.firstBuy, input.minTokensOut],
+        args: [input.name, input.symbol, meta, input.currency, salt, input.firstBuy, input.minTokensOut],
       },
       o,
     );
     const createdTopic = receipt.logs.find((l) => l.address.toLowerCase() === this.dep.launchpad.toLowerCase() && l.topics.length === 4);
-    const coin = createdTopic ? (`0x${createdTopic.topics[1]!.slice(26)}` as Address) : undefined;
-    if (coin) this.metaByCoin.set(coin.toLowerCase(), input.meta);
+    const coin = createdTopic ? (`0x${createdTopic.topics[1]!.slice(26)}` as Address) : predicted;
+    this.metaByCoin.set(coin.toLowerCase(), input.meta);
     return { hash, coin };
   }
 
@@ -600,12 +693,8 @@ export class LiveBackend implements Backend {
     return { hash };
   }
 
-  async claimFees(account: Address, currency: Address, o?: TxOptions) {
-    const { hash } = await this.write(
-      account,
-      { address: this.dep.launchpad, abi: launchpadAbi, functionName: 'claimFees', args: [currency] },
-      o,
-    );
+  async collectFees(account: Address, coin: Address, o?: TxOptions) {
+    const { hash } = await this.write(account, { address: this.dep.launchpad, abi: launchpadAbi, functionName: 'collectFees', args: [coin] }, o);
     return { hash };
   }
 

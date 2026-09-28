@@ -1,31 +1,37 @@
 /* The pad's arithmetic, mirrored from Launchpad.sol / CurrencyDesk.sol with the
  * same integer rounding. The playground runs on it, and live mode uses it for
- * instant previews before asking the chain. */
+ * instant previews before asking the chain.
+ *
+ * A coin's market is its Uniswap V3 pool: the whole supply in one position from the
+ * launch price to the top of the scale. Inside that range the pool is a constant-product
+ * curve on virtual reserves (x · y = k), which is what these functions compute; the
+ * pool's 1% fee comes off the input and never enters the reserves. */
 
 export const WAD = 10n ** 18n;
 export const BPS = 10_000n;
 export const TOTAL_SUPPLY = 1_000_000_000n * WAD;
-export const CURVE_SUPPLY = 800_000_000n * WAD;
-export const POOL_SUPPLY = TOTAL_SUPPLY - CURVE_SUPPLY;
-export const VIRTUAL_TOKENS = (CURVE_SUPPLY * CURVE_SUPPLY) / (CURVE_SUPPLY - POOL_SUPPLY);
-export const VIRTUAL_EXTRA = VIRTUAL_TOKENS - CURVE_SUPPLY;
+/** Fee units of a Uniswap pool: hundredths of a bip. */
+export const PIPS = 1_000_000n;
+/** The pools' fee tier, 1%; half of it is the creator's. */
+export const POOL_FEE_PIPS = 10_000;
 
 export interface MarketState {
   createdAt: number;
-  graduated: boolean;
-  virtualQuote: bigint;
+  /** What the whole supply was worth at launch, in currency units. */
+  startQuote: bigint;
+  /** Virtual reserves: coins and currency, whose ratio is the price. For a position that runs
+   *  to the top of the scale the coin side is also what the pool really holds. */
   reserveToken: bigint;
   reserveQuote: bigint;
+  /** Currency the pool really holds (buys in, sells out, fees until collected). */
   realQuote: bigint;
-  curveLeft: bigint;
+  /** Currency traded through the pad, gross. */
   volume: bigint;
 }
 
 export interface FeeParams {
-  protocolFeeBps: number;
-  creatorFeeBps: number;
-  snipeTaxBps: number;
-  snipeWindow: number;
+  /** The pool fee in hundredths of a bip (10000 = 1%). */
+  poolFeePips: number;
 }
 
 export interface CurrencyRate {
@@ -37,128 +43,71 @@ export interface CurrencyRate {
 export const mulDiv = (a: bigint, b: bigint, d: bigint) => (a * b) / d;
 export const mulDivUp = (a: bigint, b: bigint, d: bigint) => (a * b + d - 1n) / d;
 
-export function snipeBps(createdAt: number, now: number, p: FeeParams): number {
-  const elapsed = Math.max(0, Math.floor(now) - createdAt);
-  if (elapsed >= p.snipeWindow) return 0;
-  return Math.floor((p.snipeTaxBps * (p.snipeWindow - elapsed)) / p.snipeWindow);
-}
-
 export interface BuyQuote {
   tokensOut: bigint;
   quoteUsed: bigint;
+  /** What enters the reserves: the input less the pool fee. */
   net: bigint;
-  protocolFee: bigint;
+  /** The pool fee, in currency: half the creator's, half the protocol's. */
+  fee: bigint;
   creatorFee: bigint;
-  snipeTax: bigint;
-  /** Uniswap's 0.3% once graduated (it stays in the pool); zero on the curve. */
-  lpFee: bigint;
-  graduates: boolean;
-  snipeBps: number;
+  protocolFee: bigint;
 }
 
-/** Uniswap V2's getAmountOut: 0.3% of the input stays in the pool. */
-export function poolAmountOut(amountIn: bigint, reserveIn: bigint, reserveOut: bigint): bigint {
-  if (reserveIn === 0n || reserveOut === 0n) return 0n;
-  const inWithFee = amountIn * 997n;
-  return (inWithFee * reserveOut) / (reserveIn * 1000n + inWithFee);
-}
-
-export function quoteBuy(m: MarketState, quoteIn: bigint, p: FeeParams, now: number, exempt = false): BuyQuote {
-  if (m.graduated) {
-    // in the Uniswap pool: all of it goes in, no pad fee, no snipe tax
-    const tokensOut = poolAmountOut(quoteIn, m.reserveQuote, m.reserveToken);
-    return { tokensOut, quoteUsed: quoteIn, net: quoteIn, protocolFee: 0n, creatorFee: 0n, snipeTax: 0n, lpFee: (quoteIn * 3n) / 1000n, graduates: false, snipeBps: 0 };
-  }
-  const snipe = exempt ? 0 : snipeBps(m.createdAt, now, p);
-  const totalBps = BigInt(p.protocolFeeBps + p.creatorFeeBps + snipe);
-  let quoteUsed = quoteIn;
-  let net = (quoteIn * (BPS - totalBps)) / BPS;
-  let tokensOut = mulDiv(m.reserveToken, net, m.reserveQuote + net);
-  let graduates = false;
-  if (tokensOut >= m.curveLeft) {
-    tokensOut = m.curveLeft;
-    net = mulDivUp(m.reserveQuote, tokensOut, m.reserveToken - tokensOut);
-    quoteUsed = mulDivUp(net, BPS, BPS - totalBps);
-    if (quoteUsed > quoteIn) quoteUsed = quoteIn;
-    graduates = true;
-  }
-  const fees = quoteUsed - net;
-  let snipeTax = 0n;
-  let creatorFee = 0n;
-  let protocolFee = 0n;
-  if (totalBps !== 0n && fees !== 0n) {
-    snipeTax = (fees * BigInt(snipe)) / totalBps;
-    creatorFee = (fees * BigInt(p.creatorFeeBps)) / totalBps;
-    protocolFee = fees - snipeTax - creatorFee;
-  }
-  return { tokensOut, quoteUsed, net, protocolFee, creatorFee, snipeTax, lpFee: 0n, graduates, snipeBps: snipe };
+/** What `quoteIn` of currency buys: the fee comes off the input, the rest moves along x · y = k. */
+export function quoteBuy(m: MarketState, quoteIn: bigint, p: FeeParams): BuyQuote {
+  const net = (quoteIn * (PIPS - BigInt(p.poolFeePips))) / PIPS;
+  const tokensOut = m.reserveQuote + net === 0n ? 0n : mulDiv(m.reserveToken, net, m.reserveQuote + net);
+  const fee = quoteIn - net;
+  const creatorFee = fee / 2n;
+  return { tokensOut, quoteUsed: quoteIn, net, fee, creatorFee, protocolFee: fee - creatorFee };
 }
 
 export interface SellQuote {
+  /** What the coins would fetch with no fee. */
   gross: bigint;
   quoteOut: bigint;
-  protocolFee: bigint;
+  /** The pool fee in currency terms (it is really taken in coins: `feeTokens`). */
+  fee: bigint;
+  feeTokens: bigint;
   creatorFee: bigint;
-  /** Uniswap's 0.3% once graduated (it stays in the pool); zero on the curve. */
-  lpFee: bigint;
+  protocolFee: bigint;
 }
 
+/** What `tokensIn` coins sell for: the fee comes off the coins going in. */
 export function quoteSell(m: MarketState, tokensIn: bigint, p: FeeParams): SellQuote {
-  if (m.graduated) {
-    const quoteOut = poolAmountOut(tokensIn, m.reserveToken, m.reserveQuote);
-    return { gross: quoteOut, quoteOut, protocolFee: 0n, creatorFee: 0n, lpFee: (quoteOut * 3n) / 997n };
-  }
-  let gross = mulDiv(m.reserveQuote, tokensIn, m.reserveToken + tokensIn);
-  if (gross > m.realQuote) gross = m.realQuote;
-  const feeBps = BigInt(p.protocolFeeBps + p.creatorFeeBps);
-  const fees = (gross * feeBps) / BPS;
-  let creatorFee = 0n;
-  let protocolFee = 0n;
-  if (feeBps !== 0n) {
-    creatorFee = (fees * BigInt(p.creatorFeeBps)) / feeBps;
-    protocolFee = fees - creatorFee;
-  }
-  return { gross, quoteOut: gross - fees, protocolFee, creatorFee, lpFee: 0n };
+  const net = (tokensIn * (PIPS - BigInt(p.poolFeePips))) / PIPS;
+  const quoteOut = m.reserveToken + net === 0n ? 0n : mulDiv(m.reserveQuote, net, m.reserveToken + net);
+  const gross = m.reserveToken + tokensIn === 0n ? 0n : mulDiv(m.reserveQuote, tokensIn, m.reserveToken + tokensIn);
+  const fee = gross > quoteOut ? gross - quoteOut : 0n;
+  const creatorFee = fee / 2n;
+  return { gross, quoteOut, fee, feeTokens: tokensIn - net, creatorFee, protocolFee: fee - creatorFee };
 }
 
-/** State after a buy, including graduation into the pool. Once graduated, the
- *  reserves and `realQuote` are the Uniswap pool's, as the pad's views report them. */
+/** State after a buy: the net input joins the reserves, the whole input lands in the pool. */
 export function applyBuy(m: MarketState, q: BuyQuote): MarketState {
   const next = { ...m };
   next.reserveToken -= q.tokensOut;
   next.reserveQuote += q.net;
-  next.realQuote += q.net;
-  if (!next.graduated) next.curveLeft -= q.tokensOut;
+  next.realQuote += q.quoteUsed;
   next.volume += q.quoteUsed;
-  if (!next.graduated && next.curveLeft === 0n) {
-    next.graduated = true;
-    next.reserveToken = POOL_SUPPLY;
-    next.reserveQuote = next.realQuote;
-  }
   return next;
 }
 
+/** State after a sell: the net coins join the reserves (the fee coins sit in the pool for
+ *  the creator and the protocol), the currency leaves. */
 export function applySell(m: MarketState, tokensIn: bigint, q: SellQuote): MarketState {
   const next = { ...m };
-  next.reserveToken += tokensIn;
-  next.reserveQuote -= q.gross;
-  next.realQuote -= q.gross;
-  if (!next.graduated) next.curveLeft += tokensIn;
-  next.volume += q.gross;
+  next.reserveToken += tokensIn - q.feeTokens;
+  next.reserveQuote -= q.quoteOut;
+  next.realQuote -= q.quoteOut;
+  next.volume += q.quoteOut;
   return next;
 }
 
-export function newMarket(virtualQuote: bigint, createdAt: number): MarketState {
-  return {
-    createdAt,
-    graduated: false,
-    virtualQuote,
-    reserveToken: VIRTUAL_TOKENS,
-    reserveQuote: virtualQuote,
-    realQuote: 0n,
-    curveLeft: CURVE_SUPPLY,
-    volume: 0n,
-  };
+/** A market at launch: the whole supply against the start quote, nothing real in the pool yet. */
+export function newMarket(startQuote: bigint, createdAt: number): MarketState {
+  return { createdAt, startQuote, reserveToken: TOTAL_SUPPLY, reserveQuote: startQuote, realQuote: 0n, volume: 0n };
 }
 
 /* ---------------------------- currency desk ---------------------------- */
@@ -180,13 +129,9 @@ export function fromUsd(c: CurrencyRate, usdWad: bigint): bigint {
   return mulDiv(usdWad, c.rate * pow10(c.decimals), WAD * WAD);
 }
 
-export function virtualQuoteFor(c: CurrencyRate, targetRaiseUsd: bigint): bigint {
-  const raise = fromUsd(c, targetRaiseUsd);
-  return (raise * POOL_SUPPLY) / (CURVE_SUPPLY - POOL_SUPPLY);
-}
-
-export function curveRaise(virtualQuote: bigint): bigint {
-  return (virtualQuote * (CURVE_SUPPLY - POOL_SUPPLY)) / POOL_SUPPLY;
+/** What a whole supply is worth at launch in a currency, as the pad computes it. */
+export function startQuoteFor(c: CurrencyRate, startMcapUsd: bigint): bigint {
+  return fromUsd(c, startMcapUsd);
 }
 
 /* ------------------------------ read-outs ------------------------------ */
@@ -198,30 +143,37 @@ export function priceOf(m: Pick<MarketState, 'reserveQuote' | 'reserveToken'>, q
   return Number(scaled) / 1e18;
 }
 
-export function marketCap(m: MarketState, quoteDecimals = 18): number {
+export function marketCap(m: Pick<MarketState, 'reserveQuote' | 'reserveToken'>, quoteDecimals = 18): number {
   return priceOf(m, quoteDecimals) * 1e9;
 }
 
-/** Share of the curve sold, 0..1 (1 once graduated). */
-export function progress(m: Pick<MarketState, 'curveLeft' | 'graduated'>): number {
-  if (m.graduated) return 1;
-  return Number(((CURVE_SUPPLY - m.curveLeft) * 1_000_000n) / CURVE_SUPPLY) / 1_000_000;
+/** The launch price, in whole units of the currency per coin. */
+export function startPriceOf(m: Pick<MarketState, 'startQuote'>, quoteDecimals = 18): number {
+  return priceOf({ reserveQuote: m.startQuote, reserveToken: TOTAL_SUPPLY }, quoteDecimals);
 }
 
-/** Price at which a curve that started with `virtualQuote` graduates. */
-export function graduationPrice(virtualQuote: bigint): number {
-  const x = VIRTUAL_TOKENS - CURVE_SUPPLY;
-  const y = mulDiv(virtualQuote, VIRTUAL_TOKENS, x);
-  return Number((y * WAD) / x) / 1e18;
+/** Coins out of the pool, in wallets: the supply less what the pool holds. */
+export function circulating(m: Pick<MarketState, 'reserveToken'>): bigint {
+  return m.reserveToken >= TOTAL_SUPPLY ? 0n : TOTAL_SUPPLY - m.reserveToken;
 }
 
-/** What the backing would pay if every circulating coin were sold at once (curve only). */
-export function fullSellBack(m: MarketState): bigint {
-  const circulating = m.graduated ? TOTAL_SUPPLY - m.reserveToken : CURVE_SUPPLY - m.curveLeft;
-  if (circulating === 0n) return 0n;
-  return mulDiv(m.reserveQuote, circulating, m.reserveToken + circulating);
+/** Share of the supply that has left the pool, 0..1. */
+export function soldShare(m: Pick<MarketState, 'reserveToken'>): number {
+  return Number((circulating(m) * 1_000_000n) / TOTAL_SUPPLY) / 1_000_000;
 }
 
-export function circulating(m: MarketState): bigint {
-  return m.graduated ? TOTAL_SUPPLY - m.reserveToken : CURVE_SUPPLY - m.curveLeft;
+/** Price now over the launch price. */
+export function sinceLaunch(m: Pick<MarketState, 'reserveQuote' | 'reserveToken' | 'startQuote'>): number {
+  const start = startPriceOf(m);
+  return start ? priceOf(m) / start : 1;
+}
+
+/* ------------------------------ Uniswap V3 ------------------------------ */
+
+export const Q96 = 2n ** 96n;
+
+/** The virtual reserves behind a pool's price and liquidity in range. */
+export function reservesFromPool(sqrtPriceX96: bigint, liquidity: bigint): { reserveToken: bigint; reserveQuote: bigint } {
+  if (sqrtPriceX96 === 0n || liquidity === 0n) return { reserveToken: 0n, reserveQuote: 0n };
+  return { reserveToken: (liquidity * Q96) / sqrtPriceX96, reserveQuote: (liquidity * sqrtPriceX96) / Q96 };
 }

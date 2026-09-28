@@ -1,15 +1,15 @@
 /* Deploys the pad from the browser, signed by the connected wallet: the same steps as
  * scripts/deploy.mjs (desk, the currencies: the chain's real tokens where it has them,
- * else the test currencies in batches; Uniswap V2 where the chain has none of its own;
+ * else the test currencies in batches; Uniswap V3 where the chain has none of its own;
  * launchpad, router, keeper), so nobody has to hand a private key to a script. Progress
  * is saved after every step and read back from the chain, so a closed tab carries on
  * where it stopped. */
-import { createPublicClient, http, parseUnits, zeroAddress, type Address, type Hash, type PublicClient, type WalletClient } from 'viem';
+import { createPublicClient, encodeAbiParameters, http, parseUnits, zeroAddress, type Address, type Hash, type Hex, type PublicClient, type WalletClient } from 'viem';
 import currencies from '@shared/currencies.json';
 import realTokens from '@shared/real-tokens.json';
 import uniswap from '@shared/uniswap.json';
 import type { Deployment } from '../config/chains';
-import { chainMeta, viemChain } from '../config/chains';
+import { chainMeta, DEPLOYMENTS, viemChain } from '../config/chains';
 import { feedRates } from './fx';
 
 /** A token that already trades on the chain, listed on the desk under a currency code. */
@@ -36,25 +36,26 @@ export function parseTokensParam(raw: string | null): RealToken[] {
 }
 
 type Artifact = { abi: readonly unknown[]; bytecode: `0x${string}` };
-type Artifacts = Record<'CurrencyDesk' | 'Launchpad' | 'Router' | 'UniswapV2Factory', Artifact>;
+type Artifacts = Record<'CurrencyDesk' | 'Launchpad' | 'Router' | 'WETH9' | 'UniswapV3Factory' | 'NonfungiblePositionManager', Artifact>;
 
 /** The pad's settings, as scripts/deploy.mjs sets them by default off a local chain. */
 export const SETTINGS = {
   deskFeeBps: 10,
   faucetUsd: 1000,
   faucetCooldown: 3600,
-  targetRaiseUsd: 12000,
-  protocolFeeBps: 50,
-  creatorFeeBps: 50,
-  snipeTaxBps: 2000,
-  snipeWindow: 15,
+  /** What a coin's whole supply is worth the moment it launches, in USD. */
+  startMcapUsd: 4000,
 };
 const BATCH = 20;
 
 export interface DeployState {
   desk?: Address;
   deskBlock?: number;
-  uniswap?: Address;
+  weth?: Address;
+  factory?: Address;
+  positions?: Address;
+  quoterV2?: Address;
+  swapRouter?: Address;
   launchpad?: Address;
   router?: Address;
   routerSet?: boolean;
@@ -67,12 +68,19 @@ export interface Step {
   done: boolean;
 }
 
-// (v2: the pad graduates coins into Uniswap; a run of the earlier pad can't be carried on)
-const storeKey = (chainId: number, owner: string) => `starmint:deploy:v2:${chainId}:${owner.toLowerCase()}`;
+// (v3: every coin opens as a Uniswap V3 pool; a run of an earlier pad can't be carried on)
+const storeKey = (chainId: number, owner: string) => `starmint:deploy:v3:${chainId}:${owner.toLowerCase()}`;
 
-/** Uniswap's own V2 factory on this chain, if it has one; otherwise the deploy puts up a copy. */
-export function officialUniswap(chainId: number): Address | undefined {
-  return (uniswap.v2Factory as Record<string, string>)[String(chainId)] as Address | undefined;
+/** Uniswap's own V3 on this chain, if it has one, or the copies an earlier deployment on this
+ *  chain put up (a local node); otherwise the deploy puts up a copy. */
+export function officialUniswap(chainId: number): { factory: Address; positionManager: Address; own: boolean; extras?: Pick<Deployment, 'weth' | 'quoterV2' | 'swapRouter'> } | undefined {
+  const v3 = (uniswap.v3 as Record<string, { factory: string; positionManager?: string }>)[String(chainId)];
+  if (v3?.positionManager) return { factory: v3.factory as Address, positionManager: v3.positionManager as Address, own: true };
+  const dep = DEPLOYMENTS[chainId];
+  if (dep?.positionManager && dep.uniswapFactory) {
+    return { factory: dep.uniswapFactory, positionManager: dep.positionManager, own: false, extras: { weth: dep.weth, quoterV2: dep.quoterV2, swapRouter: dep.swapRouter } };
+  }
+  return undefined;
 }
 
 export function loadState(chainId: number, owner: string): DeployState {
@@ -108,7 +116,7 @@ export function publicClientFor(chainId: number): PublicClient {
 
 /** How many transactions the whole deployment takes on a chain. */
 export function txCount(chainId: number, tokens: RealToken[] = realTokensOf(chainId)): number {
-  return 1 + (tokens.length || Math.ceil(currencies.length / BATCH)) + (officialUniswap(chainId) ? 0 : 1) + 4;
+  return 1 + (tokens.length || Math.ceil(currencies.length / BATCH)) + (officialUniswap(chainId) ? 0 : 3) + 4;
 }
 
 /** The steps and which are done, for the page to show. */
@@ -122,8 +130,12 @@ export function steps(s: DeployState, listed: number, chainId: number, tokens: R
     { key: 'currencies', label: currencyStep, done: listed >= (tokens.length || currencies.length) },
     {
       key: 'uniswap',
-      label: official ? 'Uniswap V2, where coins graduate (Uniswap’s own, nothing to deploy)' : 'Uniswap V2, where coins graduate (a copy for this test network)',
-      done: !!s.uniswap || !!official,
+      label: official?.own
+        ? 'Uniswap V3, where every coin’s pool opens (Uniswap’s own, nothing to deploy)'
+        : official
+          ? 'Uniswap V3, where every coin’s pool opens (the copies already on this test network)'
+          : 'Uniswap V3, where every coin’s pool opens (a copy for this test network: WETH, factory, position manager)',
+      done: !!s.positions || !!official,
     },
     { key: 'launchpad', label: 'Launchpad', done: !!s.launchpad },
     { key: 'router', label: 'Router', done: !!s.router },
@@ -137,7 +149,6 @@ export async function listedCount(pc: PublicClient, art: Artifacts, desk?: Addre
   return Number(await pc.readContract({ address: desk, abi: art.CurrencyDesk.abi, functionName: 'currencyCount' }));
 }
 
-/** Runs every step that is not done yet. `onProgress` gets a line for each transaction. */
 /** Units per USD for a real token's currency: today's rate from the public feed when
  *  the browser can reach it, else the reference rate on file (the keeper posts the
  *  next one). USD itself is always 1. */
@@ -150,6 +161,9 @@ async function startingRate(code: string, live: Record<string, number>): Promise
   return { rate: ref, from: 'the reference rate on file; the keeper posts the next one' };
 }
 
+const factoryOfAbi = [{ type: 'function', name: 'factory', stateMutability: 'view', inputs: [], outputs: [{ type: 'address' }] }] as const;
+
+/** Runs every step that is not done yet. `onProgress` gets a line for each transaction. */
 export async function deployPad(opts: {
   chainId: number;
   wallet: WalletClient;
@@ -175,9 +189,13 @@ export async function deployPad(opts: {
     if (rc.status !== 'success') throw new Error(`${what} failed (transaction ${hash})`);
     return rc;
   };
-  const deploy = async (name: keyof Artifacts, args: unknown[]) => {
+  const deploy = async (name: keyof Artifacts, args: unknown[], rawArgs?: Hex) => {
     const a = art[name];
-    const hash = await wallet.deployContract({ abi: a.abi, bytecode: a.bytecode, args, account: owner, chain });
+    // Uniswap's artifacts are compiled with an older solc whose ABI viem encodes all the same;
+    // rawArgs skips the ABI for constructors given as already-encoded parameters
+    const hash = rawArgs
+      ? await wallet.deployContract({ abi: [], bytecode: `${a.bytecode}${rawArgs.slice(2)}` as Hex, account: owner, chain })
+      : await wallet.deployContract({ abi: a.abi, bytecode: a.bytecode, args, account: owner, chain });
     const rc = await confirm(hash, name);
     if (!rc.contractAddress) throw new Error(`${name} has no address (transaction ${hash})`);
     return { address: rc.contractAddress, block: Number(rc.blockNumber) };
@@ -217,30 +235,38 @@ export async function deployPad(opts: {
     listed = await listedCount(pc, art, s.desk);
     save(`${listed} of ${currencies.length} currencies listed`);
   }
-  if (!s.uniswap) {
+  if (!s.positions) {
     const official = officialUniswap(chainId);
     if (official) {
-      s.uniswap = official;
-      save(`Uniswap V2 factory: ${official} (Uniswap's own)`);
+      // the position manager must really be Uniswap's on this chain: it names its own factory
+      const f = (await pc.readContract({ address: official.positionManager, abi: factoryOfAbi, functionName: 'factory' })) as Address;
+      if (f.toLowerCase() !== official.factory.toLowerCase()) throw new Error(`The position manager at ${official.positionManager} names factory ${f}, not ${official.factory}`);
+      s.factory = official.factory;
+      s.positions = official.positionManager;
+      if (official.extras) Object.assign(s, official.extras);
+      save(`Uniswap V3 position manager: ${official.positionManager} (${official.own ? "Uniswap's own" : 'already on this network'}, factory ${official.factory})`);
     } else {
-      // a copy nobody can switch Uniswap's protocol fee on for (feeToSetter = 0)
-      const f = await deploy('UniswapV2Factory', [zeroAddress]);
-      s.uniswap = f.address;
-      save(`Uniswap V2 factory at ${f.address}`);
+      if (!s.weth) {
+        const w = await deploy('WETH9', []);
+        s.weth = w.address;
+        save(`WETH at ${w.address} (a copy for this network)`);
+      }
+      if (!s.factory) {
+        const f = await deploy('UniswapV3Factory', []);
+        s.factory = f.address;
+        save(`Uniswap V3 factory at ${f.address} (a copy)`);
+      }
+      const p = await deploy(
+        'NonfungiblePositionManager',
+        [],
+        encodeAbiParameters([{ type: 'address' }, { type: 'address' }, { type: 'address' }], [s.factory, s.weth, zeroAddress]),
+      );
+      s.positions = p.address;
+      save(`Uniswap V3 position manager at ${p.address} (a copy)`);
     }
   }
   if (!s.launchpad) {
-    const p = await deploy('Launchpad', [
-      owner,
-      s.desk,
-      s.uniswap,
-      owner,
-      toWad(SETTINGS.targetRaiseUsd),
-      SETTINGS.protocolFeeBps,
-      SETTINGS.creatorFeeBps,
-      SETTINGS.snipeTaxBps,
-      SETTINGS.snipeWindow,
-    ]);
+    const p = await deploy('Launchpad', [owner, s.desk, s.positions, owner, toWad(SETTINGS.startMcapUsd)]);
     s.launchpad = p.address;
     save(`Launchpad at ${p.address}`);
   }
@@ -274,7 +300,11 @@ export async function deployPad(opts: {
     desk: s.desk,
     launchpad: s.launchpad,
     router: s.router,
-    uniswapFactory: s.uniswap,
+    positionManager: s.positions,
+    uniswapFactory: s.factory!,
+    ...(s.weth ? { weth: s.weth } : {}),
+    ...(s.quoterV2 ? { quoterV2: s.quoterV2 } : {}),
+    ...(s.swapRouter ? { swapRouter: s.swapRouter } : {}),
     coinImplementation,
     deployBlock: s.deskBlock ?? 0,
     deployedAt: new Date().toISOString(),

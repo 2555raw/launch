@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { keccak256 } from 'viem';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const NAMES = ['Coin', 'TestCurrency', 'CurrencyDesk', 'Launchpad', 'Router'];
+const NAMES = ['Coin', 'TestCurrency', 'CurrencyDesk', 'Launchpad', 'Router', 'WETH9'];
 
 const artifacts = {};
 for (const name of NAMES) {
@@ -27,10 +27,18 @@ for (const name of NAMES) {
     immutables: immutables.map(({ start, length }) => [start, length]),
   };
 }
-// Uniswap V2 as published in its npm package (contracts/uniswap/README.md): deployed
-// only where Uniswap has no factory of its own, and read for pool reserves and swaps.
-for (const name of ['UniswapV2Factory', 'UniswapV2Pair']) {
-  const raw = JSON.parse(readFileSync(join(root, 'contracts/uniswap', `${name}.json`), 'utf8'));
+// Uniswap V3 as published in its npm packages (@uniswap/v3-core, @uniswap/v3-periphery):
+// deployed only where Uniswap has none of its own (a local chain, a testnet), and read
+// for pools, positions and quotes everywhere.
+const UNISWAP = {
+  UniswapV3Factory: '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json',
+  UniswapV3Pool: '@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json',
+  NonfungiblePositionManager: '@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json',
+  QuoterV2: '@uniswap/v3-periphery/artifacts/contracts/lens/QuoterV2.sol/QuoterV2.json',
+  SwapRouter: '@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json',
+};
+for (const [name, file] of Object.entries(UNISWAP)) {
+  const raw = JSON.parse(readFileSync(join(root, 'node_modules', file), 'utf8'));
   artifacts[name] = { abi: raw.abi, bytecode: raw.bytecode };
 }
 writeFileSync(join(root, 'shared/artifacts.json'), JSON.stringify(artifacts));
@@ -48,8 +56,6 @@ export const launchpadAbi = ${abi('Launchpad')} as const;
 
 export const routerAbi = ${abi('Router')} as const;
 
-export const uniswapV2PairAbi = ${abi('UniswapV2Pair')} as const;
-
 /** keccak256 of the Coin implementation's runtime code. It has no immutables, so
  *  it is identical on every deployment. */
 export const COIN_RUNTIME_HASH = '${keccak256(artifacts.Coin.deployedBytecode)}' as const;
@@ -60,4 +66,4 @@ export const LAUNCHPAD_RUNTIME = '${artifacts.Launchpad.deployedBytecode}' as co
 export const LAUNCHPAD_IMMUTABLES: ReadonlyArray<readonly [number, number]> = ${JSON.stringify(artifacts.Launchpad.immutables)};
 `;
 writeFileSync(join(root, 'web/src/generated/contracts.ts'), ts);
-console.log('artifacts written:', [...NAMES, 'UniswapV2Factory', 'UniswapV2Pair'].join(', '));
+console.log('artifacts written:', [...NAMES, ...Object.keys(UNISWAP)].join(', '));

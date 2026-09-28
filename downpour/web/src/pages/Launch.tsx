@@ -11,7 +11,7 @@ import { compact, money, parseAmount, usd } from '../lib/format';
 import { amount, displayCurrency, unitsPerUsd } from '../lib/views';
 import { chainMeta } from '../config/chains';
 import type { Currency } from '../backend/types';
-import { applyBuy, curveRaise, graduationPrice, marketCap, newMarket, priceOf, progress, quoteBuy, virtualQuoteFor } from '../lib/math';
+import { applyBuy, marketCap, newMarket, priceOf, quoteBuy, soldShare, startQuoteFor } from '../lib/math';
 import { MAX_META_BYTES, shrinkImage } from '../lib/meta';
 
 const bytes = (s: string) => new TextEncoder().encode(s).length;
@@ -65,23 +65,19 @@ export default function Launch() {
   }, [snap, canPrice, base, listedByCode, pad.fx]);
   const numbers = useMemo(() => {
     if (!snap || !cur) return null;
-    const vq = virtualQuoteFor(cur, snap.params.targetRaiseUsd);
-    const m = newMarket(vq, Math.floor(pad.now()));
+    const m = newMarket(startQuoteFor(cur, snap.params.startMcapUsd), Math.floor(pad.now()));
     const start = priceOf(m, cur.decimals);
-    const end = graduationPrice(vq) / 10 ** (cur.decimals - 18);
     const buy = parseAmount(firstBuy, cur.decimals);
-    const q = buy ? quoteBuy(m, buy, snap.params, pad.now(), true) : null;
+    const q = buy ? quoteBuy(m, buy, snap.params) : null;
     // where the coin stands right after that first buy
     const after = q ? applyBuy(m, q) : null;
     return {
-      vq,
       start,
-      end,
-      raise: amount(curveRaise(vq), cur.decimals),
+      startMcap: amount(m.startQuote, cur.decimals),
       buy,
       q,
       perUsd: unitsPerUsd(cur),
-      after: after ? { price: priceOf(after, cur.decimals), mcap: marketCap(after, cur.decimals), sold: progress(after) } : null,
+      after: after ? { price: priceOf(after, cur.decimals), mcap: marketCap(after, cur.decimals), sold: soldShare(after) } : null,
     };
   }, [snap, cur, firstBuy, pad]);
 
@@ -92,7 +88,8 @@ export default function Launch() {
     links: { website: website.trim() || undefined, x: x.trim() || undefined, telegram: telegram.trim() || undefined },
     priced: dispCode,
   };
-  const metaSize = bytes(JSON.stringify(meta));
+  // as the coin will store it (ERC-7572): name and symbol in the same JSON
+  const metaSize = bytes(JSON.stringify({ name: name.trim(), symbol: ticker, ...meta, external_link: meta.links.website }));
   const nameOk = bytes(name.trim()) > 0 && bytes(name.trim()) <= 40;
   const tickerOk = /^[A-Z0-9]{1,10}$/.test(ticker);
   const bal = cur ? pad.spendable(cur.token) : 0n;
@@ -134,7 +131,7 @@ export default function Launch() {
               meta,
               currency: cur.token,
               firstBuy: numbers?.buy ?? 0n,
-              minTokensOut: q ? (q.tokensOut * 98n) / 100n : 0n,
+              minTokensOut: q ? (q.tokensOut * 97n) / 100n : 0n,
             },
             o,
           ),
@@ -145,14 +142,14 @@ export default function Launch() {
       },
     };
 
-  const fee = snap ? (snap.params.protocolFeeBps + snap.params.creatorFeeBps) / 100 : 1;
+  const fee = snap ? snap.params.poolFeePips / 10_000 : 1;
 
   return (
     <div className="wrap">
       <PageHead
         kicker="Launch"
         title="Light a new star"
-        lead="A name, a ticker and a currency. The market opens in the same transaction, and the currency you pick is the one your coin trades in for as long as it exists."
+        lead="A name, a ticker and a currency. The coin opens as a Uniswap pool in the same transaction, with its whole supply locked in it and its picture on chain, so terminals and DEX screens see it from the first second."
       />
       <div className="launch-layout">
         <form className="panel" data-solid onSubmit={(e) => (e.preventDefault(), action.onClick?.())}>
@@ -210,7 +207,9 @@ export default function Launch() {
                 </button>
               )}
             </div>
-            <span className={`hint ${imageErr ? 'down' : ''}`}>{imageErr || 'Shrunk to a small square in your browser and stored with the launch, no upload service involved.'}</span>
+            <span className={`hint ${imageErr ? 'down' : ''}`}>
+              {imageErr || 'Shrunk to a small square in your browser and stored in the coin itself, where explorers and terminals read it. No upload service involved.'}
+            </span>
           </div>
           <div className="grid grid-3" style={{ gap: 10 }}>
             <div className="field">
@@ -239,12 +238,12 @@ export default function Launch() {
                 </span>
                 <span className="muted small">
                   Price after {money(numbers.after.price, cur.symbol)} · market cap {money(numbers.after.mcap, cur.symbol)} ·{' '}
-                  {usd(numbers.after.mcap / numbers.perUsd)} · {(numbers.after.sold * 100).toFixed(1)}% of the curve sold
+                  {usd(numbers.after.mcap / numbers.perUsd)} · {(numbers.after.sold * 100).toFixed(1)}% of the supply out of the pool
                 </span>
               </div>
             )}
             <span className="hint">
-              Buys in the same transaction as the launch, before anyone else can, and skips the snipe tax.{cur && ` Balance: ${money(amount(bal, cur.decimals), cur.symbol)}`}
+              Buys in the same transaction as the launch, before anyone else can.{cur && ` Balance: ${money(amount(bal, cur.decimals), cur.symbol)}`}
               {cur && pad.wrapNote(cur.token) ? ` (${pad.wrapNote(cur.token)})` : ''}
             </span>
           </div>
@@ -306,37 +305,27 @@ export default function Launch() {
                   </span>
                 </div>
                 <div className="kv">
-                  <span>Supply</span>
-                  <span>1B</span>
-                </div>
-                <div className="kv">
-                  <span>Sold on the curve</span>
-                  <span>800M</span>
-                </div>
-                <div className="kv">
-                  <span>Held back for its Uniswap pool</span>
-                  <span>200M</span>
-                </div>
-                <div className="kv">
-                  <span>A full curve raises</span>
+                  <span>Starting market cap</span>
                   <span className="num">
-                    {money(numbers.raise, cur.symbol)} · {usd(numbers.raise / numbers.perUsd)}
+                    {money(numbers.startMcap * factor, disp.symbol)} · {usd(numbers.startMcap / numbers.perUsd)}
                   </span>
                 </div>
                 <div className="kv">
-                  <span>Graduates at market cap</span>
-                  <span className="num">{money(numbers.end * 1e9, cur.symbol)}</span>
+                  <span>Supply</span>
+                  <span>1B, all in the Uniswap pool</span>
+                </div>
+                <div className="kv">
+                  <span>Liquidity</span>
+                  <span>locked from the first second</span>
+                </div>
+                <div className="kv">
+                  <span>Picture and links</span>
+                  <span>stored in the coin (ERC-7572)</span>
                 </div>
                 <div className="kv">
                   <span>Trade fee</span>
                   <span>
                     {fee}% · {fee / 2}% to you · {fee / 2}% protocol
-                  </span>
-                </div>
-                <div className="kv">
-                  <span>Snipe tax</span>
-                  <span>
-                    {(snap!.params.snipeTaxBps / 100).toFixed(0)}% → 0 over {snap!.params.snipeWindow}s
                   </span>
                 </div>
                 {numbers.q && (

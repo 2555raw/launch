@@ -3,7 +3,7 @@ import { usePad } from '../backend/PadProvider';
 import type { CoinRow } from '../lib/views';
 import { ago, money, pct, usd } from '../lib/format';
 import { useWallet } from '../wallet/WalletProvider';
-import { CoinOrb, ProgressBar, Sparkline, StatusPill } from './bits';
+import { CoinOrb, Sparkline, StatusPill } from './bits';
 import { Close } from './icons';
 
 /** A coin's own patch of sky: its currency's colour and a starfield offset seeded from
@@ -56,14 +56,13 @@ export function CoinCard({ row, now }: { row: CoinRow; now: number }) {
           {coin.symbol} · priced in {disp.name}
           {disp.paidIn ? ` · paid in ${disp.paidIn}` : ''}
         </div>
-        <ProgressBar value={row.progress} full={coin.graduated} />
         <div className="cc-line">
           <span className="num">{money(row.dispPrice, disp.symbol)}</span>
-          <span>{coin.graduated ? 'graduated · on Uniswap' : `${pct(row.progress)} of curve`}</span>
+          <span className={row.sinceLaunch >= 1 ? 'up' : 'down'}>×{row.sinceLaunch.toFixed(2)} since launch</span>
         </div>
         <div className="cc-line cc-meta">
           <span>
-            mcap {money(row.dispMcap, disp.symbol)} · {usd(row.mcapUsd)}
+            mcap {usd(row.mcapUsd)} · liquidity {money(row.dispPooled, disp.symbol)}
           </span>
           <span className={row.change24 >= 0 ? 'up' : 'down'}>
             {row.change24 >= 0 ? '+' : ''}

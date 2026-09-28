@@ -6,29 +6,28 @@
  * What it does, in order:
  *   1. CurrencyDesk, then every currency in shared/currencies.json as a test
  *      currency the desk mints (batched, ~20 per transaction).
- *   2. Uniswap V2: the chain's own factory (shared/uniswap.json) or, where it has
- *      none (a local chain, a testnet), a copy of Uniswap's (contracts/uniswap/).
- *      Coins graduate into pairs of that factory.
- *   3. Launchpad (curve size, fees, snipe tax from the environment).
+ *   2. Uniswap V3: the chain's own position manager (shared/uniswap.json) or, where
+ *      it has none (a local chain, a testnet), copies of Uniswap's own contracts
+ *      (WETH, factory, position manager; plus the quoter and router the swap page
+ *      uses, from their npm packages). Every coin opens as a pool of that factory.
+ *   3. Launchpad (starting market cap from the environment).
  *   4. Router, wired into the pad; the deployer becomes the desk's keeper.
  *   5. deployments/<chainId>.json, merged into web/src/generated/.
  *
  * Environment (all optional):
- *   TREASURY           where protocol fees accrue          (deployer)
- *   KEEPER             who may post FX rates               (deployer)
- *   TARGET_RAISE_USD   what a full curve raises, in USD    (12000)
- *   PROTOCOL_FEE_BPS / CREATOR_FEE_BPS                     (50 / 50)
- *   SNIPE_TAX_BPS / SNIPE_WINDOW                           (2000 / 15)
- *   DESK_FEE_BPS       conversion fee                      (10)
- *   FAUCET_USD / FAUCET_COOLDOWN                           (1000 / 3600; local: 5000 / 0)
- *   PUBLIC_RPC         RPC the web app should use          (RPC_URL)
- *   EXPLORER           block explorer base URL             (none)
- *   CHAIN_NAME         display name                        ("Chain <id>")
+ *   TREASURY           where protocol fees go                (deployer)
+ *   KEEPER             who may post FX rates                 (deployer)
+ *   START_MCAP_USD     what a coin's supply is worth at launch, in USD (4000)
+ *   DESK_FEE_BPS       conversion fee                        (10)
+ *   FAUCET_USD / FAUCET_COOLDOWN                             (1000 / 3600; local: 5000 / 0)
+ *   PUBLIC_RPC         RPC the web app should use            (RPC_URL)
+ *   EXPLORER           block explorer base URL               (none)
+ *   CHAIN_NAME         display name                          ("Chain <id>")
  *   ONLY               comma list of currency codes to list, e.g. USD,EUR,JPY
  *   REAL_TOKENS        JSON list of real tokens to list instead of test currencies,
  *                      [{"code":"USD","symbol":"USDG","token":"0x…"}] (shared/real-tokens.json by chain)
- *   UNISWAP_V2_FACTORY a Uniswap V2 factory to use         (the chain's own, or a new copy) */
-import { parseUnits } from 'viem';
+ *   POSITION_MANAGER   a Uniswap V3 position manager to use  (the chain's own, or new copies) */
+import { encodeAbiParameters, parseUnits } from 'viem';
 import { readFileSync } from 'node:fs';
 import { args, connect, currencies, deployContract, send, toWad, writeDeployment, artifacts } from './lib/common.mjs';
 
@@ -82,26 +81,38 @@ for (let i = 0; i < list.length; i += BATCH) {
   console.log(`  currencies     ${Math.min(i + BATCH, list.length)}/${list.length}`);
 }
 
-let uniswapFactory = env('UNISWAP_V2_FACTORY', uniswap.v2Factory[ctx.chainId]);
-if (!uniswapFactory) {
-  // a copy nobody can switch Uniswap's protocol fee on for (feeToSetter = 0)
-  uniswapFactory = (await deployContract(ctx, 'UniswapV2Factory', ['0x0000000000000000000000000000000000000000'])).address;
-  console.log('  uniswap v2     ', uniswapFactory, '(a copy)');
-} else {
-  console.log('  uniswap v2     ', uniswapFactory);
+/** Uniswap's contracts take their constructor arguments already encoded (older solc, same ABI encoding). */
+async function deployRaw(name, types, values) {
+  const a = artifacts[name];
+  const bytecode = `${a.bytecode}${encodeAbiParameters(types, values).slice(2)}`;
+  const hash = await ctx.walletClient.deployContract({ abi: [], bytecode });
+  const receipt = await ctx.publicClient.waitForTransactionReceipt({ hash });
+  if (receipt.status !== 'success' || !receipt.contractAddress) throw new Error(`deploy failed: ${name}`);
+  return receipt.contractAddress;
 }
 
-const pad = await deployContract(ctx, 'Launchpad', [
-  me,
-  desk.address,
-  uniswapFactory,
-  env('TREASURY', me),
-  parseUnits(String(env('TARGET_RAISE_USD', '12000')), 18),
-  Number(env('PROTOCOL_FEE_BPS', '50')),
-  Number(env('CREATOR_FEE_BPS', '50')),
-  Number(env('SNIPE_TAX_BPS', '2000')),
-  Number(env('SNIPE_WINDOW', '15')),
-]);
+const own = uniswap.v3[ctx.chainId];
+let positionManager = env('POSITION_MANAGER', own?.positionManager);
+let uniswapFactory = own?.factory;
+const extras = {};
+if (!positionManager) {
+  const zero = '0x0000000000000000000000000000000000000000';
+  const weth = (await deployContract(ctx, 'WETH9', [])).address;
+  uniswapFactory = (await deployContract(ctx, 'UniswapV3Factory', [])).address;
+  positionManager = await deployRaw('NonfungiblePositionManager', [{ type: 'address' }, { type: 'address' }, { type: 'address' }], [uniswapFactory, weth, zero]);
+  // what the swap page prices and trades real tokens through, where the chain has no Uniswap of its own
+  extras.weth = weth;
+  extras.quoterV2 = await deployRaw('QuoterV2', [{ type: 'address' }, { type: 'address' }], [uniswapFactory, weth]);
+  extras.swapRouter = await deployRaw('SwapRouter', [{ type: 'address' }, { type: 'address' }], [uniswapFactory, weth]);
+  console.log('  uniswap v3     ', positionManager, '(copies: factory', uniswapFactory, 'quoter', extras.quoterV2, 'router', extras.swapRouter + ')');
+} else {
+  const named = await ctx.publicClient.readContract({ address: positionManager, abi: artifacts.NonfungiblePositionManager.abi, functionName: 'factory' });
+  if (uniswapFactory && named.toLowerCase() !== uniswapFactory.toLowerCase()) throw new Error(`position manager ${positionManager} names factory ${named}, not ${uniswapFactory}`);
+  uniswapFactory = named;
+  console.log('  uniswap v3     ', positionManager, '(factory', uniswapFactory + ')');
+}
+
+const pad = await deployContract(ctx, 'Launchpad', [me, desk.address, positionManager, env('TREASURY', me), parseUnits(String(env('START_MCAP_USD', '4000')), 18)]);
 console.log('  launchpad     ', pad.address);
 
 const router = await deployContract(ctx, 'Router', [pad.address]);
@@ -129,7 +140,9 @@ const record = {
   desk: desk.address,
   launchpad: pad.address,
   router: router.address,
+  positionManager,
   uniswapFactory,
+  ...extras,
   coinImplementation,
   deployBlock: Number(desk.block),
   deployedAt: new Date().toISOString(),

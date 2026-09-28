@@ -1,5 +1,5 @@
 /* The playground's opening cast: original coins, each paired with a currency.
- * [name, ticker, currency, description, how full the crowd gets the curve] */
+ * [name, ticker, currency, description, how hard the crowd piles in: currency put in, as a share of 3x the launch value] */
 export const DEMO_COINS: Array<[string, string, string, string, number]> = [
   ['Tokyo Comet', 'COMET', 'JPY', 'A bright tail over Shibuya, priced in yen.', 0.55],
   ['Samba Nebula', 'NEBULA', 'BRL', 'A carnival of gas and dust that only moves in reais.', 0.82],

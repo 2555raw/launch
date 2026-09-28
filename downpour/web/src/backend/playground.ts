@@ -6,34 +6,25 @@
 import { getAddress, keccak256, toHex } from 'viem';
 import { CURRENCIES, currencyColor } from '../data/currencies';
 import { DEMO_COINS, LATE_COINS } from '../data/demoCoins';
-import {
-  applyBuy,
-  applySell,
-  fromUsd,
-  newMarket,
-  quoteBuy,
-  quoteConvert,
-  quoteSell,
-  virtualQuoteFor,
-  WAD,
-} from '../lib/math';
+import { applyBuy, applySell, fromUsd, newMarket, POOL_FEE_PIPS, quoteBuy, quoteConvert, quoteSell, soldShare, startQuoteFor, WAD } from '../lib/math';
 import { MAX_META_BYTES } from '../lib/meta';
-import type { Address, Backend, Coin, CreateCoinInput, Currency, Params, RateMove, Snapshot, Trade, TxOptions } from './types';
+import type { Address, Backend, Coin, CreateCoinInput, Currency, Params, PendingFees, RateMove, Snapshot, Trade, TxOptions } from './types';
 
-const KEY = 'starmint:playground:v1';
+const KEY = 'starmint:playground:v2';
 const MAX_TRADES = 2600;
 const STARTING_USD = 1_000n * WAD; // every currency, for every new address
 export const PLAYGROUND_TREASURY = '0x000000000000000000000000000000000000dEaD' as Address;
 
 interface World {
-  v: 1;
+  v: 2;
   born: number;
   currencies: Currency[];
   coins: Coin[];
   trades: Trade[];
   rateMoves: RateMove[];
   balances: Record<string, Record<string, bigint>>;
-  fees: Record<string, Record<string, bigint>>;
+  /** Fees each coin's pool has earned and not paid out yet: in the coin and in its currency. */
+  fees: Record<string, PendingFees>;
   faucetLast: Record<string, Record<string, number>>;
   params: Params;
   nonce: number;
@@ -105,18 +96,15 @@ function genesis(): World {
   const rnd = prng(20260926);
   const currencies: Currency[] = CURRENCIES.map((c) => makeCurrency(c, t0));
   const params: Params = {
-    targetRaiseUsd: 12_000n * WAD,
-    protocolFeeBps: 50,
-    creatorFeeBps: 50,
-    snipeTaxBps: 2000,
-    snipeWindow: 15,
+    startMcapUsd: 4_000n * WAD,
+    poolFeePips: POOL_FEE_PIPS,
     deskFeeBps: 10,
     faucetUsd: 1_000n * WAD,
     faucetCooldown: 3600,
     treasury: PLAYGROUND_TREASURY,
   };
   const w: World = {
-    v: 1,
+    v: 2,
     born: t0,
     currencies,
     coins: [],
@@ -137,23 +125,24 @@ function genesis(): World {
   return w;
 }
 
-/** One of the opening coins, with its creator's first buy and a crowd's worth of trades up to `t0`. */
-function openDemoCoin(w: World, [name, symbol, code, description, fill]: (typeof DEMO_COINS)[number], creator: Address, createdAt: number, t0: number, rnd: () => number) {
+/** One of the opening coins, with its creator's first buy and a crowd's worth of trades up to `t0`.
+ *  `heat` says how much the crowd puts in, as a multiple of the launch value of the supply. */
+function openDemoCoin(w: World, [name, symbol, code, description, heat]: (typeof DEMO_COINS)[number], creator: Address, createdAt: number, t0: number, rnd: () => number) {
   const cur = w.currencies.find((c) => c.code === code)!;
   const coin = openCoin(w, creator, { name, symbol, meta: { description, image: '', links: {} }, currency: cur.token }, createdAt);
-  const raiseTarget = fromUsd(cur, w.params.targetRaiseUsd);
+  const start = startQuoteFor(cur, w.params.startMcapUsd);
   const trades = 26 + Math.floor(rnd() * 30);
   const span = t0 - createdAt - 120;
   let t = createdAt;
   // creator's first buy
-  simBuy(w, coin, creator, fromUsd(cur, wad(40 + rnd() * 160)), createdAt, true);
+  simBuy(w, coin, creator, fromUsd(cur, wad(40 + rnd() * 160)), createdAt);
+  const want = (start * BigInt(Math.round(heat * 3000))) / 1000n;
   for (let k = 0; k < trades; k++) {
     t = Math.min(t0 - 30, t + Math.round((span / trades) * (0.3 + rnd() * 1.4)));
     const bot = BOTS[Math.floor(rnd() * BOTS.length)];
     const c = w.coins.find((x) => x.address === coin)!;
-    const want = (raiseTarget * BigInt(Math.round(fill * 1000))) / 1000n;
     const held = w.balances[lc(bot)]?.[lc(coin)] ?? 0n;
-    if ((c.realQuote >= want && fill < 1) || (rnd() < 0.27 && held > 0n)) {
+    if (c.realQuote >= want || (rnd() < 0.27 && held > 0n)) {
       if (held > 0n) simSell(w, coin, bot, (held * BigInt(15 + Math.floor(rnd() * 60))) / 100n, t);
       continue;
     }
@@ -161,7 +150,6 @@ function openDemoCoin(w: World, [name, symbol, code, description, fill]: (typeof
     let spend = (remaining * BigInt(Math.round((1.6 / Math.max(1, trades - k)) * 1000 * (0.5 + rnd())))) / 1000n;
     const floor = fromUsd(cur, wad(8 + rnd() * 60));
     if (spend < floor) spend = floor;
-    if (fill >= 1 && k === trades - 3) spend = raiseTarget * 2n;
     simBuy(w, coin, bot, spend, t);
   }
 }
@@ -169,8 +157,8 @@ function openDemoCoin(w: World, [name, symbol, code, description, fill]: (typeof
 function openCoin(w: World, creator: Address, input: Omit<CreateCoinInput, 'firstBuy' | 'minTokensOut'>, createdAt: number): Address {
   const cur = w.currencies.find((c) => lc(c.token) === lc(input.currency))!;
   const address = addr(`starmint:playground:coin:${w.born}:${w.nonce++}:${input.symbol}`);
-  const m = newMarket(virtualQuoteFor(cur, w.params.targetRaiseUsd), createdAt);
-  w.coins.push({ ...m, address, name: input.name, symbol: input.symbol, creator, currency: cur.token, meta: input.meta });
+  const m = newMarket(startQuoteFor(cur, w.params.startMcapUsd), createdAt);
+  w.coins.push({ ...m, address, name: input.name, symbol: input.symbol, creator, currency: cur.token, meta: input.meta, creatorFees: 0n, protocolFees: 0n });
   return address;
 }
 
@@ -186,10 +174,11 @@ function debit(w: World, who: string, token: string, amount: bigint, label: stri
   b[lc(token)] = have - amount;
 }
 
-function accrue(w: World, who: string, currency: string, amount: bigint) {
-  if (amount === 0n) return;
-  const f = (w.fees[lc(who)] ||= {});
-  f[lc(currency)] = (f[lc(currency)] ?? 0n) + amount;
+/** The pool keeps its fee until someone collects it. */
+function accrue(w: World, coin: string, inCoin: bigint, inQuote: bigint) {
+  const f = (w.fees[lc(coin)] ||= { coin: 0n, quote: 0n });
+  f.coin += inCoin;
+  f.quote += inQuote;
 }
 
 function record(w: World, t: Omit<Trade, 'id'>) {
@@ -198,11 +187,11 @@ function record(w: World, t: Omit<Trade, 'id'>) {
 }
 
 /** Buy for a bot (bots always have the money). */
-function simBuy(w: World, coinAddr: Address, who: Address, quoteIn: bigint, t: number, exempt = false) {
+function simBuy(w: World, coinAddr: Address, who: Address, quoteIn: bigint, t: number) {
   const i = w.coins.findIndex((c) => c.address === coinAddr);
   const c = w.coins[i];
   credit(w, who, c.currency, quoteIn);
-  executeBuy(w, i, who, quoteIn, t, exempt);
+  executeBuy(w, i, who, quoteIn, t);
 }
 
 function simSell(w: World, coinAddr: Address, who: Address, tokens: bigint, t: number) {
@@ -210,30 +199,24 @@ function simSell(w: World, coinAddr: Address, who: Address, tokens: bigint, t: n
   if (tokens > 0n) executeSell(w, i, who, tokens, t);
 }
 
-function executeBuy(w: World, i: number, who: Address, quoteIn: bigint, t: number, exempt = false, minOut = 0n) {
+function executeBuy(w: World, i: number, who: Address, quoteIn: bigint, t: number, minOut = 0n) {
   const c = w.coins[i];
-  const q = quoteBuy(c, quoteIn, w.params, t, exempt);
+  const q = quoteBuy(c, quoteIn, w.params);
   if (q.tokensOut === 0n || q.tokensOut < minOut) throw new Error('The price moved past your slippage limit. Try again or allow more slippage.');
   debit(w, who, c.currency, q.quoteUsed, currencyCode(w, c.currency));
   const next = applyBuy(c, q);
   w.coins[i] = { ...c, ...next };
   credit(w, who, c.address, q.tokensOut);
-  accrue(w, c.creator, c.currency, q.creatorFee);
-  accrue(w, w.params.treasury, c.currency, q.protocolFee + q.snipeTax);
-  const after = w.coins[i];
-  // Record the reserves at the moment of the fill (before a graduation reset), like the event does.
-  const tradeReserveToken = next.graduated && !c.graduated ? c.reserveToken - q.tokensOut : after.reserveToken;
-  const tradeReserveQuote = next.graduated && !c.graduated ? c.reserveQuote + q.net : after.reserveQuote;
+  accrue(w, c.address, 0n, q.fee);
   record(w, {
     coin: c.address,
     trader: who,
     isBuy: true,
     quoteAmount: q.quoteUsed,
     tokenAmount: q.tokensOut,
-    fees: q.protocolFee + q.creatorFee + q.lpFee,
-    snipeTax: q.snipeTax,
-    reserveToken: tradeReserveToken,
-    reserveQuote: tradeReserveQuote,
+    fees: q.fee,
+    reserveToken: next.reserveToken,
+    reserveQuote: next.reserveQuote,
     timestamp: t,
   });
   return q;
@@ -244,20 +227,19 @@ function executeSell(w: World, i: number, who: Address, tokens: bigint, t: numbe
   const q = quoteSell(c, tokens, w.params);
   if (q.quoteOut === 0n || q.quoteOut < minOut) throw new Error('The price moved past your slippage limit. Try again or allow more slippage.');
   debit(w, who, c.address, tokens, c.symbol);
-  w.coins[i] = { ...c, ...applySell(c, tokens, q) };
+  const next = applySell(c, tokens, q);
+  w.coins[i] = { ...c, ...next };
   credit(w, who, c.currency, q.quoteOut);
-  accrue(w, c.creator, c.currency, q.creatorFee);
-  accrue(w, w.params.treasury, c.currency, q.protocolFee);
+  accrue(w, c.address, q.feeTokens, 0n);
   record(w, {
     coin: c.address,
     trader: who,
     isBuy: false,
     quoteAmount: q.quoteOut,
     tokenAmount: tokens,
-    fees: q.protocolFee + q.creatorFee + q.lpFee,
-    snipeTax: 0n,
-    reserveToken: w.coins[i].reserveToken,
-    reserveQuote: w.coins[i].reserveQuote,
+    fees: q.fee,
+    reserveToken: next.reserveToken,
+    reserveQuote: next.reserveQuote,
     timestamp: t,
   });
   return q;
@@ -291,7 +273,7 @@ export class PlaygroundBackend implements Backend {
       const raw = localStorage.getItem(KEY);
       if (!raw) return null;
       const w = JSON.parse(raw, reviver) as World;
-      if (w.v !== 1 || !Array.isArray(w.coins) || !Array.isArray(w.currencies)) return null;
+      if (w.v !== 2 || !Array.isArray(w.coins) || !Array.isArray(w.currencies)) return null;
       // currencies added to the list since this world was saved join it, with the
       // same starting amount for every address that already got the others
       const have = new Set(w.currencies.map((c) => c.code));
@@ -373,16 +355,13 @@ export class PlaygroundBackend implements Backend {
   private botTrade() {
     const w = this.w;
     if (!w.coins.length) return;
-    const open = w.coins.filter((c) => !c.graduated);
-    const pool = open.length && this.rnd() < 0.85 ? open : w.coins;
-    const coin = pool[Math.floor(this.rnd() * pool.length)];
+    const coin = w.coins[Math.floor(this.rnd() * w.coins.length)];
     const i = w.coins.indexOf(coin);
     const bot = BOTS[Math.floor(this.rnd() * BOTS.length)];
     const cur = w.currencies.find((c) => c.token === coin.currency)!;
     const held = w.balances[lc(bot)]?.[lc(coin.address)] ?? 0n;
-    const progress = Number(800_000_000n * WAD - coin.curveLeft) / Number(800_000_000n * WAD);
-    // Near the top of a curve the crowd takes profit more often, so few coins graduate by themselves.
-    const sellBias = coin.graduated ? 0.45 : 0.22 + progress * 0.35;
+    // The higher a coin has run, the more often the crowd takes profit.
+    const sellBias = 0.22 + soldShare(coin) * 0.5;
     const t = now();
     if (held > 0n && this.rnd() < sellBias) {
       executeSell(w, i, bot, (held * BigInt(10 + Math.floor(this.rnd() * 70))) / 100n, t);
@@ -420,7 +399,7 @@ export class PlaygroundBackend implements Backend {
     if (!cur) return;
     const bot = BOTS[Math.floor(this.rnd() * BOTS.length)];
     const coin = openCoin(w, bot, { name, symbol, meta: { description, image: '', links: {} }, currency: cur.token }, now());
-    simBuy(w, coin, bot, fromUsd(cur, wad(30 + this.rnd() * 120)), now(), true);
+    simBuy(w, coin, bot, fromUsd(cur, wad(30 + this.rnd() * 120)), now());
     this.changed();
   }
 
@@ -457,6 +436,7 @@ export class PlaygroundBackend implements Backend {
     w.coins = w.coins.filter((x) => x !== c);
     w.trades = w.trades.filter((t) => lc(t.coin) !== lc(coin));
     for (const held of Object.values(w.balances)) delete held[lc(coin)];
+    delete w.fees[lc(coin)];
     this.changed();
     return true;
   }
@@ -501,9 +481,8 @@ export class PlaygroundBackend implements Backend {
     return Object.fromEntries(tokens.map((t) => [lc(t), 2n ** 255n]));
   }
 
-  async feesOwed(account: Address, currencies: Address[]) {
-    const f = this.w.fees[lc(account)] ?? {};
-    return Object.fromEntries(currencies.map((c) => [lc(c), f[lc(c)] ?? 0n]));
+  async pendingFees(coins: Address[]) {
+    return Object.fromEntries(coins.map((c) => [lc(c), { ...(this.w.fees[lc(c)] ?? { coin: 0n, quote: 0n }) }]));
   }
 
   async faucetReadyAt(account: Address, token: Address) {
@@ -552,7 +531,7 @@ export class PlaygroundBackend implements Backend {
     const coin = openCoin(this.w, account, input, t);
     if (input.firstBuy > 0n) {
       const i = this.w.coins.findIndex((c) => c.address === coin);
-      executeBuy(this.w, i, account, input.firstBuy, t, true, input.minTokensOut);
+      executeBuy(this.w, i, account, input.firstBuy, t, input.minTokensOut);
     }
     return { ...this.done(o), coin };
   }
@@ -562,7 +541,7 @@ export class PlaygroundBackend implements Backend {
     const i = this.w.coins.findIndex((c) => lc(c.address) === lc(coin));
     if (i < 0) throw new Error('Unknown coin.');
     await this.step(o);
-    executeBuy(this.w, i, account, quoteIn, now(), false, minOut);
+    executeBuy(this.w, i, account, quoteIn, now(), minOut);
     return this.done(o);
   }
 
@@ -632,13 +611,23 @@ export class PlaygroundBackend implements Backend {
     return this.done(o);
   }
 
-  async claimFees(account: Address, currency: Address, o?: TxOptions) {
-    const f = this.w.fees[lc(account)] ?? {};
-    const amount = f[lc(currency)] ?? 0n;
-    if (amount === 0n) throw new Error('Nothing to claim in that currency.');
+  /** Pays a coin's pool fees out: half to its creator, half to the treasury, in both tokens. */
+  async collectFees(_account: Address, coin: Address, o?: TxOptions) {
+    const w = this.w;
+    const i = w.coins.findIndex((c) => lc(c.address) === lc(coin));
+    if (i < 0) throw new Error('Unknown coin.');
+    const f = w.fees[lc(coin)] ?? { coin: 0n, quote: 0n };
+    if (f.coin === 0n && f.quote === 0n) throw new Error('Nothing to collect for this coin yet.');
     await this.step(o);
-    f[lc(currency)] = 0n;
-    credit(this.w, account, currency, amount);
+    const c = w.coins[i];
+    const creatorCoin = f.coin / 2n;
+    const creatorQuote = f.quote / 2n;
+    credit(w, c.creator, c.address, creatorCoin);
+    credit(w, c.creator, c.currency, creatorQuote);
+    credit(w, w.params.treasury, c.address, f.coin - creatorCoin);
+    credit(w, w.params.treasury, c.currency, f.quote - creatorQuote);
+    w.coins[i] = { ...c, creatorFees: c.creatorFees + creatorQuote, protocolFees: c.protocolFees + (f.quote - creatorQuote) };
+    w.fees[lc(coin)] = { coin: 0n, quote: 0n };
     return this.done(o);
   }
 }

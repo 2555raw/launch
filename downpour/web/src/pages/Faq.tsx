@@ -6,24 +6,24 @@ import { CORE_FAQ, Faq as FaqList } from '../components/sections';
 export default function Faq() {
   const pad = usePad();
   const p = pad.snap?.params;
-  const fee = p ? (p.protocolFeeBps + p.creatorFeeBps) / 100 : 1;
+  const fee = p ? p.poolFeePips / 10_000 : 1;
 
   const more: Array<[string, React.ReactNode]> = [
     [
       'Why does the price go up every time someone buys?',
-      'The curve prices a coin from the ratio of its two reserves. A buy adds currency and removes coins, so the next coin costs a little more; a sell does the opposite. Big buys move the price more than small ones, which is why Swap shows the price impact before you confirm.',
+      'The pool prices a coin from the ratio of its two reserves. A buy adds currency and removes coins, so the next coin costs a little more; a sell does the opposite. Big buys move the price more than small ones, which is why Swap shows the price impact before you confirm.',
     ],
     [
-      'What is the snipe tax?',
-      `For the first ${p?.snipeWindow ?? 15} seconds after a launch, buys pay an extra tax that starts at ${((p?.snipeTaxBps ?? 2000) / 100).toFixed(0)}% and falls to zero in a straight line. It exists to make first-block bots pay for jumping the queue. The creator's own first buy, made in the launch transaction, does not pay it.`,
+      'Why do terminals and DEX screens show my coin right away?',
+      'Because from its first second it is an ordinary Uniswap V3 pool with real liquidity: the whole supply, in one position. The coin also carries its own name, description and picture on chain (ERC-7572 contractURI), so a screen that reads it shows the picture too.',
     ],
     [
       'Who gets the fees, and when?',
-      `Every trade pays ${fee}%, split evenly between the coin's creator and the protocol, in the coin's own currency. The fees wait inside the pad until whoever earned them claims them from the Portfolio page.`,
+      `Every trade pays the pool's ${fee}%, wherever it is made. It accrues to the pad's position and anyone can have it paid out from the Portfolio page: half to the coin's creator and half to the protocol, in the coin's currency and in the coin, as the pool earned it.`,
     ],
     [
       'What if the real exchange rate of my coin’s currency moves?',
-      'Your coin keeps trading in its currency; nothing about its market changes. The dollar figures shown next to prices follow the desk’s rate, and conversions through Swap use it. The rate only matters to a curve once, at launch, to size it in dollars.',
+      'Your coin keeps trading in its currency; nothing about its pool changes. The dollar figures shown next to prices follow the desk’s rate, and conversions through Swap use it. The rate only matters to a pool once, at launch, to set its opening price in dollars.',
     ],
     [
       'Why are the currencies test tokens?',
@@ -43,7 +43,7 @@ export default function Faq() {
     ],
     [
       'Has the code been audited?',
-      'No. The contracts are tested (unit tests, fuzzing and invariant tests that hammer the backing rules with random trades), and Verify proves the code on chain matches this repository. That is not an audit. Treat any real-money deployment accordingly.',
+      'No. The contracts are tested (unit tests against Uniswap’s own V3 bytecode, including trades made straight on the pools from outside), and Verify proves the code on chain matches this repository. That is not an audit. Treat any real-money deployment accordingly.',
     ],
   ];
 

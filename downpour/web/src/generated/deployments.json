@@ -1,16 +1,1 @@
-{
-  "4663": {
-    "chainId": 4663,
-    "name": "Robinhood Chain",
-    "rpcUrl": "https://rpc.mainnet.chain.robinhood.com",
-    "explorer": "https://robinhoodchain.blockscout.com",
-    "desk": "0xcbd677fa41302cec22b22a5e1bbf948d33007cf4",
-    "launchpad": "0xa85ff1f1727abb0f5e7f3938e208332522011eec",
-    "router": "0xc5b8267a1a0e84c3c832217ed3dad827dedb768f",
-    "uniswapFactory": "0x8bceaa40b9acdfaedf85adf4ff01f5ad6517937f",
-    "coinImplementation": "0x6041ebD05709D53f615306B9b906a4913d85Cbec",
-    "deployBlock": 75008132,
-    "deployedAt": "2026-09-28T18:21:19.017Z",
-    "testCurrencies": false
-  }
-}
+{}

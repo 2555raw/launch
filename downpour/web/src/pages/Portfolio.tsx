@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
+import type { PendingFees } from '../backend/types';
 import { useWallet } from '../wallet/WalletProvider';
 import { CoinOrb, CurrencyDot, PageHead, PairBadge } from '../components/bits';
 import { RecentFills } from '../components/sections';
@@ -43,29 +44,30 @@ export default function Portfolio() {
 
   const launched = useMemo(() => rows.filter((r) => r.coin.creator.toLowerCase() === me), [rows, me]);
   const isTreasury = !!me && snap?.params.treasury.toLowerCase() === me;
-  const feeCurrencies = useMemo(() => {
-    const set = new Set<string>();
-    (isTreasury ? rows : launched).forEach((r) => set.add(r.cur.token));
-    return [...set] as `0x${string}`[];
-  }, [launched, rows, isTreasury]);
+  // the pools whose fees concern this address: its own coins', or every pool's for the treasury
+  const feeRows = useMemo(() => (isTreasury ? rows : launched), [isTreasury, rows, launched]);
+  const feeCoins = useMemo(() => feeRows.map((r) => r.coin.address), [feeRows]);
 
-  const [fees, setFees] = useState<Record<string, bigint>>({});
+  const [fees, setFees] = useState<Record<string, PendingFees>>({});
   useEffect(() => {
-    if (!usable || !wallet.address || !feeCurrencies.length) {
+    if (!usable || !feeCoins.length) {
       setFees({});
       return;
     }
-    pad.backend.feesOwed(wallet.address, feeCurrencies).then(setFees).catch(() => setFees({}));
-  }, [usable, wallet.address, feeCurrencies, pad.backend, pad.snap]);
+    pad.backend.pendingFees(feeCoins).then(setFees).catch(() => setFees({}));
+  }, [usable, feeCoins, pad.backend, pad.snap]);
 
   const myTrades = useMemo(() => (snap?.trades ?? []).filter((t) => t.trader.toLowerCase() === me), [snap, me]);
   const total = coins.reduce((a, x) => a + x.usdValue, 0) + currencies.reduce((a, x) => a + x.usdValue, 0);
-  const owed = Object.entries(fees).filter(([, v]) => v > 0n);
+  const owed = feeRows.filter((r) => {
+    const f = fees[r.coin.address.toLowerCase()];
+    return f && (f.quote > 0n || f.coin > 0n);
+  });
 
   if (!usable) {
     return (
       <div className="wrap">
-        <PageHead kicker="Portfolio" title="Your stash" lead="Coins you hold, the currencies you carry, the coins you launched and the fees they have earned you." />
+        <PageHead kicker="Portfolio" title="Your stash" lead="Coins you hold, the currencies you carry, the coins you launched and the fees their pools have earned you." />
         <div className="panel empty">
           <h3>Nothing to show until you connect.</h3>
           <p>
@@ -139,34 +141,44 @@ export default function Portfolio() {
           </div>
           {launched.length === 0 && (
             <div className="empty small">
-              None yet. <Link to="/launch" className="accent-text">Light a new star</Link>: you earn half of every trade fee.
+              None yet. <Link to="/launch" className="accent-text">Light a new star</Link>: you earn half of every trade fee its pool takes.
             </div>
           )}
           {launched.map((r) => (
             <Link key={r.coin.address} to={`/coin/${r.coin.address}`} className="asset-row" style={{ gridTemplateColumns: 'minmax(0,1fr) auto' }}>
               <PairBadge coin={r.coin} currency={r.cur} size="sm" />
-              <span className="small muted">{r.coin.graduated ? 'graduated' : `${pct(r.progress)} of curve`}</span>
+              <span className="small muted">
+                ×{r.sinceLaunch.toFixed(2)} since launch · {pct(r.sold)} in wallets
+              </span>
             </Link>
           ))}
           {owed.length > 0 && (
             <>
               <div className="kicker" style={{ margin: '18px 0 6px' }}>
-                {isTreasury ? 'Fees owed to you (creator + treasury)' : 'Creator fees owed to you'}
+                {isTreasury ? 'Fees waiting in the pools (half yours as treasury)' : 'Fees waiting in your pools (half yours)'}
               </div>
-              {owed.map(([token, value]) => {
-                const c = pad.currencyByToken.get(token);
-                if (!c) return null;
+              {owed.map((r) => {
+                const f = fees[r.coin.address.toLowerCase()];
                 return (
-                  <div key={token} className="kv">
-                    <span className="row">
-                      <CurrencyDot c={c} size={20} /> {money(amount(value, c.decimals), c.symbol, { compact: false })}
+                  <div key={r.coin.address} className="kv">
+                    <span className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
+                      <CurrencyDot c={r.cur} size={20} /> {money(amount(f.quote, r.cur.decimals), r.cur.symbol, { compact: false })}
+                      {f.coin > 0n && (
+                        <span className="muted small">
+                          + {compact(amount(f.coin))} {r.coin.symbol}
+                        </span>
+                      )}
                     </span>
-                    <button className="btn btn-sm btn-primary" onClick={() => pad.run(`Claim ${c.code} fees`, (a, o) => pad.backend.claimFees(a, c.token, o))}>
-                      Claim
+                    <button className="btn btn-sm btn-primary" onClick={() => pad.run(`Collect ${r.coin.symbol} fees`, (a, o) => pad.backend.collectFees(a, r.coin.address, o))}>
+                      Collect
                     </button>
                   </div>
                 );
               })}
+              <p className="hint" style={{ marginBottom: 0 }}>
+                Collecting pays the creator's half to the creator and the protocol's half to the treasury, in the currency and in the coin, as the
+                pool earned them.
+              </p>
             </>
           )}
         </div>

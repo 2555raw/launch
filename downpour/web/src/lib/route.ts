@@ -1,10 +1,15 @@
 /* How a swap travels, computed the same way Router.quote does it on chain:
- *   currency -> currency   desk
- *   currency -> coin       (desk into the coin's currency) + the coin's market
- *   coin -> currency       the coin's market + (desk out of its currency)
- *   coin -> coin           market, (desk), market
- * Each step is returned so the Swap page can draw the route. */
-import type { Address, Coin, Currency, Params } from '../backend/types';
+ *   currency -> currency   desk (or a Uniswap pool, where the desk cannot pay)
+ *   currency -> coin       (desk into the coin's currency) + the coin's pool
+ *   coin -> currency       the coin's pool + (desk out of its currency)
+ *   coin -> coin           pool, (desk), pool
+ * Each step is returned so the Swap page can draw the route.
+ *
+ * Between two real tokens (USDG and WETH on Robinhood Chain) the desk has nothing to
+ * pay with, so that leg goes through Uniswap instead: the quote then needs the pool's
+ * answer, which only the chain knows. `quoteSwap` says so (`needsExternal`), the page
+ * fetches it, and passes it back in as `external`. */
+import type { Address, Coin, Currency, ExternalQuote, Params } from '../backend/types';
 import { quoteBuy, quoteConvert, quoteSell } from './math';
 
 export type StepKind = 'desk' | 'buy' | 'sell' | 'uniswap';
@@ -13,23 +18,27 @@ export interface Step {
   kind: StepKind;
   from: string;
   to: string;
+  tokenIn: Address;
+  tokenOut: Address;
   amountIn: bigint;
   amountOut: bigint;
+  /** Fee inside the step, in the currency it is paid in (`from` on a buy, `to` otherwise). */
   fee: bigint;
-  snipeTax?: bigint;
-  graduates?: boolean;
-  /** Price impact on a market step, 0..1. */
+  /** Price impact on a pool step, 0..1. */
   impact?: number;
+  /** The Uniswap quote a 'uniswap' step runs on. */
+  external?: ExternalQuote;
 }
 
 export interface SwapQuote {
   amountOut: bigint;
-  refund: bigint;
-  /** Currency the refund comes back in (the coin's currency). */
-  refundToken?: Address;
   steps: Step[];
   impact: number;
   error?: string;
+  /** A currency leg the desk cannot pay: fetch the Uniswap price for it and quote again. */
+  needsExternal?: { tokenIn: Address; tokenOut: Address; amountIn: bigint };
+  /** How many transactions the route takes: one through the router, or one per leg with Uniswap in it. */
+  transactions: number;
 }
 
 export interface Book {
@@ -63,8 +72,14 @@ function spot(m: { reserveQuote: bigint; reserveToken: bigint }) {
   return Number(m.reserveQuote) / Number(m.reserveToken);
 }
 
-export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amountIn: bigint): SwapQuote {
-  const empty: SwapQuote = { amountOut: 0n, refund: 0n, steps: [], impact: 0 };
+class NeedsExternal extends Error {
+  constructor(public leg: { tokenIn: Address; tokenOut: Address; amountIn: bigint }) {
+    super('needs a Uniswap quote');
+  }
+}
+
+export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amountIn: bigint, external?: ExternalQuote | null): SwapQuote {
+  const empty: SwapQuote = { amountOut: 0n, steps: [], impact: 0, transactions: 0 };
   if (!tokenIn || !tokenOut || amountIn <= 0n) return empty;
   if (tokenIn.toLowerCase() === tokenOut.toLowerCase()) return { ...empty, error: 'Pick two different tokens' };
   const p = book.params;
@@ -77,18 +92,26 @@ export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amoun
 
   const steps: Step[] = [];
   let reason = '';
-  const desk = (from: Currency, to: Currency, amt: bigint) => {
+  /** Currency to currency: the desk at its posted rate when it can pay (it mints test currencies;
+   *  a real token comes out of its reserve), else the Uniswap pool the page was told about. */
+  const convert = (from: Currency, to: Currency, amt: bigint) => {
     const q = quoteConvert(from, to, amt, p.deskFeeBps);
-    // a real token comes out of the desk's reserve; a test currency is minted
-    if (to.reserve !== undefined && q.amountOut > to.reserve) {
-      reason = to.reserve === 0n ? `The desk holds no ${to.code} to convert into` : `The desk holds too little ${to.code} for this`;
+    const deskCan = to.reserve === undefined || q.amountOut <= to.reserve;
+    if (deskCan) {
+      steps.push({ kind: 'desk', from: from.code, to: to.code, tokenIn: from.token, tokenOut: to.token, amountIn: amt, amountOut: q.amountOut, fee: q.fee });
+      return q.amountOut;
+    }
+    const ext = external && external.tokenIn.toLowerCase() === from.token.toLowerCase() && external.tokenOut.toLowerCase() === to.token.toLowerCase() && external.amountIn === amt ? external : null;
+    if (ext === null && external === null) {
+      reason = `No Uniswap pool for ${from.code}/${to.code} on this chain yet, and the desk holds no ${to.code}`;
       throw new Error(reason);
     }
-    steps.push({ kind: 'desk', from: from.code, to: to.code, amountIn: amt, amountOut: q.amountOut, fee: q.fee });
-    return q.amountOut;
+    if (!ext) throw new NeedsExternal({ tokenIn: from.token, tokenOut: to.token, amountIn: amt });
+    steps.push({ kind: 'uniswap', from: from.code, to: to.code, tokenIn: from.token, tokenOut: to.token, amountIn: amt, amountOut: ext.amountOut, fee: 0n, external: ext });
+    return ext.amountOut;
   };
   const buy = (coin: Coin, cur: Currency, amt: bigint) => {
-    const q = quoteBuy(coin, amt, p, book.now);
+    const q = quoteBuy(coin, amt, p);
     const before = spot(coin);
     const afterReserveQuote = coin.reserveQuote + q.net;
     const afterReserveToken = coin.reserveToken - q.tokensOut;
@@ -96,14 +119,14 @@ export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amoun
       kind: 'buy',
       from: cur.code,
       to: coin.symbol,
-      amountIn: q.quoteUsed,
+      tokenIn: cur.token,
+      tokenOut: coin.address,
+      amountIn: amt,
       amountOut: q.tokensOut,
-      fee: q.protocolFee + q.creatorFee + q.lpFee,
-      snipeTax: q.snipeTax,
-      graduates: q.graduates,
+      fee: q.fee,
       impact: afterReserveToken > 0n ? impactOf(before, Number(afterReserveQuote) / Number(afterReserveToken)) : 1,
     });
-    return { out: q.tokensOut, refund: amt - q.quoteUsed };
+    return q.tokensOut;
   };
   const sell = (coin: Coin, cur: Currency, amt: bigint) => {
     const q = quoteSell(coin, amt, p);
@@ -112,10 +135,12 @@ export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amoun
       kind: 'sell',
       from: coin.symbol,
       to: cur.code,
+      tokenIn: coin.address,
+      tokenOut: cur.token,
       amountIn: amt,
       amountOut: q.quoteOut,
-      fee: q.protocolFee + q.creatorFee + q.lpFee,
-      impact: impactOf(before, Number(coin.reserveQuote - q.gross) / Number(coin.reserveToken + amt)),
+      fee: q.fee,
+      impact: impactOf(before, Number(coin.reserveQuote - q.quoteOut) / Number(coin.reserveToken + amt - q.feeTokens)),
     });
     return q.quoteOut;
   };
@@ -123,34 +148,28 @@ export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amoun
 
   try {
     let amountOut = 0n;
-    let refund = 0n;
-    let refundToken: Address | undefined;
     if (curIn && curOut) {
-      amountOut = desk(curIn, curOut, amountIn);
+      amountOut = convert(curIn, curOut, amountIn);
     } else if (curIn && coinOut) {
       const cur = currencyOfCoin(coinOut)!;
-      const spend = curIn.token === cur.token ? amountIn : desk(curIn, cur, amountIn);
-      const r = buy(coinOut, cur, spend);
-      amountOut = r.out;
-      refund = r.refund;
-      refundToken = cur.token;
+      const spend = curIn.token.toLowerCase() === cur.token.toLowerCase() ? amountIn : convert(curIn, cur, amountIn);
+      amountOut = buy(coinOut, cur, spend);
     } else if (coinIn && curOut) {
       const cur = currencyOfCoin(coinIn)!;
       const got = sell(coinIn, cur, amountIn);
-      amountOut = cur.token === curOut.token ? got : desk(cur, curOut, got);
+      amountOut = cur.token.toLowerCase() === curOut.token.toLowerCase() ? got : convert(cur, curOut, got);
     } else if (coinIn && coinOut) {
       const a = currencyOfCoin(coinIn)!;
       const b = currencyOfCoin(coinOut)!;
       let got = sell(coinIn, a, amountIn);
-      if (a.token !== b.token) got = desk(a, b, got);
-      const r = buy(coinOut, b, got);
-      amountOut = r.out;
-      refund = r.refund;
-      refundToken = b.token;
+      if (a.token.toLowerCase() !== b.token.toLowerCase()) got = convert(a, b, got);
+      amountOut = buy(coinOut, b, got);
     }
     const impact = Math.max(0, ...steps.map((s) => s.impact ?? 0));
-    return { amountOut, refund, refundToken, steps, impact };
-  } catch {
+    const viaUniswap = steps.some((s) => s.kind === 'uniswap');
+    return { amountOut, steps, impact, transactions: viaUniswap ? steps.length : 1 };
+  } catch (e) {
+    if (e instanceof NeedsExternal) return { ...empty, needsExternal: e.leg };
     return { ...empty, error: reason || 'Could not price this route' };
   }
 }

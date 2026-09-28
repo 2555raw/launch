@@ -217,13 +217,13 @@ export default function Desk() {
   const openCode = params.get('code');
 
   const stats = useMemo(() => {
-    const m = new Map<string, { coins: number; backing: bigint }>();
+    const m = new Map<string, { coins: number; pooled: bigint }>();
     for (const c of snap?.coins ?? []) {
       const k = c.currency.toLowerCase();
-      const e = m.get(k) ?? { coins: 0, backing: 0n };
+      const e = m.get(k) ?? { coins: 0, pooled: 0n };
       e.coins++;
-      // held by the pad; a graduated coin's is in its Uniswap pool
-      if (!c.graduated) e.backing += c.realQuote;
+      // what the coins' Uniswap pools hold of it
+      e.pooled += c.realQuote;
       m.set(k, e);
     }
     return m;
@@ -258,7 +258,7 @@ export default function Desk() {
       <PageHead
         kicker="Denominations"
         title="The currency desk"
-        lead={`${snap?.currencies.length ?? 149} currencies a coin can be paired with, each with its USD rate, how many coins live in it and how much backing they hold. Tap one to convert, or to top up test money from the faucet.`}
+        lead={`${snap?.currencies.length ?? 149} currencies a coin can be paired with, each with its USD rate, how many coins live in it and how much of it sits in their pools. Tap one to convert, or to top up test money from the faucet.`}
       />
 
       <div className="toolbar" data-solid>
@@ -306,7 +306,7 @@ export default function Desk() {
                   {c.code === 'USD' ? 'reference' : `1 USD = ${compact(unitsPerUsd(c), 4)}`}{' '}
                   {mv !== undefined && mv !== 0 && <span className={mv > 0 ? 'move-down' : 'move-up'}>{mv > 0 ? '▼' : '▲'}</span>}
                 </div>
-                <div className="muted small">{s ? `${s.coins} coin${s.coins > 1 ? 's' : ''} · backing ${money(amount(s.backing, c.decimals), c.symbol)}` : 'no coins yet'}</div>
+                <div className="muted small">{s ? `${s.coins} coin${s.coins > 1 ? 's' : ''} · in pools ${money(amount(s.pooled, c.decimals), c.symbol)}` : 'no coins yet'}</div>
               </div>
             </button>
           );

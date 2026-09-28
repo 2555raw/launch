@@ -4,7 +4,6 @@ import { usePad } from '../backend/PadProvider';
 import type { Trade } from '../backend/types';
 import { ago, compact, money, shortAddr } from '../lib/format';
 import { amount } from '../lib/views';
-import { CURVE_SUPPLY, VIRTUAL_TOKENS } from '../lib/math';
 import { PairBadge } from './bits';
 
 /* ------------------------------ recent fills ------------------------------ */
@@ -63,43 +62,40 @@ export function KeeperLine() {
 
 /* ------------------------------ curve picture ------------------------------ */
 
-/** Price against coins sold: the curve, where it stands now, and the graduation point. */
+/** Price against coins out of the pool: the pool's curve (x · y = k) from the launch price up, and where a coin stands on it. */
 export function CurveChart({ sold = 0.42, height = 170, color = '#3f8ce6' }: { sold?: number; height?: number; color?: string }) {
   const w = 460;
   const pad = 14;
-  const S = Number(CURVE_SUPPLY) / 1e18;
-  const X0 = Number(VIRTUAL_TOKENS) / 1e18;
-  const priceAt = (f: number) => 1 / (X0 - f * S) ** 2; // proportional to y0 * X0 / x^2
-  const pMax = priceAt(1);
+  const SPAN = 0.8; // the chart shows the supply up to 80% out of the pool
+  const priceAt = (f: number) => 1 / (1 - f) ** 2; // price grows as the pool's coins x shrink: y0 / x^2, normalised
+  const pMax = priceAt(SPAN);
   const pts: string[] = [];
   for (let i = 0; i <= 60; i++) {
-    const f = i / 60;
-    const x = pad + f * (w - pad * 2 - 40);
+    const f = (i / 60) * SPAN;
+    const x = pad + (f / SPAN) * (w - pad * 2 - 40);
     const y = height - pad - (priceAt(f) / pMax) * (height - pad * 2.5);
     pts.push(`${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`);
   }
-  const nowX = pad + sold * (w - pad * 2 - 40);
-  const nowY = height - pad - (priceAt(sold) / pMax) * (height - pad * 2.5);
+  const at = Math.min(sold, SPAN);
+  const nowX = pad + (at / SPAN) * (w - pad * 2 - 40);
+  const nowY = height - pad - (priceAt(at) / pMax) * (height - pad * 2.5);
   const endX = pad + (w - pad * 2 - 40);
-  const endY = height - pad - (height - pad * 2.5);
   return (
-    <svg viewBox={`0 0 ${w} ${height}`} className="curve-chart" role="img" aria-label="Bonding curve: price rises as coins are sold, then the coin graduates into a Uniswap pool">
+    <svg viewBox={`0 0 ${w} ${height}`} className="curve-chart" role="img" aria-label="The pool's curve: price rises as coins leave the pool, from the first second on Uniswap">
       <line x1={pad} y1={height - pad} x2={w - pad} y2={height - pad} stroke="rgba(15,28,50,0.15)" />
       <path d={pts.join(' ')} fill="none" stroke={color} strokeWidth="2" />
-      <line x1={endX} y1={endY} x2={w - pad} y2={endY} stroke="#0c9a5f" strokeWidth="2" strokeDasharray="4 4" />
-      <circle cx={endX} cy={endY} r="5" fill="#0c9a5f" />
-      <text x={endX - 6} y={endY - 12} fill="#0c9a5f" fontSize="11" textAnchor="end">
-        graduates · Uniswap pool starts at the same price
+      <text x={endX} y={pad + 4} fill="#0c9a5f" fontSize="11" textAnchor="end">
+        one Uniswap pool, from the first coin · liquidity locked
       </text>
       <circle cx={nowX} cy={nowY} r="6" fill="#5a3fd1" stroke="#fff" strokeWidth="2" />
       <text x={nowX + 10} y={nowY + 4} fill="#5a3fd1" fontSize="11">
         you are here
       </text>
       <text x={pad} y={height - 2} fill="#5b6679" fontSize="10">
-        0
+        launch
       </text>
       <text x={endX} y={height - 2} fill="#5b6679" fontSize="10" textAnchor="middle">
-        800M sold
+        800M in wallets
       </text>
     </svg>
   );
@@ -136,8 +132,8 @@ export const CORE_FAQ: Array<[string, ReactNode]> = [
     'No. The pad writes the currency into the market when the coin is created and has no function that edits it. Verify checks this against the launch event on chain.',
   ],
   [
-    'What happens when a curve sells out?',
-    'The coin graduates. The currency the curve collected and the 200 million coins held back open its Uniswap pool at the same price the curve ended on, and the liquidity tokens are burned, so nobody can ever withdraw it. From then on it trades there, and shows up on DEX screens like any Uniswap pair.',
+    'Where is the liquidity, and who can pull it?',
+    'In the coin’s own Uniswap V3 pool, from the first second: the whole supply goes in at launch as one position the pad owns, and the pad has no function that withdraws, moves or burns it. Nobody holds LP tokens and there is no unlock date. Every DEX screen and terminal sees the pool with its liquidity the moment the coin launches.',
   ],
   [
     'Is any of this real money?',

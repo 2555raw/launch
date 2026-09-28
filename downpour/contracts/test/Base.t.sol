@@ -7,13 +7,16 @@ import {TestCurrency} from "../src/TestCurrency.sol";
 import {CurrencyDesk} from "../src/CurrencyDesk.sol";
 import {Launchpad} from "../src/Launchpad.sol";
 import {Router} from "../src/Router.sol";
-import {IUniswapV2Factory, IUniswapV2Pair} from "../src/interfaces/IUniswapV2.sol";
+import {INonfungiblePositionManager, IUniswapV3Factory, IUniswapV3Pool} from "../src/interfaces/IUniswapV3.sol";
+import {WETH9} from "./mocks/WETH9.sol";
 
 abstract contract Base is Test {
     CurrencyDesk desk;
     Launchpad pad;
     Router router;
-    IUniswapV2Factory uniswap;
+    IUniswapV3Factory factory;
+    INonfungiblePositionManager positions;
+    WETH9 weth;
 
     address owner = makeAddr("owner");
     address treasury = makeAddr("treasury");
@@ -27,7 +30,7 @@ abstract contract Base is Test {
     address kwd; // 6 decimals, to exercise decimal handling
     address vnd;
 
-    uint256 constant TARGET_USD = 12_000e18;
+    uint256 constant START_MCAP_USD = 4_000e18;
 
     function setUp() public virtual {
         vm.warp(1_750_000_000);
@@ -43,8 +46,8 @@ abstract contract Base is Test {
         address[] memory tokens = desk.createTestCurrencies(list);
         (usd, eur, jpy, kwd, vnd) = (tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
 
-        uniswap = IUniswapV2Factory(deployUniswapV2Factory());
-        pad = new Launchpad(owner, desk, uniswap, treasury, TARGET_USD, 50, 50, 2000, 15);
+        (factory, positions, weth) = deployUniswapV3();
+        pad = new Launchpad(owner, desk, positions, treasury, START_MCAP_USD);
         router = new Router(pad);
         pad.setRouter(address(router));
         vm.stopPrank();
@@ -66,20 +69,32 @@ abstract contract Base is Test {
         }
     }
 
-    /// Uniswap's own V2 factory, from the bytecode in its npm package (see uniswap/README.md).
-    function deployUniswapV2Factory() internal returns (address f) {
-        bytes memory code = vm.parseJsonBytes(vm.readFile("uniswap/UniswapV2Factory.json"), ".bytecode");
-        bytes memory init = abi.encodePacked(code, abi.encode(address(0)));
+    /// Uniswap's own V3 factory and position manager, from the bytecode in their npm packages.
+    function deployUniswapV3() internal returns (IUniswapV3Factory f, INonfungiblePositionManager p, WETH9 w) {
+        bytes memory fcode = vm.parseJsonBytes(
+            vm.readFile("../node_modules/@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json"),
+            ".bytecode"
+        );
+        address fa;
         assembly {
-            f := create(0, add(init, 0x20), mload(init))
+            fa := create(0, add(fcode, 0x20), mload(fcode))
         }
-        require(f != address(0), "uniswap factory");
-    }
-
-    /// The coin's pair reserves as (coin, currency).
-    function pairReserves(address coin) internal view returns (uint256 rToken, uint256 rQuote) {
-        (uint112 r0, uint112 r1,) = IUniswapV2Pair(pad.pairOf(coin)).getReserves();
-        (rToken, rQuote) = coin < pad.currencyOf(coin) ? (uint256(r0), uint256(r1)) : (uint256(r1), uint256(r0));
+        require(fa != address(0), "v3 factory");
+        w = new WETH9();
+        bytes memory pcode = vm.parseJsonBytes(
+            vm.readFile(
+                "../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json"
+            ),
+            ".bytecode"
+        );
+        bytes memory init = abi.encodePacked(pcode, abi.encode(fa, address(w), address(0)));
+        address pa;
+        assembly {
+            pa := create(0, add(init, 0x20), mload(init))
+        }
+        require(pa != address(0), "position manager");
+        f = IUniswapV3Factory(fa);
+        p = INonfungiblePositionManager(pa);
     }
 
     /// Mints `usdValue` worth of `token` to `to` through the desk (the desk is the minter).
@@ -89,53 +104,49 @@ abstract contract Base is Test {
         TestCurrency(token).mint(to, amount);
     }
 
+    /// A salt whose coin address sorts below the currency, as the site finds one.
+    function saltFor(address currency) internal view returns (bytes32 salt) {
+        for (uint256 i; i < 8192; ++i) {
+            salt = keccak256(abi.encode("starmint", currency, i, address(this)));
+            if (pad.coinAddress(salt) < currency) return salt;
+        }
+        revert("no salt");
+    }
+
     function launch(address creator, address currency) internal returns (address coin) {
+        return launchWith(creator, currency, 0);
+    }
+
+    function launchWith(address creator, address currency, uint256 firstBuy) internal returns (address coin) {
+        bytes32 salt = saltFor(currency);
         vm.prank(creator);
-        (coin,) = pad.createCoin("Storm Test", "STORM", "{}", currency, 0, 0);
+        (coin,) = pad.createCoin("Storm Test", "STORM", "{\"name\":\"Storm Test\"}", currency, salt, firstBuy, 0);
     }
 
+    /// Price in currency raw units per whole coin, from the pad's virtual reserves.
     function price(address coin) internal view returns (uint256) {
-        Launchpad.Market memory m = pad.getMarket(coin);
-        return m.reserveQuote * 1e18 / m.reserveToken;
+        (uint256 rToken, uint256 rQuote) = pad.reserves(coin);
+        return rQuote * 1e18 / rToken;
     }
 
-    /// Everything the Proof page checks, for one market.
+    function poolOf(address coin) internal view returns (IUniswapV3Pool) {
+        return IUniswapV3Pool(pad.poolOf(coin));
+    }
+
+    /// Everything the Proof page checks, for one market: the position is the pad's, sits
+    /// above the launch price to the top, and the pool holds the coins and currency it says.
     function assertMarketHolds(address coin) internal view {
         Launchpad.Market memory m = pad.getMarket(coin);
-        if (m.graduated) {
-            address pair = pad.pairOf(coin);
-            (uint256 rToken, uint256 rQuote) = pairReserves(coin);
-            assertEq(m.reserveToken, rToken, "pool: the market reads the pair's reserves");
-            assertEq(m.reserveQuote, rQuote, "pool: the market reads the pair's reserves");
-            assertEq(m.realQuote, rQuote, "pool: the currency held is the pool's");
-            assertEq(m.curveLeft, 0, "pool: nothing left on the curve");
-            assertGe(Coin(coin).balanceOf(pair), rToken, "pool: the pair holds its coins");
-            assertEq(Coin(coin).balanceOf(address(pad)), 0, "pool: the pad holds none of them");
-            // Nobody can take the pool out: every liquidity token but Uniswap's own minimum is burned.
-            IUniswapV2Pair p = IUniswapV2Pair(pair);
-            assertEq(p.balanceOf(pad.DEAD()) + 1000, p.totalSupply(), "pool: liquidity burned");
-        } else {
-            assertEq(m.reserveQuote, m.virtualQuote + m.realQuote, "curve: reserve = virtual + backing");
-            assertEq(
-                m.reserveToken, m.curveLeft + (pad.VIRTUAL_TOKENS() - pad.CURVE_SUPPLY()), "curve: token reserve"
-            );
-            assertEq(
-                Coin(coin).balanceOf(address(pad)), m.curveLeft + pad.POOL_SUPPLY(), "curve: pad holds unsold + pool"
-            );
-            // If every circulating coin were sold back at once, the backing covers it.
-            uint256 circulating = pad.CURVE_SUPPLY() - m.curveLeft;
-            if (circulating != 0) {
-                uint256 payout = m.reserveQuote * circulating / (m.reserveToken + circulating);
-                assertLe(payout, m.realQuote, "curve: backing covers a full sell-back");
-            }
-        }
-    }
-
-    function assertCustody(address currency) internal view {
-        assertGe(
-            TestCurrency(currency).balanceOf(address(pad)),
-            pad.backing(currency) + pad.totalFeesOwed(currency),
-            "custody: pad holds backing + fees"
-        );
+        assertEq(positions.ownerOf(m.tokenId), address(pad), "position: the pad owns it");
+        (,, address t0, address t1, uint24 fee, int24 lower, int24 upper, uint128 liq,,,,) = positions.positions(m.tokenId);
+        assertEq(t0, coin, "position: coin is token0");
+        assertEq(t1, m.currency, "position: currency is token1");
+        assertEq(fee, pad.POOL_FEE(), "position: 1% pool");
+        assertEq(lower, m.tickLower, "position: from the launch tick");
+        assertEq(upper, pad.TICK_TOP(), "position: to the top");
+        assertGt(liq, 0, "position: has liquidity");
+        assertEq(Coin(coin).balanceOf(address(pad)) < 1e18, true, "pad: holds at most dust of the coin");
+        (uint256 rToken,) = pad.reserves(coin);
+        assertLe(rToken, Coin(coin).balanceOf(m.pool) + 1e18, "pool: holds the coins the curve says are left");
     }
 }

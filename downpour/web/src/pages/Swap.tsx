@@ -43,7 +43,7 @@ function RouteView({ steps }: { steps: Step[] }) {
       <span className="hop">{steps[0].from}</span>
       {steps.map((s, i) => (
         <span key={i} className="row" style={{ gap: 6 }}>
-          <span className="via">→ {s.kind === 'desk' ? 'desk' : s.kind === 'uniswap' ? 'Uniswap pool' : s.kind === 'buy' ? 'curve buy' : 'curve sell'} →</span>
+          <span className="via">→ {s.kind === 'desk' ? 'desk' : s.kind === 'uniswap' ? 'Uniswap pool' : s.kind === 'buy' ? 'pool buy' : 'pool sell'} →</span>
           <span className="hop">{s.to}</span>
         </span>
       ))}
@@ -80,7 +80,7 @@ export default function Swap() {
       setTokenIn(usdCur?.token);
     }
     if (!tokenOut) {
-      const top = sortRows(rows, 'active').find((r) => !r.coin.graduated) ?? rows[0];
+      const top = sortRows(rows, 'active')[0];
       if (top) setTokenOut(top.coin.address);
     }
   }, [snap, rows, tokenIn, tokenOut]);
@@ -101,37 +101,33 @@ export default function Swap() {
   const bal = tokenIn ? pad.spendable(tokenIn) : 0n;
   // "Max" spends the exact balance, not the rounded number shown in the field.
   const amountIn = maxed ? bal : parseAmount(text, decOf(tokenIn));
-  const deskQ = useMemo(() => (pad.book && tokenIn && tokenOut && amountIn ? quoteSwap(pad.book, tokenIn, tokenOut, amountIn) : null), [pad.book, tokenIn, tokenOut, amountIn]);
-  // Two real tokens (USDG <-> WETH on Robinhood Chain) trade through Uniswap's pools, at the
-  // market's price, rather than the desk; the quote comes from the chain, a moment later.
-  const curIn = tokenIn ? pad.currencyByToken.get(tokenIn.toLowerCase()) : undefined;
-  const curOut = tokenOut ? pad.currencyByToken.get(tokenOut.toLowerCase()) : undefined;
-  const viaUniswap = !!curIn && !!curOut && !curIn.mintable && !curOut.mintable && !!pad.backend.quoteExternal;
+  // The route as the desk would price it. A currency leg the desk cannot pay (two real
+  // tokens, USDG and WETH on Robinhood Chain) needs Uniswap's price for that leg from the
+  // chain, a moment later; the route is then priced again with it.
+  const first = useMemo(() => (pad.book && tokenIn && tokenOut && amountIn ? quoteSwap(pad.book, tokenIn, tokenOut, amountIn) : null), [pad.book, tokenIn, tokenOut, amountIn]);
+  const need = first?.needsExternal;
   const [ext, setExt] = useState<{ key: string; quote: ExternalQuote | null } | null>(null);
-  const extKey = viaUniswap && tokenIn && tokenOut && amountIn ? `${tokenIn}>${tokenOut}:${amountIn}` : '';
+  const extKey = need ? `${need.tokenIn}>${need.tokenOut}:${need.amountIn}` : '';
   useEffect(() => {
-    if (!extKey || !tokenIn || !tokenOut || !amountIn) return;
+    if (!need || !extKey) return;
     let off = false;
     const t = setTimeout(() => {
-      pad.backend
-        .quoteExternal!(tokenIn, tokenOut, amountIn)
-        .then((quote) => !off && setExt({ key: extKey, quote }))
-        .catch(() => !off && setExt({ key: extKey, quote: null }));
+      const ask = pad.backend.quoteExternal?.(need.tokenIn, need.tokenOut, need.amountIn) ?? Promise.resolve(null);
+      ask.then((quote) => !off && setExt({ key: extKey, quote })).catch(() => !off && setExt({ key: extKey, quote: null }));
     }, 250);
     return () => {
       off = true;
       clearTimeout(t);
     };
-  }, [extKey, tokenIn, tokenOut, amountIn, pad.backend]);
-  const extQuote = viaUniswap && ext && ext.key === extKey ? ext.quote : undefined;
-  const extLoading = viaUniswap && !!extKey && (!ext || ext.key !== extKey);
+  }, [need, extKey, pad.backend]);
+  const extQuote = need && ext && ext.key === extKey ? ext.quote : undefined;
+  const extLoading = !!need && extQuote === undefined;
   const q = useMemo<SwapQuote | null>(() => {
-    if (!viaUniswap) return deskQ;
-    if (!extKey || extQuote === undefined) return null;
-    if (!extQuote) return { amountOut: 0n, refund: 0n, steps: [], impact: 0, error: `No Uniswap pool for ${curIn!.code}/${curOut!.code} on this chain yet` };
-    const step: Step = { kind: 'uniswap', from: curIn!.code, to: curOut!.code, amountIn: amountIn ?? 0n, amountOut: extQuote.amountOut, fee: 0n };
-    return { amountOut: extQuote.amountOut, refund: 0n, steps: [step], impact: 0 };
-  }, [viaUniswap, deskQ, extKey, extQuote, curIn, curOut, amountIn]);
+    if (!first) return null;
+    if (!need) return first;
+    if (extQuote === undefined || !pad.book || !tokenIn || !tokenOut || !amountIn) return null;
+    return quoteSwap(pad.book, tokenIn, tokenOut, amountIn, extQuote);
+  }, [first, need, extQuote, pad.book, tokenIn, tokenOut, amountIn]);
   const balOut = tokenOut ? pad.balances[tokenOut.toLowerCase()] ?? 0n : 0n;
   const minOut = q ? (q.amountOut * BigInt(10_000 - slip)) / 10_000n : 0n;
   const usdIn = tokenIn && amountIn ? pad.usdValue(tokenIn, amountIn) : 0;
@@ -142,9 +138,9 @@ export default function Swap() {
   const pairCoin = outCoin ?? inCoin;
   const pairCur = pairCoin ? pad.displayOf(pairCoin) : undefined;
   // A buy pays its fee in the currency going in; a sell or a conversion in the currency coming out.
-  const tokenOfCode = (code: string) => snap?.currencies.find((c) => c.code === code)?.token ?? '';
-  const fees = q ? q.steps.reduce((a, s) => a + pad.usdValue(tokenOfCode(s.kind === 'buy' ? s.from : s.to), s.fee + (s.snipeTax ?? 0n)), 0) : 0;
-  const snipe = q?.steps.find((s) => (s.snipeTax ?? 0n) > 0n);
+  const fees = q ? q.steps.reduce((a, s) => a + pad.usdValue(s.kind === 'buy' ? s.tokenIn : s.tokenOut, s.fee), 0) : 0;
+  const uniStep = q?.steps.find((s) => s.kind === 'uniswap');
+  const multi = !!q && q.transactions > 1;
 
   let action: { label: string; disabled: boolean; onClick?: () => void } = { label: 'Swap', disabled: true };
   if (!wallet.address) action = { label: 'Connect wallet', disabled: false, onClick: wallet.openModal };
@@ -155,15 +151,16 @@ export default function Swap() {
   else if (q?.error) action = { label: q.error, disabled: true };
   else if (amountIn > bal) action = { label: `Not enough ${labelOf(tokenIn)}`, disabled: true };
   else if (busy) action = { label: 'Swapping…', disabled: true };
+  else if (multi && !pad.backend.swapRoute) action = { label: 'This route needs live mode', disabled: true };
   else
     action = {
-      label: q && q.impact > 0.15 ? 'Swap anyway (high price impact)' : extQuote ? 'Swap on Uniswap' : 'Swap',
+      label: q && q.impact > 0.15 ? 'Swap anyway (high price impact)' : multi ? `Swap in ${q!.transactions} transactions` : uniStep ? 'Swap on Uniswap' : 'Swap',
       disabled: false,
       onClick: async () => {
         setBusy(true);
         const sent = text;
         const r = await pad.run(`Swap ${labelOf(tokenIn)} → ${labelOf(tokenOut)}`, (acct, o) =>
-          extQuote ? pad.backend.swapExternal!(acct, extQuote, minOut, o) : pad.backend.swap(acct, tokenIn, tokenOut, amountIn, minOut, o),
+          uniStep ? pad.backend.swapRoute!(acct, q!, slip, o) : pad.backend.swap(acct, tokenIn, tokenOut, amountIn, minOut, o),
         );
         setBusy(false);
         if (r && typed.current === sent) {
@@ -196,7 +193,7 @@ export default function Swap() {
       <PageHead
         kicker="Anything for anything"
         title="Swap"
-        lead="Trade any coin for any other, or for any currency on the desk. If the two sides live in different currencies, the router converts in between, in one transaction."
+        lead="Trade any coin for any other, or for any currency on the desk: ether or dollars into a coin priced in euros, a yen coin into a peso coin. If the two sides live in different currencies, the route converts in between, through the desk or through Uniswap."
       />
       <div className="swap-page">
         <div className="panel swap-card" data-solid>
@@ -257,7 +254,7 @@ export default function Swap() {
               />
               <TokenButton token={tokenIn} onClick={() => setPicking('in')} />
             </div>
-            <div className="small muted">{usdIn ? `≈ ${usd(usdIn)}` : ' '}</div>
+            <div className="small muted">{usdIn ? `≈ ${usd(usdIn)}` : ' '}</div>
           </div>
 
           <button className="flip" onClick={flip} aria-label="Flip">
@@ -273,7 +270,7 @@ export default function Swap() {
               <input readOnly placeholder="0" className={sizeClass(outText)} value={outText} aria-label="Amount to receive" />
               <TokenButton token={tokenOut} onClick={() => setPicking('out')} />
             </div>
-            <div className="small muted">{usdOut ? `≈ ${usd(usdOut)}` : ' '}</div>
+            <div className="small muted">{usdOut ? `≈ ${usd(usdOut)}` : ' '}</div>
           </div>
 
           <div className="swap-quick" aria-label="Popular">
@@ -314,10 +311,10 @@ export default function Swap() {
                   <RouteView steps={q.steps} />
                 </span>
               </div>
-              {extQuote && (
+              {uniStep?.external && (
                 <div className="kv">
                   <span>Pool</span>
-                  <span>{extQuote.via}; its fee is inside the price</span>
+                  <span>{uniStep.external.via}; its fee is inside the price</span>
                 </div>
               )}
               <div className="kv">
@@ -328,22 +325,16 @@ export default function Swap() {
                 <span>Fees</span>
                 <span>≈ {usd(fees)}</span>
               </div>
-              {snipe && (
-                <div className="kv">
-                  <span className="gold-text">Snipe tax (coin just launched)</span>
-                  <span className="gold-text">{money(amount(snipe.snipeTax ?? 0n), '')} {snipe.from}</span>
-                </div>
-              )}
               <div className="kv">
                 <span>Minimum received</span>
                 <span className="num">
                   {compact(amount(minOut, decOf(tokenOut)))} {labelOf(tokenOut)}
                 </span>
               </div>
-              {q.refund > 0n && (
-                <div className="callout bolt small" style={{ marginTop: 10 }}>
-                  This buy fills the rest of the curve and graduates the coin. The part it does not need,{' '}
-                  {compact(amount(q.refund, decOf(q.refundToken)))} {labelOf(q.refundToken)}, comes back to you.
+              {multi && (
+                <div className="callout small" style={{ marginTop: 10 }}>
+                  This route crosses from {uniStep!.from} to {uniStep!.to} through Uniswap, so it takes {q.transactions} transactions, one per step; your wallet asks
+                  for each in turn, and each step is held to your slippage.
                 </div>
               )}
             </div>
@@ -385,10 +376,12 @@ export default function Swap() {
             <div className="kicker">How a swap travels</div>
             <ul className="muted small" style={{ paddingLeft: 18, marginBottom: 0 }}>
               <li>
-                <b>Currency → currency</b>: the desk converts at the posted rate, {((pad.snap?.params.deskFeeBps ?? 10) / 100).toFixed(2)}% fee.
+                <b>Currency → currency</b>: the desk converts at the posted rate, {((pad.snap?.params.deskFeeBps ?? 10) / 100).toFixed(2)}% fee; between the
+                real tokens on the chain (dollars and ether) it goes through Uniswap's own pool instead, at the market's price.
               </li>
               <li>
-                <b>Currency → coin</b>: converted into the coin's currency if needed, then bought on its curve (or in its Uniswap pool once it has graduated).
+                <b>Currency → coin</b>: converted into the coin's currency if needed, then bought in its pool. Ether into a dollar coin, or dollars into an
+                ether coin, both work.
               </li>
               <li>
                 <b>Coin → coin</b>: sold into its currency, converted if the other coin lives in a different one, then bought.

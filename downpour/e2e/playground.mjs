@@ -45,7 +45,7 @@ const fail = (msg) => {
   if (away !== 'https://www.ponsfamily.com/launchpad') fail(`"I do not accept" goes to ${away}`);
   await p.getByRole('button', { name: 'Accept and enter' }).click();
   await p.locator('.gate').waitFor({ state: 'detached' });
-  await p.locator('.seg button', { hasText: 'On the curve' }).click();
+  await p.locator('.seg button', { hasText: 'All coins' }).click();
   await p.reload();
   await p.locator('.coin-card').first().waitFor({ timeout: 15_000 });
   if (await p.locator('.gate').count()) fail('the notice came back after accepting it');
@@ -109,9 +109,9 @@ await done('Faucet: test NGN');
 console.log('  ✓ faucet');
 
 await page.goto(BASE + '/portfolio');
-await page.getByRole('button', { name: 'Claim' }).first().click();
+await page.getByRole('button', { name: 'Collect' }).first().click();
 await done('fees');
-console.log('  ✓ claim creator fees');
+console.log('  ✓ collect creator fees');
 
 await page.reload();
 await page.goto(url);

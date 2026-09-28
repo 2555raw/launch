@@ -8,15 +8,12 @@ import { KeeperLine } from '../components/sections';
 import { Arrow, Search } from '../components/icons';
 import { sortRows, useRows, type SortKey } from '../lib/views';
 
-type Status = 'all' | 'curve' | 'pool';
-
 export default function Board() {
   const pad = usePad();
   const rows = useRows();
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState('');
   const [sort, setSort] = useState<SortKey>('active');
-  const [status, setStatus] = useState<Status>('all');
   const currency = params.get('currency') ?? '';
   const now = pad.now();
 
@@ -35,12 +32,10 @@ export default function Board() {
     const needle = q.trim().toLowerCase();
     return sortRows(rows, sort).filter((r) => {
       if (currency && r.disp.code !== currency && r.cur.code !== currency) return false;
-      if (status === 'curve' && r.coin.graduated) return false;
-      if (status === 'pool' && !r.coin.graduated) return false;
       if (!needle) return true;
       return `${r.coin.name} ${r.coin.symbol} ${r.disp.code} ${r.disp.name} ${r.cur.code} ${r.cur.name} ${r.coin.address}`.toLowerCase().includes(needle);
     });
-  }, [rows, q, sort, status, currency]);
+  }, [rows, q, sort, currency]);
 
   const setCurrency = (code: string) => {
     const next = new URLSearchParams(params);
@@ -55,7 +50,7 @@ export default function Board() {
         <PageHead
           kicker="The board"
           title="Every coin, and the money it lives in"
-          lead="Filter by currency to see everything priced in pesos, or yen, or gold. Each card names its coin and the currency it is priced in."
+          lead="Filter by currency to see everything priced in pesos, or yen, or gold. Each card names its coin and the currency it is priced in; every one trades on Uniswap with its liquidity locked."
         />
         <Link to="/launch" className="btn btn-primary" data-solid>
           Launch a coin <Arrow />
@@ -64,11 +59,9 @@ export default function Board() {
 
       <div className="toolbar board-bar" data-solid>
         <div className="seg" role="group" aria-label="Show">
-          {(['all', 'curve', 'pool'] as Status[]).map((s) => (
-            <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)} aria-pressed={status === s}>
-              {s === 'all' ? 'All coins' : s === 'curve' ? 'On the curve' : 'On Uniswap'}
-            </button>
-          ))}
+          <button className="on" aria-pressed="true">
+            All coins · on Uniswap
+          </button>
         </div>
         <div className="board-find">
           <div className="search">
@@ -80,7 +73,7 @@ export default function Board() {
             <option value="new">Newest</option>
             <option value="mcap">Market cap (USD)</option>
             <option value="volume">24h volume (USD)</option>
-            <option value="progress">Closest to graduating</option>
+            <option value="change">Biggest 24h move</option>
           </select>
         </div>
       </div>

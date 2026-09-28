@@ -9,8 +9,13 @@ export interface Deployment {
   desk: `0x${string}`;
   launchpad: `0x${string}`;
   router: `0x${string}`;
-  /** The Uniswap V2 factory coins graduate into (absent on deployments of the earlier pad). */
-  uniswapFactory?: `0x${string}`;
+  /** Uniswap V3: the position manager the pad mints each coin's pool position through, and its factory. */
+  positionManager: `0x${string}`;
+  uniswapFactory: `0x${string}`;
+  /** On a chain without Uniswap of its own (a local node): the copies deployed beside the pad, for the swap page. */
+  weth?: `0x${string}`;
+  quoterV2?: `0x${string}`;
+  swapRouter?: `0x${string}`;
   coinImplementation: `0x${string}`;
   deployBlock: number;
   deployedAt: string;
@@ -46,7 +51,7 @@ export const KNOWN_CHAINS: ChainMeta[] = [
   { id: 31337, name: 'Local galaxy', rpc: 'http://127.0.0.1:8545', explorer: '', testnet: true },
 ];
 
-/** DexScreener's name for a chain, where it lists graduated coins' Uniswap pairs. */
+/** DexScreener's name for a chain, where it lists the coins' Uniswap pools. */
 export const DEXSCREENER: Record<number, string> = { 4663: 'robinhood', 8453: 'base' };
 
 // Local deployments live in a git-ignored file; only a dev server or a build

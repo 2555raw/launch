@@ -10,9 +10,9 @@ import { CORE_FAQ, CurveChart, Faq, KeeperLine, RecentFills } from '../component
 import { Arrow, Sparkle } from '../components/icons';
 import { Ecosystem } from '../components/Ecosystem';
 import { CURRENCIES, CURRENCY_BY_CODE, HERO_WORDS, POPULAR } from '../data/currencies';
-import { sortRows, totalVolumeUsd, unitsPerUsd, useRows } from '../lib/views';
+import { sortRows, totalPooledUsd, totalVolumeUsd, unitsPerUsd, useRows } from '../lib/views';
 import { compact, money, pct, usd } from '../lib/format';
-import { fromUsd, quoteBuy, newMarket, virtualQuoteFor, graduationPrice, WAD } from '../lib/math';
+import { applyBuy, fromUsd, marketCap, quoteBuy, newMarket, startQuoteFor, WAD } from '../lib/math';
 
 function RotatingWord() {
   const words = HERO_WORDS;
@@ -56,7 +56,7 @@ function StormControls() {
   );
 }
 
-/** "If I put this much into a brand-new coin...": the curve in one card. */
+/** "If I put this much into a brand-new coin...": the pool's curve in one card. */
 function StarCalculator() {
   const pad = usePad();
   const [code, setCode] = useState('EUR');
@@ -65,13 +65,12 @@ function StarCalculator() {
   const out = useMemo(() => {
     if (!cur || !pad.snap) return null;
     const p = pad.snap.params;
-    const vq = virtualQuoteFor(cur, p.targetRaiseUsd);
-    const m = newMarket(vq, 0);
+    const m = newMarket(startQuoteFor(cur, p.startMcapUsd), 0);
     const spend = fromUsd(cur, BigInt(Math.round(spendUsd * 100)) * (WAD / 100n));
-    const q = quoteBuy(m, spend, p, 1e9, false);
+    const q = quoteBuy(m, spend, p);
+    const after = applyBuy(m, q);
     const tokens = Number(q.tokensOut) / 1e18;
-    const endPrice = graduationPrice(vq) / 10 ** (cur.decimals - 18);
-    return { spend: Number(spend) / 10 ** cur.decimals, tokens, atGrad: tokens * endPrice, perUsd: unitsPerUsd(cur) };
+    return { spend: Number(spend) / 10 ** cur.decimals, tokens, share: tokens / 1e9, mcap: marketCap(after, cur.decimals), perUsd: unitsPerUsd(cur) };
   }, [cur, spendUsd, pad.snap]);
   return (
     <div className="panel calc">
@@ -100,13 +99,17 @@ function StarCalculator() {
             <span>{compact(out.tokens)} coins</span>
           </div>
           <div className="kv">
-            <span>Worth at graduation</span>
-            <span className="up">
-              {money(out.atGrad, cur.symbol)} · {usd(out.atGrad / out.perUsd)}
+            <span>Your share of the supply</span>
+            <span className="up">{pct(out.share)}</span>
+          </div>
+          <div className="kv">
+            <span>Market cap after your buy</span>
+            <span>
+              {money(out.mcap, cur.symbol)} · {usd(out.mcap / out.perUsd)}
             </span>
           </div>
           <p className="hint" style={{ margin: '8px 0 0' }}>
-            Only if the whole curve fills after you. Most curves never do.
+            Every coin opens at {usd(Number(pad.snap!.params.startMcapUsd) / 1e18)} of market cap, in whatever currency it is priced in.
           </p>
         </div>
       )}
@@ -222,7 +225,7 @@ export function Home() {
     return m;
   }, [rows]);
 
-  const sampleSold = rows.length ? rows.reduce((a, r) => a + (r.coin.graduated ? 0 : r.progress), 0) / Math.max(1, rows.filter((r) => !r.coin.graduated).length) : 0.42;
+  const sampleSold = rows.length ? rows.reduce((a, r) => a + r.sold, 0) / rows.length : 0.42;
 
   return (
     <>
@@ -302,7 +305,7 @@ export function Home() {
               <h2 className="h-section">What the universe is doing</h2>
             </div>
             <Link to="/how-it-works" className="link">
-              How the curve works <Arrow />
+              How the pools work <Arrow />
             </Link>
           </div>
           <div className="stats glass">
@@ -319,12 +322,12 @@ export function Home() {
               <b>{snap ? usd(totalVolumeUsd(snap)) : '…'}</b>
             </div>
             <div className="stat">
-              <span className="kicker">Trade fee</span>
-              <b>{snap ? `${(snap.params.protocolFeeBps + snap.params.creatorFeeBps) / 100}%` : '…'}</b>
+              <span className="kicker">Locked in pools</span>
+              <b>{snap ? usd(totalPooledUsd(snap)) : '…'}</b>
             </div>
             <div className="stat">
-              <span className="kicker">Snipe window</span>
-              <b>{snap ? `${snap.params.snipeWindow}s` : '…'}</b>
+              <span className="kicker">Trade fee</span>
+              <b>{snap ? `${snap.params.poolFeePips / 10_000}%` : '…'}</b>
             </div>
           </div>
           <KeeperLine />
@@ -338,11 +341,11 @@ export function Home() {
               </div>
             </div>
             <div className="panel curve-card">
-              <div className="kicker">Curve first, Uniswap after</div>
+              <div className="kicker">A Uniswap pool from the first second</div>
               <h3 className="card-title">Every buy lifts the price a little.</h3>
               <p className="muted small">
-                A coin starts cheap and gets dearer as its 800 million curve coins sell. When the last one goes, it moves into a Uniswap pool at the
-                exact same price, and trades there, on every DEX screen, from then on.
+                A coin's whole supply goes into its Uniswap pool the moment it launches, with its picture on chain, so it is on every DEX screen and
+                terminal right away. It starts cheap and gets dearer as coins leave the pool; the liquidity can never be pulled.
               </p>
               <CurveChart sold={sampleSold} />
             </div>
@@ -397,8 +400,8 @@ export function Home() {
               <h2 className="h-section">Money people already count in</h2>
               <p className="lead">
                 {few
-                  ? `${CURRENCIES.length} currencies a coin can be priced in, including gold, silver, platinum, bitcoin, ether, solana and zcash. On ${chainName} coins are paid in ${fewNames}, the money that trades there, and in more as their tokens arrive. Each keeps its own backing: a rush on one never touches another.`
-                  : `${snap?.currencies.length ?? 149} currencies, including gold, silver, platinum, bitcoin, ether, solana and now zcash. Each keeps its own backing: a rush on one never touches another.`}
+                  ? `${CURRENCIES.length} currencies a coin can be priced in, including gold, silver, platinum, bitcoin, ether, solana and zcash. On ${chainName} coins are paid in ${fewNames}, the money that trades there, and in more as their tokens arrive. Each coin keeps its own pool: a rush on one never touches another.`
+                  : `${snap?.currencies.length ?? 149} currencies, including gold, silver, platinum, bitcoin, ether, solana and now zcash. Each coin keeps its own pool: a rush on one never touches another.`}
               </p>
             </div>
             <Link to="/desk" className="link">
@@ -443,9 +446,9 @@ export function Home() {
             <div className="rule">
               <span className="step-n">02</span>
               <div>
-                <b>The backing always covers a sell.</b>
+                <b>The pool always covers a sell.</b>
                 <p className="muted small">
-                  Every coin's market holds the currency its buyers paid in. If everyone sold at once it could pay them all; the Proof page checks this live.
+                  Every coin's pool holds the currency its buyers paid in. If everyone sold at once it could pay them all; the Proof page checks this live.
                 </p>
               </div>
             </div>
@@ -454,7 +457,7 @@ export function Home() {
               <div>
                 <b>Fees stay in the currency.</b>
                 <p className="muted small">
-                  {snap ? (snap.params.protocolFeeBps + snap.params.creatorFeeBps) / 100 : 1}% per trade, half to the coin's creator and half to the
+                  {snap ? snap.params.poolFeePips / 10_000 : 1}% per trade, the pool's own fee, half to the coin's creator and half to the
                   protocol, paid in the coin's own currency. Nothing is swapped behind your back.
                 </p>
               </div>
@@ -463,7 +466,7 @@ export function Home() {
               <span className="step-n">04</span>
               <div>
                 <b>A Uniswap pool nobody can drain.</b>
-                <p className="muted small">When the curve sells out, its backing and 200 million coins open a Uniswap pool at the same price, and the liquidity tokens are burned. No one can pull it.</p>
+                <p className="muted small">The whole supply sits in the coin's Uniswap pool from launch, as one position the pad owns and has no function to withdraw. No LP tokens, no unlock date, no admin key.</p>
               </div>
             </div>
           </div>

@@ -43,13 +43,13 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
 
 | | |
 |---|---|
-| **Swap** | Anything for anything: currency ↔ currency through the desk, currency ↔ coin through the coin's market, coin ↔ coin across currencies (sell, convert, buy) in one transaction. Shows the route, price impact, fees, minimum received. |
-| **Board** | Every coin, filterable by currency, sortable by activity, market cap, volume or progress. |
-| **Coin page** | Price chart, buy/sell, curve progress, backing, holders, fills. |
-| **Launch** | Name, ticker, currency, picture, links, optional first buy. The market opens in the same transaction. |
-| **Currency desk** | All 149 currencies with their USD rate, coins and backing per currency, conversion, and a faucet for test currencies. |
-| **Portfolio** | Your coins, currencies, launches, and creator fees to claim. |
-| **Proof** | Recomputes, for every market, that its reserves add up and its backing covers selling every coin back at once; in live mode also that the contract really holds the money. |
+| **Swap** | Anything for anything: currency ↔ currency through the desk (or through Uniswap's own pools between the chain's real tokens, USDG ↔ WETH), currency ↔ coin through the coin's pool, coin ↔ coin across currencies (sell, convert, buy): one transaction through the router when the desk converts, one per leg when Uniswap does. Ether into a dollar coin or dollars into an ether coin both work. Shows the route, price impact, fees, minimum received. |
+| **Board** | Every coin, filterable by currency, sortable by activity, market cap, volume or 24h move. |
+| **Coin page** | Price chart, buy/sell, the pool (coins in it, currency in it, price since launch, the Uniswap pool address and its DexScreener page), holders, fills from the pad and from the pool. |
+| **Launch** | Name, ticker, currency, picture, links, optional first buy. The coin opens as a Uniswap V3 pool in the same transaction, with its picture stored on chain. |
+| **Currency desk** | All 149 currencies with their USD rate, coins and currency in pools per currency, conversion, and a faucet for test currencies. |
+| **Portfolio** | Your coins, currencies, launches, and the fees their pools have earned, to collect. |
+| **Proof** | Recomputes, for every pool, that its numbers add up and it covers selling every coin back at once; in live mode also asks the chain that the pad owns each pool's position and that the pool holds the coins. |
 | **Verify** | Checks from the browser, against any RPC, that a coin is genuinely the pad's and its pairing is what the badge says (the same checks as `scripts/verify.mjs`). |
 | **Connect wallet** | MetaMask, Coinbase Wallet and Phantom first, with their own icons: connected straight away when installed, opened in their app on phones, or linked to their download page. Any other browser wallet (EIP-6963: Rabby, OKX, Brave, Trust…) is listed after them. The icons are from @web3icons/core (MIT); the marks belong to their makers. |
 | **Zcash** | New: ZEC is on the desk (its reference rate is about $1,550, late September 2026), so a coin can be priced in zcash. The home page gives it a band next to the currencies, with the coins priced in ZEC, and ZEC is among the popular currencies and the swap's shortcuts. The playground opens two ZEC coins, SHIELD and ZODIAC; a playground saved before gets ZEC, its starting balance and those two coins on its next visit. The ZEC mark is from @web3icons/core (MIT). |
@@ -70,29 +70,33 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
 ## How the pad works
 
 - **Coin**: 1,000,000,000 units, minted to the pad. Every coin is a 44-byte clone
-  of one implementation, which is how Verify recognises the pad's coins.
-- **Curve**: 800M coins sell on `x · y = k` over virtual reserves. The virtual
-  token reserve is `S² / (S − L)`, which makes the curve's last price equal the
-  pool's first price. The virtual currency reserve is set at launch from the
-  desk's rate, so a full curve raises the same dollar amount in every currency
-  ($12,000 by default).
-- **Graduation**: when the curve sells out, its backing and the 200M coins held
-  back open the coin's Uniswap V2 pool with its currency, at the curve's last
-  price, and the liquidity tokens go to `0x…dEaD`, so nobody can ever withdraw it.
-  The pair is created with the coin, and the coin refuses transfers to it until
-  then, so nobody can seed the pool early at a price of their own (currency sent to
-  the empty pair goes to the treasury). From then on it is an ordinary Uniswap
-  pair: DexScreener, GeckoTerminal, Axiom and the like list it with its liquidity
-  and its currency, the pad keeps buying and selling it for its users through the
-  pair, and the site reads the pair's swaps, wherever they came from, into the
-  coin's chart and fills. On Robinhood Chain mainnet it uses Uniswap's own factory
-  (`shared/uniswap.json`); elsewhere the deploy puts up a copy of Uniswap's
-  (`contracts/uniswap/`, GPL-3.0, from its npm package).
-- **Fees**: 1% per trade on the curve, half to the creator and half to the
-  protocol, in the coin's currency, claimable any time. Buys in the first 15
-  seconds pay an extra snipe tax that falls from 20% to zero; the creator's first
-  buy is exempt. After graduation the pad takes nothing; the pool keeps Uniswap's
-  0.3%.
+  of one implementation, which is how Verify recognises the pad's coins. The coin
+  stores its own metadata (name, symbol, description, picture, links; up to 8 KB) and
+  serves it as contract-level metadata (ERC-7572 `contractURI`), so explorers and
+  terminals show the picture.
+- **The pool**: in the launch transaction the whole supply goes into the coin's
+  Uniswap V3 pool with its currency (1% fee tier), as one position from the launch
+  price to the top of the price scale, owned by the pad. The pad has no function
+  that decreases, moves or burns it: the liquidity is locked from the first second,
+  and every DEX screen and terminal (DexScreener, GeckoTerminal, Axiom, Padre…) sees
+  the coin with its liquidity the moment it launches. The coin is always the pool's
+  token0 (the site mines a CREATE2 salt whose clone address sorts below the
+  currency's), so the price reads as currency per coin. Inside the position the pool
+  is `x · y = k` on virtual reserves, so a launch is a bonding curve that happens to
+  be a Uniswap pool; the pad quotes it as such (`quoteBuy`/`quoteSell`, exact while
+  its position is the only liquidity in range). The launch price is set from the
+  desk's rate so the supply is worth the same in dollars in every currency ($4,000
+  by default). The pad buys and sells in the pool for its users, anyone can trade
+  the same pool from Uniswap or a terminal, and the site reads the pool's swaps,
+  wherever they came from, into the coin's chart and fills. On Robinhood Chain
+  mainnet it uses Uniswap's own factory and position manager (`shared/uniswap.json`);
+  elsewhere the deploy puts up Uniswap's own contracts from their npm packages
+  (`@uniswap/v3-core`, `@uniswap/v3-periphery`: WETH, factory, position manager,
+  and the quoter and router the swap page uses).
+- **Fees**: the pool's 1%, wherever the trade is made. It accrues to the pad's
+  position; `collectFees(coin)` (anyone may call it, the Portfolio has the button)
+  pays half to the creator and half to the protocol, in the coin and in its
+  currency, as the pool earned it.
 - **Currency desk**: the allow-list of currencies, each with a rate in units per
   USD, and a counter that converts between them (0.10% fee). On test networks it
   mints test currencies (`tEUR`, `tJPY`…). On Robinhood Chain mainnet it lists the
@@ -109,8 +113,10 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
   wraps what a buy needs into WETH on the way, and the desk page unwraps it back.
   Between two real tokens (USDG ↔ WETH) the swap page prices and trades through
   Uniswap on the chain (`shared/uniswap.json`: every V3 fee tier via the quoter and
-  SwapRouter02, the V2 pair via its router, or straight on the pair where a chain only
-  has the factory copy), at the market's price, not the desk's.
+  SwapRouter02, or the V2 pair via its router), at the market's price, not the desk's;
+  and a route that crosses currencies that way (dollars into an ether coin, an ether
+  coin into a dollar coin) runs one transaction per leg (sell, Uniswap, buy), each
+  fed what the one before really delivered and each held to the slippage.
 - **Keeper**: posts a new rate only when two independent FX feeds agree within
   0.5% and the rate has drifted at least 0.1%. The desk refuses any single post
   that moves a rate more than 20%.
@@ -118,7 +124,7 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
 ## Layout
 
 ```
-contracts/   Solidity (Foundry): Coin, TestCurrency, CurrencyDesk, Launchpad, Router + tests
+contracts/   Solidity (Foundry): Coin, TestCurrency, CurrencyDesk, Launchpad, Router + tests (against Uniswap's V3 bytecode)
 scripts/     deploy, seed, keeper, verify, dev (local chain), build-artifacts
 shared/      currencies.json (the 147 currencies and reference rates), artifacts.json (ABIs + bytecode)
 web/         the site: Vite + React + TypeScript + viem; web/src/storm is the WebGL sky
@@ -148,7 +154,7 @@ public: never send real funds to them.
 
 ```bash
 npm run contracts:setup   # once: fetches forge-std
-npm run contracts:test    # unit, fuzz and invariant tests (40 tests), against Uniswap's own V2 bytecode
+npm run contracts:test    # 17 tests against Uniswap's own V3 bytecode, including trades made straight on the pools
 
 # browser, live mode against a local chain
 npm run dev:chain -- --no-web
@@ -165,10 +171,11 @@ BASE=http://localhost:8090 npm run e2e:playground
 From the browser, with no private key handed to anything: open `/deploy` on the site
 (not linked from the menu), connect the owner's wallet and press Deploy. It deploys the
 desk, the launchpad and the router to Robinhood Chain (mainnet: the desk lists the real
-tokens in `shared/real-tokens.json`, USDG as USD and WETH as ETH, 7 transactions) or,
-with `?chain=<id>`, to another network the site knows (its testnet or a local node, where
-every currency becomes a test currency, 14 transactions; `?tokens=USD:0x…,ETH:0x…`
-lists real tokens on a chain that has none on file). It makes the owner the keeper and
+tokens in `shared/real-tokens.json`, USDG as USD and WETH as ETH, and the pad opens pools
+on Uniswap's own V3, 7 transactions) or, with `?chain=<id>`, to another network the site
+knows (its testnet or a local node, where every currency becomes a test currency and
+copies of Uniswap V3 go up first, 16 transactions; `?tokens=USD:0x…,ETH:0x…` lists real
+tokens on a chain that has none on file). It makes the owner the keeper and
 prints the deployment record to add to `web/src/generated/deployments.json`. Each
 transaction is confirmed in the wallet; progress is saved and read back from the chain,
 so a closed tab or a rejected transaction carries on where it stopped.
@@ -186,7 +193,7 @@ This deploys the desk with every currency in `shared/currencies.json` as a test
 currency, the launchpad and the router, makes the deployer the keeper, and
 writes `deployments/<chainId>.json` plus `web/src/generated/deployments.json`.
 Commit that file and rebuild the site: it opens in live mode on that chain.
-Tunables (fees, snipe tax, curve size, faucet) are environment variables,
+Tunables (starting market cap, desk fee, faucet) are environment variables,
 listed at the top of `scripts/deploy.mjs`. Then optionally:
 
 ```bash

@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { createPublicClient, formatUnits, getAddress, http, isAddress, keccak256, parseAbiItem, type Hex } from 'viem';
+import { createPublicClient, formatUnits, getAddress, http, isAddress, keccak256, parseAbi, parseAbiItem, type Hex } from 'viem';
 import { usePad } from '../backend/PadProvider';
 import { DEPLOYMENTS } from '../config/chains';
-import { coinAbi, deskAbi, launchpadAbi, uniswapV2PairAbi, COIN_RUNTIME_HASH, LAUNCHPAD_IMMUTABLES, LAUNCHPAD_RUNTIME } from '../generated/contracts';
+import { coinAbi, deskAbi, launchpadAbi, COIN_RUNTIME_HASH, LAUNCHPAD_IMMUTABLES, LAUNCHPAD_RUNTIME } from '../generated/contracts';
 import { PageHead } from '../components/bits';
-import { circulating, fullSellBack } from '../lib/math';
 
 interface Result {
   title: string;
@@ -14,11 +13,15 @@ interface Result {
 }
 
 const balanceOf = parseAbiItem('function balanceOf(address) view returns (uint256)');
-const getPair = parseAbiItem('function getPair(address, address) view returns (address)');
-const DEAD = '0x000000000000000000000000000000000000dEaD';
+const factoryAbi = parseAbi(['function getPool(address, address, uint24) view returns (address)']);
+const positionsAbi = parseAbi([
+  'function ownerOf(uint256 tokenId) view returns (address)',
+  'function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)',
+]);
 const createdEvent = parseAbiItem(
-  'event CoinCreated(address indexed coin, address indexed creator, address indexed currency, string name, string symbol, string meta, uint256 virtualQuote)',
+  'event CoinCreated(address indexed coin, address indexed creator, address indexed currency, string name, string symbol, string meta, address pool, uint256 tokenId, uint256 startQuote)',
 );
+const DUST = 10n ** 18n;
 
 /** Zeroes the byte ranges that hold immutables, so two deployments of the same source compare equal. */
 function mask(code: string, ranges: ReadonlyArray<readonly [number, number]>) {
@@ -119,64 +122,53 @@ async function runChecks(rpc: string, padAddr: `0x${string}`, coinAddr: `0x${str
     });
   }
 
-  // 5. reserves and backing
-  const m = {
-    createdAt: Number(market.createdAt),
-    graduated: market.graduated as boolean,
-    virtualQuote: market.virtualQuote as bigint,
-    reserveToken: market.reserveToken as bigint,
-    reserveQuote: market.reserveQuote as bigint,
-    realQuote: market.realQuote as bigint,
-    curveLeft: market.curveLeft as bigint,
-    volume: market.volume as bigint,
-  };
-  const sums = m.graduated ? m.reserveQuote === m.realQuote : m.reserveQuote === m.virtualQuote + m.realQuote;
-  const payout = fullSellBack(m);
+  // 5. its Uniswap V3 pool: the factory's own for this coin, currency and fee, with the coin as token0
+  const [factory, positions, poolFee, tickTop] = await Promise.all([
+    read<`0x${string}`>(padAddr, launchpadAbi, 'uniswapFactory'),
+    read<`0x${string}`>(padAddr, launchpadAbi, 'positions'),
+    read<number>(padAddr, launchpadAbi, 'POOL_FEE'),
+    read<number>(padAddr, launchpadAbi, 'TICK_TOP'),
+  ]);
+  const official = await read<`0x${string}`>(factory, factoryAbi, 'getPool', [coinAddr, market.currency, poolFee]);
+  const pool = market.pool as `0x${string}`;
   out.push({
-    title: 'Its reserves add up and cover a full sell-back',
-    ok: sums && payout <= m.realQuote,
-    detail: `${m.graduated ? 'Pool' : 'Curve'}: reserve ${q(m.reserveQuote)} ${sums ? '=' : '≠'} ${m.graduated ? `backing ${q(m.realQuote)}` : `virtual ${q(m.virtualQuote)} + backing ${q(m.realQuote)}`}. Selling all ${t(circulating(m))} in circulation would pay ${q(payout)}.`,
+    title: 'It trades in the Uniswap V3 pool of its coin and currency',
+    ok: getAddress(official) === getAddress(pool) && BigInt(coinAddr) < BigInt(market.currency),
+    detail: `The market's pool ${pool} is the one Uniswap's factory (${factory.slice(0, 10)}…) returns for this coin, ${code} and the ${Number(poolFee) / 10_000}% fee tier; the coin is token0, so the price reads as ${code} per coin.`,
   });
 
-  // 6. custody
-  const [held, backing, fees] = await Promise.all([
-    read<bigint>(market.currency, [balanceOf], 'balanceOf', [padAddr]),
-    read<bigint>(padAddr, launchpadAbi, 'backing', [market.currency]),
-    read<bigint>(padAddr, launchpadAbi, 'totalFeesOwed', [market.currency]),
+  // 6. the pad's position: the whole supply from the launch tick to the top, owned by the pad
+  const tokenId = market.tokenId as bigint;
+  const [owner, pos] = await Promise.all([
+    read<`0x${string}`>(positions, positionsAbi, 'ownerOf', [tokenId]).catch(() => '0x0000000000000000000000000000000000000000' as const),
+    read<any[]>(positions, positionsAbi, 'positions', [tokenId]),
   ]);
+  const [, , t0, t1, fee, lower, upper, liquidity] = pos as [bigint, string, `0x${string}`, `0x${string}`, number, number, number, bigint];
   out.push({
-    title: 'The money is really in the pad',
-    ok: held >= backing + fees,
-    detail: `The pad holds ${q(held)}; it owes ${q(backing)} of backing across every ${code} market plus ${q(fees)} in unclaimed fees.`,
+    title: 'The pad owns the pool’s liquidity, and has no way to take it out',
+    ok: getAddress(owner) === getAddress(padAddr),
+    detail: `Position #${tokenId} of the position manager (${positions.slice(0, 10)}…) belongs to ${owner}. The Launchpad has no function that moves, burns or decreases it: the published code above is the whole of it.`,
+  });
+  const rangeOk =
+    getAddress(t0) === getAddress(coinAddr) && getAddress(t1) === getAddress(market.currency) && Number(fee) === Number(poolFee) && Number(lower) === Number(market.tickLower) && Number(upper) === Number(tickTop) && liquidity > 0n;
+  out.push({
+    title: 'The position runs from the launch price to the top of the scale',
+    ok: rangeOk,
+    detail: `Ticks ${lower} to ${upper} (the top is ${tickTop}), liquidity ${liquidity}: every coin that is not in a wallet is for sale in this one position, at every price above the launch.`,
   });
 
-  // 7. its Uniswap pool: the factory's own pair, sealed until graduation, then burned
-  const pair = market.pair as `0x${string}`;
-  const factory = await read<`0x${string}`>(padAddr, launchpadAbi, 'uniswapFactory');
-  const official = await read<`0x${string}`>(factory, [getPair], 'getPair', [coinAddr, market.currency]);
-  out.push({
-    title: 'It trades in the Uniswap pair of its coin and currency',
-    ok: getAddress(official) === getAddress(pair),
-    detail: `The market's pair ${pair} is the one Uniswap's factory (${factory.slice(0, 10)}…) returns for this coin and ${code}.`,
-  });
-  const [inPair, supply, burned] = await Promise.all([
-    read<bigint>(coinAddr, [balanceOf], 'balanceOf', [pair]),
-    read<bigint>(pair, uniswapV2PairAbi, 'totalSupply'),
-    read<bigint>(pair, uniswapV2PairAbi, 'balanceOf', [DEAD]),
+  // 7. the pool holds the coins the pad prices
+  const [inPool, quoteInPool, padHolds] = await Promise.all([
+    read<bigint>(coinAddr, [balanceOf], 'balanceOf', [pool]),
+    read<bigint>(market.currency, [balanceOf], 'balanceOf', [pool]),
+    read<bigint>(coinAddr, [balanceOf], 'balanceOf', [padAddr]),
   ]);
-  out.push(
-    m.graduated
-      ? {
-          title: 'Nobody can pull its pool',
-          ok: supply > 0n && burned + 1000n === supply,
-          detail: `${formatUnits(burned, 18)} of the pool's ${formatUnits(supply, 18)} liquidity tokens sit at ${DEAD}, which nobody holds the key to; the other 1000 wei are Uniswap's own permanent minimum.`,
-        }
-      : {
-          title: 'Its pool stays sealed until the curve sells out',
-          ok: inPair === 0n && supply === 0n,
-          detail: `The pair holds ${t(inPair)} and ${formatUnits(supply, 18)} liquidity tokens: the coin refuses transfers to it until the pad opens the pool.`,
-        },
-  );
+  const [rToken] = await read<[bigint, bigint]>(padAddr, launchpadAbi, 'reserves', [coinAddr]);
+  out.push({
+    title: 'The pool holds the coins it prices',
+    ok: inPool + DUST >= rToken && padHolds < DUST,
+    detail: `The pool holds ${t(inPool)} (it prices ${t(rToken)}) and ${q(quoteInPool)}; the pad itself keeps ${t(padHolds)}.`,
+  });
   return out;
 }
 
@@ -184,7 +176,7 @@ export default function Verify() {
   const pad = usePad();
   const [params] = useSearchParams();
   const dep = pad.chainId ? DEPLOYMENTS[pad.chainId] : Object.values(DEPLOYMENTS)[0];
-  const [rpc, setRpc] = useState(dep?.rpcUrl ?? 'https://sepolia.base.org');
+  const [rpc, setRpc] = useState(dep?.rpcUrl ?? 'https://rpc.mainnet.chain.robinhood.com');
   const [padAddr, setPadAddr] = useState<string>(dep?.launchpad ?? '');
   const [coinAddr, setCoinAddr] = useState(params.get('coin') ?? '');
   const [fromBlock, setFromBlock] = useState(dep ? String(dep.deployBlock) : '');
@@ -221,7 +213,7 @@ export default function Verify() {
       <PageHead
         kicker="Trust, but check"
         title="Verify a coin"
-        lead="Any page can print “priced in euros”. These checks read the chain directly, from your browser, against a node you choose, and show you the numbers they compared rather than just a green tick."
+        lead="Any page can print “priced in euros” or “liquidity locked”. These checks read the chain directly, from your browser, against a node you choose, and show you the numbers they compared rather than just a green tick."
       />
 
       {!dep && (
@@ -283,7 +275,7 @@ export default function Verify() {
       <section className="section" style={{ paddingBottom: 0 }}>
         <div className="kicker">What the checks mean</div>
         <h2 className="h-section" style={{ marginBottom: 24 }}>
-          Eight reasons to believe the badge
+          Nine reasons to believe the badge
         </h2>
         <div className="explain-grid">
           {[
@@ -293,8 +285,9 @@ export default function Verify() {
             ['The pad opened the market', 'The pad has a record of the coin, and the coin names the pad as the contract that minted it.'],
             ['The currency is on the desk', 'The currency code is read from the desk’s list, so a creator cannot invent one.'],
             ['The pairing never changed', 'The launch event names the same currency the market holds today.'],
-            ['The books balance', 'The market’s reserves add up to the unit, and its backing covers selling every circulating coin back at once.'],
-            ['The money is there', 'The pad’s own balance of the currency covers the backing of every market in it, plus fees nobody has claimed yet.'],
+            ['The pool is Uniswap’s', 'Uniswap’s own factory returns this pool for the coin and its currency, and the coin is the pool’s first token, so its price reads in the currency.'],
+            ['The liquidity is locked', 'The pad owns the pool’s only position, from the launch price to the top of the scale, and has no function that takes it out.'],
+            ['The coins are in the pool', 'The pool holds every coin the pad prices; the pad keeps none.'],
           ].map(([t, d], i) => (
             <div key={t} className="rule">
               <span className="step-n">{String(i + 1).padStart(2, '0')}</span>

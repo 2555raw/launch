@@ -5,7 +5,7 @@
  *
  * On a local chain the script winds the clock forward between trades so charts
  * cover several days, then brings the chain back to the present. */
-import { parseUnits, formatUnits, maxUint256 } from 'viem';
+import { parseUnits, formatUnits, maxUint256, keccak256, encodePacked, getContractAddress } from 'viem';
 import { args, artifacts, connect, devAccount, readDeployment, send, walletFor, sleep } from './lib/common.mjs';
 
 const opts = args();
@@ -22,7 +22,8 @@ const currencyList = await read(dep.desk, D.abi, 'getCurrencies');
 const tokenOf = Object.fromEntries(currencyList.map((c) => [c.code, c.token]));
 
 /* Original demo coins: a name, a ticker, the currency it is paired with, a line of
- * description, and how hard the crowd piles in (share of the curve to fill). */
+ * description, and how hard the crowd piles in (currency put in, as a multiple of what
+ * the supply was worth at launch). */
 const COINS = [
   ['Tokyo Comet', 'COMET', 'JPY', 'A bright tail over Shibuya, priced in yen.', 0.55],
   ['Samba Nebula', 'NEBULA', 'BRL', 'A carnival of gas and dust that only moves in reais.', 0.72],
@@ -37,7 +38,7 @@ const COINS = [
   ['Pho Photon', 'PHOTON', 'VND', 'Light from a bowl that never cools.', 0.42],
   ['Braai Blackhole', 'BHOLE', 'ZAR', 'Everything goes in, nothing comes back.', 0.26],
   ['Golden Galaxy', 'GALAXY', 'XAU', 'A hundred billion stars, measured in ounces.', 0.33],
-  ['Buck Supernova', 'NOVA', 'USD', 'Burned so bright it collapsed into its own pool.', 1.0],
+  ['Buck Supernova', 'NOVA', 'USD', 'Burned so bright it lit up every terminal.', 1.0],
   ['Outback Stardust', 'DUST', 'AUD', 'Settles on everything, once a decade.', 0.51],
   ['Maple Moonbeam', 'BEAM', 'CAD', 'Half light, half syrup.', 0.15],
 ];
@@ -76,17 +77,28 @@ async function topUp(wallet, token, want) {
   return read(token, T.abi, 'balanceOf', [wallet.account.address]);
 }
 
+/** A salt whose coin address sorts below the currency, so the coin is its pool's token0. */
+const initCodeHash = await read(dep.launchpad, L.abi, 'coinInitCodeHash');
+function saltFor(creator, currency) {
+  const limit = BigInt(currency);
+  for (let i = 0n; i < 1_000_000n; i++) {
+    const salt = keccak256(encodePacked(['address', 'address', 'uint256', 'uint256'], [creator, currency, BigInt(Date.now()), i]));
+    const coin = getContractAddress({ opcode: 'CREATE2', from: dep.launchpad, salt, bytecodeHash: initCodeHash });
+    if (BigInt(coin) < limit) return salt;
+  }
+  throw new Error('no salt');
+}
+
 const rand = (() => {
   let s = 20260926;
   return () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648);
 })();
 
-const targetUsd = await read(dep.launchpad, L.abi, 'targetRaiseUsd');
 const plans = light ? COINS.slice(0, 6) : COINS;
 const HISTORY_SECONDS = 4 * 24 * 3600;
 const step = HISTORY_SECONDS / (plans.length * 9);
 
-for (const [i, [name, symbol, code, description, fill]] of plans.entries()) {
+for (const [i, [name, symbol, code, description, heat]] of plans.entries()) {
   const currency = tokenOf[code];
   if (!currency) {
     console.log(`  skip ${symbol}: ${code} not listed`);
@@ -98,26 +110,24 @@ for (const [i, [name, symbol, code, description, fill]] of plans.entries()) {
 
   await topUp(creator, currency, usd(400));
   await ensureApproved(creator, currency, dep.launchpad);
-  const meta = JSON.stringify({ description, image: '', links: {} });
+  const meta = JSON.stringify({ name, symbol, description, image: '', links: {} });
   const firstBuy = usd(20 + Math.round(rand() * 120));
-  const receipt = await send(
+  await send(
     ctx,
-    { address: dep.launchpad, abi: L.abi, functionName: 'createCoin', args: [name, symbol, meta, currency, firstBuy, 0n] },
+    { address: dep.launchpad, abi: L.abi, functionName: 'createCoin', args: [name, symbol, meta, currency, saltFor(creator.account.address, currency), firstBuy, 0n] },
     creator,
   );
-  const coin = (await read(dep.launchpad, L.abi, 'allCoins', [BigInt((await read(dep.launchpad, L.abi, 'coinsCount')) - 1n)]));
+  const coin = await read(dep.launchpad, L.abi, 'allCoins', [BigInt((await read(dep.launchpad, L.abi, 'coinsCount')) - 1n)]);
   console.log(`  ${symbol.padEnd(8)} / ${code}  ${coin}`);
 
-  // The crowd: buys until the curve is `fill` full, with some selling along the way.
-  const targetRaise = (targetUsd * rate) / 10n ** 18n;
+  // The crowd: buys until the pool holds `heat` times the launch value, with some selling along the way.
+  const start = await read(dep.launchpad, L.abi, 'startQuoteFor', [currency]);
+  const goal = (start * BigInt(Math.round(heat * 3000))) / 1000n;
   const rounds = light ? 3 : 8;
   for (let r = 0; r < rounds; r++) {
     await advance(step * (0.4 + rand()));
     const w = wallets[Math.floor(rand() * wallets.length)];
-    const market = await read(dep.launchpad, L.abi, 'getMarket', [coin]);
-    if (market.graduated && fill < 1) break;
-    const raised = market.realQuote;
-    const goal = (targetRaise * BigInt(Math.round(fill * 1000))) / 1000n;
+    const [, pooled] = [0n, (await read(dep.launchpad, L.abi, 'getCoins', [BigInt(i), 1n]))[0]?.realQuote ?? 0n];
     const sellTurn = rand() < 0.28 && r > 1;
     if (sellTurn) {
       const bal = await read(coin, C.abi, 'balanceOf', [w.account.address]);
@@ -128,8 +138,7 @@ for (const [i, [name, symbol, code, description, fill]] of plans.entries()) {
         continue;
       }
     }
-    let spend = goal > raised ? ((goal - raised) * BigInt(Math.round((1 / (rounds - r)) * 1000 * (0.7 + rand() * 0.8)))) / 1000n : usd(15);
-    if (fill >= 1 && r === rounds - 1) spend = targetRaise * 2n; // push it over the edge
+    let spend = goal > pooled ? ((goal - pooled) * BigInt(Math.round((1 / (rounds - r)) * 1000 * (0.7 + rand() * 0.8)))) / 1000n : usd(15);
     if (spend < usd(5)) spend = usd(5);
     const have = await topUp(w, currency, spend);
     if (have < spend) spend = have;
@@ -137,9 +146,10 @@ for (const [i, [name, symbol, code, description, fill]] of plans.entries()) {
     await ensureApproved(w, currency, dep.launchpad);
     await send(ctx, { address: dep.launchpad, abi: L.abi, functionName: 'buy', args: [coin, spend, 0n, w.account.address] }, w);
   }
-  const m = await read(dep.launchpad, L.abi, 'getMarket', [coin]);
-  const pct = m.graduated ? 'graduated' : `${(Number((800_000_000n * 10n ** 18n - m.curveLeft) * 10000n / (800_000_000n * 10n ** 18n)) / 100).toFixed(1)}% of curve`;
-  console.log(`           raised ${formatUnits(m.realQuote, 18)} ${code}, ${pct}`);
+  const [rToken, rQuote] = await read(dep.launchpad, L.abi, 'reserves', [coin]);
+  const pooled = (await read(dep.launchpad, L.abi, 'getCoins', [BigInt(i), 1n]))[0].realQuote;
+  const mult = Number((rQuote * 1_000_000_000n * 10n ** 18n * 1000n) / (rToken * start)) / 1000;
+  console.log(`           pool holds ${formatUnits(pooled, 18)} ${code}, price ×${mult.toFixed(2)} since launch`);
 }
 
 // A couple of cross-currency swaps through the router, so Swap has history too.
@@ -149,7 +159,7 @@ if (!light) {
   const usdToken = tokenOf.USD;
   await topUp(w, usdToken, parseUnits('300', 18));
   await ensureApproved(w, usdToken, dep.router);
-  for (const target of all.filter((c) => !c.graduated).slice(0, 3)) {
+  for (const target of all.slice(0, 3)) {
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600 * 24 * 30);
     await send(
       ctx,

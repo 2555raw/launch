@@ -1,7 +1,8 @@
 import type { CoinMeta } from '../backend/types';
 import { CURRENCY_BY_CODE } from '../data/currencies';
 
-export const MAX_META_BYTES = 16_384;
+/** The coin stores its metadata on chain (Launchpad.MAX_META_BYTES). */
+export const MAX_META_BYTES = 8_192;
 
 export function parseMeta(raw: string): CoinMeta {
   try {
@@ -37,8 +38,9 @@ export function imageSrc(image: string): string {
   return image;
 }
 
-/** Shrinks a picked image to a small square WebP so it fits in the launch transaction. */
-export async function shrinkImage(file: File, size = 160, quality = 0.8): Promise<string> {
+/** Shrinks a picked image to a small square WebP so it fits in the coin's on-chain metadata
+ *  (about 5 KB, leaving room for the description and links under the 8 KB limit). */
+export async function shrinkImage(file: File, size = 128, quality = 0.8): Promise<string> {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -56,7 +58,7 @@ export async function shrinkImage(file: File, size = 160, quality = 0.8): Promis
     let q = quality;
     let out = canvas.toDataURL('image/webp', q);
     if (!out.startsWith('data:image/webp')) out = canvas.toDataURL('image/jpeg', q);
-    while (out.length > 11_000 && q > 0.3) {
+    while (out.length > 6_400 && q > 0.3) {
       q -= 0.1;
       out = canvas.toDataURL(out.startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg', q);
     }

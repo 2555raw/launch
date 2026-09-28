@@ -5,301 +5,256 @@ import {Base} from "./Base.t.sol";
 import {Coin} from "../src/Coin.sol";
 import {TestCurrency} from "../src/TestCurrency.sol";
 import {Launchpad} from "../src/Launchpad.sol";
+import {IUniswapV3Pool, IUniswapV3SwapCallback} from "../src/interfaces/IUniswapV3.sol";
+
+/// Someone trading straight on the pool, the way a terminal does.
+contract Outsider is IUniswapV3SwapCallback {
+    address pool;
+
+    function buy(address pool_, address currency, uint256 amountIn) external returns (uint256 out) {
+        pool = pool_;
+        (int256 a0,) = IUniswapV3Pool(pool_).swap(
+            address(this), false, int256(amountIn), 1_461_446_703_485_210_103_287_273_052_203_988_822_378_723_970_341, abi.encode(currency)
+        );
+        out = uint256(-a0);
+    }
+
+    function uniswapV3SwapCallback(int256, int256 amount1Delta, bytes calldata data) external {
+        require(msg.sender == pool, "pool");
+        address currency = abi.decode(data, (address));
+        TestCurrency(currency).transfer(msg.sender, uint256(amount1Delta));
+    }
+}
 
 contract LaunchpadTest is Base {
-    function test_createCoin_opensAMarketPairedWithTheCurrency() public {
-        vm.prank(alice);
-        (address coin,) = pad.createCoin("Tokyo Drizzle", "DRIZZLE", '{"d":"x"}', jpy, 0, 0);
-
+    function test_launch_opensAPoolWithTheWholeSupplyLocked() public {
+        address coin = launch(alice, eur);
         Launchpad.Market memory m = pad.getMarket(coin);
         assertEq(m.creator, alice);
-        assertEq(m.currency, jpy);
-        assertEq(pad.currencyOf(coin), jpy);
-        assertFalse(m.graduated);
-        assertEq(m.curveLeft, pad.CURVE_SUPPLY());
-        assertEq(m.reserveToken, pad.VIRTUAL_TOKENS());
-        assertEq(m.realQuote, 0);
+        assertEq(m.currency, eur);
+        assertTrue(coin < eur, "coin is token0");
+        assertEq(poolOf(coin).token0(), coin);
+        assertEq(poolOf(coin).token1(), eur);
+        assertEq(poolOf(coin).fee(), 10_000);
         assertEq(Coin(coin).totalSupply(), pad.TOTAL_SUPPLY());
-        assertEq(Coin(coin).balanceOf(address(pad)), pad.TOTAL_SUPPLY());
-        assertEq(Coin(coin).name(), "Tokyo Drizzle");
-        assertEq(Coin(coin).symbol(), "DRIZZLE");
+        assertGt(Coin(coin).balanceOf(m.pool), pad.TOTAL_SUPPLY() - 1e18, "the pool holds the supply");
         assertEq(Coin(coin).launchpad(), address(pad));
-        assertEq(pad.coinsCount(), 1);
-        assertEq(pad.coinsIn(jpy), 1);
-        assertTrue(pad.isCoin(coin));
-
-        // The coin is a minimal proxy (ERC-7511) of the pad's implementation, which is how Verify recognises it.
-        bytes memory expected = abi.encodePacked(
-            hex"3d3d3d3d363d3d37363d73", pad.coinImplementation(), hex"5af43d3d93803e602a57fd5bf3"
-        );
-        assertEq(coin.code, expected);
+        assertMarketHolds(coin);
     }
 
-    function test_curveSizeIsTheSameInDollarsForEveryCurrency() public view {
-        // Full curve raises TARGET_USD in every currency, at the desk's rate.
-        uint256 raiseEur = pad.curveRaiseFor(eur);
-        uint256 raiseJpy = pad.curveRaiseFor(jpy);
-        uint256 raiseKwd = pad.curveRaiseFor(kwd);
-        assertApproxEqRel(desk.toUsd(eur, raiseEur), TARGET_USD, 1e12);
-        assertApproxEqRel(desk.toUsd(jpy, raiseJpy), TARGET_USD, 1e12);
-        assertApproxEqRel(desk.toUsd(kwd, raiseKwd), TARGET_USD, 1e12);
-        assertEq(raiseKwd, 3_660e6); // 12,000 * 0.305, in 6 decimals
+    function test_launch_startsAtTheStartMarketCap() public {
+        address coin = launch(alice, eur);
+        // 4,000 USD in EUR at 0.86 = 3,440 EUR for the whole supply; the first tick above adds up to 2%
+        uint256 startQuote = desk.fromUsd(eur, START_MCAP_USD);
+        (uint256 rToken, uint256 rQuote) = pad.reserves(coin);
+        uint256 mcap = rQuote * pad.TOTAL_SUPPLY() / rToken;
+        assertApproxEqRel(mcap, startQuote, 0.025e18, "market cap at launch");
+        assertApproxEqRel(rToken, pad.TOTAL_SUPPLY(), 0.001e18, "all coins on the curve");
     }
 
-    function test_rejectsBadTickersAndNames() public {
+    function test_launch_rejectsASaltThatSortsAbove() public {
+        bytes32 salt;
+        for (uint256 i; i < 8192; ++i) {
+            salt = keccak256(abi.encode("bad", i));
+            if (pad.coinAddress(salt) > eur) break;
+        }
+        vm.prank(alice);
+        vm.expectRevert(Launchpad.BadSalt.selector);
+        pad.createCoin("Storm", "STORM", "{}", eur, salt, 0, 0);
+    }
+
+    function test_launch_rejectsBadNamesAndSymbols() public {
+        bytes32 salt = saltFor(eur);
         vm.startPrank(alice);
         vm.expectRevert(Launchpad.BadSymbol.selector);
-        pad.createCoin("x", "lower", "", eur, 0, 0);
-        vm.expectRevert(Launchpad.BadSymbol.selector);
-        pad.createCoin("x", "TOOLONGTICKER", "", eur, 0, 0);
-        vm.expectRevert(Launchpad.BadSymbol.selector);
-        pad.createCoin("x", "", "", eur, 0, 0);
-        vm.expectRevert(Launchpad.BadSymbol.selector);
-        pad.createCoin("x", "AB C", "", eur, 0, 0);
+        pad.createCoin("Storm", "st orm", "{}", eur, salt, 0, 0);
         vm.expectRevert(Launchpad.BadName.selector);
-        pad.createCoin("", "OK", "", eur, 0, 0);
-        vm.expectRevert(Launchpad.BadName.selector);
-        pad.createCoin("12345678901234567890123456789012345678901", "OK", "", eur, 0, 0);
-        vm.expectRevert(abi.encodeWithSelector(Launchpad.CurrencyNotListed.selector, address(0xbeef)));
-        pad.createCoin("x", "OK", "", address(0xbeef), 0, 0);
+        pad.createCoin("", "STORM", "{}", eur, salt, 0, 0);
+        vm.expectRevert(abi.encodeWithSelector(Launchpad.CurrencyNotListed.selector, address(0xBEEF)));
+        pad.createCoin("Storm", "STORM", "{}", address(0xBEEF), salt, 0, 0);
         vm.stopPrank();
     }
 
-    function test_buyThenSellEverything_losesOnlyFees() public {
-        address coin = launch(alice, eur);
-        vm.warp(block.timestamp + 60); // past the snipe window
-        fund(bob, eur, 1_000e18);
-        uint256 start = TestCurrency(eur).balanceOf(bob);
-
-        vm.prank(bob);
-        (uint256 got,) = pad.buy(coin, start, 0, bob);
+    function test_launch_withAFirstBuyInTheSameTransaction() public {
+        fund(alice, eur, 100e18);
+        uint256 quoted = pad.quoteLaunchBuy(eur, desk.fromUsd(eur, 50e18));
+        address coin = launchWith(alice, eur, desk.fromUsd(eur, 50e18));
+        uint256 got = Coin(coin).balanceOf(alice);
+        assertGt(got, 0);
+        assertApproxEqRel(got, quoted, 0.03e18, "the launch quote is close");
         assertMarketHolds(coin);
-        assertCustody(eur);
+    }
+
+    function test_coin_carriesItsMetadata() public {
+        bytes32 salt = saltFor(usd);
+        vm.prank(alice);
+        (address coin,) = pad.createCoin(
+            "Storm", "STORM", "{\"name\":\"Storm\",\"image\":\"data:image/webp;base64,AAAA\"}", usd, salt, 0, 0
+        );
+        assertEq(Coin(coin).metadata(), "{\"name\":\"Storm\",\"image\":\"data:image/webp;base64,AAAA\"}");
+        assertEq(
+            Coin(coin).contractURI(),
+            "data:application/json;utf8,{\"name\":\"Storm\",\"image\":\"data:image/webp;base64,AAAA\"}"
+        );
+    }
+
+    function test_buy_thenSell_throughThePad() public {
+        address coin = launch(alice, usd);
+        fund(bob, usd, 200e18);
+        uint256 spend = 100e18;
+        (uint256 quotedOut,, uint256 fee,) = pad.quoteBuy(coin, spend);
+        vm.prank(bob);
+        (uint256 out,) = pad.buy(coin, spend, quotedOut * 99 / 100, bob);
+        assertEq(Coin(coin).balanceOf(bob), out);
+        assertApproxEqRel(out, quotedOut, 0.005e18, "buy quote within 0.5%");
+        assertEq(fee, 1e18, "1% of the input is the pool fee");
+        uint256 p1 = price(coin);
+        assertGt(p1, 0);
 
         vm.startPrank(bob);
-        Coin(coin).approve(address(pad), got);
-        pad.sell(coin, got, 0, bob);
+        Coin(coin).approve(address(pad), out);
+        (uint256 quotedQuote,) = pad.quoteSell(coin, out);
+        uint256 back = pad.sell(coin, out, quotedQuote * 99 / 100, bob);
         vm.stopPrank();
-
-        uint256 end = TestCurrency(eur).balanceOf(bob);
-        // Two 1% fees, and nothing else leaks.
-        assertApproxEqRel(end, start * 99 / 100 * 99 / 100, 1e14);
-        assertLe(end, start);
-        Launchpad.Market memory m = pad.getMarket(coin);
-        assertEq(m.curveLeft, pad.CURVE_SUPPLY());
-        assertLe(m.realQuote, 10); // rounding dust stays with the market
+        assertApproxEqRel(back, quotedQuote, 0.005e18, "sell quote within 0.5%");
+        // 1% each way: a round trip costs about 2%
+        assertLt(back, spend);
+        assertGt(back, spend * 97 / 100);
         assertMarketHolds(coin);
-        assertCustody(eur);
     }
 
-    function test_priceRisesWithEveryBuyAndFallsWithEverySell() public {
+    function test_buy_movesThePriceUpAndSellsMoveItDown() public {
         address coin = launch(alice, usd);
-        vm.warp(block.timestamp + 60);
         fund(bob, usd, 5_000e18);
         uint256 p0 = price(coin);
         vm.prank(bob);
-        (uint256 got,) = pad.buy(coin, 1_000e18, 0, bob);
+        (uint256 out,) = pad.buy(coin, 1_000e18, 0, bob);
         uint256 p1 = price(coin);
-        assertGt(p1, p0);
+        assertGt(p1, p0, "buying lifts the price");
+        // 1,000 on a 4,000 curve: price about (5/4)^2 = 1.56x
+        assertApproxEqRel(p1, p0 * 156 / 100, 0.03e18);
         vm.startPrank(bob);
-        Coin(coin).approve(address(pad), got);
-        pad.sell(coin, got / 2, 0, bob);
+        Coin(coin).approve(address(pad), out);
+        pad.sell(coin, out, 0, bob);
         vm.stopPrank();
-        assertLt(price(coin), p1);
+        assertLt(price(coin), p1, "selling lowers it");
     }
 
-    function test_snipeTaxDecaysLinearlyOverTheWindow() public {
+    function test_buy_refusesSlippage() public {
         address coin = launch(alice, usd);
-        assertEq(pad.snipeTaxNow(coin), 2000);
-        vm.warp(block.timestamp + 3);
-        assertEq(pad.snipeTaxNow(coin), 1600);
-        vm.warp(block.timestamp + 4);
-        assertEq(pad.snipeTaxNow(coin), 1066);
-        vm.warp(block.timestamp + 8);
-        assertEq(pad.snipeTaxNow(coin), 0);
-    }
-
-    function test_snipeTaxGoesToTreasury_andFirstBuyIsExempt() public {
-        fund(alice, usd, 1_000e18);
-        vm.prank(alice);
-        (address coin, uint256 firstGot) = pad.createCoin("Gale", "GALE", "", usd, 100e18, 0);
-        assertGt(firstGot, 0);
-        // First buy paid only the 1% trade fee.
-        assertEq(pad.feesOwed(treasury, usd), 0.5e18);
-        assertEq(pad.feesOwed(alice, usd), 0.5e18);
-
-        fund(bob, usd, 1_000e18);
-        vm.prank(bob);
-        pad.buy(coin, 100e18, 0, bob);
-        // Bob bought in the same second: 20% snipe tax on top of the 1% fee.
-        assertEq(pad.feesOwed(treasury, usd), 0.5e18 + 0.5e18 + 20e18);
-        assertEq(pad.feesOwed(alice, usd), 1e18);
-        assertMarketHolds(coin);
-        assertCustody(usd);
-    }
-
-    function test_graduation_keepsThePrice_andRefundsTheRest() public {
-        address coin = launch(alice, eur);
-        vm.warp(block.timestamp + 60);
-        fund(bob, eur, 1_000_000e18);
-        uint256 before = TestCurrency(eur).balanceOf(bob);
-
-        Launchpad.Market memory m0 = pad.getMarket(coin);
-        // Price at the last coin of the curve, straight from the curve formula.
-        uint256 lastPrice = (m0.virtualQuote * pad.VIRTUAL_TOKENS() / (pad.VIRTUAL_TOKENS() - pad.CURVE_SUPPLY()))
-            * 1e18 / (pad.VIRTUAL_TOKENS() - pad.CURVE_SUPPLY());
-
-        vm.prank(bob);
-        (uint256 got, uint256 used) = pad.buy(coin, before, 0, bob);
-
-        assertEq(got, pad.CURVE_SUPPLY());
-        assertLt(used, before);
-        assertEq(TestCurrency(eur).balanceOf(bob), before - used);
-
-        Launchpad.Market memory m = pad.getMarket(coin);
-        assertTrue(m.graduated);
-        assertEq(m.reserveToken, pad.POOL_SUPPLY());
-        assertEq(m.reserveQuote, m.realQuote);
-        // The full curve raised the target in dollars (net of fees).
-        assertApproxEqRel(desk.toUsd(eur, m.realQuote), TARGET_USD, 1e12);
-        // No jump at graduation.
-        assertApproxEqRel(price(coin), lastPrice, 1e12);
-        assertMarketHolds(coin);
-        assertCustody(eur);
-
-        // The pool trades both ways afterwards.
-        vm.startPrank(bob);
-        Coin(coin).approve(address(pad), type(uint256).max);
-        uint256 out = pad.sell(coin, 10_000_000e18, 0, bob);
-        assertGt(out, 0);
-        pad.buy(coin, out, 0, bob);
-        vm.stopPrank();
-        assertMarketHolds(coin);
-        assertCustody(eur);
-    }
-
-    function test_feesAccrue_andCreatorsClaimThem() public {
-        address coin = launch(alice, jpy);
-        vm.warp(block.timestamp + 60);
-        fund(bob, jpy, 500e18);
-        uint256 spend = TestCurrency(jpy).balanceOf(bob);
-        vm.prank(bob);
-        pad.buy(coin, spend, 0, bob);
-
-        uint256 owed = pad.feesOwed(alice, jpy);
-        assertEq(owed, spend * 50 / 10_000);
-        vm.prank(alice);
-        pad.claimFees(jpy);
-        assertEq(TestCurrency(jpy).balanceOf(alice), owed);
-        assertEq(pad.feesOwed(alice, jpy), 0);
-
-        vm.prank(treasury);
-        pad.claimFees(jpy);
-        assertEq(pad.totalFeesOwed(jpy), 0);
-        assertCustody(jpy);
-
-        vm.expectRevert(Launchpad.ZeroAmount.selector);
-        vm.prank(alice);
-        pad.claimFees(jpy);
-    }
-
-    function test_slippageProtection() public {
-        address coin = launch(alice, usd);
-        vm.warp(block.timestamp + 60);
         fund(bob, usd, 100e18);
-        (uint256 expected,,,) = pad.quoteBuy(coin, 100e18);
+        (uint256 quoted,,,) = pad.quoteBuy(coin, 10e18);
         vm.prank(bob);
         vm.expectRevert(Launchpad.Slippage.selector);
-        pad.buy(coin, 100e18, expected + 1, bob);
-        vm.prank(bob);
-        (uint256 got,) = pad.buy(coin, 100e18, expected, bob);
-        assertEq(got, expected);
+        pad.buy(coin, 10e18, quoted * 2, bob);
     }
 
-    function test_sellFor_isRouterOnly() public {
-        address coin = launch(alice, usd);
-        vm.expectRevert(Launchpad.NotRouter.selector);
-        pad.sellFor(bob, coin, 1, 0, bob);
-    }
-
-    function test_quotesMatchExecution() public {
+    function test_sixDecimalCurrency() public {
         address coin = launch(alice, kwd);
-        vm.warp(block.timestamp + 5);
-        fund(bob, kwd, 2_000e18);
-        uint256 amount = TestCurrency(kwd).balanceOf(bob) / 3;
-        (uint256 qOut, uint256 qUsed,,) = pad.quoteBuy(coin, amount);
+        fund(bob, kwd, 100e18);
+        uint256 spend = TestCurrency(kwd).balanceOf(bob);
         vm.prank(bob);
-        (uint256 got, uint256 used) = pad.buy(coin, amount, 0, bob);
-        assertEq(got, qOut);
-        assertEq(used, qUsed);
-
-        (uint256 qSell,) = pad.quoteSell(coin, got / 2);
-        vm.startPrank(bob);
-        Coin(coin).approve(address(pad), got);
-        uint256 out = pad.sell(coin, got / 2, 0, bob);
-        vm.stopPrank();
-        assertEq(out, qSell);
+        (uint256 out,) = pad.buy(coin, spend, 0, bob);
+        assertGt(out, 0);
+        // 100 USD on a 4,000 USD curve buys about 1/41 of the supply
+        assertApproxEqRel(out, pad.TOTAL_SUPPLY() * 100 / 4_100, 0.05e18);
         assertMarketHolds(coin);
-        assertCustody(kwd);
     }
 
-    function test_adminBounds() public {
-        vm.startPrank(owner);
-        vm.expectRevert(Launchpad.FeeTooHigh.selector);
-        pad.setFees(300, 201);
-        vm.expectRevert(Launchpad.BadSnipe.selector);
-        pad.setSnipe(5001, 15);
-        vm.expectRevert(Launchpad.BadSnipe.selector);
-        pad.setSnipe(100, 301);
-        pad.setFees(100, 100);
-        assertEq(pad.protocolFeeBps(), 100);
-        vm.stopPrank();
-
-        vm.expectRevert();
-        vm.prank(alice);
-        pad.setFees(0, 0);
-    }
-
-    function test_coinImplementationCannotBeInitialized() public {
-        Coin impl = Coin(pad.coinImplementation());
-        vm.expectRevert(Coin.AlreadyInitialized.selector);
-        impl.initialize("x", "X", 1, address(0));
-    }
-
-    function test_getCoinsPages() public {
-        for (uint256 i; i < 5; ++i) {
-            launch(alice, i % 2 == 0 ? eur : jpy);
-        }
-        Launchpad.CoinView[] memory page = pad.getCoins(1, 3);
-        assertEq(page.length, 3);
-        assertEq(page[0].coin, pad.allCoins(1));
-        assertEq(page[0].symbol, "STORM");
-        assertEq(page[1].currency, eur);
-        assertEq(pad.getCoins(10, 3).length, 0);
-        assertEq(pad.getCoins(4, 10).length, 1);
-    }
-
-    /// Buying and selling back can never pay out more than was put in.
-    function testFuzz_noFreeMoney(uint256 spend, uint256 sellPart, uint256 waitSeconds) public {
-        spend = bound(spend, 1e12, 50_000e18);
-        sellPart = bound(sellPart, 1, 100);
-        waitSeconds = bound(waitSeconds, 0, 30);
+    function test_fees_goHalfToTheCreatorHalfToTheProtocol() public {
         address coin = launch(alice, usd);
-        vm.warp(block.timestamp + waitSeconds);
-        fund(bob, usd, spend);
-        uint256 start = TestCurrency(usd).balanceOf(bob);
-
+        fund(bob, usd, 1_000e18);
         vm.prank(bob);
-        (uint256 got,) = pad.buy(coin, start, 0, bob);
-        uint256 toSell = got * sellPart / 100;
-        if (toSell != 0) {
-            vm.startPrank(bob);
-            Coin(coin).approve(address(pad), toSell);
-            pad.sell(coin, toSell, 0, bob);
-            vm.stopPrank();
-        }
-        assertLe(TestCurrency(usd).balanceOf(bob), start);
+        pad.buy(coin, 1_000e18, 0, bob);
+        uint256 a0 = TestCurrency(usd).balanceOf(alice);
+        uint256 t0 = TestCurrency(usd).balanceOf(treasury);
+        (uint256 coinFees, uint256 quoteFees) = pad.collectFees(coin);
+        assertEq(coinFees, 0, "a buy pays its fee in currency");
+        assertApproxEqAbs(quoteFees, 10e18, 1e12, "1% of 1,000");
+        assertEq(TestCurrency(usd).balanceOf(alice) - a0, quoteFees / 2, "creator's half");
+        assertEq(TestCurrency(usd).balanceOf(treasury) - t0, quoteFees - quoteFees / 2, "protocol's half");
+        Launchpad.Market memory m = pad.getMarket(coin);
+        assertEq(m.creatorFees, quoteFees / 2);
+        // a sell pays its fee in the coin
+        vm.startPrank(bob);
+        Coin(coin).approve(address(pad), type(uint256).max);
+        pad.sell(coin, Coin(coin).balanceOf(bob), 0, bob);
+        vm.stopPrank();
+        (coinFees, quoteFees) = pad.collectFees(coin);
+        assertGt(coinFees, 0);
+        assertEq(quoteFees, 0);
+        assertEq(Coin(coin).balanceOf(alice), coinFees / 2);
+    }
+
+    function test_tradesMadeStraightOnThePoolPayTheCreatorToo() public {
+        address coin = launch(alice, usd);
+        Outsider o = new Outsider();
+        fund(address(o), usd, 500e18);
+        uint256 out = o.buy(pad.poolOf(coin), usd, 500e18);
+        assertGt(out, 0, "an outsider can buy on Uniswap");
+        assertEq(Coin(coin).balanceOf(address(o)), out);
+        (, uint256 quoteFees) = pad.collectFees(coin);
+        assertApproxEqAbs(quoteFees, 5e18, 1e12, "1% of the outsider's 500 reached the position");
         assertMarketHolds(coin);
-        assertCustody(usd);
+    }
+
+    function test_quotes_matchThePoolAfterAnOutsidersTrade() public {
+        address coin = launch(alice, usd);
+        Outsider o = new Outsider();
+        fund(address(o), usd, 300e18);
+        o.buy(pad.poolOf(coin), usd, 300e18);
+        fund(bob, usd, 100e18);
+        (uint256 quoted,,,) = pad.quoteBuy(coin, 100e18);
+        vm.prank(bob);
+        (uint256 out,) = pad.buy(coin, 100e18, 0, bob);
+        assertApproxEqRel(out, quoted, 0.005e18);
+    }
+
+    function test_router_coinToCoinAcrossCurrencies() public {
+        address a = launch(alice, usd);
+        address b = launch(alice, eur);
+        fund(bob, usd, 200e18);
+        vm.prank(bob);
+        (uint256 got,) = pad.buy(a, 100e18, 0, bob);
+        // the desk needs EUR to convert into; test currencies are minted on the spot
+        vm.startPrank(bob);
+        Coin(a).approve(address(router), got);
+        (uint256 out,) = router.swap(a, b, got, 0, bob, block.timestamp + 60);
+        vm.stopPrank();
+        assertGt(out, 0);
+        assertEq(Coin(b).balanceOf(bob), out);
+        assertEq(Coin(a).balanceOf(bob), 0);
+    }
+
+    function test_views_listTheMarket() public {
+        address coin = launch(alice, jpy);
+        Launchpad.CoinView[] memory page = pad.getCoins(0, 10);
+        assertEq(page.length, 1);
+        assertEq(page[0].coin, coin);
+        assertEq(page[0].symbol, "STORM");
+        assertEq(page[0].currency, jpy);
+        assertGt(page[0].reserveToken, 0);
+        assertGt(page[0].reserveQuote, 0);
+        assertEq(page[0].realQuote, 0, "no currency in the pool before a buy");
+        assertEq(pad.coinsCount(), 1);
+        assertTrue(pad.isCoin(coin));
+        assertFalse(pad.isCoin(address(0xBEEF)));
+    }
+
+    function test_admin_onlyOwner() public {
+        vm.prank(alice);
+        vm.expectRevert();
+        pad.setStartMcapUsd(1e18);
+        vm.prank(owner);
+        pad.setStartMcapUsd(8_000e18);
+        assertEq(pad.startMcapUsd(), 8_000e18);
+        vm.prank(owner);
+        vm.expectRevert(Launchpad.BadStart.selector);
+        pad.setStartMcapUsd(0);
+    }
+
+    function test_callback_refusesAnyoneButThePoolInFlight() public {
+        vm.expectRevert(Launchpad.NotPool.selector);
+        pad.uniswapV3SwapCallback(1, 1, abi.encode(address(0), address(0)));
     }
 }

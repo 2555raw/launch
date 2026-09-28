@@ -99,7 +99,7 @@ export default function Deploy() {
       <PageHead
         kicker="For the owner"
         title="Put Starmint on chain"
-        lead={`This deploys the currency desk, the launchpad and the router to ${meta.name} from your own wallet, and coins that sell out their curve graduate into Uniswap. ${
+        lead={`This deploys the currency desk, the launchpad and the router to ${meta.name} from your own wallet; every coin launched on it opens as a Uniswap V3 pool with its whole supply locked in. ${
           real ? `The desk lists ${tokenNames}, the tokens that trade there. ` : ''
         }You sign ${txCount(TARGET, TOKENS)} transactions there; no private key is shared with anyone.`}
       />
@@ -230,9 +230,9 @@ export default function Deploy() {
       {real ? (
         <div className="callout" style={{ marginTop: 18 }}>
           <b>This is real money.</b> The contracts are tested (unit, fuzz and invariant tests) but have not been audited by an outside firm; the wallet
-          that deploys owns the pad and the desk, keeps the rates and receives the protocol fees. Coins pair with {tokenNames}; the desk converts
-          between currencies only out of what it holds, so nothing crosses currencies until it has a reserve. The rates the desk starts with are today’s;
-          the keeper (you, until you appoint one) posts the next ones.
+          that deploys owns the pad and the desk, keeps the rates and receives the protocol fees. Coins pair with {tokenNames} and open as Uniswap
+          pools the pad can never withdraw from; between those tokens the swap page routes through Uniswap's own pools, since the desk holds no
+          reserve. The rates the desk starts with are today’s; the keeper (you, until you appoint one) posts the next ones.
         </div>
       ) : (
         <div className="callout" style={{ marginTop: 18 }}>

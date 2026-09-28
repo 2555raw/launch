@@ -1,21 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { parseAbiItem } from 'viem';
+import { parseAbi } from 'viem';
 import { usePad } from '../backend/PadProvider';
 import type { LiveBackend } from '../backend/live';
 import { launchpadAbi } from '../generated/contracts';
 import { PageHead, PairBadge } from '../components/bits';
 import { Arrow, Check } from '../components/icons';
-import { compact, money } from '../lib/format';
+import { compact, money, pct } from '../lib/format';
 import { amount } from '../lib/views';
-import { circulating, fullSellBack } from '../lib/math';
+import { circulating, soldShare, TOTAL_SUPPLY } from '../lib/math';
 
-const balanceOf = parseAbiItem('function balanceOf(address) view returns (uint256)');
+const erc20 = parseAbi(['function balanceOf(address) view returns (uint256)']);
+const positionsAbi = parseAbi(['function ownerOf(uint256 tokenId) view returns (address)']);
+const DUST = 10n ** 18n;
 
 /* Three claims, recomputed from the markets themselves every time the snapshot changes:
- *   1. each market's reserves add up (curve: reserve = virtual + backing; pool: reserve = backing)
- *   2. each market's backing covers selling every circulating coin back at once
- *   3. the pad actually holds, per currency, at least the total backing plus fees owed (live only) */
+ *   1. each market's numbers add up (the pool holds every coin not in a wallet; the currency
+ *      it prices with is the launch amount plus what buyers really paid in)
+ *   2. the pool can pay every coin back: selling everything returns it to where it started
+ *   3. the liquidity really is locked: the pad owns the pool's position, and the pool holds
+ *      the coins it says (live only, read from the chain) */
 export default function Proof() {
   const pad = usePad();
   const snap = pad.snap;
@@ -24,76 +28,79 @@ export default function Proof() {
     if (!snap) return [];
     return snap.coins.map((coin) => {
       const cur = pad.currencyOf(coin)!;
-      const accountingOk = coin.graduated ? coin.reserveQuote === coin.realQuote : coin.reserveQuote === coin.virtualQuote + coin.realQuote;
-      const payout = fullSellBack(coin);
-      const margin = coin.realQuote - payout;
-      return { coin, cur, accountingOk, payout, margin, ok: accountingOk && margin >= 0n, circ: circulating(coin) };
+      const inPool = coin.reserveToken;
+      const circ = circulating(coin);
+      // the virtual currency reserve is what the launch set (the position's lower edge sits at most one
+      // tick spacing, 2%, above the launch price) plus what is really in the pool: nothing is invented
+      const sums = inPool <= TOTAL_SUPPLY && coin.reserveQuote + DUST >= coin.startQuote && coin.reserveQuote <= (coin.startQuote * 1025n) / 1000n + coin.realQuote + DUST;
+      // along x · y = k, selling every circulating coin back returns the pool to its launch reserves,
+      // so the currency that would leave is what came in, never more
+      const payout = circ === 0n ? 0n : (coin.reserveQuote * circ) / (coin.reserveToken + circ);
+      return { coin, cur, sums, payout, ok: sums && payout <= coin.realQuote + DUST, circ, sold: soldShare(coin) };
     });
   }, [snap, pad]);
 
   const perCurrency = useMemo(() => {
-    const m = new Map<string, { token: `0x${string}`; code: string; symbol: string; decimals: number; backing: bigint; coins: number }>();
+    const m = new Map<string, { token: `0x${string}`; code: string; symbol: string; decimals: number; pooled: bigint; coins: number }>();
     for (const r of rows) {
       const k = r.cur.token.toLowerCase();
-      const e = m.get(k) ?? { token: r.cur.token, code: r.cur.code, symbol: r.cur.symbol, decimals: r.cur.decimals, backing: 0n, coins: 0 };
-      // what the pad holds: a graduated coin's currency is in its Uniswap pool
-      if (!r.coin.graduated) e.backing += r.coin.realQuote;
+      const e = m.get(k) ?? { token: r.cur.token, code: r.cur.code, symbol: r.cur.symbol, decimals: r.cur.decimals, pooled: 0n, coins: 0 };
+      e.pooled += r.coin.realQuote;
       e.coins++;
       m.set(k, e);
     }
     return [...m.values()].sort((a, b) => b.coins - a.coins);
   }, [rows]);
 
-  // Custody: what the pad's contract really holds in each currency (live mode reads balances on chain).
-  const [custody, setCustody] = useState<Record<string, { held: bigint; owed: bigint }>>({});
+  // Custody: on chain, the pad owns every pool's position and each pool holds the coins it prices.
+  const [locked, setLocked] = useState<Record<string, { owner: boolean; coins: boolean }>>({});
   useEffect(() => {
-    if (pad.backend.kind !== 'live' || !pad.backend.addresses) return;
+    if (pad.backend.kind !== 'live' || !pad.backend.addresses || !snap) return;
     const live = pad.backend as LiveBackend;
     const padAddr = pad.backend.addresses.launchpad;
     let off = false;
-    Promise.all(
-      perCurrency.map(async (c) => {
-        const [held, backing, fees] = await Promise.all([
-          live.client.readContract({ address: c.token, abi: [balanceOf], functionName: 'balanceOf', args: [padAddr] }),
-          live.client.readContract({ address: padAddr, abi: launchpadAbi, functionName: 'backing', args: [c.token] }),
-          live.client.readContract({ address: padAddr, abi: launchpadAbi, functionName: 'totalFeesOwed', args: [c.token] }),
-        ]);
-        return [c.token.toLowerCase(), { held: held as bigint, owed: (backing as bigint) + (fees as bigint) }] as const;
-      }),
-    )
-      .then((entries) => !off && setCustody(Object.fromEntries(entries)))
-      .catch(() => {});
+    (async () => {
+      const positions = (await live.client.readContract({ address: padAddr, abi: launchpadAbi, functionName: 'positions' })) as `0x${string}`;
+      const entries = await Promise.all(
+        snap.coins.slice(0, 120).map(async (c) => {
+          const [owner, held] = await Promise.all([
+            live.client.readContract({ address: positions, abi: positionsAbi, functionName: 'ownerOf', args: [c.tokenId ?? 0n] }).catch(() => '0x'),
+            live.client.readContract({ address: c.address, abi: erc20, functionName: 'balanceOf', args: [c.pool!] }).catch(() => 0n),
+          ]);
+          return [c.address.toLowerCase(), { owner: (owner as string).toLowerCase() === padAddr.toLowerCase(), coins: (held as bigint) + DUST >= c.reserveToken }] as const;
+        }),
+      );
+      if (!off) setLocked(Object.fromEntries(entries));
+    })().catch(() => {});
     return () => {
       off = true;
     };
-  }, [perCurrency, pad.backend, snap]);
+  }, [pad.backend, snap]);
 
-  const bad = rows.filter((r) => !r.ok);
-  const open = rows.filter((r) => !r.coin.graduated).length;
-  const minMargin = rows.reduce<number | null>((m, r) => {
-    // skip empty and dust-sized markets: their ratio is all rounding
-    if (r.coin.graduated || r.coin.realQuote < 10n ** BigInt(Math.max(0, r.cur.decimals - 3))) return m;
-    const ratio = Number(r.margin) / Number(r.coin.realQuote);
-    return m === null ? ratio : Math.min(m, ratio);
-  }, null);
+  const bad = rows.filter((r) => !r.ok || (locked[r.coin.address.toLowerCase()] && (!locked[r.coin.address.toLowerCase()].owner || !locked[r.coin.address.toLowerCase()].coins)));
+  const checked = Object.keys(locked).length;
 
   return (
     <div className="wrap">
       <PageHead
-        kicker="Live, from the markets"
-        title="Every star is backed"
-        lead="Not a status page someone updates. This page takes every market's reserves and does the arithmetic in your browser, again each time a trade lands."
+        kicker="Live, from the pools"
+        title="Every star has its liquidity locked"
+        lead="Not a status page someone updates. This page takes every coin's pool and does the arithmetic in your browser, again each time a trade lands, and in live mode asks the chain who owns each pool's liquidity."
       />
 
       <div className="panel" style={{ marginBottom: 22 }}>
         {snap ? (
           <>
             <span className={`verdict ${bad.length ? 'bad' : 'ok'}`}>
-              {bad.length ? `${bad.length} market${bad.length > 1 ? 's' : ''} fail a check` : <><Check /> All {rows.length} markets are backed</>}
+              {bad.length ? `${bad.length} pool${bad.length > 1 ? 's' : ''} fail a check` : <><Check /> All {rows.length} pools hold and are locked</>}
             </span>
             <p className="muted small" style={{ marginBottom: 0 }}>
-              {open} on the curve, {rows.length - open} graduated into pools. {minMargin !== null && `Thinnest spare backing on a curve: ${(minMargin * 100).toPrecision(2)}% of its backing, because rounding always lands in the market's favour.`}{' '}
-              {pad.mode === 'playground' ? 'In the playground the markets are simulated with the same integer math as the contracts.' : 'Reserves are read from the chain.'}
+              Every coin's whole supply went into its Uniswap pool at launch, as one position the pad owns and has no function to withdraw.{' '}
+              {pad.mode === 'playground'
+                ? 'In the playground the pools are simulated with the same integer math as the contracts.'
+                : checked
+                  ? `The chain confirms the pad owns the position of ${checked} of ${rows.length} pools and that each holds the coins it prices.`
+                  : 'Reserves are read from the chain.'}
             </p>
           </>
         ) : (
@@ -106,26 +113,34 @@ export default function Proof() {
           <thead>
             <tr>
               <th>Pair</th>
-              <th className="r">Backing</th>
-              <th className="r">Circulating</th>
-              <th className="r">Pays if all sold</th>
+              <th className="r">In the pool</th>
+              <th className="r">Coins in the pool</th>
+              <th className="r">In wallets</th>
+              <th className="r">Sell-back pays</th>
               <th className="r">Status</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.coin.address}>
-                <td>
-                  <Link to={`/coin/${r.coin.address}`}>
-                    <PairBadge coin={r.coin} currency={r.cur} size="sm" />
-                  </Link>
-                </td>
-                <td className="r num">{money(amount(r.coin.realQuote, r.cur.decimals), r.cur.symbol)}</td>
-                <td className="r num">{compact(amount(r.circ))}</td>
-                <td className="r num">{r.coin.graduated ? <span className="muted">pool</span> : money(amount(r.payout, r.cur.decimals), r.cur.symbol)}</td>
-                <td className="r">{r.ok ? <span className="up">✓ holds</span> : <span className="down">✗ check</span>}</td>
-              </tr>
-            ))}
+            {rows.map((r) => {
+              const l = locked[r.coin.address.toLowerCase()];
+              const ok = r.ok && (!l || (l.owner && l.coins));
+              return (
+                <tr key={r.coin.address}>
+                  <td>
+                    <Link to={`/coin/${r.coin.address}`}>
+                      <PairBadge coin={r.coin} currency={r.cur} size="sm" />
+                    </Link>
+                  </td>
+                  <td className="r num">{money(amount(r.coin.realQuote, r.cur.decimals), r.cur.symbol)}</td>
+                  <td className="r num">{compact(amount(r.coin.reserveToken))}</td>
+                  <td className="r num">
+                    {compact(amount(r.circ))} <span className="muted">({pct(r.sold)})</span>
+                  </td>
+                  <td className="r num">{money(amount(r.payout, r.cur.decimals), r.cur.symbol)}</td>
+                  <td className="r">{ok ? <span className="up">✓ {l ? 'locked' : 'holds'}</span> : <span className="down">✗ check</span>}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -134,25 +149,14 @@ export default function Proof() {
         <div className="kicker" style={{ marginBottom: 8 }}>
           Per currency
         </div>
-        {perCurrency.map((c) => {
-          const cu = custody[c.token.toLowerCase()];
-          return (
-            <div key={c.token} className="kv">
-              <span>
-                {c.code} · {c.coins} coin{c.coins > 1 ? 's' : ''}
-              </span>
-              <span className="num">
-                backing {money(amount(c.backing, c.decimals), c.symbol)}
-                {cu && (
-                  <span className={cu.held >= cu.owed ? 'up' : 'down'}>
-                    {' '}
-                    · pad holds {money(amount(cu.held, c.decimals), c.symbol)} {cu.held >= cu.owed ? '≥' : '<'} owed {money(amount(cu.owed, c.decimals), c.symbol)}
-                  </span>
-                )}
-              </span>
-            </div>
-          );
-        })}
+        {perCurrency.map((c) => (
+          <div key={c.token} className="kv">
+            <span>
+              {c.code} · {c.coins} coin{c.coins > 1 ? 's' : ''}
+            </span>
+            <span className="num">in pools {money(amount(c.pooled, c.decimals), c.symbol)}</span>
+          </div>
+        ))}
       </div>
 
       <section className="section" style={{ paddingBottom: 0 }}>
@@ -164,10 +168,10 @@ export default function Proof() {
           <div className="rule">
             <span className="step-n">01</span>
             <div>
-              <b>The reserves add up.</b>
+              <b>The numbers add up.</b>
               <p className="muted small">
-                On a curve, the currency reserve used for pricing must equal the virtual amount set at launch plus the real backing, to the last unit.
-                In a pool there is no virtual part, so reserve and backing must be equal.
+                The pool holds every coin that is not in a wallet, and the currency it prices with is the launch amount plus what buyers really
+                paid in. Nothing is counted twice and nothing is invented.
               </p>
             </div>
           </div>
@@ -175,16 +179,19 @@ export default function Proof() {
             <span className="step-n">02</span>
             <div>
               <b>A full sell-back is covered.</b>
-              <p className="muted small">If every coin in circulation were sold at once, the market would pay out this much. The backing has to be at least that.</p>
+              <p className="muted small">
+                Along x · y = k, selling every coin in wallets back returns the pool to where it started, so what would leave is never more than
+                what came in.
+              </p>
             </div>
           </div>
           <div className="rule">
             <span className="step-n">03</span>
             <div>
-              <b>The money is really there.</b>
+              <b>The liquidity is really locked.</b>
               <p className="muted small">
-                In live mode the page also reads the pad's balance of each currency and compares it with everything it owes: the backing of every market
-                in that currency plus fees not yet claimed.
+                In live mode the page asks Uniswap who owns each pool's position (the pad, which has no function to move or burn it) and checks
+                that the pool holds the coins it prices.
               </p>
             </div>
           </div>

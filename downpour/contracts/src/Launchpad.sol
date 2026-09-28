@@ -8,30 +8,35 @@ import {FixedPointMathLib} from "solady/utils/FixedPointMathLib.sol";
 import {LibClone} from "solady/utils/LibClone.sol";
 import {Coin} from "./Coin.sol";
 import {CurrencyDesk} from "./CurrencyDesk.sol";
-import {IUniswapV2Factory, IUniswapV2Pair} from "./interfaces/IUniswapV2.sol";
+import {
+    INonfungiblePositionManager,
+    IUniswapV3Factory,
+    IUniswapV3Pool,
+    IUniswapV3SwapCallback
+} from "./interfaces/IUniswapV3.sol";
 
 /// @title Launchpad
 /// @notice Opens a market for a new coin, paired with one currency from the desk,
-/// and runs it: first on a bonding curve, then, once the curve sells out, in a
-/// Uniswap V2 pool with its currency whose liquidity tokens are burned, so the
-/// pool can never be withdrawn and every DEX aggregator sees it as a normal pair.
+/// as a Uniswap V3 pool from the first second: the whole supply goes into the pool
+/// as one position that only the pad owns and that nothing can ever withdraw, so
+/// every DEX screen and trading terminal sees the coin with its liquidity the
+/// moment it launches, and anyone can trade it there or through the pad.
 ///
-/// @dev Every coin has 1,000,000,000 units. 800M are sold on the curve and 200M
-/// wait inside the pad to seed the pool. The curve is x * y = k over virtual
-/// reserves; the virtual token reserve is S^2 / (S - L) (S = curve supply,
-/// L = pool supply), which is exactly what makes the curve's last price equal the
-/// pool's first price, so graduation does not move the price. The virtual quote
-/// reserve is fixed per coin at launch, from the desk's USD rate, so every
-/// currency's curve raises the same dollar amount when it sells out.
+/// @dev Every coin has 1,000,000,000 units, all of them put in the pool in one
+/// range that starts at the launch price and runs to the top of the price scale.
+/// Within that range the pool is a constant-product curve on virtual reserves,
+/// exactly like a bonding curve: the pad quotes it as such. The pool's 1% fee is
+/// the only fee; it accrues to the pad's position and, when collected, goes half
+/// to the coin's creator and half to the protocol, in both the coin and its
+/// currency, on every trade wherever it was made.
 ///
-/// The pair is created with the coin, and the coin refuses transfers to it until
-/// the pad opens the pool, so nobody can seed the pool at a price of their own.
-/// After graduation the pad still buys and sells for its users, through the pair,
-/// with no fee of its own (the pool's 0.3% goes to its locked liquidity).
+/// The coin is always the pool's token0: the creator brings a salt whose clone
+/// address sorts below the currency (a few tries in the browser), so the price
+/// always reads as currency per coin and the position always sits above it.
 ///
 /// The currency a coin is paired with is written once, at launch, and there is
-/// no function that changes it.
-contract Launchpad is Ownable, ReentrancyGuard {
+/// no function that changes it, moves the position, or lowers its liquidity.
+contract Launchpad is Ownable, ReentrancyGuard, IUniswapV3SwapCallback {
     using SafeTransferLib for address;
 
     /*//////////////////////////////////////////////////////////////
@@ -39,19 +44,19 @@ contract Launchpad is Ownable, ReentrancyGuard {
     //////////////////////////////////////////////////////////////*/
 
     uint256 public constant TOTAL_SUPPLY = 1_000_000_000e18;
-    uint256 public constant CURVE_SUPPLY = 800_000_000e18;
-    uint256 public constant POOL_SUPPLY = TOTAL_SUPPLY - CURVE_SUPPLY;
-    uint256 public constant VIRTUAL_TOKENS = CURVE_SUPPLY * CURVE_SUPPLY / (CURVE_SUPPLY - POOL_SUPPLY);
+    /// @notice The pool's fee tier: 1%, of which half is the creator's.
+    uint24 public constant POOL_FEE = 10_000;
+    int24 public constant TICK_SPACING = 200;
+    /// @notice The highest tick the position reaches (the top of Uniswap's scale, on the spacing).
+    int24 public constant TICK_TOP = 887_200;
+    uint160 internal constant MIN_SQRT_RATIO = 4_295_128_739;
+    uint160 internal constant MAX_SQRT_RATIO = 1_461_446_703_485_210_103_287_273_052_203_988_822_378_723_970_342;
+    uint256 internal constant Q96 = 2 ** 96;
 
     uint256 internal constant BPS = 10_000;
-    uint256 public constant MAX_TRADE_FEE_BPS = 500;
-    uint256 public constant MAX_SNIPE_TAX_BPS = 5_000;
-    uint256 public constant MAX_SNIPE_WINDOW = 300;
     uint256 public constant MAX_NAME_BYTES = 40;
     uint256 public constant MAX_SYMBOL_BYTES = 10;
-    uint256 public constant MAX_META_BYTES = 16_384;
-    /// @notice Where the pool's liquidity tokens go: nobody holds the key.
-    address public constant DEAD = 0x000000000000000000000000000000000000dEaD;
+    uint256 public constant MAX_META_BYTES = 8_192;
 
     /*//////////////////////////////////////////////////////////////
                                  TYPES
@@ -60,23 +65,23 @@ contract Launchpad is Ownable, ReentrancyGuard {
     struct Market {
         address creator;
         uint64 createdAt;
-        bool graduated;
         address currency;
-        // The coin's Uniswap V2 pair with its currency, created at launch.
-        address pair;
-        // The curve's virtual quote reserve, fixed at launch.
-        uint256 virtualQuote;
-        // Pricing reserves: virtual + real on the curve. Once graduated, views
-        // report the pair's live reserves here.
-        uint256 reserveToken;
-        uint256 reserveQuote;
-        // Currency the market holds for its buyers: the curve's backing, held by
-        // the pad. Once graduated, views report the pool's currency here.
-        uint256 realQuote;
-        // Coins still for sale on the curve; zero once graduated.
-        uint256 curveLeft;
-        // Cumulative traded currency, gross of fees.
+        // The coin's Uniswap V3 pool with its currency (coin is token0).
+        address pool;
+        // The pad's position in it: the whole supply, from the launch price up.
+        uint256 tokenId;
+        int24 tickLower;
+        // The position's liquidity and the sqrt price (x2^96) of its lower tick, where
+        // trading starts: until the first buy the pool's price sits just below it.
+        uint128 liquidity;
+        uint160 sqrtLowerX96;
+        // What the market opened at, in currency units for the whole supply.
+        uint256 startQuote;
+        // Currency traded through the pad (gross); trades made straight on the pool are in its events.
         uint256 volume;
+        // Fees collected so far, in the currency, for the creator and the protocol.
+        uint256 creatorFees;
+        uint256 protocolFees;
     }
 
     struct CoinView {
@@ -86,31 +91,19 @@ contract Launchpad is Ownable, ReentrancyGuard {
         address creator;
         address currency;
         uint64 createdAt;
-        bool graduated;
-        uint256 virtualQuote;
+        address pool;
+        uint256 tokenId;
+        uint256 startQuote;
+        // The pool as a constant-product curve right now: virtual reserves, the price
+        // being their ratio, and the currency the pool really holds.
         uint256 reserveToken;
         uint256 reserveQuote;
         uint256 realQuote;
-        uint256 curveLeft;
+        uint160 sqrtPriceX96;
+        uint128 liquidity;
         uint256 volume;
-        address pair;
-    }
-
-    struct BuyQuote {
-        uint256 tokensOut;
-        uint256 quoteUsed;
-        uint256 net;
-        uint256 protocolFee;
-        uint256 creatorFee;
-        uint256 snipeTax;
-        bool graduates;
-    }
-
-    struct SellQuote {
-        uint256 gross;
-        uint256 quoteOut;
-        uint256 protocolFee;
-        uint256 creatorFee;
+        uint256 creatorFees;
+        uint256 protocolFees;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -118,27 +111,20 @@ contract Launchpad is Ownable, ReentrancyGuard {
     //////////////////////////////////////////////////////////////*/
 
     CurrencyDesk public immutable desk;
-    IUniswapV2Factory public immutable uniswapFactory;
+    INonfungiblePositionManager public immutable positions;
+    IUniswapV3Factory public immutable uniswapFactory;
     address public immutable coinImplementation;
 
     address public treasury;
     address public router;
-    /// @notice What a full curve raises, in USD with 18 decimals.
-    uint256 public targetRaiseUsd;
-    uint16 public protocolFeeBps;
-    uint16 public creatorFeeBps;
-    /// @notice Extra tax on buys at the moment a market opens, decaying linearly to zero.
-    uint16 public snipeTaxBps;
-    uint32 public snipeWindow;
+    /// @notice What a coin's whole supply is worth the moment it launches, in USD with 18 decimals.
+    uint256 public startMcapUsd;
 
     mapping(address coin => Market) internal _markets;
     address[] public allCoins;
-
-    /// @notice Sum of the curve backing of every market paired with a currency that is still on its curve.
-    mapping(address currency => uint256) public backing;
     mapping(address currency => uint256) public coinsIn;
-    mapping(address account => mapping(address currency => uint256)) public feesOwed;
-    mapping(address currency => uint256) public totalFeesOwed;
+    /// @dev The pool a swap is in flight on, so its callback can be trusted.
+    address internal _swapping;
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
@@ -151,7 +137,9 @@ contract Launchpad is Ownable, ReentrancyGuard {
         string name,
         string symbol,
         string meta,
-        uint256 virtualQuote
+        address pool,
+        uint256 tokenId,
+        uint256 startQuote
     );
     event Trade(
         address indexed coin,
@@ -159,18 +147,14 @@ contract Launchpad is Ownable, ReentrancyGuard {
         bool isBuy,
         uint256 quoteAmount,
         uint256 tokenAmount,
-        uint256 protocolFee,
-        uint256 creatorFee,
-        uint256 snipeTax,
-        uint256 reserveToken,
-        uint256 reserveQuote,
+        uint256 fee,
+        uint160 sqrtPriceX96,
         uint256 timestamp
     );
-    event Graduated(address indexed coin, address indexed pair, uint256 poolTokens, uint256 poolQuote, uint256 liquidity);
-    event FeesClaimed(address indexed account, address indexed currency, uint256 amount);
-    event FeesSet(uint16 protocolFeeBps, uint16 creatorFeeBps);
-    event SnipeSet(uint16 snipeTaxBps, uint32 snipeWindow);
-    event TargetRaiseSet(uint256 targetRaiseUsd);
+    event FeesCollected(
+        address indexed coin, address indexed creator, uint256 creatorCoin, uint256 creatorQuote, uint256 protocolCoin, uint256 protocolQuote
+    );
+    event StartMcapSet(uint256 startMcapUsd);
     event TreasurySet(address treasury);
     event RouterSet(address router);
 
@@ -183,12 +167,13 @@ contract Launchpad is Ownable, ReentrancyGuard {
     error BadName();
     error BadSymbol();
     error MetaTooLong();
+    error BadSalt();
+    error PoolTaken();
     error Slippage();
     error ZeroAmount();
-    error FeeTooHigh();
-    error BadSnipe();
-    error BadTarget();
+    error BadStart();
     error NotRouter();
+    error NotPool();
     error ZeroAddress();
 
     /*//////////////////////////////////////////////////////////////
@@ -198,30 +183,21 @@ contract Launchpad is Ownable, ReentrancyGuard {
     constructor(
         address owner_,
         CurrencyDesk desk_,
-        IUniswapV2Factory uniswapFactory_,
+        INonfungiblePositionManager positions_,
         address treasury_,
-        uint256 targetRaiseUsd_,
-        uint16 protocolFeeBps_,
-        uint16 creatorFeeBps_,
-        uint16 snipeTaxBps_,
-        uint32 snipeWindow_
+        uint256 startMcapUsd_
     ) {
-        if (treasury_ == address(0) || address(desk_) == address(0) || address(uniswapFactory_) == address(0)) {
+        if (treasury_ == address(0) || address(desk_) == address(0) || address(positions_) == address(0)) {
             revert ZeroAddress();
         }
-        if (targetRaiseUsd_ == 0) revert BadTarget();
-        if (uint256(protocolFeeBps_) + creatorFeeBps_ > MAX_TRADE_FEE_BPS) revert FeeTooHigh();
-        if (snipeTaxBps_ > MAX_SNIPE_TAX_BPS || snipeWindow_ > MAX_SNIPE_WINDOW) revert BadSnipe();
+        if (startMcapUsd_ == 0) revert BadStart();
         _initializeOwner(owner_);
         desk = desk_;
-        uniswapFactory = uniswapFactory_;
+        positions = positions_;
+        uniswapFactory = IUniswapV3Factory(positions_.factory());
         coinImplementation = address(new Coin());
         treasury = treasury_;
-        targetRaiseUsd = targetRaiseUsd_;
-        protocolFeeBps = protocolFeeBps_;
-        creatorFeeBps = creatorFeeBps_;
-        snipeTaxBps = snipeTaxBps_;
-        snipeWindow = snipeWindow_;
+        startMcapUsd = startMcapUsd_;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -229,81 +205,122 @@ contract Launchpad is Ownable, ReentrancyGuard {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Launches a coin paired with `currency`, optionally buying some in the same transaction.
-    /// @param meta Free-form JSON (description, image, links). Emitted, not stored.
-    /// @param firstBuy Currency to spend on the creator's first buy; 0 for none. Not subject to the snipe tax.
+    /// @param meta JSON with name, symbol, description, image and links; stored in the coin (ERC-7572).
+    /// @param salt Picked so that `coinAddress(salt)` sorts below `currency` (see `coinAddress`).
+    /// @param firstBuy Currency to spend on the creator's first buy, in the same transaction; 0 for none.
     function createCoin(
         string calldata name_,
         string calldata symbol_,
         string calldata meta,
         address currency,
+        bytes32 salt,
         uint256 firstBuy,
         uint256 minTokensOut
     ) external nonReentrant returns (address coin, uint256 tokensOut) {
         _validateName(name_);
         _validateSymbol(symbol_);
         if (bytes(meta).length > MAX_META_BYTES) revert MetaTooLong();
-        coin = _open(name_, symbol_, currency);
-        emit CoinCreated(coin, msg.sender, currency, name_, symbol_, meta, _markets[coin].virtualQuote);
-        if (firstBuy != 0) tokensOut = _firstBuy(coin, firstBuy, minTokensOut);
+        coin = _open(name_, symbol_, meta, currency, salt);
+        if (firstBuy != 0) tokensOut = _buy(coin, _markets[coin], firstBuy, minTokensOut, msg.sender, msg.sender);
     }
 
-    function _open(string calldata name_, string calldata symbol_, address currency) internal returns (address coin) {
-        if (!desk.isListed(currency)) revert CurrencyNotListed(currency);
-        uint256 vq = virtualQuoteFor(currency);
-        if (vq == 0) revert BadTarget();
+    /// @notice The address a coin launched with `salt` gets, by whoever launches it. Pick a
+    /// salt that makes it sort below the currency's address.
+    function coinAddress(bytes32 salt) external view returns (address) {
+        return LibClone.predictDeterministicAddress(coinImplementation, salt, address(this));
+    }
 
-        coin = LibClone.clone(coinImplementation);
-        // (anyone can create a pair for an address before it has code, so take one that is already there)
-        address pair = uniswapFactory.getPair(coin, currency);
-        if (pair == address(0)) pair = uniswapFactory.createPair(coin, currency);
-        Coin(coin).initialize(name_, symbol_, TOTAL_SUPPLY, pair);
+    /// @notice keccak256 of the clone's init code, to predict `coinAddress` without a call.
+    function coinInitCodeHash() external view returns (bytes32) {
+        return LibClone.initCodeHash(coinImplementation);
+    }
+
+    function _open(string calldata name_, string calldata symbol_, string calldata meta, address currency, bytes32 salt)
+        internal
+        returns (address coin)
+    {
+        if (!desk.isListed(currency)) revert CurrencyNotListed(currency);
+        uint256 startQuote = startQuoteFor(currency);
+        if (startQuote == 0) revert BadStart();
+
+        coin = LibClone.cloneDeterministic(coinImplementation, salt);
+        if (coin >= currency) revert BadSalt();
+        Coin(coin).initialize(name_, symbol_, TOTAL_SUPPLY, meta);
 
         Market storage m = _markets[coin];
         m.creator = msg.sender;
         m.createdAt = uint64(block.timestamp);
         m.currency = currency;
-        m.pair = pair;
-        m.virtualQuote = vq;
-        m.reserveToken = VIRTUAL_TOKENS;
-        m.reserveQuote = vq;
-        m.curveLeft = CURVE_SUPPLY;
+        m.startQuote = startQuote;
+        _seedPool(coin, m);
 
         allCoins.push(coin);
         ++coinsIn[currency];
+        emit CoinCreated(coin, msg.sender, currency, name_, symbol_, meta, m.pool, m.tokenId, startQuote);
     }
 
-    function _firstBuy(address coin, uint256 firstBuy, uint256 minTokensOut) internal returns (uint256) {
-        Market storage m = _markets[coin];
-        BuyQuote memory q = _quoteBuy(m, firstBuy, true);
-        if (q.tokensOut == 0 || q.tokensOut < minTokensOut) revert Slippage();
-        m.currency.safeTransferFrom(msg.sender, address(this), q.quoteUsed);
-        _applyBuy(coin, m, q, msg.sender, msg.sender);
-        return q.tokensOut;
+    /// @dev Opens the coin's pool at the launch price and puts the whole supply in it as the
+    /// pad's position, from the first tick on the spacing above the price to the top.
+    function _seedPool(address coin, Market storage m) internal {
+        address currency = m.currency;
+        // A pool nobody could have opened at a price of their own: the coin did not exist a moment ago.
+        if (uniswapFactory.getPool(coin, currency, POOL_FEE) != address(0)) revert PoolTaken();
+        address pool = positions.createAndInitializePoolIfNecessary(coin, currency, POOL_FEE, _sqrtPriceX96(m.startQuote));
+
+        (, int24 tick,,,,,) = IUniswapV3Pool(pool).slot0();
+        int24 tickLower = (tick / TICK_SPACING) * TICK_SPACING;
+        if (tickLower <= tick) tickLower += TICK_SPACING;
+
+        coin.safeApprove(address(positions), TOTAL_SUPPLY);
+        (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1) = positions.mint(
+            INonfungiblePositionManager.MintParams({
+                token0: coin,
+                token1: currency,
+                fee: POOL_FEE,
+                tickLower: tickLower,
+                tickUpper: TICK_TOP,
+                amount0Desired: TOTAL_SUPPLY,
+                amount1Desired: 0,
+                amount0Min: 0,
+                amount1Min: 0,
+                recipient: address(this),
+                deadline: block.timestamp
+            })
+        );
+        if (amount1 != 0 || amount0 == 0) revert BadStart();
+        m.pool = pool;
+        m.tokenId = tokenId;
+        m.tickLower = tickLower;
+        m.liquidity = liquidity;
+        // for a range that runs to the top of the scale, amount0 = L * 2^96 / sqrt(lower) to 1e-20
+        uint256 sqrtLower = FixedPointMathLib.fullMulDiv(liquidity, Q96, amount0);
+        if (sqrtLower >= MAX_SQRT_RATIO) revert BadStart();
+        m.sqrtLowerX96 = uint160(sqrtLower);
+    }
+
+    /// @dev sqrt(price) * 2^96 for a price of `startQuote` currency units per whole supply.
+    function _sqrtPriceX96(uint256 startQuote) internal pure returns (uint160) {
+        uint256 priceX192 = FixedPointMathLib.fullMulDiv(startQuote, Q96 * Q96, TOTAL_SUPPLY);
+        uint256 s = FixedPointMathLib.sqrt(priceX192);
+        if (s <= MIN_SQRT_RATIO || s >= MAX_SQRT_RATIO) revert BadStart();
+        return uint160(s);
     }
 
     /*//////////////////////////////////////////////////////////////
                                  TRADE
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Spends up to `quoteIn` of the coin's currency on the coin.
-    /// @dev Only `quoteUsed` is pulled: when a buy sells out the curve it takes
-    /// just what the last coin costs and the market graduates.
+    /// @notice Spends `quoteIn` of the coin's currency on the coin, in its pool.
     function buy(address coin, uint256 quoteIn, uint256 minTokensOut, address recipient)
         external
         nonReentrant
         returns (uint256 tokensOut, uint256 quoteUsed)
     {
         if (quoteIn == 0) revert ZeroAmount();
-        Market storage m = _market(coin);
-        if (m.graduated) return (_poolBuy(coin, m, quoteIn, minTokensOut, recipient), quoteIn);
-        BuyQuote memory q = _quoteBuy(m, quoteIn, false);
-        if (q.tokensOut == 0 || q.tokensOut < minTokensOut) revert Slippage();
-        m.currency.safeTransferFrom(msg.sender, address(this), q.quoteUsed);
-        _applyBuy(coin, m, q, recipient, recipient);
-        return (q.tokensOut, q.quoteUsed);
+        return (_buy(coin, _market(coin), quoteIn, minTokensOut, recipient, recipient), quoteIn);
     }
 
-    /// @notice Sells `tokensIn` of the coin for its currency.
+    /// @notice Sells `tokensIn` of the coin for its currency, in its pool.
     function sell(address coin, uint256 tokensIn, uint256 minQuoteOut, address recipient)
         external
         nonReentrant
@@ -322,210 +339,84 @@ contract Launchpad is Ownable, ReentrancyGuard {
         return _sell(coin, tokensIn, minQuoteOut, recipient, trader);
     }
 
-    /// @notice Pays out the fees `msg.sender` has earned in `currency` (creator fees, or the treasury's share).
-    function claimFees(address currency) external nonReentrant returns (uint256 amount) {
-        amount = feesOwed[msg.sender][currency];
-        if (amount == 0) revert ZeroAmount();
-        feesOwed[msg.sender][currency] = 0;
-        totalFeesOwed[currency] -= amount;
-        currency.safeTransfer(msg.sender, amount);
-        emit FeesClaimed(msg.sender, currency, amount);
+    /// @notice Pays out the fees the coin's pool has earned: half to its creator, half to the
+    /// protocol, in the coin and in its currency. Anyone may call it.
+    function collectFees(address coin) external nonReentrant returns (uint256 coinFees, uint256 quoteFees) {
+        Market storage m = _market(coin);
+        (coinFees, quoteFees) = positions.collect(
+            INonfungiblePositionManager.CollectParams({
+                tokenId: m.tokenId,
+                recipient: address(this),
+                amount0Max: type(uint128).max,
+                amount1Max: type(uint128).max
+            })
+        );
+        uint256 creatorCoin = coinFees / 2;
+        uint256 creatorQuote = quoteFees / 2;
+        if (creatorCoin != 0) coin.safeTransfer(m.creator, creatorCoin);
+        if (creatorQuote != 0) m.currency.safeTransfer(m.creator, creatorQuote);
+        if (coinFees - creatorCoin != 0) coin.safeTransfer(treasury, coinFees - creatorCoin);
+        if (quoteFees - creatorQuote != 0) m.currency.safeTransfer(treasury, quoteFees - creatorQuote);
+        m.creatorFees += creatorQuote;
+        m.protocolFees += quoteFees - creatorQuote;
+        emit FeesCollected(coin, m.creator, creatorCoin, creatorQuote, coinFees - creatorCoin, quoteFees - creatorQuote);
+    }
+
+    /// @dev The pool asks for the input of the swap in flight.
+    function uniswapV3SwapCallback(int256 amount0Delta, int256 amount1Delta, bytes calldata data) external {
+        if (msg.sender != _swapping || _swapping == address(0)) revert NotPool();
+        (address coin, address currency) = abi.decode(data, (address, address));
+        if (amount0Delta > 0) coin.safeTransfer(msg.sender, uint256(amount0Delta));
+        if (amount1Delta > 0) currency.safeTransfer(msg.sender, uint256(amount1Delta));
     }
 
     /*//////////////////////////////////////////////////////////////
                                 INTERNALS
     //////////////////////////////////////////////////////////////*/
 
-    function _sell(address coin, uint256 tokensIn, uint256 minQuoteOut, address recipient, address trader)
-        internal
-        returns (uint256)
-    {
-        if (tokensIn == 0) revert ZeroAmount();
-        Market storage m = _market(coin);
-        if (m.graduated) return _poolSell(coin, m, tokensIn, minQuoteOut, recipient, trader);
-        SellQuote memory q = _quoteSell(m, tokensIn);
-        if (q.quoteOut == 0 || q.quoteOut < minQuoteOut) revert Slippage();
-
-        coin.safeTransferFrom(msg.sender, address(this), tokensIn);
-
-        address currency = m.currency;
-        m.reserveToken += tokensIn;
-        m.reserveQuote -= q.gross;
-        m.realQuote -= q.gross;
-        m.curveLeft += tokensIn;
-        m.volume += q.gross;
-        backing[currency] -= q.gross;
-        _accrue(m.creator, currency, q.protocolFee, q.creatorFee, 0);
-
-        currency.safeTransfer(recipient, q.quoteOut);
-        emit Trade(
-            coin,
-            trader,
-            false,
-            q.quoteOut,
-            tokensIn,
-            q.protocolFee,
-            q.creatorFee,
-            0,
-            m.reserveToken,
-            m.reserveQuote,
-            block.timestamp
-        );
-        return q.quoteOut;
-    }
-
-    function _applyBuy(address coin, Market storage m, BuyQuote memory q, address recipient, address trader) internal {
-        address currency = m.currency;
-        m.reserveToken -= q.tokensOut;
-        m.reserveQuote += q.net;
-        m.realQuote += q.net;
-        m.curveLeft -= q.tokensOut;
-        m.volume += q.quoteUsed;
-        backing[currency] += q.net;
-        _accrue(m.creator, currency, q.protocolFee, q.creatorFee, q.snipeTax);
-
-        coin.safeTransfer(recipient, q.tokensOut);
-        emit Trade(
-            coin,
-            trader,
-            true,
-            q.quoteUsed,
-            q.tokensOut,
-            q.protocolFee,
-            q.creatorFee,
-            q.snipeTax,
-            m.reserveToken,
-            m.reserveQuote,
-            block.timestamp
-        );
-
-        if (m.curveLeft == 0) _graduate(coin, m);
-    }
-
-    /// @dev The curve sold out: its backing and the 200M held back open the Uniswap
-    /// pool at the curve's last price, and the liquidity tokens are burned.
-    function _graduate(address coin, Market storage m) internal {
-        address currency = m.currency;
-        address pair = m.pair;
-        uint256 quote = m.realQuote;
-        m.graduated = true;
-        m.realQuote = 0;
-        backing[currency] -= quote;
-        Coin(coin).graduate();
-        // Currency anyone sent to the empty pair goes to the treasury rather than
-        // into the opening price.
-        IUniswapV2Pair(pair).skim(treasury);
-        coin.safeTransfer(pair, POOL_SUPPLY);
-        currency.safeTransfer(pair, quote);
-        uint256 liquidity = IUniswapV2Pair(pair).mint(DEAD);
-        (m.reserveToken, m.reserveQuote) = _pairReserves(coin, m);
-        emit Graduated(coin, pair, POOL_SUPPLY, quote, liquidity);
-    }
-
-    /// @dev A buy once the market has graduated: the currency goes straight into
-    /// the pair and the coins come straight out of it, at the pool's price.
-    function _poolBuy(address coin, Market storage m, uint256 quoteIn, uint256 minTokensOut, address recipient)
+    function _buy(address coin, Market storage m, uint256 quoteIn, uint256 minTokensOut, address recipient, address trader)
         internal
         returns (uint256 tokensOut)
     {
-        (uint256 rToken, uint256 rQuote) = _pairReserves(coin, m);
-        tokensOut = _amountOut(quoteIn, rQuote, rToken);
+        m.currency.safeTransferFrom(msg.sender, address(this), quoteIn);
+        (int256 amount0,) = _swap(coin, m, false, quoteIn, recipient);
+        tokensOut = uint256(-amount0);
         if (tokensOut == 0 || tokensOut < minTokensOut) revert Slippage();
-        m.currency.safeTransferFrom(msg.sender, m.pair, quoteIn);
-        _pairSwap(coin, m, tokensOut, 0, recipient);
         m.volume += quoteIn;
-        (rToken, rQuote) = _pairReserves(coin, m);
-        emit Trade(coin, recipient, true, quoteIn, tokensOut, 0, 0, 0, rToken, rQuote, block.timestamp);
+        (uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(m.pool).slot0();
+        emit Trade(coin, trader, true, quoteIn, tokensOut, quoteIn * POOL_FEE / 1_000_000, sqrtPriceX96, block.timestamp);
     }
 
-    function _poolSell(
-        address coin,
-        Market storage m,
-        uint256 tokensIn,
-        uint256 minQuoteOut,
-        address recipient,
-        address trader
-    ) internal returns (uint256 quoteOut) {
-        (uint256 rToken, uint256 rQuote) = _pairReserves(coin, m);
-        quoteOut = _amountOut(tokensIn, rToken, rQuote);
-        if (quoteOut == 0 || quoteOut < minQuoteOut) revert Slippage();
-        coin.safeTransferFrom(msg.sender, m.pair, tokensIn);
-        _pairSwap(coin, m, 0, quoteOut, recipient);
-        m.volume += quoteOut;
-        (rToken, rQuote) = _pairReserves(coin, m);
-        emit Trade(coin, trader, false, quoteOut, tokensIn, 0, 0, 0, rToken, rQuote, block.timestamp);
-        return quoteOut;
-    }
-
-    /// @dev Uniswap V2's getAmountOut: 0.3% of the input stays in the pool.
-    function _amountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut) internal pure returns (uint256) {
-        if (reserveIn == 0 || reserveOut == 0) return 0;
-        uint256 inWithFee = amountIn * 997;
-        return inWithFee * reserveOut / (reserveIn * 1000 + inWithFee);
-    }
-
-    function _pairSwap(address coin, Market storage m, uint256 coinsOut, uint256 quoteOut, address to) internal {
-        if (coin < m.currency) IUniswapV2Pair(m.pair).swap(coinsOut, quoteOut, to, "");
-        else IUniswapV2Pair(m.pair).swap(quoteOut, coinsOut, to, "");
-    }
-
-    /// @dev The pair's reserves as (coin, currency).
-    function _pairReserves(address coin, Market storage m) internal view returns (uint256 rToken, uint256 rQuote) {
-        (uint112 r0, uint112 r1,) = IUniswapV2Pair(m.pair).getReserves();
-        (rToken, rQuote) = coin < m.currency ? (uint256(r0), uint256(r1)) : (uint256(r1), uint256(r0));
-    }
-
-    function _accrue(address creator, address currency, uint256 protocolFee, uint256 creatorFee, uint256 snipeTax)
+    function _sell(address coin, uint256 tokensIn, uint256 minQuoteOut, address recipient, address trader)
         internal
+        returns (uint256 quoteOut)
     {
-        uint256 toTreasury = protocolFee + snipeTax;
-        if (toTreasury != 0) feesOwed[treasury][currency] += toTreasury;
-        if (creatorFee != 0) feesOwed[creator][currency] += creatorFee;
-        totalFeesOwed[currency] += toTreasury + creatorFee;
+        if (tokensIn == 0) revert ZeroAmount();
+        Market storage m = _market(coin);
+        coin.safeTransferFrom(msg.sender, address(this), tokensIn);
+        (, int256 amount1) = _swap(coin, m, true, tokensIn, recipient);
+        quoteOut = uint256(-amount1);
+        if (quoteOut == 0 || quoteOut < minQuoteOut) revert Slippage();
+        m.volume += quoteOut;
+        (uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(m.pool).slot0();
+        // the fee came off the coins going in; in currency terms it is 1% of the gross
+        emit Trade(coin, trader, false, quoteOut, tokensIn, quoteOut * POOL_FEE / (1_000_000 - POOL_FEE), sqrtPriceX96, block.timestamp);
     }
 
-    function _quoteBuy(Market storage m, uint256 quoteIn, bool exempt) internal view returns (BuyQuote memory q) {
-        uint256 snipe = exempt ? 0 : _snipeBps(m.createdAt);
-        uint256 totalBps = uint256(protocolFeeBps) + creatorFeeBps + snipe;
-
-        q.quoteUsed = quoteIn;
-        q.net = quoteIn * (BPS - totalBps) / BPS;
-        q.tokensOut = FixedPointMathLib.fullMulDiv(m.reserveToken, q.net, m.reserveQuote + q.net);
-
-        if (q.tokensOut >= m.curveLeft) {
-            // Take exactly what is left and charge only for that.
-            q.tokensOut = m.curveLeft;
-            q.net = FixedPointMathLib.fullMulDivUp(m.reserveQuote, q.tokensOut, m.reserveToken - q.tokensOut);
-            q.quoteUsed = FixedPointMathLib.fullMulDivUp(q.net, BPS, BPS - totalBps);
-            if (q.quoteUsed > quoteIn) q.quoteUsed = quoteIn;
-            q.graduates = true;
-        }
-
-        uint256 fees = q.quoteUsed - q.net;
-        if (totalBps != 0 && fees != 0) {
-            q.snipeTax = fees * snipe / totalBps;
-            q.creatorFee = fees * creatorFeeBps / totalBps;
-            q.protocolFee = fees - q.snipeTax - q.creatorFee;
-        }
-    }
-
-    function _quoteSell(Market storage m, uint256 tokensIn) internal view returns (SellQuote memory q) {
-        q.gross = FixedPointMathLib.fullMulDiv(m.reserveQuote, tokensIn, m.reserveToken + tokensIn);
-        if (q.gross > m.realQuote) q.gross = m.realQuote;
-        uint256 feeBps = uint256(protocolFeeBps) + creatorFeeBps;
-        uint256 fees = q.gross * feeBps / BPS;
-        if (feeBps != 0) {
-            q.creatorFee = fees * creatorFeeBps / feeBps;
-            q.protocolFee = fees - q.creatorFee;
-        }
-        q.quoteOut = q.gross - fees;
-    }
-
-    function _snipeBps(uint64 createdAt) internal view returns (uint256) {
-        uint256 elapsed = block.timestamp - createdAt;
-        uint256 window = snipeWindow;
-        if (elapsed >= window) return 0;
-        return uint256(snipeTaxBps) * (window - elapsed) / window;
+    /// @dev An exact-input swap on the coin's pool, the input already held by the pad.
+    function _swap(address coin, Market storage m, bool zeroForOne, uint256 amountIn, address recipient)
+        internal
+        returns (int256 amount0, int256 amount1)
+    {
+        _swapping = m.pool;
+        (amount0, amount1) = IUniswapV3Pool(m.pool).swap(
+            recipient,
+            zeroForOne,
+            int256(amountIn),
+            zeroForOne ? MIN_SQRT_RATIO + 1 : MAX_SQRT_RATIO - 1,
+            abi.encode(coin, m.currency)
+        );
+        _swapping = address(0);
     }
 
     function _market(address coin) internal view returns (Market storage m) {
@@ -553,59 +444,61 @@ contract Launchpad is Ownable, ReentrancyGuard {
                                  VIEWS
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice The virtual quote reserve a coin paired with `currency` would get if launched now.
-    function virtualQuoteFor(address currency) public view returns (uint256) {
-        uint256 raise = desk.fromUsd(currency, targetRaiseUsd);
-        return raise * POOL_SUPPLY / (CURVE_SUPPLY - POOL_SUPPLY);
+    /// @notice What a coin's whole supply is worth at launch, in `currency`, if launched now.
+    function startQuoteFor(address currency) public view returns (uint256) {
+        return desk.fromUsd(currency, startMcapUsd);
     }
 
-    /// @notice What a full curve raises in `currency` if a coin is launched now.
-    function curveRaiseFor(address currency) external view returns (uint256) {
-        return virtualQuoteFor(currency) * (CURVE_SUPPLY - POOL_SUPPLY) / POOL_SUPPLY;
+    /// @notice The pool as a constant-product curve: (virtual coin reserve, virtual currency reserve),
+    /// whose ratio is the price, from the pool's price and its liquidity in range.
+    function reserves(address coin) public view returns (uint256 reserveToken, uint256 reserveQuote) {
+        (reserveToken, reserveQuote,,) = _reservesOf(_market(coin));
     }
 
-    /// @dev Once graduated, `fees` is the pool's 0.3%, which stays in the pool.
+    /// @dev The pool's price and liquidity where trading happens: its own once the price is inside
+    /// the pad's position, the position's lower edge before the first buy takes it there.
+    function _reservesOf(Market storage m)
+        internal
+        view
+        returns (uint256 reserveToken, uint256 reserveQuote, uint160 sqrtPriceX96, uint128 liquidity)
+    {
+        IUniswapV3Pool pool = IUniswapV3Pool(m.pool);
+        (sqrtPriceX96,,,,,,) = pool.slot0();
+        liquidity = pool.liquidity();
+        if (sqrtPriceX96 < m.sqrtLowerX96 || liquidity == 0) {
+            sqrtPriceX96 = m.sqrtLowerX96;
+            liquidity = m.liquidity;
+        }
+        reserveToken = FixedPointMathLib.fullMulDiv(liquidity, Q96, sqrtPriceX96);
+        reserveQuote = FixedPointMathLib.fullMulDiv(liquidity, sqrtPriceX96, Q96);
+    }
+
+    /// @notice What `quoteIn` buys right now, and the fee inside it (the pool's 1%). Exact while
+    /// the pad's position is the only liquidity in range, which it is unless someone adds more.
     function quoteBuy(address coin, uint256 quoteIn)
         external
         view
         returns (uint256 tokensOut, uint256 quoteUsed, uint256 fees, uint256 snipeTax)
     {
-        Market storage m = _market(coin);
-        if (m.graduated) {
-            (uint256 rToken, uint256 rQuote) = _pairReserves(coin, m);
-            return (_amountOut(quoteIn, rQuote, rToken), quoteIn, quoteIn * 3 / 1000, 0);
-        }
-        BuyQuote memory q = _quoteBuy(m, quoteIn, false);
-        return (q.tokensOut, q.quoteUsed, q.protocolFee + q.creatorFee, q.snipeTax);
+        (uint256 rToken, uint256 rQuote) = reserves(coin);
+        uint256 net = quoteIn * (1_000_000 - POOL_FEE) / 1_000_000;
+        tokensOut = FixedPointMathLib.fullMulDiv(rToken, net, rQuote + net);
+        return (tokensOut, quoteIn, quoteIn - net, 0);
     }
 
     function quoteSell(address coin, uint256 tokensIn) external view returns (uint256 quoteOut, uint256 fees) {
-        Market storage m = _market(coin);
-        if (m.graduated) {
-            (uint256 rToken, uint256 rQuote) = _pairReserves(coin, m);
-            quoteOut = _amountOut(tokensIn, rToken, rQuote);
-            return (quoteOut, quoteOut * 3 / 997);
-        }
-        SellQuote memory q = _quoteSell(m, tokensIn);
-        return (q.quoteOut, q.protocolFee + q.creatorFee);
+        (uint256 rToken, uint256 rQuote) = reserves(coin);
+        uint256 net = tokensIn * (1_000_000 - POOL_FEE) / 1_000_000;
+        quoteOut = FixedPointMathLib.fullMulDiv(rQuote, net, rToken + net);
+        uint256 gross = FixedPointMathLib.fullMulDiv(rQuote, tokensIn, rToken + tokensIn);
+        fees = gross > quoteOut ? gross - quoteOut : 0;
     }
 
-    /// @notice The first buy's output for a coin not launched yet (no snipe tax, current params).
+    /// @notice The first buy's output for a coin not launched yet, at the launch price.
     function quoteLaunchBuy(address currency, uint256 quoteIn) external view returns (uint256 tokensOut) {
-        Market memory m;
-        m.virtualQuote = virtualQuoteFor(currency);
-        m.reserveToken = VIRTUAL_TOKENS;
-        m.reserveQuote = m.virtualQuote;
-        m.curveLeft = CURVE_SUPPLY;
-        uint256 totalBps = uint256(protocolFeeBps) + creatorFeeBps;
-        uint256 net = quoteIn * (BPS - totalBps) / BPS;
-        tokensOut = FixedPointMathLib.fullMulDiv(m.reserveToken, net, m.reserveQuote + net);
-        if (tokensOut > CURVE_SUPPLY) tokensOut = CURVE_SUPPLY;
-    }
-
-    function snipeTaxNow(address coin) external view returns (uint256) {
-        Market storage m = _market(coin);
-        return m.graduated ? 0 : _snipeBps(m.createdAt);
+        uint256 startQuote = startQuoteFor(currency);
+        uint256 net = quoteIn * (1_000_000 - POOL_FEE) / 1_000_000;
+        tokensOut = FixedPointMathLib.fullMulDiv(TOTAL_SUPPLY, net, startQuote + net);
     }
 
     function isCoin(address coin) external view returns (bool) {
@@ -616,76 +509,60 @@ contract Launchpad is Ownable, ReentrancyGuard {
         return _market(coin).currency;
     }
 
-    /// @notice The coin's Uniswap V2 pair with its currency.
-    function pairOf(address coin) external view returns (address) {
-        return _market(coin).pair;
+    /// @notice The coin's Uniswap V3 pool with its currency.
+    function poolOf(address coin) external view returns (address) {
+        return _market(coin).pool;
     }
 
-    /// @notice A market as it stands; once graduated, the reserves and the currency
-    /// held are the pool's, live.
-    function getMarket(address coin) public view returns (Market memory m) {
-        Market storage s = _market(coin);
-        m = s;
-        if (s.graduated) {
-            (m.reserveToken, m.reserveQuote) = _pairReserves(coin, s);
-            m.realQuote = m.reserveQuote;
-        }
+    function getMarket(address coin) external view returns (Market memory) {
+        return _market(coin);
     }
 
     function coinsCount() external view returns (uint256) {
         return allCoins.length;
     }
 
-    /// @notice A page of markets with their names and symbols, in launch order.
+    /// @notice A page of markets with their names, symbols and live pool numbers, in launch order.
     function getCoins(uint256 offset, uint256 limit) external view returns (CoinView[] memory page) {
         uint256 total = allCoins.length;
         if (offset >= total) return page;
         uint256 end = offset + limit > total ? total : offset + limit;
         page = new CoinView[](end - offset);
         for (uint256 i = offset; i < end; ++i) {
-            address coin = allCoins[i];
-            Market memory m = getMarket(coin);
-            page[i - offset] = CoinView({
-                coin: coin,
-                name: Coin(coin).name(),
-                symbol: Coin(coin).symbol(),
-                creator: m.creator,
-                currency: m.currency,
-                createdAt: m.createdAt,
-                graduated: m.graduated,
-                virtualQuote: m.virtualQuote,
-                reserveToken: m.reserveToken,
-                reserveQuote: m.reserveQuote,
-                realQuote: m.realQuote,
-                curveLeft: m.curveLeft,
-                volume: m.volume,
-                pair: m.pair
-            });
+            page[i - offset] = _view(allCoins[i]);
         }
+    }
+
+    function _view(address coin) internal view returns (CoinView memory v) {
+        Market storage m = _markets[coin];
+        (uint256 rToken, uint256 rQuote, uint160 sqrtPriceX96, uint128 liquidity) = _reservesOf(m);
+        v.coin = coin;
+        v.name = Coin(coin).name();
+        v.symbol = Coin(coin).symbol();
+        v.creator = m.creator;
+        v.currency = m.currency;
+        v.createdAt = m.createdAt;
+        v.pool = m.pool;
+        v.tokenId = m.tokenId;
+        v.startQuote = m.startQuote;
+        v.reserveToken = rToken;
+        v.reserveQuote = rQuote;
+        v.realQuote = Coin(m.currency).balanceOf(m.pool);
+        v.sqrtPriceX96 = sqrtPriceX96;
+        v.liquidity = liquidity;
+        v.volume = m.volume;
+        v.creatorFees = m.creatorFees;
+        v.protocolFees = m.protocolFees;
     }
 
     /*//////////////////////////////////////////////////////////////
                                  ADMIN
     //////////////////////////////////////////////////////////////*/
 
-    function setFees(uint16 protocolFeeBps_, uint16 creatorFeeBps_) external onlyOwner {
-        if (uint256(protocolFeeBps_) + creatorFeeBps_ > MAX_TRADE_FEE_BPS) revert FeeTooHigh();
-        protocolFeeBps = protocolFeeBps_;
-        creatorFeeBps = creatorFeeBps_;
-        emit FeesSet(protocolFeeBps_, creatorFeeBps_);
-    }
-
-    function setSnipe(uint16 snipeTaxBps_, uint32 snipeWindow_) external onlyOwner {
-        if (snipeTaxBps_ > MAX_SNIPE_TAX_BPS || snipeWindow_ > MAX_SNIPE_WINDOW) revert BadSnipe();
-        snipeTaxBps = snipeTaxBps_;
-        snipeWindow = snipeWindow_;
-        emit SnipeSet(snipeTaxBps_, snipeWindow_);
-    }
-
-    function setTargetRaiseUsd(uint256 targetRaiseUsd_) external onlyOwner {
-        if (targetRaiseUsd_ == 0) revert BadTarget();
-        targetRaiseUsd = targetRaiseUsd_;
-        emit TargetRaiseSet(targetRaiseUsd_);
+    function setStartMcapUsd(uint256 startMcapUsd_) external onlyOwner {
+        if (startMcapUsd_ == 0) revert BadStart();
+        startMcapUsd = startMcapUsd_;
+        emit StartMcapSet(startMcapUsd_);
     }
 
     function setTreasury(address treasury_) external onlyOwner {

@@ -1,4 +1,5 @@
 import type { MarketState } from '../lib/math';
+import type { SwapQuote } from '../lib/route';
 
 export type Address = `0x${string}`;
 
@@ -39,8 +40,14 @@ export interface Coin extends MarketState {
   creator: Address;
   currency: Address;
   meta: CoinMeta;
-  /** Its Uniswap V2 pair with the currency (live mode). */
-  pair?: Address;
+  /** Its Uniswap V3 pool with the currency, and the pad's position in it (live mode). */
+  pool?: Address;
+  tokenId?: bigint;
+  sqrtPriceX96?: bigint;
+  liquidity?: bigint;
+  /** Fees paid out so far, in the currency. */
+  creatorFees: bigint;
+  protocolFees: bigint;
 }
 
 export interface Trade {
@@ -51,12 +58,15 @@ export interface Trade {
   /** Currency paid (buy, gross) or received (sell, net). */
   quoteAmount: bigint;
   tokenAmount: bigint;
+  /** The pool fee, in currency terms. */
   fees: bigint;
-  snipeTax: bigint;
+  /** Virtual reserves right after the fill. */
   reserveToken: bigint;
   reserveQuote: bigint;
   timestamp: number;
   txHash?: string;
+  /** Made through the pad, or straight on the pool from anywhere else (a terminal, Uniswap). */
+  via?: 'pad' | 'pool';
 }
 
 export interface RateMove {
@@ -67,11 +77,10 @@ export interface RateMove {
 }
 
 export interface Params {
-  targetRaiseUsd: bigint;
-  protocolFeeBps: number;
-  creatorFeeBps: number;
-  snipeTaxBps: number;
-  snipeWindow: number;
+  /** What a coin's whole supply is worth the moment it launches, USD with 18 decimals. */
+  startMcapUsd: bigint;
+  /** The pools' fee in hundredths of a bip (10000 = 1%). */
+  poolFeePips: number;
   deskFeeBps: number;
   faucetUsd: bigint;
   faucetCooldown: number;
@@ -109,23 +118,32 @@ export interface CreateCoinInput {
   minTokensOut: bigint;
 }
 
+/** Fees a coin's pool has earned and not paid out yet, in the coin and in its currency. */
+export interface PendingFees {
+  coin: bigint;
+  quote: bigint;
+}
+
 export interface Backend {
   kind: 'live' | 'playground';
   chainId?: number;
   /** Addresses the Verify/Proof pages and links need. */
-  addresses?: { launchpad: Address; desk: Address; router: Address; coinImplementation: Address };
+  addresses?: { launchpad: Address; desk: Address; router: Address; coinImplementation: Address; positionManager?: Address };
   load(): Promise<Snapshot>;
   subscribe?(onChange: () => void): () => void;
   balances(account: Address, tokens: Address[]): Promise<Record<string, bigint>>;
   allowances(account: Address, spender: 'launchpad' | 'router' | 'desk', tokens: Address[]): Promise<Record<string, bigint>>;
-  feesOwed(account: Address, currencies: Address[]): Promise<Record<string, bigint>>;
+  /** What each coin's pool has earned since its fees were last collected (half is the creator's). */
+  pendingFees(coins: Address[]): Promise<Record<string, PendingFees>>;
   faucetReadyAt(account: Address, token: Address): Promise<number>;
   faucet(account: Address, token: Address, o?: TxOptions): Promise<TxResult>;
   createCoin(account: Address, input: CreateCoinInput, o?: TxOptions): Promise<TxResult & { coin?: Address }>;
   buy(account: Address, coin: Address, quoteIn: bigint, minOut: bigint, o?: TxOptions): Promise<TxResult>;
   sell(account: Address, coin: Address, tokensIn: bigint, minOut: bigint, o?: TxOptions): Promise<TxResult>;
+  /** A route the desk can pay, in one transaction through the router. */
   swap(account: Address, tokenIn: Address, tokenOut: Address, amountIn: bigint, minOut: bigint, o?: TxOptions): Promise<TxResult>;
-  claimFees(account: Address, currency: Address, o?: TxOptions): Promise<TxResult>;
+  /** Pays out a coin's fees: half to its creator, half to the protocol. Anyone may. */
+  collectFees(account: Address, coin: Address, o?: TxOptions): Promise<TxResult>;
   /** Live only: who owns the desk (may list tokens). */
   deskOwner?(): Promise<Address>;
   /** Live only, owner: list a token that trades on the chain under a currency code, at `rate` units per USD. */
@@ -134,8 +152,9 @@ export interface Backend {
   unwrap?(account: Address, token: Address, amount: bigint, o?: TxOptions): Promise<TxResult>;
   /** Live only: the best Uniswap price on this chain between two real tokens (null: no pool). */
   quoteExternal?(tokenIn: Address, tokenOut: Address, amountIn: bigint): Promise<ExternalQuote | null>;
-  /** Live only: the swap `quoteExternal` priced. */
-  swapExternal?(account: Address, quote: ExternalQuote, minOut: bigint, o?: TxOptions): Promise<TxResult>;
+  /** Live only: a route with a Uniswap leg in it (sell, Uniswap, buy), one transaction per leg,
+   *  each leg allowed `slipBps` below its quote. */
+  swapRoute?(account: Address, quote: SwapQuote, slipBps: number, o?: TxOptions): Promise<TxResult>;
 }
 
 /** A swap between two real tokens through a Uniswap pool on the chain, priced by the pool. */

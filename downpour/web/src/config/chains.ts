@@ -23,13 +23,22 @@ interface ChainMeta {
   rpc: string;
   explorer: string;
   faucet?: string;
+  /** Where to read how ETH gets onto the chain (mainnets). */
+  bridge?: string;
   testnet: boolean;
 }
 
 /** Chains the site knows how to talk to. A chain becomes "live" once
  *  scripts/deploy.mjs has written a deployment for it. */
 export const KNOWN_CHAINS: ChainMeta[] = [
-  { id: 4663, name: 'Robinhood Chain', rpc: 'https://rpc.mainnet.chain.robinhood.com', explorer: 'https://robinhoodchain.blockscout.com', testnet: false },
+  {
+    id: 4663,
+    name: 'Robinhood Chain',
+    rpc: 'https://rpc.mainnet.chain.robinhood.com',
+    explorer: 'https://robinhoodchain.blockscout.com',
+    bridge: 'https://docs.robinhood.com/chain/bridging',
+    testnet: false,
+  },
   { id: 46630, name: 'Robinhood Chain Testnet', rpc: 'https://rpc.testnet.chain.robinhood.com', explorer: 'https://explorer.testnet.chain.robinhood.com', faucet: 'https://faucet.testnet.chain.robinhood.com', testnet: true },
   { id: 8453, name: 'Base', rpc: 'https://mainnet.base.org', explorer: 'https://basescan.org', testnet: false },
   { id: 84532, name: 'Base Sepolia', rpc: 'https://sepolia.base.org', explorer: 'https://sepolia.basescan.org', faucet: 'https://www.alchemy.com/faucets/base-sepolia', testnet: true },
@@ -67,6 +76,7 @@ export function chainMeta(id: number): ChainMeta {
     rpc: dep?.rpcUrl || known?.rpc || '',
     explorer: dep?.explorer || known?.explorer || '',
     faucet: known?.faucet,
+    bridge: known?.bridge,
     testnet: known?.testnet ?? true,
   };
 }

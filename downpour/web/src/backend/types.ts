@@ -14,6 +14,10 @@ export interface Currency {
   rate: bigint;
   updatedAt: number;
   mintable: boolean;
+  /** The token's own symbol when it differs from the code (USDG listed as USD). */
+  tokenSymbol?: string;
+  /** What the desk holds of a real token, the most it can convert into; test currencies are minted (undefined). */
+  reserve?: bigint;
   color: string;
 }
 

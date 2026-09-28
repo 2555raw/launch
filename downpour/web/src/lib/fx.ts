@@ -34,6 +34,16 @@ async function feedB(): Promise<Record<string, number>> {
   return out;
 }
 
+/** Today's units per USD from the feed that also quotes crypto (ETH, BTC…); empty when
+ *  it is unreachable. One feed only, so it is a starting point, not what the keeper posts. */
+export async function feedRates(): Promise<Record<string, number>> {
+  try {
+    return await feedB();
+  } catch {
+    return {};
+  }
+}
+
 /** Rates (units per USD) that both feeds agree on, or null if a feed is unreachable. */
 export async function agreedRates(): Promise<{ rates: Record<string, number>; agreed: number; held: number } | null> {
   try {

@@ -25,12 +25,15 @@
  *   EXPLORER           block explorer base URL             (none)
  *   CHAIN_NAME         display name                        ("Chain <id>")
  *   ONLY               comma list of currency codes to list, e.g. USD,EUR,JPY
+ *   REAL_TOKENS        JSON list of real tokens to list instead of test currencies,
+ *                      [{"code":"USD","symbol":"USDG","token":"0x…"}] (shared/real-tokens.json by chain)
  *   UNISWAP_V2_FACTORY a Uniswap V2 factory to use         (the chain's own, or a new copy) */
 import { parseUnits } from 'viem';
 import { readFileSync } from 'node:fs';
 import { args, connect, currencies, deployContract, send, toWad, writeDeployment, artifacts } from './lib/common.mjs';
 
 const uniswap = JSON.parse(readFileSync(new URL('../shared/uniswap.json', import.meta.url), 'utf8'));
+const realTokens = JSON.parse(readFileSync(new URL('../shared/real-tokens.json', import.meta.url), 'utf8'));
 
 const opts = args();
 const env = (k, d) => opts[k.toLowerCase()] ?? process.env[k] ?? d;
@@ -46,11 +49,21 @@ const faucetCooldown = Number(env('FAUCET_COOLDOWN', local ? '0' : '3600'));
 const desk = await deployContract(ctx, 'CurrencyDesk', [me, Number(env('DESK_FEE_BPS', '10')), faucetUsd, faucetCooldown]);
 console.log('  desk          ', desk.address);
 
+// Real tokens where the chain has them (shared/real-tokens.json, or REAL_TOKENS as the
+// same JSON list): listed as they are, at the reference rate; the keeper posts the next.
+const real = env('REAL_TOKENS', '') ? JSON.parse(env('REAL_TOKENS')) : (realTokens[ctx.chainId] ?? []);
+for (const t of real) {
+  const rate = t.code === 'USD' ? 1 : currencies.find((c) => c.code === t.code)?.rate;
+  if (!rate) throw new Error(`no reference rate for ${t.code}`);
+  await send(ctx, { address: desk.address, abi: artifacts.CurrencyDesk.abi, functionName: 'listCurrency', args: [t.token, t.code, toWad(rate)] });
+  console.log(`  listed         ${t.symbol ?? t.token} as ${t.code} at ${rate} per USD`);
+}
+
 const only = env('ONLY', '')
   .split(',')
   .map((s) => s.trim().toUpperCase())
   .filter(Boolean);
-const list = currencies.filter((c) => !only.length || only.includes(c.code));
+const list = real.length ? [] : currencies.filter((c) => !only.length || only.includes(c.code));
 const BATCH = 20;
 for (let i = 0; i < list.length; i += BATCH) {
   const batch = list.slice(i, i + BATCH).map((c) => ({
@@ -120,7 +133,7 @@ const record = {
   coinImplementation,
   deployBlock: Number(desk.block),
   deployedAt: new Date().toISOString(),
-  testCurrencies: true,
+  testCurrencies: real.length === 0,
 };
 const file = writeDeployment(record);
 console.log(`done. web config updated: ${file}`);

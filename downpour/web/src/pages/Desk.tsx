@@ -17,7 +17,11 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
   const pad = usePad();
   const wallet = useWallet();
   const snap = pad.snap!;
-  const [toCode, setToCode] = useState(cur.code === 'USD' ? 'EUR' : 'USD');
+  // into the dollar (or, from the dollar, the euro), else whatever else the desk lists
+  const [toCode, setToCode] = useState(() => {
+    const others = snap.currencies.filter((c) => c.code !== cur.code);
+    return (others.find((c) => c.code === (cur.code === 'USD' ? 'EUR' : 'USD')) ?? others[0])?.code ?? '';
+  });
   const [text, setText] = useState('');
   // the field as it is now, so a trade that goes through only clears what it sent
   const typed = useRef(text);
@@ -28,6 +32,8 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
   const to = snap.currencies.find((c) => c.code === toCode)!;
   const value = parseAmount(text, cur.decimals);
   const q = value && to ? quoteConvert(cur, to, value, snap.params.deskFeeBps) : null;
+  // a real token comes out of the desk's reserve; a test currency is minted on the spot
+  const short = !!(q && to && to.reserve !== undefined && q.amountOut > to.reserve);
   const bal = pad.balances[cur.token.toLowerCase()] ?? 0n;
   const canUse = !!wallet.address;
   const now = pad.now();
@@ -47,7 +53,10 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
         <div>
           <div className="num">{cur.code === 'USD' ? 'The reference currency' : `1 USD = ${compact(unitsPerUsd(cur), 6)} ${cur.code}`}</div>
           <div className="muted small">
-            Rate updated {ago(cur.updatedAt, now)} · {cur.mintable ? 'test currency, minted by the desk' : 'external token, paid from the desk reserve'}
+            Rate updated {ago(cur.updatedAt, now)} ·{' '}
+            {cur.mintable
+              ? 'test currency, minted by the desk'
+              : `${cur.tokenSymbol ?? 'external token'} on chain · the desk holds ${money(amount(cur.reserve ?? 0n, cur.decimals), cur.symbol)} to convert into`}
           </div>
         </div>
       </div>
@@ -80,7 +89,7 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
       </div>
       <button
         className="btn btn-primary btn-block"
-        disabled={!!canUse && (!value || value > bal)}
+        disabled={!!canUse && (!value || value > bal || short)}
         onClick={async () => {
           if (!canUse) return wallet.openModal();
           if (!value || !q) return;
@@ -91,7 +100,13 @@ function DeskModal({ cur, onClose }: { cur: Currency; onClose(): void }) {
           if (r && typed.current === sent) setText('');
         }}
       >
-        {!canUse ? 'Connect wallet' : value && value > bal ? `Not enough ${cur.code}` : `Convert to ${to?.code}`}
+        {!canUse
+          ? 'Connect wallet'
+          : value && value > bal
+            ? `Not enough ${cur.code}`
+            : short
+              ? `The desk holds ${to.reserve === 0n ? 'no' : 'too little'} ${to.code}`
+              : `Convert to ${to?.code}`}
       </button>
 
       {cur.mintable && (

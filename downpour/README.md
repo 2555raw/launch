@@ -95,10 +95,12 @@ days (`starmint:sky` in localStorage). Nothing moves under `prefers-reduced-moti
   0.3%.
 - **Currency desk**: the allow-list of currencies, each with a rate in units per
   USD, and a counter that converts between them (0.10% fee). On test networks it
-  mints test currencies (`tEUR`, `tJPY`…). On mainnet it lists tokens that trade
-  there (`listCurrency`: USDG as USD, WETH as ETH), since there are no euro or yen
-  tokens on Robinhood Chain to pair with, and the site can still show prices in any
-  of the currencies; with no reserve it converts nothing.
+  mints test currencies (`tEUR`, `tJPY`…). On Robinhood Chain mainnet it lists the
+  tokens that trade there (`shared/real-tokens.json`, via `listCurrency`: USDG as
+  USD, Uniswap's WETH as ETH), since there are no euro or yen tokens on the chain to
+  pair with; the site shows each beside its own symbol ("US Dollar (USDG)"), and the
+  desk converts between real tokens only out of what it holds, so the site refuses a
+  route the desk could not pay. The owner can list more tokens later.
 - **Keeper**: posts a new rate only when two independent FX feeds agree within
   0.5% and the rate has drifted at least 0.1%. The desk refuses any single post
   that moves a rate more than 20%.
@@ -152,12 +154,14 @@ BASE=http://localhost:8090 npm run e2e:playground
 
 From the browser, with no private key handed to anything: open `/deploy` on the site
 (not linked from the menu), connect the owner's wallet and press Deploy. It deploys the
-desk with every currency as a test currency, the launchpad and the router to Robinhood
-Chain's testnet (`?chain=<id>` for another test network the site knows, a local node
-included), makes the owner the keeper, and prints the deployment record to add to
-`web/src/generated/deployments.json`. That takes 13 transactions, each confirmed in the
-wallet; progress is saved and read back from the chain, so a closed tab or a rejected
-transaction carries on where it stopped.
+desk, the launchpad and the router to Robinhood Chain (mainnet: the desk lists the real
+tokens in `shared/real-tokens.json`, USDG as USD and WETH as ETH, 7 transactions) or,
+with `?chain=<id>`, to another network the site knows (its testnet or a local node, where
+every currency becomes a test currency, 14 transactions; `?tokens=USD:0x…,ETH:0x…`
+lists real tokens on a chain that has none on file). It makes the owner the keeper and
+prints the deployment record to add to `web/src/generated/deployments.json`. Each
+transaction is confirmed in the wallet; progress is saved and read back from the chain,
+so a closed tab or a rejected transaction carries on where it stopped.
 
 From a terminal:
 

@@ -22,6 +22,7 @@ const erc20 = [
   parseAbiItem('function approve(address spender, uint256 amount) returns (bool)'),
   parseAbiItem('function allowance(address owner, address spender) view returns (uint256)'),
   parseAbiItem('function balanceOf(address owner) view returns (uint256)'),
+  parseAbiItem('function symbol() view returns (string)'),
 ] as const;
 
 const EV_CREATED = parseAbiItem(
@@ -197,6 +198,23 @@ export class LiveBackend implements Backend {
         color: currencyColor(c.code),
       };
     });
+    // Real tokens: their own symbol beside the code (USDG listed as USD), and what the
+    // desk holds of them, which is the most it can convert into.
+    await Promise.all(
+      currencies
+        .filter((c) => !c.mintable)
+        .map(async (c) => {
+          const [sym, held] = await Promise.all([
+            this.read<string>(c.token, erc20, 'symbol').catch(() => c.code),
+            this.read<bigint>(c.token, erc20, 'balanceOf', [desk]).catch(() => 0n),
+          ]);
+          c.reserve = held;
+          if (sym && sym !== c.code) {
+            c.tokenSymbol = sym;
+            c.name = `${c.name} (${sym})`;
+          }
+        }),
+    );
 
     // The markets first, so the pools of graduated coins are known when the logs are read.
     const coins: Coin[] = [];

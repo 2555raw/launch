@@ -76,8 +76,14 @@ export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amoun
   if (!curOut && !coinOut) return { ...empty, error: 'Unknown token' };
 
   const steps: Step[] = [];
+  let reason = '';
   const desk = (from: Currency, to: Currency, amt: bigint) => {
     const q = quoteConvert(from, to, amt, p.deskFeeBps);
+    // a real token comes out of the desk's reserve; a test currency is minted
+    if (to.reserve !== undefined && q.amountOut > to.reserve) {
+      reason = to.reserve === 0n ? `The desk holds no ${to.code} to convert into` : `The desk holds too little ${to.code} for this`;
+      throw new Error(reason);
+    }
     steps.push({ kind: 'desk', from: from.code, to: to.code, amountIn: amt, amountOut: q.amountOut, fee: q.fee });
     return q.amountOut;
   };
@@ -145,6 +151,6 @@ export function quoteSwap(book: Book, tokenIn: Address, tokenOut: Address, amoun
     const impact = Math.max(0, ...steps.map((s) => s.impact ?? 0));
     return { amountOut, refund, refundToken, steps, impact };
   } catch {
-    return { ...empty, error: 'Could not price this route' };
+    return { ...empty, error: reason || 'Could not price this route' };
   }
 }

@@ -1,13 +1,39 @@
 /* Deploys the pad from the browser, signed by the connected wallet: the same steps as
- * scripts/deploy.mjs (desk, the test currencies in batches, Uniswap V2 where the chain
- * has none of its own, launchpad, router, keeper),
- * so nobody has to hand a private key to a script. Progress is saved after every step
- * and read back from the chain, so a closed tab carries on where it stopped. */
+ * scripts/deploy.mjs (desk, the currencies: the chain's real tokens where it has them,
+ * else the test currencies in batches; Uniswap V2 where the chain has none of its own;
+ * launchpad, router, keeper), so nobody has to hand a private key to a script. Progress
+ * is saved after every step and read back from the chain, so a closed tab carries on
+ * where it stopped. */
 import { createPublicClient, http, parseUnits, zeroAddress, type Address, type Hash, type PublicClient, type WalletClient } from 'viem';
 import currencies from '@shared/currencies.json';
+import realTokens from '@shared/real-tokens.json';
 import uniswap from '@shared/uniswap.json';
 import type { Deployment } from '../config/chains';
 import { chainMeta, viemChain } from '../config/chains';
+import { feedRates } from './fx';
+
+/** A token that already trades on the chain, listed on the desk under a currency code. */
+export interface RealToken {
+  code: string;
+  symbol: string;
+  token: Address;
+}
+
+/** The real tokens the desk lists on this chain (none: it mints test currencies). */
+export function realTokensOf(chainId: number): RealToken[] {
+  const list = (realTokens as Record<string, unknown>)[String(chainId)];
+  return Array.isArray(list) ? (list as RealToken[]) : [];
+}
+
+/** `USD:0x…,ETH:0x…` from the page's ?tokens=, for a chain whose tokens are not on file. */
+export function parseTokensParam(raw: string | null): RealToken[] {
+  if (!raw) return [];
+  return raw
+    .split(',')
+    .map((part) => part.trim().split(':'))
+    .filter(([code, token]) => code && /^0x[0-9a-fA-F]{40}$/.test(token ?? ''))
+    .map(([code, token]) => ({ code: code.toUpperCase(), symbol: code.toUpperCase(), token: token as Address }));
+}
 
 type Artifact = { abi: readonly unknown[]; bytecode: `0x${string}` };
 type Artifacts = Record<'CurrencyDesk' | 'Launchpad' | 'Router' | 'UniswapV2Factory', Artifact>;
@@ -81,16 +107,19 @@ export function publicClientFor(chainId: number): PublicClient {
 }
 
 /** How many transactions the whole deployment takes on a chain. */
-export function txCount(chainId: number): number {
-  return 1 + Math.ceil(currencies.length / BATCH) + (officialUniswap(chainId) ? 0 : 1) + 4;
+export function txCount(chainId: number, tokens: RealToken[] = realTokensOf(chainId)): number {
+  return 1 + (tokens.length || Math.ceil(currencies.length / BATCH)) + (officialUniswap(chainId) ? 0 : 1) + 4;
 }
 
 /** The steps and which are done, for the page to show. */
-export function steps(s: DeployState, listed: number, chainId: number): Step[] {
+export function steps(s: DeployState, listed: number, chainId: number, tokens: RealToken[] = realTokensOf(chainId)): Step[] {
   const official = officialUniswap(chainId);
+  const currencyStep = tokens.length
+    ? `${tokens.length} real tokens: ${tokens.map((t) => `${t.symbol} as ${t.code}`).join(', ')} (${tokens.length} transactions)`
+    : `${currencies.length} test currencies (${Math.ceil(currencies.length / BATCH)} transactions)`;
   return [
     { key: 'desk', label: 'Currency desk', done: !!s.desk },
-    { key: 'currencies', label: `${currencies.length} test currencies (${Math.ceil(currencies.length / BATCH)} transactions)`, done: listed >= currencies.length },
+    { key: 'currencies', label: currencyStep, done: listed >= (tokens.length || currencies.length) },
     {
       key: 'uniswap',
       label: official ? 'Uniswap V2, where coins graduate (Uniswap’s own, nothing to deploy)' : 'Uniswap V2, where coins graduate (a copy for this test network)',
@@ -109,13 +138,28 @@ export async function listedCount(pc: PublicClient, art: Artifacts, desk?: Addre
 }
 
 /** Runs every step that is not done yet. `onProgress` gets a line for each transaction. */
+/** Units per USD for a real token's currency: today's rate from the public feed when
+ *  the browser can reach it, else the reference rate on file (the keeper posts the
+ *  next one). USD itself is always 1. */
+async function startingRate(code: string, live: Record<string, number>): Promise<{ rate: number; from: string }> {
+  if (code === 'USD') return { rate: 1, from: 'the reference currency' };
+  const fresh = live[code];
+  if (Number.isFinite(fresh) && fresh > 0) return { rate: fresh, from: "today's rate" };
+  const ref = currencies.find((c) => c.code === code)?.rate;
+  if (!ref) throw new Error(`No rate for ${code}: it is not one of the currencies on file and the rate feed has none`);
+  return { rate: ref, from: 'the reference rate on file; the keeper posts the next one' };
+}
+
 export async function deployPad(opts: {
   chainId: number;
   wallet: WalletClient;
   owner: Address;
+  /** Real tokens to list instead of test currencies (the chain's own list by default). */
+  tokens?: RealToken[];
   onProgress: (line: string, s: DeployState, listed: number) => void;
 }): Promise<Deployment> {
   const { chainId, wallet, owner, onProgress } = opts;
+  const tokens = opts.tokens ?? realTokensOf(chainId);
   const art = (await import('@shared/artifacts.json')).default as unknown as Artifacts;
   const pc = publicClientFor(chainId);
   const chain = viemChain(chainId);
@@ -151,7 +195,17 @@ export async function deployPad(opts: {
     save(`Currency desk at ${d.address}`);
   }
   // the desk lists currencies in order, so what it already holds says where to go on
-  while (listed < currencies.length) {
+  if (tokens.length) {
+    const live = listed < tokens.length ? await feedRates() : {};
+    while (listed < tokens.length) {
+      const t = tokens[listed];
+      const r = await startingRate(t.code, live);
+      await call(s.desk, art.CurrencyDesk.abi, 'listCurrency', [t.token, t.code, toWad(r.rate)], `Listing ${t.symbol} as ${t.code}`);
+      listed = await listedCount(pc, art, s.desk);
+      save(`${t.symbol} listed as ${t.code} at ${r.rate} per USD (${r.from})`);
+    }
+  }
+  while (!tokens.length && listed < currencies.length) {
     const batch = currencies.slice(listed, listed + BATCH).map((c) => ({
       code: c.code,
       name: `Test ${c.name}`,
@@ -224,6 +278,6 @@ export async function deployPad(opts: {
     coinImplementation,
     deployBlock: s.deskBlock ?? 0,
     deployedAt: new Date().toISOString(),
-    testCurrencies: true,
+    testCurrencies: tokens.length === 0,
   };
 }

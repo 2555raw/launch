@@ -2,23 +2,40 @@ import { useEffect, useState } from 'react';
 import { formatEther, type Address } from 'viem';
 import { PageHead } from '../components/bits';
 import { chainMeta, DEPLOYMENTS, KNOWN_CHAINS, type Deployment } from '../config/chains';
-import { deployPad, forgetState, listedCount, loadState, publicClientFor, steps, txCount, type DeployState } from '../lib/deployPad';
+import {
+  deployPad,
+  forgetState,
+  listedCount,
+  loadState,
+  parseTokensParam,
+  publicClientFor,
+  realTokensOf,
+  steps,
+  txCount,
+  type DeployState,
+  type RealToken,
+} from '../lib/deployPad';
 import { useWallet } from '../wallet/WalletProvider';
 
-/** Robinhood Chain's testnet: the pad goes here first. Its mainnet (real money) follows
- *  once the contracts have been audited, with real stablecoins in place of test ones.
- *  ?chain=<id> picks another test network the site knows (a local node, for instance). */
-function targetChain() {
-  const asked = Number(new URLSearchParams(location.search).get('chain'));
-  return KNOWN_CHAINS.some((c) => c.id === asked && c.testnet) ? asked : 46630;
+/** Robinhood Chain, real money: the desk lists the dollar and ether tokens that trade
+ *  there (shared/real-tokens.json). ?chain=<id> picks another network the site knows
+ *  (its testnet, a local node); ?tokens=USD:0x…,ETH:0x… lists those tokens on a chain
+ *  that has none on file. */
+function target(): { chain: number; tokens: RealToken[] } {
+  const q = new URLSearchParams(location.search);
+  const asked = Number(q.get('chain'));
+  const chain = KNOWN_CHAINS.some((c) => c.id === asked) ? asked : 4663;
+  const given = parseTokensParam(q.get('tokens'));
+  return { chain, tokens: given.length ? given : realTokensOf(chain) };
 }
 
 /** Puts the pad on chain from the owner's own wallet: every transaction is signed there,
  *  and no key ever leaves it. Not linked from the menu. */
 export default function Deploy() {
-  const [TARGET] = useState(targetChain);
+  const [{ chain: TARGET, tokens: TOKENS }] = useState(target);
   const wallet = useWallet();
   const meta = chainMeta(TARGET);
+  const real = TOKENS.length > 0;
   const owner = wallet.address as Address | undefined;
   const [state, setState] = useState<DeployState>({});
   const [listed, setListed] = useState(0);
@@ -55,6 +72,7 @@ export default function Deploy() {
         chainId: TARGET,
         wallet: client,
         owner,
+        tokens: TOKENS,
         onProgress: (line, s, n) => {
           setState(s);
           setListed(n);
@@ -72,15 +90,18 @@ export default function Deploy() {
   };
 
   const json = record ? JSON.stringify({ [record.chainId]: record }, null, 2) : '';
-  const list = steps(state, listed, TARGET);
+  const list = steps(state, listed, TARGET, TOKENS);
   const started = list.some((s) => s.done);
+  const tokenNames = TOKENS.map((t) => `${t.symbol} as ${t.code}`).join(' and ');
 
   return (
     <div className="wrap narrow" style={{ maxWidth: 860 }}>
       <PageHead
         kicker="For the owner"
         title="Put Starmint on chain"
-        lead={`This deploys the currency desk, the launchpad and the router to ${meta.name} from your own wallet, and coins that sell out their curve graduate into Uniswap. You sign ${txCount(TARGET)} transactions there; no private key is shared with anyone.`}
+        lead={`This deploys the currency desk, the launchpad and the router to ${meta.name} from your own wallet, and coins that sell out their curve graduate into Uniswap. ${
+          real ? `The desk lists ${tokenNames}, the tokens that trade there. ` : ''
+        }You sign ${txCount(TARGET, TOKENS)} transactions there; no private key is shared with anyone.`}
       />
 
       {live && (
@@ -92,17 +113,37 @@ export default function Deploy() {
       <div className="panel" data-solid>
         <ol className="deploy-steps">
           <li>
-            <b>A wallet with some test ETH on {meta.name}.</b> Test ETH is free
-            {meta.faucet ? (
+            <b>A wallet with a little ETH on {meta.name}.</b>{' '}
+            {meta.testnet ? (
               <>
-                {' '}
-                from the{' '}
-                <a href={meta.faucet} target="_blank" rel="noopener noreferrer">
-                  faucet
-                </a>
+                Test ETH is free
+                {meta.faucet ? (
+                  <>
+                    {' '}
+                    from the{' '}
+                    <a href={meta.faucet} target="_blank" rel="noopener noreferrer">
+                      faucet
+                    </a>
+                  </>
+                ) : null}
+                ; a few hundredths of an ETH covers every transaction.
               </>
-            ) : null}
-            ; a few hundredths of an ETH covers every transaction.
+            ) : (
+              <>
+                A few hundredths of an ETH covers every transaction; it gets there over the chain’s bridge
+                {meta.bridge ? (
+                  <>
+                    {' '}
+                    (
+                    <a href={meta.bridge} target="_blank" rel="noopener noreferrer">
+                      how to bridge
+                    </a>
+                    )
+                  </>
+                ) : null}
+                , or straight from a wallet or exchange that sends to {meta.name}.
+              </>
+            )}
             {owner && balance !== undefined && (
               <span className={`hint ${balance === 0n ? 'warn' : ''}`} style={{ display: 'block', marginTop: 4 }}>
                 {owner.slice(0, 6)}…{owner.slice(-4)} holds {Number(formatEther(balance)).toFixed(4)} ETH on {meta.name}.
@@ -186,11 +227,19 @@ export default function Deploy() {
         </div>
       )}
 
-      <div className="callout" style={{ marginTop: 18 }}>
-        <b>Real money comes after an audit.</b> These contracts are tested (unit, fuzz and invariant tests), not audited. On {meta.name} the currencies are
-        test tokens anyone can take from the desk's faucet. Robinhood Chain itself, with real stablecoins in their place, is the next step once the code
-        has been audited.
-      </div>
+      {real ? (
+        <div className="callout" style={{ marginTop: 18 }}>
+          <b>This is real money.</b> The contracts are tested (unit, fuzz and invariant tests) but have not been audited by an outside firm; the wallet
+          that deploys owns the pad and the desk, keeps the rates and receives the protocol fees. Coins pair with {tokenNames}; the desk converts
+          between currencies only out of what it holds, so nothing crosses currencies until it has a reserve. The rates the desk starts with are today’s;
+          the keeper (you, until you appoint one) posts the next ones.
+        </div>
+      ) : (
+        <div className="callout" style={{ marginTop: 18 }}>
+          <b>Test money.</b> These contracts are tested (unit, fuzz and invariant tests), not audited. On {meta.name} the currencies are test tokens
+          anyone can take from the desk’s faucet.
+        </div>
+      )}
     </div>
   );
 }

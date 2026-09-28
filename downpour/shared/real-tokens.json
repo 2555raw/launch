@@ -1,0 +1,7 @@
+{
+  "_": "Real tokens the currency desk lists on chains that have them (instead of minting test currencies). code: the desk's currency code; symbol: the token's own symbol, shown beside it. Robinhood Chain mainnet: USDG (Paxos' Global Dollar, Robinhood's preferred stablecoin, 6 decimals) and Uniswap's WETH9.",
+  "4663": [
+    { "code": "USD", "symbol": "USDG", "token": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168" },
+    { "code": "ETH", "symbol": "WETH", "token": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73" }
+  ]
+}

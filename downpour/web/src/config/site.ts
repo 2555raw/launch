@@ -11,7 +11,7 @@ export const SITE = {
     address: '' as string,
     chainLabel: 'Robinhood Chain',
     chainId: 4663,
-    explorer: 'https://explorer.chain.robinhood.com',
+    explorer: 'https://robinhoodchain.blockscout.com',
   },
   links: {
     x: 'https://x.com/useStarmint',

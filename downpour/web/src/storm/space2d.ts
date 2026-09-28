@@ -60,22 +60,22 @@ export function bandAt(u: number, v: number, aspect: number) {
 export function deepSpace(u: number, v: number, aspect: number): [number, number, number] {
   const px = u * aspect;
   const py = v;
-  let r = 0.007 + 0.001 * v;
-  let g = 0.01 + 0.004 * v;
-  let b = 0.018 + 0.012 * v;
+  let r = 0.012 + 0.006 * v;
+  let g = 0.008 + 0.003 * v;
+  let b = 0.026 + 0.02 * v;
 
-  // nebulae: faint domain-warped wisps of gas, blue-grey and blue, with dark dust
+  // nebulae: faint domain-warped wisps of gas, violet-grey and purple, with dark dust
   const qx = px * 1.3;
   const qy = py * 1.3;
   const wx = fbm(qx + 1.7, qy + 9.2, 3);
   const wy = fbm(qx + 8.3, qy + 2.8, 3);
   // (a touch stronger than in WebGL: the hash runs in double precision here, so the wisps
   // fall elsewhere, and side by side this keeps as much gas on screen)
-  const m1 = smoothstep(0.45, 0.85, fbm(qx + 1.8 * wx, qy + 1.8 * wy, 5)) * 0.3;
-  const m2 = smoothstep(0.5, 0.9, fbm(qx * 1.7 - 1.2 * wx + 4, qy * 1.7 - 1.2 * wy + 4, 5)) * 0.35;
-  r += 0.13 * m1 + 0.05 * m2;
-  g += 0.17 * m1 + 0.17 * m2;
-  b += 0.26 * m1 + 0.32 * m2;
+  const m1 = smoothstep(0.45, 0.85, fbm(qx + 1.8 * wx, qy + 1.8 * wy, 5)) * 0.34;
+  const m2 = smoothstep(0.5, 0.9, fbm(qx * 1.7 - 1.2 * wx + 4, qy * 1.7 - 1.2 * wy + 4, 5)) * 0.4;
+  r += 0.2 * m1 + 0.14 * m2;
+  g += 0.14 * m1 + 0.08 * m2;
+  b += 0.32 * m1 + 0.36 * m2;
   const dust = 1 - smoothstep(0.55, 0.75, fbm(qx * 2.3 + wx * 1.4 + 11, qy * 2.3 + wy * 1.4 + 11, 3)) * 0.55;
   r *= dust;
   g *= dust;
@@ -90,9 +90,9 @@ export function deepSpace(u: number, v: number, aspect: number): [number, number
   if (band > 0.002) {
     const tint = fbm(along * 3, 1, 3);
     const k = band * 0.16 * (0.6 + 0.8 * fbm(along * 6, across * 12, 3));
-    r += (0.52 + 0.12 * tint) * k;
-    g += (0.55 + 0.08 * tint) * k;
-    b += (0.6 + 0.02 * tint) * k;
+    r += (0.56 + 0.1 * tint) * k;
+    g += (0.5 + 0.1 * tint) * k;
+    b += (0.66 + 0.04 * tint) * k;
     if (Math.abs(across) < 0.4) {
       const lane = 1 - smoothstep(0.35, 0.7, fbm(along * 2.5 + 3, across * 9 + 3, 5)) * Math.exp(-across * across * 60) * 0.6;
       r *= lane;

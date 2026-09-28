@@ -1,7 +1,7 @@
 /* Starmint — space theme. Tokens first, then base, then shared components. */
 
 :root {
-  --bg: #04060c;
+  --bg: #08051a;
   --ink: #eef3ff;
   --ink-2: #b7c3da;
   --ink-3: #7f8ca8;
@@ -90,7 +90,7 @@ img {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: #05040f;
+  background: #08051a;
 }
 
 .storm-canvas {

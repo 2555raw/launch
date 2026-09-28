@@ -34,7 +34,7 @@
   letter-spacing: -0.055em;
   line-height: 0.92;
   margin: 18px 0 22px;
-  background: linear-gradient(180deg, #ffffff 0%, #dfe9ff 55%, #9fc3f5 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #e6dfff 55%, #b9a6ff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -377,13 +377,20 @@ a.card:hover {
 }
 
 .report {
-  grid-template-columns: 1.15fr 1fr;
+  grid-template-columns: 1fr 1.15fr;
   align-items: end;
+}
+/* the pool card on the left, the fills on the right */
+.report > .curve-card {
+  order: -1;
 }
 
 @media (max-width: 900px) {
   .report {
     grid-template-columns: 1fr;
+  }
+  .report > .curve-card {
+    order: 0;
   }
 }
 
@@ -469,6 +476,15 @@ a.card:hover {
 .steps-wrap {
   align-items: center;
   gap: 40px;
+}
+/* the what-if calculator on the left, the three steps on the right */
+.steps-wrap > :first-child {
+  order: 1;
+}
+@media (max-width: 900px) {
+  .steps-wrap > :first-child {
+    order: 0;
+  }
 }
 
 .steps,
@@ -675,6 +691,10 @@ a.card:hover {
   flex-wrap: wrap;
   margin-bottom: 26px;
 }
+/* the star on the right of the title */
+.coin-head > .coin-avatar {
+  order: 1;
+}
 
 /* the coin's star in its own patch of sky, as on its card (the sky is shared with .cc-sky) */
 .coin-avatar {
@@ -755,9 +775,13 @@ a.card:hover {
 
 .coin-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
+  grid-template-columns: 380px minmax(0, 1fr);
   gap: 18px;
   align-items: start;
+}
+/* the trade panel first, on the left */
+.coin-layout > .trade-panel {
+  order: -1;
 }
 
 @media (max-width: 980px) {
@@ -895,14 +919,21 @@ a.card:hover {
 
 .swap-page {
   display: grid;
-  grid-template-columns: minmax(0, 480px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
   gap: 28px;
   align-items: start;
+}
+/* the pairs on the left, the swap card on the right; on a phone the card comes first */
+.swap-page > .pairs-side {
+  order: -1;
 }
 
 @media (max-width: 960px) {
   .swap-page {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .swap-page > .pairs-side {
+    order: 0;
   }
 }
 
@@ -1091,14 +1122,21 @@ a.card:hover {
 
 .launch-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
   gap: 22px;
   align-items: start;
+}
+/* the preview and summary on the left, the form on the right; on a phone the form first */
+.launch-layout > .stack {
+  order: -1;
 }
 
 @media (max-width: 960px) {
   .launch-layout {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .launch-layout > .stack {
+    order: 0;
   }
 }
 

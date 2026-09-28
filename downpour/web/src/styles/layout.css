@@ -40,6 +40,12 @@
   letter-spacing: -0.03em;
   white-space: nowrap;
 }
+/* the mark beside the name */
+.brand-mark {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
 
 .nav-links {
   display: flex;

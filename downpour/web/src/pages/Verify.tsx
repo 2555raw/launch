@@ -318,10 +318,6 @@ node scripts/verify.mjs \\
             Leave out <span className="mono">--coin</span> to check every coin the pad has opened.
           </p>
         </div>
-        <div className="callout warn" style={{ marginTop: 18 }}>
-          <b>What this does not prove.</b> It does not audit the contracts: it proves the code on chain is the code in this repository and that its books balance.
-          It cannot tell you a coin is worth anything, and on a test network the currencies are test tokens with no value.
-        </div>
       </section>
     </div>
   );

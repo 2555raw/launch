@@ -107,7 +107,8 @@ export function heroSpot(w: number, h: number, r: number) {
 }
 
 const rgbCache = new Map<string, [number, number, number]>();
-function rgbOf(code: string): [number, number, number] {
+/** A currency's colour as 0..1 rgb. */
+export function rgbOf(code: string): [number, number, number] {
   const hit = rgbCache.get(code);
   if (hit) return hit;
   const c = document.createElement('canvas');

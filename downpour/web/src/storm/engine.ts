@@ -1,13 +1,15 @@
 /* The sky behind every page, on a 2D canvas, for browsers without WebGL2 (or with
  * ?storm2d). A simpler cousin of glstorm.ts:
  *
- *   space      a painted backdrop of nebula glow and a few thousand fixed stars, some of
- *              which twinkle
- *   stars      the currency stars, drawn as real stars (halo, spikes, a white core) with
- *              the currency sign beside them; born with a flare, drifting slowly upward
- *   planet     the Earth, painted once from NASA's real day and night maps (the
- *              coastlines alone until they load), in daylight, with its cities lit
- *              wherever it is night; a thin glowing atmosphere
+ *   space      the WebGL sky's deep space, painted once per size (space2d.ts): faint
+ *              nebulae eaten by dust, the galaxy band with its dust lanes, a far spiral
+ *              galaxy, and fixed stars, denser along the band; some of them twinkle
+ *   stars      the currency stars, drawn as the WebGL sky draws them (a white core, a halo
+ *              in the currency's colour, spikes) with the currency sign beside them; born
+ *              with a flare, drifting slowly upward
+ *   planet     the Earth, painted once from NASA's real day and night maps and the cloud
+ *              map (the coastlines alone until they load), in daylight, with its cities
+ *              lit wherever it is night; a thin glowing atmosphere
  *   satellite  orbiting along just inside the horizon and off the right side
  *   meteors    shooting stars with fading tails, across the top of the sky
  *   sparkles   a tapped currency star flares up and fades, shedding a few faint motes
@@ -15,7 +17,8 @@
  * Nothing moves at all under prefers-reduced-motion. */
 import { currencyColor, dropGlyph } from '../data/currencies';
 import { DAY_SUN as EARTH_SUN, EARTH_IMAGES, PLANET, START_TURN, awayFromPlanet, landFields, meteorStart, onPlanet, orbitAt, orbitSpan, toPlanet } from './earth';
-import { heroSpot } from './glstorm';
+import { heroSpot, rgbOf } from './glstorm';
+import { GALAXY_AT, bandAt, deepSpace, spiralGalaxy, starImage, vignette } from './space2d';
 import { drawSatellite2D } from './satellite';
 import { COLUMN, type Intensity, type Scene, type StormRenderer } from './types';
 
@@ -108,7 +111,7 @@ export class StormEngine implements StormRenderer {
   private sat?: { born: number; dur: number; from: number; to: number; ro: number; tilt: number };
   private nextSat = 0;
   private satSize = 100;
-  private maps?: { day: ImageData; night: ImageData };
+  private maps?: { day: ImageData; night: ImageData; clouds?: ImageData };
   private sprites = new Map<string, HTMLCanvasElement>();
   private twinklers: Twinkler[] = [];
   private stars: Star[] = [];
@@ -131,7 +134,7 @@ export class StormEngine implements StormRenderer {
     this.loadMaps();
   }
 
-  /** The real day and night maps, read into memory to paint the planet from. */
+  /** The real day and night maps and the cloud map, read into memory to paint the planet from. */
   private loadMaps() {
     const read = async (url: string) => {
       const img = new Image();
@@ -144,9 +147,9 @@ export class StormEngine implements StormRenderer {
       g.drawImage(img, 0, 0);
       return g.getImageData(0, 0, c.width, c.height);
     };
-    Promise.all([read(EARTH_IMAGES.day(false)), read(EARTH_IMAGES.lights)])
-      .then(([day, night]) => {
-        this.maps = { day, night };
+    Promise.all([read(EARTH_IMAGES.day(false)), read(EARTH_IMAGES.lights), read(EARTH_IMAGES.clouds(false)).catch(() => undefined)])
+      .then(([day, night, clouds]) => {
+        this.maps = { day, night, clouds };
         this.paintEarth();
         if (!this.running) this.frame(performance.now(), true);
       })
@@ -192,105 +195,149 @@ export class StormEngine implements StormRenderer {
   }
 
 
-  /** Nebula glow and fixed stars, painted once per size. */
+  /** Deep space as the WebGL sky paints it, once per size: the gas and the band at a
+   *  quarter of the resolution (they are all soft), the spiral galaxy sharp, then the
+   *  fixed stars and the lens vignette. */
   private paintBackdrop() {
     const c = document.createElement('canvas');
     c.width = this.canvas.width;
     c.height = this.canvas.height;
     const g = c.getContext('2d')!;
-    g.scale(this.dpr, this.dpr);
-    const bg = g.createLinearGradient(0, 0, 0, this.h);
-    bg.addColorStop(0, '#04040f');
-    bg.addColorStop(1, '#0a0822');
-    g.fillStyle = bg;
-    g.fillRect(0, 0, this.w, this.h);
-    const blob = (x: number, y: number, r: number, color: string) => {
-      const gr = g.createRadialGradient(x, y, 0, x, y, r);
-      gr.addColorStop(0, color);
-      gr.addColorStop(1, 'rgba(0,0,0,0)');
-      g.fillStyle = gr;
-      g.fillRect(x - r, y - r, r * 2, r * 2);
-    };
-    blob(this.w * 0.8, this.h * 0.2, this.h * 0.6, 'rgba(40, 55, 90, 0.16)');
-    blob(this.w * 0.15, this.h * 0.75, this.h * 0.55, 'rgba(20, 60, 120, 0.16)');
-    const n = Math.round((this.w * this.h) / 900);
-    for (let i = 0; i < n; i++) {
-      const mag = Math.random() ** 5;
-      const t = Math.random();
-      g.fillStyle = t < 0.3 ? '#ffd9a8' : t < 0.75 ? '#eef2ff' : '#b8ccff';
-      g.globalAlpha = 0.25 + mag * 0.75;
-      g.beginPath();
-      g.arc(Math.random() * this.w, Math.random() * this.h, 0.4 + mag * 1.3, 0, Math.PI * 2);
-      g.fill();
+    const W = this.w;
+    const H = this.h;
+    const aspect = W / H;
+    const step = Math.max(4, Math.ceil(Math.sqrt((W * H) / 90000)));
+    const lw = Math.max(1, Math.ceil(W / step));
+    const lh = Math.max(1, Math.ceil(H / step));
+    const low = new ImageData(lw, lh);
+    for (let y = 0; y < lh; y++) {
+      const v = 1 - (y + 0.5) / lh;
+      for (let x = 0; x < lw; x++) {
+        const u = (x + 0.5) / lw;
+        const [r, gg, b] = deepSpace(u, v, aspect);
+        const k = vignette(u, v, aspect) * 255;
+        const o = (y * lw + x) * 4;
+        low.data[o] = r * k;
+        low.data[o + 1] = gg * k;
+        low.data[o + 2] = b * k;
+        low.data[o + 3] = 255;
+      }
     }
-    g.globalAlpha = 1;
+    const lc = document.createElement('canvas');
+    lc.width = lw;
+    lc.height = lh;
+    lc.getContext('2d')!.putImageData(low, 0, 0);
+    g.imageSmoothingEnabled = true;
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(lc, 0, 0, c.width, c.height);
+
+    // the spiral galaxy, at full resolution over its own box, added to the sky
+    const half = Math.round(H * 0.16 * this.dpr);
+    const gxc = GALAXY_AT[0] * c.width;
+    const gyc = (1 - GALAXY_AT[1]) * c.height;
+    const box = new ImageData(half * 2, half * 2);
+    for (let y = 0; y < half * 2; y++) {
+      const v = 1 - (gyc - half + y + 0.5) / c.height;
+      for (let x = 0; x < half * 2; x++) {
+        const u = (gxc - half + x + 0.5) / c.width;
+        const k = spiralGalaxy(u, v, aspect) * vignette(u, v, aspect) * 255;
+        const o = (y * half * 2 + x) * 4;
+        box.data[o] = 0.88 * k;
+        box.data[o + 1] = 0.9 * k;
+        box.data[o + 2] = 0.96 * k;
+        box.data[o + 3] = 255;
+      }
+    }
+    const bc = document.createElement('canvas');
+    bc.width = bc.height = half * 2;
+    bc.getContext('2d')!.putImageData(box, 0, 0);
+    g.globalCompositeOperation = 'lighter';
+    g.drawImage(bc, gxc - half, gyc - half);
+
+    // fixed stars: a dust of tiny faint ones, thicker along the band, then brighter ones,
+    // a few with spikes. Drawn in batches of one colour and brightness, so the canvas is
+    // not handed a new fill style for every star.
+    g.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    const TINTS = ['255,209,158', '235,242,255', '168,199,255'];
+    const tint = () => {
+      const t = Math.random();
+      return t < 0.3 ? 0 : t < 0.75 ? 1 : 2;
+    };
+    const LEVELS = 8;
+    const batches: number[][] = Array.from({ length: TINTS.length * LEVELS }, () => []);
+    const put = (x: number, y: number, size: number, alpha: number, t: number) => {
+      const level = Math.max(0, Math.min(LEVELS - 1, Math.round(alpha * (LEVELS - 1))));
+      if (level > 0) batches[t * LEVELS + level].push(x, y, size);
+    };
+    const dust = Math.round((W * H) / 70);
+    for (let i = 0; i < dust; i++) {
+      const x = Math.random() * W;
+      const y = Math.random() * H;
+      if (Math.random() > 0.55 + bandAt(x / W, 1 - y / H, aspect) * 0.45) continue;
+      put(x, y, 0, (0.12 + Math.random() * 0.28) * vignette(x / W, 1 - y / H, aspect), tint());
+    }
+    const bright: Array<[number, number, number, number]> = [];
+    const star = (x: number, y: number, mag: number) => {
+      const vig = vignette(x / W, 1 - y / H, aspect);
+      const t = tint();
+      put(x, y, 0.35 + mag * 1.3, Math.min(1, (0.25 + mag * 0.9) * vig), t);
+      if (mag > 0.8) bright.push([x, y, mag * vig, t]);
+    };
+    const n = Math.round((W * H) / 900);
+    for (let i = 0; i < n; i++) star(Math.random() * W, Math.random() * H, Math.random() ** 6);
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() * W;
+      const y = Math.random() * H;
+      if (Math.random() < bandAt(x / W, 1 - y / H, aspect) * 0.5) star(x, y, Math.random() ** 8);
+    }
+    batches.forEach((list, b) => {
+      if (!list.length) return;
+      g.fillStyle = `rgba(${TINTS[Math.floor(b / LEVELS)]},${(b % LEVELS) / (LEVELS - 1)})`;
+      g.beginPath();
+      for (let i = 0; i < list.length; i += 3) {
+        const r = list[i + 2];
+        if (r === 0) g.rect(list[i], list[i + 1], 0.8, 0.8);
+        else {
+          g.moveTo(list[i] + r, list[i + 1]);
+          g.arc(list[i], list[i + 1], r, 0, Math.PI * 2);
+        }
+      }
+      g.fill();
+    });
+    for (const [x, y, k, t] of bright) {
+      const len = 2 + k * 7;
+      for (const [dx, dy] of [
+        [1, 0],
+        [0, 1],
+      ]) {
+        const sp = g.createLinearGradient(x - dx * len, y - dy * len, x + dx * len, y + dy * len);
+        sp.addColorStop(0, `rgba(${TINTS[t]},0)`);
+        sp.addColorStop(0.5, `rgba(${TINTS[t]},${0.4 * k})`);
+        sp.addColorStop(1, `rgba(${TINTS[t]},0)`);
+        g.fillStyle = sp;
+        g.fillRect(x - dx * len - dy * 0.35, y - dy * len - dx * 0.35, dx * len * 2 + dy * 0.7, dy * len * 2 + dx * 0.7);
+      }
+    }
+    g.globalCompositeOperation = 'source-over';
     this.backdrop = c;
     this.twinklers = Array.from({ length: Math.round((this.w * this.h) / 16000) }, () => ({
       x: Math.random() * this.w,
       y: Math.random() * this.h,
-      r: rand(0.8, 1.8),
+      r: rand(0.6, 1.4),
       phase: Math.random() * Math.PI * 2,
       rate: rand(1, 3),
     }));
   }
 
-  /** A currency star, pre-rendered like a real one: a halo in its colour, long thin
-   *  diffraction spikes, a white core, and the currency sign beside it. Drawn at a half
-   *  size of 6 star radii, added to the sky. */
+  /** A currency star, pre-rendered as the WebGL sky draws it (space2d.ts). Drawn at a
+   *  half size of 6 star radii, added to the sky; its sign is written beside it. */
   private sprite(code: string) {
     const hit = this.sprites.get(code);
     if (hit) return hit;
-    const R = 16;
-    const S = R * 6;
-    const scale = 2;
+    const n = 288;
     const c = document.createElement('canvas');
-    c.width = c.height = S * 2 * scale;
-    const g = c.getContext('2d')!;
-    g.scale(scale, scale);
-    g.translate(S, S);
-    const color = currencyColor(code);
-    g.globalCompositeOperation = 'lighter';
-    const halo = g.createRadialGradient(0, 0, 0, 0, 0, S * 0.7);
-    halo.addColorStop(0, color);
-    halo.addColorStop(0.15, color);
-    halo.addColorStop(1, 'rgba(0,0,0,0)');
-    g.globalAlpha = 0.5;
-    g.fillStyle = halo;
-    g.fillRect(-S, -S, S * 2, S * 2);
-    g.globalAlpha = 1;
-    for (const horizontal of [true, false]) {
-      const sp = horizontal ? g.createLinearGradient(-S, 0, S, 0) : g.createLinearGradient(0, -S, 0, S);
-      sp.addColorStop(0, 'rgba(255,255,255,0)');
-      sp.addColorStop(0.5, 'rgba(255,255,255,0.95)');
-      sp.addColorStop(1, 'rgba(255,255,255,0)');
-      g.fillStyle = sp;
-      g.beginPath();
-      if (horizontal) {
-        g.moveTo(-S, 0);
-        g.lineTo(0, -1.3);
-        g.lineTo(S, 0);
-        g.lineTo(0, 1.3);
-      } else {
-        g.moveTo(0, -S);
-        g.lineTo(1.3, 0);
-        g.lineTo(0, S);
-        g.lineTo(-1.3, 0);
-      }
-      g.fill();
-    }
-    const core = g.createRadialGradient(0, 0, 0, 0, 0, R * 0.9);
-    core.addColorStop(0, '#ffffff');
-    core.addColorStop(0.35, 'rgba(255,255,255,0.9)');
-    core.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = core;
-    g.fillRect(-R, -R, R * 2, R * 2);
-    const glyph = dropGlyph(code);
-    g.globalCompositeOperation = 'source-over';
-    g.font = `700 ${[...glyph].length >= 3 ? 11 : 14}px "Sora Variable", "Sora", system-ui, sans-serif`;
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    g.fillStyle = 'rgba(225,232,255,0.8)';
-    g.fillText(glyph, R * 1.6, R * 1.6);
+    c.width = c.height = n;
+    c.getContext('2d')!.putImageData(starImage(rgbOf(code), n), 0, 0);
     this.sprites.set(code, c);
     return c;
   }
@@ -305,31 +352,42 @@ export class StormEngine implements StormRenderer {
     const cxp = PLANET.cx * (w / h);
     const R = PLANET.r;
     const { data: field, w: mw, h: mh } = landFields();
-    // the softened coastline, sampled smoothly so coasts are not blocky
-    const coast = (u: number, v: number) => {
+    // Maps are sampled smoothly (bilinear, wrapping east-west) into reused buffers: this
+    // runs for every pixel of the planet, so nothing is allocated per sample.
+    const bilinear = (data: Uint8Array | Uint8ClampedArray, mw: number, mh: number, stride: number, u: number, v: number, out: Float64Array, channels: number) => {
       const fx = u * mw - 0.5;
       const fy = Math.min(mh - 1.001, Math.max(0, v * mh - 0.5));
       const x0 = Math.floor(fx);
       const y0 = Math.floor(fy);
       const tx = fx - x0;
       const ty = fy - y0;
-      const at = (x: number, y: number) => field[(y * mw + (((x % mw) + mw) % mw)) * 2] / 255;
-      return (at(x0, y0) * (1 - tx) + at(x0 + 1, y0) * tx) * (1 - ty) + (at(x0, y0 + 1) * (1 - tx) + at(x0 + 1, y0 + 1) * tx) * ty;
+      const xa = ((x0 % mw) + mw) % mw;
+      const xb = xa + 1 === mw ? 0 : xa + 1;
+      const r0 = y0 * mw;
+      const r1 = r0 + mw;
+      const i00 = (r0 + xa) * stride;
+      const i10 = (r0 + xb) * stride;
+      const i01 = (r1 + xa) * stride;
+      const i11 = (r1 + xb) * stride;
+      const w00 = (1 - tx) * (1 - ty);
+      const w10 = tx * (1 - ty);
+      const w01 = (1 - tx) * ty;
+      const w11 = tx * ty;
+      for (let c = 0; c < channels; c++) out[c] = (data[i00 + c] * w00 + data[i10 + c] * w10 + data[i01 + c] * w01 + data[i11 + c] * w11) / 255;
+    };
+    const one = new Float64Array(3);
+    // the softened coastline, so coasts are not blocky
+    const coast = (u: number, v: number) => {
+      bilinear(field, mw, mh, 2, u, v, one, 1);
+      return one[0];
     };
     const spin = 0.5 + START_TURN;
-    // a map pixel, smoothly, as 0..1 rgb
-    const sample = (img: ImageData, u: number, v: number): [number, number, number] => {
-      const fx = u * img.width - 0.5;
-      const fy = Math.min(img.height - 1.001, Math.max(0, v * img.height - 0.5));
-      const x0 = Math.floor(fx);
-      const y0 = Math.floor(fy);
-      const tx = fx - x0;
-      const ty = fy - y0;
-      const out: [number, number, number] = [0, 0, 0];
-      for (let c = 0; c < 3; c++) {
-        const at = (x: number, y: number) => img.data[(y * img.width + (((x % img.width) + img.width) % img.width)) * 4 + c];
-        out[c] = ((at(x0, y0) * (1 - tx) + at(x0 + 1, y0) * tx) * (1 - ty) + (at(x0, y0 + 1) * (1 - tx) + at(x0 + 1, y0 + 1) * tx) * ty) / 255;
-      }
+    // a map pixel as 0..1 rgb (in a buffer that the next call reuses)
+    const dayPx = new Float64Array(3);
+    const nightPx = new Float64Array(3);
+    const cloudPx = new Float64Array(3);
+    const sample = (img: ImageData, u: number, v: number, out: Float64Array, channels = 3) => {
+      bilinear(img.data, img.width, img.height, 4, u, v, out, channels);
       return out;
     };
     const disc = new ImageData(w, band);
@@ -345,7 +403,7 @@ export class StormEngine implements StormRenderer {
         const px = (x + 0.5) / h;
         const dx = px - cxp;
         const dy = py - PLANET.cy;
-        const dist = Math.hypot(dx, dy);
+        const dist = Math.sqrt(dx * dx + dy * dy);
         const o = (y * w + x) * 4;
         const cover = Math.min(1, Math.max(0, (R - dist) * h + 0.5));
         if (cover > 0) {
@@ -358,34 +416,50 @@ export class StormEngine implements StormRenderer {
           const v = 0.5 - lat / Math.PI;
           const land = coast(u, v) > 0.5;
           const alat = Math.abs(lat) * 57.3;
-          let base: [number, number, number] = land
+          let base: ArrayLike<number> = land
             ? alat > 68
               ? [0.9, 0.93, 0.97]
               : alat > 12 && alat < 34
                 ? [0.72, 0.58, 0.4]
                 : [0.3, 0.36, 0.2]
             : [0.015, 0.05, 0.11];
-          let lights: [number, number, number] | undefined;
+          let lights: ArrayLike<number> | undefined;
+          let cloud = 0;
           if (this.maps) {
-            base = sample(this.maps.day, u, v);
-            lights = sample(this.maps.night, u, v);
+            const d = sample(this.maps.day, u, v, dayPx);
+            lights = sample(this.maps.night, u, v, nightPx, 1);
             // land as it looks from orbit: paler and less saturated than the map
             if (land) {
-              const grey = base[0] * 0.3 + base[1] * 0.59 + base[2] * 0.11;
-              base = [base[0] + (grey - base[0]) * 0.32, base[1] + (grey - base[1]) * 0.32, base[2] + (grey - base[2]) * 0.32];
+              const grey = d[0] * 0.3 + d[1] * 0.59 + d[2] * 0.11;
+              for (let c = 0; c < 3; c++) d[c] += (grey - d[c]) * 0.32;
             }
+            base = d;
+            if (this.maps.clouds) cloud = sample(this.maps.clouds, u, v, cloudPx, 1)[0] * 0.9;
           }
           const ndl = n[0] * EARTH_SUN[0] + n[1] * EARTH_SUN[1] + n[2] * EARTH_SUN[2];
           const lit = Math.max(0, ndl) * 1.25;
           const T = Math.exp(-0.1 / Math.max(n[2], 0.015));
           const a = airC(ndl);
-          let r = base[0] * lit * T + a[0] * (1 - T);
-          let gg = base[1] * lit * T + a[1] * (1 - T);
-          let b = base[2] * lit * T + a[2] * (1 - T);
+          let gr = base[0] * lit;
+          let gg0 = base[1] * lit;
+          let gb = base[2] * lit;
+          if (cloud > 0) {
+            // cloud tops in the low sun: warm at the terminator, white higher up, a pink edge at dusk
+            const warm = Math.min(1, Math.max(0, ndl / 0.3));
+            const s = warm * warm * (3 - 2 * warm);
+            const k = 0.03 + 1.2 * Math.max(0, ndl);
+            const dusk = Math.exp(-((ndl / 0.12) ** 2)) * 0.12;
+            gr += (k + dusk - gr) * cloud;
+            gg0 += ((0.62 + 0.36 * s) * k + 0.6 * dusk - gg0) * cloud;
+            gb += ((0.42 + 0.53 * s) * k + 0.45 * dusk - gb) * cloud;
+          }
+          let r = gr * T + a[0] * (1 - T);
+          let gg = gg0 * T + a[1] * (1 - T);
+          let b = gb * T + a[2] * (1 - T);
           const night = 1 - Math.min(1, Math.max(0, (ndl + 0.16) / 0.2));
           // real city light, brightest where the most people live
           const lum = lights ? lights[0] : 0;
-          const city = lum * lum * 2.4 + lum * 0.6;
+          const city = (lum * lum * 2.4 + lum * 0.6) * (1 - cloud * 0.8);
           if (lights) {
             r += city * night;
             gg += city * 0.8 * night;
@@ -566,6 +640,8 @@ export class StormEngine implements StormRenderer {
     g.globalAlpha = 1;
 
     // currency stars
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
     for (let i = 0; i < this.stars.length; i++) {
       const s = this.stars[i];
       if (!still) {
@@ -587,6 +663,14 @@ export class StormEngine implements StormRenderer {
       g.globalAlpha = s.alpha * Math.min(1, k * 3) * fade;
       g.globalCompositeOperation = 'lighter';
       g.drawImage(this.sprite(s.code), s.x - size, s.y - size, size * 2, size * 2);
+      // its sign, like a label on a star chart: the same size on every star, as in WebGL
+      if (grow > 0.6) {
+        const glyph = dropGlyph(s.code);
+        const chars = [...glyph].length;
+        g.font = `700 ${chars >= 3 ? 9 : chars === 2 ? 11 : 14}px "Sora Variable", "Sora", system-ui, sans-serif`;
+        g.fillStyle = 'rgba(219,230,255,0.7)';
+        g.fillText(glyph, s.x + size * 0.26, s.y + size * 0.26);
+      }
       g.globalCompositeOperation = 'source-over';
     }
     g.globalAlpha = 1;

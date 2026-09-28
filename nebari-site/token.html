@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Token — Nebari</title>
+  <meta name="description" content="A Nebari token: its bonsai, its pool, trade it and claim your share of the fees.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ffffff'/%3E%3Cg fill='%230b0b0f'%3E%3Crect x='11' y='4' width='10' height='5' rx='2.5'/%3E%3Crect x='11' y='23' width='10' height='5' rx='2.5'/%3E%3Crect x='4' y='11' width='5' height='10' rx='2.5'/%3E%3Crect x='23' y='11' width='5' height='10' rx='2.5'/%3E%3Crect x='8' y='8' width='5' height='5' rx='1.6'/%3E%3Crect x='19' y='8' width='5' height='5' rx='1.6'/%3E%3Crect x='8' y='19' width='5' height='5' rx='1.6'/%3E%3Crect x='19' y='19' width='5' height='5' rx='1.6'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="explore">
+<div class="page">
+  <main class="app wrap">
+    <div id="not-found" class="notice" hidden>No token at that address on Nebari. <a href="explore.html" class="link-underline">Back to the garden</a>.</div>
+
+    <div class="token-hero">
+      <div class="token-tree"><canvas id="tree" aria-hidden="true"></canvas></div>
+      <div class="panel">
+        <div class="token-title">
+          <span class="asset-logo" id="t-logo" style="width:48px;height:48px"></span>
+          <h1 id="t-name">Loading…</h1>
+          <span class="pill" id="t-symbol"></span>
+        </div>
+        <p id="t-desc" style="color:var(--ink-2)"></p>
+        <p class="tc-pair" style="margin-top:10px;display:flex;align-items:center;gap:8px;color:var(--muted)">Rooted to <span id="t-pair" style="display:inline-flex;align-items:center;gap:6px;color:var(--ink);font-weight:600"></span></p>
+        <div class="kv">
+          <div><span>Price</span><b id="k-price">–</b></div>
+          <div><span>Market cap</span><b id="k-cap">–</b></div>
+          <div><span>Volume (from fees)</span><b id="k-vol">–</b></div>
+          <div><span>Paid to holders so far</span><b id="k-dist">–</b></div>
+          <div><span>Price floor</span><b id="k-floor">–</b></div>
+          <div><span>Supply left</span><b id="k-supply">–</b></div>
+          <div><span>Creator</span><b id="k-creator" class="addr">–</b></div>
+          <div><span>Token</span><b id="k-token" class="addr">–</b></div>
+        </div>
+        <p style="margin-top:16px;font-size:13px;color:var(--muted)"><a class="link-underline" id="l-explorer" href="#" target="_blank" rel="noopener">Token on Blockscout</a> · <a class="link-underline" id="l-pool" href="#" target="_blank" rel="noopener">Pool manager</a></p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <h2>Trade</h2>
+        <div class="tabs"><button class="tab active" type="button" data-side="buy">Buy</button><button class="tab" type="button" data-side="sell">Sell</button></div>
+        <div class="field">
+          <label id="amount-label" for="amount">You pay</label>
+          <div class="input-row">
+            <input class="input" id="amount" placeholder="0.0" inputmode="decimal">
+            <button class="btn btn-ghost btn-sm" id="max" type="button">Max</button>
+          </div>
+          <span class="hint" id="balance-hint"></span>
+        </div>
+        <div class="quote" id="quote">Enter an amount to see a quote.</div>
+        <div class="field" style="margin-top:14px">
+          <label for="slippage">Max slippage %</label>
+          <input class="input" id="slippage" value="1" inputmode="decimal" style="max-width:120px">
+        </div>
+        <button class="btn btn-primary" id="swap" type="button">Buy</button>
+        <div class="status" id="trade-status">Swaps go straight to the Uniswap v4 pool through the Nebari router. 1% fee, half of it to holders.</div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h2>Your share</h2>
+          <div class="summary">
+            <div><span>Your balance</span><b id="y-bal">–</b></div>
+            <div><span>Claimable now</span><b id="y-claim">–</b></div>
+            <div><span>Claimed so far</span><b id="y-claimed">–</b></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" id="claim" type="button">Claim</button>
+            <button class="btn btn-ghost btn-sm" id="collect" type="button">Collect pool fees</button>
+          </div>
+          <div class="status" id="claim-status">Fees the pool earns are collected by anyone, then split: half to holders, the rest to the creator and the protocol. Claim takes your share to your wallet.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="vendor/ethers.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="bonsai.js"></script>
+<script src="web3.js"></script>
+<script src="chrome.js"></script>
+<script src="token.js"></script>
+</body>
+</html>

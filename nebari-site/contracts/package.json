@@ -1,0 +1,18 @@
+{
+  "name": "nebari-contracts",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Nebari launchpad contracts: fixed-supply dividend token + Uniswap v4 factory with locked liquidity",
+  "scripts": {
+    "compile": "node scripts/compile.js",
+    "test": "node test/run.js",
+    "deploy": "node scripts/deploy.js"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0",
+    "@uniswap/v4-core": "^1.0.2",
+    "@uniswap/v4-periphery": "^1.0.3",
+    "ethers": "^6.13.0",
+    "solc": "0.8.26"
+  }
+}

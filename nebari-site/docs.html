@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docs — Nebari</title>
+  <meta name="description" content="How Nebari works: the contracts, the fee split, the addresses, and how to deploy your own.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ffffff'/%3E%3Cg fill='%230b0b0f'%3E%3Crect x='11' y='4' width='10' height='5' rx='2.5'/%3E%3Crect x='11' y='23' width='10' height='5' rx='2.5'/%3E%3Crect x='4' y='11' width='5' height='10' rx='2.5'/%3E%3Crect x='23' y='11' width='5' height='10' rx='2.5'/%3E%3Crect x='8' y='8' width='5' height='5' rx='1.6'/%3E%3Crect x='19' y='8' width='5' height='5' rx='1.6'/%3E%3Crect x='8' y='19' width='5' height='5' rx='1.6'/%3E%3Crect x='19' y='19' width='5' height='5' rx='1.6'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="docs">
+<div class="page">
+  <main class="app wrap">
+    <div class="app-head">
+      <div>
+        <span class="eyebrow">Docs</span>
+        <h1>How Nebari works.</h1>
+        <p>Three small contracts, no owner, no upgrade path. This page is the whole spec.</p>
+      </div>
+    </div>
+
+    <div class="panel doc">
+      <h2 id="overview">Overview</h2>
+      <p>Nebari is a launchpad on Robinhood Chain (chain id 4663). A launch is one transaction that creates a token with a fixed supply of one billion, initialises a Uniswap v4 pool between that token and the asset you chose, and deposits the whole supply as single-sided liquidity from the start price upwards. The factory keeps the position and has no function to remove it, so the liquidity is locked for as long as the chain exists.</p>
+      <p>Because the whole supply sits above the start price and nothing sits below it, the start price is a floor: the pool cannot quote lower than the tick it was initialised on.</p>
+
+      <h2 id="fees">Fees</h2>
+      <p>Every pool charges a 1% swap fee. Anyone can call <code>collectFees(token)</code> on the factory at any time. The fees earned in the pair asset are split:</p>
+      <table>
+        <tr><th>Holders</th><td>50%, credited in proportion to the tokens held at the time of collection. Each holder claims from the token contract; the pool and the factory never earn.</td></tr>
+        <tr><th>Creator</th><td>The remainder after the protocol share, sent immediately.</td></tr>
+        <tr><th>Protocol</th><td><span data-protocol-bps>10</span>%, set once when the factory is deployed and sent to the treasury address.</td></tr>
+      </table>
+      <p>Fees earned in the token itself are burned, which is why the supply on a token page only ever goes down. If nobody holds the token yet when fees are collected, the holders' half goes to the creator instead of being lost.</p>
+
+      <h2 id="contracts">Contracts</h2>
+      <ul>
+        <li><code>NebariFactory</code>: launches tokens, owns every pool position, collects and splits fees. Immutable: no owner, no pause, no upgrade.</li>
+        <li><code>NebariToken</code>: a plain ERC20 with burn, plus dividend accounting in the pair asset (<code>claimable</code>, <code>claim</code>).</li>
+        <li><code>NebariRouter</code>: exact-input swaps against the Uniswap v4 PoolManager, and a quote that simulates the swap. The trade box on each token page uses it.</li>
+      </ul>
+      <p>Source, compile script and the end-to-end test against the real PoolManager are in <code>contracts/</code> of the repository.</p>
+
+      <h2 id="addresses">Addresses</h2>
+      <table id="addr-table">
+        <tr><th>Network</th><td><span data-net></span></td></tr>
+        <tr><th>RPC</th><td><code data-rpc></code></td></tr>
+        <tr><th>Explorer</th><td><a class="link-underline" data-explorer target="_blank" rel="noopener"></a></td></tr>
+        <tr><th>Uniswap v4 PoolManager</th><td><code class="addr" data-pm></code></td></tr>
+        <tr><th>NebariFactory</th><td><code class="addr" data-factory>not deployed yet</code></td></tr>
+        <tr><th>NebariRouter</th><td><code class="addr" data-router>not deployed yet</code></td></tr>
+      </table>
+      <h3>Quick-pick assets</h3>
+      <p>Checked against the chain every time a page loads; a pick whose on-chain symbol does not match is hidden. Verify them yourself against Robinhood's own list before you rely on them.</p>
+      <table id="picks-table"></table>
+
+      <h2 id="deploy">Deploy your own</h2>
+      <p>The contracts are deployed with a private key you control. Nothing in this site ever asks for it.</p>
+      <pre><code>cd nebari-site/contracts
+npm install
+npm run compile
+npm test                       # end-to-end against the real PoolManager, locally
+
+# fund the deployer with a little ETH on Robinhood Chain, then:
+PRIVATE_KEY=0x… TREASURY=0x… PROTOCOL_BPS=1000 npm run deploy -- --write</code></pre>
+      <p><code>--write</code> pastes the new factory and router addresses into <code>config.js</code>. Commit that and publish the folder on any static host. The PoolManager address in <code>config.js</code> must be the official Uniswap v4 deployment for chain 4663; check it on the Uniswap deployments page before you deploy.</p>
+
+      <h2 id="risks">What can go wrong</h2>
+      <ul>
+        <li>Tokens are not securities and do not track the asset they pair with. A token rooted to TSLA gives you no claim on Tesla.</li>
+        <li>Robinhood stock tokens may carry transfer restrictions. If a pair asset refuses to move to the token contract, the fee split for that pool reverts until it can. Test with a small amount first.</li>
+        <li>The contracts are immutable. There is nobody who can fix a mistake in a launch after the fact, including the start price.</li>
+        <li>The volume figure on each page is derived from the fees the pool has earned, not from an indexer; it is an estimate.</li>
+      </ul>
+    </div>
+  </main>
+</div>
+<script src="vendor/ethers.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="bonsai.js"></script>
+<script src="web3.js"></script>
+<script src="chrome.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const C = window.NEBARI_CONFIG;
+    const q = (s) => document.querySelector(s);
+    q('[data-net]').textContent = C.network.name + ' (' + C.network.chainId + ')';
+    q('[data-rpc]').textContent = C.network.rpc;
+    q('[data-explorer]').textContent = C.network.explorer; q('[data-explorer]').href = C.network.explorer;
+    q('[data-pm]').textContent = C.poolManager;
+    if (C.factory) q('[data-factory]').textContent = C.factory;
+    if (C.router) q('[data-router]').textContent = C.router;
+    q('[data-protocol-bps]').textContent = (C.protocolBps / 100).toString();
+    const t = q('#picks-table');
+    t.innerHTML = '<tr><th>Asset</th><th>Address</th><th>Decimals</th></tr>' + C.quickPicks.map((p) => `<tr><td>${p.symbol} · ${p.name}</td><td><code class="addr">${p.address === '0x0000000000000000000000000000000000000000' ? 'native ETH' : p.address}</code></td><td>${p.decimals}</td></tr>`).join('');
+  });
+</script>
+</body>
+</html>

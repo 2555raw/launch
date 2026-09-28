@@ -1,0 +1,9 @@
+{
+  "name": "nebari-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Nebari: a launchpad on Robinhood Chain for tokens rooted to any stock or asset",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

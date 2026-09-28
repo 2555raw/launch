@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Launch a token — Nebari</title>
+  <meta name="description" content="Launch a token on Robinhood Chain rooted to any stock or asset. One transaction, no launch fee, liquidity locked forever.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ffffff'/%3E%3Cg fill='%230b0b0f'%3E%3Crect x='11' y='4' width='10' height='5' rx='2.5'/%3E%3Crect x='11' y='23' width='10' height='5' rx='2.5'/%3E%3Crect x='4' y='11' width='5' height='10' rx='2.5'/%3E%3Crect x='23' y='11' width='5' height='10' rx='2.5'/%3E%3Crect x='8' y='8' width='5' height='5' rx='1.6'/%3E%3Crect x='19' y='8' width='5' height='5' rx='1.6'/%3E%3Crect x='8' y='19' width='5' height='5' rx='1.6'/%3E%3Crect x='19' y='19' width='5' height='5' rx='1.6'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="launch">
+<div class="page">
+  <main class="app wrap">
+    <div class="app-head">
+      <div>
+        <span class="eyebrow">Launch</span>
+        <h1>Plant a token.</h1>
+        <p>Name it, pick the asset it trades against and set the start price. One transaction creates the token, its Uniswap v4 pool and the liquidity, and locks that liquidity forever. No launch fee, just gas.</p>
+      </div>
+    </div>
+
+    <div id="not-configured" class="notice" hidden>The factory contract has not been deployed yet, so launches are off. Deploy it (see <a href="docs.html#deploy" class="link-underline">the docs</a>) and paste its address into <code>config.js</code>.</div>
+
+    <div class="two-col">
+      <form class="panel" id="form" autocomplete="off">
+        <h2>Your token</h2>
+        <div class="field">
+          <label for="name">Name</label>
+          <input class="input" id="name" maxlength="40" placeholder="Sakura Coin" required>
+        </div>
+        <div class="field">
+          <label for="symbol">Symbol</label>
+          <input class="input" id="symbol" maxlength="11" placeholder="SKR" required style="text-transform:uppercase">
+        </div>
+        <div class="field">
+          <label for="description">Description <span class="hint">(optional, stored on-chain, keep it short)</span></label>
+          <input class="input" id="description" maxlength="140" placeholder="One line about the token">
+        </div>
+        <div class="field">
+          <label for="image">Image URL <span class="hint">(optional; leave empty and the token's bonsai is its picture)</span></label>
+          <input class="input" id="image" maxlength="200" placeholder="https://…/logo.png" inputmode="url">
+        </div>
+
+        <h2 style="margin-top:34px">Root it to</h2>
+        <div class="field">
+          <div class="picks" id="picks"></div>
+        </div>
+        <div class="field">
+          <label for="pair">Or paste any token address on Robinhood Chain</label>
+          <div class="input-row">
+            <input class="input addr" id="pair" placeholder="0x…" spellcheck="false">
+            <button class="btn btn-ghost btn-sm" id="resolve" type="button">Check</button>
+          </div>
+          <span class="hint" id="pair-hint">Nothing selected yet.</span>
+        </div>
+
+        <h2 style="margin-top:34px">Start price</h2>
+        <div class="field">
+          <label for="price"><span id="price-label">Pair units</span> per token</label>
+          <input class="input" id="price" placeholder="0.000001" inputmode="decimal" required>
+          <span class="hint">Price floor: the pool can never trade below the start price. The supply is one billion, so the start price times one billion is the starting market cap.</span>
+        </div>
+
+        <button class="btn btn-primary" id="launch" type="submit">Launch on Nebari <span class="arrow" aria-hidden="true">↗</span></button>
+        <div class="status" id="status">Fill the form and connect your wallet.</div>
+      </form>
+
+      <aside>
+        <div class="panel panel-dark" style="min-height:360px;position:relative;overflow:hidden">
+          <canvas id="preview" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+          <div style="position:relative">
+            <span class="eyebrow" style="color:var(--pink)">Preview</span>
+            <h2 id="preview-name" style="margin:0">Your bonsai</h2>
+            <p style="color:rgba(255,255,255,.7);max-width:260px">Grown from the name for now. Once launched it is grown from the token's address and fills out with volume.</p>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:20px">
+          <h2>Summary</h2>
+          <div class="summary">
+            <div><span>Token</span><b id="s-token">–</b></div>
+            <div><span>Pair</span><b id="s-pair">–</b></div>
+            <div><span>Start price</span><b id="s-price">–</b></div>
+            <div><span>Starting market cap</span><b id="s-cap">–</b></div>
+            <div><span>Supply</span><b>1,000,000,000 (fixed)</b></div>
+            <div><span>Swap fee</span><b>1% · half to holders</b></div>
+            <div><span>Launch fee</span><b>None, just gas</b></div>
+            <div><span>Network</span><b id="s-net">–</b></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<script src="vendor/ethers.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="bonsai.js"></script>
+<script src="web3.js"></script>
+<script src="chrome.js"></script>
+<script src="launch.js"></script>
+</body>
+</html>

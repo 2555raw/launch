@@ -1,0 +1,5 @@
+node_modules/
+build/*.json
+!build/NebariFactory.json
+!build/NebariRouter.json
+!build/NebariToken.json

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
-  <!-- one flat maroon, edge to edge, and the white mark in the middle -->
-  <rect width="1000" height="1000" fill="#7a1a2c"/>
+  <!-- flat black, edge to edge, and the white mark in the middle -->
+  <rect width="1000" height="1000" fill="#0b0b0b"/>
   <g transform="translate(240 240) scale(5.2)" fill="#ffffff">
     <rect x="33" y="0" width="34" height="18" rx="9"/>
     <rect x="33" y="82" width="34" height="18" rx="9"/>

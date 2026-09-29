@@ -182,7 +182,7 @@
     });
     el.querySelector('#ng-leave').addEventListener('click', () => {
       try { localStorage.removeItem('nebari:cookies'); localStorage.removeItem('nebari:wallet'); } catch (_) { /* ignore */ }
-      const to = (C.cookies && C.cookies.declineRedirect) || 'https://www.ponslaunchpad.com/';
+      const to = (C.cookies && C.cookies.declineRedirect) || 'https://www.ponsfamily.com/launchpad';
       window.location.href = to;
     });
   }

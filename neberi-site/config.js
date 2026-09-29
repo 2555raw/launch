@@ -44,7 +44,7 @@ window.NEBARI_CONFIG = {
   ],
 
   // Cookie notice: Accept remembers the choice; Decline leaves for this address.
-  cookies: { declineRedirect: 'https://www.ponslaunchpad.com/' },
+  cookies: { declineRedirect: 'https://www.ponsfamily.com/launchpad' },
 
   links: {
     x: 'https://x.com/',

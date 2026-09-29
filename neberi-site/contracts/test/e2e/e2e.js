@@ -168,7 +168,7 @@ const WALLET = `(() => {
     pass('cookie gate: shown on a fresh visit');
     await click('#ng-leave'); await sleep(1500);
     const where = await ev('location.href');
-    where.includes('ponslaunchpad.com') || where.startsWith('chrome-error') ? pass('cookie gate: Decline leaves for ' + (where.startsWith('chrome-error') ? 'ponslaunchpad.com (blocked here, navigation attempted)' : where)) : fail('cookie gate: Decline went to ' + where);
+    where.includes('ponsfamily.com/launchpad') || where.startsWith('chrome-error') ? pass('cookie gate: Decline leaves for ' + (where.startsWith('chrome-error') ? 'ponsfamily.com/launchpad (blocked here, navigation attempted)' : where)) : fail('cookie gate: Decline went to ' + where);
   });
 
   const real = errors.filter((e) => !/fonts\.g|google\.com|duckduckgo|ERR_|net::|Failed to load resource/i.test(e));

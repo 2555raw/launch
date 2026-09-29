@@ -44,7 +44,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </button>
           <button class="btn btn-ghost btn-sm wallet-btn" id="wallet-btn" type="button">Connect wallet</button>
-          <a class="btn btn-primary btn-sm" href="launch.html"><span class="nav-cta-text">Launch a token</span><span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="btn btn-primary btn-sm" href="launch.html"><span class="nav-cta-text">Launch a token</span></a>
         </div>
       </div>`;
     return el;
@@ -57,24 +57,18 @@
       <div class="wrap footer-in">
         <div class="footer-top">
           <div class="footer-brand">
-            <a class="brand brand-light" href="index.html"><span class="mark">${LOGO}</span><span class="brand-name">${brand.toUpperCase()}</span></a>
-            <p>Launch a Robinhood Chain token rooted to any stock or asset. Liquidity locked forever at launch, fees paid to the people who hold it.</p>
+            <a class="brand" href="index.html"><span class="mark">${LOGO}</span><span class="brand-name">${brand.toUpperCase()}</span></a>
+            <p>Robinhood Chain tokens with roots in any stock or asset. Liquidity sealed at launch, fees paid to the people who hold them.</p>
             <div class="footer-social">
-              <a class="icon-btn icon-btn-dark" href="${C.links.x}" target="_blank" rel="noopener" aria-label="${brand} on X">${X_ICON}</a>
-              <a class="btn btn-pink btn-sm" href="launch.html">Launch a token <span class="arrow" aria-hidden="true">↗</span></a>
+              <a class="icon-btn" href="${C.links.x}" target="_blank" rel="noopener" aria-label="${brand} on X">${X_ICON}</a>
             </div>
           </div>
           <div class="footer-cols">
             <div><h4>PROTOCOL</h4><a href="launch.html">Launch a token</a><a href="explore.html">Explore</a><a href="claim.html">Claim fees</a></div>
             <div><h4>LEARN</h4><a href="docs.html">Docs</a><a href="index.html#how">How it works</a><a href="index.html#assets">Assets</a><a href="index.html#faq">FAQ</a></div>
-            <div><h4>CHAIN</h4><a href="${C.network.explorer}" target="_blank" rel="noopener">Blockscout</a><a href="${C.links.docsRobinhood}" target="_blank" rel="noopener">Robinhood Chain docs</a><a href="${C.links.uniswapDeployments}" target="_blank" rel="noopener">Uniswap v4</a></div>
           </div>
         </div>
-        <div class="footer-word" aria-hidden="true">${brand}<em>.</em></div>
-        <div class="footer-bottom">
-          <p class="copy">© ${new Date().getFullYear()} ${brand}. Built on Robinhood Chain.</p>
-          <p class="copy">根張り · nebari, the root spread of a bonsai: the part that holds everything up.</p>
-        </div>
+        <div class="footer-bottom"><p class="copy">© ${new Date().getFullYear()} ${brand}. Built on Robinhood Chain.</p></div>
       </div>`;
     return el;
   }
@@ -116,34 +110,7 @@
   }
 
   // --------------------------------------------------------- background
-  function background() {
-    const bg = document.createElement('div');
-    bg.className = 'bg'; bg.setAttribute('aria-hidden', 'true');
-    bg.innerHTML = '<div class="bg-glow"></div><canvas class="bg-bonsai" id="bg-bonsai"></canvas><div class="bg-vignette"></div>';
-    document.body.prepend(bg);
-    const petals = document.createElement('canvas');
-    petals.className = 'petals'; petals.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(petals);
-    const canvas = bg.querySelector('canvas');
-    if (window.Bonsai) {
-      Bonsai.mount(canvas, (w, h) => {
-        if (w < 1) return null;
-        const mobile = w < 760;
-        return { x: mobile ? w * 0.5 : w * 0.76, y: mobile ? h * 0.98 : h * 0.96, height: mobile ? h * 0.5 : Math.min(h * 0.78, w * 0.42), seed: 'nebari-home', growth: 1, bokeh: true };
-      });
-      Bonsai.petals(petals, { count: 14 });
-    }
-    const base = page === 'home' ? 1 : 0.62; // app pages keep the tree quieter behind the panels
-    let last = -1, ticking = false;
-    const fade = () => {
-      ticking = false;
-      const vh = window.innerHeight;
-      const o = Math.round(Math.max(0.3, Math.min(1, 1 - (window.scrollY - vh * 0.5) / (vh * 0.9))) * base * 20) / 20;
-      if (o !== last) { last = o; canvas.style.opacity = o.toFixed(2); }
-    };
-    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(fade); } }, { passive: true });
-    fade();
-  }
+  function background() { /* plain black page, nothing drawn behind it */ }
 
   // ------------------------------------------------------------- wallet
   function wireWallet() {
@@ -178,9 +145,9 @@
     el.className = 'cookies'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Cookies');
     el.innerHTML = `
       <div class="cookies-box">
-        <canvas class="cookies-canvas" aria-hidden="true"></canvas>
+        <span class="cookies-mark" aria-hidden="true">${LOGO}</span>
         <span class="mark">${LOGO}</span>
-        <h3>A few <em>cookies</em><br>before you come in.</h3>
+        <h3>A few cookies<br>before you come in.</h3>
         <p>${brand} keeps two things in this browser: which wallet you connected and your answer here. Nothing else, and nothing is sent to anyone. Accept to come in. Decline and we will show you the door.</p>
         <div class="cookies-actions">
           <button class="btn btn-primary" type="button" id="cookies-accept">Accept and enter</button>
@@ -190,7 +157,6 @@
     document.body.appendChild(el);
     document.body.classList.add('cookies-open');
     el.addEventListener('animationend', () => {}, { once: true });
-    if (window.Bonsai) Bonsai.mount(el.querySelector('.cookies-canvas'), (w, h) => ({ x: w * 0.55, y: h * 0.96, height: h * 0.9, seed: 'nebari-cookies', growth: 1, shadow: false }));
     el.querySelector('#cookies-accept').focus();
     el.querySelector('#cookies-accept').addEventListener('click', () => {
       try { localStorage.setItem('nebari:cookies', 'accepted'); } catch (_) { /* ignore */ }

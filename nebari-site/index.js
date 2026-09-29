@@ -4,8 +4,6 @@
   const C = window.NEBARI_CONFIG;
 
   document.addEventListener('DOMContentLoaded', () => {
-    Bonsai.mount(document.getElementById('card-bonsai'), (w, h) => ({ x: w * 0.55, y: h * 0.9, height: h * 0.78, seed: 'nebari-card', growth: 1, shadow: false }));
-    Bonsai.mount(document.getElementById('cta-bonsai'), (w, h) => ({ x: w * 0.6, y: h * 0.92, height: h * 0.8, seed: 'nebari-cta', growth: 1, shadow: false }));
 
     // quick picks with their real logos
     const grid = document.getElementById('assets-grid');

@@ -8,7 +8,7 @@ const root = __dirname;
 const port = Number(process.env.PORT) || 8080;
 const types = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.txt': 'text/plain',
+  '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.txt': 'text/plain', '.ttf': 'font/ttf', '.gif': 'image/gif', '.mp4': 'video/mp4', '.webp': 'image/webp',
 };
 
 http.createServer((req, res) => {

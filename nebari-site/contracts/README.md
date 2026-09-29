@@ -12,14 +12,21 @@ Three contracts, no owner, no upgrade path.
 
 ```bash
 npm install
-npm run compile                              # solc-js → build/*.json (ABI + bytecode)
-node scripts/compile.js test/Harness.sol     # also builds the real PoolManager for the test
-npm test                                     # end-to-end on Hardhat's in-process EVM
+npm run compile     # solc-js -> build/*.json (ABI + bytecode)
+npm test            # contracts, end to end on Hardhat's in-process EVM (53 checks)
+npm run test:e2e    # the whole site in Chromium against a local chain (30 checks)
 ```
 
-The test launches tokens against an ERC20 and against native ETH, in both currency
-orderings, buys and sells through the router, checks the price floor, collects fees,
-checks the split, claims and burns. 53 assertions.
+`npm test` runs the real Uniswap v4 PoolManager: it launches tokens against an ERC20 and
+against native ETH, in both currency orderings, buys and sells through the router, checks
+the price floor, collects fees, checks the split, claims and burns.
+
+`npm run test:e2e` starts a local chain with Robinhood Chain's id (4663), deploys the
+PoolManager, a 6-decimal USDG test token, the factory and the router, serves a copy of the
+site pointed at them, and drives it in Chromium with a test wallet: launch against ETH and
+against USDG, buy, sell (with the ERC20 approval), collect fees, claim, then the Explore,
+Claim and home pages and the cookie gate. Ports 8545 and 8767 must be free. Set `CHROME`
+if Chromium is not at the Playwright path.
 
 ## Deploy to Robinhood Chain
 

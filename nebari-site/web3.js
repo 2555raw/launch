@@ -331,7 +331,8 @@ window.Nebari = (function () {
       if (!isFinite(n)) return '–';
       if (n === 0) return '0';
       const abs = Math.abs(n);
-      if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      // 999,999,999.9 rounds to "1000.00M"; show it as billions instead
+      if (abs >= 1e9 || abs / 1e6 >= 999.995) return (n / 1e9).toFixed(2) + 'B';
       if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
       if (abs >= 1e3) return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
       if (abs >= 1) return n.toLocaleString(undefined, { maximumFractionDigits: max == null ? 4 : max });

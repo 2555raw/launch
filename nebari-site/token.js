@@ -112,10 +112,10 @@
       const tx = await r.swapExactIn(key(), zeroForOne(), lastQuote.amountIn, minOut, me, { value: native ? lastQuote.amountIn : 0n });
       status('trade-status', `Sent. <a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">View on explorer</a>…`);
       await tx.wait();
-      status('trade-status', `Done. <a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">Transaction</a>`, 'ok');
-      Chrome.toast('Swap confirmed');
       $('amount').value = ''; lastQuote = null; $('quote').textContent = 'Enter an amount to see a quote.';
       await loadToken(); await loadUser();
+      status('trade-status', `Done. <a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">Transaction</a>`, 'ok');
+      Chrome.toast('Swap confirmed');
     } catch (e) { console.error(e); status('trade-status', Nebari.explainError(e), 'err'); }
     finally { $('swap').disabled = false; }
   }
@@ -130,9 +130,9 @@
       const tx = await t.claim();
       status('claim-status', `Sent. <a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">View on explorer</a>…`);
       await tx.wait();
+      await loadUser();
       status('claim-status', `Claimed. <a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">Transaction</a>`, 'ok');
       Chrome.toast('Fees claimed');
-      await loadUser();
     } catch (e) { status('claim-status', Nebari.explainError(e), 'err'); }
     finally { $('claim').disabled = false; }
   }
@@ -149,8 +149,8 @@
       const rc = await tx.wait();
       const ev = rc.logs.map((l) => { try { return f.interface.parseLog(l); } catch { return null; } }).find((e) => e && e.name === 'FeesCollected');
       const got = ev ? Nebari.fmt.units(ev.args.pairAmount, S.pair.decimals) : '?';
-      status('claim-status', `Collected ${got} ${pairSym()} of fees. Half is now claimable by holders. <a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">Transaction</a>`, 'ok');
       await loadToken(); await loadUser();
+      status('claim-status', `Collected ${got} ${pairSym()} of fees. Half is now claimable by holders. <a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">Transaction</a>`, 'ok');
     } catch (e) { status('claim-status', Nebari.explainError(e), 'err'); }
     finally { $('collect').disabled = false; }
   }

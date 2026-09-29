@@ -45,7 +45,7 @@ for (const file of Object.keys(out.contracts)) {
   for (const name of Object.keys(out.contracts[file])) {
     const c = out.contracts[file][name];
     if (!c.evm.bytecode.object) continue; // interfaces and libraries with nothing to deploy
-    const keep = file.startsWith('src/') || (extra.length > 0 && ['PoolManager', 'TestERC20'].includes(name));
+    const keep = file.startsWith('src/') || extra.includes(file) || (extra.length > 0 && ['PoolManager', 'TestERC20'].includes(name));
     if (!keep) continue;
     fs.writeFileSync(path.join(build, name + '.json'), JSON.stringify({
       contractName: name, abi: c.abi, bytecode: '0x' + c.evm.bytecode.object,

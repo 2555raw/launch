@@ -5,8 +5,10 @@
   "description": "Nebari launchpad contracts: fixed-supply dividend token + Uniswap v4 factory with locked liquidity",
   "scripts": {
     "compile": "node scripts/compile.js",
-    "test": "node test/run.js",
-    "deploy": "node scripts/deploy.js"
+    "compile:test": "node scripts/compile.js test/Harness.sol test/MockToken.sol",
+    "test": "node scripts/compile.js test/Harness.sol test/MockToken.sol && node test/run.js",
+    "deploy": "node scripts/deploy.js",
+    "test:e2e": "sh test/e2e/run.sh"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.1.0",
@@ -14,5 +16,9 @@
     "@uniswap/v4-periphery": "^1.0.3",
     "ethers": "^6.13.0",
     "solc": "0.8.26"
+  },
+  "devDependencies": {
+    "hardhat": "^2.22.0",
+    "solmate": "^6.8.0"
   }
 }

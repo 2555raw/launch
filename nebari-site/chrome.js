@@ -116,7 +116,7 @@
     if (window.Bonsai) {
       Bonsai.mount(canvas, (w, h) => {
         const mobile = w < 760;
-        return { x: mobile ? w * 0.5 : w * 0.72, y: mobile ? h * 0.98 : h * 0.96, height: mobile ? h * 0.5 : Math.min(h * 0.78, w * 0.46), seed: 'nebari-home', growth: 1 };
+        return { x: mobile ? w * 0.5 : w * 0.72, y: mobile ? h * 0.98 : h * 0.96, height: mobile ? h * 0.5 : Math.min(h * 0.78, w * 0.46), seed: 'nebari-home', growth: 1, bokeh: true };
       });
       Bonsai.petals(petals, { count: 24 });
     }
@@ -153,6 +153,33 @@
     Nebari.autoConnect();
   }
 
+  // ------------------------------------------------------------ cookies
+  // Shown on every visit until accepted. Decline leaves the site for the address in config.
+  function cookies() {
+    let seen = false;
+    try { seen = localStorage.getItem('nebari:cookies') === 'accepted'; } catch (_) { seen = false; }
+    if (seen) return;
+    const el = document.createElement('div');
+    el.className = 'cookies'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Cookies');
+    el.innerHTML = `
+      <h3>A few cookies.</h3>
+      <p>${brand} keeps your wallet choice and your cookie answer in this browser, nothing else, and sends nothing to anyone. Decline and we will show you the door.</p>
+      <div class="cookies-actions">
+        <button class="btn btn-pink" type="button" id="cookies-accept">Accept</button>
+        <button class="btn btn-light" type="button" id="cookies-decline">Decline</button>
+      </div>`;
+    document.body.appendChild(el);
+    el.querySelector('#cookies-accept').addEventListener('click', () => {
+      try { localStorage.setItem('nebari:cookies', 'accepted'); } catch (_) { /* ignore */ }
+      el.remove();
+    });
+    el.querySelector('#cookies-decline').addEventListener('click', () => {
+      try { localStorage.removeItem('nebari:cookies'); localStorage.removeItem('nebari:wallet'); } catch (_) { /* ignore */ }
+      const to = (C.cookies && C.cookies.declineRedirect) || 'https://www.ponslaunchpad.com/';
+      window.location.href = to;
+    });
+  }
+
   // --------------------------------------------------------------- boot
   document.addEventListener('DOMContentLoaded', () => {
     const pageEl = document.querySelector('.page') || document.body;
@@ -180,6 +207,7 @@
       document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
     }
     wireWallet();
+    cookies();
   });
 
   window.Chrome = { toast, logoEl, LOGO };

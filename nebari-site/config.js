@@ -42,6 +42,9 @@ window.NEBARI_CONFIG = {
     { symbol: 'SPY',   name: 'SPDR S&P 500 ETF',        address: '0x117cc2133c37B721F49dE2A7a74833232B3B4C0C', decimals: 18, kind: 'etf',    domain: 'ssga.com' },
   ],
 
+  // Cookie notice: Accept remembers the choice; Decline leaves for this address.
+  cookies: { declineRedirect: 'https://www.ponslaunchpad.com/' },
+
   links: {
     x: 'https://x.com/',
     docsRobinhood: 'https://docs.robinhood.com/chain/',

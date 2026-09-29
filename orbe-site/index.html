@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#0a0c12" />
-  <title>ORBE — Every market in one panel</title>
+  <title>ORBE — Every on-chain market, one panel</title>
   <meta name="description" content="ORBE brings your markets into one panel: prices, orders and liquidity across several networks, without switching tabs." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%231E3A8A' stroke-width='5'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -71,11 +71,11 @@
         <a href="#venues" data-scroll="venues">Venues</a>
         <a href="#features" data-scroll="features">Features</a>
         <a href="#faq" data-scroll="faq">FAQ</a>
-        <a class="btn btn--primary nav__cta-mobile" href="#get-started" data-scroll="get-started">Open app</a>
+        <button class="btn btn--primary nav__cta-mobile" type="button" data-demo>Open app</button>
       </nav>
 
       <div class="nav__right">
-        <a class="btn btn--primary nav__cta" href="#get-started" data-scroll="get-started">Open app</a>
+        <button class="btn btn--primary nav__cta" type="button" data-demo>Open app</button>
         <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="navlinks">
           <span></span><span></span>
         </button>
@@ -87,63 +87,64 @@
 
     <!-- ============ hero ============ -->
     <section class="hero">
-      <div class="hero__glow" aria-hidden="true"></div>
-      <div class="wrap hero__grid">
-        <div class="hero__copy">
-          <p class="pill"><span class="dot"></span> Live on 4 networks</p>
-          <h1 class="display">
-            Every market,<br /><em>one panel.</em>
-          </h1>
-          <p class="lead">
-            ORBE puts prices, orders and liquidity from several networks in a single view.
-            Pick where to trade with the numbers in front of you, not twenty open tabs.
-          </p>
-          <div class="hero__actions">
-            <a class="btn btn--primary btn--lg" href="#get-started" data-scroll="get-started">Get started</a>
-            <a class="btn btn--ghost btn--lg" href="#how" data-scroll="how">See how it works</a>
-          </div>
-          <ul class="hero__meta">
-            <li><strong>0.1&nbsp;s</strong> price refresh</li>
-            <li><strong>Non-custodial</strong> your keys, your funds</li>
-          </ul>
+      <div class="hero__beam" aria-hidden="true"></div>
+      <div class="wrap hero__inner">
+        <h1 class="hero__title">
+          Every on&#8209;chain market,<br /><span class="hero__accent">one panel</span>
+        </h1>
+        <p class="hero__sub">The best price across Solana, Base, Arbitrum and Ethereum, ranked after fees, in one view.</p>
+        <div class="hero__actions">
+          <button class="btn btn--primary btn--xl" type="button" data-demo>Try the demo</button>
+          <a class="btn btn--ghost btn--xl" href="#how" data-scroll="how">How it works</a>
         </div>
+        <p class="hero__note">No sign-up. The demo runs on sample prices and never touches a wallet.</p>
 
-        <!-- panel mockup -->
-        <div class="panel" aria-label="Panel preview">
+        <ul class="hero__nets">
+          <li><strong>Solana</strong><span>Fast blocks, sub-cent fees</span><span>4 venues</span></li>
+          <li><strong>Base</strong><span>Deep stablecoin pools</span><span>3 venues</span></li>
+          <li><strong>Arbitrum</strong><span>Majors and on-chain perps</span><span>3 venues</span></li>
+          <li><strong>Ethereum</strong><span>Largest liquidity, best for size</span><span>2 venues</span></li>
+        </ul>
+      </div>
+
+      <!-- dashboard mockup -->
+      <div class="wrap">
+        <div class="dash" aria-label="ORBE dashboard preview">
           <svg class="panel__cat cat" aria-hidden="true"><use href="#cat-wink"/></svg>
-          <div class="panel__bar">
+          <div class="dash__bar">
             <span class="panel__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="panel__title mono">ORBE / SOL-USDC</span>
-            <span class="live"><span class="dot"></span>live</span>
+            <span class="dash__brand">ORBE</span>
+            <span class="live"><span class="dot"></span>live · SOL/USDC</span>
           </div>
 
-          <div class="panel__price">
-            <span class="panel__label">Best aggregated price</span>
-            <span class="panel__big mono" id="px">142.318</span>
-            <span class="panel__delta mono" id="pxd">+0.42%</span>
+          <div class="tiles">
+            <div class="tile"><span class="tile__k">Best price</span><span class="tile__v mono" id="tBest">142.318</span><span class="tile__s" id="tBestNet">on Solana</span></div>
+            <div class="tile"><span class="tile__k">Spread across venues</span><span class="tile__v mono" id="tSpread">0.14%</span><span class="tile__s" id="tSpreadAbs">0.199 USDC best to worst</span></div>
+            <div class="tile"><span class="tile__k">Venues live</span><span class="tile__v mono">12 / 12</span><span class="tile__s">4 networks</span></div>
+            <div class="tile"><span class="tile__k">Saved today</span><span class="tile__v mono tile__v--hi" id="tSaved">+$184.20</span><span class="tile__s" id="tOrders">vs. worst venue · 37 orders</span></div>
+            <div class="tile"><span class="tile__k">Status</span><span class="tile__v tile__v--hi">Healthy</span><span class="tile__s">last quote 0.1 s ago</span></div>
           </div>
 
-          <div class="spark" aria-hidden="true">
-            <svg viewBox="0 0 300 70" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="sg" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stop-color="var(--blue)" stop-opacity=".55" />
-                  <stop offset="1" stop-color="var(--blue)" stop-opacity="0" />
-                </linearGradient>
-              </defs>
-              <path id="sparkArea" fill="url(#sg)" d="" />
-              <path id="sparkLine" fill="none" stroke="var(--blue-hi)" stroke-width="2" d="" />
-            </svg>
+          <div class="dash__grid">
+            <div class="card chart">
+              <div class="card__head">
+                <span class="card__k">Price by network</span>
+                <ul class="legend" id="legend"></ul>
+              </div>
+              <svg class="chart__svg" id="chart" viewBox="0 0 600 260" preserveAspectRatio="none" aria-hidden="true"></svg>
+            </div>
+
+            <div class="card orders">
+              <div class="card__head">
+                <span class="card__k">Routed orders</span>
+                <span class="card__count mono" id="oCount">5 / 37</span>
+              </div>
+              <table class="otable">
+                <thead><tr><th>Time</th><th>Side</th><th>Network</th><th class="r">Price</th><th class="r">Saved</th></tr></thead>
+                <tbody id="oBody"></tbody>
+              </table>
+            </div>
           </div>
-
-          <ul class="rows" id="rows">
-            <li><span class="chip">Solana</span><span class="mono" data-v="142.318">142.318</span><span class="tag tag--best">best</span></li>
-            <li><span class="chip">Base</span><span class="mono" data-v="142.251">142.251</span><span class="tag">−0.05%</span></li>
-            <li><span class="chip">Arbitrum</span><span class="mono" data-v="142.204">142.204</span><span class="tag">−0.08%</span></li>
-            <li><span class="chip">Ethereum</span><span class="mono" data-v="142.117">142.117</span><span class="tag">−0.14%</span></li>
-          </ul>
-
-          <button class="btn btn--primary btn--block" type="button">Execute on Solana</button>
         </div>
       </div>
     </section>
@@ -258,7 +259,7 @@
             </div>
             <h3>More networks</h3>
             <p>Missing one? Tell us and we’ll move it up the roadmap.</p>
-            <a class="link" href="#get-started" data-scroll="get-started">Suggest a network →</a>
+            <a class="link" href="#faq" data-scroll="faq">Read the FAQ →</a>
           </article>
         </div>
       </div>
@@ -332,7 +333,7 @@
         <svg class="cta__cat cat" aria-hidden="true"><use href="#cat-sleep"/></svg>
         <h2 class="display display--sm">Stop comparing <em>by hand.</em></h2>
         <p class="lead">Connect your wallet and see every market in under a minute.</p>
-        <a class="btn btn--primary btn--lg" href="#top" data-scroll="top">Open ORBE</a>
+        <button class="btn btn--primary btn--lg" type="button" data-demo>Try the demo</button>
       </div>
     </section>
   </main>
@@ -347,12 +348,55 @@
       <nav class="footer__links" aria-label="Footer">
         <a href="#venues" data-scroll="venues">Venues</a>
         <a href="#faq" data-scroll="faq">FAQ</a>
-        <a href="#">X / Twitter</a>
-        <a href="#">Telegram</a>
+        <a href="#how" data-scroll="how">How it works</a>
+        <a href="#features" data-scroll="features">Features</a>
       </nav>
       <p class="footer__legal">© <span id="year">2026</span> ORBE. Trading crypto assets involves risk.</p>
     </div>
   </footer>
+
+  <!-- ============ demo app ============ -->
+  <dialog class="demo" id="demo" aria-labelledby="demoTitle">
+    <form class="demo__card" id="demoForm" novalidate>
+      <header class="demo__head">
+        <div>
+          <p class="eyebrow">Demo</p>
+          <h2 class="demo__title" id="demoTitle">Swap across networks</h2>
+        </div>
+        <button class="demo__close" type="button" id="demoClose" aria-label="Close">×</button>
+      </header>
+
+      <p class="demo__note">Sample prices. No wallet is connected and nothing is sent.</p>
+
+      <div class="demo__fields">
+        <label class="field">
+          <span class="field__l">Pair</span>
+          <select id="demoPair">
+            <option value="SOL">SOL / USDC</option>
+            <option value="ETH">ETH / USDC</option>
+            <option value="BTC">WBTC / USDC</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field__l">Side</span>
+          <span class="seg" role="radiogroup" aria-label="Side">
+            <input type="radio" name="side" id="sideBuy" value="buy" checked /><label for="sideBuy">Buy</label>
+            <input type="radio" name="side" id="sideSell" value="sell" /><label for="sideSell">Sell</label>
+          </span>
+        </label>
+        <label class="field field--wide">
+          <span class="field__l">Amount (USDC)</span>
+          <input id="demoAmt" type="number" inputmode="decimal" min="1" step="any" value="500" />
+        </label>
+      </div>
+
+      <ul class="quotes" id="demoQuotes" aria-live="polite"></ul>
+
+      <button class="btn btn--primary btn--block btn--lg" type="submit" id="demoGo">Simulate order</button>
+
+      <div class="demo__result" id="demoResult" hidden></div>
+    </form>
+  </dialog>
 
   <script src="app.js"></script>
 </body>

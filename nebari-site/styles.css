@@ -154,6 +154,42 @@ p { margin: 0; }
 .card-bottom p { color: var(--text-2); font-size: 14.5px; }
 .big-number { font-size: 76px; line-height: 1; font-weight: 600; letter-spacing: -0.03em; color: #fff; margin-bottom: 12px; }
 
+/* ---- banner: assets on both sides, slogan in the middle ---- */
+.banner { position: relative; min-height: clamp(560px, 78vh, 820px); display: grid; place-items: center; overflow: hidden; margin-bottom: 40px; border-bottom: 1px solid var(--line); }
+.banner-glow { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(40% 55% at 50% 50%, rgba(140, 31, 51, 0.38) 0%, rgba(140, 31, 51, 0) 70%); }
+.banner-assets { position: absolute; inset: 40px 0; pointer-events: none; }
+.banner-asset {
+  position: absolute; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: auto;
+  animation: banner-float 7s ease-in-out infinite; animation-delay: var(--delay, 0s);
+}
+.banner-asset .asset-logo {
+  width: var(--size); height: var(--size); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.banner-asset:hover .asset-logo { transform: scale(1.08); box-shadow: 0 18px 60px rgba(140, 31, 51, 0.55), 0 0 0 2px var(--accent-hi); }
+.banner-sym { font-size: 12px; font-weight: 600; color: var(--text-2); background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line); padding: 3px 10px; border-radius: 999px; }
+@keyframes banner-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.banner-center { position: relative; z-index: 1; text-align: center; max-width: 820px; padding: 80px 24px; }
+.banner-kicker { display: inline-block; font-size: 13px; font-weight: 600; color: var(--accent-ink); border: 1px solid var(--pink-soft); background: var(--pink-wash); padding: 7px 14px; border-radius: 999px; margin-bottom: 26px; }
+.banner-title { font-size: clamp(46px, 6.2vw, 104px); line-height: 1; font-weight: 400; letter-spacing: -0.035em; }
+.banner-title em { font-style: normal; color: var(--accent-ink); }
+.banner-sub { margin: 28px auto 0; max-width: 560px; color: var(--text-2); font-size: 16px; }
+.banner-actions { display: flex; gap: 14px; justify-content: center; margin-top: 36px; flex-wrap: wrap; }
+@media (prefers-reduced-motion: reduce) { .banner-asset { animation: none; } }
+@media (max-width: 1100px) {
+  .banner-asset { --size-scale: .75; }
+  .banner-asset .asset-logo { width: calc(var(--size) * .72); height: calc(var(--size) * .72); }
+  .banner-sym { display: none; }
+}
+@media (max-width: 760px) {
+  .banner { min-height: 0; display: block; padding: 28px 0 8px; }
+  .banner-assets { position: static; inset: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; padding: 0 16px; }
+  .banner-asset { position: static; animation-duration: 5s; }
+  .banner-asset .asset-logo { width: 46px; height: 46px; }
+  .banner-center { padding: 32px 16px 56px; }
+}
+
 /* ---- sections ---- */
 .section { padding: 110px 0; }
 .section-head { max-width: 780px; margin-bottom: 52px; }

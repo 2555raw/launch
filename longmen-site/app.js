@@ -1,4 +1,4 @@
-/* Dendra — page behaviour for index, launch and docs.
+/* Longmen — page behaviour for index, launch and docs.
    No dependencies. Every block checks that its elements exist, so one file
    serves the three pages. All market figures below are sample data. */
 

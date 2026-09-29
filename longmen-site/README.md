@@ -1,6 +1,6 @@
-# Dendra — site
+# Longmen — site
 
-Static site for **Dendra**, a token launchpad for the Bittensor economy: launch a token paired
+Static site for **Longmen**, a token launchpad for the Bittensor economy: launch a token paired
 with TAO or subnet alpha, on Robinhood Chain (bonding curve → pool) or Bittensor EVM (locked
 pool from block one).
 
@@ -30,13 +30,17 @@ python3 -m http.server 8000     # then open http://localhost:8000
 
 Black ground, near-black cards, white as the primary action. **Instrument Serif** for display
 headings (with an italic word), **Inter** for everything else, **JetBrains Mono** for labels and
-figures. One orange, `#FF5B26`, marks the logo node and anything live or filling. The logo is a
-dendrite: a stem branching from a single node.
+figures. One orange, `#FF5B26`, marks the logo's plaque and anything live or filling.
+
+**The name.** Longmen (龙门) is the Dragon Gate: in the old story, the carp that leaps it becomes
+a dragon. A launch that fills its curve and graduates to a pool is the same leap. The logo is a
+simple gate — two posts, a crossbeam and a curved roof — with the plaque in orange.
 
 ## Pixel art background
 
-The hero and the two feature panels use one original pixel-art scene: the Great Wall of China by
-day, climbing three ranges of misty mountains, with watchtowers on the crests. It is painted pixel
+The hero and the two feature panels use one original pixel-art scene: the Great Wall of China on
+an overcast day, peaks and watchtowers rising out of a sea of fog, the wall climbing a wooded
+hillside in the foreground (`paintMist`). An earlier sunny version (`paintWall`) is kept too. It is painted pixel
 by pixel in `assets/src/paint.html` (seeded, so the output is stable) at 640×360, and the site
 scales it up with `image-rendering: pixelated`. The same file also holds two New York skylines
 (`paintNight`, `paintDay`) from an earlier version. To tweak and re-export:

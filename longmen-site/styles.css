@@ -1,4 +1,4 @@
-/* Dendra — design system and layout, shared by index, launch and docs.
+/* Longmen — design system and layout, shared by index, launch and docs.
    Black ground, near-black cards, white as the primary action. One orange
    (--accent) marks the logo node and things that are live or filling. */
 
@@ -223,7 +223,7 @@ em { font-style: italic; }
 .dn-panel-flip .dn-panel-art { order: 2; }
 .dn-panel-art {
   position: relative; display: grid; place-items: center; padding: 60px 40px;
-  background: #2459B0 url("assets/great-wall.png") 20% 48% / auto 160% no-repeat; image-rendering: pixelated;
+  background: #2459B0 url("assets/great-wall.png") 0% 55% / auto 160% no-repeat; image-rendering: pixelated;
 }
 .dn-panel-copy { padding: 56px; display: flex; flex-direction: column; justify-content: center; }
 .dn-panel-copy p { margin-top: 22px; font-size: 19px; color: var(--prose); max-width: 30em; }
@@ -550,6 +550,11 @@ em { font-style: italic; }
   background: radial-gradient(ellipse 48% 34% at 50% 40%, rgba(8, 6, 26, .55), rgba(8, 6, 26, 0) 72%);
 }
 .dn-hero-in { z-index: 1; }
-.dn-panel-flip .dn-panel-art { background-position: 88% 48%; }
+.dn-panel-flip .dn-panel-art { background-position: 100% 55%; }
 /* daytime sky is bright: a deeper scrim behind the hero copy */
 .dn-hero::after { background: radial-gradient(ellipse 50% 36% at 50% 40%, rgba(6, 18, 48, .62), rgba(6, 18, 48, 0) 74%); }
+
+/* the name's characters beside the wordmark */
+.dn-han { font-weight: 500; font-size: .78em; color: var(--dim); letter-spacing: .08em; margin-left: 2px; }
+.dn-brand-lg .dn-han { font-size: .6em; }
+@media (max-width: 640px) { .dn-nav .dn-han { display: none; } }

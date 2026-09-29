@@ -11,7 +11,7 @@ const page = await browser.newPage();
 await page.goto(pathToFileURL(join(here, 'paint.html')).href);
 
 // paintNight / paintDay (the New York skylines) are still in paint.html; add them here to export.
-for (const [fn, out] of [['paintWall', 'great-wall.png']]) {
+for (const [fn, out] of [['paintMist', 'great-wall.png']]) {
   const url = await page.evaluate((f) => window[f](), fn);
   const buf = Buffer.from(url.split(',')[1], 'base64');
   writeFileSync(join(here, '..', out), buf);

@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>Dendra pixel backgrounds</title></head>
+<head><meta charset="utf-8"><title>Longmen pixel backgrounds</title></head>
 <body style="margin:0;background:#000">
 <!--
   Paints the site's pixel-art backgrounds: a New York skyline at dusk for the
@@ -36,6 +36,7 @@ const fbm = (n, x, y, o = 4) => { let a = 1, f = 1, s = 0, t = 0; for (let i = 0
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
 const bayer = (x, y) => (BAYER[y & 3][x & 3] + 0.5) / 16;
 
@@ -463,6 +464,155 @@ window.paintWall = function () {
   // bottom: fade into the page's black
   for (let y = H - 64; y < H; y++) for (let x = 0; x < W; x++) {
     const t = (y - (H - 64)) / 64;
+    if (t > bayer(x, y)) S.set(x, y, hex('#000000'));
+  }
+  return S.toURL();
+};
+
+/* ---------- the Great Wall in a sea of fog: hero and panels ---------- */
+
+window.paintMist = function () {
+  const W = 640, H = 360;
+  const S = surface(W, H);
+  const fogC = hex('#E6EAEC');
+
+  // overcast sky: slate overhead, paling into the fog
+  const sky = ['#6E7A86', '#77838E', '#818C97', '#8C96A0', '#98A1AA', '#A5ADB4', '#B2B9BF', '#BFC5CA', '#CBD0D4', '#D6DADD', '#E0E3E5'].map(hex);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) S.set(x, y, ditherPick(sky, (y / 190) * 10 + (x / W - 0.5) * 0.6, x, y));
+  // streaky cloud texture in the overcast
+  const sn = valueNoise(501);
+  for (let y = 0; y < 170; y++) for (let x = 0; x < W; x++) {
+    const v = fbm(sn, x / 90, y / 7, 5);
+    if (v > 0.6) S.set(x, y, mix(S.get(x, y), hex('#E4E7EA'), clamp((v - 0.6) * 3) * 0.6 > bayer(x, y) * 0.6 ? 0.45 : 0.18));
+    else if (v < 0.36) S.set(x, y, mix(S.get(x, y), hex('#5A6571'), 0.12));
+  }
+
+  const smoothArr = (ys, r) => ys.map((_, x) => { let s = 0, c = 0; for (let k = -r; k <= r; k++) { const i = x + k; if (i >= 0 && i < W) { s += ys[i]; c++; } } return s / c; });
+
+  // a line of hills from a list of [x, height] control points, roughened with noise
+  const hills = (seed, base, pts, rough) => {
+    const n = valueNoise(seed), ys = new Float32Array(W);
+    for (let x = 0; x < W; x++) {
+      let h = 0;
+      pts.forEach(([px, ph, pw]) => { h = Math.max(h, ph * Math.exp(-((x - px) ** 2) / (2 * pw * pw))); });
+      ys[x] = base - h - (fbm(n, x / 22, 5.5, 4) - 0.5) * rough;
+    }
+    return ys;
+  };
+
+  const land = (ys, pal, seed, opts = {}) => {
+    const tn = valueNoise(seed), sm = smoothArr(ys, 4);
+    for (let x = 0; x < W; x++) {
+      const top = Math.round(ys[x]);
+      const slope = (sm[Math.min(W - 1, x + 3)] - sm[Math.max(0, x - 3)]) / 6;
+      const lit = clamp(0.5 + slope * 0.9);
+      for (let y = Math.max(0, top); y < H; y++) {
+        const d = y - top;
+        // canopy: bumpy clumps of shrubs and trees, lighter on their tops
+        const clump = fbm(tn, x / (opts.clump || 5), y / ((opts.clump || 5) * 0.8), 4);
+        const clumpTop = fbm(tn, x / (opts.clump || 5), (y - 1.5) / ((opts.clump || 5) * 0.8), 4);
+        let f = 1.4 + (lit - 0.5) * 1.8 + (clump - 0.5) * 3.2 + (clump - clumpTop) * 9 - d / (opts.fall || 90);
+        if (d === 0) f += 0.6;
+        S.set(x, y, ditherPick(pal, f, x, y));
+      }
+    }
+  };
+
+  // fog: a soft white band whose top edge curls, blended in quantized steps to keep it pixel-y
+  const fog = (level, depth, seed, strength = 1, wisp = 14) => {
+    const fn = valueNoise(seed);
+    for (let x = 0; x < W; x++) {
+      const edge = level - (fbm(fn, x / 60, 1.3, 4) - 0.5) * wisp * 2;
+      for (let y = Math.max(0, Math.floor(edge - depth)); y < H; y++) {
+        const t = (y - (edge - depth)) / depth;                 // 0 at the fuzzy top, 1 inside
+        const curl = fbm(fn, x / 26, y / 6, 4) - 0.5;
+        const a = clamp(smooth(0, 1, t + curl * 0.9) * strength);
+        if (a <= 0) continue;
+        const q = Math.min(1, Math.floor(a * 5 + bayer(x, y)) / 5);
+        if (q > 0) S.set(x, y, mix(S.get(x, y), fogC, q));
+      }
+    }
+  };
+
+  const stone = { hi: hex('#C9C1B0'), top: hex('#B2A895'), face: hex('#978C78'), shade: hex('#7A705F'), dark: hex('#5A5246'), hole: hex('#2C2822'), mortar: hex('#877C69') };
+  const wallAlong = (line, from, to, bodyAt, t, tint) => {
+    const T = (c) => (tint ? mix(c, tint[0], tint[1]) : c);
+    for (let x = from; x < to; x++) {
+      const y = Math.round(line[x]), body = Math.round(bodyAt(x));
+      for (let k = 0; k < body; k++) {
+        const brick = ((x + (Math.floor((y + k) / 2) % 2) * 2) % 4 === 0) && (k % 2 === 0);
+        S.set(x, y + k, T(k >= body - 1 ? stone.dark : brick ? stone.mortar : k < 2 ? stone.face : stone.shade));
+      }
+      for (let k = 0; k < t.walk; k++) S.set(x, y - 1 - k, T(k === 0 ? stone.top : stone.hi));
+      const py = y - 1 - t.walk;
+      S.set(x, py, T(stone.face));
+      if (x % t.gap < t.merlon) for (let k = 1; k <= t.merlonH; k++) S.set(x, py - k, T(k === t.merlonH ? stone.hi : stone.face));
+    }
+  };
+  const tower = (cx, baseY, w, h, t, tint, roof) => {
+    const T = (c) => (tint ? mix(c, tint[0], tint[1]) : c);
+    const top = baseY - h, x0 = cx - (w >> 1);
+    for (let y = top; y < baseY; y++) for (let x = x0; x < x0 + w; x++) {
+      const brick = ((x + (Math.floor(y / 2) % 2) * 2) % 4 === 0) && (y % 2 === 0) && w > 12;
+      S.set(x, y, T(y === top ? stone.hi : brick ? stone.mortar : x < cx - 1 ? stone.face : stone.shade));
+    }
+    for (let x = x0; x < x0 + w; x++) if (((x - x0) % t.gap) < t.merlon) for (let k = 1; k <= t.merlonH; k++) S.set(x, top - k, T(k === t.merlonH ? stone.hi : stone.face));
+    if (t.win) for (let wx = x0 + 3; wx + 2 < x0 + w - 2; wx += 6) {
+      for (let y = top + 5; y < top + 5 + t.win; y++) { S.set(wx, y, T(stone.hole)); S.set(wx + 1, y, T(stone.hole)); }
+      S.set(wx, top + 4, T(stone.dark)); S.set(wx + 1, top + 4, T(stone.dark));
+    }
+    if (roof) {
+      const rw = w + 2, ry = top - t.merlonH - 1;
+      for (let j = 0; j < Math.round(w * 0.45); j++) {
+        const hw = (rw >> 1) - Math.round(j * 1.1);
+        for (let x = cx - hw; x < cx + hw; x++) S.set(x, ry - j, T(j === 0 ? hex('#3A3A36') : (x + j) % 3 ? hex('#57574F') : hex('#474741')));
+      }
+    }
+  };
+
+  const far = [hex('#6F7E80'), hex('#7C8A8B'), hex('#8A9796'), hex('#99A5A2')];
+  const midPal = [hex('#2E4232'), hex('#3A5139'), hex('#476142'), hex('#58714F'), hex('#6C8360')];
+  const nearPal = [hex('#14241A'), hex('#1C3121'), hex('#253F28'), hex('#315133'), hex('#40653F'), hex('#56794C')];
+
+  // the far horizon: a thin blue ridge above the fog sea
+  for (let x = 0; x < W; x++) {
+    const y = 124 + Math.round((fbm(sn, x / 40, 30, 3) - 0.5) * 8);
+    for (let k = 0; k < 4; k++) S.set(x, y + k, mix(hex('#7D8DA1'), fogC, k * 0.2));
+  }
+  fog(150, 30, 511, 0.85, 6);
+
+  // distant peaks poking out of the fog, towers on top
+  const p1 = hills(521, 200, [[62, 60, 26], [98, 44, 16], [150, 40, 18], [372, 46, 12], [392, 34, 16], [462, 58, 16], [500, 40, 20], [560, 46, 18], [616, 32, 16]], 22);
+  land(p1, far, 522, { fall: 30 });
+  const t1 = [[70, 5, 5], [372, 4, 4], [470, 5, 5], [560, 4, 4]];
+  t1.forEach(([x, w, h]) => tower(x, Math.round(p1[x]) + 1, w, h, { gap: 2, merlon: 1, merlonH: 1 }, [fogC, 0.25]));
+  const w1 = smoothArr(p1, 3);
+  wallAlong(w1, 30, 170, () => 2, { walk: 1, gap: 2, merlon: 1, merlonH: 1 }, [fogC, 0.3]);
+  wallAlong(w1, 440, 600, () => 2, { walk: 1, gap: 2, merlon: 1, merlonH: 1 }, [fogC, 0.3]);
+  fog(196, 34, 531, 0.8, 14);
+
+  // middle ridge on the left, sliding down into the fog
+  const p2 = hills(541, 268, [[30, 100, 46], [120, 84, 40], [200, 58, 34], [290, 34, 30]], 22);
+  land(p2, midPal, 542, { clump: 4, fall: 50 });
+  const w2 = smoothArr(p2, 4).map((v) => v + 1);
+  wallAlong(w2, 0, 210, () => 3, { walk: 1, gap: 3, merlon: 1, merlonH: 2 }, [fogC, 0.15]);
+  [[48, 9, 10], [138, 8, 9]].forEach(([x, w, h], i) => tower(x, Math.round(w2[x]) + 3, w, h, { gap: 3, merlon: 2, merlonH: 2, win: i === 0 ? 3 : 0 }, [fogC, 0.15], i === 1));
+  fog(244, 40, 551, 0.8, 18);
+
+  // the near hillside, thick with shrubs, the wall climbing its crest to a big tower on the right
+  const p3 = hills(561, 364, [[640, 156, 230], [390, 98, 110], [150, 80, 120], [0, 96, 90]], 16);
+  land(p3, nearPal, 562, { clump: 4.5, fall: 110 });
+  const w3 = smoothArr(p3, 7).map((v) => v + 2);
+  wallAlong(w3, 250, 640, (x) => 5 + (x - 250) / 26, { walk: 2, gap: 4, merlon: 2, merlonH: 3 });
+  tower(368, Math.round(w3[368]) + 8, 14, 16, { gap: 4, merlon: 2, merlonH: 2, win: 5 }, null, true);
+  tower(566, Math.round(w3[566]) + 16, 30, 28, { gap: 5, merlon: 3, merlonH: 3, win: 8 });
+
+  // low wisps drifting over the near slope
+  fog(330, 16, 571, 0.35, 22);
+
+  // bottom: fade into the page's black
+  for (let y = H - 60; y < H; y++) for (let x = 0; x < W; x++) {
+    const t = (y - (H - 60)) / 60;
     if (t > bayer(x, y)) S.set(x, y, hex('#000000'));
   }
   return S.toURL();

@@ -87,23 +87,34 @@
   function logoEl(asset) {
     const box = document.createElement('span');
     box.className = 'asset-logo';
-    if (asset.logoBg) { box.style.background = asset.logoBg; box.style.borderColor = asset.logoBg; box.classList.add('asset-logo-padded'); }
     const sym = (asset.symbol || '?').toUpperCase();
-    const srcs = [`assets/logos/${sym.toLowerCase()}.png`];
-    if (asset.logo) srcs.push(asset.logo);
+    const low = sym.toLowerCase();
+    // transparent versions first (no disc behind the mark), then the round files, then the site icon
+    const srcs = [
+      { src: `assets/logos/bare/${low}.svg`, bare: true },
+      { src: `assets/logos/bare/${low}.png`, bare: true },
+      { src: `assets/logos/${low}.png` },
+    ];
+    if (asset.logo) srcs.push({ src: asset.logo });
     if (asset.domain) {
-      srcs.push(`https://www.google.com/s2/favicons?domain=${asset.domain}&sz=128`);
-      srcs.push(`https://icons.duckduckgo.com/ip3/${asset.domain}.ico`);
+      srcs.push({ src: `https://www.google.com/s2/favicons?domain=${asset.domain}&sz=128` });
+      srcs.push({ src: `https://icons.duckduckgo.com/ip3/${asset.domain}.ico` });
     }
     const img = document.createElement('img');
     img.alt = sym + ' logo'; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
-    let i = 0;
+    let i = 0, current = null;
+    const setBare = (on) => {
+      box.classList.toggle('asset-logo-bare', on);
+      if (!on && asset.logoBg) { box.style.background = asset.logoBg; box.style.borderColor = asset.logoBg; box.classList.add('asset-logo-padded'); }
+      else { box.style.background = ''; box.style.borderColor = ''; box.classList.remove('asset-logo-padded'); }
+    };
     const next = () => {
-      if (i >= srcs.length) { img.remove(); box.innerHTML = `<span class="mono">${sym.slice(0, 4)}</span>`; return; }
-      img.src = srcs[i++];
+      if (i >= srcs.length) { img.remove(); setBare(false); box.innerHTML = `<span class="mono">${sym.slice(0, 4)}</span>`; return; }
+      current = srcs[i++];
+      img.src = current.src;
     };
     img.onerror = next;
-    img.onload = () => { if (img.naturalWidth < 8) next(); };
+    img.onload = () => { if (img.naturalWidth < 8) next(); else setBare(!!current.bare); };
     next();
     box.appendChild(img);
     return box;

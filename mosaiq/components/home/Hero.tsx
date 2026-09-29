@@ -89,13 +89,13 @@ export function Hero({ counts }: { counts: Record<string, number> }) {
             transition={{ delay: 0.18, duration: 0.6 }}
             className="mt-6 max-w-md text-[16px] leading-relaxed text-fog"
           >
-            Pump.fun, Four.meme, Clanker and the rest keep their own chains. Here you fill a single form, and your agent places
-            the launch. Featured pad:{" "}
+            {pads.filter((p) => !p.featured && p.chain !== "arc").map((p) => p.name).join(", ").replace(/, ([^,]*)$/, " and $1")} keep their own
+            chains. Here you fill a single form, and your agent places the launch. Home is{" "}
             <Link
               href={`/launch?chain=${defaultPad.chain}&pad=${defaultPad.id}`}
               className="inline-flex translate-y-[3px] items-center gap-1.5 rounded-full border border-line-strong bg-surface-2 py-0.5 pl-1 pr-2.5 text-sm text-bone transition hover:border-white/30"
             >
-              <PadGlyph pad={defaultPad.id} size="sm" className="!size-5 !rounded-full !text-[8px]" /> {defaultPad.name}
+              <PadGlyph pad={defaultPad.id} size="sm" className="!size-4 !rounded-full" /> {defaultPad.name}
             </Link>{" "}
             on {getChain(defaultPad.chain)!.name}.
           </motion.p>
@@ -163,17 +163,17 @@ export function Hero({ counts }: { counts: Record<string, number> }) {
                   >
                     <span className="flex items-start justify-between">
                       <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-bone">
-                        <ChainDot chain={p.chain} className="size-3" /> {c.name}
+                        <ChainDot chain={p.chain} className="size-3.5" /> {c.name}
                       </span>
                       <span className="font-mono text-[11px] text-fog">{String(i + 1).padStart(2, "0")}</span>
                     </span>
                     <span className="mx-auto mt-6 grid size-[104px] place-items-center rounded-full border-[3px] border-white/10 bg-[radial-gradient(circle_at_35%_30%,#2a2a2a,#0b0b0b)] shadow-[inset_0_2px_10px_rgb(0_0_0/0.8),0_0_0_1px_rgb(255_255_255/0.06)] sm:size-[116px]">
-                      <PadGlyph pad={p.id} size="xl" className="!size-16 !rounded-full" />
+                      <PadGlyph pad={p.id} size="xl" className="!size-[72px] !rounded-full sm:!size-[84px]" />
                     </span>
                     <span className="mt-auto text-center">
                       <span className="block text-xl font-semibold tracking-tight">{p.name}</span>
                       <span className="mt-1 block text-lg font-semibold tracking-tight">
-                        {p.featured ? "Featured" : "Live"}{" "}
+                        {p.featured ? "Home" : "Live"}{" "}
                         <span className="text-sm font-normal text-fog">{p.featured ? "pad" : `on ${site.name}`}</span>
                       </span>
                     </span>

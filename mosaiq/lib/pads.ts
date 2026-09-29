@@ -1,51 +1,60 @@
 /**
- * The launchpad registry. Chains, pads and pairs are data, so adding a venue
- * is a new entry here plus an adapter in lib/server/adapters.ts.
+ * The launchpad registry. Chains, pads, pairs and their logos are data, so
+ * adding a venue is a new entry here plus an adapter in lib/server/adapters.ts.
  *
- * Pairs and minimum opening buys are product configuration; confirm them
- * against each venue before wiring a live adapter.
+ * Logos in /public/logos are the trademarks of their owners and are used
+ * only to identify each venue, chain and asset.
  */
 
-export type ChainId = "solana" | "bsc" | "base";
+export type ChainId = "solana" | "bsc" | "robinhood" | "arc";
 export type AddressKind = "base58" | "evm";
 
 export interface Chain {
   id: ChainId;
   name: string;
+  /** Shorter label for tight spots (chain picker on phones). */
   short: string;
   native: string;
-  addressKind: AddressKind;
-  /** Tile colour used for the chain across the UI. */
-  color: string;
-  explorer: string;
-}
-
-export interface Pair {
-  symbol: string;
-  /** Smallest opening buy the form accepts, in units of the pair asset. */
+  /** Smallest opening buy, in the native asset. */
   minBuy: number;
+  addressKind: AddressKind;
+  color: string;
+  logo: string;
+  explorer: string;
 }
 
 export interface Pad {
   id: string;
   name: string;
   chain: ChainId;
-  monogram: string;
+  /** Pair symbols; "STOCK" means the pad pairs with any tokenised stock below. */
+  pairs: string[];
+  logo: string;
   color: string;
-  pairs: Pair[];
+  monogram: string;
   url: string;
   blurb: string;
+  /** The home pad: listed first and preselected in the studio. */
   featured?: boolean;
+}
+
+export interface Asset {
+  symbol: string;
+  name: string;
+  logo: string;
+  stock?: boolean;
 }
 
 export const chains: Chain[] = [
   {
     id: "solana",
     name: "Solana",
-    short: "SOL",
+    short: "Solana",
     native: "SOL",
+    minBuy: 0.01,
     addressKind: "base58",
     color: "#3DD9B3",
+    logo: "/logos/solana.png",
     explorer: "https://solscan.io/token/",
   },
   {
@@ -53,53 +62,79 @@ export const chains: Chain[] = [
     name: "BNB Chain",
     short: "BNB",
     native: "BNB",
+    minBuy: 0.005,
     addressKind: "evm",
     color: "#F5C84B",
+    logo: "/logos/bnb.png",
     explorer: "https://bscscan.com/token/",
   },
   {
-    id: "base",
-    name: "Base",
-    short: "BASE",
+    id: "robinhood",
+    name: "Robinhood Chain",
+    short: "Robinhood",
     native: "ETH",
+    minBuy: 0.001,
+    addressKind: "evm",
+    color: "#CCFF00",
+    logo: "/logos/robinhood.png",
+    explorer: "https://explorer.mainnet.chain.robinhood.com/address/",
+  },
+  {
+    id: "arc",
+    name: "Arc",
+    short: "Arc",
+    native: "USDC",
+    minBuy: 1,
     addressKind: "evm",
     color: "#7C9CFF",
-    explorer: "https://basescan.org/token/",
+    logo: "/logos/arc.png",
+    explorer: "https://argus.world/token/",
   },
 ];
 
 export const pads: Pad[] = [
   {
-    id: "pumpfun",
-    name: "Pump.fun",
-    chain: "solana",
-    monogram: "Pf",
-    color: "#3DD9B3",
-    pairs: [{ symbol: "SOL", minBuy: 0.01 }],
-    url: "https://pump.fun",
-    blurb: "Bonding-curve launches with the deepest Solana audience.",
+    id: "pons",
+    name: "Pons",
+    chain: "robinhood",
+    pairs: ["ETH", "USDG", "STOCK", "cbBTC"],
+    logo: "/logos/pons.png",
+    color: "#D9D9D9",
+    monogram: "Po",
+    url: "https://www.ponsfamily.com/launchpad",
+    blurb: "The home pad. Pair with ETH, USDG, cbBTC or a tokenised stock.",
     featured: true,
   },
   {
-    id: "bonk",
-    name: "Bonk.fun",
+    id: "pump",
+    name: "Pump.fun",
     chain: "solana",
-    monogram: "Bk",
-    color: "#FF9F43",
-    pairs: [
-      { symbol: "SOL", minBuy: 0.01 },
-      { symbol: "USD1", minBuy: 1 },
-    ],
-    url: "https://bonk.fun",
-    blurb: "Community launchpad with SOL and stablecoin pairs.",
+    pairs: ["SOL", "STOCK"],
+    logo: "/logos/pump.png",
+    color: "#3DD9B3",
+    monogram: "Pf",
+    url: "https://pump.fun",
+    blurb: "Bonding-curve launches with the deepest Solana audience.",
   },
   {
-    id: "fourmeme",
+    id: "stonk",
+    name: "StonkFun",
+    chain: "solana",
+    pairs: ["STOCK"],
+    logo: "/logos/stonkfun.png",
+    color: "#5CC8E8",
+    monogram: "Sf",
+    url: "https://www.stonkfun.xyz",
+    blurb: "Coins that pair straight to a tokenised stock.",
+  },
+  {
+    id: "four",
     name: "Four.meme",
     chain: "bsc",
+    pairs: ["BNB", "STOCK", "BTC"],
+    logo: "/logos/four.png",
+    color: "#7CF2B0",
     monogram: "4m",
-    color: "#F5C84B",
-    pairs: [{ symbol: "BNB", minBuy: 0.005 }],
     url: "https://four.meme",
     blurb: "The busiest fair-launch venue on BNB Chain.",
   },
@@ -107,36 +142,56 @@ export const pads: Pad[] = [
     id: "flap",
     name: "Flap",
     chain: "bsc",
+    pairs: ["BNB", "STOCK", "BTC"],
+    logo: "/logos/flap.png",
+    color: "#7B5CFF",
     monogram: "Fl",
-    color: "#C9A7FF",
-    pairs: [{ symbol: "BNB", minBuy: 0.005 }],
-    url: "https://flap.sh",
-    blurb: "Lightweight BNB launches with instant listing.",
+    url: "https://www.flap.sh",
+    blurb: "Lightweight BNB launches with BTC and stock pairs.",
   },
   {
-    id: "clanker",
-    name: "Clanker",
-    chain: "base",
-    monogram: "Cl",
+    id: "argus",
+    name: "Argus",
+    chain: "arc",
+    pairs: ["USDC"],
+    logo: "/logos/argus.png",
     color: "#7C9CFF",
-    pairs: [{ symbol: "WETH", minBuy: 0.001 }],
-    url: "https://clanker.world",
-    blurb: "Agent-friendly token deployer on Base.",
-  },
-  {
-    id: "zora",
-    name: "Zora",
-    chain: "base",
-    monogram: "Zo",
-    color: "#FF6A3D",
-    pairs: [
-      { symbol: "ETH", minBuy: 0.001 },
-      { symbol: "ZORA", minBuy: 10 },
-    ],
-    url: "https://zora.co",
-    blurb: "Creator coins with onchain media baked in.",
+    monogram: "Ar",
+    url: "https://argus.world",
+    blurb: "USDC-native launches on Arc.",
   },
 ];
+
+/** Pair assets and the tokenised stocks a "STOCK" pad can pair with. */
+export const assets: Asset[] = [
+  { symbol: "ETH", name: "Ether", logo: "/logos/eth.png" },
+  { symbol: "USDG", name: "Global Dollar", logo: "/logos/usdc.png" },
+  { symbol: "USDC", name: "USD Coin", logo: "/logos/usdc.png" },
+  { symbol: "SOL", name: "Solana", logo: "/logos/solana.png" },
+  { symbol: "BNB", name: "BNB", logo: "/logos/bnb.png" },
+  { symbol: "BTC", name: "Bitcoin", logo: "/logos/stocks/BTC.png" },
+  { symbol: "cbBTC", name: "Coinbase Wrapped BTC", logo: "/logos/stocks/cbBTC.png" },
+  { symbol: "TSLA", name: "Tesla", logo: "/logos/stocks/TSLA.png", stock: true },
+  { symbol: "NVDA", name: "NVIDIA", logo: "/logos/stocks/NVDA.png", stock: true },
+  { symbol: "AAPL", name: "Apple", logo: "/logos/stocks/AAPL.png", stock: true },
+  { symbol: "HOOD", name: "Robinhood", logo: "/logos/stocks/HOOD.svg", stock: true },
+  { symbol: "COIN", name: "Coinbase", logo: "/logos/stocks/COIN.png", stock: true },
+  { symbol: "META", name: "Meta", logo: "/logos/stocks/meta.png", stock: true },
+  { symbol: "SPY", name: "SPDR S&P 500", logo: "/logos/stocks/spy.png", stock: true },
+  { symbol: "QQQ", name: "Invesco QQQ", logo: "/logos/stocks/QQQ.png", stock: true },
+  { symbol: "AMZN", name: "Amazon", logo: "/logos/stocks/AMZN.png", stock: true },
+  { symbol: "GOOGL", name: "Alphabet", logo: "/logos/stocks/GOOGL.png", stock: true },
+  { symbol: "MSFT", name: "Microsoft", logo: "/logos/stocks/MSFT.png", stock: true },
+  { symbol: "NFLX", name: "Netflix", logo: "/logos/stocks/NFLX.png", stock: true },
+  { symbol: "PLTR", name: "Palantir", logo: "/logos/stocks/PLTR.png", stock: true },
+  { symbol: "AMD", name: "AMD", logo: "/logos/stocks/AMD.png", stock: true },
+  { symbol: "MSTR", name: "Strategy", logo: "/logos/stocks/MSTR.png", stock: true },
+  { symbol: "CRCL", name: "Circle", logo: "/logos/stocks/CRCL.png", stock: true },
+];
+
+export const stocks = assets.filter((a) => a.stock);
+/** The six stocks shown on the Explore tile, in order. */
+export const featuredStocks = ["TSLA", "NVDA", "AAPL", "HOOD", "COIN", "META"].map((s) => getAsset(s)!);
 
 export const defaultPad = pads.find((p) => p.featured) ?? pads[0];
 
@@ -148,12 +203,35 @@ export function getPad(id: string | null | undefined): Pad | undefined {
   return pads.find((p) => p.id === id);
 }
 
+export function getAsset(symbol: string | null | undefined): Asset | undefined {
+  return assets.find((a) => a.symbol === symbol);
+}
+
 export function padsOn(chain: ChainId): Pad[] {
   return pads.filter((p) => p.chain === chain);
 }
 
-export function getPair(pad: Pad, symbol: string | null | undefined): Pair | undefined {
-  return pad.pairs.find((p) => p.symbol === symbol);
+export function supportsStocks(pad: Pad) {
+  return pad.pairs.includes("STOCK");
+}
+
+/** The non-stock pairs a pad lists directly (its chips in the studio). */
+export function basePairs(pad: Pad): string[] {
+  return pad.pairs.filter((p) => p !== "STOCK");
+}
+
+/** Every symbol a pad accepts as its pair. */
+export function pairOptions(pad: Pad): string[] {
+  return [...basePairs(pad), ...(supportsStocks(pad) ? stocks.map((s) => s.symbol) : [])];
+}
+
+export function isValidPair(pad: Pad, symbol: string | null | undefined): boolean {
+  return Boolean(symbol) && pairOptions(pad).includes(symbol!);
+}
+
+/** "ETH · USDG · Stocks · cbBTC" */
+export function pairsLabel(pad: Pad): string {
+  return pad.pairs.map((p) => (p === "STOCK" ? "Stocks" : p)).join(" · ");
 }
 
 /**
@@ -161,13 +239,10 @@ export function getPair(pad: Pad, symbol: string | null | undefined): Pair | und
  * URL into a valid one, falling back step by step.
  */
 export function resolveSelection(input: { chain?: string | null; pad?: string | null; pair?: string | null }) {
-  const pad =
-    getPad(input.pad) && (!input.chain || getPad(input.pad)!.chain === input.chain)
-      ? getPad(input.pad)!
-      : getChain(input.chain)
-        ? padsOn(getChain(input.chain)!.id)[0]
-        : defaultPad;
-  const pair = getPair(pad, input.pair) ?? pad.pairs[0];
+  const byPad = getPad(input.pad);
+  const byChain = getChain(input.chain);
+  const pad = byPad && (!byChain || byPad.chain === byChain.id) ? byPad : byChain ? padsOn(byChain.id)[0] : defaultPad;
+  const pair = isValidPair(pad, input.pair) ? input.pair! : pairOptions(pad)[0];
   return { chain: getChain(pad.chain)!, pad, pair };
 }
 

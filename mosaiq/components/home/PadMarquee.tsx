@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getChain, pads } from "@/lib/pads";
+import { getChain, pads, pairsLabel } from "@/lib/pads";
 import { ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
 
 /** Endless strip of launchpad chips. Pauses on hover; stops under reduced motion. */
@@ -22,19 +22,19 @@ export function PadMarquee() {
                 className="card card-hover flex w-[252px] items-center gap-3 p-3"
               >
                 <span className="relative">
-                  <PadGlyph pad={p.id} size="lg" />
-                  <ChainDot chain={p.chain} className="absolute -bottom-0.5 -right-0.5 size-3.5 ring-2 ring-[#0e0e0e]" />
+                  <PadGlyph pad={p.id} size="lg" className="!rounded-xl" />
+                  <ChainDot chain={p.chain} className="absolute -bottom-1 -right-1 size-4 ring-2 ring-[#0e0e0e]" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center justify-between gap-2 text-[11px] text-fog">
                     {chain.name}
-                    <span>{p.featured ? "Featured" : "Live"}</span>
+                    <span>{p.featured ? "Home" : "Live"}</span>
                   </span>
                   <span className="mt-0.5 block truncate text-sm font-semibold">
-                    {p.name} <span className="font-normal text-fog">{p.pairs[0].symbol}</span>
+                    {p.name} <span className="font-normal text-fog">{getChain(p.chain)!.native}</span>
                   </span>
                   <span className="block truncate text-[11px] text-fog">
-                    Pairs <span className="font-semibold text-bone">{p.pairs.map((x) => x.symbol).join(" · ")}</span>
+                    Pairs <span className="font-semibold text-bone">{pairsLabel(p)}</span>
                   </span>
                 </span>
               </Link>

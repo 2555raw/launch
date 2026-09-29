@@ -42,7 +42,7 @@ const pads = await tool("list_pads", {});
 console.log("✓ list_pads:", pads.chains.map((c) => `${c.name} [${c.pads.map((p) => p.name).join(", ")}]`).join(" · "));
 
 const ticker = `DEMO${Math.floor(Math.random() * 900 + 100)}`;
-const draft = await tool("draft_launch", { chain: "solana", pad: "pumpfun", pair: "SOL", name: `Demo ${ticker}`, ticker, description: "Created by scripts/agent-demo.mjs" });
+const draft = await tool("draft_launch", { chain: "solana", pad: "pump", pair: "SOL", name: `Demo ${ticker}`, ticker, description: "Created by scripts/agent-demo.mjs" });
 console.log("✓ draft_launch", draft.draft_id);
 
 const read = await tool("get_draft", { draft_id: draft.draft_id });

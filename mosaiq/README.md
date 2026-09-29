@@ -1,7 +1,8 @@
 # Mosaiq
 
-**Every launchpad. One canvas.** Un estudio de lanzamiento de tokens que reúne varias launchpads (Pump.fun, Bonk.fun,
-Four.meme, Flap, Clanker, Zora) en Solana, BNB Chain y Base detrás de un solo formulario. La persona redacta el token;
+**Every pad. One canvas.** Un estudio de lanzamiento de tokens que reúne las launchpads Pons (Robinhood Chain), Pump.fun
+y StonkFun (Solana), Four.meme y Flap (BNB Chain) y Argus (Arc) detrás de un solo formulario, con pares en ETH, USDG,
+cbBTC, BTC, SOL, BNB, USDC o acciones tokenizadas (TSLA, NVDA, AAPL…). La persona redacta el token;
 un **agente** con clave de Mosaiq lo envía a través de un servidor MCP.
 
 Inspirado en el concepto y la estructura de dotspad.io, con nombre, identidad visual, textos, componentes y código propios.
@@ -84,4 +85,7 @@ y de pad.
 | `mint` / `amber` / `peri` | `#3DD9B3` / `#F5C84B` / `#7C9CFF` | colores de cadena |
 
 Tipografía: Geist Sans y Geist Mono, servidas localmente. El hero usa un carrusel de tarjetas en 3D (arrastrable, con
-teclado, autoplay con pausa). Los pads usan monogramas propios: no se incluyen logotipos de terceros.
+teclado, autoplay con pausa).
+
+Los logotipos de `public/logos` (launchpads, cadenas, activos y acciones) son marcas de sus respectivos propietarios y
+se usan solo para identificarlos. Se sirven optimizados con `next/image`.

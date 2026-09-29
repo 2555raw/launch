@@ -6,7 +6,7 @@ import { PadMarquee } from "@/components/home/PadMarquee";
 import { TopTokens } from "@/components/home/TopTokens";
 import { ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
 import { Reveal } from "@/components/ui/Reveal";
-import { getChain, pads } from "@/lib/pads";
+import { getChain, pads, pairsLabel } from "@/lib/pads";
 import { queryLaunches, stats as getStats, topCreators } from "@/lib/server/launches";
 import { site } from "@/lib/site";
 
@@ -70,14 +70,14 @@ export default async function HomePage() {
                     <div className="min-w-0 flex-1">
                       <p className="flex items-center gap-2 text-[17px] font-semibold">
                         {p.name}
-                        {p.featured && <span className="rounded-full bg-mint/15 px-1.5 py-px text-[10px] font-medium text-mint">featured</span>}
+                        {p.featured && <span className="rounded-full bg-mint/15 px-1.5 py-px text-[10px] font-medium text-mint">home</span>}
                       </p>
                       <p className="mt-0.5 flex items-center gap-1.5 text-sm text-fog">
                         launch on <ChainDot chain={p.chain} className="size-2.5" /> <span className="font-semibold text-bone">{chain.name}</span>
                       </p>
-                      <p className="mt-0.5 text-xs text-fog">Pairs {p.pairs.map((x) => x.symbol).join(" · ")}</p>
+                      <p className="mt-0.5 text-xs text-fog">Pairs {pairsLabel(p)}</p>
                     </div>
-                    <PadGlyph pad={p.id} size="md" className="!rounded-full" />
+                    <PadGlyph pad={p.id} size="md" className="!size-8 !rounded-lg" />
                     <div className="text-right text-xs">
                       <p className="text-fog">{n} {n === 1 ? "launch" : "launches"}</p>
                       <p className="mt-1.5 inline-flex items-center gap-1 text-fog transition-colors group-hover:text-bone">

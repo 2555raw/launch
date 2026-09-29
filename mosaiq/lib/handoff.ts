@@ -39,7 +39,7 @@ export function buildHandoff(f: HandoffFields, origin: string = site.url, draftI
     `Pair: ${f.pair}`,
   ];
   if (f.mode === "import") lines.push(`Contract: ${f.address || blank}`);
-  else lines.push(`Opening buy: ${f.openingBuy ? `${f.openingBuy} ${f.pair}` : "none"}`);
+  else lines.push(`Opening buy: ${f.openingBuy ? `${f.openingBuy} ${chain?.native ?? ""}`.trim() : "none"}`);
   lines.push(``);
   if (draftId) {
     lines.push(

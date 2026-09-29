@@ -30,7 +30,7 @@ export default function OpengraphImage() {
             <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -3, lineHeight: 1 }}>Every launchpad.</div>
             <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -3, lineHeight: 1, color: "#a3a6ad" }}>One canvas.</div>
           </div>
-          <div style={{ fontSize: 26, color: "#a3a6ad" }}>Solana · BNB Chain · Base — you draft, your agent launches.</div>
+          <div style={{ fontSize: 26, color: "#a3a6ad" }}>Robinhood Chain · Solana · BNB Chain · Arc — you draft, your agent launches.</div>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", width: 300, gap: 16, alignContent: "center" }}>
           {tiles.map((c, i) => (

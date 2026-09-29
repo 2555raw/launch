@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { DocsToc } from "@/components/docs/DocsToc";
 import { ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
-import { chains, padsOn } from "@/lib/pads";
+import { chains, padsOn, pairsLabel } from "@/lib/pads";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -121,7 +121,7 @@ export default function DocsPage() {
                       <li key={p.id} className="flex items-center gap-2.5 text-sm">
                         <PadGlyph pad={p.id} size="sm" />
                         <span className="flex-1 text-bone">{p.name}</span>
-                        <span className="font-mono text-xs text-mute">{p.pairs.map((x) => x.symbol).join("·")}</span>
+                        <span className="font-mono text-xs text-mute">{pairsLabel(p)}</span>
                       </li>
                     ))}
                   </ul>

@@ -19,12 +19,12 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { buildHandoff } from "@/lib/handoff";
-import { chains, getChain, getPad, padsOn, resolveSelection, type ChainId } from "@/lib/pads";
+import { basePairs, chains, getAsset, getChain, getPad, isValidPair, padsOn, pairOptions, pairsLabel, resolveSelection, stocks, supportsStocks, type ChainId } from "@/lib/pads";
 import { DESCRIPTION_MAX, draftInputSchema, fieldErrors } from "@/lib/schemas";
 import { site } from "@/lib/site";
 import type { PublicLaunch } from "@/lib/types";
 import { useApp } from "@/components/shell/AppProvider";
-import { ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
+import { AssetIcon, ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
 import { useCopy } from "@/components/ui/useCopy";
 import { prepareImage } from "./image";
 
@@ -75,7 +75,7 @@ export function LaunchStudio({
       mode: draft?.mode ?? (initial.mode === "import" ? "import" : "create"),
       chain: sel.chain.id,
       pad: sel.pad.id,
-      pair: sel.pair.symbol,
+      pair: sel.pair,
       name: draft?.name ?? "",
       ticker: draft?.ticker ?? "",
       image: draft?.image,
@@ -143,7 +143,7 @@ export function LaunchStudio({
 
   const chain = getChain(form.chain)!;
   const pad = getPad(form.pad)!;
-  const pair = pad.pairs.find((p) => p.symbol === form.pair) ?? pad.pairs[0];
+  const [stockPicker, setStockPicker] = useState(false);
 
   const payload = useMemo(
     () => ({
@@ -181,11 +181,11 @@ export function LaunchStudio({
 
   function selectChain(id: ChainId) {
     const first = padsOn(id)[0];
-    setForm((f) => ({ ...f, chain: id, pad: first.id, pair: first.pairs[0].symbol, address: f.chain === id ? f.address : "" }));
+    setForm((f) => ({ ...f, chain: id, pad: first.id, pair: pairOptions(first)[0], address: f.chain === id ? f.address : "" }));
   }
   function selectPad(id: string) {
     const p = getPad(id)!;
-    setForm((f) => ({ ...f, pad: id, pair: p.pairs.some((x) => x.symbol === f.pair) ? f.pair : p.pairs[0].symbol }));
+    setForm((f) => ({ ...f, pad: id, pair: isValidPair(p, f.pair) ? f.pair : pairOptions(p)[0] }));
   }
 
   async function onImage(file: File | undefined) {
@@ -254,7 +254,7 @@ export function LaunchStudio({
       mode: form.mode,
       chain: sel.chain.id,
       pad: sel.pad.id,
-      pair: sel.pair.symbol,
+      pair: sel.pair,
       name: "",
       ticker: "",
       image: undefined,
@@ -316,7 +316,7 @@ export function LaunchStudio({
           {/* 01 */}
           <Section id="studio-network" n="01" title="Network & launchpad">
             <Fieldset legend="Chain">
-              <div role="radiogroup" aria-label="Chain" className="grid grid-cols-3 gap-2">
+              <div role="radiogroup" aria-label="Chain" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {chains.map((c) => (
                   <button
                     key={c.id}
@@ -329,16 +329,15 @@ export function LaunchStudio({
                       form.chain === c.id ? "border-bone/80 bg-surface-3 text-bone" : "border-line-strong text-fog hover:border-white/25 hover:text-bone",
                     )}
                   >
-                    <ChainDot chain={c.id} />
-                    <span className="truncate sm:hidden">{c.name.split(" ")[0]}</span>
-                    <span className="hidden truncate sm:inline">{c.name}</span>
+                    <ChainDot chain={c.id} className="size-6" />
+                    <span className="truncate">{c.short}</span>
                   </button>
                 ))}
               </div>
             </Fieldset>
 
             <Fieldset legend="Launchpad">
-              <div role="radiogroup" aria-label="Launchpad" className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div role="radiogroup" aria-label="Launchpad" className="grid grid-cols-1 gap-2">
                 {padsOn(form.chain).map((p) => (
                   <button
                     key={p.id}
@@ -347,21 +346,16 @@ export function LaunchStudio({
                     aria-checked={form.pad === p.id}
                     onClick={() => selectPad(p.id)}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors",
+                      "flex items-center gap-3 rounded-xl border p-2.5 text-left transition-colors",
                       form.pad === p.id ? "border-bone/80 bg-surface-3" : "border-line-strong hover:border-white/25",
                     )}
                   >
-                    <PadGlyph pad={p.id} />
+                    <PadGlyph pad={p.id} size="md" className="!rounded-lg" />
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-medium">{p.name}</span>
-                      <span className="block truncate text-xs text-mute">{p.blurb}</span>
+                      <span className="hidden truncate text-xs text-mute sm:block">{p.blurb}</span>
                     </span>
-                    <span
-                      aria-hidden="true"
-                      className={cn("grid size-4 place-items-center rounded-full border", form.pad === p.id ? "border-accent bg-accent" : "border-line-strong")}
-                    >
-                      {form.pad === p.id && <span className="size-1.5 rounded-full bg-ink" />}
-                    </span>
+                    <span aria-hidden="true" className={cn("mr-1 size-1.5 rounded-full", form.pad === p.id ? "bg-bone" : "bg-transparent")} />
                   </button>
                 ))}
               </div>
@@ -369,14 +363,79 @@ export function LaunchStudio({
 
             <Fieldset legend="Pair">
               <div role="radiogroup" aria-label="Pair" className="flex flex-wrap gap-2">
-                {pad.pairs.map((p) => (
-                  <button key={p.symbol} type="button" role="radio" aria-checked={form.pair === p.symbol} onClick={() => update("pair", p.symbol)} className="chip font-mono">
-                    {p.symbol}
+                {basePairs(pad).map((sym) => (
+                  <button
+                    key={sym}
+                    type="button"
+                    role="radio"
+                    aria-checked={form.pair === sym}
+                    onClick={() => {
+                      update("pair", sym);
+                      setStockPicker(false);
+                    }}
+                    className="pair-chip"
+                  >
+                    <AssetIcon symbol={sym} />
+                    {sym}
                   </button>
                 ))}
+                {supportsStocks(pad) && getAsset(form.pair)?.stock && (
+                  <button type="button" role="radio" aria-checked className="pair-chip">
+                    <AssetIcon symbol={form.pair} />
+                    {form.pair}
+                  </button>
+                )}
+                {supportsStocks(pad) && (
+                  <button
+                    type="button"
+                    aria-expanded={stockPicker}
+                    aria-controls="stock-picker"
+                    onClick={() => setStockPicker((o) => !o)}
+                    className="pair-chip"
+                  >
+                    <AssetIcon symbol="SPY" />
+                    {stockPicker ? "Close" : "More"}
+                  </button>
+                )}
               </div>
+              <AnimatePresence initial={false}>
+                {stockPicker && supportsStocks(pad) && (
+                  <motion.div
+                    id="stock-picker"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div role="radiogroup" aria-label="Stock pair" className="mt-3 grid grid-cols-2 gap-2 rounded-xl border border-line bg-ink-2 p-2 sm:grid-cols-4">
+                      {stocks.map((st) => (
+                        <button
+                          key={st.symbol}
+                          type="button"
+                          role="radio"
+                          aria-checked={form.pair === st.symbol}
+                          onClick={() => {
+                            update("pair", st.symbol);
+                            setStockPicker(false);
+                          }}
+                          className={cn(
+                            "flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
+                            form.pair === st.symbol ? "bg-surface-3 text-bone" : "text-fog hover:bg-surface-2 hover:text-bone",
+                          )}
+                        >
+                          <AssetIcon symbol={st.symbol} className="size-6" />
+                          <span className="min-w-0">
+                            <span className="block font-medium">{st.symbol}</span>
+                            <span className="block truncate text-[11px] text-mute">{st.name}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <p className="mt-2 text-xs text-mute">
-                {pad.name} pairs on {chain.name}: {pad.pairs.map((p) => p.symbol).join(", ")}.
+                {pad.name} pairs on {chain.name}: {pairsLabel(pad)}.
               </p>
             </Fieldset>
           </Section>
@@ -498,17 +557,17 @@ export function LaunchStudio({
             {form.mode === "create" && (
               <Field
                 id="openingBuy"
-                label={`Opening buy (${pair.symbol})`}
+                label={`Opening buy (${chain.native})`}
                 optional
                 error={errorFor("openingBuy")}
-                hint={`Leave empty for no dev buy. Minimum ${pair.minBuy} ${pair.symbol} if set; it is paid from the agent's wallet.`}
+                hint={`Leave empty for no dev buy. Minimum ${chain.minBuy} ${chain.native} if set; it is paid from the agent's wallet.`}
               >
                 <input
                   id="field-openingBuy"
                   className="field font-mono"
                   inputMode="decimal"
                   value={form.openingBuy}
-                  placeholder={`min ${pair.minBuy}`}
+                  placeholder={`min ${chain.minBuy}`}
                   onChange={(e) => update("openingBuy", e.target.value.replace(",", ".").replace(/[^0-9.]/g, ""))}
                   onBlur={() => touch("openingBuy")}
                   aria-invalid={Boolean(errorFor("openingBuy"))}
@@ -646,12 +705,12 @@ export function LaunchStudio({
                 <PreviewRow label="Launchpad">
                   <PadGlyph pad={pad.id} size="sm" /> {pad.name}
                 </PreviewRow>
-                <PreviewRow label="Pair">
-                  <span className="font-mono">{pair.symbol}</span>
+                <PreviewRow label="Trading pair">
+                  <AssetIcon symbol={form.pair} className="size-4" /> {form.pair}
                 </PreviewRow>
                 {form.mode === "create" && (
                   <PreviewRow label="Opening buy">
-                    <span className="font-mono">{form.openingBuy ? `${form.openingBuy} ${pair.symbol}` : "None"}</span>
+                    <span className="font-mono">{form.openingBuy ? `${form.openingBuy} ${chain.native}` : "None"}</span>
                   </PreviewRow>
                 )}
               </dl>

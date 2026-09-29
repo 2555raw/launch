@@ -5,7 +5,7 @@ import { store } from "@/lib/server/store";
 
 export const metadata: Metadata = {
   title: "Launch studio",
-  description: "Draft a token for Pump.fun, Four.meme, Clanker and more in one form, then hand it to your agent to launch.",
+  description: "Draft a token for Pons, Pump.fun, StonkFun, Four.meme, Flap and Argus in one form, then hand it to your agent to launch.",
   alternates: { canonical: "/launch" },
 };
 

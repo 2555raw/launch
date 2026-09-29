@@ -1,6 +1,6 @@
 import "server-only";
 import { buildHandoff, studioUrl } from "@/lib/handoff";
-import { chains, pads } from "@/lib/pads";
+import { chains, pairOptions, pads, stocks } from "@/lib/pads";
 import { site } from "@/lib/site";
 import type { Agent } from "@/lib/types";
 import { createDraft, queryLaunches, submitDraft, toPublic } from "./launches";
@@ -18,13 +18,13 @@ export const PROTOCOL_VERSION = "2025-06-18";
 const draftProps = {
   chain: { type: "string", enum: chains.map((c) => c.id) },
   pad: { type: "string", enum: pads.map((p) => p.id) },
-  pair: { type: "string", description: "Pair symbol the pad supports, e.g. SOL" },
+  pair: { type: "string", description: "Pair symbol the pad supports, e.g. ETH, or a stock like TSLA on pads with STOCK" },
   name: { type: "string", maxLength: 32 },
   ticker: { type: "string", maxLength: 10 },
   description: { type: "string", maxLength: 280 },
   x: { type: "string", description: "https://x.com/… link" },
   website: { type: "string", description: "Your own site; omit to use the Mosaiq token page" },
-  opening_buy: { type: "string", description: "Dev buy in pair units; omit for none" },
+  opening_buy: { type: "string", description: "Dev buy in the chain's native asset; omit for none" },
   address: { type: "string", description: "Only for mode=import" },
   mode: { type: "string", enum: ["create", "import"], default: "create" },
 };
@@ -73,8 +73,11 @@ async function callTool(name: string, args: Json, ctx: { agent: Agent | null; or
         chains: chains.map((c) => ({
           id: c.id,
           name: c.name,
-          pads: pads.filter((p) => p.chain === c.id).map((p) => ({ id: p.id, name: p.name, pairs: p.pairs })),
+          native: c.native,
+          min_opening_buy: c.minBuy,
+          pads: pads.filter((p) => p.chain === c.id).map((p) => ({ id: p.id, name: p.name, pairs: p.pairs, accepted_pairs: pairOptions(p) })),
         })),
+        stocks: stocks.map((s) => ({ symbol: s.symbol, name: s.name })),
       });
 
     case "draft_launch": {

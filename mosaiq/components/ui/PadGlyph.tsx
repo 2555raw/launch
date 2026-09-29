@@ -1,48 +1,42 @@
+import Image from "next/image";
 import { cn } from "@/lib/cn";
-import { getChain, getPad } from "@/lib/pads";
+import { getAsset, getChain, getPad } from "@/lib/pads";
 
-/**
- * Original monogram tiles for pads and chains. Third-party logos are not
- * bundled; each venue gets a colour and a two-letter mark instead.
- */
-export function PadGlyph({ pad: id, size = "md", className }: { pad: string; size?: "sm" | "md" | "lg" | "xl"; className?: string }) {
-  const pad = getPad(id);
-  if (!pad) return null;
-  const sizes = {
-    sm: "size-6 rounded-md text-[10px]",
-    md: "size-9 rounded-lg text-[13px]",
-    lg: "size-12 rounded-xl text-base",
-    xl: "size-20 rounded-2xl text-2xl",
-  };
+/** A square/round logo box. The logo fills it; size and radius come from the class. */
+function Logo({ src, sizes, className, alt = "" }: { src: string; sizes: string; className?: string; alt?: string }) {
   return (
-    <span
-      aria-hidden="true"
-      className={cn("relative grid shrink-0 place-items-center overflow-hidden font-mono font-semibold", sizes[size], className)}
-      style={{
-        color: pad.color,
-        background: `linear-gradient(145deg, color-mix(in srgb, ${pad.color} 22%, #111418), color-mix(in srgb, ${pad.color} 6%, #0c0e11))`,
-        boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${pad.color} 30%, transparent)`,
-      }}
-    >
-      <span
-        className="absolute -right-1/4 -top-1/4 size-3/4 rotate-12 rounded-[30%] opacity-25"
-        style={{ background: pad.color }}
-      />
-      <span className="relative">{pad.monogram}</span>
+    <span aria-hidden={alt ? undefined : true} className={cn("relative inline-block shrink-0 overflow-hidden", className)}>
+      <Image src={src} alt={alt} fill sizes={sizes} className="object-cover" unoptimized={src.endsWith(".svg")} />
     </span>
   );
 }
 
+const padSizes = {
+  sm: "size-6 rounded-md",
+  md: "size-9 rounded-lg",
+  lg: "size-12 rounded-xl",
+  xl: "size-20 rounded-2xl",
+};
+
+/** A launchpad's real logo. */
+export function PadGlyph({ pad: id, size = "md", className }: { pad: string; size?: keyof typeof padSizes; className?: string }) {
+  const pad = getPad(id);
+  if (!pad) return null;
+  return <Logo src={pad.logo} sizes={size === "xl" ? "96px" : "48px"} className={cn(padSizes[size], "bg-surface-3", className)} />;
+}
+
+/** A chain's logo as a small round badge (defaults to 16px). */
 export function ChainDot({ chain: id, className }: { chain: string; className?: string }) {
   const chain = getChain(id);
   if (!chain) return null;
-  return (
-    <span
-      aria-hidden="true"
-      className={cn("inline-block size-2.5 shrink-0 rounded-full", className)}
-      style={{ background: chain.color, boxShadow: `0 0 0 2px color-mix(in srgb, ${chain.color} 25%, transparent)` }}
-    />
-  );
+  return <Logo src={chain.logo} sizes="24px" className={cn("size-4 rounded-full", className)} />;
+}
+
+/** Logo for a pair asset or tokenised stock. */
+export function AssetIcon({ symbol, className }: { symbol: string; className?: string }) {
+  const asset = getAsset(symbol);
+  if (!asset) return null;
+  return <Logo src={asset.logo} sizes="32px" className={cn("size-5 rounded-full bg-surface-3", className)} />;
 }
 
 export function TokenAvatar({ image, ticker, color, className }: { image?: string; ticker: string; color?: string; className?: string }) {

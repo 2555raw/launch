@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { chains, getChain, getPad, isValidAddress } from "./pads";
+import { chains, getChain, getPad, isValidAddress, isValidPair } from "./pads";
 
 /** Largest token image we accept, as a base64 data URL (the client resizes to ~512px first). */
 export const MAX_IMAGE_DATA_URL = 400_000;
@@ -72,20 +72,19 @@ export const draftInputSchema = z
       ctx.addIssue({ code: "custom", path: ["pad"], message: "Pick a launchpad on this chain" });
       return;
     }
-    const pair = pad.pairs.find((p) => p.symbol === d.pair);
-    if (!pair) ctx.addIssue({ code: "custom", path: ["pair"], message: "Pick a pair this pad supports" });
-    if (pair && d.openingBuy !== undefined && Number(d.openingBuy) < pair.minBuy) {
+    if (!isValidPair(pad, d.pair)) ctx.addIssue({ code: "custom", path: ["pair"], message: "Pick a pair this pad supports" });
+    const chain = getChain(d.chain)!;
+    if (d.openingBuy !== undefined && Number(d.openingBuy) < chain.minBuy) {
       ctx.addIssue({
         code: "custom",
         path: ["openingBuy"],
-        message: `Minimum is ${pair.minBuy} ${pair.symbol}, or leave it empty`,
+        message: `Minimum is ${chain.minBuy} ${chain.native}, or leave it empty`,
       });
     }
     if (d.websiteMode === "custom" && !d.website) {
       ctx.addIssue({ code: "custom", path: ["website"], message: "Add your site, or use the Mosaiq page" });
     }
     if (d.mode === "import") {
-      const chain = getChain(d.chain)!;
       if (!d.address) {
         ctx.addIssue({ code: "custom", path: ["address"], message: "Paste the token's contract address" });
       } else if (!isValidAddress(chain.addressKind, d.address)) {

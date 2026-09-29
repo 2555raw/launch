@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: { default: `${site.name} · ${site.tagline}`, template: `%s · ${site.name}` },
   description: site.description,
   applicationName: site.name,
-  keywords: ["token launchpad", "launch a token", "Solana", "BNB Chain", "Base", "MCP", "AI agent", site.name],
+  keywords: ["token launchpad", "launch a token", "Robinhood Chain", "Solana", "BNB Chain", "Arc", "Pons", "Pump.fun", "Four.meme", "MCP", "AI agent", site.name],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",

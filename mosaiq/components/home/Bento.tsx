@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { formatNumber, formatUsd } from "@/lib/format";
 import { TimeAgo } from "@/components/ui/TimeAgo";
-import { getPad, pads } from "@/lib/pads";
+import { featuredStocks, getPad } from "@/lib/pads";
 import { site } from "@/lib/site";
 import type { PublicLaunch, Stats } from "@/lib/types";
-import { PadGlyph, TokenAvatar } from "@/components/ui/PadGlyph";
+import { AssetIcon, TokenAvatar } from "@/components/ui/PadGlyph";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
@@ -37,9 +37,9 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
                   <TokenAvatar image={l.image} ticker={l.ticker} color={getPad(l.pad)?.color} className="size-14" />
                 </div>
               ))
-            : pads.map((p) => (
-                <div key={p.id} className="grid aspect-square place-items-center rounded-xl border border-white/5 bg-[#1a1a1a] transition-transform duration-500 group-hover:scale-[0.97]">
-                  <PadGlyph pad={p.id} size="xl" className="!size-[58%]" />
+            : featuredStocks.map((a) => (
+                <div key={a.symbol} className="grid aspect-square place-items-center rounded-xl border border-white/5 bg-[#1a1a1a] transition-transform duration-500 group-hover:scale-[0.97]">
+                  <AssetIcon symbol={a.symbol} className="!size-[62%] !rounded-2xl !bg-transparent" />
                 </div>
               ))}
         </div>
@@ -85,7 +85,7 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-fog">Bring an agent</p>
           <p className="mt-3 text-sm font-semibold">Your agent opens the studio and places the launch.</p>
           <p className="mt-2 text-xs leading-relaxed text-fog">
-            Six pads, one form. A person can fill it in; only an agent with a {site.name} key can send it.
+            Pump.fun, StonkFun, Pons, Four.meme and Flap in one form. A person can fill it in; only an agent with a {site.name} key can send it.
           </p>
         </div>
       </Tile>

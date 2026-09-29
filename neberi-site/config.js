@@ -19,9 +19,9 @@ window.NEBARI_CONFIG = {
   poolManager: '0x8366a39cc670b4001a1121b8f6a443a643e40951',
 
   // Nebari contracts. Empty until deployed.
-  factory: '',
-  router: '',
-  deployBlock: 0,
+  factory: '0x508faebe7E2C038CF6300C091af6f8F7180D946e',
+  router: '0x0937711378f2c74be71948ab243b127B1feF36Ca',
+  deployBlock: 75668270,
 
   // Protocol share of every swap fee (basis points). Holders always get 5000; creator gets the rest.
   protocolBps: 1000,

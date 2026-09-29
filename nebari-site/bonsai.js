@@ -21,9 +21,10 @@ window.Bonsai = (function () {
     return h >>> 0;
   }
 
-  // blossom palette, light to deep; the underside of a pad uses the deep end
-  const PINKS = ['#fff3f7', '#ffe4ee', '#ffd3e2', '#ffc0d6', '#ffabc9', '#fb95ba', '#f27ea8', '#e46796', '#cf5384'];
-  const BARK = { hi: '#7d5a40', light: '#5c4030', mid: '#3a2618', dark: '#1d120b', edge: '#120b06' };
+  // blossom palette, light to deep; the underside of a pad uses the deep end.
+  // Ink and paper: white blossoms shaded into grey, a black trunk, like a sumi-e.
+  const PINKS = ['#ffffff', '#fafafa', '#f2f2f2', '#e8e8e8', '#dadada', '#c9c9c9', '#b4b4b4', '#9a9a9a', '#7c7c7c'];
+  const BARK = { hi: '#6b6b6b', light: '#484848', mid: '#262626', dark: '#121212', edge: '#050505' };
 
   function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
@@ -116,10 +117,10 @@ window.Bonsai = (function () {
     function blossom(cx, cy, R, back) {
       const rx = R * 1.55, ry = R * 0.9;
       // cast shadow under the pad
-      ctx.fillStyle = back ? 'rgba(160, 60, 110, 0.14)' : 'rgba(150, 40, 90, 0.26)';
+      ctx.fillStyle = back ? 'rgba(0, 0, 0, 0.10)' : 'rgba(0, 0, 0, 0.2)';
       ctx.beginPath(); ctx.ellipse(cx + R * 0.15, cy + ry * 0.45, rx * 0.95, ry * 0.7, 0, 0, Math.PI * 2); ctx.fill();
       // a few dark twigs peeking through
-      ctx.strokeStyle = 'rgba(40, 22, 14, 0.55)'; ctx.lineWidth = Math.max(0.6, R * 0.05);
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)'; ctx.lineWidth = Math.max(0.6, R * 0.05);
       for (let i = 0; i < 4; i++) {
         const a = r() * Math.PI * 2, l = R * (0.6 + r() * 0.8);
         ctx.beginPath(); ctx.moveTo(cx, cy + ry * 0.2); ctx.quadraticCurveTo(cx + Math.cos(a) * l * 0.5, cy + Math.sin(a) * l * 0.3, cx + Math.cos(a) * l, cy + Math.sin(a) * l * 0.6); ctx.stroke();
@@ -143,7 +144,7 @@ window.Bonsai = (function () {
         ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill();
       }
       // buds: small deep-pink dots, mostly at the edges
-      ctx.fillStyle = '#d8477f';
+      ctx.fillStyle = '#8e2a3b';
       for (let i = 0; i < 6; i++) {
         const t = r() * Math.PI * 2, d = 0.7 + r() * 0.35;
         ctx.beginPath(); ctx.arc(cx + Math.cos(t) * rx * d, cy + Math.sin(t) * ry * d, R * (0.04 + r() * 0.04), 0, Math.PI * 2); ctx.fill();
@@ -166,18 +167,18 @@ window.Bonsai = (function () {
         const a = rot + (k * Math.PI * 2) / 5;
         const px = x + Math.cos(a) * s * 0.55, py = y + Math.sin(a) * s * 0.55;
         const g = ctx.createRadialGradient(x, y, s * 0.1, px, py, s * 0.6);
-        g.addColorStop(0, '#f5a3c3'); g.addColorStop(0.5, '#ffdbe7'); g.addColorStop(1, '#fff4f8');
+        g.addColorStop(0, '#bdbdbd'); g.addColorStop(0.5, '#eeeeee'); g.addColorStop(1, '#ffffff');
         ctx.fillStyle = g;
         ctx.beginPath(); ctx.ellipse(px, py, s * 0.56, s * 0.36, a, 0, Math.PI * 2); ctx.fill();
         // the notch at the petal tip
         ctx.fillStyle = 'rgba(255,255,255,0.0)';
       }
-      ctx.fillStyle = '#e2367f'; ctx.beginPath(); ctx.arc(x, y, s * 0.16, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#f7d36a'; ctx.lineWidth = Math.max(0.5, s * 0.05);
+      ctx.fillStyle = '#7b1e2e'; ctx.beginPath(); ctx.arc(x, y, s * 0.16, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#6a6a6a'; ctx.lineWidth = Math.max(0.5, s * 0.05);
       for (let k = 0; k < 6; k++) {
         const a = r() * Math.PI * 2, l = s * (0.18 + r() * 0.16);
         ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); ctx.stroke();
-        ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * l, y + Math.sin(a) * l, s * 0.05, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#3a3a3a'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * l, y + Math.sin(a) * l, s * 0.05, 0, Math.PI * 2); ctx.fill();
       }
     }
 
@@ -186,7 +187,7 @@ window.Bonsai = (function () {
       const W = 150 * S, H = 40 * S;
       if (o.shadow !== false) {
         const g = ctx.createRadialGradient(x, y + 38 * S, 0, x, y + 38 * S, 200 * S);
-        g.addColorStop(0, 'rgba(20,10,20,0.4)'); g.addColorStop(0.5, 'rgba(20,10,20,0.14)'); g.addColorStop(1, 'rgba(20,10,20,0)');
+        g.addColorStop(0, 'rgba(0,0,0,0.4)'); g.addColorStop(0.5, 'rgba(0,0,0,0.14)'); g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x + 10 * S, y + 44 * S, 215 * S, 30 * S, 0, 0, Math.PI * 2); ctx.fill();
       }
       // body: glazed, darker at the edges, a vertical highlight on the lit side
@@ -194,7 +195,7 @@ window.Bonsai = (function () {
       ctx.moveTo(x - W, y + 6 * S); ctx.lineTo(x + W, y + 6 * S); ctx.lineTo(x + W * 0.86, y + H);
       ctx.quadraticCurveTo(x, y + H + 7 * S, x - W * 0.86, y + H); ctx.closePath();
       let g = ctx.createLinearGradient(x - W, 0, x + W, 0);
-      g.addColorStop(0, '#0f1014'); g.addColorStop(0.18, '#2a2e3a'); g.addColorStop(0.3, '#4a5063'); g.addColorStop(0.42, '#2b3040'); g.addColorStop(0.75, '#1c1f28'); g.addColorStop(1, '#0a0b0f');
+      g.addColorStop(0, '#0f0f0f'); g.addColorStop(0.18, '#2c2c2c'); g.addColorStop(0.3, '#4f4f4f'); g.addColorStop(0.42, '#2e2e2e'); g.addColorStop(0.75, '#1c1c1c'); g.addColorStop(1, '#0a0a0a');
       ctx.fillStyle = g; ctx.fill();
       g = ctx.createLinearGradient(0, y + 6 * S, 0, y + H);
       g.addColorStop(0, 'rgba(255,255,255,0.10)'); g.addColorStop(0.5, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(0,0,0,0.35)');
@@ -202,16 +203,16 @@ window.Bonsai = (function () {
       // rim
       roundRect(ctx, x - W * 1.04, y - 3 * S, W * 2.08, 11 * S, 4 * S);
       g = ctx.createLinearGradient(x - W, 0, x + W, 0);
-      g.addColorStop(0, '#2a2e3a'); g.addColorStop(0.3, '#6a7187'); g.addColorStop(0.6, '#3b4152'); g.addColorStop(1, '#1a1d25');
+      g.addColorStop(0, '#2c2c2c'); g.addColorStop(0.3, '#767676'); g.addColorStop(0.6, '#3f3f3f'); g.addColorStop(1, '#1a1a1a');
       ctx.fillStyle = g; ctx.fill();
       g = ctx.createLinearGradient(0, y - 3 * S, 0, y + 8 * S);
       g.addColorStop(0, 'rgba(255,255,255,0.35)'); g.addColorStop(0.4, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)');
       ctx.fillStyle = g; ctx.fill();
-      ctx.fillStyle = '#0d0e12';
+      ctx.fillStyle = '#0d0d0d';
       [-0.72, 0.72].forEach((k) => { roundRect(ctx, x + k * W * 0.8 - 11 * S, y + H - 2 * S, 22 * S, 8 * S, 3 * S); ctx.fill(); });
       // soil
       g = ctx.createLinearGradient(0, y - 14 * S, 0, y + 6 * S);
-      g.addColorStop(0, '#3a2718'); g.addColorStop(1, '#1e130c');
+      g.addColorStop(0, '#3a3a3a'); g.addColorStop(1, '#1c1c1c');
       ctx.beginPath(); ctx.ellipse(x, y - 2 * S, W * 0.97, 12 * S, 0, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill();
       // moss: clumps with a lit top
       for (let i = 0; i < 70; i++) {
@@ -219,8 +220,8 @@ window.Bonsai = (function () {
         const mx = x + Math.cos(t) * W * 0.92 * d, my = y - 3 * S + Math.sin(t) * 9 * S * d;
         const mw = (4 + r() * 10) * S, mh = (2.5 + r() * 4) * S;
         const mg = ctx.createRadialGradient(mx - mw * 0.3, my - mh * 0.6, 0, mx, my, mw);
-        const tone = ['#6f9a45', '#567c36', '#3f5c2b', '#87ad55'][Math.floor(r() * 4)];
-        mg.addColorStop(0, tone); mg.addColorStop(1, '#2c4220');
+        const tone = ['#8a8a8a', '#6e6e6e', '#565656', '#a0a0a0'][Math.floor(r() * 4)];
+        mg.addColorStop(0, tone); mg.addColorStop(1, '#3a3a3a');
         ctx.fillStyle = mg;
         ctx.beginPath(); ctx.ellipse(mx, my, mw, mh, r() * Math.PI, 0, Math.PI * 2); ctx.fill();
       }
@@ -229,7 +230,7 @@ window.Bonsai = (function () {
         const sx = x + (r() - 0.5) * W * 1.5, sy = y - 4 * S + (r() - 0.5) * 8 * S;
         const sr = (2 + r() * 3) * S;
         const sg = ctx.createRadialGradient(sx - sr * 0.3, sy - sr * 0.4, 0, sx, sy, sr);
-        sg.addColorStop(0, '#b9b3ad'); sg.addColorStop(1, '#5d5752');
+        sg.addColorStop(0, '#d0d0d0'); sg.addColorStop(1, '#5a5a5a');
         ctx.fillStyle = sg; ctx.beginPath(); ctx.ellipse(sx, sy, sr, sr * 0.7, r(), 0, Math.PI * 2); ctx.fill();
       }
     }
@@ -281,7 +282,7 @@ window.Bonsai = (function () {
     if (pads.length) {
       let cx = 0, cy = 0; pads.forEach((p) => { cx += p.x; cy += p.y; }); cx /= pads.length; cy /= pads.length;
       const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 190 * S);
-      bg.addColorStop(0, 'rgba(255, 170, 200, 0.22)'); bg.addColorStop(1, 'rgba(255, 170, 200, 0)');
+      bg.addColorStop(0, 'rgba(0, 0, 0, 0.05)'); bg.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(cx, cy, 190 * S, 0, Math.PI * 2); ctx.fill();
     }
     pads.sort((a, b) => a.y - b.y);
@@ -315,7 +316,7 @@ window.Bonsai = (function () {
       const rad = h * (0.02 + r() * 0.07);
       const g = ctx.createRadialGradient(bx, by, 0, bx, by, rad);
       const a = 0.08 + r() * 0.16;
-      const c = r() < 0.6 ? '255,150,190' : '255,255,255';
+      const c = r() < 0.6 ? '120,120,120' : '255,255,255';
       g.addColorStop(0, `rgba(${c},${a})`); g.addColorStop(0.75, `rgba(${c},${a * 0.8})`); g.addColorStop(1, `rgba(${c},0)`);
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bx, by, rad, 0, Math.PI * 2); ctx.fill();
     }
@@ -369,7 +370,7 @@ window.Bonsai = (function () {
       p.s = (3 + rnd() * 4) * p.z; p.a = rnd() * Math.PI * 2; p.spin = (rnd() - 0.5) * 0.05;
       p.vy = (0.3 + rnd() * 0.5) * p.z; p.vx = 0.2 + rnd() * 0.5; p.ph = rnd() * Math.PI * 2;
       p.flip = rnd() * Math.PI * 2;
-      p.c = PINKS[2 + Math.floor(rnd() * 5)];
+      p.c = rnd() < 0.18 ? '#8e2a3b' : PINKS[2 + Math.floor(rnd() * 5)]; // now and then a maroon petal
       return p;
     }
     function step(t) {

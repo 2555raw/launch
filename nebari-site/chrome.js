@@ -129,7 +129,7 @@
       Bonsai.mount(canvas, (w, h) => {
         if (w < 1) return null;
         const mobile = w < 760;
-        return { x: mobile ? w * 0.5 : w * 0.72, y: mobile ? h * 0.98 : h * 0.96, height: mobile ? h * 0.5 : Math.min(h * 0.78, w * 0.46), seed: 'nebari-home', growth: 1, bokeh: true };
+        return { x: mobile ? w * 0.5 : w * 0.76, y: mobile ? h * 0.98 : h * 0.96, height: mobile ? h * 0.5 : Math.min(h * 0.78, w * 0.42), seed: 'nebari-home', growth: 1, bokeh: true };
       });
       Bonsai.petals(petals, { count: 14 });
     }

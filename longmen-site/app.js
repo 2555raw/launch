@@ -17,15 +17,18 @@
   const COLORS = ['#FF5B26', '#F2C94C', '#6FCF97', '#56CCF2', '#BB6BD9', '#F2994A', '#EB5757', '#9B9B9B'];
 
   const MARKETS = [
-    { name: 'Inference Rush', ticker: 'INFR', kind: 'subnet',    label: 'Subnet coin',      chain: 'Robinhood', sn: 'SN19', desc: 'Cheap open-model inference eats the cloud margin, starting here.', price: '0.0₆412 TAO', curve: 62.4, age: '12m' },
-    { name: 'Halving Clock',  ticker: 'HALV', kind: 'thesis',    label: 'Thesis',           chain: 'Bittensor', sn: '',     desc: 'The next emission cut is still underpriced by alpha holders.',        price: '0.0₅108 TAO', curve: 0,    age: '31m' },
-    { name: 'Fold Theory',    ticker: 'PRTN', kind: 'candidate', label: 'Subnet candidate', chain: 'Robinhood', sn: '',     desc: 'A protein-structure subnet that pays for verified folds.',           price: '0.0₇93 TAO',  curve: 8.1,  age: '46m' },
-    { name: 'Open Corpus',    ticker: 'DATA', kind: 'subnet',    label: 'Subnet coin',      chain: 'Robinhood', sn: 'SN13', desc: 'Models come and go. The data underneath them compounds.',           price: '0.0₆201 TAO', curve: 91.7, age: '1h' },
-    { name: 'Validator Row',  ticker: 'VROW', kind: 'thesis',    label: 'Thesis',           chain: 'Robinhood', sn: '',     desc: 'Stake concentrates before it spreads. Bet on the top five.',       price: '0.0₄55 ETH',  curve: 3.2,  age: '1h' },
-    { name: 'Edge Compute',   ticker: 'EDGE', kind: 'candidate', label: 'Subnet candidate', chain: 'Bittensor', sn: '',     desc: 'Idle gaming GPUs, pooled and scored for short inference jobs.',     price: '0.0₆77 TAO',  curve: 0,    age: '2h' },
-    { name: 'Pretrain Club',  ticker: 'PRE9', kind: 'subnet',    label: 'Subnet coin',      chain: 'Robinhood', sn: 'SN9',  desc: 'Open pretraining closes the gap faster than the labs expect.',      price: '0.0₆330 TAO', curve: 44.9, age: '3h' },
-    { name: 'Agent Payroll',  ticker: 'PAYR', kind: 'thesis',    label: 'Thesis',           chain: 'Bittensor', sn: '',     desc: 'Agents will hire agents, and settle in TAO.',                        price: '0.0₅31 TAO',  curve: 0,    age: '4h' },
-    { name: 'Weather Mesh',   ticker: 'WTHR', kind: 'candidate', label: 'Subnet candidate', chain: 'Robinhood', sn: '',     desc: 'Forecasts scored against what actually happened, every hour.',      price: '0.0₇18 TAO',  curve: 1.4,  age: '5h' },
+    { name: 'Inference Rush', ticker: 'INFR', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN19', desc: 'Cheap open-model inference eats the cloud margin, starting here.', price: '0.0₆412 TAO', curve: 62.4, age: '6m' },
+    { name: 'Jade Rabbit',    ticker: 'JADE', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Robinhood', sn: '',     desc: 'The moon-bound mascot of the Longmen crowd.',                        price: '0.0₈203 ETH', curve: 0.4,  age: '14m' },
+    { name: 'Fold Theory',    ticker: 'PRTN', kind: 'candidate', label: 'Subnet Candidate', chain: 'Robinhood', sn: '',     desc: 'A protein-structure subnet that pays for verified folds.',           price: '0.0₇93 TAO',  curve: 8.1,  age: '31m' },
+    { name: 'Open Corpus',    ticker: 'DATA', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN13', desc: 'Models come and go. The data underneath them compounds.',           price: '0.0₆201 TAO', curve: 91.7, age: '48m' },
+    { name: 'Halving Clock',  ticker: 'HALV', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Bittensor', sn: '',     desc: 'The next emission cut is still underpriced by alpha holders.',        price: '0.0₅108 TAO', curve: 0,    age: '1h' },
+    { name: 'Edge Compute',   ticker: 'EDGE', kind: 'candidate', label: 'Subnet Candidate', chain: 'Bittensor', sn: '',     desc: 'Idle gaming GPUs, pooled and scored for short inference jobs.',     price: '0.0₆77 TAO',  curve: 0,    age: '1h' },
+    { name: 'Red Lantern',    ticker: 'LNTN', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Robinhood', sn: '',     desc: 'Light one for every subnet that ships this month.',                 price: '0.0₈176 ETH', curve: 2.3,  age: '2h' },
+    { name: 'Pretrain Club',  ticker: 'PRE9', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN9',  desc: 'Open pretraining closes the gap faster than the labs expect.',      price: '0.0₆330 TAO', curve: 44.9, age: '2h' },
+    { name: 'Weather Mesh',   ticker: 'WTHR', kind: 'candidate', label: 'Subnet Candidate', chain: 'Robinhood', sn: '',     desc: 'Forecasts scored against what actually happened, every hour.',      price: '0.0₇18 TAO',  curve: 1.4,  age: '3h' },
+    { name: 'Validator Row',  ticker: 'VROW', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Robinhood', sn: '',     desc: 'Stake concentrates before it spreads. Bet on the top five.',       price: '0.0₄55 ETH',  curve: 3.2,  age: '3h' },
+    { name: 'Compute Bazaar', ticker: 'CBZR', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN51', desc: 'A night market for GPU hours, priced by the minute.',               price: '0.0₆254 TAO', curve: 18.6, age: '4h' },
+    { name: 'Agent Payroll',  ticker: 'PAYR', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Bittensor', sn: '',     desc: 'Agents will hire agents, and settle in TAO.',                        price: '0.0₅31 TAO',  curve: 0,    age: '5h' },
   ];
 
   const SUBNETS = {
@@ -37,14 +40,35 @@
   };
 
   const THESES = [
-    { label: 'Subnet coin',      sn: 'SN19', ticker: 'INFR', name: 'Inference Rush', quote: 'Within a year, serving open models on the network will cost less than renting the same GPUs from a cloud. This subnet is where that shows up first.' },
-    { label: 'Subnet candidate', sn: '',     ticker: 'PRTN', name: 'Fold Theory',    quote: 'Pay miners for protein structures that a lab later confirms, not for ones that merely look plausible.' },
-    { label: 'Thesis',           sn: '',     ticker: 'HALV', name: 'Halving Clock',  quote: 'Alpha holders are pricing the next emission cut as if it were years away.' },
-    { label: 'Subnet coin',      sn: 'SN13', ticker: 'DATA', name: 'Open Corpus',    quote: 'The best open dataset is the moat. Everyone trains on it; nobody can fork the years it took to collect.' },
-    { label: 'Thesis',           sn: '',     ticker: 'PAYR', name: 'Agent Payroll',  quote: 'Agents will hire other agents for narrow jobs, and the invoices will be in TAO.' },
+    { label: 'Subnet Coin',      sn: 'SN19', ticker: 'INFR', name: 'Inference Rush', quote: 'Within a year, serving open models on the network will cost less than renting the same GPUs from a cloud. This subnet is where that shows up first.' },
+    { label: 'Subnet Candidate', sn: '',     ticker: 'PRTN', name: 'Fold Theory',    quote: 'Pay miners for protein structures that a lab later confirms, not for ones that merely look plausible.' },
+    { label: 'TAO Ecosystem',    sn: '',     ticker: 'HALV', name: 'Halving Clock',  quote: 'Alpha holders are pricing the next emission cut as if it were years away.' },
+    { label: 'Subnet Coin',      sn: 'SN13', ticker: 'DATA', name: 'Open Corpus',    quote: 'The best open dataset is the moat. Everyone trains on it; nobody can fork the years it took to collect.' },
+    { label: 'TAO Ecosystem',    sn: '',     ticker: 'PAYR', name: 'Agent Payroll',  quote: 'Agents will hire other agents for narrow jobs, and the invoices will be in TAO.' },
   ];
 
   const color = (s) => COLORS[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
+
+  // token art: a mirrored 6x6 pixel sprite seeded by the ticker, in two tones on a dark tile
+  const ART = [['#FF5B26', '#FFD2A8'], ['#F2C94C', '#FFF3C4'], ['#6FCF97', '#D6F5E3'], ['#56CCF2', '#D4F1FC'],
+               ['#BB6BD9', '#EDD6F7'], ['#EB5757', '#FFD6D6'], ['#2F80ED', '#CFE2FF'], ['#27AE60', '#C9F0D8']];
+  const artCache = {};
+  const tokenArt = (t) => {
+    if (artCache[t]) return artCache[t];
+    let h = 2166136261;
+    for (const c of t) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+    const bit = (i) => (h >>> (i % 29)) & 1 ^ ((i * 7 + (h & 255)) >> 3) & 1;
+    const [main, light] = ART[(h >>> 3) % ART.length];
+    let cells = '';
+    for (let y = 0; y < 6; y++) for (let x = 0; x < 3; x++) {
+      const on = bit(y * 3 + x + 1), hi = bit(y * 5 + x * 3 + 11) && on;
+      if (!on) continue;
+      const fill = hi ? light : main;
+      cells += `<rect x="${x + 1}" y="${y + 1}" width="1" height="1" fill="${fill}"/><rect x="${6 - x}" y="${y + 1}" width="1" height="1" fill="${fill}"/>`;
+    }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect width="8" height="8" fill="#161616"/>${cells}</svg>`;
+    return (artCache[t] = 'data:image/svg+xml,' + encodeURIComponent(svg));
+  };
 
   /* ---------- mobile menu ---------- */
 
@@ -110,7 +134,7 @@
 
   const stack = $('#stack');
   if (stack) {
-    stack.innerHTML = MARKETS.slice(0, 5).map((m) => `<i style="background:${color(m.ticker)}">${esc(m.ticker.slice(0, 2))}</i>`).join('')
+    stack.innerHTML = MARKETS.slice(0, 5).map((m) => `<img src="${tokenArt(m.ticker)}" alt="">`).join('')
       + `<span>${MARKETS.length} launches</span>`;
   }
 
@@ -120,7 +144,7 @@
     grid.innerHTML = list.map((m) => `
       <a class="dn-mcard" href="#markets">
         <div class="dn-mcard-top">
-          <span class="dn-av" style="background:${color(m.ticker)}">${esc(m.ticker.slice(0, 2))}</span>
+          <img class="dn-av" src="${tokenArt(m.ticker)}" alt="">
           <span class="dn-meta">${esc(m.label)}${m.sn ? ' · ' + esc(m.sn) : ''} · ${esc(m.chain)}</span>
         </div>
         <h3>${esc(m.name)} <span>$${esc(m.ticker)}</span></h3>
@@ -135,6 +159,7 @@
       if (!btn) return;
       $$('#market-tabs button').forEach((b) => b.setAttribute('aria-selected', String(b === btn)));
       renderMarkets(btn.dataset.filter);
+      window.dnReveal?.($$('.dn-mcard', grid), true);
     });
   }
 
@@ -252,7 +277,7 @@
     rail.innerHTML = THESES.map((t) => `
       <article class="dn-thesis">
         <div class="dn-thesis-top">
-          <span class="dn-av" style="background:${color(t.ticker)}">${esc(t.ticker.slice(0, 2))}</span>
+          <img class="dn-av" src="${tokenArt(t.ticker)}" alt="">
           ${esc(t.label)}
           <span class="dn-meta">Thesis${t.sn ? ' · ' + esc(t.sn) : ''}</span>
         </div>
@@ -390,6 +415,70 @@
     updateAvatar();
     renderNet();
   }
+
+  /* ---------- scroll motion ---------- */
+
+  // Entrances: things fade up out of a slight blur as they reach the viewport, staggered
+  // among their siblings. Panels slide in from their own side.
+  const revealIO = !reduced && 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('is-in');
+        revealIO.unobserve(en.target);
+      }), { rootMargin: '0px 0px -10% 0px', threshold: 0.08 })
+    : null;
+
+  window.dnReveal = (els, now) => {
+    els.forEach((el, i) => {
+      el.classList.add('dn-reveal');
+      el.style.setProperty('--d', `${Math.min(i % 6, 5) * 70}ms`);
+      if (!revealIO) { el.classList.add('is-in'); return; }
+      if (now) { el.classList.remove('is-in'); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('is-in'))); }
+      else revealIO.observe(el);
+    });
+  };
+
+  const groups = [
+    '.dn-sec .dn-center > *', '.dn-steps-side > *', '#market-tabs', '.dn-market-grid .dn-mcard',
+    '.dn-bento .dn-tile', '.dn-rail .dn-thesis', '.dn-faq-wrap > h2', '.dn-faq details',
+    '.dn-foot-top > *, .dn-foot-cols > div', '.dn-launch > *', '.dn-launch-grid > *', '.dn-doc section',
+  ];
+  groups.forEach((sel) => window.dnReveal($$(sel)));
+  $$('.dn-panel').forEach((panel) => {
+    const flip = panel.classList.contains('dn-panel-flip');
+    window.dnReveal([panel]);
+    $('.dn-panel-art', panel).classList.add(flip ? 'dn-from-right' : 'dn-from-left');
+    $('.dn-panel-copy', panel).classList.add(flip ? 'dn-from-left' : 'dn-from-right');
+  });
+
+  // Hero parallax, the nav tightening, and a reading-progress line under the nav.
+  const heroBg = $('.dn-hero-bg');
+  const heroIn = $('.dn-hero-in');
+  const navWrap = $('.dn-nav-wrap');
+  const nav = $('.dn-nav');
+  let bar = null;
+  if (nav) { bar = document.createElement('i'); bar.className = 'dn-progress'; bar.setAttribute('aria-hidden', 'true'); nav.appendChild(bar); }
+
+  let ticking = false;
+  const onScroll = () => {
+    ticking = false;
+    const y = window.scrollY, vh = window.innerHeight;
+    navWrap?.classList.toggle('is-scrolled', y > 40);
+    if (bar) {
+      const max = document.documentElement.scrollHeight - vh;
+      bar.style.setProperty('--p', max > 0 ? (y / max).toFixed(4) : 0);
+    }
+    if (reduced || !heroBg) return;
+    const p = Math.min(y / vh, 1);
+    heroBg.style.transform = `translate3d(0, ${(y * 0.35).toFixed(1)}px, 0) scale(${(1.04 + p * 0.1).toFixed(4)})`;
+    if (heroIn) {
+      heroIn.style.transform = `translate3d(0, ${(-y * 0.18).toFixed(1)}px, 0)`;
+      heroIn.style.opacity = String(Math.max(0, 1 - p * 1.35).toFixed(3));
+    }
+  };
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
 
   /* ---------- docs table of contents ---------- */
 

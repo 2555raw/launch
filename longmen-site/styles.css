@@ -558,3 +558,60 @@ em { font-style: italic; }
 .dn-han { font-weight: 500; font-size: .78em; color: var(--dim); letter-spacing: .08em; margin-left: 2px; }
 .dn-brand-lg .dn-han { font-size: .6em; }
 @media (max-width: 640px) { .dn-nav .dn-han { display: none; } }
+
+/* token art: pixel sprites in the market cards, the rail and the avatar stack */
+img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image-rendering: pixelated; background: #161616; }
+.dn-stack img { width: 38px; height: 38px; margin-left: -8px; border-radius: 50%; border: 2px solid #000; image-rendering: pixelated; background: #161616; }
+.dn-stack img:first-child { margin-left: 0; }
+
+/* ---------- scroll motion ---------- */
+
+.dn-js .dn-reveal {
+  opacity: 0; transform: translateY(30px) scale(.985); filter: blur(6px);
+  transition: opacity .9s cubic-bezier(.2,.7,.2,1) var(--d, 0ms), transform .9s cubic-bezier(.2,.7,.2,1) var(--d, 0ms), filter .9s ease var(--d, 0ms);
+}
+.dn-js .dn-reveal.is-in { opacity: 1; transform: none; filter: none; }
+
+/* panels: the art and the copy slide in from their own sides */
+.dn-js .dn-panel.dn-reveal { transform: none; filter: none; }
+.dn-js .dn-from-left, .dn-js .dn-from-right { transition: transform 1s cubic-bezier(.2,.7,.2,1), opacity 1s ease; opacity: 0; }
+.dn-js .dn-from-left { transform: translateX(-60px); }
+.dn-js .dn-from-right { transform: translateX(60px); }
+.dn-js .dn-panel.is-in .dn-from-left, .dn-js .dn-panel.is-in .dn-from-right { transform: none; opacity: 1; }
+.dn-js .dn-panel.is-in .dn-from-right { transition-delay: .12s; }
+.dn-js .dn-panel .dn-chat { transition: transform 1.1s cubic-bezier(.2,.7,.2,1) .25s, opacity 1.1s ease .25s; transform: translateY(40px) scale(.96); opacity: 0; }
+.dn-js .dn-panel.is-in .dn-chat { transform: none; opacity: 1; }
+
+/* hero parallax: the painting drifts slower than the page and leans in */
+.dn-hero-bg { transform-origin: 50% 70%; will-change: transform; }
+.dn-hero-in { will-change: transform, opacity; }
+
+/* nav tightens once you leave the top, and shows how far down you are */
+.dn-nav {
+  transition: max-width .55s cubic-bezier(.2,.7,.2,1), height .55s cubic-bezier(.2,.7,.2,1), padding .55s cubic-bezier(.2,.7,.2,1),
+              background-color .45s ease, border-color .45s ease, box-shadow .45s ease, backdrop-filter .45s ease, -webkit-backdrop-filter .45s ease;
+  overflow: visible;
+}
+/* at the top of the page: no panel, just the links spread across the painting */
+.dn-nav-wrap:not(.is-scrolled) .dn-nav {
+  max-width: 1280px; height: 64px; padding-left: 8px; padding-right: 0;
+  background-color: transparent; border-color: transparent; box-shadow: none;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.dn-nav-wrap:not(.is-scrolled) .dn-nav > .dn-brand,
+.dn-nav-wrap:not(.is-scrolled) .dn-nav-links:not(.is-open) a,
+.dn-nav-wrap:not(.is-scrolled) .dn-nav-launch { text-shadow: 0 1px 10px rgba(0,0,0,.45); }
+/* once you scroll: it gathers into the dark pill */
+.dn-nav-wrap.is-scrolled .dn-nav { max-width: 880px; height: 54px; background-color: rgba(18,18,18,.92); box-shadow: 0 14px 40px -12px rgba(0,0,0,.8); }
+.dn-progress {
+  position: absolute; left: 22px; right: 22px; bottom: -1px; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), #FFB38A);
+  transform-origin: left center; transform: scaleX(var(--p, 0)); opacity: 0; transition: opacity .3s ease;
+  pointer-events: none;
+}
+.dn-nav-wrap.is-scrolled .dn-progress { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dn-js .dn-reveal, .dn-js .dn-from-left, .dn-js .dn-from-right, .dn-js .dn-panel .dn-chat { opacity: 1; transform: none; filter: none; transition: none; }
+  .dn-nav { transition: none; }
+}
